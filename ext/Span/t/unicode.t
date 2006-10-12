@@ -50,7 +50,7 @@ is( $span.contains( 9 ), Bool::False, 'doesn\'t contain object' );
     is( @a[0].stringify, '[1,2)', 'difference 0' );
 }
 
-=for TODO
+=begin TODO
 
 {
     my @a = $span ∖ 2 );

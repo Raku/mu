@@ -119,7 +119,7 @@ is( $odd_numbers.previous( 10 ), 9, 'odd even' );
 }
 
 
-=for later
+=begin later
 
 is( $span.intersects( $span2 ), Bool::True, 'intersects' );
 

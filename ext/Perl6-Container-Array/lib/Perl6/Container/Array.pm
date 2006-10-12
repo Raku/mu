@@ -1,6 +1,6 @@
 use v6-alpha;
 
-=for ChangeLog
+=begin ChangeLog
 
 2005-08-10
 * New methods Array.flatten(), is_lazy()

@@ -78,7 +78,7 @@ is( $even_numbers.previous( 10 ), 8, 'previous even' );
         'Span::Code complement' );
 }
 
-=for later
+=begin later
 
 my $odd_numbers = $even_numbers.complement;
 is( $odd_numbers.next( 10 ), 11, 'odd even' );
@@ -244,7 +244,7 @@ is( $odd_numbers.previous( 10 ), 9, 'odd even' );
 
 =cut
 
-=for later
+=begin later
 
 is( $span.size, 2, "real size" );
 # is( $span.size( density => 1 ), 3, "integer size" );

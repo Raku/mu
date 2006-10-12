@@ -9,7 +9,7 @@ sub set (*@contents) returns Set::Hash is export {
     return $set;
 }
 
-=for LATER
+=begin LATER
 
 # parsefail :(
 

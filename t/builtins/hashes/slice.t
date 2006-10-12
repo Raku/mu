@@ -29,7 +29,7 @@ plan 25;
     is(%hash{@slice[0,1]}, (4,6), "slice from array slice, part 2");
 }
 
-=for unspecced
+=begin unspecced
 # Behaviour assumed to be the same as Perl 5
 {   my %hash   = (:a(1), :b(2), :c(3), :d(4));
     my @slice := %hash<b c>;
@@ -42,7 +42,7 @@ plan 25;
 # Slices on hash literals
 {   is ~({:a(1), :b(2), :c(3), :d(4)}<b c>), "2 3", "slice on hashref literal";
 
-=for not-yet
+=begin not-yet
     is ~((:a(1), :b(2), :c(3), :d(4))<b c>), "2 3", "slice on hash literal";
 See thread "Accessing a list literal by key?" on p6l started by Ingo
 Blechschmidt: L<"http://www.nntp.perl.org/group/perl.perl6.language/23076">

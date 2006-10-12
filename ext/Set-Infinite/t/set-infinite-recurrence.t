@@ -149,7 +149,7 @@ my $odd_numbers = $even_numbers.complement;
 is( $odd_numbers.next( 10 ),    11, 'odd recurrence' );
 is( $odd_numbers.previous( 10 ), 9, 'odd recurrence' );
 
-=for later
+=begin later
 
 {
     # -- intersection with a continuous span
@@ -311,7 +311,7 @@ is( $odd_numbers.previous( 10 ), 9, 'odd recurrence' );
 
 =cut
 
-=for later
+=begin later
 
 is( $span.size, 2, "real size" );
 # is( $span.size( density => 1 ), 3, "integer size" );

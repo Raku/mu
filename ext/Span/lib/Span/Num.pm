@@ -7,7 +7,7 @@ has $.end;
 has bool   $.start_is_open;
 has bool   $.end_is_open;
 
-=for TODO
+=begin TODO
 
     * open-set could be "start = object but true" and
       closed-set could be "start = object but false"

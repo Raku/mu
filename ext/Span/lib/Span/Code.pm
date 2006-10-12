@@ -1,6 +1,6 @@
 use v6-alpha;
 
-=for TODO
+=begin TODO
 
     * compare
     * size - accept a function; use as_list

@@ -2,7 +2,7 @@ use v6-alpha;
 
 # Perl6::Value::List - implementation of Perl6 'List' class in Perl6
 
-=for ChangeLog
+=begin ChangeLog
 
 2005-08-10
 * New methods List.flatten(), is_lazy(), from_coro( $sub )

@@ -5,7 +5,7 @@ use Span;
 class DateTime::Span-0.01
     does Span;
 
-=for TODO
+=begin TODO
 
     * change returned 'Inf' to 'DateTime::Infinite'
 

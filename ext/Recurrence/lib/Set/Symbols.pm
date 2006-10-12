@@ -2,7 +2,7 @@ use v6-alpha;
 
 role Set::Symbols;
 
-=for LATER
+=begin LATER
 
 # parsefail :(
 

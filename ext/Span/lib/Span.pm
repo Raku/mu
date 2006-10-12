@@ -12,7 +12,7 @@ class Span-0.01
 
     has $.span;
 
-=for TODO
+=begin TODO
     
   Bugs:
     * 'undefine span' is wrong - use empty_span instead (in set_end() / set_start() )

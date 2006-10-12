@@ -3,7 +3,7 @@ use v6-alpha;
 use Set::Symbols;  # unicode operators
 use Span;          # stringify()
 
-=for TODO
+=begin TODO
 
     * make a Recurrence::Span class - elements can be spans
 

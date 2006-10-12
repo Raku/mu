@@ -10,7 +10,7 @@ class Set::Infinite-0.01
 {
     has Set::Infinite::Functional $.set;
 
-=for TODO
+=begin TODO
 
   Bugs:
     * Lazy lists are not implemented

@@ -18,7 +18,7 @@ sub set (*@contents) returns Set is export {
     return $set;
 }
 
-=for LATER
+=begin LATER
 
 # parsefail :(
 
@@ -569,5 +569,6 @@ L<Set::Relation>.
 You might want to read the tests of Set.
 
 =cut
+
 
 

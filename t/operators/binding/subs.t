@@ -72,7 +72,7 @@ There're two ways one can argue:
         "using the variable return value of an 'is rw' sub as the LHS in a binding operation works", :todo<bug>;
 }
 
-=for discussion
+=begin discussion
 
 Should the constant return value be autopromoted to a var? Or should it stay a
 constant?

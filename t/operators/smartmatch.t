@@ -202,7 +202,7 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 };
 
 {
-=for Explanation
+=begin Explanation
 
 You may be wondering what the heck is with all these try blocks.
 Prior to r12503, this test caused a horrible death of Pugs which

@@ -13,7 +13,7 @@ L<S04/"The C<for> statement">
 
 =cut
 
-=for comment
+=begin comment
 
 I'm in the process of smartlinking all the below tests.
 --trey 31 Aug 2006
