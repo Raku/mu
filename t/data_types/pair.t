@@ -160,8 +160,6 @@ sub test4 (Hash %h){
 }
 test4 %hash;
 
-=end p6l
-
 =cut
 
 my $should_be_a_pair = (a => 25/1);

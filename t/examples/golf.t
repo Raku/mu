@@ -47,5 +47,3 @@ for ($mad_sol, $rg0now_sol) -> $s {
 }
 
 END { defined($outtmp) and unlink($outtmp) }
-
-=cut

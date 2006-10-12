@@ -45,8 +45,6 @@ skip 4, "more discussion needed";
     is($str, "fayeh", "replacement with negative length");
 };
 
-=end more-discussion-needed
-
 =cut
 
 # as lvalue, XXX: not sure this should work, as that'd be action at distance:

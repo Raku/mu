@@ -72,5 +72,3 @@ is($r, Bool::True, ':foo <3 is comparison');
 
 my $p = eval ':foo<1 2 3>';
 is($p, ~('foo' => (1,2,3)), ':foo<1 2 3> is pair of list');
-
-=cut

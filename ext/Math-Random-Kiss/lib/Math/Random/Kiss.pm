@@ -16,8 +16,6 @@ Google for --
 
 for details.
 
-=end DOCS
-
 =cut
 
 role Rand

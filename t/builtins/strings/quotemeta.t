@@ -132,5 +132,3 @@ is("a\U\Ec$a", "acfoo|bar", '\U\E');
 is("a\u\Ec$a", "acfoo|bar", '\u\E');
 
 =end from_perl5
-
-=cut

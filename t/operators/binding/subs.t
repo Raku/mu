@@ -37,8 +37,6 @@ There're two ways one can argue:
     42                  # 42 is a constant
     sub foo ($a) {...}  # $a is a readonly
 
-=end unspecced
-
 =cut
 
 {

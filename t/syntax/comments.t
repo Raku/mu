@@ -137,8 +137,6 @@ plan 32;
 This is a comment with
 a "=cut".
 
-=end comment
-
 =cut
 
         "foo";
