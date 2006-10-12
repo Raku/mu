@@ -216,10 +216,6 @@ multi sub *infix:<≠> (Set $one, Set $two) returns Set {
     $one.not_equal($two);
 }
 
-method prefix:<~> () returns Str is export {
-    self.stringify;
-}
-
 multi sub *infix:«<» (Set $one, Set $two) returns Set {
     $one.proper_subset($two);
 }
