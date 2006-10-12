@@ -110,6 +110,16 @@ sub scalar {
     return $_[0]->node( 'Array', '( bless \\' . $_[0] . ", 'Pugs::Runtime::Perl5Container::Array' )" )
 }
 
+sub shift {
+    return $_[0]->node( 'Scalar', 'shift ' . $_[0] )
+}
+
+    sub my {
+        # TODO
+        $Pugs::Emitter::Perl6::Perl5::_V6_PREDECLARE{ $_[0]{name} } = 'my ' . Pugs::Runtime::Common::mangle_var( $_[0]->{name} ); # . ' = \( my @' . $_[0]->new_id . ')';
+        $_[0]
+    }
+
 sub _91__93_ {
     # .[]
     my $self = $_[0];

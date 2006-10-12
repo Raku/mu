@@ -101,19 +101,22 @@ package Pugs::Emitter::Perl6::Perl5::Perl5Scalar;
         },
         fallback => 1,
     );
-    sub my {
-        return $_[0]->node( 'MyScalar', $_[0]{name} )
-    }
-package Pugs::Emitter::Perl6::Perl5::MyScalar;
-    use base 'Pugs::Emitter::Perl6::Perl5::Scalar';
-    use overload (
-        '""'     => sub { 
-            'my ' . Pugs::Runtime::Common::mangle_var( $_[0]->{name} ) . ' = \( my $' . $_[0]->new_id . ')'
-        },
-        fallback => 1,
-    );
     sub set {
-        'my ' . Pugs::Runtime::Common::mangle_var( $_[0]->{name} ) . ' = \( my $' . $_[0]->new_id . ' = ' . $_[1] . ')'
+        $_[0] . ' = ' . $_[1]
+    }
+    sub my {
+        $Pugs::Emitter::Perl6::Perl5::_V6_PREDECLARE{ $_[0]{name} } = 'my ' . Pugs::Runtime::Common::mangle_var( $_[0]->{name} ) . ' = \( my $' . $_[0]->new_id . ')';
+        $_[0]
+    }
+    sub our {
+        $Pugs::Emitter::Perl6::Perl5::_V6_PREDECLARE{ $_[0]{name} } = 'our ' . Pugs::Runtime::Common::mangle_var( $_[0]->{name} ) . ' = \( my $' . $_[0]->new_id . ')';
+        $_[0]
+    }
+    sub bind {
+        $_[0]->bind_from . ' = ' . $_[1]->bind_from
+    }
+    sub bind_from {
+        Pugs::Runtime::Common::mangle_var( $_[0]->{name} )
     }
 
 1;
