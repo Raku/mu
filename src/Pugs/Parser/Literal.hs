@@ -147,7 +147,7 @@ ruleCommaOrSemicolon = do
 
 ruleTwigil :: RuleParser String
 ruleTwigil = verbatimRule "twigil" . option "" $ do
-    fmap (:[]) (oneOf " ^ * ? . ! + ; = ")
+    fmap (:[]) (oneOf "^*?.!+;=")
 
 ruleMatchPos :: RuleParser String
 ruleMatchPos = verbatimRule "positional match variable" $ do
