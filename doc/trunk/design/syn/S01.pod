@@ -89,7 +89,7 @@ present the language to a new user.
 =item *
 
 Perl 6 should be malleable enough that it can evolve into the imaginary
-perfect language, Perl 7.  This darwinian imperative implies support
+perfect language, Perl 7.  This darwinian imperative implies support
 for multiple syntaxes above and multiple platforms below.
 
 =item *

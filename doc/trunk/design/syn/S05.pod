@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 9 Oct 2006
+   Last Modified: 12 Oct 2006
    Number: 5
-   Version: 38
+   Version: 39
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -1230,9 +1230,9 @@ but rather easier to read.  The bare C<*>, C<+>, and C<?> quantifiers
 never backtrack in a C<token> unless some outer regex has specified a
 C<:panic> option that applies.  If you want to prevent even that, use
 C<*:>, C<+:>, or C<?:> to prevent any backtracking into the quantifier.
-If you want to explicitly backtrack, append either a C<?> or a C<+>
+If you want to explicitly backtrack, append either a C<?> or a C<!>
 to the quantifier.   The C<?> forces minimal matching as usual,
-while the C<+> forces greedy matching.  The C<token> declarator is
+while the C<!> forces greedy matching.  The C<token> declarator is
 really just short for
 
     regex :ratchet { ... }
@@ -1279,16 +1279,16 @@ in Perl 5.
 
 =item *
 
-To force the preceding atom to do greedy backtracking,
-append a C<:+> or C<+> to the atom.  If the preceding token
-is a quantifier, the C<:> may be omitted.  (Perl 5 has no
-corresponding construct because backtracking always defaults
-to greedy in Perl 5.)
+To force the preceding atom to do greedy backtracking in a
+spot that would default otherwise, append a C<:!> to the atom.
+If the preceding token is a quantifier, the C<:> may be omitted.
+(Perl 5 has no corresponding construct because backtracking always
+defaults to greedy in Perl 5.)
 
 =item *
 
 To force the preceding atom to do no backtracking, use a single C<:>
-without a subsequent C<?> or C<+>.
+without a subsequent C<?> or C<!>.
 Backtracking over a single colon causes the regex engine not to retry
 the preceding atom:
 
@@ -1316,7 +1316,7 @@ already found but failed).  Note that you can still back into such
 an alternation, so you may also need to put C<:> after it if you
 also want to disable that.  If an explicit or implicit C<:ratchet>
 has disabled backtracking by supplying an implicit C<:>, you need to
-put an explicit C<:+> after the alternation to enable backing into
+put an explicit C<!> after the alternation to enable backing into
 another alternative if the first pick fails.
 
 =item *
