@@ -1464,7 +1464,7 @@ mkCompUnit :: String -> Pad -> Exp -> CompUnit
 mkCompUnit _ pad ast = MkCompUnit compUnitVersion pad ast
 
 compUnitVersion :: Int
-compUnitVersion = 7
+compUnitVersion = 8
 
 {-|
 Retrieve the global 'Pad' from the current evaluation environment.
@@ -2029,8 +2029,11 @@ instance Perl5 Var where
 instance JSON Var where
     showJSON x = showJSON (cast x :: String)
 
+instance YAML (Set Val) where
+    asYAML = asYAML . Set.toAscList
+    fromYAML = fmap Set.fromAscList . fromYAML 
+
 instance YAML VControl
-instance YAML (Set Val)
 instance YAML (VThread Val)
 instance YAML ClassTree
 instance YAML Dynamic
