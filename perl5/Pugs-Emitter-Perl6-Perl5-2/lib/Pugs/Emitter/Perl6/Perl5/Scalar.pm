@@ -111,12 +111,12 @@ package Pugs::Emitter::Perl6::Perl5::MyScalar;
     use base 'Pugs::Emitter::Perl6::Perl5::Scalar';
     use overload (
         '""'     => sub { 
-            'my ' . Pugs::Runtime::Common::mangle_var( $_[0]->{name} )
+            'my ' . Pugs::Runtime::Common::mangle_var( $_[0]->{name} ) . ' = \( my $' . $_[0]->new_id . ')'
         },
         fallback => 1,
     );
     sub set {
-        $_[0] . ' = \( my $' . $_[0]->new_id . ' = ' . $_[1] . ')'
+        'my ' . Pugs::Runtime::Common::mangle_var( $_[0]->{name} ) . ' = \( my $' . $_[0]->new_id . ' = ' . $_[1] . ')'
     }
 package Pugs::Emitter::Perl6::Perl5::ValueScalar;
     use base 'Pugs::Emitter::Perl6::Perl5::Scalar';
