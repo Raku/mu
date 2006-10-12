@@ -19,9 +19,9 @@ while $_ = =<> {
         $empty = 0;
     }
 
-    $_ ~~ s:P5:g {\t}{^I} if %opts<t>;
+    $_ ~~ s:P5:g[\t] = "^I" if %opts<t>;
 
-    $_ ~~ s:P5:g/(.)/{backwhack($0)}/ if %opts<v>;
+    $_ ~~ s:P5:g[(.)] = backwhack($0) if %opts<v>;
     
     $_ ~= "$" if %opts<e>;
 

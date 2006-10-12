@@ -131,7 +131,7 @@ sub lookup($keyword) {
 # should be improved and moved to File::Basename, or better yet we should have one module with all
 # frequently needed filesystem related functions....
 sub dirname($path is copy) {
-    $path ~~ s{/<-[/]>*$}{};
+    $path ~~ s{/<-[/]>*$} = '';
     return $path;
 }
 
