@@ -74,7 +74,9 @@ ruleDocBlock = verbatimRule "Doc block" $ do
             _                               -> Misc
     eof <|> (newline >> return ())
     case docHead of
-        Cut -> return emptyExp  -- "=cut" does not start a block (unspecced but useful)
+        Cut -> do
+            parserWarn "=cut does not start a POD block; please consider removing this line" ()
+            return emptyExp  -- "=cut" does not start a block (unspecced but useful)
         Misc -> do
             ruleDocBody Misc
             whiteSpace
