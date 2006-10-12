@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 15;
+plan 16;
 
 # L<S12/"Multisubs and Multimethods">
 # L<S12/"Multi dispatch">
@@ -48,6 +48,11 @@ class Foo {
     multi method bar(IO $fh) {
         return "Foo.bar() called with IO";
     }     
+ 
+    multi method bar(Regex $rx) {
+        return "Foo.bar() called with Regex";
+    }
+    
 
 }
 
@@ -72,6 +77,8 @@ my %hash = ('foo' => 1, 'bar' => 2, 'baz' => 3);
 is($foo.bar(%hash), 'Foo.bar() called with Hash : bar, baz, foo', '... multi-method dispatched on Hash');
 
 is($foo.bar($*ERR), 'Foo.bar() called with IO', '... multi-method dispatched on IO');
+
+is($foo.bar(/moose/), 'Foo.bar() called with Regex', '... multi-method dispatched on Regex');
 
 my $yaml_tests = eval(q{
 - 
