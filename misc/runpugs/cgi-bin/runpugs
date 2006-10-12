@@ -36,7 +36,15 @@ $ENV{SAFE_MODE}=1;
 
 my $query=new CGI;
 
-my $sessionid=$query->param("sessionid") || crypt(rand(),'NM');
+my $sessionid=$query->param("sessionid");
+
+if (not $sessionid) {
+my $nid=crypt(rand(),'WV');
+$nid=~tr/.\//WV/;
+$nid=~s/^WV//;
+my $now=time()-1159056000; # 36 year, 275 days offset
+$sessionid=$nid.$now;
+}
 
 my $access_OK=1; # no restrictions
 
@@ -48,6 +56,7 @@ my $headerprinted = 0;
 my $validsession = 0;
 
 my $ip=$ENV{'REMOTE_ADDR'};
+#my $ip="127.0.0.".int(rand(100));
 
 ######### MAIN SITEMANAGER PROGRAM ###################
 

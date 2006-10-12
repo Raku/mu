@@ -36,7 +36,7 @@ sub termhandler {
 	my $id  = shift;
     my $ip=shift;
 	my $cmd = shift;
-if(scalar(keys %lastcalled)>100){
+if(scalar(keys %lastcalled)>50){ # each pugs takes 1% of feather's MEM!
     return "Sorry, I can't run any more sessions.\nPlease try again later.";
 } else {
 	$lastcalled{$id}=time;
@@ -75,7 +75,7 @@ sub rcvd_msg_from_client {
 		if ( $len > 0 ) {
 			( my $id, my $ip, my $cmd ) = split( "\n", $msg, 3 );
             $cmd=pack("U0C*", unpack("C*",$cmd));
-#            print "CMD:",$cmd,"\n";
+            print "$id($ip): ",$cmd,"\n";
 			my $lines = &termhandler( $id, $ip, $cmd );
 			$conn->send_now("$id\n$lines");
 
@@ -105,8 +105,8 @@ if ($pid=fork) {
    # child here
    while (getppid()>10) { # a bit ad-hoc.
        sleep 300;
-print getppid(),"\n";
-kill 'USR1',getppid();
+        #print getppid(),"\n";
+        kill 'USR1',getppid();
     }
 } elsif ($! == EAGAIN) {
     sleep 5;
