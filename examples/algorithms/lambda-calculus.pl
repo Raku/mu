@@ -5,7 +5,7 @@
 
 use v6-alpha;
 
-=for reference
+=begin reference
 
 Message-Id: <A77477E9-C139-48D2-86C2-CE60842FA659@dan.co.jp>
     http://www.nntp.perl.org/group/perl.perl6.language/22991
@@ -25,7 +25,7 @@ our $ADD  = sub($m){ sub($n){ sub($f){ sub($x){ $m.($f)($n.($f)($x)) }}}};
 our $MULT = sub($m){ sub($n){ sub($f){ $m.($n.($f)) }}};
 our $POW  = sub($m){ sub($n){ $n.($m) }};
 
-=for alternative
+=begin alternative
 
 our $ZERO = -> $f { -> $x { $x } };
 our $SUCC = -> $n { -> $f { -> $x { $f.($n.($f)($x)) }}};
@@ -41,7 +41,7 @@ sub num2str($n){ [~]
 }
 sub int2num($n){ ($n == 0) ?? $ZERO !! $SUCC.(int2num($n - 1)) }
 
-=for alternative
+=begin alternative
 
 our $ADD  =  sub($m){ sub($n){ $n.($SUCC)($m) }};
 our $MULT =  sub($m){ sub($n){ $n.($ADD.($m))($ZERO) }};
