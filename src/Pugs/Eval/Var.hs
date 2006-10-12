@@ -507,6 +507,9 @@ inferExpType (Syn "@{}" _)  = return $ mkType "Array"
 inferExpType (Syn "%{}" _)  = return $ mkType "Hash"
 inferExpType (Syn "=>" _)   = return $ mkType "Pair"
 inferExpType (Syn "named" [_, exp])   = inferExpType exp
+inferExpType (Syn "rx" _)   = return $ mkType "Regex"
+inferExpType (Syn "match" _)= return $ mkType "Match"
+inferExpType (Syn "//" _)   = return $ mkType "Regex" -- XXX Wrong
 inferExpType exp@(Syn "{}" [_, idxExp]) = if isSimpleExp exp
     then fromVal =<< enterRValue (evalExp exp)
     else fmap typeOfCxt (inferExpCxt idxExp)
@@ -532,37 +535,6 @@ inferExpCxt :: Exp -> Eval Cxt
 inferExpCxt exp = return $ if isScalarLValue exp
     then cxtItemAny
     else cxtSlurpyAny
-{-
-inferExpCxt :: Exp -- ^ Expression to find the context of
-         -> Eval Cxt
-inferExpCxt (Ann (Pos {}) exp)           = inferExpCxt exp
-inferExpCxt (Ann (Cxt cxt) _)            = return cxt
-inferExpCxt (Syn "," _)            = return cxtSlurpyAny
-inferExpCxt (Syn "[]" [_, exp])    = inferExpCxt exp
-inferExpCxt (Syn "{}" [_, exp])    = inferExpCxt exp
-inferExpCxt (Syn (sigil:"{}") _) = return $ cxtOfSigil sigil
-inferExpCxt (Val (VList {}))       = return cxtSlurpyAny
-inferExpCxt (Val (VRef ref))       = do
-    cls <- asks envClasses
-    let typ = refType ref
-    return $ if isaType cls "List" typ
-        then cxtSlurpyAny
-        else CxtItem typ
-inferExpCxt (Val {})                = return cxtItemAny
-inferExpCxt (Var (sigil:_))         = return $ cxtOfSigil sigil
-inferExpCxt (App (Var "&list") _ _) = return cxtSlurpyAny
-inferExpCxt (App (Var "&item") _ _) = return cxtSlurpyAny
-inferExpCxt (App (Var name) invs args)   = do
-    -- inspect the return type of the function here
-    env <- ask
-    sub <- findSub name invs args
-    return $ case sub of
-        Right sub
-            | isaType (envClasses env) "Scalar" (subReturns sub)
-            -> CxtItem (subReturns sub)
-        _ -> cxtSlurpyAny
-inferExpCxt _                      = return cxtSlurpyAny
--}
 
 {-|
 Evaluate the \'magical\' variable associated with a given name. Returns 
