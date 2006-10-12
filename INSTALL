@@ -1,10 +1,16 @@
 BUILDING PUGS
 -------------
 
-Pugs needs the Glasgow Haskell Compiler (GHC) 6.4.1 or above.  To install GHC,
-download a binary build from http://haskell.org/ghc/.  Although source code
-for GHC is available, it will take a very long time to build by yourself. 
-Additionally, the Cabal framework is needed, see <http://haskell.org/cabal/>.
+Pugs needs the Glasgow Haskell Compiler (GHC), preferably version 6.6 or above.
+At the moment the minimum requirement is GHC 6.4.1 or above, but we plan to
+discontinue support for GHC 6.4.* in the next release.
+
+To install GHC, download a binary build from http://haskell.org/ghc/.
+Although source code for GHC is available, it will take a very long time to
+build by yourself.
+
+Additionally, Pugs uses the Cabal framework (http://haskell.org/cabal/),
+which is usually bundled with GHC itself.
 
 v6-pugs (see <http://perlmonks.org/?node_id=559083>) needs the CPAN modules
 Devel::Caller, Module::Compile and Pugs::Compiler::Rule. The first one is
