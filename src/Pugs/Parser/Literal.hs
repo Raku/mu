@@ -625,11 +625,9 @@ pseudoAssignment = verbatimRule "infix assignment" $ do
     insertIntoPosition '_'
     insertIntoPosition '$'
     item <- parseExpWithTightOps
-    return $ case applyPseudo item of
-        App meth (Just (Var var)) args
-            | ahead == ".=", var == varTopic
-            -> App meth (Just matchResult) args
-        exp -> exp
+    return $ case ahead of
+        ".=" -> fixPseudo (applyPseudo item)
+        _    -> applyPseudo item
     where
     matchResult = Syn "${}" [_Var "$/"]
     applyPseudo (Ann ann exp)       = Ann ann (applyPseudo exp)
@@ -641,6 +639,11 @@ pseudoAssignment = verbatimRule "infix assignment" $ do
         , var == varTopic
         = App (_Var ("&infix:" ++ init syn)) Nothing [matchResult, exp]
     applyPseudo x = internalError $ "Unknown pseudo-assignment form:" ++ show x
+    fixPseudo (Ann ann exp) = Ann ann (fixPseudo exp)
+    fixPseudo (App meth (Just (Var var)) args)
+        | var == varTopic
+        = App meth (Just matchResult) args
+    fixPseudo x = x
 
 
 ruleRegexDeclarator :: RuleParser (Exp -> Exp)
