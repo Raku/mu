@@ -104,8 +104,6 @@ import Pugs.AST.SIO
 import Pugs.Embed.Perl5
 import qualified Pugs.Val as Val
 import qualified Data.ByteString.Char8 as Str
-import Foreign.StablePtr
-import Foreign.ForeignPtr (touchForeignPtr)
 
 {- <DrIFT> Imports for the DrIFT
 import Pugs.AST.Scope
@@ -412,18 +410,10 @@ runInvokePerl5 sub inv args = do
         envSV   <- mkEnv env
         invokePerl5 sub inv args envSV (enumCxt $ envContext env)
     case rv of
-        Perl5ReturnValues [x]   -> svToVal x
-        Perl5ReturnValues xs    -> fmap VList (mapM svToVal xs)
+        Perl5ReturnValues [x]   -> liftIO $ svToVal x
+        Perl5ReturnValues xs    -> liftIO $ fmap VList (mapM svToVal xs)
         Perl5ErrorString str    -> fail str
         Perl5ErrorObject err    -> throwError (PerlSV err)
-    where
-#ifdef PUGS_HAVE_PERL5
-    svToVal ptr = liftIO $ do
-        pv  <- pugs_SvToVal ptr
-        deRefStablePtr pv
-#else
-    svToVal _ = fail "Perl 5 not embedded"
-#endif
 
 instance Value VBool where
     castV = VBool
@@ -827,7 +817,11 @@ valToBool = fromVal
 type VBlock = Exp
 data VControl
     = ControlExit  !ExitCode
-    | ControlEnv   !Env
+    | ControlContinuation
+        { ccEnv     :: !Env
+        , ccVal     :: !Val
+        , ccCont    :: !(Val -> Eval Val)
+        }
     | ControlLoop  !ControlLoop
     | ControlWhen  !ControlWhen
     | ControlLeave
