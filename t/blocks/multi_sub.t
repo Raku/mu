@@ -15,7 +15,7 @@ multi foo (Bool $bar)  { "Bool " ~ $bar  }
 multi foo (Rule $bar)  { "Rule " ~ WHAT( $bar ) } # since Rule's don't stringify
 multi foo (Sub $bar)   { "Sub " ~ $bar() }
 multi foo (Array @bar) { "Array " ~ join(', ', @bar) }
-multi foo (Hash %bar)  { "Hash " ~ join(', ', %bar.keys) }
+multi foo (Hash %bar)  { "Hash " ~ join(', ', %bar.keys.sort) }
 multi foo (IO $fh)     { "IO" }
 
 is(foo('test'), 'Str test', 'dispatched to the Str sub');
@@ -32,7 +32,7 @@ my @array = ('foo', 'bar', 'baz');
 is(foo(@array), 'Array foo, bar, baz', 'dispatched to the Array sub');
 
 my %hash = ('foo' => 1, 'bar' => 2, 'baz' => 3);
-is(foo(%hash), 'Hash foo, bar, baz', 'dispatched to the Hash sub', :todo<bug>);
+is(foo(%hash), 'Hash bar, baz, foo', 'dispatched to the Hash sub');
 
 is(foo($*ERR), 'IO', 'dispatched to the IO sub');
 
