@@ -47,7 +47,7 @@ ruleDocBody section = (eof >> return []) <|> do
 
 ruleDocBlock :: RuleParser Exp
 ruleDocBlock = verbatimRule "Doc block" $ do
-    section <- try $ do
+    maybeSection <- try $ do
         ruleDocIntroducer
         introducer <- do
             c   <- wordAlpha
@@ -57,19 +57,27 @@ ruleDocBlock = verbatimRule "Doc block" $ do
             char ' '
             -- XXX: drop trailing spaces?
             many $ satisfy (/= '\n')
-        return (if introducer == "begin" then section else "")
+        return $ case introducer of
+            "begin" -> Just section
+            "cut" | null section -> Nothing
+            _       -> Just ""
     eof <|> skipMany1 newline
-    if section == "END" then setInput "" >> return emptyExp else do
-        rv <- case section of
-            ""  -> ruleDocBody "" >> return Noop
-            _   -> do
-                lines <- ruleDocBody section
-                let linesVal    = map VStr lines
-                    linesList   = VList (length linesVal `seq` linesVal)
-                unsafeEvalExp $ Stmts
-                    (App (_Var "&push") (Just $ _Var ("@=" ++ section)) [Val (VStr (unlines lines))])
-                    $ Stmts 
-                        (App (_Var "&push") (Just $ _Var ("$=" ++ section)) [Val linesList])
-                        (App (_Var "&push") (Just $ Syn "{}" [_Var "%=POD", Val (VStr section)]) [Val linesList])
-        whiteSpace
-        return (rv `seq` emptyExp)
+    case maybeSection of
+        Nothing     -> return emptyExp  -- "=cut" does not start a block (unspecced but useful)
+        Just "END"  -> do
+            setInput ""
+            return emptyExp
+        Just section -> do
+            rv <- case section of
+                ""  -> ruleDocBody "" >> return Noop
+                _   -> do
+                    lines <- ruleDocBody section
+                    let linesVal    = map VStr lines
+                        linesList   = VList (length linesVal `seq` linesVal)
+                    unsafeEvalExp $ Stmts
+                        (App (_Var "&push") (Just $ _Var ("@=" ++ section)) [Val (VStr (unlines lines))])
+                        $ Stmts 
+                            (App (_Var "&push") (Just $ _Var ("$=" ++ section)) [Val linesList])
+                            (App (_Var "&push") (Just $ Syn "{}" [_Var "%=POD", Val (VStr section)]) [Val linesList])
+            whiteSpace
+            return (rv `seq` emptyExp)
