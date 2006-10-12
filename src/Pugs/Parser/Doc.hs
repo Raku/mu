@@ -35,9 +35,8 @@ ruleDocIntroducer = (<?> "Doc intro") $ do
 
 ruleDocBody :: DocHead -> RuleParser [String]
 ruleDocBody docHead = (eof >> return []) <|> do
-    line    <- many (satisfy (/= '\n'))
-    newline -- XXX - paragraph mode
-    case line of
+    line    <- ruleDocLine
+    case dropTrailingSpaces line of
         "=cut"  -> return []
         "=end"  -> return []
         ('=':'e':'n':'d':' ':sec) | docHead /= Misc, sec == headSection docHead -> return []
@@ -46,6 +45,12 @@ ruleDocBody docHead = (eof >> return []) <|> do
             lines   <- ruleDocBody docHead
             return (line:lines)
 
+ruleDocLine :: RuleParser String
+ruleDocLine = many (satisfy (/= '\n'))
+    `finallyM` (eof <|> (newline >> return ()))
+
+dropTrailingSpaces :: String -> String
+dropTrailingSpaces = reverse .  dropWhile isSpace . reverse
 
 type Section = String
 data DocHead
@@ -64,18 +69,16 @@ ruleDocBlock = verbatimRule "Doc block" $ do
             cs  <- many $ satisfy (not . isSpace)
             return (c:cs)
         section <- option "" $ do
-            char ' '
-            -- XXX: drop trailing spaces?
-            many $ satisfy (/= '\n')
+            skipMany1 (char ' ')
+            ruleDocLine
         return $ case introducer of
-            "begin" | not (null section)    -> Begin section
+            "begin" | not (null section)    -> Begin (dropTrailingSpaces section)
             "for"   | not (null section)    -> uncurry For (break isSpace section)
             "cut"   | null section          -> Cut
             _                               -> Misc
-    eof <|> (newline >> return ())
     case docHead of
         Cut -> do
-            parserWarn "=cut does not start a POD block; please consider removing this line" ()
+            fail "=cut does not start a POD block; please remove this line"
             return emptyExp  -- "=cut" does not start a block (unspecced but useful)
         Misc -> do
             ruleDocBody Misc
