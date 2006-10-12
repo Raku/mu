@@ -1,17 +1,50 @@
 #include "pugsembed.h"
 extern int __init;
 
+IV
+pugs_tied ( SV *sv )
+{
+    const MAGIC *mg;
+    const char how = (SvTYPE(sv) == SVt_PVHV || SvTYPE(sv) == SVt_PVAV)
+		? PERL_MAGIC_tied : PERL_MAGIC_tiedscalar;
+
+    if ((mg = SvTIED_mg(sv, how))) {
+	SV *osv = SvTIED_obj(sv, mg);
+        if (SvROK(osv)) {
+            const char *pv = sv_reftype(SvRV(osv),TRUE);
+            if (strncmp(pv, "pugs::", 6) == 0) {
+                SV *derefSV = newSVpv("DEREF", 0);
+                SV **rv;
+                SV *stack[0];
+                stack[0] = NULL;
+                rv = perl5_apply(derefSV, osv, stack, NULL, G_SCALAR);
+                if ((rv[0] == NULL) && SvROK(rv[1])) {
+                    return SvIV((SV*)SvRV(rv[1]));
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
 Val *
 pugs_SvToVal ( SV *sv )
 {
     svtype ty = SvTYPE(sv);
+    IV tmp = 0;
 
     if (sv_isa(sv, "pugs")) {
-        IV tmp = SvIV((SV*)SvRV(sv));
+        tmp = SvIV((SV*)SvRV(sv));
         return ((Val *)tmp);
     }
     else if (SvROK(sv)) {
-        return pugs_MkSvRef(sv);
+        if (tmp = pugs_tied(SvRV(sv))) {
+            return ((Val *)tmp);
+        }
+        else {
+            return pugs_MkSvRef(sv);
+        }
     }
     else if (ty == SVt_NULL) {
         return pugs_UndefVal();

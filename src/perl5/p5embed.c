@@ -68,12 +68,15 @@ oRZ"warn 'compiled .'.__PACKAGE__;\n\n"
 "package pugs::array;\n"
 
 "our $AUTOLOAD;\n"
+
 "sub AUTOLOAD { my $type = $AUTOLOAD; $type =~ s/.*:://;\n"
 "               warn 'unhandled support type: '.$type } \n"
 
 "sub TIEARRAY {\n"
 "       my ($class, $val) = @_;\n"
 "       bless \\$val, $class; }\n\n"
+
+"sub DEREF { ${$_[0]} }\n"
 
 "sub STORE {\n"
 "       my ($self, $index, $elem) = @_;\n"
@@ -112,6 +115,8 @@ oRZ"    warn 'FETCH: '.$index;\n"
 "sub TIEHASH {\n"
 "       my ($class, $val) = @_;\n"
 "       bless [$val,0], $class; }\n\n"
+
+"sub DEREF { $_[0][0] }\n"
 
 "sub FETCH {\n"
 "       my ($self, $index) = @_;\n"
@@ -156,6 +161,8 @@ oRZ"       warn $ret;\n"
 "       my ($class, $val) = @_;\n"
 "       bless \\$val, $class; }\n\n"
 
+"sub DEREF { ${$_[0]} }\n"
+
 "sub FETCH {\n"
 "       my ($self) = @_;\n"
 "       pugs::guts::eval_apply('sub ($x is rw) { $$x }', $$self) }\n"
@@ -175,6 +182,8 @@ oRZ"                                                     warn $x\n"
 "sub TIEHANDLE {\n"
 "       my ($class, $val) = @_;\n"
 "       bless \\$val, $class; }\n\n"
+
+"sub DEREF { ${$_[0]} }\n"
 
 "sub PRINT {\n"
 "       my ($self, @vals) = shift;\n"
