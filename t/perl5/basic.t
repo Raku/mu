@@ -23,7 +23,7 @@ unless try({ eval("1", :lang<perl5>) }) {
 }
 
 
-my $p5_dumper = eval('sub {use Data::Dumper; return(wantarray ? @_ : $_[0]); }', :lang<perl5>);
+my $p5_dumper = eval('sub {return(wantarray ? @_ : $_[0]); }', :lang<perl5>);
 
 my %h = ( a => 1 );
 
@@ -89,7 +89,7 @@ my $s = 'str';
 {
    my $test = q{ (VAR $s) received as scalarref };
    my $o = $p5_dumper(VAR $s);
-   is($$o, $s, $test, :todo<bug>);
+   is($$o, $s, $test);
 }
 
 {
