@@ -1,7 +1,6 @@
 ==============================================================================
-2006/10/10      Release of version 0.1.0 of runpugs/WebTerminal
+2006/10/12      Release of version 0.1.0 of runpugs/WebTerminal
 ==============================================================================
-
 
 NAME
     runpugs: a web teminal for interactive pugs 
@@ -19,8 +18,8 @@ DESCRIPTION
     -a cgi script (cgi-bin/runpugs) which uses an html template
     (data/runpugs.html). The latter calls the runpugs.cc stylesheet from
     htdocs/runpugs.css
-    -a server which handles the interactive pugs sessions and communicates with
-    the cgi script. The pugs sessions stay alive for some time (currently 30') if
+    -a server (bin/termserv.pl) which handles the interactive pugs sessions and communicates with
+    the cgi script. The pugs sessions stay alive for some time (currently 10') if
     left inactive.
 
    The underlying library, WebTerminal, can in principle be used for any

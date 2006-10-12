@@ -21,21 +21,15 @@ return false;
 else
 return true;
 }
-
 </script>
-
 </head>
 <body>
-<!--
-<body onLoad="closing=true" onUnload="if (closing){alert(42);
-window.open('feather.perl6.nl:8080/cgi-bin/runpugs?action=runpugs&sessionid='+document.terminal.sessionid.value+'&testing=1&cmd=pugs%3E%20%3Aq','newwin');}">
--->
 <div id="mainwindow">
 <h1>Run Perl6 now -- in your browser!</h1>
-<p class="warning">Thank you for trying runpugs, a web terminal for pugs.<br>
-* This is a test run, it might die unexpectedly!<br>
-* pugs runs in safe mode<br>
-* Unicode is not supported
+<p>This live web terminal runs the latest developement snapshot of
+the <a href="http://www.pugscode.org">pugs</a> interpreter for <a
+href="http://dev.perl.org/perl6/">Perl6</a>. For more information, read <a
+href="http://feather.perl6.nl/~andara/runpugs/">this</a>.
 </p>
 <form style="text-align: center" id="term" name="terminal" action="/cgi-bin/runpugs" method="POST">                  
                                

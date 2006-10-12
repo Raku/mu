@@ -1,9 +1,12 @@
-runpugs TODO
+runpugs version 0.1.0 TODO:
 
-2006/10/10
--add command history
--make scrollbar jump to end of textarea
--refactor to make more generic
--let send() return reply and prompt separately
--add POD
--use async JavaScript for front-end
+2006/10/12
+* Unicode: hack Net::Telnet so it handles Unicode
+* Refactor to make more generic
+    -prompt handling should be in cgi-bin/runpugs, not in Dispatcher.pm
+    -Various configuration variables should be in a Config.pm module, 
+     and be overriden from the scripts.
+    -let Dispatcher::send() return reply and prompt separately
+* add POD
+* Add proper copyright & licensing info, in particular to Msg.pm
+* use async JavaScript for front-end? cfr. tryruby.hobix.com

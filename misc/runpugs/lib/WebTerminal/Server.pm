@@ -75,7 +75,7 @@ sub rcvd_msg_from_client {
 		if ( $len > 0 ) {
 			( my $id, my $ip, my $cmd ) = split( "\n", $msg, 3 );
             $cmd=pack("U0C*", unpack("C*",$cmd));
-            print "$id($ip): ",$cmd,"\n";
+#            print "$id($ip): ",$cmd,"\n";
 			my $lines = &termhandler( $id, $ip, $cmd );
 			$conn->send_now("$id\n$lines");
 
@@ -92,7 +92,7 @@ sub run {
 my $host=shift;
 my $port=shift;
 $SIG{USR1}=\&timeout;
-#Proc::Daemon::Init;
+Proc::Daemon::Init;
 # fork/exec by the book:
 use Errno qw(EAGAIN);
 my $pid;
