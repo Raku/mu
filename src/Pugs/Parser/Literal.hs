@@ -592,23 +592,56 @@ ruleQuoteAdverbs = enterBracketLevel QuoteAdverbBracket $ do
 
 substLiteral :: RuleParser Exp
 substLiteral = do
-    declarator <- choice
-        [ symbol "s" >> return "subst"
-        , symbol "tr" >> return "trans"
+    (declarator, pseudo) <- choice
+        [ symbol "s" >> return ("subst", (pseudoAssignment <|>))
+        , symbol "tr" >> return ("trans", id)
         ]
-    adverbs     <- case declarator of
+    adverbs <- case declarator of
         "subst" -> ruleQuoteAdverbs
         _       -> return emptyExp
     (rep, ch)   <- openingDelim
     let endch = balancedDelim ch
     -- XXX - probe for adverbs to determine p5 vs p6
     expr    <- rxLiteralAny adverbs ch endch
-    ch      <- if ch == endch then return ch else do { whiteSpace ; anyChar }
-    let endch = balancedDelim ch
-    subst   <- case declarator of
-        "subst" -> qLiteral1 (string (replicate rep ch)) (string (replicate rep endch)) qqFlags { qfProtectedChar = endch }
-        _       -> qLiteral1 (string (replicate rep ch)) (string (replicate rep endch)) qFlags { qfProtectedChar = endch }
+    when (ch /= endch) whiteSpace
+    subst   <- (if ch /= endch then pseudo else id) $ do
+        ch'     <- if ch == endch then return ch else case declarator of
+            "subst" -> anyChar
+                `finallyM` parserWarn "s{...}{...} is deprecated; write s{...}='...' instead." ()
+            _       -> anyChar
+        let endch' = balancedDelim ch'
+            flags = case declarator of
+                "subst" -> qqFlags
+                _       -> qFlags
+        qLiteral1
+            (string $ replicate rep ch)
+            (string $ replicate rep endch')
+            flags{ qfProtectedChar = endch' }
     return $ Syn declarator [expr, subst, adverbs]
+
+pseudoAssignment :: RuleParser Exp
+pseudoAssignment = verbatimRule "infix assignment" $ do
+    ahead <- lookAhead (string ".=" <|> ruleInfixAssignment <|> string "=")
+    insertIntoPosition '_'
+    insertIntoPosition '$'
+    item <- parseExpWithTightOps
+    return $ case applyPseudo item of
+        App meth (Just (Var var)) args
+            | ahead == ".=", var == varTopic
+            -> App meth (Just matchResult) args
+        exp -> exp
+    where
+    matchResult = Syn "${}" [_Var "$/"]
+    applyPseudo (Ann ann exp)       = Ann ann (applyPseudo exp)
+    applyPseudo (Syn "=" [Var var, exp])
+        | var == varTopic
+        = exp
+    applyPseudo (Syn syn [Var var, exp])
+        | last syn == '='
+        , var == varTopic
+        = App (_Var ("&infix:" ++ init syn)) Nothing [matchResult, exp]
+    applyPseudo x = internalError $ "Unknown pseudo-assignment form:" ++ show x
+
 
 ruleRegexDeclarator :: RuleParser (Exp -> Exp)
 ruleRegexDeclarator = verbatimRule "regex expression" $ choice

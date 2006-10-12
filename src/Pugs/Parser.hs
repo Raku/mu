@@ -1616,9 +1616,9 @@ s_postTerm :: RuleParser (Exp -> Exp)
 s_postTerm = verbatimRule "term postfix" $ do
     hasDot <- option Nothing $ choice [try hyperDot, dotChar, try bangChar]
     choice $ case hasDot of
-        Just '.' -> (ruleInvocation:postTerms)
+        Just '.' -> (ruleAssignInvocation:ruleInvocation:postTerms)
         Just '!' -> (bangKludged ruleInvocation:postTerms)
-        Just '>' -> map hyperKludged (ruleInvocation:postTerms)
+        Just '>' -> map hyperKludged (ruleAssignInvocation:ruleInvocation:postTerms)
         _        -> postTerms
     where
     postTerms = 
@@ -1637,6 +1637,10 @@ s_postTerm = verbatimRule "term postfix" $ do
             optional ruleDot
             return (Just '>')
     bangChar = do { char '!'; lookAhead ruleSubName; return $ Just '!' }
+    ruleAssignInvocation = do
+        symbol "="
+        f       <- ruleInvocation
+        return $ \x -> Syn "=" [x, f x]
     -- XXX - this should happen only in a "trusts" class!
     bangKludged p = do
         f <- p

@@ -99,14 +99,18 @@ staticLevels =
       (DependentPostfix immediateBinding :) .
       (rightAssignSyn :) .
       (rightDotAssignSyn :) $
-      rightSyn (opWords (
-               " := ~= += -= *= /= %= x= Y= \xA5= **= xx= ||= &&= //= ^^= " ++
-               " +<= +>= ~<= ~>= +&= +|= +^= ~&= ~|= ~^= ?|= ?^= |= ^= &= "))
+      rightSyn infixAssignmentOps
     , preOps (opWords " true not ")                              -- Loose unary
     ]
 
 fileTestOps :: [RuleOperator Exp]
 fileTestOps = optSymOps (Set.fromAscList (map (MkOpName . cast . (\x -> ['-', x])) fileTestOperatorNames))
+
+infixAssignmentOps :: Set OpName
+infixAssignmentOps = opWords
+    ( " := ~= += -= *= /= %= x= Y= \xA5= **= xx= ||= &&= //= ^^= "
+    ++ " +<= +>= ~<= ~>= +&= +|= +^= ~&= ~|= ~^= ?|= ?^= |= ^= &= "
+    )
 
 fromSet :: Set OpName -> [String]
 fromSet = cast . Set.toAscList
@@ -424,6 +428,7 @@ makeOp2DotAssign prec _ con = (`Infix` prec) $ do
     symbol ".="
     insertIntoPosition '.' -- "$x .= foo" becomes "$x .= .foo"
     return $ \invExp argExp -> case argExp of
+        -- XXX - App meth _ args -> stateAssignHack (con ".=" [invExp, App meth Nothing args])
         App meth _ args -> stateAssignHack (con "=" [invExp, App meth (Just invExp) args])
         _               -> Val (VError (VStr "the right-hand-side of .= must be a function application") [])
 
@@ -714,15 +719,37 @@ rulePipeHyper = verbatimRule "" $ do
     ruleHyperPost
     return $ cast "&prefix:|<<"
 
-ruleFoldOp :: RuleParser Var
-ruleFoldOp = tryVerbatimRule "reduce metaoperator" $ (rulePipeHyper <|>) $ do
-    char '['
+ruleInfixOp :: RuleParser String
+ruleInfixOp = verbatimRule "infix operator" $ do
     -- XXX - Instead of a lookup, add a cached parseInfix here!
     MkTightFunctions{ r_infix = infixOps } <- currentTightFunctions
-    -- name <- choice $ ops (try . string) (addHyperInfix $ infixOps ++ defaultInfixOps)
-    name <- verbatimRule "infix operator" $ do
-        choice $ ops (try . string)
-            (addScanPrefix (addHyperInfix (Map.keysSet infixOps `Set.union` defaultInfixOps)))
+    choice $ ops (try . string)
+        (addScanPrefix (addHyperInfix (Map.keysSet infixOps `Set.union` defaultInfixOps)))
+
+ruleInfixAssignment :: RuleParser String
+ruleInfixAssignment = choice $ ops (try . string) infixAssignmentOps
+
+-- XXX !~~ needs to turn into metaop plus ~~
+defaultInfixOps :: Set OpName
+defaultInfixOps = opWords $ concat
+    [ " ** * / % x xx +& +< +> ~& ~< ~> "
+    , " + - ~ +| +^ ~| ~^ ?| , Y \xA5 "
+    , " & ^ | "
+    , " => = "
+    , " != == < <= > >= ~~ "
+    , " !== !< !<= !> !>= !~~ "
+    , " eq ne lt le gt ge =:= === eqv "
+    , " !eq !ne !lt !le !gt !ge !=:= !=== !eqv "
+    , " && "
+    , " || ^^ // "
+    , " and or xor err "
+    , " .[] .{} "
+    ]
+
+ruleFoldOp :: RuleParser Var
+ruleFoldOp = tryVerbatimRule "reduce metaoperator" $ rulePipeHyper <|> do
+    char '['
+    name <- ruleInfixOp
     char ']'
 --    possiblyHyper <- option "" ruleHyperPost
 --
@@ -730,23 +757,11 @@ ruleFoldOp = tryVerbatimRule "reduce metaoperator" $ (rulePipeHyper <|>) $ do
     --      beginning with backslash, the infix operator is chosen.
     let var = cast ("&prefix:[" ++ name ++ "]")
         nameID = cast name
-    return $ case name of
-        ('\\':_) | MkOpName nameID `Map.member` infixOps -> var{ v_name = nameID, v_meta = MFold }
-        _ -> var
-    where
-    -- XXX !~~ needs to turn into metaop plus ~~
-    defaultInfixOps = opWords $ concat
-        [ " ** * / % x xx +& +< +> ~& ~< ~> "
-        , " + - ~ +| +^ ~| ~^ ?| , Y \xA5 "
-        , " & ^ | "
-        , " => = "
-        , " != == < <= > >= ~~ "
-        , " !== !< !<= !> !>= !~~ "
-        , " eq ne lt le gt ge =:= === eqv "
-        , " !eq !ne !lt !le !gt !ge !=:= !=== !eqv "
-        , " && "
-        , " || ^^ // "
-        , " and or xor err "
-        , " .[] .{} "
-        ]
+    case name of
+        ('\\':_)  -> do
+            MkTightFunctions{ r_infix = infixOps } <- currentTightFunctions
+            return $ if MkOpName nameID `Map.member` infixOps
+                then var{ v_name = nameID, v_meta = MFold }
+                else var
+        _ -> return var
 
