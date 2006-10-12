@@ -150,9 +150,9 @@ sub evalhelper(Str $code) {
   # Eval!
   system "perl", $evalhelper;
 
-  # Read the result, but convert all linebreaks into spaces, so we don't flood
+  # Read the result, but convert all linebreaks into ␤, so we don't flood
   # the channel.
-  my $result = join " ", split "\n", slurp $tmpfile;
+  my $result = join "␤", split "\n", slurp $tmpfile;
   $result = substr $result, 0, 500;  # max len limit
   unlink $tmpfile;
   return bytes($result) ?? $result !! "(no output)";
