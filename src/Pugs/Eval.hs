@@ -147,7 +147,7 @@ evaluate exp = do
             debug ref (cast "indent") (\x -> if null x then [] else tail x) "- Ret: " val
             trapVal val (return val)
         Nothing -> do
-            val <- local (\e -> e{ envBody = exp }) (reduce exp)
+            val <- reduce exp
             trapVal val (return val)
 
 -- Reduction ---------------------------------------------------------------
@@ -308,13 +308,10 @@ reduceStmts this rest = do
             Ann _ (App (Var var) _ _) | var == cast "&yield" -> id
             _  -> enterContext cxtVoid
     val <- withCxt (reduce this)
-    let writeEnv = do
-            env <- ask
-            writeVar (cast "$*_") val
-            return . VControl $ ControlEnv env
     trapVal val $ case rest of
-        Ann _ (Syn "env" [])    -> writeEnv
-        Syn "env" []            -> writeEnv
+        Syn "continuation" []   -> callCC $ \cc -> do
+            env <- ask
+            return . VControl $ ControlContinuation env val cc
         _                       -> reduce rest
 
 reducePrag :: [Pragma] -> Exp -> Eval Val
@@ -403,10 +400,9 @@ reduceSyn "named" [keyExp, valExp] = do
     val <- enterEvalContext cxtItemAny valExp
     retItem $ castV (key, val)
 
-reduceSyn "env" [] = do
+reduceSyn "continuation" [] = callCC $ \cc -> do
     env <- ask
-    -- writeVar "$*_" val
-    return . VControl $ ControlEnv env
+    return . VControl $ ControlContinuation env undef cc
 
 reduceSyn "block" [exp]
     | Syn "sub" [Val (VCode sub@MkCode{ subType = SubBlock })] <- unwrap exp = do

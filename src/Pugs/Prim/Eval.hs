@@ -159,7 +159,7 @@ opEval style path str = enterCaller $ do
         mapM_ evalExp [ Ann (Cxt CxtVoid) (App (Val sub) Nothing []) | sub@VCode{} <- initSubs ]
         evalExp (Syn "=" [_Var "@*INIT", Syn "," []])
         evl $ case evalResult style of
-            EvalResultEnv   -> envBody env' `mergeStmts` Syn "env" []
+            EvalResultEnv   -> envBody env' `mergeStmts` Syn "continuation" []
             _               -> envBody env'
     retEvalResult style val
 

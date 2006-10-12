@@ -30,9 +30,9 @@ unsafeEvalEnv :: Exp -> RuleParser Env
 unsafeEvalEnv exp = do
     -- pos <- getPosition
     env <- getRuleEnv
-    val <- unsafeEvalExp $ mergeStmts exp (Syn "env" [])
+    val <- unsafeEvalExp $ mergeStmts exp (Syn "continuation" [])
     case val of
-        Val (VControl (ControlEnv env')) ->
+        Val (VControl (ControlContinuation { ccEnv = env' })) ->
             return env'{ envDebug = envDebug env }
         _  -> error $ pretty val
 
