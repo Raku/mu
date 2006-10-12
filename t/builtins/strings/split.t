@@ -6,7 +6,7 @@ use Test;
 
 # XXX - this needs to be updated when Str.split(Str) works again
 # this test really wants is_deeply()
-plan 98;
+plan 101;
 
 # split on an empty string
 
@@ -28,7 +28,7 @@ sub split_test(@splitted, @expected, Str $desc, $todo = 0) {
   is @splitted[$_], @expected[$_],
      "the %ords{$_ + 1} value matched for: $desc", :todo($todo)
     for 0 .. @splitted.end;
-  is_deeply @splitted, @expected, "values match", :todo($todo); 
+  is_deeply [~<< @splitted], [~<< @expected], "values match", :todo($todo); 
 }
 
 split_test split("", "forty-two"),
@@ -46,7 +46,7 @@ split_test split(' ', 'split this string'),
 
 split_test 'split this string'.comb,
            <split this string>,
-           q{Str.comb}, :todo<feature>;
+           q{Str.comb};
 
 # split on a single character delimiter
 split_test split('$', 'try$this$string'),
