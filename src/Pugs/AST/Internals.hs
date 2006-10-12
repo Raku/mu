@@ -82,6 +82,7 @@ module Pugs.AST.Internals (
 
     DebugInfo, _Sym, _Var -- String -> ByteString constructors
 ) where
+
 import Pugs.Internals
 import Pugs.Types
 import qualified Data.Set       as Set

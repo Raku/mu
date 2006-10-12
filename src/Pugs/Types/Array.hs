@@ -167,7 +167,7 @@ instance ArrayClass IArray where
         let sz = length vals
         av  <- readIORef iv
         l   <- C.mapToList (\k v -> (k+sz,v)) av
-        new <- C.fromList $ ([0..] `zip` (map lazyScalar vals)) ++ l
+        new <- C.fromList $ ([0..] `zip` (sz `seq` map lazyScalar vals)) ++ (length l `seq` l)
         writeIORef iv new
         modifyIORef s (+sz)
     array_pop (MkIArray iv s) = join . liftIO $ do
@@ -186,8 +186,9 @@ instance ArrayClass IArray where
     array_push (MkIArray iv s) vals = liftIO $ do
         size <- readIORef s
         av   <- readIORef iv
-        writeIORef s (size + (length vals))
-        mapM_ (\(k,v) -> C.insert k v av) $ [size..] `zip` (map lazyScalar vals)
+        let len = length vals
+        writeIORef s (size + len)
+        mapM_ (\(k,v) -> C.insert k v av) $ [size..] `zip` (len `seq` map lazyScalar vals)
     array_extendSize MkIArray{ a_size = s } sz = liftIO $ do
         modifyIORef s $ \size -> if size >= sz then size else sz
     array_fetchVal arr idx = do
