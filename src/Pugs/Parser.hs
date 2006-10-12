@@ -1757,8 +1757,8 @@ ruleApplyImplicitMethod = do
     --     traceM ("Warning: '{...}.method' treated as '{...}; .method' at " ++ show pos)
     let rv = (combine (reverse fs) (Var varTopic))
     return $ case ch of
-        '.' -> rv
         '=' -> Syn "=" [Var varTopic, rv]
+        _   -> rv
 
 ruleSubNameWithoutPostfixModifier :: RuleParser Var
 ruleSubNameWithoutPostfixModifier = try $ do
