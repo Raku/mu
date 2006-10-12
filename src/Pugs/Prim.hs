@@ -572,7 +572,11 @@ op1 "values" = valuesFromVal
 -- (http://www.nntp.perl.org/group/perl.perl6.language/21895),
 -- =$obj should call $obj.next().
 op1 "="        = \v -> case v of
-    VObject _   -> evalExp $ App (_Var "&shift") (Just $ Val v) []
+    VObject _               -> evalExp $ App (_Var "&shift") (Just $ Val v) []
+    VRef (MkRef IArray{})   -> do
+        ifListContext
+            (fmap VList (join $ doArray v array_fetch))
+            (join $ doArray v array_shift)
     _           -> op1 "readline" v
 op1 "readline" = op1Readline
 
