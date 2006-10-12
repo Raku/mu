@@ -86,8 +86,8 @@ ruleDocBlock = verbatimRule "Doc block" $ do
             let section = headSection docHead 
             rv <- do
                 lns <- ruleDocBody docHead
-                let lns' | For _ (_:txt) <- docHead = txt:lns
-                         | otherwise                = lns
+                let lns' | For { headText = (_:txt) } <- docHead = txt:lns
+                         | otherwise = lns
                     linesVal    = map VStr lns'
                     linesStr    = unlines lns'
                     linesList   = VList (length linesVal `seq` linesVal)
