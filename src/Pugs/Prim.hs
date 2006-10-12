@@ -1685,8 +1685,8 @@ op1Pretty printer v = do
     rv      <- prettyVal v
     isRecur <- liftSTM (readTVar recur)
     if isRecur
-        then return (VStr $ "$_ := " ++ rv)
-        else return (VStr rv)
+        then return (VStr $ decodeUTF8 ("$_ := " ++ rv))
+        else return (VStr $ decodeUTF8 rv)
 
 prettyVal :: (?seen :: IntSet.IntSet, ?recur :: TVar Bool, ?printer :: PrettyPrinter) => Val -> Eval VStr
 prettyVal v@(VRef r) = do
