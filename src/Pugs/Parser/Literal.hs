@@ -301,10 +301,11 @@ qLiteral = do -- This should include q:anything// as well as '' "" <>
                 case break foundEndMarker restOfInput of
                     (_, []) -> fail $ "Cannot find q:to END marker: " ++ show endMarker
                     (pre, (pivot:post)) -> do
-                        -- Strip indent; 
                         let indent = indentLevelOf (take (length pivot - length endMarker) pivot)
+                        -- Strip indentation from the hereDoc lines
+                        strippedLines <- mapM (stripIndent indent) pre
+                        setInput (unlines strippedLines)
                         -- Now reparse hereDoc using the original qFlags
-                        setInput $ unlines (map (stripIndent indent) pre)
                         docExp <- qLiteral1 (fail "") (eof >> return "") flags
                         -- Now restore the original input stream with hereDoc stuffed with \n
                         setInput (restOfLine ++ (replicate (length pre + 1) '\n') ++ unlines post)
@@ -322,15 +323,21 @@ indentLevelOf = foldl doIndentLevelOf 0
         | isSpace c  = lvl + 1
         | otherwise  = lvl
 
-stripIndent :: Int -> String -> String
-stripIndent 0 str   = str
-stripIndent _ []    = trace ("Warning: Insufficient indent level in heredoc") ""
-stripIndent lvl ('\t':cs)
-    | lvl >= 8  = stripIndent (lvl - 8) cs
-    | otherwise = (replicate (8 - lvl) ' ') ++ cs
-stripIndent lvl str@(c:cs)
-    | isSpace c = stripIndent (lvl - 1) cs
-    | otherwise = trace ("Warning: Insufficient indent level in heredoc " ++ show str) str
+stripIndent :: Int -> String -> RuleParser String
+stripIndent _ ""    = return ""
+stripIndent 0 str   = return str
+stripIndent lvl cs  = doStripIndent lvl cs
+    where
+    warnIndent = parserWarn ("Insufficient indent level in heredoc (" ++ show lvl ++ " expected)") cs
+    doStripIndent :: Int -> String -> RuleParser String
+    doStripIndent 0 str = return str
+    doStripIndent _ ""  = warnIndent >> return ""
+    doStripIndent lvl ('\t':cs)
+        | lvl >= 8  = doStripIndent (lvl - 8) cs
+        | otherwise = return $ replicate (8 - lvl) ' ' ++ cs
+    doStripIndent lvl str@(c:cs)
+        | isSpace c = doStripIndent (lvl - 1) cs
+        | otherwise = warnIndent >> return str
 
 qLiteralToEof :: RuleParser Exp
 qLiteralToEof = do
