@@ -18,33 +18,33 @@ is("XYZ".trans( ('XYZ' => 'xyz') ),"xyz",
            "The two sides of the any pair can be strings interpreted as tr/// would multichar");
 
 
-is("ABC".trans( ('A-C' => 'a-c') ),"abc",
+is("ABC".trans( ('A..C' => 'a..c') ),"abc",
            "The two sides of the any pair can be strings interpreted as tr/// would range");
 
-is("ABC-DEF".trans(("-AB-Z" => "_a-z")),"abc_def",
+is("ABC-DEF".trans(("- AB..Z" => "_ a..z")),"abc_def",
            "If the first character is a dash it isn't part of a range");
 
-is("ABC-DEF".trans(("A-YZ-" => "a-z_")),"abc_def",
+is("ABC-DEF".trans(("A..YZ-" => "a..z_")),"abc_def",
            "If the last character is a dash it isn't part of a range");
 
 
-is("ABCDEF".trans( ('AB-E' => 'ab-e') ), "abcdeF",
+is("ABCDEF".trans( ('A B .. E' => 'ab..e') ), "abcdeF",
                   "The two sides can consists of both chars and ranges");
-is("ABCDEFGH".trans( ('A-CE-G' => 'a-ce-g') ),"abcDefgH",
+is("ABCDEFGH".trans( ('A..CE..G' => ' a..c e..g ') ),"abcDefgH",
                   "The two sides can consist of multiple ranges");
 
 # These will need the way the hashses deal with pairs.
 
-# This works by accedent.
+# This works by accident.
 is("ABCXYZ".trans( (['A'..'C'] => ['a'..'c']), (<X Y Z> => <x y z>) ),"abcxyz",
            "The two sides of each pair may also be array references" );
 
 # We're probally unable to "fix" these two as long as the left hand of => gets stringified
-is("abcde".trans( ('a-e' => ['A' .. 'E']) ), "ABCDE",
+is("abcde".trans( ('a .. e' => ['A' .. 'E']) ), "ABCDE",
 	   "Using string range on one side and array reference on the other");
 
 
-is("ABCDE".trans( (['A' .. 'E'] => "a-e") ), "abcde",
+is("ABCDE".trans( (['A' .. 'E'] => "a .. e") ), "abcde",
 	   "Using array reference on one side and string range on the other");
 
 
@@ -67,12 +67,12 @@ tr/ABC/abc/;
 is($_, 'abc', 'tr/// on $_ with explicit character lists');
 
 $_ = "abc";
-tr|a-c|A-C|;
+tr|a..c|A..C|;
 is($_, 'ABC', 'tr||| on $_ with character range');
 
 {
 my $japh = "Whfg nabgure Crey unpxre";
-$japh ~~ tr(a-zA-Z)(n-za-mN-ZA-M);
-is($japh, "Just another Perl hacker", 'tr()() on lexical var via ~~');
+$japh ~~ tr[a..z A..Z][n..z a..m  N..Z A..M];
+is($japh, "Just another Perl hacker", 'tr[][] on lexical var via ~~');
 }
 
