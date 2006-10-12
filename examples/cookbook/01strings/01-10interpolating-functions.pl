@@ -38,12 +38,12 @@ die "Couldn't send mail" unless send_mail(qq:to/EOTEXT/, $target);
     From: Your Bank
     Cc: &get_manager_list($naughty)
     Date: { do { my $now = `date`; $now .= chomp; $now } } (today)
-
+    
     Dear $naughty,
-
+    
     Today, you bounced check number { 500 + int rand(100) } to us.
     Your account is now closed.
-
+    
     Sincerely,
     the management
     EOTEXT
