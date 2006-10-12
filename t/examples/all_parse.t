@@ -11,9 +11,14 @@ can compile.  It does not verify run ability or verify output.
 
 =cut
 
+# The following depend on modules that are not universally installed.
+my %suppress;
+%suppress<cpan-upload.pl evalbot.pl> = 1 xx *;
+
 my File::Find $f .= new(
     wanted_file => sub ($file, $path, $pathfile) {
         return 0 if $file ~~ m:P5/-p5/;
+        return 0 if %suppress{$file};
         return 1 if $file ~~ m:P5/\.pl$/;
         return 1 if $file ~~ m:P5/\.pm$/;
     },
