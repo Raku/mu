@@ -82,7 +82,9 @@ deVal :: PugsVal -> IO Val
 deVal ptr = deRefStablePtr ptr
 
 deEnv :: PugsEnv -> IO Env
-deEnv ptr = deRefStablePtr ptr
+deEnv ptr = do
+    env <- deRefStablePtr ptr
+    return env{ envDebug = Nothing }
 
 nullVal :: PugsVal
 nullVal = castPtrToStablePtr nullPtr
