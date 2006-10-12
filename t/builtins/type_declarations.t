@@ -9,7 +9,7 @@ Test for some type declarations for built-in functions.
 
 =cut
 
-plan 11;
+plan 9;
 
 my sub ok_eval1($code, :$todo = 'feature') { &Test::ok.goto(eval($code),$code,:$todo) }
 
@@ -21,12 +21,4 @@ ok_eval1('Grapheme.isa(AnyChar)');
 ok_eval1('Codepoint.isa(AnyChar)');
 ok_eval1('Byte.isa(AnyChar)');
 ok_eval1('Byte.isa(Num)');
-{
-  ok_eval1('subset MatchTest of Item | Junction;');
-}
-{
-  ok_eval1('use Math::Basic :constants; 3 < pi < 4;');
-}
-{
-  ok_eval1('use Math::Basic; 3 < Math::Basic::pi < 4;');
-}
+ok_eval1('subset MatchTest of Item | Junction;');
