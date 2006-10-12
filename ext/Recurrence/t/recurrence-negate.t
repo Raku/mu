@@ -4,7 +4,6 @@ use Test;
 plan 8;
 
 use Recurrence; pass "(dummy instead of broken use_ok)";
-use Recurrence;   # XXX should not need this
 
 my $universe = Recurrence.new( 
     closure_next =>     sub ( $x is copy ) { 

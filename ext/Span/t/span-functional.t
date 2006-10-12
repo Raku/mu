@@ -4,7 +4,6 @@ use Test;
 plan 12;
 
 use Span::Num; pass "(dummy instead of broken use_ok)";
-use Span::Num;   # XXX should not need this
 
 my $span = Span::Num.new( 
     start => 1, end => 3, start_is_open => Bool::False, end_is_open => Bool::False );
