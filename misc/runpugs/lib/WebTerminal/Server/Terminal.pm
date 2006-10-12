@@ -59,7 +59,9 @@ sub write {
         my $msg=$pugs->errmsg;
 #	    print "L:",$line,":",$msg;
 	    if($msg=~/timed/) {
-        $lline="pugs> Aborted!\n";
+        $msg='';
+        $pugs->errmsg([]);
+        $lline="pugs> Sorry, that took too long! Aborted.\n";
         $ps='pugs';
         last;
         }

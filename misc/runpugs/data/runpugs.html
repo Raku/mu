@@ -25,12 +25,21 @@ return true;
 </script>
 
 </head>
-
 <body>
+<!--
+<body onLoad="closing=true" onUnload="if (closing){alert(42);
+window.open('feather.perl6.nl:8080/cgi-bin/runpugs?action=runpugs&sessionid='+document.terminal.sessionid.value+'&testing=1&cmd=pugs%3E%20%3Aq','newwin');}">
+-->
 <div id="mainwindow">
 <h1>Run Perl6 now -- in your browser!</h1>
-<form style="text-align: center" name="terminal" action="/cgi-bin/runpugs" method="POST">                  
+<p class="warning">Thank you for trying runpugs, a web terminal for pugs.<br>
+* This is a test run, it might die unexpectedly!<br>
+* pugs runs in safe mode<br>
+* Unicode is not supported
+</p>
+<form style="text-align: center" id="term" name="terminal" action="/cgi-bin/runpugs" method="POST">                  
                                
+<input type="hidden" name="testing" value="_TESTING_">
 <input type="hidden" name="sessionid" value="">
 <input type="hidden"    name="action" value="runpugs">
 <!--<textarea id="history" name="history"  rows="1" cols="1"

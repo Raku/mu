@@ -83,7 +83,8 @@ sub runpugs {
     my $sessionid=shift;
     my $ip=shift;
     my $reply='pugs> ';
-    if ("$ip" ne "130.209.241.223") {
+    my $testing=$query->param('testing')||1;
+    if (not $testing) {
     $reply = "Sorry, runpugs is not available at the moment.";
     } else {
     $cmd=~s/^.+?pugs([\>\.])/pugs$1/s;
@@ -96,7 +97,7 @@ sub runpugs {
     my $html='';
     open(HTML,"<../data/runpugs.html");
     while(<HTML>) {
-
+    s/_TESTING_/$testing/;
 	/input.*name=\"sessionid\"/ && do {$html.='<input type="hidden" name="sessionid" value="'.$sessionid.'">'."\n";next };
 	/(pugs\&gt\;\&nbsp\;)/ && do {$html.=$cmd.$reply;next};
 

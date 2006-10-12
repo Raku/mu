@@ -46,10 +46,12 @@ if(scalar(keys %lastcalled)>100){
 		if ( $cmd eq ':q' ) {
 			delete $terminals{$id};
             delete $lastcalled{$id};
+            $sessions_per_ip{$ip}--;
 		}
         if ($lines=~/Aborted/s) {
              delete $terminals{$id};
              delete $lastcalled{$id};
+            $sessions_per_ip{$ip}--;
         }
 		return $lines;
 	} else {
@@ -101,9 +103,10 @@ if ($pid=fork) {
     WebTerminal::Msg->event_loop();
 } elsif (defined $pid) {
    # child here
-   while (getppid()) {
-       sleep 600;
-       kill 'USR1',getppid();
+   while (getppid()>10) { # a bit ad-hoc.
+       sleep 300;
+print getppid(),"\n";
+kill 'USR1',getppid();
     }
 } elsif ($! == EAGAIN) {
     sleep 5;
@@ -119,9 +122,13 @@ sub timeout() {
     for my $id (keys %lastcalled) {
         my $then=$lastcalled{$id};
         if ($now-$then>600) {
+        if(exists $terminals{$id}) {
             $terminals{$id}->write(':q');
             delete $terminals{$id};
+            }
+            if (exists $lastcalled{$id}) {
             delete $lastcalled{$id};
+            }
         }
     }
 }
