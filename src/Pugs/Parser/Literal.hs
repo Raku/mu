@@ -605,7 +605,9 @@ substLiteral = do
     expr    <- rxLiteralAny adverbs ch endch
     ch      <- if ch == endch then return ch else do { whiteSpace ; anyChar }
     let endch = balancedDelim ch
-    subst   <- qLiteral1 (string (replicate rep ch)) (string (replicate rep endch)) qqFlags { qfProtectedChar = endch }
+    subst   <- case declarator of
+        "subst" -> qLiteral1 (string (replicate rep ch)) (string (replicate rep endch)) qqFlags { qfProtectedChar = endch }
+        _       -> qLiteral1 (string (replicate rep ch)) (string (replicate rep endch)) qFlags { qfProtectedChar = endch }
     return $ Syn declarator [expr, subst, adverbs]
 
 ruleRegexDeclarator :: RuleParser (Exp -> Exp)
