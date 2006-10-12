@@ -42,7 +42,7 @@ class Foo {
     } 
 
     multi method bar(Hash %hash) {
-        return "Foo.bar() called with Hash : { join(', ', %hash.keys) }";
+        return "Foo.bar() called with Hash : { join(', ', %hash.keys.sort) }";
     } 
     
     multi method bar(IO $fh) {
@@ -69,7 +69,7 @@ my @array = ('foo', 'bar', 'baz');
 is($foo.bar(@array), 'Foo.bar() called with Array : foo, bar, baz', '... multi-method dispatched on Array');
 
 my %hash = ('foo' => 1, 'bar' => 2, 'baz' => 3);
-is($foo.bar(%hash), 'Foo.bar() called with Hash : foo, bar, baz', '... multi-method dispatched on Hash', :todo<bug>);
+is($foo.bar(%hash), 'Foo.bar() called with Hash : bar, baz, foo', '... multi-method dispatched on Hash');
 
 is($foo.bar($*ERR), 'Foo.bar() called with IO', '... multi-method dispatched on IO');
 
