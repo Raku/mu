@@ -792,8 +792,8 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
             "perl5" -> App (_Var "&map") Nothing [Syn "sub"
                 [ Val . VCode $ mkSub
                     { subBody   = Syn ","
-                        [ App (_Var "&prefix:<~>") (Just $ Var _dollarUnderscore) []
-                        , Syn "\\[]" [ App (_Var "&can") (Just $ _Var (':':'*':pkg)) [Var _dollarUnderscore] ]
+                        [ App (_Var "&prefix:<~>") (Just $ Var varTopic) []
+                        , Syn "\\[]" [ App (_Var "&can") (Just $ _Var (':':'*':pkg)) [Var varTopic] ]
                         ]
                     , subParams = [defaultScalarParam]
                     }
@@ -957,7 +957,7 @@ ruleClosureTrait rhs = tryRule "closure trait" $ do
         fail (name ++ " may only be used at statement level")
     let (fun, params) = extractPlaceholderVars block Set.empty
     -- Check for placeholder vs formal parameters
-    unless (Set.null $ Set.delete _dollarUnderscore params) $
+    unless (Set.null $ Set.delete varTopic params) $
         fail "Closure traits take no formal parameters"
     env <- ask
     let code = VCode mkSub { subName = cast name, subBody = fun, subEnv = Just env } 
@@ -1019,7 +1019,7 @@ possiblyExit (Val (VControl (ControlExit exit))) = do
         [ _Var "@Main::END"
         , Syn "sub"
             [ Val . VCode $ mkSub
-                { subBody   = App (Var _dollarUnderscore) Nothing []
+                { subBody   = App (Var varTopic) Nothing []
                 , subParams = [defaultScalarParam]
                 }
             ]
@@ -1746,13 +1746,17 @@ ruleApply isFolded = verbatimRule "apply" $
 
 ruleApplyImplicitMethod :: RuleParser Exp
 ruleApplyImplicitMethod = do
-    lookAhead (char '.')
+    ch <- (char '.' >> option '.' (char '='))
+    insertIntoPosition '.'
     -- prevChar <- gets s_char
     fs <- many s_postTerm
     -- when (prevChar == '}') $ do
     --     pos <- getPosition
     --     traceM ("Warning: '{...}.method' treated as '{...}; .method' at " ++ show pos)
-    return (combine (reverse fs) (Var _dollarUnderscore))
+    let rv = (combine (reverse fs) (Var varTopic))
+    return $ case ch of
+        '.' -> rv
+        '=' -> Syn "=" [Var varTopic, rv]
 
 ruleSubNameWithoutPostfixModifier :: RuleParser Var
 ruleSubNameWithoutPostfixModifier = try $ do

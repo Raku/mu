@@ -89,15 +89,12 @@ defaultParamFor SubBlock    = [defaultScalarParam]
 defaultParamFor SubPointy   = []
 defaultParamFor _           = [defaultArrayParam]
 
-_dollarUnderscore :: Var
-_dollarUnderscore = cast "$_"
-
 doExtract :: SubType -> Maybe [Param] -> Exp -> (Exp, [Var], [Param])
 doExtract SubBlock formal body = (fun, names', params)
     where
     (fun, names) = extractPlaceholderVars body Set.empty
     names' | isJust formal
-           = sortNames (Set.delete _dollarUnderscore names)
+           = sortNames (Set.delete varTopic names)
            | otherwise
            = sortNames names
     params = map nameToParam names' ++ (maybe [] id formal)
@@ -107,9 +104,9 @@ doExtract _ formal body = (body, names', params)
     where
     (_, names) = extractPlaceholderVars body Set.empty
     names' | isJust formal
-           = sortNames (Set.delete _dollarUnderscore names)
+           = sortNames (Set.delete varTopic names)
            | otherwise
-           = sortNames (Set.filter (== _dollarUnderscore) names)
+           = sortNames (Set.filter (== varTopic) names)
     params = map nameToParam names' ++ (maybe [] id formal)
 
 sortNames :: Set Var -> [Var]
@@ -121,7 +118,7 @@ nameToParam name = MkOldParam
     , isOptional    = False
     , isNamed       = False
     , isLValue      = True
-    , isWritable    = (name == _dollarUnderscore)
+    , isWritable    = (name == varTopic)
     , isLazy        = False
     , paramName     = name
     , paramContext  = CxtItem $ typeOfSigilVar name
