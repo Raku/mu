@@ -97,13 +97,10 @@ package Pugs::Emitter::Perl6::Perl5::Perl5Scalar;
     use base 'Pugs::Emitter::Perl6::Perl5::Scalar';
     use overload (
         '""'     => sub { 
-            Pugs::Runtime::Common::mangle_var( $_[0]->{name} )
+            '$' . Pugs::Runtime::Common::mangle_var( $_[0]->{name} )
         },
         fallback => 1,
     );
-    sub value {
-        return $_[0]->node( 'ValueScalar', $_[0]{name} )
-    }
     sub my {
         return $_[0]->node( 'MyScalar', $_[0]{name} )
     }
@@ -118,14 +115,6 @@ package Pugs::Emitter::Perl6::Perl5::MyScalar;
     sub set {
         'my ' . Pugs::Runtime::Common::mangle_var( $_[0]->{name} ) . ' = \( my $' . $_[0]->new_id . ' = ' . $_[1] . ')'
     }
-package Pugs::Emitter::Perl6::Perl5::ValueScalar;
-    use base 'Pugs::Emitter::Perl6::Perl5::Scalar';
-    use overload (
-        '""'     => sub { 
-            '$' . Pugs::Runtime::Common::mangle_var( $_[0]->{name} )
-        },
-        fallback => 1,
-    );
 
 1;
 
