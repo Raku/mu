@@ -362,6 +362,8 @@ doRunSingle menv opts prog = (`catchIO` handler) $ do
         _ | runOptSeparately opts -> return exp
         _ -> return $ makeDumpEnv exp
     -- XXX Generalize this into structural folding
+    makeDumpEnv Noop              = Syn "env" []
+    makeDumpEnv (Stmts x Noop)    = Stmts x   (Syn "env" [])
     makeDumpEnv (Stmts x exp)     = Stmts x   $ makeDumpEnv exp
     makeDumpEnv (Ann ann exp)     = Ann ann   $ makeDumpEnv exp
     makeDumpEnv (Pad x y exp)     = Pad x y   $ makeDumpEnv exp
