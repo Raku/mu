@@ -76,3 +76,7 @@ $japh ~~ tr[a..z A..Z][n..z a..m  N..Z A..M];
 is($japh, "Just another Perl hacker", 'tr[][] on lexical var via ~~');
 }
 
+$_ = '$123';
+tr/$123/X\x20\o40\t/;
+is($_, "X  \t", 'tr/// on $_ with explicit character lists');
+
