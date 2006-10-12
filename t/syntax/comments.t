@@ -159,7 +159,7 @@ a "=cut".
 
         "bar";
     };
-    is $a, 'bar', '=begin comment without =cut works', :todo<bug>;
+    is $a, 'bar', '=begin comment without =cut works';
 }
 
 # L<S02/Whitespace and Comments/"single paragraph comments"
@@ -172,7 +172,7 @@ a "=cut".
 =for comment TimToady is here!
 
         32;
-    }), 32, '=for comment works', :todo<bug>;
+    }), 32, '=for comment works';
 }
 
 {
@@ -183,5 +183,5 @@ a "=cut".
 are both here, yay!
 
         17;
-    }), 17, '=for comment works', :todo<bug>;
+    }), 17, '=for comment works';
 }
