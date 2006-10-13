@@ -21,7 +21,8 @@ my $result = `$cmd`;
 if($?) {
   die "Couldn't refresh synopses: $cmd exited with $?";
 }
-if($result =~ m/No changes/) {
+my @unchanged = ($result =~ m/No changes/g);
+if(@unchanged == 2) {
   print "Synopses haven't changed.\n";
   exit 0;
 }
