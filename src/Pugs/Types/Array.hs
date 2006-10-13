@@ -143,26 +143,22 @@ instance ArrayClass IArray where
                 writeIORef s sz
             EQ -> return ()
             LT -> writeIORef s sz
-    array_shift (MkIArray iv s) = join . liftIO $ do
-        size <- readIORef s
+    array_shift (MkIArray iv s) = do
+        size <- liftIO $ readIORef s
         case size of
-            0 -> return (return undef)
+            0 -> return undef
             _ -> do
-                av   <- readIORef iv
-                writeIORef s (size-1)
-                [(k, v)] <- I.takeFirst 1 av
-                case k of
-                    0 -> do
-                        C.delete k av
-                        l   <- C.mapToList (\k v -> (k-1,v)) av
-                        new <- C.fromList l
-                        writeIORef iv new
-                        return (readIVar v)
-                    _ -> do
-                        l   <- C.mapToList (\k v -> (k-1,v)) av
-                        new <- C.fromList l
-                        writeIORef iv new
-                        return (return undef)
+                l   <- liftIO $ do
+                    av   <- readIORef iv
+                    writeIORef s (size-1)
+                    C.mapToList (\k v -> (k-1,v)) av
+                case l of
+                    ((-1, v):rest) -> do
+                        liftIO (writeIORef iv =<< (length rest `seq` C.fromList rest))
+                        readIVar v
+                    _ -> liftIO $ do
+                        liftIO (writeIORef iv =<< (length l `seq` C.fromList l))
+                        return undef
     array_unshift (MkIArray iv s) vals = liftIO $ do
         let sz = length vals
         av  <- readIORef iv
@@ -170,32 +166,37 @@ instance ArrayClass IArray where
         new <- C.fromList $ ([0..] `zip` (sz `seq` map lazyScalar vals)) ++ (length l `seq` l)
         writeIORef iv new
         modifyIORef s (+sz)
-    array_pop (MkIArray iv s) = join . liftIO $ do
-        size <- readIORef s
+    array_pop (MkIArray iv s) = do
+        size <- liftIO $ readIORef s
         case size of
-            0 -> return (return undef)
+            0 -> return undef
             _ -> do
-                av <- readIORef iv
-                writeIORef s (size-1)
-                e <- C.lookup (size-1) av
+                e   <- liftIO $ do
+                    writeIORef s (size-1)
+                    av  <- readIORef iv
+                    e'  <- C.lookup (size-1) av
+                    case e' of
+                        Just x -> do
+                            C.delete (size-1) av
+                            return e'
+                        _ -> return e'
                 case e of
-                    Nothing -> return (return undef)
-                    Just x -> do
-                        C.delete (size-1) av
-                        return (readIVar x)
+                    Nothing -> return undef
+                    Just x  -> readIVar x
     array_push (MkIArray iv s) vals = liftIO $ do
         size <- readIORef s
         av   <- readIORef iv
         let len = length vals
         writeIORef s (size + len)
         mapM_ (\(k,v) -> C.insert k v av) $ [size..] `zip` (len `seq` map lazyScalar vals)
-    array_extendSize MkIArray{ a_size = s } sz = liftIO $ do
+    array_extendSize (MkIArray _ s) sz = liftIO $ do
         modifyIORef s $ \size -> if size >= sz then size else sz
-    array_fetchVal arr idx = do
-        readIVar =<< getArrayIndex idx (Just $ constScalar undef)
-            (return arr)
-             Nothing -- don't bother extending
-    array_fetchKeys MkIArray{ a_data = iv } = liftIO (C.keys =<< readIORef iv)
+    array_fetchVal arr@(MkIArray iv s) idx = do
+        rv      <- getArrayIndex idx (Just $ constScalar undef)
+                    (return arr)
+                    Nothing -- don't bother extending
+        readIVar rv
+    array_fetchKeys (MkIArray iv _) = liftIO (C.keys =<< readIORef iv)
     array_fetchElem arr@(MkIArray iv s) idx = do
         sv <- getArrayIndex idx Nothing
             (return arr)
