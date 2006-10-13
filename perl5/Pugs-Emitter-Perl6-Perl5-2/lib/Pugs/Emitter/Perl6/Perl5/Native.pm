@@ -14,6 +14,9 @@ package Pugs::Emitter::Perl6::Perl5::Native;
     sub list { 
         $_[0]->node( 'Seq', [ $_[0] ] );
     }
+    sub bind_from { 
+        '\\' . $_[0]->scalar;
+    }
 package Pugs::Emitter::Perl6::Perl5::bool;
     use base 'Pugs::Emitter::Perl6::Perl5::Native';
     use overload (

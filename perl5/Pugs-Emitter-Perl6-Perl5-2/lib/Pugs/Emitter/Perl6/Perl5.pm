@@ -387,6 +387,7 @@ sub _emit_data_bind_param_spec {
 
 sub _compile {
     my $v = $_[0];
+    print "Compile: $v\n";
     my $ast = Pugs::Grammar::Perl6->statement( $v, { p => 0 } );
     $ast->();
 }
@@ -408,21 +409,40 @@ sub _emit_parameter_binding {
     #    'default' => undef,
 
     my @out;
-    push @out, _compile( 'my @_pos = @_.shift' );
-    for ( @params ) {
-        $_->{type} |= '';
-        my $v = "my $_->{type} $_->{name} = \@_pos.shift";
-        #print "var: $v\n";
-        my $ast = _compile( $v );
-        #print Dumper( $ast );
-        push @out, $ast;
+    push @out, 'my @_pos = @{$_[0]}';
+    for my $param ( @params ) {
+        $param->{type} |= '';
+        if ( $param->{is_slurpy} ) {
+            push @out, "my $param->{name} = \@_pos";
+        }
+        else {
+            push @out, "my $param->{name} = shift \@_pos";
+        }
+        if ( defined $param->{default} ) {
+            push @out, "$param->{name} = do{ use v5; " . _emit( $param->{default} ) . "; use v6; } unless defined $param->{name} ";
+        }
+    }
+    return join( ';', @out ) . ';';
+}
 
-        if ( defined $_->{default} ) {
-            push @out, _compile( "$_->{name} = " . _emit( $_->{default} ) . " unless defined $_->{name} " );
+=for later
+    my @out;
+    push @out, _compile( 'my @_pos = @_.shift' );
+    for my $param ( @params ) {
+        $param->{type} |= '';
+        if ( $param->{is_slurpy} ) {
+            push @out, _compile( "my $param->{type} $param->{name} = \@_pos" );
+        }
+        else {
+            push @out, _compile( "my $param->{type} $param->{name} = \@_pos.shift" );
+        }
+        if ( defined $param->{default} ) {
+            push @out, _compile( "$param->{name} = do{ use v5; " . _emit( $param->{default} ) . "; use v6; } unless defined $param->{name} " );
         }
     }
     return _emit( { statements => \@out } );
 }
+=cut
 
 =for later
     my $defaults = '';
@@ -456,7 +476,7 @@ sub _emit_parameter_capture {
     $n = { list => [$n] }
         if !($n->{assoc} && $n->{assoc} eq 'list');
 
-    my ($positional, @named) = ("\\(");
+    my ($positional, @named) = ("");
     for (@{$n->{list}}) {
         if (my $pair = $_->{pair}) {
             push @named, $pair->{key}{single_quoted}.' => \\'.emit_parenthesis($pair->{value});
@@ -465,16 +485,19 @@ sub _emit_parameter_capture {
             push @named, _emit($_->{exp1}).' => \\'.emit_parenthesis($_->{exp2});
         }
         else {
+            my $v = _emit($_);
             # \($scalar, 123, ), \@array, \($orz)
             if (exists $_->{array} || exists $_->{hash}) {
-                $positional .= "), \\"._emit($_).", \\(";
+                $positional .= ", ".$v.", ";
+            }
+            elsif ( exists $_->{bare_block} ) {
+                $positional .= 'sub ' . $v .', ';
             }
             else {
-                $positional .= (exists $_->{bare_block} ? 'sub ' : '')._emit($_).', ';
+                $positional .= $v->bind_from .', ';
             }
         }
     }
-    $positional .= ')';
 
     return "[$positional], {".join(',', @named).'}';
 }
