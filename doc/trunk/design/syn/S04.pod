@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 8 Oct 2006
+  Last Modified: 16 Oct 2006
   Number: 4
-  Version: 43
+  Version: 44
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -35,15 +35,15 @@ between an outer statement and an inner block (such as loop variables)
 should generally be declared as formal parameters to that block.  There
 are three ways to declare formal parameters to a closure.
 
-    $func = sub ($a, $b) { print if $a eq $b };  # standard sub declaration
-    $func = -> $a, $b { print if $a eq $b };     # a "pointy" block
-    $func = { print if $^a eq $^b }              # placeholder arguments
+    $func = sub ($a, $b) { .print if $a eq $b };  # standard sub declaration
+    $func = -> $a, $b { .print if $a eq $b };     # a "pointy" block
+    $func = { .print if $^a eq $^b }              # placeholder arguments
 
 A bare closure without placeholder arguments that uses C<$_>
 (either explicitly or implicitly) is treated as though C<$_> were a
 formal parameter:
 
-    $func = { print if $_ };   # Same as: $func = -> $_ { print if $_ };
+    $func = { .print if $_ };   # Same as: $func = -> $_ { .print if $_ };
     $func("printme");
 
 In any case, all formal parameters are the equivalent of C<my> variables
@@ -298,7 +298,7 @@ is equivalent to the Cish idiom:
 There is no C<foreach> statement any more. It's always spelled C<for>
 in Perl 6, so it always takes a list as an argument:
 
-    for @foo { print }
+    for @foo { .print }
 
 As mentioned earlier, the loop variable is named by passing a parameter
 to the closure:
