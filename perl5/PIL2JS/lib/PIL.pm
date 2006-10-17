@@ -244,8 +244,8 @@ PIL2JS.catch_all_exceptions(function () {
     PIL2JS.runloop(function () {
       var PIL2JS = AlsoPIL2JS_SpeedupHack;
       var pad = {}; PIL2JS_subpads.push(pad);
-      pad['\$?POSITION'] = _24main_3a_3a_3fPOSITION;
-      pad['\$_']         = _24main_3a_3a_;
+      pad['\$?POSITION'] = _24Main_3a_3a_3fPOSITION;
+      pad['\$_']         = _24Main_3a_3a_;
 
 %s
     });
@@ -336,7 +336,7 @@ sub name_mangle($) {
 
   # ::JS::Root:: ::= ::*::;
   if($str =~ /^&\*?JS::Root::(.+)$/) {
-    $str = "&main::$1";
+    $str = "&Main::$1";
   # ::JS::native_js_function
   } elsif($str =~ /^[\&\$\@\+\%\:]\*?JS::(.+)$/) {
     return $1;
@@ -345,11 +345,11 @@ sub name_mangle($) {
     my $delta = () = $3 =~ /CALLER::/g;
     return sprintf "PIL2JS.resolve_callervar($delta, %s)",
       doublequote($name);
-  # No qualification? Use "main" as package name. XXX! Lexical variables?
+  # No qualification? Use "Main" as package name. XXX! Lexical variables?
   } elsif(length($str) and $str !~ /::/) {
     $str = 
       substr($str, 0, 1) .
-      "main::" .
+      "Main::" .
       substr($str, 1);
   }
 

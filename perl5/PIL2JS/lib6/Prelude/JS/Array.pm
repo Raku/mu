@@ -436,7 +436,7 @@ sub PIL2JS::Internals::Hacks::array_postcircumfix_for_undefs (
 sub PIL2JS::Internals::Hacks::init_undef_array_postcircumfix_method () is primitive {
   JS::inline('(function () {
     PIL2JS.addmethod(
-      _3amain_3a_3aItem,
+      _3aMain_3a_3aItem,
       "postcircumfix:[]",
       _26PIL2JS_3a_3aInternals_3a_3aHacks_3a_3aarray_postcircumfix_for_undefs
     );

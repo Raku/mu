@@ -113,7 +113,7 @@ EOF
 PIL2JS.catch_all_exceptions(function () {
   PIL2JS.catch_end_exception(function() {
     PIL2JS.runloop(function () {
-      _26main_3a_3aexit.FETCH()([
+      _26Main_3a_3aexit.FETCH()([
         PIL2JS.Context.ItemAny,
         new PIL2JS.Box.Constant(undefined),
         function () { 'dummycc' }

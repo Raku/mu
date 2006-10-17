@@ -234,7 +234,7 @@ sub PIL2JS::Internals::Hacks::postcircumfix_for_match_objects (
 sub PIL2JS::Internals::Hacks::init_match_postcircumfix_method () is primitive {
   JS::inline('(function () {
     PIL2JS.addmethod(
-      _3amain_3a_3aMatch,
+      _3aMain_3a_3aMatch,
       "postcircumfix:[]",
       _26PIL2JS_3a_3aInternals_3a_3aHacks_3a_3apostcircumfix_for_match_objects
     );

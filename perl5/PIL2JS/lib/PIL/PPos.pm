@@ -29,7 +29,7 @@
 
     no warnings "recursion";
     return sprintf
-      "_24main_3a_3a_3fPOSITION.BINDTO(new PIL2JS.Box.Constant(%s));\n%s",
+      "_24Main_3a_3a_3fPOSITION.BINDTO(new PIL2JS.Box.Constant(%s));\n%s",
       PIL::doublequote($self->{pPos}), $self->{pNode}->as_js;
   }
 

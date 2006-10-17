@@ -15,7 +15,7 @@ use strict;
     return <<EOF };
 (
   PIL2JS.cps2normal(
-    _26main_3a_3aprefix_3a_3f.FETCH(),
+    _26Main_3a_3aprefix_3a_3f.FETCH(),
     [ PIL2JS.Context.ItemAny, $cond ]
   ).FETCH()
     ?
@@ -56,7 +56,7 @@ EOF
     $classname =~ s/^.*?new PIL2JS.Box.Constant\((".*")\)$/eval $1/eg or die;
 
     push @PIL::PIL1_HACK_CLASSDECLS,
-      sprintf "if(!%s) var %s = PIL2JS.new_empty_class(%s, _3amain_3a_3aItem);",
+      sprintf "if(!%s) var %s = PIL2JS.new_empty_class(%s, _3aMain_3a_3aItem);",
         PIL::name_mangle(":$classname"),
         PIL::name_mangle(":$classname"),
         PIL::doublequote($classname);
@@ -91,7 +91,7 @@ EOF
     my ($name, $type, $body) = @$_;
 
     my $undef  = $type eq "S" ? '""' : 0;
-    my $conv   = "_26main_3a_3aprefix_3a_" . ($type eq "S" ? "7e" : "2b");
+    my $conv   = "_26Main_3a_3aprefix_3a_" . ($type eq "S" ? "7e" : "2b");
 
     register "&$name" => sub {
       my ($cc, $a, $b) = @_;

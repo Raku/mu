@@ -88,7 +88,7 @@ EOF
   var backup_value     = $jsname.FETCH();
   block_leave_hooks.push(function (retval) {
     if(!PIL2JS.cps2normal(
-      _26main_3a_3aprefix_3a_3f.FETCH(),
+      _26Main_3a_3aprefix_3a_3f.FETCH(),
       [PIL2JS.Context.ItemAny, retval]
     ).FETCH())
       $jsname = backup_container;

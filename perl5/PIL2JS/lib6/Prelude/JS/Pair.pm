@@ -46,7 +46,7 @@ sub PIL2JS::Internals::Hacks::postcircumfix_for_pair_objects (
 sub PIL2JS::Internals::Hacks::init_pair_postcircumfix_method () is primitive {
   JS::inline('(function () {
     PIL2JS.addmethod(
-      _3amain_3a_3aPair,
+      _3aMain_3a_3aPair,
       "postcircumfix:{}",
       _26PIL2JS_3a_3aInternals_3a_3aHacks_3a_3apostcircumfix_for_pair_objects
     );

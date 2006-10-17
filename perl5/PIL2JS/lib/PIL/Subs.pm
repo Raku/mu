@@ -31,11 +31,11 @@ use strict;
     my ($js, @vars) = $self->SUPER::magical_vars;
     my $jsvar       = PIL::name_mangle $self->name;
     my $name        = PIL::doublequote $self->name;
-    $js .= "_26main_3a_3a_3fBLOCK = $jsvar; pad['&?BLOCK'] = _26main_3a_3a_3fBLOCK;\n"
+    $js .= "_26Main_3a_3a_3fBLOCK = $jsvar; pad['&?BLOCK'] = _26Main_3a_3a_3fBLOCK;\n"
       if $PIL::IN_SUBLIKE >= PIL::SUBBLOCK;
-    $js .= "_26main_3a_3a_3fSUB = $jsvar; pad['&?SUB'] = _26main_3a_3a_3fSUB;\n"
+    $js .= "_26Main_3a_3a_3fSUB = $jsvar; pad['&?SUB'] = _26Main_3a_3a_3fSUB;\n"
       if $PIL::IN_SUBLIKE >= PIL::SUBROUTINE;
-    $js .= "_24main_3a_3a_3fSUBNAME = new PIL2JS.Box.Constant($name); pad['\$?SUBNAME'] = _24main_3a_3a_3fSUBNAME;\n";
+    $js .= "_24Main_3a_3a_3fSUBNAME = new PIL2JS.Box.Constant($name); pad['\$?SUBNAME'] = _24Main_3a_3a_3fSUBNAME;\n";
 
     return ($js, @vars, qw< &?BLOCK &?SUB $?SUBNAME >);
   }
@@ -96,7 +96,7 @@ use strict;
     # Special magic for &*END_xyz subs.
     if($self->name =~ /^&\*END_\d+/) {
       $js .= sprintf
-        "_40main_3a_3a_2aEND.FETCH().push(%s);\n",
+        "_40Main_3a_3a_2aEND.FETCH().push(%s);\n",
         PIL::name_mangle $self->name;
     }
 
@@ -154,10 +154,10 @@ use strict;
 
     my $vars;
     $vars .= $PIL::IN_SUBLIKE >= PIL::SUBROUTINE && !$self->isa("PIL::PSub")
-      ? "_24main_3a_3a_3fSUBNAME = new PIL2JS.Box.Constant('<anon>');\n"
+      ? "_24Main_3a_3a_3fSUBNAME = new PIL2JS.Box.Constant('<anon>');\n"
       : "";
-    $vars .= "_24main_3a_3a_3fPOSITION = new PIL2JS.Box('<unknown>'); pad['\$?POSITION'] = _24main_3a_3a_3fPOSITION;\n";
-    $vars .= "var _24main_3a_3a_ = new PIL2JS.Box(undefined); pad['\$_'] = _24main_3a_3a_;\n"
+    $vars .= "_24Main_3a_3a_3fPOSITION = new PIL2JS.Box('<unknown>'); pad['\$?POSITION'] = _24Main_3a_3a_3fPOSITION;\n";
+    $vars .= "var _24Main_3a_3a_ = new PIL2JS.Box(undefined); pad['\$_'] = _24Main_3a_3a_;\n"
       unless grep { $_->name eq '$_' } @{ $self->params };
 
     # $?SUBNAME handled in PIL::PSub

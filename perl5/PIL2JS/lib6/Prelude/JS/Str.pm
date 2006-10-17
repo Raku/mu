@@ -9,7 +9,7 @@ method JS::Root::substr(Str $str is rw: Int $a, Int $b = chars $str) is rw {
     var proxy = new PIL2JS.Box.Proxy(
       function () {
         var str_ = String(PIL2JS.cps2normal(
-          _26main_3a_3aprefix_3a_7e.FETCH(),
+          _26Main_3a_3aprefix_3a_7e.FETCH(),
           [ PIL2JS.Context.ItemAny, str ]
         ).toNative());
 
@@ -17,11 +17,11 @@ method JS::Root::substr(Str $str is rw: Int $a, Int $b = chars $str) is rw {
       },
       function (n) {
         var str_ = String(PIL2JS.cps2normal(
-          _26main_3a_3aprefix_3a_7e.FETCH(),
+          _26Main_3a_3aprefix_3a_7e.FETCH(),
           [ PIL2JS.Context.ItemAny, str ]
         ).toNative());
         var repl = String(PIL2JS.cps2normal(
-          _26main_3a_3aprefix_3a_7e.FETCH(),
+          _26Main_3a_3aprefix_3a_7e.FETCH(),
           [ PIL2JS.Context.ItemAny, n ]
         ).toNative());
 

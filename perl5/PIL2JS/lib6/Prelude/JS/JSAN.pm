@@ -20,8 +20,8 @@ sub PIL2JS::Internals::use_jsan_module_imp(Str $mod, *@imports) {
         if (typeof(exportList) != "object") return null;
         for(var i = 0; i < exportList.length; i++) {
           var name   = exportList[i];
-          // &main::<name>
-          var p6name = "_26main_3a_3a" + name;
+          // &Main::<name>
+          var p6name = "_26Main_3a_3a" + name;
           JSAN.globalScope[p6name] = PIL2JS.toPIL2JSBox(classdef[name]);
         }
         // Finally, call the real _exportList.
