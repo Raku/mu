@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -cpp -fvia-C #-}
+{-# OPTIONS_GHC -fglasgow-exts -cpp -fvia-C -optc-w #-}
 
 #ifndef PUGS_HAVE_PERL5
 module Pugs.Embed.Perl5 
@@ -193,59 +193,59 @@ type PerlSV = Ptr ()
 type PugsVal = StablePtr Val
 type PugsEnv = StablePtr Env
 
-foreign import ccall "EXTERN.h perl_alloc"
+foreign import ccall "perl_alloc"
     perl_alloc :: IO PerlInterpreter
-foreign import ccall "perl.h perl_construct"
+foreign import ccall "perl_construct"
     perl_construct :: PerlInterpreter -> IO ()
-foreign import ccall "perl.h perl_run"
+foreign import ccall "perl_run"
     perl_run :: PerlInterpreter -> IO CInt
-foreign import ccall "perl.h perl_destruct"
+foreign import ccall "perl_destruct"
     perl_destruct :: PerlInterpreter -> IO CInt
-foreign import ccall "perl.h perl_free"
+foreign import ccall "perl_free"
     perl_free :: PerlInterpreter -> IO ()
 {-
-foreign import ccall "perl.h boot_DynaLoader"
+foreign import ccall "boot_DynaLoader"
     boot_DynaLoader :: Ptr () -> IO ()
 -}
-foreign import ccall "../../perl5/p5embed.h perl5_finalize"
+foreign import ccall "perl5_finalize"
     perl5_finalize :: PerlSV -> IO ()
-foreign import ccall "../../perl5/p5embed.h perl5_SvPV"
+foreign import ccall "perl5_SvPV"
     perl5_SvPV :: PerlSV -> IO CString
-foreign import ccall "../../perl5/p5embed.h perl5_SvIV"
+foreign import ccall "perl5_SvIV"
     perl5_SvIV :: PerlSV -> IO CInt
-foreign import ccall "../../perl5/p5embed.h perl5_SvNV"
+foreign import ccall "perl5_SvNV"
     perl5_SvNV :: PerlSV -> IO CDouble
-foreign import ccall "../../perl5/p5embed.h perl5_SvTRUE"
+foreign import ccall "perl5_SvTRUE"
     perl5_SvTRUE :: PerlSV -> IO Bool
-foreign import ccall "../../perl5/p5embed.h perl5_SvROK"
+foreign import ccall "perl5_SvROK"
     perl5_SvROK :: PerlSV -> IO Bool
-foreign import ccall "../../perl5/p5embed.h perl5_newSVpvn"
+foreign import ccall "perl5_newSVpvn"
     perl5_newSVpvn :: CString -> CInt -> IO PerlSV
-foreign import ccall "../../perl5/p5embed.h perl5_newSViv"
+foreign import ccall "perl5_newSViv"
     perl5_newSViv :: CInt -> IO PerlSV
-foreign import ccall "../../perl5/p5embed.h perl5_newSVnv"
+foreign import ccall "perl5_newSVnv"
     perl5_newSVnv :: CDouble -> IO PerlSV
-foreign import ccall "../../perl5/p5embed.h perl5_sv_undef"
+foreign import ccall "perl5_sv_undef"
     perl5_sv_undef :: IO PerlSV
-foreign import ccall "../../perl5/p5embed.h perl5_get_sv"
+foreign import ccall "perl5_get_sv"
     perl5_get_sv :: CString -> IO PerlSV
-foreign import ccall "../../perl5/p5embed.h perl5_apply"
+foreign import ccall "perl5_apply"
     perl5_apply :: PerlSV -> PerlSV -> Ptr PerlSV -> PugsEnv -> CInt -> IO (Ptr PerlSV)
-foreign import ccall "../../perl5/p5embed.h perl5_can"
+foreign import ccall "perl5_can"
     perl5_can :: PerlSV -> CString -> IO Bool
-foreign import ccall "../../perl5/p5embed.h perl5_eval"
+foreign import ccall "perl5_eval"
     perl5_eval :: CString -> PugsEnv -> CInt -> IO PerlSV
-foreign import ccall "../../perl5/p5embed.h perl5_init"
+foreign import ccall "perl5_init"
     perl5_init :: CInt -> Ptr CString -> IO PerlInterpreter
 
-foreign import ccall "../../perl5/pugsembed.h pugs_getenv"
+foreign import ccall "pugs_getenv"
     pugs_getenv :: IO PugsEnv
-foreign import ccall "../../perl5/pugsembed.h pugs_setenv"
+foreign import ccall "pugs_setenv"
     pugs_setenv :: PugsEnv -> IO ()
 
-foreign import ccall "../../perl5/pugsembed.h pugs_SvToVal"
+foreign import ccall "pugs_SvToVal"
     pugs_SvToVal :: PerlSV -> IO PugsVal
-foreign import ccall "../../perl5/pugsembed.h pugs_MkValRef"
+foreign import ccall "pugs_MkValRef"
     pugs_MkValRef :: PugsVal -> CString -> IO PerlSV
 
 initPerl5 :: String -> Maybe Env -> IO PerlInterpreter
