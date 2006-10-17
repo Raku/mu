@@ -12,7 +12,7 @@ $Data::Dumper::Indent = 1;
 use Pugs::Emitter::Rule::Perl5::Ratchet;
 use Pugs::Runtime::Common;
 use Digest::MD5 'md5_hex';
-use Pugs::Runtime::Perl6; 
+#use Pugs::Runtime::Perl6;  # circularity
 
 use Pugs::Emitter::Perl6::Perl5::Value;
 use Pugs::Emitter::Perl6::Perl5::Native;

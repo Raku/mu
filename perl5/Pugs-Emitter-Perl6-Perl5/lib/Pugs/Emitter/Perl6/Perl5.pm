@@ -12,7 +12,7 @@ $Data::Dumper::Indent = 1;
 use Pugs::Emitter::Rule::Perl5::Ratchet;
 use Pugs::Runtime::Common;
 use Digest::MD5 'md5_hex';
-use Pugs::Runtime::Perl6; 
+#use Pugs::Runtime::Perl6;  # circularity
 
 use Pugs::Emitter::Perl6::Perl5::Value;
 use Pugs::Emitter::Perl6::Perl5::Native;
@@ -1326,11 +1326,17 @@ sub infix {
             #print "set $n->{exp1}{exp1}{scalar}";
             #print "{'='}: set scalar ",Dumper($n->{exp2});
 
-            my $v = _emit( $n->{exp2} );
+            my $v1 = _emit( $n->{exp1} );
+            my $v2 = _emit( $n->{exp2} );
 
             # XXX uncomment when Data::Bind accepts refs
-            return _emit( $n->{exp1} ) . ' = ' . $v->scalar
-                if Scalar::Util::blessed $v;              
+            return $v1->set( $v2->scalar )
+                if     Scalar::Util::blessed $v1
+                    && Scalar::Util::blessed $v2;              
+            return $v1->set( $v2 )
+                if     Scalar::Util::blessed $v1;              
+            return $v1 . ' = ' . $v2->scalar
+                if Scalar::Util::blessed $v2;              
                 
             if  (  exists $n->{exp2}{'bare_block'} 
                 ) {
@@ -1686,6 +1692,9 @@ sub variable_declarator {
             $n->{exp1}{my} = $n->{'variable_declarator'};
             return _emit( $n->{exp1} );
         }
+        my $v = _emit( $n->{exp1} );
+        print "Declarator: ", Dumper($v);
+        return $v->my if Scalar::Util::blessed( $v );
         return $n->{'variable_declarator'} . ' ' . _emit( $n->{exp1} );
     }
 
