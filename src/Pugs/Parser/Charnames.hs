@@ -3,7 +3,6 @@
 module Pugs.Parser.Charnames (nameToCode) where
 
 import Pugs.Internals
-import Data.ByteString.Char8 (unsafePackAddress)
 import qualified Data.HashTable as H
 import qualified UTF8 as Str
 
@@ -23,6 +22,8 @@ nameToCode name = inlinePerformIO $ do
         x -> return (Just x)
 
 #else
+
+import Data.ByteString.Char8 (unsafePackAddress)
 
 -- If we don't have Perl 5, support for names in the 0x00 - 0xFF range only.
 
