@@ -220,7 +220,7 @@ instance Compile Exp PIL_Stmt where
             else compile val
     compile (Syn "loop" [exp]) =
         compile (Syn "loop" $ [emptyExp, Val (VBool True), emptyExp, exp])
-    compile (Syn "loop" [pre, cond, post, (Syn "block" [body])]) = do
+    compile (Syn "loop" [pre, cond, post, body]) = do
         preC    <- compile pre
         -- loop (...; ; ...) {...} ->
         -- loop (...; True; ...) {...}
@@ -233,7 +233,7 @@ instance Compile Exp PIL_Stmt where
         postC   <- compile post
         funC    <- compile (_Var "&statement_control:loop")
         return . PStmt . PExp $ PApp TCxtVoid funC Nothing
-            [preC, pBlock condC, pBlock bodyC, pBlock postC]
+            [preC, pBlock condC, bodyC, pBlock postC]
     compile exp@(Syn "unless" _) = fmap (PStmt . PExp) $ compConditional exp
     compile exp@(Syn "while" _) = compLoop exp
     compile exp@(Syn "until" _) = compLoop exp
@@ -362,7 +362,7 @@ compLoop (Syn name [cond, body]) = do
     condC   <- enter (CxtItem $ mkType "Bool") $ compile cond
     bodyC   <- enter CxtVoid $ compile body
     funC    <- compile (_Var $ "&statement_control:" ++ name)
-    return . PStmt . PExp $ PApp cxt funC Nothing [pBlock condC, pBlock bodyC]
+    return . PStmt . PExp $ PApp cxt funC Nothing [pBlock condC, bodyC]
 compLoop exp = compError exp
 
 {-| Compiles a conditional 'Syn' (@if@ and @unless@) to a call to an

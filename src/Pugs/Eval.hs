@@ -512,7 +512,7 @@ reduceSyn "loop" exps = enterLoop $ do
         exps' = [emptyExp, Val (VBool True), emptyExp] ++ exps
         evalCond | unwrap cond == Noop = return True
                  | otherwise = fromVal =<< enterEvalContext (cxtItem "Bool") cond
-    sub     <- fromVal =<< (enterRValue $ enterEvalContext (cxtItem "Code") body)
+    sub     <- fromCodeExp body
     evalExp pre
     vb      <- evalCond
     if not vb then retEmpty else fix $ \runBody -> do
