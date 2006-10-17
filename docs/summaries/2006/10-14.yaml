@@ -817,7 +817,7 @@ lists:
           now saw the use for it, but still would like to see a proposal.
       - date_from: 1159908092
         date_to: 1160662024
-        hidden: ~
+        hidden: discussion on what's wrong
         message_id: 4522CADF.7020506@ajs.com
         messages:
           - 17698.54984.678960.91503@localhost.localdomain
