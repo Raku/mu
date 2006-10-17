@@ -27,9 +27,9 @@ Pugs::Doc::Hack - How to hack on Pugs
     $ cp util/smoker-example.yml ~/.smoker.yml
     $ $EDITOR ~/.smoker.yml
 
-    $ make smoke                           # generates a smoke.html
+    $ make smoke                  # generates smoke.html, smoke.yml
     # Optionally, submit your smoke report to the public smokeserver:
-    $ perl util/smokeserv/smokeserv-client.pl smoke.html
+    $ perl util/smokeserv/smokeserv-client.pl smoke.html smoke.yml
 
 =head1 DESCRIPTION
 
