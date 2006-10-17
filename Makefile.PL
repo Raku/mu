@@ -586,10 +586,8 @@ EOD
 $config_h : lib/Perl6/Pugs.pm util/config_h.pl
 	\$(PERL) util/config_h.pl "$ghc $ghc_flags"
 
-$version_h : force_run
+$version_h :
 	\$(PERL) util/version_h.pl $version_h
-
-force_run:
 
 @{[join("\n", map {$emit->($_)} grep { /\.o$/ } @prereqs)]}
 
