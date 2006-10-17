@@ -2,14 +2,14 @@
 
 == Build System
 
-* Enabled Perl 5 embedding by default
+* Perl 5 embedding is now enabled by default
 ** For Windows users, Perl 5.8.x is required
 ** Set the `PUGS_EMBED` environment variable to `noperl5` to disable this
 
-* Disabled prompting for Parrot embedding by default
+* Prompting for Parrot embedding is now disabled by default
 ** Set the `PUGS_EMBED` environment variable to `parrot` to enable this
 
-* Support for compiling with GHC 6.6
+* Support for compiling using GHC 6.6
 ** GHC 6.4.1+ is still supported, but 6.6 will be required in the next release
 
 == Feature Changes
@@ -29,7 +29,8 @@
 * Named character escapes: `"\c[LATIN CAPITAL LETTER Y]"`
 * New magical variables: `$?COMPILER` and `$?VERSION`
 * Pod directives: `=begin`/`=end` and `=for` now terminate without `=cut`
-* Pod variables: `$=FOO` and `@=FOO` give you access to the Pod section FOO
+* Pod variables: `$=FOO` and `@=FOO` give you access to the Pod
+  section FOO
 * Signature literals: `:($foo is copy = 42, $, @)`
 * `"\123"` and `"\03"` are now errors; write `"\d123"` and `"\o03"` instead
 * `$::x` now means exactly the same a `$x`, instead of `$*x`
@@ -127,20 +128,21 @@
 === [ext/CGI/] 
 
 * A new `as_yaml` method to dump CGI parameters as YAML
-* Added basic tests for `escapeHTML` and `unescapeHTML`, which were broken
-* Added new tests for `PATH_INFO`
+* New basic tests for `escapeHTML` and `unescapeHTML`, which were broken
+* New tests for `PATH_INFO`
 * Allow initializing the CGI object with a hash of parameters
-* Implemented the `Dump` function adapted from Perl 5's CGI.pm
+* New `Dump` function adapted from Perl 5's CGI.pm
 * Only send the Content-Type: header if we actually have a content-type
 * Only send the Status: header if it's a redirect, or if it's explicitly added
 * Refactored into an OO-only module.  N.B.: this breaks backwards compatibility!
-* Renamed the `content_type` method to `type` for compatibility
-* Renamed the `cookies` attribute to `cookie` for compatibility
+* The `content_type` method is renamed to `type` for compatibility
+* The `cookies` attribute is renamed to `cookie` for compatibility
 * Some work on charset handling, though a `charset` method is still missing
 
 === [ext/HTTP-Server-Simple/]
 
-* Switched from non-standard `./method` syntax to the standard `self.method`
+* The old non-standard `./method` syntax has been replaced with
+  standard `self.method` syntax
 
 === [ext/Rosetta/]
 
@@ -154,9 +156,9 @@
 === [ext/Test/]
 
 * Converted `Test.pm` documentation from Kwid to Pod syntax
-* Removed the `eval_ok` and `eval_is` functions; use `is eval` instead,
-  which runs its string in the current lexical scope rather than
-  in Test's (which is usually what you want)
+* The `eval_ok` and `eval_is` functions are gone; use `is eval` instead,
+  which runs its string in the current lexical scope rather than in
+  Test's (which is usually what you want)
 
 == Test Suite
 
@@ -170,13 +172,13 @@
 
 * A new visualiser of smartlinks used in the test suite
 * Generates much nicer cross-referenced HTML pages
-* Replaced the old [util/catalog_tests.pl]
+* Smartlinks replace the old [util/catalog_tests.pl]
 * See annotated specs in action on [http://spec.pugscode.org/]
 
 === [util/smokeserv/]
 
 * Smoke client now uploads raw `.yml` results as well as `.html`
-* The smokeserver now annotates the spec with test results
+* The smokeserver now annotates the spec with test results using smartlinks
 * See the `SYN` links on [http://smoke.pugscode.org/] for this in action
 
 === [t/02-test-pm/]
@@ -194,24 +196,24 @@
 
 === [t/]
 
-* Added many, many more smartlinks into the spec
-* All tests now begins with `use v6-alpha;` instead of `use v6;`
-* Converted `eval_ok` and `eval_is` to `ok eval` and `is eval`,
-  so that eval strings will run in the current lexical scope
-* Merged [t_disabled/] back into the main test suite
-* Removed `#!/usr/bin/pugs` from all test files
+* Many, many more smartlinks have been added into the spec
+* All tests now begin with `use v6-alpha;` instead of `use v6;`
+* `eval_ok` and `eval_is` are now `ok eval` and `is eval`, so that
+  eval'd strings will be run in the current lexical scope
+* Tests in [t_disabled/] are merged back into the main test suite
+* `#!/usr/bin/pugs` is gone from all test files
 
 == Examples and Utilities
 
 === [examples/]
 
-* Renamed all Perl scripts from *.p6 to *.pl and from *.p5 to *-p5.pl
-* All references to them, except in talks, were likewise updated
+* All Perl scripts have been renamed from *.p6 to *.pl and from *.p5 to *-p5.pl
+* All references to them, except in talks, have been likewise updated
 
 === [misc/runpugs/]
 
 * New feature: a web teminal for running an interactive Pugs shell on the web
-* WebTerminal: A library for building web terminals for interactive shells
+* WebTerminal: a library for building web terminals for interactive shells
 * See [http://run.pugscode.org/] for a live demo
 
 == Documentation
