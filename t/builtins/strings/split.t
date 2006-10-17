@@ -6,7 +6,7 @@ use Test;
 
 # XXX - this needs to be updated when Str.split(Str) works again
 # this test really wants is_deeply()
-plan 110;
+plan 121;
 
 # split on an empty string
 
@@ -37,6 +37,10 @@ split_test split("", "forty-two"),
 
 split_test "forty-two".comb(/./),
            qw/f o r t y - t w o/,
+           q{Str.comb(/./)};
+
+split_test "forty two".comb(/./),
+           (qw/f o r t y/, ' ', qw/t w o/),
            q{Str.comb(/./)};
 
 # split on a space
@@ -88,6 +92,7 @@ split_test "this will be split".split(rx:Perl5 { }),
            q/Str.split(rx:Perl5 { })/;
 
 # split on multiple space characters
+diag "here";
 split_test split(rx:Perl5 {\s+}, "Hello World    Goodbye   Mars", 3),
            ( qw/Hello World/, "Goodbye   Mars" ),
            q/split rx:Perl5 {\s+}, Str, limit/;
@@ -106,8 +111,6 @@ split_test  "Hello World    Goodbye   Mars".split(" ", 3),
 
 split_test  "Word".split("", 3), qw/W o rd/,
            q/Str.split("", limit)/;
-
-# XXX: S29 split is not specified. :-(
 
 # XXX: Here Pugs emulates p5 default awk field splitting behaviour.
 split_test  "  abc  def  ".split(), qw/abc def/,

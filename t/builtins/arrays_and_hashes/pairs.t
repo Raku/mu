@@ -10,7 +10,7 @@ Basic C<pairs> tests, see S29.
 
 =cut
 
-# L<S29/"Array" /"pairs"/>
+# L<S29/"Array"/=item pairs>
 {
   my @array = <a b c>;
   my @pairs;
@@ -29,7 +29,7 @@ Basic C<pairs> tests, see S29.
 }
 
 
-# L<S29/"Hash" /"pairs"/>
+# L<S29/"Hash"/=item pairs>
 {
   my %hash = (a => 1, b => 2, c => 3);
   my @pairs;

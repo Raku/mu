@@ -1,7 +1,7 @@
 use v6-alpha;
 use Test;
 
-# L<S29/"Time"/"=item time">
+# L<S29/"Time">
 
 # Based Heavily on the t/op/time.t test from Perl5.8.6
 # Perhaps the testing of these builtins needs to be more rigorous

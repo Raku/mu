@@ -4,6 +4,8 @@ use Test;
 
 plan 2;
 
+# L<S29/Str/=item chop>
+
 # See L<"http://use.perl.org/~autrijus/journal/25351">:
 #   &chomp and &wrap are now nondestructive; chomp returns the chomped part,
 #   which can be defined by the filehandle that obtains the default string at
