@@ -72,7 +72,16 @@ sub emit {
       \$::_V6_MATCH_ = \$tree;
       \$tree->data->{capture} = \\(\$cap->( \$tree ));
     };
-    if ( \$tree ) { \$::_V6_PRIOR_ = \$rule }
+    if ( \$tree ) { 
+      # \$::_V6_PRIOR_ = \$rule 
+
+      my \$prior = \$::_V6_PRIOR_;
+      \$::_V6_PRIOR_ = sub { 
+        local \$main::_V6_PRIOR_ = \$prior; 
+        \$rule->(\@_);
+      };
+
+    }
     return \$tree;
   }
 }

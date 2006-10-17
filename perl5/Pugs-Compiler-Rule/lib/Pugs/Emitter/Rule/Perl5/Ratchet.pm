@@ -97,14 +97,19 @@ sub emit {
       bool => \\\$bool, match => \\\@match, named => \\\%named, capture => undef, 
     } );
     {
+      my \$prior = \$::_V6_PRIOR_;
+      local \$::_V6_PRIOR_ = \$prior; 
       \$bool = 0 unless
 " .
         #"      do { TAILCALL: ;\n" .
         emit_rule( $ast, '    ' ) . ";
     }
     if ( \$bool ) {
-      \$::_V6_PRIOR_ = \$rule;
-      #print \"rule = \$::_V6_PRIOR_ \\n\";
+      my \$prior = \$::_V6_PRIOR_;
+      \$::_V6_PRIOR_ = sub { 
+        local \$main::_V6_PRIOR_ = \$prior; 
+        \$rule->(\@_);
+      };
       last;
     }
   } # /for

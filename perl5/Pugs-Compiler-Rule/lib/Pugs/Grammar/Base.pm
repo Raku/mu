@@ -57,7 +57,7 @@ sub prior {
         unless defined $main::_V6_PRIOR_;
 
     my $prior = $main::_V6_PRIOR_;
-    local $main::_V6_PRIOR_;
+    ## local $main::_V6_PRIOR_;
     $prior->(@_[0, 1, 2, 2]);  # XXX fix parameter list
 }
 

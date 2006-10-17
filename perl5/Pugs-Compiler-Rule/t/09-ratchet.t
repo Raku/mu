@@ -876,23 +876,23 @@ TODO:
     is( "$match", "xy2", 'ident' );
 
   {
-    my $rule = Pugs::Compiler::Token->compile( '<prior>' );
-    my $match = $rule->match( "\n1xy2\n" );
+    my $rule = Pugs::Compiler::Token->compile( '<prior> \s <prior>' );
+    my $match = $rule->match( "\n1xy2 xxx\n" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", $match->perl;
-    is( "$match", "xy2", 'prior' );
+    is( "$match", "xy2 xxx", 'prior' );
   }
 
-TODO:
+#TODO:
     {
-    local $TODO = '<prior> is recursive';
-    my $rule = Pugs::Compiler::Token->compile( '<prior> <prior>' );
+    #local $TODO = '<prior> is recursive';
+    my $rule = Pugs::Compiler::Token->compile( '<prior> \s <prior>' );
     my $match = eval {
-        $rule->match( "\n1xy2 xy3\n" )
+        $rule->match( "\n1xy2 xy3 kkk lll\n" )
     } || '';
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", $match->perl;
-    is( "$match", "xy2 xy3", 'prior-prior' );
+    is( "$match", "xy2 xy3 kkk lll", 'prior-prior' );
   }
 }
 
