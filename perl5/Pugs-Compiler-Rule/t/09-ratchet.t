@@ -1,5 +1,5 @@
 
-use Test::More tests => 141;
+use Test::More tests => 142;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -881,6 +881,18 @@ TODO:
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", $match->perl;
     is( "$match", "xy2", 'prior' );
+  }
+
+TODO:
+    {
+    local $TODO = '<prior> is recursive';
+    my $rule = Pugs::Compiler::Token->compile( '<prior> <prior>' );
+    my $match = eval {
+        $rule->match( "\n1xy2 xy3\n" )
+    } || '';
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", $match->perl;
+    is( "$match", "xy2 xy3", 'prior-prior' );
   }
 }
 
