@@ -64,13 +64,13 @@ constMacro = const . expToEvalVal
 -- |Implementation of 0-ary and variadic primitive operators and functions
 -- (including list ops).
 op0 :: String -> [Val] -> Eval Val
-op0 "&"  = fmap opJuncAll  . mapM fromVal
-op0 "^"  = fmap opJuncOne  . mapM fromVal
-op0 "|"  = fmap opJuncAny  . mapM fromVal
+op0 "&"  = fmap opJuncAll . mapM fromVal
+op0 "^"  = fmap opJuncOne . mapM fromVal
+op0 "|"  = fmap opJuncAny . mapM fromVal
 op0 "want"  = const $ fmap VStr (asks (maybe "Void" envWant . envCaller))
-op0 "Bool::True" = const . return $ VBool True
+op0 "Bool::True"  = const . return $ VBool True
 op0 "Bool::False" = const . return $ VBool False
-op0 "True" = constMacro . Val $ VBool True
+op0 "True"  = constMacro . Val $ VBool True
 op0 "False" = constMacro . Val $ VBool False
 op0 "time"  = const $ do
     clkt <- guardIO getClockTime
@@ -95,19 +95,19 @@ op0 "File::Spec::tmpdir" = const $ do
     tmp <- guardIO getTemporaryDirectory
     return $ VStr tmp
 op0 "Pugs::Internals::pi" = const $ return $ VNum pi
-op0 "self" = const $ expToEvalVal (_Var "&self")
-op0 "say" = const $ op1 "IO::say" (VHandle stdout)
-op0 "print" = const $ op1 "IO::print" (VHandle stdout)
-op0 "return" = const $ op1Return (retControl (ControlLeave (<= SubRoutine) 0 undef))
-op0 "yield" = const $ op1Yield (retControl (ControlLeave (<= SubRoutine) 0 undef))
-op0 "leave" = const $ retControl (ControlLeave (>= SubBlock) 0 undef)
-op0 "take" = const $ assertFrame FrameGather retEmpty
+op0 "self"    = const $ expToEvalVal (_Var "&self")
+op0 "say"     = const $ op1 "IO::say" (VHandle stdout)
+op0 "print"   = const $ op1 "IO::print" (VHandle stdout)
+op0 "return"  = const $ op1Return (retControl (ControlLeave (<= SubRoutine) 0 undef))
+op0 "yield"   = const $ op1Yield (retControl (ControlLeave (<= SubRoutine) 0 undef))
+op0 "leave"   = const $ retControl (ControlLeave (>= SubBlock) 0 undef)
+op0 "take"    = const $ assertFrame FrameGather retEmpty
 op0 "nothing" = const . return $ VBool True
-op0 "Pugs::Safe::safe_getc" = const . op1Getc $ VHandle stdin
+op0 "Pugs::Safe::safe_getc"     = const . op1Getc $ VHandle stdin
 op0 "Pugs::Safe::safe_readline" = const . op1Readline $ VHandle stdin
 op0 "reverse" = const $ return (VList [])
-op0 "chomp" = const $ return (VList [])
-op0 "fork"  = const $ opPerl5 "fork" []
+op0 "chomp"   = const $ return (VList [])
+op0 "fork"    = const $ opPerl5 "fork" []
 op0 other = const $ fail ("Unimplemented listOp: " ++ other)
 
 -- |Implementation of unary primitive operators and functions
@@ -115,22 +115,22 @@ op1 :: String -> Val -> Eval Val
 op1 "!"    = op1Cast (VBool . not)
 op1 "WHICH" = \x -> do
     val <- fromVal x
-    case val of
-        VObject o   -> return . castV . unObjectId $ objId o
-        _           -> return val
+    return $ case val of
+        VObject o   -> castV . unObjectId $ objId o
+        _           -> val
 op1 "chop" = \x -> do
     str <- fromVal x
-    if null str
-        then return $ VStr str
-        else return $ VStr $ init str
+    return $ if null str
+        then VStr str
+        else VStr $ init str
 op1 "Scalar::chomp" = \x -> do
     str <- fromVal x
     return $ op1Chomp str
 op1 "Str::split" = op1Cast (castV . words)
-op1 "lc" = op1Cast (VStr . map toLower)
-op1 "lcfirst" = op1StrFirst toLower
-op1 "uc" = op1Cast (VStr . map toUpper)
-op1 "ucfirst" = op1StrFirst toUpper
+op1 "lc"         = op1Cast (VStr . map toLower)
+op1 "lcfirst"    = op1StrFirst toLower
+op1 "uc"         = op1Cast (VStr . map toUpper)
+op1 "ucfirst"    = op1StrFirst toUpper
 op1 "capitalize" = op1Cast $ VStr . (mapEachWord capitalizeWord)
   where
     mapEachWord _ [] = []
@@ -276,8 +276,8 @@ op1 "Pugs::Internals::require" = opRequire False
 op1 "Pugs::Internals::eval_perl6" = \v -> do
     str <- fromVal v
     opEval quiet "<eval>" (encodeUTF8 str)
-    where quiet = MkEvalStyle{evalResult=EvalResultLastValue
-                             ,evalError=EvalErrorUndef}
+    where quiet = MkEvalStyle { evalResult = EvalResultLastValue
+                              , evalError  = EvalErrorUndef }
 op1 "evalfile" = \v -> do
     filename <- fromVal v
     opEvalFile filename
@@ -344,7 +344,7 @@ op1 "sign" = \v -> withDefined [v] $
 op1 "srand" = \v -> do
     x <- fromVal v
     guardSTM . unsafeIOToSTM $ do
-       seed <- if ( defined v )
+       seed <- if defined v
           then return x
           else randomRIO (0, 2^(31::Int))
        setStdGen $ mkStdGen seed
@@ -580,10 +580,8 @@ op1 "="        = \v -> case v of
             (join $ doArray v array_shift)
     _           -> op1 "readline" v
 op1 "readline" = op1Readline
-
 op1 "getc"     = op1Getc
-
-op1 "WHAT"   = fmap VType . evalValType
+op1 "WHAT"     = fmap VType . evalValType
 op1 "List::end"   = \x -> fmap (castV . pred) (join $ doArray x array_fetchSize) -- monadic join
 op1 "List::elems" = \x -> fmap castV (join $ doArray x array_fetchSize) -- monadic join
 op1 "List::pop"   = \x -> join $ doArray x array_pop -- monadic join
@@ -777,9 +775,8 @@ op1ShiftOut v = retShift =<< do
 op1Exit :: Val -> Eval a
 op1Exit v = do
     rv <- fromVal v
-    if rv /= 0
-        then retControl . ControlExit . ExitFailure $ rv
-        else retControl . ControlExit $ ExitSuccess
+    retControl . ControlExit $ if rv /= 0
+        then ExitFailure rv else ExitSuccess
 
 op1StrFirst :: (Char -> Char) -> Val -> Eval Val
 op1StrFirst f = op1Cast $ VStr .
@@ -972,12 +969,12 @@ op2 "gt" = op2Cmp vCastStr (>)
 op2 "ge" = op2Cmp vCastStr (>=)
 op2 "~~" = op2Match
 op2 "=:=" = \x y -> do
-    case x of
-        VRef xr | VRef yr <- y -> do
+    return $ castV $ case x of
+        VRef xr | VRef yr <- y ->
             -- Take advantage of the pointer address built-in with (Show VRef)
-            return $ castV (show xr == show yr)
-        _   -> do
-            return $ castV (W# (unsafeCoerce# x :: Word#) == W# (unsafeCoerce# y :: Word#))
+            show xr == show yr
+        _   ->
+            W# (unsafeCoerce# x :: Word#) == W# (unsafeCoerce# y :: Word#)
 op2 "===" = \x y -> do
     return $ castV (x == y)
 op2 "eqv" = op2Identity -- XXX wrong, needs to compare full objects
@@ -1034,9 +1031,9 @@ op2 "delete" = \x y -> do
     ref <- fromVal x
     rv  <- deleteFromRef ref y
     -- S29: delete always returns the full list regardless of context.
-    case rv of
-        VList [x]   -> return x
-        _           -> return rv
+    return $ case rv of
+        VList [x]   -> x
+        _           -> rv
 op2 "exists" = \x y -> do
     ref <- fromVal x
     fmap VBool (existsFromRef ref y)
@@ -1061,7 +1058,7 @@ op2 "Pugs::Internals::openFile" = \x y -> do
         h <- openFile filename (modeOf mode)
         hSetBuffering h NoBuffering
         return h
-    return $ VHandle $ hdl
+    return $ VHandle hdl
     where
     modeOf "r"  = ReadMode
     modeOf "w"  = WriteMode
@@ -1696,9 +1693,7 @@ op1Pretty printer v = do
         ?printer = printer
     rv      <- prettyVal v
     isRecur <- liftSTM (readTVar recur)
-    if isRecur
-        then return (VStr $ decodeUTF8 ("$_ := " ++ rv))
-        else return (VStr $ decodeUTF8 rv)
+    return $ VStr $ decodeUTF8 $ if isRecur then "$_ := " ++ rv else rv
 
 prettyVal :: (?seen :: IntSet.IntSet, ?recur :: TVar Bool, ?printer :: PrettyPrinter) => Val -> Eval VStr
 prettyVal v@(VRef r) = do
