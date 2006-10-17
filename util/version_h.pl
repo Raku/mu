@@ -76,7 +76,7 @@ if ($revision != $old_revision) {
   close OUT;
 
   my $hs_file = "$base/src/Pugs/Version.hs";
-  warn "===> touching $hs_file\n";
+  # warn "===> touching $hs_file\n";
   utime undef, undef, $hs_file;
 
   if ($revision != 0) {

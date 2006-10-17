@@ -333,6 +333,8 @@ sub build_lib {
     # Add GHC to PATH
     local $ENV{PATH} = dirname($ghc) . $Config{path_sep} . $ENV{PATH};
  
+    run($^X, qw<util/version_h.pl>);
+
     mkdir "dist/build" unless -d "dist/build";
 
     # Remove all -boot files since GHC 6.4 doesn't track them.
