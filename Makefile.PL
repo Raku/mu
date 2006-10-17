@@ -491,8 +491,7 @@ EOD
 
     my $config = get_pugs_config();
     my $is_win32 = ($^O =~ /MSWin|mingw|cygwin/i);
-    my $threaded = (!$is_win32 and try_compile_and_run("main :: IO ()\nmain = return ()", $ghc, "-threaded"))
-        ? '-threaded' : '';
+    my $threaded = (try_compile_and_run("main :: IO ()\nmain = return ()", $ghc, "-threaded")) ? '-threaded' : '';
 
     if ($threaded and $ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bperl5\b/ and !$Config{usethreads}) {
         push @warn, << '.';
