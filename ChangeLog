@@ -1,4 +1,4 @@
-= Changes for 6.2.13 (r14400) - October 17, 2006
+= Changes for 6.2.13 (r14402) - October 17, 2006
 
 == Build System
 
@@ -107,7 +107,7 @@
 * New `tr///` syntax for transliteration; `y///` will not be supported
 * Pugs::Compiler::Rule (PCR) replaces Parrot/PGE as the default engine
 * Support for `:c/:continue`, `<prior>`, and much more: see PCR's ChangeLog
-* `$()`, `@()` and `%()` parses correctly as `$$/`, `@$/` and `%$/`
+* `$()`, `@()` and `%()` parse correctly as `$$/`, `@$/` and `%$/`
 * `/.../` matches `$_` under Int, Num and void context in addition to Bool
 * `m:g/(1)|(2)/` now returns only successfully matched subcaptures
 
