@@ -148,26 +148,26 @@ package Pugs::Emitter::Perl6::Perl5::Perl5Array;
 sub _dollar_name {
     my $name = $_[0]->{name};
     $name =~ s/^\@/\$/;
-    return $name;
+    $name;
 }
 
 sub isa { 
-    return $_[0]->WHAT->eq( $_[1] ); 
+    $_[0]->WHAT->eq( $_[1] ); 
 }
 
 sub get {
     my $self = $_[0];
-    return $self->name;
+    $self->name;
 }
 
 sub set {
     my $self = $_[0];
     # XXX box
-    '( map { ' . $self->name . ' = \\$_ } ' . $_[1]->list . ')';
+    '( ' . $self->name . ' = map { \\$_ } ' . $_[1]->list . ')';
 }
 
     sub str {
-        return $_[0]->node( 'StrExpression', '"' . $_[0] . '"' )
+        $_[0]->node( 'StrExpression', '"' . $_[0] . '"' )
     }
 
     sub perl {
@@ -181,23 +181,23 @@ sub set {
     
 sub kv {
     my $tmp = "( map { ( \$_, ".$_[0]->name."[\$_] ) } 0..".$_[0]->name."-1 )"; 
-    return $_[0]->node( 'ListExpression',  $tmp );
+    $_[0]->node( 'ListExpression',  $tmp );
 }
 
 sub keys {
     my $tmp = "( 0..".$_[0]->name."-1 )"; 
-    return $_[0]->node( 'ListExpression',  $tmp );
+    $_[0]->node( 'ListExpression',  $tmp );
 }
 
     sub values {
-        return $_[0]
+        $_[0]
     } 
     sub list { 
-        return $_[0]
+        $_[0]
     }
 
 sub num {
-    return $_[0]->elems
+    $_[0]->elems
 } 
 
 sub int {
@@ -254,7 +254,7 @@ sub _91__93_ {
     my $self = $_[0];
     my $other = $_[1]->list;
     return $_[0] unless $other;  # TODO
-    return $self->_dollar_name . '[' . $other . ']';
+    return '${' . $self->_dollar_name . '[' . $other . ']}';
 }
 
 1;

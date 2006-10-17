@@ -17,9 +17,6 @@ use Pugs::Runtime::Perl6;
 use Pugs::Emitter::Perl6::Perl5::Value;
 use Pugs::Emitter::Perl6::Perl5::Native;
 use Pugs::Emitter::Perl6::Perl5::Expression;
-use Pugs::Emitter::Perl6::Perl5::Perl5Range;
-use Pugs::Emitter::Perl6::Perl5::Perl5Array;
-use Pugs::Emitter::Perl6::Perl5::Perl5Hash;
 use Pugs::Emitter::Perl6::Perl5::Array;
 use Pugs::Emitter::Perl6::Perl5::Hash;
 use Pugs::Emitter::Perl6::Perl5::Scalar;
@@ -1514,6 +1511,9 @@ sub postcircumfix {
             
     if ( $n->{op1} eq '[' &&
          $n->{op2} eq ']' ) {
+
+        return $v1->_91__93_( $v2 )  # .[]
+            if ref $v1;
 
         if ( ! exists $n->{exp2} ) {
             # $array[]
