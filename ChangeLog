@@ -86,8 +86,8 @@
 * Allow space-separated adverbial named arguments: `f( :x<foo> :$y :!z )`
 * Multi-dispatching now handles named, slurpy and optional arguments
 * Named arguments with no matching parameters is now an error
-* New `&sub.call($capture)` syntax to call without a caller frame (similar
-  to Perl 5's `goto &sub`)
+* New `&sub.call($capture)` syntax to call without a caller frame (similarly
+  to Perl 5's `goto &sub`, but it returns)
 * Parse for the `proto` routine modifier: `proto method foo ($x) {...}`
 * Precompiled `.pm.yml` files with mismatching AST version will no longer load
 * Support for user-defined unary and optional-unary prefix macros
