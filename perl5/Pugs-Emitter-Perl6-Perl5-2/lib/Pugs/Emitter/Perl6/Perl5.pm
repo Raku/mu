@@ -120,7 +120,8 @@ sub emit {
     my ($grammar, $ast) = @_;
     # runtime parameters: $grammar, $string, $state, $arg_list
     # rule parameters: see Runtime::Rule.pm
-    warn Pugs::Runtime::Perl6::Scalar::perl( $ast )
+    #warn Pugs::Runtime::Perl6::Scalar::perl( $ast )
+    warn Data::Dumper::Dumper( $ast )
         if $ENV{V6DUMPAST}; 
     return _emit( $ast );
         #"do{\n" .
@@ -1481,12 +1482,12 @@ sub infix {
 
     if ( exists $n->{exp2}{bare_block} ) {
         # $a = { 42 } 
-        return " " . $v1 . ' ' . 
-            $n->{op1} . ' ' . "sub " . $v2;
+        return Pugs::Emitter::Perl6::Perl5::node->node( 'AnyExpression', 
+            '(' . $v1 . ' ' . $n->{op1} . ' ' . "sub " . $v2 . ')' );
     }
 
-    return '(' . $v1 . ' ' . 
-        $n->{op1} . ' ' . $v2 . ')';
+    return Pugs::Emitter::Perl6::Perl5::node->node( 'AnyExpression', 
+        '(' . $v1 . ' ' . $n->{op1} . ' ' . $v2 . ')' );
 }
 
 sub circumfix {
@@ -1535,7 +1536,7 @@ sub postcircumfix {
     if ( $n->{op1} eq '[' &&
          $n->{op2} eq ']' ) {
 
-        print ".[] = ", $v1->_91__93_( $v2 )," -- $v1 -- $v2\n";  # .[]
+        #print ".[] = ", $v1->_91__93_( $v2 )," -- $v1 -- $v2\n";  # .[]
         return $v1->_91__93_( $v2 )  # .[]
             if ref $v1;
 
@@ -1566,6 +1567,9 @@ sub postcircumfix {
          $n->{op2} eq '>' ) {
         my $name = $v1;
         #$name =~ s/^\%/\$/;
+
+        return $v1->_123__125_( $v2 )  # .{}
+            if ref $v1;
 
         # $/<x>
         return " " . $v1 . 

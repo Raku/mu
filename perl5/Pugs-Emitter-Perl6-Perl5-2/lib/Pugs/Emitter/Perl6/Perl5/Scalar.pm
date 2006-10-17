@@ -4,7 +4,7 @@ package Pugs::Emitter::Perl6::Perl5::Scalar;
     use base 'Pugs::Emitter::Perl6::Perl5::Value'; # XXX
     use overload (
         '""'     => sub { 
-            $_[0]->{name} 
+            '${' . $_[0]->{name} . '}'
         },
         fallback => 1,
     );
@@ -85,13 +85,19 @@ sub scalar {
     sub list { 
         $_[0]->node( 'Seq', [ $_[0] ] );
     }
+    sub bind_from {
+        $_[0]->node( 'Scalar',  '' . $_[0]->name . '' )
+    }
 
 sub _123__125_ {
     # .{}
     my $self = $_[0];
     my $other = $_[1]->list;
-    return $_[0] unless $other;  # TODO
-    return $self->_dollar_name . '{' . $other . '}';
+    return '%{' . $_[0] . '}' 
+        unless defined $_[1] && $_[1] ne '';
+    return $_[0]->node( 'Scalar',  '' . $_[0]->name . '->{' . $_[1] . '}' )
+        if $_[1]->list->elems == 1;
+    $_[0]->node( 'Array',  '' . $_[0]->name . '->{' . $_[1]->list . '}' )
 }
 package Pugs::Emitter::Perl6::Perl5::NamedScalar;
     use base 'Pugs::Emitter::Perl6::Perl5::Scalar';

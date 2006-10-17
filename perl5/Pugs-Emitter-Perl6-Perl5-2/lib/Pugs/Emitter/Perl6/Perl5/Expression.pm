@@ -17,6 +17,9 @@ package Pugs::Emitter::Perl6::Perl5::Expression;
     sub true { 
         return $_[0]->node( 'BoolExpression', $_[0] . '->true' )
     }
+    sub list { 
+        $_[0]->node( 'Seq', [ $_[0] ] );
+    }
 package Pugs::Emitter::Perl6::Perl5::AnyExpression;
     use base 'Pugs::Emitter::Perl6::Perl5::Expression';
 package Pugs::Emitter::Perl6::Perl5::BoolExpression;

@@ -207,9 +207,9 @@ sub _123__125_ {
     return $_[0] unless defined $_[1] && $_[1] ne ''; 
     #print "index: $_[1] ", $_[1]->list->elems, Data::Dumper::Dumper( $_[1] );
     #print '${' . $_[0]->name . '->[' . $_[1] . ']}',"\n";
-    return $_[0]->node( 'Scalar',  '${' . $_[0]->name . '->{' . $_[1] . '}}' )
+    return $_[0]->node( 'Scalar',  '' . $_[0]->name . '->{' . $_[1] . '}' )
         if $_[1]->list->elems == 1;
-    $_[0]->node( 'Scalar',  '${' . $_[0]->name . '->{' . $_[1]->list . '}}' )
+    $_[0]->node( 'List',  '' . $_[0]->name . '->{' . $_[1]->list . '}' )
 }
 
 1;
