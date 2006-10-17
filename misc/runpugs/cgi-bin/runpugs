@@ -99,7 +99,12 @@ sub runpugs {
     $reply = "Sorry, runpugs is not available at the moment.";
     } else {
     $cmd=~s/^.+?pugs([\>\.])/pugs$1/s;
-    if ($cmd=~/clear/) {$cmd=''} else {
+    #NO UNICODE!
+#    $cmd=tr/\0-\x{10ffff}/\0-\xff_/;
+    if ($cmd=~/clear/) {$cmd=''} elsif ($cmd!~/^\p{IsASCII}*$/) {
+            $cmd='';
+                $reply = "Sorry, Unicode is not yet supported.\npugs> ";
+    } else {
     $reply = &WebTerminal::Dispatcher::send($sessionid,$ip,$cmd);
     $reply="\n".$reply;
     }

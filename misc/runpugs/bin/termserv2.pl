@@ -1,7 +1,11 @@
 #!/usr/bin/perl
+BEGIN {
+$ENV{PERLIO}= ":utf8";
+}
 use warnings;
 use strict;
 use utf8;
+
 use lib '../lib/';
 use Web::Terminal::Server;
 use  Web::Terminal::Settings;

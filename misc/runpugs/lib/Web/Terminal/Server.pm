@@ -31,28 +31,27 @@ with the session id as first line.
 =cut
 
 our %terminals=();
-our %lastcalled=();
+#our %lastcalled=();
 our %sessions_per_ip=();
 
 sub termhandler {
 	my $id  = shift;
     my $ip=shift;
 	my $cmd = shift;
-if(scalar(keys %lastcalled)>$Web::Terminal::Settings::nsessions){ # each pugs takes 1% of feather's MEM!
+if(scalar(keys %terminals)>$Web::Terminal::Settings::nsessions){ # each pugs takes 1% of feather's MEM!
     return "Sorry, I can't run any more sessions.\nPlease try again later.";
 } else {
-	$lastcalled{$id}=time;
+#	$lastcalled{$id}=time;
 	if ( exists $terminals{$id} ) {
+    $terminals{$id}->{called}=time;
 		my $term  = $terminals{$id};
 		my $lines = $term->write($cmd);
 		if ( $cmd eq $Web::Terminal::Settings::quit_command ) {
 			delete $terminals{$id};
-            delete $lastcalled{$id};
             $sessions_per_ip{$ip}--;
 		}
         if ($lines=~/Aborted/s) {
              delete $terminals{$id};
-             delete $lastcalled{$id};
             $sessions_per_ip{$ip}--;
         }
 		return $lines;
@@ -63,7 +62,9 @@ if(scalar(keys %lastcalled)>$Web::Terminal::Settings::nsessions){ # each pugs ta
          address.\n";   
         } else {
             $sessions_per_ip{$ip}++;
-		$terminals{$id} = new Web::Terminal::Server:Session();
+		$terminals{$id} = new Web::Terminal::Server::Session();
+    $terminals{$id}->{called}=time;
+    $terminals{$id}->{ip}=$ip;
 		my $term = $terminals{$id};
 		return $term->{'init'};
         }
@@ -77,12 +78,12 @@ sub rcvd_msg_from_client {
 		my $len = length($msg);
 		if ( $len > 0 ) {
 #			( my $id, my $ip, my $cmd ) = split( "\n", $msg, 3 );
-print "MSG:", $msg;			
+            print "MSG:", $msg;			
 			my $mesgref=YAML::Syck::Load($msg);
 			 my $id=$mesgref->{id};
              my $ip=$mesgref->{ip};
              my $cmd=$mesgref->{cmd};
-            $cmd=pack("U0C*", unpack("C*",$cmd));
+#            $cmd=pack("U0C*", unpack("C*",$cmd));
 #            print "$id($ip): ",$cmd,"\n";
 			my $lines = &termhandler( $id, $ip, $cmd );
             my $replyref=YAML::Syck::Dump({id=>$id,msg=>$lines});
@@ -131,15 +132,14 @@ if ($pid=fork) {
 
 sub timeout() {
     my $now=time();
-    for my $id (keys %lastcalled) {
-        my $then=$lastcalled{$id};
+    for my $id (keys %terminals) {
+        my $then=$terminals{$id};
         if ($now-$then>$Web::Terminal::Settings::timeout_idle) {
         if(exists $terminals{$id}) {
+            my $ip=$terminals{$id}->{ip};
+            $sessions_per_ip{$ip}--;
             $terminals{$id}->write(':q');
             delete $terminals{$id};
-            }
-            if (exists $lastcalled{$id}) {
-            delete $lastcalled{$id};
             }
         }
     }

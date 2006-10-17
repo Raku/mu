@@ -46,7 +46,10 @@ sub new {
 sub write {
 	my $obj = shift;
 	my $cmd  = shift;
-	chomp $cmd;
+#	print "CMD1: $cmd\n";
+#    $cmd=pack("U0C*", unpack("C*",$cmd));    
+#	print "CMD2: $cmd\n";
+    chomp $cmd;
 	my $ps = '';
 
 	if ( $cmd eq $Web::Terminal::Settings::quit_command ) {
@@ -65,11 +68,11 @@ sub write {
         my $msg=$pugs->errmsg;
 #	    print "L:",$line,":",$msg;
 	    if($msg=~/timed/) {
-        $msg='';
-        $pugs->errmsg([]);
-        $lline="${Web::Terminal::Settings::prompt} Sorry, that took too long! Aborted.\n";
-        $ps=$Web::Terminal::Settings::prompt;
-        last;
+            $msg='';
+            $pugs->errmsg([]);
+            $lline="${Web::Terminal::Settings::prompt} Sorry, that took too long! Aborted.\n";
+            $ps=$Web::Terminal::Settings::prompt;
+            last;
         }
         $msg='';
         if ( ($line =~ /$Web::Terminal::Settings::prompt_pattern/ or
@@ -79,8 +82,8 @@ sub write {
 		$i++;
 	}
 
-
 	#$lline .= "\n$ps>";
+    chomp $ps; # a hack!
 	$lline .= $ps;
 	return $lline;
 }    # end write method
@@ -93,7 +96,7 @@ sub spawn {
 	use IO::Pty ();
 	$pty = new IO::Pty
 	  or die $!;
-    binmode $pty, ':utf8';
+    binmode $pty, ":utf8"; 
 	## Execute the program in another process.
 	unless ( $pid = fork ) {    # child process
 		die "problem spawning program: $!\n" unless defined $pid;
@@ -105,7 +108,7 @@ sub spawn {
 
 		## Associate process with a new controlling terminal.
 		$tty    = $pty->slave;
-        binmode $tty, ':utf8';
+        binmode $tty, ":utf8";
 		$tty_fd = $tty->fileno;
 		close $pty;
 
@@ -113,6 +116,9 @@ sub spawn {
 		open STDIN,  "<&$tty_fd" or die $!;
 		open STDOUT, ">&$tty_fd" or die $!;
 		open STDERR, ">&STDOUT"  or die $!;
+        binmode STDIN, ":utf8";
+        binmode STDOUT, ":utf8";
+        binmode STDERR, ":utf8";
 		close $tty;
 
 		## Execute requested program.
