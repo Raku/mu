@@ -56,9 +56,9 @@
 === Blocks and Statements
 
 * Implicit invocation in `when`: `when .true {...}`, `when .<key> {...}`
-* Loop topic is not forced into rw: `for 1..3 { $_++ }` now fails correctly
-* New `&break` and `&continue` primitives to use inside `when` blocks
-* New `&leave` primitive to exit from the innermost block
+* Loop topics are not forced into rw: `for 1..3 { $_++ }` now fails correctly
+* New `&break` and `&continue` primitives for use within `when` blocks
+* New `&leave` primitive for exiting from the innermost block
 * New postfix `given` statement modifier: `.say given foo()`
 * Support for `FIRST`, `NEXT`, `LAST` loop control blocks
 * Support for `START`, `PRE`, `POST`, `KEEP`, `UNDO`, `ENTER`, `LEAVE` blocks
@@ -69,25 +69,26 @@
 * `&last` and `&redo` now work in `repeat {...}` and `loop {...}` blocks
 * `&take` no longer flattens array literals: `take [1,2,3];`
 * `&take` now works in functions called from within a `gather {...}` block
-* `BEGIN(...)`, `END(...)` etc are parsed as calls, not syntax errors
+* `BEGIN(...)`, `END(...)`, etc., are now parsed as calls, not syntax errors
 * `do {...}` is now a loop block that takes standard loop controls
 
 === Regexes and Grammars
 
 * Anonymous tokens and rules anchor on both ends: `123 ~~ token{2}` is false
 * New `s[...] = ...` syntax; `s[...][...]` is deprecated
-* Pugs::Compiler::Rule (PCR) replaced Parrot/PGE as the default engine
+* Pugs::Compiler::Rule (PCR) replaces Parrot/PGE as the default engine
 * Support for `:c/:continue`, `<prior>`, and much more: see PCR's ChangeLog
-* `$()`, `@()` and `%()` parsed correctly as `$$/`, `@$/` and `%$/`
+* `$()`, `@()` and `%()` parses correctly as `$$/`, `@$/` and `%$/`
 
 === Modules and Routines
 
 * Allow space-separated adverbial named arguments: `f( :x<foo> :$y :!z )`
 * Multi-dispatching now handles named, slurpy and optional arguments
 * Named arguments with no matching parameters is now an error
-* New `&sub.call($capture)` syntax to call without a caller frame
+* New `&sub.call($capture)` syntax to call without a caller frame (similar
+  to Perl 5's `goto &sub`)
 * Parse for the `proto` routine modifier: `proto method foo ($x) {...}`
-* Precompiled `.pm.yml` files with mismatching AST version no longer loads
+* Precompiled `.pm.yml` files with mismatching AST version will no longer load
 * Support for user-defined unary and optional-unary prefix macros
 * The main package is now ::Main, not ::main
 * `sub ($x = 0 is copy)` no longer allowed; say `sub ($x is copy = 0)` instead
