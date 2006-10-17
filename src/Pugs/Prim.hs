@@ -39,9 +39,6 @@ import Data.IORef
 import System.IO.Error (isEOFError)
 import Control.Exception (ioErrors)
 
-import qualified Judy.CollectionsM as C
---import qualified Judy.StrMap         as H
-
 import Pugs.Prim.Keyed
 import Pugs.Prim.Yaml
 import Pugs.Prim.Match
@@ -57,6 +54,7 @@ import DrIFT.YAML
 import GHC.Exts (unsafeCoerce#)
 import GHC.Unicode
 import qualified UTF8 as Str
+import qualified Data.HashTable as H
 
 constMacro :: Exp -> [Val] -> Eval Val
 constMacro = const . expToEvalVal
@@ -1280,7 +1278,7 @@ op3 "Object::new" = \t n p -> do
     fetch   <- doHash meta hash_fetchVal
     defs    <- fromVal =<< fetch "attrs"
 
-    attrs   <- liftIO $ (C.new :: IO IHash)
+    attrs   <- liftIO $ H.new (==) H.hashString
     writeIVar (IHash attrs) (named `Map.union` defs)
     uniq    <- newObjectId
     unless (positionals == VList []) (fail "Must only use named arguments to new() constructor\nBe sure to use bareword keys.")
@@ -1299,7 +1297,7 @@ op3 "Object::clone" = \t n _ -> do
     named <- fromVal n
     (VObject o) <- fromVal t
     attrs   <- readIVar (IHash $ objAttrs o)
-    attrs'   <- liftIO $ (C.new :: IO IHash)
+    attrs'  <- liftIO $ H.new (==) H.hashString
     uniq    <- newObjectId
     writeIVar (IHash attrs') (named `Map.union` attrs)
     return $ VObject o{ objAttrs = attrs', objId = uniq }

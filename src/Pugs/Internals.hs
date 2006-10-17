@@ -88,7 +88,9 @@ module Pugs.Internals (
     unsafeIOToSTM,
     ID(..), bufToID,
 
-    __, (+++), nullID, addressOf, showAddressOf
+    __, (+++), nullID, addressOf, showAddressOf,
+
+    hashNew, hashList
 ) where
 
 import Pugs.Compat
@@ -152,7 +154,6 @@ import GHC.Exts (unsafeCoerce#, Word(W#), Word#)
 import qualified Data.Seq as Seq
 
 import qualified UTF8
-import qualified Judy.CollectionsM as C ()
 import qualified Data.HashTable as H
 import qualified Foreign as Foreign
 import qualified Control.Exception (catch, evaluate)
@@ -518,9 +519,17 @@ __ = UTF8.pack
 (+++) :: ByteString -> ByteString -> ByteString
 (+++) = UTF8.append
 
+{-# INLINE hashNew #-}
+hashNew :: IO (H.HashTable ByteString a)
+hashNew = H.new (==) (UTF8.hash)
+
+{-# INLINE hashList #-}
+hashList :: [(ByteString, a)] -> IO (H.HashTable ByteString a)
+hashList = H.fromList (UTF8.hash)
+
 {-# NOINLINE _BufToID #-}
 _BufToID :: H.HashTable ByteString ID
-_BufToID = unsafePerformIO (H.new (==) (UTF8.hash))
+_BufToID = unsafePerformIO hashNew
 
 {-# NOINLINE _ID_count #-}
 _ID_count :: Foreign.Ptr Int

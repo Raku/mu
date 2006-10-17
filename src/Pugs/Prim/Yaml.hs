@@ -9,9 +9,8 @@ import Data.Yaml.Syck
 import qualified Data.Map as Map
 import qualified Data.IntSet as IntSet
 import qualified Data.ByteString as Str
+import qualified Data.HashTable as H
 import DrIFT.YAML
-
-import qualified Judy.CollectionsM as C
 
 evalYaml :: Val -> Eval Val
 evalYaml cv = do
@@ -33,7 +32,7 @@ fromYaml MkNode{n_elem=EMap nodes, n_tag=tag} = do
                 key <- fromVal =<< fromYaml keyNode
                 val <- newScalar =<< fromYaml valNode
                 return (key, val)
-            hv      <- liftIO $ (C.fromList vals :: IO IHash)
+            hv      <- liftIO $ (H.fromList H.hashString vals :: IO IHash)
             return $ VRef (hashRef hv)
         Just s | (pre, post) <- Str.splitAt 16 s   -- 16 == length "tag:pugs:Object:"
                , pre == packBuf "tag:pugs:Object:" -> do

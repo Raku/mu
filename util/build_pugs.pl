@@ -153,6 +153,8 @@ sub build {
         '--prefix='        . $prefix
     );
 
+=begin Judy
+
     # Judy library
     chdir "third-party/judy/Judy-1.0.3";
     copy('src/Judy.h', '../../HsJudy');
@@ -185,7 +187,9 @@ sub build {
 
     chdir "../../..";
 
-    foreach my $module (qw< filepath fps HsSyck HsJudy >) {
+=cut
+
+    foreach my $module (qw< filepath fps HsSyck >) {
         if ( my ($archive_dir) = (
                 glob("third-party/installed/*/$module-*"),
                 glob("third-party/installed/*/pugs-$module-*"),
@@ -246,6 +250,7 @@ sub build {
         }
     }
 
+=begin Judy
 
     # Embedding Judy object files in HsJudy
     my ($archive_dir) = (
@@ -254,6 +259,7 @@ sub build {
         glob("third-party/installed/pugs-HsJudy-*"),
         glob("third-party/installed/HsJudy-*"),
     );
+
     my @archive_files = (
         glob("$archive_dir/*.a"),
         glob("$archive_dir/*/*.a"),
@@ -270,6 +276,7 @@ sub build {
         system(split(/ /,$Config{ranlib}), $_) for @archive_files;
     }
 
+=cut
 
     print "*** Finished building dependencies.\n\n";
 
@@ -426,7 +433,7 @@ sub build_exe {
     #my @o = qw( src/pcre/pcre.o src/syck/bytecode.o src/syck/emitter.o src/syck/gram.o src/syck/handler.o src/syck/implicit.o src/syck/node.o src/syck/syck.o src/syck/syck_st.o src/syck/token.o src/syck/yaml2byte.o src/cbits/fpstring.o );
     #push @o, 'src/UnicodeC.o' if grep /WITH_UNICODEC/, @_;
     #system $ghc, '--make', @_, @o, '-o' => 'pugs', 'src/Main.hs';
-    my @pkgs = qw(-hide-all-packages -package stm -package network -package mtl -package template-haskell -package base -package pugs-fps -package pugs-HsSyck -package HsJudy );
+    my @pkgs = qw(-hide-all-packages -package stm -package network -package mtl -package template-haskell -package base -package pugs-fps -package pugs-HsSyck );
     if ($^O =~ /(?:MSWin32|mingw|msys|cygwin)/) {
         push @pkgs, -package => 'Win32' unless $ghc_version =~ /^6.4(?:.0)?$/;
     }
@@ -447,7 +454,7 @@ sub build_exe {
     if ($want_profiling) {
         $out = "pugs-prof$Config{_exe}";
         push @libs, '-prof';
-        push @pkgs, glob('third-party/HsSyck/dist/build/syck/*.o'), qw( dist/build/src/pcre/pcre.o third-party/HsJudy/dist/build/Judy/Private_hsc.o )
+        push @pkgs, glob('third-party/HsSyck/dist/build/syck/*.o'), qw( dist/build/src/pcre/pcre.o );
     }
     else {
         push @libs, grep /^-threaded/, @_;
@@ -524,7 +531,7 @@ sub write_buildinfo {
             s/hs-source-dir/hs-source-dirs/;
         }
         else {
-            s/pugs-fps -any, pugs-HsSyck -any, HsJudy -any, //;
+            s/pugs-fps -any, pugs-HsSyck -any, //;
         }
         s/__OPTIONS__/@_/;
         s/__VERSION__/$version/;

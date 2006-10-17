@@ -4,8 +4,8 @@ module Pugs.Parser.Charnames (nameToCode) where
 
 import Pugs.Internals
 import Data.ByteString.Char8 (unsafePackAddress)
-import qualified Judy.StrMap as H
-import qualified Judy.CollectionsM as C
+import qualified Data.HashTable as H
+import qualified UTF8 as Str
 
 #ifdef PUGS_HAVE_PERL5
 
@@ -27,11 +27,11 @@ nameToCode name = inlinePerformIO $ do
 -- If we don't have Perl 5, support for names in the 0x00 - 0xFF range only.
 
 nameToCode :: String -> Maybe Int
-nameToCode name = inlinePerformIO (C.lookup (cast name) _NameToCode)
+nameToCode name = inlinePerformIO (H.lookup _NameToCode (cast name))
 
 {-# NOINLINE _NameToCode #-}
-_NameToCode :: H.StrMap ByteString Int
-_NameToCode = unsafePerformIO $! C.fromList
+_NameToCode :: H.HashTable ByteString Int
+_NameToCode = unsafePerformIO $! hashList
     [ (unsafePackAddress 4 "NULL"#, 0x0000)
     , (unsafePackAddress 16 "START OF HEADING"#, 0x0001)
     , (unsafePackAddress 13 "START OF TEXT"#, 0x0002)

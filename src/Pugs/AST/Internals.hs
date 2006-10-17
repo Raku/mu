@@ -88,7 +88,6 @@ import Pugs.Types
 import qualified Data.Set       as Set
 import qualified Data.Map       as Map
 
-import qualified Judy.CollectionsM as C
 import qualified Data.HashTable    as H
 import GHC.Conc (unsafeIOToSTM)
 
@@ -101,10 +100,9 @@ import Pugs.AST.Pos
 import Pugs.AST.Scope
 import Pugs.AST.SIO
 import Pugs.Embed.Perl5
+import Control.Monad (replicateM)
 import qualified Pugs.Val as Val
 import qualified Data.ByteString.Char8 as Str
-
-import Control.Monad (replicateM)
 import qualified Data.Seq as Seq
 
 {- <DrIFT> Imports for the DrIFT
@@ -119,7 +117,6 @@ import qualified Data.Set       as Set
 import qualified Data.Map       as Map
 import qualified Pugs.Val       as Val
 
-import qualified Judy.CollectionsM as C
 import qualified Data.HashTable    as H
  </DrIFT> -}
  
@@ -283,7 +280,7 @@ getArrayIndex idx def getArr ext = do
 createObjectRaw :: (MonadSTM m)
     => ObjectId -> Maybe Dynamic -> VType -> [(VStr, Val)] -> m VObject
 createObjectRaw uniq opaq typ attrList = do
-    attrs   <- liftSTM $ unsafeIOToSTM $ C.fromList $ map (\(a,b) -> (a, lazyScalar b)) attrList
+    attrs   <- liftSTM . unsafeIOToSTM . H.fromList H.hashString $ map (\(a,b) -> (a, lazyScalar b)) attrList
     return $ MkObject
         { objType   = typ
         , objId     = uniq
@@ -357,8 +354,10 @@ instance Value VObject where
 
 instance Value VHash where
     fromVal (VObject o) = do
-        l <- liftIO $ C.mapToList (\k ivar -> do { v <- readIVar ivar; return (k, v) }) (objAttrs o)
-        fmap Map.fromList $ sequence l
+        l <- liftIO $ H.toList (objAttrs o)
+        fmap Map.fromList . forM l $ \(k, ivar) -> do
+            v <- readIVar ivar
+            return (k, v)
     fromVal VType{} = return Map.empty -- ::Hash<foo>
     fromVal (VRef r) = fromVal =<< readRef r
     fromVal v = do
@@ -1452,7 +1451,7 @@ mkCompUnit :: String -> Pad -> Exp -> CompUnit
 mkCompUnit _ pad ast = MkCompUnit compUnitVersion pad ast
 
 compUnitVersion :: Int
-compUnitVersion = 9
+compUnitVersion = 8
 
 {-|
 Retrieve the global 'Pad' from the current evaluation environment.
@@ -1593,8 +1592,8 @@ newObject typ = case showType typ of
         iv  <- newTVar Seq.empty
         return $ arrayRef (MkIArray iv)
     "Hash"      -> do
-        h   <- liftIO (C.new :: IO IHash)
-        return $ hashRef h
+        h   <- liftIO (H.new (==) H.hashString)
+        return $ hashRef (h :: IHash)
     "Code"      -> return $! codeRef $ mkPrim
         { subAssoc = ANil
         , subBody  = Prim . const $ fail "Cannot use Undef as a Code object"
@@ -1823,7 +1822,7 @@ newArray vals = liftSTM $ do
 newHash :: (MonadSTM m) => VHash -> m (IVar VHash)
 newHash hash = do
     --liftSTM $ unsafeIOToSTM $ putStrLn "new hash"
-    ihash <- liftSTM $ unsafeIOToSTM $ (C.fromList (map (\(a,b) -> (a, lazyScalar b)) (Map.toList hash)) :: IO IHash)
+    ihash <- liftSTM . unsafeIOToSTM $ H.fromList H.hashString (map (\(a,b) -> (a, lazyScalar b)) (Map.toList hash))
     return $ IHash ihash
 
 newHandle :: (MonadSTM m) => VHandle -> m (IVar VHandle)
@@ -2005,11 +2004,11 @@ instance YAML VRef where
     fromYAML node = fail $ "Unhandled YAML node: " ++ show node
 instance YAML IHash where
      asYAML x = do
-         l <- liftIO $ C.mapToList (\k v -> (k, asYAML v)) x
-         asYAMLmap "IHash" l
+         l      <- liftIO $ H.toList x
+         asYAMLmap "IHash" (map (\(k, v) -> (k, asYAML v)) l)
      fromYAML node = do
-         l <- fromYAMLmap node
-         l' <- C.fromList l
+         l  <- fromYAMLmap node
+         l' <- H.fromList H.hashString l
          return l'
 
 instance YAML ID where

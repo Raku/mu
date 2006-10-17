@@ -101,29 +101,29 @@ decodeKey x = x
 
 instance HashClass IHash where
     hash_fetch hv = do
-        ps  <- liftIO $ C.toList hv
+        ps  <- liftIO $ H.toList hv
         ps' <- forM ps $ \(k, sv) -> do
             val <- readIVar sv
             return (decodeKey k, val)
         return (length ps' `seq` Map.fromList ps')
     hash_fetchKeys hv = do
-        fmap (map decodeKey) (liftIO $ C.keys hv)
+        fmap (map (decodeKey . fst)) (liftIO $ H.toList hv)
     hash_fetchElem hv idx = do
         let idx' = encodeKey idx
-        r <- liftIO $ C.lookup idx' hv
+        r <- liftIO $ H.lookup hv idx'
         case r of
              Just sv -> return sv
              Nothing -> do
                 sv <- newScalar undef
-                liftIO $ C.insert idx' sv hv
+                liftIO $ H.insert hv idx' sv
                 return sv
     hash_storeElem hv idx sv = do
-        liftIO $ C.insert (encodeKey idx) sv hv
+        liftIO $ H.insert hv (encodeKey idx) sv
     hash_deleteElem hv idx = do
-        liftIO $ C.delete (encodeKey idx) hv
+        liftIO $ H.delete hv (encodeKey idx)
         return ()
     hash_existsElem hv idx = do
-        liftIO $ C.member (encodeKey idx) hv
+        liftIO $ fmap isJust (H.lookup hv (encodeKey idx))
 
 instance HashClass PerlSV where
     hash_iType = const $ mkType "Hash::Perl"

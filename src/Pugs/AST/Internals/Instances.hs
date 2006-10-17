@@ -47,7 +47,6 @@ import qualified Data.Set       as Set
 import qualified Data.Map       as Map
 import qualified Pugs.Val       as Val
 
-import qualified Judy.CollectionsM as C
 import qualified Data.HashTable    as H
 
 {-# NOINLINE _FakeEnv #-}
@@ -145,11 +144,11 @@ instance YAML VRef where
     fromYAML node = fail $ "Unhandled YAML node: " ++ show node
 instance YAML IHash where
      asYAML x = do
-         l <- liftIO $ C.mapToList (\k v -> (k, asYAML v)) x
-         asYAMLmap "IHash" l
+         l      <- liftIO $ H.toList x
+         asYAMLmap "IHash" (map (\(k, v) -> (k, asYAML v)) l)
      fromYAML node = do
-         l <- fromYAMLmap node
-         l' <- C.fromList l
+         l  <- fromYAMLmap node
+         l' <- H.fromList H.hashString l
          return l'
 
 instance YAML ID where

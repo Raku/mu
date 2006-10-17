@@ -204,6 +204,7 @@ instance ArrayClass IArray where
                 liftSTM $ do
                     tvar <- newTVar val
                     modifyTVar iv (Seq.update idx tvar)
+    array_storeElem _ _ _ = fail "impossible"
     array_deleteElem (MkIArray iv) idx = liftSTM $ do
         a   <- readTVar iv
         let idx' | idx < 0   = idx `mod` size        --- XXX wrong; wraparound => what do you mean?

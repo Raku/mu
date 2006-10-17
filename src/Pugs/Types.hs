@@ -29,8 +29,7 @@ module Pugs.Types
 where
 import Pugs.Internals
 import Data.Bits (shiftL)
-import qualified Judy.StrMap as H
-import qualified Judy.CollectionsM as C
+import qualified Data.HashTable as H
 import qualified Data.IntMap as IntMap
 import qualified Data.ByteString.Char8 as Buf
 
@@ -383,15 +382,15 @@ instance ((:>:) Var) ByteString where
     cast x = unsafePerformIO (bufToVar x)
 
 {-# NOINLINE _BufToVar #-}
-_BufToVar :: H.StrMap ByteString Var
-_BufToVar = unsafePerformIO C.new
+_BufToVar :: H.HashTable ByteString Var
+_BufToVar = unsafePerformIO hashNew
 
 bufToVar :: ByteString -> IO Var
 bufToVar buf = do
-    a' <- C.lookup buf _BufToVar
+    a' <- H.lookup _BufToVar buf
     maybe (do
         let a = doBufToVar buf
-        C.insert buf a _BufToVar
+        H.insert _BufToVar buf a
         return a) return a'
 
 doBufToVar :: ByteString -> Var

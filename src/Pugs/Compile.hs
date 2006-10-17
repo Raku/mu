@@ -312,7 +312,6 @@ instance Compile Exp PIL_LValue where
         isLogicalLazy (PExp (PVar "&infix://"))  = True
         isLogicalLazy _ = False
     compile exp@(Syn "if" _) = compConditional exp
-    compile exp@(Syn "cond" _) = compConditional exp
     compile (Syn "{}" (x:xs)) = compile $ App (_Var "&postcircumfix:{}") (Just x) xs
     compile (Syn "[]" (x:xs)) = do
         compile (App (_Var "&postcircumfix:[]") (Just x) xs)
