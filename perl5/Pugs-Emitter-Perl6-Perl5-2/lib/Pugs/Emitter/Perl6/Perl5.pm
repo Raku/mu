@@ -1535,6 +1535,7 @@ sub postcircumfix {
     if ( $n->{op1} eq '[' &&
          $n->{op2} eq ']' ) {
 
+        print ".[] = ", $v1->_91__93_( $v2 )," -- $v1 -- $v2\n";  # .[]
         return $v1->_91__93_( $v2 )  # .[]
             if ref $v1;
 

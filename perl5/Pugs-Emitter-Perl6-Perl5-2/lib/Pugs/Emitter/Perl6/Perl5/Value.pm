@@ -13,6 +13,11 @@ package Pugs::Emitter::Perl6::Perl5::Value;
     sub list { 
         $_[0]->node( 'Seq', [ $_[0] ] );
     }
+    sub unboxed {
+        return $_[0]->{name} 
+            if Scalar::Util::blessed $_[0]->{name};
+        $_[0];
+    }
 package Pugs::Emitter::Perl6::Perl5::Bool;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
     use overload (

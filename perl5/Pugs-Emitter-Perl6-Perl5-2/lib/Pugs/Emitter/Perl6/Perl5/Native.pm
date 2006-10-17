@@ -17,6 +17,9 @@ package Pugs::Emitter::Perl6::Perl5::Native;
     sub bind_from { 
         '\\' . $_[0]->scalar;
     }
+    sub unboxed {
+        $_[0]
+    }
 package Pugs::Emitter::Perl6::Perl5::bool;
     use base 'Pugs::Emitter::Perl6::Perl5::Native';
     use overload (
