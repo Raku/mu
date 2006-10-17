@@ -102,26 +102,31 @@ package Pugs::Emitter::Perl6::Perl5::SeqHash;
         return $_[0]->node( 'StrExpression', ' Pugs::Runtime::Perl6::Hash::str( ' . $_[0] . ' ) ' )
     }
 
-package Pugs::Emitter::Perl6::Perl5::Perl5Hash;
+package Pugs::Emitter::Perl6::Perl5::NamedHash;
     use strict;
     use warnings;
     use base 'Pugs::Emitter::Perl6::Perl5::Value'; # XXX
+    
     use overload (
         '""'     => sub { 
-            Pugs::Runtime::Common::mangle_var( $_[0]->{name} )
+            '%' . $_[0]->name
         },
         fallback => 1,
     );
-
+    sub name {
+        my $name = Pugs::Runtime::Common::mangle_var( $_[0]->{name} );
+        $name =~ s/\%/HASH/;
+        '$' . $name
+    }
+    sub bind {
+        $_[0]->bind_from . ' = ' . $_[1]->bind_from
+    }
+    sub bind_from {
+        $_[0]->name
+    }
     sub WHAT { 
         $_[0]->node( 'str', 'Hash' );
     }
-
-sub _dollar_name {
-    my $name = $_[0]->{name};
-    $name =~ s/\%/\$/;
-    return $name;
-}
 
 sub isa { 
     my $self = $_[0];
@@ -130,17 +135,17 @@ sub isa {
 
 sub get {
     my $self = $_[0];
-    return $self->name;
+    $self->name;
 }
 
 sub set {
     my $self = $_[0];
-    print "perl5hash set ", Dumper( $_[1] );
-    return $self->name . ' = ' . $_[1]->hash->get;
+    print "NamedHash set ", Dumper( $_[1] );
+    $self->name . ' = ' . $_[1]->hash->get;
 }
 
     sub str {
-        return $_[0]->node( 'StrExpression', ' Pugs::Runtime::Perl6::Hash::str( \\' . $_[0] . ' ) ' )
+        $_[0]->node( 'StrExpression', ' Pugs::Runtime::Perl6::Hash::str( \\' . $_[0] . ' ) ' )
     }
     sub perl {
         $_[0]->node( 'StrExpression',
@@ -160,23 +165,23 @@ sub kv {
 }
 
 sub keys {
-    return $_[0]->node( 'ListExpression', '(keys ' . $_[0]->name . ')' )   
+    $_[0]->node( 'ListExpression', '(keys ' . $_[0]->name . ')' )   
 }
 
 sub num {
-    return $_[0]->elems
+    $_[0]->elems
 } 
 
 sub int {
-    return $_[0]->elems
+    $_[0]->elems
 } 
 
 sub true { 
-    return $_[0]->node( 'BoolExpression', $_[0]->elems )
+    $_[0]->node( 'BoolExpression', $_[0]->elems )
 }
 
 sub elems {
-    return $_[0]->node( 'IntExpression',  '(scalar keys ' . $_[0]->name . ')' )
+    $_[0]->node( 'IntExpression',  '(scalar keys ' . $_[0]->name . ')' )
 }
 
 
@@ -186,19 +191,21 @@ sub hash {
 
 sub array {
     #print "\@Hash->Array\n";
-    return $_[0]->node( 'ListExpression', '@{[' . $_[0]->name . ']}' )   
+    $_[0]->node( 'ListExpression', '@{[' . $_[0]->name . ']}' )   
 }
 
 sub scalar {
-    return $_[0]->node( 'Hash', '( bless \\' . $_[0] . ", 'Pugs::Runtime::Perl6::Hash' )" )
+    $_[0]->node( 'Hash', '( bless \\' . $_[0] . ", 'Pugs::Runtime::Perl6::Hash' )" )
 }
-
+    sub my {
+        $Pugs::Emitter::Perl6::Perl5::_V6_PREDECLARE{ $_[0]{name} } = 'my ' . $_[0]->name;
+        $_[0]
+    }
 sub _123__125_ {
     # .{}
-    my $self = $_[0];
-    my $other = $_[1]->list;
-    return $_[0] unless $other;  # TODO
-    return $self->_dollar_name . '{' . $other . '}';
+    print Data::Dumper::Dumper( @_ );
+    return $_[0] unless defined $_[1] && $_[1] ne ''; 
+    $_[0]->node( 'Scalar',  '${' . $_[0]->name . '->{' . $_[1]->list . '}}' )
 }
 
 1;

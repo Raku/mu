@@ -31,6 +31,16 @@ Class-specific operations - for example:
 .== (encoded to ASCII, as '_61__61_')
 .eq
 
+Container operations
+
+.bind( $container )
+.set( $value )
+.bind_from - returns this container's cell 
+.[] .array
+.{} .hash
+.[ $value ]
+.{ $value }
+
 --------------
 
 Classes
@@ -85,13 +95,13 @@ These classes are used internally to optimize the implementation, by moving boxi
   ArrayExpression
   HashExpression
 
-Perl5Scalar - '$a'
+NamedScalar - '$a'
   A Scalar called by name
 
-Perl5Array - '@a'
+NamedArray - '@a'
   An Array called by name
 
-Perl5Hash - '%h'
+NamedHash - '%h'
   A Hash called by name
 
 (TODO)

@@ -181,6 +181,7 @@ sub _emit_pair {
 
 sub _emit_statements {
     my $n = $_[0];
+    local %_V6_PREDECLARE;
     my $statements = join ( ";\n", 
         map { defined $_ 
             ? do {
@@ -222,13 +223,13 @@ sub _emit {
 
     # Containers with sigil
             
-    return Pugs::Emitter::Perl6::Perl5::node->node( 'Perl5Scalar', $n->{scalar} )
+    return Pugs::Emitter::Perl6::Perl5::node->node( 'NamedScalar', $n->{scalar} )
         if exists $n->{scalar};
         
-    return Pugs::Emitter::Perl6::Perl5::node->node( 'Perl5Array', $n->{array} )
+    return Pugs::Emitter::Perl6::Perl5::node->node( 'NamedArray', $n->{array} )
         if exists $n->{array};
         
-    return Pugs::Emitter::Perl6::Perl5::node->node( 'Perl5Hash', $n->{hash} )
+    return Pugs::Emitter::Perl6::Perl5::node->node( 'NamedHash', $n->{hash} )
         if exists $n->{hash};
         
     # ---
@@ -407,9 +408,13 @@ sub _emit_parameter_binding {
 
     my @out;
     push @out, 'my @_pos = @{$_[0]}';
+    push @out, 'my %_named = %{$_[1]}';
     for my $param ( @params ) {
         $param->{type} |= '';
-        if ( $param->{is_slurpy} ) {
+        if ( $param->{named_only} ) {
+            push @out, "my $param->{name} = delete \$_named{'" . substr( $param->{name}, 1 ) . "'}";
+        }
+        elsif ( $param->{is_slurpy} ) {
             push @out, "my $param->{name} = \@_pos";
         }
         else {
@@ -793,12 +798,15 @@ sub default {
         
         # self is Compile-time object
         if ( Scalar::Util::blessed $self ) {
-            # XXX encode $method to longname & ASCII
-            my $method = $n->{method}{dot_bareword};
-            # eval is needed to enable method dispatch
+            # XXX encode $method to longname
+            my $method = Pugs::Runtime::Common::mangle_ident( $n->{method}{dot_bareword} );
+            # eval string is needed to enable method dispatch
             my $code = eval '$self->' . $method . '( _emit( $n->{param} ) )';
-            die $@ if $@;
-            return $code;
+            #die $@ if $@;
+            return $code
+                unless $@;
+            # leave it to runtime
+            return $self . '->' . $method . '(' . _emit( $n->{param} ) . ')';
         }
 
 
@@ -975,17 +983,32 @@ sub statement {
                 return 'Pugs::Runtime::Perl6::Array::map([\\'._emit($n->{exp2}).', ['._emit($n->{exp1}).']], {})';
             }
             my @sigs = map { { scalar => $_->{name} } } @{$n->{exp2}{signature}};
-            my $sig = $n->{exp2}{signature} ? ' my ' . _emit( @sigs ) : '';
+            my $sig = $n->{exp2}{signature} 
+                ? {
+                      'exp1' => {
+                        'attribute' => [],
+                        'exp1' => $sigs[0],
+                        'type' => undef,
+                        'variable_declarator' => 'my'
+                      },
+                      'exp2' => {
+                        'scalar' => '$_',
+                      },
+                      'fixity' => 'infix',
+                      'op1' => '='
+                  }
+                : '';;
             my $head = $n->{statement} eq 'for'
                 ?  $n->{statement} . 
-                    $sig . 
+                    # $sig . 
                     emit_parenthesis( $n->{exp1} )
                 :   $n->{statement} . ' ( '.
                     ( $sig ? $sig . ' = ' : ''
                     ) . _emit( $n->{exp1} ) . ' )';
-
+            my @statements = @{ $n->{exp2}{pointy_block}{statements} };
+            #unshift @statements, $sig;
             return  $head . 
-                    " { " . _emit( $n->{exp2}{pointy_block} ) . " }";
+                    " { " . _emit( { statements => [ $sig, @statements ] } ) . " }";
         }
         #die 'for/while/until should contain a block' unless $n->{exp2}{bare_block};
         return  " " . $n->{statement} . 
@@ -1556,6 +1579,10 @@ sub postcircumfix {
 
     if ( $n->{op1} eq '{' &&
          $n->{op2} eq '}' ) {
+             
+        return $v1->_123__125_( $v2 )  # .{}
+            if ref $v1;
+            
         my $name = $v1;
 
         # $/{'x'}

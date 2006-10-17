@@ -127,7 +127,7 @@ package Pugs::Emitter::Perl6::Perl5::SeqArray;
         return $_[0]->node( 'List', $_[0]{name} )
     }
 
-package Pugs::Emitter::Perl6::Perl5::Perl5Array;
+package Pugs::Emitter::Perl6::Perl5::NamedArray;
 
     # TODO after __END__
 
@@ -136,20 +136,24 @@ package Pugs::Emitter::Perl6::Perl5::Perl5Array;
     use base 'Pugs::Emitter::Perl6::Perl5::Value'; # XXX
     use overload (
         '""'     => sub { 
-            Pugs::Runtime::Common::mangle_var( $_[0]->{name} )
+            '@' . $_[0]->name
         },
         fallback => 1,
     );
-
+    sub name {
+        my $name = Pugs::Runtime::Common::mangle_var( $_[0]->{name} );
+        $name =~ s/\@/ARRAY/;
+        '$' . $name
+    }
+    sub bind {
+        $_[0]->bind_from . ' = ' . $_[1]->bind_from
+    }
+    sub bind_from {
+        $_[0]->name
+    }
     sub WHAT { 
         $_[0]->node( 'str', 'Array' );
     }
-
-sub _dollar_name {
-    my $name = $_[0]->{name};
-    $name =~ s/^\@/\$/;
-    $name;
-}
 
 sub isa { 
     $_[0]->WHAT->eq( $_[1] ); 
@@ -163,7 +167,7 @@ sub get {
 sub set {
     my $self = $_[0];
     # XXX box
-    '( ' . $self->name . ' = map { \\$_ } ' . $_[1]->list . ')';
+    '( ' . $self->name . ' = [ map { \\$_ } ' . $_[1]->list . ' ] )';
 }
 
     sub str {
@@ -201,24 +205,23 @@ sub num {
 } 
 
 sub int {
-    return $_[0]->elems
+    $_[0]->elems
 } 
 
 sub elems {
-    return $_[0]->node( 'IntExpression',  'scalar ' . $_[0]->name )
+    $_[0]->node( 'IntExpression',  'scalar ' . $_[0]->name )
 }
 
 sub true { 
-    return $_[0]->node( 'BoolExpression', $_[0]->elems )
+    $_[0]->node( 'BoolExpression', $_[0]->elems )
 }
 
 sub defined {
-    return $_[0]->node( 'BoolExpression',  
-        '(defined ' . $_[0]->_dollar_name . '[' . $_[1] . '])' )
+    $_[0]->node( 'BoolExpression',  '1' )
 }
 
 sub exists {
-    return $_[0]->node( 'BoolExpression',  
+    $_[0]->node( 'BoolExpression',  
         '(exists ' . $_[0]->_dollar_name . '[' . $_[1] . '])' )
 }
 
@@ -228,7 +231,7 @@ sub delete {
 }
 
 sub hash {
-    return $_[0]->node( 'HashExpression', '%{{' . $_[0] . '}}' )
+    $_[0]->node( 'HashExpression', '%{{' . $_[0] . '}}' )
 }
 
 sub array {
@@ -236,23 +239,22 @@ sub array {
 }
 
 sub scalar {
-    return $_[0]->node( 'Array', '( bless \\' . $_[0] . ", 'Pugs::Runtime::Perl5Container::Array' )" )
+    $_[0]->node( 'Array', '( bless \\' . $_[0] . ", 'Pugs::Runtime::Perl5Container::Array' )" )
 }
 
 sub shift {
-    return $_[0]->node( 'Scalar', 'shift ' . $_[0] )
+    $_[0]->node( 'Scalar', 'shift ' . $_[0] )
 }
 
     sub my {
-        # TODO
-        $Pugs::Emitter::Perl6::Perl5::_V6_PREDECLARE{ $_[0]{name} } = 'my ' . Pugs::Runtime::Common::mangle_var( $_[0]->{name} ); # . ' = \( my @' . $_[0]->new_id . ')';
+        $Pugs::Emitter::Perl6::Perl5::_V6_PREDECLARE{ $_[0]{name} } = 'my ' . $_[0]->name;
         $_[0]
     }
 
 sub _91__93_ {
     # .[]
     return $_[0] unless defined $_[1]; 
-    return $_[0]->node( 'Scalar',  '${' . $_[0]->_dollar_name . '[' . $_[1]->list . ']}' )
+    $_[0]->node( 'Scalar',  '${' . $_[0]->name . '->[' . $_[1]->list . ']}' )
 }
 
 1;

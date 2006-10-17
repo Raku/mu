@@ -49,11 +49,11 @@ sub defined {
 }
 
 sub print {
-    $_[0]->node( 'AnyExpression', '( print ' . $_[0]->str . ' )' );
+    $_[0]->node( 'AnyExpression', '( print "", ' . $_[0]->str . ' )' );
 }
 
 sub say {
-    $_[0]->node( 'AnyExpression', '( print ' . $_[0]->str . ', "\n" )' );
+    $_[0]->node( 'AnyExpression', '( print "", ' . $_[0]->str . ', "\n" )' );
 }
 
 sub warn {

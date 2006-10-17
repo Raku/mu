@@ -93,7 +93,7 @@ sub _123__125_ {
     return $_[0] unless $other;  # TODO
     return $self->_dollar_name . '{' . $other . '}';
 }
-package Pugs::Emitter::Perl6::Perl5::Perl5Scalar;
+package Pugs::Emitter::Perl6::Perl5::NamedScalar;
     use base 'Pugs::Emitter::Perl6::Perl5::Scalar';
     use overload (
         '""'     => sub { 

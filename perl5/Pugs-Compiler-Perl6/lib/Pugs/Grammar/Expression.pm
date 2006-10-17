@@ -307,13 +307,26 @@ sub lexer {
                     };
                 }
                 else {
-                    $paren->data->{capture} = \{ 
-                        fixity => 'postcircumfix', 
-                        op1 => "{", 
-                        op2 => "}", 
-                        exp1 => $m2->(), 
-                        exp2 => $paren->()->{'bare_block'}, 
-                    };
+                    my $block = $paren->()->{'bare_block'};
+                    if ( @{ $block->{'statements'} } < 2 ) {
+                        $paren->data->{capture} = \{ 
+                            fixity => 'postcircumfix', 
+                            op1 => "{", 
+                            op2 => "}", 
+                            exp1 => $m2->(), 
+                            exp2 => $block->{'statements'}[0], 
+                        };
+                    }
+                    else {
+                        # multidim
+                        $paren->data->{capture} = \{ 
+                            fixity => 'postcircumfix', 
+                            op1 => "{", 
+                            op2 => "}", 
+                            exp1 => $m2->(), 
+                            exp2 => $block, 
+                        };
+                    }
                 }
                 $m2 = $paren;
                 next;
