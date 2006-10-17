@@ -169,7 +169,7 @@ more information about related features.
 ** Support for:
     my T ($x, $y, $z)
    to distribute as:
-    (my T $x, my T $y, my T 4z)
+    (my T $x, my T $y, my T $z)
 ** Also, "my T $x" now re-assigns T into $x upon closure reentry.
    Note that this is not strictly correct for "state T $x", but
    let's do it this way for now.
