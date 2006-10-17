@@ -209,7 +209,7 @@ sub int {
 } 
 
 sub elems {
-    $_[0]->node( 'IntExpression',  'scalar ' . $_[0]->name )
+    $_[0]->node( 'IntExpression',  'scalar @{' . $_[0]->name . '}' )
 }
 
 sub true { 
