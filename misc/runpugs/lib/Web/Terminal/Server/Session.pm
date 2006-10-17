@@ -1,8 +1,11 @@
-package WebTerminal::Server::Terminal;
+package Web::Terminal::Server::Session;
+
 use vars qw( $VERSION );
-$VERSION='0.1.0';
+$VERSION='0.2.0';
 use strict;
 use utf8;
+
+use Web::Terminal::Settings;
 =pod
 A thin wrapper around Net::Telnet
 new() starts the session;
@@ -14,17 +17,18 @@ sub new {
 	my $invocant = shift;
 	my $class    = ref($invocant) || $invocant;
 	my $self     = {@_};
-	#my $prompt = '/\>\ /';
-	my $prompt = '/>\ /';
+#	my $prompt = '/\>\ /';
+    my $prompt= '/'.$Web::Terminal::Settings::init_pattern.'/';
 	## Start pugs
 #    $ENV{PUGS_SAFEMODE}=1;# Must be in CGI script!
-	( $self->{'pty'},$self->{'pid'} ) = &spawn("/usr/bin/pugs");    # spawn() defined below
+	( $self->{'pty'},$self->{'pid'} ) =
+    &spawn($Web::Terminal::Settings::command);    # spawn() defined below
 
 	## Create a Net::Telnet object to perform I/O on pugs's tty.
 	use Net::Telnet;
 	$self->{'pugs'} = new Net::Telnet(
 		-fhopen => $self->{'pty'},
-        -timeout => 20,
+		-timeout => $Web::Terminal::Settings::timeout_call,
 		-prompt => $prompt,
 		-telnetmode      => 0,
 		-cmd_remove_mode => 0,
@@ -45,9 +49,9 @@ sub write {
 	chomp $cmd;
 	my $ps = '';
 
-	if ( $cmd eq ':q' ) {
+	if ( $cmd eq $Web::Terminal::Settings::quit_command ) {
 		kill 9, $obj->{'pid'};		
-		return "\nLeaving pugs.\n";
+		return "\n$Web::Terminal::Settings::quit_message\n";
 	}
 	
 	my $i     = 1;
@@ -63,19 +67,21 @@ sub write {
 	    if($msg=~/timed/) {
         $msg='';
         $pugs->errmsg([]);
-        $lline="pugs> Sorry, that took too long! Aborted.\n";
-        $ps='pugs';
+        $lline="${Web::Terminal::Settings::prompt} Sorry, that took too long! Aborted.\n";
+        $ps=$Web::Terminal::Settings::prompt;
         last;
         }
         $msg='';
-        if ( ($line =~ /(pugs|\.\.\.\.)\>/ or ($line=~/^Leaving\ pugs./)) and $i > 1 ) { $ps = $1; last }
-		$lline .= $line unless $line =~ /(pugs|\.\.\.\.)\>/;
+        if ( ($line =~ /$Web::Terminal::Settings::prompt_pattern/ or
+        ($line=~/$Web::Terminal::Settings::quit_pattern/)) and $i > 1 ) { $ps = $1; last }
+		$lline .= $line unless $line =~
+        /$Web::Terminal::Settings::prompt_pattern/;
 		$i++;
 	}
 
 
 	#$lline .= "\n$ps>";
-	$lline .= "$ps> ";
+	$lline .= $ps;
 	return $lline;
 }    # end write method
 
@@ -87,7 +93,7 @@ sub spawn {
 	use IO::Pty ();
 	$pty = new IO::Pty
 	  or die $!;
-
+    binmode $pty, ':utf8';
 	## Execute the program in another process.
 	unless ( $pid = fork ) {    # child process
 		die "problem spawning program: $!\n" unless defined $pid;
@@ -99,6 +105,7 @@ sub spawn {
 
 		## Associate process with a new controlling terminal.
 		$tty    = $pty->slave;
+        binmode $tty, ':utf8';
 		$tty_fd = $tty->fileno;
 		close $pty;
 

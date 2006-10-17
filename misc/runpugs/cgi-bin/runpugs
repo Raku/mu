@@ -57,7 +57,9 @@ my $validsession = 0;
 
 my $ip=$ENV{'REMOTE_ADDR'};
 #my $ip="127.0.0.".int(rand(100));
-
+#if ($ip eq '86.0.200.34') {
+#$ip='127.'.int(rand(100)).'.'.int(rand(100)).'.'.int(rand(100));
+#}
 ######### MAIN SITEMANAGER PROGRAM ###################
 
 if ( $query->param()) {      # an action has been chosen
@@ -121,27 +123,27 @@ sub runpugs {
 
 ################### PRINTHTTPHEADER #######################
 sub printhttpheader {
-   my $cookie;
+#   my $cookie;
      unless ($headerprinted) {
 
-     if ($sessionid) {
-         $cookie = $query->cookie( -name    => 'sessionid',
-                           -"value" => $sessionid,
-                           -path    => '/' );
-       }
+#     if ($sessionid) {
+#         $cookie = $query->cookie( -name    => 'sessionid',
+#                           -"value" => $sessionid,
+#                           -path    => '/' );
+#       }
 
 $headerprinted=1;
 
-     if ($sessionid) {
-         print $query->header(-pragma=>'no-cache',
-                      -cookie=>$cookie,
-                      -charset=>$lang_charset,
-			     );
-       } else {
+#        if ($sessionid) {
+#         print $query->header(-pragma=>'no-cache',
+#                      -cookie=>$cookie,
+#                      -charset=>$lang_charset,
+#			     );
+#       } else {
          print $query->header(-pragma=>'no-cache',
                       -charset=>$lang_charset,
 			      );
-       }
+#       }
    }
    }
 ################### END PRINTHTTPHEADER #######################

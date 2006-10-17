@@ -1,14 +1,15 @@
-package WebTerminal::Dispatcher;
+package Web::Terminal::Dispatcher;
 
 use vars qw( $VERSION );
-$VERSION = '0.1.0';
+$VERSION = '0.2.0';
 use strict;
 use utf8;
+use YAML::Syck;
 #
 # based on testmsg.pl from "Advanced Perl Programming"
 #
-
-use WebTerminal::Msg;
+use Web::Terminal::Settings;
+use Web::Terminal::Msg;
 use Exporter;
 
 our @ISA         = qw( Exporter );
@@ -20,48 +21,57 @@ our %EXPORT_TAGS = (
 );
 
 sub send {
-	my $id   = shift;
+	my $id = shift;
 	my $ip = shift;
 	my $cmds  = shift;
-	my $host = 'localhost';
-	my $port = 2057;
+	my $host = $Web::Terminal::Settings::host;
+	my $port = $Web::Terminal::Settings::port;
 	my $cmd='';
+    # we only consider the last line witha prompt
 	my @cmdlines=split("\n",$cmds);
 	for my $cmdline (reverse @cmdlines) {
 		$cmdline=~/^\s*$/ && next;
-		$cmdline=~/^(pugs|\.\.\.\.)\>\s+/ && do {
+		#$cmdline=~/^(pugs|\.\.\.\.)\>\s+/ && do {
+		$cmdline=~/$Web::Terminal::Settings::prompt_pattern/ && do {
 			$cmd=$cmdline;
-			$cmd=~s/^(pugs|\.\.\.\.)\>\s+//;
+			#$cmd=~s/^(pugs|\.\.\.\.)\>\s+//;
+			$cmd=~s/$Web::Terminal::Settings::prompt_pattern//;
 			chomp $cmd;
 			last;
 		};
 	} 
 #   We're using PUGS_SAFEMODE=1 instead 
+#    if ($Web::Terminal::Settings::filter and
+#    $cmd=~/$Web::Terminal::Settings::filter_pattern/) {
 #    if ($cmd=~/\b(system|exec|fork|wait|open|slurp|eval|kill)\b|(\`)/) {
 #    my $offending_command=$1||$2;
 #    return "Sorry, \'$offending_command\' is not allowed.\npugs> ";
+#    return "Sorry, \'$offending_command\' is not
+#    allowed.\n$Web::Terminal::Settings::prompt";
  #   } else {
     my $conn;
-    my $ntries=5;
+#    my $ntries=5;
 #    for (1..$ntries) {
-	$conn = WebTerminal::Msg->connect( $host, $port, \&rcvd_msg_from_server );
+	$conn = Web::Terminal::Msg->connect( $host, $port, \&rcvd_msg_from_server );
 #	die "Client could not connect to $host:$port ($wd)\n" unless $conn;
     if (not $conn) {
  #       # Assume server has died
-#WV: disabled until stable
+#WV: disabled, too dangerous
 #       system("/usr/bin/perl ../bin/termserv.pl");
 #       sleep 5;
 #    } else {last;}
         return "Sorry, the pugs server is not running.";
     } else {
-	my $msg = "$id\n$ip\n" . $cmd;
+	my $msg = YAML::Syck::Dump({ id=> $id, ip=> $ip, cmd=> $cmd});
 	$conn->send_now($msg);
 	( my $rmesg, my $err ) = $conn->rcv_now();
-	( my $rid, my $reply ) = split( "\n", $rmesg, 2 );
+#	( my $rid, my $reply ) = split( "\n", $rmesg, 2 );
+    my $rmesgref= YAML::Syck::Load($rmesg);
+     my $rid=$rmesgref->{id};
+      my $reply=$rmesgref->{msg};
     $conn->disconnect();
 	if ( "$id" ne  "$rid" ) {
-#		die "Terminal server returned wrong id: $rid, should be $id";
-        return "Sorry, the pugs session died.";
+		die "Terminal server returned wrong id: $rid, should be $id";
 	}
 	return $reply;
    }
