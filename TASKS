@@ -2,11 +2,6 @@
   are familiar are correctly described.  Skills: be familiar with some
   system. ;)
 
-* The "runpugs" idea still needs pickup: Basically, write (or find) a  
-generic, line-buffered web/terminal bridge that hooks something like IPC::Run
-with a web-based terminal display, with, for example, HTML::FromANSI for
-display, so we can have a Pugs shell online for people to play with.
-
 * Look at directories under t/; move or merge the incoming tests  
 under xx-uncategorized/ to the directory to which they belong. In addition 
 to that, try to reorganize the increasingly overlapping and incoherent 
@@ -94,3 +89,5 @@ Skill: light sysadminship, code a logfile to IRC gateway (reuse a bot?)
 
 * Help out with the introspection interface: write tests and prod for specs.
   See the bottom of `t/syntax/signature.t`. Also applicable, Capture tests.
+
+* See pugs/misc/runpugs/TODO for "runpugs" tasks.
