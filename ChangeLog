@@ -1,71 +1,111 @@
-######################################################
-# Changelogging starts at rev 10930
-#
-# Some info has been entered in audreyt++ template
-# Unfortunately this was done adhoc
-# Cumulative updates still needed
-# Limbic_Region ends on 10930
-######################################################
-
-= Changes for 6.2.13 (rXXXXX) - October XX, 2006
-
-# Agent Zhang has reviewed r12962 ~ r13261
-# (and possibly some more, but not including fglock's work)
+= Changes for 6.2.13 (r14380) - October 17, 2006
 
 == New Perl 6 modules
 
-* [lib/WebTerminal/Server/Terminal.pm]
+=== [ext/Automata-Cellular/]
 
+Build and render Cellular Automata on a terminal.
+
+=== [ext/Math-Basic/]
+
+Basic mathematical functions and constants.
+
+=== [ext/Math-Random-Kiss/]
+
+Pseudo-random number generator.
+
+=== [ext/re/]
+
+Pragma to choose among grammar engine backends.
 
 == Updated modules
 
-* [ext/CGI/] 
-** change 'cookies' attribute spelling to 'cookie', to stay consistent with
-   Perl5. (We could add "cookies" as an alias if you feel strongly...).  
-** Support for "charset" is improving, but still needs a charset method, and a
-   hook in header(). See CGI.pm-p5 for a reference on this. 
-** Added basic tests for escapeHTML and unescapeHTML, which exposed basic
-   problems with them. They should now be be basically working. 
-** Implement code/docs for "as_yaml", a new method to dump the params as yaml
-** Implement code/docs/test for Dump function from p5:CGI 
-** Use 'type' rather than 'content_type', for compatibility with p5:CGI 
-** Only send the Content-Type header if we have a content-type 
-** Only send "Status: " header if it's a redirect, or it's explicitly added.
-** Allow Initializing the object with your hash of params 
-** Added new test for PATH_INFO 
-** refactored into an OO-only module, breaking backwards compatibility. 
-** CGI.pm: Minor adjustments to work with unordered hashes;
-   also replace all "push(@result, ...)" pattern into gather/take
+=== [ext/CGI/] 
 
-* [ext/HTTP-Server-Simple/] - switched from non-standard "./" syntax to 
-  standard "self." syntax.
-* [ext/Rosetta/] - Significant updates to lib/Rosetta/SeeAlso.pod.
-* [ext/Set-Relation/] - Renamed from ext/Relation/ .
-** Started to rewrite with separate [Set::Tuple, Set::Relation] classes.
-* [ext/Test/] - Removed eval_ok and eval_is which were confusing people.
+* A new `as_yaml` method to dump CGI parameters as YAML.
+* Added basic tests for `escapeHTML` and `unescapeHTML`, which were broken.
+* Added new tests for `PATH_INFO`.
+* Allow Initializing the CGI object with a hash of paramemters.
+* Implemented the `Dump` function adapted from Perl 5's CGI.pm.
+* Only send the Content-Type header if we actually have a content-type.
+* Only send the Status header if it's a redirect, or if it's explicitly added.
+* Refactored into an OO-only module, breaking backwards compatibility. 
+* Renamed the `content_type` method to `type` for Perl 5 compatibility.
+* Renamed the `cookies` attribute to `cookie` for Perl 5 compatibility.
+* Some work on charsets handling, though a `charset` method is still missing.
 
-== Perl 6 on Perl 5 (under [misc/pX/Common/])
+=== [ext/HTTP-Server-Simple/]
 
-* Added make_build_perl5, to make it possible to build all the perl5 modules
-  without installing ghc first. 
-* lrep is no longer used to bootstrap - moved to misc/lrep
-* .WHAT method implemented
+* Switched from non-standard `./method` syntax to the standard `self.method`.
 
-XXX fglock: please write more here.
+=== [ext/Rosetta/]
 
-== Perl 5 to Perl 6 Translater (under [misc/pX/Common/P5_to_P6_Translation])
+* Significant updates to the `lib/Rosetta/SeeAlso.pod` documentation.
 
-XXX Sage: please write something here.
+=== [ext/Set-Relation/]
 
-==  Documentation
+* Renamed from [ext/Relation/].
+* Beginning of separate `Set::Tuple` and `Set::Relation` classes.
 
-* added util/smartlinks.pl which implements the new generation of
-  smartlinks used in the test suite. it generetes much nicer
-  cross-referenced HTML pages than util/catalog_tests.pl.
-  (See http://perlcabal.org/syn/S02.html for sample outputs.)
-* A new documentation index was created, which is regularly
-  published at http://perlcabal.org/syn and the synopses are
-  updated automatically by util/smartlinks.pl every 1 hour.
+=== [ext/Test/]
+
+* Removed the `eval_ok` and `eval_is` functions; use `is eval` instead.
+
+== Test Suite
+
+=== [util/prove6]
+
+* Original shell script rewritten in Perl 5 for improved portability.
+* Can now run only a portion of the test suite, or even a single file.
+* Support for multiple Pugs backends and multiple Perl 6 implementations.
+
+=== [util/smartlinks.pl]
+
+* A new visualizer of smartlinks used in the test suite.
+* Generates much nicer cross-referenced HTML pages.
+* Replaced the old [util/catalog_tests.pl].
+* See annotated specs in action on [http://spec.pugscode.org/].
+
+=== [util/smokeserv/]
+
+* Smoke client now uploads raw `.yml` results as well as `.html`.
+* The smokeserver now annotates the spec with test results.
+* See SYN links on [http://smoke.pugscode.org/] for this in action.
+
+=== [t/02-test-pm/]
+
+* A new subdirectory to ensure that `Test.pm` works as advertised.
+* Copied [ext/Test/t/*] and moved [t/01-sanity/08-test.t] into it.
+
+=== [t/blocks/]
+
+* Renamed from [t/subroutines/].
+
+=== [t/closure_traits/]
+
+* A new test subdirectory dedicated to test closure traits.
+
+=== [t/]
+
+* Added many, many more smartlinks into the spec.
+* All tests now begins with `use v6-alpha;` instead of `use v6;`.
+* Converted `eval_ok` and `eval_is` to `ok eval` and `is eval`.
+* Merged [t_disabled/] back into the main test suite.
+* Removed `#!/usr/bin/pugs` from all test files.
+
+== Examples and Utilities
+
+=== [examples/]
+
+* Renamed all Perl scripts from *.p6 to *.pl and from *.p5 to *-p5.pl.
+* All references to them, except in talks, were likewise updated.
+
+=== [misc/runpugs/]
+
+* See [http://run.pugscode.org/].
+
+== Documentation
+
 * Perl6::Perl6::Differences was significantly updated. An HTML
   version of it is linked to from the page above.
 * Added a draft for S16 ([docs/Perl6/Spec/IO.pod]).
@@ -77,40 +117,8 @@ XXX Sage: please write something here.
   Perl 6'
 * ported documentation for function chmod, getc, opendir, closedir, readdir,
   rewinddir rmdir unlink close print to Spec::IO
-* 
 
-== Examples and the Test Suite
-
-* Updated the smokeserver to join the smartlinking fun
-** smoke client now uploads .yml as well as .html
-** smoke server now renders synopses using users' smoke results
-   (see SYN links on the right margin of
-    http://m19s28.vlinux.de/cgi-bin/pugs-smokeserv.pl?) 
-* Added many more smartlinks to the test suite.
-* Rewrote util/prove6 using Perl 5 so that it can now run everywhere.
-  You can use this to run only a portion of the test suite or even a single
-  file. Contrast with the general `prove` utility, `prove6` supports
-  multiple Pugs backends and multiple Perl 6 implementations.
-* Speed up the test suite by compiling Test.pm
-* Updated all tests and examples plus in some docs and other files to
-  remove the `#/usr/bin/pugs` shebangs and variants thereof.
-* Replaced all "use v6-pugs;" and "use v6;" with "use v6-alpha;" in mostly
-  the same places.
-  With any such 'use' lines that appeared below other code, moved upwards.
-* Renamed all Perl scripts from *.p6 to *.pl and from *.p5 to *-p5.pl;
-  all references to them, except in talks, were likewise updated.
-* Did some rearranging/renaming in t/ so the tests scale better.
-** Copied ext/Test/t/* to t/02-test-pm/*, moved t/01-sanity/08-test.t to the
-   latter as well ... so 01-sanity doesn't use Test.pm, 02-test-pm checks that 
-   Test.pm itself works, and subsequent t/* use Test.pm
-** Merged [t_disabled/] into [t/].
-** Renamed [t/subroutines] to [t/blocks]
-* Added t/closure_traits to test closure traits
-* Added tests for `\o[]` and `\d[]`.
-* Added tests for embedded comments.
-* converted most eval_ok and eval_is to ok(eval and is(eval in t/.
-
-== Feature Changes
+== New Features
 
 * Enabled Perl 5 embedding by default. Now Pugs heavily depends on p5 embedding.
 ** For Windows users, ActivePerl 5.8.x is required.
@@ -297,6 +305,19 @@ XXX audreyt and gaal?
 * fix a couple of old s{}{} instances. comb potentially faster using lvalue
   substr instead of copying string.
 * ".perl" now returns Unicode strings properly.
+
+== Perl 6 on Perl 5 (under [misc/pX/Common/])
+
+* Added make_build_perl5, to make it possible to build all the perl5 modules
+  without installing ghc first. 
+* lrep is no longer used to bootstrap - moved to misc/lrep
+* .WHAT method implemented
+
+XXX fglock: please write more here.
+
+== Perl 5 to Perl 6 Translater (under [misc/pX/Common/P5_to_P6_Translation])
+
+XXX Sage: please write something here.
 
 
 
