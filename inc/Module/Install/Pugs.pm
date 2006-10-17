@@ -246,7 +246,7 @@ sub assert_ghc {
 *** Please note that while Pugs will still compile and work, its
     performance will be much slower than normal.  The next Pugs
     release will discontinue support for GHC 6.4.x, so please upgrade
-    to GHC 6.6 at your convenience.
+    to GHC 6.6 at your convenience from http://haskell.org/ghc/.
 .
     }
 
