@@ -183,6 +183,25 @@ sub set_postamble {
     # Add GHC to PATH
     local $ENV{PATH} = dirname($ghc) . $Config{path_sep} . $ENV{PATH};
 
+    if (not try_compile
+        ( "import Control.Monad.RWS\n"
+        . "main = let (x, (), ()) = runRWS (return ()) () () in return x\n"
+        , $ghc, qw(-hide-all-packages -package mtl -package base)
+        ),
+    ) {
+        # We are missing mtl somehow, likely because GHC 6.6's extra pkg is not there
+        die <<'EOD';
+*** Could not load the "mtl" package in your GHC installation.
+
+    This is likely because the "extralibs" of GHC 6.6 was not built along
+    with the base GHC distribution.
+
+    To install extra libraries, extract both "-src" and "-src-extralibs"
+    distributions from http://haskell.org/ghc/download_ghc_66.html in the
+    same directory, then cd into ghc-6.6/ and build GHC from there.
+EOD
+    }
+
     my $native_fps;
 
     if (try_compile("import Data.ByteString (useAsCStringLen)\n"
