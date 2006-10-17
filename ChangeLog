@@ -10,7 +10,7 @@
 ** Set the `PUGS_EMBED` environment variable to `parrot` to enable this
 
 * Support for compiling with GHC 6.6
-** GHC 6.4.1+ is still supported, but will discontinue in the next release
+** GHC 6.4.1+ is still supported, but 6.6 will be required in the next release
 
 == Feature Changes
 
@@ -28,14 +28,14 @@
 * List comprehension: `for 0 < list(@x) < 10 {...}`
 * Named character escapes: `"\c[LATIN CAPITAL LETTER Y]"`
 * New magical variables: `$?COMPILER` and `$?VERSION`
-* POD directives: `=begin`/`=end` and `=for` now terminate without `=cut`
-* POD variables: `$=DATA` and `@=DATA`
+* Pod directives: `=begin`/`=end` and `=for` now terminate without `=cut`
+* Pod variables: `$=DATA` and `@=DATA` give you access to the DATA Pod
 * Signature literals: `:($foo is copy = 42, $, @)`
 * `"\123"` and `"\03"` are now errors; write `"\d123"` and `"\o03"` instead
 * `$::x` now means exactly the same a `$x`, instead of `$*x`
 * `%h<>` now means `%h{}` -- the entire hash, not the empty string as key
 * `($::('x'))` with two adjacent closing parens now parses correctly
-* `1<2>` is now a fatal error: Odd numbers of elements in Hash
+* `1<2>` is now a fatal error: Odd number of elements in Hash
 
 === Declarators and Operators
 
