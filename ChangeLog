@@ -145,57 +145,67 @@
 * Interpolation of chained calls: `"$foo.meth.meth.meth.meth()"`
 * Signature literals: `:($foo is copy = 42, $, @)`
 * Capture literals: `\($bar: 1, 2, 3, named => 4)`
+* POD variables: `$=DATA` and `@=DATA`
+* POD directives: `=begin`/`=end` and `=for` now terminate without `=cut`
+* `%h<>` now means `%h{}` -- the entire hash, not the empty string as key
 
-=== Operators
+=== Declarators and Operators
 
 * New infix comparison operators: `===` and `eqv`
 * `*` is now always a term, never a prefix operator
 * Argument interpolation via prefix `|` and `|<<` 
+* Typed declarations: `my Dog $fido`, `my T ($x, $y)`
+* Binding to qualified uninitialized symbols: `&fully::qualify := sub {...}`
+* Postfix operators can be called with a dot: `.++`, `$x.++`, `$x.\ ++`
 
 === Blocks and Statements
 
 * `BEGIN(...)`, `END(...)` etc are parsed as calls, not syntax errors
+* Support for `START`, `PRE`, `POST`, `KEEP`, `UNDO`, `ENTER`, `LEAVE` blocks
+* Support for `FIRST`, `NEXT`, `LAST` loop control blocks
+* New `&leave` primitive to exit from the innermost block
+* New `&break` and `&continue` primitives to use inside `when` blocks
+* `&last` and `&redo` now work in `repeat { ... }` and `loop {...}` blocks
+* `do {...}` is now a loop block that takes standard loop controls
+* New postfix `given` statement modifier: `.say given foo()`
 
-=== Regex and Grammars
+=== Regexes and Grammars
 
 * Pugs::Compiler::Rule (PCR) replaced Parrot/PGE as the default engine
 * Implemented `s[...] = ...` and deprecated `s[...][...]`
 
-=== Subroutines
+=== Modules and Routines
 
-=== Objects
+* The main package is now ::Main, not ::main
+* Allow space-separated adverbial named arguments: `f( :x<foo> :$y :!z )`
+* Parse for the `proto` routine modifier: `proto method foo ($x) {...}`
+
+=== Classes and Objects
 
 * Dynamic method calls: `$obj.$meth`
 * Hyperised method calls: `$obj.>>meth`
 * Quantified method calls: `$obj.*meth`, `$obj.+meth` and `$obj.?meth`
+* Default expression for attributes: `class C { has $.x = 123 }`
+
+=== Built-in Functions
+
+* New `&quotemeta` primitive for escaping strings
+* New `&printf` primitive for formatted printing
+* The `.as` method is renamed to `.fmt` for formatted printing 
+* Support for `%b` in formatted printing
 
 --- >8 --- >8 --- >8 --- >8 --- >8 --- >8 --- >8 --- >8 --- >8 --- >8 ---
 
 * Begin integration of new AST into Pugs. This AST is planned to be shared
   with other implementations, so macros are portable even if they don't
   operate on the source level
-* Added full support for the START trait blocks
-* The "proto" keyword is now supported
-** "proto foo {...}" works
-** Parse for "proto sub foo {...}"
 * Added support for the `each` builtin, so now you can write
     for each(@a; @b) -> $x, $y { ... }
-* Implemented postfix "given"
 * New Prims: `Pugs::Safe::safe_getc` and `Pugs::Safe::safe_readline`,
   allowing eval servers to interface an interactive Pugs
 * New `Perl6::Internals::emit_yaml` prim to dump AST programmatically
   as YAML
-* Added Math::Basic::pi per S29
-* Added *pi(), for backwards compatibility. (This is non-spec.)
-* Renamed .as to .fmt according the recent changes of the Synopses
 * Implemented staleness checking for .yml/.pm loader
-* Postfix dot methods are now working:
-    .++;        # $_++
-    $x.++;      # $x++
-    $x.\ ++;    # ditto
-    $x.+meth;   # $x.meth but with quantifier
-* Added support for the "%b" modifier in `sprintf` and `fmt`, which
-  requires parrot due to use of rules
 * The following code is no longer allowed:
     my $x;
     {
@@ -203,30 +213,8 @@
         my $x = 2;
     }
 * "role A does A" is not allowed anymore
-* Added support for the `quotemeta` builtin
-*** Partially pretty-printable; introspection API for next release
-** Support for:
-    my T ($x, $y, $z)
-   to distribute as:
-    (my T $x, my T $y, my T $z)
-** Also, "my T $x" now re-assigns T into $x upon closure reentry
-   Note that this is not strictly correct for "state T $x", but
-   let's do it this way for now
-* Allow for rule redefinition via ->reinstall
-* Allow binding to fully-qualified, uninitialized variables:
-    &foo::bar ::= sub { ... };
-* Argumentless POD introducer can now be followed by =cut correctly
-    =foo
-    =cut
-    say "This gets run";
-* Allow "last" and "redo" in "repeat { ... }" loops
-* Implement \($x, $y, |$z, $w) splicing
 * "my $x; { $x; my $x }" now fails with a sensible error message
-* "do { ... }" is now made a true block, by desugaring it into
-  "repeat { ... } while False"
-* "f( :$x :$y :$z )" without commas between them is now legal syntax
 * Allow $::x to mean exactly the same as $x
-* The main package is now ::Main, not ::main
 * "sub ($x = 0 is copy)" is invalid; say "sub ($x is copy = 0)" instead
 * Pugs.Parser: $() now means $$/, @() means @$/, %() means %$/, etc
 * Added identity values for the builtin reduceable operators from S03
@@ -237,13 +225,6 @@
     @.foo(1, 2, 3);     # self.foo(1,2,3).'@'
     $.bar: 4, 5, 6;     # self.bar(4,5,6).'$'
 
-* Remove support for reduce+posthyper form "[+]<<" because as specced the
-  hyper will recurse into arrays, so the reduce  never got a chance to run
-* Support for instance default expressions (which are evaluated in
-  Class composition time, not in instance creation time):
-    class Foo {
-        has $.x = 10;
-    }
 * Much improve multi dispatch system
 * Implement quantified method calls: $obj.*meth, $obj.+meth, $obj.?meth,
   as well as quantified dynamic method calls: $obj.[+*?]$meth
@@ -258,11 +239,6 @@
     my Hash $x;
     $x[0] = 1; # fails, as $x can _only_ vivify to Hash
 * Implement rudimentary "fail" control via $*FAIL_SHOULD_DIE
-* Changed $obj ~~ Pkg::Name to $obj ~~ ::Pkg::Name
-* Support for PRE/POST design-by-contract assertions
-* Support for KEEP/UNDO blocks
-* Pugs.Prim: Add "&leave" to leave a block, "&break" to break
-  out of a "given", and "&continue" to break out of a "when"
 * Reduce standalone blocks even if nested:
     { { { say 3 } } }
 * Make the closure trait blocks lazy
@@ -299,8 +275,6 @@
   now all parses correctly without needing a whitespace
 * Repaired quantified method calls with .*$method by treating
   .* always as quantifier and never as globalizer
-* "%x<>" now means "%x{}" -- that is, interpolating the entire hash --
-  rather than ""
 * Parse for "class Foo is also {...}" instead of having Foo
   inherit from ::also
 * Implement &sub.call(\(...capture...)) correctly
