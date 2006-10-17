@@ -1,160 +1,180 @@
 = Changes for 6.2.13 (r14380) - October 17, 2006
 
-== New Perl 6 modules
+== Perl 6 Modules
 
-=== [ext/Automata-Cellular/]
+=== New modules
 
-Build and render Cellular Automata on a terminal.
-
-=== [ext/Math-Basic/]
-
-Basic mathematical functions and constants.
-
-=== [ext/Math-Random-Kiss/]
-
-Pseudo-random number generator.
-
-=== [ext/re/]
-
-Pragma to choose among grammar engine backends.
-
-== Updated modules
+* [ext/Automata-Cellular/] - Build and render Cellular Automata on a terminal
+* [ext/Math-Basic/] - Basic mathematical functions and constants
+* [ext/Math-Random-Kiss/] - Pseudo-random number generator
+* [ext/re/] - Pragma to choose among grammar engine backends
 
 === [ext/CGI/] 
 
-* A new `as_yaml` method to dump CGI parameters as YAML.
-* Added basic tests for `escapeHTML` and `unescapeHTML`, which were broken.
-* Added new tests for `PATH_INFO`.
-* Allow Initializing the CGI object with a hash of paramemters.
-* Implemented the `Dump` function adapted from Perl 5's CGI.pm.
-* Only send the Content-Type header if we actually have a content-type.
-* Only send the Status header if it's a redirect, or if it's explicitly added.
+* A new `as_yaml` method to dump CGI parameters as YAML
+* Added basic tests for `escapeHTML` and `unescapeHTML`, which were broken
+* Added new tests for `PATH_INFO`
+* Allow Initializing the CGI object with a hash of paramemters
+* Implemented the `Dump` function adapted from Perl 5's CGI.pm
+* Only send the Content-Type header if we actually have a content-type
+* Only send the Status header if it's a redirect, or if it's explicitly added
 * Refactored into an OO-only module, breaking backwards compatibility. 
-* Renamed the `content_type` method to `type` for Perl 5 compatibility.
-* Renamed the `cookies` attribute to `cookie` for Perl 5 compatibility.
-* Some work on charsets handling, though a `charset` method is still missing.
+* Renamed the `content_type` method to `type` for compatibility
+* Renamed the `cookies` attribute to `cookie` for compatibility
+* Some work on charsets handling, though a `charset` method is still missing
 
 === [ext/HTTP-Server-Simple/]
 
-* Switched from non-standard `./method` syntax to the standard `self.method`.
+* Switched from non-standard `./method` syntax to the standard `self.method`
 
 === [ext/Rosetta/]
 
-* Significant updates to the `lib/Rosetta/SeeAlso.pod` documentation.
+* Significant updates to the `lib/Rosetta/SeeAlso.pod` documentation
 
 === [ext/Set-Relation/]
 
-* Renamed from [ext/Relation/].
-* Beginning of separate `Set::Tuple` and `Set::Relation` classes.
+* Renamed from [ext/Relation/]
+* Beginning of separate `Set::Tuple` and `Set::Relation` classes
 
 === [ext/Test/]
 
-* Converted `Test.pm` documentation from Kwid to POD syntax.
-* Removed the `eval_ok` and `eval_is` functions; use `is eval` instead.
+* Converted `Test.pm` documentation from Kwid to POD syntax
+* Removed the `eval_ok` and `eval_is` functions; use `is eval` instead
 
 == Test Suite
 
 === [util/prove6]
 
-* Original shell script rewritten in Perl 5 for improved portability.
-* Can now run only a portion of the test suite, or even a single file.
-* Support for multiple Pugs backends and multiple Perl 6 implementations.
+* Original shell script rewritten in Perl 5 for improved portability
+* Can now run only a portion of the test suite, or even a single file
+* Support for multiple Pugs backends and multiple Perl 6 implementations
 
 === [util/smartlinks.pl]
 
-* A new visualizer of smartlinks used in the test suite.
-* Generates much nicer cross-referenced HTML pages.
-* Replaced the old [util/catalog_tests.pl].
-* See annotated specs in action on [http://spec.pugscode.org/].
+* A new visualizer of smartlinks used in the test suite
+* Generates much nicer cross-referenced HTML pages
+* Replaced the old [util/catalog_tests.pl]
+* See annotated specs in action on [http://spec.pugscode.org/]
 
 === [util/smokeserv/]
 
-* Smoke client now uploads raw `.yml` results as well as `.html`.
-* The smokeserver now annotates the spec with test results.
-* See SYN links on [http://smoke.pugscode.org/] for this in action.
+* Smoke client now uploads raw `.yml` results as well as `.html`
+* The smokeserver now annotates the spec with test results
+* See SYN links on [http://smoke.pugscode.org/] for this in action
 
 === [t/02-test-pm/]
 
-* A new subdirectory to ensure that `Test.pm` works as advertised.
-* Copied [ext/Test/t/*] and moved [t/01-sanity/08-test.t] into it.
+* A new subdirectory to ensure that `Test.pm` works as advertised
+* Copied [ext/Test/t/*] and moved [t/01-sanity/08-test.t] into it
 
 === [t/blocks/]
 
-* Renamed from [t/subroutines/].
+* Renamed from [t/subroutines/]
 
 === [t/closure_traits/]
 
-* A new test subdirectory dedicated to test closure traits.
+* A new test subdirectory dedicated to test closure traits
 
 === [t/]
 
-* Added many, many more smartlinks into the spec.
-* All tests now begins with `use v6-alpha;` instead of `use v6;`.
-* Converted `eval_ok` and `eval_is` to `ok eval` and `is eval`.
-* Merged [t_disabled/] back into the main test suite.
-* Removed `#!/usr/bin/pugs` from all test files.
+* Added many, many more smartlinks into the spec
+* All tests now begins with `use v6-alpha;` instead of `use v6;`
+* Converted `eval_ok` and `eval_is` to `ok eval` and `is eval`
+* Merged [t_disabled/] back into the main test suite
+* Removed `#!/usr/bin/pugs` from all test files
 
 == Examples and Utilities
 
 === [examples/]
 
-* Renamed all Perl scripts from *.p6 to *.pl and from *.p5 to *-p5.pl.
-* All references to them, except in talks, were likewise updated.
+* Renamed all Perl scripts from *.p6 to *.pl and from *.p5 to *-p5.pl
+* All references to them, except in talks, were likewise updated
 
 === [misc/runpugs/]
 
-* A web teminal for running an interactive Pugs shell on the web.
-* WebTerminal: A library for building web terminals for interactive shells.
-* See [http://run.pugscode.org/] for a live demo.
+* A web teminal for running an interactive Pugs shell on the web
+* WebTerminal: A library for building web terminals for interactive shells
+* See [http://run.pugscode.org/] for a live demo
 
 == Documentation
 
 === [docs/Perl6/Perl5/Differences.pod]
 
-* Significantly updated and linked from [http://spec.pugscode.org/].
+* Significantly updated and linked from [http://spec.pugscode.org/]
 
 === [docs/Perl6/Spec/]
 
-* A new S16 draft for IO/IPC/Signals as [docs/Perl6/Spec/IO.pod].
-* A new S26 draft for Documentation as [docs/Perl6/Spec/Documentation.pod].
-* Revamped S29 draft in [docs/Perl6/Spec/Functions.pod].
+* A new S16 draft for IO/IPC/Signals as [docs/Perl6/Spec/IO.pod]
+* A new S26 draft for Documentation as [docs/Perl6/Spec/Documentation.pod]
+* Revamped S29 draft in [docs/Perl6/Spec/Functions.pod]
 
 === [docs/Pugs/Doc/]
 
-* New directory for Pugs-specific documentations.
-* Haskell style guide for Pugs hackers in [docs/Pugs/Doc/Hack/Style.pod].
+* New directory for Pugs-specific documentations
+* Haskell style guide for Pugs hackers in [docs/Pugs/Doc/Hack/Style.pod]
 
 === [docs/talks/extraction.xul]
 
-* Slides from Nathan Gray's "Practical Extraction with Perl 6" talk.
+* Slides from Nathan Gray's "Practical Extraction with Perl 6" talk
 
-== New Features
+== Build System
 
-* Enabled Perl 5 embedding by default. Now Pugs heavily depends on p5 embedding.
-** For Windows users, ActivePerl 5.8.x is required.
-** Set the PUGS_EMBED environment variable to "noperl5" to disable this.
-* Replaced PGE with Pugs::Compiler::Rule in Pugs. So now we no longer depend on
-  parrot/PGE to do rules any more.
-* Integrated the Judy library into the Haskell runtime, resulting in
-  ~10% performace improvement.
+* Enabled Perl 5 embedding by default
+** For Windows users, Perl 5.8.x is required
+** Set the `PUGS_EMBED` environment variable to `noperl5` to disable this
+
+* Disabled prompting for Parrot embedding by default
+** Set the `PUGS_EMBED` environment variable to `parrot` to enable this
+
+* Support for compiling with GHC 6.6
+** GHC 6.4.1+ is still supported, but will discontinue in te next release
+
+== Feature Changes
+
+=== Perl 5 Interoperability
+
+* Importing functions from Perl 5: `use perl5:CGI <header param>`
+* Array and Hashes now round-trips from Pugs to Perl 5 land and back
+* Passing unboxed values across runtimes no longer leaks memory
+
+=== Lexical Syntax
+
+* Named character escapes: `"\c[LATIN CAPITAL LETTER Y]"`
+* `"\123"` and `"\03"` are now errors; write `"\d123"` and `"\o03"` instead
+* New magical variables: `$?COMPILER` and `$?VERSION`
+* Interpolation of chained calls: `"$foo.meth.meth.meth.meth()"`
+* Signature literals: `:($foo is copy = 42, $, @)`
+* Capture literals: `\($bar: 1, 2, 3, named => 4)`
+
+=== Operators
+
+* New infix comparison operators: `===` and `eqv`
+* `*` is now always a term, never a prefix operator
+* Argument interpolation via prefix `|` and `|<<` 
+
+=== Blocks and Statements
+
+* `BEGIN(...)`, `END(...)` etc are parsed as calls, not syntax errors
+
+=== Regex and Grammars
+
+* Pugs::Compiler::Rule (PCR) replaced Parrot/PGE as the default engine
+* Implemented `s[...] = ...` and deprecated `s[...][...]`
+
+=== Subroutines
+
+=== Objects
+
+* Dynamic method calls: `$obj.$meth`
+* Hyperised method calls: `$obj.>>meth`
+* Quantified method calls: `$obj.*meth`, `$obj.+meth` and `$obj.?meth`
+
+--- >8 --- >8 --- >8 --- >8 --- >8 --- >8 --- >8 --- >8 --- >8 --- >8 ---
+
 * Begin integration of new AST into Pugs. This AST is planned to be shared
   with other implementations, so macros are portable even if they don't
-  operate on the source level.
-* $obj.*$meth() is now implemented, calling zero or more methods named $meth
-in the inheritence tree, returning an unconcatenated list of return values.
-The return value of this is not yet spec'ed. Currently only lookups through
-single inheritence are implemented.  See "Calling Sets of Methods" in S12 for
-more information about related features. 
-* There are now separate `===` and `eqv` operators.
-* Added full support for the START trait blocks.
-* Added support for character name escapes:
-    say "\c[LATIN CAPITAL LETTER Y]";
-  With Perl 5 embedding, the full Unicode range is supported via
-  charnames.pm.  Without Perl 5 embedding (e.g. in "make ghci"),
-  only codepoints in the range 0x00-0xFF are supported.
-* Proper support for \digits according to the latest Synopses.
-** e.g., "\123" is a syntax error while '\123' is not.
-** e.g., "\08" is allowed while "\03" is not.
+  operate on the source level
+* Added full support for the START trait blocks
 * The "proto" keyword is now supported
 ** "proto foo {...}" works
 ** Parse for "proto sub foo {...}"
@@ -162,74 +182,63 @@ more information about related features.
     for each(@a; @b) -> $x, $y { ... }
 * Implemented postfix "given"
 * New Prims: `Pugs::Safe::safe_getc` and `Pugs::Safe::safe_readline`,
-  allowing evalservers to interface an interactive Pugs
+  allowing eval servers to interface an interactive Pugs
 * New `Perl6::Internals::emit_yaml` prim to dump AST programmatically
   as YAML
 * Added Math::Basic::pi per S29
 * Added *pi(), for backwards compatibility. (This is non-spec.)
-* Renamed .as to .fmt according the recent changes of the Synopses.
-* Implemented staleness checking for .yml/.pm loader.
-* Added support for $?COMPILER and $?VERSION, which are set to
-  "Pugs" and "6.2.13"
-* Support for chained method call in qq interpolation.
-    "$foo.meth.meth.meth.meth()"
-* Allowed "POST(1)" or "BEGIN(2)" to parser as function calls,
-  instead of syntax errors (as in Perl5).
+* Renamed .as to .fmt according the recent changes of the Synopses
+* Implemented staleness checking for .yml/.pm loader
 * Postfix dot methods are now working:
     .++;        # $_++
     $x.++;      # $x++
     $x.\ ++;    # ditto
     $x.+meth;   # $x.meth but with quantifier
-* "*" is now strictly a Term, never a prefix operator
 * Added support for the "%b" modifier in `sprintf` and `fmt`, which
-  requires parrot due to use of rules.
+  requires parrot due to use of rules
 * The following code is no longer allowed:
     my $x;
     {
         $x = 1;
         my $x = 2;
     }
-* "role A does A" is not allowed anymore.
-* Added support for the `quotemeta` builtin.
-* Initial support for Capture and Signature objects.
-** :( $inv : $required, $optional is copy = 42, :lab($rador) is lazy )
-*** Partially pretty-printable; introspection API for next release.
+* "role A does A" is not allowed anymore
+* Added support for the `quotemeta` builtin
+*** Partially pretty-printable; introspection API for next release
 ** Support for:
     my T ($x, $y, $z)
    to distribute as:
     (my T $x, my T $y, my T $z)
-** Also, "my T $x" now re-assigns T into $x upon closure reentry.
+** Also, "my T $x" now re-assigns T into $x upon closure reentry
    Note that this is not strictly correct for "state T $x", but
-   let's do it this way for now.
-* Parse for siglets:
-    :($, $, &)
-* Allow for rule redefinition via ->reinstall.
+   let's do it this way for now
+* Allow for rule redefinition via ->reinstall
 * Allow binding to fully-qualified, uninitialized variables:
     &foo::bar ::= sub { ... };
-* Argumentless POD introducer can now be followed by =cut correctly.
+* Argumentless POD introducer can now be followed by =cut correctly
     =foo
     =cut
     say "This gets run";
-* Allow "last" and "redo" in "repeat { ... }" loops.
-* Implement \($x, $y, |$z, $w) splicing.
-* "my $x; { $x; my $x }" now fails with a sensible error message.
+* Allow "last" and "redo" in "repeat { ... }" loops
+* Implement \($x, $y, |$z, $w) splicing
+* "my $x; { $x; my $x }" now fails with a sensible error message
 * "do { ... }" is now made a true block, by desugaring it into
-  "repeat { ... } while False".
-* "f( :$x :$y :$z )" without commas between them is now legal syntax.
-* Allow $::x to mean exactly the same as $x.
-* The main package is now ::Main, not ::main.
-* "sub ($x = 0 is copy)" is invalid; say "sub ($x is copy = 0)" instead.
-* Pugs.Parser: $() now means $$/, @() means @$/, %() means %$/, etc.
+  "repeat { ... } while False"
+* "f( :$x :$y :$z )" without commas between them is now legal syntax
+* Allow $::x to mean exactly the same as $x
+* The main package is now ::Main, not ::main
+* "sub ($x = 0 is copy)" is invalid; say "sub ($x is copy = 0)" instead
+* Pugs.Parser: $() now means $$/, @() means @$/, %() means %$/, etc
 * Added identity values for the builtin reduceable operators from S03
 * Implement hyperfold and hyperscan: [>>+<<] and [\>>+<<]
 * Unicode support for the embedded Perl5 bridge.  (This takes effect iff
   the embedded Perl supports SvUTF8_on, typically Perl 5.8+.)
-* Pugs.Parser: Support for attribute call syntax.
+* Pugs.Parser: Support for attribute call syntax
     @.foo(1, 2, 3);     # self.foo(1,2,3).'@'
     $.bar: 4, 5, 6;     # self.bar(4,5,6).'$'
 
 * Remove support for reduce+posthyper form "[+]<<" because as specced the
-  hyper will recurse into arrays, so the reduce  never got a chance to run.
+  hyper will recurse into arrays, so the reduce  never got a chance to run
 * Support for instance default expressions (which are evaluated in
   Class composition time, not in instance creation time):
     class Foo {
@@ -237,20 +246,20 @@ more information about related features.
     }
 * Much improve multi dispatch system
 * Implement quantified method calls: $obj.*meth, $obj.+meth, $obj.?meth,
-  as well as quantified dynamic method calls: $obj.[+*?]$meth.
+  as well as quantified dynamic method calls: $obj.[+*?]$meth
 * User-defined macros now take effect even in prefix unary
-  and optional unary.
+  and optional unary
 * "Odd numbers of elements in hash" is now made fatal
   (it was not even a warning) to help shake out incorrect
-  usages of things like 1<2>.
+  usages of things like 1<2>
 * Pugs.Prim.Keyed: Instead of allowing "1.delete();" to return undef,
-  we now simply fail.
+  we now simply fail
 * Pugs.Eval: Autovivification is now constrainted by typed variables:
     my Hash $x;
-    $x[0] = 1; # fails, as $x can _only_ vivify to Hash.
-* Implement rudimentary "fail" control via $*FAIL_SHOULD_DIE.
+    $x[0] = 1; # fails, as $x can _only_ vivify to Hash
+* Implement rudimentary "fail" control via $*FAIL_SHOULD_DIE
 * Changed $obj ~~ Pkg::Name to $obj ~~ ::Pkg::Name
-* Support for PRE/POST design-by-contract assertions.
+* Support for PRE/POST design-by-contract assertions
 * Support for KEEP/UNDO blocks
 * Pugs.Prim: Add "&leave" to leave a block, "&break" to break
   out of a "given", and "&continue" to break out of a "when"
@@ -270,51 +279,47 @@ more information about related features.
     @obj.>>.meth
     @obj\  .>>\  .meth
 * Reject named arguments that cannot find a matching named
-  parameter or slurpy hash.
+  parameter or slurpy hash
     sub f () {...}
     f(y => 1); # used to bind silently, but now no more
-* "for 1..3 { $_++ }" should die, not survive.
-* Primitive support for =@Array on both contexts.
-* Implement "s[...]=..." and deprecate "s[...][...]"
-* Remove Judy from the Pugs build process.
-* Make system() nonfatal always; instead it merely sets $!.
-
-
-XXX audreyt and gaal?
+* "for 1..3 { $_++ }" should die, not survive
+* Primitive support for =@Array on both contexts
+* Remove Judy from the Pugs build process
+* Make system() nonfatal always; instead it merely sets $!
 
 == Bug Fixes
 
 * in a "for" loop with rvalue lists, don't double-listify
   its list elements.  This fixes the case of:
     for %h.pairs -> $p { ... }
-  which used to make $p contain a seq instead of a pair.
+  which used to make $p contain a seq instead of a pair
 * Allowed double-right-parens to end a "parens" structure:
     (@(1))
     (@::("foo"))
-  now all parses correctly without needing a whitespace.
+  now all parses correctly without needing a whitespace
 * Repaired quantified method calls with .*$method by treating
-  .* always as quantifier and never as globalizer.
+  .* always as quantifier and never as globalizer
 * "%x<>" now means "%x{}" -- that is, interpolating the entire hash --
-  rather than "".
+  rather than ""
 * Parse for "class Foo is also {...}" instead of having Foo
-  inherit from ::also.
-* Implement &sub.call(\(...capture...)) correctly.
+  inherit from ::also
+* Implement &sub.call(\(...capture...)) correctly
 * Pugs.Parser: Parse for
     repeat {
     }
     while 1;
-* Pugs.Eval: Allow "redo" to redo the first repeat loop.
+* Pugs.Eval: Allow "redo" to redo the first repeat loop
 	  (repeat.t now all passes.)
 * "sub f ($x is lazy) {...}" is now guaranteed to not evaluate
-  its argument more than once.
+  its argument more than once
 * Switch chained comparison such as "1 > 2 > die('not reached')
-  to use "is lazy" parameters, so they can short-circuit properly.
+  to use "is lazy" parameters, so they can short-circuit properly
 * Fix expected outut of head-neck-tail in examples/:
-  [1,2,3].say should print "1 2 3\n", not "123\n".
+  [1,2,3].say should print "1 2 3\n", not "123\n"
 * Fix take [1,2,3]" shouldn't flatten into "take 1,2,3
 * fix a couple of old s{}{} instances. comb potentially faster using lvalue
-  substr instead of copying string.
-* ".perl" now returns Unicode strings properly.
+  substr instead of copying string
+* ".perl" now returns Unicode strings properly
 
 == Perl 6 on Perl 5 (under [misc/pX/Common/])
 
@@ -323,11 +328,11 @@ XXX audreyt and gaal?
 * lrep is no longer used to bootstrap - moved to misc/lrep
 * .WHAT method implemented
 
-XXX fglock: please write more here.
+XXX fglock: please write more here
 
 == Perl 5 to Perl 6 Translater (under [misc/pX/Common/P5_to_P6_Translation])
 
-XXX Sage: please write something here.
+XXX Sage: please write something here
 
 
 
@@ -657,7 +662,7 @@ from the current environment; use :reset to reset the environment
 
 * Passes 91% of the main test suite (including TODO failures)
 * Integrated with MetaModel 1.0
-* Faster code generation, taking advantage of `-CPerl5` output.
+* Faster code generation, taking advantage of `-CPerl5` output
 * Switched to continuation passing style (CPS) to properly support
   `return()`, `&?CALLER_CONTINUATION`, coroutines, and `sleep()`
 * Improved support for binding and autodereferentiation
@@ -716,8 +721,8 @@ from the current environment; use :reset to reset the environment
 
 === New Perl 6 modules
 
-* Perl6-Container-Array, Perl6-Value-List:
-  prototype modules for implementing Lazy lists in Perl 6.
+* Perl6-Container-Array, Perl6-Value-List
+** Prototype modules for implementing Lazy lists in Perl 6
 * Log-Selective
 * Cipher - Cipher API suite for cryptographic ciphers
 * FA-DFA
@@ -754,7 +759,7 @@ from the current environment; use :reset to reset the environment
 * New build system in `inc/PugsBuild`
 ** Configuration preferences are stored in `config.yml`
 ** Persists across builds, overridable via `%*ENV<PUGS_BUILD_OPTS>`
-* `$CALLER::_` is now again usable in defaults.
+* `$CALLER::_` is now again usable in defaults
 * JavaScript Backend
 ** Actively progressing in `perl5/PIL2JS`
 ** Passes 64.00% of the Pugs test suite
