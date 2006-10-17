@@ -248,6 +248,8 @@ sub build {
         ) {
             system($AR_EXE, s => $a_file) unless $^O eq 'MSWin32';
         }
+
+        system($hc_pkg, expose => "pugs-$module");
     }
 
 =begin Judy
