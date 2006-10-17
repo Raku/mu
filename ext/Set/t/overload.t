@@ -15,7 +15,7 @@ my $union = $set + set(4,5,6);
 isa_ok($union, Set, "set() - infix:<+>");
 
 my $stringified = ~$set;
-ok($stringified ~~ rx:P5/^set\(.*Person.*\)$/, "prefix:<~>");
+ok($stringified ~~ rx:P5/^set\(.*Person.*\)$/, "prefix:<~>", :todo<bug>);
 
 ok($union == set(0..6, $bob), "set() - infix:<==>");
 ok(!($union != set(0..6, $bob)), "set() - !infix:<!=>");
