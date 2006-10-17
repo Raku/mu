@@ -107,11 +107,31 @@ Miscellaneus
 
 Data Structures for Pure-Perl Scalars
 
+-- Run time
+
     $$a - a Scalar's value - '=' lvalue or rvalue
     $a  - a Scalar's cell  - ':=' lvalue or rvalue
 
+-- Compile time objects
+
+    $$a - an Expression object
+        - AnyExpression, IntExpression, ...
+        - or, NamedRValue
+    $a  - a NamedScalar object
+
+        $a  = Array... 
+                   - NamedArray scalar cell
+      ${$a} = \@a  - NamedArray list (@a[]) or ArrayScalar ($a[])
+      ${$a}->[1]   - ScalarExpression
+    ${${$a}->[1]}  - RValueExpression
+
+-- Method examples
+
     $a->set(...)
         - call .set method on $a's cell, with optional type checking
+    $a->bind(...)
+        - call .bind method on $a, with optional type checking
 
     $$a->str()
         - call stringification method on $a's value
+
