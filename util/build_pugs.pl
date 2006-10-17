@@ -460,6 +460,10 @@ sub build_exe {
         push @libs, grep /^-threaded/, @_;
     }
 
+    # Force relinking of Main.hs to avoid stale dependencies in .hi
+    unlink 'src/Main.o';
+    unlink 'src/Main.hi';
+
     push @pkgs, "-package" => "Pugs"; #-$version";
 
     @_ = ('--make', @pkgs, qw(-optl-Lthird-party/installed -o ), "$out.new", qw( src/Main.hs ), @libs);
