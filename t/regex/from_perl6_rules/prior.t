@@ -28,10 +28,10 @@ ok(!( "!" ~~ m/<?prior>/ ), 'Prior successful non-match');
 
 ok(!( "A" ~~ m/B/ ), 'Unsuccessful match');
 
-ok("B" ~~ m/<?prior>/, 'Still prior successful match', :todo<feature> );
-ok("B" ~~ m/<?prior>/, 'And still prior successful match', :todo<feature> );
+ok("B" ~~ m/<?prior>/, 'Still prior successful match');
+ok("B" ~~ m/<?prior>/, 'And still prior successful match');
 
-ok("AB" ~~ m/A <?prior>/, 'Nested prior successful match', :todo<feature> );
+ok("AB" ~~ m/A <?prior>/, 'Nested prior successful match');
 ok(!( "A" ~~ m/A <?prior>/ ), 'Nested prior successful non-match');
 ok("B" ~~ m/<?prior>/, 'And even now prior successful match', :todo<feature> );
 
@@ -42,10 +42,10 @@ ok("!" ~~ m/<?prior>/, 'New prior successful match' );
 
 ok(!( "A" ~~ m/B/ ), 'New unsuccessful match');
 
-ok("%" ~~ m/<?prior>/, 'New still prior successful match', :todo<feature> );
-ok("@" ~~ m/<?prior>/, 'New and still prior successful match', :todo<feature> );
+ok("%" ~~ m/<?prior>/, 'New still prior successful match');
+ok("@" ~~ m/<?prior>/, 'New and still prior successful match');
 
-ok("A!" ~~ m/A <?prior>/, 'New nested prior successful match', :todo<feature> );
+ok("A!" ~~ m/A <?prior>/, 'New nested prior successful match');
 ok(!( "A" ~~ m/A <?prior>/ ), 'New nested prior successful non-match');
 ok("^" ~~ m/<?prior>/, 'New and even now prior successful match', :todo<feature> );
 
