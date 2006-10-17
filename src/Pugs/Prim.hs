@@ -1088,6 +1088,7 @@ op2 "system" = \x y -> do
     args        <- fromVals y
     exitCode    <- guardIO $ rawSystem (encodeUTF8 prog) (map encodeUTF8 args)
     handleExitCode exitCode
+op2 "crypt" = \x y -> opPerl5 "crypt" [x, y]
 op2 "chmod" = \x y -> do
     mode  <- fromVal x
     files <- fromVals y
@@ -1540,6 +1541,16 @@ op3Caller kind skip _ = do                                 -- figure out label
             _           -> return []
 
 
+opPerl5 :: String -> [Val] -> Eval Val
+opPerl5 sub args = do
+    env     <- ask
+    envSV   <- liftIO $ mkEnv env
+    let prms = map (\i -> "$_[" ++ show i ++ "]") [0 .. (length args - 1)]
+    subSV   <- liftIO $ evalPerl5 ("sub { " ++ sub ++ "(" ++ (concat $ intersperse ", " prms) ++ ") }") envSV (enumCxt cxtItemAny)
+    argsSV  <- mapM fromVal args
+    runInvokePerl5 subSV nullSV argsSV
+
+
 {-| Assert that a list of Vals is all defined.
 This should 'fail' (in the Perl sense).
 
@@ -1829,6 +1840,7 @@ initSyms = seq (length syms) $ do
 \\n   Str       pre     uc      safe   (Str)\
 \\n   Str       pre     ucfirst safe   (Str)\
 \\n   Str       pre     capitalize safe   (Str)\
+\\n   Str       pre     crypt   safe   (Str, Str)\
 \\n   Str       post    ++      safe   (rw!Str)\
 \\n   Str       post    --      safe   (rw!Str)\
 \\n   Num       post    ++      safe   (rw!Num)\
