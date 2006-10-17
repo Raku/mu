@@ -118,7 +118,7 @@
 
 === New modules
 
-* [ext/Automata-Cellular/] - Build and render Cellular Automata on a terminal
+* [ext/Automata-Cellular/] - Build and render cellular automata in a terminal
 * [ext/Math-Basic/] - Basic mathematical functions and constants
 * [ext/Math-Random-Kiss/] - Pseudo-random number generator
 * [ext/re/] - Pragma to choose among grammar engine backends
@@ -128,14 +128,14 @@
 * A new `as_yaml` method to dump CGI parameters as YAML
 * Added basic tests for `escapeHTML` and `unescapeHTML`, which were broken
 * Added new tests for `PATH_INFO`
-* Allow Initializing the CGI object with a hash of paramemters
+* Allow initializing the CGI object with a hash of parameters
 * Implemented the `Dump` function adapted from Perl 5's CGI.pm
-* Only send the Content-Type header if we actually have a content-type
-* Only send the Status header if it's a redirect, or if it's explicitly added
-* Refactored into an OO-only module, breaking backwards compatibility. 
+* Only send the Content-Type: header if we actually have a content-type
+* Only send the Status: header if it's a redirect, or if it's explicitly added
+* Refactored into an OO-only module.  N.B.: this breaks backwards compatibility!
 * Renamed the `content_type` method to `type` for compatibility
 * Renamed the `cookies` attribute to `cookie` for compatibility
-* Some work on charsets handling, though a `charset` method is still missing
+* Some work on charset handling, though a `charset` method is still missing
 
 === [ext/HTTP-Server-Simple/]
 
@@ -152,8 +152,10 @@
 
 === [ext/Test/]
 
-* Converted `Test.pm` documentation from Kwid to POD syntax
-* Removed the `eval_ok` and `eval_is` functions; use `is eval` instead
+* Converted `Test.pm` documentation from Kwid to Pod syntax
+* Removed the `eval_ok` and `eval_is` functions; use `is eval` instead,
+  which runs its string in the current lexical scope rather than
+  in Test's (which is usually what you want)
 
 == Test Suite
 
@@ -174,7 +176,7 @@
 
 * Smoke client now uploads raw `.yml` results as well as `.html`
 * The smokeserver now annotates the spec with test results
-* See SYN links on [http://smoke.pugscode.org/] for this in action
+* See the `SYN` links on [http://smoke.pugscode.org/] for this in action
 
 === [t/02-test-pm/]
 
@@ -187,13 +189,15 @@
 
 === [t/closure_traits/]
 
-* A new test subdirectory dedicated to test closure traits
+* A new test subdirectory to test closure traits (FIRST, LAST, etc.)
 
 === [t/]
 
 * Added many, many more smartlinks into the spec
 * All tests now begins with `use v6-alpha;` instead of `use v6;`
-* Converted `eval_ok` and `eval_is` to `ok eval` and `is eval`
+* Converted `eval_ok` and `eval_is` to `ok eval` and `is eval`, so that
+  eval'd strings will be run in the lexical scope in which they
+  are defined, rather than in Test.pm's scope
 * Merged [t_disabled/] back into the main test suite
 * Removed `#!/usr/bin/pugs` from all test files
 
@@ -206,7 +210,7 @@
 
 === [misc/runpugs/]
 
-* A web teminal for running an interactive Pugs shell on the web
+* New feature: a web teminal for running an interactive Pugs shell on the web
 * WebTerminal: A library for building web terminals for interactive shells
 * See [http://run.pugscode.org/] for a live demo
 
@@ -218,13 +222,13 @@
 
 === [docs/Perl6/Spec/]
 
-* A new S16 draft for IO/IPC/Signals as [docs/Perl6/Spec/IO.pod]
-* A new S26 draft for Documentation as [docs/Perl6/Spec/Documentation.pod]
+* A new S16 draft for IO/IPC/signals as [docs/Perl6/Spec/IO.pod]
+* A new S26 draft for documentation as [docs/Perl6/Spec/Documentation.pod]
 * Revamped S29 draft in [docs/Perl6/Spec/Functions.pod]
 
 === [docs/Pugs/Doc/]
 
-* New directory for Pugs-specific documentations
+* New directory for Pugs-specific documentation
 * Haskell style guide for Pugs hackers in [docs/Pugs/Doc/Hack/Style.pod]
 
 === [docs/talks/extraction.xul]
