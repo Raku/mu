@@ -29,7 +29,7 @@
 * Named character escapes: `"\c[LATIN CAPITAL LETTER Y]"`
 * New magical variables: `$?COMPILER` and `$?VERSION`
 * Pod directives: `=begin`/`=end` and `=for` now terminate without `=cut`
-* Pod variables: `$=DATA` and `@=DATA` give you access to the DATA Pod
+* Pod variables: `$=FOO` and `@=FOO` give you access to the Pod section FOO
 * Signature literals: `:($foo is copy = 42, $, @)`
 * `"\123"` and `"\03"` are now errors; write `"\d123"` and `"\o03"` instead
 * `$::x` now means exactly the same a `$x`, instead of `$*x`
@@ -196,9 +196,8 @@
 
 * Added many, many more smartlinks into the spec
 * All tests now begins with `use v6-alpha;` instead of `use v6;`
-* Converted `eval_ok` and `eval_is` to `ok eval` and `is eval`, so that
-  eval'd strings will be run in the lexical scope in which they
-  are defined, rather than in Test.pm's scope
+* Converted `eval_ok` and `eval_is` to `ok eval` and `is eval`,
+  so that eval strings will run in the current lexical scope
 * Merged [t_disabled/] back into the main test suite
 * Removed `#!/usr/bin/pugs` from all test files
 
