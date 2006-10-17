@@ -6,7 +6,7 @@ use warnings;
 
 use Data::Dumper;
 use Data::Bind;
-use Lexical::Alias;
+#use Lexical::Alias;
 use Sub::Multi;
 use PadWalker;
 use IO::File ();

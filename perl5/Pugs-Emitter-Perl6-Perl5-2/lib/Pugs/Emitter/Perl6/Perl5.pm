@@ -419,7 +419,7 @@ sub _emit_parameter_binding {
             push @out, "my $param->{name} = shift \@_pos";
         }
         if ( defined $param->{default} ) {
-            push @out, "$param->{name} = do{ use v5; " . _emit( $param->{default} ) . "; use v6; } unless defined $param->{name} ";
+            push @out, "$param->{name} = " . _emit( $param->{default} ) . " unless $param->{name}" . "->defined";
         }
     }
     return join( ';', @out ) . ';';
@@ -1375,6 +1375,12 @@ sub infix {
     if ( $n->{op1} eq '=' ) {
         #print "{'='}: ", Dumper( $n );
                 
+        return $v1->set( $v2 )
+            if     Scalar::Util::blessed $v1
+                && Scalar::Util::blessed $v2;              
+        return $v1 . ' = ' . $v2
+            if     Scalar::Util::blessed $v2;              
+            
         if (  exists $n->{exp1}{variable_declarator} 
               && exists $n->{exp1}{exp1}{scalar} 
            || exists $n->{exp1}{scalar} 
@@ -1383,13 +1389,6 @@ sub infix {
             #print "{'='}: set scalar ",Dumper($n->{exp2});
 
             # XXX uncomment when Data::Bind accepts refs
-            return $v1->set( $v2->scalar )
-                if     Scalar::Util::blessed $v1
-                    && Scalar::Util::blessed $v2;              
-            return $v1->set( $v2 )
-                if     Scalar::Util::blessed $v1;              
-            return $v1 . ' = ' . $v2->scalar
-                if Scalar::Util::blessed $v2;              
                 
             if  (  exists $n->{exp2}{'bare_block'} 
                 ) {

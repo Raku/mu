@@ -34,7 +34,7 @@ sub get {
 sub set {
     my $self = $_[0];
     # XXX box
-    return $self->name . ' = ' . $_[1]->array->get;
+    '( map { ' . $self->name . ' = \\$_ } ' . $_[1]->list . ')';
 }
 
     sub str {

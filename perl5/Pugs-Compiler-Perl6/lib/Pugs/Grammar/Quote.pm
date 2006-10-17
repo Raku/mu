@@ -15,13 +15,24 @@ sub angle_quoted {
     my ($extracted,$remainder) = Text::Balanced::extract_bracketed( '<' . $s, '<..>' );
     return $grammar->no_match(@_) unless length($extracted) > 0;
     $extracted = substr( $extracted, 1, -1 );
+    my $ast = {
+        'assoc' => 'list',
+        'list' => [
+            map {
+              {
+                'single_quoted' => $_
+              }
+            } split( /\s+/, $extracted )
+        ],
+        'op1' => ','
+      };
     return Pugs::Runtime::Match->new( { 
         bool    => \1,
         str     => \$_[0],
         match   => [],
         from    => \$pos,
         to      => \( length($_[0]) - length($remainder) ),
-        capture => \$extracted,
+        capture => \$ast,
     } );
 }
 
@@ -99,10 +110,7 @@ BEGIN {
     __PACKAGE__->add_rule(
         q(<) => q(
             <Pugs::Grammar::Quote.angle_quoted>
-            { return { 
-                    angle_quoted => $/{'Pugs::Grammar::Quote.angle_quoted'}->(),
-                } 
-            }
+            { return $/{'Pugs::Grammar::Quote.angle_quoted'}->() }
         ) );
     __PACKAGE__->add_rule(
         q(«) => q(
