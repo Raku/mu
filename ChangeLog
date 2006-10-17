@@ -10,7 +10,7 @@
 ** Set the `PUGS_EMBED` environment variable to `parrot` to enable this
 
 * Support for compiling with GHC 6.6
-** GHC 6.4.1+ is still supported, but will discontinue in te next release
+** GHC 6.4.1+ is still supported, but will discontinue in the next release
 
 == Feature Changes
 
@@ -40,7 +40,7 @@
 === Declarators and Operators
 
 * Argument interpolation via prefix `|` and `|<<` 
-* Binding to qualified uninitialized symbols: `&fully::qualify := sub {...}`
+* Binding to qualified uninitialised symbols: `&fully::qualify := sub {...}`
 * Hyperised reduce operators: `[>>+<<]` and `[\>>+<<]`
 * Mid-block redeclaration no longer allowed: `my $x; { $x = 1; my $x = 2 }`
 * New infix comparison operators: `===` and `eqv`
@@ -65,7 +65,7 @@
 * Support for test-after `repeat {...} while EXPR;` blocks
 * Support for the `each` list interleaver: `for each(@a; @b) -> $x, $y {...}`
 * The `for` loop no longer double-flattens lists: `for %h.pairs -> $p {...}`
-* User-defined topicalizers: `if EXPR -> $x {...}`, `given EXPR -> $x {...}`
+* User-defined topicalisers: `if EXPR -> $x {...}`, `given EXPR -> $x {...}`
 * `&last` and `&redo` now work in `repeat {...}` and `loop {...}` blocks
 * `&take` no longer flattens array literals: `take [1,2,3];`
 * `&take` now works in functions called from within a `gather {...}` block
@@ -97,7 +97,7 @@
 
 * Attribute-like method call syntax: `@.method(1)`, `$.method: 2, 3, 4`
 * Compile-time self-mixin no longer allowed: `role A does A`
-* Default expression for attributes: `class C { has $.x = 123 }`
+* Default initialiser expression for attributes: `class C { has $.x = 123 }`
 * Dynamic method calls: `$obj.$meth`
 * Hyperised method calls: `$obj.>>meth`
 * Quantified method calls: `$obj.*meth`, `$obj.+meth` and `$obj.?meth`
@@ -167,7 +167,7 @@
 
 === [util/smartlinks.pl]
 
-* A new visualizer of smartlinks used in the test suite
+* A new visualiser of smartlinks used in the test suite
 * Generates much nicer cross-referenced HTML pages
 * Replaced the old [util/catalog_tests.pl]
 * See annotated specs in action on [http://spec.pugscode.org/]
