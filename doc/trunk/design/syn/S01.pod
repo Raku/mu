@@ -1,3 +1,5 @@
+=encoding utf8
+
 =head1 TITLE
 
 Synopsis 1: Overview
