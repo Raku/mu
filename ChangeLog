@@ -16,7 +16,7 @@
 
 === Perl 5 Interoperability
 
-* Array and Hashes now round-trips from Pugs to Perl 5 land and back
+* Arrays and Hashes now round-trip from Pugs to Perl 5 land and back
 * Importing functions from Perl 5: `use perl5:CGI <header param>`
 * Passing unboxed values across runtimes no longer leaks memory
 * When embedding Perl 5.8+, Unicode flag is now on for Pugs-to-Perl5 strings
