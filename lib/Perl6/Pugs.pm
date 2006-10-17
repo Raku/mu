@@ -2,7 +2,7 @@ package Perl6::Pugs;
 use 5.006;
 use strict;
 
-our $VERSION = 6.002012;
+our $VERSION = 6.002013;
 
 =head1 NAME
 
@@ -10,14 +10,14 @@ Perl6::Pugs - A Perl 6 Implementation
 
 =head1 VERSION
 
-This document describes version 6.2.12 of Pugs, released June 26, 2006.
+This document describes version 6.2.13 of Pugs, released October 17, 2006.
 
 =head1 SYNOPSIS
 
     % pugs -e "{ 'Hello, ', @^x }.('World!').say"
     Hello, World!
 
-With Perl 5 embedding support (also note the C<--> in the C<#!> line):
+With Perl 5 embedding support:
 
     use v6-alpha;
     use perl5:DBI;
