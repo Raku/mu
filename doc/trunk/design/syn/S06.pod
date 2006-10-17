@@ -13,7 +13,7 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 2 Oct 2006
+  Last Modified: 16 Oct 2006
   Number: 6
   Version: 59
 
@@ -932,7 +932,7 @@ array of slices.
     'a'..*     ==> @@foo;
     pidigits() ==> @@foo;
 
-    for zip(@@foo) { say }
+    for zip(@@foo) { .say }
 
 	[0,'a',3]
 	[1,'b',1]
@@ -954,11 +954,11 @@ A semicolon inside brackets is equivalent to stacked feeds.  The code above
 could be rewritten as:
 
     (0..*; 'a'..*; pidigits()) ==> my @@foo;
-    for @@foo.zip { say }
+    for @@foo.zip { .say }
 
 which is in turn equivalent to
 
-    for zip(0..*; 'a'..*; pidigits()) { say }
+    for zip(0..*; 'a'..*; pidigits()) { .say }
 
 A named receiver array is useful when you wish to feed into an
 expression that is not an ordinary list operator, and you wish to be
@@ -972,25 +972,25 @@ or feeds.  By default, ordinary arrays are flattened, that is, they
 have "cat" semantics.  If you say
 
     (0..2; 'a'..'c') ==> my @tmp;
-    for @tmp { say }
+    for @tmp { .say }
 
 then you get 0,1,2,'a','b','c'.  If you have a multidim array, you
 can ask for cat semantics explicitly with cat():
 
     (0..2; 'a'..'c') ==> my @@tmp;
-    for @@tmp.cat { say }
+    for @@tmp.cat { .say }
 
 As we saw earlier, "zip" produces little arrays by taking one element
 from each list in turn, so
 
     (0..2; 'a'..'c') ==> my @@tmp;
-    for @@tmp.zip { say }
+    for @@tmp.zip { .say }
 
 produces [0,'a'],[1,'b'],[2,'c'].  If you don't want the subarrays, then
 use C<each()> instead:
 
     (0..2; 'a'..'c') ==> my @@tmp;
-    for @@tmp.each { say }
+    for @@tmp.each { .say }
 
 and then you just get 0,'a',1,'b',2,'c'.  This is good for
 
