@@ -561,6 +561,8 @@ EOD
 
     # logic for Judy:
 
+=begin NOJUDY
+
     if ($Config{osname} ne 'MSWin32') {
         warn "Configuring Judy...\n";
         chdir "third-party/judy/Judy-1.0.3";
@@ -581,6 +583,9 @@ EOD
 
         $judyclean = "cd third-party/judy/Judy-1.0.3 \&\& $make clean \&\& perl cleanmore.pl";
     }
+
+=end NOJUDY
+=cut
 
     postamble(fixpaths(<< "."));
 $config_h : lib/Perl6/Pugs.pm util/config_h.pl
@@ -750,13 +755,13 @@ smoke-perl5 : $pugs util/run-smoke.pl all
 ghci : @prereqs @derived_srcfiles
 	$ghc @{[ dethread_flags($ghc_flags) ]} $ghc_output -DPUGS_UNDER_GHCI -no-link --make -O0 -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Prereqs.hs @prereqs
 	\@\$(RM_RF) src/Pugs/*/*_stub.*
-	$ghc @{[ dethread_flags($ghc_flags) ]} $ghc_output -DPUGS_UNDER_GHCI --interactive -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs -Lthird-party/judy/Judy-1.0.3/src/obj/.libs -lJudy
+	$ghc @{[ dethread_flags($ghc_flags) ]} $ghc_output -DPUGS_UNDER_GHCI --interactive -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
 
 ctags : @prereqs @derived_srcfiles
-	echo ":ctags" | $ghc $ghc_flags $ghc_output --interactive -osuf moose -hisuf miise -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs -Lthird-party/judy/Judy-1.0.3/src/obj/.libs -lJudy
+	echo ":ctags" | $ghc $ghc_flags $ghc_output --interactive -osuf moose -hisuf miise -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
         
 etags : @prereqs @derived_srcfiles
-	echo ":etags" | $ghc $ghc_flags $ghc_output --interactive -osuf moose -hisuf miise -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs -Lthird-party/judy/Judy-1.0.3/src/obj/.libs -lJudy
+	echo ":etags" | $ghc $ghc_flags $ghc_output --interactive -osuf moose -hisuf miise -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
 
 pil$Config{_exe} : $config_h $pcre @srcfiles src/PIL/Native/Bootstrap.hs src/PIL/Native/Syntax.hs
 	$ghc $ghc_flags --make -fglasgow-exts -H0 -isrc -Isrc -L. -fno-warn-name-shadowing -o pil$Config{_exe} -main-is PIL.main src/PIL.hs $pcre
@@ -792,10 +797,7 @@ clean ::
 	-cd __DIR__ && \$(TEST_F) \$(FIRST_MAKEFILE) && \$(MAKE) clean
 ")]}
 
-judyclean:
-	$judyclean
-
-realclean :: judyclean
+realclean ::
 	\@\$(RM_RF) third-party/installed
 
 @{[for_perl5("
