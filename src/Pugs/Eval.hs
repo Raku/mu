@@ -455,17 +455,16 @@ reduceSyn "sub" [exp] = do
 reduceSyn "but" [obj, block] = do
     evalExp $ App (_Var "&Pugs::Internals::but_block") Nothing [obj, block]
 
-reduceSyn name [cond, bodyIf, bodyElse]
-    | "if"     <- name = doCond id
-    | "unless" <- name = doCond not
-    where
-    doCond :: (Bool -> Bool) -> Eval Val
-    doCond f = do
-        vbool     <- enterRValue $ enterEvalContext (cxtItem "Bool") cond
-        vb        <- fromVal vbool
-        if (f vb)
-            then reduce bodyIf
-            else reduce bodyElse
+reduceSyn "if" [cond, bodyIf, bodyElse] = do
+    vbool     <- enterRValue $ enterEvalContext (cxtItem "Bool") cond
+    vb        <- fromVal vbool
+    reduce $ if vb then bodyIf else bodyElse
+
+reduceSyn "cond" [cond, bodyIf, bodyElse] = do
+    topic <- enterRValue $ enterEvalContext (cxtItem "Bool") cond
+    vb    <- fromVal topic
+    sub   <- fromCodeExp $ if vb then bodyIf else bodyElse
+    apply sub Nothing [App (_Var "&VAR") (Just (Val topic)) []]
 
 reduceSyn "for" [list, body] = enterLoop $ do
     av    <- enterLValue $ enterEvalContext cxtSlurpyAny list
@@ -1482,10 +1481,11 @@ fromCodeExp x = case x of
         env <- ask
         return $ mkCode
             { subEnv        = Just env
-            , subType       = SubBlock
+            , subType       = SubPrim   -- This is a pseudoblock with no scope
             , subParams     = [defaultScalarParam]
             , subBody       = x
             }
+    Noop                        -> fromCodeExp (Syn "block" [Noop])
     _                           -> fromClosure x
     where
     fromClosure = (fromVal =<<) . enterRValue . enterEvalContext (cxtItem "Code")

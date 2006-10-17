@@ -1146,9 +1146,11 @@ ruleCondBody :: String -> RuleParser Exp
 ruleCondBody csym = rule "conditional expression" $ do
     cond     <- ruleCondPart
     enterBracketLevel ParensBracket $ do
-        body     <- ruleBlock
+        body     <- ruleBareOrPointyBlockLiteralWithoutDefaultParams
         bodyElse <- option emptyExp ruleElseConstruct
-        return $ Syn csym [cond, body, bodyElse]
+        return $ case csym of
+            "if"    -> Syn "cond" [cond, body, bodyElse]
+            _       -> Syn "cond" [cond, bodyElse, body]
 
 ruleCondPart :: RuleParser Exp
 ruleCondPart = enterBracketLevel ConditionalBracket ruleExpression
@@ -1157,10 +1159,11 @@ ruleElseConstruct :: RuleParser Exp
 ruleElseConstruct = rule "else or elsif construct" $
     do
         symbol "else"
-        ruleBlock
+        ruleBareOrPointyBlockLiteralWithoutDefaultParams
     <|> do
         symbol "elsif"
-        ruleCondBody "if"
+        body    <- ruleCondBody "if"
+        return (Syn "block" [body])
 
 ruleWhileUntilConstruct :: RuleParser Exp
 ruleWhileUntilConstruct = rule "while/until construct" $ do
@@ -1200,7 +1203,9 @@ s_postConditional :: RuleParser (Exp -> RuleParser Exp)
 s_postConditional = rule "postfix conditional" $ do
     cond <- choice $ map symbol ["if", "unless"]
     exp <- ruleExpression
-    return $ \body -> return $ Syn cond [exp, body, emptyExp]
+    return $ \body -> return $ case cond of
+        "if"    -> Syn "cond" [exp, Syn "block" [body], Syn "block" [emptyExp]]
+        _       -> Syn "cond" [exp, Syn "block" [emptyExp], Syn "block" [body]]
 
 {-|
 Match a statement's /looping/ statement-modifier,
