@@ -216,7 +216,7 @@ showsVar MkVar
     , v_categ   = cat
     , v_name    = name
     , v_meta    = meta
-    } = showsPrec 0 sig . showsPrec 0 twi . showCateg . showPkg . showsMeta meta showName
+    } = showsPrec 0 sig . showsPrec 0 twi . showPkg . showCateg . showsMeta meta showName
     where
     showName = ((++) (cast name))
     showCateg = case cat of
