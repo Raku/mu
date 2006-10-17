@@ -49,6 +49,7 @@ Pragma to choose among grammar engine backends.
 
 === [ext/Test/]
 
+* Converted `Test.pm` documentation from Kwid to POD syntax.
 * Removed the `eval_ok` and `eval_is` functions; use `is eval` instead.
 
 == Test Suite
@@ -102,21 +103,30 @@ Pragma to choose among grammar engine backends.
 
 === [misc/runpugs/]
 
-* See [http://run.pugscode.org/].
+* A web teminal for running an interactive Pugs shell on the web.
+* WebTerminal: A library for building web terminals for interactive shells.
+* See [http://run.pugscode.org/] for a live demo.
 
 == Documentation
 
-* Perl6::Perl6::Differences was significantly updated. An HTML
-  version of it is linked to from the page above.
-* Added a draft for S16 ([docs/Perl6/Spec/IO.pod]).
-* say() was officially added to the spec
-* Converted Test.pm docs from kwid to POD as there are more tools
-  and familiarity with POD now.
-* Pugs::Doc::Hack::Style - Haskell style guide for Pugs hackers
-* docs/talks/extraction.xul - Nathan Gray's talk 'Practical Extraction with
-  Perl 6'
-* ported documentation for function chmod, getc, opendir, closedir, readdir,
-  rewinddir rmdir unlink close print to Spec::IO
+=== [docs/Perl6/Perl5/Differences.pod]
+
+* Significantly updated and linked from [http://spec.pugscode.org/].
+
+=== [docs/Perl6/Spec/]
+
+* A new S16 draft for IO/IPC/Signals as [docs/Perl6/Spec/IO.pod].
+* A new S26 draft for Documentation as [docs/Perl6/Spec/Documentation.pod].
+* Revamped S29 draft in [docs/Perl6/Spec/Functions.pod].
+
+=== [docs/Pugs/Doc/]
+
+* New directory for Pugs-specific documentations.
+* Haskell style guide for Pugs hackers in [docs/Pugs/Doc/Hack/Style.pod].
+
+=== [docs/talks/extraction.xul]
+
+* Slides from Nathan Gray's "Practical Extraction with Perl 6" talk.
 
 == New Features
 
