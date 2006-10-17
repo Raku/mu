@@ -1102,6 +1102,7 @@ op2 "sort" = \x y -> do
     op1 "sort" . VList $ xs ++ ys
 op2 "IO::say" = op2Print hPutStrLn
 op2 "IO::print" = op2Print hPutStr
+op2 "printf" = op3 "IO::printf" (VHandle stdout)
 op2 "BUILDALL" = cascadeMethod reverse "BUILD"
 op2 "Pugs::Internals::install_pragma_value" = \x y -> do
     name <- fromVal x
@@ -1336,6 +1337,9 @@ op3 "Pugs::Internals::hSeek" = \x y z -> do
         modeOf 1 = RelativeSeek
         modeOf 2 = SeekFromEnd
         modeOf m = error ("Unknown seek mode: " ++ (show m))
+op3 "IO::printf" = \x y z -> do
+    rv      <- evalExp $ App (_Var "&sprintf") Nothing [Val y, Val z]
+    op2Print hPutStr x rv
 op3 other = \_ _ _ -> fail ("Unimplemented 3-ary op: " ++ other)
 
 mixinRoles :: String -> [String] -> Eval ()
@@ -1932,6 +1936,8 @@ initSyms = seq (length syms) $ do
 \\n   Bool      pre     IO::print   unsafe (IO: List)\
 \\n   Bool      pre     print   safe ()\
 \\n   Bool      pre     print   safe (List)\
+\\n   Bool      pre     IO::printf   unsafe (IO: Str, List)\
+\\n   Bool      pre     printf   safe (Str, List)\
 \\n   Str       pre     Pugs::Internals::sprintf safe   (Str, Num|Rat|Int|Str)\
 \\n   Bool      pre     IO::say unsafe (IO)\
 \\n   Bool      pre     IO::say unsafe (IO: List)\
