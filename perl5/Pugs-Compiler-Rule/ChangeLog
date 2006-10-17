@@ -1,4 +1,10 @@
+0.20  2006-10-13
+
+- each time <prior> is set to a new rule, it stores the previous 
+  rule in a closure, so that subrules can have their own <prior>.
 - implemented :c :continue
+
+- several fixes to HsBridge
 
 0.19  2006-09-27
 
