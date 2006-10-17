@@ -191,6 +191,19 @@ instance ArrayClass IArray where
     array_existsElem (MkIArray iv) idx = liftSTM $ do
         a   <- readTVar iv
         return (idx < a_size a)
+    array_storeElem arr@(MkIArray iv) idx (IScalar sv) = do
+        a   <- liftSTM $ readTVar iv
+        let size = a_size a
+        when (size <= idx) $ do
+            array_extendSize arr (idx + 1)
+        case fromTypeable sv of
+            Just tvar   -> do
+                liftSTM $ modifyTVar iv (Seq.update idx tvar)
+            _           -> do
+                val <- scalar_fetch sv
+                liftSTM $ do
+                    tvar <- newTVar val
+                    modifyTVar iv (Seq.update idx tvar)
     array_deleteElem (MkIArray iv) idx = liftSTM $ do
         a   <- readTVar iv
         let idx' | idx < 0   = idx `mod` size        --- XXX wrong; wraparound => what do you mean?

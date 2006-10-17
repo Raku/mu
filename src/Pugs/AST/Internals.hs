@@ -259,6 +259,7 @@ toVV' (VRat v) = return $ VV $ Val.val $ ((cast v) :: Val.PureNum)
 toVV' (VStr v) = return $ VV $ Val.val $ ((cast v) :: Val.PureStr)
 toVV' x = error $ "don't know how to toVV': " ++ show x
 
+
 getArrayIndex :: Int -> Maybe (IVar VScalar) -> Eval IArray -> Maybe (Eval b) -> Eval (IVar VScalar)
 getArrayIndex idx def getArr _ | idx < 0 = do
     -- first, check if the list is at least abs(idx) long
