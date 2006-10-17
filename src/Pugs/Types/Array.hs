@@ -126,118 +126,86 @@ instance ArrayClass IArraySlice where
     array_storeSize _ _ = return () -- XXX error?
     array_storeElem _ _ _ = retConstError undef
 
+a_size :: Array ArrayIndex (TVar Val) -> Int
+a_size a = snd (bounds a) + 1
+
 instance ArrayClass IArray where
-    array_store (MkIArray iv s) vals = liftIO $ do
-        new <- C.fromList [ (k, lazyScalar v) | k <- [0..] | v <- vals ]
-        writeIORef iv new
-        writeIORef s (length vals)
-    array_fetchSize MkIArray{ a_size = s } = liftIO $ do
-        readIORef s
-    array_storeSize (MkIArray iv s) sz = liftIO $ do
-        size <- readIORef s
-        case size `compare` sz of
-            GT -> do 
-                av  <- readIORef iv
-                new <- C.fromList =<< I.takeFirst sz av
-                writeIORef iv new
-                writeIORef s sz
+    array_store (MkIArray iv) vals = liftSTM $ do
+        tvs <- mapM newTVar vals
+        writeTVar iv (listArray (0, length vals - 1) tvs)
+    array_fetchSize (MkIArray iv) = liftSTM $ do
+        a   <- readTVar iv
+        return $ a_size a
+    array_storeSize (MkIArray iv) sz = liftSTM $ do
+        a       <- readTVar iv
+        case a_size a `compare` sz of
+            GT -> writeTVar iv (listArray (0, sz - 1) (elems a)) -- shrink
             EQ -> return ()
-            LT -> writeIORef s sz
-    array_shift (MkIArray iv s) = do
-        size <- liftIO $ readIORef s
-        case size of
+            LT -> do
+                tvs <- replicateM (sz - a_size a) (newTVar undef)
+                writeTVar iv (listArray (0, sz - 1) (elems a ++ tvs)) -- extend
+    array_shift (MkIArray iv) = liftSTM $ do
+        a   <- readTVar iv
+        case a_size a of
+            0   -> return undef
+            sz  -> do
+                let (e:es) = A.elems a
+                writeTVar iv (listArray (0, sz - 2) es)
+                readTVar e
+    array_unshift _ [] = return ()
+    array_unshift (MkIArray iv) vals = liftSTM $ do
+        a   <- readTVar iv
+        let (_, oldBound)   = bounds a
+            sz              = length vals
+        tvs <- mapM newTVar vals
+        writeTVar iv (listArray (0, oldBound + sz) (tvs ++ A.elems a))
+    array_pop (MkIArray iv) = liftSTM $ do
+        a   <- readTVar iv
+        case a_size a of
             0 -> return undef
-            _ -> do
-                l   <- liftIO $ do
-                    av   <- readIORef iv
-                    writeIORef s (size-1)
-                    C.mapToList (\k v -> (k-1,v)) av
-                case l of
-                    ((-1, v):rest) -> do
-                        liftIO (writeIORef iv =<< (length rest `seq` C.fromList rest))
-                        readIVar v
-                    _ -> liftIO $ do
-                        liftIO (writeIORef iv =<< (length l `seq` C.fromList l))
-                        return undef
-    array_unshift (MkIArray iv s) vals = liftIO $ do
-        let sz = length vals
-        av  <- readIORef iv
-        l   <- C.mapToList (\k v -> (k+sz,v)) av
-        new <- C.fromList $ ([0..] `zip` (sz `seq` map lazyScalar vals)) ++ (length l `seq` l)
-        writeIORef iv new
-        modifyIORef s (+sz)
-    array_pop (MkIArray iv s) = do
-        size <- liftIO $ readIORef s
-        case size of
-            0 -> return undef
-            _ -> do
-                e   <- liftIO $ do
-                    writeIORef s (size-1)
-                    av  <- readIORef iv
-                    e'  <- C.lookup (size-1) av
-                    case e' of
-                        Just x -> do
-                            C.delete (size-1) av
-                            return e'
-                        _ -> return e'
-                case e of
-                    Nothing -> return undef
-                    Just x  -> readIVar x
-    array_push (MkIArray iv s) vals = liftIO $ do
-        size <- readIORef s
-        av   <- readIORef iv
-        let len = length vals
-        writeIORef s (size + len)
-        mapM_ (\(k,v) -> C.insert k v av) $ [size..] `zip` (len `seq` map lazyScalar vals)
-    array_extendSize (MkIArray _ s) sz = liftIO $ do
-        modifyIORef s $ \size -> if size >= sz then size else sz
-    array_fetchVal arr@(MkIArray iv s) idx = do
-        rv      <- getArrayIndex idx (Just $ constScalar undef)
-                    (return arr)
-                    Nothing -- don't bother extending
+            s -> do
+                writeTVar iv (listArray (0, s-2) (A.elems a))
+                readTVar ((A.!) a (s-1))
+    array_push _ [] = return ()
+    array_push (MkIArray iv) vals = liftSTM $ do
+        a   <- readTVar iv
+        let (_, oldBound)   = bounds a
+            sz              = length vals
+        tvs <- mapM newTVar vals
+        writeTVar iv (listArray (0, oldBound + sz) (A.elems a ++ tvs))
+    array_extendSize (MkIArray iv) sz = liftSTM $ do
+        a       <- readTVar iv
+        case a_size a `compare` sz of
+            LT  -> do
+                tvs <- replicateM (sz - a_size a) (newTVar undef)
+                writeTVar iv (listArray (0, sz - 1) (elems a ++ tvs)) -- extend
+            _   -> return ()
+    array_fetchVal arr idx = do
+        rv  <- getArrayIndex idx (Just $ constScalar undef)
+                (return arr)
+                Nothing -- don't bother extending
         readIVar rv
-    array_fetchKeys (MkIArray iv _) = liftIO (C.keys =<< readIORef iv)
-    array_fetchElem arr@(MkIArray iv s) idx = do
-        sv <- getArrayIndex idx Nothing
+    array_fetchKeys (MkIArray iv) = liftSTM $ do
+        a   <- readTVar iv
+        let (from, to) = bounds a
+        return [from .. to]
+    array_fetchElem arr idx = do
+        getArrayIndex idx Nothing
             (return arr)
             (Just (array_extendSize arr $ idx+1))
-        if refType (MkRef sv) == mkType "Scalar::Lazy"
-            then do
-                val <- readIVar sv
-                sv' <- newScalar val
-                liftIO $ do
-                    size <- readIORef s
-                    let idx' = idx `mod` size
-                    av   <- readIORef iv
-                    C.insert idx' sv' av
-                    return sv'
-            else return sv
     array_existsElem arr idx | idx < 0 = array_existsElem arr (abs idx - 1)    -- FIXME: missing mod?
-    array_existsElem MkIArray{ a_data = iv } idx = liftIO (C.member idx =<< readIORef iv)
-    array_deleteElem (MkIArray iv s) idx = liftIO $ do
-        size <- readIORef s
+    array_existsElem (MkIArray iv) idx = liftSTM $ do
+        a   <- readTVar iv
+        return (idx < a_size a)
+    array_deleteElem (MkIArray iv) idx = liftSTM $ do
+        a   <- readTVar iv
         let idx' | idx < 0   = idx `mod` size        --- XXX wrong; wraparound => what do you mean?
                  | otherwise = idx
+            size = a_size a
         case (size-1) `compare` idx' of
             LT -> return ()
-            EQ -> do
-                av <- readIORef iv
-                writeIORef s (size-1)
-                C.delete idx' av
-                return ()
-            GT -> do
-                av <- readIORef iv
-                C.delete idx' av
-                return ()
-    array_storeElem (MkIArray iv s) idx sv = liftIO $ do
-        size <- readIORef s
-        let idx' | idx < 0   = idx `mod` size        --- XXX wrong; wraparound => what do you mean?
-                 | otherwise = idx
-        av <- readIORef iv
-        C.insert idx' sv av
-        if size > idx'
-            then return ()
-            else writeIORef s (idx'+1)
+            EQ -> writeTVar iv (listArray (0, size-2) (A.elems a))
+            GT -> writeTVar ((A.!) a idx) undef
 
 instance ArrayClass VArray where
     array_iType = const $ mkType "Array::Const"

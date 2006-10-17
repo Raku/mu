@@ -38,7 +38,7 @@ module Pugs.AST.Internals (
     VRule(..), -- uses Val
 
     IVar(..), -- uses *Class and V*
-    IArray', IArray, IArraySlice, IHash, IScalar, ICode, IScalarProxy,
+    IArray, IArraySlice, IHash, IScalar, ICode, IScalarProxy,
     IScalarLazy, IPairHashSlice, IRule, IHandle, IHashEnv(..),
     IScalarCwd(..),
 
@@ -90,7 +90,6 @@ import qualified Data.Map       as Map
 
 import qualified Judy.CollectionsM as C
 import qualified Data.HashTable    as H
-import qualified Judy.IntMap       as I
 import GHC.Conc (unsafeIOToSTM)
 
 import Pugs.Cont (callCC)
@@ -104,6 +103,10 @@ import Pugs.AST.SIO
 import Pugs.Embed.Perl5
 import qualified Pugs.Val as Val
 import qualified Data.ByteString.Char8 as Str
+
+import Control.Monad (replicateM)
+import qualified Data.Array as A
+import Data.Array (Array, array, listArray, bounds)
 
 {- <DrIFT> Imports for the DrIFT
 import Pugs.AST.Scope
@@ -260,33 +263,22 @@ toVV' x = error $ "don't know how to toVV': " ++ show x
 getArrayIndex :: Int -> Maybe (IVar VScalar) -> Eval IArray -> Maybe (Eval b) -> Eval (IVar VScalar)
 getArrayIndex idx def getArr _ | idx < 0 = do
     -- first, check if the list is at least abs(idx) long
-    MkIArray iv s <- getArr
-    size <- liftIO $ readIORef s
-    if size > (abs (idx+1))
-        then liftIO $ do
-            av  <- readIORef iv
-            e   <- C.lookup (idx `mod` size) av
-            case e of
-                Nothing -> return lazyUndef
-                Just x  -> return x
+    MkIArray iv <- getArr
+    a   <- liftSTM $ readTVar iv
+    let size = a_size a
+    if size > abs (idx+1)
+        then return (IScalar ((A.!) a (idx `mod` size)))
         else errIndex def idx
 -- now we are all positive; either extend or return
 getArrayIndex idx def getArr ext = do
-    let maybeExtend = do case ext of
-                             Just doExt -> do { doExt; getArrayIndex idx def getArr Nothing }
-                             Nothing    -> errIndex def idx
-    MkIArray iv s <- getArr
-    size <- liftIO $ readIORef s
+    MkIArray iv <- getArr
+    a   <- liftSTM $ readTVar iv
+    let size = a_size a
     if size > idx
-        then liftIO $ do
-            av  <- readIORef iv
-            e   <- C.lookup idx av
-            case e of
-                Just a  -> return a
-                Nothing -> return lazyUndef
-        else maybeExtend
-
-
+        then return (IScalar ((A.!) a (idx)))
+        else case ext of
+            Just doExt -> do { doExt; getArrayIndex idx def getArr Nothing }
+            Nothing    -> errIndex def idx
 
 createObjectRaw :: (MonadSTM m)
     => ObjectId -> Maybe Dynamic -> VType -> [(VStr, Val)] -> m VObject
@@ -1597,11 +1589,9 @@ newObject :: (MonadSTM m, MonadIO m) => Type -> m VRef
 newObject typ = case showType typ of
     "Item"      -> liftSTM $ fmap scalarRef $ newTVar undef
     "Scalar"    -> liftSTM $ fmap scalarRef $ newTVar undef
-    "Array"     -> liftIO $ do
-        s   <- newIORef 0
-        av  <- C.new
-        iv  <- newIORef av
-        return $ arrayRef (MkIArray iv s)
+    "Array"     -> liftSTM $ do
+        iv  <- newTVar (array (0, -1) [])
+        return $ arrayRef (MkIArray iv)
     "Hash"      -> do
         h   <- liftIO (C.new :: IO IHash)
         return $ hashRef h
@@ -1824,13 +1814,11 @@ pairRef x   = MkRef (IPair x)
 newScalar :: (MonadSTM m) => VScalar -> m (IVar VScalar)
 newScalar = liftSTM . (fmap IScalar) . newTVar
 
-newArray :: (MonadIO m) => VArray -> m (IVar VArray)
-newArray vals = liftIO $ do
-    --liftSTM $ unsafeIOToSTM $ putStrLn "new array"
-    s   <- newIORef (length vals)
-    av  <- C.fromList ([0..] `zip` map lazyScalar vals)
-    iv  <- newIORef av
-    return $ IArray (MkIArray iv s)
+newArray :: (MonadSTM m) => VArray -> m (IVar VArray)
+newArray vals = liftSTM $ do
+    tvs <- mapM newTVar vals
+    iv  <- newTVar (listArray (0, length tvs - 1) tvs)
+    return $ IArray (MkIArray iv)
 
 newHash :: (MonadSTM m) => VHash -> m (IVar VHash)
 newHash hash = do
@@ -1861,12 +1849,31 @@ retConstError val = retError "Can't modify constant item" val
 
 -- Haddock doesn't like these; not sure why ...
 #ifndef HADDOCK
-type IArray'            = IORef (I.IntMap ArrayIndex (IVar VScalar))
-data IArray             = MkIArray
-    { a_data :: !IArray'
-    , a_size :: !(IORef ArrayIndex)
-    }
+
+{-
+instance A.MArray IArray ArrayIndex STM where
+    getBounds (MkIArray iv) = do
+        a   <- readTVar iv
+        return (bounds a)
+    newArray b e = do
+        a   <- replicateM (rangeSize b) (newTVar e)
+        iv  <- newTVar (A.listArray b a)
+        return $ MkIArray iv
+    newArray_ b = do
+        a   <- replicateM (rangeSize b) (newTVar A.arrEleBottom)
+        iv  <- newTVar (A.listArray b a)
+        return $ MkIArray iv
+    unsafeRead (MkIArray iv) i = do
+        a   <- readTVar iv
+        readTVar $ A.unsafeAt a i
+    unsafeWrite (MkIArray iv) i e = do
+        a   <- readTVar iv
+        writeTVar (A.unsafeAt a i) e
+-}
+
+newtype IArray = MkIArray (TVar (Array ArrayIndex (TVar VScalar)))
     deriving (Typeable)
+
 type IArraySlice        = [IVar VScalar]
 type IHash              = H.HashTable VStr (IVar VScalar) -- XXX UTF8 handled at Types/Hash.hs
 type IScalar            = TVar Val
