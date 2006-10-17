@@ -4,7 +4,9 @@ use v6-alpha;
 
 module v6::AST;
 
+use v5;
 $INC{"v6/AST.pm"}=1;  # mark v6::AST as "used"
+use v6;
 
 sub node( $match, $type ) {
     #say "new node $match $type\n";
@@ -16,9 +18,8 @@ sub node( $match, $type ) {
 
 module v6::AST::Base;
 
-$INC{"v6/AST/Base.pm"}=1;  # mark v6::AST::Base as "used"
-
 use v5; 
+$INC{"v6/AST/Base.pm"}=1;  # mark v6::AST::Base as "used"
 use Data::Dumper;
 sub create {
     #print "create new node $_[0], ", Dumper( $_[1]->data );
