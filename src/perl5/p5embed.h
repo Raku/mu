@@ -13,7 +13,7 @@ int perl5_SvIV ( SV * sv );
 double perl5_SvNV ( SV * sv );
 bool perl5_SvTRUE ( SV * sv );
 bool perl5_SvROK(SV *inv);
-SV * perl5_newSVpvn ( char * pv, inv len );
+SV * perl5_newSVpvn ( char * pv, int len );
 SV * perl5_newSViv ( int iv );
 SV * perl5_newSVnv ( double iv );
 SV ** perl5_apply(SV *sub, SV *inv, SV** args, void *env, int cxt);
