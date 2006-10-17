@@ -8,7 +8,7 @@ A thin wrapper around Net::Telnet
 new() starts the session;
 write() sends commands to it.
 =cut
-
+$SIG{CHLD}='IGNORE';
 ## Constructor
 sub new {
 	my $invocant = shift;
@@ -24,7 +24,7 @@ sub new {
 	use Net::Telnet;
 	$self->{'pugs'} = new Net::Telnet(
 		-fhopen => $self->{'pty'},
-        -timeout => 20,
+        -timeout => 10,
 		-prompt => $prompt,
 		-telnetmode      => 0,
 		-cmd_remove_mode => 0,
@@ -56,7 +56,7 @@ sub write {
     $pugs->errmode(sub {kill 9,$obj->{'pid'};});
 
 	$pugs->print($cmd);
-	while (1) {
+	while ($i<256) {
 		my $line = $pugs->getline;
         my $msg=$pugs->errmsg;
 #	    print "L:",$line,":",$msg;
@@ -72,7 +72,10 @@ sub write {
 		$lline .= $line unless $line =~ /(pugs|\.\.\.\.)\>/;
 		$i++;
 	}
-
+    if ($i>=255) {
+     kill 9, $obj->{'pid'};
+     $lline.="Generated output is limited to 100 lines. Aborted.\npugs";
+    }
 
 	#$lline .= "\n$ps>";
 	$lline .= "$ps> ";

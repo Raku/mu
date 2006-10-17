@@ -39,18 +39,30 @@ sub termhandler {
         return "Sorry, I can't run any more sessions.\nPlease try again later.";
     } else {
     	if ( exists $terminals{$id} ) {
+        if ($terminals{$id}->{pid}) {
         	$terminals{$id}->{called}=time;
 		    my $term  = $terminals{$id};
     		my $lines = $term->write($cmd);
 	    	if ( $cmd eq ':q' ) {
 		    	delete $terminals{$id};
+                 my $pid= $terminals{$id}->{pid};
+                 if ($pid) {
+                     kill 9,$pid;
+                 }
                 $sessions_per_ip{$ip}--;
     		}
             if ($lines=~/Aborted/s) {
                  delete $terminals{$id};
+                 my $pid= $terminals{$id}->{pid};
+                 if ($pid) {
+                     kill 9,$pid;
+                 }
                 $sessions_per_ip{$ip}--;
             }
 	    	return $lines;
+           } else {
+           return "pugs> ";
+           }
     	} else {
             if ($sessions_per_ip{$ip}>10) {
                  return "Sorry, you can't run more than 10 sessions from one IP address.\n";   
@@ -73,7 +85,13 @@ sub rcvd_msg_from_client {
 		if ( $len > 0 ) {
 			( my $id, my $ip, my $cmd ) = split( "\n", $msg, 3 );
             $cmd=pack("U0C*", unpack("C*",$cmd));
-#            print "$id($ip): ",$cmd,"\n";
+            my $pid=0;
+            if(exists $terminals{$id}) {
+            $pid=$terminals{$id}->{pid};
+            }
+            my $nsess=scalar keys %terminals;
+            print scalar(localtime)," : $nsess : $ip : $id : $pid > ",$cmd,"\n";
+            print LOG scalar(localtime)," : $nsess : $ip : $id : $pid > ",$cmd,"\n";
 			my $lines = &termhandler( $id, $ip, $cmd );
 			$conn->send_now("$id\n$lines");
 
@@ -90,22 +108,32 @@ sub run {
     my $host=shift;
     my $port=shift;
     $SIG{USR1}=\&timeout;
+my $daemon=0;
+if ($daemon) {
     Proc::Daemon::Init;
+}
     # fork/exec by the book:
     use Errno qw(EAGAIN);
     my $pid;
     FORK: {
         if ($pid=fork) {
             #parent here
+            use Cwd;
+            print cwd();
+            open(LOG,">/home/andara/apache/data/runpugs.log");
             WebTerminal::Msg->new_server( $host, $port, \&login_proc );
             WebTerminal::Msg->event_loop();
         } elsif (defined $pid) {
            # child here
            while (getppid()>10) { # a bit ad-hoc.
-               sleep 300;
+               sleep 60;
                 #print getppid(),"\n";
                 kill 'USR1',getppid();
             }
+            sleep 5;
+            system("killall /usr/bin/pugs");
+            chdir "/home/andara/apache/cgi-bin/";
+            exec('/usr/bin/perl ../bin/termserv.pl');
         } elsif ($! == EAGAIN) {
             sleep 5;
             redo FORK;
@@ -121,13 +149,26 @@ sub timeout() {
         my $then=$terminals{$id}->{called};
         if ($now-$then>600) {
         if(exists $terminals{$id}) {
+            my $pid= $terminals{$id}->{pid};
             my $ip=$terminals{$id}->{ip};
             $sessions_per_ip{$ip}--;
-            $terminals{$id}->write(':q');
+            if ($pid) {
+                kill 9,$pid;
+            }
+#            $terminals{$id}->write(':q');
             delete $terminals{$id};
             }
         }
     }
+=reaper
+    # as a hack, we can reap "lost" sessions here
+     my @sessions=`ps x | grep pugs | grep -v runpugs | grep -v grep`;
+     for my $session (@sessions) {
+     chomp $session;
+       my $pid=$session;
+       $pid=~s/\s+.*$//;
+     }
+=cut
 }
 
 1;

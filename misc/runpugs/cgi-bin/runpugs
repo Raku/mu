@@ -64,20 +64,20 @@ my $ip=$ENV{'REMOTE_ADDR'};
 
 if ( $query->param()) {      # an action has been chosen
     my $cmd=$query->param("cmd");
-     my $action =  $query->param("action")||'runpugs';
+    my $action =  $query->param("action")||'runpugs';
     if ($action =~ /^(\w+)$/) {
-	$action = $1;
-	if ($access_OK) {
-	    if ($action eq "runpugs") {
-		&runpugs($query,$cmd,$sessionid,$ip);
-	    } 
-    } else {
-	my $warning_message="Action has illegal chars: $action";
-    &runpugs($query,'',$sessionid,$ip);
+    	$action = $1;
+    	if ($access_OK) {
+	        if ($action eq "runpugs") {
+		        &runpugs($query,$cmd,$sessionid,$ip);
+	        } 
+        } else {
+            &runpugs($query,'init',$sessionid,$ip);
+        }
+    } else {            # no action has been taken, display login page
+       my $warning_message="Action has illegal chars: $action";
+       &runpugs($query,'init',$sessionid,$ip);
     }
-} else {            # no action has been taken, display login page
-    &runpugs($query,'',$sessionid,$ip);
-}
 } else {
 	 &runpugs($query,'',$sessionid,$ip);
 }
