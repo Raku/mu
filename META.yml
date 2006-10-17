@@ -1,5 +1,5 @@
 name: Perl6-Pugs
-version: 6.2.11
+version: 6.2.13
 abstract: A Perl 6 Implementation
 author: Audrey Tang <autrijus@autrijus.org>
 license: perl
@@ -8,7 +8,11 @@ build_requires:
 no_index:
   directory:
     - debian
-    - docs
+    - docs/Perl6
+    - docs/summaries
+    - docs/AES
+    - docs/notes
+    - docs/other
     - examples
     - ext
     - inc

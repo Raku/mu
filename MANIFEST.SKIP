@@ -34,6 +34,7 @@ Makefile.old$
 ^perl5/README
 ^perl5/re-override-PCRE/
 ^perl5/re-override/
+^perl5/Sub-Multi/
 ^pugs
 ^tags
 ^third-party/HsJudy
