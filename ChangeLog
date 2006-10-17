@@ -96,7 +96,7 @@
 === Classes and Objects
 
 * Attribute-like method call syntax: `@.method(1)`, `$.method: 2, 3, 4`
-* Circular mixin is no longer allowed: `role A does A`
+* Compile-time self-mixin no longer allowed: `role A does A`
 * Default expression for attributes: `class C { has $.x = 123 }`
 * Dynamic method calls: `$obj.$meth`
 * Hyperised method calls: `$obj.>>meth`
