@@ -126,59 +126,54 @@ instance ArrayClass IArraySlice where
     array_storeSize _ _ = return () -- XXX error?
     array_storeElem _ _ _ = retConstError undef
 
-a_size :: Array ArrayIndex (TVar Val) -> Int
-a_size a = snd (bounds a) + 1
+a_size :: Seq.Seq (TVar VScalar) -> Int
+a_size = Seq.length
 
 instance ArrayClass IArray where
     array_store (MkIArray iv) vals = liftSTM $ do
         tvs <- mapM newTVar vals
-        writeTVar iv (listArray (0, length vals - 1) tvs)
+        writeTVar iv (Seq.fromList tvs)
     array_fetchSize (MkIArray iv) = liftSTM $ do
         a   <- readTVar iv
         return $ a_size a
     array_storeSize (MkIArray iv) sz = liftSTM $ do
         a       <- readTVar iv
         case a_size a `compare` sz of
-            GT -> writeTVar iv (listArray (0, sz - 1) (elems a)) -- shrink
+            GT -> writeTVar iv (Seq.take sz a) -- shrink
             EQ -> return ()
             LT -> do
                 tvs <- replicateM (sz - a_size a) (newTVar undef)
-                writeTVar iv (listArray (0, sz - 1) (elems a ++ tvs)) -- extend
+                writeTVar iv ((Seq.><) a (Seq.fromList tvs)) -- extend
     array_shift (MkIArray iv) = liftSTM $ do
         a   <- readTVar iv
         case a_size a of
             0   -> return undef
-            sz  -> do
-                let (e:es) = A.elems a
-                writeTVar iv (listArray (0, sz - 2) es)
-                readTVar e
+            _   -> do
+                writeTVar iv (Seq.drop 1 a)
+                readTVar (Seq.index a 0)
     array_unshift _ [] = return ()
     array_unshift (MkIArray iv) vals = liftSTM $ do
         a   <- readTVar iv
-        let (_, oldBound)   = bounds a
-            sz              = length vals
         tvs <- mapM newTVar vals
-        writeTVar iv (listArray (0, oldBound + sz) (tvs ++ A.elems a))
+        writeTVar iv ((Seq.><) (Seq.fromList tvs) a)
     array_pop (MkIArray iv) = liftSTM $ do
         a   <- readTVar iv
         case a_size a of
-            0 -> return undef
-            s -> do
-                writeTVar iv (listArray (0, s-2) (A.elems a))
-                readTVar ((A.!) a (s-1))
+            0   -> return undef
+            sz  -> do
+                writeTVar iv (Seq.take (sz - 1) a)
+                readTVar (Seq.index a (sz - 1))
     array_push _ [] = return ()
     array_push (MkIArray iv) vals = liftSTM $ do
         a   <- readTVar iv
-        let (_, oldBound)   = bounds a
-            sz              = length vals
         tvs <- mapM newTVar vals
-        writeTVar iv (listArray (0, oldBound + sz) (A.elems a ++ tvs))
+        writeTVar iv ((Seq.><) a (Seq.fromList tvs))
     array_extendSize (MkIArray iv) sz = liftSTM $ do
         a       <- readTVar iv
         case a_size a `compare` sz of
             LT  -> do
                 tvs <- replicateM (sz - a_size a) (newTVar undef)
-                writeTVar iv (listArray (0, sz - 1) (elems a ++ tvs)) -- extend
+                writeTVar iv ((Seq.><) a (Seq.fromList tvs))
             _   -> return ()
     array_fetchVal arr idx = do
         rv  <- getArrayIndex idx (Just $ constScalar undef)
@@ -187,8 +182,7 @@ instance ArrayClass IArray where
         readIVar rv
     array_fetchKeys (MkIArray iv) = liftSTM $ do
         a   <- readTVar iv
-        let (from, to) = bounds a
-        return [from .. to]
+        return [0 .. (a_size a - 1)]
     array_fetchElem arr idx = do
         getArrayIndex idx Nothing
             (return arr)
@@ -204,8 +198,8 @@ instance ArrayClass IArray where
             size = a_size a
         case (size-1) `compare` idx' of
             LT -> return ()
-            EQ -> writeTVar iv (listArray (0, size-2) (A.elems a))
-            GT -> writeTVar ((A.!) a idx) undef
+            EQ -> writeTVar iv (Seq.take (size-1) a)
+            GT -> writeTVar (Seq.index a idx') undef
 
 instance ArrayClass VArray where
     array_iType = const $ mkType "Array::Const"

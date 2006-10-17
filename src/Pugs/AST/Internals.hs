@@ -105,8 +105,7 @@ import qualified Pugs.Val as Val
 import qualified Data.ByteString.Char8 as Str
 
 import Control.Monad (replicateM)
-import qualified Data.Array as A
-import Data.Array (Array, array, listArray, bounds)
+import qualified Data.Seq as Seq
 
 {- <DrIFT> Imports for the DrIFT
 import Pugs.AST.Scope
@@ -267,7 +266,7 @@ getArrayIndex idx def getArr _ | idx < 0 = do
     a   <- liftSTM $ readTVar iv
     let size = a_size a
     if size > abs (idx+1)
-        then return (IScalar ((A.!) a (idx `mod` size)))
+        then return (IScalar (Seq.index a (idx `mod` size)))
         else errIndex def idx
 -- now we are all positive; either extend or return
 getArrayIndex idx def getArr ext = do
@@ -275,7 +274,7 @@ getArrayIndex idx def getArr ext = do
     a   <- liftSTM $ readTVar iv
     let size = a_size a
     if size > idx
-        then return (IScalar ((A.!) a (idx)))
+        then return (IScalar (Seq.index a idx))
         else case ext of
             Just doExt -> do { doExt; getArrayIndex idx def getArr Nothing }
             Nothing    -> errIndex def idx
@@ -1590,7 +1589,7 @@ newObject typ = case showType typ of
     "Item"      -> liftSTM $ fmap scalarRef $ newTVar undef
     "Scalar"    -> liftSTM $ fmap scalarRef $ newTVar undef
     "Array"     -> liftSTM $ do
-        iv  <- newTVar (array (0, -1) [])
+        iv  <- newTVar Seq.empty
         return $ arrayRef (MkIArray iv)
     "Hash"      -> do
         h   <- liftIO (C.new :: IO IHash)
@@ -1817,7 +1816,7 @@ newScalar = liftSTM . (fmap IScalar) . newTVar
 newArray :: (MonadSTM m) => VArray -> m (IVar VArray)
 newArray vals = liftSTM $ do
     tvs <- mapM newTVar vals
-    iv  <- newTVar (listArray (0, length tvs - 1) tvs)
+    iv  <- newTVar (Seq.fromList tvs)
     return $ IArray (MkIArray iv)
 
 newHash :: (MonadSTM m) => VHash -> m (IVar VHash)
@@ -1871,7 +1870,7 @@ instance A.MArray IArray ArrayIndex STM where
         writeTVar (A.unsafeAt a i) e
 -}
 
-newtype IArray = MkIArray (TVar (Array ArrayIndex (TVar VScalar)))
+newtype IArray = MkIArray (TVar (Seq.Seq (TVar VScalar)))
     deriving (Typeable)
 
 type IArraySlice        = [IVar VScalar]
