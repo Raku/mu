@@ -13,10 +13,25 @@ package Pugs::Emitter::Perl6::Perl5::Value;
     sub list { 
         $_[0]->node( 'Seq', [ $_[0] ] );
     }
+    sub bind_from { 
+        '\\' . $_[0]->scalar;
+    }
     sub unboxed {
         return $_[0]->{name} 
             if Scalar::Util::blessed $_[0]->{name};
         $_[0];
+    }
+    sub str {
+        $_[0]->node( 'str',  $_[0]->{name} );
+    }
+    sub true {
+        $_[0]->node( 'bool', $_[0]->{name} );
+    }
+    sub num {
+        $_[0]->node( 'num',  $_[0]->{name} );
+    }
+    sub int {
+        $_[0]->node( 'int',  $_[0]->{name} );
     }
 package Pugs::Emitter::Perl6::Perl5::Bool;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
@@ -91,15 +106,6 @@ package Pugs::Emitter::Perl6::Perl5::Int;
     sub WHAT { 
         $_[0]->node( 'str', 'Int' );
     }
-    sub str {
-        $_[0]->node( 'str', $_[0]->{name} );
-    }
-    sub true {
-        $_[0]->node( 'bool', $_[0]->{name} );
-    }
-    sub num {
-        $_[0]->node( 'num', $_[0]->{name} );
-    }
     sub int {
         $_[0];
     }
@@ -118,12 +124,6 @@ package Pugs::Emitter::Perl6::Perl5::Num;
     );
     sub WHAT { 
         $_[0]->node( 'str', 'Num' );
-    }
-    sub str {
-        $_[0]->node( 'str', $_[0]->{name} );
-    }
-    sub true {
-        $_[0]->node( 'bool', $_[0]->{name} );
     }
     sub num {
         $_[0];
@@ -144,14 +144,11 @@ package Pugs::Emitter::Perl6::Perl5::Num;
 package Pugs::Emitter::Perl6::Perl5::Code;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
     use overload (
-        '""'     => sub { 'sub { ' . $_[0]->{name} . ' } ' },
+        '""'     => sub { 'sub { ' . $_[0]->name . ' } ' },
         fallback => 1,
     );
     sub WHAT { 
         $_[0]->node( 'str', 'Code' );
-    }
-    sub str {
-        $_[0]->node( 'str', $_[0]->{name} );
     }
     sub perl {
         $_[0]->str  # TODO
@@ -166,13 +163,15 @@ package Pugs::Emitter::Perl6::Perl5::Seq;
     );
     sub new {
         # Seq interpolates inside another Seq
-        #print "Seq.new ",Data::Dumper::Dumper(\@_);
+        #print caller;
+        #print "Seq.new = ",Data::Dumper::Dumper(\@_);
         my @self = map {
-            #print "Seq.elem ",$_->WHAT->{name}," ",Data::Dumper::Dumper($_);
-            $_->WHAT->{name} eq 'Seq' 
+            #print "Seq.elem ",$_," ",Data::Dumper::Dumper($_);
+            #print "Seq.elem ",$_->WHAT->name," ",Data::Dumper::Dumper($_);
+            $_->WHAT->name eq 'Seq' 
             ? @{$_->{name}}
             : $_
-            } @{$_[1]->{name}};  
+            } @{$_[1]{name}};  
         return bless { name => \@self }, $_[0];
     }
     sub WHAT { 
@@ -182,19 +181,19 @@ package Pugs::Emitter::Perl6::Perl5::Seq;
         $_[0]
     }
     sub array {
-        $_[0]
+        $_[0]->node( 'SeqArray', $_[0]->name )
     }
     sub scalar {
-        $_[0]->node( 'SeqArray', $_[0]{name} )
+        $_[0]->node( 'SeqArray', $_[0]->name )
     }
     sub hash {
-        $_[0]->node( 'SeqHash', $_[0]{name} );
+        $_[0]->node( 'SeqHash', $_[0]->name );
     }
     sub splice {
         $_[0]->array->splice
     }
     sub elems {
-        $_[0]->node( 'int', scalar @{$_[0]->{name}} )
+        $_[0]->node( 'int', scalar @{$_[0]->name} )
     }
     sub num {
         $_[0]->elems->num
@@ -209,7 +208,7 @@ package Pugs::Emitter::Perl6::Perl5::pair;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
     use overload (
         '""'     => sub { 
-            '(' . join( ' => ', map { $_ } @{$_[0]->{name}} ) . ')' 
+            '(' . join( ' => ', map { $_ } @{$_[0]->name} ) . ')' 
         },
         fallback => 1,
     );
@@ -217,7 +216,7 @@ package Pugs::Emitter::Perl6::Perl5::pair;
         $_[0]->node( 'str', 'Pair' );
     }
     sub str {
-        $_[0]->node( 'str', join( "\t", @{$_[0]->{name}} ) );
+        $_[0]->node( 'str', join( "\t", @{$_[0]->name} ) );
     }
     sub key {
         $_[0]->{name}[0];
@@ -226,7 +225,7 @@ package Pugs::Emitter::Perl6::Perl5::pair;
         $_[0]->{name}[1];
     }
     sub kv {
-        $_[0]->node( 'Seq', $_[0]->{name} );
+        $_[0]->node( 'Seq', $_[0]->name );
     }
     sub scalar {
         return $_[0]->node( 'Scalar', '( bless [' . $_[0] . "], 'Pugs::Runtime::Perl6::Pair' )" )
@@ -273,7 +272,7 @@ package Pugs::Emitter::Perl6::Perl5::Perl5Range;
     use warnings;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
     use overload (
-        '""'     => sub { 
+        '""'     => sub {  
             '(' . join( ' .. ', @{$_[0]->{name}} ) . ')' 
         },
         fallback => 1,
@@ -281,6 +280,25 @@ package Pugs::Emitter::Perl6::Perl5::Perl5Range;
 
     sub WHAT { 
         $_[0]->node( 'str', 'Range' );
+    }
+    sub list { 
+        #print "RANGE: ", $_[0]->node( 'ListExpression', "".$_[0] ), "\n";
+        #$_[0]->node( 'ListExpression', $_[0] );
+
+            # XXX
+            my $Type = ref $_[0]{name}[0];
+            $Type =~ s/^.*://;
+            #print "TYPE $Type \n";
+            $_[0]->node( 'Seq', [ 
+                map { $_[0]->node( $Type, $_ ) } 
+                    $_[0]{name}[0] .. $_[0]{name}[1] 
+            ] ) # XXX
+    }
+    sub scalar { 
+        $_[0]->list->array;
+    }
+    sub array { 
+        $_[0]->list->array;
     }
     
 1;

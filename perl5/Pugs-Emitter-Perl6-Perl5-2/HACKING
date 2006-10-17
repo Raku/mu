@@ -14,9 +14,10 @@ Environment
 Methods
 
 ."" (overloaded stringification) - stringifies to source code
-.box - creates a boxed object. Example: int.box -> Int
-.WHAT - returns the class as a Class (which stringifies to the class name)
-.perl - returns a Str, which contains the object dumped as Perl6 source code  
+.boxed - creates a boxed object. Example: int.box -> Int
+.unboxed - unboxes an object. Example: Int.unbox -> int
+.WHAT  - returns the class as a Class (which stringifies to the class name)
+.perl  - returns a Str, which contains the object dumped as Perl6 source code  
 
 Coercions
 
@@ -33,9 +34,9 @@ Class-specific operations - for example:
 
 Container operations
 
-.bind( $container )
+.bind( $cell )
 .set( $value )
-.bind_from - returns this container's cell 
+.bind_from - returns this container's cell (as plain source code, not an object)
 .[] .array
 .{} .hash
 .[ $value ]

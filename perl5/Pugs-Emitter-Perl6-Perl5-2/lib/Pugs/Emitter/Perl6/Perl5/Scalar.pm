@@ -4,14 +4,14 @@ package Pugs::Emitter::Perl6::Perl5::Scalar;
     use base 'Pugs::Emitter::Perl6::Perl5::Value'; # XXX
     use overload (
         '""'     => sub { 
-            '${' . $_[0]->{name} . '}'
+            '${' . $_[0]->name . '}'
         },
         fallback => 1,
     );
 
     sub WHAT { 
         $_[0]->node( 'StrExpression',
-                'Pugs::Runtime::Perl6::Scalar::ref( \\'. $_[0] . ')' );
+                'Pugs::Runtime::Perl6::Scalar::ref( '. $_[0]->bind_from . ')' );
     }
 
 sub isa { 
@@ -19,21 +19,13 @@ sub isa {
                 'Pugs::Runtime::Perl6::Scalar::isa( '. $_[0] . ', ' . $_[1] . ')' );
 }
 
-sub get {
-    my $self = $_[0];
-    return $self->name;
-}
-
-sub set {
-    my $self = $_[0];
-    return $self->name . ' = ' . $_[1]->hash->get;
-}
-
+    sub set {
+        $_[0] . ' = ' . $_[1]->scalar;
+    }
     sub perl {
         $_[0]->node( 'StrExpression',
                 'Pugs::Runtime::Perl6::Scalar::perl( '. $_[0] . ')' );
     }
-    
     sub yaml {
         $_[0]->node( 'StrExpression',
                 'Pugs::Runtime::Perl6::Scalar::yaml( '. $_[0] . ')' );
@@ -78,15 +70,14 @@ sub array {
     return $_[0]->node( 'ListExpression', $_[0] . '->array' )
 }
 
-sub scalar {
-    return $_[0]
-}
-
+    sub scalar {
+        $_[0]
+    }
     sub list { 
         $_[0]->node( 'Seq', [ $_[0] ] );
     }
     sub bind_from {
-        $_[0]->node( 'Scalar',  '' . $_[0]->name . '' )
+        $_[0]->name    # not an object
     }
 
 sub _123__125_ {
@@ -108,7 +99,7 @@ package Pugs::Emitter::Perl6::Perl5::NamedScalar;
         fallback => 1,
     );
     sub set {
-        $_[0] . ' = ' . $_[1]
+        $_[0] . ' = ' . $_[1]->scalar
     }
     sub my {
         $Pugs::Emitter::Perl6::Perl5::_V6_PREDECLARE{ $_[0]{name} } = 'my ' . Pugs::Runtime::Common::mangle_var( $_[0]->{name} ) . ' = \( my $' . $_[0]->new_id . ')';

@@ -14,6 +14,12 @@ package Pugs::Emitter::Perl6::Perl5::Expression;
     sub WHAT {
         $_[0]->node( 'StrExpression', $_[0] . '->WHAT' );
     }
+    sub bind_from { 
+        $_[0]->scalar;
+    }
+    sub scalar { 
+        '\\' . $_[0];
+    }
     sub true { 
         return $_[0]->node( 'BoolExpression', $_[0] . '->true' )
     }

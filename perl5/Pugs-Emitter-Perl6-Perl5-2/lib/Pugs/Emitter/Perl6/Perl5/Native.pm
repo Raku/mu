@@ -15,7 +15,7 @@ package Pugs::Emitter::Perl6::Perl5::Native;
         $_[0]->node( 'Seq', [ $_[0] ] );
     }
     sub bind_from { 
-        '\\' . $_[0]->scalar;
+        '\\' . $_[0]->scalar->name;
     }
     sub unboxed {
         $_[0]

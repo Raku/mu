@@ -113,7 +113,10 @@ package Pugs::Emitter::Perl6::Perl5::SeqArray;
     use base 'Pugs::Emitter::Perl6::Perl5::Array';
     use overload (
         '""'     => sub { 
-            '(' . join( ', ', map { $_->boxed } @{$_[0]->{name}} ) . ')' 
+            '(' . join( ', ', map {
+                #print "Seq.elem ",$_," ",Data::Dumper::Dumper($_);                 
+                $_->bind_from 
+            } @{$_[0]->{name}} ) . ')' 
         },
         fallback => 1,
     );
@@ -124,7 +127,7 @@ package Pugs::Emitter::Perl6::Perl5::SeqArray;
         return $_[0]->node( 'StrExpression', ' "@[{ ' . $_[0] . ' ]}" ' )
     }
     sub list {
-        return $_[0]->node( 'List', $_[0]{name} )
+        return $_[0]->node( 'Seq', $_[0]{name} )
     }
 
 package Pugs::Emitter::Perl6::Perl5::NamedArray;
@@ -167,7 +170,7 @@ sub get {
 sub set {
     my $self = $_[0];
     # XXX box
-    '( ' . $self->name . ' = [ map { \\$_ } ' . $_[1]->list . ' ] )';
+    '( ' . $self->name . ' = [' . $_[1]->array . '] )';
 }
 
     sub str {
