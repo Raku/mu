@@ -33,6 +33,12 @@ close STDIN;
 if (-e "$base/MANIFEST") {
     # This is a release -- do nothing!
 }
+elsif (my @svn_info = qx/svn info/ and $? == 0) {
+    print "Writing version from `svn info` to $version_h\n";
+    if (my ($line) = grep /^Revision:/, @svn_info) {
+        ($revision) = $line =~ / (\d+)$/;
+    }
+}
 elsif (-r $svn_entries) {
     print "Writing version from $svn_entries to $version_h\n";
     open FH, $svn_entries or die "Unable to open file ($svn_entries). Aborting. Error returned was: $!";
@@ -42,15 +48,16 @@ elsif (-r $svn_entries) {
         last;
     }
     close FH;
-} elsif (my @info = qx/svk info/ and $? == 0) {
+}
+elsif (my @svk_info = qx/svk info/ and $? == 0) {
     print "Writing version from `svk info` to $version_h\n";
-    if (my ($line) = grep /(?:file|svn|https?)\b/, @info) {
+    if (my ($line) = grep /(?:file|svn|https?)\b/, @svk_info) {
         ($revision) = $line =~ / (\d+)$/;
-    } elsif (my ($source_line) = grep /^(Copied|Merged) From/, @info) {
+    } elsif (my ($source_line) = grep /^(Copied|Merged) From/, @svk_info) {
         if (my ($source_depot) = $source_line =~ /From: (.*?), Rev\. \d+/) {
             $source_depot = '/'.$source_depot; # convert /svk/trunk to //svk/trunk
-            if (my @info = qx/svk info $source_depot/ and $? == 0) {
-                if (my ($line) = grep /(?:file|svn|https?)\b/, @info) {
+            if (my @svk_info = qx/svk info $source_depot/ and $? == 0) {
+                if (my ($line) = grep /(?:file|svn|https?)\b/, @svk_info) {
                     ($revision) = $line =~ / (\d+)$/;
                 }
             }
