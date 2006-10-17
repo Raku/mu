@@ -10,6 +10,6 @@ for <any all none one> -> $type {
   ";
 }
 
-our &infix:<|> = &JS::Root::any;
-our &infix:<&> = &JS::Root::all;
-our &infix:<^> = &JS::Root::one;
+our &infix:<|> ::= &JS::Root::any;
+our &infix:<&> ::= &JS::Root::all;
+our &infix:<^> ::= &JS::Root::one;

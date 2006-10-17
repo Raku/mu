@@ -24,7 +24,7 @@ sub infix:<^^>   ($a, $b) is primitive {
   elsif !$a and  $b { $b }
   else              { ?0 }
 }
-our &infix:<xor> = &infix:<^^>;
+our &infix:<xor> ::= &infix:<^^>;
 
 sub infix:<?|>   ($a, $b)      is primitive { ?($a || $b) }
 

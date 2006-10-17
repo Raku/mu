@@ -1,7 +1,7 @@
 method say   (Str $text:) { say   $text }
 method print (Str $text:) { print $text }
 
-sub JS::Root::say(Str *@text)   is primitive { print *@text, "\n" }
+sub JS::Root::say(Str *@text)   is primitive { print @text, "\n" }
 sub JS::Root::print(Str *@text) is primitive {
   JS::inline('(
     function (msg) {
