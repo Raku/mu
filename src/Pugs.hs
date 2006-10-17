@@ -248,17 +248,16 @@ doHelperRun backend args =
 
 doExecuteHelper :: FilePath -> [String] -> IO ()
 doExecuteHelper helper args = do
-    let searchPaths = concatMap (\x -> map (x++) suffixes) [["."], ["..", ".."], [getConfig "sourcedir"], [getConfig "privlib", "auto", "pugs"], [getConfig "sitelib", "auto", "pugs"]]
+    let searchPaths = concatMap (\x -> map (x++) suffixes) [["."], ["..", ".."], [getConfig "sourcedir"], [getConfig "sourcedir", "blib6", "pugs"], [getConfig "privlib", "auto", "pugs"], [getConfig "sitelib", "auto", "pugs"]]
     mbin <- findHelper searchPaths
     case mbin of
         Just binary -> do
-            exitWith =<< executeFile' perl5 True (binary:args) Nothing
+            let (p, _) = splitFileName binary
+            exitWith =<< executeFile' perl5 True (("-I" ++ p):binary:args) Nothing
         _ -> fail ("Couldn't find helper program " ++ helper ++ " (searched in " ++ show (map (foldl1 joinFileName) searchPaths) ++ ")")
     where
     suffixes =
         [ []
-        , ["perl5", "Pugs-Compiler-Perl6", "lib"]
-                                   --  $sourcedir/perl5/Pugs-Compiler-Perl6/v6.pm
         , ["perl5", "PIL2JS"]      --  $sourcedir/perl5/PIL2JS/jspugs.pl
         , ["perl5", "lib"]         --  $pugslibdir/perl5/lib/jspugs.pl
         ]
