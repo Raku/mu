@@ -105,3 +105,13 @@ Miscellaneus
 
 --------------
 
+Data Structures for Pure-Perl Scalars
+
+    $$a - a Scalar's value - '=' lvalue or rvalue
+    $a  - a Scalar's cell  - ':=' lvalue or rvalue
+
+    $a->set(...)
+        - call .set method on $a's cell, with optional type checking
+
+    $$a->str()
+        - call stringification method on $a's value

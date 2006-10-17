@@ -251,10 +251,8 @@ sub shift {
 
 sub _91__93_ {
     # .[]
-    my $self = $_[0];
-    my $other = $_[1]->list;
-    return $_[0] unless $other;  # TODO
-    return '${' . $self->_dollar_name . '[' . $other . ']}';
+    return $_[0] unless defined $_[1]; 
+    return $_[0]->node( 'Scalar',  '${' . $_[0]->_dollar_name . '[' . $_[1]->list . ']}' )
 }
 
 1;
