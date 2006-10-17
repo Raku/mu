@@ -14,41 +14,63 @@
 
 == Feature Changes
 
+=== Interactive Shell and Command-Line Flags
+
+* New `pugs -d` flag to display a trace for debugging
+* The `:r` command now resets the environment once, not twice
+* The return value of blocks, such as `gather {...}`, is displayed correctly
+* `$_` is no longer clobbered with the result of each expression's evaluation
+
 === Perl 5 Interoperability
 
 * Arrays and Hashes now round-trip from Pugs to Perl 5 land and back
 * Importing functions from Perl 5: `use perl5:CGI <header param>`
 * Passing unboxed values across runtimes no longer leaks memory
 * When embedding Perl 5.8+, Unicode flag is now on for Pugs-to-Perl5 strings
+* `eval($str, :lang<perl5>)` now accepts non-ASCII characters in `$str`
 
 === Lexical Syntax
 
 * Capture literals: `\($bar: 1, 2, 3, named => 4)`
+* Here-docs now work as specced; also warns against inconsistent indentation
 * Interpolation of chained calls: `"$foo.meth.meth.meth.meth()"`
 * List comprehension: `for 0 < list(@x) < 10 {...}`
 * Named character escapes: `"\c[LATIN CAPITAL LETTER Y]"`
+* New grammatical category `term:`, separated from the `prefix:` category
 * New magical variables: `$?COMPILER` and `$?VERSION`
+* Parse for `LABEL: STMT`, although it's currently treated the same as `STMT`
 * Pod directives: `=begin`/`=end` and `=for` now terminate without `=cut`
-* Pod variables: `$=FOO` and `@=FOO` give you access to the Pod
-  section FOO
+* Pod variables: `$=FOO` and `@=FOO` give you access to the Pod section FOO
+* Quote adverbs no longer take non-parens brackets: `rx:P5{...}` is valid again
+* Shell-like quoting rules implemented for `<< $x "qq" 'q' >>`
 * Signature literals: `:($foo is copy = 42, $, @)`
+* Support for UTF-8, UTF-16 and UTF-32 encoded source files
+* Support for backquotes and `qx/.../` for capturing external command output
+* User-defined infix associativity: `sub infix:<foo> is assoc('right') {...}`
 * `"\123"` and `"\03"` are now errors; write `"\d123"` and `"\o03"` instead
 * `$::x` now means exactly the same a `$x`, instead of `$*x`
 * `%h<>` now means `%h{}` -- the entire hash, not the empty string as key
 * `($::('x'))` with two adjacent closing parens now parses correctly
+* `0_123_456` now parses as `0d123456`, not an error
 * `1<2>` is now a fatal error: Odd number of elements in Hash
+* `q()` and `qw()` with parentheses are parsed as functions, not quotes
 
 === Declarators and Operators
 
 * Argument interpolation via prefix `|` and `|<<` 
 * Binding to qualified uninitialised symbols: `&fully::qualify := sub {...}`
+* Contextual variables are now declared with `my $x is context`, not `env $x`
 * Hyperised reduce operators: `[>>+<<]` and `[\>>+<<]`
+* Implicit invocation assignment: `.= uc` is parsed as `$_ = $_.uc`
 * Mid-block redeclaration no longer allowed: `my $x; { $x = 1; my $x = 2 }`
+* Negated comparison operators: `!eqv`, `!=:=` etc; `!~~` replaces `!~`
 * New infix comparison operators: `===` and `eqv`
+* New infix non-short-circuiting boolean AND operator: `?&`
 * Nullary reduction of builtin operators gives identity values: `[*]() === 1`
 * Postfix operators can be called with a dot: `.++`, `$x.++`, `$x.\ ++`
 * Prefix `=` now iterates on arrays as well: `=@array`
 * Short-circuiting chained comparison: `1 > 2 > die('foo')` no longer fails
+* Smart matching against code objects: `$obj ~~ { 1 > $_ > 5 }`
 * Smart matching against implicit invocation: `$obj ~~ .meth`, `$obj ~~ .[0]`
 * Typed constraints on autovivification: `my Hash $x; $x[0] = 1` now fails
 * Typed declarations: `my Dog $fido`, `my T ($x, $y)`
@@ -57,58 +79,81 @@
 === Blocks and Statements
 
 * Implicit invocation in `when`: `when .true {...}`, `when .<key> {...}`
+* Listops in conditions no longer consume the block: `for say {...}`
 * Loop topics are not forced into rw: `for 1..3 { $_++ }` now fails correctly
 * New `&break` and `&continue` primitives for use within `when` blocks
 * New `&leave` primitive for exiting from the innermost block
 * New postfix `given` statement modifier: `.say given foo()`
 * Support for `FIRST`, `NEXT`, `LAST` loop control blocks
 * Support for `START`, `PRE`, `POST`, `KEEP`, `UNDO`, `ENTER`, `LEAVE` blocks
-* Support for test-after `repeat {...} while EXPR;` blocks
-* Support for the `each` list interleaver: `for each(@a; @b) -> $x, $y {...}`
+* Support for repeat blocks: `repeat {...} while 1`, `repeat while 1 {...}`
+* Support for the `&each` list interleaver: `for each(@a; @b) -> $x, $y {...}`
 * The `for` loop no longer double-flattens lists: `for %h.pairs -> $p {...}`
-* User-defined topicalisers: `if EXPR -> $x {...}`, `given EXPR -> $x {...}`
+* Topicalisers for `if`, `else`, `while`, `given` blocks: `if EXPR -> $x {...}`
+* Topicalisers for postfix `for` loop: `-> $x {...} for 1,2,3`
 * `&last` and `&redo` now work in `repeat {...}` and `loop {...}` blocks
 * `&take` no longer flattens array literals: `take [1,2,3];`
 * `&take` now works in functions called from within a `gather {...}` block
 * `BEGIN(...)`, `END(...)`, etc., are now parsed as calls, not syntax errors
+* `END {...}` in `.pm` files are no longer ignored when executed directly 
+* `INIT {...}` now works correctly inside `eval "..."`
 * `do {...}` is now a loop block that takes standard loop controls
+* `do {...}` with statement modifiers is explicitly disallowed
 
 === Regexes and Grammars
 
 * Anonymous tokens and rules anchor on both ends: `123 ~~ token{2}` is false
-* New `s[...] = ...` syntax; `s[...][...]` is deprecated
+* New `s[...] = EXPR` and `s[...] = .meth` syntax; `s[...][...]` is deprecated
+* New `tr///` syntax for transliteration; `y///` will not be supported
 * Pugs::Compiler::Rule (PCR) replaces Parrot/PGE as the default engine
 * Support for `:c/:continue`, `<prior>`, and much more: see PCR's ChangeLog
 * `$()`, `@()` and `%()` parses correctly as `$$/`, `@$/` and `%$/`
+* `/.../` matches `$_` under Int, Num and void context in addition to Bool
+* `m:g/(1)|(2)/` now returns only successfully matched subcaptures
 
 === Modules and Routines
 
 * Allow space-separated adverbial named arguments: `f( :x<foo> :$y :!z )`
 * Multi-dispatching now handles named, slurpy and optional arguments
+* Multi-dispatching now handles parenthesized expressions as arguments
 * Named arguments with no matching parameters is now an error
-* New `&sub.call($capture)` syntax to call without a caller frame (similarly
-  to Perl 5's `goto &sub`, but it returns)
+* New `&c.call($capture)` method to call without a caller frame
+  (similar to Perl 5's `goto &sub`, but it returns)
+* New `&c.signature` method to get a Signature object from a Code object
 * Parse for the `proto` routine modifier: `proto method foo ($x) {...}`
 * Precompiled `.pm.yml` files with mismatching AST version will no longer load
 * Support for user-defined unary and optional-unary prefix macros
 * The main package is now ::Main, not ::main
+* `&?CALLER_CONTINUATION` is now fully reentrant
+* `&yield` in coroutines works correctly within loop blocks
 * `sub ($x = 0 is copy)` no longer allowed; say `sub ($x is copy = 0)` instead
 * `sub f ($x is lazy) {...}` no longer evaluates $x more than once
+* `sub f (@x?) {...}; f()` now sets `@x` to `[]`, not `[undef]` 
 
 === Classes and Objects
 
 * Attribute-like method call syntax: `@.method(1)`, `$.method: 2, 3, 4`
+* Class attributes: `class C { my $.x is rw }`
+* Class name literals are now term macros, not prefix functions
 * Compile-time self-mixin no longer allowed: `role A does A`
 * Default initialiser expression for attributes: `class C { has $.x = 123 }`
+* Dot attributes are now method calls: `@.x` is the same as `@(self.x)`
 * Dynamic method calls: `$obj.$meth`
 * Hyperised method calls: `$obj.>>meth`
 * Quantified method calls: `$obj.*meth`, `$obj.+meth` and `$obj.?meth`
 * Reopening classes: `class C is also {...}`
 * Role mixins: `role R {...} class C does R {...}`
+* `$?SELF` is gone; write `self` instead
+* `BUILDALL`/`DESTROYALL` trigger once per class even with diamond inheritance
+* `does R` and `is C` statements in class body now evaluate in compile time
 
 === Built-in Primitives
 
+* New `&HOW`, `&WHAT` and `&WHICH` functions replace `&meta`, `&ref` and `&id`
+* New `&VAR` macro to force lvalue evaluation of an expression
 * New `&comb` function, a dual to `&split` but matches the wanted parts
+* New `&crypt` function to create one-way digest strings
+* New `&fork` function to create a new process
 * New `&printf` function for formatted printing
 * New `&quotemeta` function for escaping strings
 * Support for `%b` in formatted printing
@@ -128,21 +173,20 @@
 === [ext/CGI/] 
 
 * A new `as_yaml` method to dump CGI parameters as YAML
-* New basic tests for `escapeHTML` and `unescapeHTML`, which were broken
-* New tests for `PATH_INFO`
 * Allow initializing the CGI object with a hash of parameters
 * New `Dump` function adapted from Perl 5's CGI.pm
+* New basic tests for `escapeHTML` and `unescapeHTML`, which were broken
+* New tests for `PATH_INFO`
 * Only send the Content-Type: header if we actually have a content-type
 * Only send the Status: header if it's a redirect, or if it's explicitly added
 * Refactored into an OO-only module.  N.B.: this breaks backwards compatibility!
+* Some work on charset handling, though a `charset` method is still missing
 * The `content_type` method is renamed to `type` for compatibility
 * The `cookies` attribute is renamed to `cookie` for compatibility
-* Some work on charset handling, though a `charset` method is still missing
 
 === [ext/HTTP-Server-Simple/]
 
-* The old non-standard `./method` syntax has been replaced with
-  standard `self.method` syntax
+* The old non-standard `./method` syntax has been replaced with `self.method`
 
 === [ext/Rosetta/]
 
@@ -164,55 +208,51 @@
 
 === [util/prove6]
 
-* Original shell script rewritten in Perl 5 for improved portability
 * Can now run only a portion of the test suite, or even a single file
+* Original shell script rewritten in Perl 5 for improved portability
 * Support for multiple Pugs backends and multiple Perl 6 implementations
 
 === [util/smartlinks.pl]
 
 * A new visualiser of smartlinks used in the test suite
 * Generates much nicer cross-referenced HTML pages
-* Smartlinks replace the old [util/catalog_tests.pl]
 * See annotated specs in action on [http://spec.pugscode.org/]
+* Smartlinks replace the old [util/catalog_tests.pl]
 
 === [util/smokeserv/]
 
+* See the `SYN` links on [http://smoke.pugscode.org/] for this in action
 * Smoke client now uploads raw `.yml` results as well as `.html`
 * The smokeserver now annotates the spec with test results using smartlinks
-* See the `SYN` links on [http://smoke.pugscode.org/] for this in action
-
-=== [t/02-test-pm/]
-
-* A new subdirectory to ensure that `Test.pm` works as advertised
-* Copied [ext/Test/t/*] and moved [t/01-sanity/08-test.t] into it
-
-=== [t/blocks/]
-
-* Renamed from [t/subroutines/]
-
-=== [t/closure_traits/]
-
-* A new test subdirectory to test closure traits (FIRST, LAST, etc.)
 
 === [t/]
 
-* Many, many more smartlinks have been added into the spec
 * All tests now begin with `use v6-alpha;` instead of `use v6;`
-* `eval_ok` and `eval_is` are now `ok eval` and `is eval`, so that
-  eval'd strings will be run in the current lexical scope
+* Many, many more smartlinks have been added into the spec
+* Programs and modules in [examples/] are tested for syntactic correctness
 * Tests in [t_disabled/] are merged back into the main test suite
+* [t/02-test-pm/] created to ensure that `Test.pm` works as advertised
+* [t/blocks/] renamed from [t/subroutines/]
+* [t/closure_traits/] created to test closure traits (`FIRST`, `LAST`, etc.)
 * `#!/usr/bin/pugs` is gone from all test files
+* `eval_ok` and `eval_is` are now `ok eval` and `is eval`, so that eval'd
+  strings will be run in the current lexical scope
 
 == Examples and Utilities
 
 === [examples/]
 
-* All Perl scripts have been renamed from *.p6 to *.pl and from *.p5 to *-p5.pl
+* All Perl 5 programs have been renamed from `*.p5` to `*-p5.pl`
+* All Perl 6 programs have been renamed from `*.p6` to `*.pl`
 * All references to them, except in talks, have been likewise updated
+
+=== [examples/games/dispatch_quiz.pl]
+
+* A game to test your knowledge about Perl 6's multi-dispatch system
 
 === [misc/runpugs/]
 
-* New feature: a web teminal for running an interactive Pugs shell on the web
+* A web teminal for running an interactive Pugs shell on the web
 * WebTerminal: a library for building web terminals for interactive shells
 * See [http://run.pugscode.org/] for a live demo
 
@@ -231,24 +271,42 @@
 === [docs/Pugs/Doc/]
 
 * New directory for Pugs-specific documentation
-* Haskell style guide for Pugs hackers in [docs/Pugs/Doc/Hack/Style.pod]
+* [docs/Pugs/Doc/Hack/Style.pod] - Haskell style guide for Pugs hackers
 
 === [docs/talks/extraction.xul]
 
-* Slides from Nathan Gray's "Practical Extraction with Perl 6" talk
+* Slides from Nathan Gray's /Practical Extraction with Perl 6/ talk
 
-== Perl 6 on Perl 5 (under [misc/pX/Common/])
+== Perl 6 on Perl 5
 
-* Added make_build_perl5, to make it possible to build all the perl5 modules
-  without installing ghc first. 
-* lrep is no longer used to bootstrap - moved to misc/lrep
-* .WHAT method implemented
+=== [perl5/Pugs-Compiler-Perl6/]
 
-XXX fglock: please write more here
+* The `v6.pm` implementation of Perl 6 now handles `./pugs -CPerl5` commands
+* See its own ChangeLog for more information
 
-== Perl 5 to Perl 6 Translater (under [misc/pX/Common/P5_to_P6_Translation])
+=== [v6/]
 
-XXX Sage: please write something here
+* A new subproject to write a Perl 6 compiler in Perl 6
+* Bootstrapped from the `v6.pm` compiler on the perl5 runtime
+* See its own ChangeLog for more information
+
+== Experimental projects
+
+=== [misc/pX/Common/P5_to_P6_Translation/]
+
+* Converts Perl 5.9.4+'s YAML syntax tree into Perl 6
+* Handles regexes, arrays, hashes and many builtin functions
+* See its own documentation for more information
+
+=== [misc/pX/Common/convert_regexp_to_six.pl]
+
+* Converts Perl 5 regex into Perl 6
+* See its own documentation for more information
+
+=== [misc/pX/Common/redsix/]
+
+* An Perl 6 implementation on Ruby 1.9+
+* See its own documentation for more information
 
 
 = Changes for 6.2.12 (r10930) - June 26, 2006
@@ -395,6 +453,7 @@ from the current environment; use :reset to reset the environment
 * `sign` and `<=>` now fails on undefined arguments, instead of returning undef
 * `slurp` works correctly on UTF-8 files
 * `sub f (@x) {}; f([1,2,3])` now works as it's no longer under slurpy context
+
 
 = Changes for 6.2.11 (r8934) - Feb 1, 2006
 
@@ -556,6 +615,7 @@ from the current environment; use :reset to reset the environment
 ** Role Meta-Model and Container types not yet supported
 * Based on work from the [perl5/Perl6-MetaModel/]
 
+
 = Changes for 6.2.10 (r7520) - Oct 10, 2005
 
 == Feature Changes
@@ -667,6 +727,7 @@ from the current environment; use :reset to reset the environment
 * Autrijus's CUFP talk at `/mirror/pugs/docs/talks/cufp2005.txt`
 * Theory Model proposal at `docs/notes/theory.pod`
 
+
 = Changes for 6.2.9 (r6050) - Aug 4, 2005
 
 == Pugs Internals
@@ -734,6 +795,7 @@ from the current environment; use :reset to reset the environment
 * `-Inf` now stringifies as `-Inf`, not `-Infinity`
 * `.end` and `.elems` no longer work as scalar methods
 * `/a/ ~~ "a"` now works the same way as `"a" ~~ /a/`
+
 
 = Changes for 6.2.8 (r5577) - July 13, 2005
 
@@ -822,6 +884,7 @@ from the current environment; use :reset to reset the environment
 * `sleep()` returns seconds slept instead of undef
 * `try` is now capable of catching all type casting errors
 
+
 = Changes for 6.2.7 (r4612) - June 13, 2005
 
 == Pugs Internals
@@ -873,6 +936,7 @@ from the current environment; use :reset to reset the environment
 * Parse array and hash captures in rules
 * `Test::is()` now shows the expected result correctly again
 * `module Foo {...}` now parses
+
 
 = Changes for 6.2.6 (r4318) - June 2, 2005
 
@@ -952,11 +1016,13 @@ from the current environment; use :reset to reset the environment
 * `times` now really works on Win32
 * `when .isa(Foo)` is no longer parsed as `when $_ ~~ .isa(Foo)` now
 
+
 = Changes for 6.2.5 (r3794) - May 24, 2005
 
 == Bundled Modules
 
 * Fix one broken test from the `Set` module
+
 
 = Changes for 6.2.4 (r3790) - May 24, 2005
 
@@ -1037,6 +1103,7 @@ from the current environment; use :reset to reset the environment
 * `state $x = 42` now only assigns `$x` once
 * `system()` returns proper exit codes
 
+
 = Changes for 6.2.3 (r3111) - May 12, 2005
 
 == Pugs Internals
@@ -1115,6 +1182,7 @@ from the current environment; use :reset to reset the environment
 * `to => 123` parses again; arrow pairs now always trumps unary functions
 * `{}` in P5 rules is no longer closure interpolation
 
+
 = Changes for 6.2.2 (r2604) - May 1, 2005
 
 == Pugs Internals
@@ -1173,6 +1241,7 @@ from the current environment; use :reset to reset the environment
 * `last if foo` now means `last() if foo()` instead of `last(if(foo()))`
 * `one(1,1).pick` bug fixed; it should return `undef`
 * `splice([], 1)` no longer causes division by zero errors
+
 
 = Changes for 6.2.1 (r2288) - April 24, 2005
 
@@ -1260,6 +1329,7 @@ from the current environment; use :reset to reset the environment
 * `=cut` without a newline at EOF is now parsed correctly
 * `return() if 1` now works correctly
 
+
 = Changes for 6.2.0 (r1921) - April 13, 2005
 
 == Pugs Internals
@@ -1335,6 +1405,7 @@ from the current environment; use :reset to reset the environment
 * `xor` and `^^` now returns the true operand instead of `bool::true`
 * Named bindings to `%_` repaired
 
+
 = Changes for 6.0.14 - April 4, 2005
 
 == Pugs Internals
@@ -1380,6 +1451,7 @@ from the current environment; use :reset to reset the environment
 * `$:x` and `$.x` now parsed as variable names
 * Readline support is correctly probed on `Makefile.PL` time
 * Mimick Perl 5's behaviour for function that defaults to `$_`
+
 
 = Changes for 6.0.13 - March 27, 2005
 
@@ -1430,6 +1502,7 @@ from the current environment; use :reset to reset the environment
 * Hash keys are now strings
 * Contextual logicals like `+^` and `~^` are parsed correctly
 
+
 = Changes for 6.0.12 - March 21, 2005
 
 == Pugs Internals
@@ -1477,6 +1550,7 @@ from the current environment; use :reset to reset the environment
 * := binding did not preserve the lexical scope at the binding site
 * Hanoi.p6 was broken due to premature binding of subroutine parameters
 * "&sub.foo" no longer attempts to interpolate
+
 
 = Changes for 6.0.11 (r690) - March 14, 2005
 
@@ -1539,6 +1613,7 @@ from the current environment; use :reset to reset the environment
 * $?CALLER:: variables in subroutine parameters and defaults are
   now both evaluated in the caller's scope
 
+
 = Changes for 6.0.10 - March 5, 2005
 
 == Pugs Internals
@@ -1574,6 +1649,7 @@ from the current environment; use :reset to reset the environment
 * Fixed `grep`/`map`/`push`/`unshift` parsing so they are properly binOp now
 * Fixed prefix function parsing bug that eats more parens than it should
 
+
 = Changes for 6.0.9 (r335) - February 28, 2005
 
 * First Perl 6 module: `Test.pm`
@@ -1594,6 +1670,7 @@ from the current environment; use :reset to reset the environment
 * A first draft of /Kwid/ documentation format
 * A first draft of builtins declarations
 
+
 = Changes for 6.0.8 - February 21, 2005
 
 * New example code snippet: `examples/quicksort.p6`
@@ -1612,6 +1689,7 @@ from the current environment; use :reset to reset the environment
 * User-defined function applications now takes arbitary expressions
 * Deep recursion detection
 
+
 = Changes for 6.0.7 - February 18, 2005
 
 * Beginning of synopses-based unit tests
@@ -1628,6 +1706,7 @@ from the current environment; use :reset to reset the environment
 * Assignment to mutable variables and to array slices
 * `loop`, `for` and `if` constructs
 
+
 = Changes for 6.0.5 - February 15, 2005
 
 * The `rand` primitive
@@ -1642,12 +1721,14 @@ from the current environment; use :reset to reset the environment
 * The /Eval/ monad now supports `shift`/`reset`/`callcc`, lexical and dynamic scopes
 * Improved pretty-printing code for syntactic constructs
 
+
 = Changes for 6.0.4 - February 12, 2005
 
 * The `eval` primitive
 * Refactor junctive logic into `Junc.hs`
 * /JuncAny/ and /JuncAll/ now collapses operands of the same type correctly
 * /JuncOne/ now collapses into an empty set when operands contains duplicates
+
 
 = Changes for 6.0.3 - February 12, 2005
 
@@ -1666,6 +1747,7 @@ from the current environment; use :reset to reset the environment
 * New operators: `!!` and `nor`
 * The `all` junction builder now collapses nested junctions under it
 
+
 = Changes for 6.0.2 - February 9, 2005
 
 * User-defined subroutine with `$_` and `@_` as parameters
@@ -1678,11 +1760,13 @@ from the current environment; use :reset to reset the environment
 * Array references as literals
 * Flattening (slurpy) star
 
+
 = Changes for 6.0.1 - February 7, 2005
 
 * Fix building on Mac OS X
 * Characters in single quotes should not be escaped
 * Add one very basic test in `t/`
+
 
 = Changes for 6.0.0 - February 7, 2005
 
