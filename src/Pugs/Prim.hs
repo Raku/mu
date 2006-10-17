@@ -472,7 +472,7 @@ op1 "IO::Dir::readdir" = \v -> do
 op1 "Pugs::Internals::runShellCommand" = \v -> do
     str <- fromVal v
     cxt <- asks envContext
-    (res, exitCode) <- guardIO $ do
+    (res, exitCode) <- tryIO ("", ExitFailure (-1)) $ do
         (inp,out,_,pid) <- runInteractiveCommand (encodeUTF8 str)
         hClose inp
         res             <- fmap (decodeUTF8 . deCRLF) $ hGetContents out
