@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances -fallow-overlapping-instances -cpp #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances -fallow-overlapping-instances -fno-warn-missing-methods -cpp #-}
 {-! global : YAML_Pos, Perl6Class, MooseClass !-}
 {-|
     Perl 6 Values.
