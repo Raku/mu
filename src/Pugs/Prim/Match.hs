@@ -30,8 +30,8 @@ ruleWithAdverbs _ = fail "PCRE regexes can't be compiled to PGE regexes"
 
 doMatch :: String -> VRule -> Eval VMatch
 doMatch cs rule@MkRulePGE{ rxRule = ruleStr } = do
-    let pwd1 = getConfig "installarchlib" ++ "/CORE/pugs"
-        pwd2 = getConfig "sourcedir"
+    let pwd1 = getConfig "installsitelib" ++ "/auto/pugs/perl5/lib"
+        pwd2 = getConfig "sourcedir" ++ "/perl5/Pugs-Compiler-Rule/lib"
     hasSrc <- liftIO $ doesDirectoryExist pwd2
     let pwd = if hasSrc then pwd2 else pwd1
     glob    <- askGlobal

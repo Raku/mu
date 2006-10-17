@@ -359,8 +359,8 @@ evalPCR path match rule subrules = do
         bridgeFile  = "Pugs/Runtime/Match/HsBridge.pm";
     inv     <- evalPerl5 (unlines
         [ "if (!$INC{'"++bridgeFile++"'}) {"
-        , "    unshift @INC, '"++path++"/perl5/Pugs-Compiler-Rule/lib';"
-        , "    eval q[require '"++bridgeFile++"'];"
+        , "    unshift @INC, '"++path++"';"
+        , "    eval q[require '"++bridgeFile++"'] or die $@;"
         , "}"
         , "'"++bridgeMod++"'"
         ]) nullEnv 1
