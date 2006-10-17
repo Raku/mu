@@ -24,17 +24,21 @@ sub new {
 	use Net::Telnet;
 	$self->{'pugs'} = new Net::Telnet(
 		-fhopen => $self->{'pty'},
-        -timeout => 10,
+        -timeout => 20,
 		-prompt => $prompt,
 		-telnetmode      => 0,
 		-cmd_remove_mode => 0,
 	);
 	#( $self->{'init'}, my $m ) = $self->{'pugs'}->waitfor(
+    my $error='';
 	( my $p, my $m ) = $self->{'pugs'}->waitfor(
 		-match   => $self->{'pugs'}->prompt,
 		-errmode => "return"
-	  ) or die "starting pugs failed: ", $self->{'pugs'}->lastline;
-	$self->{'init'}= $p.$m;#$self->{'pugs'}->prompt;
+	  ) or do {
+#      die "starting pugs failed: ", $self->{'pugs'}->lastline;
+      $error="\nThere was a problem starting pugs. Please try again later.";
+      };
+	$self->{'init'}= $p.$m.$error;#$self->{'pugs'}->prompt;
 	bless($self,$class);
 	return $self;
 }

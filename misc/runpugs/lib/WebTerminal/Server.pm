@@ -36,6 +36,7 @@ sub termhandler {
     my $ip = shift;
 	my $cmd = shift;
     if(scalar(keys %terminals)>50){ # each pugs takes 1% of feather's MEM!
+        print LOG "MAX nsessions reached\n";
         return "Sorry, I can't run any more sessions.\nPlease try again later.";
     } else {
     	if ( exists $terminals{$id} ) {
@@ -65,6 +66,7 @@ sub termhandler {
            }
     	} else {
             if ($sessions_per_ip{$ip}>10) {
+        print LOG "MAX nsessions for $ip reached\n";
                  return "Sorry, you can't run more than 10 sessions from one IP address.\n";   
             } else {
                 $sessions_per_ip{$ip}++;
@@ -108,7 +110,7 @@ sub run {
     my $host=shift;
     my $port=shift;
     $SIG{USR1}=\&timeout;
-my $daemon=0;
+my $daemon=1;
 if ($daemon) {
     Proc::Daemon::Init;
 }
@@ -118,8 +120,12 @@ if ($daemon) {
     FORK: {
         if ($pid=fork) {
             #parent here
-            use Cwd;
-            print cwd();
+#            use Cwd;
+#            print cwd();
+            if (-e "/home/andara/apache/data/runpugs.log") {
+            rename
+            "/home/andara/apache/data/runpugs.log","/home/andara/apache/data/runpugs.log.".join("",localtime);
+            }
             open(LOG,">/home/andara/apache/data/runpugs.log");
             WebTerminal::Msg->new_server( $host, $port, \&login_proc );
             WebTerminal::Msg->event_loop();
@@ -157,6 +163,7 @@ sub timeout() {
             }
 #            $terminals{$id}->write(':q');
             delete $terminals{$id};
+            print LOG "Cleaned up $ip : $id : $pid\n";
             }
         }
     }

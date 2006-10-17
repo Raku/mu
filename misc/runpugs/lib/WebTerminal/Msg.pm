@@ -171,7 +171,7 @@ sub new_server {
     $main_socket = IO::Socket::INET->new (
                                           LocalAddr => $my_host,
                                           LocalPort => $my_port,
-                                          Listen    => 5,
+                                          Listen    => 15, # just a try!
                                           Proto     => 'tcp',
                                           Reuse     => 1);
     die "Could not create socket: $! \n" unless $main_socket;
@@ -248,6 +248,8 @@ sub _rcv {                     # Complement to _send
 
 sub _new_client {
     my $sock = $main_socket->accept();
+    #returns undef on fail!
+    ## so:
     my $conn = bless {
         'sock' =>  $sock,
         'state' => 'connected'
