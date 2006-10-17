@@ -107,6 +107,7 @@ op0 "Pugs::Safe::safe_getc" = const . op1Getc $ VHandle stdin
 op0 "Pugs::Safe::safe_readline" = const . op1Readline $ VHandle stdin
 op0 "reverse" = const $ return (VList [])
 op0 "chomp" = const $ return (VList [])
+op0 "fork"  = const $ opPerl5 "fork" []
 op0 other = const $ fail ("Unimplemented listOp: " ++ other)
 
 -- |Implementation of unary primitive operators and functions
@@ -2084,6 +2085,7 @@ initSyms = seq (length syms) $ do
 \\n   Num       pre     log     safe   (Num)\
 \\n   Num       pre     log10   safe   (Num)\
 \\n   Thread    pre     async   safe   (Code)\
+\\n   Thread    pre     fork    safe   ()\
 \\n   Int       pre     sign    safe   (Num)\
 \\n   Bool      pre     kill    safe   (Thread)\
 \\n   Int       pre     kill    unsafe (Int, List)\
