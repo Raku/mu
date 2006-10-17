@@ -151,6 +151,7 @@
 * `%h<>` now means `%h{}` -- the entire hash, not the empty string as key
 * `1<2>` is now a fatal error: Odd numbers of elements in Hash
 * List comprehension: `for 0 < list(@x) < 10 {...}`
+* `$::x` now means exactly the same a `$x`, instead of `$*x`
 
 === Declarators and Operators
 
@@ -162,6 +163,7 @@
 * Postfix operators can be called with a dot: `.++`, `$x.++`, `$x.\ ++`
 * Mid-block redeclaration no longer allowed: `my $x; { $x = 1; my $x = 2 }`
 * Smart matching against implicit invocation: `$obj ~~ .meth`, `$obj ~~ .[0]`
+* Short-circuiting chained comparison: `1 > 2 > die('foo')` no longer dies
 
 === Blocks and Statements
 
@@ -192,6 +194,8 @@
 * Support for user-defined unary and optional-unary prefix macros
 * `sub f ($x is lazy) {...}` no longer evaluates $x more than once
 * `sub ($x = 0 is copy)` no longer allowed; say `sub ($x is copy = 0)` instead
+* Named arguments with no matching parameters is now an error
+* New `&sub.call($capture)` syntax to call without a caller frame
 
 === Classes and Objects
 
@@ -202,6 +206,7 @@
 * Attribute-like method call syntax: `@.method(1)`, `$.method: 2, 3, 4`
 * Role mixins: `role R {...} class C does R {...}`
 * Circular mixin is no longer allowed: `role A does A`
+* Reopening classes: `class C is also {...}`
 
 === Built-in Primitives
 
@@ -211,6 +216,7 @@
 * The `.as` method is renamed to `.fmt` for formatted printing 
 * Support for `%b` in formatted printing
 * The `.perl` method now returns Unicode strings
+* The `&system` function no longer dies when the command does not exist 
 
 --- >8 --- >8 --- >8 --- >8 --- >8 --- >8 --- >8 --- >8 --- >8 --- >8 ---
 
@@ -224,7 +230,6 @@
 * New `Perl6::Internals::emit_yaml` prim to dump AST programmatically
   as YAML
 * Implemented staleness checking for .yml/.pm loader
-* Allow $::x to mean exactly the same as $x
 * Pugs.Parser: $() now means $$/, @() means @$/, %() means %$/, etc
 * Added identity values for the builtin reduceable operators from S03
 * Implement hyperfold and hyperscan: [>>+<<] and [\>>+<<]
@@ -239,8 +244,6 @@
     sub f () {...}
     f(y => 1); # used to bind silently, but now no more
 * Primitive support for =@Array on both contexts
-* Remove Judy from the Pugs build process
-* Make system() nonfatal always; instead it merely sets $!
 
 == Bug Fixes
 
@@ -252,18 +255,10 @@
     (@(1))
     (@::("foo"))
   now all parses correctly without needing a whitespace
-* Repaired quantified method calls with .*$method by treating
-  .* always as quantifier and never as globalizer
-* Parse for "class Foo is also {...}" instead of having Foo
-  inherit from ::also
-* Implement &sub.call(\(...capture...)) correctly
 * Pugs.Parser: Parse for
     repeat {
     }
     while 1;
-* Switch chained comparison such as "1 > 2 > die('not reached')
-  to use "is lazy" parameters, so they can short-circuit properly
-
 == Perl 6 on Perl 5 (under [misc/pX/Common/])
 
 * Added make_build_perl5, to make it possible to build all the perl5 modules
