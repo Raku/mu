@@ -1930,13 +1930,13 @@ initSyms = seq (length syms) $ do
 \\n   Str       pre     IO::next   unsafe (IO)\
 \\n   Bool      pre     IO::print   unsafe (IO)\
 \\n   Bool      pre     IO::print   unsafe (IO: List)\
-\\n   Bool      pre     print   unsafe ()\
-\\n   Bool      pre     print   unsafe (List)\
+\\n   Bool      pre     print   safe ()\
+\\n   Bool      pre     print   safe (List)\
 \\n   Str       pre     Pugs::Internals::sprintf safe   (Str, Num|Rat|Int|Str)\
 \\n   Bool      pre     IO::say unsafe (IO)\
 \\n   Bool      pre     IO::say unsafe (IO: List)\
-\\n   Bool      pre     say     unsafe ()\
-\\n   Bool      pre     say     unsafe (List)\
+\\n   Bool      pre     say     safe ()\
+\\n   Bool      pre     say     safe (List)\
 \\n   Bool      pre     Pugs::Safe::safe_print     safe     (Str)\
 \\n   Bool      pre     close   unsafe (IO)\
 \\n   Bool      pre     flush   unsafe (IO)\
