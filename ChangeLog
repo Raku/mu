@@ -14,6 +14,7 @@
 
 == New Perl 6 modules
 
+* [lib/WebTerminal/Server/Terminal.pm]
 
 
 == Updated modules
@@ -33,6 +34,8 @@
 ** Allow Initializing the object with your hash of params 
 ** Added new test for PATH_INFO 
 ** refactored into an OO-only module, breaking backwards compatibility. 
+** CGI.pm: Minor adjustments to work with unordered hashes;
+   also replace all "push(@result, ...)" pattern into gather/take
 
 * [ext/HTTP-Server-Simple/] - switched from non-standard "./" syntax to 
   standard "self." syntax.
@@ -45,6 +48,8 @@
 
 * Added make_build_perl5, to make it possible to build all the perl5 modules
   without installing ghc first. 
+* lrep is no longer used to bootstrap - moved to misc/lrep
+* .WHAT method implemented
 
 XXX fglock: please write more here.
 
@@ -70,6 +75,9 @@ XXX Sage: please write something here.
 * Pugs::Doc::Hack::Style - Haskell style guide for Pugs hackers
 * docs/talks/extraction.xul - Nathan Gray's talk 'Practical Extraction with
   Perl 6'
+* ported documentation for function chmod, getc, opendir, closedir, readdir,
+  rewinddir rmdir unlink close print to Spec::IO
+* 
 
 == Examples and the Test Suite
 
@@ -100,6 +108,7 @@ XXX Sage: please write something here.
 * Added t/closure_traits to test closure traits
 * Added tests for `\o[]` and `\d[]`.
 * Added tests for embedded comments.
+* converted most eval_ok and eval_is to ok(eval and is(eval in t/.
 
 == Feature Changes
 
@@ -153,6 +162,7 @@ more information about related features.
     $x.++;      # $x++
     $x.\ ++;    # ditto
     $x.+meth;   # $x.meth but with quantifier
+* "*" is now strictly a Term, never a prefix operator
 * Added support for the "%b" modifier in `sprintf` and `fmt`, which
   requires parrot due to use of rules.
 * The following code is no longer allowed:
@@ -173,6 +183,84 @@ more information about related features.
 ** Also, "my T $x" now re-assigns T into $x upon closure reentry.
    Note that this is not strictly correct for "state T $x", but
    let's do it this way for now.
+* Parse for siglets:
+    :($, $, &)
+* Allow for rule redefinition via ->reinstall.
+* Allow binding to fully-qualified, uninitialized variables:
+    &foo::bar ::= sub { ... };
+* Argumentless POD introducer can now be followed by =cut correctly.
+    =foo
+    =cut
+    say "This gets run";
+* Allow "last" and "redo" in "repeat { ... }" loops.
+* Implement \($x, $y, |$z, $w) splicing.
+* "my $x; { $x; my $x }" now fails with a sensible error message.
+* "do { ... }" is now made a true block, by desugaring it into
+  "repeat { ... } while False".
+* "f( :$x :$y :$z )" without commas between them is now legal syntax.
+* Allow $::x to mean exactly the same as $x.
+* The main package is now ::Main, not ::main.
+* "sub ($x = 0 is copy)" is invalid; say "sub ($x is copy = 0)" instead.
+* Pugs.Parser: $() now means $$/, @() means @$/, %() means %$/, etc.
+* Added identity values for the builtin reduceable operators from S03
+* Implement hyperfold and hyperscan: [>>+<<] and [\>>+<<]
+* Unicode support for the embedded Perl5 bridge.  (This takes effect iff
+  the embedded Perl supports SvUTF8_on, typically Perl 5.8+.)
+* Pugs.Parser: Support for attribute call syntax.
+    @.foo(1, 2, 3);     # self.foo(1,2,3).'@'
+    $.bar: 4, 5, 6;     # self.bar(4,5,6).'$'
+
+* Remove support for reduce+posthyper form "[+]<<" because as specced the
+  hyper will recurse into arrays, so the reduce  never got a chance to run.
+* Support for instance default expressions (which are evaluated in
+  Class composition time, not in instance creation time):
+    class Foo {
+        has $.x = 10;
+    }
+* Much improve multi dispatch system
+* Implement quantified method calls: $obj.*meth, $obj.+meth, $obj.?meth,
+  as well as quantified dynamic method calls: $obj.[+*?]$meth.
+* User-defined macros now take effect even in prefix unary
+  and optional unary.
+* "Odd numbers of elements in hash" is now made fatal
+  (it was not even a warning) to help shake out incorrect
+  usages of things like 1<2>.
+* Pugs.Prim.Keyed: Instead of allowing "1.delete();" to return undef,
+  we now simply fail.
+* Pugs.Eval: Autovivification is now constrainted by typed variables:
+    my Hash $x;
+    $x[0] = 1; # fails, as $x can _only_ vivify to Hash.
+* Implement rudimentary "fail" control via $*FAIL_SHOULD_DIE.
+* Changed $obj ~~ Pkg::Name to $obj ~~ ::Pkg::Name
+* Support for PRE/POST design-by-contract assertions.
+* Support for KEEP/UNDO blocks
+* Pugs.Prim: Add "&leave" to leave a block, "&break" to break
+  out of a "given", and "&continue" to break out of a "when"
+* Reduce standalone blocks even if nested:
+    { { { say 3 } } }
+* Make the closure trait blocks lazy
+* Repair "use perl5:Foo"
+* Implement smart matching against implicit invocation:
+    $obj ~~ .meth       # ?($obj.meth)
+    $obj ~~ .[0]        # ?($obj.[0])
+    $obj ~~ .<x>        # ?($obj.<x>)
+* Implement "when .[0]" and "when .<s>"
+* Implement hyper methods:
+    @obj>>meth
+    @obj.>>meth
+    @obj>>.meth
+    @obj.>>.meth
+    @obj\  .>>\  .meth
+* Reject named arguments that cannot find a matching named
+  parameter or slurpy hash.
+    sub f () {...}
+    f(y => 1); # used to bind silently, but now no more
+* "for 1..3 { $_++ }" should die, not survive.
+* Primitive support for =@Array on both contexts.
+* Implement "s[...]=..." and deprecate "s[...][...]"
+* Remove Judy from the Pugs build process.
+* Make system() nonfatal always; instead it merely sets $!.
+
 
 XXX audreyt and gaal?
 
@@ -192,6 +280,24 @@ XXX audreyt and gaal?
   rather than "".
 * Parse for "class Foo is also {...}" instead of having Foo
   inherit from ::also.
+* Implement &sub.call(\(...capture...)) correctly.
+* Pugs.Parser: Parse for
+    repeat {
+    }
+    while 1;
+* Pugs.Eval: Allow "redo" to redo the first repeat loop.
+	  (repeat.t now all passes.)
+* "sub f ($x is lazy) {...}" is now guaranteed to not evaluate
+  its argument more than once.
+* Switch chained comparison such as "1 > 2 > die('not reached')
+  to use "is lazy" parameters, so they can short-circuit properly.
+* Fix expected outut of head-neck-tail in examples/:
+  [1,2,3].say should print "1 2 3\n", not "123\n".
+* Fix take [1,2,3]" shouldn't flatten into "take 1,2,3
+* fix a couple of old s{}{} instances. comb potentially faster using lvalue
+  substr instead of copying string.
+* ".perl" now returns Unicode strings properly.
+
 
 
 = Changes for 6.2.12 (r10930) - June 26, 2006
