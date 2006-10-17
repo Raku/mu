@@ -403,7 +403,9 @@ instance Compile Exp PIL_Expr where
     compile (Syn "module" _) = compile Noop
     compile (Syn "match" exp) = compile $ Syn "rx" exp -- wrong
     compile (Syn "//" exp) = compile $ Syn "rx" exp
-    compile (Syn "rx" [exp, _]) = compile exp -- XXX WRONG - use PCRE
+    compile (Syn "rx" (exp:_)) = compile exp -- XXX WRONG - use PCRE
+    compile (Syn "subst" (exp:_)) = compile exp -- XXX WRONG - use PCRE
+    compile (Syn "trans" (exp:_)) = compile exp -- XXX WRONG
     compile (Syn "|" [exp]) = compile exp -- XXX WRONG
     compile (Syn "|<<" [exp]) = compile exp -- XXX WRONG
     compile exp@(App _ _ _) = fmap PExp $ compile exp
