@@ -1,7 +1,7 @@
 use v6-alpha;
 
 use Test;
-# L<S04/"Loop statements" /work as in Perl 5/>
+# L<S04/"Loop statements"/redo>
 plan 10;
 
 {

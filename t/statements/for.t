@@ -33,7 +33,7 @@ plan 41;
 }
 
 ## for with plain old range operator w/out parens
-# L<S04/"The C<for> statement" /in Perl 6, si it always take a list as an argument/>
+# L<S04/"The C<for> statement"/always takes a list as an argument>
 
 my $a;
 for 0 .. 5 { $a = $a ~ $_; };

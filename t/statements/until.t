@@ -11,7 +11,7 @@ until statement tests
 plan 4;
 
 # L<S04/The C<while> and C<until> statements/while statements
-#   work "as in Perl 5">
+#   work as in 5>
 {
     my $i = 0;
     until $i >= 5 { $i++; };

@@ -6,7 +6,7 @@ use Test;
 
 while statement tests
 
-L<S04/"The C<while> and <until> statements"/>
+L<S04/"The C<while> and C<until> statements"/>
 
 =cut
 

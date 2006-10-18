@@ -211,7 +211,7 @@ caught that case.
 
 =cut
 
-    #L<S09/"Junctions"/grep>
+    #L<S09/"Junctions">
     my @x = 1..20;
     my $code = -> $x { $x % 2 };
     my @result;

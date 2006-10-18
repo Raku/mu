@@ -3,7 +3,7 @@ use v6-alpha;
 use Test;
 
 =kwid
-L<S04/"Loop statements" /work as in Perl 5/>
+L<S04/"Loop statements"/next>
 next
 next if <condition>;
 <condition> and next;

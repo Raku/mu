@@ -40,7 +40,7 @@ isa_ok($s1, 'Sub', 'it is a Sub type');
 #      |     |       |       |    |     |
 #     Sub Method Submethod Multi Rule Macro
 
-# L<S06/Other matters/Anonymous hashes vs blocks/>
+# L<S06/Anonymous hashes vs blocks>
 my $s2 = {};
 isa_ok($s2, 'Hash', 'it is a Hash type (bare block)');
 

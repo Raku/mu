@@ -26,7 +26,7 @@ is($multi1[0], 1, 'got the right value at multi1 index 0');
 isa_ok($multi1[1], 'List');
 
 # multi-dimensional array slices 
-# L<S09/"Subscript and slice notation" /index value to each slice array:/>
+# L<S09/"Subscript and slice notation"/index value to each slice>
 
 is(eval('$multi1[1;0]'), 'foo', 'got the right value at multi1 index 1,0', :todo);
 is(eval('$multi1[1;1]'), 'bar', 'got the right value at multi1 index 1,1', :todo);

@@ -10,7 +10,7 @@ Enum tests from L<S12/"Enums">
 
 =cut
 
-# L<S12/"Enums" /The values are specified as a list\:/>
+# L<S12/"Enums"/values are specified as a list>
 ok eval('enum day <Sun Mon Tue Wed Thu Fri Sat>'), "basic enum definition worked", :todo<feature>;
 
 sub test_stuff($x) {
