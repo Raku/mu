@@ -56,7 +56,12 @@ instance Compile Exp where
         compWith "Stmts" [compile exp1, compile exp2]
     compile (Val val) = do
         compWith "Val" [compile val]
+    compile (Var var) = do
+        compWith "Var" [compile var]
     compile exp = ret $ "(" ++ show exp ++ ")"
+
+instance Compile Var where
+    compile var = ret $ "(cast " ++ show var ++ ")"
 
 instance Compile Pad where
     compile pad = do
@@ -75,7 +80,7 @@ instance Compile (Var, [(TVar Bool, TVar VRef)]) where
         | otherwise = do
             tvarsC <- fmap (filter (not . Str.null)) $ mapM compile tvars
             if null tvarsC then return Str.empty else do
-            return $ Str.concat [pl, Str.pack (cast var), Str.pack ", [", joinMany tvarsC, br, pr]
+            return $ Str.concat [pl, (Str.pack ("cast " ++ show (cast var :: String))), Str.pack ", [", joinMany tvarsC, br, pr]
 
 instance (Typeable a) => Compile (Maybe (TVar a)) where
     compile = const . ret $ "Nothing"
