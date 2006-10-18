@@ -1,3 +1,112 @@
+= Changes for 6.28.0 (rXXXXX) - October XX, 2006
+
+== Build System
+
+
+
+== Feature Changes
+
+=== Interactive Shell and Command-Line Flags
+
+
+
+=== Perl 5 Interoperability
+
+
+
+=== Lexical Syntax
+
+
+
+=== Declarators and Operators
+
+
+
+=== Blocks and Statements
+
+
+
+=== Regexes and Grammars
+
+
+
+=== Modules and Routines
+
+
+
+=== Classes and Objects
+
+
+
+=== Built-in Primitives
+
+
+
+== Bundled Modules
+
+=== New modules
+
+
+
+=== [ext/<Foo>] 
+
+
+
+== Test Suite
+
+=== [util/<foo>]
+
+
+
+=== [t/]
+
+
+
+== Examples and Utilities
+
+=== [examples/]
+
+
+
+=== [examples/<foo>]
+
+
+
+=== [misc/<foo>]
+
+
+
+== Documentation
+
+=== [docs/<foo>]
+
+
+
+== Perl 6 on Perl 5
+
+=== [perl5/Pugs-Compiler-Perl6/]
+
+
+
+=== [v6/]
+
+
+
+== Experimental projects
+
+=== [misc/pX/Common/P5_to_P6_Translation/]
+
+
+
+=== [misc/pX/Common/convert_regexp_to_six.pl]
+
+
+
+=== [misc/pX/Common/redsix/]
+
+
+
+
 = Changes for 6.2.13 (r14402) - October 17, 2006
 
 == Build System
