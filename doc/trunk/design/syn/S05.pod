@@ -1011,7 +1011,7 @@ these need not be balanced.)  Perl 5's C<\b> is replaced by a C<< <?wb> >>
 these are dependent on the definition of C<< <ws> >>, but only on the C<\w>
 definition of "word" characters.)
 
-item *
+=item *
 
 A C<< < >> followed by whitespace is illegal.  Use C<< \< >> to match a literal
 left angle.
