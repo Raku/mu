@@ -357,8 +357,8 @@ sub lexer {
                 else {
                     $paren->data->{capture} = \{ 
                         fixity => 'postcircumfix', 
-                        op1 => "<", 
-                        op2 => ">", 
+                        op1 => "{", 
+                        op2 => "}", 
                         exp1 => $m2->(), 
                         exp2 => $paren->(), 
                     };

@@ -105,7 +105,7 @@ sub emit {
     my ($grammar, $ast) = @_;
     # runtime parameters: $grammar, $string, $state, $arg_list
     # rule parameters: see Runtime::Rule.pm
-    warn Pugs::Runtime::Perl6::perl( $ast )
+    warn Dumper( $ast )
         if $ENV{V6DUMPAST}; 
     return _emit( $ast );
         #"do{\n" .
@@ -384,6 +384,7 @@ sub _emit_parameter_capture {
     my ($positional, @named) = ("\\(");
     for (@{$n->{list}}) {
         if (my $pair = $_->{pair}) {
+            #print "EMIT PARAM ",Dumper($pair->{value});
             push @named, $pair->{key}{single_quoted}.' => \\'.emit_parenthesis($pair->{value});
         }
         elsif ($_->{fixity} && $_->{fixity} eq 'infix' && $_->{op1} eq '=>') {
@@ -1399,6 +1400,7 @@ sub postcircumfix {
          $n->{op2} eq '}' ) {
         my $name = _emit( $n->{exp1} );
 
+        if ( exists $n->{exp2}{statements} ) {
         # $/{'x'}
         return " " . _emit( $n->{exp1} ) . 
             '->{' . _emit( $n->{exp2}{statements}[0] ) . '}'
@@ -1422,6 +1424,26 @@ sub postcircumfix {
                     _emit($_) 
                 } @{$n->{exp2}{statements}} ) . 
             ' }';
+        }
+
+        # $/{'x'}
+        return " " . _emit( $n->{exp1} ) . 
+            '->{' . _emit( $n->{exp2} ) . '}'
+            if exists $n->{exp1}{scalar};
+
+        # die "trying to emit ${name}{exp}" unless $name =~ m/^\%/;
+        #print "postcircumfix{} ",Dumper( $n->{exp2}{statements} );
+        if (  exists $n->{exp2}{list}
+           )
+        {
+            # looks like a hash slice
+            $name =~ s/^(?: \% | \$ ) / \@ /x;
+        }
+        else {
+            $name =~ s/^\%/\$/;
+        }
+        return $name . 
+            '{ ' . _emit( $n->{exp2} ) . ' }';
     }
 
     return _not_implemented( $n, "postcircumfix" );

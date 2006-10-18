@@ -15,17 +15,22 @@ sub angle_quoted {
     my ($extracted,$remainder) = Text::Balanced::extract_bracketed( '<' . $s, '<..>' );
     return $grammar->no_match(@_) unless length($extracted) > 0;
     $extracted = substr( $extracted, 1, -1 );
-    my $ast = {
+    my @items = split( /\s+/, $extracted );
+    my $ast;
+    if ( @items > 1 ) {
+      $ast = {
         'assoc' => 'list',
         'list' => [
             map {
-              {
-                'single_quoted' => $_
-              }
-            } split( /\s+/, $extracted )
+              { 'single_quoted' => $_ }
+            } @items
         ],
         'op1' => ','
       };
+    }
+    else {
+      $ast = { 'single_quoted' => $items[0] }
+    }
     return Pugs::Runtime::Match->new( { 
         bool    => \1,
         str     => \$_[0],

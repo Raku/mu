@@ -463,7 +463,7 @@ sub recompile {
                 { return {
                     pair => { 
                         key   => { single_quoted => $/[0]() }, 
-                        value => { single_quoted => $/{'Pugs::Grammar::Quote.angle_quoted'}() }, 
+                        value => $/{'Pugs::Grammar::Quote.angle_quoted'}->(), 
                 } } }
             |
                 # :foo(exp)
