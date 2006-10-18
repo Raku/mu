@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 12 Oct 2006
+   Last Modified: 18 Oct 2006
    Number: 5
-   Version: 39
+   Version: 40
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -1008,8 +1008,8 @@ A C<«> or C<<< << >>> token indicates a left word boundary.  A C<»> or
 C<<< >> >>> token indicates a right word boundary.  (As separate tokens,
 these need not be balanced.)  Perl 5's C<\b> is replaced by a C<< <?wb> >>
 "word boundary" assertion, while C<\B> becomes C<< <!wb> >>.  (None of
-these are dependent on the definition of C<< <ws> >>, but only on the C<\s>
-definition of whitespace.)
+these are dependent on the definition of C<< <ws> >>, but only on the C<\w>
+definition of "word" characters.)
 
 item *
 
