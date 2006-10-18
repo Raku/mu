@@ -1,0 +1,195 @@
+TODO list for v6.pm, Pugs-Compiler-Perl6
+
+- precedence problem:
+<fglock> TimToady: S03 says .<> is tighter than $ - v6.pm translates $$foo<bar> to ${ $foo->{qw(bar)} }
+<TimToady>  S03.pod:As with Perl 5, however, C<$$foo[bar]> parses as C<( $($foo) )[bar]>
+
+- Rule and Pod grammar from Pugs::Compiler::Rule still need work
+  to compile properly (simplified header, unnecessary use of Data::Bind,
+  wrong compile-time capture count)
+
+- 'my A $x' parses to 'my A; $x'  ('A' is a Type), reported by ajs
+
+- rewrite Term::substitution() using token
+
+- this is giving a wrong result:
+  perl -e 'use v6-alpha' - ' grammar E { regex ab { a*b } }; "accaaab"~~ /<E::ab>/; $/.perl.say '
+
+- merge in compile-time objects
+
+- anon classes, roles 
+- merge http://nothingmuch.woobling.org/MO
+
+- merge PIL-Run runtime (lazy lists, junctions)
+
+- fix perl5 calling conventions ('use CGI;', etc)
+
+- semicolons in array slice [1;2]
+
+- 'sub', 'method' are functions
+
+- replace 'Regex' matching with 'Token' 
+
+- implement hash and array
+
+- implement statement and operation classes in the grammar; implement macros (see lrep for an existing implementation).
+
+- block parsing:
+  t/ref.t: if $string.ref eq Str { say "ok 1 # TODO" }
+  <audreyt> for map {},@x { .say }
+
+pre-release - jun/2006
+
+- cache compiled YAPP and Rule code, 
+  use Module::Compile instead of Cache::Cache ?
+- write POD
+    - v6.pm 
+    - Pugs::Compiler::Perl6->compile
+    - Pugs::Grammar::Perl6->parse
+- add an option to emit ast
+
+Possible Backend Modules
+
+- Moose, Moose::Meta
+- Class::Multimethods::Pure
+
+(older TODO - needs a revision)
+
+Priorities 
+
+- Things that are not giving error messages:
+    (1 if 1)           # 'if' is an op - I think this is now legal 
+    sub sub xxx ...    # 'multi' and 'sub' are parsed the same way
+
+- workarounds:
+    - listop;    -- say;
+    - $obj.op()  -- when 'op' is a declared operator (not plain bareword)
+    - prefix/infix:<&> vs. &code
+    - /rule/ is a term
+  
+- merge Pod.pm into Perl6.pm
+
+- check that these special cases are covered:
+    moose=>1
+    moose:<elk>
+    moose:{antler()}
+
+- transform hash collisions into alternations
+    example: short name of prefix:<&> (Prefix.pm) vs. sigil in &name (Var.pm)
+
+- missing syntax
+    elsif
+
+TODO
+
+- implement ordered testing of categories <%a|%b|%c> depending on the parser state
+
+- parse the op table from
+  http://svn.perl.org/parrot/trunk/languages/perl6/lib/grammar_optok.pge
+- use the grammar from
+  http://svn.perl.org/parrot/trunk/languages/perl6/lib/grammar_rules.pge
+
+- macro
+- dynamic grammar
+
+- unify syntax in Operator.pm:
+    operators with the same precedence, fixity, and associativity
+    subroutines
+    sub/multi
+
+- Implement compile-time dynamic 'add_token' (lexical at run-time)
+
+- Implement double-quoted-string split on variables (interpolation)
+- Implement /rule/ and '/'
+    - see expect... in Expression.pm
+
+<fglock> TimToady: is the lexer the right place to make the '<'/'<a>' distinction? (it is not user-modifyable)
+
+<TimToady> fglock: that depends on what you count as part of the lexer.  
+    The bottom-up parser knows when it's looking for a <%infix> vs <%prefix> vs <%postfix>, so only those tokens are active that would be valid at that spot.
+<TimToady> (I oversimplify the hash stuff slightly there.)
+<TimToady> It's more like:
+<TimToady> <%infix> vs <%prefix|%term|%circumfix> vs <%postfix|%postcircumfix>
+<TimToady> assuming we adopt the new <%a|%b|%c> notation to combine 
+    longest-token processing of multiple hashes.
+<TimToady> fglock: for speed one could cache all the hash keys for all the hashes in a trie or some similar structure.  Just have to be careful that longest key wins regardless of hash, and in case of tie first hash wins.
+<TimToady> 'course you have to recalculate if any of the hashes is modified...
+
+<TimToady> can probably treat alphanumeric sub names specially so that you don't have to recalculate on every sub declaration.
+<TimToady> if you assume that no "foo" prefix operator or term can match if the next char is alphanumeric.
+<TimToady> maybe just run the prescanned identifier down a different trie than the non-alpha ops.
+<TimToady> actually, if you know the length then the ident one doesn't need a tree.  Just a hash would work.
+<TimToady> since you know its length already.
+
+<fglock> TimToady: what if both postcircumfix and infix are expected? then the op is chosen based on if there is whitespace or not?
+<fglock> like in %ENV<x> vs. %ENV <...
+<TimToady> <%postcircumfix|%infix> is what you look for before whitespace, and <%infix> after.
+<TimToady> that's why we completely outlawed whitespace before postfix.
+<TimToady> hmm, that doesn't quite work.
+<TimToady> I think at postfix location you actually look for <%postfix|%postcircumfix>|<%infix> becuase
+<TimToady> you don't want the %infix participating in longest token there.
+<TimToady> $x<=2 is an error, but $x <= 2 is okay.
+<TimToady> or looking at it in terms of whitespace, if you don't get any match on a postfix, then you can pretend there was whitespace even if there wasn't, and try %infix.
+<fglock> I think I'll need to do some tests ... - how about /rule/ vs. division? is it just that rule is a term and division is an op?
+<TimToady> yeah, that's just simple term vs op expectation.
+<TimToady> just as in P5.
+<TimToady> It's really only the postfix category that's new to P6
+
+<fglock> TimToady: is specifying an 'end token' parameter the way to go in interfacing the rule-based statement parser to the bottom-up parser?
+<TimToady> "an" end token is probably limiting it unnecessarily.  A set of end tokens is more like it.
+<TimToady> But a match can match a set of tokens, so passing in an end match is probably sufficient.
+<TimToady> The real problem with lvalue substr is that Perl 5 fakes it without a real COW engine underneath.
+<fglock> are the things inside brackets parsed using subrules? like in (@a;@b); - so that the 'end' is not matched in the wrong place
+<TimToady> As a basic rule of thumb, if you have brackets, you probably want a subrule
+<TimToady> though it's possible to do with op prec if you fiddle with infinities in the relative precedence inside and outside.
+<TimToady> but it's difficult to detect the (@a;@b] error without knowing the "right" terminator.
+<fglock> is sub 'circumfix:( ]' a valid spec?
+<TimToady> It's sort of like the difference between which things you need to use recursive regex on vs which things you can match with a flat regex (in P5 terms).
+<TimToady> syntactically, yes, that's valid.  You're nuts if you do it though.
+<TimToady> And you'll likely get a warning anyway if you define two circumfixes with the same left side.
+<TimToady> s/two/a second/
+<TimToady> but there's nothing says a circumfix can't be <fred barney>
+
+- Implement [op]@list
+- Implement expressions inside names - like:
+    prefix:{'+'}
+
+- Make the tokenizer match eagerly (faster)
+
+- Implement the "magic hash" dispatcher
+
+    TimToady on #perl6 -
+    xxx:<+> has to be considered just a funny looking name. 
+    It's the grammar's responsibility (somehow) to pull in any existing xxx and 
+    newly created xxx and combine them into any rules or %hash that references them.
+    supposing a grammatical category shows up in %xxx, then we need two ways to deal 
+    with it.
+    first, if we want one category to hide another, you can get away with a mixin 
+    style of
+        rule { %xxx | %yyy | %zzz }
+    but there are some syntactic categories that have to be magically combined like
+    compile-time roles:
+        rule { %xxx_or_yyy_or_zzz }
+    that is, the longest-token rule is applies in parallel across all the categories
+    simultaneously.
+    that's why the magic hash was invented (or more accurately, is scheduled to 
+    be invented :)
+
+-   the tokenizer should get tokens lazily ?
+
+-   is 'space-{' is found, is sent to the opp - if the opp is expecting an operator,
+    it means end-of-expression
+
+    TimToady in #perl6 - space + block is a top-level block only where an operator 
+    is expected, and you're not in brackets.
+    where a term is expected, it's just a closure argument. (or a hash composer)
+
+- Specify/generate AST
+
+P::C::R BUGS
+
+- A Match doesn't stringify if there is a capture
+
+- needs <after...> (update: implemented in :ratchet)
+
+- cleanup Pugs::AST::Expression (no longer used?)

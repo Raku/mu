@@ -1,0 +1,126 @@
+NAME
+    v6 - An experimental Perl 6 implementation
+
+SYNOPSIS
+        # file: hello_world.pl
+        use v6-alpha;
+        "hello, world".say;
+
+        $ perl hello_world.pl
+
+    "v6-alpha" can be used in one-liners:
+
+        $ perl -e 'use v6-alpha' ' 42.say '
+        $ perl -e 'use v6-alpha' - ' 42.say '
+        $ perl -e 'use v6-alpha' - --compile-only ' 42.say '
+        $ perl -e 'use v6-alpha' - -Ilib6 ' 42.say '
+        $ echo 42.say | perl -e 'use v6-alpha'
+
+    "v6.pm" can also be used as a plain program. This examples assume that
+    v6.pm is in the "./lib" directory:
+
+        $ perl lib/v6.pm -e 'for 1,2,3 -> $x { say $x }'
+        $ perl lib/v6.pm --compile-only -e '<hello>.say;'
+
+DESCRIPTION
+    The "v6" module is a front-end to the experimental Perl6-to-Perl5
+    compiler.
+
+    The current state of this compiler implementation only provides a small
+    sample of Perl 6 syntax and semantics.
+
+  Other Perl 6 implementations
+    The Pugs/Haskell Perl 6 is currently the most complete implementation.
+    Pugs currently has some issues with Perl 5 interoperability.
+
+    Parrot Perl 6 aims to become the best performing implementation, but
+    currently is less complete than both "v6.pm" and Pugs/Haskell.
+
+    Although running "v6.pm" requires the installation of a lot of Perl 5
+    modules, it is completely independent of Pugs or Parrot.
+
+REQUIREMENTS
+    - The source file header must be valid perl5 *and* perl6 code.
+
+    This is a valid header:
+
+        #!/usr/bin/perl
+        use v6-alpha;
+
+    * it executes perl5
+
+    * perl5 will call the "v6.pm" module.
+
+    This is an invalid header:
+
+        #!/usr/bin/pugs
+        use v6;
+
+    * it tells perl5 to execute "/usr/bin/pugs".
+
+    * it tells perl5 that Perl v6.0.0 required.
+
+    - The "Pugs::Compiler::Rule" module must be properly installed.
+
+    An improperly installed "Pugs::Compiler::Rule" module would prevent the
+    Perl 6 compiler from bootstrapping.
+
+    If that is the case, running "Makefile.PL" and "make" in
+    "Pugs::Compiler::Rule" should fix the problem.
+
+    - The perl5 executable must have PMC support.
+
+    PMC support is required for loading precompiled Perl 6 files.
+
+    If you see the error below, it may happen that your perl was compiled
+    without PMC support.
+
+      Can't locate object method "compile" via package "Pugs::Compiler::Perl6"
+
+    Please see <http://rt.cpan.org/Public/Bug/Display.html?id=20152>
+
+ENVIRONMENT VARIABLES
+    * PERL6LIB
+
+    Same usage as PERL5LIB - sets the search path for Perl 6 modules.
+
+    * V6DUMPAST
+
+    If set, the compiler will dump the syntax tree to "STDOUT" just before
+    emitting code, using "Data::Dumper".
+
+    * V6NOTIDY
+
+    If set, the compiler output will be much less readable, but there will
+    be some improvement in compiler speed.
+
+COMMAND LINE SWITCHES
+    * --compile-only
+
+    When using v6.pm from the command line, dumps the emitted code to
+    "STDOUT" and then exit:
+
+        $ perl -e 'use v6-alpha' - --compile-only ' 42.say '
+
+        $ perl -Ilib lib/v6.pm --compile-only -e '<hello>.say;'
+
+AUTHORS
+    The Pugs Team <perl6-compiler@perl.org>.
+
+SEE ALSO
+    The Perl 6 homepage at <http://dev.perl.org/perl6>.
+
+    - the Perl 6 Synopsis: <http://dev.perl.org/perl6/doc/synopsis.html>.
+
+    The Pugs homepage at <http://pugscode.org/>.
+
+    The Parrot homepage at <http://www.parrotcode.org>.
+
+COPYRIGHT
+    Copyright 2006 by Flavio Soibelmann Glock and others.
+
+    This program is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
+
+    See <http://www.perl.com/perl/misc/Artistic.html>
+

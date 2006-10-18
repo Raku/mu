@@ -1,0 +1,7 @@
+Pugs-Emitter-Perl6-Perl5
+
+This module implements an object system for the perl5 emitter.
+
+It uses Data::Bind for speed, but it is currently broken (oct 2006) 
+because there is a problem with binding references (objects are references).
+

@@ -1,0 +1,139 @@
+
+- moved Perl5 emitter to a separate module
+- implemented $$/
+- implemented :c and :g switches in rules:
+  ' my $content = "xyz"; while $content ~~ m:c/<alpha>/ { say $/ } '
+  x \n y \n z \n
+- implemented  '$x.yaml'  and  'eval( $x, :lang<yaml> )'
+
+0.015  2006-09-14
+
+- improved command-line interface, does not require using v6.pm as a
+  script.
+- MANIFEST only includes passing tests
+- reuse Rule and Pod grammar from Pugs::Compiler::Rule
+  - These grammars are now implemented using v6.pm.
+  - The Rule grammar is subclassed, in order to callback P6 parser to
+  compile closures.
+- improved quoted text parsing
+- gradually replace Text::Balanced with plain rules
+  - Term::substitution() and rx_body() are the last remaining places.
+- experimental implementation of compile-time objects
+  - lib/Pugs/Emitter/Perl6/Perl5/
+  - not merged yet - see misc/pX/fglock
+
+0.014  2006-08-21
+
+- optimized CPU usage (2x less) and RAM usage (3x less)
+
+- implemented given/when/default/break/continue
+- state variables
+- implemented additional Array and Hash methods
+- $?PUGS_BACKEND returns 'BACKEND_PERL5'
+- implemented @*INC, $?OS, $?COMPILER, $?VERSION
+- implemented statement terminator block
+
+- fixed scientific notation
+- fixed '{}' (empty hash)
+- %hash = ( { a => 1 }, { b => 2 } ) works
+- 'my' works inside '//' and 'err'
+- optimized match object insideout in Pugs::Compiler::Rule
+- optimized operator-precedence parser (Parse::Yapp) initialization
+
+0.013  2006-08-09
+
+- includes precompiled v6 modules: Perl6Prelude.pm, Test.pm
+- new grammatical categories: 'quote', 'statement_modifier'
+
+0.012  2006-08-08
+
+- faster compilation due to improved grammatical categories dispatching
+  and lazy rule compilation
+- 'statement_control' grammatical category implemented
+
+0.011  2006-07-24
+
+- basic regex parsing and matching
+- grammar/rule parsing
+- support := with Data::Bind::bind_op2
+- basic hash support
+- class name barewords are allowed. Str and Bool in Prelude
+- implement $?POSITION and $?CALLER::POSITION.
+- 788 tests pass
+
+0.010  2006-07-17
+
+- better support for array and hash syntax; - clkao++
+  'sub' declarations are terms:
+    @b.map(sub ($x, $y) { $x + $y })
+- 'loop' - clkao++
+- fixed HACKING file formatting - snowstalker++
+- fixed docs on 'use v6-alpha' - dduncan++
+- 538 tests pass
+
+0.009  2006-07-14
+
+- reduce operators: say [*] 1..5
+- 499 tests pass
+
+0.008  2006-07-14
+
+- 'use perl5:CGI'
+- chain operators
+- fixed precedence table
+
+0.007  2006-07-12
+
+- added HACKING file
+- added Pugs::Runtime::Perl6Prelude
+- added t/Test.pm
+-- unmodified copy of pugs ext/Test/lib/Test.pm
+- parsing is now done one statement at a time 
+-- this cuts memory needs by half while compiling Test.pm
+- use v5; ... use v6;
+-- inlines perl 5 code
+- named enums
+- bool::True, bool::False, true()
+- unless, while
+- setting $ENV{V6DUMPAST} can now be used for debugging the syntax tree
+
+0.006  2006-07-06
+
+- we now no longer use Parse::Yapp
+- all expression parsing is done with Perl 6 grammar
+- regex/token/rule declarations in Perl 6 are parsed
+- uses Moose 0.10 for Perl 6 classes and objects
+- squash warnings
+
+0.005  2006-07-05
+
+- all sanity tests, up and includes Test.pm from Pugs test suite, now passes
+- uses Data::Bind for calling convention
+- 'expr unless/if expr;'
+
+0.003 - 0.004
+
+- "Changed everything to make Test.pm compile"
+- grammar rewrite; now uses Parse::Yapp for expressions only
+
+0.002  2006-06-28
+
+- added REQUIREMENTS section in v6.pm pod
+-- see http://rt.cpan.org/Public/Bug/Display.html?id=20152
+
+- uses Moose.pm as the runtime for classes
+-- implemented 'module' and 'class'
+-- very basic support for 'has', 'method', and parameter list
+-- Makefile.PL recommends 'Moose' 
+
+- properly parses pod
+-- added t/01-pod.t 
+
+- more operators
+-- added a default '.perl' implementation, which calls perl5 Dumper()
+
+- v6.pm no longer searches in development lib directories
+
+0.001  2006-06-26
+
+- initial CPAN release
