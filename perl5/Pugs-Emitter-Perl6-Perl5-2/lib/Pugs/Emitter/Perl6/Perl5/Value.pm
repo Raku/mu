@@ -7,7 +7,6 @@ use warnings;
 
 # TODO - List, Seq, ...
 
-
 package Pugs::Emitter::Perl6::Perl5::Value;
     use base 'Pugs::Emitter::Perl6::Perl5::Any';
     sub list { 
@@ -32,6 +31,9 @@ package Pugs::Emitter::Perl6::Perl5::Value;
     }
     sub int {
         $_[0]->node( 'int',  $_[0]->{name} );
+    }
+    sub value {
+        $_[0]
     }
 package Pugs::Emitter::Perl6::Perl5::Bool;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
@@ -63,7 +65,7 @@ package Pugs::Emitter::Perl6::Perl5::Bool;
         : $_[0]->node( 'Bool', 1 )
     }
     sub scalar {
-        $_[0]->node( 'Scalar', '( bless \\( my $' . $_[0]->new_id . '=' . $_[0] . 
+        $_[0]->node( 'ValueScalar', '( bless \\( my $' . $_[0]->new_id . '=' . $_[0] . 
                     "), 'Pugs::Runtime::Perl6::Bool' )" );
     }
     ::unicode_sub 'infix:<==>', sub{ 
@@ -91,7 +93,7 @@ package Pugs::Emitter::Perl6::Perl5::Str;
         $_[0]->num->true;  # XXX
     }
     sub scalar {
-        $_[0]->node( 'Scalar', '( bless \\( my $' . $_[0]->new_id . '=' . $_[0] . 
+        $_[0]->node( 'ValueScalar', '( bless \\( my $' . $_[0]->new_id . '=' . $_[0] . 
                     "), 'Pugs::Runtime::Perl6::Str' )" );
     }
     sub eq {
@@ -110,7 +112,7 @@ package Pugs::Emitter::Perl6::Perl5::Int;
         $_[0];
     }
     sub scalar {
-        $_[0]->node( 'Scalar', '( bless \\( my $' . $_[0]->new_id . '=' . $_[0] . 
+        $_[0]->node( 'ValueScalar', '( bless \\( my $' . $_[0]->new_id . '=' . $_[0] . 
                     "), 'Pugs::Runtime::Perl6::Int' )" );
     }
     ::unicode_sub 'infix:<==>', sub{ 
@@ -132,14 +134,14 @@ package Pugs::Emitter::Perl6::Perl5::Num;
         $_[0]->node( 'int', int( $_[0]->{name} ) );
     }
     sub scalar {
-        $_[0]->node( 'Scalar', '( bless \\( my $' . $_[0]->new_id . '=' . $_[0] . 
+        $_[0]->node( 'ValueScalar', '( bless \\( my $' . $_[0]->new_id . '=' . $_[0] . 
                     "), 'Pugs::Runtime::Perl6::Num' )" );
     }
     ::unicode_sub 'infix:<==>', sub{ 
         my $tmp = $_[1]->num;
         return $_[0]->node( 'Bool', ( $_[0] == $tmp ) )
             if ref( $tmp ) eq 'Pugs::Emitter::Perl6::Perl5::Num';
-        return $_[0]->node( 'BoolExpression', $_[0] . " == " . $tmp );
+        $_[0]->node( 'BoolExpression', $_[0] . " == " . $tmp );
     };
 package Pugs::Emitter::Perl6::Perl5::Code;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
@@ -172,7 +174,7 @@ package Pugs::Emitter::Perl6::Perl5::Seq;
             ? @{$_->{name}}
             : $_
             } @{$_[1]{name}};  
-        return bless { name => \@self }, $_[0];
+        bless { name => \@self }, $_[0];
     }
     sub WHAT { 
         $_[0]->node( 'str', 'Seq' );
@@ -228,45 +230,39 @@ package Pugs::Emitter::Perl6::Perl5::pair;
         $_[0]->node( 'Seq', $_[0]->name );
     }
     sub scalar {
-        return $_[0]->node( 'Scalar', '( bless [' . $_[0] . "], 'Pugs::Runtime::Perl6::Pair' )" )
+        $_[0]->node( 'ValueScalar', '( bless [' . $_[0] . "], 'Pugs::Runtime::Perl6::Pair' )" )
     }
     sub hash {
-        return $_[0]->node( 'Hash', '( bless [' . $_[0] . "], 'Pugs::Runtime::Perl6::Hash' )" )
+        $_[0]->node( 'Hash', '( bless [' . $_[0] . "], 'Pugs::Runtime::Perl6::Hash' )" )
     }
     sub array {
-        return $_[0]->scalar->array
+        $_[0]->scalar->array
     }
     sub list {
-        return $_[0]->scalar->list
+        $_[0]->scalar->list
     }
-
-sub isa { 
-    die "TODO";
-    my $self = $_[0];
-    return $self->other_get( $_[1] ) . ' eq ' . "'Pair'";  # hardcoded 
-}
-
-    
-sub defined {
-    die "TODO";
-}
-
-sub elems {
-    die "TODO";
-    return Pugs::Emitter::Perl6::Perl5::Scalar->new( {
-        name => '1'
-    } );
-}
-
-sub _123__125_ {
-    die "TODO";
-    # .{}
-    my $self = $_[0];
-    my $other = $self->other_get( $_[1] );
-    return $_[0] unless $other;  # TODO
-    return $self->dollar_name . '{' . $other . '}';
-}
-
+    sub isa { 
+        die "TODO";
+        my $self = $_[0];
+        $self->other_get( $_[1] ) . ' eq ' . "'Pair'";  # hardcoded 
+    }
+    sub defined {
+        die "TODO";
+    }
+    sub elems {
+        die "TODO";
+        Pugs::Emitter::Perl6::Perl5::Scalar->new( {
+            name => '1'
+        } );
+    }
+    sub _123__125_ {
+        die "TODO";
+        # .{}
+        my $self = $_[0];
+        my $other = $self->other_get( $_[1] );
+        return $_[0] unless $other;  # TODO
+        $self->dollar_name . '{' . $other . '}';
+    }    
 package Pugs::Emitter::Perl6::Perl5::Perl5Range;
     use strict;
     use warnings;
@@ -277,7 +273,6 @@ package Pugs::Emitter::Perl6::Perl5::Perl5Range;
         },
         fallback => 1,
     );
-
     sub WHAT { 
         $_[0]->node( 'str', 'Range' );
     }
@@ -285,14 +280,14 @@ package Pugs::Emitter::Perl6::Perl5::Perl5Range;
         #print "RANGE: ", $_[0]->node( 'ListExpression', "".$_[0] ), "\n";
         #$_[0]->node( 'ListExpression', $_[0] );
 
-            # XXX
-            my $Type = ref $_[0]{name}[0];
-            $Type =~ s/^.*://;
-            #print "TYPE $Type \n";
-            $_[0]->node( 'Seq', [ 
-                map { $_[0]->node( $Type, $_ ) } 
-                    $_[0]{name}[0] .. $_[0]{name}[1] 
-            ] ) # XXX
+        # XXX - should be Lazy
+        my $Type = ref $_[0]{name}[0];
+        $Type =~ s/^.*://;
+        #print "TYPE $Type \n";
+        $_[0]->node( 'Seq', [ 
+            map { $_[0]->node( $Type, $_ ) } 
+                $_[0]{name}[0] .. $_[0]{name}[1] 
+        ] ) # XXX
     }
     sub scalar { 
         $_[0]->list->array;

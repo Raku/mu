@@ -1,6 +1,12 @@
 
 Compile-Time objects
 
+- rename .set -> .STORE
+- create .FETCH
+
+- implement 'Code' class, with multi-dispatch
+- replace 'Range' implementation with a lazy runtime object
+
 - organize the internal "Namespaces"
   - maybe follow S06:Built-in Types:
     Mutable Immutable Undefined Value ...

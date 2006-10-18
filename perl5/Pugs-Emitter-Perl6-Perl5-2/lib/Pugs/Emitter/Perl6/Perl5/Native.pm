@@ -5,7 +5,6 @@ use warnings;
 # operator name mangler:
 # perl Runtime::Common -e ' print Pugs::Runtime::Common::mangle_ident("==") '
 
-
 package Pugs::Emitter::Perl6::Perl5::Native;
     use base 'Pugs::Emitter::Perl6::Perl5::Any';
     sub boxed {
@@ -18,6 +17,9 @@ package Pugs::Emitter::Perl6::Perl5::Native;
         '\\' . $_[0]->scalar->name;
     }
     sub unboxed {
+        $_[0]
+    }
+    sub value {
         $_[0]
     }
 package Pugs::Emitter::Perl6::Perl5::bool;
@@ -45,7 +47,7 @@ package Pugs::Emitter::Perl6::Perl5::bool;
         $_[0]->node( 'bool', $_[0]->{name} ? 0 : 1 );
     }
     sub scalar {
-        $_[0]->node( 'Scalar', '( bless \\( my $' . $_[0]->new_id . '=' . $_[0] . "), 'Pugs::Runtime::Perl6::Bool' )" );
+        $_[0]->node( 'ValueScalar', '( bless \\( my $' . $_[0]->new_id . '=' . $_[0] . "), 'Pugs::Runtime::Perl6::Bool' )" );
     }
     sub _61__61_ {  # ==
         $_[0]->int->_61__61_( $_[1] );
@@ -73,7 +75,7 @@ package Pugs::Emitter::Perl6::Perl5::str;
         $_[0];
     }
     sub scalar {
-        $_[0]->node( 'Scalar', '( bless \\( my $' . $_[0]->new_id . '=' . $_[0] . 
+        $_[0]->node( 'ValueScalar', '( bless \\( my $' . $_[0]->new_id . '=' . $_[0] . 
                     "), 'Pugs::Runtime::Perl6::Str' )" );
     }
     sub eq {
@@ -104,7 +106,7 @@ package Pugs::Emitter::Perl6::Perl5::int;
         $_[0]->num->_61__61_( $_[1] );
     }
     sub scalar {
-        $_[0]->node( 'Scalar', '( bless \\( my $' . $_[0]->new_id . '=' . $_[0] . 
+        $_[0]->node( 'ValueScalar', '( bless \\( my $' . $_[0]->new_id . '=' . $_[0] . 
                     "), 'Pugs::Runtime::Perl6::Int' )" );
     }
     ::unicode_sub 'infix:<+>', sub{ 
@@ -132,7 +134,7 @@ package Pugs::Emitter::Perl6::Perl5::num;
         $_[0]->node( 'int', int( $_[0]->{name} ) );
     }
     sub scalar {
-        $_[0]->node( 'Scalar', '( bless \\( my $' . $_[0]->new_id . '=' . $_[0] . 
+        $_[0]->node( 'ValueScalar', '( bless \\( my $' . $_[0]->new_id . '=' . $_[0] . 
                     "), 'Pugs::Runtime::Perl6::Num' )" );
     }
     ::unicode_sub 'infix:<==>', sub{ 

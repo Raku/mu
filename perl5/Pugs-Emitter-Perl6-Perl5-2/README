@@ -1,0 +1,14 @@
+Pugs-Emitter-Perl6-Perl5-2
+
+This module implements an internal object system for the perl5 emitter.
+
+It replaces the use of Data::Bind with double indirection, which is 
+probably slower.
+
+However, this opens possibilities for supporting more
+language features, as it is closer to the way PIL-Run worked.
+- compile-time autoboxing
+- junctions
+- laziness
+
+See also 'type-example.pl'
