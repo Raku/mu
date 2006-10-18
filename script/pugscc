@@ -174,10 +174,8 @@ means you can run perl5 code with Pugs too).
 
 =head1 HOW CAN YOU HELP
 
-The main engine for 'pugscc' is found in the src/Compile.hs file, and 
+The main engine for L<pugscc> is found in the src/Compile.hs file, and 
 the backends are located within src/Compile/. 
-
-** Autrijus can you write something here? **
 
 =head1 DEPENDENCIES
 
@@ -209,11 +207,11 @@ L<http://www.poniecode.org/>
 
 =head1 AUTHORS
 
-Audrey Tang E<lt>autrijus@autrijus.orgE<gt>.
+Audrey Tang E<lt>cpan@audreyt.orgE<gt>.
 
 =head1 COPYRIGHT
 
-Copyright 2005 by Audrey Tang E<lt>autrijus@autrijus.orgE<gt>.
+Copyright 2005, 2006 by Audrey Tang E<lt>cpan@audreyt.orgE<gt>.
 
 This code is free software; you can redistribute it and/or modify it under
 the terms of either:
