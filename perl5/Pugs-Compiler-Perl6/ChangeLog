@@ -1,3 +1,6 @@
+- eval() in caller's context
+
+[devel only]
 
 - moved Perl5 emitter to a separate module
 - implemented $$/
