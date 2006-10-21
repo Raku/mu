@@ -68,9 +68,8 @@ sub build {
         my $cygpath = sub {
             my $path = shift;
             #warn "<> processing $path...\n";
-            my $retval = `cygpath -w $path`;
+            my $retval = `cygpath -m $path`;
             chomp $retval;
-            $retval =~ s{\\}{/}g;
             #warn "<> Now it is $retval...\n";
             return $retval;
         };
@@ -107,7 +106,7 @@ sub build {
     if ($Config{osname} eq 'cygwin') {
         # NB.  We're exploiting for's aliasing of variables.
         foreach my $path ($runcompiler, $prefix, $hc_pkg) {
-            $path =~ s{^/cygdrive/(\w)/}{$1:/};
+			$path = `cygpath -m $path`; chomp $path;
         }
     }
 

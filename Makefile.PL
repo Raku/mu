@@ -351,9 +351,8 @@ EOD
 
             if ($Config{osname} eq 'cygwin') {
                 my $cygpath = sub {
-                    my $path = `cygpath @_`;
+                    my $path = `cygpath -m @_`;
                     chomp $path;
-                    $path =~ s{\\}{/}g;
                     return $path;
                 };
                 $embed_flags =~ s{(/usr/\S+)}{$cygpath->($1)}eg;
@@ -564,7 +563,7 @@ EOD
 
         # NB.  We're exploiting for's aliasing of variables.
         foreach my $path ($ghc_pkg, $hsc2hs, $ghc) {
-            $path =~ s{^/cygdrive/(\w)/}{$1:/};
+			$path = `cygpath -m $path`; chomp $path;
         }
     }
 
@@ -945,7 +944,9 @@ sub preprocess {
     open OUT, '>', $outfile or die "failed to open $outfile ($!)";
 
     if ($Config{osname} eq 'cygwin') {
-        s{^/cygdrive/(\w)/}{$1:/} for values %substitutions;
+		for my $path (values %substitutions){
+			$path = `cygpath -m $path`; chomp $path;
+		}
     }
 
     while (<IN>) {
