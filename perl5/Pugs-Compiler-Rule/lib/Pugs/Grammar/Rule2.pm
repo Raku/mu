@@ -192,11 +192,10 @@ token named_capture_body {
     '^'   => token { { return { colon => '^'  ,} } },
     
     '>>'  => token { { return { colon => '>>' ,} } },
-    '»'   => token { { return { colon => '>>'  ,} } },
+    '»'   => token { { return { colon => '>>' ,} } },
 
-    # workaround: Module::Compile doesn't like /'<<'/
-    '<'~'<'  => token { { return { colon => '<'~'<' ,} } },
-    '«'   => token { { return { colon => '<'~'<'  ,} } },
+    '<<'  => token { { return { colon => '<<' ,} } },
+    '«'   => token { { return { colon => '<<' ,} } },
 
     ':i'           => token { { return { modifier => 'ignorecase'  ,} } },
     ':ignorecase'  => token { { return { modifier => 'ignorecase'  ,} } },
@@ -245,7 +244,7 @@ token quant {
 
 token quantifier {
     $<ws1>   := (<?ws>?)
-    <!before  <[   \} \] \) \>   ]> >
+    <!before  <[   \} \] \)   ]> >
     <term> 
     $<ws2>   := (<?ws>?)
     <quant>

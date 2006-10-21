@@ -15,7 +15,12 @@
     no warnings 'substr', 'uninitialized', 'syntax';
     my %pad;
     my $m;
-    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+    for my $pos (
+      defined $_[3]{p} && !$_[3]{continue}
+      ? $_[3]{p}
+      : ( ( $_[3]{p} || 0 ) .. length($s) )
+      )
+    {
       my %index;
       my @match;
       my %named;
@@ -33,9 +38,11 @@
         }
       );
       {
+        my $prior = $::_V6_PRIOR_;
+        local $::_V6_PRIOR_ = $prior;
         $bool = 0
           unless (
-          ( $pad{I1669} = $pos or 1 )
+          ( $pad{I1028} = $pos or 1 )
           && (
             (
               (
@@ -65,7 +72,7 @@
             )
           )
           || (
-            ( ( $bool = 1 ) && ( $pos = $pad{I1669} ) or 1 )
+            ( ( $bool = 1 ) && ( $pos = $pad{I1028} ) or 1 )
             && (
               ( substr( $s, $pos++, 1 ) ne '' )
               && do {
@@ -85,9 +92,11 @@
           );
       }
       if ($bool) {
-        $::_V6_PRIOR_ = $rule;
-
-        #print "rule = $::_V6_PRIOR_ \n";
+        my $prior = $::_V6_PRIOR_;
+        $::_V6_PRIOR_ = sub {
+          local $main::_V6_PRIOR_ = $prior;
+          $rule->(@_);
+        };
         last;
       }
     }    # /for
@@ -95,7 +104,7 @@
     return $m;
     }
 };    ## Signature for pod_begin
-#Data::Bind->sub_signature( \&pod_begin, );
+# Data::Bind->sub_signature( \&pod_begin, );
 *pod_other = do {
   my $rule;
   $rule = sub {
@@ -107,7 +116,12 @@
     no warnings 'substr', 'uninitialized', 'syntax';
     my %pad;
     my $m;
-    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+    for my $pos (
+      defined $_[3]{p} && !$_[3]{continue}
+      ? $_[3]{p}
+      : ( ( $_[3]{p} || 0 ) .. length($s) )
+      )
+    {
       my %index;
       my @match;
       my %named;
@@ -125,9 +139,11 @@
         }
       );
       {
+        my $prior = $::_V6_PRIOR_;
+        local $::_V6_PRIOR_ = $prior;
         $bool = 0
           unless (
-          ( $pad{I1670} = $pos or 1 )
+          ( $pad{I1029} = $pos or 1 )
           && (
             (
               (
@@ -157,7 +173,7 @@
             )
           )
           || (
-            ( ( $bool = 1 ) && ( $pos = $pad{I1670} ) or 1 )
+            ( ( $bool = 1 ) && ( $pos = $pad{I1029} ) or 1 )
             && (
               ( substr( $s, $pos++, 1 ) ne '' )
               && do {
@@ -177,9 +193,11 @@
           );
       }
       if ($bool) {
-        $::_V6_PRIOR_ = $rule;
-
-        #print "rule = $::_V6_PRIOR_ \n";
+        my $prior = $::_V6_PRIOR_;
+        $::_V6_PRIOR_ = sub {
+          local $main::_V6_PRIOR_ = $prior;
+          $rule->(@_);
+        };
         last;
       }
     }    # /for
@@ -187,7 +205,7 @@
     return $m;
     }
 };    ## Signature for pod_other
-#Data::Bind->sub_signature( \&pod_other, );
+# Data::Bind->sub_signature( \&pod_other, );
 *ws = do {
   my $rule;
   $rule = sub {
@@ -199,7 +217,12 @@
     no warnings 'substr', 'uninitialized', 'syntax';
     my %pad;
     my $m;
-    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+    for my $pos (
+      defined $_[3]{p} && !$_[3]{continue}
+      ? $_[3]{p}
+      : ( ( $_[3]{p} || 0 ) .. length($s) )
+      )
+    {
       my %index;
       my @match;
       my %named;
@@ -217,10 +240,12 @@
         }
       );
       {
+        my $prior = $::_V6_PRIOR_;
+        local $::_V6_PRIOR_ = $prior;
         $bool = 0
           unless (
           (
-            ( $pad{I1671} = $pos or 1 )
+            ( $pad{I1030} = $pos or 1 )
             && (
               (
                 (
@@ -235,7 +260,7 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1671} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1030} ) or 1 )
               && (
                 (
                   ( substr( $s, $pos ) =~ m/^((?:\n\r?|\r\n?))/ ) ? ( $pos += length($1) or 1 )
@@ -249,7 +274,7 @@
                     )
                     && (
                       (
-                        ( $pad{I1672} = $pos or 1 )
+                        ( $pad{I1031} = $pos or 1 )
                         && (
                           (
                             (
@@ -303,7 +328,7 @@
                           )
                         )
                         || (
-                          ( ( $bool = 1 ) && ( $pos = $pad{I1672} ) or 1 )
+                          ( ( $bool = 1 ) && ( $pos = $pad{I1031} ) or 1 )
                           && (
                             (
                               ( substr( $s, $pos, 1 ) eq 'b' ) ? ( $pos += 1 or 1 )
@@ -336,7 +361,7 @@
                           )
                         )
                         || (
-                          ( ( $bool = 1 ) && ( $pos = $pad{I1672} ) or 1 )
+                          ( ( $bool = 1 ) && ( $pos = $pad{I1031} ) or 1 )
                           && (
                             (
                               ( substr( $s, $pos, 1 ) eq 'k' ) ? ( $pos += 1 or 1 )
@@ -365,7 +390,7 @@
                           )
                         )
                         || (
-                          ( ( $bool = 1 ) && ( $pos = $pad{I1672} ) or 1 )
+                          ( ( $bool = 1 ) && ( $pos = $pad{I1031} ) or 1 )
                           && (
                             (
                               ( substr( $s, $pos, 1 ) eq 'p' ) ? ( $pos += 1 or 1 )
@@ -390,7 +415,7 @@
                           )
                         )
                         || (
-                          ( ( $bool = 1 ) && ( $pos = $pad{I1672} ) or 1 )
+                          ( ( $bool = 1 ) && ( $pos = $pad{I1031} ) or 1 )
                           && (
                             (
                               ( substr( $s, $pos, 1 ) eq 'f' ) ? ( $pos += 1 or 1 )
@@ -415,7 +440,7 @@
                           )
                         )
                         || (
-                          ( ( $bool = 1 ) && ( $pos = $pad{I1672} ) or 1 )
+                          ( ( $bool = 1 ) && ( $pos = $pad{I1031} ) or 1 )
                           && (
                             (
                               ( substr( $s, $pos, 1 ) eq 'h' ) ? ( $pos += 1 or 1 )
@@ -456,7 +481,7 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1671} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1030} ) or 1 )
               && (
                   ( substr( $s, $pos ) =~ m/^(\s)/ )
                 ? ( $pos += length($1) or 1 )
@@ -467,7 +492,7 @@
           && do {
             while (
               (
-                ( $pad{I1671} = $pos or 1 )
+                ( $pad{I1030} = $pos or 1 )
                 && (
                   (
                     (
@@ -482,7 +507,7 @@
                   )
                 )
                 || (
-                  ( ( $bool = 1 ) && ( $pos = $pad{I1671} ) or 1 )
+                  ( ( $bool = 1 ) && ( $pos = $pad{I1030} ) or 1 )
                   && (
                     (
                       ( substr( $s, $pos ) =~ m/^((?:\n\r?|\r\n?))/ ) ? ( $pos += length($1) or 1 )
@@ -496,7 +521,7 @@
                         )
                         && (
                           (
-                            ( $pad{I1672} = $pos or 1 )
+                            ( $pad{I1031} = $pos or 1 )
                             && (
                               (
                                 (
@@ -550,7 +575,7 @@
                               )
                             )
                             || (
-                              ( ( $bool = 1 ) && ( $pos = $pad{I1672} ) or 1 )
+                              ( ( $bool = 1 ) && ( $pos = $pad{I1031} ) or 1 )
                               && (
                                 (
                                   ( substr( $s, $pos, 1 ) eq 'b' ) ? ( $pos += 1 or 1 )
@@ -583,7 +608,7 @@
                               )
                             )
                             || (
-                              ( ( $bool = 1 ) && ( $pos = $pad{I1672} ) or 1 )
+                              ( ( $bool = 1 ) && ( $pos = $pad{I1031} ) or 1 )
                               && (
                                 (
                                   ( substr( $s, $pos, 1 ) eq 'k' ) ? ( $pos += 1 or 1 )
@@ -612,7 +637,7 @@
                               )
                             )
                             || (
-                              ( ( $bool = 1 ) && ( $pos = $pad{I1672} ) or 1 )
+                              ( ( $bool = 1 ) && ( $pos = $pad{I1031} ) or 1 )
                               && (
                                 (
                                   ( substr( $s, $pos, 1 ) eq 'p' ) ? ( $pos += 1 or 1 )
@@ -637,7 +662,7 @@
                               )
                             )
                             || (
-                              ( ( $bool = 1 ) && ( $pos = $pad{I1672} ) or 1 )
+                              ( ( $bool = 1 ) && ( $pos = $pad{I1031} ) or 1 )
                               && (
                                 (
                                   ( substr( $s, $pos, 1 ) eq 'f' ) ? ( $pos += 1 or 1 )
@@ -662,7 +687,7 @@
                               )
                             )
                             || (
-                              ( ( $bool = 1 ) && ( $pos = $pad{I1672} ) or 1 )
+                              ( ( $bool = 1 ) && ( $pos = $pad{I1031} ) or 1 )
                               && (
                                 (
                                   ( substr( $s, $pos, 1 ) eq 'h' ) ? ( $pos += 1 or 1 )
@@ -703,7 +728,7 @@
                   )
                 )
                 || (
-                  ( ( $bool = 1 ) && ( $pos = $pad{I1671} ) or 1 )
+                  ( ( $bool = 1 ) && ( $pos = $pad{I1030} ) or 1 )
                   && (
                       ( substr( $s, $pos ) =~ m/^(\s)/ )
                     ? ( $pos += length($1) or 1 )
@@ -719,9 +744,11 @@
           );
       }
       if ($bool) {
-        $::_V6_PRIOR_ = $rule;
-
-        #print "rule = $::_V6_PRIOR_ \n";
+        my $prior = $::_V6_PRIOR_;
+        $::_V6_PRIOR_ = sub {
+          local $main::_V6_PRIOR_ = $prior;
+          $rule->(@_);
+        };
         last;
       }
     }    # /for
@@ -729,7 +756,7 @@
     return $m;
     }
 };    ## Signature for ws
-#Data::Bind->sub_signature( \&ws, );
+# Data::Bind->sub_signature( \&ws, );
 *ident = do {
   my $rule;
   $rule = sub {
@@ -741,7 +768,12 @@
     no warnings 'substr', 'uninitialized', 'syntax';
     my %pad;
     my $m;
-    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+    for my $pos (
+      defined $_[3]{p} && !$_[3]{continue}
+      ? $_[3]{p}
+      : ( ( $_[3]{p} || 0 ) .. length($s) )
+      )
+    {
       my %index;
       my @match;
       my %named;
@@ -759,10 +791,12 @@
         }
       );
       {
+        my $prior = $::_V6_PRIOR_;
+        local $::_V6_PRIOR_ = $prior;
         $bool = 0
           unless (
           (
-            ( $pad{I1673} = $pos or 1 )
+            ( $pad{I1032} = $pos or 1 )
             && (
               (
                 ( substr( $s, $pos ) =~ m/^([[:alnum:]])/ ) ? ( $pos += length($1) or 1 )
@@ -770,14 +804,14 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1673} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1032} ) or 1 )
               && (
                 ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 )
                 : 0
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1673} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1032} ) or 1 )
               && (
                 ( substr( $s, $pos, 2 ) eq '::' ) ? ( $pos += 2 or 1 )
                 : 0
@@ -785,15 +819,17 @@
             )
           )
           && do {
-            while ( ( ( $pad{I1673} = $pos or 1 ) && ( ( ( substr( $s, $pos ) =~ m/^([[:alnum:]])/ ) ? ( $pos += length($1) or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1673} ) or 1 ) && ( ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1673} ) or 1 ) && ( ( substr( $s, $pos, 2 ) eq '::' ) ? ( $pos += 2 or 1 ) : 0 ) ) ) ) { }
+            while ( ( ( $pad{I1032} = $pos or 1 ) && ( ( ( substr( $s, $pos ) =~ m/^([[:alnum:]])/ ) ? ( $pos += length($1) or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1032} ) or 1 ) && ( ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1032} ) or 1 ) && ( ( substr( $s, $pos, 2 ) eq '::' ) ? ( $pos += 2 or 1 ) : 0 ) ) ) ) { }
             $bool = 1;
           }
           );
       }
       if ($bool) {
-        $::_V6_PRIOR_ = $rule;
-
-        #print "rule = $::_V6_PRIOR_ \n";
+        my $prior = $::_V6_PRIOR_;
+        $::_V6_PRIOR_ = sub {
+          local $main::_V6_PRIOR_ = $prior;
+          $rule->(@_);
+        };
         last;
       }
     }    # /for
@@ -801,7 +837,7 @@
     return $m;
     }
 };    ## Signature for ident
-#Data::Bind->sub_signature( \&ident, );
+# Data::Bind->sub_signature( \&ident, );
 *literal = do {
   my $rule;
   $rule = sub {
@@ -813,7 +849,12 @@
     no warnings 'substr', 'uninitialized', 'syntax';
     my %pad;
     my $m;
-    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+    for my $pos (
+      defined $_[3]{p} && !$_[3]{continue}
+      ? $_[3]{p}
+      : ( ( $_[3]{p} || 0 ) .. length($s) )
+      )
+    {
       my %index;
       my @match;
       my %named;
@@ -831,16 +872,20 @@
         }
       );
       {
+        my $prior = $::_V6_PRIOR_;
+        local $::_V6_PRIOR_ = $prior;
         $bool = 0
           unless do {
-          while ( ( ( $pad{I1674} = $pos or 1 ) && ( ( ( ( substr( $s, $pos, 1 ) eq '\\' ) ? ( $pos += 1 or 1 ) : 0 ) && ( substr( $s, $pos++, 1 ) ne '' ) ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1674} ) or 1 ) && ( ( substr( $s, $pos ) =~ m/^([^\'])/ ) ? ( $pos += length($1) or 1 ) : 0 ) ) ) ) { }
+          while ( ( ( $pad{I1033} = $pos or 1 ) && ( ( ( ( substr( $s, $pos, 1 ) eq '\\' ) ? ( $pos += 1 or 1 ) : 0 ) && ( substr( $s, $pos++, 1 ) ne '' ) ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1033} ) or 1 ) && ( ( substr( $s, $pos ) =~ m/^([^\'])/ ) ? ( $pos += length($1) or 1 ) : 0 ) ) ) ) { }
           $bool = 1;
           };
       }
       if ($bool) {
-        $::_V6_PRIOR_ = $rule;
-
-        #print "rule = $::_V6_PRIOR_ \n";
+        my $prior = $::_V6_PRIOR_;
+        $::_V6_PRIOR_ = sub {
+          local $main::_V6_PRIOR_ = $prior;
+          $rule->(@_);
+        };
         last;
       }
     }    # /for
@@ -848,7 +893,7 @@
     return $m;
     }
 };    ## Signature for literal
-#Data::Bind->sub_signature( \&literal, );
+# Data::Bind->sub_signature( \&literal, );
 *metasyntax = do {
   my $rule;
   $rule = sub {
@@ -860,7 +905,12 @@
     no warnings 'substr', 'uninitialized', 'syntax';
     my %pad;
     my $m;
-    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+    for my $pos (
+      defined $_[3]{p} && !$_[3]{continue}
+      ? $_[3]{p}
+      : ( ( $_[3]{p} || 0 ) .. length($s) )
+      )
+    {
       my %index;
       my @match;
       my %named;
@@ -878,11 +928,13 @@
         }
       );
       {
+        my $prior = $::_V6_PRIOR_;
+        local $::_V6_PRIOR_ = $prior;
         $bool = 0
           unless (
           (
             (
-              ( $pad{I1675} = $pos or 1 )
+              ( $pad{I1034} = $pos or 1 )
               && (
                 (
                   (
@@ -893,7 +945,7 @@
                 )
               )
               || (
-                ( ( $bool = 1 ) && ( $pos = $pad{I1675} ) or 1 )
+                ( ( $bool = 1 ) && ( $pos = $pad{I1034} ) or 1 )
                 && (
                   (
                     ( substr( $s, $pos, 1 ) eq chr(39) ) ? ( $pos += 1 or 1 )
@@ -914,7 +966,7 @@
                 )
               )
               || (
-                ( ( $bool = 1 ) && ( $pos = $pad{I1675} ) or 1 )
+                ( ( $bool = 1 ) && ( $pos = $pad{I1034} ) or 1 )
                 && (
                   (
                     ( substr( $s, $pos, 1 ) eq '{' ) ? ( $pos += 1 or 1 )
@@ -935,7 +987,7 @@
                 )
               )
               || (
-                ( ( $bool = 1 ) && ( $pos = $pad{I1675} ) or 1 )
+                ( ( $bool = 1 ) && ( $pos = $pad{I1034} ) or 1 )
                 && (
                   (
                     ( substr( $s, $pos, 1 ) eq '<' ) ? ( $pos += 1 or 1 )
@@ -956,7 +1008,7 @@
                 )
               )
               || (
-                ( ( $bool = 1 ) && ( $pos = $pad{I1675} ) or 1 )
+                ( ( $bool = 1 ) && ( $pos = $pad{I1034} ) or 1 )
                 && (
                   ( substr( $s, $pos ) =~ m/^([^\>])/ ) ? ( $pos += length($1) or 1 )
                   : 0
@@ -966,7 +1018,7 @@
             && do {
               while (
                 (
-                  ( $pad{I1675} = $pos or 1 )
+                  ( $pad{I1034} = $pos or 1 )
                   && (
                     (
                       (
@@ -977,7 +1029,7 @@
                     )
                   )
                   || (
-                    ( ( $bool = 1 ) && ( $pos = $pad{I1675} ) or 1 )
+                    ( ( $bool = 1 ) && ( $pos = $pad{I1034} ) or 1 )
                     && (
                       (
                         ( substr( $s, $pos, 1 ) eq chr(39) ) ? ( $pos += 1 or 1 )
@@ -998,7 +1050,7 @@
                     )
                   )
                   || (
-                    ( ( $bool = 1 ) && ( $pos = $pad{I1675} ) or 1 )
+                    ( ( $bool = 1 ) && ( $pos = $pad{I1034} ) or 1 )
                     && (
                       (
                         ( substr( $s, $pos, 1 ) eq '{' ) ? ( $pos += 1 or 1 )
@@ -1019,7 +1071,7 @@
                     )
                   )
                   || (
-                    ( ( $bool = 1 ) && ( $pos = $pad{I1675} ) or 1 )
+                    ( ( $bool = 1 ) && ( $pos = $pad{I1034} ) or 1 )
                     && (
                       (
                         ( substr( $s, $pos, 1 ) eq '<' ) ? ( $pos += 1 or 1 )
@@ -1040,7 +1092,7 @@
                     )
                   )
                   || (
-                    ( ( $bool = 1 ) && ( $pos = $pad{I1675} ) or 1 )
+                    ( ( $bool = 1 ) && ( $pos = $pad{I1034} ) or 1 )
                     && (
                       ( substr( $s, $pos ) =~ m/^([^\>])/ ) ? ( $pos += length($1) or 1 )
                       : 0
@@ -1073,9 +1125,11 @@
           );
       }
       if ($bool) {
-        $::_V6_PRIOR_ = $rule;
-
-        #print "rule = $::_V6_PRIOR_ \n";
+        my $prior = $::_V6_PRIOR_;
+        $::_V6_PRIOR_ = sub {
+          local $main::_V6_PRIOR_ = $prior;
+          $rule->(@_);
+        };
         last;
       }
     }    # /for
@@ -1083,7 +1137,7 @@
     return $m;
     }
 };    ## Signature for metasyntax
-#Data::Bind->sub_signature( \&metasyntax, );
+# Data::Bind->sub_signature( \&metasyntax, );
 *string_code = do {
   my $rule;
   $rule = sub {
@@ -1095,7 +1149,12 @@
     no warnings 'substr', 'uninitialized', 'syntax';
     my %pad;
     my $m;
-    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+    for my $pos (
+      defined $_[3]{p} && !$_[3]{continue}
+      ? $_[3]{p}
+      : ( ( $_[3]{p} || 0 ) .. length($s) )
+      )
+    {
       my %index;
       my @match;
       my %named;
@@ -1113,10 +1172,12 @@
         }
       );
       {
+        my $prior = $::_V6_PRIOR_;
+        local $::_V6_PRIOR_ = $prior;
         $bool = 0
           unless (
           (
-            ( $pad{I1676} = $pos or 1 )
+            ( $pad{I1035} = $pos or 1 )
             && (
               (
                 (
@@ -1127,7 +1188,7 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1676} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1035} ) or 1 )
               && (
                 (
                   ( substr( $s, $pos, 1 ) eq chr(39) ) ? ( $pos += 1 or 1 )
@@ -1148,7 +1209,7 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1676} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1035} ) or 1 )
               && (
                 (
                   ( substr( $s, $pos, 1 ) eq '{' ) ? ( $pos += 1 or 1 )
@@ -1169,7 +1230,7 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1676} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1035} ) or 1 )
               && (
                 ( substr( $s, $pos ) =~ m/^([^\}])/ ) ? ( $pos += length($1) or 1 )
                 : 0
@@ -1179,7 +1240,7 @@
           && do {
             while (
               (
-                ( $pad{I1676} = $pos or 1 )
+                ( $pad{I1035} = $pos or 1 )
                 && (
                   (
                     (
@@ -1190,7 +1251,7 @@
                   )
                 )
                 || (
-                  ( ( $bool = 1 ) && ( $pos = $pad{I1676} ) or 1 )
+                  ( ( $bool = 1 ) && ( $pos = $pad{I1035} ) or 1 )
                   && (
                     (
                       ( substr( $s, $pos, 1 ) eq chr(39) ) ? ( $pos += 1 or 1 )
@@ -1211,7 +1272,7 @@
                   )
                 )
                 || (
-                  ( ( $bool = 1 ) && ( $pos = $pad{I1676} ) or 1 )
+                  ( ( $bool = 1 ) && ( $pos = $pad{I1035} ) or 1 )
                   && (
                     (
                       ( substr( $s, $pos, 1 ) eq '{' ) ? ( $pos += 1 or 1 )
@@ -1232,7 +1293,7 @@
                   )
                 )
                 || (
-                  ( ( $bool = 1 ) && ( $pos = $pad{I1676} ) or 1 )
+                  ( ( $bool = 1 ) && ( $pos = $pad{I1035} ) or 1 )
                   && (
                     ( substr( $s, $pos ) =~ m/^([^\}])/ ) ? ( $pos += length($1) or 1 )
                     : 0
@@ -1247,9 +1308,11 @@
           );
       }
       if ($bool) {
-        $::_V6_PRIOR_ = $rule;
-
-        #print "rule = $::_V6_PRIOR_ \n";
+        my $prior = $::_V6_PRIOR_;
+        $::_V6_PRIOR_ = sub {
+          local $main::_V6_PRIOR_ = $prior;
+          $rule->(@_);
+        };
         last;
       }
     }    # /for
@@ -1257,7 +1320,7 @@
     return $m;
     }
 };    ## Signature for string_code
-#Data::Bind->sub_signature( \&string_code, );
+# Data::Bind->sub_signature( \&string_code, );
 *parsed_code = do {
   my $rule;
   $rule = sub {
@@ -1269,7 +1332,12 @@
     no warnings 'substr', 'uninitialized', 'syntax';
     my %pad;
     my $m;
-    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+    for my $pos (
+      defined $_[3]{p} && !$_[3]{continue}
+      ? $_[3]{p}
+      : ( ( $_[3]{p} || 0 ) .. length($s) )
+      )
+    {
       my %index;
       my @match;
       my %named;
@@ -1287,6 +1355,8 @@
         }
       );
       {
+        my $prior = $::_V6_PRIOR_;
+        local $::_V6_PRIOR_ = $prior;
         $bool = 0
           unless (
           do {
@@ -1313,9 +1383,11 @@
           );
       }
       if ($bool) {
-        $::_V6_PRIOR_ = $rule;
-
-        #print "rule = $::_V6_PRIOR_ \n";
+        my $prior = $::_V6_PRIOR_;
+        $::_V6_PRIOR_ = sub {
+          local $main::_V6_PRIOR_ = $prior;
+          $rule->(@_);
+        };
         last;
       }
     }    # /for
@@ -1323,7 +1395,7 @@
     return $m;
     }
 };    ## Signature for parsed_code
-#Data::Bind->sub_signature( \&parsed_code, );
+# Data::Bind->sub_signature( \&parsed_code, );
 *named_capture_body = do {
   my $rule;
   $rule = sub {
@@ -1335,7 +1407,12 @@
     no warnings 'substr', 'uninitialized', 'syntax';
     my %pad;
     my $m;
-    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+    for my $pos (
+      defined $_[3]{p} && !$_[3]{continue}
+      ? $_[3]{p}
+      : ( ( $_[3]{p} || 0 ) .. length($s) )
+      )
+    {
       my %index;
       my @match;
       my %named;
@@ -1353,9 +1430,11 @@
         }
       );
       {
+        my $prior = $::_V6_PRIOR_;
+        local $::_V6_PRIOR_ = $prior;
         $bool = 0
           unless (
-          ( $pad{I1677} = $pos or 1 )
+          ( $pad{I1036} = $pos or 1 )
           && (
             (
               (
@@ -1386,7 +1465,7 @@
                   sub {
                     return (
                       {
-                        'capturing_group' => ${ $::_V6_MATCH_->{qw(rule)} }    # hash
+                        'capturing_group' => ${ $::_V6_MATCH_->{'rule'} }    # hash
                       }
                     );
                     }
@@ -1399,7 +1478,7 @@
             )
           )
           || (
-            ( ( $bool = 1 ) && ( $pos = $pad{I1677} ) or 1 )
+            ( ( $bool = 1 ) && ( $pos = $pad{I1036} ) or 1 )
             && (
               (
                   ( substr( $s, $pos, 1 ) eq '[' )
@@ -1427,7 +1506,7 @@
                 local $::_V6_SUCCEED = 1;
                 $m->data->{capture} = \(
                   sub {
-                    return ( ${ $::_V6_MATCH_->{qw(rule)} } );
+                    return ( ${ $::_V6_MATCH_->{'rule'} } );
                     }
                     ->()
                 );
@@ -1438,7 +1517,7 @@
             )
           )
           || (
-            ( ( $bool = 1 ) && ( $pos = $pad{I1677} ) or 1 )
+            ( ( $bool = 1 ) && ( $pos = $pad{I1036} ) or 1 )
             && (
               (
                   ( substr( $s, $pos, 1 ) eq '<' )
@@ -1466,7 +1545,7 @@
                 local $::_V6_SUCCEED = 1;
                 $m->data->{capture} = \(
                   sub {
-                    return ( ${ $::_V6_MATCH_->{qw(metasyntax)} } );
+                    return ( ${ $::_V6_MATCH_->{'metasyntax'} } );
                     }
                     ->()
                 );
@@ -1477,7 +1556,7 @@
             )
           )
           || (
-            ( ( $bool = 1 ) && ( $pos = $pad{I1677} ) or 1 )
+            ( ( $bool = 1 ) && ( $pos = $pad{I1036} ) or 1 )
             && do {
               $::_V6_MATCH_ = $m;
               local $::_V6_SUCCEED = 1;
@@ -1491,9 +1570,11 @@
           );
       }
       if ($bool) {
-        $::_V6_PRIOR_ = $rule;
-
-        #print "rule = $::_V6_PRIOR_ \n";
+        my $prior = $::_V6_PRIOR_;
+        $::_V6_PRIOR_ = sub {
+          local $main::_V6_PRIOR_ = $prior;
+          $rule->(@_);
+        };
         last;
       }
     }    # /for
@@ -1501,7 +1582,7 @@
     return $m;
     }
 };    ## Signature for named_capture_body
-#Data::Bind->sub_signature( \&named_capture_body, );
+# Data::Bind->sub_signature( \&named_capture_body, );
 %variables = (
   '$<' => do {
     my $rule;
@@ -1515,7 +1596,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -1533,6 +1619,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless (
             do {
@@ -1558,7 +1646,7 @@
                 sub {
                   return (
                     {
-                      'match_variable' => '$' . $::_V6_MATCH_->{qw(ident)}    # hash
+                      'match_variable' => '$' . $::_V6_MATCH_->{'ident'}    # hash
                     }
                   );
                   }
@@ -1571,9 +1659,11 @@
             );
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -1593,7 +1683,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -1611,9 +1706,11 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless (
-            ( $pad{I1678} = $pos or 1 )
+            ( $pad{I1037} = $pos or 1 )
             && (
               (
                 (
@@ -1647,7 +1744,7 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1678} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1037} ) or 1 )
               && (
                 (
                   (
@@ -1658,7 +1755,7 @@
                 )
                 && (
                   (
-                    ( $pad{I1679} = $pos or 1 )
+                    ( $pad{I1038} = $pos or 1 )
                     && (
                       (
                         ( substr( $s, $pos ) =~ m/^([[:alnum:]])/ ) ? ( $pos += length($1) or 1 )
@@ -1666,14 +1763,14 @@
                       )
                     )
                     || (
-                      ( ( $bool = 1 ) && ( $pos = $pad{I1679} ) or 1 )
+                      ( ( $bool = 1 ) && ( $pos = $pad{I1038} ) or 1 )
                       && (
                         ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 )
                         : 0
                       )
                     )
                     || (
-                      ( ( $bool = 1 ) && ( $pos = $pad{I1679} ) or 1 )
+                      ( ( $bool = 1 ) && ( $pos = $pad{I1038} ) or 1 )
                       && (
                         (
                           ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 )
@@ -1687,7 +1784,7 @@
                     )
                   )
                   && do {
-                    while ( ( ( $pad{I1679} = $pos or 1 ) && ( ( ( substr( $s, $pos ) =~ m/^([[:alnum:]])/ ) ? ( $pos += length($1) or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1679} ) or 1 ) && ( ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1679} ) or 1 ) && ( ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) && ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) ) ) ) ) { }
+                    while ( ( ( $pad{I1038} = $pos or 1 ) && ( ( ( substr( $s, $pos ) =~ m/^([[:alnum:]])/ ) ? ( $pos += length($1) or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1038} ) or 1 ) && ( ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1038} ) or 1 ) && ( ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) && ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) ) ) ) ) { }
                     $bool = 1;
                   }
                 )
@@ -1713,9 +1810,11 @@
             );
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -1735,7 +1834,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -1753,9 +1857,11 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless (
-            ( $pad{I1680} = $pos or 1 )
+            ( $pad{I1039} = $pos or 1 )
             && (
               (
                 (
@@ -1789,7 +1895,7 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1680} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1039} ) or 1 )
               && (
                 (
                   (
@@ -1800,7 +1906,7 @@
                 )
                 && (
                   (
-                    ( $pad{I1681} = $pos or 1 )
+                    ( $pad{I1040} = $pos or 1 )
                     && (
                       (
                         ( substr( $s, $pos ) =~ m/^([[:alnum:]])/ ) ? ( $pos += length($1) or 1 )
@@ -1808,14 +1914,14 @@
                       )
                     )
                     || (
-                      ( ( $bool = 1 ) && ( $pos = $pad{I1681} ) or 1 )
+                      ( ( $bool = 1 ) && ( $pos = $pad{I1040} ) or 1 )
                       && (
                         ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 )
                         : 0
                       )
                     )
                     || (
-                      ( ( $bool = 1 ) && ( $pos = $pad{I1681} ) or 1 )
+                      ( ( $bool = 1 ) && ( $pos = $pad{I1040} ) or 1 )
                       && (
                         (
                           ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 )
@@ -1829,7 +1935,7 @@
                     )
                   )
                   && do {
-                    while ( ( ( $pad{I1681} = $pos or 1 ) && ( ( ( substr( $s, $pos ) =~ m/^([[:alnum:]])/ ) ? ( $pos += length($1) or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1681} ) or 1 ) && ( ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1681} ) or 1 ) && ( ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) && ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) ) ) ) ) { }
+                    while ( ( ( $pad{I1040} = $pos or 1 ) && ( ( ( substr( $s, $pos ) =~ m/^([[:alnum:]])/ ) ? ( $pos += length($1) or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1040} ) or 1 ) && ( ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1040} ) or 1 ) && ( ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) && ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) ) ) ) ) { }
                     $bool = 1;
                   }
                 )
@@ -1855,9 +1961,11 @@
             );
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -1877,7 +1985,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -1895,9 +2008,11 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless (
-            ( $pad{I1682} = $pos or 1 )
+            ( $pad{I1041} = $pos or 1 )
             && (
               (
                 (
@@ -1931,7 +2046,7 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1682} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1041} ) or 1 )
               && (
                 (
                   (
@@ -1942,7 +2057,7 @@
                 )
                 && (
                   (
-                    ( $pad{I1683} = $pos or 1 )
+                    ( $pad{I1042} = $pos or 1 )
                     && (
                       (
                         ( substr( $s, $pos ) =~ m/^([[:alnum:]])/ ) ? ( $pos += length($1) or 1 )
@@ -1950,14 +2065,14 @@
                       )
                     )
                     || (
-                      ( ( $bool = 1 ) && ( $pos = $pad{I1683} ) or 1 )
+                      ( ( $bool = 1 ) && ( $pos = $pad{I1042} ) or 1 )
                       && (
                         ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 )
                         : 0
                       )
                     )
                     || (
-                      ( ( $bool = 1 ) && ( $pos = $pad{I1683} ) or 1 )
+                      ( ( $bool = 1 ) && ( $pos = $pad{I1042} ) or 1 )
                       && (
                         (
                           ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 )
@@ -1971,7 +2086,7 @@
                     )
                   )
                   && do {
-                    while ( ( ( $pad{I1683} = $pos or 1 ) && ( ( ( substr( $s, $pos ) =~ m/^([[:alnum:]])/ ) ? ( $pos += length($1) or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1683} ) or 1 ) && ( ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1683} ) or 1 ) && ( ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) && ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) ) ) ) ) { }
+                    while ( ( ( $pad{I1042} = $pos or 1 ) && ( ( ( substr( $s, $pos ) =~ m/^([[:alnum:]])/ ) ? ( $pos += length($1) or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1042} ) or 1 ) && ( ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1042} ) or 1 ) && ( ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) && ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) ) ) ) ) { }
                     $bool = 1;
                   }
                 )
@@ -1997,9 +2112,11 @@
             );
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -2021,7 +2138,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -2039,6 +2161,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless (
             do {
@@ -2064,7 +2188,7 @@
                 sub {
                   return (
                     {
-                      'capturing_group' => ${ $::_V6_MATCH_->{qw(rule)} }    # hash
+                      'capturing_group' => ${ $::_V6_MATCH_->{'rule'} }    # hash
                     }
                   );
                   }
@@ -2077,9 +2201,11 @@
             );
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -2099,7 +2225,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -2117,6 +2248,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless (
             do {
@@ -2142,7 +2275,7 @@
                 sub {
                   return (
                     {
-                      'capture_as_result' => ${ $::_V6_MATCH_->{qw(rule)} }    # hash
+                      'capture_as_result' => ${ $::_V6_MATCH_->{'rule'} }    # hash
                     }
                   );
                   }
@@ -2155,9 +2288,11 @@
             );
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -2177,7 +2312,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -2195,6 +2335,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless (
             do {
@@ -2241,9 +2383,11 @@
             );
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -2263,7 +2407,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -2281,6 +2430,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless (
             do {
@@ -2327,9 +2478,11 @@
             );
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -2349,7 +2502,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -2367,6 +2525,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless (
             do {
@@ -2413,9 +2573,11 @@
             );
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -2435,7 +2597,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -2453,6 +2620,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless (
             do {
@@ -2491,9 +2660,11 @@
             );
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -2513,7 +2684,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -2531,6 +2707,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless (
             do {
@@ -2554,7 +2732,7 @@
               local $::_V6_SUCCEED = 1;
               $m->data->{capture} = \(
                 sub {
-                  return ( ${ $::_V6_MATCH_->{qw(metasyntax)} } );
+                  return ( ${ $::_V6_MATCH_->{'metasyntax'} } );
                   }
                   ->()
               );
@@ -2565,9 +2743,11 @@
             );
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -2587,7 +2767,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -2605,6 +2790,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless (
             do {
@@ -2630,7 +2817,7 @@
                 sub {
                   return (
                     {
-                      'closure' => ${ $::_V6_MATCH_->{qw(parsed_code)} }    # hash
+                      'closure' => ${ $::_V6_MATCH_->{'parsed_code'} }    # hash
                     }
                   );
                   }
@@ -2643,9 +2830,11 @@
             );
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -2665,7 +2854,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -2683,6 +2877,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless (
             ( substr( $s, $pos++, 1 ) ne '' )
@@ -2706,9 +2902,11 @@
             );
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -2728,7 +2926,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -2746,6 +2949,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless do {
             $::_V6_MATCH_ = $m;
@@ -2766,9 +2971,11 @@
             };
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -2788,7 +2995,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -2806,6 +3018,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless (
             do {
@@ -2829,7 +3043,7 @@
               local $::_V6_SUCCEED = 1;
               $m->data->{capture} = \(
                 sub {
-                  return ( ${ $::_V6_MATCH_->{qw(rule)} } );
+                  return ( ${ $::_V6_MATCH_->{'rule'} } );
                   }
                   ->()
               );
@@ -2840,9 +3054,11 @@
             );
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -2862,7 +3078,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -2880,6 +3101,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless do {
             $::_V6_MATCH_ = $m;
@@ -2900,9 +3123,11 @@
             };
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -2922,7 +3147,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -2940,6 +3170,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless do {
             $::_V6_MATCH_ = $m;
@@ -2960,9 +3192,11 @@
             };
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -2982,7 +3216,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -3000,6 +3239,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless do {
             $::_V6_MATCH_ = $m;
@@ -3020,9 +3261,11 @@
             };
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -3042,7 +3285,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -3060,6 +3308,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless do {
             $::_V6_MATCH_ = $m;
@@ -3080,9 +3330,11 @@
             };
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -3102,7 +3354,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -3120,6 +3377,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless do {
             $::_V6_MATCH_ = $m;
@@ -3140,9 +3399,11 @@
             };
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -3162,7 +3423,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -3180,6 +3446,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless do {
             $::_V6_MATCH_ = $m;
@@ -3200,9 +3468,11 @@
             };
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -3222,7 +3492,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -3240,6 +3515,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless do {
             $::_V6_MATCH_ = $m;
@@ -3260,9 +3537,11 @@
             };
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -3282,7 +3561,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -3300,6 +3584,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless do {
             $::_V6_MATCH_ = $m;
@@ -3320,9 +3606,11 @@
             };
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -3342,7 +3630,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -3360,6 +3653,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless do {
             $::_V6_MATCH_ = $m;
@@ -3380,9 +3675,11 @@
             };
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -3402,7 +3699,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -3420,6 +3722,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless do {
             $::_V6_MATCH_ = $m;
@@ -3440,9 +3744,11 @@
             };
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -3462,7 +3768,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -3480,6 +3791,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless do {
             $::_V6_MATCH_ = $m;
@@ -3488,7 +3801,7 @@
               sub {
                 return (
                   {
-                    'colon' => '>'.'>'    # hash
+                    'colon' => '>>'    # hash
                   }
                 );
                 }
@@ -3500,9 +3813,11 @@
             };
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -3510,7 +3825,7 @@
       return $m;
       }
   },
-  '<' . '<' => do {
+  '<<' => do {
     my $rule;
     $rule = sub {
 
@@ -3522,7 +3837,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -3540,6 +3860,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless do {
             $::_V6_MATCH_ = $m;
@@ -3548,7 +3870,7 @@
               sub {
                 return (
                   {
-                    'colon' => '<' . '<'    # hash
+                    'colon' => '<<'    # hash
                   }
                 );
                 }
@@ -3560,9 +3882,11 @@
             };
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -3582,7 +3906,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -3600,6 +3929,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless do {
             $::_V6_MATCH_ = $m;
@@ -3608,7 +3939,7 @@
               sub {
                 return (
                   {
-                    'colon' => '<' . '<'    # hash
+                    'colon' => '<<'    # hash
                   }
                 );
                 }
@@ -3620,9 +3951,11 @@
             };
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -3642,7 +3975,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -3660,6 +3998,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless do {
             $::_V6_MATCH_ = $m;
@@ -3680,9 +4020,11 @@
             };
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -3702,7 +4044,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -3720,6 +4067,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless do {
             $::_V6_MATCH_ = $m;
@@ -3740,9 +4089,11 @@
             };
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -3762,7 +4113,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -3780,6 +4136,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless do {
             $::_V6_MATCH_ = $m;
@@ -3800,9 +4158,11 @@
             };
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -3822,7 +4182,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -3840,6 +4205,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless do {
             $::_V6_MATCH_ = $m;
@@ -3860,9 +4227,11 @@
             };
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -3882,7 +4251,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -3900,6 +4274,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless do {
             $::_V6_MATCH_ = $m;
@@ -3920,9 +4296,11 @@
             };
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -3942,7 +4320,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -3960,6 +4343,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless do {
             $::_V6_MATCH_ = $m;
@@ -3980,9 +4365,11 @@
             };
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -4002,7 +4389,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -4020,6 +4412,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless do {
             $::_V6_MATCH_ = $m;
@@ -4040,9 +4434,11 @@
             };
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -4062,7 +4458,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -4080,6 +4481,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless do {
             $::_V6_MATCH_ = $m;
@@ -4100,9 +4503,11 @@
             };
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -4122,7 +4527,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -4140,6 +4550,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless do {
             $::_V6_MATCH_ = $m;
@@ -4160,9 +4572,11 @@
             };
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -4182,7 +4596,12 @@
       no warnings 'substr', 'uninitialized', 'syntax';
       my %pad;
       my $m;
-      for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      for my $pos (
+        defined $_[3]{p} && !$_[3]{continue}
+        ? $_[3]{p}
+        : ( ( $_[3]{p} || 0 ) .. length($s) )
+        )
+      {
         my %index;
         my @match;
         my %named;
@@ -4200,6 +4619,8 @@
           }
         );
         {
+          my $prior = $::_V6_PRIOR_;
+          local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless do {
             $::_V6_MATCH_ = $m;
@@ -4220,9 +4641,11 @@
             };
         }
         if ($bool) {
-          $::_V6_PRIOR_ = $rule;
-
-          #print "rule = $::_V6_PRIOR_ \n";
+          my $prior = $::_V6_PRIOR_;
+          $::_V6_PRIOR_ = sub {
+            local $main::_V6_PRIOR_ = $prior;
+            $rule->(@_);
+          };
           last;
         }
       }    # /for
@@ -4242,7 +4665,12 @@
     no warnings 'substr', 'uninitialized', 'syntax';
     my %pad;
     my $m;
-    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+    for my $pos (
+      defined $_[3]{p} && !$_[3]{continue}
+      ? $_[3]{p}
+      : ( ( $_[3]{p} || 0 ) .. length($s) )
+      )
+    {
       my %index;
       my @match;
       my %named;
@@ -4260,36 +4688,38 @@
         }
       );
       {
+        my $prior = $::_V6_PRIOR_;
+        local $::_V6_PRIOR_ = $prior;
         $bool = 0
           unless (
-          ( $pad{I1684} = $pos or 1 )
+          ( $pad{I1043} = $pos or 1 )
           && (
             (
               do {
                 my $match = do {
-                  our $I1685;
-                  our $I1685_sizes;
-                  unless ($I1685) {
+                  our $I1044;
+                  our $I1044_sizes;
+                  unless ($I1044) {
                     my $hash = \%Pugs::Grammar::Rule::variables;
                     my %sizes = map { length($_) => 1 } keys %$hash;
-                    $I1685_sizes = [ sort { $b <=> $a } keys %sizes ];
-                    $I1685 = $hash;
+                    $I1044_sizes = [ sort { $b <=> $a } keys %sizes ];
+                    $I1044 = $hash;
                   }
                   my $match = 0;
                   my $key;
-                  for (@$I1685_sizes) {
+                  for (@$I1044_sizes) {
                     $key = (
                       $pos <= length($s)
                       ? substr( $s, $pos, $_ )
                       : ''
                     );
-                    if ( exists $I1685->{$key} ) {
+                    if ( exists $I1044->{$key} ) {
 
                       #$named{KEY} = $key;
                       #$::_V6_MATCH_ = $m;
                       #print "m: ", Dumper( $::_V6_MATCH_->data )
                       #    if ( $key eq 'until' );
-                      $match = Pugs::Runtime::Regex::preprocess_hash( $I1685, $key )->( $s, $grammar, { p => ( $pos + $_ ), args => { KEY => $key } }, undef );
+                      $match = Pugs::Runtime::Regex::preprocess_hash( $I1044, $key )->( $s, $grammar, { p => ( $pos + $_ ), args => { KEY => $key } }, undef );
                       last if $match;
                     }
                   }
@@ -4310,7 +4740,7 @@
                 else { 0 }
               }
               && (
-                ( $pad{I1686} = $pos or 1 )
+                ( $pad{I1045} = $pos or 1 )
                 && (
                   (
                     (
@@ -4359,8 +4789,8 @@
                           return (
                             {
                               'named_capture' => {
-                                'rule'  => ${ $::_V6_MATCH_->{qw(named_capture_body)} },
-                                'ident' => ${ $::_V6_MATCH_->{qw(Pugs::Grammar::Rule::variables)} }    # hash
+                                'rule'  => ${ $::_V6_MATCH_->{'named_capture_body'} },
+                                'ident' => ${ $::_V6_MATCH_->{'Pugs::Grammar::Rule::variables'} }    # hash
                                 }    # hash
                             }
                           );
@@ -4374,13 +4804,13 @@
                   )
                 )
                 || (
-                  ( ( $bool = 1 ) && ( $pos = $pad{I1686} ) or 1 )
+                  ( ( $bool = 1 ) && ( $pos = $pad{I1045} ) or 1 )
                   && do {
                     $::_V6_MATCH_ = $m;
                     local $::_V6_SUCCEED = 1;
                     $m->data->{capture} = \(
                       sub {
-                        return ( ${ $::_V6_MATCH_->{qw(Pugs::Grammar::Rule::variables)} } );
+                        return ( ${ $::_V6_MATCH_->{'Pugs::Grammar::Rule::variables'} } );
                         }
                         ->()
                     );
@@ -4393,33 +4823,33 @@
             )
           )
           || (
-            ( ( $bool = 1 ) && ( $pos = $pad{I1684} ) or 1 )
+            ( ( $bool = 1 ) && ( $pos = $pad{I1043} ) or 1 )
             && (
               do {
                 my $match = do {
-                  our $I1687;
-                  our $I1687_sizes;
-                  unless ($I1687) {
+                  our $I1046;
+                  our $I1046_sizes;
+                  unless ($I1046) {
                     my $hash = \%Pugs::Grammar::Rule::rule_terms;
                     my %sizes = map { length($_) => 1 } keys %$hash;
-                    $I1687_sizes = [ sort { $b <=> $a } keys %sizes ];
-                    $I1687 = $hash;
+                    $I1046_sizes = [ sort { $b <=> $a } keys %sizes ];
+                    $I1046 = $hash;
                   }
                   my $match = 0;
                   my $key;
-                  for (@$I1687_sizes) {
+                  for (@$I1046_sizes) {
                     $key = (
                       $pos <= length($s)
                       ? substr( $s, $pos, $_ )
                       : ''
                     );
-                    if ( exists $I1687->{$key} ) {
+                    if ( exists $I1046->{$key} ) {
 
                       #$named{KEY} = $key;
                       #$::_V6_MATCH_ = $m;
-                      #print "m: ", Dumper( $::_V6_MATCH_->data )
+                      #print "m: ", Data::Dumper::Dumper( $::_V6_MATCH_->data );
                       #    if ( $key eq 'until' );
-                      $match = Pugs::Runtime::Regex::preprocess_hash( $I1687, $key )->( $s, $grammar, { p => ( $pos + $_ ), args => { KEY => $key } }, undef );
+                      $match = Pugs::Runtime::Regex::preprocess_hash( $I1046, $key )->( $s, $grammar, { p => ( $pos + $_ ), args => { KEY => $key } }, undef );
                       last if $match;
                     }
                   }
@@ -4444,7 +4874,7 @@
                 local $::_V6_SUCCEED = 1;
                 $m->data->{capture} = \(
                   sub {
-                    return ( ${ $::_V6_MATCH_->{qw(Pugs::Grammar::Rule::rule_terms)} } );
+                    return ( ${ $::_V6_MATCH_->{'Pugs::Grammar::Rule::rule_terms'} } );
                     }
                     ->()
                 );
@@ -4455,7 +4885,7 @@
             )
           )
           || (
-            ( ( $bool = 1 ) && ( $pos = $pad{I1684} ) or 1 )
+            ( ( $bool = 1 ) && ( $pos = $pad{I1043} ) or 1 )
             && (
               (
                   ( substr( $s, $pos ) =~ m/^([^\]\}\)\>\:\?\+\*\|\&])/ )
@@ -4484,9 +4914,11 @@
           );
       }
       if ($bool) {
-        $::_V6_PRIOR_ = $rule;
-
-        #print "rule = $::_V6_PRIOR_ \n";
+        my $prior = $::_V6_PRIOR_;
+        $::_V6_PRIOR_ = sub {
+          local $main::_V6_PRIOR_ = $prior;
+          $rule->(@_);
+        };
         last;
       }
     }    # /for
@@ -4494,7 +4926,7 @@
     return $m;
     }
 };    ## Signature for term
-#Data::Bind->sub_signature( \&term, );
+# Data::Bind->sub_signature( \&term, );
 *quant = do {
   my $rule;
   $rule = sub {
@@ -4506,7 +4938,12 @@
     no warnings 'substr', 'uninitialized', 'syntax';
     my %pad;
     my $m;
-    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+    for my $pos (
+      defined $_[3]{p} && !$_[3]{continue}
+      ? $_[3]{p}
+      : ( ( $_[3]{p} || 0 ) .. length($s) )
+      )
+    {
       my %index;
       my @match;
       my %named;
@@ -4524,9 +4961,11 @@
         }
       );
       {
+        my $prior = $::_V6_PRIOR_;
+        local $::_V6_PRIOR_ = $prior;
         $bool = 0
           unless (
-          ( $pad{I1688} = $pos or 1 )
+          ( $pad{I1047} = $pos or 1 )
           && (
             (
               (
@@ -4573,7 +5012,7 @@
                   sub {
                     return (
                       {
-                        'closure' => ${ $::_V6_MATCH_->{qw(parsed_code)} }    # hash
+                        'closure' => ${ $::_V6_MATCH_->{'parsed_code'} }    # hash
                       }
                     );
                     }
@@ -4586,7 +5025,7 @@
             )
           )
           || (
-            ( ( $bool = 1 ) && ( $pos = $pad{I1688} ) or 1 )
+            ( ( $bool = 1 ) && ( $pos = $pad{I1047} ) or 1 )
             && (
               (
                   ( substr( $s, $pos ) =~ m/^([\?\*\+])/ )
@@ -4599,9 +5038,11 @@
           );
       }
       if ($bool) {
-        $::_V6_PRIOR_ = $rule;
-
-        #print "rule = $::_V6_PRIOR_ \n";
+        my $prior = $::_V6_PRIOR_;
+        $::_V6_PRIOR_ = sub {
+          local $main::_V6_PRIOR_ = $prior;
+          $rule->(@_);
+        };
         last;
       }
     }    # /for
@@ -4609,7 +5050,7 @@
     return $m;
     }
 };    ## Signature for quant
-#Data::Bind->sub_signature( \&quant, );
+# Data::Bind->sub_signature( \&quant, );
 *quantifier = do {
   my $rule;
   $rule = sub {
@@ -4621,7 +5062,12 @@
     no warnings 'substr', 'uninitialized', 'syntax';
     my %pad;
     my $m;
-    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+    for my $pos (
+      defined $_[3]{p} && !$_[3]{continue}
+      ? $_[3]{p}
+      : ( ( $_[3]{p} || 0 ) .. length($s) )
+      )
+    {
       my %index;
       my @match;
       my %named;
@@ -4639,6 +5085,8 @@
         }
       );
       {
+        my $prior = $::_V6_PRIOR_;
+        local $::_V6_PRIOR_ = $prior;
         $bool = 0
           unless (
           do {
@@ -4692,7 +5140,7 @@
               my $bool = 1;
               $bool = 0
                 unless (
-                  ( substr( $s, $pos ) =~ m/^([\}\]\)\>])/ )
+                  ( substr( $s, $pos ) =~ m/^([\}\]\)])/ )
                 ? ( $pos += length($1) or 1 )
                 : 0
                 );
@@ -4855,7 +5303,7 @@
                       'ws1'    => ${ $::_V6_MATCH_->{'ws1'} },
                       'ws2'    => ${ $::_V6_MATCH_->{'ws2'} },
                       'ws3'    => ${ $::_V6_MATCH_->{'ws3'} }       # hash
-                      }    # hash
+                    }
                   }
                 );
                 }
@@ -4868,9 +5316,11 @@
           );
       }
       if ($bool) {
-        $::_V6_PRIOR_ = $rule;
-
-        #print "rule = $::_V6_PRIOR_ \n";
+        my $prior = $::_V6_PRIOR_;
+        $::_V6_PRIOR_ = sub {
+          local $main::_V6_PRIOR_ = $prior;
+          $rule->(@_);
+        };
         last;
       }
     }    # /for
@@ -4878,7 +5328,7 @@
     return $m;
     }
 };    ## Signature for quantifier
-#Data::Bind->sub_signature( \&quantifier, );
+# Data::Bind->sub_signature( \&quantifier, );
 *concat = do {
   my $rule;
   $rule = sub {
@@ -4890,7 +5340,12 @@
     no warnings 'substr', 'uninitialized', 'syntax';
     my %pad;
     my $m;
-    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+    for my $pos (
+      defined $_[3]{p} && !$_[3]{continue}
+      ? $_[3]{p}
+      : ( ( $_[3]{p} || 0 ) .. length($s) )
+      )
+    {
       my %index;
       my @match;
       my %named;
@@ -4908,6 +5363,8 @@
         }
       );
       {
+        my $prior = $::_V6_PRIOR_;
+        local $::_V6_PRIOR_ = $prior;
         $bool = 0
           unless (
           (
@@ -4959,9 +5416,11 @@
           );
       }
       if ($bool) {
-        $::_V6_PRIOR_ = $rule;
-
-        #print "rule = $::_V6_PRIOR_ \n";
+        my $prior = $::_V6_PRIOR_;
+        $::_V6_PRIOR_ = sub {
+          local $main::_V6_PRIOR_ = $prior;
+          $rule->(@_);
+        };
         last;
       }
     }    # /for
@@ -4969,7 +5428,7 @@
     return $m;
     }
 };    ## Signature for concat
-#Data::Bind->sub_signature( \&concat, );
+# Data::Bind->sub_signature( \&concat, );
 *rule = do {
   my $rule;
   $rule = sub {
@@ -4981,7 +5440,12 @@
     no warnings 'substr', 'uninitialized', 'syntax';
     my %pad;
     my $m;
-    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+    for my $pos (
+      defined $_[3]{p} && !$_[3]{continue}
+      ? $_[3]{p}
+      : ( ( $_[3]{p} || 0 ) .. length($s) )
+      )
+    {
       my %index;
       my @match;
       my %named;
@@ -4999,6 +5463,8 @@
         }
       );
       {
+        my $prior = $::_V6_PRIOR_;
+        local $::_V6_PRIOR_ = $prior;
         $bool = 0
           unless (
           (
@@ -5076,9 +5542,11 @@
           );
       }
       if ($bool) {
-        $::_V6_PRIOR_ = $rule;
-
-        #print "rule = $::_V6_PRIOR_ \n";
+        my $prior = $::_V6_PRIOR_;
+        $::_V6_PRIOR_ = sub {
+          local $main::_V6_PRIOR_ = $prior;
+          $rule->(@_);
+        };
         last;
       }
     }    # /for
@@ -5086,6 +5554,6 @@
     return $m;
     }
 };    ## Signature for rule
-#Data::Bind->sub_signature( \&rule, );
+# Data::Bind->sub_signature( \&rule, );
 
 1;

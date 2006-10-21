@@ -963,9 +963,5 @@ TODO:
     #print "Source: ", $rule->{perl5};
     #print "Match: ", $match->perl;
     is( $$match, "xyz", 'xyz>>' );
-TODO:
-    {
-    local $TODO = 'the parser ignores />>/, it looks to be a Module::Compile bug';
     is( $match->from > 0 , 1, 'xyz>>' );
-    }
 }
