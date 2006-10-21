@@ -58,9 +58,9 @@ unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
 #   the result**.
 {
     for @tests -> $obj {
-        is ~$obj.perl.eval, ~$obj,
+        is ~"item($obj.perl())".eval, ~$obj,
             "($obj.perl()).perl returned something whose eval()ed stringification is unchanged";
-        is ~$obj.perl.eval.WHAT, ~$obj.WHAT,
+        is ~"WHAT($obj.perl())".eval, ~$obj.WHAT,
             "($obj.perl()).perl returned something whose eval()ed .WHAT is unchanged";
     }
 }
