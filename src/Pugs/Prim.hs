@@ -456,6 +456,7 @@ op1 "opendir" = \v -> do
     dir <- guardIO $ openDirStream str
     obj <- createObject (mkType "IO::Dir") []
     return . VObject $ obj{ objOpaque = Just $ toDyn dir }
+op1 "IO::Dir::close" = guardedIO (closeDirStream . fromObject)
 op1 "IO::Dir::closedir" = guardedIO (closeDirStream . fromObject)
 op1 "IO::Dir::rewinddir" = guardedIO (rewindDirStream . fromObject)
 op1 "IO::Dir::readdir" = \v -> do
@@ -2138,6 +2139,7 @@ initSyms = seq (length syms) $ do
 \\n   IO::Dir   pre     opendir    unsafe (Str)\
 \\n   Str       pre     IO::Dir::readdir    unsafe,export (IO::Dir)\
 \\n   List      pre     IO::Dir::readdir    unsafe,export (IO::Dir)\
+\\n   Bool      pre     IO::Dir::close   unsafe,export (IO::Dir)\
 \\n   Bool      pre     IO::Dir::closedir   unsafe,export (IO::Dir)\
 \\n   Bool      pre     IO::Dir::rewinddir  unsafe,export (IO::Dir)\
 \\n   Any       pre     Pugs::Internals::reduceVar  unsafe (Str)\
