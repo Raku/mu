@@ -162,11 +162,14 @@ selfParam typ = MkOldParam
     }
 
 extractHash :: Exp -> RuleParser (Maybe Exp)
-extractHash (Ann (Prag [MkPrag "eol-block" _]) exp) = case extractHash' (possiblyUnwrap exp) of
-    Just{}  -> fail "Closing hash curly may not terminate a line;\nplease add a comma or a semicolon to disambiguate"
-    _       -> return Nothing
-extractHash exp = return $ extractHash' (possiblyUnwrap exp
+extractHash exp
+    | Ann (Prag [MkPrag "eol-block" _]) _ <- exp = case result of
+        Just{}  -> fail "Closing hash curly may not terminate a line;\nplease add a comma or a semicolon to disambiguate"
+        _       -> return Nothing
+    | otherwise = return result
     where
+    result = extractHash' (possiblyUnwrap exp)
+
     possiblyUnwrap (Ann _ exp) = possiblyUnwrap exp
     possiblyUnwrap (Syn "block" [exp]) = unwrap exp
     possiblyUnwrap (App (Val (VCode (MkCode { subType = SubBlock, subBody = fun }))) Nothing []) = unwrap fun
