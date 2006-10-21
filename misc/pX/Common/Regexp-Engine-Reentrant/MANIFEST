@@ -1,0 +1,13 @@
+Build.PL
+Changes
+MANIFEST
+META.yml # Will be created by "make dist"
+Makefile.PL
+README
+lib/Regexp/Engine/Reentrant.pm
+lib/Regexp/Engine/Reentrant/Backtrack.pm
+lib/Regexp/Engine/Reentrant/Match.pm
+t/00.load.t
+t/perlcritic.t
+t/pod-coverage.t
+t/pod.t
