@@ -33,7 +33,7 @@ close STDIN;
 if (-e "$base/MANIFEST") {
     # This is a release -- do nothing!
 }
-elsif (my @svn_info = qx/svn info/ and $? == 0) {
+elsif (-d '.svn' and my @svn_info = qx/svn info/ and $? == 0) {
     print "Writing version from `svn info` to $version_h\n";
     if (my ($line) = grep /^Revision:/, @svn_info) {
         ($revision) = $line =~ / (\d+)$/;
