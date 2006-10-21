@@ -1,0 +1,183 @@
+HOW TO MAKE A RELATIONAL DATABASE MANAGEMENT SYSTEM FROM SCRATCH
+by Darren Duncan (perl@DarrenDuncan.net)
+created 2006.10.20
+last updated 2006.10.20
+----------------------------------------------
+
+----
+
+This tutorial is targeted at a general purpose programmer, on how to make
+an RDBMS "from scratch".  It is delivered in 2 main parts.
+
+Even if you don't intend to make the next Postgres or SQLite or whatever,
+knowing how an RDBMS works can help you do some kinds of data manipulation
+within your own programs that you may have pushed off to a SQL database
+before, for unnecessary complexity, or this knowledge can help you to use
+an existing RDBMS more effectively if you better understand what your
+queries mean.  Eg, the concept may be very applicable to game programming
+(asset management, dynamic machine learning algorithms, easier to design
+AI), though the tutorial won't specifically cover that.
+
+Part 1 of the tutorial would cover fundamental RDBMS design principles in a
+programming language agnostic fashion, though any actual code examples will
+be done with Perl.
+
+This part would start by outlining what a relational database management
+system is (a usually-persistent collection of "relation"-typed variables
+plus operators to work with them), and show an example library/module API
+plus query language design and algorithms for effectively and easily
+implementing such.
+
+Note that the vast bulk of conventional SQL DBMS systems is concerned with
+issues that are orthogonal to the fundamentals of an RDBMS itself, such as
+handling many users with concurrent updates in a quickly performing fashion
+for huge amounts of data, or supporting a hundred different legacy ways to
+do the same thing, or in trying to deal with the vaguarities of SQL.
+
+By contrast, you can make a basic easy to use single-concurrent-user system
+of your own that has all the important features of an RDBMS, and handles
+smaller amounts of data, and has correct semantics, without spending more
+than a few days or weeks of effort.  This system would natively handle
+arbitrarily complex data types, and in a large sense has no OO/RDBMS
+impedence mismatch.
+
+Fundamentally, you can do this with any turing complete programming
+language, though some will lend themselves to the task of doing this
+quickly and easily more than others.  Language features that will help you
+include built-in support for collection types, particularly associative
+arrays and sets, N-depth multi-dimensional data structures, dynamically
+definable data types, closures / anonymous subroutines, the ability to
+evaluate/compile a character string as code at run time, nested software
+transactional memory, etc.
+
+Part 2 of the tutorial would walk through an actual free working
+implementation of those principles that I have made.
+
+Alternately, the tutorial will be entirely just the first part, with
+references to the second and where to see it yourself.
+
+----
+
+A relational database is a system for managing work done with formal logic.
+
+The foundations for the relational data model predate computers, and have
+their origins in math, logic, philosophy, and the model is a formal system.
+
+The relational data model involves formally defined data types, values of
+those types, functions that return values of or have parameters of those
+types, and, purely functional language implementations notwithstanding,
+variables of those types.
+
+There are 3 groupings of data types in the model, which are referred to as
+scalars, tuples, and relations.
+
+----
+
+Tuples and relations are collection types, where all of their components
+are public and directly accessable, just like with standard language types
+like arrays or sets.  Scalars are everything besides tuples and relations.
+
+Each tuple and relation conceptually has 2 parts, its heading and its body;
+the heading is exactly the same format for both tuples and relations, but
+their bodies differ; orthogonally to this, each tuple and relation is a set
+of zero or more attributes.
+
+A heading definition is a set of zero or more attribute definitions, each
+of which is composed of a name and a type, and all attributes in this set
+must have distinct names, though their types can be non-distinct.  In
+appearance, a heading definition looks like an associative array, where the
+attribute names are the array keys, and the types the corresponding values.
+
+A tuple body is a set of appropriately typed attribute values, where this
+set is of the same degree as the tuple's heading, and each value
+corresponds to an attribute name+type pair.  Collectively, then, a tuple is
+a set of attributes, each of which is a name+type+value triple.  In
+appearance, and assuming that a value knows its own type, a tuple body also
+looks like an associative array, with attribute names as keys, and values
+as values.
+
+A relation body is a set of zero or more tuple bodies, where each tuple
+body in turn corresponds exactly to the relation's heading as it would to
+the heading of an appropriate tuple.  Collectively, then, a relation is
+like a set of zero or more tuples where all of the tuples have identical
+headings, but that a relation can validly contain zero tuples, and still
+have a heading of its own.  In appearance, for relations with at least 1
+tuple, a relation is like a set of associative arrays with matching key
+sets; but for a relation with zero tuples, it looks like a name+type
+associative array (which can optionally be added to the former).
+
+An attribute can be of any data type at all, including scalars or tuples or
+relations.
+
+----
+
+A scalar type, while including the usual suspects of strings and numbers
+and booleans and blobs, can validly be arbitrarily complex, and can be
+composed of collection types; valid scalar types include temporal types,
+spacial types, XML documents, sound or video or image artifacts, and so on.
+
+Technically, the only mandatory system-defined scalar type is the boolean,
+though often various others are provided, and regardless, it is expected
+that arbitrary user-defined types can be supported.
+
+As such, it is fully possible and normal for object-oriented types and
+concepts to be natively supported in a relational database, so there is no
+such thing as object-relational impedence mismatch.  If you think you have
+such an impedence problem, then you are not working with a true relational
+database.
+
+----
+
+Regarding their origins in formal logic and math ...
+
+A tuple corresponds to a preposition, which is a logical statement that has
+no parameters and can only be true or false.
+
+A relation corresponds to a predicate, which is a logical statement that is
+parameterized, where each relation attribute corresponds to one parameter
+(and in the trivial case, a zero-attribute relation has no parameters).  A
+relation is composed of a set of zero or more tuples, where each tuple
+supplies a complete set of arguments to match those parameters.  The whole
+relation corresponds to a set of prepositions that are all of the same
+form.  Testing whether or not a particular tuple exists in a particular
+relation is like testing whether the preposition is true (it exists) or is
+false (it does not exist).
+
+----
+
+For example, suppose you have a "person" relation, with attributes "name",
+"age", "address"; it is saying "there exists some person whose name is
+<name>, whose age is <age> and who lives at <address>".  Then say this
+relation contains the tuple { name='Joe', age=30, address='822 Vermont' };
+that tuple is saying "there exists some person whose name is Joe, whose age
+is 30, and who lives at 822 Vermont".  That relation could also contain
+another tuple { name='Mary', age=29, address='822 Vermont' }, which says
+"there exists some person whose name is Mary, whose age is 29, and who
+lives at 822 Vermont".  Collectively, the relation as a whole says that
+both of those people exist.
+
+----
+
+A relational database is a collection of zero or more named relation
+variables, which is usually persistent, and this collection has zero or
+more constraints on it.  These relation variables are a collection of
+predicates plus associated prepositions.  Constraints provide additional
+limitations as to what prepositions are allowed to be true; eg, there could
+be a constraint on the "person" relation's "age" attribute (or alternately,
+on the definition of the data type that the "age" is of) that says it can't
+be less than zero.  It is the job of the relational database management
+system to insure the integrity of the database at all times, such that the
+database can never be in a state where any constraints are violated (which
+represents a nonsensical statement), and that any data is preserved when it
+is supposed to be.
+
+----
+
+TODO: talk about the relational algebra, calculus operators and what they
+mean
+
+----
+
+TODO: talk about ways this system can be implemented
+
+----
