@@ -487,7 +487,7 @@ whiteSpace = skipMany (simpleSpace <|> comment)
 
 comment :: RuleParser ()
 comment = do
-    char '#' <?> "comment"
+    char '#' <?> ""
     pos <- getPosition
     if sourceColumn pos /= 2 then multiLineComment <|> skipToLineEnd else do
     -- Beginning of line - parse #line directive
