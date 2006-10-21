@@ -26,7 +26,8 @@ sub send {
 	my $cmds  = shift;
 	my $host = $Web::Terminal::Settings::host;
 	my $port = $Web::Terminal::Settings::port;
-	my $cmd='';
+	my $cmd=$cmds;#'';
+=old    
     # we only consider the last line with a prompt
 	my @cmdlines=split("\n",$cmds);
 	for my $cmdline (reverse @cmdlines) {
@@ -40,6 +41,8 @@ sub send {
 			last;
 		};
 	} 
+=cut
+    
 #   We're using PUGS_SAFEMODE=1 instead 
 #    if ($Web::Terminal::Settings::filter and
 #    $cmd=~/$Web::Terminal::Settings::filter_pattern/) {
@@ -70,12 +73,13 @@ sub send {
      my $rid=$rmesgref->{id};
       my $reply=$rmesgref->{msg};
       my $histref=$rmesgref->{recent};
+      my $prompt=$rmesgref->{prompt};
     $conn->disconnect();
 	if ( "$id" ne  "$rid" ) {
 #		die "Terminal server returned wrong id: $rid, should be $id";
         return "Sorry, the pugs session died.";
 	}
-	return ($reply,$histref);
+	return ($reply,$prompt,$histref);
    }
 }
 

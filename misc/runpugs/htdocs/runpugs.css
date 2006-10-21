@@ -14,20 +14,68 @@ border: solid 2px #204a87;
 padding: 5px;
 }
 #mainwindow {
-width: 750px 
+width: 85ex; /*750px */
 }
 #hist {
-width: 750px;
-border: solid 2px #204a87;
+ width: 100%; /*750px; */
 font-family: "Andale Mono", courier, fixed, monospace;
+font-weight: normal;
 font-size: 10pt;
-color: #204a87;
+ color: #204a87;
+border: solid 0px #204a87;
     background-color: #f2f2f0;
     padding-bottom: 5px;
+}
+#termwindow {
+    height: 45ex; /*400px;*/
+    background-color: #f2f2f0;
+        border: solid 2px #204a87;
+    padding: 5px;
+}
+.prompt {
+    font-family: "Andale Mono", courier, fixed, monospace;
+    font-size: 11pt;
+font-weight: bold;
+    line-height: 12pt;
+    color: #204a87;
+    background-color: #f2f2f0;
+/*        border: solid 0px #f2f2f0;*/
+}
+.termfont {
+    font-family: "Andale Mono", courier, fixed, monospace;
+    font-size: 11pt;
+font-weight: normal;
+    line-height: 12pt;
+    color: #204a87;
+    background-color: #f2f2f0;
+/*        border: solid 0px #f2f2f0;*/
+}
+#cmdline {
+width: 90%; /* sadly, Safari would need 92% */
+    font-family: "Andale Mono", courier, fixed, monospace;
+    font-size: 11pt;
+    font-weight: normal;
+    line-height: 12pt;
+    color: #204a87;
+    background-color: #f2f2f0;
+        border: solid 0px #f2f2f0;
+}
+#output {
+width: 100%;
+    font-family: "Andale Mono", courier, fixed, monospace;
+    font-size: 11pt;
+    font-weight: normal;
+    line-height: 12pt;
+    color: #204a87;
+    background-color: #f2f2f0;
+        border: solid 0px #f2f2f0;
+        /* for IE */
+        overflow: visible;
 }
 #cmd {
     font-family: "Andale Mono", courier, fixed, monospace;
     font-size: 11pt;
+    font-weight: normal;
     line-height: 12pt;
     color: #204a87;
     background-color: #f2f2f0;

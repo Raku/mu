@@ -17,7 +17,7 @@ my $cmd=$ARGV[1] || 'my $a='.$id.';say "Hello, $a";';
 my $prompt='Prelude> ';
 print "Sending msg $id: $cmd\n";
 my $ip="127.0.0.1";
-(my $reply,my $histref) = &Web::Terminal::Dispatcher::send($id,$ip,$prompt.$cmd);
+(my $reply,my $prompt,my $histref) = &Web::Terminal::Dispatcher::send($id,$ip,$prompt.$cmd);
 print $reply;
 print "\nHistory\n";
 for my $entry (@{$histref}) {

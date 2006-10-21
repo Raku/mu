@@ -29,6 +29,7 @@ my $MAX_SIZE_UPLOAD = 64;
 use CGI qw(:standard);
 if ($MAX_SIZE_UPLOAD) { $CGI::POST_MAX=1024 * $MAX_SIZE_UPLOAD; }
 use CGI::Carp qw(fatalsToBrowser);
+use HTML::Entities;
 
 CGI::nph();   # Treat script as a non-parsed-header script
 $ENV{PATH} = ""; # no PATH should be needed
@@ -60,10 +61,11 @@ my $ip=$ENV{'REMOTE_ADDR'};
 #if ($ip eq '86.0.200.34') {
 #$ip='127.'.int(rand(100)).'.'.int(rand(100)).'.'.int(rand(100));
 #}
+    my $prompt=$Web::Terminal::Settings::prompt;
 ######### MAIN SITEMANAGER PROGRAM ###################
 
 if ( $query->param()) {      # an action has been chosen
-    my $cmd=$query->param("cmd");
+    my $cmd=$query->param("cmdline");
     my $action =  $query->param("action")||'runpugs';
     if ($action =~ /^(\w+)$/) {
     	$action = $1;
@@ -93,60 +95,113 @@ sub runpugs {
     my $cmd=shift;
     my $sessionid=shift;
     my $ip=shift;
-#    my $reply='pugs> ';
+#    my $prompt=$Web::Terminal::Settings::prompt;
+    my $nprompt=$query->param('prompt')||$prompt;
+    my $preply='';
+    if($query->param('output')) {
+        $preply=$query->param('output');
+    }
     my $reply=$Web::Terminal::Settings::prompt;
     my @history=();
+    my $prevcmd='';
     my $testing=$query->param('testing')||1;
     if (not $testing) {
-    $reply = "Sorry, runpugs is not available at the moment.";
+        $reply = "Sorry, runpugs is not available at the moment.";
     } else {
-#    $cmd=~s/^.+?pugs([\>\.])/pugs$1/s;
-    if(not $query->param('history') or ($query->param('history') eq '')) {
-    $cmd=~s/^.+?${Web::Terminal::Settings::prompt_pattern}/$1/s;
-    } else {
-    $cmd=$Web::Terminal::Settings::prompt;
-    $cmd.=$query->param('history');
+        if(not $query->param('history') or ($query->param('history') eq '')) {
+#            $cmd=~s/^.+?${Web::Terminal::Settings::prompt_pattern}/$1/s;
+        } else {
+#            $cmd=$Web::Terminal::Settings::prompt;
+#            $cmd.=$query->param('history');
+            $cmd=$query->param('history');
+        }
+        if ($cmd=~/clear/) {
+            $cmd='';
+            $preply='';
+        } elsif ($cmd!~/^\p{IsASCII}*$/) { #NO UNICODE!
+            $cmd='';
+            $reply = "Sorry, Unicode is not yet supported.\n".$Web::Terminal::Settings::prompt;
+        } else {
+            if ($cmd=~/>\s+(\:*help)\b/) {
+                $cmd=~s/$1/:h/;
+            } elsif ($cmd=~/>\s+(\:*(quit|bye))\b/) {
+                $cmd=~s/$1/:q/;
+            } 
+            ($reply, $nprompt, my $histref) = &Web::Terminal::Dispatcher::send($sessionid,$ip,$cmd);
+            if (defined $histref) {
+                @history=@{$histref};
+                $prevcmd=$history[-1];
+            }
+            #$cmd=$prompt.$history[-1];
+            $prompt=$nprompt;
+            #$reply="\n".$reply.$prompt;
+        }
     }
-    #NO UNICODE!
-#    $cmd=tr/\0-\x{10ffff}/\0-\xff_/;
-    if ($cmd=~/clear/) {
-        $cmd='';
-    } elsif ($cmd!~/^\p{IsASCII}*$/) {
-        $cmd='';
-        $reply = "Sorry, Unicode is not yet
-        supported.\n".$Web::Terminal::Settings::prompt;
-    } else {
-    if ($cmd=~/>\s+(\:*help)\b/) {
-        $cmd=~s/$1/:h/;
-    } elsif ($cmd=~/>\s+(\:*(quit|bye))\b/) {
-        $cmd=~s/$1/:q/;
-    } 
-    ($reply, my $histref) = &Web::Terminal::Dispatcher::send($sessionid,$ip,$cmd);
-    @history=@{$histref};
-    $reply="\n".$reply;
+#    my $promptw=HTML::Entities::encode_entities($prompt);
+    my $npromptw=HTML::Entities::encode_entities($nprompt);
+#    my $prevcmdw=HTML::Entities::encode_entities($prevcmd);
+#    my $preplyw=HTML::Entities::encode_entities($preply);
+    
+    #my $replyw=HTML::Entities::encode_entities("$preplyw\n$promptw$prevcmdw\n$reply");
+    my $replyw="$preply$prompt$prevcmd\n$reply";
+#            $prompt=$nprompt;
+    if($preply eq '' and $cmd eq '') {
+        $replyw='';
     }
-    }
-    #$reply.="\n$ip\n$sessionid\n";
-    my $historylist='<select name="history" id="hist">'."\n".'<option value="">--- Recent commands ---</option>'."\n";
+   my $nrows=scalar split("\n",$replyw); 
+#    $nrows++;
+     ($replyw=~/^\s*$/) && ($nrows=1);
+    if ($nrows>20) {$nrows=20;}
+    my $historylist="\n";
     for my $entry (@history) {
-    $entry=~s/\>/\&gt\;/g;
-    $historylist.='<option value="'.$entry.'">'.$entry.'</option>'."\n";
+        $entry=~s/\>/\&gt\;/g;
+        $historylist.='<option value="'.$entry.'">'.$entry.'</option>'."\n";
     }
-    $historylist.='</select>'."\n";
     my $html='';
     open(HTML,"<../data/runpugs2.html");
     while(<HTML>) {
-    /_HIST_/ && do {
-    $html.=$historylist;
-    next;
-    };
-    s/_TESTING_/$testing/;
-	/input.*name=\"sessionid\"/ && do {$html.='<input type="hidden" name="sessionid" value="'.$sessionid.'">'."\n";next };
-	/(pugs\&gt\;\&nbsp\;)/ && do {$html.=$cmd.$reply;next};
-
-	/([^\`\\]+$)/ && do {$html.=$1};
-
-      }
+        /_HIST_/ && do {
+            $html.=$historylist;
+            next;
+        };
+        s/_TESTING_/$testing/;
+    	/input.*name=\"sessionid\"/ && do {
+            $html.='<input type="hidden" name="sessionid" value="'.$sessionid.'">'."\n";
+            next; 
+            };
+        s/_PROMPTW_/$npromptw/;
+=not_now        
+    	/_PREPLYW_/ && do {
+#            $html.=$preplyw;
+            next;
+    	};
+        /_CMDW_/ && do {
+#            chomp $html;
+#            $html.=$prevcmdw."\n\n";
+            next;
+        };
+        /_BSKIP_/ && do {
+#        ($replyw=~/^\s*$/) && ($html.='<!--');
+        next;
+        };
+        /_ESKIP_/ && do {
+#        ($replyw=~/^\s*$/) && ($html.='-->');
+        next;
+        };
+=cut
+        /_REPLYW_/ && do {
+            chomp $html;
+            $html.=$replyw;
+            next;
+        };
+        /_NPROMPTW_/ && do {
+            chomp $html;
+            $html.=$npromptw;
+            next;
+        };
+        s/_NROWS_/$nrows/;
+    	/([^\`\\]+$)/ && do {$html.=$1};
+    }
 	close HTML;
 	&printhttpheader();
 	print $html;

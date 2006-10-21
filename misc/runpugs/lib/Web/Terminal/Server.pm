@@ -45,7 +45,7 @@ if(scalar(keys %terminals)>$Web::Terminal::Settings::nsessions){ # each pugs tak
     if ($terminals{$id}->{pid}) {    
     $terminals{$id}->{called}=time;
 		my $term  = $terminals{$id};
-        push  @{$term->{recent}},$cmd;
+        push  @{$term->{recent}},$cmd unless $cmd=~/^\s*$/;
         if (scalar @{$term->{recent}}> $Web::Terminal::Settings::nrecent) {
             shift @{$term->{recent}};
         }
@@ -58,6 +58,7 @@ if(scalar(keys %terminals)>$Web::Terminal::Settings::nsessions){ # each pugs tak
                 kill 9,$pid;
             }
             $sessions_per_ip{$ip}--;
+            return $lines;
 #		}
         #if ($lines=~/Aborted/s) {
         } elsif ($terminals{$id}->{error}==1) {
@@ -70,7 +71,7 @@ if(scalar(keys %terminals)>$Web::Terminal::Settings::nsessions){ # each pugs tak
         }
 		return $lines;
         } else {
-            return "pugs> ";
+            return $Web::Terminal::Settings::prompt;
         }
 	} else {
         if ($sessions_per_ip{$ip}>$Web::Terminal::Settings::nsessions_ip) {
@@ -83,7 +84,7 @@ if(scalar(keys %terminals)>$Web::Terminal::Settings::nsessions){ # each pugs tak
             $terminals{$id}->{called}=time;
             $terminals{$id}->{ip}=$ip;
     		my $term = $terminals{$id};
-            my $init= $term->{'init'};
+            my $init= $term->{'output'};
             my $error= $term->{'error'};
             if ($error==1) { # Failed to create a new terminal
                 $sessions_per_ip{$ip}--;
@@ -114,12 +115,16 @@ sub rcvd_msg_from_client {
             print scalar(localtime)," : $nsess : $ip : $id : $pid > ",$cmd,"\n";
             print LOG2 scalar(localtime)," : $nsess : $ip : $id : $pid > ",$cmd,"\n";
 			my $lines = &termhandler( $id, $ip, $cmd );
-            my @history=('--- Recent commands ---');
+            my @history=(''); #   --- Recent commands ---');
+            my $prompt=$Web::Terminal::Settings::prompt;
+            if (exists $terminals{$id}){ 
+                $prompt=$terminals{$id}->{prompt};
             if (defined $terminals{$id}->{recent}) {
              @history=@{$terminals{$id}->{recent}};
             }
+            }
             my
-            $replyref=YAML::Syck::Dump({id=>$id,msg=>$lines,recent=>\@history});
+            $replyref=YAML::Syck::Dump({id=>$id,msg=>$lines,recent=>\@history,prompt=>$prompt});
  			$conn->send_now($replyref);
 
 		}

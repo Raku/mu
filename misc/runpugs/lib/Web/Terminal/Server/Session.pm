@@ -18,8 +18,11 @@ sub new {
 	my $invocant = shift;
 	my $class    = ref($invocant) || $invocant;
 	my $self     = {@_};
-#	my $prompt = '/\>\ /';
-    my $prompt= '/'.$Web::Terminal::Settings::init_pattern.'/';
+	#my $prompt = '/\>\ /';
+    my $prompt ='/'.$Web::Terminal::Settings::prompt.'/';
+    $self->{'prompt'}=$prompt;
+   # my $prompt= '/'.$Web::Terminal::Settings::init_pattern.'/';
+    #my $prompt= '/'.$Web::Terminal::Settings::prompt_pattern.'/';
     $self->{'error'}=0;
     $self->{'recent'}=[];
 	## Start pugs
@@ -27,7 +30,7 @@ sub new {
 	( $self->{'pty'},$self->{'pid'} ) =
     &spawn($Web::Terminal::Settings::command);    # spawn() defined below
     if ( $self->{'pty'}==-1 and  $self->{'pid'}==0) {
-        $self->{'init'}= "\nThere was a problem starting pugs. Please try again later.";
+        $self->{'output'}= "\nThere was a problem starting pugs. Please try again later.";
         $self->{'error'}=1;
     } else {
 	## Create a Net::Telnet object to perform I/O on pugs's tty.
@@ -39,23 +42,74 @@ sub new {
 		-telnetmode      => 0,
 		-cmd_remove_mode => 0,
 	);
-	#( $self->{'init'}, my $m ) = $self->{'pugs'}->waitfor(
     my $error='';
-    ( my $p, my $m ) = $self->{'pugs'}->waitfor(
-		-match   => $self->{'pugs'}->prompt,
-		-errmode => "return"
-	  ) or do {
-          $self->{'error'}=1;
-          $error="\nThere was a problem starting pugs. Please try again later.";
-          # should close the TTY
-          $self->{'pugs'}->close();
-      };
-      #die "starting pugs failed: ", $self->{'pugs'}->lastline;
-	$self->{'init'}= $p.$m.$error;#$self->{'pugs'}->prompt;
-    }
+#    ( my $p, my $m ) = $self->{'pugs'}->waitfor(
+#		-match   => $self->{'pugs'}->prompt,
+#		-errmode => "return"
+#	  ) or do {
+#          $self->{'error'}=1;
+#          $error="\nThere was a problem starting pugs. Please try again later.";
+#          # should close the TTY
+#          $self->{'pugs'}->close();
+#      };
 	bless($self,$class);
+    my $m=$self->readlines();
+      #die "starting pugs failed: ", $self->{'pugs'}->lastline;
+	$self->{'output'}= $m; #$p.$m.$error;#$self->{'pugs'}->prompt;
+    }
+	#bless($self,$class);
 	return $self;
 }
+
+sub readlines {
+	my $obj = shift;
+	my $ps = '';
+
+	my $i     = 1;
+	my $lline = '';
+    my $pugs=$obj->{'pugs'};
+    $pugs->errmode(sub {kill 9,$obj->{'pid'};});
+
+	while ($i<$Web::Terminal::Settings::nlines) {
+    my $char='';
+    my $line='';
+    while ($char ne "\n") {
+    $char=$pugs->get;
+    $line.=$char;
+    last if $line eq $Web::Terminal::Settings::prompt;
+    }
+#		my $line = $pugs->getline;
+#        chomp $line;
+        print $line;
+        my $msg=$pugs->errmsg;
+	    if($msg=~/timed/) {
+            $msg='';
+            $pugs->errmsg([]);
+            $lline="${Web::Terminal::Settings::prompt} Sorry, that took too long! Aborted.\n";
+            $pugs->close();
+            $ps=$Web::Terminal::Settings::prompt;
+            $obj->{'error'}=1;
+            last;
+        }
+        $msg='';
+        if ( ($line =~ /$Web::Terminal::Settings::prompt_pattern/ or
+        ($line=~/$Web::Terminal::Settings::quit_pattern/)) and $i > 1 ) { $ps = $1; last }
+		$lline .= $line unless $line =~
+        /$Web::Terminal::Settings::prompt_pattern/;
+		$i++;
+	}
+
+   if ($i>=$Web::Terminal::Settings::nlines-1) {
+       $obj->{pugs}->close();
+        kill 9, $obj->{'pid'};
+        $lline.="Generated output is limited to $Web::Terminal::Settings::nlines lines. Aborted.\npugs";
+        $obj->{'error'}=1;
+    }
+    chomp $ps; # a hack!
+	#$lline .= $ps;
+	$obj->{prompt}=$ps;
+	return $lline;
+} # end readlines method
 
 sub write {
 	my $obj = shift;
@@ -108,7 +162,8 @@ sub write {
     }
 
     chomp $ps; # a hack!
-	$lline .= $ps;
+#	$lline .= $ps;
+	$obj->{prompt}=$ps;
 	return $lline;
 }    # end write method
 

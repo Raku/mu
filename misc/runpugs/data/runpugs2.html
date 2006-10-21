@@ -21,6 +21,29 @@ return false;
 else
 return true;
 }
+
+function select_enter()
+{
+document.terminal.cmdline.value=document.terminal.hist.options[document.terminal.hist.selectedIndex].value;
+document.terminal.hist.selectedIndex=0;
+document.terminal.cmdline.focus();
+}
+
+function select_enter_OFF(myfield,e)
+{
+var keycode;
+if (window.event) keycode = window.event.keyCode;
+else if (e) keycode = e.which;
+else return true;
+if (keycode == 13)
+{
+//document.terminal.submit();
+document.terminal.cmdline.value=document.terminal.hist.options[document.terminal.hist.selectedIndex].value;
+return false;
+}
+else
+return true;
+}
 </script>
 </head>
 <body>
@@ -31,27 +54,52 @@ the <a href="http://www.pugscode.org">pugs</a> interpreter for <a
 href="http://dev.perl.org/perl 6/">Perl&nbsp;6</a>. For more details, read the <a
 href="http://feather.perl6.nl/~andara/runpugs/">info page</a>.
 </p>
-<form style="text-align: center" id="term" name="terminal"
+<form style="text-align: left" id="term" name="terminal"
 action="/cgi-bin/runpugs2" method="POST">                  
                                
 <input type="hidden" name="testing" value="_TESTING_">
+<input type="hidden" name="prompt" value="_PROMPTW_">
 <input type="hidden" name="sessionid" value="">
 <input type="hidden"    name="action" value="runpugs">
-<!--<textarea id="history" name="history"  rows="1" cols="1"
-style="overflow: hidden; border: 0px; width: 0px;
-font-size:0px">_CMD_</textarea>-->
-<label for="cmd">Interactive Pugs Session<br>
+<!--<label for="cmd">Interactive Pugs Session<br>-->
+<h2>Interactive Pugs Session</h2>
+<div id="termwindow">
+<select name="history" id="hist" onChange="select_enter()"><!--onKeyPress="return
+select_enter(this,event)">-->
+<option value="">--- Recent commands ---</option>
 _HIST_
-<textarea id="cmd" name="cmd" rows="24" cols="80" wrap="virtual" onKeyPress="return submitenter(this,event)">
-pugs&gt;&nbsp;
+</select>
+<br>
+<!--
+<span class="prompt">
+_PROMPTW_
+</span>
+<span class="termfont">
+_CMDW_
+</span>
+<br>
+-->
+<textarea readonly id="output" name="output" rows="_NROWS_" cols="80" wrap="virtual">
+_REPLYW_
 </textarea>
+<br>
+<label for="cmdline"><span class="prompt">
+_NPROMPTW_
+</span>
+<input type="text" size="74" id="cmdline" name="cmdline" value=""
+onKeyPress="return submitenter(this,event)">
 </label>
+</div>
 <br>
 <input id="enter" type="submit" value="Submit">&nbsp;&nbsp;&nbsp;
 </form>
 <script language="JavaScript">
 document.terminal.enter.style.display='none';
-document.terminal.cmd.focus()
+document.terminal.cmdline.focus()
+document.terminal.output.scrollTop =document.terminal.output.scrollHeight;
+if (document.terminal.output.rows==1) {
+//document.terminal.output.style.height="2ex";
+}
 </script>
 <p class="copyright">&copy; Copyright 2006 by Wim Vanderbauwhede</p>
 </div>

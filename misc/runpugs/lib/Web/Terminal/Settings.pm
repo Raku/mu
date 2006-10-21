@@ -34,21 +34,25 @@ cgi_path
 nrecent
 );
 
+=ghci
+#GHCi
 our $command='/usr/local/bin/ghci';
 our $prompt='Prelude> ';
 our $prompt_pattern='(^(Prelude)>\s+)';
 our $quit_pattern='^Leaving\ GHCi\.';
 our $quit_message='Leaving GHCi.';
+=cut
 
+#Pugs
+our $command='/usr/bin/nice /usr/bin/pugs';
+our $prompt='pugs> ';
+our $prompt_pattern='(^(pugs|\.\.\.\.)>\s+)';
+our $quit_pattern='^Leaving\ pugs\.';
+our $quit_message='Leaving pugs.';
 
-#our $command='/usr/bin/nice /usr/bin/pugs';
-our $server='termserv2.pl';
-#our $prompt='pugs> ';
 our $init_pattern='(\>\s+)';
-#our $prompt_pattern='(^(pugs|\.\.\.\.)>\s+)';
 our $quit_command=':q';
-#our $quit_pattern='^Leaving\ pugs\.';
-#our $quit_message='Leaving pugs.';
+our $server='termserv2.pl';
 
 our $filter=0;
 our $filter_pattern='';

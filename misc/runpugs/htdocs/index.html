@@ -14,9 +14,11 @@
 <p><tt>runpugs</tt> currently lives <a
 href="http://feather.perl6.nl:8080/cgi-bin/runpugs">here</a>.</p>
 <p><em>Instructions:</em> <tt>runpugs</tt> presents the pugs interactive shell. Only
-the line typed at the last prompt is sent to pugs. Type <code>:h</code> for
-help, <code>:q</code> to quit. <br><em>Please</em> be considerate and do close your
-pugs session with <code>:q</code> before you close the browser window.<br>Type <code>clear</code> to clear the web terminal (this command is not sent to pugs).</p>
+the line typed at the last prompt is sent to pugs. Type <code>:h</code> or
+<code>help</code> for
+help, <code>:q</code> (or <code>quit</code> or <code>bye</code>) to quit.
+<br><em>Please</em> be considerate and do <em>quit</em> your
+pugs session  before you close the browser window.<br>Type <code>clear</code> to clear the web terminal (this command is not sent to pugs).</p>
 <p>Because this is a web terminal, a number of restrictions apply:</p>
 
 <ul>
@@ -28,9 +30,10 @@ pugs session with <code>:q</code> before you close the browser window.<br>Type <
 </ul>
 <p>The current values relating to the above restrictions are:</p>
 <ul>
-<li>Total number of sessions: 50</li>
+<li>Maximum number of lines of output: 250</li>
 <li>Inactivity time-out: 10 minutes</li>
 <li>"Long" call time-out: 10 seconds</li>
+<li>Total number of sessions: 50</li>
 <li>Sessions per IP: 10</li>
 <li>Available memory: 64M.</li>
 </ul>
@@ -40,7 +43,9 @@ pugs session with <code>:q</code> before you close the browser window.<br>Type <
 <li>Unicode is not supported.</li>
 <li>There is no command history.</li>
 </ul>
-<p>You can find the source code for <tt>runpugs</tt> (in Perl 5) in the <a href="http://svn.openfoundry.org/pugs/">pugs subversion repository</a> under <code>/misc/runpugs</code>.
+<p>You can find the source code for <tt>runpugs</tt> (in Perl 5) in the <a
+href="http://svn.openfoundry.org/pugs/">pugs subversion repository</a> under
+<code><a href="http://svn.openfoundry.org/pugs/misc/runpugs">/misc/runpugs</a></code>.
 <p>Thank you for trying <tt>pugs</tt> and <tt>runpugs</tt>!</p>
 <p class="copyright">&copy; Copyright 2006 by Wim Vanderbauwhede</p>
 </div>
