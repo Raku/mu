@@ -10,7 +10,7 @@ L<S04/"Conditional statements">
 
 =cut
 
-plan 19;
+plan 20;
 
 my $x = 'test';
 if ($x eq $x) { pass("if ($x eq $x) {} works"); } else { flunk("if ($x eq $x) {} failed"); }
@@ -107,4 +107,10 @@ is $foo, 1, "die should stop execution immediately.";
 
 {
     isnt(eval('if 1; 2'), 2, 'test "if 1"');
+}
+
+
+{# .... if condition;
+    my $var = 5 if 1;
+    is $var, 5, ' <action> if <cond> ;  - works';
 }
