@@ -17,7 +17,6 @@ module Pugs.Junc (
 import Pugs.Types
 import Pugs.Internals
 import Pugs.AST
-import Control.Monad (replicateM)
 import qualified Data.Set as Set
 
 {-|

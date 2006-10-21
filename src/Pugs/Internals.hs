@@ -17,6 +17,7 @@ module Pugs.Internals (
     module Control.Concurrent,
     module Control.Concurrent.STM,
     module Control.Exception,
+    module Control.Monad,
     module Control.Monad.Error,
     module Control.Monad.RWS,
     module Control.Monad.Identity,
@@ -121,6 +122,7 @@ import System.Mem
 import System.Mem.Weak
 import System.Directory (Permissions(..), getPermissions, getTemporaryDirectory, createDirectory, removeDirectory, removeFile, getDirectoryContents, getModificationTime)
 import Control.Exception (catchJust, errorCalls, Exception(..))
+import Control.Monad (replicateM)
 import Control.Monad.RWS (MonadIO(..), MonadReader(..), MonadState(..), MonadWriter(..), MonadTrans(..), asks, ReaderT(..), WriterT(..), when, join, liftM, filterM, modify, unless, gets, foldM, guard, liftM2, liftM3, fix, mplus, mappend, mzero, mconcat, msum, censor)
 import Control.Monad.Identity (Identity(..))
 import Control.Monad.Error (MonadError(..), ErrorT(..), Error(..))

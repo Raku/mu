@@ -100,7 +100,6 @@ import Pugs.AST.Pos
 import Pugs.AST.Scope
 import Pugs.AST.SIO
 import Pugs.Embed.Perl5
-import Control.Monad (replicateM)
 import qualified Pugs.Val as Val
 import qualified Data.ByteString.Char8 as Str
 import qualified Data.Seq as Seq

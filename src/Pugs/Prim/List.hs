@@ -389,11 +389,14 @@ op1HyperPrefix sub x
         = op1HyperPrefix sub x
         | otherwise
         = enterEvalContext cxtItemAny $ App (Val $ VCode sub) Nothing [Val x]
-    hyperList []     = return []
-    hyperList (x:xs) = do
-        val  <- doHyper x
-        rest <- hyperList xs
-        return (val:rest)
+    hyperList xs = do
+        env <- ask
+        liftIO $ do
+            chan    <- newChan
+            forM ([(0::Int)..] `zip` xs) $ \(n, x) -> forkIO $ do
+                rv  <- runEvalIO env $ doHyper x
+                writeChan chan (n, rv)
+            fmap (map snd . sort) (replicateM (length xs) (readChan chan))
 
 op1HyperPostfix :: VCode -> Val -> Eval Val
 op1HyperPostfix = op1HyperPrefix
@@ -428,11 +431,22 @@ op2Hyper sub x y
         = op2Hyper sub x y
         | otherwise
         = enterEvalContext cxtItemAny $ App (Val $ VCode sub) Nothing [Val x, Val y]
-    hyperLists [] [] = return []
-    hyperLists xs [] = return xs
-    hyperLists [] ys = return ys
-    hyperLists (x:xs) (y:ys) = do
-        val  <- doHyper x y
-        rest <- hyperLists xs ys
-        return (val:rest)
-
+    hyperLists xs ys = do
+        env <- ask
+        liftIO $ do
+            chan    <- newChan
+            len     <- doHyperLists env chan 0 xs ys
+            fmap (map snd . sort) (replicateM len (readChan chan))
+    doHyperLists :: Env -> Chan (Int, Val) -> Int -> [Val] -> [Val] -> IO Int
+    doHyperLists _ _    n [] [] = return n
+    doHyperLists _ chan n xs [] = do
+        forM ([n..] `zip` xs) (writeChan chan)
+        return (n + length xs)
+    doHyperLists _ chan n [] ys = do
+        forM ([n..] `zip` ys) (writeChan chan)
+        return (n + length ys)
+    doHyperLists env chan n (x:xs) (y:ys) = do
+        forkIO $ do
+            rv  <- runEvalIO env $ doHyper x y
+            writeChan chan (n, rv)
+        doHyperLists env chan (n+1) xs ys
