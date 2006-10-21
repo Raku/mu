@@ -2,6 +2,8 @@ use v6-alpha;
 use Test;
 plan 4;
 
+#L<S06/"Routine modifiers"/Named subroutines>
+
 #first lets test lexical named subs
 {
     my String sub namedStr() { return 'string' };
