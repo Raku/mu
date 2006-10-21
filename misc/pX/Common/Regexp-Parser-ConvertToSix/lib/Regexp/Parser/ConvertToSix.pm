@@ -1,8 +1,22 @@
-
 package Regexp::Parser::ConvertToSix;
+
+use warnings;
+use strict;
+use Carp;
+
+use version; our $VERSION = qv('0.0.0');
+
+# Other recommended modules (uncomment to use):
+#  use IO::Prompt;
+#  use Perl6::Export;
+#  use Perl6::Slurp;
+#  use Perl6::Say;
+
 use Regexp::Parser;
 
-# Work around a Regex::Parser bug.  Author is not responding.
+#
+# Kludge around a Regex::Parser bug.
+#
 if($Regexp::Parser::VERSION <= 0.20) {
   eval <<'END';
 #line 1 "Regexp::Parser bug fix/workaround"
@@ -23,6 +37,8 @@ if($Regexp::Parser::VERSION <= 0.20) {
     }
 END
 }
+# End of kludge.
+
 
 local $Regexp::Parser::ConvertToSix::env;
 
@@ -391,9 +407,15 @@ local $Regexp::Parser::ConvertToSix::env;
   }
 }
 
+
 package Regexp::Parser;
 
-sub convert_pattern_to_six {
+sub visual6 {
+  my($self)=@_;
+  $self->convert_to_six();
+}
+
+sub convert_to_six {
   my($self,$preserve_capture_numbers)=@_;
   my $env = { preserve_capture_numbers => $preserve_capture_numbers,
               capture_map => {0=>'$/'},
@@ -406,12 +428,7 @@ sub convert_pattern_to_six {
   join("",map{$_->visual6()} @{$self->root});
 }
 
-sub visual6 {
-  my($self)=@_;
-  $self->convert_pattern_to_six();
-}
-
-sub convert_string_with_match_vars {
+sub convert_string_with_match_vars_to_six {
   my($self,$str)=@_;
   my $slash = 0; # need_slash
   my $map = $self->{ConvertToSix_env}{capture_map};
@@ -449,12 +466,12 @@ sub convert_literal_to_six {
   my $use_pat = "(?:$pat5)";
   $use_pat = "(?$premod)$use_pat" if $premod ne "";
   $self->regex($use_pat);
-  my $pat = $self->convert_pattern_to_six();
+  my $pat = $self->convert_to_six();
   $pat =~ s/^\s*\[//; $pat =~ s/\]\s*$//;
 
   my $rest = "";
   if($op eq 's') {
-    my $subst6 = $self->convert_string_with_match_vars($subst);
+    my $subst6 = $self->convert_string_with_match_vars_to_six($subst);
 
     my $avoid = qr/[ $self->{ConvertToSix_env}{avoid_delim}]/;
     if($delim =~ $avoid) {
@@ -476,44 +493,176 @@ sub convert_literal_to_six {
   $op6.$mod.$delim.$pat.$delimC.$rest;
 }
 
+package Regexp::Parser::ConvertToSix;
 
-package main;
 sub repl {
-  use Data::Dumper;
-  print "Enter a p5 regexp pattern or literal.\n";
+  print "Enter a Perl 5 regexp pattern or literal.\n";
   while(<>) {
     chomp;
     my $parser = Regexp::Parser->new($_);  
-    print "Regenerated: "; print $parser->visual(),"\n";
-#    print Dumper($parser->root); print $parser->visual(),"\n";
-    print "As pattern (oddball): ";
-    print $parser->convert_pattern_to_six(1),"\n";
-    print "As pattern (normal):  ";
-    print $parser->convert_pattern_to_six(),"\n";
-    print "Captures:    ";
-    print $parser->convert_string_with_match_vars('$1, $2, $3, $4, $5, $6'),"\n";
-    print "As literal:  ";
-    eval { print $parser->convert_literal_to_six($_),"\n"; } or print $@;
+    print "Regexp::Parser regenerates it as: "; print $parser->visual(),"\n";
+    if(/^(\/|(m|s|qr)\W)/) {
+      print "As literal: ";
+      eval { print $parser->convert_literal_to_six($_),"\n"; } or print $@;
+    } else {
+      print "Normal Perl 6 pattern: ";
+      print $parser->convert_to_six(),"\n";
+      print "Backwards compatible:  ";
+      print $parser->convert_to_six(1),"\n";
+    }
+    my $str = '$&, $1, $2, $3, $4, $5, $6';
+    print "'$str' -> '",$parser->convert_string_with_match_vars_to_six($str),"'\n";
   }
 }
-repl;
 
-=pod
+# IMPLEMENTATION TODO
+#
+# The order dependency on avoid_delim is troubling.  Perhaps it should be local()?  And it's fragile ('[').
+#
 
-BUGS
+1;
+__END__
 
-This module should be a class which inherits from Regexp::Parser, rather than infesting it.
-\G handling - unclear how to support non-leftmost \G in p6.
-Regexp::Parser does not support $^N $+ $' $` in patterns.
+=head1 NAME
 
-TODO
+Regexp::Parser::ConvertToSix - Convert regular expressions from Perl 5 syntax to Perl 6 syntax.
 
-What do $' $` look like in p6?
-Run over re_tests.
-Test with //x.
-Can we avoid losing comments?
-The order dependency on avoid_delim is problematic.  Should be local()?  And it's fragile ('[').
-More selective slashification.
-Make it a module.
 
-=cut
+=head1 VERSION
+
+This document describes Regexp::Parser::ConvertToSix version 0.0.1
+
+
+=head1 SYNOPSIS
+
+    use Regexp::Parser::ConvertToSix;
+
+    my $parser = Regexp::Parser->new;
+    $parser->convert_to_six('(?:(a)b{2,3})') #=> '[foo**{2..3}]'
+    $parser->convert_string_with_match_vars_to_six('$0 $1 $+[1]') #=> '$/ $0 $0.to'
+    $parser->convert_literal_to_six('s/(a(b)(?:c))/$2/') #=> 's/(a(b)[c])/$0[0]/'
+
+    # interactive shell
+    perl -MRegexp::Parser::ConvertToSix -e 'Regexp::Parser::ConvertToSix::repl'
+
+  
+=head1 DESCRIPTION
+
+Given a string containing a Perl 5 regular expression, provides the
+Perl 6 equivalent.  Intended to aid learing, and converting Perl 5
+code to Perl 6.  It works with both patterns (the stuff between
+C<//>s), and literals (the entire C</foo/ixg> or C<s/foo/bar/>).
+
+
+=head1 INTERFACE 
+
+=for author to fill in:
+    Write a separate section listing the public components of the modules
+    interface. These normally consist of either subroutines that may be
+    exported, or methods that may be called on objects belonging to the
+    classes provided by the module.
+
+
+=head1 DIAGNOSTICS
+
+=for author to fill in:
+    List every single error and warning message that the module can
+    generate (even the ones that will "never happen"), with a full
+    explanation of each problem, one or more likely causes, and any
+    suggested remedies.
+
+=over
+
+=item C<< Error message here, perhaps with %s placeholders >>
+
+[Description of error here]
+
+=item C<< Another error message here >>
+
+[Description of error here]
+
+[Et cetera, et cetera]
+
+=back
+
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Regexp::Parser::ConvertToSix requires no configuration files or environment variables.
+
+
+=head1 DEPENDENCIES
+
+C<Regexp::Parser>
+
+
+=head1 INCOMPATIBILITIES
+
+None reported.
+
+
+=head1 BUGS AND LIMITATIONS
+
+=over
+
+=item Largely untested.  Needs to be run over re_tests.  //x especially untested.
+=item Needs t/ tests.
+
+=item Pod documentation is unfinished.
+
+=item C<\G> support is limited.  Should convert non-leftmost C<\G> to rx/{temp $pos_target = .pos}[...{ $pos_target == .pos or fail }...]/;
+
+=item C<$^N $+ $` $'> are not supported in patterns.  C<$^N $` $'> are not supported in strings.  C<$` $'> should perhaps be done with C<.prematch .postmatch>.  What else is missing?
+
+=item Looses comments in //x.  Avoidable?
+
+=item More selective slashification would be nice.
+
+=item Regexp::Parser::ConvertToSix currently parasitizes Regexp::Parser.  A more conventional object oriented approach might be nice.
+
+=item Explain "Subroutine visual redefined at Regexp::Parser bug fix/workaround line 3.", or better, get the Regexp::Parser bug fixed.
+
+=item Use something like IO::Prompt in the repl.
+
+=back
+
+Please report any bugs or feature requests to
+C<bug-regexp-parser-converttosix@rt.cpan.org>, or through the web interface at
+L<http://rt.cpan.org>.
+
+
+=head1 AUTHOR
+
+Pugs Team  C<< <perl6-compiler@perl.org> >>
+
+
+=head1 LICENCE AND COPYRIGHT
+
+Copyright (c) 2006, Pugs Team C<< <perl6-compiler@perl.org> >>. All rights reserved.
+
+This module is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself. See L<perlartistic>.
+
+
+=head1 DISCLAIMER OF WARRANTY
+
+BECAUSE THIS SOFTWARE IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
+FOR THE SOFTWARE, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN
+OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
+PROVIDE THE SOFTWARE "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
+EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE
+ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE SOFTWARE IS WITH
+YOU. SHOULD THE SOFTWARE PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL
+NECESSARY SERVICING, REPAIR, OR CORRECTION.
+
+IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR
+REDISTRIBUTE THE SOFTWARE AS PERMITTED BY THE ABOVE LICENCE, BE
+LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL,
+OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE
+THE SOFTWARE (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING
+RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A
+FAILURE OF THE SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
+SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGES.
