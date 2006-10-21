@@ -511,15 +511,6 @@ EOD
     my $is_win32 = ($^O =~ /MSWin|mingw|cygwin/i);
     my $threaded = (try_compile_and_run("main :: IO ()\nmain = return ()", $ghc, "-threaded")) ? '-threaded' : '';
 
-    if ($threaded and $ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bperl5\b/ and !$Config{usethreads}) {
-        push @warn, << '.';
-*** Thread support disabled because you are building with embedded perl5 and
-    your perl5 is not threaded.
-
-.
-
-        $threaded = '';
-    }
     if ($threaded && $ENV{PUGS_NO_THREADS}) {
         push @warn, << '.';
 *** Thread support disabled due to explicit request in PUGS_NO_THREADS.
