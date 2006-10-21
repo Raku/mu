@@ -1,47 +1,25 @@
-# Factory class for continuation threaded backtracking search subs.
-=for
 
-XXXXXXXXXXXXXXXx fix naming
-{code,sub}_{code,body,sub}_...
+package Regexp::Engine::Reentrant::Backtrack;
 
-Method naming:
- config_ deal with configuration info.
- code_ return code.  core only?
- source_ return code by wrapping up codes.
- sub_ return sub by wrapping up subs.
- _vars emphasizes that _only_ the vars given are temp/let-ized.
+# Empty class to label noop subs. Private.
+{ package Regexp::Engine::Reentrant::Backtrack::Noop; }
 
-Todo:
- code_sub(...,@extra_info) => "sub {...}", and for debugging, Sub::Name, etc.
- is the code_/source_ distinction clear?
- 
-=cut
-
-package Regexp::Engine::Fribble::Noop;
-# an empty class for labeling noop functions.
-
-package Regexp::Engine::Fribble::Make;
-use strict; use warnings;#HMM - disable in the code evals?
+package Regexp::Engine::Reentrant::Backtrack::Make;
+use strict;   #HMM - disable in the code evals?
+use warnings; #HMM - disable in the code evals?
 
 sub new {
   my $cls = shift;
-  bless {},$cls;
+  my @defaults = ( config_str_var => '$X::str',
+		   config_pos_var => '$X::pos',
+		   config_backtrack_vars => ['$X::pos'],
+		   config_match_var => '$X::current_match',
+		   config_cap_var => '$X::cap',
+		   config_flag_var => '$X::flag'
+		   );
+  my %h = (@defaults,@_);
+  bless \%h,$cls;
 }
-sub config_changed {
-  my($o)=@_;
-  foreach my $k (keys %$o) {
-    next if $k !~ /^cached_/;
-    delete $o->{$k};
-  }
-  $o;
-}
-sub config_set {
-  my($o,$name,$v)=@_;
-  my $k = "config_$name";
-  $o->{$k} = $v;
-  $o->config_changed;
-}
-# want debugging id.  both config_ and cached_.
 
 sub _eval_code {
   my($o,$code)=@_;
@@ -68,7 +46,7 @@ sub code_tailcall_safely { # goto apparently sometimes kills lexical vars.
 }
 sub code_noop_is {
   my($o,$var)=@_;
-  "(ref($var) eq 'Regexp::Engine::Fribble::Noop')";
+  "(ref($var) eq 'Regexp::Engine::Reentrant::Backtrack::Noop')";
 }
 sub code_fail {
   my($o,$var)=@_;
@@ -104,17 +82,8 @@ sub sub_noop {
       my $c = $_[0];
       return 1 if '.$o->code_noop_is('$c').';
       '.$o->code_tailcall('$c','$noop').";
-    }, 'Regexp::Engine::Fribble::Noop';";
-#    $code = 'bless sub{
-#      my $c = $_[0];
-##print STDERR "noop",ref($c),$c;
-##Carp::confess;
-#      return 1 if (ref($c) eq \'Regexp::Engine::Fribble::Noop\');
-#      @_=($noop); goto &{$c};;
-#    }, \'Regexp::Engine::Fribble::Noop\';';
-#    print $code;exit;
+    }, 'Regexp::Engine::Reentrant::Backtrack::Noop';";
     $noop = $o->{cached_noop} = eval($code); die $@.$code if $@;
-#    print STDERR "noop ",$noop,"\n";
   }
   $o->{cached_noop};
 }
@@ -217,12 +186,6 @@ sub source_repeat {
 }
 
 
-sub config_backtrack_vars {
-  my($o,$val)=@_;
-  $o->config_set('backtrack_vars',$val) if defined $val;
-  $o->{config_backtrack_vars};
-}
-
 sub sub_temp {
   my($o,$f)=@_;
   my $key = 'cached_sub_temp';
@@ -233,7 +196,7 @@ sub sub_temp {
       my($o,$f)=@_;
       '.$o->code_subwrap("'$key'",'sub {
         my $c = $_[0];
-        '.$o->source_temp_vars($o->config_backtrack_vars,
+        '.$o->source_temp_vars($o->{config_backtrack_vars},
                                $o->code_tailcall('$f','$c')).'
       }').';
     }';
@@ -250,7 +213,7 @@ sub sub_let {
       my($o,$f)=@_;
       sub {
         my $c = $_[0];
-        '.$o->source_let_vars($o->config_backtrack_vars,
+        '.$o->source_let_vars($o->{config_backtrack_vars},
                               $o->code_call('$f','$c')).'
       };
     }';
@@ -272,7 +235,7 @@ sub sub_alt {
       '.$o->code_subwrap("'sub_alt'",'sub {
         my $c = $_[0];
         for my $f (@fs) {
-          '.$o->source_let_vars($o->config_backtrack_vars,
+          '.$o->source_let_vars($o->{config_backtrack_vars},
                                 $o->code_call('$f','$c'),
                                 'return $_v_',undef,
                                 $o->code_fail_propagate_exceptions('$_v_')).'
@@ -296,7 +259,7 @@ sub sub_alt_dynamic {#TODO-refactor back into sub_alt?
         my $c = $_[0];
         my @fs = @$afs;
         for my $f (@fs) {
-          '.$o->source_let_vars($o->config_backtrack_vars,
+          '.$o->source_let_vars($o->{config_backtrack_vars},
                                 $o->code_call('$f','$c'),
                                 'return $_v_',undef,
                                 $o->code_fail_propagate_exceptions('$_v_')).'
@@ -309,52 +272,6 @@ sub sub_alt_dynamic {#TODO-refactor back into sub_alt?
   $o->{$key}($o,$afs);
 }
 
-sub sub_concat_v1_broken {
-  my($o,$afs)=@_;
-  my $key = 'cached_sub_concat_v1';
-  if(not exists $o->{$key}) {
-    my $code = '
-#line 2 "sub_concat"
-    sub {
-      my($o,$afs)=@_;
-      my @fs = @$afs;
-      if(@fs == 0) {
-        return $o->noop;
-      }
-      elsif(@fs == 1) {
-        return $fs[0];
-      }
-      # elsif(@fs == 2) {
-      #   my($f0,$f1)=@fs;
-      #   return sub {
-      #     my $c = $_[0];
-      #     '.$o->code_tailcall('$f0','sub{'.$o->code_tailcall('$f1','$c').'}').';
-      #   };
-      # }
-      my $f0 = shift @fs;
-      @fs = reverse @fs;
-      my $start = @fs-1;
-      '.$o->code_subwrap("'sub_concat'",'sub {
-        my $c = $_[0];
-#	print STDERR "sub_concat c=$c\n";
-        my $i = $start; #BZZZZT. would have to be local()ly passed, uniquified.
-        my $next;
-        $next = sub {
-#  	  print STDERR "sub_concat next fs[$i]=$fs[$i]\n";
-          if($i > 0) {
-            '.$o->code_tailcall('$fs[$i--]','$next').';
-          } else {
-            '.$o->code_tailcall('$fs[$i]','$c').';
-          }
-        };
-#	print STDERR "sub_concat next: ",$next," f0=$f0\n";
-        '.$o->code_tailcall_safely('$f0','$next').';
-    }').';
-    }';
-    $o->{$key} = $o->_eval_code($code);
-  }
-  $o->{$key}($o,$afs);
-}
 sub sub_concat { # XXX - currently ignoring the code_tailcall abstractions
   my($o,$afs)=@_;
   my $key = 'cached_sub_concat_v0';
@@ -382,66 +299,6 @@ sub sub_concat { # XXX - currently ignoring the code_tailcall abstractions
   $o->{$key}($o,$afs);
 }
 
-sub sub_repeat_v0_disposable {
-  my($o,$f,$min,$max)=@_;
-  $min = 0 if !defined $min;
-  $max = (1000**1000**1000) if !defined $max;
-  $min += 0; $max += 0;
-  my $key = 'cached_sub_repeat';
-  if(not exists $o->{$key}) {
-    my $code = '
-#line 2 "cached_sub_repeat"
-    sub {
-      my($o,$f,$min,$max)=@_;
-      '.$o->code_subwrap("'$key'",'sub{
-        my $c = $_[0];
-        my $pos_old = -1;
-        my $i = 0;
-        my($fmin,$fagain,$frest);
-        $fmin = sub{
-#  print  "$i $X::pos fmin\n";
-          if($i >= $min) {
-            goto &$fagain;
-          }
-#  print  "$i $X::pos fmin tailcalling f\n";
-          $i++; '.$o->code_tailcall('$f','$fmin').'
-        };
-        $fagain = sub{
-#  print  "$i $X::pos fagain\n";
-          if($pos_old >= '.$o->config_pos_var.'){
-#  print  "$i $X::pos fagain NO PROGRESS tailcal c\n";
-            '.$o->code_tailcall('$c').';
-          }
-          $pos_old = '.$o->config_pos_var.';
-          goto &$frest;
-        };
-        $frest = sub{
-#  print  "$i $X::pos frest\n";
-          if($i >= $max) {
-#  print  "$i $X::pos frest BEYOND MAX tailcalling c\n";
-            '.$o->code_tailcall('$c').';
-          }
-          $i++;
-#  print  "$i $X::pos frest about to call f in let\n";
-          my $v = '.$o->source_let_vars($o->config_backtrack_vars,
-                                      $o->code_call('$f','$fagain')).';
-#  print  "$i $X::pos frest back.   success? ",defined($v)?"returning $v":"undef","\n";
-          return $v if '.$o->code_fail_isnot('$v').';
-#  print  "$i $X::pos frest no. tailcalling c\n";
-          '.$o->code_tailcall('$c').';
-        };
-        #'.$o->code_tailcall('$fmin').';
-  die "bug" if not defined($min) or not defined($max);
-#  print  "start $min $max  $X::pos\n";
-        goto &$fmin;
-#        $fmin->();
-      }').'
-    }';
-#  print STDERR $code;exit;
-    $o->{$key} = $o->_eval_code($code);
-  }
-  $o->{$key}($o,$f,$min,$max);
-}
 sub sub_repeat {
   my($o,$f,$min,$max,$ng)=@_;
   $min = 0 if !defined $min;
@@ -470,10 +327,10 @@ sub sub_repeat {
             $i++; '.$o->code_tailcall('$f','$fmin').'
           };
           $fagain = sub{
-            if($pos_old >= '.$o->config_pos_var.'){
+            if($pos_old >= '.$o->{config_pos_var}.'){
               '.$o->code_tailcall('$c').';
             }
-            $pos_old = '.$o->config_pos_var.';
+            $pos_old = '.$o->{config_pos_var}.';
             goto &$frest;
           };
           $frest = sub{
@@ -481,7 +338,7 @@ sub sub_repeat {
               '.$o->code_tailcall('$c').';
             }
             $i++;
-            my $v = '.$o->source_let_vars($o->config_backtrack_vars,
+            my $v = '.$o->source_let_vars($o->{config_backtrack_vars},
                                           $o->code_call(@$first)).';
             return $v if '.$o->code_fail_isnot('$v').';
             '.$o->code_tailcall(@$second).';
@@ -501,49 +358,18 @@ sub sub_repeat {
 }
 
 
-
-
-#package Regexp::Engine::Fribble::MakeUtilMixin;
-
-
-package Regexp::Engine::Fribble::MakeStringSearch;
-use base 'Regexp::Engine::Fribble::Make';
+package Regexp::Engine::Reentrant::Backtrack::MakeStringSearch;
+use base 'Regexp::Engine::Reentrant::Backtrack::Make';
 
 sub new {
   my $o = shift->SUPER::new(@_);
-#  $o->config_backtrack_vars([$o->config_pos_var]);
-}
-sub config_str_var {
-  my($o,$val)=@_;
-  $o->config_set('str_var',$val) if defined $val;
-  $o->{config_str_var};
-}
-sub config_pos_var {
-  my($o,$val)=@_;
-  $o->config_set('pos_var',$val) if defined $val;
-  $o->{config_pos_var};
-}
-sub config_match_var {
-  my($o,$val)=@_;
-  $o->config_set('match_var',$val) if defined $val;
-  $o->{config_match_var};
-}
-sub config_cap_var {
-  my($o,$val)=@_;
-  $o->config_set('cap_var',$val) if defined $val;
-  $o->{config_cap_var};
-}
-sub config_flag_var {
-  my($o,$val)=@_;
-  $o->config_set('flag_var',$val) if defined $val;
-  $o->{config_flag_var};
 }
 
 sub sub_eat_regexp {
   my($o,$re)=@_;
   Carp::confess if !defined($re);
-  my $str = $o->config_str_var;
-  my $pos = $o->config_pos_var;
+  my $str = $o->{config_str_var};
+  my $pos = $o->{config_pos_var};
   #print "Making eater for /$re/.\n";
   my $code = "
 #line 2 \"sub_eat_regexp\"
@@ -562,9 +388,9 @@ sub sub_capture_variant1 {
   my($o,$idx,$f)=@_;
   my $key = 'cached_capture_variant1';
   if(not exists $o->{$key}) {
-    my $pos = $o->config_pos_var;
-    my $str = $o->config_str_var;
-    my $cap = $o->config_cap_var;
+    my $pos = $o->{config_pos_var};
+    my $str = $o->{config_str_var};
+    my $cap = $o->{config_cap_var};
     my $code = '
 #line 2 "sub_capture_variant1"
     sub {
@@ -579,7 +405,7 @@ sub sub_capture_variant1 {
           $m->match_set(1,substr('.$str.',$from,$to-$from),[],{},$from,$to);
           '.$o->code_tailcall('$c0','$c').'
         };
-        return '.$o->source_let_vars([@{$o->config_backtrack_vars},$cap],
+        return '.$o->source_let_vars([@{$o->{config_backtrack_vars}},$cap],
              $cap.' = [@{'.$cap.'}];
            '.$cap.'->[$idx] = $m;
              my $v = $f->($close);
@@ -596,10 +422,10 @@ sub sub_match {
   my($o)=@_;
   my $key = 'cached_match';
   if(not exists $o->{$key}) {
-    my $pos = $o->config_pos_var;
-    my $str = $o->config_str_var;
-    my $cap = $o->config_cap_var;
-    my $mat = $o->config_match_var;
+    my $pos = $o->{config_pos_var};
+    my $str = $o->{config_str_var};
+    my $cap = $o->{config_cap_var};
+    my $mat = $o->{config_match_var};
     my $code = '
     sub {
       my($r,$s)=@_;

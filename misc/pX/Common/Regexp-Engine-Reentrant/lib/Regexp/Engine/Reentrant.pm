@@ -1,100 +1,20 @@
-# This file is a slightly updated version of regexp_engine_demo.pl
-# in misc/pX/Common/regexp_and_parser_spike/ .
-# It apparently passed 95% of some version of re_tests.
-#----------------------------------------------------------------------
-# This is a regexp engine, written in p5.  It the very beginnings of a
-# proof of concept.  A feasibility and performance reality check.
-# Hopefully it will develop into a p6 rules engine, and then a p6
-# parser, for p5.
-
-# It's a backtracking, recursive-decent engine, generated from the
-# regexp ast nodes created by Regexp::Parser.
-
-# It looks like the ("A feasibility and performance reality check")
-# spike has succeeded.  The most of the re_tests are passing.  While
-# the spike "coded to the tests", and thus is far from being a
-# complete p5 compatible regex engine, that establishes feasiblity.
-# Limited testing suggest performance is quite plausible.
-
-# Next steps:
-
-# Create a clean backtracking library (basically a set of simple
-# macros) to make writing this kind of application easy(er).
-
-# Bootstrap to a new, simpler, ast.  Regexp::Parser's
-# Perl6::Rule::Parser does NOT look like it's mature enough to bear
-# our weight, to be a next step. And the current Regexp::Parser Object
-# ast isnt really what we want long-term.  If Perl6::Rule::Parser was
-# working and robust, it would make sense to continue for a while on
-# Regexp::Parser.  But it's not worth working to finish.  So, we
-# bootstrap to something cleaner and simpler.  Even though it will
-# likely lack R:P's nice error messages.
-
-
-# Test suite:
-#  re_tests - tests from p5 HEAD 2006-02-12
-#  re_tests_perl5.t - driver from same.
-#  re_tests_parrot.t - parrot's driver, same date.
-#  re_tests_match.el - an old driver putter wrote, adapted to call a Match obj.
-# Just  prove regexp_engine_demo.t   or somesuch.
-
-# Test status:
-# Currently at 92% pass. 3sec run on my machine.
-
-# Sidebar: State of Regexp::Parser's Perl6::Rules: it looks like early
-# phase development.  There's a "return" halfway down the file to cut
-# off construction.  Oh well.
-
-#XXX - a possible task: Create a p5->p6 regexp syntax converter!  A
-#cpan module even. Write methods which return the p6 version of the
-#regexp.  We can then pour the re_test suite through it, yielding a
-#more complete version of t/rules/rules.t.  This could either be done
-#using Regexp::Parser Objects, or wait for the hypotetical new ast.
-
 #XXX - bugs
 # Flag handling is currently an utter kludge. not even trying with m and s.
 # Match objects arent being created for capture groups which are never reached.
-# No lookbehind as been implemented at all, at all.
-# A couple of others I don't remember at the moment but should be mentioned...
+# No lookbehind has been implemented at all.
+# More.
 
 package main;
-require Regexp::Engine::Reentrant::Backtrack;
-$bt = Regexp::Engine::Fribble::MakeStringSearch->new();
-$bt->config_str_var('$X::str');
-$bt->config_pos_var('$X::pos');
-$bt->config_backtrack_vars([$bt->config_pos_var]);
-$bt->config_match_var('$X::current_match');
-$bt->config_cap_var('$X::cap');
-$bt->config_flag_var('$X::flag');
+use Regexp::Engine::Reentrant::Backtrack;
+$bt = Regexp::Engine::Reentrant::Backtrack::MakeStringSearch->new();
 
 package BacktrackDev;
-=pod
-Design notes:
- Why not call "TAILCALL" "GOTO"?  So you can easily search on both.
- Why LET but not TEMP?  LET is non-trivial, TEMP isn't.  Minimalism wins.
-=cut
-my @let_stack;
-sub let_gen {
-  my($vars)=@_;
-  my $nvars = 1+($vars =~ tr/,//);
-  my $tmpvars = join(",",map{"\$__tmp${_}__"}(0..($nvars-1)));
-  push(@let_stack,[$vars,$tmpvars]);
-  "(do{my \$__v__ ; my($tmpvars); { local($vars)=($vars); \$__v__ = do{ ";
-}
-sub let_end {
-  my $e = shift(@let_stack) || die "LET(){ }LET pairs didn't match up";
-  my($vars,$tmpvars) = @$e;
-  "}; if(!FAILED(\$__v__)){ ($tmpvars)=($vars); }}; if(!FAILED(\$__v__)){ ($vars)=($tmpvars) }; \$__v__ })"
-}
 use Filter::Simple sub {
-  s/\bLET\(([^\)]+)\)\{/let_gen($1)/eg;
-  s/\}LET;/let_end().";"/eg;
   s/\bFAIL_IF_FAILED\(([^\)]+)\);/FAIL() if FAILED($1);/g;
   s/\bFAIL\(([^\)]{0,0})\)/return undef/g;
   s/\bFAILED\(([^\)]+)\)/(!defined($1)||(!ref($1)&&($1<=0)))/g;
   s/\bTAILCALL\(([^,\)]+)\);/\@_=(Hacks->noop);goto $1;/g; #no
   s/\bTAILCALL\(([^,\)]+),?([^\)]*)\);/\@_=($2);goto $1;/g;
-  #print STDERR $_;
   $_;
 };
 1;
@@ -128,12 +48,6 @@ END
 
 {
   package Hacks;
-
-  #XXX - surely this is part of the Regexp::Parser api... somewhere?
-  sub flag_val_m { 0x1 }
-  sub flag_val_s { 0x2 }
-  sub flag_val_i { 0x4 }
-  sub flag_val_x { 0x8 }
 
   my $noop;
   $noop = $main::bt->sub_noop;
@@ -244,7 +158,7 @@ END
   sub emit {
     my($o)=@_;
     my $re = $o->visual();
-    if($o->{'flags'} & $o->flag_val_i) {
+    if($o->{flags} & $o->{rx}->FLAG_i) {
        $re = "(?i)(?:$re)";
     }
     return $main::bt->sub_eat_regexp($re);
@@ -286,7 +200,7 @@ END
     my $len = length($s);
     my $pat = $s;
     $pat =~ s/(\W)/\\$1/g;
-    $pat = "(?:(?i)(?:$pat))" if ($o->{'flags'} & $o->flag_val_i);
+    $pat = "(?:(?i)(?:$pat))" if ($o->{flags} & $o->{rx}->FLAG_i);
     $main::bt->sub_eat_regexp($pat);
   }
 }
@@ -362,7 +276,7 @@ END
       my $s = defined($m) ? "$m" : "";
       my $pat = $s;
       $pat =~ s/(\W)/\\$1/g;
-      $pat = "(?:(?i)(?:$pat))" if($o->{'flags'} & $o->flag_val_i);
+      $pat = "(?:(?i)(?:$pat))" if($o->{flags} & $o->{rx}->FLAG_i);
       my $ok = substr($X::str,$X::pos) =~ /\A($pat)/;
       FAIL() if !$ok;
       $X::pos += length($1);
@@ -612,7 +526,7 @@ my $noop = Hacks->noop;
 sub compile {
   my($re)=@_;
   $re = '(?:)' if $re eq ''; #Regexp::Parser bug workaround.
-  print STDERR "COMPILING \"$re\" ",length($re),"\n";
+  #print STDERR "COMPILING \"$re\" ",length($re),"\n";
   $re =~ s/<(\w+)([^\>]*)>/(?{\@_=(\$__c__,'$1','$2');goto \&Y::dorule;})/g;
   my $parser = Regexp::Parser->new($re);
   my $n = eval{ $parser->root };
@@ -676,4 +590,3 @@ if(@ARGV && $ARGV[0] eq '--test') {
 }
 1;
 __END__
-#print Dumper match_re('a','abc');
