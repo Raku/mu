@@ -1,7 +1,7 @@
 use v6-alpha;
 use Test;
 use FindBin;
-plan 18;
+plan 36;
 
 # L<S16/"Filehandles, files, and directories"/"opendir">
 # L<S16/"Filehandles, files, and directories"/"closedir">
@@ -83,5 +83,73 @@ isa_ok($dh, 'IO::Dir', "opendir worked");
 my @files_once_more = $dh.readdir;
 is_deeply(@files_once_more.sort, @files.sort, 'same list of files,after reopen');
 ok($dir.closedir, 'closedir using $dir.closedir format');
+
+
+# short version. read close etc...
+# copied from above just shortent he methods. and append _s to every variable.
+diag "Start testing for short version.";
+my $dir_s = opendir($FindBin::Bin);
+isa_ok($dir_s, IO::Dir, "opendir worked on $FindBin::Bin");
+
+my @files_s = read($dir_s);
+ok(@files_s, "seems read worked too");
+
+my @more_files_s = read($dir);
+is(+@more_files_s, 0, "No more things to read");
+
+my $row_s = read($dir_s);
+ok(!defined($row_s), "in scalar context it returns undef");
+
+my $rew_1_s = rewind($dir_s);
+is($rew_1_s, 1, "success of rewind 1 returns 1");
+
+my @files_again_s = read($dir_s);
+
+is_deeply(\@files_again_s, @files_s, "same list of files retrieved after rewind");
+
+my $rew_2_s = rewind($dir_s);
+is($rew_2_s, 1, "success of rewind 2 returns 1");
+
+my @files_scalar_s;
+loop {
+    my $f = read($dir_s) err last;
+    @files_scalar_s.push($f);
+}
+is_deeply(\@files_scalar_s, @files_s, "same list of files retrieved after rewind, using scalar context");
+
+my $rew_3_s = $dir_s.rewind;
+is($rew_3_s, 1, 'success of rewind 3 using $dir.rewind returns 1');
+my @files_dot_s = $dir_s.read;
+is_deeply(\@files_dot_s, @files_s, 'same list of files retrieved using $dir.read');
+
+my $rew_4_s = $dir_s.rewind;
+is($rew_4_s, 1, 'success of rewind 4 using $dir.rewind returns 1');
+
+my @files_scalar_dot_s;
+for $dir_s.read -> $f {
+    @files_scalar_dot_s.push($f);
+}
+is_deeply(\@files_scalar_dot_s, @files, 'same list of files, using $dir.read in scalar context');
+
+my @more_files_2_s = $dir_s.read;
+is(+@more_files_2_s, 0, "No more things to read");
+
+my $row_2_s = $dir_s.read;
+ok(!defined($row_2_s), "in scalar context it returns undef");
+
+
+ok(close($dir_s), "as does close");
+
+# on closed directory handler these calls should throw an exception
+#my $undef = readdir($dir);
+#my @empty = readdir($dir);
+# rewinddir($dir);
+# closedir
+
+my $dh_s = opendir($FindBin::Bin);
+isa_ok($dh_s, 'IO::Dir', "opendir worked");
+my @files_once_more_s = $dh_s.read;
+is_deeply(@files_once_more_s.sort, @files_s.sort, 'same list of files,after reopen');
+ok($dir_s.close, 'close using $dir.close format');
 
 
