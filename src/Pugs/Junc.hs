@@ -17,6 +17,7 @@ module Pugs.Junc (
 import Pugs.Types
 import Pugs.Internals
 import Pugs.AST
+import Control.Monad (replicateM)
 import qualified Data.Set as Set
 
 {-|
@@ -130,8 +131,8 @@ juncApply f args
     | this@(_, (pivot:_)) <- break isTotalJunc args
     , VJunc (MkJunc j dups vals) <- argValue pivot
     = do
-        vals' <- appSet this vals
-        return $ VJunc (MkJunc j dups vals')
+        vals' <- appList this vals
+        return $ VJunc (MkJunc j dups (Set.fromList vals'))
     | this@(_, (pivot:_)) <- break isPartialJunc args
     , VJunc (MkJunc j dups vals) <- argValue pivot
     = do
@@ -143,11 +144,15 @@ juncApply f args
     | otherwise
     = f args
     where
-    appSet :: ([ApplyArg], [ApplyArg]) -> Set Val -> Eval (Set Val)
-    appSet x y = return . Set.fromList =<< appList x y
     appList :: ([ApplyArg], [ApplyArg]) -> Set Val -> Eval [Val]
     appList (before, (ApplyArg name _ coll):after) vs = do
-        mapM (\v -> juncApply f (before ++ ((ApplyArg name v coll):after))) $ Set.elems vs
+        env <- ask
+        liftIO $ do
+            chan    <- newChan
+            forM (Set.elems vs) $ \v -> forkIO $ do
+                rv  <- runEvalIO env $ juncApply f (before ++ (ApplyArg name v coll:after))
+                writeChan chan rv
+            replicateM (Set.size vs) (readChan chan)
     appList _ _ = internalError "appList: list doesn't begin with ApplyArg"
 
 {-|
