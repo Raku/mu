@@ -23,7 +23,7 @@ module Pugs.Lexer (
     tryChoice, ruleComma, 
 
     ruleScope, ruleTrait, ruleTraitName, ruleBareTrait, ruleType,
-    verbatimParens, verbatimBrackets, verbatimBraces,
+    verbatimParens, verbatimBrackets, verbatimBraces, eof
 ) where
 import Pugs.Internals
 import Pugs.AST
@@ -32,6 +32,10 @@ import Pugs.Types
 import Pugs.Parser.Types
 import Pugs.Parser.Charnames
 import Text.ParserCombinators.Parsec.Pos (sourceColumn, sourceLine)
+import qualified Text.ParserCombinators.Parsec as Parsec (eof)
+
+eof :: RuleParser ()
+eof = Parsec.eof <?> ""
 
 identStart, identLetter :: RuleParser Char
 identStart  = satisfy isWordAlpha

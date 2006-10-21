@@ -5,6 +5,7 @@ module Pugs.Parser.Program (
 ) where
 import Pugs.Internals
 import Pugs.AST
+import Pugs.Types (isSigilChar)
 
 import Pugs.Parser
 import Pugs.Rule
@@ -127,9 +128,11 @@ runRule env p name str =
 
 takeSameClassWords :: String -> String
 takeSameClassWords "" = ""
-takeSameClassWords (x:xs) = case charClassOf x of
-    SpaceClass  -> x : takeSameClassWords xs
-    cls         -> x : takeWhile ((== cls) . charClassOf) xs
+takeSameClassWords (x:xs)
+    | isSigilChar x = x : takeSameClassWords xs
+    | otherwise = case charClassOf x of
+        SpaceClass  -> x : takeSameClassWords xs
+        cls         -> x : takeWhile ((== cls) . charClassOf) xs
 
 dropUntilPos :: SourcePos -> String -> String
 dropUntilPos pos str

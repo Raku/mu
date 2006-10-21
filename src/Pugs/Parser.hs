@@ -75,7 +75,7 @@ ruleVerbatimBlock = verbatimRule "block" $ do
     return $ Syn "block" [body]
 
 ruleEmptyExp :: RuleParser Exp
-ruleEmptyExp = expRule $ do
+ruleEmptyExp = (<?> "") . expRule $ do
     symbol ";"
     return emptyExp
 
@@ -99,7 +99,7 @@ One of the sub-rules used by 'ruleStatementList'.
 ruleStatement :: RuleParser Exp
 ruleStatement = do
     exp <- ruleExpression
-    f   <- ruleStatementModifier
+    f   <- ruleStatementModifier <?> ""
     f exp
 
 ruleStatementModifier :: RuleParser (Exp -> RuleParser Exp)
@@ -128,7 +128,7 @@ ruleStatementList = rule "statements" .
     doSep sepCount r = do
         exp <- r
         terminate <- option True $ do
-            sepCount $ symbol ";"
+            (sepCount (symbol ";") <?> "")
             return False
         return (exp, terminate)
     sepLoop rule = do

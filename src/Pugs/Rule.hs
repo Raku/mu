@@ -12,7 +12,7 @@
 
 
 module Pugs.Rule (
-    module Text.ParserCombinators.Parsec,
+    module Text.ParserCombinators.Parsec
 ) where
 
 import Text.ParserCombinators.Parsec hiding (
@@ -27,4 +27,5 @@ import Text.ParserCombinators.Parsec hiding (
     hexDigit    ,
     digit       ,
     noneOf      ,
+    eof         ,
     )
