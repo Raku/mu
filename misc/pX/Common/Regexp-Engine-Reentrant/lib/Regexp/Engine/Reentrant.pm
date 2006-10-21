@@ -58,7 +58,7 @@
 # A couple of others I don't remember at the moment but should be mentioned...
 
 package main;
-require './regexp_engine_factory.pl';
+require Regexp::Engine::Reentrant::Backtrack;
 $bt = Regexp::Engine::Fribble::MakeStringSearch->new();
 $bt->config_str_var('$X::str');
 $bt->config_pos_var('$X::pos');
@@ -101,7 +101,7 @@ use Filter::Simple sub {
 package NotMain2;
 use Regexp::Parser;
 use Data::Dumper;
-use Match;
+use Regexp::Engine::Reentrant::Match;
 BEGIN { BacktrackDev->import; };
 use strict;
 
