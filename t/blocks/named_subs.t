@@ -1,19 +1,35 @@
 use v6-alpha;
 use Test;
-plan 4;
+plan 8;
 
-#L<S06/"Routine modifiers"/Named subroutines>
+# L<S06/Named subroutines>
 
 #first lets test lexical named subs
 {
-    my String sub namedStr() { return 'string' };
-    is namedStr(), 'string', 'named sub() return String';
+    my String sub myNamedStr() { return 'string' };
+    is myNamedStr(), 'string', 'lexical named sub() return String';
 }
-is eval('namedStr()'), '', 'Correct : lexical named sub namedStr() should not be available here';
+is eval('myNamedStr()'), '', 'Correct : lexical named sub myNamedStr() should NOT BE available outside its scope';
 
 {
-    my Int sub namedInt() { return 55 };
-    is namedInt(), 55, 'named sub() return Int';
+    my Int sub myNamedInt() { return 55 };
+    is myNamedInt(), 55, 'lexical named sub() return Int';
 }
-is eval('namedInt()'), '', 'Correct : lexical named sub namedInt() should not be available here';
+is eval('myNamedInt()'), '', 'Correct : lexical named sub myNamedInt() should NOT BE available outside its scope';
+
+
+#packge-scoped named subs
+
+{
+    our String sub ourNamedStr() { return 'string' };
+    is ourNamedStr(), 'string', 'package-scoped named sub() return String';
+}
+is ourNamedStr(), 'string', 'Correct : package-scoped named sub ourNamedStr() should BE available in the whole package';
+
+
+{
+    our Int sub ourNamedInt() { return 55 };
+    is ourNamedInt(), 55, 'package-scoped named sub() return Int';
+}
+is ourNamedInt(), 55, 'Correct : package-scoped named sub ourNamedInt() should BE available in the whole package';
 
