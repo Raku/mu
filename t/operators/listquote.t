@@ -47,10 +47,10 @@ my $x = try { [1,2,3].join<a b c> };
 ok($!, '.join<abc> parses but semantic error');
 is($x, try { [1,2,3].join()<a b c> }, '.join()<a b c> not treated as argument');
 
-my @y = try { {:a<1>, :b(2)}<a b c> };
+my @y = try { ({:a<1>, :b(2)}<a b c>) };
 is(@y, [1,2,undef], '{...}<a b c> is hash subscript');
 
-eval '{:a<1>, :b(2)} <a b c>';
+eval '({:a<1>, :b(2)} <a b c>)';
 ok($!, '{...} <...> parsefail');
 
 ok((1 | 3) < 3, '(...) < 3 no parsefail');
