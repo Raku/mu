@@ -248,6 +248,10 @@ sub _rcv {                     # Complement to _send
 
 sub _new_client {
     my $sock = $main_socket->accept();
+    #returns undef on fail. Calling peerhost on undef makes it die.
+    ## so:
+    if (defined $sock) {
+
     my $conn = bless {
         'sock' =>  $sock,
         'state' => 'connected'
@@ -260,6 +264,9 @@ sub _new_client {
         set_event_handler ($sock, "read" => $callback);
     } else {  # Login failed
         $conn->disconnect();
+    }
+    } else {
+        return undef;
     }
 }
 

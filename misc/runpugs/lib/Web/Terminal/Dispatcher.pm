@@ -27,7 +27,7 @@ sub send {
 	my $host = $Web::Terminal::Settings::host;
 	my $port = $Web::Terminal::Settings::port;
 	my $cmd='';
-    # we only consider the last line witha prompt
+    # we only consider the last line with a prompt
 	my @cmdlines=split("\n",$cmds);
 	for my $cmdline (reverse @cmdlines) {
 		$cmdline=~/^\s*$/ && next;
@@ -69,11 +69,13 @@ sub send {
     my $rmesgref= YAML::Syck::Load($rmesg);
      my $rid=$rmesgref->{id};
       my $reply=$rmesgref->{msg};
+      my $histref=$rmesgref->{recent};
     $conn->disconnect();
 	if ( "$id" ne  "$rid" ) {
-		die "Terminal server returned wrong id: $rid, should be $id";
+#		die "Terminal server returned wrong id: $rid, should be $id";
+        return "Sorry, the pugs session died.";
 	}
-	return $reply;
+	return ($reply,$histref);
    }
 }
 

@@ -12,6 +12,7 @@ new() starts the session;
 write() sends commands to it.
 =cut
 
+$SIG{CHLD}='IGNORE';
 ## Constructor
 sub new {
 	my $invocant = shift;
@@ -19,11 +20,16 @@ sub new {
 	my $self     = {@_};
 #	my $prompt = '/\>\ /';
     my $prompt= '/'.$Web::Terminal::Settings::init_pattern.'/';
+    $self->{'error'}=0;
+    $self->{'recent'}=[];
 	## Start pugs
 #    $ENV{PUGS_SAFEMODE}=1;# Must be in CGI script!
 	( $self->{'pty'},$self->{'pid'} ) =
     &spawn($Web::Terminal::Settings::command);    # spawn() defined below
-
+    if ( $self->{'pty'}==-1 and  $self->{'pid'}==0) {
+        $self->{'init'}= "\nThere was a problem starting pugs. Please try again later.";
+        $self->{'error'}=1;
+    } else {
 	## Create a Net::Telnet object to perform I/O on pugs's tty.
 	use Net::Telnet;
 	$self->{'pugs'} = new Net::Telnet(
@@ -34,11 +40,19 @@ sub new {
 		-cmd_remove_mode => 0,
 	);
 	#( $self->{'init'}, my $m ) = $self->{'pugs'}->waitfor(
-	( my $p, my $m ) = $self->{'pugs'}->waitfor(
+    my $error='';
+    ( my $p, my $m ) = $self->{'pugs'}->waitfor(
 		-match   => $self->{'pugs'}->prompt,
 		-errmode => "return"
-	  ) or die "starting pugs failed: ", $self->{'pugs'}->lastline;
-	$self->{'init'}= $p.$m;#$self->{'pugs'}->prompt;
+	  ) or do {
+          $self->{'error'}=1;
+          $error="\nThere was a problem starting pugs. Please try again later.";
+          # should close the TTY
+          $self->{'pugs'}->close();
+      };
+      #die "starting pugs failed: ", $self->{'pugs'}->lastline;
+	$self->{'init'}= $p.$m.$error;#$self->{'pugs'}->prompt;
+    }
 	bless($self,$class);
 	return $self;
 }
@@ -53,6 +67,7 @@ sub write {
 	my $ps = '';
 
 	if ( $cmd eq $Web::Terminal::Settings::quit_command ) {
+        $obj->{pugs}->close();
 		kill 9, $obj->{'pid'};		
 		return "\n$Web::Terminal::Settings::quit_message\n";
 	}
@@ -63,7 +78,7 @@ sub write {
     $pugs->errmode(sub {kill 9,$obj->{'pid'};});
 
 	$pugs->print($cmd);
-	while (1) {
+	while ($i<$Web::Terminal::Settings::nlines) {
 		my $line = $pugs->getline;
         my $msg=$pugs->errmsg;
 #	    print "L:",$line,":",$msg;
@@ -71,7 +86,9 @@ sub write {
             $msg='';
             $pugs->errmsg([]);
             $lline="${Web::Terminal::Settings::prompt} Sorry, that took too long! Aborted.\n";
+            $pugs->close();
             $ps=$Web::Terminal::Settings::prompt;
+            $obj->{'error'}=1;
             last;
         }
         $msg='';
@@ -83,6 +100,13 @@ sub write {
 	}
 
 	#$lline .= "\n$ps>";
+   if ($i>=$Web::Terminal::Settings::nlines-1) {
+       $obj->{pugs}->close();
+        kill 9, $obj->{'pid'};
+        $lline.="Generated output is limited to $Web::Terminal::Settings::nlines lines. Aborted.\npugs";
+        $obj->{'error'}=1;
+    }
+
     chomp $ps; # a hack!
 	$lline .= $ps;
 	return $lline;
@@ -91,20 +115,26 @@ sub write {
 sub spawn {
 	my (@cmd) = @_;
 	my ( $pid, $pty, $tty, $tty_fd );
-
+    my $error=0;
 	## Create a new pseudo terminal.
 	use IO::Pty ();
 	$pty = new IO::Pty
-	  or die $!;
+	  or do {
+          return ( -1, 0 );
+      };
+      #die $!;
     binmode $pty, ":utf8"; 
 	## Execute the program in another process.
 	unless ( $pid = fork ) {    # child process
-		die "problem spawning program: $!\n" unless defined $pid;
-
+	#	die "problem spawning program: $!\n" unless defined $pid;
+     if (not defined $pid) {
+        $pty->close();
+        $error=1;
+    } else { # all is well
 		## Disassociate process from existing controlling terminal.
 		use POSIX ();
 		POSIX::setsid
-		  or die "setsid failed: $!";
+		  or ($error=1);#die "setsid failed: $!";
 
 		## Associate process with a new controlling terminal.
 		$tty    = $pty->slave;
@@ -113,9 +143,9 @@ sub spawn {
 		close $pty;
 
 		## Make stdio use the new controlling terminal.
-		open STDIN,  "<&$tty_fd" or die $!;
-		open STDOUT, ">&$tty_fd" or die $!;
-		open STDERR, ">&STDOUT"  or die $!;
+		open STDIN,  "<&$tty_fd" or ($error=1);#die $!;
+		open STDOUT, ">&$tty_fd" or ($error=1);#die $!;
+		open STDERR, ">&STDOUT"  or ($error=1);#die $!;
         binmode STDIN, ":utf8";
         binmode STDOUT, ":utf8";
         binmode STDERR, ":utf8";
@@ -123,8 +153,14 @@ sub spawn {
 
 		## Execute requested program.
 		exec @cmd
-		  or die "problem executing $cmd[0]\n";
+		  or  ($error=1);#die "problem executing $cmd[0]\n";
+          }
 	}    # end child process
+
+    if($error==1) {
+        $pty=-1;
+        $pid=0;
+    }
 
 	return ( $pty, $pid );
 }    # end sub spawn

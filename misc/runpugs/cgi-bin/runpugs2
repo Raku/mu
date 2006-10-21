@@ -20,9 +20,9 @@
 use strict;
 use utf8;
 use lib '../lib/';
-#use WebTerminal::Settings;
-use WebTerminal::Dispatcher;
-
+use Web::Terminal::Settings;
+use Web::Terminal::Dispatcher;
+$Web::Terminal::Settings::port=2058;
 #push (@INC, "$wwwpath$htmlpath$project");
 
 my $MAX_SIZE_UPLOAD = 64;
@@ -93,33 +93,53 @@ sub runpugs {
     my $cmd=shift;
     my $sessionid=shift;
     my $ip=shift;
-    my $reply='pugs> ';
+#    my $reply='pugs> ';
+    my $reply=$Web::Terminal::Settings::prompt;
+    my @history=();
     my $testing=$query->param('testing')||1;
     if (not $testing) {
     $reply = "Sorry, runpugs is not available at the moment.";
     } else {
-    $cmd=~s/^.+?pugs([\>\.])/pugs$1/s;
+#    $cmd=~s/^.+?pugs([\>\.])/pugs$1/s;
+    if(not $query->param('history') or ($query->param('history') eq '')) {
+    $cmd=~s/^.+?${Web::Terminal::Settings::prompt_pattern}/$1/s;
+    } else {
+    $cmd=$Web::Terminal::Settings::prompt;
+    $cmd.=$query->param('history');
+    }
     #NO UNICODE!
 #    $cmd=tr/\0-\x{10ffff}/\0-\xff_/;
     if ($cmd=~/clear/) {
         $cmd='';
     } elsif ($cmd!~/^\p{IsASCII}*$/) {
         $cmd='';
-        $reply = "Sorry, Unicode is not yet supported.\npugs> ";
+        $reply = "Sorry, Unicode is not yet
+        supported.\n".$Web::Terminal::Settings::prompt;
     } else {
     if ($cmd=~/>\s+(\:*help)\b/) {
         $cmd=~s/$1/:h/;
     } elsif ($cmd=~/>\s+(\:*(quit|bye))\b/) {
         $cmd=~s/$1/:q/;
     } 
-    $reply = &WebTerminal::Dispatcher::send($sessionid,$ip,$cmd);
+    ($reply, my $histref) = &Web::Terminal::Dispatcher::send($sessionid,$ip,$cmd);
+    @history=@{$histref};
     $reply="\n".$reply;
     }
     }
     #$reply.="\n$ip\n$sessionid\n";
+    my $historylist='<select name="history" id="hist">'."\n".'<option value="">--- Recent commands ---</option>'."\n";
+    for my $entry (@history) {
+    $entry=~s/\>/\&gt\;/g;
+    $historylist.='<option value="'.$entry.'">'.$entry.'</option>'."\n";
+    }
+    $historylist.='</select>'."\n";
     my $html='';
-    open(HTML,"<../data/runpugs.html");
+    open(HTML,"<../data/runpugs2.html");
     while(<HTML>) {
+    /_HIST_/ && do {
+    $html.=$historylist;
+    next;
+    };
     s/_TESTING_/$testing/;
 	/input.*name=\"sessionid\"/ && do {$html.='<input type="hidden" name="sessionid" value="'.$sessionid.'">'."\n";next };
 	/(pugs\&gt\;\&nbsp\;)/ && do {$html.=$cmd.$reply;next};

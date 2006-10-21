@@ -45,16 +45,16 @@ sub termhandler {
 		    my $term  = $terminals{$id};
     		my $lines = $term->write($cmd);
 	    	if ( $cmd eq ':q' ) {
-		    	delete $terminals{$id};
                  my $pid= $terminals{$id}->{pid};
+		    	delete $terminals{$id};
                  if ($pid) {
                      kill 9,$pid;
                  }
                 $sessions_per_ip{$ip}--;
     		}
             if ($lines=~/Aborted/s) {
-                 delete $terminals{$id};
                  my $pid= $terminals{$id}->{pid};
+                 delete $terminals{$id};
                  if ($pid) {
                      kill 9,$pid;
                  }
@@ -74,7 +74,13 @@ sub termhandler {
 	            $terminals{$id}->{called}=time;
         	    $terminals{$id}->{ip}=$ip;
         		my $term = $terminals{$id};
-    	    	return $term->{'init'};
+                my $init= $term->{'init'};
+                my $error= $term->{'error'};
+                if ($error==1) { # Failed to create a new terminal
+                $sessions_per_ip{$ip}--;
+                delete $terminals{$id};
+                } 
+    	    	return $init;
             }
 	    }
     }   
@@ -110,7 +116,7 @@ sub run {
     my $host=shift;
     my $port=shift;
     $SIG{USR1}=\&timeout;
-my $daemon=1;
+my $daemon=0;
 if ($daemon) {
     Proc::Daemon::Init;
 }

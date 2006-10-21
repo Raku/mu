@@ -1,4 +1,4 @@
-BODY {width:100%;margin-left:10%;margin-right:10%; margin-top: 10px; font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; font-size: 11pt; line-height: normal; background-color:#FFFFFF;}
+BODY {width:100%;margin-left:10%;margin-right:10%; margin-top: 10px; font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; font-size: 12pt; line-height: normal; background-color:#FFFFFF;}
 H1 {font-size: 24pt; 
     font-family: Georgia, Serif, Times; 
     font-weight: normal;
@@ -8,12 +8,6 @@ H1 {font-size: 24pt;
     }
 H2 { font-weight: bold; font-size: 12pt}
 LABEL {font-weight: bold; }
-EM {font-weight: bold;
-    font-style: normal;
-    text-decoration:none;}
-TT {color: #204a87;
-font-weight: bold;
-}
 .copyright {font-size: 9pt}
 .warning {
 border: solid 2px #204a87;
@@ -21,6 +15,15 @@ padding: 5px;
 }
 #mainwindow {
 width: 750px 
+}
+#hist {
+width: 750px;
+border: solid 2px #204a87;
+font-family: "Andale Mono", courier, fixed, monospace;
+font-size: 10pt;
+color: #204a87;
+    background-color: #f2f2f0;
+    padding-bottom: 5px;
 }
 #cmd {
     font-family: "Andale Mono", courier, fixed, monospace;

@@ -26,20 +26,34 @@ nsessions
 nsessions_ip
 timeout_idle
 timeout_call
+nlines
+daemon
+perl
+server
+cgi_path
+nrecent
 );
 
-our $command='/usr/bin/pugs';
+our $command='/usr/local/bin/ghci';
+our $prompt='Prelude> ';
+our $prompt_pattern='(^(Prelude)>\s+)';
+our $quit_pattern='^Leaving\ GHCi\.';
+our $quit_message='Leaving GHCi.';
 
-our $prompt='pugs> ';
+
+#our $command='/usr/bin/nice /usr/bin/pugs';
+our $server='termserv2.pl';
+#our $prompt='pugs> ';
 our $init_pattern='(\>\s+)';
-our $prompt_pattern='(^(pugs|\.\.\.\.)>\s+)';
+#our $prompt_pattern='(^(pugs|\.\.\.\.)>\s+)';
 our $quit_command=':q';
-our $quit_pattern='^Leaving\ pugs\.';
-our $quit_message='Leaving pugs.';
+#our $quit_pattern='^Leaving\ pugs\.';
+#our $quit_message='Leaving pugs.';
 
 our $filter=0;
 our $filter_pattern='';
-
+our $cgi_path='/home/andara/apache/cgi-bin/';
+our $daemon=0;
 our $port=2057;
 our $host='localhost';
 
@@ -49,3 +63,7 @@ our $nsessions_ip=10;
 our $timeout_idle=600;
 our $timeout_call=10;
 our $check_interval=300;
+our $nlines=250;
+our $nrecent=10;
+our $perl='/usr/bin/perl';
+
