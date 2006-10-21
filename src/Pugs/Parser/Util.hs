@@ -162,14 +162,15 @@ selfParam typ = MkOldParam
     }
 
 extractHash :: Exp -> RuleParser (Maybe Exp)
-extractHash exp = fmap extractHash' (possiblyUnwrap exp)
+extractHash (Ann (Prag [MkPrag "eol-block" _]) exp) = case extractHash' (possiblyUnwrap exp) of
+    Just{}  -> fail "Closing hash curly may not terminate a line;\nplease add a comma or a semicolon to disambiguate"
+    _       -> return Nothing
+extractHash exp = return $ extractHash' (possiblyUnwrap exp
     where
-    possiblyUnwrap (Ann (Prag [MkPrag "eol-block" _]) _) =
-        fail "Closing hash curly may not terminate a line;\nplease add a comma or a semicolon to disambiguate"
     possiblyUnwrap (Ann _ exp) = possiblyUnwrap exp
-    possiblyUnwrap (Syn "block" [exp]) = return (unwrap exp)
-    possiblyUnwrap (App (Val (VCode (MkCode { subType = SubBlock, subBody = fun }))) Nothing []) = return (unwrap fun)
-    possiblyUnwrap x = return x
+    possiblyUnwrap (Syn "block" [exp]) = unwrap exp
+    possiblyUnwrap (App (Val (VCode (MkCode { subType = SubBlock, subBody = fun }))) Nothing []) = unwrap fun
+    possiblyUnwrap x = x
     
     isHashOrPair (Ann _ exp) = isHashOrPair exp
     isHashOrPair (App (Var var) _ _) =
