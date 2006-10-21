@@ -662,11 +662,16 @@ sub match_re {
   return $m;
 }
 
+sub test_target {
+  sub{my($mods,$re)=@_;
+    $re = "(?$mods)(?:$re)" if $mods;
+    my $r = compile($re); sub{my($s)=@_;match($r,$s)}
+  };
+}
+
 if(@ARGV && $ARGV[0] eq '--test') {
   require './re_tests_match.pl';
-  Pkg_re_tests::test(sub{my($mods,$re)=@_;
-    $re = "(?$mods)(?:$re)" if $mods;
-    my $r = compile($re); sub{my($s)=@_;match($r,$s)}});
+  Pkg_re_tests::test(&test_target);
   exit;
 }
 1;

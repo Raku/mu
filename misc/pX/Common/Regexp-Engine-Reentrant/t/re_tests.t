@@ -11,7 +11,7 @@ our $ffff  = chr(0xff) x 2;
 our $nulnul = "\0" x 2;
 
 my $debug_warnings = 0;
-my @tests = `cat re_tests`;
+my @tests = `cat t/re_tests`;
 sub test {
     my($f)=@_;
     print "1..",0+@tests,"\n";
@@ -89,12 +89,16 @@ sub test {
     }
 }
 
-do {
-    # $use_native_ui = 1;
-    test(sub{my($re,$mod)=@_;sub {my($s)=@_; eval("$s =~ /$re/$mod") }});
-    exit;
-} if 0;
-test(sub{sub{undef}}) if $0 =~ /^re\d\d/;
+#do {
+#    # $use_native_ui = 1;
+#    test(sub{my($re,$mod)=@_;sub {my($s)=@_; eval("$s =~ /$re/$mod") }});
+#    exit;
+#} if 0;
+#test(sub{sub{undef}}) if $0 =~ /^re\d\d/;
+
+use Regexp::Engine::Reentrant;
+
+test(&NotMain::test_target);
 
 1;
 __END__
