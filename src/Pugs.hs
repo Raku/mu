@@ -342,11 +342,12 @@ doRunSingle menv opts prog = (`catchIO` handler) $ do
                 else return Nothing
         liftSTM $ modifyTVar ref $ \e -> e{ envDebug = debug }
         return ref
-    printer env = if runOptShowPretty opts
-        then \val -> do
-            final <- runImperatively env (fromVal' val)
-            if hasTrailingSemi then return () else putStrLn $ pretty final
-        else if hasTrailingSemi then \_ -> return () else print
+    printer' = if runOptShowPretty opts then putStrLn . pretty else print
+    printer env = \val -> do
+      final <- runImperatively env (fromVal' val)
+      if hasTrailingSemi
+         then case final of (VError _ _) -> printer' final ; _ -> return ()
+         else printer' final
     makeProper exp = case exp of
         Val err@(VError (VStr msg) _)
             | runOptShowPretty opts
