@@ -31,7 +31,7 @@ ok %named_hash.test_method, "Uninitialized hash";
 
 ok %named_hash.test_method, "Populated hash";
 
-ok try { {foo => "bar"}.test_method }, "Bare hashref";
+ok try { ~{foo => "bar"}.test_method }, "Bare hashref";
 
 
 my $hashref = {foo => "bar"};

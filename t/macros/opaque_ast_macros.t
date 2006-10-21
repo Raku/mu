@@ -18,7 +18,7 @@ is(four, 4, "macro returning q:code");
 
 macro hi () { q:code(:COMPILING) { "hello $s" } } 
 
-macro hey () { { "hello $^s" }.body } 
+macro hey () { ({ "hello $^s" }.body) } 
 
 my $s="world"; 
 is(hi(),"hello world","macros can bind in caller's lexical env");
