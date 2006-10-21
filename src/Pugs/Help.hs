@@ -28,7 +28,9 @@ printInteractiveHelp
         putStrLn ":d <exp>        = show syntax tree of an expression"
         putStrLn ":D <exp>        = show raw syntax tree of an expression"
         putStrLn ":e <exp>        = run a command, and ugly-print the result"
+        putStrLn ":er <exp>       = same, in a pristine environment"
         putStrLn ":E <exp>        = same, but evaluate in small steps"
+        putStrLn ":ER <exp>       = same, in a pristine environment"
         putStrLn "<exp>           = run a command"
 
 {- FIXME: Somebody with more UI skillz should make this nicer -}

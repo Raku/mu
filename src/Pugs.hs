@@ -329,6 +329,8 @@ doRunSingle menv opts prog = (`catchIO` handler) $ do
         return $ envBody $ parseProgram env defaultProgramName $
           (dropTrailingSemi prog)
     dropTrailingSemi = reverse . dropWhile (`elem` " \t\r\n;") . reverse
+    hasTrailingSemi = case f prog of ';':_ -> True; _ -> False
+        where f = dropWhile (`elem` " \t\r\n\f") . reverse
     theEnv = do
         ref <- if runOptSeparately opts
                 then (liftSTM . newTVar) =<< tabulaRasa defaultProgramName
@@ -341,8 +343,8 @@ doRunSingle menv opts prog = (`catchIO` handler) $ do
     printer env = if runOptShowPretty opts
         then \val -> do
             final <- runImperatively env (fromVal' val)
-            putStrLn $ pretty final
-        else print
+            if hasTrailingSemi then return () else putStrLn $ pretty final
+        else if hasTrailingSemi then \_ -> return () else print
     makeProper exp = case exp of
         Val err@(VError (VStr msg) _)
             | runOptShowPretty opts

@@ -55,8 +55,10 @@ doCommand (Just line)
         return $ parseCommandLine line
 
 parseCommandLine :: String -> Command 
-parseCommandLine (':':'e':str)  = CmdRun (RunOpts False True False) str
-parseCommandLine (':':'E':str)  = CmdRun (RunOpts True True False) str
+parseCommandLine (':':'e':'r':str)  = CmdRun (RunOpts False True False) str
+parseCommandLine (':':'e':str)  = CmdRun (RunOpts False False False) str
+parseCommandLine (':':'E':'R':str)  = CmdRun (RunOpts True True False) str
+parseCommandLine (':':'E':str)  = CmdRun (RunOpts True False False) str
 parseCommandLine (':':'d':str)  = CmdParse str
 parseCommandLine (':':'D':str)  = CmdParseRaw str
 parseCommandLine (':':'q':_)    = CmdQuit
