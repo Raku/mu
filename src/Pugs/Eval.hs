@@ -268,6 +268,10 @@ reduceVal v@(VRef var) = do
 -- Reduction for constants
 reduceVal v = retVal v
 
+isStrict = do
+    vb <- fromVal =<< readVar (cast "$?STRICT")
+    return vb
+
 -- Reduction for variables
 reduceVar :: Var -> Eval Val
 reduceVar var@MkVar{ v_sigil = sig, v_twigil = twi, v_name = name, v_package = pkg }
@@ -287,7 +291,11 @@ reduceVar var@MkVar{ v_sigil = sig, v_twigil = twi, v_name = name, v_package = p
                     -- $Qualified::Var is not found.  Vivify at lvalue context.
                     lv <- asks envLValue
                     if lv then evalExp (Sym SGlobal var (Var var)) else retEmpty
-                | otherwise         -> retError "Undeclared variable" var
+                | otherwise -> do
+                    s <- isStrict
+                    if s then retError "Undeclared variable" var
+                         else do lv <- asks envLValue
+                                 if lv then evalExp (Sym SGlobal var (Var var)) else retEmpty
 
 _scalarContext :: Cxt
 _scalarContext = CxtItem $ mkType "Scalar"

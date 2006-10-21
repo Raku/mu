@@ -113,6 +113,7 @@ prepareEnv name args = do
     defSV   <- newScalar undef
     autoSV  <- newScalar undef
     classes <- initClassObjects (MkObjectId $ -1) [] initTree
+    strictSV <- newScalar $ VBool (name /= "-e")
 #if defined(PUGS_HAVE_HSPLUGINS)
     hspluginsSV <- newScalar (VInt 1)
 #else
@@ -161,6 +162,7 @@ prepareEnv name args = do
         , gen "%?CONFIG" $ hideInSafemode $ hashRef confHV
         , gen "$*_" $ MkRef defSV
         , gen "$*AUTOLOAD" $ MkRef autoSV
+        , gen "$?STRICT" $ MkRef strictSV
         ] ++ classes
     -- defSVcell <- (gen "$_" . MkRef) =<< newScalar undef
     let env' = env

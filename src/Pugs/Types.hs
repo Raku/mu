@@ -376,6 +376,7 @@ toGlobalVar var = var{ v_twigil = TGlobal }
 isGlobalVar :: Var -> Bool
 isGlobalVar MkVar{ v_twigil = TGlobal } = True
 isGlobalVar MkVar{ v_twigil = TDoc }    = True -- XXX noncanonical
+isGlobalVar MkVar{ v_twigil = TMagical }= True -- XXX noncanonical
 isGlobalVar _                           = False
 
 instance ((:>:) Var) ByteString where
