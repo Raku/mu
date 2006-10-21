@@ -1,3 +1,5 @@
+
+- added a version banner - perl lib/v6.pm -v
 - eval() in caller's context
 
 [devel only]

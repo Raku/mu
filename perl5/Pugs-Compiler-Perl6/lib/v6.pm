@@ -21,6 +21,22 @@ INIT {
   }
 }
 
+sub banner { 
+q(         ___ 
+        /  __\
+ __    _\ \___      _____   _ ___ ___
+/\ \  / /\  __ \   /\  __ \/\  __  __ \
+\ \ \/ /\ \ \_\ \__\ \ \_\ \ \ \/\ \/\ \
+ \ \__/  \ \____/\_).q(\\).q(\ \  __/\ \_\ \_\ \_\  Perl6-in-Perl5
+  \/_/    \ ___/\/_/ \ \ \/  \/_/\/_/\/_/  
+                      \ \_\              Version: ) . $v6::VERSION . q(
+                       \/_/   Copyright 2006, The Pugs Contributors
+--------------------------------------------------------------------
+ Web: http://pugscode.org/           Email: perl6-compiler@perl.org
+
+);
+}
+
 sub pmc_can_output { 1 }
 
 sub pmc_parse_blocks {
@@ -105,6 +121,8 @@ sub pmc_compile {
     return $perl5;
 }
 
+#print "ARGS: \$0='$0' \@ARGV=[ @ARGV ]\n";
+
 if (@ARGV and !caller) {
     # We are the main program here
     my ($compile_only, $code);
@@ -129,6 +147,11 @@ if (@ARGV and !caller) {
         shift @ARGV;
     }
 
+    if (@ARGV && $ARGV[0] eq '-v' ) {
+        print banner();
+        exit 0;
+    }
+
     if (@ARGV and $ARGV[0] =~ s/^-e//) {
         $code = (length($ARGV[0]) ? $ARGV[0] : $ARGV[1]);
     }
@@ -146,6 +169,10 @@ if (@ARGV and !caller) {
         die $@ if $@;
         exit 0;
     }
+}
+elsif ( $0 eq '-e' && $ARGV[-1] eq '-v' ) {
+    print banner();
+    exit 0;
 }
 elsif ( $0 eq '-e' ) {
     # perl -Ilib -e 'use v6-alpha' ' "hello world".say '
@@ -227,6 +254,11 @@ This examples assume that v6.pm is in the C<./lib> directory:
 
     $ perl lib/v6.pm -e 'for 1,2,3 -> $x { say $x }'
     $ perl lib/v6.pm --compile-only -e '<hello>.say;'
+
+Print the version banner:
+
+    $ perl -e 'use v6-alpha' - -v
+    $ perl lib/v6.pm -v
 
 =head1 DESCRIPTION
 
