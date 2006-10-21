@@ -268,9 +268,8 @@ reduceVal v@(VRef var) = do
 -- Reduction for constants
 reduceVal v = retVal v
 
-isStrict = do
-    vb <- fromVal =<< readVar (cast "$?STRICT")
-    return vb
+isStrict :: Eval Bool
+isStrict = fromVal =<< readVar (cast "$*STRICT")
 
 -- Reduction for variables
 reduceVar :: Var -> Eval Val

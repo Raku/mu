@@ -162,7 +162,7 @@ prepareEnv name args = do
         , gen "%?CONFIG" $ hideInSafemode $ hashRef confHV
         , gen "$*_" $ MkRef defSV
         , gen "$*AUTOLOAD" $ MkRef autoSV
-        , gen "$?STRICT" $ MkRef strictSV
+        , gen "$*STRICT" $ MkRef strictSV
         ] ++ classes
     -- defSVcell <- (gen "$_" . MkRef) =<< newScalar undef
     let env' = env
