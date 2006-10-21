@@ -1457,6 +1457,12 @@ sub prefix {
         return _emit( $n->{exp1} ) . "  # XXX :\$var not implemented\n";
     }
     
+    if (  $n->{op1} eq 'scalar' 
+       || $n->{op1} eq '$' 
+       ) {
+        return '${' . _emit( $n->{exp1} ) . '}';
+    }
+
     if ( $n->{op1} eq 'hash' ) {
         return '%{' . _emit( $n->{exp1} ) . '}';
     }
