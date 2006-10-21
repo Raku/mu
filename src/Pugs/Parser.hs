@@ -63,10 +63,11 @@ ruleBlock = do
         -- then it's statement-level break
         whiteSpace
         currPos <- getPosition
-        when (sourceLine prevPos /= sourceLine currPos) $ do
+        if sourceLine prevPos == sourceLine currPos then return rv else do
             -- Manually insert a ';' symbol here!
             insertIntoPosition ';' 
-        return rv
+            -- Register that this is an eol-block, thus can't be hash composers
+            return (Ann (Prag [MkPrag "eol-block" 0]) rv)
 
 ruleVerbatimBlock :: RuleParser Exp
 ruleVerbatimBlock = verbatimRule "block" $ do
@@ -1265,7 +1266,11 @@ ruleBlockVariants variants = do
 
 
 retBlock :: SubType -> Maybe [Param] -> Bool -> Exp -> RuleParser Exp
-retBlock SubBlock Nothing _ exp | Just hashExp <- extractHash (unwrap exp) = return $ Syn "\\{}" [hashExp]
+retBlock SubBlock Nothing lvalue body = do
+    rv  <- extractHash body
+    case rv of
+        Just hashExp    -> return $ Syn "\\{}" [hashExp]
+        _               -> retVerbatimBlock SubBlock Nothing lvalue body
 retBlock typ formal lvalue body = retVerbatimBlock typ formal lvalue body
 
 retVerbatimBlock :: SubType -> Maybe [Param] -> Bool -> Exp -> RuleParser Exp
