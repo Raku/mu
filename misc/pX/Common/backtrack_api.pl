@@ -307,44 +307,47 @@ sub sub_repeat {
   my $key =  'cached_sub_repeat_'.$ng;
   if(not exists $o->{$key}) {
     my $gen_code = sub {
-      my($first,$second)=@_;
+      my($default_behavior,$fallback_behavior)=@_;
       return '
 #line 2 "cached_sub_repeat"
       sub {
         my($o,$f,$min,$max)=@_;
         sub{
           my $c = $_[0];
-          my $pos_old = -1;
-          my $i = 0;
-          my($fmin,$fagain,$frest);
-          $fmin = sub{
-            if($i >= $min) {
-              goto &$fagain;
+
+          my $previous_pos = -1;
+          my $count = 0;
+
+          my $try_getting_more;
+          my $get_minimum = sub {
+            if($count < $min) {
+              $count++;
+              '.$o->tailcall('$f','$get_minimum').'
+            } else {
+              goto &$try_getting_more;
             }
-            $i++; '.$o->tailcall('$f','$fmin').'
           };
-          $fagain = sub{
-            if($pos_old >= '.$o->config_pos_var.'){
+
+          $try_getting_more = sub {
+
+            if( !( $previous_pos < '.$o->config_pos_var.') ||
+                !( $count < $max ) ){
               '.$o->tailcall('$c').';
             }
-            $pos_old = '.$o->config_pos_var.';
-            goto &$frest;
-          };
-          $frest = sub{
-            if($i >= $max) {
-              '.$o->tailcall('$c').';
-            }
-            $i++;
+            $previous_pos = '.$o->config_pos_var.';
+            $count++;
+
             my $v = '.$o->general_let($o->config_backtrack_vars,
-                                      $o->call(@$first)).';
+                                      $o->call(@$default_behavior)).';
             return $v if '.$o->is_not_failure('$v').';
-            '.$o->tailcall(@$second).';
+            '.$o->tailcall(@$fallback_behavior).';
           };
-          goto &$fmin;
+
+          goto &$get_minimum;
         }
       }';
     };
-    my $recurse = ['$f','$fagain'];
+    my $recurse = ['$f','$try_getting_more'];
     my $continue= ['$c'];
     my $code_g  = $gen_code->($recurse,$continue);
     my $code_ng = $gen_code->($continue,$recurse);
