@@ -21,7 +21,7 @@ module Pugs.Prim (
 
     -- used Pugs.Eval
     op1Return, op1Yield,
-    foldParam, op2Hyper, op1HyperPrefix, op1HyperPostfix, retSeq
+    foldParam, op2Hyper, op1HyperPrefix, op1HyperPostfix, retSeq, atomicEval
 ) where
 import Pugs.Internals
 import Pugs.Junc
@@ -155,9 +155,9 @@ op1 "sin"  = op1Floating sin
 op1 "tan"  = op1Floating tan
 op1 "sqrt" = op1Floating sqrt
 op1 "atan" = op1Floating atan
-op1 "post:++" = \x -> do
-    val <- fromVal x
+op1 "post:++" = \x -> atomicEval $ do
     ref <- fromVal x
+    val <- fromVal x
     val' <- case val of
         (VStr str)  -> return (VStr $ strInc str)
         _           -> op1Numeric (+1) val
@@ -168,9 +168,9 @@ op1 "post:++" = \x -> do
 op1 "++"   = \mv -> do
     op1 "post:++" mv
     fromVal mv
-op1 "post:--"   = \x -> do
-    val <- fromVal x
+op1 "post:--"   = \x -> atomicEval $ do
     ref <- fromVal x
+    val <- fromVal x
     writeRef ref =<< op1Numeric (\x -> x - 1) val
     return val
 op1 "--"   = \mv -> do
@@ -1550,6 +1550,10 @@ opPerl5 sub args = do
     argsSV  <- mapM fromVal args
     runInvokePerl5 subSV nullSV argsSV
 
+atomicEval :: Eval Val -> Eval Val
+atomicEval action = do
+    env <- ask
+    if envAtomic env then action else guardSTM (runEvalSTM env action)
 
 {-| Assert that a list of Vals is all defined.
 This should 'fail' (in the Perl sense).
