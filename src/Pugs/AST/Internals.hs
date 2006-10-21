@@ -1451,7 +1451,7 @@ mkCompUnit :: String -> Pad -> Exp -> CompUnit
 mkCompUnit _ pad ast = MkCompUnit compUnitVersion pad ast
 
 compUnitVersion :: Int
-compUnitVersion = 8
+compUnitVersion = 9
 
 {-|
 Retrieve the global 'Pad' from the current evaluation environment.
@@ -2039,7 +2039,6 @@ instance YAML VControl
 instance YAML (VThread Val)
 instance YAML ClassTree
 instance YAML Dynamic
-instance YAML Pragma
 instance YAML ProcessHandle
 instance YAML Regex
 instance YAML Unique
@@ -2133,6 +2132,15 @@ data Val
     | VList     !VList       -- ^ List value
     | VType     !VType       -- ^ Type value (e.g. @Int@ or @Type@)
     {-!derive: JSON!-}
+
+data Pragma = MkPrag
+    { pragName           :: !String -- ^ Name of pragma
+    , pragDat            :: !Int    -- ^ (lexically scoped) pragmatic data
+                                    --     This element is subject to change;
+                                    --     we don't necessarily want to limit
+                                    --     ourselves to 32 bit ints.
+    }
+    {-!derive: YAML_Pos, JSON, Perl5!-}
 
 -}
 

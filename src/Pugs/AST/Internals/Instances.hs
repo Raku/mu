@@ -179,7 +179,6 @@ instance YAML VControl
 instance YAML (VThread Val)
 instance YAML ClassTree
 instance YAML Dynamic
-instance YAML Pragma
 instance YAML ProcessHandle
 instance YAML Regex
 instance YAML Unique
@@ -831,6 +830,23 @@ instance JSON Val where
     showJSON (VStr aa) = showJSArrayObj "VStr" [showJSON aa]
     showJSON (VList aa) = showJSArrayObj "VList" [showJSON aa]
     showJSON (VType aa) = showJSArrayObj "VType" [showJSON aa]
+
+instance YAML Pragma where
+    fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
+	"MkPrag" -> do
+	    let ESeq [aa, ab] = e
+	    liftM2 MkPrag (fromYAML aa) (fromYAML ab)
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkPrag"] ++ " in node " ++ show e
+    fromYAML _ = fail "no tag found"
+    asYAML (MkPrag aa ab) = asYAMLseq "MkPrag" [asYAML aa, asYAML ab]
+
+instance JSON Pragma where
+    showJSON (MkPrag aa ab) = showJSHashObj "MkPrag"
+	     [("pragName", showJSON aa), ("pragDat", showJSON ab)]
+
+instance Perl5 Pragma where
+    showPerl5 (MkPrag aa ab) = showP5HashObj "MkPrag"
+	      [("pragName", showPerl5 aa) , ("pragDat", showPerl5 ab)]
 
 --  Imported from other files :-
 
