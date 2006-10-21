@@ -11,25 +11,21 @@ package Pugs::Emitter::Perl6::Perl5::Array;
         },
         fallback => 1,
     );
-
     sub WHAT { 
         $_[0]->node( 'str', 'Array' );
     }
-
-sub isa { 
-    return $_[0]->WHAT->eq( $_[1] ); 
-}
-
-sub get {
-    my $self = $_[0];
-    return $self->name;
-}
-
-sub set {
-    my $self = $_[0];
-    # XXX box
-    return $self->name . ' = ' . $_[1]->array->get;
-}
+    sub isa { 
+        return $_[0]->WHAT->eq( $_[1] ); 
+    }
+    sub FETCH {
+        my $self = $_[0];
+        return $self->name;
+    }
+    sub STORE {
+        my $self = $_[0];
+        # XXX box
+        return $self->name . ' = ' . $_[1]->array->FETCH;
+    }
 
 sub str {
     return $_[0]->node( 'StrExpression', '"' . $_[0] . '"' )
@@ -157,17 +153,14 @@ package Pugs::Emitter::Perl6::Perl5::NamedArray;
     sub WHAT { 
         $_[0]->node( 'str', 'Array' );
     }
-
 sub isa { 
     $_[0]->WHAT->eq( $_[1] ); 
 }
-
-sub get {
+sub FETCH {
     my $self = $_[0];
     $self->name;
 }
-
-sub set {
+sub STORE {
     my $self = $_[0];
     # XXX box
     '( ' . $self->name . ' = [' . $_[1]->array . '] )';

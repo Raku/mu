@@ -19,7 +19,7 @@ Methods
 .unboxed - unboxes an object. Example: Int.unbox -> int
 
 .WHAT  - returns the class as a Class (which stringifies to the class name)
-.perl  - returns a Str, which contains the object dumped as Perl6 source code  
+.perl  - returns a Str, which contains the object dumped as Perl6 source code  XXX
 .list  
 
 Coercions
@@ -40,8 +40,8 @@ Container operations
 .bind( $cell )
 .bind_from - returns this container's cell (as plain source code, not an object)
 
-.set( $value ) - same as STORE
-.value - returns the cell value; same as FETCH
+.STORE( $value )
+.FETCH - returns the cell value
 
 .array .hash .scalar - coerce values into containers
 
@@ -160,3 +160,8 @@ See also: 'type-example.pl'
     $$a->str()
         - call stringification method on $a's value
 
+-- Questions
+
+    $a[10] := 1;
+    @$a = ();  # error ???
+  

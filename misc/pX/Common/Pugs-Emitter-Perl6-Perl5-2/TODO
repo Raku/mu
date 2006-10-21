@@ -1,9 +1,7 @@
 
 Compile-Time objects
 
-- rename .set -> .STORE
-- create .FETCH
-
+- Array/Hash dereference (return Scalar)
 - implement 'Code' class, with multi-dispatch
 - replace 'Range' implementation with a lazy runtime object
 

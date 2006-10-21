@@ -1396,7 +1396,7 @@ sub infix {
     if ( $n->{op1} eq '=' ) {
         #print "{'='}: ", Dumper( $n );
                 
-        return $v1->set( $v2 )
+        return $v1->STORE( $v2 )
             if     Scalar::Util::blessed $v1
                 && Scalar::Util::blessed $v2;              
         return $v1 . ' = ' . $v2

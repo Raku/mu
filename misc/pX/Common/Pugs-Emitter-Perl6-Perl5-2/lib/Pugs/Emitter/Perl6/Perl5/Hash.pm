@@ -12,15 +12,13 @@ package Pugs::Emitter::Perl6::Perl5::Hash;
         $_[0]->node( 'str', 'Hash' );
     }
     sub isa { 
-        my $self = $_[0];
-        return $_[0]->WHAT->eq( $_[1]->WHAT ); 
-        #return 'Pugs::Runtime::Perl6::Scalar::isa( \\'. _emit( $n->{self} ) . ', ' . _emit( $n->{param} ) . ')';
+        $_[0]->WHAT->eq( $_[1]->WHAT ); 
     }
-    sub get {
+    sub FETCH {
         my $self = $_[0];
         return $self->name;
     }
-    sub set {
+    sub STORE {
         my $self = $_[0];
         return $self->name . ' = ' . $_[1]->hash->get;
     }
@@ -129,19 +127,16 @@ package Pugs::Emitter::Perl6::Perl5::NamedHash;
     }
 
 sub isa { 
-    my $self = $_[0];
-    return $_[0]->WHAT->eq( $_[1]->WHAT ); 
+    $_[0]->WHAT->eq( $_[1]->WHAT ); 
 }
 
-sub get {
-    my $self = $_[0];
-    $self->name;
+sub FETCH {
+    $_[0]->name;
 }
 
-sub set {
-    my $self = $_[0];
+sub STORE {
     print "NamedHash set ", Dumper( $_[1] );
-    $self->name . ' = ' . $_[1]->hash->get;
+    $_[0]->name . ' = ' . $_[1]->hash->get;
 }
 
     sub str {

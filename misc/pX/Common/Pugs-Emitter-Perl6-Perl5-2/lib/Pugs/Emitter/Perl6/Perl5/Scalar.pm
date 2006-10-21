@@ -16,8 +16,8 @@ package Pugs::Emitter::Perl6::Perl5::Scalar;
         $_[0]->node( 'BoolExpression',
                 'Pugs::Runtime::Perl6::Scalar::isa( '. $_[0] . ', ' . $_[1] . ')' );
     }
-    sub set {
-        $_[0] . ' = ' . $_[1]->scalar;
+    sub STORE {
+        $_[0]->name . ' x= ' . $_[1]->scalar;
     }
     sub perl {
         $_[0]->node( 'StrExpression',
@@ -94,8 +94,8 @@ package Pugs::Emitter::Perl6::Perl5::ValueScalar;
         $_[0]->node( 'BoolExpression',
                 'Pugs::Runtime::Perl6::Scalar::isa( '. $_[0] . ', ' . $_[1] . ')' );
     }
-    sub set {
-        $_[0] . ' = ' . $_[1]->scalar;
+    sub STORE {
+        $_[0]->name . ' x= ' . $_[1]->scalar;
     }
     sub hash {
         return $_[0]->node( 'HashExpression', $_[0] . '->hash' )
@@ -131,17 +131,19 @@ package Pugs::Emitter::Perl6::Perl5::NamedScalar;
         },
         fallback => 1,
     );
-    sub set {
+    sub STORE {
         #print "SCALAR SET ", Data::Dumper::Dumper( $_[1] );
         #print "SCALAR SET ", $_[1]->scalar;
-        $_[0] . ' = ' . $_[1]->scalar
+        $_[0]->name . ' x= ' . $_[1]->scalar
     }
     sub my {
-        $Pugs::Emitter::Perl6::Perl5::_V6_PREDECLARE{ $_[0]{name} } = 'my ' . Pugs::Runtime::Common::mangle_var( $_[0]->{name} ) . ' = \( my $' . $_[0]->new_id . ')';
+        $Pugs::Emitter::Perl6::Perl5::_V6_PREDECLARE{ $_[0]{name} } = 'my ' . Pugs::Runtime::Common::mangle_var( $_[0]->{name} ) . ' = ' .
+            '( bless \\( my $' . $_[0]->new_id . "), 'Pugs::Runtime::Perl6::ReadWrite' )";
         $_[0]
     }
     sub our {
-        $Pugs::Emitter::Perl6::Perl5::_V6_PREDECLARE{ $_[0]{name} } = 'our ' . Pugs::Runtime::Common::mangle_var( $_[0]->{name} ) . ' = \( my $' . $_[0]->new_id . ')';
+        $Pugs::Emitter::Perl6::Perl5::_V6_PREDECLARE{ $_[0]{name} } = 'our ' . Pugs::Runtime::Common::mangle_var( $_[0]->{name} ) . ' = ' .
+            '( bless \\( my $' . $_[0]->new_id . "), 'Pugs::Runtime::Perl6::ReadWrite' )";
         $_[0]
     }
     sub bind {

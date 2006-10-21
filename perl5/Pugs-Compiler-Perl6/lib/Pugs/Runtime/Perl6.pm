@@ -116,6 +116,30 @@ package Pugs::Runtime::Perl6::Routine;
         return *$cv->{sig} ? *$cv->{sig}->arity : 0;
     }
 
+package Pugs::Runtime::Perl6::ReadWrite;
+    use overload (
+        'x='  => sub { 
+            ${$_[0]} = $_[1];
+            $_[0];
+        },
+        '='  => sub { 
+            ${$_[0]} = $_[1];
+            $_[0];
+        },
+        fallback => 0,
+    );
+package Pugs::Runtime::Perl6::ReadOnly;
+    use overload (
+        'x='  => sub { 
+            die "Modification of a read-only value attempted";
+        },
+        '='  => sub { 
+            ${$_[0]} = $_[1];
+            $_[0];
+        },
+        fallback => 0,
+    );
+
 package Pugs::Runtime::Perl6::Scalar;
     use Scalar::Util qw(looks_like_number);
     

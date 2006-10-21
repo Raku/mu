@@ -13,7 +13,8 @@ package Pugs::Emitter::Perl6::Perl5::Value;
         $_[0]->node( 'Seq', [ $_[0] ] );
     }
     sub bind_from { 
-        '\\' . $_[0]->scalar;
+        #'\\' . $_[0]->scalar;
+        '( bless \\( ' . $_[0]->scalar . "), 'Pugs::Runtime::Perl6::ReadOnly' )"
     }
     sub unboxed {
         return $_[0]->{name} 
@@ -32,8 +33,11 @@ package Pugs::Emitter::Perl6::Perl5::Value;
     sub int {
         $_[0]->node( 'int',  $_[0]->{name} );
     }
-    sub value {
+    sub FETCH {
         $_[0]
+    }
+    sub STORE {
+        die "Can't store into a Value";
     }
 package Pugs::Emitter::Perl6::Perl5::Bool;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
@@ -206,7 +210,7 @@ package Pugs::Emitter::Perl6::Perl5::Seq;
 package Pugs::Emitter::Perl6::Perl5::List;
     use base 'Pugs::Emitter::Perl6::Perl5::Seq';
     # TODO
-package Pugs::Emitter::Perl6::Perl5::pair;
+package Pugs::Emitter::Perl6::Perl5::Pair;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
     use overload (
         '""'     => sub { 
@@ -223,7 +227,7 @@ package Pugs::Emitter::Perl6::Perl5::pair;
     sub key {
         $_[0]->{name}[0];
     }
-    sub value {
+    sub FETCH {
         $_[0]->{name}[1];
     }
     sub kv {

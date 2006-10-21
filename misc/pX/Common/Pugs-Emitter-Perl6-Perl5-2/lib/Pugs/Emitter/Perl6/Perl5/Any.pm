@@ -26,12 +26,12 @@ sub isa {
     return $_[0]->WHAT . ' eq ' . $_[1]->WHAT;
 }
 
-sub get {
+sub FETCH {
     my $self = $_[0];
     return $self->name;
 }
 
-sub set {
+sub STORE {
     my $self = $_[0];
     return $self->name . ' = ' . $_[1]->get;
 }

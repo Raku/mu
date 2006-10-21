@@ -14,13 +14,17 @@ package Pugs::Emitter::Perl6::Perl5::Native;
         $_[0]->node( 'Seq', [ $_[0] ] );
     }
     sub bind_from { 
-        '\\' . $_[0]->scalar->name;
+        #'\\' . $_[0]->scalar->name;
+        '( bless \\( ' . $_[0]->scalar->name . "), 'Pugs::Runtime::Perl6::ReadOnly' )"
     }
     sub unboxed {
         $_[0]
     }
-    sub value {
+    sub FETCH {
         $_[0]
+    }
+    sub STORE {
+        die "Can't store into a Value";
     }
 package Pugs::Emitter::Perl6::Perl5::bool;
     use base 'Pugs::Emitter::Perl6::Perl5::Native';
