@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 4 Oct 2006
+  Last Modified: 20 Oct 2006
   Number: 12
-  Version: 28
+  Version: 29
 
 =head1 Overview
 
@@ -1017,9 +1017,16 @@ and binds the object to it:
 
     $fido does Sentry
 
-The C<does> operator returns the object so you can nest mixins:
+The C<does> operator is non-associative, so this is a syntax error:
 
     $fido does Sentry does Tricks does TailChasing does Scratch;
+
+You can, however, say
+
+    $fido does Sentry;
+    $fido does Tricks;
+    $fido does TailChasing;
+    $fido does Scratch;
 
 Unlike the compile-time role composition, each of these layers on a new
 mixin with a new level of inheritance, creating a new anonymous class
@@ -1028,7 +1035,7 @@ C<.chase> method from C<Sentry>.
 
 You can also mixin a precomposed set of roles:
 
-    $fido does Sentry | Tricks | TailChasing | Scratch;
+    $fido does (Sentry, Tricks, TailChasing, Scratch);
 
 This will level the playing field for collisions among the new set of roles,
 and guarantees the creation of no more than one more anonymous class.
