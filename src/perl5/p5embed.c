@@ -165,7 +165,7 @@ oRZ"       warn $ret;\n"
 
 "sub FETCH {\n"
 "       my ($self) = @_;\n"
-"       pugs::guts::eval_apply('sub ($x is rw) { $$x }', $$self) }\n"
+"       pugs::guts::eval_apply('sub ($x) { ~$x }', $$self) }\n"
 
 "sub STORE {\n"
 "       my ($self, $val) = @_;\n"
