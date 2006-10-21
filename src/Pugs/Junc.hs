@@ -148,10 +148,13 @@ juncApply f args
         env <- ask
         liftIO $ do
             chan    <- newChan
-            forM (Set.elems vs) $ \v -> forkIO $ do
-                rv  <- runEvalIO env $ juncApply f (before ++ (ApplyArg name v coll:after))
-                writeChan chan rv
-            replicateM (Set.size vs) (readChan chan)
+            mvars   <- forM (Set.elems vs) $ \v -> do
+                mv  <- newEmptyMVar
+                forkIO $ do
+                    val <- runEvalIO env $ juncApply f (before ++ (ApplyArg name v coll:after))
+                    putMVar mv val
+                return mv
+            mapM readMVar mvars
     appList _ _ = internalError "appList: list doesn't begin with ApplyArg"
 
 {-|
