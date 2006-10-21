@@ -1080,11 +1080,16 @@ ruleConstruct = rule "construct" $ choice
     , ruleRepeatConstruct
     , ruleCondConstruct
     , ruleWhileUntilConstruct
---  , ruleStandaloneBlock
+    , ruleStandaloneBlock
     , ruleWhenConstruct
     , ruleDefaultConstruct
     , yadaLiteral
     ]
+
+ruleStandaloneBlock :: RuleParser Exp
+ruleStandaloneBlock = verbatimRule "" $ do
+    body <- ruleBlock
+    retVerbatimBlock SubBlock Nothing False body
 
 ruleForConstruct :: RuleParser Exp
 ruleForConstruct = rule "loop construct" $ do
