@@ -80,7 +80,7 @@ sub combo (Int $by is copy, @list is copy) returns Ref {
 sub new_deck () returns Array {
     return (1..13).map: -> $num {
         <H D C S>.map: -> $suit {
-            { num => $num, val => $num > 10 ?? 10 !! $num, suit => $suit }
+            { num => $num, val => $num > 10 ?? 10 !! $num, suit => $suit };
         }
     };
 }
