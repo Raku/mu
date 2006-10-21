@@ -328,7 +328,9 @@ doRunSingle menv opts prog = (`catchIO` handler) $ do
         env <- liftSTM $ readTVar menv
         return $ envBody $ parseProgram env defaultProgramName $
           (dropTrailingSemi prog)
-    dropTrailingSemi = reverse . dropWhile (`elem` " \t\r\n;") . reverse
+    dropTrailingSemi = reverse .
+                       (\x -> ';' : (dropWhile (`elem` " \t\r\n;") x)) .
+                       reverse
     hasTrailingSemi = case f prog of ';':_ -> True; _ -> False
         where f = dropWhile (`elem` " \t\r\n\f") . reverse
     theEnv = do
