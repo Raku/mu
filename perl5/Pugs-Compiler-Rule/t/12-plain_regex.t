@@ -24,7 +24,7 @@ sub compile {
     $self->{perl5} = Pugs::Emitter::Rule::Perl5::Regex::emit( 
                 $self->{grammar}, $ast, $self );
         
-    #print 'rule perl5: ', do{use Data::Dumper; Dumper($self->{perl5})};
+    #print 'rule perl5: ', $self->{perl5}, "\n";
     return Pugs::Compiler::RegexPerl5->compile( $self->{perl5} );
 }
 
