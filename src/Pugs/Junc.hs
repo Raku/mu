@@ -147,7 +147,6 @@ juncApply f args
     appList (before, (ApplyArg name _ coll):after) vs = do
         env <- ask
         liftIO $ do
-            chan    <- newChan
             mvars   <- forM (Set.elems vs) $ \v -> do
                 mv  <- newEmptyMVar
                 forkIO $ do
