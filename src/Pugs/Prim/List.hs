@@ -392,11 +392,13 @@ op1HyperPrefix sub x
     hyperList xs = do
         env <- ask
         liftIO $ do
-            chan    <- newChan
-            forM ([(0::Int)..] `zip` xs) $ \(n, x) -> forkIO $ do
-                rv  <- runEvalIO env $ doHyper x
-                writeChan chan (n, rv)
-            fmap (map snd . sort) (replicateM (length xs) (readChan chan))
+            mvs <- forM xs $ \x -> do
+                mv  <- newEmptyMVar
+                forkIO $ do
+                    val <- runEvalIO env (doHyper x)
+                    putMVar mv val
+                return mv
+            mapM takeMVar mvs
 
 op1HyperPostfix :: VCode -> Val -> Eval Val
 op1HyperPostfix = op1HyperPrefix
@@ -434,19 +436,15 @@ op2Hyper sub x y
     hyperLists xs ys = do
         env <- ask
         liftIO $ do
-            chan    <- newChan
-            len     <- doHyperLists env chan 0 xs ys
-            fmap (map snd . sort) (replicateM len (readChan chan))
-    doHyperLists :: Env -> Chan (Int, Val) -> Int -> [Val] -> [Val] -> IO Int
-    doHyperLists _ _    n [] [] = return n
-    doHyperLists _ chan n xs [] = do
-        forM ([n..] `zip` xs) (writeChan chan)
-        return (n + length xs)
-    doHyperLists _ chan n [] ys = do
-        forM ([n..] `zip` ys) (writeChan chan)
-        return (n + length ys)
-    doHyperLists env chan n (x:xs) (y:ys) = do
+            mvs <- doHyperLists env xs ys
+            mapM takeMVar mvs
+    doHyperLists _ [] [] = return []
+    doHyperLists _ xs [] = mapM newMVar xs
+    doHyperLists _ [] ys = mapM newMVar ys
+    doHyperLists env (x:xs) (y:ys) = do
+        mv  <- newEmptyMVar
         forkIO $ do
-            rv  <- runEvalIO env $ doHyper x y
-            writeChan chan (n, rv)
-        doHyperLists env chan (n+1) xs ys
+            val <- runEvalIO env $ doHyper x y
+            putMVar mv val
+        mvs <- doHyperLists env xs ys
+        return (mv:mvs)
