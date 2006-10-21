@@ -44,7 +44,8 @@ class Typeable a => YAML a where
     fromYAML :: YamlNode -> IO a
     fromYAML = fromYAMLElem . n_elem
     fromYAMLElem :: YamlElem -> IO a
-    fromYAMLElem e = fail $ "unhandled element: " ++ (show e)
+    fromYAMLElem e = do
+        fail $ "unhandled element: " ++ (show e) ++ ", expecting " ++ show (typeOf (undefined :: a))
 
 asYAMLseq :: YAMLClass -> [EmitAs YAMLVal] -> EmitAs YamlNode
 asYAMLseq c ps = do
