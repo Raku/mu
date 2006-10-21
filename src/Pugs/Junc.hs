@@ -154,7 +154,7 @@ juncApply f args
                     val <- runEvalIO env $ juncApply f (before ++ (ApplyArg name v coll:after))
                     putMVar mv val
                 return mv
-            mapM readMVar mvars
+            mapM takeMVar mvars
     appList _ _ = internalError "appList: list doesn't begin with ApplyArg"
 
 {-|
