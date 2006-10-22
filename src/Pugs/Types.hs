@@ -833,9 +833,8 @@ rawTree = fmap cast $! Node "Object"
                 , Node "Bool" []
                 , Node "Str" []
                 , Node "Ref" []
-                , Node "IO"
-                    [ Node "IO::Dir" []
-                    ]
+                , Node "IO" []
+                , Node "IO::Dir" []
                 , Node "Socket" []
                 , Node "Thread" []
                 , Node "Code"

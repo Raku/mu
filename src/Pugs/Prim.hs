@@ -549,10 +549,8 @@ op1 "listen" = \v -> do
     socket  <- guardIO $ listenOn (PortNumber $ fromInteger port)
     return $ VSocket socket
 op1 "flush" = guardedIO hFlush
-op1 "close" = \v -> do
-    case v of
-        (VSocket _) -> guardedIO sClose v
-        _           -> guardedIO hClose v
+op1 "IO::close" = guardedIO hClose
+op1 "Socket::close" = guardedIO sClose
 op1 "Pair::key" = fmap fst . (fromVal :: Val -> Eval VPair)
 op1 "Pair::value" = \v -> do
     ivar <- join $ doPair v pair_fetchElem
@@ -1951,9 +1949,9 @@ initSyms = seq (length syms) $ do
 \\n   Bool      pre     say     safe ()\
 \\n   Bool      pre     say     safe (List)\
 \\n   Bool      pre     Pugs::Safe::safe_print     safe     (Str)\
-\\n   Bool      pre     close   unsafe (IO)\
 \\n   Bool      pre     flush   unsafe (IO)\
-\\n   Bool      pre     close   unsafe (Socket)\
+\\n   Bool      pre     IO::close   unsafe (IO:)\
+\\n   Bool      pre     Socket::close   unsafe (Socket:)\
 \\n   Bool      pre     die     safe   (?Object)\
 \\n   Bool      pre     warn    safe   (List)\
 \\n   Bool      pre     fail_   safe   (?Object)\
@@ -2139,14 +2137,14 @@ initSyms = seq (length syms) $ do
 \\n   Any       pre     Code::signature     safe   (Code:)\
 \\n   Any       pre     Code::retry_with    safe   (List)\
 \\n   IO::Dir   pre     opendir    unsafe (Str)\
-\\n   Str       pre     IO::Dir::read       unsafe,export (IO::Dir)\
-\\n   List      pre     IO::Dir::read       unsafe,export (IO::Dir)\
-\\n   Str       pre     IO::Dir::readdir    unsafe,export (IO::Dir)\
-\\n   List      pre     IO::Dir::readdir    unsafe,export (IO::Dir)\
-\\n   Bool      pre     IO::Dir::close      unsafe,export (IO::Dir)\
-\\n   Bool      pre     IO::Dir::closedir   unsafe,export (IO::Dir)\
-\\n   Bool      pre     IO::Dir::rewind     unsafe,export (IO::Dir)\
-\\n   Bool      pre     IO::Dir::rewinddir  unsafe,export (IO::Dir)\
+\\n   Str       pre     IO::Dir::read       unsafe,export (IO::Dir:)\
+\\n   List      pre     IO::Dir::read       unsafe,export (IO::Dir:)\
+\\n   Str       pre     IO::Dir::readdir    unsafe,export (IO::Dir:)\
+\\n   List      pre     IO::Dir::readdir    unsafe,export (IO::Dir:)\
+\\n   Bool      pre     IO::Dir::close      unsafe,export (IO::Dir:)\
+\\n   Bool      pre     IO::Dir::closedir   unsafe,export (IO::Dir:)\
+\\n   Bool      pre     IO::Dir::rewind     unsafe,export (IO::Dir:)\
+\\n   Bool      pre     IO::Dir::rewinddir  unsafe,export (IO::Dir:)\
 \\n   Any       pre     Pugs::Internals::reduceVar  unsafe (Str)\
 \\n   Str       pre     Pugs::Internals::rule_pattern safe (Regex)\
 \\n   Hash      pre     Pugs::Internals::rule_adverbs safe (Regex)\
