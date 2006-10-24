@@ -108,8 +108,8 @@ debug ref key fun str a = do
         writeTVar ref (Map.insert key val fm)
         return val
     when (length val > 100) $ do
-        liftIO $ putStrLn "*** Warning: deep recursion"
-    liftIO $ putStrLn ("***" ++ val ++ str ++ encodeUTF8 (pretty a))
+        liftSTM . unsafeIOToSTM $ putStrLn "*** Warning: deep recursion"
+    liftSTM . unsafeIOToSTM $ putStrLn ("***" ++ val ++ str ++ encodeUTF8 (pretty a))
 
 evaluateMain :: Exp -> Eval Val
 evaluateMain exp = do
@@ -461,6 +461,12 @@ reduceSyn "sub" [exp] = do
 
 reduceSyn "but" [obj, block] = do
     evalExp $ App (_Var "&Pugs::Internals::but_block") Nothing [obj, block]
+
+reduceSyn "maybe" blocks = do
+    env     <- ask
+    subs    <- mapM fromCodeExp blocks
+    let runInSTM sub = runEvalSTM env (apply sub Nothing [])
+    guardSTM $ foldl1 orElse (map runInSTM subs)
 
 reduceSyn "if" [cond, bodyIf, bodyElse] = do
     vbool     <- enterRValue $ enterEvalContext (cxtItem "Bool") cond

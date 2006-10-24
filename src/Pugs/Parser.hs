@@ -1082,6 +1082,7 @@ ruleConstruct = rule "construct" $ choice
     , ruleWhileUntilConstruct
     , ruleStandaloneBlock
     , ruleWhenConstruct
+    , ruleMaybeConstruct
     , ruleDefaultConstruct
     , yadaLiteral
     ]
@@ -1162,6 +1163,12 @@ ruleCondBody csym = rule "conditional expression" $ do
 
 ruleCondPart :: RuleParser Exp
 ruleCondPart = enterBracketLevel ConditionalBracket ruleExpression
+
+ruleMaybeConstruct :: RuleParser Exp
+ruleMaybeConstruct = rule "maybe construct" $ do
+    symbol "maybe"
+    blocks  <- ruleBareBlock `sepBy` symbol "maybe"
+    return (Syn "maybe" blocks)
 
 ruleElseConstruct :: RuleParser Exp
 ruleElseConstruct = rule "else or elsif construct" $
