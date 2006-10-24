@@ -24,7 +24,7 @@
 
 === Blocks and Statements
 
-
+* Topicalisers for `if`, `elsif` and `else` blocks: `if EXPR -> $x {...}`
 
 === Regexes and Grammars
 
@@ -198,8 +198,7 @@
 * Support for repeat blocks: `repeat {...} while 1`, `repeat while 1 {...}`
 * Support for the `&each` list interleaver: `for each(@a; @b) -> $x, $y {...}`
 * The `for` loop no longer double-flattens lists: `for %h.pairs -> $p {...}`
-* Topicalisers for `if`, `else`, `while`, `given` blocks: `if EXPR -> $x {...}`
-* Topicalisers for postfix `for` loop: `-> $x {...} for 1,2,3`
+* Topicalisers for `while` and `given` blocks: `while EXPR -> $x {...}`
 * `&last` and `&redo` now work in `repeat {...}` and `loop {...}` blocks
 * `&take` no longer flattens array literals: `take [1,2,3];`
 * `&take` now works in functions called from within a `gather {...}` block
@@ -212,7 +211,7 @@
 === Regexes and Grammars
 
 * Anonymous tokens and rules anchor on both ends: `123 ~~ token{2}` is false
-* New `s[...] = EXPR` and `s[...] = .meth` syntax; `s[...][...]` is deprecated
+* New `s[...] = EXPR` and `s[...] .= meth` syntax; `s[...][...]` is deprecated
 * New `tr///` syntax for transliteration; `y///` will not be supported
 * Pugs::Compiler::Rule (PCR) replaces Parrot/PGE as the default engine
 * Support for `:c/:continue`, `<prior>`, and much more: see PCR's ChangeLog
@@ -232,7 +231,7 @@
 * Parse for the `proto` routine modifier: `proto method foo ($x) {...}`
 * Precompiled `.pm.yml` files with mismatching AST version will no longer load
 * Support for user-defined unary and optional-unary prefix macros
-* The main package is now ::Main, not ::main
+* The main package is now `::Main`, not `::main`
 * `&?CALLER_CONTINUATION` is now fully reentrant
 * `&yield` in coroutines works correctly within loop blocks
 * `sub ($x = 0 is copy)` no longer allowed; say `sub ($x is copy = 0)` instead
