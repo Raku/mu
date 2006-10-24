@@ -1167,7 +1167,7 @@ ruleCondPart = enterBracketLevel ConditionalBracket ruleExpression
 ruleMaybeConstruct :: RuleParser Exp
 ruleMaybeConstruct = rule "maybe construct" $ do
     symbol "maybe"
-    blocks  <- ruleBareBlock `sepBy` symbol "maybe"
+    blocks  <- enterBracketLevel ParensBracket (ruleBareBlock `sepBy` symbol "maybe")
     return (Syn "maybe" blocks)
 
 ruleElseConstruct :: RuleParser Exp
