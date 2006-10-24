@@ -165,6 +165,9 @@ package Pugs::Emitter::Perl6::Perl5::NamedScalar;
     sub bind_from {
         Pugs::Runtime::Common::mangle_var( $_[0]->{name} )
     }
+    sub VAR {
+        Pugs::Runtime::Common::mangle_var( $_[0]->{name} )
+    }
 
 1;
 

@@ -193,10 +193,6 @@ See also: 'type-example.pl'
 <evalbot_r14455> ::Scalar
 <TimToady> this is one of the suprising results of forcing statement-begining { to start a bare block.
 
-<fglock> is the type of "0 but True" something like ::(Int|Bool) ?
-
-<fglock> can multis dispatch on a constant? multi a(1){ "first" }; multi a(2){ "second" }; multi a { "other" };
-
 -- Questions
 
     $a[10] := 1;
@@ -205,3 +201,12 @@ See also: 'type-example.pl'
     my Int $a;
     my Str $b;
     $a := $b;  # error ???
+
+    (1,2,3)[1]     # ok - splice a List
+    (1,2,3)[1]=5   # error - List is read-only; doesn't coerce List into Array
+    [1,2,3][1]=5   # ok - Array is read-write
+
+    - is the type of "0 but True" something like ::(Int|Bool) ?
+
+    - can multis dispatch on a constant? multi a(1){ "first" }; multi a(2){ "second" }; multi a { "other" };
+
