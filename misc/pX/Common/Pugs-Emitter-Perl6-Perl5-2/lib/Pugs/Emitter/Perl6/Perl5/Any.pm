@@ -1,6 +1,6 @@
 package Pugs::Emitter::Perl6::Perl5::Any;
 
-# Compile-time a Perl 5 thing, with hardcoded, autoboxed  methods
+# Note: junctions are *not* Any
 
 use strict;
 use warnings;
@@ -13,18 +13,20 @@ use base 'Pugs::Emitter::Perl6::Perl5::node';
     sub boxed {
         $_[0]
     }
-
     sub name {
         $_[0]->{name}
     }
-
     sub WHAT { 
-        $_[0]->node( 'Str', 'Any' );
+        $_[0]->node( 'str', 'Any' );
+    }
+    sub isa { 
+        # $_[0]->node( 'bool', 1 );   -- junctions are not Any
+        $_[0]->WHAT . ' eq ' . $_[1]->WHAT;
     }
 
-sub isa { 
-    return $_[0]->WHAT . ' eq ' . $_[1]->WHAT;
-}
+1;
+
+__END__
 
 sub FETCH {
     my $self = $_[0];
@@ -63,7 +65,4 @@ sub warn {
 sub yaml {
     $_[0]->node( 'StrExpression', 'Pugs::Runtime::Perl6::Scalar::yaml( ' . $_[0] . ' )' );
 }
-
-1;
-
 

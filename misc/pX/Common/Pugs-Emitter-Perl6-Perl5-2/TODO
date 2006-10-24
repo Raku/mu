@@ -1,7 +1,10 @@
 
 Compile-Time objects
 
+- class names (Type names) should start with '::'
+
 - Array/Hash dereference (return Scalar)
+
 - implement 'Code' class, with multi-dispatch
 - replace 'Range' implementation with a lazy runtime object
 

@@ -160,6 +160,39 @@ See also: 'type-example.pl'
     $$a->str()
         - call stringification method on $a's value
 
+--- Class Hierarchy
+
+<TimToady> ?eval Scalar.isa(Any)
+<evalbot_r14454> Bool::True
+<TimToady> ?eval Junction.isa(Any)
+<evalbot_r14454> Bool::False
+<TimToady> Junctions are only quasi-objects, insofar as they represent a linguistic notion rather than an, er, object notion
+<TimToady> when you say "if A equals 1 or 2" the 1 or 2 is not a real thing.
+<fglock> ?eval undef.isa(Any)
+<evalbot_r14454> Bool::True
+<fglock> ?eval undef.WHAT
+<evalbot_r14454> ::Scalar
+<fglock> is it an ro Scalar?
+<TimToady> ?eval undef = 1;
+<evalbot_r14454> Error: Can't modify constant item: VUndef
+<TimToady> apparently so.  :)
+
+<fglock> ?eval {42}.WHAT
+<evalbot_r14454> ::Scalar
+<fglock> I didn't mean to execute the block
+<fglock> ?eval {}.WHAT # Hash?
+*** evalbot_r14454 is now known as evalbot_r14455
+<evalbot_r14455> ::Scalar
+<TimToady> ?eval ({42}.WHAT)
+<evalbot_r14455> ::Block
+<TimToady> ?eval {42}    .WHAT
+<evalbot_r14455> ::Scalar
+<TimToady> this is one of the suprising results of forcing statement-begining { to start a bare block.
+
+<fglock> is the type of "0 but True" something like ::(Int|Bool) ?
+
+<fglock> can multis dispatch on a constant? multi a(1){ "first" }; multi a(2){ "second" }; multi a { "other" };
+
 -- Questions
 
     $a[10] := 1;
