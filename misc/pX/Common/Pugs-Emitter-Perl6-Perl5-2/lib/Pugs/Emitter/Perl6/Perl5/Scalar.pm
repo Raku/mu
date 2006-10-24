@@ -137,16 +137,29 @@ package Pugs::Emitter::Perl6::Perl5::NamedScalar;
         $_[0]->name . ' x= ' . $_[1]->scalar
     }
     sub my {
+        my $type = $_[1] || {};  # readonly => 1, type => Dog
+        my $class = $type->{readonly}
+            ? 'Pugs::Runtime::Perl6::ReadOnly'
+            : 'Pugs::Runtime::Perl6::ReadWrite';
+        $class .= $type->{type}
+            if $type->{type};
         $Pugs::Emitter::Perl6::Perl5::_V6_PREDECLARE{ $_[0]{name} } = 'my ' . Pugs::Runtime::Common::mangle_var( $_[0]->{name} ) . ' = ' .
-            '( bless \\( my $' . $_[0]->new_id . "), 'Pugs::Runtime::Perl6::ReadWrite' )";
+            '( bless \\( my $' . $_[0]->new_id . "), '$class' )";
         $_[0]
     }
     sub our {
+        my $type = $_[1] || {};  # readonly => 1, type => Dog
+        my $class = $type->{readonly}
+            ? 'Pugs::Runtime::Perl6::ReadOnly'
+            : 'Pugs::Runtime::Perl6::ReadWrite';
+        $class .= $type->{type}
+            if $type->{type};
         $Pugs::Emitter::Perl6::Perl5::_V6_PREDECLARE{ $_[0]{name} } = 'our ' . Pugs::Runtime::Common::mangle_var( $_[0]->{name} ) . ' = ' .
-            '( bless \\( my $' . $_[0]->new_id . "), 'Pugs::Runtime::Perl6::ReadWrite' )";
+            '( bless \\( my $' . $_[0]->new_id . "), '$class' )";
         $_[0]
     }
     sub bind {
+        # XXX - does bind checks type?
         $_[0]->bind_from . ' = ' . $_[1]->bind_from
     }
     sub bind_from {

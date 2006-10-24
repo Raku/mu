@@ -165,3 +165,6 @@ See also: 'type-example.pl'
     $a[10] := 1;
     @$a = ();  # error ???
   
+    my Int $a;
+    my Str $b;
+    $a := $b;  # error ???

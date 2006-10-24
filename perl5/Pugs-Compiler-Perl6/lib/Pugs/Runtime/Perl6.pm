@@ -19,7 +19,41 @@ $::_V6_BACKEND = 'BACKEND_PERL5';
 
 use constant Inf => 100**100**100;
 use constant NaN => Inf - Inf;
+
+    sub setup_type {
+        my $type = $_[0];
+        eval q!
+            package Pugs::Runtime::Perl6::ReadWrite! . $type . q!;
+                use overload (
+                    'x='  => sub { 
+                        die 'Trying to store an object of wrong type'
+                            unless ref( $_[1] ) =~ /::! . $type . q!$/;
+                        ${$_[0]} = $_[1];
+                        $_[0];
+                    },
+                    '='  => sub { 
+                        die 'Trying to store an object of wrong type'
+                            unless ref( $_[1] ) =~ /::! . $type . q!$/;
+                        ${$_[0]} = $_[1];
+                        $_[0];
+                    },
+                    fallback => 0,
+                );
+            package Pugs::Runtime::Perl6::ReadOnly! . $type . q!;
+                use overload (
+                    'x='  => sub { 
+                        die "Modification of a read-only value attempted";
+                    },
+                    '='  => sub { 
+                        die "Modification of a read-only value attempted";
+                    },
+                    fallback => 0,
+                );
+        !;
+    }
     
+    setup_type( $_ ) for qw( Bool Str Int Num );
+        
     sub pad_depth {
         local $@;
         my $idx = 0;
@@ -134,8 +168,7 @@ package Pugs::Runtime::Perl6::ReadOnly;
             die "Modification of a read-only value attempted";
         },
         '='  => sub { 
-            ${$_[0]} = $_[1];
-            $_[0];
+            die "Modification of a read-only value attempted";
         },
         fallback => 0,
     );
