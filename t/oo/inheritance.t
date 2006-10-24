@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 30;
+plan 31;
 
 class Foo {
     has $.bar is rw;
@@ -89,3 +89,20 @@ class Y is X {
 
 is(Z.new.j(), 'X', 'inherited method dispatch works');
 is(Y.new.k(), 'X', 'inherited method dispatch works inside another class with same-named method');
+
+# <audreyt> initializaer did not inherit properly; please write a test or
+#           locate one
+{
+    class A {
+      has @.x = <a b c>;
+
+      method y($i) { return @.x[$i]; }
+    }
+
+    class B is A {
+
+      method z($i) { return $.y($i); }
+    }
+
+    is( B.new.z(1), 'b' );
+}
