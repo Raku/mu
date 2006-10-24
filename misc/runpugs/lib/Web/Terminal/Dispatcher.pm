@@ -23,7 +23,9 @@ our %EXPORT_TAGS = (
 sub send {
 	my $id = shift;
 	my $ip = shift;
-	my $cmds  = shift;
+    my $app=shift;
+    my $interactive=shift;
+    my $cmds  = shift;
 	my $host = $Web::Terminal::Settings::host;
 	my $port = $Web::Terminal::Settings::port;
 	my $cmd=$cmds;#'';
@@ -65,7 +67,7 @@ sub send {
 #    } else {last;}
         return "Sorry, the pugs server is not running.";
     } else {
-	my $msg = YAML::Syck::Dump({ id=> $id, ip=> $ip, cmd=> $cmd});
+	my $msg = YAML::Syck::Dump({ id=> $id, ip=> $ip, app=>$app,ia=>$interactive,cmd=> $cmd});
 	$conn->send_now($msg);
 	( my $rmesg, my $err ) = $conn->rcv_now();
 #	( my $rid, my $reply ) = split( "\n", $rmesg, 2 );

@@ -49,36 +49,32 @@ return true;
 <body>
 <div id="mainwindow">
 <h1>Run Perl 6 now -- in your browser!</h1>
-<p>This live web terminal runs the latest development snapshot of
-the <a href="http://www.pugscode.org">pugs</a> interpreter for <a
+<p>This live web terminal runs the <a href="http://www.pugscode.org">pugs</a> interpreter for <a
 href="http://dev.perl.org/perl 6/">Perl&nbsp;6</a>. For more details, read the <a
 href="http://feather.perl6.nl/~andara/runpugs/">info page</a>.
 </p>
-<form style="text-align: left" id="term" name="terminal"
-action="/cgi-bin/runpugs2" method="POST">                  
+<p>By default, the Pugs session will use the <a
+href="http://search.cpan.org/search?query=perl6%3A%3Apugs&mode=module">latest
+release</a>. To use the latest development snapshot, change the setting
+below.</p>
                                
-<input type="hidden" name="testing" value="_TESTING_">
+<form id="term" name="terminal" action="/cgi-bin/runpugs2" method="POST">                  
 <input type="hidden" name="prompt" value="_PROMPTW_">
 <input type="hidden" name="sessionid" value="">
+<input type="hidden"    name="ia" value="1">
 <input type="hidden"    name="action" value="runpugs">
-<!--<label for="cmd">Interactive Pugs Session<br>-->
-<h2>Interactive Pugs Session</h2>
+<input type="radio" id="rel" value="0" name="reldev" _REL_ ><label
+for="rel">Release</label>&nbsp;&nbsp;
+<input type="radio" id="dev" value="1" name="reldev" _DEV_ ><label for="dev">Development</label>
+<br><br>
+<span class="tabon">Interactive Pugs Session</span>
+&nbsp;&nbsp;<a class="taboff" href="/cgi-bin/runpugs2?ia=0">Run a Perl 6 Script</a>
 <div id="termwindow">
-<select name="history" id="hist" onChange="select_enter()"><!--onKeyPress="return
-select_enter(this,event)">-->
+<select name="history" id="hist" onChange="select_enter()">
 <option value="">--- Recent commands ---</option>
 _HIST_
 </select>
 <br>
-<!--
-<span class="prompt">
-_PROMPTW_
-</span>
-<span class="termfont">
-_CMDW_
-</span>
-<br>
--->
 <textarea readonly id="output" name="output" rows="_NROWS_" cols="80" wrap="virtual">
 _REPLYW_
 </textarea>

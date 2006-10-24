@@ -36,14 +36,30 @@ our %sessions_per_ip=();
 sub termhandler {
 	my $id  = shift;
     my $ip=shift;
+    my $app=shift;
+    my $ia=shift;
 	my $cmd = shift;
 if(scalar(keys %terminals)>$Web::Terminal::Settings::nsessions){ # each pugs takes 1% of feather's MEM!
     return "Sorry, I can't run any more sessions.\nPlease try again later.";
 } else {
 	if ( exists $terminals{$id} ) {
-    print "$id exists\n";
     if ($terminals{$id}->{pid}) {    
     $terminals{$id}->{called}=time;
+        #if swap to other app
+        if ($app != $terminals{$id}->{'app'}) {
+                 &killterm($id);
+	        	$terminals{$id} = new
+                Web::Terminal::Server::Session(app=>$app,ia=>$ia,id=>$id,cmds=>$cmd);
+        		my $term = $terminals{$id};
+	            $term->{called}=time;
+                my $init= $term->{'init'};
+                my $error= $term->{'error'};
+                if ($error==1) { # Failed to create a new terminal
+                $sessions_per_ip{$ip}--;
+                delete $terminals{$id};
+                } 
+    	    	return $init;
+        }
 		my $term  = $terminals{$id};
         push  @{$term->{recent}},$cmd unless $cmd=~/^\s*$/;
         if (scalar @{$term->{recent}}> $Web::Terminal::Settings::nrecent) {
@@ -51,22 +67,11 @@ if(scalar(keys %terminals)>$Web::Terminal::Settings::nsessions){ # each pugs tak
         }
 		my $lines = $term->write($cmd);
 		if ( $cmd eq $Web::Terminal::Settings::quit_command ) {
-            my $pid= $terminals{$id}->{pid};
-            print "Quit $id ($pid)\n";
-			delete $terminals{$id};
-            if ($pid) {
-                kill 9,$pid;
-            }
+            &killterm($id);
             $sessions_per_ip{$ip}--;
             return $lines;
-#		}
-        #if ($lines=~/Aborted/s) {
         } elsif ($terminals{$id}->{error}==1) {
-             my $pid= $terminals{$id}->{pid};
-             delete $terminals{$id};
-            if ($pid) {
-                kill 9,$pid;
-           }
+            &killterm($id);
             $sessions_per_ip{$ip}--;
         }
 		return $lines;
@@ -80,17 +85,19 @@ if(scalar(keys %terminals)>$Web::Terminal::Settings::nsessions){ # each pugs tak
         } else {
         print "New $id\n";
             $sessions_per_ip{$ip}++;
-    		$terminals{$id} = new Web::Terminal::Server::Session();
+            print "$app $ia $id $cmd\n";
+    		$terminals{$id} = new
+            Web::Terminal::Server::Session(app=>$app,ia=>$ia,id=>$id,cmds=>$cmd);
             $terminals{$id}->{called}=time;
             $terminals{$id}->{ip}=$ip;
     		my $term = $terminals{$id};
-            my $init= $term->{'output'};
+            my $output= $term->{'output'};
             my $error= $term->{'error'};
-            if ($error==1) { # Failed to create a new terminal
+            if ($error==1 or $ia==0) { # Failed to create a new terminal
                 $sessions_per_ip{$ip}--;
                 delete $terminals{$id};
             }
-            return $init;
+            return $output;
         }
 	}
 }
@@ -106,6 +113,8 @@ sub rcvd_msg_from_client {
 			my $id=$mesgref->{id};
             my $ip=$mesgref->{ip};
             my $cmd=$mesgref->{cmd};
+            my $app=$mesgref->{app};
+            my $ia=$mesgref->{ia};
 #            $cmd=pack("U0C*", unpack("C*",$cmd));
             my $pid=0;
             if(exists $terminals{$id}) {
@@ -114,7 +123,7 @@ sub rcvd_msg_from_client {
             my $nsess=scalar keys %terminals;
             print scalar(localtime)," : $nsess : $ip : $id : $pid > ",$cmd,"\n";
             print LOG2 scalar(localtime)," : $nsess : $ip : $id : $pid > ",$cmd,"\n";
-			my $lines = &termhandler( $id, $ip, $cmd );
+			my $lines = &termhandler( $id, $ip, $app,$ia, $cmd );
             my @history=(''); #   --- Recent commands ---');
             my $prompt=$Web::Terminal::Settings::prompt;
             if (exists $terminals{$id}){ 
@@ -163,7 +172,7 @@ if ($pid=fork) {
         #print getppid(),"\n";
         kill 'USR1',getppid();
     }
-    system("killall $Web::Terminal::Settings::command");
+    #system("killall $Web::Terminal::Settings::commands[$app]");
     chdir $Web::Terminal::Settings::cgi_path;
     exec("$Web::Terminal::Settings::perl ../bin/$Web::Terminal::Settings::server");
 #    chdir "/home/andara/apache/cgi-bin/";
@@ -194,6 +203,14 @@ sub timeout() {
             print LOG2 "Cleaned up $ip : $id : $pid\n";
             }
         }
+    }
+}
+sub killterm {
+    my $id=shift;
+    my $pid= $terminals{$id}->{pid};
+    delete $terminals{$id};
+    if ($pid) {
+        kill 9,$pid;
     }
 }
 

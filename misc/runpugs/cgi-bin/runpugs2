@@ -95,7 +95,19 @@ sub runpugs {
     my $cmd=shift;
     my $sessionid=shift;
     my $ip=shift;
-#    my $prompt=$Web::Terminal::Settings::prompt;
+    my $dev=$query->param('reldev')||0;
+    $dev=$dev*1;
+    my $devc='';
+    my $relc='checked';
+    if($dev==1) {
+        $devc='checked';
+        $relc='';
+        }
+    my $ia=$query->param('ia')||0;
+    my $interactive=$ia*1;
+    my $html='';
+    if ($interactive==1) {
+    my $clear=0;
     my $nprompt=$query->param('prompt')||$prompt;
     my $preply='';
     if($query->param('output')) {
@@ -104,8 +116,8 @@ sub runpugs {
     my $reply=$Web::Terminal::Settings::prompt;
     my @history=();
     my $prevcmd='';
-    my $testing=$query->param('testing')||1;
-    if (not $testing) {
+    my $testing=0;
+    if ($testing==1) {
         $reply = "Sorry, runpugs is not available at the moment.";
     } else {
         if(not $query->param('history') or ($query->param('history') eq '')) {
@@ -116,6 +128,7 @@ sub runpugs {
             $cmd=$query->param('history');
         }
         if ($cmd=~/clear/) {
+        $clear=1;
             $cmd='';
             $preply='';
         } elsif ($cmd!~/^\p{IsASCII}*$/) { #NO UNICODE!
@@ -127,7 +140,7 @@ sub runpugs {
             } elsif ($cmd=~/>\s+(\:*(quit|bye))\b/) {
                 $cmd=~s/$1/:q/;
             } 
-            ($reply, $nprompt, my $histref) = &Web::Terminal::Dispatcher::send($sessionid,$ip,$cmd);
+            ($reply, $nprompt, my $histref) = &Web::Terminal::Dispatcher::send($sessionid,$ip,$dev,$interactive,$cmd);
             if (defined $histref) {
                 @history=@{$histref};
                 $prevcmd=$history[-1];
@@ -145,7 +158,7 @@ sub runpugs {
     #my $replyw=HTML::Entities::encode_entities("$preplyw\n$promptw$prevcmdw\n$reply");
     my $replyw="$preply$prompt$prevcmd\n$reply";
 #            $prompt=$nprompt;
-    if($preply eq '' and $cmd eq '') {
+    if($clear==1) {
         $replyw='';
     }
    my $nrows=scalar split("\n",$replyw); 
@@ -154,17 +167,17 @@ sub runpugs {
     if ($nrows>20) {$nrows=20;}
     my $historylist="\n";
     for my $entry (@history) {
-        $entry=~s/\>/\&gt\;/g;
-        $historylist.='<option value="'.$entry.'">'.$entry.'</option>'."\n";
+        my $entryw=HTML::Entities::encode_entities($entry);
+        $historylist.='<option value="'.$entryw.'">'.$entryw.'</option>'."\n";
     }
-    my $html='';
     open(HTML,"<../data/runpugs2.html");
     while(<HTML>) {
         /_HIST_/ && do {
             $html.=$historylist;
             next;
         };
-        s/_TESTING_/$testing/;
+        s/_DEV_/$devc/;
+        s/_REL_/$relc/;
     	/input.*name=\"sessionid\"/ && do {
             $html.='<input type="hidden" name="sessionid" value="'.$sessionid.'">'."\n";
             next; 
@@ -203,6 +216,34 @@ sub runpugs {
     	/([^\`\\]+$)/ && do {$html.=$1};
     }
 	close HTML;
+
+    } else { #not-interactive
+    my $script=$query->param('script')||'';
+            (my $reply,my $nprompt, my $histref) =
+            &Web::Terminal::Dispatcher::send($sessionid,$ip,$dev,$interactive,$script);
+   my $nrows=scalar split("\n",$reply); 
+#    $nrows++;
+     ($reply=~/^\s*$/) && ($nrows=1);
+    if ($nrows>20) {$nrows=20;}
+    open(HTML,"<../data/runpugs2s.html");
+    while(<HTML>) {
+        s/_DEV_/$devc/;
+        s/_REL_/$relc/;
+        s/_NROWS_/$nrows/;
+        /_REPLYW_/ && do {
+            chomp $html;
+            $html.=$reply;
+            next;
+        };
+        /_SCRIPT_/ && do {
+            chomp $html;
+            $html.=$script;
+            next;
+        };
+        /([^\`\\]+$)/ && do {$html.=$1};
+    }
+    close HTML;
+    }
 	&printhttpheader();
 	print $html;
 }
@@ -210,27 +251,11 @@ sub runpugs {
 
 ################### PRINTHTTPHEADER #######################
 sub printhttpheader {
-#   my $cookie;
      unless ($headerprinted) {
-
-#     if ($sessionid) {
-#         $cookie = $query->cookie( -name    => 'sessionid',
-#                           -"value" => $sessionid,
-#                           -path    => '/' );
-#       }
-
-$headerprinted=1;
-
-#        if ($sessionid) {
-#         print $query->header(-pragma=>'no-cache',
-#                      -cookie=>$cookie,
-#                      -charset=>$lang_charset,
-#			     );
-#       } else {
+        $headerprinted=1;
          print $query->header(-pragma=>'no-cache',
                       -charset=>$lang_charset,
 			      );
-#       }
    }
    }
 ################### END PRINTHTTPHEADER #######################

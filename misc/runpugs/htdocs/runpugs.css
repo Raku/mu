@@ -7,35 +7,68 @@ H1 {font-size: 24pt;
     padding: 15px;
     }
 H2 { font-weight: bold; font-size: 12pt}
-LABEL {font-weight: bold; }
+LABEL {font-weight: normal; }
+FIELDSET {border: solid white 0px};
+LEGEND {font-weight:bold; text-align: center; }
 .copyright {font-size: 9pt}
 .warning {
 border: solid 2px #204a87;
 padding: 5px;
 }
+.tabon 
+{
+font-weight:bold;
+    background-color: #f2f2f0;
+    border: solid 2px #204a87;
+    padding: 2px;
+    padding-bottom: 0px;
+    margin-top: 10px; 
+
+}
+.taboff {
+font-weight:bold;
+    background-color: #c2c2c0;
+color: gray;
+    border: solid 2px #204a87;
+    padding: 2px;
+    padding-bottom: 0px;
+    margin-top: 10px; 
+}
 #mainwindow {
 width: 85ex; /*750px */
 }
 #hist {
- width: 100%; /*750px; */
-font-family: "Andale Mono", courier, fixed, monospace;
-font-weight: normal;
-font-size: 10pt;
- color: #204a87;
-border: solid 0px #204a87;
+    width: 100%; /*750px; */
+    font-family: "Andale Mono", courier, fixed, monospace;
+    font-weight: normal;
+    font-size: 10pt;
+    color: #204a87;
+    border: solid 0px #204a87;
     background-color: #f2f2f0;
     padding-bottom: 5px;
 }
+.term {
+    background-color: #f2f2f0;
+    border: solid 2px #204a87;
+    padding: 5px;
+}
+#outputwindow {
+    height=20ex;
+}
+#editorwindow {
+    height: 50ex; /*400px;*/
+}
+
 #termwindow {
     height: 45ex; /*400px;*/
     background-color: #f2f2f0;
-        border: solid 2px #204a87;
+    border: solid 2px #204a87;
     padding: 5px;
 }
 .prompt {
     font-family: "Andale Mono", courier, fixed, monospace;
     font-size: 11pt;
-font-weight: bold;
+    font-weight: bold;
     line-height: 12pt;
     color: #204a87;
     background-color: #f2f2f0;
@@ -44,7 +77,7 @@ font-weight: bold;
 .termfont {
     font-family: "Andale Mono", courier, fixed, monospace;
     font-size: 11pt;
-font-weight: normal;
+    font-weight: normal;
     line-height: 12pt;
     color: #204a87;
     background-color: #f2f2f0;
@@ -60,17 +93,17 @@ width: 90%; /* sadly, Safari would need 92% */
     background-color: #f2f2f0;
         border: solid 0px #f2f2f0;
 }
-#output {
-width: 100%;
+#output,#script {
+    width: 100%;
     font-family: "Andale Mono", courier, fixed, monospace;
     font-size: 11pt;
     font-weight: normal;
     line-height: 12pt;
     color: #204a87;
     background-color: #f2f2f0;
-        border: solid 0px #f2f2f0;
-        /* for IE */
-        overflow: visible;
+    border: solid 0px #f2f2f0;
+    /* for IE */
+    overflow: visible;
 }
 #cmd {
     font-family: "Andale Mono", courier, fixed, monospace;
@@ -87,4 +120,4 @@ A:link, A.bold:link { text-decoration: underline; color: #660066}
 A:active, A.bold:active { text-decoration: underline; color: #6699FF}
 A:visited, A.bold:visited { text-decoration: underline; color: #660066}
 A:hover, A.bold:hover { text-decoration: underline; color: #000099}
-
+A.taboff:link, A.taboff:active,A.taboff:visited {text-decoration: none; color: #333333}

@@ -18,20 +18,31 @@ sub new {
 	my $invocant = shift;
 	my $class    = ref($invocant) || $invocant;
 	my $self     = {@_};
-	#my $prompt = '/\>\ /';
     my $prompt ='/'.$Web::Terminal::Settings::prompt.'/';
     $self->{'prompt'}=$prompt;
-   # my $prompt= '/'.$Web::Terminal::Settings::init_pattern.'/';
-    #my $prompt= '/'.$Web::Terminal::Settings::prompt_pattern.'/';
     $self->{'error'}=0;
     $self->{'recent'}=[];
 	## Start pugs
-#    $ENV{PUGS_SAFEMODE}=1;# Must be in CGI script!
-	( $self->{'pty'},$self->{'pid'} ) =
-    &spawn($Web::Terminal::Settings::command);    # spawn() defined below
+    my $app=$self->{'app'};
+    my $command=$Web::Terminal::Settings::commands[$app];
+    if ($self->{'ia'}==0) {
+        #1. Create a file with the content of $cmd using $id.p6 for name, store in data
+        my $id=$self->{'id'};
+        open(P6,">$Web::Terminal::Settings::tmp_path/$id.p6") or ($self->{'error'}=1);
+        if($self->{'error'}==0) {
+        print P6 $self->{'cmds'};
+        close P6;
+            $command.=" $Web::Terminal::Settings::tmp_path/$id.p6";
+        }
+    }
+	( $self->{'pty'},$self->{'pid'} ) = &spawn($command);    # spawn() defined below
     if ( $self->{'pty'}==-1 and  $self->{'pid'}==0) {
         $self->{'output'}= "\nThere was a problem starting pugs. Please try again later.";
         $self->{'error'}=1;
+        if ($self->{'ia'}==0) {
+            my $id=$self->{'id'};
+            unlink "$Web::Terminal::Settings::tmp_path/$id.p6";
+        }
     } else {
 	## Create a Net::Telnet object to perform I/O on pugs's tty.
 	use Net::Telnet;
@@ -42,7 +53,7 @@ sub new {
 		-telnetmode      => 0,
 		-cmd_remove_mode => 0,
 	);
-    my $error='';
+#    my $error='';
 #    ( my $p, my $m ) = $self->{'pugs'}->waitfor(
 #		-match   => $self->{'pugs'}->prompt,
 #		-errmode => "return"
@@ -54,8 +65,19 @@ sub new {
 #      };
 	bless($self,$class);
     my $m=$self->readlines();
-      #die "starting pugs failed: ", $self->{'pugs'}->lastline;
-	$self->{'output'}= $m; #$p.$m.$error;#$self->{'pugs'}->prompt;
+      if ($self->{'error'}==1) {
+          # should close the TTY
+          $self->{'pty'}->close() unless ($self->{'pty'}==-1);
+          $self->{'pugs'}->close();
+      }
+        if ($self->{'ia'}==0) {
+        my $id=$self->{'id'};
+        unlink "$Web::Terminal::Settings::tmp_path/$id.p6";
+          # should close the TTY
+          $self->{'pty'}->close() unless ($self->{'pty'}==-1);
+          $self->{'pugs'}->close();
+        }
+	$self->{'output'}= $m; 
     }
 	#bless($self,$class);
 	return $self;
@@ -64,31 +86,46 @@ sub new {
 sub readlines {
 	my $obj = shift;
 	my $ps = '';
-
 	my $i     = 1;
 	my $lline = '';
     my $pugs=$obj->{'pugs'};
-    $pugs->errmode(sub {kill 9,$obj->{'pid'};});
-
+    $pugs->errmode(sub {kill 9,$obj->{'pid'}; });
+    #$pugs->errmode('die');
+#    print "readlines()\n";
 	while ($i<$Web::Terminal::Settings::nlines) {
     my $char='';
     my $line='';
-    while ($char ne "\n") {
-    $char=$pugs->get;
+    my $j=0;
+    while ($char ne "\n" and ($j<$Web::Terminal::Settings::nchars)) {
+    print "getting...\n";
+    $char=$pugs->get();
+    print "got $j>$char<\n";
+    $j++;
+    last if $char eq '';
     $line.=$char;
     last if $line eq $Web::Terminal::Settings::prompt;
     }
-#		my $line = $pugs->getline;
-#        chomp $line;
         print $line;
+        if ($j>=$Web::Terminal::Settings::nchars-1) {
+        $line.="Generated output is limited to $Web::Terminal::Settings::nchars characters. Aborted.\n";
+       $obj->{pugs}->close();
+        kill 9, $obj->{'pid'};
+        $obj->{'error'}=1;
+        $lline .= $line;
+        last;
+        }
         my $msg=$pugs->errmsg;
 	    if($msg=~/timed/) {
             $msg='';
             $pugs->errmsg([]);
+            if ($obj->{'ia'}==1) {
             $lline="${Web::Terminal::Settings::prompt} Sorry, that took too long! Aborted.\n";
             $pugs->close();
             $ps=$Web::Terminal::Settings::prompt;
             $obj->{'error'}=1;
+            } else {
+            $lline.=$line;
+            }
             last;
         }
         $msg='';
@@ -97,8 +134,9 @@ sub readlines {
 		$lline .= $line unless $line =~
         /$Web::Terminal::Settings::prompt_pattern/;
 		$i++;
+        print "$i\n";
+        last if $line eq '';
 	}
-
    if ($i>=$Web::Terminal::Settings::nlines-1) {
        $obj->{pugs}->close();
         kill 9, $obj->{'pid'};
@@ -106,7 +144,6 @@ sub readlines {
         $obj->{'error'}=1;
     }
     chomp $ps; # a hack!
-	#$lline .= $ps;
 	$obj->{prompt}=$ps;
 	return $lline;
 } # end readlines method
@@ -114,7 +151,7 @@ sub readlines {
 sub write {
 	my $obj = shift;
 	my $cmd  = shift;
-#	print "CMD1: $cmd\n";
+	print "CMD1: $cmd\n";
 #    $cmd=pack("U0C*", unpack("C*",$cmd));    
 #	print "CMD2: $cmd\n";
     chomp $cmd;
@@ -166,6 +203,20 @@ sub write {
 	$obj->{prompt}=$ps;
 	return $lline;
 }    # end write method
+
+sub run {
+	my $obj = shift;
+    my $cmd = shift;
+my $error=0;
+my $id=$obj->{'id'};
+#1. Create a file with the content of $cmd using $id.p6 for name, store in data
+open(P6,">$Web::Terminal::Settings::tmp_path/$id.p6") or ($error=1);
+#2. Create a Net::Telnet object 
+
+#3. Read back the result
+#4. Close the Net::Telnet object
+#
+}
 
 sub spawn {
 	my (@cmd) = @_;

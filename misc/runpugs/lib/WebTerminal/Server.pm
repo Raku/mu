@@ -34,6 +34,7 @@ our %sessions_per_ip=();
 sub termhandler {
 	my $id  = shift;
     my $ip = shift;
+    my $dev=shift||0;
 	my $cmd = shift;
     if(scalar(keys %terminals)>50){ # each pugs takes 1% of feather's MEM!
         print LOG "MAX nsessions reached\n";
@@ -41,23 +42,29 @@ sub termhandler {
     } else {
     	if ( exists $terminals{$id} ) {
         if ($terminals{$id}->{pid}) {
+        #if swap rel/dev
+        if ($dev != $terminals{$id}->{'dev'}) {
+                 &killterm($id);
+	        	$terminals{$id} = new WebTerminal::Server::Terminal($dev);
+        		my $term = $terminals{$id};
+	            $term->{called}=time;
+                my $init= $term->{'init'};
+                my $error= $term->{'error'};
+                if ($error==1) { # Failed to create a new terminal
+                $sessions_per_ip{$ip}--;
+                delete $terminals{$id};
+                } 
+    	    	return $init;
+        }
         	$terminals{$id}->{called}=time;
 		    my $term  = $terminals{$id};
     		my $lines = $term->write($cmd);
 	    	if ( $cmd eq ':q' ) {
-                 my $pid= $terminals{$id}->{pid};
-		    	delete $terminals{$id};
-                 if ($pid) {
-                     kill 9,$pid;
-                 }
+            &killterm($id);
                 $sessions_per_ip{$ip}--;
     		}
             if ($lines=~/Aborted/s) {
-                 my $pid= $terminals{$id}->{pid};
-                 delete $terminals{$id};
-                 if ($pid) {
-                     kill 9,$pid;
-                 }
+            &killterm($id);
                 $sessions_per_ip{$ip}--;
             }
 	    	return $lines;
@@ -70,7 +77,7 @@ sub termhandler {
                  return "Sorry, you can't run more than 10 sessions from one IP address.\n";   
             } else {
                 $sessions_per_ip{$ip}++;
-	        	$terminals{$id} = new WebTerminal::Server::Terminal();
+	        	$terminals{$id} = new WebTerminal::Server::Terminal($dev);
 	            $terminals{$id}->{called}=time;
         	    $terminals{$id}->{ip}=$ip;
         		my $term = $terminals{$id};
@@ -91,7 +98,7 @@ sub rcvd_msg_from_client {
 	if ( defined $msg ) {
 		my $len = length($msg);
 		if ( $len > 0 ) {
-			( my $id, my $ip, my $cmd ) = split( "\n", $msg, 3 );
+			( my $id, my $ip, my $dev, my $cmd ) = split( "\n", $msg, 4 );
             $cmd=pack("U0C*", unpack("C*",$cmd));
             my $pid=0;
             if(exists $terminals{$id}) {
@@ -100,7 +107,7 @@ sub rcvd_msg_from_client {
             my $nsess=scalar keys %terminals;
             print scalar(localtime)," : $nsess : $ip : $id : $pid > ",$cmd,"\n";
             print LOG scalar(localtime)," : $nsess : $ip : $id : $pid > ",$cmd,"\n";
-			my $lines = &termhandler( $id, $ip, $cmd );
+			my $lines = &termhandler( $id, $ip, $dev,$cmd);
 			$conn->send_now("$id\n$lines");
 
 		}
@@ -184,4 +191,12 @@ sub timeout() {
 =cut
 }
 
+sub killterm {
+    my $id=shift;
+    my $pid= $terminals{$id}->{pid};
+    delete $terminals{$id};
+    if ($pid) {
+        kill 9,$pid;
+    }
+}
 1;

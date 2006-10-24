@@ -22,6 +22,7 @@ our %EXPORT_TAGS = (
 sub send {
 	my $id   = shift;
 	my $ip = shift;
+    my $dev = shift;
 	my $cmds  = shift;
 	my $host = 'localhost';
 	my $port = 2057;
@@ -54,7 +55,7 @@ sub send {
 #    } else {last;}
         return "Sorry, the pugs server is not running.";
     } else {
-	my $msg = "$id\n$ip\n" . $cmd;
+	my $msg = "$id\n$ip\n$dev\n" . $cmd;
 	$conn->send_now($msg);
 	( my $rmesg, my $err ) = $conn->rcv_now();
 	( my $rid, my $reply ) = split( "\n", $rmesg, 2 );

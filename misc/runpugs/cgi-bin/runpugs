@@ -95,6 +95,8 @@ sub runpugs {
     my $ip=shift;
     my $reply='pugs> ';
     my $testing=$query->param('testing')||1;
+    my $dev=$query->param('reldev')||0;
+    $dev=$dev*1;
     if (not $testing) {
     $reply = "Sorry, runpugs is not available at the moment.";
     } else {
@@ -112,15 +114,23 @@ sub runpugs {
     } elsif ($cmd=~/>\s+(\:*(quit|bye))\b/) {
         $cmd=~s/$1/:q/;
     } 
-    $reply = &WebTerminal::Dispatcher::send($sessionid,$ip,$cmd);
+    $reply = &WebTerminal::Dispatcher::send($sessionid,$ip,$dev,$cmd);
     $reply="\n".$reply;
     }
     }
     #$reply.="\n$ip\n$sessionid\n";
+    my $devc='';
+    my $relc='checked';
+    if($dev==1) {
+        $devc='checked';
+        $relc='';
+    }
     my $html='';
     open(HTML,"<../data/runpugs.html");
     while(<HTML>) {
     s/_TESTING_/$testing/;
+    s/_DEV_/$devc/;
+    s/_REL_/$relc/;
 	/input.*name=\"sessionid\"/ && do {$html.='<input type="hidden" name="sessionid" value="'.$sessionid.'">'."\n";next };
 	/(pugs\&gt\;\&nbsp\;)/ && do {$html.=$cmd.$reply;next};
 

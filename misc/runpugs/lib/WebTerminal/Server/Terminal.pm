@@ -12,14 +12,23 @@ $SIG{CHLD}='IGNORE';
 ## Constructor
 sub new {
 	my $invocant = shift;
+    my $dev=shift;
 	my $class    = ref($invocant) || $invocant;
-	my $self     = {@_};
+	my $self     = {};
 	#my $prompt = '/\>\ /';
 	my $prompt = '/>\ /';
     $self->{'error'}=0;
+    $self->{'dev'}=$dev;
 	## Start pugs
 #    $ENV{PUGS_SAFEMODE}=1;# Must be in CGI script!
-	( $self->{'pty'},$self->{'pid'} ) = &spawn("/usr/bin/nice /usr/bin/pugs");    # spawn() defined below
+    my $nice="/usr/bin/nice ";
+    my $pugs_rel='/home/andara/pugs-rel/pugs -I/home/andara/pugs-rel/blib6/lib';
+    my $pugs_dev='/usr/bin/pugs';
+    my $command=$pugs_rel; #($dev==1)?$pugs_dev:$pugs_rel;
+    if($dev==1) { 
+        $command=$pugs_dev;
+    }
+	( $self->{'pty'},$self->{'pid'} ) = &spawn("$nice $command");    # spawn() defined below
 if ( $self->{'pty'}==-1 and  $self->{'pid'}==0) {
     $self->{'init'}= "\nThere was a problem starting pugs. Please try again later.";
     $self->{'error'}=1;
@@ -43,6 +52,7 @@ if ( $self->{'pty'}==-1 and  $self->{'pid'}==0) {
       $error="\nThere was a problem starting pugs. Please try again later.";
       $self->{'error'}=1;
       # should close the TTY
+      $self->{'pty'}->close() unless ($self->{'pty'}==-1);
       $self->{'pugs'}->close();
       };
 	$self->{'init'}= $p.$m.$error;#$self->{'pugs'}->prompt;
