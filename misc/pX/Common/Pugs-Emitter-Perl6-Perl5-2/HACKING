@@ -6,39 +6,38 @@ The compile-time system builds a 'Program' object.
 
 "$program" stringifies to compiled code.
 
+Emitted code is an optimized representation of the Runtime. It may be worth developing a working runtime first, and then optimize it into inlined code.
+
 Environment
 
 - contains the declarations in scope: variables, subroutines
 - also contains 'want' info.
 
-Methods
+API
+
+- unimplemented methods are deferred to the runtime, by emitting a method invocation
+    $object->method( param-list )
 
 ."" (overloaded stringification) - stringifies to source code
+    - this only happens at compile-time
 
-.boxed - creates a boxed object. Example: int.box -> Int
-.unboxed - unboxes an object. Example: Int.unbox -> int
+# .boxed - creates a boxed object. Example: int.box -> Int
+# .unboxed - unboxes an object if possible. Example: Int.unbox -> int
 
 .WHAT  - returns the class as a Class (which stringifies to the class name)
-.perl  - returns a Str, which contains the object dumped as Perl6 source code  XXX
-.list  
+
+.list  - returns an object that can be interpolated into a list
+    - sigiled arrays and hashes (@array) can be interpolated; non-sigiled ($array) cannot.
 
 Coercions
 
 .str .num .int .bool
 
-Class-specific operations - for example:
-
-.print - returns the code to execute '.print'
-.true
-.not
-.== (encoded to ASCII, as '_61__61_')
-.eq
-.elems
-
 Container operations 
 
-.bind( $cell )
-.bind_from - returns this container's cell (as plain source code, not an object)
+.bind( $cell )   # XXX .BIND
+.bind_from - returns this container's cell (as plain source code, not an object). Values create read-only cells.
+    # XXX what's the perl6 word for this?
 
 .VAR - returns this container's cell
     $native.bind_from is read-only
@@ -48,14 +47,38 @@ Container operations
 .FETCH - returns the cell value
 
 .array .hash .scalar - coerce values into containers
+    - does not create a container cell; use .VAR for this
+    - .array and .hash create .VAR for each value
 
 .my .our - emit declarations
 
-.[] 
-.{} 
+.[] - same as .array
+.{} - same as .hash
+    - TODO - these operations can be overriden at runtime
 
-.[ $value ]
-.{ $value }
+.[ $value ] - return an lvalue (.bind_from) from an array or list
+.{ $value } - return an lvalue (.bind_from) from a hash
+    - TODO - these operations can be overriden at runtime
+
+Control-flow operations
+
+- signature binding, multisub dispatch, subroutine and method inlining
+- TODO
+
+Class-specific operations 
+
+- some operations can be evaluated at compile-time to optimize the generated code
+- TODO - these operations can be overriden at runtime
+
+- for example:
+
+.perl  - returns a Str, which contains the object dumped as Perl6 source code  XXX
+.print - returns the code to execute '.print'
+.true
+.not
+.== (encoded to ASCII, as '_61__61_')
+.eq
+.elems
 
 --------------
 
@@ -88,6 +111,8 @@ Hash
 Other types - See S06
 
 Value types, Implementation types, Hierarchical types, Polymorphic types, Parameter types, Generic types, Return types
+
+Our higher level objects will likely be Captures, Signatures, and Code/Sub
 
 Special Classes
 
@@ -193,15 +218,17 @@ See also: 'type-example.pl'
 <evalbot_r14455> ::Scalar
 <TimToady> this is one of the suprising results of forcing statement-begining { to start a bare block.
 
+    my Int $a;
+    my Str $b;
+    $a := $b;  # error ???
+<TimToady> it should agree with the type of VAR($a)
+doesn't have to agree with the previous contents
+
 -- Questions
 
     $a[10] := 1;
     @$a = ();  # error ???
   
-    my Int $a;
-    my Str $b;
-    $a := $b;  # error ???
-
     (1,2,3)[1]     # ok - splice a List
     (1,2,3)[1]=5   # error - List is read-only; doesn't coerce List into Array
     [1,2,3][1]=5   # ok - Array is read-write
