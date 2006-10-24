@@ -485,8 +485,8 @@ ruleFormalParam opt = rule "formal parameter" $ do
             optional $ do
                 symbol "-->"
                 ruleParamList ParensOptional $ choice
-                    [ ruleType
-                    , ruleFormalParam FormalsComplex >> return ""
+                    [ ruleType `sepBy1` symbol "of"
+                    , ruleFormalParam FormalsComplex >> return []
                     ]
             return $ case rv of
                 Noop -> defaultExp
