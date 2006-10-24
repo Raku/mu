@@ -618,11 +618,6 @@ op1 "Code::arity" = op1CodeArity
 op1 "Code::body"  = op1CodeBody
 op1 "Code::pos"   = op1CodePos
 op1 "Code::signature" = op1CodeSignature
-op1 "Code::retry_with" = \vs -> do
-    cs  <- fromVals vs
-    env <- ask
-    let runInSTM v = runEvalSTM env . evalExp $ App (Val v) Nothing []
-    guardSTM $ foldl1 orElse (map runInSTM cs)
 op1 "IO::tell"    = \v -> do
     h <- fromVal v
     res <- guardIO $ hTell h
@@ -2137,7 +2132,6 @@ initSyms = seq (length syms) $ do
 \\n   Code::Exp pre     Code::body    safe   (Code:)\
 \\n   Str       pre     Code::pos     safe   (Code:)\
 \\n   Any       pre     Code::signature     safe   (Code:)\
-\\n   Any       pre     Code::retry_with    safe   (List)\
 \\n   IO::Dir   pre     opendir    unsafe (Str)\
 \\n   Str       pre     IO::Dir::read       unsafe,export (IO::Dir:)\
 \\n   List      pre     IO::Dir::read       unsafe,export (IO::Dir:)\
