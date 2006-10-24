@@ -21,7 +21,7 @@ use base 'Pugs::Emitter::Perl6::Perl5::node';
     }
     sub isa { 
         # $_[0]->node( 'bool', 1 );   -- junctions are not Any
-        $_[0]->WHAT . ' eq ' . $_[1]->WHAT;
+        $_[0]->WHAT->eq( $_[1]->WHAT );
     }
 
 1;

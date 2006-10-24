@@ -40,6 +40,10 @@ Container operations
 .bind( $cell )
 .bind_from - returns this container's cell (as plain source code, not an object)
 
+.VAR - returns this container's cell
+    $native.bind_from is read-only
+    $native.VAR is read-write 
+
 .STORE( $value )
 .FETCH - returns the cell value
 

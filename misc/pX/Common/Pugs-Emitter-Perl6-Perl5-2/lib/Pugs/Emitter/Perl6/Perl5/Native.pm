@@ -17,6 +17,10 @@ package Pugs::Emitter::Perl6::Perl5::Native;
         #'\\' . $_[0]->scalar->name;
         '( bless \\( ' . $_[0]->scalar->name . "), 'Pugs::Runtime::Perl6::ReadOnly' )"
     }
+    sub VAR { 
+        #'\\' . $_[0]->scalar->name;
+        '( bless \\( ' . $_[0]->scalar->name . "), 'Pugs::Runtime::Perl6::ReadWrite' )"
+    }
     sub unboxed {
         $_[0]
     }

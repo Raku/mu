@@ -110,8 +110,9 @@ package Pugs::Emitter::Perl6::Perl5::SeqArray;
     use overload (
         '""'     => sub { 
             '(' . join( ', ', map {
-                #print "Seq.elem ",$_," ",Data::Dumper::Dumper($_);                 
-                $_->bind_from 
+                #print "Seq.elem ",$_," ",Data::Dumper::Dumper($_);             
+                $_->VAR    
+                # $_->bind_from   - XXX readonly
             } @{$_[0]->{name}} ) . ')' 
         },
         fallback => 1,
