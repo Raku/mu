@@ -105,6 +105,9 @@ op0 "Pugs::Safe::safe_readline" = const . op1Readline $ VHandle stdin
 op0 "reverse" = const $ return (VList [])
 op0 "chomp"   = const $ return (VList [])
 op0 "fork"    = const $ opPerl5 "fork" []
+op0 "defer"   = const $ do
+    env <- ask
+    if envAtomic env then guardSTM retry else fail "Cannot call &defer outside a contend block."
 op0 other = const $ fail ("Unimplemented listOp: " ++ other)
 
 -- |Implementation of unary primitive operators and functions
@@ -288,11 +291,9 @@ op1 "Pugs::Internals::eval_perl5" = \v -> do
 op1 "Pugs::Internals::eval_p6y" = op1EvalP6Y
 op1 "Pugs::Internals::eval_haskell" = op1EvalHaskell
 op1 "Pugs::Internals::eval_yaml" = evalYaml
-op1 "atomically" = \v -> do
-    genSymPrim "&retry" (const $ guardSTM retry) $ \symRetry -> do
-        enterLex [symRetry] $ do
-            env <- ask
-            guardSTM . runEvalSTM env . evalExp $ App (Val v) Nothing []
+op1 "contend" = \v -> do
+    env <- ask
+    guardSTM . runEvalSTM env . evalExp $ App (Val v) Nothing []
 op1 "try" = \v -> do
     sub <- fromVal v
     env <- ask
@@ -1901,7 +1902,8 @@ initSyms = seq (length syms) $ do
 \\n   Str       pre     guts    safe   (rw!Any|Junction)\
 \\n   Any       pre     try     safe   (Code)\
 \\n   Any       pre     lazy    safe   (Code)\
-\\n   Any       pre     atomically     safe   (Code)\
+\\n   Any       pre     contend safe   (Code)\
+\\n   Void      pre     defer   safe   ()\
 \\n   Any       pre     Pugs::Internals::eval_perl6    safe   (Str)\
 \\n   Any       pre     evalfile     unsafe (Str)\
 \\n   Any       pre     Pugs::Internals::eval_parrot  unsafe (Str)\
