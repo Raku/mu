@@ -36,12 +36,14 @@ Coercions
 Container operations 
 
 .bind( $cell )   # XXX .BIND
-.bind_from - returns this container's cell (as plain source code, not an object). Values create read-only cells.
+
+.bind_from  # XXX .BIND_FROM
+    - returns this container's cell (as plain source code, not an object ???). Values create read-only cells.
     # XXX what's the perl6 word for this?
 
 .VAR - returns this container's cell
     $native.bind_from is read-only
-    $native.VAR is read-write 
+    $native.VAR is read-write
 
 .STORE( $value )
 .FETCH - returns the cell value
@@ -112,7 +114,7 @@ Other types - See S06
 
 Value types, Implementation types, Hierarchical types, Polymorphic types, Parameter types, Generic types, Return types
 
-Our higher level objects will likely be Captures, Signatures, and Code/Sub
+Our higher level objects will likely be Captures, Signatures, and Code/Sub, as well as Types
 
 Special Classes
 
@@ -222,7 +224,8 @@ See also: 'type-example.pl'
     my Str $b;
     $a := $b;  # error ???
 <TimToady> it should agree with the type of VAR($a)
-doesn't have to agree with the previous contents
+doesn't have to agree with the previous contents.
+S03: The binding fails if the type of the variable being bound is sufficiently inconsistent with the type of the current declaration.
 
 -- Questions
 
