@@ -9,26 +9,26 @@ method fetch (*@keys) {
     %cache{@keys};
 }
 
-method store ($key, $val, $time) {
+method store ($key, $val, $time, $expiry) {
     %cache{$key} = ($time => $val);
 }
 
-method list_pub_idx ($chan) {
+method publisher_indices ($chan) {
     %cache{$chan};
 }
 
-method add_pub ($chan, $pub) {
+method add_publisher ($chan, $pub) {
     %cache{$chan}{$pub} = 0;
 }
 
-method remove_pub ($chan, $pub) {
+method remove_publisher ($chan, $pub) {
     delete %cache{$chan}{$pub};
 }
 
-method get_idx ($chan, $pub) {
+method get_index ($chan, $pub) {
     %cache{$chan}{$pub};
 }
 
-method set_idx ($chan, $pub, $idx) {
+method set_index ($chan, $pub, $idx) {
     %cache{$chan}{$pub} = $idx;
 }

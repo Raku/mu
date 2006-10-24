@@ -9,19 +9,19 @@ plan @backends * 5;
 for @backends {
     my $bus = MessageBus.new(cache => .new);
 
-    my @sub[0] = $bus.new_sub;
+    my @sub[0] = $bus.subscribe;
 
     is_deeply(@sub[0].get.map:{.value}, [], 'get worked when there is no pubs');
 
-    my $pub = $bus.new_pub;
+    my $pub = $bus.publish;
 
     given $pub {
-        .put: 'foo';
+        .msg: 'foo';
 
-        @sub[1] = $bus.new_sub;
+        @sub[1] = $bus.subscribe;
 
-        .put: 'bar';
-        .put: 'baz';
+        .msg: 'bar';
+        .msg: 'baz';
     }
 
     is_deeply(@sub[0].get.map:{.value}, [<foo bar baz>], 'get worked (1)');

@@ -5,10 +5,10 @@ use MessageBus::Sub;
 
 has $!cache;
 
-method new_pub ($chan = '') {
+method publish ($chan = '') {
     MessageBus::Pub.new(:$chan, :$!cache);
 }
 
-method new_sub ($chan = '') {
+method subscribe ($chan = '') {
     MessageBus::Sub.new(:$chan, :$!cache);
 }
