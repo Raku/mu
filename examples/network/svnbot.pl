@@ -141,15 +141,13 @@ sub svn_commits() {
         if -d '.svn' {
             # must be in repo 
             system "svn st -N -q -u . > $tempfile";
-            my $fh = open $tempfile;
             my $latest = 0;
-            for =$fh -> $_ {
+            for =$tempfile {
                 when rx:P5/revision:\s+(\d+)/ {
                     $latest = $0;
                     last;
                 }
             }
-            close $fh;
             if ($latest == $cur_svnrev) {
                 return undef;
             }
