@@ -5,6 +5,12 @@ use strict;
 my ($nick_base, @channels) = @ARGV;
 my $svn = ((-e '.svn') ? 'svn' : 'svk');
 
+my $refresh_dir  = '/tmp/autopugs'; # XXX: move this to a config file?
+my $have_refresh = -d $refresh_dir;
+my $refresh_file = "$refresh_dir/refresh";
+
+#TODO: warn about permissions if above dir is not setgid and g+w
+
 unless (`$svn info` =~ /\/pugs$/m) {
     die "This should be run from the root directory of a pugs $svn checkout\n";
 }
@@ -51,6 +57,10 @@ sub update_pugs {
 
 sub build_pugs {
     print STDERR "*** Rebuilding pugs\n";
+    if ($have_refresh && -f $refresh_file) {
+        unlink $refresh_file;
+        unlink $_ for glob "$ENV{PERL6LIB}/*yml"; # XXX: should probably clean more..
+    }
     unlink 'src/Pugs/pugs_version.h';
     system 'perl Makefile.PL';
     system 'make';
@@ -86,7 +96,7 @@ start_pugs "$nick_base\_r$rev";
 while (1) {
     sleep 300;
     my $newrev = update_pugs;
-    if ($newrev > $rev) {
+    if ($newrev > $rev || ($have_refresh && -f $refresh_file)) {
         build_pugs;
         $rev = $newrev;
         set_nick "$nick_base\_r$rev";
