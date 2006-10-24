@@ -1127,6 +1127,12 @@ interpolateVal (VRef (MkRef (IHash hv))) = do
 interpolateVal (VRef (MkRef (IPair pv))) = do
     (k, v) <- pair_fetch pv
     return [ Syn "named" [Val k, Val v] ]
+interpolateVal (VV vv) | Just (CaptSub{ c_feeds = feeds } :: ValCapt) <- castVal vv = return $
+    [ Val (castV v) | v <- concatMap f_positionals feeds ]
+    ++ [ Syn "named" [Val (VStr $ cast k), Val (concatNamed v)] | (k, v) <- concatMap (Map.toList . f_nameds) feeds ]
+    where
+    concatNamed [x] = castV x
+    concatNamed xs  = VList (map castV xs)
 interpolateVal val = return [Val val]
 
 isInterpolated :: Exp -> Bool
