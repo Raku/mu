@@ -1087,8 +1087,10 @@ ruleConstruct = rule "construct" $ choice
     ]
 
 ruleStandaloneBlock :: RuleParser Exp
-ruleStandaloneBlock = verbatimRule "" $ do
+ruleStandaloneBlock = tryVerbatimRule "" $ do
     body <- ruleBlock
+    whiteSpace
+    lookAhead ((oneOf ";}" >> return ()) <|> eof)
     retVerbatimBlock SubBlock Nothing False body
 
 ruleForConstruct :: RuleParser Exp
