@@ -114,3 +114,11 @@ isa_ok $sb, 'Num', '-s returns a number';
 $sb = -f "t";
 skip 1, '-f "t" is true somehow, so next test is invalid' if $sb;
 ok -e $sb, 'false stat buffers can still be used', :todo<bug>;
+
+my $fh = open("test_file", :w);
+close $fh;
+ok (-M "test_file") > 0,      "-M works";
+ok (-C "test_file") > 0,      "-C works";
+ok (-A "test_file") > 0,      "-A works";
+unlink "test_file";
+
