@@ -1,4 +1,4 @@
-package Pugs::Emitter::Perl6::YAML;
+package Pugs::Emitter::YAML;
 
 # p6-ast to perl5 emitter
 
