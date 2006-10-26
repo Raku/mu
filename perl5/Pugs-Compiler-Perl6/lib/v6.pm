@@ -345,12 +345,23 @@ be some improvement in compiler speed.
 
 * --compile-only
 
-When using v6.pm from the command line, dumps the emitted code
+When using C<v6.pm> from the command line, dumps the emitted code
 to C<STDOUT> and then exit:
 
     $ perl -e 'use v6-alpha' - --compile-only ' 42.say '
 
     $ perl -Ilib lib/v6.pm --compile-only -e '<hello>.say;'
+
+* -B
+
+Selects alternate code generation backends.
+
+The default is '-Bperl5:Pugs::Emitter::Perl6::Perl5'.
+'-Bperl5' also invokes the default backend.
+
+    $ perl -e 'use v6-alpha' - --compile-only -Bperl5:MyEmitter ' 42.say '
+
+The backend module must provide the C<emit($grammar, $ast)> subroutine.
 
 =head1 AUTHORS
 
