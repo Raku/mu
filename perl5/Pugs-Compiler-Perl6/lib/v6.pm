@@ -277,14 +277,29 @@ Perl 6 syntax and semantics.
 
 =head2 Other Perl 6 implementations
 
-The Pugs/Haskell Perl 6 is currently the most complete implementation. 
-Pugs currently has some issues with Perl 5 interoperability.
+C<Pugs> Perl 6 is currently the most complete implementation. Pugs is written on top of Haskell.
 
-Parrot Perl 6 aims to become the best performing implementation, but
-currently is less complete than both C<v6.pm> and Pugs/Haskell.
+Perl 6 on C<Parrot> aims to become the best performing implementation.
+Parrot is a virtual machine designed to efficiently compile and execute bytecode for interpreted languages.
 
-Although running C<v6.pm> requires the installation of a lot of Perl 5 modules,
-it is completely independent of Pugs or Parrot. 
+C<v6.pm> is completely independent of Pugs or Parrot. 
+
+=head2 Compile-time system
+
+L<Pugs::Compiler::Rule> provides an implementation for Perl 6 Rules, which are used to define the Perl 6 grammar.
+
+L<Parse::Yapp> is used for implementing the operator precedence parser.
+
+L<Module::Compile> and L<Cache::Cache> provide the precompilation cache
+infrastructure.
+
+=head2 Runtime system
+
+The object system is provided by L<Moose>. 
+Moose is an extension of the Perl 5 object system.
+Moose is built on top of L<Class::MOP>, which is a metaclass system for Perl 5.
+
+L<Data::Bind> and L<Sub::Multi> implement the semantics for perl6-style variable binding, as well as subroutine call argument passing and binding, in Perl 5.
 
 =head1 REQUIREMENTS
 
