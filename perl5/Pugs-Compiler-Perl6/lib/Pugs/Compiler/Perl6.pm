@@ -34,6 +34,8 @@ sub compile {
     #print 'rule source: ', $self->{source}, "\n";
     local $@;
 
+    $self->{grammar} =~ s/^perl5://;
+
     $self->{backend}  = 'perl5:Pugs::Emitter::Perl6::Perl5'
         if $self->{backend} eq 'perl5';
     $self->{backend} =~ s/^perl5://;
@@ -75,7 +77,8 @@ sub compile {
         eval {
             #print "<ws> until $pos; tail [",substr( $source, $pos, 10 ),"...]\n";
 
-            $self->{ast} = Pugs::Grammar::Perl6->statement( $source, { pos => $pos } );
+            no strict 'refs';
+            $self->{ast} = &{$self->{grammar} . '::statement'}( $self->{grammar}, $source, { pos => $pos } );
             #print 'match: ', Dumper( $self->{ast}() );
             #print 'match: ', Dumper( $self->{ast}->data );
             $pos = $self->{ast}->to if $self->{ast};
