@@ -186,6 +186,7 @@ package Pugs::Runtime::Perl6::Scalar;
         
     sub yaml {
         require YAML::Syck;
+        no warnings 'once';
         # interoperability with other YAML/Syck bindings:
         $YAML::Syck::ImplicitTyping = 1;
         YAML::Syck::Dump( $_[0] );

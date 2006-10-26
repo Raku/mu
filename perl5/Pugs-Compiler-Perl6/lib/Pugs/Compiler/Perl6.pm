@@ -41,6 +41,10 @@ sub compile {
     $self->{backend} =~ s/^perl5://;
     #print "backend: ", $self->{backend}, "\n";
     eval " require $self->{backend} ";
+        if ( $@ ) {
+            carp "Error in perl 6 backend: $@";
+            return;
+        }
 
     # in order to reduce the memory footprint:
     #       loop parsing '<ws> <statement>'; 
