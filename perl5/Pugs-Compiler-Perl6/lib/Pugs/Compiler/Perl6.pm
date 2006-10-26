@@ -34,8 +34,9 @@ sub compile {
     #print 'rule source: ', $self->{source}, "\n";
     local $@;
 
-    $self->{backend}  = 'Pugs::Emitter::Perl6::Perl5'
+    $self->{backend}  = 'perl5:Pugs::Emitter::Perl6::Perl5'
         if $self->{backend} eq 'perl5';
+    $self->{backend} =~ s/^perl5://;
     #print "backend: ", $self->{backend}, "\n";
     eval " require $self->{backend} ";
 
