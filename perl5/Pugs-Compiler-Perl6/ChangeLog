@@ -5,6 +5,7 @@
 - command-line switch -G can be set to alternate grammar frontends.
   The default is '-Gperl5:Pugs::Grammar::Perl6'
 - implemented grammar and emitter backends for YAML
+  Perl6->YAML + YAML->Perl5 now works
 - added a version banner - perl lib/v6.pm -v
 - eval() in caller's context
 
