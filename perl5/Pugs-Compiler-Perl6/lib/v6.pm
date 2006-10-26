@@ -9,7 +9,7 @@ use Module::Compile-base;
 use File::Basename;
 # use Pugs::Runtime::Perl6;
 
-my $backend_identifier;
+my $backend_identifier = 'perl5';
 my $grammar_identifier;
 
 my $bin;
