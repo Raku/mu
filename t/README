@@ -10,9 +10,9 @@
 |                         \/___/                                              |
 |                                                                             |
 ===============================================================================
- 
-                     Welcome to the Pugs Test suite. 
- 
+
+                     Welcome to the Pugs Test suite.
+
 Pugs is currently being developed in a highly test-driven manner. Tests are 
 written for both implemented and unimplemented features and are based roughly
 on the Perl6 Language Synopsis documents. All are welcome and encouraged to
