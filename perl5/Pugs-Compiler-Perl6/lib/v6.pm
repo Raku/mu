@@ -10,6 +10,7 @@ use File::Basename;
 # use Pugs::Runtime::Perl6;
 
 my $backend_identifier;
+my $grammar_identifier;
 
 my $bin;
 BEGIN { $bin = ((dirname(__FILE__) || '.') . "/..") };
@@ -59,7 +60,7 @@ sub pmc_compile {
 
     require Pugs::Compiler::Perl6;
 
-    my $p6 = Pugs::Compiler::Perl6->compile( $source, { backend => $backend_identifier } );
+    my $p6 = Pugs::Compiler::Perl6->compile( $source, { backend => $backend_identifier, grammar => $grammar_identifier } );
     my $perl5 = $p6->{perl5};
 
     # Don't write when we failed to compile, otherwise it never recompiles!
@@ -141,6 +142,11 @@ if (@ARGV and !caller) {
     }
     splice(@ARGV, 0, 2) if $ARGV[0] =~ /^-B$/;
 
+    if ( $ARGV[0] =~ /^-G(.*)/i ) {
+        shift(@ARGV);
+        $grammar_identifier = $1 if $1;
+    }
+
     while (@ARGV and $ARGV[0] =~ /^-(\w)(.+)/) {
         use Config;
         if($1 eq 'I') {
@@ -202,6 +208,11 @@ elsif ( $0 eq '-e' ) {
         $backend_identifier = $1 if $1;
     }
     splice(@ARGV, 0, 2) if $ARGV[0] && $ARGV[0] =~ /^-B$/;
+
+    if ( $ARGV[0] =~ /^-G(.*)/i ) {
+        shift(@ARGV);
+        $grammar_identifier = $1 if $1;
+    }
 
     while (@ARGV and $ARGV[0] =~ /^-(\w)(.+)/) {
         use Config;
@@ -377,6 +388,12 @@ The default is '-Bperl5:Pugs::Emitter::Perl6::Perl5'.
     $ perl -e 'use v6-alpha' - --compile-only -Bperl5:MyEmitter ' 42.say '
 
 The backend module must provide the C<emit($grammar, $ast)> subroutine.
+
+* -G
+
+Selects alternate grammar frontends.
+
+The default is '-Gperl5:Pugs::Grammar::Perl6'.
 
 =head1 AUTHORS
 

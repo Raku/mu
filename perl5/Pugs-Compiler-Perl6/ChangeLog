@@ -2,6 +2,8 @@
 - command-line switch -B can be set to alternate backends.
   The default is '-Bperl5:Pugs::Emitter::Perl6::Perl5'.
   '-Bperl5' also invokes the default backend.
+- command-line switch -G can be set to alternate grammar frontends.
+  The default is '-Gperl5:Pugs::Grammar::Perl6'
 - added a version banner - perl lib/v6.pm -v
 - eval() in caller's context
 
