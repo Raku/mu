@@ -9,6 +9,8 @@ use Module::Compile-base;
 use File::Basename;
 # use Pugs::Runtime::Perl6;
 
+my $backend_identifier;
+
 my $bin;
 BEGIN { $bin = ((dirname(__FILE__) || '.') . "/..") };
 
@@ -57,7 +59,7 @@ sub pmc_compile {
 
     require Pugs::Compiler::Perl6;
 
-    my $p6 = Pugs::Compiler::Perl6->compile( $source );
+    my $p6 = Pugs::Compiler::Perl6->compile( $source, { backend => $backend_identifier } );
     my $perl5 = $p6->{perl5};
 
     # Don't write when we failed to compile, otherwise it never recompiles!
@@ -133,7 +135,10 @@ if (@ARGV and !caller) {
     }
 
     shift(@ARGV) if $ARGV[0] =~ /^--pugs/;
-    shift(@ARGV) if $ARGV[0] =~ /^-Bperl5$/i;
+    if ( $ARGV[0] =~ /^-B(.*)/i ) {
+        shift(@ARGV);
+        $backend_identifier = $1 if $1;
+    }
     splice(@ARGV, 0, 2) if $ARGV[0] =~ /^-B$/;
 
     while (@ARGV and $ARGV[0] =~ /^-(\w)(.+)/) {
@@ -192,7 +197,10 @@ elsif ( $0 eq '-e' ) {
     }
 
     shift(@ARGV) if $ARGV[0] && $ARGV[0] =~ /^--pugs/;
-    shift(@ARGV) if $ARGV[0] && $ARGV[0] =~ /^-Bperl5$/i;
+    if ( $ARGV[0] =~ /^-B(.*)/i ) {
+        shift(@ARGV);
+        $backend_identifier = $1 if $1;
+    }
     splice(@ARGV, 0, 2) if $ARGV[0] && $ARGV[0] =~ /^-B$/;
 
     while (@ARGV and $ARGV[0] =~ /^-(\w)(.+)/) {

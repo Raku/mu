@@ -1,4 +1,7 @@
 
+- command-line switch -B can be set to alternate backends.
+  The default is '-BPugs::Emitter::Perl6::Perl5'.
+  '-Bperl5' also invokes the default backend.
 - added a version banner - perl lib/v6.pm -v
 - eval() in caller's context
 

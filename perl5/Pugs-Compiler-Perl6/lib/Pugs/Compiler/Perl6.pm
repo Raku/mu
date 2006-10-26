@@ -9,7 +9,6 @@ use warnings;
 use base 'Pugs::Compiler::Regex';
 use Pugs::Grammar::Perl6;
 use Pugs::Compiler::Token;
-use Pugs::Emitter::Perl6::Perl5;
 use Carp;
 # use Scalar::Util 'blessed';
 use Data::Dumper;
@@ -27,10 +26,18 @@ sub compile {
                         'Pugs::Grammar::Perl6';
     $self->{p}        = delete $param->{pos}      ||
                         delete $param->{p};
+    $self->{backend}  = delete $param->{backend}  ||
+                        'perl5';
+
     warn "Error in compile: unknown parameter '$_'" 
         for keys %$param;
     #print 'rule source: ', $self->{source}, "\n";
     local $@;
+
+    $self->{backend}  = 'Pugs::Emitter::Perl6::Perl5'
+        if $self->{backend} eq 'perl5';
+    #print "backend: ", $self->{backend}, "\n";
+    eval " require $self->{backend} ";
 
     # in order to reduce the memory footprint:
     #       loop parsing '<ws> <statement>'; 
@@ -107,7 +114,8 @@ sub compile {
 
     if ( @statement ) {
         eval {
-            $self->{perl5} = Pugs::Emitter::Perl6::Perl5::emit( 
+            no strict 'refs';
+            $self->{perl5} = &{$self->{backend} . '::emit'}( 
                 $self->{grammar}, $self->{ast}, $self );
         };
         {
