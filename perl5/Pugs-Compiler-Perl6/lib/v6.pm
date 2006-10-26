@@ -74,6 +74,11 @@ sub pmc_compile {
     #     use base 'Pugs::Grammar::Base';  
     #   see: t/rules/from_perl6_rules/capture.t
 
+    # postprocess perl5 backend
+    if (  $backend_identifier eq 'perl5'
+       || $backend_identifier eq 'perl5:Pugs::Emitter::Perl6::Perl5'
+       ) {
+
     $perl5 = 
         ( $package 
             ? "package $package;\n" 
@@ -120,6 +125,8 @@ sub pmc_compile {
         $perl5 = $perl5_tidy;
       }
     }
+
+    }  # / postprocess perl5 backend
 
     return $perl5;
 }
