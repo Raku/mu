@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 31;
+plan 32;
 
 class Foo {
     has $.bar is rw;
@@ -90,19 +90,19 @@ class Y is X {
 is(Z.new.j(), 'X', 'inherited method dispatch works');
 is(Y.new.k(), 'X', 'inherited method dispatch works inside another class with same-named method');
 
-# <audreyt> initializaer did not inherit properly; please write a test or
-#           locate one
 {
     class A {
       has @.x = <a b c>;
+      has $.w = 9;
 
       method y($i) { return @.x[$i]; }
     }
 
     class B is A {
-
+      has $.w = 10;
       method z($i) { return $.y($i); }
     }
 
-    is( B.new.z(1), 'b' );
+    is( B.new.z(1), 'b', 'initializer carries through' );
+    is( B.new.w, 10, 'initializer can be overriden by derived classes' );
 }
