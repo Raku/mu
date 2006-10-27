@@ -105,16 +105,7 @@ sub sub_noop {
       return 1 if '.$o->code_noop_is('$c').';
       '.$o->code_tailcall('$c','$noop').";
     }, 'Regexp::Engine::Fribble::Noop';";
-#    $code = 'bless sub{
-#      my $c = $_[0];
-##print STDERR "noop",ref($c),$c;
-##Carp::confess;
-#      return 1 if (ref($c) eq \'Regexp::Engine::Fribble::Noop\');
-#      @_=($noop); goto &{$c};;
-#    }, \'Regexp::Engine::Fribble::Noop\';';
-#    print $code;exit;
     $noop = $o->{cached_noop} = eval($code); die $@.$code if $@;
-#    print STDERR "noop ",$noop,"\n";
   }
   $o->{cached_noop};
 }
@@ -309,52 +300,6 @@ sub sub_alt_dynamic {#TODO-refactor back into sub_alt?
   $o->{$key}($o,$afs);
 }
 
-sub sub_concat_v1_broken {
-  my($o,$afs)=@_;
-  my $key = 'cached_sub_concat_v1';
-  if(not exists $o->{$key}) {
-    my $code = '
-#line 2 "sub_concat"
-    sub {
-      my($o,$afs)=@_;
-      my @fs = @$afs;
-      if(@fs == 0) {
-        return $o->noop;
-      }
-      elsif(@fs == 1) {
-        return $fs[0];
-      }
-      # elsif(@fs == 2) {
-      #   my($f0,$f1)=@fs;
-      #   return sub {
-      #     my $c = $_[0];
-      #     '.$o->code_tailcall('$f0','sub{'.$o->code_tailcall('$f1','$c').'}').';
-      #   };
-      # }
-      my $f0 = shift @fs;
-      @fs = reverse @fs;
-      my $start = @fs-1;
-      '.$o->code_subwrap("'sub_concat'",'sub {
-        my $c = $_[0];
-#	print STDERR "sub_concat c=$c\n";
-        my $i = $start; #BZZZZT. would have to be local()ly passed, uniquified.
-        my $next;
-        $next = sub {
-#  	  print STDERR "sub_concat next fs[$i]=$fs[$i]\n";
-          if($i > 0) {
-            '.$o->code_tailcall('$fs[$i--]','$next').';
-          } else {
-            '.$o->code_tailcall('$fs[$i]','$c').';
-          }
-        };
-#	print STDERR "sub_concat next: ",$next," f0=$f0\n";
-        '.$o->code_tailcall_safely('$f0','$next').';
-    }').';
-    }';
-    $o->{$key} = $o->_eval_code($code);
-  }
-  $o->{$key}($o,$afs);
-}
 sub sub_concat { # XXX - currently ignoring the code_tailcall abstractions
   my($o,$afs)=@_;
   my $key = 'cached_sub_concat_v0';
@@ -382,66 +327,6 @@ sub sub_concat { # XXX - currently ignoring the code_tailcall abstractions
   $o->{$key}($o,$afs);
 }
 
-sub sub_repeat_v0_disposable {
-  my($o,$f,$min,$max)=@_;
-  $min = 0 if !defined $min;
-  $max = (1000**1000**1000) if !defined $max;
-  $min += 0; $max += 0;
-  my $key = 'cached_sub_repeat';
-  if(not exists $o->{$key}) {
-    my $code = '
-#line 2 "cached_sub_repeat"
-    sub {
-      my($o,$f,$min,$max)=@_;
-      '.$o->code_subwrap("'$key'",'sub{
-        my $c = $_[0];
-        my $pos_old = -1;
-        my $i = 0;
-        my($fmin,$fagain,$frest);
-        $fmin = sub{
-#  print  "$i $X::pos fmin\n";
-          if($i >= $min) {
-            goto &$fagain;
-          }
-#  print  "$i $X::pos fmin tailcalling f\n";
-          $i++; '.$o->code_tailcall('$f','$fmin').'
-        };
-        $fagain = sub{
-#  print  "$i $X::pos fagain\n";
-          if($pos_old >= '.$o->config_pos_var.'){
-#  print  "$i $X::pos fagain NO PROGRESS tailcal c\n";
-            '.$o->code_tailcall('$c').';
-          }
-          $pos_old = '.$o->config_pos_var.';
-          goto &$frest;
-        };
-        $frest = sub{
-#  print  "$i $X::pos frest\n";
-          if($i >= $max) {
-#  print  "$i $X::pos frest BEYOND MAX tailcalling c\n";
-            '.$o->code_tailcall('$c').';
-          }
-          $i++;
-#  print  "$i $X::pos frest about to call f in let\n";
-          my $v = '.$o->source_let_vars($o->config_backtrack_vars,
-                                      $o->code_call('$f','$fagain')).';
-#  print  "$i $X::pos frest back.   success? ",defined($v)?"returning $v":"undef","\n";
-          return $v if '.$o->code_fail_isnot('$v').';
-#  print  "$i $X::pos frest no. tailcalling c\n";
-          '.$o->code_tailcall('$c').';
-        };
-        #'.$o->code_tailcall('$fmin').';
-  die "bug" if not defined($min) or not defined($max);
-#  print  "start $min $max  $X::pos\n";
-        goto &$fmin;
-#        $fmin->();
-      }').'
-    }';
-#  print STDERR $code;exit;
-    $o->{$key} = $o->_eval_code($code);
-  }
-  $o->{$key}($o,$f,$min,$max);
-}
 sub sub_repeat {
   my($o,$f,$min,$max,$ng)=@_;
   $min = 0 if !defined $min;
