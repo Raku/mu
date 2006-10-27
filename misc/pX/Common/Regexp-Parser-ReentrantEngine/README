@@ -1,0 +1,2 @@
+This is a cleanup of the regexp engine from the regexp_engine_and_parser_spike.
+It is fast, and passes most of re_tests.
