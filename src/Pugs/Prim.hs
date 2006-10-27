@@ -1257,14 +1257,24 @@ op3 "HOW::new" = \t n p -> do
     meta    <- readRef =<< fromVal cls
     fetch   <- doHash meta hash_fetchVal
 
+    attrs   <- fetch "attrs"
+
     name    <- fromVal =<< fetch "name" :: Eval String
     roles   <- fromVals =<< fetch "does" :: Eval [String]
+    supers  <- fromVals =<< fetch "is" :: Eval [String]
 
     -- Role flattening -- copy over things there and put it to symbol table
     -- XXX - also do renaming of concrete types mentioned in roles
     -- XXX - also, rewrite subEnv mentioned in the subs
     -- XXX - also, copy over the inheritance chain from role's metaobject
     mixinRoles name roles
+
+    -- Merge in slot definitions in "attrs"
+    defs        <- join $ doHash attrs hash_fetch
+    parentAttrs <- forM (roles ++ supers) $ fetchMetaInfo "attrs"
+    store       <- doHash attrs hash_store
+    store $ Map.unions (defs:parentAttrs)
+    
     return cls
 
 op3 "Object::new" = \t n p -> do
@@ -1272,10 +1282,7 @@ op3 "Object::new" = \t n p -> do
     typ     <- fromVal t
     named   <- fromVal n
 
-    meta    <- readRef =<< fromVal =<< evalExp (_Var (':':'*':showType typ))
-    fetch   <- doHash meta hash_fetchVal
-    defs    <- fromVal =<< fetch "attrs"
-
+    defs    <- fetchMetaInfo "attrs" (showType typ)
     attrs   <- liftIO $ H.new (==) H.hashString
     writeIVar (IHash attrs) (named `Map.union` defs)
     uniq    <- newObjectId
@@ -1368,6 +1375,13 @@ op3Split x y z = do
     split' :: VStr -> VStr -> Int -> Val
     split' [] xs n = VList $ (map (VStr . (:[])) (take (n-1) xs)) ++ [ VStr $ drop (n-1) xs ]
     split' glue xs n = VList $ map VStr $ split_n glue xs n
+
+-- XXX - The "String" below wants to be Type.
+fetchMetaInfo :: Value a => String -> [Char] -> Eval a
+fetchMetaInfo key typ = do
+    meta    <- readRef =<< fromVal =<< evalExp (_Var (':':'*':typ))
+    fetch   <- doHash meta hash_fetchVal
+    fromVal =<< fetch key
 
 -- |Implementation of 4-arity primitive operators and functions.
 -- Only substr and splice
