@@ -280,7 +280,7 @@ sub sub_concat { # XXX - currently ignoring the code_tailcall abstractions
       sub {
         my($o,$afs)=@_;
 	my @fs = @$afs;
-	return $o->noop if @fs == 0;
+	return $o->sub_noop if @fs == 0;
 	return $fs[0] if @fs == 1;
 	my $code1 = ""; my $code2 = "";
 	my $code0 = "my \$f0 = \$fs[0]; ";

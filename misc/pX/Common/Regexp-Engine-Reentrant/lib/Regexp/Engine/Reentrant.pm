@@ -13,7 +13,7 @@ use Filter::Simple sub {
   s/\bFAIL_IF_FAILED\(([^\)]+)\);/FAIL() if FAILED($1);/g;
   s/\bFAIL\(([^\)]{0,0})\)/return undef/g;
   s/\bFAILED\(([^\)]+)\)/(!defined($1)||(!ref($1)&&($1<=0)))/g;
-  s/\bTAILCALL\(([^,\)]+)\);/\@_=(Hacks->noop);goto $1;/g; #no
+  s/\bTAILCALL\(([^,\)]+)\);/\@_=($main::bt->sub_noop);goto $1;/g; #no
   s/\bTAILCALL\(([^,\)]+),?([^\)]*)\);/\@_=($2);goto $1;/g;
   $_;
 };
@@ -49,43 +49,19 @@ END
 {
   package Hacks;
 
-  my $noop;
-  $noop = $main::bt->sub_noop;
-  sub noop {
-    $noop;
-  }
   sub concat {
     my($o,$aref)=@_;
     die "bug $aref" if ref($aref) ne 'ARRAY';
     my @a = @$aref;
-    return $o->noop if @a == 0;
-    return $a[0]->emit if @a == 1;
-    my @fs = map { $_->emit } @a;
-    my $code1 = ""; my $code2 = "";
-    my $code0 = "my \$f0 = \$fs[0]; ";
-    for my $i (reverse(1..$#a)) {
-      $code0 .= "my \$f$i = \$fs[$i]; ";
-      $code1 .= "sub{\@_=";
-      $code2 .= ";goto \&\$f$i}";
-    }
-    my $code = $code0."
-#line 2 \"Hacks concat\"
-\n sub{my \$cn = \$_[0]; \@_=".$code1."\$cn".$code2.";goto \&\$f0}\n";
-    #print $code;
-    eval($code) || die "$@";
+    my @fs = map { $_->emit } @$aref;
+    $main::bt->sub_concat(\@fs);
   }   
-  sub mk_ignore_this_node {
-    my($o)=@_;
-    $o->noop;
-  }
 
   sub emit {
     my $cls = ref($_[0]);
     die "$cls emit() unimplemented\n";
   }
-  sub inf {
-    1000**1000**1000 #XXX there has to be a better way. :(
-  }
+
 }
 {
   package Regexp::Parser::__object__;
@@ -103,7 +79,7 @@ END
   package Regexp::Parser::anchor;
   sub emit {
     my($o)=@_;
-    my $noop = $o->noop;
+    my $noop = $main::bt->sub_noop;
     my $re = $o->raw();
     return sub{
       FAIL() if !($X::pos == 0);
@@ -195,7 +171,7 @@ END
   package Regexp::Parser::exact;
   sub emit{
     my($o)=@_;
-    my $noop = $o->noop;
+    my $noop = $main::bt->sub_noop;
     my $s = join("",$o->data);
     my $len = length($s);
     my $pat = $s;
@@ -212,10 +188,10 @@ END
 
   sub emit {
     my($o)=@_;
-    my $noop = $o->noop;
+    my $noop = $main::bt->sub_noop;
     my($min,$max)= (@$o{'min','max'});
     $min = 0 if $min eq "";
-    $max = $o->inf if $max eq "";
+    $max = 1000**1000**1000 if $max eq ""; #XXX inf
     $min += 0; $max += 0; 
     my $f = $o->data->emit;
     $main::bt->sub_repeat($f,$min,$max);
@@ -226,10 +202,10 @@ END
   package Regexp::Parser::minmod;
   sub emit {
     my($o)=@_;
-    my $noop = $o->noop;
+    my $noop = $main::bt->sub_noop;
     my($min,$max)= (@{$o->data}{'min','max'});
     $min = 0 if $min eq "";
-    $max = $o->inf if $max eq "";
+    $max = 1000**1000**1000 if $max eq ""; #XXX inf
     $min += 0; $max += 0; 
     my $f = $o->data->data->emit; # reach down into quant below.
     $main::bt->sub_repeat($f,$min,$max,1);
@@ -267,7 +243,7 @@ END
   package Regexp::Parser::ref;
   sub emit {
     my($o)=@_;
-    my $noop = $o->noop;
+    my $noop = $main::bt->sub_noop;
     my $idx = $o->{'nparen'} -1;
     sub {
       my $c = $_[0];
@@ -292,7 +268,7 @@ END
   package Regexp::Parser::ifmatch;
   sub emit {
     my($o)=@_;
-    my $noop = $o->noop;
+    my $noop = $main::bt->sub_noop;
     my $f = $o->concat( $o->data );
     my $dir = $o->{'dir'};
     if($dir>0) {
@@ -330,7 +306,7 @@ END
   package Regexp::Parser::unlessm;
   sub emit {
     my($o)=@_;
-    my $noop = $o->noop;
+    my $noop = $main::bt->sub_noop;
     my $f = $o->concat( $o->data );
     my $dir = $o->{'dir'};
     if($dir>0) {
@@ -357,7 +333,7 @@ END
   package Regexp::Parser::suspend;
   sub emit {
     my($o)=@_;
-    my $noop = $o->noop;
+    my $noop = $main::bt->sub_noop;
     my $f = $o->concat( $o->data );
     sub {
       my $c = $_[0];
@@ -372,7 +348,7 @@ END
   package Regexp::Parser::ifthen;
   sub emit {
     my($o)=@_;
-    my $noop = $o->noop;
+    my $noop = $main::bt->sub_noop;
 #    die Data::Dumper::Dumper $o;
 
     my $f_test = $o->data->[0]->emit;
@@ -399,7 +375,7 @@ END
   package Regexp::Parser::groupp;
   sub emit {
     my($o)=@_;
-    my $noop = $o->noop;
+    my $noop = $main::bt->sub_noop;
     my $idx = $o->{'nparen'} -1;
     sub {
       my $c = $_[0];
@@ -415,7 +391,7 @@ END
   package Regexp::Parser::eval;
   sub emit {
     my($o)=@_;
-    my $noop = $o->noop;
+    my $noop = $main::bt->sub_noop;
     my $embedded_code = join("",$o->data);
     my $code = '
 #line 2 "in Regexp::Parser::eval"
@@ -432,7 +408,7 @@ sub{my $__c__ = $_[0]; '.$embedded_code.'; @_=$noop; goto &$__c__}';
   package Regexp::Parser::flags;
   sub emit {
     my($o)=@_;
-    $o->mk_ignore_this_node();
+    $main::bt->sub_noop;
   }
 }
 
@@ -441,7 +417,7 @@ package Y;
 our %rules;
 sub dorule {
   my($c,$name,$args)=@_;
-  my $noop = Hacks->noop;
+  my $noop = $main::bt->sub_noop;
 
   my $ru = $rules{$name};
   if(!defined $ru) {
@@ -522,7 +498,7 @@ sub mk_Match_appender {
   }
 }
 
-my $noop = Hacks->noop;
+my $noop = $main::bt->sub_noop;
 sub compile {
   my($re)=@_;
   $re = '(?:)' if $re eq ''; #Regexp::Parser bug workaround.
