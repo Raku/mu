@@ -1365,11 +1365,27 @@ sub postcircumfix {
         # avoid p5 warning - "@a[1] better written as $a[1]"
         if (   (  exists $n->{exp2}{int} 
                || exists $n->{exp2}{scalar} 
+               || exists $n->{exp2}{array} 
                || exists $n->{exp2}{op1} 
                ) 
-               && exists $n->{exp1}{array} ) {
+            && ( exists $n->{exp1}{array}
+                || (  exists $n->{exp1}{op1}
+                   && $n->{exp1}{fixity} eq 'circumfix'
+                   && $n->{exp1}{op1} eq '('
+                   && exists $n->{exp1}{exp1}{list}
+                   )
+                )
+            ) {
             my $name = _emit( $n->{exp1} );
-            $name =~ s/^\@/\$/;
+            $name =~ s/^\@/\$/
+                unless exists $n->{exp2}{list}
+                    || exists $n->{exp2}{array}
+                    || (  exists $n->{exp2}{op1}
+                       && $n->{exp2}{fixity} eq 'circumfix'
+                       && $n->{exp2}{op1} eq '('
+                       && exists $n->{exp2}{exp1}{list}
+                       )
+                       ;
             return $name . '[' . _emit( $n->{exp2} ) . ']';
         }
         

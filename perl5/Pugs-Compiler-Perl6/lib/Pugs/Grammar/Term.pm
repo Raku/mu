@@ -189,18 +189,30 @@ sub rx_body {
 ) )->code;
 
 sub is_hash_or_pair {
-    # XXX - hash, anon_hash ???
+    # XXX - does %hash, {anon_hash}, hash() interpolate?
     my $elem = $_[0];
-          ref( $elem )
-       && (  exists $elem->{pair}
-          || exists $elem->{hash}
-          || exists $elem->{anon_hash}
-          || (  exists $elem->{fixity}
+    ref( $elem )
+    &&    (  exists $elem->{pair}          #  :a<b>  :a  :!a
+          || exists $elem->{hash}          #  %hash
+          || exists $elem->{anon_hash}     #  {}  { 1 => 2 }
+          || (  exists $elem->{fixity}     #  a => 'b'
              && $elem->{fixity} eq 'infix'
              && $elem->{op1} eq '=>'
              )
+          || (  exists $elem->{fixity}     #  %( 1, 2 )
+             && $elem->{fixity} eq 'prefix'
+             && $elem->{op1} eq '%'
+             )
+          || (  exists $elem->{sub}        #  pair( 1, 2 )  
+             && $elem->{sub}{bareword} eq 'pair'
+             && $elem->{op1} eq 'call'
+             )
+          || (  exists $elem->{sub}        #  hash( 1, 2 )
+             && $elem->{sub}{bareword} eq 'hash'
+             && $elem->{op1} eq 'call'
+             )
           )
-        ? 1 : 0;
+    ? 1 : 0;
 }
 
 sub recompile {
