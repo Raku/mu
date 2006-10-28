@@ -457,7 +457,11 @@ op1 "opendir" = \v -> do
     dir <- guardIO $ openDirStream str
     obj <- createObject (mkType "IO::Dir") []
     return . VObject $ obj{ objOpaque = Just $ toDyn dir }
-op1 "IO::Dir::close" = op1 "IO::Dir::closedir"
+op1 "IO::Dir::close" = \v -> 
+    ifValTypeIsa v "IO::Dir" (op1 "IO::Dir::closedir" v) $ case v of
+        VHandle{}   -> op1 "IO::close" v
+        VSocket{}   -> op1 "Socket::close" v
+        _           -> die "Close" v
 op1 "IO::Dir::closedir" = guardedIO (closeDirStream . fromObject)
 op1 "IO::Dir::rewind" = op1 "IO::Dir::rewinddir"
 op1 "IO::Dir::rewinddir" = guardedIO (rewindDirStream . fromObject)
