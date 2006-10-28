@@ -41,8 +41,8 @@ sub _var_get {
             my $block = _emit( $n );
             # TODO - check if it is a comma-delimited list
             #print "block: [$block]\n";
-            return $block 
-                if $block =~ / \# \s* hash \s* \n \s* }? \s* $/xs;
+            #return $block 
+            #    if $block =~ / \# \s* hash \s* \n \s* }? \s* $/xs;
             #print "sub: [$block]\n";
             return ' sub ' . $block;
         }
@@ -194,6 +194,9 @@ sub _emit {
         
     return '{' . _emit( $n->{pair}{key} ) . '=>' . _emit( $n->{pair}{value} ) . '}'
         if exists $n->{pair};
+        
+    return emit_anon_hash( $n->{anon_hash} )
+        if exists $n->{anon_hash};
         
     return _var_get( $n )
         if exists $n->{scalar};
@@ -441,30 +444,6 @@ sub emit_block_nobraces {
     my $n = $_[0];
     $n = { bare_block => $n } 
         if $n && !$n->{bare_block};
-
-    #<audreyt> If the closure
-    #<audreyt> appears to delimit nothing but a comma-separated list starting with
-    #<audreyt> a pair (counting a single pair as a list of one element), the closure
-    #<audreyt> will be immediately executed as a hash composer.
-    #<audreyt> also, {} is a hash
-    #warn "block: ",Dumper $n;
-    if ( exists $n->{bare_block}{statements} ) {
-        if ( @{$n->{bare_block}{statements}} == 0 ) {
-            return " # hash\n";
-        }
-        if (
-            @{$n->{bare_block}{statements}} == 1        &&
-            exists $n->{bare_block}{statements}[0]{op1} &&
-            (   $n->{bare_block}{statements}[0]{op1} eq ',' 
-            ||  (  ref $n->{bare_block}{statements}[0]{op1} eq 'HASH'
-                && $n->{bare_block}{statements}[0]{op1} eq '=>' 
-                )
-            )
-            # TODO -   && is it a pair?
-        ) {
-            return  _emit( $n->{bare_block}{statements}[0] ) . "  # hash\n";
-        }
-    }
     return  _emit( $n->{bare_block} );
 }
 
@@ -478,6 +457,11 @@ sub emit_block {
         return $n->{trait} . " { $s } ";
     }
     return " { $s } ";
+}
+
+sub emit_anon_hash {
+    my $n = $_[0];
+    return  _emit( $n );  # . "  # hash\n";
 }
 
 sub _emit_closure {

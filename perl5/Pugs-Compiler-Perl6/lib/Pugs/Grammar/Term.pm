@@ -188,6 +188,21 @@ sub rx_body {
                 } }
 ) )->code;
 
+sub is_hash_or_pair {
+    # XXX - hash, anon_hash ???
+    my $elem = $_[0];
+          ref( $elem )
+       && (  exists $elem->{pair}
+          || exists $elem->{hash}
+          || exists $elem->{anon_hash}
+          || (  exists $elem->{fixity}
+             && $elem->{fixity} eq 'infix'
+             && $elem->{op1} eq '=>'
+             )
+          )
+        ? 1 : 0;
+}
+
 sub recompile {
     my $class = shift;
     %hash = (
@@ -281,17 +296,47 @@ sub recompile {
                 { return $_[0]{'Pugs::Grammar::Term.brackets'}->() }
             ),
         '{' => q(
+                # S06 - Anonymous hashes vs blocks
+                # if it is completely empty 
                 <?ws>? <'}'>
                 { 
                   return { 
-                    bare_block => { statements => [] },
+                    anon_hash => { null => 1, },
                 } }
             |
+                # consists of a single list, first element is either a hash or a pair
                 <?ws>? <Pugs::Grammar::Perl6.statements> <?ws>? <'}'>
                 { 
                     #print "Term block\n";
+                    my $stmt = $_[0]{'Pugs::Grammar::Perl6.statements'}->();
+                    
+                    #print "Statements: ", Dumper($stmt);
+                    
+                    if ( scalar @{$stmt->{statements}} == 1 ) {
+                        my $list = $stmt->{statements}[0];
+                        if (  exists $list->{list} 
+                           && $list->{op1} eq ','
+                           ) {
+                            my $elem = $list->{list}[0];
+                            if ( Pugs::Grammar::Term::is_hash_or_pair( $elem ) ) {
+                                return { 
+                                    anon_hash => $list,
+                                }                                
+                            }
+                        }
+                        if ( Pugs::Grammar::Term::is_hash_or_pair( $list ) ) {
+                            return { 
+                                anon_hash => {
+                                    list => [ $list ],
+                                    assoc => 'list',
+                                    op1 => ',',
+                                }
+                            }                                
+                        }
+                    }
+                    
                     return { 
-                        bare_block => $_[0]{'Pugs::Grammar::Perl6.statements'}->(),
+                        bare_block => $stmt,
                 } }
             ),
         '->' => q( 
