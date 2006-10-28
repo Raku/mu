@@ -461,7 +461,19 @@ sub emit_block {
 
 sub emit_anon_hash {
     my $n = $_[0];
-    return  _emit( $n );  # . "  # hash\n";
+    return '{}' if exists $n->{null};
+    return 
+        '{' .
+        join ( ", ", 
+            map { 
+                exists $_->{null}
+                ? ()
+                : exists $_->{pair}
+                ? _emit( $_->{pair}{key} ) . '=>' . _emit( $_->{pair}{value} )
+                : _emit( $_ ) 
+            } @{$n->{list}} 
+        ) . 
+        '}';
 }
 
 sub _emit_closure {

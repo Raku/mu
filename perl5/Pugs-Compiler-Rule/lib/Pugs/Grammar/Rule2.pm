@@ -171,8 +171,15 @@ token named_capture_body {
         { return { closure => $$<parsed_code> ,} }
     },
     '\\' => token {  
-        .
-        { return { special_char => '\\' ~ $/ , } } 
+        | [ x | X | o | O ] \d+
+          #  \x0021    \X0021
+          { return { special_char => '\\' ~ $/ , } } 
+        | ( x | X | o | O ) \[ (\d+) \]
+          #  \x[0021]  \X[0021]
+          { return { special_char => '\\' ~ $0 ~ $1 , } } 
+        | .
+          #  \e  \E
+          { return { special_char => '\\' ~ $/ , } } 
     },
     '.' => token { 
         { return { 'dot' => 1 ,} }
@@ -197,16 +204,36 @@ token named_capture_body {
     '<<'  => token { { return { colon => '<<' ,} } },
     '«'   => token { { return { colon => '<<' ,} } },
 
-    ':i'           => token { { return { modifier => 'ignorecase'  ,} } },
-    ':ignorecase'  => token { { return { modifier => 'ignorecase'  ,} } },
-    ':s'           => token { { return { modifier => 'sigspace'  ,} } },
-    ':sigspace'    => token { { return { modifier => 'sigspace'  ,} } },
-    ':P5'          => token { { return { modifier => 'Perl5'  ,} } },
-    ':Perl5'       => token { { return { modifier => 'Perl5'  ,} } },
-    ':bytes'       => token { { return { modifier => 'bytes'  ,} } },
-    ':codes'       => token { { return { modifier => 'codes'  ,} } },
-    ':graphs'      => token { { return { modifier => 'graphs' ,} } },
-    ':langs'       => token { { return { modifier => 'langs'  ,} } },
+    ':i'  => token { 
+        <?ws> <rule> 
+        { return { modifier => 'ignorecase', :$$<rule>, } } },
+    ':ignorecase'  => token { 
+        <?ws> <rule> 
+        { return { modifier => 'ignorecase', :$$<rule>, } } },
+    ':s'  => token { 
+        <?ws> <rule> 
+        { return { modifier => 'sigspace',   :$$<rule>, } } },
+    ':sigspace'    => token { 
+        <?ws> <rule> 
+        { return { modifier => 'sigspace',   :$$<rule>, } } },
+    ':P5' => token { 
+        <?ws> <rule> 
+        { return { modifier => 'Perl5',  :$$<rule>, } } },
+    ':Perl5'       => token { 
+        <?ws> <rule> 
+        { return { modifier => 'Perl5',  :$$<rule>, } } },
+    ':bytes'       => token { 
+        <?ws> <rule> 
+        { return { modifier => 'bytes',  :$$<rule>, } } },
+    ':codes'       => token { 
+        <?ws> <rule> 
+        { return { modifier => 'codes',  :$$<rule>, } } },
+    ':graphs'      => token { 
+        <?ws> <rule> 
+        { return { modifier => 'graphs', :$$<rule>, } } },
+    ':langs'       => token { 
+        <?ws> <rule> 
+        { return { modifier => 'langs',  :$$<rule>, } } },
 
 ); # /%rule_terms
     
