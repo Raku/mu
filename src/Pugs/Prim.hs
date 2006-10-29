@@ -401,10 +401,10 @@ op1 "readlink" = \v -> do
     str  <- fromVal v
     guardIO $ fmap VStr (readSymbolicLink str)
 op1 "sleep" = \v -> do
-    x <- fromVal v
+    x <- fromVal v :: Eval VNum
     guardIO $ do
         TOD t0s t0ps <- getClockTime
-        threadDelay (x * clocksPerSecond)
+        threadDelay (round $ x * clocksPerSecond)
         TOD t1s t1ps <- getClockTime
         return $ VRat ((fromInteger $ t1ps - t0ps)
                       / (clocksPerSecond * clocksPerSecond) -- 10^12
@@ -539,7 +539,7 @@ op1 "async" = \v -> do
     env     <- ask
     code    <- fromVal v
     lock    <- liftSTM $ newEmptyTMVar
-    tid     <- guardIO . (if rtsSupportsBoundThreads then forkOS else forkIO) $ do
+    tid     <- guardIO . forkIO $ do -- (if rtsSupportsBoundThreads then forkOS else forkIO) $ do
         val <- runEvalIO env $ do
             enterEvalContext CxtVoid $ App (Val code) Nothing []
         liftSTM $ tryPutTMVar lock val
