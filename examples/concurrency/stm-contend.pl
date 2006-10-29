@@ -21,8 +21,10 @@ my $thr2 = async {
 }
 while ($still_running) {
     say $a;
-    sleep 1;
+    sleep 0.1;
     contend { $a++; }
 }
 $thr1.join;
 $thr2.join;
+
+say "All done!";
