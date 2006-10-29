@@ -580,7 +580,7 @@ makeParser simpleTerm ops = do
     optPrefixOp       = {-# SCC "optPrefixOp" #-}   choice optPrefix <?> ""
     listAssocOp       = {-# SCC "listAssocOp" #-}   choice listAssoc <?> ""
     depPostfixOp x    = {-# SCC "depPostfixOp" #-}  choice (map ($ x) depPostfix) <?> ""
-    termOp            = {-# SCC "termOp" #-}        choice term <|> simpleTerm
+    termOp            = {-# SCC "termOp" #-}        choice term <|> (simpleTerm <?> "")
 
     ambig assoc op    = try
         (op >> fail ("ambiguous use of a " ++ assoc ++ " associative operator"))
