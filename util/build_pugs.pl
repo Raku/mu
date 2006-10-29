@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
 use warnings;
@@ -518,6 +518,9 @@ sub write_buildinfo {
 
     # Remove -Wl flags in Perl5 embedding.
     @_ = grep { !/^-W/ } @_;
+
+    # Remove -threaded if we are building profiled.
+    @_ = grep { !/^-threaded/ } @_ if $want_profiling;
 
     my @include_dirs = grep { -d $_ }
             map File::Spec->canonpath(substr($_, 2)),
