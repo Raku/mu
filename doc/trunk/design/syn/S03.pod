@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 16 Oct 2006
+  Last Modified: 30 Oct 2006
   Number: 3
-  Version: 72
+  Version: 73
 
 =head1 Changes to Perl 5 operators
 
@@ -876,6 +876,34 @@ dispatch tables when they know they're likely to be used in hyperops.
 
 Beyond all that, "array of scalar" types are known at compile time not to
 need recursive hypers, so the operations can be vectorized aggressively.
+
+Hypers may be applied to hashes as well as to lists.  In this case
+"dwimminess" says whether to ignore keys that do not exist
+in the other hash, while "non-dwimminess" says to use all keys that are
+in either hash.  That is,
+
+    %foo «+» %bar;
+
+gives you the intersection of the keys, while
+
+    %foo »+« %bar;
+
+gives you the union of the keys.  Asymmetrical hypers are also useful;
+for instance, if you say:
+
+    %outer »+» %inner;
+
+only the %inner keys that already exist in %outer will occur in the result.
+Note, however, that you want
+
+    %outer »+=« %inner;
+
+in order to pass accumulated statistics up a tree, assuming you want %outer
+to have the union of keys.
+
+Unary hash hypers and binary hypers that have only one hash operand
+will apply the hyper operator to just the values but return a new
+hash value with the same set of keys as the original hash.
 
 =head2 Reduction operators
 
