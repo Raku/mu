@@ -197,6 +197,10 @@ sub _emit_reference {
         return ( 'bless ' . _emit($n) . ", 'Pugs::Runtime::Perl5Container::Array' " );
     }
 
+    if ( exists $n->{anon_hash} ) {
+        return ( 'bless ' . _emit($n) . ", 'Pugs::Runtime::Perl5Container::Hash' " );
+    }
+
     return undef;  # '\\( ' . _emit( $_[0] ) . ' )';
 }
 
