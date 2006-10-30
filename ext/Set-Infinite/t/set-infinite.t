@@ -124,7 +124,9 @@ is( try { $set1.difference( $set2 ).stringify }, '[1,2)', 'difference');
     # }
 }
 
-{
+flunk "infinite loop - investigate"; exit;
+
+if 0 {
     # mutators
     my $span = Span.new( :int, :start(1), :end(2) );
     my $set = Set::Infinite.new( objects => ( 2, 7, 9, $span ) );

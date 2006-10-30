@@ -110,7 +110,8 @@ is( $span.contains( 9 ), Bool::False, 'doesn\'t contain object' );
     is( @a[1].stringify, '(2,3]', 'difference 1' );
 }
 
-{
+flunk "infinite loop - investigate";
+if 0 {
     my $span = Span.new( :int, :start(1), :end(3) );
     my @a = $span.difference( 2 );
     is( @a.elems, 2, 'integer difference value' );
