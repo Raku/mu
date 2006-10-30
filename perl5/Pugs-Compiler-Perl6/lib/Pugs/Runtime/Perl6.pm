@@ -258,6 +258,19 @@ package Pugs::Runtime::Perl6::Scalar;
         my @tmp = split( /\s+/, $s ); 
     }
 
+    sub value { 
+        # XXX misdispatched pair.value
+        $_[0]
+    }
+    sub key { 
+        # XXX misdispatched pair.key
+        $_[0]
+    }
+    sub values { 
+        # XXX misdispatched hash/array.values
+        $_[0]
+    }
+    
 package Pugs::Runtime::Perl6::Array;
 
     sub map {

@@ -12,7 +12,7 @@ use overload (
     '%{}'    => \&hash,
     'bool'   => \&elems,
     '${}'    => \&values,
-    '""'     => \&perl,
+    '""'     => \&str,
     '0+'     => \&elems,
     fallback => 1,
 );
@@ -40,6 +40,14 @@ sub perl {
             @{$_[0]} );
     return '(' . $dumped . ')';
 }
+sub str {
+    join(' ', 
+        map { defined $_ 
+                ? $_
+                : 'undef'
+            } 
+            @{$_[0]} );
+}
 sub hash {
     return bless { @{$_[0]} }, 'Pugs::Runtime::Perl5Container::Hash' 
 }
@@ -65,12 +73,21 @@ sub map {
     }
     return bless \@result, , 'Pugs::Runtime::Perl5Container::Array';
 }
+sub sort  { 
+    # TODO
+    bless [ sort @{$_[0]} ], 'Pugs::Runtime::Perl5Container::Array';
+}
 sub yaml {
     eval { use YAML::Syck };
     $YAML::Syck::ImplicitTyping = 1;
     Dump( @{$_[0]} );
 }
 
+    sub value { 
+        # XXX misdispatched pair.value
+        $_[0]
+    }
+    
   
 package Pugs::Runtime::Perl5Container::Hash;
 use strict;
@@ -137,6 +154,11 @@ sub yaml {
     $YAML::Syck::ImplicitTyping = 1;
     Dump( %{$_[0]} );
 }
+    
+    sub value { 
+        # XXX misdispatched pair.value
+        $_[0]
+    }
     
 package Pugs::Runtime::Perl5Container::Code;
 use strict;

@@ -1183,6 +1183,12 @@ sub infix {
     }
     if ( $n->{op1} eq '=>' ) {
         #print "autoquote: ", Dumper( $n->{exp1} );
+        if ( exists $n->{exp2}{array} ) {
+            return autoquote( $n->{exp1} ) . ' => ' . ( 'bless \\' . $n->{exp2}{array} . ", 'Pugs::Runtime::Perl5Container::Array' " );
+        }
+        if ( exists $n->{exp2}{hash} ) {
+            return autoquote( $n->{exp1} ) . ' => ' . ( 'bless \\' . $n->{exp2}{hash} . ", 'Pugs::Runtime::Perl5Container::Hash' " );
+        }
         return autoquote( $n->{exp1} ) . ' => ' . _emit( $n->{exp2} );
     }
     if ( $n->{op1} eq '~=' ) {
@@ -1249,9 +1255,17 @@ sub infix {
     }
 
     if ( $n->{op1} eq '=' ) {
-        # print "{'='}: ", Dumper( $n );
+        #print "{'='}: ", Dumper( $n );
         if ( exists $n->{exp1}{scalar} ) {
             #print "set $n->{exp1}{scalar}";
+            if ( exists $n->{exp2}{array} ) {
+                return _var_set( $n->{exp1}{scalar} )->( 
+                    'bless \\' . $n->{exp2}{array} . ", 'Pugs::Runtime::Perl5Container::Array' " );
+            }
+            if ( exists $n->{exp2}{hash} ) {
+                return _var_set( $n->{exp1}{scalar} )->( 
+                    'bless \\' . $n->{exp2}{hash} . ", 'Pugs::Runtime::Perl5Container::Hash' " );
+            }
             return _var_set( $n->{exp1}{scalar} )->( _var_get( $n->{exp2} ) );
         }
         if ( exists $n->{exp1}{hash} ) {
@@ -1288,8 +1302,13 @@ sub infix {
             #print "{'='}: ", Dumper( $n );
             return _emit( $n->{exp1} );
         }
+        my $exp2 = _var_get( $n->{exp2} );
+        $exp2 = 'bless \\' . $n->{exp2}{array} . ", 'Pugs::Runtime::Perl5Container::Array' "
+            if exists $n->{exp2}{array};
+        $exp2 = 'bless \\' . $n->{exp2}{hash} . ", 'Pugs::Runtime::Perl5Container::Hash' "
+            if exists $n->{exp2}{hash};
         return _emit( $n->{exp1} ) . 
-            " = (" . _var_get( $n->{exp2} ) . ')';
+            " = ( $exp2 )";
     }
 
     if ( $n->{op1} eq '+=' ) {
@@ -1465,6 +1484,18 @@ sub prefix {
     my $n = $_[0];
     # print "prefix: ", Dumper( $n );
     
+    if ( $n->{op1} eq '\\' ) {
+        # see t/var/autoref.t
+        #print "prefix:<\\> ", Dumper( $n );
+        if ( exists $n->{exp1}{array} ) {
+            return ( 'bless \\' . $n->{exp1}{array} . ", 'Pugs::Runtime::Perl5Container::Array' " );
+        }
+        if ( exists $n->{exp1}{hash} ) {
+            return ( 'bless \\' . $n->{exp1}{hash} . ", 'Pugs::Runtime::Perl5Container::Hash' " );
+        }
+        return '\\( ' . _emit( $n->{exp1} ) . ' )';
+    }
+    
     if ( $n->{op1} eq ':' ) {
         return _emit( $n->{exp1} ) . "  # XXX :\$var not implemented\n";
     }
@@ -1479,10 +1510,6 @@ sub prefix {
         return '%{' . _emit( $n->{exp1} ) . '}';
     }
     
-    if ( $n->{op1} eq 'do' ) {
-        return $n->{op1} . ' ' . _emit( $n->{exp1} );
-    }
-
     if ( $n->{op1} eq 'try' ) {
         #warn "try: ", Dumper( $n );
         #if ( exists $n->{trait} ) {
@@ -1503,8 +1530,14 @@ sub prefix {
     if ( $n->{op1} eq '!' ) {
         return _emit( $n->{exp1} ) . ' ? 0 : 1 ';
     }
-    if ($n->{op1} eq '+' && exists $n->{exp1}{array}) { # num context
-        return 'scalar '._emit( $n->{exp1} );
+    if ($n->{op1} eq '+' ) {
+        #if ( exists $n->{exp1}{array} ) { # num context
+        #    return 'scalar '._emit( $n->{exp1} );
+        #}
+        if ( exists $n->{exp1}{hash} ) {
+            return ( '(0 + keys ' . $n->{exp1}{hash} . ")" );
+        }
+        return '0 + '._emit( $n->{exp1} );
     }
     if ( $n->{op1} eq '++' ||
          $n->{op1} eq '--' ||
