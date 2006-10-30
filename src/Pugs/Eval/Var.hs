@@ -309,7 +309,7 @@ findSub _var _invs _args
     --     => Int -> [(Var, Val)] -> Eval (Maybe VCode)
     doFindSub slurpLens subSyms = do
         subs' <- subs slurpLens subSyms
-        -- traceM (unlines $ map (\(x, y) -> show (x, subParams y)) subs')
+        -- warn (unlines $ map (\(x, y) -> show (x, subParams y)) subs') ""
         return $ case sort subs' of
             ((_, sub):_)    -> Just sub
             _               -> Nothing

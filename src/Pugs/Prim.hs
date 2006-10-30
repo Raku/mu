@@ -457,11 +457,7 @@ op1 "opendir" = \v -> do
     dir <- guardIO $ openDirStream str
     obj <- createObject (mkType "IO::Dir") []
     return . VObject $ obj{ objOpaque = Just $ toDyn dir }
-op1 "IO::Dir::close" = \v -> 
-    ifValTypeIsa v "IO::Dir" (op1 "IO::Dir::closedir" v) $ case v of
-        VHandle{}   -> op1 "IO::close" v
-        VSocket{}   -> op1 "Socket::close" v
-        _           -> die "Close" v
+op1 "IO::Dir::close" = op1 "IO::Dir::closedir"
 op1 "IO::Dir::closedir" = guardedIO (closeDirStream . fromObject)
 op1 "IO::Dir::rewind" = op1 "IO::Dir::rewinddir"
 op1 "IO::Dir::rewinddir" = guardedIO (rewindDirStream . fromObject)
@@ -1680,7 +1676,11 @@ primDecl str = length str `seq` rv `seq` rv
         ("macro" `isSuffixOf` traits)
         ("export" `isSuffixOf` traits)
     (ret:assoc:sym:traits:prms) = words str
-    takeWord = takeWhile isWord . dropWhile (not . isWord)
+    takeWord = takeWord' . dropWhile (not . isWord)
+    takeWord' "" = ""
+    takeWord' (':':':':xs) = (':':':':takeWord' xs)
+    takeWord' (x:xs) | isWord x = (x:takeWord' xs)
+    takeWord' _ = ""
     isWord = not . (`elem` "(),:")
     prms'  = map takeWord prms
     prms'' = foldr foldParam [] prms'
@@ -1965,8 +1965,8 @@ initSyms = seq (length syms) $ do
 \\n   Bool      pre     say     safe (List)\
 \\n   Bool      pre     Pugs::Safe::safe_print     safe     (Str)\
 \\n   Bool      pre     flush   unsafe (IO)\
-\\n   Bool      pre     IO::close   unsafe (IO:)\
-\\n   Bool      pre     Socket::close   unsafe (Socket:)\
+\\n   Bool      pre     IO::close   unsafe,export (IO:)\
+\\n   Bool      pre     Socket::close   unsafe,export (Socket:)\
 \\n   Bool      pre     die     safe   (?Object)\
 \\n   Bool      pre     warn    safe   (List)\
 \\n   Bool      pre     fail_   safe   (?Object)\
