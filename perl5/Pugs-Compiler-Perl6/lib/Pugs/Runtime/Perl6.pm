@@ -199,10 +199,12 @@ package Pugs::Runtime::Perl6::Scalar;
         # XXX: should use Data::Bind callconv
         #print "ref: ", Data::Dumper::Dumper( @_ );
         my $self = $_[0];
-        return $$self->WHAT
+        eval {
+          return $$self->WHAT
             if UNIVERSAL::can( $$self, 'WHAT' );
-        return 'Scalar'
+          return 'Scalar'
             if ! defined $$self;
+        };
         
         my $ref = CORE::ref(@_);
         

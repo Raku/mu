@@ -1379,7 +1379,9 @@ sub infix {
             return "$exp1 = " . emit_parenthesis( $exp2 );
         }
         
-        my $rvalue = _emit_reference( $n->{exp2} );
+        my $rvalue;
+        $rvalue = _emit_reference( $n->{exp2} )
+            unless $exp1 =~ / \[ | \{ /x;   # XXX - hack, detects lvalue slicing
         my $exp2 = _var_get( $n->{exp2} );
         $exp2 = $rvalue 
             if defined $rvalue;
@@ -1478,6 +1480,10 @@ sub postcircumfix {
                        && $n->{exp2}{fixity} eq 'circumfix'
                        && $n->{exp2}{op1} eq '('
                        && exists $n->{exp2}{exp1}{list}
+                       )
+                    || (  exists $n->{exp2}{fixity}
+                       && $n->{exp2}{fixity} eq 'infix'
+                       && $n->{exp2}{op1} eq '..'
                        )
                        ;
             return $name . '[' . _emit( $n->{exp2} ) . ']';
@@ -1594,9 +1600,15 @@ sub prefix {
     }
     if ( $n->{op1} eq '~' ) {
         return ' Pugs::Runtime::Perl6::Hash::str( \\' . _emit( $n->{exp1} ) . ' ) '
-            if $n->{exp1}{hash};
+            if exists $n->{exp1}{hash};
         return ' "' . _emit( $n->{exp1} ) . '"' 
-            if $n->{exp1}{array};
+            if exists $n->{exp1}{array}
+                || ( exists $n->{exp1}{fixity} 
+                   && $n->{exp1}{fixity} eq 'postcircumfix'
+                   && $n->{exp1}{op1} eq '['
+                   )
+            ;
+        #print "prefix:<~> ", Dumper $n;
         return ' "" . ' . _emit( $n->{exp1} );
     }
     if ( $n->{op1} eq '!' ) {

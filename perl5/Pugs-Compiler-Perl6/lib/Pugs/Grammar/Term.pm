@@ -221,6 +221,8 @@ sub recompile {
         '$' => q(
                 | <before <[  \{ \[ \< \« ]> >
                   { return { scalar => '$/' ,} }
+                | \^ <?Pugs::Grammar::Term.ident>
+                  { return { scalar => '$' . $_[0] ,} }
                 | <?Pugs::Grammar::Term.ident>
                   { return { scalar => '$' . $_[0] ,} }
                 | (\d+)
