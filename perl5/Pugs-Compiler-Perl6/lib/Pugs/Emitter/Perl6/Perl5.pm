@@ -156,6 +156,42 @@ sub _emit_angle_quoted {
     die "can't quote string [$n]";
 }
 
+sub _emit_reference {
+    my $n = $_[0];
+
+    if ( exists $n->{fixity} 
+       && $n->{fixity} eq 'circumfix'
+       && $n->{op1} eq '('
+       ) {
+        $n = $n->{exp1}
+    }
+
+    if ( exists $n->{array} ) {
+        return ( 'bless \\' . $n->{array} . ", 'Pugs::Runtime::Perl5Container::Array' " );
+    }
+    if ( exists $n->{hash} ) {
+        return ( 'bless \\' . $n->{hash} . ", 'Pugs::Runtime::Perl5Container::Hash' " );
+    }
+    if ( exists $n->{pair} ) {
+        return ( 'bless ' . _emit($n) . ", 'Pugs::Runtime::Perl5Container::Pair' " );
+    }
+    if ( exists $n->{fixity} 
+       && $n->{fixity} eq 'infix'
+       && $n->{op1} eq '=>'
+       ) {
+        return ( 'bless {' . _emit($n) . "}, 'Pugs::Runtime::Perl5Container::Pair' " );
+    }
+    return undef;  # '\\( ' . _emit( $_[0] ) . ' )';
+}
+
+sub _emit_pair {
+    my $n = $_[0];
+    my $value = _emit_reference( $n->{value} );
+    $value = _emit( $n->{value} ) 
+        unless defined $value;
+    return '{' . _emit( $n->{key} ) . '=>' . $value . '}'
+}
+
 sub _emit {
     my $n = $_[0];
     #die "_emit: ", Dumper( $n ); 
@@ -192,7 +228,7 @@ sub _emit {
     return $n->{num} 
         if exists $n->{num};
         
-    return '{' . _emit( $n->{pair}{key} ) . '=>' . _emit( $n->{pair}{value} ) . '}'
+    return _emit_pair( $n->{pair} )
         if exists $n->{pair};
         
     return emit_anon_hash( $n->{anon_hash} )
@@ -1257,14 +1293,9 @@ sub infix {
     if ( $n->{op1} eq '=' ) {
         #print "{'='}: ", Dumper( $n );
         if ( exists $n->{exp1}{scalar} ) {
-            #print "set $n->{exp1}{scalar}";
-            if ( exists $n->{exp2}{array} ) {
-                return _var_set( $n->{exp1}{scalar} )->( 
-                    'bless \\' . $n->{exp2}{array} . ", 'Pugs::Runtime::Perl5Container::Array' " );
-            }
-            if ( exists $n->{exp2}{hash} ) {
-                return _var_set( $n->{exp1}{scalar} )->( 
-                    'bless \\' . $n->{exp2}{hash} . ", 'Pugs::Runtime::Perl5Container::Hash' " );
+            my $rvalue = _emit_reference( $n->{exp2} );
+            if ( defined $rvalue ) {
+                return _var_set( $n->{exp1}{scalar} )->( $rvalue );
             }
             return _var_set( $n->{exp1}{scalar} )->( _var_get( $n->{exp2} ) );
         }
@@ -1302,11 +1333,11 @@ sub infix {
             #print "{'='}: ", Dumper( $n );
             return _emit( $n->{exp1} );
         }
+        
+        my $rvalue = _emit_reference( $n->{exp2} );
         my $exp2 = _var_get( $n->{exp2} );
-        $exp2 = 'bless \\' . $n->{exp2}{array} . ", 'Pugs::Runtime::Perl5Container::Array' "
-            if exists $n->{exp2}{array};
-        $exp2 = 'bless \\' . $n->{exp2}{hash} . ", 'Pugs::Runtime::Perl5Container::Hash' "
-            if exists $n->{exp2}{hash};
+        $exp2 = $rvalue 
+            if defined $rvalue;
         return _emit( $n->{exp1} ) . 
             " = ( $exp2 )";
     }
@@ -1487,12 +1518,9 @@ sub prefix {
     if ( $n->{op1} eq '\\' ) {
         # see t/var/autoref.t
         #print "prefix:<\\> ", Dumper( $n );
-        if ( exists $n->{exp1}{array} ) {
-            return ( 'bless \\' . $n->{exp1}{array} . ", 'Pugs::Runtime::Perl5Container::Array' " );
-        }
-        if ( exists $n->{exp1}{hash} ) {
-            return ( 'bless \\' . $n->{exp1}{hash} . ", 'Pugs::Runtime::Perl5Container::Hash' " );
-        }
+        my $rvalue = _emit_reference( $n->{exp1} );
+        return $rvalue
+            if defined $rvalue;
         return '\\( ' . _emit( $n->{exp1} ) . ' )';
     }
     

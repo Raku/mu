@@ -160,6 +160,30 @@ sub yaml {
         $_[0]
     }
     
+package Pugs::Runtime::Perl5Container::Pair;
+use strict;
+use warnings;
+use base 'Pugs::Runtime::Perl5Container::Hash';
+
+# my $a = bless { 1 => 2 }, 'Pugs::Runtime::Perl5Container::Pair';
+
+use overload (
+    '@{}'    => \&array,
+    # '%{}'    =>   # native
+    'bool'   => \&elems,
+    '${}'    => \&values,
+    '""'     => \&str,
+    '0+'     => \&elems,
+    fallback => 1,
+);
+
+sub key { 
+    ( CORE::keys %{$_[0]} )[0]
+}
+sub value { 
+    ( CORE::values %{$_[0]} )[0]
+}
+    
 package Pugs::Runtime::Perl5Container::Code;
 use strict;
 use warnings;
