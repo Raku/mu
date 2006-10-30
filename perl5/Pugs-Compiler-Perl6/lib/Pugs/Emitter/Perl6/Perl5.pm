@@ -183,13 +183,20 @@ sub _emit_reference {
        ) {
         return ( 'bless ' . _emit_pair( { key => $n->{exp1}, value => $n->{exp2} } ) . ", 'Pugs::Runtime::Perl5Container::Pair' " );
     }
-    # XXX - wrong: list should not autoref in @array = list
-    #if ( exists $n->{list} 
-    #   && $n->{assoc} eq 'list'
-    #   && $n->{op1} eq ','
-    #   ) {
-    #    return ( 'bless [' . _emit($n) . "], 'Pugs::Runtime::Perl5Container::Array' " );
-    #}
+    if ( exists $n->{list} 
+       && $n->{assoc} eq 'list'
+       && $n->{op1} eq ','
+       ) {
+        return ( 'bless [' . _emit($n) . "], 'Pugs::Runtime::Perl5Container::Array' " );
+    }
+
+    if ( exists $n->{fixity} 
+       && $n->{fixity} eq 'circumfix'
+       && $n->{op1} eq '['
+       ) {
+        return ( 'bless ' . _emit($n) . ", 'Pugs::Runtime::Perl5Container::Array' " );
+    }
+
     return undef;  # '\\( ' . _emit( $_[0] ) . ' )';
 }
 
@@ -1300,7 +1307,7 @@ sub infix {
     }
 
     if ( $n->{op1} eq '=' ) {
-        #print "{'='}: ", Dumper( $n );
+        #print "infix:<=> ", Dumper( $n );
         if ( exists $n->{exp1}{scalar} ) {
             my $rvalue = _emit_reference( $n->{exp2} );
             if ( defined $rvalue ) {
@@ -1308,6 +1315,25 @@ sub infix {
             }
             return _var_set( $n->{exp1}{scalar} )->( _var_get( $n->{exp2} ) );
         }
+
+        if ( exists $n->{exp1}{op1}  && ref $n->{exp1}{op1} &&
+             $n->{exp1}{op1} eq 'has' ) {
+            #print "{'='}: ", Dumper( $n );
+            # XXX - changes the AST
+            push @{ $n->{exp1}{attribute} },
+                 [  { bareword => 'default' }, 
+                    $n->{exp2} 
+                 ]; 
+            #print "{'='}: ", Dumper( $n );
+            return _emit( $n->{exp1} );
+        }
+
+        # XXX - declarator hack
+        my $exp1 = _emit( $n->{exp1} );
+        if ( exists $n->{exp1}{variable_declarator} ) {
+            $n->{exp1} = $n->{exp1}{exp1};
+        }
+
         if ( exists $n->{exp1}{hash} ) {
             my $exp2 = $n->{exp2};
             $exp2 = $exp2->{exp1}
@@ -1328,27 +1354,22 @@ sub infix {
                     @{ $exp2->{'list'} }
                 ];
             }
-            return _emit( $n->{exp1} ) . 
-                " = " . emit_parenthesis( $exp2 );
+            return "$exp1 = " . emit_parenthesis( $exp2 );
         }
-        if ( exists $n->{exp1}{op1}  && ref $n->{exp1}{op1} &&
-             $n->{exp1}{op1} eq 'has' ) {
-            #print "{'='}: ", Dumper( $n );
-            # XXX - changes the AST
-            push @{ $n->{exp1}{attribute} },
-                 [  { bareword => 'default' }, 
-                    $n->{exp2} 
-                 ]; 
-            #print "{'='}: ", Dumper( $n );
-            return _emit( $n->{exp1} );
+        if ( exists $n->{exp1}{array} ) {
+            my $exp2 = $n->{exp2};
+            $exp2 = $exp2->{exp1}
+                if     exists $exp2->{fixity} 
+                    && $exp2->{fixity} eq 'circumfix'
+                    && $exp2->{op1} eq '(';
+            return "$exp1 = " . emit_parenthesis( $exp2 );
         }
         
         my $rvalue = _emit_reference( $n->{exp2} );
         my $exp2 = _var_get( $n->{exp2} );
         $exp2 = $rvalue 
             if defined $rvalue;
-        return _emit( $n->{exp1} ) . 
-            " = ( $exp2 )";
+        return "$exp1 = ( $exp2 )";
     }
 
     if ( $n->{op1} eq '+=' ) {
