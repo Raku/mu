@@ -166,6 +166,8 @@ sub _emit_reference {
         $n = $n->{exp1}
     }
 
+    #print "_emit_reference: ", Dumper( $n );
+
     if ( exists $n->{array} ) {
         return ( 'bless \\' . $n->{array} . ", 'Pugs::Runtime::Perl5Container::Array' " );
     }
@@ -179,8 +181,15 @@ sub _emit_reference {
        && $n->{fixity} eq 'infix'
        && $n->{op1} eq '=>'
        ) {
-        return ( 'bless {' . _emit($n) . "}, 'Pugs::Runtime::Perl5Container::Pair' " );
+        return ( 'bless ' . _emit_pair( { key => $n->{exp1}, value => $n->{exp2} } ) . ", 'Pugs::Runtime::Perl5Container::Pair' " );
     }
+    # XXX - wrong: list should not autoref in @array = list
+    #if ( exists $n->{list} 
+    #   && $n->{assoc} eq 'list'
+    #   && $n->{op1} eq ','
+    #   ) {
+    #    return ( 'bless [' . _emit($n) . "], 'Pugs::Runtime::Perl5Container::Array' " );
+    #}
     return undef;  # '\\( ' . _emit( $_[0] ) . ' )';
 }
 
