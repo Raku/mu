@@ -201,6 +201,11 @@ sub _emit_reference {
         return ( 'bless ' . _emit($n) . ", 'Pugs::Runtime::Perl5Container::Hash' " );
     }
 
+    if ( exists $n->{scalar} ) {
+        # this is a ref already
+        return _emit($n);
+    }
+
     return undef;  # '\\( ' . _emit( $_[0] ) . ' )';
 }
 
@@ -1344,6 +1349,11 @@ sub infix {
                 if     exists $exp2->{fixity} 
                     && $exp2->{fixity} eq 'circumfix'
                     && $exp2->{op1} eq '(';
+
+            # %h = ();
+            return $exp1
+                unless defined $exp2;
+
             #print "{'='}: set hash ",Dumper($exp2);
             # Note - the AST is changed in-place here
             if ( exists $exp2->{'list'} ) {
