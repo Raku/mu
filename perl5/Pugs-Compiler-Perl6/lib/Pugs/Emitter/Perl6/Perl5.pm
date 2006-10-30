@@ -1351,7 +1351,7 @@ sub infix {
                     && $exp2->{op1} eq '(';
 
             # %h = ();
-            return $exp1
+            return "$exp1 = ()"
                 unless defined $exp2;
 
             #print "{'='}: set hash ",Dumper($exp2);
