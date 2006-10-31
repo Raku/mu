@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 16 Oct 2006
+  Last Modified: 31 Oct 2006
   Number: 6
-  Version: 59
+  Version: 60
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -386,7 +386,7 @@ Note the parens are necessary on the last one due to precedence.
 Likewise, if you wish to pass a hash and have its entries treated as
 named arguments, you must dereference it with a C<|>:
 
-    %pairs = {:when<now> :what<any>};
+    %pairs = (:when<now>, :what<any>);
     doit %pairs,1,2,3;		     # always a positional arg
     doit |%pairs,1,2,3;		     # always named args
     doit |%(get_pair()),1,2,3;       # always a named arg
