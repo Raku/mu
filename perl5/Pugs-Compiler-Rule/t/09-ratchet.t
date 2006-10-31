@@ -1,5 +1,5 @@
 
-use Test::More tests => 142;
+use Test::More tests => 144;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -327,6 +327,20 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     #print "Source: ", $rule->{perl5};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "", 'before' );
+}
+
+{
+    # not-alpha
+    my $rule = Pugs::Compiler::Token->compile('a<!alpha>.', { ratchet => 1 } );
+    print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    my $match = $rule->match( "ac" );
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "", 'negated alpha' );
+
+    $match = $rule->match( "a!" );
+    #print "Source: ", $rule->{perl5};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "a!", 'negated alpha matches' );
 }
 
 {

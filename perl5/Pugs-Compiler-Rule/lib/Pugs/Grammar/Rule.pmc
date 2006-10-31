@@ -2589,7 +2589,11 @@
               local $::_V6_SUCCEED = 1;
               $m->data->{capture} = \(
                 sub {
-                  return ( { 'negate' => { 'metasyntax' => ${ $::_V6_MATCH_->{qw(metasyntax)} } } } );
+                  return (
+                    {
+                      'negate' => ${ $::_V6_MATCH_->{'metasyntax'} }    # hash
+                    }
+                  );
                   }
                   ->()
               );

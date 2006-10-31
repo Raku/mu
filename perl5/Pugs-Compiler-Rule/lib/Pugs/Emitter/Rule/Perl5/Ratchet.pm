@@ -568,7 +568,7 @@ sub named_capture {
 }
 sub negate {
     my $program = $_[0];
-    # print Dumper($_[0]);
+    #print "Negate: ", Dumper($_[0]);
     $program = emit_rule( $program, $_[1].'        ' )
         if ref( $program );
     return "$_[1] do{ 

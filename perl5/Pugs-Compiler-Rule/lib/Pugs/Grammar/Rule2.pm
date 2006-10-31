@@ -160,7 +160,7 @@ token named_capture_body {
     },
     '<!' => token {
         <metasyntax> \> 
-        { return { negate  => :$$<metasyntax>, } }
+        { return { negate  => $$<metasyntax>, } }
     },
     '<' => token { 
         <metasyntax>  \>
