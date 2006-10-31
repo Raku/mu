@@ -1,5 +1,5 @@
 
-use Test::More tests => 144;
+use Test::More tests => 145;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -978,4 +978,13 @@ TODO:
     #print "Match: ", $match->perl;
     is( $$match, "xyz", 'xyz>>' );
     is( $match->from > 0 , 1, 'xyz>>' );
+}
+{
+    my $rule = Pugs::Compiler::Token->compile( 'x & <alpha>' );
+    my $match = $rule->match( "xyza xyz" );
+    #print "Ast: ", do{use Data::Dumper; Dumper($rule->{ast})};
+    #print "Source: ", $rule->{perl5};
+    #print "Match: ", $match->perl;
+    is( $$match, "x", 'x & <alpha>' );
+    #is( $match->from > 0 , 1, 'xyz>>' );
 }

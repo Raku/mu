@@ -213,6 +213,36 @@ $_[1]     && ",
 $_[1]   )
 $_[1] )";
 }        
+sub conjunctive {
+    my @s;
+    # print 'conjunctive: ';
+    my $count = $capture_count;
+    my $max = -1;
+    my $id = id();
+    for ( @{$_[0]} ) { 
+        $capture_count = $count;
+        my $tmp = emit_rule( $_, $_[1].'  ' );
+        # print ' ',$capture_count;
+        $max = $capture_count 
+            if $capture_count > $max;
+        push @s, $tmp if $tmp;   
+    }
+    $capture_count = $max;
+    # print " max = $capture_count\n";
+    return 
+        "$_[1] (
+$_[1]     ( \$pad{$id} = \$pos or 1 ) 
+$_[1]     && (
+" . join( "
+$_[1]     ) 
+$_[1]   && ( 
+$_[1]     ( ( \$bool = 1 ) && ( \$pos = \$pad{$id} ) or 1 ) 
+$_[1]     && ", 
+          @s 
+    ) . "
+$_[1]   )
+$_[1] )";
+}        
 sub concat {
     my @s;
 
