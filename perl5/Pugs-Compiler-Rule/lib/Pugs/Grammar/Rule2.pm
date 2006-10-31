@@ -16,10 +16,13 @@ use v6-alpha;
         use Pugs::Runtime::Regex;
         our %rule_terms;
         our %variables;
-    - replace:
+    - replace:  # emitter bug
             $named{'concat'} = $match;
+            $named{'conjunctive'} = $match;
+
        - with:
             push @{ $named{'concat'} }, $match;
+            push @{ $named{'conjunctive'} }, $match;
 
 =cut
 
@@ -77,6 +80,18 @@ token metasyntax {
     |  <-[ \> ]> 
     ]+ 
     { return { metasyntax => $$/ ,} }
+}
+
+token char_range {
+    [ 
+    |  \\ .
+    |  <-[ \] ]> 
+    ]+ 
+}
+
+token char_class {
+    |  <?ident>
+    |  \[  <?char_range>  \]
 }
 
 token string_code {
@@ -161,6 +176,108 @@ token named_capture_body {
     '<!' => token {
         <metasyntax> \> 
         { return { negate  => $$<metasyntax>, } }
+    },
+    '<+' => token {
+        $<c0> := <char_class>
+
+        [
+           \+  $<c1> := <char_class> 
+           \>
+
+           { return  
+
+# [<before <?alpha>>|<before <?digit>>].
+# print "Ast: ", Dumper( Pugs::Grammar::Rule->rule( '[<before <?alpha>>|<before <?digit>>].' )->() );
+
+{
+  'concat' => [
+    {
+      'quant' => {
+        'ws2' => '',
+        'greedy' => '',
+        'quant' => '',
+        'ws1' => '',
+        'ws3' => '',
+        'term' => {
+          'alt' => [
+            {
+              'quant' => {
+                'ws2' => '',
+                'greedy' => '',
+                'quant' => '',
+                'ws1' => '',
+                'ws3' => '',
+                'term' => {
+                  'before' => {
+                    'rule' => {
+                      'quant' => {
+                        'ws2' => '',
+                        'greedy' => '',
+                        'quant' => '',
+                        'ws1' => '',
+                        'ws3' => '',
+                        'term' => {
+                          'metasyntax' => '?' ~ $<c0>
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              'quant' => {
+                'ws2' => '',
+                'greedy' => '',
+                'quant' => '',
+                'ws1' => '',
+                'ws3' => '',
+                'term' => {
+                  'before' => {
+                    'rule' => {
+                      'quant' => {
+                        'ws2' => '',
+                        'greedy' => '',
+                        'quant' => '',
+                        'ws1' => '',
+                        'ws3' => '',
+                        'term' => {
+                          'metasyntax' => '?' ~ $<c1>
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      'quant' => {
+        'ws2' => '',
+        'greedy' => '',
+        'quant' => '',
+        'ws1' => '',
+        'ws3' => '',
+        'term' => {
+          'dot' => 1
+        }
+      }
+    }
+  ]
+}
+
+           }
+
+        |  \> 
+           { return { metasyntax => ~ $<c0> } }
+        ]
+    },
+    '<-' => token {
+        <char_class> \>
+        { return { metasyntax => '-' ~ $<char_class> } }
     },
     '<' => token { 
         <metasyntax>  \>

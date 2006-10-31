@@ -2,16 +2,29 @@ TODO for Pugs::Compiler::Rule (PCR)
 
 - complex char classes
 
-    <+foo+bar-alpha>
+    # <+foo+bar-alpha>
 
-    can be implemented as:
-    [ [ <before <foo>> | <before <bar>> ] & <!alpha> ] .
+    [
+    |  <before <foo>> 
+    |  <before <bar>> 
+    ]
+    <!alpha> 
+    .
 
-    which is the same as:
-    [ <before <foo>> | <before <bar>> ] <!alpha> .
+    # <[a..z] - [aeiou] + xdigit>
 
-    or better:
-    <before <foo> | <bar> > <!alpha> .
+    |   [ 
+            <before <[a..z]> 
+            <![aeiou]> 
+        ] 
+    | <before <xdigit> >  
+    .
+
+  parsing - Rule2.pm:
+    <alpha>
+    <alpha+digit>
+    <+alpha>
+    <-alpha>
 
 - integrate pure-regex into the main compiler
 
