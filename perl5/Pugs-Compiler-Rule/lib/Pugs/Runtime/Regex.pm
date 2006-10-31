@@ -409,6 +409,27 @@ sub at_end_of_string {
     }
 };
 
+# experimental!
+sub negate { 
+    my $op = shift;
+    return sub {
+        #my $str = $_[0];
+        my $match = $op->( @_ );
+        my $bool = ! $match;
+
+        $_[3] = Pugs::Runtime::Match->new({ 
+                bool  => \( $bool ),
+                str   => \$_[0],
+                from  => \(0 + $_[5]),
+                to    => \(0 + $_[5]),
+                named => {},
+                match => [],
+                abort => 0,
+            });
+
+    };
+};
+
 # ------- higher-order ruleops
 
 sub optional {
@@ -735,18 +756,6 @@ sub fail {
     );
 };
 
-# experimental!
-sub negate { 
-    my $op = shift;
-    return sub {
-        #my $str = $_[0];
-        my $match = $op->( @_ );
-        return if $match->{bool};
-        return { bool => \1,
-                 #tail => $_[0],
-               }
-    };
-};
 =cut
 
 # experimental!

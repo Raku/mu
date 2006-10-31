@@ -1,5 +1,5 @@
 
-use Test::More tests => 52;
+use Test::More tests => 53;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -395,3 +395,11 @@ no warnings qw( once );
     #print "Match: ", $match->perl;
     is( $$match, "x", 'doesn\'t loop forever' );
 }
+
+{
+    # negated rules
+    my $rule = Pugs::Compiler::Regex->compile( '<!alpha>.' );
+    my $match = $rule->match( "xy12" );
+    is( "$match", "1", 'negated rule <!alpha>' );
+}
+
