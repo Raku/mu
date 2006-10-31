@@ -1,5 +1,18 @@
 TODO for Pugs::Compiler::Rule (PCR)
 
+- complex char classes
+
+    <+foo+bar-alpha>
+
+    can be implemented as:
+    [ [ <before <foo>> | <before <bar>> ] & <!alpha> ] .
+
+    which is the same as:
+    [ <before <foo>> | <before <bar>> ] <!alpha> .
+
+    or better:
+    <before <foo> | <bar> > <!alpha> .
+
 - integrate pure-regex into the main compiler
 
 - fix static count for repeated captures: 

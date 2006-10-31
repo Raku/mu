@@ -789,11 +789,6 @@ sub metasyntax {
         return;
     }
     if ( $prefix =~ /[-+[]/ ) {   # character class 
-
-        # <+foo+bar-alpha>
-        #
-        # [ [ <before <foo>> | <before <bar>> ] & <!alpha> ] .
-
         $cmd =~ s/\.\./-/g;
         if ( $prefix eq '-' ) {
            $cmd = '[^' . substr($cmd, 2);
