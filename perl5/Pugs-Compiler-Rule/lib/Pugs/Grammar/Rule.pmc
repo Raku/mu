@@ -42,7 +42,7 @@
         local $::_V6_PRIOR_ = $prior;
         $bool = 0
           unless (
-          ( $pad{I1021} = $pos or 1 )
+          ( $pad{I1232} = $pos or 1 )
           && (
             (
               (
@@ -72,7 +72,7 @@
             )
           )
           || (
-            ( ( $bool = 1 ) && ( $pos = $pad{I1021} ) or 1 )
+            ( ( $bool = 1 ) && ( $pos = $pad{I1232} ) or 1 )
             && (
               ( substr( $s, $pos++, 1 ) ne '' )
               && do {
@@ -143,7 +143,7 @@
         local $::_V6_PRIOR_ = $prior;
         $bool = 0
           unless (
-          ( $pad{I1022} = $pos or 1 )
+          ( $pad{I1233} = $pos or 1 )
           && (
             (
               (
@@ -173,7 +173,7 @@
             )
           )
           || (
-            ( ( $bool = 1 ) && ( $pos = $pad{I1022} ) or 1 )
+            ( ( $bool = 1 ) && ( $pos = $pad{I1233} ) or 1 )
             && (
               ( substr( $s, $pos++, 1 ) ne '' )
               && do {
@@ -245,7 +245,7 @@
         $bool = 0
           unless (
           (
-            ( $pad{I1023} = $pos or 1 )
+            ( $pad{I1234} = $pos or 1 )
             && (
               (
                 (
@@ -260,7 +260,7 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1023} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1234} ) or 1 )
               && (
                 (
                   ( substr( $s, $pos ) =~ m/^((?:\n\r?|\r\n?))/ ) ? ( $pos += length($1) or 1 )
@@ -274,7 +274,7 @@
                     )
                     && (
                       (
-                        ( $pad{I1024} = $pos or 1 )
+                        ( $pad{I1235} = $pos or 1 )
                         && (
                           (
                             (
@@ -328,7 +328,7 @@
                           )
                         )
                         || (
-                          ( ( $bool = 1 ) && ( $pos = $pad{I1024} ) or 1 )
+                          ( ( $bool = 1 ) && ( $pos = $pad{I1235} ) or 1 )
                           && (
                             (
                               ( substr( $s, $pos, 1 ) eq 'b' ) ? ( $pos += 1 or 1 )
@@ -361,7 +361,7 @@
                           )
                         )
                         || (
-                          ( ( $bool = 1 ) && ( $pos = $pad{I1024} ) or 1 )
+                          ( ( $bool = 1 ) && ( $pos = $pad{I1235} ) or 1 )
                           && (
                             (
                               ( substr( $s, $pos, 1 ) eq 'k' ) ? ( $pos += 1 or 1 )
@@ -390,7 +390,7 @@
                           )
                         )
                         || (
-                          ( ( $bool = 1 ) && ( $pos = $pad{I1024} ) or 1 )
+                          ( ( $bool = 1 ) && ( $pos = $pad{I1235} ) or 1 )
                           && (
                             (
                               ( substr( $s, $pos, 1 ) eq 'p' ) ? ( $pos += 1 or 1 )
@@ -415,7 +415,7 @@
                           )
                         )
                         || (
-                          ( ( $bool = 1 ) && ( $pos = $pad{I1024} ) or 1 )
+                          ( ( $bool = 1 ) && ( $pos = $pad{I1235} ) or 1 )
                           && (
                             (
                               ( substr( $s, $pos, 1 ) eq 'f' ) ? ( $pos += 1 or 1 )
@@ -440,7 +440,7 @@
                           )
                         )
                         || (
-                          ( ( $bool = 1 ) && ( $pos = $pad{I1024} ) or 1 )
+                          ( ( $bool = 1 ) && ( $pos = $pad{I1235} ) or 1 )
                           && (
                             (
                               ( substr( $s, $pos, 1 ) eq 'h' ) ? ( $pos += 1 or 1 )
@@ -481,7 +481,7 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1023} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1234} ) or 1 )
               && (
                   ( substr( $s, $pos ) =~ m/^(\s)/ )
                 ? ( $pos += length($1) or 1 )
@@ -492,7 +492,7 @@
           && do {
             while (
               (
-                ( $pad{I1023} = $pos or 1 )
+                ( $pad{I1234} = $pos or 1 )
                 && (
                   (
                     (
@@ -507,7 +507,7 @@
                   )
                 )
                 || (
-                  ( ( $bool = 1 ) && ( $pos = $pad{I1023} ) or 1 )
+                  ( ( $bool = 1 ) && ( $pos = $pad{I1234} ) or 1 )
                   && (
                     (
                       ( substr( $s, $pos ) =~ m/^((?:\n\r?|\r\n?))/ ) ? ( $pos += length($1) or 1 )
@@ -521,7 +521,7 @@
                         )
                         && (
                           (
-                            ( $pad{I1024} = $pos or 1 )
+                            ( $pad{I1235} = $pos or 1 )
                             && (
                               (
                                 (
@@ -575,7 +575,7 @@
                               )
                             )
                             || (
-                              ( ( $bool = 1 ) && ( $pos = $pad{I1024} ) or 1 )
+                              ( ( $bool = 1 ) && ( $pos = $pad{I1235} ) or 1 )
                               && (
                                 (
                                   ( substr( $s, $pos, 1 ) eq 'b' ) ? ( $pos += 1 or 1 )
@@ -608,7 +608,7 @@
                               )
                             )
                             || (
-                              ( ( $bool = 1 ) && ( $pos = $pad{I1024} ) or 1 )
+                              ( ( $bool = 1 ) && ( $pos = $pad{I1235} ) or 1 )
                               && (
                                 (
                                   ( substr( $s, $pos, 1 ) eq 'k' ) ? ( $pos += 1 or 1 )
@@ -637,7 +637,7 @@
                               )
                             )
                             || (
-                              ( ( $bool = 1 ) && ( $pos = $pad{I1024} ) or 1 )
+                              ( ( $bool = 1 ) && ( $pos = $pad{I1235} ) or 1 )
                               && (
                                 (
                                   ( substr( $s, $pos, 1 ) eq 'p' ) ? ( $pos += 1 or 1 )
@@ -662,7 +662,7 @@
                               )
                             )
                             || (
-                              ( ( $bool = 1 ) && ( $pos = $pad{I1024} ) or 1 )
+                              ( ( $bool = 1 ) && ( $pos = $pad{I1235} ) or 1 )
                               && (
                                 (
                                   ( substr( $s, $pos, 1 ) eq 'f' ) ? ( $pos += 1 or 1 )
@@ -687,7 +687,7 @@
                               )
                             )
                             || (
-                              ( ( $bool = 1 ) && ( $pos = $pad{I1024} ) or 1 )
+                              ( ( $bool = 1 ) && ( $pos = $pad{I1235} ) or 1 )
                               && (
                                 (
                                   ( substr( $s, $pos, 1 ) eq 'h' ) ? ( $pos += 1 or 1 )
@@ -728,7 +728,7 @@
                   )
                 )
                 || (
-                  ( ( $bool = 1 ) && ( $pos = $pad{I1023} ) or 1 )
+                  ( ( $bool = 1 ) && ( $pos = $pad{I1234} ) or 1 )
                   && (
                       ( substr( $s, $pos ) =~ m/^(\s)/ )
                     ? ( $pos += length($1) or 1 )
@@ -796,7 +796,7 @@
         $bool = 0
           unless (
           (
-            ( $pad{I1025} = $pos or 1 )
+            ( $pad{I1236} = $pos or 1 )
             && (
               (
                 ( substr( $s, $pos ) =~ m/^([[:alnum:]])/ ) ? ( $pos += length($1) or 1 )
@@ -804,14 +804,14 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1025} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1236} ) or 1 )
               && (
                 ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 )
                 : 0
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1025} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1236} ) or 1 )
               && (
                 ( substr( $s, $pos, 2 ) eq '::' ) ? ( $pos += 2 or 1 )
                 : 0
@@ -819,7 +819,7 @@
             )
           )
           && do {
-            while ( ( ( $pad{I1025} = $pos or 1 ) && ( ( ( substr( $s, $pos ) =~ m/^([[:alnum:]])/ ) ? ( $pos += length($1) or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1025} ) or 1 ) && ( ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1025} ) or 1 ) && ( ( substr( $s, $pos, 2 ) eq '::' ) ? ( $pos += 2 or 1 ) : 0 ) ) ) ) { }
+            while ( ( ( $pad{I1236} = $pos or 1 ) && ( ( ( substr( $s, $pos ) =~ m/^([[:alnum:]])/ ) ? ( $pos += length($1) or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1236} ) or 1 ) && ( ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1236} ) or 1 ) && ( ( substr( $s, $pos, 2 ) eq '::' ) ? ( $pos += 2 or 1 ) : 0 ) ) ) ) { }
             $bool = 1;
           }
           );
@@ -876,7 +876,7 @@
         local $::_V6_PRIOR_ = $prior;
         $bool = 0
           unless do {
-          while ( ( ( $pad{I1026} = $pos or 1 ) && ( ( ( ( substr( $s, $pos, 1 ) eq '\\' ) ? ( $pos += 1 or 1 ) : 0 ) && ( substr( $s, $pos++, 1 ) ne '' ) ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1026} ) or 1 ) && ( ( substr( $s, $pos ) =~ m/^([^\'])/ ) ? ( $pos += length($1) or 1 ) : 0 ) ) ) ) { }
+          while ( ( ( $pad{I1237} = $pos or 1 ) && ( ( ( ( substr( $s, $pos, 1 ) eq '\\' ) ? ( $pos += 1 or 1 ) : 0 ) && ( substr( $s, $pos++, 1 ) ne '' ) ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1237} ) or 1 ) && ( ( substr( $s, $pos ) =~ m/^([^\'])/ ) ? ( $pos += length($1) or 1 ) : 0 ) ) ) ) { }
           $bool = 1;
           };
       }
@@ -934,7 +934,7 @@
           unless (
           (
             (
-              ( $pad{I1027} = $pos or 1 )
+              ( $pad{I1238} = $pos or 1 )
               && (
                 (
                   (
@@ -945,7 +945,7 @@
                 )
               )
               || (
-                ( ( $bool = 1 ) && ( $pos = $pad{I1027} ) or 1 )
+                ( ( $bool = 1 ) && ( $pos = $pad{I1238} ) or 1 )
                 && (
                   (
                     ( substr( $s, $pos, 1 ) eq chr(39) ) ? ( $pos += 1 or 1 )
@@ -966,7 +966,7 @@
                 )
               )
               || (
-                ( ( $bool = 1 ) && ( $pos = $pad{I1027} ) or 1 )
+                ( ( $bool = 1 ) && ( $pos = $pad{I1238} ) or 1 )
                 && (
                   (
                     ( substr( $s, $pos, 1 ) eq '{' ) ? ( $pos += 1 or 1 )
@@ -987,7 +987,7 @@
                 )
               )
               || (
-                ( ( $bool = 1 ) && ( $pos = $pad{I1027} ) or 1 )
+                ( ( $bool = 1 ) && ( $pos = $pad{I1238} ) or 1 )
                 && (
                   (
                     ( substr( $s, $pos, 1 ) eq '<' ) ? ( $pos += 1 or 1 )
@@ -1008,7 +1008,7 @@
                 )
               )
               || (
-                ( ( $bool = 1 ) && ( $pos = $pad{I1027} ) or 1 )
+                ( ( $bool = 1 ) && ( $pos = $pad{I1238} ) or 1 )
                 && (
                   ( substr( $s, $pos ) =~ m/^([^\>])/ ) ? ( $pos += length($1) or 1 )
                   : 0
@@ -1018,7 +1018,7 @@
             && do {
               while (
                 (
-                  ( $pad{I1027} = $pos or 1 )
+                  ( $pad{I1238} = $pos or 1 )
                   && (
                     (
                       (
@@ -1029,7 +1029,7 @@
                     )
                   )
                   || (
-                    ( ( $bool = 1 ) && ( $pos = $pad{I1027} ) or 1 )
+                    ( ( $bool = 1 ) && ( $pos = $pad{I1238} ) or 1 )
                     && (
                       (
                         ( substr( $s, $pos, 1 ) eq chr(39) ) ? ( $pos += 1 or 1 )
@@ -1050,7 +1050,7 @@
                     )
                   )
                   || (
-                    ( ( $bool = 1 ) && ( $pos = $pad{I1027} ) or 1 )
+                    ( ( $bool = 1 ) && ( $pos = $pad{I1238} ) or 1 )
                     && (
                       (
                         ( substr( $s, $pos, 1 ) eq '{' ) ? ( $pos += 1 or 1 )
@@ -1071,7 +1071,7 @@
                     )
                   )
                   || (
-                    ( ( $bool = 1 ) && ( $pos = $pad{I1027} ) or 1 )
+                    ( ( $bool = 1 ) && ( $pos = $pad{I1238} ) or 1 )
                     && (
                       (
                         ( substr( $s, $pos, 1 ) eq '<' ) ? ( $pos += 1 or 1 )
@@ -1092,7 +1092,7 @@
                     )
                   )
                   || (
-                    ( ( $bool = 1 ) && ( $pos = $pad{I1027} ) or 1 )
+                    ( ( $bool = 1 ) && ( $pos = $pad{I1238} ) or 1 )
                     && (
                       ( substr( $s, $pos ) =~ m/^([^\>])/ ) ? ( $pos += length($1) or 1 )
                       : 0
@@ -1173,7 +1173,7 @@
         $bool = 0
           unless (
           (
-            ( $pad{I1028} = $pos or 1 )
+            ( $pad{I1239} = $pos or 1 )
             && (
               (
                 (
@@ -1184,7 +1184,7 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1028} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1239} ) or 1 )
               && (
                 (
                   ( substr( $s, $pos, 1 ) eq chr(39) ) ? ( $pos += 1 or 1 )
@@ -1205,7 +1205,7 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1028} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1239} ) or 1 )
               && (
                 (
                   ( substr( $s, $pos, 1 ) eq '{' ) ? ( $pos += 1 or 1 )
@@ -1226,7 +1226,7 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1028} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1239} ) or 1 )
               && (
                 ( substr( $s, $pos ) =~ m/^([^\}])/ ) ? ( $pos += length($1) or 1 )
                 : 0
@@ -1236,7 +1236,7 @@
           && do {
             while (
               (
-                ( $pad{I1028} = $pos or 1 )
+                ( $pad{I1239} = $pos or 1 )
                 && (
                   (
                     (
@@ -1247,7 +1247,7 @@
                   )
                 )
                 || (
-                  ( ( $bool = 1 ) && ( $pos = $pad{I1028} ) or 1 )
+                  ( ( $bool = 1 ) && ( $pos = $pad{I1239} ) or 1 )
                   && (
                     (
                       ( substr( $s, $pos, 1 ) eq chr(39) ) ? ( $pos += 1 or 1 )
@@ -1268,7 +1268,7 @@
                   )
                 )
                 || (
-                  ( ( $bool = 1 ) && ( $pos = $pad{I1028} ) or 1 )
+                  ( ( $bool = 1 ) && ( $pos = $pad{I1239} ) or 1 )
                   && (
                     (
                       ( substr( $s, $pos, 1 ) eq '{' ) ? ( $pos += 1 or 1 )
@@ -1289,7 +1289,7 @@
                   )
                 )
                 || (
-                  ( ( $bool = 1 ) && ( $pos = $pad{I1028} ) or 1 )
+                  ( ( $bool = 1 ) && ( $pos = $pad{I1239} ) or 1 )
                   && (
                     ( substr( $s, $pos ) =~ m/^([^\}])/ ) ? ( $pos += length($1) or 1 )
                     : 0
@@ -1430,7 +1430,7 @@
         local $::_V6_PRIOR_ = $prior;
         $bool = 0
           unless (
-          ( $pad{I1029} = $pos or 1 )
+          ( $pad{I1240} = $pos or 1 )
           && (
             (
               (
@@ -1470,7 +1470,7 @@
             )
           )
           || (
-            ( ( $bool = 1 ) && ( $pos = $pad{I1029} ) or 1 )
+            ( ( $bool = 1 ) && ( $pos = $pad{I1240} ) or 1 )
             && (
               (
                   ( substr( $s, $pos, 1 ) eq '[' )
@@ -1509,7 +1509,7 @@
             )
           )
           || (
-            ( ( $bool = 1 ) && ( $pos = $pad{I1029} ) or 1 )
+            ( ( $bool = 1 ) && ( $pos = $pad{I1240} ) or 1 )
             && (
               (
                   ( substr( $s, $pos, 1 ) eq '<' )
@@ -1548,7 +1548,7 @@
             )
           )
           || (
-            ( ( $bool = 1 ) && ( $pos = $pad{I1029} ) or 1 )
+            ( ( $bool = 1 ) && ( $pos = $pad{I1240} ) or 1 )
             && do {
               $::_V6_MATCH_ = $m;
               local $::_V6_SUCCEED = 1;
@@ -1698,7 +1698,7 @@
           local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless (
-            ( $pad{I1030} = $pos or 1 )
+            ( $pad{I1241} = $pos or 1 )
             && (
               (
                 (
@@ -1728,7 +1728,7 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1030} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1241} ) or 1 )
               && (
                 (
                   (
@@ -1739,7 +1739,7 @@
                 )
                 && (
                   (
-                    ( $pad{I1031} = $pos or 1 )
+                    ( $pad{I1242} = $pos or 1 )
                     && (
                       (
                         ( substr( $s, $pos ) =~ m/^([[:alnum:]])/ ) ? ( $pos += length($1) or 1 )
@@ -1747,14 +1747,14 @@
                       )
                     )
                     || (
-                      ( ( $bool = 1 ) && ( $pos = $pad{I1031} ) or 1 )
+                      ( ( $bool = 1 ) && ( $pos = $pad{I1242} ) or 1 )
                       && (
                         ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 )
                         : 0
                       )
                     )
                     || (
-                      ( ( $bool = 1 ) && ( $pos = $pad{I1031} ) or 1 )
+                      ( ( $bool = 1 ) && ( $pos = $pad{I1242} ) or 1 )
                       && (
                         (
                           ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 )
@@ -1768,7 +1768,7 @@
                     )
                   )
                   && do {
-                    while ( ( ( $pad{I1031} = $pos or 1 ) && ( ( ( substr( $s, $pos ) =~ m/^([[:alnum:]])/ ) ? ( $pos += length($1) or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1031} ) or 1 ) && ( ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1031} ) or 1 ) && ( ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) && ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) ) ) ) ) { }
+                    while ( ( ( $pad{I1242} = $pos or 1 ) && ( ( ( substr( $s, $pos ) =~ m/^([[:alnum:]])/ ) ? ( $pos += length($1) or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1242} ) or 1 ) && ( ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1242} ) or 1 ) && ( ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) && ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) ) ) ) ) { }
                     $bool = 1;
                   }
                 )
@@ -1841,7 +1841,7 @@
           local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless (
-            ( $pad{I1032} = $pos or 1 )
+            ( $pad{I1243} = $pos or 1 )
             && (
               (
                 (
@@ -1871,7 +1871,7 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1032} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1243} ) or 1 )
               && (
                 (
                   (
@@ -1882,7 +1882,7 @@
                 )
                 && (
                   (
-                    ( $pad{I1033} = $pos or 1 )
+                    ( $pad{I1244} = $pos or 1 )
                     && (
                       (
                         ( substr( $s, $pos ) =~ m/^([[:alnum:]])/ ) ? ( $pos += length($1) or 1 )
@@ -1890,14 +1890,14 @@
                       )
                     )
                     || (
-                      ( ( $bool = 1 ) && ( $pos = $pad{I1033} ) or 1 )
+                      ( ( $bool = 1 ) && ( $pos = $pad{I1244} ) or 1 )
                       && (
                         ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 )
                         : 0
                       )
                     )
                     || (
-                      ( ( $bool = 1 ) && ( $pos = $pad{I1033} ) or 1 )
+                      ( ( $bool = 1 ) && ( $pos = $pad{I1244} ) or 1 )
                       && (
                         (
                           ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 )
@@ -1911,7 +1911,7 @@
                     )
                   )
                   && do {
-                    while ( ( ( $pad{I1033} = $pos or 1 ) && ( ( ( substr( $s, $pos ) =~ m/^([[:alnum:]])/ ) ? ( $pos += length($1) or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1033} ) or 1 ) && ( ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1033} ) or 1 ) && ( ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) && ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) ) ) ) ) { }
+                    while ( ( ( $pad{I1244} = $pos or 1 ) && ( ( ( substr( $s, $pos ) =~ m/^([[:alnum:]])/ ) ? ( $pos += length($1) or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1244} ) or 1 ) && ( ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1244} ) or 1 ) && ( ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) && ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) ) ) ) ) { }
                     $bool = 1;
                   }
                 )
@@ -1984,7 +1984,7 @@
           local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless (
-            ( $pad{I1034} = $pos or 1 )
+            ( $pad{I1245} = $pos or 1 )
             && (
               (
                 (
@@ -2014,7 +2014,7 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1034} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1245} ) or 1 )
               && (
                 (
                   (
@@ -2025,7 +2025,7 @@
                 )
                 && (
                   (
-                    ( $pad{I1035} = $pos or 1 )
+                    ( $pad{I1246} = $pos or 1 )
                     && (
                       (
                         ( substr( $s, $pos ) =~ m/^([[:alnum:]])/ ) ? ( $pos += length($1) or 1 )
@@ -2033,14 +2033,14 @@
                       )
                     )
                     || (
-                      ( ( $bool = 1 ) && ( $pos = $pad{I1035} ) or 1 )
+                      ( ( $bool = 1 ) && ( $pos = $pad{I1246} ) or 1 )
                       && (
                         ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 )
                         : 0
                       )
                     )
                     || (
-                      ( ( $bool = 1 ) && ( $pos = $pad{I1035} ) or 1 )
+                      ( ( $bool = 1 ) && ( $pos = $pad{I1246} ) or 1 )
                       && (
                         (
                           ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 )
@@ -2054,7 +2054,7 @@
                     )
                   )
                   && do {
-                    while ( ( ( $pad{I1035} = $pos or 1 ) && ( ( ( substr( $s, $pos ) =~ m/^([[:alnum:]])/ ) ? ( $pos += length($1) or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1035} ) or 1 ) && ( ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1035} ) or 1 ) && ( ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) && ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) ) ) ) ) { }
+                    while ( ( ( $pad{I1246} = $pos or 1 ) && ( ( ( substr( $s, $pos ) =~ m/^([[:alnum:]])/ ) ? ( $pos += length($1) or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1246} ) or 1 ) && ( ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1246} ) or 1 ) && ( ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) && ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) ) ) ) ) { }
                     $bool = 1;
                   }
                 )
@@ -2589,11 +2589,7 @@
               local $::_V6_SUCCEED = 1;
               $m->data->{capture} = \(
                 sub {
-                  return (
-                    {
-                      'negate' => ${ $::_V6_MATCH_->{'metasyntax'} }    # hash
-                    }
-                  );
+                  return ( { 'negate' => ${ $::_V6_MATCH_->{'metasyntax'} } } );
                   }
                   ->()
               );
@@ -2821,11 +2817,11 @@
           local $::_V6_PRIOR_ = $prior;
           $bool = 0
             unless (
-            ( $pad{I1036} = $pos or 1 )
+            ( $pad{I1247} = $pos or 1 )
             && (
               (
                 (
-                  ( $pad{I1037} = $pos or 1 )
+                  ( $pad{I1248} = $pos or 1 )
                   && (
                     (
                       ( substr( $s, $pos, 1 ) eq 'x' ) ? ( $pos += 1 or 1 )
@@ -2833,21 +2829,21 @@
                     )
                   )
                   || (
-                    ( ( $bool = 1 ) && ( $pos = $pad{I1037} ) or 1 )
+                    ( ( $bool = 1 ) && ( $pos = $pad{I1248} ) or 1 )
                     && (
                       ( substr( $s, $pos, 1 ) eq 'X' ) ? ( $pos += 1 or 1 )
                       : 0
                     )
                   )
                   || (
-                    ( ( $bool = 1 ) && ( $pos = $pad{I1037} ) or 1 )
+                    ( ( $bool = 1 ) && ( $pos = $pad{I1248} ) or 1 )
                     && (
                       ( substr( $s, $pos, 1 ) eq 'o' ) ? ( $pos += 1 or 1 )
                       : 0
                     )
                   )
                   || (
-                    ( ( $bool = 1 ) && ( $pos = $pad{I1037} ) or 1 )
+                    ( ( $bool = 1 ) && ( $pos = $pad{I1248} ) or 1 )
                     && (
                       ( substr( $s, $pos, 1 ) eq 'O' ) ? ( $pos += 1 or 1 )
                       : 0
@@ -2880,7 +2876,7 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1036} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1247} ) or 1 )
               && (
                 do {
                   my $hash = do {
@@ -2890,7 +2886,7 @@
                     my %named;
                     $bool = 0
                       unless (
-                      ( $pad{I1038} = $pos or 1 )
+                      ( $pad{I1249} = $pos or 1 )
                       && (
                         (
                           ( substr( $s, $pos, 1 ) eq 'x' ) ? ( $pos += 1 or 1 )
@@ -2898,21 +2894,21 @@
                         )
                       )
                       || (
-                        ( ( $bool = 1 ) && ( $pos = $pad{I1038} ) or 1 )
+                        ( ( $bool = 1 ) && ( $pos = $pad{I1249} ) or 1 )
                         && (
                           ( substr( $s, $pos, 1 ) eq 'X' ) ? ( $pos += 1 or 1 )
                           : 0
                         )
                       )
                       || (
-                        ( ( $bool = 1 ) && ( $pos = $pad{I1038} ) or 1 )
+                        ( ( $bool = 1 ) && ( $pos = $pad{I1249} ) or 1 )
                         && (
                           ( substr( $s, $pos, 1 ) eq 'o' ) ? ( $pos += 1 or 1 )
                           : 0
                         )
                       )
                       || (
-                        ( ( $bool = 1 ) && ( $pos = $pad{I1038} ) or 1 )
+                        ( ( $bool = 1 ) && ( $pos = $pad{I1249} ) or 1 )
                         && (
                           ( substr( $s, $pos, 1 ) eq 'O' ) ? ( $pos += 1 or 1 )
                           : 0
@@ -2975,7 +2971,7 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1036} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1247} ) or 1 )
               && (
                 ( substr( $s, $pos++, 1 ) ne '' )
                 && do {
@@ -4900,34 +4896,34 @@
         local $::_V6_PRIOR_ = $prior;
         $bool = 0
           unless (
-          ( $pad{I1039} = $pos or 1 )
+          ( $pad{I1250} = $pos or 1 )
           && (
             (
               do {
                 my $match = do {
-                  our $I1040;
-                  our $I1040_sizes;
-                  unless ($I1040) {
+                  our $I1251;
+                  our $I1251_sizes;
+                  unless ($I1251) {
                     my $hash = \%Pugs::Grammar::Rule::variables;
                     my %sizes = map { length($_) => 1 } keys %$hash;
-                    $I1040_sizes = [ sort { $b <=> $a } keys %sizes ];
-                    $I1040 = $hash;
+                    $I1251_sizes = [ sort { $b <=> $a } keys %sizes ];
+                    $I1251 = $hash;
                   }
                   my $match = 0;
                   my $key;
-                  for (@$I1040_sizes) {
+                  for (@$I1251_sizes) {
                     $key = (
                       $pos <= length($s)
                       ? substr( $s, $pos, $_ )
                       : ''
                     );
-                    if ( exists $I1040->{$key} ) {
+                    if ( exists $I1251->{$key} ) {
 
                       #$named{KEY} = $key;
                       #$::_V6_MATCH_ = $m;
                       #print "m: ", Dumper( $::_V6_MATCH_->data )
                       #    if ( $key eq 'until' );
-                      $match = Pugs::Runtime::Regex::preprocess_hash( $I1040, $key )->( $s, $grammar, { p => ( $pos + $_ ), args => { KEY => $key } }, undef );
+                      $match = Pugs::Runtime::Regex::preprocess_hash( $I1251, $key )->( $s, $grammar, { p => ( $pos + $_ ), args => { KEY => $key } }, undef );
                       last if $match;
                     }
                   }
@@ -4948,7 +4944,7 @@
                 else { 0 }
               }
               && (
-                ( $pad{I1041} = $pos or 1 )
+                ( $pad{I1252} = $pos or 1 )
                 && (
                   (
                     (
@@ -5005,7 +5001,7 @@
                   )
                 )
                 || (
-                  ( ( $bool = 1 ) && ( $pos = $pad{I1041} ) or 1 )
+                  ( ( $bool = 1 ) && ( $pos = $pad{I1252} ) or 1 )
                   && do {
                     $::_V6_MATCH_ = $m;
                     local $::_V6_SUCCEED = 1;
@@ -5024,33 +5020,33 @@
             )
           )
           || (
-            ( ( $bool = 1 ) && ( $pos = $pad{I1039} ) or 1 )
+            ( ( $bool = 1 ) && ( $pos = $pad{I1250} ) or 1 )
             && (
               do {
                 my $match = do {
-                  our $I1042;
-                  our $I1042_sizes;
-                  unless ($I1042) {
+                  our $I1253;
+                  our $I1253_sizes;
+                  unless ($I1253) {
                     my $hash = \%Pugs::Grammar::Rule::rule_terms;
                     my %sizes = map { length($_) => 1 } keys %$hash;
-                    $I1042_sizes = [ sort { $b <=> $a } keys %sizes ];
-                    $I1042 = $hash;
+                    $I1253_sizes = [ sort { $b <=> $a } keys %sizes ];
+                    $I1253 = $hash;
                   }
                   my $match = 0;
                   my $key;
-                  for (@$I1042_sizes) {
+                  for (@$I1253_sizes) {
                     $key = (
                       $pos <= length($s)
                       ? substr( $s, $pos, $_ )
                       : ''
                     );
-                    if ( exists $I1042->{$key} ) {
+                    if ( exists $I1253->{$key} ) {
 
                       #$named{KEY} = $key;
                       #$::_V6_MATCH_ = $m;
                       #print "m: ", Dumper( $::_V6_MATCH_->data )
                       #    if ( $key eq 'until' );
-                      $match = Pugs::Runtime::Regex::preprocess_hash( $I1042, $key )->( $s, $grammar, { p => ( $pos + $_ ), args => { KEY => $key } }, undef );
+                      $match = Pugs::Runtime::Regex::preprocess_hash( $I1253, $key )->( $s, $grammar, { p => ( $pos + $_ ), args => { KEY => $key } }, undef );
                       last if $match;
                     }
                   }
@@ -5086,7 +5082,7 @@
             )
           )
           || (
-            ( ( $bool = 1 ) && ( $pos = $pad{I1039} ) or 1 )
+            ( ( $bool = 1 ) && ( $pos = $pad{I1250} ) or 1 )
             && (
               (
                   ( substr( $s, $pos ) =~ m/^([^\]\}\)\>\:\?\+\*\|\&])/ )
@@ -5162,7 +5158,7 @@
         local $::_V6_PRIOR_ = $prior;
         $bool = 0
           unless (
-          ( $pad{I1043} = $pos or 1 )
+          ( $pad{I1254} = $pos or 1 )
           && (
             (
               (
@@ -5218,7 +5214,7 @@
             )
           )
           || (
-            ( ( $bool = 1 ) && ( $pos = $pad{I1043} ) or 1 )
+            ( ( $bool = 1 ) && ( $pos = $pad{I1254} ) or 1 )
             && (
               (
                   ( substr( $s, $pos ) =~ m/^([\?\*\+])/ )
@@ -5611,6 +5607,132 @@
     }
 };    ## Signature for concat
 # Data::Bind->sub_signature( \&concat, );
+*conjunctive = do {
+  my $rule;
+  $rule = sub {
+
+    $_[3] = $_[2];
+    $_[2] = undef;
+    my $grammar = $_[0];
+    my $s       = $_[1];
+    no warnings 'substr', 'uninitialized', 'syntax';
+    my %pad;
+    my $m;
+    for my $pos (
+      defined $_[3]{p} && !$_[3]{continue}
+      ? $_[3]{p}
+      : ( ( $_[3]{p} || 0 ) .. length($s) )
+      )
+    {
+      my %index;
+      my @match;
+      my %named;
+      my $bool = 1;
+      $named{KEY} = $_[3]{KEY} if exists $_[3]{KEY};
+      $m = Pugs::Runtime::Match->new(
+        {
+          str     => \$s,
+          from    => \( 0 + $pos ),
+          to      => \($pos),
+          bool    => \$bool,
+          match   => \@match,
+          named   => \%named,
+          capture => undef,
+        }
+      );
+      {
+        my $prior = $::_V6_PRIOR_;
+        local $::_V6_PRIOR_ = $prior;
+        $bool = 0
+          unless (
+          (
+            (
+              (
+                do {
+                  my $prior = $::_V6_PRIOR_;
+                  my $match = $grammar->ws( $s, { p => $pos, args => {} }, undef );
+                  $::_V6_PRIOR_ = $prior;
+                  my $bool = ( !$match != 1 );
+                  $pos = $match->to if $bool;
+                  $match;
+                }
+                || ( $bool = 1 )
+              )
+              && (
+                  ( substr( $s, $pos, 1 ) eq '&' )
+                ? ( $pos += 1 or 1 )
+                : 0
+              )
+            )
+            || ( $bool = 1 )
+          )
+          && do {
+            my $prior = $::_V6_PRIOR_;
+            my $match = $grammar->concat( $s, { p => $pos, args => {} }, undef );
+            $::_V6_PRIOR_ = $prior;
+            if ($match) {
+              push @{ $named{'concat'} }, $match;
+              $pos = $match->to;
+              1;
+            }
+            else { 0 }
+          }
+          && do {
+            while (
+              (
+                (
+                    ( substr( $s, $pos, 1 ) eq '&' )
+                  ? ( $pos += 1 or 1 )
+                  : 0
+                )
+                && do {
+                  my $prior = $::_V6_PRIOR_;
+                  my $match = $grammar->concat( $s, { p => $pos, args => {} }, undef );
+                  $::_V6_PRIOR_ = $prior;
+                  if ($match) {
+                    push @{ $named{'concat'} }, $match;
+                    $pos = $match->to;
+                    1;
+                  }
+                  else { 0 }
+                }
+              )
+              )
+            {
+            }
+            $bool = 1;
+          }
+          && do {
+            $::_V6_MATCH_ = $m;
+            local $::_V6_SUCCEED = 1;
+            $m->data->{capture} = \(
+              sub {
+                my @a = map { $$_ } @{ $::_V6_MATCH_->{'concat'} };
+                return { conjunctive => \@a, } if scalar @a > 1;
+                return $a[0];
+                }
+                ->()
+            );
+            $bool = $::_V6_SUCCEED;
+            $::_V6_MATCH_ = $m if $bool;
+            return $m if $bool;
+          }
+          );
+      }
+      if ($bool) {
+        my $prior = $::_V6_PRIOR_;
+        $::_V6_PRIOR_ = sub {
+          local $main::_V6_PRIOR_ = $prior;
+          $rule->(@_);
+        };
+        last;
+      }
+    }    # /for
+    $::_V6_MATCH_ = $m;
+    return $m;
+    }
+};    ## Signature for conjunctive
+# Data::Bind->sub_signature( \&conjunctive, );
 *rule = do {
   my $rule;
   $rule = sub {
@@ -5672,10 +5794,10 @@
           )
           && do {
             my $prior = $::_V6_PRIOR_;
-            my $match = $grammar->concat( $s, { p => $pos, args => {} }, undef );
+            my $match = $grammar->conjunctive( $s, { p => $pos, args => {} }, undef );
             $::_V6_PRIOR_ = $prior;
             if ($match) {
-              push @{ $named{'concat'} }, $match;
+              push @{ $named{'conjunctive'} }, $match;
               $pos = $match->to;
               1;
             }
@@ -5691,10 +5813,10 @@
                 )
                 && do {
                   my $prior = $::_V6_PRIOR_;
-                  my $match = $grammar->concat( $s, { p => $pos, args => {} }, undef );
+                  my $match = $grammar->conjunctive( $s, { p => $pos, args => {} }, undef );
                   $::_V6_PRIOR_ = $prior;
                   if ($match) {
-                    push @{ $named{'concat'} }, $match;
+                    push @{ $named{'conjunctive'} }, $match;
                     $pos = $match->to;
                     1;
                   }
@@ -5711,7 +5833,7 @@
             local $::_V6_SUCCEED = 1;
             $m->data->{capture} = \(
               sub {
-                my @a = map { $$_ } @{ $::_V6_MATCH_->{'concat'} };
+                my @a = map { $$_ } @{ $::_V6_MATCH_->{'conjunctive'} };
                 return { alt => \@a, } if scalar @a > 1;
                 return $a[0];
                 }

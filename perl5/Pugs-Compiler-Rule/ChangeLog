@@ -1,3 +1,5 @@
+- implemented negated metasyntax <!...>
+
 0.20  2006-10-13
 
 - each time <prior> is set to a new rule, it stores the previous 

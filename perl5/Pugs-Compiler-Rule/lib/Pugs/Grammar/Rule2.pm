@@ -300,17 +300,34 @@ token concat {
     }
 }
 
-token rule {
-    [ <?ws>? \| ]?
+token conjunctive {
+    [ <?ws>? \& ]?
     
     <concat>
     [
-        \|  <concat> 
+        \&  <concat> 
     ]*
     
     {             
       use v5;
         my @a = map {  $$_  }  @{ $::_V6_MATCH_->{'concat'} };
+        return { conjunctive => \@a ,}  if scalar @a > 1;
+        return $a[0];
+      use v6;
+    }
+}
+
+token rule {
+    [ <?ws>? \| ]?
+    
+    <conjunctive>
+    [
+        \|  <conjunctive> 
+    ]*
+    
+    {             
+      use v5;
+        my @a = map {  $$_  }  @{ $::_V6_MATCH_->{'conjunctive'} };
         return { alt => \@a ,}  if scalar @a > 1;
         return $a[0];
       use v6;
