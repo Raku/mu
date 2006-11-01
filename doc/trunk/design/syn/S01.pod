@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 14 Sept 2006
+  Last Modified: 1 Nob 2006
   Number: 1
-  Version: 4
+  Version: 5
 
 This document originally summarized Apocalypse 1, which covers the
 initial design concept.  That original summary may be found below
@@ -110,6 +110,23 @@ code in some other way, such as by:
     #!/usr/bin/perl6
     use v6.0;
     v6;
+
+=item *
+
+Migration in the other direction is also important.  In Perl 6
+mode, one can drop back to Perl 5 mode  with C<use v5> at the
+beginning of a lexical block.  Such blocks may be nested:
+
+    use v6-alpha;
+    # ...some Perl 6 code...
+    {
+        use v5;
+        # ...some Perl 5 code...
+        {
+            use v6-alpha;
+            # ...more Perl 6 code...
+        }
+    }
 
 =item *
 

@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 6 Jul 2006
+  Last Modified: 1 Nov 2006
   Number: 11
-  Version: 14
+  Version: 15
 
 =head1 Overview
 
@@ -340,6 +340,21 @@ version number or other literal:
 it runs Perl 6 in "lax" mode, without strictures or warnings, since obviously
 a bare literal in a void context I<ought> to have produced a warning.
 (Invoking perl with C<-e6> has the same effect.)
+
+In the other direction, to inline Perl 5 code  inside a Perl 6 program,  put
+C<use v5> at the beginning of a lexical block.  Such blocks can nest arbitrarily
+deeply to switch between Perl versions:
+
+    use v6-alpha;
+    # ...some Perl 6 code...
+    {
+        use v5;
+        # ...some Perl 5 code...
+        {
+            use v6-alpha;
+            # ...more Perl 6 code...
+        }
+    }
 
 It's not necessary to force Perl 6 if the interpreter or command
 specified already implies it, such as use of a "C<#!/usr/bin/perl6>"
