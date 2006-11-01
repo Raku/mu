@@ -10,9 +10,9 @@ Testing array slices.
 
 =cut
 
-plan 21;
+plan 24;
 
-{   my @array = (3,7,9);
+{   my @array = (3,7,9,11);
 
     is(@array[0,1,2], (3,7,9),   "basic slice");
     is(@array[(0,1,2)], (3,7,9), "basic slice, explicit list");
@@ -25,6 +25,9 @@ plan 21;
     is(@array[@slice], (7,9),      "slice from array, part 2");
     is(@array[@slice[1]], (9),     "slice from array slice, part 1");
     is(@array[@slice[0,1]], (7,9), "slice from array slice, part 2");
+    is(@array[0..1], (3,7),	   "range from array");
+    is(@array[0,1..2], (3,7,9),	   "slice plus range from array");
+    is(@array[0..1,2,3], (3,7,9,11), "range plus slice from array");    
 }
 
 # Behaviour assumed to be the same as Perl 5
