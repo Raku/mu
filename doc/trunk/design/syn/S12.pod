@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 20 Oct 2006
+  Last Modified: 1 Nov 2006
   Number: 12
-  Version: 29
+  Version: 30
 
 =head1 Overview
 
@@ -699,11 +699,16 @@ in its long name:
 Sometimes you want to have parameters that aren't counted as part of the
 long name.  For instance, if you want to allow an optional "step" parameter
 to your range operator, but not consider it for multi dispatch, then put a
-semicolon instead of a comma before it:
+double semicolon instead of a comma before it:
 
-    multi sub infix:<..>(Int $min, Int $max; Int $by = 1) {...}
+    multi sub infix:<..>(Int $min, Int $max;; Int $by = 1) {...}
 
-The final semicolon, if any, determines the complete long name of a multi.
+The double semicolon, if any, determines the complete long name of
+a multi.  (In the absence of that, a double semicolon is assumed
+after the last declared argument, but before any return signature.)
+Note that a call to the routine must still be compatible with
+subsequent arguments.
+
 However, a given multi may advertise multiple long names, some
 of which are shorter than the complete long name.  This is done by
 putting a semicolon after each advertised long name (replacing the comma,
@@ -725,10 +730,11 @@ single invocant, and any additional semicolons may only indicate long names
 to be used as tiebreakers.
 
 Conjecture: In order to specify dispatch that includes the return
-type context, it is necessary to place a semicolon after the return type:
+type context, it is necessary to place the return type before the double
+semicolon:
 
-    multi infix:<..>(Int $min, Int $max; Int $by = 1 --> Iterator;) {...}
-    multi infix:<..>(Int $min, Int $max; Int $by = 1 --> Selector;) {...}
+    multi infix:<..>(Int $min, Int $max --> Iterator;; Int $by = 1) {...}
+    multi infix:<..>(Int $min, Int $max --> Selector;; Int $by = 1) {...}
 
 Note that such a declaration might have to delay dispatch until the
 actual desired type is known!  (Generally, you might just consider
@@ -881,10 +887,10 @@ Roles may have attributes:
     }
 
 If you want to parameterize the initial value of a role attribute,
-be sure to put a semicolon if you don't want the parameter to be considered
-part of the long name:
+be sure to put a double semicolon if you don't want the parameter to
+be considered part of the long name:
 
-    role Pet[::ID; $tag] {
+    role Pet[::ID;; $tag] {
 	has ID $.collar .= new($tag);
     }
 
