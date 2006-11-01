@@ -35,6 +35,7 @@ import Pugs.External
 import Pugs.Embed
 import Pugs.Eval.Var
 import qualified Data.Map as Map
+import qualified Data.Set as Set
 import Data.IORef
 import System.IO.Error (isEOFError)
 import Control.Exception (ioErrors)
@@ -282,12 +283,22 @@ op1 "evalfile" = \v -> do
     filename <- fromVal v
     opEvalFile filename
 op1 "Pugs::Internals::eval_perl5" = \v -> do
-    str <- fromVal v
-    env <- ask
-    tryIO undef $ do
-        envSV <- mkEnv env
-        sv <- evalPerl5 str envSV $ enumCxt (envContext env)
-        svToVal sv
+    str     <- fromVal v
+    env     <- ask
+    lex     <- asks envLexical
+    let vars = [ v | v@MkVar{ v_sigil = SScalar, v_twigil = TNil } <- Set.toList (padKeys lex), v /= varTopic ]
+        code = "sub { my (" ++ (concat $ intersperse ", " (map (`showsVar` "") vars)) ++ ") = @_;\n" ++ str ++ "\n}"
+    vals    <- mapM readVar vars
+    rv  <- tryIO (Perl5ErrorString "") $ do
+        envSV   <- mkEnv env
+        sub     <- evalPerl5 code envSV 0
+        args    <- mapM newSVval vals
+        invokePerl5 sub nullSV args envSV (enumCxt $ envContext env)
+    case rv of
+        Perl5ReturnValues [x]   -> liftIO $ svToVal x
+        Perl5ReturnValues xs    -> liftIO $ fmap VList (mapM svToVal xs)
+        Perl5ErrorString str    -> fail str
+        Perl5ErrorObject err    -> throwError (PerlSV err)
 op1 "Pugs::Internals::eval_p6y" = op1EvalP6Y
 op1 "Pugs::Internals::eval_haskell" = op1EvalHaskell
 op1 "Pugs::Internals::eval_yaml" = evalYaml
