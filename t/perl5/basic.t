@@ -1,6 +1,6 @@
 use v6-alpha;
 use Test;
-plan 18;
+plan 19;
 
 unless try({ eval("1", :lang<perl5>) }) {
     skip_rest;
@@ -101,4 +101,9 @@ my $s = 'str';
     is($result,4,$test);
 }
 
+sub add_in_perl5 ($x, $y) {
+    use v5;
+    $x + $y;
+}
 
+is(add_in_perl5(42, 42), 84, 'Defining subroutines with "use v5" blocks');
