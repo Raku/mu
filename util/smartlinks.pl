@@ -907,9 +907,11 @@ t/README in the Pugs source tree.
 
 =item * 
 
-The article on Audrey's blogs:
+The articles on the Pugs blogs:
 
 L<http://pugs.blogs.com/pugs/2006/08/integrating_the.html>
+
+L<http://pugs.blogs.com/pugs/2006/09/check_smoke_res.html>
 
 =item *
 
