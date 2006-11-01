@@ -100,9 +100,15 @@ Smart links are explained on the wiki:
 
   http://rakudo.org/perl6/index.cgi?smart_linking
 
-And also in the POD of smartlinks.pl:
+And in the POD of smartlinks.pl:
 
   perldoc util/smartlinks.pl
+
+You may also find the following two pugs.blogs.com posts helpful:
+
+  http://pugs.blogs.com/pugs/2006/08/integrating_the.html
+
+  http://pugs.blogs.com/pugs/2006/09/check_smoke_res.html
 
 Everytime you have added smartlinks to some .t file, remember to run
 util/smartlinks.pl to verify the links' validity:
