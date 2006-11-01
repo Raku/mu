@@ -176,9 +176,9 @@ extractHash exp
     possiblyUnwrap x = x
     
     isHashOrPair (Ann _ exp) = isHashOrPair exp
-    isHashOrPair (App (Var var) _ _) =
-        v_sigil var == SHash || (var == cast "&pair") || (var == cast "&infix:=>") 
+    isHashOrPair (App (Var var) _ _) = (var == cast "&pair") || (var == cast "&infix:=>") 
     isHashOrPair (Syn "%{}" _) = True
+    isHashOrPair (Var var) = v_sigil var == SHash
     isHashOrPair _ = False
     
     extractHash' exp                      | isHashOrPair exp    = Just exp

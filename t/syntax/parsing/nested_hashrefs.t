@@ -20,7 +20,7 @@ Also with array refs nested in hash refs.
 
 =cut
 
-plan 4;
+plan 5;
 
 my $hash = {
    '1' => { '2' => 3, '4' => 5 },
@@ -35,3 +35,8 @@ my $h2 = {
 };
 is( $h2<x>[0], '2', 'First nested element.');
 is( $h2<x>[1], '3', 'Second nested element.');
+
+my %foo = (1 => 2);
+my $bar = { %foo };
+is( $bar{1}, 2, '%foo in a block causes hash composing' );
+
