@@ -802,12 +802,7 @@ sub default {
             # XXX encode $method to longname
             my $method = Pugs::Runtime::Common::mangle_ident( $n->{method}{dot_bareword} );
             # eval string is needed to enable method dispatch
-            my $code = eval '$self->' . $method . '( _emit( $n->{param} ) )';
-            #die $@ if $@;
-            return $code
-                unless $@;
-            # leave it to runtime
-            return $self . '->' . $method . '(' . _emit( $n->{param} ) . ')';
+            return $self->$method( _emit( $n->{param} ) );
         }
 
 
