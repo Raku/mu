@@ -2,8 +2,8 @@ use v6-alpha;
 
 use Test;
 
-plan 9;
-force_todo 8;
+plan 10;
+force_todo 9;
 
 # L<S29/"Str"/=item uc>
 
@@ -11,6 +11,7 @@ is(uc("Hello World"), "HELLO WORLD", "simple");
 is(uc(""), "", "empty string"); 
 is(uc("åäö"), "ÅÄÖ", "some finnish non-ascii chars");
 is(uc("óòúù"), "ÓÒÚÙ", "accented chars");
+is(uc(lc('HELL..')), 'HELL..', "uc/lc test");
 
 # given does not return proper value yet
 $_ = "Hello World";
