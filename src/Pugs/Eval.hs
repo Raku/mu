@@ -425,9 +425,9 @@ reduceSyn "block" [exp]
             _                   -> subBody sub
     | otherwise = enterBlock $ reduce exp
     
-reduceSyn "block-perl5" [Val p5code] = do
+reduceSyn "block-perl5" args = do
     -- XXX - 0th approximation.
-    op1 "Pugs::Internals::eval_perl5" p5code
+    reduceApp (_Var "&Pugs::Internals::eval_perl5") Nothing args
 
 reduceSyn "sub" [exp] = do
     (VCode sub) <- enterEvalContext (cxtItem "Code") exp
