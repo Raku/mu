@@ -83,11 +83,20 @@ ruleBlockBody :: RuleParser Exp
 ruleBlockBody =
   localEnv $ do
     whiteSpace
-    pre     <- many ruleEmptyExp
-    body    <- option emptyExp ruleStatementList
-    post    <- many ruleEmptyExp
-    whiteSpace
-    return $ foldl1 mergeStmts (pre ++ [body] ++ post)
+    ver     <- option "6" (try (symbol "use" >> rulePerlVersion))
+    case ver of
+        ('5':_) -> do
+            let chunk = many1 (noneOf "{}") <|> verbatimBraces block
+                block = fmap (\x -> ('{':x) ++ "}") body
+                body  = fmap concat (many chunk)
+            p5code <- body
+            return (Syn "block-perl5" [Val (VStr p5code)])
+        _       -> do
+            pre     <- many ruleEmptyExp
+            body    <- option emptyExp ruleStatementList
+            post    <- many ruleEmptyExp
+            whiteSpace
+            return $ foldl1 mergeStmts (pre ++ [body] ++ post)
 
 {-|
 Match a single statement (not including any terminating semicolon).  A
