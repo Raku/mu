@@ -715,7 +715,7 @@ It is allowed to specify additional parameters. The Capture binding merely
 takes a snapshot of what's left of the Capture at that point and then
 continues binding as if the Capture parameter weren't there:
 
-    sub compare (|$args Num $x, Num $y --> Bool) { ... }
+    sub compare (|$args, Num $x, Num $y --> Bool) { ... }
 
 =head2 Flattening argument lists
 

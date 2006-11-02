@@ -740,7 +740,7 @@ Likewise the precedence of any hyperoperator is the same as its
 base operator.  This means that you must parenthesize your comma
 lists for most operators.  For example:
 
-     -« (1,2,3)                    # (-1, -2, -3)
+     -« (1,2,3);                   # (-1, -2, -3)
      (1,1,2,3,5) »+« (1,2,3,5,8);  # (2,3,5,8,13)
 
 A unary hyper operator (either prefix or postfix) has only one
