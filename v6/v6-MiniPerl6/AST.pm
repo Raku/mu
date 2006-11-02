@@ -16,10 +16,14 @@ subset Exp of
     | Val       # "value"
     | Lit       # [literal construct]
     | Bind      # $lhs := $rhs
-    | Call      # $obj.method($arg1, $arg2)
-    | Apply     # $obj($arg1, $arg2)
     | Index     # $obj[1, 2, 3]
     | Lookup    # $obj{'1', '2', '3'}
+    | Control   # Various control structures.  Does _not_ appear in binding LHS
+    );
+
+subset Control of
+    ( Call      # $obj.method($arg1, $arg2)
+    | Apply     # $obj($arg1, $arg2)
     | Return    # return 123;
     | Leave     # last; break;
     | If        # 1 ?? 2 !! 3
