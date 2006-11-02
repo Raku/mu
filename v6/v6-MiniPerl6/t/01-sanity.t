@@ -36,3 +36,18 @@ use Data::Dumper;
   my $p = MiniPerl6::Grammar->bind( '$obj := $xyz' );
   print Dumper( $$p );
 }
+
+{
+  my $p = MiniPerl6::Grammar->exp_mapping( '$obj => $xyz' );
+  print Dumper( $$p );
+}
+
+{
+  my $p = MiniPerl6::Grammar->exp_mapping( '$obj => $xyz, $a => $b' );
+  print Dumper( $$p );
+}
+
+{
+  my $p = MiniPerl6::Grammar->lit_object( '::Tree($a => $x, $b => $y)' );
+  print Dumper( $$p );
+}

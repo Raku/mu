@@ -2,12 +2,15 @@ use v6-alpha;
 
 grammar MiniPerl6::Grammar;
 
-sub CompUnit($data) { use v5; bless $data, 'CompUnit'; use v6; }
-sub Var($data)      { use v5; bless $data, 'Var';      use v6; }
-sub Apply($data)    { use v5; bless $data, 'Apply';    use v6; }
-sub Call($data)     { use v5; bless $data, 'Call';     use v6; }
-sub Bind($data)     { use v5; bless $data, 'Bind';     use v6; }
-sub array($data)    { use v5; @$data;                  use v6; }
+sub CompUnit($data)  { use v5; bless $data, 'CompUnit';  use v6; }
+sub Var($data)       { use v5; bless $data, 'Var';       use v6; }
+sub Apply($data)     { use v5; bless $data, 'Apply';     use v6; }
+sub Call($data)      { use v5; bless $data, 'Call';      use v6; }
+sub Bind($data)      { use v5; bless $data, 'Bind';      use v6; }
+sub Lit::Object($data) { use v5; bless $data, 'Lit::Object'; use v6; }
+
+# XXX - move to v6.pm emitter
+sub array($data)    { use v5; @$data; use v6; }
 
 token comp_unit {
     <?ws>?
@@ -25,6 +28,18 @@ token comp_unit {
     }
 }
 
+token exp {
+    [ $<exp> := <var>       # $variable
+    | $<exp> := <val>       # "value"
+    | $<exp> := <lit>       # [literal construct]
+    | $<exp> := <bind>      # $lhs := $rhs
+    | $<exp> := <index>     # $obj[1, 2, 3]
+    | $<exp> := <lookup>    # $obj{'1', '2', '3'}
+    | $<exp> := <control>   # Various control structures.  Does _not_ appear in binding LHS
+    ]
+    { return $$<exp> }
+}
+
 token control {
     [ $<exp> := <call>      # $obj.method($arg1, $arg2)
     | $<exp> := <apply>     # $obj($arg1, $arg2)
@@ -36,6 +51,19 @@ token control {
     | $<exp> := <while>     # while ... { ... }
     ]
     { return $$<exp> }
+}
+
+token var {
+    $<sigil>  := [ <[ \$ \% \@ \& ]> ]
+    $<twigil> := [ <[ \. \! \^ ]> | <''> ]
+    <ident>
+    {
+        return Var({
+            sigil  => ~$<sigil>,
+            twigil => ~$<twigil>,
+            name   => ~$<ident>,
+        })
+    }
 }
 
 token val {
@@ -58,27 +86,39 @@ token exp_seq {
     ]
 }
 
-token exp {
-    [ $<exp> := <var>       # $variable
-    | $<exp> := <val>       # "value"
-    | $<exp> := <lit>       # [literal construct]
-    | $<exp> := <bind>      # $lhs := $rhs
-    | $<exp> := <index>     # $obj[1, 2, 3]
-    | $<exp> := <lookup>    # $obj{'1', '2', '3'}
-    | $<exp> := <control>   # Various control structures.  Does _not_ appear in binding LHS
+token exp_mapping {
+    $<key> := <exp> 
+    <?ws>? <'=>'> <?ws>?
+    $<value> := <exp>
+    [
+    |   <?ws>? \, <?ws>? <exp_mapping> 
+        { return [ [ $$<key>, $$<value> ], array( $$<exp_mapping> ) ] }
+    |   { return [ [ $$<key>, $$<value> ] ] }
+    ]
+}
+
+token lit {
+    [ $<exp> := <lit_seq>      # (a, b, c)
+    | $<exp> := <lit_array>    # [a, b, c]
+    | $<exp> := <lit_hash>     # {a => x, b => y}
+    | $<exp> := <lit_code>     # sub $x {...}
+    | $<exp> := <lit_object>   # ::Tree(a => x, b => y);
     ]
     { return $$<exp> }
 }
 
-token var {
-    $<sigil>  := [ <[ \$ \% \@ \& ]> ]
-    $<twigil> := [ <[ \. \! \^ ]> | <''> ]
-    <ident>
+token lit_code {
+    { die "TODO - Lit::Code" }
+}
+
+token lit_object {
+    <'::'>
+    $<class> := <ident>
+    \( <?ws>? $<fields> := <exp_mapping> <?ws>? \)
     {
-        return Var({
-            sigil  => ~$<sigil>,
-            twigil => ~$<twigil>,
-            name   => ~$<ident>,
+        return Lit::Object({
+            :$$<class>,
+            :$$<fields>,
         })
     }
 }
