@@ -1,4 +1,4 @@
-﻿package Pugs::Grammar::Perl6;
+﻿package MiniPerl6::Grammar::Perl6;
 use strict;
 use warnings;
 use base qw(Pugs::Grammar::BaseCategory);
@@ -13,8 +13,8 @@ use Pugs::Grammar::P6Rule;
 use Data::Dumper;
 
 *perl6_expression_or_null = Pugs::Compiler::Token->compile( q(
-    <Pugs::Grammar::Expression.parse('no_blocks',1)> 
-        { return $_[0]{'Pugs::Grammar::Expression.parse'}->() }
+    <Pugs::Grammar::Term.parse('no_blocks',1)> 
+        { return $_[0]{'Pugs::Grammar::Term.parse'}->() }
     |
         { return { null => 1, } }
 ),

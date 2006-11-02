@@ -1,4 +1,4 @@
-﻿package Pugs::Grammar::StatementControl;
+﻿package MiniPerl6::Grammar::StatementControl;
 use strict;
 use warnings;
 use base qw(Pugs::Grammar::BaseCategory);

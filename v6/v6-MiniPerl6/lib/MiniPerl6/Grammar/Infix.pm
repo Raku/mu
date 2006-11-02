@@ -1,4 +1,4 @@
-﻿package Pugs::Grammar::Infix;
+﻿package MiniPerl6::Grammar::Infix;
 use strict;
 use warnings;
 use Pugs::Grammar::Operator;

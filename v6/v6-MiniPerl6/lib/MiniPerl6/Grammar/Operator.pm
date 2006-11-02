@@ -1,4 +1,4 @@
-﻿package Pugs::Grammar::Operator;
+﻿package MiniPerl6::Grammar::Operator;
 use strict;
 use warnings;
 use base qw(Pugs::Grammar::BaseCategory);

@@ -1,4 +1,4 @@
-﻿package Pugs::Grammar::Circumfix;
+﻿package MiniPerl6::Grammar::Circumfix;
 use strict;
 use warnings;
 use Pugs::Grammar::Operator;

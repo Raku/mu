@@ -1,4 +1,4 @@
-﻿package Pugs::Grammar::Postfix;
+﻿package MiniPerl6::Grammar::Postfix;
 use strict;
 use warnings;
 use Pugs::Grammar::Operator;

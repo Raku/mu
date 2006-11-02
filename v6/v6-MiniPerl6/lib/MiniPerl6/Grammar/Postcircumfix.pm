@@ -1,4 +1,4 @@
-﻿package Pugs::Grammar::Postcircumfix;
+﻿package MiniPerl6::Grammar::Postcircumfix;
 use strict;
 use warnings;
 use Pugs::Grammar::Operator;

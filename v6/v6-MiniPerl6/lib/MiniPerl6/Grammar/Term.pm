@@ -1,4 +1,4 @@
-﻿package Pugs::Grammar::Term;
+﻿package MiniPerl6::Grammar::Term;
 use strict;
 use warnings;
 use base qw(Pugs::Grammar::BaseCategory);

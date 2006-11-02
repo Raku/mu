@@ -1,4 +1,4 @@
-﻿package Pugs::Grammar::Ternary;
+﻿package MiniPerl6::Grammar::Ternary;
 use strict;
 use warnings;
 #use base qw(Pugs::Grammar::Operator);

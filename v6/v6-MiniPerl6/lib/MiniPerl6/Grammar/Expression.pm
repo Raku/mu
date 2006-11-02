@@ -1,4 +1,8 @@
-package Pugs::Grammar::Expression;
+package MiniPerl6::Grammar::Expression;
+
+1;
+
+__END__
 
 use strict;
 use warnings;

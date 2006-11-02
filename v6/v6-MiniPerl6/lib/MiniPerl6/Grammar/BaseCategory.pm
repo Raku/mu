@@ -1,4 +1,4 @@
-﻿package Pugs::Grammar::BaseCategory;
+﻿package MiniPerl6::Grammar::BaseCategory;
 use strict;
 use warnings;
 use Pugs::Compiler::Regex;

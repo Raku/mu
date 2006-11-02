@@ -1,4 +1,4 @@
-﻿package Pugs::Grammar::Prefix;
+﻿package MiniPerl6::Grammar::Prefix;
 use strict;
 use warnings;
 use Pugs::Grammar::Operator;

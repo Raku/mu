@@ -1,4 +1,4 @@
-package  Pugs::Grammar::P6Rule;
+package  MiniPerl6::Grammar::P6Rule;
 use strict;
 use warnings;
 
