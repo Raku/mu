@@ -19,12 +19,22 @@ sub id { 'I' . ($count++) }
 # Calling convention:  
 # $grammar.$rule({ str => '...', pos => $pos, other_arg => $x })
 
+=for global vars
+
+    class Grammar::Base {
+        my $.PRIOR;
+    }
+
+    Grammar::Base.PRIOR := $rule;
+
+=cut
+
 sub call_subrule {
     my ( $subrule, $tab, @param ) = @_;
     $subrule = "\$grammar." . $subrule 
         unless $subrule =~ / :: | \. | -> /x;
     return 
-"$tab     $subrule( { str => \$str, pos => \$pos, " .
+"$tab     $subrule( { str => \$str, pos => \$m.to, " .
              join(", ",@param) . 
          " }, undef )";
 }
@@ -51,7 +61,7 @@ sub call_constant {
     #print "Const: [$_[0]] $const $len \n";    
     return
 "$_[1] ( ( substr( \$str, \$m.to, $len ) eq $const ) 
-$_[1]     ? ( (\$m.to := ( \$m.to $direction $len )) or 1 )
+$_[1]     ? ( (\$m.to := ( \$m.to $direction $len ) or 1 )
 $_[1]     : 0
 $_[1] )";
 }
@@ -60,8 +70,8 @@ sub call_perl5 {
     my $const = $_[0];
     #print "CONST: $const - $direction \n";
     return
-"$_[1] ( ( substr( \$str, \$m.to ) =~ m/^($const)/ )  
-$_[1]     ? ( \$m.to( \$m.to $direction length( \$1 ) ) or 1 )
+"$_[1] ( ( substr( \$str, \$m.to ) =~ m:P5/^($const)/ )  
+$_[1]     ? ( \$m.to := \$m.to $direction length( \$1 ) or 1 )
 $_[1]     : 0
 $_[1] )";
 }
@@ -75,40 +85,39 @@ sub emit {
     local $capture_to_array = 0;
     #print "rule: ", Dumper( $ast );
     return 
-        'do { my \$rule; \$rule = method ($grammar: {:$str, :$pos, :$continue, :$KEY}) {
- '. 
- " my \%pad;\n" .
-"  my \$m;
-  for my \$pos ( defined \$pos_param && ! \$continue
-        ? \$pos_param 
-        : ( ( \$pos_param || 0 ) .. length( \$str ) ) ) {
-    my \%index; 
-    my \@match;
+        'do { my $rule; $rule = method ($grammar: {:$str, :$pos, :$continue, :$KEY}) {' . 
+"
+  my \$m;
+  for ( defined \$pos && ! \$continue
+        ? \$pos 
+        : ( ( \$pos || 0 ) .. length( \$str ) ) 
+      ) -> \$pos1 {
+    my \%pad;
     my \%named;
-    my \$bool := 1;
-    \$named{KEY} := \$KEY if exists \$KEY;
+    \%named{KEY} := \$KEY 
+        if defined \$KEY;
     \$m := Pugs::Runtime::Match( { 
-      str => \$s, from => (0+\$pos), to => \$pos, 
-      bool => \$bool, match => \@match, named => \%named, capture => undef, 
+      str => \$str, from => (0+\$pos1), to => \$pos1, 
+      bool => 1, match => [], named => \%named, capture => undef, 
     } );
     {
-      my \$prior := \$::_V6_PRIOR_;
-      temp \$::_V6_PRIOR_ := \$prior; 
-      \$bool := 0 unless
+      my \$prior := Grammar::Base.PRIOR;
+      temp Grammar::Base.PRIOR := \$prior; 
+      \$m.bool := 0 unless
 " .
         #"      do { TAILCALL: ;\n" .
         emit_rule( $ast, '    ' ) . ";
     }
     if ( \$m.bool ) {
-      my \$prior := \$::_V6_PRIOR_;
-      \$::_V6_PRIOR_ := sub { 
-        temp \$main::_V6_PRIOR_ := \$prior; 
+      my \$prior := Grammar::Base.PRIOR;
+      Grammar::Base.PRIOR := sub { 
+        temp Grammar::Base.PRIOR := \$prior; 
         \$rule.(\@_);
       };
       last;
     }
   } # /for
-  \$::_V6_MATCH_ = \$m;
+  #\$::_V6_MATCH_ = \$m;   # caller side?
   return \$m;
 } }
 ";
@@ -165,15 +174,15 @@ sub quant {
     # TODO: quantifier + capture creates Array
     return 
         "$_[1] (\n$rul\n" .
-        "$_[1] || ( \$bool = 1 )\n" .
+        "$_[1] || ( \$m.bool = 1 )\n" .
         "$_[1] ) $ws3"
         if $quantifier eq '?';
     return 
-        "$_[1] do { while (\n$rul) {}; \$bool := 1 }$ws3"
+        "$_[1] do { while (\n$rul) {}; \$m.bool := 1 }$ws3"
         if $quantifier eq '*';
     return
         "$_[1] (\n$rul\n" .
-        "$_[1] && do { while (\n$rul) {}; \$bool := 1 }\n" .
+        "$_[1] && do { while (\n$rul) {}; \$m.bool := 1 }\n" .
         "$_[1] ) $ws3"
         if $quantifier eq '+';
     die "quantifier not implemented: $quantifier";
@@ -196,12 +205,12 @@ sub alt {
     # print " max = $capture_count\n";
     return 
         "$_[1] (
-$_[1]     ( \$pad{$id} := \$pos or 1 ) 
+$_[1]     ( \$pad{$id} := \$m.to or 1 ) 
 $_[1]     && (
 " . join( "
 $_[1]     ) 
 $_[1]   || ( 
-$_[1]     ( ( \$bool := 1 ) && ( \$pos := \$pad{$id} ) or 1 ) 
+$_[1]     ( ( \$m.bool := 1 ) && ( \$m.to := \$pad{$id} ) or 1 ) 
 $_[1]     && ", 
           @s 
     ) . "
@@ -226,12 +235,12 @@ sub conjunctive {
     # print " max = $capture_count\n";
     return 
         "$_[1] (
-$_[1]     ( \$pad{$id} := \$pos or 1 ) 
+$_[1]     ( \$pad{$id} := \$m.to or 1 ) 
 $_[1]     && (
 " . join( "
 $_[1]     ) 
 $_[1]   && ( 
-$_[1]     ( ( \$bool := 1 ) && ( \$pos := \$pad{$id} ) or 1 ) 
+$_[1]     ( ( \$m.bool := 1 ) && ( \$m.to := \$pad{$id} ) or 1 ) 
 $_[1]     && ", 
           @s 
     ) . "
@@ -278,7 +287,7 @@ sub code {
     return "$_[1] $_[0]\n";  
 }        
 sub dot {
-    "$_[1] ( substr( \$s, \$pos$direction$direction, 1 ) ne '' )"
+    "$_[1] ( substr( \$s, \$m.to$direction$direction, 1 ) ne '' )"
 }
 
 sub variable {
@@ -331,8 +340,8 @@ sub variable {
             "my \$match := 0;
             my \$key;
             for ( \@". $id ."_sizes ) {
-                \$key := ( \$pos <= length( \$s ) 
-                            ? substr( \$s, \$pos, \$_ )
+                \$key := ( \$m.to <= length( \$s ) 
+                            ? substr( \$s, \$m.to, \$_ )
                             : '' );
                 " . #print \"try ".$name." \$_ = \$key; \$s\\\n\";
                 "if ( exists ". $id .".{\$key} ) {
@@ -340,17 +349,17 @@ sub variable {
                     #\$::_V6_MATCH_ = \$m; 
                     #print \"m: \", Dumper( \$::_V6_MATCH_.data )
                     #    if ( \$key eq 'until' );
-                    " . #print \"* ".$name."\{'\$key\'} at \$pos \\\n\";
-                    "\$match = $preprocess_hash( $id, \$key ).( \$s, \$grammar, { p => ( \$pos + \$_ ), args => { KEY => \$key } }, undef );
+                    " . #print \"* ".$name."\{'\$key\'} at \$m.to \\\n\";
+                    "\$match = $preprocess_hash( $id, \$key ).( \$s, \$grammar, { p => ( \$m.to + \$_ ), args => { KEY => \$key } }, undef );
                     " . #print \"match: \", Dumper( \$match.data );
                     "last if \$match;
                 }
             }
             if ( \$match ) {
-                \$pos = \$match.to;
-                #print \"match: \$key at \$pos = \", Dumper( \$match.data );
-                \$bool = 1;
-            }; # else { \$bool = 0 }
+                \$m.to = \$match.to;
+                #print \"match: \$key at \$m.to = \", Dumper( \$match.data );
+                \$match.bool = 1;
+            }; 
             \$match;
           }";
         #print $code;
@@ -397,10 +406,10 @@ sub closure {
                 "do { 
                     \$::_V6_MATCH_ := \$m; 
                     temp \$::_V6_SUCCEED = 1;
-                    \$m.data.{capture} := \\( sub $perl5.() );
-                    \$bool := \$::_V6_SUCCEED;
-                    \$::_V6_MATCH_ := \$m if \$bool; 
-                    return \$m if \$bool;
+                    \$m.capture := \\( sub $perl5.() );
+                    \$m.bool := \$::_V6_SUCCEED;
+                    \$::_V6_MATCH_ := \$m if \$m.bool; 
+                    return \$m if \$m.bool;
                 }" if $perl5 =~ /return/;
             return 
                 "do { 
@@ -441,10 +450,10 @@ sub closure {
         "$_[1] do { \n" .
         "$_[1]   local \$::_V6_SUCCEED := 1;\n" .
         "$_[1]   \$::_V6_MATCH_ := \$m;\n" .
-        "$_[1]   \$m.data.{capture} := \\( sub $code.( \$m ) ); \n" .
-        "$_[1]   \$bool := \$::_V6_SUCCEED;\n" .
-        "$_[1]   \$::_V6_MATCH_ := \$m if \$bool; \n" .
-        "$_[1]   return \$m if \$bool; \n" .
+        "$_[1]   \$m.capture := \\( sub $code.( \$m ) ); \n" .
+        "$_[1]   \$m.bool := \$::_V6_SUCCEED;\n" .
+        "$_[1]   \$::_V6_MATCH_ := \$m if \$m.bool; \n" .
+        "$_[1]   return \$m if \$m.bool; \n" .
         "$_[1] }";
 
 }
@@ -462,14 +471,14 @@ sub capturing_group {
     return "$_[1] do{ 
 $_[1]     my \$hash := do {
 $_[1]       my \$bool := 1;
-$_[1]       my \$from := \$pos;
+$_[1]       my \$from := \$m.to;
 $_[1]       my \@match;
 $_[1]       my \%named;
 $_[1]       \$bool := 0 unless
 " .             $program . ";
-$_[1]       { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%named, bool => \\\$bool, to => \\(0+\$pos), capture => undef }
+$_[1]       { str => \$s, from => \$from, match => \@match, named => \%named, bool => \$bool, to => (0+\$m.to), capture => undef }
 $_[1]     };
-$_[1]     my \$bool = \$(\$hash.{'bool'});" .
+$_[1]     my \$bool = \$hash.{'bool'};" .
         ( $capture_to_array 
         ? "
 $_[1]     if ( \$bool ) {
@@ -495,15 +504,15 @@ sub capture_as_result {
     return "$_[1] do{ 
 $_[1]     my \$hash := do {
 $_[1]       my \$bool := 1;
-$_[1]       my \$from := \$pos;
+$_[1]       my \$from := \$m.to;
 $_[1]       my \@match;
 $_[1]       my \%named;
 $_[1]       \$bool := 0 unless
 " .             $program . ";
-$_[1]       { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%named, bool => \\\$bool, to => \\(0+\$pos), capture => undef }
+$_[1]       { str => \$s, from => \$from, match => \@match, named => \%named, bool => \$bool, to => (0+\$m.to), capture => undef }
 $_[1]     };
-$_[1]     my \$bool := \$(\$hash.{'bool'});
-$_[1]     \$m.data.{capture} := \\( \"\" . Pugs::Runtime::Match( \$hash ) );
+$_[1]     my \$bool := \$hash.{'bool'};
+$_[1]     \$m.capture := ~Pugs::Runtime::Match( \$hash );
 $_[1]     \$bool;
 $_[1] }";
 }        
@@ -533,10 +542,10 @@ sub named_capture {
                 \$::_V6_PRIOR_ := \$prior; 
                 if ( \$match ) {" .
                     ( $capture_to_array 
-                    ? " push \@{\$named{'$name'}}, \$match;" 
+                    ? " push \@(\$named{'$name'}), \$match;" 
                     : " \$named{'$name'} := \$match;"
                     ) . "
-                    \$pos := \$match.to; 
+                    \$m.to := \$match.to; 
                     1 
                 } 
                 else { 0 }
@@ -554,19 +563,19 @@ sub named_capture {
         return "$_[1] do{ 
                 my \$match := Pugs::Runtime::Match( do {
                     my \$bool := 1;
-                    my \$from := \$pos;
+                    my \$from := \$m.to;
                     my \@match;
                     my \%named;
                     \$bool := 0 unless " .
                     $program . ";
-                    { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%named, bool => \\\$bool, to => \\(0+\$pos), capture => undef }
+                    { str => \$s, from => \$from, match => \@match, named => \%named, bool => \$bool, to => (0+\$m.to), capture => undef }
                 } );
                 if ( \$match ) {" .
                     ( $capture_to_array 
                     ? " push \@(\$named{'$name'}), \$match;" 
                     : " \$named{'$name'} := \$match;"
                     ) . "
-                    \$pos := \$match.to; 
+                    \$m.to := \$match.to; 
                     1 
                 } 
                 else { 0 }
@@ -578,10 +587,10 @@ sub named_capture {
         #print Dumper( $_[0] );
         $program = emit_rule( $program, $_[1].'      ' );
         return "$_[1] do{ 
-                my \$from := \$pos;
+                my \$from := \$m.to;
                 my \$bool := $program;
                 my \$match := Pugs::Runtime::Match( 
-                    { str => \\\$s, from => \\\$from, match => [], named => {}, bool => \\1, to => \\(0+\$pos), capture => undef }
+                    { str => \$s, from => \$from, match => [], named => {}, bool => 1, to => (0+\$m.to), capture => undef }
                 );" .
                 ( $capture_to_array 
                 ? " push \@(\$named{'$name'}), \$match;" 
@@ -597,7 +606,7 @@ sub negate {
     $program = emit_rule( $program, $_[1].'        ' )
         if ref( $program );
     return "$_[1] do{ 
-$_[1]     my \$pos1 := \$pos;
+$_[1]     my \$pos1 := \$m.to;
 $_[1]     do {
 $_[1]       my \$pos := \$pos1;
 $_[1]       my \$from := \$pos;
@@ -613,7 +622,7 @@ sub before {
     $program = emit_rule( $program, $_[1].'        ' )
         if ref( $program );
     return "$_[1] do{ 
-$_[1]     my \$pos1 := \$pos;
+$_[1]     my \$pos1 := \$m.to;
 $_[1]     do {
 $_[1]       my \$pos := \$pos1;
 $_[1]       my \$from := \$pos;
@@ -630,7 +639,7 @@ sub not_before {
     $program = emit_rule( $program, $_[1].'        ' )
         if ref( $program );
     return "$_[1] do{ 
-$_[1]     my \$pos1 := \$pos;
+$_[1]     my \$pos1 := \$m.to;
 $_[1]     do {
 $_[1]       my \$pos := \$pos1;
 $_[1]       my \$from := \$pos;
@@ -649,7 +658,7 @@ sub after {
     $program = emit_rule( $program, $_[1].'        ' )
         if ref( $program );
     return "$_[1] do{ 
-$_[1]     my \$pos1 := \$pos;
+$_[1]     my \$pos1 := \$m.to;
 $_[1]     do {
 $_[1]       my \$pos := \$pos1 - 1;
 $_[1]       my \$from := \$pos;
@@ -669,14 +678,14 @@ sub colon {
     my $str = $_[0];
     return "$_[1] 1 # : no-op\n"
         if $str eq ':';
-    return "$_[1] ( \$pos >= length( \$s ) ) \n" 
+    return "$_[1] ( \$m.to >= length( \$s ) ) \n" 
         if $str eq '$';
-    return "$_[1] ( \$pos == 0 ) \n" 
+    return "$_[1] ( \$m.to == 0 ) \n" 
         if $str eq '^';
         
-    return "$_[1] ( \$pos >= length( \$s ) || substr( \$s, \$pos ) =~ /^(?:\n\r?|\r\n?)/m ) \n" 
+    return "$_[1] ( \$m.to >= length( \$s ) || substr( \$s, \$m.to ) =~ /^(?:\n\r?|\r\n?)/m ) \n" 
         if $str eq '$$';
-    return "$_[1] ( \$pos == 0 || substr( \$s, 0, \$pos ) =~ /(?:\n\r?|\r\n?)\$/m ) \n" 
+    return "$_[1] ( \$m.to == 0 || substr( \$s, 0, \$m.to ) =~ /(?:\n\r?|\r\n?)\$/m ) \n" 
         if $str eq '^^';
 
     return metasyntax( '?_wb_left', $_[1] )
@@ -716,7 +725,7 @@ sub metasyntax {
             "$_[1] do {
                 my \$match; 
                 for my \$subrule ( $cmd ) { 
-                    \$match := \$subrule.match( \$str, \$grammar, { pos => ( \$pos ), args => {} }, undef );
+                    \$match := \$subrule.match( \$str, \$grammar, { pos => ( \$m.to ), args => {} }, undef );
                     last if \$match; 
                 }
                 if ( \$match ) {" .
@@ -724,7 +733,7 @@ sub metasyntax {
                     ? " push \@(\$named{'$name'}), \$match;" 
                     : " \$named{'$name'} := \$match;"
                     ) . "
-                    \$pos := \$match.to; 
+                    \$m.to := \$match.to; 
                     1 
                 } 
                 else { 0 }
@@ -743,7 +752,7 @@ sub metasyntax {
                     ? " push \@{\$named{'$name'}}, \$match;" 
                     : " \$named{'$name'} := \$match;"
                     ) . "
-                    \$pos := \$match.to; 
+                    \$m.to := \$match.to; 
                     1 
                 } 
                 else { 0 }
@@ -758,19 +767,18 @@ sub metasyntax {
             return 
                 "$_[1]         do {\n" .
                 "$_[1]           push \@match,\n" . 
-                "$_[1]             $cmd.match( \$str, \$grammar, {pod => \$pos}, undef );\n" .
-                "$_[1]           \$pos := \$match[-1].to;\n" .
+                "$_[1]             $cmd.match( \$str, \$grammar, {pod => \$m.to}, undef );\n" .
+                "$_[1]           \$m.to := \$match[-1].to;\n" .
                 "$_[1]           !\$match[-1] != 1;\n" .
                 "$_[1]         }"
         }
         # call method in lexical $var
-        # TODO - send $pos to subrule
         return 
                 "$_[1]         do {\n" .
-                "$_[1]           my \$r := Pugs::Runtime::Regex::get_variable( '$cmd' );\n" . 
+                "$_[1]           my \$r := $cmd;\n" . 
                 "$_[1]           push \@match,\n" . 
-                "$_[1]             \$r.match( \$str, \$grammar, {pos => \$pos}, undef );\n" .
-                "$_[1]           \$pos := \$match[-1].to;\n" .
+                "$_[1]             \$r.match( \$str, \$grammar, {pos => \$m.to}, undef );\n" .
+                "$_[1]           \$m.to := \$match[-1].to;\n" .
                 "$_[1]           !\$match[-1] != 1;\n" .
                 "$_[1]         }"
     }
@@ -814,7 +822,7 @@ $_[1]      my \$match := \n" .
                call_subrule( $subrule, $_[1]."        ", @param ) . ";
 $_[1]      \$::_V6_PRIOR_ := \$prior; 
 $_[1]      my \$bool := (!\$match != 1);
-$_[1]      \$pos := \$match.to if \$bool;
+$_[1]      \$m.to := \$match.to if \$bool;
 $_[1]      \$match;
 $_[1] }";
     }
@@ -836,7 +844,7 @@ $_[1] }";
 
         if ( $subrule eq 'at' ) {
             $param_list ||= 0;   # XXX compile-time only
-            return "$_[1] ( \$pos == $param_list )\n"
+            return "$_[1] ( \$m.to == $param_list )\n"
         }
 
         return named_capture(
