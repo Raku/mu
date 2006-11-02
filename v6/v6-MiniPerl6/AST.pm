@@ -11,7 +11,23 @@ class CompUnit {
     has $.body          is Lit::Code;               # body of code
 }
 
-subset Exp of (Var | Val | Lit | Bind | Call | Apply | Return | Leave | If | When | For | While );
+subset Exp of
+    ( Var       # $variable
+    | Val       # "value"
+    | Lit       # [literal construct]
+    | Bind      # $lhs := $rhs
+    | Call      # $obj.method($arg1, $arg2)
+    | Apply     # $obj($arg1, $arg2)
+    | Index     # $obj[1, 2, 3]
+    | Lookup    # $obj{'1', '2', '3'}
+    | Return    # return 123;
+    | Leave     # last; break;
+    | If        # 1 ?? 2 !! 3
+    | When      # when 3 { ... }
+    | For       # $x.map(-> $i {...})
+    | While     # while ... { ... }
+    );
+
 subset ID of Str;
 subset Type of Str;
 
@@ -31,7 +47,7 @@ class When {
 
 class For {
     has $.cond          is Exp;
-    has @.topics        is Seq of Var;
+    has $.topic         is Var;
     has @.body          is Seq of Exp;
 }
 
