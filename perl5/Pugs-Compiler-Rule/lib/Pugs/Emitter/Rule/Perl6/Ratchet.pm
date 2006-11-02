@@ -117,7 +117,7 @@ sub emit {
       last;
     }
   } # /for
-  #\$::_V6_MATCH_ = \$m;   # caller side?
+  # Grammar::Base.MATCH := \$m;   # this must be set in the caller side
   return \$m;
 } }
 ";
@@ -205,12 +205,12 @@ sub alt {
     # print " max = $capture_count\n";
     return 
         "$_[1] (
-$_[1]     ( \$pad{$id} := \$m.to or 1 ) 
+$_[1]     ( \%pad{$id} := \$m.to or 1 ) 
 $_[1]     && (
 " . join( "
 $_[1]     ) 
 $_[1]   || ( 
-$_[1]     ( ( \$m.bool := 1 ) && ( \$m.to := \$pad{$id} ) or 1 ) 
+$_[1]     ( ( \$m.bool := 1 ) && ( \$m.to := \%pad{$id} ) or 1 ) 
 $_[1]     && ", 
           @s 
     ) . "
@@ -235,12 +235,12 @@ sub conjunctive {
     # print " max = $capture_count\n";
     return 
         "$_[1] (
-$_[1]     ( \$pad{$id} := \$m.to or 1 ) 
+$_[1]     ( \%pad{$id} := \$m.to or 1 ) 
 $_[1]     && (
 " . join( "
 $_[1]     ) 
 $_[1]   && ( 
-$_[1]     ( ( \$m.bool := 1 ) && ( \$m.to := \$pad{$id} ) or 1 ) 
+$_[1]     ( ( \$m.bool := 1 ) && ( \$m.to := \%pad{$id} ) or 1 ) 
 $_[1]     && ", 
           @s 
     ) . "
@@ -325,40 +325,35 @@ sub variable {
             state $id;
             state ${id}_sizes;
             unless ( $id ) {
-                my \$hash := " . 
-                ( $name =~ /::/ 
-                    ? "\\$name" 
-                    : "Pugs::Runtime::Regex::get_variable( '$name' )"
-                ) . 
-                ";
-                my \%sizes := map { length(\$_) => 1 } keys \%\$hash;
-                ${id}_sizes := [ sort { \$b <=> \$a } keys \%sizes ];
+                my \$hash := $name;
+                my \%sizes := \%\$hash.keys.map:{ .length => 1 };
+                ${id}_sizes := [ \%sizes.keys.sort:{ \$^b <=> \$^a } ];
                 " . #print \"sizes: \@${id}_sizes\\n\";
                 "$id = \$hash;
             }
             " . #print 'keys: ',Dumper( $id );
             "my \$match := 0;
             my \$key;
-            for ( \@". $id ."_sizes ) {
+            for \@". $id ."_sizes {
                 \$key := ( \$m.to <= length( \$s ) 
                             ? substr( \$s, \$m.to, \$_ )
                             : '' );
                 " . #print \"try ".$name." \$_ = \$key; \$s\\\n\";
-                "if ( exists ". $id .".{\$key} ) {
-                    #\$named{KEY} = \$key;
-                    #\$::_V6_MATCH_ = \$m; 
-                    #print \"m: \", Dumper( \$::_V6_MATCH_.data )
+                "if ( %". $id .".exists( \$key ) ) {
+                    " . #\$named{KEY} = \$key;
+                    #Grammar::Base.MATCH := \$m; 
+                    #print \"m: \", Dumper( Grammar::Base.MATCH )
                     #    if ( \$key eq 'until' );
-                    " . #print \"* ".$name."\{'\$key\'} at \$m.to \\\n\";
-                    "\$match = $preprocess_hash( $id, \$key ).( \$s, \$grammar, { p => ( \$m.to + \$_ ), args => { KEY => \$key } }, undef );
+                    #print \"* ".$name."\{'\$key\'} at \$m.to \\\n\";
+                    "\$match = $preprocess_hash( $id, \$key ).({ str => \$str, grammar => \$grammar, pos => ( \$m.to + \$_ ), KEY => \$key });
                     " . #print \"match: \", Dumper( \$match.data );
                     "last if \$match;
                 }
             }
             if ( \$match ) {
                 \$m.to = \$match.to;
-                #print \"match: \$key at \$m.to = \", Dumper( \$match.data );
-                \$match.bool = 1;
+                " . #print \"match: \$key at \$m.to = \", Dumper( \$match.data );
+                "\$match.bool = 1;
             }; 
             \$match;
           }";
@@ -404,55 +399,42 @@ sub closure {
             my $perl5 = Pugs::Emitter::Perl6::Perl5::emit( 'grammar', $code, 'self' );
             return 
                 "do { 
-                    \$::_V6_MATCH_ := \$m; 
-                    temp \$::_V6_SUCCEED = 1;
-                    \$m.capture := \\( sub $perl5.() );
-                    \$m.bool := \$::_V6_SUCCEED;
-                    \$::_V6_MATCH_ := \$m if \$m.bool; 
+                    temp Grammar::Base.MATCH   := \$m; 
+                    temp Grammar::Base.SUCCEED := 1;
+                    \$m.capture := sub $perl5.();
+                    \$m.bool := Grammar::Base.SUCCEED;
+                    Grammar::Base.MATCH := \$m if \$m.bool; 
                     return \$m if \$m.bool;
                 }" if $perl5 =~ /return/;
             return 
                 "do { 
-                    \$::_V6_MATCH_ := \$m; 
-                    temp \$::_V6_SUCCEED := 1;
+                    Grammar::Base.MATCH := \$m; 
+                    temp Grammar::Base.SUCCEED := 1;
                     sub $perl5.();
-                    \$::_V6_SUCCEED;
+                    Grammar::Base.SUCCEED;
                 }";
         }        
     }
 
     #print " perl6 compiler is NOT loaded \n";
-            
-    # XXX XXX XXX - source-filter - temporary hacks to translate p6 to p5
-    # $()<name>
-    $code =~ s/ ([^']) \$ \( \) < (.*?) > /$1\$_[0]->[$2]/sgx;
-    # $<name>
-    $code =~ s/ ([^']) \$ < (.*?) > /$1\$_[0]->{named}->{$2}/sgx;
-    # $()
-    $code =~ s/ ([^']) \$ \( \) /$1\$_[0]->()/sgx;
-    # $/
-    $code =~ s/ ([^']) \$ \/ /$1\$_[0]/sgx;
-    
-    $code =~ s/ use \s+ v6 \s* ; / # use v6\n/sgx;
-
     #print "Code: $code\n";
     
     return 
         "$_[1] do {\n" .
-        "$_[1]   local \$::_V6_SUCCEED := 1;\n" .
-        "$_[1]   \$::_V6_MATCH_ := \$m;\n" .
+        "$_[1]   local Grammar::Base.SUCCEED := 1;\n" .
+        "$_[1]   Grammar::Base.MATCH := \$m;\n" .
         "$_[1]   sub $code.( \$m );\n" .
-        "$_[1]   \$::_V6_SUCCEED;\n" .
+        "$_[1]   Grammar::Base.SUCCEED;\n" .
         "$_[1] }" 
         unless $code =~ /return/;
         
     return
         "$_[1] do { \n" .
-        "$_[1]   local \$::_V6_SUCCEED := 1;\n" .
-        "$_[1]   \$::_V6_MATCH_ := \$m;\n" .
+        "$_[1]   local Grammar::Base.SUCCEED := 1;\n" .
+        "$_[1]   Grammar::Base.MATCH := \$m;\n" .
         "$_[1]   \$m.capture := \\( sub $code.( \$m ) ); \n" .
-        "$_[1]   \$m.bool := \$::_V6_SUCCEED;\n" .
-        "$_[1]   \$::_V6_MATCH_ := \$m if \$m.bool; \n" .
+        "$_[1]   \$m.bool := Grammar::Base.SUCCEED;\n" .
+        "$_[1]   Grammar::Base.MATCH := \$m if \$m.bool; \n" .
         "$_[1]   return \$m if \$m.bool; \n" .
         "$_[1] }";
 
@@ -817,10 +799,10 @@ sub metasyntax {
         my $subrule = $cmd;
         return
 "$_[1] do { 
-$_[1]      my \$prior := \$::_V6_PRIOR_; 
+$_[1]      my \$prior := Grammar::Base.PRIOR; 
 $_[1]      my \$match := \n" . 
                call_subrule( $subrule, $_[1]."        ", @param ) . ";
-$_[1]      \$::_V6_PRIOR_ := \$prior; 
+$_[1]      Grammar::Base.PRIOR := \$prior; 
 $_[1]      my \$bool := (!\$match != 1);
 $_[1]      \$m.to := \$match.to if \$bool;
 $_[1]      \$match;

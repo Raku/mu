@@ -25,7 +25,7 @@ sub compile {
                 $self->{grammar}, $ast, $self );
         
     print "rule perl5: \n\n", $self->{perl5}, "\n";
-    return '';  #Pugs::Compiler::RegexPerl5->compile( $self->{perl5} );
+    return Pugs::Compiler::RegexPerl5->compile( '' );
 }
 
 {
@@ -120,52 +120,6 @@ sub compile {
     }
 }
 
-# <TimToady> ?eval "a\nb" ~~ /^a$$.^^b$/
-# "a\nb" ~~ m:P5/(?smx) \A a $ . ^ b \z/
-
-{
-    my $rule = __PACKAGE__->compile( '^a$$.^^b$' );
-    my $match = $rule->match( "a\nb" );
-    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    #print "Match: ", do{use Data::Dumper; Dumper($match)};
-    is( $match?1:0, 1, 'booleanify' );
-    is( "$match", "a\nb", 'stringify ^a$$.^^b$' );
-}
-
-{
-    my $rule = __PACKAGE__->compile( '^a$$\n^^b$' );
-    my $match = $rule->match( "a\nb" );
-    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    #print "Match: ", do{use Data::Dumper; Dumper($match)};
-    is( $match?1:0, 1, 'booleanify' );
-    is( "$match", "a\nb", 'stringify ^a$$\n^^b$' );
-}
-
-{
-    my $rule = __PACKAGE__->compile( '^a\Nb$' );
-    my $match = $rule->match( "a\nb" );
-    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    #print "Match: ", do{use Data::Dumper; Dumper($match)};
-    is( $match?0:1, 1, 'booleanify \N, no-match' );
-}
-
-{
-    my $rule = __PACKAGE__->compile( '^a\Nb$' );
-    my $match = $rule->match( "axb" );
-    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    #print "Match: ", do{use Data::Dumper; Dumper($match)};
-    is( $match?1:0, 1, 'booleanify \N' );
-    is( "$match", "axb", 'stringify \N' );
-}
-
-{
-    my $rule = __PACKAGE__->compile( '[ab]+' );
-    my $match = $rule->match( "xxabababb" );
-    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    #print "Match: ", do{use Data::Dumper; Dumper($match)};
-    is( "$match", "ababab", 'stringify +' );
-}
-
 {
     my $rule = __PACKAGE__->compile( q( <'[ab]+$a@b\'"%c/'> \$ x / \\\\ \\/ \. ) );
     my $match = $rule->match( q([ab]+$a@b'"%c/$x/\\/.) );
@@ -191,29 +145,10 @@ sub compile {
 }
 
 {
-    my $rule = __PACKAGE__->compile( q( <-[abc]> x ) );
+    my $rule = __PACKAGE__->compile( q( <%abc> x ) );
     my $match = $rule->match( q(zx) );
     #print "Source: ", $rule->{perl5};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", q(zx), 'stringify negated char class' );
 }
 
-{
-    # quantified captures not implemented
-    # dies_ok( __PACKAGE__->compile( '[a(b)]+' ) );
-;}
-
-{
-    # named captures not implemented
-    # dies_ok( __PACKAGE__->compile( '<alpha>' ) );
-;}
-
-{
-    # nested captures not implemented
-    # dies_ok( __PACKAGE__->compile( '(a(b))' ) );
-;}
-
-{
-    # set operations not implemented
-    # dies_ok( __PACKAGE__->compile( '<[<alpha>]-[abc]>' ) );
-;}
