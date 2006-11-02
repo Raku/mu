@@ -4,6 +4,7 @@ grammar MiniPerl6::Grammar;
 
 sub CompUnit($data) { use v5; bless $data, 'CompUnit'; use v6; }
 sub Var($data)      { use v5; bless $data, 'Var';      use v6; }
+sub Apply($data)    { use v5; bless $data, 'Apply';    use v6; }
 sub array($data)    { use v5; @$data;                  use v6; }
 
 token comp_unit {
@@ -76,6 +77,16 @@ token var {
             sigil  => ~$<sigil>,
             twigil => ~$<twigil>,
             name   => ~$<ident>,
+        })
+    }
+}
+
+token apply {
+    <ident> \( <?ws>? <exp_seq> <?ws>? \)
+    {
+        return Apply({
+            code      => $$<ident>,
+            arguments => $$<exp_seq>,
         })
     }
 }
