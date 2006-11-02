@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 30 Oct 2006
+  Last Modified: 2 Nov 2006
   Number: 3
-  Version: 73
+  Version: 74
 
 =head1 Changes to Perl 5 operators
 
@@ -1645,7 +1645,8 @@ Perl 6 has 22 precedence levels (which is fewer than Perl 5):
     terms               42 3.14 "eek" qq["foo"] [1,2,3] {...} \(@a,$b,%c)
 			    $x @y %z /abc/ MyType @@multidim $^a
 			    (1+2) a(1) :by(2) :!verbose :(Dog $self:)
-			    .meth with implicit invocant
+			    .meth with implicit invocant $_
+			    .=meth with implicit invocant $_
 			    listops leftward
     method postfix      .meth .+ .? .* .() .[] .{} .<> .«» .:: .= .^
     autoincrement       ++ --
