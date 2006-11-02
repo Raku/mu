@@ -51,3 +51,18 @@ use Data::Dumper;
   my $p = MiniPerl6::Grammar->lit_object( '::Tree($a => $x, $b => $y)' );
   print Dumper( $$p );
 }
+
+{
+  my $p = MiniPerl6::Grammar->return( 'return $a' );
+  print Dumper( $$p );
+}
+
+{
+  my $p = MiniPerl6::Grammar->while( 'while $a { $b }' );
+  print Dumper( $$p );
+}
+
+{
+  my $p = MiniPerl6::Grammar->for( 'for $a -> $b { $b }' );
+  print Dumper( $$p );
+}

@@ -7,7 +7,12 @@ sub Var($data)       { use v5; bless $data, 'Var';       use v6; }
 sub Apply($data)     { use v5; bless $data, 'Apply';     use v6; }
 sub Call($data)      { use v5; bless $data, 'Call';      use v6; }
 sub Bind($data)      { use v5; bless $data, 'Bind';      use v6; }
+sub Return($data)    { use v5; bless $data, 'Return';    use v6; }
+sub While($data)     { use v5; bless $data, 'While';     use v6; }
+sub For($data)       { use v5; bless $data, 'For';       use v6; }
+
 sub Lit::Object($data) { use v5; bless $data, 'Lit::Object'; use v6; }
+sub Val::Undef($data)  { use v5; bless $data, 'Val::Undef';  use v6; }
 
 # XXX - move to v6.pm emitter
 sub array($data)    { use v5; @$data; use v6; }
@@ -51,6 +56,38 @@ token control {
     | $<exp> := <while>     # while ... { ... }
     ]
     { return $$<exp> }
+}
+
+=pod
+class If {
+    has $.cond          is Exp;
+    has @.body          is Seq of Exp;
+    has @.otherwise     is Seq of Exp;
+}
+
+class When {
+    has @.parameters    is Seq of Exp;
+    has @.body          is Seq of Exp;
+}
+
+=cut
+
+token for {
+    for <?ws> <exp> <?ws>? <'->'> <?ws>? <var> <?ws> \{ <?ws>? <exp_seq> <?ws>? \}
+    { return For({ cond => $$<exp>, topic => $$<var>, body => $$<exp_seq> }) }
+}
+
+token while {
+    while <?ws> <exp> <?ws> \{ <?ws>? <exp_seq> <?ws>? \}
+    { return While({ cond => $$<exp>, body => $$<exp_seq> }) }
+}
+
+token return {
+    return <?ws> <exp>
+    { return Return({ result => $$<exp> }) }
+    |
+    return 
+    { return Return({ result => Val::Undef({}) }) }
 }
 
 token var {
