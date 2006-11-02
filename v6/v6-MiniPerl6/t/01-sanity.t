@@ -31,3 +31,8 @@ use Data::Dumper;
   my $p = MiniPerl6::Grammar->call( '$obj.meth( $abc, $def, $xyz )' );
   print Dumper( $$p );
 }
+
+{
+  my $p = MiniPerl6::Grammar->bind( '$obj := $xyz' );
+  print Dumper( $$p );
+}

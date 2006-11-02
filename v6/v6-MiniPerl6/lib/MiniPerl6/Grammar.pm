@@ -6,6 +6,7 @@ sub CompUnit($data) { use v5; bless $data, 'CompUnit'; use v6; }
 sub Var($data)      { use v5; bless $data, 'Var';      use v6; }
 sub Apply($data)    { use v5; bless $data, 'Apply';    use v6; }
 sub Call($data)     { use v5; bless $data, 'Call';     use v6; }
+sub Bind($data)     { use v5; bless $data, 'Bind';     use v6; }
 sub array($data)    { use v5; @$data;                  use v6; }
 
 token comp_unit {
@@ -82,6 +83,17 @@ token var {
     }
 }
 
+token bind {
+    $<parameters> := <exp>
+    <?ws>? <':='> <?ws>?
+    $<arguments>  := <exp>
+    {
+        return Bind({
+            :$$<parameters>,
+            :$$<arguments>,
+        })
+    }
+}
 token call {
     $<invocant>  := <exp>
     \. $<method> := <ident> \( <?ws>? <exp_seq> <?ws>? \)
