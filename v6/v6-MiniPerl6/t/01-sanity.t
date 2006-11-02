@@ -26,3 +26,8 @@ use Data::Dumper;
   my $p = MiniPerl6::Grammar->apply( 'mysub( $abc, $def, $xyz )' );
   print Dumper( $$p );
 }
+
+{
+  my $p = MiniPerl6::Grammar->call( '$obj.meth( $abc, $def, $xyz )' );
+  print Dumper( $$p );
+}
