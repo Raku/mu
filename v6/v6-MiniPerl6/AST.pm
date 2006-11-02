@@ -11,7 +11,7 @@ class CompUnit {
     has $.body          is Lit::Code;               # body of code
 }
 
-subset Exp of (Var | Val | Lit | Bind | Call | Apply | Return | If | When | For );
+subset Exp of (Var | Val | Lit | Bind | Call | Apply | Return | Leave | If | When | For | While );
 subset ID of Str;
 subset Type of Str;
 
@@ -32,6 +32,11 @@ class When {
 class For {
     has $.cond          is Exp;
     has @.topics        is Seq of Var;
+    has @.body          is Seq of Exp;
+}
+
+class While {
+    has $.cond          is Exp;
     has @.body          is Seq of Exp;
 }
 
