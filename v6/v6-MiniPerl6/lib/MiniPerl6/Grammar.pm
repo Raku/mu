@@ -18,72 +18,102 @@ sub Lit::Object($data) { use v5; bless $data, 'Lit::Object'; use v6; }
 sub Val::Undef($data)  { use v5; bless $data, 'Val::Undef';  use v6; }
 sub Val::Int($data)    { use v5; bless $data, 'Val::Int';    use v6; }
 sub Val::Num($data)    { use v5; bless $data, 'Val::Num';    use v6; }
+sub Val::Buf($data)    { use v5; bless $data, 'Val::Buf';    use v6; }
 
 # XXX - move to v6.pm emitter
 sub array($data)    { use v5; @$data; use v6; }
 
 token comp_unit {
     <?ws>?
-    class <?ws>? <ident> \{
+    class <?ws>? <ident> <?ws>? \{
+        <?ws>?
+        <exp_stmts>
         <?ws>?
     \}
     <?ws>?
     {
         return CompUnit({
-            name => $<ident>,
-            attributes => {},
-            methods => {},
-            body => {},
+            name        => $$<ident>,
+            attributes  => {},
+            methods     => {},
+            body        => $$<exp_stmts>,
         })
     }
 }
 
 token exp {
-    [ $<exp> := <var>       # $variable
-    | $<exp> := <val>       # "value"
-    | $<exp> := <lit>       # [literal construct]
-    | $<exp> := <bind>      # $lhs := $rhs
-    | $<exp> := <index>     # $obj[1, 2, 3]
-    | $<exp> := <lookup>    # $obj{'1', '2', '3'}
-    | $<exp> := <control>   # Various control structures.  Does _not_ appear in binding LHS
+    <term> [
+        | <?ws>? <':='> <?ws>? <exp>
+        { return Bind({ parameters => $$<term>, arguments => $$<exp> }) }
+        | \. <ident>
+            [ \( <?ws>? <exp_seq> <?ws>? \)
+            | \: <?ws> <exp_seq> <?ws>?
+            ]
+            {
+                return Call({
+                    invocant  => $$<term>,
+                    method    => $$<ident>,
+                    arguments => $$<exp_seq>,
+                })
+            }
+        | { return $$<term> }
     ]
-    { return $$<exp> }
 }
 
+token term {
+    [ $<term> := <var>       # $variable
+    | $<term> := <val>       # "value"
+    | $<term> := <lit>       # [literal construct]
+#   | $<term> := <bind>      # $lhs := $rhs
+    | $<term> := <index>     # $obj[1, 2, 3]
+    | $<term> := <lookup>    # $obj{'1', '2', '3'}
+    | $<term> := <control>   # Various control structures.  Does _not_ appear in binding LHS
+    ]
+    { return $$<term> }
+}
+
+token index { XXX }
+token lookup { XXX }
+
 token control {
-    [ $<exp> := <call>      # $obj.method($arg1, $arg2)
-    | $<exp> := <apply>     # $obj($arg1, $arg2)
-    | $<exp> := <return>    # return 123;
+    [ $<exp> := <return>    # return 123;
     | $<exp> := <leave>     # last; break;
     | $<exp> := <if>        # 1 ?? 2 !! 3
     | $<exp> := <when>      # when 3 { ... }
     | $<exp> := <for>       # $x.map(-> $i {...})
     | $<exp> := <while>     # while ... { ... }
+    | $<exp> := <apply>     # $obj($arg1, $arg2)
+ #  | $<exp> := <call>      # $obj.method($arg1, $arg2)
     ]
     { return $$<exp> }
 }
 
 token if {
     if <?ws>  $<cond>      := <exp>     <?ws>?
-    \{ <?ws>? $<body>      := <exp_seq> <?ws>? \} <?ws>?
+    \{ <?ws>? $<body>      := <exp_stmts> <?ws>? \} <?ws>?
     else <?ws>? 
-    \{ <?ws>? $<otherwise> := <exp_seq> <?ws>? \}
+    \{ <?ws>? $<otherwise> := <exp_stmts> <?ws>? \}
     { return If({ :$$<cond>, :$$<body>, :$$<otherwise> }) }
 }
 
 token when {
-    when <?ws> $<parameters> := <exp_seq> <?ws>? \{ <?ws>? $<body> := <exp_seq> <?ws>? \}
+    when <?ws> $<parameters> := <exp_seq> <?ws>? \{ <?ws>? $<body> := <exp_stmts> <?ws>? \}
     { return When({ :$$<parameters>, :$$<body> }) }
 }
 
 token for {
-    for <?ws> <exp> <?ws>? <'->'> <?ws>? <var> <?ws> \{ <?ws>? <exp_seq> <?ws>? \}
-    { return For({ cond => $$<exp>, topic => $$<var>, body => $$<exp_seq> }) }
+    for <?ws> <exp> <?ws>? <'->'> <?ws>? <var> <?ws> \{ <?ws>? <exp_stmts> <?ws>? \}
+    { return For({ cond => $$<exp>, topic => $$<var>, body => $$<exp_stmts> }) }
 }
 
 token while {
-    while <?ws> <exp> <?ws> \{ <?ws>? <exp_seq> <?ws>? \}
-    { return While({ cond => $$<exp>, body => $$<exp_seq> }) }
+    while <?ws> <exp> <?ws> \{ <?ws>? <exp_stmts> <?ws>? \}
+    { return While({ cond => $$<exp>, body => $$<exp_stmts> }) }
+}
+
+token leave {
+    leave
+    { return Leave({}) }
 }
 
 token return {
@@ -118,9 +148,20 @@ token val {
     { return $$<exp> }
 }
 
+token val_bit {
+    | True \b { return Val::Bit( { bit => 0 } ) }
+    | False \b { return Val::Bit( { bit => 1 } ) }
+}
+
 token val_undef {
     undef
     { return Val::Undef({ undef => 1 }) }
+}
+
+token val_num {  XXX { return "TODO: val_num" } }
+token val_buf {
+    | \" (<-[\"]>+) \" { return Val::Buf( { buf => $$0 } ) }
+    | \' (<-[\']>+) \' { return Val::Buf( { buf => $$0 } ) }
 }
 
 token val_int {
@@ -128,13 +169,26 @@ token val_int {
     { return Val::Int( { int => ~$/ } ) }
 }
 
+token exp_stmts {
+    | <exp>
+        [
+        |   <?ws>? \; <?ws>? <exp_stmts>
+            <?ws>? [\; <?ws>?]?
+            { return [ $$<exp>, array( $$<exp_stmts> ) ] }
+        |   { return [ $$<exp> ] }
+        ]
+    | { return [] }
+}
+
 token exp_seq {
-    <exp>
-    [
-    |   <?ws>? \, <?ws>? <exp_seq> 
-        { return [ $$<exp>, array( $$<exp_seq> ) ] }
-    |   { return [ $$<exp> ] }
-    ]
+    | <exp>
+        [
+        |   <?ws>? \, <?ws>? <exp_seq> 
+            <?ws>? [\, <?ws>?]?
+            { return [ $$<exp>, array( $$<exp_seq> ) ] }
+        |   { return [ $$<exp> ] }
+        ]
+    | { return [] }
 }
 
 token exp_mapping {
@@ -158,8 +212,12 @@ token lit {
     { return $$<exp> }
 }
 
+token lit_seq {  XXX { return "TODO: lit_seq" } }
+token lit_array {  XXX { return "TODO: lit_array" } }
+token lit_hash {  XXX { return "TODO: lit_hash" } }
+
 token lit_code {
-    { die "TODO - Lit::Code" }
+    XXX { return "TODO - Lit::Code" }
 }
 
 token lit_object {
@@ -196,8 +254,12 @@ token call {
         })
     }
 }
+
 token apply {
-    <ident> \( <?ws>? <exp_seq> <?ws>? \)
+    <ident>
+        [ \( <?ws>? <exp_seq> <?ws>? \)
+        | <?ws> <exp_seq> <?ws>?
+        ]
     {
         return Apply({
             code      => $$<ident>,

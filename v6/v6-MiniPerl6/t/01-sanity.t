@@ -3,6 +3,16 @@ use MiniPerl6::Grammar;
 use Data::Dumper;
 
 {
+  my $p = MiniPerl6::Grammar->comp_unit( 'class Moose { say(123, 456); 123 := 410; 123.moose(1) }' );
+  print Dumper( $$p );
+}
+
+{
+  my $p = MiniPerl6::Grammar->val( '"moose"' );
+  print Dumper( $$p );
+}
+
+{
   my $p = MiniPerl6::Grammar->var( '$abc' );
   print Dumper( $$p );
 }
