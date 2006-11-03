@@ -1,4 +1,4 @@
-# Perl6 implementation of the 'Rule' syntax 
+# Perl6 implementation of the 'Rule' syntax
 # author: Flavio S. Glock - fglock@gmail.com
 
 use v6-alpha;
@@ -26,7 +26,7 @@ token capturing_group {
 }
 
 token non_capturing_group {
-    \[ <rule> \] 
+    \[ <rule> \]
     { return $/{rule}() }
 }
 
@@ -36,163 +36,165 @@ regex metasyntax {
 }
 
 token named_capture_body {
-    | <capturing_group>     { return { rule => $/{capturing_group}(), } } 
-    | <non_capturing_group> { return { rule => $/{non_capturing_group}(),} } 
-    | <metasyntax>          { return { rule => $/{metasyntax}(), } } 
+    | <capturing_group>     { return { rule => $/{capturing_group}(), } }
+    | <non_capturing_group> { return { rule => $/{non_capturing_group}(),} }
+    | <metasyntax>          { return { rule => $/{metasyntax}(), } }
     | { die "invalid alias syntax" }
 }
 
 @Pugs::Grammar::P6Rule::rule_terms = (
 
-  #*capturing_group = 
+  #*capturing_group =
   token {
         \( <rule> \)
         { return { capturing_group => $/{rule}() ,} }
     },
-  #*after = 
+  #*after =
   token {
-        \< after <?ws> <rule> \> 
+        \< after <?ws> <rule> \>
         { return { after => {
                 rule  => $/{rule}(),
-            }, } 
+            }, }
         }
     },
-  #*before = 
+  #*before =
   token {
-        \< before <?ws> <rule> \> 
+        \< before <?ws> <rule> \>
         { return { before => {
                 rule  => $/{rule}(),
-            }, } 
+            }, }
         }
     },
-  #*negate = 
+  #*negate =
   token {
-        \< \! <rule> \> 
+        \< \! <rule> \>
         { return { negate => {
                 rule  => $/{rule}(),
-            }, } 
+            }, }
         }
     },
-  regex { 
-    #metasyntax => 
+  regex {
+    #metasyntax =>
         \< ([ <metasyntax> | \\ . | . ]+?) \>
         { return { metasyntax => $/[0]() ,} }
     },
-  #*named_capture = 
+  #*named_capture =
   token {
         \$ \< <ident> \> <?ws>? \:\= <?ws>? <named_capture_body>
         { my $body = $/{named_capture_body}();
           $body->{ident} = $/{ident}();
-          return { named_capture => $body, } 
+          return { named_capture => $body, }
         }
     },
-  regex { 
-    #match_variable 
+  regex {
+    #match_variable
         [ \$ | \@ | \% ] <digit>+
         { return { match_variable => $/() ,} }
     },
-  regex { 
-    #variable_rule => 
+  regex {
+    #variable_rule =>
         [ \$ | \@ | \% ]
         \^?
         [ <alnum> | _ | \: \: ]+
         { return { variable => $() ,} }
     },
-  regex { 
-    # closure_rule => 
+  regex {
+    # closure_rule =>
         # callback perl6 compiler
         \{ <Pugs::Grammar::Perl6.parse> \}
         { return { closure => $/{'Pugs::Grammar::Perl6.parse'}() ,} }
     },
-  regex {  
-    #special_char => 
+  regex {
+    #special_char =>
         \\ .
-        { return { special_char => $(), } } 
+        { return { special_char => $(), } }
     },
-  Pugs::Compiler::Token->compile( 
-    #dot => 
-        \.    
+  Pugs::Compiler::Token->compile(
+    #dot =>
+        \.
         { return { 'dot' => 1 ,} }
     },
-  Pugs::Compiler::Token->compile( 
-    #non_capturing_group => 
-        \[ <rule> \] 
+  Pugs::Compiler::Token->compile(
+    #non_capturing_group =>
+        \[ <rule> \]
         { return $/{rule}() }
     },
-  #*colon = 
+  #*colon =
   token {
-        (  <':::'>  
-        |  \:\?     
-        |  \:\+     
-        |  \:\:  |  \: 
-        |  \$\$  |  \$ 
+        (  <':::'>
+        |  \:\?
+        |  \:\+
+        |  \:\:  |  \:
+        |  \$\$  |  \$
         |  \^\^  |  \^
-        )  
+        )
         { return { colon => $/() ,} }
     },
 ); # /@rule_terms
-    
+
 token term {
-    |  <before \} > { fail } 
-    |  <before \] > { fail } 
-    |  <before \) > { fail } 
-    |  <before \> > { fail } 
+    |  <before \} > { fail }
+    |  <before \] > { fail }
+    |  <before \) > { fail }
+    |  <before \> > { fail }
     |  <@Pugs::Grammar::P6Rule::rule_terms>
-        { 
+        {
             #print "term: ", Dumper( $_[0]->data );
-            return $/{'Pugs::Grammar::P6Rule::rule_terms'}() 
+            return $/{'Pugs::Grammar::P6Rule::rule_terms'}()
         }
     |  ( <-[ \] \} \) \> \: \? \+ \* \| \& ]> )
-        { 
+        {
             #print "constant: ", Dumper( $_[0]->data );
-            return { 'constant' => $/[0]->() ,} 
+            return { 'constant' => $/[0]->() ,}
         }
 }
 
 token quantifier {
     $<ws1>   := (<?ws>?)
-    <term> 
+    <term>
     $<ws2>   := (<?ws>?)
     $<quant> := (
-        |  <'??'>  
-        |  <'*?'>  
-        |  <'+?'> 
-        |  <'?'>  
-        |  <'*'>  
-        |  <'+'> 
+        |  <'??'>
+        |  <'*?'>
+        |  <'+?'>
+        |  <'?'>
+        |  <'*'>
+        |  <'+'>
         |  <null>   )
     $<ws3>   := (<?ws>?)
-    { return {  
+    { return {
             term  => $/{term}(),
             quant => $/{quant}(),
             ws1   => $/{ws1}(),
             ws2   => $/{ws2}(),
             ws3   => $/{ws3}(),
-        } 
+        }
     }
 }
 
 token concat {
-    $<q1> := <quantifier> 
-    [   $<q2> := <concat> 
-        { return { concat => [ 
-                { quant => $/{q1}() ,}, 
+    $<q1> := <quantifier>
+    [   $<q2> := <concat>
+        { return { concat => [
+                { quant => $/{q1}() ,},
                 $/{q2}(),
-            ] ,} 
-        } 
-    |   { return { quant => $/{q1}() ,} } 
+            ] ,}
+        }
+    |   { return { quant => $/{q1}() ,} }
     ]
 }
 
 token rule {
     [ <?ws>? \| ]?
-    $<q1> := <concat> 
-    [   \| $<q2> := <rule> 
-        { return { alt => [ 
-                $/{q1}(), 
+    $<q1> := <concat>
+    [   \| $<q2> := <rule>
+        { return { alt => [
+                $/{q1}(),
                 $/{q2}(),
-            ] ,} 
+            ] ,}
         }
-    |   { return $/{q1}() } 
+    |   { return $/{q1}() }
     ]
 }
+
+# vim: expandtab shiftwidth=4

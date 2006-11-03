@@ -12,10 +12,10 @@ use Pugs::Grammar::StatementControl;
 use Pugs::Grammar::StatementModifier;
 use Pugs::Grammar::Expression;
 use Pugs::Grammar::Pod;
-use Pugs::Grammar::P6Rule; 
+use Pugs::Grammar::P6Rule;
 
 token perl6_expression_or_null {
-        <Pugs::Grammar::Expression.parse('no_blocks',1)> 
+        <Pugs::Grammar::Expression.parse('no_blocks',1)>
         { return $/{'Pugs::Grammar::Expression.parse'}() }
     |
         { return { null => 1, } }
@@ -23,32 +23,32 @@ token perl6_expression_or_null {
 
 token block {
     \{ <?ws>? <statements> <?ws>? \}
-        { 
-            #print "matched block\n", Dumper( $/{statements}->data ); 
-            return { 
+        {
+            #print "matched block\n", Dumper( $/{statements}->data );
+            return {
                 bare_block => $/{statements}(),
-            } 
+            }
         }
     |
     \{ <?ws>? \}
-        { 
-            return { 
-                bare_block => { statements => [] } 
-            } 
+        {
+            return {
+                bare_block => { statements => [] }
+            }
         }
     |
-    <'->'>  
+    <'->'>
         [
-            <?ws>? <signature_no_invocant> <?ws>? 
+            <?ws>? <signature_no_invocant> <?ws>?
             \{ <?ws>? <statements> <?ws>? \}
-            { return { 
+            { return {
                 pointy_block => $/{statements}(),
                 signature    => $/{signature_no_invocant}(),
             } }
         |
             <?ws>?
             \{ <?ws>? <statements> <?ws>? \}
-            { return { 
+            { return {
                 pointy_block => $/{statements}(),
                 signature    => undef,
             } }
@@ -60,7 +60,7 @@ token attribute {
         [
             <?ws> <attribute>
             { return [
-                    [ { bareword => $/[0]() }, { bareword => $/[1]() } ], 
+                    [ { bareword => $/[0]() }, { bareword => $/[1]() } ],
                     @{$<attribute>()},
             ] }
         |
@@ -71,7 +71,7 @@ token attribute {
         [
             <?ws>? <attribute>
             { return [
-                    [ { bareword => $/[0]() }, { num => 1 } ], 
+                    [ { bareword => $/[0]() }, { num => 1 } ],
                     @{$<attribute>()},
             ] }
         |
@@ -114,7 +114,7 @@ token signature_term {
     <signature_term_ident>
     (<'?'>?)
     (<?ws>? <'='> <Pugs::Grammar::Expression.parse('no_blocks', 1)>)?
-    <?ws>? <attribute> 
+    <?ws>? <attribute>
     { return {
         default    => $/[3] ? $/[3][0]{'Pugs::Grammar::Expression.parse'}() : undef,
         type       => $/{signature_term_type}(),
@@ -131,7 +131,7 @@ token signature_no_invocant {
         [
             <?ws>? <','> <?ws>? <signature_no_invocant>
             { return [
-                    $/{signature_term}(), 
+                    $/{signature_term}(),
                     @{$/{signature_no_invocant}()},
             ] }
         |
@@ -147,66 +147,66 @@ token signature {
             <?ws>? <signature_no_invocant>
             { return [
                     {
-                        %{$/{signature_term}()}, 
+                        %{$/{signature_term}()},
                         invocant => 1,
                     },
                     @{$/{signature_no_invocant}()},
             ] }
         |
-            { return [ 
+            { return [
                     {
-                        %{$/{signature_term}()}, 
+                        %{$/{signature_term}()},
                         invocant => 1,
                     },
             ] }
         ]
     |
-        <signature_no_invocant> 
+        <signature_no_invocant>
         { return $/{signature_no_invocant}() }
 }
 
 token category_name {
-        <Pugs::Grammar::Term.bare_ident> 
-        [   <':'> 
-            [ 
-                <before \{ > 
-                <%Pugs::Grammar::Term::hash> 
-                { return { 
+        <Pugs::Grammar::Term.bare_ident>
+        [   <':'>
+            [
+                <before \{ >
+                <%Pugs::Grammar::Term::hash>
+                { return {
                     category   => $/{'Pugs::Grammar::Term.bare_ident'}(),
                     name       => {
-                        'exp1' => { 
-                            'hash' => '%::_V6_GRAMMAR::' . 
+                        'exp1' => {
+                            'hash' => '%::_V6_GRAMMAR::' .
                                 $/{'Pugs::Grammar::Term.bare_ident'}(), },
                         'exp2' => $/{'Pugs::Grammar::Term::hash'}
-                                ()->{bare_block}, 
+                                ()->{bare_block},
                         'fixity' => 'postcircumfix',
                         'op1' => { 'op' => '{' },
                         'op2' => { 'op' => '}' },
                     }
                 } }
-            | 
-                #<before \< > 
+            |
+                #<before \< >
                 <%Pugs::Grammar::Quote::hash>
-                { return { 
+                { return {
                     category   => $/{'Pugs::Grammar::Term.bare_ident'}(),
                     name       => {
-                        'exp1' => { 
+                        'exp1' => {
                             'hash' => '%::_V6_GRAMMAR::' . $/{'Pugs::Grammar::Term.bare_ident'}(), },
-                        'exp2' => $/{'Pugs::Grammar::Quote::hash'}(), 
+                        'exp2' => $/{'Pugs::Grammar::Quote::hash'}(),
                         'fixity' => 'postcircumfix',
                         'op1' => { 'op' => '<' },
                         'op2' => { 'op' => '>' },
                     }
                 } }
             ]
-        | 
-            { return { 
+        |
+            { return {
                 category   => '',
                 name       => $/{'Pugs::Grammar::Term.bare_ident'}(),
             } }
         ]
     |
-        { return { 
+        { return {
             category   => '',
             name       => '',
         } }
@@ -214,9 +214,9 @@ token category_name {
 
 token sub_signature {
         <'('> <?ws>? <signature> <?ws>? <')'>
-        { 
+        {
             #print "sig ", Dumper( $/{signature}() );
-            return $/{signature}() 
+            return $/{signature}()
         }
     |
         { return [] }
@@ -225,17 +225,17 @@ token sub_signature {
 token sub_decl {
     [
         ( multi | <null> )           <?ws>?
-        ( submethod | method | sub ) <?ws>? 
+        ( submethod | method | sub ) <?ws>?
     |
         ( multi  ) <?ws>?
         ( <null> )
     ]
     <category_name> <?ws>?
-    <sub_signature> <?ws>? 
+    <sub_signature> <?ws>?
     <attribute>     <?ws>?
-    <block>        
-    { 
-      return { 
+    <block>
+    {
+      return {
         multi      => $/[0](),
         term       => $/[1]() || 'sub',
         category   => $/{category_name}()->{category},
@@ -245,18 +245,18 @@ token sub_decl {
         block      => $/{block}(),
     } }
 }
-    
+
 token rule_decl {
     ( multi | <null> )        <?ws>?
     ( rule  | regex | token ) <?ws>?
     <category_name>  <?ws>?
-    <sub_signature>  <?ws>? 
+    <sub_signature>  <?ws>?
     <attribute>      <?ws>?
     <'{'>            <?ws>?
     [
         <Pugs::Grammar::P6Rule.rule> <?ws>?
         <'}'>
-        { return { 
+        { return {
                 multi      => $/[0](),
                 term       => $/[1](),
                 category   => $/{category_name}()->{category},
@@ -275,21 +275,21 @@ token rule_decl {
 # class
 
 token class_decl_name {
-    ( class | grammar | module | role | package ) <?ws>? 
-    ( <?Pugs::Grammar::Term.cpan_bareword> | <?Pugs::Grammar::Term.bare_ident> | <null> ) 
-    { return { 
+    ( class | grammar | module | role | package ) <?ws>?
+    ( <?Pugs::Grammar::Term.cpan_bareword> | <?Pugs::Grammar::Term.bare_ident> | <null> )
+    { return {
         statement  => $/[0](),
         name       => $/[1](),
     } }
 }
 
 token class_decl {
-    <class_decl_name> <?ws>? 
+    <class_decl_name> <?ws>?
     <attribute>       <?ws>?
     <block>?
-    { 
-      #print "matched block\n", Dumper( $/{block}[0]->data ); 
-      return { 
+    {
+      #print "matched block\n", Dumper( $/{block}[0]->data );
+      return {
         term       => $/{class_decl_name}()->{statement},
         name       => $/{class_decl_name}()->{name},
         attribute  => $/{attribute}(),
@@ -303,27 +303,27 @@ token class_decl {
 
 token statement {
     <Pugs::Grammar::StatementControl.parse>
-        { 
+        {
             return $/->{'Pugs::Grammar::StatementControl.parse'}();
         }
     |
-    <Pugs::Grammar::Expression.parse('allow_modifier', 1)> 
-        { 
+    <Pugs::Grammar::Expression.parse('allow_modifier', 1)>
+        {
             return $/{'Pugs::Grammar::Expression.parse'}();
-        } 
+        }
 }
 
 token statements {
     [ ; <?ws>? ]*
     [
-        <before <'}'> > { $::_V6_SUCCEED = 0 } 
+        <before <'}'> > { $::_V6_SUCCEED = 0 }
     |
-        <statement> 
+        <statement>
         <?ws>? [ ; <?ws>? ]*
         [
             <before <'}'> > { $::_V6_SUCCEED = 0 }
         |
-            <statements> 
+            <statements>
             { return {
                 statements => [
                         $/{statement}(),
@@ -332,7 +332,7 @@ token statements {
                 }
             }
         |
-            { 
+            {
             return {
                 statements => [ $/{statement}() ],
             } }
@@ -341,6 +341,8 @@ token statements {
 }
 
 token parse {
-    <?ws>? <statements> <?ws>? 
+    <?ws>? <statements> <?ws>?
     { return $/{statements}() }
 }
+
+# vim: expandtab shiftwidth=4

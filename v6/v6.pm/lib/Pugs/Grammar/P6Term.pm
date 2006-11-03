@@ -30,25 +30,25 @@ token bare_ident {
 }
 
 token parenthesis {
-        <?ws>? <Pugs::Grammar::Expression.parse('allow_semicolon', 1)> <?ws>? 
+        <?ws>? <Pugs::Grammar::Expression.parse('allow_semicolon', 1)> <?ws>?
         <')'>
         { return {
             op1 => { op => "(" },
             op2 => { op => ")" },
             fixity => "circumfix",
-            exp1 => $/{'Pugs::Grammar::Expression.parse'}() 
+            exp1 => $/{'Pugs::Grammar::Expression.parse'}()
         } }
     |
-        <?ws>? <Pugs::Grammar::Perl6.block> <?ws>? 
+        <?ws>? <Pugs::Grammar::Perl6.block> <?ws>?
         <')'>
         { return {
             op1 => { op => "(" },
             op2 => { op => ")" },
             fixity => "circumfix",
-            exp1 => $/{'Pugs::Grammar::Perl6.block'}() 
+            exp1 => $/{'Pugs::Grammar::Perl6.block'}()
         } }
     |
-        <?ws>? 
+        <?ws>?
         <')'>
         { return {
             op1 => { op => "(" },
@@ -58,32 +58,32 @@ token parenthesis {
 }
 
 token brackets {
-        <Pugs::Grammar::Infix.parse> 
+        <Pugs::Grammar::Infix.parse>
         <']'>
         { return {
             op => $/{'Pugs::Grammar::Infix.parse'}(),
-            reduce => 1, 
+            reduce => 1,
         } }
     |
-        <?ws>? <Pugs::Grammar::Expression.parse> <?ws>? 
+        <?ws>? <Pugs::Grammar::Expression.parse> <?ws>?
         <']'>
         { return {
             op1 => { op => "[" },
             op2 => { op => "]" },
             fixity => "circumfix",
-            exp1 => $/{'Pugs::Grammar::Expression.parse'}() 
+            exp1 => $/{'Pugs::Grammar::Expression.parse'}()
         } }
     |
-        <?ws>? <Pugs::Grammar::Perl6.block> <?ws>? 
+        <?ws>? <Pugs::Grammar::Perl6.block> <?ws>?
         <']'>
         { return {
             op1 => { op => "[" },
             op2 => { op => "]" },
             fixity => "circumfix",
-            exp1 => $/{'Pugs::Grammar::Perl6.block'}() 
+            exp1 => $/{'Pugs::Grammar::Perl6.block'}()
         } }
     |
-        <?ws>? 
+        <?ws>?
         <']'>
         { return {
             op1 => { op => "[" },
@@ -97,9 +97,9 @@ token cpan_bareword {
 }
 
 regex perl5source {
-    (.*?) [ ; | <?ws> ] use <?ws> v6 (.)*? ; 
-        { return { 
-            perl5source => $/[0]() 
+    (.*?) [ ; | <?ws> ] use <?ws> v6 (.)*? ;
+        { return {
+            perl5source => $/[0]()
         } }
 }
 
@@ -115,7 +115,7 @@ token term:<$.> {
 token term:<$/> {
     { return { scalar => '$/' ,} } }
 token term:<$()> {
-    { return { 
+    { return {
         'op1' => 'call',
         'sub' => {
             'scalar' => '$/',
@@ -152,26 +152,26 @@ token term:<[> {
     { return $/{'Pugs::Grammar::Term.brackets'}() } }
 token term:<{> {
         <?ws>? <'}'>
-        { return { 
+        { return {
             bare_block => { statements => [] },
         } }
     |
         <?ws>? <Pugs::Grammar::Perl6.statements> <?ws>? <'}'>
-        { return { 
+        { return {
             bare_block => $/{'Pugs::Grammar::Perl6.statements'}(),
         } } }
-token term:{'->'} { 
+token term:{'->'} {
     [
-        <?ws>? <Pugs::Grammar::Perl6.signature_no_invocant> <?ws>? 
+        <?ws>? <Pugs::Grammar::Perl6.signature_no_invocant> <?ws>?
         \{ <?ws>? <Pugs::Grammar::Perl6.statements> <?ws>? \}
-        { return { 
+        { return {
             pointy_block => $/{'Pugs::Grammar::Perl6.statements'}(),
             signature    => $/{'Pugs::Grammar::Perl6.signature_no_invocant'}(),
         } }
     |
         <?ws>?
         \{ <?ws>? <Pugs::Grammar::Perl6.statements> <?ws>? \}
-        { return { 
+        { return {
             pointy_block => $/{'Pugs::Grammar::Perl6.statements'}(),
             signature    => undef,
         } }
@@ -189,7 +189,7 @@ token term:<undef> {
 token term:<my> {
     <?ws> <Pugs::Grammar::Term.parse>
     <?ws>? <Pugs::Grammar::Perl6.attribute>
-    { return { 
+    { return {
         exp1 => $/{'Pugs::Grammar::Term.parse'}(),
         attribute  => $/{'Pugs::Grammar::Perl6.attribute'}(),
         variable_declarator => "my",
@@ -197,7 +197,7 @@ token term:<my> {
 token term:<our> {
     <?ws> <Pugs::Grammar::Term.parse>
     <?ws>? <Pugs::Grammar::Perl6.attribute>
-    { return { 
+    { return {
         exp1 => $/{'Pugs::Grammar::Term.parse'}(),
         attribute  => $/{'Pugs::Grammar::Perl6.attribute'}(),
         variable_declarator => "our",
@@ -205,7 +205,7 @@ token term:<our> {
 token term:<has> {
     <?ws> <Pugs::Grammar::Term.parse>
     <?ws>? <Pugs::Grammar::Perl6.attribute>
-    { return { 
+    { return {
         exp1 => $/{'Pugs::Grammar::Term.parse'}(),
         attribute  => $/{'Pugs::Grammar::Perl6.attribute'}(),
         variable_declarator => "has",
@@ -213,7 +213,7 @@ token term:<has> {
 token term:<state> {
     <?ws> <Pugs::Grammar::Term.parse>
     <?ws>? <Pugs::Grammar::Perl6.attribute>
-    { return { 
+    { return {
         exp1 => $/{'Pugs::Grammar::Term.parse'}(),
         attribute  => $/{'Pugs::Grammar::Perl6.attribute'}(),
         variable_declarator => "state",
@@ -221,109 +221,109 @@ token term:<state> {
 token term:<constant> {
     <?ws> <Pugs::Grammar::Term.parse>
     <?ws>? <Pugs::Grammar::Perl6.attribute>
-    { return { 
+    { return {
         exp1 => $/{'Pugs::Grammar::Term.parse'}(),
         attribute  => $/{'Pugs::Grammar::Perl6.attribute'}(),
         variable_declarator => "constant",
     } } }
 token term:<s> {
     <Pugs::Grammar::Term.substitution>
-    { return { 
+    { return {
         substitution => $/{'Pugs::Grammar::Term.substitution'}(),
     } } }
 token term:<rx> {
     <Pugs::Grammar::Term.rx>
-    { return { 
+    { return {
         rx => $/{'Pugs::Grammar::Term.rx'}(),
     } } }
 token term:<m> {
     <Pugs::Grammar::Term.rx>
-    { return { 
+    { return {
         rx => $/{'Pugs::Grammar::Term.rx'}(),
     } } }
 token term:</> {
     <Pugs::Grammar::Term.rx_body('open','/')>
-    { return { 
+    { return {
         rx => $/{'Pugs::Grammar::Term.rx_body'}(),
     } } }
 token term:<perl5:> {
     ### perl5:Test::More
-    <Pugs::Grammar::Term.bare_ident> 
-    { return { 
+    <Pugs::Grammar::Term.bare_ident>
+    { return {
         bareword => $/{'Pugs::Grammar::Term.bare_ident'}(),
         lang => 'perl5',
     } } }
 token term:<use> {
         # "use v5"
-        <?ws> v5 <?ws>?; <perl5source> 
+        <?ws> v5 <?ws>?; <perl5source>
         { return $/{perl5source}() }
     |
         # default
         { return { bareword => 'use' } } }
-token term:<do> { 
+token term:<do> {
     # { print "statement do \n"; }
-    <?ws> 
-    $<exp1> := <Pugs::Grammar::Perl6.statement>        
-    { return { 
+    <?ws>
+    $<exp1> := <Pugs::Grammar::Perl6.statement>
+    { return {
         statement => 'do',
         exp1 => $/{exp1}(),
     } } }
-token term:<:> { 
-    ### pair - long:<name> 
+token term:<:> {
+    ### pair - long:<name>
         # :foo<bar>
         ([_|\w]+) \< <Pugs::Grammar::Quote.angle_quoted>
         { return {
-            pair => { 
-                key   => { single_quoted => $/[0]() }, 
-                value => { single_quoted => $/{'Pugs::Grammar::Quote.angle_quoted'}() }, 
+            pair => {
+                key   => { single_quoted => $/[0]() },
+                value => { single_quoted => $/{'Pugs::Grammar::Quote.angle_quoted'}() },
         } } }
     |
         # :foo(exp)
-        ([_|\w]+) \(  
-            <?ws>? <Pugs::Grammar::Expression.parse> <?ws>? 
+        ([_|\w]+) \(
+            <?ws>? <Pugs::Grammar::Expression.parse> <?ws>?
         \)
         { return {
-            pair => { 
-                key   => { single_quoted => $/[0]() }, 
-                value => $/{'Pugs::Grammar::Expression.parse'}(), 
+            pair => {
+                key   => { single_quoted => $/[0]() },
+                value => $/{'Pugs::Grammar::Expression.parse'}(),
         } } }
     |
-        # :$foo 
+        # :$foo
         \$ ((_|\w)+)
         { return {
-            pair => { 
-                key   => { single_quoted => $/[0]() }, 
-                value => { scalar  => '$' ~ $/[0]() }, 
+            pair => {
+                key   => { single_quoted => $/[0]() },
+                value => { scalar  => '$' ~ $/[0]() },
         } } }
     |
-        # :foo 
+        # :foo
         ((_|\w)+)
         { return {
-            pair => { 
-                key   => { single_quoted => $/[0]() }, 
-                value => { num => 1 }, 
+            pair => {
+                key   => { single_quoted => $/[0]() },
+                value => { num => 1 },
         } } }
     |
-        # :!foo 
+        # :!foo
         <'!'> ((_|\w)+)
         { return {
-            pair => { 
-                key   => { single_quoted => $/[0]() }, 
-                value => { num => 0 }, 
+            pair => {
+                key   => { single_quoted => $/[0]() },
+                value => { num => 0 },
         } } }
     }
-token term:{''} { 
+token term:{''} {
         ### num/int
-        \d+ 
+        \d+
         [
             \.\d+
             [ <[Ee]> <[+-]>? \d+ ]?
-            { return { num => $() ,} } 
+            { return { num => $() ,} }
         |
-            <[Ee]> <[+-]>? \d+ 
-            { return { num => $() ,} } 
+            <[Ee]> <[+-]>? \d+
+            { return { num => $() ,} }
         |
-            { return { int => $() ,} } 
+            { return { int => $() ,} }
         ]
     |
         <Pugs::Grammar::Perl6.sub_decl>
@@ -333,52 +333,52 @@ token term:{''} {
             { return $/{'Pugs::Grammar::Perl6.class_decl'}(); }
     |
         ### Test-0.0.6
-        <Pugs::Grammar::Term.cpan_bareword> 
+        <Pugs::Grammar::Term.cpan_bareword>
         { return { cpan_bareword => $/{'Pugs::Grammar::Term.cpan_bareword'}() } }
     |
         ### Test::More
-        <Pugs::Grammar::Term.bare_ident> 
+        <Pugs::Grammar::Term.bare_ident>
         { return { bareword => $/{'Pugs::Grammar::Term.bare_ident'}() } }
     }
 token term:<BEGIN> {
-    <?ws>? <Pugs::Grammar::Perl6.block>        
-        { return { 
+    <?ws>? <Pugs::Grammar::Perl6.block>
+        { return {
             trait  => 'BEGIN',
             %( $/{'Pugs::Grammar::Perl6.block'}() ),
         } }
 }
 token term:<CHECK> {
-    <?ws>? <Pugs::Grammar::Perl6.block>        
-        { return { 
+    <?ws>? <Pugs::Grammar::Perl6.block>
+        { return {
             trait  => 'CHECK',
             %( $/{'Pugs::Grammar::Perl6.block'}() ),
         } }
 }
 token term:<INIT> {
-    <?ws>? <Pugs::Grammar::Perl6.block>        
-        { return { 
+    <?ws>? <Pugs::Grammar::Perl6.block>
+        { return {
             trait  => 'INIT',
             %( $/{'Pugs::Grammar::Perl6.block'}() ),
         } }
 }
 
-token term:<START> { 
-    <?ws>? <Pugs::Grammar::Perl6.block>        
-        { return { 
+token term:<START> {
+    <?ws>? <Pugs::Grammar::Perl6.block>
+        { return {
             trait  => 'START',
             %( $/{'Pugs::Grammar::Perl6.block'}() ),
         } }
 }
 token term:<FIRST> {
-    <?ws>? <Pugs::Grammar::Perl6.block>        
+    <?ws>? <Pugs::Grammar::Perl6.block>
         { return {
             trait  => 'FIRST',
             %( $/{'Pugs::Grammar::Perl6.block'}() ),
         } }
 }
 token term:<ENTER> {
-    <?ws>? <Pugs::Grammar::Perl6.block>        
-        { return { 
+    <?ws>? <Pugs::Grammar::Perl6.block>
+        { return {
             trait  => 'ENTER',
             %( $/{'Pugs::Grammar::Perl6.block'}() ),
         } }
@@ -386,8 +386,10 @@ token term:<ENTER> {
 
 token parse {
     <%::_V6_GRAMMAR::term>
-    { 
+    {
         #print "BaseCategory matched hash ", Dumper( $_[0]->data );
         return $/{'::_V6_GRAMMAR::term'}();
     }
 }
+
+# vim: expandtab shiftwidth=4
