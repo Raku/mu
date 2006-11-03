@@ -30,6 +30,17 @@ sub perl {
     }
 }
 
+sub yaml {
+    my $can = UNIVERSAL::can($_[0] => 'yaml');
+    if ($can) {
+        $can->($_[0]);
+    }
+    else {
+        require YAML::Syck;
+        YAML::Syck::Dump($_[0]);
+    }
+}
+
     sub setup_type {
         my $type = $_[0];
         eval q!
