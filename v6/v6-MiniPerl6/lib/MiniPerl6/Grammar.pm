@@ -10,9 +10,14 @@ sub Bind($data)      { use v5; bless $data, 'Bind';      use v6; }
 sub Return($data)    { use v5; bless $data, 'Return';    use v6; }
 sub While($data)     { use v5; bless $data, 'While';     use v6; }
 sub For($data)       { use v5; bless $data, 'For';       use v6; }
+sub When($data)      { use v5; bless $data, 'When';      use v6; }
+sub If($data)        { use v5; bless $data, 'If';        use v6; }
 
 sub Lit::Object($data) { use v5; bless $data, 'Lit::Object'; use v6; }
+
 sub Val::Undef($data)  { use v5; bless $data, 'Val::Undef';  use v6; }
+sub Val::Int($data)    { use v5; bless $data, 'Val::Int';    use v6; }
+sub Val::Num($data)    { use v5; bless $data, 'Val::Num';    use v6; }
 
 # XXX - move to v6.pm emitter
 sub array($data)    { use v5; @$data; use v6; }
@@ -58,19 +63,18 @@ token control {
     { return $$<exp> }
 }
 
-=pod
-class If {
-    has $.cond          is Exp;
-    has @.body          is Seq of Exp;
-    has @.otherwise     is Seq of Exp;
+token if {
+    if <?ws>  $<cond>      := <exp>     <?ws>?
+    \{ <?ws>? $<body>      := <exp_seq> <?ws>? \} <?ws>?
+    else <?ws>? 
+    \{ <?ws>? $<otherwise> := <exp_seq> <?ws>? \}
+    { return If({ :$$<cond>, :$$<body>, :$$<otherwise> }) }
 }
 
-class When {
-    has @.parameters    is Seq of Exp;
-    has @.body          is Seq of Exp;
+token when {
+    when <?ws> $<parameters> := <exp_seq> <?ws>? \{ <?ws>? $<body> := <exp_seq> <?ws>? \}
+    { return When({ :$$<parameters>, :$$<body> }) }
 }
-
-=cut
 
 token for {
     for <?ws> <exp> <?ws>? <'->'> <?ws>? <var> <?ws> \{ <?ws>? <exp_seq> <?ws>? \}
@@ -105,13 +109,23 @@ token var {
 
 token val {
     [ $<exp> := <val_undef>    # undef
-    | $<exp> := <val_object>   # (not exposed to the outside)
+    # | $<exp> := <val_object>   # (not exposed to the outside)
     | $<exp> := <val_int>      # 123
     | $<exp> := <val_bit>      # True, False
     | $<exp> := <val_num>      # 123.456
     | $<exp> := <val_buf>      # "moose"
     ]
     { return $$<exp> }
+}
+
+token val_undef {
+    undef
+    { return Val::Undef({ undef => 1 }) }
+}
+
+token val_int {
+    \d+
+    { return Val::Int( { int => ~$/ } ) }
 }
 
 token exp_seq {

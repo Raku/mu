@@ -66,3 +66,23 @@ use Data::Dumper;
   my $p = MiniPerl6::Grammar->for( 'for $a -> $b { $b }' );
   print Dumper( $$p );
 }
+
+{
+  my $p = MiniPerl6::Grammar->when( 'when $b { $c }' );
+  print Dumper( $$p );
+}
+
+{
+  my $p = MiniPerl6::Grammar->if( 'if $b { $c } else { $d }' );
+  print Dumper( $$p );
+}
+
+{
+  my $p = MiniPerl6::Grammar->val( 'undef' );
+  print Dumper( $$p );
+}
+
+{
+  my $p = MiniPerl6::Grammar->val( '10' );
+  print Dumper( $$p );
+}
