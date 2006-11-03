@@ -115,6 +115,10 @@ $sb = -f "t";
 skip 1, '-f "t" is true somehow, so next test is invalid' if $sb;
 ok -e $sb, 'false stat buffers can still be used', :todo<bug>;
 
+if $*OS eq any <MSWin32 mingw msys cygwin> {
+  skip 9, "-M/-C/-A not working on Win32 yet"
+}
+else {
 my $fh = open("test_file", :w);
 close $fh;
 sleep 1; # just to make sure
@@ -134,3 +138,5 @@ if (! -f "README") {
 ok not -M "xyzzy", "-M returns undef when no file";
 ok not -C "xyzzy", "-C returns undef when no file";
 ok not -A "xyzzy", "-A returns undef when no file";
+  ok -z "empty_file",      "-z returns true for an empty file";
+}
