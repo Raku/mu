@@ -320,6 +320,15 @@ doesExist f = do
     rv <- doesFileExist f
     if rv then return rv else doesDirectoryExist f
 
+statFileMTime :: FilePath -> IO Integer
+statFileMTime _ = failWith "-M"
+
+statFileCTime :: FilePath -> IO Integer
+statFileCTime _ = failWith "-C"
+
+statFileATime :: FilePath -> IO Integer
+statFileATime _ = failWith "-A"
+
 #endif
 
 foreign import ccall unsafe "getProgArgv"
