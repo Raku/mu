@@ -290,8 +290,8 @@ subset Exp of
     | Val       # "value"
     | Lit       # [literal construct]
     | Bind      # $lhs := $rhs
-    | Index     # $obj[1, 2, 3]
-    | Lookup    # $obj{'1', '2', '3'}
+    | Index     # $obj[1]
+    | Lookup    # $obj{'x'}
     | Control   # Various control structures.  Does _not_ appear in binding LHS
     );
 
@@ -387,6 +387,16 @@ class Call {
     has $.invocant  is Exp;                 # $obj
     has $.method    is ID;                  # .method
     has @.arguments is Seq of Exp;          # ($args)
+}
+
+class Index {
+    has $.obj       is Exp;
+    has $.index     is Exp;
+}
+
+class Lookup {
+    has $.obj       is Exp;
+    has $.lookup    is Exp;
 }
 
 class Apply {

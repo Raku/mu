@@ -92,6 +92,10 @@ subset Lit of
     | Lit::Object   # ::Tree(a => x, b => y);
     );
 
+class Lit::Seq {
+    has @.seq is Seq of Exp;
+}
+
 class Lit::Code {
     has %.pad           is Mapping of Type; # All my/state/parameter variables
     has %.state         is Mapping of Exp;  # State initializers, run upon first entry 
@@ -111,6 +115,7 @@ class Bind {
 
 class Call {
     has $.invocant  is Exp;                 # $obj
+    has $.hyper     is Bool;                # .>>.
     has $.method    is ID;                  # .method
     has @.arguments is Seq of Exp;          # ($args)
 }
