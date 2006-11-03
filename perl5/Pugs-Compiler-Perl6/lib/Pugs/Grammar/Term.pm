@@ -243,6 +243,15 @@ sub recompile {
                 <?Pugs::Grammar::Term.ident>
                 { return { scalar => '$.' . $_[0]->() ,} }
             ),
+        # XXX - Cheat - @.foo is turned into $.foo
+        '@.' => q(
+                <?Pugs::Grammar::Term.ident>
+                { return { scalar => '$.' . $_[0]->() ,} }
+            ),
+        '%.' => q(
+                <?Pugs::Grammar::Term.ident>
+                { return { scalar => '$.' . $_[0]->() ,} }
+            ),
         '$/' => q(
                 { return { scalar => '$/' ,} } 
             ),
