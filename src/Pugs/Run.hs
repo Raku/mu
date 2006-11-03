@@ -35,7 +35,6 @@ import Data.Yaml.Syck
 --import Data.Generics.Schemes
 import System.IO
 import System.FilePath (joinFileName)
-import System.Posix.Time
 
 
 {-|
