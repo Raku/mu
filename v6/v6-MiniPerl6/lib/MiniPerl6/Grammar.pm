@@ -19,6 +19,7 @@ sub Val::Undef($data)  { use v5; bless $data, 'Val::Undef';  use v6; }
 sub Val::Int($data)    { use v5; bless $data, 'Val::Int';    use v6; }
 sub Val::Num($data)    { use v5; bless $data, 'Val::Num';    use v6; }
 sub Val::Buf($data)    { use v5; bless $data, 'Val::Buf';    use v6; }
+sub Val::Bit($data)    { use v5; bless $data, 'Val::Bit';    use v6; }
 
 # XXX - move to v6.pm emitter
 sub array($data)    { use v5; @$data; use v6; }
@@ -149,13 +150,13 @@ token val {
 }
 
 token val_bit {
-    | True \b { return Val::Bit( { bit => 0 } ) }
-    | False \b { return Val::Bit( { bit => 1 } ) }
+    | True>>  { return Val::Bit( { bit => 1 } ) }
+    | False>> { return Val::Bit( { bit => 0 } ) }
 }
 
 token val_undef {
     undef
-    { return Val::Undef({ undef => 1 }) }
+    { return Val::Undef({ }) }
 }
 
 token val_num {  XXX { return "TODO: val_num" } }
@@ -175,7 +176,8 @@ token exp_stmts {
         |   <?ws>? \; <?ws>? <exp_stmts>
             <?ws>? [\; <?ws>?]?
             { return [ $$<exp>, array( $$<exp_stmts> ) ] }
-        |   { return [ $$<exp> ] }
+        |   <?ws>? [\; <?ws>?]?
+            { return [ $$<exp> ] }
         ]
     | { return [] }
 }
@@ -186,7 +188,8 @@ token exp_seq {
         |   <?ws>? \, <?ws>? <exp_seq> 
             <?ws>? [\, <?ws>?]?
             { return [ $$<exp>, array( $$<exp_seq> ) ] }
-        |   { return [ $$<exp> ] }
+        |   <?ws>? [\, <?ws>?]?
+            { return [ $$<exp> ] }
         ]
     | { return [] }
 }
@@ -198,7 +201,8 @@ token exp_mapping {
     [
     |   <?ws>? \, <?ws>? <exp_mapping> 
         { return [ [ $$<key>, $$<value> ], array( $$<exp_mapping> ) ] }
-    |   { return [ [ $$<key>, $$<value> ] ] }
+    |   <?ws>? [\, <?ws>?]?
+        { return [ [ $$<key>, $$<value> ] ] }
     ]
 }
 
