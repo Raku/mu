@@ -719,7 +719,17 @@ sub default {
         }
     }
     
+    if ( exists $n->{op1} && $n->{op1} eq 'method_call_hyper' ) {    
+        my $inner_call = _emit({
+            %$n,
+            op1     => 'method_call',
+            self    => { scalar => '$_' },
+        });
+        return '(map { ' . $inner_call . '} @{' . _emit($n->{self}) . '})';
+    }
+
     if ( exists $n->{op1} && $n->{op1} eq 'method_call' ) {    
+        no warnings 'uninitialized';
         #warn "method_call: ", Dumper( $n );
         if ( $n->{method}{dot_bareword} eq 'print' ||
              $n->{method}{dot_bareword} eq 'warn' ) {
@@ -736,8 +746,8 @@ sub default {
             }
             return " print '', $s" . ', "\n"';
         }
-        if ( $n->{method}{dot_bareword} eq 'perl' ) {
-            return 'Pugs::Runtime::Perl6::perl' . emit_parenthesis( $n->{self} );
+        if ( $n->{method}{dot_bareword} =~ /^perl$|^yaml$/) {
+            return "Pugs::Runtime::Perl6::$n->{method}{dot_bareword}" . emit_parenthesis( $n->{self} );
         }
         # TODO: other builtins
         if ( $n->{method}{dot_bareword} eq 'defined' ) {
@@ -1584,7 +1594,15 @@ sub prefix {
         return '${' . _emit( $n->{exp1} ) . '}';
     }
 
-    if ( $n->{op1} eq 'hash' ) {
+    if (  $n->{op1} eq 'array' 
+       || $n->{op1} eq '@' 
+       ) {
+        return '@{' . _emit( $n->{exp1} ) . '}';
+    }
+
+    if ( $n->{op1} eq 'hash'
+       || $n->{op1} eq '%' 
+       ) {
         return '%{' . _emit( $n->{exp1} ) . '}';
     }
     
