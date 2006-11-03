@@ -91,7 +91,8 @@ module Pugs.Internals (
 
     __, (+++), nullID, addressOf, showAddressOf,
 
-    hashNew, hashList
+    hashNew, hashList,
+    pugsTimeSpec,
 ) where
 
 import Pugs.Compat
@@ -574,3 +575,17 @@ showAddressOf :: String -> a -> String
 showAddressOf typ x = addr `seq` ('<' : typ ++ ":0x" ++ showHex addr ">")
     where
     addr = addressOf x
+
+{-|
+Convert an internal @ClockTime@ to a Pugs-style fractional time.
+Used by op0 "time", @Pugs.Run.prepareEnv@, and the file time tests.
+-}
+pugsTimeSpec :: ClockTime -> Rational
+pugsTimeSpec clkt = fdiff $ diffClockTimes clkt epochClkT
+    where
+       epochClkT = toClockTime epoch
+       epoch = CalendarTime 2000 January 1 0 0 0 0 Saturday 0 "UTC" 0 False
+       -- 10^12 is expanded because the alternatives tried gave type warnings.
+       fdiff = \d -> (fromInteger $ tdPicosec d)
+                   / (clocksPerSecond * clocksPerSecond)
+                   + (fromIntegral $ tdSec d)

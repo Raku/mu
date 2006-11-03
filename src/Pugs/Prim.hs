@@ -72,14 +72,7 @@ op0 "True"  = constMacro . Val $ VBool True
 op0 "False" = constMacro . Val $ VBool False
 op0 "time"  = const $ do
     clkt <- guardIO getClockTime
-    return $ VRat $ fdiff $ diffClockTimes clkt epochClkT
-    where
-       epochClkT = toClockTime epoch
-       epoch = CalendarTime 2000 January 1 0 0 0 0 Saturday 0 "UTC" 0 False
-       -- 10^12 is expanded because the alternatives tried gave type warnings.
-       fdiff = \d -> (fromInteger $ tdPicosec d)
-                   / (clocksPerSecond * clocksPerSecond)
-                   + (fromIntegral $ tdSec d)
+    return $ VRat $ pugsTimeSpec clkt
 op0 "times"  = const $ do
     ProcessTimes _ u s cu cs <- guardIO getProcessTimes
     return . VList $ map (castV . (% (clocksPerSecond :: VInt)) . toInteger . fromEnum)
@@ -429,6 +422,9 @@ op1 "-x"    = FileTest.isExecutable
 op1 "-e"    = FileTest.exists
 op1 "-z"    = FileTest.sizeIsZero
 op1 "-s"    = FileTest.fileSize
+op1 "-M"    = FileTest.fileMTime
+op1 "-A"    = FileTest.fileATime
+op1 "-C"    = FileTest.fileCTime
 op1 "-f"    = FileTest.isFile
 op1 "-d"    = FileTest.isDirectory
 op1 "graphs"= op1Cast (VInt . (genericLength :: String -> VInt)) -- XXX Wrong
@@ -1823,6 +1819,9 @@ initSyms = seq (length syms) $ do
 \\n   Bool      spre    -x      unsafe (Str)\
 \\n   Bool      spre    -e      unsafe (Str)\
 \\n   Int       spre    -s      unsafe (Str)\
+\\n   Num       spre    -M      unsafe (Str)\
+\\n   Num       spre    -A      unsafe (Str)\
+\\n   Num       spre    -C      unsafe (Str)\
 \\n   Bool      spre    -f      unsafe (Str)\
 \\n   Bool      spre    -d      unsafe (Str)\
 \\n   Num       spre    -       safe   (Num)\

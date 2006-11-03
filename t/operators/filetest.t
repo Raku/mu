@@ -8,7 +8,7 @@ This test tests the various filetest operators.
 
 =cut
 
-plan 41;
+plan 50;
 
 #if $*OS eq any <MSWin32 mingw msys cygwin> {
 #    skip 30, "file tests not fully available on win32";
@@ -117,8 +117,20 @@ ok -e $sb, 'false stat buffers can still be used', :todo<bug>;
 
 my $fh = open("test_file", :w);
 close $fh;
-ok (-M "test_file") > 0,      "-M works";
-ok (-C "test_file") > 0,      "-C works";
-ok (-A "test_file") > 0,      "-A works";
+sleep 1; # just to make sure
+ok (-M "test_file") < 0,      "-M works on new file";
+ok (-C "test_file") < 0,      "-C works on new file";
+ok (-A "test_file") < 0,      "-A works on new file";
 unlink "test_file";
 
+if (! -f "README") {
+  skip 3, "no file README";
+} else {
+  ok (-M "README") > 0, "-M works on existing file";
+  ok (-C "README") > 0, "-C works on existing file";
+  ok (-A "README") > 0, "-A works on existing file";
+}
+
+ok not -M "xyzzy", "-M returns undef when no file";
+ok not -C "xyzzy", "-C returns undef when no file";
+ok not -A "xyzzy", "-A returns undef when no file";

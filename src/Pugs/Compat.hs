@@ -24,6 +24,9 @@ module Pugs.Compat (
     getEnvironment,
     getArg0,
     statFileSize,
+    statFileMTime,
+    statFileCTime,
+    statFileATime,
     getProcessID,
     getRealUserID,
     getEffectiveUserID,
@@ -95,6 +98,20 @@ statFileSize :: FilePath -> IO Integer
 statFileSize f = do
     s <- getFileStatus f
     return (toInteger (fileSize s))
+
+statFileTime :: (FileStatus -> EpochTime) -> FilePath -> IO Integer
+statFileTime op f = do
+    s <- getFileStatus f
+    return (toInteger $ fromEnum $ op s)
+
+statFileMTime :: FilePath -> IO Integer
+statFileMTime f = statFileTime modificationTime f >>= return
+
+statFileCTime :: FilePath -> IO Integer
+statFileCTime f = statFileTime statusChangeTime f >>= return
+
+statFileATime :: FilePath -> IO Integer
+statFileATime f = statFileTime accessTime f >>= return
 
 type Signal = System.Posix.Signals.Signal
 signalProcess :: Signal -> ProcessID -> IO ()

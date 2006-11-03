@@ -35,6 +35,7 @@ import Data.Yaml.Syck
 --import Data.Generics.Schemes
 import System.IO
 import System.FilePath (joinFileName)
+import System.Posix.Time
 
 
 {-|
@@ -114,6 +115,8 @@ prepareEnv name args = do
     autoSV  <- newScalar undef
     classes <- initClassObjects (MkObjectId $ -1) [] initTree
     strictSV <- newScalar $ VBool (name /= "-e")
+    -- XXX factor "time" and use it here and in filetime tests
+    baset <- getClockTime
 #if defined(PUGS_HAVE_HSPLUGINS)
     hspluginsSV <- newScalar (VInt 1)
 #else
@@ -163,6 +166,8 @@ prepareEnv name args = do
         , gen "$*_" $ MkRef defSV
         , gen "$*AUTOLOAD" $ MkRef autoSV
         , gen "$*STRICT" $ MkRef strictSV
+        -- XXX do we want hideInSafemode?
+        , gen "$*BASETIME" $ MkRef $ constScalar (VRat $ pugsTimeSpec baset)
         ] ++ classes
     -- defSVcell <- (gen "$_" . MkRef) =<< newScalar undef
     let env' = env

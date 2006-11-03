@@ -341,17 +341,25 @@ isPrim tv = do
     isPrimVal (VCode MkCode{ subBody = Prim _ }) = True
     isPrimVal _ = False
 
+{-|
+Filter out reserved symbols from the specified Pad.
+-}
 filterUserDefinedPad :: Pad -> Pad
 filterUserDefinedPad (MkPad pad) = MkPad $ Map.filterWithKey doFilter pad
     where
     doFilter key _ = (not . Set.member key) _reserved
 
+{-|
+Symbols which are reserved for the current interpreter/compiler instance and
+should not be set from the preamble or other sources.  See
+@Pugs.AST.filterUserDefinedPad@.
+-}
 _reserved :: Set Var
 _reserved = Set.fromList . cast . words $
     "@*ARGS @*INC %*INC $*PUGS_HAS_HSPLUGINS $*EXECUTABLE_NAME " ++
     "$*PROGRAM_NAME $*PID $*UID $*EUID $*GID $*EGID @*CHECK @*INIT $*IN " ++
     "$*OUT $*ERR $*ARGS $/ %*ENV $*CWD @=POD $=POD $?PUGS_VERSION " ++
-    "$*OS %?CONFIG $*_ $*AUTOLOAD $*PUGS_VERSION"
+    "$*OS %?CONFIG $*_ $*AUTOLOAD $*PUGS_VERSION $*BASETIME"
 
 typeOfParam :: Param -> Type
 typeOfParam p = case v_sigil (paramName p) of

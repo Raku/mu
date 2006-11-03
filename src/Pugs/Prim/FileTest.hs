@@ -2,6 +2,7 @@ module Pugs.Prim.FileTest (
     isReadable, isWritable, isExecutable,
     exists, isFile, isDirectory,
     fileSize, sizeIsZero,
+    fileMTime, fileCTime, fileATime,
 ) where
 import Pugs.Internals
 import Pugs.AST hiding (isWritable)
@@ -33,6 +34,20 @@ fileSize     :: Val -> Eval Val
 fileSize     = fileTestIO fileTestFileSize
 sizeIsZero   :: Val -> Eval Val
 sizeIsZero   = fileTestIO fileTestSizeIsZero
+fileMTime    :: Val -> Eval Val
+fileMTime    = fileTime statFileMTime
+fileCTime    :: Val -> Eval Val
+fileCTime    = fileTime statFileCTime
+fileATime    :: Val -> Eval Val
+fileATime    = fileTime statFileATime
+
+fileTime :: (FilePath -> IO Integer) -> Val -> Eval Val
+fileTime test f = do
+    t <- fileTestIO (fileTestDo test) f
+    if (t == undef) then return VUndef else do
+    t' <- fromVal t
+    b <- (readVar $ cast "$*BASETIME") >>= fromVal
+    return $ VRat $ (b - (pugsTimeSpec $ TOD t' 0)) / 86400
 
 fileTestIO :: (Value n) => (n -> IO Val) -> Val -> Eval Val
 fileTestIO f v = do
@@ -73,3 +88,6 @@ fileTestSizeIsZero :: FilePath -> IO Val
 fileTestSizeIsZero f = do
     n <- statFileSize f
     return $ if n == 0 then VBool True else VBool False
+
+fileTestDo :: (FilePath -> IO Integer) -> FilePath -> IO Val
+fileTestDo test f = test f >>= return . VInt
