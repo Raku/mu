@@ -20,6 +20,16 @@ $::_V6_BACKEND = 'BACKEND_PERL5';
 use constant Inf => 100**100**100;
 use constant NaN => Inf - Inf;
 
+sub perl {
+    my $can = UNIVERSAL::can($_[0] => 'perl');
+    if ($can) {
+        $can->($_[0]);
+    }
+    else {
+        Dumper($_[0]);
+    }
+}
+
     sub setup_type {
         my $type = $_[0];
         eval q!
@@ -100,7 +110,22 @@ use constant NaN => Inf - Inf;
         my $last = pop @foo;
         no strict 'refs';
         no warnings 'redefine';  # Moose already does this?
-        *{'::'.$class} = sub { $class->meta->name };
+        *{'::'.$class} = sub {
+            my ($pos, $nam) = @_;
+            if (@$pos == 1) {
+                my ($payload) = @$pos;
+                bless($$payload, $class->meta->name);
+            }
+            elsif (@$pos) {
+                bless([map { $$_ } @$pos], $class->meta->name);
+            }
+            elsif (%$nam) {
+                bless({ map { $_ => ${$nam->{$_}} } keys %$nam }, $class->meta->name);
+            }
+            else {
+                $class->meta->name;
+            }
+        };
     }
 
 package Pugs::Runtime::Perl6::IO;
@@ -340,6 +365,7 @@ package Pugs::Runtime::Perl6::Int;
         '0+'     => sub { ${$_[0]} },
         'bool'   => sub { ${$_[0]} },
         '++'     => sub { ${$_[0]}++ },
+        'x='     => sub { "Assigning into a value is bogus" },
         fallback => 1,
     );
     sub WHAT { 
