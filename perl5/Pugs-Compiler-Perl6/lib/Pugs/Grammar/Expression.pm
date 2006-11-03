@@ -1,5 +1,6 @@
 package Pugs::Grammar::Expression;
 
+use utf8;
 use strict;
 use warnings;
 
@@ -205,8 +206,21 @@ sub lexer {
         my $pos2;
         while(1) {
             $pos2 = $m2->to if $m2;
+            # term.>>meth() 
+            if ( $m2 && $m2->tail && $m2->tail =~ /^(\.(?:>>|Â»)\.?|(?:>>|Â»)\.)/ ) {
+                my $meth = Pugs::Grammar::Term->parse( $match, { p => $pos2 + length($1) } );
+                $meth->data->{capture} = \{ 
+                    op1  => 'method_call_hyper', 
+                    hyper => 1,
+                    self => $m2->(), 
+                    method => $meth->(),
+                    param => undef,
+                };
+                $m2 = $meth;
+                next;
+            }
             # term.meth() 
-            if ( $m2 && $m2->tail && $m2->tail =~ /^\.[^.([{<«]/ ) {
+            if ( $m2 && $m2->tail && $m2->tail =~ /^\.[^.([{<Â«]/ ) {
                 my $meth = Pugs::Grammar::Term->parse( $match, { p => $pos2 } );
                 $meth->data->{capture} = \{ 
                     op1  => 'method_call', 
@@ -218,7 +232,7 @@ sub lexer {
                 next;
             }
             # term.() 
-            if ( $m2 && $m2->tail && $m2->tail =~ /^\.[([{<«]/ ) {
+            if ( $m2 && $m2->tail && $m2->tail =~ /^\.[([{<Â«]/ ) {
                 $pos2++;
             }
             # term() 
@@ -333,7 +347,7 @@ sub lexer {
             }
             # term<> 
             if ( $m2 && $m2->tail 
-                && $m2->tail =~ /^\.?[<«]/ ) {
+                && $m2->tail =~ /^\.?[<Â«]/ ) {
                 # XXX - is '<' a quote?
                 my $paren = Pugs::Grammar::Quote->parse( $match, { p => $pos2 } );
                 if ( exists $m2->()->{dot_bareword} ) {
