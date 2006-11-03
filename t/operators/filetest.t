@@ -138,5 +138,4 @@ if (! -f "README") {
 ok not -M "xyzzy", "-M returns undef when no file";
 ok not -C "xyzzy", "-C returns undef when no file";
 ok not -A "xyzzy", "-A returns undef when no file";
-  ok -z "empty_file",      "-z returns true for an empty file";
 }
