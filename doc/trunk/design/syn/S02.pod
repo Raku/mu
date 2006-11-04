@@ -2342,9 +2342,12 @@ only in case of a "tie", in which case the grammatical category that
 is notionally "first" wins.  For instance, given the example above, a
 statement_control is always going to win out over a prefix operator of
 the same name.  And the reason you can't call a function named "if"
-directly because it would be hidden either by the statement_control
-category at the beginning of a statement or the statement_modifier
-category elsewhere in the statement.)
+directly as a list operator is because it would be hidden either by
+the statement_control category at the beginning of a statement or by
+the statement_modifier category elsewhere in the statement.  Only the
+C<if(...)> form unambiguously calls an "if" function, and even that
+works only because statement controls and statement modifiers require
+subsequent whitespace, as do list operators.)
 
 Here are the current grammatical categories:
 
