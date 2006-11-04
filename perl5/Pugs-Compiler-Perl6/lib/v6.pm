@@ -106,7 +106,7 @@ sub pmc_compile {
         $perl5 . "\n" .
         "; 1;\n";
 
-    unless ( $ENV{V6NOTIDY} )
+    if ( $ENV{V6TIDY} )
     {
       # Perl::Tidy is used if available
       local $@;   # don't care if there are errors here
@@ -369,10 +369,10 @@ Same usage as PERL5LIB - sets the search path for Perl 6 modules.
 
 If set, the compiler will dump the syntax tree to C<STDOUT> just before emitting code, using C<Data::Dumper>.
 
-* V6NOTIDY
+* V6TIDY
 
-If set, the compiler output will be much less readable, but there will
-be some improvement in compiler speed.
+If set, the compiler output will be much more readable, but there will
+be a lot of slowdown in compiler speed.
 
 =head1 COMMAND LINE SWITCHES
 
