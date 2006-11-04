@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 9 Oct 2006
+  Last Modified: 4 Nov 2006
   Number: 2
-  Version: 76
+  Version: 77
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -2324,11 +2324,27 @@ Lexing in Perl 6 is controlled by a system of grammatical categories.
 At each point in the parse, the lexer knows which subset of the
 grammatical categories are possible at that point, and follows the
 longest-token rule across all the active grammatical categories.
-(Ordering of grammatical categories matters only in case of a "tie",
-in which case the grammatical category that is notionally "first"
-in the grammar wins.  For instance, a statement_control is always going to win out over a prefix operator of the same name.  More specifically, you can't
-call a function named "if" directly because it would be hidden either
-by the statement_control category or the statement_modifier category.)
+The grammatical categories that are active at any point are specified
+using a regex construct involving a set of magical hashes.  For example,
+the matcher for the beginning of a statement might look like:
+
+    <%statement_control
+    | %scope_declarator
+    | %prefix
+    | %prefix_circumfix_meta_operator
+    | %circumfix
+    | %quote
+    | %term
+    >
+
+(Ordering of grammatical categories within such a construct matters
+only in case of a "tie", in which case the grammatical category that
+is notionally "first" wins.  For instance, given the example above, a
+statement_control is always going to win out over a prefix operator of
+the same name.  And the reason you can't call a function named "if"
+directly because it would be hidden either by the statement_control
+category at the beginning of a statement or the statement_modifier
+category elsewhere in the statement.)
 
 Here are the current grammatical categories:
 
