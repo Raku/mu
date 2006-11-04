@@ -49,7 +49,7 @@ class Rul::InterpolateVar {
     }
 }
 
-__END__
+=begin END
 
 package Pugs::Emitter::Rule::Perl6::Ratchet;
 
