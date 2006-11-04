@@ -161,8 +161,8 @@ token val_undef {
 
 token val_num {  XXX { return "TODO: val_num" } }
 token val_buf {
-    | \" (<-[\"]>+) \" { return Val::Buf( { buf => $$0 } ) }
-    | \' (<-[\']>+) \' { return Val::Buf( { buf => $$0 } ) }
+    | \" ([\\<(.)>|<-[\"]>]+) \" { return Val::Buf( { buf => $$0 } ) }
+    | \' ([\\<[\\\']>|<-[\']>]+) \' { return Val::Buf( { buf => $$0 } ) }
 }
 
 token val_int {

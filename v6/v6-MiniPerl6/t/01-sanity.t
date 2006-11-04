@@ -8,7 +8,7 @@ use MiniPerl6::Grammar;
 }
 
 {
-  my $p = MiniPerl6::Grammar.val( '"moose"' );
+  my $p = MiniPerl6::Grammar.val( '"mo\"ose"' );
   ($$p).perl.say;
 }
 
