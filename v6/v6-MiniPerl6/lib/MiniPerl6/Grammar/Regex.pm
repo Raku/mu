@@ -96,33 +96,11 @@ token named_capture_body {
 
     '$<' => token {
         <ident> \> 
-        {
-            # XXX - deref $/{'...'}
-            return 
-            ...({
-                ... => Var({ 
-                    sigil  => '$',
-                    twigil => '',
-                    name   => '/'
-                }),
-                ... => Val::Buf({ buf => ~$<ident> }),
-            })
-        }
+        { return '$/{' ~ "'" ~ $<ident> ~ "'" ~ '}' }
     },
     '$' => token { 
         <?digit>+
-        {
-            # XXX - deref $/['...']
-            return 
-            ...({
-                ... => Var({ 
-                    sigil  => '$',
-                    twigil => '',
-                    name   => '/'
-                }),
-                ... => Val::Int({ int => ~$/ }),
-            })
-        }
+        { return '$/[' ~ $/ ~ ']' }
     |
         (\^?)
         ([ <?alnum> | _ | \: \: ]+)
@@ -204,9 +182,9 @@ token named_capture_body {
         { return { metasyntax => '-' ~ $<char_class> } }
     },
     '<' => token { 
-        |  <%Pugs::Grammar::Rule::variables>
+        |  <%MiniPerl6::Grammar::Regex::variables>
             { 
-                return { Rul::InterpolateVar({ var => $$<Pugs::Grammar::Rule::variables> }) }
+                return { Rul::InterpolateVar({ var => $$<MiniPerl6::Grammar::Regex::variables> }) }
             }
         |
             # TODO
@@ -220,16 +198,16 @@ token named_capture_body {
     '\\' => token {  
         | [ x | X | o | O ] \d+
           #  \x0021    \X0021
-          { return { Rul::SpecialChar{ char => '\\' ~ $/ }) } }
+          { return { Rul::SpecialChar({ char => '\\' ~ $/ }) } }
         | ( x | X | o | O ) \[ (\d+) \]
           #  \x[0021]  \X[0021]
-          { return { Rul::SpecialChar{ char => '\\' ~ $0 ~ $1 }) } }
+          { return { Rul::SpecialChar({ char => '\\' ~ $0 ~ $1 }) } }
         | .
           #  \e  \E
-          { return { Rul::SpecialChar{ char => '\\' ~ $/ }) } }
+          { return { Rul::SpecialChar({ char => '\\' ~ $/ }) } }
     },
     '.' => token { 
-        { return { Rul::Dot{ dot => 1 }) } }
+        { return { Rul::Dot({ dot => 1 }) } }
     },
     '[' => token { 
         <rule> \] 
@@ -334,12 +312,8 @@ token quantifier {
 
 token concat {
     <quantifier>+ 
-    { return { Rul::Concat({
-        ...
-        my @a = map {  $_->()  }  @{ $::_V6_MATCH_->{'quantifier'} };
-        return { concat => \@a ,}  if scalar @a > 1;
-        return $a[0];
-        }) }
+    { return { Rul::Concat({ ...  }) }
+    }
 }
 
 token conjunctive {
@@ -352,9 +326,6 @@ token conjunctive {
     
     {             
         ...
-        my @a = map {  $$_  }  @{ $::_V6_MATCH_->{'concat'} };
-        return { conjunctive => \@a ,}  if scalar @a > 1;
-        return $a[0];
     }
 }
 
@@ -368,8 +339,5 @@ token rule {
     
     {             
         ...
-        my @a = map {  $$_  }  @{ $::_V6_MATCH_->{'conjunctive'} };
-        return { alt => \@a ,}  if scalar @a > 1;
-        return $a[0];
     }
 }
