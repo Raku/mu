@@ -392,7 +392,8 @@ op1 "fail_" = \v -> do
     if throw then op1 "die" (errmsg v) else do
     pos   <- asks envPos
     let die = retShift $ VError (errmsg v) [pos]
-    retShift . VRef . thunkRef $ MkThunk die anyType
+        dieThunk = VRef . thunkRef $ MkThunk die (mkType "Failure")
+    op1Return (retControl (ControlLeave (<= SubRoutine) 0 dieThunk))
     where
     errmsg VUndef      = VStr "Failed"
     errmsg VType{}     = VStr "Failed"
