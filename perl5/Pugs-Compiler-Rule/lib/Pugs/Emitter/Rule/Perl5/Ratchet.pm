@@ -321,12 +321,7 @@ sub variable {
             our $id;
             our ${id}_sizes;
             unless ( $id ) {
-                my \$hash = " . 
-                ( $name =~ /::/ 
-                    ? "\\$name" 
-                    : "Pugs::Runtime::Regex::get_variable( '$name' )"
-                ) . 
-                ";
+                my \$hash = \\$name;
                 my \%sizes = map { length(\$_) => 1 } keys \%\$hash;
                 ${id}_sizes = [ sort { \$b <=> \$a } keys \%sizes ];
                 " . #print \"sizes: \@${id}_sizes\\n\";
