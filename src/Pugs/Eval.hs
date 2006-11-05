@@ -356,6 +356,30 @@ reducePad STemp lex exp = do
     isn <- liftSTM $ readTVar isNonLocal
     (if isn then retShift else return) val
 
+reducePad SLet lex exp = do
+    tmps <- mapM (\(sym, _) -> evalExp $ App (_Var "&TEMP") (Just $ Var sym) []) $ padToList lex
+    -- default to nonlocal exit
+    isNonLocal  <- liftSTM $ newTVar True
+    val <- tryT $ do
+        -- if the liftSTM is reached, exp evaluated without error; no need to shift out
+        evalExp exp `finallyM` liftSTM (writeTVar isNonLocal False)
+    isn <- liftSTM $ readTVar isNonLocal
+    if isn
+        then do
+            when (isFailure val) $ do
+                mapM_ (\tmp -> evalExp $ App (Val tmp) Nothing []) tmps
+            retShift val
+        else return val
+    where
+    isFailure (VControl (ControlLeave{ leaveValue = v }))
+        | VUndef <- v = True
+        | VRef r <- v = refType r == mkType "Failure"
+        | otherwise   = False
+    isFailure VControl{}    = True
+    isFailure _             = False
+
+
+
 reducePad _ lex exp = do
     local (\e -> e{ envLexical = lex `unionPads` envLexical e }) $ do
         evalExp exp
