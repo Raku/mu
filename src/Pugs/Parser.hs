@@ -65,7 +65,7 @@ ruleBlock = do
         currPos <- getPosition
         if sourceLine prevPos == sourceLine currPos then return rv else do
             -- Manually insert a ';' symbol here!
-            insertIntoPosition ';' 
+            insertIntoPosition ";" 
             -- Register that this is an eol-block, thus can't be hash composers
             return (Ann (Prag [MkPrag "eol-block" 0]) rv)
 
@@ -1786,7 +1786,7 @@ ruleApplyImplicitMethod = do
     ch <- do
         char '.'
         option '.' (char '=') -- non-canonical -- allow ".=foo" as a term to parse as "$_ .= $_.foo".
-    insertIntoPosition '.'
+    insertIntoPosition "."
     -- prevChar <- gets s_char
     fs <- many s_postTerm
     -- when (prevChar == '}') $ do

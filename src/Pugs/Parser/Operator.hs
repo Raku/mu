@@ -426,7 +426,7 @@ stateAssignHack others = others
 makeOp2DotAssign :: Assoc -> String -> (String -> [Exp] -> Exp) -> RuleOperator Exp
 makeOp2DotAssign prec _ con = (`Infix` prec) $ do
     symbol ".="
-    insertIntoPosition '.' -- "$x .= foo" becomes "$x .= .foo"
+    insertIntoPosition "." -- "$x .= foo" becomes "$x .= .foo"
     return $ \invExp argExp -> case argExp of
         -- XXX - App meth _ args -> stateAssignHack (con ".=" [invExp, App meth Nothing args])
         App meth _ args -> stateAssignHack (con "=" [invExp, App meth (Just invExp) args])
