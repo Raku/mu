@@ -21,6 +21,7 @@ use constant Inf => 100**100**100;
 use constant NaN => Inf - Inf;
 
 sub perl {
+    local $Data::Dumper::Terse    = 1;
     my $can = UNIVERSAL::can($_[0] => 'perl');
     if ($can) {
         $can->($_[0]);
