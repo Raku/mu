@@ -9,6 +9,7 @@ class Rul::Constant {
     method emit {
         my $len := $.constant;
         $len := $len.chars;
+
         if ( $len ) {
             '( ( substr( $str, $m.to, ' ~ $len ~ ') eq ' ~ $.constant.perl ~ ')' ~
             '  ?? ( ( $m.to: ( $m.to + ' ~ $len ~ ' ) or 1 )' ~
@@ -28,13 +29,15 @@ class Rul::InterpolateVar {
             my $hash = $.var.emit;
            'do {
                 state @sizes := do {
-                    my %sizes := '~$hash~'.keys.map:{ .chars.chr => 1 };
+                    # Here we use .chr to avoid sorting with {$^a<=>$^b} since
+                    # sort is by default lexographical.
+                    my %sizes := '~$hash~'.keys.map:{ chr(chars($_)) => 1 };
                     [ %sizes.keys.sort.reverse ];
                 };
                 my $match := 0;
                 my $key;
                 for @sizes {
-                    $key := ( $m.to <= length( $s ) ? substr( $s, $m.to, $_ ) : '' );
+                    $key := ( $m.to <= chars( $s ) ?? substr( $s, $m.to, $_ ) !! '' );
                     if ( '~$hash~'.exists( $key ) ) {
                         $match = '~$hash~'{$key}.({ str => $str, grammar => $grammar, pos => ( $m.to + $_ ), KEY => $key });
                         last if $match;
@@ -115,7 +118,7 @@ sub call_perl5 {
     #print "CONST: $const - $direction \n";
     return
 "$_[1] ( ( substr( \$str, \$m.to ) =~ m:P5/^($const)/ )  
-$_[1]     ? ( \$m.to := \$m.to $direction length( \$1 ) or 1 )
+$_[1]     ? ( \$m.to := \$m.to $direction chars( \$1 ) or 1 )
 $_[1]     : 0
 $_[1] )";
 }
@@ -301,7 +304,7 @@ sub variable {
             state ${id}_sizes;
             unless ( $id ) {
                 my \$hash := $name;
-                my \%sizes := \%\$hash.keys.map:{ .length => 1 };
+                my \%sizes := \%\$hash.keys.map:{ .chars => 1 };
                 ${id}_sizes := [ \%sizes.keys.sort:{ \$^b <=> \$^a } ];
                 " . #print \"sizes: \@${id}_sizes\\n\";
                 "$id = \$hash;
@@ -310,7 +313,7 @@ sub variable {
             "my \$match := 0;
             my \$key;
             for \@". $id ."_sizes {
-                \$key := ( \$m.to <= length( \$s ) 
+                \$key := ( \$m.to <= chars( \$s ) 
                             ? substr( \$s, \$m.to, \$_ )
                             : '' );
                 " . #print \"try ".$name." \$_ = \$key; \$s\\\n\";
@@ -635,12 +638,12 @@ sub colon {
     my $str = $_[0];
     return "$_[1] 1 # : no-op\n"
         if $str eq ':';
-    return "$_[1] ( \$m.to >= length( \$s ) ) \n" 
+    return "$_[1] ( \$m.to >= chars( \$s ) ) \n" 
         if $str eq '$';
     return "$_[1] ( \$m.to == 0 ) \n" 
         if $str eq '^';
         
-    return "$_[1] ( \$m.to >= length( \$s ) || substr( \$s, \$m.to ) =~ /^(?:\n\r?|\r\n?)/m ) \n" 
+    return "$_[1] ( \$m.to >= chars( \$s ) || substr( \$s, \$m.to ) =~ /^(?:\n\r?|\r\n?)/m ) \n" 
         if $str eq '$$';
     return "$_[1] ( \$m.to == 0 || substr( \$s, 0, \$m.to ) =~ /(?:\n\r?|\r\n?)\$/m ) \n" 
         if $str eq '^^';

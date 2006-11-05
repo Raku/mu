@@ -261,17 +261,17 @@ token named_capture_body {
 token term {
     |  
        {  say "matching variables" } 
-       <%MiniPerl6::Grammar::Regex::variables>
+       <%variables>
        [  <?ws>? <':='> <?ws>? <named_capture_body>
           { 
             return { named_capture => {
                 rule =>  $$<named_capture_body>,
-                ident => $$<MiniPerl6::Grammar::Regex::variables>,
+                ident => $$<variables>,
             }, }; 
           }
        |
           { 
-            return $$<MiniPerl6::Grammar::Regex::variables>,
+            return $$<variables>,
           }
        ]
     | 
