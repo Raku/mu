@@ -389,7 +389,7 @@ makeCircumOp sigil op = Term . try $
 makeOp2Assign :: Assoc -> String -> (String -> [Exp] -> Exp) -> RuleOperator Exp
 makeOp2Assign prec _ con = (`Infix` prec) $ do
     symbol "="
-    return $ \invExp argExp -> stateAssignHack (con "=" [invExp, argExp])
+    return $ \invExp argExp -> declAssignHack (con "=" [invExp, argExp])
 
 -- Rewrite "EXP ~~ .meth" into "?(EXP.meth)"
 makeOp2Match :: Assoc -> String -> (String -> [Exp] -> Exp) -> String -> RuleOperator Exp
@@ -402,25 +402,26 @@ makeOp2Match prec sigil con name = (`Infix` prec) $ do
             App (_Var "&prefix:?") Nothing [App app (Just x) args]
         _ -> con (sigil ++ name) [x,y]
 
-stateAssignHack :: Exp -> Exp
-stateAssignHack exp@(Syn "=" [lhs, _]) | isStateAssign lhs = 
-    let pad = unsafePerformSTM $! do
-            state_first_run <- newTVar =<< (fmap scalarRef $! newTVar (VInt 0))
-            state_fresh     <- newTVar False
-            return $! mkPad [(cast "$?STATE_START_RUN", [(state_fresh, state_first_run)])] in
-    Syn "block"
-        [ Pad SState pad $!
-            Syn "if"
-                [ App (_Var "&postfix:++") Nothing [_Var "$?STATE_START_RUN"]
-                , lhs
-                , exp
-                ]
-        ]
+declAssignHack :: Exp -> Exp
+declAssignHack exp@(Syn "=" [lhs, _])
+    | isDecl SState lhs = 
+        let pad = unsafePerformSTM $! do
+                state_first_run <- newTVar =<< (fmap scalarRef $! newTVar (VInt 0))
+                state_fresh     <- newTVar False
+                return $! mkPad [(cast "$?STATE_START_RUN", [(state_fresh, state_first_run)])] in
+        Syn "block"
+            [ Pad SState pad $!
+                Syn "if"
+                    [ App (_Var "&postfix:++") Nothing [_Var "$?STATE_START_RUN"]
+                    , lhs
+                    , exp
+                    ]
+            ]
     where
-    isStateAssign (Ann (Decl SState) _) = True
-    isStateAssign (Ann _ exp)           = isStateAssign exp
-    isStateAssign _                     = False
-stateAssignHack others = others
+    isDecl s (Ann (Decl d) _)    = s == d
+    isDecl s (Ann _ exp)         = isDecl s exp
+    isDecl _ _                   = False
+declAssignHack others = others
 
 -- Just for the ".=" rewriting
 makeOp2DotAssign :: Assoc -> String -> (String -> [Exp] -> Exp) -> RuleOperator Exp
@@ -428,8 +429,8 @@ makeOp2DotAssign prec _ con = (`Infix` prec) $ do
     symbol ".="
     insertIntoPosition "." -- "$x .= foo" becomes "$x .= .foo"
     return $ \invExp argExp -> case argExp of
-        -- XXX - App meth _ args -> stateAssignHack (con ".=" [invExp, App meth Nothing args])
-        App meth _ args -> stateAssignHack (con "=" [invExp, App meth (Just invExp) args])
+        -- XXX - App meth _ args -> declAssignHack (con ".=" [invExp, App meth Nothing args])
+        App meth _ args -> declAssignHack (con "=" [invExp, App meth (Just invExp) args])
         _               -> Val (VError (VStr "the right-hand-side of .= must be a function application") [])
 
 makeOp2 :: Assoc -> 
