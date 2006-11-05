@@ -7,5 +7,6 @@ say "here";
 {
     my $p = MiniPerl6::Grammar::Regex.term( 'a' );
     say ($$p).perl;
+    say ($$p).emit;
 }
 
