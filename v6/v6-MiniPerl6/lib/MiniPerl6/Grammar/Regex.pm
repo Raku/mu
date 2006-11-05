@@ -97,6 +97,8 @@ token named_capture_body {
         { return '$/{' ~ "'" ~ $<ident> ~ "'" ~ '}' }
 };
 %variables{'$'} := token {
+    |
+        { say "matching dollar-digit" }
         <?digit>+
         { return '$/[' ~ $/ ~ ']' }
     |
@@ -121,7 +123,7 @@ token named_capture_body {
         # TODO
         { return { variable => '@' ~ $/ ,} }
 };
-%variables{'$'} := token {
+%variables{'%'} := token {
         <?digit>+
         # TODO
         { return { match_variable => '%' ~ $/ ,} }
@@ -175,7 +177,7 @@ token named_capture_body {
         { return { metasyntax => '-' ~ $<char_class> } }
 };
 %rule_terms{'<'} := token { 
-        |  <%variables>
+        |  <%variables>  \>
             { 
                 return Rul::InterpolateVar({ var => $$<variables> })
             }
@@ -257,23 +259,27 @@ token named_capture_body {
         { return { modifier => 'langs',  :$$<rule>, } } };
 
 token term {
-    |  <%variables>
+    |  
+       {  say "matching variables" } 
+       <%MiniPerl6::Grammar::Regex::variables>
        [  <?ws>? <':='> <?ws>? <named_capture_body>
           { 
             return { named_capture => {
                 rule =>  $$<named_capture_body>,
-                ident => $$<variables>,
+                ident => $$<MiniPerl6::Grammar::Regex::variables>,
             }, }; 
           }
        |
           { 
-            return $$<variables>,
+            return $$<MiniPerl6::Grammar::Regex::variables>,
           }
        ]
-    |  <%Pugs::Grammar::Rule::rule_terms>
+    | 
+        { say "matching terms"; }
+        <%MiniPerl6::Grammar::Regex::rule_terms>
         { 
             #print "term: ", Dumper( $_[0]->data );
-            return $$<Pugs::Grammar::Rule::rule_terms> 
+            return $$<MiniPerl6::Grammar::Regex::rule_terms> 
         }
     |  <-[ \] \} \) \> \: \? \+ \* \| \& ]>    # TODO - <...>* - optimize!
         { return Rul::Constant({ constant => $$/ }) }

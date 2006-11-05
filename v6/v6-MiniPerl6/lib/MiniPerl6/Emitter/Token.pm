@@ -11,8 +11,8 @@ class Rul::Constant {
         $len := $len.chars;
         if ( $len ) {
             '( ( substr( $str, $m.to, ' ~ $len ~ ') eq ' ~ $.constant.perl ~ ')' ~
-            '  ? ( ( $m.to := ( $m.to + ' ~ $len ~ ' ) or 1 )' ~
-            '  : 0 ' ~
+            '  ?? ( ( $m.to: ( $m.to + ' ~ $len ~ ' ) or 1 )' ~
+            '  !! 0 ' ~
             ')';
         }
         else {
