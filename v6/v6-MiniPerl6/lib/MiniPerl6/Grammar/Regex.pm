@@ -189,10 +189,13 @@ token named_capture_body {
         { return Rul::Block({ closure => $$<parsed_code> }) }
 };
 %rule_terms{'\\'} := token {  
-        | [ x | X | o | O ] \d+
+        | [ x | X ] <[ 0..9 a..f A..F ]]>+
           #  \x0021    \X0021
           { return Rul::SpecialChar({ char => '\\' ~ $/ }) }
-        | ( x | X | o | O ) \[ (\d+) \]
+        | [ o | O ] <[ 0..7 ]>+
+          #  \x0021    \X0021
+          { return Rul::SpecialChar({ char => '\\' ~ $/ }) }
+        | ( x | X | o | O ) \[ (<-[ \] ]>*) \]
           #  \x[0021]  \X[0021]
           { return Rul::SpecialChar({ char => '\\' ~ $0 ~ $1 }) }
         | .
