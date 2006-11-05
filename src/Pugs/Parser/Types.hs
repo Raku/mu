@@ -346,9 +346,9 @@ expRule rule = do
 {-|
 Modify the input stream by inserting a single 'Char' as the next thing to parse.
 -}
-insertIntoPosition :: Char -> RuleParser ()
-insertIntoPosition ch = do
+insertIntoPosition :: String -> RuleParser ()
+insertIntoPosition str = do
     currPos <- getPosition
-    input <- getInput 
-    setInput (ch:input)
-    setPosition (setSourceColumn currPos (sourceColumn currPos - 1))
+    input   <- getInput 
+    setInput (str ++ input)
+    setPosition (setSourceColumn currPos (sourceColumn currPos - length str))
