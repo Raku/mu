@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances -fallow-undecidable-instances #-}
 module Pugs.Prim.FileTest (
     isReadable, isWritable, isExecutable,
     exists, isFile, isDirectory,
