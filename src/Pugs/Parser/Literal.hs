@@ -622,8 +622,7 @@ substLiteral = do
 pseudoAssignment :: RuleParser Exp
 pseudoAssignment = verbatimRule "infix assignment" $ do
     ahead <- lookAhead (string ".=" <|> ruleInfixAssignment <|> string "=")
-    insertIntoPosition '_'
-    insertIntoPosition '$'
+    insertIntoPosition "$_"
     item <- parseExpWithTightOps
     return $ case ahead of
         ".=" -> fixPseudo (applyPseudo item)
