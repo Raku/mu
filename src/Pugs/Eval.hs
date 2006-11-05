@@ -363,22 +363,17 @@ reducePad SLet lex exp = do
     val <- tryT $ do
         -- if the liftSTM is reached, exp evaluated without error; no need to shift out
         evalExp exp `finallyM` liftSTM (writeTVar isNonLocal False)
+    when (isFailure val) $ do
+        mapM_ (\tmp -> evalExp $ App (Val tmp) Nothing []) tmps
     isn <- liftSTM $ readTVar isNonLocal
-    if isn
-        then do
-            when (isFailure val) $ do
-                mapM_ (\tmp -> evalExp $ App (Val tmp) Nothing []) tmps
-            retShift val
-        else return val
+    if isn then retShift val else return val
     where
-    isFailure (VControl (ControlLeave{ leaveValue = v }))
-        | VUndef <- v = True
-        | VRef r <- v = refType r == mkType "Failure"
-        | otherwise   = False
+    isFailure (VControl ControlLeave{ leaveValue = v }) = isFailure v
     isFailure VControl{}    = True
+    isFailure VUndef        = True
+    isFailure VError{}      = True
+    isFailure (VRef r)      = refType r == mkType "Failure"
     isFailure _             = False
-
-
 
 reducePad _ lex exp = do
     local (\e -> e{ envLexical = lex `unionPads` envLexical e }) $ do

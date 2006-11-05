@@ -15,7 +15,7 @@ plan 11;
     is $a, 23, "let() changed the variable (1)";
     1;
   }
-  is $a, 23, "let() should not restore the variable, as our block exited succesfully (1)", :todo<feature>;
+  is $a, 23, "let() should not restore the variable, as our block exited succesfully (1)";
 }
 
 # let() should restore the variable if the block failed (returned a false
@@ -25,7 +25,7 @@ plan 11;
   {
     let $a = 23;
     is $a, 23, "let() changed the variable (1)";
-    0;
+    undef;
   }
   is $a, 42, "let() should restore the variable, as our block failed";
 }
@@ -38,10 +38,10 @@ plan 11;
   {
     let $a = 23;
     is $a,       23, "let() changed the variable (2-1)";
-    is $get_a(), 23, "let() changed the variable (2-2)", :todo<feature>;
+    is $get_a(), 23, "let() changed the variable (2-2)";
     1;
   }
-  is $a, 23, "let() should not restore the variable, as our block exited succesfully (2)", :todo<feature>;
+  is $a, 23, "let() should not restore the variable, as our block exited succesfully (2)";
 }
 
 # Test that let() restores variable even when not exited regularly (using a
@@ -56,15 +56,12 @@ plan 11;
   is $a, 42, "let() restored the variable, the block was exited using an exception";
 }
 
-eval('
 {
   my @array = (0, 1, 2);
   {
     let @array[1] = 42;
     is @array[1], 42, "let() changed our array element";
-    0;
+    undef;
   }
   is @array[1], 1, "let() restored our array element";
 }
-"1 - delete this line when the parsefail eval() is removed";
-') or skip(2, "parsefail: let \@array[1]");
