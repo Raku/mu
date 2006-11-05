@@ -38,7 +38,7 @@ bindNames exps prms = (bound, exps', prms')
     (bound, exps') = foldr doBindNamed ([], []) (map unwrapNamedArg exps)
     doBindNamed (name, exp) (bound, exps) = case foundParam of
         Just prm -> ( ((prm, exp) : bound), exps )
-        _        -> ( bound, (Syn "=>" [Val (VStr $ cast name), exp]:exps) )
+        _        -> ( bound, (Syn "named" [Val (VStr $ cast name), exp]:exps) )
         where
         foundParam = find ((== name) . v_name . paramName) prms
 
@@ -60,7 +60,7 @@ bindHash :: [Exp]   -- ^ Named arguments (pair expressions) that were not
          -> MaybeError Bindings
 bindHash [] []          = return []
 bindHash [] [p]         = return [ (p, emptyHashExp) ]
-bindHash (v:_) []       = fail $ "Named argument found where no match parameter expected: " ++ show (unwrapNamedArg v)
+bindHash (v:_) []       = fail $ "Named argument found where no matched parameter expected: " ++ show (unwrapNamedArg v)
 bindHash vs (p:ps@(_:_))= do
     first <- (bindHash vs [p])
     return $ first ++ (ps `zip` repeat emptyHashExp)
