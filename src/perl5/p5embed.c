@@ -22,7 +22,7 @@
 
 static PerlInterpreter *my_perl;
 
-int __init = 0;
+int _P5EMBED_INIT = 0;
 
 const char pugs_guts_code[] =
 "use strict;\n\n"
@@ -355,7 +355,7 @@ perl5_init ( int argc, char **argv )
     if (exitstatus == 0)
         exitstatus = perl_run( my_perl );
 
-    __init = 1;
+    _P5EMBED_INIT = 1;
 
     newXS((char*) "pugs::guts::invoke", _pugs_guts_invoke, (char*)__FILE__);
     newXS((char*) "pugs::guts::eval_apply", _pugs_guts_eval_apply, (char*)__FILE__);

@@ -3,6 +3,12 @@
 #define _UINTPTR_T_DEFINED
 #undef RETURN
 
+#if defined(__OpenBSD__)
+#define _P5EMBED_INIT _p5embed_init
+#else
+#define _P5EMBED_INIT __init
+#endif
+
 #include "EXTERN.h"
 #include "perl.h"
 #include "embed.h"

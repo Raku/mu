@@ -1,5 +1,5 @@
 #include "pugsembed.h"
-extern int __init;
+extern int _P5EMBED_INIT;
 
 IV
 pugs_tied ( SV *sv )
@@ -79,7 +79,7 @@ pugs_MkValRef ( Val *val, char *typeStr )
 
     sv_setref_pv(sv, "pugs", val);
 
-    if (!__init) {
+    if (!_P5EMBED_INIT) {
         fprintf(stderr, "MkValRef called before perl_init.\n");
     }
 
