@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 1 Nov 2006
+  Last Modified: 6 Nov 2006
   Number: 12
-  Version: 30
+  Version: 31
 
 =head1 Overview
 
@@ -466,13 +466,25 @@ The dot form can take an argument list as well.  These are all equivalent:
     @.foo.(1,2,3);      # ditto
 
 Pseudo-assignment to an attribute declaration specifies the default
-value.  The value on the right is evaluated at class composition
-time, that is, while the class is being compiled and the class
-object constructed.  However, if the default value is a closure,
-that closure will be executed later at object initialization time.
-(Use a double closure to initialize to a closure value.)  The topic
-of the closure will be the attribute being initialized, while "self"
-refers to the entire object being initialized.
+value.  The value on the right is treated as an implicit closure and
+evaluated at object build time, that is, when the object is being
+constructed, not when class is being composed.  To refer to a value
+computed at compilation or composition time, you can either use a
+temporary or a temporal block of some sort:
+
+    has $.r = rand;	# each object gets different random value
+
+    constant $random = rand;
+    has $.r = $random;	# every object gets same value
+
+    has $.r = BEGIN { rand };
+    has $.r = INIT { rand };
+    has $.r = ENTER { rand };
+    has $.r = FIRST { rand };
+
+When it is called at BUILD time, the topic of the implicit closure
+will be the attribute being initialized, while "self" refers to the
+entire object being initialized.
 
 Class attributes are declared with either C<my> or C<our>.  The only
 difference from ordinary C<my> or C<our> variables is that an accessor
