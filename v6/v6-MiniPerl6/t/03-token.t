@@ -9,11 +9,11 @@ use MiniPerl6::Emitter::Token;
     say ($$p).emit;
 }
 
-{
-    my $p = MiniPerl6::Grammar::Regex.term( '$1' );
-    say ($$p).perl;
-    say ($$p).emit;
-}
+#{
+#    my $p = MiniPerl6::Grammar::Regex.term( '$1' );
+#    say ($$p).perl;
+#    say ($$p).emit;
+#}
 
 {
     my $p = MiniPerl6::Grammar::Regex.term( '<%h>' );

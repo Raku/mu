@@ -98,7 +98,6 @@ token named_capture_body {
 };
 %variables{'$'} := token {
     |
-        { say "matching dollar-digit" }
         <?digit>+
         { return '$/[' ~ $/ ~ ']' }
     |
@@ -124,19 +123,21 @@ token named_capture_body {
         { return { variable => '@' ~ $/ ,} }
 };
 %variables{'%'} := token {
+        { say "matching hash-digit" }
         <?digit>+
         # TODO
         { return { match_variable => '%' ~ $/ ,} }
     |        
+        { say "matching hash-ident" }
         (\^?)
         ([ <?alnum> | _ | \: \: ]+)
         {
             # %a %^a
-            return Var({ 
+            return ::Var(
                     sigil  => '%',
                     twigil => ~$0,
                     name   => ~$1,
-                   }),
+                   ),
         }
 };
 
@@ -177,7 +178,9 @@ token named_capture_body {
         { return { metasyntax => '-' ~ $<char_class> } }
 };
 %rule_terms{'<'} := token { 
-        |  <%variables>  \>
+        |  
+           { say "matching < ..." }
+           <%variables>  \>
             { 
                 return Rul::InterpolateVar({ var => $$<variables> })
             }
@@ -276,10 +279,10 @@ token term {
        ]
     | 
         { say "matching terms"; }
-        <%MiniPerl6::Grammar::Regex::rule_terms>
+        <%rule_terms>
         { 
             #print "term: ", Dumper( $_[0]->data );
-            return $$<MiniPerl6::Grammar::Regex::rule_terms> 
+            return $$<rule_terms> 
         }
     |  <-[ \] \} \) \> \: \? \+ \* \| \& ]>    # TODO - <...>* - optimize!
         { return Rul::Constant({ constant => $$/ }) }
