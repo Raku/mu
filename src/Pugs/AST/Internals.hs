@@ -391,6 +391,14 @@ instance Value VCode where
             runInvokePerl5 sv nullSV svs
         }
     doCast (VCode b) = return b
+    doCast (VType t) = return $ mkPrim
+        { subName     = cast t
+        , subParams   = [buildParam "Any" "*" "@?0" (Val VUndef), buildParam "Any" "*" "%?0" (Val VUndef)]
+        , subReturns  = mkType "Scalar::Perl5"
+        , subBody     = Prim $ \(p:n:_) -> do
+            evl <- asks envEval
+            evl (App (_Var "&new") (Just $ Val (VType t)) [Syn "|" [Val p], Syn "|" [Val n]])
+        }
     doCast (VList [VCode b]) = return b -- XXX Wrong
     doCast v = castFailM v "VCode"
 

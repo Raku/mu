@@ -1785,7 +1785,7 @@ ruleApplyImplicitMethod :: RuleParser Exp
 ruleApplyImplicitMethod = do
     ch <- do
         char '.'
-        option '.' (char '=') -- non-canonical -- allow ".=foo" as a term to parse as "$_ .= $_.foo".
+        option '.' (char '=') -- allow ".=foo" as a term to parse as "$_ .= $_.foo".
     insertIntoPosition "."
     -- prevChar <- gets s_char
     fs <- many s_postTerm

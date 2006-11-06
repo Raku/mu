@@ -430,7 +430,9 @@ makeOp2DotAssign prec _ con = (`Infix` prec) $ do
     insertIntoPosition "." -- "$x .= foo" becomes "$x .= .foo"
     return $ \invExp argExp -> case argExp of
         -- XXX - App meth _ args -> declAssignHack (con ".=" [invExp, App meth Nothing args])
-        App meth _ args -> declAssignHack (con "=" [invExp, App meth (Just invExp) args])
+        App meth _ args
+            | meth == Var varTopic  -> declAssignHack (con "=" [invExp, App invExp Nothing args])
+            | otherwise             -> declAssignHack (con "=" [invExp, App meth (Just invExp) args])
         _               -> Val (VError (VStr "the right-hand-side of .= must be a function application") [])
 
 makeOp2 :: Assoc -> 
