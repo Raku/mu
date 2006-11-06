@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 10;
+plan 13;
 
 # L<S12/"Construction and Initialization">
 
@@ -49,3 +49,16 @@ is eval('Foo.new("a string").a'), 'a string', "our own 'new' was called", :todo<
   my Bar $bar .= new(:attr(42));
   is $bar.attr, 42, "instantiating an object using .= worked (1)";
 }
+# Using ".=()" to create an object
+{ 
+  class Fooz { has $.x }
+  my Fooz $f .=(:x(1));
+  is $f.x, 1, "instantiating an object using .=() worked";
+}
+
+{
+  class Baz { has @.x is rw }
+  my Baz $foo .= new(:x(1,2,3));
+  lives_ok -> { $foo.x[0] = 3 }, "Array initialized in auto-constructor is not unwritable...";
+  is $foo.x[0], 3, "... and keeps its value properly."
+}	
