@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 24;
+plan 40;
 
 # 3..2 must *not* produce "3 2".  Use reverse to get a reversed range. -lwall
 
@@ -43,4 +43,25 @@ is 1.5 ~~ 1^..^2, Bool::True, "lazy evaluation of the range operator", :todo<bug
 # Test the unary ^ operator
 is ~(^5), "0 1 2 3 4", "unary ^num produces the range 0..^num";
 is [^1], [0], "unary ^ on the boundary ^1 works";
-is [^0], [], "unary ^0 produces null range"
+is [^0], [], "unary ^0 produces null range";
+
+# Test with floats
+is ~(1 .. 4.1) , "1 2 3 4", "upper inclusive limit is truncated";
+is ~(1 .. 4.9) , "1 2 3 4", "upper inclusive limit is truncated";
+is ~(1 ..^ 4.1), "1 2 3"  , "upper exclusive limit is truncated";
+is ~(1 ..^ 4.9), "1 2 3"  , "upper exclusive limit is truncated";
+
+is ~(1.1 .. 4) , "1 2 3 4", "lower inclusive limit is truncated";
+is ~(1.9 .. 4) , "1 2 3 4", "lower inclusive limit is truncated";
+is ~(1.1 ^.. 4), "2 3 4"  , "lower exclusive limit is truncated";
+is ~(1.9 ^.. 4), "2 3 4"  , "lower exclusive limit is truncated";
+
+is ~(1.1 .. 4.1), "1 2 3 4", "both inclusive limits are truncated";
+is ~(1.9 .. 4.1), "1 2 3 4", "both inclusive limits are truncated";
+is ~(1.1 .. 4.9), "1 2 3 4", "both inclusive limits are truncated";
+is ~(1.9 .. 4.9), "1 2 3 4", "both inclusive limits are truncated";
+
+is ~(1.1 ^..^ 4.1), "2 3", "both exclusive limits are truncated";
+is ~(1.9 ^..^ 4.1), "2 3", "both exclusive limits are truncated";
+is ~(1.1 ^..^ 4.9), "2 3", "both exclusive limits are truncated";
+is ~(1.9 ^..^ 4.9), "2 3", "both exclusive limits are truncated";
