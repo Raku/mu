@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 20;
+plan 22;
 
 =pod
 
@@ -18,16 +18,18 @@ class Bar does Foo;
 ok Foo.HOW, "definition of a role worked";
 ok Bar.HOW, "definition of a class which does a role worked";
 
-# Smartmatch and .HOW.does
+# Smartmatch and .HOW.does and .^does
 my $bar = Bar.new();
 ok ($bar ~~ Bar),         '... smartmatch our $bar to the Bar class';
 ok ($bar.HOW.does(Foo)), '.HOW.does said our $bar does Foo';
+ok ($bar.^does(Foo)), '.^does said our $bar does Foo';
 ok ($bar ~~ Foo),         'smartmatch said our $bar does Foo';
 
 # Mixing a Role into an Object using imperative C<does>
 my $baz = 3;
 ok eval('$baz does Foo'),       'mixing in our Foo role into $baz worked';
 ok eval('$baz.HOW.does(Foo)'), '.HOW.does said our $baz now does Foo', :todo<feature>;
+ok eval('$baz.^does(Foo)'), '.^does said our $baz now does Foo', :todo<feature>;
 ok eval('$baz ~~ Baz'),         'smartmatch said our $baz now does Foo', :todo<feature>;
 
 # L<S12/"Roles" /but with a role keyword:/>
