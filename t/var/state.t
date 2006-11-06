@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 16;
+plan 18;
 
 # L<S04/"The Relationship of Blocks and Declarations" /There is a new state declarator that introduces/>
 
@@ -155,4 +155,16 @@ plan 16;
         is $code(), 43, "state was initialized properly ($_ time)";
         is $code(), 44, "state keeps its value across calls ($_ time)";
     }
+}
+
+# recursive state with list assignment initialization happens only first time
+{
+    my $seensize;
+    my sub fib (UInt $n) {
+	state @seen = 0,1,1;
+	$seensize = +@seen;
+	@seen[$n] //= fib($n-1) + fib($n-2);
+    }
+    is fib(10), 55, "fib works";
+    is $seensize, 10, "list assignment state in fib memoizes";
 }
