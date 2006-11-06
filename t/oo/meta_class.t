@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 9;
+plan 11;
 
 =pod
 
@@ -15,7 +15,9 @@ class Foo-0.0.1 { method bar ($param) returns Str { return "baz" ~ $param } };
 # L<S12/"Introspection" /should be called through the meta object\:/>
 
 ok(eval("Foo.HOW.can('bar')"), '... Foo can bar', :todo<feature>);
+ok(eval("Foo.^can('bar')"), '... Foo can bar (as class method)', :todo<feature>);
 ok(eval("Foo.HOW.isa(Foo)"), '... Foo is-a Foo (of course)', :todo<bug>);
+ok(eval("Foo.^isa(Foo)"), '... Foo is-a Foo (of course) (as class method)', :todo<bug>);
 
 # L<S12/"Introspection" /Class traits may include\:/>
 
