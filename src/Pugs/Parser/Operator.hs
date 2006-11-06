@@ -128,7 +128,7 @@ listAssignment x = do
         ruleComma
         ys <- parseExpWithTightOps `sepEndBy` ruleComma
         return (Syn "," (y:ys))
-    return (Syn "=" [forceParens x, rhs])
+    return $ declAssignHack (Syn "=" [forceParens x, rhs])
     where
     -- XXX - Special casing ($x) = 1,2,3 to ($x,) = 1,2,3
     forceParens exp@(Ann Parens inner)
