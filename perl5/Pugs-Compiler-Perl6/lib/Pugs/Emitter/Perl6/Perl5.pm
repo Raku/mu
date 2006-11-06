@@ -564,6 +564,12 @@ sub default {
             return _emit($n->{sub}). '->(' . 
                 _emit_parameter_capture( $n->{param} ) . ')';
         }
+
+        if (my $type = $n->{sub}{type}) {
+            $type =~ s/^:://;
+            return 
+                " bless({" . emit_parenthesis( $n->{param} ) . "}, '$type')";
+        }
         
         if ( $n->{sub}{bareword} eq 'call' ) {
             # call;

@@ -278,6 +278,10 @@ sub recompile {
                 <?Pugs::Grammar::Term.ident>
                 { return { array => "\@" . $_[0]->() ,} }
             ),
+        '::' => q(
+                <?Pugs::Grammar::Term.ident>
+                { return { type => "\::" . $_[0]->() ,} }
+            ),
         '@()' => q(
                 { return 
                     {
