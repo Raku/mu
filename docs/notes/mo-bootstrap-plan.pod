@@ -10,14 +10,34 @@ done in a lockstep fashion:
     instance Arguments Capture
 
     -- Augment the Arguments API to introduce:
-    addInvocant :: a -> Object -> a
-    getInvocant :: a -> Maybe Object
+    withInvocant    :: a -> Object -> a
+    getInvocant     :: a -> Maybe Object
 
 We can reue the MI Class as the canonical Pugs class, but the C3 linearize
 as well as the actual call (i.e. ivDispatch) needs to be lifted into the Eval
 monad.  However, metaobjects stays utterl functionl.
 
 =head2 Instance Layout
+
+    class C { has $.x }
+    my $fido = C.new;
+
+    # augmentation
+    eval "class C is also { has $.y is rw }";
+    $fido.y = 123;
+
+
+    class C { has $.x is Int; has $.y is Int }
+    (Integer, Integer)
+
+    # PDL structures
+    class C { has $.x is int8; has $.y is int16 }
+
+    # Equiv Haskell codegen using libGHC or hs-plugins
+    MkC { x :: !Int8, y :: !Int16 }
+
+invStatic   :: Array Int Val    -- or Map ID Val
+invDynamic  :: Hash ID Val      -- conveniently ignore this in the 1st pass
 
 The layout of instances is to be a (Array Int Val) for the static
 parts, and also (maybe later?) a (HashTable ID Val) for the slots augmented
@@ -32,14 +52,13 @@ to allow for truly unassignable (even for class-local methods) slots:
     # Essentially a class for value object:
     class C {
         has $.foo is Int;
-        method BUILD ($.foo) {
+        method BUILD ($.foo = 0) {
             # The BUILD autoinit magick here needs to be changed to
-            # allow this; instead of (as in nothingmuch++'s MO)
-            # initializing a slot and then assigning it a value
-            # supplied by the constructor method, we need to mangle
-            # the CREATE call so it happens right _after_ the binding
-            # stage for BUILD, but _before_ any ENTER block fires
-            # for the BUILD method body.
+            # allow this; instead of initializing a slot and then
+            # assigning it a value supplied by the constructor method,
+            # we need to mangle the CREATE call so it happens right
+            # _after_ the binding stage for BUILD, but _before_ any
+            # ENTER block fires for the BUILD method body.
         }
         method foo {
             $.foo = 1;  # the accessor fails as it's not generated rw.
@@ -54,6 +73,7 @@ to allow for truly unassignable (even for class-local methods) slots:
             $.foo = 1;  # the accessor fails as it's not generated rw.
             $!foo = 1;  # private accessor call; works by assigning to Scalar.
         }
+    }
 
 (It's also possible to simply take the Object WHICH to be the
 Seq of WHICHs for all its current slots.  That seems 1)fun 2)simple.
@@ -68,13 +88,41 @@ package lookup protocol.
 
 =head2 Autoboxing
 
+
 Autoboxing of native projects is accomplished with a global
-(Map TypeRep InterfaceTable) that simply assumes a layout of native
-Haskell types and respond to them using IT.  It's unfortunate that we'll
-have to use fromTypeable on this one, but since it's all monotypes
-(we don't have parametric types until 6.2831 anyway), this layout should
-carry us forward for another couple of milestones.  (And by that time
-we'll have acces to GHC 6.8's type families.)
+(Map TypeRep InstanceMethods) that simply assumes a layout of native
+Haskell types and respond to them using IT.
+
+    globalMap = fromList
+        [ (typeOf (undefined :: Socket), socketMethods)
+        , (typeOf (undefined :: Thread), threadMethods)
+        , (typeOf (undefined :: AnyClass), classMethods)    -- Magically: Metaobject Protocol!
+        , ...
+        ]
+
+There should be an easy wrap method to promote any Haskell native methods
+into callconv-friendly Eval ones:
+
+    module Pugs.Runtime.Socket
+
+    socketMethods :: InstanceMethods
+    socketMethods = fromList
+        [ ("close",  wrap closeSocket)
+        , ("accept", wrap acceptSocket)
+        ]
+
+    closeSocket :: Socket -> IO ()
+
+    ------------
+
+    wrap fun = case Typeable.cast ivInvocant of
+        Just rightType  -> fun rightType
+        _               -> fail "Trying to call socket methods without a native socket layout"
+
+It's unfortunate that we'll have to use fromTypeable on this one, but since
+it's all monotypes (we don't have parametric types until 6.2831 anyway), this
+layout should carry us forward for another couple of milestones.  (And by that
+time we'll have acces to GHC 6.8's type families.)
 
 =head2 Runtime Augmentation
 
@@ -82,5 +130,10 @@ Runtime metaclass augmentation needs one level of indirection.
 The Main class maintains a runtimeAttributes (etc) field in addition
 to the compile-time attributes, and each instance's layout will then
 neccessarily contain the HashTable part (see above) to make up for those.
+
+One way to go about this is to make an AugmentableMI structure that is
+simply (TVar MI), and maintain its identity thru (addressOf :: TVar MI -> Word),
+so objects close over the TVar instead of the actual MI records in it, and
+all (class Class) methods go over one indirection of readTVar.
 
 =cut
