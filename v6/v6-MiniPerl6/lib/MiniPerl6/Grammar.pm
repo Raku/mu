@@ -2,25 +2,6 @@ use v6-alpha;
 
 grammar MiniPerl6::Grammar;
 
-sub CompUnit($data)  { use v5; bless $data, 'CompUnit';  use v6; }
-sub Var($data)       { use v5; bless $data, 'Var';       use v6; }
-sub Apply($data)     { use v5; bless $data, 'Apply';     use v6; }
-sub Call($data)      { use v5; bless $data, 'Call';      use v6; }
-sub Bind($data)      { use v5; bless $data, 'Bind';      use v6; }
-sub Return($data)    { use v5; bless $data, 'Return';    use v6; }
-sub While($data)     { use v5; bless $data, 'While';     use v6; }
-sub For($data)       { use v5; bless $data, 'For';       use v6; }
-sub When($data)      { use v5; bless $data, 'When';      use v6; }
-sub If($data)        { use v5; bless $data, 'If';        use v6; }
-
-sub Lit::Object($data) { use v5; bless $data, 'Lit::Object'; use v6; }
-
-sub Val::Undef($data)  { use v5; bless $data, 'Val::Undef';  use v6; }
-sub Val::Int($data)    { use v5; bless $data, 'Val::Int';    use v6; }
-sub Val::Num($data)    { use v5; bless $data, 'Val::Num';    use v6; }
-sub Val::Buf($data)    { use v5; bless $data, 'Val::Buf';    use v6; }
-sub Val::Bit($data)    { use v5; bless $data, 'Val::Bit';    use v6; }
-
 # XXX - move to v6.pm emitter
 sub array($data)    { use v5; @$data; use v6; }
 
@@ -33,29 +14,29 @@ token comp_unit {
     \}
     <?ws>?
     {
-        return CompUnit({
+        return ::CompUnit(
             name        => $$<ident>,
             attributes  => {},
             methods     => {},
             body        => $$<exp_stmts>,
-        })
+        )
     }
 }
 
 token exp {
     <term> [
         | <?ws>? <':='> <?ws>? <exp>
-        { return Bind({ parameters => $$<term>, arguments => $$<exp> }) }
+        { return ::Bind(parameters => $$<term>, arguments => $$<exp>) }
         | \. <ident>
             [ \( <?ws>? <exp_seq> <?ws>? \)
             | \: <?ws> <exp_seq> <?ws>?
             ]
             {
-                return Call({
+                return ::Call(
                     invocant  => $$<term>,
                     method    => $$<ident>,
                     arguments => $$<exp_seq>,
-                })
+                )
             }
         | { return $$<term> }
     ]
@@ -94,35 +75,35 @@ token if {
     \{ <?ws>? $<body>      := <exp_stmts> <?ws>? \} <?ws>?
     else <?ws>? 
     \{ <?ws>? $<otherwise> := <exp_stmts> <?ws>? \}
-    { return If({ :$$<cond>, :$$<body>, :$$<otherwise> }) }
+    { return ::If( :$$<cond>, :$$<body>, :$$<otherwise> ) }
 }
 
 token when {
     when <?ws> $<parameters> := <exp_seq> <?ws>? \{ <?ws>? $<body> := <exp_stmts> <?ws>? \}
-    { return When({ :$$<parameters>, :$$<body> }) }
+    { return ::When( :$$<parameters>, :$$<body> ) }
 }
 
 token for {
     for <?ws> <exp> <?ws>? <'->'> <?ws>? <var> <?ws> \{ <?ws>? <exp_stmts> <?ws>? \}
-    { return For({ cond => $$<exp>, topic => $$<var>, body => $$<exp_stmts> }) }
+    { return ::For( cond => $$<exp>, topic => $$<var>, body => $$<exp_stmts> ) }
 }
 
 token while {
     while <?ws> <exp> <?ws> \{ <?ws>? <exp_stmts> <?ws>? \}
-    { return While({ cond => $$<exp>, body => $$<exp_stmts> }) }
+    { return ::While( cond => $$<exp>, body => $$<exp_stmts> ) }
 }
 
 token leave {
     leave
-    { return Leave({}) }
+    { return ::Leave() }
 }
 
 token return {
     return <?ws> <exp>
-    { return Return({ result => $$<exp> }) }
+    { return ::Return( result => $$<exp> ) }
     |
     return 
-    { return Return({ result => Val::Undef({}) }) }
+    { return ::Return( result => ::Val::Undef() ) }
 }
 
 token var {
@@ -130,11 +111,11 @@ token var {
     $<twigil> := [ <[ \. \! \^ ]> | <''> ]
     <ident>
     {
-        return Var({
+        return ::Var(
             sigil  => ~$<sigil>,
             twigil => ~$<twigil>,
             name   => ~$<ident>,
-        })
+        )
     }
 }
 
@@ -150,24 +131,24 @@ token val {
 }
 
 token val_bit {
-    | True>>  { return Val::Bit( { bit => 1 } ) }
-    | False>> { return Val::Bit( { bit => 0 } ) }
+    | True>>  { return ::Val::Bit( bit => 1 ) }
+    | False>> { return ::Val::Bit( bit => 0 ) }
 }
 
 token val_undef {
     undef
-    { return Val::Undef({ }) }
+    { return ::Val::Undef() }
 }
 
 token val_num {  XXX { return "TODO: val_num" } }
 token val_buf {
-    | \" ([\\<(.)>|<-[\"]>]+) \" { return Val::Buf( { buf => $$0 } ) }
-    | \' ([\\<[\\\']>|<-[\']>]+) \' { return Val::Buf( { buf => $$0 } ) }
+    | \" ([\\<(.)>|<-[\"]>]+) \" { return Val::Buf( buf => $$0 ) }
+    | \' ([\\<[\\\']>|<-[\']>]+) \' { return Val::Buf( buf => $$0 ) }
 }
 
 token val_int {
     \d+
-    { return Val::Int( { int => ~$/ } ) }
+    { return ::Val::Int( int => ~$/ ) }
 }
 
 token exp_stmts {
@@ -229,10 +210,10 @@ token lit_object {
     $<class> := <ident>
     \( <?ws>? $<fields> := <exp_mapping> <?ws>? \)
     {
-        return Lit::Object({
+        return ::Lit::Object(
             :$$<class>,
             :$$<fields>,
-        })
+        )
     }
 }
 
@@ -241,21 +222,21 @@ token bind {
     <?ws>? <':='> <?ws>?
     $<arguments>  := <exp>
     {
-        return Bind({
+        return ::Bind(
             :$$<parameters>,
             :$$<arguments>,
-        })
+        )
     }
 }
 token call {
     $<invocant>  := <exp>
     \. $<method> := <ident> \( <?ws>? <exp_seq> <?ws>? \)
     {
-        return Call({
+        return ::Call(
             :$$<invocant>,
             :$$<method>,
             arguments => $$<exp_seq>,
-        })
+        )
     }
 }
 
@@ -265,10 +246,10 @@ token apply {
         | <?ws> <exp_seq> <?ws>?
         ]
     {
-        return Apply({
+        return ::Apply(
             code      => $$<ident>,
             arguments => $$<exp_seq>,
-        })
+        )
     }
 }
 
