@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 40;
+plan 47;
 
 # 3..2 must *not* produce "3 2".  Use reverse to get a reversed range. -lwall
 
@@ -46,15 +46,15 @@ is [^1], [0], "unary ^ on the boundary ^1 works";
 is [^0], [], "unary ^0 produces null range";
 
 # Test with floats
-is ~(1 .. 4.1) , "1 2 3 4", "upper inclusive limit is truncated";
-is ~(1 .. 4.9) , "1 2 3 4", "upper inclusive limit is truncated";
-is ~(1 ..^ 4.1), "1 2 3"  , "upper exclusive limit is truncated";
-is ~(1 ..^ 4.9), "1 2 3"  , "upper exclusive limit is truncated";
-
 is ~(1.1 .. 4) , "1 2 3 4", "lower inclusive limit is truncated";
 is ~(1.9 .. 4) , "1 2 3 4", "lower inclusive limit is truncated";
 is ~(1.1 ^.. 4), "2 3 4"  , "lower exclusive limit is truncated";
 is ~(1.9 ^.. 4), "2 3 4"  , "lower exclusive limit is truncated";
+
+is ~(1 .. 4.1) , "1 2 3 4", "upper inclusive limit is truncated";
+is ~(1 .. 4.9) , "1 2 3 4", "upper inclusive limit is truncated";
+is ~(1 ..^ 4.1), "1 2 3"  , "upper exclusive limit is truncated";
+is ~(1 ..^ 4.9), "1 2 3"  , "upper exclusive limit is truncated";
 
 is ~(1.1 .. 4.1), "1 2 3 4", "both inclusive limits are truncated";
 is ~(1.9 .. 4.1), "1 2 3 4", "both inclusive limits are truncated";
@@ -65,3 +65,18 @@ is ~(1.1 ^..^ 4.1), "2 3", "both exclusive limits are truncated";
 is ~(1.9 ^..^ 4.1), "2 3", "both exclusive limits are truncated";
 is ~(1.1 ^..^ 4.9), "2 3", "both exclusive limits are truncated";
 is ~(1.9 ^..^ 4.9), "2 3", "both exclusive limits are truncated";
+
+
+# Test that the operands are forced to scalar context
+{
+    my @one   = (1,);
+    my @three = (1, 1, 1);
+
+    is ~(@one .. 3)     , "1 2 3", "lower inclusive limit is in scalar context";
+    is ~(@one ^.. 3)    , "2 3"  , "lower exclusive limit is in scalar context";
+    is ~(1 .. @three)   , "1 2 3", "upper inclusive limit is in scalar context";
+    is ~(1 ..^ @three)  , "1 2"  , "upper exclusive limit is in scalar context";
+    is ~(@one .. @three), "1 2 3", "both inclusive limits are in scalar context";
+    is ~(@one ^..^ @three), "2"  , "both exclusive limits are in scalar context";
+    is ~(@three .. @one), ""     , "null range produced with lists forced to scalar context";
+}
