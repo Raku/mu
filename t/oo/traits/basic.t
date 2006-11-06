@@ -39,7 +39,7 @@ ok(::B.HOW, 'mixing in our role into a class via "is" worked');
 is $was_in_class_sub, 1, 'trait_auxiliary:is was called on class', :todo<feature>;
 $b = B.new;
 ok($b, 'creating an instance worked');
-is($b.is_cool,    42,  'our class "inherited" an attribute', :todo<feature>);
+is($b.is_cool,    42,  'our class "inherited" an attribute');
 
 is(!eval(' %!P = 1; 1'),
    undef, 'calling a trait outside of a class should be a syntax error', :todo<bug>);
