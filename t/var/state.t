@@ -166,5 +166,5 @@ plan 18;
 	@seen[$n] //= fib($n-1) + fib($n-2);
     }
     is fib(10), 55, "fib works";
-    is $seensize, 10, "list assignment state in fib memoizes";
+    is $seensize, 11, "list assignment state in fib memoizes";
 }
