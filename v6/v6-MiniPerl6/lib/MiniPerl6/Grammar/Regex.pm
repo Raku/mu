@@ -355,8 +355,12 @@ token or_list {
 }
 token rule {
     [ <'|'> | <''> ]
+    # { say "trying M::G::Rule on ", $s }
     <or_list>
-    { return Rul::Or( 'or' => $$<or_list> ) }
+    { 
+        # say "found Rule";
+        return Rul::Or( 'or' => $$<or_list> ) 
+    }
 }
 
 =pod 

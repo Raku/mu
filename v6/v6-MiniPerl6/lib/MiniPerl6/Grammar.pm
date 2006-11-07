@@ -256,14 +256,16 @@ token apply {
 }
 
 token token {
-    { say "parsing Token" }
+    # { say "parsing Token" }
     token
     <?ws>? \{
-        <MiniPerl6::Grammar::Regex::rule>
+        <MiniPerl6::Grammar::Regex.rule>
     \}
     {
-        say "Token was compiled into: ", ($$<MiniPerl6::Grammar::Regex::rule>).perl;
-        return $$<MiniPerl6::Grammar::Regex::rule>
+        # say "Token was compiled into: ", ($$<MiniPerl6::Grammar::Regex.rule>).perl;
+        return 'method { ... ' ~ 
+            ($$<MiniPerl6::Grammar::Regex.rule>).emit ~
+            ' ... }'
     }
 }
 
