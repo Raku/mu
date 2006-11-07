@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 6 Nov 2006
+  Last Modified: 7 Nov 2006
   Number: 12
-  Version: 31
+  Version: 32
 
 =head1 Overview
 
@@ -451,6 +451,20 @@ only in the actual class, not in derived classes.  Reference to the
 internal storage location via C<$!foo> should generally be restricted
 to submethods.  Ordinary methods should stick to the C<$.foo> form.
 
+In fact, within submethods, use of the C<$.foo> form on attributes
+that are available as C<$!foo> (that is, that are declared directly
+by this class) is illegal and produces a dire compile-time warning
+(which may be suppressed).  Within a submethod the C<$.foo> form may
+only be used on attributes from parent classes, because only the parent
+classes' part of the object is guaranteed to be in a consistent state
+(because C<BUILDALL> call's the parent classes' C<BUILD> routines
+first).  If you attempt to get around this by declaring C<BUILD> as
+a method rather than a submethod, that will also be flagged as a dire
+(but suppressible) compile-time warning.  (It is I<possible> to define
+an inheritable C<BUILD> routine if you have access to all the metadata
+for the current class, but it's not easy, and it certainly doesn't
+happen by accident just because you change C<submethod> to C<method>.)
+
 Because C<$.foo>, C<@.foo>, C<%.foo>, C<&.foo> are just shorthands of
 C<self.foo> with different contexts, the class does not need to declare
 C<has $.foo> as an attribute -- a C<method foo> declaration can work
@@ -481,10 +495,13 @@ temporary or a temporal block of some sort:
     has $.r = INIT { rand };
     has $.r = ENTER { rand };
     has $.r = FIRST { rand };
+    has $.r = constant $myrand = rand;
 
-When it is called at BUILD time, the topic of the implicit closure
+When it is called at C<BUILD> time, the topic of the implicit closure
 will be the attribute being initialized, while "self" refers to the
-entire object being initialized.
+entire object being initialized.  The closure will be called at the
+end of the C<BUILD> only if the attribute is not otherwise initialized
+in either the signature or the body of the C<BUILD>.
 
 Class attributes are declared with either C<my> or C<our>.  The only
 difference from ordinary C<my> or C<our> variables is that an accessor
