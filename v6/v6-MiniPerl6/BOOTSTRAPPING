@@ -1,0 +1,11 @@
+- Reduce the amount of nodes required to compile MP6::Grammar::Regex
+- Implement the Rul::* nodes using MP6, emit MP6 - that would amount to about 5 or 6 nodes
+
+- Implement the required syntax in MP6::Emitter, such that it can emit Perl 5
+- Check that the emitted code can compile MP6::Grammar::Regex
+
+- Check that all MP6 files compile and run properly
+- Recompile it several times using itself, in order to check the stability of the Bootstrap
+
+- Freeze the project, because it can be useful to bootstrap other VMs
+

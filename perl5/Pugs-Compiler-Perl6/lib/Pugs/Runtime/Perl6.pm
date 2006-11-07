@@ -228,7 +228,13 @@ package Pugs::Runtime::Perl6::Scalar;
         $YAML::Syck::ImplicitTyping = 1;
         YAML::Syck::Dump( $_[0] );
     }
-    
+   
+    sub join {
+        # print "Trying to join a Scalar: ", Data::Dumper::Dumper(@_); 
+        my $str = pop @_;
+        join( $str, @_ );
+    }
+
     sub defined { CORE::defined(@_) }
     
     # TODO - rename this to 'WHAT'

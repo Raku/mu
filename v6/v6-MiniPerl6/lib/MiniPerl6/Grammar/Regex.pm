@@ -98,6 +98,7 @@ token named_capture_body {
 };
 %variables{'$'} := token {
     |
+        # TODO
         <?digit>+
         { return '$/[' ~ $/ ~ ']' }
     |
@@ -105,11 +106,11 @@ token named_capture_body {
         ([ <?alnum> | _ | \: \: ]+)
         {
             # $a $^a
-            return Var({ 
+            return Rul::Var( 
                     sigil  => '$',
                     twigil => ~$0,
-                    name   => ~$1,
-                   }),
+                    name   => ~$1
+                   )
         }
 };
 %variables{'@'} := token {
@@ -123,21 +124,23 @@ token named_capture_body {
         { return { variable => '@' ~ $/ ,} }
 };
 %variables{'%'} := token {
-        { say "matching hash-digit" }
+    |
+    # { say "matching hash-digit" }
         <?digit>+
         # TODO
         { return { match_variable => '%' ~ $/ ,} }
     |        
-        { say "matching hash-ident" }
+    # { say "matching hash-ident" }
         (\^?)
         ([ <?alnum> | _ | \: \: ]+)
         {
             # %a %^a
-            return ::Var(
-                    sigil  => '%',
-                    twigil => ~$0,
-                    name   => ~$1,
-                   ),
+            # say "found hash-ident";
+            return Rul::Var(
+                    'sigil'  => '%',
+                    'twigil' => ~$0,
+                    'name'   => ~$1
+                   )
         }
 };
 
@@ -177,17 +180,22 @@ token named_capture_body {
         <char_class> \>
         { return { metasyntax => '-' ~ $<char_class> } }
 };
+%rule_terms{"<'"} := token {
+    <literal> \' \>
+    { return Rul::Constant( constant => $$<literal> ) }
+}
 %rule_terms{'<'} := token { 
         |  
-           { say "matching < ..." }
-           <%variables>  \>
-            { 
-                return Rul::InterpolateVar({ var => $$<variables> })
+        # { say "matching < ..." }
+           <%variables>  # \>
+            {
+                # say "found < hash-variable >";
+                return Rul::InterpolateVar( var => $$<variables> )
             }
         |
             # TODO
             <metasyntax>  \>
-            { return $$<metasyntax> }
+            { return Rul::Subrule( $$<metasyntax> ) }
 };
 %rule_terms{'{'} := token { 
         <parsed_code>  \}
@@ -205,7 +213,7 @@ token named_capture_body {
           { return Rul::SpecialChar({ char => '\\' ~ $0 ~ $1 }) }
         | .
           #  \e  \E
-          { return Rul::SpecialChar({ char => '\\' ~ $/ }) }
+          { return Rul::SpecialChar({ char => $$/ }) }
 };
 %rule_terms{'.'} := token { 
         { return Rul::Dot({ dot => 1 }) }
@@ -263,7 +271,7 @@ token named_capture_body {
 
 token term {
     |  
-       {  say "matching variables" } 
+       # { say "matching variables" } 
        <%variables>
        [  <?ws>? <':='> <?ws>? <named_capture_body>
           { 
@@ -278,7 +286,7 @@ token term {
           }
        ]
     | 
-        { say "matching terms"; }
+        # { say "matching terms"; }
         <%rule_terms>
         { 
             #print "term: ", Dumper( $_[0]->data );
@@ -291,7 +299,7 @@ token term {
 token quant {
     |   <'**'> <?ws>? \{  <parsed_code>  \}
         { return { closure => $$<parsed_code> ,} }
-    |   <[  \? \* \+  ]>?
+    |   <[  \? \* \+  ]>
 }
 
 token quantifier {
@@ -299,6 +307,7 @@ token quantifier {
     <!before  <[   \} \] \)   ]> >
     <term> 
     $<ws2>   := (<?ws>?)
+    [
     <quant>
     $<greedy> := (<[  \? \+  ]>?)
     $<ws3>   := (<?ws>?)
@@ -311,12 +320,52 @@ token quantifier {
             ws3     => $$/{'ws3'},
         })
     }
+    |
+        { return $$<term> }
+    ]
 }
 
-token concat {
-    <quantifier>+ 
-    { return Rul::Concat({ ... }) }
+token concat_list {
+    $<q1> := <quantifier>
+    [
+        $<q2> := <concat_list> 
+        { return [ $$<q1>, @($$<q2>) ] }
+    |
+        { return [ $$<q1> ] }
+    ]
+    |
+        { return [] }
 }
+token concat {
+    <concat_list>
+    { return Rul::Concat( concat => $$<concat_list> ) }
+}
+
+token or_list {
+    $<q1> := <concat>
+    [
+        <'|'>
+        $<q2> := <or_list> 
+        { return [ $$<q1>, @($$<q2>) ] }
+    |
+        { return [ $$<q1> ] }
+    ]
+    |
+        { return [] }
+}
+token rule {
+    [ <'|'> | <''> ]
+    <or_list>
+    { return Rul::Or( 'or' => $$<or_list> ) }
+}
+
+=pod 
+
+# -- this depends on changing the specs
+#token concat {
+#    <quantifier>+
+#    { return Rul::Concat( concat => $<quantifier> ) }
+#}
 
 token conjunctive {
     [ <?ws>? \& ]?
@@ -343,3 +392,6 @@ token rule {
         ...
     }
 }
+
+=cut
+
