@@ -5,7 +5,7 @@ Pugs::Doc::Hack - How to hack on Pugs
 =head1 SYNOPSIS
 
     # Fetch latest Pugs from Subversion repository
-    $ svn co http://svn.openfoundry.org/pugs
+    $ svn co http://svn.pugscode.org/pugs
     $ cd pugs
 
     # review build options controlled by env variables
@@ -431,7 +431,7 @@ Using the PCRE distribution, PCRE can be tested interactively with
 A cross index of standard Haskell libraries.  It is searchable by type
 signature, name, etc.
 
-=item L<http://rt.openfoundry.org/Foundry/Project/Source/index.html/pugs/browse/>
+=item L<http://svn.pugscode.org/svnweb/>
 
 Browsable Pugs VCS.  You sometimes get a blank page the first time you access a
 URL (a timeout) - just click again.
@@ -441,8 +441,7 @@ It will list all changes from that directory and its subdirectories only.
 
 =item L<http://svn.perl.org/perl6/pugs/trunk/>
 
-Mirror of Pugs VCS head.  Usually faster and more reliable than the OpenFoundry
-browser, but doesn't show diffs between revisions.
+Read-only mirror of Pugs VCS head.
 
 =item L<http://m19s28.vlinux.de/cgi-bin/pugs-smokeserv.pl>
 
