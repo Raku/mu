@@ -1,5 +1,7 @@
 use v6-alpha;
 
+use MiniPerl6::Grammar::Regex;
+
 grammar MiniPerl6::Grammar;
 
 # XXX - move to v6.pm emitter
@@ -250,6 +252,18 @@ token apply {
             code      => $$<ident>,
             arguments => $$<exp_seq>,
         )
+    }
+}
+
+token token {
+    { say "parsing Token" }
+    token
+    <?ws>? \{
+        <MiniPerl6::Grammar::Regex::rule>
+    \}
+    {
+        say "Token was compiled into: ", ($$<MiniPerl6::Grammar::Regex::rule>).perl;
+        return $$<MiniPerl6::Grammar::Regex::rule>
     }
 }
 
