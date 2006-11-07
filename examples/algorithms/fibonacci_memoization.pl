@@ -1,5 +1,7 @@
 use v6;
 
+# See http://perlmonks.org/?node_id=582273 for a discussion on state variables for memoization
+
 my $n = @*ARGS[0] // 42;
 say fib($n);
 
