@@ -292,7 +292,7 @@ token term {
             #print "term: ", Dumper( $_[0]->data );
             return $$<rule_terms> 
         }
-    |  <-[ \] \} \) \> \: \? \+ \* \| \& ]>    # TODO - <...>* - optimize!
+    |  <-[ \] \} \) \> \: \? \+ \* \| \& \/ ]>    # TODO - <...>* - optimize!
         { return Rul::Constant({ constant => $$/ }) }
 }
 

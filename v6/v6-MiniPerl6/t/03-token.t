@@ -73,6 +73,23 @@ use MiniPerl6::Emitter::Token;
     say ($$p).emit;
 }
 
+{
+    # non-siginificant spaces
+    my $p = MiniPerl6::Grammar::Regex.rule( 'a b c' );
+    say ($$p).perl;
+    say ($$p).emit;
+}
+
+{
+    # end-of-regex
+    my $p = MiniPerl6::Grammar::Regex.rule( 'a /' );
+    say ($$p).perl;
+    say ($$p).emit;
+    $p = MiniPerl6::Grammar::Regex.rule( 'a }' );
+    say ($$p).perl;
+    say ($$p).emit;
+}
+
 =pod 
 
 {
