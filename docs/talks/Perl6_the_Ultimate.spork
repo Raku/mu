@@ -874,7 +874,7 @@ presentation_date: March 27th, 2005
 
 +* 取得開發中版本
 
-    % svk co http://svn.openfoundry.org/pugs
+    % svk co http://svn.pugscode.org/pugs
     % cd pugs
     % perl Makefile.PL
     % make

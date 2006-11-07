@@ -1,6 +1,6 @@
 Thanks for linking here...  But the paper has been moved to:
 
-    http://svn.openfoundry.org/pugs/docs/talks/hw2005.tex
+    http://svn.pugscode.org/pugs/docs/talks/hw2005.tex
 
 Rendered versions should be available at:
 

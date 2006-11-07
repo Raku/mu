@@ -60,8 +60,8 @@ between Pugs and the new version will be considered bugs in Pugs.
 == Is Pugs free software?
 
 Yes. It is available under both 
-[GPL version 2|http://svn.openfoundry.org/pugs/LICENSE/GPL-2] and 
-[Artistic License version 2.0b5|http://svn.openfoundry.org/pugs/LICENSE/Artistic-2] 
+[GPL version 2|http://svn.pugscode.org/pugs/LICENSE/GPL-2] and 
+[Artistic License version 2.0b5|http://svn.pugscode.org/pugs/LICENSE/Artistic-2] 
 Once the final version of Artistic 2.0 is released, Pugs will adopt it.
 
 == Is Pugs funded by the Perl Foundation?
@@ -75,7 +75,7 @@ money to do the same thing.
 == Where can I download Pugs?
 
 For the very latest version of Pugs, check out the source from the
-[Subversion|http://svn.openfoundry.org/pugs/] or
+[Subversion|http://svn.pugscode.org/pugs/] or
 [darcs|http://wagner.elixus.org/~autrijus/darcs/pugs] repositories. Periodic
 releases are available on CPAN under the 
 `[Perl6-Pugs|http://search.cpan.org/dist/Perl6-Pugs/]` distribution. 
@@ -86,7 +86,7 @@ Using vanilla `svn` is fine, though.)
 == How do I build Pugs?
 
 Pugs uses the standard Makefile.PL build system, as detailed in the
-`[README|http://svn.openfoundry.org/pugs/README]` file. Since Pugs is
+`[README|http://svn.pugscode.org/pugs/README]` file. Since Pugs is
 written in Haskell, you will need [the Glasgow Haskell
 Compiler (GHC)|http://haskell.org/ghc/] 6.4 or above. Please [download a
 binary build|http://haskell.org/ghc/download_ghc_64.html] for your platform;
@@ -176,7 +176,7 @@ monad transformer; and so on. This greatly simplified the prototyping
 effort: the first working interpreter was released [within the first
 week|http://use.perl.org/~autrijus/journal/23051], and by the [third
 week|http://use.perl.org/~autrijus/journal/23335] a fully-fledged 
-`[Test.pm|http://svn.openfoundry.org/pugs/lib/Perl6/lib/Test.pm]` 
+`[Test.pm|http://svn.pugscode.org/pugs/lib/Perl6/lib/Test.pm]` 
 module was available for unit testing.
 
 == What is the relationship between Pugs and Parrot?
@@ -253,7 +253,7 @@ Pugs objects, classes and functions are also understood by Perl 5.
 As such, these types can be used in round-trip callbacks.
 
 Examples of working with Perl 5 may be found in [the source
-tree|http://svn.openfoundry.org/pugs/t/unspecced/p5/].
+tree|http://svn.pugscode.org/pugs/t/unspecced/p5/].
 
 == Can Pugs work with Haskell libraries?
 
@@ -278,7 +278,7 @@ Sure! The standard libraries and unit tests that come with Pugs are
 coded in Perl 6, and there is always a need for more tests and
 libraries. All you need is basic familiarity with Perl 5, and a few
 minutes to acquaint yourself with some small syntax changes. A ["Porting
-HOWTO"|http://svn.openfoundry.org/pugs/docs/other/porting_howto] is also
+HOWTO"|http://svn.pugscode.org/pugs/docs/other/porting_howto] is also
 available, which should help ease the transition. You'll
 likely pick up some Haskell knowledge along the way, too.
 

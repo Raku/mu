@@ -118,7 +118,7 @@ banner_bgcolor: lightblue
 {image: http://www.rblack.org/Subversionsept.jpg}
 == Pugs is *NOT* Just Another CPAN Module
 
-* http://svn.openfoundry.org/pugs
+* http://svn.pugscode.org/pugs
 * It is a fully working Perl 6 Interpreter
 * And so much more.
 

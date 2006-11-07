@@ -1564,7 +1564,7 @@ lists:
           Fagyal Csongor asked if someone was willing to write a Perl 6 style guide.
           Aristotle Pagaltzis debated the merits of such a site, and mentioned that a
           cheat sheet for Perl 5 hackers would be nice. Carl Mäsak mentioned the
-          [pugs porting howto](http://svn.openfoundry.org/pugs/docs/other/porting_howto)
+          [pugs porting howto](http://svn.pugscode.org/pugs/docs/other/porting_howto)
           in response. Darren Duncan suspected that Damian Conway's Perl Best Practices
           book was written to be forward compatible with Perl 6, a suspicion that Larry
           Wall confirmed. Lastly, Jerry Gay urged Fagyal to start a wiki page for a style

@@ -644,7 +644,7 @@ L<http://planet.pugscode.org/> - PlanetSix aggregates the development
 journals of leading Perl6/Pugs personnel, as well as semiweekly summaries
 of the Perl 6 mailing lists.
 
-L<http://svn.openfoundry.org/pugs/> - Subversion repository of the pugs
+L<http://svn.pugscode.org/pugs/> - Subversion repository of the pugs
 code, which you can browse with a web client. Check out the C<examples/>
 folder!
 

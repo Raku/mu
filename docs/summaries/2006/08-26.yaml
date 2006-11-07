@@ -930,7 +930,7 @@ lists:
         summary: |-
           Agent Zhang announced that the test snippets in the Pugs test suite
           have now been included in the Synopses, thanks to
-          [smartlinks](http://svn.openfoundry.org/pugs/t/README).
+          [smartlinks](http://svn.pugscode.org/pugs/t/README).
       - date_from: 1156362443
         date_to: 1156362443
         hidden: ~

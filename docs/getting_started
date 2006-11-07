@@ -16,12 +16,12 @@ Learning Perl 6
   Concise summaries of how to do various common things in Perl 6.  Probably
   too terse to serve as a tutorial, but useful nonetheless.
   
-  http://svn.openfoundry.org/pugs/docs/quickref/
+  http://svn.pugscode.org/pugs/docs/quickref/
   (or docs/quickref/ in your local copy)
   
   * Examples
   
-  http://svn.openfoundry.org/examples/
+  http://svn.pugscode.org/examples/
   (or examples/ in your local copy)
   
   * #perl6 (irc.freenode.net)
@@ -59,7 +59,7 @@ Installing Pugs
   Use your favourite Subversion client to grab the latest revision from the
   official Pugs repository.
   
-  http://svn.openfoundry.org/pugs/
+  http://svn.pugscode.org/pugs/
 
   You can also try getting one of the releases from CPAN, but if you're going
   to build it yourself anyway, you might as well try the latest SVN revision.

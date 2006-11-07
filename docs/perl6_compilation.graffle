@@ -6525,7 +6525,7 @@ Perl 6 on Perl 5 - CPAN to PUGS}</string>
 \f0\fs24 \cf0 URL for Pugs plan =&gt;\cf2  \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
-\f1\b\fs28 \cf2 http://svn.openfoundry.org/\expnd0\expndtw0\kerning0
+\f1\b\fs28 \cf2 http://svn.pugscode.org/\expnd0\expndtw0\kerning0
 pugs/doc/notes/plan}</string>
 					</dict>
 					<key>Wrap</key>
@@ -13274,7 +13274,7 @@ Syntax Tree}</string>
 					<key>Link</key>
 					<dict>
 						<key>url</key>
-						<string>http://svn.openfoundry.org/pugs/src/Pugs/Eval.hs</string>
+						<string>http://svn.pugscode.org/pugs/src/Pugs/Eval.hs</string>
 					</dict>
 					<key>Shape</key>
 					<string>Rectangle</string>
@@ -13656,7 +13656,7 @@ libHSPugs.a}</string>
 					<key>Link</key>
 					<dict>
 						<key>url</key>
-						<string>http://svn.openfoundry.org/pugs</string>
+						<string>http://svn.pugscode.org/pugs</string>
 					</dict>
 					<key>Shape</key>
 					<string>Rectangle</string>
@@ -13687,7 +13687,7 @@ libHSPugs.a}</string>
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
 \f0\fs24 \cf0 Base URL for Pugs =&gt;\cf2  \
-http://svn.openfoundry.org/pugs}</string>
+http://svn.pugscode.org/pugs}</string>
 					</dict>
 					<key>Wrap</key>
 					<string>NO</string>
@@ -13790,7 +13790,7 @@ http://svn.openfoundry.org/pugs}</string>
 					<key>Link</key>
 					<dict>
 						<key>url</key>
-						<string>http://svn.openfoundry.org/pugs/src/Pugs/CodeGen.hs</string>
+						<string>http://svn.pugscode.org/pugs/src/Pugs/CodeGen.hs</string>
 					</dict>
 					<key>Shape</key>
 					<string>Rectangle</string>
@@ -13863,7 +13863,7 @@ src/Pugs/CodeGen.hs}</string>
 					<key>Link</key>
 					<dict>
 						<key>url</key>
-						<string>http://svn.openfoundry.org/pugs/src/Pugs/Compile.hs</string>
+						<string>http://svn.pugscode.org/pugs/src/Pugs/Compile.hs</string>
 					</dict>
 					<key>Shape</key>
 					<string>Rectangle</string>
@@ -13936,7 +13936,7 @@ src/Pugs/Compile.hs}</string>
 					<key>Link</key>
 					<dict>
 						<key>url</key>
-						<string>http://svn.openfoundry.org/pugs/src/Pugs/Compile.hs</string>
+						<string>http://svn.pugscode.org/pugs/src/Pugs/Compile.hs</string>
 					</dict>
 					<key>Magnets</key>
 					<array>
@@ -14187,7 +14187,7 @@ src/Pugs/Compile.hs}</string>
 					<key>Link</key>
 					<dict>
 						<key>url</key>
-						<string>http://svn.openfoundry.org/pugs/src/Pugs/Parser</string>
+						<string>http://svn.pugscode.org/pugs/src/Pugs/Parser</string>
 					</dict>
 					<key>Magnets</key>
 					<array>
@@ -14264,7 +14264,7 @@ src/Pugs/Parser/*.hs}</string>
 					<key>Link</key>
 					<dict>
 						<key>url</key>
-						<string>http://svn.openfoundry.org/pugs/src/Pugs/Parser</string>
+						<string>http://svn.pugscode.org/pugs/src/Pugs/Parser</string>
 					</dict>
 					<key>Magnets</key>
 					<array>
@@ -14925,7 +14925,7 @@ Pugs Intermediate Language}</string>
 					<key>Link</key>
 					<dict>
 						<key>url</key>
-						<string>http://svn.openfoundry.org/pugs/src/Pugs/Eval.hs</string>
+						<string>http://svn.pugscode.org/pugs/src/Pugs/Eval.hs</string>
 					</dict>
 					<key>Shape</key>
 					<string>Rectangle</string>
@@ -15307,7 +15307,7 @@ libHSPugs.a}</string>
 					<key>Link</key>
 					<dict>
 						<key>url</key>
-						<string>http://svn.openfoundry.org/pugs</string>
+						<string>http://svn.pugscode.org/pugs</string>
 					</dict>
 					<key>Shape</key>
 					<string>Rectangle</string>
@@ -15338,7 +15338,7 @@ libHSPugs.a}</string>
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
 \f0\fs24 \cf0 Base URL for Pugs =&gt;\cf2  \
-http://svn.openfoundry.org/pugs}</string>
+http://svn.pugscode.org/pugs}</string>
 					</dict>
 					<key>Wrap</key>
 					<string>NO</string>
@@ -15441,7 +15441,7 @@ http://svn.openfoundry.org/pugs}</string>
 					<key>Link</key>
 					<dict>
 						<key>url</key>
-						<string>http://svn.openfoundry.org/pugs/src/Pugs/CodeGen.hs</string>
+						<string>http://svn.pugscode.org/pugs/src/Pugs/CodeGen.hs</string>
 					</dict>
 					<key>Shape</key>
 					<string>Rectangle</string>
@@ -15514,7 +15514,7 @@ src/Pugs/CodeGen.hs}</string>
 					<key>Link</key>
 					<dict>
 						<key>url</key>
-						<string>http://svn.openfoundry.org/pugs/src/Pugs/Compile.hs</string>
+						<string>http://svn.pugscode.org/pugs/src/Pugs/Compile.hs</string>
 					</dict>
 					<key>Shape</key>
 					<string>Rectangle</string>
@@ -15587,7 +15587,7 @@ src/Pugs/Compile.hs}</string>
 					<key>Link</key>
 					<dict>
 						<key>url</key>
-						<string>http://svn.openfoundry.org/pugs/src/Pugs/Compile.hs</string>
+						<string>http://svn.pugscode.org/pugs/src/Pugs/Compile.hs</string>
 					</dict>
 					<key>Magnets</key>
 					<array>
@@ -15838,7 +15838,7 @@ src/Pugs/Compile.hs}</string>
 					<key>Link</key>
 					<dict>
 						<key>url</key>
-						<string>http://svn.openfoundry.org/pugs/src/Pugs/Parser</string>
+						<string>http://svn.pugscode.org/pugs/src/Pugs/Parser</string>
 					</dict>
 					<key>Magnets</key>
 					<array>
@@ -15915,7 +15915,7 @@ src/Pugs/Parser/*.hs}</string>
 					<key>Link</key>
 					<dict>
 						<key>url</key>
-						<string>http://svn.openfoundry.org/pugs/src/Pugs/Parser</string>
+						<string>http://svn.pugscode.org/pugs/src/Pugs/Parser</string>
 					</dict>
 					<key>Magnets</key>
 					<array>
@@ -16612,7 +16612,7 @@ Monkey}</string>
 					<key>Link</key>
 					<dict>
 						<key>url</key>
-						<string>http://svn.openfoundry.org/pugs/src/Pugs/Eval.hs</string>
+						<string>http://svn.pugscode.org/pugs/src/Pugs/Eval.hs</string>
 					</dict>
 					<key>Shape</key>
 					<string>Rectangle</string>
@@ -16994,7 +16994,7 @@ libHSPugs.a}</string>
 					<key>Link</key>
 					<dict>
 						<key>url</key>
-						<string>http://svn.openfoundry.org/pugs</string>
+						<string>http://svn.pugscode.org/pugs</string>
 					</dict>
 					<key>Shape</key>
 					<string>Rectangle</string>
@@ -17025,7 +17025,7 @@ libHSPugs.a}</string>
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
 \f0\fs24 \cf0 Base URL for Pugs =&gt;\cf2  \
-http://svn.openfoundry.org/pugs}</string>
+http://svn.pugscode.org/pugs}</string>
 					</dict>
 					<key>Wrap</key>
 					<string>NO</string>
@@ -17128,7 +17128,7 @@ http://svn.openfoundry.org/pugs}</string>
 					<key>Link</key>
 					<dict>
 						<key>url</key>
-						<string>http://svn.openfoundry.org/pugs/src/Pugs/CodeGen.hs</string>
+						<string>http://svn.pugscode.org/pugs/src/Pugs/CodeGen.hs</string>
 					</dict>
 					<key>Shape</key>
 					<string>Rectangle</string>
@@ -17201,7 +17201,7 @@ src/Pugs/CodeGen.hs}</string>
 					<key>Link</key>
 					<dict>
 						<key>url</key>
-						<string>http://svn.openfoundry.org/pugs/src/Pugs/Compile.hs</string>
+						<string>http://svn.pugscode.org/pugs/src/Pugs/Compile.hs</string>
 					</dict>
 					<key>Shape</key>
 					<string>Rectangle</string>
@@ -17274,7 +17274,7 @@ src/Pugs/Compile.hs}</string>
 					<key>Link</key>
 					<dict>
 						<key>url</key>
-						<string>http://svn.openfoundry.org/pugs/src/Pugs/Compile.hs</string>
+						<string>http://svn.pugscode.org/pugs/src/Pugs/Compile.hs</string>
 					</dict>
 					<key>Magnets</key>
 					<array>
@@ -17525,7 +17525,7 @@ src/Pugs/Compile.hs}</string>
 					<key>Link</key>
 					<dict>
 						<key>url</key>
-						<string>http://svn.openfoundry.org/pugs/src/Pugs/Parser</string>
+						<string>http://svn.pugscode.org/pugs/src/Pugs/Parser</string>
 					</dict>
 					<key>Magnets</key>
 					<array>
@@ -17602,7 +17602,7 @@ src/Pugs/Parser/*.hs}</string>
 					<key>Link</key>
 					<dict>
 						<key>url</key>
-						<string>http://svn.openfoundry.org/pugs/src/Pugs/Parser</string>
+						<string>http://svn.pugscode.org/pugs/src/Pugs/Parser</string>
 					</dict>
 					<key>Magnets</key>
 					<array>
@@ -26272,7 +26272,7 @@ Michal Wallace}</string>
 							<key>Link</key>
 							<dict>
 								<key>url</key>
-								<string>http://svn.openfoundry.org/pugs/AUTHORS</string>
+								<string>http://svn.pugscode.org/pugs/AUTHORS</string>
 							</dict>
 							<key>Shape</key>
 							<string>Rectangle</string>

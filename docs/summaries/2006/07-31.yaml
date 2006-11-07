@@ -42,7 +42,7 @@ lists:
         summary: |-
           Steffen Schwigon invited anyone who uses (X)Emacs to work with
           Perl6 or Pugs to give feedback on the enhanced cperl-mode at
-          <http://svn.openfoundry.org/pugs/util/cperl-mode.el>
+          <http://svn.pugscode.org/pugs/util/cperl-mode.el>
       - date_from: 1152051367
         date_to: 1152051367
         hidden: 1
