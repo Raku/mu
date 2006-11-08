@@ -1,0 +1,7 @@
+Some current work:
+
+-Optimize: The translation currently involves many passes over the AST, it should be collapsable to a single pass (or two).
+
+-Integration: Theoretically, the translator could be moved into the main codebase, as another functionality of pugs. This is a long way off because a) the code isn't ready, and b)integration will require a community consensus on how it should be added.
+
+Work is currently at a crawl because of school work taking priority, but I hope to get back to this soon. Hopefully these notes will give some direction for anyone else who wants to contribute. - Sage
