@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances -fallow-overlapping-instances #-}
 
 module MO.Compile.Class where
 
@@ -181,8 +181,7 @@ newMI old = new
 blessMI :: Class m c => c -> AnyMethod m
 blessMI c = AnyMethod MkSimpleMethod
     { smName = "bless"
-    , smDefinition = MkMethodCompiled
-        { mcBody = HsCode constructor }
+    , smDefinition = MkMethodCompiled (HsCode constructor)
     }
     where
     -- Here we generate a structure from some layout.  The "params" here 
@@ -216,11 +215,10 @@ instance (Typeable1 m, Monad m) => Class m (MI m) where
 -- MethodAttached 
 data MethodAttached m
     = forall c a. (Class m c, Method m a) => MkMethodAttached
-    { maOrigin :: c
-    , maMethod :: a
-    }
+        c       -- Origin
+        a       -- Method
 
 instance Monad m => Method m (MethodAttached m) where
-    name MkMethodAttached { maMethod = m } = name m
-    compile MkMethodAttached { maMethod = m } = compile m
+    name (MkMethodAttached _ m) = name m
+    compile (MkMethodAttached _ m) = compile m
 

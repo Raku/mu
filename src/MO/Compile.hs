@@ -5,7 +5,8 @@ module MO.Compile where
 import MO.Base
 import MO.Util
 
-data AnyMethod m = forall a. Method m a => AnyMethod { anyMethod :: a }
+data AnyMethod m
+    = forall a. Method m a => AnyMethod a
 
 -- FIXME: Its not ok to use this since we can define method with
 -- same name which are different. 
@@ -40,25 +41,12 @@ instance Monad m => Method m (SimpleMethod m) where
 
 
 data MethodCompiled m
-    = forall c. Code m c => MkMethodCompiled { mcBody :: c }
+    = forall c. Code m c => MkMethodCompiled c
+
 
 -- NOTE: Maybe I should instantiate MethodCompiled for Code? :P
 runMC :: Arguments m a => MethodCompiled m -> a -> m (Invocant m)
-runMC MkMethodCompiled { mcBody = c } = run c
-
-
--- OLD STUFF DOWN HERE
-
--- -- TODO: How to do the coercing stuff? :P
--- -- just instance MethodDefinition Code(Ref) ?
--- class MethodDefinition a
---     
--- data AnyMethodDefinition = forall a. MethodDefinition a => AnyMethodDefinition a
-
-
-
--- instance MethodDefinition MethodCompiled
-
+runMC (MkMethodCompiled c) = run c
 
 
 
