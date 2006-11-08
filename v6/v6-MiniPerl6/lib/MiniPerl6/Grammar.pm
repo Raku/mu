@@ -51,6 +51,8 @@ token term {
 #   | $<term> := <bind>      # $lhs := $rhs
     | $<term> := <index>     # $obj[1, 2, 3]
     | $<term> := <lookup>    # $obj{'1', '2', '3'}
+    | $<term> := <token>     # token { regex... }
+    | $<term> := <method>    # method { code... }
     | $<term> := <control>   # Various control structures.  Does _not_ appear in binding LHS
     ]
     { return $$<term> }
@@ -258,14 +260,42 @@ token apply {
 token token {
     # { say "parsing Token" }
     token
+    [ <?ws>
+      $<name> := [ <ident> ] 
+    | $<name> := [ <''> ] 
+    ]
     <?ws>? \{
         <MiniPerl6::Grammar::Regex.rule>
     \}
     {
         # say "Token was compiled into: ", ($$<MiniPerl6::Grammar::Regex.rule>).perl;
-        return 'method { ... ' ~ 
-            ($$<MiniPerl6::Grammar::Regex.rule>).emit ~
-            ' ... }'
+        my $source := 'method ' ~ $$<name> ~ ' ( $grammar: $str ) { ' ~
+            'my $m := Match( :$str, :from(0), :to(0) ); ' ~ 
+            '$m.bool( ' ~
+                ($$<MiniPerl6::Grammar::Regex.rule>).emit ~
+            '); ' ~
+            'return $m }';
+        say "Intermediate code: $source";
+        my $ast := MiniPerl6::Grammar.term( $source );
+        return $$ast;
+    }
+}
+
+token method {
+    method
+    [ <?ws>
+      $<name> := [ <ident> ] 
+    | $<name> := [ <''> ] 
+    ]
+    <?ws>? \(
+        { say "Parsing method... TODO" } 
+        <TODO>
+    \)
+    <?ws>? \{
+        <TODO>
+    \}
+    {
+        return ...;
     }
 }
 

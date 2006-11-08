@@ -5,9 +5,14 @@ use MiniPerl6::Grammar::Regex;
 use MiniPerl6::Emitter::Token;
 
 {
-  my $p = MiniPerl6::Grammar.token( 'token { abc }' );
+  my $p = MiniPerl6::Grammar.exp( 'token { abc }' );
   say ($$p).perl;
   say ($$p).emit;
 }
 
+{
+  my $p = MiniPerl6::Grammar.exp( 'token mytok { abc }' );
+  say ($$p).perl;
+  say ($$p).emit;
+}
 
