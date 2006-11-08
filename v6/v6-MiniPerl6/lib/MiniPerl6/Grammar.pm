@@ -289,6 +289,16 @@ token method {
     ]
     <?ws>? \(
         { say "Parsing method... TODO" } 
+        [ <?ws>
+          $<invocant> := [ <var> ]  \: 
+        | $<invocant> := [ <''> ] 
+        ]
+        <?ws>? 
+        <exp_seq> 
+        <?ws>? 
+        {
+            say " invocant: ", ($$<var>).perl;
+        }
         <TODO>
     \)
     <?ws>? \{
