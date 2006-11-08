@@ -21,6 +21,7 @@ my $count = 0;
 while !$fh {
     try {
         $fh = connect "localhost", 8080;
+        last; # escape the loop on a successful connect
     }
     if ++$count > 3 {
         ok 0, "could not connect to a subclassed server";
@@ -30,7 +31,7 @@ while !$fh {
 }
 
 my $nl = chr(13) ~ chr(10);
-$fh.print("GET / HTTP/1.0{$nl}Hostme: localhost$nl$nl");
+$fh.print("GET / HTTP/1.0{$nl}Host: localhost$nl$nl");
 $fh.flush();
 ok index($fh.readline, "stuff") > -1, "connected to a subclassed server";
 

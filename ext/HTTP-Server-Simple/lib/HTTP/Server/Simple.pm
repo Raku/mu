@@ -97,6 +97,7 @@ method prepare {
     %*ENV<SERVER_PORT>     = $.port;
     %*ENV<SERVER_NAME>     = 'localhost';
     %*ENV<PATH_INFO>       = $file;
+    %*ENV<REQUEST_METHOD>  = $method;
     %*ENV<REQUEST_URI>     = $uri;
     %*ENV<REMOTE_ADDR>     = '';
     %*ENV<REMOTE_HOST>     = '';
