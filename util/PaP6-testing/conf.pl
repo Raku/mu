@@ -65,8 +65,7 @@ my $config_yml_rewrite_sub = sub {
 
 push @$conf, {
     'name' => 'parrot',
-    'repository' => 'https://svn.perl.org/parrot/trunk',
-
+    'repository' => 'https://svn.perl.org/parrot/trunk/',
     'after_temp_copied' => $smoker_copy_sub,
 
     'commands' => [
@@ -128,7 +127,7 @@ $make_cmd = 'nmake';
 push @$conf, {
     'skip' => 0,
     'name' => 'pugs',
-    'repository' => 'http://svn.openfoundry.org/pugs/',
+    'repository' => 'http://svn.pugscode.org/pugs/',
     'after_temp_copied' => $smoker_copy_sub,
 
     'commands' => [
