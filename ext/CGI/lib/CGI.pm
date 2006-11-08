@@ -224,24 +224,24 @@ method load_params {
             
         if (lc($!REQUEST_METHOD) eq ('get' | 'head')) {
             $!QUERY_STRING = %*ENV<QUERY_STRING>;
-            unpack_params($!QUERY_STRING) if $!QUERY_STRING;
+            self.unpack_params($!QUERY_STRING) if $!QUERY_STRING;
         }
         elsif (lc($!REQUEST_METHOD) eq 'post') { 
             if (!$!CONTENT_TYPE || $!CONTENT_TYPE eq 'application/x-www-form-urlencoded') {
                 my $content; # = read($*IN, $!CONTENT_LENGTH);
-                unpack_params($content) if $content;
+                self.unpack_params($content) if $content;
             }
         }
         elsif (@*ARGS) {
             my $input = join('', @*ARGS);
-            unpack_params($input);
+            self.unpack_params($input);
         }
         else {
             die "Invalid Content Type" if $!REQUEST_METHOD; # only die if we are running under CGI
         }
     };
     if ($!) {
-        print header;
+        print self.header;
         say "There was an error getting the params:\n\t" ~ $!;
         exit();
     }    
