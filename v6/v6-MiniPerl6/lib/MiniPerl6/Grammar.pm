@@ -48,10 +48,29 @@ token exp_2 {
     <term> 
     [
         <?ws>?
-        $<op> := [ \+ | \- | \* |/ ]
+        $<op> := [ \?\? ]
         <?ws>?
         <exp_2>
-        { return ::Op::Infix( term0 => $$<term>, term1 => $$<exp_2>, op => $$<op> ) }
+        <?ws>?
+        !!
+        <?ws>?
+        $<exp_3> := <exp_2>
+        { return ::Op::Ternary( 
+            term0 => $$<term>, 
+            term1 => $$<exp_2>, 
+            term2 => $$<exp_3>,
+            op    => $$<op> 
+        ) }
+    |
+        <?ws>?
+        $<op> := [ \+ | \- | \* |/ | eq | ne | == | != ]
+        <?ws>?
+        <exp_2>
+        { return ::Op::Infix( 
+            term0 => $$<term>, 
+            term1 => $$<exp_2>, 
+            op    => $$<op> 
+        ) }
     |
         { return $$<term> }
     ]

@@ -129,6 +129,16 @@ class Op::Infix {
     }
 }
 
+class Op::Ternary {
+    has $.term0;
+    has $.term1;
+    has $.term2;
+    has $.op;
+    method emit {
+        '(' ~ $.term0.emit ~ ' ? ' ~ $.term1.emit ~ ' : ' ~ $.term2.emit ~ ')'
+    }
+}
+
 class Bind {
     has $.parameters;
     has $.arguments;
