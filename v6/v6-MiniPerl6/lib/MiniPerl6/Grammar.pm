@@ -30,6 +30,7 @@ token exp {
         | <?ws>? <':='> <?ws>? <exp>
         { return ::Bind(parameters => $$<exp_3>, arguments => $$<exp>) }
         | \. <ident>
+          [
             [ \( <?ws>? <exp_seq> <?ws>? \)
             | \: <?ws> <exp_seq> <?ws>?
             ]
@@ -40,6 +41,15 @@ token exp {
                     arguments => $$<exp_seq>,
                 )
             }
+          |
+            {
+                return ::Call(
+                    invocant  => $$<exp_3>,
+                    method    => $$<ident>,
+                    arguments => undef,
+                )
+            }
+          ]
         | { return $$<exp_3> }
     ]
 }
@@ -74,7 +84,7 @@ token exp_2 {
         <?ws>?
         <exp>
         { 
-            say "Op::Infix term2=", ($<exp>).perl; 
+            # say "Op::Infix term2=", ($<exp>).perl; 
           return ::Op::Infix( 
             term0 => $$<term>, 
             term1 => $$<exp>, 
