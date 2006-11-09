@@ -211,12 +211,12 @@ token lit_code {
 
 token lit_object {
     <'::'>
-    $<class> := <ident>
-    \( <?ws>? $<fields> := <exp_mapping> <?ws>? \)
+    <ident>
+    \( <?ws>? <exp_mapping> <?ws>? \)
     {
         return ::Lit::Object(
-            :$$<class>,
-            :$$<fields>,
+            'class' => $$<ident>,
+            fields => $$<exp_mapping>
         )
     }
 }
@@ -270,7 +270,7 @@ token token {
     {
         # say "Token was compiled into: ", ($$<MiniPerl6::Grammar::Regex.rule>).perl;
         my $source := 'method ' ~ $$<name> ~ ' ( $grammar: $str ) { ' ~
-            'my $m := Match( :$str, :from(0), :to(0) ); ' ~ 
+            'my $m := ::Match( "str" => $str, "from" => 0, "to" => 0 ); ' ~ 
             '$m.bool( ' ~
                 ($$<MiniPerl6::Grammar::Regex.rule>).emit ~
             '); ' ~
@@ -281,31 +281,50 @@ token token {
     }
 }
 
+token invocant {
+    |  <var> \:    { return $$<var> }
+    |  { return ::Var( 
+            sigil  => '$',
+            twigil => '',
+            name   => 'self',
+         ) 
+       }
+}
+
+token sig {
+        <invocant>
+        <?ws>? 
+        # TODO - exp_seq / exp_mapping == positional / named 
+        <exp_seq> 
+        {
+            # say " invocant: ", ($$<invocant>).perl;
+            # say " positional: ", ($$<exp_seq>).perl;
+            return ::Sig( invocant => $$<invocant>, positional => $$<exp_seq>, named => {} );
+        }
+}
+
 token method {
     method
-    [ <?ws>
-      $<name> := [ <ident> ] 
-    | $<name> := [ <''> ] 
-    ]
-    <?ws>? \(
-        { say "Parsing method... TODO" } 
-        [ <?ws>
-          $<invocant> := [ <var> ]  \: 
-        | $<invocant> := [ <''> ] 
-        ]
-        <?ws>? 
-        <exp_seq> 
-        <?ws>? 
-        {
-            say " invocant: ", ($$<var>).perl;
+        { 
+            say "Parsing method:";
         }
-        <TODO>
-    \)
-    <?ws>? \{
-        <TODO>
-    \}
+    [  |  <?ws> $<name> := [ <ident> ] 
+       |  $<name> := [ <''> ] 
+    ]
+    <?ws>? \( <?ws>?  <sig>  <?ws>?  \)
+        { 
+            say " name: ", ($$<name>).perl;
+            say " params: ", ($$<sig>).perl;
+        } 
+    <?ws>? \{ <?ws>?  
+          { say " parsing statement list " }
+          <exp_stmts> 
+          { say " got statement list ", ($$<exp_stmts>).perl } 
+        <?ws>? 
+    [   \}     | { say "*** error in Block"; die "error in Block"; } ]
     {
-        return ...;
+            say " block: ", ($$<exp_stmts>).perl;
+            return ::Method( name => $$<name>, sig => $$<sig>, block => $$<exp_stmts> );
     }
 }
 

@@ -64,6 +64,21 @@ class Lit::Code {
     # XXX
 }
 
+class Lit::Object {
+    has $.class;
+    has @.fields;
+    method emit {
+        # $.class ~ '->new( ' ~ @.fields.>>emit.join(', ') ~ ' )';
+        my $fields := @.fields;
+        my $str := '';
+        # say @fields.map(sub { $_[0].emit ~ ' => ' ~ $_[1].emit}).join(', ') ~ ')';
+        for @$fields -> $field { 
+            $str := $str ~ ($field[0]).emit ~ ' => ' ~ ($field[1]).emit ~ ',';
+        } 
+        $.class ~ '->new( ' ~ $str ~ ' )'
+    }
+}
+
 class Index {
     has $.obj;
     has $.index;
@@ -133,7 +148,8 @@ class Apply {
     has $.code;
     has @.arguments;
     method emit {
-        '(' ~ $.code.emit ~ ')->(' ~ @.arguments.>>emit.join(', ') ~ ')';
+        $.code ~ '(' ~ @.arguments.>>emit.join(', ') ~ ')';
+        # '(' ~ $.code.emit ~ ')->(' ~ @.arguments.>>emit.join(', ') ~ ')';
     }
 }
 
@@ -150,5 +166,24 @@ class If {
     has @.otherwise;
     method emit {
         'do { if (' ~ $.cond.emit ~ ') { ' ~ @.body.>>emit ~ ' } else { ' ~ @.otherwise.>>emit ~ ' } }';
+    }
+}
+
+class Method {
+    has $.name;
+    has $.sig;
+    has @.block;
+    method emit {
+        # TODO - signature binding
+        'sub ' ~ $.name ~ ' { ' ~ @.block.>>emit ~ ' }'
+    }
+}
+
+class Sig {
+    has $.invocant;
+    has $.positional;
+    has $.named;
+    method emit {
+        " # Signature - TODO \n"
     }
 }
