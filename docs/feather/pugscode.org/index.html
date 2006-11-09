@@ -1,0 +1,221 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+
+
+<html>
+<head>
+  <title>Pugs - pugscode</title>
+  <link rel="stylesheet" type="text/css" 
+        href="/css/perl.css"
+        title="Default CSS2" media="screen">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">  
+  
+</head>
+<body>
+
+
+
+<TABLE CELLSPACING="0" WIDTH="690">
+<TR>
+<TD COLSPAN="2" class="BANNER">pugscode: <SPAN CLASS="title">Pugs</span></TD>
+</TR>
+
+<TR VALIGN="TOP">
+<TD ID="NAV" CLASS="sideNAV" WIDTH="180" HEIGHT="350">
+<DIV CLASS="SIDE">
+
+
+<DIV class="MENU">
+&nbsp;&nbsp; <a href="http://svn.perl.org/perl6/pugs/trunk/docs/01Overview.html">Overview</a>  (<a href="http://svn.perl.org/perl6/pugs/trunk/docs/zh-tw/01Overview.html">正體</a>) (<a href="http://svn.perl.org/perl6/pugs/trunk/docs/zh-cn/01Overview.html">简体</a>)
+<br>&nbsp;&nbsp; <a href="http://search.cpan.org/dist/Perl6-Pugs/">Download</a> (<a href="http://pugs.kwiki.org/?PugsBinaries">Binary builds</a>)
+<br>&nbsp;&nbsp; <a href="http://planet.pugscode.org">Journals</a> (<a href="http://planetsix.perl-foundation.org/rss10.xml">RSS</a>)
+<br>&nbsp;&nbsp; <a href="http://irc.pugscode.org">#perl6 IRC logs</a>
+
+</div>
+<br>
+
+
+<DIV class="MENU">
+&nbsp;&nbsp;
+<a href="/talks/oscon05/movies.html">OSCON movies</a>
+<br>
+&nbsp;&nbsp;
+<a href="/images/">Illustrations</a>
+<br>
+&nbsp;&nbsp;
+<a href="http://cafepress.com/pugscode/">Pugs Store</a>
+
+</DIV>
+<DIV class="MENU">
+
+<br>&nbsp;&nbsp; <a href="http://svn.perl.org/perl6/pugs/trunk/examples/">Examples</a> 
+<br>&nbsp;&nbsp; <a href="http://rt.openfoundry.org/Foundry/Project/Source/index.html/pugs/log/">Recent commits</a> (<a href="http://rt.openfoundry.org/Foundry/Project/Source/index.html/pugs/rss/">RSS</a>)
+<br>&nbsp;&nbsp; <a href="http://smoke.pugscode.org">Smoke test status</a>
+<br>&nbsp;&nbsp; <a href="http://spec.pugscode.org">Spec coverage</a>
+<!-- <br>&nbsp;&nbsp; <a href="http://pugscode.org/haddock/">API Documentation</a> -->
+<br>&nbsp;&nbsp; <a href="http://dev.perl.org/perl6/">Perl 6</a> 
+</div>
+<DIV class="MENU">
+<br>
+&nbsp;&nbsp;<B>Slides:</B><br>
+&nbsp;&nbsp;&nbsp;<B><a href="http://pugs.blogs.com/talks/boston-deploying-perl6.pdf">Deploying to Perl 6</a><br>
+&nbsp;&nbsp;&nbsp;<B><a href="osdc/pugs.xul">Intro to Pugs</a>
+<nobr>(<a href="http://perlcabal.org/~autrijus/taipei/pugs.xul">中文</a>)</nobr>
+<nobr>(<a href="http://perlcabal.org/~autrijus/tokyo/pugs.xul">日本語</a>)</nobr>
+</B><br>
+&nbsp;&nbsp;&nbsp;<B><a href="osdc/haskell.xul">Learning Haskell</a> (<a href="http://perlcabal.org/~autrijus/tokyo/haskell.xul">日本語</a>)</B><br>
+&nbsp;&nbsp;&nbsp;<B><a href="osdc/mariner.xul">Larry was a mariner</a></B><br>
+&nbsp;&nbsp;&nbsp;<B><a href="osdc/vb.xul">Visual Basic rocks</a></B><br>
+</DIV>
+
+<!--
+<br>&nbsp;&nbsp; <a href="http://pugs.kwiki.org/">Pugs Wiki</a> 
+<br>&nbsp;&nbsp; <a href="/docs/">Docs</a> 
+
+<br>&nbsp;&nbsp; <a href="/faq/">FAQ</a> 
+
+
+<br>&nbsp;&nbsp; <a href="/talks/">Talks</a> 
+
+<br>&nbsp;&nbsp; <a href="/resources.html">Resources</a> 
+-->
+
+
+</DIV>
+
+</TD>
+
+<TD>
+
+
+<DIV ID="MAIN">
+
+<!-- end header.html -->
+
+
+
+
+
+<h2> What is Pugs? </h2>
+
+<p>Pugs is an implementation of Perl 6, written in Haskell.  It aims to implement the full Perl6 specification, as detailed in the <a href="http://dev.perl.org/perl6/synopsis/">Synopses</a>. For more information, please see the <a href="http://svn.perl.org/perl6/pugs/trunk/docs/01Overview.html">overview</a> and this <a href="http://www.perl.com/pub/a/2005/03/03/pugs_interview.html">interview</a>.</p>
+
+<h2>Where Are We?</h2>
+
+<p>The Pugs project was started on February 1st, 2005 by Audrey Tang.  To keep up to date on the latest developments, join us on IRC (irc.freenode.net #perl6), and check out <a href="http://www.perl.com/pub/au/Fowles_Matt">This week on Perl 6</a>.</p>
+
+<h2>How to get the code</h2>
+
+<p>Periodic releases will appear on CPAN under the <a href="http://search.cpan.org/dist/Perl6-Pugs/">Perl6-Pugs</a> namespace.</p>
+
+<p>For the very latest version of Pugs, check out the source from <a href="http://svn.pugscode.org/pugs/">Subversion master repository</a>, its <a href="http://svn.perl.org/perl6/pugs">mirror</a>, or <a href="http://perlcabal.org/~audreyt/darcs/pugs/">darcs</a>.  There is anonymous access to all.  Commit access is handed out liberally; contact the Pugs team for details.  (By the way, if you'd like offline working with the Subversion repository, the <a href="http://svk.elixus.org/">svk</a> client may be of interest.  But using vanilla svn is fine.)</p>
+
+<h2>How to Get Involved</h2>
+
+<p>
+    Pugs development takes place on the perl6-compiler mailing list.
+    If you follow this list, you'll be able to get an idea
+    of what sort of things are needed.
+
+    Subscribe by sending mail to <a
+    href="mailto:perl6-compiler-subscribe@perl.org">perl6-compiler-subscribe@perl.org</a>
+    or read the <a
+    href="http://nntp.perl.org/group/perl.perl6.compiler">perl6-compiler NNTP
+    archive</a>.  </p>
+
+See the <a href="http://search.cpan.org/dist/Perl6-Pugs/lib/Pugs/Doc/Hack.pod">Pugs::Doc::Hack</a> for more information on getting involved.
+
+<!--
+<p> There is documentation in the <code>docs</code> subdirectory of the Pugs
+source, with an snapshot here of <a href="docs/">cvs-latest
+documentation</a>.</p>
+
+<p> There is a <a href="todo.html">list of TODO items</a>.</p>
+
+<p> Patches of all natures are welcome. See the <a href="patchfaq.html">patch
+FAQ</a> for details.  </p>
+
+<p> View and manipulate bugs and TODO items at the <a
+href="http://bugs6.perl.org/">Pugs bugs page</a>.  </p>
+-->
+
+
+
+</DIV>
+
+
+</TD>
+</TR>
+
+<TR>
+  <TD CLASS="CR">
+<!--
+  <IMG STYLE="float:right; position: relative; top: 4px"
+       HEIGHT=30 WIDTH=30
+       ALT="The Perl Onion"
+       SRC="/simages/onion/onion-30x30a.gif"> 
+    -->
+   &#169; Copyright 2005 by Audrey Tang</a><BR>
+   <!--
+   <A HREF="http://www.perl.org/siteinfo.html"
+    >Site Information and Contacts</A>
+    -->
+</TD> 
+
+<td colspan=2 align="center" valign="bottom">
+
+</td>
+
+
+</TR>
+</TABLE>
+
+<TABLE border="0" WIDTH="730" CELLSPACING="0" CELLPADDING="0">
+<TR ALIGN="RIGHT">
+
+<TD ID="FOOTER" WIDTH="590" VALIGN="MIDDLE">
+
+
+<DIV CLASS="PDFOOTER">
+
+    Perl.org sites
+     : <A href="http://books.perl.org/" title="books.perl.org">books</a>
+     | <!-- <A href="http://rt.perl.org/perlbug/">bugs</a>
+     | --> <A href="http://dev.perl.org/">dev</a>
+     | <A href="http://history.perl.org/">history</a>
+     | <A href="http://jobs.perl.org/">jobs</a>
+     | <A href="http://learn.perl.org/">learn</a>
+     | <A href="http://lists.perl.org/">lists</a>
+     | <A href="http://use.perl.org/">use</a>
+    &nbsp;&nbsp;
+    </DIV>
+
+<DIV CLASS="TAGLINE">
+Run Perl6 Now!
+    &nbsp;
+</DIV>
+
+
+<DIV ALIGN="LEFT">
+
+</DIV>
+
+</TD>
+<TD valign="middle" align="center">
+
+<img border=0
+     src="/images/pugs.small.png" 
+     alt="pugs">
+
+</TD>
+</TR>
+</TABLE>
+
+</body>
+</html>
+
+
+  
+
