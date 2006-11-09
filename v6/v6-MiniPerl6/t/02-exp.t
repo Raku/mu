@@ -3,13 +3,13 @@ use MiniPerl6::Grammar;
 use MiniPerl6::Emitter;
 
 {
-  my $p = MiniPerl6::Grammar.exp_2( '1 + 1' );
+  my $p = MiniPerl6::Grammar.exp( '1 + 1' );
   say ($$p).perl;
   say ($$p).emit;
 }
 
 {
-  my $p = MiniPerl6::Grammar.exp_2( '1 + 2 + 3' );
+  my $p = MiniPerl6::Grammar.exp( '1 + 2 + 3' );
   say ($$p).perl;
   say ($$p).emit;
 }
@@ -58,10 +58,45 @@ use MiniPerl6::Emitter;
 }
 
 {
-  my $p = MiniPerl6::Grammar.exp( '$m.bool( ((( ( substr( $str, $m.to, 1) eq \'a\'
-  )  ?? (1 + $m.to( $m.to + 1 ))  !! (0) ) && ( ( substr( $str, $m.to, 1) eq \'b\'
-  )  ?? (1 + $m.to( $m.to + 1 ))  !! (0) ) && ( ( substr( $str, $m.to, 1) eq \'c\'
-  )  ?? (1 + $m.to( $m.to + 1 ))  !! (0) ))))' );
+  my $p = MiniPerl6::Grammar.exp( '1 + $m.to' );
+  say ($$p).perl;
+  say ($$p).emit;
+}
+
+{
+  my $p = MiniPerl6::Grammar.exp( '(1 + $m.to( 1 + $m.to ))' );
+  say ($$p).perl;
+  say ($$p).emit;
+}
+
+{
+  my $p = MiniPerl6::Grammar.exp( '
+    ( 123 ) ?? 42 !! 43  
+   '
+  );
+  say ($$p).perl;
+  say ($$p).emit;
+}
+
+{
+  my $p = MiniPerl6::Grammar.exp( '
+    ( \'a\'
+    eq substr( $str, $m.to, 1) )
+    ?? 42 !! 43  
+   '
+  );
+  say ($$p).perl;
+  say ($$p).emit;
+}
+
+{
+  my $p = MiniPerl6::Grammar.exp( '
+    $m.bool( ((( \'a\'
+    eq substr( $str, $m.to, 1)   ?? (1 + $m.to( 1 + $m.to ))  !! (0) ) && ( \'b\'
+    eq substr( $str, $m.to, 1)   ?? (1 + $m.to( 1 + $m.to ))  !! (0) ) && ( \'c\'
+    eq substr( $str, $m.to, 1)   ?? (1 + $m.to( 1 + $m.to ))  !! (0) ))))
+  '
+  );
   say ($$p).perl;
   say ($$p).emit;
 }

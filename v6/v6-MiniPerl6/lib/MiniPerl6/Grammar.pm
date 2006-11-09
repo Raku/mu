@@ -26,58 +26,27 @@ token comp_unit {
 }
 
 token exp {
-    <exp_3> [
-        | <?ws>? <':='> <?ws>? <exp>
-        { return ::Bind(parameters => $$<exp_3>, arguments => $$<exp>) }
-        | \. <ident>
-          [
-            [ \( <?ws>? <exp_seq> <?ws>? \)
-            | \: <?ws> <exp_seq> <?ws>?
-            ]
-            {
-                return ::Call(
-                    invocant  => $$<exp_3>,
-                    method    => $$<ident>,
-                    arguments => $$<exp_seq>,
-                )
-            }
-          |
-            {
-                return ::Call(
-                    invocant  => $$<exp_3>,
-                    method    => $$<ident>,
-                    arguments => undef,
-                )
-            }
-          ]
-        | { return $$<exp_3> }
-    ]
-}
-
-token exp_3 {
-       \(  <exp_3>  \)
-       { return $$<exp_3> }
-    |      <exp_2>
-       { return $$<exp_2> } 
-}
-
-token exp_2 {
     <term> 
     [
         <?ws>?
-        $<op> := [ \?\? ]
-        <?ws>?
-        <exp_2>
-        <?ws>?
-        !!
-        <?ws>?
-        $<exp_3> := <exp_2>
-        { return ::Op::Ternary( 
+        # { say "testing ternary ", ($$<term>).perl, ' at ', ($<term>).to  }
+        $<op> := [ <'??'> ]
+        [
+          <?ws>?
+          <exp>
+          # { say "got exp ", ($$<exp>).perl, ' at ', ($<exp>).to }
+          <?ws>?
+        <'!!'>
+          <?ws>?
+          $<exp_3> := <exp>
+          { return ::Op::Ternary( 
             term0 => $$<term>, 
-            term1 => $$<exp_2>, 
+            term1 => $$<exp>, 
             term2 => $$<exp_3>,
             op    => $$<op> 
-        ) }
+          ) }
+        | { say "*** Syntax error in ternary operation" }
+        ]
     |
         <?ws>?
         $<op> := [ \+ | \- | \* |/ | eq | ne | == | != | \&\& | \|\| ]
@@ -90,13 +59,36 @@ token exp_2 {
             term1 => $$<exp>, 
             op    => $$<op> 
         ) }
-    |
-        { return $$<term> }
+    | <?ws>? <':='> <?ws>? <exp>
+        { return ::Bind(parameters => $$<term>, arguments => $$<exp>) }
+    | \. <ident>
+          [
+            [ \( <?ws>? <exp_seq> <?ws>? \)
+            | \: <?ws> <exp_seq> <?ws>?
+            ]
+            {
+                return ::Call(
+                    invocant  => $$<term>,
+                    method    => $$<ident>,
+                    arguments => $$<exp_seq>,
+                )
+            }
+          |
+            {
+                return ::Call(
+                    invocant  => $$<term>,
+                    method    => $$<ident>,
+                    arguments => undef,
+                )
+            }
+          ]
+    |    { return $$<term> }
     ]
 }
-
 token term {
-    [ $<term> := <var>       # $variable
+    [ 
+    | \( <exp> \)    { return $$<exp> }   # ( exp )
+    | $<term> := <var>       # $variable
     | $<term> := <val>       # "value"
     | $<term> := <lit>       # [literal construct]
 #   | $<term> := <bind>      # $lhs := $rhs
