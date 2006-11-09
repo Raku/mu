@@ -26,21 +26,34 @@ token comp_unit {
 }
 
 token exp {
-    <term> [
+    <exp_2> [
         | <?ws>? <':='> <?ws>? <exp>
-        { return ::Bind(parameters => $$<term>, arguments => $$<exp>) }
+        { return ::Bind(parameters => $$<exp_2>, arguments => $$<exp>) }
         | \. <ident>
             [ \( <?ws>? <exp_seq> <?ws>? \)
             | \: <?ws> <exp_seq> <?ws>?
             ]
             {
                 return ::Call(
-                    invocant  => $$<term>,
+                    invocant  => $$<exp_2>,
                     method    => $$<ident>,
                     arguments => $$<exp_seq>,
                 )
             }
-        | { return $$<term> }
+        | { return $$<exp_2> }
+    ]
+}
+
+token exp_2 {
+    <term> 
+    [
+        <?ws>?
+        $<op> := [ \+ | \- | \* |/ ]
+        <?ws>?
+        <exp_2>
+        { return ::Op::Infix( term0 => $$<term>, term1 => $$<exp_2>, op => $$<op> ) }
+    |
+        { return $$<term> }
     ]
 }
 
@@ -49,11 +62,11 @@ token term {
     | $<term> := <val>       # "value"
     | $<term> := <lit>       # [literal construct]
 #   | $<term> := <bind>      # $lhs := $rhs
-    | $<term> := <index>     # $obj[1, 2, 3]
-    | $<term> := <lookup>    # $obj{'1', '2', '3'}
     | $<term> := <token>     # token { regex... }
     | $<term> := <method>    # method { code... }
     | $<term> := <control>   # Various control structures.  Does _not_ appear in binding LHS
+    | $<term> := <index>     # $obj[1, 2, 3]
+    | $<term> := <lookup>    # $obj{'1', '2', '3'}
     ]
     { return $$<term> }
 }

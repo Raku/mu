@@ -120,6 +120,15 @@ class Var {
     }
 }
 
+class Op::Infix {
+    has $.term0;
+    has $.term1;
+    has $.op;
+    method emit {
+        $.term0.emit ~ ' ' ~ $.op ~ ' ' ~ $.term1.emit
+    }
+}
+
 class Bind {
     has $.parameters;
     has $.arguments;
