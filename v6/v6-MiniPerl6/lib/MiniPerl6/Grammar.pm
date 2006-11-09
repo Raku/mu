@@ -26,22 +26,29 @@ token comp_unit {
 }
 
 token exp {
-    <exp_2> [
+    <exp_3> [
         | <?ws>? <':='> <?ws>? <exp>
-        { return ::Bind(parameters => $$<exp_2>, arguments => $$<exp>) }
+        { return ::Bind(parameters => $$<exp_3>, arguments => $$<exp>) }
         | \. <ident>
             [ \( <?ws>? <exp_seq> <?ws>? \)
             | \: <?ws> <exp_seq> <?ws>?
             ]
             {
                 return ::Call(
-                    invocant  => $$<exp_2>,
+                    invocant  => $$<exp_3>,
                     method    => $$<ident>,
                     arguments => $$<exp_seq>,
                 )
             }
-        | { return $$<exp_2> }
+        | { return $$<exp_3> }
     ]
+}
+
+token exp_3 {
+       \(  <exp_3>  \)
+       { return $$<exp_3> }
+    |      <exp_2>
+       { return $$<exp_2> } 
 }
 
 token exp_2 {
@@ -63,12 +70,14 @@ token exp_2 {
         ) }
     |
         <?ws>?
-        $<op> := [ \+ | \- | \* |/ | eq | ne | == | != ]
+        $<op> := [ \+ | \- | \* |/ | eq | ne | == | != | \&\& | \|\| ]
         <?ws>?
-        <exp_2>
-        { return ::Op::Infix( 
+        <exp>
+        { 
+            say "Op::Infix term2=", ($<exp>).perl; 
+          return ::Op::Infix( 
             term0 => $$<term>, 
-            term1 => $$<exp_2>, 
+            term1 => $$<exp>, 
             op    => $$<op> 
         ) }
     |

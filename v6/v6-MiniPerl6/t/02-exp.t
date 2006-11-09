@@ -32,3 +32,15 @@ use MiniPerl6::Emitter;
   say ($$p).emit;
 }
 
+{
+  my $p = MiniPerl6::Grammar.exp( '$a.bool( 10 )' );
+  say ($$p).perl;
+  say ($$p).emit;
+}
+
+{
+  my $p = MiniPerl6::Grammar.exp( '$a.bool( 10 + (10) )' );
+  say ($$p).perl;
+  say ($$p).emit;
+}
+
