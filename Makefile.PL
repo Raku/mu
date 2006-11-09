@@ -51,6 +51,11 @@ my $thispugs = ".${fs}pugs$Config{_exe}";
 my $version_h = "src/Pugs/pugs_version.h";
 my $config_h = "src/Pugs/pugs_config.h";
 my @srcdirs  = grep {-d} glob("src"), glob("src/*"), glob("src/*/*"), glob("src/*/*/*");
+
+# On Win32, svn may create '_svn' dirs rather than '.svn'.  Hide them manually.
+# Details: http://svn.collab.net/repos/svn/trunk/notes/asp-dot-net-hack.txt
+@srcdirs = grep {! m|\b_svn\b|} @srcdirs if $ENV{SVN_ASP_DOT_NET_HACK};
+
 my @hsfiles  = map {glob "$_/*.hs"} @srcdirs;
 push @hsfiles, qw<src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs>;
 my @hppfiles = map {my $x=$_; $x=~s/\.hs$/.hpp/; $x} @hsfiles;
@@ -562,8 +567,9 @@ EOD
 
     my $svn_entries = '';
 
-    if (-d '.svn') {
-        $svn_entries = File::Spec->catfile('.svn', 'entries');
+    my $svn_admin_dir = $ENV{SVN_ASP_DOT_NET_HACK} ? '_svn' : '.svn';
+    if (-d $svn_admin_dir) {
+        $svn_entries = File::Spec->catfile($svn_admin_dir, 'entries');
     }
     #$svn_entries = 'force_run';
 
