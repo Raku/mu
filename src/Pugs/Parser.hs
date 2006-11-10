@@ -235,6 +235,7 @@ ruleRuleDeclaration = rule "rule declaration" $ do
     expr    <- rxLiteralAny adverbs ch (balancedDelim ch)
     let exp = Syn ":=" [_Var ('<':'*':name), Syn "rx" [expr, adverbs]]
     unsafeEvalExp (_Sym SGlobal ('<':'*':name) exp)
+    insertIntoPosition $ "method " ++ name ++ " ($_) { $_ ~~ m/<" ++ name ++ ">/ };"
     return emptyExp
 
 rulePackageBlockDeclaration :: RuleParser Exp
