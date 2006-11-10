@@ -11,18 +11,21 @@ class CompUnit {
     has $.body          is Lit::Code;               # body of code
 }
 
+# An expression.  Except for Control, they can also occur at LHS
+# of a Bind node -- i.e. subroutine signatures.
 subset Exp of
     ( Var       # $variable
     | Val       # "value"
     | Lit       # [literal construct]
-    | Bind      # $lhs := $rhs
     | Index     # $obj[1, 2, 3]
     | Lookup    # $obj{'1', '2', '3'}
     | Control   # Various control structures.  Does _not_ appear in binding LHS
     );
 
+# Things that cannot occur as LHS of a Bind node.
 subset Control of
-    ( Call      # $obj.method($arg1, $arg2)
+    ( Bind      # $lhs := $rhs
+    | Call      # $obj.method($arg1, $arg2)
     | Apply     # $obj($arg1, $arg2)
     | Return    # return 123;
     | Leave     # last; break;
@@ -30,6 +33,25 @@ subset Control of
     | When      # when 3 { ... }
     | For       # $x.map(-> $i {...})
     | While     # while ... { ... }
+    );
+
+# Literal expressions.
+subset Lit of
+    ( Lit::Seq      # (a, b, c)
+    | Lit::Array    # [a, b, c]
+    | Lit::Hash     # {a => x, b => y}
+    | Lit::Code     # sub $x {...}
+    | Lit::Object   # ::Tree(a => x, b => y);
+    );
+
+# Fully reduced values.
+subset Val of
+    ( Val::Undef    # undef
+    | Val::Object   # (not exposed to the outside)
+    | Val::int      # 123
+    | Val::bit      # True, False
+    | Val::num      # 123.456
+    | Val::buf      # "moose"
     );
 
 subset ID of Str;
@@ -70,27 +92,10 @@ class Var {
     has $.name      is ID;
 }
 
-subset Val of
-    ( Val::Undef    # undef
-    | Val::Object   # (not exposed to the outside)
-    | Val::int      # 123
-    | Val::bit      # True, False
-    | Val::num      # 123.456
-    | Val::buf      # "moose"
-    );
-
 class Val::Object {
     has $.class         is Type;
     has %.fields        is Mapping of Val;
 }
-
-subset Lit of
-    ( Lit::Seq      # (a, b, c)
-    | Lit::Array    # [a, b, c]
-    | Lit::Hash     # {a => x, b => y}
-    | Lit::Code     # sub $x {...}
-    | Lit::Object   # ::Tree(a => x, b => y);
-    );
 
 class Lit::Seq {
     has @.seq is Seq of Exp;
