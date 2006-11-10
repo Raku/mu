@@ -670,6 +670,22 @@ reduceSyn ":=" exps
             [v] -> v
             vs  -> VList vs
 
+reduceSyn ":=" [Syn "{}" [conExp, keyExp], valExp] = enterLValue $ do
+    ref     <- fromVal =<< enterEvalContext cxtItemAny valExp
+    con     <- enterEvalContext (cxtItem "Hash") conExp
+    key     <- fromVal =<< enterEvalContext (cxtItem "Str") keyExp
+    doBind  <- doHash con hash_storeElem
+    doBind key ref
+    return (castV ref)
+
+reduceSyn ":=" [Syn "[]" [conExp, keyExp], valExp] = enterLValue $ do
+    ref     <- fromVal =<< enterEvalContext cxtItemAny valExp
+    con     <- enterEvalContext (cxtItem "Array") conExp
+    key     <- fromVal =<< enterEvalContext (cxtItem "Int") keyExp
+    doBind  <- doArray con array_storeElem
+    doBind key ref
+    return (castV ref)
+
 reduceSyn ":=" [var, vexp] = do
     let expand e | e'@(Syn "," _) <- unwrap e = e'
         expand e = Syn "," [e]
