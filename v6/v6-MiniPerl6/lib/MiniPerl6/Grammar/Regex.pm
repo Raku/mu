@@ -183,7 +183,7 @@ token named_capture_body {
 %rule_terms{"<'"} := token {
     <literal> \' \>
     { return Rul::Constant( constant => $$<literal> ) }
-}
+};
 %rule_terms{'<'} := token { 
         |  
         # { say "matching < ..." }
@@ -233,10 +233,10 @@ token named_capture_body {
 %rule_terms{'^'} := token { { return { colon => '^'  ,} } };
     
 %rule_terms{'>>'} := token { { return { colon => '>>' ,} } };
-%rule_terms{'»'} := token { { return { colon => '>>' ,} } };
+%rule_terms{'Â»'} := token { { return { colon => '>>' ,} } };
 
 %rule_terms{'<<'} := token { { return { colon => '<<' ,} } };
-%rule_terms{'«'} := token { { return { colon => '<<' ,} } };
+%rule_terms{'Â«'} := token { { return { colon => '<<' ,} } };
 
 %rule_terms{':i'} := token { 
         <?ws> <rule> 
