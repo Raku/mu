@@ -162,7 +162,7 @@ token term {
         { return ::Op::Prefix( op => ~$<op>, term => $$<exp> ) }   # $$x
     | \( <?ws>? <exp> <?ws>? \)
         { return $$<exp> }   # ( exp )
-    | $<decl> := [ my | state ]  <?ws> <var> 
+    | $<decl> := [ my | state | has ]  <?ws> <var> 
         { return ::Decl( decl => $$<decl>, var => $$<var> ) }    # my $variable
     | use <?ws> $<mod> := <full_ident>  [ - <ident> | <''> ]
         { return ::Use( mod => $$<mod> ) }
