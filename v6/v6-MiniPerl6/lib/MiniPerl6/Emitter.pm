@@ -188,13 +188,11 @@ class If {
     }
 }
 
-class Method {
-    has $.name;
-    has $.sig;
-    has @.block;
+class Decl {
+    has $.decl;
+    has $.var;
     method emit {
-        # TODO - signature binding
-        'sub ' ~ $.name ~ ' { ' ~ @.block.>>emit ~ ' }'
+        $.decl ~ ' ' ~ $.var.emit
     }
 }
 
@@ -205,4 +203,36 @@ class Sig {
     method emit {
         " # Signature - TODO \n"
     }
+    method invocant {
+        $.invocant
+    }
+    method positional {
+        $.positional
+    }
 }
+
+class Method {
+    has $.name;
+    has $.sig;
+    has @.block;
+    method emit {
+        # TODO - signature binding
+        my $sig := $.sig;
+        # say "Sig: ", $sig.perl;
+        my $invocant := $sig.invocant; 
+        # say $invocant.emit;
+        my $pos := $sig.positional;
+        my $str := '';
+        my $i := 0;
+        for @$pos -> $field { 
+            $i := $i + 1;
+            $str := $str ~ 'my ' ~ $field.emit ~ ' = $_[' ~ $i ~ ']; ';
+        } 
+        'sub ' ~ $.name ~ ' { ' ~ 
+          'my ' ~ $invocant.emit ~ ' = $_[0]; ' ~
+          $str ~
+          @.block.>>emit.join('; ') ~ 
+        ' }'
+    }
+}
+

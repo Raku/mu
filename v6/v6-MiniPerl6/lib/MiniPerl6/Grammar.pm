@@ -26,21 +26,18 @@ token comp_unit {
 }
 
 token exp {
-    <term> 
+    # { say "exp: going to match <term_meth> at ", $/.to; }
+    <term_meth> 
     [
         <?ws>?
-        # { say "testing ternary ", ($$<term>).perl, ' at ', ($<term>).to  }
         $<op> := [ <'??'> ]
         [
-          <?ws>?
-          <exp>
-          # { say "got exp ", ($$<exp>).perl, ' at ', ($<exp>).to }
-          <?ws>?
-        <'!!'>
+          <?ws>?  <exp>
+          <?ws>?  <'!!'>
           <?ws>?
           $<exp_3> := <exp>
           { return ::Op::Ternary( 
-            term0 => $$<term>, 
+            term0 => $$<term_meth>, 
             term1 => $$<exp>, 
             term2 => $$<exp_3>,
             op    => $$<op> 
@@ -55,15 +52,24 @@ token exp {
         { 
             # say "Op::Infix term2=", ($<exp>).perl; 
           return ::Op::Infix( 
-            term0 => $$<term>, 
+            term0 => $$<term_meth>, 
             term1 => $$<exp>, 
             op    => $$<op> 
         ) }
     | <?ws>? <':='> <?ws>? <exp>
-        { return ::Bind(parameters => $$<term>, arguments => $$<exp>) }
-    | \. <ident>
+        { return ::Bind(parameters => $$<term_meth>, arguments => $$<exp>) }
+    |   { return $$<term_meth> }
+    ]
+}
+
+token term_meth {
+    <term>
+    [ \. <ident>
           [
-            [ \( <?ws>? <exp_seq> <?ws>? \)
+            [ \( 
+                # { say "testing exp_seq at ", $/.to }
+                <?ws>? <exp_seq> <?ws>? \)
+                # { say "found parameter list: ", $<exp_seq>.perl }
             | \: <?ws> <exp_seq> <?ws>?
             ]
             {
@@ -85,9 +91,14 @@ token exp {
     |    { return $$<term> }
     ]
 }
+
 token term {
     [ 
-    | \( <exp> \)    { return $$<exp> }   # ( exp )
+    | \( <?ws>? <exp> <?ws>? \)
+      { return $$<exp> }   # ( exp )
+    | $<decl> := [ my | state ]
+      <?ws> <var> 
+      { return ::Decl( decl => $$<decl>, var => $$<var> ) }    # my $variable
     | $<term> := <var>       # $variable
     | $<term> := <val>       # "value"
     | $<term> := <lit>       # [literal construct]
@@ -212,6 +223,7 @@ token exp_stmts {
 
 token exp_seq {
     | <exp>
+        # { say "exp_seq: matched <exp>" }
         [
         |   <?ws>? \, <?ws>? <exp_seq> 
             <?ws>? [\, <?ws>?]?
@@ -219,7 +231,9 @@ token exp_seq {
         |   <?ws>? [\, <?ws>?]?
             { return [ $$<exp> ] }
         ]
-    | { return [] }
+    | 
+        # { say "exp_seq: end of match" }
+        { return [] }
 }
 
 token exp_mapping {
@@ -313,7 +327,7 @@ token token {
     {
         # say "Token was compiled into: ", ($$<MiniPerl6::Grammar::Regex.rule>).perl;
         my $source := 'method ' ~ $$<name> ~ ' ( $grammar: $str ) { ' ~
-            'my $m := ::Match( "str" => $str, "from" => 0, "to" => 0 ); ' ~ 
+            'my $m; $m := ::Match( "str" => $str, "from" => 0, "to" => 0 ); ' ~ 
             '$m.bool( ' ~
                 ($$<MiniPerl6::Grammar::Regex.rule>).emit ~
             '); ' ~
@@ -355,19 +369,19 @@ token method {
        |  $<name> := [ <''> ] 
     ]
     <?ws>? \( <?ws>?  <sig>  <?ws>?  \)
-        { 
-            say " name: ", ($$<name>).perl;
-            say " params: ", ($$<sig>).perl;
-        } 
+        # { 
+        #    say " name: ", ($$<name>).perl;
+        #    say " params: ", ($$<sig>).perl;
+        # } 
     <?ws>? \{ <?ws>?  
-          { say " parsing statement list " }
+          # { say " parsing statement list " }
           <exp_stmts> 
-          { say " got statement list ", ($$<exp_stmts>).perl } 
+          # { say " got statement list ", ($$<exp_stmts>).perl } 
         <?ws>? 
     [   \}     | { say "*** error in Block"; die "error in Block"; } ]
     {
-            say " block: ", ($$<exp_stmts>).perl;
-            return ::Method( name => $$<name>, sig => $$<sig>, block => $$<exp_stmts> );
+        # say " block: ", ($$<exp_stmts>).perl;
+        return ::Method( name => $$<name>, sig => $$<sig>, block => $$<exp_stmts> );
     }
 }
 
