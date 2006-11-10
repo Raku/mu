@@ -2,11 +2,10 @@
 
 module MO.Run (
     module MO.Run,
-    ArgList(..),
+    Arguments(..),
     NoCode(..),
     HsCode(..),
     PureCode(..),
-    Arguments(..),
 ) where
 
 -- FIXME: systematize a nice order for imports (steal Pugs')
@@ -17,15 +16,18 @@ import Data.Map as M
 import Data.Typeable
 
 
+mkArgs :: (Typeable1 m, Monad m) => [Invocant m] -> Arguments m
+mkArgs = MkArguments
+
 -- Abstract Roles
 -- class Invocation a
 -- class Responder a
 
 data MethodInvocation m
-    = forall a. Arguments m a => MkMethodInvocation
-        String          -- Name
-        a               -- Arguments
-        (Invocant m)    -- Caller
+    = MkMethodInvocation
+        { miName      :: String  
+        , miArguments :: Arguments m
+        }
 
 
 
@@ -68,15 +70,15 @@ class Monad m => ResponderInterface m a | a -> m where
 instance ResponderInterface m a => Show a where
     show = show . toNameList
 
-instance Monad m => ResponderInterface m (MethodTable m) where
+instance (Typeable1 m, Monad m) => ResponderInterface m (MethodTable m) where
     fromMethodList = return . MkMethodTable . M.fromList
-    dispatch mt responder inv@(MkMethodInvocation _ args _) = do
+    dispatch mt responder inv@(MkMethodInvocation _ args) = do
         method_compiled <- mtMethod mt inv
         runMC method_compiled (withInvocant args responder)
     toNameList = M.keys . mtMethods
 
 mtMethod :: Monad m => MethodTable a -> MethodInvocation m -> m (MethodCompiled a)
-mtMethod table inv@(MkMethodInvocation n _ _)
+mtMethod table inv@(MkMethodInvocation n _)
     = M.lookup n (mtMethods table)
 
 data (Typeable1 m, Monad m) => Invocant m
@@ -96,6 +98,7 @@ ivDispatch i@(MkInvocant _ (AnyResponder ri)) mi = do
 
 instance (Typeable1 m, Monad m) => Show (Invocant m) where
     show (MkInvocant x _) = show x
+
 instance (Typeable1 m, Monad m) => Eq (Invocant m) where
     MkInvocant a _ == MkInvocant b _ = a ?==? b
 instance (Typeable1 m, Monad m) => Ord (Invocant m) where
