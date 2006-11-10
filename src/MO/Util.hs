@@ -42,6 +42,10 @@ data Ord a => Collection a
     }
     deriving (Eq, Ord, Typeable)
 
+
+instance (Ord a, Show a) => Show (Collection a) where
+    show (MkCollection _ n) = "<" ++ show n ++ ">"
+
 cmap :: (Ord a, Ord b) => (a -> b) -> Collection a -> Collection b
 cmap f c@MkCollection { cByName = bn } =
     let l = map (\(x,y) -> (x, f y)) (Map.toList bn)
@@ -82,6 +86,10 @@ newCollection' :: Ord a => (a -> String) -> [a] -> Collection a
 newCollection' f l = newCollection pairs
     where pairs = map (\x -> (f x, x)) l
 
+newCollectionMap :: Ord a => Map String a -> Collection a
+newCollectionMap ns = MkCollection { cByObject = os, cByName = ns }
+    where os = Set.fromList (Map.elems ns)
+
 items :: Ord a => Collection a -> [a]
 items c = Set.elems (cByObject c)
 
@@ -107,37 +115,28 @@ includes_all c [] = False
 includes_all c (x:xs) = (includes c x) && (includes_any c xs)
 
 shadow :: Ord a => [Collection a] -> [a]
-shadow = map snd . shadow'
+shadow = Map.elems . shadow'
 
-shadow' :: Ord a => [Collection a] -> [(String, a)]
-shadow' []     = []
-shadow' (x:xs) = (items_named x) ++ remaining
-    where tail_items = shadow' xs
-          remaining  = filter (\(n,_) -> not (includes_name x n)) tail_items
+shadow' :: Ord a => [Collection a] -> Map String a
+shadow' = Map.unions . map cByName
 
 shadow_collection :: Ord a => [Collection a] -> Collection a
-shadow_collection = newCollection . shadow'
+shadow_collection = newCollectionMap . shadow'
 
 merge :: Ord a => [Collection a] -> [a]
-merge = map snd . merge'
+merge = Map.elems . merge'
 
-merge' :: Ord a => [Collection a] -> [(String, a)]
-merge' [] = []
-merge' l  = if ((length all_names) /= (length all_names')) 
-                then error "merge conflict"
-                else all_items_named
-    where all_items_named = foldr (++) [] (map items_named l)
-          all_names = map fst all_items_named
-          all_names' = nub all_names
+merge' :: Ord a => [Collection a] -> Map String a
+merge' = foldl (Map.unionWithKey (\k _ _ -> error ("merge conflict: " ++ show k))) Map.empty . map cByName
 
 merge_collection :: Ord a => [Collection a] -> Collection a
-merge_collection = newCollection . merge'
+merge_collection = newCollectionMap . merge'
 
-sym_shadowing :: Ord a => b -> (b -> [b]) -> (b -> Collection a) -> Collection a
+sym_shadowing :: (Show a, Ord a) => b -> (b -> [b]) -> (b -> Collection a) -> Collection a
 sym_shadowing o parents f = shadow_collection [f o, all_parents]
     where all_parents = sym_merged_parents o parents f
 
-sym_merged_parents :: Ord a => b -> (b -> [b]) -> (b -> Collection a) -> Collection a
+sym_merged_parents :: (Show a, Ord a) => b -> (b -> [b]) -> (b -> Collection a) -> Collection a
 sym_merged_parents o parents f = merge_collection cs
     where cs = map (\x -> sym_shadowing x parents f) (parents o)
 
