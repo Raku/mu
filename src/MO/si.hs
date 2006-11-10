@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances -fallow-overlapping-instances #-}
+
 import MO.Run
 import MO.Compile
 import MO.Compile.Class
