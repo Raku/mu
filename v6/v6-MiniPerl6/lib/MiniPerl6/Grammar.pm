@@ -129,16 +129,16 @@ token control {
 }
 
 token if {
-    if <?ws>  $<cond>      := <exp>     <?ws>?
+    if <?ws>  <exp>  <?ws>?
     \{ <?ws>? $<body>      := <exp_stmts> <?ws>? \} <?ws>?
     else <?ws>? 
     \{ <?ws>? $<otherwise> := <exp_stmts> <?ws>? \}
-    { return ::If( :$$<cond>, :$$<body>, :$$<otherwise> ) }
+    { return ::If( cond => $$<exp>, body => $$<body>, otherwise => $$<otherwise> ) }
 }
 
 token when {
-    when <?ws> $<parameters> := <exp_seq> <?ws>? \{ <?ws>? $<body> := <exp_stmts> <?ws>? \}
-    { return ::When( :$$<parameters>, :$$<body> ) }
+    when <?ws> <exp_seq> <?ws>? \{ <?ws>? <exp_stmts> <?ws>? \}
+    { return ::When( parameters => $$<exp_seq>, body => $$<exp_stmts> ) }
 }
 
 token for {
@@ -200,8 +200,8 @@ token val_undef {
 
 token val_num {  XXX { return "TODO: val_num" } }
 token val_buf {
-    | \" ([\\<(.)>|<-[\"]>]+) \" { return Val::Buf( buf => $$0 ) }
-    | \' ([\\<[\\\']>|<-[\']>]+) \' { return Val::Buf( buf => $$0 ) }
+    | \" ([\\<(.)>|<-[\"]>]+) \" { return ::Val::Buf( buf => $$0 ) }
+    | \' ([\\<[\\\']>|<-[\']>]+) \' { return ::Val::Buf( buf => $$0 ) }
 }
 
 token val_int {
@@ -284,8 +284,8 @@ token bind {
     $<arguments>  := <exp>
     {
         return ::Bind(
-            :$$<parameters>,
-            :$$<arguments>,
+            parameters => $$<parameters>,
+            arguments  => $$<arguments>,
         )
     }
 }
@@ -294,8 +294,8 @@ token call {
     \. $<method> := <ident> \( <?ws>? <exp_seq> <?ws>? \)
     {
         return ::Call(
-            :$$<invocant>,
-            :$$<method>,
+            invocant  => $$<invocant>,
+            method    => $$<method>,
             arguments => $$<exp_seq>,
         )
     }

@@ -3,16 +3,6 @@ use v6-alpha;
 use MiniPerl6::Grammar;
 
 {
-  my $p = MiniPerl6::Grammar.comp_unit( 'class Moose { say(123, 456); 123 := 410; 123.moose(1) }' );
-  ($$p).perl.say;
-}
-
-{
-  my $p = MiniPerl6::Grammar.val( '"mo\"ose"' );
-  ($$p).perl.say;
-}
-
-{
   my $p = MiniPerl6::Grammar.var( '$abc' );
   ($$p).perl.say;
 }
@@ -48,12 +38,12 @@ use MiniPerl6::Grammar;
 }
 
 {
-  my $p = MiniPerl6::Grammar.call( '$obj.meth( $abc, $def, $xyz )' );
+  my $p = MiniPerl6::Grammar.exp( '$obj.meth( $abc, $def, $xyz )' );
   ($$p).perl.say;
 }
 
 {
-  my $p = MiniPerl6::Grammar.bind( '$obj := $xyz' );
+  my $p = MiniPerl6::Grammar.exp( '$obj := $xyz' );
   ($$p).perl.say;
 }
 
@@ -111,3 +101,14 @@ use MiniPerl6::Grammar;
   my $p = MiniPerl6::Grammar.exp( ' $abc := True ' );
   ($$p).perl.say;
 }
+
+{
+  my $p = MiniPerl6::Grammar.val( '"mo\"ose"' );
+  ($$p).perl.say;
+}
+
+{
+  my $p = MiniPerl6::Grammar.comp_unit( 'class Moose { say(123, 456); 123 := 410; 123.moose(1) }' );
+  ($$p).perl.say;
+}
+
