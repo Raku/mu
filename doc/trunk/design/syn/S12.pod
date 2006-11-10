@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 7 Nov 2006
+  Last Modified: 10 Nov 2006
   Number: 12
-  Version: 32
+  Version: 33
 
 =head1 Overview
 
@@ -467,7 +467,7 @@ happen by accident just because you change C<submethod> to C<method>.)
 
 Because C<$.foo>, C<@.foo>, C<%.foo>, C<&.foo> are just shorthands of
 C<self.foo> with different contexts, the class does not need to declare
-C<has $.foo> as an attribute -- a C<method foo> declaration can work
+any of those as an attribute -- a C<method foo> declaration can work
 just as well.
 
 The dot form can take an argument list as well.  These are all equivalent:
