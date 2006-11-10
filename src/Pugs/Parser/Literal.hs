@@ -593,7 +593,10 @@ ruleQuoteAdverbs = enterBracketLevel QuoteAdverbBracket $ do
 substLiteral :: RuleParser Exp
 substLiteral = do
     (declarator, pseudo) <- choice
-        [ symbol "s" >> return ("subst", (pseudoAssignment <|>))
+        [ symbol "s"  >> return ("subst", (pseudoAssignment <|>))
+        , do symbol "ss"
+             insertIntoPosition ":sigspace(1)"
+             return ("subst", (pseudoAssignment <|>))
         , symbol "tr" >> return ("trans", id)
         ]
     adverbs <- case declarator of
@@ -661,6 +664,9 @@ rxLiteral = verbatimRule "regex expression" $ do
     (withAdvs, decl) <- choice
         [ symbol "rx" >> return (id, "rx")
         , symbol "m"  >> return (id, "match")
+        , do (symbol "ms" <|> symbol "mm")
+             insertIntoPosition ":sigspace(1)"
+             return (id, "match")
         , do advs <- ruleRegexDeclarator
              lookAhead (ruleQuoteAdverbs >> char '{')
              return (advs, "rx")
