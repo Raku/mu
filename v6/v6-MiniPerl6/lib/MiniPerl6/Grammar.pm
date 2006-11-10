@@ -117,7 +117,9 @@ token term_meth {
     ]
     |
     <term>
-    [ \. <ident>
+    [ \.
+        $<hyper> := [ <'>>'> | <''> ]
+        <ident>
           [
             [ \( 
                 # { say "testing exp_seq at ", $/.to }
@@ -130,6 +132,7 @@ token term_meth {
                     invocant  => $$<term>,
                     method    => $$<ident>,
                     arguments => $$<exp_seq>,
+                    hyper     => $$<hyper>,
                 )
             }
           |
@@ -138,6 +141,7 @@ token term_meth {
                     invocant  => $$<term>,
                     method    => $$<ident>,
                     arguments => undef,
+                    hyper     => $$<hyper>,
                 )
             }
           ]
