@@ -236,3 +236,9 @@ class Method {
     }
 }
 
+class Use {
+    has $.mod;
+    method emit {
+        'use ' ~ $.mod
+    }
+}

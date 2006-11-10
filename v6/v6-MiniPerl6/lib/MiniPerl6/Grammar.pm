@@ -7,6 +7,32 @@ grammar MiniPerl6::Grammar;
 # XXX - move to v6.pm emitter
 sub array($data)    { use v5; @$data; use v6; }
 
+token pod_begin {
+    |   \n =end \N*
+    |   . \N* <?pod_begin>
+}
+
+token pod_other {
+    |   \n =cut \N*
+    |   . \N* <?pod_other>
+}
+
+token ws {
+    [
+    |    \# \N*
+    |    \n [ = [
+            |  begin <?ws> END \N* .*
+            |  begin  <?pod_begin>
+            |  kwid   <?pod_other>
+            |  pod    <?pod_other>
+            |  for    <?pod_other>
+            |  head1  <?pod_other>
+            ]?
+            ]?
+    |    \s
+    ]+
+}
+
 token comp_unit {
     <?ws>?
     class <?ws>? <ident> <?ws>? \{
@@ -63,6 +89,33 @@ token exp {
 }
 
 token term_meth {
+    <full_ident>
+    [ \. <ident>
+          [
+            [ \( 
+                # { say "testing exp_seq at ", $/.to }
+                <?ws>? <exp_seq> <?ws>? \)
+                # { say "found parameter list: ", $<exp_seq>.perl }
+            | \: <?ws> <exp_seq> <?ws>?
+            ]
+            {
+                return ::Call(
+                    invocant  => $$<full_ident>,
+                    method    => $$<ident>,
+                    arguments => $$<exp_seq>,
+                )
+            }
+          |
+            {
+                return ::Call(
+                    invocant  => $$<full_ident>,
+                    method    => $$<ident>,
+                    arguments => undef,
+                )
+            }
+          ]
+    ]
+    |
     <term>
     [ \. <ident>
           [
@@ -92,13 +145,21 @@ token term_meth {
     ]
 }
 
+token full_ident {
+    <ident>
+    [   <'::'> <full_ident>
+    |   <''>
+    ]    
+}
+
 token term {
     [ 
     | \( <?ws>? <exp> <?ws>? \)
-      { return $$<exp> }   # ( exp )
-    | $<decl> := [ my | state ]
-      <?ws> <var> 
-      { return ::Decl( decl => $$<decl>, var => $$<var> ) }    # my $variable
+        { return $$<exp> }   # ( exp )
+    | $<decl> := [ my | state ]  <?ws> <var> 
+        { return ::Decl( decl => $$<decl>, var => $$<var> ) }    # my $variable
+    | use <?ws> $<mod> := <full_ident>  [ - <ident> | <''> ]
+        { return ::Use( mod => $$<mod> ) }
     | $<term> := <var>       # $variable
     | $<term> := <val>       # "value"
     | $<term> := <lit>       # [literal construct]
@@ -166,13 +227,13 @@ token return {
 
 token var {
     $<sigil>  := [ <[ \$ \% \@ \& ]> ]
-    $<twigil> := [ <[ \. \! \^ ]> | <''> ]
-    <ident>
+    $<twigil> := [ <[ \. \! \^ \* ]> | <''> ]
+    <full_ident>
     {
         return ::Var(
             sigil  => ~$<sigil>,
             twigil => ~$<twigil>,
-            name   => ~$<ident>,
+            name   => ~$<full_ident>,
         )
     }
 }
