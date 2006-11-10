@@ -154,6 +154,8 @@ token full_ident {
 
 token term {
     [ 
+    | $<op> := [ \$ | \@ | \% ] <before <[ \( \$ ]> > <exp> 
+        { return ::Op::Prefix( op => ~$<op>, term => $$<exp> ) }   # $$x
     | \( <?ws>? <exp> <?ws>? \)
         { return $$<exp> }   # ( exp )
     | $<decl> := [ my | state ]  <?ws> <var> 
