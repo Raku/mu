@@ -56,41 +56,13 @@ no_conflict_a = newMI $ emptyMI
                 ]
             }
 
-bar_as_foo = MkAttribute
-    { attrName          = "foo"
-    , attrAccessorName  = "bar"
-    , attrIsPrivate     = False
-    , attrDefault       = return stubInvocant
-    }
-
-with_conflict_a = newMI $ emptyMI 
-            { clsName = "with_conflict_a"
-            , clsParents = []
-            , clsRoles =
-                [ make_role [mkAttributeStub "foo"] [] []
-                , make_role [bar_as_foo] [] [] 
-                ]
-            }
-
-with_conflict_bad = newMI $ emptyMI 
-            { clsName = "with_conflict_bad"
-            , clsParents = []
-            , clsRoles =
-                [ make_role [mkAttributeStub "bar"] [] []
-                , make_role [bar_as_foo] [] [] 
-                ]
-            }
-
-
 mkbox s c = MkInvocant s (class_interface c)
 
 no_conflict_box = mkbox "no_conflict" no_conflict
-with_conflict_box = mkbox "with_conflict" with_conflict
 shadowed_box    = mkbox "shadowed" shadowed
+with_conflict_box = mkbox "with_conflict" with_conflict
 shadowed_a_box    = mkbox "shadowed_a" shadowed_a
 no_conflict_a_box = mkbox "no_conflict_a" no_conflict_a
-with_conflict_a_box = mkbox "with_conflict_a" with_conflict_a
-with_conflict_bad_box = mkbox "with_conflict_bad" with_conflict_bad
 
 make_call s = MkMethodInvocation
             { miName = s
@@ -128,7 +100,6 @@ make_role as ms rs = emptyRole
                  , roRoles          = rs
                  }
 
-
 with_conflict = newMI $ emptyMI 
             { clsName = "with_conflict"
             , clsParents = []
@@ -137,6 +108,7 @@ with_conflict = newMI $ emptyMI
                 , make_role [] [make_method ("foo", "foo2")] [] 
                 ]
             }
+
 ok_conflict f = do
     rv  <- try f
     case rv of
@@ -148,47 +120,28 @@ ok_conflict f = do
 main = do
     -- Create instances
     no_conflict_i       <- make_instance no_conflict_box
-    with_conflict_i     <- make_instance with_conflict_box
     shadowed_i          <- make_instance shadowed_box
     shadowed_a_i        <- make_instance shadowed_a_box
     no_conflict_a_i     <- make_instance no_conflict_a_box
-    with_conflict_a_i   <- make_instance with_conflict_a_box
-    with_conflict_bad_i <- make_instance with_conflict_bad_box
   
-    ok (check_methods no_conflict ["bless"])
-       "class methods of no_conflict"
-    ok (check_methods no_conflict ["foo","foo2"])
-       "instance methods of no_conflict"
+    ok (check_methods no_conflict ["bless", "foo", "foo2"])
+       "methods of no_conflict"
 
-    ok (check_methods shadowed ["bless"])
-       "class methods of shadowed"
-    ok (check_methods shadowed ["foo","bar"])
-       "instance methods of shadowed"
+    ok (check_methods shadowed ["bless", "foo", "bar"])
+       "methods of shadowed"
 
     call shadowed_i (make_call "foo") "foo" "calling shadowed method foo"
     call shadowed_i (make_call "bar") "bar" "calling non-shadowed method bar" 
 
-    ok (check_methods with_conflict ["bless"])
-       "class methods of with_conflict"
-
-    ok (check_methods shadowed_a ["foo"])
+    ok (check_methods shadowed_a ["bless", "foo"])
        "instance methods of shadowed_a"
     ok (check_attributes shadowed_a ["foo","foo"])
        "attributes of shadowed_a"
     
-    ok (check_methods no_conflict_a ["foo","bar"])
+    ok (check_methods no_conflict_a ["bless", "foo","bar"])
        "instance methods of no_conflict_a"
     ok (check_attributes no_conflict_a ["foo","bar"])
        "attributes of no_conflict_a"
 
-    ok (check_methods with_conflict_a ["foo","bar"])
-       "instance methods of with_conflict_a"
-    ok (check_attributes with_conflict_a ["foo","foo"])
-       "attributes of with_conflict_a"
-  
-    ok (check_attributes with_conflict_bad ["foo","bar"])
-       "attributes of with_conflict_bad"
-    
     say "# lets try make a MERGE CONFLICT:"
-    ok_conflict (print $ all_methods with_conflict_bad)
-    ok_conflict (print $ all_methods with_conflict)
+    ok_conflict (make_instance with_conflict_box)
