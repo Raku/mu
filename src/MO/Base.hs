@@ -9,7 +9,7 @@ import MO.Util
 
 -- | open type to represent Code
 class Monad m => Code m c where
-    run :: Arguments m a => c -> a -> m (Invocant m)
+    run :: c -> Arguments m -> m (Invocant m)
 
 -- | stub code which always return the same
 newtype NoCode m = NoCode (Invocant m)
@@ -20,37 +20,31 @@ instance Show (NoCode m) where
     show _ = "<NoCode>"
 
 -- | Pure code that works with any monad.
-newtype PureCode = PureCode (forall m a. Arguments m a => a -> Invocant m)
+newtype PureCode = PureCode (forall m. (Typeable1 m, Monad m) => Arguments m -> Invocant m)
 
-instance Monad m => Code m PureCode where
+instance (Typeable1 m, Monad m) => Code m PureCode where
     run (PureCode f) a = return (f a)
 instance Show PureCode where
     show _ = "<PureCode>"
 
 -- | Real monadic primitive code.
-newtype Monad m => HsCode m = HsCode (forall a. Arguments m a => a -> m (Invocant m))
+newtype Monad m => HsCode m = HsCode (Arguments m -> m (Invocant m))
 
 instance (Typeable1 m, Monad m) => Code m (HsCode m) where
     run (HsCode f) a = f a
 instance Show (HsCode m) where
     show _ = "<HsCode>"
 
+withInvocant :: (Typeable1 m, Monad m) => Arguments m -> Invocant m -> Arguments m
+withInvocant (MkArguments xs) x = MkArguments (x:xs)
 
--- | don't know how arguments interface will be :P
-class (Typeable1 m, Monad m, Show a) => Arguments m a | a -> m where
-    withInvocant    :: a -> Invocant m -> a
-    getInvocant     :: a -> Maybe (Invocant m)
-    toList          :: a -> [Invocant m]
-    namedArg        :: a -> String -> m (Maybe (Invocant m))
+getInvocant :: (Typeable1 m, Monad m) => Arguments m -> Maybe (Invocant m)
+getInvocant (MkArguments xs) = listToMaybe xs
 
-newtype ArgList m = ArgList [Invocant m]
+toList :: (Typeable1 m, Monad m) => Arguments m -> [Invocant m]
+toList (MkArguments xs) = xs
 
-instance (Typeable1 m, Monad m) => Arguments m (ArgList m) where 
-    withInvocant (ArgList bs) b   = ArgList (b:bs)
-    getInvocant (ArgList bs)      = listToMaybe bs
-    toList (ArgList bs) = bs
-    namedArg _ _ = return Nothing
+namedArg :: (Typeable1 m, Monad m) => Arguments m -> String -> Maybe (Invocant m)
+namedArg _ _ = Nothing
 
-instance Show (ArgList m) where
-    show (ArgList bs) = "<arglist>"
-
+newtype Arguments m = MkArguments [Invocant m] deriving (Show)

@@ -43,10 +43,6 @@ instance Monad m => Method m (SimpleMethod m) where
 data MethodCompiled m
     = forall c. Code m c => MkMethodCompiled c
 
-
 -- NOTE: Maybe I should instantiate MethodCompiled for Code? :P
-runMC :: Arguments m a => MethodCompiled m -> a -> m (Invocant m)
+runMC :: MethodCompiled m -> Arguments m -> m (Invocant m)
 runMC (MkMethodCompiled c) = run c
-
-
-
