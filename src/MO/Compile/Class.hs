@@ -16,11 +16,6 @@ import qualified MO.C3 as C3 (linearize)
 import Data.Maybe (maybeToList, fromJust)
 import qualified Data.Map as Map
 
-type AttributeGrammar = ()
-
--- FIXME: I merged Abstract::Class and Class roles just to make
--- things easier now
-
 class (Typeable1 m, Monad m, Typeable c, Eq c) => Class m c | c -> m where
     class_name               :: c -> String
     superclasses             :: c -> [AnyClass m]
@@ -34,18 +29,12 @@ class (Typeable1 m, Monad m, Typeable c, Eq c) => Class m c | c -> m where
     all_attributes        :: c -> [Attribute m]
     all_attributes c
         = concatMap attributes (class_precedence_list c)
-        ++ concatMap roleAttributes (roles c)
+        ++ concatMap allRoleAttributes (roles c)
         where
-        roleAttributes r = roAttributes r ++ concatMap roleAttributes (roRoles r)
+        allRoleAttributes r = role_attributes r ++ concatMap allRoleAttributes (parent_roles r)
 
-    all_class_methods        :: c -> [AnyMethod m]
-    all_class_methods c      = shadow (from_c ++ [from_r])
-      where from_c = map class_methods (class_precedence_list c)
-            from_r = all_using_role_shadowing
-                         (merged_roles c) role_class_methods
-
-    all_attribute_instance_methods :: c -> [AnyMethod m]
-    all_attribute_instance_methods c = shadow (from_c ++ [from_r])
+    all_attribute_methods :: c -> [AnyMethod m]
+    all_attribute_methods c = shadow (from_c ++ [from_r])
         where
         from_c = map attribute_methods (class_precedence_list c)
         from_r = all_using_role_shadowing (merged_roles c) role_attribute_methods
@@ -57,42 +46,29 @@ class (Typeable1 m, Monad m, Typeable c, Eq c) => Class m c | c -> m where
             , smDefinition  = MkMethodCompiled $ PureCode (error . show . getInvocant)
             }
 
-    all_instance_methods     :: c -> [AnyMethod m]
-    all_instance_methods cls = all_attribute_instance_methods cls ++ all_regular_instance_methods cls
+    all_methods     :: c -> [AnyMethod m]
+    all_methods cls = all_attribute_methods cls ++ all_regular_methods cls
 
-    all_regular_instance_methods :: c -> [AnyMethod m]
-    all_regular_instance_methods c = shadow (from_c ++ [from_r])
-      where from_c = map instance_methods (class_precedence_list c)
+    all_regular_methods :: c -> [AnyMethod m]
+    all_regular_methods c = shadow (from_c ++ [from_r])
+      where from_c = map public_methods (class_precedence_list c)
             from_r = all_using_role_shadowing
-                         (merged_roles c) role_instance_methods
+                         (merged_roles c) role_public_methods
 
     roles                    :: c -> [Role m]
     merged_roles             :: c -> Role m
     merged_roles c           = emptyRole { roRoles = roles c }
     
-    attribute_grammars       :: c -> [AttributeGrammar]
+--  attribute_grammars       :: c -> [AttributeGrammar]
     attributes               :: c -> [Attribute m]
-    instance_methods         :: c -> Collection (AnyMethod m)
-    private_instance_methods :: c -> Collection (AnyMethod m)
-    class_methods            :: c -> Collection (AnyMethod m)
-    private_class_methods    :: c -> Collection (AnyMethod m)
-
-    instance_interface :: c -> AnyResponder m
-    instance_interface = AnyResponder
-                       . (fromMethodList :: [(String, MethodCompiled m)] -> m (MethodTable m))
-                       . map (\m -> (name m, compile m))
-                       . all_instance_methods
+    public_methods           :: c -> Collection (AnyMethod m)
+    private_methods          :: c -> Collection (AnyMethod m)
 
     class_interface :: c -> AnyResponder m
     class_interface = AnyResponder
-                    . (fromMethodList :: [(String, MethodCompiled m)] -> m (MethodTable m))
-                    . map (\m -> (name m, compile m))
-                    . all_class_methods
-
---    add_class_method :: c -> AnyMethod -> c -- go monadic?
-
-
-
+                       . (fromMethodList :: [(String, MethodCompiled m)] -> m (MethodTable m))
+                       . map (\m -> (name m, compile m))
+                       . all_methods
 
 data AnyClass m = forall c. Class m c => AnyClass c
 data AnyClass_Type deriving Typeable
@@ -112,26 +88,16 @@ instance (Typeable1 m, Monad m) => Show (AnyClass m) where
 -- Could it cause serious problems? Well, there's a DRY problem here, but
 -- what else?
 instance (Typeable1 m, Monad m) => Class m (AnyClass m) where
-    class_name               (AnyClass c) = class_name c
-    superclasses             (AnyClass c) = superclasses c
-    class_precedence_list    (AnyClass c) = class_precedence_list c
-    all_class_methods        (AnyClass c) = all_class_methods c
-    all_instance_methods     (AnyClass c) = all_instance_methods c
-
-    roles                    (AnyClass c) = roles c
-    attribute_grammars       (AnyClass c) = attribute_grammars c
-    attributes               (AnyClass c) = attributes c
-    instance_methods         (AnyClass c) = instance_methods c
-    private_instance_methods (AnyClass c) = private_instance_methods c
-    class_methods            (AnyClass c) = class_methods c
-    private_class_methods    (AnyClass c) = private_class_methods c
-
-    instance_interface       (AnyClass c) = instance_interface c
-    class_interface          (AnyClass c) = class_interface c
-
---    add_class_method         (AnyClass c) = AnyClass . add_class_method c
-
-
+    class_name              (AnyClass c) = class_name c
+    superclasses            (AnyClass c) = superclasses c
+    class_precedence_list   (AnyClass c) = class_precedence_list c
+    all_methods             (AnyClass c) = all_methods c
+    roles                   (AnyClass c) = roles c
+--  attribute_grammars      (AnyClass c) = attribute_grammars c
+    attributes              (AnyClass c) = attributes c
+    public_methods          (AnyClass c) = public_methods c
+    private_methods         (AnyClass c) = private_methods c
+    class_interface      (AnyClass c) = class_interface c
 
 -- FIXME: hmm.. how to do Subclassing properly, ie. have MI and MI share about
 -- everything except for just a couple of things? Type-classes doesn't seem to
@@ -143,12 +109,8 @@ data (Monad m, Typeable1 m) => MI m
         , clsRoles                  :: [Role m]
 --      , clsAttributeGrammars      :: [AttributeGrammar]
         , clsAttributes             :: [Attribute m]
-        , clsMethods                :: Collection (AnyMethod m)
+        , clsPublicMethods          :: Collection (AnyMethod m)
         , clsPrivateMethods         :: Collection (AnyMethod m)
---      , clsInstanceMethods        :: Collection (AnyMethod m)
---      , clsPrivateInstanceMethods :: [AnyMethod m]
---      , clsClassMethods           :: Collection (AnyMethod m)
---      , clsPrivateClassMethods    :: [AnyMethod m]
         , clsName                   :: String
         }
         -- deriving (Eq)
@@ -161,14 +123,13 @@ instance (Typeable1 m, Monad m) => Typeable (MI m) where
 
 emptyMI :: (Typeable1 m, Monad m) => MI m
 emptyMI = MkMI
-            { clsParents                = []
-            , clsRoles                  = []
---          , clsAttributeGrammars      = []
-            , clsAttributes             = []
-            , clsMethods                = newCollection []
-            , clsPrivateMethods         = newCollection []
-            , clsName                   = "emptyMI"
-            }
+    { clsParents        = []
+    , clsRoles          = []
+    , clsAttributes     = []
+    , clsPublicMethods  = newCollection []
+    , clsPrivateMethods = newCollection []
+    , clsName           = ""
+    }
 
 -- FIXME: Method then AnyMethod then MethodAttached then Anymethod again is ugly
 newMI :: (Typeable1 m, Monad m) => MI m -> MI m
@@ -176,7 +137,7 @@ newMI old = new
     where attach = AnyMethod . MkMethodAttached new
           withBless     = insert "bless"    (blessMI new)
           withCreate    = id -- insert "CREATE"   (createMI new)
-          new = old { clsMethods = cmap attach . withBless . withCreate $ clsMethods old }
+          new = old { clsPublicMethods = cmap attach . withBless . withCreate $ clsPublicMethods old }
 
 blessMI :: Class m c => c -> AnyMethod m
 blessMI c = AnyMethod MkSimpleMethod
@@ -190,23 +151,20 @@ blessMI c = AnyMethod MkSimpleMethod
         -- For each attribute, create a new instance of it.
         structure <- liftM Map.fromList . (`mapM` all_attributes c) $ \attr -> do
             let name = attrName attr
-            userDefinedVal <- namedArg params name
+                userDefinedVal = namedArg params name
             val <- case userDefinedVal of
                 Just obj    -> return obj
                 _           -> attrDefault attr
             return (attrName attr, val)
-        return $ MkInvocant structure (instance_interface c)
+        return $ MkInvocant structure (class_interface c)
 
 instance (Typeable1 m, Monad m) => Class m (MI m) where
     class_name               = clsName
     superclasses             = clsParents
     roles                    = clsRoles
-    attribute_grammars       = const [] -- clsAttributeGrammars
     attributes               = clsAttributes
-    instance_methods         = clsMethods
-    private_instance_methods = clsPrivateMethods
-    class_methods            = clsMethods
-    private_class_methods    = clsPrivateMethods
+    public_methods           = clsPublicMethods
+    private_methods          = clsPrivateMethods
 
 --    add_class_method c@MkMI{siClassMethods = ms} m =
 --        c {siClassMethods = m:ms}
