@@ -154,11 +154,19 @@ class Bind {
     }
 }
 
+class Proto {
+    has $.name;
+    method emit {
+        ~$.name        
+    }
+}
+
 class Call {
     has $.invocant;
     has $.hyper;
     has $.method;
     has @.arguments;
+    has $.hyper;
     method emit {
         my $call := '->' ~ $.method ~ '(' ~ @.arguments.>>emit.join(', ') ~ ')';
         if ($.hyper) {

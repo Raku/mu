@@ -100,7 +100,7 @@ token term_meth {
             ]
             {
                 return ::Call(
-                    invocant  => $$<full_ident>,
+                    invocant  => ::Proto( name => ~$<full_ident> ),
                     method    => $$<ident>,
                     arguments => $$<exp_seq>,
                 )
@@ -108,7 +108,7 @@ token term_meth {
           |
             {
                 return ::Call(
-                    invocant  => $$<full_ident>,
+                    invocant  => ::Proto( name => ~$<full_ident> ),
                     method    => $$<ident>,
                     arguments => undef,
                 )
