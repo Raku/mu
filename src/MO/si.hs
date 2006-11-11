@@ -24,15 +24,19 @@ mkBox = undefined
     }
 -}
 
+-- A cast-map
+
 class (Typeable a, Ord a, Typeable1 m, Monad m) => Boxable m a | a -> m where
     classOf :: a -> MI m
+    fromObj :: Invocant m -> m a
 
--- XXX - Once MI is made generally "is open" this must be adjusted as well.
+-- XXX - Once MI for native types is made generally "is open" this must be adjusted as well.
 instance Boxable IO String where
     classOf _ = mkBoxClass "Str"
         [ "reverse" ... (reverse :: String -> String)
         , "chars"   ... length
         ]
+    fromObj (MkInvocant x _) = undefined
 
 instance Boxable IO Int where
     classOf _ = mkBoxClass "Int"
