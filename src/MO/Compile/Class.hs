@@ -67,7 +67,7 @@ class (Typeable1 m, Monad m, Typeable c, Eq c) => Class m c | c -> m where
     class_interface :: c -> AnyResponder m
     class_interface = AnyResponder
                        . (fromMethodList :: [(String, MethodCompiled m)] -> m (MethodTable m))
-                       . map (\m -> (name m, compile m))
+                       . map (\m -> (methodName m, methodCompile m))
                        . all_methods
 
 data AnyClass m = forall c. Class m c => AnyClass c
@@ -177,6 +177,6 @@ data MethodAttached m
         a       -- Method
 
 instance Monad m => Method m (MethodAttached m) where
-    name (MkMethodAttached _ m) = name m
-    compile (MkMethodAttached _ m) = compile m
+    methodName (MkMethodAttached _ m) = methodName m
+    methodCompile (MkMethodAttached _ m) = methodCompile m
 

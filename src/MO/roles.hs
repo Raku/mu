@@ -95,7 +95,7 @@ make_method (n,n') = AnyMethod (
                                      })
 
 make_role as ms rs = emptyRole
-                 { roPublicMethods  = newCollection' name ms
+                 { roPublicMethods  = newCollection' methodName ms
                  , roAttributes     = as
                  , roRoles          = rs
                  }

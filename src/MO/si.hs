@@ -29,17 +29,31 @@ class (Typeable a, Ord a, Typeable1 m, Monad m) => Boxable m a | a -> m where
 
 -- XXX - Once MI is made generally "is open" this must be adjusted as well.
 instance Boxable IO String where
-    classOf _ = newMI $ emptyMI
-        { clsPublicMethods = newCollection' name $ map AnyMethod
-            [ MkSimpleMethod
-                { smName = "reverse"
-                , smDefinition = MkMethodCompiled $ HsCode $ \args -> do
-                    str <- fromInvocant args :: IO String
-                    return $ mkObj (reverse str)
-                }
-            ]
-        , clsName = "Str"
-        }
+    classOf _ = mkBoxClass "Str"
+        [ "reverse" ... (reverse :: String -> String)
+        , "chars"   ... length
+        ]
+
+instance Boxable IO Int where
+    classOf _ = mkBoxClass "Int"
+        [ "chr"     ... ((:[]) . chr)
+        ]
+
+instance Boxable IO Char where
+
+(...) x y = (x, mkObj . y)
+
+mkBoxClass cls methods = newMI $ emptyMI
+    { clsPublicMethods = newCollection' methodName $ map mkBoxMethod methods
+    , clsName = cls
+    }
+
+mkBoxMethod (meth, fun) = AnyMethod $ MkSimpleMethod
+    { smName = meth
+    , smDefinition = MkMethodCompiled $ HsCode $ \args -> do
+        str <- fromInvocant args
+        return (fun str)
+    }
 
 instance (Boxable m a, Boxable m b, Boxable m c) => Boxable m (a, b, c) where
     classOf = const (newMI emptyMI)
@@ -51,12 +65,16 @@ inv ./ meth = ivDispatch inv $ MkMethodInvocation meth (mkArgs [])
 
 main = do
     let jude = mkObj "Hey Jude"
-    print =<< (jude ./ "reverse")
+    print =<< (jude ./ "reverse")   -- "eduJ yeH"
+
+    eight <- jude ./ "chars"
+    print eight                     -- 8
+    print =<< (eight ./ "chr")      -- "\b"
 
 -- TODO: get more sugar for constructing this types
 xxx = do
     let base = newMI $ emptyMI
-              { clsPublicMethods = newCollection' name $ map AnyMethod [
+              { clsPublicMethods = newCollection' methodName $ map AnyMethod [
                 MkSimpleMethod
                 { smName = "foo"
                 , smDefinition = MkMethodCompiled $ HsCode (const (return $ mkObj ("foo", "boo", "blah")) )
@@ -66,7 +84,7 @@ xxx = do
               }
         sub = newMI $ emptyMI
             { clsParents = [AnyClass base]
-            , clsPublicMethods = newCollection' name $ map AnyMethod [
+            , clsPublicMethods = newCollection' methodName $ map AnyMethod [
                 MkSimpleMethod
                 { smName = "bar"
                 , smDefinition = MkMethodCompiled $ HsCode (const (return $ mkObj "bar") )
@@ -76,7 +94,7 @@ xxx = do
             }
         sub2 = newMI $ emptyMI
              { clsParents = [AnyClass base]
-             , clsPublicMethods = newCollection' name $ map AnyMethod [
+             , clsPublicMethods = newCollection' methodName $ map AnyMethod [
                  MkSimpleMethod
                  { smName = "foo"
                  , smDefinition = MkMethodCompiled $ HsCode (const (return $ mkObj "haha, surprise"))

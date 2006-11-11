@@ -18,7 +18,7 @@ point = newMI $ emptyMI
       { clsName = "point"
       , clsParents = [AnyClass base]
       , clsAttributes = [mkAttribute "x" (__"defaultX"), mkAttribute "y" (__"defaultY")]
-      , clsPublicMethods = newCollection' name $ map AnyMethod [
+      , clsPublicMethods = newCollection' methodName $ map AnyMethod [
         MkSimpleMethod
         { smName = "distance"
         , smDefinition = MkMethodCompiled $ PureCode (const (__("distance defined in point")))
@@ -29,7 +29,7 @@ point3d = newMI $ emptyMI
         { clsName = "point3d"
         , clsParents = [AnyClass point]
         , clsAttributes = [mkAttribute "z" (__"defaultZ")]
---      , clsPublicMethods = newCollection' name $ map AnyMethod [
+--      , clsPublicMethods = newCollection' methodName $ map AnyMethod [
 --        MkSimpleMethod
 --        { smName = "z"
 --        , smDefinition = MkMethodCompiled
@@ -42,7 +42,7 @@ colorful = newMI $ emptyMI
          { clsName = "colorful"
          , clsParents = [AnyClass base]
          , clsAttributes = [mkAttribute "color" (__"prettyColor")]
---       , clsPublicMethods = newCollection' name $ map AnyMethod [
+--       , clsPublicMethods = newCollection' methodName $ map AnyMethod [
 --         MkSimpleMethod
 --         { smName = "color"
 --         , smDefinition = MkMethodCompiled

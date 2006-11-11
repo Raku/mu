@@ -11,23 +11,23 @@ data AnyMethod m
 -- FIXME: Its not ok to use this since we can define method with
 -- same name which are different. 
 instance Eq (AnyMethod m) where
-    AnyMethod a == AnyMethod b = (name a) == (name b)
+    AnyMethod a == AnyMethod b = (methodName a) == (methodName b)
 
 instance Ord (AnyMethod m) where
-    AnyMethod a `compare` AnyMethod b = (name a) `compare` (name b)
+    AnyMethod a `compare` AnyMethod b = (methodName a) `compare` (methodName b)
 
 instance Show (AnyMethod m) where
-    show (AnyMethod m) = show (name m)
+    show (AnyMethod m) = show (methodName m)
 
 -- Method and friends
 
 class Monad m => Method m a | a -> m where
-    name    :: a -> String
-    compile :: a -> MethodCompiled m
+    methodName      :: a -> String
+    methodCompile   :: a -> MethodCompiled m
 
 instance Monad m => Method m (AnyMethod m) where
-    name (AnyMethod x)    = name x
-    compile (AnyMethod x) = compile x
+    methodName (AnyMethod x)    = methodName x
+    methodCompile (AnyMethod x) = methodCompile x
 
 data SimpleMethod m
     = MkSimpleMethod
@@ -36,8 +36,8 @@ data SimpleMethod m
         }
 
 instance Monad m => Method m (SimpleMethod m) where
-    name = smName
-    compile = smDefinition
+    methodName = smName
+    methodCompile = smDefinition
 
 
 data MethodCompiled m
