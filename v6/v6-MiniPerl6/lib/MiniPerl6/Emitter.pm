@@ -1,10 +1,14 @@
 use v6-alpha;
 
 class CompUnit {
-    has $.class;
+    has $.name;
     has %.attributes;
     has %.methods;
-    has $.body;
+    has @.body;
+    method emit {
+        'package ' ~ $.name ~ ";\n" ~
+        (@.body.>>emit).join( ";\n" )
+    }
 }
 
 class Val::Int {
@@ -42,21 +46,22 @@ class Val::Object {
 class Lit::Seq {
     has @.seq;
     method emit {
-        '(' ~ @.seq.>>emit.join(', ') ~ ')';
+        '(' ~ (@.seq.>>emit).join(', ') ~ ')';
     }
 }
 
 class Lit::Array {
     has @.array;
     method emit {
-        '[' ~ @.seq.>>emit.join(', ') ~ ']';
+        '[' ~ (@.seq.>>emit).join(', ') ~ ']';
     }
 }
 
 class Lit::Hash {
     has %.hash;
     method emit {
-        '{' ~ %.hash.kv.map(sub ($k, $v) { $k.perl ~ ' => ' ~ $v.emit}).join(', ') ~ '}';
+        '{' ~ ((%.hash.kv).map(sub ($k, $v) { $k.perl ~ ' => ' ~ $v.emit})).join(', ') ~ '}';
+        ## '{' ~ %.hash.kv.map(sub ($k, $v) { $k.perl ~ ' => ' ~ $v.emit}).join(', ') ~ '}';
     }
 }
 
@@ -120,32 +125,6 @@ class Var {
     }
 }
 
-class Op::Infix {
-    has $.term0;
-    has $.term1;
-    has $.op;
-    method emit {
-        $.term0.emit ~ ' ' ~ $.op ~ ' ' ~ $.term1.emit
-    }
-}
-
-class Op::Infix {
-    has $.term0;
-    has $.term1;
-    has $.op;
-    method emit {
-        $.term0.emit ~ ' ' ~ $.op ~ ' ' ~ $.term1.emit
-    }
-}
-
-class Op::Prefix {
-    has $.term;
-    has $.op;
-    method emit {
-        $.op ~ '(' ~ $.term.emit ~ ')'
-    }
-}
-
 class Bind {
     has $.parameters;
     has $.arguments;
@@ -168,7 +147,7 @@ class Call {
     has @.arguments;
     has $.hyper;
     method emit {
-        my $call := '->' ~ $.method ~ '(' ~ @.arguments.>>emit.join(', ') ~ ')';
+        my $call := '->' ~ $.method ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
         if ($.hyper) {
             '(map { $_' ~ $call ~ ' } @{ ' ~ $.invocant.emit ~ ' } )';
         }
@@ -182,7 +161,7 @@ class Apply {
     has $.code;
     has @.arguments;
     method emit {
-        $.code ~ '(' ~ @.arguments.>>emit.join(', ') ~ ')';
+        $.code ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
         # '(' ~ $.code.emit ~ ')->(' ~ @.arguments.>>emit.join(', ') ~ ')';
     }
 }
@@ -199,7 +178,16 @@ class If {
     has @.body;
     has @.otherwise;
     method emit {
-        'do { if (' ~ $.cond.emit ~ ') { ' ~ @.body.>>emit ~ ' } else { ' ~ @.otherwise.>>emit ~ ' } }';
+        'do { if (' ~ $.cond.emit ~ ') { ' ~ (@.body.>>emit).join(';') ~ ' } else { ' ~ (@.otherwise.>>emit).join(';') ~ ' } }';
+    }
+}
+
+class For {
+    has $.cond;
+    has @.body;
+    has @.topic;
+    method emit {
+        'do { for my ' ~ $.topic.emit ~ ' (' ~ $.cond.emit ~ ') { ' ~ (@.body.>>emit).join(';') ~ ' } }';
     }
 }
 
@@ -238,15 +226,40 @@ class Method {
         # say $invocant.emit;
         my $pos := $sig.positional;
         my $str := '';
-        my $i := 0;
+        my $i := 1;
         for @$pos -> $field { 
-            $i := $i + 1;
             $str := $str ~ 'my ' ~ $field.emit ~ ' = $_[' ~ $i ~ ']; ';
+            $i := $i + 1;
         } 
         'sub ' ~ $.name ~ ' { ' ~ 
           'my ' ~ $invocant.emit ~ ' = $_[0]; ' ~
           $str ~
-          @.block.>>emit.join('; ') ~ 
+          (@.block.>>emit).join('; ') ~ 
+        ' }'
+    }
+}
+
+class Sub {
+    has $.name;
+    has $.sig;
+    has @.block;
+    method emit {
+        # TODO - signature binding
+        my $sig := $.sig;
+        # say "Sig: ", $sig.perl;
+        ## my $invocant := $sig.invocant; 
+        # say $invocant.emit;
+        my $pos := $sig.positional;
+        my $str := '';
+        my $i := 0;
+        for @$pos -> $field { 
+            $str := $str ~ 'my ' ~ $field.emit ~ ' = $_[' ~ $i ~ ']; ';
+            $i := $i + 1;
+        } 
+        'sub ' ~ $.name ~ ' { ' ~ 
+          ## 'my ' ~ $invocant.emit ~ ' = $_[0]; ' ~
+          $str ~
+          (@.block.>>emit).join('; ') ~ 
         ' }'
     }
 }

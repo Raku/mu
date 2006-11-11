@@ -1,7 +1,7 @@
 
 use v6-alpha;
 
-grammar MiniPerl6::Grammar::Regex;
+grammar MiniPerl6::Grammar::Regex {
 
 my %rule_terms;
 my %variables;
@@ -364,38 +364,12 @@ token rule {
 }
 
 =pod 
-
 # -- this depends on changing the specs
 #token concat {
 #    <quantifier>+
 #    { return Rul::Concat( concat => $<quantifier> ) }
 #}
-
-token conjunctive {
-    [ <?ws>? \& ]?
-    
-    $<first_concat> := <concat>
-    [
-        \&  <concat> 
-    ]*
-    
-    {             
-        ...
-    }
-}
-
-token rule {
-    [ <?ws>? \| ]?
-    
-    $<first_conjunctive> := <conjunctive>
-    [
-        \|  <conjunctive> 
-    ]*
-    
-    {             
-        ...
-    }
-}
-
 =cut
+
+}
 

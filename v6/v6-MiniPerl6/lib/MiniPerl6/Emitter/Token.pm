@@ -4,25 +4,27 @@ use v6-alpha;
 # no backtracking on quantifiers
 # <%hash> must be a hash-of-token
 
-sub Rul::perl5( $rx ) {
-    return
-        '( ( substr( $str, $m.to ) ~~ m:P5/^(' ~ $rx ~ ')/ ) ' ~ 
-        ' ?? ( 1 + $m.to( $0.chars + $m.to )) ' ~
-        ' !! (0) ' ~
-        ')'
-}
-
-sub Rul::constant( $str ) {
-        my $len := $str.chars;
-        if ( $len ) {
-            '( ' ~ $str.perl ~ ' eq substr( $str, $m.to, ' ~ $len ~ ') ' ~
-            '  ?? (1 + $m.to( ' ~ $len ~ ' + $m.to ))' ~
-            '  !! (0) ' ~
-            ')';
-        }
-        else {
-            return '1'
-        }        
+class Rul {
+    sub perl5( $rx ) {
+        return
+            '( ( substr( $str, $m.to ) ~~ m:P5/^(' ~ $rx ~ ')/ ) ' ~ 
+            ' ?? ( 1 + $m.to( $0.chars + $m.to )) ' ~
+            ' !! (0) ' ~
+            ')'
+    }
+    
+    sub constant( $str ) {
+            my $len := $str.chars;
+            if ( $len ) {
+                '( ' ~ $str.perl ~ ' eq substr( $str, $m.to, ' ~ $len ~ ') ' ~
+                '  ?? (1 + $m.to( ' ~ $len ~ ' + $m.to ))' ~
+                '  !! (0) ' ~
+                ')';
+            }
+            else {
+                return '1'
+            }        
+    }
 }
 
 class Rul::Or {

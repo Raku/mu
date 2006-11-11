@@ -7,6 +7,13 @@ grammar MiniPerl6::Grammar;
 # XXX - move to v6.pm emitter
 sub array($data)    { use v5; @$data; use v6; }
 
+token full_ident {
+    <ident>
+    [   <'::'> <full_ident>
+    |   <''>
+    ]    
+}
+
 token pod_begin {
     |   \n =end \N*
     |   . \N* <?pod_begin>
@@ -33,9 +40,22 @@ token ws {
     ]+
 }
 
+token parse {
+    | <comp_unit>
+        [
+        |   <?ws>? [\; <?ws>?]?  <parse>
+            { return [ $$<comp_unit>, array( $$<parse> ) ] }
+        |   <?ws>? [\; <?ws>?]?
+            { return [ $$<comp_unit> ] }
+        ]
+    | { return [] }
+}
+
 token comp_unit {
     <?ws>?
-    class <?ws>? <ident> <?ws>? \{
+    [ use <?ws> v6- <ident> <?ws>? \; <?ws>  |  <''> ]
+    
+    [ class | grammar ]  <?ws>? <full_ident> <?ws>? \{
         <?ws>?
         <exp_stmts>
         <?ws>?
@@ -43,7 +63,7 @@ token comp_unit {
     <?ws>?
     {
         return ::CompUnit(
-            name        => $$<ident>,
+            name        => $$<full_ident>,
             attributes  => {},
             methods     => {},
             body        => $$<exp_stmts>,
@@ -62,26 +82,21 @@ token exp {
           <?ws>?  <'!!'>
           <?ws>?
           $<exp_3> := <exp>
-          { return ::Op::Ternary( 
-            term0 => $$<term_meth>, 
-            term1 => $$<exp>, 
-            term2 => $$<exp_3>,
-            op    => $$<op> 
+          { return ::Apply(
+            code      => 'ternary:<?? ::>',
+            arguments => [ $$<term_meth>, $$<exp>, $$<exp_3> ],
           ) }
         | { say "*** Syntax error in ternary operation" }
         ]
     |
         <?ws>?
-        $<op> := [ \+ | \- | \* |/ | eq | ne | == | != | \&\& | \|\| ]
+        $<op> := [ \+ | \- | \* |/ | eq | ne | == | != | \&\& | \|\| ~~ | ~ ]
         <?ws>?
         <exp>
-        { 
-            # say "Op::Infix term2=", ($<exp>).perl; 
-          return ::Op::Infix( 
-            term0 => $$<term_meth>, 
-            term1 => $$<exp>, 
-            op    => $$<op> 
-        ) }
+          { return ::Apply(
+            code      => 'infix:<' ~ $$<op> ~ '>',
+            arguments => [ $$<term_meth>, $$<exp> ],
+          ) }
     | <?ws>? <':='> <?ws>? <exp>
         { return ::Bind(parameters => $$<term_meth>, arguments => $$<exp>) }
     |   { return $$<term_meth> }
@@ -90,42 +105,50 @@ token exp {
 
 token term_meth {
     <full_ident>
-    [ \. <ident>
-          [
-            [ \( 
-                # { say "testing exp_seq at ", $/.to }
-                <?ws>? <exp_seq> <?ws>? \)
+    [ \.
+        $<hyper> := [ <'>>'> | <''> ]
+        <ident>
+            [ \( <?ws>? <exp_seq> <?ws>? \)
                 # { say "found parameter list: ", $<exp_seq>.perl }
             | \: <?ws> <exp_seq> <?ws>?
+            |
+                {
+                    return ::Call(
+                        invocant  => ::Proto( name => ~$<full_ident> ),
+                        method    => $$<ident>,
+                        arguments => undef,
+                        hyper     => $$<hyper>,
+                    )
+                }
             ]
             {
                 return ::Call(
                     invocant  => ::Proto( name => ~$<full_ident> ),
                     method    => $$<ident>,
                     arguments => $$<exp_seq>,
+                    hyper     => $$<hyper>,
                 )
             }
-          |
-            {
-                return ::Call(
-                    invocant  => ::Proto( name => ~$<full_ident> ),
-                    method    => $$<ident>,
-                    arguments => undef,
-                )
-            }
-          ]
     ]
     |
     <term>
     [ \.
         $<hyper> := [ <'>>'> | <''> ]
         <ident>
-          [
             [ \( 
                 # { say "testing exp_seq at ", $/.to }
                 <?ws>? <exp_seq> <?ws>? \)
                 # { say "found parameter list: ", $<exp_seq>.perl }
             | \: <?ws> <exp_seq> <?ws>?
+            |
+                {
+                    return ::Call(
+                        invocant  => $$<term>,
+                        method    => $$<ident>,
+                        arguments => undef,
+                        hyper     => $$<hyper>,
+                    )
+                }
             ]
             {
                 return ::Call(
@@ -135,31 +158,17 @@ token term_meth {
                     hyper     => $$<hyper>,
                 )
             }
-          |
-            {
-                return ::Call(
-                    invocant  => $$<term>,
-                    method    => $$<ident>,
-                    arguments => undef,
-                    hyper     => $$<hyper>,
-                )
-            }
-          ]
     |    { return $$<term> }
     ]
 }
 
-token full_ident {
-    <ident>
-    [   <'::'> <full_ident>
-    |   <''>
-    ]    
-}
-
 token term {
     [ 
-    | $<op> := [ \$ | \@ | \% ] <before <[ \( \$ ]> > <exp> 
-        { return ::Op::Prefix( op => ~$<op>, term => $$<exp> ) }   # $$x
+    | $<op> := [ \$ | \@ | \% | \? | \++ | \-- | \+ | \- | \~ ] <before <[ \( \$ ]> > <exp> 
+          { return ::Apply(
+            code      => 'prefix:<' ~ $$<op> ~ '>',
+            arguments => [ $$<exp> ],
+          ) }
     | \( <?ws>? <exp> <?ws>? \)
         { return $$<exp> }   # ( exp )
     | $<decl> := [ my | state | has ]  <?ws> <var> 
@@ -170,8 +179,9 @@ token term {
     | $<term> := <val>       # "value"
     | $<term> := <lit>       # [literal construct]
 #   | $<term> := <bind>      # $lhs := $rhs
-    | $<term> := <token>     # token { regex... }
+    | $<term> := <token>     # token  { regex... }
     | $<term> := <method>    # method { code... }
+    | $<term> := <sub>       # sub    { code... }
     | $<term> := <control>   # Various control structures.  Does _not_ appear in binding LHS
     | $<term> := <index>     # $obj[1, 2, 3]
     | $<term> := <lookup>    # $obj{'1', '2', '3'}
@@ -427,27 +437,43 @@ token sig {
         }
 }
 
+token method_sig {
+    |   <?ws>? \( <?ws>?  <sig>  <?ws>?  \)
+        { return $$<sig> }
+    |   { return ::Sig( 
+            invocant => ::Var( 
+                sigil  => '$',
+                twigil => '',
+                name   => 'self' ), 
+            positional => [], named => {} ) }
+}
+
 token method {
     method
-        { 
-            say "Parsing method:";
-        }
     [  |  <?ws> $<name> := [ <ident> ] 
        |  $<name> := [ <''> ] 
     ]
-    <?ws>? \( <?ws>?  <sig>  <?ws>?  \)
-        # { 
-        #    say " name: ", ($$<name>).perl;
-        #    say " params: ", ($$<sig>).perl;
-        # } 
+    <method_sig>
     <?ws>? \{ <?ws>?  
           # { say " parsing statement list " }
           <exp_stmts> 
           # { say " got statement list ", ($$<exp_stmts>).perl } 
         <?ws>? 
-    [   \}     | { say "*** error in Block"; die "error in Block"; } ]
+    [   \}     | { say "*** Syntax Error in method '", $$<name>, "'"; die "error in Block"; } ]
     {
         # say " block: ", ($$<exp_stmts>).perl;
-        return ::Method( name => $$<name>, sig => $$<sig>, block => $$<exp_stmts> );
+        return ::Method( name => $$<name>, sig => $$<method_sig>, block => $$<exp_stmts> );
     }
+}
+
+token sub {
+    sub
+    [  |  <?ws> $<name> := [ <ident> ] 
+       |  $<name> := [ <''> ] 
+    ]
+    <method_sig>
+    <?ws>? \{ <?ws>?  
+          <exp_stmts> <?ws>? 
+    [   \}     | { say "*** Syntax Error in sub '", $$<name>, "'"; die "error in Block"; } ]
+    { return ::Sub( name => $$<name>, sig => $$<method_sig>, block => $$<exp_stmts> ) }
 }
