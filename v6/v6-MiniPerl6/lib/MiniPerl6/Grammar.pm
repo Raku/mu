@@ -1,11 +1,13 @@
 use v6-alpha;
 
-use MiniPerl6::Grammar::Regex;
+grammar MiniPerl6::Grammar {
 
-grammar MiniPerl6::Grammar;
+use MiniPerl6::Grammar::Regex;
 
 # XXX - move to v6.pm emitter
 sub array($data)    { use v5; @$data; use v6; }
+
+my $Class_name;  # for diagnostic messages
 
 token full_ident {
     <ident>
@@ -56,6 +58,7 @@ token comp_unit {
     [ use <?ws> v6- <ident> <?ws>? \; <?ws>  |  <''> ]
     
     [ class | grammar ]  <?ws>? <full_ident> <?ws>? \{
+        { $Class_name := ~$<full_ident> }
         <?ws>?
         <exp_stmts>
         <?ws>?
@@ -158,6 +161,10 @@ token term_meth {
                     hyper     => $$<hyper>,
                 )
             }
+    | \[ <?ws>? <exp> <?ws>? \]
+         { return ::Index(  obj => $$<term>, index => $$<exp> ) }   # $a[exp]
+    | \{ <?ws>? <exp> <?ws>? \}
+         { return ::Lookup( obj => $$<term>, index => $$<exp> ) }   # $a{exp}
     |    { return $$<term> }
     ]
 }
@@ -171,6 +178,8 @@ token term {
           ) }
     | \( <?ws>? <exp> <?ws>? \)
         { return $$<exp> }   # ( exp )
+    | \{ <?ws>? <exp_mapping> <?ws>? \}
+        { return ::Lit::Hash( hash => $$<exp_mapping> ) }   # { exp => exp, ... }
     | $<decl> := [ my | state | has ]  <?ws> <var> 
         { return ::Decl( decl => $$<decl>, var => $$<var> ) }    # my $variable
     | use <?ws> $<mod> := <full_ident>  [ - <ident> | <''> ]
@@ -183,14 +192,14 @@ token term {
     | $<term> := <method>    # method { code... }
     | $<term> := <sub>       # sub    { code... }
     | $<term> := <control>   # Various control structures.  Does _not_ appear in binding LHS
-    | $<term> := <index>     # $obj[1, 2, 3]
-    | $<term> := <lookup>    # $obj{'1', '2', '3'}
+#   | $<term> := <index>     # $obj[1, 2, 3]
+#   | $<term> := <lookup>    # $obj{'1', '2', '3'}
     ]
     { return $$<term> }
 }
 
-token index { XXX }
-token lookup { XXX }
+#token index { XXX }
+#token lookup { XXX }
 
 token control {
     [ $<exp> := <return>    # return 123;
@@ -277,8 +286,8 @@ token val_undef {
 
 token val_num {  XXX { return "TODO: val_num" } }
 token val_buf {
-    | \" ([\\<(.)>|<-[\"]>]+) \" { return ::Val::Buf( buf => $$0 ) }
-    | \' ([\\<[\\\']>|<-[\']>]+) \' { return ::Val::Buf( buf => $$0 ) }
+    | \" ([\\<(.)>|<-[\"]>]*)    \" { return ::Val::Buf( buf => $$0 ) }
+    | \' ([\\<[\\\']>|<-[\']>]*) \' { return ::Val::Buf( buf => $$0 ) }
 }
 
 token val_int {
@@ -459,7 +468,7 @@ token method {
           <exp_stmts> 
           # { say " got statement list ", ($$<exp_stmts>).perl } 
         <?ws>? 
-    [   \}     | { say "*** Syntax Error in method '", $$<name>, "'"; die "error in Block"; } ]
+    [   \}     | { say "*** Syntax Error in method '", $Class_name, '.', $$<name>, "' near pos=", $/.to; die "error in Block"; } ]
     {
         # say " block: ", ($$<exp_stmts>).perl;
         return ::Method( name => $$<name>, sig => $$<method_sig>, block => $$<exp_stmts> );
@@ -476,4 +485,6 @@ token sub {
           <exp_stmts> <?ws>? 
     [   \}     | { say "*** Syntax Error in sub '", $$<name>, "'"; die "error in Block"; } ]
     { return ::Sub( name => $$<name>, sig => $$<method_sig>, block => $$<exp_stmts> ) }
+}
+
 }

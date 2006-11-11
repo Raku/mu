@@ -6,8 +6,7 @@ class CompUnit {
     has %.methods;
     has @.body;
     method emit {
-        'package ' ~ $.name ~ ";\n" ~
-        (@.body.>>emit).join( ";\n" )
+        'package ' ~ $.name ~ ";\n" ~ (@.body.>>emit).join( ";\n" )
     }
 }
 
@@ -58,15 +57,22 @@ class Lit::Array {
 }
 
 class Lit::Hash {
-    has %.hash;
+    has @.hash;
     method emit {
-        '{' ~ ((%.hash.kv).map(sub ($k, $v) { $k.perl ~ ' => ' ~ $v.emit})).join(', ') ~ '}';
+        my $fields := @.hash;
+        my $str := '';
+        for @$fields -> $field { 
+            $str := $str ~ ($field[0]).emit ~ ' => ' ~ ($field[1]).emit ~ ',';
+        }; 
+        '{ ' ~ $str ~ ' }';
+        ## '{' ~ ((%.hash.kv).map(sub ($k, $v) { $k.perl ~ ' => ' ~ $v.emit})).join(', ') ~ '}';
         ## '{' ~ %.hash.kv.map(sub ($k, $v) { $k.perl ~ ' => ' ~ $v.emit}).join(', ') ~ '}';
     }
 }
 
 class Lit::Code {
     # XXX
+    1;
 }
 
 class Lit::Object {
@@ -79,8 +85,8 @@ class Lit::Object {
         # say @fields.map(sub { $_[0].emit ~ ' => ' ~ $_[1].emit}).join(', ') ~ ')';
         for @$fields -> $field { 
             $str := $str ~ ($field[0]).emit ~ ' => ' ~ ($field[1]).emit ~ ',';
-        } 
-        $.class ~ '->new( ' ~ $str ~ ' )'
+        }; 
+        $.class ~ '->new( ' ~ $str ~ ' )';
     }
 }
 
@@ -88,12 +94,14 @@ class Index {
     has $.obj;
     has $.index;
     method emit {
-        if ($.obj.isa(Lit::Seq)) {
-            $.obj.emit ~ '[' ~ $.index.emit ~ ']';
-        }
-        else {
-            $.obj.emit ~ '->[' ~ $.index.emit ~ ']';
-        }
+        $.obj.emit ~ '->[' ~ $.index.emit ~ ']';
+        # TODO
+        # if ($.obj.isa(Lit::Seq)) {
+        #    $.obj.emit ~ '[' ~ $.index.emit ~ ']';
+        # }
+        # else {
+        #    $.obj.emit ~ '->[' ~ $.index.emit ~ ']';
+        # }
     }
 }
 
