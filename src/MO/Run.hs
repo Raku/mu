@@ -2,10 +2,7 @@
 
 module MO.Run (
     module MO.Run,
-    Arguments(..),
-    NoCode(..),
-    HsCode(..),
-    PureCode(..),
+    module MO.Base
 ) where
 
 -- FIXME: systematize a nice order for imports (steal Pugs')
@@ -87,6 +84,13 @@ data (Typeable1 m, Monad m) => Invocant m
         (AnyResponder m)    -- Responder
 
 data Invocant_Type deriving (Typeable)
+
+fromInvocant :: forall m b. (Typeable1 m, Monad m, Typeable b) => Arguments m -> m b
+fromInvocant (MkArguments [])                   = fail "No invocant"
+fromInvocant (MkArguments (MkInvocant x _:_))   = case cast x of
+    Just y -> return y
+    _      -> fail $ "Cannot cast from " ++ (show $ typeOf x) ++ " to " ++ (show $ typeOf (undefined :: b))
+
 
 instance (Typeable1 m, Monad m) => Typeable (Invocant m) where
     typeOf x = typeOf (undefined :: m Invocant_Type)
