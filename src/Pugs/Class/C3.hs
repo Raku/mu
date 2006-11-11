@@ -56,8 +56,6 @@ merge_round (c:cs) l@(x:xs)
     clean_list      = filter (not . null) (merge_clean c l)
     merge_clean c   = map (\x -> filter ((/=) c) x)
 
--- |Removes all occurrences of the candidate from each list.
-
 -- |Returns 'True' if a candidate element isn't present in the tail
 -- of each list.
 good c []     = True
@@ -67,6 +65,7 @@ good c (x:xs)
 
 -----------
 
+{-
 -- Tests
 main = do
     test_many "Simple example 1" ex1 [[O], [A,O], [B]]
@@ -165,3 +164,5 @@ test name h e result = do
         else do putStrLn $ "not ok - " ++ name ++ ", element " ++ (show e)
                 putStrLn $ "# expected: " ++ (show result)
                 putStrLn $ "#      got: " ++ (show m)
+
+-}

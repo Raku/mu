@@ -11,7 +11,7 @@ import MO.Util
 import Data.Typeable (Typeable1, Typeable(..), cast)
 import Control.Monad (liftM)
 
-import qualified MO.C3 as C3 (linearize)
+import qualified Pugs.Class.C3 as C3 (linearize)
 
 import Data.Maybe (maybeToList, fromJust)
 import qualified Data.Map as Map
