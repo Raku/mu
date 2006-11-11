@@ -50,11 +50,13 @@ module Pugs.Compat (
     doesFileExist,
     doesDirectoryExist,
     doesExist,
+    pugsTimeSpec
 ) where
 
 import Foreign
 import System.Cmd
 import System.Posix.Types
+import System.Time
 
 #ifdef PUGS_HAVE_POSIX
 import System.Posix.Files
@@ -342,3 +344,16 @@ getArg0 = do
         argv <- peek p_argv
         peekCString =<< peekElemOff argv 0
 
+{-|
+Convert an internal @ClockTime@ to a Pugs-style fractional time.
+Used by op0 "time", @Pugs.Run.prepareEnv@, and the file time tests.
+-}
+pugsTimeSpec :: ClockTime -> Rational
+pugsTimeSpec clkt = fdiff $ diffClockTimes clkt epochClkT
+    where
+       epochClkT = toClockTime epoch
+       epoch = CalendarTime 2000 January 1 0 0 0 0 Saturday 0 "UTC" 0 False
+       -- 10^12 is expanded because the alternatives tried gave type warnings.
+       fdiff = \d -> (fromInteger $ tdPicosec d)
+                   / (clocksPerSecond * clocksPerSecond)
+                   + (fromIntegral $ tdSec d)
