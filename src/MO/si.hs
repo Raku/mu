@@ -33,8 +33,23 @@ class (Typeable a, Ord a, Typeable1 m, Monad m) => Boxable m a | a -> m where
 -- XXX - Once MI for native types is made generally "is open" this must be adjusted as well.
 instance Boxable IO String where
     classOf _ = mkBoxClass "Str"
-        [ "reverse" ... (reverse :: String -> String)
-        , "chars"   ... length
+        [ "reverse"    ... (reverse :: String -> String)
+        , "chop"       ... -- Pugs.Prim +120
+        , "split"      ... words
+        , "lc"         ... map GHC.Unicode.toLower
+        , "lcfirst"    ... -- +125
+        , "uc"         ... map GHC.Unicode.toUpper
+        , "ucfirst"    ... -- +127
+        , "capitalize" ...
+        , "quotemeta"  ... 
+        , "graphs"     ... 
+        , "codes"      ...
+        , "chars"      ... length
+        , "bytes"      ...
+        , "split"      ...
+        , "index"      ...
+        , "rindex"     ...
+        , "substr"     ...
         ]
     fromObj (MkInvocant x _) = undefined
 
@@ -43,7 +58,31 @@ instance Boxable IO Int where
         [ "chr"     ... ((:[]) . chr)
         ]
 
+instance Num a => Boxable IO a where
+    classOf _ = mkBoxClass "Num"
+        [ "abs"      ... 
+        , "floor"    ... 
+        , "ceiling"  ... 
+        , "round"    ... 
+        , "truncate" ... 
+        , "exp"      ... 
+        , "log"      ... 
+        , "log10"    ... 
+        , "log2"     ... -- :-)
+        , "rand"     ... 
+        , "sign"     ... 
+        , "srand"    ... 
+        , "sqrt"     ... 
+        ]
+
 instance Boxable IO Char where
+
+instance Boxable IO Socket where
+    classOf _ = mkBoxClass "Socket"
+        [ "connect" ... -- +1046
+        , "close"   ...
+        , "listen"  ... 
+        ] 
 
 (...) x y = (x, mkObj . y)
 
@@ -52,12 +91,27 @@ mkBoxClass cls methods = newMI $ emptyMI
     , clsName = cls
     }
 
-mkBoxMethod (meth, fun) = AnyMethod $ MkSimpleMethod
-    { smName = meth
-    , smDefinition = MkMethodCompiled $ HsCode $ \args -> do
-        str <- fromInvocant args
-        return (fun str)
-    }
+class BoxableFunction a where
+    mkBoxMethod :: (String, a) -> AnyMethod
+    mkBoxMethod (meth, fun) = AnyMethod $ MkSimpleMethod
+        { smName = meth
+        , smDefinition = MkMethodCompiled $ HsCode $ \args -> do
+            str <- fromInvocant args
+            return (fun str)
+        }
+ 
+
+instance (Boxable m a) => BoxableFunction (a -> m a) where
+    mkBoxMethod (meth, fun) = AnyMethod $ MkSimpleMethod
+        { smName = meth
+        , smDefinition = MkMethodCompiled $ HsCode $ \args -> do
+            obj <- fromInvocant args
+            fun obj
+        }
+
+-- Hmmm, shall we make combinations for take care of things like a -> b -> a,
+-- a -> m (), and other combinations?
+
 
 instance (Boxable m a, Boxable m b, Boxable m c) => Boxable m (a, b, c) where
     classOf = const (newMI emptyMI)
