@@ -6,36 +6,9 @@ grammar MiniPerl6::Grammar::Regex {
 my %rule_terms;
 my %variables;
 
-token pod_begin {
-    |   \n =end \N*
-    |   . \N* <?pod_begin>
-}
+token ws {  <?MiniPerl6::Grammar.ws>  }
 
-token pod_other {
-    |   \n =cut \N*
-    |   . \N* <?pod_other>
-}
-
-token ws {
-    [
-    |    \# \N*
-    |    \n [ = [
-            |  begin <?ws> END \N* .*
-            |  begin  <?pod_begin>
-            |  kwid   <?pod_other>
-            |  pod    <?pod_other>
-            |  for    <?pod_other>
-            |  head1  <?pod_other>
-            ]?
-            ]?
-    |    \s
-    ]+
-}
-
-# regex ident can start with a number
-token ident {
-    [ <?alnum> | _ | <'::'> ]+
-}
+token ident {  <?MiniPerl6::Grammar.full_ident> | <digit> }
 
 token literal {
     [ 
@@ -52,7 +25,7 @@ token metasyntax {
     |  \<  <?metasyntax>  \>
     |  <-[ \> ]> 
     ]+ 
-    { return { metasyntax => $$/ ,} }
+    { return $$/ }
 }
 
 token char_range {
@@ -88,7 +61,7 @@ token parsed_code {
 token named_capture_body {
     | \(  <rule>        \)  { return { capturing_group => $$<rule> ,} } 
     | \[  <rule>        \]  { return $$<rule> } 
-    | \<  <metasyntax>  \>  { return $$<metasyntax> } 
+    | \<  <metasyntax>  \>  { return { metasyntax => $$<metasyntax> } } 
     | { die "invalid alias syntax" }
 }
 
@@ -168,7 +141,7 @@ token named_capture_body {
 %rule_terms{'<!'} := token {
         # TODO
         <metasyntax> \> 
-        { return { negate  => $$<metasyntax>, } }
+        { return { negate  => { metasyntax => $$<metasyntax> } } }
 };
 %rule_terms{'<+'} := token {
         # TODO
@@ -190,16 +163,21 @@ token named_capture_body {
            <%variables>  # \>
             {
                 # say "found < hash-variable >";
-                return Rul::InterpolateVar( var => $$<variables> )
+                return ::Rul::InterpolateVar( var => $$<variables> )
             }
+        |
+            \?
+            # TODO - non-capture
+            <metasyntax>  \>
+            { return ::Rul::Subrule( metasyntax => $$<metasyntax> ) }
         |
             # TODO
             <metasyntax>  \>
-            { return Rul::Subrule( $$<metasyntax> ) }
+            { return ::Rul::Subrule( metasyntax => $$<metasyntax> ) }
 };
 %rule_terms{'{'} := token { 
         <parsed_code>  \}
-        { return Rul::Block({ closure => $$<parsed_code> }) }
+        { return ::Rul::Block( closure => $$<parsed_code> ) }
 };
 %rule_terms{'\\'} := token {  
         | [ x | X ] <[ 0..9 a..f A..F ]]>+
@@ -354,7 +332,7 @@ token or_list {
         { return [] }
 }
 token rule {
-    [ <'|'> | <''> ]
+    [ <?ws>? <'|'> | <''> ]
     # { say "trying M::G::Rule on ", $s }
     <or_list>
     { 

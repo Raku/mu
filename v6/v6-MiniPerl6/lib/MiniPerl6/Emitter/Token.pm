@@ -7,7 +7,7 @@ use v6-alpha;
 class Rul {
     sub perl5( $rx ) {
         return
-            '( ( substr( $str, $m.to ) ~~ m:P5/^(' ~ $rx ~ ')/ ) ' ~ 
+            '( perl5rx( substr( $str, $m.to ), \'^(' ~ $rx ~ ')\' ) ' ~ 
             ' ?? ( 1 + $m.to( $0.chars + $m.to )) ' ~
             ' !! (0) ' ~
             ')'
@@ -45,7 +45,7 @@ class Rul::Subrule {
     has $.metasyntax;
     method emit {
         'do { ' ~
-          'my $m2 := ' ~ $.metasyntax ~ '( str => $str, grammar => $grammar, pos => $m.to, KEY => $key ); ' ~
+          'my $m2 := ' ~ $.metasyntax ~ '({ "str" => $str, "grammar" => $grammar, "pos" => $m.to, "KEY" => $key }); ' ~
           'if $m2 { $m.to( $m2.to ); $m{"' ~ $.metasyntax ~ '"} := $m2; 1 } else { 0 } ' ~
         '}'
     }
@@ -78,6 +78,15 @@ class Rul::Constant {
     }
 }
 
+class Rul::Dot {
+    method emit {
+        '( \'\' ne substr( $str, $m.to, 1 ) ' ~
+        '  ?? (1 + $m.to( 1 + $m.to ))' ~
+        '  !! (0) ' ~
+        ')';
+    }
+}
+
 class Rul::SpecialChar {
     has $.char;
     method emit {
@@ -95,6 +104,13 @@ class Rul::SpecialChar {
       $char := '\\\\' if $char eq '\\';
       return Rul::constant( $char );
   }
+}
+
+class Rul::Block {
+    has $.closure;
+    method emit {
+        'do ' ~ $.closure
+    }
 }
 
 class Rul::InterpolateVar {

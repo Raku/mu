@@ -52,7 +52,7 @@ class Lit::Seq {
 class Lit::Array {
     has @.array;
     method emit {
-        '[' ~ (@.seq.>>emit).join(', ') ~ ']';
+        '[' ~ (@.array.>>emit).join(', ') ~ ']';
     }
 }
 
@@ -213,10 +213,10 @@ class Sig {
     has $.named;
     method emit {
         " # Signature - TODO \n"
-    }
+    };
     method invocant {
         $.invocant
-    }
+    };
     method positional {
         $.positional
     }
@@ -238,7 +238,7 @@ class Method {
         for @$pos -> $field { 
             $str := $str ~ 'my ' ~ $field.emit ~ ' = $_[' ~ $i ~ ']; ';
             $i := $i + 1;
-        } 
+        };
         'sub ' ~ $.name ~ ' { ' ~ 
           'my ' ~ $invocant.emit ~ ' = $_[0]; ' ~
           $str ~
@@ -263,10 +263,19 @@ class Sub {
         for @$pos -> $field { 
             $str := $str ~ 'my ' ~ $field.emit ~ ' = $_[' ~ $i ~ ']; ';
             $i := $i + 1;
-        } 
+        };
         'sub ' ~ $.name ~ ' { ' ~ 
           ## 'my ' ~ $invocant.emit ~ ' = $_[0]; ' ~
           $str ~
+          (@.block.>>emit).join('; ') ~ 
+        ' }'
+    }
+}
+
+class Do {
+    has @.block;
+    method emit {
+        'do { ' ~ 
           (@.block.>>emit).join('; ') ~ 
         ' }'
     }
