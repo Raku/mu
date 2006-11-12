@@ -9,6 +9,8 @@ import Pugs.Val
 import Pugs.Pretty
 import Pugs.Internals
 
+import GHC.Unicode (toUpper, toLower)
+
 say = putStrLn
 
 {-
@@ -34,22 +36,22 @@ class (Typeable a, Ord a, Typeable1 m, Monad m) => Boxable m a | a -> m where
 instance Boxable IO String where
     classOf _ = mkBoxClass "Str"
         [ "reverse"    ... (reverse :: String -> String)
-        , "chop"       ... -- Pugs.Prim +120
+        , "chop"       ... undefined -- Pugs.Prim +120
         , "split"      ... words
-        , "lc"         ... map GHC.Unicode.toLower
-        , "lcfirst"    ... -- +125
-        , "uc"         ... map GHC.Unicode.toUpper
-        , "ucfirst"    ... -- +127
-        , "capitalize" ...
-        , "quotemeta"  ... 
-        , "graphs"     ... 
-        , "codes"      ...
+        , "lc"         ... map toLower
+        , "lcfirst"    ... undefined -- +125
+        , "uc"         ... map toUpper
+        , "ucfirst"    ... undefined -- +127
+        , "capitalize" ... undefined
+        , "quotemeta"  ... undefined
+        , "graphs"     ... undefined
+        , "codes"      ... undefined
         , "chars"      ... length
-        , "bytes"      ...
-        , "split"      ...
-        , "index"      ...
-        , "rindex"     ...
-        , "substr"     ...
+        , "bytes"      ... undefined
+        , "split"      ... undefined
+        , "index"      ... undefined
+        , "rindex"     ... undefined
+        , "substr"     ... undefined
         ]
     fromObj (MkInvocant x _) = undefined
 
@@ -60,28 +62,28 @@ instance Boxable IO Int where
 
 instance Num a => Boxable IO a where
     classOf _ = mkBoxClass "Num"
-        [ "abs"      ... 
-        , "floor"    ... 
-        , "ceiling"  ... 
-        , "round"    ... 
-        , "truncate" ... 
-        , "exp"      ... 
-        , "log"      ... 
-        , "log10"    ... 
-        , "log2"     ... -- :-)
-        , "rand"     ... 
-        , "sign"     ... 
-        , "srand"    ... 
-        , "sqrt"     ... 
+        [ "abs"      ... undefined
+        , "floor"    ... undefined
+        , "ceiling"  ... undefined
+        , "round"    ... undefined
+        , "truncate" ... undefined 
+        , "exp"      ... undefined 
+        , "log"      ... undefined 
+        , "log10"    ... undefined 
+        , "log2"     ... undefined -- :-)
+        , "rand"     ... undefined 
+        , "sign"     ... undefined 
+        , "srand"    ... undefined 
+        , "sqrt"     ... undefined 
         ]
 
 instance Boxable IO Char where
 
 instance Boxable IO Socket where
     classOf _ = mkBoxClass "Socket"
-        [ "connect" ... -- +1046
-        , "close"   ...
-        , "listen"  ... 
+        [ "connect" ... undefined -- +1046
+        , "close"   ... undefined
+        , "listen"  ... undefined
         ] 
 
 (...) x y = (x, mkObj . y)
@@ -91,8 +93,8 @@ mkBoxClass cls methods = newMI $ emptyMI
     , clsName = cls
     }
 
-class BoxableFunction a where
-    mkBoxMethod :: (String, a) -> AnyMethod
+class Monad m => BoxableFunction m a where
+    mkBoxMethod :: (String, a) -> AnyMethod m
     mkBoxMethod (meth, fun) = AnyMethod $ MkSimpleMethod
         { smName = meth
         , smDefinition = MkMethodCompiled $ HsCode $ \args -> do
@@ -100,8 +102,9 @@ class BoxableFunction a where
             return (fun str)
         }
  
+instance Monad m => BoxableFunction m (String -> String) where
 
-instance (Boxable m a) => BoxableFunction (a -> m a) where
+instance (Boxable m a) => BoxableFunction m (a -> m a) where
     mkBoxMethod (meth, fun) = AnyMethod $ MkSimpleMethod
         { smName = meth
         , smDefinition = MkMethodCompiled $ HsCode $ \args -> do
