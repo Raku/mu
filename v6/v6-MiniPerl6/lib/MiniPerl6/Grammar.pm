@@ -196,6 +196,10 @@ token term_meth {
     ]
 };
 
+token sub_or_method_name {
+    <full_ident> [ \. <ident> | <''> ]
+};
+
 token term {
     | <prefix_op> <exp> 
           { return ::Apply(
@@ -208,10 +212,10 @@ token term {
         { return ::Lit::Hash( hash => $$<exp_mapping> ) }   # { exp => exp, ... }
     | \[ <?opt_ws> <exp_seq> <?opt_ws> \]
         { return ::Lit::Array( array => $$<exp_seq> ) }   # [ exp, ... ]
-    | \$ \< <ident> \>
+    | \$ \< <sub_or_method_name> \>
         { return ::Lookup( 
             obj   => ::Var( sigil => '$', twigil => '', name => '/' ), 
-            index => ::Val::Buf( buf => $$<ident> ) 
+            index => ::Val::Buf( buf => $$<sub_or_method_name> ) 
         ) }   # $<ident>
     | do <?opt_ws> \{ <?opt_ws> <exp_stmts> <?opt_ws> \}
         { return ::Do( block => $$<exp_stmts> ) }   # do { stmt; ... }
