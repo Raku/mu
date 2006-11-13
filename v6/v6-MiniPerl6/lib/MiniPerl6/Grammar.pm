@@ -444,7 +444,7 @@ token call {
 };
 
 token apply {
-    <ident>
+    <full_ident>
         [ \( <?opt_ws> <exp_seq> <?opt_ws> \)
         | <?ws> <exp_seq> <?opt_ws>
         ]

@@ -5,17 +5,17 @@ use v6-alpha;
 # <%hash> must be a hash-of-token
 
 class Rul {
-    sub perl5( $rx ) {
+    sub perl5 ( $rx ) {
         return
             '( perl5rx( substr( $str, $m.to ), \'^(' ~ $rx ~ ')\' ) ' ~ 
             ' ?? ( 1 + $m.to( $0.chars + $m.to )) ' ~
             ' !! (0) ' ~
             ')'
-    }
+    };
     
-    sub constant( $str ) {
+    sub constant ( $str ) {
             my $str1;
-            { use v5; $str1 = $str; $str1 =~  s/\\(.)/$1/g; use v6; }
+            # { use v5; $str1 = $str; $str1 =~  s/\\(.)/$1/g; use v6; }
         
             my $len := $str1.chars;
             if ( $len ) {
@@ -46,14 +46,14 @@ class Rul::Quantifier {
 class Rul::Or {
     has @.or;
     method emit {
-        '(' ~ @.or.>>emit.join(' || ') ~ ')';
+        '(' ~ (@.or.>>emit).join(' || ') ~ ')';
     }
 }
 
 class Rul::Concat {
     has @.concat;
     method emit {
-        '(' ~ @.concat.>>emit.join(' && ') ~ ')';
+        '(' ~ (@.concat.>>emit).join(' && ') ~ ')';
     }
 }
 
@@ -90,7 +90,8 @@ class Rul::Var {
 class Rul::Constant {
     has $.constant;
     method emit {
-        Rul::constant( $.constant );
+        my $str := $.constant; 
+        Rul::constant( $str );
     }
 }
 
@@ -106,20 +107,29 @@ class Rul::Dot {
 class Rul::SpecialChar {
     has $.char;
     method emit {
-      my $char := $.char;
-      return Rul::perl5( '(?:\n\r?|\r\n?)' )
-        if $char eq 'n';
-      return Rul::perl5( '(?!\n\r?|\r\n?).' )
-        if $char eq 'N';
-      for < r n t e f w d s > {
-        return Rul::perl5(   "\\$_"  ) if $char eq $_;
+          my $char := $.char;
+          if $char eq 'n' {
+              return Rul::perl5( '(?:\n\r?|\r\n?)' )
+          };
+          if $char eq 'N' {
+              return Rul::perl5( '(?!\n\r?|\r\n?).' )
+          };
+          # TODO
+          #for ['r','n','t','e','f','w','d','s'] {
+          #  if $char eq $_ {
+          #      return Rul::perl5(   "\\$_"  );
+          #  }
+          #};
+          #for ['R','N','T','E','F','W','D','S'] {
+          #  if $char eq $_ {
+          #      return Rul::perl5( "[^\\$_]" );
+          #  }
+          #};
+          if $char eq '\\' {
+            $char := '\\\\' 
+          };
+          return Rul::constant( $char );
       }
-      for < R N T E F W D S > {
-        return Rul::perl5( "[^\\$_]" ) if $char eq $_;
-      }
-      $char := '\\\\' if $char eq '\\';
-      return Rul::constant( $char );
-  }
 }
 
 class Rul::Block {
@@ -129,38 +139,41 @@ class Rul::Block {
     }
 }
 
+# TODO
 class Rul::InterpolateVar {
     has $.var;
     method emit {
-        my $var = $.var;
-        # if $var.sigil eq '%'    # bug - Moose? no method 'sigil'
-        {
-            my $hash := $var;
-            $hash := $hash.emit;
-           'do {
-                state @sizes := do {
-                    # Here we use .chr to avoid sorting with {$^a<=>$^b} since
-                    # sort is by default lexographical.
-                    my %sizes := '~$hash~'.keys.map:{ chr(chars($_)) => 1 };
-                    [ %sizes.keys.sort.reverse ];
-                };
-                my $match := 0;
-                my $key;
-                for @sizes {
-                    $key := ( $m.to <= chars( $s ) ?? substr( $s, $m.to, $_ ) !! \'\' );
-                    if ( '~$hash~'.exists( $key ) ) {
-                        $match = '~$hash~'{$key}.( str => $str, grammar => $grammar, pos => ( $_ + $m.to ), KEY => $key );
-                        last if $match;
-                    }
-                }
-                if ( $match ) {
-                    $m.to: $match.to;
-                    $match.bool: 1;
-                }; 
-                $match;
-            }';
-        }
-    }
+        1
+    };
+#        my $var = $.var;
+#        # if $var.sigil eq '%'    # bug - Moose? no method 'sigil'
+#        {
+#            my $hash := $var;
+#            $hash := $hash.emit;
+#           'do {
+#                state @sizes := do {
+#                    # Here we use .chr to avoid sorting with {$^a<=>$^b} since
+#                    # sort is by default lexographical.
+#                    my %sizes := '~$hash~'.keys.map:{ chr(chars($_)) => 1 };
+#                    [ %sizes.keys.sort.reverse ];
+#                };
+#                my $match := 0;
+#                my $key;
+#                for @sizes {
+#                    $key := ( $m.to <= chars( $s ) ?? substr( $s, $m.to, $_ ) !! \'\' );
+#                    if ( '~$hash~'.exists( $key ) ) {
+#                        $match = '~$hash~'{$key}.( str => $str, grammar => $grammar, pos => ( $_ + $m.to ), KEY => $key );
+#                        last if $match;
+#                    }
+#                }
+#                if ( $match ) {
+#                    $m.to: $match.to;
+#                    $match.bool: 1;
+#                }; 
+#                $match;
+#            }';
+#        }
+#    }
 }
 
 class Rul::NamedCapture {
