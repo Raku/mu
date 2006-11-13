@@ -12,7 +12,7 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 2 Nov 2006
+  Last Modified: 13 Nov 2006
   Number: 3
   Version: 74
 
@@ -436,12 +436,17 @@ instead of returning C<Bool::False> or C<Bool::True> values it always
 returns C<Order::Increase>, C<Order::Same>, or C<Order::Decrease>
 (which numerify to -1, 0, or +1).
 
-=item * the C<leg> operator (less than, equal, or greater) is defined
+=item * The C<leg> operator (less than, equal, or greater) is defined
 in terms of C<cmp>, so C<$a leg $b> is now defined as C<~$a cmp ~$b>.
 The sort operator still defaults to C<cmp> rather than C<leg>.  The
 C<< <=> >> operator's semantics are unchanged except that it returns
 an C<Order> value as described above.  In other words, C<< $a <=> $b >>
 is now equivalent to C<+$a cmp +$b>.
+
+=item * For boolean comparison operators with non-coercive C<cmp>
+semantics, use the generic C<before> and C<after> infix operators.
+As ordinary infix operators these may be negated (C<!before> and C<!after>)
+as well as reduced (C<[before]> and C<[after]>).
 
 =item * Binary C<< => >> is no longer just a "fancy comma".  It now
 constructs a C<Pair> object that can, among other things, be used to
@@ -1663,6 +1668,7 @@ Perl 6 has 22 precedence levels (which is fewer than Perl 5):
 			    fff ^fff fff^ ^fff^
     chaining binary     != == < <= > >=
 			    eq ne lt le gt ge
+			    before after
 			    ~~ =:= === eqv
 			    !== !~~ !eq !=:= !=== !eqv etc.
     tight and           &&
