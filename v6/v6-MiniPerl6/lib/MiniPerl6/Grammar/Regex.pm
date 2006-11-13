@@ -89,50 +89,42 @@ token variables {
         }
 };
 
-%rule_terms{'('} := token {
+token rule_terms {
+    |   <'('>
         <rule> \)
         { return ::Rul::Capture( rule => $$<rule> ) }
-};
-%rule_terms{'<('} := token {
+    |   <'<('>
         <rule>  <')>'>
         { return ::Rul::CaptureResult( rule => $$<rule> ) }
-};
-%rule_terms{'<after'} := token {
+    |   <'<after'>
         <?ws> <rule> \> 
         { return ::Rul::After( rule => $$<rule> ) }
-};
-%rule_terms{'<before'} := token {
+    |   <'<before'>
         <?ws> <rule> \> 
         { return ::Rul::Before( rule => $$<rule> ) }
-};
-%rule_terms{'<!before'} := token {
+    |   <'<!before'>
         <?ws> <rule> \> 
         # TODO
         { return { not_before => { rule => $$<rule> } } }
-};
-%rule_terms{'<!'} := token {
+    |   <'<!'>
         # TODO
         <metasyntax> \> 
         { return { negate  => { metasyntax => $$<metasyntax> } } }
-};
-%rule_terms{'<+'} := token {
+    |   <'<+'>
         # TODO
         <char_class>  \> 
         { return ::Rul::CharClass( chars => ~$<char_class> ) }
-};
-%rule_terms{'<-'} := token {
+    |   <'<-'>
         # TODO
         <char_class> \>
         { return ::Rul::NegateCharClass( chars => ~$<char_class> ) }
-};
-%rule_terms{"<'"} := token {
-    <literal> \' \>
-    { return ::Rul::Constant( constant => $$<literal> ) }
-};
-%rule_terms{'<'} := token { 
-        |  
-        # { say "matching < ..." }
-           <variables>  # \>
+    |   \< \'
+        <literal> \' \>
+        { return ::Rul::Constant( constant => $$<literal> ) }
+    |   \< 
+        [  
+            <variables>   \>
+            # { say "matching < variables ..." }
             {
                 # say "found < hash-variable >";
                 return ::Rul::InterpolateVar( var => $$<variables> )
@@ -146,12 +138,12 @@ token variables {
             # TODO
             <metasyntax>  \>
             { return ::Rul::Subrule( metasyntax => $$<metasyntax> ) }
-};
-%rule_terms{'{'} := token { 
+        ]
+    |   \{ 
         <parsed_code>  \}
         { return ::Rul::Block( closure => $$<parsed_code> ) }
-};
-%rule_terms{'\\'} := token {  
+    |   <'\\'>  
+        [
 # TODO
 #        | [ x | X ] <[ 0..9 a..f A..F ]]>+
 #          #  \x0021    \X0021
@@ -165,60 +157,65 @@ token variables {
         | .
           #  \e  \E
           { return ::Rul::SpecialChar( char => $$/ ) }
-};
-%rule_terms{'.'} := token { 
+        ]
+    |   \. 
         { return ::Rul::Dot( dot => 1 ) }
-};
-%rule_terms{'['} := token { 
-        <rule> \] 
+    |   <'['> 
+        <rule> <']'> 
         { return $$<rule> }
+
 };
-%rule_terms{':::'} := token { { return { colon => ':::' ,} } };
-%rule_terms{':?'} := token { { return { colon => ':?' ,} } };
-%rule_terms{':+'} := token { { return { colon => ':+' ,} } };
-%rule_terms{'::'} := token { { return { colon => '::' ,} } };
-%rule_terms{':'} := token { { return { colon => ':'  ,} } };
-%rule_terms{'$$'} := token { { return { colon => '$$' ,} } };
-%rule_terms{'$'} := token { { return { colon => '$'  ,} } };
-%rule_terms{'^^'} := token { { return { colon => '^^' ,} } };
-%rule_terms{'^'} := token { { return { colon => '^'  ,} } };
-    
-%rule_terms{'>>'} := token { { return { colon => '>>' ,} } };
-%rule_terms{'»'} := token { { return { colon => '>>' ,} } };
 
-%rule_terms{'<<'} := token { { return { colon => '<<' ,} } };
-%rule_terms{'«'} := token { { return { colon => '<<' ,} } };
+=for later
+    |   <':::'> { return { colon => ':::' ,} }
+    |   <':?'> { return { colon => ':?' ,} }
+    |   <':+'> { return { colon => ':+' ,} }
+    |   <'::'> { return { colon => '::' ,} }
+    |   <':'> { return { colon => ':'  ,} }
+    |   <'$$'> { return { colon => '$$' ,} }
+    |   <'$'> { return { colon => '$'  ,} }
 
-%rule_terms{':i'} := token { 
+
+# TODO - parser error ???
+#    |   <'^^'> { return { colon => '^^' ,} }
+#    |   <'^'> { return { colon => '^'  ,} } }
+#    |   <'»'> { return { colon => '>>' ,} } }
+#    |   <'«'> { return { colon => '<<' ,} } }
+
+    |   <'<<'> { return { colon => '<<' ,} }     
+    |   <'>>'> { return { colon => '>>' ,} }     
+    |   <':i'> 
         <?ws> <rule> 
-        { return { modifier => 'ignorecase', rule => $$<rule>, } } };
-%rule_terms{':ignorecase'} := token { 
+        { return { modifier => 'ignorecase', rule => $$<rule>, } }     
+    |   <':ignorecase'> 
         <?ws> <rule> 
-        { return { modifier => 'ignorecase', rule => $$<rule>, } } };
-%rule_terms{':s'} := token { 
+        { return { modifier => 'ignorecase', rule => $$<rule>, } }     
+    |   <':s'> 
         <?ws> <rule> 
-        { return { modifier => 'sigspace',   rule => $$<rule>, } } };
-%rule_terms{':sigspace'} := token { 
+        { return { modifier => 'sigspace',   rule => $$<rule>, } }     
+    |   <':sigspace'> 
         <?ws> <rule> 
-        { return { modifier => 'sigspace',   rule => $$<rule>, } } };
-%rule_terms{':P5'} := token { 
+        { return { modifier => 'sigspace',   rule => $$<rule>, } }     
+    |   <':P5'> 
         <?ws> <rule> 
-        { return { modifier => 'Perl5',  rule => $$<rule>, } } };
-%rule_terms{':Perl5'} := token { 
+        { return { modifier => 'Perl5',  rule => $$<rule>, } }     
+    |   <':Perl5'> 
         <?ws> <rule> 
-        { return { modifier => 'Perl5',  rule => $$<rule>, } } };
-%rule_terms{':bytes'} := token { 
+        { return { modifier => 'Perl5',  rule => $$<rule>, } }     
+    |   <':bytes'> 
         <?ws> <rule> 
-        { return { modifier => 'bytes',  rule => $$<rule>, } } };
-%rule_terms{':codes'} := token { 
+        { return { modifier => 'bytes',  rule => $$<rule>, } }     
+    |   <':codes'> 
         <?ws> <rule> 
-        { return { modifier => 'codes',  rule => $$<rule>, } } };
-%rule_terms{':graphs'} := token { 
+        { return { modifier => 'codes',  rule => $$<rule>, } }     
+    |   <':graphs'> 
         <?ws> <rule> 
-        { return { modifier => 'graphs', rule => $$<rule>, } } };
-%rule_terms{':langs'} := token { 
+        { return { modifier => 'graphs', rule => $$<rule>, } }     
+    |   <':langs'> 
         <?ws> <rule> 
-        { return { modifier => 'langs',  rule => $$<rule>, } } };
+        { return { modifier => 'langs',  rule => $$<rule>, } } }
+};
+=cut
 
 token term {
     |  
@@ -238,13 +235,13 @@ token term {
        ]
     | 
         # { say "matching terms"; }
-        <%rule_terms>
+        <rule_terms>
         { 
             #print "term: ", Dumper( $_[0]->data );
             return $$<rule_terms> 
         }
     |  <-[ \] \} \) \> \: \? \+ \* \| \& \/ ]>    # TODO - <...>* - optimize!
-        { return Rul::Constant({ constant => $$/ }) }
+        { return ::Rul::Constant( constant => $$/ ) }
 }
 
 token quant {
@@ -262,14 +259,14 @@ token quantifier {
     <quant>
     $<greedy> := (<[  \? \+  ]>?)
     $<ws3>   := (<?ws>?)
-    { return Rul::Quantifier({
+    { return ::Rul::Quantifier(
             term    => $$/{'term'},
             quant   => $$/{'quant'},
             greedy  => $$/{'greedy'},
             ws1     => $$/{'ws1'},
             ws2     => $$/{'ws2'},
             ws3     => $$/{'ws3'},
-        })
+        )
     }
     |
         { return $$<term> }
@@ -289,7 +286,7 @@ token concat_list {
 }
 token concat {
     <concat_list>
-    { return Rul::Concat( concat => $$<concat_list> ) }
+    { return ::Rul::Concat( 'concat' => $$<concat_list> ) }
 }
 
 token or_list {
@@ -310,7 +307,7 @@ token rule {
     <or_list>
     { 
         # say "found Rule";
-        return Rul::Or( 'or' => $$<or_list> ) 
+        return ::Rul::Or( 'or' => $$<or_list> ) 
     }
 }
 

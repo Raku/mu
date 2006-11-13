@@ -14,9 +14,12 @@ class Rul {
     }
     
     sub constant( $str ) {
-            my $len := $str.chars;
+            my $str1;
+            { use v5; $str1 = $str; $str1 =~  s/\\(.)/$1/g; use v6; }
+        
+            my $len := $str1.chars;
             if ( $len ) {
-                '( ' ~ $str.perl ~ ' eq substr( $str, $m.to, ' ~ $len ~ ') ' ~
+                '( ' ~ $str1.perl ~ ' eq substr( $str, $m.to, ' ~ $len ~ ') ' ~
                 '  ?? (1 + $m.to( ' ~ $len ~ ' + $m.to ))' ~
                 '  !! (0) ' ~
                 ')';
