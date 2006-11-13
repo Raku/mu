@@ -323,6 +323,35 @@ sub event_loop {
 
 __END__
 
-COPYRIGHT 1997 Sriram Srinivasan
+=head1 NAME
 
-http://search.cpan.org/src/SRIRAM/examples/Networking/Msg.pm
+Web::Terminal::Msg -- Client/Server messaging framework 
+
+=head1 SYNOPSIS
+
+    use Web::Terminal::Msg;
+    # in Dispatcher:
+    $conn = Web::Terminal::Msg->connect( $host, $port, \&rcvd_msg_from_server );
+    # in Server:
+    Web::Terminal::Msg->new_server( $host, $port, \&login_proc );
+    Web::Terminal::Msg->event_loop();
+
+=head1 AUTHORS
+
+Sriram Srinivasan created Msg.pm for his excellent book "Advanced Perl Programming";
+Wim Vanderbauwhede made some minor modifications to incorporate it in
+Web::Terminal.
+
+=head1 COPYRIGHT 
+
+Copyright (c) 1997 Sriram Srinivasan. All rights reserved.
+Copyright (c) 2006 Wim Vanderbauwhede <wim.vanderbauwhede@gmail.com>. All
+rights reserved.
+
+L<http://search.cpan.org/src/SRIRAM/examples/Networking/Msg.pm>
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+=cut

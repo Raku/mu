@@ -6,11 +6,10 @@ use strict;
 use utf8;
 
 use Web::Terminal::Settings;
-=pod
-A thin wrapper around Net::Telnet
-new() starts the session;
-write() sends commands to it.
-=cut
+
+#A thin wrapper around Net::Telnet
+#new() starts the session;
+#write() sends commands to it.
 
 $SIG{CHLD}='IGNORE';
 ## Constructor
@@ -97,15 +96,15 @@ sub readlines {
     my $line='';
     my $j=0;
     while ($char ne "\n" and ($j<$Web::Terminal::Settings::nchars)) {
-    print "getting...\n";
+#    print "getting...\n";
     $char=$pugs->get();
-    print "got $j>$char<\n";
+#    print "got $j>$char<\n";
     $j++;
     last if $char eq '';
     $line.=$char;
     last if $line eq $Web::Terminal::Settings::prompt;
     }
-        print $line;
+        #print $line;
         if ($j>=$Web::Terminal::Settings::nchars-1) {
         $line.="Generated output is limited to $Web::Terminal::Settings::nchars characters. Aborted.\n";
        $obj->{pugs}->close();
@@ -134,7 +133,7 @@ sub readlines {
 		$lline .= $line unless $line =~
         /$Web::Terminal::Settings::prompt_pattern/;
 		$i++;
-        print "$i\n";
+#        print "$i\n";
         last if $line eq '';
 	}
    if ($i>=$Web::Terminal::Settings::nlines-1) {
@@ -151,7 +150,7 @@ sub readlines {
 sub write {
 	my $obj = shift;
 	my $cmd  = shift;
-	print "CMD1: $cmd\n";
+#	print "CMD1: $cmd\n";
 #    $cmd=pack("U0C*", unpack("C*",$cmd));    
 #	print "CMD2: $cmd\n";
     chomp $cmd;
@@ -204,19 +203,19 @@ sub write {
 	return $lline;
 }    # end write method
 
-sub run {
-	my $obj = shift;
-    my $cmd = shift;
-my $error=0;
-my $id=$obj->{'id'};
-#1. Create a file with the content of $cmd using $id.p6 for name, store in data
-open(P6,">$Web::Terminal::Settings::tmp_path/$id.p6") or ($error=1);
-#2. Create a Net::Telnet object 
-
-#3. Read back the result
-#4. Close the Net::Telnet object
+#sub run {
+#	my $obj = shift;
+#    my $cmd = shift;
+#my $error=0;
+#my $id=$obj->{'id'};
+##1. Create a file with the content of $cmd using $id.p6 for name, store in data
+#open(P6,">$Web::Terminal::Settings::tmp_path/$id.p6") or ($error=1);
+##2. Create a Net::Telnet object 
 #
-}
+##3. Read back the result
+##4. Close the Net::Telnet object
+#
+#}
 
 sub spawn {
 	my (@cmd) = @_;
@@ -270,3 +269,63 @@ sub spawn {
 
 	return ( $pty, $pid );
 }    # end sub spawn
+
+__END__
+
+=head1 NAME
+
+Web::Terminal::Server::Session -- Session object to encapsulate terminal
+application.
+Requires Net::Telnet.
+
+=head1 SYNOPSIS
+
+    package  Web::Terminal::Server
+    use Web::Terminal::Settings;
+    use Web::Terminal::Server::Session;
+
+    $terminals{$id} = 
+    new Web::Terminal::Server::Session(
+        id=>$id,
+        app=>$app,
+        ia=>$ia,
+        cmds=>$cmd
+        );
+
+=head1 DESCRIPTION
+
+This module provides a Session object. The object encapsulates the
+actual terminal session. The session is configured via L<Settings.pm>.
+The object's C<new> method takes following arguments:
+    id: a string identifying the session
+    app: an integer indicating the version of the terminal application to
+    be used. The value is the index in the list of C<commands> (see L<Settings.pm>). 
+    ia: if 1, the session is interactive, else it's batch mode
+    cmds: the actual command or script to be sent to the terminal application.
+
+The object constructor forks off a process for the terminal application and
+communicates with it via a pseudo-tty created with L<IO::Pty>. Reading the
+datastream, timeouts and errors are handled via L<Net::Telnet>
+
+
+=head1 SEE ALSO
+
+L<Web::Terminal::Settings>,
+L<Web::Terminal::Server>,
+L<Web::Terminal::Dispatcher>,
+L<Web::Terminal::Msg>
+
+=head1 AUTHOR
+
+Wim Vanderbauwhede <wim.vanderbauwhede@gmail.com>
+
+=head1 COPYRIGHT
+
+Copyright (c) 2006. Wim Vanderbauwhede. All rights reserved.
+
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=cut

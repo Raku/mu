@@ -24,16 +24,9 @@ return true;
 
 function select_enter()
 {
-/* _SKIPC_
 document.terminal.cmdline.value=document.terminal.hist.options[document.terminal.hist.selectedIndex].value;
 document.terminal.hist.selectedIndex=0;
 document.terminal.cmdline.focus();
-_SKIPC_ */
-/* _SKIPT_
-document.terminal.cmd.value+=document.terminal.hist.options[document.terminal.hist.selectedIndex].value;
-document.terminal.hist.selectedIndex=0;
-document.terminal.cmd.focus();
-_SKIPT_ */
 }
 
 function select_enter_OFF(myfield,e)
@@ -58,65 +51,59 @@ return true;
 <h1>Run Perl 6 now -- in your browser!</h1>
 <!--
 <p>This live web terminal runs the <a href="http://www.pugscode.org">pugs</a> interpreter for <a
-href="http://dev.perl.org/perl 6/">Perl&nbsp;6</a>. Please <a
-href="http://feather.perl6.nl/~andara/runpugs/">read the documentation</a>.
+href="http://dev.perl.org/perl 6/">Perl&nbsp;6</a>. For more details, read the <a
+href="http://feather.perl6.nl/~andara/runpugs/">info page</a>.
 </p>
-   -->                            
+<p>By default, the Pugs session will use the <a
+href="http://search.cpan.org/search?query=perl6%3A%3Apugs&mode=module">latest
+release</a>. To use the latest development snapshot, change the setting
+below.</p>
+-->
+<!--<h2>Run a Perl 6 Script</h2>-->
+                               
 <form id="term" name="terminal" action="/cgi-bin/runpugs2" method="POST">                  
-<input type="hidden" name="prompt" value="_PROMPTW_">
 <input type="hidden" name="sessionid" value="">
-<input type="hidden"    name="ia" value="1">
 <input type="hidden"    name="action" value="runpugs">
+<input type="hidden"    name="ia" value="0">
 <input type="radio" id="rel" value="0" name="reldev" _REL_ ><label
 for="rel">Release version</label>&nbsp;&nbsp;
 <input type="radio" id="dev" value="1" name="reldev" _DEV_ ><label
 for="dev">Development version</label>
-<!--
 <br><br>
-<span class="tabon">Interactive Pugs Session</span>
-&nbsp;&nbsp;<a class="taboff" href="/cgi-bin/runpugs2?ia=0">Run a Perl 6 Script</a>
+<!--
+<span class="tabon">Run a Perl 6 Script</span>
+&nbsp;&nbsp;<a class="taboff" href="/cgi-bin/runpugs2?ia=1">Interactive
+Pugs Session</a>
 -->
-<div id="termwindow">
-<select name="history" id="hist" onChange="select_enter()">
-<option value="">--- Recent commands ---</option>
-_HIST_
-</select>
-<br>
-<!-- _SKIPT_
-<textarea id="cmd" name="cmd" rows="20" cols="80" wrap="virtual"
-onKeyPress="return submitenter(this,event)">
-_ALL_
-</textarea>
-_SKIPT_ -->
-<!--_SKIPC_
+<label for="output">Script output</label>
+<div id="outputwindow" class="term">
 <textarea readonly id="output" name="output" rows="_NROWS_" cols="80" wrap="virtual">
 _REPLYW_
 </textarea>
-<br>
-<label for="cmdline"><span class="prompt">
-_NPROMPTW_
-</span>
-<input type="text" size="74" id="cmdline" name="cmdline" value=""
-onKeyPress="return submitenter(this,event)">
-</label>
-_SKIPC_ --> 
 </div>
+<label for="script">Script code</label>
+&nbsp;&nbsp;&nbsp; <input id="enter" type="submit" value="Submit">
+<br>
+ <div id="editorwindow" class="term">
+<textarea id="script" name="script" rows="25" cols="80" wrap="virtual">
+_SCRIPT_
+</textarea>
+</div>
+<!--<br>
 <input id="enter" type="submit" value="Submit">&nbsp;&nbsp;&nbsp;
+-->
 </form>
 <script language="JavaScript">
-document.terminal.enter.style.display='none';
-document.terminal.cmdline.focus() // _SKIPT_
-document.terminal.cmd.focus() // _SKIPC_
-document.terminal.output.scrollTop =document.terminal.output.scrollHeight; // _SKIPT_
-document.terminal.cmd.scrollTop =document.terminal.cmd.scrollHeight; // _SKIPC_
-//if (document.terminal.output.rows==1) {
-//document.terminal.output.style.height="2ex";
-//}
+//document.terminal.enter.style.display='none';
+document.terminal.script.focus()
+document.terminal.output.scrollTop =document.terminal.output.scrollHeight;
 </script>
-<p>This live web terminal runs the <a href="http://www.pugscode.org">pugs</a> interpreter for <a
-href="http://dev.perl.org/perl 6/">Perl&nbsp;6</a>. Please <a
+<p>This live web interface runs the <a href="http://www.pugscode.org">pugs</a>
+interpreter for <a
+href="http://dev.perl.org/perl 6/">Perl 6</a>. Please <a
 href="http://feather.perl6.nl/~andara/runpugs/">read the documentation</a>.
 </p>
+
 <p class="copyright">&copy; Copyright 2006 by Wim Vanderbauwhede</p>
 </div>
 </body>

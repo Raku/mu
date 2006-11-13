@@ -37,13 +37,20 @@ $ENV{SAFE_MODE}=1;
 my $query=new CGI;
 
 my $sessionid=$query->param("sessionid");
-
+my $motd="";
 if (not $sessionid) {
 my $nid=crypt(rand(),'WV');
 $nid=~tr/.\//WV/;
 $nid=~s/^WV//;
 my $now=time()-1159056000; # 36 year, 275 days offset
 $sessionid=$nid.$now;
+
+$motd='
+<p class="warning">Please test the <em>development version</em> of <tt>runpugs</tt>: try the <a
+href="http://feather.perl6.nl:8080/cgi-bin/runpugs2">interactive session</a>
+with <em>command history</em> or <a
+href="http://feather.perl6.nl:8080/cgi-bin/runpugs2?ia=0">run a full Perl 6 script</a>.</p>
+';
 }
 
 my $access_OK=1; # no restrictions
@@ -129,6 +136,10 @@ sub runpugs {
     open(HTML,"<../data/runpugs.html");
     while(<HTML>) {
     s/_TESTING_/$testing/;
+    /_MOTD_/ && do {
+    $html.=$motd;
+    next;
+    };
     s/_DEV_/$devc/;
     s/_REL_/$relc/;
 	/input.*name=\"sessionid\"/ && do {$html.='<input type="hidden" name="sessionid" value="'.$sessionid.'">'."\n";next };

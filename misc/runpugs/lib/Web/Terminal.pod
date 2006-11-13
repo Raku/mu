@@ -1,0 +1,53 @@
+=head1 NAME
+
+Web::Terminal -- Framework for interactive web terminal
+
+=head1 SYNOPSIS
+
+    # client:
+    use Web::Terminal::Dispatcher;
+    &Web::Terminal::Dispatcher::send(...);
+
+    # server:
+    use Web::Terminal::Server;
+    &Web::Terminal::Server::run(...);
+
+=head1 DESCRIPTION
+
+Web::Terminal is a framework to build web interfaces for interactive (and
+non-interactive) command-line programs.
+Because a web interface is inherently stateless, Web::Terminal has a
+client/server architecture. The client interface (C<send> from Dispatcher.pm) is
+typically called from a CGI script. The only state information to be
+maintained between the web client and CGI script is the session id string.
+The server (provided by Server.pm) runs totally separately from the HTTP server. 
+Client/server communication is essentially handled by the Msg.pm module, 
+with the message body serialized using YAML::Syck.
+The server creates a new instance of a Session object for every new session
+request. 
+The Session object forks off a process for the terminal application
+and uses IO::Pty to communicate with it. 
+Net::Telnet is used to handle stream processing, errors etc.
+
+=head1 SEE ALSO
+
+L<Web::Terminal::Settings>,
+L<Web::Terminal::Dispatcher>,
+L<Web::Terminal::Server>,
+L<Web::Terminal::Server::Session>,
+L<Web::Terminal::Msg>
+
+=head1 AUTHOR
+
+Wim Vanderbauwhede <wim.vanderbauwhede@gmail.com>
+
+=head1 COPYRIGHT
+
+Copyright (c) 2006. Wim Vanderbauwhede. All rights reserved.
+
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=cut

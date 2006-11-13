@@ -91,3 +91,57 @@ sub rcvd_msg_from_server {
 		die "Strange... shouldn't really be coming here\n";
 	}
 }
+
+__END__
+
+=head1 NAME
+
+Web::Terminal::Dispatcher -- Dispatches commands to a  terminal
+session
+Requires YAML::Syck.
+
+=head1 SYNOPSIS
+
+   use Web::Terminal::Dispatcher;
+   use Web::Terminal::Settings;
+
+    ($reply, $prompt, $histref) =
+    &Web::Terminal::Dispatcher::send($sessionid,$ip,$version,$interactive,$cmd);
+
+=head1 DESCRIPTION
+
+This module exports a single subroutine C<send>. The arguments are:
+    $sessionid: a string identifying the session
+    $ip: the IP address of the client as a dotted-decimal string
+    $version: an integer indicating the version of the terminal application to
+    be used. The value is the index in the list of C<commands> (see L<Settings.pm>). 
+    $interactive: if 1, the session is interactive, else it's batch mode
+    $cmd: the actual command to be sent to the terminal application.
+
+The call to C<send> returns a list containing:
+    $reply: a string containing the reply from the terminal application
+    $prompt: a string containing the prompt from the terminal application
+    $histref: a reference to a list of the most recent commands (see
+    Settings.pm)
+
+=head1 SEE ALSO
+
+L<Web::Terminal::Settings>,
+L<Web::Terminal::Server>,
+L<Web::Terminal::Server::Session>,
+L<Web::Terminal::Msg>
+
+=head1 AUTHOR
+
+Wim Vanderbauwhede <wim.vanderbauwhede@gmail.com>
+
+=head1 COPYRIGHT
+
+Copyright (c) 2006. Wim Vanderbauwhede. All rights reserved.
+
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=cut

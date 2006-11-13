@@ -7,16 +7,38 @@ H1 {font-size: 24pt;
     padding: 15px;
     }
 H2 { font-weight: bold; font-size: 12pt}
+
+EM {font-weight: bold;
+    font-style: normal;
+        text-decoration:none;}
+TT {color: #204a87;
+        font-weight: bold;
+        }
+
 LABEL {font-weight: normal; }
 FIELDSET {border: solid white 0px};
-LEGEND {font-weight:bold; text-align: center; }
+LEGEND {font-weight:normal; text-align: left; }
+
+DL { 
+}
+
+DT {
+    display:block;
+    float: left;
+    width: 10ex;
+}
+
+DD {
+    display:block ;
+    float: left;
+}
+
 .copyright {font-size: 9pt}
 .warning {
 border: solid 2px #204a87;
 padding: 5px;
 }
-.tabon 
-{
+.tabon {
 font-weight:bold;
     background-color: #f2f2f0;
     border: solid 2px #204a87;
@@ -106,14 +128,16 @@ width: 90%; /* sadly, Safari would need 92% */
     overflow: visible;
 }
 #cmd {
+    width: 100%;
     font-family: "Andale Mono", courier, fixed, monospace;
     font-size: 11pt;
     font-weight: normal;
     line-height: 12pt;
     color: #204a87;
     background-color: #f2f2f0;
-    border: solid 2px #204a87;
-    padding: 5px;
+    border: solid 0px #f2f2f0;
+/*    border: solid 2px #204a87;
+    padding: 5px;*/
 }
 /* Linkdefinities */
 A:link, A.bold:link { text-decoration: underline; color: #660066}

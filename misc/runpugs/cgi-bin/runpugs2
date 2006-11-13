@@ -62,10 +62,28 @@ my $ip=$ENV{'REMOTE_ADDR'};
 #$ip='127.'.int(rand(100)).'.'.int(rand(100)).'.'.int(rand(100));
 #}
     my $prompt=$Web::Terminal::Settings::prompt;
+    my $allinone=1;
 ######### MAIN SITEMANAGER PROGRAM ###################
 
 if ( $query->param()) {      # an action has been chosen
-    my $cmd=$query->param("cmdline");
+
+    my $cmd='';
+    if ($allinone==1) {
+    $cmd=$query->param("cmd");    
+    my @cmdlines=split("\n",$cmd);
+        for my $cmdline (reverse @cmdlines) {
+            $cmdline=~/^\s*$/ && next;
+            $cmdline=~/$Web::Terminal::Settings::prompt_pattern/
+            && do {
+                $cmd=$cmdline;
+                $cmd=~s/$Web::Terminal::Settings::prompt_pattern//;
+                chomp $cmd;
+                last;
+        };
+        }
+    } else {
+    $cmd=$query->param("cmdline");
+    }
     my $action =  $query->param("action")||'runpugs';
     if ($action =~ /^(\w+)$/) {
     	$action = $1;
@@ -103,15 +121,18 @@ sub runpugs {
         $devc='checked';
         $relc='';
         }
-    my $ia=$query->param('ia')||0;
+    my $ia=$query->param('ia');
+    if (not defined $ia) {$ia=1}
     my $interactive=$ia*1;
     my $html='';
     if ($interactive==1) {
     my $clear=0;
     my $nprompt=$query->param('prompt')||$prompt;
-    my $preply='';
-    if($query->param('output')) {
+    my $preply='';    
+    if($allinone==0 and $query->param('output')) {
         $preply=$query->param('output');
+    } elsif ($allinone==1 and $query->param('cmd')) {
+    $preply=$query->param('cmd');
     }
     my $reply=$Web::Terminal::Settings::prompt;
     my @history=();
@@ -150,14 +171,11 @@ sub runpugs {
             #$reply="\n".$reply.$prompt;
         }
     }
-#    my $promptw=HTML::Entities::encode_entities($prompt);
     my $npromptw=HTML::Entities::encode_entities($nprompt);
-#    my $prevcmdw=HTML::Entities::encode_entities($prevcmd);
-#    my $preplyw=HTML::Entities::encode_entities($preply);
-    
-    #my $replyw=HTML::Entities::encode_entities("$preplyw\n$promptw$prevcmdw\n$reply");
     my $replyw="$preply$prompt$prevcmd\n$reply";
-#            $prompt=$nprompt;
+    if($allinone==1){
+    $replyw="$preply\n$reply";
+    }
     if($clear==1) {
         $replyw='';
     }
@@ -170,12 +188,17 @@ sub runpugs {
         my $entryw=HTML::Entities::encode_entities($entry);
         $historylist.='<option value="'.$entryw.'">'.$entryw.'</option>'."\n";
     }
+    if ($allinone==1) {
+        $replyw.=$nprompt;
+    }
     open(HTML,"<../data/runpugs2.html");
     while(<HTML>) {
         /_HIST_/ && do {
             $html.=$historylist;
             next;
         };
+        /_SKIPT_/ && ($allinone==1) && next;
+        /_SKIPC_/ && ($allinone==0) && next;
         s/_DEV_/$devc/;
         s/_REL_/$relc/;
     	/input.*name=\"sessionid\"/ && do {
@@ -202,12 +225,14 @@ sub runpugs {
         next;
         };
 =cut
-        /_REPLYW_/ && do {
+        (/_REPLYW_/ && ($allinone==0))||
+        (/_ALL_/ && ($allinone==1))
+        and do {
             chomp $html;
             $html.=$replyw;
             next;
         };
-        /_NPROMPTW_/ && do {
+        /_NPROMPTW_/ && ($allinone==0) && do {
             chomp $html;
             $html.=$npromptw;
             next;

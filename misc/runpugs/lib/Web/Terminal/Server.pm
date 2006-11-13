@@ -23,12 +23,10 @@ our %EXPORT_TAGS = (
 
 $SIG{CHLD} = 'IGNORE';
 
-=pod
-The messages contain the session id.
-If the ID does not exist in %terminals, create a new session
-Otherwise, write to the terminal and send back the result, again
-with the session id as first line.
-=cut
+# The messages contain the session id.
+# If the ID does not exist in %terminals, create a new session
+# Otherwise, write to the terminal and send back the result, again
+# with the session id as first line.
 
 our %terminals=();
 our %sessions_per_ip=();
@@ -52,13 +50,13 @@ if(scalar(keys %terminals)>$Web::Terminal::Settings::nsessions){ # each pugs tak
                 Web::Terminal::Server::Session(app=>$app,ia=>$ia,id=>$id,cmds=>$cmd);
         		my $term = $terminals{$id};
 	            $term->{called}=time;
-                my $init= $term->{'init'};
+                my $output= $term->{'output'};
                 my $error= $term->{'error'};
                 if ($error==1) { # Failed to create a new terminal
                 $sessions_per_ip{$ip}--;
                 delete $terminals{$id};
                 } 
-    	    	return $init;
+    	    	return $output;
         }
 		my $term  = $terminals{$id};
         push  @{$term->{recent}},$cmd unless $cmd=~/^\s*$/;
@@ -83,9 +81,9 @@ if(scalar(keys %terminals)>$Web::Terminal::Settings::nsessions){ # each pugs tak
         print LOG2 "MAX nsessions for $ip reached\n";
          return "Sorry, you can't run more than ${Web::Terminal::Settings::nsessions_ip} sessions from one IP address.\n";   
         } else {
-        print "New $id\n";
+        #print "New $id\n";
             $sessions_per_ip{$ip}++;
-            print "$app $ia $id $cmd\n";
+            #print "$app $ia $id $cmd\n";
     		$terminals{$id} = new
             Web::Terminal::Server::Session(app=>$app,ia=>$ia,id=>$id,cmds=>$cmd);
             $terminals{$id}->{called}=time;
@@ -121,7 +119,7 @@ sub rcvd_msg_from_client {
                 $pid=$terminals{$id}->{pid};
             }
             my $nsess=scalar keys %terminals;
-            print scalar(localtime)," : $nsess : $ip : $id : $pid > ",$cmd,"\n";
+            #print scalar(localtime)," : $nsess : $ip : $id : $pid > ",$cmd,"\n";
             print LOG2 scalar(localtime)," : $nsess : $ip : $id : $pid > ",$cmd,"\n";
 			my $lines = &termhandler( $id, $ip, $app,$ia, $cmd );
             my @history=(''); #   --- Recent commands ---');
@@ -159,10 +157,13 @@ my $pid;
 FORK: {
 if ($pid=fork) {
     #parent here
-    if (-e "/home/andara/apache/data/runpugs2.log") {
-        rename "/home/andara/apache/data/runpugs2.log","/home/andara/apache/data/runpugs2.log.".join("",localtime);
+    if (-e
+    "$Web::Terminal::Settings::data_path/$Web::Terminal::Settings::appname.log") {
+        rename
+        "$Web::Terminal::Settings::data_path/$Web::Terminal::Settings::appname.log",
+        "$Web::Terminal::Settings::data_path/$Web::Terminal::Settings::appname.log.".join("",localtime);
     }
-    open(LOG2,">/home/andara/apache/data/runpugs2.log");
+    open(LOG2,">$Web::Terminal::Settings::data_path/$Web::Terminal::Settings::appname.log");
     Web::Terminal::Msg->new_server( $host, $port, \&login_proc );
     Web::Terminal::Msg->event_loop();
 } elsif (defined $pid) {
@@ -215,3 +216,43 @@ sub killterm {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+Web::Terminal::Server -- Server for Web::Terminal
+Requires YAML::Syck, Proc::Daemon.
+
+=head1 SYNOPSIS
+
+    use Web::Terminal::Server;
+    use  Web::Terminal::Settings;
+    &Web::Terminal::Server::run();
+
+=head1 DESCRIPTION
+
+This module exports a single subroutine C<run>, which runs the Web::Terminal
+server. See L<Settings> for configuration options.
+
+=head1 SEE ALSO
+
+L<Web::Terminal::Settings>,
+L<Web::Terminal::Dispatcher>,
+L<Web::Terminal::Server::Session>,
+L<Web::Terminal::Msg>
+
+=head1 AUTHOR
+
+Wim Vanderbauwhede <wim.vanderbauwhede@gmail.com>
+
+=head1 COPYRIGHT
+
+Copyright (c) 2006. Wim Vanderbauwhede. All rights reserved.
+
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=cut
