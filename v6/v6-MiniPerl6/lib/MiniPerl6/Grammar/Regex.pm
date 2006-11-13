@@ -4,7 +4,6 @@ use v6-alpha;
 grammar MiniPerl6::Grammar::Regex {
 
 my %rule_terms;
-my %variables;
 
 token ws {  <?MiniPerl6::Grammar.ws>  };
 
@@ -67,56 +66,23 @@ token named_capture_body {
     | { die "invalid alias syntax" }
 };
 
-%variables{'$<'} := token {
+token variables {
+    |
+        <'$<'>
         <ident> \> 
         { return '$/{' ~ "'" ~ $<ident> ~ "'" ~ '}' }
-};
-%variables{'$'} := token {
     |
         # TODO
-        <?MiniPerl6::Grammar.digits>
-        { return '$/[' ~ $/ ~ ']' }
+        <MiniPerl6::Grammar.sigil> 
+        <MiniPerl6::Grammar.digits>
+        { return $<MiniPerl6::Grammar.sigil> ~ '/[' ~ $<MiniPerl6::Grammar.digits> ~ ']' }
     |
+        <MiniPerl6::Grammar.sigil> 
         <MiniPerl6::Grammar.twigil> 
         <MiniPerl6::Grammar.full_ident> 
         {
-            # $a $^a
             return ::Rul::Var( 
-                    sigil  => '$',
-                    twigil => ~$<MiniPerl6::Grammar.twigil>,
-                    name   => ~$<MiniPerl6::Grammar.full_ident>
-                   )
-        }
-};
-%variables{'@'} := token {
-    |
-        # TODO
-        <?MiniPerl6::Grammar.digits>
-        { return '@/[' ~ $/ ~ ']' }
-    |
-        <MiniPerl6::Grammar.twigil> 
-        <MiniPerl6::Grammar.full_ident> 
-        {
-            # $a $^a
-            return ::Rul::Var( 
-                    sigil  => '@',
-                    twigil => ~$<MiniPerl6::Grammar.twigil>,
-                    name   => ~$<MiniPerl6::Grammar.full_ident>
-                   )
-        }
-};
-%variables{'%'} := token {
-    |
-        # TODO
-        <?MiniPerl6::Grammar.digits>
-        { return '%/[' ~ $/ ~ ']' }
-    |
-        <MiniPerl6::Grammar.twigil> 
-        <MiniPerl6::Grammar.full_ident> 
-        {
-            # $a $^a
-            return ::Rul::Var( 
-                    sigil  => '%',
+                    sigil  => ~$<MiniPerl6::Grammar.sigil>,
                     twigil => ~$<MiniPerl6::Grammar.twigil>,
                     name   => ~$<MiniPerl6::Grammar.full_ident>
                    )
@@ -166,7 +132,7 @@ token named_capture_body {
 %rule_terms{'<'} := token { 
         |  
         # { say "matching < ..." }
-           <%variables>  # \>
+           <variables>  # \>
             {
                 # say "found < hash-variable >";
                 return ::Rul::InterpolateVar( var => $$<variables> )
@@ -186,27 +152,28 @@ token named_capture_body {
         { return ::Rul::Block( closure => $$<parsed_code> ) }
 };
 %rule_terms{'\\'} := token {  
-        | [ x | X ] <[ 0..9 a..f A..F ]]>+
-          #  \x0021    \X0021
-          { return ::Rul::SpecialChar( char => '\\' ~ $/ ) }
-        | [ o | O ] <[ 0..7 ]>+
-          #  \x0021    \X0021
-          { return ::Rul::SpecialChar( char => '\\' ~ $/ ) }
-        | ( x | X | o | O ) \[ (<-[ \] ]>*) \]
-          #  \x[0021]  \X[0021]
-          { return ::Rul::SpecialChar( char => '\\' ~ $0 ~ $1 ) }
+# TODO
+#        | [ x | X ] <[ 0..9 a..f A..F ]]>+
+#          #  \x0021    \X0021
+#          { return ::Rul::SpecialChar( char => '\\' ~ $/ ) }
+#        | [ o | O ] <[ 0..7 ]>+
+#          #  \x0021    \X0021
+#          { return ::Rul::SpecialChar( char => '\\' ~ $/ ) }
+#        | ( x | X | o | O ) \[ (<-[ \] ]>*) \]
+#          #  \x[0021]  \X[0021]
+#          { return ::Rul::SpecialChar( char => '\\' ~ $0 ~ $1 ) }
         | .
           #  \e  \E
           { return ::Rul::SpecialChar( char => $$/ ) }
 };
 %rule_terms{'.'} := token { 
-        { return Rul::Dot( dot => 1 ) }
+        { return ::Rul::Dot( dot => 1 ) }
 };
 %rule_terms{'['} := token { 
         <rule> \] 
         { return $$<rule> }
 };
-%rule_terms{':::'} := token { { return { colon => ':::' ,} } },
+%rule_terms{':::'} := token { { return { colon => ':::' ,} } };
 %rule_terms{':?'} := token { { return { colon => ':?' ,} } };
 %rule_terms{':+'} := token { { return { colon => ':+' ,} } };
 %rule_terms{'::'} := token { { return { colon => '::' ,} } };
@@ -224,39 +191,39 @@ token named_capture_body {
 
 %rule_terms{':i'} := token { 
         <?ws> <rule> 
-        { return { modifier => 'ignorecase', :$$<rule>, } } };
+        { return { modifier => 'ignorecase', rule => $$<rule>, } } };
 %rule_terms{':ignorecase'} := token { 
         <?ws> <rule> 
-        { return { modifier => 'ignorecase', :$$<rule>, } } };
+        { return { modifier => 'ignorecase', rule => $$<rule>, } } };
 %rule_terms{':s'} := token { 
         <?ws> <rule> 
-        { return { modifier => 'sigspace',   :$$<rule>, } } };
+        { return { modifier => 'sigspace',   rule => $$<rule>, } } };
 %rule_terms{':sigspace'} := token { 
         <?ws> <rule> 
-        { return { modifier => 'sigspace',   :$$<rule>, } } };
+        { return { modifier => 'sigspace',   rule => $$<rule>, } } };
 %rule_terms{':P5'} := token { 
         <?ws> <rule> 
-        { return { modifier => 'Perl5',  :$$<rule>, } } };
+        { return { modifier => 'Perl5',  rule => $$<rule>, } } };
 %rule_terms{':Perl5'} := token { 
         <?ws> <rule> 
-        { return { modifier => 'Perl5',  :$$<rule>, } } };
+        { return { modifier => 'Perl5',  rule => $$<rule>, } } };
 %rule_terms{':bytes'} := token { 
         <?ws> <rule> 
-        { return { modifier => 'bytes',  :$$<rule>, } } };
+        { return { modifier => 'bytes',  rule => $$<rule>, } } };
 %rule_terms{':codes'} := token { 
         <?ws> <rule> 
-        { return { modifier => 'codes',  :$$<rule>, } } };
+        { return { modifier => 'codes',  rule => $$<rule>, } } };
 %rule_terms{':graphs'} := token { 
         <?ws> <rule> 
-        { return { modifier => 'graphs', :$$<rule>, } } };
+        { return { modifier => 'graphs', rule => $$<rule>, } } };
 %rule_terms{':langs'} := token { 
         <?ws> <rule> 
-        { return { modifier => 'langs',  :$$<rule>, } } };
+        { return { modifier => 'langs',  rule => $$<rule>, } } };
 
 token term {
     |  
        # { say "matching variables" } 
-       <%variables>
+       <variables>
        [  <?ws>? <':='> <?ws>? <named_capture_body>
           { 
             return ::Rul::NamedCapture(
