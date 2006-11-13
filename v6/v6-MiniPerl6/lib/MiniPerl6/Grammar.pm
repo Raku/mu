@@ -81,42 +81,62 @@ token comp_unit {
     }
 };
 
+token infix_op {
+    <'+'> | <'-'> | <'*'> | <'/'> | eq | ne | <'=='> | <'!='> | <'&&'> | <'||'> | <'~~'> | <'~'> 
+};
+
+token hyper_op {
+    <'>>'> | <''>
+};
+
+token prefix_op {
+    [ <'$'> | <'@'> | <'%'> | <'?'> | <'++'> | <'--'> | <'+'> | <'-'> | <'~'> ] 
+    <before <'('> | <'$'> >
+};
+
+token declarator {
+     my | state | has 
+};
+
+token exp2 { <exp> { return $$<exp> } };
+token exp_stmts2 { <exp_stmts> { return $$<exp_stmts> } };
+
 token exp {
     # { say "exp: going to match <term_meth> at ", $/.to; }
     <term_meth> 
     [
         <?opt_ws>
-        $<op> := [ <'??'> ]
+        <'??'>
         [
           <?opt_ws>  <exp>
           <?opt_ws>  <'!!'>
           <?opt_ws>
-          $<exp_3> := <exp>
+          <exp2>
           { return ::Apply(
-            code      => 'ternary:<?? ::>',
-            arguments => [ $$<term_meth>, $$<exp>, $$<exp_3> ],
+            'code'      => 'ternary:<?? ::>',
+            'arguments' => [ $$<term_meth>, $$<exp>, $$<exp2> ],
           ) }
         | { say "*** Syntax error in ternary operation" }
         ]
     |
         <?opt_ws>
-        $<op> := [ \+ | \- | \* |/ | eq | ne | == | != | \&\& | \|\| | ~~ | ~ ]
+        <infix_op>
         <?opt_ws>
         <exp>
           { return ::Apply(
-            code      => 'infix:<' ~ $$<op> ~ '>',
-            arguments => [ $$<term_meth>, $$<exp> ],
+            'code'      => 'infix:<' ~ $$<infix_op> ~ '>',
+            'arguments' => [ $$<term_meth>, $$<exp> ],
           ) }
     | <?opt_ws> <':='> <?opt_ws> <exp>
-        { return ::Bind(parameters => $$<term_meth>, arguments => $$<exp>) }
+        { return ::Bind( 'parameters' => $$<term_meth>, 'arguments' => $$<exp>) }
     |   { return $$<term_meth> }
     ]
-}
+};
 
 token term_meth {
     <full_ident>
     [ \.
-        $<hyper> := [ <'>>'> | <''> ]
+        <hyper_op>
         <ident>
             [ \( <?opt_ws> <exp_seq> <?opt_ws> \)
                 # { say "found parameter list: ", $<exp_seq>.perl }
@@ -127,7 +147,7 @@ token term_meth {
                         invocant  => ::Proto( name => ~$<full_ident> ),
                         method    => $$<ident>,
                         arguments => undef,
-                        hyper     => $$<hyper>,
+                        hyper     => $$<hyper_op>,
                     )
                 }
             ]
@@ -136,14 +156,14 @@ token term_meth {
                     invocant  => ::Proto( name => ~$<full_ident> ),
                     method    => $$<ident>,
                     arguments => $$<exp_seq>,
-                    hyper     => $$<hyper>,
+                    hyper     => $$<hyper_op>,
                 )
             }
     ]
     |
     <term>
     [ \.
-        $<hyper> := [ <'>>'> | <''> ]
+        <hyper_op>
         <ident>
             [ \( 
                 # { say "testing exp_seq at ", $/.to }
@@ -156,7 +176,7 @@ token term_meth {
                         invocant  => $$<term>,
                         method    => $$<ident>,
                         arguments => undef,
-                        hyper     => $$<hyper>,
+                        hyper     => $$<hyper_op>,
                     )
                 }
             ]
@@ -165,7 +185,7 @@ token term_meth {
                     invocant  => $$<term>,
                     method    => $$<ident>,
                     arguments => $$<exp_seq>,
-                    hyper     => $$<hyper>,
+                    hyper     => $$<hyper_op>,
                 )
             }
     | \[ <?opt_ws> <exp> <?opt_ws> \]
@@ -174,13 +194,12 @@ token term_meth {
          { return ::Lookup( obj => $$<term>, index => $$<exp> ) }   # $a{exp}
     |    { return $$<term> }
     ]
-}
+};
 
 token term {
-    [ 
-    | $<op> := [ \$ | \@ | \% | \? | \++ | \-- | \+ | \- | \~ ] <before <[ \( \$ ]> > <exp> 
+    | <prefix_op> <exp> 
           { return ::Apply(
-            code      => 'prefix:<' ~ $$<op> ~ '>',
+            code      => 'prefix:<' ~ $$<prefix_op> ~ '>',
             arguments => [ $$<exp> ],
           ) }
     | \( <?opt_ws> <exp> <?opt_ws> \)
@@ -196,79 +215,79 @@ token term {
         ) }   # $<ident>
     | do <?opt_ws> \{ <?opt_ws> <exp_stmts> <?opt_ws> \}
         { return ::Do( block => $$<exp_stmts> ) }   # do { stmt; ... }
-    | $<decl> := [ my | state | has ]  <?ws> <var> 
-        { return ::Decl( decl => $$<decl>, var => $$<var> ) }    # my $variable
-    | use <?ws> $<mod> := <full_ident>  [ - <ident> | <''> ]
-        { return ::Use( mod => $$<mod> ) }
-    | $<term> := <var>       # $variable
-    | $<term> := <val>       # "value"
-    | $<term> := <lit>       # [literal construct]
-#   | $<term> := <bind>      # $lhs := $rhs
-    | $<term> := <token>     # token  { regex... }
-    | $<term> := <method>    # method { code... }
-    | $<term> := <sub>       # sub    { code... }
-    | $<term> := <control>   # Various control structures.  Does _not_ appear in binding LHS
-#   | $<term> := <index>     # $obj[1, 2, 3]
-#   | $<term> := <lookup>    # $obj{'1', '2', '3'}
-    ]
-    { return $$<term> }
-}
+    | <declarator> <?ws> <var> 
+        { return ::Decl( decl => $$<declarator>, var => $$<var> ) }    # my $variable
+    | use <?ws> <full_ident>  [ - <ident> | <''> ]
+        { return ::Use( mod => $$<full_ident> ) }
+    | <var>     { return $$<var> }     # $variable
+    | <val>     { return $$<val> }     # "value"
+    | <lit>     { return $$<lit> }     # [literal construct]
+#   | <bind>    { return $$<bind>   }  # $lhs := $rhs
+    | <token>   { return $$<token>  }  # token  { regex... }
+    | <method>  { return $$<method> }  # method { code... }
+    | <sub>     { return $$<sub>    }  # sub    { code... }
+    | <control> { return $$<control> } # Various control structures.  Does _not_ appear in binding LHS
+#   | <index>     # $obj[1, 2, 3]
+#   | <lookup>    # $obj{'1', '2', '3'}
+};
 
 #token index { XXX }
 #token lookup { XXX }
 
 token control {
-    [ $<exp> := <return>    # return 123;
-    | $<exp> := <leave>     # last; break;
-    | $<exp> := <if>        # 1 ?? 2 !! 3
-    | $<exp> := <when>      # when 3 { ... }
-    | $<exp> := <for>       # $x.map(-> $i {...})
-    | $<exp> := <while>     # while ... { ... }
-    | $<exp> := <apply>     # $obj($arg1, $arg2)
- #  | $<exp> := <call>      # $obj.method($arg1, $arg2)
-    ]
-    { return $$<exp> }
-}
+    | <ctrl_return> { return $$<ctrl_return> }   # return 123;
+    | <ctrl_leave>  { return $$<ctrl_leave>  }   # last; break;
+    | <if>     { return $$<if>     }   # 1 ?? 2 !! 3
+    | <when>   { return $$<when>   }   # when 3 { ... }
+    | <for>    { return $$<for>    }   # $x.map(-> $i {...})
+    | <while>  { return $$<while>  }   # while ... { ... }
+    | <apply>  { return $$<apply>  }   # $obj($arg1, $arg2)
+ #  | <call>   { return $$<call>   }   # $obj.method($arg1, $arg2)
+};
 
 token if {
     if <?ws>  <exp>  <?opt_ws>
-    \{ <?opt_ws> $<body>      := <exp_stmts> <?opt_ws> \} <?opt_ws>
+    \{ <?opt_ws> <exp_stmts> <?opt_ws> \} <?opt_ws>
     else <?opt_ws> 
-    \{ <?opt_ws> $<otherwise> := <exp_stmts> <?opt_ws> \}
-    { return ::If( cond => $$<exp>, body => $$<body>, otherwise => $$<otherwise> ) }
-}
+    \{ <?opt_ws> <exp_stmts2> <?opt_ws> \}
+    { return ::If( cond => $$<exp>, body => $$<exp_stmts>, otherwise => $$<exp_stmts2> ) }
+};
 
 token when {
     when <?ws> <exp_seq> <?opt_ws> \{ <?opt_ws> <exp_stmts> <?opt_ws> \}
     { return ::When( parameters => $$<exp_seq>, body => $$<exp_stmts> ) }
-}
+};
 
 token for {
     for <?ws> <exp> <?opt_ws> <'->'> <?opt_ws> <var> <?ws> \{ <?opt_ws> <exp_stmts> <?opt_ws> \}
     { return ::For( cond => $$<exp>, topic => $$<var>, body => $$<exp_stmts> ) }
-}
+};
 
 token while {
     while <?ws> <exp> <?ws> \{ <?opt_ws> <exp_stmts> <?opt_ws> \}
     { return ::While( cond => $$<exp>, body => $$<exp_stmts> ) }
-}
+};
 
-token leave {
+token ctrl_leave {
     leave
     { return ::Leave() }
-}
+};
 
-token return {
+token ctrl_return {
     return <?ws> <exp>
     { return ::Return( result => $$<exp> ) }
     |
     return 
     { return ::Return( result => ::Val::Undef() ) }
-}
+};
+
+token sigil { \$ |\% |\@ |\& };
+
+token twigil { [ \. | \! | \^ | \* ] | <''> };
 
 token var {
-    $<sigil>  := [ <[ \$ \% \@ \& ]> ]
-    $<twigil> := [ <[ \. \! \^ \* ]> | <''> ]
+    <sigil>
+    <twigil>
     $<name>   := [ <full_ident> | <'/'> | <digit> ]
     {
         return ::Var(
@@ -277,39 +296,54 @@ token var {
             name   => ~$<name>,
         )
     }
-}
+};
 
 token val {
-    [ $<exp> := <val_undef>    # undef
+    | <val_undef>  { return $$<val_undef> }  # undef
     # | $<exp> := <val_object>   # (not exposed to the outside)
-    | $<exp> := <val_int>      # 123
-    | $<exp> := <val_bit>      # True, False
-    | $<exp> := <val_num>      # 123.456
-    | $<exp> := <val_buf>      # "moose"
-    ]
-    { return $$<exp> }
-}
+    | <val_int>    { return $$<val_int>   }  # 123
+    | <val_bit>    { return $$<val_bit>   }  # True, False
+    | <val_num>    { return $$<val_num>   }  # 123.456
+    | <val_buf>    { return $$<val_buf>   }  # "moose"
+};
 
 token val_bit {
-    | True>>  { return ::Val::Bit( bit => 1 ) }
-    | False>> { return ::Val::Bit( bit => 0 ) }
-}
+    | True  { return ::Val::Bit( bit => 1 ) }
+    | False { return ::Val::Bit( bit => 0 ) }
+};
 
 token val_undef {
     undef
-    { return ::Val::Undef() }
-}
+    { return ::Val::Undef( ) }
+};
 
-token val_num {  XXX { return "TODO: val_num" } }
+token val_num {  
+    XXX { return "TODO: val_num" } 
+};
+
+token double_quoted {
+    |  \\ .  <double_quoted>
+    |  <-[ \" ]>  <double_quoted>
+    |  <''>    
+};
+
+token single_quoted {
+    |  \\ .  <single_quoted>
+    |  <-[ \' ]>  <single_quoted>
+    |  <''>    
+};
+
+token digits {  \d  [ <digits> | <''> ]  }
+
 token val_buf {
-    | \" ([\\<(.)>|<-[\"]>]*)    \" { return ::Val::Buf( buf => $$0 ) }
-    | \' ([\\<[\\\']>|<-[\']>]*) \' { return ::Val::Buf( buf => $$0 ) }
-}
+    | \" <double_quoted>  \" { return ::Val::Buf( buf => $$0 ) }
+    | \' <single_quoted>  \' { return ::Val::Buf( buf => $$0 ) }
+};
 
 token val_int {
-    \d+
+    <digits>
     { return ::Val::Int( int => ~$/ ) }
-}
+};
 
 token exp_stmts {
     | <exp>
@@ -372,11 +406,11 @@ token lit_code {
 
 token lit_object {
     <'::'>
-    <ident>
+    <full_ident>
     \( <?opt_ws> <exp_mapping> <?opt_ws> \)
     {
         return ::Lit::Object(
-            'class' => $$<ident>,
+            'class' => $$<full_ident>,
             fields => $$<exp_mapping>
         )
     }

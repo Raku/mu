@@ -147,3 +147,31 @@ class Rul::InterpolateVar {
     }
 }
 
+class Rul::NamedCapture {
+    has $.rule;
+    has $.ident;
+    method emit {
+        "# TODO: named capture " ~ $.ident ~ " := \n" ~ $.rule.emit ~ "\n"
+    }
+}
+
+class Rul::Before {
+    has $.rule;
+    method emit {
+        "# TODO: before \n" ~ $.rule.emit ~ "\n"
+    }
+}
+
+class Rul::NegateCharClass {
+    has $.chars;
+    method emit {
+        '1 # TODO: negate char class ' ~ $.chars ~ "\n"
+    }
+}
+
+class Rul::CharClass {
+    has $.chars;
+    method emit {
+        '1 # TODO: char class ' ~ $.chars ~ "\n"
+    }
+}

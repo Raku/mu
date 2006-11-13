@@ -61,7 +61,8 @@ token parsed_code {
 token named_capture_body {
     | \(  <rule>        \)  { return { capturing_group => $$<rule> ,} } 
     | \[  <rule>        \]  { return $$<rule> } 
-    | \<  <metasyntax>  \>  { return { metasyntax => $$<metasyntax> } } 
+    | \<  <metasyntax>  \>  
+            { return ::Rul::Subrule( metasyntax => $$<metasyntax> ) }
     | { die "invalid alias syntax" }
 }
 
@@ -131,7 +132,7 @@ token named_capture_body {
 };
 %rule_terms{'<before'} := token {
         <?ws> <rule> \> 
-        { return Rul::Before({ :$$<rule> }) }
+        { return Rul::Before( rule => $$<rule> ) }
 };
 %rule_terms{'<!before'} := token {
         <?ws> <rule> \> 
@@ -145,13 +146,13 @@ token named_capture_body {
 };
 %rule_terms{'<+'} := token {
         # TODO
-        $<c0> := <char_class>  \> 
-        { return { metasyntax => ~ $<c0> } }
+        <char_class>  \> 
+        { return ::Rul::CharClass( chars => ~$<char_class> ) }
 };
 %rule_terms{'<-'} := token {
         # TODO
         <char_class> \>
-        { return { metasyntax => '-' ~ $<char_class> } }
+        { return ::Rul::NegateCharClass( chars => ~$<char_class> ) }
 };
 %rule_terms{"<'"} := token {
     <literal> \' \>
@@ -253,10 +254,10 @@ token term {
        <%variables>
        [  <?ws>? <':='> <?ws>? <named_capture_body>
           { 
-            return { named_capture => {
+            return ::Rul::NamedCapture(
                 rule =>  $$<named_capture_body>,
-                ident => $$<variables>,
-            }, }; 
+                ident => $$<variables>
+            ); 
           }
        |
           { 
