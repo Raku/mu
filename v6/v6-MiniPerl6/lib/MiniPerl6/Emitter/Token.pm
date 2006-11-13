@@ -30,6 +30,19 @@ class Rul {
     }
 }
 
+class Rul::Quantifier {
+    has $.term;
+    has $.quant;
+    has $.greedy;
+    has $.ws1;
+    has $.ws2;
+    has $.ws3;
+    method emit {
+        # TODO
+        $.term.emit;
+    }
+}
+
 class Rul::Or {
     has @.or;
     method emit {

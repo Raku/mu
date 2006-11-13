@@ -47,7 +47,9 @@ token ws {
     [ <?ws> | <''> ]
 };
 
-token opt_ws {  <?ws> | <''>  };
+token opt_ws  {  <?ws> | <''>  };
+token opt_ws2 {  <?ws> | <''>  };
+token opt_ws3 {  <?ws> | <''>  };
 
 token parse {
     | <comp_unit>

@@ -230,7 +230,7 @@ token term {
           }
        |
           { 
-            return $$<variables>,
+            return $$<variables>
           }
        ]
     | 
@@ -242,36 +242,40 @@ token term {
         }
     |  <-[ \] \} \) \> \: \? \+ \* \| \& \/ ]>    # TODO - <...>* - optimize!
         { return ::Rul::Constant( constant => $$/ ) }
-}
+};
 
 token quant {
-    |   <'**'> <?ws>? \{  <parsed_code>  \}
-        { return { closure => $$<parsed_code> ,} }
-    |   <[  \? \* \+  ]>
-}
+    |   <'**'> <?MiniPerl6::Grammar.opt_ws> \{  <parsed_code>  \}
+        { return { closure => $$<parsed_code> } }
+    |   [  \? | \* | \+  ]
+};
+
+token greedy {   \?  |  \+  |  <''>  };
 
 token quantifier {
-    $<ws1>   := (<?ws>?)
-    <!before  <[   \} \] \)   ]> >
-    <term> 
-    $<ws2>   := (<?ws>?)
-    [
-    <quant>
-    $<greedy> := (<[  \? \+  ]>?)
-    $<ws3>   := (<?ws>?)
-    { return ::Rul::Quantifier(
-            term    => $$/{'term'},
-            quant   => $$/{'quant'},
-            greedy  => $$/{'greedy'},
-            ws1     => $$/{'ws1'},
-            ws2     => $$/{'ws2'},
-            ws3     => $$/{'ws3'},
-        )
-    }
+    |   <?MiniPerl6::Grammar.opt_ws>
+        <before   \}  |  \]   |  \)   >
+        XXX   # fail
     |
-        { return $$<term> }
-    ]
-}
+        <?MiniPerl6::Grammar.opt_ws>
+        <term> 
+        <?MiniPerl6::Grammar.opt_ws2>
+        [
+            <quant> <greedy>
+            <?MiniPerl6::Grammar.opt_ws3>
+            { return ::Rul::Quantifier(
+                    term    => $$/{'term'},
+                    quant   => $$/{'quant'},
+                    greedy  => $$/{'greedy'},
+                    ws1     => $$/{'MiniPerl6::Grammar.opt_ws'},
+                    ws2     => $$/{'MiniPerl6::Grammar.opt_ws2'},
+                    ws3     => $$/{'MiniPerl6::Grammar.opt_ws3'},
+                )
+            }
+        |
+            { return $$<term> }
+        ]
+};
 
 token concat_list {
     $<q1> := <quantifier>
@@ -283,11 +287,12 @@ token concat_list {
     ]
     |
         { return [] }
-}
+};
+
 token concat {
     <concat_list>
     { return ::Rul::Concat( 'concat' => $$<concat_list> ) }
-}
+};
 
 token or_list {
     $<q1> := <concat>
@@ -300,7 +305,8 @@ token or_list {
     ]
     |
         { return [] }
-}
+};
+
 token rule {
     [ <?ws>? <'|'> | <''> ]
     # { say "trying M::G::Rule on ", $s }
@@ -309,7 +315,7 @@ token rule {
         # say "found Rule";
         return ::Rul::Or( 'or' => $$<or_list> ) 
     }
-}
+};
 
 =pod 
 # -- this depends on changing the specs
