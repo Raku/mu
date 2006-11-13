@@ -333,7 +333,7 @@ token single_quoted {
     |  <''>    
 };
 
-token digits {  \d  [ <digits> | <''> ]  }
+token digits {  \d  [ <digits> | <''> ]  };
 
 token val_buf {
     | \" <double_quoted>  \" { return ::Val::Buf( buf => $$0 ) }
@@ -349,28 +349,28 @@ token exp_stmts {
     | <exp>
         [
         |   <?opt_ws> \; <?opt_ws> <exp_stmts>
-            <?opt_ws> [\; <?opt_ws>]?
+            <?opt_ws> [ \; <?opt_ws> | <''> ]
             { return [ $$<exp>, array( $$<exp_stmts> ) ] }
-        |   <?opt_ws> [\; <?opt_ws>]?
+        |   <?opt_ws> [ \; <?opt_ws> | <''> ]
             { return [ $$<exp> ] }
         ]
     | { return [] }
-}
+};
 
 token exp_seq {
     | <exp>
         # { say "exp_seq: matched <exp>" }
         [
         |   <?opt_ws> \, <?opt_ws> <exp_seq> 
-            <?opt_ws> [\, <?opt_ws>]?
+            <?opt_ws> [ \, <?opt_ws> | <''> ]
             { return [ $$<exp>, array( $$<exp_seq> ) ] }
-        |   <?opt_ws> [\, <?opt_ws>]?
+        |   <?opt_ws> [ \, <?opt_ws> | <''> ]
             { return [ $$<exp> ] }
         ]
     | 
         # { say "exp_seq: end of match" }
         { return [] }
-}
+};
 
 token exp_mapping {
     |   $<key> := <exp> 
@@ -379,12 +379,12 @@ token exp_mapping {
         [
         |   <?opt_ws> \, <?opt_ws> <exp_mapping> 
             { return [ [ $$<key>, $$<value> ], array( $$<exp_mapping> ) ] }
-        |   <?opt_ws> [\, <?opt_ws>]?
+        |   <?opt_ws> [ \, <?opt_ws> | <''> ]
             { return [ [ $$<key>, $$<value> ] ] }
         ]
     |
         { return [] }
-}
+};
 
 token lit {
     [ $<exp> := <lit_seq>      # (a, b, c)
@@ -394,15 +394,15 @@ token lit {
     | $<exp> := <lit_object>   # ::Tree(a => x, b => y);
     ]
     { return $$<exp> }
-}
+};
 
-token lit_seq {  XXX { return "TODO: lit_seq" } }
-token lit_array {  XXX { return "TODO: lit_array" } }
-token lit_hash {  XXX { return "TODO: lit_hash" } }
+token lit_seq {  XXX { return "TODO: lit_seq" } };
+token lit_array {  XXX { return "TODO: lit_array" } };
+token lit_hash {  XXX { return "TODO: lit_hash" } };
 
 token lit_code {
     XXX { return "TODO - Lit::Code" }
-}
+};
 
 token lit_object {
     <'::'>
@@ -414,30 +414,28 @@ token lit_object {
             fields => $$<exp_mapping>
         )
     }
-}
+};
 
 token bind {
-    $<parameters> := <exp>
-    <?opt_ws> <':='> <?opt_ws>
-    $<arguments>  := <exp>
+    <exp>  <?opt_ws> <':='> <?opt_ws>  <exp2>
     {
         return ::Bind(
-            parameters => $$<parameters>,
-            arguments  => $$<arguments>,
+            parameters => $$<exp>,
+            arguments  => $$<exp2>,
         )
     }
-}
+};
+
 token call {
-    $<invocant>  := <exp>
-    \. $<method> := <ident> \( <?opt_ws> <exp_seq> <?opt_ws> \)
+    <exp> \. <ident> \( <?opt_ws> <exp_seq> <?opt_ws> \)
     {
         return ::Call(
-            invocant  => $$<invocant>,
-            method    => $$<method>,
+            invocant  => $$<exp>,
+            method    => $$<ident>,
             arguments => $$<exp_seq>,
         )
     }
-}
+};
 
 token apply {
     <ident>
@@ -450,21 +448,79 @@ token apply {
             arguments => $$<exp_seq>,
         )
     }
-}
+};
+
+token opt_name {  <ident> | <''>  };
+
+
+token invocant {
+    |  <var> \:    { return $$<var> }
+    |  { return ::Var( 
+            sigil  => '$',
+            twigil => '',
+            name   => 'self',
+         ) 
+       }
+};
+
+token sig {
+        <invocant>
+        <?opt_ws> 
+        # TODO - exp_seq / exp_mapping == positional / named 
+        <exp_seq> 
+        {
+            # say " invocant: ", ($$<invocant>).perl;
+            # say " positional: ", ($$<exp_seq>).perl;
+            return ::Sig( invocant => $$<invocant>, positional => $$<exp_seq>, named => { } );
+        }
+};
+
+token method_sig {
+    |   <?opt_ws> \( <?opt_ws>  <sig>  <?opt_ws>  \)
+        { return $$<sig> }
+    |   { return ::Sig( 
+            invocant => ::Var( 
+                sigil  => '$',
+                twigil => '',
+                name   => 'self' ), 
+            positional => [ ], named => { } ) }
+};
+
+token method {
+    method
+    <?ws>  <opt_name>  <?opt_ws> 
+    <method_sig>
+    <?opt_ws> \{ <?opt_ws>  
+          # { say " parsing statement list " }
+          <exp_stmts> 
+          # { say " got statement list ", ($$<exp_stmts>).perl } 
+        <?opt_ws> 
+    [   \}     | { say "*** Syntax Error in method '", $Class_name, '.', $$<name>, "' near pos=", $/.to; die "error in Block"; } ]
+    {
+        # say " block: ", ($$<exp_stmts>).perl;
+        return ::Method( name => $$<opt_name>, sig => $$<method_sig>, block => $$<exp_stmts> );
+    }
+};
+
+token sub {
+    sub
+    <?ws>  <opt_name>  <?opt_ws> 
+    <method_sig>
+    <?opt_ws> \{ <?opt_ws>  
+          <exp_stmts> <?opt_ws> 
+    [   \}     | { say "*** Syntax Error in sub '", $$<name>, "'"; die "error in Block"; } ]
+    { return ::Sub( name => $$<opt_name>, sig => $$<method_sig>, block => $$<exp_stmts> ) }
+};
 
 token token {
     # { say "parsing Token" }
     token
-    [ <?ws>
-      $<name> := [ <ident> ] 
-    | $<name> := [ <''> ] 
-    ]
-    <?opt_ws> \{
+    <?ws>  <opt_name>  <?opt_ws> \{
         <MiniPerl6::Grammar::Regex.rule>
     \}
     {
         # say "Token was compiled into: ", ($$<MiniPerl6::Grammar::Regex.rule>).perl;
-        my $source := 'method ' ~ $$<name> ~ ' ( $grammar: $str ) { ' ~
+        my $source := 'method ' ~ $$<opt_name> ~ ' ( $grammar: $str ) { ' ~
             'my $m; $m := ::Match( "str" => $str, "from" => 0, "to" => 0 ); ' ~ 
             '$m.bool( ' ~
                 ($$<MiniPerl6::Grammar::Regex.rule>).emit ~
@@ -475,69 +531,6 @@ token token {
         # say "Intermediate ast: ", $$ast.emit;
         return $$ast;
     }
-}
-
-token invocant {
-    |  <var> \:    { return $$<var> }
-    |  { return ::Var( 
-            sigil  => '$',
-            twigil => '',
-            name   => 'self',
-         ) 
-       }
-}
-
-token sig {
-        <invocant>
-        <?opt_ws> 
-        # TODO - exp_seq / exp_mapping == positional / named 
-        <exp_seq> 
-        {
-            # say " invocant: ", ($$<invocant>).perl;
-            # say " positional: ", ($$<exp_seq>).perl;
-            return ::Sig( invocant => $$<invocant>, positional => $$<exp_seq>, named => {} );
-        }
-}
-
-token method_sig {
-    |   <?opt_ws> \( <?opt_ws>  <sig>  <?opt_ws>  \)
-        { return $$<sig> }
-    |   { return ::Sig( 
-            invocant => ::Var( 
-                sigil  => '$',
-                twigil => '',
-                name   => 'self' ), 
-            positional => [], named => {} ) }
-}
-
-token method {
-    method
-    [  |  <?ws> $<name> := [ <ident> ] 
-       |  $<name> := [ <''> ] 
-    ]
-    <method_sig>
-    <?opt_ws> \{ <?opt_ws>  
-          # { say " parsing statement list " }
-          <exp_stmts> 
-          # { say " got statement list ", ($$<exp_stmts>).perl } 
-        <?opt_ws> 
-    [   \}     | { say "*** Syntax Error in method '", $Class_name, '.', $$<name>, "' near pos=", $/.to; die "error in Block"; } ]
-    {
-        # say " block: ", ($$<exp_stmts>).perl;
-        return ::Method( name => $$<name>, sig => $$<method_sig>, block => $$<exp_stmts> );
-    }
-}
-
-token sub {
-    sub
-    [  |  <?ws> $<name> := [ <ident> ] 
-       |  $<name> := [ <''> ] 
-    ]
-    <method_sig>
-    <?opt_ws> \{ <?opt_ws>  
-          <exp_stmts> <?opt_ws> 
-    [   \}     | { say "*** Syntax Error in sub '", $$<name>, "'"; die "error in Block"; } ]
-    { return ::Sub( name => $$<name>, sig => $$<method_sig>, block => $$<exp_stmts> ) }
-}
+};
 
 }
