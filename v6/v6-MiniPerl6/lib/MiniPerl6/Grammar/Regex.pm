@@ -6,16 +6,15 @@ grammar MiniPerl6::Grammar::Regex {
 my %rule_terms;
 my %variables;
 
-token ws {  <?MiniPerl6::Grammar.ws>  }
+token ws {  <?MiniPerl6::Grammar.ws>  };
 
-token ident {  <?MiniPerl6::Grammar.full_ident> | <digit> }
+token ident {  <?MiniPerl6::Grammar.full_ident> | <digit> };
 
 token literal {
-    [ 
-    |  \\ .
-    |  <-[ \' ]> 
-    ]*
-}
+    |  \\ .        <literal>
+    |  <-[ \' ]>   <literal>
+    |  <''>
+};
 
 token metasyntax {
     [ 
@@ -24,21 +23,22 @@ token metasyntax {
     |  \{  <?string_code>        \}
     |  \<  <?metasyntax>  \>
     |  <-[ \> ]> 
-    ]+ 
-    { return $$/ }
-}
+    ]
+    [ <metasyntax> | <''> ]
+};
 
 token char_range {
     [ 
     |  \\ .
     |  <-[ \] ]> 
-    ]+ 
-}
+    ]
+    [ <char_range> | <''> ]
+};
 
 token char_class {
     |  <?ident>
     |  \[  <?char_range>  \]
-}
+};
 
 # XXX - not needed
 token string_code {
@@ -48,15 +48,16 @@ token string_code {
     |  \'  <?literal>     \'
     |  \{  <?string_code> \}
     |  <-[ \} ]> 
-    ]+ 
-}
+    ]
+    [ <string_code> | <''> ]
+};
 
 token parsed_code {
     # this subrule is overridden inside the perl6 compiler
     # XXX - call MiniPerl6 "Statement List"
     <?string_code>
     { return '{' ~ $/ ~ '}' }
-}
+};
 
 token named_capture_body {
     | \(  <rule>        \)  { return { capturing_group => $$<rule> ,} } 
@@ -64,7 +65,7 @@ token named_capture_body {
     | \<  <metasyntax>  \>  
             { return ::Rul::Subrule( metasyntax => $$<metasyntax> ) }
     | { die "invalid alias syntax" }
-}
+};
 
 %variables{'$<'} := token {
         <ident> \> 
@@ -73,71 +74,75 @@ token named_capture_body {
 %variables{'$'} := token {
     |
         # TODO
-        <?digit>+
+        <?MiniPerl6::Grammar.digits>
         { return '$/[' ~ $/ ~ ']' }
     |
-        (\^?)
-        ([ <?alnum> | _ | \: \: ]+)
+        <MiniPerl6::Grammar.twigil> 
+        <MiniPerl6::Grammar.full_ident> 
         {
             # $a $^a
-            return Rul::Var( 
+            return ::Rul::Var( 
                     sigil  => '$',
-                    twigil => ~$0,
-                    name   => ~$1
+                    twigil => ~$<MiniPerl6::Grammar.twigil>,
+                    name   => ~$<MiniPerl6::Grammar.full_ident>
                    )
         }
 };
 %variables{'@'} := token {
-        <?digit>+
-        # TODO
-        { return { match_variable => '@' ~ $/ ,} }
     |
-        \^?
-        [ <?alnum> | _ | \: \: ]+
         # TODO
-        { return { variable => '@' ~ $/ ,} }
+        <?MiniPerl6::Grammar.digits>
+        { return '@/[' ~ $/ ~ ']' }
+    |
+        <MiniPerl6::Grammar.twigil> 
+        <MiniPerl6::Grammar.full_ident> 
+        {
+            # $a $^a
+            return ::Rul::Var( 
+                    sigil  => '@',
+                    twigil => ~$<MiniPerl6::Grammar.twigil>,
+                    name   => ~$<MiniPerl6::Grammar.full_ident>
+                   )
+        }
 };
 %variables{'%'} := token {
     |
-    # { say "matching hash-digit" }
-        <?digit>+
         # TODO
-        { return { match_variable => '%' ~ $/ ,} }
-    |        
-    # { say "matching hash-ident" }
-        (\^?)
-        ([ <?alnum> | _ | \: \: ]+)
+        <?MiniPerl6::Grammar.digits>
+        { return '%/[' ~ $/ ~ ']' }
+    |
+        <MiniPerl6::Grammar.twigil> 
+        <MiniPerl6::Grammar.full_ident> 
         {
-            # %a %^a
-            # say "found hash-ident";
-            return Rul::Var(
-                    'sigil'  => '%',
-                    'twigil' => ~$0,
-                    'name'   => ~$1
+            # $a $^a
+            return ::Rul::Var( 
+                    sigil  => '%',
+                    twigil => ~$<MiniPerl6::Grammar.twigil>,
+                    name   => ~$<MiniPerl6::Grammar.full_ident>
                    )
         }
 };
 
 %rule_terms{'('} := token {
         <rule> \)
-        { return Rul::Capture({ :$$<rule> }) }
+        { return ::Rul::Capture( rule => $$<rule> ) }
 };
 %rule_terms{'<('} := token {
         <rule>  <')>'>
-        { return Rul::CaptureResult({ :$$<rule> }) }
+        { return ::Rul::CaptureResult( rule => $$<rule> ) }
 };
 %rule_terms{'<after'} := token {
         <?ws> <rule> \> 
-        { return Rul::After({ :$$<rule> }) }
+        { return ::Rul::After( rule => $$<rule> ) }
 };
 %rule_terms{'<before'} := token {
         <?ws> <rule> \> 
-        { return Rul::Before( rule => $$<rule> ) }
+        { return ::Rul::Before( rule => $$<rule> ) }
 };
 %rule_terms{'<!before'} := token {
         <?ws> <rule> \> 
         # TODO
-        { return { not_before => :$$<rule>, } }
+        { return { not_before => { rule => $$<rule> } } }
 };
 %rule_terms{'<!'} := token {
         # TODO
@@ -156,7 +161,7 @@ token named_capture_body {
 };
 %rule_terms{"<'"} := token {
     <literal> \' \>
-    { return Rul::Constant( constant => $$<literal> ) }
+    { return ::Rul::Constant( constant => $$<literal> ) }
 };
 %rule_terms{'<'} := token { 
         |  
@@ -183,19 +188,19 @@ token named_capture_body {
 %rule_terms{'\\'} := token {  
         | [ x | X ] <[ 0..9 a..f A..F ]]>+
           #  \x0021    \X0021
-          { return Rul::SpecialChar({ char => '\\' ~ $/ }) }
+          { return ::Rul::SpecialChar( char => '\\' ~ $/ ) }
         | [ o | O ] <[ 0..7 ]>+
           #  \x0021    \X0021
-          { return Rul::SpecialChar({ char => '\\' ~ $/ }) }
+          { return ::Rul::SpecialChar( char => '\\' ~ $/ ) }
         | ( x | X | o | O ) \[ (<-[ \] ]>*) \]
           #  \x[0021]  \X[0021]
-          { return Rul::SpecialChar({ char => '\\' ~ $0 ~ $1 }) }
+          { return ::Rul::SpecialChar( char => '\\' ~ $0 ~ $1 ) }
         | .
           #  \e  \E
-          { return Rul::SpecialChar({ char => $$/ }) }
+          { return ::Rul::SpecialChar( char => $$/ ) }
 };
 %rule_terms{'.'} := token { 
-        { return Rul::Dot({ dot => 1 }) }
+        { return Rul::Dot( dot => 1 ) }
 };
 %rule_terms{'['} := token { 
         <rule> \] 
