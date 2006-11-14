@@ -15,7 +15,7 @@ use MiniPerl6::Perl5::Runtime;
 package Main;
 sub new { bless { @_ }, "Main" }
 use MiniPerl6::Grammar;
-use MiniPerl6::Emitter;
+use MiniPerl6::Perl5::Emitter;
 use MiniPerl6::Grammar::Regex;
 use MiniPerl6::Emitter::Token;
 

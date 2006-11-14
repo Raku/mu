@@ -538,7 +538,7 @@ token token {
                 ($$<MiniPerl6::Grammar::Regex.rule>).emit ~
             '); ' ~
             'return $m }';
-        say "Intermediate code: ", $source;
+        #say "Intermediate code: ", $source;
         my $ast := MiniPerl6::Grammar.term( $source );
         # say "Intermediate ast: ", $$ast.emit;
         return $$ast;
