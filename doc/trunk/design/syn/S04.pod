@@ -273,7 +273,7 @@ or
     }
 
 Since the loop executes once before evaluating the condition, the
-bound parameter will be undefined that first time through the loop,
+bound parameter will be undefined that first time through the loop.
 
 =head2 The general loop statement
 
