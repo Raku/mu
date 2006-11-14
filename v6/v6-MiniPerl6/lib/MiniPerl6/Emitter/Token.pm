@@ -60,8 +60,11 @@ class Rul::Concat {
 class Rul::Subrule {
     has $.metasyntax;
     method emit {
+        my $meth := ( 1 + index( $.metasyntax, '.' ) )
+            ?? $.metasyntax 
+            !! ( '$grammar.' ~ $.metasyntax );
         'do { ' ~
-          'my $m2 := $grammar.' ~ $.metasyntax ~ '($str, { "pos" => $m.to, "KEY" => $key }); ' ~
+          'my $m2 := ' ~ $meth ~ '($str, { "pos" => $m.to, "KEY" => $key }); ' ~
           'if $m2 { $m.to( $m2.to ); $m{"' ~ $.metasyntax ~ '"} := $m2; 1 } else { 0 } ' ~
         '}'
     }

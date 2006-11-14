@@ -1,4 +1,6 @@
 
+use v5;
+
 use Data::Dumper;
 
 package Main;
