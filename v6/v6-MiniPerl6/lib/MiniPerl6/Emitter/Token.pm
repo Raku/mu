@@ -61,7 +61,7 @@ class Rul::Subrule {
     has $.metasyntax;
     method emit {
         'do { ' ~
-          'my $m2 := ' ~ $.metasyntax ~ '({ "str" => $str, "grammar" => $grammar, "pos" => $m.to, "KEY" => $key }); ' ~
+          'my $m2 := $grammar.' ~ $.metasyntax ~ '($str, { "pos" => $m.to, "KEY" => $key }); ' ~
           'if $m2 { $m.to( $m2.to ); $m{"' ~ $.metasyntax ~ '"} := $m2; 1 } else { 0 } ' ~
         '}'
     }
@@ -162,7 +162,7 @@ class Rul::InterpolateVar {
 #                for @sizes {
 #                    $key := ( $m.to <= chars( $s ) ?? substr( $s, $m.to, $_ ) !! \'\' );
 #                    if ( '~$hash~'.exists( $key ) ) {
-#                        $match = '~$hash~'{$key}.( str => $str, grammar => $grammar, pos => ( $_ + $m.to ), KEY => $key );
+#                        $match = $grammar.'~$hash~'{$key}.( $str, { pos => ( $_ + $m.to ), KEY => $key });
 #                        last if $match;
 #                    }
 #                }

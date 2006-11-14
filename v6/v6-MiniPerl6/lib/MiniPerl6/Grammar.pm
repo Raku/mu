@@ -146,19 +146,19 @@ token term_meth {
             |
                 {
                     return ::Call(
-                        invocant  => ::Proto( name => ~$<full_ident> ),
-                        method    => $$<ident>,
-                        arguments => undef,
-                        hyper     => $$<hyper_op>,
+                        'invocant'  => ::Proto( name => ~$<full_ident> ),
+                        'method'    => $$<ident>,
+                        'arguments' => undef,
+                        'hyper'     => $$<hyper_op>,
                     )
                 }
             ]
             {
                 return ::Call(
-                    invocant  => ::Proto( name => ~$<full_ident> ),
-                    method    => $$<ident>,
-                    arguments => $$<exp_seq>,
-                    hyper     => $$<hyper_op>,
+                    'invocant'  => ::Proto( name => ~$<full_ident> ),
+                    'method'    => $$<ident>,
+                    'arguments' => $$<exp_seq>,
+                    'hyper'     => $$<hyper_op>,
                 )
             }
     ]
@@ -175,25 +175,25 @@ token term_meth {
             |
                 {
                     return ::Call(
-                        invocant  => $$<term>,
-                        method    => $$<ident>,
-                        arguments => undef,
-                        hyper     => $$<hyper_op>,
+                        'invocant'  => $$<term>,
+                        'method'    => $$<ident>,
+                        'arguments' => undef,
+                        'hyper'     => $$<hyper_op>,
                     )
                 }
             ]
             {
                 return ::Call(
-                    invocant  => $$<term>,
-                    method    => $$<ident>,
-                    arguments => $$<exp_seq>,
-                    hyper     => $$<hyper_op>,
+                    'invocant'  => $$<term>,
+                    'method'    => $$<ident>,
+                    'arguments' => $$<exp_seq>,
+                    'hyper'     => $$<hyper_op>,
                 )
             }
     | \[ <?opt_ws> <exp> <?opt_ws> \]
-         { return ::Index(  obj => $$<term>, index => $$<exp> ) }   # $a[exp]
+         { return ::Index(  'obj' => $$<term>, 'index' => $$<exp> ) }   # $a[exp]
     | \{ <?opt_ws> <exp> <?opt_ws> \}
-         { return ::Lookup( obj => $$<term>, index => $$<exp> ) }   # $a{exp}
+         { return ::Lookup( 'obj' => $$<term>, 'index' => $$<exp> ) }   # $a{exp}
     |    { return $$<term> }
     ]
 };
@@ -205,26 +205,26 @@ token sub_or_method_name {
 token term {
     | <prefix_op> <exp> 
           { return ::Apply(
-            code      => 'prefix:<' ~ $$<prefix_op> ~ '>',
-            arguments => [ $$<exp> ],
+            'code'      => 'prefix:<' ~ $$<prefix_op> ~ '>',
+            'arguments' => [ $$<exp> ],
           ) }
     | \( <?opt_ws> <exp> <?opt_ws> \)
         { return $$<exp> }   # ( exp )
     | \{ <?opt_ws> <exp_mapping> <?opt_ws> \}
-        { return ::Lit::Hash( hash => $$<exp_mapping> ) }   # { exp => exp, ... }
+        { return ::Lit::Hash( 'hash' => $$<exp_mapping> ) }   # { exp => exp, ... }
     | \[ <?opt_ws> <exp_seq> <?opt_ws> \]
-        { return ::Lit::Array( array => $$<exp_seq> ) }   # [ exp, ... ]
+        { return ::Lit::Array( 'array' => $$<exp_seq> ) }   # [ exp, ... ]
     | \$ \< <sub_or_method_name> \>
         { return ::Lookup( 
-            obj   => ::Var( sigil => '$', twigil => '', name => '/' ), 
-            index => ::Val::Buf( buf => $$<sub_or_method_name> ) 
+            'obj'   => ::Var( 'sigil' => '$', 'twigil' => '', 'name' => '/' ), 
+            'index' => ::Val::Buf( 'buf' => $$<sub_or_method_name> ) 
         ) }   # $<ident>
     | do <?opt_ws> \{ <?opt_ws> <exp_stmts> <?opt_ws> \}
-        { return ::Do( block => $$<exp_stmts> ) }   # do { stmt; ... }
+        { return ::Do( 'block' => $$<exp_stmts> ) }   # do { stmt; ... }
     | <declarator> <?ws> <var> 
-        { return ::Decl( decl => $$<declarator>, var => $$<var> ) }    # my $variable
+        { return ::Decl( 'decl' => $$<declarator>, 'var' => $$<var> ) }    # my $variable
     | use <?ws> <full_ident>  [ - <ident> | <''> ]
-        { return ::Use( mod => $$<full_ident> ) }
+        { return ::Use( 'mod' => $$<full_ident> ) }
     | <var>     { return $$<var> }     # $variable
     | <val>     { return $$<val> }     # "value"
     | <lit>     { return $$<lit> }     # [literal construct]
@@ -253,25 +253,30 @@ token control {
 
 token if {
     if <?ws>  <exp>  <?opt_ws>
-    \{ <?opt_ws> <exp_stmts> <?opt_ws> \} <?opt_ws>
-    else <?opt_ws> 
-    \{ <?opt_ws> <exp_stmts2> <?opt_ws> \}
-    { return ::If( cond => $$<exp>, body => $$<exp_stmts>, otherwise => $$<exp_stmts2> ) }
+    \{ <?opt_ws> <exp_stmts> <?opt_ws> \} 
+    [
+        <?opt_ws>
+        else <?opt_ws> 
+        \{ <?opt_ws> <exp_stmts2> <?opt_ws> \}
+        { return ::If( 'cond' => $$<exp>, 'body' => $$<exp_stmts>, 'otherwise' => $$<exp_stmts2> ) }
+    |
+        { return ::If( 'cond' => $$<exp>, 'body' => $$<exp_stmts>, 'otherwise' => [ ] ) }
+    ]
 };
 
 token when {
     when <?ws> <exp_seq> <?opt_ws> \{ <?opt_ws> <exp_stmts> <?opt_ws> \}
-    { return ::When( parameters => $$<exp_seq>, body => $$<exp_stmts> ) }
+    { return ::When( 'parameters' => $$<exp_seq>, 'body' => $$<exp_stmts> ) }
 };
 
 token for {
     for <?ws> <exp> <?opt_ws> <'->'> <?opt_ws> <var> <?ws> \{ <?opt_ws> <exp_stmts> <?opt_ws> \}
-    { return ::For( cond => $$<exp>, topic => $$<var>, body => $$<exp_stmts> ) }
+    { return ::For( 'cond' => $$<exp>, 'topic' => $$<var>, 'body' => $$<exp_stmts> ) }
 };
 
 token while {
     while <?ws> <exp> <?ws> \{ <?opt_ws> <exp_stmts> <?opt_ws> \}
-    { return ::While( cond => $$<exp>, body => $$<exp_stmts> ) }
+    { return ::While( 'cond' => $$<exp>, 'body' => $$<exp_stmts> ) }
 };
 
 token ctrl_leave {
@@ -281,10 +286,10 @@ token ctrl_leave {
 
 token ctrl_return {
     return <?ws> <exp>
-    { return ::Return( result => $$<exp> ) }
+    { return ::Return( 'result' => $$<exp> ) }
     |
     return 
-    { return ::Return( result => ::Val::Undef() ) }
+    { return ::Return( 'result' => ::Val::Undef() ) }
 };
 
 token sigil { \$ |\% |\@ |\& };
@@ -297,9 +302,9 @@ token var {
     $<name>   := [ <full_ident> | <'/'> | <digit> ]
     {
         return ::Var(
-            sigil  => ~$<sigil>,
-            twigil => ~$<twigil>,
-            name   => ~$<name>,
+            'sigil'  => ~$<sigil>,
+            'twigil' => ~$<twigil>,
+            'name'   => ~$<name>,
         )
     }
 };
@@ -314,8 +319,8 @@ token val {
 };
 
 token val_bit {
-    | True  { return ::Val::Bit( bit => 1 ) }
-    | False { return ::Val::Bit( bit => 0 ) }
+    | True  { return ::Val::Bit( 'bit' => 1 ) }
+    | False { return ::Val::Bit( 'bit' => 0 ) }
 };
 
 token val_undef {
@@ -342,13 +347,13 @@ token single_quoted {
 token digits {  \d  [ <digits> | <''> ]  };
 
 token val_buf {
-    | \" <double_quoted>  \" { return ::Val::Buf( buf => $$0 ) }
-    | \' <single_quoted>  \' { return ::Val::Buf( buf => $$0 ) }
+    | \" <double_quoted>  \" { return ::Val::Buf( 'buf' => ~$<double_quoted> ) }
+    | \' <single_quoted>  \' { return ::Val::Buf( 'buf' => ~$<single_quoted> ) }
 };
 
 token val_int {
     <digits>
-    { return ::Val::Int( int => ~$/ ) }
+    { return ::Val::Int( 'int' => ~$/ ) }
 };
 
 token exp_stmts {
@@ -416,8 +421,8 @@ token lit_object {
     \( <?opt_ws> <exp_mapping> <?opt_ws> \)
     {
         return ::Lit::Object(
-            'class' => $$<full_ident>,
-            fields => $$<exp_mapping>
+            'class'  => $$<full_ident>,
+            'fields' => $$<exp_mapping>
         )
     }
 };
@@ -426,8 +431,8 @@ token bind {
     <exp>  <?opt_ws> <':='> <?opt_ws>  <exp2>
     {
         return ::Bind(
-            parameters => $$<exp>,
-            arguments  => $$<exp2>,
+            'parameters' => $$<exp>,
+            'arguments'  => $$<exp2>,
         )
     }
 };
@@ -436,9 +441,9 @@ token call {
     <exp> \. <ident> \( <?opt_ws> <exp_seq> <?opt_ws> \)
     {
         return ::Call(
-            invocant  => $$<exp>,
-            method    => $$<ident>,
-            arguments => $$<exp_seq>,
+            'invocant'  => $$<exp>,
+            'method'    => $$<ident>,
+            'arguments' => $$<exp_seq>,
         )
     }
 };
@@ -450,8 +455,8 @@ token apply {
         ]
     {
         return ::Apply(
-            code      => $$<ident>,
-            arguments => $$<exp_seq>,
+            'code'      => $$<full_ident>,
+            'arguments' => $$<exp_seq>,
         )
     }
 };
@@ -462,9 +467,9 @@ token opt_name {  <ident> | <''>  };
 token invocant {
     |  <var> \:    { return $$<var> }
     |  { return ::Var( 
-            sigil  => '$',
-            twigil => '',
-            name   => 'self',
+            'sigil'  => '$',
+            'twigil' => '',
+            'name'   => 'self',
          ) 
        }
 };
@@ -477,7 +482,7 @@ token sig {
         {
             # say " invocant: ", ($$<invocant>).perl;
             # say " positional: ", ($$<exp_seq>).perl;
-            return ::Sig( invocant => $$<invocant>, positional => $$<exp_seq>, named => { } );
+            return ::Sig( 'invocant' => $$<invocant>, 'positional' => $$<exp_seq>, 'named' => { } );
         }
 };
 
@@ -485,11 +490,12 @@ token method_sig {
     |   <?opt_ws> \( <?opt_ws>  <sig>  <?opt_ws>  \)
         { return $$<sig> }
     |   { return ::Sig( 
-            invocant => ::Var( 
-                sigil  => '$',
-                twigil => '',
-                name   => 'self' ), 
-            positional => [ ], named => { } ) }
+            'invocant' => ::Var( 
+                'sigil'  => '$',
+                'twigil' => '',
+                'name'   => 'self' ), 
+            'positional' => [ ], 
+            'named' => { } ) }
 };
 
 token method {
@@ -504,7 +510,7 @@ token method {
     [   \}     | { say "*** Syntax Error in method '", $Class_name, '.', $$<name>, "' near pos=", $/.to; die "error in Block"; } ]
     {
         # say " block: ", ($$<exp_stmts>).perl;
-        return ::Method( name => $$<opt_name>, sig => $$<method_sig>, block => $$<exp_stmts> );
+        return ::Method( 'name' => $$<opt_name>, 'sig' => $$<method_sig>, 'block' => $$<exp_stmts> );
     }
 };
 
@@ -515,7 +521,7 @@ token sub {
     <?opt_ws> \{ <?opt_ws>  
           <exp_stmts> <?opt_ws> 
     [   \}     | { say "*** Syntax Error in sub '", $$<name>, "'"; die "error in Block"; } ]
-    { return ::Sub( name => $$<opt_name>, sig => $$<method_sig>, block => $$<exp_stmts> ) }
+    { return ::Sub( 'name' => $$<opt_name>, 'sig' => $$<method_sig>, 'block' => $$<exp_stmts> ) }
 };
 
 token token {
@@ -532,7 +538,7 @@ token token {
                 ($$<MiniPerl6::Grammar::Regex.rule>).emit ~
             '); ' ~
             'return $m }';
-        say "Intermediate code: ", $source;
+        # say "Intermediate code: ", $source;
         my $ast := MiniPerl6::Grammar.term( $source );
         # say "Intermediate ast: ", $$ast.emit;
         return $$ast;

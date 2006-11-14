@@ -6,7 +6,9 @@ class CompUnit {
     has %.methods;
     has @.body;
     method emit {
-        'package ' ~ $.name ~ ";\n" ~ (@.body.>>emit).join( ";\n" )
+        'package ' ~ $.name ~ ";\n" ~ 
+        'sub new { bless { @_ }, "' ~ $.name ~ '" }' ~ "\n" ~
+        (@.body.>>emit).join( ";\n" )
     }
 }
 
@@ -129,8 +131,16 @@ class Var {
             '%' => '$Hash_',
             '&' => '$Code_',
         };
-        $table{$.sigil} ~ $.name
-    }
+           $.twigil eq '.' 
+        ?? ( '$_[0]->{' ~ $.name ~ '}' )
+        !!  (    $.name eq '/'
+            ??   ( $table{$.sigil} ~ '_V6_MATCH' )
+            !!   ( $table{$.sigil} ~ $.name )
+            )
+    };
+    method name {
+        $.name
+    };
 }
 
 class Bind {
@@ -155,12 +165,25 @@ class Call {
     has @.arguments;
     has $.hyper;
     method emit {
-        my $call := '->' ~ $.method ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
-        if ($.hyper) {
-            '(map { $_' ~ $call ~ ' } @{ ' ~ $.invocant.emit ~ ' } )';
+        if     ($.method eq 'perl')
+            || ($.method eq 'yaml')
+            || ($.method eq 'join')
+        { 
+            if ($.hyper) {
+                '[ map { Main::' ~ $.method ~ '( $_, ' ~ ', ' ~ (@.arguments.>>emit).join(', ') ~ ')' ~ ' } @{ ' ~ $.invocant.emit ~ ' } ]';
+            }
+            else {
+                'Main::' ~ $.method ~ '(' ~ $.invocant.emit ~ ', ' ~ (@.arguments.>>emit).join(', ') ~ ')';
+            }
         }
         else {
-            $.invocant.emit ~ $call;
+            my $call := '->' ~ $.method ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
+            if ($.hyper) {
+                '[ map { $_' ~ $call ~ ' } @{ ' ~ $.invocant.emit ~ ' } ]';
+            }
+            else {
+                $.invocant.emit ~ $call;
+            }
         }
     }
 }
@@ -169,6 +192,30 @@ class Apply {
     has $.code;
     has @.arguments;
     method emit {
+        
+        my $code := $.code;
+
+        if $code eq 'prefix:<~>' { return '("" . ' ~ (@.arguments.>>emit).join(' ') ~ ')' };
+
+        if $code eq 'prefix:<$>' { return '${' ~ (@.arguments.>>emit).join(' ') ~ '}' };
+        if $code eq 'prefix:<@>' { return '@{' ~ (@.arguments.>>emit).join(' ') ~ '}' };
+        if $code eq 'prefix:<%>' { return '%{' ~ (@.arguments.>>emit).join(' ') ~ '}' };
+
+        if $code eq 'infix:<~>' { return '(' ~ (@.arguments.>>emit).join(' . ') ~ ')' };
+        if $code eq 'infix:<+>' { return '(' ~ (@.arguments.>>emit).join(' + ') ~ ')' };
+        if $code eq 'infix:<->' { return '(' ~ (@.arguments.>>emit).join(' - ') ~ ')' };
+        
+        if $code eq 'infix:<&&>' { return '(' ~ (@.arguments.>>emit).join(' && ') ~ ')' };
+        if $code eq 'infix:<||>' { return '(' ~ (@.arguments.>>emit).join(' || ') ~ ')' };
+        if $code eq 'infix:<eq>' { return '(' ~ (@.arguments.>>emit).join(' eq ') ~ ')' };
+        if $code eq 'infix:<ne>' { return '(' ~ (@.arguments.>>emit).join(' ne ') ~ ')' };
+ 
+        if $code eq 'ternary:<?? ::>' { 
+            return '(' ~ (@.arguments[0]).emit ~
+                 ' ? ' ~ (@.arguments[1]).emit ~
+                 ' : ' ~ (@.arguments[2]).emit ~
+                  ')' };
+        
         $.code ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
         # '(' ~ $.code.emit ~ ')->(' ~ @.arguments.>>emit.join(', ') ~ ')';
     }
@@ -203,7 +250,15 @@ class Decl {
     has $.decl;
     has $.var;
     method emit {
-        $.decl ~ ' ' ~ $.var.emit
+        my $decl := $.decl;
+        my $name := $.var.name;
+        $decl eq 'has' 
+        ?? ( 'sub ' ~ $name ~ ' { ' ~
+            '@_ == 1 ' ~
+                '? ( $_[0]->{' ~ $name ~ '} ) ' ~
+                ': ( $_[0]->{' ~ $name ~ '} = $_[1] ) ' ~
+            '}' )
+        !! $.decl ~ ' ' ~ $.var.emit;
     }
 }
 
