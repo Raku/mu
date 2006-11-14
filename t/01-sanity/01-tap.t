@@ -1,5 +1,5 @@
 
-# L<S01/"Random Thoughts"/"specifically tell it you're running Perl 6">
+# L<S01/"Random Thoughts"/specifically tell it you're running Perl 6>
 use v6-alpha;
 
 
