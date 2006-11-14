@@ -3,6 +3,42 @@ use v5;
 
 use Data::Dumper;
 
+package MiniPerl6::Grammar;
+    use MiniPerl6::Perl5::Match;
+    sub space { 
+        my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
+        my $MATCH; $MATCH = MiniPerl6::Perl5::Match->new( 
+            'str' => $str,'from' => $pos,'to' => $pos, ); 
+        $MATCH->bool(
+            substr($str, $MATCH->to()) =~ m/^([[:space:]])/
+            ? ( 1 + $MATCH->to( length( $1 ) + $MATCH->to() ))
+            : 0
+        );
+        $MATCH;
+    }
+    sub digit { 
+        my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
+        my $MATCH; $MATCH = MiniPerl6::Perl5::Match->new( 
+            'str' => $str,'from' => $pos,'to' => $pos, ); 
+        $MATCH->bool(
+            substr($str, $MATCH->to()) =~ m/^([[:digit:]])/
+            ? ( 1 + $MATCH->to( length( $1 ) + $MATCH->to() ))
+            : 0
+        );
+        $MATCH;
+    }
+    sub newline { 
+        my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
+        my $MATCH; $MATCH = MiniPerl6::Perl5::Match->new( 
+            'str' => $str,'from' => $pos,'to' => $pos, ); 
+        $MATCH->bool(
+            substr($str, $MATCH->to()) =~ m/^(\n\r?|\r\n?)/
+            ? ( 1 + $MATCH->to( length( $1 ) + $MATCH->to() ))
+            : 0
+        );
+        $MATCH;
+    }
+    
 package Main;
 
     sub say { print join( '', @_, "\n" ) }

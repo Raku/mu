@@ -33,7 +33,7 @@ token pod_other {
 
 token ws {
     [
-    |    \# <?to_line_end>
+    |    <'#'> <?to_line_end>
     |    \n = [
             |  begin  <?pod_begin>
             |  kwid   <?pod_other>

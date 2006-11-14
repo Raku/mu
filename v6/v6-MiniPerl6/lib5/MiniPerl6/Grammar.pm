@@ -6,7 +6,7 @@ use MiniPerl6::Perl5::Match;
 package MiniPerl6::Grammar;
 sub new { bless { @_ }, "MiniPerl6::Grammar" }
 use MiniPerl6::Grammar::Regex;
-#sub array { my $data = $_[0]; use v5; @{$data}; use v6 };
+sub array { my $data = $_[0]; use v5; @{$data}; use v6 };
 my $Class_name;
 sub full_ident { my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; my $MATCH; $MATCH = MiniPerl6::Perl5::Match->new( 'str'
  => $str,'from'
@@ -50,8 +50,8 @@ sub pod_other { my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; my $MATCH
 sub ws { my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; my $MATCH; $MATCH = MiniPerl6::Perl5::Match->new( 'str'
  => $str,'from'
  => $pos,'to'
- => $pos, ); $MATCH->bool((((('\\\\#'
- eq (substr($str, $MATCH->to(), 2) ? (1 + $MATCH->to((2 + $MATCH->to()))) : 0)) && do { my $m2 = $grammar->to_line_end($str, $MATCH->to()); do { if ($m2) { $MATCH->to($m2->to());$MATCH->{'to_line_end'
+ => $pos, ); $MATCH->bool((((('#'
+ eq (substr($str, $MATCH->to(), 1) ? (1 + $MATCH->to((1 + $MATCH->to()))) : 0)) && do { my $m2 = $grammar->to_line_end($str, $MATCH->to()); do { if ($m2) { $MATCH->to($m2->to());$MATCH->{'to_line_end'
 } = $m2;1 } else { 0 } } }) || ((('\\\\n'
  eq (substr($str, $MATCH->to(), 2) ? (1 + $MATCH->to((2 + $MATCH->to()))) : 0)) && (('='
  eq (substr($str, $MATCH->to(), 1) ? (1 + $MATCH->to((1 + $MATCH->to()))) : 0)) && ((('b'
