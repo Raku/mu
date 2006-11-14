@@ -14,7 +14,7 @@ Luke Palmer <luke@luqui.org>
   Date: 8 Mar 2004
   Last Modified: 13 Nov 2006
   Number: 3
-  Version: 74
+  Version: 75
 
 =head1 Changes to Perl 5 operators
 
@@ -447,6 +447,12 @@ is now equivalent to C<+$a cmp +$b>.
 semantics, use the generic C<before> and C<after> infix operators.
 As ordinary infix operators these may be negated (C<!before> and C<!after>)
 as well as reduced (C<[before]> and C<[after]>).
+
+=item * Infix C<min> and C<max> may be used to select one or the other
+of their arguments.  Reducing listop forms C<[min]> and C<[max]> are
+also available, as are the C<min=> and C<max=> assignment operators.
+By default C<min> and C<max> use C<cmp> semantics.  As with all C<cmp>-based
+operators, this may be modified by an adverb specifying different semantics.
 
 =item * Binary C<< => >> is no longer just a "fancy comma".  It now
 constructs a C<Pair> object that can, among other things, be used to
@@ -1672,7 +1678,7 @@ Perl 6 has 22 precedence levels (which is fewer than Perl 5):
 			    ~~ =:= === eqv
 			    !== !~~ !eq !=:= !=== !eqv etc.
     tight and           &&
-    tight or            || ^^ //
+    tight or            || ^^ // min max
     conditional         ?? !!
     assignment          := ::= =>
 			    (also = with simple lvalues)
