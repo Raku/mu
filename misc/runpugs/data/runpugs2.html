@@ -6,7 +6,59 @@
 <title>Run Perl 6 Now -- in your browser!</title>
 <link rel="stylesheet" type="text/css" href="/runpugs.css">
 <script language="JavaScript">
+var nchars=0;
+function getnchars() {
+return document.terminal.cmd.value.length
+}
 
+function getcursorpos() {
+	var obj=document.terminal.cmd;
+	if(document.selection) {
+    	obj.focus();			
+		var rng=document.selection.createRange();			
+        rng.moveStart('character',-nchars);
+		return rng.text.length;
+	} else if(obj.selectionStart>=0) { // FireFox
+    	var start = obj.selectionStart;
+    	var end   = obj.selectionEnd;
+   		if (start<=end) {
+   			return start;
+		} else {
+   			return end;
+           }
+	}
+}
+
+function catchbackspace(myfield,e)
+{
+var keycode;
+if (window.event) {keycode = window.event.keyCode;
+}
+else if (e) {
+keycode = e.which;
+}
+else return true;
+
+if (keycode == 13)
+{
+document.terminal.submit(); 
+return false;
+}
+if (keycode==38) {
+return false;
+}
+if ((keycode==8)||(keycode==37)||(keycode==46)) {
+    if ((getnchars()>nchars) && (getcursorpos() > nchars)) {
+        return true;
+    } else {
+        return false;
+    }
+} else {
+    return true;
+}
+}
+
+//  onkeypress="return catchbackspace(this,event)" onkeydown="return catchbackspace(this,event)"
 function submitenter(myfield,e)
 {
 var keycode;
@@ -18,8 +70,17 @@ if (keycode == 13)
 document.terminal.submit();
 return false;
 }
-else
+else {
+if (keycode == 8) {
+if (getnchars()>nchars) {
 return true;
+} else {
+return false;
+}
+} else {
+return true;
+}
+}
 }
 
 function select_enter()
@@ -33,6 +94,7 @@ _SKIPC_ */
 document.terminal.cmd.value+=document.terminal.hist.options[document.terminal.hist.selectedIndex].value;
 document.terminal.hist.selectedIndex=0;
 document.terminal.cmd.focus();
+document.terminal.cmd.scrollTop =document.terminal.cmd.scrollHeight; 
 _SKIPT_ */
 }
 
@@ -81,10 +143,10 @@ for="dev">Development version</label>
 <option value="">--- Recent commands ---</option>
 _HIST_
 </select>
+<!--onKeyPress="return submitenter(this,event)"-->
 <br>
 <!-- _SKIPT_
-<textarea id="cmd" name="cmd" rows="20" cols="80" wrap="virtual"
-onKeyPress="return submitenter(this,event)">
+<textarea id="cmd" name="cmd" rows="20" cols="80" wrap="virtual" onkeypress="return catchbackspace(this,event)" onkeydown="return catchbackspace(this,event)">
 _ALL_
 </textarea>
 _SKIPT_ -->
@@ -112,6 +174,7 @@ document.terminal.cmd.scrollTop =document.terminal.cmd.scrollHeight; // _SKIPC_
 //if (document.terminal.output.rows==1) {
 //document.terminal.output.style.height="2ex";
 //}
+nchars=document.terminal.cmd.value.length;
 </script>
 <p>This live web terminal runs the <a href="http://www.pugscode.org">pugs</a> interpreter for <a
 href="http://dev.perl.org/perl 6/">Perl&nbsp;6</a>. Please <a

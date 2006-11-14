@@ -16,7 +16,7 @@ TT {color: #204a87;
         }
 
 LABEL {font-weight: normal; }
-FIELDSET {border: solid white 0px};
+FIELDSET {border: solid white 0px}
 LEGEND {font-weight:normal; text-align: left; }
 
 DL { 
@@ -75,7 +75,7 @@ width: 85ex; /*750px */
     padding: 5px;
 }
 #outputwindow {
-    height=20ex;
+    height:20ex;
 }
 #editorwindow {
     height: 50ex; /*400px;*/
