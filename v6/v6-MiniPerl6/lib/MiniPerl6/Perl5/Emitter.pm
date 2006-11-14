@@ -167,6 +167,7 @@ class Call {
     method emit {
         if     ($.method eq 'perl')
             || ($.method eq 'yaml')
+            || ($.method eq 'say' )
             || ($.method eq 'join')
         { 
             if ($.hyper) {
@@ -194,6 +195,9 @@ class Apply {
     method emit {
         
         my $code := $.code;
+
+        if $code eq 'say'       { return 'Main::say(' ~ (@.arguments.>>emit).join(', ') ~ ')' };
+        if $code eq 'print'     { return 'Main::print(' ~ (@.arguments.>>emit).join(', ') ~ ')' };
 
         if $code eq 'prefix:<~>' { return '("" . ' ~ (@.arguments.>>emit).join(' ') ~ ')' };
 

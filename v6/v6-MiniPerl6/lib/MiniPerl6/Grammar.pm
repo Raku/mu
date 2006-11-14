@@ -533,7 +533,7 @@ token token {
     {
         # say "Token was compiled into: ", ($$<MiniPerl6::Grammar::Regex.rule>).perl;
         my $source := 'method ' ~ $$<opt_name> ~ ' ( $grammar: $str, $pos ) { ' ~
-            'my $m; $m := ::Match( "str" => $str, "from" => $pos, "to" => $pos ); ' ~ 
+            'my $m; $m := ::MiniPerl6::Perl5::Match( "str" => $str, "from" => $pos, "to" => $pos ); ' ~ 
             '$m.bool( ' ~
                 ($$<MiniPerl6::Grammar::Regex.rule>).emit ~
             '); ' ~
