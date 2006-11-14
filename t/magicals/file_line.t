@@ -5,10 +5,10 @@ use Test;
 
 plan 2;
 
-# L<S02/"Names" /Which line am I in/>
+# L<S02/Names/Which line am I at>
 is($?LINE, 9, '$?LINE works');
 
-# L<S02/"Names" /Which file am I in/>
+# L<S02/Names/Which file am I in>
 ok($?FILE eq ('t/magicals/file_line.t' | 't\\magicals\\file_line.t'), '$?FILE works');
 
 # NOTE:
