@@ -12,7 +12,7 @@ L<S06/""Pointy blocks"">
 
 =cut
 
-# L<S06/""Pointy blocks"" /the parameter list of a pointy sub does not require parentheses/>
+# L<S06/""Pointy blocks""/the parameter list of a pointy block does not require parenthese/>
 my ($sub, $got);
 
 $got = '';
@@ -79,5 +79,5 @@ is $str, 'inner', 'return in pointy returns from enclosing sub';
 # What about nested pointies -> { ... -> {} }?
 
 
-# L<S06/""Pointy blocks"" /It is referenced by &?BLOCK, not &?ROUTINE/>
+# L<S06/""Pointy blocks"" /It is referenced/>
 # Coming soon...

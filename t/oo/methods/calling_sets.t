@@ -1,6 +1,6 @@
 use Test; plan 13;
 
-# L<S12/"Calling Sets of Methods">
+# L<S12/"Calling sets of methods">
 # L<S12/"Roles">
 
 # Spec:

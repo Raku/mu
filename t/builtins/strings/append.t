@@ -5,7 +5,7 @@ use Test;
 =kwid
 
 String appending with ~ operator
-L<S03/"Operator renaming" /becomes c\<~\>/>
+L<S03/Changes to Perl 5 operators/=item * The string concatenation>
 =cut
 
 plan 4;

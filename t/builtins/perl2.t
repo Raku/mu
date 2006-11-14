@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-# L<S02/Names and Variables /To get a Perlish representation of any data value/>
+# L<S02/Names and Variables /To get a Perlish representation of any object/>
 
 plan 95;
 #force_todo 8, 44, 46, 48; # untodo with r10745

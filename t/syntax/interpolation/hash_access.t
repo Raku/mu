@@ -17,7 +17,7 @@ plan 7;
 }
 
 {
-  # L<S02/Literals /In order to interpolate an entire hash />
+  # L<S02/Literals /In order to interpolate an entire hash/>
   my %hash = { a=> 1, b => 2 };
   is "%hash{}", "a\t1\nb\t2\n", 'interpolation with curly braces';
   is "%hash<>", "a\t1\nb\t2\n", 'interpolation with angle brackets';

@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-# L<S02/"Names and Variables" /To get a Perlish representation of any data value/>
+# L<S02/"Names and Variables" /To get a Perlish representation of any object/>
 
 my @tests = (
     # Basic scalar values
@@ -50,7 +50,7 @@ unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
 }
 
 
-# L<S02/"Names and Variables" /to get a Perlish representation/>
+# L<S02/"Names and Variables" /To get a Perlish representation of any object/>
 # Quoting S02 (emphasis added):
 #   To get a Perlish representation of any data value, use the .perl method.
 #   This will put quotes around strings, square brackets around list values,

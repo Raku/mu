@@ -4,7 +4,7 @@ use Test;
 
 plan 18;
 
-# L<S03/"Operator renaming" /when applied to a parenthesized list/>
+# L<S03/Changes to Perl 5 operators/when applied to a parenthesized list/>
 {
     my $arglist = \(1,2,3);
     

@@ -28,7 +28,7 @@ is("Wont you take me to &func()", 'Wont you take me to func-y town', 'closure in
 is("2 + 2 = { 2+2 }", '2 + 2 = 4', 'double quoted closure interpolation works');
 is("&func() is where I live", 'func-y town is where I live', "make sure function interpolation doesn't eat all trailing whitespace");
 
-# L<S02/Names and Variables /except when interpolating/>
+# L<S02/Names and Variables/form of each subscript/>
 is("&func. () is where I live", '&func. () is where I live', '"&func. ()" should not interpolate');
 is("&func_w_args("foo","bar"))", '[foo][bar])', '"&func_w_args(...)" should interpolate');
 # L<S02/"Literals" /"In order to interpolate the result of a method call">
@@ -61,7 +61,7 @@ is('$world \qq[@list[]] %hash{}', '$world 1 2 %hash{}', "interpolate quoting con
 
 is(" \d[111] \d[107] ", ' o k ', "\\d[] respects whitespaces around it");
 
-# L<S02/"Literals" /any of these by separating the numbers/>
+# L<S02/"Literals" /separating the numbers with comma:/>
 is("x  \x[41,42,43]  x",     "x  ABC  x",  "\\x[] allows multiple chars (1)");
 is("x  \x[41,42,00043]  x",  "x  ABC  x",  "\\x[] allows multiple chars (2)");
 is("x  \d[65,66,67]  x",     "x  ABC  x",  "\\d[] allows multiple chars (1)");

@@ -4,7 +4,7 @@ use Test;
 
 plan 21;
 
-# L<S12/"Attributes" /The value on the right is evaluated at class composition/>
+# L<S12/"Attributes" /The value on the right is.*evaluated at object build time/>
 
 my $got_a_num;  sub get_a_num  { $got_a_num++;  42 }
 my $got_a_str;  sub get_a_str  { $got_a_str++;  "Pugs" }
