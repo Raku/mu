@@ -64,7 +64,8 @@ class Rul::Subrule {
             ?? $.metasyntax 
             !! ( '$grammar.' ~ $.metasyntax );
         'do { ' ~
-          'my $m2 := ' ~ $meth ~ '($str, { "pos" => $m.to, "KEY" => $key }); ' ~
+          'my $m2 := ' ~ $meth ~ '($str, $m.to); ' ~
+          ## 'my $m2 := ' ~ $meth ~ '($str, { "pos" => $m.to, "KEY" => $key }); ' ~
           'if $m2 { $m.to( $m2.to ); $m{"' ~ $.metasyntax ~ '"} := $m2; 1 } else { 0 } ' ~
         '}'
     }
