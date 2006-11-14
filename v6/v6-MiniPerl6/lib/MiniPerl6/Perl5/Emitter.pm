@@ -134,7 +134,7 @@ class Var {
            $.twigil eq '.' 
         ?? ( '$_[0]->{' ~ $.name ~ '}' )
         !!  (    $.name eq '/'
-            ??   ( $table{$.sigil} ~ '_V6_MATCH' )
+            ??   ( $table{$.sigil} ~ 'MATCH' )
             !!   ( $table{$.sigil} ~ $.name )
             )
     };
@@ -169,6 +169,7 @@ class Call {
             || ($.method eq 'yaml')
             || ($.method eq 'say' )
             || ($.method eq 'join')
+            || ($.method eq 'chars')
         { 
             if ($.hyper) {
                 '[ map { Main::' ~ $.method ~ '( $_, ' ~ ', ' ~ (@.arguments.>>emit).join(', ') ~ ')' ~ ' } @{ ' ~ $.invocant.emit ~ ' } ]';

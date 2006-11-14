@@ -533,11 +533,11 @@ token token {
     {
         # say "Token was compiled into: ", ($$<MiniPerl6::Grammar::Regex.rule>).perl;
         my $source := 'method ' ~ $$<opt_name> ~ ' ( $grammar: $str, $pos ) { ' ~
-            'my $m; $m := ::MiniPerl6::Perl5::Match( "str" => $str, "from" => $pos, "to" => $pos ); ' ~ 
-            '$m.bool( ' ~
+            'my $MATCH; $MATCH := ::MiniPerl6::Perl5::Match( "str" => $str, "from" => $pos, "to" => $pos ); ' ~ 
+            '$MATCH.bool( ' ~
                 ($$<MiniPerl6::Grammar::Regex.rule>).emit ~
             '); ' ~
-            'return $m }';
+            'return $MATCH }';
         #say "Intermediate code: ", $source;
         my $ast := MiniPerl6::Grammar.term( $source );
         # say "Intermediate ast: ", $$ast.emit;

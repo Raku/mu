@@ -7,20 +7,20 @@ use v6-alpha;
 class Rul {
     sub perl5 ( $rx ) {
         return
-            '( perl5rx( substr( $str, $m.to ), \'^(' ~ $rx ~ ')\' ) ' ~ 
-            ' ?? ( 1 + $m.to( $0.chars + $m.to )) ' ~
+            '( perl5rx( substr( $str, $MATCH.to ), \'^(' ~ $rx ~ ')\' ) ' ~ 
+            ' ?? ( 1 + $MATCH.to( $0.chars + $MATCH.to )) ' ~
             ' !! (0) ' ~
             ')'
     };
     
     sub constant ( $str ) {
-            my $str1;
+            #my $str1;
             # { use v5; $str1 = $str; $str1 =~  s/\\(.)/$1/g; use v6; }
         
-            my $len := $str1.chars;
+            my $len := $str.chars;
             if ( $len ) {
-                '( ' ~ $str1.perl ~ ' eq substr( $str, $m.to, ' ~ $len ~ ') ' ~
-                '  ?? (1 + $m.to( ' ~ $len ~ ' + $m.to ))' ~
+                '( ' ~ $str.perl ~ ' eq substr( $str, $MATCH.to, ' ~ $len ~ ') ' ~
+                '  ?? (1 + $MATCH.to( ' ~ $len ~ ' + $MATCH.to ))' ~
                 '  !! (0) ' ~
                 ')';
             }
@@ -64,9 +64,9 @@ class Rul::Subrule {
             ?? $.metasyntax 
             !! ( '$grammar.' ~ $.metasyntax );
         'do { ' ~
-          'my $m2 := ' ~ $meth ~ '($str, $m.to); ' ~
-          ## 'my $m2 := ' ~ $meth ~ '($str, { "pos" => $m.to, "KEY" => $key }); ' ~
-          'if $m2 { $m.to( $m2.to ); $m{"' ~ $.metasyntax ~ '"} := $m2; 1 } else { 0 } ' ~
+          'my $m2 := ' ~ $meth ~ '($str, $MATCH.to); ' ~
+          ## 'my $m2 := ' ~ $meth ~ '($str, { "pos" => $MATCH.to, "KEY" => $key }); ' ~
+          'if $m2 { $MATCH.to( $m2.to ); $MATCH{"' ~ $.metasyntax ~ '"} := $m2; 1 } else { 0 } ' ~
         '}'
     }
 }
@@ -101,8 +101,8 @@ class Rul::Constant {
 
 class Rul::Dot {
     method emit {
-        '( \'\' ne substr( $str, $m.to, 1 ) ' ~
-        '  ?? (1 + $m.to( 1 + $m.to ))' ~
+        '( \'\' ne substr( $str, $MATCH.to, 1 ) ' ~
+        '  ?? (1 + $MATCH.to( 1 + $MATCH.to ))' ~
         '  !! (0) ' ~
         ')';
     }
@@ -164,14 +164,14 @@ class Rul::InterpolateVar {
 #                my $match := 0;
 #                my $key;
 #                for @sizes {
-#                    $key := ( $m.to <= chars( $s ) ?? substr( $s, $m.to, $_ ) !! \'\' );
+#                    $key := ( $MATCH.to <= chars( $s ) ?? substr( $s, $MATCH.to, $_ ) !! \'\' );
 #                    if ( '~$hash~'.exists( $key ) ) {
-#                        $match = $grammar.'~$hash~'{$key}.( $str, { pos => ( $_ + $m.to ), KEY => $key });
+#                        $match = $grammar.'~$hash~'{$key}.( $str, { pos => ( $_ + $MATCH.to ), KEY => $key });
 #                        last if $match;
 #                    }
 #                }
 #                if ( $match ) {
-#                    $m.to: $match.to;
+#                    $MATCH.to: $match.to;
 #                    $match.bool: 1;
 #                }; 
 #                $match;
