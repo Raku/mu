@@ -14,7 +14,7 @@ Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
   Last Modified: 15 Nov 2006
   Number: 2
-  Version: 78
+  Version: 79
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -955,7 +955,7 @@ The C<$#foo> notation is dead.  Use C<@foo.end> or C<@foo[-1]> instead.
 
 =item *
 
-And I<identifier> is composed of an alphabetic character followed by
+An I<identifier> is composed of an alphabetic character followed by
 any sequence of alphanumeric characters.  The definitions of alphabetic
 and numeric include appropriate Unicode characters.  Underscore is
 always considered alphabetic.
@@ -968,6 +968,17 @@ the sigil).  This includes
     $Foo::($bar)::baz   # compound identifiers that perform interpolations
     $42                 # numeric names
     $!                  # certain punctuational variables
+
+When not used as a sigil, the semantic function of C<::> within a
+name is to force the preceding portion of the name to be considered
+a package through which the subsequent portion of the name is to
+be located.  If the preceding portion is null, it means the package
+is unspecified and must be searched for according to the nature of
+what follows.  Generally this means that an initial C<::> following the
+main sigil is a no-op on names that are known at compile time, though
+C<::> can also be used to introduce an interpolation (see below).
+Also, in the absence of another sigil, C<::> can serve as its own
+sigil indicating intentional use of a not-yet-declared package name.
 
 Unlike in Perl 5, if a sigil is followed by comma, semicolon, colon,
 or any kind of bracket or whitespace (including Unicode brackets and
