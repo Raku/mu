@@ -172,21 +172,28 @@ class Call {
             || ($.method eq 'chars')
         { 
             if ($.hyper) {
-                '[ map { Main::' ~ $.method ~ '( $_, ' ~ ', ' ~ (@.arguments.>>emit).join(', ') ~ ')' ~ ' } @{ ' ~ $.invocant.emit ~ ' } ]';
+                return 
+                    '[ map { Main::' ~ $.method ~ '( $_, ' ~ ', ' ~ (@.arguments.>>emit).join(', ') ~ ')' ~ ' } @{ ' ~ $.invocant.emit ~ ' } ]';
             }
             else {
-                'Main::' ~ $.method ~ '(' ~ $.invocant.emit ~ ', ' ~ (@.arguments.>>emit).join(', ') ~ ')';
+                return
+                    'Main::' ~ $.method ~ '(' ~ $.invocant.emit ~ ', ' ~ (@.arguments.>>emit).join(', ') ~ ')';
             }
+        }
+
+        my $meth := $.method;
+        if  $meth eq 'postcircumfix:<( )>'  {
+             $meth := '';  
+        }
+        
+        my $call := '->' ~ $meth ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
+        if ($.hyper) {
+            '[ map { $_' ~ $call ~ ' } @{ ' ~ $.invocant.emit ~ ' } ]';
         }
         else {
-            my $call := '->' ~ $.method ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
-            if ($.hyper) {
-                '[ map { $_' ~ $call ~ ' } @{ ' ~ $.invocant.emit ~ ' } ]';
-            }
-            else {
-                $.invocant.emit ~ $call;
-            }
+            $.invocant.emit ~ $call;
         }
+
     }
 }
 

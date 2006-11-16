@@ -145,6 +145,11 @@ token exp {
     ]
 };
 
+token opt_ident {  
+    | <ident>  { return $$<ident> }
+    | <''>     { return 'postcircumfix:<( )>' }
+};
+
 token term_meth {
     <full_ident>
     [ \.
@@ -176,7 +181,7 @@ token term_meth {
     <term>
     [ \.
         <hyper_op>
-        <ident>
+        <opt_ident>   # $obj.(42)
             [ \( 
                 # { say 'testing exp_seq at ', $/.to }
                 <?opt_ws> <exp_seq> <?opt_ws> \)
@@ -186,7 +191,7 @@ token term_meth {
                 {
                     return ::Call(
                         'invocant'  => $$<term>,
-                        'method'    => $$<ident>,
+                        'method'    => $$<opt_ident>,
                         'arguments' => undef,
                         'hyper'     => $$<hyper_op>,
                     )
@@ -195,7 +200,7 @@ token term_meth {
             {
                 return ::Call(
                     'invocant'  => $$<term>,
-                    'method'    => $$<ident>,
+                    'method'    => $$<opt_ident>,
                     'arguments' => $$<exp_seq>,
                     'hyper'     => $$<hyper_op>,
                 )
