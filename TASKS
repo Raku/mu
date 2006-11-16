@@ -91,3 +91,7 @@ Skill: light sysadminship, code a logfile to IRC gateway (reuse a bot?)
   See the bottom of `t/syntax/signature.t`. Also applicable, Capture tests.
 
 * See pugs/misc/runpugs/TODO for "runpugs" tasks.
+
+* The pugs subversion repository was recently moved from svn.openfoundry.org
+  to svn.pugscode.org. Change references of the former to the latter where
+  appropriate.
