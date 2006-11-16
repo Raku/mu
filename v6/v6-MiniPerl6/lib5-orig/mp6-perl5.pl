@@ -5,12 +5,10 @@ use lib split(/\Q$Config{path_sep}/, $ENV{PERL6LIB} || '');
 use strict;
 # no strict 'refs';
 # no warnings ('void', 'uninitialized');
-
-BEGIN {
 $::_V6_COMPILER_OS      = 'darwin';
 $::_V6_COMPILER_NAME    = 'v6.pm';
 $::_V6_COMPILER_VERSION = '0.015';
-}
+local $::_V6_MATCH_;
 
 use MiniPerl6::Perl5::Runtime;
 use MiniPerl6::Perl5::Match;

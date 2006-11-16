@@ -1,6 +1,6 @@
 use v6-alpha;
 use MiniPerl6::Grammar;
-use MiniPerl6::Emitter;
+use MiniPerl6::Perl5::Emitter;
 
 {
   my $p = MiniPerl6::Grammar.exp( 'abc( 123 )' );

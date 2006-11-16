@@ -63,7 +63,7 @@ use MiniPerl6::Grammar;
 }
 
 {
-  my $p = MiniPerl6::Grammar.return( 'return $a' );
+  my $p = MiniPerl6::Grammar.ctrl_return( 'return $a' );
   ($$p).perl.say;
 }
 

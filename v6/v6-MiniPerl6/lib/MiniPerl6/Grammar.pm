@@ -6,8 +6,18 @@ use MiniPerl6::Grammar::Regex;
 
 # XXX - move to v6.pm emitter
 sub array($data)    { use v5; @$data; use v6; };
-
+ 
 my $Class_name;  # for diagnostic messages
+
+token ident_digit {
+    [ [ <word> | _ | <digit> ] <ident_digit>
+    |   <''>
+    ]    
+};
+
+token ident {
+    [ <word> | _ ] <ident_digit>
+};
 
 token full_ident {
     <ident>
@@ -92,7 +102,7 @@ token hyper_op {
 };
 
 token prefix_op {
-    [ <'$'> | <'@'> | <'%'> | <'?'> | <'++'> | <'--'> | <'+'> | <'-'> | <'~'> ] 
+    [ <'$'> | <'@'> | <'%'> | <'?'> | <'!'> | <'++'> | <'--'> | <'+'> | <'-'> | <'~'> ] 
     <before <'('> | <'$'> >
 };
 
@@ -104,7 +114,7 @@ token exp2 { <exp> { return $$<exp> } };
 token exp_stmts2 { <exp_stmts> { return $$<exp_stmts> } };
 
 token exp {
-    # { say "exp: going to match <term_meth> at ", $/.to; }
+    # { say 'exp: going to match <term_meth> at ', $/.to; }
     <term_meth> 
     [
         <?opt_ws>
@@ -118,7 +128,7 @@ token exp {
             'code'      => 'ternary:<?? ::>',
             'arguments' => [ $$<term_meth>, $$<exp>, $$<exp2> ],
           ) }
-        | { say "*** Syntax error in ternary operation" }
+        | { say '*** Syntax error in ternary operation' }
         ]
     |
         <?opt_ws>
@@ -141,7 +151,7 @@ token term_meth {
         <hyper_op>
         <ident>
             [ \( <?opt_ws> <exp_seq> <?opt_ws> \)
-                # { say "found parameter list: ", $<exp_seq>.perl }
+                # { say 'found parameter list: ', $<exp_seq>.perl }
             | \: <?ws> <exp_seq> <?opt_ws>
             |
                 {
@@ -168,9 +178,9 @@ token term_meth {
         <hyper_op>
         <ident>
             [ \( 
-                # { say "testing exp_seq at ", $/.to }
+                # { say 'testing exp_seq at ', $/.to }
                 <?opt_ws> <exp_seq> <?opt_ws> \)
-                # { say "found parameter list: ", $<exp_seq>.perl }
+                # { say 'found parameter list: ', $<exp_seq>.perl }
             | \: <?ws> <exp_seq> <?opt_ws>
             |
                 {
@@ -226,7 +236,7 @@ token term {
     | use <?ws> <full_ident>  [ - <ident> | <''> ]
         { return ::Use( 'mod' => $$<full_ident> ) }
     | <var>     { return $$<var> }     # $variable
-    | <val>     { return $$<val> }     # "value"
+    | <val>     { return $$<val> }     # 'value'
     | <lit>     { return $$<lit> }     # [literal construct]
 #   | <bind>    { return $$<bind>   }  # $lhs := $rhs
     | <token>   { return $$<token>  }  # token  { regex... }
@@ -296,15 +306,15 @@ token sigil { \$ |\% |\@ |\& };
 
 token twigil { [ \. | \! | \^ | \* ] | <''> };
 
+token var_name { <full_ident> | <'/'> | <digit> };
+
 token var {
-    <sigil>
-    <twigil>
-    $<name>   := [ <full_ident> | <'/'> | <digit> ]
+    <sigil> <twigil> <var_name>
     {
         return ::Var(
             'sigil'  => ~$<sigil>,
             'twigil' => ~$<twigil>,
-            'name'   => ~$<name>,
+            'name'   => ~$<var_name>,
         )
     }
 };
@@ -315,7 +325,7 @@ token val {
     | <val_int>    { return $$<val_int>   }  # 123
     | <val_bit>    { return $$<val_bit>   }  # True, False
     | <val_num>    { return $$<val_num>   }  # 123.456
-    | <val_buf>    { return $$<val_buf>   }  # "moose"
+    | <val_buf>    { return $$<val_buf>   }  # 'moose'
 };
 
 token val_bit {
@@ -329,18 +339,18 @@ token val_undef {
 };
 
 token val_num {  
-    XXX { return "TODO: val_num" } 
+    XXX { return 'TODO: val_num' } 
 };
 
 token double_quoted {
     |  \\ .  <double_quoted>
-    |  <-[ \" ]>  <double_quoted>
+    |  <!before \" > . <double_quoted>
     |  <''>    
 };
 
 token single_quoted {
     |  \\ .  <single_quoted>
-    |  <-[ \' ]>  <single_quoted>
+    |  <!before \' > . <single_quoted>
     |  <''>    
 };
 
@@ -370,7 +380,7 @@ token exp_stmts {
 
 token exp_seq {
     | <exp>
-        # { say "exp_seq: matched <exp>" }
+        # { say 'exp_seq: matched <exp>' }
         [
         |   <?opt_ws> \, <?opt_ws> <exp_seq> 
             <?opt_ws> [ \, <?opt_ws> | <''> ]
@@ -379,52 +389,54 @@ token exp_seq {
             { return [ $$<exp> ] }
         ]
     | 
-        # { say "exp_seq: end of match" }
+        # { say 'exp_seq: end of match' }
         { return [] }
 };
 
+token key { <exp> { return $$<exp> } };   # TODO - autoquote
+
 token exp_mapping {
-    |   $<key> := <exp> 
+    |   <key> 
         <?opt_ws> <'=>'> <?opt_ws>
-        $<value> := <exp>
+        <exp>
         [
         |   <?opt_ws> \, <?opt_ws> <exp_mapping> 
-            { return [ [ $$<key>, $$<value> ], array( $$<exp_mapping> ) ] }
+            { return [ [ $$<key>, $$<exp> ], array( $$<exp_mapping> ) ] }
         |   <?opt_ws> [ \, <?opt_ws> | <''> ]
-            { return [ [ $$<key>, $$<value> ] ] }
+            { return [ [ $$<key>, $$<exp> ] ] }
         ]
     |
-        { return [] }
+        { return [ ] }
 };
 
 token lit {
-    [ $<exp> := <lit_seq>      # (a, b, c)
-    | $<exp> := <lit_array>    # [a, b, c]
-    | $<exp> := <lit_hash>     # {a => x, b => y}
-    | $<exp> := <lit_code>     # sub $x {...}
-    | $<exp> := <lit_object>   # ::Tree(a => x, b => y);
-    ]
-    { return $$<exp> }
+    #| <lit_seq>    { return $$<lit_seq>    }  # (a, b, c)
+    #| <lit_array>  { return $$<lit_array>  }  # [a, b, c]
+    #| <lit_hash>   { return $$<lit_hash>   }  # {a => x, b => y}
+    #| <lit_code>   { return $$<lit_code>   }  # sub $x {...}
+    | <lit_object> { return $$<lit_object> }  # ::Tree(a => x, b => y);
 };
 
-token lit_seq {  XXX { return "TODO: lit_seq" } };
-token lit_array {  XXX { return "TODO: lit_array" } };
-token lit_hash {  XXX { return "TODO: lit_hash" } };
-
-token lit_code {
-    XXX { return "TODO - Lit::Code" }
-};
+token lit_seq   {  XXX { return 'TODO: lit_seq'    } };
+token lit_array {  XXX { return 'TODO: lit_array'  } };
+token lit_hash  {  XXX { return 'TODO: lit_hash'   } };
+token lit_code  {  XXX { return 'TODO - Lit::Code' } };
 
 token lit_object {
     <'::'>
     <full_ident>
-    \( <?opt_ws> <exp_mapping> <?opt_ws> \)
-    {
-        return ::Lit::Object(
-            'class'  => $$<full_ident>,
-            'fields' => $$<exp_mapping>
-        )
-    }
+    \( 
+    [
+        <?opt_ws> <exp_mapping> <?opt_ws> \)
+        {
+            # say 'Parsing Lit::Object ', $$<full_ident>, ($$<exp_mapping>).perl;
+            return ::Lit::Object(
+                'class'  => $$<full_ident>,
+                'fields' => $$<exp_mapping>
+            )
+        }
+    | { say '*** Syntax Error parsing Constructor'; die() }
+    ]
 };
 
 token bind {
@@ -480,8 +492,8 @@ token sig {
         # TODO - exp_seq / exp_mapping == positional / named 
         <exp_seq> 
         {
-            # say " invocant: ", ($$<invocant>).perl;
-            # say " positional: ", ($$<exp_seq>).perl;
+            # say ' invocant: ', ($$<invocant>).perl;
+            # say ' positional: ', ($$<exp_seq>).perl;
             return ::Sig( 'invocant' => $$<invocant>, 'positional' => $$<exp_seq>, 'named' => { } );
         }
 };
@@ -503,13 +515,13 @@ token method {
     <?ws>  <opt_name>  <?opt_ws> 
     <method_sig>
     <?opt_ws> \{ <?opt_ws>  
-          # { say " parsing statement list " }
+          # { say ' parsing statement list ' }
           <exp_stmts> 
-          # { say " got statement list ", ($$<exp_stmts>).perl } 
+          # { say ' got statement list ', ($$<exp_stmts>).perl } 
         <?opt_ws> 
-    [   \}     | { say "*** Syntax Error in method '", $Class_name, '.', $$<name>, "' near pos=", $/.to; die "error in Block"; } ]
+    [   \}     | { say '*** Syntax Error in method \'', $Class_name, '.', $$<name>, '\' near pos=', $/.to; die 'error in Block'; } ]
     {
-        # say " block: ", ($$<exp_stmts>).perl;
+        # say ' block: ', ($$<exp_stmts>).perl;
         return ::Method( 'name' => $$<opt_name>, 'sig' => $$<method_sig>, 'block' => $$<exp_stmts> );
     }
 };
@@ -520,27 +532,27 @@ token sub {
     <method_sig>
     <?opt_ws> \{ <?opt_ws>  
           <exp_stmts> <?opt_ws> 
-    [   \}     | { say "*** Syntax Error in sub '", $$<name>, "'"; die "error in Block"; } ]
+    [   \}     | { say '*** Syntax Error in sub \'', $$<name>, '\''; die 'error in Block'; } ]
     { return ::Sub( 'name' => $$<opt_name>, 'sig' => $$<method_sig>, 'block' => $$<exp_stmts> ) }
 };
 
 token token {
-    # { say "parsing Token" }
+    # { say 'parsing Token' }
     token
     <?ws>  <opt_name>  <?opt_ws> \{
         <MiniPerl6::Grammar::Regex.rule>
     \}
     {
-        # say "Token was compiled into: ", ($$<MiniPerl6::Grammar::Regex.rule>).perl;
+        #say 'Token was compiled into: ', ($$<MiniPerl6::Grammar::Regex.rule>).perl;
         my $source := 'method ' ~ $$<opt_name> ~ ' ( $grammar: $str, $pos ) { ' ~
-            'my $MATCH; $MATCH := ::MiniPerl6::Perl5::Match( "str" => $str, "from" => $pos, "to" => $pos ); ' ~ 
+            'my $MATCH; $MATCH := ::MiniPerl6::Perl5::Match( \'str\' => $str, \'from\' => $pos, \'to\' => $pos ); ' ~ 
             '$MATCH.bool( ' ~
                 ($$<MiniPerl6::Grammar::Regex.rule>).emit ~
             '); ' ~
             'return $MATCH }';
-        #say "Intermediate code: ", $source;
+        #say 'Intermediate code: ', $source;
         my $ast := MiniPerl6::Grammar.term( $source );
-        # say "Intermediate ast: ", $$ast.emit;
+        # say 'Intermediate ast: ', $$ast.emit;
         return $$ast;
     }
 };

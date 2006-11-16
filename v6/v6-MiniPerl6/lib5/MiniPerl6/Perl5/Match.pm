@@ -8,10 +8,12 @@ use Data::Dumper;
 #use Class::InsideOut qw( public register id );
 use Scalar::Util qw( refaddr blessed );
 
+my %_data;
+
 use overload (
     '@{}'    => \&array,
     '%{}'    => \&hash,
-    'bool'   => \&bool,
+    'bool'   => sub { $_data{refaddr $_[0]}{bool} },
     '&{}'    => \&code,
     '${}'    => \&scalar,
     '""'     => \&flat,
@@ -22,8 +24,6 @@ use overload (
 # class method
 # ::fail can be called from inside closures
 # sub ::fail { $::_V6_SUCCEED = 0 }
-
-my %_data;
 
 sub new {
     my $class = shift;
@@ -47,18 +47,28 @@ sub from { @_ == 1 ? ( $_data{refaddr $_[0]}{from} ) : ( $_data{refaddr $_[0]}{f
 sub to   { @_ == 1 ? ( $_data{refaddr $_[0]}{to}   ) : ( $_data{refaddr $_[0]}{to}   = $_[1] ) };
 sub bool { @_ == 1 ? ( $_data{refaddr $_[0]}{bool} ) : ( $_data{refaddr $_[0]}{bool} = $_[1] ) };
 
-sub array {    $_data{refaddr $_[0]}->{match}  }
+sub array {    
+         $_data{refaddr $_[0]}->{match} 
+    || ( $_data{refaddr $_[0]}->{match} = [] )
+}
 
 sub hash  {   
-    my $array = $_data{refaddr $_[0]}->{match};
-    return {
-        %{ $_data{refaddr $_[0]}->{named} },
-        (
-        map { ( $_, $array->[$_] ) } 
-            0 .. $#$array
-        ),
-    }
+         $_data{refaddr $_[0]}->{named} 
+    || ( $_data{refaddr $_[0]}->{named} = {} )
+
+# XXX - doesn't work as lvalue
+#    my $array = 
+#             $_data{refaddr $_[0]}->{match} 
+#        || ( $_data{refaddr $_[0]}->{match} = [] );
+#    return {
+#        %{ $_data{refaddr $_[0]}->{named} || {} },
+#        (
+#        map { ( $_, $array->[$_] ) } 
+#            0 .. $#$array
+#        ),
+#    }
 }
+
 sub keys   { 
     CORE::keys   %{$_data{refaddr $_[0]}->{named}},
     0 .. $#{ $_[0]->array }
@@ -84,11 +94,11 @@ sub flat {
     return $$cap
         if ref $cap eq 'REF'   ||
            ref $cap eq 'SCALAR';
-    return '' unless ${$obj->{bool}};
+    return '' unless $obj->{bool};
     
-    return '' if $_[0]->from > length( ${$obj->{str}} );
+    return '' if $_[0]->from > length( $obj->{str} );
     
-    return substr( ${$obj->{str}}, $_[0]->from, $_[0]->to - $_[0]->from );
+    return substr( $obj->{str}, $_[0]->from, $_[0]->to - $_[0]->from );
 }
 
 sub str {

@@ -9,9 +9,11 @@ token ws {  <?MiniPerl6::Grammar.ws>  };
 
 token ident {  <?MiniPerl6::Grammar.full_ident> | <digit> };
 
+token any { . };
+
 token literal {
     |  \\ .        <literal>
-    |  <-[ \' ]>   <literal>
+    |  <!before \' > .  <literal>
     |  <''>
 };
 
@@ -19,9 +21,9 @@ token metasyntax {
     [ 
     |  \\ .
     |  \'  <?literal>     \'
-    |  \{  <?string_code>        \}
+    |  \{  <?string_code> \}
     |  \<  <?metasyntax>  \>
-    |  <-[ \> ]> 
+    |  <!before \> > . 
     ]
     [ <metasyntax> | <''> ]
 };
@@ -29,7 +31,7 @@ token metasyntax {
 token char_range {
     [ 
     |  \\ .
-    |  <-[ \] ]> 
+    |  <!before \] > . 
     ]
     [ <char_range> | <''> ]
 };
@@ -41,19 +43,19 @@ token char_class {
 
 # XXX - not needed
 token string_code {
-    # bootstrap "code"
+    # bootstrap 'code'
     [ 
     |  \\ .
     |  \'  <?literal>     \'
     |  \{  <?string_code> \}
-    |  <-[ \} ]> 
+    |  <!before \} > . 
     ]
     [ <string_code> | <''> ]
 };
 
 token parsed_code {
     # this subrule is overridden inside the perl6 compiler
-    # XXX - call MiniPerl6 "Statement List"
+    # XXX - call MiniPerl6 'Statement List'
     <?string_code>
     { return '{' ~ $/ ~ '}' }
 };
@@ -63,14 +65,14 @@ token named_capture_body {
     | \[  <rule>        \]  { return $$<rule> } 
     | \<  <metasyntax>  \>  
             { return ::Rul::Subrule( metasyntax => $$<metasyntax> ) }
-    | { die "invalid alias syntax" }
+    | { die 'invalid alias syntax' }
 };
 
 token variables {
     |
         <'$<'>
         <ident> \> 
-        { return '$/{' ~ "'" ~ $<ident> ~ "'" ~ '}' }
+        { return '$/{' ~ '\'' ~ $<ident> ~ '\'' ~ '}' }
     |
         # TODO
         <MiniPerl6::Grammar.sigil> 
@@ -104,8 +106,7 @@ token rule_terms {
         { return ::Rul::Before( rule => $$<rule> ) }
     |   <'<!before'>
         <?ws> <rule> \> 
-        # TODO
-        { return { not_before => { rule => $$<rule> } } }
+        { return ::Rul::NotBefore( rule => $$<rule> ) }
     |   <'<!'>
         # TODO
         <metasyntax> \> 
@@ -124,9 +125,9 @@ token rule_terms {
     |   \< 
         [  
             <variables>   \>
-            # { say "matching < variables ..." }
+            # { say 'matching < variables ...' }
             {
-                # say "found < hash-variable >";
+                # say 'found < hash-variable >';
                 return ::Rul::InterpolateVar( var => $$<variables> )
             }
         |
@@ -154,9 +155,9 @@ token rule_terms {
 #        | ( x | X | o | O ) \[ (<-[ \] ]>*) \]
 #          #  \x[0021]  \X[0021]
 #          { return ::Rul::SpecialChar( char => '\\' ~ $0 ~ $1 ) }
-        | .
+        | <any>
           #  \e  \E
-          { return ::Rul::SpecialChar( char => $$/ ) }
+          { return ::Rul::SpecialChar( char => $$<any> ) }
         ]
     |   \. 
         { return ::Rul::Dot( dot => 1 ) }
@@ -219,7 +220,7 @@ token rule_terms {
 
 token term {
     |  
-       # { say "matching variables" } 
+       # { say 'matching variables' } 
        <variables>
        [  <?ws>? <':='> <?ws>? <named_capture_body>
           { 
@@ -234,14 +235,14 @@ token term {
           }
        ]
     | 
-        # { say "matching terms"; }
+        # { say 'matching terms'; }
         <rule_terms>
         { 
-            #print "term: ", Dumper( $_[0]->data );
+            #print 'term: ', Dumper( $_[0]->data );
             return $$<rule_terms> 
         }
-    |  <-[ \] \} \) \> \: \? \+ \* \| \& \/ ]>    # TODO - <...>* - optimize!
-        { return ::Rul::Constant( constant => $$/ ) }
+    |  <!before \] | \} | \) | \> | \: | \? | \+ | \* | \| | \& | \/ > <any>   # TODO - <...>* - optimize!
+        { return ::Rul::Constant( constant => $$<any> ) }
 };
 
 token quant {
@@ -253,10 +254,10 @@ token quant {
 token greedy {   \?  |  \+  |  <''>  };
 
 token quantifier {
-    |   <?MiniPerl6::Grammar.opt_ws>
-        <before   \}  |  \]   |  \)   >
-        XXX   # fail
-    |
+    #|   <?MiniPerl6::Grammar.opt_ws>
+    #    <before   \}  |  \]   |  \)   >
+    #    XXX   # fail
+    #|
         <?MiniPerl6::Grammar.opt_ws>
         <term> 
         <?MiniPerl6::Grammar.opt_ws2>
@@ -264,12 +265,12 @@ token quantifier {
             <quant> <greedy>
             <?MiniPerl6::Grammar.opt_ws3>
             { return ::Rul::Quantifier(
-                    term    => $$/{'term'},
-                    quant   => $$/{'quant'},
-                    greedy  => $$/{'greedy'},
-                    ws1     => $$/{'MiniPerl6::Grammar.opt_ws'},
-                    ws2     => $$/{'MiniPerl6::Grammar.opt_ws2'},
-                    ws3     => $$/{'MiniPerl6::Grammar.opt_ws3'},
+                    term    => $$<term>,
+                    quant   => $$<quant>,
+                    greedy  => $$<greedy>,
+                    ws1     => $$<MiniPerl6::Grammar.opt_ws>,
+                    ws2     => $$<MiniPerl6::Grammar.opt_ws2>,
+                    ws3     => $$<MiniPerl6::Grammar.opt_ws3>,
                 )
             }
         |
@@ -278,12 +279,12 @@ token quantifier {
 };
 
 token concat_list {
-    $<q1> := <quantifier>
+    <quantifier>
     [
-        $<q2> := <concat_list> 
-        { return [ $$<q1>, @($$<q2>) ] }
+        <concat_list> 
+        { return [ $$<quantifier>, @($$<concat_list>) ] }
     |
-        { return [ $$<q1> ] }
+        { return [ $$<quantifier> ] }
     ]
     |
         { return [] }
@@ -295,13 +296,13 @@ token concat {
 };
 
 token or_list {
-    $<q1> := <concat>
+    <concat>
     [
         <'|'>
-        $<q2> := <or_list> 
-        { return [ $$<q1>, @($$<q2>) ] }
+        <or_list> 
+        { return [ $$<concat>, @($$<or_list>) ] }
     |
-        { return [ $$<q1> ] }
+        { return [ $$<concat> ] }
     ]
     |
         { return [] }
@@ -309,21 +310,13 @@ token or_list {
 
 token rule {
     [ <?ws>? <'|'> | <''> ]
-    # { say "trying M::G::Rule on ", $s }
+    # { say 'trying M::G::Rule on ', $s }
     <or_list>
     { 
-        # say "found Rule";
+        # say 'found Rule';
         return ::Rul::Or( 'or' => $$<or_list> ) 
     }
 };
-
-=pod 
-# -- this depends on changing the specs
-#token concat {
-#    <quantifier>+
-#    { return Rul::Concat( concat => $<quantifier> ) }
-#}
-=cut
 
 }
 

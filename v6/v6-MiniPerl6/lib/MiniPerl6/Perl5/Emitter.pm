@@ -29,7 +29,7 @@ class Val::Num {
 
 class Val::Buf {
     has $.buf;
-    method emit { $.buf.perl }
+    method emit { '\'' ~ $.buf ~ '\'' }
 }
 
 class Val::Undef {
@@ -197,23 +197,25 @@ class Apply {
         
         my $code := $.code;
 
-        if $code eq 'say'       { return 'Main::say(' ~ (@.arguments.>>emit).join(', ') ~ ')' };
-        if $code eq 'print'     { return 'Main::print(' ~ (@.arguments.>>emit).join(', ') ~ ')' };
+        if $code eq 'say'        { return 'Main::say('   ~ (@.arguments.>>emit).join(', ') ~ ')' };
+        if $code eq 'print'      { return 'Main::print(' ~ (@.arguments.>>emit).join(', ') ~ ')' };
 
         if $code eq 'prefix:<~>' { return '("" . ' ~ (@.arguments.>>emit).join(' ') ~ ')' };
+        if $code eq 'prefix:<!>' { return '('  ~ (@.arguments.>>emit).join(' ')    ~ ' ? 0 : 1)' };
+        if $code eq 'prefix:<?>' { return '('  ~ (@.arguments.>>emit).join(' ')    ~ ' ? 1 : 0)' };
 
-        if $code eq 'prefix:<$>' { return '${' ~ (@.arguments.>>emit).join(' ') ~ '}' };
-        if $code eq 'prefix:<@>' { return '@{' ~ (@.arguments.>>emit).join(' ') ~ '}' };
-        if $code eq 'prefix:<%>' { return '%{' ~ (@.arguments.>>emit).join(' ') ~ '}' };
+        if $code eq 'prefix:<$>' { return '${' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
+        if $code eq 'prefix:<@>' { return '@{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
+        if $code eq 'prefix:<%>' { return '%{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
 
-        if $code eq 'infix:<~>' { return '(' ~ (@.arguments.>>emit).join(' . ') ~ ')' };
-        if $code eq 'infix:<+>' { return '(' ~ (@.arguments.>>emit).join(' + ') ~ ')' };
-        if $code eq 'infix:<->' { return '(' ~ (@.arguments.>>emit).join(' - ') ~ ')' };
+        if $code eq 'infix:<~>'  { return '('  ~ (@.arguments.>>emit).join(' . ')  ~ ')' };
+        if $code eq 'infix:<+>'  { return '('  ~ (@.arguments.>>emit).join(' + ')  ~ ')' };
+        if $code eq 'infix:<->'  { return '('  ~ (@.arguments.>>emit).join(' - ')  ~ ')' };
         
-        if $code eq 'infix:<&&>' { return '(' ~ (@.arguments.>>emit).join(' && ') ~ ')' };
-        if $code eq 'infix:<||>' { return '(' ~ (@.arguments.>>emit).join(' || ') ~ ')' };
-        if $code eq 'infix:<eq>' { return '(' ~ (@.arguments.>>emit).join(' eq ') ~ ')' };
-        if $code eq 'infix:<ne>' { return '(' ~ (@.arguments.>>emit).join(' ne ') ~ ')' };
+        if $code eq 'infix:<&&>' { return '('  ~ (@.arguments.>>emit).join(' && ') ~ ')' };
+        if $code eq 'infix:<||>' { return '('  ~ (@.arguments.>>emit).join(' || ') ~ ')' };
+        if $code eq 'infix:<eq>' { return '('  ~ (@.arguments.>>emit).join(' eq ') ~ ')' };
+        if $code eq 'infix:<ne>' { return '('  ~ (@.arguments.>>emit).join(' ne ') ~ ')' };
  
         if $code eq 'ternary:<?? ::>' { 
             return '(' ~ (@.arguments[0]).emit ~

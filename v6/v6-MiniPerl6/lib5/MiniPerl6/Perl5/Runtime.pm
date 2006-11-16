@@ -7,7 +7,8 @@ package MiniPerl6::Grammar;
     use MiniPerl6::Perl5::Match;
     sub space { 
         my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
-        my $MATCH; $MATCH = MiniPerl6::Perl5::Match->new( 
+        my $MATCH; 
+        $MATCH = MiniPerl6::Perl5::Match->new( 
             'str' => $str,'from' => $pos,'to' => $pos, ); 
         $MATCH->bool(
             substr($str, $MATCH->to()) =~ m/^([[:space:]])/
@@ -27,15 +28,45 @@ package MiniPerl6::Grammar;
         );
         $MATCH;
     }
-    sub newline { 
+
+BEGIN {
+    if ( $::_V6_COMPILER_NAME ne 'v6.pm' ) {
+        eval q!
+    sub word { 
         my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
         my $MATCH; $MATCH = MiniPerl6::Perl5::Match->new( 
             'str' => $str,'from' => $pos,'to' => $pos, ); 
         $MATCH->bool(
-            substr($str, $MATCH->to()) =~ m/^(\n\r?|\r\n?)/
+            substr($str, $MATCH->to()) =~ m/^([[:word:]])/
             ? ( 1 + $MATCH->to( length( $1 ) + $MATCH->to() ))
             : 0
         );
+        $MATCH;
+    }
+        !;
+    }
+}
+
+    sub newline { 
+        my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
+        my $MATCH; $MATCH = MiniPerl6::Perl5::Match->new( 
+            'str' => $str,'from' => $pos,'to' => $pos, ); 
+        return $MATCH unless ord( substr($str, $MATCH->to()) ) == 10
+            || ord( substr($str, $MATCH->to()) ) == 13;
+        $MATCH->bool(
+            substr($str, $MATCH->to()) =~ m/(?m)^(\n\r?|\r\n?)/
+            ? ( 1 + $MATCH->to( length( $1 ) + $MATCH->to() ))
+            : 0
+        );
+        $MATCH;
+    }
+    sub not_newline { 
+        my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
+        my $MATCH; $MATCH = MiniPerl6::Perl5::Match->new( 
+            'str' => $str,'from' => $pos,'to' => $pos, ); 
+        return $MATCH if ord( substr($str, $MATCH->to()) ) == 10
+            || ord( substr($str, $MATCH->to()) ) == 13;
+        $MATCH->to( 1 + $MATCH->to );
         $MATCH;
     }
     

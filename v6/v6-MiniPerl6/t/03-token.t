@@ -1,5 +1,6 @@
 use v6-alpha;
 
+use MiniPerl6::Grammar;
 use MiniPerl6::Grammar::Regex;
 use MiniPerl6::Emitter::Token;
 
@@ -10,12 +11,13 @@ use MiniPerl6::Emitter::Token;
     say ($$p).emit;
 }
 
-{
-    # hash dispatch
-    my $p = MiniPerl6::Grammar::Regex.term( '<%h>' );
-    say ($$p).perl;
-    say ($$p).emit;
-}
+# TODO 
+#{
+#    # hash dispatch
+#    my $p = MiniPerl6::Grammar::Regex.term( '<%h>' );
+#    say ($$p).perl;
+#    say ($$p).emit;
+#}
 
 {
     # no quantifier
