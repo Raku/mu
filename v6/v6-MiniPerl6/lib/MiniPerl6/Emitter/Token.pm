@@ -80,6 +80,19 @@ class Rul::Subrule {
     }
 }
 
+class Rul::SubruleNoCapture {
+    has $.metasyntax;
+    method emit {
+        my $meth := ( 1 + index( $.metasyntax, '.' ) )
+            ?? $.metasyntax 
+            !! ( '$grammar.' ~ $.metasyntax );
+        'do { ' ~
+          'my $m2 := ' ~ $meth ~ '($str, $MATCH.to); ' ~
+          'if $m2 { $MATCH.to( $m2.to ); 1 } else { 0 } ' ~
+        '}'
+    }
+}
+
 class Rul::Var {
     has $.sigil;
     has $.twigil;
@@ -123,25 +136,25 @@ class Rul::SpecialChar {
         my $char := $.char;
         #say 'CHAR ',$char;
         if $char eq 'n' {
-            my $rul := ::Rul::Subrule( metasyntax => 'newline' );
+            my $rul := ::Rul::SubruleNoCapture( metasyntax => 'newline' );
             $rul := $rul.emit;
             #say 'NEWLINE ', $rul;
             return $rul;
             # Rul::perl5( '(?:\n\r?|\r\n?)' )
         };
         if $char eq 'N' {
-            my $rul := ::Rul::Subrule( metasyntax => 'not_newline' );
+            my $rul := ::Rul::SubruleNoCapture( metasyntax => 'not_newline' );
             $rul := $rul.emit;
             return $rul;
             # Rul::perl5( '(?!\n\r?|\r\n?).' )
         };
         if $char eq 'd' {
-            my $rul := ::Rul::Subrule( metasyntax => 'digit' );
+            my $rul := ::Rul::SubruleNoCapture( metasyntax => 'digit' );
             $rul := $rul.emit;
             return $rul;
         };
         if $char eq 's' {
-            my $rul := ::Rul::Subrule( metasyntax => 'space' );
+            my $rul := ::Rul::SubruleNoCapture( metasyntax => 'space' );
             $rul := $rul.emit;
             return $rul;
         };

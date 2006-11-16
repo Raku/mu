@@ -10,18 +10,18 @@ sub array($data)    { use v5; @$data; use v6; };
 my $Class_name;  # for diagnostic messages
 
 token ident_digit {
-    [ [ <word> | _ | <digit> ] <ident_digit>
+    [ [ <?word> | _ | <?digit> ] <?ident_digit>
     |   <''>
     ]    
 };
 
 token ident {
-    [ <word> | _ ] <ident_digit>
+    [ <?word> | _ ] <?ident_digit>
 };
 
 token full_ident {
-    <ident>
-    [   <'::'> <full_ident>
+    <?ident>
+    [   <'::'> <?full_ident>
     |   <''>
     ]    
 };
@@ -555,7 +555,7 @@ token token {
                 ($$<MiniPerl6::Grammar::Regex.rule>).emit ~
             '); ' ~
             'return $MATCH }';
-        say 'Intermediate code: ', $source;
+        #say 'Intermediate code: ', $source;
         my $ast := MiniPerl6::Grammar.term( $source );
         # say 'Intermediate ast: ', $$ast.emit;
         return $$ast;

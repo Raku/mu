@@ -132,9 +132,9 @@ token rule_terms {
             }
         |
             \?
-            # TODO - non-capture
+            # TODO 
             <metasyntax>  \>
-            { return ::Rul::Subrule( metasyntax => $$<metasyntax> ) }
+            { return ::Rul::SubruleNoCapture( metasyntax => $$<metasyntax> ) }
         |
             # TODO
             <metasyntax>  \>

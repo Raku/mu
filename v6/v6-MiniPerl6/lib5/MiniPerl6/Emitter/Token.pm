@@ -27,6 +27,10 @@ package Rul::Subrule;
 sub new { bless { @_ }, "Rul::Subrule" }
 sub metasyntax { @_ == 1 ? ( $_[0]->{metasyntax} ) : ( $_[0]->{metasyntax} = $_[1] ) };
 sub emit { my $self = $_[0]; my $meth = ((1 + index($_[0]->{metasyntax}, '.')) ? $_[0]->{metasyntax} : ('$grammar.' . $_[0]->{metasyntax})); ('do { ' . ('my $m2 := ' . ($meth . ('($str, $MATCH.to); ' . ('if $m2 { $MATCH.to( $m2.to ); $MATCH{\'' . ($_[0]->{metasyntax} . ('\'} := $m2; 1 } else { 0 } ' . '}'))))))) };
+package Rul::SubruleNoCapture;
+sub new { bless { @_ }, "Rul::SubruleNoCapture" }
+sub metasyntax { @_ == 1 ? ( $_[0]->{metasyntax} ) : ( $_[0]->{metasyntax} = $_[1] ) };
+sub emit { my $self = $_[0]; my $meth = ((1 + index($_[0]->{metasyntax}, '.')) ? $_[0]->{metasyntax} : ('$grammar.' . $_[0]->{metasyntax})); ('do { ' . ('my $m2 := ' . ($meth . ('($str, $MATCH.to); ' . ('if $m2 { $MATCH.to( $m2.to ); 1 } else { 0 } ' . '}'))))) };
 package Rul::Var;
 sub new { bless { @_ }, "Rul::Var" }
 sub sigil { @_ == 1 ? ( $_[0]->{sigil} ) : ( $_[0]->{sigil} = $_[1] ) };
@@ -43,11 +47,11 @@ sub emit { my $self = $_[0]; ('( (\'\' ne substr( $str, $MATCH.to, 1 )) ' . ('  
 package Rul::SpecialChar;
 sub new { bless { @_ }, "Rul::SpecialChar" }
 sub char { @_ == 1 ? ( $_[0]->{char} ) : ( $_[0]->{char} = $_[1] ) };
-sub emit { my $self = $_[0]; my $char = $_[0]->{char}; do { if (($char eq 'n')) { my $rul = Rul::Subrule->new( metasyntax() => 'newline', );$rul = $rul->emit();return($rul) } else {  } }; do { if (($char eq 'N')) { my $rul = Rul::Subrule->new( metasyntax() => 'not_newline', );$rul = $rul->emit();return($rul) } else {  } }; do { if (($char eq 'd')) { my $rul = Rul::Subrule->new( metasyntax() => 'digit', );$rul = $rul->emit();return($rul) } else {  } }; do { if (($char eq 's')) { my $rul = Rul::Subrule->new( metasyntax() => 'space', );$rul = $rul->emit();return($rul) } else {  } }; return(Rul::constant($char)) };
+sub emit { my $self = $_[0]; my $char = $_[0]->{char}; do { if (($char eq 'n')) { my $rul = Rul::SubruleNoCapture->new( metasyntax() => 'newline', );$rul = $rul->emit();return($rul) } else {  } }; do { if (($char eq 'N')) { my $rul = Rul::SubruleNoCapture->new( metasyntax() => 'not_newline', );$rul = $rul->emit();return($rul) } else {  } }; do { if (($char eq 'd')) { my $rul = Rul::SubruleNoCapture->new( metasyntax() => 'digit', );$rul = $rul->emit();return($rul) } else {  } }; do { if (($char eq 's')) { my $rul = Rul::SubruleNoCapture->new( metasyntax() => 'space', );$rul = $rul->emit();return($rul) } else {  } }; return(Rul::constant($char)) };
 package Rul::Block;
 sub new { bless { @_ }, "Rul::Block" }
 sub closure { @_ == 1 ? ( $_[0]->{closure} ) : ( $_[0]->{closure} = $_[1] ) };
-sub emit { my $self = $_[0]; ('do { ' . ('my $ret := ( sub {' . ($_[0]->{closure} . ('; \'974^213\' } ).();' . ('if $ret ne \'974^213\' {' . ('return $ret;' . ('};' . ('1' . '}')))))))) };
+sub emit { my $self = $_[0]; ('do { ' . ('my $ret := ( sub {' . ('do {' . ($_[0]->{closure} . ('}; ' . ('\'974^213\' } ).();' . ('if $ret ne \'974^213\' {' . ('$MATCH.capture( $ret ); return $MATCH;' . ('};' . ('1' . '}')))))))))) };
 package Rul::InterpolateVar;
 sub new { bless { @_ }, "Rul::InterpolateVar" }
 sub var { @_ == 1 ? ( $_[0]->{var} ) : ( $_[0]->{var} = $_[1] ) };
