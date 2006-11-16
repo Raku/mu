@@ -179,12 +179,13 @@ class Call {
                 return
                     'Main::' ~ $.method ~ '(' ~ $.invocant.emit ~ ', ' ~ (@.arguments.>>emit).join(', ') ~ ')';
             }
-        }
+        };
 
         my $meth := $.method;
         if  $meth eq 'postcircumfix:<( )>'  {
              $meth := '';  
         }
+        else { };
         
         my $call := '->' ~ $meth ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
         if ($.hyper) {
@@ -192,7 +193,7 @@ class Call {
         }
         else {
             $.invocant.emit ~ $call;
-        }
+        };
 
     }
 }
