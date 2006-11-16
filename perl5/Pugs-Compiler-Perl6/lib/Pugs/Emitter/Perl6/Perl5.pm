@@ -1209,7 +1209,7 @@ sub term {
               (my \s+ \$grammar)
             /
               \$_[3] = \$_[2]; 
-              \$_[2] = undef;
+              eval{ \$_[2] = undef };
               $1
             /sx;
             $perl5 = "*$name = $perl5";
