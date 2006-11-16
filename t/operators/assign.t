@@ -3,7 +3,7 @@ use Test;
 
 # L<S03/"Changes to Perl 5 operators"/list assignment operator parses on the right>
 
-plan 208;
+plan 213;
 
 # tests various assignment styles
 
@@ -46,16 +46,35 @@ plan 208;
 
 {
     # list assignments
-    
+
     my @a = (1 .. 3);
     my ($one, $two, $three) = @a;
     is($one, 1, "list assignment my ($, $, $) = @ works");
     is($two, 2, "list assignment my ($, $, $) = @ works");
-    is($three, 3, "list assignment my ($, $, $) = @ works");    
+    is($three, 3, "list assignment my ($, $, $) = @ works");
+
+}
+
+
+{
+    # testing list assignments with skipped values
+    skip 5, "skipping assignment with skipped values";
+#     my @a = 1..4
+#     my ($one, $, $three) = @a;
+#     is("$one $three", "1 3", "list assignment my ($a, $, $b) = @ works");
+
+#     my ($, $two) = @a;
+#     is($two, 2, "list assignment my ($, $a) = @ works");
+#     my ($, $, $, $four) = @a;
+#     is($four, 4, "list assignment my ($, $, $, $a) = @ works");
+
+#     my ($, @b, $c) = @a;
+#     is(~@b, "2 3", "list assignment my ($, @) = @ works");
+#     is($c, 4, "list assignment my ($, @, $c) = @ works");
 }
 
 {
-   # testing list assignment syntax 
+   # testing list assignment syntax
 
     my ($a,$b,$c,@a);
     ($a,$b,$c) = 1 .. 3;
