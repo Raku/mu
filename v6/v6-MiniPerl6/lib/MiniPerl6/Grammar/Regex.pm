@@ -57,7 +57,7 @@ token parsed_code {
     # this subrule is overridden inside the perl6 compiler
     # XXX - call MiniPerl6 'Statement List'
     <?string_code>
-    { return '{' ~ $/ ~ '}' }
+    { return ~$/ }
 };
 
 token named_capture_body {

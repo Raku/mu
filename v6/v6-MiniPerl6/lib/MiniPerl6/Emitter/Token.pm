@@ -166,13 +166,15 @@ class Rul::SpecialChar {
 class Rul::Block {
     has $.closure;
     method emit {
-        return 'do ' ~ $.closure;
+        #return 'do ' ~ $.closure;
         'do { ' ~ 
              'my $ret := ( sub {' ~
-                $.closure ~
-             '; 974213 } )();' ~
-             'if $ret ne 974213 {' ~
-                'return $ret;' ~
+                'do {' ~ 
+                   $.closure ~
+                '}; ' ~
+                '\'974^213\' } ).();' ~
+             'if $ret ne \'974^213\' {' ~
+                '$MATCH.capture( $ret ); return $MATCH;' ~
              '};' ~
              '1' ~
         '}'

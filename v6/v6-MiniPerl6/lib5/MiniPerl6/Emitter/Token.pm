@@ -47,7 +47,7 @@ sub emit { my $self = $_[0]; my $char = $_[0]->{char}; do { if (($char eq 'n')) 
 package Rul::Block;
 sub new { bless { @_ }, "Rul::Block" }
 sub closure { @_ == 1 ? ( $_[0]->{closure} ) : ( $_[0]->{closure} = $_[1] ) };
-sub emit { my $self = $_[0]; return(('do ' . $_[0]->{closure})); ('do { ' . ('my $ret := ( sub {' . ($_[0]->{closure} . ('; 974213 } )();' . ('if $ret ne 974213 {' . ('return $ret;' . ('};' . ('1' . '}')))))))) };
+sub emit { my $self = $_[0]; ('do { ' . ('my $ret := ( sub {' . ($_[0]->{closure} . ('; \'974^213\' } ).();' . ('if $ret ne \'974^213\' {' . ('return $ret;' . ('};' . ('1' . '}')))))))) };
 package Rul::InterpolateVar;
 sub new { bless { @_ }, "Rul::InterpolateVar" }
 sub var { @_ == 1 ? ( $_[0]->{var} ) : ( $_[0]->{var} = $_[1] ) };
