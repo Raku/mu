@@ -223,6 +223,7 @@ token sub_or_method_name {
 };
 
 token term {
+    | <var>     { return $$<var> }     # $variable
     | <prefix_op> <exp> 
           { return ::Apply(
             'code'      => 'prefix:<' ~ $<prefix_op> ~ '>',
@@ -245,7 +246,6 @@ token term {
         { return ::Decl( 'decl' => $$<declarator>, 'var' => $$<var> ) }    # my $variable
     | use <?ws> <full_ident>  [ - <ident> | <''> ]
         { return ::Use( 'mod' => $$<full_ident> ) }
-    | <var>     { return $$<var> }     # $variable
     | <val>     { return $$<val> }     # 'value'
     | <lit>     { return $$<lit> }     # [literal construct]
 #   | <bind>    { return $$<bind>   }  # $lhs := $rhs

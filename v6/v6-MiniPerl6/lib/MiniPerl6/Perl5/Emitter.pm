@@ -258,7 +258,7 @@ class For {
     has @.body;
     has @.topic;
     method emit {
-        'do { for my ' ~ $.topic.emit ~ ' (' ~ $.cond.emit ~ ') { ' ~ (@.body.>>emit).join(';') ~ ' } }';
+        'do { for my ' ~ $.topic.emit ~ ' ( @{' ~ $.cond.emit ~ '} ) { ' ~ (@.body.>>emit).join(';') ~ ' } }';
     }
 }
 
