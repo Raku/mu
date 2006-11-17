@@ -1,3 +1,5 @@
+Bootstrapping MiniPerl6 in Perl5
+
 - Reduce the amount of nodes required to compile MP6::Grammar::Regex
 - Implement the Rul::* nodes using MP6, emit MP6 - that would amount to about 5 or 6 nodes
 
