@@ -15,6 +15,7 @@ Limitations of the bootstrapping version:
 - there is no precedence of operators - always use parenthesis.
 - there is no string interpolation - always use single quotes; "\n" doesn't work.
 - contructors are called with ::ClassName( 'arg' => 'val', 'arg' => 'val' )
+- 'for' loops need to specify '@{}', as in:  for ( @$a ) {...}
 
 'Token' routines:
 

@@ -67,8 +67,6 @@ class Lit::Hash {
             $str := $str ~ ($field[0]).emit ~ ' => ' ~ ($field[1]).emit ~ ',';
         }; 
         '{ ' ~ $str ~ ' }';
-        ## '{' ~ ((%.hash.kv).map(sub ($k, $v) { $k.perl ~ ' => ' ~ $v.emit})).join(', ') ~ '}';
-        ## '{' ~ %.hash.kv.map(sub ($k, $v) { $k.perl ~ ' => ' ~ $v.emit}).join(', ') ~ '}';
     }
 }
 
@@ -258,7 +256,7 @@ class For {
     has @.body;
     has @.topic;
     method emit {
-        'do { for my ' ~ $.topic.emit ~ ' ( @{' ~ $.cond.emit ~ '} ) { ' ~ (@.body.>>emit).join(';') ~ ' } }';
+        'do { for my ' ~ $.topic.emit ~ ' ( ' ~ $.cond.emit ~ ' ) { ' ~ (@.body.>>emit).join(';') ~ ' } }';
     }
 }
 
