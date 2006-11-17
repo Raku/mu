@@ -584,6 +584,8 @@ token token {
 
 }
 
+=begin
+
 =head1 NAME 
 
 MiniPerl6::Grammar - Grammar for MiniPerl6
@@ -616,4 +618,4 @@ under the same terms as Perl itself.
 
 See L<http://www.perl.com/perl/misc/Artistic.html>
 
-=cut
+=end

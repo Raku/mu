@@ -299,6 +299,8 @@ class Rul::CharClass {
     }
 }
 
+=begin
+
 =head1 NAME 
 
 MiniPerl6::Emitter::Token - Code generator for MiniPerl6 Regex
@@ -331,4 +333,4 @@ under the same terms as Perl itself.
 
 See L<http://www.perl.com/perl/misc/Artistic.html>
 
-=cut
+=end
