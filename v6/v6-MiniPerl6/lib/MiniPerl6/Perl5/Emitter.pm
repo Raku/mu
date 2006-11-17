@@ -159,10 +159,25 @@ class Bind {
                 $i := $i + 1;
             };
             return $str ~ $.parameters.emit ~ ' }';
-        }
-        else {
-            $.parameters.emit ~ ' = ' ~ $.arguments.emit;
-        }
+        };
+        if $.parameters.isa( 'Lit::Hash' ) {
+            
+            #  {:$a, :$b} := { a => 1, b => [2, 3]}
+            
+            # XXX TODO - this is *not* right
+            
+            my $a := $.parameters.hash;
+            my $b := $.arguments.hash;
+            my $str := 'do { ';
+            my $i := 0;
+            for @$a -> $var { 
+                my $bind := ::Bind( 'parameters' => $var[0], 'arguments' => ($b[$i])[1] );
+                $str := $str ~ ' ' ~ $bind.emit ~ '; ';
+                $i := $i + 1;
+            };
+            return $str ~ $.parameters.emit ~ ' }';
+        };
+        $.parameters.emit ~ ' = ' ~ $.arguments.emit;
     }
 }
 
