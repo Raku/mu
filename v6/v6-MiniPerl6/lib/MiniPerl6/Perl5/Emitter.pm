@@ -145,7 +145,24 @@ class Bind {
     has $.parameters;
     has $.arguments;
     method emit {
-        $.parameters.emit ~ ' = ' ~ $.arguments.emit
+        if $.parameters.isa( 'Lit::Array' ) {
+            
+            #  [$a, [$b, $c]] := [1, [2, 3]]
+            
+            my $a := $.parameters.array;
+            my $b := $.arguments.array;
+            my $str := 'do { ';
+            my $i := 0;
+            for @$a -> $var { 
+                my $bind := ::Bind( 'parameters' => $var, 'arguments' => ($b[$i]) );
+                $str := $str ~ ' ' ~ $bind.emit ~ '; ';
+                $i := $i + 1;
+            };
+            return $str ~ $.parameters.emit ~ ' }';
+        }
+        else {
+            $.parameters.emit ~ ' = ' ~ $.arguments.emit;
+        }
     }
 }
 
@@ -168,6 +185,7 @@ class Call {
             || ($.method eq 'say' )
             || ($.method eq 'join')
             || ($.method eq 'chars')
+            || ($.method eq 'isa')
         { 
             if ($.hyper) {
                 return 
