@@ -794,7 +794,7 @@ slowly sent to the server.
 
 See F<examples/network/seenbot.pl>, F<examples/network/logbot.pl> and
 F<examples/network/svnbot.pl> in the L<Pugs Subversion
-Repository|svn.openfoundry.org/pugs/> for example bots using C<Net::IRC>.
+Repository|svn.pugscode.org/pugs/> for example bots using C<Net::IRC>.
 
 =head1 AUTHOR
 

@@ -25,7 +25,7 @@ use constant {
   BASEDIR     => "/var/www/iblech/stuff/pugs-smokes/",
   SMARTLINKS  => "/var/www/iblech/stuff/pugs-util/smartlinks.pl",
   BASEHTTPDIR => "/iblech/stuff/pugs-smokes/",
-  PUGS_SVN    => "http://svn.openfoundry.org/pugs",
+  PUGS_SVN    => "http://svn.pugscode.org/pugs",
   PUGS_SPEC   => "/var/www/iblech/stuff/pugs-smokes/spec",
   BUCKET      => "bucket.dat",
   MAX_RATE    => 1 / 30,       # Allow a new smoke all 30s
@@ -498,10 +498,10 @@ __DATA__
     href="http://www.pugscode.org/">Pugs</a> smoke reports. These smokes are
     automatically generated and show how much a given backend (normal
     Haskell runcore, <a
-    href="http://svn.openfoundry.org/pugs/perl5/PIL-Run/">Perl 6 on Perl 5</a>,
-    <a href="http://svn.openfoundry.org/pugs/perl5/PIL2JS/">Perl 6 on
+    href="http://svn.pugscode.org/pugs/perl5/PIL-Run/">Perl 6 on Perl 5</a>,
+    <a href="http://svn.pugscode.org/pugs/perl5/PIL2JS/">Perl 6 on
     JavaScript</a>, ...) supports of <a
-    href="http://svn.openfoundry.org/pugs/t/">Pugs's testsuite</a>.
+    href="http://svn.pugscode.org/pugs/t/">Pugs's testsuite</a>.
   </p>
 
   <p>
