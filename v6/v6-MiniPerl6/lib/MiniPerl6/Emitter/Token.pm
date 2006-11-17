@@ -136,25 +136,25 @@ class Rul::SpecialChar {
         my $char := $.char;
         #say 'CHAR ',$char;
         if $char eq 'n' {
-            my $rul := ::Rul::SubruleNoCapture( metasyntax => 'newline' );
+            my $rul := ::Rul::SubruleNoCapture( 'metasyntax' => 'newline' );
             $rul := $rul.emit;
             #say 'NEWLINE ', $rul;
             return $rul;
             # Rul::perl5( '(?:\n\r?|\r\n?)' )
         };
         if $char eq 'N' {
-            my $rul := ::Rul::SubruleNoCapture( metasyntax => 'not_newline' );
+            my $rul := ::Rul::SubruleNoCapture( 'metasyntax' => 'not_newline' );
             $rul := $rul.emit;
             return $rul;
             # Rul::perl5( '(?!\n\r?|\r\n?).' )
         };
         if $char eq 'd' {
-            my $rul := ::Rul::SubruleNoCapture( metasyntax => 'digit' );
+            my $rul := ::Rul::SubruleNoCapture( 'metasyntax' => 'digit' );
             $rul := $rul.emit;
             return $rul;
         };
         if $char eq 's' {
-            my $rul := ::Rul::SubruleNoCapture( metasyntax => 'space' );
+            my $rul := ::Rul::SubruleNoCapture( 'metasyntax' => 'space' );
             $rul := $rul.emit;
             return $rul;
         };
@@ -187,7 +187,9 @@ class Rul::Block {
                 '}; ' ~
                 '\'974^213\' } ).();' ~
              'if $ret ne \'974^213\' {' ~
-                '$MATCH.capture( $ret ); return $MATCH;' ~
+                '$MATCH.capture( $ret ); ' ~
+                # '$MATCH.bool( 1 ); ' ~
+                'return $MATCH;' ~
              '};' ~
              '1' ~
         '}'

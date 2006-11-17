@@ -93,9 +93,8 @@ sub flat {
     my $obj = $_data{refaddr $_[0]};
     my $cap = $obj->{capture};
     #print ref $cap;
-    return $$cap
-        if ref $cap eq 'REF'   ||
-           ref $cap eq 'SCALAR';
+    return $cap
+        if defined $cap;
     return '' unless $obj->{bool};
     
     return '' if $_[0]->from > length( $obj->{str} );

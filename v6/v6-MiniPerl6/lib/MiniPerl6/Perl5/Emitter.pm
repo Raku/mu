@@ -6,9 +6,9 @@ class CompUnit {
     has %.methods;
     has @.body;
     method emit {
-        'package ' ~ $.name ~ ";\n" ~ 
-        'sub new { bless { @_ }, "' ~ $.name ~ '" }' ~ "\n" ~
-        (@.body.>>emit).join( ";\n" )
+        'package ' ~ $.name ~ "; " ~ 
+        'sub new { shift; bless { @_ }, "' ~ $.name ~ '" }' ~ " " ~
+        (@.body.>>emit).join( "; " )
     }
 }
 
@@ -131,9 +131,9 @@ class Var {
             '%' => '$Hash_',
             '&' => '$Code_',
         };
-           $.twigil eq '.' 
+           ( $.twigil eq '.' )
         ?? ( '$_[0]->{' ~ $.name ~ '}' )
-        !!  (    $.name eq '/'
+        !!  (    ( $.name eq '/' )
             ??   ( $table{$.sigil} ~ 'MATCH' )
             !!   ( $table{$.sigil} ~ $.name )
             )
@@ -184,8 +184,7 @@ class Call {
         my $meth := $.method;
         if  $meth eq 'postcircumfix:<( )>'  {
              $meth := '';  
-        }
-        else { };
+        };
         
         my $call := '->' ~ $meth ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
         if ($.hyper) {
@@ -207,6 +206,8 @@ class Apply {
 
         if $code eq 'say'        { return 'Main::say('   ~ (@.arguments.>>emit).join(', ') ~ ')' };
         if $code eq 'print'      { return 'Main::print(' ~ (@.arguments.>>emit).join(', ') ~ ')' };
+
+        if $code eq 'array'      { return '@{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
 
         if $code eq 'prefix:<~>' { return '("" . ' ~ (@.arguments.>>emit).join(' ') ~ ')' };
         if $code eq 'prefix:<!>' { return '('  ~ (@.arguments.>>emit).join(' ')    ~ ' ? 0 : 1)' };
@@ -267,7 +268,7 @@ class Decl {
     method emit {
         my $decl := $.decl;
         my $name := $.var.name;
-        $decl eq 'has' 
+           ( $decl eq 'has' )
         ?? ( 'sub ' ~ $name ~ ' { ' ~
             '@_ == 1 ' ~
                 '? ( $_[0]->{' ~ $name ~ '} ) ' ~
@@ -282,7 +283,7 @@ class Sig {
     has $.positional;
     has $.named;
     method emit {
-        " # Signature - TODO \n"
+        ' print \'Signature - TODO\'; die \'Signature - TODO\'; '
     };
     method invocant {
         $.invocant

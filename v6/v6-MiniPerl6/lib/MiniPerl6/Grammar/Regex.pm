@@ -61,10 +61,10 @@ token parsed_code {
 };
 
 token named_capture_body {
-    | \(  <rule>        \)  { return { capturing_group => $$<rule> ,} } 
+    | \(  <rule>        \)  { return { 'capturing_group' => $$<rule> ,} } 
     | \[  <rule>        \]  { return $$<rule> } 
     | \<  <metasyntax>  \>  
-            { return ::Rul::Subrule( metasyntax => $$<metasyntax> ) }
+            { return ::Rul::Subrule( 'metasyntax' => $$<metasyntax> ) }
     | { die 'invalid alias syntax' }
 };
 
@@ -84,9 +84,9 @@ token variables {
         <MiniPerl6::Grammar.full_ident> 
         {
             return ::Rul::Var( 
-                    sigil  => ~$<MiniPerl6::Grammar.sigil>,
-                    twigil => ~$<MiniPerl6::Grammar.twigil>,
-                    name   => ~$<MiniPerl6::Grammar.full_ident>
+                    'sigil'  => ~$<MiniPerl6::Grammar.sigil>,
+                    'twigil' => ~$<MiniPerl6::Grammar.twigil>,
+                    'name'   => ~$<MiniPerl6::Grammar.full_ident>
                    )
         }
 };
@@ -94,55 +94,55 @@ token variables {
 token rule_terms {
     |   <'('>
         <rule> \)
-        { return ::Rul::Capture( rule => $$<rule> ) }
+        { return ::Rul::Capture( 'rule' => $$<rule> ) }
     |   <'<('>
         <rule>  <')>'>
-        { return ::Rul::CaptureResult( rule => $$<rule> ) }
+        { return ::Rul::CaptureResult( 'rule' => $$<rule> ) }
     |   <'<after'>
         <?ws> <rule> \> 
-        { return ::Rul::After( rule => $$<rule> ) }
+        { return ::Rul::After( 'rule' => $$<rule> ) }
     |   <'<before'>
         <?ws> <rule> \> 
-        { return ::Rul::Before( rule => $$<rule> ) }
+        { return ::Rul::Before( 'rule' => $$<rule> ) }
     |   <'<!before'>
         <?ws> <rule> \> 
-        { return ::Rul::NotBefore( rule => $$<rule> ) }
+        { return ::Rul::NotBefore( 'rule' => $$<rule> ) }
     |   <'<!'>
         # TODO
         <metasyntax> \> 
-        { return { negate  => { metasyntax => $$<metasyntax> } } }
+        { return { negate  => { 'metasyntax' => $$<metasyntax> } } }
     |   <'<+'>
         # TODO
         <char_class>  \> 
-        { return ::Rul::CharClass( chars => ~$<char_class> ) }
+        { return ::Rul::CharClass( 'chars' => ~$<char_class> ) }
     |   <'<-'>
         # TODO
         <char_class> \>
-        { return ::Rul::NegateCharClass( chars => ~$<char_class> ) }
+        { return ::Rul::NegateCharClass( 'chars' => ~$<char_class> ) }
     |   \< \'
         <literal> \' \>
-        { return ::Rul::Constant( constant => $$<literal> ) }
+        { return ::Rul::Constant( 'constant' => $$<literal> ) }
     |   \< 
         [  
             <variables>   \>
             # { say 'matching < variables ...' }
             {
                 # say 'found < hash-variable >';
-                return ::Rul::InterpolateVar( var => $$<variables> )
+                return ::Rul::InterpolateVar( 'var' => $$<variables> )
             }
         |
             \?
             # TODO 
             <metasyntax>  \>
-            { return ::Rul::SubruleNoCapture( metasyntax => $$<metasyntax> ) }
+            { return ::Rul::SubruleNoCapture( 'metasyntax' => $$<metasyntax> ) }
         |
             # TODO
             <metasyntax>  \>
-            { return ::Rul::Subrule( metasyntax => $$<metasyntax> ) }
+            { return ::Rul::Subrule( 'metasyntax' => $$<metasyntax> ) }
         ]
     |   \{ 
         <parsed_code>  \}
-        { return ::Rul::Block( closure => $$<parsed_code> ) }
+        { return ::Rul::Block( 'closure' => $$<parsed_code> ) }
     |   <'\\'>  
         [
 # TODO
@@ -157,10 +157,10 @@ token rule_terms {
 #          { return ::Rul::SpecialChar( char => '\\' ~ $0 ~ $1 ) }
         | <any>
           #  \e  \E
-          { return ::Rul::SpecialChar( char => $$<any> ) }
+          { return ::Rul::SpecialChar( 'char' => $$<any> ) }
         ]
     |   \. 
-        { return ::Rul::Dot( dot => 1 ) }
+        { return ::Rul::Dot( 'dot' => 1 ) }
     |   <'['> 
         <rule> <']'> 
         { return $$<rule> }
@@ -168,53 +168,53 @@ token rule_terms {
 };
 
 =for later
-    |   <':::'> { return { colon => ':::' ,} }
-    |   <':?'> { return { colon => ':?' ,} }
-    |   <':+'> { return { colon => ':+' ,} }
-    |   <'::'> { return { colon => '::' ,} }
-    |   <':'> { return { colon => ':'  ,} }
-    |   <'$$'> { return { colon => '$$' ,} }
-    |   <'$'> { return { colon => '$'  ,} }
+    |   <':::'> { return { 'colon' => ':::' ,} }
+    |   <':?'> { return { 'colon' => ':?' ,} }
+    |   <':+'> { return { 'colon' => ':+' ,} }
+    |   <'::'> { return { 'colon' => '::' ,} }
+    |   <':'> { return { 'colon' => ':'  ,} }
+    |   <'$$'> { return { 'colon' => '$$' ,} }
+    |   <'$'> { return { 'colon' => '$'  ,} }
 
 
 # TODO - parser error ???
-#    |   <'^^'> { return { colon => '^^' ,} }
-#    |   <'^'> { return { colon => '^'  ,} } }
-#    |   <'»'> { return { colon => '>>' ,} } }
-#    |   <'«'> { return { colon => '<<' ,} } }
+#    |   <'^^'> { return { 'colon' => '^^' ,} }
+#    |   <'^'> { return { 'colon' => '^'  ,} } }
+#    |   <'»'> { return { 'colon' => '>>' ,} } }
+#    |   <'«'> { return { 'colon' => '<<' ,} } }
 
-    |   <'<<'> { return { colon => '<<' ,} }     
-    |   <'>>'> { return { colon => '>>' ,} }     
+    |   <'<<'> { return { 'colon' => '<<' ,} }     
+    |   <'>>'> { return { 'colon' => '>>' ,} }     
     |   <':i'> 
         <?ws> <rule> 
-        { return { modifier => 'ignorecase', rule => $$<rule>, } }     
+        { return { 'modifier' => 'ignorecase', 'rule' => $$<rule>, } }     
     |   <':ignorecase'> 
         <?ws> <rule> 
-        { return { modifier => 'ignorecase', rule => $$<rule>, } }     
+        { return { 'modifier' => 'ignorecase', 'rule' => $$<rule>, } }     
     |   <':s'> 
         <?ws> <rule> 
-        { return { modifier => 'sigspace',   rule => $$<rule>, } }     
+        { return { 'modifier' => 'sigspace',   'rule' => $$<rule>, } }     
     |   <':sigspace'> 
         <?ws> <rule> 
-        { return { modifier => 'sigspace',   rule => $$<rule>, } }     
+        { return { 'modifier' => 'sigspace',   'rule' => $$<rule>, } }     
     |   <':P5'> 
         <?ws> <rule> 
-        { return { modifier => 'Perl5',  rule => $$<rule>, } }     
+        { return { 'modifier' => 'Perl5',  'rule' => $$<rule>, } }     
     |   <':Perl5'> 
         <?ws> <rule> 
-        { return { modifier => 'Perl5',  rule => $$<rule>, } }     
+        { return { 'modifier' => 'Perl5',  'rule' => $$<rule>, } }     
     |   <':bytes'> 
         <?ws> <rule> 
-        { return { modifier => 'bytes',  rule => $$<rule>, } }     
+        { return { 'modifier' => 'bytes',  'rule' => $$<rule>, } }     
     |   <':codes'> 
         <?ws> <rule> 
-        { return { modifier => 'codes',  rule => $$<rule>, } }     
+        { return { 'modifier' => 'codes',  'rule' => $$<rule>, } }     
     |   <':graphs'> 
         <?ws> <rule> 
-        { return { modifier => 'graphs', rule => $$<rule>, } }     
+        { return { 'modifier' => 'graphs', 'rule' => $$<rule>, } }     
     |   <':langs'> 
         <?ws> <rule> 
-        { return { modifier => 'langs',  rule => $$<rule>, } } }
+        { return { 'modifier' => 'langs',  'rule' => $$<rule>, } } }
 };
 =cut
 
@@ -225,8 +225,8 @@ token term {
        [  <?ws>? <':='> <?ws>? <named_capture_body>
           { 
             return ::Rul::NamedCapture(
-                rule =>  $$<named_capture_body>,
-                ident => $$<variables>
+                'rule' =>  $$<named_capture_body>,
+                'ident' => $$<variables>
             ); 
           }
        |
@@ -242,12 +242,12 @@ token term {
             return $$<rule_terms> 
         }
     |  <!before \] | \} | \) | \> | \: | \? | \+ | \* | \| | \& | \/ > <any>   # TODO - <...>* - optimize!
-        { return ::Rul::Constant( constant => $$<any> ) }
+        { return ::Rul::Constant( 'constant' => $$<any> ) }
 };
 
 token quant {
     |   <'**'> <?MiniPerl6::Grammar.opt_ws> \{  <parsed_code>  \}
-        { return { closure => $$<parsed_code> } }
+        { return { 'closure' => $$<parsed_code> } }
     |   [  \? | \* | \+  ]
 };
 
@@ -265,12 +265,12 @@ token quantifier {
             <quant> <greedy>
             <?MiniPerl6::Grammar.opt_ws3>
             { return ::Rul::Quantifier(
-                    term    => $$<term>,
-                    quant   => $$<quant>,
-                    greedy  => $$<greedy>,
-                    ws1     => $$<MiniPerl6::Grammar.opt_ws>,
-                    ws2     => $$<MiniPerl6::Grammar.opt_ws2>,
-                    ws3     => $$<MiniPerl6::Grammar.opt_ws3>,
+                    'term'    => $$<term>,
+                    'quant'   => $$<quant>,
+                    'greedy'  => $$<greedy>,
+                    'ws1'     => $$<MiniPerl6::Grammar.opt_ws>,
+                    'ws2'     => $$<MiniPerl6::Grammar.opt_ws2>,
+                    'ws3'     => $$<MiniPerl6::Grammar.opt_ws3>,
                 )
             }
         |

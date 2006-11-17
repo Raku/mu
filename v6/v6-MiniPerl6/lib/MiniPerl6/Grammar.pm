@@ -5,7 +5,7 @@ grammar MiniPerl6::Grammar {
 use MiniPerl6::Grammar::Regex;
 
 # XXX - move to v6.pm emitter
-sub array($data)    { use v5; @$data; use v6; };
+#sub array($data)    { use v5; @$data; use v6; };
  
 my $Class_name;  # for diagnostic messages
 
@@ -65,7 +65,7 @@ token parse {
     | <comp_unit>
         [
         |   <?opt_ws> [\; <?opt_ws> | <''> ]  <parse>
-            { return [ $$<comp_unit>, array( $$<parse> ) ] }
+            { return [ $$<comp_unit>, @( $$<parse> ) ] }
         |   <?opt_ws> [\; <?opt_ws> | <''> ]
             { return [ $$<comp_unit> ] }
         ]
@@ -136,7 +136,7 @@ token exp {
         <?opt_ws>
         <exp>
           { return ::Apply(
-            'code'      => 'infix:<' ~ $$<infix_op> ~ '>',
+            'code'      => 'infix:<' ~ $<infix_op> ~ '>',
             'arguments' => [ $$<term_meth>, $$<exp> ],
           ) }
     | <?opt_ws> <':='> <?opt_ws> <exp>
@@ -161,7 +161,7 @@ token term_meth {
             |
                 {
                     return ::Call(
-                        'invocant'  => ::Proto( name => ~$<full_ident> ),
+                        'invocant'  => ::Proto( 'name' => ~$<full_ident> ),
                         'method'    => $$<ident>,
                         'arguments' => undef,
                         'hyper'     => $$<hyper_op>,
@@ -170,7 +170,7 @@ token term_meth {
             ]
             {
                 return ::Call(
-                    'invocant'  => ::Proto( name => ~$<full_ident> ),
+                    'invocant'  => ::Proto( 'name' => ~$<full_ident> ),
                     'method'    => $$<ident>,
                     'arguments' => $$<exp_seq>,
                     'hyper'     => $$<hyper_op>,
@@ -220,7 +220,7 @@ token sub_or_method_name {
 token term {
     | <prefix_op> <exp> 
           { return ::Apply(
-            'code'      => 'prefix:<' ~ $$<prefix_op> ~ '>',
+            'code'      => 'prefix:<' ~ $<prefix_op> ~ '>',
             'arguments' => [ $$<exp> ],
           ) }
     | \( <?opt_ws> <exp> <?opt_ws> \)
@@ -376,7 +376,7 @@ token exp_stmts {
         [
         |   <?opt_ws> \; <?opt_ws> <exp_stmts>
             <?opt_ws> [ \; <?opt_ws> | <''> ]
-            { return [ $$<exp>, array( $$<exp_stmts> ) ] }
+            { return [ $$<exp>, @( $$<exp_stmts> ) ] }
         |   <?opt_ws> [ \; <?opt_ws> | <''> ]
             { return [ $$<exp> ] }
         ]
@@ -389,7 +389,7 @@ token exp_seq {
         [
         |   <?opt_ws> \, <?opt_ws> <exp_seq> 
             <?opt_ws> [ \, <?opt_ws> | <''> ]
-            { return [ $$<exp>, array( $$<exp_seq> ) ] }
+            { return [ $$<exp>, @( $$<exp_seq> ) ] }
         |   <?opt_ws> [ \, <?opt_ws> | <''> ]
             { return [ $$<exp> ] }
         ]
@@ -406,7 +406,7 @@ token exp_mapping {
         <exp>
         [
         |   <?opt_ws> \, <?opt_ws> <exp_mapping> 
-            { return [ [ $$<key>, $$<exp> ], array( $$<exp_mapping> ) ] }
+            { return [ [ $$<key>, $$<exp> ], @( $$<exp_mapping> ) ] }
         |   <?opt_ws> [ \, <?opt_ws> | <''> ]
             { return [ [ $$<key>, $$<exp> ] ] }
         ]
@@ -549,8 +549,8 @@ token token {
     \}
     {
         #say 'Token was compiled into: ', ($$<MiniPerl6::Grammar::Regex.rule>).perl;
-        my $source := 'method ' ~ $$<opt_name> ~ ' ( $grammar: $str, $pos ) { ' ~
-            'my $MATCH; $MATCH := ::MiniPerl6::Perl5::Match( \'str\' => $str, \'from\' => $pos, \'to\' => $pos ); ' ~ 
+        my $source := 'method ' ~ $<opt_name> ~ ' ( $grammar: $str, $pos ) { ' ~
+            'my $MATCH; $MATCH := ::MiniPerl6::Perl5::Match( \'str\' => $str, \'from\' => $pos, \'to\' => $pos, \'bool\' => 1 ); ' ~ 
             '$MATCH.bool( ' ~
                 ($$<MiniPerl6::Grammar::Regex.rule>).emit ~
             '); ' ~
