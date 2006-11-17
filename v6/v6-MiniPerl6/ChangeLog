@@ -1,0 +1,25 @@
+0.001  2006-11-17
+- MiniPerl6::Perl5::Emitter and MiniPerl6::Emitter::Token compile ok
+
+  echo 'class Main { say "hello, World" }' | perl -Ilib5 mp6-perl5-boot.pl | perl -Ilib5 
+ 
+2006-11-14
+- all files parsed
+- added Perl5 build script
+
+2006-11-11
+- parses MiniPerl6/Emitter.pm
+
+2006-11-10
+- parses mp6.pl
+
+2006-11-06
+- implemented MP6::G::Regex::rule()
+- /<%hash>/
+- /const|const/
+- /<subrule>/
+- /<'xyz'>/
+- /\n/
+
+2006-11-01
+- initial language draft (on paper)
