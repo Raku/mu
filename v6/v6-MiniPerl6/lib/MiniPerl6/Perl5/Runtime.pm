@@ -63,10 +63,11 @@ BEGIN {
     sub not_newline { 
         my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
         my $MATCH; $MATCH = MiniPerl6::Perl5::Match->new( 
-            'str' => $str,'from' => $pos,'to' => $pos, ); 
+            'str' => $str,'from' => $pos,'to' => $pos, 'bool' => 0 ); 
         return $MATCH if ord( substr($str, $MATCH->to()) ) == 10
             || ord( substr($str, $MATCH->to()) ) == 13;
         $MATCH->to( 1 + $MATCH->to );
+        $MATCH->bool( 1 );
         $MATCH;
     }
     
