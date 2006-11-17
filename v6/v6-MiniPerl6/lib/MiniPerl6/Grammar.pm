@@ -8,6 +8,7 @@ use MiniPerl6::Grammar::Regex;
 #sub array($data)    { use v5; @$data; use v6; };
  
 my $Class_name;  # for diagnostic messages
+sub get_class_name { $Class_name }; 
 
 token ident_digit {
     [ [ <?word> | _ | <?digit> ] <?ident_digit>
@@ -64,16 +65,15 @@ token opt_ws3 {  <?ws> | <''>  };
 token parse {
     | <comp_unit>
         [
-        |   <?opt_ws> [\; <?opt_ws> | <''> ]  <parse>
+        |   <parse>
             { return [ $$<comp_unit>, @( $$<parse> ) ] }
-        |   <?opt_ws> [\; <?opt_ws> | <''> ]
-            { return [ $$<comp_unit> ] }
+        |   { return [ $$<comp_unit> ] }
         ]
     | { return [] }
 };
 
 token comp_unit {
-    <?opt_ws>
+    <?opt_ws> [\; <?opt_ws> | <''> ]
     [ use <?ws> v6- <ident> <?opt_ws> \; <?ws>  |  <''> ]
     
     [ class | grammar ]  <?opt_ws> <full_ident> <?opt_ws> \{
@@ -82,7 +82,7 @@ token comp_unit {
         <exp_stmts>
         <?opt_ws>
     \}
-    <?opt_ws>
+    <?opt_ws> [\; <?opt_ws> | <''> ]
     {
         return ::CompUnit(
             'name'        => $$<full_ident>,
@@ -112,6 +112,11 @@ token declarator {
 
 token exp2 { <exp> { return $$<exp> } };
 token exp_stmts2 { <exp_stmts> { return $$<exp_stmts> } };
+
+}
+    #---- split into compilation units in order to use less RAM...
+grammar MiniPerl6::Grammar {
+
 
 token exp {
     # { say 'exp: going to match <term_meth> at ', $/.to; }
@@ -255,6 +260,11 @@ token term {
 #token index { XXX }
 #token lookup { XXX }
 
+}
+    #---- split into compilation units in order to use less RAM...
+grammar MiniPerl6::Grammar {
+
+
 token control {
     | <ctrl_return> { return $$<ctrl_return> }   # return 123;
     | <ctrl_leave>  { return $$<ctrl_leave>  }   # last; break;
@@ -338,6 +348,12 @@ token val_bit {
     | False { return ::Val::Bit( 'bit' => 0 ) }
 };
 
+
+}
+    #---- split into compilation units in order to use less RAM...
+grammar MiniPerl6::Grammar {
+
+
 token val_undef {
     undef
     { return ::Val::Undef( ) }
@@ -397,6 +413,10 @@ token exp_seq {
         # { say 'exp_seq: end of match' }
         { return [] }
 };
+
+}
+    #---- split into compilation units in order to use less RAM...
+grammar MiniPerl6::Grammar {
 
 token key { <exp> { return $$<exp> } };   # TODO - autoquote
 
@@ -524,7 +544,7 @@ token method {
           <exp_stmts> 
           # { say ' got statement list ', ($$<exp_stmts>).perl } 
         <?opt_ws> 
-    [   \}     | { say '*** Syntax Error in method \'', $Class_name, '.', $$<name>, '\' near pos=', $/.to; die 'error in Block'; } ]
+    [   \}     | { say '*** Syntax Error in method \'', get_class_name(), '.', $$<name>, '\' near pos=', $/.to; die 'error in Block'; } ]
     {
         # say ' block: ', ($$<exp_stmts>).perl;
         return ::Method( 'name' => $$<opt_name>, 'sig' => $$<method_sig>, 'block' => $$<exp_stmts> );
