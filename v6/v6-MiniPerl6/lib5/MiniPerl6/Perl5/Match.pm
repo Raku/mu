@@ -29,7 +29,9 @@ sub new {
     my $class = shift;
     my $obj = bless \$class, $class;
     #print "Match->new( @_ ) ",(refaddr $obj),"\n";
-    $_data{ refaddr $obj } = { @_ };
+    my %h = @_;
+    $h{str} = \$_[1];   # hack - avoid storing copies
+    $_data{ refaddr $obj } = \%h;
     return $obj;
 }
 
@@ -87,7 +89,7 @@ sub elems  {
     scalar $_[0]->keys
 }
 
-sub chars  { CORE::length $_[0]->str }
+sub chars  { CORE::length ${$_[0]->str} }
 
 sub flat {
     my $obj = $_data{refaddr $_[0]};
@@ -97,9 +99,9 @@ sub flat {
         if defined $cap;
     return '' unless $obj->{bool};
     
-    return '' if $_[0]->from > length( $obj->{str} );
+    return '' if $_[0]->from > length( ${$obj->{str}} );
     
-    return substr( $obj->{str}, $_[0]->from, $_[0]->to - $_[0]->from );
+    return substr( ${$obj->{str}}, $_[0]->from, $_[0]->to - $_[0]->from );
 }
 
 sub str {
@@ -161,12 +163,6 @@ sub dump_hs {
         warn "Unrecognized blessed match object: $_[0]";
         return '';
     }
-}
-
-# tail() for backwards compatibility
-# - doesn't work on failed matches
-sub tail {
-    return substr( ${$_data{refaddr $_[0]}->{str}}, $_[0]->to );
 }
 
 # state() is used for multiple matches and backtracking control

@@ -16,7 +16,7 @@ Missing Features
 
 - type annotations
 
-- autoquotes hash keys
+- autoquote hash keys
 
 - double quote interpolation and "\n"
 

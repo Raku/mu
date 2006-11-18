@@ -248,12 +248,13 @@ class Rul::Before {
     method emit {
         'do { ' ~
             'my $tmp := $MATCH; ' ~
-            '$MATCH := ::MiniPerl6::Perl5::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to ); ' ~
+            '$MATCH := ::MiniPerl6::Perl5::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' ~
             '$MATCH.bool( ' ~
                 $.rule.emit ~
             '); ' ~
             '$tmp.bool( ?$MATCH ); ' ~
             '$MATCH := $tmp; ' ~
+            '?$MATCH; ' ~
         '}'
     }
 }
@@ -263,12 +264,13 @@ class Rul::NotBefore {
     method emit {
         'do { ' ~
             'my $tmp := $MATCH; ' ~
-            '$MATCH := ::MiniPerl6::Perl5::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to ); ' ~
+            '$MATCH := ::MiniPerl6::Perl5::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' ~
             '$MATCH.bool( ' ~
                 $.rule.emit ~
             '); ' ~
             '$tmp.bool( !$MATCH ); ' ~
             '$MATCH := $tmp; ' ~
+            '?$MATCH; ' ~
         '}'
     }
 }
@@ -296,6 +298,15 @@ class Rul::CharClass {
     #      'my $m2 := $grammar.char_class($str, $MATCH.to, \'' ~ $.chars ~ '\'); ' ~
     #      'if $m2 { 1 + $MATCH.to( $m2.to ) } else { 0 } ' ~
     #    '}'
+    }
+}
+
+class Rul::Capture {
+    has $.rule;
+    # unused
+    method emit {
+        say "TODO RulCapture";
+        die();
     }
 }
 

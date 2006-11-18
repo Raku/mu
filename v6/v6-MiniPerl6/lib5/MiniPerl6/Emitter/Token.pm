@@ -29,12 +29,14 @@ package Rul::InterpolateVar; sub new { shift; bless { @_ }, "Rul::InterpolateVar
 ;
 package Rul::NamedCapture; sub new { shift; bless { @_ }, "Rul::NamedCapture" } sub rule { @_ == 1 ? ( $_[0]->{rule} ) : ( $_[0]->{rule} = $_[1] ) }; sub ident { @_ == 1 ? ( $_[0]->{ident} ) : ( $_[0]->{ident} = $_[1] ) }; sub emit { my $self = $_[0]; Main::say(('# TODO: named capture ' . ($_[0]->{ident} . (' := ' . ($_[0]->{rule}->emit() . ''))))); die() }
 ;
-package Rul::Before; sub new { shift; bless { @_ }, "Rul::Before" } sub rule { @_ == 1 ? ( $_[0]->{rule} ) : ( $_[0]->{rule} = $_[1] ) }; sub emit { my $self = $_[0]; ('do { ' . ('my $tmp := $MATCH; ' . ('$MATCH := ::MiniPerl6::Perl5::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to ); ' . ('$MATCH.bool( ' . ($_[0]->{rule}->emit() . ('); ' . ('$tmp.bool( ?$MATCH ); ' . ('$MATCH := $tmp; ' . '}')))))))) }
+package Rul::Before; sub new { shift; bless { @_ }, "Rul::Before" } sub rule { @_ == 1 ? ( $_[0]->{rule} ) : ( $_[0]->{rule} = $_[1] ) }; sub emit { my $self = $_[0]; ('do { ' . ('my $tmp := $MATCH; ' . ('$MATCH := ::MiniPerl6::Perl5::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' . ('$MATCH.bool( ' . ($_[0]->{rule}->emit() . ('); ' . ('$tmp.bool( ?$MATCH ); ' . ('$MATCH := $tmp; ' . ('?$MATCH; ' . '}'))))))))) }
 ;
-package Rul::NotBefore; sub new { shift; bless { @_ }, "Rul::NotBefore" } sub rule { @_ == 1 ? ( $_[0]->{rule} ) : ( $_[0]->{rule} = $_[1] ) }; sub emit { my $self = $_[0]; ('do { ' . ('my $tmp := $MATCH; ' . ('$MATCH := ::MiniPerl6::Perl5::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to ); ' . ('$MATCH.bool( ' . ($_[0]->{rule}->emit() . ('); ' . ('$tmp.bool( !$MATCH ); ' . ('$MATCH := $tmp; ' . '}')))))))) }
+package Rul::NotBefore; sub new { shift; bless { @_ }, "Rul::NotBefore" } sub rule { @_ == 1 ? ( $_[0]->{rule} ) : ( $_[0]->{rule} = $_[1] ) }; sub emit { my $self = $_[0]; ('do { ' . ('my $tmp := $MATCH; ' . ('$MATCH := ::MiniPerl6::Perl5::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' . ('$MATCH.bool( ' . ($_[0]->{rule}->emit() . ('); ' . ('$tmp.bool( !$MATCH ); ' . ('$MATCH := $tmp; ' . ('?$MATCH; ' . '}'))))))))) }
 ;
 package Rul::NegateCharClass; sub new { shift; bless { @_ }, "Rul::NegateCharClass" } sub chars { @_ == 1 ? ( $_[0]->{chars} ) : ( $_[0]->{chars} = $_[1] ) }; sub emit { my $self = $_[0]; Main::say('TODO NegateCharClass'); die() }
 ;
 package Rul::CharClass; sub new { shift; bless { @_ }, "Rul::CharClass" } sub chars { @_ == 1 ? ( $_[0]->{chars} ) : ( $_[0]->{chars} = $_[1] ) }; sub emit { my $self = $_[0]; Main::say('TODO CharClass'); die() }
+;
+package Rul::Capture; sub new { shift; bless { @_ }, "Rul::Capture" } sub rule { @_ == 1 ? ( $_[0]->{rule} ) : ( $_[0]->{rule} = $_[1] ) }; sub emit { my $self = $_[0]; Main::say('TODO RulCapture'); die() }
 ;
 1;

@@ -1,3 +1,7 @@
+- autoquote hash keys      { a => 42 }
+- pair syntax sugar        { :$a }
+- deep array binding       [ $a, [ $b, $c ] ] := [ 1, [ 2, 3 ] ]
+
 0.001  2006-11-17
 - MiniPerl6::Perl5::Emitter and MiniPerl6::Emitter::Token compile ok
 

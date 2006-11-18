@@ -10,6 +10,14 @@ cat lib/MiniPerl6/Emitter/Token.pm  |   \
     perl -Ilib mp6-perl5-v6.pl      >   \
     lib5/MiniPerl6/Emitter/Token.pm
 
+cat lib/MiniPerl6/Grammar/Control.pm  | \
+    perl -Ilib mp6-perl5-v6.pl      >   \
+    lib5/MiniPerl6/Grammar/Control.pm
+
+cat lib/MiniPerl6/Grammar/Mapping.pm  | \
+    perl -Ilib mp6-perl5-v6.pl      >   \
+    lib5/MiniPerl6/Grammar/Mapping.pm
+
 cat lib/MiniPerl6/Grammar/Regex.pm  |   \
     perl -Ilib mp6-perl5-v6.pl      >   \
     lib5/MiniPerl6/Grammar/Regex.pm

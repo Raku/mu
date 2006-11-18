@@ -143,7 +143,7 @@ token rule_terms {
     |   \{ 
         <parsed_code>  \}
         { return ::Rul::Block( 'closure' => $$<parsed_code> ) }
-    |   <'\\'>  
+    |   <MiniPerl6::Grammar.backslash>  
         [
 # TODO
 #        | [ x | X ] <[ 0..9 a..f A..F ]]>+
