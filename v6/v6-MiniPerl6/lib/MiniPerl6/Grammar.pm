@@ -225,6 +225,11 @@ token sub_or_method_name {
     <full_ident> [ \. <ident> | <''> ]
 };
 
+token opt_type {
+    |   [ <'::'> | <''> ]  <full_ident>   { return $$<full_ident> }
+    |   <''>                              { return '' }
+};
+
 token term {
     | <var>     { return $$<var> }     # $variable
     | <prefix_op> <exp> 
@@ -245,8 +250,8 @@ token term {
         ) }   # $<ident>
     | do <?opt_ws> \{ <?opt_ws> <exp_stmts> <?opt_ws> \}
         { return ::Do( 'block' => $$<exp_stmts> ) }   # do { stmt; ... }
-    | <declarator> <?ws> <var> 
-        { return ::Decl( 'decl' => $$<declarator>, 'var' => $$<var> ) }    # my $variable
+    | <declarator> <?ws> <opt_type> <?opt_ws> <var>   # my Int $variable
+        { return ::Decl( 'decl' => $$<declarator>, 'type' => $$<opt_type>, 'var' => $$<var> ) }
     | use <?ws> <full_ident>  [ - <ident> | <''> ]
         { return ::Use( 'mod' => $$<full_ident> ) }
     | <val>     { return $$<val> }     # 'value'

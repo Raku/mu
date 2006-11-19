@@ -31,9 +31,8 @@ package MiniPerl6::Grammar;
 
 BEGIN {
     if ( $::_V6_COMPILER_NAME ne 'v6.pm' ) {
-        eval q!
         # MP6-in-P5   
-        sub word { 
+        *word = sub { 
             my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
             my $MATCH; $MATCH = MiniPerl6::Perl5::Match->new( 
                 'str' => $str,'from' => $pos,'to' => $pos, ); 
@@ -43,8 +42,8 @@ BEGIN {
                 : 0
             );
             $MATCH;
-        }
-        sub backslash { 
+        };
+        *backslash = sub { 
             my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
             my $MATCH; $MATCH = MiniPerl6::Perl5::Match->new( 
                 'str' => $str,'from' => $pos,'to' => $pos, ); 
@@ -54,8 +53,7 @@ BEGIN {
                 : 0
             );
             $MATCH;
-        }
-        !;
+        };
     }
     else {
         # MP6-in-v6.pm   

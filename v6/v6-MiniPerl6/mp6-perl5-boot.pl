@@ -1,17 +1,11 @@
 package main;
 
-#use Config;
-#use lib split(/\Q$Config{path_sep}/, $ENV{PERL6LIB} || '');
-
 use lib 'lib5';
-
-# use Scalar::Util;
 use strict;
-# no strict 'refs';
-# no warnings ('void', 'uninitialized');
+
 BEGIN {
-$::_V6_COMPILER_NAME    = 'MiniPerl6';
-$::_V6_COMPILER_VERSION = '0.001';
+    $::_V6_COMPILER_NAME    = 'MiniPerl6';
+    $::_V6_COMPILER_VERSION = '0.002';
 }
 
 use MiniPerl6::Perl5::Runtime;

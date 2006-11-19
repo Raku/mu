@@ -4,6 +4,7 @@ package MiniPerl6::Perl5::Match;
 use 5.006;
 use strict;
 use warnings;
+no warnings 'recursion';
 use Data::Dumper;
 #use Class::InsideOut qw( public register id );
 use Scalar::Util qw( refaddr blessed );

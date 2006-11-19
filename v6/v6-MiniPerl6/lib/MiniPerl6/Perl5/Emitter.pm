@@ -289,12 +289,19 @@ class For {
     has @.body;
     has @.topic;
     method emit {
-        'do { for my ' ~ $.topic.emit ~ ' ( ' ~ $.cond.emit ~ ' ) { ' ~ (@.body.>>emit).join(';') ~ ' } }';
+        my $cond := $.cond;
+        if   $cond.isa( 'Var' ) 
+          && $cond.sigil eq '@' 
+        {
+            $cond := ::Apply( code => 'prefix:<@>', arguments => [ $cond ] );
+        };
+        'do { for my ' ~ $.topic.emit ~ ' ( ' ~ $cond.emit ~ ' ) { ' ~ (@.body.>>emit).join(';') ~ ' } }';
     }
 }
 
 class Decl {
     has $.decl;
+    has $.type;
     has $.var;
     method emit {
         my $decl := $.decl;
@@ -305,7 +312,7 @@ class Decl {
                 '? ( $_[0]->{' ~ $name ~ '} ) ' ~
                 ': ( $_[0]->{' ~ $name ~ '} = $_[1] ) ' ~
             '}' )
-        !! $.decl ~ ' ' ~ $.var.emit;
+        !! $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit;
     }
 }
 

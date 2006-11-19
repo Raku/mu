@@ -1,3 +1,8 @@
+0.002  2006-11-18
+- fixed array expansion in 'for @x {...}'
+- fixed grammar compilation in MiniPerl6::Grammar and MiniPerl6::Grammar::Regex
+
+- type annotations         my Int $x
 - autoquote hash keys      { a => 42 }
 - pair syntax sugar        { :$a }
 - deep array binding       [ $a, [ $b, $c ] ] := [ 1, [ 2, 3 ] ]

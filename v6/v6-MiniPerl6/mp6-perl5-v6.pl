@@ -1,15 +1,11 @@
 package main;
 use Config;
 use lib split(/\Q$Config{path_sep}/, $ENV{PERL6LIB} || '');
-# use Scalar::Util;
 use strict;
-# no strict 'refs';
-# no warnings ('void', 'uninitialized');
+use lib 'lib';
 
 BEGIN {
-$::_V6_COMPILER_OS      = 'darwin';
-$::_V6_COMPILER_NAME    = 'v6.pm';
-$::_V6_COMPILER_VERSION = '0.015';
+    $::_V6_COMPILER_NAME    = 'v6.pm';
 }
 
 use MiniPerl6::Perl5::Runtime;
