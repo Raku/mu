@@ -38,11 +38,16 @@ class Val::Num {
 
 class Val::Buf {
     has $.buf;
-    method emit { '\'' ~ $.buf ~ '\'' }
+    method emit { 
+        '  $P0 = new .String' ~ Main::newline ~
+        '  $P0 = \'' ~ $.buf ~ '\'' ~ Main::newline
+    }
 }
 
 class Val::Undef {
-    method emit { '(undef)' }
+    method emit { 
+        '  $P0 = new .Undef' ~ Main::newline 
+    }
 }
 
 class Val::Object {
