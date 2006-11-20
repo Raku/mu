@@ -81,7 +81,7 @@ class Lit::Array {
     has @.array;
     method emit {
         my $a := @.array;
-        my $s := '  $P1 = new .PerlArray' ~ Main::newline();
+        my $s := '  $P1 = new .ResizablePMCArray' ~ Main::newline();
         for @$a -> $item {
             $s := $s ~ $item.emit;
             $s := $s ~ '  push $P1, $P0' ~ Main.newline;
