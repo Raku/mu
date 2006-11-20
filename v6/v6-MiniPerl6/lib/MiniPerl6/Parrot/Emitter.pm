@@ -7,7 +7,11 @@ class CompUnit {
     has @.body;
     method emit {
         '.namespace [ "' ~ $.name ~ '" ] ' ~ Main::newline ~
-        '# TODO sub new { shift; bless { @_ }, "' ~ $.name ~ '" }' ~ " " ~ Main::newline ~
+        '# TODO sub new { shift; bless { @_ }, "' ~ $.name ~ '" }' ~ Main::newline ~
+        '.sub "__onload" :load' ~ Main::newline ~
+        '  .local pmc self' ~ Main::newline ~
+        '  newclass self, "' ~ $.name ~ '"' ~ Main::newline ~
+        '.end' ~ Main::newline ~ Main::newline ~
         (@.body.>>emit).join( Main::newline )
     }
 }
@@ -284,7 +288,7 @@ class Apply {
         if $code eq 'prefix:<%>' { return '%{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
 
         if $code eq 'infix:<~>'  { return '('  ~ (@.arguments.>>emit).join(' . ')  ~ ')' };
-        if $code eq 'infix:<+>'  { return '('  ~ (@.arguments.>>emit).join(' + ')  ~ ')' };
+        if $code eq 'infix:<+>'  { return (@.arguments.>>emit).join('')  ~ Main::newline() };
         if $code eq 'infix:<->'  { return '('  ~ (@.arguments.>>emit).join(' - ')  ~ ')' };
 
         if $code eq 'infix:<&&>' { return '('  ~ (@.arguments.>>emit).join(' && ') ~ ')' };
