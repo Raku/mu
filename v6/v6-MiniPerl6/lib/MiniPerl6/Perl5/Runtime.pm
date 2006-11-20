@@ -88,7 +88,8 @@ BEGIN {
     
 package Main;
 
-    sub say { print join( '', @_, "\n" ) }
+    sub print { print join( '', @_ ) }
+    sub say   { print join( '', @_, "\n" ) }
     sub chars { length( $_[0] ) }
     sub isa { 
            ref( $_[0] ) eq $_[1]

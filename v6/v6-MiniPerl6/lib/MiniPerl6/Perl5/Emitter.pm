@@ -257,6 +257,9 @@ class Apply {
         if $code eq 'infix:<eq>' { return '('  ~ (@.arguments.>>emit).join(' eq ') ~ ')' };
         if $code eq 'infix:<ne>' { return '('  ~ (@.arguments.>>emit).join(' ne ') ~ ')' };
  
+        if $code eq 'infix:<==>' { return '('  ~ (@.arguments.>>emit).join(' == ') ~ ')' };
+        if $code eq 'infix:<!=>' { return '('  ~ (@.arguments.>>emit).join(' != ') ~ ')' };
+
         if $code eq 'ternary:<?? ::>' { 
             return '(' ~ (@.arguments[0]).emit ~
                  ' ? ' ~ (@.arguments[1]).emit ~
