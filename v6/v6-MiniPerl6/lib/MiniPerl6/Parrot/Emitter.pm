@@ -54,6 +54,7 @@ class Val::Object {
     has $.class;
     has %.fields;
     method emit {
+        die 'Val::Object - not used yet';
         'bless(' ~ %.fields.perl ~ ', ' ~ $.class.perl ~ ')';
     }
 }
@@ -61,6 +62,7 @@ class Val::Object {
 class Lit::Seq {
     has @.seq;
     method emit {
+        die 'Lit::Seq - not used yet';
         '(' ~ (@.seq.>>emit).join(', ') ~ ')';
     }
 }

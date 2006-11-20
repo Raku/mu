@@ -1,3 +1,5 @@
+- added Parrot emitter and 'mp6-parrot' script
+
 0.002  2006-11-18
 - fixed array expansion in 'for @x {...}'
 - fixed grammar compilation in MiniPerl6::Grammar and MiniPerl6::Grammar::Regex
