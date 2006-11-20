@@ -14,17 +14,26 @@ class CompUnit {
 
 class Val::Int {
     has $.int;
-    method emit { $.int }
+    method emit { 
+        '  $P0 = new .Integer' ~ Main::newline ~
+        '  $P0 = ' ~ $.int ~ Main::newline
+    }
 }
 
 class Val::Bit {
     has $.bit;
-    method emit { $.bit }
+    method emit { 
+        '  $P0 = new .Integer' ~ Main::newline ~
+        '  $P0 = ' ~ $.bit ~ Main::newline
+    }
 }
 
 class Val::Num {
     has $.num;
-    method emit { $.num }
+    method emit { 
+        '  $P0 = new .Float' ~ Main::newline ~
+        '  $P0 = ' ~ $.num ~ Main::newline
+    }
 }
 
 class Val::Buf {
