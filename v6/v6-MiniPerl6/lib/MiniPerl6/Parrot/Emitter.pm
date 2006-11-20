@@ -12,6 +12,12 @@ class CompUnit {
     }
 }
 
+#  .namespace [ 'Main' ]
+#  .sub _ :anon :load :init
+#    print "hello"
+#  .end
+
+
 class Val::Int {
     has $.int;
     method emit { 
@@ -70,7 +76,14 @@ class Lit::Seq {
 class Lit::Array {
     has @.array;
     method emit {
-        '[' ~ (@.array.>>emit).join(', ') ~ ']';
+        my $a := @.array;
+        my $s := '  $P1 = new .PerlArray' ~ Main::newline();
+        for @$a -> $item {
+            $s := $s ~ $item.emit;
+            $s := $s ~ '  push $P1, $P0' ~ Main.newline;
+        };
+        my $s := $s ~ '  $P0 = $P1' ~ Main::newline();
+        return $s;
     }
 }
 

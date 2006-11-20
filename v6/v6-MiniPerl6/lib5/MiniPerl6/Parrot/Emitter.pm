@@ -19,7 +19,7 @@ package Val::Object; sub new { shift; bless { @_ }, "Val::Object" } sub class { 
 ;
 package Lit::Seq; sub new { shift; bless { @_ }, "Lit::Seq" } sub seq { @_ == 1 ? ( $_[0]->{seq} ) : ( $_[0]->{seq} = $_[1] ) }; sub emit { my $self = $_[0]; die('Lit::Seq - not used yet'); ('(' . (Main::join([ map { $_->emit() } @{ $_[0]->{seq} } ], ', ') . ')')) }
 ;
-package Lit::Array; sub new { shift; bless { @_ }, "Lit::Array" } sub array { @_ == 1 ? ( $_[0]->{array} ) : ( $_[0]->{array} = $_[1] ) }; sub emit { my $self = $_[0]; ('[' . (Main::join([ map { $_->emit() } @{ $_[0]->{array} } ], ', ') . ']')) }
+package Lit::Array; sub new { shift; bless { @_ }, "Lit::Array" } sub array { @_ == 1 ? ( $_[0]->{array} ) : ( $_[0]->{array} = $_[1] ) }; sub emit { my $self = $_[0]; my  $a = $_[0]->{array}; my  $s = ('  $P1 = new .PerlArray' . Main::newline()); do { for my $item ( @{$a} ) { $s = ($s . $item->emit());$s = ($s . ('  push $P1, $P0' . Main->newline())) } }; my  $s = ($s . ('  $P0 = $P1' . Main::newline())); return($s) }
 ;
 package Lit::Hash; sub new { shift; bless { @_ }, "Lit::Hash" } sub hash { @_ == 1 ? ( $_[0]->{hash} ) : ( $_[0]->{hash} = $_[1] ) }; sub emit { my $self = $_[0]; my  $fields = $_[0]->{hash}; my  $str = ''; do { for my $field ( @{$fields} ) { $str = ($str . ($field->[0]->emit() . (' => ' . ($field->[1]->emit() . ',')))) } }; ('{ ' . ($str . ' }')) }
 ;
