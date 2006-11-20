@@ -23,7 +23,14 @@ foo($x);
         (*@bad) ($bad?) (:$bad)
     - But we do allow Hash and Array and Tree unpacking:
         sub foo ([$a, $b, $c, Tree $top ($left, $right)], {:$x, :$y}) { ... }
+
+## update:
+        sub foo ([$a, $b, $c, ::Tree $top (:$left, :$right)], {:$x, :$y}) { ... }
+
         foo([1, 2, 3], { x => 1, y => 2 }, Tree({ left => 1, right => 2});
+
+## update:
+        foo([1, 2, 3], { x => 1, y => 2 }, ::Tree( left => 1, right => 2 );
 
         # This compiles to:
         sub foo {
@@ -32,13 +39,25 @@ foo($x);
             ($a, $b, $c, $top)  = @{$_[0]};
             ($x, $y)            = @{$_[1]}{'x', 'y'};
             ($left, $right)     = @{$_[0][3]}{'left', right');
+
+## update:
+            ($left, $right) = ($top.left, $top.right);
+
             ...
         }
         foo([1, 2, 3], { x => 1, y => 2 });
 
     - As a consequence, object constructor calls must be written in
-      conercion form:
+      coercion form:
         Foo({x => 1, y => 2});  # NOT Foo.new
+
+## update:
+        ::Foo( x => 1, y => 2 );   # NOT Foo.new
+
+
+## update: 
+    - Signature and Expression reuse the same parser, so this works too:
+        my ::Tree $top (:$left, :$right);
 
     - Only allow item context
     - No laziness; all List are Seq
