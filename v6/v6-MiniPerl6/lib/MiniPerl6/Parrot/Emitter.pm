@@ -6,7 +6,7 @@ class CompUnit {
     has %.methods;
     has @.body;
     method emit {
-        '.namespace [ ' ~ $.name ~ ' ] ' ~ Main::newline ~ 
+        '.namespace [ "' ~ $.name ~ '" ] ' ~ Main::newline ~ 
         '# TODO sub new { shift; bless { @_ }, "' ~ $.name ~ '" }' ~ " " ~ Main::newline ~
         (@.body.>>emit).join( Main::newline )
     }

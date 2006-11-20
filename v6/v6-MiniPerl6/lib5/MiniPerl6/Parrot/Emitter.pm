@@ -3,7 +3,7 @@ use v5;
 use strict;
 use MiniPerl6::Perl5::Runtime;
 use MiniPerl6::Perl5::Match;
-package CompUnit; sub new { shift; bless { @_ }, "CompUnit" } sub name { @_ == 1 ? ( $_[0]->{name} ) : ( $_[0]->{name} = $_[1] ) }; sub attributes { @_ == 1 ? ( $_[0]->{attributes} ) : ( $_[0]->{attributes} = $_[1] ) }; sub methods { @_ == 1 ? ( $_[0]->{methods} ) : ( $_[0]->{methods} = $_[1] ) }; sub body { @_ == 1 ? ( $_[0]->{body} ) : ( $_[0]->{body} = $_[1] ) }; sub emit { my $self = $_[0]; ('.namespace [ ' . ($_[0]->{name} . (' ] ' . (Main::newline() . ('# TODO sub new { shift; bless { @_ }, "' . ($_[0]->{name} . ('" }' . (' ' . (Main::newline() . Main::join([ map { $_->emit() } @{ $_[0]->{body} } ], Main::newline())))))))))) }
+package CompUnit; sub new { shift; bless { @_ }, "CompUnit" } sub name { @_ == 1 ? ( $_[0]->{name} ) : ( $_[0]->{name} = $_[1] ) }; sub attributes { @_ == 1 ? ( $_[0]->{attributes} ) : ( $_[0]->{attributes} = $_[1] ) }; sub methods { @_ == 1 ? ( $_[0]->{methods} ) : ( $_[0]->{methods} = $_[1] ) }; sub body { @_ == 1 ? ( $_[0]->{body} ) : ( $_[0]->{body} = $_[1] ) }; sub emit { my $self = $_[0]; ('.namespace [ "' . ($_[0]->{name} . ('" ] ' . (Main::newline() . ('# TODO sub new { shift; bless { @_ }, "' . ($_[0]->{name} . ('" }' . (' ' . (Main::newline() . Main::join([ map { $_->emit() } @{ $_[0]->{body} } ], Main::newline())))))))))) }
 ;
 package Val::Int; sub new { shift; bless { @_ }, "Val::Int" } sub int { @_ == 1 ? ( $_[0]->{int} ) : ( $_[0]->{int} = $_[1] ) }; sub emit { my $self = $_[0]; ('  $P0 = new .Integer' . (Main::newline() . ('  $P0 = ' . ($_[0]->{int} . Main::newline())))) }
 ;
