@@ -6,7 +6,7 @@ class CompUnit {
     has %.methods;
     has @.body;
     method emit {
-        '.namespace [ "' ~ $.name ~ '" ] ' ~ Main::newline ~ 
+        '.namespace [ "' ~ $.name ~ '" ] ' ~ Main::newline ~
         '# TODO sub new { shift; bless { @_ }, "' ~ $.name ~ '" }' ~ " " ~ Main::newline ~
         (@.body.>>emit).join( Main::newline )
     }
@@ -20,7 +20,7 @@ class CompUnit {
 
 class Val::Int {
     has $.int;
-    method emit { 
+    method emit {
         '  $P0 = new .Integer' ~ Main::newline ~
         '  $P0 = ' ~ $.int ~ Main::newline
     }
@@ -28,7 +28,7 @@ class Val::Int {
 
 class Val::Bit {
     has $.bit;
-    method emit { 
+    method emit {
         '  $P0 = new .Integer' ~ Main::newline ~
         '  $P0 = ' ~ $.bit ~ Main::newline
     }
@@ -36,7 +36,7 @@ class Val::Bit {
 
 class Val::Num {
     has $.num;
-    method emit { 
+    method emit {
         '  $P0 = new .Float' ~ Main::newline ~
         '  $P0 = ' ~ $.num ~ Main::newline
     }
@@ -44,15 +44,15 @@ class Val::Num {
 
 class Val::Buf {
     has $.buf;
-    method emit { 
+    method emit {
         '  $P0 = new .String' ~ Main::newline ~
         '  $P0 = \'' ~ $.buf ~ '\'' ~ Main::newline
     }
 }
 
 class Val::Undef {
-    method emit { 
-        '  $P0 = new .Undef' ~ Main::newline 
+    method emit {
+        '  $P0 = new .Undef' ~ Main::newline
     }
 }
 
@@ -92,9 +92,9 @@ class Lit::Hash {
     method emit {
         my $fields := @.hash;
         my $str := '';
-        for @$fields -> $field { 
+        for @$fields -> $field {
             $str := $str ~ ($field[0]).emit ~ ' => ' ~ ($field[1]).emit ~ ',';
-        }; 
+        };
         '{ ' ~ $str ~ ' }';
     }
 }
@@ -112,9 +112,9 @@ class Lit::Object {
         my $fields := @.fields;
         my $str := '';
         # say @fields.map(sub { $_[0].emit ~ ' => ' ~ $_[1].emit}).join(', ') ~ ')';
-        for @$fields -> $field { 
+        for @$fields -> $field {
             $str := $str ~ ($field[0]).emit ~ ' => ' ~ ($field[1]).emit ~ ',';
-        }; 
+        };
         $.class ~ '->new( ' ~ $str ~ ' )';
     }
 }
@@ -175,14 +175,14 @@ class Bind {
     has $.arguments;
     method emit {
         if $.parameters.isa( 'Lit::Array' ) {
-            
+
             #  [$a, [$b, $c]] := [1, [2, 3]]
-            
+
             my $a := $.parameters.array;
             my $b := $.arguments.array;
             my $str := 'do { ';
             my $i := 0;
-            for @$a -> $var { 
+            for @$a -> $var {
                 my $bind := ::Bind( 'parameters' => $var, 'arguments' => ($b[$i]) );
                 $str := $str ~ ' ' ~ $bind.emit ~ '; ';
                 $i := $i + 1;
@@ -190,16 +190,16 @@ class Bind {
             return $str ~ $.parameters.emit ~ ' }';
         };
         if $.parameters.isa( 'Lit::Hash' ) {
-            
+
             #  {:$a, :$b} := { a => 1, b => [2, 3]}
-            
+
             # XXX TODO - this is *not* right
-            
+
             my $a := $.parameters.hash;
             my $b := $.arguments.hash;
             my $str := 'do { ';
             my $i := 0;
-            for @$a -> $var { 
+            for @$a -> $var {
                 my $bind := ::Bind( 'parameters' => $var[0], 'arguments' => ($b[$i])[1] );
                 $str := $str ~ ' ' ~ $bind.emit ~ '; ';
                 $i := $i + 1;
@@ -213,7 +213,7 @@ class Bind {
 class Proto {
     has $.name;
     method emit {
-        ~$.name        
+        ~$.name
     }
 }
 
@@ -230,9 +230,9 @@ class Call {
             || ($.method eq 'join')
             || ($.method eq 'chars')
             || ($.method eq 'isa')
-        { 
+        {
             if ($.hyper) {
-                return 
+                return
                     '[ map { Main::' ~ $.method ~ '( $_, ' ~ ', ' ~ (@.arguments.>>emit).join(', ') ~ ')' ~ ' } @{ ' ~ $.invocant.emit ~ ' } ]';
             }
             else {
@@ -243,9 +243,9 @@ class Call {
 
         my $meth := $.method;
         if  $meth eq 'postcircumfix:<( )>'  {
-             $meth := '';  
+             $meth := '';
         };
-        
+
         my $call := '->' ~ $meth ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
         if ($.hyper) {
             '[ map { $_' ~ $call ~ ' } @{ ' ~ $.invocant.emit ~ ' } ]';
@@ -261,13 +261,13 @@ class Apply {
     has $.code;
     has @.arguments;
     method emit {
-        
+
         my $code := $.code;
 
-        if $code eq 'say'        { 
-            # return 'Main::say('   ~ (@.arguments.>>emit).join(', ') ~ ')' 
+        if $code eq 'say'        {
+            # return 'Main::say('   ~ (@.arguments.>>emit).join(', ') ~ ')'
             return
-                (@.arguments.>>emit).join( Main::newline ) ~ Main::newline ~ 
+                (@.arguments.>>emit).join( Main::newline ) ~ Main::newline ~
                 '  print $P0' ~ Main::newline ~
                 '  print "\n"' ~ Main::newline
         };
@@ -286,21 +286,21 @@ class Apply {
         if $code eq 'infix:<~>'  { return '('  ~ (@.arguments.>>emit).join(' . ')  ~ ')' };
         if $code eq 'infix:<+>'  { return '('  ~ (@.arguments.>>emit).join(' + ')  ~ ')' };
         if $code eq 'infix:<->'  { return '('  ~ (@.arguments.>>emit).join(' - ')  ~ ')' };
-        
+
         if $code eq 'infix:<&&>' { return '('  ~ (@.arguments.>>emit).join(' && ') ~ ')' };
         if $code eq 'infix:<||>' { return '('  ~ (@.arguments.>>emit).join(' || ') ~ ')' };
         if $code eq 'infix:<eq>' { return '('  ~ (@.arguments.>>emit).join(' eq ') ~ ')' };
         if $code eq 'infix:<ne>' { return '('  ~ (@.arguments.>>emit).join(' ne ') ~ ')' };
- 
+
         if $code eq 'infix:<==>' { return '('  ~ (@.arguments.>>emit).join(' == ') ~ ')' };
         if $code eq 'infix:<!=>' { return '('  ~ (@.arguments.>>emit).join(' != ') ~ ')' };
 
-        if $code eq 'ternary:<?? ::>' { 
+        if $code eq 'ternary:<?? ::>' {
             return '(' ~ (@.arguments[0]).emit ~
                  ' ? ' ~ (@.arguments[1]).emit ~
                  ' : ' ~ (@.arguments[2]).emit ~
                   ')' };
-        
+
         $.code ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
         # '(' ~ $.code.emit ~ ')->(' ~ @.arguments.>>emit.join(', ') ~ ')';
     }
@@ -328,8 +328,8 @@ class For {
     has @.topic;
     method emit {
         my $cond := $.cond;
-        if   $cond.isa( 'Var' ) 
-          && $cond.sigil eq '@' 
+        if   $cond.isa( 'Var' )
+          && $cond.sigil eq '@'
         {
             $cond := ::Apply( code => 'prefix:<@>', arguments => [ $cond ] );
         };
@@ -377,19 +377,19 @@ class Method {
         # TODO - signature binding
         my $sig := $.sig;
         # say "Sig: ", $sig.perl;
-        my $invocant := $sig.invocant; 
+        my $invocant := $sig.invocant;
         # say $invocant.emit;
         my $pos := $sig.positional;
         my $str := '';
         my $i := 1;
-        for @$pos -> $field { 
+        for @$pos -> $field {
             $str := $str ~ 'my ' ~ $field.emit ~ ' = $_[' ~ $i ~ ']; ';
             $i := $i + 1;
         };
-        'sub ' ~ $.name ~ ' { ' ~ 
+        'sub ' ~ $.name ~ ' { ' ~
           'my ' ~ $invocant.emit ~ ' = $_[0]; ' ~
           $str ~
-          (@.block.>>emit).join('; ') ~ 
+          (@.block.>>emit).join('; ') ~
         ' }'
     }
 }
@@ -402,19 +402,19 @@ class Sub {
         # TODO - signature binding
         my $sig := $.sig;
         # say "Sig: ", $sig.perl;
-        ## my $invocant := $sig.invocant; 
+        ## my $invocant := $sig.invocant;
         # say $invocant.emit;
         my $pos := $sig.positional;
         my $str := '';
         my $i := 0;
-        for @$pos -> $field { 
+        for @$pos -> $field {
             $str := $str ~ 'my ' ~ $field.emit ~ ' = $_[' ~ $i ~ ']; ';
             $i := $i + 1;
         };
-        'sub ' ~ $.name ~ ' { ' ~ 
+        'sub ' ~ $.name ~ ' { ' ~
           ## 'my ' ~ $invocant.emit ~ ' = $_[0]; ' ~
           $str ~
-          (@.block.>>emit).join('; ') ~ 
+          (@.block.>>emit).join('; ') ~
         ' }'
     }
 }
@@ -422,8 +422,8 @@ class Sub {
 class Do {
     has @.block;
     method emit {
-        'do { ' ~ 
-          (@.block.>>emit).join('; ') ~ 
+        'do { ' ~
+          (@.block.>>emit).join('; ') ~
         ' }'
     }
 }
@@ -437,7 +437,7 @@ class Use {
 
 =begin
 
-=head1 NAME 
+=head1 NAME
 
 MiniPerl6::Perl5::Emit - Code generator for MiniPerl6-in-Perl5
 
