@@ -251,7 +251,13 @@ class Apply {
         
         my $code := $.code;
 
-        if $code eq 'say'        { return 'Main::say('   ~ (@.arguments.>>emit).join(', ') ~ ')' };
+        if $code eq 'say'        { 
+            # return 'Main::say('   ~ (@.arguments.>>emit).join(', ') ~ ')' 
+            return
+                (@.arguments.>>emit).join( Main::newline ) ~ Main::newline ~ 
+                '  print $P0' ~ Main::newline ~
+                '  print "\n"' ~ Main::newline
+        };
         if $code eq 'print'      { return 'Main::print(' ~ (@.arguments.>>emit).join(', ') ~ ')' };
 
         if $code eq 'array'      { return '@{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
