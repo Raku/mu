@@ -5,6 +5,7 @@ mkdir lib5-new/MiniPerl6
 mkdir lib5-new/MiniPerl6/Grammar
 mkdir lib5-new/MiniPerl6/Emitter
 mkdir lib5-new/MiniPerl6/Perl5
+mkdir lib5-new/MiniPerl6/Parrot
 
 cat lib/MiniPerl6/Emitter/Token.pm  |   \
     perl mp6-perl5-boot.pl      >   \
@@ -29,6 +30,10 @@ cat lib/MiniPerl6/Grammar.pm        |   \
 cat lib/MiniPerl6/Perl5/Emitter.pm  |   \
     perl mp6-perl5-boot.pl      >   \
     lib5-new/MiniPerl6/Perl5/Emitter.pm
+
+cat lib/MiniPerl6/Parrot/Emitter.pm  |   \
+    perl mp6-perl5-boot.pl      >   \
+    lib5-new/MiniPerl6/Parrot/Emitter.pm
 
 cp lib/MiniPerl6/Perl5/Match.pm         \
    lib5-new/MiniPerl6/Perl5/Match.pm
