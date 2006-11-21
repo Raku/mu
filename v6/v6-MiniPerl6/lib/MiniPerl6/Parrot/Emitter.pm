@@ -415,11 +415,7 @@ class Decl {
         my $decl := $.decl;
         my $name := $.var.name;
            ( $decl eq 'has' )
-        ?? ( 'sub ' ~ $name ~ ' { ' ~
-            '@_ == 1 ' ~
-                '? ( $_[0]->{' ~ $name ~ '} ) ' ~
-                ': ( $_[0]->{' ~ $name ~ '} = $_[1] ) ' ~
-            '}' )
+        ?? ( '  addattribute $Class, "' ~ $name ~ '"' ~ Main::newline() )
         !! $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit;
     }
 }
