@@ -374,7 +374,7 @@ class Apply {
         if $code eq 'infix:<==>' { return '('  ~ (@.arguments.>>emit).join(' == ') ~ ')' };
         if $code eq 'infix:<!=>' { return '('  ~ (@.arguments.>>emit).join(' != ') ~ ')' };
 
-        if $code eq 'ternary:<?? ::>' {
+        if $code eq 'ternary:<?? !!>' {
             return 
                 ( ::If( cond => @.arguments[0],
                         body => [@.arguments[1]],

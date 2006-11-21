@@ -133,7 +133,7 @@ token exp {
           <?opt_ws>
           <exp2>
           { return ::Apply(
-            'code'      => 'ternary:<?? ::>',
+            'code'      => 'ternary:<?? !!>',
             'arguments' => [ $$<term_meth>, $$<exp>, $$<exp2> ],
           ) }
         | { say '*** Syntax error in ternary operation' }
