@@ -268,7 +268,8 @@ class Bind {
             };
             return $str ~ $.parameters.emit ~ ' }';
         };
-        $.parameters.emit ~ ' = ' ~ $.arguments.emit;
+        $.arguments.emit ~
+        '  ' ~ $.parameters.emit ~ ' = $P0' ~ Main::newline();
     }
 }
 
