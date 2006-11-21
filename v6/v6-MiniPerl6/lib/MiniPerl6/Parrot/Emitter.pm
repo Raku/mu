@@ -501,8 +501,13 @@ class Method {
             $str := $str ~ 'my ' ~ $field.emit ~ ' = $_[' ~ $i ~ ']; ';
             $i := $i + 1;
         };
-        '.sub "' ~ $.name ~ '"' ~ Main::newline ~
-          'my ' ~ $invocant.emit ~ ' = $_[0]; ' ~
+        '.sub "' ~ $.name ~ '" :method' ~ Main::newline ~
+          
+          # TODO - set the invocant, if it is not the default
+          # 'my ' ~ 
+          # $invocant.emit ~ 
+          # '  $P0 = self' ~ Main::newline() ~
+          
           $str ~
           (@.block.>>emit).join('') ~ 
         '.end' ~ Main::newline ~ Main::newline()
