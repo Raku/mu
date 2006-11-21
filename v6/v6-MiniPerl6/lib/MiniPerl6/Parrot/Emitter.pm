@@ -23,8 +23,8 @@ class CompUnit {
             }
             else {
                 $s := $s ~ '.sub _ :anon :load :init' ~ Main::newline() ~
-                    $item.emit ~ Main::newline() ~
-                    '.end' ~ Main::newline();
+                    $item.emit ~
+                    '.end' ~ Main::newline() ~ Main::newline();
             }
             # $s := $s ~ '  push $P1, $P0' ~ Main.newline;
         };
@@ -89,7 +89,7 @@ class Lit::Seq {
     has @.seq;
     method emit {
         die 'Lit::Seq - not used yet';
-        '(' ~ (@.seq.>>emit).join(', ') ~ ')';
+        '(' ~ (@.seq.>>emit).join('') ~ ')';
     }
 }
 
@@ -129,7 +129,7 @@ class Lit::Hash {
             '  set $P1[$P2], $P0' ~ Main.newline;
         };
         my $s := $s ~ 
-            '  $P0 = $P1' ~ Main::newline() ~
+            '  $P0 = $P1'   ~ Main::newline() ~
             '  restore $P2' ~ Main::newline() ~
             '  restore $P1' ~ Main::newline();
         return $s;
@@ -173,7 +173,7 @@ class Index {
     has $.index;
     method emit {
         my $s := 
-            '  save $P1' ~ Main::newline();
+            '  save $P1'  ~ Main::newline();
         $s := $s ~ $.obj.emit;
         $s := $s ~ 
             '  $P1 = $P0' ~ Main.newline();
@@ -191,7 +191,7 @@ class Lookup {
     has $.index;
     method emit {
         my $s := 
-            '  save $P1' ~ Main::newline();
+            '  save $P1'  ~ Main::newline();
         $s := $s ~ $.obj.emit;
         $s := $s ~ 
             '  $P1 = $P0' ~ Main.newline;
@@ -296,11 +296,11 @@ class Call {
         {
             if ($.hyper) {
                 return
-                    '[ map { Main::' ~ $.method ~ '( $_, ' ~ ', ' ~ (@.arguments.>>emit).join(', ') ~ ')' ~ ' } @{ ' ~ $.invocant.emit ~ ' } ]';
+                    '[ map { Main::' ~ $.method ~ '( $_, ' ~ ', ' ~ (@.arguments.>>emit).join('') ~ ')' ~ ' } @{ ' ~ $.invocant.emit ~ ' } ]';
             }
             else {
                 return
-                    'Main::' ~ $.method ~ '(' ~ $.invocant.emit ~ ', ' ~ (@.arguments.>>emit).join( Main::newline ) ~ ')';
+                    'Main::' ~ $.method ~ '(' ~ $.invocant.emit ~ ', ' ~ (@.arguments.>>emit).join('') ~ ')';
             }
         };
 
@@ -309,7 +309,7 @@ class Call {
              $meth := '';
         };
 
-        my $call := '->' ~ $meth ~ '(' ~ (@.arguments.>>emit).join( Main::newline ) ~ ')';
+        my $call := '->' ~ $meth ~ '(' ~ (@.arguments.>>emit).join('') ~ ')';
         if ($.hyper) {
             '[ map { $_' ~ $call ~ ' } @{ ' ~ $.invocant.emit ~ ' } ]';
         }
@@ -328,14 +328,16 @@ class Apply {
         my $code := $.code;
 
         if $code eq 'say'        {
-            # return 'Main::say('   ~ (@.arguments.>>emit).join(', ') ~ ')'
             return
                 (@.arguments.>>emit).join( '  print $P0' ~ Main::newline ) ~
                 '  print $P0' ~ Main::newline ~
                 '  print "\n"' ~ Main::newline
         };
-        if $code eq 'print'      { return 'Main::print(' ~ (@.arguments.>>emit).join(', ') ~ ')' };
-
+        if $code eq 'print'      {
+            return
+                (@.arguments.>>emit).join( '  print $P0' ~ Main::newline ) ~
+                '  print $P0' ~ Main::newline 
+        };
         if $code eq 'array'      { return '@{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
 
         if $code eq 'prefix:<~>' { return '("" . ' ~ (@.arguments.>>emit).join(' ') ~ ')' };
@@ -381,14 +383,17 @@ class If {
     has $.cond;
     has @.body;
     has @.otherwise;
+    my $label := 100;
     method emit {
-        $.cond.emit ~ 
-        '  unless $P0 goto ifelse' ~ Main::newline() ~
-        (@.body.>>emit).join('') ~ 
-        '  goto ifend' ~ Main::newline() ~
-        'ifelse:' ~ Main::newline() ~
-        (@.otherwise.>>emit).join('') ~ 
-        'ifend:'  ~ Main::newline();
+        $label := $label + 1;
+        return
+            $.cond.emit ~ 
+            '  unless $P0 goto ifelse' ~ $label ~ Main::newline() ~
+                (@.body.>>emit).join('') ~ 
+            '  goto ifend' ~ $label ~ Main::newline() ~
+            'ifelse' ~ $label ~ ':' ~ Main::newline() ~
+                (@.otherwise.>>emit).join('') ~ 
+            'ifend'  ~ $label ~ ':'  ~ Main::newline();
     }
 }
 
@@ -396,6 +401,7 @@ class For {
     has $.cond;
     has @.body;
     has @.topic;
+    my $label := 100;
     method emit {
         my $cond := $.cond;
         if   $cond.isa( 'Var' )
@@ -403,7 +409,7 @@ class For {
         {
             $cond := ::Apply( code => 'prefix:<@>', arguments => [ $cond ] );
         };
-        'do { for my ' ~ $.topic.emit ~ ' ( ' ~ $cond.emit ~ ' ) { ' ~ (@.body.>>emit).join(';') ~ ' } }';
+        'do { for my ' ~ $.topic.emit ~ ' ( ' ~ $cond.emit ~ ' ) { ' ~ (@.body.>>emit).join('') ~ ' } }';
     }
 }
 
@@ -455,7 +461,7 @@ class Method {
         'sub ' ~ $.name ~ ' { ' ~
           'my ' ~ $invocant.emit ~ ' = $_[0]; ' ~
           $str ~
-          (@.block.>>emit).join( Main::newline ) ~ 
+          (@.block.>>emit).join('') ~ 
         ' }'
     }
 }
@@ -480,8 +486,8 @@ class Sub {
         '.sub \'' ~ $.name ~ '\'' ~ Main::newline ~ 
           ## 'my ' ~ $invocant.emit ~ ' = $_[0]; ' ~
           $str ~
-          (@.block.>>emit).join( Main::newline ) ~ 
-        '.end' ~ Main::newline
+          (@.block.>>emit).join('') ~ 
+        '.end' ~ Main::newline ~ Main::newline()
     }
 }
 
