@@ -147,15 +147,24 @@ class Lit::Object {
     has @.fields;
     method emit {
         # ::Type( 'value' => 42 )
-        
-        # $.class ~ '->new( ' ~ @.fields.>>emit.join(', ') ~ ' )';
         my $fields := @.fields;
-        my $str := '';
-        # say @fields.map(sub { $_[0].emit ~ ' => ' ~ $_[1].emit}).join(', ') ~ ')';
+        my $str := '';        
+        $str := 
+            '  save $P1' ~ Main::newline() ~
+            '  save $S2' ~ Main::newline() ~
+            '  $P1 = new "' ~ $.class ~ '"' ~ Main::newline();
         for @$fields -> $field {
-            $str := $str ~ ($field[0]).emit ~ ' => ' ~ ($field[1]).emit ~  Main::newline();
+            $str := $str ~ 
+                ($field[0]).emit ~ Main::newline() ~
+                '  $S2 = $P0'    ~ Main::newline() ~
+                ($field[1]).emit ~ Main::newline() ~
+                '  setattribute $P1, $S2, $P0' ~ Main::newline();
         };
-        $.class ~ '->new( ' ~ $str ~ ' )' ~ Main::newline();
+        $str := $str ~ 
+            '  $P0 = $P1'   ~ Main::newline() ~
+            '  restore $S2' ~ Main::newline() ~
+            '  restore $P1' ~ Main::newline();
+        $str;
     }
 }
 
