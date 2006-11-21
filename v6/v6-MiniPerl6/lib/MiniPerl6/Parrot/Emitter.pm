@@ -6,13 +6,29 @@ class CompUnit {
     has %.methods;
     has @.body;
     method emit {
-        '.namespace [ "' ~ $.name ~ '" ] ' ~ Main::newline ~
-        '# TODO sub new { shift; bless { @_ }, "' ~ $.name ~ '" }' ~ Main::newline ~
-        '.sub "__onload" :load' ~ Main::newline ~
-        '  .local pmc self' ~ Main::newline ~
-        '  newclass self, "' ~ $.name ~ '"' ~ Main::newline ~
-        '.end' ~ Main::newline ~ Main::newline ~
-        (@.body.>>emit).join( Main::newline )
+        
+        # TODO sub new { shift; bless { @_ }, "' ~ $.name ~ '" }' ~ Main::newline() ~
+        
+        my $s :=   
+            '.namespace [ "' ~ $.name ~ '" ] ' ~ Main::newline() ~
+            '.sub "__onload" :load' ~ Main::newline() ~
+            '  .local pmc self' ~ Main::newline() ~
+            '  newclass self, "' ~ $.name ~ '"' ~ Main::newline() ~
+            '.end' ~ Main::newline ~ Main::newline();
+        
+        my $a := @.body;
+        for @$a -> $item {
+            if $item.isa( 'Sub' ) {
+                $s := $s ~ $item.emit;
+            }
+            else {
+                $s := $s ~ '.sub _ :anon :load :init' ~ Main::newline() ~
+                    $item.emit ~ Main::newline() ~
+                    '.end' ~ Main::newline();
+            }
+            # $s := $s ~ '  push $P1, $P0' ~ Main.newline;
+        };
+        return $s;
     }
 }
 
@@ -81,12 +97,17 @@ class Lit::Array {
     has @.array;
     method emit {
         my $a := @.array;
-        my $s := '  $P1 = new .ResizablePMCArray' ~ Main::newline();
+        my $s := 
+            '  save $P1' ~ Main::newline() ~
+            '  $P1 = new .ResizablePMCArray' ~ Main::newline();
         for @$a -> $item {
             $s := $s ~ $item.emit;
-            $s := $s ~ '  push $P1, $P0' ~ Main.newline;
+            $s := $s ~ 
+            '  push $P1, $P0' ~ Main.newline;
         };
-        my $s := $s ~ '  $P0 = $P1' ~ Main::newline();
+        my $s := $s ~ 
+            '  $P0 = $P1' ~ Main::newline() ~
+            '  restore $P1' ~ Main::newline();
         return $s;
     }
 }
@@ -94,32 +115,47 @@ class Lit::Array {
 class Lit::Hash {
     has @.hash;
     method emit {
-        my $fields := @.hash;
-        my $str := '';
-        for @$fields -> $field {
-            $str := $str ~ ($field[0]).emit ~ ' => ' ~ ($field[1]).emit ~ ',';
+        my $a := @.hash;
+        my $s := 
+            '  save $P1' ~ Main::newline() ~
+            '  save $P2' ~ Main::newline() ~
+            '  $P1 = new .Hash' ~ Main::newline();
+        for @$a -> $item {
+            $s := $s ~ ($item[0]).emit;
+            $s := $s ~ 
+            '  $P2 = $P0' ~ Main.newline;
+            $s := $s ~ ($item[1]).emit;
+            $s := $s ~ 
+            '  set $P1[$P2], $P0' ~ Main.newline;
         };
-        '{ ' ~ $str ~ ' }';
+        my $s := $s ~ 
+            '  $P0 = $P1' ~ Main::newline() ~
+            '  restore $P2' ~ Main::newline() ~
+            '  restore $P1' ~ Main::newline();
+        return $s;
     }
 }
 
 class Lit::Code {
-    # XXX
-    1;
+    method emit {
+        die 'Lit::Code - not used yet';
+    }
 }
 
 class Lit::Object {
     has $.class;
     has @.fields;
     method emit {
+        # ::Type( 'value' => 42 )
+        
         # $.class ~ '->new( ' ~ @.fields.>>emit.join(', ') ~ ' )';
         my $fields := @.fields;
         my $str := '';
         # say @fields.map(sub { $_[0].emit ~ ' => ' ~ $_[1].emit}).join(', ') ~ ')';
         for @$fields -> $field {
-            $str := $str ~ ($field[0]).emit ~ ' => ' ~ ($field[1]).emit ~ ',';
+            $str := $str ~ ($field[0]).emit ~ ' => ' ~ ($field[1]).emit ~  Main::newline();
         };
-        $.class ~ '->new( ' ~ $str ~ ' )';
+        $.class ~ '->new( ' ~ $str ~ ' )' ~ Main::newline();
     }
 }
 
@@ -127,14 +163,17 @@ class Index {
     has $.obj;
     has $.index;
     method emit {
-        $.obj.emit ~ '->[' ~ $.index.emit ~ ']';
-        # TODO
-        # if ($.obj.isa(Lit::Seq)) {
-        #    $.obj.emit ~ '[' ~ $.index.emit ~ ']';
-        # }
-        # else {
-        #    $.obj.emit ~ '->[' ~ $.index.emit ~ ']';
-        # }
+        my $s := 
+            '  save $P1' ~ Main::newline();
+        $s := $s ~ $.obj.emit;
+        $s := $s ~ 
+            '  $P1 = $P0' ~ Main.newline();
+        $s := $s ~ $.index.emit;
+        $s := $s ~ 
+            '  $P0 = $P1[$P0]' ~ Main.newline();
+        my $s := $s ~ 
+            '  restore $P1' ~ Main::newline();
+        return $s;
     }
 }
 
@@ -142,7 +181,17 @@ class Lookup {
     has $.obj;
     has $.index;
     method emit {
-        $.obj.emit ~ '->{' ~ $.index.emit ~ '}';
+        my $s := 
+            '  save $P1' ~ Main::newline();
+        $s := $s ~ $.obj.emit;
+        $s := $s ~ 
+            '  $P1 = $P0' ~ Main.newline;
+        $s := $s ~ $.index.emit;
+        $s := $s ~ 
+            '  $P0 = $P1[$P0]' ~ Main.newline;
+        my $s := $s ~ 
+            '  restore $P1' ~ Main::newline();
+        return $s;
     }
 }
 
@@ -241,7 +290,7 @@ class Call {
             }
             else {
                 return
-                    'Main::' ~ $.method ~ '(' ~ $.invocant.emit ~ ', ' ~ (@.arguments.>>emit).join(', ') ~ ')';
+                    'Main::' ~ $.method ~ '(' ~ $.invocant.emit ~ ', ' ~ (@.arguments.>>emit).join( Main::newline ) ~ ')';
             }
         };
 
@@ -250,7 +299,7 @@ class Call {
              $meth := '';
         };
 
-        my $call := '->' ~ $meth ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
+        my $call := '->' ~ $meth ~ '(' ~ (@.arguments.>>emit).join( Main::newline ) ~ ')';
         if ($.hyper) {
             '[ map { $_' ~ $call ~ ' } @{ ' ~ $.invocant.emit ~ ' } ]';
         }
@@ -393,7 +442,7 @@ class Method {
         'sub ' ~ $.name ~ ' { ' ~
           'my ' ~ $invocant.emit ~ ' = $_[0]; ' ~
           $str ~
-          (@.block.>>emit).join('; ') ~
+          (@.block.>>emit).join( Main::newline ) ~ 
         ' }'
     }
 }
@@ -415,19 +464,19 @@ class Sub {
             $str := $str ~ 'my ' ~ $field.emit ~ ' = $_[' ~ $i ~ ']; ';
             $i := $i + 1;
         };
-        'sub ' ~ $.name ~ ' { ' ~
+        '.sub \'' ~ $.name ~ '\'' ~ Main::newline ~ 
           ## 'my ' ~ $invocant.emit ~ ' = $_[0]; ' ~
           $str ~
-          (@.block.>>emit).join('; ') ~
-        ' }'
+          (@.block.>>emit).join( Main::newline ) ~ 
+        '.end' ~ Main::newline
     }
 }
 
 class Do {
     has @.block;
     method emit {
-        'do { ' ~
-          (@.block.>>emit).join('; ') ~
+        'do { ' ~ 
+          (@.block.>>emit).join( Main::newline ) ~ 
         ' }'
     }
 }
