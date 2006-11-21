@@ -9,24 +9,34 @@ class CompUnit {
         
         # TODO sub new { shift; bless { @_ }, "' ~ $.name ~ '" }' ~ Main::newline() ~
         
+        my $a := @.body;
         my $s :=   
             '.namespace [ "' ~ $.name ~ '" ] ' ~ Main::newline() ~
             '.sub "__onload" :load' ~ Main::newline() ~
             '  .local pmc self' ~ Main::newline() ~
-            '  newclass self, "' ~ $.name ~ '"' ~ Main::newline() ~
-            '.end' ~ Main::newline ~ Main::newline();
-        
-        my $a := @.body;
+            '  newclass self, "' ~ $.name ~ '"' ~ Main::newline();
         for @$a -> $item {
-            if $item.isa( 'Sub' ) {
+            if $item.isa( 'Decl' ) {
                 $s := $s ~ $item.emit;
             }
+        };
+        $s := $s ~
+            '.end' ~ Main::newline ~ Main::newline();
+
+        for @$a -> $item {
+            if $item.isa( 'Decl' ) {
+                # ignore
+            }
             else {
+              if $item.isa( 'Sub' ) {
+                $s := $s ~ $item.emit;
+              }
+              else {
                 $s := $s ~ '.sub _ :anon :load :init' ~ Main::newline() ~
                     $item.emit ~
                     '.end' ~ Main::newline() ~ Main::newline();
+              }
             }
-            # $s := $s ~ '  push $P1, $P0' ~ Main.newline;
         };
         return $s;
     }
@@ -421,7 +431,7 @@ class Decl {
         my $decl := $.decl;
         my $name := $.var.name;
            ( $decl eq 'has' )
-        ?? ( '  addattribute $Class, "' ~ $name ~ '"' ~ Main::newline() )
+        ?? ( '  addattribute self, "' ~ $name ~ '"' ~ Main::newline() )
         !! $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit;
     }
 }
