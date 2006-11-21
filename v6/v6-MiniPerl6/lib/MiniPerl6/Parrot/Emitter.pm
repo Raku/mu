@@ -434,10 +434,10 @@ class For {
         ' test_iter'  ~ $id ~ ':' ~ Main::newline() ~
         '  unless $P1 goto iter_done'  ~ $id ~ Main::newline() ~
         '  $P2 = shift $P1' ~ Main::newline() ~
+        (@.body.>>emit).join('') ~
         '  goto test_iter'  ~ $id ~ Main::newline() ~
         ' iter_done'  ~ $id ~ ':' ~ Main::newline() ~
-        #' ( ' ~  ' ) { ' ~ (@.body.>>emit).join('') ~ ' } }';
-        #$.topic.emit ~ 
+        # TODO - $.topic.emit ~ 
         ''; 
     }
 }
