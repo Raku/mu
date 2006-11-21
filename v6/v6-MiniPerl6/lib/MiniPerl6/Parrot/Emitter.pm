@@ -233,7 +233,9 @@ class Var {
             '&' => '$Code_',
         };
            ( $.twigil eq '.' )
-        ?? ( '$_[0]->{' ~ $.name ~ '}' )
+        ?? ( 
+             '  getattribute $P0, self, "' ~ $.name ~ '"' ~ Main::newline() 
+           )
         !!  (    ( $.name eq '/' )
             ??   ( $table{$.sigil} ~ 'MATCH' )
             !!   ( $table{$.sigil} ~ $.name )
