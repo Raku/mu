@@ -501,11 +501,11 @@ class Method {
             $str := $str ~ 'my ' ~ $field.emit ~ ' = $_[' ~ $i ~ ']; ';
             $i := $i + 1;
         };
-        'sub ' ~ $.name ~ ' { ' ~
+        '.sub "' ~ $.name ~ '"' ~ Main::newline ~
           'my ' ~ $invocant.emit ~ ' = $_[0]; ' ~
           $str ~
           (@.block.>>emit).join('') ~ 
-        ' }'
+        '.end' ~ Main::newline ~ Main::newline()
     }
 }
 
@@ -526,7 +526,7 @@ class Sub {
             $str := $str ~ 'my ' ~ $field.emit ~ ' = $_[' ~ $i ~ ']; ';
             $i := $i + 1;
         };
-        '.sub \'' ~ $.name ~ '\'' ~ Main::newline ~ 
+        '.sub "' ~ $.name ~ '"' ~ Main::newline ~ 
           ## 'my ' ~ $invocant.emit ~ ' = $_[0]; ' ~
           $str ~
           (@.block.>>emit).join('') ~ 
