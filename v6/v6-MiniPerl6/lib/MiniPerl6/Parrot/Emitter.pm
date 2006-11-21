@@ -428,17 +428,22 @@ class For {
         {
             $cond := ::Apply( code => 'prefix:<@>', arguments => [ $cond ] );
         };
-        '' ~ 
-        $cond.emit ~
-        '  $P1 = new .Iterator, $P0' ~ Main::newline() ~
-        ' test_iter'  ~ $id ~ ':' ~ Main::newline() ~
-        '  unless $P1 goto iter_done'  ~ $id ~ Main::newline() ~
-        '  $P2 = shift $P1' ~ Main::newline() ~
-        (@.body.>>emit).join('') ~
-        '  goto test_iter'  ~ $id ~ Main::newline() ~
-        ' iter_done'  ~ $id ~ ':' ~ Main::newline() ~
-        # TODO - $.topic.emit ~ 
-        ''; 
+        return
+            '' ~ 
+            $cond.emit ~
+            '  save $P1' ~ Main::newline() ~
+            '  save $P2' ~ Main::newline() ~
+            '  $P1 = new .Iterator, $P0' ~ Main::newline() ~
+            ' test_iter'  ~ $id ~ ':' ~ Main::newline() ~
+            '  unless $P1 goto iter_done'  ~ $id ~ Main::newline() ~
+            '  $P2 = shift $P1' ~ Main::newline() ~
+            '  .lex \'' ~ $.topic.emit ~ '\', $P2' ~ Main::newline() ~
+            (@.body.>>emit).join('') ~
+            '  goto test_iter'  ~ $id ~ Main::newline() ~
+            ' iter_done'  ~ $id ~ ':' ~ Main::newline() ~
+            '  restore $P2' ~ Main::newline() ~
+            '  restore $P1' ~ Main::newline() ~
+            ''; 
     }
 }
 
