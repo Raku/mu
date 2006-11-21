@@ -421,12 +421,24 @@ class For {
     my $label := 100;
     method emit {
         my $cond := $.cond;
+        $label := $label + 1;
+        my $id := $label;
         if   $cond.isa( 'Var' )
           && $cond.sigil eq '@'
         {
             $cond := ::Apply( code => 'prefix:<@>', arguments => [ $cond ] );
         };
-        'do { for my ' ~ $.topic.emit ~ ' ( ' ~ $cond.emit ~ ' ) { ' ~ (@.body.>>emit).join('') ~ ' } }';
+        '' ~ 
+        $cond.emit ~
+        '  $P1 = new .Iterator, $P0' ~ Main::newline() ~
+        ' test_iter'  ~ $id ~ ':' ~ Main::newline() ~
+        '  unless $P1 goto iter_done'  ~ $id ~ Main::newline() ~
+        '  $P2 = shift $P1' ~ Main::newline() ~
+        '  goto test_iter'  ~ $id ~ Main::newline() ~
+        ' iter_done'  ~ $id ~ ':' ~ Main::newline() ~
+        #' ( ' ~  ' ) { ' ~ (@.body.>>emit).join('') ~ ' } }';
+        #$.topic.emit ~ 
+        ''; 
     }
 }
 
