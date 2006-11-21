@@ -55,8 +55,8 @@ package Method; sub new { shift; bless { @_ }, "Method" } sub name { @_ == 1 ? (
 ;
 package Sub; sub new { shift; bless { @_ }, "Sub" } sub name { @_ == 1 ? ( $_[0]->{name} ) : ( $_[0]->{name} = $_[1] ) }; sub sig { @_ == 1 ? ( $_[0]->{sig} ) : ( $_[0]->{sig} = $_[1] ) }; sub block { @_ == 1 ? ( $_[0]->{block} ) : ( $_[0]->{block} = $_[1] ) }; sub emit { my $self = $_[0]; my  $sig = $_[0]->{sig}; my  $pos = $sig->positional(); my  $str = ''; my  $i = 0; do { for my $field ( @{$pos} ) { $str = ($str . ('my ' . ($field->emit() . (' = $_[' . ($i . ']; ')))));$i = ($i + 1) } }; ('.sub \'' . ($_[0]->{name} . ('\'' . (Main::newline() . ($str . (Main::join([ map { $_->emit() } @{ $_[0]->{block} } ], Main::newline()) . ('.end' . Main::newline()))))))) }
 ;
-package Do; sub new { shift; bless { @_ }, "Do" } sub block { @_ == 1 ? ( $_[0]->{block} ) : ( $_[0]->{block} = $_[1] ) }; sub emit { my $self = $_[0]; ('do { ' . (Main::join([ map { $_->emit() } @{ $_[0]->{block} } ], Main::newline()) . ' }')) }
+package Do; sub new { shift; bless { @_ }, "Do" } sub block { @_ == 1 ? ( $_[0]->{block} ) : ( $_[0]->{block} = $_[1] ) }; sub emit { my $self = $_[0]; Main::join([ map { $_->emit() } @{ $_[0]->{block} } ], '') }
 ;
-package Use; sub new { shift; bless { @_ }, "Use" } sub mod { @_ == 1 ? ( $_[0]->{mod} ) : ( $_[0]->{mod} = $_[1] ) }; sub emit { my $self = $_[0]; ('use ' . $_[0]->{mod}) }
+package Use; sub new { shift; bless { @_ }, "Use" } sub mod { @_ == 1 ? ( $_[0]->{mod} ) : ( $_[0]->{mod} = $_[1] ) }; sub emit { my $self = $_[0]; ('  .include "' . ($_[0]->{mod} . ('"' . Main::newline()))) }
 ;
 1;

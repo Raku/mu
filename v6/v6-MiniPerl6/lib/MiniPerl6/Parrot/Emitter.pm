@@ -488,16 +488,14 @@ class Sub {
 class Do {
     has @.block;
     method emit {
-        'do { ' ~ 
-          (@.block.>>emit).join( Main::newline ) ~ 
-        ' }'
+        (@.block.>>emit).join('') 
     }
 }
 
 class Use {
     has $.mod;
     method emit {
-        'use ' ~ $.mod
+        '  .include "' ~ $.mod ~ '"' ~ Main::newline()
     }
 }
 
