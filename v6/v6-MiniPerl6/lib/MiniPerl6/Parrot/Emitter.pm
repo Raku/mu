@@ -433,9 +433,9 @@ class For {
         $label := $label + 1;
         my $id := $label;
         if   $cond.isa( 'Var' )
-          && $cond.sigil eq '@'
+          && $cond.sigil ne '@'
         {
-            $cond := ::Apply( code => 'prefix:<@>', arguments => [ $cond ] );
+            $cond := ::Lit::Array( array => [ $cond ] );
         };
         return
             '' ~ 
