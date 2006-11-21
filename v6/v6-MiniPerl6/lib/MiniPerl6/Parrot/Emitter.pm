@@ -374,7 +374,7 @@ class Apply {
         if $code eq 'infix:<==>' { return '('  ~ (@.arguments.>>emit).join(' == ') ~ ')' };
         if $code eq 'infix:<!=>' { return '('  ~ (@.arguments.>>emit).join(' != ') ~ ')' };
 
-        if $code eq 'ternary:<?? !!>' {
+        if $code eq 'ternary:<?? !!>' { 
             return 
                 ( ::If( cond => @.arguments[0],
                         body => [@.arguments[1]],
@@ -402,14 +402,15 @@ class If {
     my $label := 100;
     method emit {
         $label := $label + 1;
+        my $id := $label;
         return
             $.cond.emit ~ 
-            '  unless $P0 goto ifelse' ~ $label ~ Main::newline() ~
+            '  unless $P0 goto ifelse' ~ $id ~ Main::newline() ~
                 (@.body.>>emit).join('') ~ 
-            '  goto ifend' ~ $label ~ Main::newline() ~
-            'ifelse' ~ $label ~ ':' ~ Main::newline() ~
+            '  goto ifend' ~ $id ~ Main::newline() ~
+            'ifelse' ~ $id ~ ':' ~ Main::newline() ~
                 (@.otherwise.>>emit).join('') ~ 
-            'ifend'  ~ $label ~ ':'  ~ Main::newline();
+            'ifend'  ~ $id ~ ':'  ~ Main::newline();
     }
 }
 
