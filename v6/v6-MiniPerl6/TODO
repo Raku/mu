@@ -6,17 +6,29 @@ Bootstrapping MiniPerl6 in Perl5
 
 - Freeze the project, because it can be useful to bootstrap other VMs
 
+Bootstrapping MiniPerl6 in Parrot
+
+- finish OO, variables
+
+- rewrite mp6-parrot.pl in parrot (or mp6)
+
+- Recompile it several times using itself, in order to check the stability of the Bootstrap
+
+- Freeze the project, because it can be useful to bootstrap other VMs
+
 Missing Backends
 
-- Javascript, Haskell, Parrot
+- Javascript, Haskell
 
 - MO in MP6 (MP6-2)
 
 Missing Features
 
-- type annotations
+- detailed syntax errors
 
-- autoquote hash keys
+- type annotations - FIXED
+
+- autoquote hash keys - FIXED
 
 - double quote interpolation and "\n"
 
@@ -40,7 +52,7 @@ Bugs
 - Hash binding implementation is wrong
 
 - 'for' loops always need to specify '@{}', as in:  for ( @$a ) {...}
-  even if the variable has a '@' sigil
+  even if the variable has a '@' sigil - FIXED
 
 - binding ':=' and param binding should share implementations 
 
