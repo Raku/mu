@@ -25,10 +25,12 @@ class CompUnit {
 
         for @$a -> $item {
             if $item.isa( 'Decl' ) {
-                # ignore
+                # already done - ignore
             }
             else {
-              if $item.isa( 'Sub' ) {
+              if   $item.isa( 'Sub' ) 
+                || $item.isa( 'Method' )
+              {
                 $s := $s ~ $item.emit;
               }
               else {
