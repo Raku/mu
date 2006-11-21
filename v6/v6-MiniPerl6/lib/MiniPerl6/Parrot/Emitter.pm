@@ -330,7 +330,7 @@ class Apply {
         if $code eq 'say'        {
             # return 'Main::say('   ~ (@.arguments.>>emit).join(', ') ~ ')'
             return
-                (@.arguments.>>emit).join( Main::newline ) ~ Main::newline ~
+                (@.arguments.>>emit).join( '  print $P0' ~ Main::newline ) ~
                 '  print $P0' ~ Main::newline ~
                 '  print "\n"' ~ Main::newline
         };
