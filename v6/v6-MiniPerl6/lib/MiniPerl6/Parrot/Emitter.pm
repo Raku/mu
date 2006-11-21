@@ -372,7 +372,8 @@ class Apply {
 class Return {
     has $.result;
     method emit {
-        'return(' ~ $.result.emit ~ ')';
+        $.result.emit ~ 
+        '  .return( $P0 )' ~ Main::newline();
     }
 }
 
@@ -381,7 +382,13 @@ class If {
     has @.body;
     has @.otherwise;
     method emit {
-        'do { if (' ~ $.cond.emit ~ ') { ' ~ (@.body.>>emit).join(';') ~ ' } else { ' ~ (@.otherwise.>>emit).join(';') ~ ' } }';
+        $.cond.emit ~ 
+        '  unless $P0 goto ifelse' ~ Main::newline() ~
+        (@.body.>>emit).join('') ~ 
+        '  goto ifend' ~ Main::newline() ~
+        'ifelse:' ~ Main::newline() ~
+        (@.otherwise.>>emit).join('') ~ 
+        'ifend:'  ~ Main::newline();
     }
 }
 
