@@ -195,6 +195,10 @@ class Call {
     has @.arguments;
     has $.hyper;
     method emit {
+        my $invocant := $.invocant.emit;
+        if $invocant eq 'self' {
+            $invocant := '$self';
+        };
         if     ($.method eq 'perl')
             || ($.method eq 'yaml')
             || ($.method eq 'say' )
@@ -204,11 +208,11 @@ class Call {
         { 
             if ($.hyper) {
                 return 
-                    '[ map { Main::' ~ $.method ~ '( $_, ' ~ ', ' ~ (@.arguments.>>emit).join(', ') ~ ')' ~ ' } @{ ' ~ $.invocant.emit ~ ' } ]';
+                    '[ map { Main::' ~ $.method ~ '( $_, ' ~ ', ' ~ (@.arguments.>>emit).join(', ') ~ ')' ~ ' } @{ ' ~ $invocant ~ ' } ]';
             }
             else {
                 return
-                    'Main::' ~ $.method ~ '(' ~ $.invocant.emit ~ ', ' ~ (@.arguments.>>emit).join(', ') ~ ')';
+                    'Main::' ~ $.method ~ '(' ~ $invocant ~ ', ' ~ (@.arguments.>>emit).join(', ') ~ ')';
             }
         };
 
@@ -219,10 +223,10 @@ class Call {
         
         my $call := '->' ~ $meth ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
         if ($.hyper) {
-            '[ map { $_' ~ $call ~ ' } @{ ' ~ $.invocant.emit ~ ' } ]';
+            '[ map { $_' ~ $call ~ ' } @{ ' ~ $invocant ~ ' } ]';
         }
         else {
-            $.invocant.emit ~ $call;
+            $invocant ~ $call;
         };
 
     }

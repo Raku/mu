@@ -221,6 +221,18 @@ class Var {
     has $.twigil;
     has $.name;
     method emit {
+           ( $.twigil eq '.' )
+        ?? ( 
+             '  getattribute $P0, self, "' ~ $.name ~ '"' ~ Main::newline() 
+           )
+        !! (
+             '  $P0 = find_lex "' ~ self.full_name ~ '"' ~ Main::newline() 
+           )
+    };
+    method name {
+        $.name
+    };
+    method full_name {
         # Normalize the sigil here into $
         # $x    => $x
         # @x    => $List_x
@@ -234,15 +246,12 @@ class Var {
         };
            ( $.twigil eq '.' )
         ?? ( 
-             '  getattribute $P0, self, "' ~ $.name ~ '"' ~ Main::newline() 
+             $.name 
            )
         !!  (    ( $.name eq '/' )
             ??   ( $table{$.sigil} ~ 'MATCH' )
             !!   ( $table{$.sigil} ~ $.name )
             )
-    };
-    method name {
-        $.name
     };
 }
 
@@ -437,7 +446,7 @@ class For {
             ' test_iter'  ~ $id ~ ':' ~ Main::newline() ~
             '  unless $P1 goto iter_done'  ~ $id ~ Main::newline() ~
             '  $P2 = shift $P1' ~ Main::newline() ~
-            '  .lex \'' ~ $.topic.emit ~ '\', $P2' ~ Main::newline() ~
+            '  .lex \'' ~ $.topic.full_name ~ '\', $P2' ~ Main::newline() ~
             (@.body.>>emit).join('') ~
             '  goto test_iter'  ~ $id ~ Main::newline() ~
             ' iter_done'  ~ $id ~ ':' ~ Main::newline() ~
