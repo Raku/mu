@@ -6,9 +6,6 @@ class CompUnit {
     has %.methods;
     has @.body;
     method emit {
-        
-        # TODO sub new { shift; bless { @_ }, "' ~ $.name ~ '" }' ~ Main::newline() ~
-        
         my $a := @.body;
         my $s :=   
             '.namespace [ "' ~ $.name ~ '" ] ' ~ Main::newline() ~
@@ -22,24 +19,28 @@ class CompUnit {
         };
         $s := $s ~
             '.end' ~ Main::newline ~ Main::newline();
-
         for @$a -> $item {
-            if $item.isa( 'Decl' ) {
+            if   $item.isa( 'Sub'    ) 
+              || $item.isa( 'Method' )
+            {
+                $s := $s ~ $item.emit;
+            }
+        };
+        $s := $s ~ 
+            '.sub _ :anon :load :init' ~ Main::newline();
+        for @$a -> $item {
+            if   $item.isa( 'Decl'   ) 
+              || $item.isa( 'Sub'    ) 
+              || $item.isa( 'Method' )
+            {
                 # already done - ignore
             }
             else {
-              if   $item.isa( 'Sub' ) 
-                || $item.isa( 'Method' )
-              {
                 $s := $s ~ $item.emit;
-              }
-              else {
-                $s := $s ~ '.sub _ :anon :load :init' ~ Main::newline() ~
-                    $item.emit ~
-                    '.end' ~ Main::newline() ~ Main::newline();
-              }
             }
         };
+        $s := $s ~ 
+            '.end' ~ Main::newline() ~ Main::newline();
         return $s;
     }
 }
@@ -93,7 +94,7 @@ class Val::Object {
     has %.fields;
     method emit {
         die 'Val::Object - not used yet';
-        'bless(' ~ %.fields.perl ~ ', ' ~ $.class.perl ~ ')';
+        # 'bless(' ~ %.fields.perl ~ ', ' ~ $.class.perl ~ ')';
     }
 }
 
@@ -101,7 +102,7 @@ class Lit::Seq {
     has @.seq;
     method emit {
         die 'Lit::Seq - not used yet';
-        '(' ~ (@.seq.>>emit).join('') ~ ')';
+        # '(' ~ (@.seq.>>emit).join('') ~ ')';
     }
 }
 
@@ -167,9 +168,9 @@ class Lit::Object {
             '  $P1 = new "' ~ $.class ~ '"' ~ Main::newline();
         for @$fields -> $field {
             $str := $str ~ 
-                ($field[0]).emit ~ Main::newline() ~
+                ($field[0]).emit ~ 
                 '  $S2 = $P0'    ~ Main::newline() ~
-                ($field[1]).emit ~ Main::newline() ~
+                ($field[1]).emit ~ 
                 '  setattribute $P1, $S2, $P0' ~ Main::newline();
         };
         $str := $str ~ 
@@ -215,6 +216,13 @@ class Lookup {
         return $s;
     }
 }
+
+# variables can be:
+# $.var   - inside a method - parrot 'attribute'
+# $.var   - inside a class  - parrot 'global' (does parrot have class attributes?)
+# my $var - inside a sub or method   - parrot 'lexical' 
+# my $var - inside a class  - parrot 'global'
+# parameters - parrot subroutine parameters - fixed by storing into lexicals
 
 class Var {
     has $.sigil;
@@ -265,14 +273,14 @@ class Bind {
 
             my $a := $.parameters.array;
             my $b := $.arguments.array;
-            my $str := 'do { ';
+            my $str := '';
             my $i := 0;
             for @$a -> $var {
                 my $bind := ::Bind( 'parameters' => $var, 'arguments' => ($b[$i]) );
-                $str := $str ~ ' ' ~ $bind.emit ~ '; ';
+                $str := $str ~ ' ' ~ $bind.emit ~ '';
                 $i := $i + 1;
             };
-            return $str ~ $.parameters.emit ~ ' }';
+            return $str ~ $.parameters.emit ~ '';
         };
         if $.parameters.isa( 'Lit::Hash' ) {
 
@@ -282,17 +290,26 @@ class Bind {
 
             my $a := $.parameters.hash;
             my $b := $.arguments.hash;
-            my $str := 'do { ';
+            my $str := '';
             my $i := 0;
             for @$a -> $var {
                 my $bind := ::Bind( 'parameters' => $var[0], 'arguments' => ($b[$i])[1] );
-                $str := $str ~ ' ' ~ $bind.emit ~ '; ';
+                $str := $str ~ ' ' ~ $bind.emit ~ '';
                 $i := $i + 1;
             };
-            return $str ~ $.parameters.emit ~ ' }';
+            return $str ~ $.parameters.emit ~ '';
         };
-        $.arguments.emit ~
-        '  ' ~ $.parameters.emit ~ ' = $P0' ~ Main::newline();
+        if $.parameters.isa( 'Var' ) {
+            return
+                $.arguments.emit ~
+                '  .lex "' ~ $.parameters.full_name ~ '", $P0' ~ Main::newline();
+        };
+        if $.parameters.isa( 'Decl' ) {
+            return
+                $.arguments.emit ~
+                '  .lex "' ~ (($.parameters).var).full_name ~ '", $P0' ~ Main::newline();
+        };
+        die "Not implemented binding: " ~ $.parameters ~ Main::newline() ~ $.parameters.emit;
     }
 }
 
@@ -337,7 +354,8 @@ class Call {
             '[ map { $_' ~ $call ~ ' } @{ ' ~ $.invocant.emit ~ ' } ]';
         }
         else {
-            $.invocant.emit ~ $call;
+            $.invocant.emit ~
+            $call;
         };
 
     }
@@ -391,8 +409,35 @@ class Apply {
                 ) ).emit;
         };
 
-        $.code ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
-        # '(' ~ $.code.emit ~ ')->(' ~ @.arguments.>>emit.join(', ') ~ ')';
+        #(@.arguments.>>emit).join('') ~
+        #'  ' ~ $.code ~ '( $P0 )' ~ Main::newline();
+        
+        my @args := @.arguments;
+        my $str := '';
+        my $ii := 10;
+        for @args -> $arg {
+            $str := $str ~ '  save $P' ~ $ii ~ Main::newline();
+            $ii := $ii + 1;
+        };
+        my $i := 10;
+        for @args -> $arg {
+            $str := $str ~ $arg.emit ~
+                '  $P' ~ $i ~ ' = $P0' ~ Main::newline();
+            $i := $i + 1;
+        };
+        $str := $str ~ '  ' ~ $.code ~ '(';
+        $i := 0;
+        my @p;
+        for @args -> $arg {
+            @p[$i] := '$P' ~ ($i+10);
+            $i := $i + 1;
+        };
+        $str := $str ~ @p.join(', ') ~ ')' ~ Main::newline();
+        for @args -> $arg {
+            $ii := $ii - 1;
+            $str := $str ~ '  restore $P' ~ $ii ~ Main::newline();
+        };
+        return $str;
     }
 }
 
@@ -465,7 +510,10 @@ class Decl {
         my $name := $.var.name;
            ( $decl eq 'has' )
         ?? ( '  addattribute self, "' ~ $name ~ '"' ~ Main::newline() )
-        !! $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit;
+        !! #$.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit;
+           ( '  $P0 = new .Undef' ~ Main::newline ~
+             '  .lex \'' ~ ($.var).full_name ~ '\', $P0' ~ Main::newline() 
+           );
     }
 }
 
@@ -489,28 +537,24 @@ class Method {
     has $.sig;
     has @.block;
     method emit {
-        # TODO - signature binding
         my $sig := $.sig;
-        # say "Sig: ", $sig.perl;
         my $invocant := $sig.invocant;
-        # say $invocant.emit;
         my $pos := $sig.positional;
         my $str := '';
-        my $i := 1;
+        my $i := 0;
         for @$pos -> $field {
-            $str := $str ~ 'my ' ~ $field.emit ~ ' = $_[' ~ $i ~ ']; ';
+            $str := $str ~ 
+                '  $P0 = params[' ~ $i ~ ']' ~ Main::newline() ~
+                '  .lex \'' ~ $field.full_name ~ '\', $P0' ~ Main::newline();
             $i := $i + 1;
         };
-        '.sub "' ~ $.name ~ '" :method' ~ Main::newline ~
-          
-          # TODO - set the invocant, if it is not the default
-          # 'my ' ~ 
-          # $invocant.emit ~ 
-          # '  $P0 = self' ~ Main::newline() ~
-          
-          $str ~
-          (@.block.>>emit).join('') ~ 
-        '.end' ~ Main::newline ~ Main::newline()
+        return          
+            '.sub "' ~ $.name ~ '" :method' ~ Main::newline() ~
+            '  .param pmc params  :slurpy'  ~ Main::newline() ~
+            '  .lex \'' ~ $invocant.full_name ~ '\', self' ~ Main::newline() ~
+            $str ~
+            (@.block.>>emit).join('') ~ 
+            '.end' ~ Main::newline ~ Main::newline();
     }
 }
 
@@ -519,29 +563,30 @@ class Sub {
     has $.sig;
     has @.block;
     method emit {
-        # TODO - signature binding
         my $sig := $.sig;
-        # say "Sig: ", $sig.perl;
-        ## my $invocant := $sig.invocant;
-        # say $invocant.emit;
+        my $invocant := $sig.invocant;
         my $pos := $sig.positional;
         my $str := '';
         my $i := 0;
         for @$pos -> $field {
-            $str := $str ~ 'my ' ~ $field.emit ~ ' = $_[' ~ $i ~ ']; ';
+            $str := $str ~ 
+                '  $P0 = params[' ~ $i ~ ']' ~ Main::newline() ~
+                '  .lex \'' ~ $field.full_name ~ '\', $P0' ~ Main::newline();
             $i := $i + 1;
         };
-        '.sub "' ~ $.name ~ '"' ~ Main::newline ~ 
-          ## 'my ' ~ $invocant.emit ~ ' = $_[0]; ' ~
-          $str ~
-          (@.block.>>emit).join('') ~ 
-        '.end' ~ Main::newline ~ Main::newline()
+        return          
+            '.sub "' ~ $.name ~ '"' ~ Main::newline() ~
+            '  .param pmc params  :slurpy'  ~ Main::newline() ~
+            $str ~
+            (@.block.>>emit).join('') ~ 
+            '.end' ~ Main::newline ~ Main::newline();
     }
 }
 
 class Do {
     has @.block;
     method emit {
+        # TODO - create a new lexical pad
         (@.block.>>emit).join('') 
     }
 }
