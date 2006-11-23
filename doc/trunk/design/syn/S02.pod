@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 15 Nov 2006
+  Last Modified: 23 Nov 2006
   Number: 2
-  Version: 79
+  Version: 80
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -178,14 +178,17 @@ insert a line break into a sequence of method calls include:
 
 =item *
 
-In fact, any whitespace (including comments) may be hidden by prefixing
-it with C<\>.  It does not have to end with a dot.  It's just that
+In fact, any whitespace (including comments) may be hidden from the parser by
+prefixing it with C<\>.  It does not have to end with a dot.  It's just that
 the normal use of a you-don't-see-this-space is typically to put
 a dotted postfix on the next line.  But it also lets you continue
 the line in any situation where a newline might confuse the parser,
 regardless of the currently installed parser.  (Unless, of course,
-you override the unspace rule itself...)  Although we say that the
-unspace hides the whitespace from the parser, line numbers are still
+you override the unspace rule itself...)
+
+Although we say that the unspace hides the whitespace from the parser,
+it does not hide whitespace from the lexer.  As a result, unspace is not
+allowed within a token.  Additionally, line numbers are still
 counted if the unspace contains one or more newlines.  A C<#> following
 such a newline is always an end-of-line comment, as described above.
 Since Pod chunks count as whitespace to the language, they are also
