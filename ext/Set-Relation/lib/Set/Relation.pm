@@ -1443,9 +1443,20 @@ I<TODO.>
 
 I<TODO.>
 
-=item C<transitive_closure>
+=item C<tclose (Set::Relation $arcs) returns Set::Relation>
 
-I<TODO.>  Aliases: C<tclose>.
+This unary relational operator takes a binary Set::Relation object, where
+both of its attributes are of the same data type, and returns another
+Set::Relation with the same heading and a superset of its tuples.  Assuming
+that the argument represents all of the node pairs in a directed graph that
+have an arc between them, and so each argument tuple represents an arc,
+tclose() will determine all of the node pairs in that graph which have a
+path between them, so each tuple of the result represents a path.  The
+result is a superset since all arcs are also complete paths.  The tclose()
+operator is intended to support recursive queries, such as in connection
+with the "part explosion problem" (the problem of finding all components,
+at all levels, of some specified part).  This method has an alias named
+C<transitive_closure>.
 
 =back
 

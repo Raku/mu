@@ -104,6 +104,7 @@ Perl6::Overview::Operator - Operators
     Generic   Num   Str
     -------------------
     =:=                   # equality (container)
+    !=:=                  # negated equality (container)
     ===                   # equality (value, eternal semantics)
     !===                  # negated equality (value, eternal semantics)
     eqv       ==    eq    # equality (value, snapshot semantics)
