@@ -36,5 +36,5 @@ while ( $pos < length( $source ) ) {
     $pos = $p->to;
 }
 
-say( '.sub _ :main' );
-say( '.end' );
+#say( '.sub _ :main' );
+#say( '.end' );
