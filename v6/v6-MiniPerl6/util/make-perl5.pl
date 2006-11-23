@@ -10,20 +10,23 @@ sub backup {
 }
 sub compile {
     my ($in,$out) = @_;
-    system("perl -Ilib mp6-perl5-v6.pl $in > $out");
+    print("perl mp6-perl5-boot.pl $in > $out\n");
+    system("perl mp6-perl5-boot.pl $in > $out");
 }
 sub make {
     my ($source,$old,$new) = @_;
     mkdir($new);
     for my $dir (`find $source -type d`) {
         chomp($dir);
+        $dir =~ s/^\Q$source\/\E//;
         print("mkdir $new/$dir\n");
         mkdir("$new/$dir");
     }
     for my $file (`find $source -name '*.pm'`) {
         chomp($file);
-        print("compile $new/$file\n");
-        compile("$old/$file","$new/$file");
+        $file =~ s/^\Q$source\/\E//;
+        #print("compile $new/$file\n");
+        compile("$source/$file","$new/$file");
     }
 }
 
