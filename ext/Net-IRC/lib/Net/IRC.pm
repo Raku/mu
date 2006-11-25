@@ -177,7 +177,7 @@ sub new_bot(
       debug "Joined channel \"$event<object>\".";
     }
 
-    %channels{~normalize($event<object>)}<users>{$event<from_nick>}++;
+    %channels{~normalize($event<object>)}<users>{~normalize($event<from_nick>)}++;
     %users{~normalize($event<from_nick>)}<channels>{~normalize($event<object>)}++;
   }];
 
