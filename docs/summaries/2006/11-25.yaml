@@ -25,7 +25,7 @@ extra:
       title: Distribution
   header:
     - body: |-
-        "...of course can't be a bug as there are no specs ;)"
+        "...of course [that] can't be a bug as there are no specs ;)"
         
         -- Leopold Toetsch, in '<msgid:rt-3.5.HEAD-1641-1164215008-1277.40968-72-0@perl.org>'
       title: This week on the Perl 6 mailing lists
