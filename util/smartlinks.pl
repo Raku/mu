@@ -194,9 +194,11 @@ sub parse_pod ($) {
             #push @{ $podtree->{$section} }, "\n";
             push @{ $podtree->{$section} }, '';
         } elsif (/^\s+(.+)/) {
+            $podtree->{$section} ||= [''];
             $podtree->{$section}->[-1] .= $_;
             push @{ $podtree->{$section} }, '';
         } else {
+            $podtree->{$section} ||= [''];
             $podtree->{$section}->[-1] .= $_;
         }
     }
