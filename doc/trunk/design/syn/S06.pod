@@ -2168,7 +2168,7 @@ specify tail-recursion on an anonymous block:
 
     my $anonfactorial = -> Int $n { $n < 2
     					?? 1
-					:: $n * &?BLOCK($n-1)
+					!! $n * &?BLOCK($n-1)
 				  };
 
 C<&?BLOCK.label> contains the label of the current block, if any.
