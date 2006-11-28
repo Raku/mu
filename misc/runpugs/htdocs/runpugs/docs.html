@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Run Perl 6 Now -- in your browser!</title>
+<link rel="stylesheet" type="text/css" href="../runpugs.css">
+</head>
+<body>
+
+<div id="mainwindow">
+<h1>Run Perl 6 now -- in your browser!</h1>
+
+<p>Welcome to <tt>runpugs</tt>, a web terminal for  <a href="http://www.pugscode.org">pugs</a>. Pugs is an implementation of  <a href="http://dev.perl.org/perl6/">Perl 6</a> which aims to implement the full Perl 6 specification.</p>
+<p><tt>runpugs</tt> lives at <a
+href="http://run.pugscode.org">run.pugscode.org</a>.</p>
+<p>By default, the Pugs session will use the <a
+href="http://search.cpan.org/search?query=perl6%3A%3Apugs">latest
+release</a>. You can try the latest development snapshot of Pugs by selecting the 'Development' radio button.</p>
+<p>Don't hesitate to test the <em>development version</em> of
+<tt>runpugs</tt>:</p><ul><li>try the <a
+href="http://feather.perl6.nl:8080/cgi-bin/runpugs2">interactive session</a>
+with <em>command history</em></li> <li>or <a
+href="http://feather.perl6.nl:8080/cgi-bin/runpugs2?ia=0">run a full Perl 6
+script</a> in <em>non-interactive</em> mode.</li></ul>
+
+<h2>Instructions</h2>
+<p><tt>runpugs</tt> presents the pugs interactive shell. Only
+the line typed at the last prompt is sent to pugs.</p>
+<p><tt>runpugs</tt>-specific commands:</p>
+<dl>
+<dt><code>help</code></dt><dd> displays the Pugs shell help (same as
+<code>:h</code>)</dd><br>
+<dt><code>clear</code></dt><dd>clears the web terminal (this command is not sent to the
+pugs shell).</dd><br>
+<dt><code>quit</code>, <code>bye</code></dt><dd>quit the Pugs session (same as
+<code>:q</code>)</dd><br>
+</dl>
+<p>Please be considerate and do <em>quit</em> your
+pugs session  before you close the browser window.
+</p>
+<h2>Restrictions</h2>
+<p>Because this is a web terminal, a number of restrictions apply:</p>
+
+<ul>
+<li>The <code>pugs</code> shell runs in <em>safe mode</em>, so system-related calls are disabled.</li>
+<li>If a call takes too long, the <code>pugs</code> session will time out.</li>
+<li>If a call produces too much output, the <code>pugs</code> session will
+abort.</li>
+<li>If left idle for too long, the <code>pugs</code> session will time out.</li>
+<li>The total number of sessions and number of sessions from a given IP address are limited.</li>
+<li>Memory available to <code>pugs</code> is severely limited. </li>
+</ul>
+<p>The current values relating to the above restrictions are:</p>
+<ul>
+<li>Inactivity time-out: 10 minutes</li>
+<li>"Long" call time-out: 10 seconds</li>
+<li>Maximum number of lines of output: 250</li>
+<li>Maximum number of characters perl line of output: 250</li>
+<li>Sessions per IP: 10</li>
+<li>Total number of sessions: 50</li>
+<li>Available memory: 64M.</li>
+</ul>
+<p>All of these are open to change if they would prove to be too
+restrictive.</p>
+<h2>Known issues</h2>
+<p><tt>runpugs</tt> is a very young project, and there will certainly be some bugs. Some known issues are:</p>
+<ul>
+<li>Unicode is not supported.</li>
+<li>There is no command history.</li>
+</ul>
+<h2>Source</h2>
+<p>You can find the source code for <tt>runpugs</tt> (in Perl 5) in the <a
+href="http://svn.openfoundry.org/pugs/">pugs subversion repository</a> under
+<code><a href="http://svn.openfoundry.org/pugs/misc/runpugs">/misc/runpugs</a></code>.
+<p>Thank you for trying <tt>pugs</tt> and <tt>runpugs</tt>!</p>
+<p class="copyright">&copy; Copyright 2006 by Wim Vanderbauwhede</p>
+</div>
+</body></html>

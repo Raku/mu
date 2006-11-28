@@ -47,7 +47,7 @@ $sessionid=$nid.$now;
 
 $motd='
 <p class="warning">Please test the <em>development version</em> of <tt>runpugs</tt>: try the <a
-href="http://feather.perl6.nl:8080/cgi-bin/runpugs2">interactive session</a>
+href="http://feather.perl6.nl:8080/runpugs/">interactive session</a>
 with <em>command history</em> or <a
 href="http://feather.perl6.nl:8080/cgi-bin/runpugs2?ia=0">run a full Perl 6 script</a>.</p>
 ';

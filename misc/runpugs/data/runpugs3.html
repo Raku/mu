@@ -1,0 +1,24 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<form id="term" name="terminal" action="/cgi-bin/runpugs3" method="POST">                  
+<input type="hidden" name="prompt" value="_PROMPTW_">
+<input type="hidden" name="sessionid" value="">
+<input type="hidden"    name="ia" value="1">
+<input type="hidden"    name="action" value="runpugs">
+<input type="radio" id="rel" value="0" name="reldev" _REL_ >
+<input type="radio" id="dev" value="1" name="reldev" _DEV_ >
+<select name="history" id="hist" >
+<option value="">--- Recent commands ---</option>
+_HIST_
+</select>
+<textarea id="cmd" name="cmd" rows="20" cols="80">
+_ALL_
+</textarea>
+<input id="enter" type="submit" value="Submit">
+</form>
+</body>
+</html>
