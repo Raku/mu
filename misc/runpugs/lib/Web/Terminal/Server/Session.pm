@@ -82,6 +82,16 @@ sub new {
 	return $self;
 }
 
+sub DESTROY {
+    my $obj = shift;
+    $obj->{'pty'}->close();
+     $obj->{'pty'}->close_slave();
+      $obj->{'pugs'}->close();
+      if($obj->{'pid'}){
+          kill 9,$obj->{'pid'};
+      }
+}
+
 sub readlines {
 	my $obj = shift;
 	my $ps = '';

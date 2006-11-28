@@ -79,7 +79,7 @@ our $nsessions_ip=10;
 
 our $timeout_idle=600;
 our $timeout_call=10;
-our $check_interval=300;
+our $check_interval=60;
 our $nlines=250;
 our $nchars=250;
 our $nrecent=10;

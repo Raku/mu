@@ -208,11 +208,11 @@ sub timeout() {
 }
 sub killterm {
     my $id=shift;
-    my $pid= $terminals{$id}->{pid};
+#    my $pid= $terminals{$id}->{pid};
     delete $terminals{$id};
-    if ($pid) {
-        kill 9,$pid;
-    }
+#    if ($pid) {
+#        kill 9,$pid;
+#    }
 }
 
 1;
