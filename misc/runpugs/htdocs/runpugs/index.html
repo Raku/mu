@@ -2,115 +2,7 @@
 <html lang="en"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Run Perl 6 Now -- in your browser!</title>
 <link rel="stylesheet" type="text/css" href="../runpugs.css">
-<script language="JavaScript">
-var nchars=0;
-var histlist;
-var histentry=0;
-var reply="";
-function getnchars() {
-    return document.terminal.cmd.value.length
-}
-
-function getcursorpos() {
-	var obj=document.terminal.cmd;
-	if(document.selection) {
-    	obj.focus();			
-		var rng=document.selection.createRange();			
-        rng.moveStart('character',-nchars);
-		return rng.text.length;
-	} else if(obj.selectionStart>=0) { // FireFox
-    	var start = obj.selectionStart;
-    	var end   = obj.selectionEnd;
-   		if (start<=end) {
-   			return start;
-		} else {
-   			return end;
-           }
-	}
-}
-
-function catchbackspace(myfield,e) {
-    var keycode;
-    if (window.event) {
-        keycode = window.event.keyCode;
-    } else if (e) {
-        keycode = e.which;
-    } else {
-        return true;
-    }
-    //alert(keycode);
-    if (keycode == 13) {
-        //alert(document.terminal.cmd.value);
-        var cmd=document.terminal.cmd.value;
-        //cmd.replace(/^.*pugs\>\ /, "");
-        //cmds=cmd.split('pugs> ');
-        //cmd=cmds[cmds.length-1];
-        frames['scratch'].document.getElementById("cmd").value=cmd;
-        frames['scratch'].document.terminal.submit(); 
-        return false;
-    }
-    if (keycode==38) {
-        hist_next();
-        return false;
-    }
-    if (keycode==40) {
-        hist_prev();
-        return false;
-    }
-    if ((keycode==8)||(keycode==37)||(keycode==46)) {
-        if ((getnchars()>nchars) && (getcursorpos() > nchars)) {
-            return true;
-        } else {
-            return false;
-        }
-    } else {
-        return true;
-    }
-}
-
-function getreply () {
-    //getElementById("scratch")
-    scratchpad=frames['scratch'].document;//.contentDocument;
-    reply=scratchpad.getElementById("cmd").value;
-    histlist=scratchpad.terminal.history.options;
-    histentry=histlist.length;
-    //histlist.reverse;
-    document.terminal.cmd.value=reply;
-    document.terminal.cmd.focus() 
-    document.terminal.cmd.scrollTop =document.terminal.cmd.scrollHeight;
-    nchars=document.terminal.cmd.value.length;
-}
-
-function hist_next () {
-    if (histentry>1) {
-        histentry-=1;
-        document.terminal.cmd.value=reply+histlist[histentry].value;
-        document.terminal.cmd.scrollTop =document.terminal.cmd.scrollHeight; 
-    }
-    return false;
-}
-
-function hist_prev () {
-    if (histentry<histlist.length-1) {
-        histentry+=1;
-        document.terminal.cmd.value=reply+histlist[histentry].value;
-        document.terminal.cmd.scrollTop =document.terminal.cmd.scrollHeight; 
-    }
-}
-
-function set_version () {
-    var reldev=document.terminal.reldev[0].checked;
-    if (reldev==true) {
-        frames['scratch'].document.terminal.reldev[0].checked=true;
-        frames['scratch'].document.terminal.reldev[1].checked=false;
-    } else {
-        frames['scratch'].document.terminal.reldev[0].checked=false;
-        frames['scratch'].document.terminal.reldev[1].checked=true;
-    }
-    //alert(frames['scratch'].document.terminal.reldev[0].checked+'<>'+frames['scratch'].document.terminal.reldev[1].checked);
-    frames['scratch'].document.terminal.submit();
-}
-</script>
+<script language="JavaScript" src="runpugs.js"></script>
 </head>
 <body>
 
@@ -127,11 +19,15 @@ style="visibility:hidden" width="700px" height="1px"  onLoad="getreply()"></ifra
 onClick="set_version()"><label for="rel">Release version</label>&nbsp;&nbsp;
 <input id="dev" value="1" name="reldev" type="radio" onClick="set_version()"><label for="dev">Development version</label>
 <div id="termwindow">
-<textarea id="cmd" name="cmd" rows="20" cols="80" wrap="virtual" onkeypress="return catchbackspace(this,event)" onkeydown="return catchbackspace(this,event)">Please wait while Pugs starts up...</textarea> 
+<!--<textarea id="cmd" name="cmd" rows="20" cols="80" wrap="virtual"
+onkeydown="return catchbackspace_ff(this,event)" onkeypress="return
+catchbackspace_ie(this,event)">Please wait while Pugs starts
+up...</textarea>-->
+<textarea id="cmd" name="cmd" rows="20" cols="80" wrap="virtual"
+onkeydown="return catch_events(this,event)">Please wait while Pugs starts up...</textarea>
 </div>
 </form>
 <script language="JavaScript">
-document.terminal.enter.style.display='none';
 document.terminal.cmd.focus() // _SKIPC_
 document.terminal.cmd.scrollTop =document.terminal.cmd.scrollHeight; // _SKIPC_
 nchars=document.terminal.cmd.value.length;
