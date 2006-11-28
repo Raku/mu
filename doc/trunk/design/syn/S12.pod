@@ -41,10 +41,10 @@ standard class-based model.
 
 There are two basic class declaration syntaxes:
 
-    class Foo;		# rest of file is class definition
+    class Foo;          # rest of file is class definition
     ...
 
-    class Bar {...}	# block is class definition
+    class Bar {...}     # block is class definition
 
 The first form is allowed only as the first declaration in a compilation
 unit (that is, file or eval string).
@@ -113,9 +113,9 @@ Roles use C<does> instead of C<is>:
 You may put these inside as well:
 
     class Dog {
-	is Mammal;
-	does Pet;
-	...
+        is Mammal;
+        does Pet;
+        ...
     }
 
 Every object (including any class object) delegates to an instance of
@@ -225,14 +225,14 @@ It can use a simple scalar variable for the method name:
 
 The method name may also be quoted with either single or double quotes:
 
-    $obj."$methodname"(1,2,3)	# same as previous
-    $obj.'$methodname'(1,2,3)	# call method with $ in name!
+    $obj."$methodname"(1,2,3)   # same as previous
+    $obj.'$methodname'(1,2,3)   # call method with $ in name!
 
 The latter is especially useful for postfix forms that might be confusing
 to the lexer or to the human reader:
 
-    $filename.'-e'	# same as -e $filename.
-    .'-e'		# same as -e $_
+    $filename.'-e'      # same as -e $filename.
+    .'-e'               # same as -e $_
 
 And in fact, if there is a choice between a unary prefix and a postfix
 operator, the indirect forms will choose the prefix operator.  See S03.
@@ -257,27 +257,27 @@ are any arguments (not counting adverbial arguments).  There may be
 no space between the method name and the left parenthesis unless you
 use the dot form of parentheses:
 
-    .doit	# okay, no arguments
-    .doit()	# okay, no arguments
-    .doit ()	# ILLEGAL (two terms in a row)
-    .doit.()	# okay, no arguments, same as .doit()
-    .doit\ .()	# okay, no arguments, same as .doit() (long dot form)
+    .doit       # okay, no arguments
+    .doit()     # okay, no arguments
+    .doit ()    # ILLEGAL (two terms in a row)
+    .doit.()    # okay, no arguments, same as .doit()
+    .doit\ .()  # okay, no arguments, same as .doit() (long dot form)
 
 However, you can turn any of the legal forms above into a list
 operator by appending a colon:
 
-    .doit: 1,2,3	# okay, three arguments
-    .doit(1): 2,3	# okay, one argument plus list
-    .doit (): 1,2,3	# ILLEGAL (two terms in a row)
-    .doit.(1): 2,3	# okay, same as .doit(1,2,3)
-    .doit\ .(1,2): 3	# okay, same as .doit(1,2,3)
+    .doit: 1,2,3        # okay, three arguments
+    .doit(1): 2,3       # okay, one argument plus list
+    .doit (): 1,2,3     # ILLEGAL (two terms in a row)
+    .doit.(1): 2,3      # okay, same as .doit(1,2,3)
+    .doit\ .(1,2): 3    # okay, same as .doit(1,2,3)
 
 In particular, this allows us to pass a closure in addition to the
 "normal" arguments:
 
-    .doit: { $^a <=> $^b }		# okay
-    .doit(): { $^a <=> $^b }		# okay
-    .doit(1,2,3): { $^a <=> $^b }	# okay
+    .doit: { $^a <=> $^b }              # okay
+    .doit(): { $^a <=> $^b }            # okay
+    .doit(1,2,3): { $^a <=> $^b }       # okay
 
 In case of ambiguity between indirect object notation and dot form,
 the nearest thing wins:
@@ -380,7 +380,7 @@ Submethods are for declaring infrastructural methods that shouldn't
 be inherited by subclasses, such as initializers:
 
     submethod BUILD ($arg) {
-	$.attr = $arg;
+        $.attr = $arg;
     }
 
 Apart from the keyword, submethod declaration and call syntax is
@@ -417,7 +417,7 @@ The "true name" of the private variable always has the exclamation, but
 much like with C<our> variables, you may declare a lexically scoped alias
 to the private variable by saying:
 
-        has $brain;	# also declares $!brain;
+        has $brain;     # also declares $!brain;
 
 And any later references to the private variable within the same block
 may either use or omit the exclamation, as you wish to emphasize or
@@ -486,10 +486,10 @@ constructed, not when class is being composed.  To refer to a value
 computed at compilation or composition time, you can either use a
 temporary or a temporal block of some sort:
 
-    has $.r = rand;	# each object gets different random value
+    has $.r = rand;     # each object gets different random value
 
     constant $random = rand;
-    has $.r = $random;	# every object gets same value
+    has $.r = $random;  # every object gets same value
 
     has $.r = BEGIN { rand };
     has $.r = INIT { rand };
@@ -582,8 +582,8 @@ directly, so
 is equivalent to
 
     submethod BUILD ($tail, $legs) {
-	$.tail = $tail;
-	$!legs = $legs;
+        $.tail = $tail;
+        $!legs = $legs;
     }
 
 Whether you write your own C<BUILD> or not, at the end of the C<BUILD>,
@@ -821,8 +821,8 @@ class if that other class has indicated that it trusts the class the
 multi method is defined in:
 
     class MyClass {
-	trusts Yourclass;
-	...
+        trusts Yourclass;
+        ...
     }
 
 The syntax for calling back to C<MyClass> is C<$obj!MyClass::meth()>.
@@ -851,11 +851,11 @@ instantiated.
 A role is declared like a class, but with a C<role> keyword:
 
     role Pet {
-	method feed ($food) {
-	    $food.open_can;
-	    $food.put_in_bowl;
-	    self.some_other_method;
-	}
+        method feed ($food) {
+            $food.open_can;
+            $food.put_in_bowl;
+            self.some_other_method;
+        }
     }
 
 A role may not inherit from a class, but may be composed of other
@@ -882,7 +882,7 @@ A role's main type is generic by default, but you can also parameterize
 other types explicitly using type parameters:
 
     role Pet[::Petfood = TableScraps] {
-	method feed (Petfood $food) {...}
+        method feed (Petfood $food) {...}
     }
 
 (Note that in this case you must not use ::Petfood in the inner declaration,
@@ -892,9 +892,9 @@ If a role merely declares methods without defining them, it degenerates
 to an interface:
 
     role Pet {
-	method feed ($food) {...}
-	method groom () {...}
-	method scratch (:$where) {...}
+        method feed ($food) {...}
+        method groom () {...}
+        method scratch (:$where) {...}
     }
 
 Note that, while these methods must become available at class
@@ -910,9 +910,9 @@ be installed somewhere to "supply" a missing method's declaration.
 Roles may have attributes:
 
     role Pet {
-	has $.collar = { Collar.new(Tag.new) };
-	method id () { return $.collar.tag }
-	method lose_collar () { undefine $.collar }
+        has $.collar = { Collar.new(Tag.new) };
+        method id () { return $.collar.tag }
+        method lose_collar () { undefine $.collar }
     }
 
 If you want to parameterize the initial value of a role attribute,
@@ -920,7 +920,7 @@ be sure to put a double semicolon if you don't want the parameter to
 be considered part of the long name:
 
     role Pet[::ID;; $tag] {
-	has ID $.collar .= new($tag);
+        has ID $.collar .= new($tag);
     }
 
 Unlike in a class, within a role the C<has> declarator distinguishes
@@ -975,7 +975,7 @@ Generally you'd just use a lexically scoped sub, though.
 A role can abstract the decision to delegate:
 
     role Pet {
-	has $groomer handles <bathe groom trim> = hire_groomer();
+        has $groomer handles <bathe groom trim> = hire_groomer();
     }
 
 Note that this puts the three methods into the class as well as
@@ -986,7 +986,7 @@ A role is allowed to declare an additional inheritance for its class when
 that is considered an implementation detail:
 
     role Pet {
-	is Friend;
+        is Friend;
     }
 
 A class incorporates a role with the verb "does", like this:
@@ -996,10 +996,10 @@ A class incorporates a role with the verb "does", like this:
 or equivalently, within the body of the class closure:
 
     class Dog {
-	is Mammal;
-	does Pet;
-	does Sentry;
-	...
+        is Mammal;
+        does Pet;
+        does Sentry;
+        ...
     }
 
 There is no ordering dependency among the roles.
@@ -1034,17 +1034,17 @@ to dispatch to the correct role's method in cases where they can't
 be distinguished by differences in the actual argument types:
 
     class DogTree {
-	does DogBark;
-	does TreeBark;
-	multi method bark {...}
-	...
+        does DogBark;
+        does TreeBark;
+        multi method bark {...}
+        ...
     }
 
     my DogBark $dog = new DogTree;
     my TreeBark $tree = new DogTree;
 
-    $dog.bark();	# picks Dog role's bark method
-    $tree.bark();	# picks Tree role's bark method
+    $dog.bark();        # picks Dog role's bark method
+    $tree.bark();       # picks Tree role's bark method
 
 Run-time mixins are done with C<does> and C<but>.  The C<does> binary
 operator is a mutator that derives a new anonymous class (if necessary)
@@ -1098,7 +1098,7 @@ is short for something like:
 A property is defined by a role like this:
 
     role SomeRole {
-	has SomeType $.prop is rw = 1;
+        has SomeType $.prop is rw = 1;
     }
 
 You can declare a property with
@@ -1108,7 +1108,7 @@ You can declare a property with
 and that declares a role whose name is the same as the accessor:
 
     my role answer {
-	has int $.answer is rw;
+        has int $.answer is rw;
     }
 
 Then you can say
@@ -1140,9 +1140,9 @@ To define a trait handler for an "is xxx" trait, define one or
 more multisubs into a property role like this:
 
     role xxx {
-	has Int $.xxx;
-	multi trait_auxiliary:is(xxx $trait, Class $container; $arg?) {...}
-	multi trait_auxiliary:is(xxx $trait, Any $container; $arg?) {...}
+        has Int $.xxx;
+        multi trait_auxiliary:is(xxx $trait, Class $container; $arg?) {...}
+        multi trait_auxiliary:is(xxx $trait, Any $container; $arg?) {...}
     }
 
 Then it can function as a trait.  A well-behaved trait handler will say
@@ -1154,8 +1154,8 @@ Since a class can function as a role when it comes to parameter type
 matching, you can also say:
 
     class MyBase {
-	multi trait_auxiliary:is(MyBase $base, Class $class; $arg?) {...}
-	multi trait_auxiliary:is(MyBase $tied, Any $container; $arg?) {...}
+        multi trait_auxiliary:is(MyBase $base, Class $class; $arg?) {...}
+        multi trait_auxiliary:is(MyBase $tied, Any $container; $arg?) {...}
     }
 
 These capture control if C<MyBase> wants to capture control of how it gets
@@ -1178,7 +1178,7 @@ auxiliaries". Here's "C<will>", which (being syntactic sugar) merely
 delegates to back to "is":
 
     multi sub *trait_auxiliary:will($trait, $container; &arg) {
-	trait_auxiliary:is($trait, $container, &arg);
+        trait_auxiliary:is($trait, $container, &arg);
     }
 
 Other traits are applied with a single word, and we call one of those a
@@ -1186,11 +1186,11 @@ Other traits are applied with a single word, and we call one of those a
 is defined something like this:
 
     role returns {
-	has ReturnType $.returns;
-	multi sub trait_verb:returns($container; ReturnType $arg) {
-	    $container does returns($arg);
-	}
-	...
+        has ReturnType $.returns;
+        multi sub trait_verb:returns($container; ReturnType $arg) {
+            $container does returns($arg);
+        }
+        ...
     }
 
 Unlike compile-time roles, which all flatten out in the same class,
@@ -1283,11 +1283,11 @@ then the hash provides a mapping from the string value of "self"
 to the object that should be delegated to:
 
     has %barkers handles "bark" =
-		(Chihauhau => $yip,
-		    Beagle => $yap,
-		   Terrier => $arf,
-		 StBernard => $woof,
-		);
+                (Chihauhau => $yip,
+                    Beagle => $yap,
+                   Terrier => $arf,
+                 StBernard => $woof,
+                );
     method prefix:<~>( return "$.breed" )
 
 If the string is not found in the hash, a "C<next METHOD>" is
@@ -1367,12 +1367,12 @@ Subtype constraints are used as tiebreakers in multiple dispatch:
     use Rules::Common :profanity;
 
     multi sub mesg ($mesg of Str where /<profanity>/ is copy) {
-	$mesg ~~ s:g/<profanity>/[expletive deleted]/;
-	print $MESG_LOG: $mesg;
+        $mesg ~~ s:g/<profanity>/[expletive deleted]/;
+        print $MESG_LOG: $mesg;
     }
 
     multi sub mesg ($mesg of Str) {
-	print $MESG_LOG: $mesg;
+        print $MESG_LOG: $mesg;
     }
 
 For multi dispatch, a long name with a matching constraint is preferred over
@@ -1423,18 +1423,18 @@ pair syntax along with interpolations, we can simply say:
     my enum DayOfWeek «:Sun(1) Mon Tue Wed Thu Fri Sat»;
 
     our Str enum Phonetic «:Alpha<A> Bravo Charlie Delta
-			    Echo Foxtrot Golf Hotel India Juliet
-			    Kilo Lima Mike November Oscar Papa
-			    Quebec Romeo Sierra Tango Uniform
-			    Victor Whiskey X-ray Yankee Zulu»;
+                            Echo Foxtrot Golf Hotel India Juliet
+                            Kilo Lima Mike November Oscar Papa
+                            Quebec Romeo Sierra Tango Uniform
+                            Victor Whiskey X-ray Yankee Zulu»;
 
     enum roman [i => 1,   v => 5,
-		x => 10,  l => 50,
-		c => 100, d => 500,
-		m => 1000];
+                x => 10,  l => 50,
+                c => 100, d => 500,
+                m => 1000];
 
     my Item enum hex «:zero(0) one two three four five six seven eight nine
-		      :ten<a> eleven twelve thirteen fourteen fifteen»;
+                      :ten<a> eleven twelve thirteen fourteen fifteen»;
 
 You may import enum types; only non-colliding values are imported.
 Colliding enum values are hidden and must be disambiguated with the
@@ -1515,7 +1515,7 @@ from them.  They are also open, which means you can add more methods
 to them, though you have to be explicit that that is what you're doing:
 
     class Object is also {
-	method wow () { say "Wow, I'm an object." }
+        method wow () { say "Wow, I'm an object." }
     }
 
 Otherwise you'll get a class redefinition error.  (Also, to completely
@@ -1545,13 +1545,13 @@ These properties may also be specified on the class definition:
 or by lexically scoped pragma around the class definition:
 
     {
-	use class :open;
-	class Mammal {...}
-	class Insect {...}
+        use class :open;
+        class Mammal {...}
+        class Insect {...}
     }
     {
-	use class :basal;
-	class Str {...}
+        use class :basal;
+        class Str {...}
     }
 
 There is I<no> syntax for declaring individual classes closed or final.
@@ -1578,13 +1578,13 @@ C<hides Base> instead of C<is Base>.
 
 Metamethods for objects are named with interrogative pronouns in uppercase:
 
-    WHAT	the prototype object of the type, stringifies to short name
-    WHICH	the object's identity value
-    WHO		the package supporting the object, stringifies to long name
-    WHERE	the memory address of the object
-    HOW		the metaclass object: "Higher Order Workings"
-    WHEN	(reserved for events?)
-    WHY		(reserved for documentation?)
+    WHAT        the prototype object of the type, stringifies to short name
+    WHICH       the object's identity value
+    WHO         the package supporting the object, stringifies to long name
+    WHERE       the memory address of the object
+    HOW         the metaclass object: "Higher Order Workings"
+    WHEN        (reserved for events?)
+    WHY         (reserved for documentation?)
 
 None of these methods takes arguments, so they may also be used as
 named unary operators:
@@ -1628,14 +1628,14 @@ class's metaobject, which lets you get at all the metadata properties
 for the class (or other metaobject protocol) implementing the objects
 of the class:
 
-    MyClass.methods()		# call MyClass's .methods method (error?)
-    MyClass.HOW.methods()	# get the method list of MyClass
+    MyClass.methods()           # call MyClass's .methods method (error?)
+    MyClass.HOW.methods()       # get the method list of MyClass
 
 The C<^> metasyntax is equivalent to C<.HOW>:
 
-    MyClass.HOW.methods()	# get the method list of MyClass
-    ^MyClass.methods()	# get the method list of MyClass
-    MyClass.^methods()	# get the method list of MyClass
+    MyClass.HOW.methods()       # get the method list of MyClass
+    ^MyClass.methods()  # get the method list of MyClass
+    MyClass.^methods()  # get the method list of MyClass
 
 Each object of the class also has a C<.HOW> or C<.^> method:
 
@@ -1645,9 +1645,9 @@ Each object of the class also has a C<.HOW> or C<.^> method:
 Class traits may include:
 
     identifier    Dog-1.2.1-http://www.some.com/~jrandom
-	name      Dog
-	version   1.2.1
-	authority http://www.some.com/~jrandom
+        name      Dog
+        version   1.2.1
+        authority http://www.some.com/~jrandom
     author        Joe Random
     description   This class implements camera obscura.
     subject       optics, boxes
@@ -1670,11 +1670,11 @@ produce something of interest to non-gurus.)
 
 The C<.HOW.methods> method returns method-descriptors containing:
 
-    name		the name of the method
-    signature		the parameters of the method
-    returns		the return type of the method
-    multi		whether duplicate names are allowed
-    do			the method body
+    name                the name of the method
+    signature           the parameters of the method
+    returns             the return type of the method
+    multi               whether duplicate names are allowed
+    do                  the method body
 
 The C<.methods> method has a selector parameter that lets you
 specify whether you want to see a flattened or hierarchical view,

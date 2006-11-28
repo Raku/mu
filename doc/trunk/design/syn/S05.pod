@@ -211,8 +211,8 @@ why the correspondence is both useful and (potentially) confusing.
 The C<:s> modifier is considered sufficiently important that
 match variants are defined for them:
 
-    ms/match some words/			# same as m:sigspace
-    ss/match some words/replace those words/	# same as s:sigspace
+    ms/match some words/                        # same as m:sigspace
+    ss/match some words/replace those words/    # same as s:sigspace
 
 Conjecture: This might become sufficiently idiomatic that C<ms//> would
 be better as a "stuttered" C<mm//> instead, much as C<qq//> became idiomatic.
@@ -376,9 +376,9 @@ placed inside the regex (and are lexically scoped):
 As with modifiers outside, only parentheses are recognized as valid
 brackets for args to the adverb.  In particular:
 
-    m/:foo[xxx]/ 	Parses as :foo [xxx]
-    m/:foo{xxx}/ 	Parses as :foo {xxx}
-    m/:foo<xxx>/ 	Parses as :foo <xxx>
+    m/:foo[xxx]/        Parses as :foo [xxx]
+    m/:foo{xxx}/        Parses as :foo {xxx}
+    m/:foo<xxx>/        Parses as :foo <xxx>
 
 =item *
 
@@ -717,7 +717,7 @@ The special named assertions include:
                              #   \s* otherwise
 
      / <at($pos)> /          # match only at a particular StrPos
-     			     # short for <?{ .pos == $pos }>
+                             # short for <?{ .pos == $pos }>
 
 The C<after> assertion implements lookbehind by reversing the syntax
 tree and looking for things in the opposite order going to the left.

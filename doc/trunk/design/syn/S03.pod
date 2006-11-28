@@ -159,26 +159,26 @@ little different because we can no longer decide on the basis of
 the sigil.  The following forms are parsed as "simple lvalues",
 and imply scalar assignment:
 
-    $a		# simple scalar variable
+    $a          # simple scalar variable
     $(ANY)      # scalar dereference (including $$a)
     $::(ANY)    # symbolic scalar dereference
-    ANY[SIMPLE]	# single simple subscript
-    ANY{SIMPLE}	# single simple subscript
-    ANY<x>	# single literal subscript
+    ANY[SIMPLE] # single simple subscript
+    ANY{SIMPLE} # single simple subscript
+    ANY<x>      # single literal subscript
 
 Where SIMPLE is (recursively) defined as one of the forms above,
 plus the following forms:
 
-    123		# single literal
-    'x'		# single literal
-    "$x"	# single literal
-    qq/$x/	# single literal
-    +TERM	# any single term coerced to numeric
-    -TERM	# any single term coerced to numeric
-    ~TERM	# any single term coerced to string
-    ?TERM	# any single term coerced to boolean
-    !TERM	# any single term coerced to boolean
-    (SIMPLE)	# any simple expression in circumfix parens
+    123         # single literal
+    'x'         # single literal
+    "$x"        # single literal
+    qq/$x/      # single literal
+    +TERM       # any single term coerced to numeric
+    -TERM       # any single term coerced to numeric
+    ~TERM       # any single term coerced to string
+    ?TERM       # any single term coerced to boolean
+    !TERM       # any single term coerced to boolean
+    (SIMPLE)    # any simple expression in circumfix parens
 
 Note that circumfix parens are considered simple only when used as
 part of a subscript.  Putting parens around the entire lvalue still
@@ -186,7 +186,7 @@ implies list context as in Perl 5.
 
 We also include:
 
-    OP SIMPLE	
+    OP SIMPLE   
     SIMPLE OP
     SIMPLE OP SIMPLE
 
@@ -208,8 +208,8 @@ if a function is known to return a scalar value from its declaration,
 you must use C<+> or C<~> if you wish to force scalar parsing from
 within a subscript:
 
-    @a[foo()] = bar();		# foo() and bar() called in list context
-    @a[+foo()] = bar();		# foo() and bar() called in scalar context
+    @a[foo()] = bar();          # foo() and bar() called in list context
+    @a[+foo()] = bar();         # foo() and bar() called in scalar context
 
 But note that the first form still works fine if C<foo()> and C<bar()>
 are scalar functions that are not context sensitive.  The difference
@@ -238,22 +238,22 @@ Assuming
 then we have:
 
     sub foo { return 1,2,3 }
-    @a[foo()] = bar();		# (@a[1,2,3]) = <a b c>
+    @a[foo()] = bar();          # (@a[1,2,3]) = <a b c>
 
     sub foo { return 1 }
-    @a[foo()] = bar();		# @a[1] = [<a b c>]
+    @a[foo()] = bar();          # @a[1] = [<a b c>]
 
     sub foo { return(1) }
-    @a[foo()] = bar();		# @a[1] = [<a b c>]
+    @a[foo()] = bar();          # @a[1] = [<a b c>]
 
     sub foo { return (1) }
-    @a[foo()] = bar();		# (@a[1]) = <a b c>
+    @a[foo()] = bar();          # (@a[1]) = <a b c>
 
     sub foo { return 1 }
-    @a[foo(),] = bar();		# (@a[1]) = <a b c>
+    @a[foo(),] = bar();         # (@a[1]) = <a b c>
 
     sub foo { return 1 }
-    (@a[foo()]) = bar();	# (@a[1]) = <a b c>
+    (@a[foo()]) = bar();        # (@a[1]) = <a b c>
 
 Those are all parsed as list assignments, but we get different run-time
 behaviors based on the run-time type of the left side.
@@ -272,7 +272,7 @@ and the next token will be taken as the first term of the list (or
 if there are no terms, as the expression terminator).  Any infix operator
 occurring where a term is expected will be misinterpreted as a term:
 
-    say + 2;	# means say(+2);
+    say + 2;    # means say(+2);
 
 If there is no whitespace, subsequent parsing depends on the
 syntactic category of the next item.  Parentheses (with or without
@@ -286,10 +286,10 @@ disallowed immediately after a list operator, even if there are no
 arguments.  To add a postfix to an argumentless list operator you
 must write it as a function call with empty parentheses:
 
-    foo.[]	# ILLEGAL
-    foo++	# ILLEGAL
-    foo().[]	# legal
-    foo()++	# legal (if foo() is rw)
+    foo.[]      # ILLEGAL
+    foo++       # ILLEGAL
+    foo().[]    # legal
+    foo()++     # legal (if foo() is rw)
 
 After the parentheses any postfix operators are allowed, and apply
 to the result of the function call.  (Also note that the postfix
@@ -311,40 +311,40 @@ non-strict mode.]
 
 Examples:
 
-    say foo + 1;			say(foo(+1));
-    say foo $x;				say(foo($x));
-    say foo$x;				ILLEGAL, need space or parens
-    say foo+1;				ILLEGAL, need space or parens
-    say foo++;				ILLEGAL, need parens
+    say foo + 1;                        say(foo(+1));
+    say foo $x;                         say(foo($x));
+    say foo$x;                          ILLEGAL, need space or parens
+    say foo+1;                          ILLEGAL, need space or parens
+    say foo++;                          ILLEGAL, need parens
 
-    say foo($bar+1),$baz		say(foo($bar+1), $baz);
-    say foo.($bar+1),$baz		say(foo($bar+1), $baz);
-    say foo ($bar+1),$baz		say(foo($bar+1, $baz));
-    say foo .($bar+1),$baz		say(foo($_.($bar+1), $baz));
+    say foo($bar+1),$baz                say(foo($bar+1), $baz);
+    say foo.($bar+1),$baz               say(foo($bar+1), $baz);
+    say foo ($bar+1),$baz               say(foo($bar+1, $baz));
+    say foo .($bar+1),$baz              say(foo($_.($bar+1), $baz));
 
-    say foo[$bar+1],$baz		ILLEGAL, need foo()[]
-    say foo.[$bar+1],$baz		ILLEGAL, need foo().[]
-    say foo [$bar+1],$baz		say(foo([$bar+1], $baz));
-    say foo .[$bar+1],$baz		say(foo($_.[$bar+1], $baz));
+    say foo[$bar+1],$baz                ILLEGAL, need foo()[]
+    say foo.[$bar+1],$baz               ILLEGAL, need foo().[]
+    say foo [$bar+1],$baz               say(foo([$bar+1], $baz));
+    say foo .[$bar+1],$baz              say(foo($_.[$bar+1], $baz));
 
-    say foo{$bar+1},$baz		ILLEGAL, need foo(){}
-    say foo.{$bar+1},$baz		ILLEGAL, need foo().{}
-    say foo {$bar+1},$baz		say(foo({$bar+1}, $baz));
-    say foo .{$bar+1},$baz		say(foo($_.{$bar+1}, $baz));
+    say foo{$bar+1},$baz                ILLEGAL, need foo(){}
+    say foo.{$bar+1},$baz               ILLEGAL, need foo().{}
+    say foo {$bar+1},$baz               say(foo({$bar+1}, $baz));
+    say foo .{$bar+1},$baz              say(foo($_.{$bar+1}, $baz));
 
-    say foo<$bar+1>,$baz		ILLEGAL, need foo()<>
-    say foo.<$bar+1>,$baz		ILLEGAL, need foo().<>
-    say foo <$bar+1>,$baz		say(foo(<$bar+1>, $baz));
-    say foo .<$bar+1>,$baz		say(foo($_.<$bar+1>, $baz));
+    say foo<$bar+1>,$baz                ILLEGAL, need foo()<>
+    say foo.<$bar+1>,$baz               ILLEGAL, need foo().<>
+    say foo <$bar+1>,$baz               say(foo(<$bar+1>, $baz));
+    say foo .<$bar+1>,$baz              say(foo($_.<$bar+1>, $baz));
 
 Note that Perl 6 is making a consistent three-way distinction between
 term vs postfix vs infix, and will interpret an overloaded character
 like C<< < >> accordingly:
 
-    any <a b c>			any('a','b','c')	# term
-    any()<a b c>		(any).{'a','b','c'}	# postfix
-    any() < $x			(any) < $x		# infix
-    any<a b c>			ILLEGAL			# stealth postfix
+    any <a b c>                 any('a','b','c')        # term
+    any()<a b c>                (any).{'a','b','c'}     # postfix
+    any() < $x                  (any) < $x              # infix
+    any<a b c>                  ILLEGAL                 # stealth postfix
 
 This will seem unfamiliar and "undwimmy" to Perl 5 programmers, who
 are used to a grammar that sloppily hardwires a few postfix operators
@@ -503,11 +503,11 @@ C<*> occurs on one side but not the other, the type is inferred from
 the other argument.  A star on both sides will match any value that
 supports the C<Ordered> role.
 
-    0..*	# 0 .. +Inf
-    'a'..*	# 'a' .. 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzz...'
-    *..0	# -Inf .. 0
-    *..*	# "-Inf .. +Inf", really Ordered
-    1.2.3..*	# Any version higher than 1.2.3.
+    0..*        # 0 .. +Inf
+    'a'..*      # 'a' .. 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzz...'
+    *..0        # -Inf .. 0
+    *..*        # "-Inf .. +Inf", really Ordered
+    1.2.3..*    # Any version higher than 1.2.3.
 
 Note: infinite lists are constructed lazily.  And even though C<*..*>
 can't be constructed at all, it's still useful as a selector object.
@@ -622,9 +622,9 @@ different on either side.  Such non-reversible constructs can be made
 reversible by putting the leading term into a closure to defer the
 binding of C<$_>.  For example:
 
-    $x ~~ .does(Storable)	# okay
-    .does(Storable) ~~ $x	# not okay--gets wrong $_ on left
-    { .does(Storable) } ~~ $x	# okay--closure binds its $_ to $x
+    $x ~~ .does(Storable)       # okay
+    .does(Storable) ~~ $x       # not okay--gets wrong $_ on left
+    { .does(Storable) } ~~ $x   # okay--closure binds its $_ to $x
 
 Exactly the same consideration applies to C<given> and C<when>:
 
@@ -640,15 +640,15 @@ readable alternative to a string of elsifs.  Note, however, that this means
 you can't write:
 
     given $boolean {
-	when True  {...}
-	when False {...}
+        when True  {...}
+        when False {...}
     }
 
 because it will always choose the C<True> case.  Instead use something like:
 
     given $boolean {
-	when .true {...}
-	when .not  {...}
+        when .true {...}
+        when .not  {...}
     }
 
 Better, just use an C<if> statement.
@@ -715,10 +715,10 @@ ordinary assignment.
 Any infix relational operator may be transformed into its negative
 by prefixing with C<!>.  A couple of these have traditional shortcuts:
 
-    Full form	Shortcut
-    ---------	--------
-    !==		!=
-    !eq		ne
+    Full form   Shortcut
+    ---------   --------
+    !==         !=
+    !eq         ne
 
 but most of them do not:
 
@@ -842,13 +842,13 @@ the operator in question:
 
 In particular, tree node types with C<Each> semantics enable visitation:
 
-    $tree.».foo;	# short for $tree.foo, $tree.each: { .».foo }
+    $tree.».foo;        # short for $tree.foo, $tree.each: { .».foo }
 
 If not all nodes support the operation, you need a form of it that
 specifies the call is optional:
 
-    $tree.».?foo;	# short for $tree.?foo, $tree.each: { .».?foo }
-    $tree.».*foo;	# short for $tree.*foo, $tree.each: { .».*foo }
+    $tree.».?foo;       # short for $tree.?foo, $tree.each: { .».?foo }
+    $tree.».*foo;       # short for $tree.*foo, $tree.each: { .».*foo }
 
 You are not allowed to define your own hyper operators, because they
 are supposed to have consistent semantics derivable entirely from
@@ -1008,8 +1008,8 @@ return C<Bool::False>, and all the rest return C<Bool::True>.
 You can also make a reduce operator of the comma operator.  This is just
 the list operator form of the C<< circumfix:<[ ]> >> anonymous array composer:
 
-    [1,2,3]	# make new Array: 1,2,3
-    [,] 1,2,3	# same thing
+    [1,2,3]     # make new Array: 1,2,3
+    [,] 1,2,3   # same thing
 
 You may also reduce using the semicolon second-dimension separator:
 
@@ -1299,11 +1299,11 @@ inconsistent with the type of the current declaration.
 The list of variable declarators has expanded from C<my> and C<our>
 to include:
 
-    my $foo		# ordinary lexically scoped variable
-    our $foo		# lexically scoped alias to package variable
-    has $foo		# object attribute
-    state $foo		# persistent lexical (cloned with closures)
-    constant $foo	# lexically scoped compile-time constant
+    my $foo             # ordinary lexically scoped variable
+    our $foo            # lexically scoped alias to package variable
+    has $foo            # object attribute
+    state $foo          # persistent lexical (cloned with closures)
+    constant $foo       # lexically scoped compile-time constant
 
 Variable declarators such as C<my> now take a I<signature> as their
 argument.  (The syntax of function signatures is described more fully in S06.)
@@ -1312,9 +1312,9 @@ simple declaration that declares a single variable, along with its
 associated type and traits.  Parentheses must always be used when
 declaring multiple parameters:
 
-    my $a;		# okay
-    my ($b, $c);	# okay
-    my $b, $c;		# wrong: "Use of undeclared variable: $c"
+    my $a;              # okay
+    my ($b, $c);        # okay
+    my $b, $c;          # wrong: "Use of undeclared variable: $c"
 
 Types occurring between the declarator and the signature are distributed into
 each variable:
@@ -1336,8 +1336,8 @@ Signatures are expected after declarators such as C<my>, C<sub>, C<method>,
 C<rule>, etc.  In such declarators the colon may be omitted.  But it's
 also legal to use it:
 
-    my :($b, $c);		# okay
-    sub foo :($a,$b) {...}	# okay
+    my :($b, $c);               # okay
+    sub foo :($a,$b) {...}      # okay
 
 The C<< -> >> "pointy block" token also introduces a signature, but
 in this case you must omit both the colon and the parens.  For instance,
@@ -1354,8 +1354,8 @@ If the signature is too complicated to convert to an assignment,
 a compile-time error occurs.  Assignment to a signature makes the
 same scalar/list distinction as ordinary assignment, so
 
-    my $a = foo();	# foo in scalar context
-    my ($a) = foo();	# foo in list context
+    my $a = foo();      # foo in scalar context
+    my ($a) = foo();    # foo in list context
 
 If a signature is bound to an argument list, then the binding of the
 arguments proceeds as if the signature were the formal parameters for
@@ -1642,9 +1642,9 @@ bracket that is I<not> introducing a subscript or function arguments.
 Any keyword followed directly by parentheses will be taken as a
 function call instead.
 
-    if $a == 1 { say "yes" }		# preferred syntax
-    if ($a == 1) { say "yes" }		# P5-ish if construct
-    if($a,$b,$c)			# if function call
+    if $a == 1 { say "yes" }            # preferred syntax
+    if ($a == 1) { say "yes" }          # P5-ish if construct
+    if($a,$b,$c)                        # if function call
 
 It is possible for C<if()> to also invoke a macro call, but if so, it's a
 C<< prefix:<if> >> macro rather than a C<< statement_control:<if> >> macro.
@@ -1654,11 +1654,11 @@ C<< prefix:<if> >> macro rather than a C<< statement_control:<if> >> macro.
 Perl 6 has 22 precedence levels (which is fewer than Perl 5):
 
     terms               42 3.14 "eek" qq["foo"] [1,2,3] {...} \(@a,$b,%c)
-			    $x @y %z /abc/ MyType @@multidim $^a
-			    (1+2) a(1) :by(2) :!verbose :(Dog $self:)
-			    .meth with implicit invocant $_
-			    .=meth with implicit invocant $_
-			    listops leftward
+                            $x @y %z /abc/ MyType @@multidim $^a
+                            (1+2) a(1) :by(2) :!verbose :(Dog $self:)
+                            .meth with implicit invocant $_
+                            .=meth with implicit invocant $_
+                            listops leftward
     method postfix      .meth .+ .? .* .() .[] .{} .<> .«» .:: .= .^
     autoincrement       ++ --
     exponentiation      **
@@ -1669,32 +1669,32 @@ Perl 6 has 22 precedence levels (which is fewer than Perl 5):
     junctive or (any)   | ^
     named unary         rand sleep abs etc. -e -r -w -x etc.
     nonchaining binary  but does <=> leg cmp
-			    .. ^.. ..^ ^..^
-			    ff ^ff ff^ ^ff^
-			    fff ^fff fff^ ^fff^
+                            .. ^.. ..^ ^..^
+                            ff ^ff ff^ ^ff^
+                            fff ^fff fff^ ^fff^
     chaining binary     != == < <= > >=
-			    eq ne lt le gt ge
-			    before after
-			    ~~ =:= === eqv
-			    !== !~~ !eq !=:= !=== !eqv etc.
+                            eq ne lt le gt ge
+                            before after
+                            ~~ =:= === eqv
+                            !== !~~ !eq !=:= !=== !eqv etc.
     tight and           &&
     tight or            || ^^ // min max
     conditional         ?? !!
     assignment          := ::= =>
-			    (also = with simple lvalues)
-			    += -= **= xx= .= etc.
+                            (also = with simple lvalues)
+                            += -= **= xx= .= etc.
     loose unary         true not
     list ops            , print push say join split substr open etc.
-			    any all one none
-			    die fail warn
-			    !!! ...  ???
-			    [+] [*] [<] [\+] [\*] etc.
-			    (also = as list assignment)
+                            any all one none
+                            die fail warn
+                            !!! ...  ???
+                            [+] [*] [<] [\+] [\*] etc.
+                            (also = as list assignment)
     list infix          ¥ <== ==> X XX X~X X*X XeqvX etc.
     loose and           and
     loose or            or xor err
     expr terminator     ; {} as control block, statement modifiers
-			    unmatched ), ], }, etc.
+                            unmatched ), ], }, etc.
 
 Comma is the only listop that is allowed to occur where an operator is
 expected.  All other listops function as a term within the list to the left.

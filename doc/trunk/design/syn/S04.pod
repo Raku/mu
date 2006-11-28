@@ -145,7 +145,7 @@ or some such.
 
     my $hash = {
         1 => { 2 => 3, 4 => 5 },  # OK
-        2 => { 6 => 7, 8 => 9 }	  # ERROR
+        2 => { 6 => 7, 8 => 9 }   # ERROR
     };
 
 Because subroutine declarations are expressions, not statements,
@@ -164,13 +164,13 @@ The C<if> and C<unless> statements work almost exactly as they do in
 Perl 5, except that you may omit the parentheses on the conditional:
 
     if $foo == 123 {
-	...
+        ...
     }
     elsif $foo == 321 {
-	...
+        ...
     }
     else {
-	...
+        ...
     }
 
 Conditional statement modifiers work as in Perl 5.  So do the
@@ -190,14 +190,14 @@ The C<while> and C<until> statements work as in Perl 5, except that you
 may leave out the parentheses around the conditional:
 
     while $bar < 100 {
-	...
+        ...
     }
 
 You may optionally bind the result of the conditional expression to a
 parameter of the block:
 
     while something() -> $thing {
-	...
+        ...
     }
 
 Nothing is ever bound implicitly, however, and many conditionals would
@@ -214,19 +214,19 @@ specifically disallowed:
 
 
     do {
-	...
-    } while $x < 10;	# ILLEGAL
+        ...
+    } while $x < 10;    # ILLEGAL
 
 Instead, you should write the more Pascal-like C<repeat> loop:
 
     repeat {
-	...
+        ...
     } while $x < 10;
 
 or equivalently:
 
     repeat {
-	...
+        ...
     } until $x >= 10;
 
 Unlike Perl 5's C<do-while> loop, this is a real loop block now, so
@@ -236,7 +236,7 @@ put it on a line by its own:
 
     repeat
     {
-	...
+        ...
     }
     while $x < 10;
 
@@ -249,27 +249,27 @@ rules, the previous example may be rewritten into a very clear:
 
     repeat while $x < 10
       {
-	...
+        ...
       }
 
 or equivalently:
 
     repeat until $x >= 10
       {
-	...
+        ...
       }
 
 As with an ordinary C<while>, you may optionally bind the result of
 the conditional expression to a parameter of the block:
 
     repeat -> $thing {
-	...
+        ...
     } while something();
 
 or
 
     repeat while something() -> $thing {
-	...
+        ...
     }
 
 Since the loop executes once before evaluating the condition, the
@@ -280,7 +280,7 @@ bound parameter will be undefined that first time through the loop.
 The C<loop> statement is the C-style C<for> loop in disguise:
 
     loop ($i = 0; $i < 10; $i++) {
-	...
+        ...
     }
 
 As in C, the parentheses are required if you supply the 3-part spec; however,
@@ -656,27 +656,27 @@ blocks can be installed as traits as well.  These other blocks are
 called at various times, and some of them respond to various control
 exceptions and exit values:
 
-      BEGIN {...}*	at compile time, ASAP, only ever runs once
-      CHECK {...}*	at compile time, ALAP, only ever runs once
-       INIT {...}*	at run time, ASAP, only ever runs once
-        END {...}	at run time, ALAP, only ever runs once
+      BEGIN {...}*      at compile time, ASAP, only ever runs once
+      CHECK {...}*      at compile time, ALAP, only ever runs once
+       INIT {...}*      at run time, ASAP, only ever runs once
+        END {...}       at run time, ALAP, only ever runs once
 
-      START {...}*	on first ever execution, once per closure clone
+      START {...}*      on first ever execution, once per closure clone
 
-      ENTER {...}*	at every block entry time, repeats on loop blocks.
-      LEAVE {...}	at every block exit time 
-       KEEP {...}	at every successful block exit, part of LEAVE queue
-       UNDO {...}	at every unsuccessful block exit, part of LEAVE queue
+      ENTER {...}*      at every block entry time, repeats on loop blocks.
+      LEAVE {...}       at every block exit time 
+       KEEP {...}       at every successful block exit, part of LEAVE queue
+       UNDO {...}       at every unsuccessful block exit, part of LEAVE queue
 
-      FIRST {...}*	at loop initialization time, before any ENTER
-       NEXT {...}	at loop continuation time, before any LEAVE
-       LAST {...}	at loop termination time, after any LEAVE
+      FIRST {...}*      at loop initialization time, before any ENTER
+       NEXT {...}       at loop continuation time, before any LEAVE
+       LAST {...}       at loop termination time, after any LEAVE
 
-        PRE {...}	assert precondition at every block entry, before any
-       POST {...}	assert postcondition at every block exit, after any
+        PRE {...}       assert precondition at every block entry, before any
+       POST {...}       assert postcondition at every block exit, after any
 
-      CATCH {...}	catch exceptions, before LEAVE
-    CONTROL {...}	catch control exceptions, before LEAVE
+      CATCH {...}       catch exceptions, before LEAVE
+    CONTROL {...}       catch control exceptions, before LEAVE
 
 Those marked with a C<*> can also be used within an expression:
 
@@ -837,27 +837,27 @@ while C<sub> introduces an anonymous subroutine:
 If a closure is the right argument of the dot operator, the closure
 is interpreted as a hash subscript.
 
-    $code = {$x};	# closure because term expected
-    if $term{$x}	# subscript because postfix expected
-    if $term {$x}	# expression followed by statement block
-    if $term.{$x}	# valid subscript with dot
-    if $term\ .{$x}	# valid subscript with "long dot"
+    $code = {$x};       # closure because term expected
+    if $term{$x}        # subscript because postfix expected
+    if $term {$x}       # expression followed by statement block
+    if $term.{$x}       # valid subscript with dot
+    if $term\ .{$x}     # valid subscript with "long dot"
 
 Similar rules apply to array subscripts:
 
-    $array = [$x];	# array composer because term expected
-    if $term[$x]	# subscript because postfix expected
-    if $term [$x]	# syntax error (two terms in a row)
-    if $term.[$x]	# valid subscript with dot
-    if $term\ .[$x]	# valid subscript with "long dot"
+    $array = [$x];      # array composer because term expected
+    if $term[$x]        # subscript because postfix expected
+    if $term [$x]       # syntax error (two terms in a row)
+    if $term.[$x]       # valid subscript with dot
+    if $term\ .[$x]     # valid subscript with "long dot"
 
 And to the parentheses delimiting function arguments:
 
-    $scalar = ($x);	# grouping parens because term expected
-    if $term($x)	# function call because operator expected
-    if $term ($x)	# syntax error (two terms in a row)
-    if $term.($x)	# valid function call with dot
-    if $term\ .($x)	# valid function call with "long dot"
+    $scalar = ($x);     # grouping parens because term expected
+    if $term($x)        # function call because operator expected
+    if $term ($x)       # syntax error (two terms in a row)
+    if $term.($x)       # valid function call with dot
+    if $term\ .($x)     # valid function call with "long dot"
 
 Outside of any kind of expression brackets, a final closing curly
 on a line (not counting whitespace or comments) always reverts
@@ -958,11 +958,11 @@ scope do not consider themselves closures unless you take a reference
 to them.  So
 
     sub foo {
-	my $x = 1;
-	my sub bar { print $x }		# not cloned yet
-	my &baz = { bar(); print $x };	# cloned immediately
-	my $code = &bar;		# now bar is cloned
-	return &baz;
+        my $x = 1;
+        my sub bar { print $x }         # not cloned yet
+        my &baz = { bar(); print $x };  # cloned immediately
+        my $code = &bar;                # now bar is cloned
+        return &baz;
     }
 
 When we say "clone", we mean the way the system takes a snapshot of the

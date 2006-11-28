@@ -39,29 +39,29 @@ of bits to a generic low-level type name:
     int4
     int8
     int16
-    int32	(aka int on 32-bit machines)
-    int64	(aka int on 64-bit machines)
+    int32       (aka int on 32-bit machines)
+    int64       (aka int on 64-bit machines)
 
-    uint1	(aka bit)
+    uint1       (aka bit)
     uint2
     uint4
-    uint8	(aka byte)
+    uint8       (aka byte)
     uint16
     uint32
     uint64
 
     num32
-    num64	(aka num on most architectures)
+    num64       (aka num on most architectures)
     num128
 
     complex32
-    complex64	(aka complex on most architectures)
+    complex64   (aka complex on most architectures)
     complex128
 
-    buf8	aka buf, a "normal" byte buffer
-    buf16	a uint16 buffer
-    buf32	a uint32 buffer
-    buf64	a uint64 buffer
+    buf8        aka buf, a "normal" byte buffer
+    buf16       a uint16 buffer
+    buf32       a uint32 buffer
+    buf64       a uint64 buffer
 
 Complex sizes indicate the size of each C<num> component rather than
 the total.  This would extend to tensor typenames as well if they're
@@ -212,8 +212,8 @@ in contexts that care about the dimensionality:
     @x <== 1..*;
     @x <== gather { loop { take rand 100 } };
 
-    %hash{@@x}	# multidimensional
-    %hash{@x}	# flattened
+    %hash{@@x}  # multidimensional
+    %hash{@x}   # flattened
 
 To declare a multidimensional array, you may declare it with a signature as
 if it were a function returning I<one> of its entries:
@@ -258,18 +258,18 @@ You can pass a multislice for the shape as well:
 
     @@fooshape = (0..3; 0..1);
     my int @ints[[;]@fooshape];
-    my int @ints[@@fooshape];	# same thing
+    my int @ints[@@fooshape];   # same thing
 
 Again, the C<[;]> list operator interpolates a list into a semicolon
 list, which we do for consistency with subscript notation, not because
 it makes a great deal of sense to allow slices for dimensional specs
 (apart from ranges).  So while the following is okay:
 
-    my int @ints[0,1,2,3,4];	# same as 0..4
+    my int @ints[0,1,2,3,4];    # same as 0..4
 
 the following is a semantic error that the compiler should catch:
 
-    my int @ints[^3,^3,^3];	# oops, comma instead of semicolon
+    my int @ints[^3,^3,^3];     # oops, comma instead of semicolon
 
 The shape may be supplied entirely by the object at run-time:
 
@@ -420,7 +420,7 @@ is assumed to want everything, not nothing.  It's particularly handy
 because Perl 6 (unlike Perl 5) won't interpolate a bare array without brackets:
 
     @x = (1,2,3);
-    say "@x = @x[]";	# prints @x = 1 2 3
+    say "@x = @x[]";    # prints @x = 1 2 3
 
 Lists are lazy in Perl 6, and the slice lists are no exception.
 In particular, things like range objects are not flattened until they
@@ -430,8 +430,8 @@ values from these ranges and "piddle" around with them:
     @nums[$min..$max:by(3)]
     @nums[$min..$max]
     @nums[$min..*:by(3)]
-    @nums[1..*:by(2)]		# the odds
-    @nums[0..*:by(2)]		# the evens
+    @nums[1..*:by(2)]           # the odds
+    @nums[0..*:by(2)]           # the evens
 
 That's all just the standard Perl 6 notation for ranges.  Additional
 syntactic relief is always available as long as it's predeclared
@@ -474,27 +474,27 @@ you might want to write a macro that parses something vaguely
 resembling this:
 
     role PDL_stuff[::TYPE] {
-	PDLsub inner (@a[$n], @b[$n] --> @c[]) {
-	    my TYPE $tmp = 0;
-	    for ^$n {
-		$tmp += @a[$_] * @b[$_];
-	    }
-	    @c[] = tmp;
-	}
+        PDLsub inner (@a[$n], @b[$n] --> @c[]) {
+            my TYPE $tmp = 0;
+            for ^$n {
+                $tmp += @a[$_] * @b[$_];
+            }
+            @c[] = tmp;
+        }
     }
 
 where that turns into something like this:
 
     role PDL_stuff[::TYPE] {
-	multi inner (TYPE @a, TYPE @b --> TYPE) {
-	    my $n = @a.shape[0];	# or maybe $n is just a parameter
-	    assert($n == @b.shape[0]);	#  and this is already checked by PDL
-	    my TYPE $tmp = 0;
-	    for ^$n {
-		$tmp += @a[$_] * @b[$_];
-	    }
-	    return $tmp;
-	}
+        multi inner (TYPE @a, TYPE @b --> TYPE) {
+            my $n = @a.shape[0];        # or maybe $n is just a parameter
+            assert($n == @b.shape[0]);  #  and this is already checked by PDL
+            my TYPE $tmp = 0;
+            for ^$n {
+                $tmp += @a[$_] * @b[$_];
+            }
+            return $tmp;
+        }
     }
 
 Then any class that C<does PDL_stuff[num]> has an C<inner()> function that
@@ -515,12 +515,12 @@ correctly.)
 A junction is a superposition of data values pretending to be a single
 data value.  Junctions come in four varieties:
 
-    list op	infix op
-    =======	========
-    any()	|
-    all()	&
-    one()	^
-    none()	(no "nor" op defined)
+    list op     infix op
+    =======     ========
+    any()       |
+    all()       &
+    one()       ^
+    none()      (no "nor" op defined)
 
 Note that the infix ops are "list-associative", insofar as
 
@@ -575,23 +575,23 @@ until no more junctive arguments remain. That is:
        substr("camel", 0|1, 2&3)
 
     -> all( substr("camel", 0|1, 2),      # autothread the conjunctive arg
-	    substr("camel", 0|1, 3)
-	  )
+            substr("camel", 0|1, 3)
+          )
 
     -> all( any( substr("camel", 0, 2),   # autothread the disjunctive arg
-		 substr("camel", 1, 2),
-	       ),
-	    any( substr("camel", 0, 3),   # autothread the disjunctive arg
-		 substr("camel", 1, 3),
-	       )
-	  )
+                 substr("camel", 1, 2),
+               ),
+            any( substr("camel", 0, 3),   # autothread the disjunctive arg
+                 substr("camel", 1, 3),
+               )
+          )
 
     -> all( any( "ca",                    # evaluate
-		 "am",
-	       ),
-	    any( "cam",
-		 "ame",
-	       )
+                 "am",
+               ),
+            any( "cam",
+                 "ame",
+               )
 
     -> ("ca"|"am") & ("cam"|"ame")        # recombine results in junctions
 
@@ -644,7 +644,7 @@ or equivalently:
 or even:
 
     do -> $i, $j, $k, $l {
-	@c[$i, $j, $k, $l] = @a[$i, $j] * @b[$k, $l]
+        @c[$i, $j, $k, $l] = @a[$i, $j] * @b[$k, $l]
     }
 
 That's almost pretty.
@@ -684,7 +684,7 @@ to provide an explicit list of keys to that dimension of the shape,
 or an equivalent range:
 
     my num %hash{<a b c d e f>; Str};
-    my num %hash{'a'..'f'; Str};		# same thing
+    my num %hash{'a'..'f'; Str};                # same thing
 
 To declare a hash that can take any object as a key rather than
 just a string, say something like:

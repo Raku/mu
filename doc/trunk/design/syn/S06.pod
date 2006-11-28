@@ -358,19 +358,19 @@ by default.  Pairs intended as positional arguments rather than named
 arguments may be indicated by extra parens or by explicitly quoting
 the key to suppress autoquoting:
 
-    doit :when<now>,1,2,3;	# always a named arg
-    doit (:when<now>),1,2,3;	# always a positional arg
+    doit :when<now>,1,2,3;      # always a named arg
+    doit (:when<now>),1,2,3;    # always a positional arg
 
-    doit when => 'now',1,2,3;	# always a named arg
-    doit (when => 'now'),1,2,3;	# always a positional arg
-    doit 'when' => 'now',1,2,3;	# always a positional arg
+    doit when => 'now',1,2,3;   # always a named arg
+    doit (when => 'now'),1,2,3; # always a positional arg
+    doit 'when' => 'now',1,2,3; # always a positional arg
 
 Only bare keys with valid identifier names are recognized as named arguments:
 
-    doit when => 'now';		# always a named arg
-    doit 'when' => 'now';	# always a positional arg
-    doit 123  => 'now';		# always a positional arg
-    doit :123<now>;	        # always a positional arg
+    doit when => 'now';         # always a named arg
+    doit 'when' => 'now';       # always a positional arg
+    doit 123  => 'now';         # always a positional arg
+    doit :123<now>;             # always a positional arg
 
 Going the other way, pairs intended as named arguments that don't look
 like pairs must be introduced with the C<|> prefix operator:
@@ -387,8 +387,8 @@ Likewise, if you wish to pass a hash and have its entries treated as
 named arguments, you must dereference it with a C<|>:
 
     %pairs = (:when<now>, :what<any>);
-    doit %pairs,1,2,3;		     # always a positional arg
-    doit |%pairs,1,2,3;		     # always named args
+    doit %pairs,1,2,3;               # always a positional arg
+    doit |%pairs,1,2,3;              # always named args
     doit |%(get_pair()),1,2,3;       # always a named arg
     doit |%('when' => 'now'),1,2,3;  # always a named arg
 
@@ -396,16 +396,16 @@ Variables with a C<:> prefix in rvalue context autogenerate pairs, so you
 can also say this:
 
     $when = 'now';
-    doit $when,1,2,3;	# always a positional arg of 'now'
-    doit :$when,1,2,3;	# always a named arg of :when<now>
+    doit $when,1,2,3;   # always a positional arg of 'now'
+    doit :$when,1,2,3;  # always a named arg of :when<now>
 
 In other words C<:$when> is shorthand for C<:when($when)>.  This works
 for any sigil:
 
-    :$what	:what($what)
-    :@what	:what(@what)
-    :%what	:what(%what)
-    :&what	:what(&what)
+    :$what      :what($what)
+    :@what      :what(@what)
+    :%what      :what(%what)
+    :&what      :what(&what)
 
 There is a corresponding shortcut for hash keys if you prefix the
 subscript instead of the sigil.  The C<:> is not functioning as an
@@ -709,7 +709,7 @@ The C<.callargs> method of C<Code> objects accepts an argument list,
 (which can be specified as a Capture object as above), and calls it
 without introducing an official C<CALLER> frame.
 
-    foo 1,2,3,:mice<blind>;	# says "\(1,2,3,:mice<blind>)" then "blind"
+    foo 1,2,3,:mice<blind>;     # says "\(1,2,3,:mice<blind>)" then "blind"
 
 It is allowed to specify additional parameters. The Capture binding merely
 takes a snapshot of what's left of the Capture at that point and then
@@ -896,10 +896,10 @@ the results of the chain, so you can equivalently write any of:
     my @oddsquares <== map { $_**2 } <== sort <== grep { $_ % 2 } <== @nums;
 
     my @oddsquares
-    	<== map { $_**2 }
-	<== sort
-	<== grep { $_ % 2 }
-	<== @nums;
+        <== map { $_**2 }
+        <== sort
+        <== grep { $_ % 2 }
+        <== @nums;
 
     @nums ==> grep { $_ % 2 } ==> sort ==> map { $_**2 } ==> my @oddsquares;
 
@@ -918,7 +918,7 @@ a receiver for multiple feeds:
     my @foo;
     0..2       ==> @foo;
     'a'..'c'   ==> @foo;
-    say @foo;	# 0,1,2,'a','b','c'
+    say @foo;   # 0,1,2,'a','b','c'
 
 Note how the feeds are concatenated in C<@foo> so that C<@foo>
 is a list of 6 elements.  This is the default behavior.  However,
@@ -934,13 +934,13 @@ array of slices.
 
     for zip(@@foo) { .say }
 
-	[0,'a',3]
-	[1,'b',1]
-	[2,'c',4]
-	[3,'d',1]
-	[4,'e',5]
-	[5,'f',9]
-	...
+        [0,'a',3]
+        [1,'b',1]
+        [2,'c',4]
+        [3,'d',1]
+        [4,'e',5]
+        [5,'f',9]
+        ...
 
 Here C<@@foo> is an array of three iterators, so
 
@@ -1175,8 +1175,8 @@ of child nodes and attributes in parentheses following the declaration of
 the node itself:
 
     sub traverse ( BinTree $top ( $left, $right ) ) {
-	traverse($left);
-	traverse($right);
+        traverse($left);
+        traverse($right);
     }
 
 In this, C<$left> and C<$right> are automatically bound to the left
@@ -1196,26 +1196,26 @@ an array of children named C<.kids> or C<< .<kids> >>, use something
 like:
 
     sub traverse ( NAry $top ( :kids [$eldest, *@siblings] ) ) {
-	traverse($eldest);
-	traverse(@siblings);
+        traverse($eldest);
+        traverse(@siblings);
     }
 
 Likewise, to bind to a hash element of the node and then bind to
 keys in that hash by name:
 
     sub traverse ( AttrNode $top ( :%attr{ :$vocalic, :$tense } ) {
-	say "Has {+%attr} attributes, of which";
-	say "vocalic = $vocalic";
-	say "tense = $tense";
+        say "Has {+%attr} attributes, of which";
+        say "vocalic = $vocalic";
+        say "tense = $tense";
     }
 
 You may omit the top variable if you prefix the parentheses with a colon
 to indicate a signature.  Otherwise you must at least put the sigil of
 the variable, or we can't correctly differentiate:
 
-    my Dog ($fido, $spot)   := twodogs();	# list of two dogs
-    my Dog $ ($fido, $spot) := twodogs();	# one twodog object
-    my Dog :($fido, $spot)  := twodogs();	# one twodog object
+    my Dog ($fido, $spot)   := twodogs();       # list of two dogs
+    my Dog $ ($fido, $spot) := twodogs();       # one twodog object
+    my Dog :($fido, $spot)  := twodogs();       # one twodog object
 
 Sub signatures can be matched directly within regexes by using C<:(...)>
 notation.
@@ -1226,10 +1226,10 @@ notation.
     ...
     my ($i, $j, $k);
     @a ~~ rx/
-	    <,>				# match initial elem boundary
-	    :(Int $i,Int $j,Int? $k)	# match lists with 2 or 3 ints
-	    <,>				# match final elem boundary
-	  /;
+            <,>                         # match initial elem boundary
+            :(Int $i,Int $j,Int? $k)    # match lists with 2 or 3 ints
+            <,>                         # match final elem boundary
+          /;
     say "i = $<i>";
     say "j = $<j>";
     say "k = $<k>" if defined $<k>;
@@ -1334,7 +1334,7 @@ you treat them as objects:
     uint        native unsigned integer (autoboxes to Int)
     buf         native buffer (finite seq of native ints or uints, no Unicode)
     num         native floating point
-    complex	native complex number
+    complex     native complex number
     bool        native boolean
 
 =head2 Undefined types
@@ -1372,7 +1372,7 @@ C<$x.WHICH> eqv C<$y.WHICH>).
     Mapping     Pairs with no duplicate keys
     Signature   Function parameters (left-hand side of a binding)
     Capture     Function call arguments (right-hand side of a binding)
-    Blob	An undifferentiated mass of bits
+    Blob        An undifferentiated mass of bits
 
 =head2 Mutable types
 
@@ -1424,9 +1424,9 @@ the (possibly implicit) return statement.  It's therefore available for
 type inferencing within the routine but not outside it.  If no inner type
 is declared, it is assumed to be the same as the C<of> type, if declared.
 
-    sub get_pet() of Animal {...}	# of type, obviously
-    our Animal sub get_pet() {...}	# of type
-    sub get_pet() returns Animal {...}	# inner type
+    sub get_pet() of Animal {...}       # of type, obviously
+    our Animal sub get_pet() {...}      # of type
+    sub get_pet() returns Animal {...}  # inner type
 
 A value type on an array or hash specifies the type stored by each element:
 
@@ -1523,7 +1523,7 @@ types to act like an "and" junction:
     # Anything assigned to the variable $mitsy must conform
     # to the type Fish and either the Cat or Dog type...
     my Cat|Dog Fish $mitsy = new Fish but { int rand 2 ?? .does Cat
-						       !! .does Dog };
+                                                       !! .does Dog };
 
 =head2 Parameter types
 
@@ -1541,14 +1541,14 @@ associated with.  It declares the new type name in the same scope
 as the associated declaration.
 
     sub max (Num ::X @array) {
-	push @array, X.new();
+        push @array, X.new();
     }
 
 The new type name is introduced immediately, so two such types in
 the same signature must unify compatibly if they have the same name:
 
     sub compare (Any ::T $x, T $y) {
-	return $x eqv $y;
+        return $x eqv $y;
     }
 
 =head2 Return types
@@ -1561,35 +1561,35 @@ declares the official interface to the routine, while the C<inner>
 type is merely a constraint on what may be returned by the routine
 from the routine's point of view.
 
-    our sub lay returns Egg {...}	# inner type
-    our Egg sub lay {...}		# of type
-    our sub lay of Egg {...}		# of type
-    our sub lay (--> Egg) {...}		# of type
+    our sub lay returns Egg {...}       # inner type
+    our Egg sub lay {...}               # of type
+    our sub lay of Egg {...}            # of type
+    our sub lay (--> Egg) {...}         # of type
 
-    my sub hat returns Rabbit {...}	# inner type
-    my Rabbit sub hat {...}		# of type
-    my sub hat of Rabbit {...}		# of type
-    my sub hat (--> Rabbit) {...}	# of type
+    my sub hat returns Rabbit {...}     # inner type
+    my Rabbit sub hat {...}             # of type
+    my sub hat of Rabbit {...}          # of type
+    my sub hat (--> Rabbit) {...}       # of type
 
 If a subroutine is not explicitly scoped, it belongs to the current
 namespace (module, class, grammar, or package), as if it's scoped with
 the C<our> scope modifier. Any return type must go after the name:
 
-    sub lay returns Egg {...}		# inner type
-    sub lay of Egg {...}		# of type
-    sub lay (--> Egg) {...}		# of type
+    sub lay returns Egg {...}           # inner type
+    sub lay of Egg {...}                # of type
+    sub lay (--> Egg) {...}             # of type
 
 On an anonymous subroutine, any return type can only go after the C<sub>
 keyword:
 
-    $lay = sub returns Egg {...};	# inner type
-    $lay = sub of Egg {...};		# of type
-    $lay = sub (--> Egg) {...};		# of type
+    $lay = sub returns Egg {...};       # inner type
+    $lay = sub of Egg {...};            # of type
+    $lay = sub (--> Egg) {...};         # of type
 
 but you can use a scope modifier to introduce an C<of> prefix type:
 
-    $lay = my Egg sub {...};		# of type
-    $hat = my Rabbit sub {...};		# of type
+    $lay = my Egg sub {...};            # of type
+    $hat = my Rabbit sub {...};         # of type
 
 Because they are anonymous, you can change the C<my> modifier to C<our>
 without affecting the meaning.
@@ -1662,9 +1662,9 @@ auxiliary you use, but for C<is>, the subsequent syntax is identical to
 adverbial syntax, except that that colon may be omitted or doubled depending
 on the degree of ambiguity desired:
 
-    is ::Foo[...]	# definitely a parameterized typename
-    is :Foo[...]	# definitely a pair with a list
-    is Foo[...]		# depends on whether Foo is predeclared as type
+    is ::Foo[...]       # definitely a parameterized typename
+    is :Foo[...]        # definitely a pair with a list
+    is Foo[...]         # depends on whether Foo is predeclared as type
 
 =over 
 
@@ -1768,13 +1768,13 @@ is not an identifier.
 
 Specifies the associativity of an operator explicitly.  Valid values are:
 
-    Tag		Examples	Meaning of $a op $b op $c	Default equiv
-    ===		========	=========================	=============
-    left	+ - * / x	($a op $b) op $c		+
-    right	** =		$a op ($b op $c)		**
-    non		cmp <=> ..	ILLEGAL				cmp
-    chain	== eq ~~	($a op $b) and ($b op $c)	eqv
-    list	| & ^ ¥		op($a, $b, $c)			|
+    Tag         Examples        Meaning of $a op $b op $c       Default equiv
+    ===         ========        =========================       =============
+    left        + - * / x       ($a op $b) op $c                +
+    right       ** =            $a op ($b op $c)                **
+    non         cmp <=> ..      ILLEGAL                         cmp
+    chain       == eq ~~        ($a op $b) and ($b op $c)       eqv
+    list        | & ^ ¥         op($a, $b, $c)                  |
 
 Note that operators "C<equiv>" to relationals are automatically considered
 chaining operators.  When creating a new precedence level, the chaining
@@ -2061,9 +2061,9 @@ the temporizing scope to restore the subroutine to its pre-C<temp> state:
     say next();     # prints 1; $next == 2
     say next();     # prints 2; $next == 3
     if ($hiccough) {
-	say temp next();  # prints 3; closes $curr at 3; $next == 4
-	say next();    	  # prints 4; $next == 5
-	say next();       # prints 5; $next == 6
+        say temp next();  # prints 3; closes $curr at 3; $next == 4
+        say next();       # prints 4; $next == 5
+        say next();       # prints 5; $next == 6
     }                     # $next = 3
     say next();     # prints 3; $next == 4
     say next();     # prints 4; $next == 5
@@ -2167,9 +2167,9 @@ C<&?BLOCK> is always an alias for the current block, so you can
 specify tail-recursion on an anonymous block:
 
     my $anonfactorial = -> Int $n { $n < 2
-    					?? 1
-					!! $n * &?BLOCK($n-1)
-				  };
+                                        ?? 1
+                                        !! $n * &?BLOCK($n-1)
+                                  };
 
 C<&?BLOCK.label> contains the label of the current block, if any.
 
@@ -2269,9 +2269,9 @@ represent an AST:
 
 Modifiers to the C<:code> adverb can modify the operation:
 
-    :ast(MyAst)		# Default :ast(AST)
-    :lang(Ruby)		# Default :lang($?PARSER)
-    :unquote<[: :]>	# Default "triple rule"
+    :ast(MyAst)         # Default :ast(AST)
+    :lang(Ruby)         # Default :lang($?PARSER)
+    :unquote<[: :]>     # Default "triple rule"
 
 Within a quasiquote, variable and function names resolve according
 to the lexical scope of the macro definition.  Unrecognized symbols raise
@@ -2397,16 +2397,16 @@ or more succinctly (and lazily):
 
     sub pair (*@LIST) {
         gather {
-	    for @LIST -> $key, $val {
-		take $key => $val;
-	    }
-	}
+            for @LIST -> $key, $val {
+                take $key => $val;
+            }
+        }
     }
 
 The standard C<hash> list operator is equivalent to:
 
     sub hash (*@LIST) {
-	return { pair @LIST };
+        return { pair @LIST };
     }
 
 So you may use C<sub> or C<hash> or C<pair> to disambiguate:
@@ -2499,7 +2499,7 @@ other arguments to the program may be bound to positional parameters
 or the slurpy array:
 
     sub MAIN ($directory, :$verbose, *%other, *@filenames) {
-	for @filenames { ... }
+        for @filenames { ... }
     }
 
 If C<MAIN> is declared as a set of multi subs, MMD dispatch is performed.
@@ -2538,9 +2538,9 @@ as follows:
     -name='spacy value'        :name«'spacy value'»
     -name=val1,'val 2', etc    :name«val1 'val 2' etc»
 
-    --name                     :name		# only if declared Bool
-    --name=value               :name<value>	# don't care
-    --name value               :name<value>	# only if not declared Bool
+    --name                     :name            # only if declared Bool
+    --name=value               :name<value>     # don't care
+    --name value               :name<value>     # only if not declared Bool
 
     --name="spacy value"       :name«'spacy value'»
     --name "spacy value"       :name«'spacy value'»
@@ -2594,8 +2594,8 @@ and pass the resulting C<Match> object as a C<Capture> to C<MAIN>:
     exit;
 
     sub MAIN ($frompart, $topart, *@rest) {
-	if $frompart<foo> { ... }
-	if $topart<bar><baz> { ... }
+        if $frompart<foo> { ... }
+        if $topart<bar><baz> { ... }
     }
 
 This will conveniently bind top-level named matches to named

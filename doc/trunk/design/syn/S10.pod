@@ -30,7 +30,7 @@ but they're still just packages with extra behaviors.
 An ordinary package is declared with the C<package> keyword.  It can
 only be used with a block:
 
-    package Bar {...}	# block is in package Bar
+    package Bar {...}   # block is in package Bar
 
 A named package declaration can occur as part of an expression, just like
 named subroutine declarations.
@@ -39,7 +39,7 @@ As a special exception, if a braceless C<package> declaration occurs
 as the first executable statement in a file, then it's taken to mean that the rest of
 the file is Perl 5 code.
 
-    package Foo;	# the entire file is Perl 5
+    package Foo;        # the entire file is Perl 5
     ...
 
 This form is illegal in the middle of a Perl 6 file.

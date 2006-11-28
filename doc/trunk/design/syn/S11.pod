@@ -30,10 +30,10 @@ but they're still just packages with extra behaviors.
 A module is declared with the C<module> keyword.  There are
 two basic declaration syntaxes:
 
-    module Foo;	# rest of scope is in module Foo
+    module Foo; # rest of scope is in module Foo
     ...
 
-    module Bar {...}	# block is in module Bar
+    module Bar {...}    # block is in module Bar
 
 The first form is allowed only as the first statement in the file.
 

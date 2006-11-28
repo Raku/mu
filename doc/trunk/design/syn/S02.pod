@@ -110,7 +110,7 @@ L</Lexical Conventions> above):
     $object\#{ embedded comments }.say;
 
     $object\ #「
-	embedded comments
+        embedded comments
     」.say;
 
 Brackets may be nested, following the same policy as ordinary quote brackets.
@@ -198,18 +198,18 @@ so you can split excessively long heredoc intro lines like this:
     ok(q:to'CODE', q:to'OUTPUT', \
     "Here is a long description", \ # --more--
     todo(:parrøt<0.42>, :dötnet<1.2>));
-	...
-	CODE
-	...
-	OUTPUT
+        ...
+        CODE
+        ...
+        OUTPUT
 
 To the heredoc parser that just looks like:
 
     ok(q:to'CODE', q:to'OUTPUT', "Here is a long description", todo(:parrøt<0.42>, :dötnet<1.2>));
-	...
-	CODE
-	...
-	OUTPUT
+        ...
+        CODE
+        ...
+        OUTPUT
 
 =item *
 
@@ -222,7 +222,7 @@ If you say:
 it is an end-of-line comment, not an embedded comment.  Write:
 
     \ #(
-	...
+        ...
        )
 
 to mean the other thing.
@@ -265,16 +265,16 @@ be written in any of these forms:
     $x\
     .++
 
-    $x\ 	# comment
-    		# inside long dot
+    $x\         # comment
+                # inside long dot
     .++
 
-    $x\ 	# comment
-    		# inside "unspace"
-    ++		# (but long dot may be preferred...)
+    $x\         # comment
+                # inside "unspace"
+    ++          # (but long dot may be preferred...)
 
-    $x\#『	comment
-    		more comment
+    $x\#『      comment
+                more comment
     』.++
 
     $x\#[   comment 1
@@ -310,7 +310,7 @@ will always be interpreted as
 
 but never as
 
-    foo.method	
+    foo.method  
 
 Use some variant of
 
@@ -621,14 +621,14 @@ or type name, but by itself, the C<*> term captures the notion of
 argument to.  Generally it can just be thought of as a "glob" that
 gives you everything it can in that argument position.  For instance:
 
-    if $x ~~ 1..* {...}			# if 1 <= $x <= +Inf
-    my ($a,$b,$c) = "foo" xx *;		# an arbitrary long list of "foo"
-    if /foo/ ff * {...}			# a latching flipflop
-    @slice = @x[*;0;*];			# any Int
-    @slice = %x{*;'foo'};		# any keys in domain of 1st dimension
-    @array[*]				# flattens, unlike @array[]
-    (*, *, $x) = (1, 2, 3);		# skip first two elements
-					# (same as lvalue "undef" in Perl 5)
+    if $x ~~ 1..* {...}                 # if 1 <= $x <= +Inf
+    my ($a,$b,$c) = "foo" xx *;         # an arbitrary long list of "foo"
+    if /foo/ ff * {...}                 # a latching flipflop
+    @slice = @x[*;0;*];                 # any Int
+    @slice = %x{*;'foo'};               # any keys in domain of 1st dimension
+    @array[*]                           # flattens, unlike @array[]
+    (*, *, $x) = (1, 2, 3);             # skip first two elements
+                                        # (same as lvalue "undef" in Perl 5)
 
 C<Whatever> is an undefined prototype object derived from C<Any>.  As a
 type it is abstract, and may not be instantiated as a defined object.
@@ -868,7 +868,7 @@ and the dot:
 
     &foo\   .($arg1, $arg2);
     &foo\#[
-	embedded comment
+        embedded comment
     ].($arg1, $arg2);
 
 =item *
@@ -1179,7 +1179,7 @@ Subprocesses are passed only the global C<%*ENV> values.  They do
 not see any lexical variables or their values, unless you copy those
 values into C<%*ENV> to change what subprocesses see:
 
-    temp %*ENV{LANG} = $+LANG;		# may be modified by parent
+    temp %*ENV{LANG} = $+LANG;          # may be modified by parent
     system "greet";
 
 =item *
@@ -1519,23 +1519,23 @@ more or less for free with a colon pair like C<< :char<#x263a> >>.
 There is now a generalized adverbial form of Pair notation.  The
 following table shows the correspondence to the "fatarrow" notation:
 
-    Fat arrow		Adverbial pair	Paren form
-    =========		==============	==========
-    a => 1		:a
-    a => 0		:!a
-    a => 0		:a(0)
-    a => $x		:a($x)
-    a => 'foo'		:a<foo>		:a(<foo>)
-    a => <foo bar>	:a<foo bar>	:a(<foo bar>)
-    a => «$foo @bar»	:a«$foo @bar»	:a(«$foo @bar»)
-    a => {...}		:a{...}		:a({...})
-    a => [...]		:a[...]		:a([...])
-    a => $a		:$a
-    a => @a		:@a
-    a => %a		:%a
-    a => $$a		:$$a
-    a => @$$a		:@$$a (etc.)
-    a => %foo<a>	%foo:<a>
+    Fat arrow           Adverbial pair  Paren form
+    =========           ==============  ==========
+    a => 1              :a
+    a => 0              :!a
+    a => 0              :a(0)
+    a => $x             :a($x)
+    a => 'foo'          :a<foo>         :a(<foo>)
+    a => <foo bar>      :a<foo bar>     :a(<foo bar>)
+    a => «$foo @bar»    :a«$foo @bar»   :a(«$foo @bar»)
+    a => {...}          :a{...}         :a({...})
+    a => [...]          :a[...]         :a([...])
+    a => $a             :$a
+    a => @a             :@a
+    a => %a             :%a
+    a => $$a            :$$a
+    a => @$$a           :@$$a (etc.)
+    a => %foo<a>        %foo:<a>
 
 Note that as usual the C<{...}> form can indicate either a closure or a hash
 depending on the contents.  It does I<not> indicate a subscript.
@@ -1973,11 +1973,11 @@ as an argument list if possible.
 Based on the signature of the subroutine declaration, there are only
 four ways that an argument list can be parsed:
 
-    Signature		# of expected args
-    ()			0
-    ($x)		1
-    ($x?)		0..1
-    (anything else)	0..Inf
+    Signature           # of expected args
+    ()                  0
+    ($x)                1
+    ($x?)               0..1
+    (anything else)     0..Inf
 
 That is, a standard subroutine call may be parsed only as a 0-arg term
 (or function call), a 1-mandatory-arg prefix operator (or function
@@ -2000,35 +2000,35 @@ colon postfix, since such a colon is allowed only on an indirect object,
 or a method call in dot form.  (It is also allowed on a label when a
 statement is expected.) So for any undeclared identifier "C<foo>":
 
-    foo.bar		# ILLEGAL	-- postfix must use foo().bar
-    foo .bar		# foo($_.bar)	-- no postfix starts with whitespace
-    foo\ .bar		# ILLEGAL	-- long dot must use foo()\ .bar
-    foo++		# ILLEGAL	-- postfix must use foo()++
-    foo 1,2,3		# foo(1,2,3)	-- args always expected after listop
-    foo + 1		# foo(+1)	-- term always expected after listop
-    foo;		# foo();	-- no postfix, but no args either
-    foo:		#   label	-- must be label at statement boundary.
-					-- ILLEGAL otherwise
-    foo: bar:		#   two labels in a row, okay
-    .foo:		# $_.foo: 1 	-- must be "dot" method with : args
-    .foo(1)		# $_.foo(1) 	-- must be "dot" method with () args
-    .foo		# $_.foo() 	-- must be "dot" method with no args
-    .$foo:		# $_.$foo: 1 	-- indirect "dot" method with : args
-    foo bar: 1		# bar.foo(1)	-- bar must be predecl as class
-					-- sub bar allowed here only if 0-ary
-					-- otherwise you must say (bar):
-    foo bar 1		# foo(bar(1))	-- both subject to postdeclaration
-					-- never taken as indirect object
-    foo $bar: 1		# $bar.foo(1)	-- indirect object even if declared sub
-    					-- $bar considered one token
-    foo (bar()):	# bar().foo(1)	-- even if foo declared sub
-    foo bar():		# ILLEGAL	-- bar() is two tokens.
-    foo .bar:		# foo(.bar:)	-- colon chooses .bar to listopify
-    foo bar baz: 1	# foo(baz.bar(1)) -- colon controls "bar", not foo.
-    foo (bar baz): 1	# bar(baz()).foo(1) -- colon controls "foo"
-    $foo $bar		# ILLEGAL	-- two terms in a row
-    $foo $bar:		# ILLEGAL	-- use $bar.$foo for indirection
-    (foo bar) baz: 1	# ILLEGAL	-- use $baz.$(foo bar) for indirection
+    foo.bar             # ILLEGAL       -- postfix must use foo().bar
+    foo .bar            # foo($_.bar)   -- no postfix starts with whitespace
+    foo\ .bar           # ILLEGAL       -- long dot must use foo()\ .bar
+    foo++               # ILLEGAL       -- postfix must use foo()++
+    foo 1,2,3           # foo(1,2,3)    -- args always expected after listop
+    foo + 1             # foo(+1)       -- term always expected after listop
+    foo;                # foo();        -- no postfix, but no args either
+    foo:                #   label       -- must be label at statement boundary.
+                                        -- ILLEGAL otherwise
+    foo: bar:           #   two labels in a row, okay
+    .foo:               # $_.foo: 1     -- must be "dot" method with : args
+    .foo(1)             # $_.foo(1)     -- must be "dot" method with () args
+    .foo                # $_.foo()      -- must be "dot" method with no args
+    .$foo:              # $_.$foo: 1    -- indirect "dot" method with : args
+    foo bar: 1          # bar.foo(1)    -- bar must be predecl as class
+                                        -- sub bar allowed here only if 0-ary
+                                        -- otherwise you must say (bar):
+    foo bar 1           # foo(bar(1))   -- both subject to postdeclaration
+                                        -- never taken as indirect object
+    foo $bar: 1         # $bar.foo(1)   -- indirect object even if declared sub
+                                        -- $bar considered one token
+    foo (bar()):        # bar().foo(1)  -- even if foo declared sub
+    foo bar():          # ILLEGAL       -- bar() is two tokens.
+    foo .bar:           # foo(.bar:)    -- colon chooses .bar to listopify
+    foo bar baz: 1      # foo(baz.bar(1)) -- colon controls "bar", not foo.
+    foo (bar baz): 1    # bar(baz()).foo(1) -- colon controls "foo"
+    $foo $bar           # ILLEGAL       -- two terms in a row
+    $foo $bar:          # ILLEGAL       -- use $bar.$foo for indirection
+    (foo bar) baz: 1    # ILLEGAL       -- use $baz.$(foo bar) for indirection
 
 The indirect object colon only ever dominates a simple term, where
 "simple" includes classes and variables and parenthesized expressions,
