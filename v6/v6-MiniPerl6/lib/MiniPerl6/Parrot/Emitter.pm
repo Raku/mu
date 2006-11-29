@@ -417,7 +417,7 @@ class Call {
                 '  $P' ~ $i ~ ' = $P0' ~ Main::newline();
             $i := $i + 1;
         };
-        $str := $str ~ '' ~ $.invocant.emit ~
+        $str := $str ~ '  $P0 = ' ~ $.invocant.emit ~ Main::newline() ~
             '  $P0 = $P0.' ~ $meth ~ '('; 
         #$str := $str ~ '  ' ~ $.code ~ '(';
         $i := 0;
@@ -438,6 +438,7 @@ class Call {
 class Apply {
     has $.code;
     has @.arguments;
+    my $label := 100;
     method emit {
 
         my $code := $.code;
@@ -453,27 +454,102 @@ class Apply {
                 (@.arguments.>>emit).join( '  print $P0' ~ Main::newline ) ~
                 '  print $P0' ~ Main::newline 
         };
-        if $code eq 'array'      { return '@{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
+        if $code eq 'array'      { return 'TODO @{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
 
-        if $code eq 'prefix:<~>' { return '("" . ' ~ (@.arguments.>>emit).join(' ') ~ ')' };
-        if $code eq 'prefix:<!>' { return '('  ~ (@.arguments.>>emit).join(' ')    ~ ' ? 0 : 1)' };
-        if $code eq 'prefix:<?>' { return '('  ~ (@.arguments.>>emit).join(' ')    ~ ' ? 1 : 0)' };
+        if $code eq 'prefix:<~>' { 
+            return 
+                (@.arguments[0]).emit ~
+                '  $S0 = $P0'    ~ Main::newline() ~
+                '  $P0 = $S0'    ~ Main::newline();
+        };
+        if $code eq 'prefix:<!>' {  
+            return 
+                ( ::If( cond      => @.arguments[0],
+                        body      => [ ::Val::Bit( bit => 0 ) ],
+                        otherwise => [ ::Val::Bit( bit => 1 ) ] 
+                ) ).emit;
+        };
+        if $code eq 'prefix:<?>' {  
+            return 
+                ( ::If( cond      => @.arguments[0],
+                        body      => [ ::Val::Bit( bit => 1 ) ],
+                        otherwise => [ ::Val::Bit( bit => 0 ) ] 
+                ) ).emit;
+        };
 
-        if $code eq 'prefix:<$>' { return '${' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
-        if $code eq 'prefix:<@>' { return '@{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
-        if $code eq 'prefix:<%>' { return '%{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
+        if $code eq 'prefix:<$>' { return 'TODO ${' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
+        if $code eq 'prefix:<@>' { return 'TODO @{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
+        if $code eq 'prefix:<%>' { return 'TODO %{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
 
-        if $code eq 'infix:<~>'  { return '('  ~ (@.arguments.>>emit).join(' . ')  ~ ')' };
-        if $code eq 'infix:<+>'  { return (@.arguments.>>emit).join('')  ~ Main::newline() };
-        if $code eq 'infix:<->'  { return '('  ~ (@.arguments.>>emit).join(' - ')  ~ ')' };
+        if $code eq 'infix:<~>'  { 
+            return 
+                (@.arguments[0]).emit ~
+                '  $S0 = $P0'    ~ Main::newline() ~
+                '  save $S0'     ~ Main::newline() ~
+                (@.arguments[1]).emit ~
+                '  $S1 = $P0'    ~ Main::newline() ~
+                '  restore $S0'  ~ Main::newline() ~
+                '  $S0 = concat $S0, $S1' ~ Main::newline ~
+                '  $P0 = $S0'    ~ Main::newline();
+        };
+        if $code eq 'infix:<+>'  { 
+            return 
+                '  save $P1'        ~ Main::newline ~
+                (@.arguments[0]).emit ~
+                '  $P1 = $P0'       ~ Main::newline ~
+                (@.arguments[1]).emit ~
+                '  $P0 = $P1 + $P0' ~ Main::newline ~
+                '  restore $P1'     ~ Main::newline
+        };
+        if $code eq 'infix:<->'  { 
+            return 
+                '  save $P1'        ~ Main::newline ~
+                (@.arguments[0]).emit ~
+                '  $P1 = $P0'       ~ Main::newline ~
+                (@.arguments[1]).emit ~
+                '  $P0 = $P1 - $P0' ~ Main::newline ~
+                '  restore $P1'     ~ Main::newline
+        };
 
-        if $code eq 'infix:<&&>' { return '('  ~ (@.arguments.>>emit).join(' && ') ~ ')' };
-        if $code eq 'infix:<||>' { return '('  ~ (@.arguments.>>emit).join(' || ') ~ ')' };
-        if $code eq 'infix:<eq>' { return '('  ~ (@.arguments.>>emit).join(' eq ') ~ ')' };
-        if $code eq 'infix:<ne>' { return '('  ~ (@.arguments.>>emit).join(' ne ') ~ ')' };
+        if $code eq 'infix:<&&>' { return 'TODO ('  ~ (@.arguments.>>emit).join(' && ') ~ ')' };
+        if $code eq 'infix:<||>' { return 'TODO ('  ~ (@.arguments.>>emit).join(' || ') ~ ')' };
+        if $code eq 'infix:<eq>' { 
+            $label := $label + 1;
+            my $id := $label;
+            return
+                (@.arguments[0]).emit ~
+                '  $S0 = $P0'    ~ Main::newline() ~
+                '  save $S0'     ~ Main::newline() ~
+                (@.arguments[1]).emit ~
+                '  $S1 = $P0'    ~ Main::newline() ~
+                '  restore $S0'  ~ Main::newline() ~
+                '  if $S0 == $S1 goto eq' ~ $id ~ Main::newline ~
+                '  $P0 = 0'      ~ Main::newline();
+                '  goto eq_end' ~ $id ~ Main::newline() ~
+                'eq' ~ $id ~ ':' ~ Main::newline() ~
+                '  $P0 = 1'      ~ Main::newline() ~
+                'eq_end'  ~ $id ~ ':'  ~ Main::newline();
+        };
+        if $code eq 'infix:<ne>' { 
+            $label := $label + 1;
+            my $id := $label;
+            return
+                (@.arguments[0]).emit ~
+                '  $S0 = $P0'    ~ Main::newline() ~
+                '  save $S0'     ~ Main::newline() ~
+                (@.arguments[1]).emit ~
+                '  $S1 = $P0'    ~ Main::newline() ~
+                '  restore $S0'  ~ Main::newline() ~
+                '  if $S0 == $S1 goto eq' ~ $id ~ Main::newline ~
+                '  $P0 = 1'      ~ Main::newline();
+                '  goto eq_end' ~ $id ~ Main::newline() ~
+                'eq' ~ $id ~ ':' ~ Main::newline() ~
+                '  $P0 = 0'      ~ Main::newline() ~
+                'eq_end'  ~ $id ~ ':'  ~ Main::newline();
+        };
+        if $code eq 'infix:<==>' { return 'TODO ('  ~ (@.arguments.>>emit).join(' == ') ~ ')' };
 
-        if $code eq 'infix:<==>' { return '('  ~ (@.arguments.>>emit).join(' == ') ~ ')' };
-        if $code eq 'infix:<!=>' { return '('  ~ (@.arguments.>>emit).join(' != ') ~ ')' };
+        if $code eq 'infix:<!=>' { return 'TODO ('  ~ (@.arguments.>>emit).join(' != ') ~ ')' };
 
         if $code eq 'ternary:<?? !!>' { 
             return 
@@ -481,6 +557,29 @@ class Apply {
                         body => [@.arguments[1]],
                         otherwise => [@.arguments[2]] 
                 ) ).emit;
+        };
+
+        if $code eq 'defined'  { 
+            return 
+                (@.arguments[0]).emit ~
+                '  $I0 = defined $P0' ~ Main::newline() ~
+                '  $P0 = $I0' ~ Main::newline();
+        };
+
+        if $code eq 'substr'  { 
+            return 
+                (@.arguments[0]).emit ~
+                '  $S0 = $P0'    ~ Main::newline() ~
+                '  save $S0'     ~ Main::newline() ~
+                (@.arguments[1]).emit ~
+                '  $I0 = $P0'    ~ Main::newline() ~
+                '  save $I0'     ~ Main::newline() ~
+                (@.arguments[2]).emit ~
+                '  $I1 = $P0'    ~ Main::newline() ~
+                '  restore $I0'  ~ Main::newline() ~
+                '  restore $S0'  ~ Main::newline() ~
+                '  $S0 = substr $S0, $I0, $I1' ~ Main::newline() ~
+                '  $P0 = $S0'    ~ Main::newline();
         };
 
         #(@.arguments.>>emit).join('') ~
