@@ -1415,7 +1415,7 @@ A C<KeyHash> also autodeletes keys for normal undef values (that is,
 those undefined values that do not contain an unthrown exception).
 
 A C<KeySet> is a C<KeyHash> of booleans with a default of C<False>.
-If you you use the C<Hash> interface and increment an element of a
+If you use the C<Hash> interface and increment an element of a
 C<KeySet> its value becomes true (creating the element if it doesn't
 exist already).  If you decrement the element it becomes false and
 is automatically deleted.  When not used as a C<Hash> (that is,
@@ -1425,7 +1425,7 @@ a C<KeySet> is the C<True> value, it need not be represented in
 the actual implementation with any bits at all.)
 
 A C<KeyBag> is a C<KeyHash> of C<UInt> with default of 0.  If you
-you use the C<Hash> interface and increment an element of a C<KeyBag>
+use the C<Hash> interface and increment an element of a C<KeyBag>
 its value is increased by one (creating the element if it doesn't exist
 already).  If you decrement the element the value is decreased by one;
 if the value goes to 0 the element is automatically deleted.  When not
