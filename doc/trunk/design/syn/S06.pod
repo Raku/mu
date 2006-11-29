@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 31 Oct 2006
+  Last Modified: 28 Nov 2006
   Number: 6
-  Version: 60
+  Version: 62
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -1365,8 +1365,9 @@ C<$x.WHICH> eqv C<$y.WHICH>).
     Block       Executable objects that have lexical scopes
     List        Lazy Perl list (composed of Seq and Range parts)
     Seq         Completely evaluated (hence immutable) sequence
-    Range       Incrementally generated (hence lazy) sequence
-    Set         Unordered Seqs that allow no duplicates
+    Range       A pair of Ordered endpoints; gens lazy Seq in list context
+    Set         Unordered Seq that allows no duplicates
+    Bag         Unordered Seq that allows duplicates
     Junction    Sets with additional behaviours
     Pair        Seq of two elements that serves as a one-element Mapping
     Mapping     Pairs with no duplicate keys
@@ -1379,9 +1380,12 @@ C<$x.WHICH> eqv C<$y.WHICH>).
 Objects with these types have distinct C<.WHICH> values that do not change
 even if the object's contents change.
 
+    Scalar      Perl scalar
     Array       Perl array
     Hash        Perl hash
-    Scalar      Perl scalar
+    KeyHash     Perl hash that autodeletes values matching default
+    KeySet      KeyHash of Bool (does Set in list/array context)
+    KeyBag      KeyHash of UInt (does Bag in list/array context)
     Buf         Perl buffer (a stringish array of memory locations)
     IO          Perl filehandle
     Routine     Base class for all wrappable executable objects
@@ -1397,6 +1401,38 @@ even if the object's contents change.
     Role        Perl 6 standard generic interface/implementation
     Object      Perl 6 object
     Grammar     Perl 6 pattern matching namespace
+
+A C<KeyHash> differs from a normal C<Hash> in how it handles default
+values.  If the value of a C<KeyHash> element is set to the default
+value for the C<KeyHash>, the element is deleted.  If undeclared,
+the default default for a C<KeyHash> is 0 for numeric types, C<False>
+for boolean types, and the null string for string and buffer types.
+A C<KeyHash> of a C<Object> type defaults to the undefined prototype
+for that type.  More generally, the default default is whatever defined
+value an C<undef> would convert to for that value type.  A C<KeyHash>
+of C<Scalar> deletes elements that go to either 0 or the null string.
+A C<KeyHash> also autodeletes keys for normal undef values (that is,
+those undefined values that do not contain an unthrown expections).
+
+A C<KeySet> is a C<KeyHash> of booleans with a default of C<False>.
+If you you use the C<Hash> interface and increment an element of a
+C<KeySet> its value becomes true (creating the element if it doesn't
+exist already).  If you decrement the element it becomes false and
+is automatically deleted.  When not used as a C<Hash> (that is,
+when used as an C<Array> or list or C<Set> object) a C<KeySet>
+behaves as a C<Set> of its keys.  (Since the only possible value of
+a C<KeySet> is the C<True> value, it need not be represented in
+the actual implementation with any bits at all.)
+
+A C<KeyBag> is a C<KeyHash> of C<UInt> with default of 0.  If you
+you use the C<Hash> interface and increment an element of a C<KeyBag>
+its value is increased by one (creating the element if it doesn't exist
+already).  If you decrement the element the value is decreased by one;
+if the value goes to 0 the element is automatically deleted.  When not
+used as a C<Hash> (that is, when used as an C<Array> or list or C<Bag>
+object) a C<KeyBag> behaves as a C<Bag> of its keys, with each key
+replicated the number of times specified by its corresponding value.
+(Use C<.kv> or C<.pairs> to suppress this behavior in list context.)
 
 =head2 Value types
 
