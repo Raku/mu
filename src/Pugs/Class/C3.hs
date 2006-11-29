@@ -20,27 +20,35 @@
 module Pugs.Class.C3 (linearize) where
 
 import Data.List (nub)
+import Control.Monad (when)
+--import Control.Monad.Error -- used for testing
 
--- |Returns the a linearization using C3 algorithm. Takes a function
+-- | Returns the a linearization using C3 algorithm. Takes a function
 -- and an element. We can apply the function in this element to obtain
 -- its parents.
 linearize :: (Monad m, Eq a) => (a -> m [a]) -> a -> m [a]
-linearize p root = do
+linearize = linearize' []
+
+-- | Implementation behind linearize. Keeps a list of seen elements to
+-- detect loops in the hierarchy.
+linearize' :: (Monad m, Eq a) => [a] -> (a -> m [a]) -> a -> m [a]
+linearize' seen p root = do
+    when (root `elem` seen) $ fail "loop detected in hierarchy"
     root_ps <- p root
-    gran_ps <- mapM (linearize p) root_ps
+    gran_ps <- mapM (linearize' (root : seen) p) root_ps
     let root_ps' = map (\x -> [x]) root_ps 
         gran_ps' = filter (not . null) gran_ps
     a <- merge (gran_ps' ++ root_ps')
     return (root : a)
 
--- |The merge operation from C3.
+-- | The merge operation from C3.
 merge :: (Monad m, Eq a) => [[a]] -> m [a]
 merge []    = return []
 merge l     = merge_round candidates l
     where
     candidates = nub (map head l)
 
--- |Auxiliar function for the merge operation, given a candidate list,
+-- | Auxiliar function for the merge operation, given a candidate list,
 -- find a good candidate, return 'Nothing' if none of them can be used,
 -- meaning an impossible merge due conflict. If it finds one, calls
 -- 'merge' to find next element in the linearization.
@@ -63,9 +71,9 @@ good c (x:xs)
     | c `elem` (tail x) = False
     | otherwise         = good c xs
 
------------
 
 {-
+
 -- Tests
 main = do
     test_many "Simple example 1" ex1 [[O], [A,O], [B]]
@@ -95,6 +103,15 @@ main = do
         [I, H, G, F, E, D, A, B, C],
         [J, F, E, D, A, B, C],
         [K, J, I, H, G, F, E, D, A, B, C]]
+    test "Complex merge with loop #1 (A::C3)" infinite_loop1 K (Left "loop detected in hierarchy")
+    test "Complex merge with loop #2 (A::C3)" infinite_loop2 K (Left "loop detected in hierarchy")
+    test "Complex merge with loop #3 (A::C3)" infinite_loop3 K (Left "loop detected in hierarchy")
+    test "Complex merge with loop #4 (A::C3)" infinite_loop4 K (Left "loop detected in hierarchy")
+    test "Complex merge with loop #5 (A::C3)" infinite_loop5 K (Left "loop detected in hierarchy")
+    test "Complex merge with loop #6 (A::C3)" infinite_loop6 K (Left "loop detected in hierarchy")
+    test "Complex merge with loop #7 (A::C3)" infinite_loop7 K (Left "loop detected in hierarchy")
+    test "Complex merge with loop #8 (A::C3)" infinite_loop8 K (Left "loop detected in hierarchy")
+
 
         
 
@@ -152,6 +169,38 @@ complex x = case x of
     J -> [F]
     K -> [J,I]
     _ -> []
+
+infinite_loop1 x = case x of
+    E -> [F]
+    y -> complex y
+
+infinite_loop2 x = case x of
+    C -> [F]
+    y -> complex y
+
+infinite_loop3 x = case x of
+    A -> [K]
+    y -> complex y
+
+infinite_loop4 x = case x of
+    J -> [F, K]
+    y -> complex y
+
+infinite_loop5 x = case x of
+    H -> [G, K]
+    y -> complex y
+
+infinite_loop6 x = case x of
+    B -> [B]
+    y -> complex y
+
+infinite_loop7 x = case x of
+    K -> [I, J, K]
+    y -> complex y
+
+infinite_loop8 x = case x of
+    D -> [A, B, C, H]
+    y -> complex y
 
 
 -- Helper functions for testing
