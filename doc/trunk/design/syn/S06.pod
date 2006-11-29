@@ -1412,7 +1412,7 @@ for that type.  More generally, the default default is whatever defined
 value an C<undef> would convert to for that value type.  A C<KeyHash>
 of C<Scalar> deletes elements that go to either 0 or the null string.
 A C<KeyHash> also autodeletes keys for normal undef values (that is,
-those undefined values that do not contain an unthrown expection).
+those undefined values that do not contain an unthrown exception).
 
 A C<KeySet> is a C<KeyHash> of booleans with a default of C<False>.
 If you you use the C<Hash> interface and increment an element of a
