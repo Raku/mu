@@ -2653,3 +2653,5 @@ or C<--topart> for the second parameter.
 If a switch of the form C<-abc> cannot be matched against any
 particular parameter, an attempt will be made to match it as if it
 had been written C<-a -b -c>.
+
+=for vim:set expandtab sw=4:

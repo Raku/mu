@@ -2420,3 +2420,5 @@ Here are the current grammatical categories:
 
 Any category containing "circumfix" requires two token arguments, supplied
 in slice notation.
+
+=for vim:set expandtab sw=4:

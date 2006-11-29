@@ -14,7 +14,7 @@ Luke Palmer <luke@luqui.org>
   Date: 8 Mar 2004
   Last Modified: 13 Nov 2006
   Number: 3
-  Version: 75
+  Version: 76
 
 =head1 Changes to Perl 5 operators
 
@@ -582,8 +582,10 @@ separate entries for lists.
     $_      $x        Type of Match Implied    Matching Code
     ======  =====     =====================    =============
     Any     Code:($)  scalar sub truth         match if $x($_)
-    Hash    Hash      hash keys identical      match if $_.keys.sort »eq« $x.keys.sort
-    Hash    any(Hash) hash key intersection    match if $_{any(Hash.keys)}
+    Hash    Hash      hash keys identical      match if $_.keys === $x.keys
+    Hash    Set       members identical        match if $_.keys === $x
+    Set     Set       members identical        match if $_ === $x
+    Hash    any(Hash) hash key intersection    match if exists $_{any(Hash.keys)}
     Hash    Array     hash value slice truth   match if $_{any(@$x)}
     Hash    any(list) hash key slice existence match if exists $_{any(list)}
     Hash    all(list) hash key slice existence match if exists $_{all(list)}
@@ -596,9 +598,13 @@ separate entries for lists.
     Array   Regex     array grep               match if any(@$_) ~~ /$x/
     Array   Num       array contains number    match if any($_) == $x
     Array   Str       array contains string    match if any($_) eq $x
+    Array   Buf       array equivalent to buf  match if $_ eqv Array($x)
+    Array   Set       array equivalent to set  match if Set($_) === $x
+    Array   Any       array contains item*     match if any($_) === $x
     Array   .[number] array element truth*     match if $_[number]
     Num     NumRange  in numeric range         match if $min <= $_ <= $max
     Str     StrRange  in string range          match if $min le $_ le $max
+    Any     Range     in range                 match if $min !after $_ !after $max
     Capture Signature parameter binding        match if $cap can bind to $sig
     Code    Signature signature compatibility* match if $_ is a subset of $x
   Signature Signature signature compatibility  match if $_ is a subset of $x
@@ -1699,3 +1705,4 @@ Perl 6 has 22 precedence levels (which is fewer than Perl 5):
 Comma is the only listop that is allowed to occur where an operator is
 expected.  All other listops function as a term within the list to the left.
 
+=for vim:set expandtab sw=4:

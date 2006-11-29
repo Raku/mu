@@ -1737,3 +1737,5 @@ in the class, even if they haven't been declared yet.  Role composition
 sometimes relies on this ability to determine whether a superclass supplies
 a method of a particular name if it's required and hasn't been supplied
 by the class or one of its roles.
+
+=for vim:set expandtab sw=4:

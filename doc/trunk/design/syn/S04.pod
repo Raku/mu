@@ -985,3 +985,5 @@ On the other hand, it is required that C<CATCH> and C<LEAVE> blocks be able
 to see transient variables in their current lexical scope, so their
 cloning status depends at least on the cloning status of the block
 they're in.
+
+=for vim:set expandtab sw=4:

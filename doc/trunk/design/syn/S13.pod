@@ -129,3 +129,5 @@ With the above declaration, C<$obj as "foo"> is equivalent to C<$obj as Str>,
 because the multi dispatch cares only about the class.
 
 =cut
+
+=for vim:set expandtab sw=4:

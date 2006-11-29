@@ -360,3 +360,5 @@ It's not necessary to force Perl 6 if the interpreter or command
 specified already implies it, such as use of a "C<#!/usr/bin/perl6>"
 shebang line.  Nor is it necessary to force Perl 6 in any file that
 begins with the "class" or "module" keywords.
+
+=for vim:set expandtab sw=4:

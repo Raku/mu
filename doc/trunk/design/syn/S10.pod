@@ -185,3 +185,5 @@ definition might be:
 or maybe even just:
 
     our &AUTODEF ::= &BUILD;
+
+=for vim:set expandtab sw=4:

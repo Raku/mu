@@ -3071,3 +3071,5 @@ To match against each element of an array, use a hyper operator:
      @array».match($regex);
 
 =back
+
+=for vim:set expandtab sw=4:

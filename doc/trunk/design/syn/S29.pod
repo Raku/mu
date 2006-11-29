@@ -19,4 +19,4 @@ currently lives at
 
     http://svn.openfoundry.org/pugs/docs/Perl6/Spec/Functions.pod
 
-
+=for vim:set expandtab sw=4:

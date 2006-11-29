@@ -763,3 +763,4 @@ But these ones I<do> autovivify:
 
 This rule applies to C<Array>, C<Hash>, and C<Scalar> container objects.
 
+=for vim:set expandtab sw=4:
