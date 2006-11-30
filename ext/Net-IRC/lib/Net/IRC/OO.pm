@@ -19,7 +19,7 @@ sub debug(Str $msg) is export {
   $is_fresh //= 1;
 
   print "» " if $is_fresh;
-  if $msg ~~ / $/ {
+  if $msg ~~ rx:P5/ $/ {
     print "$msg";
     $is_fresh = 0;
   } else {
@@ -30,7 +30,7 @@ sub debug(Str $msg) is export {
 sub debug_recv(Str $msg) { say "< $msg" }
 sub debug_sent(Str $msg) { say "> $msg" }
 
-class Net::IRC {
+class Net::IRC::OO {
   has Bool  $.connected;
   has Bool  $.inside;
   has Str   $.curnick;
@@ -50,6 +50,65 @@ class Net::IRC {
   has Int   $.live_timeout is rw;
   has Bool  $.debug_raw    is rw;
 
+  our class Permutation {
+    has Str $.orig is rw;
+    has Str @!perms;
+
+    submethod BUILD(Str $.orig) {
+      self.reset;
+    }
+
+    method reset() {
+      @!perms = (
+        "$.orig",
+        "{$.orig}_", "{$.orig}__",
+        "_{$.orig}", "__{$.orig}",
+        "_{$.orig}_", "__{$.orig}__",
+      );
+    }
+
+    method next() {
+      my $cur = @!perms.shift;
+      @!perms.push($cur);
+
+      return $cur;
+    }
+  }
+
+  our class Queue {
+    has Bool $.floodcontrol;
+    has Code @!queue;
+    has      $!bucket;
+
+    submethod BUILD(Bool $.floodcontrol = 0) {
+      $!bucket = $.floodcontrol
+        ?? new_bucket(rate => (1/2),    burst_size => 5)
+        !! new_bucket(rate => (1000/2), burst_size => 5000); # hack
+      $!bucket<fill>;
+    }
+
+    # Run all entries of @queue. Will need throttling later.
+    method run() {
+      my @q = splice @!queue;
+      while @q {
+        if $!bucket<conform>(1) {
+          $!bucket<count>(1);
+          @q.shift().();
+        } else {
+          last;
+        }
+      }
+      @!queue.unshift(@q);
+    }
+
+    # Enqueue a new callback
+    method enqueue(Code $code) { push @!queue, $code }
+
+    # Remove all items from the queue
+    method clear() { @!queue = () }
+  }
+
+
   # Internal things
   has Set   $!chans = set();
   has IO    $!socket;
@@ -59,7 +118,7 @@ class Net::IRC {
   has Hash  %!users;
   has Hash  %!cache353;
   has Bool  $!in_login_phase;
-  has       $!nickgen;
+  has Permutation $!nickgen;
 
   submethod BUILD(
     Str $.nick,
@@ -73,8 +132,8 @@ class Net::IRC {
     Bool $.debug_raw   = 0,
   ) {
     self!register_default_handlers;
-    $!nickgen = Permutation.new($.nick);
-    $!queue = new Queue: floodcontrol => $floodcontrol;
+    $!queue = Queue.new: floodcontrol => $floodcontrol;
+    $!nickgen = Permutation.new(orig => $!nick);
   }
 
   my method enqueue(Str $msg) {
@@ -271,6 +330,7 @@ class Net::IRC {
     });
   }
 
+
   # Instance methods
   method channels()            { $!chans.members }
   method user(Str $nick)       { %!users{normalize $nick} }
@@ -280,7 +340,7 @@ class Net::IRC {
     push %!handler{$event}: $callback;
   }
 
-  method connect() { self.reconnect }
+  #method connect() { self.reconnect }
   method reconnect() {
     self.disconnect if $.connected;
 
@@ -328,43 +388,10 @@ class Net::IRC {
       # Indicate that we're currently logging in, so our nick_already_used
       # handler can choose a different nick. $in_login_phase is reset to 0
       # when we're successfully logged in.
-      $in_login_phase++;
-      $say("NICK {$!nickgen.next}");
-      $say("USER $.username * * :$.ircname");
+      $!in_login_phase++;
+      self!send("NICK {$!nickgen.next}");
+      self!send("USER $.username * * :$.ircname");
     });
-  }
-
-  # Process $queue, wait for input from server and process it
-  method run() {
-    while $.connected {
-      $queue.run;
-      self!readline;
-      self!livecheck;
-      self!handle_pseudo("runloop");
-    }
-  }
-
-  # Read a line from the server and process it
-  method readline() {
-    my $line = readline $!socket;
-    $line ~~ s:P5/[\015\012]*$//; # Hack to remove all "\r\n"s
-    debug_recv $line if $.debug_raw;
-    # We record the time the last traffic from the server was seen, so we can
-    # autoping the server if needed.
-    $.last_traffic = time;
-
-    if $line ~~ rx:P5/^:([^ ]+) (\d+) ([^ ]+) ?(.*)$/ {
-      self!handle_numeric($line, $0, $1, $2, $3);
-    } elsif $line ~~ rx:P5/^:([^ ]+) (\w+) ([^ ]+) ?(.*)$/ {
-      self!handle_command($line, $0, $1, $2, $3);
-    } elsif $line ~~ rx:P5/^ERROR ?:?(.*)$/ {
-      debug "Error in connection (\"$0\").";
-      self.disconnect;
-    } elsif $line ~~ rx:P5/^PING ?:?(.*)$/ {
-      self!send("PONG $0");
-    } else {
-      debug "No handler found for \"$line\".";
-    }
   }
 
   # Handle numeric commands (e.g. 001 -> welcome)
@@ -408,6 +435,30 @@ class Net::IRC {
       $_($event) for %!handler{$pseudo}[];
     }
   }
+
+  # Read a line from the server and process it
+  method readline() {
+    my $line = =$!socket;
+    $line ~~ s:P5/[\015\012]*$//; # Hack to remove all "\r\n"s
+    debug_recv $line if $.debug_raw;
+    # We record the time the last traffic from the server was seen, so we can
+    # autoping the server if needed.
+    $.last_traffic = time;
+
+    if $line ~~ rx:P5/^:([^ ]+) (\d+) ([^ ]+) ?(.*)$/ {
+      self!handle_numeric($line, $0, $1, $2, $3);
+    } elsif $line ~~ rx:P5/^:([^ ]+) (\w+) ([^ ]+) ?(.*)$/ {
+      self!handle_command($line, $0, $1, $2, $3);
+    } elsif $line ~~ rx:P5/^ERROR ?:?(.*)$/ {
+      debug "Error in connection (\"$0\").";
+      self.disconnect;
+    } elsif $line ~~ rx:P5/^PING ?:?(.*)$/ {
+      self!send("PONG $0");
+    } else {
+      debug "No handler found for \"$line\".";
+    }
+  }
+
 
   # Check that our connection is still alive.
   my method livecheck() {
@@ -464,8 +515,8 @@ class Net::IRC {
     } else {
       self!enqueue("MODE $target");
     }
-  },
-  method invite(Str $channel, Str $target)  { self!enqueue("INVITE $target $channel") },
+  }
+  method invite(Str $channel, Str $target)  { self!enqueue("INVITE $target $channel") }
   method oper(Str $username, Str $password) { self!enqueue("OPER $username $password") }
 
   # PRIVMSG/NOTICE
@@ -475,70 +526,23 @@ class Net::IRC {
   # RAW
   method raw(Str $command) { self!enqueue($command) }
 
-  class Queue {
-    has Bool $.floodcontrol;
-    has Code @!queue;
-    has      $!bucket;
-
-    submethod BUILD(Bool $.floodcontrol = 0) {
-      $!bucket = $.floodcontrol
-        ?? Bucket.new(rate => (1/2),    burst_size => 5)
-        !! Bucket.new(rate => (1000/2), burst_size => 5000); # hack
-      $!bucket.fill;
-    }
-
-    # Run all entries of @queue. Will need throttling later.
-    method run() {
-      my @q = splice @!queue;
-      while @q {
-        if $!bucket.conform(1) {
-          $!bucket.count(1);
-          @q.shift().();
-        } else {
-          last;
-        }
-      }
-      @!queue.unshift(@q);
-    }
-
-    # Enqueue a new callback
-    method enqueue(Code $code) { push @!queue, $code }
-
-    # Remove all items from the queue
-    method clear() { @!queue = () }
-  }
-
-  class Permutation {
-    has Str $.orig is rw;
-    has Str @!perms;
-
-    submethod BUILD(Str $.orig) {
-      self.reset;
-    }
-
-    method reset() {
-      @!perms = (
-        "$.orig",
-        "{$.orig}_", "{$.orig}__",
-        "_{$.orig}", "__{$.orig}",
-        "_{$.orig}_", "__{$.orig}__",
-      );
-    }
-
-    method next() {
-      my $cur = @!perms.shift;
-      @!perms.push($cur);
-
-      return $cur;
-    }
-  }
-
   sub strip_colon(Str $str is copy) {
     $str = substr $str, 1 if substr($str, 0, 1) eq ":";
     return $str;
   }
 
   sub normalize(Str $str) returns Str { return lc $str }
+
+  # Process $queue, wait for input from server and process it
+  method run() {
+    while $.connected {
+      $!queue.run;
+      self.readline;
+      self!livecheck;
+      self!handle_pseudo("runloop");
+    }
+  }
+
 }
 
 =head1 NAME
