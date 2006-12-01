@@ -355,6 +355,11 @@ class Bind {
                 $.arguments.emit ~
                 '  store_lex \'' ~ (($.parameters).var).full_name ~ '\', $P0' ~ Main::newline();
         };
+        if $.parameters.isa( 'Lookup' ) {
+            return
+                $.arguments.emit ~
+                '  ... TODO: Bind ... store_lex \'' ~ ($.parameters).emit ~ '\', $P0' ~ Main::newline();
+        };
         die "Not implemented binding: " ~ $.parameters ~ Main::newline() ~ $.parameters.emit;
     }
 }
@@ -511,8 +516,22 @@ class Apply {
                 '  restore $P1'     ~ Main::newline
         };
 
-        if $code eq 'infix:<&&>' { return 'TODO ('  ~ (@.arguments.>>emit).join(' && ') ~ ')' };
-        if $code eq 'infix:<||>' { return 'TODO ('  ~ (@.arguments.>>emit).join(' || ') ~ ')' };
+        if $code eq 'infix:<&&>' {  
+            return 
+                ( ::If( cond => @.arguments[0],
+                        body => [@.arguments[1]],
+                        otherwise => [ ]
+                ) ).emit;
+        };
+
+        if $code eq 'infix:<||>' {  
+            return 
+                ( ::If( cond => @.arguments[0],
+                        body => [ ],
+                        otherwise => [@.arguments[1]] 
+                ) ).emit;
+        };
+
         if $code eq 'infix:<eq>' { 
             $label := $label + 1;
             my $id := $label;
