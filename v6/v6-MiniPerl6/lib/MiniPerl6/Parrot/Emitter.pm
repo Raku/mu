@@ -356,9 +356,20 @@ class Bind {
                 '  store_lex \'' ~ (($.parameters).var).full_name ~ '\', $P0' ~ Main::newline();
         };
         if $.parameters.isa( 'Lookup' ) {
+            my $param := $.parameters;
+            my $obj   := $param.obj;
+            my $index := $param.index;
             return
                 $.arguments.emit ~
-                '  ... TODO: Bind ... store_lex \'' ~ ($.parameters).emit ~ '\', $P0' ~ Main::newline();
+                '  save $P2'  ~ Main::newline() ~
+                '  $P2 = $P0' ~ Main::newline() ~
+                '  save $P1'  ~ Main::newline() ~
+                $obj.emit     ~
+                '  $P1 = $P0' ~ Main::newline() ~
+                $index.emit   ~
+                '  $P1[$P0] = $P2' ~ Main::newline() ~
+                '  restore $P1' ~ Main::newline() ~
+                '  restore $P2' ~ Main::newline();
         };
         die "Not implemented binding: " ~ $.parameters ~ Main::newline() ~ $.parameters.emit;
     }
