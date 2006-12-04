@@ -356,7 +356,7 @@ sub build_lib {
 
     unlink $_ for @a_file;
     $run_setup->('build');
-    (-e or die "Build failed: $?") for @a_file;
+    (-e or die "Build failed for '$_': $?") for @a_file;
 
     my $fixup = sub {
         my $module = shift; # eg. "Data.Yaml.Syck"
