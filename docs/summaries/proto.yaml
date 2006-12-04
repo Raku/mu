@@ -11,7 +11,7 @@ extra:
       body: |-
         This summary was prepared using
         [Mail::Summary::Tools](http://search.cpan.org/dist/Mail-Summary-Tools/),
-        now available on CPAN.
+        available on CPAN.
         
         If you appreciate Perl, consider [contributing to the Perl
         Foundation](http://donate.perlfoundation.org) to help support the
