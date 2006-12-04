@@ -353,7 +353,8 @@ class Bind {
         if $.parameters.isa( 'Decl' ) {
             return
                 $.arguments.emit ~
-                '  store_lex \'' ~ (($.parameters).var).full_name ~ '\', $P0' ~ Main::newline();
+                '  .lex \'' ~ (($.parameters).var).full_name ~ '\', $P0' ~ Main::newline();
+                #'  store_lex \'' ~ (($.parameters).var).full_name ~ '\', $P0' ~ Main::newline();
         };
         if $.parameters.isa( 'Lookup' ) {
             my $param := $.parameters;
@@ -554,7 +555,7 @@ class Apply {
                 '  $S1 = $P0'    ~ Main::newline() ~
                 '  restore $S0'  ~ Main::newline() ~
                 '  if $S0 == $S1 goto eq' ~ $id ~ Main::newline ~
-                '  $P0 = 0'      ~ Main::newline();
+                '  $P0 = 0'      ~ Main::newline() ~
                 '  goto eq_end' ~ $id ~ Main::newline() ~
                 'eq' ~ $id ~ ':' ~ Main::newline() ~
                 '  $P0 = 1'      ~ Main::newline() ~
@@ -571,15 +572,44 @@ class Apply {
                 '  $S1 = $P0'    ~ Main::newline() ~
                 '  restore $S0'  ~ Main::newline() ~
                 '  if $S0 == $S1 goto eq' ~ $id ~ Main::newline ~
-                '  $P0 = 1'      ~ Main::newline();
+                '  $P0 = 1'      ~ Main::newline() ~
                 '  goto eq_end' ~ $id ~ Main::newline() ~
                 'eq' ~ $id ~ ':' ~ Main::newline() ~
                 '  $P0 = 0'      ~ Main::newline() ~
                 'eq_end'  ~ $id ~ ':'  ~ Main::newline();
         };
-        if $code eq 'infix:<==>' { return 'TODO ('  ~ (@.arguments.>>emit).join(' == ') ~ ')' };
-
-        if $code eq 'infix:<!=>' { return 'TODO ('  ~ (@.arguments.>>emit).join(' != ') ~ ')' };
+        if $code eq 'infix:<==>' { 
+            $label := $label + 1;
+            my $id := $label;
+            return
+                '  save $P1'     ~ Main::newline() ~
+                (@.arguments[0]).emit ~
+                '  $P1 = $P0'    ~ Main::newline() ~
+                (@.arguments[1]).emit ~
+                '  if $P0 == $P1 goto eq' ~ $id ~ Main::newline() ~
+                '  $P0 = 0'      ~ Main::newline() ~
+                '  goto eq_end' ~ $id ~ Main::newline() ~
+                'eq' ~ $id ~ ':' ~ Main::newline() ~
+                '  $P0 = 1'      ~ Main::newline() ~
+                'eq_end'  ~ $id ~ ':'  ~ Main::newline() ~
+                '  restore $P1'  ~ Main::newline();
+        };
+        if $code eq 'infix:<!=>' { 
+            $label := $label + 1;
+            my $id := $label;
+            return
+                '  save $P1'     ~ Main::newline() ~
+                (@.arguments[0]).emit ~
+                '  $P1 = $P0'    ~ Main::newline() ~
+                (@.arguments[1]).emit ~
+                '  if $P0 == $P1 goto eq' ~ $id ~ Main::newline() ~
+                '  $P0 = 1'      ~ Main::newline() ~
+                '  goto eq_end' ~ $id ~ Main::newline() ~
+                'eq' ~ $id ~ ':' ~ Main::newline() ~
+                '  $P0 = 0'      ~ Main::newline() ~
+                'eq_end'  ~ $id ~ ':'  ~ Main::newline() ~
+                '  restore $P1'  ~ Main::newline();
+        };
 
         if $code eq 'ternary:<?? !!>' { 
             return 
