@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 13 Nov 2006
+  Last Modified: 5 Dec 2006
   Number: 3
-  Version: 76
+  Version: 77
 
 =head1 Changes to Perl 5 operators
 
@@ -582,10 +582,8 @@ separate entries for lists.
     $_      $x        Type of Match Implied    Matching Code
     ======  =====     =====================    =============
     Any     Code:($)  scalar sub truth         match if $x($_)
-    Hash    Hash      hash keys identical      match if $_.keys === $x.keys
-    Hash    Set       members identical        match if $_.keys === $x
-    Set     Set       members identical        match if $_ === $x
-    Hash    any(Hash) hash key intersection    match if exists $_{any(Hash.keys)}
+    Hash    Hash      hash keys identical sets match if $_.keys === $x.keys
+    Hash    any(Hash) hash key intersection    match if exists $_{any($x.keys)}
     Hash    Array     hash value slice truth   match if $_{any(@$x)}
     Hash    any(list) hash key slice existence match if exists $_{any(list)}
     Hash    all(list) hash key slice existence match if exists $_{all(list)}
@@ -671,6 +669,12 @@ attempt to emulate the compile-time precedence table before reverting
 to MMD, or just go directly to MMD.  There are good arguments for
 both sides, and we can decide when we see more examples of how
 it'll work out.
+
+For the purpose of smartmatching, all C<Set> and C<Bag> values are
+considered to be of type C<KeyHash>, that is, C<Hash> containers
+where the keys represent the unique objects and the values represent
+the replication count of those unique keys.  (Obviously, a C<Set> can
+have only 0 or 1 replication because of the guarantee of uniqueness).
 
 =head1 Meta operators
 
@@ -972,6 +976,9 @@ Where appropriate, use of the infix form may be optimized like this:
     # Original          # Optimized
     $a foo $b           # [foo] $a, $b
     $a foo $b foo $c    # [foo] $a, $b, $c
+
+(Note that any infix generated with C<::=> will default to the precedence
+of C<+>.  When that is not desired you must use C<is equiv>.  See S06.)
 
 If the reduction operator is defined separately from the infix operator,
 it must associate the same way as the operator used:

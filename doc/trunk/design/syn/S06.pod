@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 28 Nov 2006
+  Last Modified: 5 Dec 2006
   Number: 6
-  Version: 62
+  Version: 63
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -1366,8 +1366,8 @@ C<$x.WHICH> eqv C<$y.WHICH>).
     List        Lazy Perl list (composed of Seq and Range parts)
     Seq         Completely evaluated (hence immutable) sequence
     Range       A pair of Ordered endpoints; gens lazy Seq in list context
-    Set         Unordered Seq that allows no duplicates
-    Bag         Unordered Seq that allows duplicates
+    Set         Unordered Seq that allows no duplicates (does KeyHash, but ro)
+    Bag         Unordered Seq that allows duplicates (does KeyHash, but ro)
     Junction    Sets with additional behaviours
     Pair        Seq of two elements that serves as a one-element Mapping
     Mapping     Pairs with no duplicate keys
