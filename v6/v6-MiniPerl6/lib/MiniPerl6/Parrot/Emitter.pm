@@ -28,7 +28,7 @@ class CompUnit {
             }
         };
         $s := $s ~
-            '.end' ~ Main::newline ~ Main::newline();
+            '.end' ~ Main::newline() ~ Main::newline();
 
         # --- SUBROUTINES AND METHODS
 
@@ -100,16 +100,16 @@ class CompUnit {
 class Val::Int {
     has $.int;
     method emit {
-        '  $P0 = new .Integer' ~ Main::newline ~
-        '  $P0 = ' ~ $.int ~ Main::newline
+        '  $P0 = new .Integer' ~ Main::newline() ~
+        '  $P0 = ' ~ $.int ~ Main::newline()
     }
 }
 
 class Val::Bit {
     has $.bit;
     method emit {
-        '  $P0 = new .Integer' ~ Main::newline ~
-        '  $P0 = ' ~ $.bit ~ Main::newline
+        '  $P0 = new .Integer' ~ Main::newline() ~
+        '  $P0 = ' ~ $.bit ~ Main::newline()
     }
 }
 
@@ -280,7 +280,8 @@ class Var {
              '  $P0 = getattribute self, \'' ~ $.name ~ '\'' ~ Main::newline() 
            )
         !! (
-             '  $P0 = find_lex \'' ~ self.full_name ~ '\'' ~ Main::newline() 
+             '  $P0 = ' ~ self.full_name ~ ' ' ~ Main::newline() 
+             # '  $P0 = find_lex \'' ~ self.full_name ~ '\'' ~ Main::newline() 
            )
     };
     method name {
@@ -293,10 +294,10 @@ class Var {
         # %x    => $Hash_x
         # &x    => $Code_x
         my $table := {
-            '$' => '$',
-            '@' => '$List_',
-            '%' => '$Hash_',
-            '&' => '$Code_',
+            '$' => 'scalar_',
+            '@' => 'list_',
+            '%' => 'hash_',
+            '&' => 'code_',
         };
            ( $.twigil eq '.' )
         ?? ( 
@@ -323,10 +324,10 @@ class Bind {
             my $i := 0;
             for @$a -> $var {
                 my $bind := ::Bind( 'parameters' => $var, 'arguments' => ($b[$i]) );
-                $str := $str ~ ' ' ~ $bind.emit ~ '';
+                $str := $str ~ $bind.emit;
                 $i := $i + 1;
             };
-            return $str ~ $.parameters.emit ~ '';
+            return $str ~ $.parameters.emit;
         };
         if $.parameters.isa( 'Lit::Hash' ) {
 
@@ -348,11 +349,14 @@ class Bind {
         if $.parameters.isa( 'Var' ) {
             return
                 $.arguments.emit ~
-                '  store_lex \'' ~ $.parameters.full_name ~ '\', $P0' ~ Main::newline();
+                '  ' ~ $.parameters.full_name ~ ' = $P0' ~ Main::newline();
+                #'  store_lex \'' ~ $.parameters.full_name ~ '\', $P0' ~ Main::newline();
         };
         if $.parameters.isa( 'Decl' ) {
             return
                 $.arguments.emit ~
+                '  .local pmc ' ~ (($.parameters).var).full_name     ~ Main::newline() ~
+                '  ' ~ (($.parameters).var).full_name ~ ' = $P0'     ~ Main::newline() ~
                 '  .lex \'' ~ (($.parameters).var).full_name ~ '\', $P0' ~ Main::newline();
                 #'  store_lex \'' ~ (($.parameters).var).full_name ~ '\', $P0' ~ Main::newline();
         };
@@ -462,14 +466,14 @@ class Apply {
 
         if $code eq 'say'        {
             return
-                (@.arguments.>>emit).join( '  print $P0' ~ Main::newline ) ~
-                '  print $P0' ~ Main::newline ~
-                '  print "\n"' ~ Main::newline
+                (@.arguments.>>emit).join( '  print $P0' ~ Main::newline() ) ~
+                '  print $P0' ~ Main::newline() ~
+                '  print "\n"' ~ Main::newline()
         };
         if $code eq 'print'      {
             return
-                (@.arguments.>>emit).join( '  print $P0' ~ Main::newline ) ~
-                '  print $P0' ~ Main::newline 
+                (@.arguments.>>emit).join( '  print $P0' ~ Main::newline() ) ~
+                '  print $P0' ~ Main::newline() 
         };
         if $code eq 'array'      { return 'TODO @{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
 
@@ -506,26 +510,26 @@ class Apply {
                 (@.arguments[1]).emit ~
                 '  $S1 = $P0'    ~ Main::newline() ~
                 '  restore $S0'  ~ Main::newline() ~
-                '  $S0 = concat $S0, $S1' ~ Main::newline ~
+                '  $S0 = concat $S0, $S1' ~ Main::newline() ~
                 '  $P0 = $S0'    ~ Main::newline();
         };
         if $code eq 'infix:<+>'  { 
             return 
-                '  save $P1'        ~ Main::newline ~
+                '  save $P1'        ~ Main::newline() ~
                 (@.arguments[0]).emit ~
-                '  $P1 = $P0'       ~ Main::newline ~
+                '  $P1 = $P0'       ~ Main::newline() ~
                 (@.arguments[1]).emit ~
-                '  $P0 = $P1 + $P0' ~ Main::newline ~
-                '  restore $P1'     ~ Main::newline
+                '  $P0 = $P1 + $P0' ~ Main::newline() ~
+                '  restore $P1'     ~ Main::newline()
         };
         if $code eq 'infix:<->'  { 
             return 
-                '  save $P1'        ~ Main::newline ~
+                '  save $P1'        ~ Main::newline() ~
                 (@.arguments[0]).emit ~
-                '  $P1 = $P0'       ~ Main::newline ~
+                '  $P1 = $P0'       ~ Main::newline() ~
                 (@.arguments[1]).emit ~
-                '  $P0 = $P1 - $P0' ~ Main::newline ~
-                '  restore $P1'     ~ Main::newline
+                '  $P0 = $P1 - $P0' ~ Main::newline() ~
+                '  restore $P1'     ~ Main::newline()
         };
 
         if $code eq 'infix:<&&>' {  
@@ -554,7 +558,7 @@ class Apply {
                 (@.arguments[1]).emit ~
                 '  $S1 = $P0'    ~ Main::newline() ~
                 '  restore $S0'  ~ Main::newline() ~
-                '  if $S0 == $S1 goto eq' ~ $id ~ Main::newline ~
+                '  if $S0 == $S1 goto eq' ~ $id ~ Main::newline() ~
                 '  $P0 = 0'      ~ Main::newline() ~
                 '  goto eq_end' ~ $id ~ Main::newline() ~
                 'eq' ~ $id ~ ':' ~ Main::newline() ~
@@ -571,7 +575,7 @@ class Apply {
                 (@.arguments[1]).emit ~
                 '  $S1 = $P0'    ~ Main::newline() ~
                 '  restore $S0'  ~ Main::newline() ~
-                '  if $S0 == $S1 goto eq' ~ $id ~ Main::newline ~
+                '  if $S0 == $S1 goto eq' ~ $id ~ Main::newline() ~
                 '  $P0 = 1'      ~ Main::newline() ~
                 '  goto eq_end' ~ $id ~ Main::newline() ~
                 'eq' ~ $id ~ ':' ~ Main::newline() ~
@@ -744,8 +748,8 @@ class Decl {
            ( $decl eq 'has' )
         ?? ( '  addattribute self, "' ~ $name ~ '"' ~ Main::newline() )
         !! #$.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit;
-           ( '  $P0 = new .Undef' ~ Main::newline ~
-             '  .lex \'' ~ ($.var).full_name ~ '\', $P0' ~ Main::newline() 
+           ( '  .local pmc ' ~ ($.var).full_name ~ ' ' ~ Main::newline() ~
+             '  .lex \'' ~ ($.var).full_name ~ '\', ' ~ ($.var).full_name ~ ' ' ~ Main::newline() 
            );
     }
 }
@@ -787,7 +791,7 @@ class Method {
             '  .lex \'' ~ $invocant.full_name ~ '\', self' ~ Main::newline() ~
             $str ~
             (@.block.>>emit).join('') ~ 
-            '.end' ~ Main::newline ~ Main::newline();
+            '.end' ~ Main::newline() ~ Main::newline();
     }
 }
 
@@ -812,7 +816,7 @@ class Sub {
             '  .param pmc params  :slurpy'  ~ Main::newline() ~
             $str ~
             (@.block.>>emit).join('') ~ 
-            '.end' ~ Main::newline ~ Main::newline();
+            '.end' ~ Main::newline() ~ Main::newline();
     }
 }
 

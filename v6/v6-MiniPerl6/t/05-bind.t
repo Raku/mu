@@ -2,15 +2,19 @@ use v6-alpha;
 
 class Main {
 
-do {
-    say '1..1';
+    say '1..2';
 
     my $x := 1;
-    say $x;
     if $x != 1 {
         print 'not '
     };
     say 'ok ', $x;
-};
+
+    $x := 2;
+    if $x != 2 {
+        print 'not '
+    };
+    say 'ok ', $x;
+
 
 }

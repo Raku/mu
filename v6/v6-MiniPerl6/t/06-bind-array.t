@@ -2,43 +2,20 @@ use v6-alpha;
 
 class Main {
 
-    say '1..5';
+    say '1..2';
 
-do {
-    my $x := 6;
-    my $y := 7;
-    my $x1;
-    my $y1;
+    my $x := 1;
+    my $y := 2;
+    my $x1 := 0;
+    my $y1 := 0;
     [ $x1, $y1 ] := [ $x, $y ];
-    if $x1 != 6 {
+    if $x1 != 1 {
         print 'not '
     };
-    say 'ok';
-    if $y1 != 7 {
+    say 'ok ', $x1;
+    if $y1 != 2 {
         print 'not '
     };
-    say 'ok';
-};
-
-do {
-    my $x := 9;
-    my $y := 10;
-    my $x1;
-    my $y1;
-    my $z1;
-    [ $x1, [ $y1, $z1 ] ] := [ $x, [$y, 11] ];
-    if $x1 != 9 {
-        print 'not '
-    };
-    say 'ok';
-    if $y1 != 10 {
-        print 'not '
-    };
-    say 'ok';
-    if $z1 != 11 {
-        print 'not '
-    };
-    say 'ok';
-};
+    say 'ok ', $y1;
 
 }
