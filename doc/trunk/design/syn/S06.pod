@@ -2432,10 +2432,8 @@ The standard C<pair> list operator is equivalent to:
 or more succinctly (and lazily):
 
     sub pair (*@LIST) {
-        gather {
-            for @LIST -> $key, $val {
-                take $key => $val;
-            }
+        gather for @LIST -> $key, $val {
+            take $key => $val;
         }
     }
 

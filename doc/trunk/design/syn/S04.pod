@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 16 Oct 2006
+  Last Modified: 5 Dec 2006
   Number: 4
-  Version: 44
+  Version: 45
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -405,6 +405,12 @@ function, you must use an explicit prefix such as C<return> or C<sub>
 or C<< -> >>.  (Use of a placeholder parameter is deemed insufficiently
 explicit because it's not out front where it can be seen.  You can, of
 course, use a placeholder parameter if you also use C<return>.)
+
+A variant of C<do> is C<gather>.  Like C<do>, it is followed by a
+statement or block, and executes it once.  Unlike C<do>, its return
+value is a specified by calling the C<take> function one or more
+times within the dynamic scope of the gather.  The returned values are
+flattened into a lazy list.
 
 =head1 Switch statements
 
