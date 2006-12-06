@@ -161,17 +161,25 @@ class Bind {
             return $str ~ $.parameters.emit ~ ' }';
         };
         if $.parameters.isa( 'Lit::Hash' ) {
-            
+
             #  {:$a, :$b} := { a => 1, b => [2, 3]}
-            
-            # XXX TODO - this is *not* right
-            
+
             my $a := $.parameters.hash;
             my $b := $.arguments.hash;
             my $str := 'do { ';
             my $i := 0;
-            for @$a -> $var { 
-                my $bind := ::Bind( 'parameters' => $var[0], 'arguments' => ($b[$i])[1] );
+            my $arg;
+            for @$a -> $var {
+
+                $arg := ::Val::Undef();
+                for @$b -> $var2 {
+                    #say "COMPARE ", ($var2[0]).buf, ' eq ', ($var[0]).buf;
+                    if ($var2[0]).buf eq ($var[0]).buf {
+                        $arg := $var2[1];
+                    }
+                };
+
+                my $bind := ::Bind( 'parameters' => $var[1], 'arguments' => $arg );
                 $str := $str ~ ' ' ~ $bind.emit ~ '; ';
                 $i := $i + 1;
             };
