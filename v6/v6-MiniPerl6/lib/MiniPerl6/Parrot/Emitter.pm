@@ -384,6 +384,22 @@ class Bind {
                 '  restore $P1' ~ Main::newline() ~
                 '  restore $P2' ~ Main::newline();
         };
+        if $.parameters.isa( 'Index' ) {
+            my $param := $.parameters;
+            my $obj   := $param.obj;
+            my $index := $param.index;
+            return
+                $.arguments.emit ~
+                '  save $P2'  ~ Main::newline() ~
+                '  $P2 = $P0' ~ Main::newline() ~
+                '  save $P1'  ~ Main::newline() ~
+                $obj.emit     ~
+                '  $P1 = $P0' ~ Main::newline() ~
+                $index.emit   ~
+                '  $P1[$P0] = $P2' ~ Main::newline() ~
+                '  restore $P1' ~ Main::newline() ~
+                '  restore $P2' ~ Main::newline();
+        };
         die "Not implemented binding: " ~ $.parameters ~ Main::newline() ~ $.parameters.emit;
     }
 }
