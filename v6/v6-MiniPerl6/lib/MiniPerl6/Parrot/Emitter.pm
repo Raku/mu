@@ -416,7 +416,7 @@ class Call {
     has $.hyper;
     has $.method;
     has @.arguments;
-    has $.hyper;
+    #has $.hyper;
     method emit {
         if     ($.method eq 'perl')
             || ($.method eq 'yaml')

@@ -185,6 +185,28 @@ class Bind {
             };
             return $str ~ $.parameters.emit ~ ' }';
         };
+
+        if $.parameters.isa( 'Lit::Object' ) {
+
+            #  ::Obj(:$a, :$b) := $obj
+
+            my $class := $.parameters.class;
+            my $a     := $.parameters.fields;
+            my $b     := $.arguments;
+            my $str   := 'do { ';
+            my $i     := 0;
+            my $arg;
+            for @$a -> $var {
+                my $bind := ::Bind( 
+                    'parameters' => $var[1], 
+                    'arguments'  => ::Call( invocant => $b, method => ($var[0]).buf, arguments => [ ], hyper => 0 )
+                );
+                $str := $str ~ ' ' ~ $bind.emit ~ '; ';
+                $i := $i + 1;
+            };
+            return $str ~ $.parameters.emit ~ ' }';
+        };
+    
         $.parameters.emit ~ ' = ' ~ $.arguments.emit;
     }
 }
@@ -201,7 +223,7 @@ class Call {
     has $.hyper;
     has $.method;
     has @.arguments;
-    has $.hyper;
+    #has $.hyper;
     method emit {
         my $invocant := $.invocant.emit;
         if $invocant eq 'self' {
