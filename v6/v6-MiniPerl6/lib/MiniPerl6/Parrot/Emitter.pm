@@ -339,20 +339,39 @@ class Bind {
             my $i := 0;
             my $arg;
             for @$a -> $var {
-
                 $arg := ::Val::Undef();
                 for @$b -> $var2 {
-                    #say "COMPARE ", ($var2[0]).buf, ' eq ', ($var[0]).buf;
                     if ($var2[0]).buf eq ($var[0]).buf {
                         $arg := $var2[1];
                     }
                 };
-
                 my $bind := ::Bind( 'parameters' => $var[1], 'arguments' => $arg );
-                $str := $str ~ ' ' ~ $bind.emit ~ '';
+                $str := $str ~ $bind.emit;
                 $i := $i + 1;
             };
-            return $str ~ $.parameters.emit ~ '';
+            return $str ~ $.parameters.emit;
+        };
+        if $.parameters.isa( 'Lit::Object' ) {
+
+            #  ::Obj(:$a, :$b) := $obj
+
+            my $class := $.parameters.class;
+            my $a     := $.parameters.fields;
+            my $b     := $.arguments;
+            my $str   := '';
+            for @$a -> $var {
+                my $bind := ::Bind( 
+                    'parameters' => $var[1], 
+                    'arguments'  => ::Call( 
+                        invocant  => $b, 
+                        method    => ($var[0]).buf, 
+                        arguments => [ ], 
+                        hyper     => 0 
+                    )
+                );
+                $str := $str ~ $bind.emit;
+            };
+            return $str ~ $.parameters.emit;
         };
         if $.parameters.isa( 'Var' ) {
             return
@@ -407,7 +426,7 @@ class Bind {
 class Proto {
     has $.name;
     method emit {
-        ~$.name
+        '  $P0 = ' ~ $.name ~ Main::newline()
     }
 }
 
@@ -462,7 +481,7 @@ class Call {
                 '  $P' ~ $i ~ ' = $P0' ~ Main::newline();
             $i := $i + 1;
         };
-        $str := $str ~ '  $P0 = ' ~ $.invocant.emit ~ Main::newline() ~
+        $str := $str ~ $.invocant.emit ~
             '  $P0 = $P0.' ~ $meth ~ '('; 
         #$str := $str ~ '  ' ~ $.code ~ '(';
         $i := 0;
@@ -863,7 +882,7 @@ class Use {
 
 =head1 NAME
 
-MiniPerl6::Perl5::Emit - Code generator for MiniPerl6-in-Perl5
+MiniPerl6::Parrot::Emit - Code generator for MiniPerl6-in-Parrot
 
 =head1 SYNOPSIS
 
@@ -871,7 +890,7 @@ MiniPerl6::Perl5::Emit - Code generator for MiniPerl6-in-Perl5
 
 =head1 DESCRIPTION
 
-This module generates Perl5 code for the MiniPerl6 compiler.
+This module generates Parrot code for the MiniPerl6 compiler.
 
 =head1 AUTHORS
 
