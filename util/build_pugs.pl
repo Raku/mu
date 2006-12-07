@@ -427,22 +427,32 @@ sub build_lib {
     }
 }
 
+sub packages {
+    map { +("-package" => $_) } @_;
+}
+
 sub build_exe {
     my $version     = shift;
     my $ghc         = shift;
     my $ghc_version = shift;
+
+    my @pkgs = '-hide-all-packages';
+
+    my $push_pkgs = sub { push @pkgs, packages(@_) };
+
     #my @o = qw( src/pcre/pcre.o src/syck/bytecode.o src/syck/emitter.o src/syck/gram.o src/syck/handler.o src/syck/implicit.o src/syck/node.o src/syck/syck.o src/syck/syck_st.o src/syck/token.o src/syck/yaml2byte.o src/cbits/fpstring.o );
     #push @o, 'src/UnicodeC.o' if grep /WITH_UNICODEC/, @_;
     #system $ghc, '--make', @_, @o, '-o' => 'pugs', 'src/Main.hs';
-    my @pkgs = qw(-hide-all-packages -package stm -package network -package mtl -package template-haskell -package base -package pugs-fps -package pugs-HsSyck );
+
+    $push_pkgs->(qw(stm network mtl template-haskell base pugs-fps pugs-HsSyck));
     if ($^O =~ /(?:MSWin32|mingw|msys|cygwin)/) {
-        push @pkgs, -package => 'Win32' unless $ghc_version =~ /^6.4(?:.0)?$/;
+        $push_pkgs->('Win32') unless $ghc_version =~ /^6.4(?:.0)?$/;
     }
     else {
-        push @pkgs, -package => 'unix';
+        $push_pkgs->('unix');
     }
-    push @pkgs, -package => 'readline' if grep /^-DPUGS_HAVE_READLINE$/, @_;
-    push @pkgs, -package => 'plugins', -package => 'haskell-src' if grep /^-DPUGS_HAVE_HSPLUGINS$/, @_;
+    $push_pkgs->('readline')              if grep /^-DPUGS_HAVE_READLINE$/,  @_;
+    $push_pkgs->(qw(plugins haskell-src)) if grep /^-DPUGS_HAVE_HSPLUGINS$/, @_;
     my @libs = "-lHSPugs-$version" . ($want_profiling ? '_p' : '');
     push @libs, grep /^-opt/, @_;
     push @libs, grep /^-[lL]/, @_;
@@ -465,7 +475,7 @@ sub build_exe {
     unlink 'src/Main.o';
     unlink 'src/Main.hi';
 
-    push @pkgs, "-package" => "Pugs"; #-$version";
+    $push_pkgs->('Pugs'); #"-$version";
 
     @_ = ('--make', @pkgs, qw(-optl-Lthird-party/installed -o ), "$out.new", qw( src/Main.hs ), @libs);
     #@_ = (@pkgs, qw(-idist/build -Ldist/build -idist/build/src -Ldist/build/src -o pugs src/Main.hs), @libs);
@@ -482,54 +492,52 @@ sub build_exe {
 }
 
 sub write_buildinfo { 
-    my $version = shift;
-    my $ghc = shift;
-    my $ghc_pkg = shift;
-    my $ghc_version = shift;
+    my ($version, $ghc, $ghc_pkg, $ghc_version, @args) = @_;
 
     open IN, "< Pugs.cabal.in" or die $!;
     open OUT, "> Pugs.cabal" or die $!;
 
     my $depends = '';
+    my $add_dep = sub { $depends .= ", $_" for @_ };
+    my $cond_dep = sub {
+        my $arg = shift;
+        $add_dep->(@_) if grep /^-D\Q$arg\E$/, @args;
+    };
+
     if ($^O =~ /(?:MSWin32|mingw|msys|cygwin)/) {
-        $depends = ', Win32 -any' unless $ghc_version =~ /^6.4(?:.0)?$/;
+        $add_dep->('Win32 -any') unless $ghc_version =~ /^6.4(?:.0)?$/;
     }
     else {
-        $depends = ', unix -any';
+        $add_dep->('unix -any');
     }
 
-    if (grep /^-DPUGS_HAVE_HSPLUGINS$/, @_) {
-        $depends .= ', plugins -any, haskell-src -any';
-    }
-
-    if (grep /^-DPUGS_HAVE_READLINE$/, @_) {
-        $depends .= ', readline -any';
-    }
+    $cond_dep->('PUGS_HAVE_HSPLUGINS', 'plugins -any', 'haskell-src -any');
+    $cond_dep->('PUGS_HAVE_READLINE',  'readline -any');
 
     my $perl5_c = '';
-    if (grep /^-DPUGS_HAVE_PERL5$/, @_) {
+    if (grep /^-DPUGS_HAVE_PERL5$/, @args) {
         $perl5_c = 'src/perl5/p5embed.c';
     }
 
     my $parrot_c = '';
-    if (grep /^-DPUGS_HAVE_PARROT$/, @_) {
+    if (grep /^-DPUGS_HAVE_PARROT$/, @args) {
         $parrot_c = 'src/pge/parrotembed.c';
     }
 
     # Remove -Wl flags in Perl5 embedding.
-    @_ = grep { !/^-W/ } @_;
+    @args = grep { !/^-W/ } @args;
 
     # Remove -threaded if we are building profiled.
-    @_ = grep { !/^-threaded/ } @_ if $want_profiling;
+    @args = grep { !/^-threaded/ } @args if $want_profiling;
 
     my @include_dirs = grep { -d $_ }
             map File::Spec->canonpath(substr($_, 2)),
-            grep /^-I/, @_;
+            grep /^-I/, @args;
     my @lib_dirs = grep { -d $_ }
             map File::Spec->canonpath(substr($_, 2)),
-            grep /^-L/, @_;
-    my @libs = map substr($_, 2), grep /^-l/, @_;
-    #push @libs, grep /\.(?:a|o(?:bj)?)$/, @_;
+            grep /^-L/, @args;
+    my @libs = map substr($_, 2), grep /^-l/, @args;
+    #push @libs, grep /\.(?:a|o(?:bj)?)$/, @args;
 
     my $has_new_cabal = (`$ghc_pkg describe Cabal` =~ /version: 1\.[1-9]/i);
 
@@ -541,7 +549,7 @@ sub write_buildinfo {
         else {
             s/pugs-fps -any, pugs-HsSyck -any, //;
         }
-        s/__OPTIONS__/@_/;
+        s/__OPTIONS__/@args/;
         s/__VERSION__/$version/;
         s/__DEPENDS__/$depends/;
         s/__PERL5_C__/$perl5_c/;
