@@ -9,6 +9,7 @@ my $x = (1,2,3);
 sub foo (@x) {...}
 foo($x);
 
+## update: 'use v5' is no longer supported
 use v5;
 
 my $x = SomeInternalFunctionToMakeLockedArrayRef([1,2,3]);
@@ -104,3 +105,9 @@ foo($x);
 # Not Imported In MiniPerl6
 macro statement_control:<is> {...}
 
+update:
+Implementation-specific limitations in the Parrot backend:
+
+    - 'for' variables need to be predeclared
+    - blocks do not create a new lexical pad
+    - variables should never be re-declared (infinite loop in Parrot 0.4.7)

@@ -92,6 +92,7 @@ package Main;
     sub say   { print join( '', @_, "\n" ) }
     sub chars { length( $_[0] ) }
     sub newline { "\n" }
+    sub quote   { '"' }
     sub isa { 
            ref( $_[0] ) eq $_[1]
         || ref( $_[0] ) eq ref( $_[1] ) 

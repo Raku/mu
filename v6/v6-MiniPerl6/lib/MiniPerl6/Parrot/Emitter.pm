@@ -7,11 +7,12 @@ class CompUnit {
     has @.body;
     method emit {
         my $a := @.body;
+        my $item;
         
         # --- SETUP NAMESPACE
         
         my $s :=   
-            '.namespace [ "' ~ $.name ~ '" ] ' ~ Main::newline() ~
+            '.namespace [ ' ~ Main::quote ~ $.name ~ Main::quote ~ ' ] ' ~ Main::newline() ~
             #'.sub "__onload" :load' ~ Main::newline() ~
             #'.end'                ~ Main::newline() ~ Main::newline() ~
             '.sub _ :main'        ~ Main::newline() ~
@@ -19,7 +20,7 @@ class CompUnit {
 
         # --- SETUP CLASS VARIABLES
 
-            '.sub "_class_vars_"' ~ Main::newline();
+            '.sub ' ~ Main::quote ~ '_class_vars_' ~ Main::quote ~ Main::newline();
         for @$a -> $item {
             if    ( $item.isa( 'Decl' ) )
                && ( $item.decl ne 'has' ) 
@@ -48,14 +49,14 @@ class CompUnit {
             {
                 my $name := ($item.var).name;
                 $s := $s ~
-            '.sub "' ~ $name ~ '" :method'       ~ Main::newline() ~ 
+            '.sub ' ~ Main::quote ~ $name ~ Main::quote ~ ' :method'       ~ Main::newline() ~ 
             '  .param pmc val      :optional'    ~ Main::newline() ~
             '  .param int has_val  :opt_flag'    ~ Main::newline() ~
             '  unless has_val goto ifelse'       ~ Main::newline() ~
-            '  setattribute self, "' ~ $name ~ '", val' ~ Main::newline() ~
+            '  setattribute self, ' ~ Main::quote ~ $name ~ Main::quote ~ ', val' ~ Main::newline() ~
             '  goto ifend'        ~ Main::newline() ~
             'ifelse:'             ~ Main::newline() ~
-            '  val = getattribute self, "' ~ $name ~ '"' ~ Main::newline() ~
+            '  val = getattribute self, ' ~ Main::quote ~ $name ~ Main::quote ~ Main::newline() ~
             'ifend:'              ~ Main::newline() ~
             '  .return(val)'      ~ Main::newline() ~
             '.end'                ~ Main::newline() ~ Main::newline();
@@ -66,9 +67,9 @@ class CompUnit {
         # --- IMMEDIATE STATEMENTS
 
         $s := $s ~ 
-            '.sub _ :anon :load :init :outer("_class_vars_")' ~ Main::newline() ~
+            '.sub _ :anon :load :init :outer(' ~ Main::quote ~ '_class_vars_' ~ Main::quote ~ ')' ~ Main::newline() ~
             '  .local pmc self'   ~ Main::newline() ~
-            '  newclass self, "' ~ $.name ~ '"' ~ Main::newline();
+            '  newclass self, ' ~ Main::quote ~ $.name ~ Main::quote ~ Main::newline();
         for @$a -> $item {
             if    ( $item.isa( 'Decl' ) )
                && ( $item.decl eq 'has' ) 
@@ -125,7 +126,7 @@ class Val::Buf {
     has $.buf;
     method emit {
         '  $P0 = new .String' ~ Main::newline ~
-        '  $P0 = \'' ~ $.buf ~ '\'' ~ Main::newline
+        '  $P0 = ' ~ Main::quote ~ $.buf ~ Main::quote ~ Main::newline
     }
 }
 
@@ -156,6 +157,7 @@ class Lit::Array {
     has @.array;
     method emit {
         my $a := @.array;
+        my $item;
         my $s := 
             '  save $P1' ~ Main::newline() ~
             '  $P1 = new .ResizablePMCArray' ~ Main::newline();
@@ -175,6 +177,7 @@ class Lit::Hash {
     has @.hash;
     method emit {
         my $a := @.hash;
+        my $item;
         my $s := 
             '  save $P1' ~ Main::newline() ~
             '  save $P2' ~ Main::newline() ~
@@ -211,7 +214,7 @@ class Lit::Object {
         $str := 
             '  save $P1' ~ Main::newline() ~
             '  save $S2' ~ Main::newline() ~
-            '  $P1 = new "' ~ $.class ~ '"' ~ Main::newline();
+            '  $P1 = new ' ~ Main::quote ~ $.class ~ Main::quote ~ Main::newline();
         for @$fields -> $field {
             $str := $str ~ 
                 ($field[0]).emit ~ 
@@ -419,7 +422,7 @@ class Bind {
                 '  restore $P1' ~ Main::newline() ~
                 '  restore $P2' ~ Main::newline();
         };
-        die "Not implemented binding: " ~ $.parameters ~ Main::newline() ~ $.parameters.emit;
+        die 'Not implemented binding: ' ~ $.parameters ~ Main::newline() ~ $.parameters.emit;
     }
 }
 
@@ -441,8 +444,8 @@ class Call {
             || ($.method eq 'yaml')
             || ($.method eq 'say' )
             || ($.method eq 'join')
-            || ($.method eq 'chars')
-            || ($.method eq 'isa')
+            # || ($.method eq 'chars')
+            # || ($.method eq 'isa')
         {
             if ($.hyper) {
                 return
@@ -507,18 +510,27 @@ class Apply {
 
         my $code := $.code;
 
+        if $code eq 'die'        {
+            return
+                '  $P0 = new .Exception' ~ Main::newline() ~
+                '  $P0[' ~ Main::quote ~ '_message' ~ Main::quote ~ '] = ' ~ Main::quote ~ 'something broke' ~ Main::quote ~ Main::newline() ~
+                '  throw $P0' ~ Main::newline();
+        };
+
         if $code eq 'say'        {
             return
                 (@.arguments.>>emit).join( '  print $P0' ~ Main::newline() ) ~
                 '  print $P0' ~ Main::newline() ~
-                '  print "\n"' ~ Main::newline()
+                '  print ' ~ Main::quote ~ '\\' ~ 'n' ~ Main::quote ~ Main::newline()
         };
         if $code eq 'print'      {
             return
                 (@.arguments.>>emit).join( '  print $P0' ~ Main::newline() ) ~
                 '  print $P0' ~ Main::newline() 
         };
-        if $code eq 'array'      { return 'TODO @{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
+        if $code eq 'array'      { 
+            return '  # TODO - array() is no-op' ~ Main::newline();
+        };
 
         if $code eq 'prefix:<~>' { 
             return 
@@ -541,10 +553,16 @@ class Apply {
                 ) ).emit;
         };
 
-        if $code eq 'prefix:<$>' { return 'TODO ${' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
-        if $code eq 'prefix:<@>' { return 'TODO @{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
-        if $code eq 'prefix:<%>' { return 'TODO %{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
-
+        if $code eq 'prefix:<$>' { 
+            return '  # TODO - prefix:<$> is no-op' ~ Main::newline();
+        };
+        if $code eq 'prefix:<@>' { 
+            return '  # TODO - prefix:<@> is no-op' ~ Main::newline();
+        };
+        if $code eq 'prefix:<%>' { 
+            return '  # TODO - prefix:<%> is no-op' ~ Main::newline();
+        };
+        
         if $code eq 'infix:<~>'  { 
             return 
                 (@.arguments[0]).emit ~
@@ -695,6 +713,7 @@ class Apply {
         my @args := @.arguments;
         my $str := '';
         my $ii := 10;
+        my $arg;
         for @args -> $arg {
             $str := $str ~ '  save $P' ~ $ii ~ Main::newline();
             $ii := $ii + 1;
@@ -789,7 +808,7 @@ class Decl {
         my $decl := $.decl;
         my $name := $.var.name;
            ( $decl eq 'has' )
-        ?? ( '  addattribute self, "' ~ $name ~ '"' ~ Main::newline() )
+        ?? ( '  addattribute self, ' ~ Main::quote ~ $name ~ Main::quote ~ Main::newline() )
         !! #$.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit;
            ( '  .local pmc ' ~ ($.var).full_name ~ ' ' ~ Main::newline() ~
              '  .lex \'' ~ ($.var).full_name ~ '\', ' ~ ($.var).full_name ~ ' ' ~ Main::newline() 
@@ -822,6 +841,7 @@ class Method {
         my $pos := $sig.positional;
         my $str := '';
         my $i := 0;
+        my $field;
         for @$pos -> $field {
             $str := $str ~ 
                 '  $P0 = params[' ~ $i ~ ']' ~ Main::newline() ~
@@ -829,7 +849,8 @@ class Method {
             $i := $i + 1;
         };
         return          
-            '.sub "' ~ $.name ~ '" :method :outer("_class_vars_")' ~ Main::newline() ~
+            '.sub ' ~ Main::quote ~ $.name ~ Main::quote ~ 
+                ' :method :outer(' ~ Main::quote ~ '_class_vars_' ~ Main::quote ~ ')' ~ Main::newline() ~
             '  .param pmc params  :slurpy'  ~ Main::newline() ~
             '  .lex \'' ~ $invocant.full_name ~ '\', self' ~ Main::newline() ~
             $str ~
@@ -848,6 +869,7 @@ class Sub {
         my $pos := $sig.positional;
         my $str := '';
         my $i := 0;
+        my $field;
         for @$pos -> $field {
             $str := $str ~ 
                 '  $P0 = params[' ~ $i ~ ']' ~ Main::newline() ~
@@ -855,7 +877,8 @@ class Sub {
             $i := $i + 1;
         };
         return          
-            '.sub "' ~ $.name ~ '" :outer("_class_vars_")' ~ Main::newline() ~
+            '.sub ' ~ Main::quote ~ $.name ~ Main::quote ~ 
+                ' :outer(' ~ Main::quote ~ '_class_vars_' ~ Main::quote ~ ')' ~ Main::newline() ~
             '  .param pmc params  :slurpy'  ~ Main::newline() ~
             $str ~
             (@.block.>>emit).join('') ~ 
@@ -874,7 +897,7 @@ class Do {
 class Use {
     has $.mod;
     method emit {
-        '  .include "' ~ $.mod ~ '"' ~ Main::newline()
+        '  .include ' ~ Main::quote ~ $.mod ~ Main::quote ~ Main::newline()
     }
 }
 

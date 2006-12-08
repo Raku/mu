@@ -8,7 +8,9 @@ Bootstrapping MiniPerl6 in Perl5
 
 Bootstrapping MiniPerl6 in Parrot
 
-- finish OO, variables
+- finish OO, class variables
+
+- fix die() parameter handling
 
 - rewrite mp6-parrot.pl in parrot (or mp6)
 
