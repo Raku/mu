@@ -510,7 +510,8 @@ my @sorted_di_numstr = list(<z y x>, <C B A>, reverse(1..3, 10..12)),
     my @sorted;
 
     # Not sure you can have traits on objects but
-    # L<S29/List/=item sort> says that any Ordering
+    # L<S29/List/"=item sort">
+    # says that any Ordering
     # can have `descending` and `canonicalized($how)` traits.
     ok(eval('@sorted = p6sort ( { $_ } => {
         given $^a {

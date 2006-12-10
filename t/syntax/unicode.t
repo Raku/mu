@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 26;
+plan 28;
 
 # L<S02/"Lexical Conventions"/"Perl is written in Unicode">
 
@@ -43,6 +43,11 @@ is(try {my $الصفحة = 2; $الصفحة}, 2, "evaluation");
 # hebrew
 ok(try {my $פוו; sub לה {}; 1}, "hebrew declaration");
 is(try {my $באר = 2; sub זהות ($x) { $x }; זהות($באר)}, 2, "evaluation");
+
+# magyar
+ok(try {my $aáeéiíoóöőuúüű ; 1}, "magyar declaration");
+is(try {my $áéóőöúűüí = 42; sub űáéóőöúüí ($óőöú) { $óőöú }; űáéóőöúüí($áéóőöúűüí)}, 
+       42, "evaluation");
 
 # russian
 ok(try {my $один; sub раз {}; 1}, "russian declaration");
