@@ -65,7 +65,7 @@ lists:
         subject: '[svn:perl6-synopsis] r13487 - doc/trunk/design/syn'
         summary: |-
           Last week,
-          A commit from Larry Wall related to expanding tabs led TSa to ask
+          a commit from Larry Wall related to expanding tabs led TSa to ask
           if array equivalence should be defined in terms of Bags.  Larry replied
           that he felt most people would prefer to look at Sets and Bags as Hashes,
           so he will not include Sets and Bags in the smartmatching table.  Darren
