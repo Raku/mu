@@ -23,7 +23,6 @@ for ('/usr/dict/words', @spelfiles) -> $f {
 }
 my %bad;
 for =<> {
-   my @words = split /\s+/, $_;
-   for @words -> $w { %bad{$w}++ unless %WORDS{lc $w}; }
+   for .comb -> $w { %bad{$w}++ unless %WORDS{lc $w}; }
 }
-say for sort keys %bad;
+.say for sort keys %bad;
