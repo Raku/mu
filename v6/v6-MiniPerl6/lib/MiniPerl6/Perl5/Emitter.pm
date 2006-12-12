@@ -404,10 +404,23 @@ class Sub {
         ## my $invocant := $sig.invocant; 
         # say $invocant.emit;
         my $pos := $sig.positional;
-        my $str := '';
+        my $str := 'my $List__ = \@_; ';
+
+        #my $bind := ::Bind( 
+        #    'parameters' => ::Lit::Array( array => $sig.positional ), 
+        #    'arguments' => [ ::Var( sigil => '@', twigil => '', name => '_' ) ]
+        #);
+
         my $i := 0;
         for @$pos -> $field { 
-            $str := $str ~ 'my ' ~ $field.emit ~ ' = $_[' ~ $i ~ ']; ';
+            my $bind := ::Bind( 
+                'parameters' => $field, 
+                'arguments'  => ::Index(
+                        obj    => ::Var( sigil => '@', twigil => '', name => '_' ),
+                        index  => ::Val::Int( int => $i )
+                    ),
+                );
+            $str := $str ~ $bind.emit ~ '; ';
             $i := $i + 1;
         };
         'sub ' ~ $.name ~ ' { ' ~ 
