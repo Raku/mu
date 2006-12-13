@@ -1,8 +1,7 @@
-Bootstrapping MiniPerl6 in Perl5
+MiniPerl6 in Perl5
 
-- reduce the amount of RAM needed to recompile MP6
-
-- Recompile it several times using itself, in order to check the stability of the Bootstrap
+- generate 'my' variables for subroutine signatures;
+  currently depends on autovivification
 
 - Freeze the project, because it can be useful to bootstrap other VMs
 
@@ -51,10 +50,4 @@ Missing Features of the Token sub-compiler
 
 Bugs
 
-- Hash binding implementation is wrong
-
-- 'for' loops always need to specify '@{}', as in:  for ( @$a ) {...}
-  even if the variable has a '@' sigil - FIXED
-
-- binding ':=' and param binding should share implementations 
-
+- ...
