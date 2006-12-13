@@ -124,7 +124,8 @@ href="http://dev.perl.org/perl 6/">Perl&nbsp;6</a>. Please <a
 href="http://feather.perl6.nl/~andara/runpugs/">read the documentation</a>.
 </p>
    -->                            
-<form id="term" name="terminal" action="/cgi-bin/runpugs2" method="POST">                  
+   <!-- _MOTD_ -->
+<form id="term" name="terminal" action="/cgi-bin/runpugs" method="POST">                  
 <input type="hidden" name="prompt" value="_PROMPTW_">
 <input type="hidden" name="sessionid" value="">
 <input type="hidden"    name="ia" value="1">
@@ -133,11 +134,6 @@ href="http://feather.perl6.nl/~andara/runpugs/">read the documentation</a>.
 for="rel">Release version</label>&nbsp;&nbsp;
 <input type="radio" id="dev" value="1" name="reldev" _DEV_ ><label
 for="dev">Development version</label>
-<!--
-<br><br>
-<span class="tabon">Interactive Pugs Session</span>
-&nbsp;&nbsp;<a class="taboff" href="/cgi-bin/runpugs2?ia=0">Run a Perl 6 Script</a>
--->
 <div id="termwindow">
 <select name="history" id="hist" onChange="select_enter()">
 <option value="">--- Recent commands ---</option>

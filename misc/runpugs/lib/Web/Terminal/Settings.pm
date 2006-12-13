@@ -35,6 +35,7 @@ server
 cgi_path
 data_path
 tmp_path
+log_path
 nrecent
 );
 
@@ -70,6 +71,7 @@ our $filter_pattern='';
 our $cgi_path='/home/andara/apache/cgi-bin/';
 our $data_path='/home/andara/apache/data/';
 our $tmp_path='/home/andara/apache/data/tmp/';
+our $log_path='/home/andara/apache/data/log/';
 our $daemon=1;
 our $port=2057;
 our $host='localhost';
@@ -77,8 +79,8 @@ our $host='localhost';
 our $nsessions=50;
 our $nsessions_ip=10;
 
-our $timeout_idle=600;
-our $timeout_call=10;
+our $timeout_idle=600; # was 600
+our $timeout_call=30; #  was 10
 our $check_interval=60;
 our $nlines=250;
 our $nchars=250;

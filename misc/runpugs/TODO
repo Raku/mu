@@ -1,12 +1,17 @@
-runpugs version 0.1.0 TODO:
+runpugs version 0.2.0 TODO:
 
-2006/10/12
+2006/12/06
 * Unicode: hack Net::Telnet so it handles Unicode
-* Refactor to make more generic
-    -prompt handling should be in cgi-bin/runpugs, not in Dispatcher.pm
-    -Various configuration variables should be in a Config.pm module, 
-     and be overriden from the scripts.
-    -let Dispatcher::send() return reply and prompt separately
-* add POD
+* Improve POD
 * Add proper copyright & licensing info, in particular to Msg.pm
-* use async JavaScript for front-end? cfr. tryruby.hobix.com
+* Put more functionality in JS (clear, timeout, history)
+* Use true AJAX for front-end (prototype.js)
+* Convert to Perl: this is a nice long-term goal. 
+    Perl 5 Modules to be ported:
+    - IO::Pty (xs based)
+    - Proc::Daemon
+    - A stripped-down Net::Telnet, purely to manage communication via IO::Pty
+    - YAML::Syck (xs based)
+    - The Perl 6 equivalents of POSIX, Errno, IO::Select, Carp
+   Of course we can use the Perl 5 implementations for the time being.
+* Test mod_perl; tailor code for mod_perl?   

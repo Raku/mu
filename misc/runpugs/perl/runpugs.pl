@@ -28,7 +28,7 @@ use Web::Terminal::Dispatcher;
 my $MAX_SIZE_UPLOAD = 64;
 use CGI qw(:standard);
 if ($MAX_SIZE_UPLOAD) { $CGI::POST_MAX=1024 * $MAX_SIZE_UPLOAD; }
-use CGI::Carp qw(fatalsToBrowser);
+#use CGI::Carp qw(fatalsToBrowser);
 use HTML::Entities;
 
 #CGI::nph();   # Treat script as a non-parsed-header script
@@ -47,29 +47,16 @@ my $now=time()-1159056000; # 36 year, 275 days offset
 $sessionid=$nid.$now;
 }
 
-my $access_OK=1; # no restrictions
-
-#my $lang_charset = 'iso-8859-1';
-my $lang_charset = 'utf-8';
-
-# once we print the header, we don't want to do it again if there's an error
-my $headerprinted = 0;
-my $validsession = 0;
-
 my $ip=$ENV{'REMOTE_ADDR'};
 #my $ip="127.0.0.".int(rand(100));
 #if ($ip eq '86.0.200.34') {
 #$ip='127.'.int(rand(100)).'.'.int(rand(100)).'.'.int(rand(100));
 #}
-    my $prompt=$Web::Terminal::Settings::prompt;
-    my $allinone=1;
+my $prompt=$Web::Terminal::Settings::prompt;
 ######### MAIN SITEMANAGER PROGRAM ###################
 
 if ( $query->param()) {      # an action has been chosen
-
-    my $cmd='';
-    if ($allinone==1) {
-    $cmd=$query->param("cmd");    
+    my $cmd=$query->param("cmd");    
     my @cmdlines=split("\n",$cmd);
         for my $cmdline (reverse @cmdlines) {
             $cmdline=~/^\s*$/ && next;
@@ -81,19 +68,12 @@ if ( $query->param()) {      # an action has been chosen
                 last;
         };
         }
-    } else {
-    $cmd=$query->param("cmdline");
-    }
     my $action =  $query->param("action")||'runpugs';
     if ($action =~ /^(\w+)$/) {
     	$action = $1;
-    	if ($access_OK) {
 	        if ($action eq "runpugs") {
 		        &runpugs($query,$cmd,$sessionid,$ip);
 	        } 
-        } else {
-            &runpugs($query,'init',$sessionid,$ip);
-        }
     } else {            # no action has been taken, display login page
        my $warning_message="Action has illegal chars: $action";
        &runpugs($query,'init',$sessionid,$ip);
@@ -121,31 +101,19 @@ sub runpugs {
         $devc='checked';
         $relc='';
         }
-    my $ia=$query->param('ia');
-    if (not defined $ia) {$ia=1}
-    my $interactive=$ia*1;
     my $html='';
-    if ($interactive==1) {
     my $clear=0;
-    my $nprompt=$query->param('prompt')||$prompt;
+    my $prompt=$Web::Terminal::Settings::prompt;
+    my $nprompt=$query->param('prompt')||$Web::Terminal::Settings::prompt;
     my $preply='';    
-    if($allinone==0 and $query->param('output')) {
-        $preply=$query->param('output');
-    } elsif ($allinone==1 and $query->param('cmd')) {
+    if ($query->param('cmd')) {
     $preply=$query->param('cmd');
     }
     my $reply=$Web::Terminal::Settings::prompt;
     my @history=();
     my $prevcmd='';
-    my $testing=0;
-    if ($testing==1) {
-        $reply = "Sorry, runpugs is not available at the moment.";
-    } else {
         if(not $query->param('history') or ($query->param('history') eq '')) {
-#            $cmd=~s/^.+?${Web::Terminal::Settings::prompt_pattern}/$1/s;
         } else {
-#            $cmd=$Web::Terminal::Settings::prompt;
-#            $cmd.=$query->param('history');
             $cmd=$query->param('history');
         }
         if ($cmd=~/clear/) {
@@ -161,26 +129,22 @@ sub runpugs {
             } elsif ($cmd=~/>\s+(\:*(quit|bye))\b/) {
                 $cmd=~s/$1/:q/;
             } 
-            ($reply, $nprompt, my $histref) = &Web::Terminal::Dispatcher::send($sessionid,$ip,$dev,$interactive,$cmd);
+            ($reply, $nprompt, my $histref) =
+            &Web::Terminal::Dispatcher::send($sessionid,$ip,$dev,1,$cmd);
             if (defined $histref) {
                 @history=@{$histref};
                 $prevcmd=$history[-1];
             }
-            #$cmd=$prompt.$history[-1];
             $prompt=$nprompt;
-            #$reply="\n".$reply.$prompt;
         }
-    }
     my $npromptw=HTML::Entities::encode_entities($nprompt);
-    my $replyw="$preply$prompt$prevcmd\n$reply";
-    if($allinone==1){
-    $replyw="$preply\n$reply";
-    }
+#    my $replyw="$preply$prompt$prevcmd\n$reply";
+    my $replyw="$preply\n$reply";
     if($clear==1) {
         $replyw='';
     }
-   my $nrows=scalar split("\n",$replyw); 
-#    $nrows++;
+   my @rows=split("\n",$replyw); 
+   my $nrows=scalar @rows;#split("\n",$replyw); 
      ($replyw=~/^\s*$/) && ($nrows=1);
     if ($nrows>20) {$nrows=20;}
     my $historylist="\n";
@@ -188,10 +152,8 @@ sub runpugs {
         my $entryw=HTML::Entities::encode_entities($entry);
         $historylist.='<option value="'.$entryw.'">'.$entryw.'</option>'."\n";
     }
-    if ($allinone==1) {
         $replyw.=$nprompt;
-    }
-    open(HTML,"<../data/runpugs3.html");
+    open(HTML,"<../data/runpugs_async.html");
     while(<HTML>) {
         /_HIST_/ && do {
             $html.=$historylist;
@@ -204,8 +166,7 @@ sub runpugs {
             next; 
             };
             s/_PROMPTW_/$npromptw/;
-        /_ALL_/ && ($allinone==1)
-        and do {
+        /_ALL_/ and do {
             chomp $html;
             $html.=$replyw;
             next;
@@ -214,46 +175,12 @@ sub runpugs {
     }
 	close HTML;
 
-    } else { #not-interactive
-    my $script=$query->param('script')||'';
-            (my $reply,my $nprompt, my $histref) =
-            &Web::Terminal::Dispatcher::send($sessionid,$ip,$dev,$interactive,$script);
-   my $nrows=scalar split("\n",$reply); 
-#    $nrows++;
-     ($reply=~/^\s*$/) && ($nrows=1);
-    if ($nrows>20) {$nrows=20;}
-    open(HTML,"<../data/runpugs2s.html");
-    while(<HTML>) {
-        s/_DEV_/$devc/;
-        s/_REL_/$relc/;
-        s/_NROWS_/$nrows/;
-        /_REPLYW_/ && do {
-            chomp $html;
-            $html.=$reply;
-            next;
-        };
-        /_SCRIPT_/ && do {
-            chomp $html;
-            $html.=$script;
-            next;
-        };
-        /([^\`\\]+$)/ && do {$html.=$1};
-    }
-    close HTML;
-    }
-	&printhttpheader();
-	print $html;
-}
-################## END main_page ######################
-
-################### PRINTHTTPHEADER #######################
-sub printhttpheader {
-     unless ($headerprinted) {
-        $headerprinted=1;
+    #my $lang_charset = 'iso-8859-1';
+    my $lang_charset = 'utf-8';
          print $query->header(-pragma=>'no-cache',
                       -charset=>$lang_charset,
 			      );
-   }
-   }
-################### END PRINTHTTPHEADER #######################
+	print $html;
+}
+################## END main_page ######################
 

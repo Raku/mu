@@ -20,37 +20,42 @@
 use strict;
 use utf8;
 use lib '../lib/';
-#use WebTerminal::Settings;
-use WebTerminal::Dispatcher;
-
+use Web::Terminal::Settings;
+use Web::Terminal::Dispatcher;
+#$Web::Terminal::Settings::port=2058;
 #push (@INC, "$wwwpath$htmlpath$project");
 
 my $MAX_SIZE_UPLOAD = 64;
 use CGI qw(:standard);
 if ($MAX_SIZE_UPLOAD) { $CGI::POST_MAX=1024 * $MAX_SIZE_UPLOAD; }
 use CGI::Carp qw(fatalsToBrowser);
+use HTML::Entities;
 
-CGI::nph();   # Treat script as a non-parsed-header script
+#CGI::nph();   # Treat script as a non-parsed-header script
 $ENV{PATH} = ""; # no PATH should be needed
 $ENV{SAFE_MODE}=1;
 
 my $query=new CGI;
 
 my $sessionid=$query->param("sessionid");
-my $motd="";
+
+my $motd='';
 if (not $sessionid) {
 my $nid=crypt(rand(),'WV');
 $nid=~tr/.\//WV/;
 $nid=~s/^WV//;
 my $now=time()-1159056000; # 36 year, 275 days offset
 $sessionid=$nid.$now;
-
 $motd='
-<p class="warning">Please test the <em>development version</em> of <tt>runpugs</tt>: try the <a
-href="http://feather.perl6.nl:8080/runpugs/">interactive session</a>
-with <em>command history</em> or <a
-href="http://feather.perl6.nl:8080/cgi-bin/runpugs2?ia=0">run a full Perl 6 script</a>.</p>
+<p class="warning">Please test the <em><a
+href="http://feather.perl6.nl:8080/runpugs/">development version</a></em> of
+<tt>runpugs</tt>, now with AJAX and mod_perl.</p> 
 ';
+#or <a
+#href="http://feather.perl6.nl:8080/cgi-bin/runpugs2?ia=0">run a full Perl 6
+#script</a>.</p>
+#';
+
 }
 
 my $access_OK=1; # no restrictions
@@ -67,10 +72,29 @@ my $ip=$ENV{'REMOTE_ADDR'};
 #if ($ip eq '86.0.200.34') {
 #$ip='127.'.int(rand(100)).'.'.int(rand(100)).'.'.int(rand(100));
 #}
+    my $prompt=$Web::Terminal::Settings::prompt;
+    my $allinone=1;
 ######### MAIN SITEMANAGER PROGRAM ###################
 
 if ( $query->param()) {      # an action has been chosen
-    my $cmd=$query->param("cmd");
+
+    my $cmd='';
+    if ($allinone==1) {
+    $cmd=$query->param("cmd");    
+    my @cmdlines=split("\n",$cmd);
+        for my $cmdline (reverse @cmdlines) {
+            $cmdline=~/^\s*$/ && next;
+            $cmdline=~/$Web::Terminal::Settings::prompt_pattern/
+            && do {
+                $cmd=$cmdline;
+                $cmd=~s/$Web::Terminal::Settings::prompt_pattern//;
+                chomp $cmd;
+                last;
+        };
+        }
+    } else {
+    $cmd=$query->param("cmdline");
+    }
     my $action =  $query->param("action")||'runpugs';
     if ($action =~ /^(\w+)$/) {
     	$action = $1;
@@ -100,55 +124,166 @@ sub runpugs {
     my $cmd=shift;
     my $sessionid=shift;
     my $ip=shift;
-    my $reply='pugs> ';
-    my $testing=$query->param('testing')||1;
     my $dev=$query->param('reldev')||0;
     $dev=$dev*1;
-    if (not $testing) {
-    $reply = "Sorry, runpugs is not available at the moment.";
-    } else {
-    $cmd=~s/^.+?pugs([\>\.])/pugs$1/s;
-    #NO UNICODE!
-#    $cmd=tr/\0-\x{10ffff}/\0-\xff_/;
-    if ($cmd=~/clear/) {
-        $cmd='';
-    } elsif ($cmd!~/^\p{IsASCII}*$/) {
-        $cmd='';
-        $reply = "Sorry, Unicode is not yet supported.\npugs> ";
-    } else {
-    if ($cmd=~/>\s+(\:*help)\b/) {
-        $cmd=~s/$1/:h/;
-    } elsif ($cmd=~/>\s+(\:*(quit|bye))\b/) {
-        $cmd=~s/$1/:q/;
-    } 
-    $reply = &WebTerminal::Dispatcher::send($sessionid,$ip,$dev,$cmd);
-    $reply="\n".$reply;
-    }
-    }
-    #$reply.="\n$ip\n$sessionid\n";
     my $devc='';
     my $relc='checked';
     if($dev==1) {
         $devc='checked';
         $relc='';
-    }
+        }
+    my $ia=$query->param('ia');
+    if (not defined $ia) {$ia=1}
+    my $interactive=$ia*1;
     my $html='';
-    open(HTML,"<../data/runpugs.html");
+    if ($interactive==1) {
+    my $clear=0;
+    my $nprompt=$query->param('prompt')||$prompt;
+    my $preply='';    
+    if($allinone==0 and $query->param('output')) {
+        $preply=$query->param('output');
+    } elsif ($allinone==1 and $query->param('cmd')) {
+    $preply=$query->param('cmd');
+    }
+    my $reply=$Web::Terminal::Settings::prompt;
+    my @history=();
+    my $prevcmd='';
+    my $testing=0;
+    if ($testing==1) {
+        $reply = "Sorry, runpugs is not available at the moment.";
+    } else {
+        if(not $query->param('history') or ($query->param('history') eq '')) {
+#            $cmd=~s/^.+?${Web::Terminal::Settings::prompt_pattern}/$1/s;
+        } else {
+#            $cmd=$Web::Terminal::Settings::prompt;
+#            $cmd.=$query->param('history');
+            $cmd=$query->param('history');
+        }
+        if ($cmd=~/clear/) {
+        $clear=1;
+            $cmd='';
+            $preply='';
+        } elsif ($cmd!~/^\p{IsASCII}*$/) { #NO UNICODE!
+            $cmd='';
+            $reply = "Sorry, Unicode is not yet supported.\n".$Web::Terminal::Settings::prompt;
+        } else {
+            if ($cmd=~/>\s+(\:*help)\b/) {
+                $cmd=~s/$1/:h/;
+            } elsif ($cmd=~/>\s+(\:*(quit|bye))\b/) {
+                $cmd=~s/$1/:q/;
+            } 
+            ($reply, $nprompt, my $histref) = &Web::Terminal::Dispatcher::send($sessionid,$ip,$dev,$interactive,$cmd);
+            if (defined $histref) {
+                @history=@{$histref};
+                $prevcmd=$history[-1];
+            }
+            #$cmd=$prompt.$history[-1];
+            $prompt=$nprompt;
+            #$reply="\n".$reply.$prompt;
+        }
+    }
+    my $npromptw=HTML::Entities::encode_entities($nprompt);
+    my $replyw="$preply$prompt$prevcmd\n$reply";
+    if($allinone==1){
+    $replyw="$preply\n$reply";
+    }
+    if($clear==1) {
+        $replyw='';
+    }
+   my $nrows=scalar split("\n",$replyw); 
+#    $nrows++;
+     ($replyw=~/^\s*$/) && ($nrows=1);
+    if ($nrows>20) {$nrows=20;}
+    my $historylist="\n";
+    for my $entry (@history) {
+        my $entryw=HTML::Entities::encode_entities($entry);
+        $historylist.='<option value="'.$entryw.'">'.$entryw.'</option>'."\n";
+    }
+    if ($allinone==1) {
+        $replyw.=$nprompt;
+    }
+    open(HTML,"<../data/runpugs2.html");
     while(<HTML>) {
-    s/_TESTING_/$testing/;
+        /_HIST_/ && do {
+            $html.=$historylist;
+            next;
+        };
+        /_SKIPT_/ && ($allinone==1) && next;
+        /_SKIPC_/ && ($allinone==0) && next;
     /_MOTD_/ && do {
-    $html.=$motd;
-    next;
-    };
-    s/_DEV_/$devc/;
-    s/_REL_/$relc/;
-	/input.*name=\"sessionid\"/ && do {$html.='<input type="hidden" name="sessionid" value="'.$sessionid.'">'."\n";next };
-	/(pugs\&gt\;\&nbsp\;)/ && do {$html.=$cmd.$reply;next};
-
-	/([^\`\\]+$)/ && do {$html.=$1};
-
-      }
+        $html.=$motd;
+            next;
+                };
+        s/_DEV_/$devc/;
+        s/_REL_/$relc/;
+    	/input.*name=\"sessionid\"/ && do {
+            $html.='<input type="hidden" name="sessionid" value="'.$sessionid.'">'."\n";
+            next; 
+            };
+        s/_PROMPTW_/$npromptw/;
+=not_now        
+    	/_PREPLYW_/ && do {
+#            $html.=$preplyw;
+            next;
+    	};
+        /_CMDW_/ && do {
+#            chomp $html;
+#            $html.=$prevcmdw."\n\n";
+            next;
+        };
+        /_BSKIP_/ && do {
+#        ($replyw=~/^\s*$/) && ($html.='<!--');
+        next;
+        };
+        /_ESKIP_/ && do {
+#        ($replyw=~/^\s*$/) && ($html.='-->');
+        next;
+        };
+=cut
+        (/_REPLYW_/ && ($allinone==0))||
+        (/_ALL_/ && ($allinone==1))
+        and do {
+            chomp $html;
+            $html.=$replyw;
+            next;
+        };
+        /_NPROMPTW_/ && ($allinone==0) && do {
+            chomp $html;
+            $html.=$npromptw;
+            next;
+        };
+        s/_NROWS_/$nrows/;
+    	/([^\`\\]+$)/ && do {$html.=$1};
+    }
 	close HTML;
+
+    } else { #not-interactive
+    my $script=$query->param('script')||'';
+            (my $reply,my $nprompt, my $histref) =
+            &Web::Terminal::Dispatcher::send($sessionid,$ip,$dev,$interactive,$script);
+   my $nrows=scalar split("\n",$reply); 
+#    $nrows++;
+     ($reply=~/^\s*$/) && ($nrows=1);
+    if ($nrows>20) {$nrows=20;}
+    open(HTML,"<../data/runpugs2s.html");
+    while(<HTML>) {
+        s/_DEV_/$devc/;
+        s/_REL_/$relc/;
+        s/_NROWS_/$nrows/;
+        /_REPLYW_/ && do {
+            chomp $html;
+            $html.=$reply;
+            next;
+        };
+        /_SCRIPT_/ && do {
+            chomp $html;
+            $html.=$script;
+            next;
+        };
+        /([^\`\\]+$)/ && do {$html.=$1};
+    }
+    close HTML;
+    }
 	&printhttpheader();
 	print $html;
 }
@@ -156,27 +291,11 @@ sub runpugs {
 
 ################### PRINTHTTPHEADER #######################
 sub printhttpheader {
-#   my $cookie;
      unless ($headerprinted) {
-
-#     if ($sessionid) {
-#         $cookie = $query->cookie( -name    => 'sessionid',
-#                           -"value" => $sessionid,
-#                           -path    => '/' );
-#       }
-
-$headerprinted=1;
-
-#        if ($sessionid) {
-#         print $query->header(-pragma=>'no-cache',
-#                      -cookie=>$cookie,
-#                      -charset=>$lang_charset,
-#			     );
-#       } else {
+        $headerprinted=1;
          print $query->header(-pragma=>'no-cache',
                       -charset=>$lang_charset,
 			      );
-#       }
    }
    }
 ################### END PRINTHTTPHEADER #######################

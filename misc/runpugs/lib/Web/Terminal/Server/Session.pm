@@ -12,6 +12,8 @@ use Web::Terminal::Settings;
 #write() sends commands to it.
 
 $SIG{CHLD}='IGNORE';
+
+my $v=1-$Web::Terminal::Settings::daemon;
 ## Constructor
 sub new {
 	my $invocant = shift;
@@ -21,6 +23,7 @@ sub new {
     $self->{'prompt'}=$prompt;
     $self->{'error'}=0;
     $self->{'recent'}=[];
+    print "Starting pugs session for ",$self->{'id'},"\n" if $v; 
 	## Start pugs
     my $app=$self->{'app'};
     my $command=$Web::Terminal::Settings::commands[$app];
@@ -36,6 +39,8 @@ sub new {
     }
 	( $self->{'pty'},$self->{'pid'} ) = &spawn($command);    # spawn() defined below
     if ( $self->{'pty'}==-1 and  $self->{'pid'}==0) {
+        print "There was a problem starting pugs. Please try again later.\n"
+        if $v;
         $self->{'output'}= "\nThere was a problem starting pugs. Please try again later.";
         $self->{'error'}=1;
         if ($self->{'ia'}==0) {
@@ -87,7 +92,7 @@ sub DESTROY {
     $obj->{'pty'}->close();
      $obj->{'pty'}->close_slave();
       $obj->{'pugs'}->close();
-      if($obj->{'pid'}){
+      if($obj->{'pid'}>10){
           kill 9,$obj->{'pid'};
       }
 }
@@ -100,21 +105,21 @@ sub readlines {
     my $pugs=$obj->{'pugs'};
     $pugs->errmode(sub {kill 9,$obj->{'pid'}; });
     #$pugs->errmode('die');
-#    print "readlines()\n";
+    print "readlines()\n" if $v;
 	while ($i<$Web::Terminal::Settings::nlines) {
     my $char='';
     my $line='';
     my $j=0;
     while ($char ne "\n" and ($j<$Web::Terminal::Settings::nchars)) {
-#    print "getting...\n";
+    print "getting...\n" if $v;
     $char=$pugs->get();
-#    print "got $j>$char<\n";
+    print "got $j>$char<\n" if $v;
     $j++;
     last if $char eq '';
     $line.=$char;
     last if $line eq $Web::Terminal::Settings::prompt;
     }
-        #print $line;
+        print $line if $v;
         if ($j>=$Web::Terminal::Settings::nchars-1) {
         $line.="Generated output is limited to $Web::Terminal::Settings::nchars characters. Aborted.\n";
        $obj->{pugs}->close();
@@ -160,7 +165,7 @@ sub readlines {
 sub write {
 	my $obj = shift;
 	my $cmd  = shift;
-#	print "CMD1: $cmd\n";
+	print "CMD: $cmd\n" if $v;
 #    $cmd=pack("U0C*", unpack("C*",$cmd));    
 #	print "CMD2: $cmd\n";
     chomp $cmd;
@@ -181,7 +186,7 @@ sub write {
 	while ($i<$Web::Terminal::Settings::nlines) {
 		my $line = $pugs->getline;
         my $msg=$pugs->errmsg;
-#	    print "L:",$line,":",$msg;
+	    print "L:",$line,":",$msg if $v;
 	    if($msg=~/timed/) {
             $msg='';
             $pugs->errmsg([]);
@@ -280,6 +285,7 @@ sub spawn {
 	return ( $pty, $pid );
 }    # end sub spawn
 
+1;
 __END__
 
 =head1 NAME

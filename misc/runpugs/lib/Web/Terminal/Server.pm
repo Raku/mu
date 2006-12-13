@@ -21,6 +21,7 @@ our %EXPORT_TAGS = (
         DEFAULT => [],
         );
 
+#$|=1;
 $SIG{CHLD} = 'IGNORE';
 
 # The messages contain the session id.
@@ -31,6 +32,8 @@ $SIG{CHLD} = 'IGNORE';
 our %terminals=();
 our %sessions_per_ip=();
 
+my $v=1-$Web::Terminal::Settings::daemon;
+
 sub termhandler {
 	my $id  = shift;
     my $ip=shift;
@@ -38,9 +41,12 @@ sub termhandler {
     my $ia=shift;
 	my $cmd = shift;
 if(scalar(keys %terminals)>$Web::Terminal::Settings::nsessions){ # each pugs takes 1% of feather's MEM!
+    print "Sorry, I can't run any more sessions.\nPlease try again later.\n"
+    if $v;
     return "Sorry, I can't run any more sessions.\nPlease try again later.";
 } else {
 	if ( exists $terminals{$id} ) {
+    print "Connecting to session $id\n" if $v;
     if ($terminals{$id}->{pid}) {    
     $terminals{$id}->{called}=time;
         #if swap to other app
@@ -54,7 +60,7 @@ if(scalar(keys %terminals)>$Web::Terminal::Settings::nsessions){ # each pugs tak
                 my $error= $term->{'error'};
                 if ($error==1) { # Failed to create a new terminal
                 $sessions_per_ip{$ip}--;
-                delete $terminals{$id};
+                &killterm($id);
                 } 
     	    	return $output;
         }
@@ -79,11 +85,12 @@ if(scalar(keys %terminals)>$Web::Terminal::Settings::nsessions){ # each pugs tak
 	} else {
         if ($sessions_per_ip{$ip}>$Web::Terminal::Settings::nsessions_ip) {
         print LOG2 "MAX nsessions for $ip reached\n";
+        print "MAX nsessions for $ip reached\n" if $v;
          return "Sorry, you can't run more than ${Web::Terminal::Settings::nsessions_ip} sessions from one IP address.\n";   
         } else {
-        #print "New $id\n";
+        print "New $id\n" if $v;
             $sessions_per_ip{$ip}++;
-            #print "$app $ia $id $cmd\n";
+            print "$app $ia $id $cmd\n" if $v;
     		$terminals{$id} = new
             Web::Terminal::Server::Session(app=>$app,ia=>$ia,id=>$id,cmds=>$cmd);
             $terminals{$id}->{called}=time;
@@ -92,8 +99,9 @@ if(scalar(keys %terminals)>$Web::Terminal::Settings::nsessions){ # each pugs tak
             my $output= $term->{'output'};
             my $error= $term->{'error'};
             if ($error==1 or $ia==0) { # Failed to create a new terminal
+            print " Failed to create a new terminal: <$output> err:$error ia:$ia\n" if $v;
                 $sessions_per_ip{$ip}--;
-                delete $terminals{$id};
+                &killterm($id);
             }
             return $output;
         }
@@ -115,12 +123,19 @@ sub rcvd_msg_from_client {
             my $ia=$mesgref->{ia};
 #            $cmd=pack("U0C*", unpack("C*",$cmd));
             my $pid=0;
+            my $nsess=scalar keys %terminals;
             if(exists $terminals{$id}) {
                 $pid=$terminals{$id}->{pid};
-            }
-            my $nsess=scalar keys %terminals;
-            #print scalar(localtime)," : $nsess : $ip : $id : $pid > ",$cmd,"\n";
             print LOG2 scalar(localtime)," : $nsess : $ip : $id : $pid > ",$cmd,"\n";
+            print scalar(localtime)," : $nsess : $ip : $id : $pid >
+            ",$cmd,"\n" if $v;
+            } else {
+            print LOG2 scalar(localtime)," : $nsess : $ip : $id : NO PID! > ",$cmd,"\n";
+            print scalar(localtime)," : $nsess : $ip : $id : NO PID! >
+            ",$cmd,"\n" if $v;
+            }
+            #print scalar(localtime)," : $nsess : $ip : $id : $pid > ",$cmd,"\n";
+#            print LOG2 scalar(localtime)," : $nsess : $ip : $id : $pid > ",$cmd,"\n";
 			my $lines = &termhandler( $id, $ip, $app,$ia, $cmd );
             my @history=(''); #   --- Recent commands ---');
             my $prompt=$Web::Terminal::Settings::prompt;
@@ -158,19 +173,22 @@ FORK: {
 if ($pid=fork) {
     #parent here
     if (-e
-    "$Web::Terminal::Settings::data_path/$Web::Terminal::Settings::appname.log") {
+    "$Web::Terminal::Settings::log_path/$Web::Terminal::Settings::appname.log") {
         rename
-        "$Web::Terminal::Settings::data_path/$Web::Terminal::Settings::appname.log",
-        "$Web::Terminal::Settings::data_path/$Web::Terminal::Settings::appname.log.".join("",localtime);
+        "$Web::Terminal::Settings::log_path/$Web::Terminal::Settings::appname.log",
+        "$Web::Terminal::Settings::log_path/$Web::Terminal::Settings::appname.log.".join("",localtime);
     }
-    open(LOG2,">$Web::Terminal::Settings::data_path/$Web::Terminal::Settings::appname.log");
+    open(LOG2,">$Web::Terminal::Settings::log_path/$Web::Terminal::Settings::appname.log");
+    #select LOG2; $|=1;
+    print "Parent: create new server..." if $v;
     Web::Terminal::Msg->new_server( $host, $port, \&login_proc );
+    print "OK\n" if $v;
     Web::Terminal::Msg->event_loop();
 } elsif (defined $pid) {
    # child here
    while (getppid()>10) { # a bit ad-hoc.
        sleep $Web::Terminal::Settings::check_interval;
-        #print getppid(),"\n";
+        print "Child: ",getppid(),"\n" if $v;
         kill 'USR1',getppid();
     }
     #system("killall $Web::Terminal::Settings::commands[$app]");
@@ -182,6 +200,7 @@ if ($pid=fork) {
     sleep 5;
     redo FORK;
 } else {
+    print "Couldn't fork" if $v;
     die "Can't fork: $!\n";
 } 
 } # FORK
@@ -190,18 +209,19 @@ if ($pid=fork) {
 sub timeout() {
     my $now=time();
     for my $id (keys %terminals) {
+        if(exists $terminals{$id}) {
         my $then=$terminals{$id}->{called};
         if ($now-$then>$Web::Terminal::Settings::timeout_idle) {
-        if(exists $terminals{$id}) {
           my $pid= $terminals{$id}->{pid};
             my $ip=$terminals{$id}->{ip};
             $sessions_per_ip{$ip}--;
-             if ($pid) {
-                kill 9,$pid;
-            }
+#             if ($pid) {
+#                kill 9,$pid;
+#            }
 #            $terminals{$id}->write(':q');
-            delete $terminals{$id};
+            &killterm($id);
             print LOG2 "Cleaned up $ip : $id : $pid\n";
+            print "Cleaned up $ip : $id : $pid\n" if $v;
             }
         }
     }
@@ -209,6 +229,8 @@ sub timeout() {
 sub killterm {
     my $id=shift;
 #    my $pid= $terminals{$id}->{pid};
+    # WHY?!
+    $terminals{$id}->DESTROY();
     delete $terminals{$id};
 #    if ($pid) {
 #        kill 9,$pid;

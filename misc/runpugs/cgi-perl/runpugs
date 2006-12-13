@@ -191,25 +191,53 @@ sub runpugs {
     if ($allinone==1) {
         $replyw.=$nprompt;
     }
-    open(HTML,"<../data/runpugs3.html");
+    open(HTML,"<../data/runpugs.html");
     while(<HTML>) {
         /_HIST_/ && do {
             $html.=$historylist;
             next;
         };
+        /_SKIPT_/ && ($allinone==1) && next;
+        /_SKIPC_/ && ($allinone==0) && next;
         s/_DEV_/$devc/;
         s/_REL_/$relc/;
     	/input.*name=\"sessionid\"/ && do {
             $html.='<input type="hidden" name="sessionid" value="'.$sessionid.'">'."\n";
             next; 
             };
-            s/_PROMPTW_/$npromptw/;
-        /_ALL_/ && ($allinone==1)
+        s/_PROMPTW_/$npromptw/;
+=not_now        
+    	/_PREPLYW_/ && do {
+#            $html.=$preplyw;
+            next;
+    	};
+        /_CMDW_/ && do {
+#            chomp $html;
+#            $html.=$prevcmdw."\n\n";
+            next;
+        };
+        /_BSKIP_/ && do {
+#        ($replyw=~/^\s*$/) && ($html.='<!--');
+        next;
+        };
+        /_ESKIP_/ && do {
+#        ($replyw=~/^\s*$/) && ($html.='-->');
+        next;
+        };
+=cut
+        (/_REPLYW_/ && ($allinone==0))||
+        (/_ALL_/ && ($allinone==1))
         and do {
             chomp $html;
             $html.=$replyw;
             next;
         };
+        /_NPROMPTW_/ && ($allinone==0) && do {
+            chomp $html;
+            $html.=$npromptw;
+            next;
+        };
+        s/_NROWS_/$nrows/;
     	/([^\`\\]+$)/ && do {$html.=$1};
     }
 	close HTML;

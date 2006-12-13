@@ -19,6 +19,7 @@ our %EXPORT_TAGS = (
 	ALL     => [qw( send )],
 	DEFAULT => [],
 );
+my $v=1-$Web::Terminal::Settings::daemon;
 
 sub send {
 	my $id = shift;
@@ -68,8 +69,11 @@ sub send {
         return "Sorry, the pugs server is not running.";
     } else {
 	my $msg = YAML::Syck::Dump({ id=> $id, ip=> $ip, app=>$app,ia=>$interactive,cmd=> $cmd});
+    print STDERR "Sending message to server: $msg\n" if $v;
 	$conn->send_now($msg);
+    print STDERR "done\n" if $v;
 	( my $rmesg, my $err ) = $conn->rcv_now();
+    print STDERR "Received reply from server: $rmesg (Error msg:$err)\n" if $v;
 #	( my $rid, my $reply ) = split( "\n", $rmesg, 2 );
     my $rmesgref= YAML::Syck::Load($rmesg);
      my $rid=$rmesgref->{id};
@@ -91,7 +95,7 @@ sub rcvd_msg_from_server {
 		die "Strange... shouldn't really be coming here\n";
 	}
 }
-
+1;
 __END__
 
 =head1 NAME
