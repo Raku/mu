@@ -130,7 +130,7 @@ class Var {
             '&' => '$Code_',
         };
            ( $.twigil eq '.' )
-        ?? ( '$_[0]->{' ~ $.name ~ '}' )
+        ?? ( '$self->{' ~ $.name ~ '}' )
         !!  (    ( $.name eq '/' )
             ??   ( $table{$.sigil} ~ 'MATCH' )
             !!   ( $table{$.sigil} ~ $.name )
@@ -150,11 +150,18 @@ class Bind {
             #  [$a, [$b, $c]] := [1, [2, 3]]
             
             my $a := $.parameters.array;
-            my $b := $.arguments.array;
+            #my $b := $.arguments.array;
             my $str := 'do { ';
             my $i := 0;
             for @$a -> $var { 
-                my $bind := ::Bind( 'parameters' => $var, 'arguments' => ($b[$i]) );
+                my $bind := ::Bind( 
+                    'parameters' => $var, 
+                    # 'arguments' => ($b[$i]) );
+                    'arguments'  => ::Index(
+                        obj    => $.arguments,
+                        index  => ::Val::Int( int => $i )
+                    )
+                );
                 $str := $str ~ ' ' ~ $bind.emit ~ '; ';
                 $i := $i + 1;
             };
@@ -378,15 +385,25 @@ class Method {
         # say "Sig: ", $sig.perl;
         my $invocant := $sig.invocant; 
         # say $invocant.emit;
+
         my $pos := $sig.positional;
-        my $str := '';
-        my $i := 1;
-        for @$pos -> $field { 
-            $str := $str ~ 'my ' ~ $field.emit ~ ' = $_[' ~ $i ~ ']; ';
-            $i := $i + 1;
-        };
+        my $str := 'my $List__ = \@_; no strict "vars"; ';
+        my $bind := ::Bind( 
+            'parameters' => ::Lit::Array( array => $sig.positional ), 
+            'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
+        );
+        $str := $str ~ $bind.emit ~ '; ';
+
+#        my $pos := $sig.positional;
+#        my $str := '';
+#        my $i := 1;
+#        for @$pos -> $field { 
+#            $str := $str ~ 'my ' ~ $field.emit ~ ' = $_[' ~ $i ~ ']; ';
+#            $i := $i + 1;
+#        };
+
         'sub ' ~ $.name ~ ' { ' ~ 
-          'my ' ~ $invocant.emit ~ ' = $_[0]; ' ~
+          'my ' ~ $invocant.emit ~ ' = shift; ' ~
           $str ~
           (@.block.>>emit).join('; ') ~ 
         ' }'
@@ -404,25 +421,26 @@ class Sub {
         ## my $invocant := $sig.invocant; 
         # say $invocant.emit;
         my $pos := $sig.positional;
-        my $str := 'my $List__ = \@_; ';
+        my $str := 'my $List__ = \@_; no strict "vars"; ';
 
-        #my $bind := ::Bind( 
-        #    'parameters' => ::Lit::Array( array => $sig.positional ), 
-        #    'arguments' => [ ::Var( sigil => '@', twigil => '', name => '_' ) ]
-        #);
+        my $bind := ::Bind( 
+            'parameters' => ::Lit::Array( array => $sig.positional ), 
+            'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
+        );
+        $str := $str ~ $bind.emit ~ '; ';
 
-        my $i := 0;
-        for @$pos -> $field { 
-            my $bind := ::Bind( 
-                'parameters' => $field, 
-                'arguments'  => ::Index(
-                        obj    => ::Var( sigil => '@', twigil => '', name => '_' ),
-                        index  => ::Val::Int( int => $i )
-                    ),
-                );
-            $str := $str ~ $bind.emit ~ '; ';
-            $i := $i + 1;
-        };
+#        my $i := 0;
+#        for @$pos -> $field { 
+#            my $bind := ::Bind( 
+#                'parameters' => $field, 
+#                'arguments'  => ::Index(
+#                        obj    => ::Var( sigil => '@', twigil => '', name => '_' ),
+#                        index  => ::Val::Int( int => $i )
+#                    ),
+#                );
+#            $str := $str ~ $bind.emit ~ '; ';
+#            $i := $i + 1;
+#        };
         'sub ' ~ $.name ~ ' { ' ~ 
           ## 'my ' ~ $invocant.emit ~ ' = $_[0]; ' ~
           $str ~
