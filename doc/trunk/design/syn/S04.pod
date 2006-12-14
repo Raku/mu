@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 5 Dec 2006
+  Last Modified: 13 Dec 2006
   Number: 4
-  Version: 45
+  Version: 46
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -410,7 +410,18 @@ A variant of C<do> is C<gather>.  Like C<do>, it is followed by a
 statement or block, and executes it once.  Unlike C<do>, its return
 value is a specified by calling the C<take> function one or more
 times within the dynamic scope of the gather.  The returned values are
-flattened into a lazy list.
+flattened into a lazy list.  A C<gather> is not considered a loop.
+
+Other similar C<Code>-only forms may also take bare statements,
+including C<try>, C<contend>, C<async>, and C<lazy>.  These constructs
+establish a dynamic scope without necessarily establishing a lexical
+scope.  (You can always establish a lexical scope explicitly by using
+the block form of argument.)  As statement introducers, all these
+keywords must be followed by whitespace.  You can say something
+like C<try({...})>, but then you are calling it using function call
+syntax instead, in which case the C<Code> argument must be a block.
+For purposes of flow control, none of these forms are considered loops,
+but they may easily be applied to a normal loop.
 
 =head1 Switch statements
 
