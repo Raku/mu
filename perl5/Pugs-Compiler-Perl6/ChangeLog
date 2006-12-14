@@ -1,4 +1,6 @@
 
+0.016  2006-12-14
+
 - command-line switch -B can be set to alternate backends.
   The default is '-Bperl5:Pugs::Emitter::Perl6::Perl5'.
   '-Bperl5' also invokes the default backend.

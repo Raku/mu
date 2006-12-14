@@ -43,6 +43,8 @@ lib/Pugs/Runtime/Perl6Prelude.pmc
 lib/Pugs/Runtime/Perl6AST.pm
 lib/Pugs/Runtime/Perl6AST.pmc
 
+lib/Pugs/Runtime/Perl5Container.pm
+
 lib/Pugs/Grammar/StatementModifier.pm
 lib/Pugs/Grammar/Quote.pm
 
@@ -76,8 +78,8 @@ t/02-test-pm/2-force_todo.t
 
 t/builtins/arity.t
 
-t/builtins/io/exit-in-if.t
-t/builtins/io/exit.t
+# t/builtins/io/exit-in-if.t
+# t/builtins/io/exit.t  - error in make dist
 
 t/builtins/strings/append.t
 
