@@ -6,7 +6,7 @@ use strict;
 #
 use lib '../lib/';
 use Web::Terminal::Settings;
-use Web::Terminal::Dispatcher;
+use Web::Terminal::Dispatcher3;
 #$Web::Terminal::Settings::port=2058;
 
 
@@ -20,7 +20,7 @@ my $cmd=$ARGV[1] || 'print "hello\n";say "there";print 4';
 print "Sending msg $id: $cmd\n";
 my $ip="127.0.0.1";
 (my $reply,my $prompt,my $histref) =
-&Web::Terminal::Dispatcher::send($id,$ip,1,1,$cmd);
+&Web::Terminal::Dispatcher3::send($id,$ip,1,1,$cmd);
 print $reply;
 print "\nHistory\n";
 for my $entry (@{$histref}) {

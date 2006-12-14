@@ -19,11 +19,13 @@ prompt_pattern
 quit_command
 quit_pattern
 quit_message
+reset_command
 filter
 filter_pattern
 port
 host
 nsessions
+npreloaded_sessions
 nsessions_ip
 timeout_idle
 timeout_call
@@ -52,7 +54,7 @@ nrecent
 #Rel
 our @commands=(
 '/usr/bin/nice /home/andara/pugs-rel/pugs -I/home/andara/pugs-rel/blib6/lib',
-'/usr/bin/nice /usr/bin/pugs'
+'/usr/bin/pugs' #/usr/bin/nice 
 );
 #Dev
 #our $command='/usr/bin/nice /usr/bin/pugs';
@@ -64,6 +66,7 @@ our $quit_message='Leaving pugs.';
 
 our $init_pattern='(\>\s+)';
 our $quit_command=':q';
+our $reset_command=':r';
 our $server='termserv2.pl';
 
 our $filter=0;
@@ -72,12 +75,13 @@ our $cgi_path='/home/andara/apache/cgi-bin/';
 our $data_path='/home/andara/apache/data/';
 our $tmp_path='/home/andara/apache/data/tmp/';
 our $log_path='/home/andara/apache/data/log/';
-our $daemon=1;
+our $daemon=0;
 our $port=2057;
 our $host='localhost';
 
 our $nsessions=50;
 our $nsessions_ip=10;
+our $npreloaded_sessions=3;
 
 our $timeout_idle=600; # was 600
 our $timeout_call=30; #  was 10

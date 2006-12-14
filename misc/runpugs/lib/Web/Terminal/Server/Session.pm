@@ -105,15 +105,15 @@ sub readlines {
     my $pugs=$obj->{'pugs'};
     $pugs->errmode(sub {kill 9,$obj->{'pid'}; });
     #$pugs->errmode('die');
-    print "readlines()\n" if $v;
+#    print "readlines()\n" if $v;
 	while ($i<$Web::Terminal::Settings::nlines) {
     my $char='';
     my $line='';
     my $j=0;
     while ($char ne "\n" and ($j<$Web::Terminal::Settings::nchars)) {
-    print "getting...\n" if $v;
+#    print "getting...\n" if $v;
     $char=$pugs->get();
-    print "got $j>$char<\n" if $v;
+#    print "got $j>$char<\n" if $v;
     $j++;
     last if $char eq '';
     $line.=$char;
@@ -240,9 +240,10 @@ sub spawn {
 	use IO::Pty ();
 	$pty = new IO::Pty
 	  or do {
+	  	die $!;
           return ( -1, 0 );
       };
-      #die $!;
+      #
     binmode $pty, ":utf8"; 
 	## Execute the program in another process.
 	unless ( $pid = fork ) {    # child process
@@ -273,7 +274,8 @@ sub spawn {
 
 		## Execute requested program.
 		exec @cmd
-		  or  ($error=1);#die "problem executing $cmd[0]\n";
+			or die "problem executing $cmd[0]\n";
+#		  or  ($error=1);
           }
 	}    # end child process
 
