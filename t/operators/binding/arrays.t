@@ -14,7 +14,7 @@ plan 46;
   my $var    = "d";
 
   try { @array[1] := $var };
-  is @array[1], "d", "basic binding of an array element (1)", :todo<feature>;
+  is @array[1], "d", "basic binding of an array element (1)";
   unless @array[1] eq "d" {
     skip_rest "Skipping binding of array elements tests (not yet implemented in the normal runcore)";
     exit;
@@ -113,7 +113,7 @@ plan 46;
 }
 
 {
-  my sub foo (*@args) { @args[1] = "new_value" }
+  my sub foo (@args) { @args[1] = "new_value" }
 
   my @array  = <a b c>;
   my $var    = "d";
@@ -125,7 +125,7 @@ plan 46;
 }
 
 {
-  my sub foo (*@args) { push @args, "new_value" }
+  my sub foo (@args) { push @args, "new_value" }
 
   my @array  = <a b c>;
   my $var    = "d";

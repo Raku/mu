@@ -14,7 +14,7 @@ plan 37;
   my $var   = "d";
 
   try { %hash<b> := $var };
-  is %hash<b>, "d", "basic binding of a hash element (1)", :todo<feature>;
+  is %hash<b>, "d", "basic binding of a hash element (1)";
   unless %hash<b> eq "d" {
     skip_rest "Skipping binding of hash elements tests (not yet implemented in the normal runcore)";
     exit;

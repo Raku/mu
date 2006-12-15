@@ -66,7 +66,7 @@ ok(!("7" =:= 7), "identify checks type mismatch");
   ok !(@b[1] =:= @a[1]), "rebinding of array elements (1)";
 
   try { @b[1] := @a[1] };
-  ok  (@b[1] =:= @a[1]), "rebinding of array elements (2)", :todo<unspecced>;
+  ok  (@b[1] =:= @a[1]), "rebinding of array elements (2)";
 
   @b = (1,2,3);
   ok !(@b[1] =:= @a[1]), "assignment destroyed the bindings (1)";

@@ -42,8 +42,8 @@ plan 12;
     @array[1] = 3;
     is $arrayref[1], 3, "automatically reffed arrays point to containers (1)";
 
-    try { @array[1] := 4 };
-    is $arrayref[1], 4, "automatically reffed arrays point to containers (2)", :todo<unspecced>;
+    @array[1] := 4;
+    is $arrayref[1], 4, "automatically reffed arrays point to containers (2)";
   };
 
   $test(@array);
@@ -58,8 +58,8 @@ plan 12;
     $arrayref[1] = 3;
     is @array[1], 3, "automatically dereffed arrays point to containers (1)";
 
-    try { $arrayref[1] := 4 };
-    is @array[1], 4, "automatically dereffed arrays point to containers (2)", :todo<unspecced>;
+    $arrayref[1] := 4;
+    is @array[1], 4, "automatically dereffed arrays point to containers (2)";
   };
 
   $test($arrayref);
