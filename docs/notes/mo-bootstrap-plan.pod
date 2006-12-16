@@ -13,9 +13,9 @@ done in a lockstep fashion:
     withInvocant    :: a -> Object -> a
     getInvocant     :: a -> Maybe Object
 
-We can reue the MI Class as the canonical Pugs class, but the C3 linearize
+We can reuse the MI Class as the canonical Pugs class, but the C3 linearize
 as well as the actual call (i.e. ivDispatch) needs to be lifted into the Eval
-monad.  However, metaobjects stays utterl functionl.
+monad.  However, metaobjects stays utterly functional.
 
 =head2 Instance Layout
 
@@ -39,15 +39,15 @@ monad.  However, metaobjects stays utterl functionl.
 invStatic   :: Array Int Val    -- or Map ID Val
 invDynamic  :: Hash ID Val      -- conveniently ignore this in the 1st pass
 
-The layout of instances is to be a (Array Int Val) for the static
-parts, and also (maybe later?) a (HashTable ID Val) for the slots augmented
-through runtime-modified classes.  A single lookup routine will take care of
-looking up the Int from the called ID, and goes into e HashTable fallback
-without introducing another level of explicit API indirection.
+The layout of instances is to be a (Array Int Val) for the static parts, and
+also (maybe later?) a (HashTable ID Val) for the slots augmented through
+runtime-modified classes.  A single lookup routine will take care of looking up
+the Int from the called ID, and goes into e HashTable fallback without
+introducing another level of explicit API indirection.
 
 Object attributes are truly unbindable; they are initialized as Scalar, Array,
-Hash etc by boxed instances for Real this time.  That is, the Val can be NativeInt
-to allow for truly unassignable (even for class-local methods) slots:
+Hash etc by boxed instances for Real this time.  That is, the Val can be
+NativeInt to allow for truly unassignable (even for class-local methods) slots:
 
     # Essentially a class for value object:
     class C {
@@ -75,8 +75,8 @@ to allow for truly unassignable (even for class-local methods) slots:
         }
     }
 
-(It's also possible to simply take the Object WHICH to be the
-Seq of WHICHs for all its current slots.  That seems 1)fun 2)simple.
+(It's also possible to simply take the Object WHICH to be the Seq of WHICHs for
+all its current slots.  That seems 1) fun 2) simple.)
 
 =head2 Primitive Methods
 
@@ -126,14 +126,14 @@ time we'll have acces to GHC 6.8's type families.)
 
 =head2 Runtime Augmentation
 
-Runtime metaclass augmentation needs one level of indirection.
-The Main class maintains a runtimeAttributes (etc) field in addition
-to the compile-time attributes, and each instance's layout will then
-neccessarily contain the HashTable part (see above) to make up for those.
+Runtime metaclass augmentation needs one level of indirection.  The Main class
+maintains a runtimeAttributes (etc) field in addition to the compile-time
+attributes, and each instance's layout will then neccessarily contain the
+HashTable part (see above) to make up for those.
 
-One way to go about this is to make an AugmentableMI structure that is
-simply (TVar MI), and maintain its identity thru (addressOf :: TVar MI -> Word),
-so objects close over the TVar instead of the actual MI records in it, and
-all (class Class) methods go over one indirection of readTVar.
+One way to go about this is to make an AugmentableMI structure that is simply
+(TVar MI), and maintain its identity thru (addressOf :: TVar MI -> Word), so
+objects close over the TVar instead of the actual MI records in it, and all
+(class Class) methods go over one indirection of readTVar.
 
 =cut
