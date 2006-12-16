@@ -132,7 +132,6 @@ print OUT @program;
 
 print OUT <<".";
 
-type Buf = Buf.ByteString
 
 #endif
 .
