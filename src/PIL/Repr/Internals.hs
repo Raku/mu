@@ -2,7 +2,7 @@
 module PIL.Repr.Internals (prim, _0, _1, _2, _3) where
 import PIL.Native.Types
 import PIL.Native.Coerce
-import Data.Seq
+import Data.Sequence
 
 _0, _1, _2, _3 :: Seq a -> a
 _0 = (`index` 0)
