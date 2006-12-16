@@ -369,6 +369,5 @@ instance YAML TEnv where
 
 --  Imported from other files :-
 
-type Buf = Buf.ByteString
 
 #endif

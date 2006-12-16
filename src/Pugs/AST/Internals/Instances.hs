@@ -850,6 +850,5 @@ instance Perl5 Pragma where
 
 --  Imported from other files :-
 
-type Buf = Buf.ByteString
 
 #endif
