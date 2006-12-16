@@ -12,7 +12,7 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 15 Dec 2006
+  Last Modified: 16 Dec 2006
   Number: 2
   Version: 81
 
@@ -2409,7 +2409,7 @@ Here are the current grammatical categories:
     trait_verb:<handles>                        has $.tail handles <wag>
     trait_auxiliary:<shall>                     my $x shall conform<TR123>
     scope_declarator:<has>                      has $.x;
-    statement_prefix:<do>                       gather for @foo { .take }
+    statement_prefix:<gather>                   gather for @foo { .take }
     statement_control:<if>                      if $condition {...} else {...}
     statement_modifier:<if>                     ... if $condition
     infix_prefix_meta_operator:<!>              $x !~~ 2;
