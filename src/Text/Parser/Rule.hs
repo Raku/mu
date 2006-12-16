@@ -11,7 +11,7 @@ import Text.Parser.PArrow.MD (MD(..), Label(..), label, Monoid(..))
 import Data.ByteString.Char8 hiding (concatMap, concat, elem, foldl, foldl1, map, foldr, foldr1)
 import Text.Parser.PArrow.CharSet
 import Data.Set (Set, isSubsetOf)
-import Data.Seq (Seq, toList, fromList, (<|), (|>), (><))
+import Data.Sequence (Seq, toList, fromList, (<|), (|>), (><))
 import Data.Map (Map)
 import Data.Generics hiding (Infix)
 import Data.IntMap (IntMap, insertWith, toAscList, union)

@@ -102,7 +102,7 @@ import Pugs.AST.SIO
 import Pugs.Embed.Perl5
 import qualified Pugs.Val as Val
 import qualified Data.ByteString.Char8 as Str
-import qualified Data.Seq as Seq
+import qualified Data.Sequence as Seq
 
 {- <DrIFT> Imports for the DrIFT
 import Pugs.AST.Scope
@@ -2081,10 +2081,6 @@ instance Perl5 Val where
 
 instance Typeable Unique where typeOf _ = typeOf ()
 instance Typeable ProcessHandle where typeOf _ = typeOf ()
-{- 604 means 6.4.x, not 6.4.0. So please don't delete this. -}
-#if __GLASGOW_HASKELL__ <= 604
-instance Typeable1 Tree where typeOf1 _ = typeOf ()
-#endif
 
 instance Eq VJunc where
     (MkJunc aa ab ac) == (MkJunc aa' ab' ac') = aa == aa' && ab == ab'

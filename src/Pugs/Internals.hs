@@ -35,7 +35,6 @@ module Pugs.Internals (
     module Data.Dynamic,
     module Data.Generics,
     module Data.Either,
-    module Data.FunctorM,
     module Data.IntMap,
     module Data.IORef,
     module Data.List,
@@ -43,7 +42,7 @@ module Pugs.Internals (
     module Data.Maybe,
     module Data.Ratio,
     module Data.Set,
-    module Data.Seq,
+    module Data.Sequence,
     module Data.Tree,
     module Data.Unique,
     module Data.Word,
@@ -66,7 +65,7 @@ module Pugs.Internals (
     module System.Mem.Weak,
     module System.Process,
     module System.Random,
-    module System.Time,
+    module System.Time
 ) where
 
 import Pugs.Internals.Cast
@@ -103,7 +102,7 @@ import System.Mem
 import System.Mem.Weak
 import System.Directory (Permissions(..), getPermissions, getTemporaryDirectory, createDirectory, removeDirectory, removeFile, getDirectoryContents, getModificationTime)
 import Control.Exception (catchJust, errorCalls, Exception(..))
-import Control.Monad (replicateM)
+import Control.Monad (replicateM, forM, forM_)
 import Control.Monad.RWS (MonadIO(..), MonadReader(..), MonadState(..), MonadWriter(..), MonadTrans(..), asks, ReaderT(..), WriterT(..), when, join, liftM, filterM, modify, unless, gets, foldM, guard, liftM2, liftM3, fix, mplus, mappend, mzero, mconcat, msum, censor)
 import Control.Monad.Identity (Identity(..))
 import Control.Monad.Error (MonadError(..), ErrorT(..), Error(..))
@@ -112,7 +111,6 @@ import Control.Concurrent.STM
 import Data.Bits hiding (shift)
 import Data.Maybe
 import Data.Either
-import Data.FunctorM
 import Data.List (
     (\\), find, genericLength, insert, sortBy, intersperse,
     partition, group, sort, genericReplicate, isPrefixOf, isSuffixOf,
@@ -127,12 +125,12 @@ import Data.Tree
 import qualified Data.Typeable as Typeable
 import Data.Set (Set)
 import Data.Map (Map)
-import Data.Seq (Seq, singleton)
+import Data.Sequence (Seq, singleton)
 import Data.IntMap (IntMap)
 import Debug.Trace
 import GHC.Conc (unsafeIOToSTM)
 import GHC.Exts (unsafeCoerce#, Word(W#), Word#)
-import qualified Data.Seq as Seq
+import qualified Data.Sequence as Seq
 
 import qualified UTF8
 import qualified Foreign as Foreign

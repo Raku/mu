@@ -824,9 +824,6 @@ instance Data Data.Version.Version
 
 instance Typeable Unique where typeOf _ = typeOf ()
 instance Typeable ProcessHandle where typeOf _ = typeOf ()
-#if __GLASGOW_HASKELL__ <= 604
-instance Typeable1 Tree where typeOf1 _ = typeOf ()
-#endif
 
 {- <DrIFT>
 instance YAML (VThread Val)

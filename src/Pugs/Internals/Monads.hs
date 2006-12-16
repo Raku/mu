@@ -6,8 +6,9 @@ module Pugs.Internals.Monads (
     warn,
     die,
 
-    forM,
-    forM_,
+    fmapM,
+    fmapM_,
+
     combine,
     modifyTVar,
     inlinePerformIO,
@@ -17,53 +18,18 @@ module Pugs.Internals.Monads (
     catchIO, evaluateIO
 ) where
 
+import Prelude hiding (mapM)
 import GHC.Base (realWorld#)
-import Data.FunctorM
+import Data.Traversable
 import Debug.Trace
 import GHC.IOBase (IO(..))
 import System.Exit
-import System.IO (
-    Handle, stdin, stdout, hClose, hGetLine, hGetChar, hGetContents,
-    openFile, hSetBinaryMode, hPutStr, hPutStrLn, IOMode(..), stderr, SeekMode(..),
-    hSetBuffering, BufferMode(..), hIsTerminalDevice, hFlush, hPrint, isEOF,
-    hSeek, hTell, hIsOpen, hIsClosed, hIsReadable, hIsWritable, hIsSeekable,
-    )
+import System.IO (hPutStrLn, stderr)
 import System.IO.Unsafe
-import System.IO.Error (ioeGetErrorString, isUserError)
 import Control.Exception (Exception(..))
 import Control.Concurrent.STM
 import Control.Monad.RWS (MonadIO(..))
 import qualified Control.Exception (catch, evaluate)
-
--- On GHC 6.6 we actually want to use the builtin forM and forM_ in Control.Monad
-
-{-|
-Take a list of values, and a monad-producing function, and apply that function
-to each element of the list. The resulting monads are combined into a single
-monad producing a list of the resulting values.
-
-(This is just @mapM@ with the arguments reversed.)
--}
-{-# INLINE forM #-}
-forM :: (Monad m) 
-     => [a]        -- ^ List of values to loop over
-     -> (a -> m b) -- ^ The \'body\' of the for loop
-     -> m [b]      -- ^ Monad containing a list of the results
-forM = flip mapM
-
-{-|
-Take a list of values, and a monad-producing function, and apply that function
-to each element of the list in sequence. The values produced by the monadic
-function are discarded.
-
-(This is just @mapM_@ with the arguments reversed.)
--}
-{-# INLINE forM_ #-}
-forM_ :: (Monad m) 
-      => [a]        -- ^ List of values to loop over
-      -> (a -> m b) -- ^ The \'body\' of the for loop
-      -> m ()
-forM_ = flip mapM_
 
 {-|
 Compose a list of @(a -> a)@ transformer functions into a single chained
@@ -114,12 +80,12 @@ Otherwise, merely @return Nothing@.
 (Strictly speaking, this function can operate with any @FunctorM@, not just
 @Maybe@, but it helps to have a concrete example to explain things.)
 -}
-maybeM :: (FunctorM f, Monad m) 
+maybeM :: (Traversable f, Monad m) 
        => m (f a)    -- ^ A @Maybe@ value encapsulated in a monad
        -> (a -> m b) -- ^ Action to perform on the first arg /if/ it contains
                      --     a value
        -> m (f b)    -- ^ Monad containing (@Just@ /result/) or @Nothing@
-maybeM f m = fmapM m =<< f
+maybeM f m = mapM m =<< f
 
 catchIO :: IO a -> (Control.Exception.Exception -> IO a) -> IO a
 catchIO = Control.Exception.catch
@@ -153,4 +119,10 @@ warn str val = liftIO $ do
 -- | This is just @Debug.Trace.trace@, but allows for cleaner code in do blocks.
 traceM :: Monad m => String -> m ()
 traceM s = trace s $ return ()
+
+fmapM :: (Functor t, Traversable t, Monad m) => (a -> m b) -> t a -> m (t b)
+fmapM = mapM
+
+fmapM_ :: (Functor t, Traversable t, Monad m) => (a -> m b) -> t a -> m ()
+fmapM_ f x = mapM f x >> return ()
 

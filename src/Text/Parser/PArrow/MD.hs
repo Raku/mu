@@ -11,7 +11,7 @@ import GHC.Prim(unsafeCoerce#)
 import Text.Parser.PArrow.CharSet
 import Data.Set (Set, empty, singleton, unions, union)
 import qualified Data.Set as Set
-import Data.Seq (Seq)
+import Data.Sequence (Seq)
 import Data.Monoid
 import Data.Generics
 

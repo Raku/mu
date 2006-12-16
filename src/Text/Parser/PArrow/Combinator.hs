@@ -3,7 +3,7 @@ module Text.Parser.PArrow.Combinator where
 
 import Control.Arrow
 import Text.Parser.PArrow.MD
-import Data.Seq (Seq, (<|), singleton)
+import Data.Sequence (Seq, (<|), singleton)
 
 -- | Match the empty string.
 choice :: [MD i o] -> MD i o

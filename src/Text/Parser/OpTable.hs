@@ -12,7 +12,7 @@ import Data.Ratio
 import Data.Generics hiding (Prefix, Infix)
 import Data.Char (isDigit)
 import Data.List (find)
-import Data.Seq (Seq, fromList)
+import Data.Sequence (Seq, fromList)
 import Data.Map (Map, insert, lookup, toAscList, (!))
 import Data.ByteString (elemIndex)
 import Data.ByteString.Base (ByteString(..))

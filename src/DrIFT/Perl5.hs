@@ -3,7 +3,6 @@
 module DrIFT.Perl5 where
 import Data.Ratio
 import Data.List (intersperse)
-import Data.Char (chr)
 import qualified Data.ByteString.Char8 as Buf
 import GHC.Exts
 import Pugs.Internals (encodeUTF8)

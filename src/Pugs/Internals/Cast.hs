@@ -11,9 +11,10 @@ module Pugs.Internals.Cast (
 import Data.Dynamic hiding (cast)
 import GHC.Exts (unsafeCoerce#, Word(W#), Word#)
 import Data.ByteString (ByteString)
-import Data.Seq (Seq, singleton)
+import Data.Sequence (Seq, singleton)
 import Numeric (showHex)
-import qualified Data.Seq as Seq
+import Data.Foldable (toList)
+import qualified Data.Sequence as Seq
 import qualified Data.Typeable as Typeable
 
 --
@@ -40,7 +41,7 @@ instance (b :<: a) => (:>:) a b where
 
 instance (:<:) a a where castBack = id
 
-instance ((:>:) [a]) (Seq a) where cast = Seq.toList
+instance ((:>:) [a]) (Seq a) where cast = toList
 instance ((:<:) [a]) (Seq a) where castBack = Seq.fromList
 
 -- "return . cast" can be written as "cast"

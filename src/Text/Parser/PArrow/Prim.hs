@@ -4,7 +4,7 @@ module Text.Parser.PArrow.Prim (runParser, Res(..), PErr) where
 import Text.Parser.PArrow.CharSet
 import Text.Parser.PArrow.MD
 import Data.ByteString.Base (ByteString(..))
-import Data.Seq ((|>))
+import Data.Sequence ((|>))
 import qualified Data.Seq as Seq
 import qualified Data.ByteString.Char8 as Str
 import Data.IntMap (IntMap, singleton, empty, unionWith)
