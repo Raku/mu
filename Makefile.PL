@@ -228,14 +228,6 @@ EOD
 
     my $heap;
 
-    # Win32 GHC is a memory hog.  We need to provide it with a memory sty.
-    # We still use the option from config.yml if available.
-
-    # XXX - This is no longer needed for GHC 6.6!
-    if ($Config{osname} eq 'cygwin' or $Config{osname} eq 'MSWin32') {
-        $heap = WIN32_GHC_HEAPSIZE;
-    }
-
     $heap = PugsBuild::Config->lookup('ghc_heap_size') || $heap;
     $ghc_flags .= " +RTS -M$heap -RTS" if $heap;
     # $ghc_flags .= ' -dcore-lint';
