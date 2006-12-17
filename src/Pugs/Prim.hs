@@ -1879,7 +1879,7 @@ initSyms = seq (length syms) $ do
 \\n   Num       spre    --      safe   (rw!Num)\
 \\n   Bool      pre     not     safe   (Bool)\
 \\n   Bool      pre     true    safe   (Bool)\
-\\n   List      pre     gather  safe   (Code)\
+\\n   List      spre    gather  safe   (Code)\
 \\n   List      pre     map     safe   (Code, List)\
 \\n   List      pre     grep    safe   (Code, List)\
 \\n   List      pre     sort    safe   (Code, List)\

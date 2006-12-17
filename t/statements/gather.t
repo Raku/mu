@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 10;
+plan 11;
 
 # Standard gather
 {
@@ -85,4 +85,13 @@ plan 10;
   my @list  = gather { take [1,2,3]; take [4,5,6];};
   my @list2 = ([1,2,3],[4,5,6]);
   is @list.perl, @list2.perl , "gather array-refs";
+}
+
+# gather statement prefix
+{
+    my @out = gather for 1..5 {
+        take $_;
+    };
+
+    is ~@out, "1 2 3 4 5", "gather as a statement_prefix";
 }

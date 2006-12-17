@@ -943,14 +943,17 @@ ruleRequireDeclaration = tryRule "require declaration" $ do
 
 ruleDoBlock :: RuleParser Exp
 ruleDoBlock = rule "do block" $ do
-    symbol "do"
-    enterBracketLevel StatementBracket $ choice
+    sym  <- symbol "do" <|> symbol "gather"
+    tree <- enterBracketLevel StatementBracket $ choice
         [ ruleDoOnceBlock
         , ruleBlockDeclaration
         , ruleDeclaration
         , ruleConstruct
         , ruleStatement
         ]
+    return $ if sym == "gather"
+        then App (_Var "&gather") Nothing [Val . VCode $ mkSub { subBody = tree }]
+        else tree
     where
     ruleDoOnceBlock = do
         rv <- ruleBareOrPointyBlockLiteralWithoutDefaultParams
