@@ -1424,9 +1424,7 @@ op4 "splice" = \x y z w -> do
     count   <- fromVal z
     vals    <- fromVals w
     vals'   <- splice start count vals
-    ifListContext
-        (return $ VList vals')
-        (return $ last (undef:vals'))
+    return $ VList vals'
 
 op4 other = \_ _ _ _ -> fail ("Unimplemented 4-ary op: " ++ other)
 
