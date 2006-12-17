@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
+use HTTP::Lite;
 
 my ($nick_base, @channels) = @ARGV;
 my $svn = ((-e '.svn') ? 'svn' : 'svk');
@@ -55,6 +56,9 @@ sub update_pugs {
     return $revision;
 }
 
+my $rev;
+my $hasfailed = 0;
+
 sub build_pugs {
     print STDERR "*** Rebuilding pugs\n";
     if ($have_refresh && -f $refresh_file) {
@@ -62,8 +66,43 @@ sub build_pugs {
         unlink $_ for glob "$ENV{PERL6LIB}/*yml"; # XXX: should probably clean more..
     }
     unlink 'src/Pugs/pugs_version.h';
-    system 'perl Makefile.PL';
-    system 'make';
+	
+	my $failed = 0;
+	my $report = "";
+	open my $fh, 'perl Makefile.PL 2>&1 |';
+	while (<$fh>) {
+		print;
+		$report .= $_;
+	}
+	close $fh;
+	if ($?) { 
+		$failed = 1;
+	}
+	else {
+		open my $fh, 'make 2>&1 |';
+		while (<$fh>) {
+			print;
+			$report .= $_;
+		}
+		close $fh;
+		if ($?) { $failed = 1; }
+	}
+
+	if ($failed && !$hasfailed) {
+		$hasfailed = 1;
+		print STDERR "*** Build failed, pasting to nopaste\n";
+		my $http = HTTP::Lite->new;
+		$http->prepare_post({
+				channel => '#perl6',
+				nick    => "$nick_base\_r$rev",
+				summary => "Pugs build failure",
+				paste   => $report,
+		});
+		$http->request('http://sial.org/pbot/perl6/paste');
+	}
+	else {
+		$hasfailed = 0;
+	}
 }
 
 sub start_pugs {
@@ -90,7 +129,7 @@ sub set_nick {
     print $fh $nick;
 }
 
-my $rev = update_pugs;
+$rev = update_pugs;
 build_pugs;
 start_pugs "$nick_base\_r$rev";
 while (1) {
