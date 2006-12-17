@@ -71,7 +71,7 @@ The "RRegex" subsystem is derived from hsregex 0.2 by John Meacham,
 under a BSD-style license.  See src/RRegex/LICENSE.
 
 The "UTF8" subsystem is derived from Martin Norbäck's work,
-under a BSD-style ilcense.  See src/UTF8.hs.
+under a BSD-style license.  See src/UTF8.hs.
 
 
 COPYRIGHTED PERL 6 LIBRARY EXTENSIONS
