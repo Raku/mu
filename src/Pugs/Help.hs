@@ -16,47 +16,50 @@ module Pugs.Help (printInteractiveHelp, printCommandLineHelp,
              copyright, intro) where
 import Pugs.Version
 import Pugs.CodeGen (backends)
-import Data.List (sort)
+import Data.List (sort, intersperse)
 
 printInteractiveHelp :: IO ()
 printInteractiveHelp
-   = do putStrLn "Commands available from the prompt:"
-        putStrLn ":h              = show this help message"
-        putStrLn ":q              = quit"
-        putStrLn ":r              = reset the evaluation environment"
-        putStrLn ":l <filename>   = load a pugs file"
-        putStrLn ":d <exp>        = show syntax tree of an expression"
-        putStrLn ":D <exp>        = show raw syntax tree of an expression"
-        putStrLn ":e <exp>        = run a command, and ugly-print the result"
-        putStrLn ":er <exp>       = same, in a pristine environment"
-        putStrLn ":E <exp>        = same, but evaluate in small steps"
-        putStrLn ":ER <exp>       = same, in a pristine environment"
-        putStrLn "<exp>           = run a command"
+   = putStrLn $ unlines
+        [ "Commands available from the prompt:"
+        , ":h              = show this help message"
+        , ":q              = quit"
+        , ":r              = reset the evaluation environment"
+        , ":l <filename>   = load a pugs file"
+        , ":d <exp>        = show syntax tree of an expression"
+        , ":D <exp>        = show raw syntax tree of an expression"
+        , ":e <exp>        = run a command, and ugly-print the result"
+        , ":er <exp>       = same, in a pristine environment"
+        , ":E <exp>        = same, but evaluate in small steps"
+        , ":ER <exp>       = same, in a pristine environment"
+        , "<exp>           = run a command"
+        ]
 
 {- FIXME: Somebody with more UI skillz should make this nicer -}
 printCommandLineHelp :: IO ()
 printCommandLineHelp
-   = do putStrLn "Usage: pugs [switches] [programfile] [arguments]"
-        putStrLn "Command-line flags:"
-        putStrLn "-e program       one line of program (several -e's allowed, omit programfile)"
-        putStrLn "-n               wrap the -e fragments in a 'while(=<>){...}' loop"
-        putStrLn "-p               wrap the -e fragments in a 'while(=<>){...;say}' loop"
-        putStrLn "-c               parse the file or -e, but do not run it"
-        putStrLn "-d               run the program with debug tracing"
-        putStrLn "-Bbackend        execute using the compiler backend"
-        putStrLn "-Cbackend        compile using the compiler backend"
-        putStrLn "-Mmodule         execute 'use module' before running the program"
-        putStrLn "-Ipath           add path to module search paths in @*INC"
-        putStrLn ("                 (valid backends are: " ++ backendsStr ++ ")")
-        putStrLn "-h or --help     give this message"
-        putStrLn "-V               long configuration information & version"
-        putStrLn "-V:item          short configuration information for item"
-        putStrLn "-v or --version  version"
-        putStrLn "-l and -w are ignored for compatibility with Perl 5"
-        putStrLn "See documentation of pugs::run for more help."
+   = putStrLn $ unlines
+        [ "Usage: pugs [switches] [programfile] [arguments]"
+        , "Command-line flags:"
+        , "-e program       one line of program (several -e's allowed, omit programfile)"
+        , "-n               wrap the -e fragments in a 'while(=<>){...}' loop"
+        , "-p               wrap the -e fragments in a 'while(=<>){...;say}' loop"
+        , "-c               parse the file or -e, but do not run it"
+        , "-d               run the program with debug tracing"
+        , "-Bbackend        execute using the compiler backend"
+        , "-Cbackend        compile using the compiler backend"
+        , "                 (valid backends are: " ++ backendsStr ++ ")"
+        , "-Mmodule         execute 'use module' before running the program"
+        , "-Ipath           add path to module search paths in @*INC"
+        , "-h or --help     give this message"
+        , "-V               long configuration information & version"
+        , "-V:item          short configuration information for item"
+        , "-v or --version  version"
+        , "-l and -w are ignored for compatibility with Perl 5"
+        , "See documentation of pugs::run for more help."
+        ]
     where
-    backendsStr = foldr1 addComma $ sort ("JS":backends)
-    addComma w s = w ++ (',':' ':s)
+    backendsStr = concat . intersperse ", " $ sort ("JS":backends)
 
 versionFill :: Int -> String
 versionFill n = fill ++ vstr
