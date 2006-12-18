@@ -27,14 +27,17 @@ syn keyword p6KeyScopeDecl  let my our state temp has
 syn keyword p6KeyFlow       if else elsif unless  
 syn keyword p6KeyFlow       for foreach loop while until when next last redo
 syn keyword p6KeyFlow       given not or and err xor return 
+syn keyword p6KeyFlow       exit
 syn keyword p6ClosureTrait  BEGIN CHECK INIT START FIRST ENTER LEAVE KEEP UNDO NEXT LAST
 syn keyword p6ClosureTrait  PRE POST END
-syn keyword p6KeyException  die fail try CATCH CONTROL
-syn keyword p6KeyIO         print open read write readline say seek
+syn keyword p6KeyException  die fail try CATCH CONTROL warn
+syn keyword p6KeyIO         print open read write readline say seek close
+syn keyword p6KeyIO         opendir readdir
 syn keyword p6KeyProperty   constant prec key value kv irs ofs ors pos export
 syn keyword p6KeyProperty   float int str true false rw
 syn keyword p6KeyType       Array Bool Class Code Hash Int IO Num NumRange 
 syn keyword p6KeyType       Str StrRange Sub Role Rule Rat
+syn keyword p6KeyFunc       substr index rindex
 syn keyword p6KeyFunc       grep map sort join split reduce min max reverse truncate zip
 syn keyword p6KeyFunc       keys values pairs defined delete exists  
 syn keyword p6KeyFunc       arity assuming gather take any pick all none
