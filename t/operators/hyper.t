@@ -157,13 +157,13 @@ plan 56;
 
 { # unary postfix again, but with a twist
         my @r;
-        eval '@r = ("f", "oo", "bar")».length';
+        eval '@r = ("f", "oo", "bar")».chars';
         my @e = (1, 2, 3);
-        is(~@r, ~@e, "method call on list elements", :todo);
+        is(~@r, ~@e, "method call on list elements");
 
-        eval '@r = ("f", "oo", "bar")>>.length';
+        eval '@r = ("f", "oo", "bar")>>.chars';
         @e = (1, 2, 3);
-        is(~@r, ~@e, "method call on list elements (ASCII)" :todo);
+        is(~@r, ~@e, "method call on list elements (ASCII)");
 };
 
 { # unary postfix on a user-defined object
