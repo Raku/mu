@@ -7,7 +7,7 @@ plan 2;
 # Unicode-version of >>~<< only works in utf8 encoded files
 #   * Almost all other files in the Pugs Subversion repository are utf-8
 #     encoded.
-#   * Some editors/editor configurations will always safe files as utf-8.
+#   * Some editors/editor configurations will always save files as utf-8.
 #   * My add-the-usual-svn-properties script sets svn:mime-type to utf-8.
 # Because of these reasons, I felt it'd be better to simply encode the latin1
 # "<<"s and ">>"s using the \d... notation.
