@@ -944,7 +944,7 @@ ruleRequireDeclaration = tryRule "require declaration" $ do
 ruleDoBlock :: RuleParser Exp
 ruleDoBlock = rule "do block" $ do
     sym  <- symbol "do" <|> symbol "gather"
-    tree <- enterBracketLevel StatementBracket $ choice
+    tree <- choice
         [ ruleDoOnceBlock
         , ruleBlockDeclaration
         , ruleDeclaration
