@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 2;
+plan 3;
 
 my $x = do {
 	10
@@ -19,5 +19,11 @@ my $y = do {
 
 is($y, 10, "}\\n + 1 are two statements");
 
+my $z = [];
+eval q:to/EOC/
+    $x = [ do { 1 }
+            + 2 ];
+    EOC
+;
 
-
+is($z[0], 3, 'auto-curly doesn\'t apply unless we\'re at top level', :todo<bug>);
