@@ -18,19 +18,19 @@ Test delete method of Spec Functions.
 
 
 sub gen_hash {
-	my %h{'a'..'z'} = (1..26);
-	return %h;
+    my %h{'a'..'z'} = (1..26);
+    return %h;
 }
 
 {
-	my %h1 = gen_hash;
-	my %h2 = gen_hash;
+    my %h1 = gen_hash;
+    my %h2 = gen_hash;
 
-	my $b = %h1<b>;
-	is delete(%h1, <b>), $b, "Test for delete singe key. (Indirect notation)";
-	is %h2.delete(<b>), $b, "Test for delete singe key. (Method call)";
+    my $b = %h1<b>;
+    is delete(%h1, <b>), $b, "Test for delete singe key. (Indirect notation)";
+    is %h2.delete(<b>), $b, "Test for delete singe key. (Method call)";
 
-	my @cde = %h1<c d e>;
-	is delete(%h1, <c d e>), @cde, "test for delete multiple keys. (Indirect notation)";
-	is %h2.delete(<c d e>), @cde, "test for delete multiple keys. (method call)";
+    my @cde = %h1<c d e>;
+    is delete(%h1, <c d e>), @cde, "test for delete multiple keys. (Indirect notation)";
+    is %h2.delete(<c d e>), @cde, "test for delete multiple keys. (method call)";
 }
