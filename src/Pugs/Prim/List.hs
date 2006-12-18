@@ -58,12 +58,13 @@ op1Pick (VJunc (MkJunc JOne dups set)) =
     else return undef
 op1Pick v = retError "pick not defined" v
 
-shuffle :: [a] -> Eval [a]
-shuffle [] = return []
-shuffle xs = do
+shuffleN :: Int -> [a] -> Eval [a]
+shuffleN _ [] = return []
+shuffleN 0 _  = return []
+shuffleN n xs = do
     -- pick the first element
     first <- liftIO $ randomRIO (0 :: Int, length xs - 1)
-    rest <- shuffle $ take first xs ++ drop (first+1) xs
+    rest <- shuffleN (n-1) $ take first xs ++ drop (first+1) xs
     return $ head (drop first xs) : rest
 
 op2Pick :: Val -> Val -> Eval Val
@@ -71,8 +72,8 @@ op2Pick (VRef r) num = do
     ref <- readRef r
     op2Pick ref num
 op2Pick (VList xs) (VInt num) = do
-    shuffled <- shuffle xs
-    return $ VList $ take (fromInteger num) shuffled
+    shuffled <- shuffleN (fromInteger num) xs
+    return $ VList shuffled
 op2Pick r _ = retError "pick not defined" r
 
 op1Sum :: Val -> Eval Val
