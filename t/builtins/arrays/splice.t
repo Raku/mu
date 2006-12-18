@@ -127,7 +127,7 @@ is( @b, [6,7,8], "Implicit context gives the expected results"); # this is due t
 
 my @tmp = (1..10);
 @a = item splice @tmp, 5, 3;
-is( @a, [8], "Explicit scalar context returns the last element");
+is( @a, [6..8], "Explicit scalar context returns an array reference");
 
 ## test some error conditions
 
