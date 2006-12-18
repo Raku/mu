@@ -3,6 +3,7 @@
 module Pugs.Prim.List (
     op0Zip, op0Cat, op0Each, op0RoundRobin, op1Pick, op1Sum,
     op1Min, op1Max, op1Uniq,
+    op2Pick,
     op2ReduceL, op2Reduce, op2Grep, op2Map, op2Join,
     sortByM,
     op1HyperPrefix, op1HyperPostfix, op2Hyper,
@@ -56,6 +57,23 @@ op1Pick (VJunc (MkJunc JOne dups set)) =
     then return $ head $ Set.elems set
     else return undef
 op1Pick v = retError "pick not defined" v
+
+shuffle :: [a] -> Eval [a]
+shuffle [] = return []
+shuffle xs = do
+    -- pick the first element
+    first <- liftIO $ randomRIO (0 :: Int, length xs - 1)
+    rest <- shuffle $ take first xs ++ drop (first+1) xs
+    return $ head (drop first xs) : rest
+
+op2Pick :: Val -> Val -> Eval Val
+op2Pick (VRef r) num = do
+    ref <- readRef r
+    op2Pick ref num
+op2Pick (VList xs) (VInt num) = do
+    shuffled <- shuffle xs
+    return $ VList $ take (fromInteger num) shuffled
+op2Pick r _ = retError "pick not defined" r
 
 op1Sum :: Val -> Eval Val
 op1Sum list = do

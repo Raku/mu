@@ -1000,6 +1000,7 @@ op2 "and"= op2 "&&"
 op2 "or" = op2 "||"
 op2 "xor"= op2 "^^"
 op2 "err"= op2 "//"
+op2 "pick" = op2Pick
 op2 "grep" = op2Grep
 op2 "map"  = op2Map
 op2 "join" = op2Join
@@ -2024,6 +2025,7 @@ initSyms = seq (length syms) $ do
 \\n   List      pre     Pair::kv      safe   (rw!Pair)\
 \\n   List      pre     pairs   safe   (rw!Pair)\
 \\n   Any       pre     pick    safe   (Any|Junction)\
+\\n   List      pre     pick    safe   (Any|Junction: Int)\
 \\n   Bool      pre     rename  unsafe (Str, Str)\
 \\n   Bool      pre     symlink unsafe (Str, Str)\
 \\n   Bool      pre     link    unsafe (Str, Str)\
