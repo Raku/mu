@@ -57,7 +57,7 @@ is(++$phase, 4, "phase completed");
 # Simple test case to get support for goto LABEL in pugs
 
 our $test5 = 1;
-eval q{ goto SKIP; };
+eval q{ goto 'SKIP'; };
 $test5 = 0;
 SKIP:
 is($test5, 1, "goto label");
