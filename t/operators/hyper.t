@@ -8,7 +8,7 @@ use Test;
 
 =cut
 
-plan 52;
+plan 56;
 
 { # binary infix
         my @r;
@@ -143,15 +143,38 @@ plan 52;
         is(~@r, ~@e, "list-level element extension on lhs ASCII notation");
 };
 
+{ # unary postfix with integers
+        my @r;
+        eval '@r = (1, 4, 9)».sqrt';
+        my @e = (1, 2, 3);
+        is(~@r, ~@e, "method call on integer list elements");
+
+        my @r;
+	eval '@r = (1, 4, 9)>>.sqrt';
+        my @e = (1, 2, 3);
+        is(~@r, ~@e, "method call on integer list elements (ASCII)");
+};
+
 { # unary postfix again, but with a twist
         my @r;
         eval '@r = ("f", "oo", "bar")».length';
         my @e = (1, 2, 3);
-        is(~@r, ~@e, :todo);
+        is(~@r, ~@e, "method call on list elements", :todo);
 
         eval '@r = ("f", "oo", "bar")>>.length';
         @e = (1, 2, 3);
-        is(~@r, ~@e, :todo);
+        is(~@r, ~@e, "method call on list elements (ASCII)" :todo);
+};
+
+{ # unary postfix on a user-defined object
+	my $t;
+	eval 'class FooTest { method bar { 42 } }; $t = FooTest.new.bar';
+	is($t, 42, 'plain method call works OK');
+
+        my @r;
+	eval 'class FooTest { method bar { 42 } }; @r = (FooTest.new)>>.bar';
+	my @e = (42);
+	is(~@r, ~@e, "hyper-method-call on list of user-defined objects" :todo);
 };
 
 { # distribution for unary prefix
