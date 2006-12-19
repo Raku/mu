@@ -15,7 +15,7 @@ Allison Randal <al@shadowed.net>
   Date: 21 Mar 2003
   Last Modified: 18 Dec 2006
   Number: 6
-  Version: 64
+  Version: 65
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -703,29 +703,39 @@ The underlying C<Capture> object may be bound to a single scalar
 parameter marked with a C<|>.
 
     sub bar ($a,$b,$c,:$mice) { say $mice }
-    sub foo (|$args) { say |$args.perl; &bar.callc($args); }
+    sub foo (|$args) { say $args.perl; &bar.callwith(|$args); }
 
-The C<.callc> method of C<Code> objects takes a C<Capture> argument.
-The C<.callv> method accepts an ordinary variadic argument list, so the
-following is equivalent:
-
-    sub foo (|$args) { say |$args.perl; &bar.callv(|$args); }
-
-In either case, the wrapped routine is called
-without introducing an official C<CALLER> frame, and produces:
+This prints:
 
     foo 1,2,3,:mice<blind>;     # says "\(1,2,3,:mice<blind>)" then "blind"
 
-It is allowed to specify additional parameters within the signature.
-The C<Capture> binding merely takes a snapshot of what's left of
-the C<Capture> at that point and then continues binding as if the
-C<Capture> parameter weren't there:
+As demonstrated above, the capture may be interpolated into another
+call's arguments.  (The C<|> prefix is described in the next section.)
+Use of C<callwith> allows the routine to be called without introducing
+an official C<CALLER> frame.  For more see "Wrapping" below.
 
-    sub compare (|$args, Num $x, Num $y --> Bool) { ... }
+It is allowed to rebind the parameters within the signature, but
+only as a subsignature of the capture argument:
+
+    sub compare (|$args (Num $x, Num $y --> Bool)) { ... }
+
+For all normal declarative purposes (invocants and multiple dispatch
+types, for instance), the inner signature is treated as the entire
+signature:
+
+    method addto (|$args ($self: @x)) { trace($args); $self += [+] @x }
+
+The inner signature is not required for non-multies since there can
+only be one candidate, but for multiple dispatch the inner signature
+is required at least for its types, or the declaration would not know
+what signature to match against.
+
+    multi foo (|$args (Int; Bool?, *@, *%)) { reallyintfoo($args) }
+    multi foo (|$args (Str; Bool?, *@, *%)) { reallystrfoo($args) }
 
 =head2 Flattening argument lists
 
-The unary C<|> operator casts its arguments to a C<Capture>
+The unary C<|> operator casts its argument to a C<Capture>
 object, then splices that capture into the argument list
 it occurs in.  To get the same effect on multiple arguments you
 can use the C<< |« >> hyperoperator.
@@ -1776,6 +1786,7 @@ C<equiv> may be useful for cloning other traits of these operators.)
     trait_verb:<of>
     trait_auxiliary:<is>
     scope_declarator:<my>
+    statement_prefix:<do>
     statement_control:<if>
     statement_modifier:<if>
     infix_prefix_meta_operator:<!>
@@ -2118,24 +2129,25 @@ globals in the face of multithreading.
 
 =head2 Wrapping
 
-Every C<Routine> object has a C<.wrap> method. This method expects a single
-C<Code> argument. Within the code, the special C<call> and C<callv> functions will invoke
-the original routine, but do not introduce an official C<CALLER> frame:
+Every C<Routine> object has a C<.wrap> method. This method expects a
+single C<Code> argument. Within the code, the special C<callsame>,
+C<callwith>, C<nextsame> and C<nextwith> functions will invoke the
+original routine, but do not introduce an official C<CALLER> frame:
 
     sub thermo ($t) {...}   # set temperature in Celsius, returns old value
 
     # Add a wrapper to convert from Fahrenheit...
-    $handle = &thermo.wrap( { callv( ($^t-32)/1.8 ) } );
+    $handle = &thermo.wrap( { callwith( ($^t-32)/1.8 ) } );
 
-The C<callv> function lets you pass your own arguments to the wrapped
-function.  The C<call> function takes an optional C<Capture> argument,
-with no arguments it implicitly passes the original argument list
-through unchanged.
+The C<callwith> function lets you pass your own arguments to the wrapped
+function.  The C<callsame> function takes no argument; it
+implicitly passes the original argument list through unchanged.
 
 The call to C<.wrap> replaces the original C<Routine> with the C<Code>
-argument, and arranges that the call to C<call> or C<callv> invokes the previous
-version of the routine. In other words, the call to C<.wrap> has more
-or less the same effect as:
+argument, and arranges that any call to C<callsame>, C<callwith>,
+C<nextsame> or C<nextwith> invokes the previous version of the
+routine. In other words, the call to C<.wrap> has more or less the
+same effect as:
 
     &old_thermo := &thermo;
     &thermo := sub ($t) { old_thermo( ($t-32)/1.8 ) }
@@ -2155,52 +2167,45 @@ temporization:
 
     # Add a wrapper to convert from Kelvin
     # wrapper self-unwraps at end of current scope
-    temp &thermo.wrap( { callv($^t + 273.16) } );
+    temp &thermo.wrap( { callwith($^t + 273.16) } );
 
 The entire argument list may be captured by binding to a C<Capture> parameter.
-It can then be passed to C<call> using that name:
+It can then be passed to C<callwith> using that name:
 
     # Double the return value for &thermo
-    &thermo.wrap( -> |$args { call($args) * 2 } );
+    &thermo.wrap( -> |$args { callwith(|$args) * 2 } );
 
 In this case only the return value is changed.
 
 The wrapper is not required to call the original routine; it can call another
-C<Code> object by passing the C<Capture> to one of its C<call> method:
+C<Code> object by passing the C<Capture> to its C<callwith> method:
 
     # Transparently redirect all calls to &thermo to &other_thermo
-    &thermo.wrap( sub (|$args) { &other_thermo.callv(|$args) } );
+    &thermo.wrap( sub (|$args) { &other_thermo.callwith(|$args) } );
 
 or more briefly:
 
-    &thermo.wrap( -> |$args { &other_thermo.callc($args) } );
+    &thermo.wrap( { &other_thermo.callsame } );
 
-or even more briefly:
-
-    &thermo.wrap( { &other_thermo.call } );
-
-Outside a wrapper, the various C<call> and C<goto> functions and
-methods implicitly call the next-most-likely method or multi-sub;
-see S12 for details.
+Since the method versions of C<callsame>, C<callwith>, C<nextsame>,
+and C<nextwith> specify an explicit destination, their semantics do
+not change outside of wrappers.  However, the corresponding functions
+have no explicit destination, so instead they implicitly call the
+next-most-likely method or multi-sub; see S12 for details.
 
 As with any return value, you may capture the returned C<Capture> of C<call>
 by binding:
 
-    my |$retval := callc($args);
+    my |$retval := callwith(|$args);
     ... # postprocessing
     return |$retval;
 
 Alternately, you may prevent any return at all by using the variants
-C<goto>, C<gotoc> and C<gotov>.  Arguments are passed just as with
-C<call>, C<callc>, and C<callv>, but a tail call is explicitly
-enforced; any following code will be unreached.  The C<callc> and
-C<gotoc> variants take a single optional C<Capture> argument supplying
-the new argument list; if not supplied, the incoming C<Capture> is
-passed verbatim (regardless of any capture bindings in the signature).
-You may also use the C<callv> or C<gotov> variants to pass an ordinary
-variadic argument list to the wrapped function.  Use C<< prefix:<|>
->> to incorporate a capture (such as the original argument list)
-into the new argument list.
+C<nextsame> and C<nextwith>.  Arguments are passed just as with
+C<callsame> and C<callwith>, but a tail call is explicitly enforced;
+any code following the call will be unreached, as if a return had
+been executed there before calling into the destination routine.
+Within a method C<nextsame> is equivalent to C<next METHOD>.
 
 =head2 The C<&?ROUTINE> object
 
