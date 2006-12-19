@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 10 Nov 2006
+  Last Modified: 19 Nov 2006
   Number: 12
-  Version: 33
+  Version: 34
 
 =head1 Overview
 
@@ -645,12 +645,17 @@ The C<WALK> pseudo-class takes these arguments:
     :omit(Selector)     # only classes that don't match selector
     :include(Selector)  # only classes that match selector
 
-In addition to C<next METHOD>, the special function C<call> dispatches
-to the next candidate, possibly with a new argument list:
+In addition to C<next METHOD>, the special functions C<callsame>,
+C<callwith>, C<nextsame>, and C<nextwith> dispatch to the next
+candidate, possibly with a new argument list, and if the "next"
+variant is used, without returning:
 
-    call;           # calls with the original arguments
-    call();         # calls with no arguments
-    call(1,2,3);    # calls with a different set of arguments
+    callsame;           # call with the original arguments (return here)
+    callwith();         # call with no arguments (return here)
+    callwith(1,2,3);    # call with a new set of arguments (return here)
+    nextsame;           # redispatch with the original arguments (no return)
+    nextwith();         # redispatch with no arguments (no return)
+    nextwith(1,2,3);    # redispatch with a new set of arguments (no return)
 
 =head1 Parallel dispatch
 
