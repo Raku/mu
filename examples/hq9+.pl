@@ -1,11 +1,10 @@
 class HQ9Plus;
 
-# 2006-08-21 subtypes not implemented in pugs
-# Currently fails parsing
+# 2006-12-19 (rough) update to current spec
 
 my subset HQ9PlusProgram
     of Str
-    where /^<[hq9+]>$/;
+    where /^ <[hq9+]>* $/;
 
 my subset HQ9PlusStep
     of HQ9PlusProgram
@@ -16,13 +15,13 @@ has Int            $.accumulator = 0;
 has Int            $position = 0; # twigilless are private
 
 has %actions = (
-    'h' => { self._hello },
-    'q' => { self._quine },
-    '9' => { self._nine  },
-    '+' => { self._plus  },
+    'h' => { self.hello },
+    'q' => { self.quine },
+    '9' => { self.nine  },
+    '+' => { self.plus  },
 );
 
-method run    () {
+method run () {
     # Java, anyone? Feel free to fix this.
     loop {
         .step;
@@ -35,19 +34,17 @@ method run    () {
     }
 }
 
-method step   () {
+method step () {
     given $.program.substr($position++, 1) {
         $actions<$_>();
     }
 }
 
-# the current "spec" is that methods starting with _ are private.
-# it used to be : instead of _. who knows what it'll be next week. (:
-method _hello () { print "Hello, world!" }
-method _quine () { print $.program }
-method _plus  () { $.accumulator++ }
-method _nine  () {
-    my int $i = 99;
+my method hello () { say "Hello, world!" }
+my method quine () { say $.program }
+my method plus  () { $.accumulator++ }
+my method nine  () {
+    my Int $i = 99;
 
     while $i {
         say qq:to/END/;
