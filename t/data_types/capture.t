@@ -10,7 +10,7 @@ plan 18;
     
     # L<S03/"List flattening" /an Array \(or Arglist\)/>
     my sub foo ($a, $b, $c) { "$a!$b!$c" }
-    is try { &foo.call($arglist) }, "1!2!3",
+    is try { &foo.callwith(|$arglist) }, "1!2!3",
         "simply arglist creation with \\( works (1)";
 }
 
@@ -19,7 +19,7 @@ plan 18;
     
     # L<S03/"List flattening" /an Array \(or Arglist\)/>
     my sub foo ($a, $b, $c) { "$a!$b!$c" }
-    dies_ok { &foo.call($arglist) },
+    dies_ok { &foo.callwith(|$arglist) },
         "simply arglist creation with \\( works (2)", :todo<feature>;
 }
 
@@ -28,7 +28,7 @@ plan 18;
     
     # L<S03/"List flattening" /an Array \(or Arglist\)/>
     my sub foo ($a, :$named) { "$a!$named" }
-    is try { &foo.call($arglist) }, "1!arg",
+    is try { &foo.callwith(|$arglist) }, "1!arg",
         "simply arglist creation with \\( works (3)";
 }
 
@@ -37,7 +37,7 @@ plan 18;
     
     # L<S03/"List flattening" /an Array \(or Arglist\)/>
     my sub foo ($a, $pair) { "$a!$pair" }
-    is try { &foo.call($arglist) }, "1!positional\tpair",
+    is try { &foo.callwith(|$arglist) }, "1!positional\tpair",
         "simply arglist creation with \\( works (4)", :todo<feature>;
 }
 
@@ -47,14 +47,14 @@ plan 18;
 
     # L<S03/"List flattening" /an Array \(or Arglist\)/>
     my sub foo (@arr) { ~@arr }
-    is try { &foo.call($arglist) }, "a b c",
+    is try { &foo.callwith(|$arglist) }, "a b c",
         "arglist creation with \\( works", :todo<feature>;
 }
 
 # L<S06/"Argument list binding" /single scalar parameter marked/>
 {
     my sub bar ($a, $b, $c) { "$a!$b!$c" }
-    my sub foo (\$arglist)  { &bar.call($arglist) }
+    my sub foo (\$arglist)  { &bar.callwith(|$arglist) }
 
     is try { foo(1,2,3) }, "1!2!3",
         "arglist creation with \\$ works (1)", :todo<feature>;
@@ -98,9 +98,9 @@ plan 18;
     my $arglist = \(:foo<bar>, :baz<grtz>);
     my sub foo ($a,$b, :$foo, :$baz) { "$a!$b!$foo!$baz" }
 
-    dies_ok { &foo.call($arglist) },  # too few args
+    dies_ok { &foo.callwith(|$arglist) },  # too few args
         "mixing ordinary args with arglists (1)";
-    is &foo.call(\(1, 2, |$arglist)), "1!2!bar!grtz",
+    is &foo.callwith(1, 2, |$arglist), "1!2!bar!grtz",
         "mixing ordinary args with arglists (2)";
 }
 

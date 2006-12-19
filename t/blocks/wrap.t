@@ -24,13 +24,13 @@ sub foo {
 
 sub wrapper {
     push @log, "wrapper before";
-    try { call };
+    try { callsame };
     push @log, "wrapper after";
 }
 
-sub other_wrapper {
+sub other_wrapper (|$args) {
     push @log, "wrapper2";
-    try { call };
+    try { nextwith(|$args) };
 }
 
 foo();
