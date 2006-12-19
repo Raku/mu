@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 5 Dec 2006
+  Last Modified: 18 Dec 2006
   Number: 6
-  Version: 63
+  Version: 64
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -703,17 +703,23 @@ The underlying C<Capture> object may be bound to a single scalar
 parameter marked with a C<|>.
 
     sub bar ($a,$b,$c,:$mice) { say $mice }
-    sub foo (|$args) { say |$args.perl; &bar.callargs(|$args); }
+    sub foo (|$args) { say |$args.perl; &bar.callc($args); }
 
-The C<.callargs> method of C<Code> objects accepts an argument list,
-(which can be specified as a Capture object as above), and calls it
-without introducing an official C<CALLER> frame.
+The C<.callc> method of C<Code> objects takes a C<Capture> argument.
+The C<.callv> method accepts an ordinary variadic argument list, so the
+following is equivalent:
+
+    sub foo (|$args) { say |$args.perl; &bar.callv(|$args); }
+
+In either case, the wrapped routine is called
+without introducing an official C<CALLER> frame, and produces:
 
     foo 1,2,3,:mice<blind>;     # says "\(1,2,3,:mice<blind>)" then "blind"
 
-It is allowed to specify additional parameters. The Capture binding merely
-takes a snapshot of what's left of the Capture at that point and then
-continues binding as if the Capture parameter weren't there:
+It is allowed to specify additional parameters within the signature.
+The C<Capture> binding merely takes a snapshot of what's left of
+the C<Capture> at that point and then continues binding as if the
+C<Capture> parameter weren't there:
 
     sub compare (|$args, Num $x, Num $y --> Bool) { ... }
 
@@ -2025,7 +2031,7 @@ for the control structure to leave.  The C<Selector> will be
 smart-matched against the dynamic scope objects from inner to outer.
 The first that matches is the scope that is left.
 
-The remainder of the arguments are taken to be a Capture holding the
+The remainder of the arguments are taken to be a C<Capture> holding the
 return values.
 
     leave;                      # return from innermost block of any kind
@@ -2113,27 +2119,28 @@ globals in the face of multithreading.
 =head2 Wrapping
 
 Every C<Routine> object has a C<.wrap> method. This method expects a single
-C<Code> argument. Within the code, the special C<call> and C<callargs> functions will invoke
+C<Code> argument. Within the code, the special C<call> and C<callv> functions will invoke
 the original routine, but do not introduce an official C<CALLER> frame:
 
     sub thermo ($t) {...}   # set temperature in Celsius, returns old value
 
     # Add a wrapper to convert from Fahrenheit...
-    $handle = &thermo.wrap( { callargs( ($^t-32)/1.8 ) } );
+    $handle = &thermo.wrap( { callv( ($^t-32)/1.8 ) } );
 
-The C<callargs> function lets you pass your own arguments to the wrapped
-function.  The C<call> function takes no arguments and implicitly passes
-the original argument list through unchanged.
+The C<callv> function lets you pass your own arguments to the wrapped
+function.  The C<call> function takes an optional C<Capture> argument,
+with no arguments it implicitly passes the original argument list
+through unchanged.
 
 The call to C<.wrap> replaces the original C<Routine> with the C<Code>
-argument, and arranges that the call to C<call> or C<callargs> invokes the previous
+argument, and arranges that the call to C<call> or C<callv> invokes the previous
 version of the routine. In other words, the call to C<.wrap> has more
 or less the same effect as:
 
     &old_thermo := &thermo;
     &thermo := sub ($t) { old_thermo( ($t-32)/1.8 ) }
 
-Except that C<&thermo> is mutated in-place, so C<&thermo.WHICH> stays the same
+except that C<&thermo> is mutated in-place, so C<&thermo.WHICH> stays the same
 after the C<.wrap>.
 
 The call to C<.wrap> returns a unique handle that can later be passed to
@@ -2148,35 +2155,52 @@ temporization:
 
     # Add a wrapper to convert from Kelvin
     # wrapper self-unwraps at end of current scope
-    temp &thermo.wrap( { callargs($^t + 273.16) } );
+    temp &thermo.wrap( { callv($^t + 273.16) } );
 
-The entire argument list may be captured by binding to a Capture parameter.
-It can then be passed to C<callargs> using that name:
+The entire argument list may be captured by binding to a C<Capture> parameter.
+It can then be passed to C<call> using that name:
 
     # Double the return value for &thermo
-    &thermo.wrap( -> |$args { callargs(|$args) * 2 } );
+    &thermo.wrap( -> |$args { call($args) * 2 } );
 
 In this case only the return value is changed.
 
 The wrapper is not required to call the original routine; it can call another
-C<Code> object by passing the C<Capture> to its C<call> method:
+C<Code> object by passing the C<Capture> to one of its C<call> method:
 
     # Transparently redirect all calls to &thermo to &other_thermo
-    &thermo.wrap( -> |$args { &other_thermo.callargs(|$args) } );
+    &thermo.wrap( sub (|$args) { &other_thermo.callv(|$args) } );
 
 or more briefly:
 
+    &thermo.wrap( -> |$args { &other_thermo.callc($args) } );
+
+or even more briefly:
+
     &thermo.wrap( { &other_thermo.call } );
 
-Outside a wrapper, the various C<call> functions and methods implicitly
-call the next-most-likely method or multi-sub; see S12 for details.
+Outside a wrapper, the various C<call> and C<goto> functions and
+methods implicitly call the next-most-likely method or multi-sub;
+see S12 for details.
 
 As with any return value, you may capture the returned C<Capture> of C<call>
 by binding:
 
-    my |$retval := callargs(|$args);
+    my |$retval := callc($args);
     ... # postprocessing
     return |$retval;
+
+Alternately, you may prevent any return at all by using the variants
+C<goto>, C<gotoc> and C<gotov>.  Arguments are passed just as with
+C<call>, C<callc>, and C<callv>, but a tail call is explicitly
+enforced; any following code will be unreached.  The C<callc> and
+C<gotoc> variants take a single optional C<Capture> argument supplying
+the new argument list; if not supplied, the incoming C<Capture> is
+passed verbatim (regardless of any capture bindings in the signature).
+You may also use the C<callv> or C<gotov> variants to pass an ordinary
+variadic argument list to the wrapped function.  Use C<< prefix:<|>
+>> to incorporate a capture (such as the original argument list)
+into the new argument list.
 
 =head2 The C<&?ROUTINE> object
 
