@@ -71,6 +71,9 @@ op2Pick :: Val -> Val -> Eval Val
 op2Pick (VRef r) num = do
     ref <- readRef r
     op2Pick ref num
+op2Pick l@(VList xs) (VNum n)
+    | n == 1/0  = op2Pick l (VInt . toInteger $ length xs)
+    | otherwise = op2Pick l (VInt . toInteger $ floor n)
 op2Pick (VList xs) (VInt num) = do
     shuffled <- shuffleN (fromInteger num) xs
     return $ VList shuffled
