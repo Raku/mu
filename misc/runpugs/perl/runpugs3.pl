@@ -21,7 +21,7 @@ use strict;
 use utf8;
 use lib '../lib/';
 use Web::Terminal::Settings;
-use Web::Terminal::Dispatcher;
+use Web::Terminal::Dispatcher3;
 #$Web::Terminal::Settings::port=2058;
 #push (@INC, "$wwwpath$htmlpath$project");
 
@@ -67,6 +67,10 @@ if ( $query->param()) {      # an action has been chosen
                 chomp $cmd;
                 last;
         };
+        $cmdline=~/$Web::Terminal::Settings::quit_message/ 
+        && do {
+        $cmd='clear';
+        };
         }
     my $action =  $query->param("action")||'runpugs';
     if ($action =~ /^(\w+)$/) {
@@ -95,11 +99,14 @@ sub runpugs {
     my $ip=shift;
     my $dev=$query->param('reldev')||0;
     $dev=$dev*1;
-    my $devc='';
-    my $relc='checked';
+    my $devc='checked';
+    my $relc='';
     if($dev==1) {
         $devc='checked';
         $relc='';
+        } else {
+        $devc='';
+        $relc='checked';
         }
     my $html='';
     my $clear=0;
@@ -116,6 +123,7 @@ sub runpugs {
         } else {
             $cmd=$query->param('history');
         }
+        if ($cmd=~//) {}
         if ($cmd=~/clear/) {
         $clear=1;
             $cmd='';
@@ -130,7 +138,7 @@ sub runpugs {
                 $cmd=~s/$1/:q/;
             } 
             ($reply, $nprompt, my $histref) =
-            &Web::Terminal::Dispatcher::send($sessionid,$ip,$dev,1,$cmd);
+            &Web::Terminal::Dispatcher3::send($sessionid,$ip,$dev,1,$cmd);
             if (defined $histref) {
                 @history=@{$histref};
                 $prevcmd=$history[-1];
@@ -139,9 +147,6 @@ sub runpugs {
         }
     my $npromptw=HTML::Entities::encode_entities($nprompt);
 #    my $replyw="$preply$prompt$prevcmd\n$reply";
-#    if($reply=~/$Web::Terminal::Dispatcher::quit_message/) {
-#        $nprompt='';
-#        }
     my $replyw="$preply\n$reply";
     if($clear==1) {
         $replyw='';
@@ -155,8 +160,11 @@ sub runpugs {
         my $entryw=HTML::Entities::encode_entities($entry);
         $historylist.='<option value="'.$entryw.'">'.$entryw.'</option>'."\n";
     }
+    if($replyw!~/Leaving\ pugs\.$/) {
         $replyw.=$nprompt;
-    open(HTML,"<../data/runpugs_async.html");
+        } 
+
+    open(HTML,"<../data/runpugs_async3.html");
     while(<HTML>) {
         /_HIST_/ && do {
             $html.=$historylist;

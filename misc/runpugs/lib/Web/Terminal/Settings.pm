@@ -54,7 +54,7 @@ nrecent
 #Rel
 our @commands=(
 '/usr/bin/nice /home/andara/pugs-rel/pugs -I/home/andara/pugs-rel/blib6/lib',
-'/usr/bin/pugs' #/usr/bin/nice 
+'/usr/bin/nice /usr/bin/pugs'
 );
 #Dev
 #our $command='/usr/bin/nice /usr/bin/pugs';
@@ -81,7 +81,7 @@ our $host='localhost';
 
 our $nsessions=50;
 our $nsessions_ip=10;
-our $npreloaded_sessions=3;
+our @npreloaded_sessions=(2,5);
 
 our $timeout_idle=600; # was 600
 our $timeout_call=30; #  was 10

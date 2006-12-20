@@ -30,7 +30,7 @@ $SIG{CHLD} = 'IGNORE';
 # with the session id as first line.
 
 our %terminals=();
-our %sessions_per_ip=();
+our %nsessions_per_ip=();
 
 my $v=1-$Web::Terminal::Settings::daemon;
 
@@ -49,7 +49,7 @@ if(scalar(keys %terminals)>$Web::Terminal::Settings::nsessions){ # each pugs tak
     print "Connecting to session $id\n" if $v;
     if ($terminals{$id}->{pid}) {    
     $terminals{$id}->{called}=time;
-        #if swap to other app
+        #if swap to other app #PRE: This will result in a new create()
         if ($app != $terminals{$id}->{'app'}) {
                  &killterm($id);
 	        	$terminals{$id} = new
@@ -59,7 +59,7 @@ if(scalar(keys %terminals)>$Web::Terminal::Settings::nsessions){ # each pugs tak
                 my $output= $term->{'output'};
                 my $error= $term->{'error'};
                 if ($error==1) { # Failed to create a new terminal
-                $sessions_per_ip{$ip}--;
+                $nsessions_per_ip{$ip}--;
                 &killterm($id);
                 } 
     	    	return $output;
@@ -72,24 +72,24 @@ if(scalar(keys %terminals)>$Web::Terminal::Settings::nsessions){ # each pugs tak
 		my $lines = $term->write($cmd);
 		if ( $cmd eq $Web::Terminal::Settings::quit_command ) {
             &killterm($id);
-            $sessions_per_ip{$ip}--;
+            $nsessions_per_ip{$ip}--;
             return $lines;
         } elsif ($terminals{$id}->{error}==1) {
             &killterm($id);
-            $sessions_per_ip{$ip}--;
+            $nsessions_per_ip{$ip}--;
         }
 		return $lines;
         } else {
             return $Web::Terminal::Settings::prompt;
         }
 	} else {
-        if ($sessions_per_ip{$ip}>$Web::Terminal::Settings::nsessions_ip) {
+        if ($nsessions_per_ip{$ip}>$Web::Terminal::Settings::nsessions_ip) {
         print LOG2 "MAX nsessions for $ip reached\n";
         print "MAX nsessions for $ip reached\n" if $v;
          return "Sorry, you can't run more than ${Web::Terminal::Settings::nsessions_ip} sessions from one IP address.\n";   
         } else {
         print "New $id\n" if $v;
-            $sessions_per_ip{$ip}++;
+            $nsessions_per_ip{$ip}++;
             print "$app $ia $id $cmd\n" if $v;
     		$terminals{$id} = new
             Web::Terminal::Server::Session(app=>$app,ia=>$ia,id=>$id,cmds=>$cmd);
@@ -100,7 +100,7 @@ if(scalar(keys %terminals)>$Web::Terminal::Settings::nsessions){ # each pugs tak
             my $error= $term->{'error'};
             if ($error==1 or $ia==0) { # Failed to create a new terminal
             print " Failed to create a new terminal: <$output> err:$error ia:$ia\n" if $v;
-                $sessions_per_ip{$ip}--;
+                $nsessions_per_ip{$ip}--;
                 &killterm($id);
             }
             return $output;
@@ -214,7 +214,7 @@ sub timeout() {
         if ($now-$then>$Web::Terminal::Settings::timeout_idle) {
           my $pid= $terminals{$id}->{pid};
             my $ip=$terminals{$id}->{ip};
-            $sessions_per_ip{$ip}--;
+            $nsessions_per_ip{$ip}--;
 #             if ($pid) {
 #                kill 9,$pid;
 #            }

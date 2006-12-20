@@ -32,10 +32,10 @@ $SIG{CHLD} = 'IGNORE';
 
 our %terminals        = ();
 our %nsessions_per_ip = ();
-our $session_counter  = 0;
-our %sessions         = ();    # holds the session objects
-our @sessions_stack     = 1 .. $Web::Terminal::Settings::nsessions;
-our @sessions_stack_app = ();
+#our $session_counter  = 0;
+my %sessions         = ();    # holds the session objects
+my @sessions_stack     = 1 .. $Web::Terminal::Settings::nsessions;
+my @sessions_stack_app = ();
 my $v = 1 - $Web::Terminal::Settings::daemon;
 
 my $pid;
@@ -66,12 +66,15 @@ sub run {
 
 			#select LOG2; $|=1; # to switch of buffering
 			print "Parent: preload sessions ...\n " if $v;
-			print @sessions_stack . join(','), "\n";
-			for my $i ( 1 .. $Web::Terminal::Settings::npreloaded_sessions ) {
-				for my $app ( 0 .. @Web::Terminal::Settings::commands - 1 ) {
-					$app == 0 && next;
+#			print join(',',@sessions_stack), "\n" if $v;
+			for my $app ( 0 .. @Web::Terminal::Settings::commands - 1 ) {
+    			for my $i ( 1 ..
+                $Web::Terminal::Settings::npreloaded_sessions[$app] ) {
+#                $sessions_stack_app[$app]=[];
+#					$app == 0 && next;
 					my $ret = &create_session($app);
-					print "OK? $ret\n";
+					print "OK? if $v;
+                    $ret:",scalar(@{$sessions_stack_app[$app]}),';',$app,"\n";
 				}
 			}
 			print "Parent: create new server..." if $v;
@@ -83,9 +86,10 @@ sub run {
 			# child here
 			while ( getppid() > 10 ) {    # a bit ad-hoc.
 				sleep $Web::Terminal::Settings::check_interval;
-				print "Child: ", getppid(), "\n" if $v;
+#				print "Child: ", getppid(), "\n" if $v;
 				kill 'USR1', getppid();
 			}
+            die "No restarting, test phase\n";
 			print "Restarting server\n" if $v;
 			chdir $Web::Terminal::Settings::cgi_path;
 			exec(
@@ -232,7 +236,7 @@ sub termhandler {
 				if ( $cmd eq $Web::Terminal::Settings::quit_command ) {
 					&disconnect_from_session($id);
 					$nsessions_per_ip{$ip}--;
-					$lines = $Web::Terminal::Settings::quit_message;
+					$lines = $Web::Terminal::Settings::quit_message."\n";
 				} elsif ( $term->{error} == 1 ) {
 					&kill_term($id)
 					  ; # Well, really. If the session returns an error, we should kill it.
@@ -257,20 +261,24 @@ sub termhandler {
 				print "New session $id\n" if $v;
 				$nsessions_per_ip{$ip}++;
 				print "$app $ia $id $cmd\n" if $v;
-
+                  if (($app!=0) && ($app!=1)) {$app=1};
 				# then we should check if there is a free session for this $app
 				if ( @{ $sessions_stack_app[$app] } ) {
 					my $counter = &connect_to_session( $app, $id, $ip );
 					print "Connected $id to free session $counter\n" if $v;
 					my $term = $sessions{$counter};
 					# Every time a free session is taken, create a new session
+                    # if the number of free sessions is low
+                    if ( @{ $sessions_stack_app[$app] }<2) {
 					# we use a SIGUSR2 to the child for this
 					kill 'USR2', $pid or die $!;
 					print "Initiated create_session() call, now returning\n" if $v;
+                    }
 					return $term->{output};
 				} else {    # if not, create one
 					my $counter = &create_session($app);
 					if ( $counter != -1 ) {
+					print "Created a new session $counter and connected to $id\n" if $v;
 						my $counter = &connect_to_session( $app, $id, $ip );
 						my $term = $sessions{$counter};
 						return $term->{output};
@@ -299,7 +307,7 @@ sub create_session {
 			push @{ $sessions_stack_app[$app] }, $session_counter;
 			return $session_counter;
 		} else {
-			$session_counter--;
+            push  @sessions_stack, $session_counter;
 			return -1;
 		}
 	} else {
@@ -355,6 +363,7 @@ sub timeout() {
 }
 
 sub init_create {
+    sleep 3;
 	print "Initiating a create_session() call...\n" if $v;
 	use Web::Terminal::Dispatcher3;
 	(my $ret,my $p,my $h)=Web::Terminal::Dispatcher3::send(0,'127.0.0.1',1,1,'Web::Terminal::Server::Session.create');
