@@ -1,0 +1,43 @@
+Originally borrowed from "99 Lisp Problems", the 84 problems listed here are
+an attempt to solve these problems in Perl 6.
+
+FAQ.
+
+Q.  99 != 84.  What gives?
+A.  Who knows?  I didn't write 'em.
+
+Q.  Are the done?
+A.  Nope.  Probably never will be, even if all are answered.  Find a problem
+and see if you can solve it.  The lower the problems number, the more likely
+it has been "solved".  (This FAQ was writtenn immediately after solving
+problem 24).
+
+Q.  Your solution is a big bucket of suck.  I can do better.
+A.  Feel free!  But don't erase other solutions, add to them and update the
+test count.
+
+Q.  Why did you do X when it's clearly not the best way?
+A.  I've tried to get all of the examples to compile under the current version
+of Pugs (6.2.13 (r14927)).  This was primarily to see if I could really get
+working Perl 6 code.  For example, problem 24 has the following statement:
+
+  my %unique = map sub {$_ => 1}, @numbers;
+
+That's probabably better written as:
+
+  my %unique = map {$_ => 1}, @numbers;
+
+Right now, Perl 6 seems to be very keen on turning {} into a hash reference.
+
+Q.  Some answers don't quite match the problem statement.  Why not?
+A.  Because Perl 6 naturally expresses some things differently.  For example,
+some problems imply that the starting index of lists is '1'.  I chose '0'
+because that's how most programming languages (including Perl 6) do it.
+
+Q.  Why do some of the problems refer to Prolog?
+A.  Because Prolog is truly a sublime language and these problems were
+originally written in Prolog
+(http://www.hta-bi.bfh.ch/~hew/informatik3/prolog/p-99/).
+
+Q.  Where are the images the problems refer to?
+A.  See the link in the previous FAQ question.
