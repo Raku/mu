@@ -79,6 +79,7 @@ op0 "times"  = const $ do
         [u, s, cu, cs]
 op0 "\xA5" = op0Zip -- ¥
 op0 "Y" = op0 "\xA5"
+op0 "XX" = op0Cross
 op0 "File::Spec::cwd" = const $ do
     cwd <- guardIO getCurrentDirectory
     return $ VStr cwd
@@ -2098,6 +2099,7 @@ initSyms = seq (length syms) $ do
 \\n   Scalar    left    .{}     safe   (Hash, Str)\
 \\n   List      list    \xA5    safe   (Array)\
 \\n   List      list    Y       safe   (Array)\
+\\n   List      list    XX      safe   (Array)\
 \\n   List      spre    <==     safe   (List)\
 \\n   List      left    ==>     safe   (List, Code)\
 \\n   Scalar    left    and     safe   (Bool, ~Bool)\

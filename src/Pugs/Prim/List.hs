@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances #-}
 
 module Pugs.Prim.List (
-    op0Zip, op0Cat, op0Each, op0RoundRobin, op1Pick, op1Sum,
+    op0Zip, op0Cross, op0Cat, op0Each, op0RoundRobin, op1Pick, op1Sum,
     op1Min, op1Max, op1Uniq,
     op2Pick,
     op2ReduceL, op2Reduce, op2Grep, op2Map, op2Join,
@@ -37,6 +37,16 @@ op0Zip' lists = (map zipFirst lists):(op0Zip' (map zipRest lists))
     zipFirst (x:_)  = x
     zipRest  []     = []
     zipRest  (_:xs) = xs
+
+op0Cross :: [Val] -> Eval Val
+op0Cross = fmap (VList . fmap VList . op0Cross') . mapM fromVal
+
+op0Cross' :: [[Val]] -> [[Val]]
+op0Cross' [] = [[]]
+op0Cross' (xs:yss) = do
+    x <- xs
+    ys <- op0Cross' yss
+    return (x:ys)
 
 op1Pick :: Val -> Eval Val
 op1Pick (VRef r) = op1Pick =<< readRef r
