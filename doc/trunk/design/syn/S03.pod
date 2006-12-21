@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 5 Dec 2006
+  Last Modified: 20 Dec 2006
   Number: 3
-  Version: 77
+  Version: 78
 
 =head1 Changes to Perl 5 operators
 
@@ -534,6 +534,35 @@ If applied to a list, it generates a multidimensional set of subscripts.
 If applied to a type name, it indicates the metaclass instance instead,
 so C<^Moose> is short for C<HOW(Moose)> or C<Moose.HOW>.  It still kinda
 means "what is this thing's domain" in an abstract sort of way.
+
+=item * Since use of C<Range> objects in scalar context is usually
+non-sensical, a C<Range> object used as an operand for scalar operators
+will generally attempt to distribute the operator to its endpoints and
+return another suitably modified C<Range> instead.  (Notable exceptions
+include C<< infix:<~~> >>, which does smart matching, and C<< prefix:<+> >>
+which returns the length of the range.)  Therefore if you wish to
+write a slice using a length instead of an endpoint, you can say
+
+    @foo[ start() + ^$len ]
+
+which is short for:
+
+    @foo[ start() + (0..^$len) ]
+
+which is equivalent to something like:
+
+    @foo[ list do { my $tmp = start(); $tmp ..^ $tmp+$len } ]
+
+In other words, operators of numeric and other ordered types are
+generally overloaded to do something sensible on C<Range> objects.
+In particular, multiplicative operators not only multiply the endpoints
+but also the "by" of the C<Range> object:
+
+    (1..11:by(2)) * 5           # same as 5..55:by(10) 
+    5,15,25,35,45,45,55
+
+Conjecture: non-linear functions might even produce non-uniform "by" values!
+Think of log scaling, for instance.
 
 =item * The C<...> operator is the "yada, yada, yada" list operator,
 which is used as the body in function prototypes.  It complains
