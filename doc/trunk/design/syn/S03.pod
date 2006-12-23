@@ -14,7 +14,7 @@ Luke Palmer <luke@luqui.org>
   Date: 8 Mar 2004
   Last Modified: 23 Dec 2006
   Number: 3
-  Version: 80
+  Version: 81
 
 =head1 Changes to Perl 5 operators
 
@@ -705,8 +705,18 @@ and if the types of the operands resolve at compile time according
 to the table above, any existing C<< infix:<~~> >> routines are
 completely ignored.  If the types cannot be matched at compile time,
 one attempt is made to multiply dispatch to all C<< infix:<~~> >>
-infix definitions.  If this fails, the most generic multi definition
-of C<< infix:<~~> >> calls C<===> to match the two variables exactly
+infix definitions.  The standard C<< infix:<~~> >> definitions are
+intended to reproduce as closely as possible the compile-time table above,
+but it can do this based only on the run-time types of the arguments.
+Therefore only the entries above that indicate a type on both sides
+can be dispatched that way.  (You can tell those because both sides
+start with a capital letter.  So multiple dispatch ignores the
+".method", "boolean", "undef", and "*" entries, which are recognized
+syntactically, not by type.)
+
+If there is no appropriate signature match under the rules of multiple
+dispatch, the most generic multi definition of C<< infix:<~~> >>
+defaults to calling C<===> to match the two variables exactly
 according to their type.  In general you should just rely on this
 and not attempt to define your own C<< infix:<~~> >> operators,
 because complexifying the run-time semantics of C<~~> is not doing
@@ -1264,7 +1274,8 @@ Unfortunately, with nesting metaoperators there are an infinite number
 of metaforms, so we arbitrarily say that no metacircumfix form is
 pregenerated that uses the same grammatical category more than once.
 Therefore forms like C<[+=]> and C<»!===«> and C<X*X=> are generated,
-but not forms like C<»X*X«> or C<X«*»X>.  You do get C<[X*X]>,
+but not forms like C<»X*X«> or C<X«*»X> or C<<< <<+=>>= >>>.
+You do get C<[X*X]>,
 though, because reduction is prefix_circumfix_meta_operator while
 cross operators are infix_circumfix_meta_operator.
 
@@ -1287,6 +1298,13 @@ Suppose the user were to define, say, C<< infix:<XxX!#@$> >> or
 C<< statement_modifier:<XxXfor> >>; those hardwired forms must take
 precedence over the C<XxX> operator even if the metaform DFA only
 knows how to recognize the C<XxX> part.
+
+Note that the maximum possible token length is bounded by the sum
+of the maximum lengths of each metacategory, so an enumerated solution
+is always possible, though perhaps not practical.  It's also the case
+that no metaform is allowed to contain whitespace, so a solution
+that starts at the length of the current "word" and works down is also
+possible.
 
 =head1 Junctive operators
 
