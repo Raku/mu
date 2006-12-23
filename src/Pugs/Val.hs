@@ -169,7 +169,7 @@ instance ((:>:) WHICH) ValNative where
 
 --------------------------------------------------------------------------------------
 
--- | L<S06/"Undefined types">
+-- | L<S02/"Undefined types">
 data ValUndef
     = UUndef                        -- ^ "my $x"
     | UWhatever                     -- ^ "my $x = *"
@@ -206,7 +206,7 @@ instance Data NativeComplex where
 
 --------------------------------------------------------------------------------------
 
--- | L<S06/"Immutable types">
+-- | L<S02/"Immutable types">
 
 -- | Pure values need not be in a monad, but we put them in the trivial
 -- Identity so that they are at the same monadic depth as Mut and Ext.
@@ -287,7 +287,7 @@ type PureMap        = ()
 
 {-
 --------------------------------------------------------------------------------------
--- | L<S06/"Mutable types"> minus IO types
+-- | L<S02/"Mutable types"> minus IO types
 --   Computations on these types take place in the STM monad.
 data ValMut
     = MScalar    !MutScalar

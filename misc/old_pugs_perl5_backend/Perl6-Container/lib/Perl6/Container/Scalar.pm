@@ -121,7 +121,7 @@ sub Perl6::Cell::untie {
 # tieable, readonly
 #
 # These are Perl6 roles
-# See: S06 - Implementation types
+# See: S02 - Implementation types
 # See: t/trait.t
 #
 

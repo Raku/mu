@@ -1,7 +1,7 @@
 use v6-alpha;
 use Test;
 
-# L<S06/Immutable types/Pair "one-element Mapping">
+# L<S02/Immutable types/Pair "one-element Mapping">
 # There ought to be a better reference for this.
 # And this test is also a candidate to be moved with other subroutine tests.
 

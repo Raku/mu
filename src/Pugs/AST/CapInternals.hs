@@ -131,7 +131,7 @@ data Native
     | NBool !NativeBool    -- ^ True (same underlying storage as NBit + True/False)
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
--- | L<S06/"Undefined types">
+-- | L<S02/"Undefined types">
 data ValUndef
     = UUndef               -- ^ e.g., "my $x" with out further assignment
     | UWhatever            -- ^ e.g. the * in 1 .. *
@@ -263,7 +263,7 @@ data PurePair = MkPair -- ?? or is this more efficient? data Pair (Val, Val)
 data PureMap = Map Val Val
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
--- | L<S06/"Immutable types">
+-- | L<S02/"Immutable types">
 data ValPure
     = PBit       !PureBit
     | PInt       !PureInt
@@ -302,7 +302,7 @@ type MutDynamic = Eval Bogus
 data Bogus = Bogus
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
--- | L<S06/"Mutable types"> minus IO types
+-- | L<S02/"Mutable types"> minus IO types
 --   Computations on these types take place in the STM monad.
 data ValMut
     = MScalar    !MutScalar

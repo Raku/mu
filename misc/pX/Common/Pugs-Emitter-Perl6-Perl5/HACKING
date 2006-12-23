@@ -35,7 +35,7 @@ Class-specific operations - for example:
 
 Classes
 
-See also: S06:Built-in Types
+See also: S02:Built-in Data Types
 
 Native types
 
@@ -59,7 +59,7 @@ Array
 Hash
 ...
 
-Other types - See S06
+Other types - See S02
 
 Value types, Implementation types, Hierarchical types, Polymorphic types, Parameter types, Generic types, Return types
 

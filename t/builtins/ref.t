@@ -29,7 +29,7 @@ isa_ok($b2, 'Hash', 'it is a Hash type');
 my $s1 = sub {};
 isa_ok($s1, 'Sub', 'it is a Sub type');
 
-# See L<S06/"Types"> and especially L<A06/"The C<sub> form"> why {...} and ->
+# See L<S02/"Built-in Data Types"> and especially L<A06/"The C<sub> form"> why {...} and ->
 # ... {...} aren't Subs, but Blocks (they're all Codes, though).
 # Quoting A06:
 #                                   Code

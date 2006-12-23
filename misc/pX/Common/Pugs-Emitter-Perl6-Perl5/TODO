@@ -2,7 +2,7 @@
 Compile-Time objects
 
 - organize the internal "Namespaces"
-  - maybe follow S06:Built-in Types:
+  - maybe follow S02:Built-in Data Types:
     Mutable Immutable Undefined Value ...
   - or follow the pugs/ast model ?
 

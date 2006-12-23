@@ -10,11 +10,11 @@ plan 33;
 
 These tests test subroutine references and their invocation.
 
-See L<S06/"Types"> for more information about Code, Routine, Sub, Block, etc.
+See L<S02/"Built-in Data Types"> for more information about Code, Routine, Sub, Block, etc.
 
 =cut
 
-# See L<S06/"Types"> and especially L<A06/"The C<sub> form"> why {...} and ->
+# See L<S02/"Built-in Data Types"> and especially L<A06/"The C<sub> form"> why {...} and ->
 # ... {...} aren't Subs, but Blocks (they're all Codes, though).
 # Quoting A06:
 #                                   Code

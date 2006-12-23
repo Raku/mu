@@ -9,7 +9,7 @@ Compile-Time objects
 - replace 'Range' implementation with a lazy runtime object
 
 - organize the internal "Namespaces"
-  - maybe follow S06:Built-in Types:
+  - maybe follow S02:Built-in Data Types:
     Mutable Immutable Undefined Value ...
   - or follow the pugs/ast model ?
 
