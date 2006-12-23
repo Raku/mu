@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 22 Dec 2006
+  Last Modified: 23 Dec 2006
   Number: 3
-  Version: 79
+  Version: 80
 
 =head1 Changes to Perl 5 operators
 
@@ -1255,6 +1255,38 @@ Note that only the first term of an C<X> operator may reasonably be
 an infinite list.
 
 Multidimensional lists should be handled properly.
+
+=head1 Nesting of metaoperators
+
+In order to match operators by the longest-token rule, the
+compiler pregenerates various metaforms based on existing operators.
+Unfortunately, with nesting metaoperators there are an infinite number
+of metaforms, so we arbitrarily say that no metacircumfix form is
+pregenerated that uses the same grammatical category more than once.
+Therefore forms like C<[+=]> and C<»!===«> and C<X*X=> are generated,
+but not forms like C<»X*X«> or C<X«*»X>.  You do get C<[X*X]>,
+though, because reduction is prefix_circumfix_meta_operator while
+cross operators are infix_circumfix_meta_operator.
+
+This use-each-category-once limitation is not a great hardship since
+you can define your own infix operators.  Suppose you say
+
+    &infix:<xp> ::= &infix:<X*X>;
+
+After this you can use C<XxpX>, C<[xp]>, and C<[«xp»=]«> as if C<xp>
+were a built-in.  Not that any of those necessarily make sense...
+
+The compiler is not actually required to pregenerate the metaform
+tokens as long as it can guarantee the same semantics, that is,
+that it follows the longest-token rule across all syntax categories
+active at that spot in the parse.  This could be achieved by use
+of a DFA parser (or exhaustive NFA matcher) to guarantee longest
+match of the generatable forms, for instance, followed by a check
+to make sure it is not trumped by an even longer "hardwired" token.
+Suppose the user were to define, say, C<< infix:<XxX!#@$> >> or
+C<< statement_modifier:<XxXfor> >>; those hardwired forms must take
+precedence over the C<XxX> operator even if the metaform DFA only
+knows how to recognize the C<XxX> part.
 
 =head1 Junctive operators
 
