@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 20 Dec 2006
+  Last Modified: 22 Dec 2006
   Number: 3
-  Version: 78
+  Version: 79
 
 =head1 Changes to Perl 5 operators
 
@@ -596,56 +596,63 @@ depending on what controls that list context.
 
 =head1 Smart matching
 
-Here is the current table of smart matches.
-The list is intended to reflect forms that can be recognized at
-compile time.  If none of these forms is recognized at compile time, it
-falls through to do MMD to C<< infix:<~~>() >>, which presumably
-reflects similar semantics, but can finesse things that aren't exact
-type matches.  Note that all types are scalarized here.  Both C<~~>
-and C<given>/C<when> provide scalar contexts to their arguments.
-(You can always hyperize C<~~> explicitly, though.)  So both C<$_>
-and C<$x> here are potentially references to container objects.
-And since lists promote to arrays in scalar context, there need be no
-separate entries for lists.
+Below is the current table of smart matches.  The list is intended
+to reflect forms that can be recognized at compile time.  To avoid
+explosion of options, the following types are remapped for the
+compile-time lookup only:
+
+    Actual type                 Use entries for
+    ===========                 ===============
+    List Seq                    Array
+    KeySet KeyBag KeyHash       Hash
+    .{Any} .<string> .[number]  .method
+    Class Subset Enum Role      Type
+    Subst                       Regex
+    Buf Char                    Str
+    Int UInt etc.               Num
+
+Note that all types are scalarized.  Both C<~~> and C<given>/C<when>
+provide scalar contexts to their arguments.  (You can always
+hyperize C<~~> explicitly, though.)  So both C<$_> and C<$x> here
+are potentially container objects.  The first possible match in this
+table is used.  By definition all normal arguments can be matched to
+at least one of these entries.
 
     $_      $x        Type of Match Implied    Matching Code
     ======  =====     =====================    =============
     Any     Code:($)  scalar sub truth         match if $x($_)
+    Any     .method   method truth*            match if $_.method
+
     Hash    Hash      hash keys identical sets match if $_.keys === $x.keys
-    Hash    any(Hash) hash key intersection    match if exists $_{any($x.keys)}
     Hash    Array     hash value slice truth   match if $_{any(@$x)}
-    Hash    any(list) hash key slice existence match if exists $_{any(list)}
-    Hash    all(list) hash key slice existence match if exists $_{all(list)}
-    Hash    Regex     hash key grep            match if any($_.keys) ~~ /$x/
-    Hash    Any       hash entry existence     match if exists $_{$x}
-    Hash    .{Any}    hash element truth*      match if $_{Any}
-    Hash    .<string> hash element truth*      match if $_<string>
-    Array   Array     arrays are comparable    match if $_ »~~« $x
-    Array   any(list) list intersection        match if any(@$_) ~~ any(list)
-    Array   Regex     array grep               match if any(@$_) ~~ /$x/
+    Hash    Junction  hash key slice existence match if $_.exists($x)
+    Hash    Regex     hash key grep            match if any($_.keys) === /$x/
+
+    Array   Array     arrays are comparable    match if $_ »===« $x
+    Array   Junction  list intersection        match if any(@$_) === $x
+    Array   Regex     array grep               match if any(@$_) === /$x/
     Array   Num       array contains number    match if any($_) == $x
-    Array   Str       array contains string    match if any($_) eq $x
+    Array   Str       array contains string    match if any($_) eqv $x
     Array   Buf       array equivalent to buf  match if $_ eqv Array($x)
     Array   Set       array equivalent to set  match if Set($_) === $x
-    Array   Any       array contains item*     match if any($_) === $x
-    Array   .[number] array element truth*     match if $_[number]
+
     Num     NumRange  in numeric range         match if $min <= $_ <= $max
-    Str     StrRange  in string range          match if $min le $_ le $max
-    Any     Range     in range                 match if $min !after $_ !after $max
-    Capture Signature parameter binding        match if $cap can bind to $sig
+
     Code    Signature signature compatibility* match if $_ is a subset of $x
   Signature Signature signature compatibility  match if $_ is a subset of $x
-    Any     Code:()   simple closure truth*    match if $x() (ignoring $_)
-    Any     Class     class membership         match if $_.does($x)
-    Any     Role      role playing             match if $_.does($x)
-    Any     Num       numeric equality         match if $_ == $x
-    Any     Str       string equality          match if $_ eq $x
-    Any     .method   method truth*            match if $_.method
+
+    Hash    Any       hash entry existence     match if exists $_{$x}
+    Array   Any       array contains item*     match if any($_) === $x
+    Any     Signature parameter binding        match if $_ can bind to $x
+    Any     Range     in range                 match if [!after] $x.min,$_,$x.max
+    Any     Type      type membership          match if $_.does($x)
     Any     Regex     pattern match            match if $_ ~~ /$x/
-    Any     subst     substitution match*      match if $_ ~~ subst
+    Any     Num       numeric equality         match if $_ == $x
+    Any     Str       string equality          match if $_ eqv $x
+    Any     Code:()   simple closure truth*    match if $x() (ignoring $_)
     Any     boolean   simple expression truth* match if $x.true given $_
     Any     undef     undefined                match unless defined $_
-    Any     Whatever  default                  match anything
+    Any     *         default                  match anything
     Any     Any       run-time dispatch        match if infix:<~~>($_, $x)
 
 Matches marked with * are non-reversible, typically because C<~~> takes
@@ -693,11 +700,22 @@ the context to that operand, so that, for instance, a regular expression
 can return a list of matched substrings, as in Perl 5.  The complete
 list of such operands is TBD.
 
-It has not yet been determined if run-time dispatch of C<~~> will
-attempt to emulate the compile-time precedence table before reverting
-to MMD, or just go directly to MMD.  There are good arguments for
-both sides, and we can decide when we see more examples of how
-it'll work out.
+The C<~~> operator is intended primarily for compile-time resolution,
+and if the types of the operands resolve at compile time according
+to the table above, any existing C<< infix:<~~> >> routines are
+completely ignored.  If the types cannot be matched at compile time,
+one attempt is made to multiply dispatch to all C<< infix:<~~> >>
+infix definitions.  If this fails, the most generic multi definition
+of C<< infix:<~~> >> calls C<===> to match the two variables exactly
+according to their type.  In general you should just rely on this
+and not attempt to define your own C<< infix:<~~> >> operators,
+because complexifying the run-time semantics of C<~~> is not doing
+anyone a favor.  This is one of those mechanisms we provide knowing
+that people I<will> shoot themselves in the foot with it.  However,
+we also recognize that we probably aren't aware of all useful forms of
+pattern matching, especially the ones that haven't been invented yet.
+We choose to make it possible to add such forms using C<~~>.  Please
+construe this as future proofing, not idiot proofing.
 
 For the purpose of smartmatching, all C<Set> and C<Bag> values are
 considered to be of type C<KeyHash>, that is, C<Hash> containers

@@ -1731,7 +1731,8 @@ actually calls:
     $obj.HOW.does(Dog)
 
 which is true if C<$obj> either "does" or "isa" C<Dog> (or "isa"
-something that "does" C<Dog>).
+something that "does" C<Dog>).  If C<Dog> is a subset, any additional
+C<where> constraints must also evaluate true.
 
 Unlike in Perl 5 where C<.can> returns a single C<Code> object,
 Perl 6's version of C<.HOW.can> returns a "WALK" iterator for a
