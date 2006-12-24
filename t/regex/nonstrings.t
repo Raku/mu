@@ -16,7 +16,7 @@ my $fh = open($?FILE);
 rule monster { dr\wgon }; # contrived pattern which does not match itself; we're going to look for it in this file
 rule cheese { camembert | cheddar  };
 my $stream;
-eval '$stream is from($fh)';
+eval '$stream := cat =$fh';
 
 ok(eval('$stream ~~ /<cheese>/'), 'rules on streams, positive', :todo<feature>); # should match
 ok(eval('! ($stream ~~ /<monster>/)'), 'rules on streams, negative'); # shouldn't match
