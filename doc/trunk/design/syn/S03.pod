@@ -14,7 +14,7 @@ Luke Palmer <luke@luqui.org>
   Date: 8 Mar 2004
   Last Modified: 23 Dec 2006
   Number: 3
-  Version: 81
+  Version: 82
 
 =head1 Changes to Perl 5 operators
 
@@ -608,52 +608,58 @@ compile-time lookup only:
     .{Any} .<string> .[number]  .method
     Class Subset Enum Role      Type
     Subst                       Regex
-    Buf Char                    Str
+    Buf Char LazyStr            Str
     Int UInt etc.               Num
 
 Note that all types are scalarized.  Both C<~~> and C<given>/C<when>
 provide scalar contexts to their arguments.  (You can always
 hyperize C<~~> explicitly, though.)  So both C<$_> and C<$x> here
-are potentially container objects.  The first possible match in this
-table is used.  By definition all normal arguments can be matched to
-at least one of these entries.
+are potentially container objects.  The first section contains
+privileged syntax; if a match can be done via one of those entries,
+it will be.  Otherwise the rest of the table is used, and the match
+will be dispatched according to the normal rules of multiple dispatch;
+however, the optimizer is allowed to assume that no C<< infix:<~~> >>
+operators are added at run time, so if the argument types are evident
+at compile time, the jump table can be optimized.  By definition all
+normal arguments can be matched to at least one of the entries below.
 
-    $_      $x        Type of Match Implied    Matching Code
+    $_      $x        Type of Match Implied    Match if
     ======  =====     =====================    =============
-    Any     Code:($)  scalar sub truth         match if $x($_)
-    Any     .method   method truth*            match if $_.method
+    Any     Code:($)  scalar sub truth         $x($_)
+    Any     .method   method truth*            $_.method
+    Any     boolean   simple expression truth* $x.true given $_
+    Any     undef     undefined                not defined $_
+    Any     *         default                  True
 
-    Hash    Hash      hash keys identical sets match if $_.keys === $x.keys
-    Hash    Array     hash value slice truth   match if $_{any(@$x)}
-    Hash    Junction  hash key slice existence match if $_.exists($x)
-    Hash    Regex     hash key grep            match if any($_.keys) === /$x/
+    Num     Num       numeric equality         $_ == $x
+    Num     Junction  numeric equality         $_ == $x
+    Str     Str       string equality          $_ eqv $x
+    Str     Junction  string equality          $_ eqv $x
 
-    Array   Array     arrays are comparable    match if $_ »===« $x
-    Array   Junction  list intersection        match if any(@$_) === $x
-    Array   Regex     array grep               match if any(@$_) === /$x/
-    Array   Num       array contains number    match if any($_) == $x
-    Array   Str       array contains string    match if any($_) eqv $x
-    Array   Buf       array equivalent to buf  match if $_ eqv Array($x)
-    Array   Set       array equivalent to set  match if Set($_) === $x
+    Hash    Hash      hash keys identical sets $_.keys === $x.keys
+    Hash    Array     hash value slice truth   $_{any(@$x)}
+    Hash    Junction  hash key slice existence $_.exists($x)
+    Hash    Regex     hash key grep            any($_.keys) === /$x/
 
-    Num     NumRange  in numeric range         match if $min <= $_ <= $max
+    Array   Array     arrays are comparable    $_ »===« $x
+    Array   Regex     match array like string  cat(@$_) ~~ $x
+    Array   Junction  list intersection        any(@$_) ~~ $x
+    Array   Num       array contains number    any($_) == $x
+    Array   Str       array contains string    any($_) eqv $x
+    Array   Buf       array equivalent to buf  $_ eqv Array($x)
+    Array   Set       array equivalent to set  Set($_) === $x
 
-    Code    Signature signature compatibility* match if $_ is a subset of $x
-  Signature Signature signature compatibility  match if $_ is a subset of $x
+    Code    Signature signature compatibility* $_ is a subset of $x
+  Signature Signature signature compatibility  $_ is a subset of $x
 
-    Hash    Any       hash entry existence     match if exists $_{$x}
-    Array   Any       array contains item*     match if any($_) === $x
-    Any     Signature parameter binding        match if $_ can bind to $x
-    Any     Range     in range                 match if [!after] $x.min,$_,$x.max
-    Any     Type      type membership          match if $_.does($x)
-    Any     Regex     pattern match            match if $_ ~~ /$x/
-    Any     Num       numeric equality         match if $_ == $x
-    Any     Str       string equality          match if $_ eqv $x
-    Any     Code:()   simple closure truth*    match if $x() (ignoring $_)
-    Any     boolean   simple expression truth* match if $x.true given $_
-    Any     undef     undefined                match unless defined $_
-    Any     *         default                  match anything
-    Any     Any       run-time dispatch        match if infix:<~~>($_, $x)
+    Hash    Any       hash entry existence     exists $_{$x}
+    Array   Any       array contains item*     any($_) === $x
+    Any     Signature parameter binding        $_ can bind to $x
+    Any     Range     in range                 [!after] $x.min,$_,$x.max (etc.)
+    Any     Regex     pattern match            $_.match($x)
+    Any     Type      type membership          $_.does($x)
+    Any     Code:()   simple closure truth*    $x() (ignoring $_)
+    Any     Any       run-time dispatch        infix:<~~>($_, $x)
 
 Matches marked with * are non-reversible, typically because C<~~> takes
 its left side as the topic for the right side, and sets the topic to a
@@ -702,17 +708,20 @@ list of such operands is TBD.
 
 The C<~~> operator is intended primarily for compile-time resolution,
 and if the types of the operands resolve at compile time according
-to the table above, any existing C<< infix:<~~> >> routines are
+to the table above, any C<< infix:<~~> >> routines added later are
 completely ignored.  If the types cannot be matched at compile time,
-one attempt is made to multiply dispatch to all C<< infix:<~~> >>
-infix definitions.  The standard C<< infix:<~~> >> definitions are
-intended to reproduce as closely as possible the compile-time table above,
-but it can do this based only on the run-time types of the arguments.
-Therefore only the entries above that indicate a type on both sides
-can be dispatched that way.  (You can tell those because both sides
-start with a capital letter.  So multiple dispatch ignores the
-".method", "boolean", "undef", and "*" entries, which are recognized
-syntactically, not by type.)
+(that is, if the arguments match only the Any/Any rule at compile
+time), the match is deferred to a true run-time multple dispatch to
+all C<< infix:<~~> >> infix definitions that exist at the moment.
+
+The run-time C<< infix:<~~> >> definitions are intended to reproduce
+as closely as possible the compile-time table above, but it can do
+this based only on the run-time types of the arguments.  Therefore
+only the entries above that indicate a type on both sides can be
+dispatched that way.  (You can tell those because both sides start
+with a capital letter.  So multiple dispatch ignores the ".method",
+"boolean", "undef", and "*" entries in the first section, which are
+recognized syntactically, not by type.)
 
 If there is no appropriate signature match under the rules of multiple
 dispatch, the most generic multi definition of C<< infix:<~~> >>
@@ -732,6 +741,36 @@ considered to be of type C<KeyHash>, that is, C<Hash> containers
 where the keys represent the unique objects and the values represent
 the replication count of those unique keys.  (Obviously, a C<Set> can
 have only 0 or 1 replication because of the guarantee of uniqueness).
+
+The C<LazyStr> type allows you to have an infinitely extensible string.
+You can match an array or iterator by feeding it to a C<LazyStr>,
+which is essentially a C<Str> interface over an iterator of some sort.
+Then a C<Regex> can be used against it as if it were an ordinary
+string.  The C<Regex> engine can ask the string if it has more
+characters, and the string will extend itself if possible from its
+underlying interator.  (Note that such strings have an indefinite
+number of characters, so if you use C<.*> in your pattern, or if you
+ask the string how many characters it has in it, or if you even print
+the whole string, it may be feel compelled to slurp in the rest of
+the string, which may or may not be expeditious.)
+
+The C<cat> operator in scalar context takes a (potentially lazy) list
+and returns a C<LazyStr> object, so you can search a gather like this:
+
+    my $lazystr := cat gather for @foo { take .bar }
+
+    $lazystr ~~ /pattern/;
+
+The C<LazyStr> interface allows the regex to match element boundaries
+with the C<< <,> >> assertion, and the C<StrPos> objects returned by
+the match can be broken down into elements index and position within
+that list element.  If the underlying data structure is a mutable
+array, changes to the array (such as by C<shift> or C<pop>) are tracked
+by the C<LazyStr> so that the element numbers remain correct.  Strings,
+arrays, lists, sequences, captures, and tree nodes can all be pattern
+matched by regexes or by signatures more or less interchangably.
+However, the structure searched is not guaranteed to maintain a C<.pos>
+unless you are searching a C<Str> or C<LazyStr>.
 
 =head1 Meta operators
 
