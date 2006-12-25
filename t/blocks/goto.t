@@ -62,7 +62,7 @@ our $test5 = 1;
 eval q{ goto SKIP5; };
 $test5 = 0;
 SKIP5:
-is($test5, 1, "goto label");
+is($test5, 1, "goto label", :todo<feature>);
 
 is(++$phase, 5, "phase completed");
 
@@ -72,7 +72,7 @@ our $test6 = 1;
 eval q{ goto 'SK' ~ 'IP6'; };
 $test6 = 0;
 SKIP6:
-is($test6, 1, "goto expr");
+is($test6, 1, "goto expr", :todo<feature>);
 
 is(++$phase, 6, "phase completed");
 
