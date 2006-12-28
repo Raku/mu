@@ -791,10 +791,19 @@ from the class hierarchy of C<$handle>, and fails over to the subroutine
 dispatcher as a last resort only if no method can be found in the class
 hierarchy.
 
-A subroutine call considers only visible subroutines (including submethods) of
-that name.  There is no fail-over from subroutine to method dispatch.
-However, you may use C<is export> on a method call definition to also
-make it available as a multi sub.
+A subroutine call considers only visible subroutines (including
+submethods) of that name.  There is no fail-over from subroutine
+to method dispatch.  However, you may use C<is export> on a method
+definition to make it available also as a multi sub.  As with indirect
+object syntax, the first argument is still always the invocant,
+but the export allows you to use a comma after the invocant instead
+a colon, or to omit the colon entirely in the case of a method with
+no arguments other than the invocant.  Many standard methods (such
+as C<IO::close> and C<Array::push>) are automatically exported to the
+global namespace by default.  For other exported methods, you will not
+see the multi sub definition unless you C<use> the class in your scope,
+which will import the multi sub lexically, after which you can call it
+using normal subroutine call syntax.
 
 =head1 Multi dispatch
 
