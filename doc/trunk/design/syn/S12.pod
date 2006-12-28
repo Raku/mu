@@ -787,7 +787,7 @@ This applies to prefix unary operators as well:
     !$obj;  # same as $obj.prefix:<!>
 
 A method call first considers methods (including multi-methods and submethods)
-from the class hierarchy of C<$handle>, and fails over to the subroutine
+from the class hierarchy of its invocant, and fails over to the subroutine
 dispatcher as a last resort only if no method can be found in the class
 hierarchy.
 
