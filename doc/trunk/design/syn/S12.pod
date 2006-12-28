@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 19 Dec 2006
+  Last Modified: 28 Dec 2006
   Number: 12
-  Version: 34
+  Version: 35
 
 =head1 Overview
 
@@ -779,20 +779,9 @@ in 6.0.0 unless some enterprising soul decides to make it work.)
 
 =head2 Method call vs. Subroutine call
 
-The caller indicates whether to make a method call or subroutine call
-by the call syntax.  The "dot" form and the indirect object form default to
-method calls.  Calls with multiple arguments and operators with multiple
-operands default to subroutine calls.
-
-A function call with a single argument defaults to method calls:
-
-    close($handle)
-    close $handle
-
-Use a trailing comma if you want to make a subroutine call instead:
-
-    close($handle,)
-
+The caller indicates whether to make a method call or subroutine
+call by the call syntax.  The "dot" form and the indirect object form
+default to method calls.  All other prefix calls default to subroutine calls.
 This applies to prefix unary operators as well:
 
     !$obj;  # same as $obj.prefix:<!>
@@ -804,6 +793,8 @@ hierarchy.
 
 A subroutine call considers only visible subroutines (including submethods) of
 that name.  There is no fail-over from subroutine to method dispatch.
+However, you may use C<is export> on a method call definition to also
+make it available as a multi sub.
 
 =head1 Multi dispatch
 
