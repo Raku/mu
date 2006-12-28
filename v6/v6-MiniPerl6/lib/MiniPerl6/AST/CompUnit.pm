@@ -4,11 +4,11 @@ class MiniPerl6::AST {
 
     sub comp_unit ( $match ) {
         return ::CompUnit(
-            'name'        => $$match<full_ident>,
+            'name'        => ($$match){'full_ident'},
             'attributes'  => { },
             'methods'     => { },
-            'body'        => $$match<exp_stmts>,
-        )
+            'body'        => ($$match){'exp_stmts'},
+        );
     };
 
 }

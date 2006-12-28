@@ -45,3 +45,8 @@ cp lib/MiniPerl6/Perl5/Match.pm         \
 
 cp lib/MiniPerl6/Perl5/Runtime.pm       \
    lib5-new/MiniPerl6/Perl5/Runtime.pm
+
+cat lib/MiniPerl6/AST/CompUnit.pm  |   \
+    perl mp6-perl5-boot.pl      >   \
+    lib5-new/MiniPerl6/AST/CompUnit.pm
+
