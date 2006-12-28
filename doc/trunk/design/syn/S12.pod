@@ -1591,8 +1591,7 @@ Metamethods for objects are named with interrogative pronouns in uppercase:
     WHEN        (reserved for events?)
     WHY         (reserved for documentation?)
 
-None of these methods takes arguments, so they may also be used as
-named unary operators:
+These may be use either as methods or as unary operators:
 
     $obj.WHAT   # method form of P5's ref
     WHAT $obj   # unary form of P5's ref
