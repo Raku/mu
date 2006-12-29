@@ -796,7 +796,7 @@ submethods) of that name.  There is no fail-over from subroutine
 to method dispatch.  However, you may use C<is export> on a method
 definition to make it available also as a multi sub.  As with indirect
 object syntax, the first argument is still always the invocant,
-but the export allows you to use a comma after the invocant instead
+but the export allows you to use a comma after the invocant instead of
 a colon, or to omit the colon entirely in the case of a method with
 no arguments other than the invocant.  Many standard methods (such
 as C<IO::close> and C<Array::push>) are automatically exported to the
