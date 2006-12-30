@@ -11,7 +11,10 @@ plan 3;
 # 
 # Hint: Combine the solutions of problems P22 and P23.
 
-sub lotto (int $count, int $range) returns Array {
+# subset Positive::Int of Int where { $_ >= 0 };
+# sub lotto (Positive::Int $count, Positive::Int $range) returns List {
+
+sub lotto (int $count, int $range) returns List {
     return (1 .. $range).pick($count);
 }
 
