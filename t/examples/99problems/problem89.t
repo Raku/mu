@@ -6,7 +6,6 @@ plan 1;
 # 
 # Write a predicate that finds out whether a given graph is bipartite.
 # 
-# 
 # Miscellaneous Problems
 
 if 1 {

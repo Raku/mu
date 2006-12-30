@@ -12,5 +12,5 @@ if 1 {
     skip 1, "Test(s) not yet written: (*) Compare the two methods of calculating Euler's totient function.";
 }
 else {
-    ok 1, '(*) Compare the two methods of calculating Euler's totient function.';
+    ok 1, "(*) Compare the two methods of calculating Euler's totient function.";
 }

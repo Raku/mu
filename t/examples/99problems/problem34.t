@@ -22,5 +22,5 @@ if 1 {
     skip 1, "Test(s) not yet written: (**) Calculate Euler's totient function phi(m).";
 }
 else {
-    ok 1, '(**) Calculate Euler's totient function phi(m).';
+    ok 1, "(**) Calculate Euler's totient function phi(m).";
 }

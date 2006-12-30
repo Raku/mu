@@ -19,5 +19,5 @@ if 1 {
     skip 1, "Test(s) not yet written: (**) Goldbach's conjecture.";
 }
 else {
-    ok 1, '(**) Goldbach's conjecture.';
+    ok 1, "(**) Goldbach's conjecture.";
 }

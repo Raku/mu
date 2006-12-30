@@ -18,5 +18,5 @@ if 1 {
     skip 1, "Test(s) not yet written: (**) Knight's tour";
 }
 else {
-    ok 1, '(**) Knight's tour';
+    ok 1, "(**) Knight's tour";
 }

@@ -25,5 +25,5 @@ if 1 {
     skip 1, "Test(s) not yet written: (***) Von Koch's conjecture";
 }
 else {
-    ok 1, '(***) Von Koch's conjecture';
+    ok 1, "(***) Von Koch's conjecture";
 }
