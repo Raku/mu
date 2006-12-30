@@ -180,7 +180,7 @@ op1 "item" = \v -> return $ case v of
     _           -> v
 op1 "sort" = \v -> do
     args    <- fromVal v
-    (valList, sortBy) <- case args of
+    (valList, sortByGiven) <- case args of
         (v:vs) -> do
             ifValTypeIsa v "Code"
                 (return (vs, Just v))
@@ -188,17 +188,15 @@ op1 "sort" = \v -> do
                     (return (init args, Just $ last args))
                     (return (args, Nothing)))
         _  -> return (args, Nothing)
-    case sortBy of
-        Nothing -> do
-            strs    <- mapM fromVal valList
-            retSeq . map snd . sort $ (strs :: [VStr]) `zip` valList
-        Just subVal -> do
-            sub <- fromVal subVal
-            sorted <- (`sortByM` valList) $ \v1 v2 -> do
-                rv  <- enterEvalContext (cxtItem "Int") $ App (Val sub) Nothing [Val v1, Val v2]
-                int <- fromVal rv
-                return (int <= (0 :: Int))
-            retSeq sorted
+    sortBy <- case sortByGiven of
+        Nothing -> readVar (cast "&infix:cmp")
+        Just subVal -> return subVal
+    sub <- fromVal sortBy
+    sorted <- (`sortByM` valList) $ \v1 v2 -> do
+        rv  <- enterEvalContext (cxtItem "Int") $ App (Val sub) Nothing [Val v1, Val v2]
+        int <- fromVal rv
+        return (int <= (0 :: Int))
+    retSeq sorted
 op1 "Scalar::reverse" = \v -> do
     str     <- fromVal v
     return (VStr $ reverse str)
@@ -951,7 +949,7 @@ op2 "?&" = op2Bool (&&)
 op2 "~^" = op2Str $ mapStr2Fill xor
 op2 "=>" = \x y -> return $ castV (x, y)
 op2 "="  = \x y -> evalExp (Syn "=" [Val x, Val y])
-op2 "cmp"= op2Ord vCastStr
+op2 "cmp"= op2OrdNumStr
 op2 "leg"= op2Ord vCastStr
 op2 "<=>"= op2Ord vCastRat
 op2 ".." = op2Range
@@ -1515,6 +1513,17 @@ op2Ord f x y = withDefined [x, y] $ do
         EQ -> 0
         GT -> 1
 
+isNumeric :: Val -> Bool
+isNumeric (VNum {}) = True
+isNumeric (VRat {}) = True
+isNumeric (VInt {}) = True
+isNumeric _ = False
+
+op2OrdNumStr :: Val -> Val -> Eval Val
+op2OrdNumStr x y
+    | isNumeric x && isNumeric y = op2Ord vCastRat x y
+    | otherwise                  = op2Ord vCastStr x y
+
 op3Caller :: Type -> Int -> Val -> Eval Val
 --op3Caller kind skip label = do
 op3Caller kind skip _ = do                                 -- figure out label
@@ -2068,7 +2077,7 @@ initSyms = seq (length syms) $ do
 \\n   Bool      left    ?|      safe   (Bool, Bool)\
 \\n   Bool      left    ?&      safe   (Bool, Bool)\
 \\n   Pair      right   =>      safe   (Any, Any)\
-\\n   Int       non     cmp     safe   (Str, Str)\
+\\n   Int       non     cmp     safe   (Any, Any)\
 \\n   Int       non     leg     safe   (Str, Str)\
 \\n   Int       non     <=>     safe   (Num, Num)\
 \\n   List      non     ..      safe   (Scalar, Scalar)\
