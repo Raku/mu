@@ -34,8 +34,8 @@ our %terminals        = ();
 our %nsessions_per_ip = ();
 #our $session_counter  = 0;
 my %sessions         = ();    # holds the session objects
-my @sessions_stack     = 1 .. $Web::Terminal::Settings::nsessions;
-my @sessions_stack_app = ();
+my @sessions_stack     = 1 .. $Web::Terminal::Settings::nsessions; # holds counters for new sessions
+my @sessions_stack_app = (); # holds counters for idle sessions per app
 my $v = 1 - $Web::Terminal::Settings::daemon;
 
 my $pid;
@@ -187,6 +187,7 @@ sub termhandler {
 	my $app = shift;
 	my $ia  = shift;
 	my $cmd = shift;
+    if($ia!=0) {
 	if (   scalar( keys %terminals ) > $Web::Terminal::Settings::nsessions
 		or scalar(@sessions_stack) == 0 )
 	{    # each pugs takes 1% of feather's MEM!
@@ -269,7 +270,7 @@ sub termhandler {
 					my $term = $sessions{$counter};
 					# Every time a free session is taken, create a new session
                     # if the number of free sessions is low
-                    if ( @{ $sessions_stack_app[$app] }<2) {
+                    if ( @{ $sessions_stack_app[$app] } < $Web::Terminal::Settings::npreloaded_sessions[$app]-1) {
 					# we use a SIGUSR2 to the child for this
 					kill 'USR2', $pid or die $!;
 					print "Initiated create_session() call, now returning\n" if $v;
@@ -290,6 +291,17 @@ sub termhandler {
 			}
 		}
 	}
+    } else { # non-interactive
+        print "Non-interactive $id\n" if $v;
+            print "$app $ia $id $cmd\n" if $v;
+    		my $term = new
+            Web::Terminal::Server::Session(app=>$app,ia=>$ia,id=>$id,cmds=>$cmd);
+            $term->{called}=time;
+            $term->{ip}=$ip;
+            my $output= $term->{'output'};
+	        $term->DESTROY();
+            return $output;
+    }
 }    # of termhandler
 
 sub create_session {
@@ -343,7 +355,8 @@ sub disconnect_from_session {
 
 
 sub timeout() {
-	my $now = time();
+	# Cleaning up timed-out sessions
+    my $now = time();
 	for my $id ( keys %terminals ) {
 		if ( exists $terminals{$id} ) {
 			my $term = $sessions{ $terminals{$id} };
@@ -360,6 +373,20 @@ sub timeout() {
 			}
 		}
 	}
+    # Keep the number of preloaded sessions low
+    # There is no reason to have more than npreloaded_sessions sessions preloaded and idle
+    #Clean up the @sessions_stack_app for each $app:
+
+    for my $app ( 0 .. @Web::Terminal::Settings::commands - 1 ) {
+        while(@{ $sessions_stack_app[$app] } >
+        $Web::Terminal::Settings::npreloaded_sessions[$app]+1){
+            my $idle_session_counter=shift @{ $sessions_stack_app[$app] };
+            # now actally kill that session!
+            push @sessions_stack, $idle_session_counter;
+            $sessions{$idle_session_counter}->DESTROY();
+            delete $sessions{$idle_session_counter};
+        }
+    }
 }
 
 sub init_create {

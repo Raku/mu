@@ -75,7 +75,7 @@ our $cgi_path='/home/andara/apache/cgi-bin/';
 our $data_path='/home/andara/apache/data/';
 our $tmp_path='/home/andara/apache/data/tmp/';
 our $log_path='/home/andara/apache/data/log/';
-our $daemon=0;
+our $daemon=1;
 our $port=2057;
 our $host='localhost';
 

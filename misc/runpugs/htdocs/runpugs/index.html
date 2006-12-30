@@ -15,9 +15,9 @@ style="visibility:hidden" width="700px" height="1px"  onLoad="getreply()"></ifra
 <input name="sessionid" value="" type="hidden">
 <input name="ia" value="1" type="hidden">
 <input name="action" value="runpugs" type="hidden">
-<input id="rel" value="0" name="reldev" checked="checked" type="radio"
+<input id="rel" value="0" name="reldev" type="radio"
 onClick="set_version()"><label for="rel">Release version</label>&nbsp;&nbsp;
-<input id="dev" value="1" name="reldev" type="radio" onClick="set_version()"><label for="dev">Development version</label>
+<input id="dev" value="1" name="reldev" checked="checked" type="radio" onClick="set_version()"><label for="dev">Development version</label>
 <div id="termwindow">
 <textarea id="cmd" name="cmd" rows="20" cols="80" wrap="virtual"
 onkeydown="return catch_events(this,event)">Please wait while Pugs starts up...</textarea>
@@ -30,8 +30,10 @@ nchars=document.terminal.cmd.value.length;
 </script>
 <p>This live web terminal runs the <a href="http://www.pugscode.org/">Pugs</a>
 interpreter for <a href="http://dev.perl.org/perl%206/">Perl&nbsp;6</a>.
+<p>This is the development version, featuring asynchronous JavaScript,
+mod_perl and preloaded pugs sessions.</p>
 Please <a href="http://feather.perl6.nl/%7Eandara/runpugs/">read the documentation</a>.
 </p>
-<p class="copyright">&copy; Copyright 2006 by Wim Vanderbauwhede</p>
+<p class="copyright">&copy; Copyright 2006 by Wim.Vanderbauwhede. Contact me @ gmail.com<./p>
 </div>
 </body></html>

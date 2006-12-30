@@ -97,8 +97,10 @@ sub runpugs {
     my $cmd=shift;
     my $sessionid=shift;
     my $ip=shift;
-    my $dev=$query->param('reldev')||0;
-    $dev=$dev*1;
+    my $dev=$query->param('reldev');#||0;
+    if ($dev!=0){
+    $dev=1;
+    }
     my $devc='checked';
     my $relc='';
     if($dev==1) {
