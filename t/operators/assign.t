@@ -1,7 +1,10 @@
 use v6-alpha;
 use Test;
 
-# L<S03/"Changes to Perl 5 operators"/list assignment operator parses on the right>
+#                      +---- UTF8 non-breaking space here!
+#                      |
+#                      V
+# L<S03/Changes to Perl 5 operators/list assignment operator parses on the right>
 
 plan 213;
 
