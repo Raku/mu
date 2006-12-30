@@ -27,8 +27,8 @@ sub gen_hash {
     my %h2 = gen_hash;
 
     my $b = %h1<b>;
-    is delete(%h1, <b>), $b, "Test for delete singe key. (Indirect notation)";
-    is %h2.delete(<b>), $b, "Test for delete singe key. (Method call)";
+    is delete(%h1, <b>), $b, "Test for delete single key. (Indirect notation)";
+    is %h2.delete(<b>), $b, "Test for delete single key. (Method call)";
 
     my @cde = %h1<c d e>;
     is delete(%h1, <c d e>), @cde, "test for delete multiple keys. (Indirect notation)";
