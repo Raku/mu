@@ -37,17 +37,16 @@ $got = '';
 is $got, 'x 123', 'called pointy immediately: -> $x { ... }(...)';
 
 
-# L<S06/""Pointy blocks"" /not require a preceding comma when included in a list/>
-# Is this what is really intended?
-# my @a;
-# ok eval('@a = ("one" -> $x { $x**2 }, "three")'), 
-#         'pointy sub without preceding comma';
-# is @a[0], 'one', 'pointy sub in list';
-# isa_ok @a[1], 'Code', 'pointy sub in list';
-# is @a[2], 'three', 'pointy sub in list';
+# L<S04/Statement-ending blocks /End-of-statement cannot occur within a bracketed expression/>
+my @a;
+ok eval('@a = ("one", -> $x { $x**2 }, "three")'), 
+        'pointy sub without preceding comma';
+is @a[0], 'one', 'pointy sub in list previous argument';
+isa_ok @a[1], 'Code', 'pointy sub in list';
+is @a[2], 'three', 'pointy sub in list following argument';
 
 
-# L<S06/""Pointy blocks"" /behaves like a block with respect to control exceptions/>
+# L<S04/""Pointy blocks"" /behaves like a block with respect to control exceptions/>
 my $n = 1;
 my $s = -> { 
     last if $n == 10;
