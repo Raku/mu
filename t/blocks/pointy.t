@@ -46,7 +46,7 @@ isa_ok @a[1], 'Code', 'pointy sub in list';
 is @a[2], 'three', 'pointy sub in list following argument';
 
 
-# L<S04/""Pointy blocks"" /behaves like a block with respect to control exceptions/>
+# L<S06/""Pointy blocks"" /behaves like a block with respect to control exceptions/>
 my $n = 1;
 my $s = -> { 
     last if $n == 10;
