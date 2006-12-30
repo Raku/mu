@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 31;
+plan 39;
 
 =kwid
 
@@ -124,4 +124,17 @@ is($moo, 0, "var was not touched");
 
     is $curr, 3, "postincrements in array subscripts work";
     is @array[$curr], 5, "postincrements in array subscripts work";
+}
+
+# test incrementing literals
+
+{
+    dies_ok { 4++ }, "can't postincrement a literal number";
+    dies_ok { ++4 }, "can't preincrement a literal number";
+    dies_ok { 4-- }, "can't postdecrement a literal number";
+    dies_ok { --4 }, "can't predecrement a literal number";
+    dies_ok { "x"++ }, "can't postincrement a literal string";
+    dies_ok { ++"x" }, "can't preincrement a literal string";
+    dies_ok { "x"-- }, "can't postdecrement a literal string";
+    dies_ok { --"x" }, "can't predecrement a literal string";
 }
