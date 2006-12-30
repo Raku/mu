@@ -8,8 +8,6 @@ plan 4;
 
 Testing named capture variables nested inside each other. This doesn't appear to be tested by the ported Perl6::Rules tests. That may be because it's not specified in the synopsis, but Autrijus is sure this how it ought to work.
 
-L<S05/"Rule-scoped variables">
-
 =cut
 
 # At the time of writing, these fail under Win32 so they are marked as bugs
@@ -20,12 +18,16 @@ if !eval('("a" ~~ /a/)') {
   exit;
 }
 
+#L<S05/Nested subpattern captures>
+
 {
   regex fishy { (.*)shark };
   "whaleshark" ~~ m/<fishy>/;
   is(eval('$/<fishy>[0]'), "whale", "named rule ordinal capture");
   is(eval('$<fishy>[0]'), "whale", "named rule ordinal capture with abbreviated variable");
 };
+
+#L<S05/Named scalar aliasing to subpatterns>
 
 {
   my $not_really_a_mammal;
