@@ -10,9 +10,7 @@ plan 1;
 # 
 # Hint: Use the solution of problem P23.
 
-if 1 {
-    skip 1, "Test(s) not yet written: (*) Generate a random permutation of the elements of a list.";
-}
-else {
-    ok 1, '(*) Generate a random permutation of the elements of a list.';
-}
+my @array = ('a' .. 'f');
+my @permute = @array.pick(*);
+is @permute.sort, @array.sort,
+    '.pick(*) should return a permutation of a list';
