@@ -34,7 +34,7 @@ sub simple_pos_param($x) { $x }
 is simple_pos_param(x => 3), 3, "positional param may be addressed by name (1)";
 is simple_pos_param(:x(3)),  3, "positional param may be addressed by name (2)";
 
-# L<S06/"Named parameters" /marked by a \+/>
+# L<S06/"Named parameters"/marked by a prefix/>
 sub simple_pos_params (:$x) { $x }
 
 is(simple_pos_params( x => 4 ), 4, "simple named param");
