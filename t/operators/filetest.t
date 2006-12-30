@@ -86,7 +86,7 @@ close $fh;
 unlink "empty_file";
 
 # Stacked filetests
-# L<S03/Changes to Perl 5 operators/"just cascade tests">
+# L<S03/Changes to Perl 5 operators/"just cascade tests">
 ok -e -d -r "t",               "stacking of filetest operators (1)";
 ok -e -f -r $*PROGRAM_NAME, "stacking of filetest operators (2)";
 ok not -e -f -r "doesnotexist.t", "stacking of filetest operators (3)";
@@ -95,16 +95,16 @@ ok not -e -f -r "doesnotexist.t", "stacking of filetest operators (3)";
 ok not -e -f -d "t",              "stacking of filetest operators (4-1)";
 ok not -e -f -d "doesnotexist.t", "stacking of filetest operators (4-2)";
 ok not -e -f -d "pugs",           "stacking of filetest operators (4-3)";
-# L<S03/Changes to Perl 5 operators/"put the value in a variable">
+# L<S03/Changes to Perl 5 operators/"put the value in a variable">
 my $sb = -e "t";
 ok -d $sb, 'filetest operators return a stat buffer';
 $sb = -e $*PROGRAM_NAME;
 ok -f -r $sb, 'filetest operators can stack on stat buffer';
-# L<S03/Changes to Perl 5 operators/"in the case of -s, a number">
+# L<S03/Changes to Perl 5 operators/"in the case of -s, a number">
 my $sizeSB = -s $*PROGRAM_NAME;
 ok $sizeSB > 42, '-s is a number';
 ok -e $sizeSB, 'result of -s is a stat buffer', :todo<bug>;
-# L<S03/Changes to Perl 5 operators/filetest operators return both
+# L<S03/Changes to Perl 5 operators/filetest operators return both
 #                                   a boolean and a stat buffer>
 $sb = -f $*PROGRAM_NAME;
 isa_ok $sb, 'Bool', 'filetest operators return a boolean', :todo<feature>;
