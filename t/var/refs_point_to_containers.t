@@ -1,7 +1,7 @@
 use v6-alpha;
 use Test;
 
-# L<S03/"Changes to Perl 5 operators"/"scalar dereference">
+# L<S03/Changes to Perl 5 operators/"scalar dereference">
 # The link points a mention of "$$". I couldn't find a better
 # one that described about how references point to containers. 
 

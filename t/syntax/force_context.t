@@ -25,7 +25,7 @@ sub eval_elsewhere($code){ eval($code) }
     is(+$b, 0, 'non numbers forced into numeric context are 0');
 }
 
-# L<S03/Changes to Perl 5 operators/"-TERM" "coerced to numeric">
+# L<S03/Changes to Perl 5 operators/"-TERM" "coerced to numeric">
 # numeric (-) context
 {
     my $a = '2 is my favorite number';
@@ -40,7 +40,7 @@ sub eval_elsewhere($code){ eval($code) }
 }
 
 # L<S02/Context/string "~">
-# L<S03/Changes to Perl 5 operators/Unary ~ string context>
+# L<S03/Changes to Perl 5 operators/Unary ~ string context>
 # string context
 {
     my $a = 10.500000;
@@ -57,7 +57,7 @@ sub eval_elsewhere($code){ eval($code) }
 }
 
 # L<S02/Context/boolean "?">
-# L<S03/Changes to Perl 5 operators/"?" imposes boolean context>
+# L<S03/Changes to Perl 5 operators/"?" imposes boolean context>
 # boolean context
 {
     my $a = '';
@@ -82,7 +82,7 @@ sub eval_elsewhere($code){ eval($code) }
     ok eval_elsewhere('?(@($+arrayref))'), '?(@($arrayref)) syntax works';
 }
 
-# L<S03/Changes to Perl 5 operators/"!TERM" "coerced to boolean">
+# L<S03/Changes to Perl 5 operators/"!TERM" "coerced to boolean">
 # ! boolean context
 {
     my $a = '';

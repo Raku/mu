@@ -4,11 +4,10 @@ use Test;
 
 plan 18;
 
-# L<S03/Changes to Perl 5 operators/when applied to a parenthesized list/>
 {
     my $arglist = \(1,2,3);
     
-    # L<S03/"List flattening" /an Array \(or Arglist\)/>
+    # L<S03/Argument List Interpolating/explicitly flatten it in one of/>
     my sub foo ($a, $b, $c) { "$a!$b!$c" }
     is try { &foo.callwith(|$arglist) }, "1!2!3",
         "simply arglist creation with \\( works (1)";
@@ -17,7 +16,7 @@ plan 18;
 {
     my $arglist = \(1,2,3,'too','many','args');
     
-    # L<S03/"List flattening" /an Array \(or Arglist\)/>
+    # L<S03/Argument List Interpolating/explicitly flatten it in one of/>
     my sub foo ($a, $b, $c) { "$a!$b!$c" }
     dies_ok { &foo.callwith(|$arglist) },
         "simply arglist creation with \\( works (2)", :todo<feature>;
@@ -26,7 +25,7 @@ plan 18;
 {
     my $arglist = \(1, named => "arg");
     
-    # L<S03/"List flattening" /an Array \(or Arglist\)/>
+    # L<S03/Argument List Interpolating/explicitly flatten it in one of/>
     my sub foo ($a, :$named) { "$a!$named" }
     is try { &foo.callwith(|$arglist) }, "1!arg",
         "simply arglist creation with \\( works (3)";
@@ -35,7 +34,7 @@ plan 18;
 {
     my $arglist = try { \(1, 'positional' => "pair") };
     
-    # L<S03/"List flattening" /an Array \(or Arglist\)/>
+    # L<S03/Argument List Interpolating/explicitly flatten it in one of/>
     my sub foo ($a, $pair) { "$a!$pair" }
     is try { &foo.callwith(|$arglist) }, "1!positional\tpair",
         "simply arglist creation with \\( works (4)", :todo<feature>;
@@ -45,7 +44,7 @@ plan 18;
     my @array   = <a b c>;
     my $arglist = try { \(@array) };
 
-    # L<S03/"List flattening" /an Array \(or Arglist\)/>
+    # L<S03/Argument List Interpolating/explicitly flatten it in one of/>
     my sub foo (@arr) { ~@arr }
     is try { &foo.callwith(|$arglist) }, "a b c",
         "arglist creation with \\( works", :todo<feature>;

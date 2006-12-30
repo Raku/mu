@@ -1,7 +1,7 @@
 use v6-alpha;
 use Test;
 
-# L<S03/"Changes to Perl 5 operators"/"=item * The scalar assignment operator still parses">
+# L<S03/Changes to Perl 5 operators/"=item * The scalar assignment operator still parses">
 # a better smart link exists?
 
 plan 7;

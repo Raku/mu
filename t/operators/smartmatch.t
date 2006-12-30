@@ -31,20 +31,19 @@ my %hash3 is context = ( "oink", "da", "blah", "zork");
 my %hash4 is context = ( "bink", "yum", "gorch", "zorba");
 my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 
-#L<<S03/Smart matching/Hash "hash keys identical"
-#   if $_.keys.sort »eq« $x.keys.sort>>
+#L<<S03/Smart matching/"hash keys identical sets">>
 { 
     ok eval_elsewhere('(%+hash1 ~~ %+hash2)'), "hash keys identical", :todo;
     ok eval_elsewhere('!(%+hash1 ~~ %+hash4)'), "hash keys differ";
 };
 
-#L<<S03/Smart matching/Hash any(Hash) "hash key intersection" match>>
+#L<<S03/Smart matching/hash value slice truth>>
 { 
     ok((%hash1 ~~ any(%hash3)), "intersecting keys", :todo);
     ok(!(%hash1 ~~ any(%hash4)), "no intersecting keys");
 };
 
-#L<<S03/Smart matching/Hash Array "hash value slice truth" "match if">>
+#L<<S03/Smart matching/hash value slice truth>>
 { 
     my @true = (<foo bar>);
     my @sort_of = (<foo gorch>);
@@ -54,13 +53,13 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
     ok(!(%hash5 ~~ @false), "value slice false");
 };
 
-#L<<S03/Smart matching/Hash any(list) "hash key slice existence" match>>
+#L<<S03/Smart matching/hash value slice truth>>
 { 
     ok((%hash1 ~~ any(<foo bar>)), "any key exists (but where is it?)", :todo);
     ok(!(%hash1 ~~ any(<gorch ding>)), "no listed key exists");
 };
 
-#L<<S03/Smart matching/Hash all(list) "hash key slice existence" match>>
+#L<<S03/Smart matching/hash key slice existence>>
 { 
     ok((%hash1 ~~ all(<foo blah>)), "all keys exist", :todo);
     ok(!(%hash1 ~~ all(<foo edward>)), "not all keys exist");
@@ -68,7 +67,7 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 
 #Hash    Rule      hash key grep            match if any($_.keys) ~~ /$x/
 
-#L<<S03/Smart matching/Hash Any "hash entry existence" "match if exists">>
+#L<<S03/Smart matching/hash key slice existence>>
 { 
     ok((%hash5 ~~ "foo"), "foo exists", :todo);
     ok((%hash5 ~~ "gorch"),
@@ -76,7 +75,7 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
     ok((%hash5 ~~ "wasabi"), "wasabi does not exist", :todo);
 };
 
-#L<<S03/Smart matching/Hash .{Any} "hash element truth*">>
+#L<<S03/Smart matching/hash key slice existence>>
 { 
     my $string is context = "foo";
     ok eval_elsewhere('(%+hash5 ~~ .{$+string})'), 'hash.{Any} truth';
@@ -84,19 +83,19 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
     ok eval_elsewhere('!(%+hash5 ~~ .{$+string})'), 'hash.{Any} untruth';
 };
 
-#L<<S03/Smart matching/Hash .<string> "hash element truth*">>
+#L<<S03/Smart matching/hash value slice truth>>
 { 
     ok eval_elsewhere('(%+hash5 ~~ .<foo>)'), "hash<string> truth";
     ok eval_elsewhere('!(%+hash5 ~~ .<gorch>)'), "hash<string> untruth";
 };
 
-#L<<S03/Smart matching/Array Array "arrays are comparable" »~~«>>
+#L<<S03/Smart matching/arrays are comparable>>
 { 
     ok((("blah", "blah") ~~ ("blah", "blah")), "qw/blah blah/ .eq");
     ok(!((1, 2) ~~ (1, 1)), "1 2 !~~ 1 1");
 };
 
-#L<<S03/Smart matching/Array any(list) "list intersection" any(@$_) >>
+#L<<S03/Smart matching/list intersection>>
 { 
     ok(((1, 2) ~~ any(2, 3)),
        "there is intersection between (1, 2) and (2, 3)", :todo);
@@ -106,20 +105,20 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 
 # Array   Rule      array grep               match if any(@$_) ~~ /$x/
 
-#L<<S03/Smart matching/Array Num "array contains number">>
+#L<<S03/Smart matching/array contains number>>
 { 
     ok(((1, 2) ~~ 1), "(1, 2) contains 1", :todo);
     ok(!((3, 4, 5) ~~ 2), "(3, 4, 5) doesn't contain 2");
 };
 
-#L<<S03/Smart matching/Array Str "array contains string">>
+#L<<S03/Smart matching/array contains string>>
 { 
     ok((("foo", "bar", "gorch") ~~ "bar"),
        "bar is in qw/foo bar gorch/", :todo);
     ok(!(("x", "y", "z") ~~ "a"), "a is not in qw/x y z/");
 };
 
-#L<<S03/Smart matching/Array .[number] "array element truth*">>
+#L<<S03/Smart matching/not defined $_>>
 { 
     ok eval('((undef, 1, undef) ~~ .[1])'),
         "element 1 of (undef, 1, undef) is true";
@@ -127,7 +126,7 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
         "element 0 of (undef, undef) is false";
 };
 
-#L<<S03/"Smart matching" /Num NumRange "in numeric range">>
+#L<<S03/"Smart matching"/in range>>
 { 
     ok((5 ~~ 1 .. 10), "5 is in 1 .. 10", :todo);
     ok(!(10 ~~ 1 .. 5), "10 is not in 1 .. 5");
@@ -137,13 +136,13 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 
 #Str     StrRange  in string range          match if $min le $_ le $max
 
-#L<<S03/Smart matching/Any Code:() "simple closure truth*">>
+#L<<S03/Smart matching/simple closure truth*>>
 { 
     ok((1 ~~ { 1 }), "closure truth");
     ok((undef ~~ { 1 }), 'ignores $_');
 };
 
-#L<<S03/Smart matching/Any Class "class membership" $_.does($x)>>
+#L<<S03/Smart matching/type membership>>
 { 
     class Dog {}
     class Cat {}
@@ -155,13 +154,13 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 
 #Any     Role      role playing             match if \$_.does(\$x)
 
-#L<<S03/Smart matching/Any Num "numeric equality" match>>
+#L<<S03/Smart matching/numeric equality>>
 { 
     ok((1 ~~ 1), "one is one");
     ok(!(2 ~~ 1), "two is not one");
 };
 
-#L<<S03/Smart matching/Any Str "string equality" match>>
+#L<<S03/Smart matching/string equality>>
 { 
     ok(("foo" ~~ "foo"), "foo eq foo");
     ok(!("bar" ~~ "foo"), "!(bar eq foo)");
@@ -176,7 +175,7 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 # i don't understand this one
 #Any     boolean   simple expression truth* match if true given $_
 
-#L<<S03/Smart matching/Any undef undefined "match unless defined $_" >>
+#L<<S03/Smart matching/default                  True>>
 { 
     ok(!("foo" ~~ undef), "foo is not ~~ undef");
     ok((undef ~~ undef), "undef is");

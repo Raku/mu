@@ -30,7 +30,7 @@ use t::packages::Test;
 # test that all the functions are in the right place
 
 # sanity test
-# L<S10/"Packages" /package for Perl 6 code/>
+# L<S10/"Packages" /package for Perl 6 code/>
 is($?PACKAGE, "Main", 'The Main $?PACKAGE was not broken by any declarations');
 
 # block level

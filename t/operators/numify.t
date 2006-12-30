@@ -10,7 +10,7 @@ is(int('0d456'), 0d456, "int('0d456') is 0d456");
 is(int('0o678'), 0o67, "int('0o678') is 0o67");
 is(int('3e4d5'), 3e4, "int('3e4d5') is 3e4");
 
-# L<S03/"Changes to Perl 5 operators"/"imposes a numeric">
+# L<S03/Changes to Perl 5 operators/"imposes a numeric">
 
 # Per Larry: L<http://www.nntp.perl.org/group/perl.perl6.compiler/1134>
 is(+'0012', 12, "+'0012' is 12");
