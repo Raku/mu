@@ -2,7 +2,7 @@ use v6-alpha;
 use Test;
 plan 13;
 
-# L<Block/"The goto statement">
+# L<S04/"The goto statement">
 
 =kwid
 
