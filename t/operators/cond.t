@@ -11,6 +11,8 @@ Tests some basic conditional operators
 
 plan 6;
 
+#L<S03/Changes to Perl 5 operators/"same as in Perl 5">
+
 my $x = '1';
 my $y = 'a';
 

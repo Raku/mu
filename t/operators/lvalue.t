@@ -4,6 +4,8 @@ use Test;
 
 plan 4;
 
+#L<S03/Changes to Perl 5 operators/"same as in Perl 5">
+
 {
     my $x = 15;
     my $y = 1;

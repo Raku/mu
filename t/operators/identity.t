@@ -19,6 +19,8 @@ ok(!("7" =:= 7), "identify checks type mismatch");
 
 =cut
 
+#L<S03/Binding/"There is also an identity test">
+
 {
   my $foo = 1;
   my $bar = 1;

@@ -4,6 +4,8 @@ use Test;
 
 plan 10;
 
+#L<S03/Changes to Perl 5 operators/"same as in Perl 5">
+
 ok("a" eq "a");
 ok(!("a" eq "ab"));
 

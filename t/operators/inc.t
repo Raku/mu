@@ -4,6 +4,8 @@ use Test;
 
 plan 39;
 
+#L<S03/Changes to Perl 5 operators/"same as in Perl 5">
+
 =kwid
 
 Mostly copied from Perl 5.8.4 s t/op/inc.t
