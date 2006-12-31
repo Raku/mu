@@ -28,3 +28,4 @@ Basic markdown
   _foo_ = I<foo>
   *foo* = B<foo>
 
+You can specify an alternate URL with the header thread_uri.
