@@ -3,7 +3,7 @@ use Test;
 
 # L<S09/"Autovivification">
 
-plan 22;
+plan 38;
 
 # Simple hash autovivification
 {
@@ -24,10 +24,28 @@ plan 22;
 #    ... value extraction does not autovivify.
   lives_ok { my $elem = $hashref<key> },
     "accessing a not existing hash element of an uninitialized variable works";
-  ok !$hashref.isa(Hash), "uninitialized variable was not autovivified to a hash (2)";
+  ok !$hashref.isa(Hash), "uninitialized variable is not autovivified to a hash (2)";
 
+  my $hashref2;
+  lives_ok { my $elem2 = $hashref2<key2><a><b><c><d><e><f> },
+    "accessing a not existing hash element of an uninitialized variable works (2)";
+  ok !$hashref2.isa(Hash), "uninitialized variable is not autovivified to a hash (3)";
+  ok !$hashref2<key2><a><b><c><d><e>.isa(Hash), "uninitialized variable is not autovivified to a hash (4)";
+  
 }
 
+{
+  my $hashref;
+  ok !$hashref.isa(Hash), "uninitialized variable is not a Hash (3)";
+
+  lives_ok { my $elem := $hashref<key> },
+    "binding a not existing hash element of an uninitialized variable works";
+  ok $hashref.isa(Hash), "uninitialized variable is autovivified to a hash (4)";
+
+  lives_ok { my $elem2 := $hashref<key2><a><b><c><d><e><f> },
+    "binding a not existing hash element of an uninitialized variable works (2)";
+  ok $hashref<key2><a><b><c><d><e>.isa(Hash), "uninitialized variable is autovivified to a hash (5)";
+}
 
 # Simple array autovivification
 {
@@ -49,7 +67,27 @@ plan 22;
   lives_ok { my $elem = $arrayref[42] },
     "accessing a not existing array element of an uninitialized variable works";
   ok !$arrayref.isa(Array), "uninitialized variable was not autovivified to an array (2)";
+
+  my $arrayref2;
+  lives_ok { my $elem = $arrayref2[1][2][3][4][5][6] },
+    "accessing a not existing array element of an uninitialized variable works";
+  ok !$arrayref2.isa(Array), "uninitialized variable was not autovivified to an array (3)";
+  ok !$arrayref2[1][2][3][4][5].isa(Array), "uninitialized variable was not autovivified to an array (4)";
 }
+
+{
+  my $arrayref;
+  ok !$arrayref.isa(Array), "uninitialized variable is not an Array (3)";
+
+  lives_ok { my $elem := $arrayref[42] },
+    "binding a not existing array element of an uninitialized variable works (1)";
+  ok $arrayref.isa(Array), "uninitialized variable is autovivified to an array (1)";
+
+  lives_ok { my $elem2 := $arrayref[1][2][3][4][5][6] },
+    "binding a not existing array element of an uninitialized variable works (2)";
+  ok $arrayref[1][2][3][4][5].isa(Array), "uninitialized variable is autovivified to an array (2)";
+}
+
 
 # Autovivification of an array/hash element
 {
