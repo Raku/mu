@@ -2,19 +2,9 @@ use v6-alpha;
 
 use Test;
 
-=pod
-
-Currently, pugs treats ~~ as smartmatch, but !~~ as negated string match.
-This leads to craziness like the following:
-
-    pugs> not(0 !~~ rx:Perl5/0/)
-    Bool::False
-    pugs> not(0 ~~ rx:Perl5/0/)
-    Bool::False
-
-=cut
-
 plan 1;
+
+#L<S03/New operators/"A negated smart match is spelled">
 
 my $opposites = (not(0 ~~ rx:Perl5/0/) xor not(0 !~~ rx:Perl5/0/));
 ok($opposites, "~~ and !~~ are opposites");
