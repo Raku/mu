@@ -114,7 +114,6 @@ prepareEnv name args = do
     autoSV  <- newScalar undef
     classes <- initClassObjects (MkObjectId $ -1) [] initTree
     strictSV <- newScalar $ VBool (name /= "-e")
-    -- XXX factor "time" and use it here and in filetime tests
     baset <- getClockTime
 #if defined(PUGS_HAVE_HSPLUGINS)
     hspluginsSV <- newScalar (VInt 1)
