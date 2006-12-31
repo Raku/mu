@@ -10,11 +10,14 @@ Repeat operators for strings and lists
 
 plan 19;
 
+#L<S03/Changes to Perl 5 operators/"x (which concatenates repetitions of a string to produce a single string">
+
 is('a' x 3, 'aaa', 'string repeat operator works on single character');
 is('ab' x 4, 'abababab', 'string repeat operator works on multiple character');
 is(1 x 5, '11111', 'number repeat operator works on number and creates string');
 is('' x 6, '', 'repeating an empty string creates an empty string');
 
+#L<S03/Changes to Perl 5 operators/"and xx (which creates a list of repetitions of a list or scalar">
 my @foo = 'x' xx 10;
 is(@foo[0], 'x', 'list repeat operator created correct array');
 is(@foo[9], 'x', 'list repeat operator created correct array');
