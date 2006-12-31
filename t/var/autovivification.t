@@ -19,10 +19,15 @@ plan 22;
   my $hashref;
   ok !$hashref.isa(Hash), "uninitialized variable is not a Hash (2)";
 
+# Note that 
+#    Autovivification will only happen if the *vivifiable* *path* is used as a container
+#    ... value extraction does not autovivify.
   lives_ok { my $elem = $hashref<key> },
     "accessing a not existing hash element of an uninitialized variable works";
-  ok $hashref.isa(Hash), "uninitialized variable was autovivified to a hash (2)";
+  ok !$hashref.isa(Hash), "uninitialized variable was not autovivified to a hash (2)";
+
 }
+
 
 # Simple array autovivification
 {
@@ -38,9 +43,12 @@ plan 22;
   my $arrayref;
   ok !$arrayref.isa(Array), "uninitialized variable is not an Array (2)";
 
+# Note that 
+#    Autovivification will only happen if the *vivifiable* *path* is used as a container
+#    ... value extraction does not autovivify.
   lives_ok { my $elem = $arrayref[42] },
     "accessing a not existing array element of an uninitialized variable works";
-  ok $arrayref.isa(Array), "uninitialized variable was autovivified to an array (2)";
+  ok !$arrayref.isa(Array), "uninitialized variable was not autovivified to an array (2)";
 }
 
 # Autovivification of an array/hash element
