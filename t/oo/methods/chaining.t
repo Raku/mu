@@ -4,7 +4,7 @@ use Test;
 
 plan 15;
 
-# L<S03/"Changes to Perl 5 operators"/"-> becomes .">
+# L<S03/"Changes to Perl 5 operators"/"-> becomes .">
 
 class Foo {
     has $.num;
@@ -56,7 +56,7 @@ is($foo.num(), 15, '... got the right num value');
 # test attribute accessors, too
 is($foo.baz(7).baz(6).num, 28, 'chained an auto-generated accessor');
 
-# L<S03/"Changes to Perl 5 operators"/"-> becomes .">
+# L<S03/"Changes to Perl 5 operators"/"-> becomes .">
 # L<S12/"Open vs Closed Classes"/"though you have to be explicit">
 {
 class Pair is also {

@@ -1,7 +1,7 @@
 use v6-alpha;
 
 # Is another link for print?
-# L<S29/Unfiled/"=item say">
+# L<S16/"Input and Output"/"appends a newline">
 
 say "1..11";
 
