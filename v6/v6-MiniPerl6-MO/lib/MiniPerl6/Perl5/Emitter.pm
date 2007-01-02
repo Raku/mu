@@ -1,14 +1,20 @@
 use v6-alpha;
 
-class CompUnit {
+# Perl5MO emitter
+
+class Module {
     has $.name;
-    has %.attributes;
-    has %.methods;
     has @.body;
     method emit {
-        'package ' ~ $.name ~ "; " ~ 
-        'sub new { shift; bless { @_ }, "' ~ $.name ~ '" }' ~ " " ~
-        (@.body.>>emit).join( "; " )
+        my $a := @.body;
+        my $item;
+        my $s;
+        $s := $s 
+            ~ 'package ' ~ $.name ~ ';' ~ Main::newline();
+        for @$a -> $item {
+            $s := $s ~ $item.emit ~ ';' ~ Main::newline();
+        };
+        return $s;
     }
 }
 
@@ -258,12 +264,21 @@ class Call {
              $meth := '';  
         };
         
-        my $call := '->' ~ $meth ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
         if ($.hyper) {
-            '[ map { $_' ~ $call ~ ' } @{ ' ~ $invocant ~ ' } ]';
+            '[ map { '
+           ~ 'MO::Run::Aux::method_call( ' 
+           ~   '$_' 
+           ~   ', q(' ~ $meth ~ '), '
+           ~   (@.arguments.>>emit).join(', ') 
+           ~ ')'
+           ~ ' } @{ ' ~ $invocant ~ ' } ]';
         }
         else {
-            $invocant ~ $call;
+             'MO::Run::Aux::method_call( ' 
+           ~   $invocant 
+           ~   ', q(' ~ $meth ~ '), '
+           ~   (@.arguments.>>emit).join(', ') 
+           ~ ')';
         };
 
     }
@@ -315,8 +330,6 @@ class Apply {
 class Return {
     has $.result;
     method emit {
-        return
-        #'do { print Main::perl(caller(),' ~ $.result.emit ~ '); return(' ~ $.result.emit ~ ') }';
         'return(' ~ $.result.emit ~ ')';
     }
 }
@@ -389,14 +402,7 @@ class Method {
         # say $invocant.emit;
 
         my $pos := $sig.positional;
-        my $str := 'my $List__ = \@_; ';   # no strict "vars"; ';
-
-        # TODO - follow recursively
-        my $pos := $sig.positional;
-        for @$pos -> $field { 
-            $str := $str ~ 'my ' ~ $field.emit ~ '; ';
-        };
-
+        my $str := 'my $List__ = \@_; no strict "vars"; ';
         my $bind := ::Bind( 
             'parameters' => ::Lit::Array( array => $sig.positional ), 
             'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
@@ -411,7 +417,7 @@ class Method {
 #            $i := $i + 1;
 #        };
 
-        'sub ' ~ $.name ~ ' { ' ~ 
+        'sub { ' ~ 
           'my ' ~ $invocant.emit ~ ' = shift; ' ~
           $str ~
           (@.block.>>emit).join('; ') ~ 
@@ -430,13 +436,7 @@ class Sub {
         ## my $invocant := $sig.invocant; 
         # say $invocant.emit;
         my $pos := $sig.positional;
-        my $str := 'my $List__ = \@_; ';  # no strict "vars"; ';
-
-        # TODO - follow recursively
-        my $pos := $sig.positional;
-        for @$pos -> $field { 
-            $str := $str ~ 'my ' ~ $field.emit ~ '; ';
-        };
+        my $str := 'my $List__ = \@_; no strict "vars"; ';
 
         my $bind := ::Bind( 
             'parameters' => ::Lit::Array( array => $sig.positional ), 

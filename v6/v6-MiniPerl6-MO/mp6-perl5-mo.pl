@@ -13,7 +13,7 @@ use MiniPerl6::Perl5::Match;
 
 package Main;
 use MiniPerl6::Grammar;
-use MiniPerl6::Perl5MO::Emitter;
+use MiniPerl6::Perl5::Emitter;
 use MiniPerl6::Grammar::Regex;
 use MiniPerl6::Emitter::Token;
 
@@ -25,6 +25,9 @@ say( "use v5;" );
 say( "use strict;" );
 say( "use MiniPerl6::Perl5::Runtime;" );
 say( "use MiniPerl6::Perl5::Match;" );
+
+#say( "use MO::Run::Aux;" );
+#say( "BEGIN { $MO::Run::Aux::MO_NATIVE_RUNTIME = 1 }");
 
 while ( $pos < length( $source ) ) {
     #say( "Source code:", $source );
