@@ -1,7 +1,7 @@
 
 use v6-alpha;
 
-grammar MiniPerl6::Grammar {
+grammar MiniPerl6::Grammar::CompUnit {
 
 our $Class_name;
 

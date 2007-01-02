@@ -3,8 +3,8 @@ use v6-alpha;
 grammar MiniPerl6::Grammar {
 
 use MiniPerl6::Grammar::Regex;
-use MiniPerl6::Grammar::Mapping;
-use MiniPerl6::Grammar::Control;
+#use MiniPerl6::Grammar::Mapping;
+#use MiniPerl6::Grammar::Control;
 use MiniPerl6::Grammar::CompUnit;
 
 # XXX - move to v6.pm emitter
@@ -66,11 +66,11 @@ token opt_ws2 {  <?ws> | <''>  };
 token opt_ws3 {  <?ws> | <''>  };
 
 token parse {
-    | <comp_unit>
+    | <MiniPerl6::Grammar::CompUnit.comp_unit>
         [
         |   <parse>
-            { return [ $$<comp_unit>, @( $$<parse> ) ] }
-        |   { return [ $$<comp_unit> ] }
+            { return [ $$<MiniPerl6::Grammar::CompUnit.comp_unit>, @( $$<parse> ) ] }
+        |   { return [ $$<MiniPerl6::Grammar::CompUnit.comp_unit> ] }
         ]
     | { return [] }
 };
@@ -95,9 +95,9 @@ token declarator {
 token exp2 { <exp> { return $$<exp> } };
 token exp_stmts2 { <exp_stmts> { return $$<exp_stmts> } };
 
-}
+#}
     #---- split into compilation units in order to use less RAM...
-grammar MiniPerl6::Grammar {
+#grammar MiniPerl6::Grammar {
 
 
 token exp {
@@ -247,9 +247,9 @@ token term {
 #token index { XXX }
 #token lookup { XXX }
 
-}
+#}
     #---- split into compilation units in order to use less RAM...
-grammar MiniPerl6::Grammar {
+#grammar MiniPerl6::Grammar {
 
 token sigil { \$ |\% |\@ |\& };
 
@@ -283,9 +283,9 @@ token val_bit {
 };
 
 
-}
+#}
     #---- split into compilation units in order to use less RAM...
-grammar MiniPerl6::Grammar {
+#grammar MiniPerl6::Grammar {
 
 
 token val_undef {
@@ -348,9 +348,9 @@ token exp_seq {
         { return [] }
 };
 
-}
+#}
     #---- split into compilation units in order to use less RAM...
-grammar MiniPerl6::Grammar {
+#grammar MiniPerl6::Grammar {
 
 token lit {
     #| <lit_seq>    { return $$<lit_seq>    }  # (a, b, c)
@@ -479,9 +479,102 @@ token sub {
     { return ::Sub( 'name' => $$<opt_name>, 'sig' => $$<method_sig>, 'block' => $$<exp_stmts> ) }
 };
 
-}
+#}
     #---- split into compilation units in order to use less RAM...
-grammar MiniPerl6::Grammar {
+#grammar MiniPerl6::Grammar {
+
+
+# CONTROL
+
+token control {
+    | <ctrl_return> { return $$<ctrl_return> }   # return 123;
+    | <ctrl_leave>  { return $$<ctrl_leave>  }   # last; break;
+    | <if>     { return $$<if>     }   # 1 ?? 2 !! 3
+    | <when>   { return $$<when>   }   # when 3 { ... }
+    | <for>    { return $$<for>    }   # $x.map(-> $i {...})
+    | <while>  { return $$<while>  }   # while ... { ... }
+    | <apply>  { return $$<apply>  }   # $obj($arg1, $arg2)
+ #  | <call>   { return $$<call>   }   # $obj.method($arg1, $arg2)
+};
+
+token if {
+    if <?ws>  <exp>  <?opt_ws>
+    \{ <?opt_ws> <exp_stmts> <?opt_ws> \} 
+    [
+        <?opt_ws>
+        else <?opt_ws> 
+        \{ <?opt_ws> <exp_stmts2> <?opt_ws> \}
+        { return ::If( 'cond' => $$<exp>, 'body' => $$<exp_stmts>, 'otherwise' => $$<exp_stmts2> ) }
+    |
+        { return ::If( 'cond' => $$<exp>, 'body' => $$<exp_stmts>, 'otherwise' => [ ] ) }
+    ]
+};
+
+token when {
+    when <?ws> <exp_seq> <?opt_ws> \{ <?opt_ws> <exp_stmts> <?opt_ws> \}
+    { return ::When( 'parameters' => $$<exp_seq>, 'body' => $$<exp_stmts> ) }
+};
+
+token for {
+    for <?ws> <exp> <?opt_ws> <'->'> <?opt_ws> <var> <?ws> \{ <?opt_ws> <exp_stmts> <?opt_ws> \}
+    { return ::For( 'cond' => $$<exp>, 'topic' => $$<var>, 'body' => $$<exp_stmts> ) }
+};
+
+token while {
+    while <?ws> <exp> <?ws> \{ <?opt_ws> <exp_stmts> <?opt_ws> \}
+    { return ::While( 'cond' => $$<exp>, 'body' => $$<exp_stmts> ) }
+};
+
+token ctrl_leave {
+    leave
+    { return ::Leave() }
+};
+
+token ctrl_return {
+    return <?ws> <exp>
+    { return ::Return( 'result' => $$<exp> ) }
+    |
+    return 
+    { return ::Return( 'result' => ::Val::Undef() ) }
+};
+
+
+# MAPPING
+
+token key { 
+    |  <ident> <before <'=>'> | <?ws> > 
+       { return ::Val::Buf( 'buf' => ~$<ident> ) }  # autoquote
+    |  <exp>   
+       { return $$<exp> } 
+};
+
+token pair {
+    |   <key> 
+        <?opt_ws> <'=>'> <?opt_ws>
+        <exp>
+        { return [ $$<key>, $$<exp> ] }
+    |   \: <sigil> <ident>                  #  :$var
+        { 
+            return [ 
+                ::Val::Buf( 'buf' => ~$<ident> ), 
+                ::Var( 'sigil' => ~$$<sigil>, 'twigil' => '', 'name' => $$<ident> ) ] 
+        } 
+};
+
+token exp_mapping {
+    |   <pair> 
+        [
+        |   <?opt_ws> \, <?opt_ws> <exp_mapping> 
+            { return [ $$<pair>, @( $$<exp_mapping> ) ] }
+        |   <?opt_ws> [ \, <?opt_ws> | <''> ]
+            { return [ $$<pair> ] }
+        ]
+    |
+        { return [ ] }
+};
+
+
+# RULES
 
 token token {
     # { say 'parsing Token' }
