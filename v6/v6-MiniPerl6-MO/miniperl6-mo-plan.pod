@@ -21,15 +21,12 @@
 
 TODO:
 
-- alias 'create_instance' to 'new'
-
 - Add a new method to an existing class
 
 - Extend the grammar with MO words: Rule, etc.
 
 - Compiler bootstrap with MO
 
-- test " ::Obj( attr=>value ) " 
 - test " Obj.new( attr=>value ) "
 
 - unnamed classes
@@ -41,6 +38,8 @@ DONE:
 - "Module" AST
 - new "CompUnit" macro
 - Class variables
+- alias 'create_instance' to 'new'
+- test " ::Obj( attr=>value ) " 
 
 FOR LATER:
 
