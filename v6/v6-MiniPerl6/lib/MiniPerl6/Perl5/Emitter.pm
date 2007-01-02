@@ -315,6 +315,8 @@ class Apply {
 class Return {
     has $.result;
     method emit {
+        return
+        #'do { print Main::perl(caller(),' ~ $.result.emit ~ '); return(' ~ $.result.emit ~ ') }';
         'return(' ~ $.result.emit ~ ')';
     }
 }
@@ -387,7 +389,14 @@ class Method {
         # say $invocant.emit;
 
         my $pos := $sig.positional;
-        my $str := 'my $List__ = \@_; no strict "vars"; ';
+        my $str := 'my $List__ = \@_; ';   # no strict "vars"; ';
+
+        # TODO - follow recursively
+        my $pos := $sig.positional;
+        for @$pos -> $field { 
+            $str := $str ~ 'my ' ~ $field.emit ~ '; ';
+        };
+
         my $bind := ::Bind( 
             'parameters' => ::Lit::Array( array => $sig.positional ), 
             'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
@@ -421,7 +430,13 @@ class Sub {
         ## my $invocant := $sig.invocant; 
         # say $invocant.emit;
         my $pos := $sig.positional;
-        my $str := 'my $List__ = \@_; no strict "vars"; ';
+        my $str := 'my $List__ = \@_; ';  # no strict "vars"; ';
+
+        # TODO - follow recursively
+        my $pos := $sig.positional;
+        for @$pos -> $field { 
+            $str := $str ~ 'my ' ~ $field.emit ~ '; ';
+        };
 
         my $bind := ::Bind( 
             'parameters' => ::Lit::Array( array => $sig.positional ), 
