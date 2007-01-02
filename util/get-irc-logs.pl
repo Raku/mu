@@ -25,6 +25,12 @@ if ($help) {
 $out_dir ||= '.';
 mkdir $out_dir if !-e $out_dir;
 
+my $last_log;
+if (!$all) {
+    my @existing_files = sort glob "$out_dir/*.log";
+    $last_log = pop @existing_files;
+}
+
 $channel ||= 'perl6';
 $channel =~ s/^\#//;
 
@@ -40,7 +46,7 @@ if ($res->is_success) {
     my %links = extract_links($res->content);
     while (my ($name, $url) = each %links) {
         my $local_file = "$out_dir/$name";
-        if (!$all and -e $local_file) {
+        if (!$all and -e $local_file and index($last_log, $name) == -1) {
             warn "  $local_file already exists, skipped.\n";
             next;
         } else {
