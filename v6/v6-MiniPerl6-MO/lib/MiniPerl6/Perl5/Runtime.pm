@@ -133,6 +133,7 @@ package Main;
     
     # Metamodel API
     
+    BEGIN { $MO::Run::Aux::MO_NATIVE_RUNTIME = 1 }
     use MO::Run::Aux;
 
     sub Main::register_class {
