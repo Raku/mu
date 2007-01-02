@@ -21,7 +21,8 @@
 
 TODO:
 
-- Extend the grammar with MO words: Role, etc.
+- Extend the grammar with MO words: 
+  Roles, inheritance, etc.
 
 - Compiler bootstrap with MO
 

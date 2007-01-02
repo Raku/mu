@@ -263,23 +263,32 @@ class Call {
         if  $meth eq 'postcircumfix:<( )>'  {
              $meth := '';  
         };
-        
+                
+        my $call := '->' ~ $meth ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
         if ($.hyper) {
-            '[ map { '
-           ~ 'MO::Run::Aux::method_call( ' 
-           ~   '$_' 
-           ~   ', q(' ~ $meth ~ '), '
-           ~   (@.arguments.>>emit).join(', ') 
-           ~ ')'
-           ~ ' } @{ ' ~ $invocant ~ ' } ]';
+            '[ map { $_' ~ $call ~ ' } @{ ' ~ $invocant ~ ' } ]';
         }
         else {
-             'MO::Run::Aux::method_call( ' 
-           ~   $invocant 
-           ~   ', q(' ~ $meth ~ '), '
-           ~   (@.arguments.>>emit).join(', ') 
-           ~ ')';
+            $invocant ~ $call;
         };
+
+        # non-native MO
+#        if ($.hyper) {
+#            '[ map { '
+#           ~ 'MO::Run::Aux::method_call( ' 
+#           ~   '$_' 
+#           ~   ', q(' ~ $meth ~ '), '
+#           ~   (@.arguments.>>emit).join(', ') 
+#           ~ ')'
+#           ~ ' } @{ ' ~ $invocant ~ ' } ]';
+#        }
+#        else {
+#             'MO::Run::Aux::method_call( ' 
+#           ~   $invocant 
+#           ~   ', q(' ~ $meth ~ '), '
+#           ~   (@.arguments.>>emit).join(', ') 
+#           ~ ')';
+#        };
 
     }
 }
