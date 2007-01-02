@@ -21,8 +21,6 @@
 
 TODO:
 
-- Add a new method to an existing class
-
 - Extend the grammar with MO words: Rule, etc.
 
 - Compiler bootstrap with MO
@@ -46,3 +44,6 @@ FOR LATER:
 - 'our'
 - containers
 - type-checking
+
+- Add a new method to an existing class
+  - wait for MO emit_class()
