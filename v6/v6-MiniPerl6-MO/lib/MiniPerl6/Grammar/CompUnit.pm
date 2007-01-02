@@ -236,43 +236,28 @@ token comp_unit {
                      'class' => 'MO::Compile::Class::MI'
                 ),
         );
-        push @$module, ::Call( 
-                'hyper' => '',
+        push @$module, ::Apply(
                 'arguments' => [
-                                ::Val::Buf( 'buf' => $name ),
-                                ::Var( 'name' => '__base', 'twigil' => '', 'sigil' => '$' ),
-                               ],
-                'method' => 'register_class',
-                'invocant' => ::Apply( 
-                        'arguments' => [],
-                        'code' => 'MO::Run::Aux::registry'
-                )
-        );
-        push @$module, ::Bind(
-                'parameters' => ::Var(
+                  ::Val::Buf( 'buf' => $name ),
+                  ::Var( 'name' => '__base', 'twigil' => '', 'sigil' => '$' ),
+                ],
+                'code' => 'Main::register_class'
+        );        
+        push @$module, ::Bind(        
+                parameters => ::Var(
                         'name'   => '__class_box',
                         'twigil' => '',
                         'sigil'  => '$'
                 ),
-                'arguments' => ::Apply(
-                        'arguments' => [
-                          ::Var(
+                arguments => ::Apply(
+                   'arguments' => [
+                         ::Var(
                                 'name'   => '__base',
                                 'twigil' => '',
                                 'sigil'  => '$'
                           ),
-                          ::Call(
-                                'hyper'     => '',
-                                'arguments' => undef,
-                                'method'    => 'class_interface',
-                                'invocant' => ::Var(
-                                        'name'   => '__base',
-                                        'twigil' => '',
-                                        'sigil'  => '$'
-                                )
-                          )
-                        ],
-                        'code' => 'MO::Run::Aux::box'
+                   ],
+                   'code' => 'Main::box_class'
                 )
         );
 

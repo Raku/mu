@@ -26,9 +26,6 @@ say( "use strict;" );
 say( "use MiniPerl6::Perl5::Runtime;" );
 say( "use MiniPerl6::Perl5::Match;" );
 
-#say( "use MO::Run::Aux;" );
-#say( "BEGIN { $MO::Run::Aux::MO_NATIVE_RUNTIME = 1 }");
-
 while ( $pos < length( $source ) ) {
     #say( "Source code:", $source );
     my $p = MiniPerl6::Grammar->comp_unit($source, $pos);

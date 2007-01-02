@@ -130,6 +130,20 @@ package Main;
         }
     }
     
+    
+    # Metamodel API
+    
+    use MO::Run::Aux;
+
+    sub Main::register_class {
+        MO::Run::Aux::registry()->register_class(@_);
+    }
+
+    sub Main::box_class {
+        MO::Run::Aux::box( $_[0],  $_[0]->class_interface );
+    }
+
+    
 1;
 
 __END__
