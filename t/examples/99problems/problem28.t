@@ -1,6 +1,6 @@
 use v6-alpha;
 use Test;
-plan 1;
+plan 2;
 
 # P28 (**) Sorting a list of lists according to length of sublists
 # 
@@ -29,9 +29,30 @@ plan 1;
 # 
 # Arithmetic
 
-if 1 {
-    skip 1, "Test(s) not yet written: (**) Sorting a list of lists according to length of sublists";
-}
-else {
-    ok 1, '(**) Sorting a list of lists according to length of sublists';
-}
+my @input= [<a b c>],[<d e>],[<f g h>],[<d e>],[<i j k l>],[<m n>],[<o>];
+my @expected= [<o>],[<d e>],[<d e>],[<m n>],[<a b c>],[<f g h>],[<i j k l>];
+
+# we could use 
+#  sort: {+$_}
+# but pugs seem to not support this yet
+
+my @sorted=@input.sort: {+$^a <=> +$^b};
+is @expected, 
+   @sorted,
+   "We should be able to sort a list of lists according to length of sublists";
+
+# the list is not the same as in the sample text, when two lists have the
+# same frequency of length the ordering is unspecified, so this should be ok
+
+@expected= [<o>],[<i j k l>],[<a b c>],[<f g h>],[<d e>],[<d e>],[<m n>];
+
+# group lists by length
+
+my %grouped;
+for (@input) {%grouped{+$_}.push($_)}
+
+# now sort the values by frequency, again can't use
+#  sort: {+$_}
+
+@sorted= %grouped.values.sort: {+$^a <=> +$^b};
+is @expected,@sorted, "..or according to frequency of length of sublists" 
