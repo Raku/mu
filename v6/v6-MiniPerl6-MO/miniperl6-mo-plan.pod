@@ -1,0 +1,49 @@
+
+- "class" is a macro. It expands to a "module", with calls to MO.
+  The "module" AST is like:
+
+  # A module is a "class" without the methods and attributes.
+  class Module {
+    has $.name          is Str;                     # Module Name;
+    has $.body          is Lit::Code;               # body of code
+  }
+
+- Macros are implemented in the grammar.
+- It might be better to implement syntax for macros first, and then
+  implement "token" and "class" using real macros
+
+- Method calls can either be implemented with mo subroutine calls, or native method calls. 
+  It depends on the emitter
+
+- mp6-mo should not depend on external syntax sugar, such as Moose
+
+- " our $.class_var; " is not supported, because MP6 does not support 'our'.
+
+TODO:
+
+- alias 'create_instance' to 'new'
+
+- Add a new method to an existing class
+
+- Extend the grammar with MO words: Rule, etc.
+
+- Compiler bootstrap with MO
+
+- test " ::Obj( attr=>value ) " 
+- test " Obj.new( attr=>value ) "
+
+- unnamed classes
+
+- rename lib/MiniPerl6 to lib/MiniPerl6_MO
+
+DONE:
+
+- "Module" AST
+- new "CompUnit" macro
+- Class variables
+
+FOR LATER:
+
+- 'our'
+- containers
+- type-checking
