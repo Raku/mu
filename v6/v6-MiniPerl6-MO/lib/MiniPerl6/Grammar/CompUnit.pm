@@ -150,9 +150,30 @@ token comp_unit {
                                 ),
                                 'name' => '',
                                 'block' => [
-                                    # $self.create_instance( @_ )
+                                  # $__class_box.create_instance( array @_ )
+                                  ::Call(
+                                    'hyper'     => '',
+                                    'arguments' => [
+                                        ::Apply(
+                                                'arguments' => [
+                                                    ::Var(
+                                                            'name'   => '_',
+                                                            'twigil' => '',
+                                                            'sigil'  => '@'
+                                                    )
+                                                ],
+                                                'code' => 'array'
+                                        )
+                                    ],
+                                    'method'   => 'create_instance',
+                                    'invocant' => ::Var(
+                                            'name'   => '__class_box',
+                                            'twigil' => '',
+                                            'sigil'  => '$'
+                                    )
+                                  )
                                 ],
-                        ),
+                            ),
                         ],
                      ],
                      'class' => 'MO::Compile::Method::Simple'
@@ -189,6 +210,12 @@ token comp_unit {
 
         push @$module, ::Use( mod => 'MO::Compile::Method::Simple' );
         push @$module, ::Use( mod => 'MO::Compile::Class::MI' );
+        push @$module, ::Use( mod => 'MO::Compile::Attribute::Simple' );
+        push @$module, ::Decl( 
+                        'decl' => 'my',
+                        'var'  => ::Var( 'name' => '__class_box', 'twigil' => '', 'sigil' => '$' ),
+                        'type' => ''
+                );
         push @$module, ::Bind( 
                 'parameters' => ::Decl( 
                         'decl' => 'my',
@@ -219,6 +246,33 @@ token comp_unit {
                 'invocant' => ::Apply( 
                         'arguments' => [],
                         'code' => 'MO::Run::Aux::registry'
+                )
+        );
+        push @$module, ::Bind(
+                'parameters' => ::Var(
+                        'name'   => '__class_box',
+                        'twigil' => '',
+                        'sigil'  => '$'
+                ),
+                'arguments' => ::Apply(
+                        'arguments' => [
+                          ::Var(
+                                'name'   => '__base',
+                                'twigil' => '',
+                                'sigil'  => '$'
+                          ),
+                          ::Call(
+                                'hyper'     => '',
+                                'arguments' => undef,
+                                'method'    => 'class_interface',
+                                'invocant' => ::Var(
+                                        'name'   => '__base',
+                                        'twigil' => '',
+                                        'sigil'  => '$'
+                                )
+                          )
+                        ],
+                        'code' => 'MO::Run::Aux::box'
                 )
         );
 
