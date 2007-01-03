@@ -10,6 +10,8 @@ Arrays
 
 plan 67;
 
+#L<S02/Arrays>
+
 # array of strings
 
 my @array1 = ("foo", "bar", "baz");
