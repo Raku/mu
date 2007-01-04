@@ -914,7 +914,7 @@ this happens only on the "dwimmy" side.
 On the non-dwimmy side, any scalar value that does not know how to
 do C<List> will be treated as a list of one element, and for infix
 operators must be matched by an equivalent one-element list on the
-other side.  That is, a hyper operator is guaranteed to degenate
+other side.  That is, a hyper operator is guaranteed to degenerate
 to the corresponding scalar operation when all its arguments are
 non-list arguments.
 
