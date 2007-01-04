@@ -1,0 +1,9 @@
+KindaPer6 specification
+
+- compilable with MP6, until it bootstraps
+
+- pluggable, maybe hot pluggable:
+  grammar, object system, and the workflow itself
+
+- lexical grammar changes
+  my multi infix:<+> ...
