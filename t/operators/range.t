@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 48;
+plan 47;
 
 # 3..2 must *not* produce "3 2".  Use reverse to get a reversed range. -lwall
 
@@ -85,8 +85,4 @@ is ~(1.9 ^..^ 4.9), "2.9 3.9"    , "both exclusive float range";
     is ~(@three .. @one), ""     , "null range produced with lists forced to scalar context";
 }
 
-# Test :by
-{
-    my $ret = eval ' 1 .. 5 :by(2) ';
-    is $ret, "1 3 5", ":by works", :todo<feature>;
-}
+# For tests involving :by, see t/operators/adverbial_modifiers.t
