@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 23 Dec 2006
+  Last Modified: 4 Jan 2007
   Number: 3
-  Version: 82
+  Version: 83
 
 =head1 Changes to Perl 5 operators
 
@@ -847,7 +847,7 @@ The Unicode characters C<»> (C<\x[BB]>) and C<«> (C<\x[AB]>) and
 their ASCII digraphs C<<< >> >>> and C<<< << >>> are used to denote a
 "list operation" that operates on each element of its list (or array)
 argument (or arguments) and returns a single list (or array) of
-the results.  In otherwords, a hyper operator evaluates its arguments in
+the results.  In other words, a hyper operator evaluates its arguments in
 scalar context but then distributes the operator over them as lists.
 
 When writing a hyper operator, spaces are not allowed on the inside,
@@ -910,6 +910,13 @@ By default this dwimmery only upgrades whole dimensions, not short lists.
 However, any list ending with C<*> can also be arbitrarily extended as if
 the last element of the list were arbitrarily replicated C<*> times.  But
 this happens only on the "dwimmy" side.
+
+On the non-dwimmy side, any scalar value that does not know how to
+do C<List> will be treated as a list of one element, and for infix
+operators must be matched by an equivalent one-element list on the
+other side.  That is, a hyper operator is guaranteed to degenate
+to the corresponding scalar operation when all its arguments are
+non-list arguments.
 
 When using a unary operator, you always aim the blunt end at the
 single operand, because no dwimmery ever happens:
