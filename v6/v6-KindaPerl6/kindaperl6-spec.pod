@@ -1,9 +1,38 @@
 KindaPer6 specification
 
-- compilable with MP6, until it bootstraps
+- compilable with MP6, only until KP6 bootstraps
+  - MP6 spec is now frozen
 
 - pluggable, maybe hot pluggable:
   grammar, object system, and the workflow itself
 
-- lexical grammar changes
+  The initial default grammar engine could be reused from MP6  
+  Parrot backend could use TGE/PGE
+  Perl5 backend could use PCR, MO, Moose
+
+
+# Differences from MiniPerl6
+
+- assignment with '='
+
+- inheritance
+
+
+# Wish list
+
+- macros
+
+
+# Extensibility
+
+KP6 extensibility should make it is possible to implement Perl6 using it.
+Some test cases could be (as long as the backend supports it):
+
+- 'my' subroutines
+
+- lexical grammar changes, such as
   my multi infix:<+> ...
+
+- 'coro'
+
+- junctions
