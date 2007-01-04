@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 47;
+plan 48;
 
 # 3..2 must *not* produce "3 2".  Use reverse to get a reversed range. -lwall
 
@@ -83,4 +83,10 @@ is ~(1.9 ^..^ 4.9), "2.9 3.9"    , "both exclusive float range";
     is ~(@one .. @three), "1 2 3", "both inclusive limits are in scalar context";
     is ~(@one ^..^ @three), "2"  , "both exclusive limits are in scalar context";
     is ~(@three .. @one), ""     , "null range produced with lists forced to scalar context";
+}
+
+# Test :by
+{
+    my $ret = eval ' 1 .. 5 :by(2) ';
+    is $ret, "1 3 5", ":by works", :todo<feature>;
 }
