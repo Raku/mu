@@ -551,12 +551,6 @@ type VComplex = Complex VNum
 type VHandle = Handle
 -- | Uses Haskell's underlying representation for sockets.
 type VSocket = Socket
--- | Uses Haskell's underlying representation for threads.
-data VThread a = MkThread
-    { threadId      :: ThreadId
-    , threadLock    :: TMVar a
-    }
-    deriving (Show, Eq, Ord, Typeable)
 
 -- | Rule Match object from PGE
 data MatchPGE
@@ -573,11 +567,11 @@ instance Ord VSocket where
 instance (Ord a) => Ord (Tree a) where
     compare _ _ = EQ
 instance Ord (TMVar a) where
-    compare x y = compare (show x) (show y)
+    compare x y = compare (addressOf x) (addressOf y)
 instance Eq (TMVar a) where
-    _ == _ = True
+    x == y = addressOf x == addressOf y
 instance Show (TMVar a) where
-    show _ = "<tmvar>"
+    show = showAddressOf "tmvar"
 
 {-|
 Count the total number of types in a class tree, including both internal and
