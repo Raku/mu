@@ -24,6 +24,7 @@ module Pugs.AST.Internals (
     VScalar, -- uses Val
     VPair, -- uses Val
     VList, -- uses Val
+    VThread(..), -- uses Val
     VSubst(..),  -- uses VRule, VStr, Exp
     VArray, -- uses Val
     VHash, -- uses VStr, Val
@@ -486,7 +487,7 @@ instance Value VNum where
                 Left  i -> fromIntegral i
                 Right d -> realToFrac d
     doCast (VList l)     = return $ genericLength l
-    doCast t@(VThread _) = fmap read (fromVal t)
+    doCast t@VThread{}   = fmap read (fromVal t)
     doCast (VMatch m)    = fromVal (VStr $ matchStr m)
     doCast v = castFailM v "VNum"
 
@@ -634,10 +635,10 @@ instance Value VSocket where
     doCast (VSocket x)  = return $ x
     doCast v = castFailM v "VSocket"
 
-instance Value (VThread Val) where
+instance Value VThread where
     castV = VThread
     doCast (VThread x)  = return $ x
-    doCast v = castFailM v "VThread Val"
+    doCast v = castFailM v "VThread"
 
 instance Value VProcess where
     castV = VProcess
@@ -670,6 +671,13 @@ instance Value VScalar where
 
 intCast :: Num b => Val -> Eval b
 intCast x = fmap fromIntegral (fromVal x :: Eval VInt)
+
+-- | Uses Haskell's underlying representation for threads.
+data VThread = MkThread
+    { threadId      :: ThreadId
+    , threadLock    :: TMVar Val
+    }
+    deriving (Show, Eq, Ord, Typeable)
 
 type VList = [Val]
 data VSubst
@@ -765,7 +773,7 @@ data Val
     | VBlock    !VBlock
     | VHandle   !VHandle     -- ^ File handle
     | VSocket   !VSocket     -- ^ Socket handle
-    | VThread   !(VThread Val)
+    | VThread   !VThread
     | VProcess  !VProcess    -- ^ PID value
     | VRule     !VRule       -- ^ Rule\/regex value
     | VSubst    !VSubst      -- ^ Substitution value (correct?)
@@ -2043,7 +2051,7 @@ instance YAML (Set Val) where
     fromYAML = fmap Set.fromAscList . fromYAML 
 
 instance YAML VControl
-instance YAML (VThread Val)
+instance YAML VThread
 instance YAML ClassTree
 instance YAML Dynamic
 instance YAML ProcessHandle
