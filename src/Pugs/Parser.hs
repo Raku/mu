@@ -340,14 +340,6 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     typ''   <- option typ' returnsOrOf
     traits  <- ruleTraitsIsOnly
 
-    -- XXX - We have the prototype now; install it immediately?
-
-    -- bodyPos <- getPosition
-    body    <- localEnv ruleBlock
-    let (fun, names, params) = doExtract styp formal body
-    -- Check for placeholder vs formal parameters
-    when (isJust formal && (not.null) names) $
-        fail "Cannot mix placeholder variables with formal parameters"
     env <- ask
     let pkg = cast (envPackage env)
         nameQualified | ':' `elem` name     = name
@@ -355,19 +347,19 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
                       | isGlobal            = name
                       | isBuiltin           = (head name:'*':tail name)
                       | otherwise           = (head name:pkg) ++ "::" ++ tail name
-        self :: [Param]
-        self | styp > SubMethod = []
-             | (prm:_) <- params, isInvocant prm = []
-             | otherwise = [selfParam . cast $ envPackage env]
-        var = cast nameQualified
-        -- Horrible hack! _Sym "&&" is the multi form.
-        mkMulti | isMulti   = ('&':)
-                | otherwise = id
         isGlobal = '*' `elem` name
         isBuiltin = ("builtin" `elem` traits)
         isExported = ("export" `elem` traits)
+        -- Horrible hack! _Sym "&&" is the multi form.
+        mkMulti | isMulti   = ('&':)
+                | otherwise = id
+        mkExp sub n = Syn ":=" [_Var n, Syn "sub" [Val sub]]
+        mkSym sub n = _Sym scope (mkMulti n) (mkExp sub n)
+        var = cast nameQualified
 
-    sub <- fmap VCode . collectTraits $ mkCode
+    -- We have the prototype now; install it immediately!
+    --   fill in what we can about the sub before getting the block (below)
+    let template = mkCode
             { isMulti       = isMulti
             , subName       = cast nameQualified
             , subEnv        = Just env
@@ -378,25 +370,47 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
                 _       -> ANil
             , subReturns    = mkType typ''
             , subLValue     = "rw" `elem` traits
-            , subParams     = self ++ paramsFor styp formal params
             , subBindings   = []
             , subSlurpLimit = []
-            , subBody       = fun
             , subCont       = Nothing
             }
+    sub <- fmap VCode . collectTraits $ template
 
-    let mkExp n = Syn ":=" [_Var n, Syn "sub" [Val sub]]
-        mkSym n = _Sym scope (mkMulti n) (mkExp n)
-        
+    
+    -- Don't add the sub if it's unsafe and we're in safemode (XXX repeated below)
+    when (not ("unsafe" `elem` traits && safeMode)) $ do 
+        lexDiff <- unsafeEvalLexDiff $ mkSym sub nameQualified
+        addBlockPad scope lexDiff
+        clearDynParsers
+
+    -- bodyPos <- getPosition
+    body    <- localEnv ruleBlock
+    let (fun, names, params) = doExtract styp formal body
+    -- Check for placeholder vs formal parameters
+    when (isJust formal && (not.null) names) $
+        fail "Cannot mix placeholder variables with formal parameters"
+    env <- ask
+    let self :: [Param]
+        self | styp > SubMethod = []
+             | (prm:_) <- params, isInvocant prm = []
+             | otherwise = [selfParam . cast $ envPackage env]
+
+    let template' = template
+                { subParams = self ++ paramsFor styp formal params
+                , subBody = fun
+                , subEnv = Just env
+                }
+    sub <- fmap VCode . collectTraits $ template'
+    
     -- Don't add the sub if it's unsafe and we're in safemode.
     if "unsafe" `elem` traits && safeMode then return emptyExp else do
-    rv <- case scope of
+    case scope of
         SGlobal | isExported -> do
             -- we mustn't perform the export immediately upon parse, because
             -- then only the first consumer of a module will see it. Instead,
             -- make a note of this symbol being exportable, and defer the
             -- actual symbol table manipulation to opEval.
-            Val rv <- unsafeEvalExp $ mkSym nameQualified
+            Val rv <- unsafeEvalExp $ mkSym sub nameQualified
             -- %*INC<This::Package><exports><&this_sub> |= expression-binding-&this_sub
             --    ==>
             -- %This::Package::EXPORTS<&this_sub> |= expression-binding-&this_sub
@@ -414,14 +428,12 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
                 , Val exportedSub
                 ]
         SGlobal -> do
-            unsafeEvalExp $ mkSym nameQualified
+            unsafeEvalExp $ mkSym sub nameQualified
             return emptyExp
         _ -> do
-            lexDiff <- unsafeEvalLexDiff $ mkSym nameQualified
+            lexDiff <- unsafeEvalLexDiff $ mkSym sub nameQualified
             addBlockPad scope lexDiff
-            return $ mkExp name
-    clearDynParsers
-    return rv
+            return $ mkExp sub name
 
 
 ruleSubNamePossiblyWithTwigil :: RuleParser String
