@@ -176,7 +176,7 @@ instance YAML (Set Val) where
     fromYAML = fmap Set.fromAscList . fromYAML 
 
 instance YAML VControl
-instance YAML (VThread Val)
+instance YAML VThread
 instance YAML ClassTree
 instance YAML Dynamic
 instance YAML ProcessHandle
