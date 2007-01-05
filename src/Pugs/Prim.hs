@@ -1105,8 +1105,8 @@ op2 "sort" = \x y -> do
     xs <- fromVals x
     ys <- fromVals y
     op1 "sort" . VList $ xs ++ ys
-op2 "IO::say" = op2Print hPutStrLn
-op2 "IO::print" = op2Print hPutStr
+op2 "IO::say" = op2Print True
+op2 "IO::print" = op2Print False
 op2 "printf" = op3 "IO::printf" (VHandle stdout)
 op2 "BUILDALL" = cascadeMethod reverse "BUILD"
 op2 "Pugs::Internals::install_pragma_value" = \x y -> do
@@ -1160,15 +1160,22 @@ op2BasedDigits base vs
     asFractional :: [VInt] -> VRat
     asFractional = foldr (\d x -> (x / (base % 1)) + (d % 1)) (0 % 1)
 
-op2Print :: (Handle -> String -> IO ()) -> Val -> Val -> Eval Val
-op2Print f h v = do
+op2Print :: Bool -> Val -> Val -> Eval Val
+op2Print newline h v = do
     handle <- fromVal h
     strs   <- mapM fromVal =<< case v of
         VList vs  -> return vs
         _         -> return [v]
     guardIO $ do
-        f handle . concatMap encodeUTF8 $ strs
+        forM strs $ \str -> do
+            forM (chunk 4096 str) $ \chunk -> do
+                hPutStr handle chunk
+        when newline (hPutStr handle "\n")
         return $ VBool True
+    where
+    chunk :: Int -> [a] -> [[a]]
+    chunk _    [] = []
+    chunk size xs = case splitAt size xs of (xs', xs'') -> xs' : chunk size xs''
 
 op2Split :: Val -> Val -> Eval Val
 op2Split x y = do
@@ -1351,7 +1358,7 @@ op3 "Pugs::Internals::hSeek" = \x y z -> do
         modeOf m = error ("Unknown seek mode: " ++ (show m))
 op3 "IO::printf" = \x y z -> do
     rv      <- evalExp $ App (_Var "&sprintf") Nothing [Val y, Val z]
-    op2Print hPutStr x rv
+    op2Print False x rv
 op3 other = \_ _ _ -> fail ("Unimplemented 3-ary op: " ++ other)
 
 mixinRoles :: String -> [String] -> Eval ()
