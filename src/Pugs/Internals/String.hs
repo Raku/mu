@@ -47,27 +47,31 @@ afterPrefix (p:ps) (x:xs)
 
 {-# INLINE decodeUTF8 #-}
 decodeUTF8 :: String -> String
-decodeUTF8 [] = []
-decodeUTF8 (c:cs)
+decodeUTF8 xs = concatMap decodeUTF8' (chunk 4096 xs)
+
+{-# INLINE decodeUTF8' #-}
+decodeUTF8' :: String -> String
+decodeUTF8' [] = []
+decodeUTF8' (c:cs)
     | c < '\x80'
-    = let rest = decodeUTF8 cs
+    = let rest = decodeUTF8' cs
        in seq rest
           (c:rest)
-decodeUTF8 (c:d:cs)
+decodeUTF8' (c:d:cs)
     | '\xC0' <= c, c <= '\xDF'
     , '\x80' <= d, d <= '\xBF'
-    = let rest = decodeUTF8 cs
+    = let rest = decodeUTF8' cs
        in seq rest
           ( toEnum ( (fromEnum c `mod` 0x20) * 0x40
                    + fromEnum d `mod` 0x40
                    )
           : rest
           )
-decodeUTF8 (c:d:e:cs)
+decodeUTF8' (c:d:e:cs)
     | '\xE0' <= c, c <= '\xEF'
     , '\x80' <= d, d <= '\xBF'
     , '\x80' <= e, e <= '\xBF'
-    = let rest = decodeUTF8 cs
+    = let rest = decodeUTF8' cs
        in seq rest
           ( toEnum ( (fromEnum c `mod` 0x10 * 0x1000)
                    + (fromEnum d `mod` 0x40) * 0x40
@@ -75,12 +79,12 @@ decodeUTF8 (c:d:e:cs)
                    )
           : rest
           )
-decodeUTF8 (c:d:e:f:cs)
+decodeUTF8' (c:d:e:f:cs)
     | '\xF0' <= c, c <= '\xF7'
     , '\x80' <= d, d <= '\xBF'
     , '\x80' <= e, e <= '\xBF'
     , '\x80' <= f, f <= '\xBF'
-    = let rest = decodeUTF8 cs
+    = let rest = decodeUTF8' cs
        in seq rest
           ( toEnum ( (fromEnum c `mod` 0x10 * 0x40000)
                    + (fromEnum d `mod` 0x40) * 0x1000
@@ -89,27 +93,36 @@ decodeUTF8 (c:d:e:f:cs)
                    )
           : rest
           )
-decodeUTF8 (x:xs) = trace ("decodeUTF8: bad data: " ++ show x) (x:decodeUTF8 xs)
+decodeUTF8' (x:xs) = trace ("decodeUTF8': bad data: " ++ show x) (x:decodeUTF8' xs)
+
+{-# INLINE chunk #-}
+chunk :: Int -> [a] -> [[a]]
+chunk _    [] = []
+chunk size xs = case splitAt size xs of (xs', xs'') -> xs' : chunk size xs''
 
 {-# INLINE encodeUTF8 #-}
 encodeUTF8 :: String -> String
-encodeUTF8 [] = []
+encodeUTF8 xs = concatMap encodeUTF8' (chunk 4096 xs)
+
+{-# INLINE encodeUTF8' #-}
+encodeUTF8' :: String -> String
+encodeUTF8' [] = []
 -- In the \0 case, we diverge from the Unicode standard to remove any trace
 -- of embedded nulls in our bytestrings, to allow the use of Judy.StrMap
 -- and to make passing CString around easier.  See Java for the same treatment:
 -- http://java.sun.com/j2se/1.5.0/docs/api/java/io/DataInput.html#modified-utf-8
-encodeUTF8 ('\0':cs)
-    = let rest = encodeUTF8 cs
+encodeUTF8' ('\0':cs)
+    = let rest = encodeUTF8' cs
        in seq rest
           ('\xC0':'\x80':rest)
-encodeUTF8 (c:cs)
+encodeUTF8' (c:cs)
     | c < '\x80'
-    = let rest = encodeUTF8 cs
+    = let rest = encodeUTF8' cs
        in seq rest
           (c:rest)
     | c < '\x800'
     = let i     = fromEnum c
-          rest  = encodeUTF8 cs
+          rest  = encodeUTF8' cs
        in seq rest
           ( toEnum (0xC0 + i `div` 0x40)
           : toEnum (0x80 + i `mod` 0x40)
@@ -117,7 +130,7 @@ encodeUTF8 (c:cs)
           )
     | c < '\x10000'
     = let i     = fromEnum c
-          rest  = encodeUTF8 cs
+          rest  = encodeUTF8' cs
        in seq rest
           ( toEnum (0xE0 + i `div` 0x1000)
           : toEnum (0x80 + (i `div` 0x40) `mod` 0x40)
@@ -126,7 +139,7 @@ encodeUTF8 (c:cs)
           )
     | otherwise
     = let i     = fromEnum c
-          rest  = encodeUTF8 cs
+          rest  = encodeUTF8' cs
        in seq rest
           ( toEnum (0xF0 + i `div` 0x40000)
           : toEnum (0x80 + (i `div` 0x1000) `mod` 0x40)
