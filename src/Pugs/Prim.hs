@@ -1161,21 +1161,15 @@ op2BasedDigits base vs
     asFractional = foldr (\d x -> (x / (base % 1)) + (d % 1)) (0 % 1)
 
 op2Print :: Bool -> Val -> Val -> Eval Val
-op2Print newline h v = do
+op2Print wantNewline h v = do
     handle <- fromVal h
     strs   <- mapM fromVal =<< case v of
         VList vs  -> return vs
         _         -> return [v]
     guardIO $ do
-        forM strs $ \str -> do
-            forM (chunk 4096 str) $ \chunk -> do
-                hPutStr handle chunk
-        when newline (hPutStr handle "\n")
+        forM_ strs (hPutStr handle . encodeUTF8)
+        when wantNewline (hPutStr handle "\n")
         return $ VBool True
-    where
-    chunk :: Int -> [a] -> [[a]]
-    chunk _    [] = []
-    chunk size xs = case splitAt size xs of (xs', xs'') -> xs' : chunk size xs''
 
 op2Split :: Val -> Val -> Eval Val
 op2Split x y = do
