@@ -83,7 +83,7 @@ op2Pick (VRef r) num = do
     op2Pick ref num
 op2Pick l@(VList xs) (VNum n)
     | n == 1/0  = op2Pick l (VInt . toInteger $ length xs)
-    | otherwise = op2Pick l (VInt . toInteger $ floor n)
+    | otherwise = op2Pick l (VInt $ floor n)
 op2Pick (VList xs) (VInt num) = do
     shuffled <- shuffleN (fromInteger num) xs
     return $ VList shuffled
