@@ -207,6 +207,12 @@ sub set_postamble {
 EOD
     }
 
+    # We probably need to promote this to a config.yml + autodetect
+    # thing, but until it's done, put the condition here at least and
+    # don't hardcode it into the postamble.
+    my $ghci_debugging = ($ENV{PUGS_GHCI_DEBUGGING}||'') ?
+        '-fdebugging' : '';
+
     my $native_fps;
 
     if (try_compile("import Data.ByteString (useAsCStringLen)\n"
@@ -761,7 +767,7 @@ smoke-perl5 : $pugs util/run-smoke.pl all
 ghci : @prereqs @derived_srcfiles
 	$ghc @{[ dethread_flags($ghc_flags) ]} $ghc_output -DPUGS_UNDER_GHCI -no-link --make -O0 -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Prereqs.hs @prereqs
 	\@\$(RM_RF) src/Pugs/*/*_stub.*
-	$ghc @{[ dethread_flags($ghc_flags) ]} $ghc_output -DPUGS_UNDER_GHCI --interactive -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
+	$ghc @{[ dethread_flags($ghc_flags) ]} $ghc_output -DPUGS_UNDER_GHCI --interactive -fglasgow-exts $ghci_debugging -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
 
 ctags : @prereqs @derived_srcfiles
 	echo ":ctags" | $ghc $ghc_flags $ghc_output --interactive -osuf moose -hisuf miise -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
