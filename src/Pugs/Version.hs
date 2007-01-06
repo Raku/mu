@@ -30,7 +30,7 @@ name       = "Perl6 User's Golfing System"
 versnum    = PUGS_VERSION
 date       = PUGS_DATE
 version    = name ++ ", version " ++ versnum ++ ", " ++ date ++ revision
-copyright  = "Copyright 2005-2006, The Pugs Contributors"
+copyright  = "Copyright 2005-2007, The Pugs Contributors"
 revnum     = show (PUGS_SVN_REVISION :: Integer)
 revision
     | rev <- revnum

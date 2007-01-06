@@ -112,7 +112,7 @@ sub quote_pugs {
 
 =head1 COPYRIGHT
 
-Pugs is Copyright 2005-2006, The Pugs Contributors.
+Pugs is Copyright 2005-2007, The Pugs Contributors.
 
 Pugs is a joint work of authorship by the Pugs Contributors.
 
