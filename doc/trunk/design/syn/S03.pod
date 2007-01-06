@@ -1560,7 +1560,7 @@ Note that the resulting arguments still must comply with the subroutine's
 signature, but the presence of C<|> defers that test until run time for
 that argument (and for any subsequent arguments):
 
-    my @args := @foo, @bar;
+    my @args := [@foo, @bar];
     push |@args;
 
 is equivalent to:
