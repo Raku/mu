@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 4 Jan 2007
+  Last Modified: 6 Jan 2007
   Number: 3
-  Version: 83
+  Version: 84
 
 =head1 Changes to Perl 5 operators
 
@@ -596,87 +596,221 @@ depending on what controls that list context.
 
 =head1 Smart matching
 
-Below is the current table of smart matches.  The list is intended
-to reflect forms that can be recognized at compile time.  To avoid
-explosion of options, the following types are remapped for the
-compile-time lookup only:
+Here is the table of smart matches for standard Perl 6
+(that is, the dialect of Perl in effect at the start of your
+compilation unit).  Smart matching is generally done on the current
+"topic", that is, on C<$_>.  In the table below, C<$_> represents the
+left side of the C<~~> operator, or the argument to a C<given>,
+or to any other topicalizer.  C<$x> represents the pattern to be
+matched against on the right side of C<~~>, or after a C<when>.
+
+The first section contains privileged syntax; if a match can be done
+via one of those entries, it will be.   These special syntaxes are
+dispatched by their form rather than their type.  Otherwise the rest
+of the table is used, and the match will be dispatched according to
+the normal method dispatch rules.  The optimizer is allowed to assume
+that no additional match operators are defined after compile time,
+so if the pattern types are evident at compile time, the jump table
+can be optimized.  However, the syntax of this part of the table
+is still somewhat privileged, insofar as the C<~~> operator is one
+of the few operators in Perl that does not use multiple dispatch.
+Instead, type-based smart matches singly dispatch to an underlying
+method belonging to the C<$x> pattern object.
+
+In other words, smart matches are dispatched first on the basis of the
+pattern's form or type (the C<$x> below), and then that pattern itself
+decides whether and how to pay attention to the type of the topic
+(C<$_>).  So the second column below is really the primary column.
+The C<Any> entries in the first column indicate a pattern that either
+doesn't care about the type of the topic, or that picks that entry
+as a default because the more specific types listed above it didn't match.
+
+    $_        $x        Type of Match Implied   Match if
+    ======    =====     =====================   =============
+    Any       Code:($)  scalar sub truth        $x($_)
+    Any       Code:()   simple closure truth    $x() (ignoring $_)
+    Any       undef     undefined               not defined $_
+    Any       *         block signature match   block successfully binds to |$_
+    Any       .foo      method truth            ?any($_.foo)
+    Any       .foo(...) method truth            ?any($_.foo(...))
+    Any       .(...)    list sub call truth     ?any($_(...))
+    Any       .[...]    array value slice truth ?any($_[...])
+    Any       .{...}    hash value slice truth  ?any($_{...})
+    Any       .<...>    hash value slice truth  ?any($_<...>)
+
+    Any       Bool      simple truth            $x.true given $_
+
+    Num       Num       numeric equality        +$_ == $x
+    Capture   Num       numeric equality        +$_ == $x
+    Array     Num       array contains number   any(@$_) == $x
+    Hash      Num       hash key existence      $_.exists($x)
+    Byte      Num       numeric equality        +$_ == $x
+    Any       Num       numeric equality        +$_ == $x
+
+    Str       Str       string equality         $_ eq $x
+    Capture   Str       string equality         ~$_ eq $x
+    Array     Str       array contains string   any(@$_) eq $x
+    Hash      Str       hash key existence      $_.exists($x)
+    Byte      Str       string equality         ~$_ eq $x
+    Any       Str       string equality         ~$_ eq $x
+
+    Buf       Buf       buffer equality         $_ eq $x
+    Str       Buf       string equality         $_ eq Str($x)
+    Array     Buf       arrays are comparable   $_ »===« @$x
+    Hash      Buf       hash key existence      $_.exists($x)
+    Any       Buf       buffer equality         Buf($_) eq $x
+
+    Buf       Byte      buffer contains byte    $_.match(/$x/)
+    Str       Byte      string contains byte    Buf($_).match(/$x/)
+
+    Str       Char      string contains char    $_.match(/$x/)
+    Buf       Char      string contains char    Str($_).match(/$x/)
+
+    Set       Set       identical sets          $_ === $x
+    Hash      Set       hash keys same set      $_.keys === $x
+    Array     Set       array equiv to set      Set($_) === $x
+    Any       Set       identical sets          Set($_) === $x
+
+    Array     Array     arrays are comparable   $_ »===« $x
+    Buf       Array     arrays are comparable   @$_ »===« $x
+    Str       Array     array contains string   any(@$x) eq $_
+    Num       Array     array contains number   any(@$x) == $_
+    Hash      Array     hash slice exists       $_.exists(any(@$x))
+    Scalar    Array     array contains object   any(@$x) === $_
+    Set       Array     array equiv to set      $_ === Set($x)
+    Any       Array     lists are comparable    @$_ »===« $x
+
+    Hash      Hash      hash keys same set      $_.keys === $x.keys
+    Set       Hash      hash keys same set      $_ === $x.keys
+    Array     Hash      hash slice existence    $x.exists(any @$_)
+    Regex     Hash      hash key grep           any($_.keys) === /$x/
+    Scalar    Hash      hash entry existence    $x.exists($_)
+    Any       Hash      hash slice existence    $x.exists(any @$_)
+
+    Str       Regex     string pattern match    $_.match($x)
+    Hash      Regex     hash key grep           any($_.keys) === /$x/
+    Array     Regex     match array as string   cat(@$_).match($x)
+    Any       Regex     pattern match           $_.match($x)
+
+    Num       Range     in numeric range        $x.min <= $_ <= $x.max (mod ^'s)
+    Str       Range     in string range         $x.min le $_ le $x.max (mod ^'s)
+    Any       Range     in generic range        [!after] $x.min,$_,$x.max (etc.)
+
+    Any       Type      type membership         $_.does($x)
+
+    Signature Signature sig compatibility       $_ is a subset of $x      ???
+    Code      Signature sig compatibility       $_.sig is a subset of $x  ???
+    Capture   Signature parameters bindable     $_ could bind to $x (doesn't!)
+    Any       Signature parameters bindable     |$_ could bind to $x (doesn't!)
+
+    Signature Capture   parameters bindable     $x could bind to $_
+
+    Set       Scalar    set member exists       any($_.keys) === $x
+    Hash      Scalar    hash key exists         any($_.keys) === $x
+    Array     Scalar    array contains item     any(@$_) === $x
+    Scalar    Scalar    scalars are identical   $_ === $x
+
+All smartmatch types are scalarized; both C<~~> and C<given>/C<when>
+provide scalar contexts to their arguments, and autothread any
+junctive matches so that the eventual dispatch to C<.accepts> never
+sees anything "plural".  So both C<$_> and C<$x> above are potentially
+container objects that are treated as scalars.  (You may hyperize
+C<~~> explicitly, though.  In this case all smartmatching is done
+using the type-based dispatch to C<.accepts>, not the form-based
+dispatch at the front of the table.)
+
+The exact form of the underlying type-based method dispatch is:
+
+    $x.accepts($_)      # for ~~
+    $x.rejects($_)      # for !~~
+
+As a single dispatch call this pays attention only to the type of
+C<$x> initially.  The C<accepts> method interface is defined by the
+C<Pattern> role.  Any class composing the C<Pattern> role may choose
+to provide a single C<accepts> method to handle everything, which
+corresponds to those pattern types that have only one entry with
+an C<Any> on the left above.  Or the class may choose to provide
+multiple C<accepts> multi-methods within the class, and these
+will then redispatch within the class based on the type of C<$_>.
+The class may also define one or more C<rejects> methods; if it does
+not, the default C<rejects> method from the C<Pattern> role defines
+it in terms of a negated C<accepts> method call.  This generic method
+may be less efficient than a custom C<rejects> method would be, however.
+
+The smartmatch table is primarily intended to reflect forms and types that
+are recognized at compile time.  To avoid an explosion of entries,
+the table assumes the following types will behave similarly:
 
     Actual type                 Use entries for
     ===========                 ===============
     List Seq                    Array
     KeySet KeyBag KeyHash       Hash
-    .{Any} .<string> .[number]  .method
     Class Subset Enum Role      Type
-    Subst                       Regex
+    Subst Grammar               Regex
     Buf Char LazyStr            Str
     Int UInt etc.               Num
+    Match                       Capture
 
-Note that all types are scalarized.  Both C<~~> and C<given>/C<when>
-provide scalar contexts to their arguments.  (You can always
-hyperize C<~~> explicitly, though.)  So both C<$_> and C<$x> here
-are potentially container objects.  The first section contains
-privileged syntax; if a match can be done via one of those entries,
-it will be.  Otherwise the rest of the table is used, and the match
-will be dispatched according to the normal rules of multiple dispatch;
-however, the optimizer is allowed to assume that no C<< infix:<~~> >>
-operators are added at run time, so if the argument types are evident
-at compile time, the jump table can be optimized.  By definition all
-normal arguments can be matched to at least one of the entries below.
+(Note, however, that these mappings can be overridden by explicit
+definition of the appropriate C<accepts> and C<rejects> methods.
+If the redefinition occurs at compile time prior to analysis of the
+smart match then the information is also available to the optimizer.)
 
-    $_      $x        Type of Match Implied    Match if
-    ======  =====     =====================    =============
-    Any     Code:($)  scalar sub truth         $x($_)
-    Any     .method   method truth*            $_.method
-    Any     boolean   simple expression truth* $x.true given $_
-    Any     undef     undefined                not defined $_
-    Any     *         default                  True
+Matching against a C<Grammar> object will call the first rule defined
+in the grammar.
 
-    Num     Num       numeric equality         $_ == $x
-    Num     Junction  numeric equality         $_ == $x
-    Str     Str       string equality          $_ eqv $x
-    Str     Junction  string equality          $_ eqv $x
+Matching against a C<Signature> does not actually bind any variables,
+but only tests to see if the signature I<could> bind.  To really bind
+to a signature, use the C<*> pattern to delegate binding to the C<when>
+statement's block instead.  Matching against C<*> is special in that
+it takes its truth from whether the subsequent block is bound against
+the topic, so you can do ordered signature matching:
 
-    Hash    Hash      hash keys identical sets $_.keys === $x.keys
-    Hash    Array     hash value slice truth   $_{any(@$x)}
-    Hash    Junction  hash key slice existence $_.exists($x)
-    Hash    Regex     hash key grep            any($_.keys) === /$x/
+    given $capture {
+        when * -> Int $a, Str $b { ... }
+        when * -> Str $a, Int $b { ... }
+        when * -> $a, $b         { ... }
+        when *                   { ... }
+    }
 
-    Array   Array     arrays are comparable    $_ »===« $x
-    Array   Regex     match array like string  cat(@$_) ~~ $x
-    Array   Junction  list intersection        any(@$_) ~~ $x
-    Array   Num       array contains number    any($_) == $x
-    Array   Str       array contains string    any($_) eqv $x
-    Array   Buf       array equivalent to buf  $_ eqv Array($x)
-    Array   Set       array equivalent to set  Set($_) === $x
+This can be useful when the unordered semantics of multiple dispatch
+are insufficient for defining the "pecking order" of code.  Note that
+you can bind to either a bare block or a pointy block.  Binding to a
+bare block conveniently leaves the topic in C<$_>, so the final form
+above is equivalent to a C<default>.  (Placeholders parameters may
+also be used in the bare block form, though of course their types
+cannot be specified that way.)
 
-    Code    Signature signature compatibility* $_ is a subset of $x
-  Signature Signature signature compatibility  $_ is a subset of $x
+There is no pattern matching defined for the C<Any> pattern, so if you
+find yourself in the situation of wanting a reversed smartmatch test
+with an C<Any> on the right, you can almost always get it by explicit
+call to the underlying C<accepts> method using $_ as the pattern.
+For example:
 
-    Hash    Any       hash entry existence     exists $_{$x}
-    Array   Any       array contains item*     any($_) === $x
-    Any     Signature parameter binding        $_ can bind to $x
-    Any     Range     in range                 [!after] $x.min,$_,$x.max (etc.)
-    Any     Regex     pattern match            $_.match($x)
-    Any     Type      type membership          $_.does($x)
-    Any     Code:()   simple closure truth*    $x() (ignoring $_)
-    Any     Any       run-time dispatch        infix:<~~>($_, $x)
+    $_      $value    Type of Match Wanted   What to use on the right
+    ======  ======    ====================   ========================
+    Code    Any       scalar sub truth       .accepts($value) or .($value)
+    Range   Any       in range               .accepts($value)
+    Type    Any       type membership        .accepts($value) or .does($value)
+    Regex   Any       pattern match          .accepts($value)
+    etc.
 
-Matches marked with * are non-reversible, typically because C<~~> takes
-its left side as the topic for the right side, and sets the topic to a
-private instance of C<$_> for its right side, so C<$_> means something
-different on either side.  Such non-reversible constructs can be made
-reversible by putting the leading term into a closure to defer the
-binding of C<$_>.  For example:
+Similar tricks will allow you to bend the default matching rules for
+composite objects as long as you start with a dotted method on $_:
 
-    $x ~~ .does(Storable)       # okay
-    .does(Storable) ~~ $x       # not okay--gets wrong $_ on left
-    { .does(Storable) } ~~ $x   # okay--closure binds its $_ to $x
+    given $somethingordered {
+        when .values.'[<=]'     { say "increasing" }
+        when .values.'[>=]'     { say "decreasing" }
+    }
 
-Exactly the same consideration applies to C<given> and C<when>:
+In a pinch you can define a macro to do the "reversed when":
 
-    given $x { when .does(Storable) {...} }      # okay
-    given .does(Storable) { when $x {...} }      # not okay
-    given { .does(Storable) } { when $x {...} }  # okay
+    my macro statement_control:<accepts> () { "when .accepts: " }
+    given $pattern {
+        accepts $a      { ... }
+        accepts $b      { ... }
+        accepts $c      { ... }
+    }
 
 Boolean expressions are those known to return a boolean value, such
 as comparisons, or the unary C<?> operator.  They may reference C<$_>
@@ -703,38 +837,10 @@ The primary use of the C<~~> operator is to return a boolean value in
 a boolean context.  However, for certain operands such as regular
 expressions, use of the operator within scalar or list context transfers
 the context to that operand, so that, for instance, a regular expression
-can return a list of matched substrings, as in Perl 5.  The complete
-list of such operands is TBD.
-
-The C<~~> operator is intended primarily for compile-time resolution,
-and if the types of the operands resolve at compile time according
-to the table above, any C<< infix:<~~> >> routines added later are
-completely ignored.  If the types cannot be matched at compile time,
-(that is, if the arguments match only the Any/Any rule at compile
-time), the match is deferred to a true run-time multple dispatch to
-all C<< infix:<~~> >> infix definitions that exist at the moment.
-
-The run-time C<< infix:<~~> >> definitions are intended to reproduce
-as closely as possible the compile-time table above, but it can do
-this based only on the run-time types of the arguments.  Therefore
-only the entries above that indicate a type on both sides can be
-dispatched that way.  (You can tell those because both sides start
-with a capital letter.  So multiple dispatch ignores the ".method",
-"boolean", "undef", and "*" entries in the first section, which are
-recognized syntactically, not by type.)
-
-If there is no appropriate signature match under the rules of multiple
-dispatch, the most generic multi definition of C<< infix:<~~> >>
-defaults to calling C<===> to match the two variables exactly
-according to their type.  In general you should just rely on this
-and not attempt to define your own C<< infix:<~~> >> operators,
-because complexifying the run-time semantics of C<~~> is not doing
-anyone a favor.  This is one of those mechanisms we provide knowing
-that people I<will> shoot themselves in the foot with it.  However,
-we also recognize that we probably aren't aware of all useful forms of
-pattern matching, especially the ones that haven't been invented yet.
-We choose to make it possible to add such forms using C<~~>.  Please
-construe this as future proofing, not idiot proofing.
+can return a list of matched substrings, as in Perl 5.  This is done
+by returning an object that can return a list in list context, or that
+can return a boolean in a boolean context.  In the case regex matching
+the C<Match> object is a kind of C<Capture>, which has these capabilities.
 
 For the purpose of smartmatching, all C<Set> and C<Bag> values are
 considered to be of type C<KeyHash>, that is, C<Hash> containers
@@ -1386,7 +1492,7 @@ Junctions are specifically unordered.  So if you say
     for all(@foo) {...}
 
 it indicates to the compiler that there is no coupling between loop
-iterations and they can be run in any order or even in parallel.
+iterations and they can be run in any order or even in parallel.  XXX bogus
 
 Use of negative operators with syntactically recognizable junctions may
 produce a warning on code that works differently in English than in Perl.
