@@ -640,7 +640,7 @@ as a default because the more specific types listed above it didn't match.
 
     Any       Bool      simple truth            $x.true given $_
 
-    Num       Num       numeric equality        +$_ == $x
+    Num       Num       numeric equality        $_ == $x
     Capture   Num       numeric equality        +$_ == $x
     Array     Num       array contains number   any(@$_) == $x
     Hash      Num       hash key existence      $_.exists($x)
@@ -763,7 +763,7 @@ C<Grammar> determines the top rule is up to the grammar, but normal
 Perl 6 grammars will default to setting top to the first rule in the
 original base grammar.  Derived grammars then inherit this idea of
 the top rule.  This may be overridden in either the base grammar or a
-derived grammer by explicitly naming a rule "top", or defining your
+derived grammar by explicitly naming a rule "top", or defining your
 own top method to call some other rule.
 
 Matching against a C<Signature> does not actually bind any variables,
