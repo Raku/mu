@@ -11,6 +11,74 @@ KindaPer6 specification
   Perl5 backend could use PCR, MO, Moose
 
 
+# Compiler
+
+- Pads and OO are implemented as external module calls
+- Containers?
+
+    http://www.mail-archive.com/perl6-language@perl.org/msg25373.html
+    ---
+    class Pad {
+     has %!myvars;
+     has Pad $.outer;
+    
+     method lookup(String $var) {
+       return %!myvars{$var} if exists %!myvars{$var};
+       return $.outer.lookup($var);
+     }
+     method set(String $var, $val) {
+       %!myvars{$var} = $val if exists %!myvars{$val};
+       return $.outer.lookup($var, $val);
+     }
+     ...
+    }
+    ---
+
+    from MiniPerl6-MO:
+    ---        
+    - "class" is a macro. It expands to a "module", with calls to MO.
+      The "module" AST is like:
+    
+      # A module is a "class" without the methods and attributes.
+      class Module {
+        has $.name          is Str;                     # Module Name;
+        has $.body          is Lit::Code;               # body of code
+      }
+    
+    - Macros are implemented in the grammar.
+    - It might be better to implement syntax for macros first, and then
+      implement "token" and "class" using real macros
+    
+    - Method calls can either be implemented with mo subroutine calls, or native method calls. 
+      It depends on the emitter
+    ---
+    
+    from MO/t/mi.t
+    ---
+    my $base = MO::Compile::Class::MI->new();
+    
+    my $point = MO::Compile::Class::MI->new(
+    	superclasses => [ $base ],
+    	instance_methods => [
+    		MO::Compile::Method::Simple->new(
+    			name       => "distance",
+    			definition => sub {
+    				my ( $self, $other_point ) = @_;
+    				die "stub";
+    			}
+    		),
+    	],
+    	attributes => [
+    		MO::Compile::Attribute::Simple->new(
+    			name => "x",
+    		),
+    		MO::Compile::Attribute::Simple->new(
+    			name => "y",
+    		),
+    	],
+    );
+    ---
+
 # Differences from MiniPerl6
 
 - assignment with '='
@@ -36,3 +104,15 @@ Some test cases could be (as long as the backend supports it):
 - 'coro'
 
 - junctions
+
+
+# See also
+
+- misc/pX/Common/lrep/Notes-Pugs.pm
+  some notes about compiler plugins
+
+- misc/pX/Aside/design_space_sketch_Feb_11
+  a previous plan
+  
+- Compiling Embedded Languages
+  conal.net/papers/saig00/compile-dsel.pdf

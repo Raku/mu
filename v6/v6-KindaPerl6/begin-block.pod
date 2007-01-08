@@ -1,0 +1,160 @@
+
+use Data::Dump::Streamer;
+use strict;
+
+my $x;  BEGIN { $x = 4 };
+
+#   turns into 
+
+my $__CEV_x1 = \do { my $x };  
+INIT {
+        $$__CEV_x1 = 4;
+  print Dump $__CEV_x1;
+}
+  print Dump $__CEV_x1;
+
+#---
+
+BEGIN { 
+        use X @list;
+}
+
+#  turns into 
+
+BEGIN { 
+        require X;
+        # no X calls 'unimport' instead of 'import'
+        X.import( @list ) if UNIVERSAL::can('X', 'import');
+}
+
+# from perldoc -f require
+    sub require {
+        my ($filename) = @_;
+        if (exists $INC{$filename}) {
+                return 1 if $INC{$filename};
+                die "Compilation failed in require";
+        }
+        my ($realfilename,$result);
+        ITER: {
+                foreach $prefix (@INC) {
+                $realfilename = "$prefix/$filename";
+                if (-f $realfilename) {
+                        $INC{$filename} = $realfilename;
+                        $result = do $realfilename;
+                        last ITER;
+                }
+                }
+                die "Can't find $filename in \@INC";
+        }
+        if ($@) {
+                $INC{$filename} = undef;
+                die $@;
+        } elsif (!$result) {
+                delete $INC{$filename};
+                die "$filename did not return true value";
+        } else {
+                return $result;
+        }
+    }
+
+#---
+
+my $__CEV_x1 = \do { my $x }; 
+INIT { say $$__CEV_x1;  LEAVE { undefine $__CEV_x1 } }
+
+#---
+
+my $y;  my $z; BEGIN { my $x;  $y = { $x };   $z = { $x } }
+
+__END__
+
+- BEGIN blocks are executed at parse time
+
+    token BEGIN { BEGIN <block> { execute_begin; return ... } }
+  
+- CEV = "compile-time existing variables" (luqui++)
+
+- This is one case when BEGIN has a variable which doesn't exist at compile-time:
+  
+    for 1,2 { 
+        my $x = sub { 
+                my $y;  
+                BEGIN { $y = 42 }; 
+                say $y 
+        };  
+        $x() 
+    }
+
+<luqui> so, how about this: it is illegal to assign to non-existant varaibles at compile-time
+<luqui> we just need to define 'exists' appropriately
+<luqui> a variable exists if... it is in a closure that cannot be cloned?
+<luqui> that is, if $x can only ever refer to one thing, then it exists at compile-time
+<luqui> I like that...
+<luqui> so crap like this:   for 1,2 { my $x;  BEGIN { $x = 10 };  say $x }
+<luqui> is illegal
+<luqui> but:  { my $x;  BEGIN { $x = 10 };  sub foo() { $x } }
+<luqui> is not
+<luqui> (assuming that closure was in void context...)
+<luqui> then, in the pad structure, you can store existent variables and reasonably initialize them at the beginning of runtime
+<luqui> inside their scope...
+
+<fglock> it could work like this - each 'my' decl creates a new pad, at compile-time
+<fglock> and BEGIN blocks are moved to the start of the pad code
+<luqui> where by "moved to " you mean "executed and then the pad's environment is dumped at" ?
+
+<luqui> my $y;  for 1..rand(10) { my $x = $_;  BEGIN { $y = { $x } } }  $y()
+<luqui> now what?
+<luqui> I assume it will be 1 if the body ever gets executed
+<luqui> and undef otherwise
+
+<luqui> so to clarify, $y() can return undef, but regardless $y is a code object, and has to refer to something
+
+<TimToady> whether we can get the "first time through" uses compiler's pad thing to work is the real issue, I expect
+
+<TimToady> I agree with luqui on the general principle--a BEGIN can only influence structures that exist at compile time by side effect.  Other than that, all it can do is return a value.
+<TimToady> the "extra" question is whether there are extraordinary structures we can have at compile time that do things at run time
+<TimToady> and I think the answer is, don't sweat it for now.
+
+<luqui> right.  I think you can generate code to initialize all "compile-time existing" variables at the beginning of their scopes, and the semantics will be correct
+<luqui> (though it is indeed a bit tricky if they refer to each other)
+
+<luqui> my $x;   INIT { $x = 1 }  BEGIN { $x = 2 };   say $x;
+<luqui> or even:
+<fglock> that's a problem
+<luqui> n/m
+<luqui> oh dear
+<luqui> I was going to say that you have to move side-effects to the beginning of the scope where the affected variables were
+<luqui> however:
+*** koye [i=milan@195.252.85.84] has joined #perl6
+<luqui> my $x;   ...stuff { my $y;  BEGIN { $x = { $y };  $y = { $x } } ...stuff }
+<luqui> ahh, pathological examples, my favorite
+<luqui> it is impossible to initialize $x at the beginning of its scope
+<luqui> ok... so, BEGIN blocks can only work on "compile-time existing variables"  (this assumption is getting more and more useful)
+<luqui> so you don't scope them
+<luqui> they are all global
+<luqui> then you can rig them to refer to each other
+<luqui> but of course, that has GC problems...
+<fglock> I'm compiling to "desugared p6", which compiles either to p5 or parrot
+*** theorbtwo [n=theorb@dyn-62-56-59-40.dslaccess.co.uk] has joined #perl6
+<[particle]> you'll need weak references
+
+<luqui> hmm, so we need something where the creation of an object can claim a reference instead of creating it
+<luqui> this is not a standard language feature :-(
+<luqui> let's see here (brainstorming commencing)
+<luqui> all compile-time existing variables (CEVs) are globals with an extra level of indirection
+<fglock> what's a non-CEV example?
+*** hexmode [n=mah@pool-162-83-250-134.ny5030.east.verizon.net] has quit [Read error: 54 (Connection reset by peer)]
+<luqui> so:  "my $x;  BEGIN { $x = 4 };"   turns into "my $__CEV_x1 = \do { my $x };  $$__CEV_x1 = 4;"
+<luqui> non-CEVs are things like $x in for 1..3 { my $x }
+<fglock> k
+<luqui> then you undef the reference at the end of its scope
+<luqui> so:  "{ my $x;   say $x }"  turns into "my $__CEV_x1 ... ...;  { say $$__CEV_x1;  LEAVE { undefine $__CEV_x1 } }
+<luqui> the initialization of all CEVs happens first thing in the the program
+<luqui> before any other INIT blocks
+<luqui> I think that actually does solve the circular-dependency pathology
+<luqui> and the GC problem
+<luqui> it's just... ugly
+
+<luqui> my $y;  my $z; BEGIN { my $x;  $y = { $x };   $z = { $x } }
+<luqui> $x is not CEV, but you have to express that the variable that $y and $z are referencing are the same one
+
