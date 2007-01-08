@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 7 Jan 2007
+  Last Modified: 8 Jan 2007
   Number: 3
-  Version: 86
+  Version: 87
 
 =head1 Changes to Perl 5 operators
 
@@ -601,7 +601,7 @@ Here is the table of smart matches for standard Perl 6
 compilation unit).  Smart matching is generally done on the current
 "topic", that is, on C<$_>.  In the table below, C<$_> represents the
 left side of the C<~~> operator, or the argument to a C<given>,
-or to any other topicalizer.  C<$x> represents the pattern to be
+or to any other topicalizer.  C<X> represents the pattern to be
 matched against on the right side of C<~~>, or after a C<when>.
 
 The first section contains privileged syntax; if a match can be done
@@ -615,105 +615,80 @@ can be optimized.  However, the syntax of this part of the table
 is still somewhat privileged, insofar as the C<~~> operator is one
 of the few operators in Perl that does not use multiple dispatch.
 Instead, type-based smart matches singly dispatch to an underlying
-method belonging to the C<$x> pattern object.
+method belonging to the C<X> pattern object.
 
 In other words, smart matches are dispatched first on the basis of the
-pattern's form or type (the C<$x> below), and then that pattern itself
+pattern's form or type (the C<X> below), and then that pattern itself
 decides whether and how to pay attention to the type of the topic
 (C<$_>).  So the second column below is really the primary column.
 The C<Any> entries in the first column indicate a pattern that either
 doesn't care about the type of the topic, or that picks that entry
 as a default because the more specific types listed above it didn't match.
 
-    $_        $x        Type of Match Implied   Match if
-    ======    =====     =====================   =============
-    Any       Code:($)  scalar sub truth        $x($_)
-    Any       Code:()   simple closure truth    $x() (ignoring $_)
-    Any       undef     undefined               not defined $_
+    $_        X         Type of Match Implied   Match if (given $_)
+    ======    =====     =====================   ===================
+    Any       Code:($)  scalar sub truth        X($_)
+    Any       Code:()   simple closure truth    X() (ignoring $_)
+    Any       undef     undefined               not .defined
     Any       *         block signature match   block successfully binds to |$_
-    Any       .foo      method truth            ?any($_.foo)
-    Any       .foo(...) method truth            ?any($_.foo(...))
-    Any       .(...)    list sub call truth     ?any($_(...))
-    Any       .[...]    array value slice truth ?any($_[...])
-    Any       .{...}    hash value slice truth  ?any($_{...})
-    Any       .<...>    hash value slice truth  ?any($_<...>)
+    Any       .foo      method truth            ?X       i.e. ?.foo
+    Any       .foo(...) method truth            ?X       i.e. ?.foo
+    Any       .(...)    sub call truth          ?X       i.e. ?.(...)
+    Any       .[...]    array value slice truth ?all(X)  i.e. ?all(.[...])
+    Any       .{...}    hash value slice truth  ?all(X)  i.e. ?all(.{...})
+    Any       .<...>    hash value slice truth  ?all(X)  i.e. ?all(.<...>)
 
-    Any       Bool      simple truth            $x.true given $_
+    Any       Bool      simple truth            X
+    Any       Num       numeric equality        +$_ == X
+    Any       Str       string equality         ~$_ eq X
 
-    Num       Num       numeric equality        $_ == $x
-    Capture   Num       numeric equality        +$_ == $x
-    Array     Num       array contains number   any(@$_) == $x
-    Hash      Num       hash key existence      $_.exists($x)
-    Byte      Num       numeric equality        +$_ == $x
-    Any       Num       numeric equality        +$_ == $x
+    Set       Set       identical sets          $_ === X
+    Hash      Set       hash keys same set      $_.keys === X
+    Any       Set       force set comparison    Set($_) === X
+    Set       Subset    subset                  .any === X.all
+    Hash      Subset    subset of hash keys     .any === X.all
+    Any       Subset    force set comparison    .Set.any === X.all
+    Set       Superset  superset                .any === X.all
+    Hash      Superset  superset of hash keys   .any === X.all
+    Any       Superset  force set comparison    .Set.any === X.all
 
-    Str       Str       string equality         $_ eq $x
-    Capture   Str       string equality         ~$_ eq $x
-    Array     Str       array contains string   any(@$_) eq $x
-    Hash      Str       hash key existence      $_.exists($x)
-    Byte      Str       string equality         ~$_ eq $x
-    Any       Str       string equality         ~$_ eq $x
+    Array     Array     arrays are comparable   $_ «===» X (dwims * wildcards!)
+    Set       Array     array equiv to set      $_ === Set(X)
+    Any       Array     lists are comparable    @$_ «===» X
 
-    Buf       Buf       buffer equality         $_ eq $x
-    Str       Buf       string equality         $_ eq Str($x)
-    Array     Buf       arrays are comparable   $_ »===« @$x
-    Hash      Buf       hash key existence      $_.exists($x)
-    Any       Buf       buffer equality         Buf($_) eq $x
+    Hash      Hash      hash keys same set      $_.keys === X.keys
+    Set       Hash      hash keys same set      $_ === X.keys
+    Array     Hash      hash slice existence    X.exists(any @$_)
+    Regex     Hash      hash key grep           any($_.keys) === /X/
+    Scalar    Hash      hash entry existence    X.exists($_)
+    Any       Hash      hash slice existence    X.exists(any @$_)
 
-    Buf       Byte      buffer contains byte    $_.match(/$x/)
-    Str       Byte      string contains byte    Buf($_).match(/$x/)
+    Str       Regex     string pattern match    .match(X)
+    Hash      Regex     hash key "boolean grep" .any.match(/X/)
+    Array     Regex     array "boolean grep"    .any.match(/X/)
+    Any       Regex     pattern match           .match(X)
 
-    Str       Char      string contains char    $_.match(/$x/)
-    Buf       Char      string contains char    Str($_).match(/$x/)
+    Num       Range     in numeric range        X.min <= $_ <= X.max (mod ^'s)
+    Str       Range     in string range         X.min le $_ le X.max (mod ^'s)
+    Any       Range     in generic range        [!after] X.min,$_,X.max (etc.)
 
-    Set       Set       identical sets          $_ === $x
-    Hash      Set       hash keys same set      $_.keys === $x
-    Array     Set       array equiv to set      Set($_) === $x
-    Any       Set       identical sets          Set($_) === $x
+    Any       Type      type membership         $_.does(X)
 
-    Array     Array     arrays are comparable   $_ »===« $x
-    Buf       Array     arrays are comparable   @$_ »===« $x
-    Str       Array     array contains string   any(@$x) eq $_
-    Num       Array     array contains number   any(@$x) == $_
-    Hash      Array     hash slice exists       $_.exists(any(@$x))
-    Scalar    Array     array contains object   any(@$x) === $_
-    Set       Array     array equiv to set      $_ === Set($x)
-    Any       Array     lists are comparable    @$_ »===« $x
+    Signature Signature sig compatibility       $_ is a subset of X      ???
+    Code      Signature sig compatibility       $_.sig is a subset of X  ???
+    Capture   Signature parameters bindable     $_ could bind to X (doesn't!)
+    Any       Signature parameters bindable     |$_ could bind to X (doesn't!)
 
-    Hash      Hash      hash keys same set      $_.keys === $x.keys
-    Set       Hash      hash keys same set      $_ === $x.keys
-    Array     Hash      hash slice existence    $x.exists(any @$_)
-    Regex     Hash      hash key grep           any($_.keys) === /$x/
-    Scalar    Hash      hash entry existence    $x.exists($_)
-    Any       Hash      hash slice existence    $x.exists(any @$_)
+    Signature Capture   parameters bindable     X could bind to $_
 
-    Str       Regex     string pattern match    $_.match($x)
-    Hash      Regex     hash key grep           any($_.keys) === /$x/
-    Array     Regex     match array as string   cat(@$_).match($x)
-    Any       Regex     pattern match           $_.match($x)
+    Any       Any       scalars are identical   $_ === X
 
-    Num       Range     in numeric range        $x.min <= $_ <= $x.max (mod ^'s)
-    Str       Range     in string range         $x.min le $_ le $x.max (mod ^'s)
-    Any       Range     in generic range        [!after] $x.min,$_,$x.max (etc.)
-
-    Any       Type      type membership         $_.does($x)
-
-    Signature Signature sig compatibility       $_ is a subset of $x      ???
-    Code      Signature sig compatibility       $_.sig is a subset of $x  ???
-    Capture   Signature parameters bindable     $_ could bind to $x (doesn't!)
-    Any       Signature parameters bindable     |$_ could bind to $x (doesn't!)
-
-    Signature Capture   parameters bindable     $x could bind to $_
-
-    Set       Scalar    set member exists       any($_.keys) === $x
-    Hash      Scalar    hash key exists         any($_.keys) === $x
-    Array     Scalar    array contains item     any(@$_) === $x
-    Scalar    Scalar    scalars are identical   $_ === $x
+The final rule is applied only if no other pattern type claims X.
 
 All smartmatch types are scalarized; both C<~~> and C<given>/C<when>
 provide scalar contexts to their arguments, and autothread any
 junctive matches so that the eventual dispatch to C<.accepts> never
-sees anything "plural".  So both C<$_> and C<$x> above are potentially
+sees anything "plural".  So both C<$_> and C<X> above are potentially
 container objects that are treated as scalars.  (You may hyperize
 C<~~> explicitly, though.  In this case all smartmatching is done
 using the type-based dispatch to C<.accepts>, not the form-based
@@ -721,11 +696,11 @@ dispatch at the front of the table.)
 
 The exact form of the underlying type-based method dispatch is:
 
-    $x.accepts($_)      # for ~~
-    $x.rejects($_)      # for !~~
+    X.accepts($_)      # for ~~
+    X.rejects($_)      # for !~~
 
 As a single dispatch call this pays attention only to the type of
-C<$x> initially.  The C<accepts> method interface is defined by the
+C<X> initially.  The C<accepts> method interface is defined by the
 C<Pattern> role.  Any class composing the C<Pattern> role may choose
 to provide a single C<accepts> method to handle everything, which
 corresponds to those pattern types that have only one entry with
@@ -747,14 +722,27 @@ the table assumes the following types will behave similarly:
     KeySet KeyBag KeyHash       Hash
     Class Subset Enum Role      Type
     Subst Grammar               Regex
-    Buf Char LazyStr            Str
+    Char LazyCat                Str
     Int UInt etc.               Num
     Match                       Capture
+    Byte                        Str or Int
+    Buf                         Str or Array of Int
 
 (Note, however, that these mappings can be overridden by explicit
 definition of the appropriate C<accepts> and C<rejects> methods.
 If the redefinition occurs at compile time prior to analysis of the
 smart match then the information is also available to the optimizer.)
+
+A C<Buf> type containing any bytes or integers outside the ASCII
+range may silently promote to a C<Str> type for pattern matching if
+and only if its relationship to Unicode is clearly declared or typed.
+This type information might come from an input filehandle, or the
+C<Buf> role may be a parametric type that allows you to instantiate
+buffers with various known encodings.  In the absence of such typing
+information, you may still do pattern matching against the buffer, but
+(apart from assuming the lowest 7 bits represent ASCII) any attempt
+to treat the buffer as other than a sequence integers is erroneous,
+and warnings may be generously issued.
 
 Matching against a C<Grammar> object will call the C<TOP> method
 defined in the grammar.  The C<TOP> method may either be a rule
@@ -794,12 +782,12 @@ with an C<Any> on the right, you can almost always get it by explicit
 call to the underlying C<accepts> method using $_ as the pattern.
 For example:
 
-    $_      $value    Type of Match Wanted   What to use on the right
-    ======  ======    ====================   ========================
-    Code    Any       scalar sub truth       .accepts($value) or .($value)
-    Range   Any       in range               .accepts($value)
-    Type    Any       type membership        .accepts($value) or .does($value)
-    Regex   Any       pattern match          .accepts($value)
+    $_      X    Type of Match Wanted   What to use on the right
+    ======  ===  ====================   ========================
+    Code    Any  scalar sub truth       .accepts(X) or .(X)
+    Range   Any  in range               .accepts(X)
+    Type    Any  type membership        .accepts(X) or .does(X)
+    Regex   Any  pattern match          .accepts(X)
     etc.
 
 Similar tricks will allow you to bend the default matching rules for
@@ -818,6 +806,37 @@ In a pinch you can define a macro to do the "reversed when":
         accepts $b      { ... }
         accepts $c      { ... }
     }
+
+Various proposed-but-deprecated smartmatch behaviors may be easily
+(and we hope, more readably) emulated as follows:
+
+    $_      X      Type of Match Wanted   What to use on the right
+    ======  ===    ====================   ========================
+    Array   Num    array element truth    .[X]
+    Array   Num    array contains number  *,X,*
+    Array   Str    array contains string  *,X,*
+    Array   Seq    array begins with seq  X,*
+    Array   Seq    array contains seq     *,X,*
+    Array   Seq    array ends with seq    *,X
+    Hash    Str    hash element truth     .{X}
+    Hash    Str    hash key existence     .exists(X)
+    Hash    Num    hash element truth     .{X}
+    Hash    Num    hash key existence     .exists(X)
+    Buf     Int    buffer contains int    .match(X)
+    Str     Char   string contains char   .match(X)
+    Str     Str    string contains string .match(X)
+    Array   Scalar array contains item    .any === X
+    Str     Array  array contains string  X.any
+    Num     Array  array contains number  X.any
+    Scalar  Array  array contains object  X.any
+    Hash    Array  hash slice exists      .exists(X.all) .exists(X.any)
+    Any     Set    Subset relation        Subset(X)
+    Any     Hash   Subset relation        Subset(X)
+    Any     Set    Superset relation      Superset(X)
+    Any     Hash   Superset relation      Superset(X)
+    Any     Set    Sets intersect         .exists(X.any)
+    Set     Array  Subset relation        X,*          # (conjectured)
+    Array   Regex  match array as string  .cat.match(X)
 
 Boolean expressions are those known to return a boolean value, such
 as comparisons, or the unary C<?> operator.  They may reference C<$_>
@@ -840,6 +859,10 @@ because it will always choose the C<True> case.  Instead use something like:
 
 Better, just use an C<if> statement.
 
+Note also that regex matching does I<not> return a C<Bool>, but merely
+a C<Match> object that can be used as a boolean value.  Use an explicit
+C<?> or C<true> to force a C<Bool> value if desired.
+
 The primary use of the C<~~> operator is to return a boolean value in
 a boolean context.  However, for certain operands such as regular
 expressions, use of the operator within scalar or list context transfers
@@ -855,8 +878,8 @@ where the keys represent the unique objects and the values represent
 the replication count of those unique keys.  (Obviously, a C<Set> can
 have only 0 or 1 replication because of the guarantee of uniqueness).
 
-The C<LazyStr> type allows you to have an infinitely extensible string.
-You can match an array or iterator by feeding it to a C<LazyStr>,
+The C<LazyCat> type allows you to have an infinitely extensible string.
+You can match an array or iterator by feeding it to a C<LazyCat>,
 which is essentially a C<Str> interface over an iterator of some sort.
 Then a C<Regex> can be used against it as if it were an ordinary
 string.  The C<Regex> engine can ask the string if it has more
@@ -867,23 +890,25 @@ ask the string how many characters it has in it, or if you even print
 the whole string, it may be feel compelled to slurp in the rest of
 the string, which may or may not be expeditious.)
 
-The C<cat> operator in scalar context takes a (potentially lazy) list
-and returns a C<LazyStr> object, so you can search a gather like this:
+The C<cat> operator takes a (potentially lazy) list and returns a
+C<LazyCat> object.  In string context this coerces each of its elements
+to strings lazily, and behaves as a string of indeterminate length.
+You can search a gather like this:
 
     my $lazystr := cat gather for @foo { take .bar }
 
     $lazystr ~~ /pattern/;
 
-The C<LazyStr> interface allows the regex to match element boundaries
+The C<LazyCat> interface allows the regex to match element boundaries
 with the C<< <,> >> assertion, and the C<StrPos> objects returned by
 the match can be broken down into elements index and position within
 that list element.  If the underlying data structure is a mutable
 array, changes to the array (such as by C<shift> or C<pop>) are tracked
-by the C<LazyStr> so that the element numbers remain correct.  Strings,
+by the C<LazyCat> so that the element numbers remain correct.  Strings,
 arrays, lists, sequences, captures, and tree nodes can all be pattern
 matched by regexes or by signatures more or less interchangably.
 However, the structure searched is not guaranteed to maintain a C<.pos>
-unless you are searching a C<Str> or C<LazyStr>.
+unless you are searching a C<Str> or C<LazyCat>.
 
 =head1 Meta operators
 
@@ -1516,6 +1541,11 @@ However, this is only a syntactic warning, and
     if $a != $b {...}
 
 will not complain if $b happens to contain a junction at runtime.
+
+Junctive methods on arrays, lists, and sets work just like the
+corresponding list operators.  However, junctive methods on a hash
+make a junction of only the hash's keys.  Use the listop form (or an
+explicit C<.pairs>) to make a junction of pairs.
 
 =head1 Chained comparisons
 
