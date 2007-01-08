@@ -14,7 +14,7 @@ Luke Palmer <luke@luqui.org>
   Date: 8 Mar 2004
   Last Modified: 7 Jan 2007
   Number: 3
-  Version: 85
+  Version: 86
 
 =head1 Changes to Perl 5 operators
 
@@ -756,15 +756,15 @@ definition of the appropriate C<accepts> and C<rejects> methods.
 If the redefinition occurs at compile time prior to analysis of the
 smart match then the information is also available to the optimizer.)
 
-Matching against a C<Grammar> object will call the C<top> method
-defined in the grammar.  The C<top> method may either be a rule
+Matching against a C<Grammar> object will call the C<TOP> method
+defined in the grammar.  The C<TOP> method may either be a rule
 itself, or may call the actual top rule automatically.  How the
 C<Grammar> determines the top rule is up to the grammar, but normal
 Perl 6 grammars will default to setting top to the first rule in the
 original base grammar.  Derived grammars then inherit this idea of
 the top rule.  This may be overridden in either the base grammar or a
-derived grammar by explicitly naming a rule "top", or defining your
-own top method to call some other rule.
+derived grammar by explicitly naming a rule C<TOP>, or defining your
+own C<TOP> method to call some other rule.
 
 Matching against a C<Signature> does not actually bind any variables,
 but only tests to see if the signature I<could> bind.  To really bind
