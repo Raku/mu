@@ -648,9 +648,9 @@ as a default because the more specific types listed above it didn't match.
     Set       Subset    subset                  .any === X.all
     Hash      Subset    subset of hash keys     .any === X.all
     Any       Subset    force set comparison    .Set.any === X.all
-    Set       Superset  superset                .any === X.all
-    Hash      Superset  superset of hash keys   .any === X.all
-    Any       Superset  force set comparison    .Set.any === X.all
+    Set       Superset  superset                .all === X.any
+    Hash      Superset  superset of hash keys   .all === X.any
+    Any       Superset  force set comparison    .Set.all === X.any
 
     Array     Array     arrays are comparable   $_ «===» X (dwims * wildcards!)
     Set       Array     array equiv to set      $_ === Set(X)
