@@ -14,7 +14,7 @@ Luke Palmer <luke@luqui.org>
   Date: 8 Mar 2004
   Last Modified: 8 Jan 2007
   Number: 3
-  Version: 87
+  Version: 88
 
 =head1 Changes to Perl 5 operators
 
@@ -645,12 +645,6 @@ as a default because the more specific types listed above it didn't match.
     Set       Set       identical sets          $_ === X
     Hash      Set       hash keys same set      $_.keys === X
     Any       Set       force set comparison    Set($_) === X
-    Set       Subset    subset                  .any === X.all
-    Hash      Subset    subset of hash keys     .any === X.all
-    Any       Subset    force set comparison    .Set.any === X.all
-    Set       Superset  superset                .all === X.any
-    Hash      Superset  superset of hash keys   .all === X.any
-    Any       Superset  force set comparison    .Set.all === X.any
 
     Array     Array     arrays are comparable   $_ «===» X (dwims * wildcards!)
     Set       Array     array equiv to set      $_ === Set(X)
@@ -658,10 +652,10 @@ as a default because the more specific types listed above it didn't match.
 
     Hash      Hash      hash keys same set      $_.keys === X.keys
     Set       Hash      hash keys same set      $_ === X.keys
-    Array     Hash      hash slice existence    X.exists(any @$_)
+    Array     Hash      hash slice existence    X.contains(any @$_)
     Regex     Hash      hash key grep           any($_.keys) === /X/
-    Scalar    Hash      hash entry existence    X.exists($_)
-    Any       Hash      hash slice existence    X.exists(any @$_)
+    Scalar    Hash      hash entry existence    X.contains($_)
+    Any       Hash      hash slice existence    X.contains(any @$_)
 
     Str       Regex     string pattern match    .match(X)
     Hash      Regex     hash key "boolean grep" .any.match(/X/)
@@ -720,9 +714,9 @@ the table assumes the following types will behave similarly:
     ===========                 ===============
     List Seq                    Array
     KeySet KeyBag KeyHash       Hash
-    Class Subset Enum Role      Type
+    Class Enum Role             Type
     Subst Grammar               Regex
-    Char LazyCat                Str
+    Char Cat                    Str
     Int UInt etc.               Num
     Match                       Capture
     Byte                        Str or Int
@@ -819,9 +813,9 @@ Various proposed-but-deprecated smartmatch behaviors may be easily
     Array   Seq    array contains seq     *,X,*
     Array   Seq    array ends with seq    *,X
     Hash    Str    hash element truth     .{X}
-    Hash    Str    hash key existence     .exists(X)
+    Hash    Str    hash key existence     .contains(X)
     Hash    Num    hash element truth     .{X}
-    Hash    Num    hash key existence     .exists(X)
+    Hash    Num    hash key existence     .contains(X)
     Buf     Int    buffer contains int    .match(X)
     Str     Char   string contains char   .match(X)
     Str     Str    string contains string .match(X)
@@ -829,14 +823,21 @@ Various proposed-but-deprecated smartmatch behaviors may be easily
     Str     Array  array contains string  X.any
     Num     Array  array contains number  X.any
     Scalar  Array  array contains object  X.any
-    Hash    Array  hash slice exists      .exists(X.all) .exists(X.any)
-    Any     Set    Subset relation        Subset(X)
-    Any     Hash   Subset relation        Subset(X)
-    Any     Set    Superset relation      Superset(X)
-    Any     Hash   Superset relation      Superset(X)
-    Any     Set    Sets intersect         .exists(X.any)
-    Set     Array  Subset relation        X,*          # (conjectured)
-    Array   Regex  match array as string  .cat.match(X)
+    Hash    Array  hash slice exists      .contains(X.all) .contains(X.any)
+    Set     Set    subset relation        .contains(X)
+    Set     Hash   subset relation        .contains(X)
+    Any     Set    subset relation        .Set.contains(X)
+    Any     Hash   subset relation        .Set.contains(X)
+    Any     Set    superset relation      X.contains($_)
+    Any     Hash   superset relation      X.contains($_)
+    Any     Set    sets intersect         .contains(X.any)
+    Set     Array  subset relation        X,*          # (conjectured)
+    Array   Regex  match array as string  .Cat.match(X)  cat(@$_).match(X)
+
+(Note that the C<.cat> method and the C<Cat> type coercion both take a
+single object, unlike the C<cat> function which, as a list operator,
+takes a syntactic list (or multilist) and flattens it.  All of these
+return a Cat object, however.)
 
 Boolean expressions are those known to return a boolean value, such
 as comparisons, or the unary C<?> operator.  They may reference C<$_>
@@ -878,8 +879,8 @@ where the keys represent the unique objects and the values represent
 the replication count of those unique keys.  (Obviously, a C<Set> can
 have only 0 or 1 replication because of the guarantee of uniqueness).
 
-The C<LazyCat> type allows you to have an infinitely extensible string.
-You can match an array or iterator by feeding it to a C<LazyCat>,
+The C<Cat> type allows you to have an infinitely extensible string.
+You can match an array or iterator by feeding it to a C<Cat>,
 which is essentially a C<Str> interface over an iterator of some sort.
 Then a C<Regex> can be used against it as if it were an ordinary
 string.  The C<Regex> engine can ask the string if it has more
@@ -891,7 +892,7 @@ the whole string, it may be feel compelled to slurp in the rest of
 the string, which may or may not be expeditious.)
 
 The C<cat> operator takes a (potentially lazy) list and returns a
-C<LazyCat> object.  In string context this coerces each of its elements
+C<Cat> object.  In string context this coerces each of its elements
 to strings lazily, and behaves as a string of indeterminate length.
 You can search a gather like this:
 
@@ -899,16 +900,16 @@ You can search a gather like this:
 
     $lazystr ~~ /pattern/;
 
-The C<LazyCat> interface allows the regex to match element boundaries
+The C<Cat> interface allows the regex to match element boundaries
 with the C<< <,> >> assertion, and the C<StrPos> objects returned by
 the match can be broken down into elements index and position within
 that list element.  If the underlying data structure is a mutable
 array, changes to the array (such as by C<shift> or C<pop>) are tracked
-by the C<LazyCat> so that the element numbers remain correct.  Strings,
+by the C<Cat> so that the element numbers remain correct.  Strings,
 arrays, lists, sequences, captures, and tree nodes can all be pattern
 matched by regexes or by signatures more or less interchangably.
 However, the structure searched is not guaranteed to maintain a C<.pos>
-unless you are searching a C<Str> or C<LazyCat>.
+unless you are searching a C<Str> or C<Cat>.
 
 =head1 Meta operators
 
