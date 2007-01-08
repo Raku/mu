@@ -559,11 +559,11 @@ chosen to be "autothreaded" is:
 
 =item *
 
-the left-most conjunction or injunction (if any), or else
+the left-most I<all> or I<none> junction (if any), or else
 
 =item *
 
-the left-most abjunction or disjunction
+the left-most I<one> or I<any> junction
 
 =back
 
