@@ -1,6 +1,6 @@
 use v6-alpha;
 use Test;
-plan 1;
+plan 8;
 
 # P13 (**) Run-length encoding of a list (direct solution).
 # 
@@ -55,11 +55,28 @@ sub encode_direct {
 }
 
 
-is( 
-    encode_direct(<a a a a b c c a a d e e e e>),
-   '4ab2c2ad4e',
-    '(**) Run-length encoding of a list (direct solution).'
-);
+# Alternative solution
 
+sub encode_direct2(*@array is copy) returns Str {
+    my ($packed, $count);
+    while @array {
+      if @array[0] eq @array[1] {
+          $count++;
+      }
+      else {
+          $packed ~=( $count ?? ($count+1) ~ @array[0] !! @array[0] );
+          $count=0;
+      }
+      @array.shift;
+    }
+    return $packed;
+}
 
-
+for (&encode_direct,&encode_direct2) ->$ed {
+is $ed(<>),'', 'We should be able to encode_direct an empty list';
+is $ed(<a>), 'a', '.. or a one-element iist';
+is $ed(<a a>), '2a', '.. or a n-ary list with always same element';
+is $ed(<a a a a b c c a a d e e e e>),
+    '4ab2c2ad4e',
+    '.. or a generic list'; 
+}
