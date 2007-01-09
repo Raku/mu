@@ -1,6 +1,7 @@
 
 - implemented conjunctions with '&' (not in Regex yet)
 - implemented negated metasyntax <!...>
+- implemented <fail>
 
 0.20  2006-10-13
 
