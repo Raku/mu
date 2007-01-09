@@ -85,6 +85,8 @@ KindaPer6 specification
 
 - inheritance
 
+- trait blocks
+
 
 # Wish list
 
@@ -104,6 +106,20 @@ Some test cases could be (as long as the backend supports it):
 - 'coro'
 
 - junctions
+
+
+# Desugarings to MP6
+
+- metamodel calls for OO
+
+- cps - continuation-passing style
+
+- explicit pads as program data
+
+- special blocks: BEGIN, LAST, ...
+
+- parameter binding 
+  - already done by mp6, but it's incomplete
 
 
 # See also
