@@ -1,6 +1,5 @@
 use v6-alpha;
-use Test;
-plan 1;
+use FindBin;
 
 # P33 (*) Determine whether two positive integer numbers are coprime.
 # 
@@ -8,10 +7,15 @@ plan 1;
 # Example:
 # * (coprime 35 64)
 # T
+@INC.push($FindBin::Bin);
+require "problem32.t";
 
-if 1 {
-    skip 1, "Test(s) not yet written: (*) Determine whether two positive integer numbers are coprime.";
-}
-else {
-    ok 1, '(*) Determine whether two positive integer numbers are coprime.';
+sub coprime(Int $a, Int $b) { gcd($a,$b) == 1}
+
+unless caller {
+    use Test;
+    plan 3;
+    ok  coprime(35,64), "We should be able to tell that 35 and 64 are coprime";
+    ok  coprime(64,35), ".. and viceversa";
+    ok !coprime(13,39), ".. but 13 and 39 are not";
 }

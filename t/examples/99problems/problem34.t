@@ -1,6 +1,4 @@
 use v6-alpha;
-use Test;
-plan 1;
 
 # P34 (**) Calculate Euler's totient function phi(m).
 # 
@@ -18,9 +16,16 @@ plan 1;
 # method to calculate this function (there are smarter ways that we shall discuss
 # later).
 
-if 1 {
-    skip 1, "Test(s) not yet written: (**) Calculate Euler's totient function phi(m).";
+use FindBin;
+@INC.push( $FindBin::Bin);
+require 'problem31.t';
+
+sub totient_phi(Int $num) {
+    +grep(&is_prime, 1 .. $num);
 }
-else {
-    ok 1, "(**) Calculate Euler's totient function phi(m).";
+
+if !caller {
+    use Test;
+    plan 1;
+    is 4,totient_phi(10), "totient-phi of 10 is 4"
 }

@@ -1,6 +1,4 @@
 use v6-alpha;
-use Test;
-plan 10;
 
 # P31 (**) Determine whether a given integer number is prime.
 # 
@@ -37,13 +35,17 @@ sub is_prime(Nat $num) returns Bool {
     return True;
 }
 
-ok !is_prime(0), "We should find that 0 is not prime";
-ok !is_prime(1), ".. and neither is 1";
-ok  is_prime(2), ".. 2 is prime";
-ok  is_prime(3), ".. 3 is prime";
-ok !is_prime(4), ".. 4 is not";
-ok  is_prime(5), ".. 5 is prime";
-ok !is_prime(6), ".. 6 is even, thus not prime";
-ok !is_prime(15), ".. 15 is product of two primes, but not prime";
-ok  is_prime(2531), ".. 2531 is a larger prime";
-ok !is_prime(2533), ".. 2533 is not";
+unless caller {
+    use Test;
+    plan 10;
+    ok !is_prime(0), "We should find that 0 is not prime";
+    ok !is_prime(1), ".. and neither is 1";
+    ok  is_prime(2), ".. 2 is prime";
+    ok  is_prime(3), ".. 3 is prime";
+    ok !is_prime(4), ".. 4 is not";
+    ok  is_prime(5), ".. 5 is prime";
+    ok !is_prime(6), ".. 6 is even, thus not prime";
+    ok !is_prime(15), ".. 15 is product of two primes, but not prime";
+    ok  is_prime(2531), ".. 2531 is a larger prime";
+    ok !is_prime(2533), ".. 2533 is not";
+}

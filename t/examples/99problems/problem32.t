@@ -1,6 +1,4 @@
 use v6-alpha;
-use Test;
-plan 4;
 
 # P32 (**) Determine the greatest common divisor of two positive integer numbers.
 # 
@@ -21,7 +19,11 @@ multi sub gcd(Int $a, Int $b){
     return gcd($b,$a % $b);
 }
 
-is gcd(36,63), 9, "We should be able to find the gcd of 36 and 63";
-is gcd(63,36), 9, ".. and viceversa";
-is gcd(0,5)  , 5, '.. and that gcd(0,$x) is $x';
-is gcd(0,0)  , 0, '.. even when $x is 0';
+unless caller {
+    use Test;
+    plan 4;
+    is gcd(36,63), 9, "We should be able to find the gcd of 36 and 63";
+    is gcd(63,36), 9, ".. and viceversa";
+    is gcd(0,5)  , 5, '.. and that gcd(0,$x) is $x';
+    is gcd(0,0)  , 0, '.. even when $x is 0';
+}
