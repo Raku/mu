@@ -10,6 +10,7 @@ class CompUnit {
         my $item;
         my $in := ''; # indent level
         my $s := '';
+        my $node := 0;
 
         # --- SETUP PAST::Block NODE
 
@@ -68,17 +69,19 @@ class CompUnit {
         # --- SETUP BLOCK-SCOPED VARIABLES
 
         my $s := $s ~
-            $in ~ '[0] => \'PMC::Past::Var\' {' ~ Main::newline() ~
+            $in ~ '[' ~ $node ~ '] => \'PMC::Past::Var\' {' ~ Main::newline() ~
             $in ~ '    <name> => "$_"' ~ Main::newline() ~
             $in ~ '    <scope> => "lexical"' ~ Main::newline() ~
             $in ~ '    <ismy> => 1' ~ Main::newline() ~
-            $in ~ '}' ~ Main::newline() ~
-
-            $in ~ '[0] => \'PMC::Past::Var\' {' ~ Main::newline() ~
+            $in ~ '}' ~ Main::newline();
+        $node := $node + 1;
+        my $s := $s ~
+            $in ~ '[' ~ $node ~ '] => \'PMC::Past::Var\' {' ~ Main::newline() ~
             $in ~ '    <name> => "$/"' ~ Main::newline() ~
             $in ~ '    <scope> => "lexical"' ~ Main::newline() ~
             $in ~ '    <ismy> => 1' ~ Main::newline() ~
             $in ~ '}' ~ Main::newline();
+        $node := $node + 1;
 
         for @$a -> $item {
             if    ( $item.isa( 'Decl' ) )
