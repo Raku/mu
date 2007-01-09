@@ -6,41 +6,73 @@ class CompUnit {
     has %.methods;
     has @.body;
     method emit( $visitor ) {
-        $visitor( self );
+        $visitor.visit( 
+            'CompUnit',
+            { 
+                name    => $.name,
+                attributes => %.attributes,
+                methods => %.methods,
+                body    => @.body,
+            }
+        );
     }
 }
 
 class Val::Int {
     has $.int;
     method emit( $visitor ) {
-        $visitor( self );
+        $visitor.visit( 
+            'Val::Int',
+            { 
+                int    => $.int,
+            }
+        );
     }
 }
 
 class Val::Bit {
     has $.bit;
     method emit( $visitor ) {
-        $visitor( self );
+        $visitor.visit( 
+            'Val::Bit',
+            { 
+                bit    => $.bit,
+            }
+        );
     }
 }
 
 class Val::Num {
     has $.num;
     method emit( $visitor ) {
-        $visitor( self );
+        $visitor.visit( 
+            'Val::Num',
+            { 
+                num    => $.num,
+            }
+        );
     }
 }
 
 class Val::Buf {
     has $.buf;
     method emit( $visitor ) {
-        $visitor( self );
+        $visitor.visit( 
+            'Val::Buf',
+            { 
+                buf    => $.buf,
+            }
+        );
     }
 }
 
 class Val::Undef {
     method emit( $visitor ) {
-        $visitor( self );
+        $visitor.visit( 
+            'Val::Undef',
+            { 
+            }
+        );
     }
 }
 
@@ -48,28 +80,49 @@ class Val::Object {
     has $.class;
     has %.fields;
     method emit( $visitor ) {
-        $visitor( self );
+        $visitor.visit( 
+            'Val::Object',
+            { 
+                class  => $.class,
+                fields => %.fields,
+            }
+        );
     }
 }
 
 class Lit::Seq {
     has @.seq;
     method emit( $visitor ) {
-        $visitor( self );
+        $visitor.visit( 
+            'Lit::Seq',
+            { 
+                seq  => @.seq,
+            }
+        );
     }
 }
 
 class Lit::Array {
-    has @.array;
+    has @.array;    
     method emit( $visitor ) {
-        $visitor( self );
+        $visitor.visit( 
+            'Lit::Array',
+            { 
+                array  => @.array,
+            }
+        );
     }
 }
 
 class Lit::Hash {
     has @.hash;
     method emit( $visitor ) {
-        $visitor( self );
+        $visitor.visit( 
+            'Lit::Hash',
+            { 
+                hash  => @.hash,
+            }
+        );
     }
 }
 
@@ -82,7 +135,13 @@ class Lit::Object {
     has $.class;
     has @.fields;
     method emit( $visitor ) {
-        $visitor( self );
+        $visitor.visit( 
+            'Lit::Object',
+            { 
+                class  => $.class,
+                fields => %.fields,
+            }
+        );
     }
 }
 
@@ -90,7 +149,13 @@ class Index {
     has $.obj;
     has $.index;
     method emit( $visitor ) {
-        $visitor( self );
+        $visitor.visit( 
+            'Index',
+            { 
+                obj   => $.obj,
+                index => $.index,
+            }
+        );
     }
 }
 
@@ -98,7 +163,13 @@ class Lookup {
     has $.obj;
     has $.index;
     method emit( $visitor ) {
-        $visitor( self );
+        $visitor.visit( 
+            'Lookup',
+            { 
+                obj   => $.obj,
+                index => $.index,
+            }
+        );
     }
 }
 
@@ -107,7 +178,14 @@ class Var {
     has $.twigil;
     has $.name;
     method emit( $visitor ) {
-        $visitor( self );
+        $visitor.visit( 
+            'Var',
+            { 
+                sigil   => $.sigil,
+                twigil  => $.twigil,
+                name    => $.name,
+            }
+        );
     }
 }
 
@@ -115,14 +193,20 @@ class Bind {
     has $.parameters;
     has $.arguments;
     method emit( $visitor ) {
-        $visitor( self );
+        $visitor.visit( 
+            'Bind',
+            { 
+                parameters   => $.parameters,
+                arguments    => $.arguments,
+            }
+        );
     }
 }
 
 class Proto {
     has $.name;
     method emit( $visitor ) {
-        $visitor( self );
+        $visitor.visit( self );
     }
 }
 
@@ -133,7 +217,7 @@ class Call {
     has @.arguments;
     #has $.hyper;
     method emit( $visitor ) {
-        $visitor( self );
+        $visitor.visit( self );
     }
 }
 
@@ -141,14 +225,14 @@ class Apply {
     has $.code;
     has @.arguments;
     method emit( $visitor ) {
-        $visitor( self );
+        $visitor.visit( self );
     }
 }
 
 class Return {
     has $.result;
     method emit( $visitor ) {
-        $visitor( self );
+        $visitor.visit( self );
     }
 }
 
@@ -157,7 +241,7 @@ class If {
     has @.body;
     has @.otherwise;
     method emit( $visitor ) {
-        $visitor( self );
+        $visitor.visit( self );
     }
 }
 
@@ -166,7 +250,7 @@ class For {
     has @.body;
     has @.topic;
     method emit( $visitor ) {
-        $visitor( self );
+        $visitor.visit( self );
     }
 }
 
@@ -175,7 +259,7 @@ class Decl {
     has $.type;
     has $.var;
     method emit( $visitor ) {
-        $visitor( self );
+        $visitor.visit( self );
     }
 }
 
@@ -184,7 +268,7 @@ class Sig {
     has $.positional;
     has $.named;
     method emit( $visitor ) {
-        $visitor( self );
+        $visitor.visit( self );
     }
 }
 
@@ -193,7 +277,7 @@ class Method {
     has $.sig;
     has @.block;
     method emit( $visitor ) {
-        $visitor( self );
+        $visitor.visit( self );
     }
 }
 
@@ -202,21 +286,21 @@ class Sub {
     has $.sig;
     has @.block;
     method emit( $visitor ) {
-        $visitor( self );
+        $visitor.visit( self );
     }
 }
 
 class Do {
     has @.block;
     method emit( $visitor ) {
-        $visitor( self );
+        $visitor.visit( self );
     }
 }
 
 class Use {
     has $.mod;
     method emit( $visitor ) {
-        $visitor( self );
+        $visitor.visit( self );
     }
 }
 
