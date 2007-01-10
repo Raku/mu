@@ -1,7 +1,7 @@
 package Web::Terminal::Server::Session;
 
 use vars qw( $VERSION );
-$VERSION='0.2.0';
+$VERSION='0.3.0';
 use strict;
 use utf8;
 
@@ -154,7 +154,7 @@ sub readlines {
    if ($i>=$Web::Terminal::Settings::nlines-1) {
        $obj->{pugs}->close();
         kill 9, $obj->{'pid'};
-        $lline.="Generated output is limited to $Web::Terminal::Settings::nlines lines. Aborted.\npugs";
+        $lline.="Generated output is limited to $Web::Terminal::Settings::nlines lines. Aborted.\n";
         $obj->{'error'}=1;
     }
     chomp $ps; # a hack!

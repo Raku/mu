@@ -67,7 +67,7 @@ if ( $query->param()) {      # an action has been chosen
                 chomp $cmd;
                 last;
         };
-        $cmdline=~/$Web::Terminal::Settings::quit_message/ 
+        $cmdline=~/$Web::Terminal::Settings::quit_message|Aborted/ 
         && do {
         $cmd='clear';
         };
@@ -134,9 +134,9 @@ sub runpugs {
             $cmd='';
             $reply = "Sorry, Unicode is not yet supported.\n".$Web::Terminal::Settings::prompt;
         } else {
-            if ($cmd=~/>\s+(\:*help)\b/) {
+            if ($cmd=~/\s*(\:*help)\b/) {
                 $cmd=~s/$1/:h/;
-            } elsif ($cmd=~/>\s+(\:*(quit|bye))\b/) {
+            } elsif ($cmd=~/\s*(\:*(quit|bye))\b/) {
                 $cmd=~s/$1/:q/;
             } 
             ($reply, $nprompt, my $histref) =

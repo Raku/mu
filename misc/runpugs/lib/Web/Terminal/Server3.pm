@@ -250,7 +250,10 @@ sub termhandler {
 			} else {
 				return $Web::Terminal::Settings::prompt;
 			}
-		} else {
+		#} else {
+            # WARNING: HERE WE MUST CHECK IF cmd eq ':q'
+            # IF SO, ignore! 
+             } elsif ($cmd ne ':q') {
 			if ( $nsessions_per_ip{$ip} >
 				$Web::Terminal::Settings::nsessions_ip )
 			{
@@ -288,8 +291,10 @@ sub termhandler {
 						return "Failed to create a new terminal.";
 					}
 				}
-			}
-		}
+		    }
+        } else { # a quit on a non-exisiting session 
+             return "Session was already closed.\n";
+            }
 	}
     } else { # non-interactive
         print "Non-interactive $id\n" if $v;

@@ -3,7 +3,7 @@ package Web::Terminal::Settings;
 # Various settings for Web::Terminal
 
 use vars qw( $VERSION );
-$VERSION = '0.2.0';
+$VERSION = '0.3.0';
 use utf8;
 use strict;
 

@@ -1,12 +1,11 @@
-runpugs version 0.2.0 TODO:
+runpugs version 0.3.0 TODO:
 
-2006/12/06
+2007/01/10
 * Unicode: hack Net::Telnet so it handles Unicode
 * Improve POD
-* Add proper copyright & licensing info, in particular to Msg.pm
 * Put more functionality in JS (clear, timeout, history)
-* Use true AJAX for front-end (prototype.js)
-* Convert to Perl: this is a nice long-term goal. 
+* Use true AJAX for front-end (e.g. prototype.js)
+* Convert to Perl6: this is a nice long-term goal. 
     Perl 5 Modules to be ported:
     - IO::Pty (xs based)
     - Proc::Daemon
@@ -14,4 +13,3 @@ runpugs version 0.2.0 TODO:
     - YAML::Syck (xs based)
     - The Perl 6 equivalents of POSIX, Errno, IO::Select, Carp
    Of course we can use the Perl 5 implementations for the time being.
-* Test mod_perl; tailor code for mod_perl?   

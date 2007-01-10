@@ -1,7 +1,7 @@
 package Web::Terminal::Dispatcher3;
 
 use vars qw( $VERSION );
-$VERSION = '0.2.0';
+$VERSION = '0.3.0';
 use strict;
 use utf8;
 use YAML::Syck;

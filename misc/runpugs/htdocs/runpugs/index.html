@@ -4,8 +4,7 @@
 <link rel="stylesheet" type="text/css" href="../runpugs.css">
 <script language="JavaScript" src="runpugs.js"></script>
 </head>
-<body>
-
+<body onunload="HandleOnUnload(event)">
 <iframe src="/perl/runpugs3.pl" id="scratch" name="scratch"
 style="visibility:hidden" width="700px" height="1px"  onLoad="getreply()"></iframe>
 <div id="mainwindow">

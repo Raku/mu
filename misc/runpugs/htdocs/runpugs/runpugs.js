@@ -2,7 +2,8 @@ var nchars=0;
 var histlist;
 var histentry=0;
 var reply="";
-
+var sessionid=0;
+var reldev=1;
 function getnchars() {
     return document.terminal.cmd.value.length
 }
@@ -99,6 +100,8 @@ function getreply () {
     reply=scratchpad.getElementById("cmd").value;
     histlist=scratchpad.terminal.history.options;
     histentry=histlist.length;
+    sessionid=scratchpad.terminal.sessionid.value;
+    //reldev=scratchpad.terminal.reldev.value;
     //histlist.reverse;
     document.terminal.cmd.value=reply;
     document.terminal.cmd.focus() 
@@ -139,4 +142,33 @@ function set_version () {
 <textarea id="cmd" name="cmd" rows="20" cols="80" wrap="virtual" onkeydown="return catch_events(this,event)" >
 Please wait while Pugs starts up...
 </textarea>
+*/
+
+/* Courtesy of diakopter */
+//WV01012007: But it does not send a ':q' on close. 
+//in fact, it looks like the handler is completely ignored.
+function HandleOnUnload(evt)
+{
+	if ( (navigator.userAgent.toUpperCase().indexOf( "SAFARI" ) == -1) &&  // Exclude Safari.
+	( (document.all && window.screenLeft >= 10004)   // IE moves the window 10000 pixels to the right while closing it
+		|| (!document.all && evt.target==null) ) )  // Firefox sets the target of the passed event to null.
+	{ // The window has been closed.  Submit a logout request to the server.
+    var expireSessionUrl='/perl/runpugs3.pl?sessionid='+sessionid+'&reldev=1&ia=1&cmd=%3Aq';
+		var objXMLCloser = null;
+		if ( !document.all && !XMLHttpRequest ) return;
+		if ( document.all ) { objXMLCloser = new ActiveXObject( "Microsoft.XMLHTTP" ) }
+		else if ( XMLHttpRequest ) { objXMLCloser = new XMLHttpRequest(); }
+		if (objXMLCloser) { objXMLCloser.open( 'GET', expireSessionUrl, false ); objXMLCloser.send( null ); }
+	}
+}
+
+/* usage: 
+
+This will work in any server-language environment that maintains session state on the server with timeouts.  This will help prevent large accumulation of sessions in memory on the servers.
+
+You need to include the javascript file above.
+
+Usage: on the page where you want to trap the window close event, add the following to the body tag as follows: 
+<body onunload="HandleOnUnload(event)">
+
 */

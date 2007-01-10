@@ -1,31 +1,29 @@
 ==============================================================================
-2006/12/12      Release of version 0.2.0 of runpugs/WebTerminal
+2007/01/10      Release of version 0.3.0 of runpugs/Web::Terminal
 ==============================================================================
 
 NAME
     runpugs: a web teminal for interactive pugs 
-    Web/Terminal: library for building a web terminal for interactive shells
+    Web::Terminal: library for building a web terminal for interactive shells
 
 INSTALLATION
     * To install, copy all folders to your web root
     (e.g. ~/apache on feather, or /var/www elsewhere)
     Rename html folder if required (e.g. htdocs -> html or public_html)
-    * Start the terminal server script (bin/termserv2.pl) 
-    * To run, simply point your browser to /cgi-bin/runpugs (stable CGI
-     version) or just /runpugs/ (unstable version with asynchronous
-     JavaScript interface, running under mod_perl)
+    * Start the terminal server script (bin/termserv3.pl) 
+    * To run, simply point your browser to /runpugs/ 
 
 DESCRIPTION
     runpugs has two main components: 
-    -a cgi script (cgi-bin/runpugs) which uses an html template
-    (data/runpugs.html). The latter calls the runpugs.css stylesheet from
-    htdocs/runpugs.css
-    -a server (bin/termserv2.pl) which handles the interactive pugs sessions and communicates with
-    the cgi script. The pugs sessions stay alive for some time (currently 10') if
+    -a mod_perl script (/perl/runpugs3) which uses an html template
+    (/data/runpugs_async3.html). The latter calls the runpugs.css stylesheet from
+    /htdocs/runpugs.css. The script is called from /htdocs/runpugs/index.html
+    -a server (/bin/termserv3.pl) which handles the interactive pugs sessions and communicates with
+    the mod_perl script. The pugs sessions stay alive for some time (currently 10') if
     left inactive.
 
-    The unstable version has some AJAX-like goodness and runs under mod_perl.
-    The entrypoint is /htdocs/runpugs/index.html, which calls /perl/runpugs.pl
+    This version has some AJAX goodness and runs under mod_perl.
+    The entrypoint is /htdocs/runpugs/index.html, which calls /perl/runpugs3.pl
 
    The underlying library, Web/Terminal, can in principle be used for any
    interactive shell, not just pugs. So we could have runpython :-)
@@ -42,6 +40,11 @@ COPYRIGHT
 
 
 ==============================================================================
+
+CHANGES IN VERSION 0.3.0
+    -Uses AJAX for persistent interface and mod_perl for speed
+    -Sessions are preloaded for fast startup
+    -The user interface behaves much more like a terminal.
 
 CHANGES IN VERSION 0.2.0
     -Web/Terminal replaces the original WebTerminal modules. This

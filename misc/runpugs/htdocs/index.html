@@ -15,19 +15,22 @@
 <p>Welcome to <tt>runpugs</tt>, a web terminal for  <a href="http://www.pugscode.org">pugs</a>. Pugs is an implementation of  <a href="http://dev.perl.org/perl6/">Perl 6</a> which aims to implement the full Perl 6 specification.</p>
 <p><tt>runpugs</tt> lives at <a
 href="http://run.pugscode.org">run.pugscode.org</a>.</p>
-<p>By default, the Pugs session will use the <a
+<p>By default, the pugs session will use the  latest development snapshot. You can choose the <a
 href="http://search.cpan.org/search?query=perl6%3A%3Apugs">latest
-release</a>. You can try the latest development snapshot of Pugs by selecting the 'Development' radio button.</p>
+release</a> by selecting
+the 'Release' radio button.</p>
+<!--
 <p>Don't hesitate to test the <em>development version</em> of
 <tt>runpugs</tt>:</p><ul><li>try the <a
 href="http://feather.perl6.nl:8080/runpugs/">interactive session</a>
 with command history, fast startup and response and a persistent interface; </li> 
-<li>or <a
+<li>or-->
+<p>You can also <a
 href="http://feather.perl6.nl:8080/cgi-bin/runp6script">run a full Perl 6
-script</a> in <em>non-interactive</em> mode.</li>
-
-</ul>
-
+script</a> in non-interactive mode.
+</p>
+<p>If your browser does not support JavaScript, you can use the <a
+href="http://feather.perl6.nl:8080/cgi-bin/runpugs">non-AJAX version</a>.</p>
 <h2>Instructions</h2>
 <p><tt>runpugs</tt> presents the pugs interactive shell. Only
 the line typed at the last prompt is sent to pugs.</p>
@@ -40,9 +43,9 @@ pugs shell).</dd><br>
 <dt><code>quit</code>, <code>bye</code></dt><dd>quit the Pugs session (same as
 <code>:q</code>)</dd><br>
 </dl>
-<p>Please be considerate and do <em>quit</em> your
+<!--<p>Please be considerate and do <em>quit</em> your
 pugs session  before you close the browser window.
-</p>
+</p>-->
 <h2>Restrictions</h2>
 <p>Because this is a web terminal, a number of restrictions apply:</p>
 
@@ -68,10 +71,10 @@ abort.</li>
 <p>All of these are open to change if they would prove to be too
 restrictive.</p>
 <h2>Known issues</h2>
-<p><tt>runpugs</tt> is a very young project, and there will certainly be some bugs. Some known issues are:</p>
+<p><tt>runpugs</tt> is a very young project, and there will certainly be some
+bugs. Known issues are:</p>
 <ul>
 <li>Unicode is not supported.</li>
-<li>There is no command history.</li>
 </ul>
 <h2>Source</h2>
 <p>You can find the source code for <tt>runpugs</tt> (in Perl 5) in the <a
