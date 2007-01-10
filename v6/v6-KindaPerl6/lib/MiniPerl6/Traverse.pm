@@ -384,7 +384,7 @@ class Use {
 
 =head1 NAME 
 
-MiniPerl6::Visitor - Tree traverser for MiniPerl6 AST
+MiniPerl6::Traverse - Tree traverser for MiniPerl6 AST
 
 =head1 AUTHORS
 
