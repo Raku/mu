@@ -158,3 +158,20 @@ __END__
 <luqui> my $y;  my $z; BEGIN { my $x;  $y = { $x };   $z = { $x } }
 <luqui> $x is not CEV, but you have to express that the variable that $y and $z are referencing are the same one
 
+
+---
+
+<fglock> is a BEGIN block compiled, and then executed - or is it compiled/executed a statement at a time
+<TimToady> BEGIN just compiles like a normal closure, but executes after final }
+<fglock> it can have a BEGIN inside it, right?
+<TimToady> yes
+<TimToady> but you don't need statement granulatity on you compiler pipeline
+<TimToady> closure granularity is good enough
+
+<masak> what about a BEGIN with an END in it?
+<TimToady> the END doesn't care
+<TimToady> still executes when the run-time is exiting
+<TimToady> all END/CHECK/INIT do are push a closure on a queue
+<TimToady> perhaps just push everything and let the caller decide pop vs shift.
+<TimToady> then the list always reflects lexical order, for which there is something to be said.
+<TimToady> especially if people add new blocks with weird execution orders, like dependencies that have to be calculated at run time.

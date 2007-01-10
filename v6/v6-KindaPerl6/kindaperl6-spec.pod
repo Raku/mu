@@ -99,10 +99,28 @@ KP6 extensibility should make it is possible to implement Perl6 using it.
 Some test cases could be (as long as the backend supports it):
 
 - 'my' subroutines
-
-- lexical grammar changes, such as
-  my multi infix:<+> ...
-
+  - p5 backend can use Sub::Lexical instead (but it is a source filter)
+- 'my' classes
+    - lexical grammar changes, such as
+      my multi infix:<+> ...
+      - the p6-parser is executed in the lexical context under compilation
+    ---
+    <TimToady> when you're building the candidate list for a particular multi dispatch, it goes outward in the scopes and finds any candidates whose long name is not hidden by an inner scope
+    <TimToady> finally it adds in all the global multies
+    <fglock> I think what I mean is, the whole grammar is inside the scope
+    <TimToady> logically, yes
+    <TimToady> reverts to previous grammar at }
+    <fglock> rather than being a simple external module
+    <TimToady> yes, you generally have to construct an anonymous grammar
+    <TimToady> and that anon grammar may well be based on the OUTER:: anonymous grammar
+    <TimToady> the current grammar is also passed to eval, i think.
+    <TimToady> but not to require
+    <TimToady> so in the case of eval you need to remember the current grammar in $?GRAMMAR till run time
+    <TimToady> that anonymous grammar is where you probably want to store the modified infix etc. tables
+    <TimToady> rather than just temporizing, or in addition to temporizing
+    <TimToady> basically a GC problem; if anything refers to $?GRAMMAR you keep it around.
+    ---
+    
 - 'coro'
 
 - junctions
