@@ -206,7 +206,12 @@ class Bind {
 class Proto {
     has $.name;
     method emit( $visitor ) {
-        $visitor.visit( self );
+        $visitor.visit( 
+            'Proto',
+            { 
+                name   => $.name,
+            }
+        );
     }
 }
 
@@ -217,7 +222,15 @@ class Call {
     has @.arguments;
     #has $.hyper;
     method emit( $visitor ) {
-        $visitor.visit( self );
+        $visitor.visit( 
+            'Call',
+            { 
+                invocant   => $.invocant,
+                hyper      => $.hyper,
+                method     => $.method,
+                arguments  => @.arguments,
+            }
+        );
     }
 }
 
@@ -225,14 +238,25 @@ class Apply {
     has $.code;
     has @.arguments;
     method emit( $visitor ) {
-        $visitor.visit( self );
+        $visitor.visit( 
+            'Apply',
+            { 
+                code       => $.code,
+                arguments  => @.arguments,
+            }
+        );
     }
 }
 
 class Return {
     has $.result;
     method emit( $visitor ) {
-        $visitor.visit( self );
+        $visitor.visit( 
+            'Return',
+            { 
+                result    => $.result,
+            }
+        );
     }
 }
 
@@ -241,7 +265,14 @@ class If {
     has @.body;
     has @.otherwise;
     method emit( $visitor ) {
-        $visitor.visit( self );
+        $visitor.visit( 
+            'If',
+            { 
+                cond       => $.cond,
+                body       => @.body,
+                otherwise  => @.otherwise,
+            }
+        );
     }
 }
 
@@ -250,7 +281,14 @@ class For {
     has @.body;
     has @.topic;
     method emit( $visitor ) {
-        $visitor.visit( self );
+        $visitor.visit( 
+            'For',
+            { 
+                cond       => $.cond,
+                body       => @.body,
+                topic      => @.topic,
+            }
+        );
     }
 }
 
@@ -259,7 +297,14 @@ class Decl {
     has $.type;
     has $.var;
     method emit( $visitor ) {
-        $visitor.visit( self );
+        $visitor.visit( 
+            'Decl',
+            { 
+                decl       => $.decl,
+                type       => @.type,
+                var        => @.var,
+            }
+        );
     }
 }
 
@@ -268,7 +313,14 @@ class Sig {
     has $.positional;
     has $.named;
     method emit( $visitor ) {
-        $visitor.visit( self );
+        $visitor.visit( 
+            'Sig',
+            { 
+                invocant   => $.invocant,
+                positional => @.positional,
+                named      => @.named,
+            }
+        );
     }
 }
 
@@ -277,7 +329,14 @@ class Method {
     has $.sig;
     has @.block;
     method emit( $visitor ) {
-        $visitor.visit( self );
+        $visitor.visit( 
+            'Method',
+            { 
+                name    => $.name,
+                sig     => $.sig,
+                block   => @.block,
+            }
+        );
     }
 }
 
@@ -286,21 +345,38 @@ class Sub {
     has $.sig;
     has @.block;
     method emit( $visitor ) {
-        $visitor.visit( self );
+        $visitor.visit( 
+            'Sub',
+            { 
+                name    => $.name,
+                sig     => $.sig,
+                block   => @.block,
+            }
+        );
     }
 }
 
 class Do {
     has @.block;
     method emit( $visitor ) {
-        $visitor.visit( self );
+        $visitor.visit( 
+            'Do',
+            { 
+                block   => @.block,
+            }
+        );
     }
 }
 
 class Use {
     has $.mod;
     method emit( $visitor ) {
-        $visitor.visit( self );
+        $visitor.visit( 
+            'Use',
+            { 
+                mod    => $.mod,
+            }
+        );
     }
 }
 
