@@ -115,8 +115,31 @@ Some test cases could be (as long as the backend supports it):
 - cps - continuation-passing style
 
 - explicit pads as program data
-
+  - not really needed - see note below
 - special blocks: BEGIN, LAST, ...
+  note - p5 can access pad structures using closures:
+  --- Perl 6 source
+    module Main;
+    my $y;  
+    my $z; 
+    BEGIN { 
+        my $x;  
+        $y = { $x };   
+        $z = { $x } 
+     }
+  --- Perl 5 run-time
+    INIT { 
+        Main::_begin_001_(); 
+    }
+    package Main;
+    my $y;  
+    my $z; 
+    sub _begin_001_ {
+        my $x;  
+        $y = sub { $x };   
+        $z = sub { $x } 
+    }
+  ---
 
 - parameter binding 
   - already done by mp6, but it's incomplete

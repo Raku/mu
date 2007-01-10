@@ -12,12 +12,13 @@ use MiniPerl6::Perl5::Runtime;
 use MiniPerl6::Perl5::Match;
 
 package Visitor;
+use Data::Dumper;
 
 sub new {
     bless {}, $_[0];
 }
 sub visit {
-    print "$_[0]\n";
+    print Dumper( @_ );
 }
 
 package Main;
