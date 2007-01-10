@@ -122,6 +122,15 @@ Some test cases could be (as long as the backend supports it):
   - already done by mp6, but it's incomplete
 
 
+# AST transformation engine
+
+Desugaring is processed by the ast-transformation engine
+
+    compiler workflow
+        ->
+    @visitors ---> visitor composer ---> AST traverser
+
+
 # See also
 
 - misc/pX/Common/lrep/Notes-Pugs.pm
