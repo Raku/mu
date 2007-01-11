@@ -1,0 +1,638 @@
+---
+extra:
+  footer:
+    - body: |-
+        This summary was prepared using
+        [Mail::Summary::Tools](http://search.cpan.org/dist/Mail-Summary-Tools/),
+        available on CPAN.
+        
+        If you appreciate Perl, consider [contributing to the Perl
+        Foundation](http://donate.perlfoundation.org) to help support the
+        development of Perl.
+        
+        Thank you to everyone who has pointed out mistakes and offered
+        suggestions for improving this series.  Comments on this summary can be
+        sent to Ann Barcomb, <kudra@domaintje.com>.
+      title: Acknowlegements
+    - body: |-
+        This summary can be found in the following places:
+        
+        * [use.perl.org](http://use.perl.org/)
+        * [The Pugs blog](http://pugs.blogs.com/)
+        * [The perl6-announce mailing
+          list](http://lists.cpan.org/showlist.cgi?name=perl6-announce)
+        * [ONLamp](http://www.oreillynet.com/onlamp/blog/)
+      title: Distribution
+  header:
+    - body: ~
+      title: This week on the Perl 6 mailing lists
+  see_also:
+    - name: Perl Foundation activities
+      uri: http://blog.perlfoundation.org
+    - name: Perl 6 Development
+      uri: http://dev.perl.org/perl6
+    - name: Planet Perl Six
+      uri: http://planetsix.perlfoundation.org/
+lists:
+  - name: perl6-language
+    threads:
+      - date_from: 1167384856
+        date_to: 1168404725
+        hidden: ~
+        message_id: 7ca3f0160612290134n25ae3444rd1114fd0f560e70b@mail.gmail.com
+        messages:
+          - 20061231121854.11381.qmail@lists.develooper.com
+          - 45A3C444.6080408@barco.com
+          - 'p05100300c1c9975c0cfb@[192.168.1.14]'
+          - f60fe000701091123l626093d6pb13d7603fdb068b5@mail.gmail.com
+          - ef30550b0701092051g6dd67a10m523022700e687afa@mail.gmail.com
+          - ef30550b0612310326m1e686765h37ffc169b695d749@mail.gmail.com
+          - 20070102172420.GA31911@wall.org
+          - 'p05100303c1c04a066824@[192.168.1.14]'
+          - 20070102193250.GA2680@wall.org
+          - 'p06230901c1c284f91a3f@[192.168.1.100]'
+          - 20070105022307.17077.qmail@lists.develooper.com
+          - 'p0510030dc1c38638eaa2@[192.168.1.14]'
+          - 'p06230902c1c3adbdf410@[192.168.1.100]'
+          - 7ca3f0160701040332y368a410ck635c4b4cea99decb@mail.gmail.com
+          - 20070104190344.GA15111@wall.org
+          - 'p06230900c1c32882b99f@[192.168.1.100]'
+          - 20070102182221.GA518@wall.org
+          - 20070102193250.GA2680@wall.org
+          - 'p06230901c1c284f91a3f@[192.168.1.100]'
+          - 20070105022307.17077.qmail@lists.develooper.com
+          - 'p0510030dc1c38638eaa2@[192.168.1.14]'
+          - 'p06230902c1c3adbdf410@[192.168.1.100]'
+          - 7ca3f0160701040332y368a410ck635c4b4cea99decb@mail.gmail.com
+          - 20070104190344.GA15111@wall.org
+          - 'p06230900c1c32882b99f@[192.168.1.100]'
+          - 7ca3f0160612310600w37a5ebcdnf8e27aed777a7357@mail.gmail.com
+          - 'p06230900c1bd44ffdb88@[192.168.1.100]'
+          - 45A3C444.6080408@barco.com
+          - 'p05100300c1c9975c0cfb@[192.168.1.14]'
+          - f60fe000701091123l626093d6pb13d7603fdb068b5@mail.gmail.com
+          - ef30550b0701092051g6dd67a10m523022700e687afa@mail.gmail.com
+          - 20070102172420.GA31911@wall.org
+          - 'p05100303c1c04a066824@[192.168.1.14]'
+          - 20070102193250.GA2680@wall.org
+          - 'p06230901c1c284f91a3f@[192.168.1.100]'
+          - 20070105022307.17077.qmail@lists.develooper.com
+          - 'p0510030dc1c38638eaa2@[192.168.1.14]'
+          - 'p06230902c1c3adbdf410@[192.168.1.100]'
+          - 7ca3f0160701040332y368a410ck635c4b4cea99decb@mail.gmail.com
+          - 20070104190344.GA15111@wall.org
+          - 'p06230900c1c32882b99f@[192.168.1.100]'
+          - 20070102182221.GA518@wall.org
+          - 20070102193250.GA2680@wall.org
+          - 'p06230901c1c284f91a3f@[192.168.1.100]'
+          - 20070105022307.17077.qmail@lists.develooper.com
+          - 'p0510030dc1c38638eaa2@[192.168.1.14]'
+          - 'p06230902c1c3adbdf410@[192.168.1.100]'
+          - 7ca3f0160701040332y368a410ck635c4b4cea99decb@mail.gmail.com
+          - 20070104190344.GA15111@wall.org
+          - 'p06230900c1c32882b99f@[192.168.1.100]'
+        posters:
+          - email: lrpalmer@gmail.com
+            name: Luke Palmer
+          - email: rvtol+news@isolution.nl
+            name: Dr.Ruud
+          - email: Thomas.Sandlass@barco.com
+            name: TSa
+          - email: douglist@macnauchtan.com
+            name: Doug McNutt
+          - email: markjreed@mail.com
+            name: Mark J. Reed
+          - email: dataweaver@gmail.com
+            name: Jonathan Lang
+          - email: larry@wall.org
+            name: Larry Wall
+          - email: darren@DarrenDuncan.net
+            name: Darren Duncan
+          - email: dave@whipp.name
+            name: Dave Whipp
+        subject: Numeric Semantics
+        summary: ''
+      - date_from: 1168030046
+        date_to: 1168146085
+        hidden: ~
+        message_id: 7ca3f0160701051247y49b1ac83k35ded2650c0263c2@mail.gmail.com
+        messages:
+          - 20070105224846.GA27560@wall.org
+          - 20070106020835.GA32243@wall.org
+          - cda42dbb0701062101m7507a5bdxe65ac857a666b1d2@mail.gmail.com
+          - ef30550b0701061849r5f0d6c28sc6649cb1a96c5c17@mail.gmail.com
+          - 20070107052843.GA2886@wall.org
+          - ef30550b0701070333u721438fcg5cb84eb730c316e9@mail.gmail.com
+          - 20070107152328.GA26200@wall.org
+        posters:
+          - email: lrpalmer@gmail.com
+            name: Luke Palmer
+          - email: larry@wall.org
+            name: Larry Wall
+          - email: ashley.winters@gmail.com
+            name: Ashley Winters
+          - email: dataweaver@gmail.com
+            name: Jonathan Lang
+        subject: Patterns
+        summary: ''
+      - date_from: 1168122157
+        date_to: 1168122157
+        hidden: ~
+        message_id: 20070106232230.59551CBA1B@x12.develooper.com
+        posters:
+          - email: luqui@cvs.perl.org
+            name: luqui
+        subject: '[svn:perl6-synopsis] r13512 - doc/trunk/design/syn'
+        summary: ''
+      - date_from: 1168122540
+        date_to: 1168122540
+        hidden: ~
+        message_id: 20070106232855.3F4ECCBA1B@x12.develooper.com
+        posters:
+          - email: luqui@cvs.perl.org
+            name: luqui
+        subject: '[svn:perl6-synopsis] r13513 - doc/trunk/design/syn'
+        summary: ''
+      - date_from: 1168122796
+        date_to: 1168122796
+        hidden: ~
+        message_id: 20070106233310.318EACBA1B@x12.develooper.com
+        posters:
+          - email: luqui@cvs.perl.org
+            name: luqui
+        subject: '[svn:perl6-synopsis] r13514 - doc/trunk/design/syn'
+        summary: ''
+      - date_from: 1168156240
+        date_to: 1168276902
+        hidden: ~
+        message_id: 20070107085032.5D651CBA1B@x12.develooper.com
+        messages:
+          - 20070107130409.GD6402@plum.flirble.org
+          - 7ca3f0160701070342lfbdc63aj312bd69883addf68@mail.gmail.com
+          - 20070107182008.GA29535@wall.org
+          - 45A279C6.9030005@barco.com
+          - 20070108172126.GA2977@wall.org
+        posters:
+          - email: larry@cvs.perl.org
+            name: larry
+          - email: nick@ccl4.org
+            name: Nicholas Clark
+          - email: lrpalmer@gmail.com
+            name: Luke Palmer
+          - email: larry@wall.org
+            name: Larry Wall
+          - email: Thomas.Sandlass@barco.com
+            name: TSa
+        subject: '[svn:perl6-synopsis] r13515 - doc/trunk/design/syn'
+        summary: ''
+      - date_from: 1168159181
+        date_to: 1168218357
+        hidden: ~
+        message_id: 20070107093935.908A7CBA1B@x12.develooper.com
+        messages:
+          - 1d9a3f400701071705j4f81f75au6be94fe39ed49e77@mail.gmail.com
+          - 20070107132426.GT8070@aaroncrane.co.uk
+        posters:
+          - email: larry@cvs.perl.org
+            name: larry
+          - email: jerry.gay@gmail.com
+            name: jerry gay
+          - email: perl@aaroncrane.co.uk
+            name: Aaron Crane
+        subject: '[svn:perl6-synopsis] r13516 - doc/trunk/design/syn'
+        summary: ''
+      - date_from: 1168182973
+        date_to: 1168182973
+        hidden: ~
+        message_id: 20070107161607.2A7C2CBA1B@x12.develooper.com
+        posters:
+          - email: larry@cvs.perl.org
+            name: larry
+        subject: '[svn:perl6-synopsis] r13517 - doc/trunk/design/syn'
+        summary: ''
+      - date_from: 1168222404
+        date_to: 1168222404
+        hidden: ~
+        message_id: 20070108031318.AFA02CBA1B@x12.develooper.com
+        posters:
+          - email: larry@cvs.perl.org
+            name: larry
+        subject: '[svn:perl6-synopsis] r13518 - doc/trunk/design/syn'
+        summary: ''
+      - date_from: 1168248954
+        date_to: 1168279057
+        hidden: ~
+        message_id: 20070108103544.7F3B9CBA1B@x12.develooper.com
+        messages:
+          - 7ca3f0160701080454r5c281f59qbc2aa91ad19c196f@mail.gmail.com
+          - 20070108175724.GB3664@wall.org
+          - 'p06230900c1c7d3839b47@[192.168.1.100]'
+        posters:
+          - email: larry@cvs.perl.org
+            name: larry
+          - email: lrpalmer@gmail.com
+            name: Luke Palmer
+          - email: larry@wall.org
+            name: Larry Wall
+          - email: darren@DarrenDuncan.net
+            name: Darren Duncan
+        subject: '[svn:perl6-synopsis] r13519 - doc/trunk/design/syn'
+        summary: ''
+      - date_from: 1168249376
+        date_to: 1168249376
+        hidden: ~
+        message_id: 20070108104251.3BC76CBA1B@x12.develooper.com
+        posters:
+          - email: larry@cvs.perl.org
+            name: larry
+        subject: '[svn:perl6-synopsis] r13520 - doc/trunk/design/syn'
+        summary: ''
+      - date_from: 1168260168
+        date_to: 1168260168
+        hidden: ~
+        message_id: 20070108134240.E60EBCBA1B@x12.develooper.com
+        posters:
+          - email: luqui@cvs.perl.org
+            name: luqui
+        subject: '[svn:perl6-synopsis] r13521 - doc/trunk/design/syn'
+        summary: ''
+      - date_from: 1168286181
+        date_to: 1168286181
+        hidden: ~
+        message_id: 20070108205615.66598CBA1B@x12.develooper.com
+        posters:
+          - email: larry@cvs.perl.org
+            name: larry
+        subject: '[svn:perl6-synopsis] r13522 - doc/trunk/design/syn'
+        summary: ''
+      - date_from: 1168407911
+        date_to: 1168407911
+        hidden: ~
+        message_id: 45A47D5D.2080900@carolina.rr.com
+        posters:
+          - email: jgottman@carolina.rr.com
+            name: Joe Gottman
+        subject: 'Suggestion: minmax operator'
+        summary: ''
+    title: Language
+  - name: perl6-internals
+    threads:
+      - date_from: 1167814032
+        date_to: 1168450003
+        hidden: ~
+        message_id: 459B6D87.40001@perl.org
+        messages:
+          - 459D8707.5000904@jnthn.net
+          - 459F48EF.3050202@perl.org
+          - 20070109173352.GA8574@wall.org
+          - 45A48786.1010305@perl.org
+          - 20070110172622.GA24827@wall.org
+        posters:
+          - email: allison@perl.org
+            name: Allison Randal
+          - email: jonathan@jnthn.net
+            name: Jonathan Worthington
+          - email: larry@wall.org
+            name: Larry Wall
+        subject: 'I/O PDD - ready for implementation'
+        summary: ''
+      - date_from: 1168110903
+        date_to: 1168179413
+        hidden: ~
+        message_id: rt-3.6.HEAD-1693-1168110873-1421.41195-72-0@perl.org
+        messages:
+          - 0C20AF01-5CEB-423D-8D9D-956C66CE7CD5@verizon.net
+          - rt-3.6.HEAD-1683-1168177464-273.41195-15-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: James Keenan
+          - email: jkeen@verizon.net
+            name: James Keenan
+        rt_ticket: 'perl #41195'
+        subject: "[perl #41195] [BUG]:  Change to Configure.pl causing 'make' to fail on Darwin "
+        summary: ''
+      - date_from: 1168120135
+        date_to: 1168120135
+        hidden: ~
+        message_id: rt-3.6.HEAD-1834-1168120128-671.41196-72-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: James Keenan
+        rt_ticket: 'perl #41196'
+        subject: '[perl #41196] [PATCH]:  File misplaced in MANIFEST '
+        summary: ''
+      - date_from: 1168149635
+        date_to: 1168150139
+        hidden: ~
+        message_id: rt-3.6.HEAD-1683-1168149597-1.41197-72-0@perl.org
+        messages:
+          - rt-3.6.HEAD-1834-1168150133-908.41197-15-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: James Keenan
+        rt_ticket: 'perl #41197'
+        subject: '[perl #41197] Does change to config/gen/makefiles/dynoplibs_pl.in cause make to fail? '
+        summary: ''
+      - date_from: 1168154706
+        date_to: 1168177283
+        hidden: ~
+        message_id: 20070107073441.GA5216@gmail.com
+        messages:
+          - 20070107125146.GH80469@plum.flirble.org
+          - 20070107131850.GA27734@gmail.com
+          - 45A0F874.7080003@gmx.de
+        posters:
+          - email: lee.duhem@gmail.com
+            name: Lee Duhem
+          - email: nick@ccl4.org
+            name: Nicholas Clark
+          - email: Bernhard.Schmalhofer@gmx.de
+            name: Bernhard Schmalhofer
+        subject: use diff for string in some test
+        summary: ''
+      - date_from: 1168169853
+        date_to: 1168169853
+        hidden: ~
+        message_id: c72f00d10701070337m45d19e5fo6a7001b813dcbfeb@mail.gmail.com
+        posters:
+          - email: xi.wang@gmail.com
+            name: Xi Wang
+        subject: '[BUG]: io/io_win32.c'
+        summary: ''
+      - date_from: 1168171822
+        date_to: 1168263207
+        hidden: ~
+        message_id: rt-3.6.HEAD-1693-1168171814-1866.41198-72-0@perl.org
+        messages:
+          - 1d9a3f400701071156h4298608ep162b5e9c72ba92b3@mail.gmail.com
+          - rt-3.6.HEAD-1774-1168263190-830.41198-15-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Bernhard Schmalhofer
+          - email: jerry.gay@gmail.com
+            name: jerry gay
+        rt_ticket: 'perl #41198'
+        subject: '[perl #41198] [TODO] tools/dev/mk_manifest_and_skip.pl should be aware of MANIFEST.generated '
+        summary: ''
+      - date_from: 1168186395
+        date_to: 1168186395
+        hidden: ~
+        message_id: rt-3.6.HEAD-1683-1168186385-1128.41201-72-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Paul Cochrane
+        rt_ticket: 'perl #41201'
+        subject: '[perl #41201] [TODO] Remove temporary conf hack in Configure.pl '
+        summary: ''
+      - date_from: 1168265768
+        date_to: 1168265768
+        hidden: ~
+        message_id: 20070108141459.23178.qmail@x1.develooper.com
+        posters:
+          - email: perlbug-summary@perl.org
+            name: Parrot Bug Summary
+        subject: Parrot Bug Summary
+        summary: ''
+      - date_from: 1168272305
+        date_to: 1168437141
+        hidden: ~
+        message_id: 45A26B8A.7090004@gmail.com
+        messages:
+          - 45A4EF7D.4010902@gmail.com
+        posters:
+          - email: parrotcode@gmail.com
+            name: Klaas-Jan Stol
+        subject: PIR grammar in PGE
+        summary: ''
+      - date_from: 1168278534
+        date_to: 1168285808
+        hidden: ~
+        message_id: rt-3.6.HEAD-1834-1168279485-1037.40905-15-0@perl.org
+        messages:
+          - 1d9a3f400701081007i44275267sbe5402d988cf338@mail.gmail.com
+          - rt-3.6.HEAD-1814-1168285794-1867.40905-15-0@perl.org
+          - rt-3.6.HEAD-1814-1168278525-1468.40905-15-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Paul Cochrane via RT
+          - email: jerry.gay@gmail.com
+            name: jerry gay
+        rt_ticket: 'perl #40905'
+        subject: '[perl #40905] [CAGE] coding standards hammer too big '
+        summary: ''
+      - date_from: 1168285541
+        date_to: 1168285541
+        hidden: ~
+        message_id: 20070108204534.1D28DCBA44@x12.develooper.com
+        posters:
+          - email: paultcochrane@cvs.perl.org
+            name: paultcochrane
+        subject: '[svn:parrot-pdd] r16498 - in trunk: . docs/pdds'
+        summary: ''
+      - date_from: 1168289177
+        date_to: 1168290354
+        hidden: ~
+        message_id: rt-3.6.HEAD-1693-1168289169-749.41214-72-0@perl.org
+        messages:
+          - 20070108204956.GJ80469@plum.flirble.org
+          - 20070108210544.GB22501@host.pmichaud.com
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Patrick R . Michaud
+          - email: nick@ccl4.org
+            name: Nicholas Clark
+          - email: pmichaud@pobox.com
+            name: Patrick R. Michaud
+        rt_ticket: 'perl #41214'
+        subject: "[perl #41214] [CAGE]: files from 'make languages-test' survive 'make clean' "
+        summary: ''
+      - date_from: 1168297430
+        date_to: 1168297430
+        hidden: ~
+        message_id: rt-3.6.HEAD-1693-1168297423-1454.39905-14-0@perl.org
+        posters:
+          - email: bugs-parrot-track@netlabs.develooper.com
+            name: Patrick R. Michaud via RT
+        rt_ticket: 'perl #39905'
+        subject: '[perl #39905] [TODO] TGE - line number reporting. '
+        summary: ''
+      - date_from: 1168323980
+        date_to: 1168323980
+        hidden: ~
+        message_id: 20070109062613.28137.qmail@x1.develooper.com
+        posters:
+          - email: perlbug-summary@perl.org
+            name: Parrot Bug Summary
+        subject: Parrot Bug Summary
+        summary: ''
+      - date_from: 1168353496
+        date_to: 1168353496
+        hidden: ~
+        message_id: rt-3.6.HEAD-1683-1168353483-984.41217-72-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Jerry Gay
+        rt_ticket: 'perl #41217'
+        subject: '[perl #41217] [BUG] warnings in refactored calling convention code (src/inter_call.c) '
+        summary: ''
+      - date_from: 1168353797
+        date_to: 1168353797
+        hidden: ~
+        message_id: rt-3.6.HEAD-1683-1168353790-281.41218-72-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Jerry Gay
+        rt_ticket: 'perl #41218'
+        subject: '[perl #41218] [BUG] warnings in imcc lexer code '
+        summary: ''
+      - date_from: 1168361052
+        date_to: 1168368578
+        hidden: ~
+        message_id: Pine.LNX.4.62.0701090922570.9550@fractal.phys.lafayette.edu
+        messages:
+          - 45A3E3AE.20602@perl.org
+        posters:
+          - email: doughera@lafayette.edu
+            name: Andy Dougherty
+          - email: allison@perl.org
+            name: Allison Randal
+        subject: 'Re: [perl #38584] [BUG] Punie test failures in set_node method on Solaris/SPARC '
+        summary: ''
+      - date_from: 1168361152
+        date_to: 1168361152
+        hidden: ~
+        message_id: Pine.LNX.4.62.0701091137360.9550@fractal.phys.lafayette.edu
+        posters:
+          - email: doughera@lafayette.edu
+            name: Andy Dougherty
+        subject: 'Re: [perl #38584] [RESOLVED] [BUG] Punie test failures in set_node method on Solaris/SPARC '
+        summary: ''
+      - date_from: 1168460271
+        date_to: 1168478238
+        hidden: ~
+        message_id: rt-3.6.HEAD-1814-1168460260-819.41224-72-0@perl.org
+        messages:
+          - 200701101716.52655.chromatic@wgz.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Jerry Gay
+          - email: chromatic@wgz.org
+            name: chromatic
+        rt_ticket: 'perl #41224'
+        subject: '[perl #41224] [BUG] SKIP behaves differently in Test::Builder and Test/Builder.pir '
+        summary: ''
+      - date_from: 1168463619
+        date_to: 1168463619
+        hidden: ~
+        message_id: 20070110221332.CB4FCCBA1B@x12.develooper.com
+        posters:
+          - email: leo@cvs.perl.org
+            name: leo
+        subject: '[svn:parrot-pdd] r16543 - trunk/docs/pdds/clip'
+        summary: ''
+      - date_from: 1168465065
+        date_to: 1168465065
+        hidden: ~
+        message_id: rt-3.6.HEAD-1834-1168465053-934.41226-72-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Jerry Gay
+        rt_ticket: 'perl #41226'
+        subject: '[perl #41226] [TODO] hunt through DEPRECATED.pod and find things to deprecate '
+        summary: ''
+      - date_from: 1168465226
+        date_to: 1168465226
+        hidden: ~
+        message_id: rt-3.6.HEAD-1693-1168465218-309.41227-72-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Jerry Gay
+        rt_ticket: 'perl #41227'
+        subject: '[perl #41227] [TODO] update NEWS in preparation for 0.4.8 release '
+        summary: ''
+      - date_from: 1168465267
+        date_to: 1168465267
+        hidden: ~
+        message_id: rt-3.6.HEAD-1683-1168465259-1026.41228-72-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Jerry Gay
+        rt_ticket: 'perl #41228'
+        subject: '[perl #41228] [TODO] update CREDITS in preparation for 0.4.8 release '
+        summary: ''
+      - date_from: 1168471304
+        date_to: 1168478046
+        hidden: ~
+        message_id: rt-3.6.HEAD-1693-1168471298-269.41230-72-0@perl.org
+        messages:
+          - 8e8ee0d40701101713y3a717aa1t85235a389a32df04@mail.gmail.com
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Jerry Gay
+          - email: paultcochrane@gmail.com
+            name: Paul Cochrane
+        rt_ticket: 'perl #41230'
+        subject: '[perl #41230] [BUG] t/codingstd/perlcritic.t uses too many resources '
+        summary: ''
+      - date_from: 1168471731
+        date_to: 1168471731
+        hidden: ~
+        message_id: rt-3.6.HEAD-1693-1168471722-786.41231-72-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Jerry Gay
+        rt_ticket: 'perl #41231'
+        subject: '[perl #41231] [TODO] exempt languages/ files from perlcritic testing '
+        summary: ''
+    title: Parrot Porters
+  - name: perl6-users
+    threads:
+      - date_from: 1167966880
+        date_to: 1168197803
+        hidden: ~
+        message_id: 20070105031433.26091.qmail@lists.develooper.com
+        messages:
+          - 20070105114044.GV15153@sike.forum2.org
+          - 20070105190440.GA22857@wall.org
+          - 20070107181838.5097.qmail@lists.develooper.com
+          - 20070107192315.16367.qmail@lists.develooper.com
+          - 20070105181633.GV13308@c4.convolution.nl
+        posters:
+          - email: surrender_it@yahoo.it
+            name: gabriele renzi
+          - email: gaal@forum2.org
+            name: Gaal Yahas
+          - email: larry@wall.org
+            name: Larry Wall
+          - email: juerd@convolution.nl
+            name: Juerd
+        subject: perl6-ish idiom for code and tests in one file
+        summary: ''
+      - date_from: 1168196321
+        date_to: 1168355563
+        hidden: ~
+        message_id: 20070107185835.12134.qmail@lists.develooper.com
+        messages:
+          - 180194.40684.qm@web60811.mail.yahoo.com
+          - 20070109151230.10334.qmail@lists.develooper.com
+        posters:
+          - email: surrender_it@yahoo.it
+            name: gabriele renzi
+          - email: publiustemp-perl6users@yahoo.com
+            name: Ovid
+        subject: '99problems: 9, 11, 13'
+        summary: ''
+    title: Users
+  - name: perl6-compiler
+    threads:
+      - date_from: 1168462374
+        date_to: 1168462374
+        hidden: ~
+        message_id: 1d9a3f400701101252i7848a5c6te0346f388e7627a9@mail.gmail.com
+        posters:
+          - email: jerry.gay@gmail.com
+            name: jerry gay
+        subject: 'Parrot Bug Day -- 13 January 2007'
+        summary: ''
+    title: Compiler
+title: Weekly Perl 6 mailing list summary

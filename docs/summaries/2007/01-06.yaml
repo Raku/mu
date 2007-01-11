@@ -37,7 +37,7 @@ lists:
   - name: perl6-language
     threads:
       - date_from: 1167384856
-        date_to: 1167982112
+        date_to: 1168404725
         hidden: ~
         message_id: 7ca3f0160612290134n25ae3444rd1114fd0f560e70b@mail.gmail.com
         messages:
@@ -64,6 +64,10 @@ lists:
             name: Doug McNutt
           - email: dave@whipp.name
             name: Dave Whipp
+          - email: Thomas.Sandlass@barco.com
+            name: TSa
+          - email: markjreed@mail.com
+            name: Mark J. Reed
         subject: Numeric Semantics
         summary: ''
       - date_from: 1167943480
@@ -227,7 +231,7 @@ lists:
         subject: '[svn:parrot-pdd] r16397 - trunk/docs/pdds'
         summary: ''
       - date_from: 1167814032
-        date_to: 1168066810
+        date_to: 1168450003
         hidden: ~
         message_id: 459B6D87.40001@perl.org
         messages:
@@ -238,6 +242,8 @@ lists:
             name: Allison Randal
           - email: jonathan@jnthn.net
             name: Jonathan Worthington
+          - email: larry@wall.org
+            name: Larry Wall
         subject: 'I/O PDD - ready for implementation'
         summary: ''
       - date_from: 1167839527
@@ -562,7 +568,7 @@ lists:
         subject: '99 problems in Perl6: 32 and a question on number coercion'
         summary: ''
       - date_from: 1167966880
-        date_to: 1168032255
+        date_to: 1168197803
         hidden: ~
         message_id: 20070105031433.26091.qmail@lists.develooper.com
         messages:
