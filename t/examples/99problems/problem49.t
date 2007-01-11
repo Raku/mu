@@ -1,6 +1,4 @@
 use v6-alpha;
-use Test;
-plan 1;
 
 # P49 (**) Gray code.
 # 
@@ -19,9 +17,16 @@ plan 1;
 # Can you apply the method of "result caching" in order to make the predicate
 # more efficient, when it is to be used repeatedly?
 
-if 1 {
-    skip 1, "Test(s) not yet written: (**) Gray code.";
+sub gray($n) {
+    return ('',) if $n == 0;
+    '0' >>~<< gray($n-1), '1' >>~<< gray($n-1).reverse;
 }
-else {
-    ok 1, '(**) Gray code.';
+
+unless caller {
+    use Test;
+    plan 3;
+
+    is gray(1), <0 1>;
+    is gray(2), <00 01 11 10>;
+    is gray(3), <000 001 011 010 110 111 101 100>;
 }
