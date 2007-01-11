@@ -2,11 +2,38 @@ use v6-alpha;
 
 use Test;
 
+plan 12;
+
 # L<S03/"Binding">
 
-# Tests for binding the return value of subroutines (both as RHS and LHS).
+# Tests for rebinding subroutines themselves
 
-plan 8;
+{
+  my sub foo { 42 }
+  my sub bar { 41 }
+
+  is(foo(), 42, 'before sub redefinition');
+
+  &foo := &bar;
+  is(foo(), 41, 'after sub redefinition');
+}
+
+# Since regexes are methods, token redefinition should work the same way
+
+package TokenTest {
+  token foo { <[ab]> }
+  token bar { <[ef]> }
+
+  my $target = 'cat';
+  my Bool $bool;
+
+  ok($bool = ($target ~~ m/<foo>/), 'before token redefinition');
+
+  &foo := &bar;
+  ok(not($bool = ($target ~~ m/<foo>/)), 'after token redefinition');
+}
+
+# Tests for binding the return value of subroutines (both as RHS and LHS).
 
 {
     my sub foo { 42 }
