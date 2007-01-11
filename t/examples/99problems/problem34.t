@@ -18,10 +18,10 @@ use v6-alpha;
 
 use FindBin;
 @INC.push( $FindBin::Bin);
-require 'problem31.t';
+require 'problem32.t';
 
 sub totient_phi(Int $num) {
-    +grep(&is_prime, 1 .. $num);
+    +grep({gcd($_,$num) == 1}, 1 ..^ $num);
 }
 
 if !caller {
