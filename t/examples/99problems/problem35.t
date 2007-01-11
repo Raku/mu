@@ -1,6 +1,4 @@
 use v6-alpha;
-use Test;
-plan 1;
 
 # P35 (**) Determine the prime factors of a given positive integer.
 # 
@@ -9,9 +7,26 @@ plan 1;
 # * (prime-factors 315)
 # (3 3 5 7)
 
-if 1 {
-    skip 1, "Test(s) not yet written: (**) Determine the prime factors of a given positive integer.";
+sub prime_factors($n is copy) {
+    my @factors;
+    
+    my $cand = 2;
+    while ($n > 1) {
+        if $n % $cand == 0 {
+            @factors.push($cand);
+            $n /= $cand;
+        }
+        else {
+            $cand++;
+        }
+    }
+
+    @factors
 }
-else {
-    ok 1, '(**) Determine the prime factors of a given positive integer.';
+
+unless caller {
+    use Test;
+    plan 1;
+
+    is prime_factors(315), (3,3,5,7), 'prime factors of 315 are 3,3,5,7';
 }
