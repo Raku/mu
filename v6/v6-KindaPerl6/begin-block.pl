@@ -3,22 +3,46 @@
 # incrementally set environment; and keep a pad stack
 
 use strict;
-my @v;
-$v[0] = do { my $x = 3; sub { $x; eval $_[0] } };  # set up closure
+my @v;  # pad stack
+my @d;  # pad inspectors
+
+$v[0] = do { 
+    my $x = 3; 
+    $d[0] = sub { '$x' => $x }; 
+    sub { $x; eval $_[0] } 
+};  # set up closure
 
 $v[0]( ' print "x=$x\n" ' );   # execute in this context level
 print "sub=$v[0]\n";
 
-$v[1] = $v[0]( ' do { my $y = 4; sub { $y; eval $_[0] } } ' );  # add a pad level
+$v[1] = $v[0]( ' do { my $y = 4; 
+    $d[1] = sub { \'$y\' => $y }; 
+    sub { $y; eval $_[0] } } ' );  # add a pad level
 
 $v[1]( ' print "y=$y\n" ' );   # execute in this context level
 
-$v[2] = $v[1]( ' do { my $z = 7; sub { $z; eval $_[0] } } ' );  # add a pad level
+$v[2] = $v[1]( ' do { my $z = 7; 
+    $d[2] = sub { \'$z\' => $z }; 
+    sub { $z; eval $_[0] } } ' );  # add a pad level
 
 $v[2]( ' $y++ ' );   # execute in this context level
 $v[2]( ' print "y=$y\n" ' );   # execute in this context level
 $v[2]( ' print "done\n" ' );   # execute in this context level
 
+
+# reconstruct env:
+
+sub dump1 {
+    my $level = shift;
+    "{ my " . join( ' = ', $d[$level]() ) . '; ' .
+    (   $level < $#d 
+        ? dump1( $level + 1 )
+        : '' 
+    ) .
+    " }";    
+}
+
+print dump1(0), "\n";
 
 __END__
 

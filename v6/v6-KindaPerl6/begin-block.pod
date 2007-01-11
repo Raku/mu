@@ -1,4 +1,45 @@
 
+
+<fglock> I guess I can build a 'closure' object that knows how to dump itself
+<fglock> but there is still the problem of dumping use'd CPAN modules
+<fglock> I don't think that's possible without 5-on-6
+<fglock> one possible solution is, perl5 modules are loaded twice - at compile and runtime
+<TimToady> assuming you can be sure of getting the same one...
+<TimToady> or at least one that has the same interface
+<TimToady> Ada was always big on separating the interface from the implementation so you could swap out the implementation without changing the interface
+<TimToady> the reload trick should work find for Perl 6, because we guarantee that the user can't modify the used.
+<TimToady> and we also guarantee that modules installed in the library have version numbers
+<TimToady> so in an a.b.c the b theoretically guarantees a unique interface.
+<TimToady> and you already presumably know how to save your own closures, or you wouldn't a compiler...
+
+# - kp6 needs a way to export subs to the runtime
+
+use Data::Dump::Streamer;
+use strict;
+
+sub X { print "ok" }
+
+print Dump( \&X );
+
+__END__
+
+xxxx - Possible BEGIN workflow:
+
+# there is no subs in a namespace - everything is either our or my
+our $main::var;  # in declaration order
+    package Main;
+    my $y;  
+    my $z; 
+    our $_SUB_begin_001_ = sub {
+        my $x;  
+        $y = sub { $x };   
+        $z = sub { $x } 
+    }
+    INIT { $Main::_SUB_begin_001_->() }
+
+
+#---
+
 use Data::Dump::Streamer;
 use strict;
 
