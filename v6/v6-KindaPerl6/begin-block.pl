@@ -1,3 +1,28 @@
+# this is the algorithm for keeping the compile-time environment in pure-perl
+
+# incrementally set environment; and keep a pad stack
+
+use strict;
+my @v;
+$v[0] = do { my $x = 3; sub { $x; eval $_[0] } };  # set up closure
+
+$v[0]( ' print "x=$x\n" ' );   # execute in this context level
+print "sub=$v[0]\n";
+
+$v[1] = $v[0]( ' do { my $y = 4; sub { $y; eval $_[0] } } ' );  # add a pad level
+
+$v[1]( ' print "y=$y\n" ' );   # execute in this context level
+
+$v[2] = $v[1]( ' do { my $z = 7; sub { $z; eval $_[0] } } ' );  # add a pad level
+
+$v[2]( ' $y++ ' );   # execute in this context level
+$v[2]( ' print "y=$y\n" ' );   # execute in this context level
+$v[2]( ' print "done\n" ' );   # execute in this context level
+
+
+__END__
+
+
 # - lexical grammar changes, such as
 #  my multi infix:<+> ...
 #  - the p6-parser is executed in the lexical context under compilation
