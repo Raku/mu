@@ -6,6 +6,61 @@ use strict;
 my @v;  # pad stack
 my @d;  # pad inspectors
 
+sub add_pad_level {
+    my $var_name = shift;
+    my $level = scalar @v;
+    $v[$level] = $v[$level-1]( 
+    ' do { my ' . $var_name . ' = 4; 
+    $d[' . $level . '] = sub { \'' . $var_name . '\' => ' . $var_name . ' }; 
+    sub { ' . $var_name . '; eval $_[0] } } 
+    ' 
+    );
+}
+
+$v[0] = do { 
+    my $x = 3; 
+    $d[0] = sub { '$x' => $x }; 
+    sub { $x; eval $_[0] } 
+};  # set up closure
+
+$v[0]( ' print "x=$x\n" ' );   # execute in this context level
+print "sub=$v[0]\n";
+
+add_pad_level( '$y' );
+
+$v[1]( ' print "y=$y\n" ' );   # execute in this context level
+
+add_pad_level( '$z' );
+
+$v[2]( ' $y++ ' );   # execute in this context level
+$v[2]( ' print "y=$y\n" ' );   # execute in this context level
+$v[2]( ' print "done\n" ' );   # execute in this context level
+
+
+# reconstruct env:
+
+sub dump1 {
+    my $level = shift;
+    "{ my " . join( ' = ', $d[$level]() ) . '; ' .
+    (   $level < $#d 
+        ? dump1( $level + 1 )
+        : '' 
+    ) .
+    " }";    
+}
+
+print dump1(0), "\n";
+
+__END__
+
+# this is the algorithm for keeping the compile-time environment in pure-perl
+
+# incrementally set environment; and keep a pad stack
+
+use strict;
+my @v;  # pad stack
+my @d;  # pad inspectors
+
 $v[0] = do { 
     my $x = 3; 
     $d[0] = sub { '$x' => $x }; 
