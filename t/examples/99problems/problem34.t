@@ -26,6 +26,10 @@ sub totient_phi(Int $num) {
 
 if !caller {
     use Test;
-    plan 1;
-    is 4,totient_phi(10), "totient-phi of 10 is 4"
+    plan 19;
+    
+    # from Sloane OEIS A000010
+    for each((2..20) ; (1,2,2,4,2,6,4,6,4,10,4,12,6,8,8,16,6,18,8)) -> $n, $phi {
+        is $phi, totient_phi($n), "totient of $n is $phi";
+    }
 }
