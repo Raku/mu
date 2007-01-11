@@ -1,6 +1,4 @@
 use v6-alpha;
-use Test;
-plan 1;
 
 # P26 (**) Generate the combinations of K distinct objects chosen from the N
 # elements of a list
@@ -27,14 +25,19 @@ sub combination($n, @xs) {
     }
 }
 
-is combination(3, (1..5)),
-((1, 2, 3),
- (1, 2, 4),
- (1, 2, 5),
- (1, 3, 4),
- (1, 3, 5),
- (1, 4, 5),
- (2, 3, 4),
- (2, 3, 5),
- (2, 4, 5),
- (3, 4, 5)), "combinations work.";
+unless caller {
+    use Test;
+    plan 1;
+    
+    is combination(3, (1..5)),
+    ((1, 2, 3),
+     (1, 2, 4),
+     (1, 2, 5),
+     (1, 3, 4),
+     (1, 3, 5),
+     (1, 4, 5),
+     (2, 3, 4),
+     (2, 3, 5),
+     (2, 4, 5),
+     (3, 4, 5)), "combinations work.";
+}

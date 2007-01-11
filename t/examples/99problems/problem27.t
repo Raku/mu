@@ -1,6 +1,5 @@
 use v6-alpha;
-use Test;
-plan 1;
+use FindBin;
 
 # P27 (**) Group the elements of a set into disjoint subsets.
 # 
@@ -28,19 +27,8 @@ plan 1;
 # You may find more about this combinatorial problem in a good book on discrete
 # mathematics under the term "multinomial coefficients".
 
-# from problem 26:
-sub combination($n, @xs) {
-    if $n > @xs {
-        ()
-    } elsif $n == 0 {
-        ([])
-    } elsif $n == @xs {
-        [@xs]
-    } else {
-        ((map { [@xs[0],$_] },combination($n-1,@xs[1..*])),
-         combination($n,@xs[1..*]))
-    }
-}
+@INC.push($FindBin::Bin);
+require "problem26.t";
 
 # XXX treats @elems as a set; i.e. duplicated values are 
 # treated as identical, not distinct.
@@ -53,16 +41,21 @@ sub group(@sizes, @elems) {
     }, combination(@sizes[0], @elems)
 }
 
-is group((2,1), (1,2,3,4)),
-(((1,2),(3,))
-,((1,2),(4,))
-,((1,3),(2,))
-,((1,3),(4,))
-,((1,4),(2,))
-,((1,4),(3,))
-,((2,3),(1,))
-,((2,3),(4,))
-,((2,4),(1,))
-,((2,4),(3,))
-,((3,4),(1,))
-,((3,4),(2,))), 'group works';
+unless caller {
+    use Test;
+    plan 1;
+
+    is group((2,1), (1,2,3,4)),
+    (((1,2),(3,))
+    ,((1,2),(4,))
+    ,((1,3),(2,))
+    ,((1,3),(4,))
+    ,((1,4),(2,))
+    ,((1,4),(3,))
+    ,((2,3),(1,))
+    ,((2,3),(4,))
+    ,((2,4),(1,))
+    ,((2,4),(3,))
+    ,((3,4),(1,))
+    ,((3,4),(2,))), 'group works';
+}
