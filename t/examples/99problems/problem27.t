@@ -28,9 +28,41 @@ plan 1;
 # You may find more about this combinatorial problem in a good book on discrete
 # mathematics under the term "multinomial coefficients".
 
-if 1 {
-    skip 1, "Test(s) not yet written: (**) Group the elements of a set into disjoint subsets.";
+# from problem 26:
+sub combination($n, @xs) {
+    if $n > @xs {
+        ()
+    } elsif $n == 0 {
+        ([])
+    } elsif $n == @xs {
+        [@xs]
+    } else {
+        ((map { [@xs[0],$_] },combination($n-1,@xs[1..*])),
+         combination($n,@xs[1..*]))
+    }
 }
-else {
-    ok 1, '(**) Group the elements of a set into disjoint subsets.';
+
+# XXX treats @elems as a set; i.e. duplicated values are 
+# treated as identical, not distinct.
+sub group(@sizes, @elems) {
+    return [] if @sizes == 0;
+    map -> $e {
+        map -> $g {
+            [ [@$e], @$g ]
+        }, group(@sizes[1..*], grep { not $_ === any(@$e) }, @elems)
+    }, combination(@sizes[0], @elems)
 }
+
+is group((2,1), (1,2,3,4)),
+(((1,2),(3,))
+,((1,2),(4,))
+,((1,3),(2,))
+,((1,3),(4,))
+,((1,4),(2,))
+,((1,4),(3,))
+,((2,3),(1,))
+,((2,3),(4,))
+,((2,4),(1,))
+,((2,4),(3,))
+,((3,4),(1,))
+,((3,4),(2,))), 'group works';
