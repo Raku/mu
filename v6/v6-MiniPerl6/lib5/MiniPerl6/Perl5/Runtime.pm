@@ -94,8 +94,20 @@ package Main;
     sub newline { "\n" }
     sub quote   { '"' }
     sub isa { 
-           ref( $_[0] ) eq $_[1]
-        || ref( $_[0] ) eq ref( $_[1] ) 
+        my $ref = ref($_[0]);
+           (  $ref eq 'ARRAY' 
+           && $_[1] eq 'Array'
+           )
+        || (  $ref eq 'HASH' 
+           && $_[1] eq 'Hash'
+           )
+        || (  $ref eq '' 
+           && $_[1] eq 'Str'
+           )
+        || $ref eq $_[1]
+        || (  ref( $_[1] ) 
+           && $ref eq ref( $_[1] ) 
+           )
     }
 
     sub perl {
