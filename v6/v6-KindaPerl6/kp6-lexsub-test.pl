@@ -16,6 +16,7 @@ use MiniPerl6::Grammar;
 
 use KindaPerl6::Traverse;
 use KindaPerl6::Visitor::LexicalSub;
+use KindaPerl6::Visitor::Perl;
 
 use MiniPerl6::Grammar::Regex;
 use MiniPerl6::Emitter::Token;
@@ -30,12 +31,18 @@ say( "use MiniPerl6::Perl5::Runtime;" );
 say( "use MiniPerl6::Perl5::Match;" );
 
 my $visitor = KindaPerl6::Visitor::LexicalSub->new();
+my $visitor_perl = KindaPerl6::Visitor::Perl->new();
 
 while ( $pos < length( $source ) ) {
     #say( "Source code:", $source );
     my $p = MiniPerl6::Grammar->comp_unit($source, $pos);
     #say( Main::perl( $$p ) );
     say( join( ";\n", (map { $_->emit( $visitor ) } ($$p) )));
+    say( join( ";\n", (map { $_->emit( $visitor_perl ) } ($$p) )));
+
+    require MiniPerl6::Perl5::Emitter;
+    say( join( ";\n", (map { $_->emit() } ($$p) )));
+
     #say( $p->to, " -- ", length($source) );
     say( ";" );
     $pos = $p->to;

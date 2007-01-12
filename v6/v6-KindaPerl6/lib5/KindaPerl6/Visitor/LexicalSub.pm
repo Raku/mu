@@ -3,6 +3,6 @@ use v5;
 use strict;
 use MiniPerl6::Perl5::Runtime;
 use MiniPerl6::Perl5::Match;
-package KindaPerl6::Visitor::LexicalSub; sub new { shift; bless { @_ }, "KindaPerl6::Visitor::LexicalSub" } sub visit { my $self = shift; my $List__ = \@_; my $node; my $node_name; my $data; do {  $node = $List__->[0];  $node_name = $List__->[1];  $data = $List__->[2]; [$node, $node_name, $data] }; do { if (($node_name eq 'CompUnit')) { do { for my $subitem ( @{$node->body()} ) { $subitem->emit($self) } };return((undef)) } else {  } }; do { if (($node_name eq 'Sub')) { Main::print($node_name, ' ', $node->name(), '; ') } else {  } } }
+package KindaPerl6::Visitor::LexicalSub; sub new { shift; bless { @_ }, "KindaPerl6::Visitor::LexicalSub" } sub visit { my $self = shift; my $List__ = \@_; my $node; my $node_name; my $data; do {  $node = $List__->[0];  $node_name = $List__->[1];  $data = $List__->[2]; [$node, $node_name, $data] }; do { if (($node_name eq 'CompUnit')) { do { for my $subitem ( @{$node->body()} ) { $subitem = $subitem->emit($self) } } } else {  } }; do { if (($node_name eq 'Sub')) { return(Bind->new( 'parameters' => Decl->new( 'decl' => 'my','var' => Var->new( 'name' => ('_SUB_' . $data->{'name'}),'twigil' => '','sigil' => '$', ),'type' => '', ),'arguments' => Sub->new( 'sig' => $data->{'sig'},'name' => '','block' => $data->{'block'}, ), )) } else {  } }; return($node) }
 ;
 1;
