@@ -7,6 +7,7 @@ class CompUnit {
     has @.body;
     method emit( $visitor ) {
         $visitor.visit( 
+            self,
             'CompUnit',
             { 
                 name    => $.name,
@@ -22,6 +23,7 @@ class Val::Int {
     has $.int;
     method emit( $visitor ) {
         $visitor.visit( 
+            self,
             'Val::Int',
             { 
                 int    => $.int,
@@ -34,6 +36,7 @@ class Val::Bit {
     has $.bit;
     method emit( $visitor ) {
         $visitor.visit( 
+            self,
             'Val::Bit',
             { 
                 bit    => $.bit,
@@ -46,6 +49,7 @@ class Val::Num {
     has $.num;
     method emit( $visitor ) {
         $visitor.visit( 
+            self,
             'Val::Num',
             { 
                 num    => $.num,
@@ -58,6 +62,7 @@ class Val::Buf {
     has $.buf;
     method emit( $visitor ) {
         $visitor.visit( 
+            self,
             'Val::Buf',
             { 
                 buf    => $.buf,
@@ -69,6 +74,7 @@ class Val::Buf {
 class Val::Undef {
     method emit( $visitor ) {
         $visitor.visit( 
+            self,
             'Val::Undef',
             { 
             }
@@ -81,6 +87,7 @@ class Val::Object {
     has %.fields;
     method emit( $visitor ) {
         $visitor.visit( 
+            self,
             'Val::Object',
             { 
                 class  => $.class,
@@ -94,6 +101,7 @@ class Lit::Seq {
     has @.seq;
     method emit( $visitor ) {
         $visitor.visit( 
+            self,
             'Lit::Seq',
             { 
                 seq  => @.seq,
@@ -106,6 +114,7 @@ class Lit::Array {
     has @.array;    
     method emit( $visitor ) {
         $visitor.visit( 
+            self,
             'Lit::Array',
             { 
                 array  => @.array,
@@ -118,6 +127,7 @@ class Lit::Hash {
     has @.hash;
     method emit( $visitor ) {
         $visitor.visit( 
+            self,
             'Lit::Hash',
             { 
                 hash  => @.hash,
@@ -136,6 +146,7 @@ class Lit::Object {
     has @.fields;
     method emit( $visitor ) {
         $visitor.visit( 
+            self,
             'Lit::Object',
             { 
                 class  => $.class,
@@ -150,6 +161,7 @@ class Index {
     has $.index;
     method emit( $visitor ) {
         $visitor.visit( 
+            self,
             'Index',
             { 
                 obj   => $.obj,
@@ -164,6 +176,7 @@ class Lookup {
     has $.index;
     method emit( $visitor ) {
         $visitor.visit( 
+            self,
             'Lookup',
             { 
                 obj   => $.obj,
@@ -179,6 +192,7 @@ class Var {
     has $.name;
     method emit( $visitor ) {
         $visitor.visit( 
+            self,
             'Var',
             { 
                 sigil   => $.sigil,
@@ -194,6 +208,7 @@ class Bind {
     has $.arguments;
     method emit( $visitor ) {
         $visitor.visit( 
+            self,
             'Bind',
             { 
                 parameters   => $.parameters,
@@ -207,6 +222,7 @@ class Proto {
     has $.name;
     method emit( $visitor ) {
         $visitor.visit( 
+            self,
             'Proto',
             { 
                 name   => $.name,
@@ -223,6 +239,7 @@ class Call {
     #has $.hyper;
     method emit( $visitor ) {
         $visitor.visit( 
+            self,
             'Call',
             { 
                 invocant   => $.invocant,
@@ -239,6 +256,7 @@ class Apply {
     has @.arguments;
     method emit( $visitor ) {
         $visitor.visit( 
+            self,
             'Apply',
             { 
                 code       => $.code,
@@ -252,6 +270,7 @@ class Return {
     has $.result;
     method emit( $visitor ) {
         $visitor.visit( 
+            self,
             'Return',
             { 
                 result    => $.result,
@@ -266,6 +285,7 @@ class If {
     has @.otherwise;
     method emit( $visitor ) {
         $visitor.visit( 
+            self,
             'If',
             { 
                 cond       => $.cond,
@@ -282,6 +302,7 @@ class For {
     has @.topic;
     method emit( $visitor ) {
         $visitor.visit( 
+            self,
             'For',
             { 
                 cond       => $.cond,
@@ -298,6 +319,7 @@ class Decl {
     has $.var;
     method emit( $visitor ) {
         $visitor.visit( 
+            self,
             'Decl',
             { 
                 decl       => $.decl,
@@ -314,6 +336,7 @@ class Sig {
     has $.named;
     method emit( $visitor ) {
         $visitor.visit( 
+            self,
             'Sig',
             { 
                 invocant   => $.invocant,
@@ -330,6 +353,7 @@ class Method {
     has @.block;
     method emit( $visitor ) {
         $visitor.visit( 
+            self,
             'Method',
             { 
                 name    => $.name,
@@ -346,6 +370,7 @@ class Sub {
     has @.block;
     method emit( $visitor ) {
         $visitor.visit( 
+            self,
             'Sub',
             { 
                 name    => $.name,
@@ -360,6 +385,7 @@ class Do {
     has @.block;
     method emit( $visitor ) {
         $visitor.visit( 
+            self,
             'Do',
             { 
                 block   => @.block,
@@ -372,6 +398,7 @@ class Use {
     has $.mod;
     method emit( $visitor ) {
         $visitor.visit( 
+            self,
             'Use',
             { 
                 mod    => $.mod,
