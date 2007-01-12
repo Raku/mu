@@ -427,15 +427,24 @@ token call {
 
 token apply {
     <full_ident>
+    [
         [ \( <?opt_ws> <exp_seq> <?opt_ws> \)
         | <?ws> <exp_seq> <?opt_ws>
         ]
-    {
-        return ::Apply(
-            'code'      => $$<full_ident>,
-            'arguments' => $$<exp_seq>,
-        )
-    }
+        {
+            return ::Apply(
+                'code'      => $$<full_ident>,
+                'arguments' => $$<exp_seq>,
+            )
+        }
+    |
+        {
+            return ::Apply(
+                'code'      => $$<full_ident>,
+                'arguments' => [],
+            )
+        }
+    ]
 };
 
 token opt_name {  <ident> | <''>  };
