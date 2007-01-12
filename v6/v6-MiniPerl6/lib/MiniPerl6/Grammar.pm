@@ -263,6 +263,7 @@ token term {
     | <control> { return $$<control> } # Various control structures.  Does _not_ appear in binding LHS
 #   | <index>     # $obj[1, 2, 3]
 #   | <lookup>    # $obj{'1', '2', '3'}
+    | <apply>   { return $$<apply>  }  # self; print 1,2,3
 };
 
 #token index { XXX }
