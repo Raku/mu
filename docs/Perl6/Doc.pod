@@ -18,9 +18,16 @@ part of the Perl 6 documentation system.
 
 =head2 Overview
 
+    Overview::Control       Control Structure
+    Overview::Data          Data Types
+    Overview::File          File and Filesystem operations
+    Overview::Functions     see perlfunc
     Overview::Object        Object-oriented programming
-    Overview::Sub           Subroutines
+    Overview::Operator      Operators
+    Overview::Reduce        Reduce metaoperator
     Overview::Rule          Grammars and Rules (regexes)
+    Overview::Smartmatch    Smart Matching
+    Overview::Subroutine    Subroutines
     Overview::Unicode       Using Unicode in Perl 6 code
     Overview::Variable      Special variables
 
@@ -28,18 +35,27 @@ part of the Perl 6 documentation system.
 
 =head2 FAQ
 
-    FAQ::Fears              Frequently heard Perl 6 fears
+    FAQ::FUD                Fears, Uncertainties and Doubts
+    FAQ::Capture            Capture objects
 
 =head2 Language Specification
 
-    Spec::Operator          Operators (S03)
+    Spec::CPAN              CPAN (draft)
+    Spec::Concurrency       Concurrency (S17)
+    Spec::Documentation
+    Spec::Functions
+    Spec::IO
+
     Spec::Control           Blocks and statements (S04)
+    Spec::Operator          Operators (S03)
     Spec::Rule              Rules (S05)
 
 =head2 Core API
 
     API::Code
     API::Class
+    API::Scalar             Scalar API reference
+    API::Math::Basic
 
 =head2 Perl 5 topics
 
