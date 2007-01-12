@@ -14,11 +14,19 @@ class KindaPerl6::Visitor::LexicalSub {
             #    body  => $node.body;
             #);
         };
-        if $node_name eq 'Sub' {
+        
+        # TODO - my / our
+        # TODO - Apply
+        # TODO - add 'our' subs to the namespace, if there is one
+        
+        # only unnamed subs
+        if    ( $node_name eq 'Sub' )
+           && ( $data{'name'} ne '' ) 
+        {
             # print $node_name, ' ', $node.name, '; ';
             return ::Bind(  
                 parameters => ::Decl(  
-                    decl  => 'my',  
+                    decl  => 'our',  
                     var   => ::Var(  
                         name => '_SUB_' ~ $data{'name'},  
                         twigil => '',  

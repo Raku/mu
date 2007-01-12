@@ -40,6 +40,8 @@ while ( $pos < length( $source ) ) {
     say( join( ";\n", (map { $_->emit( $visitor ) } ($$p) )));
     say( join( ";\n", (map { $_->emit( $visitor_perl ) } ($$p) )));
 
+    print "\nPerl 5 code:\n-------\n";
+    # XXX - this redefines the Traverse class
     require MiniPerl6::Perl5::Emitter;
     say( join( ";\n", (map { $_->emit() } ($$p) )));
 
