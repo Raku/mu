@@ -36,7 +36,7 @@ class KindaPerl6::Visitor::Perl {
                 $result := $result ~ "\'" ~ $data{$item} ~ "\', ";
             } 
             else {
-                $result := $result ~ ($data{$item}).emit( self ); 
+                $result := $result ~ ($data{$item}).emit( self ) ~ ", "; 
             }; 
             };
             };
