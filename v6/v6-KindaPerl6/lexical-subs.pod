@@ -1,0 +1,46 @@
+# Lexical subs
+
+implementation - my $var := sub{...}; our $X::var := sub{...}
+the initialization needs to be done on INIT
+
+problem - compatibility with native p5 subroutines
+
+possible solution - wrap unseen subs: our $X::_SUB_x=sub{ X::x(@_) }
+for back-and-forth compatibility, 6-on-6 subs should also have both namespace and our forms.
+
+anon classes/modules would not have the namespace form
+
+Imported subs
+
+imported subs are like: my $_SUB_x := $X::_SUB_var
+problem - package vars would point to the original namespace
+but this is ok, because that's how it works on pugs.
+
+  # pugs
+    module X { our $v=123; sub s is export { $v } }
+    our $v = 42;
+    my &s1 := &X::s;
+    print s1;   # 123
+  # p5
+    package X;
+    our $v = 123;
+    our $s = sub { $v };
+    package main;
+    our $v = 42;
+    my $s = $X::s; # import
+    print $s->(),"\n";   # 123 
+
+"star-namespace" subs
+
+- same problem with star-namespace vars
+
+possible solution - call $_STAR_::import()
+
+AST operations
+
+- enumerate seen subs
+because unseen subs need wrapping
+
+- replace nnn(...) with $nnn(...)
+
+- add 'is export' subs to @EXPORT

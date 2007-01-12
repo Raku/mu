@@ -1,0 +1,49 @@
+# Lexical class
+
+    my $grammar = grammar {...};  # anonymous
+    my grammar x {...};  # named
+    our grammar x {...};  # named, visible from outside
+
+    grammar.rule - looks up in "current-namespace"::grammar
+    # lookup_method( $grammar, 'rule' )
+    
+    'our' classes have also a native-namespace representation, for p5 compatibility
+    
+AST operations
+    
+- enumerate seen classes
+because unseen classes need wrapping
+mark the unseen class as 'native', because it may be a p5 class
+which doesn't have lookup_method()
+
+- replace meth(...) with lookup_method(...)
+- replace sub(...) with %class{sub}(...)
+
+- add 'is export' classes to @EXPORT
+if it makes sense
+
+---
+# xxx desugaring a class
+# create a metaclass
+# the class definition is itself inside a closure
+INIT { _build_metaclass() }
+my $_METACLASS_X := create_metaclass();
+my $_CLASS_X := $_METACLASS_X.create_instance;  # 'our' also generates a namespace
+_build_metaclass {
+    my $meta = $_METACLASS_X.HOW;
+    $meta.add_method( 'x', sub { ... } );
+}
+$_CLASS_X.call_method( 'x' );
+
+---
+# xxx desugaring a class
+# create a prototype
+# the class definition is itself inside a closure
+INIT { _build_class() }
+my $_CLASS_X := create_class( 'Class' );  # 'our' also generates a namespace
+_build_class {
+    my $meta = $_CLASS_X.HOW;
+    $meta.add_method( 'x', sub { ... } );
+}
+$_CLASS_X.HOW.call_method( 'x' );
+

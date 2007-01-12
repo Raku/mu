@@ -1,5 +1,11 @@
 KindaPer6 specification
 
+- in short: lexical subs and classes; metamodel interface; begin blocks; containers
+  - see individual files: 
+    begin-block.pod
+    lexical-class.pod
+    lexical-subs.pod
+
 - compilable with MP6, only until KP6 bootstraps
   - MP6 spec is now frozen
 
