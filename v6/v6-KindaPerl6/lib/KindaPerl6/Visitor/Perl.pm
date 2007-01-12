@@ -1,37 +1,45 @@
-package KindaPerl6::Visitor::Perl;
-use strict;
 
-sub new {
-    bless {}, $_[0];
-}
-sub visit {
-    my ( $visitor, $self, $node_name, $data ) = @_;
-    my $result = '';
-    $result .= "::$node_name(\n";
-    #print Dumper( $data );
-    for my $item ( keys %$data ) {
-        $result .= "  $item => ";
-        #$result .= Dumper( $data->{$item} );       
-        #$result .= "isa:" . ref( $data->{$item} );
-        if ( 'ARRAY' eq ref $data->{$item} ) {
-            $result .= "[ " 
-                . join( ", ", map { $_->emit( $visitor ) } @{$data->{$item}} ) 
-                . " ],\n";
-        } 
-        elsif ( 'HASH' eq ref $data->{$item} ) {
-            $result .= "{ " 
-                . join( ", ", map { $_ . ' => ' . ($data->{$item}{$_})->emit( $visitor ) } keys %{$data->{$item}} ) 
-                . " },\n";
-        } 
-        elsif ( '' ne ref $data->{$item} ) {
-            #$result .= "isa:" . ref( $data->{$item} );
-            $result .= ($data->{$item})->emit( $visitor ); 
-        } 
-        else {
-            $result .= "'" . $data->{$item} . "',\n";
-        } 
-    }
-    $result .= ")\n";
-}
+use v6-alpha;
 
-1;
+class KindaPerl6::Visitor::Perl {
+
+    method visit ( $node, $node_name, $data ) {
+        my $result := '';
+        #my $item;
+        #my $subitem;
+        $result := $result ~ "::" ~ $node_name ~ "( ";
+        for keys %($data) -> $item {
+            $result := $result ~ " " ~ $item ~ " => ";
+            if ($data{$item}).isa('Array') {
+                $result := $result ~ "[ ";
+                for @($data{$item}) -> $subitem {
+                    $result := $result ~ $subitem.emit( self ) ~ ", ";
+                };
+                $result := $result ~ " ], ";
+            } 
+            else {
+            if ($data{$item}).isa('Hash') {
+                $result := $result ~ "{ ";
+                for keys %($data{$item}) -> $subitem {
+                    $result := $result 
+                        ~ $subitem 
+                        ~ ' => '
+                        ~ (($data{$item}){$subitem}).emit( self ) 
+                        ~ ", ";
+                };
+                $result := $result ~ " }, ";
+            } 
+            else {
+            if ($data{$item}).isa('Str') {
+                $result := $result ~ "\'" ~ $data{$item} ~ "\', ";
+            } 
+            else {
+                $result := $result ~ ($data{$item}).emit( self ); 
+            }; 
+            };
+            };
+        };
+        $result := $result ~ ") ";
+    };
+
+}

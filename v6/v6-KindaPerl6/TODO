@@ -1,0 +1,12 @@
+TODO list for KindaPerl6
+
+- finish kp6-spec
+
+Visitor modules:
+
+- add variable declarations collector
+  - move variable declarations to the start of each block
+
+- move subroutine declarations into variables
+
+- add metamodel API
