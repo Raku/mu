@@ -11,47 +11,11 @@ BEGIN {
 use MiniPerl6::Perl5::Runtime;
 use MiniPerl6::Perl5::Match;
 
-package Visitor;
-use Data::Dumper;
-
-sub new {
-    bless {}, $_[0];
-}
-sub visit {
-    my ( $visitor, $self, $node_name, $data ) = @_;
-    my $result = '';
-    $result .= "::$node_name(\n";
-    #print Dumper( $data );
-    for my $item ( keys %$data ) {
-        $result .= "  $item => ";
-        #$result .= Dumper( $data->{$item} );       
-        #$result .= "isa:" . ref( $data->{$item} );
-        if ( 'ARRAY' eq ref $data->{$item} ) {
-            $result .= "[ " 
-                . join( ", ", map { $_->emit( $visitor ) } @{$data->{$item}} ) 
-                . " ],\n";
-        } 
-        elsif ( 'HASH' eq ref $data->{$item} ) {
-            $result .= "{ " 
-                . join( ", ", map { $_ . ' => ' . ($data->{$item}{$_})->emit( $visitor ) } keys %{$data->{$item}} ) 
-                . " },\n";
-        } 
-        elsif ( '' ne ref $data->{$item} ) {
-            #$result .= "isa:" . ref( $data->{$item} );
-            $result .= ($data->{$item})->emit( $visitor ); 
-        } 
-        else {
-            $result .= "'" . $data->{$item} . "',\n";
-        } 
-    }
-    $result .= ")\n";
-}
-
 package Main;
 use MiniPerl6::Grammar;
 
-#use MiniPerl6::Perl5::Emitter;
-use MiniPerl6::Traverse;
+use KindaPerl6::Traverse;
+use KindaPerl6::Visitor::LexicalSub;
 
 use MiniPerl6::Grammar::Regex;
 use MiniPerl6::Emitter::Token;
@@ -65,7 +29,7 @@ say( "use strict;" );
 say( "use MiniPerl6::Perl5::Runtime;" );
 say( "use MiniPerl6::Perl5::Match;" );
 
-my $visitor = Visitor->new();
+my $visitor = KindaPerl6::Visitor::LexicalSub->new();
 
 while ( $pos < length( $source ) ) {
     #say( "Source code:", $source );

@@ -3,6 +3,8 @@ use v6-alpha;
 
 class KindaPerl6::Visitor::Perl {
 
+    # This visitor builds a ".perl" representation of the AST
+
     method visit ( $node, $node_name, $data ) {
         my $result := '';
         #my $item;
