@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 36;
+use Test::More tests => 58;
 # use Data::Dumper;
 # $Data::Dumper::Indent = 1;
 # $Data::Dumper::Pad = '# ';
@@ -23,6 +23,8 @@ my ( $rule, $match );
   ok ( ! $match->bool, "c =~ /a/ #2" );
   #is ( $match->tail, 'c123', "tail is ok" );
   #print Dumper( $match );
+  $rule->( 'ca', undef, {}, $match);
+  ok( !$match->bool, "anchored match" );
 }
 
 {
@@ -34,12 +36,15 @@ my ( $rule, $match );
       ] ),
     );
   $rule->( 'a123', undef, {capture=>1}, $match );
-  ok ( $match->bool, "/[a|c]/ #1" );
+  ok ( $match->bool, "/[a|c]+?/ #1" );
   is ( $match->tail, '123', "tail is ok" );
   $rule->( 'c123', undef, {capture=>1}, $match );
-  ok ( $match->bool, "/[a|c]/ #2" );
+  ok ( $match->bool, "/[a|c]+?/ #2" );
   is ( $match->tail, '123', "tail is ok" );
   #print Dumper( $match );
+  $rule->( 'aa123', undef, {capture=>1}, $match );
+  ok ( $match->bool, "/[a|c]+?/ #3" );
+  is ( $match->tail, 'a123', "tail is ok" );
 }
 
 {
@@ -103,6 +108,10 @@ my ( $rule, $match );
   #print Dumper( $match );
   ok ( $match->bool, "/a*/" );
   #print Dumper( $match );
+  is ( $match->str, 'aa' );
+  $rule->( 'aaaaab', undef, {}, $match );
+  ok ($match->bool, "/a*/" );
+  is ($match->str, 'aaaaa');
   $rule->( '', undef, {}, $match );
   ok ( $match->bool, "matches 0 occurrences" );
   #print Dumper( $match );
@@ -115,6 +124,7 @@ my ( $rule, $match );
     );
   $rule->( 'aa', undef, {}, $match );
   ok ( $match->bool, "/a+/" );
+  is ( $match->str, 'aa' );
   $rule->( '!!', undef, {}, $match );
   ok ( ! $match->bool, "rejects unmatching text" );
 }
@@ -146,6 +156,7 @@ my ( $rule, $match );
      );
   $rule->( 'aacaab', undef, {}, $match );
   ok ( $match->bool, "/[a|c]+ab/ with backtracking" );
+  is ( $match->str, 'aacaab', 'all the chars accepted' );
   # print Dumper( $match );
 }
 
@@ -158,9 +169,12 @@ my ( $rule, $match );
       ] ),
     );
   $rule->( 'aacaab', undef, {capture=>1}, $match );
-  ok ( $match, "/[a|c]+/" );
+  ok ( $match, "/[a|c]+?/" );
   is ( $match->tail, 'acaab', "tail is ok" );
   #print Dumper( $match );
+  $rule->( 'cacab', undef, {}, $match );
+  ok $match->bool;
+  is $match->str, 'c';
 }
 
 {
@@ -175,8 +189,10 @@ my ( $rule, $match );
       Pugs::Runtime::Regex::constant( 'cb' )
     );
   $rule->( 'aacacb', undef, {capture=>1}, $match );
-  ok ( defined $match, "/[a|c]+?ab/ with backtracking" );
+  ok ( defined $match, "/[a|c]+?cb/ with backtracking" );
   #print Dumper( $match );
+  is $match->str, 'aacacb';
+  is $match->tail, '';
 }
 
 {
@@ -195,9 +211,14 @@ my ( $rule, $match );
         )
     );
   $alt->( 'a', undef, {capture=>1}, $match );
-  ok ( defined $match, "/a|a/ #1" );
+  ok ( defined $match, "/a[\|a]?/ #1" );
+  is $match->str, 'a';
   $alt->( 'a|a', undef, {capture=>1}, $match );
-  ok ( defined $match, "/a|a/ #2" );
+  ok ( defined $match, "/a[\|a]?/ #2" );
+  is $match->str, 'a|a';
+  $alt->( 'a|a|a', undef, {capture=>1}, $match );
+  ok ( defined $match, "/a[\|a]?/ #3" );
+  is $match->str, 'a|a';
 
   # adding '*' caused a deep recursion error (fixed)
 
@@ -212,12 +233,14 @@ my ( $rule, $match );
         )
     );
   $alt->( 'a', undef, {capture=>1}, $match );
-  ok ( $match, "/a [ |a ]*/ #1" );
+  ok ( $match, "/a[\|a]*/ #1" );
+  is $match->str, 'a';
   $alt->( 'a|a', undef, {capture=>1}, $match );
-  ok ( $match, "/a [ |a ]*/ #2" );
+  ok ( $match, "/a[\|a]*/ #2" );
+  is $match->str, 'a|a';
   $alt->( 'a|a|a', undef, {capture=>1}, $match );
-  ok ( $match, "/a [ |a ]*/ #3" );
-
+  ok ( $match, "/a[\|a]*/ #3" );
+  is $match->str, 'a|a|a';
 }
 
 {
@@ -235,10 +258,16 @@ my ( $rule, $match );
       Pugs::Runtime::Regex::constant( 'cb' )
     );
   $rule->( 'aacacb', undef, {capture=>1}, $match );
-  ok ( defined $match, "/[a|c]+?cb/ with backtracking" );
+  ok ( defined $match, "/[a|c]**{2..4}?cb/ with backtracking" );
   #print Dumper( $match );
   #print "Match: $match \n"; # 
-  is ( "$match", "aacacb", "/[a|c]+?cb/ with range" );
+  is ( "$match", "aacacb", "/[a|c]**{2..4}?cb/ with range" );
+  $rule->( 'aacb', undef, {}, $match);
+  is "$match", "aacb", 'a**{2..2}cb';
+  $rule->( 'cccb', undef, {}, $match);
+  is "$match", 'cccb', 'c**{2..2}cb';
+  $rule->( 'caacb', undef, {}, $match);
+  is "$match", 'caacb', '[a|c]**{3..3}cb';
 
   $rule = 
     Pugs::Runtime::Regex::concat(
@@ -252,7 +281,7 @@ my ( $rule, $match );
       Pugs::Runtime::Regex::constant( 'cb' )
     );
   $rule->( 'aacacb', undef, {capture=>1}, $match );
-  ok ( $match ? 0 : 1, "/[a|c]+?cb/ with bad range fails" );
+  ok ( $match ? 0 : 1, "/[a|c]**{1..2}?cb/ with bad range fails" );
 
   $rule = 
     Pugs::Runtime::Regex::concat(
@@ -266,7 +295,7 @@ my ( $rule, $match );
       Pugs::Runtime::Regex::constant( 'cb' )
     );
   $rule->( 'aacacb', undef, {capture=>1}, $match );
-  ok ( $match ? 0 : 1, "/[a|c]+?cb/ with bad range fails" );
+  ok ( $match ? 0 : 1, "/[a|c]**{5..7}?cb/ with bad range fails" );
 }
 
 {
