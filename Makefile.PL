@@ -62,6 +62,11 @@ my @hppfiles = map {my $x=$_; $x=~s/\.hs$/.hpp/; $x} @hsfiles;
 
 warn_cygwin     ();
 
+for my $var (qw(PERL5LIB PERLIB)) {
+    die "$var contains a naked 'lib', please remove it for Pugs"
+        if (grep {$_ eq 'lib'} split /:/, $ENV{$var});
+}
+
 print "*** Probing configuration (please ignore any warnings)...\n\n";
 
 name            ('Perl6-Pugs');
