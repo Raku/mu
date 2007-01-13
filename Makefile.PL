@@ -62,9 +62,16 @@ my @hppfiles = map {my $x=$_; $x=~s/\.hs$/.hpp/; $x} @hsfiles;
 
 warn_cygwin     ();
 
-for my $var (qw(PERL5LIB PERLIB)) {
-    die "$var contains a naked 'lib', please remove it for Pugs"
-        if (grep {$_ eq 'lib'} split /:/, $ENV{$var});
+for my $var (qw( PERL5LIB PERLLIB )) {
+    if (grep { m{^(?:\.?[\\/]+)*lib$} } split(/\Q$Config{path_sep}\E/, ($ENV{$var} || next))) {
+        die <<"EOD";
+*** The "$var" environment variable contains a naked 'lib',
+    which will disrupt the Pugs build process.
+    
+    Please remove it and run Makefile.PL again.
+EOD
+    }
+    last; # PERLLIB is ignored when PERL5LIB is in place
 }
 
 print "*** Probing configuration (please ignore any warnings)...\n\n";
