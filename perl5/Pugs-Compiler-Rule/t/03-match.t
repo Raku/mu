@@ -1,5 +1,5 @@
 
-use Test::More tests => 50;
+use Test::More tests => 54;
 use Data::Dumper;
 
 use_ok( 'Pugs::Compiler::Regex' );
@@ -69,6 +69,7 @@ use_ok( 'Pugs::Grammar::Base' );
     is( $match->(), "xyz", 'stringify 1' );
     is( "$match->[0]", "xy", 'stringify 2' );
     is( "$match->[0][0]", "x", 'stringify 3' );
+    is( "$match->[1]", "z");
 }
 
 {
@@ -93,6 +94,19 @@ use_ok( 'Pugs::Grammar::Base' );
     my $rule = Pugs::Compiler::Regex->compile( '..' );
     my $match = $rule->match( "xyz" );
     is( "$match", "xy", 'concat stringify' );
+    $match = $rule->match('x');
+    ok( !$match->bool, 'two few chars' );
+}
+
+{
+    my $rule = Pugs::Compiler::Regex->compile( '$<z> := (.) { return "bar" } ' );
+    #print Dumper( Pugs::Grammar::Rule->rule( 'x' )->() );
+    # print $rule->{perl5};
+    my $match = $rule->match( "abc" );
+    #print "match: ", $match->perl;
+    ok( $match, 'true match' );
+    my $ret = $match->();
+    is( $ret, "bar", 'pretended we matched "bar"' );
 }
 
 {
