@@ -1,0 +1,20 @@
+
+To build Pugs see INSTALL
+
+
+BUILDING v6-alpha
+------------------
+
+v6-alpha is an implementation of Perl 6 on Perl 5. 
+Its source code also lives in the same repository as Pugs.
+(see <http://perlmonks.org/?node_id=559083>)
+
+It needs the CPAN modules Devel::Caller, Module::Compile and Pugs::Compiler::Rule. 
+The first one is dependent on Module::Build with C_support, 
+so install ExtUtils::CBuilder and ExtUtils::ParseXS first. Satisfy all 
+with one command:
+
+    $ sudo cpan -fi ExtUtils::CBuilder ExtUtils::ParseXS Module::Build \
+          Devel::Caller Module::Compile Pugs::Compiler::Rule
+
+

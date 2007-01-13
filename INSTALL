@@ -1,3 +1,6 @@
+
+To build v6-alpha see INSTALL.v6-alpha
+
 BUILDING PUGS
 -------------
 
@@ -5,18 +8,11 @@ Pugs needs the Glasgow Haskell Compiler (GHC), version 6.6 or above.
 
 To install GHC, download a binary build from http://haskell.org/ghc/.
 Although source code for GHC is available, it will take a very long time to
-build by yourself.
+build by yourself. (Several hours)
 
 Additionally, Pugs uses the Cabal framework (http://haskell.org/cabal/),
-which is usually bundled with GHC itself.
+which is usually bundled with GHC itself. (The 6.6 source code contains it.)
 
-v6-alpha (see <http://perlmonks.org/?node_id=559083>) needs the CPAN modules
-Devel::Caller, Module::Compile and Pugs::Compiler::Rule. The first one is
-dependent on Module::Build with C_support, so install ExtUtils::CBuilder and
-ExtUtils::ParseXS first. Satisfy all with one command:
-
-    $ sudo cpan -fi ExtUtils::CBuilder ExtUtils::ParseXS Module::Build \
-          Devel::Caller Module::Compile Pugs::Compiler::Rule
 
 http://jnthn.net/perl6/ has binary builds for Win32.  For Mac OS X (PowerPC),
 http://www.unobe.com/packages/ has binary builds too. If you'd like to build
