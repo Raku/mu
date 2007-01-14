@@ -1,5 +1,8 @@
 {-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances -fallow-overlapping-instances #-}
 
+-- To compile make pugs as usual and use the following command inside src/ directory:
+-- ghc -package-conf ../third-party/installed/packages.conf -lpcre -ipcre --make MO/si.hs
+
 import MO.Run
 import MO.Compile
 import MO.Compile.Class
@@ -11,47 +14,50 @@ import Pugs.Internals
 
 import GHC.Unicode (toUpper, toLower)
 
-say = putStrLn
-
-{-
-mkBox :: String -> Invocant IO
-mkBox = undefined
-    { clsPublicMethods = newCollection' name $ map AnyMethod [
-        MkSimpleMethod
-        { smName = "foo"
-        , smDefinition = MkMethodCompiled $ PureCode (const (mkObj ("foo", "boo", "blah")) )
-        }
-        ]
-        , clsName = "base"  
-    }
--}
 
 -- A cast-map
-
 class (Typeable a, Ord a, Typeable1 m, Monad m) => Boxable m a | a -> m where
     classOf :: a -> MI m
     fromObj :: Invocant m -> m a
+
+-- Helpers for Str type
+capitalize = mapEachWord capitalizeWord
+  where
+    mapEachWord _ [] = []
+    mapEachWord f str@(c:cs)
+        | isSpace c = c:(mapEachWord f cs)
+        | otherwise = f word ++ mapEachWord f rest
+          where (word,rest) = break isSpace str
+    capitalizeWord []     = []
+    capitalizeWord (c:cs) = toUpper c:(map toLower cs)
+
+toQuoteMeta :: Char -> String
+toQuoteMeta c =
+   if not(isLatin1 c) -- Ignore Unicode characters beyond the 256-th
+      || isAsciiUpper c || isAsciiLower c || isDigit c || c == '_'
+      then [ c ]
+      else [ '\\', c ]
 
 -- XXX - Once MI for native types is made generally "is open" this must be adjusted as well.
 instance Boxable IO String where
     classOf _ = mkBoxClass "Str"
         [ "reverse"    ... (reverse :: String -> String)
-        , "chop"       ... undefined -- Pugs.Prim +120
+        , "chop"       ... (\s -> if null s then s else init s)
         , "split"      ... words
         , "lc"         ... map toLower
-        , "lcfirst"    ... undefined -- +125
+        , "lcfirst"    ... (\s -> if null s then s else (toLower (head s)) : (tail s))
         , "uc"         ... map toUpper
-        , "ucfirst"    ... undefined -- +127
-        , "capitalize" ... undefined
-        , "quotemeta"  ... undefined
-        , "graphs"     ... undefined
-        , "codes"      ... undefined
+        , "ucfirst"    ... (\s -> if null s then s else (toUpper (head s)) : (tail s))
+        , "capitalize" ... capitalize
+        , "quotemeta"  ... (concat . map toQuoteMeta)
         , "chars"      ... length
-        , "bytes"      ... undefined
-        , "split"      ... undefined
-        , "index"      ... undefined
-        , "rindex"     ... undefined
-        , "substr"     ... undefined
+        --, "graphs"     ... undefined
+        --, "codes"      ... undefined
+        --, "bytes"      ... undefined
+        --, "index"      ... undefined
+        --, "rindex"     ... undefined
+        --, "substr"     ... undefined
+        , "test"       !!! (print :: String -> IO ())   -- just to test (!!!) function
         ]
     fromObj (MkInvocant x _) = undefined
 
@@ -59,78 +65,114 @@ instance Boxable IO Int where
     classOf _ = mkBoxClass "Int"
         [ "chr"     ... ((:[]) . chr)
         ]
+    fromObj (MkInvocant x _) = undefined
 
-instance Num a => Boxable IO a where
-    classOf _ = mkBoxClass "Num"
-        [ "abs"      ... undefined
-        , "floor"    ... undefined
-        , "ceiling"  ... undefined
-        , "round"    ... undefined
-        , "truncate" ... undefined 
-        , "exp"      ... undefined 
-        , "log"      ... undefined 
-        , "log10"    ... undefined 
-        , "log2"     ... undefined -- :-)
-        , "rand"     ... undefined 
-        , "sign"     ... undefined 
-        , "srand"    ... undefined 
-        , "sqrt"     ... undefined 
+instance Boxable IO a => Boxable IO [a] where
+    classOf _ = mkBoxClass "List"
+        [ "elems"   ... (length :: [String] -> Int)
         ]
+    fromObj (MkInvocant x _) = undefined
+
+{-
+
+-- Doesn't work, don't know exactly why not...
+
+instance (Typeable a, Ord a, Num a) => Boxable IO a where
+    classOf _ = mkBoxClass "Num"
+        [ "abs"      ... abs
+        -- , "floor"    ... undefined
+        -- , "ceiling"  ... undefined
+        -- , "round"    ... undefined
+        -- , "truncate" ... undefined 
+        -- , "exp"      ... undefined 
+        -- , "log"      ... undefined 
+        -- , "log10"    ... undefined 
+        -- , "log2"     ... undefined -- :-)
+        -- , "rand"     ... undefined 
+        -- , "sign"     ... undefined 
+        -- , "srand"    ... undefined 
+        -- , "sqrt"     ... undefined 
+        ]
+    fromObj (MkInvocant x _) = undefined
+-}
 
 instance Boxable IO Char where
+    fromObj (MkInvocant x _) = undefined
+
+instance Boxable IO () where
+    fromObj (MkInvocant x _) = undefined
+
 
 instance Boxable IO Socket where
     classOf _ = mkBoxClass "Socket"
-        [ "connect" ... undefined -- +1046
-        , "close"   ... undefined
-        , "listen"  ... undefined
+        [ "close"   !!! (undefined :: Socket -> IO ())
+        --, "connect" ... undefined -- +1046
+        --, "listen"  ... undefined
         ] 
+    fromObj (MkInvocant x _) = undefined
 
-(...) x y = (x, mkObj . y)
 
 mkBoxClass cls methods = newMI $ emptyMI
     { clsPublicMethods = newCollection' methodName $ map mkBoxMethod methods
     , clsName = cls
     }
 
-class Monad m => BoxableFunction m a where
-    mkBoxMethod :: (String, a) -> AnyMethod m
-    mkBoxMethod (meth, fun) = AnyMethod $ MkSimpleMethod
-        { smName = meth
-        , smDefinition = MkMethodCompiled $ HsCode $ \args -> do
-            str <- fromInvocant args
-            return (fun str)
-        }
- 
-instance Monad m => BoxableFunction m (String -> String) where
-
-instance (Boxable m a) => BoxableFunction m (a -> m a) where
-    mkBoxMethod (meth, fun) = AnyMethod $ MkSimpleMethod
-        { smName = meth
-        , smDefinition = MkMethodCompiled $ HsCode $ \args -> do
-            obj <- fromInvocant args
-            fun obj
-        }
+mkBoxMethod (meth, fun) = AnyMethod $ MkSimpleMethod
+    { smName = meth
+    , smDefinition = MkMethodCompiled $ HsCode $ \args -> do
+        str <- fromInvocant args
+        fun str   -- Note that we expect "fun" to be monadic
+    }
 
 -- Hmmm, shall we make combinations for take care of things like a -> b -> a,
 -- a -> m (), and other combinations?
-
-
 instance (Boxable m a, Boxable m b, Boxable m c) => Boxable m (a, b, c) where
     classOf = const (newMI emptyMI)
+    fromObj (MkInvocant x _) = undefined
 
-mkObj :: (Show a, Boxable m a) => a -> Invocant m
-mkObj x = MkInvocant x (class_interface (classOf x))
+
+-- (...) is used for non-monadic functions, and (!!!) for monadic ones
+-- would be nice to make (...) work for both cases.
+(...) x y = (x, mkObj . y)
+(!!!) x y = (x, mkObjM . y)
+
+mkObj :: (Show a, Boxable m a) => a -> m (Invocant m)
+mkObj x = return $ MkInvocant x (class_interface (classOf x))
+
+mkObjM :: (Show a, Boxable m a) => m a -> m (Invocant m)
+mkObjM x = do
+    x' <- x
+    return $ MkInvocant x' (class_interface (classOf x'))
 
 inv ./ meth = ivDispatch inv $ MkMethodInvocation meth (mkArgs [])
 
 main = do
-    let jude = mkObj "Hey Jude"
-    print =<< (jude ./ "reverse")   -- "eduJ yeH"
+    jude <- mkObj "Hey Jude"
+
+    rev_jude <- jude ./ "reverse"
+    print rev_jude                       -- "eduJ yeH"
+
+    print =<< (jude ./ "chop")           -- "Hey Jud"
+    print =<< (jude ./ "uc")             -- "HEY JUDE"
+    print =<< (jude ./ "lc")             -- "hey jude"
+    print =<< (jude ./ "lcfirst")        -- "hey Jude"
+    print =<< (rev_jude ./ "ucfirst")    -- "EduJ yeH"
+    print =<< (rev_jude ./ "capitalize") -- "Eduj Yeh"
+    
+    things <- mkObj "lot$ of thing$"
+    print =<< (things ./ "quotemeta")    -- "lot\\$\\ of\\ thing\\$"
+
+    print =<< (jude ./ "split")          -- ["Hey","Jude"]
+
+    things ./ "test"                     -- prints "lot$ of thing$"
 
     eight <- jude ./ "chars"
     print eight                     -- 8
     print =<< (eight ./ "chr")      -- "\b"
+
+
+
+{-
 
 -- TODO: get more sugar for constructing this types
 xxx = do
@@ -196,3 +238,5 @@ xxx = do
 
     -- Call foo on base class => would work, because foo is instance method
     print =<< ivDispatch base_box call_bar
+
+-}
