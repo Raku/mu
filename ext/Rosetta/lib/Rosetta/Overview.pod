@@ -323,7 +323,7 @@ Some editorial assistance from Sam Vilain (C<samv@cpan.org>).
 
 This file is part of the Rosetta DBMS framework.
 
-Rosetta is Copyright (c) 2002-2006, Darren R. Duncan.
+Rosetta is Copyright (c) 2002-2007, Darren R. Duncan.
 
 See the LICENCE AND COPYRIGHT of L<Rosetta> for details.
 

@@ -74,8 +74,8 @@ Presently, all of the Rosetta framework core files have been created and
 maintained entirely by myself, both code and documentation, save for small
 amounts of casual assistence by other people.  This consists mainly of
 providing me advice in discussions that went to improve Rosetta, or in
-correcting minor code details or typos (such as to remain consistent with a
-Perl 6 language spec change).  Exceptions are specifically mentioned.
+correcting minor code details or typos.  Any exceptions are specifically
+mentioned.
 
 In accordance with common sense, I maintain that none of the assistence
 received to date, save any specifically mentioned, is enough to warrant
@@ -226,7 +226,7 @@ Darren R. Duncan (C<perl@DarrenDuncan.net>)
 
 This file is part of the Rosetta DBMS framework.
 
-Rosetta is Copyright (c) 2002-2006, Darren R. Duncan.
+Rosetta is Copyright (c) 2002-2007, Darren R. Duncan.
 
 See the LICENCE AND COPYRIGHT of L<Rosetta> for details.
 
