@@ -1,0 +1,5 @@
+# Parrot backend support
+
+- mp6-Parrot doesn't compile closure-blocks and class variables
+  kp6 can support these features with desugaring
+  
