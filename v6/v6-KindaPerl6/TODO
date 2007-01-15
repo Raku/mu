@@ -1,6 +1,7 @@
 TODO list for KindaPerl6
 
 - finish kp6-spec
+- lexical subs and classes; metamodel interface; begin blocks; containers
 
 Visitor modules:
 
@@ -8,6 +9,10 @@ Visitor modules:
   - move variable declarations to the start of each block
 
 - move subroutine declarations into variables
+  LexicalSub.pm
+  - add 'our' subs to the namespace, if there is one
+  - recurse into expressions and blocks
+  - verify the interface with native p5 subs
 
 - add metamodel API
 
@@ -16,3 +21,5 @@ For later:
 - desugar blocks into real subroutines, in support for the parrot backend
 
 - desugar closures into simple subroutines, in support for the C backend
+
+- temp/state desugaring, for perl5
