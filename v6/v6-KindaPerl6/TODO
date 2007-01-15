@@ -10,3 +10,9 @@ Visitor modules:
 - move subroutine declarations into variables
 
 - add metamodel API
+
+For later:
+
+- desugar blocks into real subroutines, in support for the parrot backend
+
+- desugar closures into simple subroutines, in support for the C backend

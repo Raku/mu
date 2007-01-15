@@ -19,9 +19,8 @@ class KindaPerl6::Visitor::LexicalSub {
         # TODO - Apply
         # TODO - add 'our' subs to the namespace, if there is one
         
-        # only unnamed subs
         if    ( $node_name eq 'Sub' )
-           && ( $data{'name'} ne '' ) 
+           && ( $data{'name'} ne '' )   # only named subs
         {
             # print $node_name, ' ', $node.name, '; ';
             return ::Bind(  
@@ -41,7 +40,52 @@ class KindaPerl6::Visitor::LexicalSub {
                  ),
              );
         };
+
+
+        if    ( $node_name eq 'Apply' )
+           && ($data{'code'}).isa( 'Str' )
+           && (  ( $data{'code'} eq 'my' )
+              || ( $data{'code'} eq 'our' )
+              )
+           && ( (($data{'arguments'})[0]).isa( 'Sub' ) )
+        {
+            # my sub xxx 
+            #  is parsed as:
+            # my( sub xxx )
+            return ::Bind(  
+                parameters => ::Decl(  
+                    decl  => $data{'code'},  
+                    var   => ::Var(  
+                        name => '_SUB_' ~ (($data{'arguments'})[0]).name,  
+                        twigil => '',  
+                        sigil => '$', 
+                    ),  
+                    type  => '', 
+                ),  
+                arguments => ::Sub( 
+                    sig   => (($data{'arguments'})[0]).sig,
+                    name  => '',  
+                    block => (($data{'arguments'})[0]).block, 
+                 ),
+             );
+        };
+
+
+        if    ( $node_name eq 'Apply' )
+           && ($data{'code'}).isa( 'Str' )
+        {
+            return ::Apply(  
+                arguments => $data{'arguments'},
+                code => ::Var(  
+                        name => '_SUB_' ~ $data{'code'},  
+                        twigil => '',  
+                        sigil => '$', 
+                    ),   
+             );
+        };
+
         return $node;
     };
 
 }
+
