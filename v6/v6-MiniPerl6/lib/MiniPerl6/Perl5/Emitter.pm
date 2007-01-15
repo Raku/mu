@@ -276,6 +276,11 @@ class Apply {
         
         my $code := $.code;
 
+        if $code.isa( 'Str' ) { }
+        else {
+            return '(' ~ $.code.emit ~ ')->(' ~ (@.arguments.>>emit).join(', ') ~ ')';
+        };
+
         if $code eq 'self'       { return '$self' };
 
         if $code eq 'say'        { return 'Main::say('   ~ (@.arguments.>>emit).join(', ') ~ ')' };
