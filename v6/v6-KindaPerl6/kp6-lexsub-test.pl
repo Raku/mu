@@ -12,7 +12,7 @@ use MiniPerl6::Perl5::Runtime;
 use MiniPerl6::Perl5::Match;
 
 package Main;
-use MiniPerl6::Grammar;
+use KindaPerl6::Grammar;
 
 use KindaPerl6::Traverse;
 use KindaPerl6::Visitor::LexicalSub;
