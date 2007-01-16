@@ -17,6 +17,7 @@ use KindaPerl6::Grammar;
 use KindaPerl6::Traverse;
 use KindaPerl6::Visitor::LexicalSub;
 use KindaPerl6::Visitor::Perl;
+use KindaPerl6::Visitor::EmitPerl5;
 
 use MiniPerl6::Grammar::Regex;
 use MiniPerl6::Emitter::Token;
@@ -30,20 +31,19 @@ say( "use strict;" );
 say( "use MiniPerl6::Perl5::Runtime;" );
 say( "use MiniPerl6::Perl5::Match;" );
 
-my $visitor = KindaPerl6::Visitor::LexicalSub->new();
-my $visitor_perl = KindaPerl6::Visitor::Perl->new();
+my $visitor_lexical_sub = KindaPerl6::Visitor::LexicalSub->new();
+my $visitor_dump_ast    = KindaPerl6::Visitor::Perl->new();
+my $visitor_emit_perl5  = KindaPerl6::Visitor::EmitPerl5->new();
 
 while ( $pos < length( $source ) ) {
     #say( "Source code:", $source );
     my $p = MiniPerl6::Grammar->comp_unit($source, $pos);
     #say( Main::perl( $$p ) );
-    say( join( ";\n", (map { $_->emit( $visitor ) } ($$p) )));
-    say( join( ";\n", (map { $_->emit( $visitor_perl ) } ($$p) )));
+    say( join( ";\n", (map { $_->emit( $visitor_lexical_sub ) } ($$p) )));
+    say( join( ";\n", (map { $_->emit( $visitor_dump_ast    ) } ($$p) )));
 
     print "\nPerl 5 code:\n-------\n";
-    # XXX - this redefines the Traverse class
-    require MiniPerl6::Perl5::Emitter;
-    say( join( ";\n", (map { $_->emit() } ($$p) )));
+    say( join( ";\n", (map { $_->emit( $visitor_emit_perl5  ) } ($$p) )));
 
     #say( $p->to, " -- ", length($source) );
     say( ";" );

@@ -16,6 +16,38 @@ KindaPer6 specification
   Parrot backend could use TGE/PGE
   Perl5 backend could use PCR, MO, Moose
 
+# Milestones
+
+- finish kp6-spec
+
+    Such that we know when it's finished
+
+- lexical subs 
+
+    Allows operator redefinition:
+    
+    my multi infix:<+> { ... }
+
+    But note that 'multi' is not part of the kp6 spec
+
+- lexical classes / first-class classes
+
+    Better support for grammar mutability
+
+    $?GRAMMAR   Which grammar am I in? (from S02)
+    @?GRAMMAR   Which nested grammars am I in?
+        
+- metamodel interface
+
+    Allow pluggable object models
+
+- begin blocks
+
+    This is needed to support separate compilation - that is, separate compile-time from run-time 
+
+- containers
+
+    This is needed to implement assignment - MP6 only supported binding.
 
 # Compiler
 

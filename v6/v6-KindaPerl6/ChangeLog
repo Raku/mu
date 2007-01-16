@@ -11,6 +11,7 @@ The kp6 Milestones are:
 
 2007-01-16
 - added ::Assign to the grammar
+- added Perl5-emitter visitor
 
 2007-01-15
 - LexicalSub visitor

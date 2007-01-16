@@ -22,6 +22,11 @@ Visitor modules:
 
 - add metamodel API
 
+Other:
+
+- star/GLOBAL namespace 
+- OUTER namespace
+
 For later:
 
 - desugar blocks into real subroutines, in support for the parrot backend
