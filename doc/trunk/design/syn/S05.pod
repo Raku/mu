@@ -16,7 +16,7 @@ Allison Randal <al@shadowed.net>
    Date: 24 Jun 2002
    Last Modified: 16 Jan 2007
    Number: 5
-   Version: 42
+   Version: 43
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -79,7 +79,7 @@ initial constant strings of any initial subrule called by that regex).
 A logical alternation using C<|> then takes two or more of these lists
 and dispatches to the alternative that advertises the longest matching
 prefix, not necessarily to the alternative that comes first lexically.
-(However, in the case of a tie between alternatives, the first earlier
+(However, in the case of a tie between alternatives, the earlier
 alternative does take precedence.)
 
 Initial constants must take into account case sensitivity (or any other
@@ -497,10 +497,20 @@ neither carriage return nor line feed.
 
 =item *
 
-The new C<&> metacharacter separates conjunctive terms.  The patterns on
-either side must match with the same beginning and end point.  The
-operator is list associative like C<|>, has higher precedence than C<|>,
-and backtracking makes the right argument vary faster than the left.   
+The new C<&> metacharacter separates conjunctive terms.  The patterns
+on either side must match with the same beginning and end point.
+Note: if you don't want your two terms to end at the same point,
+then you really want to use a lookahead instead.
+
+As with the disjunctions C<|> and C<||>, conjuctions come in both
+C<&> and C<&&> forms.  The C<&> form allows the compiler and/or the
+run-time system to decide which parts to evaluate first, and it is
+erroneous to assume either order happens consistently.  The C<&&>
+form short-circuits, and backtracking makes the right argument vary
+faster than the left.
+
+The C<&> and C<&&> operators are list associative like C<|> and C<||>,
+but have tighter precedence.
 
 =back
 
