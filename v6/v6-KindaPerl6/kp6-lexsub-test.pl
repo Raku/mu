@@ -18,6 +18,7 @@ use KindaPerl6::Traverse;
 use KindaPerl6::Visitor::LexicalSub;
 use KindaPerl6::Visitor::Perl;
 use KindaPerl6::Visitor::EmitPerl5;
+use KindaPerl6::Visitor::Hyper;
 
 use MiniPerl6::Grammar::Regex;
 use MiniPerl6::Emitter::Token;
@@ -33,17 +34,26 @@ say( "use MiniPerl6::Perl5::Match;" );
 
 my $visitor_lexical_sub = KindaPerl6::Visitor::LexicalSub->new();
 my $visitor_dump_ast    = KindaPerl6::Visitor::Perl->new();
+my $visitor_hyper       = KindaPerl6::Visitor::Hyper->new();
 my $visitor_emit_perl5  = KindaPerl6::Visitor::EmitPerl5->new();
+
+use Data::Dumper;
 
 while ( $pos < length( $source ) ) {
     #say( "Source code:", $source );
     my $p = MiniPerl6::Grammar->comp_unit($source, $pos);
     #say( Main::perl( $$p ) );
-    say( join( ";\n", (map { $_->emit( $visitor_lexical_sub ) } ($$p) )));
-    say( join( ";\n", (map { $_->emit( $visitor_dump_ast    ) } ($$p) )));
+    map { $_->emit( $visitor_lexical_sub ) } ($$p);
+    
+    print Dumper ( $$p );
+    my @hyper = map { $_->emit( $visitor_hyper )       } ($$p);
+    print Dumper( @hyper );
+    say( join( ";\n", (map { $_->emit( $visitor_dump_ast    ) } @hyper )));
+
+    #say( join( ";\n", (map { $_->emit( $visitor_dump_ast    ) } ($$p) )));
 
     print "\nPerl 5 code:\n-------\n";
-    say( join( ";\n", (map { $_->emit( $visitor_emit_perl5  ) } ($$p) )));
+    say( join( ";\n", (map { $_->emit( $visitor_emit_perl5  ) } (@hyper) )));
 
     #say( $p->to, " -- ", length($source) );
     say( ";" );

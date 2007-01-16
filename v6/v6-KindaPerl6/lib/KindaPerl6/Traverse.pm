@@ -1,12 +1,58 @@
 use v6-alpha;
 
+class KindaPerl6::Traverse {
+
+    sub visit ( $visitor, $node, $node_name, $data ) {
+        # say "visit " ~ $node_name;
+        
+        if $node.isa('Array') {
+            my $result := [ ];
+            my $i := 0;
+            for @($node) -> $subitem {
+                $result[ $i ] := $subitem.emit( $visitor );
+                $i := $i + 1;
+            };
+            return $result;
+        };
+
+        if $node.isa('Hash') {
+            my $result := { };
+            for keys %($node) -> $subitem {
+                $result{ $subitem } := ($node{$subitem}).emit( $visitor );
+            };
+            return $result;
+        };
+
+        if $node.isa('Str') {
+            return $node;
+        };
+
+        my $result := $visitor.visit( $node, $node_name, $data );
+        if ( $result ) {
+            return $result;
+        };
+        
+        my $result := { };
+        for keys %($data) -> $item {            
+            $result{$item} := visit( 
+                $visitor, 
+                $data{$item}
+            );
+        };
+        return $node_name.new(%$result);
+        
+    };
+
+}
+
 class CompUnit {
     has $.name;
     has %.attributes;
     has %.methods;
     has @.body;
     method emit( $visitor ) {
-        $visitor.visit( 
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
             self,
             'CompUnit',
             { 
@@ -22,7 +68,8 @@ class CompUnit {
 class Val::Int {
     has $.int;
     method emit( $visitor ) {
-        $visitor.visit( 
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
             self,
             'Val::Int',
             { 
@@ -35,7 +82,8 @@ class Val::Int {
 class Val::Bit {
     has $.bit;
     method emit( $visitor ) {
-        $visitor.visit( 
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
             self,
             'Val::Bit',
             { 
@@ -48,7 +96,8 @@ class Val::Bit {
 class Val::Num {
     has $.num;
     method emit( $visitor ) {
-        $visitor.visit( 
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
             self,
             'Val::Num',
             { 
@@ -61,7 +110,8 @@ class Val::Num {
 class Val::Buf {
     has $.buf;
     method emit( $visitor ) {
-        $visitor.visit( 
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
             self,
             'Val::Buf',
             { 
@@ -73,7 +123,8 @@ class Val::Buf {
 
 class Val::Undef {
     method emit( $visitor ) {
-        $visitor.visit( 
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
             self,
             'Val::Undef',
             { 
@@ -86,7 +137,8 @@ class Val::Object {
     has $.class;
     has %.fields;
     method emit( $visitor ) {
-        $visitor.visit( 
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
             self,
             'Val::Object',
             { 
@@ -100,7 +152,8 @@ class Val::Object {
 class Lit::Seq {
     has @.seq;
     method emit( $visitor ) {
-        $visitor.visit( 
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
             self,
             'Lit::Seq',
             { 
@@ -113,7 +166,8 @@ class Lit::Seq {
 class Lit::Array {
     has @.array;    
     method emit( $visitor ) {
-        $visitor.visit( 
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
             self,
             'Lit::Array',
             { 
@@ -126,7 +180,8 @@ class Lit::Array {
 class Lit::Hash {
     has @.hash;
     method emit( $visitor ) {
-        $visitor.visit( 
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
             self,
             'Lit::Hash',
             { 
@@ -145,7 +200,8 @@ class Lit::Object {
     has $.class;
     has @.fields;
     method emit( $visitor ) {
-        $visitor.visit( 
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
             self,
             'Lit::Object',
             { 
@@ -160,7 +216,8 @@ class Index {
     has $.obj;
     has $.index;
     method emit( $visitor ) {
-        $visitor.visit( 
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
             self,
             'Index',
             { 
@@ -175,7 +232,8 @@ class Lookup {
     has $.obj;
     has $.index;
     method emit( $visitor ) {
-        $visitor.visit( 
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
             self,
             'Lookup',
             { 
@@ -191,7 +249,8 @@ class Var {
     has $.twigil;
     has $.name;
     method emit( $visitor ) {
-        $visitor.visit( 
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
             self,
             'Var',
             { 
@@ -207,7 +266,8 @@ class Bind {
     has $.parameters;
     has $.arguments;
     method emit( $visitor ) {
-        $visitor.visit( 
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
             self,
             'Bind',
             { 
@@ -222,7 +282,8 @@ class Assign {
     has $.parameters;
     has $.arguments;
     method emit( $visitor ) {
-        $visitor.visit( 
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
             self,
             'Assign',
             { 
@@ -236,7 +297,8 @@ class Assign {
 class Proto {
     has $.name;
     method emit( $visitor ) {
-        $visitor.visit( 
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
             self,
             'Proto',
             { 
@@ -253,7 +315,8 @@ class Call {
     has @.arguments;
     #has $.hyper;
     method emit( $visitor ) {
-        $visitor.visit( 
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
             self,
             'Call',
             { 
@@ -270,7 +333,8 @@ class Apply {
     has $.code;
     has @.arguments;
     method emit( $visitor ) {
-        $visitor.visit( 
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
             self,
             'Apply',
             { 
@@ -284,7 +348,8 @@ class Apply {
 class Return {
     has $.result;
     method emit( $visitor ) {
-        $visitor.visit( 
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
             self,
             'Return',
             { 
@@ -299,7 +364,8 @@ class If {
     has @.body;
     has @.otherwise;
     method emit( $visitor ) {
-        $visitor.visit( 
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
             self,
             'If',
             { 
@@ -316,7 +382,8 @@ class For {
     has @.body;
     has @.topic;
     method emit( $visitor ) {
-        $visitor.visit( 
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
             self,
             'For',
             { 
@@ -333,7 +400,8 @@ class Decl {
     has $.type;
     has $.var;
     method emit( $visitor ) {
-        $visitor.visit( 
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
             self,
             'Decl',
             { 
@@ -350,7 +418,8 @@ class Sig {
     has $.positional;
     has $.named;
     method emit( $visitor ) {
-        $visitor.visit( 
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
             self,
             'Sig',
             { 
@@ -367,7 +436,8 @@ class Method {
     has $.sig;
     has @.block;
     method emit( $visitor ) {
-        $visitor.visit( 
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
             self,
             'Method',
             { 
@@ -384,7 +454,8 @@ class Sub {
     has $.sig;
     has @.block;
     method emit( $visitor ) {
-        $visitor.visit( 
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
             self,
             'Sub',
             { 
@@ -399,7 +470,8 @@ class Sub {
 class Do {
     has @.block;
     method emit( $visitor ) {
-        $visitor.visit( 
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
             self,
             'Do',
             { 
@@ -412,7 +484,8 @@ class Do {
 class Use {
     has $.mod;
     method emit( $visitor ) {
-        $visitor.visit( 
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
             self,
             'Use',
             { 

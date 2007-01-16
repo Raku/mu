@@ -3,7 +3,7 @@ use v6-alpha;
 
 class KindaPerl6::Visitor::EmitPerl5 {
 
-    # This visitor is an adaptor to mp6's perl5 emitter
+    # This visitor is a perl5 emitter
     
     method visit ( $node, $node_name, $data ) {
         $node.emit_perl5;
@@ -11,7 +11,7 @@ class KindaPerl6::Visitor::EmitPerl5 {
 
 }
 
-# from mp6 perl5 emit_perl5ter:
+# from mp6 perl5 emitter:
 
 class CompUnit {
     has $.name;
