@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 23 Dec 2006
+   Last Modified: 16 Jan 2007
    Number: 5
-   Version: 41
+   Version: 42
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -66,6 +66,29 @@ Backslash escape:  \
 Minimal matching suffix:   ??,  *?,  +?
 
 =back
+
+While the syntax of C<|> does not change, the default semantics do
+change slightly.   Instead of representing temporal alternation, C<|>
+now represents logical alternation with longest-token semantics.
+(You may now use C<||> to indicate the old temporal alternation.  That is,
+C<|> and C<||> now work within regex syntax much the same as they
+do outside of regex syntax, where they represent junctional and
+short-circuit OR.)  Every regex in Perl 6 is required to be able to
+return its list of initial constant strings (transitively including the
+initial constant strings of any initial subrule called by that regex).
+A logical alternation using C<|> then takes two or more of these lists
+and dispatches to the alternative that advertises the longest matching
+prefix, not necessarily to the alternative that comes first lexically.
+(However, in the case of a tie between alternatives, the first earlier
+alternative does take precedence.)
+
+Initial constants must take into account case sensitivity (or any other
+canonicalization primitives) and do the right thing even when propagated
+up to rules that don't have the same canonicalization.  That is, they
+must continue to represent the set of matches that the lower rule would
+match.  If and when the optimizer turns such a list of prefixes into,
+say, a trie, the trie must continue to have the appropriate semantics
+for the originating rule.
 
 =head1 Modifiers
 
@@ -1318,6 +1341,10 @@ also want to disable that.  If an explicit or implicit C<:ratchet>
 has disabled backtracking by supplying an implicit C<:>, you need to
 put an explicit C<!> after the alternation to enable backing into
 another alternative if the first pick fails.
+
+The C<::> also has the effect of hiding any constant string on the right
+from "longest token" processing by C<|>.  Only the left side is evaluated
+for initial constancy.
 
 =item *
 
