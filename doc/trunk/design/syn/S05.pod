@@ -633,8 +633,18 @@ while C<Regex> values use their own C<:ignorecase> settings.
 =item *
 
 An interpolated hash matches the longest possible key of the hash
-as a literal, or fails if no key matches.  (A C<""> key
-will match anywhere, provided no longer key matches.)
+as a literal, or fails if no key matches.  (A C<""> key will match
+anywhere, provided no longer key matches.)
+
+In a context requiring a set of initial constant strings, the keys
+of the hash comprise that set of strings, and any subsequent matching
+performed by the hash values is not considered a part of those strings,
+even if that subsequent match begins by matching more constant string.
+The keys are considered to be canonicalized in the same way as any
+surrounding context, so for instance within a case-insensitive context
+the hash keys must match insensitively also.
+
+Subsequent matching depends on the hash value:
 
 =over 4
 
