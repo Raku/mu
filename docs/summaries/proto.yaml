@@ -7,7 +7,7 @@ extra:
     - title: This week on the Perl 6 mailing lists
       body: ~
   footer:
-    - title: Acknowlegements
+    - title: Acknowledgements
       body: |-
         This summary was prepared using
         [Mail::Summary::Tools](http://search.cpan.org/dist/Mail-Summary-Tools/),
