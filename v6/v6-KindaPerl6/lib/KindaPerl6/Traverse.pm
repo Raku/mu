@@ -218,6 +218,21 @@ class Bind {
     }
 }
 
+class Assign {
+    has $.parameters;
+    has $.arguments;
+    method emit( $visitor ) {
+        $visitor.visit( 
+            self,
+            'Assign',
+            { 
+                parameters   => $.parameters,
+                arguments    => $.arguments,
+            }
+        );
+    }
+}
+
 class Proto {
     has $.name;
     method emit( $visitor ) {
