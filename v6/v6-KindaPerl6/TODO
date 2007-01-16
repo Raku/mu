@@ -1,7 +1,13 @@
 TODO list for KindaPerl6
 
+The kp6 Milestones are:
+
 - finish kp6-spec
-- lexical subs and classes; metamodel interface; begin blocks; containers
+- lexical subs 
+- lexical classes
+- metamodel interface
+- begin blocks
+- containers
 
 Visitor modules:
 
@@ -23,3 +29,5 @@ For later:
 - desugar closures into simple subroutines, in support for the C backend
 
 - temp/state desugaring, for perl5
+
+- 6-on-6 design

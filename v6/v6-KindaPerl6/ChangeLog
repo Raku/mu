@@ -1,0 +1,19 @@
+ChangeLog for KindaPerl6
+
+The kp6 Milestones are:
+
+- finish kp6-spec
+- lexical subs 
+- lexical classes
+- metamodel interface
+- begin blocks
+- containers
+
+2007-01-16
+- added ::Assign to the grammar
+
+2007-01-15
+- LexicalSub visitor
+
+2007-01-12
+- AST dumper visitor
