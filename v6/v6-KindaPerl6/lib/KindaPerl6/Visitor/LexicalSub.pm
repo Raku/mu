@@ -43,19 +43,11 @@ After:
 
 class KindaPerl6::Visitor::LexicalSub {
 
-    method visit ( $node, $node_name, $data ) {
-        if $node_name eq 'CompUnit' {
-            for @($node.body) -> $subitem {
-                $subitem := $subitem.emit( self );
-            };
-            #return ::CompUnit(
-            #    body  => $node.body;
-            #);
-        };
-        
-        # TODO - my / our
-        # TODO - Apply
+    method visit ( $node, $node_name ) {
+
         # TODO - add 'our' subs to the namespace, if there is one
+        
+        my $data := $node.attribs;
         
         if    ( $node_name eq 'Sub' )
            && ( $data{'name'} ne '' )   # only named subs
@@ -122,7 +114,7 @@ class KindaPerl6::Visitor::LexicalSub {
              );
         };
 
-        return $node;
+        return;
     };
 
 }

@@ -2,7 +2,7 @@ use v6-alpha;
 
 class KindaPerl6::Traverse {
 
-    sub visit ( $visitor, $node, $node_name, $data ) {
+    sub visit ( $visitor, $node, $node_name ) {
         # say "visit " ~ $node_name;
         
         if $node.isa('Array') {
@@ -27,19 +27,20 @@ class KindaPerl6::Traverse {
             return $node;
         };
 
-        my $result := $visitor.visit( $node, $node_name, $data );
+        my $result := $visitor.visit( $node, $node_name );
         if ( $result ) {
             return $result;
         };
         
         my $result := { };
+        my $data := $node.attribs;
         for keys %($data) -> $item {            
             $result{$item} := visit( 
                 $visitor, 
                 $data{$item}
             );
         };
-        return $node_name.new(%$result);
+        return $node.new(%$result);
         
     };
 
@@ -55,14 +56,16 @@ class CompUnit {
             $visitor, 
             self,
             'CompUnit',
+        );
+    };
+    method attribs {
             { 
                 name    => $.name,
                 attributes => %.attributes,
                 methods => %.methods,
                 body    => @.body,
             }
-        );
-    }
+    };
 }
 
 class Val::Int {
@@ -72,11 +75,13 @@ class Val::Int {
             $visitor, 
             self,
             'Val::Int',
+        );
+    };
+    method attribs {
             { 
                 int    => $.int,
             }
-        );
-    }
+    };
 }
 
 class Val::Bit {
@@ -86,11 +91,13 @@ class Val::Bit {
             $visitor, 
             self,
             'Val::Bit',
+        );
+    };
+    method attribs {
             { 
                 bit    => $.bit,
             }
-        );
-    }
+    };
 }
 
 class Val::Num {
@@ -100,11 +107,13 @@ class Val::Num {
             $visitor, 
             self,
             'Val::Num',
+        );
+    };
+    method attribs {
             { 
                 num    => $.num,
             }
-        );
-    }
+    };
 }
 
 class Val::Buf {
@@ -114,11 +123,13 @@ class Val::Buf {
             $visitor, 
             self,
             'Val::Buf',
+        );
+    };
+    method attribs {
             { 
                 buf    => $.buf,
             }
-        );
-    }
+    };
 }
 
 class Val::Undef {
@@ -127,10 +138,12 @@ class Val::Undef {
             $visitor, 
             self,
             'Val::Undef',
+        );
+    };
+    method attribs {
             { 
             }
-        );
-    }
+    };
 }
 
 class Val::Object {
@@ -141,12 +154,14 @@ class Val::Object {
             $visitor, 
             self,
             'Val::Object',
+        );
+    };
+    method attribs {
             { 
                 class  => $.class,
                 fields => %.fields,
             }
-        );
-    }
+    };
 }
 
 class Lit::Seq {
@@ -156,11 +171,13 @@ class Lit::Seq {
             $visitor, 
             self,
             'Lit::Seq',
+        );
+    };
+    method attribs {
             { 
                 seq  => @.seq,
             }
-        );
-    }
+    };
 }
 
 class Lit::Array {
@@ -170,11 +187,13 @@ class Lit::Array {
             $visitor, 
             self,
             'Lit::Array',
+        );
+    };
+    method attribs {
             { 
                 array  => @.array,
             }
-        );
-    }
+    };
 }
 
 class Lit::Hash {
@@ -184,11 +203,13 @@ class Lit::Hash {
             $visitor, 
             self,
             'Lit::Hash',
+        );
+    };
+    method attribs {
             { 
                 hash  => @.hash,
             }
-        );
-    }
+    };
 }
 
 class Lit::Code {
@@ -204,12 +225,14 @@ class Lit::Object {
             $visitor, 
             self,
             'Lit::Object',
+        );
+    };
+    method attribs {
             { 
                 class  => $.class,
                 fields => %.fields,
             }
-        );
-    }
+    };
 }
 
 class Index {
@@ -220,12 +243,14 @@ class Index {
             $visitor, 
             self,
             'Index',
+        );
+    };
+    method attribs {
             { 
                 obj   => $.obj,
                 index => $.index,
             }
-        );
-    }
+    };
 }
 
 class Lookup {
@@ -236,12 +261,14 @@ class Lookup {
             $visitor, 
             self,
             'Lookup',
+        );
+    };
+    method attribs {
             { 
                 obj   => $.obj,
                 index => $.index,
             }
-        );
-    }
+    };
 }
 
 class Var {
@@ -253,13 +280,15 @@ class Var {
             $visitor, 
             self,
             'Var',
+        );
+    };
+    method attribs {
             { 
                 sigil   => $.sigil,
                 twigil  => $.twigil,
                 name    => $.name,
             }
-        );
-    }
+    };
 }
 
 class Bind {
@@ -270,12 +299,14 @@ class Bind {
             $visitor, 
             self,
             'Bind',
+        );
+    };
+    method attribs {
             { 
                 parameters   => $.parameters,
                 arguments    => $.arguments,
             }
-        );
-    }
+    };
 }
 
 class Assign {
@@ -286,12 +317,14 @@ class Assign {
             $visitor, 
             self,
             'Assign',
+        );
+    };
+    method attribs {
             { 
                 parameters   => $.parameters,
                 arguments    => $.arguments,
             }
-        );
-    }
+    };
 }
 
 class Proto {
@@ -301,11 +334,13 @@ class Proto {
             $visitor, 
             self,
             'Proto',
+        );
+    };
+    method attribs {
             { 
                 name   => $.name,
             }
-        );
-    }
+    };
 }
 
 class Call {
@@ -319,14 +354,16 @@ class Call {
             $visitor, 
             self,
             'Call',
+        );
+    };
+    method attribs {
             { 
                 invocant   => $.invocant,
                 hyper      => $.hyper,
                 method     => $.method,
                 arguments  => @.arguments,
             }
-        );
-    }
+    };
 }
 
 class Apply {
@@ -337,12 +374,14 @@ class Apply {
             $visitor, 
             self,
             'Apply',
+        );
+    };
+    method attribs {
             { 
                 code       => $.code,
                 arguments  => @.arguments,
             }
-        );
-    }
+    };
 }
 
 class Return {
@@ -352,11 +391,13 @@ class Return {
             $visitor, 
             self,
             'Return',
+        );
+    };
+    method attribs {
             { 
                 result    => $.result,
             }
-        );
-    }
+    };
 }
 
 class If {
@@ -368,13 +409,15 @@ class If {
             $visitor, 
             self,
             'If',
+        );
+    };
+    method attribs {
             { 
                 cond       => $.cond,
                 body       => @.body,
                 otherwise  => @.otherwise,
             }
-        );
-    }
+    };
 }
 
 class For {
@@ -386,13 +429,15 @@ class For {
             $visitor, 
             self,
             'For',
+        );
+    };
+    method attribs {
             { 
                 cond       => $.cond,
                 body       => @.body,
                 topic      => @.topic,
             }
-        );
-    }
+    };
 }
 
 class Decl {
@@ -404,13 +449,15 @@ class Decl {
             $visitor, 
             self,
             'Decl',
+        );
+    };
+    method attribs {
             { 
                 decl       => $.decl,
                 type       => @.type,
                 var        => @.var,
             }
-        );
-    }
+    };
 }
 
 class Sig {
@@ -422,13 +469,15 @@ class Sig {
             $visitor, 
             self,
             'Sig',
+        );
+    };
+    method attribs {
             { 
                 invocant   => $.invocant,
                 positional => @.positional,
                 named      => @.named,
             }
-        );
-    }
+    };
 }
 
 class Method {
@@ -440,13 +489,15 @@ class Method {
             $visitor, 
             self,
             'Method',
+        );
+    };
+    method attribs {
             { 
                 name    => $.name,
                 sig     => $.sig,
                 block   => @.block,
             }
-        );
-    }
+    };
 }
 
 class Sub {
@@ -458,13 +509,15 @@ class Sub {
             $visitor, 
             self,
             'Sub',
+        );
+    };
+    method attribs {
             { 
                 name    => $.name,
                 sig     => $.sig,
                 block   => @.block,
             }
-        );
-    }
+    };
 }
 
 class Do {
@@ -474,11 +527,13 @@ class Do {
             $visitor, 
             self,
             'Do',
+        );
+    };
+    method attribs {
             { 
                 block   => @.block,
             }
-        );
-    }
+    };
 }
 
 class Use {
@@ -488,11 +543,13 @@ class Use {
             $visitor, 
             self,
             'Use',
+        );
+    };
+    method attribs {
             { 
                 mod    => $.mod,
             }
-        );
-    }
+    };
 }
 
 =begin

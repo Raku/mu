@@ -19,7 +19,7 @@ After:
 
 class KindaPerl6::Visitor::Hyper {
 
-    method visit ( $node, $node_name, $data ) {
+    method visit ( $node, $node_name ) {
         if    ( $node_name eq 'Call' )
            && ( $node.hyper )
         {
@@ -27,7 +27,7 @@ class KindaPerl6::Visitor::Hyper {
                 code      => 'map',
                 arguments => [
                     ::Sub( 
-                        sig   => ::Sig( positional => [ ], named => [ ] ),
+                        sig   => ::Sig( positional => [ ], named => [ ] ),  
                         block => [
                             ::Call( 
                                 invocant  => ::Var( sigil => '$', twigil => '', name => '_' ),

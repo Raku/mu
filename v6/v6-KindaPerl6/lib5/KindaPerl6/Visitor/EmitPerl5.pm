@@ -3,7 +3,7 @@ use v5;
 use strict;
 use MiniPerl6::Perl5::Runtime;
 use MiniPerl6::Perl5::Match;
-package KindaPerl6::Visitor::EmitPerl5; sub new { shift; bless { @_ }, "KindaPerl6::Visitor::EmitPerl5" } sub visit { my $self = shift; my $List__ = \@_; my $node; my $node_name; my $data; do {  $node = $List__->[0];  $node_name = $List__->[1];  $data = $List__->[2]; [$node, $node_name, $data] }; $node->emit_perl5() }
+package KindaPerl6::Visitor::EmitPerl5; sub new { shift; bless { @_ }, "KindaPerl6::Visitor::EmitPerl5" } sub visit { my $self = shift; my $List__ = \@_; my $node; my $node_name; do {  $node = $List__->[0];  $node_name = $List__->[1]; [$node, $node_name] }; $node->emit_perl5() }
 ;
 package CompUnit; sub new { shift; bless { @_ }, "CompUnit" } sub name { @_ == 1 ? ( $_[0]->{name} ) : ( $_[0]->{name} = $_[1] ) }; sub attributes { @_ == 1 ? ( $_[0]->{attributes} ) : ( $_[0]->{attributes} = $_[1] ) }; sub methods { @_ == 1 ? ( $_[0]->{methods} ) : ( $_[0]->{methods} = $_[1] ) }; sub body { @_ == 1 ? ( $_[0]->{body} ) : ( $_[0]->{body} = $_[1] ) }; sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('package ' . ($self->{name} . ('; ' . ('sub new { shift; bless { @_ }, "' . ($self->{name} . ('" }' . (' ' . Main::join([ map { $_->emit_perl5() } @{ $self->{body} } ], '; ')))))))) }
 ;

@@ -5,11 +5,12 @@ class KindaPerl6::Visitor::Perl {
 
     # This visitor builds a ".perl" representation of the AST
 
-    method visit ( $node, $node_name, $data ) {
+    method visit ( $node, $node_name ) {
         my $result := '';
         #my $item;
         #my $subitem;
         $result := $result ~ "::" ~ $node_name ~ "( ";
+        my $data := $node.attribs;
         for keys %($data) -> $item {
             $result := $result ~ " " ~ $item ~ " => ";
             if ($data{$item}).isa('Array') {

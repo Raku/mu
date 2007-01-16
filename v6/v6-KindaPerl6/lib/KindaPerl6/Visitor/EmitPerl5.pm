@@ -5,7 +5,7 @@ class KindaPerl6::Visitor::EmitPerl5 {
 
     # This visitor is a perl5 emitter
     
-    method visit ( $node, $node_name, $data ) {
+    method visit ( $node, $node_name ) {
         $node.emit_perl5;
     };
 

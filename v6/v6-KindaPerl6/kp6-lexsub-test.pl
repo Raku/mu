@@ -43,10 +43,11 @@ while ( $pos < length( $source ) ) {
     #say( "Source code:", $source );
     my $p = MiniPerl6::Grammar->comp_unit($source, $pos);
     #say( Main::perl( $$p ) );
-    map { $_->emit( $visitor_lexical_sub ) } ($$p);
+    my @ast;
+    @ast = map { $_->emit( $visitor_lexical_sub ) } ($$p);
     
-    print Dumper ( $$p );
-    my @hyper = map { $_->emit( $visitor_hyper )       } ($$p);
+    print Dumper ( @ast );
+    my @hyper = map { $_->emit( $visitor_hyper )       } @ast;
     print Dumper( @hyper );
     say( join( ";\n", (map { $_->emit( $visitor_dump_ast    ) } @hyper )));
 
