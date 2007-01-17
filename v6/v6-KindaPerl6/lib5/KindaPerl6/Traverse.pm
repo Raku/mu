@@ -27,7 +27,7 @@ package Lit::Array; sub new { shift; bless { @_ }, "Lit::Array" } sub array { @_
 ;
 package Lit::Hash; sub new { shift; bless { @_ }, "Lit::Hash" } sub hash { @_ == 1 ? ( $_[0]->{hash} ) : ( $_[0]->{hash} = $_[1] ) }; sub emit { my $self = shift; my $List__ = \@_; my $visitor; do {  $visitor = $List__->[0]; [$visitor] }; KindaPerl6::Traverse::visit($visitor, $self, 'Lit::Hash') }; sub attribs { my $self = shift; my $List__ = \@_; do { [] }; { 'hash' => $self->{hash}, } }
 ;
-package Lit::Code; sub new { shift; bless { @_ }, "Lit::Code" } 1
+package Lit::Code; sub new { shift; bless { @_ }, "Lit::Code" } sub pad { @_ == 1 ? ( $_[0]->{pad} ) : ( $_[0]->{pad} = $_[1] ) }; sub state { @_ == 1 ? ( $_[0]->{state} ) : ( $_[0]->{state} = $_[1] ) }; sub sig { @_ == 1 ? ( $_[0]->{sig} ) : ( $_[0]->{sig} = $_[1] ) }; sub body { @_ == 1 ? ( $_[0]->{body} ) : ( $_[0]->{body} = $_[1] ) }; sub emit { my $self = shift; my $List__ = \@_; my $visitor; do {  $visitor = $List__->[0]; [$visitor] }; KindaPerl6::Traverse::visit($visitor, $self, 'Lit::Code') }; sub attribs { my $self = shift; my $List__ = \@_; do { [] }; { 'pad' => $self->{pad},'state' => $self->{state},'sig' => $self->{sig},'body' => $self->{body}, } }
 ;
 package Lit::Object; sub new { shift; bless { @_ }, "Lit::Object" } sub class { @_ == 1 ? ( $_[0]->{class} ) : ( $_[0]->{class} = $_[1] ) }; sub fields { @_ == 1 ? ( $_[0]->{fields} ) : ( $_[0]->{fields} = $_[1] ) }; sub emit { my $self = shift; my $List__ = \@_; my $visitor; do {  $visitor = $List__->[0]; [$visitor] }; KindaPerl6::Traverse::visit($visitor, $self, 'Lit::Object') }; sub attribs { my $self = shift; my $List__ = \@_; do { [] }; { 'class' => $self->{class},'fields' => $self->{fields}, } }
 ;

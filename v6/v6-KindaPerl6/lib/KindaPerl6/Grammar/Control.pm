@@ -26,16 +26,16 @@ token if {
             return ::If( 
                 'cond' => $$<exp>, 
                 'body' => ::Lit::Code(
-                    %.pad   => { },
-                    %.state => { },
-                    $.sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
-                    @.body  => $$<exp_stmts>,
+                    pad   => { },
+                    state => { },
+                    sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
+                    body  => $$<exp_stmts>,
                 ), 
                 'otherwise' => ::Lit::Code(
-                    %.pad   => { },
-                    %.state => { },
-                    $.sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
-                    @.body  => $$<exp_stmts2>,
+                    pad   => { },
+                    state => { },
+                    sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
+                    body  => $$<exp_stmts2>,
                 ),
             );
         }
@@ -44,10 +44,10 @@ token if {
             return ::If( 
                 'cond' => $$<exp>, 
                 'body' => ::Lit::Code(
-                    %.pad   => { },
-                    %.state => { },
-                    $.sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
-                    @.body  => $$<exp_stmts>,
+                    pad   => { },
+                    state => { },
+                    sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
+                    body  => $$<exp_stmts>,
                 ), 
                 'otherwise' => undef,
              ) 
@@ -61,10 +61,10 @@ token when {
         return ::When( 
             'parameters' => $$<exp_seq>, 
             'body' => ::Lit::Code(
-                    %.pad   => { },
-                    %.state => { },
-                    $.sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
-                    @.body  => $$<exp_stmts>,
+                    pad   => { },
+                    state => { },
+                    sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
+                    body  => $$<exp_stmts>,
                 ),
             ) }
 };
@@ -76,10 +76,10 @@ token for {
             'cond' => $$<exp>, 
             'topic' => $$<var>, 
             'body' => ::Lit::Code(
-                    %.pad   => { },
-                    %.state => { },
-                    $.sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
-                    @.body  => $$<exp_stmts>,
+                    pad   => { },
+                    state => { },
+                    sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
+                    body  => $$<exp_stmts>,
                 ),
             ) }
 };
@@ -90,10 +90,10 @@ token while {
         return ::While( 
             'cond' => $$<exp>, 
             'body' => ::Lit::Code(
-                    %.pad   => { },
-                    %.state => { },
-                    $.sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
-                    @.body  => $$<exp_stmts>,
+                    pad   => { },
+                    state => { },
+                    sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
+                    body  => $$<exp_stmts>,
                 ),
             ) }
 };

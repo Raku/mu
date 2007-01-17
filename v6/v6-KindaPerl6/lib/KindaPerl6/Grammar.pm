@@ -4,7 +4,7 @@ grammar MiniPerl6::Grammar {
 
 use MiniPerl6::Grammar::Regex;
 use MiniPerl6::Grammar::Mapping;
-use MiniPerl6::Grammar::Control;
+use KindaPerl6::Grammar::Control;
 
 # XXX - move to v6.pm emitter
 #sub array($data)    { use v5; @$data; use v6; };
@@ -92,10 +92,10 @@ token comp_unit {
             'attributes'  => { },
             'methods'     => { },
             'body'        => ::Lit::Code(
-                %.pad   => { },
-                %.state => { },
-                $.sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
-                @.body  => $$<exp_stmts>,
+                pad   => { },
+                state => { },
+                sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
+                body  => $$<exp_stmts>,
             ),
         )
     }
@@ -259,11 +259,11 @@ token term {
         { 
             return ::Do( 
                 'block' => ::Lit::Code(
-                    %.pad   => { },
-                    %.state => { },
-                    $.sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
-                    @.body  => $$<exp_stmts>,
-                )
+                    pad   => { },
+                    state => { },
+                    sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
+                    body  => $$<exp_stmts>,
+                ),
             );
         }   # do { stmt; ... }
     | <declarator> <?ws> <opt_type> <?opt_ws> <var>   # my Int $variable
@@ -515,10 +515,10 @@ token method {
         return ::Method( 
             'name'  => $$<opt_name>, 
             'block' => ::Lit::Code(
-                %.pad   => { },
-                %.state => { },
-                $.sig   => $$<method_sig>,
-                @.body  => $$<exp_stmts>,
+                pad   => { },
+                state => { },
+                sig   => $$<method_sig>,
+                body  => $$<exp_stmts>,
             ),
         );
     }
@@ -535,10 +535,10 @@ token sub {
         return ::Sub( 
             'name'  => $$<opt_name>, 
             'block' => ::Lit::Code(
-                %.pad   => { },
-                %.state => { },
-                $.sig   => $$<method_sig>,
-                @.body  => $$<exp_stmts>,
+                pad   => { },
+                state => { },
+                sig   => $$<method_sig>,
+                body  => $$<exp_stmts>,
             ),
         );
     }
