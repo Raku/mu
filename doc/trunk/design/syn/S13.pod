@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 2 Nov 2004
-  Last Modified: 18 Aug 2006
+  Last Modified: 17 Jan 2007
   Number: 13
-  Version: 5
+  Version: 6
 
 =head1 Overview
 
@@ -62,21 +62,6 @@ strings so you can handle various ligatures, you can say:
     multi sub *infix:<~>(Str $s1, ArabicStr $s2) {...}
     multi sub *infix:<~>(ArabicStr $s1, Str $s2) {...}
 
-Binary operators may be declared as commutative:
-
-    multi sub infix:<+> (Us $us, Them $them) is commutative { myadd($us,$them) }
-
-That's equivalent to:
-
-    multi sub infix:<+> (Us $us, Them $them) { myadd($us,$them) }
-    multi sub infix:<+> (Them $them, Us $us) { myadd($us,$them) }
-
-Note the lack of C<*> on those definitions.  That means this definition
-of addition is only in effect within the scope of the package in which
-C<< infix:<+> >> is defined.  Similar constraints apply to lexically scoped
-multi subs.  Generally you want to put your multi subs into the C<*>
-space, however, so that they work everywhere.
-
 The C<use overload> syntax had one benefit over Perl 6's syntax in that
 it was easy to alias several different operators to the same service
 routine.  This can easily be handled with Perl 6's aliasing:
@@ -86,6 +71,46 @@ routine.  This can easily be handled with Perl 6's aliasing:
     &infix:<-> ::= &unimpl;
     &infix:<*> ::= &unimpl;
     &infix:</> ::= &unimpl;
+
+That's one solution, but often your alternatives all have the same
+name, and vary instead in their signature.  Some operators are
+commutative, or can otherwise take their arguments in more than
+one order.  Perl allows you to declare multiple signatures for a
+given body, and these will be pattern matched as if you had declared
+separate multi entries.  If you say:
+
+    multi sub infix:<+> (Us $us, Them $them) |
+                        (Them $them, Us $us) { myadd($us,$them) }
+
+that's equivalent to:
+
+    multi sub infix:<+> (Us $us, Them $them) { myadd($us,$them) }
+    multi sub infix:<+> (Them $them, Us $us) { myadd($us,$them) }
+
+except that there really is only one body.  If you declared a C<state>
+variable within the body, for instance, there would only be one
+of them.
+
+Note the lack of C<*> on the definitions above.  That means this definition
+of addition is syntactically in effect only within the scope in which
+C<< infix:<+> >> is defined or imported.  Similar constraints apply
+to lexically scoped multi subs.  Generally you want to put your multi
+subs into the C<*> space, however, so that they work everywhere.
+
+When you use the multiple signature syntax, the alternate signatures
+must all bind the same set of formal variable names, though they
+are allowed to vary in any other way, such as by type, or by which
+parameters are considered optional or named-only or slurpy.  In other
+words, the compiler is allowed to complain if any of the alternatives
+omits any of the variable names.  This is intended primarily to catch
+editing errors.
+
+Conjectural: If the first parameter to a multi signature is followed
+by an invocant colon, that signature represents two signatures, one
+for an ordinary method definition, and one for the corresponding multi
+definition that has a comma instead of the colon.  This form is legal
+only where the standard method definition would be legal, and only
+if any declared type of the first parameter is consistent with $?CLASS.
 
 =head1 Fallbacks
 
