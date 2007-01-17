@@ -18,6 +18,7 @@ use KindaPerl6::Traverse;
 use KindaPerl6::Visitor::LexicalSub;
 use KindaPerl6::Visitor::Perl;
 use KindaPerl6::Visitor::EmitPerl5;
+use KindaPerl6::Visitor::MetaClass;
 
 use MiniPerl6::Grammar::Regex;
 use MiniPerl6::Emitter::Token;
@@ -30,18 +31,24 @@ say( "use v5;" );
 say( "use strict;" );
 say( "use MiniPerl6::Perl5::Runtime;" );
 say( "use MiniPerl6::Perl5::Match;" );
+say( "use Class::MOP;" );
+
+say( "package Class::MOP::Class;" );
+say( "sub HOW { (shift)->meta( \@_ ) }" );
 
 my $visitor_lexical_sub = KindaPerl6::Visitor::LexicalSub->new();
 my $visitor_dump_ast    = KindaPerl6::Visitor::Perl->new();
 my $visitor_emit_perl5  = KindaPerl6::Visitor::EmitPerl5->new();
+my $visitor_metamodel   = KindaPerl6::Visitor::MetaClass->new();
 
 while ( $pos < length( $source ) ) {
     #say( "Source code:", $source );
     my $p = MiniPerl6::Grammar->comp_unit($source, $pos);
     #say( Main::perl( $$p ) );
-    map { $_->emit( $visitor_lexical_sub ) } ($$p);
+    my @ast = map { $_->emit( $visitor_lexical_sub ) } ($$p);
+    @ast = map { $_->emit( $visitor_metamodel )       } @ast;
     #say( join( ";\n", (map { $_->emit( $visitor_dump_ast    ) } ($$p) )));
-    say( join( ";\n", (map { $_->emit( $visitor_emit_perl5  ) } ($$p) )));
+    say( join( ";\n", (map { $_->emit( $visitor_emit_perl5  ) } (@ast) )));
 
     #say( $p->to, " -- ", length($source) );
     say( ";" );

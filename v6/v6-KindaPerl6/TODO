@@ -4,8 +4,9 @@ The kp6 Milestones are:
 
 - finish kp6-spec
 - lexical subs 
-- lexical classes
 - metamodel interface
+  - bootstrap == kp6-2
+- lexical classes
 - begin blocks
 - containers
 
@@ -14,14 +15,21 @@ Visitor modules:
 - add variable declarations collector
   - move variable declarations to the start of each block
 
-- move subroutine declarations into variables
-  LexicalSub.pm
+- LexicalSub.pm
   - add 'our' subs to the namespace, if there is one
-  - recurse into expressions and blocks
-  - verify the interface with native p5 subs
+  - verify the interface with native p5 subs, such as 'Main::say'
+  - only create a "lexical sub" call if the sub is in scope
 
-- add metamodel API
-
+- MetaClass.pm
+  - add class variables
+  - test bootstrap
+  - roles
+  - alias Class::MOP's 'meta' to 'HOW'
+    ---
+    package Class::MOP::Class;
+    sub meta { Class::MOP::Class->initialize(blessed($_[0]) || $_[0]) }  
+    ---
+    
 Other:
 
 - star/GLOBAL namespace 
@@ -36,3 +44,4 @@ For later:
 - temp/state desugaring, for perl5
 
 - 6-on-6 design
+  - full-ast

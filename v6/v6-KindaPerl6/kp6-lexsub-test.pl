@@ -19,6 +19,7 @@ use KindaPerl6::Visitor::LexicalSub;
 use KindaPerl6::Visitor::Perl;
 use KindaPerl6::Visitor::EmitPerl5;
 use KindaPerl6::Visitor::Hyper;
+use KindaPerl6::Visitor::MetaClass;
 
 use MiniPerl6::Grammar::Regex;
 use MiniPerl6::Emitter::Token;
@@ -36,6 +37,7 @@ my $visitor_lexical_sub = KindaPerl6::Visitor::LexicalSub->new();
 my $visitor_dump_ast    = KindaPerl6::Visitor::Perl->new();
 my $visitor_hyper       = KindaPerl6::Visitor::Hyper->new();
 my $visitor_emit_perl5  = KindaPerl6::Visitor::EmitPerl5->new();
+my $visitor_metamodel   = KindaPerl6::Visitor::MetaClass->new();
 
 use Data::Dumper;
 
@@ -46,9 +48,9 @@ while ( $pos < length( $source ) ) {
     my @ast;
     @ast = map { $_->emit( $visitor_lexical_sub ) } ($$p);
     
-    print Dumper ( @ast );
-    my @hyper = map { $_->emit( $visitor_hyper )       } @ast;
-    print Dumper( @hyper );
+    #print Dumper ( @ast );
+    my @hyper = map { $_->emit( $visitor_metamodel )       } @ast;
+    #print Dumper( @hyper );
     say( join( ";\n", (map { $_->emit( $visitor_dump_ast    ) } @hyper )));
 
     #say( join( ";\n", (map { $_->emit( $visitor_dump_ast    ) } ($$p) )));

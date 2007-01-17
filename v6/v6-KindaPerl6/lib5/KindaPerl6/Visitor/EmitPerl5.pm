@@ -5,6 +5,8 @@ use MiniPerl6::Perl5::Runtime;
 use MiniPerl6::Perl5::Match;
 package KindaPerl6::Visitor::EmitPerl5; sub new { shift; bless { @_ }, "KindaPerl6::Visitor::EmitPerl5" } sub visit { my $self = shift; my $List__ = \@_; my $node; my $node_name; do {  $node = $List__->[0];  $node_name = $List__->[1]; [$node, $node_name] }; $node->emit_perl5() }
 ;
+package Module; sub new { shift; bless { @_ }, "Module" } sub name { @_ == 1 ? ( $_[0]->{name} ) : ( $_[0]->{name} = $_[1] ) }; sub body { @_ == 1 ? ( $_[0]->{body} ) : ( $_[0]->{body} = $_[1] ) }; sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $a = $self->{body}; my  $item; my  $s; $s = ($s . ('package ' . ($self->{name} . (';' . Main::newline())))); do { for my $item ( @{$a} ) { $s = ($s . ($item->emit_perl5() . (';' . Main::newline()))) } }; return($s) }
+;
 package CompUnit; sub new { shift; bless { @_ }, "CompUnit" } sub name { @_ == 1 ? ( $_[0]->{name} ) : ( $_[0]->{name} = $_[1] ) }; sub attributes { @_ == 1 ? ( $_[0]->{attributes} ) : ( $_[0]->{attributes} = $_[1] ) }; sub methods { @_ == 1 ? ( $_[0]->{methods} ) : ( $_[0]->{methods} = $_[1] ) }; sub body { @_ == 1 ? ( $_[0]->{body} ) : ( $_[0]->{body} = $_[1] ) }; sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('package ' . ($self->{name} . ('; ' . ('sub new { shift; bless { @_ }, "' . ($self->{name} . ('" }' . (' ' . Main::join([ map { $_->emit_perl5() } @{ $self->{body} } ], '; ')))))))) }
 ;
 package Val::Int; sub new { shift; bless { @_ }, "Val::Int" } sub int { @_ == 1 ? ( $_[0]->{int} ) : ( $_[0]->{int} = $_[1] ) }; sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; $self->{int} }

@@ -11,6 +11,24 @@ class KindaPerl6::Visitor::EmitPerl5 {
 
 }
 
+# for MOP emitter:
+
+class Module {
+    has $.name;
+    has @.body;
+    method emit_perl5 {
+        my $a := @.body;
+        my $item;
+        my $s;
+        $s := $s 
+            ~ 'package ' ~ $.name ~ ';' ~ Main::newline();
+        for @$a -> $item {
+            $s := $s ~ $item.emit_perl5 ~ ';' ~ Main::newline();
+        };
+        return $s;
+    }
+}
+
 # from mp6 perl5 emitter:
 
 class CompUnit {

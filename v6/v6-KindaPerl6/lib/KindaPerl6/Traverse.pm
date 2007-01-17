@@ -46,6 +46,24 @@ class KindaPerl6::Traverse {
 
 }
 
+class Module {
+    has $.name;
+    has @.body;
+    method emit( $visitor ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'Module',
+        );
+    };
+    method attribs {
+            { 
+                name    => $.name,
+                body    => @.body,
+            }
+    };
+}
+
 class CompUnit {
     has $.name;
     has %.attributes;
