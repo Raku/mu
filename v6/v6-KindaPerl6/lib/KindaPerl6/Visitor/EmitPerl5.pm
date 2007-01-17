@@ -17,7 +17,7 @@ class Module {
     has $.name;
     has @.body;
     method emit_perl5 {
-        my $a := @.body;
+        my $a := $.body.body;
         my $item;
         my $s;
         $s := $s 

@@ -38,7 +38,7 @@ class KindaPerl6::Visitor::MetaClass {
                 ),
             );
 
-            for @($node.body) -> $item {
+            for @(($node.body).body) -> $item {
 
                 # METHOD
                 if   $item.isa( 'Method' )
@@ -107,7 +107,7 @@ class KindaPerl6::Visitor::MetaClass {
             };
             
             # Everything else
-            for @($node.body) -> $item {
+            for @(($node.body).body) -> $item {
                 if    $item.isa( 'Method' )
                   ||  (  ( $item.isa( 'Decl' ) )
                       && ( $item.decl eq 'has' ) 
@@ -121,7 +121,12 @@ class KindaPerl6::Visitor::MetaClass {
             
             return ::Module( 
                 name => $node.name, 
-                body => $module 
+                body => ::Lit::Code(
+                    pad   => { },
+                    state => { },
+                    sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
+                    body  => $module,
+                ),
             );
             
         };
