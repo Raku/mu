@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 8 Jan 2007
+  Last Modified: 17 Jan 2007
   Number: 3
-  Version: 88
+  Version: 89
 
 =head1 Changes to Perl 5 operators
 
@@ -1373,8 +1373,17 @@ rather than
 (And, in fact, the latter are already easy to express anyway,
 and more obviously nonsensical.)
 
-A reduce operator returns only a scalar result regardless of context.
-To return all intermediate results, backslash the operator:
+Most reduce operators return a simple scalar value, and hence do not care
+whether they are evaluated in item or list context.  However, as with
+other list operators and functions, a reduce operator may return a list
+that will automatically be interpolated into list context, so you may
+use it on infix operators that operate over lists as well as scalars:
+
+    my ($min, $max) = [minmax] @minmaxpairs;
+
+A variant of the reduction metaoperator is pretty much guaranteed
+to produce a list; to lazily generate all intermediate results along
+with the final result, you can backslash the operator:
 
     say [\+] 1..*  #  (1, 3, 6, 10, 15, ...)
 
@@ -1990,7 +1999,7 @@ Perl 6 has 22 precedence levels (which is fewer than Perl 5):
                             !!! ...  ???
                             [+] [*] [<] [\+] [\*] etc.
                             (also = as list assignment)
-    list infix          ¥ <== ==> X XX X~X X*X XeqvX etc.
+    list infix          ¥ <== ==> minmax X XX X~X X*X XeqvX etc.
     loose and           and
     loose or            or xor err
     expr terminator     ; {} as control block, statement modifiers
