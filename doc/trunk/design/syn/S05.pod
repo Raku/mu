@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 16 Jan 2007
+   Last Modified: 17 Jan 2007
    Number: 5
-   Version: 43
+   Version: 44
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -73,14 +73,18 @@ now represents logical alternation with longest-token semantics.
 (You may now use C<||> to indicate the old temporal alternation.  That is,
 C<|> and C<||> now work within regex syntax much the same as they
 do outside of regex syntax, where they represent junctional and
-short-circuit OR.)  Every regex in Perl 6 is required to be able to
+short-circuit OR.  This includes the fact that C<|> has tighter
+precedence than C<||>.)  Every regex in Perl 6 is required to be able to
 return its list of initial constant strings (transitively including the
 initial constant strings of any initial subrule called by that regex).
 A logical alternation using C<|> then takes two or more of these lists
 and dispatches to the alternative that advertises the longest matching
 prefix, not necessarily to the alternative that comes first lexically.
 (However, in the case of a tie between alternatives, the earlier
-alternative does take precedence.)
+alternative does take precedence.)  Backtracking into a constant prefix
+(or into a :: that would backtrack over a constant prefix) causes
+the next longest match to be attempted, even if that is specified
+in a different subrule.
 
 Initial constants must take into account case sensitivity (or any other
 canonicalization primitives) and do the right thing even when propagated
@@ -89,6 +93,18 @@ must continue to represent the set of matches that the lower rule would
 match.  If and when the optimizer turns such a list of prefixes into,
 say, a trie, the trie must continue to have the appropriate semantics
 for the originating rule.
+
+The C<||> form has the old short-circuit semantics, and will not
+attempt to match its right side unless all possibilities (including
+all C<|> possibilities) are exhausted on its left.  The first C<||>
+in a regex makes constant strings on its left available to the
+outer longest-token matcher, but hides any subsequent tests from
+longest-token matching.  Every C<||> establishes a new longest-token
+table.  That is, if you use C<|> on the right side of C<||>, that
+right side establishes a new top level for longest-token processing
+for this subexpression and any called subrules.  The right side's
+longest-token list is invisible to the left of the C<||> or outside
+the regex containing the C<||>.
 
 =head1 Modifiers
 
@@ -506,11 +522,13 @@ As with the disjunctions C<|> and C<||>, conjuctions come in both
 C<&> and C<&&> forms.  The C<&> form allows the compiler and/or the
 run-time system to decide which parts to evaluate first, and it is
 erroneous to assume either order happens consistently.  The C<&&>
-form short-circuits, and backtracking makes the right argument vary
-faster than the left.
+form guarantees left-to-right order, and backtracking makes the right
+argument vary faster than the left.
 
-The C<&> and C<&&> operators are list associative like C<|> and C<||>,
-but have tighter precedence.
+The C<&> operator is list associative like C<|>, but has slightly
+tighter precedence.  Likewise C<&&> has slightly tighter precedence
+than C<||>.  As with the normal junctional and short-circuit operators,
+C<&> and C<|> are both tighter than C<&&> and C<||>.
 
 =back
 
