@@ -20,6 +20,10 @@ supply a nick and an IRC server to connect to:
 
     $ pugs evalbot.pl evalbot6 irc.freenode.net:6667
 
+To invite the bot to a channel, msg the bot from your IRC client:
+
+    /msg evalbot6 ?join #perl6
+
 You don't have to restart C<evalbot.pl> when you install a new Pugs, as a new
 C<pugs> is spawned on each command to eval.
 
