@@ -231,8 +231,26 @@ class Lit::Hash {
 }
 
 class Lit::Code {
-    # XXX
-    1;
+    has %.pad;         #  is Mapping of Type; # All my/state/parameter variables
+    has %.state;       #  is Mapping of Exp;  # State initializers, run upon first entry 
+    has $.sig;         #  is Sig              # Signature
+    has @.body;        #  is Seq of Exp;      # Code body 
+    #has @.parameters;  #  is Seq of Exp;      # Signature
+    method emit( $visitor ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'Lit::Code',
+        );
+    };
+    method attribs {
+            { 
+                pad   => %.pad,
+                state => %.state,
+                sig   => $.sig,
+                body  => @.body,
+            }
+    };
 }
 
 class Lit::Object {

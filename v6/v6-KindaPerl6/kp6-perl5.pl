@@ -33,8 +33,9 @@ say( "use MiniPerl6::Perl5::Runtime;" );
 say( "use MiniPerl6::Perl5::Match;" );
 say( "use Class::MOP;" );
 
-say( "package Class::MOP::Class;" );
-say( "sub HOW { (shift)->meta( \@_ ) }" );
+say( '$_->alias_method("HOW" => sub { (shift)->meta }) foreach Class::MOP::get_all_metaclass_instances;' );
+# say( "package Class::MOP::Class;" );
+# say( "sub HOW { (shift)->meta( \@_ ) }" );
 
 my $visitor_lexical_sub = KindaPerl6::Visitor::LexicalSub->new();
 my $visitor_dump_ast    = KindaPerl6::Visitor::Perl->new();

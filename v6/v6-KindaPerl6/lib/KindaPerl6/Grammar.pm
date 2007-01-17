@@ -91,7 +91,12 @@ token comp_unit {
             'name'        => $$<full_ident>,
             'attributes'  => { },
             'methods'     => { },
-            'body'        => $$<exp_stmts>,
+            'body'        => ::Lit::Code(
+                %.pad   => { },
+                %.state => { },
+                $.sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
+                @.body  => $$<exp_stmts>,
+            ),
         )
     }
 };
@@ -251,7 +256,16 @@ token term {
             'index' => ::Val::Buf( 'buf' => $$<sub_or_method_name> ) 
         ) }   # $<ident>
     | do <?opt_ws> \{ <?opt_ws> <exp_stmts> <?opt_ws> \}
-        { return ::Do( 'block' => $$<exp_stmts> ) }   # do { stmt; ... }
+        { 
+            return ::Do( 
+                'block' => ::Lit::Code(
+                    %.pad   => { },
+                    %.state => { },
+                    $.sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
+                    @.body  => $$<exp_stmts>,
+                )
+            );
+        }   # do { stmt; ... }
     | <declarator> <?ws> <opt_type> <?opt_ws> <var>   # my Int $variable
         { return ::Decl( 'decl' => $$<declarator>, 'type' => $$<opt_type>, 'var' => $$<var> ) }
     | use <?ws> <full_ident>  [ - <ident> | <''> ]
@@ -498,7 +512,15 @@ token method {
     [   \}     | { say '*** Syntax Error in method \'', get_class_name(), '.', $$<name>, '\' near pos=', $/.to; die 'error in Block'; } ]
     {
         # say ' block: ', ($$<exp_stmts>).perl;
-        return ::Method( 'name' => $$<opt_name>, 'sig' => $$<method_sig>, 'block' => $$<exp_stmts> );
+        return ::Method( 
+            'name'  => $$<opt_name>, 
+            'block' => ::Lit::Code(
+                %.pad   => { },
+                %.state => { },
+                $.sig   => $$<method_sig>,
+                @.body  => $$<exp_stmts>,
+            ),
+        );
     }
 };
 
@@ -509,7 +531,17 @@ token sub {
     <?opt_ws> \{ <?opt_ws>  
           <exp_stmts> <?opt_ws> 
     [   \}     | { say '*** Syntax Error in sub \'', $$<name>, '\''; die 'error in Block'; } ]
-    { return ::Sub( 'name' => $$<opt_name>, 'sig' => $$<method_sig>, 'block' => $$<exp_stmts> ) }
+    { 
+        return ::Sub( 
+            'name'  => $$<opt_name>, 
+            'block' => ::Lit::Code(
+                %.pad   => { },
+                %.state => { },
+                $.sig   => $$<method_sig>,
+                @.body  => $$<exp_stmts>,
+            ),
+        );
+    }
 };
 
 }
