@@ -16,7 +16,7 @@ Allison Randal <al@shadowed.net>
    Date: 24 Jun 2002
    Last Modified: 17 Jan 2007
    Number: 5
-   Version: 44
+   Version: 45
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -68,43 +68,7 @@ Minimal matching suffix:   ??,  *?,  +?
 =back
 
 While the syntax of C<|> does not change, the default semantics do
-change slightly.   Instead of representing temporal alternation, C<|>
-now represents logical alternation with longest-token semantics.
-(You may now use C<||> to indicate the old temporal alternation.  That is,
-C<|> and C<||> now work within regex syntax much the same as they
-do outside of regex syntax, where they represent junctional and
-short-circuit OR.  This includes the fact that C<|> has tighter
-precedence than C<||>.)  Every regex in Perl 6 is required to be able to
-return its list of initial constant strings (transitively including the
-initial constant strings of any initial subrule called by that regex).
-A logical alternation using C<|> then takes two or more of these lists
-and dispatches to the alternative that advertises the longest matching
-prefix, not necessarily to the alternative that comes first lexically.
-(However, in the case of a tie between alternatives, the earlier
-alternative does take precedence.)  Backtracking into a constant prefix
-(or into a :: that would backtrack over a constant prefix) causes
-the next longest match to be attempted, even if that is specified
-in a different subrule.
-
-Initial constants must take into account case sensitivity (or any other
-canonicalization primitives) and do the right thing even when propagated
-up to rules that don't have the same canonicalization.  That is, they
-must continue to represent the set of matches that the lower rule would
-match.  If and when the optimizer turns such a list of prefixes into,
-say, a trie, the trie must continue to have the appropriate semantics
-for the originating rule.
-
-The C<||> form has the old short-circuit semantics, and will not
-attempt to match its right side unless all possibilities (including
-all C<|> possibilities) are exhausted on its left.  The first C<||>
-in a regex makes constant strings on its left available to the
-outer longest-token matcher, but hides any subsequent tests from
-longest-token matching.  Every C<||> establishes a new longest-token
-table.  That is, if you use C<|> on the right side of C<||>, that
-right side establishes a new top level for longest-token processing
-for this subexpression and any called subrules.  The right side's
-longest-token list is invisible to the left of the C<||> or outside
-the regex containing the C<||>.
+change slightly.  See the section below on "Longest-token matching".
 
 =head1 Modifiers
 
@@ -654,13 +618,12 @@ An interpolated hash matches the longest possible key of the hash
 as a literal, or fails if no key matches.  (A C<""> key will match
 anywhere, provided no longer key matches.)
 
-In a context requiring a set of initial constant strings, the keys
-of the hash comprise that set of strings, and any subsequent matching
-performed by the hash values is not considered a part of those strings,
-even if that subsequent match begins by matching more constant string.
-The keys are considered to be canonicalized in the same way as any
-surrounding context, so for instance within a case-insensitive context
-the hash keys must match insensitively also.
+In a context requiring a set of initial token patterns, the initial
+token patterns are taken to be each key plus any initial token pattern
+matched by the corresponding value (if the value is a string or regex).
+The token patterns are considered to be canonicalized in the same way
+as any surrounding context, so for instance within a case-insensitive
+context the hash keys must match insensitively also.
 
 Subsequent matching depends on the hash value:
 
@@ -1533,6 +1496,107 @@ case matching the null string:
      /a|b|c|$something/;
 
 =back
+
+=head1 Longest-token matching
+
+Instead of representing temporal alternation, C<|> now represents
+logical alternation with longest-token semantics.  (You may now use
+C<||> to indicate the old temporal alternation.  That is, C<|> and
+C<||> now work within regex syntax much the same as they do outside
+of regex syntax, where they represent junctional and short-circuit OR.
+This includes the fact that C<|> has tighter precedence than C<||>.)
+
+Historically regex processing has proceeded in Perl via an NFA
+algorithm.  This is quite powerful, but many parsers work more
+efficiently by processing rules in parallel rather than one after
+another, at least up to a point.  If you look at something like a
+yacc grammar, you find a lot of pattern/action declarations where the
+patterns are considered in parallel, and eventually the grammar decides
+which action to fire off.  While the default Perl view of parsing is
+essentially top-down (perhaps with a bottom-up "middle layer" to handle
+operator precedence), it is extremely useful for user understanding
+if at least the token processing proceeds deterministically.  So for
+regex matching purposes we define token patterns as those patterns
+containing no whitespace that can be matched without side effects
+or self-reference.
+
+To that end, every regex in Perl 6 is required to be able to
+distinguish its "pure" patterns from its actions, and return its
+list of initial token patterns (transitively including the token
+patterns of any subrule called by the "pure" part of that regex, but
+not including any subrule more than once, since that would involve
+self reference).  A logical alternation using C<|> then takes two or
+more of these lists and dispatches to the alternative that matches
+the longest token prefix.  This may or may not be the alternative
+that comes first lexically.  (However, in the case of a tie between
+alternatives, the textually earlier alternative does take precedence.)
+
+This longest token prefix corresponds roughly to the notion of "token"
+in other parsing systems that use a lexer, but in the case of Perl
+this is largely an epiphenomenon derived automatically from the grammar
+definition.  However, despite being automatically calculated, the set of
+tokens can be modified by the user; various
+constructs within a regex declaratively tell the grammar engine that
+it is finished with the pattern part and starting in on the side effects,
+so by inserting such constructs the user controls what is considered
+a token and what is not.  The constructs deemed to terminate a token
+pattern and start the "action" part of the pattern include:
+
+=over
+
+=item *
+
+Any :: or ::: backtracking control (but not the : possessive modifier).
+
+=item *
+
+Any {...} action or assertion containing a closure.
+
+=item *
+
+Any part of the regex that might match whitespace, including whitespace
+implicitly matched via C<:sigspace>.
+
+=item *
+
+Any sequential control flow operator such as C<||> or C<&&>.
+
+=back
+
+Subpatterns (captures) specifically do not terminate the token pattern,
+but may require a reparse of the token via NFA to find the location
+of the subpatterns.
+
+Oddly enough, the C<token> keyword specifically does not determine
+the scope of a token, except insofar as a token pattern usually
+doesn't do any matching of whitespace.  In contrast, the C<rule>
+keyword (which assumes C<:sigspace>) defines a pattern that tends
+to disqualify itself on the first whitespace.  So most of the token
+patterns will end up coming from C<token> declarations.  For instance,
+a token declaration such as
+
+    token list_composer { \[ <expr> \] }
+
+considers its "longest token" to be just the left square bracket, because
+the first thing the C<expr> rule will do is traverse optional whitespace.
+
+Initial tokens must take into account case sensitivity (or any other
+canonicalization primitives) and do the right thing even when propagated
+up to rules that don't have the same canonicalization.  That is, they
+must continue to represent the set of matches that the lower rule would
+match.
+
+The C<||> form has the old short-circuit semantics, and will not
+attempt to match its right side unless all possibilities (including
+all C<|> possibilities) are exhausted on its left.  The first C<||>
+in a regex makes the token patterns on its left available to the
+outer longest-token matcher, but hides any subsequent tests from
+longest-token matching.  Every C<||> establishes a new longest-token
+matcher.  That is, if you use C<|> on the right side of C<||>, that
+right side establishes a new top level DFA for longest-token processing
+for this subexpression and any called subrules.  The right side's
+longest-token list is invisible to the left of the C<||> or outside
+the regex containing the C<||>.
 
 =head1 Return values from matches
 
