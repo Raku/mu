@@ -22,7 +22,14 @@ supply a nick and an IRC server to connect to:
 
 To invite the bot to a channel, msg the bot from your IRC client:
 
-    /msg evalbot6 ?join #perl6
+    /msg evalbot6 ?join #channelname
+
+For #perl6, there is a special auto-upgrading version of the bot that
+restarts when pugs on feather recompiles.  To start this process:
+
+    $ perl examples/network/evalbot/evalbot-loop
+
+It will automatically join #perl6 on freenode.irc.net.
 
 You don't have to restart C<evalbot.pl> when you install a new Pugs, as a new
 C<pugs> is spawned on each command to eval.
