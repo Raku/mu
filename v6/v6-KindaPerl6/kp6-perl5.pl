@@ -46,7 +46,9 @@ while ( $pos < length( $source ) ) {
     #say( "Source code:", $source );
     my $p = MiniPerl6::Grammar->comp_unit($source, $pos);
     #say( Main::perl( $$p ) );
-    my @ast = map { $_->emit( $visitor_lexical_sub ) } ($$p);
+    my @ast = $$p;
+    
+    @ast = map { $_->emit( $visitor_lexical_sub )     } @ast;
     @ast = map { $_->emit( $visitor_metamodel )       } @ast;
     #say( join( ";\n", (map { $_->emit( $visitor_dump_ast    ) } ($$p) )));
     say( join( ";\n", (map { $_->emit( $visitor_emit_perl5  ) } (@ast) )));

@@ -43,12 +43,23 @@ After:
 
 class KindaPerl6::Visitor::LexicalSub {
 
+    has $.env;
+
     method visit ( $node, $node_name ) {
 
         # TODO - add 'our' subs to the namespace, if there is one
 
         if ( $node_name eq 'Lit::Code' ) {
             # TODO - collect lexicals into $node.pad  
+            push @($.env), { };
+            my $result := self.visit( $node.block, $node_name );
+            pop  @($.env);
+            return ::Lit::Code(
+                pad   => $node.pad,
+                state => $node.state,
+                sig   => $node.sig,
+                body  => $result,
+            );
         };
         
         my $data := $node.attribs;

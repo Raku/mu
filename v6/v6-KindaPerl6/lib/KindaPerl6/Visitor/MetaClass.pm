@@ -50,7 +50,7 @@ class KindaPerl6::Visitor::MetaClass {
                             ::Val::Buf( buf => $item.name ),
                             ::Sub(
                                 name  => '',
-                                sig   => $item.sig,
+                                #sig   => $item.sig,
                                 block => $item.block,
                             ),
                         ],

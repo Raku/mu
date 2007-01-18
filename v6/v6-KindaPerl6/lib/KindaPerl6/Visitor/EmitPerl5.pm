@@ -17,15 +17,8 @@ class Module {
     has $.name;
     has @.body;
     method emit_perl5 {
-        my $a := $.body.body;
-        my $item;
-        my $s;
-        $s := $s 
-            ~ 'package ' ~ $.name ~ ';' ~ Main::newline();
-        for @$a -> $item {
-            $s := $s ~ $item.emit_perl5 ~ ';' ~ Main::newline();
-        };
-        return $s;
+          'package ' ~ $.name ~ ';' ~ Main::newline() 
+        ~ @.body.emit_perl5 ~ Main::newline();
     }
 }
 
@@ -37,9 +30,9 @@ class CompUnit {
     has %.methods;
     has @.body;
     method emit_perl5 {
-        'package ' ~ $.name ~ "; " ~ 
-        'sub new { shift; bless { @_ }, "' ~ $.name ~ '" }' ~ " " ~
-        (@.body.>>emit_perl5).join( "; " )
+          'package ' ~ $.name ~ "; " 
+        ~ 'sub new { shift; bless { @_ }, "' ~ $.name ~ '" }' ~ " " 
+        ~ @.body.emit_perl5
     }
 }
 
@@ -102,8 +95,15 @@ class Lit::Hash {
 }
 
 class Lit::Code {
-    # XXX
-    1;
+    method emit_perl5 {
+        return (@.body.>>emit_perl5).join('; ');
+#        my $a := $.body;
+#        my $s;
+#        for @$a -> $item {
+#            $s := $s ~ $item.emit_perl5 ~ ';' ~ Main::newline();
+#        };
+#        return $s;
+    }
 }
 
 class Lit::Object {
@@ -364,7 +364,7 @@ class If {
     has @.body;
     has @.otherwise;
     method emit_perl5 {
-        'do { if (' ~ $.cond.emit_perl5 ~ ') { ' ~ (@.body.>>emit_perl5).join(';') ~ ' } else { ' ~ (@.otherwise.>>emit_perl5).join(';') ~ ' } }';
+        'do { if (' ~ $.cond.emit_perl5 ~ ') { ' ~ (@.body.emit_perl5).join(';') ~ ' } else { ' ~ (@.otherwise.emit_perl5).join(';') ~ ' } }';
     }
 }
 
@@ -379,7 +379,7 @@ class For {
         {
             $cond := ::Apply( code => 'prefix:<@>', arguments => [ $cond ] );
         };
-        'do { for my ' ~ $.topic.emit_perl5 ~ ' ( ' ~ $cond.emit_perl5 ~ ' ) { ' ~ (@.body.>>emit_perl5).join(';') ~ ' } }';
+        'do { for my ' ~ $.topic.emit_perl5 ~ ' ( ' ~ $cond.emit_perl5 ~ ' ) { ' ~ (@.body.emit_perl5).join(';') ~ ' } }';
     }
 }
 
@@ -417,11 +417,11 @@ class Sig {
 
 class Method {
     has $.name;
-    has $.sig;
-    has @.block;
+    #has $.sig;
+    has $.block;
     method emit_perl5 {
         # TODO - signature binding
-        my $sig := $.sig;
+        my $sig := $.block.sig;
         # say "Sig: ", $sig.perl;
         my $invocant := $sig.invocant; 
         # say $invocant.emit_perl5;
@@ -452,18 +452,18 @@ class Method {
         'sub ' ~ $.name ~ ' { ' ~ 
           'my ' ~ $invocant.emit_perl5 ~ ' = shift; ' ~
           $str ~
-          (@.block.>>emit_perl5).join('; ') ~ 
+          ($.block.emit_perl5).join('; ') ~ 
         ' }'
     }
 }
 
 class Sub {
     has $.name;
-    has $.sig;
-    has @.block;
+    #has $.sig;
+    has $.block;
     method emit_perl5 {
         # TODO - signature binding
-        my $sig := $.sig;
+        my $sig := $.block.sig;
         # say "Sig: ", $sig.perl;
         ## my $invocant := $sig.invocant; 
         # say $invocant.emit_perl5;
@@ -497,16 +497,16 @@ class Sub {
         'sub ' ~ $.name ~ ' { ' ~ 
           ## 'my ' ~ $invocant.emit_perl5 ~ ' = $_[0]; ' ~
           $str ~
-          (@.block.>>emit_perl5).join('; ') ~ 
+          ($.block.emit_perl5).join('; ') ~ 
         ' }'
     }
 }
 
 class Do {
-    has @.block;
+    has $.block;
     method emit_perl5 {
         'do { ' ~ 
-          (@.block.>>emit_perl5).join('; ') ~ 
+          ($.block.emit_perl5).join('; ') ~ 
         ' }'
     }
 }

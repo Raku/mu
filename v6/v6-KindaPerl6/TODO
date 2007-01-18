@@ -33,6 +33,12 @@ Visitor modules:
 Other:
 
 - star/GLOBAL namespace 
+    zzz()
+    --> ($_SUB_zzz || $GLOBAL::_SUB_zzz)->(@args)
+    $*foo
+    --> $GLOBAL::foo
+    but:
+    TimToady> under strict there is no fallback to global unless you explicitly import (you also get a snapshot of GLOBAL imported automatically at the start of compilation)
 - OUTER namespace
 
 For later:

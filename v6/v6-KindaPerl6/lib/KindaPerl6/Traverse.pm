@@ -518,8 +518,8 @@ class Sig {
 
 class Method {
     has $.name;
-    has $.sig;
-    has @.block;
+    #has $.sig;
+    has $.block;
     method emit( $visitor ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
@@ -530,15 +530,15 @@ class Method {
     method attribs {
             { 
                 name    => $.name,
-                sig     => $.sig,
-                block   => @.block,
+                #sig     => $.sig,
+                block   => $.block,
             }
     };
 }
 
 class Sub {
     has $.name;
-    has $.sig;
+    #has $.sig;
     has @.block;
     method emit( $visitor ) {
         KindaPerl6::Traverse::visit( 
@@ -550,8 +550,8 @@ class Sub {
     method attribs {
             { 
                 name    => $.name,
-                sig     => $.sig,
-                block   => @.block,
+                #sig     => $.sig,
+                block   => $.block,
             }
     };
 }
