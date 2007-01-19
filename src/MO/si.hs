@@ -8,7 +8,7 @@ import MO.Compile
 import MO.Compile.Class
 import MO.Util
 import Data.Typeable
-import Pugs.Val
+import Pugs.Val hiding (Code)
 import Pugs.Pretty
 import Pugs.Internals
 
@@ -111,12 +111,31 @@ instance Boxable IO Socket where
         ] 
     fromObj (MkInvocant x _) = undefined
 
-
-mkBoxClass cls methods = newMI $ emptyMI
-    { clsPublicMethods = newCollection' methodName $ map mkBoxMethod methods
+mkBoxClass :: forall t (m :: * -> *) (m1 :: * -> *).
+    ( Method m1 (AnyMethod m1)
+    , Code m1 (HsCode m)
+    , Typeable t
+    , Typeable1 m
+    , Monad m
+    , Typeable1 m1
+    , Method m1 (SimpleMethod m1)
+    ) => String -> [(String, t -> m (Invocant m))] -> MI m1
+mkBoxClass cls methods = newMI MkMI
+    { clsParents        = []
+    , clsRoles          = []
+    , clsAttributes     = []
+    , clsPublicMethods  = newCollection' methodName $ map mkBoxMethod methods
+    , clsPrivateMethods = newCollection []
     , clsName = cls
     }
 
+mkBoxMethod :: forall t (m1 :: * -> *) (m :: * -> *).
+    ( Method m (SimpleMethod m)
+    , Code m (HsCode m1)
+    , Typeable t
+    , Typeable1 m1
+    , Monad m1
+    ) => (String, t -> m1 (Invocant m1)) -> AnyMethod m
 mkBoxMethod (meth, fun) = AnyMethod $ MkSimpleMethod
     { smName = meth
     , smDefinition = MkMethodCompiled $ HsCode $ \args -> do
