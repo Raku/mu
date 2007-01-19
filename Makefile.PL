@@ -133,6 +133,7 @@ clean_files     (map fixpaths($_),
     third-party/*/dist
     ),
     object_files("src/Pugs", "src/Pugs/*", "src/Pugs/*/*"),
+    object_files("src/MO", "src/MO/*", "src/MO/*/*"),
 );
 
 set_postamble   ();
