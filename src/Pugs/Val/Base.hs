@@ -1,10 +1,11 @@
-{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances -funbox-strict-fields #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances -funbox-strict-fields -fallow-undecidable-instances #-}
 
 module Pugs.Val.Base where
 
 import qualified Data.ByteString.Char8 as Char8
 
 import Pugs.Internals
+import Pugs.Class
 import {-# SOURCE #-} Pugs.Val
 
 
@@ -32,6 +33,8 @@ class (Monad m, Functor m, Typeable a) => ICoercible m a | a -> m where
     asList _ = Nothing -- default = do nothing (for Scalar this would return its content wrapped in a 1-seq)
     asNative :: a -> m ValNative
     asNative = fmap (NBuf . cast) . asStr
+    classOf :: a -> MI m
+    fromObj :: Invocant m -> m a
 
 type PureList       = Seq Val -- Seq (Either PureSeq PureRange) -- XXX - *very bogus*
 
@@ -106,7 +109,7 @@ instance ICoercible P PureNum where asNum = return . cast
 
 -- PureStr
 
-newtype PureStr = MkStr ByteString deriving
+newtype PureStr = MkStr { unStr :: ByteString } deriving
     ( Typeable, Show, Eq, Ord, Data
     , (:>:) ID, (:<:) ID
     , (:>:) String, (:<:) String
@@ -116,6 +119,10 @@ newtype PureStr = MkStr ByteString deriving
 parseInt :: PureStr -> Int
 parseInt (MkStr s) = maybe 0 fst (Char8.readInt s)
 
+instance (Typeable1 m, Ord a, ICoercible m a) => Boxable m a where
+    fromObjBox = fromObj
+    classOfBox = classOf
+
 instance ICoercible P PureStr where
     asBit (MkStr s)
         | Char8.null s = return $ cast False
@@ -123,4 +130,8 @@ instance ICoercible P PureStr where
     asStr = cast
     asNum = cast . parseInt -- XXX - wrong
     asInt = cast . parseInt
+    fromObj (MkInvocant x _) = undefined
+    classOf _ = mkBoxClass "Str"
+        [ "reverse"    ... (MkStr . Char8.reverse . unStr)
+        ]
 

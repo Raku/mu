@@ -53,11 +53,11 @@ does not provide concrete data type definitions beyond those five.
 
 -- | 'Val' represents what an unconstrained scalar container can hold.
 data Val
-    = VUndef  !ValUndef   -- ^ Values that are false on .defined      (ValId = undef)
-    | VNative !ValNative  -- ^ Values that can fit into an UArray     (ValId = impl.dep.)
-    | forall a. Pure a => VPure !a  -- ^ Values that are immutable    (ValId = pureId)
-    | forall a. Mut a  => VMut  !a  -- ^ In-memory mutable structures (ValId = memory addr)
-    | forall a. Ext a  => VExt  !a  -- ^ Input/Ouput handles          (ValId = memory addr)
+    = VUndef  !ValUndef   -- ^ Values that are false on .defined      (WHICH = undef)
+    | VNative !ValNative  -- ^ Values that can fit into an UArray     (WHICH = impl.dep.)
+    | forall a. Pure a => VPure !a  -- ^ Values that are immutable    (WHICH = pureId)
+    | forall a. Mut a  => VMut  !a  -- ^ In-memory mutable structures (WHICH = memory addr)
+    | forall a. Ext a  => VExt  !a  -- ^ Input/Ouput handles          (WHICH = memory addr)
     deriving (Typeable)
 
 castVal :: forall a m . (Monad m, Typeable a) => Val -> m a
@@ -211,6 +211,7 @@ instance Data NativeComplex where
 -- | Pure values need not be in a monad, but we put them in the trivial
 -- Identity so that they are at the same monadic depth as Mut and Ext.
 type P = Identity
+instance Typeable1 P
 
 class (ICoercible P a, Ord a, Show a) => Pure a where
     purePretty :: a -> Doc

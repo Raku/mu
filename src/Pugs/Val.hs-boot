@@ -23,6 +23,7 @@ type NativeNum      = Float
 newtype NativeComplex = MkNComplex { unComplex :: Complex NativeNum }
 
 type P = Identity
+instance Typeable1 P
 type Table = Map ID Val
 newtype Pad = MkPad { padEntries :: Map Var PadEntry }
 data PadEntry
