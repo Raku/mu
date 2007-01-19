@@ -19,7 +19,7 @@ plan 18;
     # L<S03/Argument List Interpolating/explicitly flatten it in one of/>
     my sub foo ($a, $b, $c) { "$a!$b!$c" }
     dies_ok { &foo.callwith(|$arglist) },
-        "simply arglist creation with \\( works (2)", :todo<feature>;
+        "simply arglist creation with \\( works (2)";
 }
 
 {

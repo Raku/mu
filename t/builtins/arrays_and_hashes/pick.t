@@ -26,8 +26,8 @@ ok ?(1|2|3 == $junc.pick), "pick works on junctions";
 
 my @arr = <z z z>;
 
-is eval('@arr.pick(2)'), <z z>,  'method pick with $num < +@values', :todo<feature>;
-is eval('@arr.pick(4)'), <z z z>, 'method pick with $num > +@values', :todo<feature>;
+is eval('@arr.pick(2)'), <z z>,  'method pick with $num < +@values';
+is eval('@arr.pick(4)'), <z z z>, 'method pick with $num > +@values';
 is eval('@arr.pick(4, :repl)'), <z z z z>, 'method pick(:repl) with $num > +@values', :todo<feature>;
 
 is eval('pick(2, @arr)'), <z z>, 'sub pick with $num < +@values', :todo<feature>;
