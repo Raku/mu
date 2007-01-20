@@ -17,4 +17,5 @@ with one command:
     $ sudo cpan -fi ExtUtils::CBuilder ExtUtils::ParseXS Module::Build \
           Devel::Caller Module::Compile Pugs::Compiler::Rule
 
+(Old versions of cpan will give an "Unknown option: f" error.  This is ok.)
 
