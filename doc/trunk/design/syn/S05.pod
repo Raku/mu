@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 17 Jan 2007
+   Last Modified: 19 Jan 2007
    Number: 5
-   Version: 45
+   Version: 46
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -1326,13 +1326,14 @@ use C<:ratchet> or C<rule> or C<token>.
 
 =item *
 
-Backtracking over a double colon causes the surrounding group of
-alternations to immediately fail:
+Backtracking over a double colon causes the immediately surrounding
+group (usually but not always a group of alternations) to immediately
+fail:
 
      ms/ [ if :: <expr> <block>
-          | for :: <list> <block>
-          | loop :: <loop_controls>? <block>
-          ]
+         | for :: <list> <block>
+         | loop :: <loop_controls>? <block>
+         ]
      /
 
 (i.e. there's no point trying to match a different keyword if one was
@@ -1354,7 +1355,7 @@ outright (no matter where in the regex it occurs):
 
      regex ident {
            ( [<alpha>|_] \w* ) ::: { fail if %reserved{$0} }
-         | " [<alpha>|_] \w* "
+         || " [<alpha>|_] \w* "
      }
 
      ms/ get <ident>? /
@@ -1550,7 +1551,8 @@ Any :: or ::: backtracking control (but not the : possessive modifier).
 
 =item *
 
-Any {...} action or assertion containing a closure.
+Any {...} action, but not an assertion containing a closure, nor a
+C<**{...}> quantifier if the closure returns an immutable selector.
 
 =item *
 
@@ -1565,7 +1567,12 @@ Any sequential control flow operator such as C<||> or C<&&>.
 
 Subpatterns (captures) specifically do not terminate the token pattern,
 but may require a reparse of the token via NFA to find the location
-of the subpatterns.
+of the subpatterns.  Likewise assertions may need to be checked out
+after the longest token is determined.  (Alternately DFA semantics
+may be simulated in any of various ways.)
+
+Ordinary quantifiers and characters classes do not terminate a token pattern.
+Zero-width assertions such as word boundaries also okay.
 
 Oddly enough, the C<token> keyword specifically does not determine
 the scope of a token, except insofar as a token pattern usually
