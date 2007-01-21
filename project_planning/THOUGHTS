@@ -1,0 +1,33 @@
+
+This directory was created to address these problems:
+ - No one knows what the current state of the project is.
+ - It is difficult to determine what people are working on.
+ - No one knows what needs to be done.
+ - No one knows how they can help.
+ - No one knows where we are going, or how we are to get there.
+Perhaps this is a slight overstatement.  But only a slight one.
+
+The project management approach of pugs has been anarchistic
+development.  A flooding algorithm for planning (everyone working on
+whatever development path/aspects appeals to them); active and rapid
+development; continuous communication; and a low commit threshold
+("don't worry about breaking the build, just commit, and we'll fix
+it").  This approach worked well when development was rapid, there
+was a clear primary development thrust, and an active community with
+an up to date and detailed organizational memory.
+
+For several reasons (we haven't been able to pay audreyt to work full
+time being a key one), the main thrust has slowed, the overall pace of
+development has slowed, and the community has become smaller, less
+active, and less tightly informed.  This created negative feedback.
+It became harder to tell what to work on, easier to get stuck, and
+harder to be motivated.  Thus further slowing development and
+shrinking the active community.
+
+I created this directory to increase project transparency.  To make it
+easier for people to see what needs doing, and why.  This is not a
+full solution, but will hopefully mitigate the negative feedback loop,
+helping us make less slow progress until things pick up again.
+
+-- putter 2007-01-20
+----------------------------------------------------------------------
