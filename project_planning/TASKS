@@ -1,3 +1,6 @@
+* Add mp6 and kp6 to src/Pugs.hs so one can say -Bmp6 and -Bkp6.
+  -- putter 2007-01-20
+
 * BROADCAST TASK - Check ./STATUS and see if systems with which you
   are familiar are correctly described.  Skills: be familiar with some
   system. ;)
