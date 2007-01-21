@@ -1,7 +1,7 @@
 use v6-alpha;
 use Set;
 
-sub closure($nfa, $tran, $states) {
+sub epsilon_closure($nfa, $states) {
     my @q = $states.members;
     
     # Why don't I just make @ret a set here, instead of grepping on
@@ -9,22 +9,31 @@ sub closure($nfa, $tran, $states) {
     # it's not true that 2 == 2 anymore.  Yes, very strange.  Try it.
     my @ret;
 
-    @ret.push(@q) if $tran eq '';
-
     while (@q) {
         my $state = @q.shift;
-        for @($nfa{$state}) {
-            if .key eq $tran {
-                my $value = .value;
-                unless (@ret.grep:{ $value eq $_ }) {
-                    @q.push($value);
-                    @ret.push($value);
+        unless (@ret.grep:{ $state eq $_ }) {
+            @ret.push($state);
+            for @($nfa{$state}) {
+                if .key eq '' {
+                    @q.push(.value);
                 }
             }
         }
     }
 
     return set(@ret);
+}
+
+sub scan($nfa, $states, $tran)  {
+    my $ret = set();
+    for ($states.members) -> $state {
+        for @($nfa{$state}) {
+            if .key eq $tran {
+                $ret.insert(.value);
+            }
+        }
+    }
+    return $ret;
 }
 
 sub transitions($nfa, $states) {
@@ -44,7 +53,7 @@ sub set2str($set) {
 }
 
 sub nfa2dfa($nfa, $start) {
-    my $inistate = closure($nfa, '', set($start));
+    my $inistate = epsilon_closure($nfa, set($start));
     my @q = ($inistate);
     my $dfa = {};
     my $seen = set();
@@ -55,8 +64,8 @@ sub nfa2dfa($nfa, $start) {
         $seen.insert($strstate);
         for transitions($nfa, $state).members -> $tran {
             next if $tran eq '';
-            my $tranclosure = closure($nfa, $tran, $state);
-            my $newstate = closure($nfa, '', $tranclosure);
+            my $scan = scan($nfa, $state, $tran);
+            my $newstate = epsilon_closure($nfa, $scan);
             $dfa{set2str($state)}{$tran} = set2str($newstate);
             @q.push($newstate) unless $seen.includes(set2str($newstate));
         }
@@ -65,23 +74,26 @@ sub nfa2dfa($nfa, $start) {
     return ($dfa, set2str($inistate));
 }
 
-# nfa for /[foo+]? ba[r|z]/
+# nfa for /foo*[ba|oba]*[r|z]/
 my $nfa = {
-    0 => [ '' => 1, '' => 5 ],
-    1 => [ 'f' => 2 ],
-    2 => [ 'o' => 3 ],
-    3 => [ 'o' => 4 ],
-    4 => [ 'o' => 4, '' => 5 ],
-    5 => [ 'b' => 6 ],
-    6 => [ 'a' => 7 ],
-    7 => [ 'r' => 'X', 'z' => 'X' ],
-    X => [],
+    0  => [ 'f' => 1 ],
+    1  => [ 'o' => 2 ],
+    2  => [ 'o' => 2, '' => 3 ],
+    3  => [ ''  => 4, '' => 7 ],
+    4  => [ 'b' => 5 ],
+    5  => [ 'a' => 6 ],
+    6  => [ ''  => 3, '' => 11 ],
+    7  => [ 'o' => 8 ],
+    8  => [ 'b' => 9 ],
+    9  => [ 'a' => 10 ],
+    10 => [ ''  => 3, '' => 11 ],
+    11 => [ 'r'  => 'X', 'z' => 'X' ],
 };
 
 my ($dfa, $start) = nfa2dfa($nfa, 0);
 say "START: $start";
 for $dfa.kv -> $s, $t {
-    printf("%-10s : %s\n", $s, $t.perl);
+    printf("%-13s : %s\n", $s, $t.perl);
 }
 
 # vim: ft=perl6 :
