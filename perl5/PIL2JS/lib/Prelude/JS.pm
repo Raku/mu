@@ -7,6 +7,27 @@ use strict;
   our %macro;
   sub register { $macro{$_[0]} = PIL::P5Macro::JS->new($_[0] => $_[1]) }
 }
+{
+  register "&statement_control:cond" => sub {
+    my ($cc, $cond, $true, $false) = @_;
+
+    # XXX - Here we need to emit $true.() and $false.() instead of those two blocks.
+    return <<EOF };
+(
+  PIL2JS.cps2normal(
+    _26Main_3a_3aprefix_3a_3f.FETCH(),
+    [ PIL2JS.Context.ItemAny, $cond ]
+  ).FETCH()
+    ?
+@{[ PIL::add_indent 3, $true ]}
+    :
+@{[ PIL::add_indent 3, $false ]}
+).FETCH()([
+  PIL2JS.Context.ItemAny,
+@{[ PIL::add_indent 1, $cc ]}
+])
+EOF
+}
 
 {
   register "&statement_control:if" => my $if = sub {
