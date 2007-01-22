@@ -35,6 +35,28 @@ helping us make less slow progress until things pick up again.
 -- putter 2007-01-20
 
 
+== Fix PIL2JS ==
+
+PIL2JS is currently broken.
+It is our second most complete implementation of p6, after pugs.
+
+$ ./pugs -Bjs -e 'say 3;'
+$
+No output.
+"make test-js" fails similarly.
+
+<audreyt> the problem is that JS.pm needs to accomodate statement:cond form
+  which unlike the :if form, takes two arguments as full closures instead of blocks
+  and so will need to do the pil2js equiv of closure apply .()
+  I'm checking in something that doesn't do the .() -- it's 7am here [...]
+
+See r15128.
+perl5/PIL2JS/lib/Prelude/JS.pm
+  register "&statement_control:cond" => sub {...
+
+-- putter 2007-01-22
+
+
 == Integrating KP6 with the test suite ==
 
 It would be nice to run the test suite against kp6.
