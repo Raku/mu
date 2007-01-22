@@ -33,3 +33,30 @@ full solution, but will hopefully mitigate the negative feedback loop,
 helping us make less slow progress until things pick up again.
 
 -- putter 2007-01-20
+
+
+== Integrating KP6 with the test suite ==
+
+It would be nice to run the test suite against kp6.
+It is easy, and will help make it obvious what is and is not working.
+:Counter argument: it will only show nothing is working, and is thus
+ uninteresting.  I expect only 01-sanity/01-tap.t will pass, as
+ variable assignment doesn't work yet.  -- putter 2007-01-22
+::But keeping an eye on that, and motivating improvement, is exactly
+  what the testing is for.  *Everything* which is a p6 implementation
+  should be able to run the test suite, no?  -- putter 2007-01-22
+
+* Create a friendlier "program api" to kp6.
+  It currently spits p5 on stdout.
+  * Create a run-kp6.pl analogous to mp6's run-mp6.pl.
+* Make ./pugs -Bkp6 call run-kp6.pl.
+  src/Pugs.hs.  Perhaps follow the js code there.
+  Hopefully only one or two lines will be needed.
+* Add a test-kp6 target in Makefile.PL.
+* Make smoke work.
+  * Add a smoke-kp6 target in Makefile.PL.
+  * Tell util/run-smoke.pl about kp6.
+    Just a $ENV{HARNESS_PERL} modification like the other ones there.
+
+-- putter 2007-01-21
+
