@@ -438,7 +438,7 @@ course, use a placeholder parameter if you also use C<return>.)
 
 A variant of C<do> is C<gather>.  Like C<do>, it is followed by a
 statement or block, and executes it once.  Unlike C<do>, its return
-value is a specified by calling the C<take> function one or more times
+value is specified by calling the C<take> function one or more times
 within the dynamic scope of the gather.  The returned values are in
 the form of a lazy multidim list, with each dimension corresponding to
 one C<take> slice.  (A multidim is flattened in most list contexts.).
