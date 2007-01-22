@@ -4,6 +4,13 @@ mp6/kp6 FAQ
 15:08:10 < ZiggyE> you could start by documenting the way kp6 should be run and how to regenerate lib5
 08:39 < avar> explain what subset of p6 it covers
 
+
+* Where is fglock?
+
+fglock will be in Capao da Canoa beach for a whole month.  offline.
+when? XXX
+
+
 * How can i help?
 
   <fglock> the current work under way is the implementation of the compile-time environment
@@ -140,10 +147,23 @@ The kp6 source files can be compiled with mp6. There is a 'mp6.pl' script in kp6
 
   perl mp6.pl < lib/KindaPerl6/Visitor/EmitPerl5.pm > lib5/KindaPerl6/Visitor/EmitPerl5.pm
   
-* Where is fglock?
 
-fglock will be in Capao da Canoa beach for a whole month.  offline.
-when? XXX
+* How much of the test suite passes?
+
+No tests pass at all.
+
+With mp6, it was possible to pass t/01-sanity/01-tap.t by preprocess
+removal of "use v6-alpha;" and wrapping the input in "class Main {...}".
+Something similar might be done for kp6.  See pugs/project_planning/TALK.
+
+kp6 currently lacks assignment to variables, so even
+t/01-sanity/02-counter.t fails.
+
+
+* How much of the test suite will eventually pass?
+
+? XXX
+
 
 * Why does parsing take so much time?
 
