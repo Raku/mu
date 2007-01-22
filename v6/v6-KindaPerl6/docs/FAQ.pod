@@ -15,16 +15,17 @@ mp6/kp6 FAQ
     - In Signature, disallow "is slurpy", "is optional", "is named"
         (*@bad) ($bad?) (:$bad)
     - But we do allow Hash and Array and Tree unpacking:
-        sub foo ([$a, $b, $c, ::Tree $top (:$left, :$right)], {:$x, :$y}) { ... }
+        sub foo ([$a, $b, $c], {:$x, :$y}, ::Tree $top (:$left, :$right)) { ... }
 
-        foo([1, 2, 3], { x => 1, y => 2 }, ::Tree( left => 1, right => 2 );
+        foo([1, 2, 3], { x => 1, y => 2 }, ::Tree( left => 1, right => 2 ));
 
         # This compiles to:
         sub foo {
             my perl6::Tree $top;
-            my ($a, $b, $c, $x, $y, $left, $right);
-            ($a, $b, $c, $top)  = @{$_[0]};
-            ($x, $y)            = @{$_[1]}{'x', 'y'};
+            my ($a, $b, $c, $top, $x, $y, $left, $right);
+            ($a, $b, $c)  = @_[0];
+            ($x, $y)      = @_[1]{'x', 'y'};
+            $top          = @_[2];
             ($left, $right) = ($top.left, $top.right);
             ...
         }
