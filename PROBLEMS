@@ -5,6 +5,13 @@ arounds for the current release.  It is mainly intended for developers,
 rather than users.
 
 ----------------------------------------------------------------------
+
+PROBLEM: "cpan -i Task::Smoke" fails because Test-TAP-Model-0.06 install fails.
+
+WORKAROUND: Force it with "cpan -if Task::TAP::Model".
+
+
+
 PROBLEM: make pugs fails at link time, with errors like
   "undefined reference to `PL_modglobal'".
 
