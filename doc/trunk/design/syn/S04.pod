@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 13 Dec 2006
+  Last Modified: 22 Jan 2007
   Number: 4
-  Version: 46
+  Version: 47
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -121,6 +121,13 @@ to get the Perl 5 behavior.
 Note that temporizations that are undone upon scope exit must be
 prepared to be redone if a continuation within that scope is taken.
 
+=head1 The Relationship of Blocks and Statements
+
+The return value of a block is the value of its final statement.
+(This is subtly different from Perl 5's behavior, which was to return
+the value of the last expression evaluated, even if that expression
+was just a conditional.)
+
 =head1 Statement-ending blocks
 
 A line ending with a closing brace "C<}>", followed by nothing but
@@ -176,6 +183,10 @@ Perl 5, except that you may omit the parentheses on the conditional:
 Conditional statement modifiers work as in Perl 5.  So do the
 implicit conditionals implied by short-circuit operators.
 
+If the final statement is a conditional which does not execute any
+branch, the return value is C<undef> in item context and C<()> in
+list context.
+
 =head1 Loop statements
 
 Looping statement modifiers are the same as in Perl 5.
@@ -183,6 +194,14 @@ Loop modifiers C<next>, C<last>, and C<redo> also work as in Perl 5.
 
 There is no longer a C<continue> block.  Instead, use a C<NEXT> block
 within the body of the loop.  See below.
+
+The value of a loop statement is the list of values from each
+iteration.  (This list actually a multidimensional list with
+dimensional boundaries at each iteration.  Most list contexts
+ignore these boundaries and flatten the list.)  If you do not wish
+to accidentally return a list from the final loop statement in a
+subroutine, place an explicit return statement after it, or declare
+a return type of C<Void>.
 
 =head2 The C<while> and C<until> statements
 
@@ -443,9 +462,11 @@ of a method (if you have declared the invocant as C<$_>).  So switching
 behavior is actually caused by the C<when> statements in the block,
 not by the nature of the block itself.  A C<when> statement implicitly
 does a "smart match" between the current topic (C<$_>) and the argument
-of the C<when>.  If the smart match succeeds, the associated closure
-is executed, and the surrounding block is automatically broken out
-of.  If the smart match fails, control passes to the next statement
+of the C<when>.  If the smart match succeeds, C<when>'s associated block
+is executed, and the surrounding block is automatically broken out of.
+The value of the inner block is returned as the value of the outer block.
+
+If the smart match fails, control passes to the next statement
 normally, which may or may not be a C<when> statement.  Since C<when>
 statements are presumed to be executed in order like normal statements,
 it's not required that all the statements in a switch block be C<when>
