@@ -196,7 +196,7 @@ There is no longer a C<continue> block.  Instead, use a C<NEXT> block
 within the body of the loop.  See below.
 
 The value of a loop statement is the list of values from each
-iteration.  (This list actually a multidimensional list with
+iteration.  (This list is actually a multidimensional list with
 dimensional boundaries at each iteration.  Most list contexts
 ignore these boundaries and flatten the list.)  If you do not wish
 to accidentally return a list from the final loop statement in a
