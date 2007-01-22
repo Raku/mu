@@ -4,6 +4,72 @@ mp6/kp6 FAQ
 15:08:10 < ZiggyE> you could start by documenting the way kp6 should be run and how to regenerate lib5
 08:39 < avar> explain what subset of p6 it covers
 
+- What subset of Perl 6 is covered by mp6?
+  (from miniperl6-spec.pod)
+
+    - A program is organized in compilation units. All statements must be inside a 'class' declaration:
+    
+    class X { ... }
+
+    - Only allow one feed of positional arguments
+    - In Signature, disallow "is slurpy", "is optional", "is named"
+        (*@bad) ($bad?) (:$bad)
+    - But we do allow Hash and Array and Tree unpacking:
+        sub foo ([$a, $b, $c, ::Tree $top (:$left, :$right)], {:$x, :$y}) { ... }
+
+        foo([1, 2, 3], { x => 1, y => 2 }, ::Tree( left => 1, right => 2 );
+
+        # This compiles to:
+        sub foo {
+            my perl6::Tree $top;
+            my ($a, $b, $c, $x, $y, $left, $right);
+            ($a, $b, $c, $top)  = @{$_[0]};
+            ($x, $y)            = @{$_[1]}{'x', 'y'};
+            ($left, $right) = ($top.left, $top.right);
+            ...
+        }
+        foo([1, 2, 3], { x => 1, y => 2 });
+
+    - As a consequence, object constructor calls must be written in
+      coercion form:
+        ::Foo( x => 1, y => 2 );   # NOT Foo.new
+
+    - Only allow item context
+    - No laziness; all List are Seq
+    - No subtyping (inheritance) or role mixins
+    - No first-class Capture and Signature objects, which means no \$x nor :(foo)
+    - No assignment, only bindings, but don't panic:
+        $x := $x + 1;   # name = IntOp(named(Int))
+        # $x = $x + 1
+      The reason is we have to eliminate one of them to avoid dealing with:
+        $x := $y;
+        $x = 123;
+      Because assignment always involve box(unbox()), so emitting binding to
+      Perl 5 is much more straightforward as $x is always just a Int in
+      ($x := $x + 1), never SomePossiblyTiedScalarContainerType that needs to
+      have special FETCH magic associated with it.
+
+      Also it's inevitable with eliminating list context, because:
+        ($x, $y, $z) := (1, 2); # compile-time error
+        ($x, $y, $z) = (1, 2);  # list-context-undef-fill that we don't want to deal with
+      because infix:<=> almost always imply slurpiness with LHS is not a simple scalar,
+      eliminating it is consistent with eliminating list context.
+
+    - Allow Type annotations. Preserve them Perl 5 emitted code using simple Typed vars:
+        # MiniPerl6
+        my Int $x;
+        my perl5:CGI $x;
+
+        # Compiled Perl 5
+        my perl6::Int $x;
+        my CGI $x;
+      However, the compiler adds no extra assertions so types never slows programs down
+      in MiniPerl6 land.
+
+    - Closures, but no coroutines nor continuations
+    - Closed grammatical categories and precedence levels
+    - No macros; no BEGIN blocks!
+    - No multis
 
 - Running mp6
 
@@ -29,6 +95,12 @@ This script rebuilds the lib5 directory. It creates a directory named lib5-new:
   perl util/build-perl5.sh
   mv lib5 lib5-old
   mv lib5-new lib5
+
+
+- What subset of Perl 6 is covered by kp6?
+
+kp6 reuses the mp6 grammar.
+The main differences are not visible - kp6 adds an extra AST processing step.
 
 
 - Running kp6
