@@ -403,13 +403,24 @@ return the value of that statement and use it in an expression:
 
 This construct only allows you to attach a single statement to the end
 of an expression.  If you want to continue the expression after the
-statement, or if you want to attach multiple statements. you must use
-the curly form.  Since a bare expression may be used as a statement,
-you may use C<do> on an expression, but its only effect is to function
-as an unmatched left parenthesis, much like the C<$> operator in
-Haskell.  That is, precedence decisions do not cross a C<do> boundary.
-Conjectural: a C<do> may be used within a subexpression, but only if
-terminated by an unmatched right bracket of some kind.
+statement, or if you want to attach multiple statements. you must either
+use the curly form or surround the entire expression in brackets of some sort:
+
+    @primes = (do (do $_ if .prime) for 1..100);
+
+Since a bare expression may be used as a statement, you may use C<do>
+on an expression, but its only effect is to function as an unmatched
+left parenthesis, much like the C<$> operator in Haskell.  That is,
+precedence decisions do not cross a C<do> boundary, and the missing
+"right paren" is assumed at the next statement terminator or unmatched
+bracket.  A C<do> is assumed immediately after any opening bracket,
+so the above can in fact be written:
+
+    @primes = (($_ if .prime) for 1..100);
+
+This basically gives us list comprehensions as rvalue expressions:
+
+    (for 1..100 { $_ if .prime}).say
 
 Since C<do> is defined as going in front of a statement, it follows
 that it can always be followed by a statement label.  This is particularly
@@ -427,9 +438,11 @@ course, use a placeholder parameter if you also use C<return>.)
 
 A variant of C<do> is C<gather>.  Like C<do>, it is followed by a
 statement or block, and executes it once.  Unlike C<do>, its return
-value is a specified by calling the C<take> function one or more
-times within the dynamic scope of the gather.  The returned values are
-flattened into a lazy list.  A C<gather> is not considered a loop.
+value is a specified by calling the C<take> function one or more times
+within the dynamic scope of the gather.  The returned values are in
+the form of a lazy multidim list, with each dimension corresponding to
+one C<take> slice.  (A multidim is flattened in most list contexts.).
+A C<gather> is not considered a loop.
 
 Other similar C<Code>-only forms may also take bare statements,
 including C<try>, C<contend>, C<async>, and C<lazy>.  These constructs
