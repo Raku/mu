@@ -1,0 +1,50 @@
+mp6/kp6 FAQ
+
+15:04:22 < fglock> I'm looking for a starting point for kp6 docs
+15:08:10 < ZiggyE> you could start by documenting the way kp6 should be run and how to regenerate lib5
+08:39 < avar> explain what subset of p6 it covers
+
+
+- Running mp6
+
+There are control scripts for compiling mp6 to several backends:
+
+Perl 5:
+
+  perl mp6-perl5-boot.pl < source.pl > dest.pl
+  
+Parrot:
+
+  perl mp6-parrot.pl < source.pl > dest.pir
+
+Parrot-PAST:
+
+  perl mp6-past.pl < source.pl > dest.past
+
+
+- Bootstrapping mp6-perl5:
+
+This script rebuilds the lib5 directory. It creates a directory named lib5-new:
+
+  perl util/build-perl5.sh
+  mv lib5 lib5-old
+  mv lib5-new lib5
+
+
+- Running kp6
+
+kp6 works by creating a parse tree, which is then submitted to a list of AST processors.
+
+The 'kp6-perl5.pl' script is one of the possible compiler 'workflows' that can be built with kp6.
+
+  perl kp6-perl5.pl < source.pm > dest.pm
+
+
+- Compiling kp6
+
+As of this writing, kp6 is not bootstrapped.
+
+The kp6 source files can be compiled with mp6. There is a 'mp6.pl' script in kp6 directory:
+
+  perl mp6.pl < lib/KindaPerl6/Visitor/EmitPerl5.pm > lib5/KindaPerl6/Visitor/EmitPerl5.pm
+  
