@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 17 Jan 2007
+  Last Modified: 22 Jan 2007
   Number: 3
-  Version: 89
+  Version: 90
 
 =head1 Changes to Perl 5 operators
 
@@ -370,6 +370,11 @@ as a named unary in precedence.  All other subs with arguments
 parse as list operators.  (In other words, a named unary operator
 may be declared to take extra arguments only if they are named-only
 arguments.)
+
+=item * The C<&&> and C<||> operators are smarter about list context and
+return C<()> on failure in list context rather than C<Bool::False>.  Note
+that this applies only to the left argument--the right argument is always
+returned verbatim if the left succeeds.
 
 =back
 
