@@ -57,6 +57,25 @@ perl5/PIL2JS/lib/Prelude/JS.pm
 -- putter 2007-01-22
 
 
+== KP6 on PIL2JS? ==
+
+Could kp6 run on PIL2JS?  If so, then kp6-pil2js would become our
+second self-hosting p6 implementation.  pil2js has good smoke results,
+and so might be a faster way to get kp6 "real" than writing a new
+backend from scratch.
+
+pil2js currently delegates its parsing to pugs, and so can't parse oo,
+but does use oo internally.  so porting kp6 might require hand
+transfering the oo parts to get bootstrapped.
+
+Some things which might be explored:
+ - how much of kp6 can pil2js run now?
+ - can kp6 handle pil2js's p6 code?  (perl5/PIL2JS/lib6/Prelude)
+ - how close is the kp6 ast to the PIL1 ast pil2js uses?
+
+-- putter 2007-01-22
+
+
 == Integrating KP6 with the test suite ==
 
 It would be nice to run the test suite against kp6.
