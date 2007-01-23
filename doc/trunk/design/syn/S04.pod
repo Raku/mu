@@ -196,8 +196,8 @@ There is no longer a C<continue> block.  Instead, use a C<NEXT> block
 within the body of the loop.  See below.
 
 The value of a loop statement is the list of values from each
-iteration.  (This list is actually a multidimensional list with
-dimensional boundaries at each iteration.  Most list contexts
+iteration.  (This list is actually a multidimensional list (a "multislice")
+with dimensional boundaries at each iteration.  Most list contexts
 ignore these boundaries and flatten the list.)  If you do not wish
 to accidentally return a list from the final loop statement in a
 subroutine, place an explicit return statement after it, or declare
@@ -440,8 +440,8 @@ A variant of C<do> is C<gather>.  Like C<do>, it is followed by a
 statement or block, and executes it once.  Unlike C<do>, its return
 value is specified by calling the C<take> function one or more times
 within the dynamic scope of the gather.  The returned values are in
-the form of a lazy multidim list, with each dimension corresponding to
-one C<take> slice.  (A multidim is flattened in most list contexts.).
+the form of a lazy multislice, with each dimension corresponding to
+one C<take> slice.  (A multislice is flattened in most list contexts.).
 A C<gather> is not considered a loop.
 
 Other similar C<Code>-only forms may also take bare statements,
