@@ -97,7 +97,28 @@ when? XXX - from jan. 25
     - No macros; no BEGIN blocks!
     - No multis
 
-- Running mp6
+* can mp6 be run in perl5?
+
+yes, and it's currently the only fully working implementation
+
+* can mp6 be run in pugs?
+
+nobody tried ???
+
+* can mp6 be run in parrot?
+
+There is an implementation of a parrot emitter, but it cannot run full-mp6 yet.
+
+The implementation of the PAST emitter is also under way.
+
+* can mp6 be run in ruby/javascript/c#/c/d ?
+
+There is some work done for a D implementation.
+
+Ruby and Javascript can probably reuse some work that was done for redsix and pil2js.
+
+
+* Running mp6
 
 There are control scripts for compiling mp6 to several backends:
 
@@ -254,6 +275,20 @@ kp6-1 will have a script
 
     This is needed to implement assignment - MP6 only supported binding.
 
+
+* Is kp6 needed for bootstrapping 6-on-6?
+
+No. 6-on-6 can also be bootstrapped with:
+
+- parrot
+
+- pugs
+
+- v6.pm
+
+- plain mp6
+
+- redsix
 
 * Miscellaneous Notes
 
