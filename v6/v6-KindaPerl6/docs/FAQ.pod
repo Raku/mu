@@ -209,10 +209,51 @@ currently breaking p5 compatibility, this is being fixed.
 that is, it can't call the p5 runtime
 -- <fglock> 2007-01-22
 
+update - the lexsubs step was removed from the kp6-perl5.pl, until this is fixed. 2007-01-23
+
 * Why isn't there a makefile to regenerate v6-KindaPerl6/lib5/ ?
 
 the workflow for compiling kp6 is not fixed - you can add or take AST transformation steps
 kp6-1 will have a script
+
+* What is the plan for kp6?
+
+
+- provide a minimal bootstrapped language implementation for bootstrapping p6-on-p6
+
+    Extra features over mp6 - allow the implementation of BEGIN blocks, flexible grammar.
+
+- implement a flexible/pluggable compiler engine
+
+    This is currently done with a Visitor pattern for AST transforms
+
+- lexical subs 
+
+    Allows operator redefinition:
+    
+    my multi infix:<+> { ... }
+
+    But note that 'multi' is not part of the kp6 spec
+
+- lexical classes / first-class classes
+
+    Better support for grammar mutability
+
+    $?GRAMMAR   Which grammar am I in? (from S02)
+    @?GRAMMAR   Which nested grammars am I in?
+        
+- metamodel interface
+
+    Allow pluggable object models
+
+- begin blocks
+
+    This is needed to support separate compilation - that is, separate compile-time from run-time 
+
+- containers
+
+    This is needed to implement assignment - MP6 only supported binding.
+
 
 * Miscellaneous Notes
 
