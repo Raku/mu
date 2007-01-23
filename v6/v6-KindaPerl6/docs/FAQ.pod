@@ -219,3 +219,8 @@ kp6-1 will have a script
 fglock: hmm - maybe for mp6; need to find a way to do eval() too - http://cataclysm.cx/2006/08/19/closures-in-c/
 Title: eaten by a grue :: Closures in C
 
+* See Also
+
+A Two-Dimensional Separation of Concerns for Compiler Construction
+www.cis.uab.edu/gray/Pubs/sac-2005-carl.pdf 
+- Compares the visitor pattern used by kp6 with other approaches
