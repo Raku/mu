@@ -33,7 +33,9 @@ say( "use MiniPerl6::Perl5::Runtime;" );
 say( "use MiniPerl6::Perl5::Match;" );
 say( "use Class::MOP;" );
 
-say( '$_->alias_method("HOW" => sub { (shift)->meta }) foreach Class::MOP::get_all_metaclass_instances;' );
+say( 'eval {
+    $_->alias_method("HOW" => sub { (shift)->meta }) 
+} foreach Class::MOP::get_all_metaclass_instances;' );
 # say( "package Class::MOP::Class;" );
 # say( "sub HOW { (shift)->meta( \@_ ) }" );
 
@@ -48,8 +50,9 @@ while ( $pos < length( $source ) ) {
     #say( Main::perl( $$p ) );
     my @ast = $$p;
     
-    @ast = map { $_->emit( $visitor_lexical_sub )     } @ast;
-    @ast = map { $_->emit( $visitor_metamodel )       } @ast;
+    # @ast = map { $_->emit( $visitor_lexical_sub )     } @ast;
+    # @ast = map { $_->emit( $visitor_metamodel )       } @ast;
+    
     #say( join( ";\n", (map { $_->emit( $visitor_dump_ast    ) } ($$p) )));
     say( join( ";\n", (map { $_->emit( $visitor_emit_perl5  ) } (@ast) )));
 

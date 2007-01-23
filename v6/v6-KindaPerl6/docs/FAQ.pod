@@ -34,9 +34,8 @@ when? XXX - from jan. 25
   (from miniperl6-spec.pod)
 
     - A program is organized in compilation units. All statements must be inside a 'class' declaration:
-    
-    class X { ... }
-
+        class X { ... }
+    - All statements finish with semicolon
     - Only allow one feed of positional arguments
     - In Signature, disallow "is slurpy", "is optional", "is named"
         (*@bad) ($bad?) (:$bad)
@@ -138,6 +137,13 @@ The 'kp6-perl5.pl' script is one of the possible compiler 'workflows' that can b
 
   perl kp6-perl5.pl < source.pm > dest.pm
 
+
+kp6 currently depends on the mp6 perl 5 runtime.
+The mp6 lib5/ directory needs to be included in order to run kp6 programs:
+
+  echo ' class X { say 42; }  ' | perl kp6-perl5.pl | perl -Ilib5 -I ../v6-MiniPerl6/lib5
+  ---
+  42
 
 - Compiling kp6
 
