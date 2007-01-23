@@ -11,6 +11,30 @@ fglock will be in Capao da Canoa beach for a whole month.  offline.
 when? XXX - from jan. 25 
 
 
+* Overview - What is mp6/kp6/v6?
+
+v6 is a perl6-on-perl6 project.
+It lives in the Pugs repository, under the v6/ directory.
+
+This is not the perl5 v6-alpha, see perl5/Pugs-Compiler-Perl6 for that.
+
+There are 4 subprojects under v6/:
+
+v6.pm is a plain translation of the perl5 v6.pm compiler, such that the modules could be interchangeable.
+This project is currently abandoned.
+
+v6-Compiler (full-p6) is meant as a more advanced compiler, but it is also more difficult to bootstrap because it needs a more complete Perl 6 compiler.
+
+v6-MiniPerl6 (mp6) is a subset of Perl 6 used to bootstrap the full Perl 6.
+v6-MiniPerl6 is bootstrapped with perl5.
+
+v6-KindaPerl6 (kp6) is a reimplementation of mp6, with a very flexible compiler workflow.
+kp6 uses plugins in order to implement perl6 semantics over several backends.
+kp6 is not currently bootstrapped - it is compiled with the mp6 compiler.
+
+The current plan is to bootstrap full-p6 using kp6.
+
+
 * How can i help?
 
   <fglock> the current work under way is the implementation of the compile-time environment
