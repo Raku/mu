@@ -88,7 +88,7 @@ run' ("-C":backend:args) | (== map toLower backend) `any` ["js","perl5","js-perl
 run' ("-C":backend:"-e":prog:_)           = doCompileDump backend "-e" prog
 run' ("-C":backend:file:_)                = readFile file >>= doCompileDump backend file
 
-run' ("-B":backend:_) | (== map toLower backend) `any` ["js","perl5","js-perl5"] = do
+run' ("-B":backend:_) | (== map toLower backend) `any` ["js","perl5","js-perl5","redsix"] = do
     exec <- getArg0
     args <- getArgs
     doHelperRun backend (("--pugs="++exec):args)
@@ -236,6 +236,7 @@ doHelperRun backend args =
                    else (doExecuteHelper "runjs.pl"   args)
         "perl5" ->       doExecuteHelper "v6.pm" args
         "js-perl5" -> doExecuteHelper "runjs.pl" (jsPerl5Args ++ args)
+        "redsix" -> doExecuteHelper "redsix" args
         _       ->       fail ("unknown backend: " ++ backend)
     where
     args' = f args
@@ -260,6 +261,7 @@ doExecuteHelper helper args = do
         [ []
         , ["perl5", "PIL2JS"]      --  $sourcedir/perl5/PIL2JS/jspugs.pl
         , ["perl5", "lib"]         --  $pugslibdir/perl5/lib/jspugs.pl
+        , ["misc", "pX", "Common", "redsix"] -- $sourcedir/misc/pX/Common/redsix/redsix
         ]
     perl5 = getConfig "perl5path"
     findHelper :: [[FilePath]] -> IO (Maybe FilePath)

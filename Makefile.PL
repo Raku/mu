@@ -745,6 +745,9 @@ test-js :
 test-perl5 :
 	\$(PERL) -e "ENV->{HARNESS_PERL_SWITCHES}=q+-B PERL5+; system qq+$Config{make}+, q+test+"
 
+test-redsix :
+	\$(PERL) -e "ENV->{HARNESS_PERL_SWITCHES}=q+-B REDSIX+; system qq+$Config{make}+, q+test+"
+
 blib6/lib/Test.pm.yml :: ext/Test/lib/Test.pm
 	\$(NOECHO) \$(ECHO) "Precompiling Test.pm..."
 	$thispugs -CParse-YAML ext/Test/lib/Test.pm > blib6/lib/Test.pm.yml 
@@ -775,6 +778,9 @@ smoke-js : $pugs util/run-smoke.pl all
 
 smoke-perl5 : $pugs util/run-smoke.pl all
 	\$(PERL) -e "ENV->{PUGS_RUNTIME}=q+PERL5+; exec qw+$^X util/run-smoke.pl . smoke-perl5.html -BPERL5+"
+
+smoke-redsix : $pugs util/run-smoke.pl all
+	\$(PERL) -e "ENV->{PUGS_RUNTIME}=q+REDSIX+; exec qw+$^X util/run-smoke.pl . smoke-redsix.html -BREDSIX+"
 
 
 ghci : @prereqs @derived_srcfiles
