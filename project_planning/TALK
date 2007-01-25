@@ -76,6 +76,79 @@ Some things which might be explored:
 -- putter 2007-01-22
 
 
+== redsix on PIL2JS ==
+-- putter 2007-01-22
+
+Background
+
+PIL2JS uses pugs to generate PIL1 ast, processes it using p5, and has
+a p6+js runtime.  It has been blocked for two years by PIL1 not having
+oo information.
+
+PIL2JS is attractive.  It was our second best (after pugs) backend in
+terms of test coverage.  It's use of p6 and p5 means it is closer than
+pugs to being a p6 bootstrap.  Even some of its js could be rewritten
+in p6, if oo parsing was available.  Its performance, while slower
+than pugs, seemed tolerable.  jsperl5 is a variant of pil2js which
+allows it to use p5.
+
+Redsix, written in ruby, has a p6 parser.  The grammar was derived
+from pugs's.  While buggy, it aspires to completeness.  It uses
+p5-syntax regexps plus rules.  It has a working operator precedence
+parser, though it's non-spec.  Performance is good - it was running
+faster than pugs at one point.
+
+An implementation of p5-syntax regexps plus rules exists for p5.
+Performance is good - it may be faster than the ruby one.
+
+Proposal
+
+Create an alternate p6 parser for pil2js.  Translate the redsix
+grammar and opp to p5.  Write a new emitter for it, based on pil2js's
+PIL1 emitter.  Get pil2js and the new parser working together.
+
+Tweak the new parser until it can handle the pil2js p6 code.
+At that point, pil2js is free to evolve independently of pugs.
+
+Development can then proceed in several directions.
+Improve the new parser to recover test regressions from the switch.
+Add emitting for oo declarations.
+Then:
+Migrate the p5 bits to p6.
+At that point, we have a bootstrapped p6-on-p6, for a large subset of p6.
+
+Disadds/Risks
+
+The emitter backend is new.  Redsix was passing less than 20% of
+tests, so the ability of the grammar to correctly handle the other 80%
+is uncertain/unlikely without more work.
+
+Compared with running kp6 on pil2js, this is a harder and more complex
+approach.  Though one with the potential to more quickly result in a
+relatively complete p6 implementation.
+
+pugs can *already* do parsing and oo.  Faster and better than the
+result of this exercise will be able to until after quite a bit of
+work.  Even then, if you have to move to another, faster backend, you
+might as well have developed on pugs instead, and emitted to the new
+backend from there.
+
+An alternative is to migrate pil2js into a new pil2p6.  Run it on
+pugs.  Then it can be developed in a full p6 dialect, rather than
+playing bootstrap games.  The redsix parser can be migrated to p6,
+full p6, if that still seems the right way to develop a parser.
+Bootstrap happens when it is ready to happen.  The main risk of this
+approach is the possibility of pugsbugs interfering with development.
+
+So the key assumptions of this proposal are that (1) pugs won't be
+able to output an oo ast for pil2js anytime soon; and (2) pugs is
+currently too buggy to develop a pil2p6 on it.  It's not entirely
+clear either of these is true.  If (2) is untrue, a better path to
+p6-on-p6 is pil2p6.  If (1) is untrue, a better path is to wait,
+perhaps filling time by migrating the redsix parser to p6, or fleshing
+out kp6.
+
+
 == Integrating KP6 with the test suite ==
 
 It would be nice to run the test suite against kp6.
