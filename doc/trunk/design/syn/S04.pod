@@ -90,7 +90,6 @@ for a compile-time constant, either a variable or a 0-ary sub, which
 may be initialized with a pseudo-assignment:
 
     constant Num $pi = 3;
-    constant Num PI { 3 }
     constant Num π  = atan(2,2) * 4;
 
 The initializing expression is evaluated at BEGIN time.
