@@ -536,12 +536,14 @@ Options:
                   defaults to pugs' docs/Perl6/Spec. Please don't
                   set syn-dir to elsewhere unless you have a good
                   reason.
+  --index         Also generates an index.html page with links to
+                  pages.
 _EOC_
     exit(0);
 }
 
 sub main () {
-    my ($syn_dir, $out_dir, $help, $cssfile, $fast, $yml_file);
+    my ($syn_dir, $out_dir, $help, $cssfile, $fast, $yml_file, $index);
     GetOptions(
         'check'       => \$check,
         'syn-dir=s'   => \$syn_dir,
@@ -550,6 +552,7 @@ sub main () {
         'help'        => \$help,
         'fast'        => \$fast,
         'test-res=s'  => \$yml_file,
+        'index'       => \$index,
     );
 
     if ($help || !@ARGV) {
@@ -563,6 +566,7 @@ sub main () {
 
     $out_dir ||= '.';
     mkdir $out_dir if !-d $out_dir;
+    create_index($out_dir) if $index;
 
     my @t_files = map glob, @ARGV;
     my $linktree = {};
@@ -665,6 +669,23 @@ sub main () {
         warn "hint: use the --check option for details on broken smartlinks.\n";
     }
     exit;
+}
+
+sub create_index($) {
+    my ($out_dir) = @_;
+
+    my $html = "<html><head><title>Synopsis</title></head><body>\n";
+    foreach my $syn (sort { $Spec{$a} <=> $Spec{$b} }  keys %Spec) {
+        $html .= qq(<a href="S$Spec{$syn}.html">$Spec{$syn} $syn</a><br />\n);
+    }
+    $html .= "</body></html>";
+
+    if (open my $fh, '>', "$out_dir/index.html") {
+        print {$fh} $html;
+    } else {
+        warn "Could not create index.html: $!";
+    }
+    return;
 }
 
 main() if ! caller;
