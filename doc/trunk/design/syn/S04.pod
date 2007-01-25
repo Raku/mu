@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 22 Jan 2007
+  Last Modified: 25 Jan 2007
   Number: 4
-  Version: 47
+  Version: 48
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -87,13 +87,13 @@ a variable in the current package.
 
 The new C<constant> declarator introduces a lexically scoped name
 for a compile-time constant, either a variable or a 0-ary sub, which
-may be initialized with either a pseudo-assignment or a block:
+may be initialized with a pseudo-assignment:
 
     constant Num $pi = 3;
     constant Num PI { 3 }
     constant Num π  = atan(2,2) * 4;
 
-In any case the initializing value is evaluated at BEGIN time.
+The initializing expression is evaluated at BEGIN time.
 
 There is a new C<state> declarator that introduces a lexically scoped
 variable like C<my> does, but with a lifetime that persists for the

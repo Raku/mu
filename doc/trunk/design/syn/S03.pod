@@ -1985,7 +1985,7 @@ Perl 6 has 22 precedence levels (which is fewer than Perl 5):
     autoincrement       ++ --
     exponentiation      **
     symbolic unary      ! + - ~ ? $ @ % & | +^ ~^ ?^ \ ^ =
-    multiplicative      * / % x xx +& +< +> ~& ~< ~> ?&
+    multiplicative      * / % x xx +& +< +> ~& ~< ~> ?& div mod
     additive            + - ~ +| +^ ~| ~^ ?| ?^
     junctive and (all)  &
     junctive or (any)   | ^
