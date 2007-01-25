@@ -147,6 +147,13 @@ clear either of these is true.  If (2) is untrue, a better path to
 p6-on-p6 is pil2p6.  If (1) is untrue, a better path is to wait,
 perhaps filling time by migrating the redsix parser to p6, or fleshing
 out kp6.
+Counter: (1) may turn out to be untrue, but it is certainly a
+plausible hypothesis.  And even if untrue, the only impact is it would
+be better to migraite the redsix parser to p6 instead of p5.  Which
+doesn't seem a deadly issue.  Regards (2), unlike creating an
+alternative parser for pil2js, pil2p6 is setting aside working code,
+and hoping a non-trivial translation to p6 will sort of work too --
+the proposal has more of a "keep working code working" flavor than pil2p6.
 
 
 == Integrating KP6 with the test suite ==
