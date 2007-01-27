@@ -26,12 +26,12 @@ syn keyword p6KeyDecl       coro sub submethod method is but does trusts multi r
 syn keyword p6KeyScopeDecl  let my our state temp has
 syn keyword p6KeyFlow       if else elsif unless  
 syn keyword p6KeyFlow       for foreach loop while until when next last redo
-syn keyword p6KeyFlow       given not or and err xor return 
+syn keyword p6KeyFlow       given not or and err xor return default
 syn keyword p6KeyFlow       exit
 syn keyword p6ClosureTrait  BEGIN CHECK INIT START FIRST ENTER LEAVE KEEP UNDO NEXT LAST
 syn keyword p6ClosureTrait  PRE POST END
 syn keyword p6KeyException  die fail try CATCH CONTROL warn
-syn keyword p6KeyIO         print open read write readline say seek close
+syn keyword p6KeyIO         print open read write readline say seek close slurp
 syn keyword p6KeyIO         opendir readdir
 syn keyword p6KeyProperty   constant prec key value kv irs ofs ors pos export
 syn keyword p6KeyProperty   float int str true false rw
