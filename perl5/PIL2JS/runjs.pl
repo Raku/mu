@@ -103,8 +103,13 @@ $run = "js_on_$run" if $run ne 'js';
 my $go = main->can("run_$run") or die "unknown run mode";
 $go->($js);
 
+use File::Path 'mkpath';
+use File::Basename 'dirname';
+
 sub write_file {
   my ($contents, $file) = @_;
+
+  mkpath [dirname($file)];
 
   open my $fh, ">", $file or die "Couldn't open \"$file\" for writing: $!\n";
   print $fh $contents     or die "Couldn't write to \"$file\": $!\n";
