@@ -1,8 +1,18 @@
 RedSix was an attempt to build a perl6 implementation on ruby.
 See the History section for motivation.  It is currently abandoned.
 
-To run it, use ruby 1.9.0 of Spring'06.  More recent versions may also
-work.  "mkdir cache" before running.
+To run it, use ruby 1.9.0 of Spring'06.  r10200 seems to work.
+  svn co http://svn.ruby-lang.org/repos/ruby/trunk ruby -r10200
+Ruby 1.9 is the ruby development branch.  Ruby 2.0 is expected in late '07.
+It is needed for its  ->(a,b){...}  real (ie, no variable capture) lambdas.
+Something is buggy about this snapshot, as t/01-sanity/07-defined.t fails,
+and the total test pass is down to 7% from 20%-ish.
+
+More recent versions of 1.9 require code tweaks.
+Renaming .hash, and using .hex instead of sprintf to get character codes.
+Also an unknown something else.
+As of 2007-01-26, it is tickling a fatal ruby bug, and doesn't run at all.
+
 
 History
 

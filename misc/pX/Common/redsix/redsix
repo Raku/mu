@@ -5,12 +5,6 @@
 # Disclaimer - most of this code was intended to be thown away on a
 #  timescale of a couple of weeks.  But the project terminated first.
 
-# Ruby 1.9 can be obtained by
-#  ftp://ftp.ruby-lang.org/pub/ruby/snapshot.tar.gz
-# Ruby 1.9 is the ruby development branch.  Ruby 2.0 is expected in late '07.
-# It is needed for its  ->(a,b){...}  real (no variable capture) lambdas.
-# The 2007-01-23 snapshot of ruby goes boom on this file. :(
-
 
 ###* RedSix
 
@@ -18,6 +12,10 @@
 
  #(
 $ruby_init_code = <<'_CODE'
+  if not FileTest.directory?("redsix_cache")
+    print "Creating missing cache directory: #{"redsix_cache"}\n"
+    Dir.mkdir("redsix_cache")
+  end
   def caller_file_line(n=1)
     file,line = caller[n].split(/:/); line = line.to_i
     [file,line+1]
@@ -2624,9 +2622,9 @@ class P6
     end
     print "Parsing #{fileline[0]} line #{fileline[1]}.\n" if fileline
     k = Digest::MD5.hexdigest(src)
-    if (!clean||clean==2) && File.exists?("cache/#{k}.rb")
-      print "Using cache/#{k}.rb\n"
-      return `cat cache/#{k}.rb`
+    if (!clean||clean==2) && File.exists?("redsix_cache/#{k}.rb")
+      print "Using redsix_cache/#{k}.rb\n"
+      return `cat redsix_cache/#{k}.rb`
     end
     tree = parse(src)
     if not tree.bool
@@ -2644,7 +2642,7 @@ class P6
     rbc = ast.emit_rb
     note :rbc,number_lines(rbc),false
     if !clean
-      File.open("cache/#{k}.rb","w"){|f|f.print(rbc)}
+      File.open("redsix_cache/#{k}.rb","w"){|f|f.print(rbc)}
     end
     rbc
   end    
@@ -3039,6 +3037,7 @@ df :use,->(_E,c){
 }
 def puse(n)
   fn = "#{n}.pm"
+  fn = "misc/pX/Common/redsix/Test.pm" if fn == "Test.pm"
   $P.eval6_file(fn)
 end
 
@@ -3392,6 +3391,16 @@ class Object; def self.newC;->(_S,_self,*a){ new(*a) }end end
 # $P.eval6q($six_rt) if not (ENV['TEST_ONLY_PARSE'] && ENV['TEST_ONLY_PARSE'] != 0)
 
 def main
+  # Deal with arguments ./pugs -Bredsix and test-redsix provide.
+  #  STDERR.print ARGV.join(", "),"\n"
+  while(not ARGV.empty? and ARGV[0] =~ /^--pugs=|^-Bredsix$|^-w$/)
+    ARGV.shift() 
+  end
+  if not ARGV.empty? and ARGV[0] =~ /^-B$/
+    ARGV.shift()
+    ARGV.shift()
+  end
+
   if ARGV.empty?
     $P.repl
   else

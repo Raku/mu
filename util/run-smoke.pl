@@ -52,6 +52,10 @@ if ($ENV{PUGS_RUNTIME} and $ENV{PUGS_RUNTIME} eq 'PERL5') {
     $ENV{HARNESS_PERL} = $^X;
 #    $ENV{HARNESS_PERL_SWITCHES} = "blib6/pugs/perl5/lib/v6.pm";
 }
+if ($ENV{PUGS_RUNTIME} and $ENV{PUGS_RUNTIME} eq 'REDSIX') {
+    $ENV{HARNESS_PERL}  = "./pugs -Bredsix";
+}
+
 
 $ENV{PERL6LIB}      = join $Config{path_sep},
         qw<ext/Test/lib blib6/lib>, $ENV{PERL6LIB}||"";
