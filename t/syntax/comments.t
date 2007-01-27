@@ -4,7 +4,7 @@ use v6-alpha;
 
 use Test;
 
-plan 32;
+plan 34;
 
 # L<S02/"Whitespace and Comments"/"Embedded comments"
 #  "#" plus any bracket>
@@ -19,6 +19,8 @@ plan 32;
     ok #(
         Parens works also
     ) 1, 'multiline embedded comment with #()';
+
+    ok eval("2 * 3\n #<<<\n comment>>>"), "multiline comment with <<<";
 
     my $var = #{ foo bar } 32;
     is $var, 32, 'embedded comment with #{}';
@@ -52,6 +54,7 @@ plan 32;
     ok !eval("3 * #\t[invalid comment] 2"), "no tab allowed between '#' and '['";
     ok !eval("3 * #  \{invalid comment\} 2"), "no spaces allowed between '#' and '\{'";
     ok !eval("3 * #\n<invalid comment> 2"), "no spaces allowed between '#' and '<'";
+
 }
 
 # L<S02/"Whitespace and Comments"/"closed by" "same number of"
@@ -105,6 +108,8 @@ plan 32;
 
     ok !eval(" #<this is invalid"),
         'embedded comment not on the left margin';
+
+    ok !eval("2 * 3\n#<\n comment>"), "multiline comment starting on newline is invalid";
 }
 
 # L<S02/Whitespace and Comments/"comment may not contain an unspace">
