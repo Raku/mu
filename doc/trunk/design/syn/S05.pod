@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 19 Jan 2007
+   Last Modified: 27 Jan 2007
    Number: 5
-   Version: 46
+   Version: 47
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -611,6 +611,24 @@ unless it happens to be a C<Regex> object, in which case it is matched
 as a subrule.  As with scalar subrules, a tainted subrule always fails.
 All string values pay attention to the current C<:ignorecase> setting,
 while C<Regex> values use their own C<:ignorecase> settings.
+
+When you get tired of writing:
+
+    token sigil { <'$'> | <'@'> | <'@@'> | <'%'> | <'&'> | <'::'> }
+
+you can write:
+
+    token sigil { @('$','@','@@','%','&','::') }
+
+or
+
+    token sigil { @(< $ @ @@ % & :: >) }
+
+or (conjecturally) maybe just:
+
+    token sigil { @:< $ @ @@ % & :: > }
+
+assuming we make the C<@:> contextualizer govern only the next token.
 
 =item *
 
