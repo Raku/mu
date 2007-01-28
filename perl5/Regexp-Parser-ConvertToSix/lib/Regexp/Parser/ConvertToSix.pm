@@ -241,6 +241,7 @@ local $Regexp::Parser::ConvertToSix::env;
     }
     $pat;
   }
+  sub _can_be_inlined_in_character_list {0}
 }
 {
   package Regexp::Parser::quant;
@@ -537,10 +538,9 @@ This document describes Regexp::Parser::ConvertToSix version 0.0.1
 
     use Regexp::Parser::ConvertToSix;
 
-    my $parser = Regexp::Parser->new;
-    $parser->convert_to_six('(?:(a)b{2,3})') #=> '[foo**{2..3}]'
-    $parser->convert_string_with_match_vars_to_six('$0 $1 $+[1]') #=> '$/ $0 $0.to'
-    $parser->convert_literal_to_six('s/(a(b)(?:c))/$2/') #=> 's/(a(b)[c])/$0[0]/'
+    Regexp::Parser->new('(?:(a)b{2,3})')->convert_to_six() #=> '[foo**{2..3}]'
+    Regexp::Parser->new('$0 $1 $+[1]')->convert_string_with_match_vars_to_six() #=> '$/ $0 $0.to'
+    Regexp::Parser->new('s/(a(b)(?:c))/$2/')->convert_literal_to_six() #=> 's/(a(b)[c])/$0[0]/'
 
     # interactive shell
     perl -MRegexp::Parser::ConvertToSix -e 'Regexp::Parser::ConvertToSix::repl'
