@@ -131,7 +131,7 @@ local $Regexp::Parser::ConvertToSix::env;
       if($n->_can_be_inlined_in_character_list) {
         $cls .= $n->visual6();
       } else {
-        $pat .= $op."[$cls]" if $cls ne '';
+        $pat .= $op."[$cls]" if $cls ne ''; $cls = '';
         $pat .= $n->visual6();
       }
     }
@@ -241,7 +241,7 @@ local $Regexp::Parser::ConvertToSix::env;
     }
     $pat;
   }
-  sub _can_be_inlined_in_character_list {0}
+  sub _can_be_inlined_in_character_list {1}
 }
 {
   package Regexp::Parser::quant;
@@ -510,6 +510,8 @@ sub repl {
       print $parser->convert_to_six(),"\n";
       print "Backwards compatible:  ";
       print $parser->convert_to_six(1),"\n";
+      use Data::Dumper;
+      print Dumper($parser);
     }
     my $str = '$&, $1, $2, $3, $4, $5, $6';
     print "'$str' -> '",$parser->convert_string_with_match_vars_to_six($str),"'\n";
