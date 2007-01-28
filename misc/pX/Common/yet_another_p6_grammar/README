@@ -1,0 +1,8 @@
+This directory is a little experiment in converting the redsix parser
+grammar into other forms.
+
+Currently the only form is p6 rules.  This was intended mainly to be
+read by humans, as input into creating the official p6 grammar.
+
+It could also be converted into a p5-plus-rules grammar, to be run by
+one of the regexp engine spike derivatives.
