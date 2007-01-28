@@ -67,6 +67,12 @@ would like current details, please ask on irc.freenode.net #perl6.
 
 = Rules
 
+Multiple rules implementations exist.
+- On Perl 5:
+[correct as of 2007-01-28]
+Pugs::Compiler::Rule
+http://search.cpan.org/search?query=Pugs%3A%3ACompiler%3A%3ARule&mode=all
+
 - Perl 5 regexen
 [correct as of: 2006-01-30]
 ** Work well in default backend, handled by PCRE
