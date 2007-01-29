@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 23 Dec 2006
+  Last Modified: 28 Jan 2007
   Number: 6
-  Version: 66
+  Version: 67
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -821,9 +821,11 @@ C<\()> in several ways:
 
 =head2 Feed operators
 
-The variadic list of a subroutine call can be passed in separately
-from the normal argument list, by using either of the I<feed> operators:
-C<< <== >> or C<< ==> >>.
+The variadic list of a subroutine call can be passed in separately from
+the normal argument list, by using either of the I<feed> operators: C<<
+<== >> or C<< ==> >>.  Syntactically, feed operators expect to find a
+statement on either end.  Any statement can occur on the source end;
+however not all statements are suitable for use on the sink end of a feed.
 
 Each operator expects to find a call to a variadic receiver on its
 "sharp" end, and a list of values on its "blunt" end:
@@ -869,33 +871,33 @@ right-to-left flow of data through a chain of operations:
 Rightward feeds are a convenient way of reversing the normal data flow in a
 chain of operations, to make it read left-to-right:
 
-    @oddsquares =
-            (@nums ==> grep { $_ % 2 } ==> sort ==> map { $_**2 });
+    @oddsquares = do
+            @nums ==> grep { $_ % 2 } ==> sort ==> map { $_**2 };
 
-Note that the parens are necessary there due to precedence.
+Note that the C<do> is necessary because feeds operate at the statement
+level.  (Parens would also work, since a "do" is assumed there.)
 
 If the operand on the sharp end of a feed is not a call to a variadic
 operation, it must be something else that can be interpreted as a
 list receiver.
 
-Any list operator is considered a variadic operation, so ordinarily
+Any prefix list operator is considered a variadic operation, so ordinarily
 a list operator adds any feed input to the end of its list.
-But sometimes you want to interpolate elsewhere, so the C<***> term
+But sometimes you want to interpolate elsewhere, so any empty contextualizer
 may be used to indicate the target of a feed without the use of a
 temporary array:
 
-    foo() ==> say ***, " is what I meant";
-    bar() ==> ***.baz();
+    foo() ==> say @(), " is what I meant";
+    bar() ==> (@@).baz();
 
-Feeding into the C<*> "whatever" term will extend the lexically
-following C<***> term:
+Feeding into the C<*> "whatever" term adds extra sources to the next sink:
 
     0..*       ==> *;
     'a'..*     ==> *;
     pidigits() ==> *;
 
     # outputs "(0, 'a', 3)\n"...
-    for zip(***) { .perl.say }
+    for zip(@@) { .perl.say }
 
 You may use a variable (or variable declaration) as a receiver, in
 which case the list value is bound as the "todo" of the variable.
@@ -941,7 +943,7 @@ is a list of 6 elements.  This is the default behavior.  However,
 sometimes you want to capture the outputs as a list of two iterators,
 namely the two iterators that represent the two input feeds.  You can
 get at those two iterators by using the name C<@@foo> instead, where
-the "feed" twigil marks a multidimensional array, that is, an
+the "multislice" twigil marks a multidimensional array, that is, an
 array of slices.
 
     0..*       ==> @@foo;
@@ -996,21 +998,28 @@ can ask for cat semantics explicitly with cat():
     (0..2; 'a'..'c') ==> my @@tmp;
     for @@tmp.cat { .say }
 
-As we saw earlier, "zip" produces little arrays by taking one element
+As we saw earlier, "zip" produces an interleaved result by taking one element
 from each list in turn, so
 
     (0..2; 'a'..'c') ==> my @@tmp;
     for @@tmp.zip { .say }
 
-produces [0,'a'],[1,'b'],[2,'c'].  If you don't want the subarrays, then
-use C<each()> instead:
+produces 0,'a',1,'b',2,'c'.
+
+If you want the result as a list of subarrays, then you need to put
+the zip into a "chunky" context instead:
 
     (0..2; 'a'..'c') ==> my @@tmp;
-    for @@tmp.each { .say }
+    for @@tmp.zip.@@() { .say }
 
-and then you just get 0,'a',1,'b',2,'c'.  This is good for
+This produces [0,'a'],[1,'b'],[2,'c'].  But usually you want the flat
+form so you can just bind it directly to a signature:
 
-    for @@tmp.each -> $i, $a { say "$i: $a" }
+    for @@tmp.zip -> $i, $a { say "$i: $a" }
+
+Otherwise you'd have to say this:
+
+    for @@tmp.zip.@@() -> [$i, $a] { say "$i: $a" }
 
 In list context the C<@@foo> notation is really a shorthand for C<[;](@@foo)>.
 In particular, you can use C<@@foo> to interpolate a multidimensional slice
@@ -1026,41 +1035,21 @@ left to right in general regardless of the position of the receiver.
 So
 
     ('a'..*; 0..*) ==> *;
-     for zip(*** <== @foo) -> [$a, $i, $x] { ... }
+     for zip(@@() <== @foo) -> $a, $i, $x { ... }
 
 is the same as
 
     'a'..* ==> *;
      0..*  ==> *;
-     for zip(*** <== @foo) -> [$a, $i, $x] { ... }
+     for zip(@@ <== @foo) -> $a, $i, $x { ... }
 
 which is the same as
 
-    for zip('a'..*; 0..*; @foo) -> [$a, $i, $x] { ... }
-
-Likewise,
-
-    @foo ==> *;
-    0..* ==> *;
-    for each(***) -> $x, $i { ... }
-
-is the same as
-
-    0..* ==> *;
-    for each(@foo; ***) -> $x, $i { ... }
-
-and also
-
-    for each(@foo; 0..*) -> $x, $i { ... }
-
-Note that the C<each> method is also sensitive to multislicing, so you
-could also just write that as:
-
-    (@foo; 0..*).each: -> $x, $i { ... }
+    for zip('a'..*; 0..*; @foo) -> $a, $i, $x { ... }
 
 Also note that these come out to be identical for ordinary arrays:
 
-    @foo.each
+    @foo.zip
     @foo.cat
 
 The C<@@($foo)> coercer can be used to pull a multidim out of some

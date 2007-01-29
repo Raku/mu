@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 26 Jan 2007
+  Last Modified: 28 Jan 2007
   Number: 3
-  Version: 91
+  Version: 92
 
 =head1 Overview
 
@@ -22,7 +22,7 @@ For a summary of the changes from Perl 5, see L</Changes to Perl 5 operators>.
 
 =head1 Operator precedence
 
-Not counting terms and terminators, Perl 6 has 20 operator precedence
+Not counting terms and terminators, Perl 6 has 21 operator precedence
 levels. (Perl 5 has 23!)  Here we list the levels from "tightest" to
 "loosest", along with a few examples of each level:
 
@@ -45,11 +45,12 @@ levels. (Perl 5 has 23!)  Here we list the levels from "tightest" to
     Conditional         ?? !!
     Item assignment     = := ::= => += -= **= xx= .=
     Loose unary         true not
-    List ops            , = print push say die map substr ... [+] [*] any all
-    List infix          ¥ <== ==> minmax X XX X~X X*X XeqvX
+    Comma operator      ,
+    List infix          ¥ minmax X XX X~X X*X XeqvX
+    List prefix         = : print push say die map substr ... [+] [*] any all
     Loose and           and
     Loose or            or xor err
-    Terminator          ; {...}, modifiers, unmatched ), ], }
+    Terminator          ; <==, ==>, {...}, modifiers, unmatched ), ], }
 
 If you don't see your favorite operator there, the following
 sections cover all the operators in precedence order.  Basic operator
@@ -454,7 +455,7 @@ Converts both operands to Num and does division returning Num.
 
 =item *
 
-infix:<div>
+infix:<div>, generic division
 
     $dividend div $divisor
 
@@ -465,6 +466,16 @@ Dispatches to the infix:<div> multi most appropriate to the operand types.
 infix:<%>, modulus
 
     %
+
+Always floor semantics using Num or Int.
+
+=item *
+
+infix:<mod>, generic modulus
+
+    mod
+
+Dispatches to the infix:<mod> multi most appropriate to the operand types.
 
 =item *
 
@@ -492,7 +503,7 @@ infix:{'+<'}, numeric shift left
 
 =item *
 
-infix:{'+<'}, numeric shift right
+infix:{'+>'}, numeric shift right
 
     +>
 
@@ -519,18 +530,6 @@ infix:{'~>'}, string bitwise shift right
 infix:<?&>, boolean bitwise and
 
     ?&
-
-=item *
-
-infix:<div>, generic division
-
-    div
-
-=item *
-
-infix:<mod>, generic modulus
-
-    mod
 
 =back
 
@@ -974,21 +973,9 @@ prefix:<not>
 
 =back
 
-=head2 List ops precedence
+=head2 Comma operator precedence
 
 =over
-
-=item *
-
-infix:<=>, list assignment
-
-    @array = 1,2,3;
-
-With compound targets, performs list assignment.  The right side is looser
-than comma.  You can view the left side as a special syntax for a prefix
-listop, much as if you'd said:
-
-    @array.assign: 1,2,3
 
 =item *
 
@@ -999,21 +986,109 @@ infix:<,>, the argument separator
 Unlike in Perl 5, comma operator never returns the last value.  (In item
 context it returns a list instead.)
 
+=back
+
+=head2 List infix precedence
+
+List infixes all have list associativity, which means that identical
+infix operators work together in parallel rather than one after
+the other.  Non-identical operators are considered non-associative
+and must be parenthesized for clarity.
+
+=over
+
+=item *
+
+infix:<¥>, the zip operator
+
+    1,2 ¥ 3,4   # (1,3),(2,4)
+
+=item *
+
+The minmax operator
+
+    $min0, $max0 minmax $min1, $max1    # ($min0 min $min1, $max0 max $max1)
+
+=item *
+
+List and string cross operators
+
+    1,2 XX 3,4          # (1,3), (1,4), (2,3), (2,4)
+    1,2 X 3,4           # '13', '14', '23', '24'
+
+In contrast to the zip operator, the C<XX> operator returns all the
+permutations of its sublists.  Hence you may say:
+
+    <a b> XX <1 2>
+
+and you end up with
+
+    ('a', '1'), ('a', '2'), ('b', '1'), ('b', '2')
+
+The C<X> variant crosses the arrays but concatenates strings:
+
+    <a b> X <1 2>
+
+produces
+
+    'a1', 'a2', 'b1', 'b2'
+
+The resemblance to C<x> and C<xx> is not entirely accidental.
+
+=item *
+
+Cross hyperoperators
+
+    X~X
+    X*X
+    XeqvX
+    etc.
+
+See L</Cross operators>.
+
+=back
+
+Many of these operators return a list of Captures, which depending on
+context may or may not flatten them all out into one flat list.  The
+default is to flatten, but see the contextualizers below.
+
+=head2 List prefix precedence
+
+=over
+
+=item *
+
+infix:<=>, list assignment
+
+    @array = 1,2,3;
+
+With compound targets, performs list assignment.  The right side
+is looser than comma.  You might be wondering why we've classified
+this as a prefix operator when its token name is C<< infix:<=> >>.
+That's because you can view the left side as a special syntax for a
+prefix listop, much as if you'd said:
+
+    @array.assign: 1,2,3
+
+However, the tokener classifies it as infix because it sees it when
+it's expecting an infix operator.  Assignments in general are treated
+more like retroactive macros, since their meaning depends greatly on
+what is on the left, especially if what is on the left is a declarator
+of some sort.  We even call some of them pseudo-assignments, but they're
+all a bit pseudo insofar as we have to figure out whether the left side
+is a list or a scalar destination.
+
 =item *
 
 infix:<:>, the invocant marker
 
     say $*OUT: "howdy, world"
 
-The colon that turns a method call into a list operator also sits
-in the "comma" slot.  It cannot be used just anywhere though.
-Much like list assignment, it takes a special syntax on the left
-side and turns it into a list operator over the list on the right.
-See L</Invocant marker>.
-
-Comma, C<=>, and C<:> are the only listops that are allowed to occur
-where an infix is expected.  All other listops function as a term
-within the expression to the left.
+The colon operator turns method calls and contextualizers into
+list operators.  It's not really a general operator; much like list
+assignment, it takes a special syntax on the left side and turns it
+into a list operator over the list on the right.  See L</Invocant
+marker>.
 
 =item *
 
@@ -1064,86 +1139,6 @@ See L<Reduction operators>.
 
 =item *
 
-The C<list> contextualizer
-
-    list
-
-Forces the subsequent expression to be evaluated in list context.
-Equivalent to C<@()>.
-
-=back
-
-=head2 List infix precedence
-
-=over
-
-=item *
-
-infix:<¥>, the zip operator
-
-    1,2 ¥ 3,4   # (1,3),(2,4)
-
-=item *
-
-infix:{'<=='}, the feed-left operator
-
-    target <== @list
-
-See L</Feed operators>.
-
-=item *
-
-infix:{'==>'}, the feed-right operator
-
-    @list ==> target
-
-See L</Feed operators>.
-
-=item *
-
-The minmax operator
-
-    $min0, $max0 minmax $min1, $max1    # ($min0 min $min1, $max0 max $max1)
-
-=item *
-
-List and string cross operators
-
-    1,2 XX 3,4          # (1,3), (1,4), (2,3), (2,4)
-    1,2 X 3,4           # '13', '14', '23', '24'
-
-In contrast to the zip operator, the C<XX> operator returns all the
-permutations of its sublists.  Hence you may say:
-
-    <a b> XX <1 2>
-
-and you end up with
-
-    ('a', '1'), ('a', '2'), ('b', '1'), ('b', '2')
-
-The C<X> variant crosses the arrays but concatenates strings:
-
-    <a b> X <1 2>
-
-produces
-
-    'a1', 'a2', 'b1', 'b2'
-
-The resemblance to C<x> and C<xx> is not entirely accidental.
-
-=item *
-
-Cross hyperoperators
-
-    X~X
-    X*X
-    XeqvX
-    etc.
-
-See L</Cross operators>.
-
-=item *
-
 Sigils as contextualizer listops
 
     $:
@@ -1152,25 +1147,34 @@ Sigils as contextualizer listops
     &:
     @@:
 
-Like listops, these look like terms from the left, but raise their
-precedence on the right sufficiently to govern the list infix
-operators above:
+As listops, these look like terms from the left, but raise their
+precedence on the right sufficiently to govern list infix
+operators:
 
-     $: 1,2 ¥ 3,4       # [1,3,2,4]
+     $: 1,2 ¥ 3,4       # [[1,3],[2,4]]
      @: 1,2 ¥ 3,4       # 1,3,2,4
     @@: 1,2 ¥ 3,4       # [1,3],[2,4]
      %: 1,2 ¥ 3,4       # { 1 => 3, 2 => 4 }
 
-     $: 1,2 XX 3,4      # [1,3,1,4,2,3,2,4]
+     $: 1,2 XX 3,4      # [[1,3],[1,4],[2,3],[2,4]]
      @: 1,2 XX 3,4      # 1,3,1,4,2,3,2,4
     @@: 1,2 XX 3,4      # [1,3],[1,4],[2,3],[2,4]
 
 These can also influence the result of functions that returns lists of captures:
 
-     $: map { $_, $_*2 }, ^4   # [0,0,1,2,2,4,3,6]
+     $: map { $_, $_*2 }, ^4   # [[0,0],[1,2],[2,4],[3,6]]
      @: map { $_, $_*2 }, ^4   # 0,0,1,2,2,4,3,6
     @@: map { $_, $_*2 }, ^4   # [0,0],[1,2],[2,4],[3,6]
      %: map { $_, $_*2 }, ^4   # { 0 => 0, 1 => 2, 2 => 4, 3 => 6 }
+
+=item *
+
+The C<list> contextualizer
+
+    list
+
+Forces the subsequent expression to be evaluated in list context.
+Equivalent to C<@:>.
 
 =back
 
@@ -1229,22 +1233,38 @@ See C<//> above for high-precedence version.
 
 =head2 Terminator precedence
 
-As with terms, terminators are not really a precedence level, but looser
-than the loosest precedence level.  They all have the effect of terminating
-any operator precedence parsing and returning a complete expression to the main
-parser.
+As with terms, terminators are not really a precedence level, but
+looser than the loosest precedence level.  They all have the effect of
+terminating any operator precedence parsing and returning a complete
+expression to the main parser.  They don't care what state the operator
+precedence parser is in.  If the parser is currently expecting a term
+and the final operator in the expression can't deal with a nullterm,
+then it's a syntax error.  (Notably, the comma operator and many prefix
+list operators can handle a nullterm.)
 
 =over
 
 =item *
 
-infix:<;>
+Semicolon: ;
 
     $x = 1; $y = 2;
 
+The context determines how the expressions terminated by semicolon
+are interpreted.  At statement level they are statements.  Within
+a bracketing construct they are interpreted as multidimension slices.
+(Other contexts may have other interpretations or disallow semicolons
+entirely.)
+
 =item *
 
-{} as control block
+Feed operators: <==, ==>
+
+    source() ==> filter() ==> sink()
+
+=item *
+
+Control block: <ws>{...}
 
 When a block occurs after whitespace where an infix is expected, it is
 interpreated as a control block for a statement control construct.
@@ -1254,11 +1274,13 @@ looking for such a block currently, it is a syntax error.
 
 =item *
 
+Statement modifiers: if, unless, while, until, for
+
 Statement modifiers terminate one expression and start another.
 
 =item *
 
-Unmatched ), ], }, etc.
+Any unexpected ), ], } at this level.
 
 Calls into the operator precedence parser may be parameterized
 to recognize additional terminators, but right brackets of any
@@ -1269,6 +1291,12 @@ recognized under the longest-token rule and continue the expression,
 but this practice is discouraged.  It would be better to use Unicode
 for your weird operator.)  Angle brackets are exempted so that they
 can form hyperoperators (see L</Hyper operators>).
+
+=item *
+
+A block-final } at the end of the line terminates the current expression.
+A block within an argument list terminates the argument list unless
+followed by the comma operator.
 
 =back
 
@@ -2311,10 +2339,10 @@ If you want both meanings of colon, you have to put it twice:
 
 =head1 Feed operators
 
-The new operators C<< ==> >> and C<< <== >> are akin to UNIX pipes, but
-work with functions that accept and return lists.  Since these lists are
-composed of discrete objects and not liquids, we call these I<feed> operators
-rather than pipes.  For example,
+The new operators C<< ==> >> and C<< <== >> are akin to UNIX pipes,
+but work with functions or statements that accept and return lists.
+Since these lists are composed of discrete objects and not liquids,
+we call these I<feed> operators rather than pipes.  For example,
 
      @result = map { floor($^x / 2) },
                  grep { /^ \d+ $/ },
