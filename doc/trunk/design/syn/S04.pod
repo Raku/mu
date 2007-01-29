@@ -441,14 +441,14 @@ A variant of C<do> is C<gather>.  Like C<do>, it is followed by a
 statement or block, and executes it once.  Unlike C<do>, it evaluates the
 statement or block in void context; its return
 value is instead specified by calling the C<take> function one or more times
-within the dynamic scope of the gather.  The returned values are in the
+within the dynamic scope of the C<gather>.  The returned values are in the
 form of a lazy multislice, with each slice corresponding to one
 C<take> capture.  (A multislice is lazily flattened in normal list context,
-but you may "unflatten" it again with a @@() contextualizer.)
+but you may "unflatten" it again with a C<@@()> contextualizer.)
 
 Because C<gather> evaluates its block or statement in void context,
-this typically causes the C<take> statement to be evaluated in void
-context.  However, a C<take> statement that is not in void context
+this typically causes the C<take> function to be evaluated in void
+context.  However, a C<take> function that is not in void context
 gathers its arguments I<en passant> and also returns them unchanged.
 This makes it easy to keep track of what you last "took":
 
