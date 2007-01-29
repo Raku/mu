@@ -1,0 +1,101 @@
+This is yet another rules engine implementation attempt.
+
+Ways you can help:
+
+  * Read the code.  Tag oddities with "#XXX why odd".
+  * Explore and explain to me how to hook a new p6 regex engine into
+    pugs.  I believe pugs is currently using perl5/Pugs-Compiler-Rule?
+
+Objective:
+
+  Create a fast p6 rules implementation in p5 which we can use for
+  perl6 parser development.
+
+Intent:
+
+  * supports p5 and p6 regex
+  * complete coverage, well tested
+  * fast
+  * quick development
+  * written in p5 (so it can be used with pugs, v6.pm, and pil2js)
+  * hardwired grammars - spec'ed extensibility defered.
+
+Architecture:
+
+  Uses the core Regexp::Parser::ReentrantEngine.pm emitters (fast and
+  tested), repackaged to use a new ast (no Regexp::Parser dependency),
+  with p5 and p6 grammars expressed as m-expressions (bootstrap both
+  not needed, and easily done), and a minimized ast (lean on the perl5
+  engine, avoid unnecessary nodes and work).  With compilation looking
+  like: some_regexp -> matcher for regexp grammar -> Match tree ->
+  m-expr tree -> ast -> matcher for some_regexp.
+
+Plan:
+
+  * Debug and shakedown the newly assembled engine.
+    Code review before getting into debugging.
+  * Get p5 regexp working:
+     Add missing ast node(s?) (eg, (?i)); debug the (very simple) grammar;
+     write the Match->ast conversion; wrap in a nice search api.
+  * Run against the re_tests p5 regexp test suite.
+    Full passing would require reintroducting ast nodes and emitters
+    which depend on captures (eg, backrefs, conditionals).  Trade off
+    extra work involved, vs clarity of an all-green test result.
+  * Get p6 rules tests.
+    Can we get pugs to use us for the t/ tests?  That would be best.
+    Else klude something, perhaps from the p6-ified re_tests.  But those
+    are very incomplete.
+  * Create simple m-expr grammar for p6 rules.
+    Start simple (eg, the pge illustrative grammar), get it working,
+    then extend it to the full grammar.
+  * Milestone - at this point it may be the best rules engine available.
+  * Flesh out the p6 implementation.
+  * Declare success.
+
+Budgeting:
+
+  3 days to p5 test suite passing.
+    Roughly 1 day writing, 1 day debugging hell, 1 day to get tests green.
+  1 day to get p6 test framework.
+  1 day for simple p6 rules support.
+  1+fuzzy day for fleshing out rules support.
+
+So 6+ days.  Likely spread over February '07.
+
+Risks:
+
+  * P6 rule spec is big.  I always underestimate this.  The "1+fuzzy"
+    current estimate is silly. -> Schedule blow out.  Mitigation:
+    Break functionality into chunks (eg, related to implementations -
+    eg, everything pge/PCR has); Re-budget; Downscale objective (eg,
+    go for pge or pcr equivalence).
+
+  * Engine oddities, perlbug tickling. -> Exploding debug cost.
+    Mitigation: perl version restriction.  Still worrisome.
+
+  * Does this version of the engine already support commits? ->
+    significant engine change, unexpected debugging hell.  Mitigation:
+    Check; Scavange if necessary (before initial debugging pass or
+    after? - after - minimum path to get-it-working - worth the hit).
+
+  * P6 rule interaction with lexical variables - have plan, but it's
+    still raw.  -> rathole.  Mitigation: Flesh out plan; Punt, restricting
+    interation to symbol table.
+
+  * Match objects are non-spec. -> non-specness.  Mitigation: I don't
+    care; Might be easily fixed.
+
+  * Implementation of grammars and rules, using packages and subs, is
+    new development.  -> schedule creep, non-specness.  Mitigation:
+    Don't really care how it's implemented, as long as it can support
+    p6 parser development; Can even punt to flat namespace; Whatever
+    is easy; Re non-spec, don't care unless there are tests.
+
+  * Mission creep, eg, everything for everyone cpan rules module.
+    Mitigation: don't; Budget separately.
+
+History:
+
+  2007-01-28 Started.  Repackaged engine around new ast, emitters, and
+  m-expr dsl.  First draft of p5 rules grammar.  Engine is currently
+  broken from the repackaging.
