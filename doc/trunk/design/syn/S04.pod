@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 25 Jan 2007
+  Last Modified: 29 Jan 2007
   Number: 4
-  Version: 48
+  Version: 49
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -435,13 +435,33 @@ or C<< -> >>.  (Use of a placeholder parameter is deemed insufficiently
 explicit because it's not out front where it can be seen.  You can, of
 course, use a placeholder parameter if you also use C<return>.)
 
+=head2 The gather statement
+
 A variant of C<do> is C<gather>.  Like C<do>, it is followed by a
-statement or block, and executes it once.  Unlike C<do>, its return
-value is specified by calling the C<take> function one or more times
-within the dynamic scope of the gather.  The returned values are in
-the form of a lazy multislice, with each dimension corresponding to
-one C<take> slice.  (A multislice is flattened in most list contexts.).
-A C<gather> is not considered a loop.
+statement or block, and executes it once.  Unlike C<do>, it evaluates the
+statement or block in void context; its return
+value is instead specified by calling the C<take> function one or more times
+within the dynamic scope of the gather.  The returned values are in the
+form of a lazy multislice, with each slice corresponding to one
+C<take> capture.  (A multislice is lazily flattened in normal list context,
+but you may "unflatten" it again with a @@() contextualizer.)
+
+Because C<gather> evaluates its block or statement in void context,
+this typically causes the C<take> statement to be evaluated in void
+context.  However, a C<take> statement that is not in void context
+gathers its arguments I<en passant> and also returns them unchanged.
+This makes it easy to keep track of what you last "took":
+
+    my @uniq = gather for @list {
+        state $previous = take $_;
+        next if $_ === $previous;
+        $previous = take $_;
+    }
+
+A C<gather> is not considered a loop, but it is easy to combine with a loop
+as in the example above.
+
+=head2 Other C<do>-like forms
 
 Other similar C<Code>-only forms may also take bare statements,
 including C<try>, C<contend>, C<async>, and C<lazy>.  These constructs
