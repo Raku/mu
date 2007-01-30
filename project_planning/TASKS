@@ -10,6 +10,11 @@
 
 * Fix PIL2JS.  See TALK. -- putter 2007-01-22
 
+* The top of util/run-smoke.pl has a blob of if()s, associated with
+  HARNESS_PERL and PUGS_RUNTIME.  It has grown organically and could
+  use a little neatening up.  Skills: simple perl5; care.
+  -- putter 2007-Jan-30
+
 == Old stuff ==
 
 * BROADCAST TASK - Check ./STATUS and see if systems with which you
