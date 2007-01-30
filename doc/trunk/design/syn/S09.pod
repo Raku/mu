@@ -802,6 +802,12 @@ canonical way to get the first element, unless
 
 works...
 
+Alternately, C<*+0> is the first element, and the subscript dwims
+from the front or back depending on the sign.  That would be more
+symmetrical, but makes the idea of C<*> in a subscript a little more
+distant from the notion of "all the keys", which would be a loss,
+and potentially makes C<+*> not mean the number of keys.
+
 Conjecture: we might provide a way to declare a modular subscript that
 emulates the dwimmery, perhaps by using a subset type:
 
