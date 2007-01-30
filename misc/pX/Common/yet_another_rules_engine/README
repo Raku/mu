@@ -1,10 +1,15 @@
 This is yet another rules engine implementation attempt.
 
+$ prove -Ilib t/re_tests.t
+... 29.66% okay.
+
 Ways you can help:
 
-  * Read the code.  Tag oddities with "#XXX why odd".
   * Explore and explain to me how to hook a new p6 regex engine into
     pugs.  I believe pugs is currently using perl5/Pugs-Compiler-Rule?
+  * Are there any better p6 regexp grammars than
+    misc/Grammars/rx_grammar.pm?
+  *...
 
 Objective:
 
@@ -32,11 +37,13 @@ Architecture:
 
 Plan:
 
-  * Debug and shakedown the newly assembled engine.
-    Code review before getting into debugging.
+  * Add emacs tag so this file comes up in text-mode.
+  * Create repl, so people can play.  Though history suggest no one
+    will actually look at it any time soon. :(
   * Get p5 regexp working:
+     Get capture working;
      Add missing ast node(s?) (eg, (?i)); debug the (very simple) grammar;
-     write the Match->ast conversion; wrap in a nice search api.
+     wrap in a nice search api.
   * Run against the re_tests p5 regexp test suite.
     Full passing would require reintroducting ast nodes and emitters
     which depend on captures (eg, backrefs, conditionals).  Trade off
@@ -96,6 +103,12 @@ Risks:
 
 History:
 
+  2007-Jan-29 Engine now running.  Perlbug in v5.8.8 was disappearing
+  a lexical (adding an extra use "fixed").  P5 grammar tweaked.  Match
+  tree to ast converter begun.  First light (ie, first time through
+  the entire "p5 re pattern -> match tree -> ast -> matcher -> matcher
+  works" path).  P5 re_tests added.  29.66% okay.  Cost: 1/2 day.
+
   2007-01-28 Started.  Repackaged engine around new ast, emitters, and
   m-expr dsl.  First draft of p5 rules grammar.  Engine is currently
-  broken from the repackaging.
+  broken from the repackaging.  Cost: 1 day.

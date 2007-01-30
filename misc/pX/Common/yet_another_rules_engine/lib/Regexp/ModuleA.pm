@@ -1,6 +1,5 @@
 package Regexp::ModuleA;
 
-
 package Regexp::RAST::ReentrantEngine;
 
 {
@@ -45,13 +44,16 @@ local $Regexp::RAST::ReentrantEngine::Env::cap;
 {
   package Regexp::RAST::Base;
 
+  use Sub::Name;
+  my $id = 1;
+
   sub RRRE_emit {
     my $cls = ref($_[0]);
     die "bug: $cls RRRE_emit() unimplemented\n";
   }
 
   my $noop;
-  $noop = sub{
+  $noop = subname "<noop ".($id++).">" => sub {
     my $c = $_[0];
     return 1 if !defined($c) || $c eq $noop;
     TAILCALL(&$c,$noop);
@@ -62,7 +64,7 @@ local $Regexp::RAST::ReentrantEngine::Env::cap;
     my($o,$re)=@_;
     my $noop = $o->RRRE_noop;
     my $qr = qr/\G($re)/;
-    sub {
+    subname "<eat_regexp ".($id++).">" => sub {
       my $c = $_[0];
       my($str) = $Regexp::RAST::ReentrantEngine::Env::str;
       pos($str) = $Regexp::RAST::ReentrantEngine::Env::pos;
@@ -86,7 +88,7 @@ local $Regexp::RAST::ReentrantEngine::Env::cap;
     die "bug $aref" if ref($aref) ne 'ARRAY';
     my @fs = @$aref;
     my $f_last = pop(@fs);
-    sub{
+    subname "<alt ".($id++).">" => sub {
       my $c = $_[0];
       for my $f (@fs) {
         my $v = LET($Regexp::RAST::ReentrantEngine::Env::pos){ $f->($c) }LET;
@@ -106,19 +108,20 @@ local $Regexp::RAST::ReentrantEngine::Env::cap;
     my $code0 = "my \$f0 = \$fs[0]; ";
     for my $i (reverse(1..$#a)) {
       $code0 .= "my \$f$i = \$fs[$i]; ";
-      $code1 .= "sub{\@_=";
+      $code1 .= "sub {\@_=";
       $code2 .= ";goto \&\$f$i}";
     }
     my $code = $code0."
 #line 2 \"Regexp::RAST::Base RRRE_concat\"
-\n sub{my \$cn = \$_[0]; \@_=".$code1."\$cn".$code2.";goto \&\$f0}\n";
+\n subname '<concat '.(\$id++).'>' => sub {my \$cn = \$_[0]; \@_=".$code1."\$cn".$code2.";goto \&\$f0}\n";
     eval($code) || die "$@";
   }   
   sub RRRE_repeat {
     my($o,$f,$min,$max,$ng)=@_;
     my $greedy = !$ng;
     my $noop = $o->RRRE_noop;
-    sub{
+    subname "<repeat ".($id++).">" => sub {
+      if(!defined $noop){die "this perlbug workaround line didn't"}
       my $c = $_[0];
       my $previous_pos = -1;
       my $count = 0;
@@ -155,11 +158,12 @@ local $Regexp::RAST::ReentrantEngine::Env::cap;
   }
   sub RRRE_capture {
     my($o,$idx,$f)=@_;
-    sub{
+    my $myid = $id++;
+    subname "<capture ".($myid).">" => sub {
       my $c = $_[0];
       my $m = Regexp::RAST::ReentrantEngine::Match->new();
       my $from = $Regexp::RAST::ReentrantEngine::Env::pos;
-      my $close = sub {
+      my $close = subname '<capture-close '.($myid).">" => sub {
         my $c0 = $_[0];
         my $to = $Regexp::RAST::ReentrantEngine::Env::pos;
         $m->match_set(1,substr($Regexp::RAST::ReentrantEngine::Env::str,$from,$to-$from),[],{},$from,$to);
@@ -178,7 +182,8 @@ local $Regexp::RAST::ReentrantEngine::Env::cap;
     my($o,$fetch,$name,$args)=@_;
     my $noop = $o->RRRE_noop;
     my $f = undef;
-    sub {
+    my $myid = $id++;
+    subname "<subrule ".($myid).">" => sub {
       my($c)=@_;
       $f = $fetch->(@$args) if !defined $f;
 
@@ -189,7 +194,7 @@ local $Regexp::RAST::ReentrantEngine::Env::cap;
       $$m1->{'RULE'} ||= $name; #EEEP
       $m1->match_set(1,"",[],{},$pos,undef);
 
-      my $rest = sub{
+      my $rest = subname "<subrule-rest ".($myid).">" => sub {
 	my $cn = $_[0];
 	$$m1->{'match_array'} = $Regexp::RAST::ReentrantEngine::Env::cap; #EEEP
 	$$m1->{'match_to'} = $Regexp::RAST::ReentrantEngine::Env::pos; #EEEP
@@ -221,7 +226,7 @@ local $Regexp::RAST::ReentrantEngine::Env::cap;
     my $atend = $noop;
     if(defined $minlen) {
       my $min_end = $minlen + $beginat;
-      $atend = sub{return undef if $Regexp::RAST::ReentrantEngine::Env::pos < $min_end;return 1;}
+      $atend = subname "<atend ".($id++).">" => sub {return undef if $Regexp::RAST::ReentrantEngine::Env::pos < $min_end;return 1;}
     }
     for my $start ($beginat..$len) {
       local $Regexp::RAST::ReentrantEngine::Env::str = $s;
@@ -325,6 +330,7 @@ local $Regexp::RAST::ReentrantEngine::Env::cap;
 
 {
   package Regexp::RAST::Subrule;
+  use Sub::Name;
 
   sub RRRE_emit {
     my($o)=@_;
@@ -332,7 +338,7 @@ local $Regexp::RAST::ReentrantEngine::Env::cap;
     my $name = $o->{name};
     my $where = $Regexp::RAST::Namespace::_current_namespace_;
     $where = $o->{created_in_pkg} if !defined $where;
-    my $fetch = sub {
+    my $fetch = subname "<subrule-fetch for $name in $where>" => sub {
       my $subname = "${where}::$name";
       no strict;
       my $f = $subname->('api0');
@@ -345,19 +351,21 @@ local $Regexp::RAST::ReentrantEngine::Env::cap;
 }
 {
   package Regexp::RAST::ARule;
+  use Sub::Name;
 
   sub RRRE_emit {
     my($o)=@_;
     my $f = $o->{expr}->RRRE_emit;
-    my $matcher = sub {
+    my $matcher = subname "<an arule-matcher for $o>" => sub {
       my($s,$beginat,$minlen)=@_;
       $o->RRRE_do_match($f,$s,$beginat,$minlen);
     };
-    sub {
+    subname "<an arule for $o>" => sub {
       my($request)=@_;
       if(@_ == 0) { return $matcher }
       if($request eq 'api0') { return $f }
       if($request eq 'RRRE-tree') { return $o }
+      use Carp; confess("ui assert");
       die "ui assert";
     }
   }
@@ -523,6 +531,7 @@ sub match__describe_name_as {
     my($cls,$modpat,$expr)=@_; die "api assert" if @_ != 3;
     my %m;
     for my $mod (split(":",$modpat)) {
+      next if $mod eq '';
       $mod =~ /^(\w+)(?:[[(<](.*?)[])>])?$/ or die "assert";
       my($k,$v) = ($1,$2);
       $v = '0' if !defined $v;
@@ -610,21 +619,85 @@ sub match__describe_name_as {
 package Regexp::ModuleA::P5;
 BEGIN { Regexp::RAST::Make0->import; };
 namespace("",
-	  bind('pattern',arule(alt(sr('_non_alt'),star(exact('|'),sr('_non_alt'))))),
+	  bind('pattern',arule(sr('_pattern'))),
+          bind('_pattern',arule(seq(sr('_non_alt'),star(exact('|'),sr('_non_alt'))))),
 	  bind('_non_alt',arule(star(sr('_element')))),
 	  bind('_element',arule(seq(sr('_non_quant'),ques(pat5('[?*+]'))))),
 	  bind('_non_quant',arule(alt(sr('_mod'),sr('_paren'),sr('_charclass'),sr('_esc'),sr('_nonmeta')))),
-	  bind('_mod',arule(seq(pat5('\(\?[imsx-]+:'),sr('pattern'),exact(')')))),
-	  bind('_paren',arule(seq(pat5('\((?!\?[imsx-]+:)'),sr('pattern',exact(')'))))),
+	  bind('_mod',arule(seq(pat5('\(\?[imsx-]+:'),sr('_pattern'),exact(')')))),
+	  bind('_paren',arule(seq(pat5('\((?!\?[imsx-]+:)'),sr('_pattern'),exact(')')))),
 	  bind('_charclass',arule(pat5('\[\^?\]?([^\]\\\\]|\\\\.)*\]'))),
-	  bind('_esc',arule(pat5('\\\\.'))),
-	  bind('_nonmeta',arule(pat5('[][)(^?*+\\\\]+')))
+	  bind('_esc',arule(pat5('\\\\.|\.'))),#rename
+	  bind('_nonmeta',arule(pat5('[^][)(^?*+\\\\\.|]+')))
 	  )->RRRE_emit;
 
-use Data::Dumper;
-#print Dumper pattern->('RRRE-tree');
-print Dumper pattern->()("");
+sub match_tree_to_mexpr {
+  my($m)=@_;
+  my $mexpr = match_tree_to_mexpr_helper($m);
+  if(!defined $mexpr) {
+    return undef;
+  }
+  "arule($mexpr)";
+}
+#XXX blech:
+sub match_tree_to_mexpr_helper {
+  my($m)=@_;
+  my $r = $$m->{RULE};
+  my @v = map{match_tree_to_mexpr_helper($_)} map{@$_} values(%{$m});
+  my @ret = @v;
+  if(defined($r)) {
+    if($r eq '_nonmeta') {
+      @ret = ("exact('$m')");
+    }
+    if($r eq '_element') {
+      my $s = "$m";
+      my($e)= @v;
+      if($s =~ /([?*+])$/) {
+        $e = "ques($e)" if $1 eq '?';
+        $e = "star($e)" if $1 eq '*';
+        $e = "plus($e)" if $1 eq '+';
+      }
+      @ret = ($e);
+    }
+    if($r eq '_esc') {
+      my $pat = "$m";
+#      $pat =~ s/(\W)/\\\1/g;
+      @ret = ("pat5('$pat')");
+    }
+    if($r eq '_charclass') {
+      my $pat = "$m";
+      @ret = ("pat5('$pat')");
+    }
+    if($r eq '_paren') {
+      @ret = ("seq($v[0])");
+    }
+    if($r eq '_mod') {
+      "$m" =~ /^\(\?([imsx]*)(?:-([imsx]*))?/ or die 'bug';
+      my $on  = join(":",split("",$1));
+      my $off = join(":",map{"${_}(0)"}split("",$2));
+      @ret = ("mod('$on:$off',$v[0])");
+    }
+    if($r eq '_non_alt') {
+      @ret = @v > 1 ? ("seq(".join(",",@v).")") : @v;
+    }
+    if($r eq '_pattern') {
+      @ret = @v > 1 ? ("alt(".join(",",@v).")") : @v;
+    }
+  }
+  return wantarray ? @ret : $ret[0];
+}
 
+sub mk_matcher_from_re {
+  my($re)=@_;
+  my $match = pattern->()($re);
+  my $m_exp = match_tree_to_mexpr($match);
+  my $ast = eval($m_exp);
+  die if $@;
+  my $matcher = $ast->RRRE_emit;
+  $matcher;
+}
+
+#abc
 #======================================================================
 
 package Regexp::RAST::ReentrantEngine;
@@ -642,18 +715,21 @@ sub init {
   my $re   = $o->{pattern};
   my $mods = $o->{modifiers};
   $re = "(?$mods)(?:$re)" if $mods;
-  $re = '(?:)' if $re eq ''; #Regexp::Parser bug workaround.
-  #$re = Regexp::RAST::ReentrantEngine::SubruleKludge::preprocess_re($re);
   $o->{regexp} = $re;
-  #print STDERR "COMPILING \"$re\" ",length($re),"\n";
-  my $parser = Regexp::Parser->new($re);
-  my $n = eval{ $parser->root };
+  my $n = eval { Regexp::ModuleA::P5::mk_matcher_from_re($re); };
+  $o->{matcher} = $n;
   Carp::confess "compile \"$re\" failed: $@" if !defined $n;
-  my $r = Regexp::RAST::ReentrantEngine::ParserNodeExtraMethods->RRRE_concat($n);
-  my $nparens = $parser->nparen;
-  $o->{parser} = $parser;
-  $o->{nparens} = $nparens;
-  $o->{matcher} = $r;
+
+#  $re = '(?:)' if $re eq ''; #Regexp::Parser bug workaround.
+  #$re = Regexp::RAST::ReentrantEngine::SubruleKludge::preprocess_re($re);
+  #print STDERR "COMPILING \"$re\" ",length($re),"\n";
+#  my $parser = Regexp::Parser->new($re);
+#  my $n = eval{ $parser->root };
+#  my $r = Regexp::RAST::ReentrantEngine::ParserNodeExtraMethods->RRRE_concat($n);
+#  my $nparens = $parser->nparen;
+#  $o->{parser} = $parser;
+#  $o->{nparens} = $nparens;
+#  $o->{matcher} = $r;
   $o;
 }
 sub match_re {
@@ -662,20 +738,26 @@ sub match_re {
   my $o = __PACKAGE__->new($pat,$mods);
   $o->match($str);
 }
+sub match {
+  my($o,$str)=@_;
+  $o->{matcher}()($str);
+}
+
+sub Regexp::ModuleA::test_target {
+  sub {
+    my($mods,$re)=@_;
+    my $o = Regexp::RAST::ReentrantEngine->new($re,$mods);
+    sub{my($s)=@_;$o->match($s)}
+  };
+}
+if(@ARGV && $ARGV[0] eq '--test' && 0) {#disabled
+  require './t/re_tests.t';
+  Pkg_re_tests::test(&_test_target);
+  exit;
+}
 
 1;
 __END__
-  sub _test_target {
-    sub{my($mods,$re)=@_;
-        my $o = __PACKAGE__->new($re,$mods);
-        sub{my($s)=@_;$o->match($s)}
-      };
-  }
-  if(@ARGV && $ARGV[0] eq '--test') {
-    require './t/re_tests.pl';
-    Pkg_re_tests::test(&_test_target);
-    exit;
-  }
 #; Local Variables:
 #; perl-indent-level: 2
 #; perl-continued-statement-offset: 2
