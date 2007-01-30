@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 66;
+plan 73;
 
 =pod
 
@@ -284,3 +284,27 @@ ok(!(?(0&1) != ?(0&&1)), 'boolean context');
 ok(!(?(1&1) != ?(1&&1)), 'boolean context');
 ok(!(?(1&0) != ?(1&&0)), 'boolean context');
 
+
+{
+    my $c = 0;
+    if 1 == 1 { $c++ }
+    is $c, 1;
+    if 1 == 1|2 { $c++ }
+    is $c, 2;
+    if 1 == 1|2|3 { $c++ }
+    is $c, 3;
+
+    $c++ if 1 == 1;
+    is $c, 4;
+    $c++ if 1 == 1|2;
+    is $c, 5, 'if modifier with junction should be called once', :todo<bug>;
+
+    $c = 0;
+    $c++ if 1 == 1|2|3;
+    is $c, 1, 'if modifier with junction should be called once', :todo<bug>;
+
+    $c = 0;
+    $c++ if 1 == any(1, 2, 3);
+    is $c, 1, 'if modifier with junction should be called once', :todo<bug>;
+}
+    
