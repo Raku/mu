@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 23 Dec 2006
+  Last Modified: 29 Jan 2007
   Number: 2
-  Version: 82
+  Version: 83
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -646,9 +646,6 @@ and optimize in the context of what operator it is being passed to.
 A variant of C<*> is the C<**> term.  It is generally understood to
 be a multidimension form of C<*> when that makes sense.
 
-The C<***> variant serves as the insertion point of a list of feeds.
-That insertion point may be targeted by feeding into C<*>.  See S06.
-
 Other uses for C<*> will doubtless suggest themselves over time.  These
 can be given meaning via the MMD system, if not the compiler.  In general
 a C<Whatever> should be interpreted as maximizing the degrees of freedom
@@ -673,12 +670,15 @@ you treat them as objects:
 
 These can behave as values or objects of any class, except that
 C<defined> always returns false.  One can create them with the
-built-in C<undef> and C<fail> functions.  (See S02 for how failures
+built-in C<undef> and C<fail> functions.  (See S04 for how failures
 are handled.)
 
-    Undef       Undefined (can serve as a prototype object of any class)
+    Undef       Undefined (variants serve as prototype objects of classes)
     Whatever    Wildcard (like undef, but subject to do-what-I-mean via MMD)
-    Failure     Failure (throws an exception if not handled properly)
+    Failure     Failure (lazy exceptions, thrown if not handled properly)
+
+Whenever you declare any kind of type, class, module, or package, you're
+automatically declaring a undefined prototype value with the same name.
 
 =head2 Immutable types
 
