@@ -786,7 +786,7 @@ using C<*>, the C<Whatever> object:
 When you use C<*> with C<+> and C<->, it creates a value of C<Whatever>
 but C<Num>, which the array subscript interpreter will interpret as the
 subscript one off the end of that dimension of the array.  The lower
-right corner of a two dimesional array is C<@array[*-1, *-1]>.
+right corner of a two dimesional array is C<@array[*-1; *-1]>.
 
 This policy has the fortuitous outcome that arrays declared with negative
 subscripts will never interpret negative subscripts as relative to the end:
