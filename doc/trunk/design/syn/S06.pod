@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 28 Jan 2007
+  Last Modified: 29 Jan 2007
   Number: 6
-  Version: 67
+  Version: 68
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -1620,6 +1620,15 @@ much like an array would be, that is, as a scalar in scalar context, and as a
 list in list context.  This is the default behavior, but the
 caller may use C<< prefix:<|> >> to inline the returned values as part of the
 new argument list.  The caller may also bind the returned C<Capture> directly.
+
+If any function called as part of a return list asks what its context
+is, it will be told it was called in list context regardless of the
+eventual binding of the returned C<Capture>.  If that is not the
+desired behavior you must coerce the call to an appropriate context,
+(or declare the return type of the function to perform such a coercion).
+In any event, such a function is called only once at the time the
+C<Capture> object is generated, not when it is later bound (which
+could happen more than once).
 
 =head2 The C<caller> function
 
