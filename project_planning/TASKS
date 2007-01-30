@@ -1,8 +1,12 @@
 
-== New stuff ==
+If you find any of these items unclear, please add a line "XXX -
+unclear" or "XXX - what you found unclear".  That is a very simple
+thing you can do to help the project, and will let you practice doing
+a commit.  Thanks!
 
-* Go through "Old stuff", moving it to "New stuff" if it still seems relevant.
-  "svn blame" will show how old they are.  -- putter 2007-01-22
+Things which are undated may be a bit old, and perhaps no longer
+applicable.  But many are.
+
 
 * Capture fglock/putter interview info to kp6 faq.
   http://colabti.de/irclogger/irclogger_log/perl6?date=2007-01-15,Mon&sel=294#l480 through http://colabti.de/irclogger/irclogger_log/perl6?date=2007-01-15,Mon&sel=527#l810
@@ -15,11 +19,10 @@
   use a little neatening up.  Skills: simple perl5; care.
   -- putter 2007-Jan-30
 
-== Old stuff ==
-
-* BROADCAST TASK - Check ./STATUS and see if systems with which you
-  are familiar are correctly described.  Skills: be familiar with some
-  system. ;)
+* Reoccuring task: Check the [date] timestamps in STATUS.  They show
+the last time that section was verified as still correct.  If one is
+old, check with someone to see if it has changed.  What someone?  Ask
+on #perl6.  Skills: polite nagging.
 
 * Look at directories under t/; move or merge the incoming tests  
 under xx-uncategorized/ to the directory to which they belong. In addition 
@@ -27,12 +30,19 @@ to that, try to reorganize the increasingly overlapping and incoherent
 directory-naming scheme a bit, perhaps grouped by synopses names (see 
 doc/Perl6/Spec/) and then by section names as subdirectories.
 
+* POD format docs/Perl6/Overview/*.pod.
+
+* Scan docs directory for files which say "I am out of date" and list
+  them below.  Skills: none.
+
+* The pugs subversion repository was recently moved from svn.openfoundry.org
+  to svn.pugscode.org. Change references of the former to the latter where
+  appropriate.
+
 * We already have "evalbot" under examples/network/; if Pugs build  
 fails, currently it simply uses the last-known-good version of ./pugs binary.
 However, it would be great for the bot to report a build failure (perhaps
 with nopasted log) on the channel.
-
-* POD format docs/Perl6/Overview/*.pod.
 
 * Rearrange t/ so that it is suited for reuse with multiple Perl 6
 implementations.  The generic Perl 6 tests, suitable to all Perl 6
@@ -61,19 +71,11 @@ another 2x, 3x, 4x, whatever.  Look at new modern languages (eg,
 scala, slate, pypy), at big languages (ghc, mono), and elsewhere (where?).
 Bring us ideas.  Skills: as described.
 
-* Scan docs directory for files which say "I am out of date" and list
-  them below.  Skills: none.
-
 * Reoccuring task: Syncronize docs/ with current language spec.
 Skills: understand p6 well enough to read p6l and Synopses.
 You can check your understanding of changes on #perl6.
 Things specifically known to need updating:
  * docs/quickref/namespace
-
-* Reoccuring task: Check the [date] timestamps in STATUS.  They show
-the last time that section was verified as still correct.  If one is
-old, check with someone to see if it has changed.  What someone?  Ask
-on #perl6.  Skills: polite nagging.
 
 * ./pugs -V doesn't mention / is sloppy about a lot of stuff:
   Note also  say %?CONFIG.perl;
@@ -111,6 +113,3 @@ Skill: light sysadminship, code a logfile to IRC gateway (reuse a bot?)
 
 * See pugs/misc/runpugs/TODO for "runpugs" tasks.
 
-* The pugs subversion repository was recently moved from svn.openfoundry.org
-  to svn.pugscode.org. Change references of the former to the latter where
-  appropriate.
