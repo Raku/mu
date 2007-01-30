@@ -4,7 +4,7 @@ use v6-alpha;
 
 use Test;
 
-plan 34;
+plan 37;
 
 # L<S02/"Whitespace and Comments"/"Embedded comments"
 #  "#" plus any bracket>
@@ -84,6 +84,32 @@ plan 34;
     is 3, #{
         {Nested parens} works also {}
     } 3, 'nested parens #(...(...)...)';
+}
+
+# I am not sure if this is speced somewhere:
+# comments can be nested
+{
+    is 3, #(
+            comment
+            #{
+              internal comment
+            }
+            more comment
+        ) 3, 'comments can be nested with different brackets';
+    is 3, #(
+            comment
+            #(
+                internal comment
+            )
+            more
+            ) 3, 'comments can be nested with same brackets';
+
+    # TODO:
+    # ok eval(" #{ comment }") failes with an error as it tries to execute
+    # comment() before seeing that I meant #{ comment within this string.
+
+    ok eval(" #<<\n comment\n # >>\n >> 3"), 
+        'single line comment cannot correctly nested within multiline', :todo<bug>;
 }
 
 # L<S02/"Whitespace and Comments"/"Counting of nested brackets"
