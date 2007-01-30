@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 13 Sep 2004
-  Last Modified: 1 Oct 2006
+  Last Modified: 30 Jan 2007
   Number: 9
-  Version: 15
+  Version: 16
 
 =head1 Overview
 
@@ -762,5 +762,55 @@ But these ones I<do> autovivify:
     %hash<foo><bar> = "foo"; # duh
 
 This rule applies to C<Array>, C<Hash>, and C<Scalar> container objects.
+
+=head1 Negative subscript dwimmery
+
+It has become the custom to use negative subscripts to indicate counting
+from the end of an array.  This is still supported, but only for unshaped
+arrays:
+
+    my @a1 = 1,2,3;
+    my @a2[*] = 1,2,3;
+    @a1[-1]       # 3
+    @a1[-0.5]     # also 3 (uses floor semantics)
+    @a2[-1]       # ERROR
+    @a2[-0.0001]  # ERROR
+    @a2[0.0001]   # 1
+
+For shaped arrays you must explicitly refer to the current endpoint
+using C<*>, the C<Whatever> object:
+
+    @a2[*-1]      # 3
+    @a2[+*] = 1   # same as push(@a2, 1)
+
+When you use C<*> with C<+> and C<->, it creates a value of C<Whatever>
+but C<Num>, which the array subscript interpreter will interpret as the
+subscript one off the end of that dimension of the array.  The lower
+right corner of a two dimesional array is C<@array[*-1, *-1]>.
+
+This policy has the fortuitous outcome that arrays declared with negative
+subscripts will never interpret negative subscripts as relative to the end:
+
+    my @array[-5..5];
+    @array[-1];         # always the 4th element, not the 11th.
+    @array[*-1];        # always the 11th element, not the 4th.
+
+Oddly, this gives us a canonical way to get the last element, but no
+canonical way to get the first element, unless
+
+    @array[*-*];
+
+works...
+
+Conjecture: we might provide a way to declare a modular subscript that
+emulates the dwimmery, perhaps by using a subset type:
+
+    subset Mod10 of Int where ^10;
+    my @array[Mod5];
+    @array[42] = 1;     # sets @array[2]
+    @array[582];        # returns 1
+
+But perhaps C<Mod10> should work just like C<^10>, and the modular behavior
+requires some extra syntax.
 
 =for vim:set expandtab sw=4:
