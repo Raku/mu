@@ -945,19 +945,6 @@ The best don't-repeat-yourself solution is simply:
 
     my $x = hmm() ?? 1 !! 2;          # much better
 
-Some people like to write it like this:
-
-    my $x = hmm()
-            ?? 1
-            !! 2;
-
-A tabular form is also popular for cascaded conditionals:
-
-    my $result = $a ?? 1 !!
-                 $b ?? 2 !!
-                 $c ?? 3 !!
-                       4;
-
 =back
 
 =head2 Item assignment precedence
