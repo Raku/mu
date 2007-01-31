@@ -16,17 +16,22 @@ Allison Randal <al@shadowed.net>
    Date: 24 Jun 2002
    Last Modified: 31 Jan 2007
    Number: 5
-   Version: 48
+   Version: 49
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
 expressions" because they haven't been regular expressions for a
 long time, and we think the popular term "regex" is in the process of
 becoming a technical term with a precise meaning of: "something you do
-pattern matching with, kinda like a regular expression".
+pattern matching with, kinda like a regular expression".  On the other
+hand, one of the purposes of the redesign is to make portions of
+our patterns more amenable to analysis under traditional regular 
+expression and parser semantics, and that involves making careful
+distinctions between which parts of our patterns and grammars are
+to be treated as declarative, and which parts as procedural.
 
 In any case, when referring to recursive patterns within a grammar,
-the terms I<rule> and I<token> are generally preferred.
+the terms I<rule> and I<token> are generally preferred over I<regex>.
 
 =head1 New match result and capture variables
 
@@ -236,12 +241,15 @@ There are corresponding pragmas to default to these levels.
 
 =item *
 
-The new C<:Perl5> modifier allows Perl 5 regex syntax to be used instead:
+The new C<:Perl5>/C<:P5> modifier allows Perl 5 regex syntax to be
+used instead.  (It does not go so far as to allow you to put your
+modifiers at the end.)  For instance,
 
-     m:Perl5/(?mi)^[a-z]{1,2}(?=\s)/
+     m:P5/(?mi)^(?:[a-z]|\d){1,2}(?=\s)/
 
-(It does not go so far as to allow you to put your modifiers at
-the end.)
+is equivalant to the Perl 6 syntax:
+
+    m/ :i ^^ [ <[a..z]> || \d ]**{1..2} <before \s> /
 
 =item *
 
@@ -344,6 +352,8 @@ The new C<:ratchet> modifier causes this regex to not backtrack by default.
 C<token> and C<rule> declarations.)  The effect of this modifier is
 to imply a C<:> after every construct that could backtrack, including
 bare C<*>, C<+>, and C<?> quantifiers, as well as alternations.
+(Note: for portions of patterns subject to longest-token analysis, a C<:>
+is ignored in any case, since there will no backtracking necessary.)
 
 The C<:ratchet> modifier also implies that the anchoring on either
 end is controlled by context.  When a ratcheted regex is called as
@@ -360,7 +370,7 @@ you can do direct pattern matching using a token or rule:
 and these are equivalent to
 
     $string ~~ m/^ \d+: $/;
-    $string ~~ m/^ <ws> \d+: <ws> $/;
+    $string ~~ m/^ <?ws> \d+: <?ws> $/;
 
 =item *
 
@@ -485,11 +495,13 @@ Note: if you don't want your two terms to end at the same point,
 then you really want to use a lookahead instead.
 
 As with the disjunctions C<|> and C<||>, conjuctions come in both
-C<&> and C<&&> forms.  The C<&> form allows the compiler and/or the
+C<&> and C<&&> forms.  The C<&> form is considered declarative rather than
+procedural; it allows the compiler and/or the
 run-time system to decide which parts to evaluate first, and it is
 erroneous to assume either order happens consistently.  The C<&&>
 form guarantees left-to-right order, and backtracking makes the right
-argument vary faster than the left.
+argument vary faster than the left.  In other words, C<&&> and C<||> establish
+sequence points.
 
 The C<&> operator is list associative like C<|>, but has slightly
 tighter precedence.  Likewise C<&&> has slightly tighter precedence
@@ -515,7 +527,10 @@ It now delimits a non-capturing group.
 =item *
 
 C<{...}> is no longer a repetition quantifier.
-It now delimits an embedded closure.
+It now delimits an embedded closure.  It is always considered
+procedural rather than declarative; it establishes a sequence point
+between what comes before and what comes after.  (To avoid this
+use the C<< <?{...}> >> assertion syntax instead.)
 
 =item *
 
@@ -533,9 +548,11 @@ It can affect the match if it calls C<fail>:
 
      / (\d+) { $0 < 256 or fail } /
 
-Closures are guaranteed to be called at the canonical time even if
-the optimizer could prove that something after them can't match.
-(Anything before is fair game, however.)
+Since closures establish a sequence point, they are guaranteed to be
+called at the canonical time even if the optimizer could prove that
+something after them can't match.  (Anything before is fair game,
+however.  In particular, a closure often serves as the terminator
+of a longest-token pattern.)
 
 =item *
 
@@ -558,7 +575,9 @@ so that the closure is never actually run in that case.  But it's
 a closure that must be run in the general case, so you can use
 it to generate a range on the fly based on the earlier matching.
 (Of course, bear in mind the closure must be run I<before> attempting to
-match whatever it quantifies.)
+match whatever it quantifies.)  A closure that must be run is considered
+procedural, but a closure that recognizably returns the same thing every
+time is considered declarative.
 
 =item *
 
@@ -634,9 +653,9 @@ assuming we make the C<@:> contextualizer govern only the next token.
 
 =item *
 
-An interpolated hash matches the longest possible key of the hash
-as a literal, or fails if no key matches.  (A C<""> key will match
-anywhere, provided no longer key matches.)
+An interpolated hash matches the longest possible token.  The match
+fails if no entry matches.  (A C<""> key will match anywhere, provided
+no longer key matches.)
 
 In a context requiring a set of initial token patterns, the initial
 token patterns are taken to be each key plus any initial token pattern
@@ -689,6 +708,64 @@ Any other value causes the match to fail.
 All hash keys, and values that are strings, pay attention to the
 C<:ignorecase> setting.  (Subrules maintain their own case settings.)
 
+You may combine multiple hashes under the same longest-token
+consideration by using declarative alternation:
+
+    %statement | %prefix | %term
+
+This means that, despite being in a later hash, C<< %term<food> >>
+will be selected in preference to C<< %prefix<foo> >> because it's
+the longer token.  However, if there is a tie, the earlier hash wins,
+so C<< %statement<if> >> hides any C<< %prefix<if> >> or C<< %term<if> >>.
+
+In contrast, if you use a procedural alternation:
+
+    [ %prefix || %term ]
+
+a C<< %prefix<foo> >> would be selected in preference to a C<< %term<food> >>.
+(Which is not what you usually want if your language is to do longest-token
+consistently.)
+
+If the hash has the property "is parsed(...)", the pattern provided
+is considered to wrap every match, where the key match is represent
+by C<KEY> and the value matchis represented by C<VALUE>.  (C<KEY>,
+if present, must come at the beginning.  If omitted, the key must be
+explicitly reparsed by this rule or by the value rule.  If C<VALUE>
+is omitted, it is assumed to be at the end.)  The intent of this
+property is primarily to allow you to introduce an implicit assertion
+between every key and its correpsonding value, such that:
+
+    our %words is parsed(/<KEY> <wb> <VALUE>/) := {
+        print => rx/<expr>/,
+        ...
+    }
+
+implies a match of:
+
+    rx:p/print <wb> <expr>/
+
+In the absence of an C<is parsed> property, the key is counted as
+"matched" already when the value match is attempted; that is, the
+current match position is set to C<after> the key token before calling
+any subrule in the value.  That subrule may, however, magically
+access the key anyway as if the subrule had started before the key
+and matched with C<< <KEY> >> assertion.  That is, C<< $<KEY> >> will
+contain the keyword or token that this subrule was looked up under,
+and that value will be returned by the current match object even if
+you do nothing special with it within the match.  (This also works
+for the leading token of a macro as seen from an C<is parsed> regex,
+since internally that turns into a hash lookup.)
+
+=item *
+
+Variable interpolations are considered provisionally declarative,
+on the assumption that the contents of the variable will not change
+frequently.  If it does change, it may force recalculation of any
+analysis relying on its supposed declarative nature.  (If you know
+this is going to happen too often, put some kind of sequence point
+before the variable to disable static analysis such as the generation
+of longest-token automata.)
+
 =back
 
 =head1 Extensible metasyntax (C<< <...> >>)
@@ -696,10 +773,11 @@ C<:ignorecase> setting.  (Subrules maintain their own case settings.)
 Both C<< < >> and C<< > >> are metacharacters, and are usually (but not
 always) used in matched pairs.  (Some combinations of metacharacters
 function as standalone tokens, and these may include angles.  These are
-described below.)
+described below.) Most assertions are considered declarative;
+procedural assertions will be marked as exceptions.
 
 For matched pairs, the first character after C<< < >> determines the
-behavior of the assertion:
+nature of the assertion:
 
 =over
 
@@ -748,6 +826,12 @@ can be written
 
 Likewise an initial left square bracket indicates character class syntax.  (See below.)
 
+Subrule matches are considered declarative to the extent that
+the front of the subrule is itself considered declarative.  If a
+subrule contains a sequence point, then so does the subrule match.
+Longest-token matching does not proceed past such a subrule, for
+instance.
+
 =item *
 
 The special named assertions include:
@@ -762,6 +846,7 @@ The special named assertions include:
 
      / <at($pos)> /          # match only at a particular StrPos
                              # short for <?{ .pos == $pos }>
+                             # (considered declarative until $pos changes)
 
 The C<after> assertion implements lookbehind by reversing the syntax
 tree and looking for things in the opposite order going to the left.
@@ -793,6 +878,10 @@ By default C<< <$foo> >> is captured into C<< $<foo> >>, but you can
 use the C<< <?$foo> >> form to suppress capture, and you can always say
 C<< $<$foo> := <$foo> >> if you prefer to include the sigil in the key.
 
+A subrule is considered declarative to the extent that the front of it
+is declarative, and to the extent that the variable doesn't change.
+Prefix with a sequence point to defeat repeated static optimizations.
+
 =item *
 
 A leading C<::> indicates a symbolic indirect subrule:
@@ -804,6 +893,7 @@ single method dispatch this is first searched for in the current
 grammar and its ancestors.  If this search fails an attempt is made
 to dispatch via MMD, in which case it can find subrules defined as
 multis rather than methods.  This form is not captured by default.
+It is always considered procedural, not declarative.
 
 =item *
 
@@ -827,35 +917,8 @@ By default C<< <%foo> >> is captured into C<< $<foo> >>, but you can
 use the C<< <?%foo> >> form to suppress capture, and you can always say
 C<< $<%foo> := <%foo> >> if you prefer to include the sigil in the key.
 
-With both bare hash and hash in angles, the key is counted as "matched"
-immediately; that is, the current match position is set to C<after> the key
-token before calling any subrule in the value.  That subrule may, however,
-magically access the key anyway as if the subrule had started before the
-key and matched with C<< <KEY> >> assertion.  That is, C<< $<KEY> >>
-will contain the keyword or token that this subrule was looked up under,
-and that value will be returned by the current match object even if
-you do nothing special with it within the match.  (This also works
-for the name of a macro as seen from an C<is parsed> regex, since
-internally that turns into a hash lookup.)
-
 As with bare hash, the longest key matches according to the venerable
-I<longest token rule>, but in addition, you may combine multiple hashes
-under the same longest-token consideration like this:
-
-    <%statement|%prefix|%term>
-
-This means that, despite being in a later hash, C<< %term<food> >>
-will be selected in preference to C<< %prefix<foo> >> because it's
-the longer token.  However, if there is a tie, the earlier hash wins,
-so C<< %statement<if> >> hides any C<< %prefix<if> >> or C<< %term<if> >>.
-
-In contrast, if you say
-
-    [ <%prefix> | <%term> ]
-
-a C<< %prefix<foo> >> would be selected in preference to a C<< %term<food> >>.
-(Which is not what you usually want if your language is to do longest-token
-consistently.)
+I<longest-token rule>.
 
 =item *
 
@@ -864,7 +927,8 @@ into the pattern at that point as a subrule:
 
      / (<?ident>)  <{ %cache{$0} //= get_body($0) }> /
 
-The closure is guaranteed to be run at the canonical time.
+The closure is guaranteed to be run at the canonical time; it declares
+a sequence point, and is considered to be procedural.
 
 As with an ordinary embedded closure, an B<explicit> return from a
 regex closure binds the I<result object> for this match, ignores the
@@ -888,6 +952,8 @@ a regex.  Hence
 is short for
 
      <{ foo() }>
+
+This is considered procedural.
 
 =item *
 
@@ -913,11 +979,12 @@ Similar to:
      / (\d**{1..3}) { $0 < 256 or fail } /
      / (\d**{1..3}) { $0 < 256 and fail } /
 
-Unlike closures, code assertions are not guaranteed to be run at the
-canonical time if the optimizer can prove something later can't match.
-So you can sneak in a call to a non-canonical closure that way:
+Unlike closures, code assertions are considered declarative; they are
+not guaranteed to be run at the canonical time if the optimizer can
+prove something later can't match.  So you can sneak in a call to a
+non-canonical closure that way:
 
-     /^foo .* <?{ do { say "Got here!" } or 1 }> .* bar$/
+     token { foo .* <?{ do { say "Got here!" } or 1 }> .* bar }
 
 The C<do> block is unlikely to run unless the string ends with "C<bar>".
 
@@ -1046,6 +1113,8 @@ only the digits matched, and C<.pos> is pointing to after the digits.
 Other captures (named or numbered) are unaffected and may be accessed
 through C<$/>.
 
+These tokens are considered declarative, but may force backtracking behavior.
+
 =item *
 
 A C<«> or C<<< << >>> token indicates a left word boundary.  A C<»> or
@@ -1093,6 +1162,9 @@ See the C<at> assertion below.
 
 Backreferences (e.g. C<\1>, C<\2>, etc.) are gone; C<$0>, C<$1>, etc. can be
 used instead, because variables are no longer interpolated.
+
+Numeric variables are assumed to change every time and therefore are
+considered procedural, unlike normal variables.
 
 =item *
 
@@ -1148,13 +1220,13 @@ hexadecimal).
 
 =back
 
-=head1 Regexes really are regexes now
+=head1 Regexes are now first-class language, not strings
 
 =over
 
 =item *
 
-The Perl 5  C<qr/pattern/> regex constructor is gone.
+The Perl 5 C<qr/pattern/> regex constructor is gone.
 
 =item *
 
@@ -1195,7 +1267,7 @@ modifiers:
 
 The name of the constructor was changed from C<qr> because it's no
 longer an interpolating quote-like operator.  C<rx> is short for I<regex>,
-(not to be confused with regular expressions).
+(not to be confused with regular expressions, except when they are).
 
 =item *
 
@@ -1305,6 +1377,9 @@ you'd have to avoid using a block:
 =back
 
 =head1 Backtracking control
+
+Within those portions of a pattern that are considered procedural rather
+than declarative, you may control the backtracking behavior.
 
 =over
 
