@@ -1,4 +1,5 @@
 package Regexp::ModuleA;
+use Carp;
 
 package Regexp::RAST::ReentrantEngine;
 
@@ -219,7 +220,7 @@ local $Regexp::RAST::ReentrantEngine::Env::cap;
   }
   sub RRRE_do_match {
     my($o,$f,$s,$beginat,$minlen)=@_;
-    my $nparen = $o->{nparen}; #XXX
+    my $nparen = $o->{nparen};
     my $len = length($s);
     $beginat = 0 if !defined($beginat);
     my $noop = $o->RRRE_noop;
@@ -265,15 +266,19 @@ local $Regexp::RAST::ReentrantEngine::Env::cap;
   }
 }
 { # (?imsx-imsx:...)
-  package Regexp::RAST::Mod;
+  package Regexp::RAST::Mod_expr;
 
   sub RRRE_emit {
     my($o)=@_;
-    local $o->{flags} = { %{$o->{flags}} };
-    foreach my $key (keys(%{$o->{mods}})) {
-      $o->{flags} = $o->{mods}{$key};
-    }
     $o->{expr}->RRRE_emit;
+  }
+}
+{ # (?imsx-imsx)
+  package Regexp::RAST::Mod_inline;
+
+  sub RRRE_emit {
+    my($o)=@_;
+    $o->RRRE_noop;
   }
 }
 {
@@ -283,6 +288,7 @@ local $Regexp::RAST::ReentrantEngine::Env::cap;
     my($o)=@_;
     my $re = $o->{text};
     $re =~ s/(\W)/\\$1/g;
+    $re = $o->RRRE_wrap_re_with_mods($re);
     $o->RRRE_eat_regexp($re);
   }
 }
@@ -365,7 +371,7 @@ local $Regexp::RAST::ReentrantEngine::Env::cap;
       if(@_ == 0) { return $matcher }
       if($request eq 'api0') { return $f }
       if($request eq 'RRRE-tree') { return $o }
-      use Carp; confess("ui assert");
+      Carp::confess("ui assert");
       die "ui assert";
     }
   }
@@ -450,10 +456,10 @@ sub match_set_as_failed {
 }
 
 sub match_describe {
-  my($o)=@_;
+  my($o,$verbose_p)=@_;
   my $os = "$o";
   $os = $o->match__indent_except_top($os) if $os =~ /\n/;
-  my $s = $o->match__describe_name_as;
+  my $s = $verbose_p ? $o->match__describe_name_as : "";
   $s .= "<".($o?"1":"0").",\"$os\",[";
   for (@{$o}) { $s .= "\n".$o->match__indent($_->match_describe())."," }
   $s .= "\n " if @{$o};
@@ -493,11 +499,12 @@ sub match__describe_name_as {
   BEGIN{
   require Exporter;
   @Regexp::RAST::Make0::ISA=qw(Exporter);
-  @Regexp::RAST::Make0::EXPORT_OK = qw(pat5 mod exact quant alt seq cap5 sr arule bind namespace  ques star plus);
-  @Regexp::RAST::Make0::EXPORT    = qw(pat5 mod exact quant alt seq cap5 sr arule bind namespace  ques star plus);
+  @Regexp::RAST::Make0::EXPORT_OK = qw(pat5 mod_expr mod_inline exact quant alt seq cap5 sr arule bind namespace  ques star plus);
+  @Regexp::RAST::Make0::EXPORT    = qw(pat5 mod_expr mod_inline exact quant alt seq cap5 sr arule bind namespace  ques star plus);
   }
   sub pat5 { Regexp::RAST::Pat5->new(@_) }
-  sub mod { Regexp::RAST::Mod->new(@_) }
+  sub mod_expr { Regexp::RAST::Mod_expr->new(@_) }
+  sub mod_inline { Regexp::RAST::Mod_inline->new(@_) }
   sub exact { Regexp::RAST::Exact->new(@_) }
   sub quant { Regexp::RAST::Quant->new(@_) }
   sub alt { Regexp::RAST::Alt->new(@_) }
@@ -515,6 +522,7 @@ sub match__describe_name_as {
 
 {
   package Regexp::RAST::Base;
+  sub RAST_init { Carp::confess "bug - unimplemented" }
 }
 {
   package Regexp::RAST::Pat5;
@@ -523,22 +531,9 @@ sub match__describe_name_as {
     my($cls,$pat)=@_; die "api assert" if @_ != 2;
     bless {pat=>$pat}, $cls;
   }
-}
-{
-  package Regexp::RAST::Mod;
-  @Regexp::RAST::Mod::ISA=qw(Regexp::RAST::Base);
-  sub new {
-    my($cls,$modpat,$expr)=@_; die "api assert" if @_ != 3;
-    my %m;
-    for my $mod (split(":",$modpat)) {
-      next if $mod eq '';
-      $mod =~ /^(\w+)(?:[[(<](.*?)[])>])?$/ or die "assert";
-      my($k,$v) = ($1,$2);
-      $v = '0' if !defined $v;
-      $v = eval($v);
-      $m{$k} = $v;
-    }
-    bless {mods=>\%m,expr=>$expr}, $cls;
+  sub RAST_init {
+    my($o)=@_;
+    $o->{flags} = {%$Regexp::RAST::Env::flags};
   }
 }
 {
@@ -548,6 +543,58 @@ sub match__describe_name_as {
     my($cls,$text)=@_; die "api assert" if @_ != 2;
     bless {text=>$text}, $cls;
   }
+  sub RAST_init {
+    my($o)=@_;
+    $o->{flags} = {%$Regexp::RAST::Env::flags};
+  }
+}
+{
+  package Regexp::RAST::Mod_expr;
+  @Regexp::RAST::Mod_expr::ISA=qw(Regexp::RAST::Base);
+  sub _new_hlp {
+    my($cls,$modpat)=@_;
+    my %m;
+    for my $mod (split(":",$modpat)) {
+      next if $mod eq '';
+      $mod =~ /^(\w+)(?:[[(<](.*?)[])>])?$/ or die "assert";
+      my($k,$v) = ($1,$2);
+      $v = '1' if !defined $v;
+      $v = eval($v);
+      $m{$k} = $v;
+    }
+    \%m;
+  }
+  sub new {
+    my($cls,$modpat,$expr)=@_; die "api assert" if @_ != 3;
+    my $m = $cls->_new_hlp($modpat);
+    bless {mods=>$m,expr=>$expr}, $cls;
+  }
+  sub _add_mods {
+    my($o)=@_;
+    my $flags = {%$Regexp::RAST::Env::flags};
+    foreach my $key (keys(%{$o->{mods}})) {
+      $flags->{$key} = $o->{mods}{$key};
+    }
+    $flags;
+  }
+  sub RAST_init {
+    my($o)=@_;
+    local $Regexp::RAST::Env::flags = $o->_add_mods;
+    $o->{expr}->RAST_init;
+  }
+}
+{
+  package Regexp::RAST::Mod_inline;
+  @Regexp::RAST::Mod_inline::ISA=qw(Regexp::RAST::Mod_expr);#
+  sub new {
+    my($cls,$modpat)=@_; die "api assert" if @_ != 2;
+    my $m = $cls->_new_hlp($modpat);
+    bless {mods=>$m}, $cls;
+  }
+  sub RAST_init {
+    my($o)=@_;
+    $Regexp::RAST::Env::flags = $o->_add_mods;
+  }
 }
 {
   package Regexp::RAST::Quant;
@@ -556,21 +603,9 @@ sub match__describe_name_as {
     my($cls,$min,$max,$expr)=@_; die "api assert" if @_ != 4;
     bless {min=>$min,max=>$max,expr=>$expr}, $cls;
   }
-}
-{
-  package Regexp::RAST::Alt;
-  @Regexp::RAST::Alt::ISA=qw(Regexp::RAST::Base);
-  sub new {
-    my($cls,@exprs)=@_;
-    bless {exprs=>\@exprs}, $cls;
-  }
-}
-{
-  package Regexp::RAST::Seq;
-  @Regexp::RAST::Seq::ISA=qw(Regexp::RAST::Base);
-  sub new {
-    my($cls,@exprs)=@_;
-    bless {exprs=>\@exprs}, $cls;
+  sub RAST_init {
+    my($o)=@_;
+    $o->{expr}->RAST_init;
   }
 }
 {
@@ -580,7 +615,37 @@ sub match__describe_name_as {
     my($cls,$expr)=@_;
     bless {expr=>$expr}, $cls;
   }
+  sub RAST_init {
+    my($o)=@_;
+    $o->{cap5_idx} = $Regexp::RAST::Env::nparen++;
+    $o->{expr}->RAST_init;
+  }
 }
+{
+  package Regexp::RAST::Alt;
+  @Regexp::RAST::Alt::ISA=qw(Regexp::RAST::Base);
+  sub new {
+    my($cls,@exprs)=@_;
+    bless {exprs=>\@exprs}, $cls;
+  }
+  sub RAST_init {
+    my($o)=@_;
+    [map{$_->RAST_init} @{$o->{exprs}}];
+  }
+}
+{
+  package Regexp::RAST::Seq;
+  @Regexp::RAST::Seq::ISA=qw(Regexp::RAST::Base);
+  sub new {
+    my($cls,@exprs)=@_;
+    bless {exprs=>\@exprs}, $cls;
+  }
+  sub RAST_init {
+    my($o)=@_;
+    [map{$_->RAST_init} @{$o->{exprs}}];
+  }
+}
+
 {
   package Regexp::RAST::Subrule;
   @Regexp::RAST::Subrule::ISA=qw(Regexp::RAST::Base);
@@ -588,14 +653,23 @@ sub match__describe_name_as {
     my($cls,$pkg,$name,$args)=@_; die "api assert" if @_ != 4;
     bless {created_in_pkg=>$pkg,name=>$name,args=>$args}, $cls;
   }
+  sub RAST_init {
+    my($o)=@_;
+  }
 }
-
 {
   package Regexp::RAST::ARule;
   @Regexp::RAST::ARule::ISA=qw(Regexp::RAST::Base);
   sub new {
     my($cls,$expr)=@_; die "api assert" if @_ != 2;
     bless {expr=>$expr}, $cls;
+  }
+  sub RAST_init {
+    my($o)=@_;
+    local $Regexp::RAST::Env::nparen = 0;
+    local $Regexp::RAST::Env::flags = {};
+    $o->{expr}->RAST_init;
+    $o->{nparen} = $Regexp::RAST::Env::nparen;
   }
 }
 {
@@ -605,6 +679,10 @@ sub match__describe_name_as {
     my($cls,$pkg,$name,$expr)=@_; die "api assert" if @_ != 4;
     bless {created_in_pkg=>$pkg,name=>$name,expr=>$expr}, $cls;
   }
+  sub RAST_init {
+    my($o)=@_;
+    $o->{expr}->RAST_init;
+  }
 }
 {
   package Regexp::RAST::Namespace;
@@ -612,6 +690,10 @@ sub match__describe_name_as {
   sub new {
     my($cls,$pkg,$name,@bindings)=@_; die "api assert" if @_ < 3;
     bless {created_in_pkg=>$pkg,name=>$name,bindings=>\@bindings}, $cls;
+  }
+  sub RAST_init {
+    my($o)=@_;
+    [map{$_->RAST_init} @{$o->{bindings}}];
   }
 }
 
@@ -623,13 +705,16 @@ namespace("",
           bind('_pattern',arule(seq(sr('_non_alt'),star(exact('|'),sr('_non_alt'))))),
 	  bind('_non_alt',arule(star(sr('_element')))),
 	  bind('_element',arule(seq(sr('_non_quant'),ques(pat5('[?*+]'))))),
-	  bind('_non_quant',arule(alt(sr('_mod'),sr('_paren'),sr('_charclass'),sr('_esc'),sr('_nonmeta')))),
-	  bind('_mod',arule(seq(pat5('\(\?[imsx-]+:'),sr('_pattern'),exact(')')))),
-	  bind('_paren',arule(seq(pat5('\((?!\?[imsx-]+:)'),sr('_pattern'),exact(')')))),
+	  bind('_non_quant',arule(alt(sr('_mod_inline'),sr('_mod_expr'),sr('_cap5'),sr('_paren'),sr('_charclass'),sr('_esc'),sr('_nonmeta')))),
+	  bind('_mod_inline',arule(pat5('\(\?[imsx-]+\)'))),
+	  bind('_mod_expr',arule(seq(pat5('\(\?[imsx-]+:'),sr('_pattern'),exact(')')))),
+	  bind('_paren',arule(seq(pat5('\((?!\?[imsx-]+:)\?'),sr('_pattern'),exact(')')))),
+	  bind('_cap5',arule(seq(pat5('\((?!\?)'),sr('_pattern'),exact(')')))),
 	  bind('_charclass',arule(pat5('\[\^?\]?([^\]\\\\]|\\\\.)*\]'))),
 	  bind('_esc',arule(pat5('\\\\.|\.'))),#rename
 	  bind('_nonmeta',arule(pat5('[^][)(^?*+\\\\\.|]+')))
 	  )->RRRE_emit;
+
 
 sub match_tree_to_mexpr {
   my($m)=@_;
@@ -671,14 +756,23 @@ sub match_tree_to_mexpr_helper {
     if($r eq '_paren') {
       @ret = ("seq($v[0])");
     }
-    if($r eq '_mod') {
+    if($r eq '_cap5') {
+      @ret = ("cap5($v[0])");
+    }
+    if($r eq '_mod_expr') {
       "$m" =~ /^\(\?([imsx]*)(?:-([imsx]*))?/ or die 'bug';
       my $on  = join(":",split("",$1));
-      my $off = join(":",map{"${_}(0)"}split("",$2));
-      @ret = ("mod('$on:$off',$v[0])");
+      my $off = join(":",map{"${_}(0)"}split("",defined $2 ? $2 : ""));
+      @ret = ("mod_expr('$on:$off',$v[0])");
+    }
+    if($r eq '_mod_inline') {
+      "$m" =~ /^\(\?([imsx]*)(?:-([imsx]*))?/ or die 'bug';
+      my $on  = join(":",split("",$1));
+      my $off = join(":",map{"${_}(0)"}split("",defined $2 ? $2 : ""));
+      @ret = ("mod_inline('$on:$off')");
     }
     if($r eq '_non_alt') {
-      @ret = @v > 1 ? ("seq(".join(",",@v).")") : @v;
+      @ret = @v != 1 ? ("seq(".join(",",@v).")") : @v;
     }
     if($r eq '_pattern') {
       @ret = @v > 1 ? ("alt(".join(",",@v).")") : @v;
@@ -690,11 +784,21 @@ sub match_tree_to_mexpr_helper {
 sub mk_matcher_from_re {
   my($re)=@_;
   my $match = pattern->()($re);
+  if(!$match || $match->from != 0 || $match->to != length($re)) {
+    my $err = "Regexp syntax error:";
+    Carp::confess "$err / <-- HERE $re/" if $match->from != 0; #XX should set beginat
+    my $at = $match->to+1;
+    Carp::confess "$err /".substr($re,0,$at)." <-- HERE ".substr($re,$at)."/";
+  }
+  # print $match->match_describe,"\n";
   my $m_exp = match_tree_to_mexpr($match);
+  # print $m_exp,"\n";
+  die "assert" if !defined $m_exp;
   my $ast = eval($m_exp);
   die if $@;
+  $ast->RAST_init;
   my $matcher = $ast->RRRE_emit;
-  $matcher;
+  wantarray ? ($match,$m_exp,$ast,$matcher) : $matcher;
 }
 
 #abc
@@ -714,22 +818,11 @@ sub init {
   my($o)=@_;
   my $re   = $o->{pattern};
   my $mods = $o->{modifiers};
-  $re = "(?$mods)(?:$re)" if $mods;
+  $re = "(?$mods)$re" if $mods;
   $o->{regexp} = $re;
   my $n = eval { Regexp::ModuleA::P5::mk_matcher_from_re($re); };
   $o->{matcher} = $n;
   Carp::confess "compile \"$re\" failed: $@" if !defined $n;
-
-#  $re = '(?:)' if $re eq ''; #Regexp::Parser bug workaround.
-  #$re = Regexp::RAST::ReentrantEngine::SubruleKludge::preprocess_re($re);
-  #print STDERR "COMPILING \"$re\" ",length($re),"\n";
-#  my $parser = Regexp::Parser->new($re);
-#  my $n = eval{ $parser->root };
-#  my $r = Regexp::RAST::ReentrantEngine::ParserNodeExtraMethods->RRRE_concat($n);
-#  my $nparens = $parser->nparen;
-#  $o->{parser} = $parser;
-#  $o->{nparens} = $nparens;
-#  $o->{matcher} = $r;
   $o;
 }
 sub match_re {
@@ -743,6 +836,8 @@ sub match {
   $o->{matcher}()($str);
 }
 
+#======================================================================
+
 sub Regexp::ModuleA::test_target {
   sub {
     my($mods,$re)=@_;
@@ -750,11 +845,66 @@ sub Regexp::ModuleA::test_target {
     sub{my($s)=@_;$o->match($s)}
   };
 }
-if(@ARGV && $ARGV[0] eq '--test' && 0) {#disabled
-  require './t/re_tests.t';
-  Pkg_re_tests::test(&_test_target);
+if(@ARGV && $ARGV[0] eq '--test') {
+  require './t/re_tests.pl';
+  Pkg_re_tests::test(&Regexp::ModuleA::test_target);
   exit;
 }
+
+package Regexp::ModuleA;
+sub convert_p5_re_literal_to_p5_re {
+  use re 'eval';
+  my($lit5)=@_;
+  $lit5 =~ s/^\s+//; $lit5 =~ s/\s+$//;
+
+  my $modre = qr/[imsxogce]/;
+  my %close = ('('=>qr/\)/,'{'=>qr/}/,'['=>qr/]/,'<'=>qr/>/);
+  my $cl = sub{my $s = $_[0]; $close{$s}||qr/$s/ };
+  my($op,$delim,$pat5,$delimC,$subst,$mod5);
+  if($lit5 =~ /^()(\/)(.+?)(\/)()($modre*)$/) {
+    ($op,$delim,$pat5,$delimC,$subst,$mod5)=($1,$2,$3,$4,$5,$6);
+  }
+  elsif($lit5 =~ /^(qr|m)(.)(.+?)((??{$cl->($2)}))()($modre*)$/) {
+    ($op,$delim,$pat5,$delimC,$subst,$mod5)=($1,$2,$3,$4,$5,$6);
+  }
+# s///ubstitution is not supported.
+#  elsif($lit5 =~ /^(s)(.)(.+?)((??{$cl->($2)}))\2?(.+?)\4($modre*)$/){
+#    ($op,$delim,$pat5,$delimC,$subst,$mod5)=($1,$2,$3,$4,$5,$6);
+#  }
+  else { die "invalid literal: $lit5" }
+
+  return $pat5 if $mod5 eq '';
+  return "(?$mod5:$pat5)";
+}
+sub repl {
+  print "Enter a Perl 5 regexp pattern or literal.\n";
+  my $prompt1 = "Regex: ";
+  print $prompt1;
+  while(<>) {
+    chomp;
+    my $re = $_;
+    if(/^(\/|(m|s|qr)\W)/) {
+      $re = convert_p5_re_literal_to_p5_re($re);
+      print "As regexp: $re\n";
+    }
+    my($match,$m_exp,$ast,$matcher) = Regexp::ModuleA::P5::mk_matcher_from_re($re);
+    print "As m-expr: ",$m_exp,"\n";
+    print "Enter string to match against.  Blank line to stop.\nstring: ";
+    while(<>) {
+      chomp;
+      last if /^$/;
+      print $matcher->()($_)->match_describe(),"\n";
+      print "string: ";
+    }
+    print $prompt1;
+  }
+}
+if(@ARGV && $ARGV[0] eq '--repl') {
+  shift;
+  repl;
+}
+
+
 
 1;
 __END__
