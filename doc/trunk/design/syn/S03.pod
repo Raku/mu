@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 28 Jan 2007
+  Last Modified: 30 Jan 2007
   Number: 3
-  Version: 92
+  Version: 93
 
 =head1 Overview
 
@@ -293,13 +293,32 @@ Dotted postfix form of any other prefix operator
 
 As in C, these operators increment or decrement the object in question
 either before or after the value is taken from the object, depending on
-whether it is put before or after.  Also as in C, use of multiple side
-effects on a single object in the same expression results in undefined
+whether it is put before or after.  Also as in C, multiple references
+to a single mutating object in the same expression may result in undefined
 behavior unless some explicit sequencing operator is interposed.
+See L</Sequence points>.
 
 As with all postfix operators in Perl 6, no space is allowed between
 a term and its postfix.  See S02 for why, and for how to work around the
 restriction with a "long dot".
+
+As mutating methods, all these operators dispatch to the type of
+the operand and return a result of the same time, but they are legal
+on value types only if the (immutable) value is stored in a mutable
+container.  However, a bare undefined value (in a suitable C<Scalar>
+container) is allowed to mutate itself into an C<Int> in order to
+support the common idiom:
+
+    say $x unless %seen{$x}++;
+
+Increment of a C<Str> (in a suitable container) works as in Perl 5.
+(Use a derived type or a lexical multi to change this.)  Perl 6 also
+supports C<Str> decrement.
+
+Increment of a C<Bool> (in a suitable container) turns it true.
+Decrement turns it false.  This is useful if your C<%seen> array is
+actually a C<KeySet>, in which case decrement actually deletes it
+from the C<KeySet>.
 
 =over
 
@@ -332,7 +351,7 @@ infix:<**> exponentiation operator
 If the right argument is not an integer, the result is likely to
 be an approximation.  If the right argument is of an integer type,
 exponentiation is at least as accurate as repeated multiplication on
-the left side's type.  (From which it can be deduced that C<Int**Int>
+the left side's type.  (From which it can be deduced that C<Int**UInt>
 is always exact, since Int supports arbitrary precision.)  If the
 right argument is an integer represented in a non-integer type, the
 accuracy is left to implementation provided by that type; there is
@@ -425,9 +444,9 @@ prefix:<=>, iterate iterator
 Unary C<=> reads lines from a filehandle or filename, or
 iterates an iterator, or in general causes a scalar to explode its guts
 when it would otherwise not.  How it does that is context sensitive.
-For instance, C<=$iterator> is scalar/list sensitive and will
-produce one value in scalar context but many values in list context.
-(Use C<@$iterator> to force a fetch of all the values even in scalar
+For instance, C<=$iterator> is item/list sensitive and will
+produce one value in item context but many values in list context.
+(Use C<@$iterator> to force a fetch of all the values even in item
 context, and C<$$iterator> to force a fetch of a single value even
 in list context.)  On the other hand, C<=$capture> interpolates all
 parts of the capture that makes sense in the current list context,
@@ -649,6 +668,8 @@ The C<item> contextualizer
     item
 
 The new name for Perl 5's C<scalar> contextualizer.  Equivalent to C<$()>.
+We still call the values scalars, and talk about "scalar operators", but
+scalar operators are those that put their arguments into item context.
 
 =back
 
@@ -816,9 +837,10 @@ infix:<&&>, short-circuit and
 
     &&
 
-Returns the left argument if the left argument is false, otherwise returns
-the right argument.  In list context forces a false return to mean C<()>.
-See C<and> below for low-precedence version.
+Returns the left argument if the left argument is false, otherwise
+evaluates and returns the right argument.  In list context forces
+a false return to mean C<()>.  See C<and> below for low-precedence
+version.
 
 =back
 
@@ -832,9 +854,9 @@ infix:<||>, short-circuiting inclusive-or
 
     ||
 
-Returns the left argument if it's true, otherwise the right argument.
-In list context forces a false return to mean C<()>.
-See C<or> below for low-precedence version.
+Returns the left argument if it's true, otherwise evaluates and
+returns the right argument.  In list context forces a false return
+to mean C<()>.  See C<or> below for low-precedence version.
 
 =item *
 
@@ -853,9 +875,9 @@ infix:<//>, defined-or
 
     //
 
-Returns the left argument if it's defined, otherwise the right argument.
-In list context forces a false return to mean C<()>.
-See C<err> below for low-precedence version.
+Returns the left argument if it's defined, otherwise evaluates and
+returns the right argument.  In list context forces a false return
+to mean C<()>.  See C<err> below for low-precedence version.
 
 =item *
 
@@ -870,7 +892,7 @@ minmax listop.
 
 =back
 
-=head2 Conditional precedence
+=head2 Conditional operator precedence
 
 =over
 
@@ -880,8 +902,61 @@ minmax listop.
 
     say "My answer is: ", $maybe ?? "yes" !! "no";
 
-It is a syntax error to use an
-operator in the middle that binds looser in precedence, such as C<=>.
+Also known as the "ternary" or "trinary" operator, but we prefer
+"conditional" just to stop people from fighting over the terms.  The
+operator syntactically separates the expression into three subexpressions.
+It first evaluates the left part in boolean context, then based on that
+selects one of the other two parts to evaluate. (It never evaluates
+both of them.)  If the conditional is true it evaluates and returns
+the middle part; if false, the right part.  The above is therefore
+equivalent to:
+
+    say "My answer is: ", do {
+        if $maybe {
+            "yes";
+        }
+        else {
+            "no";
+        }
+    };
+
+It is a syntax error to use an operator in the middle part that binds
+looser in precedence, such as C<=>.
+
+    my $x;
+    hmm() ?? $x = 1 !! $x = 2;        # ERROR
+    hmm() ?? ($x = 1) !! ($x = 2);    # works
+
+Note that both sides have to be parenthesized.  A partial fix is
+even wronger:
+
+    hmm() ?? ($x = 1) !! $x = 2;      # parses, but WRONG
+
+That actually parses as:
+
+    (
+        hmm() ?? ($x = 1) !! $x
+    ) = 2;
+
+and always assigns C<2> to C<$x> (because C<($x = 1)> is a valid lvalue).
+
+And in any case, repeating the C<$x> forces you do declare it earlier.
+The best don't-repeat-yourself solution is simply:
+
+    my $x = hmm() ?? 1 !! 2;          # much better
+
+Some people like to write it like this:
+
+    my $x = hmm()
+            ?? 1
+            !! 2;
+
+A tabular form is also popular for cascaded conditionals:
+
+    my $result = $a ?? 1 !!
+                 $b ?? 2 !!
+                 $c ?? 3 !!
+                       4;
 
 =back
 
@@ -939,7 +1014,7 @@ infix:{'=>'}, Pair constructor
 
 Binary C<< => >> is no longer just a "fancy comma".  It now constructs
 a C<Pair> object that can, among other things, be used to pass named
-arguments to functions.  It provides scalar context to both sides.
+arguments to functions.  It provides item context to both sides.
 It does not actually do an assignment except in a notional sense;
 however its precedence is now equivalent to assignment, and it is
 also right associative.  Note that, unlike in Perl 5, C<< => >>
@@ -1008,6 +1083,19 @@ infix:<¥>, the zip operator
 The minmax operator
 
     $min0, $max0 minmax $min1, $max1    # ($min0 min $min1, $max0 max $max1)
+
+The C<minmax> operator is for calculating both a minimum and maximum
+in a single expression.  Otherwise you'd have to write twice as
+many expressions.  Instead of
+
+    @a minmax @b
+
+you'd have to say something like
+
+    ($a[0] min $b[0], $a[1] max $b[1])
+
+Note that there is no guarantee that the resulting minimum and maximum come
+from the same side.  The two calculations are bundled but independent.
 
 =item *
 
@@ -1184,13 +1272,14 @@ Equivalent to C<@:>.
 
 =item *
 
-infix:<and>
+infix:<and>, short-circuit and
 
     and
 
-Returns the left argument if the left argument is false, otherwise returns
-the right argument.  In list context forces a false return to mean C<()>.
-See C<&&> above for high-precedence version.
+Returns the left argument if the left argument is false, otherwise
+evaluates and returns the right argument.  In list context forces
+a false return to mean C<()>.  See C<&&> above for high-precedence
+version.
 
 =back
 
@@ -1200,17 +1289,17 @@ See C<&&> above for high-precedence version.
 
 =item *
 
-infix:<or>
+infix:<or>, short-circuit inclusive or
 
     or
 
-Returns the left argument if it's true, otherwise the right argument.
-In list context forces a false return to mean C<()>.
-See C<||> above for high-precedence version.
+Returns the left argument if it's true, otherwise evaluates and
+returns the right argument.  In list context forces a false return
+to mean C<()>.  See C<||> above for high-precedence version.
 
 =item *
 
-infix:<xor>
+infix:<xor>, exclusive or
 
     xor
 
@@ -1221,13 +1310,13 @@ See C<^^> above for high-precedence version.
 
 =item *
 
-infix:<err>
+infix:<err>, short-circuit defined-or
 
     err
 
-Returns the left argument if it's defined, otherwise the right argument.
-In list context forces a false return to mean C<()>.
-See C<//> above for high-precedence version.
+Returns the left argument if it's defined, otherwise evaluates and
+returns the right argument.  In list context forces a false return
+to mean C<()>.  See C<//> above for high-precedence version.
 
 =back
 
@@ -1397,7 +1486,7 @@ ASCII representation of a number.
 
 C<x> splits into two operators: C<x> (which concatenates repetitions 
 of a string to produce a single string), and C<xx> (which creates a list of 
-repetitions of a list or scalar).  C<"foo" xx *> represents an arbitrary
+repetitions of a list or item).  C<"foo" xx *> represents an arbitrary
 number of copies, useful for initializing lists.  The left side of
 an C<xx> is evaluated only once.  (To call a block repeatedly, use a C<map>
 instead.)
@@ -1415,7 +1504,7 @@ written: C<<< << ... >> >>>.
 
 =item *
 
-The scalar comma C<,> now constructs a C<List> object from its
+In item context comma C<,> now constructs a C<List> object from its
 operands.  You have to use a C<[-1]> subscript to get the last one.
 
 =item *
@@ -1431,9 +1520,9 @@ turns out to be equivalent to C<\$foo>.)
 
 =item *
 
-The old scalar C<..> flipflop operator is now done with
+The old C<..> flipflop operator is now done with
 C<ff> operator.  (C<..> now always produces a C<Range> object
-even in scalar context.)  The C<ff> operator may take a caret on
+even in item context.)  The C<ff> operator may take a caret on
 either end to exclude either the beginning or ending.  There is
 also a corresponding C<fff> operator with Perl 5's C<...> semantics.
 You may say
@@ -1522,10 +1611,10 @@ you must use C<+> or C<~> if you wish to force scalar parsing from
 within a subscript:
 
     @a[foo()] = bar();          # foo() and bar() called in list context
-    @a[+foo()] = bar();         # foo() and bar() called in scalar context
+    @a[+foo()] = bar();         # foo() and bar() called in item context
 
 But note that the first form still works fine if C<foo()> and C<bar()>
-are scalar functions that are not context sensitive.  The difference
+are item-returning functions that are not context sensitive.  The difference
 in parsing is only an issue if C<bar()> is followed by a comma or
 some such.
 
@@ -1533,7 +1622,7 @@ For non-simple lvalues, at run time, both sides are evaluated in list
 context, but if the left side results in a single non-list scalar,
 the right side is treated as a single scalar value, as if the right
 side had been evaluated in list context (which is indeed the case)
-but coerced into scalar context.
+but coerced into item context.
 
 If the left side returns a list, however, then regardless of whether
 the list contains a single or multiple values, the right side values
@@ -1572,7 +1661,7 @@ Those are all parsed as list assignments, but we get different run-time
 behaviors based on the run-time type of the left side.
 
 In general, this will all just do what the user expects most of the time.
-The rest of the time scalar or list behavior can be forced with minimal
+The rest of the time item or list behavior can be forced with minimal
 syntax.
 
 =item *
@@ -1873,7 +1962,8 @@ The C<..> range operator has variants with C<^> on either
 end to indicate exclusion of that endpoint from the range.  It always
 produces a C<Range> object.  Range objects are lazy iterators, and can
 be interrogated for their current C<.min> and C<.max> values (which
-change as they are iterated).  Ranges are not autoreversing: C<2..1>
+change as they are iterated).  The C<.minmax> method returns both as
+a two-element list.  Ranges are not autoreversing: C<2..1>
 is always a null range, as is C<1^..^2>.  To reverse a range use:
 
     2..1:by(-1)
@@ -1934,7 +2024,7 @@ means "what is this thing's domain" in an abstract sort of way.
 
 =item *
 
-Since use of C<Range> objects in scalar context is usually
+Since use of C<Range> objects in item context is usually
 non-sensical, a C<Range> object used as an operand for scalar operators
 will generally attempt to distribute the operator to its endpoints and
 return another suitably modified C<Range> instead.  (Notable exceptions
@@ -2020,7 +2110,7 @@ as a default because the more specific types listed above it didn't match.
 
     $_        X         Type of Match Implied   Match if (given $_)
     ======    =====     =====================   ===================
-    Any       Code:($)  scalar sub truth        X($_)
+    Any       Code:($)  item sub truth          X($_)
     Any       Code:()   simple closure truth    X() (ignoring $_)
     Any       undef     undefined               not .defined
     Any       *         block signature match   block successfully binds to |$_
@@ -2072,8 +2162,8 @@ as a default because the more specific types listed above it didn't match.
 
 The final rule is applied only if no other pattern type claims X.
 
-All smartmatch types are scalarized; both C<~~> and C<given>/C<when>
-provide scalar contexts to their arguments, and autothread any
+All smartmatch types are "itemized"; both C<~~> and C<given>/C<when>
+provide item contexts to their arguments, and autothread any
 junctive matches so that the eventual dispatch to C<.ACCEPTS> never
 sees anything "plural".  So both C<$_> and C<X> above are potentially
 container objects that are treated as scalars.  (You may hyperize
@@ -2171,7 +2261,7 @@ For example:
 
     $_      X    Type of Match Wanted   What to use on the right
     ======  ===  ====================   ========================
-    Code    Any  scalar sub truth       .ACCEPTS(X) or .(X)
+    Code    Any  item sub truth         .ACCEPTS(X) or .(X)
     Range   Any  in range               .ACCEPTS(X)
     Type    Any  type membership        .ACCEPTS(X) or .does(X)
     Regex   Any  pattern match          .ACCEPTS(X)
@@ -2259,7 +2349,7 @@ C<?> or C<true> to force a C<Bool> value if desired.
 
 The primary use of the C<~~> operator is to return a boolean value in
 a boolean context.  However, for certain operands such as regular
-expressions, use of the operator within scalar or list context transfers
+expressions, use of the operator within item or list context transfers
 the context to that operand, so that, for instance, a regular expression
 can return a list of matched substrings, as in Perl 5.  This is done
 by returning an object that can return a list in list context, or that
@@ -2439,7 +2529,7 @@ their ASCII digraphs C<<< >> >>> and C<<< << >>> are used to denote a
 "list operation" that operates on each element of its list (or array)
 argument (or arguments) and returns a single list (or array) of
 the results.  In other words, a hyper operator evaluates its arguments in
-scalar context but then distributes the operator over them as lists.
+item context but then distributes the operator over them as lists.
 
 When writing a hyper operator, spaces are not allowed on the inside,
 that is, between any "hyper" marker and the operator it's modifying.
@@ -2782,7 +2872,7 @@ to discover it.
 
 To call some other non-infix function as a reduce operator, you may
 define an alias in infix form.  The infix form will parse the right
-argument as a scalar even if the aliased function would have parsed it
+argument as an item even if the aliased function would have parsed it
 as a list:
 
     &infix:<dehash> ::= postcircumfix:<{ }>;
@@ -3010,9 +3100,9 @@ side and the assignment happens at time determined by the declarator.
 (With C<my> this is always when an ordinary assignment would happen.)
 If the signature is too complicated to convert to an assignment,
 a compile-time error occurs.  Assignment to a signature makes the
-same scalar/list distinction as ordinary assignment, so
+same item/list distinction as ordinary assignment, so
 
-    my $a = foo();      # foo in scalar context
+    my $a = foo();      # foo in item context
     my ($a) = foo();    # foo in list context
 
 If a signature is bound to an argument list, then the binding of the
@@ -3226,5 +3316,28 @@ function call instead.
 
 It is possible for C<if()> to also invoke a macro call, but if so, it's a
 C<< prefix:<if> >> macro rather than a C<< statement_control:<if> >> macro.
+
+=head1 Sequence points
+
+Certain operators are guaranteed to provide I<sequence points>.
+Sequence points are guaranteed whenever some thunk of code is
+conditionally evaluated based on the result of some other evaluation,
+so the short-circuit and conditional operators all provide sequence
+points.
+
+Certain other operators guarantee the I<absence> of sequence points,
+including junctional operators, hyperoperators, and feed operators.
+These operators promise the compiler that you consider the bits of
+code not to be dependent on each other so that they can operate
+in parallel if they like.
+
+A large number of operators (such as C<+>) are stuck in the middle,
+and may exhibit sequential behavior today, but might not tomorrow.
+A program that relies on either sequential or parallel behavior for one
+of these operators is erroneous.  As we get more feedback from people
+writing parallelizing optimizers, we reserve the right to classify
+various of the unclassified operators into one of the two specified
+sets.  (We need to give these three sets of operators good names.)
+
 
 =for vim:set expandtab sw=4:
