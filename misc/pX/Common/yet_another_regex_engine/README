@@ -43,11 +43,11 @@ Architecture:
 Plan:
 
   * Get p5 regexp working:
-     Debug using re_tests.  Eg, ab*bc match->from.
-     Get flags and groups working.
+     Debug using re_tests.
      Add missing ast nodes - non-capture group, backref, conditional, etc.
      Wrap in a nice search api.
      Tidy up.
+     Consider performance.
 
     Objective is a 100% okay on the re_tests p5 regexp test suite.
     Keeping track of what test is failing and why is more trouble than
@@ -74,6 +74,12 @@ Budgeting:
 So 6+ days.  Likely spread over February '07.
 
 Risks:
+
+  * Performance.  As of 2007-Jan-31, performance is very poor.  6 min
+    to run re_test.  Cause unexplored.  Perhaps nested expressions
+    producing really large parse trees?  -> potential slow speed,
+    unusable for parser?  Mitigation: Look into performance; flatten
+    grammars.
 
   * P6 rule spec is big.  I always underestimate this.  The "1+fuzzy"
     current estimate is silly. -> Schedule blow out.  Mitigation:
@@ -106,6 +112,10 @@ Risks:
     Mitigation: don't; Budget separately.
 
 History:
+
+  2007-Jan-31 Added non-greedy quant, and non-capturing group
+  Performance problems (re_tests now takes 6 min).  80% okay.
+  Cost: 1/8 day.
 
   2007-Jan-30 --text and prove can now both be used.  Added interactive
   repl.  Added ast initialization phase.  Began captures, flags. 60% okay.

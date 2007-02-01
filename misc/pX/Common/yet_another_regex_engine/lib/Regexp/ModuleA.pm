@@ -297,11 +297,11 @@ local $Regexp::RAST::ReentrantEngine::Env::cap;
 
   sub RRRE_emit {
     my($o)=@_;
-    my($min,$max)= (@$o{'min','max'});
+    my($min,$max,$nongreedy)= (@$o{'min','max','nongreedy'});
     $min = 0 if !defined $min;
     $max = 1000**1000**1000 if !defined $max; #XXX inf
     my $f = $o->{expr}->RRRE_emit;
-    $o->RRRE_repeat($f,$min,$max);
+    $o->RRRE_repeat($f,$min,$max,$nongreedy);
   }
 }
 
@@ -331,6 +331,14 @@ local $Regexp::RAST::ReentrantEngine::Env::cap;
     my $idx = $o->{cap5_idx};
     my $f = $o->{expr}->RRRE_emit;
     $o->RRRE_capture($idx,$f);
+  }
+}
+{
+  package Regexp::RAST::Grp;
+
+  sub RRRE_emit {
+    my($o)=@_;
+    $o->{expr}->RRRE_emit;
   }
 }
 
@@ -499,17 +507,19 @@ sub match__describe_name_as {
   BEGIN{
   require Exporter;
   @Regexp::RAST::Make0::ISA=qw(Exporter);
-  @Regexp::RAST::Make0::EXPORT_OK = qw(pat5 mod_expr mod_inline exact quant alt seq cap5 sr arule bind namespace  ques star plus);
-  @Regexp::RAST::Make0::EXPORT    = qw(pat5 mod_expr mod_inline exact quant alt seq cap5 sr arule bind namespace  ques star plus);
+  @Regexp::RAST::Make0::EXPORT_OK = qw(pat5 mod_expr mod_inline exact quant quant_ng alt seq cap5 grp sr arule bind namespace  ques star plus  ques_ng star_ng plus_ng  inf );
+  @Regexp::RAST::Make0::EXPORT    = qw(pat5 mod_expr mod_inline exact quant quant_ng alt seq cap5 grp sr arule bind namespace  ques star plus  ques_ng star_ng plus_ng  inf );
   }
   sub pat5 { Regexp::RAST::Pat5->new(@_) }
   sub mod_expr { Regexp::RAST::Mod_expr->new(@_) }
   sub mod_inline { Regexp::RAST::Mod_inline->new(@_) }
   sub exact { Regexp::RAST::Exact->new(@_) }
   sub quant { Regexp::RAST::Quant->new(@_) }
+  sub quant_ng { Regexp::RAST::Quant->new(@_,'ng') }
   sub alt { Regexp::RAST::Alt->new(@_) }
   sub seq { Regexp::RAST::Seq->new(@_) }
   sub cap5 { Regexp::RAST::Cap5->new(@_) }
+  sub grp { Regexp::RAST::Grp->new(@_) }
   sub sr { my($pkg)=caller; Regexp::RAST::Subrule->new($pkg,shift,[@_]) }
   sub arule { Regexp::RAST::ARule->new(@_) }
   sub bind { my($pkg)=caller; Regexp::RAST::Bind->new($pkg,@_) }
@@ -518,6 +528,12 @@ sub match__describe_name_as {
   sub ques { quant(0,1,    (@_ > 1 ? seq(@_) : @_)); }
   sub star { quant(0,undef,(@_ > 1 ? seq(@_) : @_)); }
   sub plus { quant(1,undef,(@_ > 1 ? seq(@_) : @_)); }
+
+  sub ques_ng { quant(0,1,    (@_ > 1 ? seq(@_) : @_)); }
+  sub star_ng { quant(0,undef,(@_ > 1 ? seq(@_) : @_)); }
+  sub plus_ng { quant(1,undef,(@_ > 1 ? seq(@_) : @_)); }
+
+  sub inf () { 1000**1000**1000 } #XXX There has to be a better way, no?
 }
 
 {
@@ -600,8 +616,8 @@ sub match__describe_name_as {
   package Regexp::RAST::Quant;
   @Regexp::RAST::Quant::ISA=qw(Regexp::RAST::Base);
   sub new {
-    my($cls,$min,$max,$expr)=@_; die "api assert" if @_ != 4;
-    bless {min=>$min,max=>$max,expr=>$expr}, $cls;
+    my($cls,$min,$max,$expr,$nongreedy)=@_; die "api assert" if @_ < 4||@_ > 5;
+    bless {min=>$min,max=>$max,expr=>$expr,nongreedy=>$nongreedy}, $cls;
   }
   sub RAST_init {
     my($o)=@_;
@@ -618,6 +634,20 @@ sub match__describe_name_as {
   sub RAST_init {
     my($o)=@_;
     $o->{cap5_idx} = $Regexp::RAST::Env::nparen++;
+    local $Regexp::RAST::Env::flags = {%$Regexp::RAST::Env::flags};
+    $o->{expr}->RAST_init;
+  }
+}
+{
+  package Regexp::RAST::Grp;
+  @Regexp::RAST::Grp::ISA=qw(Regexp::RAST::Base);
+  sub new {
+    my($cls,$expr)=@_;
+    bless {expr=>$expr}, $cls;
+  }
+  sub RAST_init {
+    my($o)=@_;
+    local $Regexp::RAST::Env::flags = {%$Regexp::RAST::Env::flags};
     $o->{expr}->RAST_init;
   }
 }
@@ -700,19 +730,21 @@ sub match__describe_name_as {
 #======================================================================
 package Regexp::ModuleA::P5;
 BEGIN { Regexp::RAST::Make0->import; };
+my $nonmeta = '[^[)({^$?*+\\\\\.|]';
 namespace("",
 	  bind('pattern',arule(sr('_pattern'))),
           bind('_pattern',arule(seq(sr('_non_alt'),star(exact('|'),sr('_non_alt'))))),
 	  bind('_non_alt',arule(star(sr('_element')))),
-	  bind('_element',arule(seq(sr('_non_quant'),ques(pat5('[?*+]'))))),
-	  bind('_non_quant',arule(alt(sr('_mod_inline'),sr('_mod_expr'),sr('_cap5'),sr('_paren'),sr('_charclass'),sr('_esc'),sr('_nonmeta')))),
+	  bind('_element',arule(seq(sr('_non_quant'),ques(pat5('[?*+]\??|{\d+(?:,\d*)?}\??'))))),
+	  bind('_non_quant',arule(alt(sr('_mod_inline'),sr('_mod_expr'),sr('_cap5'),sr('_paren'),sr('_charclass'),sr('_esc'),sr('_nonmeta'),sr('_passthru')))),
 	  bind('_mod_inline',arule(pat5('\(\?[imsx-]+\)'))),
 	  bind('_mod_expr',arule(seq(pat5('\(\?[imsx-]+:'),sr('_pattern'),exact(')')))),
 	  bind('_paren',arule(seq(pat5('\((?!\?[imsx-]+:)\?'),sr('_pattern'),exact(')')))),
 	  bind('_cap5',arule(seq(pat5('\((?!\?)'),sr('_pattern'),exact(')')))),
 	  bind('_charclass',arule(pat5('\[\^?\]?([^\]\\\\]|\\\\.)*\]'))),
 	  bind('_esc',arule(pat5('\\\\.|\.'))),#rename
-	  bind('_nonmeta',arule(pat5('[^][)(^?*+\\\\\.|]+')))
+	  bind('_nonmeta',arule(pat5("$nonmeta(?:$nonmeta+(?![?*+{]))?"))),
+	  bind('_passthru',arule(pat5('[$^]')))
 	  )->RRRE_emit;
 
 
@@ -734,13 +766,23 @@ sub match_tree_to_mexpr_helper {
     if($r eq '_nonmeta') {
       @ret = ("exact('$m')");
     }
+    if($r eq '_passthru') {
+      @ret = ("pat5('$m')");
+    }
     if($r eq '_element') {
       my $s = "$m";
       my($e)= @v;
-      if($s =~ /([?*+])$/) {
-        $e = "ques($e)" if $1 eq '?';
-        $e = "star($e)" if $1 eq '*';
-        $e = "plus($e)" if $1 eq '+';
+      if($s =~ /([?*+])(\?)?$/) {
+        my $ng = defined $2 ? '_ng' : '';
+        $e = "ques${ng}($e)" if $1 eq '?';
+        $e = "star${ng}($e)" if $1 eq '*';
+        $e = "plus${ng}($e)" if $1 eq '+';
+      }
+      if($s =~ /{(\d+)(?:,(\d*))?}(\?)?$/) {
+        my $ng = defined $3 ? '_ng' : '';
+        my $min = $1;
+        my $max = !defined $2 ? $min : $2 ne "" ? $2 : 1000**1000**1000; # inf
+        $e = "quant${ng}($min,$max,$e)";
       }
       @ret = ($e);
     }
@@ -754,7 +796,7 @@ sub match_tree_to_mexpr_helper {
       @ret = ("pat5('$pat')");
     }
     if($r eq '_paren') {
-      @ret = ("seq($v[0])");
+      @ret = ("grp($v[0])");
     }
     if($r eq '_cap5') {
       @ret = ("cap5($v[0])");
