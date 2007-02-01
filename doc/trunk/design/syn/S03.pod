@@ -1408,7 +1408,7 @@ is likewise C<~=>.
 
 =item *
 
-The filetest operators now gone.  We now use a Pair as a pattern to
+The filetest operators are gone.  We now use a Pair as a pattern to
 get the same effect:
 
     if $filename ~~ :e { say "exists" }
@@ -1417,7 +1417,7 @@ These tests may be combined via junctions:
 
     given $handle {
         when all :r :w :x {...}
-        when :w | :x      {...}
+        when :!w | :!x    {...}
         when *            {...}
     }
 
@@ -1428,7 +1428,8 @@ as older than a second or so.  If this is a concern, an explicit stat()
 or lstat() will automatically reset the stat buffer, as will switching
 to a different filename or handle.
 
-Note that C<$file ~~ :s> still returns the filesize.
+Note that C<$file ~~ :s> still returns the filesize, but C<:!s> is true
+only if the file is of size 0.
 
 =item *
 
