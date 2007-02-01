@@ -475,7 +475,7 @@ If the denominator is zero, returns either C<+Inf>, C<NaN>, or C<-Inf>
 as the numerator is positive, zero, or negative.  (This is construed
 as the best default in light of the operator's possible use within
 hyperoperators and junctions.  If you want it to throw an exception
-on an individual scalar division, you can alwyas check the denominator
+on an individual scalar division, you can always check the denominator
 yourself.)
 
 =item *
@@ -754,7 +754,7 @@ infix:<==> etc.
 
     == != < <= > >=
 
-As in Perl 5, converts to N>um before comparison.  C<!=> is short for C<!==>.
+As in Perl 5, converts to C<Num> before comparison.  C<!=> is short for C<!==>.
 
 =item *
 
