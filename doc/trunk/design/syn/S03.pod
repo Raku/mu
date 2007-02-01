@@ -14,7 +14,7 @@ Luke Palmer <luke@luqui.org>
   Date: 8 Mar 2004
   Last Modified: 1 Feb 2007
   Number: 3
-  Version: 94
+  Version: 95
 
 =head1 Overview
 
@@ -37,7 +37,7 @@ levels. (Perl 5 has 23!)  Here we list the levels from "tightest" to
     Additive            + - ~ +| +^ ~| ~^ ?| ?^
     Junctive and (all)  &
     Junctive or (any)   | ^
-    Named unary         rand sleep abs -e -r -w -x
+    Named unary         rand sleep abs
     Nonchaining binary  but does <=> leg cmp .. ..^ ^.. ^..^ ff fff
     Chaining binary     != == < <= > >= eq ne lt le gt ge ~~ === eqv !eqv
     Tight and           &&
@@ -667,12 +667,6 @@ Functions of one argument
 
 Note that, unlike in Perl 5, you must use the C<.meth> forms to default
 to C<$_> in Perl 6.
-
-=item *
-
-File test operators
-
-    -e -r -w -x etc.
 
 =item *
 
@@ -1414,19 +1408,27 @@ is likewise C<~=>.
 
 =item *
 
-The filetest operators now return a result that is both a
-boolean (or in the case of C<-s>, a number) and a stat buffer, so
-there is no longer any need for Perl 5's C<_> term.  Instead just
-cascade tests to "and" them:
+The filetest operators now gone.  We now use a Pair as a pattern to
+get the same effect:
 
-    if -r -w -x $filename {...}
+    if $filename ~~ :e { say "exists" }
 
-Or put the value in a variable to do anything fancier:
+These tests may be combined via junctions:
 
-    $sb = -e $filename;
-    if -r $sb {...}
-    if -w $sb {...}
-    if -x $sb {...}
+    given $handle {
+        when all :r :w :x {...}
+        when :w | :x      {...}
+        when *            {...}
+    }
+
+In general, the user need not worry about caching the stat buffer.
+The stat buffer will automatically be reused if the same object is
+queried and the stat buffer has not "expired", where that is defined
+as older than a second or so.  If this is a concern, an explicit stat()
+or lstat() will automatically reset the stat buffer, as will switching
+to a different filename or handle.
+
+Note that C<$file ~~ :s> still returns the filesize.
 
 =item *
 
@@ -1438,8 +1440,8 @@ the ability to say C<$x.'foo'> does not imply that C<$x'foo'> will work.)
 The postfix interpretation of an operator may be overridden by
 use of a quoted method call, which calls the prefix form instead.
 So C<x().!> is always the postfix operator, but C<x().'!'> will always
-call C<!x()>.  In particular, you can say things like C<$array.'@'> and
-C<$filename.'-e'.'-r'>.  You may even say things like C<$fh.'='>, which
+call C<!x()>.  In particular, you can say things like C<$array.'@'>.
+and C<$fh.'='>, which
 because of the quotes will not be confused lexically with C<$fh.=new>.
 
 =item *
@@ -2124,6 +2126,8 @@ as a default because the more specific types listed above it didn't match.
     Any       Bool      simple truth            X
     Any       Num       numeric equality        +$_ == X
     Any       Str       string equality         ~$_ eq X
+
+    Any       Pair      test object             .TEST(X) (Str,IO do filetest)
 
     Set       Set       identical sets          $_ === X
     Hash      Set       hash keys same set      $_.keys === X
