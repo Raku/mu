@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 30 Jan 2007
+  Last Modified: 1 Feb 2007
   Number: 3
-  Version: 93
+  Version: 94
 
 =head1 Overview
 
@@ -66,31 +66,31 @@ various terms.
 
 =item *
 
-Int literal
+C<Int> literal
 
     42
 
 =item *
 
-Num literal
+C<Num> literal
 
     3.14
 
 =item *
 
-Non-interpolating Str literal
+Non-interpolating C<Str> literal
 
     '$100'
 
 =item *
 
-Interpolating Str literal
+Interpolating C<Str> literal
 
     "Answer = $answer\n"
 
 =item *
 
-Generalized Str literal
+Generalized C<Str> literal
 
     q["$100"]
     qq["$answer"]
@@ -352,7 +352,7 @@ If the right argument is not an integer, the result is likely to
 be an approximation.  If the right argument is of an integer type,
 exponentiation is at least as accurate as repeated multiplication on
 the left side's type.  (From which it can be deduced that C<Int**UInt>
-is always exact, since Int supports arbitrary precision.)  If the
+is always exact, since C<Int> supports arbitrary precision.)  If the
 right argument is an integer represented in a non-integer type, the
 accuracy is left to implementation provided by that type; there is
 no requirement to recognize an integer to give it special treatment.
@@ -468,17 +468,30 @@ infix:<*>
 
 infix:</>
 
-    $dividend / $divisor
+    $numerator / $denominator
 
-Converts both operands to Num and does division returning Num.
+Converts both operands to C<Num> and does division returning C<Num>.
+If the denominator is zero, returns either C<+Inf>, C<NaN>, or C<-Inf>
+as the numerator is positive, zero, or negative.  (This is construed
+as the best default in light of the operator's possible use within
+hyperoperators and junctions.  If you want it to throw an exception
+on an individual scalar division, you can alwyas check the denominator
+yourself.)
 
 =item *
 
 infix:<div>, generic division
 
-    $dividend div $divisor
+    $numerator div $denominator
 
-Dispatches to the infix:<div> multi most appropriate to the operand types.
+Dispatches to the infix:<div> multi most appropriate to the operand
+types.  Policy on what to do about division by zero is up to the type,
+but for the sake of hyperoperators and junctions those types that
+can represent overflow (or that can contain an unthrown exception)
+should try to do so rather than simply throwing an exception.  (And in
+general, other operators that might fail should also consider their
+use in hyperops and junctions, and whether they can profitably benefit
+from a lazy exception model.)
 
 =item *
 
@@ -486,7 +499,7 @@ infix:<%>, modulus
 
     %
 
-Always floor semantics using Num or Int.
+Always floor semantics using C<Num> or C<Int>.
 
 =item *
 
@@ -747,7 +760,7 @@ infix:<==> etc.
 
     == != < <= > >=
 
-As in Perl 5, converts to Num before comparison.  C<!=> is short for C<!==>.
+As in Perl 5, converts to N>um before comparison.  C<!=> is short for C<!==>.
 
 =item *
 
@@ -755,7 +768,7 @@ infix:<eq> etc.
 
     eq ne lt le gt ge
 
-As in Perl 5, converts to Str before comparison. C<ne> is short for C<!eq>.
+As in Perl 5, converts to C<Str> before comparison. C<ne> is short for C<!eq>.
 
 =item *
 
