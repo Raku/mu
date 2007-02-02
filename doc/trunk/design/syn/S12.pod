@@ -628,6 +628,22 @@ lightweight properties without having to define methods for all of them.
 C<TEST> method--they are not inherited independently.  The C<TEST> method
 must explicitly pass the query on to other classes in such cases.)
 
+Depending on the class, the pairs in question may have arguments.
+The C<Hash> class in particular makes use of pair syntax for subscript
+modifiers:
+
+    %hash.:exists{$key}
+    %hash.:delete{$key}
+
+This has the advantage that pair's argument is actually parsed exactly
+as a subscript would be.  A C<.exists()> method could not easily make
+such a guarantee about its arguments.
+
+Conjecture, the trailing subscript adverbs could be brought up front as
+well:
+
+    @array.:kv[@slice]
+
 =head1 Calling sets of methods
 
 For any method name, there may be some number of candidate methods
