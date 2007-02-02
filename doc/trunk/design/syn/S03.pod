@@ -1418,7 +1418,7 @@ Both of these forms actually translate to
 
     if $filename.TEST(:e) { say "exists" }
 
-which which is a generic mechanism that dispatches to the object's
+which is a generic mechanism that dispatches to the object's
 class to find the definition of C<TEST>.  (It just happens that C<Str>
 (filenames) and C<IO> (filehandles) default to the expected filetest
 semantics, but C<$regex.:i> might tell you whether the regex is case
