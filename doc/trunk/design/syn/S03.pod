@@ -303,7 +303,7 @@ a term and its postfix.  See S02 for why, and for how to work around the
 restriction with a "long dot".
 
 As mutating methods, all these operators dispatch to the type of
-the operand and return a result of the same time, but they are legal
+the operand and return a result of the same type, but they are legal
 on value types only if the (immutable) value is stored in a mutable
 container.  However, a bare undefined value (in a suitable C<Scalar>
 container) is allowed to mutate itself into an C<Int> in order to
@@ -947,7 +947,7 @@ That actually parses as:
 
 and always assigns C<2> to C<$x> (because C<($x = 1)> is a valid lvalue).
 
-And in any case, repeating the C<$x> forces you do declare it earlier.
+And in any case, repeating the C<$x> forces you to declare it earlier.
 The best don't-repeat-yourself solution is simply:
 
     my $x = hmm() ?? 1 !! 2;          # much better
@@ -3325,7 +3325,7 @@ C<< prefix:<if> >> macro rather than a C<< statement_control:<if> >> macro.
 =head1 Sequence points
 
 Certain operators are guaranteed to provide I<sequence points>.
-Sequence points are guaranteed whenever some thunk of code is
+Sequence points are guaranteed whenever some thunk (a lazy chunk of code) is
 conditionally evaluated based on the result of some other evaluation,
 so the short-circuit and conditional operators all provide sequence
 points.
