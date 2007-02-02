@@ -5,13 +5,13 @@ our @ORIG_INC = @*INC;  # take a copy of the original
 
 sub import (Str $pkg: *@paths) returns Void {
     @*INC.unshift: uniq(@paths).map: -> $path {
-        if ($path eq '') {
+        if $path eq '' {
             $*ERR.say("Empty compile time value given to lib.import()");
         }
-        elsif (-e $path and not -d $path) {
+        elsif $path ~~ :e & :!d {
             $*ERR.say("Parameter to lib.import() must be directory, not file");
         }
-        elsif ($path ne all(@*INC)) {
+        elsif $path ne all(@*INC) {
             # add to the @*INC, but do not allow duplicates
             $path;
         }

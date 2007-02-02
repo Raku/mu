@@ -68,7 +68,7 @@ sub run_pugs ($c) {
   my $command = "$pugs $c $redir $tempfile";
   diag $command;
   system $command;
-  my $res = -s $tempfile;
+  my $res = $tempfile ~~ :s;
   unlink $tempfile;
   return $res;
 }

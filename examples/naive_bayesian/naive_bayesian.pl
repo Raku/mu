@@ -3,7 +3,7 @@ use v6-alpha;
 my %words;
 
 sub load_db returns Void {
-    return() unless "words.db.pl"~~:e;
+    return() unless "words.db.pl" ~~ :e;
     my $db = open("words.db.pl") err die "Cannot open the words.db.pl file: $!";
     for (=$db) -> $_line {
         my $line = $_line;

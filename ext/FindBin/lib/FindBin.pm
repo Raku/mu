@@ -26,21 +26,21 @@ else {
     &readlink := { undef } if $dosish;
 
     unless ( ( $script ~~ m:P5 [/] || ( $dosish && $script ~~ m:P5 [\\] ) )
-                && -f $script )
+                && $script ~~ :f  )
     {
         for File::Spec.path() -> $dir {
             my Str $scr = catfile( $dir, $script );
-            if -r $scr && ( !$dosish || -x _ ) {
+            if $scr ~~ :r  && ( !$dosish || $scr ~~ :x  ) {
                 $script = $scr;
-                if -f $*PROGRAM_NAME {
-                    # XXX -T doesn't work yet.
-                    $script = $*PROGRAM_NAME unless try { -T $script };
+                if $*PROGRAM_NAME ~~ :f  {
+                    # XXX :T doesn't work yet.
+                    $script = $*PROGRAM_NAME unless try { $script ~~ :T  };
                 }
                 last;
             }
         }
     }
-    warn "Cannot find current script '$*PROGRAM_NAME'" unless -f $script;
+    warn "Cannot find current script '$*PROGRAM_NAME'" unless $script ~~ :f;
     $script = catfile( File::Spec.cwd(), $script )
         unless file_name_is_absolute($script);
     my @path = splitpath($script);

@@ -80,7 +80,7 @@ sub initialise () {
     # Read the user's config file, if they have one,
     # then parse the command-line.
     #-------------------------------------------------------------------
-    if ($config_file~~:f)
+    if ($config_file ~~ :f)
     {
         $config.file($config_file) || exit 1;
     }

@@ -76,4 +76,4 @@ This is regular text again
 =cut',
 '... POD round-tripping worked (with file-handle)');
 
-ok((unlink('test.pod') and not -e 'test.pod'), '... removing the temp POD file, and making sure it is really gone');
+ok((unlink('test.pod') and 'test.pod' !~~ :e), '... removing the temp POD file, and making sure it is really gone');

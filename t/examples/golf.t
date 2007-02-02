@@ -35,11 +35,11 @@ my $rg0now_sol  = join(' ', @progs.map():{ $golfdir ~ '/rg0now-' ~ $_ ~ '.pl' })
 
 for ($mad_sol, $rg0now_sol) -> $s {
     unlink($outtmp);
-    my $exists = $outtmp~~:f;
+    my $exists = $outtmp ~~ :f;
     ok( ! $exists, "file '$outtmp' does not exist" );
     my $cmd = "$PUGS $tsanta $PUGS $s >$outtmp";
     ok( system($cmd), "Run '$cmd'" );
-    ok( $outtmp~~:f, "file '$outtmp' exists" );
+    ok( $outtmp ~~ :f, "file '$outtmp' exists" );
     my @lines = slurp($outtmp);
     # cmp_ok( +@lines, '==', 28, "output contains 28 lines" );
     ok( +@lines == 28, "output contains 28 lines" );

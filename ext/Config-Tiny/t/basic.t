@@ -41,7 +41,7 @@ my $new_config_path = catfile('t', 'config_new.ini');
 lives_ok {
     $cfg<write>($new_config_path);
 }, '... writing the file did not die';
-ok(-e catfile('t', 'config_new.ini'), '... the config_new.ini file exists');
+ok(catfile('t', 'config_new.ini').TEST(:e), '... the config_new.ini file exists');
 
 my $new_config_text = slurp($new_config_path);
 is($new_config_text, "rootproperty=blah
@@ -55,7 +55,7 @@ three=four
 ", '... got the right config text');
 
 ok(unlink($new_config_path), '... removing the new config file');
-ok(!(-e $new_config_path), '... the file is really gone');
+ok(!($new_config_path.TEST(:e)), '... the file is really gone');
 
 # check some errors
 

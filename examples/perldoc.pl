@@ -53,7 +53,7 @@ sub display_pod {
 
 sub index_pods {
     say "Should index the files now";
-    mkdir $dir if $dir~~:!e;
+    mkdir $dir unless $dir ~~ :e;
     # TODO: go over all the files in the standard directory, whatever the standard will be
     
     #my @files = list_files(dirname($PROGRAM_NAME));
@@ -93,7 +93,7 @@ sub list_files ($dir, $full) {
         if (substr($entry, -4) eq ".pod") {
             @entries.push($full ?? "$dir/$entry" !! $entry);
         }
-        if ("$dir/$entry"~~:d) {
+        if ("$dir/$entry" ~~ :d) {
             @entries.push(list_files("$dir/$entry", $full));
         }
     }

@@ -11,7 +11,7 @@ use File::Temp <:mktemp>;
 #use CORE::system;
 
 BEGIN {
-    if ('t'~~:d) {
+    if ('t' ~~ :d) {
       chdir 't'
         or die "Couldn't chdir into 't/' : $!";
     };

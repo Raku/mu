@@ -270,7 +270,7 @@ L<http://dev.perl.org/perl6/doc/design/exe/E07.html> Format Exegesis
 =head2 Chaining file test operators has changed
 
     Was: if (-r $file && -x _) {...}
-    Now: if -r -x $file {...}
+    Now: if $file ~~ :r & :x  {...}
 
 For details, see L<S03/"Changes to Perl 5 operators"/"The filetest operators now return a result that is both a boolean">
 

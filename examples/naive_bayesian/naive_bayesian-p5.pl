@@ -13,7 +13,7 @@ use strict;
 my %words;
 
 sub load_db {
-    return unless 'words.db-p5.pl'~~:e;
+    return unless 'words.db-p5.pl' ~~ :e;
     open DB, "<words.db-p5.pl" || die "Cannot open the words.db-p5.pl file: $!";
     while (my $line = <DB>) {
         $line .= chomp;

@@ -48,7 +48,7 @@ method plugins {
 }
 
 method find_packages ( Str $path ) {
-    return () unless -e $path;
+    return () unless $path ~~ :e;
     my $f = File::Find.new;
     $f.dirs = ($path);
     $f.wanted_file = sub ( $file, $path, $pathfile ) {

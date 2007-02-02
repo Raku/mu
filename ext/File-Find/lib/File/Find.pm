@@ -29,21 +29,21 @@ method find ( $self: :@dirs, :$wanted_dir, :$wanted_file ) {
         for $dh.readdir -> $node {
             next if $node ~~ m:P5/^(?:\.){1,2}$/;
             my $abs = catdir( $dir, $node );
-            unless -d $abs {
+            unless $abs ~~ :d  {
                 $abs = catfile( $dir, $node );
                 if $wfile_cb( $node, $dir, $abs ) {
                     $.results.push($abs);
-                    say "  +f $abs" if $.debug;
+                    say "  $abs ~~ :!f " if $.debug;
                 }
-                else { say "  -f $abs" if $.debug }
+                else { say "  $abs ~~ :f " if $.debug }
             }
             # XXX: Add symlink detection!
             else {
                 if $wdir_cb( $node, $dir, $abs ) {
                     $.queue.push($abs);
-                    say "  +d $abs" if $.debug;
+                    say "  $abs ~~ :!d " if $.debug;
                 }
-                else { say "  -d $abs" if $.debug }
+                else { say "  $abs ~~ :d " if $.debug }
             }
         }
 	$dh.closedir;

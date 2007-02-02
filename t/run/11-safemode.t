@@ -15,14 +15,14 @@ my $tmpfile = "temp-test" ~ nonce();
 my @tests = (
     # Test that open() doesn't work.
     'my $fh = eval \'open("' ~ $tmpfile ~ '-opened", :w)\'; eval \'close $fh\'',
-    { $^a; not(-e "$tmpfile-opened") },
+    { $^a; "$tmpfile-opened" !~~ :e },
     
     # %*ENV, %?CONFIG, and $*OS should be hidden, too.
     'Pugs::Safe::safe_print("[%*ENV{}] [%?CONFIG{}] [$*OS]")',
     { $^a eq "[] [] []" },
 
     # The filetest operators shouldn't work, either.
-    'Pugs::Safe::safe_print(eval("-d \'.\'").perl)',
+    'Pugs::Safe::safe_print(eval("\'.\' ~~ :d").perl)',
     { $^a eq "undef" },
 
     # Finally, "is unsafe" should cause that sub declarations have no effect

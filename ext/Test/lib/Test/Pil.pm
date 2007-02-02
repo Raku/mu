@@ -4,7 +4,7 @@ use Test;
 our $PIL = (($*OS eq 'MSWin32') ?? 'pil.exe' !! './pil');
 
 sub check_pil {
-    return if -f $PIL;
+    return if $PIL ~~ :f;
     plan 1;
     skip_rest "PIL interpreter not found";
     exit;

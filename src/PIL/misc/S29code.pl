@@ -805,7 +805,7 @@ package Time::Local {}
 # tie tied untie
 
 
-# -X accept alarm bind binmode chown close closedir connect eof fcntl
+# accept alarm bind binmode chown close closedir connect eof fcntl
 # fileno flock getc getpeername
 # /[get|set][host|net|proto|serv|sock].*/ glob ioctl link listen 
 # lstat mkdir open opendir pipe print printf read readdir readline

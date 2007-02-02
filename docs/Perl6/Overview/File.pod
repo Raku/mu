@@ -42,15 +42,16 @@ Structure
     $dh.rewinddir;
 
 =head2 File and Directory tests
-    -e "thing"                    # true if thing exists in the filesystem
-    -d "thing"                    # true on directories
-    -f "thing"                    # true on files
-    -r "thing"                    # true on readable files/directories
-    -w "thing"                    # true on writable files/directories
-    -x "thing"                    # true on executable files/directories
 
-    -z "file"                     # true if size is 0
-    -s "file"                     # returns file size in bytes
+    "thing" ~~ :e                     # true if thing exists in the filesystem
+    "thing" ~~ :d                     # true on directories
+    "thing" ~~ :f                     # true on files
+    "thing" ~~ :r                     # true on readable files/directories
+    "thing" ~~ :w                     # true on writable files/directories
+    "thing" ~~ :x                     # true on executable files/directories
+
+    "file" ~~ :z                      # true if size is 0
+    "file" ~~ :s                      # returns file size in bytes
 
 
     mkdir "dirname"

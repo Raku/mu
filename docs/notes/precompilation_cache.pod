@@ -119,7 +119,7 @@ C<ast> is the parsed tree.
   try {
       my $hash = $HASHFUNC($source);
       my $dir  = cachedir($hash);
-      die "no precompiled version found" unless -d $dir;
+      die "no precompiled version found" unless $dir ~~ :d;
       for $dir.readdir.sort:{numerically} -> $fn {
           my ($pugsrev, $parserrev) = $fn ~~ /(\d+)-(\d+)/ err next;
           next if $XXX_handwaving($pugsrev, $parserrev); # against %?CONFIG<pugsrev> etc.

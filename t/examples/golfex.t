@@ -52,11 +52,11 @@ for @examples -> $ex {
     unlink($tmpprog);
     build_file($tmpprog, $ex);
     unlink($outtmp);
-    my $exists = $outtmp~~:f;
+    my $exists = $outtmp ~~ :f;
     ok( ! $exists, "file '$outtmp' does not exist" );
     my $cmd = "$PUGS $tmpprog $origfile >$outtmp";
     ok( system($cmd), "Run '$cmd'" );
-    ok( $outtmp~~:f, "file '$outtmp' exists" );
+    ok( $outtmp ~~ :f, "file '$outtmp' exists" );
     my $got = slurp($outtmp);
     is( $got, $reversed, "'$ex' works" );
 }

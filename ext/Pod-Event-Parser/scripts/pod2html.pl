@@ -13,7 +13,7 @@ die "usage:
 " unless @*ARGS;
 
 my $file = @*ARGS[0];
-die "Cannot locate '$file'" unless -e $file; 
+die "Cannot locate '$file'" unless $file ~~ :e; 
 
 my %events = pod2html($*OUT);
 parse($file, %events);

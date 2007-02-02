@@ -20,7 +20,7 @@ plan 28;
 
   * Spec
      * any Ordering has traits or only top level?
-        *  {-M} is descending => &fuzzy_cmp is insensitive
+        *  {.TEST(:M)} is descending => &fuzzy_cmp is insensitive
 
   * Syntax cleanup
      * guidance on making this the builtin sort()
@@ -396,7 +396,7 @@ my @unsorted_things = sample(@sorted_things);
 # my @sorted_files = qx( ls -t @files[] );
 
 {
-    # my @sorted = p6sort { $^a~~:M <=> $^b~~:M }, @files;
+    # my @sorted = p6sort { $^a.:M <=> $^b.:M }, @files;
     #
     # ok(@sorted eqv @sorted_files, 'number ascending; Comparator',
     #     :todo<sort>);
@@ -484,7 +484,7 @@ my @unsorted_things = sample(@sorted_things);
 }
 
 {
-    # my @sorted = p6sort { $_~~:M } @files;
+    # my @sorted = p6sort { .:M } @files;
     #
     # ok(@sorted eqv @sorted_files, 'number ascending; KeyExtractor',
     #     :todo<sort>);
@@ -532,19 +532,19 @@ my @sorted_di_numstr = list(<z y x>, <C B A>, reverse(1..3, 10..12)),
         'Num|Str fuzzy; Pair is descending is insensitive',
         :todo, :depends<p6sort>);
 
-    # @sorted = p6sort { $_~~:M } => { $^b cmp $^a }, @files;
+    # @sorted = p6sort { $_ ~~ :M } => { $^b cmp $^a }, @files;
     #
     # ok(@sorted eqv @sorted_modtime_cmp_files,
     #     'string descending; Pair uses cmp', 
     #     :todo<sort>);
     #
-    # @sorted = p6sort { $_~~:M } => &fuzzy_cmp, @files;
+    # @sorted = p6sort { $_ ~~ :M } => &fuzzy_cmp, @files;
     #
     # ok(@sorted eqv @sorted_modtime_fuzzy_files,
     #     'number fuzzy; Pair',
     #     :todo<sort>);
     #
-    # @sorted = p6sort ( { $_~~:M } => { $^a cmp $^b } ) is descending, @files;
+    # @sorted = p6sort ( { $_ ~~ :M } => { $^a cmp $^b } ) is descending, @files;
     #
     # ok(@sorted eqv @sorted_modtime_cmp_files,
     #     'string descending; Pair is descending', 
@@ -561,7 +561,7 @@ my @sorted_di_numstr = list(<z y x>, <C B A>, reverse(1..3, 10..12)),
     #   # or else fuzz-ifically...
     #   @sorted = p6sort [ {+ $^elem},
     #                    {$^b.name cmp $^a.name} is insensitive,
-    #                    {-M},
+    #                    {.TEST(:M)},
     #                    {.name}=>&fuzzy_cmp,
     #                    &fuzzy_cmp,
     #                  ],

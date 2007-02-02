@@ -94,7 +94,7 @@ my $stat = system( "$pugs -v" );
 # die "Pugs '$pugs' run test failed (code $stat)!\n" unless $stat;
 
 my $out_dir = %conf<f_output_dir>;
-unless $out_dir~~:d {
+unless $out_dir ~~ :d {
     mkdir $out_dir or die "Output dir '$out_dir' create error:\n";
 }
 
@@ -116,7 +116,7 @@ if %conf<output_type> eq 'html' {
 }
 
 die "Source file directory '%conf<tut_src_dir> ('%conf<f_tut_src_dir>') not found!" 
-    unless %conf<f_tut_src_dir>~~:d;
+    unless %conf<f_tut_src_dir> ~~ :d;
 
 
 sub get_output ( Str $tut_fp, :$each_line = 0 ) {
@@ -266,10 +266,10 @@ if %conf<add_others> {
     my @ls = sort readdir %conf<f_tut_src_dir>;
     for @ls -> $each {
         # todo_
-        #next unless $each~~:f;
+        #next unless $each ~~ :f;
         #next if exists %index{$fn};
         
-        if ( ( $each ~~ rx:P5/\.pl$/ ) && ( catfile(%conf<f_tut_src_dir>, $each)~~:f ) && ( not %index{$each} ) ) {
+        if ( ( $each ~~ rx:P5/\.pl$/ ) && ( catfile(%conf<f_tut_src_dir>, $each) ~~ :f ) && ( not %index{$each} ) ) {
             push @prep_index, $each;
         }
     }

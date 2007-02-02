@@ -208,11 +208,11 @@ if @*ARGS {
     $mid  = @*ARGS.shift();
     $wc   = @*ARGS.shift();
 }
-$head ~~:f or die("error: file '$head' not found");
-$tail ~~:f or die("error: file '$tail' not found");
-$rev  ~~:f or die("error: file '$rev' not found");
-$mid  ~~:f or die("error: file '$mid' not found");
-$wc   ~~:f or die("error: file '$wc' not found");
+$head ~~ :f or die("error: file '$head' not found");
+$tail ~~ :f or die("error: file '$tail' not found");
+$rev  ~~ :f or die("error: file '$rev' not found");
+$mid  ~~ :f or die("error: file '$mid' not found");
+$wc   ~~ :f or die("error: file '$wc' not found");
 print_golf_score($head, $tail, $rev, $mid, $wc);
 check_head($head);
 check_tail($tail);
