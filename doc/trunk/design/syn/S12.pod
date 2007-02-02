@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 1 Feb 2007
+  Last Modified: 2 Feb 2007
   Number: 12
-  Version: 36
+  Version: 37
 
 =head1 Overview
 
@@ -606,6 +606,27 @@ One handy place for an in-place mutator is to call a constructor on a
 variable of a known type:
 
     my Dog $spot .= new(:tail<LONG> :legs<SHORT>);
+
+=head1 Pair query methods
+
+Certain classes such as filehandles allow colon pairs to be used as if they
+were methods.  When you say:
+
+    $filehandle.:e
+    $filehandle.:!x
+
+it actually calls
+
+    $filehandle.TEST(:e)
+    $filehandle.TEST(:!x)
+
+which is expected to return a value that can be used as a boolean.
+While this is primarily intended for use by file tests, other classes
+may define a C<TEST> method to provide a similar mechanism for interrogating
+lightweight properties without having to define methods for all of them.
+(Note, though, that I<all> such queries are answered by the first located
+C<TEST> method--they are not inherited independently.  The C<TEST> method
+must explicitly pass the query on to other classes in such cases.)
 
 =head1 Calling sets of methods
 

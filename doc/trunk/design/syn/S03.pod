@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 1 Feb 2007
+  Last Modified: 2 Feb 2007
   Number: 3
-  Version: 95
+  Version: 96
 
 =head1 Overview
 
@@ -29,7 +29,7 @@ levels. (Perl 5 has 23!)  Here we list the levels from "tightest" to
     Level               Examples
     =====               ========
     Terms               42 3.14 "eek" qq["foo"] $x :!verbose
-    Method postfix      .meth .+ .? .* .() .[] .{} .<> .«» .:: .= .^
+    Method postfix      .meth .+ .? .* .() .[] .{} .<> .«» .:: .= .^ .:
     Autoincrement       ++ --
     Exponentiation      **
     Symbolic unary      ! + - ~ ? $ @ % & | +^ ~^ ?^ \ ^ =
@@ -1408,12 +1408,23 @@ is likewise C<~=>.
 
 =item *
 
-The filetest operators are gone.  We now use a Pair as a pattern to
-get the same effect:
+The filetest operators are gone.  We now use a Pair as either a
+pattern or a method name to get the same effect:
 
     if $filename ~~ :e { say "exists" }
+    if $filename.:e { say "exists" }
 
-These tests may be combined via junctions:
+Both of these forms actually translate to
+
+    if $filename.TEST(:e) { say "exists" }
+
+which which is a generic mechanism that dispatches to the object's
+class to find the definition of C<TEST>.  (It just happens that C<Str>
+(filenames) and C<IO> (filehandles) default to the expected filetest
+semantics, but C<$regex.:i> might tell you whether the regex is case
+insensitive, for instance.)
+
+Using the pattern form, multiple tests may be combined via junctions:
 
     given $handle {
         when all :r :w :x {...}
@@ -1421,14 +1432,24 @@ These tests may be combined via junctions:
         when *            {...}
     }
 
-In general, the user need not worry about caching the stat buffer.
-The stat buffer will automatically be reused if the same object is
-queried and the stat buffer has not "expired", where that is defined
-as older than a second or so.  If this is a concern, an explicit stat()
-or lstat() will automatically reset the stat buffer, as will switching
-to a different filename or handle.
+The advantage of the method form is that it can be used in places that
+require tighter precedence than C<~~> provides:
 
-Note that C<$file ~~ :s> still returns the filesize, but C<:!s> is true
+    sort { $^a.:M <=> $^b.:M }, @files
+
+though that's a silly example since you could just write:
+
+    sort { .:M }, @files
+
+But that demonstrates the other advantage of the method form.
+
+In general, the user need not worry about caching the stat buffer.
+The stat buffer will automatically be reused if the same object has
+recently been queried, where "recently" is defined as less than a
+second or so.  If this is a concern, an explicit stat() or lstat()
+on that file will automatically reset the stat buffer for that file.
+
+Note that C<:s> still returns the filesize, but C<:!s> is true
 only if the file is of size 0.
 
 =item *
@@ -1832,10 +1853,14 @@ Junctions work through subscripting:
 
 Junctions are specifically unordered.  So if you say
 
-    for all(@foo) {...}
+    foo() | bar() | baz() == 42
 
-it indicates to the compiler that there is no coupling between loop
-iterations and they can be run in any order or even in parallel.  XXX bogus
+it indicates to the compiler that there is no coupling between
+the junctional arguments.  They can be evaluated in any order or in
+parallel.  They can short-circuit as soon as any of them return 42,
+and not run the others at all.  Or if running in parallel, the first
+successful thread may terminate the other threads abruptly.  In general
+you probably want to avoid code with side effects in junctions.
 
 Use of negative operators with syntactically recognizable junctions may
 produce a warning on code that works differently in English than in Perl.
