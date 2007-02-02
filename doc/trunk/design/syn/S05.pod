@@ -728,7 +728,7 @@ consistently.)
 
 If the hash has the property "is parsed(...)", the pattern provided
 is considered to wrap every match, where the key match is represent
-by C<KEY> and the value matchis represented by C<VALUE>.  (C<KEY>,
+by C<KEY> and the value match is represented by C<VALUE>.  (C<KEY>,
 if present, must come at the beginning.  If omitted, the key must be
 explicitly reparsed by this rule or by the value rule.  If C<VALUE>
 is omitted, it is assumed to be at the end.)  The intent of this
