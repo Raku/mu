@@ -59,7 +59,7 @@ unless $orig eq ~@list {
         my $backup = $dict;
         my $incr    = 1;
 
-        while -f "$backup-$incr" {
+        while "$backup-$incr"~~:f {
             $incr++;
         }
 

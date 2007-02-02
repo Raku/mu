@@ -138,7 +138,7 @@ sub svn_commits() {
 
     # If this is an incremental update...
     if $cur_svnrev {
-        if -d '.svn' {
+        if '.svn'~~:d {
             # must be in repo 
             system "svn st -N -q -u . > $tempfile";
             my $latest = 0;

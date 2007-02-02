@@ -4,12 +4,12 @@ use File::Spec;
 my $SID;
 my %Session;
 my $Path = catfile( tmpdir(), "pugs-session" );
-mkdir($Path) unless -e $Path;
+mkdir($Path) unless $Path~~:e;
 
 sub SessionInit() {
     my %Session=();
     $SID=GetCookie('sid'); $SID ~~ s:perl5:g/[^A-Z]//;
-    if !(-e catfile($Path, $SID)) { $SID=''; }
+    if catfile($Path, $SID)~~:!e { $SID=''; }
     $SID=IDGenerate() if $SID eq '';
     SessionDecode(slurp(catfile($Path, $SID)));
     CookiesAdd('sid',$SID);

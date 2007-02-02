@@ -14,7 +14,7 @@ my $cwd = cwd();
 
 rmtree($testdir);
 mkdir($testdir);
-die "Could not create '$testdir':$!" unless -d $testdir;
+die "Could not create '$testdir':$!" unless $testdir~~:d;
 
 open(my $F, ">$testdir/$exename.c")
     or die "Can't create $testdir/$exename.c: $!";
@@ -82,7 +82,7 @@ close $F;
 # build the executable
 chdir($testdir);
 END {
-    #chdir($cwd) && rmtree("$cwd/$testdir") if -d "$cwd/$testdir";
+    #chdir($cwd) && rmtree("$cwd/$testdir") if "$cwd/$testdir"~~:d;
 }
 if (open(my $EIN, "$cwd/win32/${exename}_exe.uu")) {
     print "# Unpacking $exename.exe\n";
@@ -110,7 +110,7 @@ else {
          ."1..0 # skipped: can't build test executable\n";
     exit(0);
     }
-    unless (-f "$exename.exe") {
+    unless ("$exename.exe"~~:f) {
     if (open(LOG,'log'))
          {
           while(<LOG>) {
@@ -124,7 +124,7 @@ else {
 }
 copy("$plxname.bat","$plxname.cmd");
 chdir($cwd);
-unless (-x "$testdir/$exename.exe") {
+unless ("$testdir/$exename.exe"~~:x) {
     print "# Could not build $exename.exe\n"
      ."1..0 # skipped: can't build test executable\n";
     exit(0);

@@ -5,7 +5,7 @@
 my ($file, $scale) = @*ARGS;
 my %sails;
 
-die "No such file: \"$file\"" unless $file and -e $file;
+die "No such file: \"$file\"" unless $file and $file~~:e;
 $scale //= 100;
 
 my $FH = open $file err die "Could't open \"$file\"!\n";

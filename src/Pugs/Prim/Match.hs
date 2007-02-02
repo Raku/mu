@@ -11,6 +11,7 @@ import Pugs.Config
 import Pugs.Prim.Code
 import qualified Data.Map as Map
 import qualified Data.Array as Array
+import qualified Pugs.Prim.FileTest as FileTest
 
 -- XXX - kluge: before we figure out the parrot calling convention,
 --       we'll simply inline the adverbs into the regex.
@@ -120,6 +121,29 @@ op2Match x y@(VCode _) = do
 op2Match x (VRef (MkRef (IScalar sv))) | scalar_iType sv == mkType "Scalar::Const" = do
     y' <- scalar_fetch' sv
     op2Match x y'
+
+op2Match x (VRef (MkRef (IPair pv))) = do 
+    -- Pair match: ~~ :e executes the -e filetest.
+    (k, v)  <- pair_fetch pv
+    isTrue  <- fromVal v :: Eval Bool
+    testOp  <- fromVal k
+    file    <- fromVal x
+    rv      <- ($ file) $ case testOp of
+        "r" -> FileTest.isReadable
+        "w" -> FileTest.isWritable
+        "x" -> FileTest.isExecutable
+        "e" -> FileTest.exists
+        "z" -> FileTest.sizeIsZero
+        "s" -> FileTest.fileSize
+        "M" -> FileTest.fileMTime
+        "A" -> FileTest.fileATime
+        "C" -> FileTest.fileCTime
+        "f" -> FileTest.isFile
+        "d" -> FileTest.isDirectory
+        _   -> const $ die "Unknown file test operator" testOp
+    if isTrue
+        then return rv
+        else fmap (castV . not) (fromVal rv)
 
 op2Match x (VRef y) = do
     y' <- readRef y

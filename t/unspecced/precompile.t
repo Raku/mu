@@ -53,7 +53,7 @@ sub open_new (Str $filename) {
 # XXX - See END block below, remove it and calls to open_new() below if removing
 
 sub precompile (Str $pmfile, Str $destdir) {
-    die "No such file or directory" unless -e $pmfile && -d $destdir;
+    die "No such file or directory" unless $pmfile~~:e && $destdir~~:d;
     # XXX - correct for win32?
     my $out = catpath('', $destdir, (splitpath($pmfile))[2] ~ ".yml");
     @files_created.push($out);
@@ -80,7 +80,7 @@ sub write_class ($destdir, Str $classname, Num $value, Bool :$precompile = 0) {
 }
 
 sub make_old (Str $filename) {
-    -e $filename err fail;
+    $filename~~:e err fail;
     # XXX - not portable, please fix for win32
     system(«touch -t 200001010000 $filename»);
 }
@@ -95,7 +95,7 @@ try {
     my @libdirs = ($lib1, $lib2);
 
     die "# @libdirs[]: Missing directory(/ies) required by test"
-        unless -d all(@libdirs);
+        unless all(@libdirs)~~:d;
 
     @*INC.unshift($lib1, $lib2);
 

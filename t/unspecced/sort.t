@@ -396,7 +396,7 @@ my @unsorted_things = sample(@sorted_things);
 # my @sorted_files = qx( ls -t @files[] );
 
 {
-    # my @sorted = p6sort { -M $^a <=> -M $^b }, @files;
+    # my @sorted = p6sort { $^a~~:M <=> $^b~~:M }, @files;
     #
     # ok(@sorted eqv @sorted_files, 'number ascending; Comparator',
     #     :todo<sort>);
@@ -484,7 +484,7 @@ my @unsorted_things = sample(@sorted_things);
 }
 
 {
-    # my @sorted = p6sort { -M } @files;
+    # my @sorted = p6sort { $_~~:M } @files;
     #
     # ok(@sorted eqv @sorted_files, 'number ascending; KeyExtractor',
     #     :todo<sort>);
@@ -510,8 +510,7 @@ my @sorted_di_numstr = list(<z y x>, <C B A>, reverse(1..3, 10..12)),
     my @sorted;
 
     # Not sure you can have traits on objects but
-    # L<S29/List/"=item sort">
-    # says that any Ordering
+    # L<S29/List/=item sort> says that any Ordering
     # can have `descending` and `canonicalized($how)` traits.
     ok(eval('@sorted = p6sort ( { $_ } => {
         given $^a {
@@ -533,19 +532,19 @@ my @sorted_di_numstr = list(<z y x>, <C B A>, reverse(1..3, 10..12)),
         'Num|Str fuzzy; Pair is descending is insensitive',
         :todo, :depends<p6sort>);
 
-    # @sorted = p6sort { -M } => { $^b cmp $^a }, @files;
+    # @sorted = p6sort { $_~~:M } => { $^b cmp $^a }, @files;
     #
     # ok(@sorted eqv @sorted_modtime_cmp_files,
     #     'string descending; Pair uses cmp', 
     #     :todo<sort>);
     #
-    # @sorted = p6sort { -M } => &fuzzy_cmp, @files;
+    # @sorted = p6sort { $_~~:M } => &fuzzy_cmp, @files;
     #
     # ok(@sorted eqv @sorted_modtime_fuzzy_files,
     #     'number fuzzy; Pair',
     #     :todo<sort>);
     #
-    # @sorted = p6sort ( { -M } => { $^a cmp $^b } ) is descending, @files;
+    # @sorted = p6sort ( { $_~~:M } => { $^a cmp $^b } ) is descending, @files;
     #
     # ok(@sorted eqv @sorted_modtime_cmp_files,
     #     'string descending; Pair is descending', 

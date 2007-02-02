@@ -20,16 +20,16 @@ my $iswin32 = ?($*OS eq any <MSWin32 mingw msys cygwin>) ?? "Timely closing of f
   my $fh = open($fn, :w);
   close $fh;
 
-  ok -e $fn,      "open() created a tempfile";
+  ok $fn~~:e,      "open() created a tempfile";
   is(unlink($fn), 1, "unlink() returned true");
-  ok !(-e $fn),     "unlink() actually deleted the tempfile";
+  ok $fn~~:!e,     "unlink() actually deleted the tempfile";
 }
 
 # open, implicit close because of scope exit, unlink, test
 {
   { my $fh = open($fn, :w) }
 
-  ok -e $fn,      "open() created a tempfile";
+  ok $fn~~:e,      "open() created a tempfile";
   is(unlink($fn), 1, "unlink() returned true", todo => $iswin32);
-  ok !(-e $fn),     "unlink() actually deleted the tempfile", todo => $iswin32;
+  ok $fn~~:!e,     "unlink() actually deleted the tempfile", todo => $iswin32;
 }

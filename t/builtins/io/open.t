@@ -24,11 +24,11 @@ if $*OS eq "browser" {
     }
 
     open("create_this_file", :w);
-    ok(-e 'create_this_file', 'writing to a non-existent file creates it');
+    ok('create_this_file'~~:e, 'writing to a non-existent file creates it');
     unlink('create_this_file');
 
     open("create_this_file2", :w);
-    ok(-e 'create_this_file2', 'appending to a non-existent file creates it');
+    ok('create_this_file2'~~:e, 'appending to a non-existent file creates it');
     unlink('create_this_file2');
 }
 

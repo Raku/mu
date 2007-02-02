@@ -51,7 +51,6 @@ tightOperators = do
     : junoLevel                     -- Junctive Or
     : (optOps (r_opt tights)        -- Named Unary (user-definable)
       ++ preOps (r_named tights Set.\\ opWords " true not ")
-      ++ fileTestOps
       )
     : staticLevels
     )
@@ -102,9 +101,6 @@ staticLevels =
       rightSyn infixAssignmentOps
     , preOps (opWords " true not ")                              -- Loose unary
     ]
-
-fileTestOps :: [RuleOperator Exp]
-fileTestOps = optSymOps (Set.fromAscList (map (MkOpName . cast . (\x -> ['-', x])) fileTestOperatorNames))
 
 infixAssignmentOps :: Set OpName
 infixAssignmentOps = opWords
@@ -304,9 +300,6 @@ matchSlurpy MkCurrentFunction
             = sig == SArray || sig == SArrayMulti
 matchSlurpy _ = False
 
-fileTestOperatorNames :: String
-fileTestOperatorNames = "ABCMORSTWXbcdefgkloprstuwxz"
-
 circumOps, rightSyn, chainOps, matchOps, nonSyn, listSyn, preSyn, optPreSyn, preOps, preSymOps, optSymOps, postOps, optOps, leftOps, rightOps, nonOps, listOps :: Set OpName -> [RuleOperator Exp]
 preSyn      = ops  $ makeOp1 Prefix "" Syn
 optPreSyn   = ops  $ makeOp1 OptionalPrefix "" Syn
@@ -347,10 +340,6 @@ makeOp1 fixity sigil con name = fixity $ try $ do
     lookAheadLiterals
     where
     lookAheadLiterals
-        | "-" <- name =
-            -- Horrible, horrible kluge to make "-e" etc work across prec levels.
-            (try parseFileTestOp >>= makeFileTestOp)
-                <|> conOp fullName
         | isWordAny (last name) = choice autoquoters
         | otherwise = conOp fullName
     autoquoters = 
@@ -358,11 +347,6 @@ makeOp1 fixity sigil con name = fixity $ try $ do
         , string "=>" >> unexpected "=>"
         , conOp fullName
         ]
-    parseFileTestOp = do
-        rv <- oneOf fileTestOperatorNames
-        lookAhead (satisfy (not . isWordAny))
-        whiteSpace
-        return rv
     fullName
         | isAlpha (head name)
         , "&prefix:" <- sigil

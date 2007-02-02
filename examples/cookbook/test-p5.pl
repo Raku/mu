@@ -14,7 +14,7 @@ my $pugs = "../../pugs";
 foreach my $p6 (<01strings/*.pl>) {
     (my $f = $p6) =~ s/.pl$//;
     my ($dir, $file) = split /\//, $f;
-    next if not -e "$dir/$file.expected";
+    next if "$dir/$file.expected"~~:!e;
     unlink "$file.out";
     system "$pugs $f.pl > $file.out";
     if (compare("$file.out", "$dir/$file.expected")) {

@@ -43,7 +43,6 @@ import Control.Exception (ioErrors)
 import Pugs.Prim.Keyed
 import Pugs.Prim.Yaml
 import Pugs.Prim.Match
-import qualified Pugs.Prim.FileTest as FileTest
 import Pugs.Prim.List
 import Pugs.Prim.Numeric
 import Pugs.Prim.Lifts
@@ -416,17 +415,6 @@ op1 "sleep" = \v -> do
 op1 "mkdir" = guardedIO createDirectory
 op1 "rmdir" = guardedIO removeDirectory
 op1 "chdir" = guardedIO setCurrentDirectory
-op1 "-r"    = FileTest.isReadable
-op1 "-w"    = FileTest.isWritable
-op1 "-x"    = FileTest.isExecutable
-op1 "-e"    = FileTest.exists
-op1 "-z"    = FileTest.sizeIsZero
-op1 "-s"    = FileTest.fileSize
-op1 "-M"    = FileTest.fileMTime
-op1 "-A"    = FileTest.fileATime
-op1 "-C"    = FileTest.fileCTime
-op1 "-f"    = FileTest.isFile
-op1 "-d"    = FileTest.isDirectory
 op1 "graphs"= op1Cast (VInt . (genericLength :: String -> VInt)) -- XXX Wrong
 op1 "codes" = op1Cast (VInt . (genericLength :: String -> VInt))
 op1 "chars" = op1Cast (VInt . (genericLength :: String -> VInt))
@@ -1824,17 +1812,6 @@ initSyms = seq (length syms) $ do
 \\n   Bool      pre     nothing safe   ()\
 \\n   Num       pre     exp     safe   (Num, ?Num)\
 \\n   Num       pre     sqrt    safe   (Num)\
-\\n   Bool      spre    -z      unsafe (Str)\
-\\n   Bool      spre    -r      unsafe (Str)\
-\\n   Bool      spre    -w      unsafe (Str)\
-\\n   Bool      spre    -x      unsafe (Str)\
-\\n   Bool      spre    -e      unsafe (Str)\
-\\n   Int       spre    -s      unsafe (Str)\
-\\n   Num       spre    -M      unsafe (Str)\
-\\n   Num       spre    -A      unsafe (Str)\
-\\n   Num       spre    -C      unsafe (Str)\
-\\n   Bool      spre    -f      unsafe (Str)\
-\\n   Bool      spre    -d      unsafe (Str)\
 \\n   Num       spre    -       safe   (Num)\
 \\n   Str       spre    ~       safe   (Str)\
 \\n   Bool      spre    ?       safe   (Bool)\

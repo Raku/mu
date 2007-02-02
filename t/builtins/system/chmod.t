@@ -44,12 +44,12 @@ if $*OS eq any <MSWin32 mingw msys cygwin> {
     is +@result, 1, "One file successfully changed";
     is @result[0], $file, "name of the file returned", :todo;
     if ($*EUID) {
-        ok !(-r $file), "not readable after 0";
-        ok !(-w $file), "not writabel after 0";
-        ok !(-x $file), "not executable after 0";
+        ok $file~~:!r, "not readable after 0";
+        ok $file~~:!w, "not writabel after 0";
+        ok $file~~:!x, "not executable after 0";
     }
     else {
-        skip 3, "-r -w -x can accidentally work with root permission";
+        skip 3, "~~:r ~~:w ~~:x can accidentally work with root permission";
     }
     remove_file($file);
 }
@@ -61,9 +61,9 @@ if $*OS eq any <MSWin32 mingw msys cygwin> {
     is +@result, 1, "One file successfully changed";
     is @result[0], $file, "name of the file returned", :todo;
 
-    ok -r $file, "readable after 700";
-    ok -w $file, "writabel after 700";
-    ok -x $file, "executable after 700";
+    ok $file~~:r, "readable after 700";
+    ok $file~~:w, "writabel after 700";
+    ok $file~~:x, "executable after 700";
     remove_file($file);
 }
 
@@ -74,9 +74,9 @@ if $*OS eq any <MSWin32 mingw msys cygwin> {
     is +@result, 1, "One file successfully changed";
     is @result[0], $file, "name of the file returned", :todo;
 
-    ok -r $file, "readable after 777";
-    ok -w $file, "writable after 777";
-    ok -x $file, "executable after 777";
+    ok $file~~:r, "readable after 777";
+    ok $file~~:w, "writable after 777";
+    ok $file~~:x, "executable after 777";
     remove_file($file);
 }
 
@@ -89,9 +89,9 @@ sub create_temporary_file {
 }
 sub remove_file ($file) {
     unlink $file;
-    ok(!(-e $file), "Test file was successfully removed");
+    ok($file~~:!e, "Test file was successfully removed");
 }
 
-ok(try { !-e "nonesuch" }, "!-e syntax works");
+ok(try { "nonesuch"~~:!e }, "~~:!e syntax works");
 
 

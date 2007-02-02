@@ -217,11 +217,11 @@ if (@ARGV) {
    $wc   = shift;
 }
 select(STDERR);$|=1;select(STDOUT);$|=1;  # auto-flush
--f $head or die "error: file '$head' not found.\n";
--f $tail or die "error: file '$tail' not found.\n";
--f $rev  or die "error: file '$rev' not found.\n";
--f $mid  or die "error: file '$mid' not found.\n";
--f $wc   or die "error: file '$wc' not found.\n";
+$head ~~:f or die "error: file '$head' not found.\n";
+$tail ~~:f or die "error: file '$tail' not found.\n";
+$rev  ~~:f or die "error: file '$rev' not found.\n";
+$mid  ~~:f or die "error: file '$mid' not found.\n";
+$wc   ~~:f or die "error: file '$wc' not found.\n";
 PrintGolfScore($head, $tail, $rev, $mid, $wc);
 CheckHead($head);
 CheckTail($tail);
