@@ -12,6 +12,7 @@ Ways you can help:
 
   * Explore and explain to me how to hook a new p6 regex engine into
     pugs.  I believe pugs is currently using perl5/Pugs-Compiler-Rule?
+  * Profile --test and report where all the time is going.
   * Are there any better p6 regexp grammars than
     misc/Grammars/rx_grammar.pm?
   *...
@@ -28,7 +29,7 @@ Intent:
   * fast
   * quick development
   * written in p5 (so it can be used with pugs, v6.pm, and pil2js)
-  * hardwired grammars - spec'ed extensibility defered.
+  * hardwired grammars - spec'ed extensibility deferred.
 
 Architecture:
 
@@ -44,17 +45,19 @@ Plan:
 
   * Get p5 regexp working:
      Debug using re_tests.
-     Add missing ast nodes - non-capture group, backref, conditional, etc.
+     Add missing ast nodes - backref, conditional, etc.
      Wrap in a nice search api.
      Tidy up.
      Consider performance.
 
     Objective is a 100% okay on the re_tests p5 regexp test suite.
+    Or as close as the underlying p5 implementation version comes.
+    Except where it is easy, we won't try to do better than that.
     Keeping track of what test is failing and why is more trouble than
-    doing 100% now rather than later, no?
+    doing ~100% now rather than later, no?
   * Get p6 rules tests.
     Can we get pugs to use us for the t/ tests?  That would be best.
-    Else klude something, perhaps from the p6-ified re_tests.  But those
+    Else kludge something, perhaps from the p6-ified re_tests.  But those
     are very incomplete.
   * Create simple m-expr grammar for p6 rules.
     Start simple (eg, the pge illustrative grammar), get it working,
@@ -62,6 +65,10 @@ Plan:
   * Milestone - at this point it may be the best rules engine available.
   * Flesh out the p6 implementation.
   * Declare success.
+
+Bugs: (some among many)
+
+  * \10 handling
 
 Budgeting:
 
@@ -92,12 +99,12 @@ Risks:
 
   * Does this version of the engine already support commits? ->
     significant engine change, unexpected debugging hell.  Mitigation:
-    Check; Scavange if necessary (before initial debugging pass or
+    Check; Scavenge if necessary (before initial debugging pass or
     after? - after - minimum path to get-it-working - worth the hit).
 
   * P6 rule interaction with lexical variables - have plan, but it's
     still raw.  -> rathole.  Mitigation: Flesh out plan; Punt, restricting
-    interation to symbol table.
+    interaction to symbol table.
 
   * Match objects are non-spec. -> non-specness.  Mitigation: I don't
     care; Might be easily fixed.
@@ -112,6 +119,10 @@ Risks:
     Mitigation: don't; Budget separately.
 
 History:
+
+  2007-Feb-01 Began backrefs.  Bugfixes.  Dropped in copies of the
+  missing nodes which need to be adapted to the new ast.  400 sec.
+  82.00% okay.  Cost: 1/4 day.
 
   2007-Jan-31 Added non-greedy quant, and non-capturing group
   Performance problems (re_tests now takes 6 min).  80% okay.

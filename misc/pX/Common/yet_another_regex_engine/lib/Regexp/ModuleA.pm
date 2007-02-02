@@ -61,12 +61,32 @@ local $Regexp::RAST::ReentrantEngine::Env::cap;
   };
   sub RRRE_noop { $noop }
 
+  sub RRRE_eat_backref {
+    my($o,$idx)=@_;
+    my $noop = $o->RRRE_noop;
+    subname "<eat_backref ".($id++).">" => sub {
+      my $c = $_[0];
+      FAIL() if $idx >= @$Regexp::RAST::ReentrantEngine::Env::cap;
+      my $m = $Regexp::RAST::ReentrantEngine::Env::cap->[$idx];
+      FAIL() if !defined($m) || !$m;
+      my $re = "$m";
+      $re =~ s/(\W)/\\$1/g;
+
+      my($str) = $Regexp::RAST::ReentrantEngine::Env::str;
+      pos($str) = $Regexp::RAST::ReentrantEngine::Env::pos;
+      $str =~ /\G($re)/ or FAIL();
+      $Regexp::RAST::ReentrantEngine::Env::pos += length($1);
+      TAILCALL(&$c,$noop);
+    };
+  }
   sub RRRE_eat_regexp {
     my($o,$re)=@_;
     my $noop = $o->RRRE_noop;
+# print STDERR ">$re<\n";
     my $qr = qr/\G($re)/;
     subname "<eat_regexp ".($id++).">" => sub {
       my $c = $_[0];
+
       my($str) = $Regexp::RAST::ReentrantEngine::Env::str;
       pos($str) = $Regexp::RAST::ReentrantEngine::Env::pos;
       $str =~ $qr or FAIL();
@@ -413,6 +433,162 @@ local $Regexp::RAST::ReentrantEngine::Env::cap;
   }
 }
 
+{
+  # \1 (backrefs)
+  package Regexp::RAST::Backref;
+  sub RRRE_emit {
+    my($o)=@_;
+    my $noop = $o->RRRE_noop;
+    my $idx = $o->{'backref_n'} -1;
+    $o->RRRE_eat_backref($idx);
+  }
+}
+
+#------------------------------------------------------------
+# more stuff to convert from old ast
+{
+  # (?=) (?<=)
+  package Regexp::Parser::ifmatch;
+  sub RRRE_emit {
+    my($o)=@_;
+    my $noop = $o->RRRE_noop;
+    my $f = $o->RRRE_concat( $o->data );
+    my $dir = $o->{'dir'};
+    if($dir>0) {
+      sub {
+        my $c = $_[0];
+        { local($Regexp::RAST::ReentrantEngine::Env::pos)=($Regexp::RAST::ReentrantEngine::Env::pos);
+          my $v = $f->($noop);
+          FAIL_IF_FAILED($v);
+        }
+        TAILCALL(&$c,$noop);
+      }
+    } else {
+      sub {
+        my $c = $_[0];
+        FAIL() if not &_is_found_backwards($f);
+        TAILCALL(&$c,$noop);
+      }
+    }
+  }
+  sub _is_found_backwards {
+    my($f)=@_;
+    my $pos = $Regexp::RAST::ReentrantEngine::Env::pos;
+    local $Regexp::RAST::ReentrantEngine::Env::pos = $Regexp::RAST::ReentrantEngine::Env::pos;
+    my $at_pos = sub{ FAIL() if $Regexp::RAST::ReentrantEngine::Env::pos != $pos; return 1;};
+    for(my $i = $Regexp::RAST::ReentrantEngine::Env::pos;$i>=0;$i--) {
+      $Regexp::RAST::ReentrantEngine::Env::pos = $i;
+      my $v = $f->($at_pos);
+      return 1 if not FAILED($v);
+    }
+    return 0;
+  }
+}
+{
+  # (?!) (?<!)
+  package Regexp::Parser::unlessm;
+  sub RRRE_emit {
+    my($o)=@_;
+    my $noop = $o->RRRE_noop;
+    my $f = $o->RRRE_concat( $o->data );
+    my $dir = $o->{'dir'};
+    if($dir>0) {
+      sub {
+        my $c = $_[0];
+        my $v;
+        { local($Regexp::RAST::ReentrantEngine::Env::pos)=($Regexp::RAST::ReentrantEngine::Env::pos);
+          $v = $f->($noop);
+          FAIL() if not FAILED($v);
+        }
+        TAILCALL(&$c,$noop);
+      };
+    } else {
+      sub {
+        my $c = $_[0];
+        FAIL() if &Regexp::Parser::ifmatch::_is_found_backwards($f);
+        TAILCALL(&$c,$noop);
+      };
+    }
+  }
+}
+{
+  # (?>)
+  package Regexp::Parser::suspend;
+  sub RRRE_emit {
+    my($o)=@_;
+    my $noop = $o->RRRE_noop;
+    my $f = $o->RRRE_concat( $o->data );
+    sub {
+      my $c = $_[0];
+      my $v = $f->($noop);
+      FAIL_IF_FAILED($v);
+      TAILCALL(&$c,$noop);
+    };
+  }
+}
+{
+  # (?(n)t|f)
+  package Regexp::Parser::ifthen;
+  sub RRRE_emit {
+    my($o)=@_;
+    my $noop = $o->RRRE_noop;
+
+    my $f_test = $o->data->[0]->RRRE_emit;
+    my $f_then = $o->data->[1]->data->[0][0]->RRRE_emit;
+    my $crufty = $o->data->[1]->data;
+    my $f_else = sub{my $c = $_[0]; TAILCALL(&$c,$noop);};
+    $f_else = $o->data->[1]->data->[1][0]->RRRE_emit if @{$o->data->[1]->data} > 1;
+    sub {
+      my $c = $_[0];
+      my $v;
+      { local($Regexp::RAST::ReentrantEngine::Env::pos)=($Regexp::RAST::ReentrantEngine::Env::pos);
+        $v = $f_test->($noop);
+      }
+      if(not FAILED($v)) {
+        TAILCALL(&$f_then,$c);
+      } else {
+        TAILCALL(&$f_else,$c);
+      }
+    };
+  }
+}
+{
+  # the N in (?(N)t|f) when N is a number
+  package Regexp::Parser::groupp;
+  sub RRRE_emit {
+    my($o)=@_;
+    my $noop = $o->RRRE_noop;
+    my $idx = $o->{'nparen'} -1;
+    sub {
+      my $c = $_[0];
+      FAIL() if $idx >= @$Regexp::RAST::ReentrantEngine::Env::cap;
+      my $m = $Regexp::RAST::ReentrantEngine::Env::cap->[$idx];
+      FAIL() if !$m;
+      TAILCALL(&$c,$noop);
+    };
+  }
+}
+{
+  # (?{ ... })
+  package Regexp::Parser::eval;
+  sub RRRE_emit {
+    my($o)=@_;
+    my $noop = $o->RRRE_noop;
+    my $embedded_code = join("",$o->data);
+    my $code = '
+#line 2 "in Regexp::Parser::eval"
+sub{my $__c__ = $_[0]; '.$embedded_code.'; @_=$noop; goto &$__c__}';
+    eval($code) || die "Error compiling (?{$embedded_code}) :\n$@\n";
+  }
+}
+{
+  # (??{ ... })
+  package Regexp::Parser::logical;
+  sub RRRE_emit { Regexp::Parser::eval::RRRE__emit(@_) }
+}
+
+
+
 #======================================================================
 
 {
@@ -507,8 +683,8 @@ sub match__describe_name_as {
   BEGIN{
   require Exporter;
   @Regexp::RAST::Make0::ISA=qw(Exporter);
-  @Regexp::RAST::Make0::EXPORT_OK = qw(pat5 mod_expr mod_inline exact quant quant_ng alt seq cap5 grp sr arule bind namespace  ques star plus  ques_ng star_ng plus_ng  inf );
-  @Regexp::RAST::Make0::EXPORT    = qw(pat5 mod_expr mod_inline exact quant quant_ng alt seq cap5 grp sr arule bind namespace  ques star plus  ques_ng star_ng plus_ng  inf );
+  @Regexp::RAST::Make0::EXPORT_OK = qw(pat5 mod_expr mod_inline exact quant quant_ng alt seq cap5 grp sr arule bind namespace  backref  ques star plus  ques_ng star_ng plus_ng  inf );
+  @Regexp::RAST::Make0::EXPORT    = qw(pat5 mod_expr mod_inline exact quant quant_ng alt seq cap5 grp sr arule bind namespace  backref  ques star plus  ques_ng star_ng plus_ng  inf );
   }
   sub pat5 { Regexp::RAST::Pat5->new(@_) }
   sub mod_expr { Regexp::RAST::Mod_expr->new(@_) }
@@ -525,13 +701,16 @@ sub match__describe_name_as {
   sub bind { my($pkg)=caller; Regexp::RAST::Bind->new($pkg,@_) }
   sub namespace { my($pkg)=caller; Regexp::RAST::Namespace->new($pkg,@_) }
 
+  sub backref { Regexp::RAST::Backref->new(@_) }
+
+
   sub ques { quant(0,1,    (@_ > 1 ? seq(@_) : @_)); }
   sub star { quant(0,undef,(@_ > 1 ? seq(@_) : @_)); }
   sub plus { quant(1,undef,(@_ > 1 ? seq(@_) : @_)); }
 
-  sub ques_ng { quant(0,1,    (@_ > 1 ? seq(@_) : @_)); }
-  sub star_ng { quant(0,undef,(@_ > 1 ? seq(@_) : @_)); }
-  sub plus_ng { quant(1,undef,(@_ > 1 ? seq(@_) : @_)); }
+  sub ques_ng { quant_ng(0,1,    (@_ > 1 ? seq(@_) : @_)); }
+  sub star_ng { quant_ng(0,undef,(@_ > 1 ? seq(@_) : @_)); }
+  sub plus_ng { quant_ng(1,undef,(@_ > 1 ? seq(@_) : @_)); }
 
   sub inf () { 1000**1000**1000 } #XXX There has to be a better way, no?
 }
@@ -575,7 +754,7 @@ sub match__describe_name_as {
       $mod =~ /^(\w+)(?:[[(<](.*?)[])>])?$/ or die "assert";
       my($k,$v) = ($1,$2);
       $v = '1' if !defined $v;
-      $v = eval($v);
+      $v = eval($v);#X
       $m{$k} = $v;
     }
     \%m;
@@ -622,6 +801,20 @@ sub match__describe_name_as {
   sub RAST_init {
     my($o)=@_;
     $o->{expr}->RAST_init;
+  }
+}
+{
+  package Regexp::RAST::Backref;
+  @Regexp::RAST::Backref::ISA=qw(Regexp::RAST::Base);
+  sub new {
+    my($cls,$idx)=@_; die "api assert" if @_ != 2;
+    bless {backref_n=>$idx}, $cls;
+  }
+  sub RAST_init {
+    my($o)=@_;
+    my $n = $o->{backref_n};
+    die "Back reference to nonexistent group $n"
+      if $Regexp::RAST::Env::nparen < $n;
   }
 }
 {
@@ -727,6 +920,8 @@ sub match__describe_name_as {
   }
 }
 
+
+
 #======================================================================
 package Regexp::ModuleA::P5;
 BEGIN { Regexp::RAST::Make0->import; };
@@ -736,15 +931,16 @@ namespace("",
           bind('_pattern',arule(seq(sr('_non_alt'),star(exact('|'),sr('_non_alt'))))),
 	  bind('_non_alt',arule(star(sr('_element')))),
 	  bind('_element',arule(seq(sr('_non_quant'),ques(pat5('[?*+]\??|{\d+(?:,\d*)?}\??'))))),
-	  bind('_non_quant',arule(alt(sr('_mod_inline'),sr('_mod_expr'),sr('_cap5'),sr('_paren'),sr('_charclass'),sr('_esc'),sr('_nonmeta'),sr('_passthru')))),
+	  bind('_non_quant',arule(alt(sr('_mod_inline'),sr('_mod_expr'),sr('_cap5'),sr('_paren'),sr('_charclass'),sr('_backref_or_char'),sr('_esc'),sr('_nonmeta'),sr('_passthru')))),
 	  bind('_mod_inline',arule(pat5('\(\?[imsx-]+\)'))),
 	  bind('_mod_expr',arule(seq(pat5('\(\?[imsx-]+:'),sr('_pattern'),exact(')')))),
 	  bind('_paren',arule(seq(pat5('\((?!\?[imsx-]+:)\?'),sr('_pattern'),exact(')')))),
 	  bind('_cap5',arule(seq(pat5('\((?!\?)'),sr('_pattern'),exact(')')))),
 	  bind('_charclass',arule(pat5('\[\^?\]?([^\]\\\\]|\\\\.)*\]'))),
-	  bind('_esc',arule(pat5('\\\\.|\.'))),#rename
+	  bind('_backref_or_char',arule(pat5('\\\\\d+'))),
+	  bind('_esc',arule(pat5('\\\\[^\d]'))),
 	  bind('_nonmeta',arule(pat5("$nonmeta(?:$nonmeta+(?![?*+{]))?"))),
-	  bind('_passthru',arule(pat5('[$^]')))
+	  bind('_passthru',arule(pat5('[$^.]')))
 	  )->RRRE_emit;
 
 
@@ -764,10 +960,14 @@ sub match_tree_to_mexpr_helper {
   my @ret = @v;
   if(defined($r)) {
     if($r eq '_nonmeta') {
-      @ret = ("exact('$m')");
+      my $pat = "$m";
+      $pat =~ s/\\([\\\'])/\\\\\\$1/g;
+      @ret = ("exact('$pat')");
     }
     if($r eq '_passthru') {
-      @ret = ("pat5('$m')");
+      my $pat = "$m";
+      $pat =~ s/\\([\\\'])/\\\\\\$1/g;
+      @ret = ("pat5('$pat')");
     }
     if($r eq '_element') {
       my $s = "$m";
@@ -786,13 +986,24 @@ sub match_tree_to_mexpr_helper {
       }
       @ret = ($e);
     }
+    if($r eq '_backref_or_char') {
+      "$m" =~ /^\\(\d+)$/ or die "bug";
+      my $n = $1;
+      if($n !~ /^0/ && $n < 10) {
+        @ret = ("backref($n)");
+      } else {
+        # XXX kludge. Interpretation of \10 is much more complex.
+        @ret = ("pat5('\\\\$n')");
+      }
+    }
     if($r eq '_esc') {
       my $pat = "$m";
-#      $pat =~ s/(\W)/\\\1/g;
+      $pat =~ s/\\([\\\'])/\\\\\\$1/g;
       @ret = ("pat5('$pat')");
     }
     if($r eq '_charclass') {
       my $pat = "$m";
+      $pat =~ s/\\([\\\'])/\\\\\\$1/g;
       @ret = ("pat5('$pat')");
     }
     if($r eq '_paren') {
@@ -832,9 +1043,9 @@ sub mk_matcher_from_re {
     my $at = $match->to+1;
     Carp::confess "$err /".substr($re,0,$at)." <-- HERE ".substr($re,$at)."/";
   }
-  # print $match->match_describe,"\n";
+# print $match->match_describe,"\n";
   my $m_exp = match_tree_to_mexpr($match);
-  # print $m_exp,"\n";
+print $m_exp,"\n";
   die "assert" if !defined $m_exp;
   my $ast = eval($m_exp);
   die if $@;
