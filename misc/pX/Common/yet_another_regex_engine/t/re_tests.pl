@@ -35,6 +35,11 @@ sub test {
 	    $re =~ s/\'([^\']*)$//;
 	    $mods = $1;
 	}
+	if(1) { # Assume variables are already interpolated.
+	    $re =~ s/\${bang}/$bang/eg;
+	    $re =~ s/\${nulnul}/$nulnul/eg;
+	    $re =~ s/\${ffff}/$ffff/eg;
+	}
         my $qr = eval{ $f->($mods,$re) };
 	if (!defined $qr) {
             my $err = $@; $err =~ s/^/\# /m;

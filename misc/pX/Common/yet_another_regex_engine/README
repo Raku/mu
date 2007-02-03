@@ -12,7 +12,6 @@ Ways you can help:
 
   * Explore and explain to me how to hook a new p6 regex engine into
     pugs.  I believe pugs is currently using perl5/Pugs-Compiler-Rule?
-  * Profile --test and report where all the time is going.
   * Are there any better p6 regexp grammars than
     misc/Grammars/rx_grammar.pm?
   *...
@@ -44,11 +43,9 @@ Architecture:
 Plan:
 
   * Get p5 regexp working:
+     Add backref_or_char node.
      Debug using re_tests.
-     Add missing ast nodes - backref, conditional, etc.
-     Wrap in a nice search api.
      Tidy up.
-     Consider performance.
 
     Objective is a 100% okay on the re_tests p5 regexp test suite.
     Or as close as the underlying p5 implementation version comes.
@@ -82,12 +79,6 @@ So 6+ days.  Likely spread over February '07.
 
 Risks:
 
-  * Performance.  As of 2007-Jan-31, performance is very poor.  6 min
-    to run re_test.  Cause unexplored.  Perhaps nested expressions
-    producing really large parse trees?  -> potential slow speed,
-    unusable for parser?  Mitigation: Look into performance; flatten
-    grammars.
-
   * P6 rule spec is big.  I always underestimate this.  The "1+fuzzy"
     current estimate is silly. -> Schedule blow out.  Mitigation:
     Break functionality into chunks (eg, related to implementations -
@@ -118,7 +109,18 @@ Risks:
   * Mission creep, eg, everything for everyone cpan rules module.
     Mitigation: don't; Budget separately.
 
+  - Performance.  As of 2007-Jan-31, performance is very poor.  6 min
+    to run re_test.  Cause unexplored.  Perhaps nested expressions
+    producing really large parse trees?  -> potential slow speed,
+    unusable for parser?  Mitigation: Look into performance; flatten
+    grammars.  RESOLVED: use overload; in Match was a 100x performance
+    hit.
+
 History:
+
+  2007-Feb-03 Some cleanup.  Added nodes.  Performance improved (7 min
+  -> 12 sec by avoiding "use overload" when possible).  12 sec.  92% okay.
+  Cost: 1 day.
 
   2007-Feb-01 Began backrefs.  Bugfixes.  Dropped in copies of the
   missing nodes which need to be adapted to the new ast.  400 sec.
@@ -141,6 +143,12 @@ History:
   2007-Jan-28 Started.  Repackaged engine around new ast, emitters, and
   m-expr dsl.  First draft of p5 rules grammar.  Engine is currently
   broken from the repackaging.  Cost: 1 day.
+
+Misc Notes:
+
+  With my v5.8.8, only Devel::DProfLB didn't fail.  Its granularity is
+  very poor.
+
 
 #; Local Variables:
 #; mode: text
