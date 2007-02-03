@@ -528,11 +528,9 @@ method project (Set of Str $attrs!) returns Set::Relation {
 
 &select ::= &project;
 
-method project_all_but (Set of Str $attrs!) returns Set::Relation {
+method remove (Set of Str $attrs!) returns Set::Relation {
     return self.project( $!heading.difference( $attrs ) );
 }
-
-&select_all_but ::= &project_all_but;
 
 ###########################################################################
 
@@ -1212,12 +1210,11 @@ Set::Relation or the invocant Set::Relation respectively.  This method will fail
 any members of C<$attrs> do not match attribute names of the invocant
 Set::Relation.  This method has an alias named C<select>.
 
-=item C<project_all_but (Set of Str $attrs!) returns Set::Relation>
+=item C<remove (Set of Str $attrs!) returns Set::Relation>
 
 This method is the same as C<project> but that the returned Set::Relation has
 the complement subset of the original's attributes to what C<project> would
-return given the same C<$attrs>.  This method has an alias named
-C<select_all_but>.
+return given the same C<$attrs>.
 
 =item C<extend (Mapping(Str) of Code $attrs!) returns Set::Relation>
 
