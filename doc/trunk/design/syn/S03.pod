@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 2 Feb 2007
+  Last Modified: 3 Feb 2007
   Number: 3
-  Version: 96
+  Version: 97
 
 =head1 Overview
 
@@ -1416,10 +1416,10 @@ pattern or a method name to get the same effect:
 
 Both of these forms actually translate to
 
-    if $filename.TEST(:e) { say "exists" }
+    if $filename.STATUS(:e) { say "exists" }
 
 which is a generic mechanism that dispatches to the object's
-class to find the definition of C<TEST>.  (It just happens that C<Str>
+class to find the definition of C<STATUS>.  (It just happens that C<Str>
 (filenames) and C<IO> (filehandles) default to the expected filetest
 semantics, but C<$regex.:i> might tell you whether the regex is case
 insensitive, for instance.)
@@ -2153,7 +2153,7 @@ as a default because the more specific types listed above it didn't match.
     Any       Num       numeric equality        +$_ == X
     Any       Str       string equality         ~$_ eq X
 
-    Any       Pair      test object             .TEST(X) (Str,IO do filetest)
+    Any       Pair      test object             .STATUS(X) (Str,IO do filetest)
 
     Set       Set       identical sets          $_ === X
     Hash      Set       hash keys same set      $_.keys === X
