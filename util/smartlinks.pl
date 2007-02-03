@@ -14,6 +14,7 @@ use strict;
 use Getopt::Long;
 use File::Basename;
 use FindBin;
+use File::Find qw(find);
 #use Pod::Simple::HTML;
 
 my $check;
@@ -516,6 +517,7 @@ sub help () {
     print <<_EOC_;
 Usage:
   $0 t/*/*.t t/*/*/*.t
+  $0 --dir t
   $0 --css foo.css --out-dir=public_html t/syntax/*.t
   $0 --check t/*/*.t t/*/*/*.t
   $0 --check t/some/test.t
@@ -538,12 +540,13 @@ Options:
                   reason.
   --index         Also generates an index.html page with links to
                   pages.
+  --dir <dir>     Name of the directory where to look for .t files
 _EOC_
     exit(0);
 }
 
 sub main () {
-    my ($syn_dir, $out_dir, $help, $cssfile, $fast, $yml_file, $index);
+    my ($syn_dir, $out_dir, $help, $cssfile, $fast, $yml_file, $index, $dir);
     GetOptions(
         'check'       => \$check,
         'syn-dir=s'   => \$syn_dir,
@@ -553,9 +556,10 @@ sub main () {
         'fast'        => \$fast,
         'test-res=s'  => \$yml_file,
         'index'       => \$index,
+        'dir=s'       => \$dir,
     );
 
-    if ($help || !@ARGV) {
+    if ($help || !@ARGV && !$dir) {
         help();
     }
 
@@ -569,6 +573,10 @@ sub main () {
     create_index($out_dir) if $index;
 
     my @t_files = map glob, @ARGV;
+    @t_files = list_t_files($dir);
+    #use Data::Dumper;
+    #print Dumper \@t_files;
+
     my $linktree = {};
     for my $t_file (@t_files) {
         process_t_file($t_file, $linktree);
@@ -686,6 +694,20 @@ sub create_index($) {
         warn "Could not create index.html: $!";
     }
     return;
+}
+
+{
+    my @my_t_files;
+    sub list_t_files($) {
+        my ($dir) = @_;
+        find(\&_list_t_files, $dir);
+        return @my_t_files;
+    }
+    sub _list_t_files {
+        if ('.t' eq substr($_, -2) and -f $_) {
+            push @my_t_files, $File::Find::name;
+        }
+    }
 }
 
 main() if ! caller;
