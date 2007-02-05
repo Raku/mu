@@ -12,6 +12,13 @@ WORKAROUND: Force it with "cpan -if Task::TAP::Model".
 
 
 
+PROBLEM: Doesn't build under Debian; aborts with 
+	"Setup: error reading ./.setup-config"
+
+WORKAROUND: Install libghc6-network-dev
+
+
+
 PROBLEM: make pugs fails at link time, with errors like
   "undefined reference to `PL_modglobal'".
 
