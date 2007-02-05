@@ -399,6 +399,11 @@ Close the dialog box.
 These exact settings apply to BBEdit 8, the newest version; older versions of
 the program may store the same configuration options elsewhere.
 
+=head2 Where to Start
+
+Take a look at F<project_planning/TASKS> and F<project_planning/TALK> to see
+what needs to be done, and where you could help.
+
 =head2 Testing
 
 See L<Pugs::Doc::Run> and F<t/README>.  If you wish to use the C<prove> utility

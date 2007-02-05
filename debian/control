@@ -2,7 +2,7 @@ Source: pugs
 Section: interpreters
 Priority: optional
 Maintainer: Florian Ragwitz <rafl@debianforum.de>
-Build-Depends: debhelper (>= 4.0.0), dpatch, ghc6 (>= 6.4.2), libghc6-plugins-dev (>= 0.9.10-3), perl, libperl-dev, libparrot-dev (>= 0.4.4-1), libwww-perl, libyaml-perl, libtest-tap-model-perl, libtest-tap-htmlmatrix-perl, libcompress-bzip2-perl
+Build-Depends: debhelper (>= 4.0.0), dpatch, ghc6 (>= 6.4.2), libghc6-plugins-dev (>= 0.9.10-3), perl, libperl-dev, libparrot-dev (>= 0.4.4-1), libwww-perl, libyaml-perl, libtest-tap-model-perl, libtest-tap-htmlmatrix-perl, libcompress-bzip2-perl, libghc6-network-dev
 Standards-Version: 3.7.2
 
 Package: pugs
