@@ -812,7 +812,8 @@ them:
     # L<S03/Changes to Perl 5 operators/"?" imposes boolean context>
     { ... }
 
-By doing this, one can effectively link one group of tests to multplie places in the Synopses, leading to m-to-n correspondance.
+By doing this, one can effectively link one group of tests to
+multplie places in the Synopses, leading to m-to-n correspondance.
 
 smartlinks.pl can take care of this kind of special cases.
 
