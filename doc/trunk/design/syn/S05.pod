@@ -683,7 +683,7 @@ match:
     token sigil { :<::> }
 
 This can be viewed as a form of multiple dispatch, except that it's
-based on longest-token matching rather than signature matcing.  The
+based on longest-token matching rather than signature matching.  The
 advantage of writing it this way is that it's easy to add additional
 rules to the same category in a derived grammar.  All of them will
 be matched in parallel when you try to match C<< /<sigil>/ >>.
