@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 31 Jan 2007
+   Last Modified: 5 Feb 2007
    Number: 5
-   Version: 49
+   Version: 50
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -395,6 +395,23 @@ brackets for args to the adverb.  In particular:
     m/:foo{xxx}/        Parses as :foo {xxx}
     m/:foo<xxx>/        Parses as :foo <xxx>
 
+If the key of the pair is null, however, it is treated as a "symbol"
+declaration:
+
+    :<*>                Match * symbol
+    :<[> <EXPR> :<]>    Match bracketed expression as symbol :<[ ]>
+    :['<','>']          Match empty <> as circumfix symbol
+    :(&infix)           Match any symbol matched by the infix category
+
+The components of a symbol declaration are matched literally, but
+the list of such symbols is gathered up when the rule is parsed and
+returned as the C<.symbol> property of the rule.  (The C<.category>
+property should also be available for such rules, since these
+properties are used to form the eventual user-visible name of the
+operator being parsed.)
+
+The C<:()> form is conjectured to be useful in generating hyperoperators.
+
 =item *
 
 User-defined modifiers will be possible:
@@ -650,6 +667,26 @@ or (conjecturally) maybe just:
     token sigil { @:< $ @ @@ % & :: > }
 
 assuming we make the C<@:> contextualizer govern only the next token.
+
+=item *
+
+Alternatively, if you predeclare a category, you can write multiple
+rules for the same category, differentiated only by the symbol they
+match:
+
+    category sigil;
+    token sigil { :<$> }
+    token sigil { :<@> }
+    token sigil { :<@@> }
+    token sigil { :<%> }
+    token sigil { :<&> }
+    token sigil { :<::> }
+
+This can be viewed as a form of multiple dispatch, except that it's
+based on longest-token matching rather than signature matcing.  The
+advantage of writing it this way is that it's easy to add additional
+rules to the same category in a derived grammar.  All of them will
+be matched in parallel when you try to match C<< /<sigil>/ >>.
 
 =item *
 
