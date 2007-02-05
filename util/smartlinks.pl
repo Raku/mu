@@ -573,7 +573,7 @@ sub main () {
     create_index($out_dir) if $index;
 
     my @t_files = map glob, @ARGV;
-    @t_files = list_t_files($dir);
+    push @t_files, list_t_files($dir) if $dir;
     #use Data::Dumper;
     #print Dumper \@t_files;
 
@@ -700,6 +700,7 @@ sub create_index($) {
     my @my_t_files;
     sub list_t_files($) {
         my ($dir) = @_;
+	#warn "DIR is ", $dir, "\n";
         find(\&_list_t_files, $dir);
         return @my_t_files;
     }
@@ -810,6 +811,8 @@ them:
     # L<S02/Context/boolean "?">
     # L<S03/Changes to Perl 5 operators/"?" imposes boolean context>
     { ... }
+
+By doing this, one can effectively link one group of tests to multplie places in the Synopses, leading to m-to-n correspondance.
 
 smartlinks.pl can take care of this kind of special cases.
 
