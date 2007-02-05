@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 3 Feb 2007
+  Last Modified: 5 Feb 2007
   Number: 3
-  Version: 97
+  Version: 99
 
 =head1 Overview
 
@@ -245,6 +245,7 @@ the same name are handled.
 Class-qualified method call
 
     $obj.::Class::meth
+    $obj.Class::meth    # same thing, assuming Class is predeclared
 
 =item *
 
