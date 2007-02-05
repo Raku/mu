@@ -3,14 +3,12 @@ use v6-alpha;
 class KindaPerl6::Traverse {
 
     sub visit ( $visitor, $node, $node_name ) {
-        # say "visit " ~ $node_name;
+        #say "visit " ~ $node;
         
         if $node.isa('Array') {
             my $result := [ ];
-            my $i := 0;
             for @($node) -> $subitem {
-                $result[ $i ] := $subitem.emit( $visitor );
-                $i := $i + 1;
+                push @$result, visit( $visitor, $subitem, $node_name );
             };
             return $result;
         };
@@ -18,12 +16,16 @@ class KindaPerl6::Traverse {
         if $node.isa('Hash') {
             my $result := { };
             for keys %($node) -> $subitem {
-                $result{ $subitem } := ($node{$subitem}).emit( $visitor );
+                $result{ $subitem } := visit( $visitor, $node{$subitem}, $node_name );
             };
             return $result;
         };
 
         if $node.isa('Str') {
+            return $node;
+        };
+
+        if $node.isa('Pad') {
             return $node;
         };
 
@@ -592,7 +594,7 @@ class Use {
 
 =head1 NAME 
 
-MiniPerl6::Traverse - Tree traverser for MiniPerl6 AST
+KindaPerl6::Traverse - Tree traverser for KindaPerl6 AST
 
 =head1 AUTHORS
 

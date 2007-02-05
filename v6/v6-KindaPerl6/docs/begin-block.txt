@@ -1,0 +1,112 @@
+# incrementally set environment; and keep a pad stack
+
+use strict;
+my @v;
+$v[0] = do { my $x = 3; sub { $x; eval $_[0] } };  # set up closure
+
+$v[0]( ' print "x=$x\n" ' );   # execute in this context level
+print "sub=$v[0]\n";
+
+$v[1] = $v[0]( ' do { my $y = 4; sub { $y; eval $_[0] } } ' );  # add a pad level
+
+$v[1]( ' print "y=$y\n" ' );   # execute in this context level
+
+$v[2] = $v[1]( ' do { my $z = 7; sub { $z; eval $_[0] } } ' );  # add a pad level
+
+$v[2]( ' $y++ ' );   # execute in this context level
+$v[2]( ' print "y=$y\n" ' );   # execute in this context level
+$v[2]( ' print "done\n" ' );   # execute in this context level
+
+__END__
+use strict;
+package Tied;
+            sub TIESCALAR {
+                my $class = shift;
+                return bless { val => 42 }, $class;
+            }
+            sub FETCH {
+                my $self = shift;
+                print "FETCH\n";
+                return $self->{val};
+            }
+package main;
+use Data::Dumper;
+	tie my $var, 'Tied';
+print Dumper( $var );
+	my $obj   = tied( $var );  # disable tie
+print Dumper( $obj );
+	my $alias = bless { %$obj }, ref $obj;  # must know what is the internal representation
+__END__
+	my $obj   = tied( $env{'$var'} );  # disable tie
+	#my $alias = bless { %$obj }, ref $obj;  # must know what is the internal representation
+	#my $var = tie $$obj, ...;
+
+__END__
+
+- label vars as: 
+	our - with namespace
+	my
+	*
+- store values in env
+- compile begin-block
+	with initializers:
+
+	{ 
+		my $var = $env{'$var'};
+		our $module::var = $env{'$module::var'};
+		# compiled block here
+
+		# what happens if $var is tied?
+
+		# save the side-effects
+		$env{'$var'} = $var;
+		$env{'$module::var'} = $module::var;
+
+		# save the side-effects diff
+		# in order to make the INIT block later
+	}
+
+- emit 
+- eval
+
+- what happens if $var is tied?
+need to use a pointer instead of the actual var
+or
+all vars are replaced with $env{'...'}
+- not a solution, because it's incompatible with p5 modules
+xxx - but this may work:
+
+	my $obj   = tied( $env{'$var'} );  # disable tie
+	my $alias = bless { %$obj }, ref $obj;  # must know what is the internal representation
+	my $var = tie $$obj, ...;
+
+- just ignore tie for now?
+
+- another option
+- compile begin-block
+	with initializers,
+	and an eval:
+
+	{ 
+		my $var = $env{'$var'};
+		our $module::var = $env{'$module::var'};
+		# compiled block here
+
+		# what happens if $var is tied?
+
+		# save the side-effects
+		$env{'$var'} = $var;
+		$env{'$module::var'} = $module::var;
+
+		# save the side-effects diff
+		# in order to make the INIT block later
+
+		return sub { eval $_[0] }	# eval in this context!
+	}
+
+my @v;
+$v[0] =    sub { my $x = 3; sub { eval $_[0] } };
+$v[1] = $v[0]( ' my $y = 4; sub { eval $_[0] } ' );
+$v[2] = $v[0]( ' print "$x, $y\n"; sub { eval $_[0] } ' );
+
+

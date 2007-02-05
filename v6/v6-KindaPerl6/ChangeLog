@@ -9,6 +9,30 @@ The kp6 Milestones are:
 - begin blocks
 - containers
 
+2007-02-04
+- working BEGIN blocks
+- new Pad methods: add_lexicals(), namespace(), declaration()
+- created COMPILER package
+- implemented ::=
+        my $aaa ::= 123; BEGIN { $aaa };
+    compiles to:
+        my $aaa; $aaa := 123; 123;
+- named subs exist at compile-time
+- deprecated modules:
+    KindaPerl6::Visitor::LexicalSub
+    KindaPerl6::Visitor::CreateEnv
+- updated FAQ, added ANNOUNCE
+
+2007-02-03
+- containers 
+- constants
+- simple begin blocks
+
+2007-01-28
+- GLOBAL namespace
+- %*ENV
+- metamodel
+
 2007-01-16
 - added ::Assign to the grammar
 - added Perl5-emitter visitor

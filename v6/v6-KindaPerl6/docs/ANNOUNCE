@@ -1,0 +1,23 @@
+ANNOUNCE - kp6
+
+kp6 is a Perl6 compiler written in Perl6.
+
+The code is at the Pugs repository, in the v6/v6-KindaPerl6/ directory.
+The FAQ is at v6/v6-KindaPerl6/docs/FAQ.pod
+
+v6-KindaPerl6 (kp6) is a reimplementation of mp6(*), with a very flexible compiler workflow.
+kp6 uses plugins in order to implement perl6 semantics over several backends.
+
+kp6 implements all mp6 features, plus:
+
+- lexical subroutines
+- object metamodel 
+- begin-blocks
+- containers
+
+The kp6 project will still be active for one month or so, in order to do further bugfixing and optimization. 
+After that, this project will be frozen, and a project for a more powerful 'Perl6-on-Perl6' will be started.
+
+(*) v6-MiniPerl6 (mp6) is a bootstrapped compiler, which implements a subset of Perl 6.
+
+- Flavio S. Glock

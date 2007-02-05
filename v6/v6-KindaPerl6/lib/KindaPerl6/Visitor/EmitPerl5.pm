@@ -5,7 +5,7 @@ class KindaPerl6::Visitor::EmitPerl5 {
 
     # This visitor is a perl5 emitter
     
-    method visit ( $node, $node_name ) {
+    method visit ( $node ) {
         $node.emit_perl5;
     };
 
@@ -15,10 +15,11 @@ class KindaPerl6::Visitor::EmitPerl5 {
 
 class Module {
     has $.name;
-    has @.body;
+    has $.body;
     method emit_perl5 {
-          'package ' ~ $.name ~ ';' ~ Main::newline() 
-        ~ @.body.emit_perl5 ~ Main::newline();
+          '{ package ' ~ $.name ~ ';' ~ Main::newline() 
+        ~ $.body.emit_perl5 
+        ~ ' }' ~ Main::newline();
     }
 }
 
@@ -28,22 +29,29 @@ class CompUnit {
     has $.name;
     has %.attributes;
     has %.methods;
-    has @.body;
+    has $.body;
     method emit_perl5 {
-          'package ' ~ $.name ~ "; " 
+          '{ package ' ~ $.name ~ "; " 
         ~ 'sub new { shift; bless { @_ }, "' ~ $.name ~ '" }' ~ " " 
-        ~ @.body.emit_perl5
+        ~ $.body.emit_perl5
+        ~ ' }' ~ Main::newline();
     }
 }
 
 class Val::Int {
     has $.int;
-    method emit_perl5 { $.int }
+    method emit_perl5 { 
+        # $.int 
+        '( bless \\( do{ my $v = ' ~ $.int ~ ' } ), \'Type_Constant_Int\' )'
+    }
 }
 
 class Val::Bit {
     has $.bit;
-    method emit_perl5 { $.bit }
+    method emit_perl5 { 
+        # $.bit 
+        '( bless \\( do{ my $v = ' ~ $.bit ~ ' } ), \'Type_Constant_Bit\' )'
+    }
 }
 
 class Val::Num {
@@ -53,11 +61,17 @@ class Val::Num {
 
 class Val::Buf {
     has $.buf;
-    method emit_perl5 { '\'' ~ $.buf ~ '\'' }
+    method emit_perl5 { 
+        # '\'' ~ $.buf ~ '\'' 
+        '( bless \\( do{ my $v = ' ~ '\'' ~ $.buf ~ '\'' ~ ' } ), \'Type_Constant_Buf\' )'
+    }
 }
 
 class Val::Undef {
-    method emit_perl5 { '(undef)' }
+    method emit_perl5 { 
+        #'(undef)' 
+        '$GLOBAL::undef'
+    }
 }
 
 class Val::Object {
@@ -95,8 +109,28 @@ class Lit::Hash {
 }
 
 class Lit::Code {
+    has $.pad;   # see Pad.pm
+    has $.state;
+    has $.sig;
+    has @.body;
     method emit_perl5 {
-        return (@.body.>>emit_perl5).join('; ');
+        my $s;
+        for @($.pad.variable_names) -> $name {
+            my $decl := ::Decl(
+                decl => 'my',
+                type => '',
+                var  => ::Var(
+                    sigil => '',
+                    twigil => '',
+                    name => $name,
+                ),
+            );
+            $s := $s ~ $name.emit_perl5 ~ '; ';
+            #$s := $s ~ 'my ' ~ $name ~ '; ';
+        };
+        return 
+            $s
+            ~ (@.body.>>emit_perl5).join('; ');
 #        my $a := $.body;
 #        my $s;
 #        for @$a -> $item {
@@ -125,7 +159,7 @@ class Index {
     has $.obj;
     has $.index;
     method emit_perl5 {
-        $.obj.emit_perl5 ~ '->[' ~ $.index.emit_perl5 ~ ']';
+        $.obj.emit_perl5 ~ '->INDEX(' ~ $.index.emit_perl5 ~ ')';
         # TODO
         # if ($.obj.isa(Lit::Seq)) {
         #    $.obj.emit_perl5 ~ '[' ~ $.index.emit_perl5 ~ ']';
@@ -140,7 +174,16 @@ class Lookup {
     has $.obj;
     has $.index;
     method emit_perl5 {
-        $.obj.emit_perl5 ~ '->{' ~ $.index.emit_perl5 ~ '}';
+        $.obj.emit_perl5 ~ '->LOOKUP(' ~ $.index.emit_perl5 ~ ')';
+    }
+}
+
+class Assign {
+    has $.parameters;
+    has $.arguments;
+    method emit_perl5 {
+        # TODO - same as ::Bind
+        $.parameters.emit_perl5 ~ '->STORE(' ~ $.arguments.emit_perl5 ~ ')';
     }
 }
 
@@ -160,16 +203,35 @@ class Var {
             '%' => '$Hash_',
             '&' => '$Code_',
         };
-           ( $.twigil eq '.' )
-        ?? ( '$self->{' ~ $.name ~ '}' )
-        !!  (    ( $.name eq '/' )
-            ??   ( $table{$.sigil} ~ 'MATCH' )
-            !!   ( $table{$.sigil} ~ $.name )
-            )
+        
+        if $.twigil eq '.' {
+            return '$self->{' ~ $.name ~ '}' 
+        };
+        
+        if $.name eq '/' {
+            return $table{$.sigil} ~ 'MATCH' 
+        };
+        
+        #if $.sigil eq '&' {
+        #    return Main::mangle_name( $.sigil, $.twigil, $.name );
+        #};
+        
+        return Main::mangle_name( $.sigil, $.twigil, $.name ); 
     };
-    method name {
-        $.name
-    };
+#    method emit_perl5_container {
+#        my $table := {
+#            '$' => '$',
+#            '@' => '$List_',
+#            '%' => '$Hash_',
+#            '&' => '$Code_',
+#        };
+#           ( $.twigil eq '.' )
+#        ?? ( '$self->{' ~ $.name ~ '}' )
+#        !!  (    ( $.name eq '/' )
+#            ??   ( $table{$.sigil} ~ 'MATCH' )
+#            !!   Main::mangle_name( $.sigil, $.twigil, $.name ) 
+#            )
+#    };
 }
 
 class Bind {
@@ -305,48 +367,18 @@ class Apply {
     has @.arguments;
     method emit_perl5 {
         
-        my $code := $.code;
+        return '(' ~ $.code.emit_perl5 ~ ')->(' ~ (@.arguments.>>emit_perl5).join(', ') ~ ')';
 
-        if $code.isa( 'Str' ) { }
-        else {
-            return '(' ~ $.code.emit_perl5 ~ ')->(' ~ (@.arguments.>>emit_perl5).join(', ') ~ ')';
-        };
-
-        if $code eq 'self'       { return '$self' };
-
-        if $code eq 'say'        { return 'Main::say('   ~ (@.arguments.>>emit_perl5).join(', ') ~ ')' };
-        if $code eq 'print'      { return 'Main::print(' ~ (@.arguments.>>emit_perl5).join(', ') ~ ')' };
-
-        if $code eq 'array'      { return '@{' ~ (@.arguments.>>emit_perl5).join(' ')    ~ '}' };
-
-        if $code eq 'prefix:<~>' { return '("" . ' ~ (@.arguments.>>emit_perl5).join(' ') ~ ')' };
-        if $code eq 'prefix:<!>' { return '('  ~ (@.arguments.>>emit_perl5).join(' ')    ~ ' ? 0 : 1)' };
-        if $code eq 'prefix:<?>' { return '('  ~ (@.arguments.>>emit_perl5).join(' ')    ~ ' ? 1 : 0)' };
-
-        if $code eq 'prefix:<$>' { return '${' ~ (@.arguments.>>emit_perl5).join(' ')    ~ '}' };
-        if $code eq 'prefix:<@>' { return '@{' ~ (@.arguments.>>emit_perl5).join(' ')    ~ '}' };
-        if $code eq 'prefix:<%>' { return '%{' ~ (@.arguments.>>emit_perl5).join(' ')    ~ '}' };
-
-        if $code eq 'infix:<~>'  { return '('  ~ (@.arguments.>>emit_perl5).join(' . ')  ~ ')' };
-        if $code eq 'infix:<+>'  { return '('  ~ (@.arguments.>>emit_perl5).join(' + ')  ~ ')' };
-        if $code eq 'infix:<->'  { return '('  ~ (@.arguments.>>emit_perl5).join(' - ')  ~ ')' };
-        
-        if $code eq 'infix:<&&>' { return '('  ~ (@.arguments.>>emit_perl5).join(' && ') ~ ')' };
-        if $code eq 'infix:<||>' { return '('  ~ (@.arguments.>>emit_perl5).join(' || ') ~ ')' };
-        if $code eq 'infix:<eq>' { return '('  ~ (@.arguments.>>emit_perl5).join(' eq ') ~ ')' };
-        if $code eq 'infix:<ne>' { return '('  ~ (@.arguments.>>emit_perl5).join(' ne ') ~ ')' };
- 
-        if $code eq 'infix:<==>' { return '('  ~ (@.arguments.>>emit_perl5).join(' == ') ~ ')' };
-        if $code eq 'infix:<!=>' { return '('  ~ (@.arguments.>>emit_perl5).join(' != ') ~ ')' };
-
-        if $code eq 'ternary:<?? !!>' { 
-            return '(' ~ (@.arguments[0]).emit_perl5 ~
-                 ' ? ' ~ (@.arguments[1]).emit_perl5 ~
-                 ' : ' ~ (@.arguments[2]).emit_perl5 ~
-                  ')' };
-        
-        $.code ~ '(' ~ (@.arguments.>>emit_perl5).join(', ') ~ ')';
-        # '(' ~ $.code.emit_perl5 ~ ')->(' ~ @.arguments.>>emit_perl5.join(', ') ~ ')';
+#        my $code := $.code;
+#
+#        if $code.isa( 'Str' ) { }
+#        else {
+#        };
+#
+#        if $code eq 'self'       { return '$self' };
+#        
+#          Main::mangle_name( '&', '', $.code )
+#        ~ '->(' ~ (@.arguments.>>emit_perl5).join(', ') ~ ')';
     }
 }
 
@@ -361,16 +393,21 @@ class Return {
 
 class If {
     has $.cond;
-    has @.body;
-    has @.otherwise;
+    has $.body;
+    has $.otherwise;
     method emit_perl5 {
-        'do { if (' ~ $.cond.emit_perl5 ~ ') { ' ~ (@.body.emit_perl5).join(';') ~ ' } else { ' ~ (@.otherwise.emit_perl5).join(';') ~ ' } }';
+        'do { if (' ~ $.cond.emit_perl5 ~ ') { ' ~ $.body.emit_perl5 ~ ' } '
+        ~ ( $.otherwise 
+            ?? ' else { ' ~ $.otherwise.emit_perl5 ~ ' }' 
+            !! '' 
+          )
+        ~ ' }';
     }
 }
 
 class For {
     has $.cond;
-    has @.body;
+    has $.body;
     has @.topic;
     method emit_perl5 {
         my $cond := $.cond;
@@ -379,7 +416,7 @@ class For {
         {
             $cond := ::Apply( code => 'prefix:<@>', arguments => [ $cond ] );
         };
-        'do { for my ' ~ $.topic.emit_perl5 ~ ' ( ' ~ $cond.emit_perl5 ~ ' ) { ' ~ (@.body.emit_perl5).join(';') ~ ' } }';
+        'do { for my ' ~ $.topic.emit_perl5 ~ ' ( ' ~ $cond.emit_perl5 ~ ' ) { ' ~ $.body.emit_perl5 ~ ' } }';
     }
 }
 
@@ -390,13 +427,45 @@ class Decl {
     method emit_perl5 {
         my $decl := $.decl;
         my $name := $.var.name;
-           ( $decl eq 'has' )
-        ?? ( 'sub ' ~ $name ~ ' { ' ~
+        if $decl eq 'has' {
+            return 'sub ' ~ $name ~ ' { ' ~
             '@_ == 1 ' ~
                 '? ( $_[0]->{' ~ $name ~ '} ) ' ~
                 ': ( $_[0]->{' ~ $name ~ '} = $_[1] ) ' ~
-            '}' )
-        !! $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_perl5;
+            '}';
+        };
+        if $decl eq 'our' {
+            my $s;
+            # use vars --> because compile-time scope is too tricky to use 'our'
+            $s := 'use vars \'' ~ $.var.emit_perl5 ~ '\'; ';  
+
+            if ($.var).sigil eq '$' {
+                return $s ~ $.var.emit_perl5
+                    ~ ' = bless \\( do{ my $v = $GLOBAL::undef } ), \'Type_Scalar\' ';
+            };
+            if ($.var).sigil eq '%' {
+                return $s ~ $.var.emit_perl5
+                    ~ ' = bless { }, \'Type_Hash\' ';
+            };
+            if ($.var).sigil eq '@' {
+                return $s ~ $.var.emit_perl5
+                    ~ ' = bless [ ], \'Type_Array\' ';
+            };
+            return $s ~ $.var.emit_perl5 ~ ' ';
+        };
+        if ($.var).sigil eq '$' {
+            return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_perl5
+                ~ ' = bless \\( do{ my $v = $GLOBAL::undef } ), \'Type_Scalar\'';
+        };
+        if ($.var).sigil eq '%' {
+            return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_perl5
+                ~ ' = bless { }, \'Type_Hash\'';
+        };
+        if ($.var).sigil eq '@' {
+            return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_perl5
+                ~ ' = bless [ ], \'Type_Array\'';
+        };
+        return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_perl5;
     }
 }
 
@@ -452,7 +521,7 @@ class Method {
         'sub ' ~ $.name ~ ' { ' ~ 
           'my ' ~ $invocant.emit_perl5 ~ ' = shift; ' ~
           $str ~
-          ($.block.emit_perl5).join('; ') ~ 
+          $.block.emit_perl5 ~ 
         ' }'
     }
 }
@@ -468,20 +537,27 @@ class Sub {
         ## my $invocant := $sig.invocant; 
         # say $invocant.emit_perl5;
         my $pos := $sig.positional;
-        my $str := 'my $List__ = \@_; ';  # no strict "vars"; ';
+        my $str := 'my $List__ = \@_; ';  # no strict "vars"; ;
+
+        # This is used by MOP.add_method
+        # if $invocant {
+        #    $str := $str ~ 'my ' ~ $invocant.emit_perl5 ~ ' = shift; ';
+        # }
 
         # TODO - follow recursively
         my $pos := $sig.positional;
-        for @$pos -> $field { 
-            $str := $str ~ 'my ' ~ $field.emit_perl5 ~ '; ';
+        if @$pos {
+            for @$pos -> $field { 
+                $str := $str ~ 'my ' ~ $field.emit_perl5 ~ '; ';
+            };
+    
+            my $bind := ::Bind( 
+                'parameters' => ::Lit::Array( array => $sig.positional ), 
+                'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
+            );
+            $str := $str ~ $bind.emit_perl5 ~ '; ';
         };
-
-        my $bind := ::Bind( 
-            'parameters' => ::Lit::Array( array => $sig.positional ), 
-            'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
-        );
-        $str := $str ~ $bind.emit_perl5 ~ '; ';
-
+        
 #        my $i := 0;
 #        for @$pos -> $field { 
 #            my $bind := ::Bind( 
@@ -497,7 +573,7 @@ class Sub {
         'sub ' ~ $.name ~ ' { ' ~ 
           ## 'my ' ~ $invocant.emit_perl5 ~ ' = $_[0]; ' ~
           $str ~
-          ($.block.emit_perl5).join('; ') ~ 
+          $.block.emit_perl5 ~ 
         ' }'
     }
 }
@@ -506,7 +582,7 @@ class Do {
     has $.block;
     method emit_perl5 {
         'do { ' ~ 
-          ($.block.emit_perl5).join('; ') ~ 
+          $.block.emit_perl5 ~ 
         ' }'
     }
 }
@@ -522,7 +598,7 @@ class Use {
 
 =head1 NAME 
 
-MiniPerl6::Perl5::EmitPerl5 - Code generator for KindaPerl6-in-Perl5
+KindaPerl6::Perl5::EmitPerl5 - Code generator for KindaPerl6-in-Perl5
 
 =head1 DESCRIPTION
 
@@ -540,7 +616,7 @@ The Pugs homepage at L<http://pugscode.org/>.
 
 =head1 COPYRIGHT
 
-Copyright 2006 by Flavio Soibelmann Glock and others.
+Copyright 2007 by Flavio Soibelmann Glock and others.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

@@ -16,7 +16,12 @@ class KindaPerl6::Visitor::Perl {
             if ($data{$item}).isa('Array') {
                 $result := $result ~ "[ ";
                 for @($data{$item}) -> $subitem {
-                    $result := $result ~ $subitem.emit( self ) ~ ", ";
+                    if $subitem.isa('Array') {
+                        $result := $result ~ ' [ ... ], ';
+                    }
+                    else {
+                        $result := $result ~ $subitem.emit( self ) ~ ", ";
+                    };
                 };
                 $result := $result ~ " ], ";
             } 

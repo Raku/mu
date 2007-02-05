@@ -17,8 +17,8 @@ class KindaPerl6::Visitor::MetaClass {
 #             version      => '0.01',
 #             superclasses => [ 'Foo' ],
 #             attributes => [
-#                 Class::MOP:::Attribute->new('$bar'),
-#                 Class::MOP:::Attribute->new('$baz'),
+#                 Class::MOP::Attribute->new('$bar'),
+#                 Class::MOP::Attribute->new('$baz'),
 #             ],
 #             methods => {
 #                 calculate_bar => sub { ... },
@@ -27,6 +27,12 @@ class KindaPerl6::Visitor::MetaClass {
 #         ));
 
             my $module := [ ];
+
+            push @$module, ::Apply(
+                code      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'GLOBAL::import' ),
+                arguments => [ ],
+            );
+            
             push @$module, ::Call(
                 'hyper'     => '',
                 'arguments' => [
@@ -34,7 +40,7 @@ class KindaPerl6::Visitor::MetaClass {
                 ],
                 'method'   => 'create',
                 'invocant' => ::Val::Buf(
-                        buf => 'Class::MOP::Class'
+                    buf => 'KindaPerl6::MOP'
                 ),
             );
 
@@ -43,14 +49,13 @@ class KindaPerl6::Visitor::MetaClass {
                 # METHOD
                 if   $item.isa( 'Method' )
                 {
-                    # Bar->meta->add_method('bar' => sub { 789 });
+                    # Bar->HOW->add_method('bar' => sub { 789 });
                     push @$module, ::Call(
                         'hyper'     => '',
                         'arguments' => [
                             ::Val::Buf( buf => $item.name ),
-                            ::Sub(
+                            ::Method(
                                 name  => '',
-                                #sig   => $item.sig,
                                 block => $item.block,
                             ),
                         ],
@@ -70,7 +75,7 @@ class KindaPerl6::Visitor::MetaClass {
                 if    ( $item.isa( 'Decl' ) )
                    && ( $item.decl eq 'has' ) 
                 {
-                    # Bar->meta->add_attribute($attribute_name, $attribute_meta_object)
+                    # Bar->HOW->add_attribute($attribute_name, $attribute_meta_object)
                     push @$module, ::Call(
                         'hyper'     => '',
                         'arguments' => [
@@ -84,7 +89,7 @@ class KindaPerl6::Visitor::MetaClass {
                                 ],
                                 'method'    => 'new',
                                 'invocant'  => ::Val::Buf(
-                                    buf => 'Class::MOP:::Attribute'
+                                    buf => 'Class::MOP::Attribute'
                                 ),
                             )
 
@@ -122,7 +127,7 @@ class KindaPerl6::Visitor::MetaClass {
             return ::Module( 
                 name => $node.name, 
                 body => ::Lit::Code(
-                    pad   => { },
+                    pad   => ($node.body).pad,
                     state => { },
                     sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
                     body  => $module,

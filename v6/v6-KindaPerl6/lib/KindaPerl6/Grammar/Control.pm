@@ -1,7 +1,7 @@
 
 use v6-alpha;
 
-grammar MiniPerl6::Grammar {
+grammar KindaPerl6::Grammar {
 
 
 token control {

@@ -291,3 +291,20 @@ about 'use'
 <luqui> ahh
 <luqui> okay, that makes sense
 <fglock> v6.pm does use DDS
+
+---
+
+compilation x parsing
+
+- These things must be emitted and created (eval'ed) right after they are parsed:
+    sub, variable, method declaration
+    no assignment, no binding
+    note that signatures can also declare variables:
+        sub x ( &todo ) { ... }
+        for @a -> $x { ... } 
+- what kind of things should not be executed?
+    - no restrictions
+- need a global 'current compiler pad'
+    - how to make it lexical?
+    - maybe use $?GRAMMAR to store it, or COMPILING::<$?PAD>
+    

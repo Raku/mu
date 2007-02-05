@@ -2,7 +2,6 @@ TODO list for KindaPerl6
 
 The kp6 Milestones are:
 
-- finish kp6-spec
 - lexical subs 
 - metamodel interface
   - bootstrap == kp6-2
@@ -10,12 +9,75 @@ The kp6 Milestones are:
 - begin blocks
 - containers
 
+The optional features in kp6 are:
+
+- coro 
+- macro
+- multi
+- private method/sub/accessor
+- junctions
+- signatures with optional, named, slurpy arguments
+- a better parser 
+    - $?FILE, $?LINE
+- precompilation, version checking
+
+Incomplete features:
+
+- try(), eval()
+- classes, methods, at compile-time
+- all variables initialized during compilation should have initializers for run-time
+- short-circuiting <&&>, <||>, <?? !!> (require macros, or laziness)
+- traits
+    - is context, rw, readonly
+- role
+- containers, but no laziness, no slices
+- type system
+- optimization
+- for-loop, map, with several arguments
+- begin-blocks with side-effects
+- check-blocks
+- subroutine calls, data, are incompatible with perl 5
+- no 'use v5'
+- declare our/state/temp/constant things    
+- 'Code' closure objects
+
+- 'our $x' should compile to 'my $x ::= $Pkgname::x'
+- 'use GLOBAL $x' should compile to 'my $x ::= $GLOBAL::x'
+
+- perl6-land 'use'
+- COMPILING::<$?PARSER>
+    
+Bugs:
+
+- grammar: 'undefine($v)' is not parsed
+- structure binding/assign is broken, untested
+
+TODO:
+
+- move 'COMPILER' module to it's own file; translate to mp6
+
+Bootstrap:
+
+- add a switch for 'mp6 emulation', so that kp6 can be compiled efficiently using itself
+
+Roles:
+
+- possible implementation:
+    $Obj->{Role_bool} = sub { 1 };
+  at runtime:
+    $Obj->{Role_bool} && $Obj->{Role_bool}() || $Obj->bool()
+- problem: objects based on p5-array (Array), p5-code (Code)
+
 Visitor modules:
 
-- add variable declarations collector
+- deprecated modules:
+    KindaPerl6::Visitor::LexicalSub
+    KindaPerl6::Visitor::CreateEnv
+
+- add variable declarations collector -- XXX now obsolete!
   - move variable declarations to the start of each block
 
-- LexicalSub.pm
+- LexicalSub.pm -- XXX now obsolete!
   - add 'our' subs to the namespace, if there is one
   - verify the interface with native p5 subs, such as 'Main::say'
   - only create a "lexical sub" call if the sub is in scope
@@ -32,13 +94,14 @@ Visitor modules:
     
 Other:
 
-- star/GLOBAL namespace 
+- star/GLOBAL namespace -- done!
     zzz()
     --> ($_SUB_zzz || $GLOBAL::_SUB_zzz)->(@args)
     $*foo
     --> $GLOBAL::foo
     but:
     TimToady> under strict there is no fallback to global unless you explicitly import (you also get a snapshot of GLOBAL imported automatically at the start of compilation)
+    
 - OUTER namespace
 
 For later:

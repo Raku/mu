@@ -14,8 +14,8 @@ Before:
     
 After:
     
-    my $_SUB_abc := { 123 };
-    $_SUB_abc();
+    my &abc := { 123 };
+    &abc();
 
 All non-my subroutines are declared as 'our'.
 
@@ -27,104 +27,89 @@ Before:
 After:
     
     sub abc { 123 }    # for perl5 compat
-    our $_SUB_abc := \&abc;
-    $_SUB_abc();
+    our &abc := \&abc;
+    &abc();
 
     # XXX - it is currently implemented like this, instead:
-    our $_SUB_abc := { 123 };
-    $_SUB_abc();
+    our &abc := { 123 };
+    &abc();
 
     # XXX - possible fix:
-    our $_SUB_abc := { 123 };
-    sub abc { $_SUB_abc( @_ ) }   # for perl5 compat
-    $_SUB_abc();
+    our &abc := { 123 };
+    sub abc { &abc( @_ ) }   # for perl5 compat
+    &abc();
 
 =end
 
+# TODO
+# - keep compatibility with normal perl5 code
+
 class KindaPerl6::Visitor::LexicalSub {
 
-    has $.env;
+    method visit ( $node ) {
 
-    method visit ( $node, $node_name ) {
-
-        # TODO - add 'our' subs to the namespace, if there is one
-
-        if ( $node_name eq 'Lit::Code' ) {
-            # TODO - collect lexicals into $node.pad  
-            push @($.env), { };
-            my $result := self.visit( $node.block, $node_name );
-            pop  @($.env);
-            return ::Lit::Code(
-                pad   => $node.pad,
-                state => $node.state,
-                sig   => $node.sig,
-                body  => $result,
-            );
-        };
+        # TODO - add 'our' subs to the namespace
         
-        my $data := $node.attribs;
-        
-        if    ( $node_name eq 'Sub' )
-           && ( $data{'name'} ne '' )   # only named subs
+        # sub x {...}  -->  our &x := sub {...}
+        if    ( $node.isa( 'Sub' ) )
+           && ( $node.name ne '' )   # only named subs
         {
-            # print $node_name, ' ', $node.name, '; ';
             return ::Bind(  
                 parameters => ::Decl(  
                     decl  => 'our',  
                     var   => ::Var(  
-                        name => '_SUB_' ~ $data{'name'},  
+                        name   => $node.name,  
                         twigil => '',  
-                        sigil => '$', 
+                        sigil  => '&', 
                     ),  
                     type  => '', 
                 ),  
                 arguments => ::Sub( 
-                    sig   => $data{'sig'},
                     name  => '',  
-                    block => $data{'block'}, 
+                    block => $node.block, 
                  ),
              );
         };
 
-
-        if    ( $node_name eq 'Apply' )
-           && ($data{'code'}).isa( 'Str' )
-           && (  ( $data{'code'} eq 'my' )
-              || ( $data{'code'} eq 'our' )
+        # my sub x {...}  -->  my &x := sub {...}
+        if    ( $node.isa( 'Apply' ) )
+           && ( $node.code ).isa( 'Str' )
+           && (  ( $node.code eq 'my' )
+              || ( $node.code eq 'our' )
               )
-           && ( (($data{'arguments'})[0]).isa( 'Sub' ) )
+           && ( (($node.arguments)[0]).isa( 'Sub' ) )
         {
             # my sub xxx 
             #  is parsed as:
             # my( sub xxx )
             return ::Bind(  
                 parameters => ::Decl(  
-                    decl  => $data{'code'},  
+                    decl  => $node.code,  
                     var   => ::Var(  
-                        name => '_SUB_' ~ (($data{'arguments'})[0]).name,  
+                        name   => (($node.arguments)[0]).name,  
                         twigil => '',  
-                        sigil => '$', 
+                        sigil  => '&', 
                     ),  
                     type  => '', 
                 ),  
                 arguments => ::Sub( 
-                    sig   => (($data{'arguments'})[0]).sig,
                     name  => '',  
-                    block => (($data{'arguments'})[0]).block, 
+                    block => (($node.arguments)[0]).block, 
                  ),
              );
         };
 
 
-        if    ( $node_name eq 'Apply' )
-           && ($data{'code'}).isa( 'Str' )
+        # x(...)  -->  &x(...)
+        if    ( $node.isa( 'Apply' ) )
+           && ( $node.code ).isa( 'Str' )
         {
             return ::Apply(  
-                arguments => $data{'arguments'},
+                arguments => $node.arguments,
                 code => ::Var(  
-                        name => '_SUB_' ~ $data{'code'},  
+                        name   => $node.code,  
                         twigil => '',  
-                        sigil => '$', 
+                        sigil  => '&', 
                     ),   
              );
         };

@@ -1,9 +1,9 @@
 use v6-alpha;
 
-grammar MiniPerl6::Grammar {
+grammar KindaPerl6::Grammar {
 
-use MiniPerl6::Grammar::Regex;
-use MiniPerl6::Grammar::Mapping;
+use KindaPerl6::Grammar::Regex;
+use KindaPerl6::Grammar::Mapping;
 use KindaPerl6::Grammar::Control;
 
 # XXX - move to v6.pm emitter
@@ -82,17 +82,22 @@ token comp_unit {
     <'{'>
         { $Class_name := ~$<full_ident> }
         <?opt_ws>
+        { 
+            COMPILER::add_pad( $Class_name );
+        }
         <exp_stmts>
         <?opt_ws>
     <'}'>
     <?opt_ws> [\; <?opt_ws> | <''> ]
     {
+        my $env := @COMPILER::PAD[0];
+        COMPILER::drop_pad();
         return ::CompUnit(
             'name'        => $$<full_ident>,
             'attributes'  => { },
             'methods'     => { },
             'body'        => ::Lit::Code(
-                pad   => { },
+                pad   => $env,
                 state => { },
                 sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
                 body  => $$<exp_stmts>,
@@ -115,15 +120,12 @@ token prefix_op {
 };
 
 token declarator {
-     <'my'> | <'state'> | <'has'> 
+     <'my'> | <'state'> | <'has'> | <'our'>
 };
 
 token exp2 { <exp> { return $$<exp> } };
 token exp_stmts2 { <exp_stmts> { return $$<exp_stmts> } };
 
-}
-    #---- split into compilation units in order to use less RAM...
-grammar MiniPerl6::Grammar {
 
 
 token exp {
@@ -138,7 +140,7 @@ token exp {
           <?opt_ws>
           <exp2>
           { return ::Apply(
-            'code'      => 'ternary:<?? !!>',
+            'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'ternary:<?? !!>' ),
             'arguments' => [ $$<term_meth>, $$<exp>, $$<exp2> ],
           ) }
         | { say '*** Syntax error in ternary operation' }
@@ -149,9 +151,15 @@ token exp {
         <?opt_ws>
         <exp>
           { return ::Apply(
-            'code'      => 'infix:<' ~ $<infix_op> ~ '>',
+            'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'infix:<' ~ $<infix_op> ~ '>' ),
             'arguments' => [ $$<term_meth>, $$<exp> ],
           ) }
+    | <?opt_ws> <'::='> <?opt_ws> <exp>
+        { 
+            my $bind := ::Bind( 'parameters' => $$<term_meth>, 'arguments' => $$<exp>);
+            COMPILER::begin_block( [ $bind ] );   # ::=   compile-time
+            return $bind;                         # :=    run-time
+        }
     | <?opt_ws> <':='> <?opt_ws> <exp>
         { return ::Bind( 'parameters' => $$<term_meth>, 'arguments' => $$<exp>) }
     | <?opt_ws> <'='> <?opt_ws> <exp>
@@ -241,7 +249,7 @@ token term {
     | <var>     { return $$<var> }     # $variable
     | <prefix_op> <exp> 
           { return ::Apply(
-            'code'      => 'prefix:<' ~ $<prefix_op> ~ '>',
+            'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<' ~ $<prefix_op> ~ '>' ),
             'arguments' => [ $$<exp> ],
           ) }
     | \( <?opt_ws> <exp> <?opt_ws> \)
@@ -266,8 +274,17 @@ token term {
                 ),
             );
         }   # do { stmt; ... }
-    | <declarator> <?ws> <opt_type> <?opt_ws> <var>   # my Int $variable
-        { return ::Decl( 'decl' => $$<declarator>, 'type' => $$<opt_type>, 'var' => $$<var> ) }
+    | <declarator> <?ws> <opt_type> <?opt_ws> <undeclared_var>   # my Int $variable
+        { 
+            if ($$<declarator>) eq 'my' {
+                (@COMPILER::PAD[0]).add_lexicals( [
+                    ::Decl( 'decl' => $$<declarator>, 'type' => $$<opt_type>, 'var' => $$<undeclared_var> ),
+                ] );
+                return $$<undeclared_var>;
+            };
+            # TODO - our, temp, state, has
+            return ::Decl( 'decl' => $$<declarator>, 'type' => $$<opt_type>, 'var' => $$<undeclared_var> );
+        }
     | use <?ws> <full_ident>  [ - <ident> | <''> ]
         { return ::Use( 'mod' => $$<full_ident> ) }
     | <val>     { return $$<val> }     # 'value'
@@ -275,7 +292,84 @@ token term {
 #   | <bind>    { return $$<bind>   }  # $lhs := $rhs
     | <token>   { return $$<token>  }  # token  { regex... }
     | <method>  { return $$<method> }  # method { code... }
-    | <sub>     { return $$<sub>    }  # sub    { code... }
+    | <sub>                            # sub    { code... }
+        { 
+            if ($$<sub>).name ne '' {
+                # sub x {...}  -->  our &x ::= sub {...}
+                my $bind := ::Bind(  
+                    parameters => ::Decl(  
+                        decl  => 'our',  
+                        var   => ::Var(  
+                            name   => ($$<sub>).name,  
+                            twigil => '',  
+                            sigil  => '&', 
+                        ),  
+                        type  => '', 
+                    ),  
+                    arguments => ::Sub( 
+                        name  => '',  
+                        block => ($$<sub>).block, 
+                    ),
+                );
+                COMPILER::begin_block( [ $bind ] );   # ::=   compile-time
+                return $bind;                         # :=    run-time
+            };
+            return $$<sub>;
+        }  
+    | <declarator> <?ws> <sub>               # my sub xxx { code... }
+        { 
+            if ($$<sub>).name ne '' {
+                # my sub x {...}  -->  my &x ::= sub {...}
+                if ($$<declarator>) eq 'my' {
+                    (@COMPILER::PAD[0]).add_lexicals( [
+                        ::Decl(  
+                            decl  => $$<declarator>,  
+                            var   => ::Var(  
+                                name   => ($$<sub>).name,  
+                                twigil => '',  
+                                sigil  => '&', 
+                            ),  
+                            type  => '', 
+                        ),
+                    ] );
+                    my $bind := ::Bind(  
+                        parameters => ::Var(  
+                            name   => ($$<sub>).name,  
+                            twigil => '',  
+                            sigil  => '&', 
+                        ),  
+                        arguments => ::Sub( 
+                            name  => '',  
+                            block => ($$<sub>).block, 
+                        ),
+                    );
+                    COMPILER::begin_block( [ $bind ] );   # ::=   compile-time
+                    return $bind;                         # :=    run-time
+                };
+                # our sub x {...}  -->  our &x ::= sub {...}
+                my $bind := ::Bind(  
+                    parameters => ::Decl(  
+                        decl  => $$<declarator>,  
+                        var   => ::Var(  
+                            name   => ($$<sub>).name,  
+                            twigil => '',  
+                            sigil  => '&', 
+                        ),  
+                        type  => '', 
+                    ),  
+                    arguments => ::Sub( 
+                        name  => '',  
+                        block => ($$<sub>).block, 
+                    ),
+                );
+                COMPILER::begin_block( [ $bind ] );   # ::=   compile-time
+                return $bind;                         # :=    run-time
+            };
+            print "Error: subroutines with declarators should have a name";
+            die "Error: subroutines with declarators should have a name";
+        }  
+    | <begin_block> 
+                { return $$<begin_block> }  # BEGIN { code... }
     | <control> { return $$<control> } # Various control structures.  Does _not_ appear in binding LHS
 #   | <index>     # $obj[1, 2, 3]
 #   | <lookup>    # $obj{'1', '2', '3'}
@@ -285,9 +379,6 @@ token term {
 #token index { XXX }
 #token lookup { XXX }
 
-}
-    #---- split into compilation units in order to use less RAM...
-grammar MiniPerl6::Grammar {
 
 token sigil { \$ |\% |\@ |\& };
 
@@ -295,13 +386,26 @@ token twigil { [ \. | \! | \^ | \* ] | <''> };
 
 token var_name { <full_ident> | <'/'> | <digit> };
 
+token undeclared_var {
+    <sigil> <twigil> <var_name>
+    {
+        # no pre-declaration checks
+        return ::Var(
+            sigil  => ~$<sigil>,
+            twigil => ~$<twigil>,
+            name   => ~$<var_name>,
+        )
+    }
+};
+
 token var {
     <sigil> <twigil> <var_name>
     {
-        return ::Var(
-            'sigil'  => ~$<sigil>,
-            'twigil' => ~$<twigil>,
-            'name'   => ~$<var_name>,
+        # check for pre-declaration
+        return COMPILER::get_var(
+            ~$<sigil>,
+            ~$<twigil>,
+            ~$<var_name>,
         )
     }
 };
@@ -321,13 +425,10 @@ token val_bit {
 };
 
 
-}
-    #---- split into compilation units in order to use less RAM...
-grammar MiniPerl6::Grammar {
 
 
 token val_undef {
-    undef
+    undef <!before \w >
     { return ::Val::Undef( ) }
 };
 
@@ -386,9 +487,6 @@ token exp_seq {
         { return [] }
 };
 
-}
-    #---- split into compilation units in order to use less RAM...
-grammar MiniPerl6::Grammar {
 
 token lit {
     #| <lit_seq>    { return $$<lit_seq>    }  # (a, b, c)
@@ -420,15 +518,15 @@ token lit_object {
     ]
 };
 
-token bind {
-    <exp>  <?opt_ws> <':='> <?opt_ws>  <exp2>
-    {
-        return ::Bind(
-            'parameters' => $$<exp>,
-            'arguments'  => $$<exp2>,
-        )
-    }
-};
+#token bind {
+#    <exp>  <?opt_ws> <':='> <?opt_ws>  <exp2>
+#    {
+#        return ::Bind(
+#            'parameters' => $$<exp>,
+#            'arguments'  => $$<exp2>,
+#        )
+#    }
+#};
 
 token call {
     <exp> \. <ident> \( <?opt_ws> <exp_seq> <?opt_ws> \)
@@ -449,14 +547,14 @@ token apply {
         ]
         {
             return ::Apply(
-                'code'      => $$<full_ident>,
+                'code'      => COMPILER::get_var( '&', '', $$<full_ident> ),
                 'arguments' => $$<exp_seq>,
             )
         }
     |
         {
             return ::Apply(
-                'code'      => $$<full_ident>,
+                'code'      => COMPILER::get_var( '&', '', $$<full_ident> ),
                 'arguments' => [],
             )
         }
@@ -528,14 +626,21 @@ token sub {
     sub
     <?ws>  <opt_name>  <?opt_ws> 
     <method_sig>
-    <?opt_ws> \{ <?opt_ws>  
-          <exp_stmts> <?opt_ws> 
+    <?opt_ws> \{ 
+        <?opt_ws>  
+        { 
+            COMPILER::add_pad();
+        }
+        <exp_stmts> 
+        <?opt_ws> 
     [   \}     | { say '*** Syntax Error in sub \'', $$<name>, '\''; die 'error in Block'; } ]
     { 
+        my $env := @COMPILER::PAD[0];
+        COMPILER::drop_pad();
         return ::Sub( 
             'name'  => $$<opt_name>, 
             'block' => ::Lit::Code(
-                pad   => { },
+                pad   => $env,
                 state => { },
                 sig   => $$<method_sig>,
                 body  => $$<exp_stmts>,
@@ -544,26 +649,33 @@ token sub {
     }
 };
 
-}
-    #---- split into compilation units in order to use less RAM...
-grammar MiniPerl6::Grammar {
+token begin_block {
+    BEGIN
+    <?opt_ws> \{ <?opt_ws>  
+          <exp_stmts> <?opt_ws> 
+    [   \}     | { say '*** Syntax Error in BEGIN block'; die 'error in Block'; } ]
+    { 
+        #say "BEGIN block";
+        return COMPILER::begin_block( $$<exp_stmts> );
+    }
+};
 
 token token {
     # { say 'parsing Token' }
     token
     <?ws>  <opt_name>  <?opt_ws> \{
-        <MiniPerl6::Grammar::Regex.rule>
+        <KindaPerl6::Grammar::Regex.rule>
     \}
     {
-        #say 'Token was compiled into: ', ($$<MiniPerl6::Grammar::Regex.rule>).perl;
+        #say 'Token was compiled into: ', ($$<KindaPerl6::Grammar::Regex.rule>).perl;
         my $source := 'method ' ~ $<opt_name> ~ ' ( $grammar: $str, $pos ) { ' ~
-            'my $MATCH; $MATCH := ::MiniPerl6::Perl5::Match( \'str\' => $str, \'from\' => $pos, \'to\' => $pos, \'bool\' => 1 ); ' ~ 
+            'my $MATCH; $MATCH := ::KindaPerl6::Perl5::Match( \'str\' => $str, \'from\' => $pos, \'to\' => $pos, \'bool\' => 1 ); ' ~ 
             '$MATCH.bool( ' ~
-                ($$<MiniPerl6::Grammar::Regex.rule>).emit ~
+                ($$<KindaPerl6::Grammar::Regex.rule>).emit ~
             '); ' ~
             'return $MATCH }';
         #say 'Intermediate code: ', $source;
-        my $ast := MiniPerl6::Grammar.term( $source );
+        my $ast := KindaPerl6::Grammar.term( $source );
         # say 'Intermediate ast: ', $$ast.emit;
         return $$ast;
     }
@@ -575,16 +687,16 @@ token token {
 
 =head1 NAME 
 
-MiniPerl6::Grammar - Grammar for MiniPerl6
+KindaPerl6::Grammar - Grammar for KindaPerl6
 
 =head1 SYNOPSIS
 
     my $match := $source.parse;
-    ($$match).perl;    # generated MiniPerl6 AST
+    ($$match).perl;    # generated KindaPerl6 AST
 
 =head1 DESCRIPTION
 
-This module generates a syntax tree for the MiniPerl6 compiler.
+This module generates a syntax tree for the KindaPerl6 compiler.
 
 =head1 AUTHORS
 
