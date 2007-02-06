@@ -491,8 +491,21 @@ instance Value VNum where
     doCast (VMatch m)    = fromVal (VStr $ matchStr m)
     doCast v = castFailM v "VNum"
 
+instance Value Ordering where
+    castV x = VInt $ case x of
+        LT -> -1
+        EQ -> 0
+        GT -> 1
+    doCast x = do
+        n <- fromVal x :: Eval VInt
+        case signum n of
+            -1  -> return LT
+            0   -> return EQ
+            1   -> return GT
+
 instance Value VComplex where
     castV = VComplex
+    doCast (VComplex x) = return x
     doCast x            = fmap (:+ 0) (fromVal x :: Eval VNum)
 
 instance Value ID where
@@ -535,6 +548,7 @@ instance Value VStr where
     doCast (VInt i)      = return $ show i
     doCast (VRat r)      = return $ showRat r
     doCast (VNum n)      = return $ showNum n
+    doCast (VComplex (r :+ i)) = return $ showNum r ++ " + " ++ showNum i ++ "i"
     doCast (VList l)     = fmap unwords (mapM fromVal l)
     doCast (VCode s)     = return $ "<" ++ show (subType s) ++ "(" ++ cast (subName s) ++ ")>"
     doCast (VJunc j)     = return $ show j

@@ -153,7 +153,7 @@ instance Pretty Val where
     format (VInt x) = integer x
     format (VStr x) = text $ "\"" ++ encodeUTF8 (concatMap quoted x) ++ "\""
     format (VRat x) = text $ showTrueRat x
-    format (VComplex x) = text $ show x
+    format (VComplex (r :+ i)) = format (VNum r) <+> text "+" <+> format (VNum i) <> text "i"
     format (VControl ControlContinuation{}) = text "<continuation>"
     format (VControl x) = text $ show x
     format (VProcess x) = text $ show x
