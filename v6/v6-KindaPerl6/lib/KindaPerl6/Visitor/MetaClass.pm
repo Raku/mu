@@ -36,12 +36,10 @@ class KindaPerl6::Visitor::MetaClass {
             push @$module, ::Call(
                 'hyper'     => '',
                 'arguments' => [
-                    ::Val::Buf( buf => $node.name ),
+                    ::Val::Buf( buf => $node.name ),  # p5 args
                 ],
                 'method'   => 'create',
-                'invocant' => ::Val::Buf(
-                    buf => 'KindaPerl6::MOP'
-                ),
+                'invocant' => ::Val::Buf( buf => 'KindaPerl6::MOP' ),  # p5 args
             );
 
             for @(($node.body).body) -> $item {
@@ -53,7 +51,7 @@ class KindaPerl6::Visitor::MetaClass {
                     push @$module, ::Call(
                         'hyper'     => '',
                         'arguments' => [
-                            ::Val::Buf( buf => $item.name ),
+                            ::Val::Buf( buf => $item.name ), 
                             ::Method(
                                 name  => '',
                                 block => $item.block,
@@ -79,19 +77,22 @@ class KindaPerl6::Visitor::MetaClass {
                     push @$module, ::Call(
                         'hyper'     => '',
                         'arguments' => [
-                                                
-                            ::Call(
-                                'hyper'     => '',
-                                'arguments' => [
                                     ::Val::Buf(
                                         buf => ($item.var).name,
                                     )
-                                ],
-                                'method'    => 'new',
-                                'invocant'  => ::Val::Buf(
-                                    buf => 'Class::MOP::Attribute'
-                                ),
-                            )
+                                                
+#                            ::Call(
+#                                'hyper'     => '',
+#                                'arguments' => [
+#                                    ::Val::Buf(
+#                                        buf => ($item.var).name,
+#                                    )
+#                                ],
+#                                'method'    => 'new',
+#                                'invocant'  => ::Val::Buf(
+#                                    buf => 'Class::MOP::Attribute'
+#                                ),
+#                            )
 
                         ],
                         'method'    => 'add_attribute',
@@ -124,7 +125,8 @@ class KindaPerl6::Visitor::MetaClass {
                 }
             };
             
-            return ::Module( 
+            return ::CompUnit( 
+                unit_type => 'module',
                 name => $node.name, 
                 body => ::Lit::Code(
                     pad   => ($node.body).pad,

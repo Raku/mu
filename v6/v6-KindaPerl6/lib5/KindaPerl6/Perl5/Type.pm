@@ -21,7 +21,7 @@ package Array;
 package Hash;
 
 package Type_Constant;
-    # $x = bless \( do{ my $v = 42 } ), 'TypeConstant';
+    # $x = bless \( do{ my $v = 42 } ), 'Type_Constant';
     sub IS_ARRAY { 0 }
     sub IS_HASH  { 0 }
     sub INDEX  { 
@@ -52,13 +52,15 @@ package Type_Constant_Bit;
     our @ISA = ( 'Type_Constant', 'Bit' );
     sub perl { ${$_[0]} ? 1 : 0 }
 package Type_Constant_Buf;
+    # $x = bless \( do{ my $v = 'abc' } ), 'Type_Constant_Buf';
     our @ISA = ( 'Type_Constant', 'Buf' );
     our $AUTOLOAD;
     sub perl { "'${$_[0]}'" }
     sub DESTROY { }
     sub AUTOLOAD {
         # allow: 'Dog'.new
-        #print Data::Dump::Streamer::Dump( \@_ );
+        #require Data::Dump::Streamer;
+        #print "Buf AUTOLOAD: $AUTOLOAD - ", Data::Dump::Streamer::Dump( \@_ );
         my $self = shift;
         my $meth = $AUTOLOAD;
         $meth =~ s/.*:://;   # strip fully-qualified portion
@@ -69,6 +71,7 @@ package Type_Constant_Buf;
 package Type_Scalar;
     # $x = bless \( do{ my $v } ), 'TypeInt';
     our @ISA = 'Scalar';
+    our $AUTOLOAD;
     sub perl { $_[0]->FETCH->perl }
     sub IS_ARRAY { 0 }
     sub IS_HASH  { 0 }
@@ -99,6 +102,18 @@ package Type_Scalar;
     sub FETCH  { 
         ${$_[0]};
     }
+    sub DESTROY { }
+    sub AUTOLOAD {
+        # allow: $x.new
+        #require Data::Dump::Streamer;
+        #print "Scalar AUTOLOAD: $AUTOLOAD - ", Data::Dump::Streamer::Dump( \@_ );
+        my $self = shift;
+        my $meth = $AUTOLOAD;
+        $meth =~ s/.*:://;   # strip fully-qualified portion
+        #print "self $$self, AUTOLOAD: $meth \n";
+        $$self->$meth( @_ );
+    }    
+
 package Type_Proxy_Array_Scalar;
     # $x = bless \( do{ my $v = 42 } ), 'TypeConstant';
     our @ISA = 'Type_Constant_Undef';

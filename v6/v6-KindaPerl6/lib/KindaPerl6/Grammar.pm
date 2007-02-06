@@ -74,11 +74,15 @@ token parse {
     | { return [] }
 };
 
+token unit_type {
+    <'class'> | <'grammar'> | <'role'> | <'module'>
+};
+
 token comp_unit {
     <?opt_ws> [\; <?opt_ws> | <''> ]
     [ <'use'> <?ws> <'v6-'> <ident> <?opt_ws> \; <?ws>  |  <''> ]
     
-    [ <'class'> | <'grammar'> ]  <?opt_ws> <full_ident> <?opt_ws> 
+    <unit_type> <?opt_ws> <full_ident> <?opt_ws> 
     <'{'>
         { $Class_name := ~$<full_ident> }
         <?opt_ws>
@@ -93,6 +97,7 @@ token comp_unit {
         my $env := @COMPILER::PAD[0];
         COMPILER::drop_pad();
         return ::CompUnit(
+            'unit_type'   => $$<unit_type>,
             'name'        => $$<full_ident>,
             'attributes'  => { },
             'methods'     => { },
@@ -370,6 +375,8 @@ token term {
         }  
     | <begin_block> 
                 { return $$<begin_block> }  # BEGIN { code... }
+    | <check_block> 
+                { return $$<check_block> }  # CHECK { code... }
     | <control> { return $$<control> } # Various control structures.  Does _not_ appear in binding LHS
 #   | <index>     # $obj[1, 2, 3]
 #   | <lookup>    # $obj{'1', '2', '3'}
@@ -603,17 +610,22 @@ token method {
     <?ws>  <opt_name>  <?opt_ws> 
     <method_sig>
     <?opt_ws> \{ <?opt_ws>  
-          # { say ' parsing statement list ' }
-          <exp_stmts> 
-          # { say ' got statement list ', ($$<exp_stmts>).perl } 
+        # { say ' parsing statement list ' }
+        { 
+            COMPILER::add_pad();
+        }
+        <exp_stmts> 
+        # { say ' got statement list ', ($$<exp_stmts>).perl } 
         <?opt_ws> 
     [   \}     | { say '*** Syntax Error in method \'', get_class_name(), '.', $$<name>, '\' near pos=', $/.to; die 'error in Block'; } ]
     {
         # say ' block: ', ($$<exp_stmts>).perl;
+        my $env := @COMPILER::PAD[0];
+        COMPILER::drop_pad();
         return ::Method( 
             'name'  => $$<opt_name>, 
             'block' => ::Lit::Code(
-                pad   => { },
+                pad   => $env,
                 state => { },
                 sig   => $$<method_sig>,
                 body  => $$<exp_stmts>,
@@ -657,6 +669,17 @@ token begin_block {
     { 
         #say "BEGIN block";
         return COMPILER::begin_block( $$<exp_stmts> );
+    }
+};
+
+token check_block {
+    CHECK
+    <?opt_ws> \{ <?opt_ws>  
+          <exp_stmts> <?opt_ws> 
+    [   \}     | { say '*** Syntax Error in CHECK block'; die 'error in Block'; } ]
+    { 
+        #say "CHECK block";
+        return COMPILER::check_block( $$<exp_stmts> );
     }
 };
 

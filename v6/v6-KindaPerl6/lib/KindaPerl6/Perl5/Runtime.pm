@@ -112,8 +112,9 @@ package GLOBAL;
         ${"${pkg}::Code_$_"} = ${"GLOBAL::Code_$_"} for @EXPORT;
     }
 
-    sub print { print join( '',  map { ${$_->FETCH} } @_ ) }
-    sub say   { print join( '', (map { ${$_->FETCH} } @_), "\n" ) }
+    sub print { print join( '',  map { eval { ${$_->FETCH} } || $_ } @_ ) }
+    #sub print { print 'PRINT: ', join( ' : ',  map { ( ${$_->FETCH}, $_->perl ) } @_ ) }
+    sub say   { GLOBAL::print( @_, "\n" ) }
 
     $GLOBAL::undef = bless \( do{ my $v = undef } ), 'Type_Constant_Undef';
     sub undef    { $GLOBAL::undef }

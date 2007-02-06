@@ -23,7 +23,7 @@ The optional features in kp6 are:
 
 Incomplete features:
 
-- try(), eval()
++ try(), eval()
 - classes, methods, at compile-time
 - all variables initialized during compilation should have initializers for run-time
 - short-circuiting <&&>, <||>, <?? !!> (require macros, or laziness)
@@ -35,26 +35,26 @@ Incomplete features:
 - optimization
 - for-loop, map, with several arguments
 - begin-blocks with side-effects
-- check-blocks
 - subroutine calls, data, are incompatible with perl 5
 - no 'use v5'
 - declare our/state/temp/constant things    
-- 'Code' closure objects
++ 'Code' closure objects
 
+- missing GLOBAL::import() at compile-time
 - 'our $x' should compile to 'my $x ::= $Pkgname::x'
 - 'use GLOBAL $x' should compile to 'my $x ::= $GLOBAL::x'
 
 - perl6-land 'use'
 - COMPILING::<$?PARSER>
+- translate the COMPILER package to mp6
     
 Bugs:
 
+- several problems with p6-data and Class::MOP
+    - maybe write a simple MOP?
+
 - grammar: 'undefine($v)' is not parsed
 - structure binding/assign is broken, untested
-
-TODO:
-
-- move 'COMPILER' module to it's own file; translate to mp6
 
 Bootstrap:
 

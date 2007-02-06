@@ -5,9 +5,7 @@ use MiniPerl6::Perl5::Runtime;
 use MiniPerl6::Perl5::Match;
 package KindaPerl6::Visitor::EmitPerl5; sub new { shift; bless { @_ }, "KindaPerl6::Visitor::EmitPerl5" } sub visit { my $self = shift; my $List__ = \@_; my $node; do {  $node = $List__->[0]; [$node] }; $node->emit_perl5() }
 ;
-package Module; sub new { shift; bless { @_ }, "Module" } sub name { @_ == 1 ? ( $_[0]->{name} ) : ( $_[0]->{name} = $_[1] ) }; sub body { @_ == 1 ? ( $_[0]->{body} ) : ( $_[0]->{body} = $_[1] ) }; sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('{ package ' . ($self->{name} . (';' . (Main::newline() . ($self->{body}->emit_perl5() . (' }' . Main::newline())))))) }
-;
-package CompUnit; sub new { shift; bless { @_ }, "CompUnit" } sub name { @_ == 1 ? ( $_[0]->{name} ) : ( $_[0]->{name} = $_[1] ) }; sub attributes { @_ == 1 ? ( $_[0]->{attributes} ) : ( $_[0]->{attributes} = $_[1] ) }; sub methods { @_ == 1 ? ( $_[0]->{methods} ) : ( $_[0]->{methods} = $_[1] ) }; sub body { @_ == 1 ? ( $_[0]->{body} ) : ( $_[0]->{body} = $_[1] ) }; sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('{ package ' . ($self->{name} . ('; ' . ('sub new { shift; bless { @_ }, "' . ($self->{name} . ('" }' . (' ' . ($self->{body}->emit_perl5() . (' }' . Main::newline()))))))))) }
+package CompUnit; sub new { shift; bless { @_ }, "CompUnit" } sub unit_type { @_ == 1 ? ( $_[0]->{unit_type} ) : ( $_[0]->{unit_type} = $_[1] ) }; sub name { @_ == 1 ? ( $_[0]->{name} ) : ( $_[0]->{name} = $_[1] ) }; sub attributes { @_ == 1 ? ( $_[0]->{attributes} ) : ( $_[0]->{attributes} = $_[1] ) }; sub methods { @_ == 1 ? ( $_[0]->{methods} ) : ( $_[0]->{methods} = $_[1] ) }; sub body { @_ == 1 ? ( $_[0]->{body} ) : ( $_[0]->{body} = $_[1] ) }; sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('{ package ' . ($self->{name} . ('; ' . (($self->{unit_type} eq ('module' ? '' : ('sub new { shift; bless { @_ }, "' . ($self->{name} . ('" }' . ' '))))) . ($self->{body}->emit_perl5() . (' }' . Main::newline())))))) }
 ;
 package Val::Int; sub new { shift; bless { @_ }, "Val::Int" } sub int { @_ == 1 ? ( $_[0]->{int} ) : ( $_[0]->{int} = $_[1] ) }; sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('( bless \\( do{ my $v = ' . ($self->{int} . ' } ), \'Type_Constant_Int\' )')) }
 ;
@@ -20,6 +18,8 @@ package Val::Buf; sub new { shift; bless { @_ }, "Val::Buf" } sub buf { @_ == 1 
 package Val::Undef; sub new { shift; bless { @_ }, "Val::Undef" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; '$GLOBAL::undef' }
 ;
 package Val::Object; sub new { shift; bless { @_ }, "Val::Object" } sub class { @_ == 1 ? ( $_[0]->{class} ) : ( $_[0]->{class} = $_[1] ) }; sub fields { @_ == 1 ? ( $_[0]->{fields} ) : ( $_[0]->{fields} = $_[1] ) }; sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('bless(' . (Main::perl($self->{fields}, ) . (', ' . (Main::perl($self->{class}, ) . ')')))) }
+;
+package Native::Buf; sub new { shift; bless { @_ }, "Native::Buf" } sub buf { @_ == 1 ? ( $_[0]->{buf} ) : ( $_[0]->{buf} = $_[1] ) }; sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('\'' . ($self->{buf} . '\'')) }
 ;
 package Lit::Seq; sub new { shift; bless { @_ }, "Lit::Seq" } sub seq { @_ == 1 ? ( $_[0]->{seq} ) : ( $_[0]->{seq} = $_[1] ) }; sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('(' . (Main::join([ map { $_->emit_perl5() } @{ $self->{seq} } ], ', ') . ')')) }
 ;

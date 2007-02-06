@@ -9,6 +9,16 @@ The kp6 Milestones are:
 - begin blocks
 - containers
 
+2007-02-06
+- reimplemented KindaPerl6::MOP to use p6-land data
+
+2007-02-05
+- CHECK blocks
+- deprecated 'Module' node; there is a more flexible 'CompUnit' instead
+- fixed 'method' token
+- method 'new' is added to all classes
+- added 'Native::Buf' node, for p5-land arguments (needed by Class::MOP)
+
 2007-02-04
 - working BEGIN blocks
 - new Pad methods: add_lexicals(), namespace(), declaration()

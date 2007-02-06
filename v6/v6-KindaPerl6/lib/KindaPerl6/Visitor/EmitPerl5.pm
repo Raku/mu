@@ -13,26 +13,30 @@ class KindaPerl6::Visitor::EmitPerl5 {
 
 # for MOP emitter:
 
-class Module {
-    has $.name;
-    has $.body;
-    method emit_perl5 {
-          '{ package ' ~ $.name ~ ';' ~ Main::newline() 
-        ~ $.body.emit_perl5 
-        ~ ' }' ~ Main::newline();
-    }
-}
+#class Module {
+#    has $.name;
+#    has $.body;
+#    method emit_perl5 {
+#          '{ package ' ~ $.name ~ ';' ~ Main::newline() 
+#        ~ $.body.emit_perl5 
+#        ~ ' }' ~ Main::newline();
+#    }
+#}
 
 # from mp6 perl5 emitter:
 
 class CompUnit {
+    has $.unit_type;
     has $.name;
     has %.attributes;
     has %.methods;
     has $.body;
     method emit_perl5 {
           '{ package ' ~ $.name ~ "; " 
-        ~ 'sub new { shift; bless { @_ }, "' ~ $.name ~ '" }' ~ " " 
+        ~ ( $.unit_type eq 'module'
+            ?? ''
+            !! 'sub new { shift; bless { @_ }, "' ~ $.name ~ '" }' ~ " " 
+          )
         ~ $.body.emit_perl5
         ~ ' }' ~ Main::newline();
     }
@@ -79,6 +83,13 @@ class Val::Object {
     has %.fields;
     method emit_perl5 {
         'bless(' ~ %.fields.perl ~ ', ' ~ $.class.perl ~ ')';
+    }
+}
+
+class Native::Buf {
+    has $.buf;
+    method emit_perl5 { 
+        '\'' ~ $.buf ~ '\''
     }
 }
 

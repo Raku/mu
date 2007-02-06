@@ -45,6 +45,9 @@ use Data::Dump::Streamer;
 {
     package COMPILER;
 
+    # @COMPILER::CHECK  - CHECK blocks
+    # @COMPILER::PAD    - Pad structures
+
     sub env_init {
         @COMPILER::PAD = (Pad->new( 
             outer     => undef, 
@@ -99,6 +102,16 @@ use Data::Dump::Streamer;
         return $$p;
     }
 
+    sub check_block {
+        # this routine saves check-blocks, in order to execute the code at the end of compilation
+        
+        my $ast = $_[0];
+        my $pad = $COMPILER::PAD[0];
+        #print "CHECK saved\n";
+        push @COMPILER::CHECK, [ $ast, $pad ];
+        return Val::Undef->new();
+    }
+
     sub get_var {
         # this routine is called each time a variable is parsed.
         # it checks for proper pre-declaration
@@ -132,5 +145,15 @@ while ( $pos < length( $source ) ) {
     say( ";" );
     $pos = $p->to;
 }
+# emit CHECK blocks
+for ( @COMPILER::CHECK ) { my ( $ast, $pad ) = @$_;
+    unshift @COMPILER::PAD, $pad;
+    my @ast = COMPILER::begin_block( $ast );
 
+    @ast = map { $_->emit( $visitor_metamodel )       } @ast;
+    say( join( ";\n", (map { $_->emit( $visitor_emit_perl5  ) } @ast )));
+    say( ";" );
+
+    shift @COMPILER::PAD;
+}
 say "1;";
