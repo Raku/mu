@@ -2,7 +2,7 @@
 
 module Pugs.Prim.Numeric (
     op2Numeric, op1Floating, op1Round, op1Numeric,
-    op2Exp, op2Divide, op2Modulus,
+    op2Exp, op2Divide, op2Modulus, op2OrdNumeric
 ) where
 import Pugs.Internals
 import Pugs.AST
@@ -10,7 +10,33 @@ import Pugs.Types
 
 import Pugs.Prim.Lifts
 
---- XXX wrong: try num first, then int, then vcast to Rat (I think)
+op2OrdNumeric :: Value b => (forall a. (Ord a) => a -> a -> b) -> Val -> Val -> Eval Val
+op2OrdNumeric f x y
+    | VInt x' <- x, VInt y' <- y  = return $ castV $ f x' y'
+    | VRat x' <- x, VRat y' <- y  = return $ castV $ f x' y'
+    | VRat x' <- x, VInt y' <- y  = return $ castV $ f x' (y' % 1)
+    | VInt x' <- x, VRat y' <- y  = return $ castV $ f (x' % 1) y'
+    | VUndef <- x = op2OrdNumeric f (VInt 0) y
+    | VUndef <- y = op2OrdNumeric f x (VInt 0)
+    | VType{} <- x = op2OrdNumeric f (VInt 0) y
+    | VType{} <- y = op2OrdNumeric f x (VInt 0)
+    | VRef r <- x = do
+        x' <- readRef r
+        op2OrdNumeric f x' y
+    | VRef r <- y = do
+        y' <- readRef r
+        op2OrdNumeric f x y'
+    | VComplex x' <- x = do
+        y'  <- fromVal y
+        return . castV $ f x' y'
+    | VComplex y' <- y = do
+        x'  <- fromVal x
+        return . castV $ f x' y'
+    | otherwise = do
+        x' <- fromVal x :: Eval VNum
+        y' <- fromVal y
+        return . castV $ f x' y'
+
 op2Numeric :: (forall a. (Num a) => a -> a -> a) -> Val -> Val -> Eval Val
 op2Numeric f x y
     | VInt x' <- x, VInt y' <- y  = return $ VInt $ f x' y'
@@ -27,15 +53,23 @@ op2Numeric f x y
     | VRef r <- y = do
         y' <- readRef r
         op2Numeric f x y'
+    | VComplex x' <- x = do
+        y'  <- fromVal y
+        return . VComplex $ f x' y'
+    | VComplex y' <- y = do
+        x'  <- fromVal x
+        return . VComplex $ f x' y'
     | otherwise = do
         x' <- fromVal x
         y' <- fromVal y
         return . VNum $ f x' y'
 
-op1Floating :: (Double -> Double) -> Val -> Eval Val
-op1Floating f v = do
-    foo <- fromVal v
-    return $ VNum $ f foo
+op1Floating :: (forall a. (Floating a) => a -> a) -> Val -> Eval Val
+op1Floating f VUndef        = return . VNum $ f 0
+op1Floating f VType{}       = return . VNum $ f 0
+op1Floating f (VComplex x)  = return . VComplex $ f x
+op1Floating f (VRef x)      = op1Floating f =<< readRef x
+op1Floating f x             = fmap (VNum . f) (fromVal x)
 
 op1Round :: (Double -> Integer) -> Val -> Eval Val
 op1Round f v = do
@@ -51,6 +85,7 @@ op1Numeric f VType{}    = return . VInt $ f 0
 op1Numeric f (VInt x)   = return . VInt $ f x
 op1Numeric f l@(VList _)= fmap (VInt . f) (fromVal l)
 op1Numeric f (VRat x)   = return . VRat $ f x
+op1Numeric f (VComplex x) = return . VComplex $ f x
 op1Numeric f (VRef x)   = op1Numeric f =<< readRef x
 op1Numeric f x          = fmap (VNum . f) (fromVal x)
 
@@ -67,8 +102,8 @@ op2Exp x y = do
             num1 <- fromVal =<< fromVal' x
             if isDigit . head $ show (num1 :: VNum)
                 then op2Rat ((^^) :: VRat -> VInt -> VRat) x y
-                else op2Num ((**) :: VNum -> VNum -> VNum) x y
-        _ -> op2Num ((**) :: VNum -> VNum -> VNum) x y
+                else op2Num (**) x y
+        _ -> op2Num (**) x y
 
 op2Divide :: Val -> Val -> Eval Val
 op2Divide x y
@@ -80,6 +115,12 @@ op2Divide x y
     = if y' == 0 then err else return . VRat $ x' / (y' % 1)
     | VRat x' <- x, VRat y' <- y
     = if y' == 0 then err else return . VRat $ x' / y'
+    | VComplex x' <- x = do
+        y' <- fromVal y
+        if y' == 0 then err else return . VComplex $ x' / y'
+    | VComplex y' <- y = do
+        x' <- fromVal x
+        if y' == 0 then err else return . VComplex $ x' / y'
     | otherwise
     = op2Num (/) x y
     where
@@ -95,6 +136,12 @@ op2Modulus x y
     = if y' == 0 then err else return . VRat $ x' `fmod` (y' % 1)
     | VRat x' <- x, VRat y' <- y
     = if y' == 0 then err else return . VRat $ x' `fmod` y'
+--  | VComplex x' <- x = do
+--      y' <- fromVal y
+--      if y' == 0 then err else return . VComplex $ x' `fmod` y'
+--  | VComplex y' <- y = do
+--      x' <- fromVal x
+--      if y' == 0 then err else return . VComplex $ x' `fmod` y'
     | otherwise      -- pray for the best
     = op2Num fmod x y
     where

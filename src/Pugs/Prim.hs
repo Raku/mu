@@ -152,6 +152,9 @@ op1 "sin"  = op1Floating sin
 op1 "tan"  = op1Floating tan
 op1 "sqrt" = op1Floating sqrt
 op1 "atan" = op1Floating atan
+op1 "post:i" = \x -> do
+    n <- fromVal x
+    return $ VComplex (0 :+ n)
 op1 "post:++" = \x -> atomicEval $ do
     ref <- fromVal x
     val <- fromVal x
@@ -589,8 +592,8 @@ op1 "chr"   = op1Cast (VStr . (:[]) . chr)
 op1 "ord"   = op1Cast $ \str -> if null str then undef else (castV . ord . head) str
 op1 "hex"   = fail "hex() is not part of Perl 6 - use :16() instead."
 op1 "oct"   = fail "oct() is not part of Perl 6 - use :8() instead."
-op1 "log"   = op1Cast (VNum . log)
-op1 "log10" = op1Cast (VNum . logBase 10)
+op1 "log"   = op1Floating log
+op1 "log10" = op1Floating (logBase 10)
 op1 "from"  = op1Cast (castV . matchFrom)
 op1 "to"    = op1Cast (castV . matchTo)
 op1 "matches" = op1Cast (VList . matchSubPos)
@@ -939,17 +942,17 @@ op2 "=>" = \x y -> return $ castV (x, y)
 op2 "="  = \x y -> evalExp (Syn "=" [Val x, Val y])
 op2 "cmp"= op2OrdNumStr
 op2 "leg"= op2Ord vCastStr
-op2 "<=>"= op2Ord vCastRat
+op2 "<=>"= op2OrdNumeric compare
 op2 ".." = op2Range
 op2 "..^" = op2RangeExclRight
 op2 "^.." = op2RangeExclLeft
 op2 "^..^" = op2RangeExclBoth
-op2 "!=" = op2Cmp vCastRat (/=)
-op2 "==" = op2Cmp vCastRat (==)
-op2 "<"  = op2Cmp vCastRat (<)
-op2 "<=" = op2Cmp vCastRat (<=)
-op2 ">"  = op2Cmp vCastRat (>)
-op2 ">=" = op2Cmp vCastRat (>=)
+op2 "!=" = op2OrdNumeric (/=)
+op2 "==" = op2OrdNumeric (==)
+op2 "<"  = op2OrdNumeric (<)
+op2 "<=" = op2OrdNumeric (<=)
+op2 ">"  = op2OrdNumeric (>)
+op2 ">=" = op2OrdNumeric (>=)
 op2 "ne" = op2Cmp vCastStr (/=)
 op2 "eq" = op2Cmp vCastStr (==)
 op2 "lt" = op2Cmp vCastStr (<)
@@ -1057,7 +1060,7 @@ op2 "Pugs::Internals::openFile" = \x y -> do
     modeOf m    = error $ "unknown mode: " ++ m
 op2 "exp" = \x y -> if defined y
     then op2Num (**) x y
-    else op1Cast (VNum . exp) x
+    else op1Floating exp x
 op2 "Pugs::Internals::sprintf" = \x y -> do
     -- a single argument is all Haskell can really handle.
     -- XXX printf should be wrapped in a catch so a mis-typed argument
@@ -1511,7 +1514,7 @@ isNumeric _ = False
 op2OrdNumStr :: Val -> Val -> Eval Val
 op2OrdNumStr x y
     | isNumeric x && isNumeric y = op2Ord vCastRat x y
-    | otherwise                  = op2Ord vCastStr x y
+    | otherwise                  = op2OrdNumeric compare x y
 
 op3Caller :: Type -> Int -> Val -> Eval Val
 --op3Caller kind skip label = do
@@ -1860,6 +1863,7 @@ initSyms = seq (length syms) $ do
 \\n   Str       post    --      safe   (rw!Str)\
 \\n   Num       post    ++      safe   (rw!Num)\
 \\n   Num       post    --      safe   (rw!Num)\
+\\n   Complex   post    i       safe   (Num)\
 \\n   Str       spre    ++      safe   (rw!Str)\
 \\n   Str       spre    --      safe   (rw!Str)\
 \\n   Num       spre    ++      safe   (rw!Num)\
