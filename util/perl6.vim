@@ -11,9 +11,9 @@
 " in your ~/.vimrc.
 
 " Die if there's already a defined syntax
-if exists("b:current_syntax")
-  finish
-endif
+" if exists("b:current_syntax")
+"   finish
+" endif
 
 " Recommended formatting options (see pugs::hack)
 setlocal shiftwidth=4 autoindent expandtab smarttab softtabstop=1
@@ -47,16 +47,14 @@ syn keyword p6KeySpecial    eval operator undef undefine
 syn keyword p6KeyCompare    eq ne lt le gt ge == != < <= > >=
 syn match   p6Normal        "\w*::\w\+"
 
-syn match p6KeyIO "-[rwxoRWXOezsfdlpSbctugkTBMAC]"
-
 " Comments
 syn match  p6Comment "#.*" contains=p6Attn
-syn region p6CommentMline start="^=begin [a-zA-Z]\+$" end="^=end [a-zA-Z]\+$" contains=p6Attn 
-syn region p6CommentPara start="^=for [a-zA-Z]\+$" end="^$" contains=p6Attn
+syn region p6CommentMline start="^=begin \z([a-zA-Z0-9_]\+\)\>" end="^=end \z1\>" contains=p6Attn 
+syn region p6CommentPara start="^=for [a-zA-Z0-9_]\+\>" end="^$" contains=p6Attn
 syn match  p6Shebang "^#!.*"
 
 " POD
-syn region p6POD start="^=\(cut\)\@!\w\+.\+$" end="^=cut" contains=p6Attn,p6PODVerbatim,p6PODHead,p6PODHeadKwid,p6PODSec,p6PODSecKwid
+" syn region p6POD start="^=\(cut\)\@!\w\+.\+$" end="^=cut" contains=p6Attn,p6PODVerbatim,p6PODHead,p6PODHeadKwid,p6PODSec,p6PODSecKwid
 
 syn match p6PODVerbatim  "^\s.*"      contained 
 syn match p6PODHeadKwid  "^=\{1,2\} " nextgroup=p6PODTitle contained 
