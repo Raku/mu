@@ -68,7 +68,7 @@ tightOperators = do
 termLevel, methLevel, incrLevel, expoLevel, symbLevel, multLevel, addiLevel, junaLevel, junoLevel :: [RuleOperator Exp]
 termLevel = circumOps (Set.singleton (MkOpName (cast "\\( )")))
 methLevel = methOps (opWords " . .+ .? .* .+ .() .[] .{} .<<>> .= ")
-incrLevel = postOps incrOps ++ preOps incrOps
+incrLevel = postOps incrOpsPost ++ preOps incrOpsPre
 expoLevel = rightOps (opWords " ** ")
 symbLevel = preSyn (Set.singleton (MkOpName (cast "|"))) ++ preOps symbPreops
 multLevel = leftOps (opWords " * / % x xx +& +< +> ~& ~< ~> ?& ")
@@ -78,8 +78,12 @@ junoLevel = listOps (opWords " ^ | ")
 
 symbPreops :: Set OpName
 symbPreops = opWords " = ! + - ~ ? +^ ~^ ?^ \\ ^"
-incrOps :: Set OpName
-incrOps = opWords " ++ -- "
+
+incrOpsPre :: Set OpName
+incrOpsPre = opWords " ++ -- "
+
+incrOpsPost :: Set OpName
+incrOpsPost = opWords " ++ -- i "
 
 -- The lower levels of immutable ops.  This will be replaced once we have
 -- user-defineable precedences.
@@ -353,7 +357,6 @@ makeOp1 fixity sigil con name = fixity $ try $ do
         = ('&':name)
         | otherwise
         = sigil ++ name
-    makeFileTestOp ch = conOp ("&prefix:-" ++ [ch])
     conOp name = return $ \x -> case x of
         Syn "" []   -> con name []
         _           -> con name [x]
@@ -648,7 +651,7 @@ refillCache state f = do
         parseTight  = expRule tightExprs
         parseFull   = expRule (buildExpressionParser opsFull tightExprs)
         parseLit    = expRule (buildExpressionParser opsLoose tightExprs)
-        parsePost   = pp "&postfix:" $ incrOps `Set.union` r_post tights
+        parsePost   = pp "&postfix:" $ incrOpsPost `Set.union` r_post tights
      -- parsePre    = pp "&prefix:"  $ symbPreops `Set.union` r_pre tights
      -- parsePreNam = pp "&"         $ r_named tights `Set.union` r_opt tights
         pp pre ops  = fmap (pre ++) (tryChoice . map string . fromSet $ ops)
