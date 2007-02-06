@@ -21,9 +21,10 @@ setlocal shiftwidth=4 autoindent expandtab smarttab softtabstop=1
 " Billions of keywords
 syn keyword p6Attn          ACHTUNG ATTN ATTENTION FIXME NB contained 
 syn keyword p6Attn          todo Todo TODO WTF XXX contained
-syn keyword p6Module        module class role use require package enum
-syn keyword p6KeyDecl       coro sub submethod method is but does trusts multi returns rule
-syn keyword p6KeyScopeDecl  let my our state temp has
+syn keyword p6Module        module class role use require package enum grammar
+syn keyword p6KeyDecl       coro sub submethod method is but does trusts multi returns
+syn keyword p6KeyDecl       rule token regex category
+syn keyword p6KeyScopeDecl  let my our state temp has constant
 syn keyword p6KeyFlow       if else elsif unless  
 syn keyword p6KeyFlow       for foreach loop while until when next last redo
 syn keyword p6KeyFlow       given not or and err xor return default
