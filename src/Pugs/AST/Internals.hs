@@ -471,6 +471,7 @@ instance Value VNum where
     doCast (VInt i)     = return $ fromIntegral i
     doCast (VRat r)     = return $ realToFrac r
     doCast (VNum n)     = return $ n
+    doCast (VComplex (r :+ _)) = return $ r
     doCast (VStr s) | not (null s) , isSpace $ last s = do
         str <- fromVal (VStr $ init s)
         return str

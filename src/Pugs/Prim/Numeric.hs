@@ -37,6 +37,29 @@ op2OrdNumeric f x y
         y' <- fromVal y
         return . castV $ f x' y'
 
+op2Floating :: (forall a. (Floating a) => a -> a -> a) -> Val -> Val -> Eval Val
+op2Floating f x y
+    | VUndef <- x = op2Floating f (VInt 0) y
+    | VUndef <- y = op2Floating f x (VInt 0)
+    | VType{} <- x = op2Floating f (VInt 0) y
+    | VType{} <- y = op2Floating f x (VInt 0)
+    | VRef r <- x = do
+        x' <- readRef r
+        op2Floating f x' y
+    | VRef r <- y = do
+        y' <- readRef r
+        op2Floating f x y'
+    | VComplex x' <- x = do
+        y'  <- fromVal y
+        return . VComplex $ f x' y'
+    | VComplex y' <- y = do
+        x'  <- fromVal x
+        return . VComplex $ f x' y'
+    | otherwise = do
+        x' <- fromVal x
+        y' <- fromVal y
+        return . VNum $ f x' y'
+
 op2Numeric :: (forall a. (Num a) => a -> a -> a) -> Val -> Val -> Eval Val
 op2Numeric f x y
     | VInt x' <- x, VInt y' <- y  = return $ VInt $ f x' y'
@@ -102,8 +125,8 @@ op2Exp x y = do
             num1 <- fromVal =<< fromVal' x
             if isDigit . head $ show (num1 :: VNum)
                 then op2Rat ((^^) :: VRat -> VInt -> VRat) x y
-                else op2Num (**) x y
-        _ -> op2Num (**) x y
+                else op2Floating (**) x y
+        _ -> op2Floating (**) x y
 
 op2Divide :: Val -> Val -> Eval Val
 op2Divide x y
