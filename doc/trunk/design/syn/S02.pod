@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 29 Jan 2007
+  Last Modified: 7 Feb 2007
   Number: 2
-  Version: 83
+  Version: 84
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -2154,8 +2154,7 @@ some kind of bracket:
     print "The attribute is @baz[3](1,2,3){$xyz}<blurfl>.attr().\n"
 
 Note that the final period above is not taken as part of the expression since
-it doesn't introduce a bracketed dereferencer.  Spaces are not allowed
-between the dereferencers even when you use the dotted forms.
+it doesn't introduce a bracketed dereferencer.
 
 =item *
 
@@ -2469,7 +2468,7 @@ expression:
 
 =item *
 
-Here docs allow optional whitespace both before and after terminating
+Heredocs allow optional whitespace both before and after terminating
 delimiter.  Leading whitespace equivalent to the indentation of the
 delimiter will be removed from all preceding lines.  If a line is
 deemed to have less whitespace than the terminator, only whitespace
@@ -2479,6 +2478,37 @@ that doesn't matter.)  A null terminating delimiter terminates on
 the next line consisting only of whitespace, but such a terminator
 will be assumed to have no indentation.  (That is, it's assumed to
 match at the beginning of any whitespace.)
+
+=item *
+
+There are two possible ways to parse heredocs.  One is to look ahead
+for the newline and grab the lines corresponding to the heredoc, and
+then parse the rest of the original line.  This is how Perl 5 does it.
+Unfortunately this suffers from the problem pervasive in Perl 5 of
+multi-pass parsing, which is masked somewhat because there's no way
+to hide a newline in Perl 5.  In Perl 6, however, we can use "unspace"
+to hide a newline, which means that an algorithm looking ahead to find
+the newline must do a full parse (with possible untoward side effects)
+in order to locate the newline.
+
+Instead, Perl 6 takes the one-pass approach, and just lazily queues
+up the heredocs it finds in a line, and waits until it sees a "real"
+newline to look for the text and attach it to the appropriate heredoc.
+The downside of this approach is a slight restriction--you may not use
+the actual text of the heredoc in code that must run before the line
+finishes parsing.  Mostly that just means you can't write:
+
+    BEGIN { say q:to/END/ }
+        Say me!
+        END
+
+You must instead put the entire heredoc into the C<BEGIN>:
+
+    BEGIN {
+        say q:to/END/;
+        Say me!
+        END
+    }
 
 =back
 
@@ -2541,10 +2571,10 @@ To force a non-flattening scalar context, use the "C<item>" operator.
 
 =item *
 
-When evaluating chained operators, if a C<list()> occurs anywhere in that
+When evaluating chained operators, if an C<each()> occurs anywhere in that
 chain, the chain will be transformed first into a C<grep>.  That is,
 
-    for 0 <= list(@x) < all(@y) {...}
+    for 0 <= each(@x) < all(@y) {...}
 
 becomes
 
@@ -2554,7 +2584,7 @@ Because of this, the original ordering C<@x> is guaranteed to be
 preserved in the returned list, and duplicate elements in C<@x> are
 preserved as well.  In particular,
 
-    @result = list(@x) ~~ {...};
+    @result = each(@x) ~~ {...};
 
 is equivalent to
 
@@ -2563,7 +2593,7 @@ is equivalent to
 However, this I<list() comprehension> is strictly a syntactic transformation,
 so a list computed any other way will not triger the rewrite:
 
-    @result = (@x = list(@y)) ~~ {...}; # not a comprehension
+    @result = (@x = each(@y)) ~~ {...}; # not a comprehension
 
 =item *
 
