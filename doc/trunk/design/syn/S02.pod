@@ -1917,6 +1917,26 @@ neither knows nor cares how weird the original syntax was.
 
 =item *
 
+In addition to C<q> and C<qq>, there is now the base form C<Q> which does
+I<no> interpolation unless explicitly modified to do so.  So C<q> is really
+short for C<Q:q> and C<qq> is short for C<Q:qq>.  In fact, all quote-like
+forms derive from C<Q> with adverbs:
+
+    q//         Q :q //
+    qq//        Q :qq //
+    rx//        Q :regex //
+    s///        Q :subst ///
+    tr///       Q :trans ///
+
+Adverbs such as C<:regex> change the language to be parsed by switching
+to a different parser.  This can completely change the interpreation
+of any subsequent adverbs as well as the quoted material itself.
+
+    q:s//       Q :q :scalar //
+    rx:s//      Q :regex :sigspace //
+
+=item *
+
 Generalized quotes may now take adverbs:
 
     Short       Long            Meaning
@@ -1924,8 +1944,6 @@ Generalized quotes may now take adverbs:
     :x          :exec           Execute as command and return results
     :w          :words          Split result on words (no quote protection)
     :ww         :quotewords     Split result on words (with quote protection)
-    :t          :to             Interpret result as heredoc terminator
-    :n          :none           No escapes at all (unless otherwise adverbed)
     :q          :single         Interpolate \\, \q and \' (or whatever)
     :qq         :double         Interpolate with :s, :a, :h, :f, :c, :b
     :s          :scalar         Interpolate $ vars
@@ -1934,6 +1952,10 @@ Generalized quotes may now take adverbs:
     :f          :function       Interpolate & calls
     :c          :closure        Interpolate {...} expressions
     :b          :backslash      Interpolate \n, \t, etc. (implies :q at least)
+                :to             Parse result as heredoc terminator
+                :regex          Parse as regex
+                :subst          Parse as substitution
+                :trans          Parse as transliteration
                 :code           Quasiquoting
 
 Ordinarily the colon is required on adverbs, but the C<quote> declarator
@@ -1941,11 +1963,11 @@ allows you to combine any of the existing adverbial forms above
 without an intervening colon:
 
     quote qw;                   # declare a P5-esque qw// meaning q:w
-    quote qn;                   # completely raw quote qn//
-    quote qnc;                  # q:n:c//, interpolate only closures
+    quote Qc;                   # Q:c//, interpolate only closures
 
-Actually, the first two are already assumed, because you get all of the
-forms that use as single character predeclared for free.
+Actually, those two are already assumed, because you get all of the
+forms that use a single character modifier predeclared for free.  (Note
+this means that C<qx//> doesn't intepolate.)
 
 If you want to abbreviate further, you may also give an explicit
 definition as either a string or quasiquote:
@@ -1957,28 +1979,28 @@ definition as either a string or quasiquote:
 In particular, all these forms disable the lookahead for an adverbial argument,
 as if there were a space after the keyword.  So although
 
-    q:n($foo)
+    q:s($foo)
 
-will misinterpret C<$foo> as the C<:n> argument,
+will misinterpret C<$foo> as the C<:s> argument,
 
-    qn(stuff)
+    qs(stuff)
 
-has the advantage of misinterpreting it as the argument to the C<qn()>
+has the advantage of misinterpreting it as the argument to the C<qs()>
 function instead.  C<:)>
 
 But parens are special that way.  (Even C<q()> is assumed to be a
 function call rather than a quote.)  Other bracketing characters are
 special only if they can be mistaken for adverbial arguments, so
 
-    qn[stuff]
+    qs[stuff]
 
 is fine, and means
 
-    q:n /stuff/
+    q:s /stuff/
 
 while
 
-    q:n[stuff]
+    q:s[stuff]
 
 also happens to work because quote adverbs only allow the paren form of
 bracketed adverbs.
@@ -1987,16 +2009,16 @@ If this is all too much of a hardship, you can define your own quote
 adverbs and operators as standard macros.  The main difference is that,
 unlike
 
-    quote qn = 'q:n';
+    quote qs = 'q:s';
 
 declaring something like
 
-    macro qn { 'q:n' }
+    macro qs { 'q:s' }
 
 does I<not> disable the subsequent search for a parenthesized argument
 to C<:n>.  To get the equivalent, you need to add a space:
 
-    macro qn { 'q:n ' }
+    macro qs { 'q:s ' }
 
 All the uppercase adverbs are reserved for user-defined quotes.
 All Unicode delimiters above Latin-1 are reserved for user-defined quotes.
