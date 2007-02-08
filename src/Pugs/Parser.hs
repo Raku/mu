@@ -152,9 +152,9 @@ ruleStatementList = rule "statements" .
 
 ruleBlockDeclaration :: RuleParser Exp
 ruleBlockDeclaration = rule "block declaration" $ choice
-    [ ruleSubDeclaration
+    [ ruleRuleDeclaration
+    , ruleSubDeclaration
     , ruleClosureTrait False
-    , ruleRuleDeclaration
     , rulePackageBlockDeclaration
     ]
 
@@ -227,10 +227,14 @@ ruleSubGlobal = tryRule "global subroutine" $ do
 
 ruleRuleDeclaration :: RuleParser Exp
 ruleRuleDeclaration = rule "rule declaration" $ do
-    (withAdvs, name) <- try $ do
+    (mod, withAdvs, name) <- try $ do
+        mod  <- symbol "proto" <|> symbol "multi" <|> return ""
         advs <- ruleRegexDeclarator
-        fmap ((,) advs) identifier
+        fmap ((,,) mod advs) identifier
+    optional (ruleSubParameters ParensMandatory)
     adverbs <- fmap withAdvs ruleQuoteAdverbs
+    skipMany (symbol "is" >> regularAdverbPair)
+    if mod == "proto" then return emptyExp else do
     ch      <- char '{'
     expr    <- rxLiteralAny adverbs ch (balancedDelim ch)
     let exp = Syn ":=" [_Var ('<':'*':name), Syn "rx" [expr, adverbs]]
@@ -266,8 +270,8 @@ rulePackageDeclaration = rule "package declaration" $ do
 
 rulePackageHead :: RuleParser (Either String (String, Exp, Exp, Env))
 rulePackageHead = do
-    scope <- option Nothing $ fmap Just ruleScope
-    sym <- choice $ map symbol (words "package module class role grammar")
+    scope   <- option Nothing $ fmap Just ruleScope
+    sym     <- choice $ map symbol (words "package module class role grammar")
     name    <- ruleQualifiedIdentifier
     optional ruleVersionPart -- v
     optional ruleAuthorPart  -- a
