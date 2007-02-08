@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 29 Jan 2007
+  Last Modified: 8 Feb 2007
   Number: 4
-  Version: 50
+  Version: 51
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -74,6 +74,15 @@ If you declare a lexical twice in the same scope, it is the same lexical:
 
     my $x;
     my $x;
+
+By default the second declaration will get a compiler warning.
+You may suppress this by modifying the first declaration
+with C<proto>:
+
+    my proto $x;
+    ...
+    while my $x = @x.shift {...}              # no warning
+    while my $x = @x.shift {...}              # no warning
 
 If you've referred to C<$x> prior to the first declaration, and the compiler
 tentatively bound it to C<$OUTER::x>, then it's an error to declare it, and

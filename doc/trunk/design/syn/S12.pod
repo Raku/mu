@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 3 Feb 2007
+  Last Modified: 8 Feb 2007
   Number: 12
-  Version: 38
+  Version: 39
 
 =head1 Overview
 
@@ -729,7 +729,15 @@ The "long name" of a subroutine or method includes the type signature
 of its invocant arguments.  The "short name" doesn't.  If you put
 C<multi> in front of any sub (or method) declaration, it allows
 multiple long names to share a short name, provided all of them are
-declared C<multi>.  A sub (or method) without a C<multi> doesn't share
+declared C<multi>.  (Putting C<proto> on the first such declaration has
+the same effect, but usually you want to put the C<multi> explicitly
+anyway for documentation.)  If a sub (or method) is not marked
+with C<multi> or within the scope of a C<proto>, it is considered a
+I<unique> sub.  You may mark a sub explicitly as C<unique> as well, if
+you're worried it might be within the scope of a C<proto>, and want there
+to be only one such routine within this scope.
+
+A unique sub (or method) doesn't share
 with anything outside of it or declared prior to it.  Only one such
 sub (or method) can inhabit a given namespace, and it hides any outer
 subs (or less-derived methods) of the same short name.  It may share
@@ -1066,11 +1074,11 @@ figuring out which role method to call.
 Alternately, if the role's methods are declared C<multi>, they can be
 disambiguated based on their long name.  If the roles forget to declare
 them as multi, you can force a multi on the roles' methods by installing
-a multi stub in the class being constructed:
+a proto stub in the class being constructed:
 
-    multi method shake {...}
+    proto method shake {...}
 
-A proto method also works, and will be called if the multi fails:
+The proto method will be called if the multi fails:
 
     proto method shake { warn "They couldn't decide" }
 
@@ -1082,7 +1090,7 @@ be distinguished by differences in the actual argument types:
     class DogTree {
         does DogBark;
         does TreeBark;
-        multi method bark {...}
+        proto method bark {...}
         ...
     }
 

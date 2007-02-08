@@ -58,7 +58,11 @@ other constraints.
 
 B<Prototypes> (keyword: C<proto>) specify the commonalities (such
 as parameter names, fixity, and associativity) shared by all multis
-of that name in the scope of the C<proto> declaration.
+of that name in the scope of the C<proto> declaration.  A C<proto>
+also forces all routines of the same short name within the scope to
+be considered C<multi> whether they are explicitly declared so or not.
+(This is particularly useful when adding to rule sets or when attempting
+to compose conflicting methods from roles.)
 
 A modifier keyword may occur before the routine keyword in a named routine:
 
