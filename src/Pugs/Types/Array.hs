@@ -126,54 +126,57 @@ instance ArrayClass IArraySlice where
     array_storeSize _ _ = return () -- XXX error?
     array_storeElem _ _ _ = retConstError undef
 
-a_size :: Seq.Seq (TVar VScalar) -> Int
-a_size = Seq.length
+a_size :: [:TVar VScalar:] -> Int
+a_size = lengthP
+
+a_update :: Int -> TVar VScalar -> [:TVar VScalar:] -> [:TVar VScalar:]
+a_update i x xs = takeP i xs +:+ [:x:] +:+ sliceP (i + 1) (lengthP xs - 1) xs
 
 instance ArrayClass IArray where
     array_store (MkIArray iv) vals = liftSTM $ do
         tvs <- mapM newTVar vals
-        writeTVar iv (Seq.fromList tvs)
+        writeTVar iv (toP tvs)
     array_fetchSize (MkIArray iv) = liftSTM $ do
         a   <- readTVar iv
         return $ a_size a
     array_storeSize (MkIArray iv) sz = liftSTM $ do
         a       <- readTVar iv
         case a_size a `compare` sz of
-            GT -> writeTVar iv (Seq.take sz a) -- shrink
+            GT -> writeTVar iv (takeP sz a) -- shrink
             EQ -> return ()
             LT -> do
                 tvs <- replicateM (sz - a_size a) (newTVar undef)
-                writeTVar iv ((Seq.><) a (Seq.fromList tvs)) -- extend
+                writeTVar iv (a +:+ toP tvs) -- extend
     array_shift (MkIArray iv) = liftSTM $ do
         a   <- readTVar iv
         case a_size a of
             0   -> return undef
-            _   -> do
-                writeTVar iv (Seq.drop 1 a)
-                readTVar (Seq.index a 0)
+            l   -> do
+                writeTVar iv (sliceP 1 (l - 1) a)
+                readTVar (a !: 0)
     array_unshift _ [] = return ()
     array_unshift (MkIArray iv) vals = liftSTM $ do
         a   <- readTVar iv
         tvs <- mapM newTVar vals
-        writeTVar iv ((Seq.><) (Seq.fromList tvs) a)
+        writeTVar iv (toP tvs +:+ a)
     array_pop (MkIArray iv) = liftSTM $ do
         a   <- readTVar iv
         case a_size a of
             0   -> return undef
             sz  -> do
-                writeTVar iv (Seq.take (sz - 1) a)
-                readTVar (Seq.index a (sz - 1))
+                writeTVar iv (takeP (sz - 1) a)
+                readTVar (a !: (sz - 1))
     array_push _ [] = return ()
     array_push (MkIArray iv) vals = liftSTM $ do
         a   <- readTVar iv
         tvs <- mapM newTVar vals
-        writeTVar iv ((Seq.><) a (Seq.fromList tvs))
+        writeTVar iv (a +:+ toP tvs)
     array_extendSize (MkIArray iv) sz = liftSTM $ do
         a       <- readTVar iv
         case a_size a `compare` sz of
             LT  -> do
                 tvs <- replicateM (sz - a_size a) (newTVar undef)
-                writeTVar iv ((Seq.><) a (Seq.fromList tvs))
+                writeTVar iv (a +:+ toP tvs)
             _   -> return ()
     array_fetchVal arr idx = do
         rv  <- getArrayIndex idx (Just $ constScalar undef)
@@ -198,12 +201,12 @@ instance ArrayClass IArray where
             array_extendSize arr (idx + 1)
         case fromTypeable sv of
             Just tvar   -> do
-                liftSTM $ modifyTVar iv (Seq.update idx tvar)
+                liftSTM $ modifyTVar iv (a_update idx tvar)
             _           -> do
                 val <- scalar_fetch sv
                 liftSTM $ do
                     tvar <- newTVar val
-                    modifyTVar iv (Seq.update idx tvar)
+                    modifyTVar iv (a_update idx tvar)
     array_storeElem _ _ _ = fail "impossible"
     array_deleteElem (MkIArray iv) idx = liftSTM $ do
         a   <- readTVar iv
@@ -212,8 +215,21 @@ instance ArrayClass IArray where
             size = a_size a
         case (size-1) `compare` idx' of
             LT -> return ()
-            EQ -> writeTVar iv (Seq.take (size-1) a)
-            GT -> writeTVar (Seq.index a idx') undef
+            EQ -> writeTVar iv (takeP (size-1) a)
+            GT -> writeTVar (a !: idx') undef
+    array_splice (MkIArray iv) off len vals = liftSTM $ do
+        a    <- readTVar iv
+
+        let off' = if off < 0 then off + size else off
+            len' = if len < 0 then len + size - off' else len
+            size = a_size a
+            off = if off' > size then size else off'
+            len = if off + len' > size then size - off else len'
+
+        result <- mapM readTVar (fromP (sliceP off' (off' + len' - 1) a))
+        tvars  <- mapM newTVar vals
+        writeTVar iv (takeP off a +:+ toP tvars +:+ sliceP (off+len) maxBound a)
+        return result
 
 instance ArrayClass VArray where
     array_iType = const $ mkType "Array::Const"
