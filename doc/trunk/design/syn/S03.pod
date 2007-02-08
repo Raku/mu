@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 5 Feb 2007
+  Last Modified: 8 Feb 2007
   Number: 3
-  Version: 99
+  Version: 100
 
 =head1 Overview
 
@@ -2682,9 +2682,8 @@ vector product, this isn't where you'll find it.  A hyperoperator
 is one of the ways that you can promise to the optimizer that your
 code is parallelizable.  (The tree visitation above is allowed to
 have side effects, but it is erroneous for the meaning of those side
-effects to depend on the order of visitation.  [Conjecture: we could
-allow dependencies that assume top-down visitation and only leaves
-sibling calls unordered.])
+effects to depend on the order of visitation in any way.  Hyper tree
+visitation is not required to follow DAG semantics, at least by default.)
 
 Even in the absence of hardware that can do parallel processing,
 hyperoperators may be faster than the corresponding scalar operators
