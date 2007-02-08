@@ -82,7 +82,7 @@ pairArrow = do
 pairAdverb :: RuleParser Exp
 pairAdverb = try $ do
     char ':'
-    negatedPair <|> shortcutPair <|> regularPair
+    negatedPair <|> shortcutPair <|> regularAdverbPair
     where
     negatedPair = do
         char '!'
@@ -97,13 +97,16 @@ pairAdverb = try $ do
             [ Val (VStr $ cast (v_name var))
             , foldr appCast varExp ss
             ]
-    regularPair = do
-        key <- many1 wordAny
-        lvl <- gets s_bracketLevel
-        val <- lexeme ((optional ruleDot >> valueExp lvl) <|> return (Val $ VBool True))
-        return $ if (all isDigit key)
-            then App (_Var "&Pugs::Internals::base") Nothing [Val (VStr key), val]
-            else App (_Var "&infix:=>") Nothing [Val (VStr key), val]
+
+regularAdverbPair :: RuleParser Exp
+regularAdverbPair = do
+    key <- many1 wordAny
+    lvl <- gets s_bracketLevel
+    val <- lexeme ((optional ruleDot >> valueExp lvl) <|> return (Val $ VBool True))
+    return $ if (all isDigit key)
+        then App (_Var "&Pugs::Internals::base") Nothing [Val (VStr key), val]
+        else App (_Var "&infix:=>") Nothing [Val (VStr key), val]
+    where
     valueExp lvl = do
         let blk | ConditionalBracket <- lvl = id
                 | QuoteAdverbBracket <- lvl = const [verbatimParens ruleBracketedExpression]
