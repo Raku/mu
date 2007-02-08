@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 7 Feb 2007
+  Last Modified: 8 Feb 2007
   Number: 2
-  Version: 84
+  Version: 85
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1929,7 +1929,7 @@ forms derive from C<Q> with adverbs:
     tr///       Q :trans ///
 
 Adverbs such as C<:regex> change the language to be parsed by switching
-to a different parser.  This can completely change the interpreation
+to a different parser.  This can completely change the interpretation
 of any subsequent adverbs as well as the quoted material itself.
 
     q:s//       Q :q :scalar //
