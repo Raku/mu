@@ -42,7 +42,7 @@ ok(approx(log(-exp(1)), 1 + 1i * pi), "got the log of -e", :todo<feature>);
 ok(approx(log10(-10), 1 + 1i * pi), "got the log10 of -10", :todo<feature>);
 
 ok(approx(log((1+1i) / sqrt(2)), 1 + 1i * pi / 4), "got log of exp(i pi/4)", :todo<feature>);
-ok(approx(log(1i), 1i * pi / 2), "got the log of i (complex unit)", :todo<feature>);
+ok(approx(log(1i), 1i * pi / 2), "got the log of i (complex unit)");
 ok(approx(log(-1i), 1i * pi * 1.5), "got the log of -i (complex unit)", :todo<feature>);
 
 # TODO: please add more testcases for log10 of complex numbers
