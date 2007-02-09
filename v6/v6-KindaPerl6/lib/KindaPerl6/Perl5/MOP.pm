@@ -1,6 +1,43 @@
 
 use v5;
 
+=head Synopsis
+
+    # Class
+
+    my $class = KindaPerl6::Class.new( ::Val::Buf('MyClass') );   # the name is '' for anon classes
+    # $class       - prototype object
+    # $class.HOW   - metaclass
+    $class.HOW.add_method( ::Val::Buf('my_meth'), sub { ... } );
+    $class.HOW.add_attribute( ::Val::Buf('my_attr') );
+
+    # Instantiation
+    
+    my $obj = $class.new( pairs... );
+
+    # Role
+
+    my $role = KindaPerl6::Role.new( ::Val::Buf('MyRole') );   # the name is '' for anon roles
+    # $role       - prototype object
+    # $role.HOW   - metaclass
+    $role.HOW.add_method( ::Val::Buf('my_meth'), sub { ... } );
+    $role.HOW.add_attribute( ::Val::Buf('my_attr') );
+
+    # adding a Role
+
+    $role.add_role_to( $class );
+    $role.add_role_to( $obj );
+    $role.add_role_to( $role );
+
+    # a Class 'does' a Role
+    $class.HOW.add_role( $role );
+    # a Class 'is' a parent class
+    $class.HOW.add_parent( $class );
+
+=cut
+
+# TODO - $x.HOW should know about the roles that were applied to $x 
+
 use KindaPerl6::Perl5::Type;
 
 {
@@ -8,10 +45,14 @@ package Class; # virtual
 }
 
 {
-package KindaPerl6::MOP;
+package Role; # virtual
+}
+
+{
+package KindaPerl6::Class;
 
     our @ISA = ( 'Type_Constant', 'Class' );
-    our %Classes;
+    our %Classes;   # XXX Class names are global
     
     sub _mangle {
         my $name = shift;
@@ -24,20 +65,24 @@ package KindaPerl6::MOP;
         } ), 'Type_Constant_Buf' 
     }
     sub HOW  { $_[0] }
-    sub create {
+    sub new {
         my ( $self, $name ) = @_;
         # ??? Type_...
         my $unboxed_name = ${$name->FETCH};
         $native_name = _mangle( ${$name->FETCH} || 'Class_ANON_' . rand );
         #print "Class.create $native_name\n";
-        my $class;
-        $class = exists $Classes{ $unboxed_name }
-            ? $Classes{ $unboxed_name }
-            : $Classes{ $unboxed_name } = bless {
+
+        # return the prototype object
+        return $Classes{ $unboxed_name }
+            if exists $Classes{ $unboxed_name };
+            
+        my $class = $Classes{ $unboxed_name } = bless {
                   class_name => $name,
                   class_native_name => $native_name,
                   methods    => { }, 
                   attributes => { },
+                  parents    => { },  # is Class
+                  roles      => { },  # does Role
               }, __PACKAGE__;
         $class->add_method(
             bless( \( do{ my $v = 
@@ -56,15 +101,39 @@ package KindaPerl6::MOP;
             sub { 
                 #require Data::Dump::Streamer;
                 #print "new: ", Data::Dump::Streamer::Dump( @_ );
+                # new() inherits the roles from the class, plus extra roles from the prototype object
                 my $self = shift; 
                 my %data;
+                my $class;
+                if ( ref( $self ) ) {   # $prototype->new
+                    %data  = %$self;
+                    $class = ref( $self ); 
+                }
+                else {                  # Class->new
+                    $class = $self;
+                    %data  = ( _role_methods => { } );   # , _roles => { } );
+                    # %data  = {
+                    #     _roles => $class->HOW->{roles}, ...
+                    # };
+                }
                 while ( @_ ) {
                     my ( $key, $value ) = ( shift, shift );
                     $data{ ${$key->FETCH} } = $value->FETCH;
                 }
-                bless \%data, $self; 
+                #print "new: ", Data::Dump::Streamer::Dump( X->HOW );
+                my $new = bless \%data, $class; 
+                # optimize ???
+                $_->add_role_to( $new ) 
+                    for values %{ $class->HOW->{roles} };
+                $new;
             },
         );
+        eval "
+            push \@${native_name}::ISA, 'Type_Constant';
+            \$::Class_$native_name = \$native_name->new()
+            " or warn $@;
+        #print "# Created proto \$::Class_$native_name = ${'$::Class_' . $native_name}\n"; 
+        return $class;
     }
     sub add_method {
         my ( $class, $name, $code ) = @_;
@@ -99,6 +168,165 @@ package KindaPerl6::MOP;
             *$native_name = \$code;
             " or warn $@;
     }
+    sub add_parent {
+        # implements '$class is $super'
+        my ( $class, $super ) = @_;
+        my $unboxed_name = eval { $super->HOW->{class_name} } || ${$super->FETCH};
+        my $native_name  = eval { $super->HOW->{class_native_name} } || _mangle( ${$super->FETCH} );
+        my $superclass   = $Classes{ $unboxed_name } || Carp::carp "No class like $unboxed_name\n";
+        #print "Class.add_parent $class->{class_native_name} $native_name\n";
+        $class->{parents}{$unboxed_name} = $superclass;
+        eval "
+            push \@$class->{class_native_name}::ISA, '$native_name';
+            " or warn $@;
+        # inherit the parent's roles ???
+        # problem - our conventional methods will not override methods from a parent's role
+        $class->{roles} = {
+            %{ $superclass->{roles} },
+            %{ $class->{roles} },
+        };
+        $class;
+    }
+    sub add_role {
+        # implements '$class does $role'
+        # $class_object->HOW->add_role( $role )
+        #   - implements Class.does($role)
+        #   - adds roles to the class
+        #   - the roles apply to new objects and to subclasses
+        # $role.add_role_to( $class_object ) 
+        #   - adds roles to the prototype object
+        #   - the roles do not apply to subclasses
+        #   - but: the roles apply to objects created with $class_object->new()
+        # $role.add_role_to( $class_object->HOW ) 
+        #   - adds roles to the metaclass
+        #   - the roles do not apply to objects of that class
+        #   - the roles do not apply to subclasses
+        my ( $class, $role ) = @_;
+        my $unboxed_name = eval { $role->{role_name} } || ${$role->FETCH};
+        #my $native_name  = eval { $role->{role_native_name} } || _mangle( ${$role->FETCH} );
+        $role = $KindaPerl6::Role::Roles{ $unboxed_name } || Carp::carp "No role like $unboxed_name\n";
+        #print "Class.add_parent $class->{class_native_name} $native_name\n";
+        $class->{roles}{$unboxed_name} = $role;
+
+        #print "Add role to class: ", Main::Dump( $class );
+
+        # - apply the role to the prototype 'Class' object
+        eval "
+            \$role->add_role_to( \$::Class_$class->{class_native_name} )
+            " or warn $@;
+
+        $class;
+    }
+
+    # prototype 'Class' object
+    $::Class_KindaPerl6::Class = KindaPerl6::Class->new(
+        bless \( do{ my $v = '' } ), 'Type_Constant_Buf'
+    );
+    #print "# Created proto \$::Class_KindaPerl6::Class\n"; 
+
+}
+
+{
+package KindaPerl6::Role;
+
+    our $class = KindaPerl6::Class->new( 
+                bless( \( do{ my $v = 
+                        'KindaPerl6::Role' 
+                    } ), 
+                    'Type_Constant_Buf' 
+                ),
+    );
+    our @ISA = ( 'Type_Constant', 'Role' );
+    our %Roles;   # XXX Role names are global
+    
+    $class->HOW->add_method(
+        bless( \( do{ my $v = 
+                'perl' 
+            } ), 
+            'Type_Constant_Buf' 
+        ),
+        sub { 
+           bless \( do{ my $v = 
+               'role { ... }' 
+           } ), 'Type_Constant_Buf' 
+       },
+    );
+
+    $class->HOW->add_method(
+        bless( \( do{ my $v = 
+                'new' 
+            } ), 
+            'Type_Constant_Buf' 
+        ),
+        sub { 
+            my ( $self, $name ) = @_;
+            # ??? Type_...
+            my $unboxed_name = ${$name->FETCH};
+            #$native_name = KindaPerl6::Class::_mangle( ${$name->FETCH} || 'Role_ANON_' . rand );
+            #print "Role.create $native_name\n";
+            # return the prototype role object (a role is a singleton ???)
+            return $Roles{ $unboxed_name }
+                if exists $Roles{ $unboxed_name };
+
+            print "Role new: $unboxed_name\n";
+            # ??? - Role uses a native namespace                
+            my $role_class = KindaPerl6::Class->new( $name );
+
+            # remove new() and HOW() from the role_class method list
+            delete $role_class->HOW->{methods}{new};
+            delete $role_class->HOW->{methods}{HOW};
+                
+            # methods and attributes are aliased to the metaclass list
+            my $role = $Roles{ $unboxed_name } = bless {
+                      role_name  => $name,
+                      role_unboxed_name => $unboxed_name,
+                      role_native_name  => $role_class->HOW->{class_native_name},
+                      methods           => $role_class->HOW->{methods}, 
+                      attributes        => $role_class->HOW->{attributes}, 
+                  }, __PACKAGE__;
+            $role;                
+        },
+    );
+    
+    $class->HOW->add_method(
+        bless( \( do{ my $v = 
+                'add_method' 
+            } ), 
+            'Type_Constant_Buf' 
+        ),
+        \&KindaPerl6::Class::add_method,
+    );
+    $class->HOW->add_method(
+        bless( \( do{ my $v = 
+                'add_attribute' 
+            } ), 
+            'Type_Constant_Buf' 
+        ),
+        \&KindaPerl6::Class::add_attribute,
+    );
+    $class->HOW->add_method(
+        bless( \( do{ my $v = 
+                'add_role_to' 
+            } ), 
+            'Type_Constant_Buf' 
+        ),
+        sub  {
+            my ( $self, $object ) = @_;
+            $object = $object->FETCH;
+            #print "Role.add_role_to $self $object\n";
+            #require Data::Dump::Streamer;
+            #print Data::Dump::Streamer::Dump( @_ );
+            $object->{_role_methods} = {
+                %{ $object->{_role_methods} },    
+                %{ $self->{attributes} },
+                %{ $self->{methods} },
+            };
+            $object->{_roles}{ $self->{role_unboxed_name} } = $self;
+            #print "object+role = ",Main::Dump( @_ );
+            $self;                    
+        }
+    );
+
 }
 
 1;

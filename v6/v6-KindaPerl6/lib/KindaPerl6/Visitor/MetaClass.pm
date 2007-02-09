@@ -12,20 +12,6 @@ class KindaPerl6::Visitor::MetaClass {
     method visit ( $node, $node_name ) {
         if    ( $node_name eq 'CompUnit' )
         {
-
-#         Class::MOP::Class->create('Bar' => (
-#             version      => '0.01',
-#             superclasses => [ 'Foo' ],
-#             attributes => [
-#                 Class::MOP::Attribute->new('$bar'),
-#                 Class::MOP::Attribute->new('$baz'),
-#             ],
-#             methods => {
-#                 calculate_bar => sub { ... },
-#                 construct_baz => sub { ... }
-#             }
-#         ));
-
             my $module := [ ];
 
             push @$module, ::Apply(
@@ -33,15 +19,72 @@ class KindaPerl6::Visitor::MetaClass {
                 arguments => [ ],
             );
             
-            push @$module, ::Call(
-                'hyper'     => '',
-                'arguments' => [
-                    ::Val::Buf( buf => $node.name ),  # p5 args
-                ],
-                'method'   => 'create',
-                'invocant' => ::Val::Buf( buf => 'KindaPerl6::MOP' ),  # p5 args
-            );
+            # role or class/grammar/module ?
+            if $node.unit_type eq 'role' {
+                push @$module, ::Call(
+                    'hyper'     => '',
+                    'arguments' => [
+                        ::Val::Buf( buf => $node.name ),  
+                    ],
+                    'method'   => 'new',
+                    'invocant' => ::Val::Buf( buf => 'KindaPerl6::Role' ),  
+                );
+            }
+            else {
+                push @$module, ::Call(
+                    'hyper'     => '',
+                    'arguments' => [
+                        ::Val::Buf( buf => $node.name ),  
+                    ],
+                    'method'   => 'new',
+                    'invocant' => ::Val::Buf( buf => 'KindaPerl6::Class' ),  
+                );
+            };
 
+            for @($node.traits) -> $trait {
+                if $trait[0] eq 'does' {
+                    # Bar->HOW->add_role('bar');
+                    push @$module, ::Call(
+                        'hyper'     => '',
+                        'arguments' => [
+                            ::Val::Buf( buf => $trait[1] ), 
+                        ],
+                        'method'    => 'add_role',
+                        'invocant'  => ::Call(
+                            'hyper'     => '',
+                            'arguments' => [ ],
+                            'method'    => 'HOW',
+                            'invocant'  => ::Val::Buf(
+                                    buf => $node.name
+                                )
+                        ),
+                    ); 
+                }
+                else {
+                if $trait[0] eq 'is' {
+                    # Bar->HOW->add_parent('bar');
+                    push @$module, ::Call(
+                        'hyper'     => '',
+                        'arguments' => [
+                            ::Val::Buf( buf => $trait[1] ), 
+                        ],
+                        'method'    => 'add_parent',
+                        'invocant'  => ::Call(
+                            'hyper'     => '',
+                            'arguments' => [ ],
+                            'method'    => 'HOW',
+                            'invocant'  => ::Val::Buf(
+                                    buf => $node.name
+                                )
+                        ),
+                    ); 
+                }
+                else {
+                    die "unknown class trait: ", $trait[0];
+                };
+                };
+            };
+                        
             for @(($node.body).body) -> $item {
 
                 # METHOD

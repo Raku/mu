@@ -69,6 +69,7 @@ class KindaPerl6::Traverse {
 class CompUnit {
     has $.unit_type;
     has $.name;
+    has @.traits;
     has %.attributes;
     has %.methods;
     has @.body;
@@ -83,6 +84,7 @@ class CompUnit {
             { 
                 unit_type => $.unit_type,
                 name    => $.name,
+                traits  => @.traits,
                 attributes => %.attributes,
                 methods => %.methods,
                 body    => @.body,

@@ -33,10 +33,10 @@ class CompUnit {
     has $.body;
     method emit_perl5 {
           '{ package ' ~ $.name ~ "; " 
-        ~ ( $.unit_type eq 'module'
-            ?? ''
-            !! 'sub new { shift; bless { @_ }, "' ~ $.name ~ '" }' ~ " " 
-          )
+#        ~ ( $.unit_type eq 'module'
+#            ?? ''
+#            !! 'sub new { shift; bless { @_ }, "' ~ $.name ~ '" }' ~ " " 
+#          )
         ~ $.body.emit_perl5
         ~ ' }' ~ Main::newline();
     }
@@ -46,7 +46,7 @@ class Val::Int {
     has $.int;
     method emit_perl5 { 
         # $.int 
-        '( bless \\( do{ my $v = ' ~ $.int ~ ' } ), \'Type_Constant_Int\' )'
+        'bless( \\( do{ my $v = ' ~ $.int ~ ' } ), \'Type_Constant_Int\' )'
     }
 }
 
@@ -54,20 +54,23 @@ class Val::Bit {
     has $.bit;
     method emit_perl5 { 
         # $.bit 
-        '( bless \\( do{ my $v = ' ~ $.bit ~ ' } ), \'Type_Constant_Bit\' )'
+        'bless( \\( do{ my $v = ' ~ $.bit ~ ' } ), \'Type_Constant_Bit\' )'
     }
 }
 
 class Val::Num {
     has $.num;
-    method emit_perl5 { $.num }
+    method emit_perl5 { 
+        #$.num 
+        'bless( \\( do{ my $v = ' ~ $.num ~ ' } ), \'Type_Constant_Num\' )'
+    }
 }
 
 class Val::Buf {
     has $.buf;
     method emit_perl5 { 
         # '\'' ~ $.buf ~ '\'' 
-        '( bless \\( do{ my $v = ' ~ '\'' ~ $.buf ~ '\'' ~ ' } ), \'Type_Constant_Buf\' )'
+        'bless( \\( do{ my $v = ' ~ '\'' ~ $.buf ~ '\'' ~ ' } ), \'Type_Constant_Buf\' )'
     }
 }
 
@@ -336,7 +339,18 @@ class Call {
     has @.arguments;
     #has $.hyper;
     method emit_perl5 {
-        my $invocant := $.invocant.emit_perl5;
+        my $invocant;
+        if $.invocant.isa( 'Str' ) {
+            $invocant := '$::Class_' ~ $.invocant;
+        }
+        else {
+        if $.invocant.isa( 'Val::Buf' ) {
+            $invocant := '$::Class_' ~ $.invocant.buf;
+        }
+        else {
+            $invocant := $.invocant.emit_perl5;
+        };
+        };
         if $invocant eq 'self' {
             $invocant := '$self';
         };
@@ -362,13 +376,22 @@ class Call {
              $meth := '';  
         };
         
-        my $call := '->' ~ $meth ~ '(' ~ (@.arguments.>>emit_perl5).join(', ') ~ ')';
+        my $call := (@.arguments.>>emit_perl5).join(', ');
         if ($.hyper) {
-            '[ map { $_' ~ $call ~ ' } @{ ' ~ $invocant ~ ' } ]';
+            # TODO - hyper + role
+            '[ map { $_' ~ '->' ~ $meth ~ '(' ~ $call ~ ') } @{ ' ~ $invocant ~ ' } ]';
         }
         else {
-            $invocant ~ $call;
+               '('  ~ $invocant ~ '->FETCH->{_role_methods}{' ~ $meth ~ '}'
+            ~ ' ? ' ~ $invocant ~ '->FETCH->{_role_methods}{' ~ $meth ~ '}{code}' 
+                ~ '(' ~ $invocant ~ '->FETCH, ' ~ $call ~ ')'
+            ~ ' : ' ~ $invocant ~ '->FETCH->' ~ $meth ~ '(' ~ $call ~ ')'
+            ~  ')';
         };
+        
+#    $x->FETCH->{_role_methods}{my_role}
+#  ? $x->FETCH->{_role_methods}{my_role}{code}()
+#  : $x->FETCH->my_role();
 
     }
 }
@@ -407,7 +430,7 @@ class If {
     has $.body;
     has $.otherwise;
     method emit_perl5 {
-        'do { if (' ~ $.cond.emit_perl5 ~ ') { ' ~ $.body.emit_perl5 ~ ' } '
+        'do { if ( ${' ~ $.cond.emit_perl5 ~ '->FETCH} ) { ' ~ $.body.emit_perl5 ~ ' } '
         ~ ( $.otherwise 
             ?? ' else { ' ~ $.otherwise.emit_perl5 ~ ' }' 
             !! '' 

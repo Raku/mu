@@ -78,11 +78,31 @@ token unit_type {
     <'class'> | <'grammar'> | <'role'> | <'module'>
 };
 
+token trait_auxiliary {
+    is | does
+};
+
+token class_trait {
+    <trait_auxiliary> <?ws> <full_ident> 
+        { return [ $$<trait_auxiliary>, $$<full_ident> ] }
+};
+
+token class_traits {
+    | <class_trait>
+        [
+        |   <?ws> <class_traits>
+            { return [ $$<class_trait>, @( $$<class_traits> ) ] }
+        |   { return [ $$<class_trait> ] }
+        ]
+    | { return [] }
+};
+
 token comp_unit {
     <?opt_ws> [\; <?opt_ws> | <''> ]
     [ <'use'> <?ws> <'v6-'> <ident> <?opt_ws> \; <?ws>  |  <''> ]
     
-    <unit_type> <?opt_ws> <full_ident> <?opt_ws> 
+    <unit_type> <?opt_ws> <full_ident> <?opt_ws>
+    <class_traits> <?opt_ws>
     <'{'>
         { $Class_name := ~$<full_ident> }
         <?opt_ws>
@@ -99,6 +119,7 @@ token comp_unit {
         return ::CompUnit(
             'unit_type'   => $$<unit_type>,
             'name'        => $$<full_ident>,
+            'traits'      => $$<class_traits>,
             'attributes'  => { },
             'methods'     => { },
             'body'        => ::Lit::Code(
@@ -377,6 +398,12 @@ token term {
                 { return $$<begin_block> }  # BEGIN { code... }
     | <check_block> 
                 { return $$<check_block> }  # CHECK { code... }
+
+    | is <?ws> <full_ident> 
+        { die "not implemented" }
+    | does <?ws> <full_ident> 
+        { die "not implemented" }
+
     | <control> { return $$<control> } # Various control structures.  Does _not_ appear in binding LHS
 #   | <index>     # $obj[1, 2, 3]
 #   | <lookup>    # $obj{'1', '2', '3'}

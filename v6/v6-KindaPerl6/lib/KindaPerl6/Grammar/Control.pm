@@ -15,40 +15,50 @@ token control {
  #  | <call>   { return $$<call>   }   # $obj.method($arg1, $arg2)
 };
 
-token if {
-    if <?ws>  <exp>  <?opt_ws>
-    \{ <?opt_ws> <exp_stmts> <?opt_ws> \} 
-    [
-        <?opt_ws>
-        else <?opt_ws> 
-        \{ <?opt_ws> <exp_stmts2> <?opt_ws> \}
+token block1 {
+    \{  <?opt_ws> 
         { 
-            return ::If( 
-                'cond' => $$<exp>, 
-                'body' => ::Lit::Code(
-                    pad   => { },
+            COMPILER::add_pad();
+        }
+        <exp_stmts> 
+        <?opt_ws> 
+    \} 
+        {
+            my $env := @COMPILER::PAD[0];
+            COMPILER::drop_pad();
+            return ::Lit::Code(
+                    pad   => $env,
                     state => { },
                     sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
                     body  => $$<exp_stmts>,
-                ), 
-                'otherwise' => ::Lit::Code(
-                    pad   => { },
-                    state => { },
-                    sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
-                    body  => $$<exp_stmts2>,
-                ),
+                );
+        }
+};
+
+token block2 {
+    <block1>  
+    { return $$<block1> }
+};
+
+token if {
+    if <?ws>  <exp>  <?opt_ws>
+    <block1>
+    [
+        <?opt_ws>
+        else <?opt_ws> 
+        <block2>
+        { 
+            return ::If( 
+                'cond'      => $$<exp>, 
+                'body'      => $$<block1>, 
+                'otherwise' => $$<block2>,
             );
         }
     |
         { 
             return ::If( 
                 'cond' => $$<exp>, 
-                'body' => ::Lit::Code(
-                    pad   => { },
-                    state => { },
-                    sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
-                    body  => $$<exp_stmts>,
-                ), 
+                'body' => $$<block1>, 
                 'otherwise' => undef,
              ) 
         }
@@ -56,45 +66,30 @@ token if {
 };
 
 token when {
-    when <?ws> <exp_seq> <?opt_ws> \{ <?opt_ws> <exp_stmts> <?opt_ws> \}
+    when <?ws> <exp_seq> <?opt_ws> <block1>
     { 
         return ::When( 
             'parameters' => $$<exp_seq>, 
-            'body' => ::Lit::Code(
-                    pad   => { },
-                    state => { },
-                    sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
-                    body  => $$<exp_stmts>,
-                ),
+            'body'       => $$<block1>,
             ) }
 };
 
 token for {
-    for <?ws> <exp> <?opt_ws> <'->'> <?opt_ws> <var> <?ws> \{ <?opt_ws> <exp_stmts> <?opt_ws> \}
+    for <?ws> <exp> <?opt_ws> <'->'> <?opt_ws> <var> <?ws> <block1>
     { 
         return ::For( 
-            'cond' => $$<exp>, 
+            'cond'  => $$<exp>, 
             'topic' => $$<var>, 
-            'body' => ::Lit::Code(
-                    pad   => { },
-                    state => { },
-                    sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
-                    body  => $$<exp_stmts>,
-                ),
+            'body'  => $$<block1>,
             ) }
 };
 
 token while {
-    while <?ws> <exp> <?ws> \{ <?opt_ws> <exp_stmts> <?opt_ws> \}
+    while <?ws> <exp> <?ws> <block1>
     { 
         return ::While( 
             'cond' => $$<exp>, 
-            'body' => ::Lit::Code(
-                    pad   => { },
-                    state => { },
-                    sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
-                    body  => $$<exp_stmts>,
-                ),
+            'body' => $$<block1>,
             ) }
 };
 

@@ -9,7 +9,16 @@ The kp6 Milestones are:
 - begin blocks
 - containers
 
+2007-02-07
+- added t/01-sanity, edited to fit the kp6 grammar
+- added the sanity errors to TODO list
+- fixed control block pads, logical ops
+- added 'coro', 'hypotheticals' prototypes to docs/
+
 2007-02-06
+- roles
+- added 'does' and 'is' class traits
+- no longer uses Class::MOP
 - reimplemented KindaPerl6::MOP to use p6-land data
 
 2007-02-05

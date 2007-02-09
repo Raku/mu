@@ -24,12 +24,20 @@ The optional features in kp6 are:
 Incomplete features:
 
 + try(), eval()
-- classes, methods, at compile-time
++ 'Code' closure objects
++ 'Capture' objects
++ classes, methods, at compile-time
++ short-circuiting <&&>, <||>, <?? !!> (require macros, or laziness)
+
+- 'let' variables
+- CATCH blocks
+
+- method hyperization is untested
+- binding does no type check
+
 - all variables initialized during compilation should have initializers for run-time
-- short-circuiting <&&>, <||>, <?? !!> (require macros, or laziness)
 - traits
     - is context, rw, readonly
-- role
 - containers, but no laziness, no slices
 - type system
 - optimization
@@ -38,7 +46,6 @@ Incomplete features:
 - subroutine calls, data, are incompatible with perl 5
 - no 'use v5'
 - declare our/state/temp/constant things    
-+ 'Code' closure objects
 
 - missing GLOBAL::import() at compile-time
 - 'our $x' should compile to 'my $x ::= $Pkgname::x'
@@ -50,8 +57,9 @@ Incomplete features:
     
 Bugs:
 
-- several problems with p6-data and Class::MOP
-    - maybe write a simple MOP?
+- missing compile-time methods
+
+- compile-time does not import GLOBAL - 'say' doesn't work inside BEGIN blocks
 
 - grammar: 'undefine($v)' is not parsed
 - structure binding/assign is broken, untested
@@ -67,6 +75,27 @@ Roles:
   at runtime:
     $Obj->{Role_bool} && $Obj->{Role_bool}() || $Obj->bool()
 - problem: objects based on p5-array (Array), p5-code (Code)
+
+Optimization:
+
+- TODO
+  
+Perl5 compatibility:
+
+- mark closure blocks as p5 or p6 (kp6/mp6)
+  
+Problems running the Perl6 test suite:
+  
+- kp6 requires a 'compilation unit' declaration
+- '&&', '||' operators don't short circuit
+- 'if', 'sub' require ';'
+- prefix and postfix:<++> not implemented
+- 'use' doesn't accept parameters: use lib ".";
+- parameter list error in:
+    if defined $var { ...
+  requires:
+    if defined($var) { ...
+- no END blocks
 
 Visitor modules:
 

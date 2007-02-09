@@ -105,6 +105,7 @@ package Type_Scalar;
     sub DESTROY { }
     sub AUTOLOAD {
         # allow: $x.new
+        # - $x.FETCH.new is better - disable AUTOLOAD ???
         #require Data::Dump::Streamer;
         #print "Scalar AUTOLOAD: $AUTOLOAD - ", Data::Dump::Streamer::Dump( \@_ );
         my $self = shift;
