@@ -7,10 +7,13 @@ a commit.  Thanks!
 Things which are undated may be a bit old, and perhaps no longer
 applicable.  But many are.
 
+When you do a task, you can move it to file TASKS_DONE.
 
-* Mention this file in docs/Pugs/Doc/Hack.pod.
-  Skills: english. -- putter 2007-Feb-04
-    done -- moritz 2007-Feb-05
+* The parrot pge p6 regexp tests have been restructured.
+  http://svn.perl.org/parrot/trunk/t/compilers/pge/p6regex/
+  Update pugs t/regex/p6regex/ to use the new rx_* files.
+  Skills: basic p6.
+  -- putter 2007-Feb-09
 
 * Capture fglock/putter interview info to kp6 faq.
   http://colabti.de/irclogger/irclogger_log/perl6?date=2007-01-15,Mon&sel=294#l480 through http://colabti.de/irclogger/irclogger_log/perl6?date=2007-01-15,Mon&sel=527#l810
