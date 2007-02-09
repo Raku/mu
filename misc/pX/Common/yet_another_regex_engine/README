@@ -1,9 +1,9 @@
 This is yet another rules engine implementation attempt.
 
 $ prove -Ilib t/re_tests.t
-... 59.83% okay.
+... 91.78% okay.
 $ perl -w lib/Regexp/ModuleA.pm --test
-... more informative than prove, but no prove-like summary at end.
+... more informative than prove, but no prove-like summary at the end.
 $ perl -w lib/Regexp/ModuleA.pm --repl
 ... interactive.
 
@@ -117,6 +117,11 @@ Risks:
     hit.
 
 History:
+
+  2007-Feb-08
+  2007-Feb-06 Some cleanup.  Started commit.  Rx's are now method-like.
+  Added externally defined post actions. A bugfix.  11 sec. 92% okay.
+  Cost: 1.5 days.
 
   2007-Feb-03 Some cleanup.  Added nodes.  Performance improved (7 min
   -> 12 sec by avoiding "use overload" when possible).  12 sec.  92% okay.
