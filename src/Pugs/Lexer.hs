@@ -206,10 +206,11 @@ ruleEndOfLine = choice [ do { char '\n'; return () }, eof ]
 symbol :: String -> RuleParser String
 symbol s = try $ do
     rv <- string s
-    let lastCh = last s
-        ahead  = if isWordAny lastCh then aheadWord else aheadSym
-    lookAhead (satisfy (ahead lastCh)) <|> (eof >> return ' ')
-    whiteSpace
+    let lastCh  = last s
+        ahead f = lookAhead (satisfy (f lastCh)) <|> (eof >> return ' ')
+    if isWordAny lastCh
+        then ahead aheadWord >> whiteSpace >> notFollowedBy (try (char '=' >> char '>'))
+        else ahead aheadSym >> whiteSpace
     return rv
     where
     aheadWord x  '=' = not $ x `elem` "xY\xA5" -- ¥
