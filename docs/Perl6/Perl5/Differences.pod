@@ -368,6 +368,14 @@ This is a version of C<print> that auto-appends a newline:
 Since you want to do that so often anyway, it seemed like a handy thing
 to make part of the language.
 
+=head2 wantarray()
+
+C<wantarray> is superseeded by C<want.List>. Also available are C<want.Item>
+and C<want.count>, the latter gives the number of expected values, if
+applicable.
+
+
+
 =head1 Unfiled
 
 =head2 Hash elements no longer auto-quote
