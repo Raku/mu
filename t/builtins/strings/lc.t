@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 10;
+plan 11;
 
 # L<S29/"Str" /lc/>
 
@@ -10,6 +10,7 @@ is(lc("hello world"), "hello world", "lowercasing string which is already lowerc
 is(lc("Hello World"), "hello world", "simple lc test");
 is(lc(""), "", "empty string");
 is(lc("ÅÄÖ"), "åäö", "some finnish non-ascii chars");
+is(lc("ÄÖÜ"), "äöü", "lc of German Umlauts");
 is(lc("ÓÒÚÙ"), "óòúù", "accented chars");
 is(lc('A'..'C'), "a b c", "lowercasing char-range");
 

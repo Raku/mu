@@ -2,14 +2,15 @@ use v6-alpha;
 
 use Test;
 
-plan 10;
-force_todo 9;
+plan 11;
+force_todo 10;
 
 # L<S29/"Str"/=item uc>
 
 is(uc("Hello World"), "HELLO WORLD", "simple");
 is(uc(""), "", "empty string"); 
 is(uc("åäö"), "ÅÄÖ", "some finnish non-ascii chars");
+is(uc("äöü"), "ÄÖÜ", "uc of German Umlauts");
 is(uc("óòúù"), "ÓÒÚÙ", "accented chars");
 is(uc(lc('HELL..')), 'HELL..', "uc/lc test");
 
