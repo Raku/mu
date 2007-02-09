@@ -216,19 +216,23 @@ instance ArrayClass IArray where
         case (size-1) `compare` idx' of
             LT -> return ()
             EQ -> writeTVar iv (takeP (size-1) a)
-            GT -> writeTVar (a !: idx') undef
+            GT -> do
+                tvar <- newTVar undef
+                writeTVar iv (a_update idx' tvar a)
     array_splice (MkIArray iv) off len vals = liftSTM $ do
         a    <- readTVar iv
 
         let off' = if off < 0 then off + size else off
             len' = if len < 0 then len + size - off' else len
             size = a_size a
-            off = if off' > size then size else off'
-            len = if off + len' > size then size - off else len'
 
         result <- mapM readTVar (fromP (sliceP off' (off' + len' - 1) a))
+
+        let off = if off' > size then size else off'
+            len = if off + len' > size then size - off else len'
+
         tvars  <- mapM newTVar vals
-        writeTVar iv (takeP off a +:+ toP tvars +:+ sliceP (off+len) maxBound a)
+        writeTVar iv (takeP off a +:+ toP tvars +:+ sliceP (off+len) (size-1) a)
         return result
 
 instance ArrayClass VArray where

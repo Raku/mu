@@ -1877,6 +1877,7 @@ constArray = IArray
 retConstError :: VScalar -> Eval b
 retConstError val = retError "Can't modify constant item" val
 
+
 -- Haddock doesn't like these; not sure why ...
 #ifndef HADDOCK
 
