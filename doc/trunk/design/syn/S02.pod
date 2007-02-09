@@ -2612,7 +2612,7 @@ is equivalent to
 
     @result = @x.grep:{...};
 
-However, this I<list() comprehension> is strictly a syntactic transformation,
+However, this I<each() comprehension> is strictly a syntactic transformation,
 so a list computed any other way will not triger the rewrite:
 
     @result = (@x = each(@y)) ~~ {...}; # not a comprehension
