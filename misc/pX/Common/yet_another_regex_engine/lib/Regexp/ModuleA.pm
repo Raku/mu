@@ -190,7 +190,7 @@ local $Regexp::ModuleA::ReentrantEngine::Env::pkg;
     my $greedy = !$ng;
     my $noop = $o->RMARE_noop;
     subname "<repeat ".($sub_id++).">" => sub {
-      if(!defined $noop){die "this perlbug workaround line didn't work"}
+      if(!defined $noop){die "this perl v5.8.8 bug workaround line didn't work"}
       my $c = $_[0];
       my $previous_pos = -1;
       my $count = 0;
@@ -266,6 +266,7 @@ local $Regexp::ModuleA::ReentrantEngine::Env::pkg;
       my $pos = $Regexp::ModuleA::ReentrantEngine::Env::pos;
       my $cap = $Regexp::ModuleA::ReentrantEngine::Env::cap;
       my $m0 = $Regexp::ModuleA::ReentrantEngine::Env::current_match;
+
 
       my $m1 = Regexp::ModuleA::ReentrantEngine::Match->new;
       $$m1->{'RULE'} ||= $name; #EEEP
@@ -481,6 +482,7 @@ local $Regexp::ModuleA::ReentrantEngine::Env::pkg;
     my $name = $o->{name};
     my $fetch = subname "<subrule-fetch for $name>" => sub {
       my $pkg9 = $Regexp::ModuleA::ReentrantEngine::Env::pkg || $pkg;
+      die "assert" if !defined $pkg9;
       no strict;
       my $f = $pkg9->$name($name)->(' api0');
       use strict;
@@ -533,7 +535,6 @@ local $Regexp::ModuleA::ReentrantEngine::Env::pkg;
     my $pkg = $o->{pkg};
     eval("package $pkg;"); die "assert" if $@;
     map{$_->RMARE_emit;} @{$o->{bindings}};
-    undef;
   }
 
   # XXX high klude factor
@@ -1158,7 +1159,7 @@ sub{my $__c__ = $_[0]; my $__rx__ = ('.$code.');
   @Regexp::ModuleA::AST::Namespace::ISA=qw(Regexp::ModuleA::AST::BaseClass);
   sub new {
     my($cls,$inpkg,$nsname,@bindings)=@_; die "api assert" if @_ < 3;
-    my $pkg = ($nsname =~ /\A::(.*)/) ? $1 : $nsname eq '' ? $inpkg : "$inpkg::$nsname";
+    my $pkg = ($nsname =~ /\A::(.*)/) ? $1 : $nsname eq '' ? $inpkg : "${inpkg}::$nsname";
     bless {created_in_pkg=>$inpkg,nsname=>$nsname,bindings=>\@bindings,pkg=>$pkg}, $cls;
   }
   sub RAST_children { [@{shift->{bindings}}] }
@@ -1250,42 +1251,43 @@ sub{my $__c__ = $_[0]; my $__rx__ = ('.$code.');
 package Regexp::ModuleA::P5;
 BEGIN { Regexp::ModuleA::AST::Make0->import; };
 use Regexp::Common;
-my $nonmeta = '[^[)({^$?*+\\\\\.|]';
-my $perlcode = ('(?:(?>[^][(){}"\'\/]+)'
-                .'|'.$RE{balanced}{-parens=>'()[]{}'}
-                .'|'.$RE{delimited}{-delim=>'\'"'}
-                .'|'.$RE{delimited}{-delim=>'/'}
-                .')*');
-                                          
-namespace(""
-	  ,bind('regex',aregex(sr('pattern')))
-	  ,bind('pattern',aregex(sr('_pattern')))
-          ,bind('_pattern',aregex(seq(sr('_non_alt'),star(exact('|'),sr('_non_alt')))))
-	  ,bind('_non_alt',aregex(star(sr('_element'))))
-	  ,bind('_element',aregex(seq(sr('_non_quant'),ques(pat5('[?*+]\??|{\d+(?:,\d*)?}\??')))))
-	  ,bind('_non_quant',aregex(alt(sr('_mod_inline'),sr('_mod_expr'),sr('_code'),sr('_coderx'),sr('_isolate'),sr('_conditional'),sr('_lookaround'),sr('_cap5'),sr('_grp'),sr('_charclass'),sr('_backref_or_char'),sr('_esc'),sr('_nonmeta'),sr('_passthru'))))
-	  ,bind('_mod_inline',aregex(pat5('\(\?[imsx-]+\)')))
-	  ,bind('_mod_expr',aregex(seq(pat5('\(\?[imsx-]+:'),sr('_pattern'),exact(')'))))
-	  ,bind('_grp',aregex(seq(exact('(?:'),sr('_pattern'),exact(')'))))
-	  ,bind('_cap5',aregex(seq(pat5('\((?!\?)'),sr('_pattern'),exact(')'))))
-	  ,bind('_charclass',aregex(pat5('\[\^?\]?([^\]\\\\]|\\\\.)*\]')))
-	  ,bind('_backref_or_char',aregex(pat5('\\\\\d+')))
-	  ,bind('_esc',aregex(pat5('\\\\[^\d]')))
-	  ,bind('_nonmeta',aregex(pat5("$nonmeta(?:$nonmeta+(?![?*+{]))?")))
-	  ,bind('_passthru',aregex(pat5('[$^.]')))
-          ,bind('_code',aregex(seq(exact('(?{'),pat5($perlcode),exact('})'))))
-          ,bind('_coderx',aregex(seq(exact('(??{'),pat5($perlcode),exact('})'))))
-          ,bind('_isolate',aregex(seq(exact('(?>'),sr('_pattern'),exact(')'))))
-          ,bind('_conditional',aregex(seq(exact('(?('),alt(pat5('\d+'),sr('_pattern')),exact(')'),sr('_pattern'),ques(exact('|'),sr('_pattern')),exact(')'))))
-          ,bind('_lookaround',aregex(seq(pat5('\(\?<?[=!]'),sr('_pattern'),exact(')'))))
-	  )->RAST_init->RMARE_emit;
-
+{
+  my $nonmeta = '[^[)({^$?*+\\\\\.|]';
+  my $perlcode = ('(?:(?>[^][(){}"\'\/]+)'
+                  .'|'.$RE{balanced}{-parens=>'()[]{}'}
+                  .'|'.$RE{delimited}{-delim=>'\'"'}
+                  .'|'.$RE{delimited}{-delim=>'/'}
+                  .')*');
+  
+  namespace(""
+            ,bind('regex',aregex(sr('pattern')))
+            ,bind('pattern',aregex(sr('_pattern')))
+            ,bind('_pattern',aregex(seq(sr('_non_alt'),star(exact('|'),sr('_non_alt')))))
+            ,bind('_non_alt',aregex(star(sr('_element'))))
+            ,bind('_element',aregex(seq(sr('_non_quant'),ques(pat5('[?*+]\??|{\d+(?:,\d*)?}\??')))))
+            ,bind('_non_quant',aregex(alt(sr('_mod_inline'),sr('_mod_expr'),sr('_code'),sr('_coderx'),sr('_isolate'),sr('_conditional'),sr('_lookaround'),sr('_cap5'),sr('_grp'),sr('_charclass'),sr('_backref_or_char'),sr('_esc'),sr('_nonmeta'),sr('_passthru'),sr('_subrule'))))
+            ,bind('_mod_inline',aregex(pat5('\(\?[imsx-]+\)')))
+            ,bind('_mod_expr',aregex(seq(pat5('\(\?[imsx-]+:'),sr('_pattern'),exact(')'))))
+            ,bind('_grp',aregex(seq(exact('(?:'),sr('_pattern'),exact(')'))))
+            ,bind('_cap5',aregex(seq(pat5('\((?!\?)'),sr('_pattern'),exact(')'))))
+            ,bind('_charclass',aregex(pat5('\[\^?\]?([^\]\\\\]|\\\\.)*\]')))
+            ,bind('_backref_or_char',aregex(pat5('\\\\\d+')))
+            ,bind('_esc',aregex(pat5('\\\\[^\d]')))
+            ,bind('_nonmeta',aregex(pat5("$nonmeta(?:$nonmeta+(?![?*+{]))?")))
+            ,bind('_passthru',aregex(pat5('[$^.]')))
+            ,bind('_code',aregex(seq(exact('(?{'),pat5($perlcode),exact('})'))))
+            ,bind('_coderx',aregex(seq(exact('(??{'),pat5($perlcode),exact('})'))))
+            ,bind('_isolate',aregex(seq(exact('(?>'),sr('_pattern'),exact(')'))))
+            ,bind('_conditional',aregex(seq(exact('(?('),alt(pat5('\d+'),sr('_pattern')),exact(')'),sr('_pattern'),ques(exact('|'),sr('_pattern')),exact(')'))))
+            ,bind('_lookaround',aregex(seq(pat5('\(\?<?[=!]'),sr('_pattern'),exact(')'))))
+            ,bind('_subrule',aregex(pat5('(?!)')))
+            )->RAST_init->RMARE_emit;
+}
 sub make0_from_match {
   my($cls,$m)=@_;
   my $r = $$m->{RULE};
   return $m if !defined $r;
   my @v = map{$cls->make0_from_match($_)} map{@$_} values(%{$m});
-  my @ret = @v;
   if(0) {}
   elsif($r eq '_nonmeta') {
     my $pat = "$m";
@@ -1395,9 +1397,70 @@ sub make0_from_match {
   }
 }
 
+sub new_rx_from_re {
+  my($cls,$pat,$mods)=@_;
+  my $re = $pat;
+  $re = "(?$mods)$re" if $mods;
+  my($m,$mexpr,$ast);
+  my $o = eval {
+    $m = $cls->regex()->match($re);
+    if(!$m || $m->from != 0 || $m->to != length($re)) {
+      my $err = "Regexp syntax error:";
+      Carp::confess "$err / <== HERE $re/" if $m->from != 0; #XX should set beginat
+      my $at = $m->to+1;
+      Carp::confess "$err /".substr($re,0,$at)." <== HERE ".substr($re,$at)."/";
+    }
+    $mexpr = $cls->make0_from_match($m);
+    die "assert" if !defined $mexpr;
+    $ast = eval("namespace('::$cls',$mexpr)");
+    die if $@;
+    $ast->RAST_init;
+    my($rx) = $ast->RMARE_emit;
+    $rx;
+  };
+  Carp::confess "compile \"$re\" failed: $@" if !defined $o;
+  $o->_init($pat,$mods,$re,$mexpr,$ast);
+}
+
+
+#======================================================================
+# P5 Regexps with subrules
+#
+package Regexp::ModuleA::P5WithSubrules;
+@Regexp::ModuleA::P5WithSubrules::ISA=qw(Regexp::ModuleA::P5);
+BEGIN { Regexp::ModuleA::AST::Make0->import; };
+
+{
+  my $nonmeta = '[^[)({^$?*+\\\\\.|<]';
+  namespace(""
+            ,bind('_subrule',aregex(seq(pat5('\<\w+'),ques(seq(pat5('\s+'),plus(sr('pattern')))),exact('>'))))
+            ,bind('_nonmeta',aregex(pat5("$nonmeta(?:$nonmeta+(?![?*+{]))?")))
+            ,bind('t1',aregex(pat5('\w{2}')))
+            )->RAST_init->RMARE_emit;
+}
+sub make0_from_match {
+  my($cls,$m)=@_;
+  my $r = $$m->{RULE};
+  return $m if !defined $r;
+  my @v = map{$cls->make0_from_match($_)} map{@$_} values(%{$m});
+  if(0){}
+  elsif($r eq '_subrule') {
+    "$m" =~ /\A<(\w+)/ or die "bug";
+    my $name = $1;
+    my $args = (@v ? "," : "").join(",",@v);
+    return "sr('$name'$args)";
+  }
+  else {
+    return $cls->SUPER::make0_from_match($m);
+  }
+}
+
+
+
 #======================================================================
 # P6 Regexps
 #
+  
 
 
 #======================================================================
@@ -1423,7 +1486,7 @@ sub _new_from_ast {
         return $self;
       }
       else {
-        return $rxclass->_new_from_ast($ast,$cls,$method,$matchergen);
+        return $rxclass->_new_from_ast($ast,$cls,$method,$f,$matchergen);
       }
     }
     else {
@@ -1440,36 +1503,15 @@ sub _new_from_ast {
   };
   bless $self, $rxclass;
 }
-
-sub new {
-  my($cls,$pat,$mods)=@_;
-  my $re = $pat;
-  $re = "(?$mods)$re" if $mods;
-  my($m,$mexpr,$ast);
-  my $o = eval {
-    my $p5 = 'Regexp::ModuleA::P5';
-    $m = $p5->regex()->match($re);
-    if(!$m || $m->from != 0 || $m->to != length($re)) {
-      my $err = "Regexp syntax error:";
-      Carp::confess "$err / <== HERE $re/" if $m->from != 0; #XX should set beginat
-      my $at = $m->to+1;
-      Carp::confess "$err /".substr($re,0,$at)." <== HERE ".substr($re,$at)."/";
-    }
-    $mexpr = $p5->make0_from_match($m);
-    die "assert" if !defined $mexpr;
-    $ast = eval("package Regexp::ModuleA::P5;".$mexpr);
-    die if $@;
-    $ast->RAST_init;
-    $ast->RMARE_emit;
-  };
-  Carp::confess "compile \"$re\" failed: $@" if !defined $o;
+sub _init {
+  my($o,$pat,$mods,$re,$mexpr,$ast)=@_;
   my $h = $o->(' hash');
   $h->{pattern} = $pat;
   $h->{modifiers} = $mods;
   $h->{regexp} = $re;
   $h->{mexpr} = $mexpr;
   $h->{ast} = $ast;
-  bless $o, $cls;
+  $o;
 }
 
 sub match {
@@ -1522,7 +1564,8 @@ sub _mexpr {
         $re = convert_p5_re_literal_to_p5_re($re);
         print "As regexp: $re\n";
       }
-      my $rx = Regexp::ModuleA::Rx->new($re);
+#      my $rx = Regexp::ModuleA::P5->new_rx_from_re($re);
+      my $rx = Regexp::ModuleA::P5WithSubrules->new_rx_from_re($re);
       print "As m-expr: ",$rx->_mexpr,"\n";
       print "Enter string to match against.  Blank line to stop.\nstring: ";
       while(<>) {
@@ -1544,7 +1587,7 @@ sub _mexpr {
 sub Regexp::ModuleA::test_target {
   sub {
     my($mods,$re)=@_;
-    my $o = Regexp::ModuleA::Rx->new($re,$mods);
+    my $o = Regexp::ModuleA::P5->new_rx_from_re($re,$mods);
     sub{my($s)=@_;$o->match($s)}
   };
 }

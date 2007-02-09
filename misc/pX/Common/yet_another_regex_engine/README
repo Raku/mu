@@ -5,7 +5,7 @@ $ prove -Ilib t/re_tests.t
 $ perl -w lib/Regexp/ModuleA.pm --test
 ... more informative than prove, but no prove-like summary at the end.
 $ perl -w lib/Regexp/ModuleA.pm --repl
-... interactive.
+... interactive.  Currently uses P5-with-subrules dialect.
 
 
 Ways you can help:
@@ -120,8 +120,8 @@ History:
 
   2007-Feb-08
   2007-Feb-06 Some cleanup.  Started commit.  Rx's are now method-like.
-  Added externally defined post actions. A bugfix.  11 sec. 92% okay.
-  Cost: 1.5 days.
+  Added externally defined post actions. A bugfix.  Started P5WithSubrules.
+  11 sec. 92% okay. Cost: 2 days.
 
   2007-Feb-03 Some cleanup.  Added nodes.  Performance improved (7 min
   -> 12 sec by avoiding "use overload" when possible).  12 sec.  92% okay.
