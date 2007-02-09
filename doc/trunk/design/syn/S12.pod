@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 8 Feb 2007
+  Last Modified: 9 Feb 2007
   Number: 12
-  Version: 39
+  Version: 40
 
 =head1 Overview
 
@@ -732,32 +732,47 @@ multiple long names to share a short name, provided all of them are
 declared C<multi>.  (Putting C<proto> on the first such declaration has
 the same effect, but usually you want to put the C<multi> explicitly
 anyway for documentation.)  If a sub (or method) is not marked
-with C<multi> or within the scope of a C<proto>, it is considered a
-I<unique> sub.  You may mark a sub explicitly as C<unique> as well, if
-you're worried it might be within the scope of a C<proto>, and want there
-to be only one such routine within this scope.
+with C<multi> and it is not within the package or lexical scope of
+a C<proto> of the same short name, it is considered unique, an I<only>
+sub.  You may mark a sub explicitly as C<only> if you're worried it
+might be within the scope of a C<proto>, and you want to suppress
+any other declarations within this scope.  An C<only> sub (or method)
+doesn't share with anything outside of it or declared prior to it.
+Only one such sub (or method) can inhabit a given namespace, and it
+hides any outer subs (or less-derived methods) of the same short name.
 
-A unique sub (or method) doesn't share
-with anything outside of it or declared prior to it.  Only one such
-sub (or method) can inhabit a given namespace, and it hides any outer
-subs (or less-derived methods) of the same short name.  It may share
-with multis declared after it in the same scope if declared with the
-keyword C<proto>, but in that case it functions only as the final
-tie-breaker if the inner multies can't decide among themselves what
-to do.  (It may then, of course, decide to redispatch outside of the
-current scope.)  The signature of such a proto-multi also nails down
-the presumed order and naming of positional parameters, so that any
-multi call with named arguments in that scope can presume to rearrange
-those arguments into positional parameters based on that information.
-(Unrecognized names remain named arguments.)
+The default C<proto> declarations provided by Perl from the global scope
+are I<not> propagated to the user's scope unless explicitly imported,
+so a C<sub> declaration there that happens to be the same as a global
+multi is considered C<only> unless explicitly marked C<multi>.
 
-For subs or methods declared C<multi>, only one instance of the long
-name can be in any namespace, and it hides any outer (or less-derived)
+A C<proto> may share with multis declared after it in the same scope,
+but in that case it functions only as the final tie-breaker if the
+inner multies can't decide among themselves what to do.  (It may
+then, of course, decide to redispatch outside of the current scope.)
+The signature of such a proto-multi also nails down the presumed order
+and naming of positional parameters, so that any multi call with named
+arguments in that scope can presume to rearrange those arguments into
+positional parameters based on that information.  (Unrecognized names
+remain named arguments.)  Any other type information or traits attached
+to the C<proto> are also shared by the routines within its scope,
+so a C<proto> definition can be used to factor out common traits.
+This is particularly useful for establishing grammatical categories
+in a grammar be declaring a C<proto> C<token> or C<rule>.  (Perl 6's
+grammar does this, for instance.)
+
+You can have multiple C<multi> variables in the same scope, and they
+all share the same storage location and type.  Usually these are
+declared by one C<proto> declaration at the top, and leaving the
+C<multi> implicit on the rest of the declarations.
+
+In contrast, C<multi> routines can have only one instance of the long
+name in any namespace, and that instance hides any outer (or less-derived)
 routines with the same long name.  It does not hide any routines with
 the same short name but a different long name.  In other words, multis
 with the same short name can come from several different namespaces
 provided their long names differ and their short names aren't hidden
-by a non-multi declaration in some intermediate scope.
+by an C<only> declaration in some intermediate scope.
 
 When you call a routine with a particular short name, if there are
 multiple visible long names, they are all considered candidates.
