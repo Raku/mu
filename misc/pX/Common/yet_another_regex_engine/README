@@ -1,12 +1,21 @@
 This is yet another rules engine implementation attempt.
 
-$ prove -Ilib t/re_tests.t
+$ prove t/re_tests.t
 ... 91.78% okay.
-$ perl -w lib/Regexp/ModuleA.pm --test
+$ perl -w Regexp_ModuleA.pm --test
 ... more informative than prove, but no prove-like summary at the end.
-$ perl -w lib/Regexp/ModuleA.pm --repl
+$ perl -w Regexp_ModuleA.pm --repl
 ... interactive.  Currently uses P5-with-subrules dialect.
 
+Regards forking:
+
+  When you want to do an experimental fork, you usually have to do it
+  off line, where no one else can see or play with it.  That, or
+  duplicate a big directory tree.
+
+  Not here.  Just copy Regexp_Module.pm to Whatever.pm.
+
+  To test:   RE_TESTS_MODULE=Whatever prove t/re_tests.t
 
 Ways you can help:
 

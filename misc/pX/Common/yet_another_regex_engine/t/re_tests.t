@@ -1,7 +1,11 @@
 
 require 't/re_tests.pl';
 
-use Regexp::ModuleA;
+BEGIN {
+    my $m = $ENV{RE_TESTS_MODULE} || 'Regexp_ModuleA';
+    eval("use $m;");
+    die $@ if $@;
+}
 
 Pkg_re_tests::test(&Regexp::ModuleA::test_target);
 
