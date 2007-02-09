@@ -3,7 +3,7 @@ use v6-alpha;
 # Is another link for print?
 # L<S16/"Input and Output"/"appends a newline">
 
-say "1..11";
+say "1..14";
 
 # Tests for say
 {
@@ -51,3 +51,23 @@ say "1..11";
     print "o";
     print "k 11 - print doesn't add newlines\n";
 }
+
+# Perl6::Spec::IO mentions
+# print FILEHANDLE: LIST
+# FILEHANDLE.print(LIST)
+#  FILEHANDLE.print: LIST
+ 
+{
+    print $*DEFOUT: 'ok 12 - print with $*DEFOUT: as filehandle' ~ "\n";
+}
+
+{
+    $*DEFOUT.print: 'ok 13 - $*DEFOUT.print: list' ~ "\n";
+}
+
+{
+    my @array = 'ok', ' ',  '14 - $*DEFOUT.print(LIST)', "\n";
+    $DEFOUT.print(@array);
+}
+
+
