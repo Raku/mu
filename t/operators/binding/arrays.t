@@ -163,7 +163,7 @@ plan 46;
   # $var unchanged, but assigning to $var doesn't modify @array any
   # longer; similarily, changing @array[1] doesn't modify $var now
   is $var,    "e",    "binding of array elements works with splice (2)";
-  is ~@array, "a  c", "binding of array elements works with splice (3)";
+  is ~@array, "a c",  "binding of array elements works with splice (3)";
 
   $var      = "f";
   @array[1] = "g";
