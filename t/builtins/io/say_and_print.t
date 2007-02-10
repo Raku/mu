@@ -71,12 +71,12 @@ say "1..17";
 
 {
     my @array = 'ok', ' ',  '16 - $*DEFOUT.print(LIST)', "\n";
-    $DEFOUT.print(@array);
+    $*DEFOUT.print(@array);
 }
 
 {
     my @array = 'ok', ' ',  '17 - $*DEFOUT.say(LIST)';
-    $DEFOUT.say(@array);
+    $*DEFOUT.say(@array);
 }
 
 
