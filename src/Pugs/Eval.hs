@@ -1540,7 +1540,7 @@ fromCodeExp x = case x of
         return $ mkCode
             { subEnv        = Just env
             , subType       = SubPrim   -- This is a pseudoblock with no scope
-            , subParams     = [defaultScalarParam]
+            , subParams     = []
             , subBody       = x
             }
     Noop                        -> fromCodeExp (Syn "block" [Noop])
