@@ -378,11 +378,14 @@ ruleScope = rule "scope" $ do
     readScope "let"     = SLet
     readScope "temp"    = STemp
     readScope "env"     = SEnv
+    readScope "constant"= SMy
     readScope _         = SGlobal
 
 ruleScopeName :: RuleParser String
-ruleScopeName = choice . map symbol . map (map toLower) . map (tail . show)
-    $ [SState .. SOur]
+ruleScopeName = choice $ map symbol scopeNames
+
+scopeNames :: [String]
+scopeNames = ("constant":) . map (map toLower) . map (tail . show) $ [SState .. SOur]
 
 postSpace :: RuleParser a -> RuleParser a
 postSpace rule = try $ do
