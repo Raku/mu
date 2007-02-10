@@ -758,7 +758,7 @@ remain named arguments.)  Any other type information or traits attached
 to the C<proto> are also shared by the routines within its scope,
 so a C<proto> definition can be used to factor out common traits.
 This is particularly useful for establishing grammatical categories
-in a grammar be declaring a C<proto> C<token> or C<rule>.  (Perl 6's
+in a grammar by declaring a C<proto> C<token> or C<proto> C<rule>.  (Perl 6's
 grammar does this, for instance.)
 
 You can have multiple C<multi> variables in the same scope, and they
