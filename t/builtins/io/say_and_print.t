@@ -3,7 +3,7 @@ use v6-alpha;
 # Is another link for print?
 # L<S16/"Input and Output"/"appends a newline">
 
-say "1..14";
+say "1..17";
 
 # Tests for say
 {
@@ -56,18 +56,27 @@ say "1..14";
 # print FILEHANDLE: LIST
 # FILEHANDLE.print(LIST)
 #  FILEHANDLE.print: LIST
+#  same holds for say, even though it is not (yet?) explicitly mentioned
  
 {
     print $*DEFOUT: 'ok 12 - print with $*DEFOUT: as filehandle' ~ "\n";
+    say $*DEFOUT: 'ok 13 - say with $*DEFOUT: as filehandle';
 }
 
 {
-    $*DEFOUT.print: 'ok 13 - $*DEFOUT.print: list' ~ "\n";
+    $*DEFOUT.print: 'ok 14 - $*DEFOUT.print: list' ~ "\n";
+    $*DEFOUT.say: 'ok 15 - $DEFOUT.say: list';
+
 }
 
 {
-    my @array = 'ok', ' ',  '14 - $*DEFOUT.print(LIST)', "\n";
+    my @array = 'ok', ' ',  '16 - $*DEFOUT.print(LIST)', "\n";
     $DEFOUT.print(@array);
+}
+
+{
+    my @array = 'ok', ' ',  '17 - $*DEFOUT.say(LIST)';
+    $DEFOUT.say(@array);
 }
 
 
