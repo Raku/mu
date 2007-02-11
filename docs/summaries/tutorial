@@ -47,6 +47,7 @@ One-time:
 * Check out the Pugs repository.
   svk co http://svn.openfoundry.org/pugs/docs/summaries
 * Get a commit-bit to the Pugs repository.
+* Create a cronjob to run mirror_nntp every 6 hours
 
 #################################################################
 Weekly:
