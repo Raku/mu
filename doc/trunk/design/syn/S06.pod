@@ -1713,7 +1713,7 @@ while C<.count> considers also optional ones, including C<*$>:
                         #            want.arity === 0
                         #            want.count === 2
 
-=head2 The C<give> function
+=head2 The C<leave> function
 
 As mentioned above, a C<return> call causes the innermost surrounding
 subroutine, method, rule, token, regex (as a keyword) or macro to
@@ -1721,9 +1721,10 @@ return.  Only declarations with an explicit keyword such as "sub"
 may be returned from.  You may not use C<return> to return from loops,
 bare blocks, pointy blocks, or quotelike operators such as C<rx//>.
 
-To return from these types of code structures, the C<give> method
-is used instead.  (It can be taken to mean either "give up" or
-"bequeath" as appropriate.)  The object specifies the scope to exit,
+To return from these types of code structures, the C<leave> method
+is used instead.  (It can be taken to mean either "go away from" or
+"bequeath to your successor" as appropriate.)
+The object specifies the scope to exit,
 and the method's arguments specify the return value.  If the object
 is omitted (by use of the function or listop forms), the innermost
 block is exited.  Otherwise you must use something like C<caller>
@@ -1736,25 +1737,37 @@ and as a context in the current dynamic scope.
 As with C<return>, the arguments are taken to be a C<Capture> holding the
 return values.
 
-    give;                      # return from innermost block of any kind
-    caller(Method).give;       # return from innermost calling method
-    &?ROUTINE.give(1,2,3);     # Return from current sub. Same as: return 1,2,3
-    &?ROUTINE.give <== 1,2,3;  # same thing, force return as feed
-    OUTER.give;                # Return from OUTER label in lexical scope
-    &foo.give: 1,2,3;          # Return from innermost surrounding call to &foo
+    leave;                      # return from innermost block of any kind
+    caller(Method).leave;       # return from innermost calling method
+    &?ROUTINE.leave(1,2,3);     # Return from current sub. Same as: return 1,2,3
+    &?ROUTINE.leave <== 1,2,3;  # same thing, force return as feed
+    OUTER.leave;                # Return from OUTER label in lexical scope
+    &foo.leave: 1,2,3;          # Return from innermost surrounding call to &foo
 
 Note that these are equivalent in terms of control flow:
 
-    COUNT.give;
+    COUNT.leave;
     last COUNT;
 
 However, the first form explicitly gives the return value for the
 entire loop, while the second implicitly returns all the previous
-successful loop iteration values as a list comprehension.  A C<give>
+successful loop iteration values as a list comprehension.  (It may,
+in fact, be too late to give a return value for the loop if it is
+being evaluated lazily!)  A C<leave>
 from the inner loop block, however, merely specifies the return value for
 that iteration:
 
-    for 1..10 { give $_ * 2 }   # 2..20
+    for 1..10 { leave $_ * 2 }   # 2..20
+
+Note that this:
+
+    leave COUNT;
+
+will always be taken as the function, not the method, so it returns
+the C<COUNT> object from the innermost block.  The indirect object form
+of the method always requires a colon:
+
+    leave COUNT: ;
 
 =head2 Temporization
 

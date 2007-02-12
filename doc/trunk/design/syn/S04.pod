@@ -653,33 +653,33 @@ with the C<sub>, C<method>, or C<submethod> keywords).  Pointy blocks
 and bare closures are transparent to C<return>.  If you pass a closure
 object outside of its official "sub" scope, it is illegal to
 return from it.  You may only leave the displaced closure block itself
-by falling off the end of it or by explicitly calling C<give>.
+by falling off the end of it or by explicitly calling C<leave>.
 
 To return a value from any pointy block or bare closure, you either
 just let the block return the value of its final expression, or you
-can use C<give>, which comes in both function and method forms.
+can use C<leave>, which comes in both function and method forms.
 The function (or listop) form always exits from the innermost block,
 returning its arguments as the final value of the block exactly as
 return does.  The method form will leave any block in the dynamic
-scope that can be named as an object and that responds to the C<.give>
+scope that can be named as an object and that responds to the C<.leave>
 method.
 
-Hence, the C<give> function:
+Hence, the C<leave> function:
 
-    give(1,2,3)
+    leave(1,2,3)
 
 is really just short for:
 
-    $?BLOCK.give(1,2,3)
+    $?BLOCK.leave(1,2,3)
 
 To return from your immediate caller, you can say:
 
-    caller.give(1,2,3)
+    caller.leave(1,2,3)
 
 Further contexts up the caller stack may be located by the selector
 that is built into the C<caller> function itself:
 
-    caller({ .label eq 'LINE' }).give(1,2,3);
+    caller({ .label eq 'LINE' }).leave(1,2,3);
 
 By default the innermost dynamic scope matching the selection criteria
 will be exited.  This can be a bit cumbersome, so in the particular
@@ -687,7 +687,7 @@ case of labels, the label that is already visible in the current lexical
 scope is considered a kind of pseudo object specifying a potential
 dynamic context.  If instead of the above you say:
 
-    LINE.give(1,2,3)
+    LINE.leave(1,2,3)
 
 it was always exit from your lexically scoped C<LINE> loop, even
 if some inner dynamic scope you can't see happens to also have that
@@ -707,7 +707,7 @@ scope of that loop, and if that call mentions the outer loop's label,
 then that outer loop is the one that must be controlled.  In other words,
 it first tries this form:
 
-    LINE.give(1,2,3)
+    LINE.leave(1,2,3)
 
 If there is no such lexically scoped outer loop in the current subroutine,
 then a fallback search is made outward through the dynamic scopes in
