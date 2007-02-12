@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 8 Feb 2007
+  Last Modified: 11 Feb 2007
   Number: 2
-  Version: 85
+  Version: 86
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -2468,7 +2468,21 @@ starting line within the source file.
 
 The lexical routine itself is C<&?ROUTINE>; you can get its name with
 C<&ROUTINE.name>.  The current block is C<&?BLOCK>.  If the block has a label,
-that shows up in C<&?BLOCK.label>.
+that shows up in C<&?BLOCK.label>.  Within the lexical scope of
+a statement with a label, the label is a pseudo-object representing
+the dynamic context of that statement.  (If inside multiple dynamic
+instances of that statement, the label represents the innermost one.)
+When you say:
+
+    next LINE;
+
+it is really a method on this pseudo-object, and
+
+    LINE.next;
+
+would work just as well.  You can exit any labeled block early by saying
+
+    MyLabel.give(@results);
 
 =item *
 

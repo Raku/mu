@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 29 Jan 2007
+  Last Modified: 11 Feb 2007
   Number: 6
-  Version: 68
+  Version: 69
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -826,8 +826,8 @@ C<\()> in several ways:
 =head2 Feed operators
 
 The variadic list of a subroutine call can be passed in separately from
-the normal argument list, by using either of the I<feed> operators: C<<
-<== >> or C<< ==> >>.  Syntactically, feed operators expect to find a
+the normal argument list, by using either of the I<feed> operators:
+C<< <== >> or C<< ==> >>.  Syntactically, feed operators expect to find a
 statement on either end.  Any statement can occur on the source end;
 however not all statements are suitable for use on the sink end of a feed.
 
@@ -852,16 +852,39 @@ and junctions all have this promise of parallelizability in common,
 but differ in interface.  Code which violates these promises is
 erroneous, and will produce undefined results when parallelized.)
 
-In particular, a chain of feeds may not begin and end with the same array.
-(You may, however, assign to an array that is used within a chain
-on the right side of the assignment, since list assignment will clear
-and copy as necessary to make it work.)  That is, this doesn't work:
+However, feeds go a bit further than ordinary lazy lists in enforcing
+the parallel discipline: they explicitly treat the blunt end as a
+cloned closure that starts a subthread.  The only variables shared
+by the inner scope with the outer scope are those lexical variables
+declared in the outer scope that are visible at the time the closure is
+cloned and the subthread spawned.  Use of such shared variables will
+automatically be subject to transactional protection (and associated
+overhead).  Package variables are not cloned unless predeclared
+as lexical names with C<our>.  Variables declared within the blunt
+end are not visible outside, and in fact it is illegal to declare a
+lexical on the blunt end that is not enclosed in curlies somehow.
 
+Because feeds are defined as lazy pipes, a chain of feeds may not begin
+and end with the same array without some kind of eager sequence point.
+That is, this doesn't work:
+
+    my @data = 1,2,3;
     @data <== grep { $_ % 2 } <== @data;
 
 but this does:
 
-    @data = grep { $_ % 2 } <== @data;
+    my @data = 1,2,3;
+    my @tmp = eager @data;
+    @data <== grep { $_ % 2 } <== @tmp;
+
+(But note: feed operators have push semantics when the receiver is an array.
+Use assignment to get clear-first semantics.)
+
+Conjecture: these are probably impossible:
+
+    @data <== grep { $_ % 2 } <== eager @data;
+    @data = do { grep { $_ % 2 } <== eager @data; }
+    @data := do { grep { $_ % 2 } <== eager @data; }
 
 Leftward feeds are a convenient way of explicitly indicating the typical
 right-to-left flow of data through a chain of operations:
@@ -875,8 +898,9 @@ right-to-left flow of data through a chain of operations:
 Rightward feeds are a convenient way of reversing the normal data flow in a
 chain of operations, to make it read left-to-right:
 
-    @oddsquares = do
-            @nums ==> grep { $_ % 2 } ==> sort ==> map { $_**2 };
+    @oddsquares = do {
+        @nums ==> grep { $_ % 2 } ==> sort ==> map { $_**2 };
+    }
 
 Note that the C<do> is necessary because feeds operate at the statement
 level.  (Parens would also work, since a "do" is assumed there.)
@@ -1587,7 +1611,7 @@ the control logic code of any intermediate block constructs.  With normal
 blocks this can be optimized away to a "goto".  All C<Routine> declarations
 have an explicit declarator such as C<sub> or C<method>; bare blocks and
 "pointy" blocks are never considered to be routines in that sense.  To return
-from a block, use C<leave> instead--see below.
+from a block, use C<give> instead--see below.
 
 The C<return> function preserves its argument list as a C<Capture> object, and
 responds to the left-hand C<Signature> in a binding.  This allows named return
@@ -1650,7 +1674,8 @@ look for, and how many such scopes to skip over when looking:
     $caller = caller Method;               # nearest caller that is method
     $caller = caller Bare;                 # nearest caller that is bare block
     $caller = caller Sub, :skip(2);        # caller three levels up
-    $caller = caller Block, :label<Foo>;   # caller whose label is 'Foo'
+    $caller = caller Block where { .label eq 'Foo' };
+                                           # caller whose label is 'Foo'
 
 =head2 The C<want> function
 
@@ -1688,38 +1713,48 @@ while C<.count> considers also optional ones, including C<*$>:
                         #            want.arity === 0
                         #            want.count === 2
 
-=head2 The C<leave> function
+=head2 The C<give> function
 
-As mentioned above, a C<return> call causes the innermost
-surrounding subroutine, method, rule, token, regex (as a keyword)
-or macro to return.  Only declarations with an explicit
-keyword such as "sub" may be returned from.  You may not return from
-a quotelike operator such as C<rx//>.
+As mentioned above, a C<return> call causes the innermost surrounding
+subroutine, method, rule, token, regex (as a keyword) or macro to
+return.  Only declarations with an explicit keyword such as "sub"
+may be returned from.  You may not use C<return> to return from loops,
+bare blocks, pointy blocks, or quotelike operators such as C<rx//>.
 
-To return from other types of code structures, the C<leave> function
-is used.  The first argument, if supplied, specifies a C<Selector>
-for the control structure to leave.  The C<Selector> will be
-smart-matched against the dynamic scope objects from inner to outer.
-The first that matches is the scope that is left.
+To return from these types of code structures, the C<give> method
+is used instead.  (It can be taken to mean either "give up" or
+"bequeath" as appropriate.)  The object specifies the scope to exit,
+and the method's arguments specify the return value.  If the object
+is omitted (by use of the function or listop forms), the innermost
+block is exited.  Otherwise you must use something like C<caller>
+or C<$?BLOCK> or a contextual variable to specify the scope you
+want to exit.  A label (such as a loop label) previously seen in
+the lexical scope also works as a kind of singleton context object:
+it names a statement that is serving both as an outer lexical scope
+and as a context in the current dynamic scope.
 
-The remainder of the arguments are taken to be a C<Capture> holding the
+As with C<return>, the arguments are taken to be a C<Capture> holding the
 return values.
 
-    leave;                      # return from innermost block of any kind
-    leave *;                    # same thing
-    leave Method;               # return from innermost calling method
-    leave &?ROUTINE, 1,2,3;     # Return from current sub. Same as: return 1,2,3
-    leave &?ROUTINE <== 1,2,3;  # same thing, force return as feed
-    leave &foo, 1,2,3;          # Return from innermost surrounding call to &foo
+    give;                      # return from innermost block of any kind
+    caller(Method).give;       # return from innermost calling method
+    &?ROUTINE.give(1,2,3);     # Return from current sub. Same as: return 1,2,3
+    &?ROUTINE.give <== 1,2,3;  # same thing, force return as feed
+    OUTER.give;                # Return from OUTER label in lexical scope
+    &foo.give: 1,2,3;          # Return from innermost surrounding call to &foo
 
-Note that these are equivalent:
+Note that these are equivalent in terms of control flow:
 
-    leave Loop where { .label eq 'COUNT' };
+    COUNT.give;
     last COUNT;
 
-and, in fact, you can return a final loop value that way:
+However, the first form explicitly gives the return value for the
+entire loop, while the second implicitly returns all the previous
+successful loop iteration values as a list comprehension.  A C<give>
+from the inner loop block, however, merely specifies the return value for
+that iteration:
 
-    last COUNT, 42;
+    for 1..10 { give $_ * 2 }   # 2..20
 
 =head2 Temporization
 

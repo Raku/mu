@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 8 Feb 2007
+  Last Modified: 11 Feb 2007
   Number: 4
-  Version: 51
+  Version: 52
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -204,7 +204,8 @@ There is no longer a C<continue> block.  Instead, use a C<NEXT> block
 within the body of the loop.  See below.
 
 The value of a loop statement is the list of values from each
-iteration.  (This list is actually a multidimensional list (a "multislice")
+iteration that successfully completed without a C<next> or C<last>.
+(This list is actually a multidimensional list (a "multislice")
 with dimensional boundaries at each iteration.  Most list contexts
 ignore these boundaries and flatten the list.)  If you do not wish
 to accidentally return a list from the final loop statement in a
@@ -651,26 +652,49 @@ or method definition (that is, from a function officially declared
 with the C<sub>, C<method>, or C<submethod> keywords).  Pointy blocks
 and bare closures are transparent to C<return>.  If you pass a closure
 object outside of its official "sub" scope, it is illegal to
-return from it.  You may only leave the closure block itself with C<leave>
-or by falling off the end of it.
+return from it.  You may only leave the displaced closure block itself
+by falling off the end of it or by explicitly calling C<give>.
 
-To return a value from a pointy block or bare closure, you either
-just let the block return the value of its final expression, or you can
-use C<leave>.  A C<leave> by default exits from the innermost block.
-But you may change the behavior of C<leave> with a selector as the
-first argument:
+To return a value from any pointy block or bare closure, you either
+just let the block return the value of its final expression, or you
+can use C<give>, which comes in both function and method forms.
+The function (or listop) form always exits from the innermost block,
+returning its arguments as the final value of the block exactly as
+return does.  The method form will leave any block in the dynamic
+scope that can be named as an object and that responds to the C<.give>
+method.
 
-    leave Loop where { .label ~~ 'LINE' }, 1,2,3;
+Hence, the C<give> function:
 
-The innermost block matching the selection criteria will be exited.
-The return value, if any, must be passed as the second and subsequent arguments.
-To return pairs as part of the value, you can use a feed operator:
+    give(1,2,3)
 
-    leave <== :foo:bar:baz(1) if $leaving;
+is really just short for:
 
-or going the other way:
+    $?BLOCK.give(1,2,3)
 
-    $leaving and :foo:bar:baz(1) ==> leave;
+To return from your immediate caller, you can say:
+
+    caller.give(1,2,3)
+
+Further contexts up the caller stack may be located by the selector
+that is built into the C<caller> function itself:
+
+    caller({ .label eq 'LINE' }).give(1,2,3);
+
+By default the innermost dynamic scope matching the selection criteria
+will be exited.  This can be a bit cumbersome, so in the particular
+case of labels, the label that is already visible in the current lexical
+scope is considered a kind of pseudo object specifying a potential
+dynamic context.  If instead of the above you say:
+
+    LINE.give(1,2,3)
+
+it was always exit from your lexically scoped C<LINE> loop, even
+if some inner dynamic scope you can't see happens to also have that
+label.  If the C<LINE> label is visible but you aren't actually in
+a dynamic scope controlled by that label, an exception is thrown.
+(If the C<LINE> is not visible, it would have been caught earlier at
+compile time since C<LINE> would likely be a bareword.)
 
 In theory, any user-defined control construct can catch any control
 exception it likes.  However, there have to be some culturally enforced
@@ -680,8 +704,10 @@ a loop exit like C<next> should be caught by the construct the user
 expects it to be caught by.  In particular, if the user labels a loop
 with a specific label, and calls a loop control from within the lexical
 scope of that loop, and if that call mentions the outer loop's label,
-then that outer loop is the one that must be controlled. (This search
-of lexical scopes is limited to the current "official" subroutine.)
+then that outer loop is the one that must be controlled.  In other words,
+it first tries this form:
+
+    LINE.give(1,2,3)
 
 If there is no such lexically scoped outer loop in the current subroutine,
 then a fallback search is made outward through the dynamic scopes in
@@ -690,7 +716,8 @@ in this respect arises only because Perl 5 didn't have user-defined
 control structures, hence the sub's lexical scope was I<always>
 the innermost dynamic scope, so the preference to the lexical scope
 in the current sub was implicit.  For Perl 6 we have to make this
-preference explicit.)
+preference explicit.)  So this fallback is more like the C<caller>
+form we saw earlier.
 
 Warnings are produced in Perl 6 by throwing a resumable control
 exception to the outermost scope, which by default prints the
