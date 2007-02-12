@@ -5,7 +5,7 @@ use Test;
 # Basic &leave tests
 # L<S06/"The C<leave> function">
 
-plan 5;
+plan 23;
 
 flunk "leave() not implemented in Pugs's interpreter core yet", :todo<feature>;
 skip_rest; exit;
@@ -14,6 +14,90 @@ skip_rest; exit;
   my $bare = { leave 42; 23 };
 
   is $bare(), 42, "basic leave() works";
+}
+
+{
+  my $bare = { $?BLOCK.leave(42); 23 };
+
+  is $bare(), 42, "basic leave() is equivalent to $?BLOCK.leave()";
+}
+
+{
+  my $bare = { $?BLOCK.leave: 42; 23 };
+
+  is $bare(), 42, "basic method leave works as colon listop";
+}
+
+{
+  my $bare = { leave $?BLOCK: 42; 23 };
+
+  is $bare(), 42, "basic method leave works with indirect object";
+}
+
+{
+  my @bare = [41, do { leave; 23 }, 43 ];
+
+  is @bare, [41,43], "basic leave returns null list in list context";
+}
+
+{
+  my @bare = [41, do { 21 + leave() + 23 }, 43 ];
+
+  is @bare, [41,43], "basic leave() returns null list in list context";
+}
+
+{
+  my @bare = [41, do { $?BLOCK.leave; 23 }, 43 ];
+
+  is @bare, [41,43], "basic $?BLOCK.leave returns null list in list context";
+}
+
+{
+  my @bare = [41, do { 21 + $?BLOCK.leave() + 23 }, 43 ];
+
+  is @bare, [41,43], "basic $?BLOCK.leave() returns null list in list context";
+}
+
+{
+  my @bare = [41, do { leave $?BLOCK: ; 23 }, 43 ];
+
+  is @bare, [41,43], "basic leave $?BLOCK: returns null list in list context";
+}
+
+{
+  my @bare = [41, do { 21 + (leave $?BLOCK:) + 23 }, 43 ];
+
+  is @bare, [41,43], "basic leave $?BLOCK: returns null list in list context";
+}
+
+{
+  my @bare = [41, do { leave 42, 43; 23 }, 44 ];
+
+  is @bare, [41,42,43,44], "basic leave returns valid list in list context";
+}
+
+{
+  my @bare = [41, do { 21 + leave(42, 43) + 23 }, 44 ];
+
+  is @bare, [41,42,43,44], "basic leave() returns valid list in list context";
+}
+
+{
+  my @bare = [41, do { 21 + $?BLOCK.leave(42,43) + 23 }, 44 ];
+
+  is @bare, [41,42,43,44], "basic $?BLOCK.leave() returns valid list in list context";
+}
+
+{
+  my @bare = [41, do { leave $?BLOCK: 42, 43; 23 }, 44 ];
+
+  is @bare, [41,42,43,44], "basic leave $?BLOCK: returns valid list in list context";
+}
+
+{
+  my @bare = [41, do { 21 + (leave $?BLOCK: 42, 43) + 23 }, 44 ];
+
+  is @bare, [41,42,43,44], "basic leave $?BLOCK: returns valid list in list context";
 }
 
 {
@@ -29,18 +113,18 @@ skip_rest; exit;
 
 {
   my $sub = sub () {
-    leave &?ROUTINE, 42;
+    &?ROUTINE.leave(42);
     return 23;
   };
 
-  is $sub(), 42, "leave() works with &?ROUTINE as parameter";
+  is $sub(), 42, "leave() works with &?ROUTINE as invocant";
 }
 
 {
   my $outer = sub () {
     my $inner = sub () {
       my $most_inner = sub () {
-        leave $outer, 42;
+        leave $outer: 42;
         return 23;
       };
 
@@ -52,13 +136,13 @@ skip_rest; exit;
     return 21;
   }
 
-  is $outer(), 42, "nested leave() works with a subref as parameter";
+  is $outer(), 42, "nested leave() works with a subref as invocant";
 }
 
 {
   my $sub = sub () {
     my $bare = sub () {
-      leave Block, 42;
+      Block.leave: 42;
       return 23;
     };
 
@@ -66,13 +150,13 @@ skip_rest; exit;
     return 1000 + $ret;
   };
 
-  is $sub(), 1042, "leave() works with a Class (Block) as parameter";
+  is $sub(), 1042, "leave() works with a Class (Block) as invocant";
 }
 
 {
   my $sub = sub () {
     my $bare = sub () {
-      leave Sub, 42;
+      leave Sub: 42;
       return 23;
     };
 
@@ -80,5 +164,42 @@ skip_rest; exit;
     return 1000 + $ret;
   };
 
-  is $sub(), 42, "leave() works with a Class (Sub) as parameter";
+  is $sub(), 42, "leave() works with a Class (Sub) as invocant";
 }
+
+{
+  my $sub = sub () {
+    LABEL: for 1..10 -> $n {
+	for 'a' .. 'b' -> $a {
+	    LABEL.leave(42);
+	    "$a,$n";
+	}
+    }
+  }
+
+  is $sub(), 42, "leave() works with a loop label";
+}
+
+eval q[[
+  my $sub = sub () {
+    eager do			# XXX without eager would require time travel
+    LABEL: for 1..10 -> $n {
+	for 'a' .. 'b' -> $a {
+	    LABEL.leave(42,43);	# note, must cancel ordinary list comprehension!
+	    "$a,$n";
+	}
+    }
+  }
+
+  is [$sub()], [42,43], "leave() works with a loop label in list context";
+]];
+
+eval q[[
+  my $sub = sub () {
+    do LABEL: {
+	LABEL.leave(42);
+    } + 1000;
+  }
+
+  is $sub(), 1042, "leave() works with an internal do label";
+]];
