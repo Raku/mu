@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 11 Feb 2007
+  Last Modified: 12 Feb 2007
   Number: 6
-  Version: 69
+  Version: 70
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -880,20 +880,36 @@ but this does:
 (But note: feed operators have push semantics when the receiver is an array.
 Use assignment to get clear-first semantics.)
 
-Conjecture: these are probably impossible:
+Conjecture: the following are possible, but only if we are very careful
+to cut loose the old @data on the blunt end of the pipe before rebinding
+the pointy end:
 
-    @data <== grep { $_ % 2 } <== eager @data;
-    @data = do { grep { $_ % 2 } <== eager @data; }
-    @data := do { grep { $_ % 2 } <== eager @data; }
+    @data <== grep { $_ % 2 } <== @data;
+    @data := do { grep { $_ % 2 } <== @data; }
+
+And this would need to force an "eager" evaluation to a temporary
+list to work at all:
+
+    @data = do { grep { $_ % 2 } <== @data; }
+
+Otherwise it's the equivalent of the Unix newbie mistake:
+
+    filter foo >foo
+
+Arguably we could take the Unix approach and force the newbie to just
+learn to deal with it explicitly.  (Arguably this could also be construed
+as antisocial.)
 
 Leftward feeds are a convenient way of explicitly indicating the typical
 right-to-left flow of data through a chain of operations:
 
     @oddsquares = map { $_**2 }, sort grep { $_ % 2 }, @nums;
 
-    # more clearly written as...
+    # perhaps more clearly written as...
 
-    @oddsquares = map { $_**2 } <== sort <== grep { $_ % 2 } <== @nums;
+    @oddsquares = do {
+        map { $_**2 } <== sort <== grep { $_ % 2 } <== @nums;
+    }
 
 Rightward feeds are a convenient way of reversing the normal data flow in a
 chain of operations, to make it read left-to-right:
