@@ -31,7 +31,7 @@ my %hash3 is context = ( "oink", "da", "blah", "zork");
 my %hash4 is context = ( "bink", "yum", "gorch", "zorba");
 my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 
-#L<<S03/Smart matching/"hash keys identical sets">>
+#L<<S03/Smart matching/"hash keys same set">>
 { 
     ok eval_elsewhere('(%+hash1 ~~ %+hash2)'), "hash keys identical", :todo;
     ok eval_elsewhere('!(%+hash1 ~~ %+hash4)'), "hash keys differ";

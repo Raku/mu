@@ -4,7 +4,7 @@ use Test;
 
 =pod
 
-L<S03/"New operators" /Binary ===>
+L<S03/"Chaining binary precedence" /Value identity>
 
 C<===> and C<eqv> are 2 distinct operators, where C<===> tests value
 equivalence for immutable types and reference equivalence for 
@@ -124,6 +124,7 @@ plan 76;
 }
 
 # eqv on values
+# L<S29/Any/"=item eqv">
 {
   ok  (1 eqv 1), "eqv on values (1)";
   ok  (0 eqv 0), "eqv on values (2)";
@@ -139,6 +140,7 @@ plan 76;
   ok $b eqv $b, "eqv on value types (1-2)";
   ok $a eqv $b, "eqv on value types (1-3)";
 }
+
 
 {
   my $a = 1;
