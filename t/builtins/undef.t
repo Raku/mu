@@ -25,7 +25,7 @@ perl6-specific tests.
 plan 74;
 
 our $GLOBAL;
-
+# L<S29/Scalar/"=item undef">
 is(undef, undef, "undef is equal to undef");
 ok(!defined(undef), "undef is not defined");
 
@@ -51,7 +51,7 @@ ok(!defined(undef), "undef is not defined");
     $a = $GLOBAL;
     ok(!defined($a), "assigning another undef global");
 }
-
+# L<S29/Scalar/"=item undefine">
 {
     my @ary = "arg1";
     my $a = @ary.pop;

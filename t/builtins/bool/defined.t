@@ -2,13 +2,14 @@ use v6-alpha;
 use Test;
 plan 21;
 
-# L<S29/Scalar>
+# L<S29/Scalar/"=item defined">
 
 =pod
 
 Tests for the defined() builtin
 
 =cut
+
 
 
 ok(!defined(undef), 'undef is not defined');
