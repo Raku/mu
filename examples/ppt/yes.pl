@@ -18,7 +18,7 @@ sub version {
 }
 
 sub help {
-    #say qq:t/EOF/;
+    #say qq:to/EOF/;
     $_ = "
     $*PROGRAM_NAME [OPTION] [STRING...]
 

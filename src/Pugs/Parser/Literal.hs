@@ -302,7 +302,7 @@ qLiteral = do -- This should include q:anything// as well as '' "" <>
                         = (endMarker `isSuffixOf` line)
                             && (all isSpace (take (length line - length endMarker) line))
                 case break foundEndMarker restOfInput of
-                    (_, []) -> fail $ "Cannot find q:to END marker: " ++ show endMarker
+                    (_, []) -> fail $ "Cannot find heredoc END marker: " ++ show endMarker
                     (pre, (pivot:post)) -> do
                         let indent = indentLevelOf (take (length pivot - length endMarker) pivot)
                         -- Strip indentation from the hereDoc lines
@@ -314,7 +314,7 @@ qLiteral = do -- This should include q:anything// as well as '' "" <>
                         setInput (restOfLine ++ (replicate (length pre + 1) '\n') ++ unlines post)
                         return docExp
             others -> do
-                fail $ "Cannot handle q:to END marker: " ++ show others
+                fail $ "Cannot handle heredoc END marker: " ++ show others
 
 indentLevelOf :: String -> Int
 indentLevelOf = foldl doIndentLevelOf 0
@@ -478,8 +478,8 @@ getQFlags flagnames protectedChar =
           useflag "closure" qf    = qf { qfInterpolateClosure = True }
           useflag "b" qf          = qf { qfInterpolateBackslash = QB_All }
           useflag "backslash" qf  = qf { qfInterpolateBackslash = QB_All }
-          useflag "t" qf          = qf { qfHereDoc = True }
           useflag "to" qf         = qf { qfHereDoc = True }
+          useflag "heredoc" qf    = qf { qfHereDoc = True }
 
         -- Zeroing flags
           useflag "n" _           = rawFlags

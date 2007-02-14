@@ -13,7 +13,7 @@ Tests quoting constructs as defined in L<S02/Literals>
 
 =todo
 
-* q:t - heredocs (done)
+* q:to - heredocs (done)
 * q:n, q:b, and other interpolation levels (half-done)
 * meaningful quotations (qx, rx, etc)
 * review shell quoting semantics of «»
@@ -261,39 +261,39 @@ Tests quoting constructs as defined in L<S02/Literals>
     is(@q2[2], '$bar', 'single quoted $bar was not interpolated');
 };
 
-{ # qq:t L<S02/Literals /Heredocs are no longer written/>
+{ # qq:to L<S02/Literals /Heredocs are no longer written/>
     my @q = ();
 
-    @q = qq:t/FOO/;
+    @q = qq:to/FOO/;
 blah
 $bar
 blah
 $foo
 FOO
 
-    is(+@q, 1, "q:t// is singular");
+    is(+@q, 1, "q:to// is singular");
     is(@q[0], "blah\nBAR\nblah\nFOO\n", "here doc interpolated");
 };
 
-{ # q:t indented L<S02/Literals /Here docs allow optional whitespace/>
+{ # q:to indented L<S02/Literals /Here docs allow optional whitespace/>
     my @q = ();
 
-    @q = q:t/FOO/;
+    @q = q:to/FOO/;
         blah blah
         $foo
         FOO
 
-    is(+@q, 1, "q:t// is singular, also when indented");
+    is(+@q, 1, "q:to// is singular, also when indented");
     is(@q[0], "blah blah\n\$foo\n", "indentation stripped");
 };
 
-{ # q:to backslash bug
-        my @q = q:to/FOO/
+{ # q:heredoc backslash bug
+        my @q = q:heredoc/FOO/
 yoink\n
 splort\\n
 FOO
 ;
-        is(+@q, 1, "q:to// is singular");
+        is(+@q, 1, "q:heredoc// is singular");
         is(@q[0], "yoink\\n\nsplort\\n\n", "backslashes");
 }
 
@@ -360,20 +360,20 @@ FOO
 
 
 # L<S02/"Literals"/"for user-defined quotes">
-# q:t
+# q:to
 {
     my $t;
-    $t = q:t /STREAM/;
+    $t = q:to /STREAM/;
 Hello, World
 STREAM
 
-    is $t, "Hello, World\n", "Testing for q:t operator.";
+    is $t, "Hello, World\n", "Testing for q:to operator.";
 
-$t = q:t /结束/;
+$t = q:to /结束/;
 Hello, World
 结束
 
-    is $t, "Hello, World\n", "Testing for q:t operator. (utf8)";
+    is $t, "Hello, World\n", "Testing for q:to operator. (utf8)";
 }
 
 # q:n

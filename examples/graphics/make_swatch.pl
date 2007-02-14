@@ -19,7 +19,7 @@ my $width = 20;  # how many pixels per square
 my $total_width  = ($columns+2)*$width*1.5;
 my $total_height = ($rows+2)*$width*1.5;
 
-my $svg_begin = q:t:s/END/;
+my $svg_begin = q:to:s/END/;
 <?xml version="1.0" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
 "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
