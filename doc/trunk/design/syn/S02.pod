@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 11 Feb 2007
+  Last Modified: 13 Feb 2007
   Number: 2
-  Version: 86
+  Version: 87
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1958,67 +1958,20 @@ Generalized quotes may now take adverbs:
                 :trans          Parse as transliteration
                 :code           Quasiquoting
 
-Ordinarily the colon is required on adverbs, but the C<quote> declarator
-allows you to combine any of the existing adverbial forms above
-without an intervening colon:
+You may omit the first colon by joining an initial 'Q', 'q', or 'qq' with
+a single short form adverb, which produces forms like:
 
-    quote qw;                   # declare a P5-esque qw// meaning q:w
-    quote Qc;                   # Q:c//, interpolate only closures
+    qw /a b c/;                         # P5-esque qw// meaning q:w
+    Qc '...{$x}...';                    # Q:c//, interpolate only closures
+    qqx/$cmd @args/                     # equivalent to P5's qx//
 
-Actually, those two are already assumed, because you get all of the
-forms that use a single character modifier predeclared for free.  (Note
-this means that C<qx//> doesn't intepolate.)
+(Note that C<qx//> doesn't intepolate.)
 
-If you want to abbreviate further, you may also give an explicit
-definition as either a string or quasiquote:
+If you want to abbreviate further, just define a macro:
 
-    quote qx = 'qq:x';          # equivalent to P5's qx//
-    quote qTO = 'qq:x:w:to';    # qq:x:w:to//
-    quote circumfix:<❰ ❱> = q:code{ .quoteharder };  # or some such...
-
-In particular, all these forms disable the lookahead for an adverbial argument,
-as if there were a space after the keyword.  So although
-
-    q:s($foo)
-
-will misinterpret C<$foo> as the C<:s> argument,
-
-    qs(stuff)
-
-has the advantage of misinterpreting it as the argument to the C<qs()>
-function instead.  C<:)>
-
-But parens are special that way.  (Even C<q()> is assumed to be a
-function call rather than a quote.)  Other bracketing characters are
-special only if they can be mistaken for adverbial arguments, so
-
-    qs[stuff]
-
-is fine, and means
-
-    q:s /stuff/
-
-while
-
-    q:s[stuff]
-
-also happens to work because quote adverbs only allow the paren form of
-bracketed adverbs.
-
-If this is all too much of a hardship, you can define your own quote
-adverbs and operators as standard macros.  The main difference is that,
-unlike
-
-    quote qs = 'q:s';
-
-declaring something like
-
-    macro qs { 'q:s' }
-
-does I<not> disable the subsequent search for a parenthesized argument
-to C<:n>.  To get the equivalent, you need to add a space:
-
-    macro qs { 'q:s ' }
+    macro qx { 'qq:x ' }          # equivalent to P5's qx//
+    macro qTO { 'qq:x:w:to ' }    # qq:x:w:to//
+    macro circumfix:<❰ ❱> ($expr) { q:code{ $expr.quoteharder } }
 
 All the uppercase adverbs are reserved for user-defined quotes.
 All Unicode delimiters above Latin-1 are reserved for user-defined quotes.
