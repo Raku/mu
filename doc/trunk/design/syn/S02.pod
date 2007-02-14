@@ -1952,20 +1952,20 @@ Generalized quotes may now take adverbs:
     :f          :function       Interpolate & calls
     :c          :closure        Interpolate {...} expressions
     :b          :backslash      Interpolate \n, \t, etc. (implies :q at least)
-                :to             Parse result as heredoc terminator
+    :to         :heredoc        Parse result as heredoc terminator
                 :regex          Parse as regex
                 :subst          Parse as substitution
                 :trans          Parse as transliteration
                 :code           Quasiquoting
 
-You may omit the first colon by joining an initial 'Q', 'q', or 'qq' with
+You may omit the first colon by joining an initial C<Q>, C<q>, or C<qq> with
 a single short form adverb, which produces forms like:
 
     qw /a b c/;                         # P5-esque qw// meaning q:w
     Qc '...{$x}...';                    # Q:c//, interpolate only closures
     qqx/$cmd @args/                     # equivalent to P5's qx//
 
-(Note that C<qx//> doesn't intepolate.)
+(Note that C<qx//> doesn't interpolate.)
 
 If you want to abbreviate further, just define a macro:
 
