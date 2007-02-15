@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 9 Feb 2007
+  Last Modified: 15 Feb 2007
   Number: 12
-  Version: 40
+  Version: 41
 
 =head1 Overview
 
@@ -788,6 +788,19 @@ are no default routines, or if the available defaults are also tied,
 a final tie-breaking proto sub is called, if there is one (see above).
 Otherwise an exception is thrown.
 
+The order in which candidates are considered is defined by a
+topological sort based on the "type narrowness" of each candidate's
+long name, where that in turn depends on the narrowness of each
+parameter that is participating.  Identical types are considered tied.
+Parameters whose types are not comparable are also considered tied.
+A candidate is considered narrower than another candidate if at least
+one of its parameters is narrower and all the rest of its parameters
+are either narrower or tied.  This defines the partial ordering of
+all the candidates.  If the topological sort detects a circularity in
+the partial ordering, all candidates in the circle are considered tied.
+A warning will be issued at C<CHECK> time if this is detected and there is
+no default candidate to fall back to.
+
 Ordinarily all the parameters of a multi sub are considered for dispatch.
 Here's a declaration for an integer range operator with two parameters
 in its long name:
@@ -807,17 +820,27 @@ after the last declared argument, but before any return signature.)
 Note that a call to the routine must still be compatible with
 subsequent arguments.
 
-However, a given multi may advertise multiple long names, some
-of which are shorter than the complete long name.  This is done by
-putting a semicolon after each advertised long name (replacing the comma,
-if present).  The initial dispatch starts by pretending that the shortest
-advertised long name is the complete long name (and likewise across the entire
-set of candidates).  Since the shorter long name does not guarantee uniqueness,
-if that shorter long name is chosen for dispatch, and a tie would be
-declared for that dispatch, the next longer set of long names may be
-used to break ties, for those candidates that supply longer names.
-(As a limiting case, putting a semicolon after every parameter produces
-dispatch semantics like Common Lisp.)
+[Conjecture: However, a given multi may advertise multiple long names,
+some of which are shorter than the complete long name.  This is done
+by putting a semicolon after each advertised long name (replacing
+the comma, if present).  A semicolon has the effect of inserting two
+candidates into the list.  One of them is inserted with exactly the
+same types, as if the semicolon were a comma.  The other is inserted
+as if all the types after the semicolon were of type Any, which puts
+it later in the list than the narrower actual candidate.  This merely
+determines its sort order; the candidate uses its real type signature
+if the dispatcher gets to it after rejecting all earlier entries on the
+candidate list.  If that set of delayed candidates also contains ties,
+then additional semicolons have the same effect within that sublist
+of ties.  Note, however, that semicolon is a no-op if the types after
+it are all C<Any>.  (As a limiting case, putting a semicolon after
+every parameter produces dispatch semantics much like Common Lisp.
+And putting a semicolon after only the first argument is much like
+ordinary single-dispatch methods.)  Note: This single-semicolon syntax
+is merely to be considered reserved until we understand the semantics
+of it, and more importantly, the pragamatics of it (that is, whether
+it has any valid use case).  Until then only the double-semicolon
+form will be implemented in the standard language.]
 
 Within a class, C<multi submethod> is visible to both method-dispatch
 and subroutine-dispatch.  A C<multi method> never participates in the
@@ -871,8 +894,8 @@ using normal subroutine call syntax.
 
 =head1 Multi dispatch
 
-Multi submethods work just like multi subs except they are constrained
-to an exact type match on the invocant.
+Multi submethods work just like multi methods except they are constrained
+to an exact type match on the invocant, just as ordinary submethods are.
 
 Perl 6.0.0 is not required to support multiple dispatch on named parameters,
 only on positional parameters.  Note that most builtins will map known
@@ -880,7 +903,7 @@ named parameters to positional via a C<proto> declaration.
 
 Within a multiple dispatch, C<next METHOD> means to try the next best
 match, or next best default in case of tie, or the proto sub if there
-is one.
+is one.  The C<nextsame> function has the same effect.
 
 Attributes are tied to a particular class definition, so a multi method
 can only directly access the attributes of a class it's defined within
@@ -896,9 +919,11 @@ multi method is defined in:
 
 The syntax for calling back to C<MyClass> is C<$obj!MyClass::meth()>.
 
-The C<sub> keyword is optional after either C<multi> or C<proto>.
+The C<sub> keyword is optional immediately after a C<proto>, C<multi>,
+or C<only> keyword.
 
-A C<proto> declaration must come before any matching multis, if at all.
+A C<proto> declaration may not occur after a C<multi> declaration in the
+same scope.
 
 =head1 Roles
 

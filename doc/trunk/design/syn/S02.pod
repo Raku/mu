@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 13 Feb 2007
+  Last Modified: 15 Feb 2007
   Number: 2
-  Version: 87
+  Version: 88
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -2768,7 +2768,8 @@ Here are the current grammatical categories:
     scope_declarator:<has>                      has $.x;
     statement_prefix:<gather>                   gather for @foo { .take }
     statement_control:<if>                      if $condition {...} else {...}
-    statement_modifier:<if>                     ... if $condition
+    statement_mod_cond:<if>                     ... if $condition
+    statement_mod_loop:<for>                    ... for 1..10
     infix_prefix_meta_operator:<!>              $x !~~ 2;
     infix_postfix_meta_operator:<=>             $x += 2;
     postfix_prefix_meta_operator:{'»'}          @array »++

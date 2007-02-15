@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 11 Feb 2007
+  Last Modified: 15 Feb 2007
   Number: 4
-  Version: 52
+  Version: 53
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -188,16 +188,29 @@ Perl 5, except that you may omit the parentheses on the conditional:
         ...
     }
 
-Conditional statement modifiers work as in Perl 5.  So do the
-implicit conditionals implied by short-circuit operators.
-
 If the final statement is a conditional which does not execute any
 branch, the return value is C<undef> in item context and C<()> in
 list context.
 
+Conditional statement modifiers work as in Perl 5.  So do the
+implicit conditionals implied by short-circuit operators.  Note though that
+the first expression within parens or brackets is parsed as a statement,
+so you can say:
+
+    @x = 41, (42 if $answer), 43;
+
+and that is equivalent to:
+
+    @x = 41, ($answer ?? 42 !! ()), 43
+
 =head1 Loop statements
 
-Looping statement modifiers are the same as in Perl 5.
+Looping statement modifiers are the same as in Perl 5 except that,
+for ease of writing list comprehensions, a looping statement modifier
+is allowed to contain a single conditional statement modifier:
+
+    @evens = ($_ * 2 if .odd for 0..100);
+
 Loop modifiers C<next>, C<last>, and C<redo> also work as in Perl 5.
 
 There is no longer a C<continue> block.  Instead, use a C<NEXT> block
