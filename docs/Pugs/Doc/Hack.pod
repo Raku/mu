@@ -401,7 +401,7 @@ the program may store the same configuration options elsewhere.
 
 =head2 Where to Start
 
-Take a look at F<project_planning/TASKS> and F<project_planning/TALK> to see
+Take a look at our development wiki at L<http://dev.pugscode.org/> to see
 what needs to be done, and where you could help.
 
 =head2 Testing
@@ -436,19 +436,15 @@ Using the PCRE distribution, PCRE can be tested interactively with
 A cross index of standard Haskell libraries.  It is searchable by type
 signature, name, etc.
 
-=item L<http://svn.pugscode.org/svnweb/>
+=item L<http://dev.pugscode.org/browser/>
 
-Browsable Pugs VCS.  You sometimes get a blank page the first time you access a
-URL (a timeout) - just click again.
-
-Follow the link titled "(history of this directory)" to see an SVN log excerpt.
-It will list all changes from that directory and its subdirectories only.
+Browsable Pugs source code.
 
 =item L<http://svn.perl.org/perl6/pugs/trunk/>
 
 Read-only mirror of Pugs VCS head.
 
-=item L<http://m19s28.vlinux.de/cgi-bin/pugs-smokeserv.pl>
+=item L<http://smoke.pugscode.org/>
 
 Pugs Smoke Reports Server.  List of recently uploaded smoke reports sorted by
 the runcore used (normal Haskell backend, PIL2JS, PIL-Run, PIR, etc.), see
