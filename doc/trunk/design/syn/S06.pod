@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 12 Feb 2007
+  Last Modified: 16 Feb 2007
   Number: 6
-  Version: 70
+  Version: 71
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -1732,15 +1732,23 @@ while C<.count> considers also optional ones, including C<*$>:
 =head2 The C<leave> function
 
 As mentioned above, a C<return> call causes the innermost surrounding
-subroutine, method, rule, token, regex (as a keyword) or macro to
-return.  Only declarations with an explicit keyword such as "sub"
-may be returned from.  You may not use C<return> to return from loops,
-bare blocks, pointy blocks, or quotelike operators such as C<rx//>.
+subroutine, method, rule, token, regex (as a keyword) or macro
+to return.  Only declarations with an explicit declarator keyword
+(C<sub>, C<submethod>, C<method>, C<macro>, C<regex>, C<token>, and
+C<rule>) may be returned from.  Statement prefixes such a C<do> and
+C<try> do not fall into that category.  You may not use C<return> to
+return from loops, bare blocks, pointy blocks, or quotelike operators
+such as C<rx//>; a C<return> within one of those constructs will
+continue searching outward for a "proper" routine to return from.
+Nor may you return from property blocks such as C<BEGIN> or C<CATCH>
+(though blocks executing within the lexical and dynamic scope of a
+routine can of course return from that outer routine, which means
+you can always return from a C<CATCH> or a C<FIRST>, but never from
+a C<BEGIN> or C<INIT>.)
 
-To return from these types of code structures, the C<leave> method
-is used instead.  (It can be taken to mean either "go away from" or
-"bequeath to your successor" as appropriate.)
-The object specifies the scope to exit,
+To return from blocks that aren't routines, the C<leave> method is used
+instead.  (It can be taken to mean either "go away from" or "bequeath
+to your successor" as appropriate.)  The object specifies the scope to exit,
 and the method's arguments specify the return value.  If the object
 is omitted (by use of the function or listop forms), the innermost
 block is exited.  Otherwise you must use something like C<caller>
