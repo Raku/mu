@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 2 Nov 2004
-  Last Modified: 17 Jan 2007
+  Last Modified: 16 Feb 2007
   Number: 13
-  Version: 6
+  Version: 7
 
 =head1 Overview
 
@@ -143,15 +143,39 @@ standard fallback mappings of Perl 5 overloading.
 
 =head1 Type Casting
 
-A class can use the C<< *infix:<as> >> submethod to declare that its objects
-can be cast to some other class:
+A class may define methods that allow it to respond as if it were a
+routine, array, or hash.  The long forms are as follows:
 
-    multi submethod *infix:<as> (IO)  { $*OUT }
-    multi submethod *infix:<as> (Int) { 1 }
-    multi submethod *infix:<as> (Str) { "Hello" }
+    method postcircumfix:<( )> (|$capture) {...}
+    method postcircumfix:<[ ]> (|$capture) {...}
+    method postcircumfix:<{ }> (|$capture) {...}
 
-With the above declaration, C<$obj as "foo"> is equivalent to C<$obj as Str>,
-because the multi dispatch cares only about the class.
+Those are a bit unwieldy, so you may also use these short forms:
+
+    method &.( |$capture ) {...}
+    method @.[ *@@slices ] {...}
+    method %.{ *@@slices } {...}
+
+The actual sigil used doesn't matter as long as it's followed by a dot
+and the bracket pair containing the signature.  (Note that the angle
+bracket subscripting form C<< .<a b c> >> automatically translates
+itself into a call to C< .{'a','b','c'} >, so defining methods for
+angles is basically useless.)
+
+The expected semantics of C<&.()> is that of a type coercion which may
+or may not create a new object.  So if you say:
+
+    $fido = Dog.new($spot)
+
+it certainly creates a new C<Dog> object.  But if you say:
+
+    $fido = Dog($spot)
+
+it might call C<Dog.new>, or it might pull a C<Dog> with Spot's
+identity from the dog cache, or it might do absolutely nothing if
+C<$spot> already knows how to be a C<Dog>.  As a fallback, if no
+method responds to C<&.()>, the class will be asked to attempt to
+do C<Dog.new($spot)> instead.
 
 =cut
 
