@@ -12,7 +12,7 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 2 Nov 2004
-  Last Modified: 16 Feb 2007
+  Last Modified: 17 Feb 2007
   Number: 13
   Version: 7
 
@@ -147,8 +147,8 @@ A class may define methods that allow it to respond as if it were a
 routine, array, or hash.  The long forms are as follows:
 
     method postcircumfix:<( )> (|$capture) {...}
-    method postcircumfix:<[ ]> (|$capture) {...}
-    method postcircumfix:<{ }> (|$capture) {...}
+    method postcircumfix:<[ ]> (*@@slices) {...}
+    method postcircumfix:<{ }> (*@@slices) {...}
 
 Those are a bit unwieldy, so you may also use these short forms:
 
