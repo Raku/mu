@@ -161,14 +161,13 @@ instance Translate PIL_Decl Decl where
 
 instance Translate PIL_Literal Expression where
     trans (PVal (VBool bool)) = return $ ExpLit (LitInt (toInteger $ fromEnum bool))
-    trans (PVal (VStr str)) = return $ ExpLit (LitStr (cast str))
+    trans (PVal (VStr str)) = return $ ExpLit (LitStr str)
     trans (PVal (VInt int)) = return $ ExpLit (LitInt int)
     trans (PVal (VNum num)) = return $ ExpLit (LitNum num)
     trans (PVal (VRat rat)) = return $ ExpLit (LitNum (ratToNum rat))
     -- trans (PVal (VList [])) = return $ LitInt 0 -- XXX Wrong
     trans (PVal (VCode code))
-        | MkCode{ subBody = Syn syn [ Ann _ exp ] } <- code
-        , syn == cast "block" 
+        | MkCode{ subBody = Syn "block" [ Ann _ exp ] } <- code
         , App (Var var) Nothing [] <- exp
         = fmap ExpLV (trans (PVar $ cast var))
     trans (PVal (VList vs)) = do
@@ -373,13 +372,13 @@ varInit x       = internalError $ "Invalid name: " ++ x
 genPIR_YAML :: Eval Val
 genPIR_YAML = genPIRWith $ \globPIR mainPIR _ -> do
     yaml <- liftIO (showYaml (mainPIR, globPIR))
-    return (_VStr yaml)
+    return (VStr yaml)
 
 {-| Compiles the current environment to PIR code. -}
 genPIR :: Eval Val
 genPIR = genPIRWith $ \globPIR mainPIR penv -> do
     libs        <- liftIO $ getLibs
-    return . _VStr . unlines $
+    return . VStr . unlines $
         [ "#!/usr/bin/env parrot"
         , renderStyle (Style PageMode 0 0) $ preludePIR $+$ vcat
         -- Namespaces have bugs in both pugs and parrot.

@@ -17,10 +17,10 @@ doGenParseYAML f = do
     pad  <- filterPrim =<< asks envGlobal
     main <- asks envBody
     yaml <- liftIO $ f $ mkCompUnit "<unused>" pad main
-    return $ _VStr yaml
+    return $ VStr yaml
 
 genYAML :: Eval Val
 genYAML = do
     penv <- compile () :: Eval PIL_Environment
     yaml <- liftIO (showYaml penv)
-    return $ _VStr yaml
+    return $ VStr yaml

@@ -31,9 +31,7 @@ class (Show a) => Pretty a where
     format x = text $ show x
     formatQuite = format
 
-instance Pretty ID
 instance Pretty VStr
-instance Pretty String
 instance Pretty Var
 
 instance Pretty Exp where
@@ -47,7 +45,7 @@ instance Pretty Exp where
     format (Pad scope pad exp) = text "Pad" <+> text (show scope) <+> format pad $+$ format exp
     format (Ann _ exp) = format exp
     format x = text $ show x
-    formatQuite (Syn syn xs) | ("," :: String) <- cast syn = parens (formatQuite xs)
+    formatQuite (Syn "," xs) = parens (formatQuite xs)
     formatQuite (App (Var var) Nothing args)
         | C_infix <- v_categ var
         = parens (hsep (punctuate (text . (' ':) . cast $ v_name var) (map formatQuite args)))
@@ -153,7 +151,7 @@ instance Pretty Val where
                                 then text "-Inf"
                                 else text $ show x
     format (VInt x) = integer x
-    format (VStr x) = text $ "\"" ++ encodeUTF8 (concatMap quoted (cast x)) ++ "\""
+    format (VStr x) = text $ "\"" ++ encodeUTF8 (concatMap quoted x) ++ "\""
     format (VRat x) = text $ showTrueRat x
     format (VComplex (r :+ i)) = format (VNum r) <+> text "+" <+> format (VNum i) <> text "i"
     format (VControl ControlContinuation{}) = text "<continuation>"
@@ -184,7 +182,7 @@ instance Pretty Val where
             (vcat (map text $ split "\n" s) $+$ (text "at" <+> vcat (map format $ reverse posList)))
         where
         s = case x of
-              VStr s' -> cast s'
+              VStr s' -> s'
               _       -> pretty x
 --  format (VArray x) = format (VList $ Array.elems x)
 --  format (VHash h) = braces $ (joinList $ text ", ") $

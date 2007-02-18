@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -cpp -fglasgow-exts -fno-warn-orphans -fallow-overlapping-instances -fallow-undecidable-instances -fparr -foverloaded-strings #-}
+{-# OPTIONS_GHC -cpp -fglasgow-exts -fno-warn-orphans -fallow-overlapping-instances -fallow-undecidable-instances -fparr #-}
 
 
 
@@ -62,7 +62,7 @@ _FakeEnv = unsafePerformIO $ liftSTM $ do
         , envImplicit= Map.empty
         , envLValue  = False
         , envGlobal  = glob
-        , envPackage = _cast "Main"
+        , envPackage = cast "Main"
         , envClasses = initTree
         , envEval    = const (return VUndef)
         , envCaller  = Nothing
@@ -93,9 +93,6 @@ instance YAML (Eval Val) where
 instance YAML a => YAML (Map String a) where
     asYAML x = asYAMLmap "Map" $ Map.toAscList (Map.map asYAML x)
     fromYAML node = fmap Map.fromList (fromYAMLmap node)
-instance YAML a => YAML (Map ByteString a) where
-    asYAML x = asYAMLmapBuf "Map" $ Map.toAscList (Map.map asYAML x)
-    fromYAML node = fmap Map.fromList (fromYAMLmapBuf node)
 instance YAML a => YAML (Map Var a) where
     asYAML x = asYAMLmap "Map" . sortBy (\x y -> fst x `compare` fst y) $
         [ (cast k, asYAML v) | (k, v) <- Map.toList x ]
@@ -148,10 +145,10 @@ instance YAML VRef where
 instance YAML IHash where
      asYAML x = do
          l      <- liftIO $ H.toList x
-         asYAMLmapBuf "IHash" (map (\(k, v) -> (k, asYAML v)) l)
+         asYAMLmap "IHash" (map (\(k, v) -> (k, asYAML v)) l)
      fromYAML node = do
-         l  <- fromYAMLmapBuf node
-         l' <- hashList l
+         l  <- fromYAMLmap node
+         l' <- H.fromList H.hashString l
          return l'
 
 instance YAML ID where

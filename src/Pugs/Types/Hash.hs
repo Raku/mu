@@ -82,18 +82,18 @@ instance HashClass IHashEnv where
     hash_iType = const $ mkType "Hash::Env"
     hash_fetch _ = do
         envs <- liftIO getEnvironment
-        return . Map.mapKeysMonotonic cast . Map.map (castV . decodeUTF8) $ Map.fromList envs
+        return . Map.map (VStr . decodeUTF8) $ Map.fromList envs
     hash_fetchVal _ key = tryIO undef $ do
-        str <- getEnv (cast key)
-        return $ fromMaybe undef (fmap (castV . decodeUTF8) str)
+        str <- getEnv key
+        return $ fromMaybe VUndef (fmap (VStr . decodeUTF8) str)
     hash_storeVal _ key val = do
         str <- fromVal val
-        liftIO $ setEnv (cast key) (encodeUTF8 str) True
+        liftIO $ setEnv key (encodeUTF8 str) True
     hash_existsElem _ key = tryIO False $ do
-        str <- getEnv (cast key)
+        str <- getEnv key
         return (isJust str)
     hash_deleteElem _ key = do
-        liftIO $ unsetEnv (cast key)
+        liftIO $ unsetEnv key
 
 encodeKey, decodeKey :: HashIndex -> HashIndex
 encodeKey x = x
@@ -141,7 +141,7 @@ instance HashClass PerlSV where
     hash_fetchKeys sv = do
         keysSV  <- perl5EvalApply "sub { join $/, keys %{$_[0]} }" [sv]
         keysStr <- fromVal keysSV
-        return $ Str.lines keysStr
+        return $ lines keysStr
     hash_deleteElem sv key = do
         keySV   <- fromVal $ castV key
         perl5EvalApply "sub { delete $_[0]->{$_[1]} }" [sv, keySV]

@@ -42,7 +42,7 @@ generators = Map.fromList $
     , ("Pugs",        genPugs)
     , ("Parse-YAML",  genParseYAML)
     , ("Parse-HsYAML",genParseHsYAML)
-    , ("Parse-Pretty",fmap (_VStr . (++"\n") . pretty) (asks envBody))
+    , ("Parse-Pretty",fmap (VStr . (++"\n") . pretty) (asks envBody))
 --  , ("XML",         genXML)
     ]
 
@@ -90,5 +90,5 @@ codeGen s env = do
         fail $ "Cannot generate code for " ++ s
     rv <- runEvalIO env gen
     case rv of
-        VStr str    -> return (cast str)
+        VStr str    -> return str
         _           -> fail (show rv)

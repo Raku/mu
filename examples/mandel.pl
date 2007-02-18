@@ -34,7 +34,7 @@ my ($r, $i, $z, $Z, $t, $c, $C);
 loop ($L = 0;; $L++) {
     last() if $L > 0;
     loop ($y=30; $P = $y * 0.1, $C = $P - 1.5;) {
-        last() if $y < 0;
+        last() if $y < 27;
         $y--;
         loop ($x=0; $P = $x * 0.04, $c = $P - 2, $z=0.0, $Z=0.0;) {
             last() if $x > 75;

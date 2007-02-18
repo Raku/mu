@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -cpp -fglasgow-exts -fno-warn-orphans -fallow-overlapping-instances -fallow-undecidable-instances -fparr -foverloaded-strings #-}
+{-# OPTIONS_GHC -cpp -fglasgow-exts -fno-warn-orphans -fallow-overlapping-instances -fallow-undecidable-instances -fparr #-}
 
 module Pugs.AST.Internals (
     Eval,      -- uses Val, Env, SIO
@@ -81,7 +81,7 @@ module Pugs.AST.Internals (
 
     newSVval, -- used in Run.Perl5
 
-    DebugInfo, _Syn, _Sym, _Var, _VStr -- String -> ByteString constructors
+    DebugInfo, _Sym, _Var -- String -> ByteString constructors
 ) where
 
 import Pugs.Internals
@@ -280,7 +280,7 @@ getArrayIndex idx def getArr ext = do
 createObjectRaw :: (MonadSTM m)
     => ObjectId -> Maybe Dynamic -> VType -> [(VStr, Val)] -> m VObject
 createObjectRaw uniq opaq typ attrList = do
-    attrs   <- liftSTM . unsafeIOToSTM . hashList $ map (\(a,b) -> (a, lazyScalar b)) attrList
+    attrs   <- liftSTM . unsafeIOToSTM . H.fromList H.hashString $ map (\(a,b) -> (a, lazyScalar b)) attrList
     return $ MkObject
         { objType   = typ
         , objId     = uniq
@@ -323,13 +323,6 @@ instance Value [Int] where
         vlist <- fromVal v
         mapM fromVal vlist
     doCast v = castFailM v "[Int]"
-
-instance Value [String] where
-    castV = VList . map _VStr
-    fromVal v = do
-        vlist <- fromVal v
-        mapM fromVal vlist
-    doCast v = castFailM v "[String]"
 
 instance Value [VStr] where
     castV = VList . map VStr
@@ -391,7 +384,7 @@ instance Value [VPair] where
 instance Value VCode where
     castV = VCode
     fromSV sv = return $ mkPrim
-        { subName     = cast ("<anon>" :: String)
+        { subName     = cast "<anon>"
         , subParams   = [defaultArrayParam]
         , subReturns  = mkType "Scalar::Perl5"
         , subBody     = Prim $ \(args:_) -> do
@@ -454,14 +447,14 @@ instance Value VRat where
     doCast (VRat r)     = return $ r
     doCast (VBool b)    = return $ if b then 1 % 1 else 0 % 1
     doCast (VList l)    = return $ genericLength l
-    doCast (VStr s) | not (Str.null s), isSpace $ Str.last s = do
-        str <- fromVal (castV $ Str.init s)
+    doCast (VStr s) | not (null s) , isSpace $ last s = do
+        str <- fromVal (VStr $ init s)
         return str
-    doCast (VStr s) | not (Str.null s), isSpace $ Str.head s = do 
-        str <- fromVal (castV $ Str.tail s)
+    doCast (VStr s) | not (null s) , isSpace $ head s = do 
+        str <- fromVal (VStr $ tail s)
         return str
     doCast (VStr s)     = return $
-        case parseNatOrRat (cast s) of
+        case ( parseNatOrRat s ) of
             Left _   -> 0 % 1
             Right rv -> case rv of
                 Left  i -> i % 1
@@ -479,17 +472,17 @@ instance Value VNum where
     doCast (VRat r)     = return $ realToFrac r
     doCast (VNum n)     = return $ n
     doCast (VComplex (r :+ _)) = return $ r
-    doCast (VStr s) | not (Str.null s), isSpace $ Str.last s = do
-        str <- fromVal (castV $ Str.init s)
+    doCast (VStr s) | not (null s) , isSpace $ last s = do
+        str <- fromVal (VStr $ init s)
         return str
-    doCast (VStr s) | not (Str.null s), isSpace $ Str.head s = do
-        str <- fromVal (castV $ Str.tail s)
+    doCast (VStr s) | not (null s) , isSpace $ head s = do
+        str <- fromVal (VStr $ tail s)
         return str
     doCast (VStr "Inf") = return $ 1/0
     doCast (VStr "-Inf") = return $ -1/0
     doCast (VStr "NaN") = return $ 0/0
     doCast (VStr s)     = return $
-        case ( parseNatOrRat (cast s) ) of
+        case ( parseNatOrRat s ) of
             Left _   -> 0
             Right rv -> case rv of
                 Left  i -> fromIntegral i
@@ -526,50 +519,6 @@ instance Value ID where
 
 instance Value VStr where
     castV = VStr
-    fromSV sv = fmap cast (liftIO $ svToVStr sv)
-    fromVV vv = liftSIO $ cast (Val.asStr vv)
-    fromVal (VList l)    = return . Str.unwords =<< mapM fromVal l
-    fromVal v@(PerlSV _) = fromVal' v
-    fromVal VUndef       = return (__"")
-    fromVal (VType t)    = return (cast t)
-    fromVal v = do
-        vt  <- evalValType v
-        case vt of
-            MkType "Pair" -> do
-                -- Special case for pairs: "$pair" eq
-                -- "$pair.key()\t$pair.value()"
-                (k, v)  <- join $ doPair v pair_fetch
-                k'      <- fromVal k
-                v'      <- fromVal v
-                return $ k' +++ __"\t" +++ v'
-            MkType "Hash" -> do
-                --- XXX special case for Hash -- need to Objectify
-                hv      <- join $ doHash v hash_fetch
-                lns     <- forM (Map.assocs hv) $ \(k, v) -> do
-                    str <- fromVal v
-                    return $ k +++ __"\t" +++ str
-                return $ Str.unlines lns
-            _ -> fromVal' v
-    doCast VUndef        = return $ __""
-    doCast VType{}       = return $ __""
-    doCast (VStr s)      = return s
-    doCast (VBool b)     = return $ if b then __"1" else __""
-    doCast (VInt i)      = return $ __(show i)
-    doCast (VRat r)      = return $ __(showRat r)
-    doCast (VNum n)      = return $ __(showNum n)
-    doCast (VComplex (r :+ i)) = return $ __(showNum r ++ " + " ++ showNum i ++ "i")
-    doCast (VList l)     = fmap Str.unwords (mapM fromVal l)
-    doCast (VCode s)     = return $ __("<" ++ show (subType s) ++ "(" ++ cast (subName s) ++ ")>")
-    doCast (VJunc j)     = return $ __(show j)
-    doCast (VThread t)   = return $ __(takeWhile isDigit $ dropWhile (not . isDigit) $ show t)
-    doCast (VHandle h)   = return $ __"<VHandle (" +++ __(show h) +++ __">"
-    doCast (VMatch m)    = return $ matchStr m
- -- doCast (VType typ)   = return $ showType typ -- "::" ++ showType typ
-    doCast (VObject o)   = return $ __"<obj:" +++ cast (objType o) +++ __">"
-    doCast x             = return $ __"<" +++ cast (valType x) +++ __">"
-
-instance Value String where
-    castV = VStr . cast
     fromSV sv = liftIO $ svToVStr sv
     fromVV vv = liftSIO $ cast (Val.asStr vv)
     fromVal (VList l)    = return . unwords =<< mapM fromVal l
@@ -591,12 +540,12 @@ instance Value String where
                 hv      <- join $ doHash v hash_fetch
                 lns     <- forM (Map.assocs hv) $ \(k, v) -> do
                     str <- fromVal v
-                    return $ k +++ __"\t" +++ str
-                return $ unlines (cast lns)
+                    return $ k ++ "\t" ++ str
+                return $ unlines lns
             _ -> fromVal' v
     doCast VUndef        = return ""
     doCast VType{}       = return ""
-    doCast (VStr s)      = return (cast s)
+    doCast (VStr s)      = return s
     doCast (VBool b)     = return $ if b then "1" else ""
     doCast (VInt i)      = return $ show i
     doCast (VRat r)      = return $ showRat r
@@ -607,7 +556,7 @@ instance Value String where
     doCast (VJunc j)     = return $ show j
     doCast (VThread t)   = return $ takeWhile isDigit $ dropWhile (not . isDigit) $ show t
     doCast (VHandle h)   = return $ "<" ++ "VHandle (" ++ (show h) ++ ">"
-    doCast (VMatch m)    = return $ (cast (matchStr m))
+    doCast (VMatch m)    = return $ matchStr m
  -- doCast (VType typ)   = return $ showType typ -- "::" ++ showType typ
     doCast (VObject o)   = return $ "<obj:" ++ showType (objType o) ++ ">"
     doCast x             = return $ "<" ++ showType (valType x) ++ ">"
@@ -624,7 +573,7 @@ instance Value PerlSV where
 newSVval :: Val -> IO PerlSV
 newSVval val = case val of
     PerlSV sv   -> return sv
-    VStr str    -> bufToSV str
+    VStr str    -> vstrToSV str
     VType typ   -> vstrToSV (showType typ)
     VBool bool  -> vintToSV (fromEnum bool)
     VInt int    -> vintToSV int
@@ -1068,7 +1017,7 @@ See "Pugs.Prim" for more info.
 mkPrim :: VCode
 mkPrim = MkCode
     { isMulti = True
-    , subName = cast ("&" :: String)
+    , subName = cast "&"
     , subType = SubPrim
     , subEnv = Nothing
     , subAssoc = ANil
@@ -1095,7 +1044,7 @@ mkPrim = MkCode
 mkSub :: VCode
 mkSub = MkCode
     { isMulti = False
-    , subName = cast ("&" :: String)
+    , subName = cast "&"
     , subType = SubBlock
     , subEnv = Nothing
     , subAssoc = ANil
@@ -1122,7 +1071,7 @@ mkSub = MkCode
 mkCode :: VCode
 mkCode = MkCode
     { isMulti = False
-    , subName = cast ("&" :: String)
+    , subName = cast "&"
     , subType = SubBlock
     , subEnv = Nothing
     , subAssoc = ANil
@@ -1180,7 +1129,7 @@ data Exp
     = Noop                              -- ^ No-op
     | App !Exp !(Maybe Exp) ![Exp]      -- ^ Function application
                                         --     e.g. myfun($invocant: $arg)
-    | Syn !ID ![Exp]                    -- ^ Syntactic construct that cannot
+    | Syn !String ![Exp]                -- ^ Syntactic construct that cannot
                                         --     be represented by 'App'.
     | Ann !Ann !Exp                     -- ^ Annotation (see @Ann@)
     | Pad !Scope !Pad !Exp              -- ^ Lexical pad
@@ -1197,12 +1146,6 @@ _Sym scope str exp = Sym scope (cast str) exp
 
 _Var :: String -> Exp
 _Var str = Var (possiblyFixOperatorName (cast str))
-
-_VStr :: String -> Val
-_VStr = VStr . cast
-
-_Syn :: String -> [Exp] -> Exp
-_Syn s xs = Syn (cast s) xs
 
 instance Value Exp where
     {- Val -> Eval Exp -}
@@ -1289,14 +1232,14 @@ extractPlaceholderVars (Syn n exps) vs = (Syn n exps', vs'')
     where
     (exps', vs') = foldr extractPlaceholderVarsExp ([], vs) exps
     vs'' = case n of
-        "when"  -> Set.insert varTopic vs'
-        "given" -> Set.delete varTopic vs'
+        "when"  -> Set.insert (cast "$_") vs'
+        "given" -> Set.delete (cast "$_") vs'
         _       -> vs'
 extractPlaceholderVars (Var var) vs
     | TImplicit <- v_twigil var
     , var' <- var{ v_twigil = TNil }
     = (Var var', Set.insert var' vs)
-    | var == varTopic
+    | var == cast "$_"
     = (Var var, Set.insert var vs)
     | otherwise
     = (Var var, vs)
@@ -1338,7 +1281,7 @@ defaultScalarParam :: Param
 
 defaultArrayParam   = buildParam "" "*" "@_" (Val VUndef)
 defaultHashParam    = buildParam "" "*" "%_" (Val VUndef)
-defaultScalarParam  = buildParam "" "?" "$_" (_Var "$_")
+defaultScalarParam  = buildParam "" "?" "$_" (Var $ cast "$_")
 
 type DebugInfo = Maybe (TVar (Map ID String))
 
@@ -1613,11 +1556,11 @@ forceRef r = retError "Cannot forceRef" r
 dumpRef :: VRef -> Eval Val
 dumpRef (MkRef (ICode cv)) = do
     vsub <- code_assuming cv [] []
-    return (castV $ "(MkRef (ICode $ " ++ show vsub ++ "))")
+    return (VStr $ "(MkRef (ICode $ " ++ show vsub ++ "))")
 dumpRef (MkRef (IScalar sv)) | scalar_iType sv == mkType "Scalar::Const" = do
     sv <- scalar_fetch sv
-    return (castV $ "(MkRef (IScalar $ " ++ show sv ++ "))")
-dumpRef ref = return (castV $ "(unsafePerformIO . newObject $ mkType \"" ++ showType (refType ref) ++ "\")")
+    return (VStr $ "(MkRef (IScalar $ " ++ show sv ++ "))")
+dumpRef ref = return (VStr $ "(unsafePerformIO . newObject $ mkType \"" ++ showType (refType ref) ++ "\")")
 
 readRef :: VRef -> Eval Val
 readRef (MkRef (IScalar sv)) = scalar_fetch sv
@@ -1680,7 +1623,7 @@ newObject typ = case showType typ of
         iv  <- newTVar [::]
         return $ arrayRef (MkIArray iv)
     "Hash"      -> do
-        h   <- liftIO hashNew
+        h   <- liftIO (H.new (==) H.hashString)
         return $ hashRef (h :: IHash)
     "Code"      -> return $! codeRef $ mkPrim
         { subAssoc = ANil
@@ -1910,7 +1853,7 @@ newArray vals = liftSTM $ do
 newHash :: (MonadSTM m) => VHash -> m (IVar VHash)
 newHash hash = do
     --liftSTM $ unsafeIOToSTM $ putStrLn "new hash"
-    ihash <- liftSTM . unsafeIOToSTM $ hashList (map (\(a,b) -> (a, lazyScalar b)) (Map.toList hash))
+    ihash <- liftSTM . unsafeIOToSTM $ H.fromList H.hashString (map (\(a,b) -> (a, lazyScalar b)) (Map.toList hash))
     return $ IHash ihash
 
 newHandle :: (MonadSTM m) => VHandle -> m (IVar VHandle)
@@ -2011,7 +1954,7 @@ _FakeEnv = unsafePerformIO $ liftSTM $ do
         , envImplicit= Map.empty
         , envLValue  = False
         , envGlobal  = glob
-        , envPackage = _cast "Main"
+        , envPackage = cast "Main"
         , envClasses = initTree
         , envEval    = const (return VUndef)
         , envCaller  = Nothing
@@ -2042,9 +1985,6 @@ instance YAML (Eval Val) where
 instance YAML a => YAML (Map String a) where
     asYAML x = asYAMLmap "Map" $ Map.toAscList (Map.map asYAML x)
     fromYAML node = fmap Map.fromList (fromYAMLmap node)
-instance YAML a => YAML (Map ByteString a) where
-    asYAML x = asYAMLmapBuf "Map" $ Map.toAscList (Map.map asYAML x)
-    fromYAML node = fmap Map.fromList (fromYAMLmapBuf node)
 instance YAML a => YAML (Map Var a) where
     asYAML x = asYAMLmap "Map" . sortBy (\x y -> fst x `compare` fst y) $
         [ (cast k, asYAML v) | (k, v) <- Map.toList x ]
@@ -2097,10 +2037,10 @@ instance YAML VRef where
 instance YAML IHash where
      asYAML x = do
          l      <- liftIO $ H.toList x
-         asYAMLmapBuf "IHash" (map (\(k, v) -> (k, asYAML v)) l)
+         asYAMLmap "IHash" (map (\(k, v) -> (k, asYAML v)) l)
      fromYAML node = do
-         l  <- fromYAMLmapBuf node
-         l' <- hashList l
+         l  <- fromYAMLmap node
+         l' <- H.fromList H.hashString l
          return l'
 
 instance YAML ID where

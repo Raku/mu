@@ -279,9 +279,9 @@ instance ArrayClass (IVar VPair) where
     array_fetchVal pv 0    = return . fst =<< readIVar pv
     array_fetchVal pv 1    = return . snd =<< readIVar pv
     array_fetchVal _  _    = return undef
-    array_storeVal a _ _   = retConstError $ castV $ show a
-    array_storeElem a _ _  = retConstError $ castV $ show a
-    array_deleteElem a _   = retConstError $ castV $ show a
+    array_storeVal a _ _   = retConstError $ VStr $ show a
+    array_storeElem a _ _  = retConstError $ VStr $ show a
+    array_deleteElem a _   = retConstError $ VStr $ show a
 
 perl5EvalApply :: String -> [PerlSV] -> Eval Val
 perl5EvalApply code args = do

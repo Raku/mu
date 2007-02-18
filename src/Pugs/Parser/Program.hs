@@ -115,7 +115,7 @@ makeState env = MkState
 runRule :: Env -> RuleParser Env -> FilePath -> String -> Env
 runRule env p name str =
     case ( runParser p (makeState env) name str ) of
-        Left err    -> env { envBody = Val $ VError (_VStr msg) [mkPos pos pos] }
+        Left err    -> env { envBody = Val $ VError (VStr msg) [mkPos pos pos] }
             where
             msg = concat (intersperse "\n" (map filterUnexpected $ lines (showErr err)))
             pos = errorPos err
@@ -158,9 +158,9 @@ ruleProgram = rule "program" $ do
     eof
     -- S04: CHECK {...}*      at compile time, ALAP
     --  $_() for @*CHECK
-    rv <- unsafeEvalExp $ _Syn "for"
+    rv <- unsafeEvalExp $ Syn "for"
         [ _Var "@*CHECK"
-        , _Syn "sub"
+        , Syn "sub"
             [ Val . VCode $ mkSub
                 { subBody   = App (_Var "$_") Nothing []
                 , subParams = [defaultScalarParam]

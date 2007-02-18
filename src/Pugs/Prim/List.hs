@@ -316,7 +316,7 @@ op2Reduce keep list sub = do
         _list   = return (VList [])
         _neg1   = return (VInt $ -1)
         _junc   = \jtyp -> return . VJunc $ MkJunc jtyp Set.empty Set.empty
-        _''     = return (_VStr "")
+        _''     = return (VStr "")
         _fail   = fail $ "reduce is nonsensical for " ++ cast name
 
 op2Grep :: Val -> Val -> Eval Val
@@ -380,7 +380,7 @@ op2Join x y = do
     ref     <- fromVal valList
     list    <- readRef ref
     strList <- fromVals list
-    return . _VStr . concat . intersperse str $ strList
+    return . VStr . concat . intersperse str $ strList
 
 sortByM :: (Val -> Val -> Eval Bool) -> [Val] -> Eval [Val]
 sortByM _ []  = return []

@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -fallow-overlapping-instances -foverloaded-strings #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -fallow-overlapping-instances #-}
 
 module Pugs.Prim.Match (
     op2Match, rxSplit, rxSplit_n, matchFromMR, pkgParents, pkgParentClasses
@@ -15,7 +15,7 @@ import qualified Pugs.Prim.FileTest as FileTest
 
 -- XXX - kluge: before we figure out the parrot calling convention,
 --       we'll simply inline the adverbs into the regex.
-ruleWithAdverbs :: VRule -> Eval String
+ruleWithAdverbs :: VRule -> Eval VStr
 ruleWithAdverbs MkRulePGE{ rxRule = re, rxAdverbs = advs } = do
     when (null re) $
         fail "Null patterns are invalid; use <?null> or an empty string instead"
@@ -25,8 +25,8 @@ ruleWithAdverbs MkRulePGE{ rxRule = re, rxAdverbs = advs } = do
             VBool True  -> return "1"
             VBool False -> return "0"
             _           -> fromVal v
-        return $ \x -> ":" ++ cast k ++ "(" ++ str ++ ")[" ++ x ++ "]"
-    return $ combine advs (cast re)
+        return $ \x -> ":" ++ k ++ "(" ++ str ++ ")[" ++ x ++ "]"
+    return $ combine advs re
 ruleWithAdverbs _ = fail "PCRE regexes can't be compiled to PGE regexes"
 
 doMatch :: String -> VRule -> Eval VMatch
@@ -54,10 +54,10 @@ doMatch cs rule@MkRulePGE{ rxRule = ruleStr } = do
             `catchIO` (\e -> return $ show e)
     rv  <- tryIO Nothing $ fmap Just (readIO $ decodeUTF8 pge)
     let matchToVal PGE_Fail = VMatch mkMatchFail
-        matchToVal (PGE_String str) = _VStr str
+        matchToVal (PGE_String str) = VStr str
         matchToVal (PGE_Array ms) = VList (map matchToVal ms)
         matchToVal (PGE_Match from to pos named) = VMatch $
-            mkMatchOk from to (cast substr) pos' named'
+            mkMatchOk from to substr pos' named'
             where
             substr  = genericTake (to - from) (genericDrop from cs)
             pos'    = map matchToVal pos
@@ -76,7 +76,7 @@ doMatch csChars MkRulePCRE{ rxRegex = re } = do
         subsMatch = [
             VMatch $ if fBytes == -1 then mkMatchFail else mkMatchOk
                 fChars (fChars + lChars)
-                (cast $ substr csChars fChars lChars)
+                (substr csChars fChars lChars)
                 [] Map.empty
             | (fBytes, lBytes) <- subs
             , let fChars = chars $ take fBytes csBytes
@@ -86,15 +86,15 @@ doMatch csChars MkRulePCRE{ rxRegex = re } = do
         lenChars  = chars $ substr csBytes fromBytes lenBytes
         chars = genericLength . decodeUTF8
 
-    return $ mkMatchOk fromChars (fromChars + lenChars) (cast $ substr csChars fromChars lenChars) subsMatch Map.empty
+    return $ mkMatchOk fromChars (fromChars + lenChars) (substr csChars fromChars lenChars) subsMatch Map.empty
     where
     csBytes = encodeUTF8 csChars
 
 matchFromMR :: MatchResult Char -> Val
-matchFromMR mr = VMatch $ mkMatchOk 0 0 (cast $ decodeUTF8 all) subsMatch Map.empty
+matchFromMR mr = VMatch $ mkMatchOk 0 0 (decodeUTF8 all) subsMatch Map.empty
     where
     (all:subs) = elems $ mrSubs mr
-    subsMatch = [ VMatch $ mkMatchOk 0 0 (cast $ decodeUTF8 sub) [] Map.empty | sub <- subs ]
+    subsMatch = [ VMatch $ mkMatchOk 0 0 (decodeUTF8 sub) [] Map.empty | sub <- subs ]
 
 -- Used in op2Match
 not_VRule :: Val -> Bool
@@ -107,15 +107,15 @@ classType = mkType "Class"
 -- XXX - need to generalise this
 op2Match :: Val -> Val -> Eval Val
 
-op2Match x y@VCode{} = do
+op2Match x y@(VCode _) = do
     (arity :: Int) <- fromVal =<< op1CodeArity y
     res <- fromVal =<< case arity of
         0 -> do
-            writeVar (_cast "$*_") x
+            writeVar (cast "$*_") x
             evalExp $ App (Val y) Nothing []
         1 -> do
             evalExp $ App (Val y) Nothing [Val x]
-        _ -> fail ("Unexpected arity in smart match: " ++ show arity)
+        _ -> fail ("Unexpected arity in smart match: " ++ (show arity))
     return $ VBool $ res
 
 op2Match x (VRef (MkRef (IScalar sv))) | scalar_iType sv == mkType "Scalar::Const" = do
@@ -126,7 +126,7 @@ op2Match x (VRef (MkRef (IPair pv))) = do
     -- Pair match: ~~ :e executes the -e filetest.
     (k, v)  <- pair_fetch pv
     isTrue  <- fromVal v :: Eval Bool
-    testOp  <- fromVal k :: Eval VStr
+    testOp  <- fromVal k
     file    <- fromVal x
     rv      <- ($ file) $ case testOp of
         "r" -> FileTest.isReadable
@@ -177,7 +177,7 @@ op2Match x (VSubst (MkSubst rx subst)) | rxGlobal rx = do
     (str', cnt) <- doReplace str 0
     if cnt == 0 then return (VBool False) else do
     ref     <- fromVal x
-    writeRef ref $ _VStr str'
+    writeRef ref $ VStr str'
     return $ castV cnt
     where
     doReplace :: String -> Int -> Eval (String, Int)
@@ -185,7 +185,7 @@ op2Match x (VSubst (MkSubst rx subst)) | rxGlobal rx = do
         match <- str `doMatch` rx
         if not (matchOk match) then return (str, ok) else do
         glob    <- askGlobal
-        matchSV <- findSymRef varMatch glob
+        matchSV <- findSymRef (cast "$/") glob
         writeRef matchSV (VMatch match)
         str'    <- fromVal =<< evalExp subst
         -- XXX - on zero-width match, advance the cursor and, if can't,
@@ -204,10 +204,10 @@ op2Match x (VSubst (MkSubst rx subst)) = do
     match   <- str `doMatch` rx
     if not (matchOk match) then return (VBool False) else do
     glob    <- askGlobal
-    matchSV <- findSymRef varMatch glob
+    matchSV <- findSymRef (cast "$/") glob
     writeRef matchSV (VMatch match)
     str'    <- fromVal =<< evalExp subst
-    writeRef ref . _VStr $ concat
+    writeRef ref . VStr $ concat
         [ genericTake (matchFrom match) str
         , str'
         , genericDrop (matchTo match) str
@@ -251,7 +251,7 @@ op2Match x (VRule rx) = do
     str     <- fromVal x
     match   <- str `doMatch` rx
     glob    <- askGlobal
-    matchSV <- findSymRef varMatch glob
+    matchSV <- findSymRef (cast "$/") glob
     writeRef matchSV (VMatch match)
     ifListContext
         (return $ VList (matchSubPos match))
@@ -289,17 +289,17 @@ rxSplit :: VRule -> String -> Eval [Val]
 rxSplit _  [] = return []
 rxSplit rx str = do
     match <- str `doMatch` rx
-    if not (matchOk match) then return [_VStr str] else do
+    if not (matchOk match) then return [VStr str] else do
     if matchFrom match == matchTo match
         then do
             let (c:cs) = str
             rest <- rxSplit rx cs
-            return (_VStr [c]:rest)
+            return (VStr [c]:rest)
         else do
             let before = genericTake (matchFrom match) str
                 after  = genericDrop (matchTo match) str
             rest <- rxSplit rx after
-            return $ (_VStr before:matchSubPos match) ++ rest
+            return $ (VStr before:matchSubPos match) ++ rest
 
 -- duplicated for now, pending über-Haskell-fu
 
@@ -307,19 +307,19 @@ rxSplit_n :: VRule -> String -> Int -> Eval [Val]
 rxSplit_n _ [] _ = return []
 rxSplit_n rx str n = do
     match <- str `doMatch` rx
-    if or [ ( n == 1 ), ( not (matchOk match) ) ] then return [_VStr str] else do
+    if or [ ( n == 1 ), ( not (matchOk match) ) ] then return [VStr str] else do
     if matchFrom match == matchTo match
         then do
             let (c:cs) = str
             rest <- rxSplit_n rx (cs) (n-1)
-            return (_VStr [c]:rest)
+            return (VStr [c]:rest)
         else do
             let before = genericTake (matchFrom match) str
                 after  = genericDrop (matchTo match) str
             rest <- rxSplit_n rx after (n-1)
-            return $ (_VStr before:matchSubPos match) ++ rest
+            return $ (VStr before:matchSubPos match) ++ rest
 
-pkgParents :: String -> Eval [String]
+pkgParents :: VStr -> Eval [VStr]
 pkgParents pkg = do
     ref     <- readVar $ cast (':':'*':pkg)
     if ref == undef then return [] else do
@@ -331,7 +331,7 @@ pkgParents pkg = do
     return $ nub (pkg:concat pkgs)
 
 -- XXX - copy and paste code; merge with above!
-pkgParentClasses :: String -> Eval [String]
+pkgParentClasses :: VStr -> Eval [VStr]
 pkgParentClasses pkg = do
     ref     <- readVar $ cast (':':'*':pkg)
     if ref == undef then return [] else do
@@ -340,7 +340,3 @@ pkgParentClasses pkg = do
     attrs   <- fromVal =<< fetch "is"
     pkgs    <- mapM pkgParentClasses attrs
     return $ nub (pkg:concat pkgs)
-
--- | the match variable $/
-varMatch :: Var
-varMatch = _cast "$/"

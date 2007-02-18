@@ -30,7 +30,7 @@ instance CodeClass VCode where
         SubMethod   -> mkType "Method"
         _           -> mkType "Sub"
     code_fetch    = return
-    code_store c _= retConstError $ castV $ show c
+    code_store c _= retConstError $ VStr $ show c
     code_assuming c [] [] = return c
     code_assuming _ _ _   = error "assuming"
     code_apply    = error "apply"

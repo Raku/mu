@@ -79,9 +79,9 @@ runComp comp = do
     runEvalMain env{ envDebug = Nothing } comp
 
 -- | Initialize globals and install primitives in an 'Env'
-prepareEnv :: String -> [String] -> IO Env
+prepareEnv :: VStr -> [VStr] -> IO Env
 prepareEnv name args = do
-    let confHV = Map.map _VStr config
+    let confHV = Map.map VStr config
     exec    <- getArg0
     libs    <- getLibs
     pid     <- getProcessID
@@ -95,21 +95,21 @@ prepareEnv name args = do
     egid    <- getEffectiveGroupID
     failSV  <- newScalar (VBool False)
     egidSV  <- newScalar (VInt $ toInteger egid)
-    execSV  <- newScalar (_VStr exec)
-    progSV  <- newScalar (_VStr name)
+    execSV  <- newScalar (VStr exec)
+    progSV  <- newScalar (VStr name)
     checkAV <- newArray []
     initAV  <- newArray []
     endAV   <- newArray []
     takeAV  <- newArray []
     matchAV <- newScalar (VMatch mkMatchFail)
-    incAV   <- newArray (map _VStr libs)
+    incAV   <- newArray (map VStr libs)
     incHV   <- newHash Map.empty
-    argsAV  <- newArray (map _VStr args)
+    argsAV  <- newArray (map VStr args)
     inGV    <- newHandle stdin
     outGV   <- newHandle stdout
     errGV   <- newHandle stderr
     argsGV  <- newScalar undef
-    errSV   <- newScalar (_VStr "")
+    errSV   <- newScalar (VStr "")
     defSV   <- newScalar undef
     autoSV  <- newScalar undef
     classes <- initClassObjects (MkObjectId $ -1) [] initTree
@@ -150,17 +150,17 @@ prepareEnv name args = do
         -- XXX What would this even do?
         -- , gen "%=POD"        (Val . VHash $ emptyHV)
         , gen "@=POD"        $ MkRef $ constArray []
-        , gen "$=POD"        $ MkRef $ constScalar (_VStr "")
+        , gen "$=POD"        $ MkRef $ constScalar (VStr "")
         -- To answer the question "what revision does evalbot run on?"
-        , gen "$?PUGS_VERSION" $ MkRef $ constScalar (_VStr $ getConfig "pugs_version")
-        , gen "$*PUGS_VERSION" $ MkRef $ constScalar (_VStr $ getConfig "pugs_version")
+        , gen "$?PUGS_VERSION" $ MkRef $ constScalar (VStr $ getConfig "pugs_version")
+        , gen "$*PUGS_VERSION" $ MkRef $ constScalar (VStr $ getConfig "pugs_version")
         -- If you change the name or contents of $?PUGS_BACKEND, be sure
         -- to update all t/ and perl5/{PIL2JS,PIL-Run} as well.
-        , gen "$?PUGS_BACKEND" $ MkRef $ constScalar (_VStr "BACKEND_PUGS")
-        , gen "$?COMPILER"   $ MkRef $ constScalar (_VStr "Pugs")
-        , gen "$?VERSION"    $ MkRef $ constScalar (_VStr $ getConfig "pugs_versnum")
-        , gen "$*OS"         $ hideInSafemode $ MkRef $ constScalar (_VStr $ getConfig "osname")
-        , gen "%?CONFIG" $ hideInSafemode $ hashRef (Map.mapKeys __ confHV)
+        , gen "$?PUGS_BACKEND" $ MkRef $ constScalar (VStr "BACKEND_PUGS")
+        , gen "$?COMPILER"   $ MkRef $ constScalar (VStr "Pugs")
+        , gen "$?VERSION"    $ MkRef $ constScalar (VStr $ getConfig "pugs_versnum")
+        , gen "$*OS"         $ hideInSafemode $ MkRef $ constScalar (VStr $ getConfig "osname")
+        , gen "%?CONFIG" $ hideInSafemode $ hashRef confHV
         , gen "$*_" $ MkRef defSV
         , gen "$*AUTOLOAD" $ MkRef autoSV
         , gen "$*STRICT" $ MkRef strictSV
@@ -182,8 +182,8 @@ prepareEnv name args = do
 initClassObjects :: ObjectId -> [Type] -> ClassTree -> IO [STM PadMutator]
 initClassObjects uniq parent (MkClassTree (Node typ children)) = do
     obj     <- createObjectRaw uniq Nothing (mkType "Class")
-        [ (__"name",  castV $ showType typ)
-        , (__"is",    castV $ map showType parent)
+        [ ("name",  castV $ showType typ)
+        , ("is",    castV $ map showType parent)
         ]
     objSV   <- newScalar (VObject obj)
     rest    <- forM children $
@@ -192,7 +192,7 @@ initClassObjects uniq parent (MkClassTree (Node typ children)) = do
         codeSym  = genMultiSym (cast ("&*term:"++name)) $ codeRef typeCode
         name     = showType typ
         typeBody = Val . VType . mkType $ name
-        Syn _ [Val (VCode typeCode)] = typeMacro name typeBody
+        Syn "sub" [Val (VCode typeCode)] = typeMacro name typeBody
     return (metaSym:codeSym:concat rest)
 
 {-|

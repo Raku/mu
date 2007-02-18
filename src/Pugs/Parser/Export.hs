@@ -16,7 +16,7 @@ import Pugs.Lexer (isWordAlpha)
 
 exportSym :: Scope -> String -> Val -> RuleParser ()
 exportSym scope ('&':subname) ref = do
-    rv <- unsafeEvalExp $ _Syn "," [App (_Var "&values") (Just (Val ref)) []]
+    rv <- unsafeEvalExp $ Syn "," [App (_Var "&values") (Just (Val ref)) []]
     case rv of
         Val (VList subs) -> do
             exps <- forM (filter defined subs) $ \val -> do
@@ -24,7 +24,7 @@ exportSym scope ('&':subname) ref = do
                     mkMulti = case val of
                         VCode sub | isMulti sub -> ('&':)
                         _                       -> id
-                    mkExp   = _Syn ":=" [_Var name, Val val]
+                    mkExp   = Syn ":=" [_Var name, Val val]
                     mkSym   = _Sym scope (mkMulti name) mkExp
                 doExport scope mkSym
             case scope of

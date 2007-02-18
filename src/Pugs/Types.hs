@@ -169,7 +169,7 @@ varNullScalar = MkVar
 
 -- | the topical variable $_
 varTopic :: Var
-varTopic = _cast "$_"
+varTopic = cast "$_"
 
 data VarMeta
     = MNil
@@ -536,7 +536,7 @@ dropEnd :: Int -> ByteString -> ByteString
 dropEnd i buf = Buf.take (Buf.length buf - i) buf
 
 -- | Uses Haskell's underlying representation for strings.
-type VStr  = ByteString
+type VStr  = String
 -- | Uses Haskell's underlying representation for booleans.
 type VBool = Bool
 -- | Uses Haskell's underlying representation for integers.
@@ -802,7 +802,7 @@ initTree :: ClassTree
 initTree = MkClassTree (fmap MkType rawTree)
 
 rawTree :: Tree ID
-rawTree = fmap _cast $! Node "Object"
+rawTree = fmap cast $! Node "Object"
     [ Node "Any"
         [ Node "Item"
             [ Node "List"

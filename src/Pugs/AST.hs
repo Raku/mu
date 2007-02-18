@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -cpp -fglasgow-exts -fno-warn-orphans -funbox-strict-fields -fallow-overlapping-instances -foverloaded-strings #-}
+{-# OPTIONS_GHC -cpp -fglasgow-exts -fno-warn-orphans -funbox-strict-fields -fallow-overlapping-instances #-}
 
 {-|
     Abstract syntax tree.
@@ -215,7 +215,7 @@ mergeStmts x (Stmts y Noop) = mergeStmts x y
 mergeStmts x (Stmts Noop y) = mergeStmts x y
 mergeStmts x y = Stmts x y
 
-isImplicitTopic :: ID -> Bool
+isImplicitTopic :: String -> Bool
 isImplicitTopic "subst" = True
 isImplicitTopic "match" = True
 isImplicitTopic "trans" = True
@@ -233,7 +233,7 @@ isEmptyParams [x]
 isEmptyParams _ = False
 
 _underscore :: ID
-_underscore = _cast "_"
+_underscore = cast "_" 
 
 newPackage :: String -> String -> [String] -> [String] -> Exp
 newPackage cls name classes roles = Stmts metaObj (newType name)
@@ -243,19 +243,19 @@ newPackage cls name classes roles = Stmts metaObj (newType name)
         , App (_Var "&HOW::new")
             (Just $ Val (VType $ mkType cls))
             [ Syn "named"
-                [ Val (_VStr "is")
-                , Val (VList $ map castV classes)
+                [ Val (VStr "is")
+                , Val (VList $ map VStr classes)
                 ]
             , Syn "named"
-                [ Val (_VStr "does")
-                , Val (VList $ map castV roles)
+                [ Val (VStr "does")
+                , Val (VList $ map VStr roles)
                 ]
             , Syn "named"
-                [ Val (_VStr "name")
-                , Val (castV name)
+                [ Val (VStr "name")
+                , Val (VStr name)
                 ]
             , Syn "named"
-                [ Val (_VStr "attrs")
+                [ Val (VStr "attrs")
                 , Syn "\\{}" [Noop]
                 ]
             ]

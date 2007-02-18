@@ -10,4 +10,4 @@ import DrIFT.JSON
 genJSON :: Eval Val
 genJSON = do
     penv <- compile () :: Eval PIL_Environment
-    return . _VStr . unlines $ [showJSON penv]
+    return . VStr . unlines $ [showJSON penv]

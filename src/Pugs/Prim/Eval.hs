@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances -foverloaded-strings #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances #-}
 module Pugs.Prim.Eval (
     -- used by Pugs.Prim
     op1EvalHaskell, op1EvalP6Y,
@@ -40,9 +40,9 @@ opRequire :: Bool -> Val -> Eval Val
 opRequire dumpEnv v = do
     mod         <- fromVal v
     if elem mod specialPackageNames then return (VBool True) else do
-    incs        <- fromVal =<< readVar (_cast "@*INC")
+    incs        <- fromVal =<< readVar (cast "@*INC")
     glob        <- askGlobal
-    seen        <- findSymRef (_cast "%*INC") glob
+    seen        <- findSymRef (cast "%*INC") glob
     loaded      <- existsFromRef seen v
     let file | '.' `elem` mod = mod
              | otherwise      = (concat $ intersperse (getConfig "file_sep") $ split "::" mod) ++ ".pm"
@@ -51,18 +51,18 @@ opRequire dumpEnv v = do
         -- %*INC{mod} = { relname => file, pathname => pathName }
         evalExp $ Syn "="
             [ Syn "{}"             -- subscript
-                [ _Var "%*INC", Val . _VStr $ decodeUTF8 mod ]
+                [ _Var "%*INC", Val . VStr $ decodeUTF8 mod ]
                 , Syn "\\{}"       -- hashref
                     [ Syn "," [ mkStrPair "fullpath" (decodeUTF8 pathName)
                               , mkStrPair "relpath"  (decodeUTF8 file) ]
                     ]
             ]
         -- merge @*END here
-        endAV   <- findSymRef (_cast "@*END") glob
+        endAV   <- findSymRef (cast "@*END") glob
         ends    <- fromVal =<< readRef endAV
         clearRef endAV
         rv <- tryFastEval pathName (pathName ++ ".yml")
-        endAV'  <- findSymRef (_cast "@*END") glob
+        endAV'  <- findSymRef (cast "@*END") glob
         doArray (VRef endAV') (`array_unshift` ends)
         return rv
     where
@@ -80,7 +80,7 @@ opRequire dumpEnv v = do
             _                            -> opEval style pathName ""
         
         
-    fastEval = op1EvalP6Y . _VStr
+    fastEval = op1EvalP6Y . VStr
     slowEval pathName = do 
         str      <- liftIO $ readFile pathName
         opEval style pathName str
@@ -90,7 +90,7 @@ opRequire dumpEnv v = do
                                            else EvalResultLastValue)}
     errMsg file incs = "Can't locate " ++ file ++ " in @*INC (@*INC contains: " ++ unwords incs ++ ")."
     mkStrPair :: String -> String -> Exp
-    mkStrPair key val = App (_Var "&infix:=>") Nothing (map (Val . _VStr) [key, val])
+    mkStrPair key val = App (_Var "&infix:=>") Nothing (map (Val . VStr) [key, val])
 
 requireInc :: (MonadIO m) => [FilePath] -> FilePath -> String -> m String
 requireInc [] _ msg = fail msg
@@ -131,7 +131,7 @@ op1EvalP6Y fileName = do
         Right MkNode{ n_elem=ESeq (v:_) }
             | MkNode{ n_elem=EStr vnum } <- v
             , vnum /= (packBuf $ show compUnitVersion) -> do
-                err ("incompatible version number for compilation unit" :: String)
+                err "incompatible version number for compilation unit"
         Right yml' -> do
             globTVar    <- asks envGlobal
             MkCompUnit _ glob ast <- liftIO $ fromYAML yml'
@@ -150,7 +150,7 @@ op1EvalP6Y fileName = do
 opEval :: EvalStyle -> FilePath -> String -> Eval Val
 opEval style path str = enterCaller $ do
     env     <- ask
-    let errHandler err = return env{ envBody = Val $ VError (_VStr (show err)) [] }
+    let errHandler err = return env{ envBody = Val $ VError (VStr (show err)) [] }
     env'    <- liftIO $ evaluateIO (parseProgram env path str) `catchIO` errHandler
     val     <- tryT $ local (const env') $ do
         evl <- asks envEval
@@ -166,7 +166,7 @@ opEval style path str = enterCaller $ do
 retEvalResult :: EvalStyle -> Val -> Eval Val
 retEvalResult style val = do
     glob <- askGlobal
-    errSV <- findSymRef (_cast "$!") glob
+    errSV <- findSymRef (cast "$!") glob
     case val of
         err@(VError e _) -> do
             writeRef errSV e

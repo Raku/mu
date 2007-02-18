@@ -311,7 +311,7 @@ doLoad env fn = do
     runImperatively env (evaluate exp)
     return ()
     where
-    exp = App (_Var "&require") Nothing [Val $ _VStr fn]
+    exp = App (_Var "&require") Nothing [Val $ VStr fn]
 
 doRunSingle :: TVar Env -> RunOptions -> String -> IO ()
 doRunSingle menv opts prog = (`catchIO` handler) $ do
@@ -353,7 +353,7 @@ doRunSingle menv opts prog = (`catchIO` handler) $ do
     makeProper exp = case exp of
         Val err@(VError (VStr msg) _)
             | runOptShowPretty opts
-            , any (== "Unexpected end of input") (lines (cast msg)) -> do
+            , any (== "Unexpected end of input") (lines msg) -> do
             cont <- readline "....> "
             case cont of
                 Just line   -> do
@@ -364,13 +364,13 @@ doRunSingle menv opts prog = (`catchIO` handler) $ do
         _ | runOptSeparately opts -> return exp
         _ -> return $ makeDumpEnv exp
     -- XXX Generalize this into structural folding
-    makeDumpEnv Noop              = _Syn "continuation" []
-    makeDumpEnv (Stmts x Noop)    = Stmts x   (_Syn "continuation" [])
+    makeDumpEnv Noop              = Syn "continuation" []
+    makeDumpEnv (Stmts x Noop)    = Stmts x   (Syn "continuation" [])
     makeDumpEnv (Stmts x exp)     = Stmts x   $ makeDumpEnv exp
     makeDumpEnv (Ann ann exp)     = Ann ann   $ makeDumpEnv exp
     makeDumpEnv (Pad x y exp)     = Pad x y   $ makeDumpEnv exp
     makeDumpEnv (Sym x y exp)     = Sym x y   $ makeDumpEnv exp
-    makeDumpEnv exp = Stmts exp (_Syn "continuation" [])
+    makeDumpEnv exp = Stmts exp (Syn "continuation" [])
     handler (IOException ioe) | isUserError ioe = do
         putStrLn "Internal error while running expression:"
         putStrLn $ ioeGetErrorString ioe
@@ -404,7 +404,7 @@ noEnvDebug :: Env -> Env
 noEnvDebug e = e{ envDebug = Nothing }
 
 runProgramWith ::
-    (Env -> Env) -> (Val -> IO a) -> String -> [String] -> String -> IO a
+    (Env -> Env) -> (Val -> IO a) -> VStr -> [VStr] -> String -> IO a
 runProgramWith fenv f name args prog = do
     env <- prepareEnv name args
     val <- runEnv $ parseProgram (fenv env) name prog

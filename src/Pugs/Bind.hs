@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances -foverloaded-strings #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances #-}
 
 {-|
     Parameter binding.

@@ -10,4 +10,4 @@ import DrIFT.Perl5
 genPerl5 :: Eval Val
 genPerl5 = do
     penv <- compile () :: Eval PIL_Environment
-    return . _VStr . unlines $ [showPerl5 penv]
+    return . VStr . unlines $ [showPerl5 penv]

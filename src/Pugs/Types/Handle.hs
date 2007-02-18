@@ -12,7 +12,7 @@ class (Typeable a) => HandleClass a where
     handle_print       :: a -> [Val] -> Eval VBool
     handle_print gv vals = do
         hdl  <- handle_fetch gv
-        strs <- mapM fromVal vals
+        strs <- mapM valToStr vals
         tryIO False $ do
             hPutStr hdl $ concatMap encodeUTF8 strs
             return True

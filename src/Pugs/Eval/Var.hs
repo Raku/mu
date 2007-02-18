@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -cpp -fallow-overlapping-instances -funbox-strict-fields -foverloaded-strings #-}
+{-# OPTIONS_GHC -fglasgow-exts -cpp -fallow-overlapping-instances -funbox-strict-fields #-}
 
 module Pugs.Eval.Var (
     findVar, findVarRef, findSub,
@@ -42,7 +42,7 @@ lookupShellEnvironment name = do
         VBool False -> do
             retError "no such ENV variable" name
         _           -> do
-            rv   <- enterLValue (evalExp $ _Syn "{}" [_Var "%*ENV", Val (VStr $ cast name)])
+            rv   <- enterLValue (evalExp $ Syn "{}" [_Var "%*ENV", Val (VStr $ cast name)])
             tvar <- liftSTM . newTVar =<< fromVal rv
             return (Just tvar)
 
@@ -97,7 +97,7 @@ findVarRef var@MkVar{ v_sigil = sig, v_twigil = twi, v_name = name, v_package = 
     padEntryToHashEntry (key, (_, tvref) : _) = do
         vref   <- liftSTM (readTVar tvref)
         let val = VRef vref
-        return (__(cast key), val)
+        return (cast key, val)
     padEntryToHashEntry (_, []) = fail "Nonexistant var in pad?"
 
 doFindVarRef :: Var -> Eval (Maybe (TVar VRef))
@@ -465,7 +465,7 @@ findAttrs pkg = do
     maybeM (findVar $ metaVar pkg) $ \ref -> do
         meta    <- readRef ref
         fetch   <- doHash meta hash_fetchVal
-        fmap (map (cast :: VStr -> Pkg)) (fromVal =<< fetch "is")
+        fmap (map (cast :: String -> Pkg)) (fromVal =<< fetch "is")
 
 {-|
 Take an expression, and attempt to predict what type it will evaluate to
@@ -490,7 +490,7 @@ inferExpType (App (Val val) _ _) = do
     sub <- fromVal val
     return $ subReturns sub
 inferExpType (App (Var var) (Just inv) _)
-    | var == _cast "&new"
+    | var == cast "&new"
     = inferExpType $ unwrap inv
 inferExpType (App (Var name) invs args) = do
     sub <- findSub name invs args
@@ -547,25 +547,25 @@ getMagical var = Map.findWithDefault (return Nothing) var magicalMap
 
 magicalMap :: Map Var (Eval (Maybe Val))
 magicalMap = Map.fromList
-    [ (_cast "$?FILE"     , posSym posName)
-    , (_cast "$?LINE"     , posSym posBeginLine)
-    , (_cast "$?COLUMN"   , posSym posBeginColumn)
-    , (_cast "$?POSITION" , posSym pretty)
-    , (_cast "$?MODULE"   , constSym "Main")
-    , (_cast "$?OS"       , constSym (getConfig "osname"))
-    , (_cast "$?CLASS"    , fmap (Just . VType . cast) (asks envPackage))
-    , (_cast ":?CLASS"    , fmap (Just . VType . cast) (asks envPackage))
-    , (_cast "$?PACKAGE"  , fmap (Just . VType . cast) (asks envPackage))
-    , (_cast ":?PACKAGE"  , fmap (Just . VType . cast) (asks envPackage))
-    , (_cast "$?ROLE"     , fmap (Just . VType . cast) (asks envPackage))
-    , (_cast ":?ROLE"     , fmap (Just . VType . cast) (asks envPackage))
+    [ (cast "$?FILE"     , posSym posName)
+    , (cast "$?LINE"     , posSym posBeginLine)
+    , (cast "$?COLUMN"   , posSym posBeginColumn)
+    , (cast "$?POSITION" , posSym pretty)
+    , (cast "$?MODULE"   , constSym "Main")
+    , (cast "$?OS"       , constSym (getConfig "osname"))
+    , (cast "$?CLASS"    , fmap (Just . VType . cast) (asks envPackage))
+    , (cast ":?CLASS"    , fmap (Just . VType . cast) (asks envPackage))
+    , (cast "$?PACKAGE"  , fmap (Just . VType . cast) (asks envPackage))
+    , (cast ":?PACKAGE"  , fmap (Just . VType . cast) (asks envPackage))
+    , (cast "$?ROLE"     , fmap (Just . VType . cast) (asks envPackage))
+    , (cast ":?ROLE"     , fmap (Just . VType . cast) (asks envPackage))
     ]
 
 posSym :: Value a => (Pos -> a) -> Eval (Maybe Val)
 posSym f = fmap (Just . castV . f) $ asks envPos
 
 constSym :: String -> Eval (Maybe Val)
-constSym = return . Just . _VStr
+constSym = return . Just . VStr
 
 findSyms :: Var -> Eval [(Var, Val)]
 findSyms var
