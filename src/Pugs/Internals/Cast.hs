@@ -17,6 +17,7 @@ import Numeric (showHex)
 import Data.Foldable (toList)
 import qualified Data.Sequence as Seq
 import qualified Data.Typeable as Typeable
+import qualified UTF8
 
 --
 -- Nominal subtyping relationship with widening cast.
@@ -29,8 +30,8 @@ import qualified Data.Typeable as Typeable
 class ((:>:) a) b where
     {-# SPECIALISE cast :: a -> a #-}
     {-# SPECIALISE cast :: ByteString -> ByteString #-}
-    {-# SPECIALISE cast :: String -> String #-}
-    {-# SPECIALISE cast :: ByteString -> ByteString #-}
+    {-# SPECIALISE cast :: String -> ByteString #-}
+    {-# SPECIALISE cast :: ByteString -> String #-}
     {-# SPECIALISE cast :: String -> String #-}
     cast :: b -> a
 
@@ -40,6 +41,9 @@ class ((:<:) a) b where
 instance (b :<: a) => (:>:) a b where
     cast = castBack
 
+{-# INLINE _cast #-}
+{-# SPECIALISE _cast :: String -> String #-}
+{-# SPECIALISE _cast :: String -> ByteString #-}
 _cast :: (a :>: String) => String -> a
 _cast = cast
 
@@ -68,4 +72,9 @@ showAddressOf :: String -> a -> String
 showAddressOf typ x = addr `seq` ('<' : typ ++ ":0x" ++ showHex addr ">")
     where
     addr = addressOf x
+
+instance ((:>:) String) ByteString where
+    cast = UTF8.unpack
+instance ((:<:) String) ByteString where
+    castBack = UTF8.pack
 

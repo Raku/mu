@@ -15,6 +15,17 @@ import qualified Data.HashTable as H
 import qualified Foreign as Foreign
 import qualified UTF8
 
+#if __GLASGOW_HASKELL__ > 606
+
+import GHC.Base (IsString(..))
+
+instance IsString ByteString where
+    fromString = UTF8.pack
+instance IsString ID where
+    fromString = cast
+
+#endif
+
 -- XXX - Under GHCI, our global _BufToID table could be refreshed into
 --       nonexistence, so we need to compare IDs based on the actual buffer,
 --       not its unique key.
@@ -43,14 +54,9 @@ instance Show ID where
 instance Read ID where
     readsPrec p s = [ (unsafePerformIO (bufToID (UTF8.pack x)), y) | (x, y) <- readsPrec p s]
 
-instance ((:>:) String) ByteString where
-    cast = UTF8.unpack
-instance ((:<:) String) ByteString where
-    castBack = UTF8.pack
-
 {-# NOINLINE nullID #-}
 nullID :: ID
-nullID = cast ""
+nullID = _cast ""
 
 {-# INLINE __ #-}
 __ :: String -> ByteString
