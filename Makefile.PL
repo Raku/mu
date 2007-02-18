@@ -665,17 +665,7 @@ src/Pugs/PIL1.hs:
 src/Pugs/PIL2.hs:
 util/drift.pl:
 
-src/Emit/PIR/Instances.hs: src/Emit/PIR.hs util/drift.pl
-	\$(PERL) util/drift.pl src/Emit/PIR.hs
-
-src/Pugs/AST/Internals/Instances.hs: src/Pugs/AST/Internals.hs util/drift.pl
-	\$(PERL) util/drift.pl src/Pugs/AST/Internals.hs
-
-src/Pugs/PIL1/Instances.hs: src/Pugs/PIL1.hs util/drift.pl
-	\$(PERL) util/drift.pl src/Pugs/PIL1.hs
-
-src/Pugs/PIL2/Instances.hs: src/Pugs/PIL2.hs util/drift.pl
-	\$(PERL) util/drift.pl src/Pugs/PIL2.hs	
+@{[ mk_drift_rules( qw(src/Emit/PIR src/Pugs/AST/Internals src/Pugs/PIL1 src/Pugs/PIL2 src/Pugs/MOP) ) ]}
 
 haddock : $version_h $config_h @hppfiles dist/doc/html
 	haddock -t Pugs-$version -h -o dist/doc/html/ @hppfiles
@@ -993,4 +983,11 @@ sub compile_hs {
     Please check your GHC and Cabal installation.
 .
     }
+}
+
+sub mk_drift_rules {
+    join "\n\n", map { <<"." } @_;
+$_/Instances.hs: $_.hs util/drift.pl
+\t\$(PERL) util/drift.pl $_.hs
+.
 }
