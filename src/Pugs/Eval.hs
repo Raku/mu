@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -cpp -fno-warn-deprecations -fallow-overlapping-instances #-}
+{-# OPTIONS_GHC -fglasgow-exts -cpp -fno-warn-deprecations -fallow-overlapping-instances -foverloaded-strings #-}
 
 {-|
     Evaluation and reduction engine.
@@ -68,7 +68,7 @@ emptyEnv name genPad = liftSTM $ do
         , envImplicit= Map.empty
         , envLValue  = False
         , envGlobal  = length (show (padKeys globPad)) `seq` glob -- force eval of all sym names
-        , envPackage = cast "Main"
+        , envPackage = _cast "Main"
         , envClasses = initTree
         , envEval    = evaluate
         , envCaller  = Nothing
@@ -94,7 +94,7 @@ Emits a runtime warning.
 runWarn :: String -> Eval ()
 runWarn msg = do 
     enterEvalContext CxtVoid $
-        App (_Var "&warn") Nothing [Val (VStr msg)]
+        App (_Var "&warn") Nothing [Val (_VStr msg)]
     return ()
 
 type DebugCache = TVar (Map ID String)
@@ -114,7 +114,7 @@ debug ref key fun str a = do
 evaluateMain :: Exp -> Eval Val
 evaluateMain exp = do
     -- S04: INIT {...}*      at run time, ASAP
-    initAV   <- reduceVar $ cast "@*INIT"
+    initAV   <- reduceVar $ _cast "@*INIT"
     initSubs <- fromVals initAV
     enterContext CxtVoid $ do
         mapM_ evalExp [ App (Val sub) Nothing [] | sub@VCode{} <- initSubs ]
@@ -122,9 +122,9 @@ evaluateMain exp = do
     -- The main runtime
     tryT (evaluate exp) `finallyM` do
         -- S04: END {...}       at run time, ALAP
-        endAV       <- reduceVar $ cast "@*END"
+        endAV       <- reduceVar $ _cast "@*END"
         endSubs     <- fromVals endAV
-        endMainAV   <- reduceVar $ cast "@Main::END"
+        endMainAV   <- reduceVar $ _cast "@Main::END"
         endMainSubs <- fromVals endMainAV
         enterContext CxtVoid $ do
             mapM_ evalExp [ App (Val sub) Nothing [] | sub@VCode{} <- endMainSubs ++ endSubs ]
@@ -142,9 +142,9 @@ evaluate exp = do
     case debugRef of
         Just ref -> do
             want <- asks envWant
-            debug ref (cast "indent") ('-':) (" Evl [" ++ want ++ "]:\n") exp
+            debug ref (_cast "indent") ('-':) (" Evl [" ++ want ++ "]:\n") exp
             val <- local (\e -> e{ envBody = exp }) $ reduce exp
-            debug ref (cast "indent") (\x -> if null x then [] else tail x) "- Ret: " val
+            debug ref (_cast "indent") (\x -> if null x then [] else tail x) "- Ret: " val
             trapVal val (return val)
         Nothing -> do
             val <- reduce exp
@@ -269,15 +269,15 @@ reduceVal v@(VRef var) = do
 reduceVal v = retVal v
 
 isStrict :: Eval Bool
-isStrict = fromVal =<< readVar (cast "$*STRICT")
+isStrict = fromVal =<< readVar (_cast "$*STRICT")
 
 -- Reduction for variables
 reduceVar :: Var -> Eval Val
 reduceVar var@MkVar{ v_sigil = sig, v_twigil = twi, v_name = name, v_package = pkg }
     | TAttribute <- twi
-    = reduceSyn (show sig ++ "{}") [ Syn "{}" [_Var "&self", Val (VStr $ cast name)] ]
+    = reduceSyn (cast $ show sig ++ "{}") [ Syn "{}" [_Var "&self", Val (VStr $ cast name)] ]
     | TPrivate <- twi
-    = reduceSyn (show sig ++ "{}") [ Syn "{}" [_Var "&self", Val (VStr $ cast name)] ]
+    = reduceSyn (cast $ show sig ++ "{}") [ Syn "{}" [_Var "&self", Val (VStr $ cast name)] ]
     | otherwise = do
         v <- findVar var
         case v of
@@ -306,13 +306,13 @@ reduceStmts this Noop           = reduce this
 reduceStmts this (Ann _ Noop)   = reduce this
 
 -- XXX - Hack to get context propagating to "return"
-reduceStmts this@(App (Var var) _ _) _ | var == cast "&return" = reduce this
-reduceStmts this@(Ann _ (App (Var var) _ _)) _ | var == cast "&return" = reduce this
+reduceStmts this@(App (Var var) _ _) _ | var == _cast "&return" = reduce this
+reduceStmts this@(Ann _ (App (Var var) _ _)) _ | var == _cast "&return" = reduce this
 
 reduceStmts this rest = do
     let withCxt = case this of
-            App (Var var) _ _         | var == cast "&yield" -> id
-            Ann _ (App (Var var) _ _) | var == cast "&yield" -> id
+            App (Var var) _ _         | var == _cast "&yield" -> id
+            Ann _ (App (Var var) _ _) | var == _cast "&yield" -> id
             _  -> enterContext cxtVoid
     val <- withCxt (reduce this)
     trapVal val $ case rest of
@@ -382,7 +382,7 @@ reducePad _ lex exp = do
 reduceSym :: Scope -> Var -> Exp -> Eval Val
 -- Special case: my (undef) is no-op
 reduceSym scope var exp
---  | var == cast "" = evalExp exp
+--  | var == _cast "" = evalExp exp
     | scope <= SMy = do
         ref <- newObject (typeOfSigilVar var)
         let (gen, var')
@@ -417,7 +417,7 @@ expressed using 'App' (regular sub application).
 Theoretically, 'Syn' will one day be deprecated when 'App' becomes powerful
 enough to make it redundant.
 -}
-reduceSyn :: String -> [Exp] -> Eval Val
+reduceSyn :: ID -> [Exp] -> Eval Val
 
 reduceSyn "()" [exp] = reduce exp
 
@@ -540,7 +540,7 @@ reduceSyn "gather" [exp] = do
     enterGather $ apply sub Nothing []
     readRef newAV `finallyM` liftSTM (modifyTVar globTV oldSym)
     where
-    takeVar = cast "$*TAKE"
+    takeVar = _cast "$*TAKE"
 
 reduceSyn "loop" exps = enterLoop $ do
     let [pre, cond, post, body] = case exps of { [_] -> exps'; _ -> exps }
@@ -642,8 +642,10 @@ reduceSyn ":=" exps
         -- env' <- cloneEnv env -- FULL THUNKING
         names <- forM vars $ \var -> case unwrap var of
             Var name -> return name
-            Syn [sigil,':',':','(',')'] [vexp]
-                | Val (VStr name) <- unwrap vexp -> return $ possiblyFixOperatorName (cast (sigil:name))
+            Syn syn [vexp]
+                | [sigil,':',':','(',')'] <- cast syn
+                , Val (VStr name) <- unwrap vexp
+                -> return $ possiblyFixOperatorName (cast (sigil:cast name))
             _        -> retError "Cannot bind this as lhs" var
         bindings <- forM (names `zip` vexps) $ \(var, vexp) -> enterLValue $ do
             {- FULL THUNKING
@@ -726,12 +728,12 @@ reduceSyn "\\[]" [exp] = do
 reduceSyn "[]" exps
     -- XXX evil hack for infinite slices
     | [lhs, App (Var var) invs args] <- unwrap exps
-    , var == cast "&postfix:..."
+    , var == _cast "&postfix:..."
     , [idx] <- maybeToList invs ++ args
 --  , not (envLValue env)
     = reduce (Syn "[...]" [lhs, idx])
     | [lhs, App (Var var) invs args] <- unwrap exps
-    , var == cast "&infix:.."
+    , var == _cast "&infix:.."
     , [idx, Val (VNum n)] <- maybeToList invs ++ args
     , n == 1/0
 --  , not (envLValue env)
@@ -779,15 +781,6 @@ reduceSyn "${}" [exp] = do
     ref     <- fromVal val
     evalRef ref
 
-reduceSyn (sigil:"::()") exps = do
-    -- These are all parts of the name
-    parts   <- mapM fromVal =<< mapM evalExp exps
-    -- Now we only have to add the sigil in front of the string and join
-    -- the parts with "::".
-    let varname = sigil:(concat . (intersperse "::") $ parts)
-    -- Finally, eval the varname.
-    reduceVar (possiblyFixOperatorName (cast varname))
-
 reduceSyn "{}" [listExp, indexExp] = do
     varVal  <- enterLValue $ enterEvalContext (cxtItem "Hash") listExp
     idxCxt  <- inferExpCxt indexExp 
@@ -800,7 +793,7 @@ reduceSyn "{}" [listExp, indexExp] = do
             _        -> True
 
 reduceSyn "rx" [exp, adverbs] = do
-    hv      <- fromVal =<< evalExp adverbs
+    hv      <- fromVal =<< evalExp adverbs :: Eval [(VStr, Val)]
     val     <- enterEvalContext (cxtItem "Str") exp
     str     <- fromVal val
     p5      <- fromAdverb hv ["P5", "Perl5", "perl5"]
@@ -873,7 +866,7 @@ reduceSyn "namespace" [_kind, exp, body] = do
 reduceSyn "inline" [langExp, _] = do
     langVal <- evalExp langExp
     lang    <- fromVal langVal
-    when (lang /= "Haskell") $
+    when (lang /= ("Haskell" :: String)) $
         retError "Inline: Unknown language" langVal
     pkg     <- asks envPackage -- full module name here
     let file = (`concatMap` cast pkg) $ \v -> case v of
@@ -888,8 +881,8 @@ reduceSyn "=>" [keyExp, valExp] = do
     val <- enterEvalContext cxtItemAny valExp
     retItem $ castV (key, val)
 
-reduceSyn syn [lhsExp, rhsExp]
-    | last syn == '=' = do
+reduceSyn name [lhsExp, rhsExp]
+    | syn <- cast name, last syn == '=' = do
         let op = "&infix:" ++ init syn
         lhs <- enterLValue $ evalExp lhsExp
         val <- readRef =<< fromVal lhs
@@ -935,6 +928,15 @@ reduceSyn "CCallDyn" (Val (VStr quant):methExp:invExp:args) = do
                 rest <- findAccum meth (cast thisPkg)
                 return (sub:rest)
             _         -> return []
+
+reduceSyn name exps | (sigil:"::()") <- cast name = do
+    -- These are all parts of the name
+    parts   <- mapM fromVal =<< mapM evalExp exps
+    -- Now we only have to add the sigil in front of the string and join
+    -- the parts with "::".
+    let varname = sigil:(concat . (intersperse "::") $ parts)
+    -- Finally, eval the varname.
+    reduceVar (possiblyFixOperatorName (_cast varname))
 
 reduceSyn name exps =
     retError "Unknown syntactic construct" (Syn name exps)
@@ -1107,7 +1109,7 @@ argsFeed fAcc aAcc (argl:als) = do
             cap <- castVal =<< fromVal =<< enterRValue (enterEvalContext (cxtItem "Capture") capExp)
             af (Just (mconcat (resFeed:c_feeds cap))) args
         | App (Var var) Nothing capExps <- unwrapN
-        , var == cast "&prefix:|<<" = do
+        , var == _cast "&prefix:|<<" = do
             caps    <- mapM castVal =<< fromVals =<< (enterRValue $ enterEvalContext (cxtSlurpy "Capture") (Syn "," capExps))
             af (Just (mconcat (resFeed:concatMap c_feeds caps))) args
         | otherwise = do
@@ -1123,7 +1125,7 @@ argsFeed fAcc aAcc (argl:als) = do
         Map.insertWith (flip (++)) id [v] mp
 
 dummyVar :: Var
-dummyVar = cast "$"
+dummyVar = _cast "$"
 
 chainFun :: Params -> Exp -> Params -> Exp -> [Val] -> Eval Val
 chainFun p1 f1 p2 f2 (v1:v2:vs) = do
@@ -1279,7 +1281,7 @@ applySub sub invs args
         tryAnyComprehension _ [] = vanillaApply
         tryAnyComprehension pre (pivot:post)
             | App (Var var') _ _    <- unwrap pivot
-            , var' == cast "&list" = do
+            , var' == _cast "&list" = do
                 -- List comprehension!  This:
                 --      1 < list(@x) < 2
                 -- Becomes this:
@@ -1299,7 +1301,7 @@ applySub sub invs args
 
 applyExp :: SubType -> [ApplyArg] -> Exp -> Eval Val
 applyExp _ bound (Prim f) =
-    f [ argValue arg | arg <- bound, (argName arg) /= cast "%_" ]
+    f [ argValue arg | arg <- bound, (argName arg) /= _cast "%_" ]
 applyExp styp [] body = do
     applyThunk styp [] $ MkThunk (evalExp body) anyType
 applyExp styp bound@(invArg:_) body = do
@@ -1309,7 +1311,7 @@ applyExp styp bound@(invArg:_) body = do
     forM attribute $ \arg -> do
         let name  = dropWhile (not . isAlpha) (cast $ argName arg)
             value = argValue arg
-        evalExp $ Syn "=" [Syn "{}" [Val invocant, Val (VStr name)], Val value]
+        evalExp $ Syn "=" [Syn "{}" [Val invocant, Val (_VStr name)], Val value]
     applyThunk styp normal $ MkThunk (evalExp body) anyType
     where
     isAttribute arg = case v_twigil (argName arg) of
@@ -1322,8 +1324,8 @@ applyThunk _ [] thunk = thunk_force thunk
 applyThunk styp bound@(arg:_) thunk = do
     -- introduce self and $_ as the first invocant.
     inv     <- case styp of
-        SubPointy               -> aliased [cast "$_"]
-        _ | styp <= SubMethod   -> aliased [cast "&self"] -- , "$_"]
+        SubPointy               -> aliased [_cast "$_"]
+        _ | styp <= SubMethod   -> aliased [_cast "&self"] -- , "$_"]
         _                       -> return []
     pad <- formal
     enterLex (inv ++ pad) $ thunk_force thunk

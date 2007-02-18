@@ -108,7 +108,7 @@ envEnterCaller env = env
         { envLexical = MkPad (lex `Map.intersection` envImplicit env)
         }
     , envFrames = FrameRoutine `Set.insert` envFrames env
-    , envImplicit = Map.fromList [(cast "$_", ())]
+    , envImplicit = Map.fromList [(varTopic, ())]
     }
     where
     MkPad lex = envLexical env
@@ -256,9 +256,9 @@ enterSub sub action
         assertBlocks subPreBlocks "PRE"
         runBlocks subEnterBlocks
         action
-    runBlocks f = mapM_ (evalExp . Syn "block" . (:[]) . Syn "sub" . (:[]) . Val . castV) (f sub)
+    runBlocks f = mapM_ (evalExp . _Syn "block" . (:[]) . _Syn "sub" . (:[]) . Val . castV) (f sub)
     assertBlocks f name = forM_ (f sub) $ \cv -> do
-        rv <- fromVal =<< (evalExp . Syn "block" . (:[]) . Syn "sub" . (:[]) . Val . castV $ cv)
+        rv <- fromVal =<< (evalExp . _Syn "block" . (:[]) . _Syn "sub" . (:[]) . Val . castV $ cv)
         if rv then return () else retError (name ++ " assertion failed") (subName sub)
     typ = subType sub
     doCC :: (Val -> Eval b) -> [Val] -> Eval b
@@ -269,18 +269,18 @@ enterSub sub action
     fixEnv :: (Val -> Eval Val) -> Env -> Eval (Env -> Env)
     fixEnv cc env
         | typ >= SubBlock = do
-            blockRec <- genSym (cast "&?BLOCK") (codeRef (orig sub))
+            blockRec <- genSym (_cast "&?BLOCK") (codeRef (orig sub))
             return $ \e -> e
                 { envOuter = Just env
                 , envPackage = maybe (envPackage e) envPackage (subEnv sub)
                 , envLexical = combine [blockRec]
                     (subPad sub `unionPads` envLexical env)
                 , envImplicit= envImplicit e `Map.union` Map.fromList
-                    [ (cast "&?BLOCK", ()) ]
+                    [ (_cast "&?BLOCK", ()) ]
                 }
         | otherwise = do
             subRec <- sequence
-                [ genSym (cast "&?ROUTINE") (codeRef (orig sub))
+                [ genSym (_cast "&?ROUTINE") (codeRef (orig sub))
                 ]
             -- retRec    <- genSubs env "&return" retSub
             callerRec <- genSubs env "&?CALLER_CONTINUATION" (ccSub cc)
@@ -289,7 +289,7 @@ enterSub sub action
                 , envPackage = maybe (envPackage e) envPackage (subEnv sub)
                 , envOuter   = maybe Nothing envOuter (subEnv sub)
                 , envImplicit= envImplicit e `Map.union` Map.fromList
-                    [ (cast "&?ROUTINE", ()), (cast "&?CALLER_CONTINUATION", ()) ]
+                    [ (_cast "&?ROUTINE", ()), (_cast "&?CALLER_CONTINUATION", ()) ]
                 }
     ccSub :: (Val -> Eval Val) -> Env -> VCode
     ccSub cc env = mkPrim
@@ -314,8 +314,8 @@ makeParams MkEnv{ envContext = cxt, envLValue = lv }
         , isWritable = lv
         , isLazy     = False
         , paramName  = cast $ case cxt of
-            CxtSlurpy _ -> "@?0"
-            _           -> "$?0"
+            CxtSlurpy _ -> __"@?0"
+            _           -> __"$?0"
         , paramContext = cxt
         , paramDefault = Val VUndef
         } ]

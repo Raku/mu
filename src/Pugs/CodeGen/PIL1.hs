@@ -9,7 +9,7 @@ import Pugs.Compile
 genPIL1 :: Eval Val
 genPIL1 = do
     penv <- compile ()
-    return . VStr . unlines $
+    return . _VStr . unlines $
         [ "PIL_Environment"
         , "    { pilMain = (" ++ show (pilMain penv) ++ ")"
         , "    , pilGlob = (" ++ show (pilGlob penv) ++ ")"

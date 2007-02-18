@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances -foverloaded-strings #-}
 module Pugs.Parser.Literal where
 
 import Pugs.Internals
@@ -59,11 +59,11 @@ numLiteral = do
 arrayLiteral :: RuleParser Exp
 arrayLiteral = try $ do
     item <- verbatimBrackets ruleBracketedExpression
-    return $ Syn "\\[]" [item]
+    return $ _Syn "\\[]" [item]
 
 ruleBracketedExpression :: RuleParser Exp
 ruleBracketedExpression = enterBracketLevel ParensBracket $
-    ruleExpression <|> do { whiteSpace; return (Syn "," []) }
+    ruleExpression <|> do { whiteSpace; return (_Syn "," []) }
 
 {-|
 Match a pair literal -- either an arrow pair (@a => 'b'@), or an adverbial pair
@@ -76,8 +76,8 @@ pairArrow :: RuleParser Exp
 pairArrow = do
     key <- identifier `tryFollowedBy` symbol "=>"
     val <- parseExpWithTightOps
-    return (Val (VStr key), val)
-    return $ App (_Var "&infix:=>") Nothing [Val (VStr key), val]
+    return (Val (_VStr key), val)
+    return $ App (_Var "&infix:=>") Nothing [Val (_VStr key), val]
 
 pairAdverb :: RuleParser Exp
 pairAdverb = try $ do
@@ -87,14 +87,14 @@ pairAdverb = try $ do
     negatedPair = do
         char '!'
         key <- many1 wordAny
-        return $ App (_Var "&infix:=>") Nothing [Val (VStr key), Val (VBool False)]
+        return $ App (_Var "&infix:=>") Nothing [Val (_VStr key), Val (VBool False)]
     shortcutPair = do
         (s:ss)              <- fmap reverse (many1 ruleSigil)
         varExp@(Var var)    <- fmap _Var (regularVarNameForSigil s)
         -- This turns ":$$$x" into "x=>$$$x"
-        let appCast sig exp = Syn (shows sig "{}") [exp]
+        let appCast sig exp = Syn (cast (shows sig "{}")) [exp]
         return $ App (_Var "&infix:=>") Nothing
-            [ Val (VStr $ cast (v_name var))
+            [ Val (_VStr $ cast (v_name var))
             , foldr appCast varExp ss
             ]
 
@@ -104,8 +104,8 @@ regularAdverbPair = do
     lvl <- gets s_bracketLevel
     val <- lexeme ((optional ruleDot >> valueExp lvl) <|> return (Val $ VBool True))
     return $ if (all isDigit key)
-        then App (_Var "&Pugs::Internals::base") Nothing [Val (VStr key), val]
-        else App (_Var "&infix:=>") Nothing [Val (VStr key), val]
+        then App (_Var "&Pugs::Internals::base") Nothing [Val (_VStr key), val]
+        else App (_Var "&infix:=>") Nothing [Val (_VStr key), val]
     where
     valueExp lvl = do
         let blk | ConditionalBracket <- lvl = id
@@ -125,7 +125,7 @@ Match one of the \'yada-yada-yada\' placeholder expressions (@...@, @???@ or
 yadaLiteral :: RuleParser Exp
 yadaLiteral = expRule $ do
     sym  <- choice . map symbol $ words " ... ??? !!! "
-    return $ App (_Var $ doYada sym) Nothing [Val $ VStr (sym ++ " - not yet implemented")]
+    return $ App (_Var $ doYada sym) Nothing [Val $ _VStr (sym ++ " - not yet implemented")]
     where
     doYada "..." = "&fail_" -- XXX rename to fail() eventually
     doYada "???" = "&warn"
@@ -193,25 +193,25 @@ qInterpolatorChar :: RuleParser Exp
 qInterpolatorChar = do
     char '\\'
     nextchar <- escapeCode -- see Lexer.hs
-    return (Val $ VStr nextchar)
+    return (Val $ _VStr nextchar)
 
 qInterpolateDelimiter :: Char -> RuleParser Exp
 qInterpolateDelimiter protectedChar = do
     char '\\'
     c <- oneOf (protectedChar:"\\")
-    return (Val $ VStr [c])
+    return (Val $ _VStr [c])
 
 qInterpolateDelimiterMinimal :: Char -> RuleParser Exp
 qInterpolateDelimiterMinimal protectedChar = do
     char '\\'
     c <- oneOf (protectedChar:"\\")
-    return (Val $ VStr ['\\',c])
+    return (Val $ _VStr ['\\',c])
 
 qInterpolateDelimiterBalanced :: Char -> RuleParser Exp
 qInterpolateDelimiterBalanced protectedChar = do
     char '\\'
     c <- oneOf (protectedChar:balancedDelim protectedChar:"\\")
-    return (Val $ VStr ['\\',c])
+    return (Val $ _VStr ['\\',c])
 
 qInterpolateQuoteConstruct :: RuleParser Exp
 qInterpolateQuoteConstruct = try $ do
@@ -295,10 +295,11 @@ qLiteral = do -- This should include q:anything// as well as '' "" <>
     if not (qfHereDoc flags) then qLiteral1 qStart qEnd flags else do
         markerExp  <- qLiteral1 qStart qEnd qFlags
         case unwrap markerExp of
-            Val (VStr endMarker) -> do
+            Val (VStr s) -> do
                 (restOfLine:restOfInput)    <- fmap lines getInput
                 -- When end marker is "END", a line matches it if it looks like "   END".
-                let foundEndMarker line
+                let endMarker = cast s
+                    foundEndMarker line
                         = (endMarker `isSuffixOf` line)
                             && (all isSpace (take (length line - length endMarker) line))
                 case break foundEndMarker restOfInput of
@@ -346,7 +347,7 @@ qLiteralToEof :: RuleParser Exp
 qLiteralToEof = do
     string "q_to_eof()"
     source <- many anyChar
-    return $ Val $ VStr $ source
+    return $ Val $ _VStr $ source
 
 qLiteral1 :: RuleParser String    -- Opening delimiter
              -> RuleParser String -- Closing delimiter
@@ -359,9 +360,9 @@ qLiteral1 qStart qEnd flags = do
         -- expr ~~ rx:perl5:g/(\S+)/
         QS_Yes      -> return (doSplitWords expr)
         QS_Protect  -> return $ case unwindGroups (unwindConcat (unwrap expr)) of
-            []  -> Syn "," []
+            []  -> _Syn "," []
             [x] -> x
-            xs  -> Syn "," xs
+            xs  -> _Syn "," xs
         QS_No       -> return $ case qfExecute flags of
             True -> App (_Var "&Pugs::Internals::runShellCommand") Nothing [expr]
             _    -> expr
@@ -369,13 +370,14 @@ qLiteral1 qStart qEnd flags = do
     -- Glue toward left/right via "Noop" as separation markers, so << 123'456'789 >> can parse as one.
     unwindConcat :: Exp -> [Exp]
     unwindConcat (App _ Nothing [l, r]) = unwindConcat l ++ unwindConcat r
-    unwindConcat (Val (VStr str))
+    unwindConcat (Val (VStr buf))
         | null str  = []
         | otherwise = sepBegin (sepEnd (intersperse Noop splitted))
         where
-        splitted = map (Val . VStr) (perl6Words str)
+        splitted = map (Val . _VStr) (perl6Words str)
         sepBegin = if isBreakingSpace (head str) then (Noop:) else id
         sepEnd   = if isBreakingSpace (last str) then (++ [Noop]) else id
+        str      = cast buf
     unwindConcat expr = [expr]
 
     unwindGroups :: [Exp] -> [Exp]
@@ -396,7 +398,7 @@ qLiteral1 qStart qEnd flags = do
     -- words() regards \xa0 as (breaking) whitespace. But \xa0 is
     -- a nonbreaking ws char.
     doSplitWords expr
-        | Val (VStr str) <- unwrap expr = doSplitStr perl6Words str
+        | Val (VStr str) <- unwrap expr = doSplitStr perl6Words (cast str)
         | otherwise                     = Ann (Cxt cxtSlurpyAny) (App (_Var "&infix:~~") Nothing [expr, rxSplit])
     {-
     -- XXX - Not sure what to do here - should we analyze << "$x" '$x' >> and interpolate differently?
@@ -409,12 +411,12 @@ qLiteral1 qStart qEnd flags = do
             ]
         ]
     -}
-    rxSplit = Syn "rx" $
-        [ Val $ VStr "([^\\x09\\x0a\\x0d\\x20]+)"
+    rxSplit = _Syn "rx" $
+        [ Val $ _VStr "([^\\x09\\x0a\\x0d\\x20]+)"
         , Val $ VList
-            [ castV (VStr "P5", VInt 1)
-            , castV (VStr "g", VInt 1)
-            , castV (VStr "stringify", VInt 1)
+            [ castV (_VStr "P5", VInt 1)
+            , castV (_VStr "g", VInt 1)
+            , castV (_VStr "stringify", VInt 1)
             ]
         ]
 
@@ -569,8 +571,8 @@ rxLiteralAny adverbs
     , not (null [
         True
         | (App (Var var) Nothing [Val (VStr name), _]) <- pairs
-        , var == cast "&infix:=>"
-        , (name ==) `any` words "P5 Perl5 perl5"
+        , var == cast (__"&infix:=>")
+        , (cast name ==) `any` words "P5 Perl5 perl5"
         ])
     = rxLiteral5
     | otherwise
@@ -640,9 +642,9 @@ pseudoAssignment = verbatimRule "infix assignment" $ do
         | var == varTopic
         = exp
     applyPseudo (Syn syn [Var var, exp])
-        | last syn == '='
+        | last (cast syn) == '='
         , var == varTopic
-        = App (_Var ("&infix:" ++ init syn)) Nothing [matchResult, exp]
+        = App (_Var ("&infix:" ++ init (cast syn))) Nothing [matchResult, exp]
     applyPseudo x = internalError $ "Unknown pseudo-assignment form:" ++ show x
     fixPseudo (Ann ann exp) = Ann ann (fixPseudo exp)
     fixPseudo (App meth (Just (Var var)) args)
@@ -659,7 +661,7 @@ ruleRegexDeclarator = verbatimRule "regex expression" $ choice
     ]
     where
     adv x (Syn "\\{}" [Syn "," pairs]) = Syn "\\{}"
-        [Syn "," (App (_Var "&infix:=>") Nothing [Val (VStr x), Val (VBool True)] : pairs)]
+        [Syn "," (App (_Var "&infix:=>") Nothing [Val (_VStr x), Val (VBool True)] : pairs)]
     adv _ _ = internalError "unexpected regex adverb specifier"
 
 rxLiteral :: RuleParser Exp

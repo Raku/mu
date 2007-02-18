@@ -30,7 +30,7 @@ unsafeEvalEnv :: Exp -> RuleParser Env
 unsafeEvalEnv exp = do
     -- pos <- getPosition
     env <- getRuleEnv
-    val <- unsafeEvalExp $ mergeStmts exp (Syn "continuation" [])
+    val <- unsafeEvalExp $ mergeStmts exp (_Syn "continuation" [])
     case val of
         Val (VControl (ControlContinuation { ccEnv = env' })) ->
             return env'{ envDebug = envDebug env }
@@ -95,7 +95,7 @@ possiblyApplyMacro app@(App (Var name) invs args) = do
         parseProgram <- gets s_parseProgram
         env          <- ask
         pos          <- getPosition
-        case envBody (parseProgram env ("MACRO { " ++ show pos ++" }") code) of
+        case envBody (parseProgram env ("MACRO { " ++ show pos ++" }") (cast code)) of
             Val (err@VError{})  -> fail $ pretty err
             exp                 -> return exp
     -- A Code does not need to be parsed, so simply return the equivalent of

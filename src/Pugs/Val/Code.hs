@@ -222,5 +222,5 @@ type ValCapt = Capt Val
 type ValFeed = Feed Val
 
 instance ICoercible P ValCapt where
-        asStr _ = return (cast "<capt>") -- XXX
+        asStr _ = return (_cast "<capt>") -- XXX
 

@@ -13,6 +13,7 @@ import Foreign
 import Foreign.C.Types
 import Foreign.C.String
 import Foreign.Marshal.Array
+import qualified Data.ByteString.Char8 as Str
 
 foreign export ccall "pugs_Eval"
     pugs_eval :: CString -> IO PugsVal
@@ -69,8 +70,9 @@ pugs_apply subPtr invPtr argsPtr cxt = do
     inv     <- deValMaybe invPtr
     args    <- mapM deVal =<< peekArray0 nullVal argsPtr
     let subExp = case sub of
-            VStr name@('&':_)   -> _Var name
-            VStr name           -> _Var ('&':name)
+            VStr str -> case cast str of
+                name@('&':_)    -> _Var name
+                name            -> _Var ('&':name)
             _                   -> Val sub
     -- warn "Applying:" (subExp, inv, args, envLexical env)
     val <- runEvalIO env $
@@ -117,7 +119,7 @@ valToPv ptr = do
     val     <- deVal ptr
     env     <- askPerl5Env
     VStr x  <- runEvalIO env $ fmap VInt (fromVal val)
-    newCString x
+    newCString (cast x)
 
 mkSvRef :: PerlSV -> IO PugsVal
 mkSvRef = mkVal . PerlSV
@@ -131,7 +133,7 @@ nvToVal = mkVal . VNum . realToFrac
 pvnToVal :: CString -> CInt -> IO PugsVal
 pvnToVal cstr len = do
     str <- peekCStringLen (cstr, fromEnum len)
-    ptr <- mkVal $ VStr (decodeUTF8 str)
+    ptr <- mkVal $ _VStr (decodeUTF8 str)
     return ptr
 
 undefVal :: IO PugsVal

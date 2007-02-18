@@ -172,7 +172,7 @@ genPugs = do
     glob            <- askGlobal
     (globC, globT)  <- runWriterT $ compile glob
     (expC, expT)    <- runWriterT $ compile exp
-    return . VStr . unlines $
+    return . _VStr . unlines $
         [ "{-# OPTIONS_GHC -fglasgow-exts -fno-warn-unused-imports -fno-warn-unused-binds #-}"
         , "module Main where"
         , "import Pugs.Run"

@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances -foverloaded-strings #-}
 module Pugs.Parser.Util where
 
 import Pugs.Internals
@@ -126,7 +126,7 @@ nameToParam name = MkOldParam
     }
 
 _percentUnderscore :: Var
-_percentUnderscore = cast "%_"
+_percentUnderscore = _cast "%_"
 
 paramsFor :: SubType -> Maybe [Param] -> [Param] -> [Param]
 paramsFor SubMethod formal params 
@@ -156,7 +156,7 @@ selfParam typ = MkOldParam
     , isLValue      = True
     , isWritable    = True
     , isLazy        = False
-    , paramName     = cast "&self"
+    , paramName     = _cast "&self"
     , paramContext  = CxtItem typ
     , paramDefault  = Noop
     }
@@ -176,7 +176,7 @@ extractHash exp
     possiblyUnwrap x = x
     
     isHashOrPair (Ann _ exp) = isHashOrPair exp
-    isHashOrPair (App (Var var) _ _) = (var == cast "&pair") || (var == cast "&infix:=>") 
+    isHashOrPair (App (Var var) _ _) = (var == _cast "&pair") || (var == _cast "&infix:=>")
     isHashOrPair (Syn "%{}" _) = True
     isHashOrPair (Var var) = v_sigil var == SHash
     isHashOrPair _ = False
@@ -207,15 +207,15 @@ makeVar var = _Var var
 
 makeVarWithSigil :: Char -> Exp -> Exp
 makeVarWithSigil '$' x = x
-makeVarWithSigil s   x = Syn (s:"{}") [x]
+makeVarWithSigil s   x = Syn (cast (s:"{}")) [x]
 
 -- | splits the string into expressions on whitespace.
 -- Implements the <> operator at parse-time.
 doSplitStr :: (String -> [String]) -> String -> Exp
 doSplitStr f str = case f str of
     []  -> Syn "," []
-    [x] -> Val (VStr x)
-    xs  -> Syn "," $ map (Val . VStr) xs
+    [x] -> Val (_VStr x)
+    xs  -> Syn "," $ map (Val . _VStr) xs
 
 perl6Words :: String -> [String]
 perl6Words s

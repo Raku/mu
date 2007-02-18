@@ -304,7 +304,7 @@ clearDynParsers = modify $ \state -> state{ s_dynParsers = MkDynParsersEmpty }
 parserWarn :: (Typeable a, Show a) => String -> a -> RuleParser ()
 parserWarn str val = do
     currPos <- getPosition
-    traceM (pretty (VError (VStr $ str ++ showVal) [mkPos currPos currPos]))
+    traceM (pretty (VError (_VStr $ str ++ showVal) [mkPos currPos currPos]))
     where
     showVal = case show val of
         "()" -> ""

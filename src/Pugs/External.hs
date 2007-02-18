@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -cpp -fallow-overlapping-instances #-}
+{-# OPTIONS_GHC -fglasgow-exts -cpp -fallow-overlapping-instances -foverloaded-strings #-}
 
 {-|
     External call utilities.
@@ -21,7 +21,7 @@ externalize mod stmts = externExternalize backend mod code
         | null things   = error "no inline found"
         | [_] <- things = head things
         | otherwise     = error "multiple inline found"
-    things = [ (backend, code)
+    things = [ (cast backend, cast code)
              | (Syn "inline" [Val (VStr backend), Val (VStr code)]) <- flatten stmts
              ]
     flatten (Stmts cur rest) = (cur:flatten rest)

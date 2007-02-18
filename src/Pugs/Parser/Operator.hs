@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -cpp -fglasgow-exts -funbox-strict-fields -fno-full-laziness -fno-cse -fallow-overlapping-instances -fno-warn-orphans #-}
+{-# OPTIONS_GHC -cpp -fglasgow-exts -funbox-strict-fields -fno-full-laziness -fno-cse -fallow-overlapping-instances -fno-warn-orphans -foverloaded-strings #-}
 
 module Pugs.Parser.Operator where
 import Pugs.Internals
@@ -66,11 +66,11 @@ tightOperators = do
         -- _ -> error $ "Impossible: " ++ show op ++ " has no assoc?"
 
 termLevel, methLevel, incrLevel, expoLevel, symbLevel, multLevel, addiLevel, junaLevel, junoLevel :: [RuleOperator Exp]
-termLevel = circumOps (Set.singleton (MkOpName (cast "\\( )")))
+termLevel = circumOps (Set.singleton (MkOpName (_cast "\\( )")))
 methLevel = methOps (opWords " . .+ .? .* .+ .() .[] .{} .<<>> .= ")
 incrLevel = postOps incrOpsPost ++ preOps incrOpsPre
 expoLevel = rightOps (opWords " ** ")
-symbLevel = preSyn (Set.singleton (MkOpName (cast "|"))) ++ preOps symbPreops
+symbLevel = preSyn (Set.singleton (MkOpName (_cast "|"))) ++ preOps symbPreops
 multLevel = leftOps (opWords " * / % x xx +& +< +> ~& ~< ~> ?& ")
 addiLevel = leftOps (opWords " + - ~ +| +^ ~| ~^ ?| ")
 junaLevel = listOps (opWords " & ")
@@ -267,7 +267,7 @@ namesFrom :: [CurrentFunction] -> Set ID
 namesFrom = Set.fromList . map (v_name . f_var)
 
 commaID :: ID
-commaID = cast ","
+commaID = _cast ","
 
 data TightFunctions = MkTightFunctions
     { r_opt         :: !(Set OpName)
@@ -305,8 +305,8 @@ matchSlurpy MkCurrentFunction
 matchSlurpy _ = False
 
 circumOps, rightSyn, chainOps, matchOps, nonSyn, listSyn, preSyn, optPreSyn, preOps, preSymOps, optSymOps, postOps, optOps, leftOps, rightOps, nonOps, listOps :: Set OpName -> [RuleOperator Exp]
-preSyn      = ops  $ makeOp1 Prefix "" Syn
-optPreSyn   = ops  $ makeOp1 OptionalPrefix "" Syn
+preSyn      = ops  $ makeOp1 Prefix "" _Syn
+optPreSyn   = ops  $ makeOp1 OptionalPrefix "" _Syn
 preOps      = (ops $ makeOp1 Prefix "&prefix:" doApp) . addHyperPrefix
 preSymOps   = (ops $ makeOp1 Prefix "&prefix:" doAppSym) . addHyperPrefix
 optSymOps   = (ops $ makeOp1 OptionalPrefix "&prefix:" doAppSym) . addHyperPrefix
@@ -318,14 +318,14 @@ nonOps      = ops  $ makeOp2 AssocNone "&infix:" doApp
 listOps     = ops  $ makeOp2 AssocLeft "&infix:" doApp
 matchOps    = (ops $ makeOp2Match AssocLeft "&infix:" doApp) . addHyperInfix . addNegation
 chainOps    = (ops $ makeOp2 AssocLeft "&infix:" doApp) . addHyperInfix . addNegation
-rightSyn    = ops $ makeOp2 AssocRight "" Syn
-nonSyn      = ops $ makeOp2 AssocNone "" Syn
-listSyn     = ops $ makeOp0 AssocList "" Syn
+rightSyn    = ops $ makeOp2 AssocRight "" _Syn
+nonSyn      = ops $ makeOp2 AssocNone "" _Syn
+listSyn     = ops $ makeOp0 AssocList "" _Syn
 circumOps   = ops $ makeCircumOp "&circumfix:"
 rightAssignSyn :: RuleOperator Exp
-rightAssignSyn = makeOp2Assign AssocRight "" Syn
+rightAssignSyn = makeOp2Assign AssocRight "" _Syn
 rightDotAssignSyn :: RuleOperator Exp
-rightDotAssignSyn = makeOp2DotAssign AssocRight "" Syn
+rightDotAssignSyn = makeOp2DotAssign AssocRight "" _Syn
 
 {-# INLINE ops #-}
 {-# SPECIALISE ops :: (String -> RuleOperator Exp) -> Set OpName -> [RuleOperator Exp] #-}
@@ -395,7 +395,7 @@ declAssignHack exp@(Syn "=" [lhs, _])
         let pad = unsafePerformSTM $! do
                 state_first_run <- newTVar =<< (fmap scalarRef $! newTVar (VInt 0))
                 state_fresh     <- newTVar False
-                return $! mkPad [(cast "$?STATE_START_RUN", [(state_fresh, state_first_run)])] in
+                return $! mkPad [(_cast "$?STATE_START_RUN", [(state_fresh, state_first_run)])] in
         Syn "block"
             [ Pad SState pad $!
                 Syn "if"
@@ -487,7 +487,7 @@ addHyperPostfix xs = xs `Set.union` hyperTexan `Set.union` hyperFrench
     hyperTexan = Set.mapMonotonic texan xs
     hyperFrench = Set.mapMonotonic french xs
     texan x = cast (__">>" +++ cast x)
-    french x = cast (cast "\187" +++ cast x)
+    french x = cast (_cast "\187" +++ cast x)
 
 {-|
 Add prefix \
@@ -521,10 +521,7 @@ ternOp pre post syn = (`Infix` AssocRight) $ do
     symbol pre
     y <- parseExpWithTightOps
     symbol post
-    return $ \x z -> Syn syn [x, y, z]
-
-
-
+    return $ \x z -> _Syn syn [x, y, z]
 
 emptyTerm :: Exp
 emptyTerm = Syn "" []
@@ -707,7 +704,7 @@ rulePipeHyper = verbatimRule "" $ do
     -- sig <- (fmap show ruleSigil) <|> string "|"
     char '|'
     ruleHyperPost
-    return $ cast "&prefix:|<<"
+    return $ _cast "&prefix:|<<"
 
 ruleInfixOp :: RuleParser String
 ruleInfixOp = verbatimRule "infix operator" $ do

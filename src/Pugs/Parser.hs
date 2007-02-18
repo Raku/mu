@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -cpp -fglasgow-exts -funbox-strict-fields -fno-full-laziness -fno-cse -fallow-overlapping-instances #-}
+{-# OPTIONS_GHC -cpp -fglasgow-exts -funbox-strict-fields -fno-full-laziness -fno-cse -fallow-overlapping-instances -foverloaded-strings #-}
 
 {-|
     Higher-level parser for building ASTs.
@@ -90,7 +90,7 @@ ruleBlockBody =
                 block = fmap (\x -> ('{':x) ++ "}") body
                 body  = fmap concat (many chunk)
             p5code <- body
-            return (Syn "block-perl5" [Val (VStr p5code)])
+            return (Syn "block-perl5" [Val (_VStr p5code)])
         _       -> do
             pre     <- many ruleEmptyExp
             body    <- option emptyExp ruleStatementList
@@ -305,8 +305,8 @@ rulePackageHead = do
                     }
                 , s_dynParsers = MkDynParsersEmpty
                 }
-            let pkgVal = Val . VStr $ newName
-                kind   = Val . VStr $ sym
+            let pkgVal = Val . _VStr $ newName
+                kind   = Val . _VStr $ sym
             return $ Right (newName, kind, pkgVal, env)
 
 ruleTraitsIsOnly :: RuleParser [String]
@@ -332,7 +332,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
                 "non"   -> return A_non
                 "chain" -> return A_chain
                 "list"  -> return A_list
-                _       -> fail $ "Invalid associativity: " ++ str
+                _       -> fail $ "Invalid associativity: " ++ cast str
             _   -> fail $ "Invalid associativity: " ++ show lit
     let returnsOrOf = try (ruleBareTrait "returns" <|> ruleBareTrait "of")
     typ'    <- option typ returnsOrOf
@@ -428,7 +428,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
                     | otherwise         = sub
                 VCode cv    = sub
             return . seq rv $ Syn "|="
-                [ Syn "{}" [_Var ("%" ++ pkg ++ "::EXPORTS"), Val $ VStr name]
+                [ Syn "{}" [_Var ("%" ++ pkg ++ "::EXPORTS"), Val $ _VStr name]
                 , Val exportedSub
                 ]
         SGlobal -> do
@@ -464,7 +464,7 @@ ruleOperatorName = verbatimRule "operator name" $ do
             App (_Var "&*join") 
             Nothing 
             (Val (VStr " ") : [expr])
-        return name
+        return (cast name)
     return $ categ ++ name
 
 
@@ -550,15 +550,15 @@ ruleTraitDeclaration = try $ do
     pkg <- asks envPackage
     let meta = _Var (':':'*':cast pkg)
         expMeta = Syn "="
-            [ Syn "{}" [meta, Val (VStr aux)]
-            , Syn "," [Syn "@{}" [Syn "{}" [meta, Val (VStr aux)]], Val (VStr trait)]
+            [ Syn "{}" [meta, Val (_VStr aux)]
+            , Syn "," [Syn "@{}" [Syn "{}" [meta, Val (_VStr aux)]], Val (_VStr trait)]
             ]
-        addDoes | "does" <- aux = Stmts (App (_Var "&HOW::does") (Just meta) [Val (VStr trait)])
+        addDoes | "does" <- aux = Stmts (App (_Var "&HOW::does") (Just meta) [Val (_VStr trait)])
                 | otherwise     = id
     unsafeEvalExp $ Syn "if"
         [ meta
         , addDoes expMeta
-        , App (_Var "&die") Nothing [Val (VStr $ "Can't add trait to non-class package: " ++ show pkg)]
+        , App (_Var "&die") Nothing [Val (_VStr $ "Can't add trait to non-class package: " ++ show pkg)]
         ]
     return Noop
 
@@ -598,10 +598,10 @@ ruleMemberDeclaration = do
         exp = Syn ":=" [_Var name, Syn "sub" [Val $ VCode sub]]
         name | twigil == '.' = '&':(pkg ++ "::" ++ key)
              | otherwise     = '&':(pkg ++ "::" ++ (twigil:key))
-        fun = Syn (sigil:"{}") [Ann (Cxt (cxtOfSigil $ cast sigil)) (Syn "{}" [_Var "&self", Val (VStr key)])]
+        fun = _Syn (sigil:"{}") [Ann (Cxt (cxtOfSigil $ cast sigil)) (Syn "{}" [_Var "&self", Val (_VStr key)])]
         pkg = cast (envPackage env)
         metaObj = _Var (':':'*':pkg)
-        attrDef = Syn "{}" [Syn "{}" [metaObj, Val (VStr "attrs")], Val (VStr key)]
+        attrDef = Syn "{}" [Syn "{}" [metaObj, Val (_VStr "attrs")], Val (_VStr key)]
     unsafeEvalExp (Stmts (_Sym SGlobal name exp) (Syn "=" [attrDef, def]))
     return emptyExp
 
@@ -795,8 +795,8 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
     when use $ do   -- for &no, don't load code
         env  <- ask
         env' <- unsafeEvalEnv $ if lang == "perl5"
-            then (App (_Var "&require_perl5") Nothing [Val $ VStr pkg])
-            else (App (_Var "&use") Nothing [Val $ VStr pkg])
+            then (App (_Var "&require_perl5") Nothing [Val $ _VStr pkg])
+            else (App (_Var "&use") Nothing [Val $ _VStr pkg])
         modify $ \state -> state
             { s_env = env
                 { envClasses = envClasses env' `addNode` mkType pkg
@@ -810,7 +810,7 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
 
         Val res <- unsafeEvalExp $ Syn "if"
             [ sub
-            , App sub (Just $ Val $ VStr $ pkg) [imp]
+            , App sub (Just $ Val $ _VStr $ pkg) [imp]
             , emptyExp
             ]
 
@@ -832,7 +832,7 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
             doExportList [] = []
             doExportList [x] = error $ "doExportList [x]: " ++ show x
             doExportList (VStr name:ex:xs) = 
-                (exportSym hardcodedScopeFixme name ex : doExportList xs)
+                (exportSym hardcodedScopeFixme (cast name) ex : doExportList xs)
             doExportList x = error $ "doExportList x: " ++ show x
         sequence_ $ doExportList exportList
         clearDynParsers
@@ -858,7 +858,7 @@ ruleUseJSANModule = do
             return (name, Nothing, Nothing)
         ]
     
-    let name = Val . VStr . concat $ intersperse "." names
+    let name = Val . _VStr . concat $ intersperse "." names
     choice
         [ try $ do
             verbatimParens whiteSpace
@@ -887,7 +887,7 @@ ruleUseJSPerl5Module = do
             return (name, Nothing, Nothing)
         ]
     
-    let name = Val . VStr . concat $ intersperse "::" names
+    let name = Val . _VStr . concat $ intersperse "::" names
     choice
         [ try $ do
             verbatimParens whiteSpace
@@ -940,7 +940,7 @@ ruleInlineDeclaration = rule "inline declaration" $ do
     symbol "inline"
     args <- ruleExpression
     case args of
-        App (Var var) Nothing exp | var == cast "&infix:=>" -> do
+        App (Var var) Nothing exp | var == cast (__"&infix:=>") -> do
             return $ Syn "inline" exp
         _ -> fail "not yet parsed"
 
@@ -955,7 +955,7 @@ ruleRequireDeclaration :: RuleParser Exp
 ruleRequireDeclaration = tryRule "require declaration" $ do
     symbol "require"
     (names, _, _) <- rulePackageFullName
-    return $ App (_Var "&require") Nothing [Val . VStr $ concat (intersperse "::" names)]
+    return $ App (_Var "&require") Nothing [Val . _VStr $ concat (intersperse "::" names)]
 
 ruleDoBlock :: RuleParser Exp
 ruleDoBlock = rule "do block" $ do
@@ -1128,7 +1128,7 @@ ruleForConstruct = rule "loop construct" $ do
     sym     <- symbol "for" <|> symbol "given"
     cond    <- ruleCondPart
     body    <- enterBracketLevel ParensBracket $ ruleBlockLiteral
-    return $ Syn sym [cond, body]
+    return $ _Syn sym [cond, body]
 
 ruleLoopConstruct :: RuleParser Exp
 ruleLoopConstruct = rule "loop construct" $ do
@@ -1166,14 +1166,14 @@ ruleRepeatPostConstruct = rule "repeat postfix construct" $ do
     block   <- enterBracketLevel ParensBracket $ ruleBareOrPointyBlockLiteralWithoutDefaultParams
     name    <- choice [ symbol "while", symbol "until" ]
     cond    <- ruleExpression
-    return $ Syn ("post" ++ name) [cond, block]
+    return $ _Syn ("post" ++ name) [cond, block]
 
 ruleRepeatPreConstruct :: RuleParser Exp
 ruleRepeatPreConstruct = rule "repeat prefix construct" $ do
     name    <- choice [ symbol "while", symbol "until" ]
     cond    <- ruleCondPart
     block   <- enterBracketLevel ParensBracket $ ruleBareOrPointyBlockLiteralWithoutDefaultParams
-    return $ Syn ("post" ++ name) [ cond, block ]
+    return $ _Syn ("post" ++ name) [ cond, block ]
 
 ruleCondConstruct :: RuleParser Exp
 ruleCondConstruct = rule "conditional construct" $ do
@@ -1214,14 +1214,14 @@ ruleWhileUntilConstruct = rule "while/until construct" $ do
     sym     <- choice [ symbol "while", symbol "until" ]
     cond    <- ruleCondPart
     body    <- enterBracketLevel ParensBracket $ ruleBareOrPointyBlockLiteralWithoutDefaultParams
-    return $ Syn sym [ cond, body ]
+    return $ _Syn sym [ cond, body ]
 
 ruleWhenConstruct :: RuleParser Exp
 ruleWhenConstruct = rule "when construct" $ do
     sym     <- symbol "when"
     match   <- ruleCondPart
     body    <- ruleBareBlock
-    return $ Syn sym [ match, body ]
+    return $ _Syn sym [ match, body ]
 
 -- XXX: make this translate into when true, when smartmatch
 -- against true works
@@ -1229,7 +1229,7 @@ ruleDefaultConstruct :: RuleParser Exp
 ruleDefaultConstruct = rule "default construct" $ do
     sym     <- symbol "default"
     body    <- ruleBareBlock
-    return $ Syn sym [ body ]
+    return $ _Syn sym [ body ]
 
 -- Expressions ------------------------------------------------
 
@@ -1264,7 +1264,7 @@ s_postLoop = rule "postfix loop" $ do
     exp     <- ruleExpression
     return $ \body -> do
         block <- retBlockWithoutDefaultParams SubBlock Nothing False body
-        return $ Syn cond [exp, block]
+        return $ _Syn cond [exp, block]
 
 {-|
 Match a statement's /iterating/ statement-modifier,
@@ -1279,7 +1279,7 @@ s_postIterate = rule "postfix iteration" $ do
     exp <- ruleExpression
     return $ \body -> do
         block <- retBlock SubBlock Nothing False body
-        return $ Syn cond [exp, block]
+        return $ _Syn cond [exp, block]
 
 ruleBareOrPointyBlockLiteralWithoutDefaultParams :: RuleParser Exp
 ruleBareOrPointyBlockLiteralWithoutDefaultParams = rule "bare or pointy block construct" $ do
@@ -1563,7 +1563,7 @@ ruleParam = rule "parameter" $ do
     let (traits''', lazy')   = setTrait lazy    False    traits''
     let (traits'''',context')= setTrait context False    traits'''
     let slots = Map.fromList [(cast t, val $ ((cast True) :: PureBit)) | ("is", t) <- traits'''']
-    let isRequired = (not isSlurpy) && ((not isOptional) || (Map.member (cast "required") slots))
+    let isRequired = (not isSlurpy) && ((not isOptional) || (Map.member (cast $ __"required") slots))
     when (isOptional && isRequired) failReqDef -- XXX is required(False)
     let p = MkParam { p_variable    = cast name
                     , p_types       = staticTypes
@@ -1647,7 +1647,7 @@ ruleTypeVar = rule "type" $ do
     -- XXX - Instead of handling &postfix:<::>, we directly turn ::Foo::
     --       into a package literal -- which is to say a string -- for now.
     nameExps <- (`sepEndBy1` string "::") $ do
-        verbatimParens ruleExpression <|> (fmap (Val . VStr . concat) $ sequence [ruleTwigil, many1 wordAny])
+        verbatimParens ruleExpression <|> (fmap (Val . _VStr . concat) $ sequence [ruleTwigil, many1 wordAny])
 
     -- Optimization: We don't have to construct a symbolic deref syn (":::()"),
     -- but can use a simple Var, if nameExps consists of only one expression
@@ -1659,10 +1659,10 @@ ruleTypeVar = rule "type" $ do
     where
     mergeSimpleName :: [Exp] -> Maybe String
     mergeSimpleName [] = Nothing
-    mergeSimpleName [Val (VStr name)] = Just name
+    mergeSimpleName [Val (VStr name)] = Just (cast name)
     mergeSimpleName (Val (VStr name):xs) = do
         rest <- mergeSimpleName xs
-        Just $ name ++ "::" ++ rest
+        Just $ cast name ++ "::" ++ rest
     mergeSimpleName _ = Nothing
 
 s_postTerm :: RuleParser (Exp -> Exp)
@@ -1699,7 +1699,7 @@ s_postTerm = verbatimRule "term postfix" $ do
         f <- p
         return $ \x -> case f x of
             App (Var var) (Just inv) [] | ('&':name) <- cast var ->
-                Syn "{}" [inv, Val (VStr name)]
+                Syn "{}" [inv, Val (_VStr name)]
             e -> e
     hyperKludged p = do
         f <- p
@@ -1751,7 +1751,7 @@ ruleInvocationArguments quant name mustHaveParens = do
     when (isJust invs) $ fail "Only one invocant allowed"
     return $ \x -> case name of
         ('&':rest) -> case quant of
-            Just q  -> Syn "CCallDyn" ((Val (castV [q])):Val (VStr rest):x:args)         -- $x.*meth
+            Just q  -> Syn "CCallDyn" ((Val (castV [q])):Val (_VStr rest):x:args)         -- $x.*meth
             _       -> App (_Var name) (Just x) args                                    -- $x.meth
         _       -> Syn "CCallDyn" (Val (castV (maybeToList quant)):_Var name:x:args)    -- $x.$meth
 
@@ -1877,8 +1877,8 @@ named parser = try $ do
     result <- parser
     case unwrap result of
         (App (Var var) Nothing [key, val])
-            | var == cast "&infix:=>" -> return (Syn "named" [key, val])
-        _                             -> fail "internal error--was expecting a pair"
+            | var == cast (__"&infix:=>") -> return (Syn "named" [key, val])
+        _                                 -> fail "internal error--was expecting a pair"
 
 namedArg :: RuleParser Exp
 namedArg = named pairLiteral
@@ -2056,7 +2056,7 @@ ruleDereference :: RuleParser Exp
 ruleDereference = try $ do
     sigil   <- ruleSigil
     exp     <- ruleDereference <|> ruleSigiledVar <|> verbatimParens (option (_Var "$/") ruleExpression)
-    return $ Syn (shows sigil "{}") [exp]
+    return $ _Syn (shows sigil "{}") [exp]
 
 ruleSigiledVar :: RuleParser Exp
 ruleSigiledVar = (<|> ruleSymbolicDeref) $ do
@@ -2092,7 +2092,7 @@ ruleVar = do
         Var var | TAttribute <- v_twigil var -> do
             let methName = ('&':cast (v_name var))
             postApp <- ruleInvocationArguments Nothing methName False
-            return $ Syn (shows (v_sigil var) "{}") [postApp (_Var "&self")]
+            return $ _Syn (shows (v_sigil var) "{}") [postApp (_Var "&self")]
         _   -> return exp
 
 ruleSymbolicDeref :: RuleParser Exp
@@ -2104,10 +2104,10 @@ ruleSymbolicDeref = do
         -- We've to include ruleTwigil here to make $::?SELF parse.
         -- XXX: This looks slightly odd to me -- is one forced to say
         --  $::("?SELF") instead?
-        (verbatimParens ruleExpression) <|> (fmap (Val . VStr) $ do
+        (verbatimParens ruleExpression) <|> (fmap (Val . _VStr) $ do
             choice
                 [ string "!"  --  $!
                 , string "/"  --  $/
                 , fmap concat $ sequence [ruleTwigil, many1 wordAny] ])
-    return $ Syn (shows sigil "::()") nameExps
+    return $ _Syn (shows sigil "::()") nameExps
 

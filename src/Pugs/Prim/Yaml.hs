@@ -20,7 +20,7 @@ evalYaml cv = do
 
 fromYaml :: YamlNode -> Eval Val
 fromYaml MkNode{n_elem=ENil}       = return VUndef
-fromYaml MkNode{n_elem=EStr str}   = return $ VStr $ decodeUTF8 $ unpackBuf str
+fromYaml MkNode{n_elem=EStr str}   = return $ _VStr $ decodeUTF8 $ unpackBuf str
 fromYaml MkNode{n_elem=ESeq nodes} = do
     av  <- mapM fromYaml nodes
     val <- newArray av
@@ -32,7 +32,7 @@ fromYaml MkNode{n_elem=EMap nodes, n_tag=tag} = do
                 key <- fromVal =<< fromYaml keyNode
                 val <- newScalar =<< fromYaml valNode
                 return (key, val)
-            hv      <- liftIO $ (H.fromList H.hashString vals :: IO IHash)
+            hv      <- liftIO $ hashList vals
             return $ VRef (hashRef hv)
         Just s | (pre, post) <- Str.splitAt 16 s   -- 16 == length "tag:pugs:Object:"
                , pre == packBuf "tag:pugs:Object:" -> do
@@ -63,7 +63,7 @@ dumpYaml v = do
     let ?seen = IntSet.empty
     obj     <- toYaml v
     rv      <- guardIO . emitYaml $ obj
-    (return . VStr . decodeUTF8) rv
+    (return . _VStr . decodeUTF8) rv
 
 strNode :: String -> YamlNode
 strNode = mkNode . EStr . packBuf
@@ -71,7 +71,7 @@ strNode = mkNode . EStr . packBuf
 toYaml :: (?seen :: IntSet.IntSet) => Val -> Eval YamlNode
 toYaml VUndef       = return $ mkNode ENil
 toYaml (VBool x)    = return $ boolToYaml x
-toYaml (VStr str)   = return $ strNode (encodeUTF8 str)
+toYaml (VStr str)   = return $ strNode (cast str)
 toYaml v@(VRef r)   = do
     ptr <- liftIO $ stableAddressOf r
     if IntSet.member ptr ?seen then return nilNode{ n_anchor = AReference ptr } else do

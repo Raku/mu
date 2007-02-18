@@ -236,10 +236,10 @@ interpolatingStringLiteral startRule endRule interpolator = do
     return $ Ann (Cxt (CxtItem $ mkType "Str")) (homogenConcat list)
     where
     homogenConcat :: [Exp] -> Exp
-    homogenConcat [] = Val (VStr "")
+    homogenConcat [] = Val (_VStr "")
     homogenConcat [v@(Val (VStr _))] = v
     homogenConcat (Val (VStr x):Val (VStr y):xs)
-        = homogenConcat (Val (VStr (x ++ y)) : xs)
+        = homogenConcat (Val (VStr (x +++ y)) : xs)
     homogenConcat (x:xs)
         = App (_Var "&infix:~") Nothing [x, homogenConcat xs]
 
@@ -255,15 +255,15 @@ interpolatingStringLiteral startRule endRule interpolator = do
                 then return []
                 else do
                     rest <- stringList (i-1)
-                    return (Val (VStr ch):rest)
+                    return (Val (_VStr ch):rest)
         , do
             ch   <- try startRule
             rest <- stringList (i+1)
-            return (Val (VStr ch):rest)
+            return (Val (_VStr ch):rest)
         , do
             char <- anyChar
             rest <- stringList i
-            return (Val (VStr [char]):rest)
+            return (Val (_VStr [char]):rest)
         ]
 
 -- | Backslashed non-alphanumerics (except for @\^@) translate into themselves.

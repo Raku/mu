@@ -85,7 +85,7 @@ class ICoercible m a => IValue m a where
             | otherwise = x:acc
     -- | Stringification of arbitrary values.
     valShow     :: a -> PureStr
-    valShow _ = cast "<opaque>"
+    valShow _ = _cast "<opaque>"
     -- | Identity.
     valId       :: a -> WHICH
     valId x = cast (NUint (W# (unsafeCoerce# x)))
@@ -151,12 +151,12 @@ instance ICoercible P ValNative where
 
 instance IValue P ValNative where
     val                 = VNative
-    valMeta NBit{}      = cast "bit"
-    valMeta NInt{}      = cast "int"
-    valMeta NUint{}     = cast "uint"
-    valMeta NBuf{}      = cast "buf"
-    valMeta NNum{}      = cast "num"
-    valMeta NComplex{}  = cast "complex"
+    valMeta NBit{}      = _cast "bit"
+    valMeta NInt{}      = _cast "int"
+    valMeta NUint{}     = _cast "uint"
+    valMeta NBuf{}      = _cast "buf"
+    valMeta NNum{}      = _cast "num"
+    valMeta NComplex{}  = _cast "complex"
     valCompare          = compare
     valShow             = cast . show
     valId x             = cast x

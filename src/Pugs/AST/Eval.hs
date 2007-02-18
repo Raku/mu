@@ -101,19 +101,22 @@ tryT :: Eval Val -- ^ An evaluation, possibly containing an exception
 tryT e = catchError e return
 
 instance Monad Eval where
-    return a = EvalT $ return (RNormal a)
-    m >>= k = EvalT $ do
+    {-# INLINE return #-}
+    return a = EvalT (return (RNormal a))
+    {-# INLINE (>>=) #-}
+    m >>= k = EvalT (do
         a <- runEvalT m
         case a of
-            RNormal x   -> runEvalT (k x)
-            RException x-> return (RException x)
+            RNormal x       -> runEvalT $! k x
+            RException x    -> return (RException x))
+    {-# INLINE fail #-}
     fail str = do
         pos <- asks envPos'
-        EvalT $ return (RException (errStrPos (cast str) pos))
+        EvalT (return (RException (errStrPos (cast str) pos)))
 
 instance Error Val where
-    noMsg = errStr ""
-    strMsg = errStr
+    noMsg = errStr (_cast "")
+    strMsg = errStr . _cast
 
 instance MonadTrans EvalT where
     lift m = EvalT $ do
@@ -185,7 +188,7 @@ instance MonadSTM Eval where
 
 instance MonadReader Env Eval where
     ask       = lift ask
-    local f m = EvalT $ local f (runEvalT m)
+    local f m = EvalT (local f (runEvalT m))
 
 instance MonadCont Eval where
     -- callCC :: ((a -> Eval b) -> Eval a) -> Eval a

@@ -16,7 +16,7 @@ import DrIFT.YAML
 genPIL2 :: Eval Val
 genPIL2 = do
     penv <- compile ()
-    return . VStr . unlines $
+    return . _VStr . unlines $
         [ "PIL_Environment"
         , "    { pilMain = (" ++ show (pilMain penv) ++ ")"
         , "    , pilGlob = (" ++ show (pilGlob penv) ++ ")"
@@ -26,15 +26,15 @@ genPIL2 = do
 genPIL2Perl5 :: Eval Val
 genPIL2Perl5 = do
     penv <- compile () :: Eval PIL_Environment
-    return . VStr . unlines $ [showPerl5 penv]
+    return . _VStr . unlines $ [showPerl5 penv]
 
 genPIL2JSON :: Eval Val
 genPIL2JSON = do
     penv <- compile () :: Eval PIL_Environment
-    return . VStr . unlines $ [showJSON penv]
+    return . _VStr . unlines $ [showJSON penv]
 
 genPIL2YAML :: Eval Val
 genPIL2YAML = do
     penv <- compile () :: Eval PIL_Environment
     yaml <- liftIO (showYaml penv)
-    return . VStr . unlines $ [yaml]
+    return . _VStr . unlines $ [yaml]

@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances -fno-warn-orphans -funbox-strict-fields -cpp -fno-warn-deprecations -fallow-overlapping-instances #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances -fno-warn-orphans -funbox-strict-fields -cpp -fno-warn-deprecations -fallow-overlapping-instances -foverloaded-strings #-}
 
 {-|
     Compiler interface.
@@ -88,7 +88,7 @@ instance Compile Pad [PIL_Decl] where
             cvList  <- fromVals =<< readRef ref :: Comp [VCode]
             decls   <- eachM cvList $ \(i, cv) -> do
                 compile (("&*END_" ++ show i), cv) :: Comp [PIL_Decl]
-            compile ("&*END", concat decls)
+            compile ("&*END" :: String, concat decls)
         canCompile ((_:twigil:_), _) | not (isAlphaNum twigil) = return []
         canCompile (name, [(_, sym)]) = do
             -- translate them into store_global calls?
@@ -185,7 +185,7 @@ compileStmts exp = case exp of
         where
           -- XXX - kludge.
           decl = App (_Var func) Nothing [(Val (VStr pkg))]
-          func = "&" ++ (capitalize sym) ++ "::_create"
+          func = "&" ++ (capitalize (cast sym)) ++ "::_create"
           capitalize []     = []
           capitalize (c:cs) = toUpper c:cs
 
@@ -286,10 +286,10 @@ instance Compile Exp PIL_LValue where
     compile (Ann _ rest) = compile rest
     -- XXX: pragmas?
     compile (Var name) = return $ _PVar name
-    compile (Syn (sigil:"::()") exps) = do
+    compile (Syn syn exps) | sigil:"::()" <- cast syn = do
         compile $ App (_Var "&Pugs::Internals::symbolic_deref") Nothing $
-            (Val . VStr $ sigil:""):exps
-    compile (App (Var var) (Just inv) args) | var == cast "&goto" = do
+            (Val . _VStr $ sigil:""):exps
+    compile (App (Var var) (Just inv) args) | var == cast (__"&goto") = do
         cxt     <- askTCxt
         funC    <- compile inv
         argsC   <- enter cxtItemAny $ compile args
@@ -324,7 +324,7 @@ instance Compile Exp PIL_LValue where
         compile (App (_Var "&circumfix:[]") Nothing [])
     compile (Syn "\\[]" exps) = do
         compile (App (_Var "&circumfix:[]") Nothing exps)
-    compile (Syn name@(sigil:"{}") exps) | (sigil ==) `any` "$@%&" = do
+    compile (Syn syn exps) | name@(sigil:"{}") <- cast syn, (sigil ==) `any` "$@%&" = do
         compile (App (_Var $ "&circumfix:" ++ name) Nothing exps)
     compile (Syn "\\{}" exps) = do
         compile (App (_Var "&circumfix:{}") Nothing exps)
@@ -337,8 +337,8 @@ instance Compile Exp PIL_LValue where
     compile (Syn ":=" exps) = do
         (lhsC, rhsC) <- enterLValue $ compile exps
         return $ PBind [lhsC] rhsC
-    compile (Syn syn [lhs, exp]) | last syn == '=' = do
-        let op = "&infix:" ++ init syn
+    compile (Syn syn [lhs, exp]) | last (cast syn) == '=' = do
+        let op = "&infix:" ++ init (cast syn)
         compile $ Syn "=" [lhs, App (_Var op) Nothing [lhs, exp]]
     compile (Syn "but" [obj, block]) =
         compile $ App (_Var "&Pugs::Internals::but_block") Nothing [obj, block]
@@ -362,7 +362,7 @@ compLoop (Syn name [cond, body]) = do
     cxt     <- askTCxt
     condC   <- enter (CxtItem $ mkType "Bool") $ compile cond
     bodyC   <- enter CxtVoid $ compile body
-    funC    <- compile (_Var $ "&statement_control:" ++ name)
+    funC    <- compile (_Var $ "&statement_control:" ++ cast name)
     return . PStmt . PExp $ PApp cxt funC Nothing [pBlock condC, bodyC]
 compLoop exp = compError exp
 
@@ -372,7 +372,7 @@ compLoop exp = compError exp
 compConditional :: Exp -> Comp PIL_LValue
 compConditional (Syn name exps) = do
     [condC, trueC, falseC] <- compile exps
-    funC    <- compile $ _Var ("&statement_control:" ++ name)
+    funC    <- compile $ _Var ("&statement_control:" ++ cast name)
     cxt     <- askTCxt
     return $ PApp cxt funC Nothing [condC, PThunk trueC, PThunk falseC]
 compConditional exp = compError exp

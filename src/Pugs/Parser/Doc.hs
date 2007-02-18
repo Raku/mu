@@ -93,13 +93,13 @@ ruleDocBlock = verbatimRule "Doc block" $ do
                 lns <- ruleDocBody docHead
                 let lns' | For { headText = (_:txt) } <- docHead = txt:lns
                          | otherwise = lns
-                    linesVal    = map VStr lns'
+                    linesVal    = map _VStr lns'
                     linesStr    = unlines lns'
                     linesList   = VList (length linesVal `seq` linesVal)
                 unsafeEvalExp $ Stmts
-                    (App (_Var "&push") (Just $ _Var ("@=" ++ section)) [Val (VStr linesStr)])
+                    (App (_Var "&push") (Just $ _Var ("@=" ++ section)) [Val (_VStr linesStr)])
                     $ Stmts 
                         (App (_Var "&push") (Just $ _Var ("$=" ++ section)) [Val linesList])
-                        (App (_Var "&push") (Just $ Syn "{}" [_Var "%=POD", Val (VStr section)]) [Val linesList])
+                        (App (_Var "&push") (Just $ _Syn "{}" [_Var "%=POD", Val (_VStr section)]) [Val linesList])
             whiteSpace
             return (rv `seq` emptyExp)

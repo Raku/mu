@@ -26,14 +26,14 @@ instance ScalarClass IScalar where
 instance ScalarClass IScalarLazy where
     scalar_iType = const $ mkType "Scalar::Lazy"
     scalar_fetch = return . maybe undef id
-    scalar_store d _ = retConstError $ VStr $ show d
+    scalar_store d _ = retConstError $ _VStr $ show d
     scalar_const = const Nothing
 
 instance ScalarClass IScalarCwd where
     scalar_iType = const $ mkType "Scalar::Cwd"
     scalar_fetch _ = do
         str <- liftIO $ getCurrentDirectory
-        return $ VStr str
+        return $ _VStr str
     scalar_store _ val = do
         str <- fromVal val
         tryIO () $ setCurrentDirectory str
