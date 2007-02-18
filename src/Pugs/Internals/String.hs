@@ -47,7 +47,7 @@ afterPrefix (p:ps) (x:xs)
 
 {-# INLINE decodeUTF8 #-}
 decodeUTF8 :: String -> String
-decodeUTF8 xs = concatMap decodeUTF8' (chunk 4096 xs)
+decodeUTF8 xs = concatMap decodeUTF8' (chunkDec4096 xs)
 
 {-# INLINE decodeUTF8' #-}
 decodeUTF8' :: String -> String
@@ -95,8 +95,19 @@ decodeUTF8' (c:d:e:f:cs)
           )
 decodeUTF8' (x:xs) = trace ("decodeUTF8': bad data: " ++ show x) (x:decodeUTF8' xs)
 
+{-# INLINE chunkDec4096 #-}
+chunkDec4096 :: [Char] -> [[Char]]
+chunkDec4096 xs = doChunk (splitAt 4096 xs)
+    where
+    doChunk (pre, post@(c:_))
+        | c < '\x80' = pre : chunkDec4096 post
+        | c > '\xBF' = pre : chunkDec4096 post
+        | otherwise  = doChunk (init pre, last pre : post)
+    doChunk ([], _)  = []
+    doChunk (pre, _) = [pre]
+
 {-# INLINE chunk #-}
-chunk :: Int -> [a] -> [[a]]
+chunk :: Int -> [Char] -> [[Char]]
 chunk _    [] = []
 chunk size xs = case splitAt size xs of (xs', xs'') -> xs' : chunk size xs''
 
