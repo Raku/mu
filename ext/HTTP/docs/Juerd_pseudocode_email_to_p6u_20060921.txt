@@ -1,0 +1,158 @@
+Received: (qmail 3039 invoked by uid 514); 21 Sep 2006 10:41:44 -0000
+Mailing-List: contact perl6-users-help@perl.org; run by ezmlm
+List-Post: <mailto:perl6-users@perl.org>
+List-Help: <mailto:perl6-users-help@perl.org>
+List-Unsubscribe: <mailto:perl6-users-unsubscribe@perl.org>
+List-Subscribe: <mailto:perl6-users-subscribe@perl.org>
+Delivered-To: mailing list perl6-users@perl.org
+Received: (qmail 3030 invoked from network); 21 Sep 2006 10:41:43 -0000
+Delivered-To: perl6-users@perl.org
+Received-SPF: pass (x1.develooper.com: local policy)
+Date: Thu, 21 Sep 2006 12:41:30 +0200
+From: Juerd <juerd@convolution.nl>
+To: perl6-users@perl.org
+Subject: Web development II: Code
+Message-ID: <20060921104130.GA16337@c4.convolution.nl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
+
+Some pseudo-code for illustration. Maybe we should put this on version
+control or wiki, and collectively hack on it. If we can agree on any
+certain route.
+
+If anyone wants to go ahead and implement things, don't wait for me
+please. I unfortunately do not have the tuits to do this in full. I
+don't even have the tuits to write this up :)
+
+class HTTP::Headers {
+    does Hash;
+
+    ...
+}
+
+class HTTP::Message {
+    has HTTP::Headers $.headers  handles <header>  .= new;
+    has buf8          $.content  is rw;
+    has HTTP::Message @.parts    is rw;
+    has Str           $.protocol is rw;
+
+    ...
+}
+
+class HTTP::Argument {
+    does Array;
+    does Str;
+
+    # Possibly, does HTTP::Argument::Upload
+
+    ...
+}
+
+class HTTP::Request {
+    is HTTP::Message;
+    does Hash;  # %post{$key} // %get{$key}
+
+    has HTTP::Argument %.get;
+    has HTTP::Argument %.post;  # lazy if .method eq 'POST' and
+                                # .headers<Content-Length>
+                                # > $arbitrary_yet_configurable
+    has Str            %.cookies
+    has Str            $.method where { $_ eq any <GET POST> };
+    has URI            $.uri;
+
+    ...
+}
+
+role HTTP::Argument::Upload {
+    ...
+}
+
+class HTTP::Response {
+    is HTTP::Message;
+    has $.encoding = 'UTF-8' is rw;
+    ...
+}
+
+class Web::Request {
+    is HTTP::Request;
+}
+
+class Web::Response {
+    is HTTP::Response;
+
+    has $.type where { $_ eq any <html xhtml wml raw> } is rw;
+    # sets Content-Type too, assumes UTF-8
+
+    # do something with .headers<Content-Type> to extract charset
+    # kill .content, because we're streaming
+    # add .print
+}
+
+role Web::Session {
+    has %.session;
+
+    ...
+}
+
+role Web::Tags {
+    method tag_end () {
+        given $.response.type {
+            when 'html'  { return '>' }
+            when 'xhtml' { return '/>' }
+            when 'wml'   { return '/>' }
+        }
+    }
+
+    method img (...) {
+        return '<img ' ~ ... ~ .tag_end;
+    }
+}
+
+# Fill .request, .session
+# Bind $*OUT and .response.print to whatever actually sends the data
+role Web::Init::ModPerl {
+    submethod BUILD { ...; next METHOD or last METHOD }
+}
+role Web::Init::CGI {
+    submethod BUILD { ...; next METHOD or last METHOD }
+}
+role Web::Init::Foo {
+    submethod BUILD { ...; next METHOD or last METHOD }
+}
+
+class Web {
+    has Web::Request  $.request  handles ...;
+    has Web::Response $.response handles ...;
+
+    does Web::Init::ModPerl;
+    does Web::Init::CGI;
+    does Web::Init::Foo;
+
+
+    does Web::Util;   # unless disabled?
+    # does Web::Session, if requested
+    # does Web::Tags, if requested
+
+    # exports automatically initalized object $web if requested
+    # with $response if requested, := $web.response
+    # ditto for $request, $session, $cookies
+
+    ...
+}
+
+role Web::Util {
+    method entity ($foo) { ... }
+    method unentity ($foo) { ... }
+    method uriencode ($foo) { ... }  # Not anything-dependent. Toss it?
+    method uridecode ($foo) { ... }
+
+    ...
+}
+
+--
+korajn salutojn,
+
+  juerd waalboer:  perl hacker  <juerd@juerd.nl>  <http://juerd.nl/sig>
+  convolution:     ict solutions and consultancy <sales@convolution.nl>

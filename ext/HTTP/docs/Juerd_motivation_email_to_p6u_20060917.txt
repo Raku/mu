@@ -1,0 +1,154 @@
+Received: (qmail 11386 invoked by uid 514); 17 Sep 2006 12:46:41 -0000
+Mailing-List: contact perl6-users-help@perl.org; run by ezmlm
+List-Post: <mailto:perl6-users@perl.org>
+List-Help: <mailto:perl6-users-help@perl.org>
+List-Unsubscribe: <mailto:perl6-users-unsubscribe@perl.org>
+List-Subscribe: <mailto:perl6-users-subscribe@perl.org>
+Delivered-To: mailing list perl6-users@perl.org
+Received: (qmail 11377 invoked from network); 17 Sep 2006 12:46:40 -0000
+Delivered-To: perl6-users@perl.org
+Received-SPF: pass (x1.develooper.com: local policy)
+Date: Sun, 17 Sep 2006 12:35:09 +0200
+From: Juerd <juerd@convolution.nl>
+To: perl6-users@perl.org
+Subject: Web development I: Web::Toolkit
+Message-ID: <20060917103509.GJ16337@c4.convolution.nl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
+
+Juerd's thoughts about Perl 6 web development
+
+Part one: Motivation and general thoughts
+
+If you know me, you know that I never really liked Perl 5's CGI.pm. In
+essence, I like that it has enabled a lot of people to build dynamic web
+pages in a reasonably simple way. However, it was avery large monolithic
+piece of code that grew much too large. CGI.pm did things that reach far
+beyond the Common Gateway Specification. It had a lot of functionality
+that is often used with CGI programming, but isn't related to CGI
+specifically at all.
+
+I will, apart from this paragraph, refrain from comments about the
+coding style of CGI.pm.
+
+Perl 6 will also be used for web development. I think it's extremely
+important to have a very good de facto standard web development toolkit,
+that replaces the role that CGI.pm has played so far. We need to
+identify important functions of web development, and provide an easy way
+to them. Doing this, we should be careful not to provide a complex
+framework that beginners will find hard to understand, or that forces
+any particular structure to one's code.
+
+When Perl was still the most popular thing to use for dynamic web pages,
+little more than sending some data was done. Interactivity was often
+limited to a simple queries and responses, without much need for
+maintaining state in between. Nowadays, "sessions" are a very important
+aspect of web programming. Perl 5 provides a few ways of setting these
+up, but it's not part of the most popular web development toolkit,
+CGI.pm.
+
+CGI.pm does provide HTML generation functions. Why anyone would prefer
+to write exactly the same thing in an only slightly less awkward syntax,
+is entirely beyond me. One particular feature, sticky values in form
+elements, where the value from the request is used as the default value
+for the new form output, is very useful, though. A trend that I've
+noticed is that people begin by printing raw HTML, and add sticky values
+via HTML generation functions later. Some weird kind of sense for purity
+then often drives them to move entirely to HTML generation. Some smarter
+programmers use templating modules, often still relying on CGI.pm's form
+functions for pre-filling form fields.
+
+Sticky values are useful combined with form validation. If the given
+input data is invalid, you present the same form again, and prompt the
+user to fix their mistakes. With CGI.pm, the easy way to do this is to
+output an error message first, and then use the normal HTML generation
+functions to generate the HTML for form elements. However, users are now
+used to seeing the erroneous form field highlighted, with a more
+specific error message next to it. We should have an easy way to do that
+too.
+
+In the past years, Perl's leading position for web programming was taken
+over by PHP. This has to do with a lot of things. While PHP is
+technically inferior in numerous ways, it has a few strengths that make
+it very tempting for beginning programmers to pick this language over
+many others. Acknowledging that many of us dislike PHP for its
+programming language, we should try to accept that this product offers
+some things that Perl does not, most of which boil down to being usable
+out of the box. The programmer doesn't have to worry about all the
+details: many are delegated to the system administrator, which tends to
+be a good thing for bulk hosted web development. This opens up web
+programming to a much larger audience.
+
+Whether making it easy to write web programs is a good idea (in the
+light of security, spam, and overall code quality), is a different
+discussion. I personally would like things to be easy and simple,
+because I'm lazy. But I want this in a Perlish way, not a PHP-ish way.
+The Perlish way is, in my opinion and experience, more elegant and time
+saving. I stress that elegance and "line noise" are not mutually
+exclusive.
+
+Another recent development in web programming world is character
+encoding awareness. The times of letting the browser figure out what's
+going on are finally over. Modern web programming mostly uses UTF-8, and
+is explicit about that. We should make using UTF-8 in HTML output
+extremely easy, and highlight it in synopses and tutorials. Perl 5 had
+great Unicode support, and it is expected that it will be even better in
+Perl 6. We should use that to our users' advantage.
+
+Yet another recent development is XHTML. This is slowly becoming more
+popular. This is a very strict language, though, as it is based on XML.
+A document is either valid and unambiguous, or completely invalid.
+Because of this, XHTML needs to be a conscious choice, and never the
+default. That doesn't mean that choosing XHTML should be hard, and that
+our web toolkit only outputs HTML. I think we're obliged to implement
+both HTML and XHTML, whenever we generate output. This isn't necessarily
+related to HTML generation functions, but may also be important for HTML
+entities and carping. By consistently applying both HTML and XHTML, we
+set a good example for people who wish to extend the toolkit with new
+roles or classes.
+
+Web programming is normally done via HTTP, and this has two important
+stages that I think should be kept separated in code. They are the
+processing the request, and sending the response. Request and response
+can easily be represented by objects, as demonstrated in Perl 5's
+HTTP::Request and HTTP::Response.
+
+Other features are also important, but not fundamental. Already
+identified features are HTML form pre-filling ("sticky" values) and
+sessions. Fundamental features should be enabled by default, and other
+useful things should be provided as an option. Perl 6's roles can
+probably aid in composing the requested featureset in a single object.
+
+The name of the toolkit MUST NOT be "CGI". I want the name to indicate
+that the new toolkit is different from the Perl 5 CGI.pm. Not just
+because CGI was a bad name for that module anyway, but also to avoid
+confusion.
+
+A three letter name is attractive. I propose: Web. On the other hand,
+Template Toolkit is hard to search for using search engines like Google,
+so perhaps Web::Toolkit is a better name. This namespace could contain
+all the modules that are specifically catered to web development in
+general, entirely platform independent. CGI, mod_perl, HTTP::Daemon, it
+shouldn't matter. And these modules should be designed to work together.
+This doesn't necessarily require full planning and complex API's. It
+does, however, require a very solid base. I have some suggestions re its
+structure.
+
+I like the DRY principle. DRY stands for Don't Repeat Yourself. If
+someone chooses to output UTF-8, they shouldn't have to mention this
+with everything that outputs something. Likewise, when someone picks
+XHTML over HTML, this should be defined in one place and then used by
+every part of the toolkit. At the same time, these things should be
+overridable at any point. That can be done by temp'ing an attribute, for
+example.
+
+Next time I will write something about implementation. This will partly
+be from the perspective of implementation, partly based on examples of
+user oriented code.
+--
+korajn salutojn,
+
+  juerd waalboer:  perl hacker  <juerd@juerd.nl>  <http://juerd.nl/sig>
+  convolution:     ict solutions and consultancy <sales@convolution.nl>
