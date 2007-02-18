@@ -297,14 +297,14 @@ ok(!(?(1&0) != ?(1&&0)), 'boolean context');
     $c++ if 1 == 1;
     is $c, 4;
     $c++ if 1 == 1|2;
-    is $c, 5, 'if modifier with junction should be called once', :todo<bug>;
+    is $c, 5, 'if modifier with junction should be called once';
 
     $c = 0;
     $c++ if 1 == 1|2|3;
-    is $c, 1, 'if modifier with junction should be called once', :todo<bug>;
+    is $c, 1, 'if modifier with junction should be called once';
 
     $c = 0;
     $c++ if 1 == any(1, 2, 3);
-    is $c, 1, 'if modifier with junction should be called once', :todo<bug>;
+    is $c, 1, 'if modifier with junction should be called once';
 }
     
