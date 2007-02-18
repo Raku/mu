@@ -62,6 +62,16 @@ asYAMLmap c ps = do
         v' <- v
         return (k', v')
 
+asYAMLmapBuf :: YAMLClass -> [(Buf.ByteString, EmitAs YAMLVal)] -> EmitAs YamlNode
+asYAMLmapBuf c ps = do
+    ps' <- mapM asYAMLpair ps
+    return $ mkTagNode (tagHs c) (EMap ps')
+    where
+    asYAMLpair (k, v) = do
+        k' <- asYAML k
+        v' <- v
+        return (k', v')
+
 fromYAMLmap :: YAML a => YamlNode -> IO [(String, a)]
 fromYAMLmap MkNode{n_elem=EMap m} = mapM fromYAMLpair m
     where
