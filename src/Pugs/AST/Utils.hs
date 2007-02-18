@@ -123,7 +123,7 @@ data JuncType = JAny  -- ^ Matches if /at least one/ member matches
     deriving (Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 
-showRat :: VRat -> VStr
+showRat :: VRat -> String
 showRat r
     | frac == 0 = s ++ show quot
     | otherwise = s ++ show quot ++ "." ++ showFrac frac
@@ -137,7 +137,7 @@ showRat r
     showFrac = reverse . dropWhile (== '0') . reverse . pad . show
     pad x = (replicate (40 - length x) '0') ++ x
 
-showTrueRat :: VRat -> VStr
+showTrueRat :: VRat -> String
 showTrueRat r =
     (show n) ++ "/" ++ (show d)
     where
