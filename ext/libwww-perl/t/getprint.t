@@ -61,10 +61,10 @@ my ($pugs,$redir) = ("../../pugs", ">");
 
 if $?OS eq any <MSWin32 mingw cygwin> {
   $pugs = '..\\..\\pugs.exe';
-  if -e 'pugs.exe' { $pugs = 'pugs.exe' }
+  if 'pugs.exe'~~:e { $pugs = 'pugs.exe' }
 }
 else {
-  if -e './pugs' { $pugs = './pugs' }
+  if './pugs'~~:e { $pugs = './pugs' }
 };
 
 sub run_pugs ($c) {

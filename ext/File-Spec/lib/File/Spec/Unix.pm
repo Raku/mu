@@ -186,7 +186,7 @@ sub tmpdir returns Str is export {
 #     #     }
 #     # }
 #     for @dirlist -> $dir {
-#         next unless $dir.defined && -d -w $dir;
+#         next unless $dir.defined && $dir~~(:d|:w);
 #         $tmpdir = $dir;
 #         last;
 #     }
