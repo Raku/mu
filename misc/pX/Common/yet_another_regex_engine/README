@@ -51,11 +51,11 @@ Architecture:
 
 Plan:
 
+  * Update Plan, Budget.
   * Get p5 regexp working:
      Add backref_or_char node.
      Debug using re_tests.
      Tidy up.
-
     Objective is a 100% okay on the re_tests p5 regexp test suite.
     Or as close as the underlying p5 implementation version comes.
     Except where it is easy, we won't try to do better than that.
@@ -126,6 +126,10 @@ Risks:
     hit.
 
 History:
+
+  2007-Feb-18
+  2007-Feb-1? More commit, but untested.  Some bug fixes.  Started
+  adding a p6 test suite. 12 sec. 95% ok. 3% ok6.  Cost: 1 day.
 
   2007-Feb-08
   2007-Feb-06 Some cleanup.  Started commit.  Rx's are now method-like.
