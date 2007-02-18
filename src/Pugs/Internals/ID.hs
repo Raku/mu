@@ -17,6 +17,9 @@ import qualified UTF8
 
 #if __GLASGOW_HASKELL__ > 606
 
+-- If the following import directive triggers a compilation failure,
+-- you need a newer GHC 6.7 snapshot.
+
 import GHC.Base (IsString(..))
 
 instance IsString ByteString where
