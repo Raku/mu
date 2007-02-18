@@ -5,7 +5,8 @@ module Pugs.Internals.Cast (
     (:<:)(..),
     addressOf,
     showAddressOf,
-    fromTypeable
+    fromTypeable,
+    _cast
 ) where
 
 import Data.Dynamic hiding (cast)
@@ -38,6 +39,9 @@ class ((:<:) a) b where
 
 instance (b :<: a) => (:>:) a b where
     cast = castBack
+
+_cast :: (a :>: String) => String -> a
+_cast = cast
 
 instance (:<:) a a where castBack = id
 
