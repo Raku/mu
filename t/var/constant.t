@@ -24,7 +24,7 @@ plan 13;
         $ok = $bar == 42;
     ';
 
-    ok $ok, "declaring a constant with a sigil using 'constant' works", :todo<feature>;
+    ok $ok, "declaring a constant with a sigil using 'constant' works";
 }
 
 {
