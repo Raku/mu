@@ -15,6 +15,7 @@ module Pugs.DeepSeq (
 ) where
 import Pugs.AST
 import Pugs.Types
+import Pugs.Internals (ByteString)
 import Data.DeepSeq
 
 instance DeepSeq Val where
@@ -30,6 +31,9 @@ instance DeepSeq Val where
     deepSeq (VError a b) x =  deepSeq a $ deepSeq b x
     deepSeq (VControl a) x = deepSeq a x
     deepSeq a x = seq a x
+
+instance DeepSeq ByteString where
+    deepSeq = seq
 
 instance DeepSeq VComplex where
     deepSeq = seq
