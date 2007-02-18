@@ -475,7 +475,7 @@ st_cleanup_safe(table, never)
 {
     int num_entries = table->num_entries;
 
-    st_foreach(table, delete_never, never);
+    st_foreach(table, (enum st_retval (*)())delete_never, never);
     table->num_entries = num_entries;
 }
 
