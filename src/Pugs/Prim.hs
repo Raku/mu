@@ -2108,7 +2108,7 @@ initSyms = seq (length syms) $ do
 \\n   Num       pre     log     safe   (Num)\
 \\n   Num       pre     log10   safe   (Num)\
 \\n   Thread    pre     async   safe   (Code)\
-\\n   Thread    pre     fork    safe   ()\
+\\n   Thread    pre     fork    unsafe ()\
 \\n   Int       pre     sign    safe   (Num)\
 \\n   Bool      pre     kill    safe   (Thread)\
 \\n   Int       pre     kill    unsafe (Int, List)\
