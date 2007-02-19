@@ -99,11 +99,11 @@ decodeUTF8' (x:xs) = trace ("decodeUTF8': bad data: " ++ show x) (x:decodeUTF8' 
 chunkDec4096 :: [Char] -> [[Char]]
 chunkDec4096 xs = doChunk (splitAt 4096 xs)
     where
+    doChunk ([], _)  = []
     doChunk (pre, post@(c:_))
         | c < '\x80' = pre : chunkDec4096 post
         | c > '\xBF' = pre : chunkDec4096 post
         | otherwise  = doChunk (init pre, last pre : post)
-    doChunk ([], _)  = []
     doChunk (pre, _) = [pre]
 
 {-# INLINE chunk #-}
