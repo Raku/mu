@@ -20,6 +20,8 @@ The optional features in kp6 are:
 - a better parser 
     - $?FILE, $?LINE
 - precompilation, version checking
+- user-clonable closures
+    - $closure.clone - creates new pads with copies of lexicals
 
 Incomplete features:
 

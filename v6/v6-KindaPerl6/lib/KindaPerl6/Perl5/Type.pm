@@ -19,6 +19,7 @@ package Buf;
 package Scalar;
 package Array;
 package Hash;
+package Undef;
 
 package Type_Constant;
     # $x = bless \( do{ my $v = 42 } ), 'Type_Constant';

@@ -9,6 +9,10 @@ The kp6 Milestones are:
 - begin blocks
 - containers
 
+2007-02-16
+- Pad.clone
+- Code.pm 
+
 2007-02-07
 - added t/01-sanity, edited to fit the kp6 grammar
 - added the sanity errors to TODO list

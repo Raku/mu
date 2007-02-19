@@ -19,6 +19,7 @@ package Buf;
 package Scalar;
 package Array;
 package Hash;
+package Undef;
 
 package Type_Constant;
     # $x = bless \( do{ my $v = 42 } ), 'Type_Constant';
@@ -105,6 +106,7 @@ package Type_Scalar;
     sub DESTROY { }
     sub AUTOLOAD {
         # allow: $x.new
+        # - $x.FETCH.new is better - disable AUTOLOAD ???
         #require Data::Dump::Streamer;
         #print "Scalar AUTOLOAD: $AUTOLOAD - ", Data::Dump::Streamer::Dump( \@_ );
         my $self = shift;
