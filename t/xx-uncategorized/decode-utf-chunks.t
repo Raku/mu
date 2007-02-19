@@ -34,7 +34,7 @@ for 0 ..^ $chunk_count -> $chunk {
     is (substr $long, $chunk * $small_chunk, $small_chunk),
         ([~] map { chr $_ + $offset }, $chunk * $small_chunk ..^
                 (($chunk + 1) * $small_chunk)),
-        "chunk #$chunk";
+        "chunk $chunk";
 }
 
 sub get_long {
