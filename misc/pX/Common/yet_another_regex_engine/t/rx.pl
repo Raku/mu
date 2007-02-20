@@ -11,10 +11,10 @@ sub test6 {
     for my $line (@tests) {
 	chop($line);
 	print "        \# $line\n";
-	next if /^\s*\#/;
+	next if $line =~ /^\s*\#|^\s*$/;
 	print STDERR "        \# $line\n" if $debug_warnings;
 	my($pat,$str,$ok,$description,@excess)=split(/\t+/,$line);
-	die "assert" if @excess;
+	die "assert" if @excess || !defined $ok;
 	
 	my $re = $pat;
 	my $mods = "";
@@ -54,7 +54,7 @@ sub test6 {
 	    if(!$m) {
 		print "not ok \# Match failed.\n";
 	    } else {
-		$ok =~ /^\/mob([^:]*):\s*(.+)\/$/ or die "assert";
+		$ok =~ /^\/mob\s*([^:]*):\s*(.+)\/$/ or die "assert";
 		my($subpart,$value)=($1,$2);
 		my $path = join("",map{"->$_"} map{
 		    if(/^\d+$/) {"[$_]"}

@@ -1,11 +1,14 @@
 This is yet another rules engine implementation attempt.
 
 $ prove t/re_tests.t
-... 91.78% okay.
+$ prove t/rx.t
+... 95.21% okay.
+... 2.43% okay.
 $ perl -w Regexp_ModuleA.pm --test
+$ perl -w Regexp_ModuleA.pm --test6
 ... more informative than prove, but no prove-like summary at the end.
 $ perl -w Regexp_ModuleA.pm --repl
-... interactive.  Currently uses P5-with-subrules dialect.
+... interactive.
 
 Regards forking:
 
@@ -126,6 +129,11 @@ Risks:
     hit.
 
 History:
+
+  2007-Feb-19 REPL is now easier to use with different dialects.
+  Commit bugfix.  Began P6 captures.  P5 grammar rule names changed to
+  mirror p6 grammar.  rx.pl bugfix.  Began P6 support.
+  re_tests.t 95%, 13 sec; rx.t 36%, 12 sec. Cost: 1 day.
 
   2007-Feb-18
   2007-Feb-1? More commit, but untested.  Some bug fixes.  Started
