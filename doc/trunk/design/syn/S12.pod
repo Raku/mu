@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 15 Feb 2007
+  Last Modified: 20 Feb 2007
   Number: 12
-  Version: 41
+  Version: 42
 
 =head1 Overview
 
@@ -1325,7 +1325,7 @@ The dispatch is still based on the I<run-time> type of the object,
 not the declared type.
 
 Any other kind of argument to C<handles> is considered to be a
-smartmatch selector for methods.  So you can say:
+smartmatch selector for method names.  So you can say:
 
     has $.fur is rw handles /^get_/;
 
@@ -1334,7 +1334,9 @@ If you say
     has $.fur is rw handles Groomable;
 
 then you get only those methods available via the C<Groomable> role
-or class.
+or class.  To delegate everything, use the C<Whatever> matcher:
+
+    has $the_real_me handles *;
 
 Wildcard matches are evaluated only after it has been determined that
 there's no exact match to the method name anywhere.  When you have
@@ -1369,22 +1371,26 @@ handlers, and you just want to call the I<first> one that succeeds.
 This is not considered a wildcard match unless the "handles" argument
 forces it to be.
 
-If your delegation object happens to be a hash:
+[Conjectural: the hash syntax is reserved until we figure out the
+semantics we really want, and whether this actually buys us anything
+over normal polymorphism.] If your delegation object happens to be
+a hash:
 
     has %objects handles 'foo';
 
-then the hash provides a mapping from the string value of "self"
-to the object that should be delegated to:
+then the hash provides a mapping from a set of Selectors specified as Pair
+keys to the object specified as the Pair value that should be delegated to:
 
     has %barkers handles "bark" =
                 (Chihauhau => $yip,
                     Beagle => $yap,
                    Terrier => $arf,
                  StBernard => $woof,
+                         * => $ruff,
                 );
     method prefix:<~>( return "$.breed" )
 
-If the string is not found in the hash, a "C<next METHOD>" is
+If the current object matches no Selector, a "C<next METHOD>" is
 automatically performed.
 
 =head1 Types and Subtypes
