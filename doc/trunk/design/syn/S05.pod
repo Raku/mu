@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 8 Feb 2007
+   Last Modified: 19 Feb 2007
    Number: 5
-   Version: 51
+   Version: 52
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -1379,12 +1379,12 @@ C<token> and C<rule>.
 
 A token declaration:
 
-    token ident { [ <alpha> | _ ] \w+ }
+    token ident { [ <alpha> | _ ] \w* }
 
 never backtracks by default.  That is, it likes to commit to whatever
 it has scanned so far.  The above is equivalent to
 
-    regex ident { [ <alpha>: | _: ]: \w+: }
+    regex ident { [ <alpha>: | _: ]: \w*: }
 
 but rather easier to read.  The bare C<*>, C<+>, and C<?> quantifiers
 never backtrack in a C<token> unless some outer regex has specified a
