@@ -3,11 +3,12 @@ This is yet another rules engine implementation attempt.
 $ prove t/re_tests.t
 $ prove t/rx.t
 ... 95.21% okay.
-... 2.43% okay.
+... 75.00% okay.
 $ perl -w Regexp_ModuleA.pm --test
 $ perl -w Regexp_ModuleA.pm --test6
 ... more informative than prove, but no prove-like summary at the end.
 $ perl -w Regexp_ModuleA.pm --repl
+$ perl -w Regexp_ModuleA.pm --repl6
 ... interactive.
 
 Regards forking:
@@ -64,16 +65,16 @@ Plan:
     Except where it is easy, we won't try to do better than that.
     Keeping track of what test is failing and why is more trouble than
     doing ~100% now rather than later, no?
-  * Get p6 rules tests.
-    Can we get pugs to use us for the t/ tests?  That would be best.
-    Else kludge something, perhaps from the p6-ified re_tests.  But those
-    are very incomplete.
-  * Create simple m-expr grammar for p6 rules.
-    Start simple (eg, the pge illustrative grammar), get it working,
-    then extend it to the full grammar.
-  * Milestone - at this point it may be the best rules engine available.
+  * Get p6 regex working.
+    100% test pass on parrot rx_ tests.
+    Scavange more tests from... somewhere.
+     Regexp::Parser::ConvertToSix re_tests to p6?
   * Flesh out the p6 implementation.
   * Declare success.
+
+ Mission creep:
+  * Finish separating ast ("compile-time") from "runtime".
+  * Source filter. PCR equivalent.
 
 Bugs: (some among many)
 
@@ -88,6 +89,8 @@ Budgeting:
   1+fuzzy day for fleshing out rules support.
 
 So 6+ days.  Likely spread over February '07.
+
+Budget blown.
 
 Risks:
 
@@ -129,6 +132,9 @@ Risks:
     hit.
 
 History:
+
+  2007-Feb-20 Assorted engine and p6 grammar work.  Some rx test jig fixes.
+  re_tests.t 95%, 13 sec; rx.t 75%, 11 sec. Cost: 1 day.
 
   2007-Feb-19 REPL is now easier to use with different dialects.
   Commit bugfix.  Began P6 captures.  P5 grammar rule names changed to

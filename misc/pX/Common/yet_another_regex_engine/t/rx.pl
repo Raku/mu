@@ -32,7 +32,14 @@ sub test6 {
 	}
 
 	print STDERR "  eval \"$str\"\n" if $debug_warnings;
-	my $strx = eval("\"$str\"");
+	my $strx = $str;
+	$strx =~ s/\"/\\\"/g;
+	$strx = eval("\"$strx\"");
+	# Special case bizarre test strings:
+	$strx = '' if $str eq "''";
+	$strx = "\t\n\r".' !"#$%&\'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij'
+	    if $str eq '\t\n\r !"#$%&\'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij';
+
 	my $m = $qr->($strx);
 
 
@@ -58,7 +65,7 @@ sub test6 {
 		my($subpart,$value)=($1,$2);
 		my $path = join("",map{"->$_"} map{
 		    if(/^\d+$/) {"[$_]"}
-		    elsif(/^<(.+)>$/) {"{$_}"}
+		    elsif(/^<(.+)>$/) {"{$1}"}
 		    else {die "assert"}
 		} split(/\s+/,$subpart));
 		my $subm = eval("\$m$path");
@@ -66,11 +73,21 @@ sub test6 {
 		    print "not ok \# Submatch $path nonexistant.\n";
 		    next;
 		}
-		$value =~ /^\<(.+) @ (\d+)>/ or die "assert";
+		eval{$subm->from};
+		if($@) {
+		    print "not ok \# Submatch $path was not a Match.\n";
+		    next;
+		}
+		$value =~ /^\<(.*) @ (\d+)>/ or die "assert";
 		my($s,$at)=($1,$2);
 		my $got_s = "$subm";
 		my $got_at = $subm->from;
-		if($got_s eq $s && $got_at == ($at+0)) {
+		my $got_ok = $got_s eq $s;
+		if(!$got_ok && $s =~ /\\/) {
+		    # some of the value "strings" seem to be regexs, eg, \w+
+		    eval {$got_ok = 1 if $got_s =~ /\A$s\z/}
+		}
+		if($got_ok && $got_at == ($at+0)) {
 		    print "ok\n";
 		} else {
 		    print "not ok\n  \# Expected: >$s< at $at\n  \#      Got: >$got_s< at $got_at\n";
