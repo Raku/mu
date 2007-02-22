@@ -50,7 +50,7 @@ fileTestViaPerl5 testOp v = do
     env     <- ask
     envSV   <- liftIO $ mkEnv env
     argSV   <- fromVal v
-    subSV   <- liftIO $ evalPerl5 ("sub { warn $_[0]; -" ++ testOp ++ " $_[0] }") envSV (enumCxt cxtItemAny)
+    subSV   <- liftIO $ evalPerl5 ("sub { -" ++ testOp ++ " $_[0] }") envSV (enumCxt cxtItemAny)
     rv      <- runInvokePerl5 subSV nullSV [argSV]
     return $ case rv of
         VStr "" -> VBool False
