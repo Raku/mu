@@ -4,8 +4,11 @@ module Pugs.Prim.FileTest (
     exists, isFile, isDirectory,
     fileSize, sizeIsZero,
     fileMTime, fileCTime, fileATime,
+    fileTestViaPerl5
 ) where
 import Pugs.Internals
+import Pugs.Embed
+import Pugs.Types
 import Pugs.AST hiding (isWritable)
 
 -- filetest operators --
@@ -41,6 +44,19 @@ fileCTime    :: Val -> Eval Val
 fileCTime    = fileTime statFileCTime
 fileATime    :: Val -> Eval Val
 fileATime    = fileTime statFileATime
+
+fileTestViaPerl5 :: String -> Val -> Eval Val
+fileTestViaPerl5 testOp v = do
+    env     <- ask
+    envSV   <- liftIO $ mkEnv env
+    argSV   <- fromVal v
+    subSV   <- liftIO $ evalPerl5 ("sub { warn $_[0]; -" ++ testOp ++ " $_[0] }") envSV (enumCxt cxtItemAny)
+    rv      <- runInvokePerl5 subSV nullSV [argSV]
+    return $ case rv of
+        VStr "" -> VBool False
+        VNum 1  -> VBool True
+        VInt 1  -> VBool True
+        _       -> rv
 
 fileTime :: (FilePath -> IO Integer) -> Val -> Eval Val
 fileTime test f = do

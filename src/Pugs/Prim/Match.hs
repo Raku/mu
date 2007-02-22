@@ -140,6 +140,7 @@ op2Match x (VRef (MkRef (IPair pv))) = do
         "C" -> FileTest.fileCTime
         "f" -> FileTest.isFile
         "d" -> FileTest.isDirectory
+        [op] | op `elem` "oRWXOlpSbctugkTB" -> FileTest.fileTestViaPerl5 testOp
         _   -> const $ die "Unknown file test operator" testOp
     if isTrue
         then return rv
