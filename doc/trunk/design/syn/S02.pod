@@ -1578,9 +1578,9 @@ expression at compile time.)
 C<$?FILE> and C<$?LINE> are your current file and line number, for
 instance.  C<?> is not a shortcut for a package name like C<*> is.
 Instead of C<$?OUTER::SUB> you probably want to write C<< OUTER::<$?SUB> >>.
-Within code that is being run during the compile, such as BEGIN blocks,
-or macro bodies, or constant initializers, the compiler variables must
-be referred to as C<< COMPILING<$?LINE> >> if the bare C<$?LINE> would
+Within code that is being run during the compile, such as BEGIN blocks, or
+macro bodies, or constant initializers, the compiler variables must be referred
+to as (for instance) C<< COMPILING::<$?LINE> >> if the bare C<$?LINE> would
 be taken to be the value during the compilation of the currently running
 code rather than the eventual code of the user's compilation unit.  For
 instance, within a macro body C<$?LINE> is the line within the macro
