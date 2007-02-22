@@ -1107,6 +1107,13 @@ and you end up with
 
     ('a', '1'), ('a', '2'), ('b', '1'), ('b', '2')
 
+This becomes a flat list in C<@> context and a list of arrays in C<@@> context:
+
+    say @(<a b> X <1 2>)
+    'a', '1', 'a', '2', 'b', '1', 'b', '2'
+    say @@(<a b> X <1 2>)
+    ['a', '1'], ['a', '2'], ['b', '1'], ['b', '2']
+
 =item *
 
 Cross hyperoperators

@@ -1518,7 +1518,7 @@ Specifies the associativity of an operator explicitly.  Valid values are:
     right       ** =            $a op ($b op $c)                **
     non         cmp <=> ..      ILLEGAL                         cmp
     chain       == eq ~~        ($a op $b) and ($b op $c)       eqv
-    list        | & ^ ¥         op($a, $b, $c)                  |
+    list        | & ^ Z         op($a; $b; $c)                  |
 
 Note that operators "C<equiv>" to relationals are automatically considered
 chaining operators.  When creating a new precedence level, the chaining
