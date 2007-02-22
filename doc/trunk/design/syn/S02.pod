@@ -2475,7 +2475,7 @@ delimiter.  Leading whitespace equivalent to the indentation of the
 delimiter will be removed from all preceding lines.  If a line is
 deemed to have less whitespace than the terminator, only whitespace
 is removed, and a warning may be issued.  (Hard tabs will be assumed
-to be 8 spaces, but as long as tabs and spaces are used consistently
+to be C<< ($?TABSTOP // 8) >> spaces, but as long as tabs and spaces are used consistently
 that doesn't matter.)  A null terminating delimiter terminates on
 the next line consisting only of whitespace, but such a terminator
 will be assumed to have no indentation.  (That is, it's assumed to
