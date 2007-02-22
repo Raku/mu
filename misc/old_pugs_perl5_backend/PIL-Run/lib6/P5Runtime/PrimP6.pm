@@ -44,9 +44,7 @@ multi sub int  ($xx) { coerce:as($xx,'Int') };
 multi sub prefix:<!> ($xx) { 1 - coerce:as($xx,'Bit') }
 
 # multi sub zip ($x0,$x1) { $x0.Array::zip($x1) }
-multi sub infix:<Y> # is assoc<list>    XXX Pugs parser TODO 
-    ($x0,$x1) { $x0.zip($x1) }
-multi sub infix:<¥> # is assoc<list>    XXX Pugs parser TODO
+multi sub infix:<Z> # is assoc<list>    XXX Pugs parser TODO 
     ($x0,$x1) { $x0.zip($x1) }
 
 multi sub prefix:<-> ($x) { 0 - $x }

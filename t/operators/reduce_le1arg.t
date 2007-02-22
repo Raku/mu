@@ -5,7 +5,7 @@ plan 49;
 
 # smartlink to top and bottom of long table
 # L<S03/Reduction operators/"Builtin reduce operators return the following identity values">
-# L<S03/Reduction operators/"[¥]()       # []">
+# L<S03/Reduction operators/"[Z]()       # []">
 
 is ([**] ()), 1, "[**] () eq 1 (arguably nonsensical)";
 is ([*] ()), 1, "[*] () eq 1";
@@ -55,6 +55,6 @@ is ([^^] ()), Bool::False, "[^^] () eq False";
 is (defined ([//] ())), Bool::False, "[//] () not defined";
 is (defined ([=] ())), Bool::False, "[=] () not defined";
 is ([,] ()), (), "[,] () eq ()";
-is ([¥] ()), [], "[¥] () eq []";
+is ([Z] ()), [], "[Z] () eq []";
 
 # need to add one elems list cases

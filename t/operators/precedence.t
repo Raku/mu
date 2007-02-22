@@ -120,12 +120,12 @@ is((1 && 0 ?? 2 !! 3), 3, "&& binds tighter than ??");
 {
     my @c = 1, 2, 3;
     is(@c, (1), "= binds tighter than , (*sigh*)", :todo);
-    my @a = (1, 3) ¥ (2, 4);
-    is(@a, [1, 3], "= binds tighter than yen");
+    my @a = (1, 3) Z (2, 4);
+    is(@a, [1, 3], "= binds tighter than zip");
 };
 
 {
-    my @b = ((1, 3) ¥ (2, 4));
+    my @b = ((1, 3) Z (2, 4));
     is(@b, [1 .. 4], "parens work around this");
 };
 
@@ -133,7 +133,7 @@ is((1 && 0 ?? 2 !! 3), 3, "&& binds tighter than ??");
 
 {
     my @d;
-    ok eval('@d <== (1, 3) ¥ (2, 4)'), "left pointing pipe parses", :todo;
+    ok eval('@d <== (1, 3) Z (2, 4)'), "left pointing pipe parses", :todo;
     is(@d, [1 .. 4], "to complicate things further, left pointing pipe *does* DWIM", :todo);
     my $c = any 1, 2, 3;
     ok($c == 2, "any is less tight than comma");

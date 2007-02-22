@@ -11,7 +11,7 @@ L<S29/Container/"=item zip">
 
 =cut
 
-plan 12;
+plan 9;
 
 {
     my @a = (0, 2, 4);
@@ -20,12 +20,10 @@ plan 12;
     my @e = (0 .. 5);
 
     my @z; @z = zip(@a; @b);
-    my @y; @y = (@a ¥ @b);
-    my @x; @x = (@a Y @b);
+    my @x; @x = (@a Z @b);
 
     is(~@z, ~@e, "simple zip");
-    is(~@y, ~@e, "also with yen char");
-    is(~@x, ~@e, "also with Y char");
+    is(~@x, ~@e, "also with Z char");
 };
 
 {
@@ -36,12 +34,10 @@ plan 12;
     my @e = (0 .. 5);
 
     my @z; @z = zip(@a; @b; @c);
-    my @y; @y = (@a ¥ @b ¥ @c);
-    my @x; @x = (@a Y @b Y @c);
+    my @x; @x = (@a Z @b Z @c);
 
     is(~@z, ~@e, "zip of 3 arrays");
-    is(~@y, ~@e, "also with yen char");
-    is(~@x, ~@e, "also with Y char");
+    is(~@x, ~@e, "also with Z char");
 };
 
 {
@@ -54,13 +50,11 @@ plan 12;
     my @e = eval $todo;
 
     my @z; @z = zip(zip(@a; @b); @c);
-    my @y; @y = ((@a ¥ @b) ¥ @c);
-    my @x; @x = ((@a Y @b) Y @c);
+    my @x; @x = ((@a Z @b) Z @c);
 
     is(~@z, ~@e, "zip of zipped arrays with other array", :todo<feature>,
         :depends<Seq>);
-    is(~@y, ~@e, "also as ¥", :todo<feature>, :depends<Seq>);
-    is(~@x, ~@e, "also as Y", :todo<feature>, :depends<Seq>);
+    is(~@x, ~@e, "also as Z", :todo<feature>, :depends<Seq>);
 };
 
 {
@@ -68,7 +62,7 @@ plan 12;
     my @b = (1, 3, 5);
     my @e = (0, 1, 2, 3, undef, 5);
 
-    my @z = (@a ¥ @b);
+    my @z = (@a Z @b);
     is(@z, @e, "zip uses length of longest");
 }
 

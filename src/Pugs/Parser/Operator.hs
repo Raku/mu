@@ -20,7 +20,7 @@ listCons :: [RuleOperator Exp]
 listCons = listSyn (opWords ",")                         -- List constructor
 
 listInfix :: [RuleOperator Exp]
-listInfix = listOps (opWords "Y \xA5 XX ==> <==")  -- List infix
+listInfix = listOps (opWords "Z X minmax ==> <==")  -- List infix
 
 opWords :: String -> Set OpName
 opWords xs = Set.fromList (map (MkOpName . cast) (words xs))
@@ -723,7 +723,7 @@ ruleInfixAssignment = choice $ ops (try . string) infixAssignmentOps
 defaultInfixOps :: Set OpName
 defaultInfixOps = opWords $ concat
     [ " ** * / % x xx +& +< +> ~& ~< ~> "
-    , " + - ~ +| +^ ~| ~^ ?| , Y \xA5 XX "
+    , " + - ~ +| +^ ~| ~^ ?| , Z X minmax "
     , " & ^ | "
     , " => = "
     , " != == < <= > >= ~~ "

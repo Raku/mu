@@ -8,7 +8,6 @@ combinations starting with “\”, see below.
 
     «           <<          ^k < <     C-x 8 <     Compose < <
     »           >>          ^k > >     C-x 8 >     Compose > >
-    ¥           Y           ^k Y e     C-x 8 Y     Compose Y =
 
 Set.pm operators (included for reference):
     ≠           !=          ^k ! =     \ne

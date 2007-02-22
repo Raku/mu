@@ -228,5 +228,4 @@ sub prefix:«[=]» (*@vars is copy) is primitive is rw {
 
 our &prefix:«[,]» := &list;
 
-sub infix:«Y» (Array *@arrays) is primitive is rw { zip *@arrays }
-sub infix:«¥» (Array *@arrays) is primitive is rw { zip *@arrays }
+sub infix:«Z» (Array *@arrays) is primitive is rw { zip *@arrays }

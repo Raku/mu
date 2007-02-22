@@ -31,17 +31,18 @@ Perl6::Overview::Operator - Operators
     tight and           &&
     tight or            || ^^ //
     conditional         ?? !!
-    assignment          := ::= =>
+    item assignment     = := ::= =>
                             (also = with simple lvalues)
                             += -= **= xx= .= etc.
     loose unary         true not
-    list ops            , print push say join split substr open etc.
+    comma		,
+    list infix          X Z minmax <== ==>
+    list ops            = print push say join split substr open etc.
                             any all one none
                             die fail warn
                             !!! ...  ???
                             [+] [*] [<] [,] [\+] [\*] etc.
                             (also = as list assignment)
-    list infix          ¥ <== ==>
     loose and           and
     loose or            or xor err
     expr terminator     ; {} as control block, statement modifiers
@@ -165,8 +166,8 @@ be transformed into its negative by prefixing with !.
     $foo ~ $bar         # string concat
     $foo x 3            # $foo ~ $foo ~ $foo
     $foo xx 3           # ($foo, $foo, $foo)
-    @foo ¥ @bar ¥ @baz  # zip(@foo, @bar, @baz)
-    @foo Y @bar Y @baz  # non-Unicode savvy syntax for previous
+    @foo Z @bar Z @baz  # zip(@foo; @bar; @baz)
+    @foo X @bar X @baz  # cross(@foo; @bar; @baz)
     item ($foo, $bar)   # [ $foo, $bar ]
     1..5                # (1, 2, 3, 4, 5)
     "a".."g"            # <a b c d e f g>

@@ -171,8 +171,7 @@ MULTI SUB bool::false () { p6_from_b(0) };
 MULTI SUB time () { use Time::HiRes; p6_from_n(time)};
 MULTI SUB times () {p6_from_l(times)};
 MULTI SUB so () {...};
-#MULTI SUB ¥ () {...}; - need protective unicode mangling/encoding first.
-#MULTI SUB Y () {...};
+#MULTI SUB Z () {...};
 MULTI SUB File::Spec::cwd () {p6_from_s(cwd)};
 MULTI SUB File::Spec::tmpdir () {...};
 # pi say - placed above, as a temporary dev hack.

@@ -1,4 +1,4 @@
-﻿package Pugs::Grammar::Infix;
+package Pugs::Grammar::Infix;
 use strict;
 use warnings;
 use Pugs::Grammar::Operator;
@@ -113,35 +113,29 @@ BEGIN {
 
 
     __PACKAGE__->add_rule( 
-        name => 'Y',
+        name => 'Z',
         assoc => 'list',
         precedence => 'looser',
         other => '=',
     );
     __PACKAGE__->add_rule( 
-        name => '¥',
-        assoc => 'list',
-        precedence => 'equal',
-        other => 'Y',
-    );
-    __PACKAGE__->add_rule( 
         name => ',',
         assoc => 'list',
         precedence => 'equal',
-        other => 'Y',
+        other => 'Z',
     );
     __PACKAGE__->add_rule( 
         name => ';',
         assoc => 'list',
         precedence => 'equal',
-        other => 'Y',
+        other => 'Z',
     );
     
     __PACKAGE__->add_rule( 
         name => 'and',
         assoc => 'left',
         precedence => 'looser',
-        other => 'Y',
+        other => 'Z',
     );
     
     __PACKAGE__->add_rule( 
