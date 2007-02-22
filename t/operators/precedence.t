@@ -13,7 +13,7 @@ L<S03/"Precedence">
 
 =cut
 
-plan 41;
+plan 45;
 
 
 # 1. terms
@@ -22,8 +22,9 @@ plan 41;
 
 # 2. postfix method
 
-# this wants objects, but maybe it can also work like
-# @sort.map binds tighter than ++ somehow?
+my @a = 1,2,3;
+is(++@a[2], 4, "bare postfix binds tighter than ++");
+is(++@a.[2], 5, "dotted postfix binds tighter than ++");
 
 # 3. autoincrement
 
@@ -89,11 +90,11 @@ ok(     !(1 & 2 ^ 4) != 3, "blah blah blah");
 is((abs -1 .. 3), (1 .. 3), "abs binds tighter than ..");
 is((rand 3 <=> 5), -1, "rand binds tighter than <=>");
 
-# 11. nonchaining binary
+# 11. nonchaining
 
 ok(0 < 2 <=> 1 < 2, "0 < 2 <=> 1 < 2 means 0 < 1 < 2");
 
-# 12. chaining binary
+# 12. chaining
 
 is((0 != 1 && "foo"), "foo", "!= binds tigher than &&");
 ok((0 || 1 == (2-1) == (0+1) || "foo") ne "foo", "== binds tigher than || also when chaning");
@@ -105,7 +106,7 @@ ok((0 || 1 == (2-1) == (0+1) || "foo") ne "foo", "== binds tigher than || also w
 is((1 && 0 ?? 2 !! 3), 3, "&& binds tighter than ??");
 ### FIXME - need also ||, otherwise we don't prove || and ?? are diff
 
-# 15. ternary
+# 15. conditional
 
 {
     my $a = 0 ?? "yes" !! "no";
@@ -115,46 +116,54 @@ is((1 && 0 ?? 2 !! 3), 3, "&& binds tighter than ??");
 };
 
 
-# 16. assignment
+# 16. item assignment
 
 {
-    my @c = 1, 2, 3;
-    is(@c, (1), "= binds tighter than , (*sigh*)", :todo);
-    my @a = (1, 3) Z (2, 4);
-    is(@a, [1, 3], "= binds tighter than zip");
+    my $c = 1, 2, 3;
+    is($c, 1, "$ = binds tighter than ,");
+    my $a = (1, 3) X (2, 4);
+    is($a, [1, 3], "= binds tighter than X");
 };
+
+# 17. loose unary
+
+my $x;
+is((true $x = 42), "item assignment is tighter than true");
+
+# 18. comma
+
+is(((not 1,42)[1]), 42, "not is tighter than comma");
+
+# 19. list infix
+
+{
+    my @d;
+    ok eval('@d = 1,3 Z 2,4'), "list infix tighter than list assignment, looser t than comma", :todo;
+    is(@d, [1 .. 4], "to complicate things further, it dwims", :todo);
+}
 
 {
     my @b = ((1, 3) Z (2, 4));
     is(@b, [1 .. 4], "parens work around this");
 };
 
-# 17. list item separator
+# 20. list prefix
 
 {
-    my @d;
-    ok eval('@d <== (1, 3) Z (2, 4)'), "left pointing pipe parses", :todo;
-    is(@d, [1 .. 4], "to complicate things further, left pointing pipe *does* DWIM", :todo);
-    my $c = any 1, 2, 3;
-    ok($c == 2, "any is less tight than comma");
+    my $c = any 1, 2, Z 3, 4;
+    ok($c == 3, "any is less tight than comma and Z");
 }
 
-# 18. rightward list op
+my @c = 1, 2, 3;
+is(@c, [1,2,3], "@ = binds looser than ,");
 
-{
-    my @e; eval '@e = (map { $_+1 } <== (1, 2, 3) ==> map { $_*2 })'; # =D
-    is(@e, [4, 6, 8], "<== is tighter than ==>", :todo);
-}
+# 21. loose and
 
-# 19. pipe forward
+# 22. loose or
 
-# 20. loose and
+# 23. terminator
 
-# 21. loose or
-
-# 22. expr terminator
-
-# 23. uc|ucfirst|lc|lcfirst
+# uc|ucfirst|lc|lcfirst
 # t/builtins/strings/uc|ucfirst|lc|lcfirst.t didn't compile because of this bug.
 # Compare:
 #   $ perl -we 'print uc "a" eq "A"'

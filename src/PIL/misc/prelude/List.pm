@@ -97,7 +97,7 @@ type SortCriterion ::= KeyExtractor
 
 
 # signature from PIL2JS Array.pm and S29draft.pod's List::zip. r8593.
-# But Prim.hs is \\n   List      list    Y       safe   (Array)\
+# But Prim.hs is \\n   List      list    Z       safe   (Array)\
 #   ie, both return and argument types differ.
 multi infix:«Z» (Array *@arrays --> Lazy) { zip @arrays }
 

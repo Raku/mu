@@ -108,7 +108,7 @@ staticLevels =
 
 infixAssignmentOps :: Set OpName
 infixAssignmentOps = opWords
-    ( " := ~= += -= *= /= %= x= Y= \xA5= **= xx= ||= &&= //= ^^= "
+    ( " := ~= += -= *= /= %= x= Z= X= **= xx= ||= &&= //= ^^= "
     ++ " +<= +>= ~<= ~>= +&= +|= +^= ~&= ~|= ~^= ?|= ?^= |= ^= &= "
     )
 

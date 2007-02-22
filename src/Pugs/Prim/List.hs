@@ -301,9 +301,8 @@ op2Reduce keep list sub = do
         "||"    -> _false
         "^^"    -> _false
         ","     -> _list
-        "Y"     -> _list
-     -- "\xA5"      -> _list
-        "\xC2\xA5"  -> _list
+        "Z"     -> _list
+        "X"     -> _list
         ('!':_) -> _false
         _           -> _undef
         where

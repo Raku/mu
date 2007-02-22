@@ -2088,7 +2088,7 @@ initSyms = seq (length syms) $ do
 \\n   Scalar    left    //      safe   (Bool, ~Bool)\
 \\n   Scalar    left    .[]     safe   (Array, Int)\
 \\n   Scalar    left    .{}     safe   (Hash, Str)\
-\\n   List      list    Y       safe   (Array)\
+\\n   List      list    Z       safe   (Array)\
 \\n   List      list    X       safe   (Array)\
 \\n   List      spre    <==     safe   (List)\
 \\n   List      left    ==>     safe   (List, Code)\
