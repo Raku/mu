@@ -11,7 +11,8 @@ Adding comments about the papers is welcome/encouraged.
 Papers which stick around for a while, or are highly thought of, or
 relevant could be moved to READTHEM.
 
-Last updated 2006-10-10.
+Last updated 2007-Feb-23.
+At bottom. :/
 
 A Functional Perspective on SSA Optimisation Algorithms
 http://www.cse.unsw.edu.au/~chak/papers/CKZ03.html
@@ -145,3 +146,12 @@ http://homepages.cwi.nl/~ralf/gpce06/
 Monad Transformers Step by Step
 http://uebb.cs.tu-berlin.de/~magr/pub/Transformers.en.html
 [mentioned on anarchaia 2006-10-10]
+
+Open data types and open functions
+http://lambda-the-ultimate.org/node/1453
+[mentioned by gaal 2007-Feb-23]
+[duplicate]
+"an advantage of using existentials as they are layed out in this
+ newVal thing is "open types" ... the idea is code organization, you
+ can define a type in some Hs compilation unit other than where the
+ base Val type was mentioend"
