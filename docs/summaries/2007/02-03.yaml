@@ -19,12 +19,16 @@ extra:
         
         * [use.perl.org](http://use.perl.org/)
         * [The Pugs blog](http://pugs.blogs.com/)
-        * [The perl6-announce mailing
-          list](http://lists.cpan.org/showlist.cgi?name=perl6-announce)
+        * [The perl6-announce mailing list](http://lists.cpan.org/showlist.cgi?name=perl6-announce)
         * [ONLamp](http://www.oreillynet.com/onlamp/blog/)
       title: Distribution
   header:
-    - body: ~
+    - body: |-
+        ": This mornings up date proposed 
+
+        "Now the da rn spam fi1ters are chang.ng my spelling to look like sp*m.  Yeah, that's the 4icket... :)"
+
+        -- Larry Wall, in '<msgid:ef30550b0701301454x459b4526r3af689dcb47f0d78@mail.gmail.com>'
       title: This week on the Perl 6 mailing lists
   see_also:
     - name: Perl Foundation activities
@@ -38,7 +42,7 @@ lists:
     threads:
       - date_from: 1167384856
         date_to: 1170178934
-        hidden: 'this thread has gotten enough coverage, it is going in circles'
+        hidden: this thread has been well-covered in several previous weeks; nothing really new here
         message_id: 7ca3f0160612290134n25ae3444rd1114fd0f560e70b@mail.gmail.com
         messages:
           - 45AE6162.7020900@barco.com
@@ -240,10 +244,29 @@ lists:
           - email: larry@wall.org
             name: Larry Wall
         subject: Typology of auto*crement
-        summary: ''
+        summary: |-
+          Larry Wall replied to a comment by TSa in another thread, wherein
+          TSa wondered if `++` and `--` coerce Nums to Ints.  Larry stated that
+          since a Str remains a Str in a similar situation, the Num should also
+          retain its type.  One exception that he could see would be that incrementing
+          an Undef would create an Int.
+          
+          In thread '<msgid:20070130175059.GE8586@wall.org>', Larry expanded on
+          how coercions are handled in functions.  He said that Num to Int
+          autocoercion is an explicit exception which is expected by Perl 5
+          programmers, and Str to Num (and the inverse) are also done automatically
+          at times.  Larry further explained that there had been numerous discussions
+          on the subject, and the general feeling is that exotic types should not
+          autocoerce unless a multi has been declared to handle the situation.
+          
+          TSa made a reference to the long-running
+          '<msgid:7ca3f0160612290134n25ae3444rd1114fd0f560e70b@mail.gmail.com>'
+          to discuss how auto-coercion would work with `floor`.  Darren Duncan
+          replied that a `floor` would return an Int by definition, so that it
+          would in fact be a way of explicitly converting.
       - date_from: 1170179475
         date_to: 1170201612
-        hidden: ~
+        hidden: merged with 20070130173420.GC8586@wall.org
         message_id: 20070130175059.GE8586@wall.org
         messages:
           - 45BFA571.4080105@barco.com
@@ -328,7 +351,7 @@ lists:
           upon this observation.
           
           Larry responded that he did not want Whatever to package the array.
-          He felt that in TSa's example, it would be neccessary to dispatch to
+          He felt that in TSa's example, it would be necessary to dispatch to
           Whatever and let the Whatever code extract relevant information relating
           to `*`.  TSa requested further information.
       - date_from: 1170185487
@@ -374,7 +397,16 @@ lists:
           - email: Thomas.Sandlass@barco.com
             name: TSa
         subject: Enhancing array indices
-        summary: ''
+        summary: |-
+          Jonathan Lang wondered if it would be possible to get a single-character
+          symbol which could be used in an array index to refer to its shape, for
+          example something like `@x[*.head]`.  Larry Wall replied that a recent
+          suggestion was to use a syntax like `@x[*+0]`.  There was further
+          discussion on syntax possibilities, with Jonathan, Darren Duncan and
+          TSa joining the thread.  Darren proposed getting rid of negative
+          subscripts and using only terms like `@foo[*.head]`, which he felt
+          had the advantage of being more consistent (for shaped and unshaped
+          arrays), and easier to learn.
       - date_from: 1170207645
         date_to: 1170207645
         hidden: small changes
@@ -545,7 +577,7 @@ lists:
     threads:
       - date_from: 1169830711
         date_to: 1170092850
-        hidden: ~
+        hidden: covered in previous summary
         message_id: 45BA3317.7050309@gmail.com
         messages:
           - 1d9a3f400701290947i25d8876epa9ab4ea0b369338@mail.gmail.com
@@ -569,7 +601,14 @@ lists:
             name: Patrick R. Michaud
         rt_ticket: 'perl #41364'
         subject: '[perl #41364] [PATCH] Fixed object vtable method overrides in PIR '
-        summary: ''
+        summary: |-
+          Alek Storm submitted a patch as ticket <rt://perl/41364>.  The
+          patch allows object vtable method overrides for a number routines,
+          such as `find_method` and `get_attr`.  He also wondered if the
+          double-underscore method of overriding could be deprecated now
+          that there is the :vtable flag.  Patrick R. Michaud responded
+          that the deprecation cannot take place until ticket
+          <rt://perl/40626> is resolved.
       - date_from: 1170079241
         date_to: 1170079241
         hidden: summary
@@ -592,7 +631,10 @@ lists:
           - email: allison@perl.org
             name: Allison Randal
         subject: '[PATCH] PDD22 spec notes and ParrotIO tests'
-        summary: ''
+        summary: |-
+          Jerry Gay mentioned that he had written tests for the ParrotIO object,
+          which he included as a patch.  He also had some questions about PDD 22.
+          Allison Randal answered the questions.
       - date_from: 1170092565
         date_to: 1170092565
         hidden: ~
@@ -601,7 +643,11 @@ lists:
           - email: dada@perl.it
             name: Aldo Calpini
         subject: Porting parrot on PDA
-        summary: ''
+        summary: |-
+          Aldo Calpini wrote of an interest in porting Parrot to the PocketPC.
+          CeGCC is a Windows port of gcc which produces ARM executable code.
+          The first attempt at porting went well.  A report of the procedure
+          was included in the post.
       - date_from: 1170106645
         date_to: 1170106645
         hidden: ~
@@ -611,7 +657,10 @@ lists:
             name: Jerry Gay
         rt_ticket: 'perl #41371'
         subject: '[perl #41371] [TODO] review parrot roles & responsibilies doc before next release '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41371>, Jerry Gay noted that in r16834 he had
+          committed `docs/roles_responsibilities.pod`.  He asked project members
+          to review it before the 0.4.9 release.
       - date_from: 1170126746
         date_to: 1170126746
         hidden: ~
@@ -621,7 +670,9 @@ lists:
             name: Will Coleda
         rt_ticket: 'perl #41373'
         subject: '[perl #41373] Need test for Clone of HLL info '
-        summary: ''
+        summary: |-
+          Will Coleda created ticket <rt://perl/41373> to request a test to
+          replace the ones marked 'todo' which relied on Perl 5 PMCs.
       - date_from: 1170127286
         date_to: 1170127286
         hidden: ~
@@ -631,7 +682,9 @@ lists:
             name: Will Coleda
         rt_ticket: 'perl #41374'
         subject: '[perl #41374] test MMD with non-perl PMCs '
-        summary: ''
+        summary: |-
+          Ticket <rt://perl/41374>, initiated by Will Coleda, requested tests
+          for MMD which don't rely on Perl PMCs.
       - date_from: 1170151414
         date_to: 1170160351
         hidden: ~
@@ -645,7 +698,17 @@ lists:
           - email: will@coleda.com
             name: Will Coleda
         subject: Language Testing
-        summary: ''
+        summary: |-
+          Klaas-Jan Stol remarked that he was trying to set up a test harness for
+          PIR.  It appeared that the module `PIR.pm` was not used, and he was
+          unable to find documents on how to set it up.  He offered to patch the
+          compiler FAQ once someone explains it to him.
+          
+          Will Coleda explained that the problem was with the name of the language,
+          with 'PIR' being reserved for internal testing.  Therefore either
+          `lib/Parrot/Test.pm` would require modification, or the language should
+          be renamed, for instance to 'PIR_PGE'.  With Will's advice Klaas-Jan
+          was able to get it working.
       - date_from: 1170162632
         date_to: 1170162632
         hidden: ~
@@ -654,10 +717,15 @@ lists:
           - email: parrotcode@gmail.com
             name: Klaas-Jan Stol
         subject: '[PATCH] Updates for languages/PIR'
-        summary: ''
+        summary: |-
+          Klaas-Jan Stol submitted a patch to improve PIR.  It includes a test
+          suite, and corrections to several other files.  Later, in 
+          '<msgid:45BFDA28.6090804@gmail.com>', and '<msgid:45C0B2C1.9060100@gmail.com>',
+          he posted additional tests and corrections.  Later there was also
+          '<msgid:45C265CC.5010107@gmail.com>', which was applied as r16892.
       - date_from: 1170201150
         date_to: 1170201150
-        hidden: ~
+        hidden: merged with 45BF4395.2080800@gmail.com
         message_id: 45BFDA28.6090804@gmail.com
         posters:
           - email: parrotcode@gmail.com
@@ -688,7 +756,23 @@ lists:
           - email: Bernhard.Schmalhofer@gmx.de
             name: Bernhard Schmalhofer
         subject: What Skills Do We Need to Finish Parrot?
-        summary: ''
+        summary: |-
+          James E Keenan asked some questions with the intention of determining
+          what part of Parrot he should focus on and try to encourage others to
+          look at.  He asked what code remains to be written before an alpha
+          release can be made, and what skills are needed to produce that code.
+          
+          Allison Randal replied that the systems needing the most work are:
+          IO, Events, Threads, Compiler tools interface, Object support, and
+          Exceptions.  She felt people with C skills are useful, as are people
+          with general experience in dynamic languages.
+          
+          James then asked what the learning curve is for PIR.  chromatic
+          answered that the 'Parrot Essentials' book is still useful, although
+          it is missing some of the more advanced features.  He thought that
+          it might be worth asking O'Reilly if the tutorial section could be
+          expanded into public documentation, as there's currently no tutorial
+          on PIR.
       - date_from: 1170215523
         date_to: 1170216877
         hidden: ~
@@ -702,7 +786,10 @@ lists:
             name: chromatic
         rt_ticket: 'perl #41380'
         subject: '[perl #41380] [PATCH]:  docs/roles_responsibilities.pod:  Minor grammatical corrections '
-        summary: ''
+        summary: |-
+          James Keenan submitted a patch to the roles and responsibilities file.
+          It corrected punctuation errors and was applied as r16850.  The patch
+          was ticket <rt://perl/41380>.
       - date_from: 1170241273
         date_to: 1170361338
         hidden: ~
@@ -715,10 +802,15 @@ lists:
           - email: lt@toetsch.at
             name: Leopold Toetsch
         subject: On PASM and PIR registers
-        summary: ''
+        summary: |-
+          Klaas-Jan Stol wondered if PASM registers are still needed, except
+          for backwards compatibility, now that there are PIR registers.
+          Leopold Toetsch replied that PASM registers are physically allocated
+          in the Parrot virtual machine, whereas PIR registers are virtual
+          registers.  Both types are needed.
       - date_from: 1170256607
         date_to: 1170256607
-        hidden: ~
+        hidden: merged with 45BF4395.2080800@gmail.com
         message_id: 45C0B2C1.9060100@gmail.com
         posters:
           - email: parrotcode@gmail.com
@@ -738,10 +830,21 @@ lists:
             name: Allison Randal
         rt_ticket: 'perl #41386'
         subject: '[perl #41386] MANIFEST must die. '
-        summary: ''
+        summary: |-
+          Will Coleda created ticket <rt://perl/41386> to express his opinion
+          that `MANIFEST` should not be part of the repository.  He pointed
+          out that the purpose of this file is to make sure that the general
+          release isn't missing any files, something you already know to be
+          true when you are working with a repository.  He suggested creating
+          it when the release is generated.
+          
+          Allison Randal disagreed.  She believes that the purpose of a MANIFEST
+          is to tell you which files should be included in a distribution.  She
+          thought `MANIFEST.skip`, on the other hand, could be generated from
+          the `svn:ignore` keyword before the distribution is created.
       - date_from: 1170278775
         date_to: 1170278775
-        hidden: ~
+        hidden: clarification
         message_id: 20070131222608.4E98BCBA1B@x12.develooper.com
         posters:
           - email: allison@cvs.perl.org
@@ -757,7 +860,11 @@ lists:
             name: Paul Cochrane
         rt_ticket: 'perl #41387'
         subject: '[perl #41387] perlcritic.t picking up non-perl files '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41387>, Paul Cochrane reported that the new
+          `Parrot::Distribution` module was finding some files which weren't
+          actually Perl language files.  This was later resolved by chromatic
+          in r17069.
       - date_from: 1170282126
         date_to: 1170282126
         hidden: ~
@@ -767,7 +874,10 @@ lists:
             name: Paul Cochrane
         rt_ticket: 'perl #41388'
         subject: "[perl #41388] Parrot::Distribution doesn't exclude all external perl modules "
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41388>, Paul Cochrane reported that the new
+          `Parrot::Distribution` module is not exempting external Perl modules
+          such as Pod::Simple from its coding standards check.
       - date_from: 1170300391
         date_to: 1170300391
         hidden: ~
@@ -776,7 +886,11 @@ lists:
           - email: chromatic@wgz.org
             name: chromatic
         subject: PBC to C Converter
-        summary: ''
+        summary: |-
+          chromatic included a quick Perl program which writes a C program
+          which makes a self-contained executable for a Parrot program.
+          He thought that it was fairly cross-platform compatible, although
+          there could be an issue with big-endian processors.
       - date_from: 1170317179
         date_to: 1170465988
         hidden: ~
@@ -791,10 +905,17 @@ lists:
           - email: jkeen@verizon.net
             name: James E Keenan
         subject: PMC Tools Test Failure
-        summary: ''
+        summary: |-
+          chromatic reported a failure with the buildtools tests following a `make
+          realclean` and a Configure.  James E Keenan responded that he's experienced
+          it infrequently and thinks that it is a poorly-designed test rather than
+          a real failure.  There was a brief discussion on how to improve the
+          test, with James suggesting that perhaps someone who was involved
+          with the original development of `pmc2c.pl` could explain what is
+          happening in the `DO_A_DUMP` loop.
       - date_from: 1170367971
         date_to: 1170367971
-        hidden: ~
+        hidden: merged with 45BF4395.2080800@gmail.com
         message_id: 45C265CC.5010107@gmail.com
         posters:
           - email: parrotcode@gmail.com
@@ -813,7 +934,15 @@ lists:
           - email: allison@perl.org
             name: Allison Randal
         subject: Q on PIR vs PASM
-        summary: ''
+        summary: |-
+          Klaas-Jan Stol gave a brief history of how IMCC started, noting that
+          it was eventually merged with Parrot as its parser, and since that
+          time there have been several additions.  He wondered if it is still
+          the case that every PIR construct also has a PASM form, and if every
+          PIR construct can be directly translated to PASM.  Allison Randal
+          replied that that was the ideal situation, but in practice many
+          tests are written in PIR, so there may not be complete coverage for
+          the PASM syntax versions.
       - date_from: 1170419514
         date_to: 1170419514
         hidden: ~
@@ -822,7 +951,9 @@ lists:
           - email: parrotcode@gmail.com
             name: Klaas-Jan Stol
         subject: '[PATCH] Update copyright for Parrot --version'
-        summary: ''
+        summary: |-
+          A patch by Klaas-Jan Stol contains a correction to make `parrot --version`
+          give a copyright range of '2001-2007' instead of '2001-2006'.
       - date_from: 1170430692
         date_to: 1170430692
         hidden: ~
@@ -831,10 +962,15 @@ lists:
           - email: parrotcode@gmail.com
             name: Klaas-Jan Stol
         subject: Copyright chang script and test
-        summary: ''
+        summary: |-
+          Klaas-Jan Stol submitted a script which checks all files for the last
+          changed date and updates the copyright notice in the file.  The second
+          is a test which finds files which have out-of-date copyright notices.
+          chromatic replied that he had a couple of ideas for the script and
+          would take a look at them soon.
       - date_from: 1170431133
         date_to: 1170443027
-        hidden: ~
+        hidden: dup of 45C35AD7.1040004@gmail.com
         message_id: 45C35C91.9010700@gmail.com
         messages:
           - 200702021104.17727.chromatic@wgz.org
@@ -863,7 +999,11 @@ lists:
           - email: larry@wall.org
             name: Larry Wall
         subject: take()'s return value
-        summary: ''
+        summary: |-
+          Gabriele Renzi wanted to know why `take` inside of a gather structure
+          returns undef instead of a return value.  Carl Mäsak
+          had been wondering the same thing.  Larry Wall couldn't remember
+          why it hadn't been added to the specification, and put it in S04.
     title: Users
   - name: perl6-compiler
     threads: []
