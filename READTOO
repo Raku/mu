@@ -155,3 +155,7 @@ http://lambda-the-ultimate.org/node/1453
  newVal thing is "open types" ... the idea is code organization, you
  can define a type in some Hs compilation unit other than where the
  base Val type was mentioend"
+
+A language-based approach to unifying events and threads
+[mentioned by TimToady 2007-Feb-23]
+http://www.seas.upenn.edu/~lipeng/homepage/unify.html
