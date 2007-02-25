@@ -2,12 +2,14 @@ use v6-alpha;
 
 use Test;
 
-plan 3;
+plan 4;
 
 if $?PUGS_BACKEND eq "BACKEND_JAVASCRIPT" {
   skip_rest "YAML support not available in PIL2JS";
   exit;
 }
+
+ok(eval(q{#eval("- *a\n a: b\n- *a\n b: c\n",:lang<yaml>)}),'yaml parsing can kill pugs all the way dead');
 
 ok(undef, "Bug workaround for release.", :todo<bug>);
 # Bug workaround: the order of the next two tests determines
