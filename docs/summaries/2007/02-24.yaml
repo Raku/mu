@@ -244,7 +244,7 @@ lists:
         summary: ''
       - date_from: 1169926768
         date_to: 1171925087
-        hidden: ~
+        hidden: covered in summary from 02-03.
         message_id: rt-3.6.HEAD-1683-1169926757-1586.41364-72-0@perl.org
         messages:
           - 20070128214759.GA11921@host.pmichaud.com
@@ -262,7 +262,7 @@ lists:
         summary: ''
       - date_from: 1170276812
         date_to: 1171901492
-        hidden: ~
+        hidden: included in summary 02-03.
         message_id: rt-3.6.HEAD-1774-1170276798-18.41386-72-0@perl.org
         messages:
           - 45C10C0A.7060706@perl.org
@@ -303,7 +303,7 @@ lists:
         summary: ''
       - date_from: 1170730737
         date_to: 1171913154
-        hidden: ~
+        hidden: covered in summary 02-10.
         message_id: rt-3.6.HEAD-14573-1170730707-758.41455-72-0@perl.org
         messages:
           - 45D9EEED.3060502@yahoo.com
@@ -318,7 +318,7 @@ lists:
         summary: ''
       - date_from: 1170932176
         date_to: 1172242016
-        hidden: ~
+        hidden: covered in 02-10.
         message_id: 82cfa8030702080256j4c1adc11nd08a35edfaa7444b@mail.gmail.com
         messages:
           - 1d9a3f400702230646q21c98fdre8d0d68e47f10fab@mail.gmail.com
@@ -331,7 +331,7 @@ lists:
         summary: ''
       - date_from: 1171383073
         date_to: 1171746456
-        hidden: ~
+        hidden: covered in 02-17.
         message_id: rt-3.6.HEAD-24617-1171383051-5.41498-72-0@perl.org
         messages:
           - 200702171307.26334.chromatic@wgz.org
@@ -345,7 +345,7 @@ lists:
         summary: ''
       - date_from: 1171525842
         date_to: 1171748959
-        hidden: ~
+        hidden: covered in 02-17.
         message_id: rt-3.6.HEAD-24617-1171525832-1484.41511-72-0@perl.org
         messages:
           - 198c87380702150824s10e263b6ne914bcf30feae673@mail.gmail.com
