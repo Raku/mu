@@ -100,7 +100,7 @@ sub svn_check($event) {
 
     $last_check = 0 if $event eq "now";
 
-    # We don't want to flood poor openfoundry.
+    # We don't want to flood our porr svn repository.
     if time() - $last_check >= $interval {
         $last_check = time;
         debug "Checking for new commits (ignore error messages)... ";

@@ -45,8 +45,8 @@ One-time:
 * Create a useperl account, then request admin access.
 * Subscribe to the Perl 6 mailing list.
 * Check out the Pugs repository.
-  svk co http://svn.openfoundry.org/pugs/docs/summaries
-* Get a commit-bit to the Pugs repository.
+  svk co http://svn.pugscode.org/pugs/docs/summaries
+* Get a commit-bit to the Pugs repository (ask on freenode#perl6)
 * Create a cronjob to run mirror_nntp every 6 hours
 
 #################################################################

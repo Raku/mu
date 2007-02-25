@@ -45,10 +45,6 @@ doc/Perl6/Spec/) and then by section names as subdirectories.
 * Scan docs directory for files which say "I am out of date" and list
   them below.  Skills: none.
 
-* The pugs subversion repository was recently moved from svn.openfoundry.org
-  to svn.pugscode.org. Change references of the former to the latter where
-  appropriate.
-
 * We already have "evalbot" under examples/network/; if Pugs build  
 fails, currently it simply uses the last-known-good version of ./pugs binary.
 However, it would be great for the bot to report a build failure (perhaps

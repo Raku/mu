@@ -515,7 +515,7 @@ $ ./util/smokeserv/smokeserv-client.pl ./smoke.html</pre>
     should suffice. See the <a
     href="http://search.cpan.org/dist/Perl6-Pugs/lib/pugs/hack.pod">pugs::hack</a>
     manpage and <a
-    href="http://svn.openfoundry.org/pugs/util/smokeserv/README">smokeserv's
+    href="http://svn.pugscode.org/pugs/util/smokeserv/README">smokeserv's
     README</a> for details.
   </p>
 

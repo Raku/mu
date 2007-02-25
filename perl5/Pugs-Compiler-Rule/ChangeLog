@@ -33,7 +33,7 @@
 - fixed '${...}', '$[...]', ':$<...>', '$0'
 - fixed coercions in emitter
 
-[ devel (svn.openfoundry.org/pugs/perl5) version only ]
+[ devel (svn.pugscode.org/pugs/perl5) version only ]
 
 "plain_regex"
 - code cleanup; added bug list

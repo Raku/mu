@@ -234,7 +234,7 @@ please consider helping out by working on the Compiler backend.
 == Is there a CPAN for Perl 6 modules?
 
 No. The current preferred method for submitting Perl 6/Pugs modules is
-to ask for a committer bit at openfoundry.org and add your module to
+to ask for a committer bit at commitbit.pugscode.org and add your module to
 the Pugs source tree under the modules/ directory. It is also helpful to
 include test suites with your modules as well, so we can know when they
 work. 

@@ -33,7 +33,7 @@ Current tasks:
 - implement 'macro' and '<%hash>', in order to define 'if' as in S04-Statement parsing
 - organize grammar categories: statement_control, prefix, infix
 - implement operator precedence
-- migrate primitives from http://svn.openfoundry.org/pugs/src/Pugs/Prim.hs
+- migrate primitives from http://svn.pugscode.org/pugs/src/Pugs/Prim.hs
 - find out more about grammar bootstrapping and the parse/compile/run cycle and BEGIN/CHECK/INIT
 - see TODO and XXX notes everywhere
 - split Prelude into base-syntax and primitives
