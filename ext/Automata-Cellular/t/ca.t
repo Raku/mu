@@ -6,7 +6,7 @@ plan 6;
 #use_ok('Automata::Cellular::Rule', 'Automata::Cellular::Rule loaded');
 #use_ok('Automata::Cellular', 'Automata::Cellular loaded');
 
-use Automata::Cellular::Rule; pass'Automata::Cellular::Rule loaded');
+use Automata::Cellular::Rule; pass('Automata::Cellular::Rule loaded');
 use Automata::Cellular; pass('Automata::Cellular loaded');
 
 {
