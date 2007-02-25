@@ -23,7 +23,10 @@ extra:
         * [ONLamp](http://www.oreillynet.com/onlamp/blog/)
       title: Distribution
   header:
-    - body: ~
+    - body: |-
+        Remember that the European Perl Hackathon will be held next weekend, from 2-4 March, 2007 in Arnhem, the Netherlands.  Registration is open until Thursday, 1 March.  For more information, please look at the [hackathon website](http://conferences.yapceurope.org/hack2007nl/).
+        
+        Allison Randal and Jonathan Worthington will be coordinating the Parrot/Perl 6 portion of the hackathon.  
       title: This week on the Perl 6 mailing lists
   see_also:
     - name: Perl Foundation activities
@@ -37,7 +40,7 @@ lists:
     threads:
       - date_from: 1170184266
         date_to: 1170967358
-        hidden: ~
+        hidden: does not appear to be new material this week
         message_id: 20070130201100.044FBCBA1B@x12.develooper.com
         messages:
           - 'a0623091ec1ec36dc503b@[172.27.1.7]'
@@ -94,10 +97,31 @@ lists:
           - email: Smylers@stripey.com
             name: Smylers
         subject: '[svn:perl6-synopsis] r13582 - doc/trunk/design/syn'
-        summary: ''
+        summary: |-
+          Larry Wall made a commit to S02, S04 and S06.  This change renamed
+          `leave` to `give` and modified `give` to always give the final value
+          of the innermost block.  `$context.give()` will always give the final
+          value of the context.  Instead of repeating the context selector interface,
+          the object is now used.  Loop labels are considered sufficiently OO to
+          allow `LABEL.give` within the lexical scope of the labeled statement.
+          Additionally, feed operators were clarified; their intent is to allow
+          parallelism with minimal sharing, along the lines of the UNIX pipe model.
+          
+          Smylers thought that most people would probably want to filter an array
+          without retaining the original array, something that Larry had labeled
+          as 'probably impossible'.  Larry replied that people probably would want
+          the form, but that mutable data is coupled to realtime but lazy data is
+          decoupled.  He thought it might be able to make the syntax
+          `@data <== grep { $_ % 2 } <== eager @data;` work, but that care would
+          have to be taken with the identity of the container and its data.
+          
+          In a later commit ('<msgid:20070212180119.6F84ECBA1B@x12.develooper.com>'),
+          Larry decided to change `give` back to `leave`, on the grounds that `give`
+          can be confused with `given`.  Some of Smyler's comments were taken into
+          consideration in '<msgid:20070213012443.DDDA3CBA1B@x12.develooper.com>'.
       - date_from: 1171299691
         date_to: 1171299691
-        hidden: ~
+        hidden: merged with 20070212081006.3F479CBA1B@x12.develooper.com
         message_id: 20070212180119.6F84ECBA1B@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -106,7 +130,7 @@ lists:
         summary: ''
       - date_from: 1171326289
         date_to: 1171326289
-        hidden: ~
+        hidden: merged with 20070212081006.3F479CBA1B@x12.develooper.com
         message_id: 20070213012443.DDDA3CBA1B@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -121,7 +145,7 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r13585 - doc/trunk/design/syn'
-        summary: ''
+        summary: A commit by Larry Wall removed the `quote` declarator.
       - date_from: 1171434131
         date_to: 1171434131
         hidden: ~
@@ -130,7 +154,7 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r13586 - doc/trunk/design/syn'
-        summary: ''
+        summary: Larry Wall's commit changed `:to` to be the short form for `:heredoc`.
       - date_from: 1171569908
         date_to: 1171569908
         hidden: ~
@@ -139,7 +163,12 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r13587 - doc/trunk/design/syn'
-        summary: ''
+        summary: |-
+          Another commit by Larry Wall made a series of changes to S02, S04, and
+          S12.  The `statement_modifier` category was split in two.  List comprehensions
+          can be done with statement modifiers.  Multiple dispatch is explained in
+          terms of topological sort, and has been clarified where single semicolons
+          are concerned.  Multis with a single semicolon may be reserved in 6.0.0.
       - date_from: 1171633646
         date_to: 1171654975
         hidden: ~
@@ -158,13 +187,33 @@ lists:
           - email: larry@wall.org
             name: Larry Wall
         subject: my $temperature is ro
-        summary: ''
+        summary: |-
+          Steve Lukas proposed a `ro` (read-only) declaration for variables
+          which would prevent modification after an initial value was set at
+          runtime.  As an example of a use, he gave data fetched from from a
+          database which is used to create reports.  He also explained why he
+          felt that the `readonly` trait and the `VAR` macro were not suitable.
+          
+          TSa thought that `constant` did what Steve wanted.  Larry Wall clarified
+          that `constant $temperature = getValue()` would evaluate `getValue()`
+          at compile time.  Larry noted that the specified `my $temperature is
+          readonly = getValue();` would probably suit Steve's need.  Smylers
+          agreed with Larry and asked Steve some questions about Steve's
+          proposal for `readonly $-temperature`.  Steve replied that he had
+          overlooked the specification Larry mentioned, and that he was willing
+          to drop his proposal.
+          
+          Larry Wall remarked that he was getting tired of writing `rw`
+          context variables and that there might be forthcoming syntactic
+          relief for `rw`/`ro` which is orthogonal to everything else.  Bob
+          Rogers suggested `:=` or something similar to indicate that the
+          assignment is really a definition.
     title: Language
   - name: perl6-internals
     threads:
       - date_from: 1170201194
         date_to: 1171196807
-        hidden: ~
+        hidden: covered quite well last week.
         message_id: 45BFDA38.7060107@verizon.net
         messages:
           - 45C8B5C1.80602@perl.org
@@ -223,7 +272,20 @@ lists:
           - email: nick@ccl4.org
             name: Nicholas Clark
         subject: 'Re: [perl #41478] [PATCH] add Test::More::skip()'
-        summary: ''
+        summary: |-
+          Sam Vilain created ticket <rt://perl/41478> to add `skip` to Test::More.
+          
+          Allison Randal wondered why Sam had chosen to reverse the order of arguments
+          from `Test::Builder.skip` Nicholas Clark remarked that Sam had used the
+          same order as Perl 5's Test::Builder.  However, he agreed with Allison
+          that it is more legible to have the number of tests to skip first, followed
+          by the reason.
+          
+          Sam proposed to solve it with a multi-sub, which would take either
+          a string or an int followed by a string.  chromatic thought that was
+          an appropriate way to handle the issue.  Allison committed the patch,
+          with this change, as r17010.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/87f002d9652886dc/460c0aacddc471c1?#460c0aacddc471c1
       - date_from: 1171198291
         date_to: 1171475617
         hidden: ~
@@ -251,10 +313,36 @@ lists:
             name: Paul Cochrane via RT
         rt_ticket: 'perl #41485'
         subject: '[perl #41485] [TODO] Add a test for svn:eol-style property '
-        summary: ''
+        summary: |-
+          Paul Cochrane created ticket <rt://perl/41485>.  chromatic had
+          asked in '<msgid:20070211001318.DD8E4CBA1B@x12.develooper.com>'
+          if there is a subversion property for line endings to keep text
+          files consistent within the repository.  The property is `svn:eol-style`,
+          which should be set to 'LF' to ensure UNIX-style end-of-line characters.
+          Paul created a test for it in `t/condingstd/line_endings.t` but wanted
+          to check if all text files have the property set before committing the
+          test.
+          
+          Jerry Gay remarked that the correct setting is 'native', so that files
+          will be saved with the line endings the platform expects.  The exceptions
+          are examples using file IO, which require 'LF'.  Jerry offered to test
+          the patch on Windows if Paul posted it.
+          
+          Paul wondered if Windows users have problems editing files because of
+          the UNIX line endings.  Jonathan Worthington answered affirmatively.
+          He thought that 'native' was also the best solution.
+          
+          James E Keenan wondered if new files committed to a branch should have
+          these subversion properties set.  Jerry Gay replied that the metadata
+          requirements are poorly documented, and that perhaps this information
+          belonged in the coding standard PDD.  This led Paul to create ticket
+          <rt://perl/41505> to track the cleanup of the documents.
+          
+          Eventually the property patch was added to `t/distro/file_metadata.t` and
+          committed in r16981.
       - date_from: 1171288864
         date_to: 1171288864
-        hidden: ~
+        hidden: summary
         message_id: 20070212140042.16122.qmail@x1.develooper.com
         posters:
           - email: perlbug-summary@perl.org
@@ -263,7 +351,7 @@ lists:
         summary: ''
       - date_from: 1171296730
         date_to: 1171296730
-        hidden: ~
+        hidden: whitespace adjustements
         message_id: 20070212171204.7452FCBA1B@x12.develooper.com
         posters:
           - email: particle@cvs.perl.org
@@ -278,10 +366,17 @@ lists:
           - email: parrotcode@gmail.com
             name: Klaas-Jan Stol
         subject: '[PATCH] languages/PIR add command line options for output of pirc.pir (Parse/PAST/PIR)'
-        summary: ''
+        summary: |-
+          Klaas-Jan Stol created several patches this week as well, namely:
+          
+          * '[PATCH] languages/PIR add command line options for output of pirc.pir (Parse/PAST/PIR)'
+          * '<msgid:45D0D7D5.3000006@gmail.com>'
+          * '<msgid:45D45F14.50300@gmail.com>'
+          * '<msgid:45D579F0.8020701@gmail.com>'
+          * '<msgid:45D5A0C1.3020106@gmail.com>'
       - date_from: 1171314665
         date_to: 1171314665
-        hidden: ~
+        hidden: merged with 45D09336.2050806@gmail.com
         message_id: 45D0D7D5.3000006@gmail.com
         posters:
           - email: parrotcode@gmail.com
@@ -296,7 +391,9 @@ lists:
           - email: allison@cvs.perl.org
             name: allison
         subject: '[svn:parrot-pdd] r16965 - trunk/docs/pdds/draft'
-        summary: ''
+        summary: |-
+          Allison Randal updated PDD15 to reflect core conceptual changes to
+          objects.
       - date_from: 1171381417
         date_to: 1171381417
         hidden: ~
@@ -306,7 +403,12 @@ lists:
             name: Nuno Carvalho via RT
         rt_ticket: 'perl #40722'
         subject: '[perl #40722] [TODO] Tcl - implement [file dirname] '
-        summary: ''
+        summary: |-
+          In response to Paul Cochrane's ticket <rt://perl/40722>, which requested
+          that the stub routine `dirname` in `languages/tcl/runtime/builtin/file.pir`
+          be implemented, Nuno Carvalho remarked that it had been implemented in
+          r16967.  Nuno felt that some Windows testing was needed.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/e8c0cd444da0189b/46008e8d12b22096?#46008e8d12b22096
       - date_from: 1171382492
         date_to: 1171382492
         hidden: ~
@@ -316,7 +418,10 @@ lists:
             name: Paul Cochrane
         rt_ticket: 'perl #41496'
         subject: '[perl #41496] [TODO] config - profiling options should have their own step in config/init/defaults.pm '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41496>, Paul Cochrane noted that the profiling
+          options in `config/init/defaults.pm` should get their own step in the
+          configuration process.
       - date_from: 1171382836
         date_to: 1171382836
         hidden: ~
@@ -326,7 +431,10 @@ lists:
             name: Paul Cochrane
         rt_ticket: 'perl #41497'
         subject: '[perl #41497] [TODO] config - profiling options are specific to gcc in config/init/defaults.pm '
-        summary: ''
+        summary: |-
+          Paul Cochrane created ticket <rt://perl/41497> to request that the
+          profiling options in `config/init/defaults.pm` be marked as being specific
+          to gcc.
       - date_from: 1171383073
         date_to: 1171746456
         hidden: ~
@@ -340,7 +448,12 @@ lists:
             name: chromatic
         rt_ticket: 'perl #41498'
         subject: '[perl #41498] [TODO] create Makefile.PL for CPAN friendliness '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41498>, Jerry Gay noted that CPAN does not like
+          Parrot's `Configure.pl` because it expects a `Makefile.PL`.  He suggested
+          adding a makefile which will convert arguments to the form expected by
+          `Configure.pl` and then run `Configure.pl`.  The ticket was resolved in
+          r17032.
       - date_from: 1171384859
         date_to: 1171384859
         hidden: ~
@@ -350,7 +463,10 @@ lists:
             name: Paul Cochrane
         rt_ticket: 'perl #41499'
         subject: '[perl #41499] [TODO] config - 32/64 bit architecture setting gcc specific '
-        summary: ''
+        summary: |-
+          Paul Cochrane would like the architecture-settings compiler options in
+          `config/init/defaults.pm` to be made generic rather than gcc-specific.
+          The request was made in ticket <rt://perl/41499>.
       - date_from: 1171384964
         date_to: 1171384964
         hidden: ~
@@ -360,10 +476,13 @@ lists:
             name: Paul Cochrane
         rt_ticket: 'perl #41500'
         subject: '[perl #41500] [TODO] config - lib directory needs to be set appropriately for 32/64 bit archs '
-        summary: ''
+        summary: |-
+          Ticket <rt://perl/41500> contained a request by Paul Cochrane.  He
+          wanted the lib install path in `config/init/defaults.pm` to be
+          set correctly for 32- and 64-bit architectures.
       - date_from: 1171392639
         date_to: 1171436212
-        hidden: ~
+        hidden: merged with 45D21165.1000707@perl.it
         message_id: 45D20693.4090802@perl.it
         messages:
           - 0C0DE2E7-7E94-444D-A401-2971E9845126@fsck.com
@@ -386,10 +505,24 @@ lists:
           - email: pmichaud@pobox.com
             name: Patrick R. Michaud
         subject: 'Porting parrot on PDA -- work in progress'
-        summary: ''
+        summary: |-
+          Aldo Calpini reported success at building parrot for the
+          PocketPC.  Some additional fixes are still needed, but the biggest
+          problem is that Parrot should be used to generate `.pbc` files but
+          the directory structure isn't available.  Aldo asked how to proceed.
+          
+          Joshua Isom replied that it should be possible to run most PIR files
+          and pbc files, although it would be best to generate them on a platform
+          with the same endian.
+          
+          Patrick R. Michaud and Jesse Vincent congratulated Aldo on the
+          progress to date.
+          
+          The thread '<msgid:45D20693.4090802@perl.it>' was a duplicate and
+          contained one of the responses.
       - date_from: 1171397267
         date_to: 1171397267
-        hidden: ~
+        hidden: part of thread 45D21165.1000707@perl.it
         message_id: dbfde03d738cfb7b0d570d12883d391a@gmail.com
         posters:
           - email: jrisom@gmail.com
@@ -405,7 +538,11 @@ lists:
             name: Aldo Calpini
         rt_ticket: 'perl #41502'
         subject: '[perl #41502] [PATCH] fix auto::sizes configure step '
-        summary: ''
+        summary: |-
+          Aldo Calpini created ticket <rt://perl/41502>.  It contains a patch
+          to add a final `\n` to a few files.  The changes are needed to port
+          Parrot to the PocketPC, because the cegcc compiler won't output the
+          last line unless there is a terminating newline.
       - date_from: 1171450208
         date_to: 1171459649
         hidden: ~
@@ -418,10 +555,15 @@ lists:
           - email: pmichaud@pobox.com
             name: Patrick R. Michaud
         subject: 'PAST-pm: only PAST::Block allowed at root of PAST'
-        summary: ''
+        summary: |-
+          Klaas-Jan Stol asked what the result was of the previous discussion
+          on the topic of whether PAST-pm will be able to handle PIR's requirements
+          for a top-level construction with an include statement.  Patrick R. Michaud
+          replied that he expected either a PAST::CompUnit node type or the
+          `blocktype` attribute on PAST::Block to get a `compunit` setting.
       - date_from: 1171464298
         date_to: 1171464298
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-14573-1171198282-150.41485-72-0@perl.org
         message_id: rt-3.6.HEAD-27031-1171464261-1355.41505-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
@@ -440,7 +582,10 @@ lists:
             name: Will Coleda
         rt_ticket: 'perl #41508'
         subject: '[perl #41508] [BUG] Configure losing flags... '
-        summary: ''
+        summary: |-
+          Will Coleda created ticket <rt://perl/41508>.  He found an error when
+          trying to build with GMP on OSX Intel.  Later he was able to supply more
+          information, which showed that the problem was due to his expectations.
       - date_from: 1171525842
         date_to: 1171748959
         hidden: ~
@@ -457,10 +602,14 @@ lists:
             name: Matt Diephouse
         rt_ticket: 'perl #41511'
         subject: '[perl #41511] Parrot_call_sub* Incompatible with Multisubs '
-        summary: ''
+        summary: |-
+          Ticket <rt://perl/41511> was started by chromatic.  He described a
+          problem involving the difference in layout between a Sub PMC and a MultiSub PMC.
+          Matt Diephouse requested a sample of the code so that he could take a
+          look at the problem.  chromatic added a todo test in r17034.
       - date_from: 1171528533
         date_to: 1171528533
-        hidden: ~
+        hidden: fixes incorrect POD
         message_id: 20070215093525.062C3CBA44@x12.develooper.com
         posters:
           - email: chromatic@cvs.perl.org
@@ -469,7 +618,7 @@ lists:
         summary: ''
       - date_from: 1171545911
         date_to: 1171545911
-        hidden: ~
+        hidden: merged with 45D09336.2050806@gmail.com
         message_id: 45D45F14.50300@gmail.com
         posters:
           - email: parrotcode@gmail.com
@@ -478,7 +627,7 @@ lists:
         summary: ''
       - date_from: 1171545919
         date_to: 1171545919
-        hidden: ~
+        hidden: typo fix
         message_id: 20070215142504.22E83CBA1B@x12.develooper.com
         posters:
           - email: allison@cvs.perl.org
@@ -487,7 +636,7 @@ lists:
         summary: ''
       - date_from: 1171618303
         date_to: 1171618303
-        hidden: ~
+        hidden: merged with 45D09336.2050806@gmail.com
         message_id: 45D579F0.8020701@gmail.com
         posters:
           - email: parrotcode@gmail.com
@@ -496,7 +645,7 @@ lists:
         summary: ''
       - date_from: 1171628234
         date_to: 1171628234
-        hidden: ~
+        hidden: merged with 45D09336.2050806@gmail.com
         message_id: 45D5A0C1.3020106@gmail.com
         posters:
           - email: parrotcode@gmail.com
@@ -517,13 +666,16 @@ lists:
           - email: nick@ccl4.org
             name: Nicholas Clark
         subject: Get your Google SoC thinking caps on...
-        summary: ''
+        summary: |-
+          Nicholas Clark reminded people that it is time to begin thinking of
+          good Google Summer of Code projects.  Applications will be accepted
+          in March.  [More information is available](http://google-code-updates.blogspot.com/2007/02/speaking-of-summer.html).
     title: Compiler
   - name: cvs-parrot
     threads:
       - date_from: 1171149222
         date_to: 1171149787
-        hidden: ~
+        hidden: 'line endings modified, merged with rt-3.6.HEAD-14573-1171198282-150.41485-72-0@perl.org'
         message_id: 20070211001318.DD8E4CBA1B@x12.develooper.com
         messages:
           - 200702101522.41858.chromatic@wgz.org
@@ -551,6 +703,19 @@ lists:
           - email: allison@perl.org
             name: Allison Randal
         subject: '[svn:parrot] r17012 - in trunk: runtime/parrot/library/Parrot t/compilers/past-pm'
-        summary: ''
+        summary: |-
+          A commit by Allison Randal gave the HLLCompiler the ability to add
+          new compilation stages. 
+          
+          Nicholas Clark asked what would happen if someone were to add a stage
+          with the same name as an existing stage.  Allison replied that it would
+          be added twice, as it was possible that someone might wish to repeat
+          stages such as 'optimize_tree' or 'display_benchmarks' after each
+          transformation.
+          
+          Nicholas realized, after studying the PIR, that there is no ambiguity
+          as to which stage is meant, as "all of them" are added.  He thought
+          that there should be a test for it.  Allison added tests in r17027.
+        thread_uri: http://thread.gmane.org/gmane.comp.lang.perl.perl6.internals/10989/focus=10990
     title: cvs-parrot
 title: Weekly Perl 6 mailing list summary
