@@ -3,7 +3,8 @@ use Test;
 
 plan 6;
 
-use_ok('Automata::Cellular::Rule', 'Automata::Cellular::Rule loaded');
+# use_ok('Automata::Cellular::Rule', 'Automata::Cellular::Rule loaded');
+use Automata::Cellular::Rule; pass('Automata::Cellular::Rule loaded');
 
 my Automata::Cellular::Rule $rule .= new(:rule_number<30>);
 
