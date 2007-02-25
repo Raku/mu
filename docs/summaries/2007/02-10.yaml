@@ -19,12 +19,16 @@ extra:
         
         * [use.perl.org](http://use.perl.org/)
         * [The Pugs blog](http://pugs.blogs.com/)
-        * [The perl6-announce mailing
-          list](http://lists.cpan.org/showlist.cgi?name=perl6-announce)
+        * [The perl6-announce mailing list](http://lists.cpan.org/showlist.cgi?name=perl6-announce)
         * [ONLamp](http://www.oreillynet.com/onlamp/blog/)
       title: Distribution
   header:
-    - body: ~
+    - body: |-
+        "> Errrr ... I'm the one who *needs* the tutorial, not the one to write it.
+        
+        "That makes you a prime person to capture the questions it needs to answer! You can't evade the Responsibility Ponies that easily."
+        
+        -- chromatic, responding to James E Keenan in '<msgid:45BFDA38.7060107@verizon.net>'
       title: This week on the Perl 6 mailing lists
   see_also:
     - name: Perl Foundation activities
@@ -38,7 +42,7 @@ lists:
     threads:
       - date_from: 1170184266
         date_to: 1170967358
-        hidden: ~
+        hidden: addressed in the previous summary
         message_id: 20070130201100.044FBCBA1B@x12.develooper.com
         messages:
           - 'a0623091ec1ec36dc503b@[172.27.1.7]'
@@ -79,7 +83,7 @@ lists:
         summary: ''
       - date_from: 1170185487
         date_to: 1170708753
-        hidden: ~
+        hidden: new post is not important
         message_id: 20070130203117.A637DCBA1B@x12.develooper.com
         messages:
           - 20070205205215.GA21814@fourtheye.org
@@ -102,10 +106,12 @@ lists:
           - email: allbery@ece.cmu.edu
             name: Brandon S. Allbery KF8NH
         subject: '[svn:perl6-synopsis] r13570 - doc/trunk/design/syn'
-        summary: ''
+        summary: |-
+          A commit by Larry Wall changed categories to allow multiple
+          dispatch via the longest-token rule.
       - date_from: 1170711671
         date_to: 1170712175
-        hidden: ~
+        hidden: 'correct typo in previous commit, introduce new typo'
         message_id: 20070205224106.70A7DCBA1B@x12.develooper.com
         messages:
           - 20070205214927.GA24686@wall.org
@@ -118,7 +124,7 @@ lists:
         summary: ''
       - date_from: 1170713230
         date_to: 1170713230
-        hidden: ~
+        hidden: small change
         message_id: 20070205230702.A5824CBA1B@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -127,7 +133,7 @@ lists:
         summary: ''
       - date_from: 1170872964
         date_to: 1170872964
-        hidden: ~
+        hidden: clarification
         message_id: 20070207192914.AB691CBA1B@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -136,7 +142,7 @@ lists:
         summary: ''
       - date_from: 1170953037
         date_to: 1170953037
-        hidden: ~
+        hidden: looks like a small commit
         message_id: 20070208174351.74EB5CBA1B@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -151,10 +157,10 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r13575 - doc/trunk/design/syn'
-        summary: ''
+        summary: A commit by Larry Wall added `Q//` as a quoting form and removed `qn//`.
       - date_from: 1170965298
         date_to: 1170965298
-        hidden: ~
+        hidden: typo
         message_id: 20070208210811.C7A8BCBA1B@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -169,7 +175,16 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r13577 - doc/trunk/design/syn'
-        summary: ''
+        summary: |-
+          This commit by Larry Wall affected S04, S05, S06 and S12.  It
+          unified proto processing to implicitly allow re-declarations within a
+          scope.  It works on most declarators, including regex, token, rule
+          and variables.
+          
+          Multiple `my` declarations now issue a warning, which may be
+          suppressed with a `proto` declaration of the variable.  The `multi`
+          keyword is optional in a `proto` scope, and the `unique` keyword
+          "undoes" an outer `proto`.
       - date_from: 1170969464
         date_to: 1170990417
         hidden: ~
@@ -183,10 +198,15 @@ lists:
           - email: audreyt@audreyt.org
             name: Audrey Tang
         subject: recent changes
-        summary: ''
+        summary: |-
+          Larry Wall decided to explain what was driving the recent synopsis changes.
+          For some time, he has been working on a Perl 6 grammar written in Perl 6;
+          a [snaphot](http://svn.pugscode.org/pugs/src/perl6/Perl-6.0.0-STD.pm) is
+          available.  Audrey Tang noted that Pugs can parse it, but it still needs
+          to be made to run, and run fast.
       - date_from: 1170983895
         date_to: 1170983895
-        hidden: ~
+        hidden: typo
         message_id: 20070209021809.A396DCBA1B@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -195,7 +215,7 @@ lists:
         summary: ''
       - date_from: 1170984437
         date_to: 1170984437
-        hidden: ~
+        hidden: typo
         message_id: 20070209022712.E7DE8CBA1B@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -207,7 +227,7 @@ lists:
     threads:
       - date_from: 1170518041
         date_to: 1170596788
-        hidden: ~
+        hidden: covered last week
         message_id: 45C4B003.8020405@gmail.com
         messages:
           - 45C5E39B.1080905@gmx.de
@@ -226,7 +246,16 @@ lists:
           - email: parrotcode@gmail.com
             name: Klaas-Jan Stol
         subject: '[PATCH] Update pirgrammar.pod'
-        summary: ''
+        summary: |-
+          Klaas-Jan Stol submitted a patch with an updated version of `pirgrammar.pod`
+          and `pirgrammar.html` which contains examples for most constructs.  The
+          documents are still being worked on.
+          
+          Later, in '<msgid:45C7BE0E.3050508@gmail.com>', he submitted an updated
+          version.
+          
+          These triggered some discussion in the thread
+          '<msgid:45C9FF61.2080000@gmail.com>'.
       - date_from: 1170681328
         date_to: 1170681328
         hidden: ~
@@ -235,10 +264,14 @@ lists:
           - email: parrotcode@gmail.com
             name: Klaas-Jan Stol
         subject: Q on Calling conventions; parameter order
-        summary: ''
+        summary: |-
+          Klaas-Jan Stol remarked that some Parrot calling conventions are
+          unclear.  He made a list of the order in which checks are done,
+          as far as he can tell, and asked if it was correct and if cases were
+          missing.
       - date_from: 1170684046
         date_to: 1170684046
-        hidden: ~
+        hidden: summary
         message_id: 20070205140038.11943.qmail@x1.develooper.com
         posters:
           - email: perlbug-summary@perl.org
@@ -247,7 +280,7 @@ lists:
         summary: ''
       - date_from: 1170696919
         date_to: 1170696919
-        hidden: ~
+        hidden: merged with 45CB4F66.1040103@gmail.com
         message_id: 45C76AC7.9080800@gmail.com
         posters:
           - email: parrotcode@gmail.com
@@ -256,7 +289,7 @@ lists:
         summary: ''
       - date_from: 1167969619
         date_to: 1170725563
-        hidden: ~
+        hidden: covered in the summary from 2 weeks ago
         message_id: rt-3.6.HEAD-1693-1167969612-553.41185-72-0@perl.org
         messages:
           - 45B6B60F.4040600@yahoo.com
@@ -307,10 +340,31 @@ lists:
           - email: Bernhard.Schmalhofer@gmx.de
             name: Bernhard Schmalhofer
         subject: What Skills Do We Need to Finish Parrot?
-        summary: ''
+        summary: |-
+          Last week, James E Keenan asked what code remains to be written in Parrot.
+          Allison Randal replied that IO, Events, Threads, Compiler tools
+          interface, Object support and Exceptions need the most work.  James
+          then asked about resources for learning PIR.  chromatic offered
+          suggestions. 
+          
+          This week, Allison Randal replied that to date, she hadn't been able to get
+          the relevant sections of "Parrot Essentials" released, and proposed
+          that James create a PIR tutorial.  She suggested `docs/imcc/syntax.pod`
+          as an introduction.  Klaas-Jan Stol mentioned that he'd been working on
+          `languages/PIR/docs/pirgrammar.pod`.
+          
+          James said that he needed a tutorial, and therefore wasn't suited to
+          write one.  chromatic disagreed, stating that inexperience left James
+          in the perfect position to know what questions needed to be answered.
+          Joshua Isom seconded, suggesting that James could start a FAQ by creating
+          at least the questions.  Bernhard Schmalhofer suggested adding questions
+          to `docs/imcc/imcfaq.pod`.
+          
+          It turned out that Dzema Dmitriy is working on a PIR tutorial to
+          accompany a PIR bundle for Texmate.
       - date_from: 1170415059
         date_to: 1170781722
-        hidden: ~
+        hidden: included in the previous summary
         message_id: 45C31DC8.8070109@gmail.com
         messages:
           - 45C8B60F.1020205@perl.org
@@ -323,7 +377,7 @@ lists:
         summary: ''
       - date_from: 1170718247
         date_to: 1170718247
-        hidden: ~
+        hidden: merged with 45C5F36C.9000106@gmail.com
         message_id: 45C7BE0E.3050508@gmail.com
         posters:
           - email: parrotcode@gmail.com
@@ -351,7 +405,20 @@ lists:
             name: Leopold Toetsch
         rt_ticket: 'perl #41453'
         subject: '[perl #41453] [BUG]  Test failure in t/pmc/object-meths.t '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41453>, James Keenan reported a failure with a
+          text in `t/pmc/object-meths.t`.  Allison Randal identified it as stemming
+          from r16783, and thought that `o = new 'MyClass', $P0` should call
+          `init_pmc` rather than `init`, even if `$P0` is null.  She asked
+          Leopold Toetsch if the choice between `init` and `init_pmc` should be
+          based upon the content of the argument.  Leopold replied that that was
+          not his intention; there should be just one init :vtable which is called,
+          according to PDD03 calling conventions.
+          
+          Allison summarized the situation as a feature request which had been
+          submitted as a failing test.  She changed the test to reflect the current
+          situation (r17026) and submitted the feature request in ticket
+          <rt://perl/41528>.
       - date_from: 1170729650
         date_to: 1170780805
         hidden: ~
@@ -365,7 +432,14 @@ lists:
           - email: tewk@tewk.com
             name: Kevin Te
         subject: Prototype object model for Parrot
-        summary: ''
+        summary: |-
+          Allison Randal worked with Sam Vilain on a prototype object model
+          written in PIR.  She checked it in to `compilers/smop`.  The next
+          step is to implement the prototype at the PMC level, and incorporate
+          much of the functionality of `src/objects.c`.
+          
+          Kevin Te replied that he had just started to port `Class::MOP` to
+          PMCs, and would be glad to help with this port as well.
       - date_from: 1170730527
         date_to: 1170730527
         hidden: ~
@@ -375,7 +449,11 @@ lists:
             name: Sam Vilain
         rt_ticket: 'perl #41454'
         subject: '[perl #41454] [PATCH] add 2 new tests for object method dispatch '
-        summary: ''
+        summary: |-
+          Sam Vilain noted, in ticket <rt://perl/41454>, that inherited method
+          dispatch was only tested with a simple parent/child class.  In his attached
+          patch, there are tests for three classes in a straight line, as well as a
+          4-class diamond inheritance.
       - date_from: 1170730737
         date_to: 1171913154
         hidden: ~
@@ -390,10 +468,14 @@ lists:
             name: James E Keenan
         rt_ticket: 'perl #41455'
         subject: '[perl #41455] [NEW] and [PATCH]:  tools/build/ops2pm.pl refactored '
-        summary: ''
+        summary: |-
+          James Keenan submitted ticket <rt://perl/41455>.  It contained several
+          patches, for test files and related libraries.  They were added to the
+          trunk as r17061 after passing on Darwin and Win32.  Later they were
+          confirmed to also work on Linux.
       - date_from: 1170736925
         date_to: 1170736925
-        hidden: ~
+        hidden: typo
         message_id: 20070206054200.D5654CBA1B@x12.develooper.com
         posters:
           - email: allison@cvs.perl.org
@@ -409,7 +491,10 @@ lists:
             name: Sam Vilain
         rt_ticket: 'perl #41456'
         subject: '[perl #41456] [PATCH] add a Super PMC test for addparent-established inheritance trees '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41456>, Sam Vilain submitted a test which checks
+          that if an inheritance tree is created with `addparent`, it performs
+          just like one made with `subclass`.
       - date_from: 1170866047
         date_to: 1170881915
         hidden: ~
@@ -427,7 +512,19 @@ lists:
           - email: jerry.gay@gmail.com
             name: jerry gay
         subject: '[PATCH] Updates for languages/PIR/docs/pirgrammar.pod'
-        summary: ''
+        summary: |-
+          Klaas-Jan Stol submitted a patch for `pirgrammar.pod` and
+          `pirgrammar.html` in '<msgid:45C5F36C.9000106@gmail.com>'.
+          
+          chromatic remarked that he did not like keeping HTML in the repository,
+          and wondered if it could be automatically generated because, unlike
+          other generated files, it does not require `flex` and `bison` to
+          produce it.
+          
+          Klaas-Jan wondered if `pod2html` was available for all platforms where
+          Perl can run.  He thought it could be incorporated in the `make` procedure
+          if that were the case.  chromatic replied that it had been core since at
+          least 5.8.0.
       - date_from: 1170932176
         date_to: 1172242016
         hidden: ~
@@ -440,10 +537,16 @@ lists:
           - email: jerry.gay@gmail.com
             name: jerry gay
         subject: 'Re: Porting parrot on PDA'
-        summary: ''
+        summary: |-
+          Hakim Cassimally replied to
+          [Aldo Calpini's post]{http://thread.gmane.org/gmane.comp.lang.perl.perl6.internals/10966)
+          and expressed an interest in porting to the Nokia N800.
+          
+          Jerry Gay replied that he'd love to see Parrot ported to the N800 and
+          suggested a way to start on it.
       - date_from: 1170946029
         date_to: 1170946029
-        hidden: ~
+        hidden: merged with 45CB4F66.1040103@gmail.com
         message_id: 45CB37DE.1020007@gmail.com
         posters:
           - email: parrotcode@gmail.com
@@ -458,10 +561,21 @@ lists:
           - email: parrotcode@gmail.com
             name: Klaas-Jan Stol
         subject: '[PATCH] Updates and fixes for docs/imcc/syntax.pod'
-        summary: ''
+        summary: |-
+          Klaas-Jan Stol submitted a number of patches for languages/PIR and
+          `docs/imcc/syntax.pod`:
+          
+          * '<msgid:45C76AC7.9080800@gmail.com>'
+          * '<msgid:45CB37DE.1020007@gmail.com>'
+          * 'docs/imcc/syntax.pod'
+          * '<msgid:45CB5497.1040800@gmail.com>'
+          * '<msgid:45CB6FE9.7070706@gmail.com>'
+          
+          One patch, '<msgid:45C5F36C.9000106@gmail.com>', also sparked some
+          discussion.
       - date_from: 1170953378
         date_to: 1170953378
-        hidden: ~
+        hidden: merged with 45CB4F66.1040103@gmail.com
         message_id: 45CB5497.1040800@gmail.com
         posters:
           - email: parrotcode@gmail.com
@@ -470,7 +584,7 @@ lists:
         summary: ''
       - date_from: 1170960390
         date_to: 1170960390
-        hidden: ~
+        hidden: merged with 45CB4F66.1040103@gmail.com
         message_id: 45CB6FE9.7070706@gmail.com
         posters:
           - email: parrotcode@gmail.com
@@ -486,7 +600,12 @@ lists:
             name: Nuno Carvalho via RT
         rt_ticket: 'perl #40706'
         subject: '[perl #40706] [TODO] Tcl - implement [close] '
-        summary: ''
+        summary: |-
+          Earlier, Paul Cochrane submitted ticket <rt://perl/40706> where he
+          noted that `languages/tcl/src/builtin/close.pir` is only a stub..
+          Nuno Carvalho reported that a first implementation had been committed
+          in r16933.  There is still some discussion on how to best implement it
+          for Tcl.
     title: Parrot Porters
   - name: perl6-users
     threads:
@@ -505,7 +624,11 @@ lists:
           - email: dvergin@igc.org
             name: David Vergin
         subject: Pugs on Windows
-        summary: ''
+        summary: |-
+          Gabor Szabo reported a 404 error when attempting to download a Win32
+          binary of Pugs and Parrot.  Audrey Tang suggested a different URL.
+          David Vergin noted that the page Audrey offered linked to a build from
+          November 2006 and asked if there was a newer build available.
       - date_from: 1170854137
         date_to: 1170854137
         hidden: ~
@@ -514,7 +637,11 @@ lists:
           - email: g.roehrbein@gmx.de
             name: Gilbert R. Röhrbein
         subject: '"delete" and maybe a problem with gather'
-        summary: ''
+        summary: |-
+          Gilbert R. Röhrbein
+          wanted to reorder an array so that the elements are randomly ordered.
+          He noted a problem with `delete` which he wasn't able to describe, except
+          for stating that it was linked to `gather`.  The code was included.
     title: Users
   - name: perl6-compiler
     threads:
@@ -526,6 +653,9 @@ lists:
           - email: moritz@casella.verplant.org
             name: Moritz Lenz
         subject: dpkg-buildpacke fails due to outdated 10smoke patch
-        summary: ''
+        summary: |-
+          Moritz Lenz reported that the current (r15185) revision of Pugs
+          fails to compile on Debian when `dpkg-buildpackage` is used because
+          the '10smoke' patch cannot be applied.
     title: Compiler
 title: Weekly Perl 6 mailing list summary
