@@ -72,8 +72,6 @@ lists:
             name: Smylers
           - email: rgarciasuarez@gmail.com
             name: Rafael Garcia-Suarez
-          - email: blair@numeninest.com
-            name: Blair Sutton
           - email: perlpilot@gmail.com
             name: Jonathan Scott Duff
           - email: larry@wall.org
@@ -222,8 +220,6 @@ lists:
             name: chromatic
           - email: allison@perl.org
             name: Allison Randal
-          - email: parrotbug-followup@parrotcode.org
-            name: Sam Vilain
           - email: nick@ccl4.org
             name: Nicholas Clark
         subject: 'Re: [perl #41478] [PATCH] add Test::More::skip()'
@@ -247,8 +243,6 @@ lists:
             name: Paul Cochrane
           - email: jerry.gay@gmail.com
             name: jerry gay
-          - email: paultcochrane@gmail.com
-            name: Paul Cochrane
           - email: jonathan@jnthn.net
             name: Jonathan Worthington
           - email: jkeen_via_google@yahoo.com
@@ -444,8 +438,6 @@ lists:
         posters:
           - email: parrotbug-followup@parrotcode.org
             name: Will Coleda
-          - email: will@coleda.com
-            name: Will Coleda
         rt_ticket: 'perl #41508'
         subject: '[perl #41508] [BUG] Configure losing flags... '
         summary: ''
@@ -463,8 +455,6 @@ lists:
             name: chromatic
           - email: mddiep@gmail.com
             name: Matt Diephouse
-          - email: chromatic@wgz.org
-            name: chromatic
         rt_ticket: 'perl #41511'
         subject: '[perl #41511] Parrot_call_sub* Incompatible with Multisubs '
         summary: ''
@@ -560,8 +550,6 @@ lists:
             name: Nicholas Clark
           - email: allison@perl.org
             name: Allison Randal
-          - email: nick@ccl4.org
-            name: Nicholas Clark
         subject: '[svn:parrot] r17012 - in trunk: runtime/parrot/library/Parrot t/compilers/past-pm'
         summary: ''
     title: cvs-parrot
