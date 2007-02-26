@@ -2,8 +2,7 @@
 package Pkg_re_tests;
 use strict;
 
-our $bl;  # this is questionable.
-
+our($a,$b,$bl); # this is questionable?
 
 # verbatim from perl-5.9.2/t/op/regexp.t
 our $bang = sprintf "\\%03o", ord "!"; # \41 would not be portable.
@@ -22,11 +21,10 @@ sub test {
 	my($pat,$str,$ok,$thing,$value,@rest)=split(/\t/,$line);
 	$value = "" if !defined($value);
 
-	#print STDERR "        \# $line\n";
-	#if ($pat =~ /\+\)\+/) {
-	#    print "not ok \# skipped as problematic\n";
-	#    next;
-	#}
+	if ($pat =~ /\+\)\+/) {
+	    print "not ok \# skipped as problematic\n";
+	    next;
+	}
 
 	my $re = $pat;
 	my $mods = "";
@@ -40,11 +38,17 @@ sub test {
 	    $re =~ s/\${nulnul}/$nulnul/eg;
 	    $re =~ s/\${ffff}/$ffff/eg;
 	}
+	if(1) { # Fake scope access.
+	    $re =~ s/\$(a|b|bl)\b/"\$".__PACKAGE__.'::'.$1/eg;
+	    $a = $b = $bl = undef;
+	}
         my $qr = eval{ $f->($mods,$re) };
 	if (!defined $qr) {
             my $err = $@; $err =~ s/^/\# /m;
 	    if($ok =~ /c/) { print "ok\n"; }
-	    else { print "not ok \# Unexpected compilation failure.\n$err\n" }
+	    else {
+		print "not ok \# Unexpected compilation failure.\n$err\n";
+	    }
 	    next;
 	}
 	if($ok =~ /c/) {
@@ -81,7 +85,7 @@ sub test {
 		print STDERR "  eval $expr\n" if $debug_warnings;
 		my $res = eval($expr); print STDERR "#" x 70,"\n","# BUG $@# $expr\n" if $@;
 		my $valuex = $value;
-		if($value =~ /\$\{|\\n/){
+		if($value =~ /\${|\\n/){
 		    $valuex = eval("\"$value\""); die "bug $@\n$value\n" if $@;
 		}
 		if ($res ne $valuex) {
