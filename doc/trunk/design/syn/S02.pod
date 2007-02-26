@@ -25,7 +25,7 @@ Apocalypse, assume the Synopsis is correct.)
 
 =head1 One-pass parsing
 
-To the extent allowed by sublanguages parsers, Perl is parsed using a
+To the extent allowed by sublanguages' parsers, Perl is parsed using a
 one-pass, predictive parser.  That is, lookahead of more than one
 "longest token" is discouraged.  The currently known exceptions to
 this are where the parser must:
