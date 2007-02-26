@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 22 Feb 2007
+  Last Modified: 26 Feb 2007
   Number: 2
-  Version: 89
+  Version: 90
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -22,6 +22,26 @@ updates to reflect the evolving design of Perl 6 over time, unlike the
 Apocalypses, which are frozen in time as "historical documents".
 These updates are not marked--if a Synopsis disagrees with its
 Apocalypse, assume the Synopsis is correct.)
+
+=head1 One-pass parsing
+
+To the extent allowed by sublanguages parsers, Perl is parsed using a
+one-pass, predictive parser.  That is, lookahead of more than one
+"longest token" is discouraged.  The currently known exceptions to
+this are where the parser must:
+
+=over 4
+
+=item *
+
+Locate the end of interpolated expressions that begin with a sigil
+and might or might not end with brackets.
+
+=item *
+
+Recognize that a reduce operator is not really beginning a C<[...]> composer.
+
+=back
 
 =head1 Lexical Conventions
 
