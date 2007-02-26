@@ -70,7 +70,7 @@ sub clone {
 }
 
 sub eval { 
-    print "Pad.eval $_[1]\n";
+    #print "Pad.eval $_[1]\n";
     $_[0]{evaluator}( $_[1] ) 
 }
 
