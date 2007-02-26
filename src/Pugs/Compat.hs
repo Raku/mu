@@ -129,6 +129,7 @@ instance Typeable DirStream where
 
 #else
 
+import qualified Control.Exception
 import Debug.Trace
 import qualified System.Environment
 import System.Directory (getCurrentDirectory, setCurrentDirectory, doesFileExist, doesDirectoryExist)
@@ -159,27 +160,12 @@ clocksPerSecond :: (Num a) => a
 clocksPerSecond = 1000000
 
 foreign import stdcall unsafe "SetEnvironmentVariableW" win32SetEnv :: CWString -> CWString -> IO ()
-foreign import stdcall unsafe "GetEnvironmentVariableW" win32GetEnv :: CWString -> CWString -> Int -> IO Int
--- also implement/redefine getEnvironment as GetEnvironmentStrings
 
 setEnv :: String -> String -> Bool -> IO ()
-setEnv k v _ = withCWString k $ \ key ->
-               withCWString v $ \ value -> do
-                 rc <- win32SetEnv key value
-                 return $ rc
+setEnv k v _ = withCWString k $ withCWString v . win32SetEnv
 
 getEnv :: String -> IO (Maybe String)
-getEnv k = withCWString k $ \ key ->
-    withCWString (replicate size ' ') $ \ buf -> do
-      rc <- win32GetEnv key buf size
-      if rc > 0
-        then do
-          t <- peekCWString buf
-          return $ Just t
-        else
-          return $ Nothing
-      where
-        size = 32768
+getEnv k = (fmap Just (System.Environment.getEnv k)) `Control.Exception.catch` (const $ return Nothing)
 
 unsetEnv :: String -> IO ()
 unsetEnv k = withCWString k $ \ key -> withCWString "" $ \ v -> do
