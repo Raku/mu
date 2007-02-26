@@ -181,32 +181,36 @@ currentFunctions = do
     return (length funs `seq` funs)
 
 {-# NOINLINE _RefToFunction #-}
-_RefToFunction :: H.HashTable (TVar VRef) CurrentFunction
+_RefToFunction :: H.HashTable (TVar VRef) (Maybe CurrentFunction)
 _RefToFunction = unsafePerformIO (H.new (==) hashTVar)
 
 hashTVar :: TVar VRef -> Int32
 hashTVar x = I32# (unsafeCoerce# x)
 
 filterFun :: Var -> TVar VRef -> STM (Maybe CurrentFunction)
-filterFun var tvar = do
+filterFun var tvar = var `seq` do
     res <- unsafeIOToSTM (H.lookup _RefToFunction tvar)
     case res of
-        Just rv -> return (rv `seq` res)
+        Just rv -> return rv
         Nothing -> do
             ref <- readTVar tvar
             case ref of
                 MkRef (ICode cv)
                     | relevantToParsing (code_type cv) (code_assoc cv) -> do
                         let rv = MkCurrentFunction var (code_assoc cv) (code_params cv)
-                        unsafeIOToSTM (H.insert _RefToFunction tvar rv)
-                        return (rv `seq` Just rv)
+                            res = seq rv (Just rv)
+                        unsafeIOToSTM (H.insert _RefToFunction tvar res)
+                        return res
                 MkRef (IScalar sv)
                     | Just (VCode cv) <- scalar_const sv
                     , relevantToParsing (code_type cv) (code_assoc cv) -> do
                         let rv = MkCurrentFunction var (code_assoc cv) (code_params cv)
-                        unsafeIOToSTM (H.insert _RefToFunction tvar rv)
-                        return (rv `seq` Just rv)
-                _ -> return Nothing
+                            res = seq rv (Just rv)
+                        unsafeIOToSTM (H.insert _RefToFunction tvar res)
+                        return res
+                _ -> do
+                    unsafeIOToSTM (H.insert _RefToFunction tvar Nothing)
+                    return Nothing
 
 inScope :: Pkg -> Var -> Bool
 inScope pkg var
