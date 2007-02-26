@@ -138,7 +138,7 @@ is(((not 1,42)[1]), 42, "not is tighter than comma");
 
 {
     my @d;
-    ok eval('@d = 1,3 Z 2,4'), "list infix tighter than list assignment, looser t than comma", :todo;
+    ok eval('@d = 1,3 Z 2,4'), "list infix tighter than list assignment, looser t than comma";
     is(@d, [1 .. 4], "to complicate things further, it dwims", :todo);
 }
 
