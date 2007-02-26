@@ -33,11 +33,11 @@ data Endian = LittleEndian | BigEndian
 
 decodeProgram :: String -> String
 decodeProgram str = case detectSourceEncoding str of
-    UTF8 xs                 -> decodeUTF8    (removeCRLF xs)
-    UTF16 LittleEndian xs   -> decodeUTF16LE (removeCRLF xs)
-    UTF16 BigEndian xs      -> decodeUTF16BE (removeCRLF xs)
-    UTF32 LittleEndian xs   -> decodeUTF32LE (removeCRLF xs)
-    UTF32 BigEndian xs      -> decodeUTF32BE (removeCRLF xs)
+    UTF8 xs                 -> decodeUTF8 (removeCRLF xs)
+    UTF16 LittleEndian xs   -> removeCRLF (decodeUTF16LE xs)
+    UTF16 BigEndian xs      -> removeCRLF (decodeUTF16BE xs)
+    UTF32 LittleEndian xs   -> removeCRLF (decodeUTF32LE xs)
+    UTF32 BigEndian xs      -> removeCRLF (decodeUTF32BE xs)
     where
     removeCRLF ('\r':'\n':xs)   = '\n':removeCRLF xs
     removeCRLF (x:xs)           = x:removeCRLF xs
