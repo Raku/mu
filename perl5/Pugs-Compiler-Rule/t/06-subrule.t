@@ -1,4 +1,4 @@
-use Test::More tests => 33;
+use Test::More tests => 36;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 use strict;
@@ -113,6 +113,25 @@ use base 'Pugs::Grammar::Base';
     
     $match = $rule->match("ab");
     is( "$match",'',"before didn't match");
+}
+
+{
+    # <$rule>
+    $Test::z = Pugs::Compiler::Regex->compile('z');
+    my $rule = Pugs::Compiler::Regex->compile('(a)<before <$Test::z>>');
+    #print $rule->perl5;
+    
+    my $match = $rule->match("az");
+    is( "$match",'a',"<\$var> matched");
+
+    no warnings qw( uninitialized );
+    
+    $match = $rule->match("a");
+    #print Dumper( $match->data );
+    is( "$match",'',"<\$var> didn't match");
+    
+    $match = $rule->match("ab");
+    is( "$match",'',"<\$var> didn't match");
 }
 
 SKIP:
