@@ -9,8 +9,9 @@ import Pugs.AST.SIO
 import {-# SOURCE #-} Pugs.AST.Internals
 
 {- Eval Monad -}
-type Eval = EvalT (ReaderT Env SIO)
-newtype EvalT m a = EvalT { runEvalT :: ContT (EvalResult Val) m (EvalResult a) }
+
+newtype Eval a = EvalT { runEvalT :: ContT (EvalResult Val) (ReaderT Env SIO) (EvalResult a) }
+    deriving (Typeable)
 
 data EvalResult a
     = RNormal    !a
@@ -30,7 +31,7 @@ runEvalIO :: Env -> Eval Val -> IO Val
 runEvalIO env = fmap liftResult . runIO . (`runReaderT` env) . (`runContT` return) . runEvalT
 
 tryIO :: a -> IO a -> Eval a
-tryIO err = lift . liftIO . (`catchIO` (const $ return err))
+tryIO err = liftEval . liftIO . (`catchIO` (const $ return err))
 
 {-|
 'shiftT' is like @callCC@, except that when you activate the continuation
@@ -115,10 +116,16 @@ instance Error Val where
     noMsg = errStr ""
     strMsg = errStr
 
+liftEval m = EvalT $ do
+    a <- ContT (m >>=)
+    return (RNormal a)
+
+{-
 instance MonadTrans EvalT where
     lift m = EvalT $ do
         a <- ContT (m >>=)
         return (RNormal a)
+-}
 
 instance Functor Eval where
     fmap f m = EvalT $ do
@@ -128,7 +135,7 @@ instance Functor Eval where
             RException x-> RException x
 
 instance MonadIO Eval where
-    liftIO = lift . liftIO
+    liftIO = liftEval . liftIO
 
 instance MonadError Val Eval where
     throwError err = do
@@ -184,7 +191,7 @@ instance MonadSTM Eval where
             else EvalT (fmap RNormal . lift . lift . liftIO . liftSTM $ stm)
 
 instance MonadReader Env Eval where
-    ask       = lift ask
+    ask       = liftEval ask
     local f m = EvalT $ local f (runEvalT m)
 
 instance MonadCont Eval where

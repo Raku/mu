@@ -1,5 +1,4 @@
 {-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances -fallow-overlapping-instances -fno-warn-missing-methods -cpp #-}
-{-! global : YAML_Pos, Perl6Class, MooseClass !-}
 {-|
     Perl 6 Values.
 
@@ -8,6 +7,111 @@
 >   Buckler and corslet, axe and sword,
 >   And shining spears were laid in hoard...
 -}
+
+module Pugs.Val (
+    module Pugs.Val,
+    module Pugs.Val.Code,
+) where
+import Pugs.Class
+import Pugs.AST.Eval
+import Pugs.Val.Code
+import Pugs.Internals
+import Text.PrettyPrint
+import qualified Data.ByteString.Char8 as Str
+
+type Val = Invocant Eval
+
+asStr :: Val -> Eval PureStr
+asStr (MkInvocant x _) = return (cast (show x))
+asBit :: Val -> Eval PureBit
+asBit _ = return (cast True)
+asInt :: Val -> Eval PureInt
+asInt _ = return (cast (0 :: Int))
+asNum :: Val -> Eval PureNum
+asNum _ = return (cast (0 :: Double))
+listVal :: Val -> Eval PureList
+listVal = return . (:[])
+itemVal :: Val -> Eval Val
+itemVal = return
+
+valMeta :: Val -> PureStr
+valMeta _ = cast "Object"
+
+valShow :: Val -> PureStr
+valShow = cast "<opaque>"
+
+val :: (Show a, Boxable m a) => a -> (Invocant m)
+val x = MkInvocant x (class_interface (classOf x))
+
+formatVal :: Val -> Doc
+formatVal (MkInvocant x _) = text (show x)
+
+castVal :: forall a m . (Monad m, Typeable a) => Val -> m a
+castVal (MkInvocant v _)  = fromTypeable v
+
+instance ((:>:) PureNum) Rational where cast = NRational
+instance ((:<:) PureNum) Rational where
+    castBack (NDouble   x) = toRational x
+    castBack (NRational x) = x
+instance ((:>:) PureNum) Double where cast = NDouble
+instance ((:<:) PureNum) Double where
+    castBack (NDouble   x) = x
+    castBack (NRational x) = fromRational x
+
+instance ((:>:) PureInt) Integer where cast = IFinite
+instance ((:<:) PureInt) Integer where
+    castBack (IFinite i) = i
+    castBack INotANumber = error "NaN"
+    castBack (IInfinite SPositive) = error "+Infinity"
+    castBack (IInfinite SNegative) = error "-Infinity"
+
+instance ((:>:) PureInt) Int where cast = IFinite . toInteger 
+instance ((:<:) PureInt) Int where
+    castBack (IFinite i) = fromInteger i
+    castBack INotANumber = error "NaN"
+    castBack (IInfinite SPositive) = error "+Infinity"
+    castBack (IInfinite SNegative) = error "-Infinity"
+type PureList = [Val] -- Seq (Either PureSeq PureRange) -- XXX - *very bogus*
+
+newtype PureBit = MkBit Bool
+    deriving (Typeable, Show, Eq, Ord, Data, (:>:) Bool, (:<:) Bool)
+
+newtype PureStr = MkStr { unStr :: ByteString } deriving
+    ( Typeable, Show, Eq, Ord, Data
+    , (:>:) ID, (:<:) ID
+    , (:>:) String, (:<:) String
+    , (:>:) ByteString, (:<:) ByteString
+    )
+
+data PureInt
+    = IFinite      !Integer
+    | IInfinite    !Sign
+    | INotANumber
+    deriving (Typeable, Show, Eq, Ord, Data)
+
+data PureNum
+    = NDouble   !Double              -- change to "!NativeDouble"
+    | NRational !Rational
+    deriving (Typeable, Show, Eq, Ord, Data)
+
+data Sign
+    = SPositive
+    | SNegative
+    deriving (Show, Eq, Ord, Data, Typeable)
+
+instance Boxable Eval ()
+instance Boxable Eval PureInt
+instance Boxable Eval PureNum
+instance Boxable Eval PureSig
+instance Boxable Eval PureBit
+instance Boxable Eval ValCapt
+
+instance Boxable Eval PureStr where
+    classOf _ = mkBoxClass "Str"
+        [ "reverse"    ... (MkStr . Str.reverse . unStr)
+        ]
+
+{-
 module Pugs.Val (
     IValue(..), Val(..), ValUndef(..), ValNative, P,
     ICoercible(..), WHICH, castVal, formatVal,
@@ -21,6 +125,7 @@ module Pugs.Val (
     ValCapt, ValFeed,
 ) where
 import Pugs.Internals
+import Pugs.Class
 import GHC.Exts
 import Data.Generics.Basics hiding (cast)
 import qualified Data.Typeable as Typeable
@@ -240,7 +345,7 @@ instance ICoercible STM a => Mut a where {}
 class ICoercible SIO a => Ext a where {}
 instance ICoercible SIO a => Ext a where {}
 
-type Class = PureStr -- XXX - Wrong
+-- type Class = PureStr -- XXX - Wrong
 
 dynEq :: (Typeable a, Typeable b, Eq a) => a -> b -> Bool
 dynEq x y = case Typeable.cast y of
@@ -498,3 +603,5 @@ instance Ord Val where
     compare (VExt _) (VMut _) = GT
     compare (VExt aa) (VExt aa') = dynCompare aa aa'
 
+
+-}

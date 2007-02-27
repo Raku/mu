@@ -1,12 +1,19 @@
 {-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances #-}
 
 module Pugs.Val where
+import Pugs.Class
+import Pugs.AST.Eval
 
-import Pugs.Types (Var(..))
-import Pugs.Internals
-import qualified Data.ByteString as Buf
+type Val = Invocant Eval
 
-data Val
+{-
+newtype Pad = MkPad { padEntries :: Map Var PadEntry }
+type Table = Map ID Val
+data PadEntry
+
+instance Show Pad
+instance Show Val
+
 data ValNative
     = NBit      !NativeBit
     | NInt      !NativeInt
@@ -24,7 +31,5 @@ newtype NativeComplex = MkNComplex { unComplex :: Complex NativeNum }
 
 type P = Identity
 instance Typeable1 P
-type Table = Map ID Val
-newtype Pad = MkPad { padEntries :: Map Var PadEntry }
-data PadEntry
 --data Stmt
+-}

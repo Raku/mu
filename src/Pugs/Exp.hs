@@ -10,6 +10,7 @@ import Pugs.Pretty
 import Text.PrettyPrint
 import Pugs.Internals
 import Pugs.Val
+import Pugs.Types (Var)
 import qualified Pugs.AST.Internals (Exp)
 
 

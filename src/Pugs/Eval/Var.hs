@@ -236,13 +236,8 @@ findSub _var _invs _args
                 let capt = CaptMeth invVV [Val.MkFeed posVVs namVVs]
                 -- callMethod methName []
                 -- inv ./ meth = ivDispatch inv $ MkMethodInvocation meth (mkArgs [])
-                case invVV of
-                    Val.VPure p -> return . runIdentity $ do
-                        obj <- mkObj p
-                        res <- fromObjBox =<< obj ./ cast methName
-                        return . castV $ Val.VPure (res `asTypeOf` p)
-                    _       -> do
-                        return . castV $ "CCall " ++ show methName ++ " " ++ show capt
+                resVV <- invVV ./ cast methName
+                return . castV $ resVV
             }
 
     -- callMethodPerl5 :: (_var :: Var, _invs :: Maybe Exp, _args :: [Exp])

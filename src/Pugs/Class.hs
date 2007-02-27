@@ -25,8 +25,18 @@ import MO.Util
 import Pugs.Internals
 
 class (Typeable a, Ord a, Typeable1 m, Monad m) => Boxable m a | a -> m where
-    classOfBox :: a -> MI m
-    fromObjBox :: Invocant m -> m a
+    classOf :: a -> MI m
+    classOf o = mkBoxClass ty ([] :: [(String, String -> m (Invocant m))])
+        where
+        ty = takeTypeName "" . reverse . show $ typeOf o
+        -- Here we intuit "Str" from "Pugs.Val.Str.PureStr".
+        takeTypeName acc [] = acc
+        takeTypeName acc (x:xs)
+            | isLower x = takeTypeName (x:acc) xs
+            | otherwise = x:acc
+
+    fromObj :: Invocant m -> m a
+    fromObj (MkInvocant x _) = fromTypeable x
 
 (...) :: forall t a b (m :: * -> *). (Show b, Boxable m b) => t -> (a -> b) -> (t, a -> m (Invocant m))
 (...) x y = (x, mkObj . y)
@@ -35,16 +45,16 @@ class (Typeable a, Ord a, Typeable1 m, Monad m) => Boxable m a | a -> m where
 (!!!) x y = (x, mkObjM . y)
 
 mkObj :: (Show a, Boxable m a) => a -> m (Invocant m)
-mkObj x = return $ MkInvocant x (class_interface (classOfBox x))
+mkObj x = return $ MkInvocant x (class_interface (classOf x))
 
 mkObjM :: (Show a, Boxable m a) => m a -> m (Invocant m)
 mkObjM x = do
     x' <- x
-    return $ MkInvocant x' (class_interface (classOfBox x'))
+    return $ MkInvocant x' (class_interface (classOf x'))
 
 mkBoxClass :: forall t (m :: * -> *) (m1 :: * -> *).
     ( Method m1 (AnyMethod m1)
-    , Code m1 (HsCode m)
+    , Codeable m1 (HsCode m)
     , Typeable t
     , Typeable1 m
     , Monad m
@@ -62,7 +72,7 @@ mkBoxClass cls methods = newMI MkMI
 
 mkBoxMethod :: forall t (m1 :: * -> *) (m :: * -> *).
     ( Method m (SimpleMethod m)
-    , Code m (HsCode m1)
+    , Codeable m (HsCode m1)
     , Typeable t
     , Typeable1 m1
     , Monad m1

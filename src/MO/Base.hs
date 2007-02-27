@@ -4,17 +4,15 @@ module MO.Base (module MO.Base, Invocant, stubInvocant) where
 import {-# SOURCE #-} MO.Run
 import Data.Maybe
 import Data.Typeable
-import MO.Util
-
 
 -- | open type to represent Code
-class Monad m => Code m c where
+class Monad m => Codeable m c where
     run :: c -> Arguments m -> m (Invocant m)
 
 -- | stub code which always return the same
 newtype NoCode m = NoCode (Invocant m)
 
-instance (Typeable (NoCode m), Monad m) => Code m (NoCode m) where
+instance (Typeable (NoCode m), Monad m) => Codeable m (NoCode m) where
     run (NoCode obj) _ = return obj
 instance Show (NoCode m) where
     show _ = "<NoCode>"
@@ -22,7 +20,7 @@ instance Show (NoCode m) where
 -- | Pure code that works with any monad.
 newtype PureCode = PureCode (forall m. (Typeable1 m, Monad m) => Arguments m -> Invocant m)
 
-instance (Typeable1 m, Monad m) => Code m PureCode where
+instance (Typeable1 m, Monad m) => Codeable m PureCode where
     run (PureCode f) a = return (f a)
 instance Show PureCode where
     show _ = "<PureCode>"
@@ -30,7 +28,7 @@ instance Show PureCode where
 -- | Real monadic primitive code.
 newtype Monad m => HsCode m = HsCode (Arguments m -> m (Invocant m))
 
-instance (Typeable1 m, Monad m) => Code m (HsCode m) where
+instance (Typeable1 m, Monad m) => Codeable m (HsCode m) where
     run (HsCode f) a = f a
 instance Show (HsCode m) where
     show _ = "<HsCode>"

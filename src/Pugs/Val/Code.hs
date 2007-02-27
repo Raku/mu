@@ -1,13 +1,20 @@
-{-
- - {-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances -fallow-overlapping-instances -fno-warn-missing-methods #-}
 module Pugs.Val.Code where
 import Pugs.Internals
 import Pugs.Types
+import Data.Monoid
+import qualified Data.Map as Map
+import qualified Data.Set as Set
+import qualified Pugs.Types as Types
 
+import {-# SOURCE #-} Pugs.Exp
 import {-# SOURCE #-} Pugs.Val
---import {-# SOURCE #-} Pugs.Val.Sig
--}
 
+
+type Code = ()
+type Table = Map ID Val
+
+{-
 -- | AST for a primitive Code object
 data Code
     = CodePerl
@@ -57,6 +64,7 @@ data CodeAssoc
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 --------------------------------------------------------------------------------------
+-}
 
 -- | AST for function signature. Separated to method and function variants
 --   for ease of pattern matching.
@@ -138,12 +146,15 @@ data ParamAccess
     | AccessCopy
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
+{-
 instance ICoercible P Sig where
     asStr = return . cast . render . purePretty
 
 instance Pure Sig where
-    purePretty s = colon <> (parens $ prettySig s)
-    
+-}
+{-
+purePretty s = colon <> (parens $ prettySig s)
+
 prettySig :: Sig -> Doc
 prettySig s@(SigMethSingle {}) = invocant <> colon `invSpace` (prettySubSig s)
     where
@@ -187,6 +198,7 @@ prettyParam p isReq isPos = sep [ staticTypes, varDecl, defaultVal, traits, unpa
     constraints = hsep $ replicate (length $ p_constraints p) (text "where {...}")
     debugDump   = if True then empty else braces $ text $ show p -- XXX delme
 --------------------------------------------------------------------------------------
+-}
 
 -- | a Capture is a frozen version of the arguments to an application.
 data Capt a
@@ -220,7 +232,4 @@ emptyFeed = MkFeed [] Map.empty
 -- | Static Capture with Val for leaves
 type ValCapt = Capt Val
 type ValFeed = Feed Val
-
-instance ICoercible P ValCapt where
-        asStr _ = return (cast "<capt>") -- XXX
 

@@ -16,6 +16,7 @@ instance Monad m => ((:>:) (m a)) (Identity a) where cast = return . runIdentity
 instance ((:>:) (SIO a)) (STM a) where cast = liftSTM
 
 data SIO a = MkSTM !(STM a) | MkIO !(IO a) | MkSIO !a
+    deriving (Typeable)
 
 {-# INLINE runSIO #-}
 {-# SPECIALISE runSIO :: SIO () -> Maybe () #-}

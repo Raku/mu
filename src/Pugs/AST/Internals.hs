@@ -1,15 +1,14 @@
 {-# OPTIONS_GHC -cpp -fglasgow-exts -fno-warn-orphans -fallow-overlapping-instances -fallow-undecidable-instances -fparr #-}
 
 module Pugs.AST.Internals (
-    Eval,      -- uses Val, Env, SIO
+    Eval(..),      -- uses Val, Env, SIO
     Ann(..),   -- Cxt, Pos, Prag
     Exp(..),   -- uses Pad, Eval, Val
     Env(..),   -- uses Pad, TVar, Exp, Eval, Val
     Val(..),   -- uses V.* (which ones?)
     Value(..), -- uses Val, Eval
     InitDat(..),
-
-    EvalT(..), SubAssoc(..),
+    SubAssoc(..),
 
     Pad(..), PadEntry(..), PadMutator, -- uses Var, TVar, VRef
     Param(..), -- uses Cxt, Exp
@@ -215,7 +214,7 @@ class (Typeable n, Show n, Ord n) => Value n where
 {-    doCast v = castFailM v "default implementation of doCast" -}
     fromVV :: Val.Val -> Eval n
     fromVV v = do
-        str <- liftSIO (Val.asStr v)
+        str <- Val.asStr v
         fail $ "Cannot cast from VV (" ++ cast str ++ ") to " ++ errType (undefined :: n)
     toVV :: n -> Eval Val
     toVV = toVV' . castV
@@ -248,8 +247,8 @@ fromVal' (VV v) = fromVV v
 fromVal' v = doCast v
 
 toVV' :: Val -> Eval Val
-toVV' VUndef   = return $ VV $ Val.val $ Val.VUndef $ Val.UUndef
-toVV' (VBool v) = return $ VV $ Val.val $ ((cast v) :: Val.PureBit)
+toVV' VUndef   = return $ VV $ Val.val $ ()
+toVV' (VBool v)= return $ VV $ Val.val $ ((cast v) :: Val.PureBit)
 toVV' (VInt v) = return $ VV $ Val.val $ ((cast v) :: Val.PureInt)
 toVV' (VNum v) = return $ VV $ Val.val $ ((cast v) :: Val.PureNum)
 toVV' (VRat v) = return $ VV $ Val.val $ ((cast v) :: Val.PureNum)
@@ -418,7 +417,7 @@ runInvokePerl5 sub inv args = do
 instance Value VBool where
     castV = VBool
     fromSV sv = liftIO $ svToVBool sv
-    fromVV vv = liftSIO $ fmap cast (Val.asBit vv)
+    fromVV vv = fmap cast (Val.asBit vv)
     doCast (VJunc j)   = juncToBool j
     doCast (VMatch m)  = return $ matchOk m
     doCast (VBool b)   = return $ b
@@ -435,7 +434,7 @@ instance Value VBool where
 
 instance Value VInt where
     castV = VInt
-    fromVV vv = liftSIO $ fmap cast (Val.asInt vv)
+    fromVV vv = fmap cast (Val.asInt vv)
     fromSV sv = liftIO $ svToVInt sv
     doCast (VInt i)     = return $ i
     doCast x            = fmap truncate (fromVal x :: Eval VRat)
@@ -463,7 +462,7 @@ instance Value VRat where
 
 instance Value VNum where
     castV = VNum
-    fromVV vv = liftSIO $ fmap cast (Val.asNum vv)
+    fromVV vv = fmap cast (Val.asNum vv)
     fromSV sv = liftIO $ svToVNum sv
     doCast VUndef       = return $ 0
     doCast VType{}      = return $ 0
@@ -513,14 +512,14 @@ instance Value VComplex where
 instance Value ID where
     castV = VStr . cast
     fromSV sv = fmap cast (liftIO $ svToVStr sv)
-    fromVV vv = liftSIO $ cast (Val.asStr vv)
+    fromVV vv = cast (Val.asStr vv)
     fromVal = fmap (cast :: VStr -> ID) . fromVal
     doCast = fmap (cast :: VStr -> ID) . doCast
 
 instance Value VStr where
     castV = VStr
     fromSV sv = liftIO $ svToVStr sv
-    fromVV vv = liftSIO $ cast (Val.asStr vv)
+    fromVV vv = cast (Val.asStr vv)
     fromVal (VList l)    = return . unwords =<< mapM fromVal l
     fromVal v@(PerlSV _) = fromVal' v
     fromVal VUndef       = return ""
@@ -1924,9 +1923,6 @@ data VRef where
 
 instance Typeable VRef where
     typeOf (MkRef x) = typeOf x
-
-instance Typeable1 (EvalT (ReaderT Env SIO)) where
-    typeOf1 _ = typeOf ()
 
 instance Typeable1 IVar where
     typeOf1 (IScalar x) = typeOf x

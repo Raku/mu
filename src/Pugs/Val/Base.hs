@@ -8,6 +8,8 @@ import Pugs.Internals
 import Pugs.Class
 import {-# SOURCE #-} Pugs.Val
 
+{-
+
 
 -- Goal: associate each builtin type with prim methods (that handles native monotypes)
 --       its metaclass then get those as the initial method slots
@@ -135,3 +137,5 @@ instance ICoercible P PureStr where
         [ "reverse"    ... (MkStr . Char8.reverse . unStr)
         ]
 
+
+-}
