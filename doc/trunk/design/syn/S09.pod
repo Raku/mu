@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 13 Sep 2004
-  Last Modified: 30 Jan 2007
+  Last Modified: 27 Jan 2007
   Number: 9
-  Version: 16
+  Version: 17
 
 =head1 Overview
 
@@ -50,10 +50,12 @@ of bits to a generic low-level type name:
     uint32
     uint64
 
+    num16
     num32
     num64       (aka num on most architectures)
     num128
 
+    complex16
     complex32
     complex64   (aka complex on most architectures)
     complex128
@@ -79,23 +81,70 @@ You are, of course, free to use macros or type declarations to
 associate additional names, such as "short" or "single".  These are
 not provided by default.  An implementation of Perl is not required
 to support 64-bit integer types or 128-bit floating-point types unless
-the underlying architecture supports them.
+the underlying architecture supports them.  16-bit floating-point is
+also considered optional in this sense.
 
 And yes, an C<int1> can store only -1 or 0.  I'm sure someone'll think of
 a use for it...
 
+Note that these are primarily intended to represent storage types;
+the compiler is generally free to keep all intermediate results in
+wider types in the absence of declarations or explicit casts to the
+contrary.  Attempts to store an intermediate result in a location
+that cannot hold it will generally produce a warning on overflow.
+Underflow may also warn depending on the pragmatic context and use
+of explicit rounding operators.  The default rounding mode from
+C<Num> to C<Int> is to truncate the fractional part without warning.
+(Note that warnings are by definition resumable exceptions; however,
+an exception handler is free to either transform such a warning into
+a fatal exception or ignore it completely.)
+
+An explicit cast to a storage type has the same potential to throw an
+exception as the actual attempt to store to such a storage location
+would.
+
+With IEEE floating-point types, we have a bias towards the use
+of in-band C<+Inf>, C<-Inf>, and C<NaN> values in preference to
+throwing an exception, since this is construed as friendlier to vector
+processing and pipelining.  Object types such as C<Num> and C<Int>
+may store additional information about the nature of the failure,
+perhaps as an unthrown exception or warning.
+
 =head1 Compact structs
 
-A class whose attributes are all low-level types can behave as
+A class whose attributes are all low-level value types can behave as
 a struct.  (Access from outside the class is still only through
-accessors, though.)  Whether such a class is actually stored compactly
-is up to the implementation, but it ought to behave that way,
-at least to the extent that it's trivially easy (from the user's
-perspective) to read and write to the equivalent C structure.
-That is, when byte-stringified, it should look like the C struct,
+accessors, though, except when the address of a serialized version of
+the object is used or generated for interfacing to C-like languages.)
+Whether such a class is actually stored compactly is up to the
+implementation, but it ought to behave that way, at least to the
+extent that it's trivially easy (from the user's perspective) to read
+and write to the equivalent C structure.  That is, when serialized
+or deserialized to the C view, it should look like the C struct,
 even if that's not how it's actually represented inside the class.
 (This is to be construed as a substitute for at least some of the
-current uses of C<pack>/C<unpack>.)
+current uses of C<pack>/C<unpack>.)  Of course, a lazy implementation will
+probably find it easiest just to keep the object in its serialized form
+all the time.  In particular, an array of compact structs must be stored
+in their serialized form (see next section).
+
+For types that exist in the C programming language, the serialized
+mapping in memory should follow the same alignment and padding
+rules by default.  Integers smaller than a byte are packed into a
+power-of-two number of bits, so a byte holds four 2-bit integers.
+Datum sizes that are not a power of two bits are not supported
+unless declared by the user with sufficient information to determine
+how to lay them out in memory, possibly with a pack/unpack format
+associated with the class, or with the strange elements of the class,
+or with the types under which the strange element is declared.
+
+Note that a compact struct is itself a value type, so except for
+performance considerations, it doesn't matter how many representations
+of it there are in memory as long as those are consistent.
+
+The packing serialization is performed by coercion to an appropriate
+buffer type.  The unpacking is performed by coercion of such a buffer
+type back to the type of the compact struct.
 
 =head1 Compact arrays
 
@@ -137,6 +186,23 @@ and given C<$buffer> you can also say
 
 Note that subscripting still pulls the elements out as numbers,
 but C<substr()> returns a buffer of the same type.
+
+For types that exist in the C programming language, the mapping in
+memory should follow the same alignment rules, at least in the absence
+of any declaration to the contrary.  For interfacing to C pointer
+types, any buffer type may be used for its memory pointer; note,
+however, that the buffer knows its length, while in C that length
+typically must be passed as a separate argument, so the C interfacing
+code needs to support this whenever possible, lest Perl inherit all
+the buffer overrun bugs bequeathed on us by C.  Random C pointers
+should never be converted to buffers unless the length is also known.
+(Any call to strlen() should generally be considered a security hole.)
+The size of any buffer type in bytes may be found with the C<.bytes>
+method, even if the type of the buffer elements is not C<byte>.
+(Strings may be asked for their size in bytes only if they support
+a buffer type as their minimum abstraction level, hopefully with a
+known encoding.  Otherwise you must encode them explicitly from the
+higher-level abstraction into some buffer type.)
 
 =head1 Multidimensional arrays
 
