@@ -1514,7 +1514,7 @@ isNumeric _ = False
 op2OrdNumStr :: Val -> Val -> Eval Val
 op2OrdNumStr x y
     | isNumeric x && isNumeric y = op2Ord vCastRat x y
-    | otherwise                  = op2OrdNumeric compare x y
+    | otherwise                  = op2Ord vCastStr x y
 
 op3Caller :: Type -> Int -> Val -> Eval Val
 --op3Caller kind skip label = do
