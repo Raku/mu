@@ -33,6 +33,7 @@ sub test6 {
 
 	print STDERR "  eval \"$str\"\n" if $debug_warnings;
 	my $strx = $str;
+	$strx =~ s/(?<!\\)\\u(\w{4})/\\x{$1}/g;
 	$strx =~ s/\"/\\\"/g;
 	$strx = eval("\"$strx\"");
 	# Special case bizarre test strings:

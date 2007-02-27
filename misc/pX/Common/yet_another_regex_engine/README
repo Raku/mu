@@ -133,6 +133,14 @@ Risks:
 
 History:
 
+  2007-02-27 Converted captures from a hack "everything is an array"
+  to spec.  Minor other rx_ test progress.  re_tests.t 96%, 15 sec;
+  rx.t 84%, 12 sec.  Cost: 1 day.
+
+  2007-02-25 Engine debugging.  Pondered how this module will fit into
+  the pugs development world.  Wrote some thought pieces and
+  infrastructure for same. Cost 2 days.
+
   2007-Feb-20 Assorted engine and p6 grammar work.  Some rx test jig fixes.
   re_tests.t 95%, 13 sec; rx.t 75%, 11 sec. Cost: 1 day.
 
