@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 21 Feb 2007
+  Last Modified: 27 Feb 2007
   Number: 3
-  Version: 101
+  Version: 102
 
 =head1 Overview
 
@@ -540,6 +540,9 @@ infix:{'+>'}, numeric shift right
 
     +>
 
+By default, signed types do sign extension, while unsigned types do not, but
+this may be enabled or disabled with a C<:signed> or C<:!signed> adverb.
+
 =item *
 
 infix:<~&>, string bitwise and
@@ -548,15 +551,18 @@ infix:<~&>, string bitwise and
 
 =item *
 
-infix:{'~<'}, string bitwise shift left
+infix:{'~<'}, buffer bitwise shift left
 
     ~<
 
 =item *
 
-infix:{'~>'}, string bitwise shift right
+infix:{'~>'}, buffer bitwise shift right
 
     ~>
+
+Sign extension is not done by default but may be enabled with a C<:signed>
+adverb.
 
 =item *
 
@@ -565,6 +571,10 @@ infix:<?&>, boolean bitwise and
     ?&
 
 =back
+
+Any bit shift operator may be turned into a rotate operator with the
+C<:rotate> adverb.  If C<:rotate> is specified, the default is
+unsigned, and you may not explicitly specify a C<:signed> adverb.
 
 =head2 Additive precedence
 
