@@ -18,7 +18,7 @@ module Pugs.Class
     , module MO.Compile.Class
     , module MO.Util
     ) where
-import MO.Run
+import MO.Run hiding (__)
 import MO.Compile
 import MO.Compile.Class
 import MO.Util
@@ -73,3 +73,5 @@ mkBoxMethod (meth, fun) = AnyMethod $ MkSimpleMethod
         str <- fromInvocant args
         fun str   -- Note that we expect "fun" to be monadic
     }
+
+inv ./ meth = ivDispatch inv $ MkMethodInvocation meth (mkArgs [])

@@ -130,7 +130,7 @@ instance ICoercible P PureStr where
     asStr = cast
     asNum = cast . parseInt -- XXX - wrong
     asInt = cast . parseInt
-    fromObj (MkInvocant x _) = undefined
+    fromObj (MkInvocant x _) = fromTypeable x
     classOf _ = mkBoxClass "Str"
         [ "reverse"    ... (MkStr . Char8.reverse . unStr)
         ]

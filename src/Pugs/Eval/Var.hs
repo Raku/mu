@@ -16,6 +16,7 @@ import Pugs.Prim.Param (foldParam)
 import Pugs.Pretty
 import Pugs.Config
 import Pugs.Monads
+import Pugs.Class
 import qualified Pugs.Val as Val
 import qualified Data.ByteString.Char8 as Buf
 
@@ -235,7 +236,13 @@ findSub _var _invs _args
                 let capt = CaptMeth invVV [Val.MkFeed posVVs namVVs]
                 -- callMethod methName []
                 -- inv ./ meth = ivDispatch inv $ MkMethodInvocation meth (mkArgs [])
-                return . castV $ "CCall " ++ show methName ++ " " ++ show capt
+                case invVV of
+                    Val.VPure p -> return . runIdentity $ do
+                        obj <- mkObj p
+                        res <- fromObjBox =<< obj ./ cast methName
+                        return . castV $ Val.VPure (res `asTypeOf` p)
+                    _       -> do
+                        return . castV $ "CCall " ++ show methName ++ " " ++ show capt
             }
 
     -- callMethodPerl5 :: (_var :: Var, _invs :: Maybe Exp, _args :: [Exp])
