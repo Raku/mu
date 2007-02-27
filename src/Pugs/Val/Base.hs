@@ -2,13 +2,13 @@
 
 module Pugs.Val.Base where
 
+{-
 import qualified Data.ByteString.Char8 as Char8
 
 import Pugs.Internals
 import Pugs.Class
 import {-# SOURCE #-} Pugs.Val
 
-{-
 
 
 -- Goal: associate each builtin type with prim methods (that handles native monotypes)
