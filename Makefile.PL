@@ -223,8 +223,9 @@ EOD
     # We probably need to promote this to a config.yml + autodetect
     # thing, but until it's done, put the condition here at least and
     # don't hardcode it into the postamble.
-    my $ghci_debugging = ($ENV{PUGS_GHCI_DEBUGGING}||'') ?
-        '-fdebugging' : '';
+    my $ghci_debugging =
+            (defined $ENV{PUGS_GHCI_DEBUGGING} ? $ENV{PUGS_GHCI_DEBUGGING} : 1)
+        ? '-fdebugging' : '';
 
     my $native_fps;
 
