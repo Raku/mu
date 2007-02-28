@@ -55,7 +55,7 @@ data AnyResponder m = forall c. ResponderInterface m c => AnyResponder (m c)
 data AnyResponder_Type deriving Typeable
 
 instance (Typeable1 m, Monad m) => Typeable (AnyResponder m) where
-    typeOf x = typeOf (undefined :: m AnyResponder_Type)
+    typeOf _ = typeOf (undefined :: m AnyResponder_Type)
 
 class Monad m => ResponderInterface m a | a -> m where
     fromMethodList :: [(MethodName, MethodCompiled m)] -> m a
@@ -74,7 +74,7 @@ instance (Typeable1 m, Monad m) => ResponderInterface m (MethodTable m) where
     toNameList = M.keys . mtMethods
 
 mtMethod :: Monad m => MethodTable a -> MethodInvocation m -> m (MethodCompiled a)
-mtMethod table inv@(MkMethodInvocation n _) = case M.lookup n (mtMethods table) of
+mtMethod table (MkMethodInvocation n _) = case M.lookup n (mtMethods table) of
     Just r  -> return r
     _       -> fail $ "No such method: " ++ show n
 
@@ -93,7 +93,7 @@ fromInvocant (MkArguments (MkInvocant x _:_))   = case cast x of
 
 
 instance (Typeable1 m, Monad m) => Typeable (Invocant m) where
-    typeOf x = typeOf (undefined :: m Invocant_Type)
+    typeOf _ = typeOf (undefined :: m Invocant_Type)
 
 ivDispatch :: (Typeable1 m, Monad m) => Invocant m -> MethodInvocation m -> m (Invocant m)
 ivDispatch i@(MkInvocant _ (AnyResponder ri)) mi = do

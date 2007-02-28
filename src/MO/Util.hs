@@ -7,9 +7,8 @@ import qualified Data.Set as Set
 
 import Data.Map (Map)
 import qualified Data.Map as Map
-import Control.Monad (when, fmap, Functor(..))
+import Control.Monad (when)
 import Debug.Trace (trace)
-import Data.List (nub)
 import Data.Typeable
 import GHC.Exts (unsafeCoerce#, Word(W#), Word#)
 import Pugs.Internals.ID
@@ -49,7 +48,7 @@ instance (Ord a, Show a) => Show (Collection a) where
     show (MkCollection _ n) = "<" ++ show n ++ ">"
 
 cmap :: (Ord a, Ord b) => (a -> b) -> Collection a -> Collection b
-cmap f c@MkCollection { cByName = bn } =
+cmap f MkCollection { cByName = bn } =
     let l = map (\(x,y) -> (x, f y)) (Map.toList bn)
     in newCollection l
     
@@ -57,7 +56,7 @@ cmap f c@MkCollection { cByName = bn } =
 -- FIXME: This is not really safe since we could add same object with different
 -- names. Must check how Set work and what MO's remove wanted.
 remove :: (Monad m, Ord a) => ID -> a -> Collection a -> m (Collection a)
-remove name obj c@MkCollection{ cByObject = bo, cByName = bn } = do
+remove name obj MkCollection{ cByObject = bo, cByName = bn } = do
     return $ MkCollection { cByObject = Set.delete obj bo
                           , cByName = Map.delete name bn
                           } 
@@ -70,7 +69,7 @@ add name obj c@MkCollection{ cByObject = bo, cByName = bn } = do
                           }
 
 insert :: (Ord a) => ID -> a -> Collection a -> Collection a
-insert name obj c@MkCollection{ cByObject = bo, cByName = bn } =
+insert name obj MkCollection{ cByObject = bo, cByName = bn } =
     MkCollection { cByObject = Set.insert obj bo
                  , cByName = Map.insert name obj bn
                  }
@@ -105,15 +104,15 @@ includes_name :: Ord a => Collection a -> ID -> Bool
 includes_name c name = Map.member name (cByName c)
 
 includes_any :: Ord a => Collection a -> [a] -> Bool
-includes_any c [] = False
+includes_any _ [] = False
 includes_any c (x:xs) = (includes c x) || (includes_any c xs)
 
 includes_any_name :: Ord a => Collection a -> [ID] -> Bool
-includes_any_name c [] = False
+includes_any_name _ [] = False
 includes_any_name c (x:xs) = (includes_name c x) || (includes_any_name c xs)
 
 includes_all :: Ord a => Collection a -> [a] -> Bool
-includes_all c [] = False
+includes_all _ [] = False
 includes_all c (x:xs) = (includes c x) && (includes_any c xs)
 
 shadow :: Ord a => [Collection a] -> [a]

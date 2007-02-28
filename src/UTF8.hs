@@ -183,7 +183,6 @@ import Data.ByteString (empty,null,append
                        -- level
                        ,isPrefixOf,isSuffixOf,isSubstringOf
 
-                       ,copy
                        ,getContents, putStr, putStrLn
                        ,readFile, {-mmapFile,-} writeFile
                        ,hGetContents, hGet, hPut
@@ -512,7 +511,7 @@ drop :: Int -> ByteString -> ByteString
 drop n = snd . splitAt n
 
 inits :: ByteString -> [ByteString]
-inits bs@(PS x s l) = [PS x s n | n <- rawIndices bs]
+inits bs@(PS x s _) = [PS x s n | n <- rawIndices bs]
 
 tails :: ByteString -> [ByteString]
 tails bs = if null bs then [empty] else bs : tails (tail bs)
@@ -571,7 +570,7 @@ span p = break (not . p)
 
 -- spanEnd
 spanEnd :: (Char -> Bool) -> ByteString -> (ByteString, ByteString)
-spanEnd p = error "not implemented yet"
+spanEnd _ = error "not implemented yet"
 
 -- lines
 -- TODO: implement other types of line breaks!
@@ -652,7 +651,7 @@ replicate n c | n <= 0 = empty
               | Char.ord c < 128 = B.replicate n (fromIntegral $ Char.ord c)
               | otherwise = unsafeCreate (n * numBytes c) $ \p -> go n p
   where
-    go 0 p = return ()
+    go 0 _ = return ()
     go n p = do
       k <- putUTF8 p c 
       go (n-1) (p `plusPtr` k)
@@ -676,7 +675,7 @@ elemIndex c = List.elemIndex c . unpack
 
 -- elemIndexLast
 elemIndexLast :: Char -> ByteString -> Maybe Int
-elemIndexLast c = undefined
+elemIndexLast _ = undefined
 
 -- findIndex
 findIndex :: (Char -> Bool) -> ByteString -> Maybe Int
@@ -798,7 +797,8 @@ rawIndices (PS x s l) = withPtr x $ \p -> go 0 (p `plusPtr` s) l
       i <- rawLength q
       is <- unsafeInterleaveIO $ go (k+i) (q `plusPtr` i) (m-i)
       return (k:is)
-  
+
+breakFirst :: Char -> ByteString -> Maybe (ByteString, ByteString)
 breakFirst c xs = let (x,y) = breakChar c xs in 
   if null y then Nothing else Just (x, tail y)
 
@@ -807,9 +807,9 @@ findSubstring b1 b2 = listToMaybe (findSubstrings b1 b2)
 
 -- use regular findSubstrings and map results back
 findSubstrings :: ByteString -> ByteString -> [Int]
-findSubstrings b1 b2@(PS x s l) | null b1 = [0 .. length b2]
-                                | otherwise =
-  [ i | (i,b) <- P.zip [0..] (tails b2), b1 `isPrefixOf` b ]
+findSubstrings b1 b2 | null b1 = [0 .. length b2]
+                     | otherwise =
+    [ i | (i,b) <- P.zip [0..] (tails b2), b1 `isPrefixOf` b ]
 
 
 -- Just like inlinePerformIO, but we inline it. Big performance gains as

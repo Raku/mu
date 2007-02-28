@@ -2,9 +2,9 @@
 
 module MO.Compile.Role where
 
-import MO.Base
+import MO.Base ()
 import MO.Compile
-import MO.Run
+import MO.Run ()
 import MO.Util
 import MO.Compile.Attribute
 
@@ -17,6 +17,7 @@ data Role m = MkRole
     }
     deriving (Eq)
 
+emptyRole :: Role m
 emptyRole = MkRole
           { roRoles                  = [] 
           , roAttributes             = []
@@ -27,8 +28,11 @@ emptyRole = MkRole
 parent_roles :: Role m -> [Role m]
 parent_roles = roRoles
 
+role_public_methods, role_private_methods :: Role m -> Collection (AnyMethod m)
 role_public_methods     = roPublicMethods
 role_private_methods    = roPrivateMethods
+
+role_attributes :: Role m -> [Attribute m]
 role_attributes         = roAttributes
 
 all_using_role_shadowing :: (Show a, Ord a) => Role m -> (Role m -> Collection a) -> Collection a

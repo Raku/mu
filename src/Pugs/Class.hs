@@ -84,4 +84,5 @@ mkBoxMethod (meth, fun) = AnyMethod $ MkSimpleMethod
         fun str   -- Note that we expect "fun" to be monadic
     }
 
+(./) :: (Typeable1 m, Monad m) => Invocant m -> String -> m (Invocant m)
 inv ./ meth = ivDispatch inv $ MkMethodInvocation meth (mkArgs [])

@@ -116,6 +116,7 @@ instance Error Val where
     noMsg = errStr ""
     strMsg = errStr
 
+liftEval :: ReaderT Env SIO a -> Eval a
 liftEval m = EvalT $ do
     a <- ContT (m >>=)
     return (RNormal a)

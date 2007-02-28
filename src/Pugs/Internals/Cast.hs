@@ -12,7 +12,7 @@ module Pugs.Internals.Cast (
 import Data.Dynamic hiding (cast)
 import GHC.Exts (unsafeCoerce#, Word(W#), Word#)
 import Data.ByteString (ByteString)
-import Data.Sequence (Seq, singleton)
+import Data.Sequence (Seq)
 import Numeric (showHex)
 import Data.Foldable (toList)
 import qualified Data.Sequence as Seq

@@ -2,7 +2,7 @@
 
 module MO.Compile.Class where
 
-import MO.Base
+import MO.Base ()
 import MO.Compile
 import MO.Compile.Attribute
 import MO.Compile.Role
@@ -13,7 +13,6 @@ import Control.Monad (liftM)
 
 import qualified Pugs.Class.C3 as C3 (linearize)
 
-import Data.Maybe (maybeToList, fromJust)
 import qualified Data.Map as Map
 
 type ClassName = ID
@@ -76,7 +75,7 @@ data AnyClass m = forall c. Class m c => AnyClass c
 data AnyClass_Type deriving Typeable
 
 instance (Typeable1 m, Monad m) => Typeable (AnyClass m) where
-    typeOf x = typeOf (undefined :: m AnyClass_Type)
+    typeOf _ = typeOf (undefined :: m AnyClass_Type)
 
 instance (Typeable1 m, Monad m) => Eq (AnyClass m) where
     AnyClass x == AnyClass y = case cast y of
@@ -125,7 +124,7 @@ instance (Typeable1 m, Monad m) => Ord (MI m) where
 instance (Typeable1 m, Monad m) => Eq (MI m) where
     x == y = clsName x == clsName y
 instance (Typeable1 m, Monad m) => Typeable (MI m) where
-    typeOf x = typeOf (undefined :: m MI_Type)
+    typeOf _ = typeOf (undefined :: m MI_Type)
 
 emptyMI :: (Typeable1 m, Monad m) => MI m
 emptyMI = MkMI

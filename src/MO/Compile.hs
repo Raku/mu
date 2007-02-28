@@ -3,7 +3,7 @@
 module MO.Compile where
 
 import MO.Base
-import MO.Util
+import MO.Util ()
 
 type MethodName = ID
 

@@ -48,14 +48,14 @@ merge l     = merge_round candidates l
     where
     candidates = nub (map head l)
 
--- | Auxiliar function for the merge operation, given a candidate list,
+-- | Auxiliary function for the merge operation, given a candidate list,
 -- find a good candidate, return 'Nothing' if none of them can be used,
 -- meaning an impossible merge due conflict. If it finds one, calls
 -- 'merge' to find next element in the linearization.
 merge_round :: (Monad m, Eq a) => [a] -> [[a]] -> m [a]
 merge_round _  [] = return []
 merge_round [] _  = fail "merge conflict"
-merge_round (c:cs) l@(x:xs)
+merge_round (c:cs) l
     | good c l = do
         a <- merge clean_list
         return (c:a)
@@ -66,7 +66,7 @@ merge_round (c:cs) l@(x:xs)
 
 -- |Returns 'True' if a candidate element isn't present in the tail
 -- of each list.
-good c []     = True
+good _ []     = True
 good c (x:xs)
     | c `elem` (tail x) = False
     | otherwise         = good c xs
