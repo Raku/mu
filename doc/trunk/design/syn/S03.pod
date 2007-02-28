@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 27 Feb 2007
+  Last Modified: 28 Feb 2007
   Number: 3
-  Version: 102
+  Version: 103
 
 =head1 Overview
 
@@ -1993,19 +1993,26 @@ operators, this may be modified by an adverb specifying different semantics.
 
 =item *
 
-The C<..> range operator has variants with C<^> on either
-end to indicate exclusion of that endpoint from the range.  It always
-produces a C<Range> object.  Range objects are lazy iterators, and can
-be interrogated for their current C<.min> and C<.max> values (which
-change as they are iterated).  The C<.minmax> method returns both as
-a two-element list.  Ranges are not autoreversing: C<2..1>
-is always a null range, as is C<1^..^2>.  To reverse a range use:
+The C<..> range operator has variants with C<^> on either end to
+indicate exclusion of that endpoint from the range.  It always
+produces a C<Range> object.  Range objects are lazy iterators, and
+can be interrogated for their current C<.from> and C<.to> values
+(which change as they are iterated).  The C<.minmax> method returns
+both as a two-element list representing the interval.  Ranges are not
+autoreversing: C<2..1> is always a null range.  Likewise, C<1^..^2>
+produces no values when iterated, but does represent the interval from
+1 to 2 excluding the endpoints when used as a pattern.  To iterate
+a range in reverse use:
 
     2..1:by(-1)
     reverse 1..2
 
 (The C<reverse> is preferred because it works for alphabetic ranges
-as well.)
+as well.)  Note that, while C<.minmax> normally returns C<(.from,.to)>,
+a negative C<:by> causes the C<.minmax> method returns C<(.to,.from)>
+instead.  You may also use C<.min> and C<.max> to produce the individual
+values of the C<.minmax> pair, but again note that they are reversed
+from C<.from> and C<.to> when the step is negative.
 
 Because C<Range> objects are lazy, they do not automatically generate
 a list.  So smart matching against a C<Range> object smartmatches the
@@ -2015,13 +2022,13 @@ numbers are C<not> truncated before comparison to integer ranges:
     1.5 ~~ 1^..^2  # true, equivalent to 1 < 1.5 < 2
     2.1 ~~ 1..2    # false, equivalent to 1 <= 2.1 <= 2
 
-If a C<*> (see the "Whatever" type in S02) occurs on
-the right side of a range, it is taken to mean "positive infinity"
-in whatever space the range is operating.  A C<*> on the left means
-"negative infinity" for types that support negative values.  If the
-C<*> occurs on one side but not the other, the type is inferred from
-the other argument.  A star on both sides will match any value that
-supports the C<Ordered> role.
+If a C<*> (see the "Whatever" type in S02) occurs on the right side
+of a range, it is taken to mean "positive infinity" in whatever space
+the range is operating.  A C<*> on the left means "negative infinity"
+for types that support negative values. (The sign of those infinites
+reverses for a negative step.)  If the C<*> occurs on one side but
+not the other, the type is inferred from the other argument.  A star
+on both sides will match any value that supports the C<Ordered> role.
 
     0..*        # 0 .. +Inf
     'a'..*      # 'a' .. 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzz...'
@@ -2031,6 +2038,22 @@ supports the C<Ordered> role.
 
 Note: infinite lists are constructed lazily.  And even though C<*..*>
 can't be constructed at all, it's still useful as a selector object.
+
+Range objects may be iterated on either end as long as it is not
+infinite.  (Iterating an infinite end does not fail but just produces a
+lot of infinities.)  Ordinary iteration iterates the C<.from> value by
+adding the step.  Either C<< prefix:<=> >> or the C<shift> function
+may be used to iterate the front of a range object.  The C<pop>
+function iterates the C<.to> end by subtracting the step.  In either
+case, the value returned is either the old value if the endpoint
+was inclusive, or the next value if the endpoint was exclusive.
+In the case of ranges that are not an integral multiple of the step,
+no check is done to see that iterating the front would produce the
+same list as interating from the back and reversing.  So we have
+
+    $range = 1..^42.5;
+    $front = $range.shift;      # $front = 1, $range = 2..^42.5
+    $back = $range.pop;      # $back = 41.5, $range = 2..^41.5
 
 For any kind of zip or dwimmy hyper operator, any list ending with C<*>
 is assumed to be infinitely extensible by taking its final element
