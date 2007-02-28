@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 19 Feb 2007
+   Last Modified: 28 Feb 2007
    Number: 5
-   Version: 52
+   Version: 53
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -394,23 +394,6 @@ brackets for args to the adverb.  In particular:
     m/:foo[xxx]/        Parses as :foo [xxx]
     m/:foo{xxx}/        Parses as :foo {xxx}
     m/:foo<xxx>/        Parses as :foo <xxx>
-
-If the key of the pair is null, however, it is treated as a "symbol"
-declaration:
-
-    :<*>                Match * symbol
-    :<[> <EXPR> :<]>    Match bracketed expression as symbol :<[ ]>
-    :['<','>']          Match empty <> as circumfix symbol
-    :(&infix)           Match any symbol matched by the infix category
-
-The components of a symbol declaration are matched literally, but
-the list of such symbols is gathered up when the rule is parsed and
-returned as the C<.symbol> property of the rule.  (The C<.category>
-property should also be available for such rules, since these
-properties are used to form the eventual user-visible name of the
-operator being parsed.)
-
-The C<:()> form is conjectured to be useful in generating hyperoperators.
 
 =item *
 
