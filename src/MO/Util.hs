@@ -1,6 +1,12 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
-module MO.Util ( module MO.Util, module Pugs.Internals.ID, trace, _cast ) where
+module MO.Util (
+    module MO.Util,
+    module Pugs.Internals.ID,
+    trace,
+    cast,
+    _cast
+) where
 
 import Data.Set (Set)
 import qualified Data.Set as Set
@@ -9,10 +15,11 @@ import Data.Map (Map)
 import qualified Data.Map as Map
 import Control.Monad (when)
 import Debug.Trace (trace)
-import Data.Typeable
+import Data.Typeable hiding (cast)
 import GHC.Exts (unsafeCoerce#, Word(W#), Word#)
 import Pugs.Internals.ID
-import Pugs.Internals.Cast (_cast)
+import Pugs.Internals.Cast (cast, _cast)
+import qualified Data.Typeable as Typeable
 
 traceShow :: Show a => a -> b -> b
 traceShow = trace . show
@@ -22,13 +29,13 @@ traceM x = trace x (return ())
 
 -- Compare any two typeable things.
 (?==?) :: (Eq a, Typeable a, Typeable b) => a -> b -> Bool
-(?==?) x y = case cast y of
+(?==?) x y = case Typeable.cast y of
     Just y' -> x == y'
     _       -> False
 
 -- Order any two typeable things.
 (?<=>?) :: (Ord a, Typeable a, Typeable b) => a -> b -> Ordering
-(?<=>?) x y = case cast y of
+(?<=>?) x y = case Typeable.cast y of
     Just y' -> x `compare` y'
     _       -> show (typeOf x) `compare` show (typeOf y)
 

@@ -10,7 +10,8 @@ import MO.Util
 import MO.Base
 import MO.Compile as C
 import Data.Map as M
-import Data.Typeable
+import Data.Typeable hiding (cast)
+import qualified Data.Typeable as Typeable
 
 mkArgs :: (Typeable1 m, Monad m) => [Invocant m] -> Arguments m
 mkArgs = MkArguments
@@ -87,7 +88,7 @@ data Invocant_Type deriving (Typeable)
 
 fromInvocant :: forall m b. (Typeable1 m, Monad m, Typeable b) => Arguments m -> m b
 fromInvocant (MkArguments [])                   = fail "No invocant"
-fromInvocant (MkArguments (MkInvocant x _:_))   = case cast x of
+fromInvocant (MkArguments (MkInvocant x _:_))   = case Typeable.cast x of
     Just y -> return y
     _      -> fail $ "Cannot cast from " ++ (show $ typeOf x) ++ " to " ++ (show $ typeOf (undefined :: b))
 

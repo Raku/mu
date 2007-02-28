@@ -8,8 +8,9 @@ import MO.Compile.Attribute
 import MO.Compile.Role
 import MO.Run
 import MO.Util
-import Data.Typeable (Typeable1, Typeable(..), cast)
+import Data.Typeable (Typeable1, Typeable(..))
 import Control.Monad (liftM)
+import qualified Data.Typeable as Typeable
 
 import qualified Pugs.Class.C3 as C3 (linearize)
 
@@ -78,7 +79,7 @@ instance (Typeable1 m, Monad m) => Typeable (AnyClass m) where
     typeOf _ = typeOf (undefined :: m AnyClass_Type)
 
 instance (Typeable1 m, Monad m) => Eq (AnyClass m) where
-    AnyClass x == AnyClass y = case cast y of
+    AnyClass x == AnyClass y = case Typeable.cast y of
         Just y' -> x == y'  -- same type, compare with its Eq
         _       -> False    -- not same type, never eq
 
@@ -118,7 +119,7 @@ data (Monad m, Typeable1 m) => MI m
 
 data MI_Type deriving Typeable
 instance (Typeable1 m, Monad m) => Show (MI m) where
-    show = show . clsName
+    show = ('^':) . cast . clsName
 instance (Typeable1 m, Monad m) => Ord (MI m) where
     compare x y = clsName x `compare` clsName y
 instance (Typeable1 m, Monad m) => Eq (MI m) where
