@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 26 Feb 2007
+  Last Modified: 28 Feb 2007
   Number: 2
-  Version: 90
+  Version: 91
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1503,11 +1503,12 @@ contextual.) If the variable is not visible in the caller, it returns
 failure.
 
 Any lexical declared with the C<is context> trait is by default
-considered readonly outside the current lexical scope.  You may add
-C<is rw> to allow called routines to modify your value.  C<$_>,
-C<$!>, and C<$/> are C<rw> by default.  In any event, your lexical
-scope can always access the variable as if it were an ordinary C<my>;
-the restriction on writing applies only to called subroutines.
+considered readonly outside the current lexical scope.  You may
+add a trait argument of C<< <rw> >> to allow called routines to
+modify your value.  C<$_>, C<$!>, and C<$/> are C<< context<rw> >>
+by default.  In any event, your lexical scope can always access the
+variable as if it were an ordinary C<my>; the restriction on writing
+applies only to called subroutines.
 
 =item *
 

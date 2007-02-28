@@ -1965,7 +1965,7 @@ I<subpattern>. For example:
         # |       subpattern  subpattern          |
         # |          __/\__    __/\__             |
         # |         |      |  |      |            |
-     ms/ (I am the (walrus), ( khoo )**{2} kachoo) /;
+      ms/ (I am the (walrus), ( khoo )**{2} kachoo) /;
 
 
 =item *
@@ -1996,7 +1996,7 @@ For example, if the following pattern matched successfully:
         # |         subpat-B  subpat-C            |
         # |          __/\__    __/\__             |
         # |         |      |  |      |            |
-     ms/ (I am the (walrus), ( khoo )**{2} kachoo) /;
+      ms/ (I am the (walrus), ( khoo )**{2} kachoo) /;
 
 then the C<Match> objects representing the matches made by I<subpat-B>
 and I<subpat-C> would be successively pushed onto the array inside I<subpat-
@@ -2062,7 +2062,7 @@ object, not to the array of C<$/>.
 
 =item *
 
-This behavior is quite different to Perl 5 semantics:
+This behavior is quite different from Perl 5 semantics:
 
       # Perl 5...
       #
@@ -2222,7 +2222,7 @@ branch of an alternation).
 =item *
 
 In particular, the index of capturing parentheses restarts after each
-C<|>. Hence:
+C<|> or C<||> (but not after each C<&> or C<&&>). Hence:
 
                   # $0      $1    $2   $3    $4           $5
      $tune_up = rx/ (don't) (ray) (me) (for) (solar tea), (d'oh!)
@@ -2282,7 +2282,7 @@ object. For example:
       # : $/<ident>   :        $/[0]<ident>         : :
       # :   __^__     :           __^__             : :
       # :  |     |    :          |     |            : :
-     ms/  <ident> \: ( known as <ident> previously ) /
+      ms/  <ident> \: ( known as <ident> previously ) /
 
 
 =back
@@ -2301,7 +2301,7 @@ C<$«bar»>, C<< $<baz> >>, etc.)  So the previous example also implies:
       #    $<ident>             $0<ident>
       #     __^__                 __^__
       #    |     |               |     |
-     ms/  <ident> \: ( known as <ident> previously ) /
+      ms/  <ident> \: ( known as <ident> previously ) /
 
 =item *
 
@@ -2409,10 +2409,10 @@ of those combinations.
 
 If a named scalar alias is applied to a set of I<capturing> parens:
 
-        #          ______/capturing parens\_____
-        #         |                             |
-        #         |                             |
-     ms/ $<key>:=( (<[A..E]>) (\d**{3..6}) (X?) ) /;
+        #          ______/capturing parens\______
+        #         |                              |
+        #         |                              |
+      ms/ $<key>:=( (<[A..E]>) (\d**{3..6}) (X?) ) /;
 
 then the outer capturing parens no longer capture into the array of
 C<$/> as unaliased parens would. Instead the aliased parens capture
@@ -2467,10 +2467,10 @@ name is the alias.
 
 If a named scalar alias is applied to a set of I<non-capturing> brackets:
 
-        #          ___/non-capturing brackets\__
-        #         |                             |
-        #         |                             |
-     ms/ $<key>:=[ (<[A..E]>) (\d**{3..6}) (X?) ] /;
+        #          ___/non-capturing brackets\___
+        #         |                              |
+        #         |                              |
+      ms/ $<key>:=[ (<[A..E]>) (\d**{3..6}) (X?) ] /;
 
 then the corresponding C<< $/<key> >> Match object contains only the string
 matched by the non-capturing brackets.
@@ -2580,28 +2580,28 @@ numbering semantics of nested Perl 5 subpatterns:
 
       # Perl 5...
       #               $1
-      #  _____________/\______________
-      # |    $2          $3       $4  |
-      # |  __/\___   ____/\____   /\  |
-      # | |       | |          | |  | |
-     m/ ( (<[A..E]>) (\d**{3..6}) (X?) ) /;
+      #  _____________/\___________
+      # |    $2        $3      $4  |
+      # |  __/\___   __/\___   /\  |
+      # | |       | |       | |  | |
+     m/ ( ( [A-E] ) (\d{3,6}) (X?) ) /x;
 
 
       # Perl 6...
-      #               $0
-      #  _____________/\______________
-      # |  $0[0]       $0[1]    $0[2] |
-      # |  __/\___   ____/\____   /\  |
-      # | |       | |          | |  | |
+      #                $0
+      #  ______________/\______________
+      # |   $0[0]       $0[1]    $0[2] |
+      # |  ___/\___   ____/\____   /\  |
+      # | |        | |          | |  | |
      m/ ( (<[A..E]>) (\d**{3..6}) (X?) ) /;
 
 
       # Perl 6 simulating Perl 5...
-      #                 $1
-      #  _______________/\________________
-      # |        $2          $3       $4  |
-      # |      __/\___   ____/\____   /\  |
-      # |     |       | |          | |  | |
+      #                  $1
+      #  ________________/\________________
+      # |         $2          $3       $4  |
+      # |      ___/\___   ____/\____   /\  |
+      # |     |        | |          | |  | |
      m/ $1:=[ (<[A..E]>) (\d**{3..6}) (X?) ] /;
 
 The non-capturing brackets don't introduce a scope, so the subpatterns within
@@ -2635,7 +2635,7 @@ contain an array, instead of a single C<Match> object.
 In other words, aliasing and quantification are completely orthogonal.
 For example:
 
-     if m/ mv $0:=<file>+ / {
+     if ms/ mv $0:=<file>+ / {
          # <file>+ returns a list of Match objects,
          # so $0 contains an array of Match objects,
          # one for each successful call to <file>
@@ -2644,7 +2644,7 @@ For example:
      }
 
 
-     if m/ mv $<from>:=(\S+ \s+)* / {
+     if m/ mv \s+ $<from>:=(\S+ \s+)* / {
          # Quantified subpattern returns a list of Match objects,
          # so $/<from> contains an array of Match
          # objects, one for each successful match of the subpattern
@@ -2676,7 +2676,7 @@ non-capturing brackets>). For example:
 An alias can also be specified using an array as the alias instead of a scalar.
 For example:
 
-     m/ mv @<from>:=[(\S+) \s+]* <dir> /;
+     m/ mv \s+ @<from>:=[(\S+) \s+]* <dir> /;
 
 =item *
 
@@ -2714,18 +2714,18 @@ If an array alias is applied to a quantified pair of non-capturing
 brackets, it captures the substrings matched by each repetition of the
 brackets into separate elements of the corresponding array. That is:
 
-     m/ mv $<files>:=[ f.. \s* ]* /; # $/<files> assigned a single
-                                     # Match object containing the
-                                     # complete substring matched by
-                                     # the full set of repetitions
-                                     # of the non-capturing brackets
+     ms/ mv $<files>:=[ f.. \s* ]* /; # $/<files> assigned a single
+                                      # Match object containing the
+                                      # complete substring matched by
+                                      # the full set of repetitions
+                                      # of the non-capturing brackets
 
-     m/ mv @<files>:=[ f.. \s* ]* /; # $/<files> assigned an array,
-                                     # each element of which is a
-                                     # Match object containing
-                                     # the substring matched by Nth
-                                     # repetition of the non-
-                                     # capturing bracket match
+     ms/ mv @<files>:=[ f.. \s* ]* /; # $/<files> assigned an array,
+                                      # each element of which is a
+                                      # Match object containing
+                                      # the substring matched by Nth
+                                      # repetition of the non-
+                                      # capturing bracket match
 
 =item *
 

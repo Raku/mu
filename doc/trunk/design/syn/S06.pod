@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 22 Feb 2007
+  Last Modified: 28 Feb 2007
   Number: 6
-  Version: 72
+  Version: 73
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -1609,21 +1609,12 @@ original argument. This is commonly known as "pass-by-value".
         print $text while $count-- > 0;
     }
 
-=item C<is context(I<TYPE>)>
+=item C<is context(I<ACCESS>)>
 
-Specifies the context that a parameter applies to its argument. Typically used
-to cause a final list parameter to apply a series of scalar contexts:
-
-    # &format may have as many arguments as it likes,
-    # each of which is evaluated in scalar context
-
-    sub format(*@data is context(Scalar)) {...}
-
-Note that the compiler may not be able to propagate such a scalar
-context to a function call used as an argument to a method or multisub
-whose signature is not visible until dispatch time.  Such function
-call arguments are called in list context by default, and must be
-coerced to scalar context explicitly if that is desired.
+Specifies that the parameter is to be treated as an "environmental"
+variable, that is, a lexical that is accessible from the dynamic
+scope (see S02).  If I<ACCESS> is omitted, defaults to readonly in
+any portions of the dynamic scope outside the current lexical scope.
 
 =back
 
