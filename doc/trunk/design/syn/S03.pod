@@ -573,8 +573,8 @@ infix:<?&>, boolean bitwise and
 =back
 
 Any bit shift operator may be turned into a rotate operator with the
-C<:rotate> adverb.  If C<:rotate> is specified, the default is
-unsigned, and you may not explicitly specify a C<:signed> adverb.
+C<:rotate> adverb.  If C<:rotate> is specified, the concept of
+sign extenstion is meaningless, and you may not specify a C<:signed> adverb.
 
 =head2 Additive precedence
 
