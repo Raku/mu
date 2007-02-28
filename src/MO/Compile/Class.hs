@@ -16,8 +16,10 @@ import qualified Pugs.Class.C3 as C3 (linearize)
 import Data.Maybe (maybeToList, fromJust)
 import qualified Data.Map as Map
 
+type ClassName = ID
+
 class (Typeable1 m, Monad m, Typeable c, Eq c) => Class m c | c -> m where
-    class_name               :: c -> String
+    class_name               :: c -> ClassName
     superclasses             :: c -> [AnyClass m]
 
     -- These three methods below are shared between all C3-happy classes.
@@ -66,7 +68,7 @@ class (Typeable1 m, Monad m, Typeable c, Eq c) => Class m c | c -> m where
 
     class_interface :: c -> AnyResponder m
     class_interface = AnyResponder
-                       . (fromMethodList :: [(String, MethodCompiled m)] -> m (MethodTable m))
+                       . (fromMethodList :: [(MethodName, MethodCompiled m)] -> m (MethodTable m))
                        . map (\m -> (methodName m, methodCompile m))
                        . all_methods
 
@@ -82,7 +84,7 @@ instance (Typeable1 m, Monad m) => Eq (AnyClass m) where
         _       -> False    -- not same type, never eq
 
 instance (Typeable1 m, Monad m) => Show (AnyClass m) where
-    show = class_name
+    show = show . class_name
 
 -- TODO: How hackish is instantiating the AnyMoose for the class Moose?
 -- Could it cause serious problems? Well, there's a DRY problem here, but
@@ -111,11 +113,15 @@ data (Monad m, Typeable1 m) => MI m
         , clsAttributes             :: [Attribute m]
         , clsPublicMethods          :: Collection (AnyMethod m)
         , clsPrivateMethods         :: Collection (AnyMethod m)
-        , clsName                   :: String
+        , clsName                   :: ClassName
         }
         -- deriving (Eq)
 
 data MI_Type deriving Typeable
+instance (Typeable1 m, Monad m) => Show (MI m) where
+    show = show . clsName
+instance (Typeable1 m, Monad m) => Ord (MI m) where
+    compare x y = clsName x `compare` clsName y
 instance (Typeable1 m, Monad m) => Eq (MI m) where
     x == y = clsName x == clsName y
 instance (Typeable1 m, Monad m) => Typeable (MI m) where
@@ -128,20 +134,23 @@ emptyMI = MkMI
     , clsAttributes     = []
     , clsPublicMethods  = newCollection []
     , clsPrivateMethods = newCollection []
-    , clsName           = ""
+    , clsName           = nullID
     }
+
+_bless :: MethodName
+_bless = _cast "bless"
 
 -- FIXME: Method then AnyMethod then MethodAttached then Anymethod again is ugly
 newMI :: (Typeable1 m, Monad m) => MI m -> MI m
 newMI old = new
     where attach = AnyMethod . MkMethodAttached new
-          withBless     = insert "bless"    (blessMI new)
+          withBless     = insert _bless (blessMI new)
           withCreate    = id -- insert "CREATE"   (createMI new)
           new = old { clsPublicMethods = cmap attach . withBless . withCreate $ clsPublicMethods old }
 
 blessMI :: Class m c => c -> AnyMethod m
 blessMI c = AnyMethod MkSimpleMethod
-    { smName = "bless"
+    { smName = _bless
     , smDefinition = MkMethodCompiled (HsCode constructor)
     }
     where

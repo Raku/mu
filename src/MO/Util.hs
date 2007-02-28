@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
-module MO.Util ( module MO.Util, trace ) where
+module MO.Util ( module MO.Util, module Pugs.Internals.ID, trace, _cast ) where
 
 import Data.Set (Set)
 import qualified Data.Set as Set
@@ -12,6 +12,8 @@ import Debug.Trace (trace)
 import Data.List (nub)
 import Data.Typeable
 import GHC.Exts (unsafeCoerce#, Word(W#), Word#)
+import Pugs.Internals.ID
+import Pugs.Internals.Cast (_cast)
 
 traceShow :: Show a => a -> b -> b
 traceShow = trace . show
@@ -38,7 +40,7 @@ addressOf x = W# (unsafeCoerce# x)
 data Ord a => Collection a
     = MkCollection
     { cByObject :: Set a
-    , cByName   :: Map String a
+    , cByName   :: Map ID a
     }
     deriving (Eq, Ord, Typeable)
 
@@ -54,20 +56,20 @@ cmap f c@MkCollection { cByName = bn } =
 
 -- FIXME: This is not really safe since we could add same object with different
 -- names. Must check how Set work and what MO's remove wanted.
-remove :: (Monad m, Ord a) => String -> a -> Collection a -> m (Collection a)
+remove :: (Monad m, Ord a) => ID -> a -> Collection a -> m (Collection a)
 remove name obj c@MkCollection{ cByObject = bo, cByName = bn } = do
     return $ MkCollection { cByObject = Set.delete obj bo
                           , cByName = Map.delete name bn
                           } 
 
-add :: (Monad m, Ord a) => String -> a -> Collection a -> m (Collection a)
+add :: (Monad m, Ord a) => ID -> a -> Collection a -> m (Collection a)
 add name obj c@MkCollection{ cByObject = bo, cByName = bn } = do
     when (includes_name c name) $ fail "can't insert: name confict"
     return $ MkCollection { cByObject = Set.insert obj bo
                           , cByName = Map.insert name obj bn
                           }
 
-insert :: (Ord a) => String -> a -> Collection a -> Collection a
+insert :: (Ord a) => ID -> a -> Collection a -> Collection a
 insert name obj c@MkCollection{ cByObject = bo, cByName = bn } =
     MkCollection { cByObject = Set.insert obj bo
                  , cByName = Map.insert name obj bn
@@ -77,36 +79,36 @@ emptyCollection :: Ord a => Collection a
 emptyCollection = newCollection []
 
 -- FIXME: checks for repetition
-newCollection :: Ord a => [(String, a)] -> Collection a
+newCollection :: Ord a => [(ID, a)] -> Collection a
 newCollection l = MkCollection { cByObject = os, cByName = ns }
     where os = Set.fromList (map snd l)
           ns = Map.fromList l
 
-newCollection' :: Ord a => (a -> String) -> [a] -> Collection a
+newCollection' :: Ord a => (a -> ID) -> [a] -> Collection a
 newCollection' f l = newCollection pairs
     where pairs = map (\x -> (f x, x)) l
 
-newCollectionMap :: Ord a => Map String a -> Collection a
+newCollectionMap :: Ord a => Map ID a -> Collection a
 newCollectionMap ns = MkCollection { cByObject = os, cByName = ns }
     where os = Set.fromList (Map.elems ns)
 
 items :: Ord a => Collection a -> [a]
 items c = Set.elems (cByObject c)
 
-items_named :: Ord a => Collection a -> [(String, a)]
+items_named :: Ord a => Collection a -> [(ID, a)]
 items_named = Map.toList . cByName
 
 includes :: Ord a => Collection a -> a -> Bool
 includes c obj = Set.member obj (cByObject c)
 
-includes_name :: Ord a => Collection a -> String -> Bool
+includes_name :: Ord a => Collection a -> ID -> Bool
 includes_name c name = Map.member name (cByName c)
 
 includes_any :: Ord a => Collection a -> [a] -> Bool
 includes_any c [] = False
 includes_any c (x:xs) = (includes c x) || (includes_any c xs)
 
-includes_any_name :: Ord a => Collection a -> [String] -> Bool
+includes_any_name :: Ord a => Collection a -> [ID] -> Bool
 includes_any_name c [] = False
 includes_any_name c (x:xs) = (includes_name c x) || (includes_any_name c xs)
 
@@ -117,7 +119,7 @@ includes_all c (x:xs) = (includes c x) && (includes_any c xs)
 shadow :: Ord a => [Collection a] -> [a]
 shadow = Map.elems . shadow'
 
-shadow' :: Ord a => [Collection a] -> Map String a
+shadow' :: Ord a => [Collection a] -> Map ID a
 shadow' = Map.unions . map cByName
 
 shadow_collection :: Ord a => [Collection a] -> Collection a
@@ -126,7 +128,7 @@ shadow_collection = newCollectionMap . shadow'
 merge :: Ord a => [Collection a] -> [a]
 merge = Map.elems . merge'
 
-merge' :: Ord a => [Collection a] -> Map String a
+merge' :: Ord a => [Collection a] -> Map ID a
 merge' = foldl (Map.unionWithKey (\k _ _ -> error ("merge conflict: " ++ show k))) Map.empty . map cByName
 
 merge_collection :: Ord a => [Collection a] -> Collection a

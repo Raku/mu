@@ -5,6 +5,8 @@ module MO.Compile where
 import MO.Base
 import MO.Util
 
+type MethodName = ID
+
 data AnyMethod m
     = forall a. Method m a => AnyMethod a
 
@@ -22,7 +24,7 @@ instance Show (AnyMethod m) where
 -- Method and friends
 
 class Monad m => Method m a | a -> m where
-    methodName      :: a -> String
+    methodName      :: a -> MethodName
     methodCompile   :: a -> MethodCompiled m
 
 instance Monad m => Method m (AnyMethod m) where
@@ -31,7 +33,7 @@ instance Monad m => Method m (AnyMethod m) where
 
 data SimpleMethod m
     = MkSimpleMethod
-        { smName        :: String
+        { smName        :: MethodName
         , smDefinition  :: MethodCompiled m
         }
 

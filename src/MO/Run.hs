@@ -12,7 +12,6 @@ import MO.Compile as C
 import Data.Map as M
 import Data.Typeable
 
-
 mkArgs :: (Typeable1 m, Monad m) => [Invocant m] -> Arguments m
 mkArgs = MkArguments
 
@@ -22,7 +21,7 @@ mkArgs = MkArguments
 
 data MethodInvocation m
     = MkMethodInvocation
-        { miName      :: String  
+        { miName      :: MethodName  
         , miArguments :: Arguments m
         }
 
@@ -33,7 +32,7 @@ data MethodInvocation m
 -- | This is a static method table.
 data MethodTable m
     = MkMethodTable
-        { mtMethods :: M.Map String (MethodCompiled m)
+        { mtMethods :: M.Map MethodName (MethodCompiled m)
         }
 
 emptyResponder :: (Typeable1 m, Monad m) => AnyResponder m
@@ -59,10 +58,10 @@ instance (Typeable1 m, Monad m) => Typeable (AnyResponder m) where
     typeOf x = typeOf (undefined :: m AnyResponder_Type)
 
 class Monad m => ResponderInterface m a | a -> m where
-    fromMethodList :: [(String, MethodCompiled m)] -> m a
+    fromMethodList :: [(MethodName, MethodCompiled m)] -> m a
     dispatch :: a -> Invocant m -> MethodInvocation m -> m (Invocant m)
     -- here for debugging purposes.
-    toNameList :: a -> [String]
+    toNameList :: a -> [MethodName]
 
 instance ResponderInterface m a => Show a where
     show = show . toNameList
@@ -75,8 +74,9 @@ instance (Typeable1 m, Monad m) => ResponderInterface m (MethodTable m) where
     toNameList = M.keys . mtMethods
 
 mtMethod :: Monad m => MethodTable a -> MethodInvocation m -> m (MethodCompiled a)
-mtMethod table inv@(MkMethodInvocation n _)
-    = M.lookup n (mtMethods table)
+mtMethod table inv@(MkMethodInvocation n _) = case M.lookup n (mtMethods table) of
+    Just r  -> return r
+    _       -> fail $ "No such method: " ++ show n
 
 data (Typeable1 m, Monad m) => Invocant m
     = forall a. (Show a, Eq a, Ord a, Typeable a) => MkInvocant

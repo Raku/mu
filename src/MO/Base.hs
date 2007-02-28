@@ -4,6 +4,7 @@ module MO.Base (module MO.Base, Invocant, stubInvocant) where
 import {-# SOURCE #-} MO.Run
 import Data.Maybe
 import Data.Typeable
+import Pugs.Internals.ID
 
 -- | open type to represent Code
 class Monad m => Codeable m c where
@@ -42,7 +43,7 @@ getInvocant (MkArguments xs) = listToMaybe xs
 toList :: (Typeable1 m, Monad m) => Arguments m -> [Invocant m]
 toList (MkArguments xs) = xs
 
-namedArg :: (Typeable1 m, Monad m) => Arguments m -> String -> Maybe (Invocant m)
+namedArg :: (Typeable1 m, Monad m) => Arguments m -> ID -> Maybe (Invocant m)
 namedArg _ _ = Nothing
 
 newtype Arguments m = MkArguments [Invocant m] deriving (Show)
