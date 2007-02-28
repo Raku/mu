@@ -40,7 +40,7 @@ valMeta _ = cast "Object"
 valShow :: Val -> PureStr
 valShow = cast "<opaque>"
 
-val :: (Show a, Boxable m a) => a -> (Invocant m)
+val :: Boxable Eval a => a -> Val
 val x = MkInvocant x (class_interface (classOf x))
 
 formatVal :: Val -> Doc
@@ -106,10 +106,23 @@ instance Boxable Eval PureSig
 instance Boxable Eval PureBit
 instance Boxable Eval ValCapt
 
+type PureClass = MI Eval
+instance Boxable Eval PureClass where
+    classOf _ = _PureClass
+
+_PureClass :: PureClass
+_PureClass = mkBoxClass "Class"
+    [ "HOW"         ... (const _PureClass :: PureClass -> PureClass)
+    ]
+
 instance Boxable Eval PureStr where
-    classOf _ = mkBoxClass "Str"
-        [ "reverse"    ... (MkStr . Str.reverse . unStr)
-        ]
+    classOf _ = _StrClass
+
+_StrClass :: PureClass
+_StrClass = mkBoxClass "Str"
+    [ "reverse"     ... (MkStr . Str.reverse . unStr)
+    , "HOW"         ... (const _StrClass)
+    ]
 
 {-
 module Pugs.Val (
