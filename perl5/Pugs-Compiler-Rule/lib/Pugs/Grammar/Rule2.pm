@@ -24,6 +24,8 @@ use v6-alpha;
             push @{ $named{'concat'} }, $match;
             push @{ $named{'conjunctive'} }, $match;
 
+update: also replace in 'conjunctive1' and 'disjunctive1'
+
 =cut
 
 grammar Pugs::Grammar::Rule;
@@ -417,7 +419,7 @@ token concat {
     }
 }
 
-token conjunctive {
+token conjunctive1 {
     [ <?ws>? \& ]?
     
     <concat>
@@ -428,13 +430,30 @@ token conjunctive {
     {             
       use v5;
         my @a = map {  $$_  }  @{ $::_V6_MATCH_->{'concat'} };
+        return { conjunctive1 => \@a ,}  if scalar @a > 1;
+        return $a[0];
+      use v6;
+    }
+}
+
+token conjunctive {
+    [ <?ws>? \& \& ]?
+    
+    <conjunctive1>
+    [
+        \& \& <conjunctive1> 
+    ]*
+    
+    {             
+      use v5;
+        my @a = map {  $$_  }  @{ $::_V6_MATCH_->{'conjunctive1'} };
         return { conjunctive => \@a ,}  if scalar @a > 1;
         return $a[0];
       use v6;
     }
 }
 
-token rule {
+token disjunctive1 {
     [ <?ws>? \| ]?
     
     <conjunctive>
@@ -445,6 +464,23 @@ token rule {
     {             
       use v5;
         my @a = map {  $$_  }  @{ $::_V6_MATCH_->{'conjunctive'} };
+        return { alt1 => \@a ,}  if scalar @a > 1;
+        return $a[0];
+      use v6;
+    }
+}
+
+token rule {
+    [ <?ws>? \| \| ]?
+    
+    <disjunctive1>
+    [
+        \| \| <disjunctive1> 
+    ]*
+    
+    {             
+      use v5;
+        my @a = map {  $$_  }  @{ $::_V6_MATCH_->{'disjunctive1'} };
         return { alt => \@a ,}  if scalar @a > 1;
         return $a[0];
       use v6;

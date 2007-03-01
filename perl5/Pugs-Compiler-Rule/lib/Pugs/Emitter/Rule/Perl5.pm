@@ -178,7 +178,7 @@ sub quant {
 }        
 sub alt {
     my @s;
-    
+    # print "Alt: ", Dumper($_[0]);
     my $count = $capture_count;
     my $max = -1;
     for ( @{$_[0]} ) { 
@@ -203,6 +203,7 @@ sub alt {
            join( ',', @s ) .
            "$_[1] ] )\n";
 }        
+sub alt1 { &alt }
 sub concat {
     my @s;
     for ( @{$_[0]} ) { 

@@ -97,6 +97,7 @@ sub alt {
     return 
         "(?:" . join( "|", @s ) . ")";
 }        
+sub alt1 { &alt }
 sub concat {
     return join( "",
         map { emit_rule( $_ ) } @{$_[0]}

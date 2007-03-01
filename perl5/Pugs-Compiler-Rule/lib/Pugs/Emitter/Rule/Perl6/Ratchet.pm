@@ -217,6 +217,7 @@ $_[1]     && ",
 $_[1]   )
 $_[1] )";
 }        
+sub alt1 { &alt }
 sub conjunctive {
     my @s;
     # print 'conjunctive: ';
