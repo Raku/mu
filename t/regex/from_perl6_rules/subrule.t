@@ -12,7 +12,7 @@ be valid perl6.
 
 =cut
 
-plan 18;
+plan 31;
 
 if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
