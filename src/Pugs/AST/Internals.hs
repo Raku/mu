@@ -57,7 +57,7 @@ module Pugs.AST.Internals (
     readRef, writeRef, clearRef, dumpRef, forceRef,
     askGlobal, writeVar, readVar,
     findSymRef, findSym, valType,
-    ifListContext, ifValTypeIsa, evalValType, fromVal', toVV',
+    ifListContext, ifValTypeIsa, evalValType, fromVal',
     scalarRef, codeRef, arrayRef, hashRef, thunkRef, pairRef,
     newScalar, newArray, newHash, newHandle, newObject,
     proxyScalar, constScalar, lazyScalar, lazyUndef, constArray,
@@ -100,7 +100,6 @@ import Pugs.AST.Pos
 import Pugs.AST.Scope
 import Pugs.AST.SIO
 import Pugs.Embed.Perl5
-import Pugs.Meta ()
 import qualified Pugs.Val as Val
 import qualified Data.ByteString.Char8 as Str
 import GHC.PArr
@@ -217,8 +216,6 @@ class (Typeable n, Show n, Ord n) => Value n where
     fromVV v = do
         str <- Val.asStr v
         fail $ "Cannot cast from VV (" ++ cast str ++ ") to " ++ errType (undefined :: n)
-    toVV :: n -> Eval Val
-    toVV = toVV' . castV
     fromSV :: PerlSV -> Eval n
     fromSV sv = do
         str <- liftIO $ svToVStr sv
@@ -246,15 +243,6 @@ fromVal' (PerlSV sv) = do
         val         -> fromVal val  -- it was a Val
 fromVal' (VV v) = fromVV v
 fromVal' v = doCast v
-
-toVV' :: Val -> Eval Val
-toVV' VUndef    = return . VV . Val.val $ ()
-toVV' (VBool v) = return . VV . Val.val $ ((cast v) :: Val.PureBit)
-toVV' (VInt v)  = return . VV . Val.val $ ((cast v) :: Val.PureInt)
-toVV' (VNum v)  = return . VV . Val.val $ ((cast v) :: Val.PureNum)
-toVV' (VRat v)  = return . VV . Val.val $ ((cast v) :: Val.PureNum)
-toVV' (VStr v)  = return . VV . Val.val $ ((cast v) :: Val.PureStr)
-toVV' x         = fail $ "don't know how to toVV': " ++ show x
 
 getArrayIndex :: Int -> Maybe (IVar VScalar) -> Eval IArray -> Maybe (Eval b) -> Eval (IVar VScalar)
 getArrayIndex idx def getArr _ | idx < 0 = do
@@ -616,9 +604,8 @@ vrefToSV ref = mkValRef (VRef ref) $ case ref of
 
 instance Value Val.Val where
     fromVal (VV vv) = return vv
-    fromVal v       = fromVal =<< toVV v
+    fromVal v       = castFailM v "VV"
     fromVV          = return
-    toVV            = return . VV
     castV           = VV
     doCast v = castFailM v "VV"
 

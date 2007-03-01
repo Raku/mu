@@ -34,6 +34,8 @@ import Text.Printf
 import Pugs.External
 import Pugs.Embed
 import Pugs.Eval.Var
+import Pugs.Meta ()
+import qualified Pugs.Val as Val
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 import Data.IORef
@@ -685,7 +687,16 @@ op1 "Class::traits" = \v -> do
     fetch   <- doHash meta hash_fetchVal
     str     <- fromVal =<< fetch "is"
     return str
-op1 "vv" = toVV'
+op1 "vv" = \v -> case v of
+    VV{}        -> return v
+    VUndef      -> return . VV . Val.val $ ()
+    VBool x     -> return . VV . Val.val $ ((cast x) :: Val.PureBit)
+    VInt x      -> return . VV . Val.val $ ((cast x) :: Val.PureInt)
+    VNum x      -> return . VV . Val.val $ ((cast x) :: Val.PureNum)
+    VRat x      -> return . VV . Val.val $ ((cast x) :: Val.PureNum)
+    VStr x      -> return . VV . Val.val $ ((cast x) :: Val.PureStr)
+    _           -> fail $ "don't know how to toVV: " ++ show v
+
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 
 op1IO :: Value a => (Handle -> IO a) -> Val -> Eval Val
