@@ -91,11 +91,14 @@ inv ./ meth = ivDispatch inv $ MkMethodInvocation meth (mkArgs [])
 
 type PureClass = MI Eval
 
+instance Boxable Eval a => Boxable Eval [a] where
+instance Boxable Eval ID
 instance Boxable Eval PureClass where
     classOf _ = _PureClass
 
 _PureClass :: PureClass
 _PureClass = mkBoxClass "Class"
     [ "HOW"         ... (const _PureClass :: PureClass -> PureClass)
+    , "methods"     ... (map methodName . all_methods)
     ]
 
