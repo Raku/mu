@@ -11,9 +11,9 @@
 
 module Pugs.Meta
     ( module Pugs.Meta.Str
-    , module Pugs.Meta.Class
+--  , module Pugs.Meta.Class
     ) where
 
 import Pugs.Meta.Str
-import Pugs.Meta.Class
+import Pugs.Meta.Class ()
 

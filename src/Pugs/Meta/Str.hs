@@ -12,5 +12,6 @@ _StrClass :: PureClass
 _StrClass = mkBoxClass "Str"
     [ "reverse"     ... (MkStr . Str.reverse . unStr)
     , "HOW"         ... (const _StrClass)
+    , "WHICH"       ... id
     ]
 
