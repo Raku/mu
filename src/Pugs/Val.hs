@@ -13,11 +13,9 @@ module Pugs.Val (
     module Pugs.Val.Code,
 ) where
 import Pugs.Class
-import Pugs.AST.Eval
 import Pugs.Val.Code
 import Pugs.Internals
 import Text.PrettyPrint
-import qualified Data.ByteString.Char8 as Str
 
 type Val = Invocant Eval
 
@@ -105,24 +103,6 @@ instance Boxable Eval PureNum
 instance Boxable Eval PureSig
 instance Boxable Eval PureBit
 instance Boxable Eval ValCapt
-
-type PureClass = MI Eval
-instance Boxable Eval PureClass where
-    classOf _ = _PureClass
-
-_PureClass :: PureClass
-_PureClass = mkBoxClass "Class"
-    [ "HOW"         ... (const _PureClass :: PureClass -> PureClass)
-    ]
-
-instance Boxable Eval PureStr where
-    classOf _ = _StrClass
-
-_StrClass :: PureClass
-_StrClass = mkBoxClass "Str"
-    [ "reverse"     ... (MkStr . Str.reverse . unStr)
-    , "HOW"         ... (const _StrClass)
-    ]
 
 {-
 module Pugs.Val (

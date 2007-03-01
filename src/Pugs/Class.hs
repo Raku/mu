@@ -13,6 +13,7 @@
 
 module Pugs.Class
     ( module Pugs.Class
+    , module Pugs.AST.Eval
     , module MO.Run
     , module MO.Compile
     , module MO.Compile.Class
@@ -87,3 +88,14 @@ mkBoxMethod (meth, fun) = AnyMethod $ MkSimpleMethod
 
 (./) :: (Typeable1 m, Monad m) => Invocant m -> ID -> m (Invocant m)
 inv ./ meth = ivDispatch inv $ MkMethodInvocation meth (mkArgs [])
+
+type PureClass = MI Eval
+
+instance Boxable Eval PureClass where
+    classOf _ = _PureClass
+
+_PureClass :: PureClass
+_PureClass = mkBoxClass "Class"
+    [ "HOW"         ... (const _PureClass :: PureClass -> PureClass)
+    ]
+

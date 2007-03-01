@@ -100,6 +100,7 @@ import Pugs.AST.Pos
 import Pugs.AST.Scope
 import Pugs.AST.SIO
 import Pugs.Embed.Perl5
+import Pugs.Meta ()
 import qualified Pugs.Val as Val
 import qualified Data.ByteString.Char8 as Str
 import GHC.PArr
@@ -247,14 +248,13 @@ fromVal' (VV v) = fromVV v
 fromVal' v = doCast v
 
 toVV' :: Val -> Eval Val
-toVV' VUndef   = return $ VV $ Val.val $ ()
-toVV' (VBool v)= return $ VV $ Val.val $ ((cast v) :: Val.PureBit)
-toVV' (VInt v) = return $ VV $ Val.val $ ((cast v) :: Val.PureInt)
-toVV' (VNum v) = return $ VV $ Val.val $ ((cast v) :: Val.PureNum)
-toVV' (VRat v) = return $ VV $ Val.val $ ((cast v) :: Val.PureNum)
-toVV' (VStr v) = return $ VV $ Val.val $ ((cast v) :: Val.PureStr)
-toVV' x = error $ "don't know how to toVV': " ++ show x
-
+toVV' VUndef    = return . VV . Val.val $ ()
+toVV' (VBool v) = return . VV . Val.val $ ((cast v) :: Val.PureBit)
+toVV' (VInt v)  = return . VV . Val.val $ ((cast v) :: Val.PureInt)
+toVV' (VNum v)  = return . VV . Val.val $ ((cast v) :: Val.PureNum)
+toVV' (VRat v)  = return . VV . Val.val $ ((cast v) :: Val.PureNum)
+toVV' (VStr v)  = return . VV . Val.val $ ((cast v) :: Val.PureStr)
+toVV' x         = fail $ "don't know how to toVV': " ++ show x
 
 getArrayIndex :: Int -> Maybe (IVar VScalar) -> Eval IArray -> Maybe (Eval b) -> Eval (IVar VScalar)
 getArrayIndex idx def getArr _ | idx < 0 = do
