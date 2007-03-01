@@ -11,13 +11,13 @@
 module Pugs.Val (
     module Pugs.Val,
     module Pugs.Val.Code,
+    Val
 ) where
 import Pugs.Class
+import Pugs.Val.Base
 import Pugs.Val.Code
 import Pugs.Internals
 import Text.PrettyPrint
-
-type Val = Invocant Eval
 
 asStr :: Val -> Eval PureStr
 asStr (MkInvocant x _) = return (cast (show x))

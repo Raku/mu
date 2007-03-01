@@ -2,13 +2,13 @@
 module Pugs.Val.Code where
 import Pugs.Internals
 import Pugs.Types
+import Pugs.Val.Base
 import Data.Monoid
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 import qualified Pugs.Types as Types
 
 import {-# SOURCE #-} Pugs.Exp
-import {-# SOURCE #-} Pugs.Val
 
 
 type Code = ()

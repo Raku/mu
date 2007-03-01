@@ -2,6 +2,10 @@
 
 module Pugs.Val.Base where
 
+import Pugs.Class
+type Val = Invocant Eval
+
+
 {-
 import qualified Data.ByteString.Char8 as Char8
 
