@@ -666,7 +666,7 @@ src/Pugs/PIL1.hs:
 src/Pugs/PIL2.hs:
 util/drift.pl:
 
-@{[ mk_drift_rules( qw(src/Emit/PIR src/Pugs/AST/Internals src/Pugs/PIL1 src/Pugs/PIL2 src/Pugs/MOP) ) ]}
+@{[ mk_drift_rules( qw(src/Emit/PIR src/Pugs/AST/Internals src/Pugs/PIL1 src/Pugs/PIL2) ) ]}
 
 haddock : $version_h $config_h @hppfiles dist/doc/html
 	haddock -t Pugs-$version -h -o dist/doc/html/ @hppfiles
