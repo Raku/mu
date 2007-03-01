@@ -22,9 +22,21 @@ token if {
         <?opt_ws>
         else <?opt_ws> 
         \{ <?opt_ws> <exp_stmts2> <?opt_ws> \}
-        { return ::If( 'cond' => $$<exp>, 'body' => $$<exp_stmts>, 'otherwise' => $$<exp_stmts2> ) }
+        { 
+            return ::If( 
+                'cond' => $$<exp>, 
+                'body' => $$<exp_stmts>, 
+                'otherwise' => $$<exp_stmts2>,
+            );
+        }
     |
-        { return ::If( 'cond' => $$<exp>, 'body' => $$<exp_stmts>, 'otherwise' => [ ] ) }
+        { 
+            return ::If( 
+                'cond' => $$<exp>, 
+                'body' => $$<exp_stmts>, 
+                'otherwise' => [ ],
+             ) 
+        }
     ]
 };
 

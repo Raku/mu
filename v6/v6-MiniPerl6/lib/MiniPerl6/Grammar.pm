@@ -311,7 +311,7 @@ grammar MiniPerl6::Grammar {
 
 
 token val_undef {
-    undef
+    undef <!before \w >
     { return ::Val::Undef( ) }
 };
 
