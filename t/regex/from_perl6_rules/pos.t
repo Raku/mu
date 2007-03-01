@@ -27,7 +27,7 @@ ok(eval(q{$/.pos == 3}), 'Match pos is 3');
 ok(!( $str ~~ m/ Z .+ a / ), 'No match');
 ok(eval(q{!defined($/.pos)}), 'Match pos is undef');
 
-rule Aa { A .* a }
+regex Aa { A .* a }
 ok($str ~~ m/ .*? <Aa> /, 'Subrule match from 3');
 ok(eval(q{$/.pos == 0}), 'Full match pos is 0');
 ok(eval(q{$/<Aa>.pos == 3}), 'Subrule match pos is 3');

@@ -58,7 +58,7 @@ ok("bookkeeper" ~~ m/(((\w)$0[0][0])+)/, 'Backreference', :todo<feature>);
 is($0, 'ookkee', 'Captured', :todo<feature>);
 is(try { $0[0] }, 'ee', 'Captured', :todo<feature>);
 
-rule single { o | k | e };
+regex single { o | k | e };
 
 ok(eval(' "bookkeeper" ~~ m/<single> ($/<single>)/ '), 'Named backref', :todo<feature>);
 is($/<single>, 'o', 'Named capture', :todo<feature>);
@@ -83,9 +83,9 @@ is(q|$0|, '$'~'1', 'Non-translation of non-interpolated q|$0|', :todo<feature>);
 is(eval(q/ q#$0#, '$'~'0' /), 'Non-translation of non-interpolated q#$0#', :todo<feature>);
 
 
-grammar English { rule name { john } }
-grammar French  { rule name { jean } }
-grammar Russian { rule name { ivan } }
+grammar English { regex name { john } }
+grammar French  { regex name { jean } }
+grammar Russian { regex name { ivan } }
 
 ok("john" ~~ m/<?English.name> | <?French.name> | <?Russian.name>/, 'English name', :todo<feature>);
 is($/, "john", 'Match is john', :todo<feature>);
@@ -100,7 +100,7 @@ ok("ivan" ~~ m/<?English.name> | <?French.name> | <?Russian.name>/, 'Russian nam
 is($/, "ivan", 'Match is ivan', :todo<feature>);
 is($/<name>, "ivan", 'Name is ivan', :todo<feature>);
 
-rule name { <?English.name> | <?French.name> | <?Russian.name> }
+regex name { <?English.name> | <?French.name> | <?Russian.name> }
  
 ok("john" ~~ m/<name>/, 'English metaname', :todo<feature>);
 is($/, "john", 'Metaname match is john', :todo<feature>);

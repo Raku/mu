@@ -19,10 +19,10 @@ if !eval('("a" ~~ /a/)') {
   exit;
 }
 
-rule abc {abc}
+regex abc {abc}
 
 
-rule once {<?abc>}
+regex once {<?abc>}
 
 ok("abcabcabcabcd" ~~ m/<?once>/, 'Once match');
 ok($/, 'Once matched');
@@ -31,7 +31,7 @@ ok(@$/ == 0, 'Once no array capture');
 ok(%$/.keys == 0, 'Once no hash capture');
 
 
-rule rep {<?abc>**{4}}
+regex rep {<?abc>**{4}}
 
 ok("abcabcabcabcd" ~~ m/<?rep>/, 'Rep match');
 ok($/, 'Rep matched');
@@ -40,7 +40,7 @@ ok(@$/ == 0, 'Rep no array capture');
 ok(%$/.keys == 0, 'Rep no hash capture');
 
 
-rule cap {<abc>}
+regex cap {<abc>}
 
 ok("abcabcabcabcd" ~~ m/<cap>/, 'Cap match');
 ok($/, 'Cap matched');
@@ -51,7 +51,7 @@ is($/<cap><abc>, "abc", 'Cap abc captured');
 ok(@$/ == 0, 'Cap no array capture');
 ok(%$/.keys == 1, 'Cap hash capture');
 
-rule repcap {<abc>**{4}}
+regex repcap {<abc>**{4}}
 
 ok("abcabcabcabcd" ~~ m/<repcap>/, 'Repcap match');
 ok($/, 'Repcap matched');
@@ -64,7 +64,7 @@ is(eval('$/<repcap><abc>[3]'), "abc", 'Repcap abc three captured');
 ok(@$/ == 0, 'Repcap no array capture');
 
 
-rule caprep {(<?abc>**{4})}
+regex caprep {(<?abc>**{4})}
 
 ok("abcabcabcabcd" ~~ m/<caprep>/, 'Caprep match');
 ok($/, 'Caprep matched');

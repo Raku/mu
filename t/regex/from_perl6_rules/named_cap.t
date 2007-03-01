@@ -31,7 +31,7 @@ ok("abcd" ~~ m/a  $1:=(.) $0:=(.) d/, 'Reverse capture');
 is($0, "c", '$0 captured');
 is($1, "b", '$1 captured');
 
-rule two {..}
+regex two {..}
 
 ok("abcd" ~~ m/a  $<foo>:=[<two>]  d/, 'Compound hypothetical capture');
 is($/<two>, "bc", 'Implicit hypothetical variable captured');

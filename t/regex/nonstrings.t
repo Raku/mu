@@ -13,8 +13,8 @@ L<S05/"Matching against non-strings">
 # String-like things...
 
 my $fh = open($?FILE);
-rule monster { dr\wgon }; # contrived pattern which does not match itself; we're going to look for it in this file
-rule cheese { camembert | cheddar  };
+regex monster { dr\wgon }; # contrived pattern which does not match itself; we're going to look for it in this file
+regex cheese { camembert | cheddar  };
 my $stream;
 eval '$stream := cat =$fh';
 
@@ -29,14 +29,14 @@ my Fish $c;
 
 my @array = ($a, $b, $c);
 
-ok(eval('rule canine { <.isa(Dog)> }; @array ~~ /<canine>/'), 'rules on an array - positive', :todo<feature>);
-ok(eval('rule herbivore { <.isa(Antelope)> }; ! @array ~~ /<herbivore>/'), 'rules on an array - negative', :todo<feature>);
+ok(eval('regex canine { <.isa(Dog)> }; @array ~~ /<canine>/'), 'rules on an array - positive', :todo<feature>);
+ok(eval('regex herbivore { <.isa(Antelope)> }; ! @array ~~ /<herbivore>/'), 'rules on an array - negative', :todo<feature>);
 # These seem to be failing for some sort of scoping error rather than a problem with the 
-# rule matching itself.
+# regex matching itself.
 
 # And matching against each element of an array... a different topic really, but it's still in
 # that bit of the synopsis.
 
 my @names = ('zaphod', 'ford', 'arthur', 'slartibartfast');
-my $arrr = rule { ar };
+my $arrr = regex { ar };
 is(eval('@names>>.match($arrr)'), 2, 'matching with hyper-operator', :todo<feature>);

@@ -19,16 +19,16 @@ if !eval('("a" ~~ /a/)') {
 } else {
 
 grammar Other {
-    rule abc { a (<?bee>) c }
+    regex abc { a (<?bee>) c }
 
-    rule bee { b }
+    regex bee { b }
 
-    rule def { d <eh> f }
+    regex def { d <eh> f }
 
-    rule eh  { e }
+    regex eh  { e }
 }
 
-rule bee { B }
+regex bee { B }
 
 ok('abc' ~~ m/^ (<?Other.abc>) $/, '<?Other.abc>', :todo<feature>);
 is($/, "abc", 'abc $/', :todo<feature>);

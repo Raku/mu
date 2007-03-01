@@ -72,7 +72,7 @@ ok(exists(%foo,<y>), 'Package hash key 2 captured');
 ok(eval(q{!defined(%foo{y})}), 'Package hash value 2 not captured');
 ok(%foo.keys == 2, 'No extra package hash captures');
 
-rule two {..}
+regex two {..}
 
 ok("abcd" ~~ m/a  %<foo>:=[<two>]  d/, 'Compound hash capture');
 is($/<two>, "bc", 'Implicit subrule variable captured');
@@ -95,7 +95,7 @@ ok(exists($/<spaces>,<"\t">), 'Inner hash capture key 3');
 ok(eval(q{!defined($/<spaces>{"\t"})}), 'Inner hash no capture value 3');
 ok($/<spaces>.keys == 3, 'Inner hash no extra captures');
 
-rule spaces { @<spaces>:=[\s+] }
+regex spaces { @<spaces>:=[\s+] }
 
 ok("  a b\tc" ~~ m/%<chars>:=( <spaces> (\S+))+/, 'Subrule hash capture');
 

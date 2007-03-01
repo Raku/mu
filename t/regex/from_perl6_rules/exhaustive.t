@@ -105,13 +105,13 @@ ok(eval(q{$/.matches[2]<art>}),  'an',    'Capture 2 art');
 ok(eval(q{$/.matches[2]<noun>}), 'arrow', 'Capture 2 noun');
 
 
-rule subj  { <?noun> }
-rule obj   { <?noun> }
-rule noun  { time | flies | arrow }
-rule verb  { flies | like | time }
-rule adj   { time }
-rule art   { an? }
-rule prep  { like }
+regex subj  { <?noun> }
+regex obj   { <?noun> }
+regex noun  { time | flies | arrow }
+regex verb  { flies | like | time }
+regex adj   { time }
+regex art   { an? }
+regex prep  { like }
 
 ok("time   flies   like    an     arrow" ~~
     m:s:ex/^ [ <adj>  <subj> <verb> <art> <obj>

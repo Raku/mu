@@ -43,7 +43,7 @@ my @foo;
 ok("abcxyd" ~~ m/a  @foo:=(.(.))+  d/, 'Package array capture');
 is("@foo[]", "c y", 'Package array captured');
 
-rule two {..}
+regex two {..}
 
 ok("abcd" ~~ m/a  @<foo>:=(<two>)  d/, 'Compound hypothetical capture');
 {
@@ -57,7 +57,7 @@ ok("  a b\tc" ~~ m/@<chars>:=( @<spaces>:=[\s+] (\S+))+/, 'Nested array capture'
 is("@<chars>", "a b c", 'Outer array capture');
 is(join("|", @<spaces>), "  | |\t", 'Inner array capture');
 
-rule spaces { @<spaces>:=[(\s+)] }
+regex spaces { @<spaces>:=[(\s+)] }
 
 ok("  a b\tc" ~~ m/@<chars>:=( <spaces> (\S+))+/, 'Subrule array capture');
 

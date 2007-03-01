@@ -16,7 +16,7 @@ if !eval('("a" ~~ /a/)') {
 
 force_todo(1,4,5,6,9,10);
 
-rule bc { b?c }
+regex bc { b?c }
 
 ok("a cdef" ~~ m/<after a <?sp> c> def/, 'Lookbehind');
 ok(!( "acdef" ~~ m/<after a <?sp> c> def/ ), 'Lookbehind failure');

@@ -19,13 +19,13 @@ if !eval('("a" ~~ /a/)') {
 } else {
 
 grammar Other {
-    rule abc { a (<?bee>) c }
+    regex abc { a (<?bee>) c }
 
-    rule bee { b }
+    regex bee { b }
 
-    rule def { d <eh> f }
+    regex def { d <eh> f }
 
-    rule eh  { e }
+    regex eh  { e }
 }
 
 grammar Another is Other {
@@ -33,9 +33,9 @@ grammar Another is Other {
 
 grammar Yet::Another is Another {
 
-    rule bee { B }
+    regex bee { B }
 
-    rule def { D <eh> F }
+    regex def { D <eh> F }
 }
 
 # Test derivation and Liskov substitutability...
