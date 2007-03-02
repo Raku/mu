@@ -63,11 +63,11 @@ package Regexp::ModuleA::ReentrantEngine;
     s/\bLET\(([^\)]+)\)\{/_let_gen($1)/eg;
     s/\}LET;/_let_end().";"/eg;
     s/\bFAIL_IF_FAILED\(([^\)]+)\);/return($1) if FAILED($1);/g;
-    s/\bFAIL\(([^\)]{0,0})\)/return undef/g;
-    s/\bFAIL_SEQUENCE\(([^\)]{0,0})\)/die "fail sequence\n"/g;
-    s/\bFAIL_GROUP\(([^\)]{0,0})\)/die "fail group\n"/g;
-    s/\bFAIL_REGEX\(([^\)]{0,0})\)/die "fail regex\n"/g;
-    s/\bFAIL_MATCH\(([^\)]{0,0})\)/die "fail match\n"/g;
+    s/\bFAIL\(\)/return(undef)/g;
+    s/\bFAIL_SEQUENCE\(\)/die("fail sequence\\n")/g;
+    s/\bFAIL_GROUP\(\)/die("fail group\\n")/g;
+    s/\bFAIL_REGEX\(\)/die("fail regex\\n")/g;
+    s/\bFAIL_MATCH\(\)/die("fail match\\n")/g;
     s/\bFAILED\(([^\)]+)\)/(!defined($1)||(!ref($1)&&($1<=0)))/g;
     s/\bTAILCALL\(([^,\)]+),?([^\)]*)\);/\@_=($2);goto \&$1;/g;
     $_;
@@ -278,6 +278,7 @@ local $Regexp::ModuleA::ReentrantEngine::Env::nested_data;
 \n subname '<concat '.(\$sub_id++).'>' => sub {my \$cn = \$_[0]; \@_=".$code1."\$cn".$code2.";goto \&\$f0}\n";
     eval($code) || die "$@";
   }   
+
   my $repeat_id = 1;
   our(%repeat_count,%repeat_previous_pos);
   local %repeat_count;
@@ -325,20 +326,14 @@ local $Regexp::ModuleA::ReentrantEngine::Env::nested_data;
     };
   }
   sub RMARE_capture {
-    my($o,$idx,$f,$is6,$nparen6,$in_quant,$in_quant_directly)=@_;
+    my($o,$idx,$f,$is6,$nparen6,$in_quant,$target_spec)=@_;
     my $myid = $sub_id++;
-    subname "<capture ".($myid).">" => sub {
-      my $c = $_[0];
+    my $foo = subname '<capture-body '.($myid).">" => sub {
+      my($c,$m)=@_;
 
       my $from = $Regexp::ModuleA::ReentrantEngine::Env::pos;
       my $nd = $Regexp::ModuleA::ReentrantEngine::Env::nested_data;
       my $leaf = $Regexp::ModuleA::ReentrantEngine::Env::leaf_match;
-
-      my $m = Regexp::ModuleA::ReentrantEngine::Match0->new_failed();
-      if($is6) {
-        my $a = [map{Regexp::ModuleA::ReentrantEngine::Match0->new_failed()} (1..$nparen6)];
-        $$m->{match_array} = $a;
-      }
 
       my $close = subname '<capture-close '.($myid).">" => sub {
         my $c0 = $_[0];
@@ -354,31 +349,70 @@ local $Regexp::ModuleA::ReentrantEngine::Env::nested_data;
         return $v;
       };
 
-      return LET($$Regexp::ModuleA::ReentrantEngine::Env::leaf_match->{match_array}){
-        my $newa = [@{$$Regexp::ModuleA::ReentrantEngine::Env::leaf_match->{match_array}}];
-        $$Regexp::ModuleA::ReentrantEngine::Env::leaf_match->{match_array} = $newa;
-        if($is6 && $in_quant) {
-          my $onto = $newa->[$idx];
-          $onto = [] if ref($onto) ne 'ARRAY';
-          $onto = [@$onto,$m];
-          $newa->[$idx] = $onto;
-        } else {
-          $newa->[$idx] = $m;
-        }
+      local $Regexp::ModuleA::ReentrantEngine::Env::leaf_match = $is6 ? $m : $leaf;
 
-        local $Regexp::ModuleA::ReentrantEngine::Env::leaf_match = $is6 ? $m : $leaf;
-
-        my $v = eval { $f->($close) }; #try
-        if($@) {
-          die $1 if $@ =~ /^jump (.+)/s;
-          die $@ unless $@ eq "fail group\n" || $@ eq "fail sequence\n";
-          $m->match_set_as_failed;
-          FAIL();
-        }
-        $m->match_set_as_failed if FAILED($v);
-        $v;
-      }LET;
+      my $v = eval { $f->($close) }; #try
+      if($@) {
+        die $1 if $@ =~ /^jump (.+)/s;
+        die $@ unless $@ eq "fail group\n" || $@ eq "fail sequence\n";
+        $m->match_set_as_failed;
+        FAIL();
+      }
+      $m->match_set_as_failed if FAILED($v);
+      $v;
     };
+#    my $code = 'sub { $foo->(@_) }';
+#    my $spec = ['['=>$idx];
+    my $spec = $target_spec ? [@$target_spec] : ['$/','['=>$idx];
+    my $root = shift(@$spec);
+    my $top = '$$Regexp::ModuleA::ReentrantEngine::Env::leaf_match';
+    my($copy,$access);
+    my $localize = $top;
+    for(my $i=0;$i<@$spec;$i+=2){
+      my($flag,$key)=($spec->[$i],$spec->[$i+1]);
+      my $is_final = $i == (@$spec - 2);
+      if($flag eq '['){
+        $localize .= '->{match_array}';
+        $localize .= "[$key]" if !$is_final;
+        if($is_final){
+          $copy = '[@{'.$localize.'}]';
+          $access = "[$key]";
+        }
+      } elsif($flag eq '{'){
+        $localize .= '->{match_hash}';
+        $localize .= "{$key}" if !$is_final;
+        if($is_final){
+          $copy = '{%{'.$localize.'}}';
+          $access = "{$key}";
+        }
+      } else { die "bug" };
+    }
+    my $code = '
+sub {
+  my($c)=@_;
+      my $m = Regexp::ModuleA::ReentrantEngine::Match0->new_failed();
+      if($is6) {
+        my $a = [map{Regexp::ModuleA::ReentrantEngine::Match0->new_failed()} (1..$nparen6)];
+        $$m->{match_array} = $a;
+      }
+      return LET('.$localize.'){
+        my $newa = '.$copy.';
+        '.$localize.' = $newa;
+        if($is6 && $in_quant) {
+          my $onto = $newa->'.$access.';
+          $onto = [] if ref($onto) ne \'ARRAY\';
+          $onto = [@$onto,$m];
+          $newa->'.$access.' = $onto;
+        } else {
+          $newa->'.$access.' = $m;
+        }
+  $foo->($c,$m);
+      }LET;
+}';
+#print STDERR $code;
+    my $capf = subname "<capture ".($myid).">" => eval($code);
+    die "bug $@" if $@;
+    $capf;
   }
   sub RMARE_subrule {
     my($o,$fetch,$pkg,$name,$args,$neg,$nocap,$in_quant)=@_;
@@ -648,6 +682,13 @@ local $Regexp::ModuleA::ReentrantEngine::Env::nested_data;
     $o->RMARE_concat($o->{exprs});
   }
   
+  # .. := ...
+  package Regexp::ModuleA::AST::Alias;
+  sub RMARE_emit {
+    my($o)=@_;
+    $o->{expr}->RMARE_emit;
+  }
+
   # (?:a)
   package Regexp::ModuleA::AST::Grp;
   sub RMARE_emit {
@@ -660,14 +701,14 @@ local $Regexp::ModuleA::ReentrantEngine::Env::nested_data;
   sub RMARE_emit {
     my($o)=@_;
     my $in_quant = $o->{in_quant} ? 1 : 0;
-    my $in_quant_directly = $o->{in_quant} eq 'directly'; #X needed?
+    my $target_spec = $o->{target_spec};
     my $is6 = !$o->{flags}{'p5'};
     my $idx = ($is6
                ? $o->{cap6_idx}
                : $o->{cap5_idx});
     my $f = $o->{expr}->RMARE_emit;
     $o->RMARE_capture($idx,$f,$is6,$o->{nparen6},
-                      $in_quant,$in_quant_directly);
+                      $in_quant,$target_spec);
   }
   
   # \1
@@ -694,7 +735,10 @@ local $Regexp::ModuleA::ReentrantEngine::Env::nested_data;
       my $pkg9 = $Regexp::ModuleA::ReentrantEngine::Env::pkg || $pkg;
       die "assert" if !defined $pkg9;
       no strict;
-      my $f = $pkg9->$name($name)->(' api0');
+      my $f;
+      eval { $f = $pkg9->$name($name)->(' api0'); };
+      Carp::confess $@ if $@;
+      die if $@;
       use strict;
       die "assert" if !defined $f;
       $f;
@@ -727,7 +771,7 @@ local $Regexp::ModuleA::ReentrantEngine::Env::nested_data;
   }    
   
   # regex foo /a/; rule foo /a/; token foo /a/
-  package Regexp::ModuleA::AST::Bind;
+  package Regexp::ModuleA::AST::Biind;
   use Sub::Name;
   sub RMARE_emit {
     my($o)=@_;
@@ -1123,12 +1167,10 @@ sub{my $__c__ = $_[0];
 # 
 {
   package Regexp::ModuleA::AST::Make0;
-  BEGIN{
   require Exporter;
   @Regexp::ModuleA::AST::Make0::ISA=qw(Exporter);
-  @Regexp::ModuleA::AST::Make0::EXPORT_OK = qw(pat5 mod_expr mod_inline exact quant quant_ng alt conj seq cap grp sr aregex aregexm bind namespace  backref  ques star plus  ques_ng star_ng plus_ng  inf  code coderx independent conditional lookaround commit_sequence commit_group commit_regex commit_match);
+  @Regexp::ModuleA::AST::Make0::EXPORT_OK = qw(pat5 mod_expr mod_inline exact quant quant_ng alt conj seq cap grp sr alias aregex aregexm biind namespace  backref  ques star plus  ques_ng star_ng plus_ng  inf  code coderx independent conditional lookaround commit_sequence commit_group commit_regex commit_match);
   @Regexp::ModuleA::AST::Make0::EXPORT    = @Regexp::ModuleA::AST::Make0::EXPORT_OK;
-  }
   sub pat5 { Regexp::ModuleA::AST::Pat5->new(@_) }
   sub mod_expr { Regexp::ModuleA::AST::Mod_expr->new(@_) }
   sub mod_inline { Regexp::ModuleA::AST::Mod_inline->new(@_) }
@@ -1141,9 +1183,10 @@ sub{my $__c__ = $_[0];
   sub cap { Regexp::ModuleA::AST::Cap->new(@_) }
   sub grp { Regexp::ModuleA::AST::Grp->new(@_) }
   sub sr { my($pkg)=caller; Regexp::ModuleA::AST::Subrule->new($pkg,shift,[@_]) }
+  sub alias { Regexp::ModuleA::AST::Alias->new(@_) }
   sub aregex { Regexp::ModuleA::AST::ARegex->new('',@_) }
   sub aregexm { Regexp::ModuleA::AST::ARegex->new(@_) }
-  sub bind { my($pkg)=caller; Regexp::ModuleA::AST::Bind->new($pkg,@_) }
+  sub biind { my($pkg)=caller; Regexp::ModuleA::AST::Biind->new($pkg,@_) }
   sub namespace { my($pkg)=caller; Regexp::ModuleA::AST::Namespace->new($pkg,@_) }
 
   sub backref { Regexp::ModuleA::AST::Backref->new(@_) }
@@ -1181,9 +1224,10 @@ sub{my $__c__ = $_[0];
   sub cap {shift; Regexp::ModuleA::AST::Cap->new(@_) }
   sub grp {shift; Regexp::ModuleA::AST::Grp->new(@_) }
   sub sr {my $pkg = shift; Regexp::ModuleA::AST::Subrule->new($pkg,shift,[@_]) }
+  sub alias {shift; Regexp::ModuleA::AST::Alias->new(@_) }
   sub aregex {shift; Regexp::ModuleA::AST::ARegex->new('',@_) }
   sub aregexm {shift; Regexp::ModuleA::AST::ARegex->new(@_) }
-  sub bind {my $pkg = shift; Regexp::ModuleA::AST::Bind->new($pkg,@_) }
+  sub biind {my $pkg = shift; Regexp::ModuleA::AST::Biind->new($pkg,@_) }
   sub namespace {my $pkg = shift; Regexp::ModuleA::AST::Namespace->new($pkg,@_) }
 
   sub backref {shift; Regexp::ModuleA::AST::Backref->new(@_) }
@@ -1384,11 +1428,16 @@ sub{my $__c__ = $_[0];
   }
   sub RAST_pass1 {
     my($o)=@_;
+    $o->{cap6_idx} = $Regexp::ModuleA::AST::Env::nparen6_idx++;
     $o->{cap5_idx} = $Regexp::ModuleA::AST::Env::nparen++;
-    $o->{cap6_idx} = $Regexp::ModuleA::AST::Env::nparen6++;
+    $Regexp::ModuleA::AST::Env::nparen6 = $Regexp::ModuleA::AST::Env::nparen6_idx
+      if $Regexp::ModuleA::AST::Env::nparen6 < $Regexp::ModuleA::AST::Env::nparen6_idx;
     $o->{flags} = {%$Regexp::ModuleA::AST::Env::flags};
+    $o->{target_spec} = $Regexp::ModuleA::AST::Env::target_spec;
     local $Regexp::ModuleA::AST::Env::flags = {%$Regexp::ModuleA::AST::Env::flags};
     local $Regexp::ModuleA::AST::Env::nparen6 = 0;
+    local $Regexp::ModuleA::AST::Env::nparen6_idx = 0;
+    local $Regexp::ModuleA::AST::Env::target_spec = undef;
     $o->{expr}->RAST_pass1;
     $o->{nparen6} = $Regexp::ModuleA::AST::Env::nparen6;
   }
@@ -1411,6 +1460,40 @@ sub{my $__c__ = $_[0];
     my($o)=@_;
     $o->{flags} = {%$Regexp::ModuleA::AST::Env::flags};
     local $Regexp::ModuleA::AST::Env::flags = {%$Regexp::ModuleA::AST::Env::flags};
+    $o->{expr}->RAST_pass1;
+  }
+
+  # AST::Alias
+  package Regexp::ModuleA::AST::Alias;
+  @Regexp::ModuleA::AST::Alias::ISA=qw(Regexp::ModuleA::AST::BaseClass);
+  sub new {
+    my($cls,$target,$expr)=@_;
+    $target =~ /^([\$\@\%](?:[[:alpha:]_][\w:]+|\/)?)(.*)$/ or die "bug";
+    my($root,$rest)=($1,$2);
+    my @parts;
+    if($rest =~ /^(\d+)(.*)/) {
+      push(@parts,'['=>$1);
+      $rest = $2;
+    }
+    while($rest ne ""){
+      $rest =~ /^((<)(\w+)>|(\[)(\d+)\])(.*)/ or die "bug";
+      my $key = $3 || $5;
+      my $kind = $2 || $4;
+      $kind = {'['=>'[','{'=>'{','<'=>'{'}->{$kind};
+      push(@parts,$kind=>$key);
+      $rest = $6;
+    }
+    $root .= '/' if length($root) == 1;
+    unshift(@parts,$root);
+    my $target_spec = \@parts;
+    bless {target=>$target,target_spec=>$target_spec,expr=>$expr}, $cls;
+  }
+  sub RAST_pass1 {
+    my($o)=@_;
+    my $spec = $o->{target_spec};
+    my $idx = (@$spec == 3 && $spec->[1] eq '[') ? $spec->[2] : undef;
+    $Regexp::ModuleA::AST::Env::nparen6_idx = $idx if defined($idx);
+    local $Regexp::ModuleA::AST::Env::target_spec = $spec;
     $o->{expr}->RAST_pass1;
   }
 
@@ -1444,18 +1527,18 @@ sub{my $__c__ = $_[0];
   }
   sub RAST_pass1 {
     my($o)=@_;
-    my $start = $Regexp::ModuleA::AST::Env::nparen6;
+    my $start = $Regexp::ModuleA::AST::Env::nparen6_idx;
     my $max = $start;
     my $x = [map{
-      local $Regexp::ModuleA::AST::Env::nparen6 = $start;
+      local $Regexp::ModuleA::AST::Env::nparen6_idx = $start;
       my $x1 = $_->RAST_pass1;
-      my $np = $Regexp::ModuleA::AST::Env::nparen6;
+      my $np = $Regexp::ModuleA::AST::Env::nparen6_idx;
       $max = $np if $max < $np;
       $x1;
     } @{$o->{exprs}}];
     $o->{cap6_idx_start} = $start;
     $o->{nparen6} = $max - $start;
-    $Regexp::ModuleA::AST::Env::nparen6 = $max;
+    $Regexp::ModuleA::AST::Env::nparen6_idx = $max;
     $x;
   }
 
@@ -1540,7 +1623,9 @@ sub{my $__c__ = $_[0];
     $o->{name} = $Regexp::ModuleA::AST::Env::name;
     local $Regexp::ModuleA::AST::Env::nparen = 0;
     local $Regexp::ModuleA::AST::Env::nparen6 = 0;
+    local $Regexp::ModuleA::AST::Env::nparen6_idx = 0;
     local $Regexp::ModuleA::AST::Env::flags = {%{$o->{mods}}};
+    local $Regexp::ModuleA::AST::Env::target_spec = undef;
     $o->RAST_pass1;
     $o->{nparen} = $Regexp::ModuleA::AST::Env::nparen;
     $o->{nparen6} = $Regexp::ModuleA::AST::Env::nparen6;
@@ -1551,9 +1636,9 @@ sub{my $__c__ = $_[0];
     $o;
   }
 
-  # AST::Bind
-  package Regexp::ModuleA::AST::Bind;
-  @Regexp::ModuleA::AST::Bind::ISA=qw(Regexp::ModuleA::AST::BaseClass);
+  # AST::Biind
+  package Regexp::ModuleA::AST::Biind;
+  @Regexp::ModuleA::AST::Biind::ISA=qw(Regexp::ModuleA::AST::BaseClass);
   sub new {
     my($cls,$inpkg,$name,$expr)=@_; die "api assert" if @_ != 4;
     die "api assert $name"  if $name =~ /::/;
@@ -1561,7 +1646,7 @@ sub{my $__c__ = $_[0];
   }
   sub RAST_to_Make0 {
     my($o)=@_;
-    'bind('.$o->RAST_quote($o->{name}).','.$o->RAST_to_Make0_children.')';
+    'biind('.$o->RAST_quote($o->{name}).','.$o->RAST_to_Make0_children.')';
   }
   sub RAST_init {
     my($o)=@_;
@@ -1693,12 +1778,11 @@ sub{my $__c__ = $_[0];
 
 #======================================================================
 package Regexp::ModuleA::Api::GatherMethodsA;
-BEGIN{
   require Exporter;
   @Regexp::ModuleA::Api::GatherMethodsA::ISA=qw(Exporter);
   @Regexp::ModuleA::Api::GatherMethodsA::EXPORT_OK = qw(gather_methods);
   @Regexp::ModuleA::Api::GatherMethodsA::EXPORT = @Regexp::ModuleA::Api::GatherMethodsA::EXPORT_OK;
-}
+
 sub gather_methods {
   my($cls,%args)=@_;
   for(keys %args){Carp::confess("invalid argument $_") if !/^(filter|pkg)$/;}
@@ -1725,7 +1809,7 @@ sub gather_methods {
 # P5 Regexps
 #
 package Regexp::ModuleA::P5;
-BEGIN { Regexp::ModuleA::AST::Make0->import; };
+Regexp::ModuleA::AST::Make0->import;
 use Regexp::Common;
 sub mod_helper {
   my($mod)=@_;
@@ -1747,32 +1831,32 @@ sub mod_x_or_fail {
                   .')*');
 # a defining characteristic: ws is fudged, so comments are unsupported.
   namespace(""
-            ,bind('regex',aregexm(':p5',sr('pattern')))
-            ,bind('pattern',aregex(sr('regex_ordered_disjunction')))
-            ,bind('regex_ordered_disjunction',aregex(seq(sr('regex_sequence'),star(exact('|'),sr('regex_sequence')))))
-            ,bind('regex_sequence',aregex(star(sr('regex_quantified_atom'))))
-            ,bind('regex_quantified_atom',aregex(seq(sr('regex_atom'),ques(pat5('[?*+]\??|{\d+(?:,\d*)?}\??')))))
-            ,bind('regex_atom',aregex(alt(sr('_mod_inline'),sr('_mod_expr'),sr('_code'),sr('_coderx'),sr('_independent'),sr('_conditional'),sr('_lookaround'),sr('_cap'),sr('_grp'),sr('_charclass'),sr('_backref_or_char'),sr('_esc'),sr('_nonmeta'),sr('_passthru'),sr('_subrule'))))
-            ,bind('_mod_inline',aregex(pat5('\(\?([imsx-]+)\)(?{Regexp::ModuleA::P5::mod_helper($^N)})')))
-            ,bind('_mod_expr',aregex(seq(pat5('\(\?([imsx-]+):(?{Regexp::ModuleA::P5::mod_helper($^N)})'),sr('pattern'),exact(')'))))
-            ,bind('_grp',aregex(seq(exact('(?:'),sr('pattern'),exact(')'))))
-            ,bind('_cap',aregex(seq(pat5('\((?!\?)'),sr('pattern'),exact(')'))))
-#            ,bind('_charclass',aregex(pat5('\[\^?\]?([^\]\\\\]|\\\\.)*\]\]?')))#X
-            ,bind('_charclass',aregex(seq(pat5('\[\^?[\]\-]?'),sr('_charset_def'),pat5('\-?\]'))))
-            ,bind('_charset_def',aregex(pat5('(?>\[:\^?\w+:\]|[^\]\\\\]+|\\\\(?s:.))*')))
-            ,bind('_backref_or_char',aregex(pat5('\\\\\d+')))
-            ,bind('_esc',aregex(pat5('\\\\[^\d]')))
-            ,bind('_nonmeta',aregex(pat5("$nonmeta(?:$nonmeta+(?![?*+{]))?")))
-            ,bind('_passthru',aregex(pat5('[$^.]')))
-            ,bind('_code',aregex(seq(exact('(?{'),pat5($perlcode),exact('})'))))
-            ,bind('_coderx',aregex(seq(exact('(??{'),pat5($perlcode),exact('})'))))
-            ,bind('_independent',aregex(seq(exact('(?>'),sr('pattern'),exact(')'))))
-            ,bind('_conditional',aregex(seq(pat5('\(\?(?=\()'),alt(pat5('\(\d+\)'),sr('_lookaround')),sr('regex_sequence'),ques(exact('|'),sr('regex_sequence')),exact(')'))))
-            ,bind('_lookaround',aregex(seq(pat5('\(\?<?[=!]'),sr('pattern'),exact(')'))))
-            ,bind('_subrule',aregex(pat5('(?!)')))
+            ,biind('regex',aregexm(':p5',sr('pattern')))
+            ,biind('pattern',aregex(sr('regex_ordered_disjunction')))
+            ,biind('regex_ordered_disjunction',aregex(seq(sr('regex_sequence'),star(exact('|'),sr('regex_sequence')))))
+            ,biind('regex_sequence',aregex(star(sr('regex_quantified_atom'))))
+            ,biind('regex_quantified_atom',aregex(seq(sr('regex_atom'),ques(pat5('[?*+]\??|{\d+(?:,\d*)?}\??')))))
+            ,biind('regex_atom',aregex(alt(sr('_mod_inline'),sr('_mod_expr'),sr('_code'),sr('_coderx'),sr('_independent'),sr('_conditional'),sr('_lookaround'),sr('_cap'),sr('_grp'),sr('_charclass'),sr('_backref_or_char'),sr('_esc'),sr('_nonmeta'),sr('_passthru'),sr('_subrule'))))
+            ,biind('_mod_inline',aregex(pat5('\(\?([imsx-]+)\)(?{Regexp::ModuleA::P5::mod_helper($^N)})')))
+            ,biind('_mod_expr',aregex(seq(pat5('\(\?([imsx-]+):(?{Regexp::ModuleA::P5::mod_helper($^N)})'),sr('pattern'),exact(')'))))
+            ,biind('_grp',aregex(seq(exact('(?:'),sr('pattern'),exact(')'))))
+            ,biind('_cap',aregex(seq(pat5('\((?!\?)'),sr('pattern'),exact(')'))))
+#            ,biind('_charclass',aregex(pat5('\[\^?\]?([^\]\\\\]|\\\\.)*\]\]?')))#X
+            ,biind('_charclass',aregex(seq(pat5('\[\^?[\]\-]?'),sr('_charset_def'),pat5('\-?\]'))))
+            ,biind('_charset_def',aregex(pat5('(?>\[:\^?\w+:\]|[^\]\\\\]+|\\\\(?s:.))*')))
+            ,biind('_backref_or_char',aregex(pat5('\\\\\d+')))
+            ,biind('_esc',aregex(pat5('\\\\[^\d]')))
+            ,biind('_nonmeta',aregex(pat5("$nonmeta(?:$nonmeta+(?![?*+{]))?")))
+            ,biind('_passthru',aregex(pat5('[$^.]')))
+            ,biind('_code',aregex(seq(exact('(?{'),pat5($perlcode),exact('})'))))
+            ,biind('_coderx',aregex(seq(exact('(??{'),pat5($perlcode),exact('})'))))
+            ,biind('_independent',aregex(seq(exact('(?>'),sr('pattern'),exact(')'))))
+            ,biind('_conditional',aregex(seq(pat5('\(\?(?=\()'),alt(pat5('\(\d+\)'),sr('_lookaround')),sr('regex_sequence'),ques(exact('|'),sr('regex_sequence')),exact(')'))))
+            ,biind('_lookaround',aregex(seq(pat5('\(\?<?[=!]'),sr('pattern'),exact(')'))))
+            ,biind('_subrule',aregex(pat5('(?!)')))
             )->RAST_init->RMARE_emit;
 }
-BEGIN{ Regexp::ModuleA::Api::GatherMethodsA->import('gather_methods') };
+Regexp::ModuleA::Api::GatherMethodsA->import('gather_methods');
 sub make0_from_match {
   my($cls,$m)=@_;
   my $map = $cls->gather_methods(filter=>qr/^make0_from_node__(.+)$/);
@@ -1780,8 +1864,10 @@ sub make0_from_match {
   local $Regexp::ModuleA::Scratch::make0_from_match::map_code = $map_code;
   $cls->make0_from_node($m);
 }
+use Carp;
 sub make0_from_node {
   my($cls,$m)=@_;
+  Carp::confess "make0_from_node called with match: undef" if !defined $m;
   my $r = $$m->{RULE};
   my $map_code = $Regexp::ModuleA::Scratch::make0_from_match::map_code;
   my $meth = $map_code->{$r} || $map_code->{DEFAULT};
@@ -1948,9 +2034,15 @@ sub make0_from_node__regex {
 
 
 sub new_rx_from_re {
-  my($cls,$pat,$mods)=@_;
+  my($cls,$inpkg,$pat,$mods)=@_;
   my $re = $pat;
-  $re = "(?$mods)$re" if $mods;
+  if($mods){
+    if($mods =~ /:/){
+      $re = $mods."::$re";
+    } else {
+      $re = "(?$mods)$re";
+    }
+  }
   my $verbose = 0;
   my($m,$mexpr,$ast);
   my $o = eval {
@@ -1965,17 +2057,17 @@ sub new_rx_from_re {
     $mexpr = $cls->make0_from_match($m);
     die "assert" if !defined $mexpr;
     print STDERR $mexpr,"\n" if $verbose;
-    $ast = eval("namespace('::$cls',$mexpr)");
+    $ast = eval("namespace('::$inpkg',$mexpr)");
     die if $@;
     $ast->RAST_init;
-#    use Data::Dumper; print STDERR Dumper $ast;
+#    use Data::Dumper; print STDERR Dumper $ast;##
     my($rx) = $ast->RMARE_emit;
     $rx;
   };
   Carp::confess "compile \"$re\" failed: $@" if !defined $o;
   $o->_init($pat,$mods,$re,$mexpr,$ast);
 }
-sub bind_rx {
+sub biind_rx {
   my($cls,$pkg,$name,$rx)=@_;die "api assert" if @_ != 4;
   eval("package $pkg; *$name = \$rx"); die $@ if $@;
   $rx;
@@ -1986,14 +2078,14 @@ sub bind_rx {
 #
 package Regexp::ModuleA::P5WithSubrules;
 @Regexp::ModuleA::P5WithSubrules::ISA=qw(Regexp::ModuleA::P5);
-BEGIN { Regexp::ModuleA::AST::Make0->import; };
+Regexp::ModuleA::AST::Make0->import;
 
 {
   my $nonmeta = '[^[)({^$?*+\\\\\.|<]';
   namespace(""
-            ,bind('_subrule',aregex(seq(pat5('\<[?!]*\w+'),ques(seq(pat5('\s+'),plus(sr('pattern')))),exact('>'))))
-            ,bind('_nonmeta',aregex(pat5("$nonmeta(?:$nonmeta+(?![?*+{]))?")))
-            ,bind('test1',aregex(pat5('\w{2}')))
+            ,biind('_subrule',aregex(seq(pat5('\<[?!]*\w+'),ques(seq(pat5('\s+'),plus(sr('pattern')))),exact('>'))))
+            ,biind('_nonmeta',aregex(pat5("$nonmeta(?:$nonmeta+(?![?*+{]))?")))
+            ,biind('test1',aregex(pat5('\w{2}')))
             )->RAST_init->RMARE_emit;
 }
 
@@ -2010,35 +2102,55 @@ sub make0_from_node___subrule {
 #======================================================================
 # P6 Regexps
 #
-{ package Regexp::ModuleA::Api::PreludeA::_Misc;
-  BEGIN { Regexp::ModuleA::AST::Make0->import; };
-  sub nrx {my($name,$v)=@_; bind($name,aregex($v));}
-  namespace(""
-            ,(map{nrx($_,pat5("[[:$_:]]"))}
-              qw(alpha alnum ascii blank cntrl digit
-                 graph lower print punct space upper
-                 word xdigit))
-            ,nrx('commit',commit_match())
-            ,nrx('null',pat5(''))
-            ,nrx('before',lookaround(1,1,coderx(q{$Regexp::ModuleA::ReentrantEngine::Env::nested_data->{args}[0]||qr/(?!)/})))
-            ,nrx('after',lookaround(0,1,coderx(q{$Regexp::ModuleA::ReentrantEngine::Env::nested_data->{args}[0]||qr/(?!)/})))
-            ,nrx('sp',pat5('[ ]'))
-            ,nrx('lt',pat5('<'))
-            ,nrx('gt',pat5('>'))
-            ,nrx('dot',pat5('\.'))
-            ,nrx('ident',pat5('(?:_|[[:alpha:]])\w*'))
-            ,nrx('wb',pat5('\b'))
-            ,nrx('ws',pat5('\s+')) #XXX so very not
-            ,nrx('fail',pat5('(?!)'))
-            )->RAST_init->RMARE_emit;
-}
+#======================================================================
+package Regexp::ModuleA::Api::PreludeA;
+require Exporter;
+@Regexp::ModuleA::Api::PreludeA::ISA=qw(Exporter);
+@Regexp::ModuleA::Api::PreludeA::EXPORT =
+@Regexp::ModuleA::Api::PreludeA::EXPORT_OK =
+  qw(regex_api0 regex_ast_maker_api0
+     alpha alnum ascii blank cntrl digit
+     graph lower print punct space upper
+     word xdigit
+     commit null before after sp lt gt dot ident wb ws fail
+     name _nofat
+     );
 
+sub regex_api0 {'Regexp::ModuleA::Api::RegexApi0'}
+sub regex_ast_maker_api0 {'Regexp::ModuleA::AST::Make1'}
+
+Regexp::ModuleA::AST::Make0->import;
+sub nrx {my($name,$v)=@_; biind($name,aregex($v));}
+namespace(""
+          ,(map{nrx($_,pat5("[[:$_:]]"))}
+            qw(alpha alnum ascii blank cntrl digit
+               graph lower print punct space upper
+               word xdigit))
+          ,nrx('commit',commit_match())
+          ,nrx('null',pat5(''))
+          ,nrx('before',lookaround(1,1,coderx(q{$Regexp::ModuleA::ReentrantEngine::Env::nested_data->{args}[0]||qr/(?!)/})))
+          ,nrx('after',lookaround(0,1,coderx(q{$Regexp::ModuleA::ReentrantEngine::Env::nested_data->{args}[0]||qr/(?!)/})))
+          ,nrx('sp',pat5('[ ]'))
+          ,nrx('lt',pat5('<'))
+          ,nrx('gt',pat5('>'))
+          ,nrx('dot',pat5('\.'))
+          ,nrx('ident',pat5('(?:_|[[:alpha:]])\w*'))
+          ,nrx('wb',pat5('\b'))
+          ,nrx('ws',pat5('\s+')) #XXX so very not
+          ,nrx('fail',pat5('(?!)'))
+          # These are required by rx_*.t, but are they really Prelude?
+          ,nrx('name',alt(seq(sr('ident'),sr('_nofat'),star(exact('::'),sr('ident'))),
+                          plus(exact('::'),sr('ident'))))
+          ,nrx('_nofat',pat5('')) # <!before \h* <?unsp>? =\> >
+          )->RAST_init->RMARE_emit;
+1;
+#======================================================================
 package Regexp::ModuleA::P6;
-@Regexp::ModuleA::P6::ISA=qw(Regexp::ModuleA::P5WithSubrules
-                             Regexp::ModuleA::Api::PreludeA::_Misc);
-BEGIN { Regexp::ModuleA::AST::Make0->import; };
+@Regexp::ModuleA::P6::ISA=qw(Regexp::ModuleA::P5WithSubrules);
+Regexp::ModuleA::AST::Make0->import;
+Regexp::ModuleA::Api::PreludeA->import;
   
-sub nrx {my($name,$v)=@_; bind($name,aregex($v));}
+sub nrx {my($name,$v)=@_; biind($name,aregex($v));}
 sub unction {
   my($name,$op,$subname)=@_;
   nrx($name,seq(sr($subname),star($op,sr($subname))));
@@ -2051,7 +2163,7 @@ sub unction1 {
 {
   my $nonmeta = '[^][)(><}{&|^$?*+\\\\\.:]';
   namespace(""
-            ,bind('regex',aregex(seq(mod_inline(':x'),sr('pattern'))))
+            ,biind('regex',aregex(seq(mod_inline(':x'),sr('pattern'))))
             ,nrx('pattern',sr('regex_ordered_disjunction'))
             ,unction1('regex_ordered_disjunction',
                       pat5('\|\|'),'regex_ordered_conjunction')
@@ -2061,8 +2173,9 @@ sub unction1 {
                       pat5('\|(?!\|)'),'regex_unordered_conjunction')
             ,unction('regex_unordered_conjunction',
                      pat5('\&(?!\&)'),'regex_sequence')
-            ,nrx('regex_sequence',plus(alt(seq(sr('_alias'),commit_group()),
-                                           sr('regex_quantified_atom'))))
+            ,nrx('regex_sequence',plus(sr('_regex_sequence_thing')))
+            ,nrx('_regex_sequence_thing',alt(seq(sr('_alias'),commit_group()),
+                                             sr('regex_quantified_atom')))
             ,nrx('regex_quantified_atom',
                  seq(sr('regex_atom'),ques(sr('regex_quantifier'))))
             ,nrx('regex_quantifier',
@@ -2071,36 +2184,39 @@ sub unction1 {
                      seq(pat5('[\*\+\?](?!\*)'),sr('quantmod'))))
             ,nrx('quantmod',ques(pat5('\? | \! | \: | \+')))
             ,nrx('block',pat5('\{[\d\.]+\}'))
-            ,bind('regex_atom',aregex(alt(sr('_mod_inline'),sr('_mod_expr'),sr('_code'),sr('_coderx'),sr('_independent'),sr('_conditional'),sr('_lookaround'),sr('_cap'),sr('_grp'),sr('_charclass'),sr('_backref'),sr('_esc'),sr('_nonmeta'),sr('_dot'),sr('_beosl'),sr('_subrule'),
+            ,biind('regex_atom',aregex(alt(sr('_mod_inline'),sr('_mod_expr'),sr('_code'),sr('_coderx'),sr('_independent'),sr('_conditional'),sr('_lookaround'),sr('_cap'),sr('_grp'),sr('_charclass'),sr('_backref'),sr('_esc'),sr('_nonmeta'),sr('_dot'),sr('_beosl'),sr('_subrule'),
                                           sr('_commit'),sr('_esc_code'),sr('_word_boundary'),sr('_literal'))))
-            ,bind('_nonmeta',aregex(pat5("$nonmeta(?:$nonmeta+(?![?*+:!]))?")))
-            ,bind('_grp',aregex(seq(exact('['),sr('pattern'),exact(']'))))
+            ,biind('_nonmeta',aregex(pat5("$nonmeta(?:$nonmeta+(?![?*+:!]))?")))
+            ,biind('_grp',aregex(seq(exact('['),sr('pattern'),exact(']'))))
             ,nrx('_cap',seq(pat5('\('),sr('pattern'),exact(')')))
             ,nrx('_commit',pat5(':+'))
-            ,bind('_esc',aregex(pat5('\\\\[^\doOxX]')))
+            ,biind('_esc',aregex(pat5('\\\\[^\doOxX]')))
             ,nrx('_esc_code',pat5('\\\\[oO][0-7]+|\\\\[xX][0-9a-fA-F]+'))
-            ,bind('_backref',aregex(pat5('\$\d+')))
-            ,bind('_backref_or_char',aregex(pat5('(?!)')))
+            ,biind('_backref',aregex(pat5('\$\d+')))
+            ,biind('_backref_or_char',aregex(pat5('(?!)')))
             ,nrx('_charclass',seq(pat5('<(?=[-+\[]|\w+[-+])'),plus(sr('_charset')),pat5('>')))
             ,nrx('_charset',seq(pat5('[-+]?'),alt(pat5('\[(?:[^\]\\\\]|\\\\.)*\]'),sr('ident'))))
             ,nrx('_mod_inline',pat5('(?<![\?\*\+\!]):\w+(?:<[^>]*>|\([^)]+\))?'))
             ,nrx('_dot',pat5('\\.'))
             ,nrx('_beosl',pat5('[\^\$]{1,2}'))
+
             ,nrx('_alias',seq(sr('_alias_target'),pat5('\s*:=\s*'),sr('_construct')))
-            ,nrx('_alias_target',alt(seq(pat5('[\$\@\%]<'),sr('name'),pat5('>')),
-                                     pat5('\$\d+'),
-                                     seq(pat5('[\$\@\%]'),sr('name'))))
-            ,nrx('_construct',alt(sr('_construct_but_not_alias'),
-                                  sr('_alias')))
-            ,nrx('_construct_but_not_alias',
-                 seq(alt(sr('_subrule'),sr('_cap'),sr('_grp')),
-                     ques(sr('regex_quantifier'))))
+            ,nrx('_alias_target',seq(alt(seq(pat5('[\$\@\%]<'),sr('name'),pat5('>')),
+                                         pat5('[\$\@\%]\d+'),
+                                         pat5('[\$\@\%]\/'),
+                                         seq(pat5('[\$\@\%]'),sr('name'))),
+                                     star(sr('_alias_tail'))))
+            ,nrx('_alias_tail',alt(seq(pat5('<'),sr('name'),pat5('>')),
+                                   pat5('\[\d+\]')))
+            ,nrx('_construct',alt(sr('_alias'),
+                                  sr('_quantified_non_alias_construct')))
+            ,nrx('_quantified_non_alias_construct',
+                 seq(sr('_non_alias_construct',ques(sr('regex_quantifier')))))
+            ,nrx('_non_alias_construct',alt(sr('_subrule'),sr('_cap'),sr('_grp')))
+
             ,nrx('_word_boundary',pat5('<<|>>|\x{abd}|\x{bbd}'))
             ,nrx('_literal',pat5('<\'(?:[^\'\\\\]|\\\\.)*\'>'))
 
-            ,nrx('name',alt(seq(sr('ident'),sr('nofat'),star(exact('::'),sr('ident'))),
-                            plus(exact('::'),sr('ident'))))
-            ,nrx('nofat',pat5('')) # <!before \h* <?unsp>? =\> >
             )->RAST_init->RMARE_emit;
 }
 
@@ -2119,9 +2235,23 @@ sub make0_from_node___commit {
   die "assert" if !$what;
   return "commit_${what}()";
 }
+sub make0_from_node__regex_sequence {
+  my($cls,$m)=@_;
+  my @v = map{$cls->make0_from_node($_)} @{$m->{_regex_sequence_thing}};
+  return (@v != 1 ? ("seq(".join(",",@v).")") : $v[0]);
+}
+sub make0_from_node___alias {
+  my($cls,$m)=@_;
+  my $a = $m->{_alias_target}."";
+  my $e = $cls->make0_from_node($m->{_construct});
+  return "alias('$a',$e)";
+}
+sub make0_from_node___quantified_non_alias_construct {
+  shift->make0_from_node__regex_quantified_atom(@_);
+}
 sub make0_from_node__regex_quantified_atom {
   my($cls,$m)=@_;
-  my $e = $cls->make0_from_node($m->{regex_atom});
+  my $e = $cls->make0_from_node($m->{regex_atom} || $m->{_non_alias_construct});
   return $e if !$m->{regex_quantifier};
   my $q = $m->{regex_quantifier}[0]."";
   if($q =~ /^\*\*{(\d+)(?:,(\d*))?}(\?)?\z/) {
@@ -2291,6 +2421,7 @@ use Sub::Name;
 sub _new_from_ast {
   my($rxclass,$ast,$pkg,$name,$f,$matchergen)=@_;
   $pkg ||= "";
+  $name ||= "";
   my $h = {ast=>$ast,pkg=>$pkg,name=>$name,f=>$f,matchergen=>$matchergen};
   my $self;
   my $showname = $name || '*anon*';
@@ -2348,40 +2479,33 @@ sub _mexpr {
 #
 #======================================================================
 package Regexp::ModuleA::Api::RegexApi0;
-sub define_named_regex {
-  my($cls,$name,$pat,%args)=@_;
+sub create {
+  my($cls,$what,$name,$pat,%args)=@_;
   for(keys %args){Carp::confess("invalid argument $_") if !/^(env|pkg|mods)$/;}
   $args{pkg} ||= caller;
   $args{mods} = undef if !exists $args{mods};
-  my $rx = Regexp::ModuleA::P6->new_rx_from_re($pat,$args{mods});
-  Regexp::ModuleA::P6->bind_rx($args{pkg},$name,$rx);
+  my $rx = Regexp::ModuleA::P6->new_rx_from_re($args{pkg},$pat,$args{mods});
+  Regexp::ModuleA::P6->biind_rx($args{pkg},$name,$rx) if defined $name;
   $rx;
 }
-sub match_named_regex {
-  my($cls,$name,$string,%args)=@_;
+sub lookup {
+  my($cls,$name,%args)=@_;
   for(keys %args){Carp::confess("invalid argument $_") if !/^(pkg)$/;}
   $args{pkg} ||= caller;
-  $args{mods} = undef if !exists $args{mods};
-  Carp::confess("mods unimplemented") if $args{mods};
-  $args{pkg}->${name}($name)->match($string);
+  $args{pkg}->${name}($name);
 }
-1;
-#======================================================================
-package Regexp::ModuleA::Api::PreludeA;
-BEGIN{
-  require Exporter;
-  @Regexp::ModuleA::Api::PreludeA::ISA=qw(Regexp::ModuleA::Api::PreludeA::_Misc Exporter);
-  @Regexp::ModuleA::Api::PreludeA::EXPORT_OK =
-    qw(regex_api0 regex_ast_maker_api0
-       alpha alnum ascii blank cntrl digit
-       graph lower print punct space upper
-       word xdigit
-       commit null before after sp lt gt dot ident wb ws fail);
-  @Regexp::ModuleA::Api::PreludeA::EXPORT    = @Regexp::ModuleA::Api::PreludeA::EXPORT_OK;
+sub match {
+  my($cls,$rx,$string,%args)=@_;
+  for(keys %args){Carp::confess("invalid argument $_") if 1;}#!/^()$/;}
+  $rx->match($string);
+}
+sub create_and_match {
+  my($cls,$what,$name,$pat,$string,%args)=@_;
+  $args{pkg} ||= caller;
+  my $rx = $cls->create($what,$name,$pat,%args);
+  $cls->match($rx,$string);
 }
 
-sub regex_api0 {'Regexp::ModuleA::Api::RegexApi0'}
-sub regex_ast_maker_api0 {'Regexp::ModuleA::AST::Make1'}
 1;
 #======================================================================
 package Regexp::ModuleA::Api::FilterWithenvA;
@@ -2392,7 +2516,7 @@ sub _expand_withenv {
   while($s =~ /([\$\@\%]\w+)/g) {
     $code_fragments{$1} = '\\'.$1;
   }
-  while($s =~ /($RE{balanced}{-parens=>'{}'})/g) {
+  while($s =~ /(?<!\*\*)($RE{balanced}{-parens=>'{}'})/g) {
     # Can't both get value and use a continuation.  PPI?  :(
     my $fragment = $1;
     my $for_value = 'sub'.$fragment;
@@ -2402,15 +2526,17 @@ sub _expand_withenv {
     my $pair = "[$for_value,$with_continuation]";
     $code_fragments{$fragment} = $pair;
   }
-  my $code = join(",",map{
+  my $hashcode = join(",",map{
     my $q = $_;
     my $e = $code_fragments{$_};
     $q =~ s/([\\\'])/\\$1/g;
     $e =~ s/([\\\'])/\\$1/g;
     "'$q'=>sub{eval('$q')}";
   } keys %code_fragments);
-  $code = "sub{{$code}}";
-  $s.",env=>(bless $code,'Regexp::ModuleA::Api::FilterWithenvA::Bindings')";
+  my $code = "sub{{$hashcode}}";
+  $hashcode eq ""
+    ? $s.",env=>(undef)"
+    : $s.",env=>(bless $code,'Regexp::ModuleA::Api::FilterWithenvA::Bindings')";
 }
 sub filter_string {
   my($s)=@_;
@@ -2434,11 +2560,11 @@ sub lookup {
 #======================================================================
 package Regexp::ModuleA::Api::FilterRegexDefinitionsA;
 sub expand_regex {
-  my($name,$mods,$body,$oldcode)=@_;
+  my($what,$name,$mods,$body,$oldcode)=@_;
   $mods =~ s/\s+$//;
   my($nameq,$modsq,$bodyq)=map{s/([\\\'])/\\$1/g;"'$_'"}($name,$mods,$body);
   my $modsarg = $mods eq "''" ? '' : ",mods=>$modsq";
-  my $code = "__PACKAGE__->define_named_regex($nameq,WITHENV{$bodyq}WITHENV$modsarg);";
+  my $code = "regex_api0->create('$what',$nameq,WITHENV{$bodyq}WITHENV$modsarg);";
   my $old_line_count = $oldcode =~ tr/\n/\n/;
   my $new_line_count = $code =~ tr/\n/\n/;
   die "assert" if $new_line_count > $old_line_count;
@@ -2448,16 +2574,16 @@ sub expand_regex {
 sub filter_string {
   my($s)=@_;
   my $re = qr/(
-    ^[ ]* regex (?>\s+(\w*)\s*) ([^\n\{]*) \{
+    ^[ ]* (regex|rule|token) (?>\s+(\w*)\s*) ([^\n\{]*) \{
     (?: ([^\n]+) \} \s*(?:\#(?!\()[^\n]*)? $
       | ((?s:.)+? \n ) \2 \} )
   )/x;
-  $s =~ s/$re/expand_regex($2,$3,(defined($4)?$4:$5),$1)/meg;
+  $s =~ s/$re/expand_regex($2,$3,$4,(defined($5)?$5:$6),$1)/meg;
   $s;
 }
 use Filter::Simple sub {
   $_ = filter_string($_);
-  #print STDERR $_;
+#  print STDERR $_;
   $_;
 };
 1;
@@ -2492,6 +2618,7 @@ use Filter::Simple sub {
   }
   sub repl {
     my($use6)=@_;
+    eval("package main;Regexp::ModuleA::Api::PreludeA->import;"); die if $@;
     my($prompt,$dialect);
     if(!$use6) {
       print "Enter a Perl 5 regexp pattern or literal.\n";
@@ -2520,7 +2647,7 @@ use Filter::Simple sub {
         $re = convert_p5_re_literal_to_p5_re($re);
         print "As regexp: $re\n";
       }
-      my $rx = $dialect->new_rx_from_re($re);
+      my $rx = $dialect->new_rx_from_re('main',$re);
       print "As m-expr: ",$rx->_mexpr,"\n";
       print "Enter string to match against.  Blank line to stop.\nstring: ";
       while(<>) {
@@ -2536,19 +2663,21 @@ use Filter::Simple sub {
 #======================================================================
 # Command-line and glue. 
 #
+package main;
 
 # Also used by t/re_tests.t.  Replace that with API, once it exists.
 sub Regexp::ModuleA::test_target {
   sub {
     my($mods,$re)=@_;
-    my $o = Regexp::ModuleA::P5->new_rx_from_re($re,$mods);
+    my $o = Regexp::ModuleA::P5->new_rx_from_re('main',$re,$mods);
     sub{my($s)=@_;$o->match($s)}
   };
 }
 sub Regexp::ModuleA::test_target6 {
+  Regexp::ModuleA::Api::PreludeA->import;
   sub {
     my($mods,$re)=@_;
-    my $o = Regexp::ModuleA::P6->new_rx_from_re($re,$mods);
+    my $o = Regexp::ModuleA::Api::RegexApi0->create('regex',undef,$re,mods=>$mods);
     sub{my($s)=@_;$o->match($s)}
   };
 }
@@ -2575,7 +2704,6 @@ if($0 eq __FILE__ && @ARGV) {
     exit;
   }
 }
-
 
 1;
 __END__

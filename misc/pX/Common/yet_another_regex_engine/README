@@ -2,14 +2,17 @@ This is yet another rules engine implementation attempt.
 
 $ prove t/re_tests.t
 $ prove t/rx.t
-... 95.21% okay.
-... 75.00% okay.
+... 96.25% okay.
+... 84.51% okay.
 $ perl -w Regexp_ModuleA.pm --test
 $ perl -w Regexp_ModuleA.pm --test6
 ... more informative than prove, but no prove-like summary at the end.
 $ perl -w Regexp_ModuleA.pm --repl
 $ perl -w Regexp_ModuleA.pm --repl6
 ... interactive.
+$ PERL5_V6_IMPLEMENTATION=PugsRegexTestA perl -w -I. -Mv6-alpha ../../../../t/regex/from_perl6_rules/anchors.t
+$ DEBUG_PugsRegexTestA=1 PERL5_V6_IMPLEMENTATION=PugsRegexTestA perl -w -I. -Mv6-alpha ../../../../t/regex/from_perl6_rules/anchors.t
+$ PERL5_V6_IMPLEMENTATION=PugsRegexTestA prove -r --perl 'perl -w -I. -Mv6-alpha' ../../../../t/regex/
 
 Regards forking:
 
@@ -132,6 +135,12 @@ Risks:
     hit.
 
 History:
+
+  2007-Mar-01 Trivial beginning on aliases.  Can now run puts t/regex/.
+  re_tests.t 96%, 16 sec; rx.t 85%, 13 sec; t/regex/
+  Failed 53/58 test scripts. 4809/5089 subtests failed.
+  Files=58, Tests=5089, 21 wallclock secs (17.68 cusr +  1.81 csys = 19.49 CPU)
+  Cost: 1 day.
 
   2007-02-27 Converted captures from a hack "everything is an array"
   to spec.  Minor other rx_ test progress.  re_tests.t 96%, 15 sec;
