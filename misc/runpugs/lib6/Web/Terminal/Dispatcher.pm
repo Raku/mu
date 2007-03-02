@@ -1,6 +1,6 @@
-package Web::Terminal::Dispatcher3;
+package Web::Terminal::Dispatcher;
 use vars qw( $VERSION );
-$VERSION = '0.3.0';
+$VERSION = '0.2.0';
 use strict;
 use utf8;
 use YAML::Syck;
@@ -19,7 +19,7 @@ our %EXPORT_TAGS = (
 					 ALL     => [qw( send )],
 					 DEFAULT => [],
 );
-my $v = (1 - $Web::Terminal::Settings::daemon)*(1-$Web::Terminal::Settings::test);
+my $v = 1 - $Web::Terminal::Settings::daemon;
 
 sub send {
 	my $id          = shift;
@@ -31,7 +31,7 @@ sub send {
 	my $port        = $Web::Terminal::Settings::port;
 	my $cmd         = $cmds;                            #'';
 
-	#WV:   We're using PUGS_SAFEMODE=1 instead
+	#   We're using PUGS_SAFEMODE=1 instead
 	#    if ($Web::Terminal::Settings::filter and
 	#    $cmd=~/$Web::Terminal::Settings::filter_pattern/) {
 	#    my $offending_command=$1||$2;
@@ -39,9 +39,15 @@ sub send {
 	#    allowed.\n$Web::Terminal::Settings::prompt";
 	#   } else {
 	my $conn;
+
+	#    my $ntries=5;
+	#    for (1..$ntries) {
 	$conn = Web::Terminal::Msg->connect( $host, $port, \&rcvd_msg_from_server );
+
+	#	die "Client could not connect to $host:$port ($wd)\n" unless $conn;
 	if ( not $conn ) {
 
+		# Assume server has died
 		#WV: disabled, too dangerous
 		#       system("/usr/bin/perl ../bin/termserv.pl");
 		#       sleep 5;
@@ -57,12 +63,12 @@ sub send {
 									  cmd => $cmd
 									}
 		);
-		print STDERR "Sending message to server: $msg\n", '#' x 70, "\n" if $v;
+		print STDERR "Sending message to server: $msg\n" if $v;
 		$conn->send_now($msg);
 		print STDERR "done\n" if $v;
 		( my $rmesg, my $err ) = $conn->rcv_now();
-		print STDERR "Received reply from server: $rmesg (Error msg:$err)\n",
-		  '#' x 70, "\n" if $v;
+		print STDERR "Received reply from server: $rmesg (Error msg:$err)\n"
+		  if $v;
 		my $rmesgref = YAML::Syck::Load($rmesg);
 		my $rid      = $rmesgref->{id};
 		my $reply    = $rmesgref->{msg};
@@ -71,7 +77,6 @@ sub send {
 		$conn->disconnect();
 
 		if ( "$id" ne "$rid" ) {
-			print "Terminal server returned wrong id: $rid, should be $id" if $v;
 			return "Sorry, the pugs session died.";
 		}
 		return ( $reply, $prompt, $histref );

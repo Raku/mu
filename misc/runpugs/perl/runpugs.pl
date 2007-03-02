@@ -67,6 +67,10 @@ if ( $query->param()) {      # an action has been chosen
                 chomp $cmd;
                 last;
         };
+        $cmdline=~/$Web::Terminal::Settings::quit_message|Aborted/ 
+        && do {
+        $cmd='clear';
+        };
         }
     my $action =  $query->param("action")||'runpugs';
     if ($action =~ /^(\w+)$/) {
@@ -93,13 +97,18 @@ sub runpugs {
     my $cmd=shift;
     my $sessionid=shift;
     my $ip=shift;
-    my $dev=$query->param('reldev')||0;
-    $dev=$dev*1;
-    my $devc='';
-    my $relc='checked';
+    my $dev=$query->param('reldev');#||0;
+    if ($dev!=0){
+    $dev=1;
+    }
+    my $devc='checked';
+    my $relc='';
     if($dev==1) {
         $devc='checked';
         $relc='';
+        } else {
+        $devc='';
+        $relc='checked';
         }
     my $html='';
     my $clear=0;
@@ -116,6 +125,7 @@ sub runpugs {
         } else {
             $cmd=$query->param('history');
         }
+        if ($cmd=~//) {}
         if ($cmd=~/clear/) {
         $clear=1;
             $cmd='';
@@ -124,9 +134,9 @@ sub runpugs {
             $cmd='';
             $reply = "Sorry, Unicode is not yet supported.\n".$Web::Terminal::Settings::prompt;
         } else {
-            if ($cmd=~/>\s+(\:*help)\b/) {
+            if ($cmd=~/\s*(\:*help)\b/) {
                 $cmd=~s/$1/:h/;
-            } elsif ($cmd=~/>\s+(\:*(quit|bye))\b/) {
+            } elsif ($cmd=~/\s*(\:*(quit|bye))\b/) {
                 $cmd=~s/$1/:q/;
             } 
             ($reply, $nprompt, my $histref) =
@@ -139,9 +149,6 @@ sub runpugs {
         }
     my $npromptw=HTML::Entities::encode_entities($nprompt);
 #    my $replyw="$preply$prompt$prevcmd\n$reply";
-#    if($reply=~/$Web::Terminal::Dispatcher::quit_message/) {
-#        $nprompt='';
-#        }
     my $replyw="$preply\n$reply";
     if($clear==1) {
         $replyw='';
@@ -155,8 +162,11 @@ sub runpugs {
         my $entryw=HTML::Entities::encode_entities($entry);
         $historylist.='<option value="'.$entryw.'">'.$entryw.'</option>'."\n";
     }
+    if($replyw!~/Leaving\ pugs\.$/) {
         $replyw.=$nprompt;
-    open(HTML,"<../data/runpugs_async.html");
+        } 
+
+    open(HTML,"<../data/runpugs.html");
     while(<HTML>) {
         /_HIST_/ && do {
             $html.=$historylist;

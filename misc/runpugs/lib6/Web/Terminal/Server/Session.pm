@@ -13,7 +13,7 @@ use Web::Terminal::Settings;
 
 $SIG{CHLD}='IGNORE';
 
-my $v=(1-$Web::Terminal::Settings::daemon)*(1-$Web::Terminal::Settings::test);
+my $v=1-$Web::Terminal::Settings::daemon;
 ## Constructor
 sub new {
 	my $invocant = shift;

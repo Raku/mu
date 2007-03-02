@@ -39,14 +39,11 @@ our %EXPORT_TAGS = (
 #$|=1;
 $SIG{CHLD} = 'IGNORE';
 
-
 # The messages contain the session id and the app.
 # If the ID does not exist in %active_sessions, create a new session
 # Otherwise, write to the terminal and send back the result, again
 # with the session id as first line.
 
-# verbose
-my $v                 = (1 - $Web::Terminal::Settings::daemon)*(1-$Web::Terminal::Settings::test);
 
 #my %sessions = ();    # session_number (from stack) =>  actual session object
 #Datastructures per app, so $session{$app}{...}, $inactive[$app][...] or @{$inactive[$app]}
@@ -74,7 +71,8 @@ my @n_inactive_min    = @Web::Terminal::Settings::n_inactive_min;
 my @n_inactive_max    = @Web::Terminal::Settings::n_inactive_max;
 my @n_max             = @Web::Terminal::Settings::n_max;
 my $n_sessions_ip_max = $Web::Terminal::Settings::nsessions_ip;
-
+# verbose
+my $v                 = 1 - $Web::Terminal::Settings::daemon;
 # Child pid
 my $childpid;
 
@@ -117,8 +115,7 @@ sub run {
 
 				#				print "Child: ", getppid(), "\n" if $v;				
 				&call_create(); # can consume a lot of time!
-				&call_clean_up();
-				#kill 'USR1', getppid();
+				kill 'USR1', getppid();
 			}
 
 			# normally the child restarts the parent if it dies
@@ -160,16 +157,9 @@ sub login_proc {
 # Or a compatible API :-)
 sub rcvd_msg_from_client {
 	my ( $conn, $msg, $err ) = @_;
-	my $success=1;
 	if ( defined $msg ) {
-#				for my $key (keys( %{$conn}) ) {
-#					print $key,':',$conn->{$key},"\n";
-#					if ($key eq 'queue') {
-#						print scalar @{$conn->{$key}};
-#						print join(';',@{$conn->{$key}});
-#					}
-#				}
-#					print "CONN: ", ";MSG:",$msg,";ERR: ",$err,"\n" if $v;
+
+		#		print "CONN: ",$conn,";MSG:",$msg,";ERR: ",$err,"\n" if $v;
 		my $len = length($msg);
 		if ( $len > 0 ) {
 			my $mesgref = YAML::Syck::Load($msg);
@@ -180,7 +170,6 @@ sub rcvd_msg_from_client {
 			my $ia      = $mesgref->{ia};
 
 			#            $cmd=pack("U0C*", unpack("C*",$cmd));
-			
 			# Next bit is purely for logging.
 			my $tpid          = 0;
 			my $n_active_sess = scalar keys %{ $active_sessions[$app] };
@@ -195,9 +184,8 @@ sub rcvd_msg_from_client {
 				  " : $n_sess/$n_active_sess : $ip : $id : $tpid > ", $cmd, "\n"
 				  if $v;
 			}
-			
 			my $replyref;
-			if ( $cmd eq 'Web::Terminal::Server::Session.create'
+			if (     $cmd eq 'Web::Terminal::Server::Session.create'
 				 and $ip eq '127.0.0.1' )
 			{
 				print "#### Received session create request\n" if $v;
@@ -210,19 +198,6 @@ sub rcvd_msg_from_client {
 												prompt => ''
 											  }
 				);
-			} elsif ( $cmd eq 'Web::Terminal::Server::Sessions.clean-up'
-				 and $ip eq '127.0.0.1' ) { 
-				 	print "#### Received sessions clean-up request\n" if $v;
-				my $ret = &clean_up_timed_out_sessions();
-				$replyref = YAML::Syck::Dump(
-											  {
-												id     => 0,
-												msg    => $ret,
-												recent => [],
-												prompt => ''
-											  }
-				);
-					
 			} else {
 				print "    Received ordinary request\n" if $v;
 				my $lines   = &termhandler( $id, $ip, $app, $ia, $cmd );
@@ -244,17 +219,12 @@ sub rcvd_msg_from_client {
 											  }
 				);
 			}
-			$success=$conn->send_now($replyref);
-		} 
-		# It seems for every non-0-length there is a 0-length message. Don't know why, I guess that's down to how Msg does its job. 
-#		else {
-#			$success=-1;
-#			print "!!!! Received 0-length message. Ignoring.\n" if $v;
-#		}
+			$conn->send_now($replyref);
+		} else {
+
+			# received 0-length message. Ignore.
+		}
 	}
-	assert(defined $msg);
-	assert($success!=0);
-	return $success;
 }    # END of rcvd_msg_from_client
 
 #-------------------------------------------------------------------------------
@@ -332,12 +302,6 @@ sub termhandler {
 						print "Sending $cmd to the application.\n" if $v;
 						$lines = $term->write($cmd);
 print "Application returned '$lines'.\n" if $v;
-if($Web::Terminal::Settings::test and $cmd ne ':A') {
-my $reply=$lines;
-$reply=~s/^.*?called\ with\ //;
-$reply=~s/\.\s*$//;
-assert($reply eq $cmd);
-}
 						if ( $term->{error} == 1 ) {
 							&kill_session( $app, $id, $ip )
 							  ; # Well, really. If the session returns an error, we should kill it.
@@ -563,14 +527,12 @@ sub clean_up_timed_out_sessions() {
 	# Cleaning up timed-out sessions
 	my $now = time();
 	my @cleaned_up=(0,0);
-	my @cleaned_up_sessions=();
 	for my $app ( 0 .. @Web::Terminal::Settings::commands - 1 ) {
 		for my $id ( keys %{ $active_sessions[$app] } ) {
 			if ( exists $active_sessions[$app]{$id} ) {
 				my $term = $sessions[$app]{ $active_sessions[$app]{$id} };
 				my $then = $term->{called};
 				if ( $now - $then > $Web::Terminal::Settings::timeout_idle ) {
-					push @cleaned_up_sessions,$id;
 					my $tpid = $term->{pid};
 					my $ip   = $term->{ip};
 					my $app  = $term->{app};
@@ -592,9 +554,9 @@ sub clean_up_timed_out_sessions() {
 		assert($n_sessions[$app]==$n_inactive_sessions[$app]+$n_active_sessions[$app]);
 		assert(scalar(keys %{$sessions[$app]})==scalar( keys %{$active_sessions[$app]})+scalar( @{$inactive_sessions[$app]}));
 		assert(scalar(@{$session_numbers_stack[$app]})+scalar(keys %{$sessions[$app]})==$n_max[$app]);
+		
 		}
 	}
-	return scalar @cleaned_up_sessions;
 }    # END of clean_up_timed_out_sessions()
 
 #-------------------------------------------------------------------------------
@@ -613,17 +575,15 @@ sub init_sessions {
 			  $app, "\n"
 			  if $v;
 		}
-	assert(scalar(@{ $inactive_sessions[$app] })==$Web::Terminal::Settings::npreloaded_sessions[$app]);
 	}
 }    # END of init_session()
 
 #-------------------------------------------------------------------------------
 # init_create gets called by SIGUSR2
 # all it does is set the counter @n_new_sessions (count zero!)
-# if counter is 0, it gets reset to max-min
-#Êthis avoids potential race hazards 
 sub init_create {
 
+	#    sleep 3;
 	for my $app ( 0 .. @Web::Terminal::Settings::commands - 1 ) {
 		if ( $n_new_sessions[$app] == 0 ) {
 			$n_new_sessions[$app] =
@@ -633,22 +593,13 @@ sub init_create {
 }    # END of init_create()
 
 #-------------------------------------------------------------------------------
-
 sub async_init_create {
 
 	# we use a SIGUSR2 to the child for this
-	kill 'USR2', $childpid;   
-	print "Triggered init_create() call with SIGUSR2, now returning\n"
+	kill 'USR2', $childpid;    # or die $!;
+	print "Initiated create_session() call, now returning\n"
 	  if $v;
 }    # END of async_init_create()
-
-# Alternatively, we could do this using threads:
-# Have a thread instead of the child process.
-# Instead of using the SIGUSR, we call init_create directly.
-# If $n_new_sessions[$app] is shared, this should work.
-# But then we also need a thread for cleaning up etc.
-# And once we have these, there's no need to use the socket calls.
-# 
 
 #-------------------------------------------------------------------------------
 sub call_create {
@@ -672,19 +623,6 @@ sub call_create {
 	}
 }    # END of call_create()
 
-#-------------------------------------------------------------------------------
-# Cleaning up timed-out sessions used to be triggered via a SIGUSR1 from the child to the parent.
-# Now we use a socket call, guaranteed no race conditions.
-sub call_clean_up {
-		
-			use Web::Terminal::Dispatcher3;
-			( my $ret, my $p, my $h ) =
-			  Web::Terminal::Dispatcher3::send( 0, '127.0.0.1', 1, 1,
-									  'Web::Terminal::Server::Sessions.clean-up' );
-			print "call_clean_up() call returned <$ret>:",
-			  ( $ret < 1 ) ? "ERROR" : "OK", "\n" if $v;
-		
-}    # END of call_clean_up()
 #-------------------------------------------------------------------------------
 sub init_child {
 	for my $app ( 0 .. @Web::Terminal::Settings::commands - 1 ) {

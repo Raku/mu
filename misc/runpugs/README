@@ -15,7 +15,7 @@ INSTALLATION
 
 DESCRIPTION
     runpugs has two main components: 
-    -a mod_perl script (/perl/runpugs3) which uses an html template
+    -a mod_perl script (/perl/runpugs3.pl) which uses an html template
     (/data/runpugs_async3.html). The latter calls the runpugs.css stylesheet from
     /htdocs/runpugs.css. The script is called from /htdocs/runpugs/index.html
     -a server (/bin/termserv3.pl) which handles the interactive pugs sessions and communicates with

@@ -51,10 +51,6 @@ $motd='
 href="http://feather.perl6.nl:8080/runpugs/">development version</a></em> of
 <tt>runpugs</tt>, now with AJAX and mod_perl.</p> 
 ';
-#or <a
-#href="http://feather.perl6.nl:8080/cgi-bin/runpugs2?ia=0">run a full Perl 6
-#script</a>.</p>
-#';
 
 }
 
@@ -202,7 +198,7 @@ sub runpugs {
     if ($allinone==1) {
         $replyw.=$nprompt;
     }
-    open(HTML,"<../data/runpugs2.html");
+    open(HTML,"<../data/runpugs_cgi_bin.html");
     while(<HTML>) {
         /_HIST_/ && do {
             $html.=$historylist;
@@ -265,7 +261,7 @@ sub runpugs {
 #    $nrows++;
      ($reply=~/^\s*$/) && ($nrows=1);
     if ($nrows>20) {$nrows=20;}
-    open(HTML,"<../data/runpugs2s.html");
+    open(HTML,"<../data/runp6script.html");
     while(<HTML>) {
         s/_DEV_/$devc/;
         s/_REL_/$relc/;
