@@ -62,10 +62,11 @@ merge_round (c:cs) l
     | otherwise = merge_round cs l
     where
     clean_list      = filter (not . null) (merge_clean c l)
-    merge_clean c   = map (\x -> filter ((/=) c) x)
+    merge_clean c   = map (filter ((/=) c))
 
 -- |Returns 'True' if a candidate element isn't present in the tail
 -- of each list.
+good :: Eq a => a -> [[a]] -> Bool
 good _ []     = True
 good c (x:xs)
     | c `elem` (tail x) = False
