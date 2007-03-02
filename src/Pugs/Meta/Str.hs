@@ -9,9 +9,7 @@ instance Boxable Eval PureStr where
     classOf _ = _StrClass
 
 _StrClass :: PureClass
-_StrClass = mkBoxClass "Str"
+_StrClass = fix $ mkBoxPureClass "Str"
     [ "reverse"     ... (MkStr . Str.reverse . unStr)
-    , "HOW"         ... (const _StrClass)
-    , "WHICH"       ... id
     ]
 

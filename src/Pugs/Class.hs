@@ -18,6 +18,7 @@ module Pugs.Class
     , module MO.Compile
     , module MO.Compile.Class
     , module MO.Util
+    , module Control.Monad.Fix
     ) where
 import MO.Run hiding (__)
 import MO.Compile
@@ -25,6 +26,7 @@ import MO.Compile.Class
 import MO.Util
 import Pugs.Internals
 import Pugs.AST.Eval
+import Control.Monad.Fix
 
 class (Show a, Typeable a, Ord a, Typeable1 m, Monad m) => Boxable m a | a -> m where
     classOf :: a -> MI m
@@ -71,6 +73,20 @@ mkBoxClass cls methods = newMI MkMI
     , clsPrivateMethods = newCollection []
     , clsName           = _cast cls
     }
+
+mkBoxPureClass :: forall a1 (m :: * -> *) a (m1 :: * -> *).
+    ( Boxable m a1
+    , Boxable m a
+    , Codeable m1 (HsCode m)
+    , Typeable1 m1
+    ) => String -> [(ID, a1 -> m (Invocant m))] -> a -> MI m1
+mkBoxPureClass cls methods self =
+    mkBoxClass cls methods'
+    where
+        methods' = methods ++
+            [ "HOW"         ... (const self)
+            , "WHICH"       ... id
+            ]
 
 mkBoxMethod :: forall t (m1 :: * -> *) (m :: * -> *).
     ( Method m (SimpleMethod m)
