@@ -1,4 +1,4 @@
-package Web::Terminal::Server4;
+package Web::Terminal::Server;
 
 =pod
 The inactive sessions queue starts with n_inactive_max sessions.
@@ -24,7 +24,7 @@ use strict;
 use Carp::Assert;
 use YAML::Syck;
 use Proc::Daemon;
-use lib '.','../..'; #Êto keep EPIC happy
+use lib '.','../..'; #to keep EPIC happy
 use Web::Terminal::Settings;
 use Web::Terminal::Msg;
 use Web::Terminal::Server::Session;
@@ -658,9 +658,9 @@ sub call_create {
 		while ( $n_new_sessions[$app] > 0 ) {
 			 print "\tYes, initiating a create_session() call...\n" if $v;
 			$n_new_sessions[$app]--;
-			use Web::Terminal::Dispatcher3;
+			use Web::Terminal::Dispatcher;
 			( my $ret, my $p, my $h ) =
-			  Web::Terminal::Dispatcher3::send( 0, '127.0.0.1', 1, 1,
+			  Web::Terminal::Dispatcher::send( 0, '127.0.0.1', 1, 1,
 									  'Web::Terminal::Server::Session.create' );
 			print "create_session() call returned $ret:",
 			  ( $ret < 1 ) ? "ERROR" : "OK", "\n" if $v;
@@ -677,9 +677,9 @@ sub call_create {
 # Now we use a socket call, guaranteed no race conditions.
 sub call_clean_up {
 		
-			use Web::Terminal::Dispatcher3;
+			use Web::Terminal::Dispatcher;
 			( my $ret, my $p, my $h ) =
-			  Web::Terminal::Dispatcher3::send( 0, '127.0.0.1', 1, 1,
+			  Web::Terminal::Dispatcher::send( 0, '127.0.0.1', 1, 1,
 									  'Web::Terminal::Server::Sessions.clean-up' );
 			print "call_clean_up() call returned <$ret>:",
 			  ( $ret < 1 ) ? "ERROR" : "OK", "\n" if $v;

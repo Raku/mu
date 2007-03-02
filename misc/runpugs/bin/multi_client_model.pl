@@ -9,8 +9,8 @@ use threads;           # pull in threading routines
 
 use lib '../lib/';
 use Web::Terminal::Settings;
-use Web::Terminal::Dispatcher3;
-#$Web::Terminal::Settings::port=2058;
+use Web::Terminal::Dispatcher;
+$Web::Terminal::Settings::port=2059;
 my $v=0;
 my $hist=0; # don't display command history
 
@@ -130,7 +130,7 @@ my $cmd=shift;
 	my $app = shift;
 
 (my $reply,my $prompt,my $histref) =
-&Web::Terminal::Dispatcher3::send($id,$ip,$app,1,$cmd);
+&Web::Terminal::Dispatcher::send($id,$ip,$app,1,$cmd);
 if($Web::Terminal::Settings::test) {
 $reply=~s/^.*?called\ with\ //;
 $reply=~s/\.\s*$//;

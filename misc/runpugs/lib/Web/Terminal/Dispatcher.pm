@@ -1,6 +1,6 @@
-package Web::Terminal::Dispatcher3;
+package Web::Terminal::Dispatcher;
 use vars qw( $VERSION );
-$VERSION = '0.3.0';
+$VERSION = '0.4.0';
 use strict;
 use utf8;
 use YAML::Syck;
@@ -8,7 +8,7 @@ use YAML::Syck;
 #
 # based on testmsg.pl from "Advanced Perl Programming"
 #
-use lib '.', '../..';    #Êto keep EPIC happy
+use lib '.', '../..';    #to keep EPIC happy
 use Web::Terminal::Settings;
 use Web::Terminal::Msg;
 use Exporter;

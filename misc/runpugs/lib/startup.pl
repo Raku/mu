@@ -12,8 +12,7 @@ use CGI ( );
 CGI->compile(':all');
 
 use Web::Terminal::Settings ( );
-#use Web::Terminal::Dispatcher ( );
-use Web::Terminal::Dispatcher3 ( );
+use Web::Terminal::Dispatcher ( );
 #use Web::Terminal::Msg ( );
 #use YAML::Syck ( );
 
