@@ -1,5 +1,27 @@
 TODO for Pugs::Compiler::Rule (PCR)
 
+* 2007-03-02
+
+- try to compile Perl-6.0.0-STD.pm 
+
+- finish | || & &&
+  - DFA
+  - check precedence in Rule2.pm
+  - workaround Rule2.pm problems (see the header in that file)
+    (see MP6 for a workaround)
+
+- document how to install a rule using eval $rule->source
+  in order to access local variables (without PadWalker)
+
+- implement compile-as-closure in order to allow ratchet/non-ratchet in
+  the same rule
+
+- finish **{...} implementation
+
+- check failing (infinite-loop) tests
+
+* OLDER TODO
+
 - complex char classes
 
     # <+foo+bar-alpha>
