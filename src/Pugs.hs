@@ -259,9 +259,9 @@ doExecuteHelper helper args = do
     where
     suffixes =
         [ []
-        , ["perl5", "PIL2JS"]      --  $sourcedir/perl5/PIL2JS/jspugs.pl
-        , ["perl5", "lib"]         --  $pugslibdir/perl5/lib/jspugs.pl
-        , ["misc", "pX", "Common", "redsix"] -- $sourcedir/misc/pX/Common/redsix/redsix
+        , ["perl5", "PIL2JS"]                -- sourcedir/perl5/PIL2JS/jspugs.pl
+        , ["perl5", "lib"]                   -- pugslibdir/perl5/lib/jspugs.pl
+        , ["misc", "pX", "Common", "redsix"] -- sourcedir/misc/pX/Common/redsix/redsix
         ]
     perl5 = getConfig "perl5path"
     findHelper :: [[FilePath]] -> IO (Maybe FilePath)

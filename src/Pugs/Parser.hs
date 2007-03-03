@@ -1751,9 +1751,9 @@ ruleInvocationArguments quant name mustHaveParens = do
     when (isJust invs) $ fail "Only one invocant allowed"
     return $ \x -> case name of
         ('&':rest) -> case quant of
-            Just q  -> Syn "CCallDyn" ((Val (castV [q])):Val (VStr rest):x:args)         -- $x.*meth
-            _       -> App (_Var name) (Just x) args                                    -- $x.meth
-        _       -> Syn "CCallDyn" (Val (castV (maybeToList quant)):_Var name:x:args)    -- $x.$meth
+            Just q  -> Syn "CCallDyn" ((Val (castV [q])):Val (VStr rest):x:args)        -- '$x.*meth'
+            _       -> App (_Var name) (Just x) args                                    -- '$x.meth'
+        _       -> Syn "CCallDyn" (Val (castV (maybeToList quant)):_Var name:x:args)    -- '$x.$meth'
 
 ruleArraySubscript :: RuleParser (Exp -> Exp)
 ruleArraySubscript = verbatimRule "array subscript" $ do

@@ -32,7 +32,7 @@ instance Ord OpName where
     compare (MkOpName MkID{ idKey = a, idBuf = x }) (MkOpName MkID{ idKey = b, idBuf = y })
         = compare (Buf.length y) (Buf.length x) `mappend` compare b a
 
--- Not yet transcribed into a full optable parser with dynamic precedence --
+-- Not yet transcribed into a full optable parser with dynamic precedence
 
 tightOperators :: RuleParser (TightFunctions, RuleOperatorTable Exp)
 tightOperators = do

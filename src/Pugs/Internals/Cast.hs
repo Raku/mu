@@ -1,5 +1,6 @@
-{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -fno-full-laziness -fno-cse -fno-warn-deprecations -fallow-undecidable-instances -fallow-overlapping-instances -funbox-strict-fields #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -fno-full-laziness -fno-cse -fno-warn-deprecations -fallow-undecidable-instances -fallow-overlapping-instances -funbox-strict-fields -cpp #-}
 
+#ifndef HADDOCK
 module Pugs.Internals.Cast (
     (:>:)(..),
     (:<:)(..),
@@ -18,6 +19,7 @@ import Data.Foldable (toList)
 import qualified Data.Sequence as Seq
 import qualified Data.Typeable as Typeable
 import qualified UTF8
+
 
 --
 -- Nominal subtyping relationship with widening cast.
@@ -78,3 +80,4 @@ instance ((:>:) String) ByteString where
 instance ((:<:) String) ByteString where
     castBack = UTF8.pack
 
+#endif

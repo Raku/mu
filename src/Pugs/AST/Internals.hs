@@ -223,8 +223,10 @@ class (Typeable n, Show n, Ord n) => Value n where
     castV :: n -> Val
     castV x = VOpaque (MkOpaque x) -- error $ "Cannot cast into Val"
 
+#ifndef HADDOCK
 data VOpaque where
     MkOpaque :: Value a => !a -> VOpaque
+#endif
 
 fromVal' :: (Value a) => Val -> Eval a
 fromVal' (VRef r) = do

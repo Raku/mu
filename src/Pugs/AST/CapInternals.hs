@@ -114,7 +114,7 @@ data Val
     | VUndef  ValUndef           -- ^ Various undefined values
     | VPure   ValPure            -- ^ Immutable (or "pure") values
     | VMut    ValMut             -- ^ Mutable variables (in STM monad)
-    | VIO     ValIO              -- ^ I/O handles (in IO monad)
+    | VIO     ValIO              -- ^ IO handles (in IO monad)
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 type ExpVal = Val
@@ -128,14 +128,14 @@ data Native
     | NBuf  !NativeBuf     -- ^ (a raw chunk of ints or uints)
     | NNum  !NativeNum     -- ^ 4.2
     | NCplx !NativeComplex -- ^ (45 - 9i)
-    | NBool !NativeBool    -- ^ True (same underlying storage as NBit + True/False)
+    | NBool !NativeBool    -- ^ True (same underlying storage as NBit + True|False)
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 -- | L<S02/"Undefined types">
 data ValUndef
     = UUndef               -- ^ e.g., "my $x" with out further assignment
     | UWhatever            -- ^ e.g. the * in 1 .. *
-    | UFailure    !ObjId   -- ^ $! object
+    | UFailure    !ObjId   -- ^ the "$!" object
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 
@@ -533,7 +533,7 @@ data ExpControl
     | CForeign                          -- ^ &statement_control:<mycontrol>
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
--- | Single parameter for a function/method, e.g.:
+-- | Single parameter for a function or method, e.g.:
 --   Elk $m where { $m.antlers ~~ Velvet }
 {-|
 A formal parameter of a sub (or other callable).
@@ -719,17 +719,17 @@ instance Ord ObjSlots where
 data MutObject
     = ObjInstance
         { o_id       :: !ObjId      -- ^ our unique id
-        , o_meta     :: !ObjClass   -- ^ id of our metaobj/type
+        , o_meta     :: !ObjClass   -- ^ id of our metaobj|type
         , o_slots    :: !ObjSlots   -- ^ storage for explicit fields
         }
     | MkForeign
-        { o_id       :: !ObjId   -- ^ our unique id
-        , o_meta     :: !ObjClass   -- ^ id of our metaobj/type
+        { o_id       :: !ObjId      -- ^ our unique id
+        , o_meta     :: !ObjClass   -- ^ id of our metaobj|type
         , o_payload  :: !ObjPayload -- ^ storage for opaque wrapped obj
         }
     | MkPrototype
         { o_id       :: !ObjId      -- ^ our unique id
-        , o_meta     :: !ObjClass   -- ^ id of our metaobj/type
+        , o_meta     :: !ObjClass   -- ^ id of our metaobj|type
         }
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
@@ -768,27 +768,27 @@ data Var
 type ExpVar = Var
 
 data Magic
-    = MOS               -- ^ $?OS        Which os am I compiled for?
-    | MOSVer            -- ^ $?OSVER     Which os version am I compiled for?
-    | MPerlVer          -- ^ $?PERLVER   Which Perl version am I compiled for?
-    | MFile             -- ^ $?FILE      Which file am I in?
-    | MLine             -- ^ $?LINE      Which line am I at?
-    | MScalarPackage    -- ^ $?PACKAGE   Which package am I in?
-    | MArrayPackages    -- ^ @?PACKAGE   Which packages am I in?
-    | MScalarModule     -- ^ $?MODULE    Which module am I in?
-    | MArrayModules     -- ^ @?MODULE    Which modules am I in?
-    | MScalarClass      -- ^ $?CLASS     Which class am I in? (as variable)
-    | MArrayClasses     -- ^ @?CLASS     Which classes am I in?
-    | MScalarRole       -- ^ $?ROLE      Which role am I in? (as variable)
-    | MArrayRoles       -- ^ @?ROLE      Which roles am I in?
-    | MScalarGrammar    -- ^ $?GRAMMAR   Which grammar am I in?
-    | MArrayGrammars    -- ^ @?GRAMMAR   Which grammars am I in?
-    | MParser           -- ^ $?PARSER    Which Perl grammar was used to
+    = MOS               -- ^ \$?OS        Which os am I compiled for?
+    | MOSVer            -- ^ \$?OSVER     Which os version am I compiled for?
+    | MPerlVer          -- ^ \$?PERLVER   Which Perl version am I compiled for?
+    | MFile             -- ^ \$?FILE      Which file am I in?
+    | MLine             -- ^ \$?LINE      Which line am I at?
+    | MScalarPackage    -- ^ \$?PACKAGE   Which package am I in?
+    | MArrayPackages    -- ^ \@?PACKAGE   Which packages am I in?
+    | MScalarModule     -- ^ \$?MODULE    Which module am I in?
+    | MArrayModules     -- ^ \@?MODULE    Which modules am I in?
+    | MScalarClass      -- ^ \$?CLASS     Which class am I in? (as variable)
+    | MArrayClasses     -- ^ \@?CLASS     Which classes am I in?
+    | MScalarRole       -- ^ \$?ROLE      Which role am I in? (as variable)
+    | MArrayRoles       -- ^ \@?ROLE      Which roles am I in?
+    | MScalarGrammar    -- ^ \$?GRAMMAR   Which grammar am I in?
+    | MArrayGrammars    -- ^ \@?GRAMMAR   Which grammars am I in?
+    | MParser           -- ^ \$?PARSER    Which Perl grammar was used to
                         -- ^                   parse this statement?
-    | MScalarRoutine    -- ^ &?ROUTINE   Which routine am I in?
-    | MArrayRoutines    -- ^ @?ROUTINE   Which routines am I in?
-    | MScalarBlock      -- ^ &?BLOCK     Which block am I in?
-    | MArrayBlocks      -- ^ @?BLOCK     Which blocks am I in?
+    | MScalarRoutine    -- ^ \&?ROUTINE   Which routine am I in?
+    | MArrayRoutines    -- ^ \@?ROUTINE   Which routines am I in?
+    | MScalarBlock      -- ^ \&?BLOCK     Which block am I in?
+    | MArrayBlocks      -- ^ \@?BLOCK     Which blocks am I in?
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 data Package = MkPackage

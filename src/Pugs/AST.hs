@@ -351,9 +351,8 @@ filterUserDefinedPad (MkPad pad) = MkPad $ Map.filterWithKey doFilter pad
     doFilter key _ = (not . Set.member key) _reserved
 
 {-|
-Symbols which are reserved for the current interpreter/compiler instance and
-should not be set from the preamble or other sources.  See
-@Pugs.AST.filterUserDefinedPad@.
+Symbols which are reserved for the current interpreter or compiler instance and
+should not be set from the preamble or other sources. See @filterUserDefinedPad@.
 -}
 _reserved :: Set Var
 _reserved = Set.fromList . cast . words $

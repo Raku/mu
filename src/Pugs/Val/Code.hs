@@ -97,7 +97,7 @@ data Sig
 
 type PureSig = Sig
 
--- | Single parameter for a function/method, e.g.:
+-- | Single parameter for a function or method, e.g.:
 --   Elk $m where { $m.antlers ~~ Velvet }
 {-|
 A formal parameter of a sub (or other callable).

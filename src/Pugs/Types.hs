@@ -34,9 +34,9 @@ import qualified Data.IntMap as IntMap
 import qualified Data.ByteString.Char8 as Buf
 
 data Type
-    = MkType !ID         -- ^ A regular type
-    | TypeOr  !Type !Type -- ^ The disjunction (|) of two types
-    | TypeAnd !Type !Type -- ^ The conjunction (&) of two types
+    = MkType !ID            -- ^ A regular type
+    | TypeOr  !Type !Type   -- ^ The disjunction (|) of two types
+    | TypeAnd !Type !Type   -- ^ The conjunction (&) of two types
     deriving (Eq, Ord, Typeable, Data)
 
 instance ((:>:) ByteString) Type where
@@ -428,7 +428,7 @@ doBufToVar buf = MkVar
     tokenPkg str = case Buf.elemIndex ':' str of
         Just idx1 -> case Buf.findSubstring (__"::") str of
             Nothing  -> ([], (cast (Buf.take idx1 str), Buf.drop (succ idx1) str))
-            Just 0   -> tokenPkg (Buf.drop 2 str) -- $::x is the same as $x
+            Just 0   -> tokenPkg (Buf.drop 2 str) -- '$::x' is the same as $x
             Just idx
                 | idx == idx1 -> case cast (Buf.take idx1 str) of
                     -- &infix::= should parse as infix:<:=>, not infix::<=>

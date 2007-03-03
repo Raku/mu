@@ -160,7 +160,7 @@ op2Match x y@(VObject MkObject{ objType = cls }) | cls == classType = do
     name    <- fromVal =<< fetch "name"
     op2Match x (VType (mkType name))
 
--- $x ~~ tr/x/y/ ==> $x = ~$x.trans('x' => 'y')
+-- '$x ~~ tr/x/y/' ==> $x = ~$x.trans('x' => 'y')
 op2Match x (VSubst (MkTrans from to)) = do
     str <- fromVal x
     evalExp $ Syn "="

@@ -9,6 +9,14 @@ while (<>) {
   # CPP macros
   s/^#(.*)/{- $1 -}/;
 
+  # Recursive imports
+  s/import \{-# SOURCE #-\}.*//;
+
+  # Symbolic Classes
+  s/\(\(:>:\) (.+?)\) /CastTo $1 /;
+  s/(, )?\(:>:\) (\w+)//g;
+  s/(, )?\(:<:\) (\w+)//g;
+
   # Parallel arrays
   s/\[:/[/g;
   s/:\]/]/g;

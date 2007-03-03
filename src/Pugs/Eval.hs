@@ -288,12 +288,12 @@ reduceVar var@MkVar{ v_sigil = sig, v_twigil = twi, v_name = name, v_package = p
                     then cast $ Buf.join (__"::") [cast pkg, cast name]
                     else name
                 | isGlobalVar var || pkg `notElem` [emptyPkg, callerPkg, outerPkg, contextPkg] -> do
-                    -- $Qualified::Var is not found.  Vivify at lvalue context.
+                    -- '$Qualified::Var' is not found.  Vivify at lvalue context.
                     lv <- asks envLValue
                     if lv then evalExp (Sym SGlobal var (Var var)) else retEmpty
                 | otherwise -> do
                     s <- isStrict
-                    if s then retError "Undeclared variable" var
+                    if s then do retError "Undeclared variable" var
                          else do lv <- asks envLValue
                                  if lv then evalExp (Sym SGlobal var (Var var)) else retEmpty
 
@@ -658,7 +658,7 @@ reduceSyn ":=" exps
             case rv of
                 Just tvar -> return (tvar, ref)
                 _ | isGlobalVar var || v_package var `notElem` [emptyPkg, callerPkg, outerPkg, contextPkg] -> do
-                    -- $Qualified::Var is not found.  Vivify at lvalue context.
+                    -- '$Qualified::Var' is not found.  Vivify at lvalue context.
                     evalExp (Sym SGlobal var Noop)
                     rv' <- findVarRef var
                     case rv' of

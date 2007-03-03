@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fvia-C -optc-w #-}
+{-# OPTIONS_GHC -fglasgow-exts -fvia-C -optc-w -cpp #-}
 
 {-|
     Lexical analyzer.
@@ -66,6 +66,7 @@ mandatoryWhiteSpace = skipMany1 (simpleSpace <|> comment)
 balancedDelim :: Char -> Char
 balancedDelim c = case c of
     '\x0028' -> '\x0029'; '\x003C' -> '\x003E'; '\x005B' -> '\x005D';
+#ifndef HADDOCK
     '\x007B' -> '\x007D'; '\x00AB' -> '\x00BB'; '\x0F3A' -> '\x0F3B';
     '\x0F3C' -> '\x0F3D'; '\x169B' -> '\x169C'; '\x2039' -> '\x203A';
     '\x2045' -> '\x2046'; '\x207D' -> '\x207E'; '\x208D' -> '\x208E';
@@ -127,6 +128,7 @@ balancedDelim c = case c of
     '\xFE5B' -> '\xFE5C'; '\xFE5D' -> '\xFE5E'; '\xFF08' -> '\xFF09';
     '\xFF1C' -> '\xFF1E'; '\xFF3B' -> '\xFF3D'; '\xFF5B' -> '\xFF5D';
     '\xFF5F' -> '\xFF60'; '\xFF62' -> '\xFF63'; other    -> other
+#endif
 
 -- balanced: parses an open/close delimited expression of any non-alphanumeric character
 balanced :: RuleParser String
@@ -294,7 +296,7 @@ charNum = do
             "0" -> return [0]
             -- "\08..." and "\09..." are treated as "\0" and then "8..." or "9...".
             ('0':xs@(x:_)) | x == '8' || x == '9' -> return (0:map (toInteger . ord) xs)
-            _   -> error ("Error: Invalid escape sequence \\" ++ ds ++ "; write as decimal \\d" ++ ds ++ " or octal \\o" ++ ds ++ " instead") -- $ return [read ds]
+            _   -> error ("Error: Invalid escape sequence \\" ++ ds ++ "; write as decimal \\d" ++ ds ++ " or octal \\o" ++ ds ++ " instead") -- return [read ds]
         , based 'o'  8 octDigit
         , based 'x' 16 hexDigit
         , based 'd' 10 digit

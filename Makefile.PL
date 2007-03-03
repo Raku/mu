@@ -56,7 +56,7 @@ my @srcdirs  = grep {-d} glob("src"), glob("src/*"), glob("src/*/*"), glob("src/
 # Details: http://svn.collab.net/repos/svn/trunk/notes/asp-dot-net-hack.txt
 @srcdirs = grep {! m|\b_svn\b|} @srcdirs if $ENV{SVN_ASP_DOT_NET_HACK};
 
-my @hsfiles  = map {glob "$_/*.hs"} @srcdirs;
+my @hsfiles  = map {glob "$_/[A-Z]*.hs"} @srcdirs;
 push @hsfiles, qw<src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs>;
 my @hppfiles = map {my $x=$_; $x=~s/\.hs$/.hpp/; $x} @hsfiles;
 

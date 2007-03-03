@@ -22,12 +22,12 @@ parseProgram env path str = runRule env ruleProgram path progWithEOL
         | last prog == '\n' = prog
         | otherwise         = prog ++ "\n"
 
--- Based on: http://hackage.haskell.org/trac/haskell-prime/wiki/SourceEncodingDetection
+-- Based on: <http://hackage.haskell.org/trac/haskell-prime/wiki/SourceEncodingDetection>
 data EncodedSource
     = UTF8 !String
     | UTF16 !Endian !String
     | UTF32 !Endian !String
- -- | UserDefined ...
+ -- ... | UserDefined ...
 
 data Endian = LittleEndian | BigEndian
 

@@ -1592,7 +1592,7 @@ This should 'fail' (in the Perl sense).
 TOTHINK: report which element in the input list was the one
 triggering the failure. Just zipping with [1 ..] may not be
 enough because our caller may not be passing through its own
-input args in the same order/position to us.
+input args in the same order and position to us.
 
 -}
 withDefined :: (Monad m) => [Val] -> m a -> m a

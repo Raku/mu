@@ -56,7 +56,7 @@ mkObjM x = do
     x' <- x
     return $ MkInvocant x' (class_interface (classOf x'))
 
-mkBoxClass :: forall t (m :: * -> *) (m1 :: * -> *).
+mkBoxClass :: 
     ( Method m1 (AnyMethod m1)
     , Codeable m1 (HsCode m)
     , Typeable t
@@ -74,10 +74,10 @@ mkBoxClass cls methods = newMI MkMI
     , clsName           = _cast cls
     }
 
--- variant of @mkBoxClass@ meant to be called with the fixed-point
+-- | Variant of @mkBoxClass@ meant to be called with the fixed-point
 -- combinator, that adds the standard HOW and WHICH methods. E.g.:
 --    _StrClass = fix $ mkBoxPureClass "Str" [Str methods]
-mkBoxPureClass :: forall a1 (m :: * -> *) a (m1 :: * -> *).
+mkBoxPureClass ::
     ( Boxable m a1
     , Boxable m a
     , Codeable m1 (HsCode m)
@@ -95,7 +95,7 @@ mkBoxPureClass cls methods self =
 raiseWhatError :: String -> a
 raiseWhatError = error
 
-mkBoxMethod :: forall t (m1 :: * -> *) (m :: * -> *).
+mkBoxMethod ::
     ( Method m (SimpleMethod m)
     , Codeable m (HsCode m1)
     , Typeable t
@@ -114,7 +114,7 @@ inv ./ meth = ivDispatch inv $ MkMethodInvocation meth (mkArgs [])
 
 type PureClass = MI Eval
 
-instance Boxable Eval a => Boxable Eval [a] where
+instance Boxable Eval a => Boxable Eval [a]
 instance Boxable Eval ID
 instance Boxable Eval PureClass where
     classOf _ = _PureClass

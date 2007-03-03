@@ -6,9 +6,12 @@
 >   ...some poetry here...
 -}
 
+module Prereqs where
+
 import Pugs.Compat ()
 import Pugs.Embed.Parrot ()
 import Pugs.Embed.Perl5 ()
+import Pugs.Meta ()
 import Pugs.Run.Perl5 ()
 import Pugs.Parser.Charnames ()
 import Pugs.Parser.Program ()

@@ -1,5 +1,3 @@
--- #prune
-
 -- |
 --
 -- Module      :  C3
