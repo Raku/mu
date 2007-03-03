@@ -15,6 +15,7 @@ import qualified Data.HashTable as H
 import qualified Foreign as Foreign
 import qualified UTF8
 
+{-
 #if __GLASGOW_HASKELL__ > 606
 
 -- If the following import directive triggers a compilation failure,
@@ -28,6 +29,7 @@ instance IsString ID where
     fromString = cast
 
 #endif
+-}
 
 -- XXX - Under GHCI, our global _BufToID table could be refreshed into
 --       nonexistence, so we need to compare IDs based on the actual buffer,
