@@ -1528,7 +1528,7 @@ ruleSignature = rule "signature" $ do
         slpHsh   = Nothing
         slpCd    = Nothing
         slpCapt  = Nothing
-    return $ Val $ VV $ val $ case inv of
+    return . Val . VV . mkVal $ case inv of
         Nothing -> SigSubSingle    reqPosC reqNms posLs nmSt slpScLs slpArrLs slpHsh slpCd slpCapt
         Just i  -> SigMethSingle i reqPosC reqNms posLs nmSt slpScLs slpArrLs slpHsh slpCd slpCapt
     where
@@ -1562,7 +1562,7 @@ ruleParam = rule "parameter" $ do
     let (traits'',  ref')    = setTrait ref     False    traits'
     let (traits''', lazy')   = setTrait lazy    False    traits''
     let (traits'''',context')= setTrait context False    traits'''
-    let slots = Map.fromList [(cast t, val $ ((cast True) :: PureBit)) | ("is", t) <- traits'''']
+    let slots = Map.fromList [(cast t, mkVal $ (cast True :: PureBit)) | ("is", t) <- traits'''']
     let isRequired = (not isSlurpy) && ((not isOptional) || (Map.member (cast "required") slots))
     when (isOptional && isRequired) failReqDef -- XXX is required(False)
     let p = MkParam { p_variable    = cast name

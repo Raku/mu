@@ -689,12 +689,12 @@ op1 "Class::traits" = \v -> do
     return str
 op1 "vv" = \v -> case v of
     VV{}        -> return v
-    VUndef      -> return . VV . Val.val $ ()
-    VBool x     -> return . VV . Val.val $ ((cast x) :: Val.PureBit)
-    VInt x      -> return . VV . Val.val $ ((cast x) :: Val.PureInt)
-    VNum x      -> return . VV . Val.val $ ((cast x) :: Val.PureNum)
-    VRat x      -> return . VV . Val.val $ ((cast x) :: Val.PureNum)
-    VStr x      -> return . VV . Val.val $ ((cast x) :: Val.PureStr)
+    VUndef      -> return . VV . mkVal $ ()
+    VBool x     -> return . VV . mkVal $ ((cast x) :: Val.PureBit)
+    VInt x      -> return . VV . mkVal $ ((cast x) :: Val.PureInt)
+    VNum x      -> return . VV . mkVal $ ((cast x) :: Val.PureNum)
+    VRat x      -> return . VV . mkVal $ ((cast x) :: Val.PureNum)
+    VStr x      -> return . VV . mkVal $ ((cast x) :: Val.PureStr)
     _           -> fail $ "don't know how to toVV: " ++ show v
 
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)

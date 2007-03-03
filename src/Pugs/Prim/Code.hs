@@ -5,7 +5,6 @@ module Pugs.Prim.Code (
 import Pugs.AST
 import Pugs.Internals
 import Pugs.Pretty
-import qualified Pugs.Val as Val
 
 {- On Code -}
 
@@ -47,7 +46,7 @@ op1CodePos v = do
 op1CodeSignature :: Val -> Eval Val
 op1CodeSignature v = do
     code <- fromVal v
-    return . VV . Val.val . paramsToSig . subParams $ code
+    return . VV . mkVal . paramsToSig . subParams $ code
 
 {- On Code::Exp -}
 
