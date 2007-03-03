@@ -4,7 +4,7 @@
 module Pugs.Embed.Perl5 
     ( InvokePerl5Result(..)
     , svToVBool, svToVInt, svToVNum, svToVStr, vstrToSV, vintToSV, svToVal, bufToSV, svUndef
-    , vnumToSV, mkValRef , mkVal, mkEnv, PerlSV, nullSV, nullEnv, evalPerl5, invokePerl5
+    , vnumToSV, mkValRef, mkValPtr, mkEnv, PerlSV, nullSV, nullEnv, evalPerl5, invokePerl5
     , initPerl5, freePerl5, canPerl5
     , evalPCR, pugs_SvToVal
     )
@@ -126,8 +126,8 @@ svToVBool = constFail
 svToVal :: PerlSV -> IO a
 svToVal = constFail
 
-mkVal :: (Show a) => a -> IO PugsVal
-mkVal = constFail
+mkValPtr :: (Show a) => a -> IO PugsVal
+mkValPtr = constFail
 
 mkEnv :: (Show a) => a -> IO PugsVal
 mkEnv = constFail
@@ -258,8 +258,8 @@ initPerl5 str env = do
             modifyIORef _GlobalFinalizer (>> perl_free interp)
             return interp
 
-mkVal :: Val -> IO PugsVal
-mkVal x = do
+mkValPtr :: Val -> IO PugsVal
+mkValPtr x = do
     -- warn "Creating nonblessed stable pointer for " (showVal x)
     newStablePtr x
 
@@ -286,7 +286,7 @@ svToVal sv = do
 mkValRef :: Val -> String -> IO PerlSV
 mkValRef x typ = do
     -- warn "Creating stable pointer for " (showVal x)
-    val <- mkVal x
+    val <- mkValPtr x
     withCString typ (pugs_MkValRef val)
 
 svUndef :: IO PerlSV

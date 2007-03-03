@@ -11,9 +11,11 @@
 
 module Pugs.Meta
     ( module Pugs.Meta.Str
+    , module Pugs.Meta.Perl5
 --  , module Pugs.Meta.Class
     ) where
 
 import Pugs.Meta.Str
+import Pugs.Meta.Perl5
 import Pugs.Meta.Class ()
 

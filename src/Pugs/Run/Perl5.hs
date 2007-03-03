@@ -55,11 +55,11 @@ pugs_eval cstr = do
     str <- peekCString cstr
     env <- askPerl5Env
     val <- runEvalIO env $ opEval quiet "<eval>" str
-    mkVal val
+    mkValPtr val
     where
     quiet = MkEvalStyle
-        { evalResult = EvalResultLastValue
-        , evalError = EvalErrorUndef
+        { evalResult    = EvalResultLastValue
+        , evalError     = EvalErrorUndef
         }
 
 pugs_apply :: PugsVal -> PugsVal -> Ptr PugsVal -> CInt -> IO PerlSV
@@ -120,21 +120,22 @@ valToPv ptr = do
     newCString x
 
 mkSvRef :: PerlSV -> IO PugsVal
-mkSvRef = mkVal . PerlSV
+-- mkSvRef = mkValPtr . VV . mkVal  -- NewVal/MO
+mkSvRef = mkValPtr . PerlSV            -- OldVal
 
 ivToVal :: CInt -> IO PugsVal
-ivToVal = mkVal . VInt . fromIntegral
+ivToVal = mkValPtr . VInt . fromIntegral
 
 nvToVal :: CDouble -> IO PugsVal
-nvToVal = mkVal . VNum . realToFrac
+nvToVal = mkValPtr . VNum . realToFrac
 
 pvnToVal :: CString -> CInt -> IO PugsVal
 pvnToVal cstr len = do
     str <- peekCStringLen (cstr, fromEnum len)
-    ptr <- mkVal $ VStr (decodeUTF8 str)
+    ptr <- mkValPtr $ VStr (decodeUTF8 str)
     return ptr
 
 undefVal :: IO PugsVal
-undefVal = mkVal VUndef
+undefVal = mkValPtr VUndef
 
 #endif
