@@ -3,7 +3,9 @@
 module Pugs.Val.Base where
 
 import Pugs.Class
+
 type Val = Invocant Eval
+type Call = MethodInvocation Eval
 
 
 {-
