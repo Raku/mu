@@ -11,11 +11,13 @@
 module Pugs.Val (
     module Pugs.Val,
     module Pugs.Val.Code,
-    Val
+    module Pugs.Val.Capture,
+    Val, Call
 ) where
 import Pugs.Class
 import Pugs.Val.Base
 import Pugs.Val.Code
+import Pugs.Val.Capture
 import Pugs.Internals
 import Text.PrettyPrint
 
@@ -38,8 +40,8 @@ valMeta _ = cast "Object"
 valShow :: Val -> PureStr
 valShow = cast "<opaque>"
 
-val :: Boxable Eval a => a -> Val
-val x = MkInvocant x (class_interface (classOf x))
+mkVal :: Boxable Eval a => a -> Val
+mkVal = mkObj
 
 formatVal :: Val -> Doc
 formatVal (MkInvocant x _) = text (show x)
