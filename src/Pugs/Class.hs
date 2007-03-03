@@ -74,6 +74,9 @@ mkBoxClass cls methods = newMI MkMI
     , clsName           = _cast cls
     }
 
+-- variant of @mkBoxClass@ meant to be called with the fixed-point
+-- combinator, that adds the standard HOW and WHICH methods. E.g.:
+--    _StrClass = fix $ mkBoxPureClass "Str" [Str methods]
 mkBoxPureClass :: forall a1 (m :: * -> *) a (m1 :: * -> *).
     ( Boxable m a1
     , Boxable m a
@@ -83,7 +86,7 @@ mkBoxPureClass :: forall a1 (m :: * -> *) a (m1 :: * -> *).
 mkBoxPureClass cls methods self =
     mkBoxClass cls methods'
     where
-    methods' = methods ++
+    methods' = flip (++) methods
         [ "HOW"         ... const self
         , "WHAT"        ... const (raiseWhatError ("Can't access attributes of prototype: " ++ cls) `asTypeOf` self)
         , "WHICH"       ... id
