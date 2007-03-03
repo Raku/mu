@@ -25,7 +25,7 @@ module Pugs.AST (
     module Pugs.AST.Scope,
     module Pugs.AST.SIO,
     module Pugs.AST.Pad,
-    module Pugs.Val,
+    module Pugs.Val
 ) where
 import Pugs.Internals
 import Pugs.Types
@@ -39,6 +39,7 @@ import Pugs.AST.Scope
 import Pugs.AST.SIO
 import Pugs.AST.Pad
 import Pugs.Val hiding (Val, Param, listVal) -- (val, castVal, formatVal, PureBit, PureBool, PureStr, PureInt, PureNum, Capt(..), ValCapt, Feed(..), ValFeed, emptyFeed, Sig(..), SigParam(..), ParamAccess(..), ParamDefault(..))
+import Pugs.Meta ()
 
 {-|
 Return an infinite (lazy) Haskell list of the given string and its
