@@ -1083,7 +1083,7 @@ applyCapture :: VCode -> ValCapt -> Eval Val
 applyCapture sub capt = apply sub inv (fromP argsPos ++ argsNam)
     where
     argsPos = mapP (Val . castV) (f_positionals feed)
-    argsNam = [ Syn "named" [Val (VStr (cast k)), Val (castV (vs !: lst))] | (k, vs) <- Map.toList (f_nameds feed), let lst = length vs - 1, lst >= 0 ]
+    argsNam = [ Syn "named" [Val (VStr (cast k)), Val (castV (vs !: lst))] | (k, vs) <- Map.toList (f_nameds feed), let lst = lengthP vs - 1, lst >= 0 ]
     feed = concatFeeds (c_feeds capt)
     inv  = case capt of 
         CaptMeth { c_invocant = val }   -> Just (Val (castV val))
