@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances -fallow-overlapping-instances #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances -fallow-overlapping-instances -fparr #-}
 
 module MO.Run (
     module MO.Run,
@@ -11,10 +11,11 @@ import MO.Base
 import MO.Compile as C
 import Data.Map as M
 import Data.Typeable hiding (cast)
+import GHC.PArr
 import qualified Data.Typeable as Typeable
 
 mkArgs :: (Typeable1 m, Monad m) => [Invocant m] -> Arguments m
-mkArgs = MkArguments
+mkArgs x = CaptSub{ c_feeds = [: MkFeed { f_positionals = toP x, f_nameds = M.empty } :] }
 
 -- Abstract Roles
 -- class Invocation a
@@ -22,22 +23,20 @@ mkArgs = MkArguments
 
 data MethodInvocation m
     = MkMethodInvocation
-        { miName      :: MethodName  
-        , miArguments :: Arguments m
+        { miName      :: !MethodName  
+        , miArguments :: !(Arguments m)
         }
-
-
 
 -- instance Invocation (MethodInvocation m)
 
 -- | This is a static method table.
 data MethodTable m
     = MkMethodTable
-        { mtMethods :: M.Map MethodName (MethodCompiled m)
+        { mtMethods :: !(M.Map MethodName (MethodCompiled m))
         }
 
 emptyResponder :: (Typeable1 m, Monad m) => AnyResponder m
-emptyResponder = AnyResponder (return NoResponse)
+emptyResponder = MkResponder (return NoResponse)
 
 data Monad m => NoResponse m = NoResponse
 
@@ -52,7 +51,7 @@ __ = (`MkInvocant` emptyResponder)
 stubInvocant :: (Typeable1 m, Monad m) => Invocant m
 stubInvocant = MkInvocant () emptyResponder
 
-data AnyResponder m = forall c. ResponderInterface m c => AnyResponder (m c)
+data AnyResponder m = forall c. ResponderInterface m c => MkResponder !(m c)
 data AnyResponder_Type deriving Typeable
 
 instance (Typeable1 m, Monad m) => Typeable (AnyResponder m) where
@@ -87,8 +86,8 @@ data (Typeable1 m, Monad m) => Invocant m
 data Invocant_Type deriving (Typeable)
 
 fromInvocant :: forall m b. (Typeable1 m, Monad m, Typeable b) => Arguments m -> m b
-fromInvocant (MkArguments [])                   = fail "No invocant"
-fromInvocant (MkArguments (MkInvocant x _:_))   = case Typeable.cast x of
+fromInvocant CaptSub{}                  = fail "No invocant"
+fromInvocant CaptMeth{ c_invocant = x } = case Typeable.cast x of
     Just y -> return y
     _      -> fail $ "Cannot cast from " ++ (show $ typeOf x) ++ " to " ++ (show $ typeOf (undefined :: b))
 
@@ -97,7 +96,7 @@ instance (Typeable1 m, Monad m) => Typeable (Invocant m) where
     typeOf _ = typeOf (undefined :: m Invocant_Type)
 
 ivDispatch :: (Typeable1 m, Monad m) => Invocant m -> MethodInvocation m -> m (Invocant m)
-ivDispatch i@(MkInvocant _ (AnyResponder ri)) mi = do
+ivDispatch i@(MkInvocant _ (MkResponder ri)) mi = do
     table   <- ri
     dispatch table i mi
 

@@ -1,10 +1,13 @@
-{-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances -fparr #-}
 
 module MO.Base (module MO.Base, Invocant, stubInvocant) where
 import {-# SOURCE #-} MO.Run
 import Data.Maybe
 import Data.Typeable
 import Pugs.Internals.ID
+import Pugs.Val.Capture
+import GHC.PArr
+import qualified Data.Map as Map
 
 -- | open type to represent Code
 class Monad m => Codeable m c where
@@ -35,15 +38,19 @@ instance Show (HsCode m) where
     show _ = "<HsCode>"
 
 withInvocant :: (Typeable1 m, Monad m) => Arguments m -> Invocant m -> Arguments m
-withInvocant (MkArguments xs) x = MkArguments (x:xs)
+withInvocant args x = CaptMeth{ c_invocant = x, c_feeds = c_feeds args }
 
 getInvocant :: (Typeable1 m, Monad m) => Arguments m -> Maybe (Invocant m)
-getInvocant (MkArguments xs) = listToMaybe xs
+getInvocant CaptMeth{ c_invocant = x }  = Just x
+getInvocant _                           = Nothing
 
-toList :: (Typeable1 m, Monad m) => Arguments m -> [Invocant m]
-toList (MkArguments xs) = xs
+-- toList :: (Typeable1 m, Monad m) => Arguments m -> [Invocant m]
+-- toList (MkArguments xs) = xs
 
 namedArg :: (Typeable1 m, Monad m) => Arguments m -> ID -> Maybe (Invocant m)
-namedArg _ _ = Nothing
+namedArg args key = foldlP findArg Nothing (c_feeds args)
+    where
+    findArg Nothing MkFeed{ f_nameds = ns } = fmap (!: 0) (Map.lookup key ns)
+    findArg x       _                       = x
 
-newtype Arguments m = MkArguments [Invocant m] deriving (Show)
+type Arguments m = Capt (Invocant m)
