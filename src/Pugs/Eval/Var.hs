@@ -233,7 +233,7 @@ findSub _var _invs _args
                         return (key, [val])   :: Eval (ID, [Val.Val])
 
                 -- This is the Capture object we are going to work with
-                let capt = CaptMeth invVV [Val.MkFeed posVVs namVVs]
+                -- let capt = CaptMeth invVV (MkArguments Val.MkFeed posVVs namVVs]
                 -- callMethod methName []
                 -- inv ./ meth = ivDispatch inv $ MkMethodInvocation meth (mkArgs [])
                 resVV <- invVV ./ cast methName

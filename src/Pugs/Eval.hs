@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -cpp -fno-warn-deprecations -fallow-overlapping-instances #-}
+{-# OPTIONS_GHC -fglasgow-exts -cpp -fno-warn-deprecations -fallow-overlapping-instances -fparr #-}
 
 {-|
     Evaluation and reduction engine.
@@ -39,6 +39,7 @@ import Pugs.Types
 import Pugs.External
 import Pugs.Eval.Var
 import DrIFT.YAML ()
+import GHC.PArr
 import qualified Data.ByteString.Char8 as Buf
 
 
@@ -1028,7 +1029,7 @@ specialApp = Map.fromList
                    , envPos     = envPos caller
                    }
         vcap <- case args of
-            []      -> return (CaptSub { c_feeds = [] })
+            []      -> return (CaptSub { c_feeds = [::] })
             (x:_)   -> castVal =<< fromVal =<< enterRValue (enterEvalContext (cxtItem "Capture") x)
         local callerEnv $ applyCapture sub vcap
     , "&assuming"   ... \inv args -> do
@@ -1038,14 +1039,14 @@ specialApp = Map.fromList
             Right curriedSub -> retVal $ castV $ curriedSub
     , "&infix:=>"   ... reduceSyn "=>"
     , "&circumfix:\\( )" ... \invs args -> do
-        feeds <- argsFeed [] Nothing [args]
+        feeds <- argsFeed [::] Nothing [args]
         case invs of
             Just i' -> do
                 invVal  <- reduce i'
                 vv      <- fromVal invVal
-                return $ VV $ val $ CaptMeth{ c_invocant = vv, c_feeds = feeds }
+                return . VV . mkVal $ CaptMeth{ c_invocant = vv, c_feeds = feeds }
             Nothing -> do
-                return $ VV $ val $ CaptSub{ c_feeds = feeds }
+                return . VV . mkVal $ CaptSub{ c_feeds = feeds }
     , "&prefix:|<<" ... reduceSyn "," -- XXX this is wrong as well - should handle at args level
     ]
 
@@ -1079,18 +1080,20 @@ reduceApp subExp invs args = do
         apply sub invs args
 
 applyCapture :: VCode -> ValCapt -> Eval Val
-applyCapture sub capt = apply sub inv (argsPos ++ argsNam)
+applyCapture sub capt = apply sub inv (fromP argsPos ++ argsNam)
     where
-    argsPos = map (Val . castV) (f_positionals feed)
-    argsNam = [Syn "named" [Val (VStr (cast k)), Val (castV (last vs))] | (k, vs@(_:_)) <- Map.toList $ f_nameds feed ]
-    feed = mconcat (c_feeds capt)
+    argsPos = mapP (Val . castV) (f_positionals feed)
+    argsNam = [ Syn "named" [Val (VStr (cast k)), Val (castV (vs !: lst))] | (k, vs) <- Map.toList (f_nameds feed), let lst = length vs - 1, lst >= 0 ]
+    feed = concatFeeds (c_feeds capt)
     inv  = case capt of 
         CaptMeth { c_invocant = val }   -> Just (Val (castV val))
         _                               -> Nothing
 
-argsFeed :: [ValFeed] -> Maybe ValFeed -> [[Exp]] -> Eval [ValFeed]
-argsFeed fAcc aAcc [] = return $ fAcc ++ maybeToList aAcc
-argsFeed fAcc aAcc [[]] = return $ fAcc ++ maybeToList aAcc
+argsFeed :: [:ValFeed:] -> Maybe ValFeed -> [[Exp]] -> Eval [:ValFeed:]
+argsFeed fAcc Nothing [] =   return fAcc
+argsFeed fAcc Nothing [[]]  = return fAcc
+argsFeed fAcc (Just x) []   = return $ fAcc +:+ [:x:]
+argsFeed fAcc (Just x) [[]] = return $ fAcc +:+ [:x:]
 argsFeed fAcc aAcc (argl:als) = do
     acc <- af aAcc argl
     argsFeed fAcc (Just acc) als
@@ -1105,22 +1108,22 @@ argsFeed fAcc aAcc (argl:als) = do
             af (Just $ resFeed{ f_nameds = addNamed (f_nameds resFeed) key argVal }) args
         | Syn "|" (capExp:_) <- unwrapN = do
             cap <- castVal =<< fromVal =<< enterRValue (enterEvalContext (cxtItem "Capture") capExp)
-            af (Just (mconcat (resFeed:c_feeds cap))) args
+            af (Just (mconcat (resFeed:fromP (c_feeds cap)))) args
         | App (Var var) Nothing capExps <- unwrapN
         , var == cast "&prefix:|<<" = do
             caps    <- mapM castVal =<< fromVals =<< (enterRValue $ enterEvalContext (cxtSlurpy "Capture") (Syn "," capExps))
-            af (Just (mconcat (resFeed:concatMap c_feeds caps))) args
+            af (Just (mconcat (resFeed:concatMap (fromP . c_feeds) caps))) args
         | otherwise = do
             argVal  <- fromVal =<< reduce n
-            af (Just resFeed{ f_positionals = (f_positionals resFeed) ++ [argVal] }) args
+            af (Just resFeed{ f_positionals = (f_positionals resFeed) +:+ [:argVal:] }) args
         where
         unwrapN = unwrap n
         resFeed = feed res
     feed res = maybe emptyFeed id res
-    addNamed :: (Map ID [a]) -> VStr -> a -> Map ID [a]
+    addNamed :: (Map ID [:a:]) -> VStr -> a -> Map ID [:a:]
     addNamed mp k v =
         let id = cast k in
-        Map.insertWith (flip (++)) id [v] mp
+        Map.insertWith (flip (+:+)) id [:v:] mp
 
 dummyVar :: Var
 dummyVar = cast "$"
@@ -1171,12 +1174,12 @@ interpolateVal (VRef (MkRef (IHash hv))) = do
 interpolateVal (VRef (MkRef (IPair pv))) = do
     (k, v) <- pair_fetch pv
     return [ Syn "named" [Val k, Val v] ]
-interpolateVal (VV vv) | Just (CaptSub{ c_feeds = feeds } :: ValCapt) <- castVal vv = return $
-    [ Val (castV v) | v <- concatMap f_positionals feeds ]
-    ++ [ Syn "named" [Val (VStr $ cast k), Val (concatNamed v)] | (k, v) <- concatMap (Map.toList . f_nameds) feeds ]
+interpolateVal (VV vv) | Just (CaptSub{ c_feeds = feeds } :: ValCapt) <- castVal vv = return . fromP $
+    [: Val (castV v) | v <- concatMapP f_positionals feeds :]
+    +:+ [: Syn "named" [Val (VStr $ cast k), Val (concatNamed v)] | (k, v) <- concatMapP (toP . Map.toList . f_nameds) feeds :]
     where
-    concatNamed [x] = castV x
-    concatNamed xs  = VList (map castV xs)
+    concatNamed [:x:] = castV x
+    concatNamed xs    = VList (fromP (mapP castV xs))
 interpolateVal val = return [Val val]
 
 isInterpolated :: Exp -> Bool
