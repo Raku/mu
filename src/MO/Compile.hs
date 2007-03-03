@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances -funbox-strict-fields #-}
 
 module MO.Compile where
 
@@ -7,19 +7,18 @@ import MO.Util
 
 type MethodName = ID
 
-data AnyMethod m
-    = forall a. Method m a => AnyMethod a
+data AnyMethod m = forall a. Method m a => MkMethod !a
 
 -- FIXME: Its not ok to use this since we can define method with
 -- same name which are different. 
 instance Eq (AnyMethod m) where
-    AnyMethod a == AnyMethod b = (methodName a) == (methodName b)
+    MkMethod a == MkMethod b = methodName a == methodName b
 
 instance Ord (AnyMethod m) where
-    AnyMethod a `compare` AnyMethod b = (methodName a) `compare` (methodName b)
+    MkMethod a `compare` MkMethod b = methodName a `compare` (methodName b)
 
 instance Show (AnyMethod m) where
-    show (AnyMethod m) = show (methodName m)
+    show (MkMethod m) = show (methodName m)
 
 -- Method and friends
 
@@ -28,8 +27,8 @@ class Monad m => Method m a | a -> m where
     methodCompile   :: a -> MethodCompiled m
 
 instance Monad m => Method m (AnyMethod m) where
-    methodName (AnyMethod x)    = methodName x
-    methodCompile (AnyMethod x) = methodCompile x
+    methodName (MkMethod x)    = methodName x
+    methodCompile (MkMethod x) = methodCompile x
 
 data SimpleMethod m
     = MkSimpleMethod

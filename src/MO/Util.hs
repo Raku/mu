@@ -3,6 +3,7 @@
 module MO.Util (
     module MO.Util,
     module Pugs.Internals.ID,
+    module Pugs.Val.Capture,
     trace,
     cast,
     _cast
@@ -10,6 +11,7 @@ module MO.Util (
 
 import Data.Set (Set)
 import qualified Data.Set as Set
+import Pugs.Val.Capture
 
 import Data.Map (Map)
 import qualified Data.Map as Map

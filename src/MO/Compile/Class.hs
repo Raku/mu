@@ -24,7 +24,7 @@ class (Typeable1 m, Monad m, Typeable c, Eq c) => Class m c | c -> m where
 
     -- These three methods below are shared between all C3-happy classes.
     class_precedence_list    :: c -> [AnyClass m]
-    class_precedence_list cls = case C3.linearize (Just . superclasses) (AnyClass cls) of
+    class_precedence_list cls = case C3.linearize (Just . superclasses) (MkClass cls) of
         Just ok -> ok
         _       -> error "..."
 
@@ -43,7 +43,7 @@ class (Typeable1 m, Monad m, Typeable c, Eq c) => Class m c | c -> m where
         -- Take all public attributes of this class and make read-only accessor for them
         attribute_methods = cmap makeAccessorMethod . newCollection' attrAccessorName . attributes
         role_attribute_methods = cmap makeAccessorMethod . newCollection' attrAccessorName . roAttributes
-        makeAccessorMethod attr = AnyMethod $ MkSimpleMethod
+        makeAccessorMethod attr = MkMethod $ MkSimpleMethod
             { smName        = attrAccessorName attr
             , smDefinition  = MkMethodCompiled $ PureCode (error . show . getInvocant)
             }
@@ -67,19 +67,19 @@ class (Typeable1 m, Monad m, Typeable c, Eq c) => Class m c | c -> m where
     private_methods          :: c -> Collection (AnyMethod m)
 
     class_interface :: c -> AnyResponder m
-    class_interface = AnyResponder
+    class_interface = MkResponder
                        . (fromMethodList :: [(MethodName, MethodCompiled m)] -> m (MethodTable m))
                        . map (\m -> (methodName m, methodCompile m))
                        . all_methods
 
-data AnyClass m = forall c. Class m c => AnyClass c
+data AnyClass m = forall c. Class m c => MkClass !c
 data AnyClass_Type deriving Typeable
 
 instance (Typeable1 m, Monad m) => Typeable (AnyClass m) where
     typeOf _ = typeOf (undefined :: m AnyClass_Type)
 
 instance (Typeable1 m, Monad m) => Eq (AnyClass m) where
-    AnyClass x == AnyClass y = case Typeable.cast y of
+    MkClass x == MkClass y = case Typeable.cast y of
         Just y' -> x == y'  -- same type, compare with its Eq
         _       -> False    -- not same type, never eq
 
@@ -90,16 +90,16 @@ instance (Typeable1 m, Monad m) => Show (AnyClass m) where
 -- Could it cause serious problems? Well, there's a DRY problem here, but
 -- what else?
 instance (Typeable1 m, Monad m) => Class m (AnyClass m) where
-    class_name              (AnyClass c) = class_name c
-    superclasses            (AnyClass c) = superclasses c
-    class_precedence_list   (AnyClass c) = class_precedence_list c
-    all_methods             (AnyClass c) = all_methods c
-    roles                   (AnyClass c) = roles c
---  attribute_grammars      (AnyClass c) = attribute_grammars c
-    attributes              (AnyClass c) = attributes c
-    public_methods          (AnyClass c) = public_methods c
-    private_methods         (AnyClass c) = private_methods c
-    class_interface      (AnyClass c) = class_interface c
+    class_name              (MkClass c) = class_name c
+    superclasses            (MkClass c) = superclasses c
+    class_precedence_list   (MkClass c) = class_precedence_list c
+    all_methods             (MkClass c) = all_methods c
+    roles                   (MkClass c) = roles c
+--  attribute_grammars      (MkClass c) = attribute_grammars c
+    attributes              (MkClass c) = attributes c
+    public_methods          (MkClass c) = public_methods c
+    private_methods         (MkClass c) = private_methods c
+    class_interface         (MkClass c) = class_interface c
 
 -- FIXME: hmm.. how to do Subclassing properly, ie. have MI and MI share about
 -- everything except for just a couple of things? Type-classes doesn't seem to
@@ -140,18 +140,18 @@ emptyMI = MkMI
 _bless :: MethodName
 _bless = _cast "bless"
 
--- FIXME: Method then AnyMethod then MethodAttached then Anymethod again is ugly
+-- FIXME: Method then AnyMethod then MethodAttached then AnyMethod again is ugly
 newMI :: (Typeable1 m, Monad m) => MI m -> MI m
 newMI old = new
-    where attach = AnyMethod . MkMethodAttached new
+    where attach        = MkMethod . MkMethodAttached new
           withBless     = insert _bless (blessMI new)
           withCreate    = id -- insert "CREATE"   (createMI new)
-          new = old { clsPublicMethods = cmap attach . withBless . withCreate $ clsPublicMethods old }
+          new           = old { clsPublicMethods = cmap attach . withBless . withCreate $ clsPublicMethods old }
 
 blessMI :: Class m c => c -> AnyMethod m
-blessMI c = AnyMethod MkSimpleMethod
-    { smName = _bless
-    , smDefinition = MkMethodCompiled (HsCode constructor)
+blessMI c = MkMethod $ MkSimpleMethod
+    { smName        = _bless
+    , smDefinition  = MkMethodCompiled (HsCode constructor)
     }
     where
     -- Here we generate a structure from some layout.  The "params" here 
@@ -182,8 +182,8 @@ instance (Typeable1 m, Monad m) => Class m (MI m) where
 -- MethodAttached 
 data MethodAttached m
     = forall c a. (Class m c, Method m a) => MkMethodAttached
-        c       -- Origin
-        a       -- Method
+        !c       -- Origin
+        !a       -- Method
 
 instance Monad m => Method m (MethodAttached m) where
     methodName (MkMethodAttached _ m) = methodName m
