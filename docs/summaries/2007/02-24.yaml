@@ -276,8 +276,6 @@ lists:
             name: Will Coleda
           - email: allison@perl.org
             name: Allison Randal
-          - email: will@coleda.com
-            name: Will Coleda
           - email: jrisom@gmail.com
             name: Joshua Isom
           - email: jerry.gay@gmail.com
@@ -357,8 +355,6 @@ lists:
             name: chromatic
           - email: mddiep@gmail.com
             name: Matt Diephouse
-          - email: chromatic@wgz.org
-            name: chromatic
         rt_ticket: 'perl #41511'
         subject: '[perl #41511] Parrot_call_sub* Incompatible with Multisubs '
         summary: ''
@@ -596,7 +592,7 @@ lists:
         subject: '[PATCH] languages/lua lua.pg Grammar fixes'
         summary: ''
       - date_from: 1171973003
-        date_to: 1172130269
+        date_to: 1172614650
         hidden: ~
         message_id: 45DAE19C.70804@perl.it
         messages:
@@ -727,9 +723,11 @@ lists:
         subject: '[perl #41031] bad links in docs/ROADMAP.pod '
         summary: ''
       - date_from: 1172159597
-        date_to: 1172159597
+        date_to: 1172613531
         hidden: ~
         message_id: rt-3.6.HEAD-18680-1172159585-1148.41577-72-0@perl.org
+        messages:
+          - rt-3.6.HEAD-2051-1172613522-569.41577-15-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
             name: Patrick R . Michaud
@@ -791,13 +789,61 @@ lists:
         subject: '[perl #41584] [TODO] Update RELEASE_INSTRUCTIONS with details for updating the website '
         summary: ''
       - date_from: 1172236596
-        date_to: 1172236596
+        date_to: 1172259972
         hidden: ~
         message_id: 45DEE921.5060601@gmail.com
+        messages:
+          - 200702231146.16114.chromatic@wgz.org
         posters:
           - email: parrotcode@gmail.com
             name: Klaas-Jan Stol
+          - email: chromatic@wgz.org
+            name: chromatic
         subject: '[PATCH] PDD16 NCI update with simple example'
+        summary: ''
+      - date_from: 1170730737
+        date_to: 1172283044
+        hidden: ~
+        message_id: rt-3.6.HEAD-18680-1172283036-1939.41455-14-0@perl.org
+        messages:
+          - rt-3.6.HEAD-14573-1170730707-758.41455-72-0@perl.org
+          - 45D9EEED.3060502@yahoo.com
+          - 45D9F9BB.9060003@yahoo.com
+        posters:
+          - email: bugs-parrot-track@netlabs.develooper.com
+            name: James Keenan via RT
+          - email: parrotbug-followup@parrotcode.org
+            name: James Keenan
+          - email: jkeen_via_google@yahoo.com
+            name: James E Keenan
+        rt_ticket: 'perl #41455'
+        subject: '[perl #41455] [NEW] and [PATCH]:  tools/build/ops2pm.pl refactored '
+        summary: ''
+      - date_from: 1171729135
+        date_to: 1172874310
+        hidden: ~
+        message_id: rt-3.6.HEAD-24617-1171729125-426.41364-15-0@perl.org
+        messages:
+          - 189adbd0702191444o70399827nc3fb57c3c0ac7934@mail.gmail.com
+          - 189adbd0702252009p62b4dcaet192beaeb0389bcac@mail.gmail.com
+          - rt-3.6.HEAD-2051-1172874302-957.41364-15-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Allison Randal via RT
+          - email: alek.storm@gmail.com
+            name: Alek Storm
+        rt_ticket: 'perl #41364'
+        subject: '[perl #41364] [PATCH] Fixed object vtable method overrides in PIR '
+        summary: ''
+      - date_from: 1172244548
+        date_to: 1172244548
+        hidden: ~
+        message_id: rt-3.6.HEAD-18680-1172244518-1147.41597-72-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Aldo Calpini
+        rt_ticket: 'perl #41597'
+        subject: '[perl #41597] [PATCH] replacing explicit access to $^O in Configure '
         summary: ''
     title: Parrot Porters
   - name: perl6-users
@@ -818,7 +864,7 @@ lists:
   - name: cvs-parrot
     threads:
       - date_from: 1172023279
-        date_to: 1172241646
+        date_to: 1172256412
         hidden: ~
         message_id: 20070221030114.50057CBA1B@x12.develooper.com
         messages:
