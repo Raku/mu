@@ -29,6 +29,9 @@ import Pugs.AST.Eval
 import Control.Monad.Fix
 
 class (Show a, Typeable a, Ord a, Typeable1 m, Monad m) => Boxable m a | a -> m where
+    mkObj :: a -> Invocant m
+    mkObj x = MkInvocant x (class_interface (classOf x))
+
     classOf :: a -> MI m
     classOf o = mkBoxClass ty ([] :: [(ID, ID -> m (Invocant m))])
         where
@@ -42,16 +45,13 @@ class (Show a, Typeable a, Ord a, Typeable1 m, Monad m) => Boxable m a | a -> m 
     fromObj :: Invocant m -> m a
     fromObj (MkInvocant x _) = fromTypeable x
 
-(...) :: forall a b (m :: * -> *). (Boxable m b) => String -> (a -> b) -> (ID, a -> m (Invocant m))
-(...) x y = (_cast x, mkObj . y)
+(...) :: Boxable m b => String -> (a -> b) -> (ID, a -> m (Invocant m))
+(...) x y = (_cast x, (return . mkObj) . y)
 
-(!!!) :: forall a1 (m :: * -> *) a. (Boxable m a) => String -> (a1 -> m a) -> (ID, a1 -> m (Invocant m))
+(!!!) :: Boxable m b => String -> (a -> m b) -> (ID, a -> m (Invocant m))
 (!!!) x y = (_cast x, mkObjM . y)
 
-mkObj :: (Boxable m a) => a -> m (Invocant m)
-mkObj x = return $ MkInvocant x (class_interface (classOf x))
-
-mkObjM :: (Boxable m a) => m a -> m (Invocant m)
+mkObjM :: Boxable m a => m a -> m (Invocant m)
 mkObjM x = do
     x' <- x
     return $ MkInvocant x' (class_interface (classOf x'))
@@ -83,10 +83,14 @@ mkBoxPureClass :: forall a1 (m :: * -> *) a (m1 :: * -> *).
 mkBoxPureClass cls methods self =
     mkBoxClass cls methods'
     where
-        methods' = methods ++
-            [ "HOW"         ... (const self)
-            , "WHICH"       ... id
-            ]
+    methods' = methods ++
+        [ "HOW"         ... const self
+        , "WHAT"        ... const (raiseWhatError ("Can't access attributes of prototype: " ++ cls) `asTypeOf` self)
+        , "WHICH"       ... id
+        ]
+
+raiseWhatError :: String -> a
+raiseWhatError = error
 
 mkBoxMethod :: forall t (m1 :: * -> *) (m :: * -> *).
     ( Method m (SimpleMethod m)
@@ -95,7 +99,7 @@ mkBoxMethod :: forall t (m1 :: * -> *) (m :: * -> *).
     , Typeable1 m1
     , Monad m1
     ) => (ID, t -> m1 (Invocant m1)) -> AnyMethod m
-mkBoxMethod (meth, fun) = AnyMethod $ MkSimpleMethod
+mkBoxMethod (meth, fun) = MkMethod $ MkSimpleMethod
     { smName = meth
     , smDefinition = MkMethodCompiled $ HsCode $ \args -> do
         str <- fromInvocant args
