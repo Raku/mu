@@ -77,11 +77,14 @@ newtype PureBit = MkBit Bool
     deriving (Typeable, Show, Eq, Ord, Data, (:>:) Bool, (:<:) Bool)
 
 newtype PureStr = MkStr { unStr :: ByteString } deriving
-    ( Typeable, Show, Eq, Ord, Data
+    ( Typeable, Eq, Ord, Data
     , (:>:) ID, (:<:) ID
     , (:>:) String, (:<:) String
     , (:>:) ByteString, (:<:) ByteString
     )
+
+instance Show PureStr where
+    show = show . (cast :: PureStr -> String)
 
 data PureInt
     = IFinite      !Integer
