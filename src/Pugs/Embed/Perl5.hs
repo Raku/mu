@@ -129,7 +129,7 @@ svToVal = constFail
 mkValPtr :: (Show a) => a -> IO PugsVal
 mkValPtr = constFail
 
-mkEnv :: (Show a) => a -> IO PugsVal
+mkEnv :: a -> IO PugsVal
 mkEnv = constFail
 
 mkValRef :: a -> String -> IO PerlSV
@@ -186,6 +186,7 @@ import Foreign.C.Types
 import Foreign.C.String
 import {-# SOURCE #-} Pugs.AST.Internals
 import qualified UTF8 as Str
+import qualified Pugs.Val as Val
 
 type PerlInterpreter = Ptr ()
 type PerlSV = Ptr ()
