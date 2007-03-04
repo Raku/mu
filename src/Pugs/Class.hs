@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -cpp #-}
+{-# OPTIONS_GHC -fglasgow-exts -fparr #-}
 
 {-|
     Class meta-model.  (object meta-meta-model)
@@ -23,10 +23,12 @@ module Pugs.Class
 import MO.Run hiding (__)
 import MO.Compile
 import MO.Compile.Class
-import MO.Util
+import MO.Util hiding (traceM, traceShow)
 import Pugs.Internals
 import Pugs.AST.Eval
 import Control.Monad.Fix
+import qualified Data.Map as Map
+import qualified Data.Typeable as Typeable
 
 class (Show a, Typeable a, Ord a, Typeable1 m, Monad m) => Boxable m a | a -> m where
     mkObj :: a -> Invocant m
@@ -43,7 +45,9 @@ class (Show a, Typeable a, Ord a, Typeable1 m, Monad m) => Boxable m a | a -> m 
             | otherwise = x:acc
 
     fromObj :: Invocant m -> m a
-    fromObj (MkInvocant x _) = fromTypeable x
+    fromObj (MkInvocant x _) = case Typeable.cast x of
+        Just y -> return y
+        _      -> fail $ "Cannot coerce from " ++ (show $ typeOf x) ++ " to " ++ (show $ typeOf (undefined :: a))
 
 (...) :: Boxable m b => String -> (a -> b) -> (ID, a -> m (Invocant m))
 (...) x y = (_cast x, (return . mkObj) . y)
@@ -109,8 +113,8 @@ mkBoxMethod (meth, fun) = MkMethod $ MkSimpleMethod
         fun str   -- Note that we expect "fun" to be monadic
     }
 
-(./) :: (Typeable1 m, Monad m) => Invocant m -> ID -> m (Invocant m)
-inv ./ meth = ivDispatch inv $ MkMethodInvocation meth (mkArgs [])
+(./) :: ((:>:) (MethodInvocation Eval) a) => Invocant Eval -> a -> Eval (Invocant Eval)
+x ./ y = ivDispatch x (cast y)
 
 type PureClass = MI Eval
 
@@ -124,4 +128,10 @@ _PureClass = mkBoxClass "Class"
     [ "HOW"         ... (const _PureClass :: PureClass -> PureClass)
     , "methods"     ... (map methodName . all_methods)
     ]
+
+instance ((:>:) (MethodInvocation Eval)) ByteString where
+    cast = (`MkMethodInvocation` CaptSub{ c_feeds = [::] }) . cast
+
+instance ((:>:) (MethodInvocation Eval) (ByteString, [Invocant Eval], Map ID (Invocant Eval))) where
+    cast (meth, pos, named) = MkMethodInvocation (cast meth) CaptSub{ c_feeds = [: MkFeed (toP pos) (Map.map (\x -> [:x:]) named) :]}
 
