@@ -39,7 +39,40 @@ import Pugs.AST.Scope
 import Pugs.AST.SIO
 import Pugs.AST.Pad
 import Pugs.Val hiding (Val, Param, listVal) -- (val, castVal, formatVal, PureBit, PureBool, PureStr, PureInt, PureNum, Capt(..), ValCapt, Feed(..), ValFeed, emptyFeed, Sig(..), SigParam(..), ParamAccess(..), ParamDefault(..))
+import qualified Pugs.Val as Val
 import Pugs.Meta ()
+import Pugs.Class
+
+instance Value (Val.Val) where
+    fromVV = return
+    fromSV = return . mkVal
+    fromVal v = case v of
+        VV x@(MkInvocant x' _) -> case fromTypeable x' of
+            Just v  -> fromVal v
+            _       -> return x
+        VUndef      -> return . mkVal $ ()
+        VBool x     -> return . mkVal $ ((cast x) :: Val.PureBit)
+        VInt x      -> return . mkVal $ ((cast x) :: Val.PureInt)
+        VNum x      -> return . mkVal $ ((cast x) :: Val.PureNum)
+        VRat x      -> return . mkVal $ ((cast x) :: Val.PureNum)
+        VStr x      -> return . mkVal $ ((cast x) :: Val.PureStr)
+        PerlSV x    -> return . mkVal $ x
+        _           -> return . mkVal $ v
+    doCast = fromVal
+    castV  = VV
+
+data OldValResponder = OldValResponder deriving Typeable
+instance ResponderInterface Eval OldValResponder where
+    dispatch _          = dispatchOldVal
+    fromMethodList _    = return OldValResponder
+    toNameList _        = []
+
+instance Boxable Eval Val where
+    mkObj sv = MkInvocant sv (MkResponder (return OldValResponder))
+
+dispatchOldVal :: Val.Val -> Call -> Eval Val.Val
+dispatchOldVal inv call = do
+    fail $ "Dispatch failed - " ++ show (miName call)
 
 {-|
 Return an infinite (lazy) Haskell list of the given string and its
