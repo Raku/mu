@@ -8,7 +8,7 @@ module Pugs.Prim.Keyed (
   pairsFromRef, keysFromRef, valuesFromRef,
   existsFromRef, deleteFromRef,
 ) where
-import Pugs.Internals (forM, genericLength, fix)
+import Pugs.Internals (forM, genericLength, fix, warn)
 import Pugs.AST
 import Pugs.Types
 import qualified Data.Map as Map
@@ -22,7 +22,7 @@ pairsFromVal (PerlSV sv) = do
     elems   <- mapM (hash_fetchElem sv) keys
     return $ map (VRef . MkRef . IPair) (keys `zip` elems)
 pairsFromVal (VRef ref) = pairsFromRef ref
-pairsFromVal v = fix err v
+pairsFromVal v = err pairsFromVal v
 
 err :: (Val -> Eval b) -> Val -> Eval b
 err f v@(VV vv) = do
@@ -41,7 +41,7 @@ keysFromVal (VList vs) = return . VList $ map VInt [0 .. (genericLength vs) - 1]
 keysFromVal (VRef ref) = do
     vals <- keysFromRef ref
     return $ VList vals
-keysFromVal v = fix err v
+keysFromVal v = err keysFromVal v
 
 valuesFromVal :: Val -> Eval Val
 valuesFromVal VUndef = return $ VList []
@@ -53,7 +53,7 @@ valuesFromVal (VRef ref) = do
 valuesFromVal (PerlSV sv) = do
     pairs <- hash_fetch sv
     return . VList $ Map.elems pairs
-valuesFromVal v = fix err v
+valuesFromVal v = err valuesFromVal v
 
 -- XXX These bulks of code below screams for refactoring
 
