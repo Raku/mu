@@ -13,6 +13,7 @@ use Test::TAP::Model;
 # Package and global declarations
 our @ISA = qw(Test::TAP::Model);
 our $SMOKERFILE = ".smoker.yml";
+our $TEST_TIMEOUT = 30;
 our %Config;
 $ENV{TEST_ALWAYS_CALLER} = 1;
 $Test::Harness::Verbose  = 1;
@@ -24,23 +25,26 @@ sub get_config {
         --concurrent|j=i    --shuffle|s   --exclude|X=s@
         --output-file|o=s   --recurse|r   --anonymous|a
         --include=s@        --dry|n       --help|h
+        --timeout|t=i
     );
     fix_config();
     my $Usage = qq{Usage: $0 [OPTIONS] 
         --help, -h              This help message.
         --output-file=FILE, -o  Store results in FILE [default: $Config{"output-file"}]
         --dry, -n               Show which tests would be run but don't run them
-        --concurrent=N, -j      Run N test jobs concurrently (MSWin requires Paralle::ForkManager)
+        --concurrent=N, -j      Run N test jobs concurrently (MSWin requires Parallel::ForkManager)
         --shuffle, -s           Run tests in random order
         --recurse, -r           Recurse into directories on test include list
         --incude=I1,[I2,...]    Include files
         --exclude=E1,[E2,...]   Exclude files
         --anonymous, -a         Do not include ~/.smoker.yml data in report
+        --timeout=N, -t         Kill a (probably hanging) test after N seconds, default 30
     } . "\n";
     die $Usage if $Config{help};
 }
 
 sub fix_config {
+    $Config{"timeout"} = $TEST_TIMEOUT if not defined $Config{"timeout"};
     $Config{"concurrent"} ||= $ENV{PUGS_TESTS_CONCURRENT} || 1;
     local $@;
     eval { require Parallel::ForkManager; };
@@ -270,10 +274,20 @@ sub run_test {
     my @rest = @_;
     my $kid  = $self->{_child_num} ? "[$self->{_child_num}] " : "";
     warn "$kid$test\n";
-    my $t = timeit( 1, sub {
-        $self->SUPER::run_test($test, @rest);
-    } );
-    warn "    ".timestr($t)."\n";
+    alarm $Config{timeout};
+    $SIG{ALRM} = sub { die "timeout\n" };
+
+    eval {
+        my $t = timeit( 1, sub {
+            $self->SUPER::run_test($test, @rest);
+        } );
+        warn "    ".timestr($t)."\n";
+        42;
+    } or do {
+        die $@ if $@ ne "timeout\n";
+        warn "    TIMED OUT, aborting.\n";
+    };
+    alarm 0;
 }
 
 
