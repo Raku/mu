@@ -49,6 +49,7 @@ module Pugs.Internals (
     module Debug.Trace,
     module GHC.Conc,
     module GHC.Exts,
+    module GHC.PArr,
     module Network,
     module Numeric,
     module Pugs.Compat,
@@ -128,6 +129,7 @@ import Data.Map (Map)
 import Data.Sequence (Seq, singleton)
 import Data.IntMap (IntMap)
 import Debug.Trace
+import GHC.PArr
 import GHC.Conc (unsafeIOToSTM)
 import GHC.Exts (unsafeCoerce#, Word(W#), Word#)
 import qualified Data.Sequence as Seq
