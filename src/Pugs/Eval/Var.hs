@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -cpp -fallow-overlapping-instances -funbox-strict-fields #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances -funbox-strict-fields -fparr #-}
 
 module Pugs.Eval.Var (
     findVar, findVarRef, findSub,
@@ -9,7 +9,6 @@ import qualified Data.Map as Map
 import Pugs.Internals
 import Pugs.AST
 import Pugs.Types
-import Pugs.Embed.Perl5
 import Pugs.Bind
 import Pugs.Prim.List (op2Reduce, op1HyperPrefix, op1HyperPostfix, op2Hyper)
 import Pugs.Prim.Param (foldParam)
@@ -164,14 +163,15 @@ findSub :: Var        -- ^ Name, with leading @\&@.
 findSub _var _invs _args
     | Nothing <- _invs = do
         findBuiltinSub NoMatchingMulti _var
-    | not (isQualifiedVar _var) = case unwrap _inv of
-        Val vv@VV{}     -> withExternalCall callMethodVV vv
-        Val sv@PerlSV{} -> withExternalCall callMethodPerl5 sv
-        inv' -> do
-            typ <- evalInvType inv'
-            if typ == mkType "Scalar::Perl5"
-                then evalExp inv' >>= withExternalCall callMethodPerl5
-                else findTypedSub (cast typ) _var
+    | not (isQualifiedVar _var) = do
+        case unwrap _inv of
+            Val vv@VV{}     -> withExternalCall callMethodVV vv
+            Val sv@PerlSV{} -> withExternalCall callMethodVV sv
+            inv' -> do
+                typ <- evalInvType inv'
+                if typ == mkType "Scalar::Perl5" -- code for "VV"
+                    then evalExp inv' >>= withExternalCall callMethodVV
+                    else findTypedSub (cast typ) _var
     | Just var' <- dropVarPkg _SUPER _var = do
         pkg <- asks envPackage
         findSuperSub pkg var'
@@ -230,18 +230,26 @@ findSub _var _invs _args
                     fmap Map.fromList $ forM list $ \(k, v) -> do
                         key <- fromVal k
                         val <- fromVal v
-                        return (key, [val])   :: Eval (ID, [Val.Val])
-
-                -- This is the Capture object we are going to work with
-                -- let capt = CaptMeth invVV (MkArguments Val.MkFeed posVVs namVVs]
-                -- callMethod methName []
-                -- inv ./ meth = ivDispatch inv $ MkMethodInvocation meth (mkArgs [])
-                resVV <- invVV ./ cast methName
-                return . castV $ resVV
+                        return (key, val)   :: Eval (ID, Val.Val)
+                rv <- tryT $ do
+                    resVV <- invVV ./ (methName, posVVs, namVVs)
+                    vvToVal resVV
+                case rv of
+                    VError (VStr s) _
+                        | "Can't locate object method" `isPrefixOf` s || "Can't call method" `isPrefixOf` s -> do
+                        let capt = miArguments (cast (methName, (invVV:posVVs), namVVs) :: Call)
+                        rv' <- tryT . evalExp $ App (Var _var{ v_sigil = SCodeMulti }) Nothing [Syn "|" [Val (VV (mkVal capt))]]
+                        case rv' of
+                            VError (VStr s') _ | "No compatible subroutine found" `isPrefixOf` s' -> EvalT $ return (RException rv)
+                            VError{} -> EvalT $ return (RException rv')
+                            _ -> return rv'
+                    VError{} -> EvalT $ return (RException rv)
+                    _ -> return rv
             }
 
     -- callMethodPerl5 :: (_var :: Var, _invs :: Maybe Exp, _args :: [Exp])
     --     => Eval (Maybe VCode)
+    {-
     callMethodPerl5 = do
         let name = cast (v_name _var)
         return . Just $ mkPrim
@@ -267,7 +275,7 @@ findSub _var _invs _args
                         subSV   <- liftIO . bufToSV $ name
                         runInvokePerl5 subSV sv svs
             }
-
+    -}
     -- findWithPkg :: (_var :: Var, _invs :: Maybe Exp, _args :: [Exp])
     --     => Pkg -> Var -> Eval (Either FindSubFailure VCode)
     findWithPkg pkg var = do
@@ -673,3 +681,4 @@ toQualified var@MkVar{ v_twigil = TNil, v_package = pkg }
         currentPkg <- asks envPackage
         return var{ v_package = currentPkg }
 toQualified var = return var
+
