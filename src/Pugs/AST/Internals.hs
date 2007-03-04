@@ -80,6 +80,8 @@ module Pugs.AST.Internals (
 
     newSVval, -- used in Run.Perl5
 
+    anyToVal, vvToVal, -- for circularity
+
     DebugInfo, _Sym, _Var -- String -> ByteString constructors
 ) where
 
@@ -242,9 +244,38 @@ fromVal' (PerlSV sv) = do
     v <- liftIO $ svToVal sv
     case v of
         PerlSV sv'  -> fromSV sv'   -- it was a SV
+        VV vv
+            | Just sv  <- Val.castVal vv -> fromSV sv
+            | Just v   <- Val.castVal vv -> fromVal v
         val         -> fromVal val  -- it was a Val
-fromVal' (VV v) = fromVV v
+fromVal' (VV vv) = do
+    v' <- vvToVal vv
+    case v' of
+        VV vv''     -> fromVV vv''
+        PerlSV sv   -> fromSV sv
+        _           -> fromVal v'
 fromVal' v = doCast v
+
+-- XXX - This is makeshift until all our native types are in VV.
+vvToVal :: Val.Val -> Eval Val
+vvToVal x
+    | Just sv <- Val.castVal x  = do
+        rv <- liftIO (svToVal sv)
+        case rv of
+            VV vv
+                | Just sv  <- Val.castVal vv -> return (PerlSV sv)
+                | Just v   <- Val.castVal vv -> return v
+            _ -> return rv
+    | Just v  <- Val.castVal x  = return v
+    | Just x' <- Val.castVal x  = return . VStr $ (cast :: Val.PureStr -> String)  x'
+    | Just x' <- Val.castVal x  = return . VInt $ (cast :: Val.PureInt -> Integer) x'
+    | Just x' <- Val.castVal x  = return . VNum $ (cast :: Val.PureNum -> Double)  x'
+    | Just x' <- Val.castVal x  = return (VStr x')
+    | Just x' <- Val.castVal x  = return (VInt x')
+    | Just x' <- Val.castVal x  = return (VNum x')
+    | Just x' <- Val.castVal x  = return (VBool x')
+    | Just () <- Val.castVal x  = return VUndef
+    | otherwise                 = return (VV x)
 
 getArrayIndex :: Int -> Maybe (IVar VScalar) -> Eval IArray -> Maybe (Eval b) -> Eval (IVar VScalar)
 getArrayIndex idx def getArr _ | idx < 0 = do
@@ -403,6 +434,16 @@ runInvokePerl5 sub inv args = do
         Perl5ReturnValues xs    -> liftIO $ fmap VList (mapM svToVal xs)
         Perl5ErrorString str    -> fail str
         Perl5ErrorObject err    -> throwError (PerlSV err)
+
+anyToVal :: (Show a, Typeable a) => a -> Val
+anyToVal x
+    | Just v <- fromTypeable x      = v
+    | Just v <- fromTypeable x      = PerlSV v
+    | Just v <- fromTypeable x      = VStr v
+    | Just v <- fromTypeable x      = VInt v
+    | Just v <- fromTypeable x      = VNum v
+    | Just () <- fromTypeable x     = VUndef
+    | otherwise                     = error (show x)
 
 instance Value VBool where
     castV = VBool
@@ -602,14 +643,6 @@ vrefToSV ref = mkValRef (VRef ref) $ case ref of
     MkRef IRule{}     -> "Rule"
     MkRef IThunk{}    -> "Thunk"
     MkRef IPair{}     -> "Pair"
-
-
-instance Value Val.Val where
-    fromVal (VV vv) = return vv
-    fromVal v       = castFailM v "VV"
-    fromVV          = return
-    castV           = VV
-    doCast v = castFailM v "VV"
 
 valToStr :: Val -> Eval VStr
 valToStr = fromVal
@@ -820,7 +853,7 @@ valType (VType    t)    = t
 valType (VObject  o)    = objType o
 valType (VOpaque  _)    = mkType "Object"
 valType (PerlSV   _)    = mkType "Scalar::Perl5"
-valType (VV       v)    = mkType (cast $ Val.valMeta v)
+valType (VV       _)    = mkType "Scalar::Perl5" -- (cast $ Val.valMeta v)
 
 valToBool :: Val -> Eval VBool
 valToBool = fromVal

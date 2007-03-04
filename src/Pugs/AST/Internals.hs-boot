@@ -34,5 +34,7 @@ envClasses :: Env -> ClassTree
 enterAtomicEnv :: Env -> Env
 objOpaque :: VObject -> Maybe Dynamic
 
+anyToVal :: (Show a, Typeable a) => a -> Val
+
 createObjectRaw :: (MonadSTM m)
     => ObjectId -> Maybe Dynamic -> VType -> [(VStr, Val)] -> m VObject
