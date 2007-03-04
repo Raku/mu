@@ -4,7 +4,6 @@ import Pugs.Internals
 import Pugs.Types
 import Pugs.Val.Base
 import Pugs.Val.Capture
-import Data.Monoid
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 import qualified Pugs.Types as Types
