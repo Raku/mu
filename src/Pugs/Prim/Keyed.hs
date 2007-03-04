@@ -30,7 +30,7 @@ err f v@(VV vv) = do
     case val of
         VV{} -> retError "Not a keyed object" v
         _    -> f val
-err f v = retError "Not a keyed value" v
+err _ v = retError "Not a keyed value" v
 
 keysFromVal :: Val -> Eval Val
 keysFromVal VUndef = return $ VList []

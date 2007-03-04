@@ -8,6 +8,8 @@ import Pugs.AST.SIO
 import Control.Concurrent.STM
 import Data.Dynamic
 
+instance Typeable Val
+
 data Env
 data Val
 data VRef
@@ -35,6 +37,7 @@ enterAtomicEnv :: Env -> Env
 objOpaque :: VObject -> Maybe Dynamic
 
 anyToVal :: (Show a, Typeable a) => a -> Val
+anyFromVal :: Typeable a => Val -> a
 
 createObjectRaw :: (MonadSTM m)
     => ObjectId -> Maybe Dynamic -> VType -> [(VStr, Val)] -> m VObject

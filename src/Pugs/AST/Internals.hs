@@ -80,7 +80,7 @@ module Pugs.AST.Internals (
 
     newSVval, -- used in Run.Perl5
 
-    anyToVal, vvToVal, -- for circularity
+    anyToVal, vvToVal, anyFromVal, -- for circularity
 
     DebugInfo, _Sym, _Var -- String -> ByteString constructors
 ) where
@@ -434,6 +434,11 @@ runInvokePerl5 sub inv args = do
         Perl5ReturnValues xs    -> liftIO $ fmap VList (mapM svToVal xs)
         Perl5ErrorString str    -> fail str
         Perl5ErrorObject err    -> throwError (PerlSV err)
+
+anyFromVal :: forall a. Typeable a => Val -> a
+anyFromVal v = case fromTypeable (fromVal v :: Eval PerlSV) of
+    Just f  -> f :: a
+    _       -> error "anyFromVal failed!"
 
 anyToVal :: (Show a, Typeable a) => a -> Val
 anyToVal x

@@ -7,7 +7,7 @@ import Pugs.Embed.Perl5
 import Pugs.Internals
 import Data.Typeable (Typeable)
 import qualified Data.Map as Map
-import {-# SOURCE #-} Pugs.AST.Internals (envContext, anyToVal)
+import {-# SOURCE #-} Pugs.AST.Internals (envContext, anyToVal, anyFromVal)
 import Pugs.Types
 
 data Perl5Responder = Perl5Responder deriving Typeable
@@ -25,6 +25,7 @@ instance Boxable Eval PerlSV where
         | Just x' <- fromTypeable x = liftIO . bufToSV  $ (cast :: PureStr -> ByteString) x'
         | Just x' <- fromTypeable x = liftIO . vintToSV $ (cast :: PureInt -> Integer)    x'
         | Just x' <- fromTypeable x = liftIO . vnumToSV $ (cast :: PureNum -> Double)     x'
+        | Just x' <- fromTypeable x = anyFromVal x'
         | otherwise                 = fail $ "Cannot coerce to SV: " ++ show (typeOf x)
 
 
