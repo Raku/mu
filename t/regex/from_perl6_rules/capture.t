@@ -68,7 +68,7 @@ ok("bookkeeper" ~~ m/(<?single>) ($0)/, 'Positional backref', :todo<bug>);
 is($0, 'o', 'Named capture', :todo<bug>);
 is($1, 'o', 'Backref capture', :todo<bug>);
 
-ok(!( "bokeper" ~~ m/(<?single>) ($0)/ ), 'Failed positional backref');
+skip 1, "looping test"; # ok(!( "bokeper" ~~ m/(<?single>) ($0)/ ), 'Failed positional backref');
 ok(eval(' !( "bokeper" ~~ m/<single> ($/<single>)/ ) '), 'Failed named backref', :todo<feature>);
 
 is("\$0", '$'~'1', 'Non-translation of non-interpolated "\\$0"', :todo<feature> );
