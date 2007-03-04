@@ -72,7 +72,11 @@ instance Boxable Eval Val where
 
 dispatchOldVal :: Val.Val -> Call -> Eval Val.Val
 dispatchOldVal inv call = do
-    fail $ "Dispatch failed - " ++ show (miName call)
+    inv' <- castVal inv
+    rv   <- evalExp $ App (_Var ('&':cast (miName call)))
+                          (Just $ Val inv')
+                          [Syn "|" [Val . VV . mkVal $ miArguments call]]
+    fromVal rv
 
 {-|
 Return an infinite (lazy) Haskell list of the given string and its
