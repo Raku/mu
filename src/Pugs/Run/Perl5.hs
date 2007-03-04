@@ -120,8 +120,8 @@ valToPv ptr = do
     newCString x
 
 mkSvRef :: PerlSV -> IO PugsVal
--- mkSvRef = mkValPtr . VV . mkVal  -- NewVal/MO
-mkSvRef = mkValPtr . PerlSV            -- OldVal
+mkSvRef = mkValPtr . VV . mkVal  -- NewVal/MO
+-- mkSvRef = mkValPtr . PerlSV            -- OldVal
 
 ivToVal :: CInt -> IO PugsVal
 ivToVal = mkValPtr . VInt . fromIntegral
