@@ -286,6 +286,8 @@ sub run_test {
     } or do {
         die $@ if $@ ne "timeout\n";
         warn "    TIMED OUT, aborting.\n";
+        # okay, this is the hackiest thing EVER. Kill the hung pugs.
+        close \*Test::Harness::Straps::FILE;
     };
     alarm 0;
 }
