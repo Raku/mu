@@ -23,7 +23,7 @@ ok sqrt(-1), NaN, 'sqrt(-1) is NaN';
 is_approx(sqrt(-1 +0i), 1i, 'got the square root of -1+0i');
 {
     my $i = -1;
-    is_approx(sqrt($i.i), 1i, 'got the square root of -1.i');
+    is_approx(eval("sqrt($i.i)"), 1i, 'got the square root of -1.i');
 }
 
 is_approx(sqrt(1i), (1+1i)/sqrt(2), 'got the square root of 1i');
