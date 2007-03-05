@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -fno-full-laziness -fno-cse -fno-warn-deprecations -fallow-undecidable-instances -fallow-overlapping-instances -funbox-strict-fields -cpp #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -fno-full-laziness -fno-cse -fno-warn-deprecations -fallow-undecidable-instances -fallow-overlapping-instances -funbox-strict-fields -fparr -cpp #-}
 
 #ifndef HADDOCK
 module Pugs.Internals.Cast (
@@ -16,6 +16,7 @@ import Data.ByteString (ByteString)
 import Data.Sequence (Seq)
 import Numeric (showHex)
 import Data.Foldable (toList)
+import GHC.PArr (fromP, toP, mapP)
 import qualified Data.Sequence as Seq
 import qualified Data.Typeable as Typeable
 import qualified UTF8
@@ -53,9 +54,12 @@ instance (:<:) a a where castBack = id
 
 instance ((:>:) [a]) (Seq a) where cast = toList
 instance ((:<:) [a]) (Seq a) where castBack = Seq.fromList
+instance ((:>:) [a]) [:a:] where cast = fromP
+instance ((:<:) [a]) [:a:] where castBack = toP
 
--- "fmap cast" can be written as "cast"
-instance (Functor f, (a :>: b)) => ((:>:) (f a)) (f b) where cast = fmap cast
+-- "map cast" can be written as "cast"
+instance (a :>: b) => ((:>:) [a]) [b] where cast = map cast
+instance (a :>: b) => ((:>:) [:a:]) [:b:] where cast = mapP cast
 
 fromTypeable :: forall m a b. (Monad m, Typeable a, Typeable b) => a -> m b
 fromTypeable x = case Typeable.cast x of
