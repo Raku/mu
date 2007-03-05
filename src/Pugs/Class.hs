@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fparr #-}
+{-# OPTIONS_GHC -fglasgow-exts -fparr -fallow-undecidable-instances -fallow-incoherent-instances #-}
 
 {-|
     Class meta-model.  (object meta-meta-model)
@@ -46,8 +46,7 @@ class (Show a, Typeable a, Ord a) => Boxable a where
     instanceMethods = []
 
     classOf :: a -> PureClass
---     classOf _ = mkPureClass (classNameOf (undefined :: a)) (instanceMethods :: [(ID, MethodPrim a)])
-    classOf _ = mkPureClass (classNameOf (undefined :: a)) ([] :: [(ID, a -> Eval Val)])
+    classOf _ = mkPureClass (classNameOf (undefined :: a)) (instanceMethods :: [(ID, MethodPrim a)])
 
     classNameOf :: a -> String
     classNameOf _ = takeTypeName "" . reverse . show . typeOf $ (undefined :: a)
@@ -60,11 +59,34 @@ class (Show a, Typeable a, Ord a) => Boxable a where
 
 type MethodPrim a = (a -> [:Val:] -> Eval Val)
 
-(===) :: (Boxable a, ((:>:) (MethodPrim a)) (a -> b)) => String -> (a -> b) -> (ID, MethodPrim a)
-(===) x y = (_cast x, cast y)
+class Boxable b => IsMethodPrim a b | a -> b where 
+    asPrim :: a -> MethodPrim b
 
-(...) :: Boxable b => String -> (a -> b) -> (ID, a -> Eval Val)
-(...) x y = (_cast x, (return . mkVal) . y)
+instance Boxable a => IsMethodPrim Val a where
+    asPrim v _ _ = return v
+
+instance Boxable a => IsMethodPrim Call a where
+    asPrim f x _ = ivDispatch (mkVal x) f
+
+instance (Boxable a, Boxable z) => IsMethodPrim (a -> z) a where
+    asPrim f x _ = return (mkVal (f x))
+
+instance (Boxable a, Boxable z) => IsMethodPrim (a -> Eval z) a where
+    asPrim f x _ = fmap mkVal (f x)
+
+instance (Boxable a, Boxable z) => IsMethodPrim (a -> Val -> z) a where
+    asPrim f x args = return (mkVal (f x (args !: 0)))
+
+instance (Boxable a, Boxable z) => IsMethodPrim (a -> Val -> Eval z) a where
+    asPrim f x args = fmap mkVal (f x (args !: 0))
+
+instance (Boxable a, Boxable b, Boxable z) => IsMethodPrim (a -> b -> z) a where
+    asPrim f x args = do
+        y <- coerceVal (args !: 0)
+        return (mkVal (f x y))
+
+(...) :: IsMethodPrim a b => String -> a -> (ID, MethodPrim b)
+(...) x y = (_cast x, asPrim y)
 
 (!!!) :: Boxable b => String -> (a -> Eval b) -> (ID, a -> Eval Val)
 (!!!) x y = (_cast x, mkValM . y)
@@ -74,8 +96,7 @@ mkValM x = do
     x' <- x
     return $ MkInvocant x' (class_interface (classOf x'))
 
--- mkBoxClass :: Boxable a => String -> [(ID, MethodPrim a)] -> PureClass
-mkBoxClass :: Typeable t => String -> [(ID, t -> Eval Val)] -> PureClass
+mkBoxClass :: Boxable a => String -> [(ID, MethodPrim a)] -> PureClass
 mkBoxClass cls methods = newMOClass MkMOClass
     { moc_parents         = []
     , moc_roles           = []
@@ -90,10 +111,10 @@ mkBoxClass cls methods = newMOClass MkMOClass
 -- | Variant of @mkBoxClass@ making use of the fixed-point combinator
 -- to tye in its "self", and, that adds the standard HOW and WHICH methods.
 -- mkPureClass :: (Boxable a) => String -> [(ID, MethodPrim a)] -> PureClass
-mkPureClass :: (Boxable a) => String -> [(ID, a -> Eval Val)] -> PureClass
+mkPureClass :: Boxable a => String -> [(ID, MethodPrim a)] -> PureClass
 mkPureClass cls methods = fix . (mkBoxClass cls .) $ \self -> flip (++) methods
-    [ "HOW"         ... const self
-    , "WHAT"        ... const (raiseWhatError ("Can't access attributes of prototype: " ++ cls) `asTypeOf` self)
+    [ "HOW"         ... mkVal self
+    , "WHAT"        ... mkVal (raiseWhatError ("Can't access attributes of prototype: " ++ cls) `asTypeOf` self)
     , "WHICH"       ... id
     , "ITEM"        ... id
     , "LIST"        ... id
@@ -102,21 +123,13 @@ mkPureClass cls methods = fix . (mkBoxClass cls .) $ \self -> flip (++) methods
 raiseWhatError :: String -> a
 raiseWhatError = error
 
-mkBoxMethod' :: forall a. Boxable a => (ID, MethodPrim a) -> AnyMethod Eval
-mkBoxMethod' (meth, fun) = MkMethod $ MkSimpleMethod
+mkBoxMethod :: forall a. Boxable a => (ID, MethodPrim a) -> AnyMethod Eval
+mkBoxMethod (meth, fun) = MkMethod $ MkSimpleMethod
     { sm_name       = meth
     , sm_definition = MkMethodCompiled $ \args -> do
         inv  <- fromInvocant args :: Eval a
         fun inv $ concatMapP f_positionals (c_feeds args)
     }
-
-mkBoxMethod :: Typeable t => (ID, t -> Eval Val) -> AnyMethod Eval
-mkBoxMethod (meth, fun) = MkMethod $ MkSimpleMethod
-     { sm_name       = meth
-     , sm_definition = MkMethodCompiled $ \args -> do
-        str <- fromInvocant args
-        fun str   -- Note that we expect "fun" to be monadic
-     }
 
 type PureClass = MOClass Eval
 
