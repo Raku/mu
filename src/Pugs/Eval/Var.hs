@@ -231,9 +231,7 @@ findSub _var _invs _args
                         key <- fromVal k
                         val <- fromVal v
                         return (key, val)   :: Eval (ID, Val.Val)
-                rv <- tryT $ do
-                    resVV <- invVV ./ (methName, posVVs, namVVs)
-                    vvToVal resVV
+                rv <- tryT $ VV invVV ./ (methName, posVVs, namVVs)
                 case rv of
                     VError (VStr s) _
                         | "Can't locate object method" `isPrefixOf` s || "Can't call method" `isPrefixOf` s -> do
