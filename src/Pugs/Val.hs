@@ -38,7 +38,7 @@ valMeta :: Val -> PureStr
 valMeta _ = cast "Object"
 
 valShow :: Val -> PureStr
-valShow = cast "<opaque>"
+valShow _ = cast "<opaque>"
 
 formatVal :: Val -> Doc
 formatVal (MkInvocant x _) = text (show x)

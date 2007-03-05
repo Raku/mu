@@ -548,14 +548,14 @@ instance Value VComplex where
 instance Value ID where
     castV = VStr . cast
     fromSV sv = fmap cast (liftIO $ svToVStr sv)
-    fromVV vv = cast (Val.asStr vv)
+    fromVV vv = fmap cast (Val.asStr vv)
     fromVal = fmap (cast :: VStr -> ID) . fromVal
     doCast = fmap (cast :: VStr -> ID) . doCast
 
 instance Value VStr where
     castV = VStr
     fromSV sv = liftIO $ svToVStr sv
-    fromVV vv = cast (Val.asStr vv)
+    fromVV vv = fmap cast (Val.asStr vv)
     fromVal (VList l)    = return . unwords =<< mapM fromVal l
     fromVal v@(PerlSV _) = fromVal' v
     fromVal VUndef       = return ""
