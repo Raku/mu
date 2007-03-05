@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts #-}
+{-# OPTIONS_GHC -fglasgow-exts -cpp #-}
 
 module MO.Util (
     module MO.Util,
@@ -22,6 +22,17 @@ import GHC.Exts (unsafeCoerce#, Word(W#), Word#)
 import Pugs.Internals.ID
 import Pugs.Internals.Cast (cast, _cast)
 import qualified Data.Typeable as Typeable
+
+
+#if __GLASGOW_HASKELL__ == 606
+
+-- Stole "on" combinator from ghc-6.7
+-- http://haskell.org/ghc/dist/current/docs/libraries/base/Data-Function.html#v%3Aon
+infixl 0 `on`
+on :: (b -> b -> c) -> (a -> b) -> a -> a -> c
+(*) `on` f = \x y -> f x * f y
+
+#endif
 
 traceShow :: Show a => a -> b -> b
 traceShow = trace . show

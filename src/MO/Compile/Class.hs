@@ -119,9 +119,9 @@ data (Monad m, Typeable1 m) => MOClass m
 instance (Typeable1 m, Monad m) => Show (MOClass m) where
     show = ('^':) . cast . moc_name
 instance (Typeable1 m, Monad m) => Ord (MOClass m) where
-    compare x y = moc_name x `compare` moc_name y
+    compare = compare `on` moc_name
 instance (Typeable1 m, Monad m) => Eq (MOClass m) where
-    x == y = moc_name x == moc_name y
+    (==) = (==) `on` moc_name
 instance (Typeable1 m, Monad m) => Typeable (MOClass m) where
     typeOf _ = mkTyConApp (mkTyCon "MOClass") [typeOf1 (undefined :: m ())]
 
