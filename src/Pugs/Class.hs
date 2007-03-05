@@ -42,19 +42,25 @@ class (Show a, Typeable a, Ord a) => Boxable a where
         Just y -> return y
         _      -> fail $ "Cannot coerce from " ++ (show $ typeOf x) ++ " to " ++ (show $ typeOf (undefined :: a))
 
-    {-
-    methodsOf :: [(ID, (a -> [:Val:] -> Eval Val))]
-    -}
+    methodsOf :: [(ID, MethodPrim a)]
+    methodsOf = []
 
     classOf :: a -> PureClass
-    classOf o = mkPureClass ty ([] :: [(ID, a -> Eval Val)])
-        where
-        ty = _cast . takeTypeName "" . reverse . show $ typeOf o
+    classOf _ = mkPureClass (classNameOf (undefined :: a)) ([] :: [(ID, a -> Eval Val)])
+
+    classNameOf :: a -> String
+    classNameOf _ = takeTypeName "" . reverse . show . typeOf $ (undefined :: a)
         -- Here we intuit "Str" from "Pugs.Val.Str.PureStr".
+        where
         takeTypeName acc [] = acc
         takeTypeName acc (x:xs)
             | isLower x = takeTypeName (x:acc) xs
             | otherwise = x:acc
+
+type MethodPrim a = (a -> [:Val:] -> Eval Val)
+
+(===) :: (Boxable b, ((:>:) (MethodPrim b)) a) => String -> a -> (ID, MethodPrim b)
+(===) x y = (_cast x, cast y)
 
 (...) :: Boxable b => String -> (a -> b) -> (ID, a -> Eval Val)
 (...) x y = (_cast x, (return . mkVal) . y)
