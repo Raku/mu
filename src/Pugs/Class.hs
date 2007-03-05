@@ -59,33 +59,33 @@ class (Show a, Typeable a, Ord a) => Boxable a where
 
 type MethodPrim a = (a -> [:Val:] -> Eval Val)
 
-class Boxable b => IsMethodPrim a b | a -> b where 
+class Boxable b => MethodPrimable a b | a -> b where 
     asPrim :: a -> MethodPrim b
 
-instance Boxable a => IsMethodPrim Val a where
+instance Boxable a => MethodPrimable Val a where
     asPrim v _ _ = return v
 
-instance Boxable a => IsMethodPrim Call a where
+instance Boxable a => MethodPrimable Call a where
     asPrim f x _ = ivDispatch (mkVal x) f
 
-instance (Boxable a, Boxable z) => IsMethodPrim (a -> z) a where
+instance (Boxable a, Boxable z) => MethodPrimable (a -> z) a where
     asPrim f x _ = return (mkVal (f x))
 
-instance (Boxable a, Boxable z) => IsMethodPrim (a -> Eval z) a where
+instance (Boxable a, Boxable z) => MethodPrimable (a -> Eval z) a where
     asPrim f x _ = fmap mkVal (f x)
 
-instance (Boxable a, Boxable z) => IsMethodPrim (a -> Val -> z) a where
+instance (Boxable a, Boxable z) => MethodPrimable (a -> Val -> z) a where
     asPrim f x args = return (mkVal (f x (args !: 0)))
 
-instance (Boxable a, Boxable z) => IsMethodPrim (a -> Val -> Eval z) a where
+instance (Boxable a, Boxable z) => MethodPrimable (a -> Val -> Eval z) a where
     asPrim f x args = fmap mkVal (f x (args !: 0))
 
-instance (Boxable a, Boxable b, Boxable z) => IsMethodPrim (a -> b -> z) a where
+instance (Boxable a, Boxable b, Boxable z) => MethodPrimable (a -> b -> z) a where
     asPrim f x args = do
         y <- coerceVal (args !: 0)
         return (mkVal (f x y))
 
-(...) :: IsMethodPrim a b => String -> a -> (ID, MethodPrim b)
+(...) :: MethodPrimable a b => String -> a -> (ID, MethodPrim b)
 (...) x y = (_cast x, asPrim y)
 
 (!!!) :: Boxable b => String -> (a -> Eval b) -> (ID, a -> Eval Val)
