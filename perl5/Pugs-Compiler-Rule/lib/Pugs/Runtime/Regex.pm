@@ -48,6 +48,12 @@ sub concat {
         my @state = $_[1] ? @{$_[1]} : ( undef, undef );
         #print "enter state ",Dumper(\@state);
         my $m2;
+        my $redo_count = 0;  
+            # XXX - workaround for t/regex/from_perl6_rules/capture.t test #38:
+            # regex single { o | k | e };
+            # # ...
+            # ok(!( "bokeper" ~~ m/(<?single>) ($0)/ ), 'Failed positional backref');
+
         do {
 
             my %param1 = defined $_[7] ? %{$_[7]} : ();
@@ -79,9 +85,11 @@ sub concat {
             #print "concat 3: "," \n";
             #print "return state ",Dumper(\@state);
 
-        } while ! $m2 && 
-                ! $m2->data->{abort} &&
-                defined $state[0]; 
+        } while    ! $m2 
+                && ! $m2->data->{abort} 
+                && defined $state[0]
+                && $redo_count++ < 512
+                ; 
 
         # push capture data
         # print "Concat positional: ", Dumper( $_[3]->data->{match}, $m2->data->{match} );
