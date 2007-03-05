@@ -423,11 +423,11 @@ x ./ y       = do
     vvToVal =<< ivDispatch vv (cast y)
 
 instance ((:>:) Call) Cxt where
-    cast CxtSlurpy{} = _LIST
-    cast _           = _ITEM
+    cast CxtSlurpy{} = __LIST__
+    cast _           = __ITEM__
 
-_LIST :: Call
-_LIST = cast "LIST"
+__LIST__ :: Call
+__LIST__ = cast "__LIST__"
 
-_ITEM :: Call
-_ITEM = cast "ITEM"
+__ITEM__ :: Call
+__ITEM__ = cast "__ITEM__"

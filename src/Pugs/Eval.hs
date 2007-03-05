@@ -977,8 +977,8 @@ specialApp = Map.fromList
     , "&hash"       ... (enterEvalContext cxtItemAny . Syn "\\{}" . (:[]) . Syn ",")
     , "&list"       ... listMeth
     , "&item"       ... itemMeth
-    , "&LIST"       ... listMeth
-    , "&ITEM"       ... itemMeth
+    , "&__LIST__"   ... listMeth
+    , "&__ITEM__"   ... itemMeth
     , "&cat"        ... \args -> do
         vals <- mapM (enterRValue . enterEvalContext (cxtItem "Array")) args
         val  <- op0Cat vals

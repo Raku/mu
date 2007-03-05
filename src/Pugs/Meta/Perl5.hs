@@ -27,20 +27,20 @@ instance Boxable PerlSV where
         | Just x' <- fromTypeable x = anyFromVal x'
         | otherwise                 = fail $ "Cannot coerce to SV: " ++ show (typeOf x)
 
-_HOW, _WHAT, _WHICH, _ITEM, _LIST :: MethodName
-_HOW    = _cast "HOW"
-_WHAT   = _cast "WHAT"
-_WHICH  = _cast "WHICH"
-_ITEM   = _cast "ITEM"
-_LIST   = _cast "LIST"
+__HOW__, __WHAT__, __WHICH__, __ITEM__, __LIST__ :: MethodName
+__HOW__     = _cast "__HOW__"
+__WHAT__    = _cast "__WHAT__"
+__WHICH__   = _cast "__WHICH__"
+__ITEM__    = _cast "__ITEM__"
+__LIST__    = _cast "__LIST__"
 
 dispatchPerl5 :: Val -> Call -> Eval Val
 dispatchPerl5 inv call
-    | meth == _HOW      = return inv
-    | meth == _WHAT     = return inv
-    | meth == _WHICH    = return inv
-    | meth == _ITEM     = return inv
-    | meth == _LIST     = return inv
+    | meth == __HOW__   = return inv
+    | meth == __WHAT__  = return inv
+    | meth == __WHICH__ = return inv
+    | meth == __ITEM__  = return inv
+    | meth == __LIST__  = return inv
     | otherwise = do
         invSV   <- castVal inv
         subSV   <- liftIO . bufToSV . cast $ meth
