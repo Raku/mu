@@ -8,7 +8,7 @@ module Pugs.Prim.Keyed (
   pairsFromRef, keysFromRef, valuesFromRef,
   existsFromRef, deleteFromRef,
 ) where
-import Pugs.Internals (forM, genericLength)
+import Pugs.Internals (forM, genericLength, fix)
 import Pugs.AST
 import Pugs.Types
 import qualified Data.Map as Map
@@ -22,15 +22,18 @@ pairsFromVal (PerlSV sv) = do
     elems   <- mapM (hash_fetchElem sv) keys
     return $ map (VRef . MkRef . IPair) (keys `zip` elems)
 pairsFromVal (VRef ref) = pairsFromRef ref
-pairsFromVal v = err pairsFromVal v
+pairsFromVal v = fallback v
 
-err :: (Val -> Eval b) -> Val -> Eval b
-err f v@(VV vv) = do
-    val <- vvToVal vv
-    case val of
-        VV{} -> retError "Not a keyed object" v
-        _    -> f val
-err _ v = retError "Not a keyed value" v
+fallback :: Val -> Eval b
+fallback = fix err
+    where
+    err :: (Val -> Eval b) -> Val -> Eval b
+    err f v@(VV vv) = do
+        val <- vvToVal vv
+        case val of
+            VV{} -> retError "Not a keyed object" v
+            _    -> f val
+    err _ v = retError "Not a keyed value" v
 
 keysFromVal :: Val -> Eval Val
 keysFromVal VUndef = return $ VList []
@@ -41,7 +44,7 @@ keysFromVal (VList vs) = return . VList $ map VInt [0 .. (genericLength vs) - 1]
 keysFromVal (VRef ref) = do
     vals <- keysFromRef ref
     return $ VList vals
-keysFromVal v = err keysFromVal v
+keysFromVal v = fallback v
 
 valuesFromVal :: Val -> Eval Val
 valuesFromVal VUndef = return $ VList []
@@ -53,7 +56,7 @@ valuesFromVal (VRef ref) = do
 valuesFromVal (PerlSV sv) = do
     pairs <- hash_fetch sv
     return . VList $ Map.elems pairs
-valuesFromVal v = err valuesFromVal v
+valuesFromVal v = fallback v
 
 -- XXX These bulks of code below screams for refactoring
 
