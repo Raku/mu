@@ -5,7 +5,7 @@ import Pugs.Val
 import Pugs.Class
 import qualified Data.ByteString.Char8 as Str
 
-instance Boxable Eval PureStr where
+instance Boxable PureStr where
     classOf _ = _StrClass
 
 _StrClass :: PureClass

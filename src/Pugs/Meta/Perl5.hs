@@ -17,9 +17,9 @@ instance ResponderInterface Eval Perl5Responder where
     fromMethodList _    = return Perl5Responder
     toNameList _        = []
 
-instance Boxable Eval PerlSV where
-    mkObj sv = MkInvocant sv (MkResponder (return Perl5Responder))
-    fromObj (MkInvocant x _)
+instance Boxable PerlSV where
+    mkVal sv = MkInvocant sv (MkResponder (return Perl5Responder))
+    coerceVal (MkInvocant x _)
         | Just x' <- fromTypeable x = return x'
         | Just x' <- fromTypeable x = liftIO $ vstrToSV x'
         | Just x' <- fromTypeable x = liftIO . bufToSV  $ (cast :: PureStr -> ByteString) x'
@@ -43,13 +43,13 @@ dispatchPerl5 inv call
     | meth == _ITEM     = return inv
     | meth == _LIST     = return inv
     | otherwise = do
-        invSV   <- fromObj inv
-        subSV   <- liftIO . bufToSV . cast $ mi_name call
-        posSVs  <- mapM fromObj (fromP $ f_positionals feed)
+        invSV   <- castVal inv
+        subSV   <- liftIO . bufToSV . cast $ meth
+        posSVs  <- mapM castVal (fromP $ f_positionals feed)
         namSVs  <- fmap concat . forM (Map.toList (f_nameds feed)) $ \(key, vals) -> do
             keySV   <- liftIO (bufToSV $ cast key)
             fmap concat . forM (fromP vals) $ \v -> do
-                valSV   <- fromObj v
+                valSV   <- castVal v
                 return [keySV, valSV]
         env     <- ask
         rv      <- liftIO $ do

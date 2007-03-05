@@ -69,8 +69,8 @@ instance ResponderInterface Eval OldValResponder where
     fromMethodList _    = return OldValResponder
     toNameList _        = []
 
-instance Boxable Eval Val where
-    mkObj sv = MkInvocant sv (MkResponder (return OldValResponder))
+instance Boxable Val where
+    mkVal sv = MkInvocant sv (MkResponder (return OldValResponder))
 
 dispatchOldVal :: Val.Val -> Call -> Eval Val.Val
 dispatchOldVal inv call = do

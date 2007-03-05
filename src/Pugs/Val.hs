@@ -40,9 +40,6 @@ valMeta _ = cast "Object"
 valShow :: Val -> PureStr
 valShow = cast "<opaque>"
 
-mkVal :: Boxable Eval a => a -> Val
-mkVal = mkObj
-
 formatVal :: Val -> Doc
 formatVal (MkInvocant x _) = text (show x)
 
@@ -102,12 +99,14 @@ data Sign
     | SNegative
     deriving (Show, Eq, Ord, Data, Typeable)
 
-instance Boxable Eval ()
-instance Boxable Eval PureInt
-instance Boxable Eval PureNum
-instance Boxable Eval PureSig
-instance Boxable Eval PureBit
-instance Boxable Eval ValCapt
+type PureUndef = ()
+
+instance Boxable PureUndef
+instance Boxable PureInt
+instance Boxable PureNum
+instance Boxable PureSig
+instance Boxable PureBit
+instance Boxable ValCapt
 
 {-
 module Pugs.Val (
