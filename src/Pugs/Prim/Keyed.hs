@@ -8,7 +8,7 @@ module Pugs.Prim.Keyed (
   pairsFromRef, keysFromRef, valuesFromRef,
   existsFromRef, deleteFromRef,
 ) where
-import Pugs.Internals (forM, genericLength, fix, warn)
+import Pugs.Internals (forM, genericLength)
 import Pugs.AST
 import Pugs.Types
 import qualified Data.Map as Map
