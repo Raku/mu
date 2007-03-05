@@ -1698,7 +1698,7 @@ are simulated in any of various ways, such as by Thompson NFA, it may
 be possible to know when to fire off the assertions without backchecks.)
 
 Ordinary quantifiers and characters classes do not terminate a token pattern.
-Zero-width assertions such as word boundaries also okay.
+Zero-width assertions such as word boundaries are also okay.
 
 Oddly enough, the C<token> keyword specifically does not determine
 the scope of a token, except insofar as a token pattern usually
