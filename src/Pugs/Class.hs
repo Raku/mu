@@ -42,10 +42,11 @@ class (Show a, Typeable a, Ord a) => Boxable a where
         Just y -> return y
         _      -> fail $ "Cannot coerce from " ++ (show $ typeOf x) ++ " to " ++ (show $ typeOf (undefined :: a))
 
-    methodsOf :: [(ID, MethodPrim a)]
-    methodsOf = []
+    instanceMethods :: [(ID, MethodPrim a)]
+    instanceMethods = []
 
     classOf :: a -> PureClass
+--     classOf _ = mkPureClass (classNameOf (undefined :: a)) (instanceMethods :: [(ID, MethodPrim a)])
     classOf _ = mkPureClass (classNameOf (undefined :: a)) ([] :: [(ID, a -> Eval Val)])
 
     classNameOf :: a -> String
@@ -59,7 +60,7 @@ class (Show a, Typeable a, Ord a) => Boxable a where
 
 type MethodPrim a = (a -> [:Val:] -> Eval Val)
 
-(===) :: (Boxable b, ((:>:) (MethodPrim b)) a) => String -> a -> (ID, MethodPrim b)
+(===) :: (Boxable a, ((:>:) (MethodPrim a)) (a -> b)) => String -> (a -> b) -> (ID, MethodPrim a)
 (===) x y = (_cast x, cast y)
 
 (...) :: Boxable b => String -> (a -> b) -> (ID, a -> Eval Val)
@@ -73,6 +74,7 @@ mkValM x = do
     x' <- x
     return $ MkInvocant x' (class_interface (classOf x'))
 
+-- mkBoxClass :: Boxable a => String -> [(ID, MethodPrim a)] -> PureClass
 mkBoxClass :: Typeable t => String -> [(ID, t -> Eval Val)] -> PureClass
 mkBoxClass cls methods = newMOClass MkMOClass
     { moc_parents         = []
@@ -83,30 +85,38 @@ mkBoxClass cls methods = newMOClass MkMOClass
     , moc_name            = _cast cls
     }
 
+
+
 -- | Variant of @mkBoxClass@ making use of the fixed-point combinator
 -- to tye in its "self", and, that adds the standard HOW and WHICH methods.
+-- mkPureClass :: (Boxable a) => String -> [(ID, MethodPrim a)] -> PureClass
 mkPureClass :: (Boxable a) => String -> [(ID, a -> Eval Val)] -> PureClass
-mkPureClass cls methods =
-    fix (mkBoxClass cls . methods')
-    where 
-    methods' self = flip (++) methods
-        [ "HOW"         ... const self
-        , "WHAT"        ... const (raiseWhatError ("Can't access attributes of prototype: " ++ cls) `asTypeOf` self)
-        , "WHICH"       ... id
-        , "ITEM"        ... id
-        , "LIST"        ... id
-        ]
+mkPureClass cls methods = fix . (mkBoxClass cls .) $ \self -> flip (++) methods
+    [ "HOW"         ... const self
+    , "WHAT"        ... const (raiseWhatError ("Can't access attributes of prototype: " ++ cls) `asTypeOf` self)
+    , "WHICH"       ... id
+    , "ITEM"        ... id
+    , "LIST"        ... id
+    ]
 
 raiseWhatError :: String -> a
 raiseWhatError = error
 
-mkBoxMethod :: Typeable t => (ID, t -> Eval Val) -> AnyMethod Eval
-mkBoxMethod (meth, fun) = MkMethod $ MkSimpleMethod
+mkBoxMethod' :: forall a. Boxable a => (ID, MethodPrim a) -> AnyMethod Eval
+mkBoxMethod' (meth, fun) = MkMethod $ MkSimpleMethod
     { sm_name       = meth
     , sm_definition = MkMethodCompiled $ \args -> do
+        inv  <- fromInvocant args :: Eval a
+        fun inv $ concatMapP f_positionals (c_feeds args)
+    }
+
+mkBoxMethod :: Typeable t => (ID, t -> Eval Val) -> AnyMethod Eval
+mkBoxMethod (meth, fun) = MkMethod $ MkSimpleMethod
+     { sm_name       = meth
+     , sm_definition = MkMethodCompiled $ \args -> do
         str <- fromInvocant args
         fun str   -- Note that we expect "fun" to be monadic
-    }
+     }
 
 type PureClass = MOClass Eval
 

@@ -1604,7 +1604,7 @@ ruleParam = rule "parameter" $ do
             return (name, label name, False)
         ]
         where
-        label = cast $ dropWhile (not . isAlpha)
+        label = cast . dropWhile (not . isAlpha)
     rDefault True = lexeme $ option (MkParamDefault Nothing) $ do
         symbol "="
         fmap (MkParamDefault . Just . Exp.EE . Exp.MkExpEmeritus) parseTerm
