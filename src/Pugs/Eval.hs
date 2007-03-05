@@ -975,15 +975,10 @@ specialApp = Map.fromList
             [x] -> return x
             _   -> return $ VList res
     , "&hash"       ... (enterEvalContext cxtItemAny . Syn "\\{}" . (:[]) . Syn ",")
-    , "&list"       ... \args -> do
-        enterEvalContext cxtSlurpyAny $ case args of
-            []    -> Val (VList [])
-            [exp] -> exp
-            exps  -> Syn "," exps
-    , "&item"       ... \args -> do
-        enterRValue . enterEvalContext cxtItemAny $ case args of
-            [exp] -> exp
-            _     -> Syn "," args
+    , "&list"       ... listMeth
+    , "&item"       ... itemMeth
+    , "&LIST"       ... listMeth
+    , "&ITEM"       ... itemMeth
     , "&cat"        ... \args -> do
         vals <- mapM (enterRValue . enterEvalContext (cxtItem "Array")) args
         val  <- op0Cat vals
@@ -1057,6 +1052,14 @@ specialApp = Map.fromList
                 return . VV . mkVal $ CaptSub{ c_feeds = feeds }
     , "&prefix:|<<" ... reduceSyn "," -- XXX this is wrong as well - should handle at args level
     ]
+    where
+    listMeth args = enterEvalContext cxtSlurpyAny $ case args of
+        []    -> Val (VList [])
+        [exp] -> exp
+        exps  -> Syn "," exps
+    itemMeth args = enterRValue . enterEvalContext cxtItemAny $ case args of
+        [exp] -> exp
+        _     -> Syn "," args
 
 reduceApp :: Exp -> Maybe Exp -> [Exp] -> Eval Val
 reduceApp (Var var) invs args
