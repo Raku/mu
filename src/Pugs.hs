@@ -364,13 +364,13 @@ doRunSingle menv opts prog = (`catchIO` handler) $ do
         _ | runOptSeparately opts -> return exp
         _ -> return $ makeDumpEnv exp
     -- XXX Generalize this into structural folding
-    makeDumpEnv Noop              = Syn "continuation" []
-    makeDumpEnv (Stmts x Noop)    = Stmts x   (Syn "continuation" [])
-    makeDumpEnv (Stmts x exp)     = Stmts x   $ makeDumpEnv exp
-    makeDumpEnv (Ann ann exp)     = Ann ann   $ makeDumpEnv exp
-    makeDumpEnv (Pad x y exp)     = Pad x y   $ makeDumpEnv exp
-    makeDumpEnv (Sym x y exp)     = Sym x y   $ makeDumpEnv exp
-    makeDumpEnv exp = Stmts exp (Syn "continuation" [])
+    makeDumpEnv Noop            = Syn "continuation" []
+    makeDumpEnv (Stmts x Noop)  = Stmts (Ann (Cxt cxtItemAny) x) (Syn "continuation" [])
+    makeDumpEnv (Stmts x exp)   = Stmts x   $ makeDumpEnv exp
+    makeDumpEnv (Ann ann exp)   = Ann ann   $ makeDumpEnv exp
+    makeDumpEnv (Pad x y exp)   = Pad x y   $ makeDumpEnv exp
+    makeDumpEnv (Sym x y exp)   = Sym x y   $ makeDumpEnv exp
+    makeDumpEnv exp             = Stmts (Ann (Cxt cxtItemAny) exp) (Syn "continuation" [])
     handler (IOException ioe) | isUserError ioe = do
         putStrLn "Internal error while running expression:"
         putStrLn $ ioeGetErrorString ioe

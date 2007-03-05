@@ -307,25 +307,33 @@ reduceStmts this Noop           = reduce this
 reduceStmts this (Ann _ Noop)   = reduce this
 
 -- XXX - Hack to get context propagating to "return"
-reduceStmts this@(App (Var var) _ _) _ | var == cast "&return" = reduce this
-reduceStmts this@(Ann _ (App (Var var) _ _)) _ | var == cast "&return" = reduce this
+reduceStmts this@(App (Var var) _ _) _ | var == varReturn = reduce this
+reduceStmts this@(Ann _ (App (Var var) _ _)) _ | var == varReturn = reduce this
+
+reduceStmts this (Syn "continuation" []) = do
+    val <- reduce this
+    trapVal val . callCC $ \cc -> do
+        env <- ask
+        return . VControl $ ControlContinuation env val cc
 
 reduceStmts this rest = do
     let withCxt = case this of
-            App (Var var) _ _         | var == cast "&yield" -> id
-            Ann _ (App (Var var) _ _) | var == cast "&yield" -> id
+            App (Var var) _ _         | var == varYield -> id
+            Ann _ (App (Var var) _ _) | var == varYield -> id
             _  -> enterContext cxtVoid
     val <- withCxt (reduce this)
-    trapVal val $ case rest of
-        Syn "continuation" []   -> callCC $ \cc -> do
-            env <- ask
-            return . VControl $ ControlContinuation env val cc
-        _                       -> reduce rest
+    trapVal val (reduce rest)
 
 reducePrag :: [Pragma] -> Exp -> Eval Val
 reducePrag prag exp = do
     local (\e -> e{ envPragmas = prag }) $ do
         evalExp exp
+
+varYield :: Var
+varYield = cast "&yield"
+
+varReturn :: Var
+varReturn = cast "&return"
 
 {-|
 Reduce a 'Pos' expression by reducing its subexpression in a new 'Env', which
