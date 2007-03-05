@@ -822,8 +822,8 @@ instance Ord  Network.URI.URI
 instance Data Data.Version.Version
 -- where compare (URI sc au pa qu fr) (URI sc' au' pa' qu' fr') =
 
-instance Typeable Unique where typeOf _ = typeOf ()
-instance Typeable ProcessHandle where typeOf _ = typeOf ()
+instance Typeable Unique where typeOf _ = mkTyConRep "Unique"
+instance Typeable ProcessHandle where typeOf _ = mkTyConRep "ProcessHandle"
 
 {- <DrIFT>
 instance YAML (VThread Val)

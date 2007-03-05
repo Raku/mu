@@ -8,7 +8,7 @@ import MO.Compile.Attribute
 import MO.Compile.Role
 import MO.Run
 import MO.Util
-import Data.Typeable (Typeable1, Typeable(..))
+import Data.Typeable (Typeable1, Typeable(..), typeOf1, mkTyCon, mkTyConApp)
 import Control.Monad (liftM)
 import qualified Data.Typeable as Typeable
 
@@ -73,10 +73,9 @@ class (Typeable1 m, Monad m, Typeable c, Eq c) => Class m c | c -> m where
                        . all_methods
 
 data AnyClass m = forall c. Class m c => MkClass !c
-data AnyClass_Type deriving Typeable
 
 instance (Typeable1 m, Monad m) => Typeable (AnyClass m) where
-    typeOf _ = typeOf (undefined :: m AnyClass_Type)
+    typeOf _ = mkTyConApp (mkTyCon "AnyClass") [typeOf1 (undefined :: m ())]
 
 instance (Typeable1 m, Monad m) => Eq (AnyClass m) where
     MkClass x == MkClass y = case Typeable.cast y of
@@ -117,7 +116,6 @@ data (Monad m, Typeable1 m) => MOClass m
         }
         -- deriving (Eq)
 
-data MOClass_Type deriving Typeable
 instance (Typeable1 m, Monad m) => Show (MOClass m) where
     show = ('^':) . cast . moc_name
 instance (Typeable1 m, Monad m) => Ord (MOClass m) where
@@ -125,7 +123,7 @@ instance (Typeable1 m, Monad m) => Ord (MOClass m) where
 instance (Typeable1 m, Monad m) => Eq (MOClass m) where
     x == y = moc_name x == moc_name y
 instance (Typeable1 m, Monad m) => Typeable (MOClass m) where
-    typeOf _ = typeOf (undefined :: m MOClass_Type)
+    typeOf _ = mkTyConApp (mkTyCon "MOClass") [typeOf1 (undefined :: m ())]
 
 emptyMOClass :: (Typeable1 m, Monad m) => MOClass m
 emptyMOClass = MkMOClass

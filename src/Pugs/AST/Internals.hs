@@ -1824,7 +1824,7 @@ instance Ord IHash where
 instance Show IHash where
     show = showAddressOf "Hash"
 instance Typeable2 H.HashTable where
-    typeOf2 _ = typeOf ()
+    typeOf2 _ = mkTyConApp (mkTyCon "HashTable") []
 
 instance Eq VRef where
     x == y = addressOf x == addressOf y
@@ -2127,8 +2127,9 @@ instance Perl5 Val where
 
 </DrIFT> Do NOT delete! These instances are your friends! -}
 
-instance Typeable Unique where typeOf _ = typeOf ()
-instance Typeable ProcessHandle where typeOf _ = typeOf ()
+instance Typeable Unique where typeOf _ = mkTyConApp (mkTyCon "Unique") []
+instance Typeable ProcessHandle where typeOf _ = mkTyConApp (mkTyCon "ProcessHandle") []
+
 
 instance Eq VJunc where
     (MkJunc aa ab ac) == (MkJunc aa' ab' ac') = aa == aa' && ab == ab'

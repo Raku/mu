@@ -52,10 +52,9 @@ stubInvocant :: (Typeable1 m, Monad m) => Invocant m
 stubInvocant = MkInvocant () emptyResponder
 
 data AnyResponder m = forall c. ResponderInterface m c => MkResponder !(m c)
-data AnyResponder_Type deriving Typeable
 
 instance (Typeable1 m, Monad m) => Typeable (AnyResponder m) where
-    typeOf _ = typeOf (undefined :: m AnyResponder_Type)
+    typeOf _ = mkTyConApp (mkTyCon "AnyResponder") [typeOf1 (undefined :: m ())]
 
 class Monad m => ResponderInterface m a | a -> m where
     fromMethodList :: [(MethodName, MethodCompiled m)] -> m a
@@ -80,8 +79,6 @@ data (Typeable1 m, Monad m) => Invocant m
         a                   -- Invocant
         (AnyResponder m)    -- Responder
 
-data Invocant_Type deriving (Typeable)
-
 fromInvocant :: forall m b. (Typeable1 m, Monad m, Typeable b) => Arguments m -> m b
 fromInvocant CaptSub{}                  = fail "No invocant"
 fromInvocant CaptMeth{ c_invocant = MkInvocant x _ } = case Typeable.cast x of
@@ -90,7 +87,7 @@ fromInvocant CaptMeth{ c_invocant = MkInvocant x _ } = case Typeable.cast x of
 
 
 instance (Typeable1 m, Monad m) => Typeable (Invocant m) where
-    typeOf _ = typeOf (undefined :: m Invocant_Type)
+    typeOf _ = mkTyConApp (mkTyCon "Invocant") [typeOf1 (undefined :: m ())]
 
 ivDispatch :: (Typeable1 m, Monad m) => Invocant m -> MethodInvocation m -> m (Invocant m)
 ivDispatch i@(MkInvocant _ (MkResponder ri)) mi = do

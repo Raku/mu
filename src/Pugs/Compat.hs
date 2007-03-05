@@ -122,10 +122,8 @@ signalProcess = System.Posix.Signals.signalProcess
 clocksPerSecond :: (Num a) => a
 clocksPerSecond = 1000000
 
-data DirStream_ deriving (Typeable)
-
 instance Typeable DirStream where
-    typeOf _ = typeOf (undefined :: DirStream_)
+    typeOf _ = mkTyConApp (mkTyCon "DirStream") []
 
 #else
 

@@ -43,11 +43,11 @@ class (Show a, Typeable a, Ord a) => Boxable a where
         _      -> fail $ "Cannot coerce from " ++ (show $ typeOf x) ++ " to " ++ (show $ typeOf (undefined :: a))
 
     {-
-    methodsOf :: [(ID, (a -> [:Val:] -> Eval (Val)))]
+    methodsOf :: [(ID, (a -> [:Val:] -> Eval Val))]
     -}
 
     classOf :: a -> PureClass
-    classOf o = mkPureClass ty ([] :: [(ID, ID -> Eval (Val))])
+    classOf o = mkPureClass ty ([] :: [(ID, a -> Eval Val)])
         where
         ty = _cast . takeTypeName "" . reverse . show $ typeOf o
         -- Here we intuit "Str" from "Pugs.Val.Str.PureStr".
@@ -56,18 +56,18 @@ class (Show a, Typeable a, Ord a) => Boxable a where
             | isLower x = takeTypeName (x:acc) xs
             | otherwise = x:acc
 
-(...) :: Boxable b => String -> (a -> b) -> (ID, a -> Eval (Val))
+(...) :: Boxable b => String -> (a -> b) -> (ID, a -> Eval Val)
 (...) x y = (_cast x, (return . mkVal) . y)
 
-(!!!) :: Boxable b => String -> (a -> Eval b) -> (ID, a -> Eval (Val))
+(!!!) :: Boxable b => String -> (a -> Eval b) -> (ID, a -> Eval Val)
 (!!!) x y = (_cast x, mkValM . y)
 
-mkValM :: Boxable a => Eval a -> Eval (Val)
+mkValM :: Boxable a => Eval a -> Eval Val
 mkValM x = do
     x' <- x
     return $ MkInvocant x' (class_interface (classOf x'))
 
-mkBoxClass :: Typeable t => String -> [(ID, t -> Eval (Val))] -> PureClass
+mkBoxClass :: Typeable t => String -> [(ID, t -> Eval Val)] -> PureClass
 mkBoxClass cls methods = newMOClass MkMOClass
     { moc_parents         = []
     , moc_roles           = []
@@ -79,7 +79,7 @@ mkBoxClass cls methods = newMOClass MkMOClass
 
 -- | Variant of @mkBoxClass@ making use of the fixed-point combinator
 -- to tye in its "self", and, that adds the standard HOW and WHICH methods.
-mkPureClass :: (Boxable a) => String -> [(ID, a -> Eval (Val))] -> PureClass
+mkPureClass :: (Boxable a) => String -> [(ID, a -> Eval Val)] -> PureClass
 mkPureClass cls methods =
     fix (mkBoxClass cls . methods')
     where 
@@ -94,23 +94,23 @@ mkPureClass cls methods =
 raiseWhatError :: String -> a
 raiseWhatError = error
 
-mkBoxMethod :: Typeable t => (ID, t -> Eval (Val)) -> AnyMethod Eval
+mkBoxMethod :: Typeable t => (ID, t -> Eval Val) -> AnyMethod Eval
 mkBoxMethod (meth, fun) = MkMethod $ MkSimpleMethod
     { sm_name       = meth
-    , sm_definition = MkMethodCompiled $ HsCode $ \args -> do
+    , sm_definition = MkMethodCompiled $ \args -> do
         str <- fromInvocant args
         fun str   -- Note that we expect "fun" to be monadic
     }
 
 type PureClass = MOClass Eval
 
-{-
-instance (Show a, Typeable a, Ord a) => Boxable (Maybe a) where
-    mkVal :: a -> Val
-    mkVal x = MkInvocant x (class_interface (classOf x))
-    -}
+instance (Show a, Typeable a, Ord a) => Boxable (Maybe a)
 
 instance Boxable a => Boxable [a]
+instance Boxable a => Boxable [:a:]
+instance Typeable1 [::] where
+    typeOf1 _ = mkTyConApp (mkTyCon "[::]") []
+
 instance Boxable ID
 instance Boxable PureClass where
     classOf _ = _PureClass

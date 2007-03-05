@@ -36,6 +36,7 @@ import Foreign
 import Foreign.C
 import Foreign.C.String
 import Array
+import Data.Typeable
 
 -- | return version of pcre used or Nothing if pcre is not available.
 getVersion :: Maybe String
@@ -44,10 +45,14 @@ getVersion :: Maybe String
 data PCRE = PCRE
     deriving (Typeable, Data)
 
+-- Simply a warning-avoidance technique 
+_PCRE :: PCRE
+_PCRE = PCRE
+
 -- | A compiled regular expression
 newtype Regex = Regex (ForeignPtr PCRE)
     deriving (Show, Eq, Ord, Data)
-instance Typeable Regex where typeOf _ = typeOf ()
+instance Typeable Regex where typeOf _ = mkTyConApp (mkTyCon "Regex") []
 
 fi :: (Num b, Integral a) => a -> b
 fi x = fromIntegral x
