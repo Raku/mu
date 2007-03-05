@@ -54,9 +54,6 @@ instance (:<:) a a where castBack = id
 instance ((:>:) [a]) (Seq a) where cast = toList
 instance ((:<:) [a]) (Seq a) where castBack = Seq.fromList
 
--- "return . cast" can be written as "cast"
-instance (Monad m, (a :>: b)) => ((:>:) (m a)) b where cast = return . cast
-
 -- "fmap cast" can be written as "cast"
 instance (Functor f, (a :>: b)) => ((:>:) (f a)) (f b) where cast = fmap cast
 
