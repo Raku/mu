@@ -321,6 +321,11 @@ makeParams MkEnv{ envContext = cxt, envLValue = lv }
         } ]
 
 evalVal :: Val -> Eval Val
+evalVal val@VV{} = do
+    env <- ask
+    let cxt = envContext env
+        lv  = envLValue env
+    if lv || cxt == CxtVoid then return val else val ./ cxt
 evalVal val@(VRef ref) = do
     lv  <- asks envLValue
     if lv
