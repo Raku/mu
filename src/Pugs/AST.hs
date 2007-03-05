@@ -75,9 +75,9 @@ instance Boxable Eval Val where
 dispatchOldVal :: Val.Val -> Call -> Eval Val.Val
 dispatchOldVal inv call = do
     inv' <- castVal inv
-    rv   <- evalExp $ App (_Var ('&':cast (miName call)))
+    rv   <- evalExp $ App (_Var ('&':cast (mi_name call)))
                           (Just $ Val inv')
-                          [Syn "|" [Val . VV . mkVal $ miArguments call]]
+                          [Syn "|" [Val . VV . mkVal $ mi_arguments call]]
     fromVal rv
 
 {-|
@@ -335,18 +335,18 @@ typeMacro name exp = Syn "sub" . (:[]) . Val . VCode $ MkCode
         case concat list of
             []  -> expToEvalVal $ exp
             xs  -> retError ("Cannot coerce to " ++ name) xs
-    , subCont       = Nothing
-    , subPreBlocks = []
-    , subPostBlocks = []
-    , subFirstBlocks = []
-    , subLastBlocks = []
-    , subNextBlocks = []
-    , subKeepBlocks = []
-    , subUndoBlocks = []
-    , subEnterBlocks = []
-    , subLeaveBlocks = []
+    , subCont          = Nothing
+    , subPreBlocks     = []
+    , subPostBlocks    = []
+    , subFirstBlocks   = []
+    , subLastBlocks    = []
+    , subNextBlocks    = []
+    , subKeepBlocks    = []
+    , subUndoBlocks    = []
+    , subEnterBlocks   = []
+    , subLeaveBlocks   = []
     , subControlBlocks = []
-    , subCatchBlocks = []
+    , subCatchBlocks   = []
     }
     where
     typ = mkType name

@@ -47,8 +47,8 @@ addressOf x = W# (unsafeCoerce# x)
 
 data Ord a => Collection a
     = MkCollection
-    { cByObject :: Set a
-    , cByName   :: Map ID a
+    { c_objects :: Set a
+    , c_names   :: Map ID a
     }
     deriving (Eq, Ord, Typeable)
 
@@ -57,7 +57,7 @@ instance (Ord a, Show a) => Show (Collection a) where
     show (MkCollection _ n) = "<" ++ show n ++ ">"
 
 cmap :: (Ord a, Ord b) => (a -> b) -> Collection a -> Collection b
-cmap f MkCollection { cByName = bn } =
+cmap f MkCollection { c_names = bn } =
     let l = map (\(x,y) -> (x, f y)) (Map.toList bn)
     in newCollection l
     
@@ -65,22 +65,22 @@ cmap f MkCollection { cByName = bn } =
 -- FIXME: This is not really safe since we could add same object with different
 -- names. Must check how Set work and what MO's remove wanted.
 remove :: (Monad m, Ord a) => ID -> a -> Collection a -> m (Collection a)
-remove name obj MkCollection{ cByObject = bo, cByName = bn } = do
-    return $ MkCollection { cByObject = Set.delete obj bo
-                          , cByName = Map.delete name bn
+remove name obj MkCollection{ c_objects = bo, c_names = bn } = do
+    return $ MkCollection { c_objects = Set.delete obj bo
+                          , c_names   = Map.delete name bn
                           } 
 
 add :: (Monad m, Ord a) => ID -> a -> Collection a -> m (Collection a)
-add name obj c@MkCollection{ cByObject = bo, cByName = bn } = do
+add name obj c@MkCollection{ c_objects = bo, c_names = bn } = do
     when (includes_name c name) $ fail "can't insert: name confict"
-    return $ MkCollection { cByObject = Set.insert obj bo
-                          , cByName = Map.insert name obj bn
+    return $ MkCollection { c_objects = Set.insert obj bo
+                          , c_names   = Map.insert name obj bn
                           }
 
 insert :: (Ord a) => ID -> a -> Collection a -> Collection a
-insert name obj MkCollection{ cByObject = bo, cByName = bn } =
-    MkCollection { cByObject = Set.insert obj bo
-                 , cByName = Map.insert name obj bn
+insert name obj MkCollection{ c_objects = bo, c_names = bn } =
+    MkCollection { c_objects = Set.insert obj bo
+                 , c_names   = Map.insert name obj bn
                  }
 
 emptyCollection :: Ord a => Collection a
@@ -88,7 +88,7 @@ emptyCollection = newCollection []
 
 -- FIXME: checks for repetition
 newCollection :: Ord a => [(ID, a)] -> Collection a
-newCollection l = MkCollection { cByObject = os, cByName = ns }
+newCollection l = MkCollection { c_objects = os, c_names = ns }
     where os = Set.fromList (map snd l)
           ns = Map.fromList l
 
@@ -97,20 +97,20 @@ newCollection' f l = newCollection pairs
     where pairs = map (\x -> (f x, x)) l
 
 newCollectionMap :: Ord a => Map ID a -> Collection a
-newCollectionMap ns = MkCollection { cByObject = os, cByName = ns }
+newCollectionMap ns = MkCollection { c_objects = os, c_names = ns }
     where os = Set.fromList (Map.elems ns)
 
 items :: Ord a => Collection a -> [a]
-items c = Set.elems (cByObject c)
+items c = Set.elems (c_objects c)
 
 items_named :: Ord a => Collection a -> [(ID, a)]
-items_named = Map.toList . cByName
+items_named = Map.toList . c_names
 
 includes :: Ord a => Collection a -> a -> Bool
-includes c obj = Set.member obj (cByObject c)
+includes c obj = Set.member obj (c_objects c)
 
 includes_name :: Ord a => Collection a -> ID -> Bool
-includes_name c name = Map.member name (cByName c)
+includes_name c name = Map.member name (c_names c)
 
 includes_any :: Ord a => Collection a -> [a] -> Bool
 includes_any _ [] = False
@@ -128,7 +128,7 @@ shadow :: Ord a => [Collection a] -> [a]
 shadow = Map.elems . shadow'
 
 shadow' :: Ord a => [Collection a] -> Map ID a
-shadow' = Map.unions . map cByName
+shadow' = Map.unions . map c_names
 
 shadow_collection :: Ord a => [Collection a] -> Collection a
 shadow_collection = newCollectionMap . shadow'
@@ -137,7 +137,7 @@ merge :: Ord a => [Collection a] -> [a]
 merge = Map.elems . merge'
 
 merge' :: Ord a => [Collection a] -> Map ID a
-merge' = foldl (Map.unionWithKey (\k _ _ -> error ("merge conflict: " ++ show k))) Map.empty . map cByName
+merge' = foldl (Map.unionWithKey (\k _ _ -> error ("merge conflict: " ++ show k))) Map.empty . map c_names
 
 merge_collection :: Ord a => [Collection a] -> Collection a
 merge_collection = newCollectionMap . merge'

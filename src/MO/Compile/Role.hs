@@ -10,30 +10,30 @@ import MO.Compile.Attribute
 
 -- Delay further abstractions until we need ;)
 data Role m = MkRole
-    { roRoles                  :: [Role m]
-    , roAttributes             :: [Attribute m]
-    , roPublicMethods          :: Collection (AnyMethod m)
-    , roPrivateMethods         :: Collection (AnyMethod m)
+    { r_roles                  :: [Role m]
+    , r_attributes             :: [Attribute m]
+    , r_public_methods         :: Collection (AnyMethod m)
+    , r_private_methods        :: Collection (AnyMethod m)
     }
     deriving (Eq)
 
 emptyRole :: Role m
 emptyRole = MkRole
-          { roRoles                  = [] 
-          , roAttributes             = []
-          , roPublicMethods          = emptyCollection
-          , roPrivateMethods         = emptyCollection
+          { r_roles                  = [] 
+          , r_attributes             = []
+          , r_public_methods         = emptyCollection
+          , r_private_methods        = emptyCollection
           } 
 
 parent_roles :: Role m -> [Role m]
-parent_roles = roRoles
+parent_roles = r_roles
 
 role_public_methods, role_private_methods :: Role m -> Collection (AnyMethod m)
-role_public_methods     = roPublicMethods
-role_private_methods    = roPrivateMethods
+role_public_methods     = r_public_methods
+role_private_methods    = r_private_methods
 
 role_attributes :: Role m -> [Attribute m]
-role_attributes         = roAttributes
+role_attributes         = r_attributes
 
 all_using_role_shadowing :: (Show a, Ord a) => Role m -> (Role m -> Collection a) -> Collection a
 all_using_role_shadowing r f = sym_shadowing r parent_roles f

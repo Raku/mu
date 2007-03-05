@@ -23,8 +23,8 @@ mkArgs x = CaptSub{ c_feeds = [: MkFeed { f_positionals = toP x, f_nameds = M.em
 
 data MethodInvocation m
     = MkMethodInvocation
-        { miName      :: !MethodName  
-        , miArguments :: !(Arguments m)
+        { mi_name      :: !MethodName  
+        , mi_arguments :: !(Arguments m)
         }
 
 -- instance Invocation (MethodInvocation m)
@@ -32,7 +32,7 @@ data MethodInvocation m
 -- | This is a static method table.
 data MethodTable m
     = MkMethodTable
-        { mtMethods :: !(M.Map MethodName (MethodCompiled m))
+        { mt_methods :: !(M.Map MethodName (MethodCompiled m))
         }
 
 emptyResponder :: (Typeable1 m, Monad m) => AnyResponder m
@@ -68,12 +68,12 @@ instance ResponderInterface m a => Show a where
 
 instance (Typeable1 m, Monad m) => ResponderInterface m (MethodTable m) where
     fromMethodList = return . MkMethodTable . M.fromList
-    dispatch mt responder inv@(MkMethodInvocation n args) = case M.lookup n (mtMethods mt) of
+    dispatch mt responder inv@(MkMethodInvocation n args) = case M.lookup n (mt_methods mt) of
         Just method_compiled -> do
             runMC method_compiled (withInvocant args responder)
         _ -> fail $ "Can't locate object method " ++ show n ++ " of invocant: " ++ show responder
             
-    toNameList = M.keys . mtMethods
+    toNameList = M.keys . mt_methods
 
 data (Typeable1 m, Monad m) => Invocant m
     = forall a. (Show a, Eq a, Ord a, Typeable a) => MkInvocant

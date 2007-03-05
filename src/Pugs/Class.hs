@@ -34,7 +34,7 @@ class (Show a, Typeable a, Ord a, Typeable1 m, Monad m) => Boxable m a | a -> m 
     mkObj :: a -> Invocant m
     mkObj x = MkInvocant x (class_interface (classOf x))
 
-    classOf :: a -> MI m
+    classOf :: a -> MOClass m
     classOf o = mkBoxClass ty ([] :: [(ID, ID -> m (Invocant m))])
         where
         ty = _cast . takeTypeName "" . reverse . show $ typeOf o
@@ -68,14 +68,14 @@ mkBoxClass ::
     , Monad m
     , Typeable1 m1
     , Method m1 (SimpleMethod m1)
-    ) => String -> [(ID, t -> m (Invocant m))] -> MI m1
-mkBoxClass cls methods = newMI MkMI
-    { clsParents        = []
-    , clsRoles          = []
-    , clsAttributes     = []
-    , clsPublicMethods  = newCollection' methodName $ map mkBoxMethod methods
-    , clsPrivateMethods = newCollection []
-    , clsName           = _cast cls
+    ) => String -> [(ID, t -> m (Invocant m))] -> MOClass m1
+mkBoxClass cls methods = newMOClass MkMOClass
+    { moc_parents         = []
+    , moc_roles           = []
+    , moc_attributes      = []
+    , moc_public_methods  = newCollection' methodName $ map mkBoxMethod methods
+    , moc_private_methods = newCollection []
+    , moc_name            = _cast cls
     }
 
 -- | Variant of @mkBoxClass@ meant to be called with the fixed-point
@@ -86,7 +86,7 @@ mkBoxPureClass ::
     , Boxable m a
     , Codeable m1 (HsCode m)
     , Typeable1 m1
-    ) => String -> [(ID, a1 -> m (Invocant m))] -> a -> MI m1
+    ) => String -> [(ID, a1 -> m (Invocant m))] -> a -> MOClass m1
 mkBoxPureClass cls methods self =
     mkBoxClass cls methods'
     where
@@ -109,13 +109,13 @@ mkBoxMethod ::
     , Monad m1
     ) => (ID, t -> m1 (Invocant m1)) -> AnyMethod m
 mkBoxMethod (meth, fun) = MkMethod $ MkSimpleMethod
-    { smName = meth
-    , smDefinition = MkMethodCompiled $ HsCode $ \args -> do
+    { sm_name       = meth
+    , sm_definition = MkMethodCompiled $ HsCode $ \args -> do
         str <- fromInvocant args
         fun str   -- Note that we expect "fun" to be monadic
     }
 
-type PureClass = MI Eval
+type PureClass = MOClass Eval
 
 instance Boxable Eval a => Boxable Eval [a]
 instance Boxable Eval ID

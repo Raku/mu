@@ -8,10 +8,10 @@ import Data.Typeable
 type AttributeName = ID
 
 data Monad m => Attribute m = MkAttribute
-    { attrName          :: AttributeName
-    , attrAccessorName  :: AttributeName
-    , attrIsPrivate     :: Bool
-    , attrDefault       :: m (Invocant m)
+    { a_name          :: AttributeName
+    , a_accessor_name :: AttributeName
+    , a_is_private    :: Bool
+    , a_default       :: m (Invocant m)
     }
 
 instance Monad m => Show (Attribute m) where

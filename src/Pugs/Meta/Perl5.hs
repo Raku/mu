@@ -44,7 +44,7 @@ dispatchPerl5 inv call
     | meth == _LIST     = return inv
     | otherwise = do
         invSV   <- fromObj inv
-        subSV   <- liftIO . bufToSV . cast $ miName call
+        subSV   <- liftIO . bufToSV . cast $ mi_name call
         posSVs  <- mapM fromObj (fromP $ f_positionals feed)
         namSVs  <- fmap concat . forM (Map.toList (f_nameds feed)) $ \(key, vals) -> do
             keySV   <- liftIO (bufToSV $ cast key)
@@ -61,5 +61,5 @@ dispatchPerl5 inv call
             Perl5ErrorString str    -> fail str
             Perl5ErrorObject err    -> throwError (anyToVal err)
     where
-    meth = miName call
-    feed = concatFeeds (c_feeds (miArguments call))
+    meth = mi_name call
+    feed = concatFeeds (c_feeds (mi_arguments call))

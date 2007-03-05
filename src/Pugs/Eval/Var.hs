@@ -235,7 +235,7 @@ findSub _var _invs _args
                 case rv of
                     VError (VStr s) _
                         | "Can't locate object method" `isPrefixOf` s || "Can't call method" `isPrefixOf` s -> do
-                        let capt = miArguments (cast (methName, (invVV:posVVs), namVVs) :: Call)
+                        let capt = mi_arguments (cast (methName, (invVV:posVVs), namVVs) :: Call)
                         rv' <- tryT . evalExp $ App (Var _var{ v_sigil = SCodeMulti }) Nothing [Syn "|" [Val (VV (mkVal capt))]]
                         case rv' of
                             VError (VStr s') _ | "No compatible subroutine found" `isPrefixOf` s' -> EvalT $ return (RException rv)

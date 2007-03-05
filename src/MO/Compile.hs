@@ -32,13 +32,13 @@ instance Monad m => Method m (AnyMethod m) where
 
 data SimpleMethod m
     = MkSimpleMethod
-        { smName        :: MethodName
-        , smDefinition  :: MethodCompiled m
+        { sm_name        :: MethodName
+        , sm_definition  :: MethodCompiled m
         }
 
 instance Monad m => Method m (SimpleMethod m) where
-    methodName = smName
-    methodCompile = smDefinition
+    methodName = sm_name
+    methodCompile = sm_definition
 
 
 data MethodCompiled m
