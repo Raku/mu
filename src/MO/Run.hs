@@ -14,12 +14,34 @@ import Data.Typeable hiding (cast)
 import GHC.PArr
 import qualified Data.Typeable as Typeable
 
-mkArgs :: (Typeable1 m, Monad m) => [Invocant m] -> Arguments m
-mkArgs x = CaptSub{ c_feeds = [: MkFeed { f_positionals = toP x, f_nameds = M.empty } :] }
+-- Little overview.
+--
+-- Suppose someone is calling a method, like: $foo.moose(1,2,3). Usually, we
+-- create a MethodInvocation containing "moose" as the name of the method and
+-- some Arguments thing, contaning the "1,2,3".
+--
+-- The "$foo" object is _represented_ by an Invocant datatype, which has a
+-- pointer to "$foo" itself and an ResponderInterface (usually provided by the
+-- Class that $foo was instantiated), which knows how to answer for a method
+-- call, this is called 'dispatch' in the ResponderInterface class.
+--
+-- One example of ResponderInterface is the MethodTable, it has a Map of
+-- MethodCompileds (identified by MethodName). Its 'dispatch' takes an Invocant
+-- and a MethodInvocation, add the Invocant to the MInv Arguments,
+-- lookup the MInv method name in it's on table, if found, run the compiled method
+-- with the augmented Arguments.
+--
+-- The function ivDispatch does almost same as 'dispatch', but it gets the RI
+-- that the Invocant has inside it (given by the Class, for example). So you can
+-- think of "$foo.moose(1,2,3)" as a call to
+-- "ivDispatch (Invocant_of_$foo) (Arguments_containing_(1,2,3))"
 
--- Abstract Roles
+
+-- FIXME: At first we thought of having these two abstractions, but now
+-- seem unnecessary, but I may be forgetting something :P
 -- class Invocation a
 -- class Responder a
+
 
 data MethodInvocation m
     = MkMethodInvocation
@@ -27,34 +49,6 @@ data MethodInvocation m
         , mi_arguments :: !(Arguments m)
         }
 
--- instance Invocation (MethodInvocation m)
-
--- | This is a static method table.
-data MethodTable m
-    = MkMethodTable
-        { mt_methods :: !(M.Map MethodName (MethodCompiled m))
-        }
-
-emptyResponder :: (Typeable1 m, Monad m) => AnyResponder m
-emptyResponder = MkResponder (return NoResponse)
-
-data Monad m => NoResponse m = NoResponse
-
-instance Monad m => ResponderInterface m (NoResponse m) where
-    dispatch _ _ _      = fail "Dispatch failed - NO CARRIER"
-    fromMethodList _    = return NoResponse
-    -- toNameList _        = []
-
-__ :: (Typeable1 m, Monad m, Ord a, Show a, Typeable a) => a -> Invocant m
-__ = (`MkInvocant` emptyResponder)
-
-stubInvocant :: (Typeable1 m, Monad m) => Invocant m
-stubInvocant = MkInvocant () emptyResponder
-
-data AnyResponder m = forall c. ResponderInterface m c => MkResponder !(m c)
-
-instance (Typeable1 m, Monad m) => Typeable (AnyResponder m) where
-    typeOf _ = mkTyConApp (mkTyCon "AnyResponder") [typeOf1 (undefined :: m ())]
 
 class Monad m => ResponderInterface m a | a -> m where
     fromMethodList :: [(MethodName, MethodCompiled m)] -> m a
@@ -67,6 +61,25 @@ instance ResponderInterface m a => Show a where
     show = show . toNameList
 -}
 
+
+data Monad m => NoResponse m = NoResponse
+
+instance Monad m => ResponderInterface m (NoResponse m) where
+    dispatch _ _ _      = fail "Dispatch failed - NO CARRIER"
+    fromMethodList _    = return NoResponse
+    -- toNameList _        = []
+
+emptyResponder :: (Typeable1 m, Monad m) => AnyResponder m
+emptyResponder = MkResponder (return NoResponse)
+
+
+
+-- | This is a static method table.
+data MethodTable m
+    = MkMethodTable
+        { mt_methods :: !(M.Map MethodName (MethodCompiled m))
+        }
+
 instance (Typeable1 m, Monad m) => ResponderInterface m (MethodTable m) where
     fromMethodList = return . MkMethodTable . M.fromList
     dispatch mt responder inv@(MkMethodInvocation n args) = case M.lookup n (mt_methods mt) of
@@ -75,6 +88,16 @@ instance (Typeable1 m, Monad m) => ResponderInterface m (MethodTable m) where
         _ -> fail $ "Can't locate object method " ++ show n ++ " of invocant: " ++ show responder
             
     -- toNameList = M.keys . mt_methods
+
+
+data AnyResponder m = forall c. ResponderInterface m c => MkResponder !(m c)
+
+instance (Typeable1 m, Monad m) => Typeable (AnyResponder m) where
+    typeOf _ = mkTyConApp (mkTyCon "AnyResponder") [typeOf1 (undefined :: m ())]
+
+
+
+-- Invocant represent an object aggregated with an ResponderInterface
 
 data (Typeable1 m, Monad m) => Invocant m
     = forall a. (Show a, Eq a, Ord a, Typeable a) => MkInvocant
@@ -98,9 +121,20 @@ ivDispatch i@(MkInvocant _ (MkResponder ri)) mi = do
 
 instance (Typeable1 m, Monad m) => Show (Invocant m) where
     show (MkInvocant x _) = show x
-
 instance (Typeable1 m, Monad m) => Eq (Invocant m) where
     MkInvocant a _ == MkInvocant b _ = a ?==? b
 instance (Typeable1 m, Monad m) => Ord (Invocant m) where
     MkInvocant a _ `compare` MkInvocant b _ = a ?<=>? b
+
+-- Helpers to create simple/empty invocants.
+__ :: (Typeable1 m, Monad m, Ord a, Show a, Typeable a) => a -> Invocant m
+__ = (`MkInvocant` emptyResponder)
+
+stubInvocant :: (Typeable1 m, Monad m) => Invocant m
+stubInvocant = MkInvocant () emptyResponder
+
+
+-- Helper to create a Arguments based on a list of Invocants
+mkArgs :: (Typeable1 m, Monad m) => [Invocant m] -> Arguments m
+mkArgs x = CaptSub{ c_feeds = [: MkFeed { f_positionals = toP x, f_nameds = M.empty } :] }
 
