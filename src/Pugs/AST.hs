@@ -18,6 +18,7 @@ module Pugs.AST (
     mergeStmts, isEmptyParams,
     newPackage, newType, newMetaType, typeMacro, isScalarLValue,
     filterPrim, filterUserDefinedPad, typeOfParam, listVal, isImmediateMatchContext,
+    (./),
 
     module Pugs.AST.Internals,
     module Pugs.AST.Prag,
@@ -25,7 +26,8 @@ module Pugs.AST (
     module Pugs.AST.Scope,
     module Pugs.AST.SIO,
     module Pugs.AST.Pad,
-    module Pugs.Val
+    module Pugs.Val,
+    module Pugs.Class
 ) where
 import Pugs.Internals
 import Pugs.Types
@@ -41,7 +43,7 @@ import Pugs.AST.Pad
 import Pugs.Val hiding (Val, Param, listVal) -- (val, castVal, formatVal, PureBit, PureBool, PureStr, PureInt, PureNum, Capt(..), ValCapt, Feed(..), ValFeed, emptyFeed, Sig(..), SigParam(..), ParamAccess(..), ParamDefault(..))
 import qualified Pugs.Val as Val
 import Pugs.Meta ()
-import Pugs.Class
+import Pugs.Class (Boxable(..), ResponderInterface(..), Invocant(..), AnyResponder(..), MethodInvocation(..), ivDispatch)
 
 instance Value (Val.Val) where
     fromVV = return
@@ -414,3 +416,19 @@ isImmediateMatchContext = do
         cxt = envContext env
         typ = typeOfCxt cxt
     return (cxt == CxtVoid || (any (\x -> isaType cls x typ) ["Bool", "Num", "Str"]))
+
+(./) :: ((:>:) Call a) => Val -> a -> Eval Val
+(VV vv) ./ y = vvToVal =<< ivDispatch vv (cast y)
+x ./ y       = do
+    vv <- fromVal x
+    vvToVal =<< ivDispatch vv (cast y)
+
+instance ((:>:) Call) Cxt where
+    cast CxtSlurpy{} = _LIST
+    cast _           = _ITEM
+
+_LIST :: Call
+_LIST = cast "LIST"
+
+_ITEM :: Call
+_ITEM = cast "ITEM"

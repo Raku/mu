@@ -94,6 +94,8 @@ mkBoxPureClass cls methods self =
         [ "HOW"         ... const self
         , "WHAT"        ... const (raiseWhatError ("Can't access attributes of prototype: " ++ cls) `asTypeOf` self)
         , "WHICH"       ... id
+        , "ITEM"        ... id
+        , "LIST"        ... id
         ]
 
 raiseWhatError :: String -> a
@@ -113,9 +115,6 @@ mkBoxMethod (meth, fun) = MkMethod $ MkSimpleMethod
         fun str   -- Note that we expect "fun" to be monadic
     }
 
-(./) :: ((:>:) (MethodInvocation Eval) a) => Invocant Eval -> a -> Eval (Invocant Eval)
-x ./ y = ivDispatch x (cast y)
-
 type PureClass = MI Eval
 
 instance Boxable Eval a => Boxable Eval [a]
@@ -124,10 +123,12 @@ instance Boxable Eval PureClass where
     classOf _ = _PureClass
 
 _PureClass :: PureClass
-_PureClass = mkBoxClass "Class"
-    [ "HOW"         ... (const _PureClass :: PureClass -> PureClass)
-    , "methods"     ... (map methodName . all_methods)
+_PureClass = fix $ mkBoxPureClass "Class"
+    [ "methods"     ... ((map methodName . all_methods) :: PureClass -> [ID])
     ]
+
+instance ((:>:) (MethodInvocation Eval)) String where
+    cast = (`MkMethodInvocation` CaptSub{ c_feeds = [::] }) . _cast
 
 instance ((:>:) (MethodInvocation Eval)) ByteString where
     cast = (`MkMethodInvocation` CaptSub{ c_feeds = [::] }) . cast
