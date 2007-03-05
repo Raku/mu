@@ -1,4 +1,4 @@
-use Test::More tests => 36;
+use Test::More tests => 40;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 use strict;
@@ -172,3 +172,21 @@ SKIP: {
     is( "$match",'[abc]',"subrule+param matched");
 }
 
+{
+    # from pugs capture.t
+    {
+        package Test123;
+        use base 'Pugs::Grammar::Base';
+        *dotdot = Pugs::Compiler::Regex->compile('(.)(.)')->code();
+        *rule2  = Pugs::Compiler::Regex->compile('(a.)<?dotdot>(..)')->code();
+    }
+    my $match = Test123->rule2("zzzabcdefzzz");
+    #print Dumper $match;
+    is($match,'abcdef',"Captured");
+    TODO: {
+        local $TODO = "subcapture into the wrong slot";
+        is( $match->[0],"ab","Capture 0...");
+    }
+    is( $match->[1],"ef","Capture 1...");
+    is( $match->[2],undef,"No more captures");
+}
