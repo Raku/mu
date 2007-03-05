@@ -15,7 +15,7 @@ import Pugs.Prim.Param (foldParam)
 import Pugs.Pretty
 import Pugs.Config
 import Pugs.Monads
-import Pugs.Class
+import Pugs.Class hiding (Val)
 import qualified Pugs.Val as Val
 import qualified Data.ByteString.Char8 as Buf
 

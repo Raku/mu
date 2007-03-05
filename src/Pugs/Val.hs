@@ -15,7 +15,7 @@ module Pugs.Val (
     Val, Call
 ) where
 import Pugs.Class
-import Pugs.Val.Base
+import Pugs.Val.Base ()
 import Pugs.Val.Code
 import Pugs.Val.Capture
 import Pugs.Internals

@@ -2,11 +2,8 @@
 
 module Pugs.Val.Base where
 
-import Pugs.Class
-
-type Val = Invocant Eval
-type Call = MethodInvocation Eval
-
+_ValBaseStub :: ()
+_ValBaseStub = ()
 
 {-
 import qualified Data.ByteString.Char8 as Char8

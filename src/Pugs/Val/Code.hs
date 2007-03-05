@@ -2,8 +2,9 @@
 module Pugs.Val.Code where
 import Pugs.Internals
 import Pugs.Types
-import Pugs.Val.Base
-import Pugs.Val.Capture
+-- import Pugs.Val.Base
+-- import Pugs.Val.Capture
+import Pugs.Class
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 import qualified Pugs.Types as Types

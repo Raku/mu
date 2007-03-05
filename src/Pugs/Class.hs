@@ -30,17 +30,24 @@ import Control.Monad.Fix
 import qualified Data.Map as Map
 import qualified Data.Typeable as Typeable
 
+type Val = Invocant Eval
+type Call = MethodInvocation Eval
+
 class (Show a, Typeable a, Ord a) => Boxable a where
-    mkVal :: a -> Invocant Eval
+    mkVal :: a -> Val
     mkVal x = MkInvocant x (class_interface (classOf x))
 
-    coerceVal :: Invocant Eval -> Eval a
+    coerceVal :: Val -> Eval a
     coerceVal (MkInvocant x _) = case Typeable.cast x of
         Just y -> return y
         _      -> fail $ "Cannot coerce from " ++ (show $ typeOf x) ++ " to " ++ (show $ typeOf (undefined :: a))
 
-    classOf :: a -> MOClass Eval
-    classOf o = mkPureClass ty ([] :: [(ID, ID -> Eval (Invocant Eval))])
+    {-
+    methodsOf :: [(ID, (a -> [:Val:] -> Eval (Val)))]
+    -}
+
+    classOf :: a -> PureClass
+    classOf o = mkPureClass ty ([] :: [(ID, ID -> Eval (Val))])
         where
         ty = _cast . takeTypeName "" . reverse . show $ typeOf o
         -- Here we intuit "Str" from "Pugs.Val.Str.PureStr".
@@ -49,18 +56,18 @@ class (Show a, Typeable a, Ord a) => Boxable a where
             | isLower x = takeTypeName (x:acc) xs
             | otherwise = x:acc
 
-(...) :: Boxable b => String -> (a -> b) -> (ID, a -> Eval (Invocant Eval))
+(...) :: Boxable b => String -> (a -> b) -> (ID, a -> Eval (Val))
 (...) x y = (_cast x, (return . mkVal) . y)
 
-(!!!) :: Boxable b => String -> (a -> Eval b) -> (ID, a -> Eval (Invocant Eval))
+(!!!) :: Boxable b => String -> (a -> Eval b) -> (ID, a -> Eval (Val))
 (!!!) x y = (_cast x, mkValM . y)
 
-mkValM :: Boxable a => Eval a -> Eval (Invocant Eval)
+mkValM :: Boxable a => Eval a -> Eval (Val)
 mkValM x = do
     x' <- x
     return $ MkInvocant x' (class_interface (classOf x'))
 
-mkBoxClass :: Typeable t => String -> [(ID, t -> Eval (Invocant Eval))] -> MOClass Eval
+mkBoxClass :: Typeable t => String -> [(ID, t -> Eval (Val))] -> PureClass
 mkBoxClass cls methods = newMOClass MkMOClass
     { moc_parents         = []
     , moc_roles           = []
@@ -72,7 +79,7 @@ mkBoxClass cls methods = newMOClass MkMOClass
 
 -- | Variant of @mkBoxClass@ making use of the fixed-point combinator
 -- to tye in its "self", and, that adds the standard HOW and WHICH methods.
-mkPureClass :: (Boxable a) => String -> [(ID, a -> Eval (Invocant Eval))] -> MOClass Eval
+mkPureClass :: (Boxable a) => String -> [(ID, a -> Eval (Val))] -> PureClass
 mkPureClass cls methods =
     fix (mkBoxClass cls . methods')
     where 
@@ -87,7 +94,7 @@ mkPureClass cls methods =
 raiseWhatError :: String -> a
 raiseWhatError = error
 
-mkBoxMethod :: Typeable t => (ID, t -> Eval (Invocant Eval)) -> AnyMethod Eval
+mkBoxMethod :: Typeable t => (ID, t -> Eval (Val)) -> AnyMethod Eval
 mkBoxMethod (meth, fun) = MkMethod $ MkSimpleMethod
     { sm_name       = meth
     , sm_definition = MkMethodCompiled $ HsCode $ \args -> do
@@ -96,6 +103,12 @@ mkBoxMethod (meth, fun) = MkMethod $ MkSimpleMethod
     }
 
 type PureClass = MOClass Eval
+
+{-
+instance (Show a, Typeable a, Ord a) => Boxable (Maybe a) where
+    mkVal :: a -> Val
+    mkVal x = MkInvocant x (class_interface (classOf x))
+    -}
 
 instance Boxable a => Boxable [a]
 instance Boxable ID
@@ -107,12 +120,12 @@ _PureClass = mkPureClass "Class"
     [ "methods"     ... ((map methodName . all_methods) :: PureClass -> [ID])
     ]
 
-instance ((:>:) (MethodInvocation Eval)) String where
+instance ((:>:) Call) String where
     cast = (`MkMethodInvocation` CaptSub{ c_feeds = [::] }) . _cast
 
-instance ((:>:) (MethodInvocation Eval)) ByteString where
+instance ((:>:) Call) ByteString where
     cast = (`MkMethodInvocation` CaptSub{ c_feeds = [::] }) . cast
 
-instance ((:>:) (MethodInvocation Eval) (ByteString, [Invocant Eval], Map ID (Invocant Eval))) where
+instance ((:>:) Call (ByteString, [Val], Map ID Val)) where
     cast (meth, pos, named) = MkMethodInvocation (cast meth) CaptSub{ c_feeds = [: MkFeed (toP pos) (Map.map (\x -> [:x:]) named) :]}
 
