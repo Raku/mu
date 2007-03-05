@@ -40,7 +40,7 @@ class (Show a, Typeable a, Ord a) => Boxable a where
         _      -> fail $ "Cannot coerce from " ++ (show $ typeOf x) ++ " to " ++ (show $ typeOf (undefined :: a))
 
     classOf :: a -> MOClass Eval
-    classOf o = fix $ mkBoxPureClass ty ([] :: [(ID, ID -> Eval (Invocant Eval))])
+    classOf o = mkPureClass ty ([] :: [(ID, ID -> Eval (Invocant Eval))])
         where
         ty = _cast . takeTypeName "" . reverse . show $ typeOf o
         -- Here we intuit "Str" from "Pugs.Val.Str.PureStr".
@@ -70,17 +70,13 @@ mkBoxClass cls methods = newMOClass MkMOClass
     , moc_name            = _cast cls
     }
 
--- | Variant of @mkBoxClass@ meant to be called with the fixed-point
--- combinator, that adds the standard HOW and WHICH methods. E.g.:
---    _StrClass = fix $ mkBoxPureClass "Str" [Str methods]
-mkBoxPureClass ::
-    ( Boxable a1
-    , Boxable a
-    ) => String -> [(ID, a1 -> Eval (Invocant Eval))] -> a -> MOClass Eval
-mkBoxPureClass cls methods self =
-    mkBoxClass cls methods'
-    where
-    methods' = flip (++) methods
+-- | Variant of @mkBoxClass@ making use of the fixed-point combinator
+-- to tye in its "self", and, that adds the standard HOW and WHICH methods.
+mkPureClass :: (Boxable a) => String -> [(ID, a -> Eval (Invocant Eval))] -> MOClass Eval
+mkPureClass cls methods =
+    fix (mkBoxClass cls . methods')
+    where 
+    methods' self = flip (++) methods
         [ "HOW"         ... const self
         , "WHAT"        ... const (raiseWhatError ("Can't access attributes of prototype: " ++ cls) `asTypeOf` self)
         , "WHICH"       ... id
@@ -107,7 +103,7 @@ instance Boxable PureClass where
     classOf _ = _PureClass
 
 _PureClass :: PureClass
-_PureClass = fix $ mkBoxPureClass "Class"
+_PureClass = mkPureClass "Class"
     [ "methods"     ... ((map methodName . all_methods) :: PureClass -> [ID])
     ]
 

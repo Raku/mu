@@ -9,7 +9,7 @@ instance Boxable PureStr where
     classOf _ = _StrClass
 
 _StrClass :: PureClass
-_StrClass = fix $ mkBoxPureClass "Str"
+_StrClass = mkPureClass "Str"
     [ "reverse"     ... (MkStr . Str.reverse . unStr)
     ]
 
