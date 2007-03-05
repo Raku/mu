@@ -39,8 +39,10 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 
 #L<<S03/Smart matching/hash value slice truth>>
 { 
-    ok((%hash1 ~~ any(%hash3)), "intersecting keys", :todo);
-    ok(!(%hash1 ~~ any(%hash4)), "no intersecting keys");
+    flunk('FIXME parsefail');
+#    ok(eval(%hash1 ~~ any(%hash3)), "intersecting keys", :todo);
+    flunk('FIXME parsefail');
+#    ok(!(%hash1 ~~ any(%hash4)), "no intersecting keys");
 };
 
 #L<<S03/Smart matching/hash value slice truth>>
@@ -196,8 +198,10 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
     ok(!((1, 2) !~~ 1), "(1, 2) contains 1", :todo);
     ok(((3, 4, 5) !~~ 2), "(3, 4, 5) doesn't contain 2");
 
-    ok(!(%hash1 !~~ any(%hash3)), "intersecting keys", :todo);
-    ok((%hash1 !~~ any(%hash4)), "no intersecting keys");
+    flunk('FIXME parsefail');
+#    ok(!(%hash1 !~~ any(%hash3)), "intersecting keys", :todo);
+    flunk('FIXME parsefail');
+#    ok((%hash1 !~~ any(%hash4)), "no intersecting keys");
 };
 
 {
