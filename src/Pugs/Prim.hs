@@ -65,7 +65,7 @@ op0 :: String -> [Val] -> Eval Val
 op0 "&"  = fmap opJuncAll . mapM fromVal
 op0 "^"  = fmap opJuncOne . mapM fromVal
 op0 "|"  = fmap opJuncAny . mapM fromVal
-op0 "want"  = const $ fmap VStr (asks (maybe "Void" envWant . envCaller))
+op0 "want"  = const $ fmap VStr (asks (maybe "Item" envWant . envCaller))
 op0 "Bool::True"  = const . return $ VBool True
 op0 "Bool::False" = const . return $ VBool False
 op0 "True"  = constMacro . Val $ VBool True
