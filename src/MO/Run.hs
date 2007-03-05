@@ -43,7 +43,7 @@ data Monad m => NoResponse m = NoResponse
 instance Monad m => ResponderInterface m (NoResponse m) where
     dispatch _ _ _      = fail "Dispatch failed - NO CARRIER"
     fromMethodList _    = return NoResponse
-    toNameList _        = []
+    -- toNameList _        = []
 
 __ :: (Typeable1 m, Monad m, Ord a, Show a, Typeable a) => a -> Invocant m
 __ = (`MkInvocant` emptyResponder)
@@ -60,10 +60,12 @@ class Monad m => ResponderInterface m a | a -> m where
     fromMethodList :: [(MethodName, MethodCompiled m)] -> m a
     dispatch :: a -> Invocant m -> MethodInvocation m -> m (Invocant m)
     -- here for debugging purposes.
-    toNameList :: a -> [MethodName]
+    -- toNameList :: a -> [MethodName]
 
+{-
 instance ResponderInterface m a => Show a where
     show = show . toNameList
+-}
 
 instance (Typeable1 m, Monad m) => ResponderInterface m (MethodTable m) where
     fromMethodList = return . MkMethodTable . M.fromList
@@ -72,7 +74,7 @@ instance (Typeable1 m, Monad m) => ResponderInterface m (MethodTable m) where
             runMC method_compiled (withInvocant args responder)
         _ -> fail $ "Can't locate object method " ++ show n ++ " of invocant: " ++ show responder
             
-    toNameList = M.keys . mt_methods
+    -- toNameList = M.keys . mt_methods
 
 data (Typeable1 m, Monad m) => Invocant m
     = forall a. (Show a, Eq a, Ord a, Typeable a) => MkInvocant

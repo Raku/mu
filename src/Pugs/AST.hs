@@ -67,7 +67,6 @@ data OldValResponder = OldValResponder deriving Typeable
 instance ResponderInterface Eval OldValResponder where
     dispatch _          = dispatchOldVal
     fromMethodList _    = return OldValResponder
-    toNameList _        = []
 
 instance Boxable Val where
     mkVal sv = MkInvocant sv (MkResponder (return OldValResponder))
