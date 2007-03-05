@@ -40,10 +40,5 @@ instance Monad m => Method m (SimpleMethod m) where
     methodName = sm_name
     methodCompile = sm_definition
 
+newtype MethodCompiled m = MkMethodCompiled { runMC :: Arguments m -> m (Invocant m) }
 
-data MethodCompiled m
-    = forall c. Codeable m c => MkMethodCompiled c
-
--- NOTE: Maybe I should instantiate MethodCompiled for Codeable? :P
-runMC :: MethodCompiled m -> Arguments m -> m (Invocant m)
-runMC (MkMethodCompiled c) = run c

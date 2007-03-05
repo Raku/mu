@@ -45,7 +45,7 @@ class (Typeable1 m, Monad m, Typeable c, Eq c) => Class m c | c -> m where
         role_attribute_methods = cmap makeAccessorMethod . newCollection' a_accessor_name . r_attributes
         makeAccessorMethod attr = MkMethod $ MkSimpleMethod
             { sm_name        = a_accessor_name attr
-            , sm_definition  = MkMethodCompiled $ PureCode (error . show . getInvocant)
+            , sm_definition  = MkMethodCompiled $ error . show . getInvocant
             }
 
     all_methods     :: c -> [AnyMethod m]
@@ -151,7 +151,7 @@ newMOClass old = new
 blessMOClass :: Class m c => c -> AnyMethod m
 blessMOClass c = MkMethod $ MkSimpleMethod
     { sm_name        = _bless
-    , sm_definition  = MkMethodCompiled (HsCode constructor)
+    , sm_definition  = MkMethodCompiled constructor
     }
     where
     -- Here we generate a structure from some layout.  The "params" here 
