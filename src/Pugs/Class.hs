@@ -80,6 +80,17 @@ instance (Boxable a, Boxable z) => MethodPrimable (a -> Val -> z) a where
 instance (Boxable a, Boxable z) => MethodPrimable (a -> Val -> Eval z) a where
     asPrim f x args = fmap mkVal (f x (args !: 0))
 
+instance (Boxable a, Boxable z) => MethodPrimable (a -> [:Val:] -> z) a where
+    asPrim f x args = return (mkVal (f x args))
+
+instance (Boxable a, Boxable z) => MethodPrimable (a -> [Val] -> z) a where
+    asPrim f x args = return (mkVal (f x (cast args)))
+
+instance (Boxable a, Boxable b, Boxable z) => MethodPrimable (a -> [b] -> z) a where
+    asPrim f x args = do
+        args' <- mapM coerceVal (cast args)
+        return (mkVal (f x args'))
+
 instance (Boxable a, Boxable b, Boxable z) => MethodPrimable (a -> b -> z) a where
     asPrim f x args = do
         y <- coerceVal (args !: 0)
