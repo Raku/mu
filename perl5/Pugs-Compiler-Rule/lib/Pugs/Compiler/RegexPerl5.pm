@@ -52,6 +52,7 @@ q(do {
     unless ref( $_[1] );  # backwards compatibility
   
   #print "POS ${$_[1]} ",pos(${$_[1]}),"\n";
+  #print "p5 $_[3]{p} \n";
   
   if( $_[3]{continue} ) {
     pos(${$_[1]}) = $_[3]{p}

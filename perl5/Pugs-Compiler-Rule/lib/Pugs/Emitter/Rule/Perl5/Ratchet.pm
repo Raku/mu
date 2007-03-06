@@ -244,6 +244,7 @@ $_[1]     && ",
 $_[1]   )
 $_[1] )";
 }        
+sub conjunctive1 { &conjunctive }
 sub concat {
     my @s;
 
@@ -368,6 +369,13 @@ sub special_char {
         if $char eq 'n';
     return  call_perl5( '(?!\n\r?|\r\n?).', $_[1] )
         if $char eq 'N';
+
+    # XXX - Infinite loop in pugs stdrules.t
+    #return metasyntax( '?_horizontal_ws', $_[1] )
+    #    if $char eq 'h';
+    #return metasyntax( '?_vertical_ws', $_[1] )
+    #    if $char eq 'v';
+
     for ( qw( r n t e f w d s ) ) {
         return call_perl5(   "\\$_",  $_[1] ) if $char eq $_;
         return call_perl5( "[^\\$_]", $_[1] ) if $char eq uc($_);
@@ -786,8 +794,12 @@ sub metasyntax {
     }
     if ( $prefix =~ /[-+[]/ ) {   # character class 
         $cmd =~ s/\.\./-/g;
-        if ( $prefix eq '-' ) {
+        if ( substr( $cmd, 0, 2 ) eq '-[' ) {
            $cmd = '[^' . substr($cmd, 2);
+        } 
+        elsif ( $prefix eq '-' ) {
+           $cmd = substr($cmd, 1);
+           $cmd = "[^[:$cmd:]]";
         } 
         elsif ( $prefix eq '+' ) {
            $cmd = substr($cmd, 2);

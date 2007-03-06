@@ -37,6 +37,24 @@ sub no_match {
     '(?<=\w)\b' 
 )->code;
 
+# \h
+*_horizontal_ws = Pugs::Compiler::RegexPerl5->compile( 
+    'XXX - Infinite loop in pugs stdrules.t' .
+    '\x20|\t'
+    
+    #'\x0a|\x0b|\x0c|\x0d|\x85'   
+    # from regex_tests, plus \t and ' '
+)->code;
+
+# \v
+*_vertical_ws = Pugs::Compiler::RegexPerl5->compile( 
+    'XXX - Infinite loop in pugs stdrules.t' .
+    '[\n\r]'
+    
+    #'\x{1680}|\x{180e}|\x{2000}|\x{2001}|\x{2002}|\x{2003}|\x{2004}|\x{2005}|\x{2006}|\x{2007}|\x{2008}|\x{2008}|\x{2009}|\x{200a}|\x{202f}|\x{205f}|\x{3000}'   
+    # from regex_tests
+)->code;
+
 # specced methods
 
 sub at {
@@ -78,6 +96,22 @@ sub prior {
 
 *ident = Pugs::Compiler::RegexPerl5->compile( 
     '[[:alpha:]_][[:alnum:]_]*' 
+)->code;
+
+*sp = Pugs::Compiler::RegexPerl5->compile( 
+    '\x20' 
+)->code;
+
+*dot = Pugs::Compiler::RegexPerl5->compile( 
+    '\.' 
+)->code;
+
+*gt = Pugs::Compiler::RegexPerl5->compile( 
+    '>' 
+)->code;
+
+*lt = Pugs::Compiler::RegexPerl5->compile( 
+    '<' 
 )->code;
 
 BEGIN {

@@ -2,6 +2,8 @@ TODO for Pugs::Compiler::Rule (PCR)
 
 * 2007-03-02
 
+- move all unicode tables (\n, \t, \v, char classes) into a module
+
 - try to compile Perl-6.0.0-STD.pm 
 
 - finish | || & &&

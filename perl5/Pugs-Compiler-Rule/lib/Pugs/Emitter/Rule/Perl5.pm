@@ -32,6 +32,27 @@ $tab }
 ";
 }
 
+sub call_subrule_no_capture {
+    my ( $subrule, $tab, @param ) = @_;
+    $subrule = "\$_[4]->" . $subrule unless $subrule =~ / :: | \. | -> /x;
+    $subrule =~ s/\./->/;   # XXX - source filter
+
+    push @param, 1 if @param == 1;  # odd number of elements in hash
+    #print "PARAM: ",Dumper(@param);
+
+    return 
+"$tab sub{ 
+$tab     my \$prior = \$::_V6_PRIOR_;
+$tab     my \$param = { \%{ \$_[7] || {} }, args => {" . 
+            join(", ",@param) . "} };
+$tab     \$_[3] = $subrule( \$_[0], \$param, \$_[3],  );
+$tab     \$_[3]->data->{match} = [];
+$tab     \$_[3]->data->{named} = {};
+$tab     \$::_V6_PRIOR_ = \$prior;
+$tab }
+";
+}
+
 sub emit {
     my ($grammar, $ast) = @_;
     # runtime parameters: $grammar, $string, $state, $arg_list
@@ -266,6 +287,12 @@ sub special_char {
     return  "$_[1] perl5( '(?!\n\r?|\r\n?).' )\n"
         if $char eq 'N';
 
+    # XXX - Infinite loop in pugs stdrules.t
+    #return metasyntax( '?_horizontal_ws', $_[1] )
+    #    if $char eq 'h';
+    #return metasyntax( '?_vertical_ws', $_[1] )
+    #    if $char eq 'v';
+
     for ( qw( r n t e f w d s ) ) {
         return "$_[1] perl5( '\\$_' )\n" if $char eq $_;
         return "$_[1] perl5( '[^\\$_]' )\n" if $char eq uc($_);
@@ -474,9 +501,13 @@ sub metasyntax {
     }
     if ( $prefix =~ /[-+[]/ ) {   # character class 
         $cmd =~ s/\.\./-/g;
-        if ( $prefix eq '-' ) {
-	       $cmd = '[^' . substr($cmd, 2);
-	    } 
+        if ( substr( $cmd, 0, 2 ) eq '-[' ) {
+           $cmd = '[^' . substr($cmd, 2);
+        } 
+        elsif ( $prefix eq '-' ) {
+           $cmd = substr($cmd, 1);
+           $cmd = "[^[:$cmd:]]";
+        } 
         elsif ( $prefix eq '+' ) {
 	       $cmd = substr($cmd, 2);
 	    }
@@ -490,7 +521,7 @@ sub metasyntax {
             warn "code assertion not implemented";
             return;
         }
-        return call_subrule( $cmd, $_[1] );
+        return call_subrule_no_capture( $cmd, $_[1] );
     }
     if ( $prefix =~ /[_[:alnum:]]/ ) {
         if ( $cmd eq 'cut' ) {

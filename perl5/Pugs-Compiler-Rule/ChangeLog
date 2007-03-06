@@ -1,4 +1,5 @@
-
+- fixed non-capturing subrules in regex
+- fixed <-alpha>
 - implemented conjunctions with '&' (not in Regex yet)
 - implemented negated metasyntax <!...>
 - implemented <fail>

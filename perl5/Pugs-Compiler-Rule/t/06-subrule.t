@@ -1,4 +1,4 @@
-use Test::More tests => 40;
+use Test::More tests => 43;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 use strict;
@@ -154,7 +154,7 @@ SKIP:
 }
 
 SKIP: {
-    skip "failing optional quantifier - subrule + param\n", 1;
+    skip "failing optional quantifier - subrule + param", 1;
 
     my $subrule = Pugs::Compiler::Regex->compile(' .*? $^a ');
     #print $subrule->perl5;
@@ -179,14 +179,24 @@ SKIP: {
         use base 'Pugs::Grammar::Base';
         *dotdot = Pugs::Compiler::Regex->compile('(.)(.)')->code();
         *rule2  = Pugs::Compiler::Regex->compile('(a.)<?dotdot>(..)')->code();
+        
+        # my $dbg = Pugs::Compiler::Regex->compile('(a.)<?dotdot>(..)');
+        # print $dbg->perl5;
     }
     my $match = Test123->rule2("zzzabcdefzzz");
     #print Dumper $match;
     is($match,'abcdef',"Captured");
-    TODO: {
-        local $TODO = "subcapture into the wrong slot";
-        is( $match->[0],"ab","Capture 0...");
-    }
+    is( $match->[0],"ab","Capture 0...");
     is( $match->[1],"ef","Capture 1...");
     is( $match->[2],undef,"No more captures");
+}
+
+{
+    # from pugs capture.t
+    my $rule = Pugs::Compiler::Regex->compile('(a)($0)');
+    #print $rule->perl5;
+    my $match = $rule->match("zzzaazzz");
+    is($match,'aa',"Captured");
+    is( $match->[0],"a","Capture 0...");
+    is( $match->[1],"a","Capture 1...");
 }
