@@ -282,7 +282,11 @@ op1 "Pugs::Internals::eval_perl5" = \v -> do
     env     <- ask
     lex     <- asks envLexical
     let vars = [ v | v@MkVar{ v_sigil = SScalar, v_twigil = TNil } <- Set.toList (padKeys lex), v /= varTopic ]
-        code = "sub { use ops ($ENV{PUGS_SAFEMODE} ? (':default', 'binmode', 'entereval') : ()); my (" ++ (concat $ intersperse ", " (map (`showsVar` "") vars)) ++ ") = @_;\n" ++ str ++ "\n}"
+        code = "sub { " ++ codeSafe ++ codeVar ++ str ++ "\n}"
+        codeSafe | safeMode  = "use ops (':default', 'binmode', 'entereval');"
+                 | otherwise = ""
+        codeVar | null vars = ""
+                | otherwise = "my (" ++ (concat $ intersperse ", " (map (`showsVar` "") vars)) ++ ") = @_;"
     vals    <- mapM readVar vars
     rv  <- tryIO (Perl5ErrorString "") $ do
         envSV   <- mkEnv env
