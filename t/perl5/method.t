@@ -84,7 +84,10 @@ my $obj;
 
 {
     my $r = $obj.asub;
-    isa_ok($r, 'CODE', "returning a coderef");
+
+    flunk('isa_ok vs Perl5 not yet defined');
+    # isa_ok($r, 'CODE', "returning a coderef");
+
     is($r.(), 'asub', 'invoking p5 coderef');
     my $rr = $obj.callcode($r);
     is($rr, 'asub', 'invoke with p5 coderef');
