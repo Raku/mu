@@ -1,5 +1,7 @@
 This is yet another rules engine implementation attempt.
 
+Basic testing:
+
 $ prove t/re_tests.t
 $ prove t/rx.t
 ... 96.25% okay.
@@ -10,9 +12,19 @@ $ perl -w Regexp_ModuleA.pm --test6
 $ perl -w Regexp_ModuleA.pm --repl
 $ perl -w Regexp_ModuleA.pm --repl6
 ... interactive.
+
+To take pugs t/regex/ tests, kludge them into p5, and run them (quickly):
+
 $ PERL5_V6_IMPLEMENTATION=PugsRegexTestA perl -w -I. -Mv6-alpha ../../../../t/regex/from_perl6_rules/anchors.t
 $ DEBUG_PugsRegexTestA=1 PERL5_V6_IMPLEMENTATION=PugsRegexTestA perl -w -I. -Mv6-alpha ../../../../t/regex/from_perl6_rules/anchors.t
 $ PERL5_V6_IMPLEMENTATION=PugsRegexTestA prove -r --perl 'perl -w -I. -Mv6-alpha' ../../../../t/regex/
+
+To run pugs with this as its p6 regex engine:
+
+$ cp misc/pX/Common/yet_another_regex_engine/Pugs_Runtime_Match_HsBridge.pm ./perl5/Pugs-Compiler-Rule/lib/Pugs/Runtime/Match/HsBridge.pm
+# Running  make  may be required?
+$ ./pugs
+
 
 Regards forking:
 
@@ -135,6 +147,12 @@ Risks:
     hit.
 
 History:
+
+  2007-Mar-05 Sigspace begun.  Can now run as pugs's engine instead of PCR.
+  re_tests.t 96%, 16 sec; rx.t 90%, 16 sec; t/regex/
+  Failed 54/59 test scripts. 4811/5094 subtests failed.
+  Files=59, Tests=5094, 27 wallclock secs (21.32 cusr +  2.00 csys = 23.32 CPU)
+  Cost: 2 days (variously squandered)
 
   2007-Mar-01 Trivial beginning on aliases.  Can now run puts t/regex/.
   re_tests.t 96%, 16 sec; rx.t 85%, 13 sec; t/regex/
