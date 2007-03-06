@@ -28,7 +28,7 @@ instance Boxable PerlSV where
         | otherwise                 = fail $ "Cannot coerce to SV: " ++ show (typeOf x)
 
 __HOW__, __WHAT__, __WHICH__, __ITEM__, __LIST__ :: MethodName
-__HOW__     = _cast "__HOW__"
+__HOW__     = _cast "HOW"
 __WHAT__    = _cast "__WHAT__"
 __WHICH__   = _cast "__WHICH__"
 __ITEM__    = _cast "__ITEM__"
@@ -42,13 +42,13 @@ dispatchPerl5 inv call
     | meth == __ITEM__  = return inv
     | meth == __LIST__  = return inv
     | otherwise = do
-        invSV   <- castVal inv
+        invSV   <- coerceVal inv
         subSV   <- liftIO . bufToSV . cast $ meth
-        posSVs  <- mapM castVal (fromP $ f_positionals feed)
+        posSVs  <- mapM coerceVal (fromP $ f_positionals feed)
         namSVs  <- fmap concat . forM (Map.toList (f_nameds feed)) $ \(key, vals) -> do
             keySV   <- liftIO (bufToSV $ cast key)
             fmap concat . forM (fromP vals) $ \v -> do
-                valSV   <- castVal v
+                valSV   <- coerceVal v
                 return [keySV, valSV]
         env     <- ask
         rv      <- liftIO $ do
