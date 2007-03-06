@@ -113,11 +113,9 @@ mkBoxClass cls methods = newMOClass MkMOClass
 -- mkPureClass :: (Boxable a) => String -> [(ID, MethodPrim a)] -> PureClass
 mkPureClass :: Boxable a => String -> [(ID, MethodPrim a)] -> PureClass
 mkPureClass cls methods = fix . (mkBoxClass cls .) $ \self -> flip (++) methods
-    [ "HOW"     ... mkVal self
-    , "__WHAT__"    ... mkVal (raiseWhatError ("Can't access attributes of prototype: " ++ cls) `asTypeOf` self)
-    , "__WHICH__"   ... id
-    , "__ITEM__"    ... id
-    , "__LIST__"    ... id
+    [ ""        ... mkVal self
+    , "ITEM"    ... id
+    , "LIST"    ... id
     ]
 
 raiseWhatError :: String -> a

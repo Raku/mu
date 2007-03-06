@@ -137,7 +137,7 @@ This function mostly just delegates to 'reduce'.
 -}
 evaluate :: Exp -- ^ The expression to evaluate
          -> Eval Val
-evaluate (Val val) = evalVal val
+evaluate (Val val) = reduceVal val
 evaluate exp = do
     debugRef <- asks envDebug
     case debugRef of
@@ -147,20 +147,20 @@ evaluate exp = do
             val <- local (\e -> e{ envBody = exp }) $ reduce exp
             debug ref (cast "indent") (\x -> if null x then [] else tail x) "- Ret: " val
             trapVal val (return val)
-        Nothing -> do
-            val <- reduce exp
-            trapVal val (return val)
+        Nothing -> local (\e -> e{ envEval = evaluate' }) (evaluate' exp)
+
+evaluate' :: Exp -> Eval Val
+evaluate' exp = do
+    val <- reduce exp
+    trapVal val (return val)
 
 -- Reduction ---------------------------------------------------------------
-
-retVal :: Val -> Eval Val
-retVal val = evaluate (Val val)
 
 retItem :: Val -> Eval Val
 retItem val = do
     ifListContext
-        (retVal $ VList [val])
-        (retVal $ val)
+        (return $ VList [val])
+        (return $ val)
 
 {-|
 Add a symbol to the global 'Pad'.
@@ -218,7 +218,7 @@ evalRef ref = do
             ref' <- newObject typ'
             writeRef ref (VRef ref')
         return $ castV ref
-    retVal val
+    return val
 
 {-|
 Reduce an expression into its value.
@@ -262,12 +262,10 @@ reduceVal v@(VRef (MkRef IPair{})) = return v
 -- Reduction for mutables
 reduceVal v@(VRef var) = do
     lv <- asks envLValue
-    if lv then retVal v else do
-    rv <- readRef var
-    retVal rv
+    if lv then return v else readRef var
 
 -- Reduction for constants
-reduceVal v = retVal v
+reduceVal v = evalVal v
 
 isStrict :: Eval Bool
 isStrict = fromVal =<< readVar (cast "$*STRICT")
@@ -469,7 +467,7 @@ reduceSyn "sub" [exp] = do
         writeTVar tvar thunk
         return $ Just tvar
     newBody <- transformExp cloneBodyStates $ subBody sub
-    retVal $ VCode sub
+    return $ VCode sub
         { subEnv  = Just env
         , subCont = cont
         , subBody = newBody
@@ -523,7 +521,7 @@ reduceSyn "for" [list, body] = enterLoop $ do
         _                           -> join $ doArray av array_fetchElemAll
     -- This makes "for @x { ... }" into "for @x -> $_ is rw {...}"
     let arity = max 1 $ length (subParams sub)
-        runBody [] _ _ = retVal undef
+        runBody [] _ _ = return undef
         runBody vs sub' isFirst = do
             let (these, rest) = arity `splitAt` vs
                 realSub
@@ -533,7 +531,7 @@ reduceSyn "for" [list, body] = enterLoop $ do
             rv <- apply realSub Nothing $ map (Val . VRef . MkRef) these
             case rv of
                 VControl (ControlLoop LoopRedo) -> runBody vs sub' isFirst
-                VControl (ControlLoop LoopLast) -> retVal undef
+                VControl (ControlLoop LoopLast) -> return undef
                 _                               -> runBody rest sub' False
     runBody elms sub True
 
@@ -606,7 +604,7 @@ reduceSyn name [cond, body]
                 VControl (ControlLoop LoopRedo) -> runBody
                 _                               -> return rv
         case rv of
-            VError{}                        -> retVal rv
+            VError{}                        -> return rv
             VControl (ControlLoop LoopLast) -> retEmpty
             _                               -> do
                 ($ rv) . fix $ \runLoop prev -> do
@@ -617,12 +615,12 @@ reduceSyn name [cond, body]
                             rv <- apply sub Nothing [Val vbool]
                             case rv of
                                 VControl (ControlLoop LoopRedo) -> runBody
-                                VControl (ControlLoop LoopLast) -> retVal prev
-                                VError{}    -> retVal rv
+                                VControl (ControlLoop LoopLast) -> return prev
+                                VError{}    -> return rv
                                 _           -> runLoop prev
                         else case prev of
                             VControl ControlLoop{}  -> retEmpty
-                            _                       -> retVal rv
+                            _                       -> evalVal rv
 
 reduceSyn "=" [lhs, rhs] = do
     refVal  <- enterLValue $ evalExp lhs
@@ -634,10 +632,10 @@ reduceSyn "=" [lhs, rhs] = do
     val <- enterRValue $ enterEvalContext cxt rhs
     writeRef ref val
     lv      <- asks envLValue
-    if lv then retVal refVal else
+    if lv then return refVal else
         ifListContext (readRef ref) $
             if cxt == cxtSlurpyAny
-                then retVal refVal
+                then evalVal refVal
                 else readRef ref
 
 reduceSyn "::=" exps = reduce (Syn ":=" exps)
@@ -712,7 +710,7 @@ reduceSyn "[,]" [exp] = do
 
 reduceSyn "," exps = do
     vals <- mapM (enterEvalContext cxtSlurpyAny) exps
-    retVal . VList . concat $ map castList vals
+    return . VList . concat $ map castList vals
     where
     castList (VList vs) = vs
     castList v = [v]
@@ -724,7 +722,7 @@ reduceSyn "\\{}" [exp] = do
     v   <- enterRValue . enterBlock $ enterEvalContext cxtSlurpyAny exp
     hv  <- newObject (mkType "Hash")
     writeRef hv v
-    retVal $ VRef hv
+    evalVal $ VRef hv
 
 reduceSyn "\\[]" [exp] = do
     v   <- enterRValue $ enterEvalContext cxtSlurpyAny exp
@@ -763,7 +761,7 @@ reduceSyn "[...]" [listExp, indexExp] = do
     listVal <- enterRValue $ enterEvalContext cxtSlurpyAny listExp
     list    <- fromVal listVal
     -- elms    <- mapM fromVal list -- flatten
-    retVal $ VList (drop idx $ list)
+    return $ VList (drop idx $ list)
 
 -- XXX - Wrong!
 reduceSyn "|" [exp] = evalExp exp
@@ -840,7 +838,7 @@ reduceSyn "rx" [exp, adverbs] = do
         rx | p5 = do ns <- liftIO $ numSubs p5re
                      return $ MkRulePCRE p5re g ns flag_tilde str adverbHash
            | otherwise = return $ MkRulePGE p6re g flag_tilde adverbHash
-    retVal . VRule =<< rx
+    return . VRule =<< rx
     where
     implies True  = id
     implies False = const 0
@@ -859,12 +857,12 @@ reduceSyn "match" exps = do
 
 reduceSyn "subst" [exp, subst, adverbs] = do
     (VRule rx)  <- reduce (Syn "rx" [exp, adverbs])
-    retVal $ VSubst (MkSubst rx subst)
+    return $ VSubst (MkSubst rx subst)
 
 reduceSyn "trans" (fromExp:toExp:_) = do
     from <- fromVal =<< reduce fromExp
     to   <- fromVal =<< reduce toExp
-    retVal $ VSubst (MkTrans from to)
+    return $ VSubst (MkTrans from to)
 
 -- XXX - Runtime mixin
 reduceSyn "is" (lhs:_) = reduce lhs
@@ -961,6 +959,9 @@ class SpecialAppHelper a where
 instance SpecialAppHelper (Maybe Exp -> [Exp] -> Eval Val) where
     n ... f = (cast n, AppSubMeth f)
 
+instance SpecialAppHelper (Val -> Eval Val) where
+    n ... f = (cast n, AppInv (\exp -> evalExp exp >>= f))
+
 instance SpecialAppHelper (Exp -> Eval Val) where
     n ... f = (cast n, AppInv f)
 
@@ -978,27 +979,25 @@ specialApp = Map.fromList
         case res of
             [x] -> return x
             _   -> return $ VList res
+    , "&HOW"        ... (./ "")
+    , "&LIST"       ... (./ "LIST")
+    , "&ITEM"       ... (./ "ITEM")
+    -- XXX - XXX - everything above should be macros - XXX - XXX --
     , "&hash"       ... (enterEvalContext cxtItemAny . Syn "\\{}" . (:[]) . Syn ",")
     , "&list"       ... listMeth
     , "&item"       ... itemMeth
-    , "&__LIST__"   ... listMeth
-    , "&__ITEM__"   ... itemMeth
     , "&cat"        ... \args -> do
         vals <- mapM (enterRValue . enterEvalContext (cxtItem "Array")) args
-        val  <- op0Cat vals
-        retVal val
+        op0Cat vals
     , "&each"       ... \args -> do
         vals <- mapM (enterRValue . enterEvalContext (cxtItem "Array")) args
-        val  <- op0Each vals
-        retVal val
+        op0Each vals
     , "&roundrobin" ... \args -> do
         vals <- mapM (enterRValue . enterEvalContext (cxtItem "Array")) args
-        val  <- op0RoundRobin vals
-        retVal val
+        op0RoundRobin vals
     , "&zip"        ... \args -> do
         vals <- mapM (enterRValue . enterEvalContext (cxtItem "Array")) args
-        val  <- op0Zip vals
-        retVal val
+        op0Zip vals
     , "&yield"     ... \args -> do
         (op1Yield . retControl . ControlLeave (<= SubRoutine) 0) =<<
             case args of
@@ -1023,7 +1022,7 @@ specialApp = Map.fromList
                    }
         local callerEnv $ do
             val <- apply sub Nothing args
-            retShift =<< retVal val
+            retShift =<< evalVal val
             retEmpty
     , "&call"       ... \inv args -> do
         sub     <- fromCodeExp inv
@@ -1043,7 +1042,7 @@ specialApp = Map.fromList
         sub     <- fromCodeExp inv
         case bindSomeParams sub Nothing args of
             Left errMsg      -> fail errMsg
-            Right curriedSub -> retVal $ castV $ curriedSub
+            Right curriedSub -> return . castV $ curriedSub
     , "&infix:=>"   ... reduceSyn "=>"
     , "&circumfix:\\( )" ... \invs args -> do
         feeds <- argsFeed [::] Nothing [args]
@@ -1415,7 +1414,7 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
                         Nothing     -> applyExp (subType sub) realBound fun
             case typ of 
                 SubMacro    -> applyMacroResult val 
-                _           -> retVal val
+                _           -> evalVal val
     where
     applyMacroResult :: Val -> Eval Val
     applyMacroResult (VObject o)

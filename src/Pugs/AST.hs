@@ -72,12 +72,18 @@ instance Boxable Val where
     mkVal sv = MkInvocant sv (MkResponder (return OldValResponder))
 
 dispatchOldVal :: Val.Val -> Call -> Eval Val.Val
-dispatchOldVal inv call = do
-    inv' <- castVal inv
-    rv   <- evalExp $ App (_Var ('&':cast (mi_name call)))
-                          (Just $ Val inv')
-                          [Syn "|" [Val . VV . mkVal $ mi_arguments call]]
-    fromVal rv
+dispatchOldVal inv call
+    | meth == nullID = do
+        typ <- evalValType =<< castVal inv
+        (fromVal =<<) . evalExp $ _Var (':':'*':showType typ)
+    | otherwise      = do 
+        inv' <- castVal inv
+        (fromVal =<<) . evalExp $ App
+            (_Var ('&':cast meth))
+            (Just $ Val inv')
+            [Syn "|" [Val . VV . mkVal $ mi_arguments call]]
+    where
+    meth = mi_name call
 
 {-|
 Return an infinite (lazy) Haskell list of the given string and its
@@ -427,7 +433,7 @@ instance ((:>:) Call) Cxt where
     cast _           = __ITEM__
 
 __LIST__ :: Call
-__LIST__ = cast "__LIST__"
+__LIST__ = cast "LIST"
 
 __ITEM__ :: Call
-__ITEM__ = cast "__ITEM__"
+__ITEM__ = cast "ITEM"
