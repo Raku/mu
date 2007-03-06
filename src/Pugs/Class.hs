@@ -68,33 +68,34 @@ instance Boxable a => MethodPrimable Val a where
 instance Boxable a => MethodPrimable Call a where
     asPrim f x _ = ivDispatch (mkVal x) f
 
+-- Auto-generate pure instances from Eval instances
+instance MethodPrimable (a -> b -> Eval z) a => MethodPrimable (a -> b -> z) a where
+    asPrim f = asPrim ((\x args -> return (f x args)) :: (a -> b -> Eval z))
+
 instance (Boxable a, Boxable z) => MethodPrimable (a -> z) a where
     asPrim f x _ = return (mkVal (f x))
 
 instance (Boxable a, Boxable z) => MethodPrimable (a -> Eval z) a where
     asPrim f x _ = fmap mkVal (f x)
 
-instance (Boxable a, Boxable z) => MethodPrimable (a -> Val -> z) a where
-    asPrim f x args = return (mkVal (f x (args !: 0)))
-
 instance (Boxable a, Boxable z) => MethodPrimable (a -> Val -> Eval z) a where
     asPrim f x args = fmap mkVal (f x (args !: 0))
 
-instance (Boxable a, Boxable z) => MethodPrimable (a -> [:Val:] -> z) a where
-    asPrim f x args = return (mkVal (f x args))
+instance (Boxable a, Boxable z) => MethodPrimable (a -> [:Val:] -> Eval z) a where
+    asPrim f x args = fmap mkVal (f x args)
 
-instance (Boxable a, Boxable z) => MethodPrimable (a -> [Val] -> z) a where
-    asPrim f x args = return (mkVal (f x (cast args)))
+instance (Boxable a, Boxable z) => MethodPrimable (a -> [Val] -> Eval z) a where
+    asPrim f x args = fmap mkVal (f x (cast args))
 
-instance (Boxable a, Boxable b, Boxable z) => MethodPrimable (a -> [b] -> z) a where
+instance (Boxable a, Boxable b, Boxable z) => MethodPrimable (a -> [b] -> Eval z) a where
     asPrim f x args = do
         args' <- mapM coerceVal (cast args)
-        return (mkVal (f x args'))
+        fmap mkVal (f x args')
 
-instance (Boxable a, Boxable b, Boxable z) => MethodPrimable (a -> b -> z) a where
+instance (Boxable a, Boxable b, Boxable z) => MethodPrimable (a -> b -> Eval z) a where
     asPrim f x args = do
         y <- coerceVal (args !: 0)
-        return (mkVal (f x y))
+        fmap mkVal (f x y)
 
 (...) :: MethodPrimable a b => String -> a -> (ID, MethodPrim b)
 (...) x y = (_cast x, asPrim y)
