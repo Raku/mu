@@ -38,10 +38,6 @@ Regards forking:
 
 Ways you can help:
 
-  * Explore and explain to me how to hook a new p6 regex engine into
-    pugs.  I believe pugs is currently using perl5/Pugs-Compiler-Rule?
-  * Are there any better p6 regexp grammars than
-    misc/Grammars/rx_grammar.pm?
   *...
 
 Objective:
@@ -71,28 +67,15 @@ Architecture:
 Plan:
 
   * Update Plan, Budget.
-  * Get p5 regexp working:
-     Add backref_or_char node.
-     Debug using re_tests.
-     Tidy up.
-    Objective is a 100% okay on the re_tests p5 regexp test suite.
-    Or as close as the underlying p5 implementation version comes.
-    Except where it is easy, we won't try to do better than that.
-    Keeping track of what test is failing and why is more trouble than
-    doing ~100% now rather than later, no?
-  * Get p6 regex working.
-    100% test pass on parrot rx_ tests.
-    Scavange more tests from... somewhere.
-     Regexp::Parser::ConvertToSix re_tests to p6?
-  * Flesh out the p6 implementation.
   * Declare success.
 
  Mission creep:
   * Finish separating ast ("compile-time") from "runtime".
-  * Source filter. PCR equivalent.
+  * Source filter. PCR equivalent. (Did both:/)
 
 Bugs: (some among many)
 
+  * Numerous.  Running as pugs's rx engine is currently the best source.
   * \10 handling
 
 Budgeting:
@@ -104,6 +87,7 @@ Budgeting:
   1+fuzzy day for fleshing out rules support.
 
 So 6+ days.  Likely spread over February '07.
+REVIEW: Currently at 15 days, going into March.
 
 Budget blown.
 
@@ -113,19 +97,21 @@ Risks:
     current estimate is silly. -> Schedule blow out.  Mitigation:
     Break functionality into chunks (eg, related to implementations -
     eg, everything pge/PCR has); Re-budget; Downscale objective (eg,
-    go for pge or pcr equivalence).
+    go for pge or pcr equivalence).  REVIEW: ~11 days and unfinished.
 
   * Engine oddities, perlbug tickling. -> Exploding debug cost.
     Mitigation: perl version restriction.  Still worrisome.
+    REVIEW: Cost <1/2 day.
 
   * Does this version of the engine already support commits? ->
     significant engine change, unexpected debugging hell.  Mitigation:
     Check; Scavenge if necessary (before initial debugging pass or
     after? - after - minimum path to get-it-working - worth the hit).
+    REVIEW: Commits cost 1-2 days.
 
   * P6 rule interaction with lexical variables - have plan, but it's
     still raw.  -> rathole.  Mitigation: Flesh out plan; Punt, restricting
-    interaction to symbol table.
+    interaction to symbol table.  REVIEW: Currently sketched in but broken.
 
   * Match objects are non-spec. -> non-specness.  Mitigation: I don't
     care; Might be easily fixed.
@@ -135,9 +121,10 @@ Risks:
     Don't really care how it's implemented, as long as it can support
     p6 parser development; Can even punt to flat namespace; Whatever
     is easy; Re non-spec, don't care unless there are tests.
+    REVIEW: Creeped, see review.
 
   * Mission creep, eg, everything for everyone cpan rules module.
-    Mitigation: don't; Budget separately.
+    Mitigation: don't; Budget separately.  REVIEW: Creeped elsewise.
 
   - Performance.  As of 2007-Jan-31, performance is very poor.  6 min
     to run re_test.  Cause unexplored.  Perhaps nested expressions
@@ -146,7 +133,71 @@ Risks:
     grammars.  RESOLVED: use overload; in Match was a 100x performance
     hit.
 
+REVIEW 2007-Mar-05
+
+  Way over time budget.  Mission drift and creep.  Current objective unclear.
+
+  The initial objective: Pugs looked unhealthily, dangerously inactive.
+  Audreyt was gone, pugs hs was stuck, and kp6 was moving slowly.
+  Objective was to create a redsix-like bootstrap, standalone p6 on
+  p5.  First step was a "p5 with rules" reprise, but with p6 syntax.
+
+  Environment changes, focus drifts: Audreyt's health got debugged,
+  and is happily back.  Pugs hs development resumed.  So original
+  "lifeboat" objective was obsoleted.  An official p6 grammar and opp
+  was begun, reducing the attractiveness of a redsix-like quick kludge.
+  Engine objectives underwent "test-driven drift" toward full p6
+  coverage.
+
+  Accomplishments to date: A 3rd p6 regex engine.  For some tasks the
+  best currently available.  The p6 on top of non-reentrant p5 regexp
+  approach could be applied to other platforms.  Generated some pugs
+  project liveliness for a couple of weeks.  Motivated Perl-6.0.0-STD.pm.
+
+  Current state: Code is very ugly, an artifact of deferred-refactoring
+  minimum-delta test-driven development.  In p5.  Blech.  Architecture
+  seems basically sound so far.  Performance is not bad, with
+  ground-brushing low hanging regex optimization not yet applied.
+
+  Where from here?
+  (1) Punt.  Original objective gone.  Much better to write this in p6.
+  Working p6 oo should be available in 1-2 months.  Value as prototype
+  isn't worth the development cost.
+  (2) Support Perl-6.0.0-STD.pm parser development.  Cease improving
+  general p6 coverage, focus on parser.  Feasibility unclear - raw p6
+  code is now playing a non-trivial role.  Would have to transliterate.
+  Would keep parser development from stalling over the next 1-2 months,
+  presuming one could start running it quickly.  A maybe.
+  (3) Continue development as a p5-based p6 regex engine.  Also provides
+  reentrant p5 for pre v5.10.  However PCR exists.  Though slow.  Mention
+  of possible architectural difficulties.  But exists.  And once a p6
+  impl exists, would be easy to generate p5.  Though that may take until
+  Fall'07.  Plausible, but doesn't greatly appeal.
+  (4) Continue development as a pugs p6 regex engine.  Which would live
+  for a quarter or two, until a hs version replaced it.  Fighting to
+  have pugs include something which is not on its own critical/audreyt
+  path is not fun.  A maybe, but for someone else.
+  (5) Repackage engine core as PCR backend.  Thus being able to hand it
+  off, rather than it all landing on the dusty back shelf.  Could be
+  interesting to do the backend api.  But clarifying its constraints
+  is still a work in progress.  Not clear PCR ast is the place to do
+  that.  Might do minimum hack to make kp6 go faster.  But how essential
+  is kp6, with audreyt back?  A maybe, but not -O fun.
+  (6) Continue towards standalone p6 on p5.  What payoffs?  Insurance
+  policy on pugs hs.  Ability to modularly compose p6 implementations.
+  The latter seems interesting, but with pugs dominant, and landing on
+  the p5 perl6: namespace, it looks like an uphill battle.
+  (7) Any other possible fruit?  
+
+  Postmortem: Was aware of scope drift, but failed to examine cause,
+  reevaluate objectives in new context.
+
 History:
+
+Elapsed dev time: 14 days (ie, ~100 hrs).
+Calendar time: 37 days.
+
+  2007-Mar-05 REVIEW.
 
   2007-Mar-05 Sigspace begun.  Can now run as pugs's engine instead of PCR.
   re_tests.t 96%, 16 sec; rx.t 90%, 16 sec; t/regex/
@@ -180,6 +231,8 @@ History:
   2007-Feb-1? More commit, but untested.  Some bug fixes.  Started
   adding a p6 test suite. 12 sec. 95% ok. 3% ok6.  Cost: 1 day.
 
+Elapsed dev time: 5 days.
+
   2007-Feb-08
   2007-Feb-06 Some cleanup.  Started commit.  Rx's are now method-like.
   Added externally defined post actions. A bugfix.  Started P5WithSubrules.
@@ -188,6 +241,8 @@ History:
   2007-Feb-03 Some cleanup.  Added nodes.  Performance improved (7 min
   -> 12 sec by avoiding "use overload" when possible).  12 sec.  92% okay.
   Cost: 1 day.
+
+Elapsed dev time: 2+ days.
 
   2007-Feb-01 Began backrefs.  Bugfixes.  Dropped in copies of the
   missing nodes which need to be adapted to the new ast.  400 sec.
