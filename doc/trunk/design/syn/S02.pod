@@ -2469,7 +2469,7 @@ it is really a method on this pseudo-object, and
 
 would work just as well.  You can exit any labeled block early by saying
 
-    MyLabel.give(@results);
+    MyLabel.leave(@results);
 
 =item *
 

@@ -2025,7 +2025,7 @@ numbers are C<not> truncated before comparison to integer ranges:
 If a C<*> (see the "Whatever" type in S02) occurs on the right side
 of a range, it is taken to mean "positive infinity" in whatever space
 the range is operating.  A C<*> on the left means "negative infinity"
-for types that support negative values. (The sign of those infinites
+for types that support negative values. (The sign of those infinities
 reverses for a negative step.)  If the C<*> occurs on one side but
 not the other, the type is inferred from the other argument.  A star
 on both sides will match any value that supports the C<Ordered> role.
