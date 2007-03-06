@@ -910,7 +910,7 @@ reduceSyn "CCallDyn" (Val (VStr quant):methExp:invExp:args) = do
     -- Experimental support for .*$meth, assuming single inheritance.
     str     <- fromVal =<< enterEvalContext (cxtItem "Str") methExp
     let meth = cast ('&':str)
-    invVal  <- enterLValue . enterEvalContext cxtItemAny $ invExp
+    invVal  <- enterRValue . enterEvalContext cxtItemAny $ invExp
     found   <- findSub meth (Just (Val invVal)) args
     case found of
         Left{}      -> do
@@ -949,7 +949,8 @@ reduceSyn name exps =
     retError "Unknown syntactic construct" (Syn name exps)
 
 data SpecialApp
-    = AppSub        !([Exp] -> Eval Val)
+    = AppInv        !(Exp -> Eval Val)
+    | AppSub        !([Exp] -> Eval Val)
     | AppMeth       !(Exp -> [Exp] -> Eval Val)
     | AppSubMeth    !(Maybe Exp -> [Exp] -> Eval Val)
     deriving (Typeable)
@@ -959,6 +960,9 @@ class SpecialAppHelper a where
 
 instance SpecialAppHelper (Maybe Exp -> [Exp] -> Eval Val) where
     n ... f = (cast n, AppSubMeth f)
+
+instance SpecialAppHelper (Exp -> Eval Val) where
+    n ... f = (cast n, AppInv f)
 
 instance SpecialAppHelper ([Exp] -> Eval Val) where
     n ... f = (cast n, AppSub f)
@@ -1065,6 +1069,7 @@ reduceApp :: Exp -> Maybe Exp -> [Exp] -> Eval Val
 reduceApp (Var var) invs args
     | SCodeMulti <- sig = doCall var{ v_sigil = SCode } invs args
     | SCode <- sig = case Map.lookup var specialApp of
+        Just (AppInv f)     | Just inv <- invs, null args -> f inv
         Just (AppSub f)     | Nothing <- invs   -> f args
         Just (AppMeth f)    | Just inv <- invs  -> f inv args
         Just (AppSubMeth f)                     -> f invs args
