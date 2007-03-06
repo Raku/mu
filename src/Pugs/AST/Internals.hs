@@ -105,6 +105,7 @@ import Pugs.Embed.Perl5
 import qualified Pugs.Val as Val
 import qualified Data.ByteString.Char8 as Str
 import GHC.PArr
+import {-# SOURCE #-} Pugs.AST
 
 {- <DrIFT> Imports for the DrIFT
 import Pugs.AST.Scope
@@ -648,6 +649,7 @@ vrefToSV ref = mkValRef (VRef ref) $ case ref of
     MkRef IRule{}     -> "Rule"
     MkRef IThunk{}    -> "Thunk"
     MkRef IPair{}     -> "Pair"
+    MkRef (IVal v)    -> show (valType v)
 
 valToStr :: Val -> Eval VStr
 valToStr = fromVal
@@ -1399,6 +1401,13 @@ newtype Pad = MkPad { padEntries :: Map Var PadEntry }
 
 data PadEntry
     = MkEntry !(TVar Bool, TVar VRef)           -- single entry
+{-
+    = MkEntry
+        { entryFresh :: !(TVar Bool)
+        , entryRef   :: !(TVar VRef)
+        , entryType  :: !Type
+        }
+-}
     | MkEntryMulti ![(TVar Bool, TVar VRef)]    -- multi subs
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
@@ -1588,6 +1597,7 @@ dumpRef (MkRef (IScalar sv)) | scalar_iType sv == mkType "Scalar::Const" = do
     return (VStr $ "(MkRef (IScalar $ " ++ show sv ++ "))")
 dumpRef ref = return (VStr $ "(unsafePerformIO . newObject $ mkType \"" ++ showType (refType ref) ++ "\")")
 
+-- Reduce a VRef in rvalue context. 
 readRef :: VRef -> Eval Val
 readRef (MkRef (IScalar sv)) = scalar_fetch sv
 readRef (MkRef (ICode cv)) = do
@@ -1608,6 +1618,9 @@ readRef (MkRef (IPair pv)) = do
 readRef (MkRef (IHandle io)) = return . VHandle =<< handle_fetch io
 readRef (MkRef (IRule rx)) = return . VRule =<< rule_fetch rx
 readRef (MkRef (IThunk tv)) = readRef =<< fromVal =<< thunk_force tv
+readRef (MkRef (IVal v)) = do
+    cxt <- asks envContext
+    v ./ cxt
 
 retIVar :: (Typeable a) => IVar a -> Eval Val
 retIVar = return . VRef . MkRef
@@ -1771,6 +1784,7 @@ data IVar v where
     IRule   :: RuleClass   a => !a -> IVar VRule
     IThunk  :: ThunkClass  a => !a -> IVar VThunk
     IPair   :: PairClass   a => !a -> IVar VPair
+    IVal    ::                !Val -> IVar Val
 
 -- | An empty failed match
 mkMatchFail :: VMatch
@@ -1840,6 +1854,7 @@ instance Show VRef where
         IRule   x -> showAddr x
         IThunk  x -> showAddr x
         IPair   x -> showAddr x
+        IVal    x -> show x
         where
         showAddr x = showAddressOf (showType (refType ref)) x
 
@@ -1960,6 +1975,7 @@ instance Typeable1 IVar where
     typeOf1 (IRule   x) = typeOf x
     typeOf1 (IThunk  x) = typeOf x
     typeOf1 (IPair   x) = typeOf x
+    typeOf1 (IVal    x) = typeOf x
 #endif
 
 {- <DrIFT> -- Do NOT delete! These are valuable instances!

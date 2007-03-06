@@ -11,3 +11,4 @@ instance (Typeable a) => ObjectClass (IVar a) where
     object_iType (IRule x)   = rule_iType x
     object_iType (IThunk x)  = thunk_iType x
     object_iType (IPair x)   = pair_iType x
+    object_iType (IVal x)    = valType x
