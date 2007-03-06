@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fparr #-}
+{-# OPTIONS_GHC -fglasgow-exts #-}
 
 module Pugs.Meta.Str where
 import Pugs.Val
@@ -10,7 +10,7 @@ instance Boxable PureStr where
 
 _StrClass :: PureClass
 _StrClass = mkPureClass "Str"
-    [ "reverse"     ... (MkStr . Str.reverse . unStr)
-    , "join"        ... (\self values -> MkStr (Str.join (unStr self) (map unStr values)))
+    [ "reverse"     ... Str.reverse
+    , "join"        ... (\self args -> Str.join self args)
     ]
 

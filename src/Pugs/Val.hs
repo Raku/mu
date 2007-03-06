@@ -73,15 +73,7 @@ type PureList = [Val] -- Seq (Either PureSeq PureRange) -- XXX - *very bogus*
 newtype PureBit = MkBit Bool
     deriving (Typeable, Show, Eq, Ord, Data, (:>:) Bool, (:<:) Bool)
 
-newtype PureStr = MkStr { unStr :: ByteString } deriving
-    ( Typeable, Eq, Ord, Data
-    , (:>:) ID, (:<:) ID
-    , (:>:) String, (:<:) String
-    , (:>:) ByteString, (:<:) ByteString
-    )
-
-instance Show PureStr where
-    show = show . (cast :: PureStr -> String)
+type PureStr = ByteString
 
 data PureInt
     = IFinite      !Integer
