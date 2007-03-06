@@ -11,6 +11,6 @@ instance Boxable PureStr where
 _StrClass :: PureClass
 _StrClass = mkPureClass "Str"
     [ "reverse"     ... Str.reverse
-    , "join"        ... (\self args -> Str.join self args)
+    , "join"        ... Str.join
     ]
 
