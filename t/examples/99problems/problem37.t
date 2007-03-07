@@ -1,6 +1,5 @@
 use v6-alpha;
-use Test;
-plan 1;
+use FindBin;
 
 # P37 (**) Calculate Euler's totient function phi(m) (improved).
 # 
@@ -14,9 +13,34 @@ plan 1;
 # 
 # Note that a ** b stands for the b'th power of a.
 
-if 1 {
-    skip 1, "Test(s) not yet written: (**) Calculate Euler's totient function phi(m) (improved).";
+# This made me mad, the above formula is wrong
+# where it says + it should be *
+# based on the fact that
+#  phi(prime**m)=prime**(m-1)*(prime-1)
+# and
+#  some_number=some_prime**n * some_other_prime**m * ....
+ 
+@INC.push($FindBin::Bin);
+require 'problem36.t';
+
+sub phi($n) {
+  my $result=1;
+  
+  # XXX - I think there is a way of doing the unpacking + assignment 
+  # in one step but don't know how
+
+  for prime_factors_mult($n) -> @a  {
+    my ($p,$m)=@a;
+    $result *= $p ** ($m - 1) * ($p - 1);
+  }
+  $result ;
 }
-else {
-    ok 1, "(**) Calculate Euler's totient function phi(m) (improved).";
+
+unless caller {
+  use Test;
+  plan 20;
+  for each((1..20) ; (1,1,2,2,4,2,6,4,6,4,10,4,12,6,8,8,16,6,18,8)) -> $n, $phi {
+        is phi($n),$phi, "totient of $n is $phi";
+    }
 }
+
