@@ -6,11 +6,13 @@ module Pugs.Internals.String (
     breakOnGlue,
     afterPrefix,
     decodeUTF8,
-    encodeUTF8
+    encodeUTF8,
+    toQuoteMeta
 ) where
 
 import Debug.Trace
 import Pugs.Internals.Monads
+import Data.Char
 
 split :: (Eq a) => [a] -> [a] -> [[a]]
 split []  _   = internalError "splitting by an empty list"
@@ -158,4 +160,14 @@ encodeUTF8' (c:cs)
           : toEnum (0x80 + i `mod` 0x40)
           : rest
           )
+
+-- perform char quotation according to original Perl 5 quotemeta
+-- have to return a string because of the quote, this requires
+-- concat in quotemeta above.
+toQuoteMeta :: Char -> String
+toQuoteMeta c =
+   if not (isLatin1 c) -- Ignore Unicode characters beyond the 256-th
+      || isAsciiUpper c || isAsciiLower c || isDigit c || c == '_'
+      then [ c ]
+      else [ '\\', c ]
 

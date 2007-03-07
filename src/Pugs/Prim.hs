@@ -50,7 +50,6 @@ import Pugs.Prim.Lifts
 import Pugs.Prim.Eval
 import Pugs.Prim.Code
 import Pugs.Prim.Param
-import Pugs.Prim.String
 import qualified Data.IntSet as IntSet
 import DrIFT.YAML
 import GHC.Exts (unsafeCoerce#)

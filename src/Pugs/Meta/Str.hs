@@ -4,27 +4,33 @@ module Pugs.Meta.Str where
 import Data.Maybe
 import Pugs.Val
 import Pugs.Class
-import Prelude (($), (.))
-import qualified Prelude as P
-import UTF8
+import qualified UTF8 as Str
 import qualified Data.ByteString.Char8 as Char8
-import Pugs.Prim.String
+import Pugs.Internals.String
 
 instance Boxable PureStr where
     classOf _ = _StrClass
 
 _StrClass :: PureClass
 _StrClass = mkPureClass "Str"
-    [ "reverse"     ... reverse
-    , "join"        ... join
-    , "chop"        ... (\str -> if null str then str else init str)
-    , "index"       ... (\str sub pos -> fromMaybe (-1) $ findSubstring sub $ drop pos str)
-    , "chars"       ... length       -- UTF8.length, which Does The Right Thing here
+    [ "reverse"     ... Str.reverse
+    , "join"        ... Str.join
+    , "chop"        ... (\str -> if Str.null str then str else Str.init str)
+    , "index"       ... (\str sub pos -> fromMaybe (-1) $ Str.findSubstring sub $ Str.drop pos str)
+    , "chars"       ... Str.length   -- UTF8.length, which Does The Right Thing here
     , "bytes"       ... Char8.length -- WRONG! assumes in UTF-8 representation
-    , "quotemeta"   ... quotemeta
+    , "quotemeta"   ... Str.concatMap (cast . toQuoteMeta)
+    , "_split_str"  ... _split_str []
     ]
 
-quotemeta :: PureStr -> PureStr
-quotemeta = concatMap (cast . toQuoteMeta)
-
-
+-- XXX: this is inefficient, since it scans the string about twice as
+-- many times as really needed. a better implementation would meld the
+-- findSubstring and drop steps inside a ByteString scan.
+_split_str :: [PureStr] -> PureStr -> PureStr -> [PureStr]
+_split_str accum str glue
+    | Str.null str = accum
+    | otherwise    = _split_str (accum ++ [next]) str' glue
+    where
+    (next, str') = case Str.findSubstring glue str of
+        Just i  -> (Str.take i str, Str.drop (i + Str.length glue) str)
+        Nothing -> (str, Str.empty)
