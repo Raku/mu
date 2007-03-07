@@ -50,6 +50,7 @@ import Pugs.Prim.Lifts
 import Pugs.Prim.Eval
 import Pugs.Prim.Code
 import Pugs.Prim.Param
+import Pugs.Prim.String
 import qualified Data.IntSet as IntSet
 import DrIFT.YAML
 import GHC.Exts (unsafeCoerce#)
@@ -1776,16 +1777,6 @@ doPrettyVal v@(VObject obj) = do
     return $ showType (objType obj)
         ++ ".new(" ++ init (tail str) ++ ")"
 doPrettyVal v = return (runPrinter ?printer v)
-
--- perform char quotation according to original Perl 5 quotemeta
--- have to return a string because of the quote, this requires
--- concat in quotemeta above.
-toQuoteMeta :: Char -> String
-toQuoteMeta c =
-   if not(isLatin1 c) -- Ignore Unicode characters beyond the 256-th
-      || isAsciiUpper c || isAsciiLower c || isDigit c || c == '_'
-      then [ c ]
-      else [ '\\', c ]
 
 -- XXX -- Junctive Types -- XXX --
 
