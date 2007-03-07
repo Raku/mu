@@ -31,7 +31,7 @@ import Pugs.Internals
 import Data.Bits (shiftL)
 import qualified Data.HashTable as H
 import qualified Data.IntMap as IntMap
-import qualified Data.ByteString.Char8 as Buf
+import qualified UTF8 as Buf
 
 data Type
     = MkType !ID            -- ^ A regular type

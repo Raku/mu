@@ -26,7 +26,7 @@ import Pugs.Prim.Eval
 import Pugs.Compile
 import Pugs.Run (getLibs)
 import DrIFT.YAML
-import qualified Data.ByteString.Char8 as Str
+import qualified UTF8 as Str
 
 type CodeGen a = WriterT [Stmt] (ReaderT TEnv IO) a
 type CodeGenMonad = WriterT [Stmt] (ReaderT TEnv IO)

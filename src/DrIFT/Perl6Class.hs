@@ -5,7 +5,7 @@ module DrIFT.Perl6Class where
 import Data.Typeable
 import Data.List
 import Data.Word
-import qualified Data.ByteString.Char8 as Str
+import qualified UTF8 as Str
 import qualified Data.Map as Map
 import Text.PrettyPrint.HughesPJ
 

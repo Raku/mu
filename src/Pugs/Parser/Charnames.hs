@@ -22,7 +22,7 @@ nameToCode name = inlinePerformIO $ do
 #else
 
 import qualified Data.HashTable as H
-import Data.ByteString.Char8 (unsafePackAddress)
+import UTF8 (unsafePackAddress)
 
 -- If we don't have Perl 5, support for names in the 0x00 - 0xFF range only.
 

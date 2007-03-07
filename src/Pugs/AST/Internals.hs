@@ -103,7 +103,7 @@ import Pugs.AST.Scope
 import Pugs.AST.SIO
 import Pugs.Embed.Perl5
 import qualified Pugs.Val as Val
-import qualified Data.ByteString.Char8 as Str
+import qualified UTF8 as Str
 import GHC.PArr
 import {-# SOURCE #-} Pugs.AST
 

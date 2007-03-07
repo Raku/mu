@@ -3,7 +3,7 @@
 module DrIFT.JSON where
 import Data.Ratio
 import Data.List (intersperse)
-import qualified Data.ByteString.Char8 as Buf
+import qualified UTF8 as Buf
 
 type JSONClass = String
 type JSONKey = String

@@ -3,7 +3,7 @@ module Text.Parser.PArrow.CharSet where
 
 import Data.Char
 import Data.Generics
-import qualified Data.ByteString.Char8 as Str
+import qualified UTF8 as Str
 
 -- | Character sets
 data CharSet = CS_Any        -- ^ All characters

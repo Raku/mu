@@ -8,7 +8,7 @@ import qualified Prelude (last, length)
 import Text.Parser.OpTable
 import Text.Parser.PArrow
 import Text.Parser.PArrow.MD (MD(..), Label(..), label, Monoid(..))
-import Data.ByteString.Char8 hiding (concatMap, concat, elem, foldl, foldl1, map, foldr, foldr1)
+import UTF8 hiding (concatMap, concat, elem, foldl, foldl1, map, foldr, foldr1)
 import Text.Parser.PArrow.CharSet
 import Data.Set (Set, isSubsetOf)
 import Data.Sequence (Seq, toList, fromList, (<|), (|>), (><))
@@ -20,7 +20,7 @@ import Data.Dynamic
 import Control.Arrow
 import System.IO (stdout)
 import Data.ByteString.Base (ByteString(..))
-import qualified Data.ByteString.Char8 as Str
+import qualified UTF8 as Str
 import qualified Data.Seq as Seq
 import qualified Data.Map as Map
 import qualified Data.Set as Set

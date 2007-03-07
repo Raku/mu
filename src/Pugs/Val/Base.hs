@@ -6,7 +6,7 @@ _ValBaseStub :: ()
 _ValBaseStub = ()
 
 {-
-import qualified Data.ByteString.Char8 as Char8
+import qualified UTF8 as UTF8
 
 import Pugs.Internals
 import Pugs.Class
@@ -122,7 +122,7 @@ newtype PureStr = MkStr { unStr :: ByteString } deriving
     )
 
 parseInt :: PureStr -> Int
-parseInt (MkStr s) = maybe 0 fst (Char8.readInt s)
+parseInt (MkStr s) = maybe 0 fst (UTF8.readInt s)
 
 instance (Typeable1 m, Ord a, ICoercible m a) => Boxable m a where
     fromObjBox = fromObj
@@ -130,14 +130,14 @@ instance (Typeable1 m, Ord a, ICoercible m a) => Boxable m a where
 
 instance ICoercible P PureStr where
     asBit (MkStr s)
-        | Char8.null s = return $ cast False
-        | otherwise  = return $ cast (Char8.head s /= '0') -- 0x30
+        | UTF8.null s = return $ cast False
+        | otherwise  = return $ cast (UTF8.head s /= '0') -- 0x30
     asStr = cast
     asNum = cast . parseInt -- XXX - wrong
     asInt = cast . parseInt
     fromObj (MkInvocant x _) = fromTypeable x
     classOf _ = mkBoxClass "Str"
-        [ "reverse"    ... (MkStr . Char8.reverse . unStr)
+        [ "reverse"    ... (MkStr . UTF8.reverse . unStr)
         ]
 
 

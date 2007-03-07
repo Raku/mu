@@ -6,7 +6,7 @@ import Text.Parser.PArrow.MD
 import Data.ByteString.Base (ByteString(..))
 import Data.Sequence ((|>))
 import qualified Data.Seq as Seq
-import qualified Data.ByteString.Char8 as Str
+import qualified UTF8 as Str
 import Data.IntMap (IntMap, singleton, empty, unionWith)
 import Data.Generics
 

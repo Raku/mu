@@ -12,7 +12,7 @@ import qualified Data.IntSet as IntSet
 import Foreign.StablePtr
 import Foreign.Ptr
 import Control.Monad.Reader
-import qualified Data.ByteString.Char8 as Buf
+import qualified UTF8 as Buf
 import qualified Data.ByteString as Bytes
 import Pugs.Internals (encodeUTF8, decodeUTF8)
 

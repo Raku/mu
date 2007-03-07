@@ -40,7 +40,7 @@ import Pugs.External
 import Pugs.Eval.Var
 import DrIFT.YAML ()
 import GHC.PArr
-import qualified Data.ByteString.Char8 as Buf
+import qualified UTF8 as Buf
 
 
 {-|

@@ -16,7 +16,7 @@ import Data.Sequence (Seq, fromList)
 import Data.Map (Map, insert, lookup, toAscList, (!))
 import Data.ByteString (elemIndex)
 import Data.ByteString.Base (ByteString(..))
-import Data.ByteString.Char8 (empty, pack, null, drop, dropSpace, length, isPrefixOf, span, ByteString)
+import UTF8 (empty, pack, null, drop, dropSpace, length, isPrefixOf, span, ByteString)
 import GHC.Prim(unsafeCoerce#)
 
 data Op

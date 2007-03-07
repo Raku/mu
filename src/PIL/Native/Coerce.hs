@@ -9,7 +9,7 @@ import Data.Typeable
 import Data.ByteString.Base (ByteString(..))
 import qualified Data.Map as Map
 import qualified Data.Seq as Seq
-import qualified Data.ByteString.Char8 as Str
+import qualified UTF8 as Str
 
 {-| 
 

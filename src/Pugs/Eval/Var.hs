@@ -17,7 +17,7 @@ import Pugs.Config
 import Pugs.Monads
 import Pugs.Class hiding (Val)
 import qualified Pugs.Val as Val
-import qualified Data.ByteString.Char8 as Buf
+import qualified UTF8 as Buf
 
 findVar :: Var -> Eval (Maybe VRef)
 findVar var

@@ -5,7 +5,7 @@ module Text.Parser.PArrow.MD (
 ) where
 
 import Control.Arrow
-import Data.ByteString.Char8 (ByteString, pack, cons, snoc, unpack)
+import UTF8 (ByteString, pack, cons, snoc, unpack)
 import Data.List(intersperse, unzip)
 import GHC.Prim(unsafeCoerce#)
 import Text.Parser.PArrow.CharSet

@@ -9,7 +9,7 @@ import Pugs.Rule
 import {-# SOURCE #-} Pugs.Parser
 import qualified Data.Set as Set
 import qualified Data.Map as Map
-import qualified Data.ByteString.Char8 as Buf
+import qualified UTF8 as Buf
 import qualified Data.HashTable as H
 import GHC.Int (Int32(I32#))
 
