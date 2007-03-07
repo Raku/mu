@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 28 Feb 2007
+  Last Modified: 8 Mar 2007
   Number: 6
-  Version: 73
+  Version: 74
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -510,22 +510,24 @@ with the C<self> pragma.
 
 =head2 Longname parameters
 
-Much like ordinary methods give preference to the invocant,
-multimethods and multisubs can give preference to earlier parameters.
-These are called I<longnames>; see S12 for more about the semantics
-of multiple dispatch.  Syntactically, longnames are declared by
-terminating the list of important parameters with a semicolon:
+Routines marked with C<multi> can mark part of its parameters to
+be considered in the multi dispatch.  These are called I<longnames>;
+see S12 for more about the semantics of multiple dispatch.
 
-    multi sub handle_event ($window, $event; $mode) {...}
-    multi method set_name ($self: $name; $nick) {...}
+You can choose part of a C<multi>'s parameters to be its longname,
+by putting a double semicolon after the last one:
 
-A double semicolon terminates the longest possible longname; parameters
-after this are never considered for multiple dispatch (except of course
-that they can still "veto" if their number or types mismatch).  (Note,
-the single semicolon form is still considered conjectural, though the
-double semicolon is fairly certain.)
+    multi sub handle_event ($window, $event;; $mode) {...}
+    multi method set_name ($self: $name;; $nick) {...}
 
-If the parameter list for a C<multi> contains no semicolon to delimit
+A parameter list may have at most one double semicolon; parameters
+after it are never considered for multiple dispatch (except of course
+that they can still "veto" if their number or types mismatch).
+
+[Conjecture: It might be possible for a routine to advertise multiple
+long names, delimited by single semicolons.  See S12 for details.]
+
+If the parameter list for a C<multi> contains no semicolons to delimit
 the list of important parameters, then all positional parameters are
 considered important.  If it's a C<multi method> or C<multi submethod>,
 an additional implicit unnamed C<self> invocant is added to the
@@ -745,8 +747,8 @@ only be one candidate, but for multiple dispatch the inner signature
 is required at least for its types, or the declaration would not know
 what signature to match against.
 
-    multi foo (|$args (Int; Bool?, *@, *%)) { reallyintfoo($args) }
-    multi foo (|$args (Str; Bool?, *@, *%)) { reallystrfoo($args) }
+    multi foo (|$args (Int, Bool?, *@, *%)) { reallyintfoo($args) }
+    multi foo (|$args (Str, Bool?, *@, *%)) { reallystrfoo($args) }
 
 =head2 Flattening argument lists
 
