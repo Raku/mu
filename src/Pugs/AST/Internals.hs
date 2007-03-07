@@ -1401,6 +1401,8 @@ newtype Pad = MkPad { padEntries :: Map Var PadEntry }
 
 data PadEntry
     = MkEntry !(TVar Bool, TVar VRef)           -- single entry
+    | MkEntryMulti ![(TVar Bool, TVar VRef)]    -- multi subs
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 {-
     = MkEntry
         { entryFresh :: !(TVar Bool)
@@ -1408,8 +1410,6 @@ data PadEntry
         , entryType  :: !Type
         }
 -}
-    | MkEntryMulti ![(TVar Bool, TVar VRef)]    -- multi subs
-    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 data IHashEnv = MkHashEnv deriving (Show, Typeable) {-!derive: YAML_Pos!-}
 data IScalarCwd = MkScalarCwd deriving (Show, Typeable) {-!derive: YAML_Pos!-}
