@@ -219,7 +219,7 @@ token named_capture_body {
                         'ws1' => '',
                         'ws3' => '',
                         'term' => {
-                          'metasyntax' => '?' ~ $<c0>
+                          'metasyntax' => '+' ~ $<c0>
                         }
                       }
                     }
@@ -244,7 +244,7 @@ token named_capture_body {
                         'ws1' => '',
                         'ws3' => '',
                         'term' => {
-                          'metasyntax' => '?' ~ $<c1>
+                          'metasyntax' => '+' ~ $<c1>
                         }
                       }
                     }

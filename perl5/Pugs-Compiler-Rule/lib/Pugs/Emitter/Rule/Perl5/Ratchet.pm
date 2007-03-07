@@ -372,9 +372,15 @@ sub special_char {
 
     # XXX - Infinite loop in pugs stdrules.t
     #return metasyntax( '?_horizontal_ws', $_[1] )
-    #    if $char eq 'h';
+    return call_perl5( '[\x20\x09]' ) 
+        if $char eq 'h';
+    return call_perl5( '[^\x20\x09]' ) 
+        if $char eq 'H';
     #return metasyntax( '?_vertical_ws', $_[1] )
-    #    if $char eq 'v';
+    return call_perl5( '[\x0A\x0D]' ) 
+        if $char eq 'v';
+    return call_perl5( '[^\x0A\x0D]' ) 
+        if $char eq 'V';
 
     for ( qw( r n t e f w d s ) ) {
         return call_perl5(   "\\$_",  $_[1] ) if $char eq $_;
@@ -794,16 +800,19 @@ sub metasyntax {
     }
     if ( $prefix =~ /[-+[]/ ) {   # character class 
         $cmd =~ s/\.\./-/g;
-        if ( substr( $cmd, 0, 2 ) eq '-[' ) {
-           $cmd = '[^' . substr($cmd, 2);
+        if ( $cmd =~ /^ - \s* \[ (.*) /x ) {
+           $cmd = '[^' . $1;
         } 
-        elsif ( $prefix eq '-' ) {
+        elsif ( $cmd =~ /^ - \s* (.*) /x ) {
            $cmd = substr($cmd, 1);
-           $cmd = "[^[:$cmd:]]";
+           $cmd = "[^[:$1:]]";
         } 
-        elsif ( $prefix eq '+' ) {
-           $cmd = substr($cmd, 2);
-        }
+        elsif ( $cmd =~ /^ \+ \s* \[ (.*) /x ) {
+           $cmd = '[' . $1;
+	    }
+        elsif ( $cmd =~ /^ \+ \s* (.*) /x ) {
+           $cmd = "[[:$1:]]";
+        } 
         $cmd =~ s/\s+|\n//g;
         # XXX <[^a]> means [\^a] instead of [^a] in perl5re
         return call_perl5($cmd, $_[1]);

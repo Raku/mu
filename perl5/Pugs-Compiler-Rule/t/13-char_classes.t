@@ -1,5 +1,5 @@
 
-use Test::More tests => 12;
+use Test::More tests => 15;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -19,16 +19,37 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is( "$match", "x3", '<+alpha+digit>' );
 }
 
-TODO: 
 {
-    local $TODO = 'Char class with whitespace';
     {
     package test;
     use Pugs::Compiler::Regex;
     use base 'Pugs::Grammar::Base';
+    Pugs::Compiler::Regex->reinstall( rule => '<+[xy]>+' );
+    }
+    my $match = test->rule( 'yx' );
+    is( "$match", "yx", '<+[user char class]>' );
+}
 
-    Pugs::Compiler::Regex->install( rule => '<subrule>.' );
-    Pugs::Compiler::Regex->install( subrule => '<-[ \x20 ]>+' );
+{
+    my $rule = Pugs::Compiler::Regex->compile( '<+[A]+xdigit>+' );
+    #print $rule->perl5;
+    my $match = $rule->match( '3A' );
+    is( "$match", "3A", '<+[user char class]+class>' );
+}
+
+{
+    my $rule = Pugs::Compiler::Regex->compile( '^<+[A]+xdigit>' );
+    #print $rule->perl5;
+    my $match = $rule->match( '3' );
+    is( "$match", "3", '<+[user char class]+class>' );
+}
+
+{
+    {
+    package test;
+    use Pugs::Compiler::Regex;
+    use base 'Pugs::Grammar::Base';
+    Pugs::Compiler::Regex->reinstall( rule => '<-[ \x20 ]>+' );
     }
     my $match = test->rule( 'xx' );
     is( "$match", "xx", 'not-ws in quantified subrule' );

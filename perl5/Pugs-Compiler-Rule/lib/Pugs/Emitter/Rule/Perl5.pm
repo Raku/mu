@@ -268,7 +268,8 @@ sub variable {
         }
     }
     
-    $value = join('', eval $name) if $name =~ /^\@/;
+    # ??? $value = join('', eval $name) if $name =~ /^\@/;
+
     if ( $name =~ /^%/ ) {
         # XXX - runtime or compile-time interpolation?
         return "$_[1] hash( \\$name )\n" if $name =~ /::/;
@@ -289,9 +290,15 @@ sub special_char {
 
     # XXX - Infinite loop in pugs stdrules.t
     #return metasyntax( '?_horizontal_ws', $_[1] )
-    #    if $char eq 'h';
+    return "$_[1] perl5( '[\x20\x09]' )\n" 
+        if $char eq 'h';
+    return "$_[1] perl5( '[^\x20\x09]' )\n" 
+        if $char eq 'H';
     #return metasyntax( '?_vertical_ws', $_[1] )
-    #    if $char eq 'v';
+    return "$_[1] perl5( '[\x0A\x0D]' )\n" 
+        if $char eq 'v';
+    return "$_[1] perl5( '[^\x0A\x0D]' )\n" 
+        if $char eq 'V';
 
     for ( qw( r n t e f w d s ) ) {
         return "$_[1] perl5( '\\$_' )\n" if $char eq $_;
@@ -501,16 +508,19 @@ sub metasyntax {
     }
     if ( $prefix =~ /[-+[]/ ) {   # character class 
         $cmd =~ s/\.\./-/g;
-        if ( substr( $cmd, 0, 2 ) eq '-[' ) {
-           $cmd = '[^' . substr($cmd, 2);
+        if ( $cmd =~ /^ - \s* \[ (.*) /x ) {
+           $cmd = '[^' . $1;
         } 
-        elsif ( $prefix eq '-' ) {
+        elsif ( $cmd =~ /^ - \s* (.*) /x ) {
            $cmd = substr($cmd, 1);
-           $cmd = "[^[:$cmd:]]";
+           $cmd = "[^[:$1:]]";
         } 
-        elsif ( $prefix eq '+' ) {
-	       $cmd = substr($cmd, 2);
+        elsif ( $cmd =~ /^ \+ \s* \[ (.*) /x ) {
+           $cmd = '[' . $1;
 	    }
+        elsif ( $cmd =~ /^ \+ \s* (.*) /x ) {
+           $cmd = "[[:$1:]]";
+        } 
 	    # XXX <[^a]> means [\^a] instead of [^a] in perl5re
         return "$_[1] perl5( q!$cmd! )\n" unless $cmd =~ /!/;
         return "$_[1] perl5( q($cmd) )\n"; # XXX if $cmd eq '!)'

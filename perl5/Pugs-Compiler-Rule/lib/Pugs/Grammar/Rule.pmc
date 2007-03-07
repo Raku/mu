@@ -2809,8 +2809,8 @@ do {
 do { 
                     $::_V6_MATCH_ = $m; 
                     local $::_V6_SUCCEED = 1;
-                    $m->data->{capture} = \( sub  { return({'concat' => [{'quant' => {'ws2' => '', 'greedy' => '', 'quant' => '', 'ws1' => '', 'ws3' => '', 'term' => {'alt' => [{'quant' => {'ws2' => '', 'greedy' => '', 'quant' => '', 'ws1' => '', 'ws3' => '', 'term' => {'before' => {'rule' => {'quant' => {'ws2' => '', 'greedy' => '', 'quant' => '', 'ws1' => '', 'ws3' => '', 'term' => {'metasyntax' => '?' .  $::_V6_MATCH_->{'c0'}}}}}}}},
-{'quant' => {'ws2' => '', 'greedy' => '', 'quant' => '', 'ws1' => '', 'ws3' => '', 'term' => {'before' => {'rule' => {'quant' => {'ws2' => '', 'greedy' => '', 'quant' => '', 'ws1' => '', 'ws3' => '', 'term' => {'metasyntax' => '?' .  $::_V6_MATCH_->{'c1'}}}}}}}}]}}},
+                    $m->data->{capture} = \( sub  { return({'concat' => [{'quant' => {'ws2' => '', 'greedy' => '', 'quant' => '', 'ws1' => '', 'ws3' => '', 'term' => {'alt' => [{'quant' => {'ws2' => '', 'greedy' => '', 'quant' => '', 'ws1' => '', 'ws3' => '', 'term' => {'before' => {'rule' => {'quant' => {'ws2' => '', 'greedy' => '', 'quant' => '', 'ws1' => '', 'ws3' => '', 'term' => {'metasyntax' => '+' .  $::_V6_MATCH_->{'c0'}}}}}}}},
+{'quant' => {'ws2' => '', 'greedy' => '', 'quant' => '', 'ws1' => '', 'ws3' => '', 'term' => {'before' => {'rule' => {'quant' => {'ws2' => '', 'greedy' => '', 'quant' => '', 'ws1' => '', 'ws3' => '', 'term' => {'metasyntax' => '+' .  $::_V6_MATCH_->{'c1'}}}}}}}}]}}},
 {'quant' => {'ws2' => '', 'greedy' => '', 'quant' => '', 'ws1' => '', 'ws3' => '', 'term' => {'dot' => 1}}}]});
  } ->() );
                     $bool = $::_V6_SUCCEED;

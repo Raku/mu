@@ -62,12 +62,14 @@ sub concat {
             $nodes->[0]->( $_[0], $state[0], @_[2..7] );
             return if ! $_[3] 
                    || $_[3]->data->{abort};
-            my $is_empty = $_[3]->from == $_[3]->to;
 
-            if ( $param1{was_empty} && $is_empty ) {
-                # perl5 perlre says "the following match after a zero-length match
+            my $is_empty = ( $_[3]->from == $_[3]->to );
+            #    && ( $param1{was_empty} )
+            #    ; # fix a problem with '^'
+            if ( $is_empty && $param1{was_empty} ) {
+                #    # perl5 perlre says "the following match after a zero-length match
                 #   is prohibited to have a length of zero"
-                return;
+                return unless $_[3]->from == 0;
             }
 
             my $param = { ( defined $_[7] ? %{$_[7]} : () ), 
@@ -80,6 +82,8 @@ sub concat {
             #print "concat 2: "," \n";
             $nodes->[1]->( $_[0], $state[1], $_[2], $m2, 
                            $_[4], $_[3]->to, $_[6], $param );
+            
+              #return if $is_empty && $m2->from == $m2->to; 
             $state[1] = $m2->state;
             $state[0] = $next_state unless $state[1];
             #print "concat 3: "," \n";

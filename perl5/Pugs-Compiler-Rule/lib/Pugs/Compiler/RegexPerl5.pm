@@ -35,7 +35,9 @@ sub compile {
           bool => \\1, match => [], named => {}, capture => undef,
         });
       }
-      return Pugs::Runtime::Match->new({
+      ' . 
+      #print "POS $bool ",(0+$-[0]),"-",(0+$+[0]),"\n";select(undef, undef, undef, 0.1);
+      'return Pugs::Runtime::Match->new({
         str => $_[1], from => \\(0+$-[0]), to => \\(0+$+[0]),
         bool => \\$bool, match => \\@match, named => {}, capture => undef,
       });
