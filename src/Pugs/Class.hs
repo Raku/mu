@@ -72,6 +72,9 @@ instance Boxable a => MethodPrimable Call a where
 instance MethodPrimable (a -> b -> Eval z) a => MethodPrimable (a -> b -> z) a where
     asPrim f = asPrim ((\x args -> return (f x args)) :: (a -> b -> Eval z))
 
+instance MethodPrimable (a -> b -> c -> Eval z) a => MethodPrimable (a -> b -> c -> z) a where
+    asPrim f = asPrim ((\x y args -> return (f x y args)) :: (a -> b -> c -> Eval z))
+
 instance (Boxable a, Boxable z) => MethodPrimable (a -> z) a where
     asPrim f x _ = return (mkVal (f x))
 
@@ -96,6 +99,12 @@ instance (Boxable a, Boxable b, Boxable z) => MethodPrimable (a -> b -> Eval z) 
     asPrim f x args = do
         y <- coerceVal (args !: 0)
         fmap mkVal (f x y)
+
+instance (Boxable a, Boxable b, Boxable c, Boxable z) => MethodPrimable (a -> b -> c -> Eval z) a where
+    asPrim f x args = do
+        y <- coerceVal (args !: 0)
+        z <- coerceVal (args !: 1)
+        fmap mkVal (f x y z)
 
 (...) :: MethodPrimable a b => String -> a -> (ID, MethodPrim b)
 (...) x y = (_cast x, asPrim y)
