@@ -52,7 +52,7 @@ instance Value (Val.Val) where
         VV x@(MkInvocant x' _) -> case fromTypeable x' of
             Just v  -> fromVal v
             _       -> return x
-        VUndef      -> return . mkVal $ ()
+        VUndef      -> return . mkVal $ UUndef
         VBool x     -> return . mkVal $ ((cast x) :: Val.PureBit)
         VInt x      -> return . mkVal $ ((cast x) :: Val.PureInt)
         VNum x      -> return . mkVal $ ((cast x) :: Val.PureNum)

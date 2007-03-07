@@ -12,7 +12,7 @@ module Pugs.Val (
     module Pugs.Val,
     module Pugs.Val.Code,
     module Pugs.Val.Capture,
-    Val, Call
+    Val, Call,
 ) where
 import Pugs.Class
 import Pugs.Val.Base ()
@@ -91,15 +91,22 @@ data Sign
     | SNegative
     deriving (Show, Eq, Ord, Data, Typeable)
 
-type PureUndef = ()
+-- | L<S02/"Undefined types">
+data ValUndef
+    = UUndef                      -- ^ "my $x"
+    | UWhatever                   -- ^ "my $x = *"
+    | UFailure  { f_err  :: !ID } -- ^ "my $x = fail 'oops'"
+    | UProto    { p_meta :: !ID } -- ^ "my $x = Dog"
+    deriving (Show, Eq, Ord, Data, Typeable)
 
-instance Boxable PureUndef
+instance Boxable ValUndef
 instance Boxable PureInt
 instance Boxable PureNum
 instance Boxable PureSig
 instance Boxable PureBit
 instance Boxable ValCapt
 
+instance Boxable Int
 {-
 module Pugs.Val (
     IValue(..), Val(..), ValUndef(..), ValNative, P,
