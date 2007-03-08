@@ -12,13 +12,11 @@ instance (Ord a, Arbitrary a) => Arbitrary (Set a) where
     arbitrary = do
         xs <- arbitrary
         return (Set.fromList xs)
-    coarbitrary = const id
 
 instance Arbitrary Sig where
     arbitrary = do
         int <- arbitrary
         return $ MkSig (int `mod` 32768)
-    coarbitrary = const id
 
 cmp :: Sig -> Sig -> Ordering
 cmp sx@(MkSig x) sy@(MkSig y)
@@ -58,14 +56,13 @@ prop_dispatch xs = case dispatch xs cmp of
         winsOrTiesWithX y   = (cmp x y) /= GT
 
 dispatch :: (Eq a, Show a) => Set a -> (a -> a -> Ordering) -> Maybe a
-dispatch cand cmp =
-    verify $ dispatch' candlist
+dispatch cand cmp = dispatch' candlist
     where
     candlist         = Set.toList cand
-    verify Nothing   = Nothing
-    verify (Just c)  = if all ((GT ==) . cmp c) (filter (/= c) candlist) then Just c else Nothing
-    dispatch' []     = Nothing
-    dispatch' (x:[]) = trace ("pending verification: " ++ show x) $ Just x
+    verify c         = if all ((GT ==) . cmp c) (takeWhile (/= c) candlist) then Just c else Nothing
+    dispatch' []     = Nothing -- trace "all-tied" Nothing
+    dispatch' (x:[]) = verify x
+    -- trace ("pending verification: " ++ show x ++ ", " ++ show (length candlist)) $ Just x
     dispatch' (x:y:zs) = dispatch' $ case cmp x y of
         GT -> x:zs
         LT -> y:zs
