@@ -60,9 +60,9 @@ dispatch candlist cmp = dispatch' [] candlist
     where
     dispatch' _        []         = fail "tied"
     dispatch' s        (x:y:zs)   = case cmp x y of
-        GT -> dispatch' (s ++ [y])    (x:zs)
-        LT -> dispatch' (s ++ [x])    (y:zs)
-        _  -> dispatch' (s ++ [x, y]) zs
+        GT -> dispatch' (y:s)   (x:zs)
+        LT -> dispatch' (x:s)   (y:zs)
+        _  -> dispatch' (y:x:s) zs
     dispatch' spoilers [x]
         | all (losesToX) spoilers = return x
         | otherwise               = fail "spoiled"
