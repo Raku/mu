@@ -56,18 +56,17 @@ prop_dispatch xs = case dispatch (Set.toAscList xs) cmp of
         winsOrTiesWithX y   = (cmp x y) /= GT
 
 dispatch :: (Eq a, Show a, Monad m) => [a] -> (a -> a -> Ordering) -> m a
-dispatch candlist cmp = dispatch' candlist
+dispatch candlist cmp = dispatch' [] candlist
     where
-    dispatch' []        = fail "tied"
-    dispatch' (x:y:zs)  = dispatch' $ case cmp x y of
-        GT -> x:zs
-        LT -> y:zs
-        _  -> zs
-    dispatch' [x]
-        | all (losesToX) spoilers   = return x
-        | otherwise                 = fail "spoiled"
+    dispatch' _        []         = fail "tied"
+    dispatch' s        (x:y:zs)   = case cmp x y of
+        GT -> dispatch' (s ++ [y])    (x:zs)
+        LT -> dispatch' (s ++ [x])    (y:zs)
+        _  -> dispatch' (s ++ [x, y]) zs
+    dispatch' spoilers [x]
+        | all (losesToX) spoilers = return x
+        | otherwise               = fail "spoiled"
         where
-        spoilers   = takeWhile (/= x) candlist
         losesToX y = case cmp x y of
             GT  -> True
             _   -> False
