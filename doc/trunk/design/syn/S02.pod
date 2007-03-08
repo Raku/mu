@@ -2531,6 +2531,21 @@ You must instead put the entire heredoc into the C<BEGIN>:
         END
     }
 
+=item *
+
+A version literal are written with a 'v' followed by the version
+number in dotted form.  This always constructs a C<Version> object, not
+a string.  Only integers are allowed; for anything fancier you must
+coerce a string to a C<Version>:
+
+    v1.2.3                      # okay
+    v1.2.3beta                  # illegal
+    Version('1.2.3beta')        # okay
+
+Note though that most places that take a version number in Perl accept
+it as a named argument, in which case saying C<< :ver<1.2.3beta> >> is fine.
+See S11 for more on using versioned modules.
+
 =back
 
 =head1 Context
