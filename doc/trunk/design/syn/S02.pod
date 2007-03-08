@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 6 Mar 2007
+  Last Modified: 8 Mar 2007
   Number: 2
-  Version: 92
+  Version: 93
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -2549,15 +2549,19 @@ See S11 for more on using versioned modules.
 Version objects have a predefined sort order that follows most people's
 intuition about versioning: each sorting position sorts numerically
 between numbers, alphabetically between alphas, and alphabetics in a
-position before numerics.  Numbers ignore leading zeros. For splitting
+position before numerics.  Missing final positions are assumed to be '.0'.
+Except for '0' itself, numbers ignore leading zeros.  For splitting
 into sort positions, if any alphabetics (including underscore) are
-immediately adjacent to a number, a dot is assumed between them,
-so these are all equivalent:
+immediately adjacent to a number, a dot is assumed between them.
+Likewise any non-alphanumeric character is assumed to be equivalent
+to a dot.  So these are all equivalent:
 
+    1.2.1alpha1.0
     1.2.1alpha1
     1.2.1.alpha1
     1.2.1alpha.1
     1.2.1.alpha.1
+    1.2-1+alpha/1
 
 And these are also equivalent:
 
@@ -2567,6 +2571,7 @@ And these are also equivalent:
     1.2.1_1
     1.2.1._.1
     001.0002.0000000001._.00000000001
+    1.2.1._.1.0.0.0.0.0
 
 So these are in sorted version order:
 
@@ -2583,6 +2588,16 @@ So these are in sorted version order:
     1.2.1β1
     1.2.1γ
     1.2.1
+
+Note how the last pair assume that an implicit .0 sorts after anything
+alphabetic, and that alphabetic is defined according to Unicode,
+not ASCII.  The intent of all this is to make sure that prereleases
+sort before releases.  Note also that this is still a subset of the
+versioning schemes seen in the real world.  Modules with such strange
+versions can still be used by Perl since by default Perl imports
+external modules by exact version number.  (See S11.)  Only range
+operations will be compromised by an unknown foreign collation order,
+such as a system that sorts "delta" after "gamma".
 
 =back
 
