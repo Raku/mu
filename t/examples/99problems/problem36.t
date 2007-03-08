@@ -10,24 +10,25 @@ use v6-alpha;
 # Hint: The problem is similar to problem P13.
 
 sub prime_factors_mult($n is copy){
-  return () if $n==1;
-  my (@factors , $count);
+  return if $n == 1;
+  my $count = 0;
   my $cond = 2;
-  while ($n > 1) {
-    if $n % $cond == 0 {
-      $count++;
-      $n /= $cond;
-    }
-    else {
-      if $count>0 {
-        @factors.push([$cond,$count]);
-        $count=0;
+  return gather {
+    while $n > 1 {
+      if $n % $cond == 0 {
+	$count++;
+	$n /= $cond;
       }
-      $cond++
+      else {
+	if $count > 0 {
+	  take [$cond,$count];
+	  $count = 0;
+	}
+	$cond++;
+      }
     }
+    take [$cond,$count];
   }
-  @factors.push([$cond,$count]);
-  return @factors;
 }
 
 unless caller {
