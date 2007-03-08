@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -Wall -fno-warn-missing-methods -fno-warn-orphans #-}
+{-# OPTIONS_GHC -Wall -fno-warn-missing-methods -fno-warn-orphans -fno-warn-type-defaults -fno-warn-unused-binds #-}
 
 import Data.Ord
 import Data.Set (Set)
@@ -29,10 +29,13 @@ sigCompare sx@(MkSig x) sy@(MkSig y) = case compare x y of
     where
     res = fst . next $ mkStdGen (x * 32768 + y)
 
-dumpcmp :: [Sig] -> String
-dumpcmp []     = ""
-dumpcmp [_]    = ""
-dumpcmp (x:xs) = concatMap (\c -> show x ++ " " ++ (show $ x `sigCompare` c) ++ " " ++ show c ++ "\n") xs
+dumpCmp :: [Sig] -> String
+dumpCmp = concatMap dumpCmp' . List.tails
+    where
+    dumpCmp' :: [Sig] -> String
+    dumpCmp' []     = ""
+    dumpCmp' [_]    = ""
+    dumpCmp' (x:xs) = (concatMap (\c -> show x ++ " " ++ (show $ x `sigCompare` c) ++ " " ++ show c ++ "\n") xs)
 
 prop_sigCompare :: (Sig, Sig) -> Bool
 prop_sigCompare (x, y) = case (sigCompare x y, sigCompare y x) of
@@ -60,10 +63,13 @@ dispatch candlist cmp = dispatch' candlist
         LT -> y:zs
         _  -> zs
     dispatch' [x]
-        | all (losesToX) spoilers   = return x
-        | otherwise                 = fail "spoiled"
+        | all losesToX spoilers = return x
+        | otherwise             = fail "spoiled"
         where
-        spoilers   = takeWhile (/= x) candlist
+        spoilers   = case takeWhile (/= x) candlist of
+            []  -> []
+            [_] -> []
+            xs  -> xs
         losesToX y = case cmp x y of
             GT  -> True
             _   -> False
@@ -73,5 +79,5 @@ main = do
     putStrLn "Testing prop_sigCompare"
     quickCheck prop_sigCompare
     putStrLn "Testing prop_dispatch"
-    quickCheck prop_dispatch
+    sequence_ [quickCheck prop_dispatch | _ <- [1..10]]
 
