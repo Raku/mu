@@ -2533,7 +2533,7 @@ You must instead put the entire heredoc into the C<BEGIN>:
 
 =item *
 
-A version literal are written with a 'v' followed by the version
+A version literal is written with a 'v' followed by the version
 number in dotted form.  This always constructs a C<Version> object, not
 a string.  Only integers are allowed; for anything fancier you must
 coerce a string to a C<Version>:
