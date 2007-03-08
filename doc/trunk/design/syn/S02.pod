@@ -2534,11 +2534,13 @@ You must instead put the entire heredoc into the C<BEGIN>:
 =item *
 
 A version literal is written with a 'v' followed by the version
-number in dotted form.  This always constructs a C<Version> object, not
-a string.  Only integers are allowed; for anything fancier you must
-coerce a string to a C<Version>:
+number in dotted form.  This always constructs a C<Version> object,
+not a string.  Only integers and certain wildcards are allowed;
+for anything fancier you must coerce a string to a C<Version>:
 
     v1.2.3                      # okay
+    v1.2.*                      # okay, wildcard version
+    v1.2.3+                     # okay, wildcard version
     v1.2.3beta                  # illegal
     Version('1.2.3beta')        # okay
 
@@ -2590,8 +2592,8 @@ So these are in sorted version order:
     1.2.1
 
 Note how the last pair assume that an implicit .0 sorts after anything
-alphabetic, and that alphabetic is defined according to Unicode,
-not ASCII.  The intent of all this is to make sure that prereleases
+alphabetic, and that alphabetic is defined according to Unicode, not just
+according to ASCII.  The intent of all this is to make sure that prereleases
 sort before releases.  Note also that this is still a subset of the
 versioning schemes seen in the real world.  Modules with such strange
 versions can still be used by Perl since by default Perl imports
