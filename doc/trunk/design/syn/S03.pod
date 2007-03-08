@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 28 Feb 2007
+  Last Modified: 7 Mar 2007
   Number: 3
-  Version: 103
+  Version: 104
 
 =head1 Overview
 
@@ -1001,7 +1001,17 @@ are bound to the same underlying variable.  C<$x =:= $y> would return
 true in the above example.
 
 The binding fails if the type of the variable being bound is sufficiently
-inconsistent with the type of the current declaration.
+inconsistent with the type of the current declaration.  Strictly speaking,
+any variation on
+
+    my Any $x;
+    $x := [1,2,3];
+
+should fail because the type being bound is not consistent with
+C<Scalar of Any>, but since the C<Any> type is not a real instantiable
+type but a generic (non)constraint, and C<Scalar of Any> is sort of
+a double non-constraint similar to C<Any>, we treat this situation
+specially as the equivalent of binding to a typeless variable.
 
 =item *
 
@@ -1009,7 +1019,9 @@ infix:<::=>, compile-time binding
 
     ::=
 
-This does the same as C<:=> except it does it at compile time.
+This does the same as C<:=> except it does it at compile time.  (This implies
+that the expression on the right is also evaluated at compile time; it does
+not bind a lazy thunk.)
 
 =item *
 
