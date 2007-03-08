@@ -46,7 +46,7 @@ prop_cmp (x, y) = case (cmp x y, cmp y x) of
     _           -> False
 
 prop_dispatch :: Set Sig -> Bool
-prop_dispatch xs = case dispatch xs cmp of
+prop_dispatch xs = case dispatch (Set.toAscList xs) cmp of
     Just winner -> winsOverRest winner
     Nothing     -> Set.null (Set.filter winsOverRest xs)
     where
@@ -55,19 +55,22 @@ prop_dispatch xs = case dispatch xs cmp of
         rest                = Set.delete x xs
         winsOrTiesWithX y   = (cmp x y) /= GT
 
-dispatch :: (Eq a, Show a) => Set a -> (a -> a -> Ordering) -> Maybe a
-dispatch cand cmp = dispatch' candlist
+dispatch :: (Eq a, Show a, Monad m) => [a] -> (a -> a -> Ordering) -> m a
+dispatch candlist cmp = dispatch' candlist
     where
-    candlist         = Set.toList cand
-    verify c         = if all ((GT ==) . cmp c) (takeWhile (/= c) candlist) then Just c else Nothing
-    dispatch' []     = Nothing -- trace "all-tied" Nothing
-    dispatch' (x:[]) = verify x
-    -- trace ("pending verification: " ++ show x ++ ", " ++ show (length candlist)) $ Just x
-    dispatch' (x:y:zs) = dispatch' $ case cmp x y of
+    dispatch' []        = fail "tied"
+    dispatch' (x:y:zs)  = dispatch' $ case cmp x y of
         GT -> x:zs
         LT -> y:zs
         _  -> zs
-
+    dispatch' [x]
+        | all (losesToX) spoilers   = return x
+        | otherwise                 = fail "spoiled"
+        where
+        spoilers   = takeWhile (/= x) candlist
+        losesToX y = case cmp x y of
+            GT  -> True
+            _   -> False
 
 main :: IO ()
 main = do
