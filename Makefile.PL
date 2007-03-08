@@ -660,10 +660,6 @@ ${() = '%.hpp : %.hs @prereqs $version_h
 .pil.hs :
 	\$(PERL) util/file_to_hs.pl \$< \$@
 
-src/Emit/PIR.hs:
-src/Pugs/AST/Internals.hs:
-src/Pugs/PIL1.hs:
-src/Pugs/PIL2.hs:
 util/drift.pl:
 
 @{[ mk_drift_rules( qw(src/Emit/PIR src/Pugs/AST/Internals src/Pugs/PIL1 src/Pugs/PIL2) ) ]}
@@ -682,7 +678,7 @@ haddock-broken : $version_h $config_h @hppfiles dist/doc/html
 dist/doc/html :
 	\@\$(PERL) -MFile::Path -e "mkpath q-dist/doc/html-"
 
-pugs_requirements : src/Emit/PIR/Instances.hs src/Pugs/AST/Internals/Instances.hs src/Pugs/PIL1/Instances.hs src/Pugs/PIL2/Instances.hs src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h $config_h config.yml src/perl6/Prelude.pm src/Pugs/Prelude.hs
+pugs_requirements : instances src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h $config_h config.yml src/perl6/Prelude.pm src/Pugs/Prelude.hs
 
 prof :: profiled
 
@@ -987,7 +983,10 @@ sub compile_hs {
 }
 
 sub mk_drift_rules {
-    join "\n\n", map { <<"." } @_;
+    join "\n\n",
+    ("instances: " . join " ", map { "$_/Instances.hs" } @_),
+    (map { "$_.hs:" } @_),
+    map { <<"." } @_;
 $_/Instances.hs: $_.hs util/drift.pl
 \t\$(PERL) util/drift.pl $_.hs
 .
