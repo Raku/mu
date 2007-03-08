@@ -47,7 +47,7 @@ prop_dispatch xs = case dispatch xs cmp of
     winsOverRest x = Set.null (Set.filter winsOrTiesWithX rest)
         where
         rest                = Set.delete x xs
-        winsOrTiesWithX y   = (cmp x y) == GT
+        winsOrTiesWithX y   = (cmp x y) /= GT
 
 dispatch :: Set a -> (a -> a -> Ordering) -> Maybe a
 dispatch _ _ = Nothing -- XXX - bogus dispatch
