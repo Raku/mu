@@ -107,6 +107,7 @@ if ( -e $fp_state ) {
 my $conf_last = $#$conf;
 my $conf_first = ( exists $state->{ck_num} ) ? $state->{ck_num} : 0;
 my $first_time = 1;
+my $last_used_conf_num = undef;
 
 while ( 1 ) {
     NEXT_CONF: foreach my $ck_num ( $conf_first..$conf_last ) {
@@ -161,10 +162,13 @@ while ( 1 ) {
             }
         }
         # svn up
+        my $first_slt = 2.5*60;
+        my $max_slt = 20*60;
+        my $slt = $first_slt;
+        my $attempt = 1;
         while ( not $state->{svnup_done} ) {    
             my $to_rev = 'HEAD';
             # $to_rev = $state->{src_rev} + 1;
-            my $slt = 5*30;
 
             my ( $up_ok, $o_log, $new_rev ) = svnup( 
                 $ck->{src_dn}, 
@@ -180,12 +184,16 @@ while ( 1 ) {
             } else {
                 print "org dir svn up to $to_rev failed:\n" if $ver > 1;
                 print "'$o_log'\n" if $ver > 2 && defined($o_log);
-                print "waiting for $slt s ...\n";
             }
-
-            if ( !$state->{svnup_done} ) {
-                next NEXT_CONF if $conf_last > $conf_first; 
-                sleep $slt;
+            if ( not $state->{svnup_done} ) {
+                # more then one active configuration
+                next NEXT_CONF if $conf_last > $conf_first && defined($last_used_conf_num) && $last_used_conf_num != $ck_num; 
+                $last_used_conf_num = $ck_num;
+                $slt = $first_slt + (1*60*$attempt);
+                $slt = $max_slt if $slt > $max_slt;
+                print "waiting for $slt s ...\n";
+                sleep $slt; 
+                $attempt++;
                 next;
             }
 
