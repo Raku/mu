@@ -312,12 +312,40 @@ support the common idiom:
 
     say $x unless %seen{$x}++;
 
-Increment of a C<Str> (in a suitable container) works as in Perl 5.
-(Use a derived type or a lexical multi to change this.)  Perl 6 also
-supports C<Str> decrement.
+Increment of a C<Str> (in a suitable container) works similarly to
+Perl 5 except that the final alphanumeric sequence in the string is
+incremented regardless of what comes before it.  For its typical use
+of incrementing a filename, you don't have to worry about the path name, but
+you do still have to worry about the extension, so you probably want to say
+
+    my $fh = open $filename++ ~ '.jpg';
+
+Alternately, you can increment a submatch:
+
+    $filename ~~ s[^.* <(\w+)> \.\w+$] = $().succ;
+
+Perl 6 also supports C<Str> decrement.
+
+Increment and decrement are defined in terms of the C<.succ> and
+C<.pred> methods on the type of object in the C<Scalar> container.
+More specifically,
+
+    ++$var
+    --$var
+
+are equivalent to
+
+    $var.=succ
+    $var.=pred
+
+If the type does not support these methods, the corresponding increment
+or decrement operation will fail.  (The optimizer is allowed to assume
+that the ordinary increment and decrement operations on integers will
+not be overridden.)
 
 Increment of a C<Bool> (in a suitable container) turns it true.
-Decrement turns it false.  This is useful if your C<%seen> array is
+Decrement turns it false regardless of how many times it was
+previously incremented.  This is useful if your C<%seen> array is
 actually a C<KeySet>, in which case decrement actually deletes it
 from the C<KeySet>.
 
@@ -872,9 +900,14 @@ infix:<||>, short-circuiting inclusive-or
 
     ||
 
-Returns the left argument if it's true, otherwise evaluates and
-returns the right argument.  In list context forces a false return
-to mean C<()>.  See C<or> below for low-precedence version.
+Returns the left argument if it's true, otherwise evaluates and returns
+the right argument.  It is specifically allowed to use a list or array
+both as a boolean and as a list value produced if the boolean is true:
+
+    @a = @b || @c;              # broken in Perl 5; works in Perl 6
+
+In list context this operator forces a false return to mean C<()>.
+See C<or> below for low-precedence version.
 
 =item *
 
@@ -1810,7 +1843,7 @@ list operator.
 
 =item *
 
-A function predeclared as 0-ary is never considered list
+A function predeclared as 0-ary is never considered a list
 operator, though it allows an optional set of empty parentheses.
 Unlike functions and list operators with arguments (see above),
 a 0-ary function does not require parentheses even if followed
@@ -2024,10 +2057,13 @@ as well.)  Note that, while C<.minmax> normally returns C<(.from,.to)>,
 a negative C<:by> causes the C<.minmax> method returns C<(.to,.from)>
 instead.  You may also use C<.min> and C<.max> to produce the individual
 values of the C<.minmax> pair, but again note that they are reversed
-from C<.from> and C<.to> when the step is negative.
+from C<.from> and C<.to> when the step is negative.  Since a reversed
+C<Range> changes its direction, it swaps its C<.from> and C<.to> but
+not its C<.min> and C<.max>.
 
 Because C<Range> objects are lazy, they do not automatically generate
-a list.  So smart matching against a C<Range> object smartmatches the
+a list.  One result of this is that a reversed C<Range> object is still lazy.
+Another is that smart matching against a C<Range> object smartmatches the
 endpoints in the domain of the object being matched, so fractional
 numbers are C<not> truncated before comparison to integer ranges:
 
@@ -2208,13 +2244,13 @@ as a default because the more specific types listed above it didn't match.
     Hash      Hash      hash keys same set      $_.keys === X.keys
     Set       Hash      hash keys same set      $_ === X.keys
     Array     Hash      hash slice existence    X.contains(any @$_)
-    Regex     Hash      hash key grep           any($_.keys) === /X/
+    Regex     Hash      hash key grep           any(X.keys).match($_)
     Scalar    Hash      hash entry existence    X.contains($_)
     Any       Hash      hash slice existence    X.contains(any @$_)
 
     Str       Regex     string pattern match    .match(X)
-    Hash      Regex     hash key "boolean grep" .any.match(/X/)
-    Array     Regex     array "boolean grep"    .any.match(/X/)
+    Hash      Regex     hash key "boolean grep" .any.match(X)
+    Array     Regex     array "boolean grep"    .any.match(X)
     Any       Regex     pattern match           .match(X)
 
     Num       Range     in numeric range        X.min <= $_ <= X.max (mod ^'s)
