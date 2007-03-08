@@ -3,6 +3,8 @@ import Data.Ord
 import System.Random
 import Data.Set (Set)
 import qualified Data.Set as Set
+import qualified Data.List as List
+import Debug.Trace
 
 newtype Sig = MkSig Int deriving (Show, Eq, Ord)
 
@@ -32,6 +34,12 @@ cmp sx@(MkSig x) sy@(MkSig y)
     where
     res = fst . next $ mkStdGen (x * 32768 + y)
 
+dumpcmp :: [Sig] -> String
+dumpcmp []     = ""
+dumpcmp (x:[]) = ""
+dumpcmp (x:xs) = concatMap (\c -> show x ++ " " ++ (show $ x `cmp` c) ++ " " ++ show c ++ "\n") xs
+
+
 prop_cmp :: (Sig, Sig) -> Bool
 prop_cmp (x, y) = case (cmp x y, cmp y x) of
     (LT, GT)    -> True
@@ -49,8 +57,20 @@ prop_dispatch xs = case dispatch xs cmp of
         rest                = Set.delete x xs
         winsOrTiesWithX y   = (cmp x y) /= GT
 
-dispatch :: Set a -> (a -> a -> Ordering) -> Maybe a
-dispatch _ _ = Nothing -- XXX - bogus dispatch
+dispatch :: (Eq a, Show a) => Set a -> (a -> a -> Ordering) -> Maybe a
+dispatch cand cmp =
+    verify $ dispatch' candlist
+    where
+    candlist         = Set.toList cand
+    verify Nothing   = Nothing
+    verify (Just c)  = if all ((GT ==) . cmp c) (filter (/= c) candlist) then Just c else Nothing
+    dispatch' []     = Nothing
+    dispatch' (x:[]) = trace ("pending verification: " ++ show x) $ Just x
+    dispatch' (x:y:zs) = dispatch' $ case cmp x y of
+        GT -> x:zs
+        LT -> y:zs
+        _  -> zs
+
 
 main :: IO ()
 main = do
