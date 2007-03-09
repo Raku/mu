@@ -1,6 +1,6 @@
 use v6-alpha;
 use Test;
-plan 2;
+plan 3;
 
 # P09 (**) Pack consecutive duplicates of list elements into sublists.
 # 
@@ -42,3 +42,17 @@ sub group (*@array is copy) {
 is group(<a a a a b c c a a d e e e e>),
     [ [<a a a a>], [<b>], [<c c>], [<a a>], [<d>], [<e e e e>] ],
     '... even using gather/take';
+
+sub group2 (*@array is copy) {
+    gather while @array {
+        take [ 
+            my $h = shift @array,
+            gather while @array and $h eq @array[0] {
+                take shift @array;
+            }
+        ];
+    }
+}
+is group2(<a a a a b c c a a d e e e e>),
+    [ [<a a a a>], [<b>], [<c c>], [<a a>], [<d>], [<e e e e>] ],
+    '... even using blockless gather/take';
