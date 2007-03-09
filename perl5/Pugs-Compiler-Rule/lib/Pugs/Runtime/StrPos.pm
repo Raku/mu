@@ -46,7 +46,14 @@ sub bytes {
     #return scalar @bytes;
 }
 
-sub graphs { die "TODO: graphs()" }
+our $Graph;
+sub graphs { 
+    require String::Multibyte;
+    die "string has invalid internal encoding" 
+        unless utf8::is_utf8( $_[0]->{str} );
+    my $s = substr( $_[0]->{str}, 0, $_[0]->{codes} );
+    return ($Graph or $Graph = String::Multibyte->new('Grapheme'))->length($s);
+}
 
 sub perl {
     local $Data::Dumper::Terse    = 1;
@@ -113,6 +120,16 @@ __END__
 =head1 NAME 
 
 Pugs::Runtime::StrPos - Represent a position inside a string
+
+=head1 OPTIONAL MODULES
+
+* String::Multibyte
+
+- in order to support 'graphs()'
+
+* YAML::Syck
+
+- in order to support 'yaml()'
 
 =head1 METHODS
 
