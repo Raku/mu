@@ -1,7 +1,7 @@
 package Pugs::Runtime::StrPos;
 # Documentation in the __END__
 
-use 5.006;
+#use 5.006; ???
 use strict;
 use warnings;
 use utf8;
@@ -13,11 +13,27 @@ use overload (
     fallback => 1,
 );
 
+our $Graph;      # String::Multibyte::Grapheme object
+
 # new({ str => "...", codes => $n });
 # $str must be utf-8
 # $n can be undef, meaning "nowhere in this string" 
 sub new {
     return bless $_[1], $_[0];
+}
+
+# codes is the default perl5 representation
+# graphs is the default perl6 representation
+sub from_str_graphs {
+    require String::Multibyte;
+    die "string has invalid internal encoding" 
+        unless utf8::is_utf8( $_[1]->{str} );
+    my $s = ($Graph or $Graph = String::Multibyte->new('Grapheme'))->substr(\$_[1], 0, $_[2]);
+    return bless { str => $_[1], codes => length($s) }, $_[0];
+}
+
+sub from_str_codes {
+    return bless { str => $_[1], codes => $_[2] }, $_[0];
 }
 
 sub from_str {
@@ -46,13 +62,16 @@ sub bytes {
     #return scalar @bytes;
 }
 
-our $Graph;
 sub graphs { 
     require String::Multibyte;
     die "string has invalid internal encoding" 
         unless utf8::is_utf8( $_[0]->{str} );
     my $s = substr( $_[0]->{str}, 0, $_[0]->{codes} );
     return ($Graph or $Graph = String::Multibyte->new('Grapheme'))->length($s);
+}
+
+sub langs {
+    die "TODO: langs()";
 }
 
 sub perl {
@@ -72,45 +91,6 @@ sub yaml {
 # for Pugs interoperability
 sub dump_hs {
     die "TODO";
-    my $obj;
-    if (ref($_[0]) eq 'SCALAR') {
-        $obj = ${$_[0]};
-    }
-    else {
-        #$obj = $_data{refaddr $_[0]};
-    }
-
-    if ($obj) {
-        # Ok, this is a genuine Match object.
-        return "PGE_Fail" unless ${$obj->{bool}};
-
-        # Now we matched; dump the rest of data
-        join(' ', 'PGE_Match', ${$obj->{from}}, ${$obj->{to}},
-            ('['.join(', ', map { dump_hs($_) } @{$obj->{match}||[]} ).']'),
-            ('['.join(', ', map {
-                my $str = $_;
-                if ( my $dump = dump_hs($obj->{named}{$_}) ) {
-                    $str =~ s/([^ \!\#\$\%\&\x28-\x5B\x5D-\x7E])/'\\'.ord($1)/eg;
-                    qq[("$str", $dump)];
-                }
-                else {
-                    ();
-                }
-            } sort(CORE::keys(%{$obj->{named}||{}})) ).']'),
-        )
-    }
-    elsif (ref($_[0]) eq 'ARRAY') {
-        return "PGE_Array [" . join(', ', map { dump_hs($_) } @$obj) . "]"
-    }
-    elsif (!ref($_[0])) {
-        my $str = shift;
-        $str =~ s/([^ \!\#\$\%\&\x28-\x5B\x5D-\x7E])/'\\'.ord($1)/eg;
-        return "PGE_String \"$str\"";
-    }
-    else {
-        warn "Unrecognized blessed match object: $_[0]";
-        return '';
-    }
 }
 
 1;
@@ -135,7 +115,7 @@ Pugs::Runtime::StrPos - Represent a position inside a string
 
 * new({ str => "...", codes => $n });
 
-creates a new StrPos object.
+create a new StrPos object.
 
 'str' must be utf-8.
 
@@ -143,13 +123,22 @@ creates a new StrPos object.
 
 * from_str( $str )
 
-encodes the string internal 'pos' into a StrPos object.
+create a new StrPos object, using the perl5-string internal 'pos'.
 
-* codes()
+* from_str_graphs( $str, $graphs )
+* from_str_codes( $str, $codes )
+
+create a new StrPos object using grapheme or codepoint units.
+
 * bytes()
+* codes()
 * graphs()
 
-- return the position.
+- return the position as an integer, counting in bytes, codepoints, or graphemes.
+
+* langs()
+
+- TODO - return the position as an integer, counting in language dependent chars. 
 
 * bool()
 
@@ -190,7 +179,7 @@ The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
 
 =head1 COPYRIGHT
 
-Copyright 2006 by Flavio Soibelmann Glock and others.
+Copyright 2007 by Flavio Soibelmann Glock and others.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
