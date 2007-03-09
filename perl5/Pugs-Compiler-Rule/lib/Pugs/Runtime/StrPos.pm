@@ -4,29 +4,55 @@ package Pugs::Runtime::StrPos;
 use 5.006;
 use strict;
 use warnings;
+use utf8;
 use Data::Dumper;
 
 use overload (
     'bool'   => \&bool,
-    '0+'     => \&chars,
+    '0+'     => \&codepoints,
     fallback => 1,
 );
 
-# new({ str => "...", chars => $n });
+# new({ str => "...", codepoints => $n });
+# $str must be utf-8
 # $n can be undef, meaning "nowhere in this string" 
 sub new {
     return bless $_[1], $_[0];
 }
 
-sub bool  {  ${$_data{refaddr $_[0]}->{bool}}  }
+sub from_str {
+    return bless { str => $_[1], codepoints => pos( $_[1] ) }, $_[0];
+}
 
-sub chars  { CORE::length $_[0]->str }
+sub bool  { 
+    defined $_[0]->{codepoints} 
+}
+
+sub codepoints  { 
+    $_[0]->{codepoints} 
+}
+
+sub bytes { 
+    return undef unless defined $_[0]->{codepoints};
+    die "string has invalid internal encoding" 
+        unless utf8::is_utf8( $_[0]->{str} );
+    my $s = substr( $_[0]->{str}, 0, $_[0]->{codepoints} );
+    {
+        use bytes;
+        return length( $s );
+    }
+    #my @bytes = unpack("C*", substr( $_[0]->{str}, 0, $_[0]->{codepoints} ) );
+    #print "[",join(",", @bytes),"]\n";
+    #return scalar @bytes;
+}
+
+sub graphemes { die "TODO: graphemes()" }
 
 sub perl {
     local $Data::Dumper::Terse    = 1;
     local $Data::Dumper::Sortkeys = 1;
     local $Data::Dumper::Pad = '  ';
-    return __PACKAGE__ . "->new( " . Dumper( $_[0]->data ) . ")\n";
+    return Dumper( $_[0] );
 }
 
 sub yaml {
@@ -44,7 +70,7 @@ sub dump_hs {
         $obj = ${$_[0]};
     }
     else {
-        $obj = $_data{refaddr $_[0]};
+        #$obj = $_data{refaddr $_[0]};
     }
 
     if ($obj) {
@@ -90,21 +116,39 @@ Pugs::Runtime::StrPos - Represent a position inside a string
 
 =head1 METHODS
 
-* TODO
+* new({ str => "...", codepoints => $n });
 
-- return ...
+creates a new StrPos object.
+
+'str' must be utf-8.
+
+'codepoints' can be undef, meaning "nowhere in this string".
+
+* from_str( $str )
+
+encodes the string internal 'pos' into a StrPos object.
+
+* codepoints()
+* bytes()
+* graphemes()
+
+- return the position.
+
+* bool()
+
+- test whether the position is defined.
 
 =head1 OVERLOADS
 
-* +$pos
+* numeric $pos
 
-- return ...
+- return codepoints() as an integer, or undef.
+
+* boolean $pos
+
+- test whether codepoints() is defined.
 
 =head1 Dumper methods
-
-* data
-
-- return the internal representation as a data structure.
 
 * perl
 
