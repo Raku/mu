@@ -7,6 +7,7 @@ use warnings;
 use Data::Dumper;
 #use Class::InsideOut qw( public register id );
 use Scalar::Util qw( refaddr blessed );
+use Pugs::Runtime::StrPos;
 
 use overload (
     '@{}'    => \&array,
@@ -36,10 +37,20 @@ sub DESTROY {
 }
 
 sub data  {    $_data{refaddr $_[0]}           }
-sub from  {  ${$_data{refaddr $_[0]}->{from}}  }
-sub to    {  ${$_data{refaddr $_[0]}->{to}}    }
 sub bool  {  ${$_data{refaddr $_[0]}->{bool}}  }
 sub array {    $_data{refaddr $_[0]}->{match}  }
+
+sub from  {  
+    my $obj = $_data{refaddr $_[0]};
+    Pugs::Runtime::StrPos->from_str_codes( ${$obj->{str}}, ${$obj->{from}} );
+}
+sub to    {  
+    my $obj = $_data{refaddr $_[0]};
+    Pugs::Runtime::StrPos->from_str_codes( ${$obj->{str}}, ${$obj->{to}} );
+}
+# "low-level" position defaults to perl5-utf8
+sub from_codes  {  ${$_data{refaddr $_[0]}->{from}}  }
+sub to_codes    {  ${$_data{refaddr $_[0]}->{to}}    }
 
 sub hash  {   
     my $array = $_data{refaddr $_[0]}->{match};

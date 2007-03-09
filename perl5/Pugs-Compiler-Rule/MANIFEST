@@ -27,6 +27,7 @@ lib/Pugs/Runtime/Match/HsBridge.pm
 lib/Pugs/Runtime/Rule.pm
 lib/Pugs/Runtime/Common.pm
 lib/Pugs/Runtime/Regex.pm
+lib/Pugs/Runtime/StrPos.pm
 
 Makefile.PL
 MANIFEST

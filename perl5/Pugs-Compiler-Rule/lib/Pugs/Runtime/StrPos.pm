@@ -51,8 +51,12 @@ sub codes  {
 
 sub bytes { 
     return undef unless defined $_[0]->{codes};
-    die "string has invalid internal encoding" 
+
+    # -- downgrade as appropriate
+    #die "string has invalid internal encoding" 
+    return $_[0]->codes
         unless utf8::is_utf8( $_[0]->{str} );
+
     my $s = substr( $_[0]->{str}, 0, $_[0]->{codes} );
     {
         use bytes;
@@ -64,8 +68,13 @@ sub bytes {
 }
 
 sub graphs { 
-    die "string has invalid internal encoding" 
+    return undef unless defined $_[0]->{codes};
+
+    # -- downgrade as appropriate
+    #die "string has invalid internal encoding" 
+    return $_[0]->codes
         unless utf8::is_utf8( $_[0]->{str} );
+        
     #return scalar( substr( $_[0]->{str}, 0, $_[0]->{codes} ) =~ m/\X/g );
     my @g = substr( $_[0]->{str}, 0, $_[0]->{codes} ) =~ m/\X/g;
     return scalar @g;
