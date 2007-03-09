@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 28 Feb 2007
+   Last Modified: 9 Feb 2007
    Number: 5
-   Version: 53
+   Version: 54
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -126,7 +126,23 @@ the next character is a left parenthesis.)
 The single-character modifiers also have longer versions:
 
          :i        :ignorecase
+         :b        :basechar
          :g        :global
+
+=item *
+
+The C<:i> (or C<:ignorecase>) modifier causes case distinctions to be
+ignore in its lexical scope, but not in its dynamic scope.  That is,
+subrules always use their own case settings.
+
+=item *
+
+The C<:b> (or C<:basechar>) modifier scopes exactly like C<:ignorecase>
+except that it ignores accents instead of case.  It is equivalent
+to taking each grapheme (in both target and pattern), converting
+both to NFD (maximally decomposed) and then comparing the two base
+characters (Unicode non-mark characters) while ignoring any trailing
+mark characters.
 
 =item *
 
@@ -630,8 +646,9 @@ is matched as if it were an alternation of its elements:
 As with a scalar variable, each element is matched as a literal
 unless it happens to be a C<Regex> object, in which case it is matched
 as a subrule.  As with scalar subrules, a tainted subrule always fails.
-All string values pay attention to the current C<:ignorecase> setting,
-while C<Regex> values use their own C<:ignorecase> settings.
+All string values pay attention to the current C<:ignorecase>
+and C<:basechar> settings, while C<Regex> values use their own
+C<:ignorecase> and C<:basechar> settings.
 
 When you get tired of writing:
 
@@ -733,7 +750,8 @@ Any other value causes the match to fail.
 =back
 
 All hash keys, and values that are strings, pay attention to the
-C<:ignorecase> setting.  (Subrules maintain their own case settings.)
+C<:ignorecase> and C<:basechar> settings.  (Subrules maintain their
+own case settings.)
 
 You may combine multiple hashes under the same longest-token
 consideration by using declarative alternation:
