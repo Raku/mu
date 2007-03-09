@@ -22,11 +22,19 @@ sub gray($n) {
     '0' >>~<< gray($n-1), '1' >>~<< gray($n-1).reverse;
 }
 
+sub gray2($n) {
+    return ('',) if $n == 0;
+    state @g[$n] //= ('0' >>~<< gray2($n-1), '1' >>~<< gray2($n-1).reverse);
+}
+
 unless caller {
     use Test;
-    plan 3;
+    plan 6;
 
     is gray(1), <0 1>;
     is gray(2), <00 01 11 10>;
     is gray(3), <000 001 011 010 110 111 101 100>;
+    is gray2(1), <0 1>;
+    is gray2(2), <00 01 11 10>;
+    is gray2(3), <000 001 011 010 110 111 101 100>;
 }
