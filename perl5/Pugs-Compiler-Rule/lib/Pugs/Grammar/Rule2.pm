@@ -436,35 +436,35 @@ token conjunctive1 {
     }
 }
 
-token conjunctive {
-    [ <?ws>? \& \& ]?
+token disjunctive1 {
+    [ <?ws>? \| ]?
     
     <conjunctive1>
     [
-        \& \& <conjunctive1> 
+        \|  <conjunctive1> 
     ]*
     
     {             
       use v5;
         my @a = map {  $$_  }  @{ $::_V6_MATCH_->{'conjunctive1'} };
-        return { conjunctive => \@a ,}  if scalar @a > 1;
+        return { alt1 => \@a ,}  if scalar @a > 1;
         return $a[0];
       use v6;
     }
 }
 
-token disjunctive1 {
-    [ <?ws>? \| ]?
+token conjunctive {
+    [ <?ws>? \& \& ]?
     
-    <conjunctive>
+    <disjunctive1>
     [
-        \|  <conjunctive> 
+        \& \& <disjunctive1> 
     ]*
     
     {             
       use v5;
-        my @a = map {  $$_  }  @{ $::_V6_MATCH_->{'conjunctive'} };
-        return { alt1 => \@a ,}  if scalar @a > 1;
+        my @a = map {  $$_  }  @{ $::_V6_MATCH_->{'disjunctive1'} };
+        return { conjunctive => \@a ,}  if scalar @a > 1;
         return $a[0];
       use v6;
     }
@@ -473,14 +473,14 @@ token disjunctive1 {
 token rule {
     [ <?ws>? \| \| ]?
     
-    <disjunctive1>
+    <conjunctive>
     [
-        \| \| <disjunctive1> 
+        \| \| <conjunctive> 
     ]*
     
     {             
       use v5;
-        my @a = map {  $$_  }  @{ $::_V6_MATCH_->{'disjunctive1'} };
+        my @a = map {  $$_  }  @{ $::_V6_MATCH_->{'conjunctive'} };
         return { alt => \@a ,}  if scalar @a > 1;
         return $a[0];
       use v6;
