@@ -13,8 +13,6 @@ use overload (
     fallback => 1,
 );
 
-our $Graph;      # String::Multibyte::Grapheme object
-
 # new({ str => "...", codes => $n });
 # $str must be utf-8
 # $n can be undef, meaning "nowhere in this string" 
@@ -25,11 +23,10 @@ sub new {
 # codes is the default perl5 representation
 # graphs is the default perl6 representation
 sub from_str_graphs {
-    require String::Multibyte;
     die "string has invalid internal encoding" 
         unless utf8::is_utf8( $_[1]->{str} );
-    my $s = ($Graph or $Graph = String::Multibyte->new('Grapheme'))->substr(\$_[1], 0, $_[2]);
-    return bless { str => $_[1], codes => length($s) }, $_[0];
+    $_[1] =~ m/^\X{$_[2]}/g;
+    return bless { str => $_[1], codes => pos($_[1]) }, $_[0];
 }
 
 sub from_str_codes {
@@ -63,11 +60,11 @@ sub bytes {
 }
 
 sub graphs { 
-    require String::Multibyte;
     die "string has invalid internal encoding" 
         unless utf8::is_utf8( $_[0]->{str} );
-    my $s = substr( $_[0]->{str}, 0, $_[0]->{codes} );
-    return ($Graph or $Graph = String::Multibyte->new('Grapheme'))->length($s);
+    #return scalar( substr( $_[0]->{str}, 0, $_[0]->{codes} ) =~ m/\X/g );
+    my @g = substr( $_[0]->{str}, 0, $_[0]->{codes} ) =~ m/\X/g;
+    return scalar @g;
 }
 
 sub langs {
@@ -102,10 +99,6 @@ __END__
 Pugs::Runtime::StrPos - Represent a position inside a string
 
 =head1 OPTIONAL MODULES
-
-* String::Multibyte
-
-- in order to support 'graphs()'
 
 * YAML::Syck
 
