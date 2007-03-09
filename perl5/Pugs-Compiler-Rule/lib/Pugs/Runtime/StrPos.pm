@@ -46,7 +46,7 @@ sub bytes {
     #return scalar @bytes;
 }
 
-sub graphemes { die "TODO: graphemes()" }
+sub graphs { die "TODO: graphs()" }
 
 sub perl {
     local $Data::Dumper::Terse    = 1;
@@ -130,7 +130,7 @@ encodes the string internal 'pos' into a StrPos object.
 
 * codepoints()
 * bytes()
-* graphemes()
+* graphs()
 
 - return the position.
 
