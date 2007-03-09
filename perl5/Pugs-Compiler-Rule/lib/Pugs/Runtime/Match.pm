@@ -49,8 +49,8 @@ sub to    {
     Pugs::Runtime::StrPos->from_str_codes( ${$obj->{str}}, ${$obj->{to}} );
 }
 # "low-level" position defaults to perl5-utf8
-sub from_codes  {  ${$_data{refaddr $_[0]}->{from}}  }
-sub to_codes    {  ${$_data{refaddr $_[0]}->{to}}    }
+sub from_as_codes  {  ${$_data{refaddr $_[0]}->{from}}  }
+sub to_as_codes    {  ${$_data{refaddr $_[0]}->{to}}    }
 
 sub hash  {   
     my $array = $_data{refaddr $_[0]}->{match};
@@ -211,11 +211,16 @@ If there is no capture, return the matched substring
 
 * from
 
-- return the string position where the match started
+- return the string position (a C<Pugs::Runtime::StrPos> object) where the match started.
 
 * to
 
-- return the string position immediately after where the match finished
+- return the string position (a C<Pugs::Runtime::StrPos> object) immediately after where the match finished.
+
+* from_as_codes
+* to_as_codes
+
+- same as C<from>/C<to> methods, but return perl5 integers.
 
 =head1 "Hash" methods
 
@@ -233,7 +238,7 @@ If there is no capture, return the matched substring
 
 =head1 OVERLOADS
 
-* $match->()
+* $$match
 
 - return the capture object
 
