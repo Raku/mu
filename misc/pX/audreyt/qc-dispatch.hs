@@ -4,6 +4,8 @@ import Data.Ord
 import Data.Set (Set)
 import System.Random
 import Test.QuickCheck
+import Control.Monad.Error
+import System.CPUTime
 import qualified Data.List as List
 import qualified Data.Set as Set
 
@@ -74,10 +76,30 @@ dispatch candlist cmp = dispatch' candlist
             GT  -> True
             _   -> False
 
+classify_dispatches :: Int -> Int -> Int -> String
+classify_dispatches seed size count =
+    show (cls runs (0, 0, 0)) ++ " (tied/spoiled/okay)"
+    where
+    runs = map (flip dispatch sigCompare) samp
+    samp = generate size (mkStdGen seed) (replicateM count (arbitrary :: Gen [Sig]))
+    cls [] d     = d
+    cls (x:xs) (t,s,k) = cls xs $ case x of
+        Left "tied"    -> (t+1,s,k)
+        Left "spoiled" -> (t,s+1,k)
+        Left other     -> error other
+        Right _        -> (t,s,k+1)
+
 main :: IO ()
 main = do
     putStrLn "Testing prop_sigCompare"
     quickCheck prop_sigCompare
     putStrLn "Testing prop_dispatch"
     sequence_ [quickCheck prop_dispatch | _ <- [1..10]]
+    
+    putStrLn "Timing 100,000 dispatches"
+    pico <- getCPUTime
+    putStrLn $ classify_dispatches 23452 10 100000
+    pico' <- getCPUTime
+    putStrLn $ show (((fromInteger pico') - (fromInteger pico)) / 1000000000000) ++ " seconds"
+
 
