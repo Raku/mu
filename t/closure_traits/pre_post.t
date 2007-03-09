@@ -10,12 +10,12 @@ use Test;
 
 # TODO: Test PRE and POST with inheritance
 
-plan 4;
+plan 10;
 
 my $foo = '
-sub foo(int $i) {
+sub foo(Num $i) {
     PRE {
-        $i < 5;
+        $i < 5
     }
     return 1;
 }
@@ -28,7 +28,7 @@ sub bar(int $i) {
     }
 }
 
-ok eval($foo ~ 'foo(2)'), 'sub with PRE compiles and runs';
+ok eval($foo ~ 'foo(2);'), 'sub with PRE compiles and runs';
 ok eval(bar(3)), 'sub with POST compiles';
 
 try {
@@ -42,3 +42,47 @@ try {
 }
 ok defined($!), 'violated POST fails OK';
 
+# multiple PREs und POSTs
+
+my $baz = '
+sub baz (Num $i) {
+	PRE {
+		$i > 0
+	}
+	PRE {
+		$i < 23
+	}
+	return 1;
+}
+';
+ok($baz ~ 'baz(2)', 'sub with two PREs compiles and runs');
+
+eval( $baz ~ 'baz(-1)');
+ok(defined($!), 'sub with two PREs fails when first is violated');
+
+eval( $baz ~ 'baz(42)');
+ok(defined($!), 'sub with two PREs fails when second is violated');
+
+sub qox (Num $i) {
+	return 1;
+	POST {
+		$i > 0
+	}
+	POST {
+		$i < 42
+	}
+}
+
+ok(qox(23), "sub with two POSTs compiles and runs");
+
+try {
+	qox(-1);
+}
+
+ok(defined($!), "sub with two POSTs fails if first POST is violated");
+
+try {
+	qox(123);
+}
+
+ok(defined($!), "sub with two POSTs fails if second POST is violated");
