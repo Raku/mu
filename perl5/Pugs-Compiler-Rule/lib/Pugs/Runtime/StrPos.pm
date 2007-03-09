@@ -9,7 +9,7 @@ use Data::Dumper;
 
 use overload (
     'bool'   => \&bool,
-    '0+'     => \&codes,
+    '0+'     => \&graphs,
     fallback => 1,
 );
 
@@ -35,6 +35,10 @@ sub from_str_codes {
 
 sub from_str {
     return bless { str => $_[1], codes => pos( $_[1] ) }, $_[0];
+}
+
+sub clone {
+    return bless { %{$_[0]} }, ref( $_[0] );
 }
 
 sub bool  { 
@@ -69,6 +73,14 @@ sub graphs {
 
 sub langs {
     die "TODO: langs()";
+}
+
+sub add_codes {
+    (ref $_[0])->from_str_codes( $_[0]->str, $_[0]->codes + $_[1] );
+}
+
+sub add_graphs {
+    (ref $_[0])->from_str_graphs( $_[0]->str, $_[0]->graphs + $_[1] );
 }
 
 sub perl {
@@ -135,17 +147,26 @@ create a new StrPos object using grapheme or codepoint units.
 
 * bool()
 
-- test whether the position is defined.
+- test whether a position is defined.
+
+* add_codes($n)
+* add_graphs($n)
+
+- return a new StrPos with the new position
+
+* clone
+
+- return a new StrPos with the same position
 
 =head1 OVERLOADS
 
 * numeric $pos
 
-- return codes() as an integer, or undef.
+- return graphs() as an integer, or undef.
 
 * boolean $pos
 
-- test whether codes() is defined.
+- test whether a position is defined.
 
 =head1 Dumper methods
 
