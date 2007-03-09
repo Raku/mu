@@ -1,3 +1,6 @@
+- added StrPos class (Pugs::Runtime::StrPos)
+  - Match->from() and Match->to now return Pugs::Runtime::StrPos objects.
+  - for non-OO positions, use Match->to_codes and Match->from_codes 
 - fixed non-capturing subrules in regex
 - fixed <-alpha>
 - implemented conjunctions with '&' (not in Regex yet)
