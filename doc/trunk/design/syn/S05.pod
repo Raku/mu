@@ -132,7 +132,7 @@ The single-character modifiers also have longer versions:
 =item *
 
 The C<:i> (or C<:ignorecase>) modifier causes case distinctions to be
-ignore in its lexical scope, but not in its dynamic scope.  That is,
+ignored in its lexical scope, but not in its dynamic scope.  That is,
 subrules always use their own case settings.
 
 =item *
@@ -142,7 +142,10 @@ except that it ignores accents instead of case.  It is equivalent
 to taking each grapheme (in both target and pattern), converting
 both to NFD (maximally decomposed) and then comparing the two base
 characters (Unicode non-mark characters) while ignoring any trailing
-mark characters.
+mark characters.  The mark characters are ignored only for the purpose
+of determining the truth of the assertion; the actual text matched
+includes all ignored characters, including any that follow the final
+base character.
 
 =item *
 
