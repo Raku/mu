@@ -9,11 +9,11 @@ use Data::Dumper;
 
 use overload (
     'bool'   => \&bool,
-    '0+'     => \&codepoints,
+    '0+'     => \&codes,
     fallback => 1,
 );
 
-# new({ str => "...", codepoints => $n });
+# new({ str => "...", codes => $n });
 # $str must be utf-8
 # $n can be undef, meaning "nowhere in this string" 
 sub new {
@@ -21,27 +21,27 @@ sub new {
 }
 
 sub from_str {
-    return bless { str => $_[1], codepoints => pos( $_[1] ) }, $_[0];
+    return bless { str => $_[1], codes => pos( $_[1] ) }, $_[0];
 }
 
 sub bool  { 
-    defined $_[0]->{codepoints} 
+    defined $_[0]->{codes} 
 }
 
-sub codepoints  { 
-    $_[0]->{codepoints} 
+sub codes  { 
+    $_[0]->{codes} 
 }
 
 sub bytes { 
-    return undef unless defined $_[0]->{codepoints};
+    return undef unless defined $_[0]->{codes};
     die "string has invalid internal encoding" 
         unless utf8::is_utf8( $_[0]->{str} );
-    my $s = substr( $_[0]->{str}, 0, $_[0]->{codepoints} );
+    my $s = substr( $_[0]->{str}, 0, $_[0]->{codes} );
     {
         use bytes;
         return length( $s );
     }
-    #my @bytes = unpack("C*", substr( $_[0]->{str}, 0, $_[0]->{codepoints} ) );
+    #my @bytes = unpack("C*", substr( $_[0]->{str}, 0, $_[0]->{codes} ) );
     #print "[",join(",", @bytes),"]\n";
     #return scalar @bytes;
 }
@@ -116,19 +116,19 @@ Pugs::Runtime::StrPos - Represent a position inside a string
 
 =head1 METHODS
 
-* new({ str => "...", codepoints => $n });
+* new({ str => "...", codes => $n });
 
 creates a new StrPos object.
 
 'str' must be utf-8.
 
-'codepoints' can be undef, meaning "nowhere in this string".
+'codes' can be undef, meaning "nowhere in this string".
 
 * from_str( $str )
 
 encodes the string internal 'pos' into a StrPos object.
 
-* codepoints()
+* codes()
 * bytes()
 * graphs()
 
@@ -142,11 +142,11 @@ encodes the string internal 'pos' into a StrPos object.
 
 * numeric $pos
 
-- return codepoints() as an integer, or undef.
+- return codes() as an integer, or undef.
 
 * boolean $pos
 
-- test whether codepoints() is defined.
+- test whether codes() is defined.
 
 =head1 Dumper methods
 
