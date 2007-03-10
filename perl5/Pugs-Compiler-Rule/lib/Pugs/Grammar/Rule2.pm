@@ -290,12 +290,24 @@ token named_capture_body {
         { return { closure => $$<parsed_code> ,} }
     },
     '\\' => token {  
-        | [ x | X | o | O ] \d+
+        | ( c | C ) \[ ( [<alnum>|\s|<';'>]+) \]
+          #  \c[LATIN LETTER A] 
+          { return { special_char => '\\' ~ $0 ~ $1 , } } 
+
+        | [ x | X ] <xdigit>+
           #  \x0021    \X0021
           { return { special_char => '\\' ~ $/ , } } 
-        | ( x | X | o | O ) \[ (\d+) \]
+        | ( x | X ) \[ (<xdigit>+) \]
           #  \x[0021]  \X[0021]
           { return { special_char => '\\' ~ $0 ~ $1 , } } 
+
+        | [ o | O ] \d+
+          #  \o0021    \O0021
+          { return { special_char => '\\' ~ $/ , } } 
+        | ( o | O ) \[ (\d+) \]
+          #  \o[0021]  \O[0021]
+          { return { special_char => '\\' ~ $0 ~ $1 , } } 
+
         | .
           #  \e  \E
           { return { special_char => '\\' ~ $/ , } } 

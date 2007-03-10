@@ -281,11 +281,26 @@ sub variable {
     return "$_[1] constant( '" . $value . "' )\n";
 }
 sub special_char {
-    my $char = substr($_[0],1);
+    my ($char, $data) = $_[0] =~ /^.(.)(.*)/;
 
-    return  "$_[1] perl5( '(?:\n\r?|\r\n?)' )\n"
+    return  "$_[1] perl5( '\\N{$data}' )\n"
+        if $char eq 'c';
+    return  "$_[1] perl5( '(?!\\N{$data}).' )\n"
+        if $char eq 'C';
+
+    return  "$_[1] perl5( '\\x{$data}' )\n"
+        if $char eq 'x';
+    return  "$_[1] perl5( '(?!\\x{$data}).' )\n"
+        if $char eq 'X';
+
+    return special_char( sprintf("\\x%X", oct($data) ) )
+        if $char eq 'o';
+    return special_char( sprintf("\\X%X", oct($data) ) )
+        if $char eq 'O';
+
+    return  "$_[1] perl5( '(?:\\n\\r?|\\r\\n?)' )\n"
         if $char eq 'n';
-    return  "$_[1] perl5( '(?!\n\r?|\r\n?).' )\n"
+    return  "$_[1] perl5( '(?!\\n\\r?|\\r\\n?).' )\n"
         if $char eq 'N';
 
     # XXX - Infinite loop in pugs stdrules.t
@@ -507,19 +522,25 @@ sub metasyntax {
         return;
     }
     if ( $prefix =~ /[-+[]/ ) {   # character class 
+        #die "SET regex: $cmd\n";
         $cmd =~ s/\.\./-/g;
         if ( $cmd =~ /^ - \s* \[ (.*) /x ) {
            $cmd = '[^' . $1;
         } 
         elsif ( $cmd =~ /^ - \s* (.*) /x ) {
-           $cmd = substr($cmd, 1);
-           $cmd = "[^[:$1:]]";
+           my $name = $1;
+           $cmd = ( $name =~ /^is/ )
+                ? "\\P{$name}"
+                : "[^[:$name:]]";
         } 
         elsif ( $cmd =~ /^ \+ \s* \[ (.*) /x ) {
            $cmd = '[' . $1;
 	    }
         elsif ( $cmd =~ /^ \+ \s* (.*) /x ) {
-           $cmd = "[[:$1:]]";
+           my $name = $1;
+           $cmd = ( $name =~ /^is/ )
+                ? "\\p{$name}"
+                : "[[:$name:]]";
         } 
 	    # XXX <[^a]> means [\^a] instead of [^a] in perl5re
         return "$_[1] perl5( q!$cmd! )\n" unless $cmd =~ /!/;

@@ -4,6 +4,8 @@ use Pugs::Compiler::RegexPerl5;
 use Pugs::Compiler::Regex;
 use Data::Dumper;
 
+use charnames ":full";   # support \c[DIGIT SIX]
+
 # This class defines <ws>, unicode character classes, etc
 
 # internal methods - not in spec
@@ -121,18 +123,50 @@ sub prior {
     '<' 
 )->code;
 
-BEGIN {
-    # this list was extracted from 'perlre'
-    for ( qw( 
-        alpha alnum ascii blank
-        cntrl digit graph lower
-        print punct space upper
-        word  xdigit
-    ) ) {
-        *{$_} = Pugs::Compiler::RegexPerl5->compile( 
-            "[[:$_:]]"
-        )->code;
-    }
-}
+#BEGIN {
+#    # this list was extracted from 'perlre'
+#    for ( qw( 
+#        alpha alnum ascii blank
+#        cntrl digit graph lower
+#        print punct space upper
+#        word  xdigit
+#    ) ) {
+#        *{$_} = Pugs::Compiler::RegexPerl5->compile( 
+#            "[[:$_:]]"
+#        )->code;
+#    }
+#}
+
+    sub AUTOLOAD {
+        #my $self = shift;
+        my $meth = $AUTOLOAD;
+        $meth =~ s/.*:://;   # strip fully-qualified portion
+        
+        # is it a Unicode property? "isL"
+        {
+          local $@;
+          eval ' my $s="a"; $s =~ /\p{' . $meth . '}/ ';
+          unless ( $@ ) {
+            *{$meth} = Pugs::Compiler::RegexPerl5->compile( 
+              '\p{' . $meth . '}'
+            )->code;
+            return $meth->( @_ );
+          }
+        }
+        
+        # is it a char class? "digit"
+        {
+          local $@;
+          eval ' my $s="a"; $s =~ /[[:' . $meth . ':]]/ ';
+          unless ( $@ ) {
+            *{$meth} = Pugs::Compiler::RegexPerl5->compile( 
+              '[[:' . $meth . ':]]'
+            )->code;
+            return $meth->( @_ );
+          }
+        }
+        
+        die "unknown rule: <$meth>";
+    }    
 
 1;

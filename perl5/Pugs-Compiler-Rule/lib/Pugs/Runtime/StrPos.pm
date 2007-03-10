@@ -10,6 +10,19 @@ use Data::Dumper;
 use overload (
     'bool'   => \&bool,
     '0+'     => \&graphs,
+    '++'     => sub { 
+        $_[0]->{codes} = ($_[0]->add_graphs( 1 ))->{codes}; 
+    },
+    '+='     => sub { 
+        $_[0]->{codes} += $_[1]; 
+    },
+    '+'     => sub { 
+        ($_[0]->add_graphs( $_[1] ))->{codes}; 
+    }, 
+    '='     => sub {
+           my $self = shift;
+           bless {%$self}, ref $self;
+         }, 
     fallback => 1,
 );
 
@@ -23,8 +36,12 @@ sub new {
 # codes is the default perl5 representation
 # graphs is the default perl6 representation
 sub from_str_graphs {
-    die "string has invalid internal encoding" 
-        unless utf8::is_utf8( $_[1]->{str} );
+    
+    # -- downgrade as appropriate
+    #die "string has invalid internal encoding" 
+    return from_str_codes( @_ )
+        unless utf8::is_utf8( $_[1] );
+        
     $_[1] =~ m/^\X{$_[2]}/g;
     return bless { str => $_[1], codes => pos($_[1]) }, $_[0];
 }
@@ -85,11 +102,11 @@ sub langs {
 }
 
 sub add_codes {
-    (ref $_[0])->from_str_codes( $_[0]->str, $_[0]->codes + $_[1] );
+    (ref $_[0])->from_str_codes( $_[0]->{str}, $_[0]->codes + $_[1] );
 }
 
 sub add_graphs {
-    (ref $_[0])->from_str_graphs( $_[0]->str, $_[0]->graphs + $_[1] );
+    (ref $_[0])->from_str_graphs( $_[0]->{str}, $_[0]->graphs + $_[1] );
 }
 
 sub perl {
@@ -169,13 +186,13 @@ create a new StrPos object using grapheme or codepoint units.
 
 =head1 OVERLOADS
 
-* numeric $pos
+* numeric
 
-- return graphs() as an integer, or undef.
+- return the count of graphemes, or undef.
 
-* boolean $pos
+* boolean 
 
-- test whether a position is defined.
+- test whether a position is defined. The position 'zero' is true.
 
 =head1 Dumper methods
 

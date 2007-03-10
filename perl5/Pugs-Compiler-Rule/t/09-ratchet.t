@@ -573,6 +573,9 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     ok( $match, 'true match' );
     is( "$match->{z}", "a", 'named capture on parentheses' );
     is( "$match->[0]", "b", 'named capture on parentheses not positioned' );
+    
+    #print Dumper( $match->[0]->from ), "\n";
+    #print Dumper( $match->[0]->to ), "\n";
 }
 
 {

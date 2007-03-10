@@ -364,7 +364,23 @@ sub variable {
     return call_constant( $value, $_[1] );
 }
 sub special_char {
-    my $char = substr($_[0],1);
+    my ($char, $data) = $_[0] =~ /^.(.)(.*)/;
+
+    return call_perl5( '\\N{$data}', $_[1] )
+        if $char eq 'c';
+    return call_perl5( '(?!\\N{$data}).', $_[1] )
+        if $char eq 'C';
+
+    return call_perl5( '\\x{'.$data.'}', $_[1] )
+        if $char eq 'x';
+    return call_perl5( '(?!\\x{'.$data.'}).', $_[1] )
+        if $char eq 'X';
+
+    return special_char( sprintf("\\x%X", oct($data) ) )
+        if $char eq 'o';
+    return special_char( sprintf("\\X%X", oct($data) ) )
+        if $char eq 'O';
+
     return  call_perl5( '(?:\n\r?|\r\n?)', $_[1] )
         if $char eq 'n';
     return  call_perl5( '(?!\n\r?|\r\n?).', $_[1] )
@@ -799,19 +815,26 @@ sub metasyntax {
         return;
     }
     if ( $prefix =~ /[-+[]/ ) {   # character class 
+        #die "SET ratchet: $cmd\n";
         $cmd =~ s/\.\./-/g;
         if ( $cmd =~ /^ - \s* \[ (.*) /x ) {
            $cmd = '[^' . $1;
         } 
         elsif ( $cmd =~ /^ - \s* (.*) /x ) {
-           $cmd = substr($cmd, 1);
-           $cmd = "[^[:$1:]]";
+           #$cmd = substr($cmd, 1);
+           my $name = $1;
+           $cmd = ( $name =~ /^is/ )
+                ? "\\P{$name}"
+                : "[^[:$name:]]";
         } 
         elsif ( $cmd =~ /^ \+ \s* \[ (.*) /x ) {
            $cmd = '[' . $1;
 	    }
         elsif ( $cmd =~ /^ \+ \s* (.*) /x ) {
-           $cmd = "[[:$1:]]";
+           my $name = $1;
+           $cmd = ( $name =~ /^is/ )
+                ? "\\p{$name}"
+                : "[[:$name:]]";
         } 
         $cmd =~ s/\s+|\n//g;
         # XXX <[^a]> means [\^a] instead of [^a] in perl5re

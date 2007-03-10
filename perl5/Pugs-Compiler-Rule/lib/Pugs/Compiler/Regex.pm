@@ -14,6 +14,9 @@ use Pugs::Emitter::Rule::Perl5::Ratchet;
 
 use Pugs::Runtime::Regex;
 
+# complete the dependency circularity
+push @Pugs::Grammar::Rule::ISA, 'Pugs::Grammar::Base';
+
 use Carp 'croak';
 use Data::Dumper;
 use Symbol 'qualify_to_ref';

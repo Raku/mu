@@ -41,11 +41,20 @@ sub bool  {  ${$_data{refaddr $_[0]}->{bool}}  }
 sub array {    $_data{refaddr $_[0]}->{match}  }
 
 sub from  {  
+
+    return ${$_data{refaddr $_[0]}->{from}};
+
     my $obj = $_data{refaddr $_[0]};
+    #return ${$obj->{from}} if blessed ${$obj->{from}};
     Pugs::Runtime::StrPos->from_str_codes( ${$obj->{str}}, ${$obj->{from}} );
 }
 sub to    {  
+
+    return ${$_data{refaddr $_[0]}->{to}};
+
     my $obj = $_data{refaddr $_[0]};
+    #return ${$obj->{to}} if blessed ${$obj->{to}};
+    #print "TO: ",${$obj->{to}},"\n";
     Pugs::Runtime::StrPos->from_str_codes( ${$obj->{str}}, ${$obj->{to}} );
 }
 # "low-level" position defaults to perl5-utf8
