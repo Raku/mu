@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 8 Mar 2006
+  Last Modified: 9 Mar 2006
   Number: 11
-  Version: 16
+  Version: 17
 
 =head1 Overview
 
@@ -350,6 +350,41 @@ And saying
     :ver<6.2.0+>
 
 specifically rules out any prereleases.
+
+If two different modules in your program require two different
+versions of the same module, Perl will simply load both versions at
+the same time.  For modules that do not manage exclusive resources,
+the only penalty for this is memory, and the disk space in the library
+to hold both the old and new versions.  For modules that do manage
+an exclusive resource, such as a database handle, there are two approaches
+short of requiring the user to upgrade.  The first is simply to refactor
+the module into a stable supplier of the exclusive resource that doesn't
+change version often, and then the outer wrappers of that resource can
+both be loaded and use the same supplier of the resource.
+
+The other approach is for the module to keep the management of its exclusive
+resource, but offer to emulate older versions of the API.  Then if there
+is a conflict over which version to use, the new one is used by both users,
+but each gets a view that is consistent with the version it thinks it is
+using.  Of course, this depends crucially on how well the new version
+actually emulates the old version.
+
+To declare that a module emulates an older version, declare it like this:
+
+    class Dog:<1.2.1 cpan:JRANDOM> emulates :<1.2.0>;
+
+Or to simply exclude use of the older module and (presumably) force
+the user to upgrade:
+
+    class Dog:<1.2.1 cpan:JRANDOM> excludes :<1.2.0>;
+
+The name is parsed like a C<use> wildcard, and you can have more than one,
+so you can say things like:
+
+    class Dog:<1.2.1 cpan:JRANDOM>
+        emulates Dog:auth(DCONWAY|JCONWAY|TCONWAY):ver<1.0+>
+        excludes Fox:<3.14159 http://oreillymedia.com>
+        emulates Wolf:from<C# 0.8..^1.0>;
 
 =head1 Forcing Perl 6
 
