@@ -136,12 +136,12 @@ plan 20;
         try {
             $svar++;
             $svar2--;
-            return ($svar, $svar2);
+            return (+$svar, +$svar2);
         }
     };
 
-    is(step().perl, "(43, 41)", "chained state (#1)", :todo<bug>);
-    is(step().perl, "(44, 40)", "chained state (#2)", :todo<bug>);
+    is(step().perl, "(43, 41)", "chained state (#1)");
+    is(step().perl, "(44, 40)", "chained state (#2)");
 }
 
 # state in cloned closures
