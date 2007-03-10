@@ -30,9 +30,8 @@ class FA::DFA;
 has $.state;
 has $.net;
 
-multi method BUILD {
-  $.net   //= FA::DFA::Node.new;
-  $.state //= $.net;
+submethod BUILD {
+  $!state //= $!net //= FA::DFA::Node.new;
 }
 
 multi method reset {
