@@ -7,6 +7,7 @@ import Test.QuickCheck
 import Control.Monad.Error
 import System.CPUTime
 import Control.Parallel.Strategies  
+import Text.Printf
 import qualified Data.List as List
 import qualified Data.Set as Set
 
@@ -87,14 +88,13 @@ classify_dispatches seed size count =
     cls (x:xs) (t,s,k) = cls xs $ case x of
         Left "tied"    -> (t+1,s,k)
         Left "spoiled" -> (t,s+1,k)
-        Left other     -> error other
         Right _        -> (t,s,k+1)
+        Left other     -> error other
 
 getCPUDuration :: NFData a => a -> IO (a, Integer)
 getCPUDuration res = do
     v0  <- getCPUTime
     v1  <- (res `using` rnf) `seq` getCPUTime
-    print (v1, v0)
     return (res, v1 - v0)
 
 main :: IO ()
@@ -102,6 +102,7 @@ main = do
     putStrLn "Testing prop_sigCompare"
     quickCheck prop_sigCompare
     putStrLn "Testing prop_dispatch"
+    --check defaultConfig{ configMaxTest = 1000 } prop_dispatch
     sequence_ [quickCheck prop_dispatch | _ <- [1..10]]
     
     let times = 1000000
@@ -109,6 +110,6 @@ main = do
     (res, time') <- getCPUDuration (classify_dispatches 23452 10 times)
     let time = ((fromInteger time') :: Double) / fromInteger 1000000000000
     putStrLn res
-    putStrLn $ show time ++ " seconds, " ++ show (fromIntegral times / time) ++ " dispatches/sec"
+    printf "%.2f seconds, %.2f dispatches/sec\n" time (fromIntegral times / time)
 
 
