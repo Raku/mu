@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -Wall -fno-warn-missing-methods -fno-warn-orphans -fno-warn-type-defaults -fno-warn-unused-binds #-}
+{-# OPTIONS_GHC -Wall -fglasgow-exts -fno-warn-missing-methods -fno-warn-orphans -fno-warn-type-defaults -fno-warn-unused-binds #-}
 
 import Data.Ord
 import Data.Set (Set)
@@ -6,6 +6,7 @@ import System.Random
 import Test.QuickCheck
 import Control.Monad.Error
 import System.CPUTime
+import Control.Parallel.Strategies  
 import qualified Data.List as List
 import qualified Data.Set as Set
 
@@ -89,6 +90,13 @@ classify_dispatches seed size count =
         Left other     -> error other
         Right _        -> (t,s,k+1)
 
+getCPUDuration :: NFData a => a -> IO (a, Integer)
+getCPUDuration res = do
+    v0  <- getCPUTime
+    v1  <- (res `using` rnf) `seq` getCPUTime
+    print (v1, v0)
+    return (res, v1 - v0)
+
 main :: IO ()
 main = do
     putStrLn "Testing prop_sigCompare"
@@ -96,10 +104,11 @@ main = do
     putStrLn "Testing prop_dispatch"
     sequence_ [quickCheck prop_dispatch | _ <- [1..10]]
     
-    putStrLn "Timing 100,000 dispatches"
-    pico <- getCPUTime
-    putStrLn $ classify_dispatches 23452 10 100000
-    pico' <- getCPUTime
-    putStrLn $ show (((fromInteger pico') - (fromInteger pico)) / 1000000000000) ++ " seconds"
+    let times = 1000000
+    putStrLn $ "Timing " ++ (show times) ++ " dispatches"
+    (res, time') <- getCPUDuration (classify_dispatches 23452 10 times)
+    let time = ((fromInteger time') :: Double) / fromInteger 1000000000000
+    putStrLn res
+    putStrLn $ show time ++ " seconds, " ++ show (fromIntegral times / time) ++ " dispatches/sec"
 
 
