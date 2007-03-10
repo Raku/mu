@@ -1,6 +1,4 @@
 use v6-alpha;
-use Test;
-plan 1;
 
 # P54A (*) Check whether a given term represents a binary tree
 # 
@@ -13,9 +11,23 @@ plan 1;
 # * (istree (a (b nil nil)))
 # NIL
 
-if 1 {
-    skip 1, "Test(s) not yet written: A (*) Check whether a given term represents a binary tree";
+# We keep representing trees as lists
+# but it could be interesting to use something like
+#  subtype List::Tree of List where {istree($_)}
+# or to define a proper class Node
+
+sub istree($obj) returns Bool {
+  return True if $obj === undef;
+  return +$obj==3 and istree($obj[1]) and istree($obj[2]);
 }
-else {
-    ok 1, 'A (*) Check whether a given term represents a binary tree';
+
+unless caller {
+  use Test;
+  plan 5;
+  
+  ok istree(undef), "We tell that an empty tree is a tree";
+  ok istree(['a',undef,undef]), ".. and a one-level tree is a tree";
+  ok istree(['a',undef,['c',undef,undef]]), ".. and n-level trees";
+  ok !istree([]), ".. and fail with empty lists";
+  ok !istree(<a b>),".. or other malformed trees";
 }
