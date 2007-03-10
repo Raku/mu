@@ -7,6 +7,7 @@ import Test.QuickCheck
 import Control.Monad.Error
 import System.CPUTime
 import Control.Parallel.Strategies  
+import Data.Monoid
 import Text.Printf
 import qualified Data.List as List
 import qualified Data.Set as Set
@@ -50,25 +51,30 @@ prop_sigCompare (x, y) = case (sigCompare x y, sigCompare y x) of
 
 prop_dispatch :: Set Sig -> Bool
 prop_dispatch xs = case dispatch (Set.toAscList xs) sigCompare of
-    Just winner -> winsOverRest winner
-    Nothing     -> Set.null (Set.filter winsOverRest xs)
+    ROk winner  -> winsOverRest winner
+    _           -> Set.null (Set.filter winsOverRest xs)
     where
     winsOverRest x = Set.null (Set.filter winsOrTiesWithX rest)
         where
         rest                = Set.delete x xs
         winsOrTiesWithX y   = (sigCompare x y) /= GT
 
-dispatch :: (Eq a, Show a, Monad m) => [a] -> (a -> a -> Ordering) -> m a
+data DispatchResult a
+    = ROk !a
+    | RTied
+    | RSpoiled
+
+dispatch :: Eq a => [a] -> (a -> a -> Ordering) -> DispatchResult a
 dispatch candlist cmp = dispatch' candlist
     where
-    dispatch' []        = fail "tied"
+    dispatch' []        = RTied
     dispatch' (x:y:zs)  = dispatch' $ case cmp x y of
         GT -> x:zs
         LT -> y:zs
         _  -> zs
     dispatch' [x]
-        | all losesToX spoilers = return x
-        | otherwise             = fail "spoiled"
+        | all losesToX spoilers = ROk x
+        | otherwise             = RSpoiled
         where
         spoilers   = case takeWhile (/= x) candlist of
             []  -> []
@@ -78,18 +84,22 @@ dispatch candlist cmp = dispatch' candlist
             GT  -> True
             _   -> False
 
+data Total = Total { tied :: !Int, spoiled :: !Int, okay :: !Int }
+    deriving Show
+
+instance Monoid Total where
+    mempty = Total 0 0 0
+    mappend (Total t1 s1 o1) (Total t2 s2 o2) = Total (t1+t2) (s1+s2) (o1+o2)
+
 classify_dispatches :: Int -> Int -> Int -> String
-classify_dispatches seed size count =
-    show (cls runs (0, 0, 0)) ++ " (tied/spoiled/okay)"
+classify_dispatches seed size count = show (foldl cls mempty runs)
     where
-    runs = map (flip dispatch sigCompare) samp
+    runs = map (`dispatch` sigCompare) samp
     samp = generate size (mkStdGen seed) (replicateM count (arbitrary :: Gen [Sig]))
-    cls [] d     = d
-    cls (x:xs) (t,s,k) = cls xs $ case x of
-        Left "tied"    -> (t+1,s,k)
-        Left "spoiled" -> (t,s+1,k)
-        Right _        -> (t,s,k+1)
-        Left other     -> error other
+    cls total x = case x of
+        RTied       -> total{ tied      = succ (tied total) }
+        RSpoiled    -> total{ spoiled   = succ (spoiled total) }
+        ROk{}       -> total{ okay      = succ (okay total) }
 
 getCPUDuration :: NFData a => a -> IO (a, Integer)
 getCPUDuration res = do
@@ -105,7 +115,7 @@ main = do
     --check defaultConfig{ configMaxTest = 1000 } prop_dispatch
     sequence_ [quickCheck prop_dispatch | _ <- [1..10]]
     
-    let times = 1000000
+    let times = 100000
     putStrLn $ "Timing " ++ (show times) ++ " dispatches"
     (res, time') <- getCPUDuration (classify_dispatches 23452 10 times)
     let time = ((fromInteger time') :: Double) / fromInteger 1000000000000
