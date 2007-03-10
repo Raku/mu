@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 6 Mar 2007
+  Last Modified: 11 Mar 2007
   Number: 12
-  Version: 43
+  Version: 44
 
 =head1 Overview
 
@@ -193,13 +193,11 @@ use either the dot notation or indirect object notation:
     $obj.doit(1,2,3)
     doit $obj: 1,2,3
 
-Indirect object notation now requires a colon after the invocant if
-there are any arguments.  If there are no arguments and you omit the
-colon, the notation is parsed either as a named unary operator or a
-list operator with one argument.
+If the method was not found, it will fall back to a subroutine call
+instead, with the invocant becoming the first positional argument.
 
-These two are considered method calls, which will fall back to a
-subroutine call if the method was not found:
+Indirect object notation now requires a colon after the invocant,
+even if there are no arguments after the colon:
 
     $handle.close
     close $handle:
