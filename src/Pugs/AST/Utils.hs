@@ -12,8 +12,7 @@ import {-# SOURCE #-} Pugs.AST.Internals
 
 errIndex :: Show a => Maybe b -> a -> Eval b
 errIndex (Just v) _ = return v
-errIndex _ idx =
-    retError "Modification of non-creatable array value attempted" idx
+errIndex _ idx      = die "Modification of non-creatable array value attempted" idx
 
 -- Three outcomes: Has value; can extend; cannot extend
 getIndex :: Int -> Maybe a -> Eval [a] -> Maybe (Eval b) -> Eval a

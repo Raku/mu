@@ -208,6 +208,3 @@ class (MonadReader Env m, MonadCont m, MonadIO m, MonadSTM m) => MonadEval m
 --     askGlobal :: m Pad
 -}
 
-retError :: (Show a) => String -> a -> Eval b
-retError str a = fail $ str ++ ": " ++ show a
-
