@@ -135,7 +135,7 @@ listAssignment x = do
         | Syn "," _ <- unwrap exp   = exp
         | otherwise                 = Ann Parens (Syn "," [inner])
     forceParens (Ann x inner)       = Ann x (forceParens inner)
-    forceParens (Sym x y inner)     = Sym x y (forceParens inner)
+    forceParens (Sym x y init inner)= Sym x y init (forceParens inner)
     forceParens (Pad x y inner)     = Pad x y (forceParens inner)
     forceParens exp                 = exp
 
@@ -169,47 +169,49 @@ currentFunctions = do
     env <- getRuleEnv
     let funs = catMaybes $! inlinePerformSTM $! do
         glob <- readTVar $ envGlobal env
-        let syms  = padToList (filterPad cur glob)
+        let vars  = padToList (filterPad cur glob)
                     ++ padToList (filterPad cur (envLexical env))
             pkg   = envPackage env
             cur var@MkVar{ v_sigil = SCode } = inScope pkg var
+            cur var@MkVar{ v_sigil = SCodeMulti } = inScope pkg var
             cur _ = False
-            vars  = concat [ map (\(_, tvar) -> (var, tvar)) tvars
-                           | (var, tvars) <- syms
-                           ]
         mapM (uncurry filterFun) vars
     return (length funs `seq` funs)
 
 {-# NOINLINE _RefToFunction #-}
-_RefToFunction :: H.HashTable (TVar VRef) (Maybe CurrentFunction)
-_RefToFunction = unsafePerformIO (H.new (==) hashTVar)
+_RefToFunction :: H.HashTable PadEntry (Maybe CurrentFunction)
+_RefToFunction = unsafePerformIO (H.new (==) hashPadEntry)
 
-hashTVar :: TVar VRef -> Int32
-hashTVar x = I32# (unsafeCoerce# x)
+hashPadEntry :: PadEntry -> Int32
+hashPadEntry EntryConstant{ pe_value = v }  = I32# (unsafeCoerce# v)
+hashPadEntry x                              = I32# (unsafeCoerce# (pe_store x))
 
-filterFun :: Var -> TVar VRef -> STM (Maybe CurrentFunction)
-filterFun var tvar = var `seq` do
-    res <- unsafeIOToSTM (H.lookup _RefToFunction tvar)
+-- hashTVar :: TVar VRef -> Int32
+-- hashTVar x = I32# (unsafeCoerce# x)
+
+filterFun :: Var -> PadEntry -> STM (Maybe CurrentFunction)
+filterFun var entry = var `seq` do
+    res <- unsafeIOToSTM (H.lookup _RefToFunction entry)
     case res of
         Just rv -> return rv
         Nothing -> do
-            ref <- readTVar tvar
+            ref <- readPadEntry entry
             case ref of
                 MkRef (ICode cv)
                     | relevantToParsing (code_type cv) (code_assoc cv) -> do
                         let rv = MkCurrentFunction var (code_assoc cv) (code_params cv)
                             res = seq rv (Just rv)
-                        unsafeIOToSTM (H.insert _RefToFunction tvar res)
+                        unsafeIOToSTM (H.insert _RefToFunction entry res)
                         return res
                 MkRef (IScalar sv)
                     | Just (VCode cv) <- scalar_const sv
                     , relevantToParsing (code_type cv) (code_assoc cv) -> do
                         let rv = MkCurrentFunction var (code_assoc cv) (code_params cv)
                             res = seq rv (Just rv)
-                        unsafeIOToSTM (H.insert _RefToFunction tvar res)
+                        unsafeIOToSTM (H.insert _RefToFunction entry res)
                         return res
                 _ -> do
-                    unsafeIOToSTM (H.insert _RefToFunction tvar Nothing)
+                    unsafeIOToSTM (H.insert _RefToFunction entry Nothing)
                     return Nothing
 
 inScope :: Pkg -> Var -> Bool
@@ -393,17 +395,20 @@ makeOp2Match prec sigil con name = (`Infix` prec) $ do
             App (_Var "&prefix:?") Nothing [App app (Just x) args]
         _ -> con (sigil ++ name) [x,y]
 
+_STATE_START_RUN :: Var
+_STATE_START_RUN = cast "$?STATE_START_RUN"
+
 declAssignHack :: Exp -> Exp
 declAssignHack exp@(Syn "=" [lhs, _])
     | isDecl SState lhs = 
         let pad = unsafePerformSTM $! do
-                state_first_run <- newTVar =<< (fmap scalarRef $! newTVar (VInt 0))
-                state_fresh     <- newTVar False
-                return $! mkPad [(cast "$?STATE_START_RUN", [(state_fresh, state_first_run)])] in
+                proto           <- fmap scalarRef $! newTVar (VInt 0)
+                state_first_run <- newTVar proto
+                return $! mkPad [(_STATE_START_RUN, EntryStatic{ pe_type = mkType "Scalar", pe_value = proto, pe_store = state_first_run})] in
         Syn "block"
             [ Pad SState pad $!
                 Syn "if"
-                    [ App (_Var "&postfix:++") Nothing [_Var "$?STATE_START_RUN"]
+                    [ App (_Var "&postfix:++") Nothing [Var _STATE_START_RUN]
                     , lhs
                     , exp
                     ]

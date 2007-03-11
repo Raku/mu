@@ -24,8 +24,7 @@ exportSym scope ('&':subname) ref = do
                     mkMulti = case val of
                         VCode sub | isMulti sub -> ('&':)
                         _                       -> id
-                    mkExp   = Syn ":=" [_Var name, Val val]
-                    mkSym   = _Sym scope (mkMulti name) mkExp
+                    mkSym   = _Sym scope (mkMulti name) (Val val) Noop
                 doExport scope mkSym
             case scope of
                 SMy -> addBlockPad SState 
