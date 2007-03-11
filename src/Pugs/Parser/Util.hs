@@ -35,7 +35,15 @@ localEnv m = do
             }
         , s_closureTraits = s_closureTraits state'
         }
-    return $ Map.foldWithKey Pad rv (s_blockPads state')
+    -- Re-read compile time refs into the new protos at end of scope.
+    newPads <- return $! unsafePerformSTM $! do
+        forM (Map.toList $ s_blockPads state') $ \(scope, pad) -> do
+            newPad <- forM (padToList pad) $ \(var, entry) -> do
+                proto   <- readPadEntry entry
+                let newEntry = entry{ pe_proto = proto }
+                return (newEntry `seq` (var, newEntry))
+            return (scope, listToPad (length newPad `seq` newPad))
+    return $ Map.foldWithKey Pad rv (length newPads `seq` Map.fromList newPads)
 
 ruleParamList :: ParensOption -> RuleParser a -> RuleParser (Maybe [[a]])
 ruleParamList wantParens parse = rule "parameter list" $ do
