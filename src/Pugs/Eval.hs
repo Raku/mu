@@ -1047,7 +1047,7 @@ specialApp = Map.fromList
             val <- apply sub Nothing args
             retShift =<< evalVal val
             retEmpty
-    , "&call"       ... \inv args -> do
+    , "&callwith"       ... \inv args -> do
         sub     <- fromCodeExp inv
         let callerEnv :: Env -> Env
             callerEnv env = let caller = maybe env id (envCaller env) in
