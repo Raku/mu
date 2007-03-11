@@ -74,7 +74,7 @@ There're two ways one can argue:
         "binding a var to the return value of a sub (a variable) works (1)";
 
     dies_ok { $var = 23 },
-        "binding a var to the return value of a sub (a variable) works (2)", :todo<bug>;
+        "binding a var to the return value of a sub (a variable) works (2)";
 }
 
 {
