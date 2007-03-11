@@ -28,7 +28,7 @@ multi *infix:<÷>   ($a, $b) { $a / $b }
 # Standard functions of fp
 sub identity($x)  is export { $x }
 sub const($x)     is export { return -> $y { $x } }
-sub tail(@array)  is export { @array[1...] }
+sub tail(@array)  is export { @array[1..*] }
 sub init(@array)  is export { @array[0..@array.end-1] }
 
 sub replicate(Int $n, Code &f) is export { (1..$n).map(&f) }
