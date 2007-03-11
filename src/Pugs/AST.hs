@@ -12,8 +12,8 @@
 -}
 
 module Pugs.AST (
-    evalExp,
-    genMultiSym, genSym,
+    evalExp, readCodesFromRef,
+    genMultiSym, genSym, genSymScoped,
     strRangeInf, strRange, strInc,
     mergeStmts, isEmptyParams,
     newPackage, newType, newMetaType, typeMacro, isScalarLValue,
@@ -138,33 +138,39 @@ evalExp exp = do
     evl <- asks envEval
     evl exp
 
-{-|
-Create a 'Pad'-transforming transaction that will install a symbol
-definition in the 'Pad' it is applied to, /alongside/ any other mappings
-of the same name. This is to allow for overloaded (i.e. multi) subs,
-where one sub name actually maps to /all/ the different multi subs.
-(Is this correct?)
--}
 genMultiSym :: MonadSTM m => Var -> VRef -> m PadMutator
-genMultiSym name ref = do
-    --trace ("installing multi: " ++ name) $ return ()
-    tvar    <- liftSTM $ newTVar ref
-    fresh   <- liftSTM $ newTVar True
-    return $ \(MkPad map) -> MkPad $
-        Map.insertWith mergePadEntry name (MkEntryMulti [(fresh, tvar)]) map
+genMultiSym var = case v_sigil var of
+    SCode       -> genSym var{ v_sigil = SCodeMulti }
+    SCodeMulti  -> genSym var
+    _           -> const $ die "Cannot generate multi variants of variable" var
+
+isStaticScope :: Scope -> Bool
+isStaticScope SState  = True
+isStaticScope SGlobal = True
+isStaticScope _       = False
+
+-- XXX - SConstant support
+genSymScoped :: MonadSTM m => Scope -> Var -> VRef -> m PadMutator
+genSymScoped scope var ref
+    | isStaticScope scope = do
+        tvar    <- liftSTM $ newTVar ref
+        return (makeEntry $ EntryStatic typ ref tvar)
+    | otherwise = do
+        tvar    <- liftSTM $ newTVar ref
+        fresh   <- liftSTM $ newTVar True
+        return (makeEntry $ EntryLexical typ ref tvar fresh)
+    where
+    typ = refType ref
+    makeEntry entry
+        | SCodeMulti <- v_sigil var = \(MkPad map) -> MkPad (Map.insertWith (mergePadEntry var) var entry map)
+        | otherwise                 = \(MkPad map) -> MkPad (Map.insert var entry map)
 
 {-|
-Create a 'Pad'-transforming transaction that will install a symbol
+Create a lexical 'Pad'-transforming transaction that will install a symbol
 mapping from a name to a thing, in the 'Pad' it is applied to.
-Unlike 'genMultiSym', this version just installs a single definition
-(right?), shadowing any earlier or outer definition.
 -}
 genSym :: MonadSTM m => Var -> VRef -> m PadMutator
-genSym var ref = do
-    --trace ("installing: " ++ name) $ return ()
-    tvar    <- liftSTM $ newTVar ref
-    fresh   <- liftSTM $ newTVar True
-    return $ \(MkPad map) -> MkPad $ Map.insert var (MkEntry (fresh, tvar)) map
+genSym = genSymScoped SMy
 
 {-|
 Tests whether an expression is /simple/, per the definition of S03.
@@ -175,7 +181,7 @@ isScalarLValue x = case x of
     Ann Parens _    -> False
     Ann _ exp       -> isScalarLValue exp
     Pad _ _ exp     -> isScalarLValue exp
-    Sym _ _ exp     -> isScalarLValue exp
+    Sym _ _ _ exp   -> isScalarLValue exp
     Var var | SScalar <- v_sigil var -> True
     Syn "${}" _     -> True -- XXX - Change tp App("&prefix:<$>") later
     Syn "$::()" _   -> True
@@ -242,7 +248,7 @@ simpleInfixOps = opSet C_infix
 mergeStmts :: Exp -> Exp -> Exp
 mergeStmts (Stmts x1 x2) y = mergeStmts x1 (mergeStmts x2 y)
 mergeStmts Noop y@(Stmts _ _) = y
-mergeStmts (Sym scope name x) y = Sym scope name (mergeStmts x y)
+mergeStmts (Sym scope name init x) y = Sym scope name init (mergeStmts x y)
 mergeStmts (Pad scope lex x) y = Pad scope lex (mergeStmts x y)
 mergeStmts (Syn "package" [kind, pkg@(Val (VStr _))]) y =
     Syn "namespace" [kind, pkg, y]
@@ -283,9 +289,8 @@ _underscore = cast "_"
 newPackage :: String -> String -> [String] -> [String] -> Exp
 newPackage cls name classes roles = Stmts metaObj (newType name)
     where
-    metaObj = _Sym SGlobal (':':'*':name) $! Syn ":="
-        [ _Var (':':'*':name)
-        , App (_Var "&HOW::new")
+    metaObj = _Sym SGlobal (':':'*':name) (
+        App (_Var "&HOW::new")
             (Just $ Val (VType $ mkType cls))
             [ Syn "named"
                 [ Val (VStr "is")
@@ -304,22 +309,16 @@ newPackage cls name classes roles = Stmts metaObj (newType name)
                 , Syn "\\{}" [Noop]
                 ]
             ]
-        ]
+            ) Noop
 
 newType :: String -> Exp
-newType name = _Sym SGlobal ('&':'&':'*':termName) $! Syn ":="
-    [ _Var ('&':'*':termName)
-    , typeMacro name (Val . VType . mkType $ name)
-    ]
+newType name = _Sym SGlobal ('&':'&':'*':termName) (typeMacro name (Val . VType . mkType $ name)) Noop
     where
     termName = "term:" ++ name
 
 
 newMetaType :: String -> Exp
-newMetaType name = _Sym SGlobal ('&':'&':'*':termName) $! Syn ":="
-    [ _Var ('&':'*':termName)
-    , typeMacro name (_Var (':':'*':name))
-    ]
+newMetaType name = _Sym SGlobal ('&':'&':'*':termName) (typeMacro name (_Var (':':'*':name))) Noop
     where
     termName = "term:" ++ name
 
@@ -339,7 +338,7 @@ typeMacro name exp = Syn "sub" . (:[]) . Val . VCode $ MkCode
         list <- mapM fromVals v :: Eval [VList]
         case concat list of
             []  -> expToEvalVal $ exp
-            xs  -> retError ("Cannot coerce to " ++ name) xs
+            xs  -> die ("Cannot coerce to " ++ name) xs
     , subCont          = Nothing
     , subPreBlocks     = []
     , subPostBlocks    = []
@@ -367,17 +366,12 @@ filterPrim glob = do
 checkPrim :: (Var, PadEntry) -> Eval (Maybe (Var, PadEntry))
 checkPrim e@(var, entry)
     | SType <- v_sigil var, isGlobalVar var = return Nothing
-    | MkEntry (_, tv) <- entry = do
-        rv <- isPrim tv
-        return $ if rv then Nothing else Just e
     | otherwise = do
-        let MkEntryMulti xs = entry
-        xs' <- filterM (fmap not . isPrim . snd) xs
-        return $ if null xs' then Nothing else Just (var, MkEntryMulti xs')
+        rv <- isPrim =<< readPadEntry entry
+        return (if rv then Nothing else Just e)
 
-isPrim :: TVar VRef -> Eval Bool
-isPrim tv = do
-    vref <- liftSTM $ readTVar tv
+isPrim :: VRef -> Eval Bool
+isPrim vref = do
     case vref of
         MkRef (ICode cv)    -> fmap (isPrimVal . VCode) (code_fetch cv)
         MkRef (IScalar sv)  -> fmap isPrimVal (scalar_fetch sv)
@@ -437,3 +431,15 @@ __LIST__ = cast "LIST"
 
 __ITEM__ :: Call
 __ITEM__ = cast "ITEM"
+
+readCodesFromRef :: VRef -> Eval [VCode]
+readCodesFromRef (MkRef (ICode c))
+    | Just mc <- fromTypeable c = fmap concat . forM (fromP $ mc_variants mc) $ \entry -> do
+        ref     <- readPadEntry entry
+        readCodesFromRef ref
+readCodesFromRef ref = do
+    code <- fromVal =<< readRef ref
+    case code of 
+        MkCode{ subBody = Noop }    -> return [] -- XXX - Ignored; see Pugs.Parser comment "PROTO"
+        _                           -> return [code]
+
