@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 11 Mar 2007
+  Last Modified: 12 Mar 2007
   Number: 6
-  Version: 76
+  Version: 77
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -59,19 +59,28 @@ other constraints.
 B<Prototypes> (keyword: C<proto>) specify the commonalities (such
 as parameter names, fixity, and associativity) shared by all multis
 of that name in the scope of the C<proto> declaration.  A C<proto>
-also forces all routines of the same short name within the scope to
-be considered C<multi> whether they are explicitly declared so or not.
+also adds an implicit C<multi> to all routines of the same short
+name within its scope, unless they have an explicit modifier.
 (This is particularly useful when adding to rule sets or when attempting
 to compose conflicting methods from roles.)
 
+C<Only> (keyword: C<only>) routines do not share its short name
+with other routines.  This is the default modifier for all routines,
+unless a C<proto> of the same name was already in scope.
+
 A modifier keyword may occur before the routine keyword in a named routine:
 
+    only sub foo {...}
     proto sub foo {...}
     multi sub foo {...}
+
+    only method bar {...}
     proto method bar {...}
     multi method bar {...}
 
 If the routine keyword is omitted, it defaults to C<sub>.
+
+Modifier keywords cannot apply to anonymous routines.
 
 =head2 Named subroutines
 
