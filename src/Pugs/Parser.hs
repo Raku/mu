@@ -414,7 +414,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     -- Don't add the sub if it's unsafe and we're in safemode.
     if "unsafe" `elem` traits && safeMode then return emptyExp else do
     (`finallyM` clearDynParsers) $ case scope of
-        SOur | isQualifiedVar var && isExported -> do
+        SOur | isExported -> do
             -- we mustn't perform the export immediately upon parse, because
             -- then only the first consumer of a module will see it. Instead,
             -- make a note of this symbol being exportable, and defer the
