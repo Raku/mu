@@ -4,7 +4,8 @@ module Pugs.AST.SIO (
     MonadSTM(..),
 
     SIO,
-    runSTM, runIO, liftIO, runSIO,
+
+    runSTM, runIO, liftIO, runSIO, stm, io,
 
     module Control.Concurrent.STM
 ) where
@@ -69,3 +70,9 @@ instance MonadSTM SIO where
 
 instance MonadIO SIO where
     liftIO io = MkIO io
+
+stm :: (MonadSTM m) => STM a -> m a
+stm = liftSTM
+
+io :: (MonadIO m) => IO a -> m a
+io = liftIO
