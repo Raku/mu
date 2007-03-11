@@ -101,14 +101,15 @@ staticLevels =
       (DependentPostfix listAssignment :) .
       (DependentPostfix immediateBinding :) .
       (rightAssignSyn :) .
-      (rightDotAssignSyn :) $
+      (rightDotAssignSyn :) .
+      (rightSyn (opWords " := ") ++) $
       rightSyn infixAssignmentOps
     , preOps (opWords " true not ")                              -- Loose unary
     ]
 
 infixAssignmentOps :: Set OpName
 infixAssignmentOps = opWords
-    ( " := ~= += -= *= /= %= x= Z= X= **= xx= ||= &&= //= ^^= "
+    ( " ~= += -= *= /= %= x= Z= X= **= xx= ||= &&= //= ^^= "
     ++ " +<= +>= ~<= ~>= +&= +|= +^= ~&= ~|= ~^= ?|= ?^= |= ^= &= "
     )
 
