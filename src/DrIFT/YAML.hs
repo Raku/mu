@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -funbox-strict-fields -fallow-overlapping-instances -fvia-C #-}
+{-# OPTIONS_GHC -fglasgow-exts -funbox-strict-fields -fallow-overlapping-instances -fvia-C -fparr #-}
 
 module DrIFT.YAML where
 import Data.Yaml.Syck
@@ -12,6 +12,7 @@ import qualified Data.IntSet as IntSet
 import Foreign.StablePtr
 import Foreign.Ptr
 import Control.Monad.Reader
+import GHC.PArr
 import qualified UTF8 as Buf
 import qualified Data.ByteString as Bytes
 import Pugs.Internals (encodeUTF8, decodeUTF8)
@@ -71,6 +72,10 @@ asYAMLmapBuf c ps = do
         k' <- asYAML k
         v' <- v
         return (k', v')
+
+fromYAMLseq :: YAML a => YamlNode -> IO [a]
+fromYAMLseq MkNode{n_elem=ESeq m} = mapM fromYAML m
+fromYAMLseq e = fail $ "no parse: " ++ show e
 
 fromYAMLmap :: YAML a => YamlNode -> IO [(String, a)]
 fromYAMLmap MkNode{n_elem=EMap m} = mapM fromYAMLpair m
@@ -179,6 +184,13 @@ instance (YAML a) => YAML [a] where
     fromYAMLElem (ESeq s) = mapM fromYAML s
     fromYAMLElem e = fail $ "no parse: " ++ show e
 
+instance (YAML a) => YAML [:a:] where
+    asYAML xs = do
+        xs' <- mapM asYAML (fromP xs)
+        (return . mkNode . ESeq) xs'
+    fromYAMLElem (ESeq s) = fmap toP (mapM fromYAML s)
+    fromYAMLElem e = fail $ "no parse: " ++ show e
+
 instance (YAML a, YAML b) => YAML (a, b) where
     asYAML (x, y) = do
         x' <- asYAML x
@@ -228,4 +240,3 @@ failWith e = fail $ "no parse: " ++ show e ++ " as " ++ show typ
     where
     typ :: TypeRep
     typ = typeOf (undefined :: a)
-
