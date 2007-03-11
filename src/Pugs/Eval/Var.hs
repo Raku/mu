@@ -27,7 +27,7 @@ findVar var
     | otherwise = do
         rv <- findVarRef var
         case rv of
-            Just ref -> fmap Just $ liftSTM (readTVar ref)
+            Just ref -> fmap Just (readPadEntry ref)
             Nothing
                 | SCode == v_sigil var || SCodeMulti == v_sigil var -> do
                     sub <- findSub var Nothing []
@@ -35,24 +35,27 @@ findVar var
                 | otherwise -> return Nothing
 
 
-lookupShellEnvironment :: ByteString -> Eval (Maybe (TVar VRef))
+constPadEntry :: VRef -> PadEntry
+constPadEntry r = EntryConstant{ pe_type = refType r, pe_value = r }
+
+lookupShellEnvironment :: ByteString -> Eval (Maybe PadEntry)
 lookupShellEnvironment name = do
     exists <- evalExp $ App (_Var "&exists") (Just (_Var "%*ENV")) [Val (VStr $ cast name)]
     case exists of
         VBool False -> do
-            retError "no such ENV variable" name
+            die "no such ENV variable" name
         _           -> do
             rv   <- enterLValue (evalExp $ Syn "{}" [_Var "%*ENV", Val (VStr $ cast name)])
-            tvar <- liftSTM . newTVar =<< fromVal rv
-            return (Just tvar)
+            ref  <- fromVal rv
+            return (Just (constPadEntry ref))
 
-findVarRef :: Var -> Eval (Maybe (TVar VRef))
+findVarRef :: Var -> Eval (Maybe PadEntry)
 findVarRef var@MkVar{ v_sigil = sig, v_twigil = twi, v_name = name, v_package = pkg }
     | Just var' <- dropVarPkg (__"CALLER") var = do
         maybeCaller <- asks envCaller
         case maybeCaller of
             Just env -> local (const env) $ findVarRef var'
-            Nothing -> retError "cannot access CALLER:: in top level" var
+            Nothing -> die "cannot access CALLER:: in top level" var
 
     | Just var' <- dropVarPkg (__"ENV") var = fix $ \upLevel -> do
         maybeCaller <- asks envCaller
@@ -70,7 +73,7 @@ findVarRef var@MkVar{ v_sigil = sig, v_twigil = twi, v_name = name, v_package = 
         maybeOuter <- asks envOuter
         case maybeOuter of
             Just env -> local (const env) $ findVarRef var'
-            Nothing -> retError "cannot access OUTER:: in top level" name
+            Nothing -> die "cannot access OUTER:: in top level" name
 
     | pkg /= emptyPkg = doFindVarRef var
 
@@ -78,9 +81,7 @@ findVarRef var@MkVar{ v_sigil = sig, v_twigil = twi, v_name = name, v_package = 
         rv  <- getMagical var
         case rv of
             Nothing  -> doFindVarRef var
-            Just val -> do
-                tvar <- liftSTM $ newTVar (MkRef . constScalar $ val)
-                return $ Just tvar
+            Just val -> return (Just (constPadEntry (MkRef . constScalar $ val)))
 
     | SHash <- sig, nullID == name = do
         {- %CALLER::, %OUTER::, %Package::, etc, all recurse to here. -}
@@ -88,29 +89,26 @@ findVarRef var@MkVar{ v_sigil = sig, v_twigil = twi, v_name = name, v_package = 
         let plist   = padToList pad
         hlist <- mapM padEntryToHashEntry plist
         let hash    = IHash $ Map.fromList hlist
-        let hashref = MkRef hash
-        tvar <- liftSTM $ newTVar hashref
-        return $ Just tvar
+        return $ Just (constPadEntry $ MkRef hash)
     | otherwise = doFindVarRef var
     where
-    padEntryToHashEntry :: (Var, [(TVar Bool, TVar VRef)]) -> Eval (VStr, Val)
-    padEntryToHashEntry (key, (_, tvref) : _) = do
-        vref   <- liftSTM (readTVar tvref)
+    padEntryToHashEntry :: (Var, PadEntry) -> Eval (VStr, Val)
+    padEntryToHashEntry (key, entry) = do
+        vref   <- readPadEntry entry
         let val = VRef vref
         return (cast key, val)
-    padEntryToHashEntry (_, []) = fail "Nonexistant var in pad?"
 
-doFindVarRef :: Var -> Eval (Maybe (TVar VRef))
+doFindVarRef :: Var -> Eval (Maybe PadEntry)
 doFindVarRef var = do
-    lexSym  <- fmap (findSym var . envLexical) ask
+    lexSym  <- fmap (lookupPad var . envLexical) ask
     if isJust lexSym then return lexSym else do
-    -- XXX - this is bogus; we should not fallback if it's not in lex csope.
+    -- XXX - this is bogus; we should not fallback if it's not in lex scope.
     glob    <- liftSTM . readTVar . envGlobal =<< ask
     var'    <- toQualified var
-    let globSym = findSym var' glob
+    let globSym = lookupPad var' glob
     if isJust globSym then return globSym else do
     -- XXX - ditto for globals
-    let globSym = findSym (toGlobalVar var) glob
+    let globSym = lookupPad (toGlobalVar var) glob
     if isJust globSym then return globSym else do
     return Nothing
 
@@ -156,6 +154,7 @@ _NEXT :: ByteString
 _NEXT = __"NEXT"
 
 
+-- This no longer handles multi dispatch now. Yay!
 findSub :: Var        -- ^ Name, with leading @\&@.
         -> Maybe Exp  -- ^ Invocant
         -> [Exp]      -- ^ Other arguments
@@ -202,7 +201,7 @@ findSub _var _invs _args
         either (flip findBuiltinSub var) (return . Right) subs
 
     evalInvType :: Exp -> Eval Type
-    evalInvType x = inferExpType $ unwrap x
+    evalInvType x = inferExpType x
 
     withExternalCall callMeth inv = do
         fmap (err . NoSuchMethod $ valType inv) $ do
@@ -295,7 +294,7 @@ findSub _var _invs _args
 
     -- findSub' :: (_var :: Var, _invs :: Maybe Exp, _args :: [Exp]) => Var -> Eval (Maybe VCode)
     findSub' var = do
-        subSyms     <- findSyms var
+        subSyms     <- findCodeSyms var
         lens        <- mapM argSlurpLen _invs_args
         doFindSub lens subSyms
 
@@ -327,8 +326,7 @@ findSub _var _invs _args
 
     -- subs :: (_invs :: Maybe Exp, _args :: [Exp])
     --     => Int -> [(Var, Val)] -> Eval [((Bool, Bool, Int, Int), VCode)]
-    subs slurpLens subSyms = fmap catMaybes . forM subSyms $ \(_, val) -> do
-        sub@(MkCode{ subReturns = ret }) <- fromVal val
+    subs slurpLens subSyms = fmap catMaybes . forM subSyms $ \sub@MkCode{ subReturns = ret } -> do
         let (named, positional) = partition isNamedArg _invs_args
             isNamedArg (Syn "named" _) = True
             isNamedArg _               = False
@@ -353,7 +351,10 @@ findSub _var _invs _args
     -- findBuiltinSub :: (_var :: Var, _invs :: Maybe Exp, _args :: [Exp])
     --     => FindSubFailure -> Var -> Eval (Either FindSubFailure VCode)
     findBuiltinSub failure var = do
-        sub <- findSub' var
+        subSyms     <- findCodeSyms var
+        if null subSyms then (fmap (err NoSuchSub) (possiblyBuildMetaopVCode var)) else do
+        lens        <- mapM argSlurpLen _invs_args
+        sub         <- doFindSub lens subSyms
         maybe (fmap (err failure) $ possiblyBuildMetaopVCode var) (return . Right) sub
 
     -- firstArg :: (_args :: [Exp]) => [Exp]
@@ -506,7 +507,7 @@ inferExpType (App (Var name) invs args) = do
 inferExpType (Ann (Cxt cxt) _) | typeOfCxt cxt /= (mkType "Any") = return $ typeOfCxt cxt
 inferExpType (Ann _ exp) = inferExpType exp
 inferExpType (Pad _ _ exp) = inferExpType exp
-inferExpType (Sym _ _ exp) = inferExpType exp
+inferExpType (Sym _ _ _ exp) = inferExpType exp
 inferExpType (Stmts _ exp) = inferExpType exp
 inferExpType (Syn "," _)    = return $ mkType "List"
 inferExpType (Syn "\\[]" _) = return $ mkType "Array"
@@ -575,28 +576,33 @@ posSym f = fmap (Just . castV . f) $ asks envPos
 constSym :: String -> Eval (Maybe Val)
 constSym = return . Just . VStr
 
-findSyms :: Var -> Eval [(Var, Val)]
-findSyms var
+-- Find symbols, up and including multis.
+findCodeSyms :: Var -> Eval [VCode]
+findCodeSyms var
     | isGlobalVar var    = findWith findGlobal
     | isQualifiedVar var = case dropVarPkg (__"OUTER") var of
         Just var' -> do
             maybeOuter <- asks envOuter
             case maybeOuter of
-                Just env -> local (const env) $ findSyms var'
+                Just env -> local (const env) $ findCodeSyms var'
                 Nothing  -> return []
         _              -> findWith findQualified
-    | otherwise         = findWith (findLexical `mplus` findPackage)
+    | SCode <- v_sigil var      = findWith (findLexical `mplus` findPackage)
+    | SCodeMulti <- v_sigil var = findWith (findLexical `mplus` findPackage)
+    | otherwise                 = do
+        rv <- findWith findLexical
+        if null rv then findWith findPackage else return rv
     where
     findWith f = runMaybeT f >>= maybe (return []) return
 
     -- $x should look up $x in the current pad first.
-    findLexical :: MaybeT Eval [(Var, Val)]
+    findLexical :: MaybeT Eval [VCode]
     findLexical = do
         lex <- lift $ asks envLexical
         padSym lex var
         
     -- $x then fallbacks to $This::Package::x, or maybe $*x.
-    findPackage :: MaybeT Eval [(Var, Val)]
+    findPackage :: MaybeT Eval [VCode]
     findPackage = do
         glob <- lift $ askGlobal
         pkg  <- lift $ asks envPackage
@@ -605,28 +611,29 @@ findSyms var
             `mplus` padSym glob (toGlobalVar var)
 
     -- $Foo::x is just $Foo::x, or maybe $*Foo::x.
-    findQualified :: MaybeT Eval [(Var, Val)]
+    findQualified :: MaybeT Eval [VCode]
     findQualified = do
         glob <- lift $ askGlobal
         padSym glob var
             `mplus` padSym glob (toGlobalVar var)
 
     -- $*Foo::x is just that.
-    findGlobal :: MaybeT Eval [(Var, Val)]
+    findGlobal :: MaybeT Eval [VCode]
     findGlobal = do
         glob <- lift $ askGlobal
         padSym glob (toGlobalVar var)
 
-    padSym :: Pad -> Var -> MaybeT Eval [(Var, Val)]
-    padSym pad var = do
-        case lookupPad var pad of
-            Just tvars -> lift $ do
-                refs <- liftSTM $ mapM readTVar tvars
-                forM refs $ \ref -> do
-                    val <- readRef ref
-                    return (var, val)
-            Nothing -> mzero
+    padSym :: Pad -> Var -> MaybeT Eval [VCode]
+    padSym pad var@MkVar{ v_sigil = SCode } = padSym' pad var `mplus` padSym' pad var{ v_sigil = SCodeMulti }
+    padSym pad var = padSym' pad var
 
+    padSym' :: Pad -> Var -> MaybeT Eval [VCode]
+    padSym' pad var = do
+        case lookupPad var pad of
+            Just entry -> lift $ do
+                ref     <- readPadEntry entry
+                readCodesFromRef ref
+            Nothing -> mzero
 
 data ArityMatchData = MkArityMatchData
     { d_reqLen      :: !Int
