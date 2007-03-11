@@ -90,6 +90,13 @@ instance YAML (Maybe Env) where
 instance YAML (Eval Val) where
     asYAML x = asYAML =<< fakeEval x
     fromYAML x = return =<< fromYAML x
+instance (Ord a, YAML a) => YAML (Set a) where
+    asYAML x = do
+        x' <- mapM asYAML (Set.toAscList x)
+        (return . mkTagNode "Set" . ESeq) x'
+    fromYAML node = do
+        fmap Set.fromDistinctAscList (fromYAMLseq node)
+
 instance YAML a => YAML (Map String a) where
     asYAML x = asYAMLmap "Map" $ Map.toAscList (Map.map asYAML x)
     fromYAML node = fmap Map.fromList (fromYAMLmap node)
@@ -102,10 +109,17 @@ instance YAML a => YAML (Map Var a) where
 instance Typeable a => YAML (IVar a) where
     asYAML x = asYAML (MkRef x)
 instance YAML VRef where
-    asYAML (MkRef (ICode cv)) = do
-        VCode vsub  <- fakeEval $ fmap VCode (code_fetch cv)
-        vsubC       <- asYAML vsub
-        return $ mkTagNode (tagHs "VCode") $ ESeq [vsubC]
+    asYAML (MkRef (ICode cv))
+        | Just mc <- fromTypeable cv = do
+            mcC <- asYAML (mc :: VMultiCode)
+            return $ mkTagNode (tagHs "VMultiCode") $ ESeq [mcC]
+        | Just ic <- fromTypeable cv = do
+            icC <- asYAML (ic :: ICode)
+            return $ mkTagNode (tagHs "ICode") $ ESeq [icC]
+        | otherwise = do
+            VCode vsub  <- fakeEval $ fmap VCode (code_fetch cv)
+            vsubC       <- asYAML vsub
+            return $ mkTagNode (tagHs "VCode") $ ESeq [vsubC]
     asYAML (MkRef (IScalar sv)) = do
         val <- fakeEval $ scalar_fetch sv
         svC <- asYAML val
@@ -131,6 +145,10 @@ instance YAML VRef where
         liftIO $ print svC
         fail ("Not implemented: asYAML \"" ++ showType (refType ref) ++ "\"")
     fromYAML MkNode{n_tag=Just s, n_elem=ESeq [node]}
+        | s == packBuf "tag:hs:VMultiCode"   =
+            fmap (MkRef . ICode) (fromYAML node :: IO VMultiCode)
+        | s == packBuf "tag:hs:ICode"   =
+            fmap (MkRef . ICode) (fromYAML node :: IO ICode)
         | s == packBuf "tag:hs:VCode"   =
             fmap (MkRef . ICode) (fromYAML node :: IO VCode)
         | s == packBuf "tag:hs:VScalar" =
@@ -548,8 +566,8 @@ instance YAML Exp where
 	    let ESeq [aa, ab, ac] = e
 	    liftM3 Pad (fromYAML aa) (fromYAML ab) (fromYAML ac)
 	"Sym" -> do
-	    let ESeq [aa, ab, ac] = e
-	    liftM3 Sym (fromYAML aa) (fromYAML ab) (fromYAML ac)
+	    let ESeq [aa, ab, ac, ad] = e
+	    liftM4 Sym (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad)
 	"Stmts" -> do
 	    let ESeq [aa, ab] = e
 	    liftM2 Stmts (fromYAML aa) (fromYAML ab)
@@ -574,8 +592,8 @@ instance YAML Exp where
     asYAML (Ann aa ab) = asYAMLseq "Ann" [asYAML aa, asYAML ab]
     asYAML (Pad aa ab ac) = asYAMLseq "Pad"
 	   [asYAML aa, asYAML ab, asYAML ac]
-    asYAML (Sym aa ab ac) = asYAMLseq "Sym"
-	   [asYAML aa, asYAML ab, asYAML ac]
+    asYAML (Sym aa ab ac ad) = asYAMLseq "Sym"
+	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad]
     asYAML (Stmts aa ab) = asYAMLseq "Stmts" [asYAML aa, asYAML ab]
     asYAML (Prim aa) = asYAMLseq "Prim" [asYAML aa]
     asYAML (Val aa) = asYAMLseq "Val" [asYAML aa]
@@ -593,16 +611,23 @@ instance YAML InitDat where
 
 instance YAML PadEntry where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
-	"MkEntry" -> do
-	    let ESeq [aa] = e
-	    liftM MkEntry (fromYAML aa)
-	"MkEntryMulti" -> do
-	    let ESeq [aa] = e
-	    liftM MkEntryMulti (fromYAML aa)
-	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkEntry","MkEntryMulti"] ++ " in node " ++ show e
+	"EntryLexical" -> do
+	    let ESeq [aa, ab, ac, ad] = e
+	    liftM4 EntryLexical (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad)
+	"EntryStatic" -> do
+	    let ESeq [aa, ab, ac] = e
+	    liftM3 EntryStatic (fromYAML aa) (fromYAML ab) (fromYAML ac)
+	"EntryConstant" -> do
+	    let ESeq [aa, ab] = e
+	    liftM2 EntryConstant (fromYAML aa) (fromYAML ab)
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["EntryLexical","EntryStatic","EntryConstant"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML (MkEntry aa) = asYAMLseq "MkEntry" [asYAML aa]
-    asYAML (MkEntryMulti aa) = asYAMLseq "MkEntryMulti" [asYAML aa]
+    asYAML (EntryLexical aa ab ac ad) = asYAMLseq "EntryLexical"
+	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad]
+    asYAML (EntryStatic aa ab ac) = asYAMLseq "EntryStatic"
+	   [asYAML aa, asYAML ab, asYAML ac]
+    asYAML (EntryConstant aa ab) = asYAMLseq "EntryConstant"
+	   [asYAML aa, asYAML ab]
 
 instance YAML IHashEnv where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
@@ -660,6 +685,16 @@ instance YAML CompUnit where
     fromYAML _ = fail "no tag found"
     asYAML (MkCompUnit aa ab ac) = asYAMLseq "MkCompUnit"
 	   [asYAML aa, asYAML ab, asYAML ac]
+
+instance YAML VMultiCode where
+    fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
+	"MkMultiCode" -> do
+	    let ESeq [aa, ab, ac, ad] = e
+	    liftM4 MkMultiCode (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad)
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkMultiCode"] ++ " in node " ++ show e
+    fromYAML _ = fail "no tag found"
+    asYAML (MkMultiCode aa ab ac ad) = asYAMLseq "MkMultiCode"
+	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad]
 
 instance YAML VJunc where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
