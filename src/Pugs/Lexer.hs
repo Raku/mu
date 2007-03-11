@@ -375,19 +375,17 @@ ruleScope = rule "scope" $ do
     return $ readScope scope
     where
     readScope "state"   = SState
+    readScope "has"     = SHas
     readScope "my"      = SMy
     readScope "our"     = SOur
-    readScope "let"     = SLet
-    readScope "temp"    = STemp
-    readScope "env"     = SEnv
-    readScope "constant"= SMy
-    readScope _         = SGlobal
+    readScope "constant"= SConstant
+    readScope _         = SState
 
 ruleScopeName :: RuleParser String
 ruleScopeName = choice $ map symbol scopeNames
 
 scopeNames :: [String]
-scopeNames = ("constant":) . map (map toLower) . map (tail . show) $ [SState .. SOur]
+scopeNames = map (map toLower) . map (tail . show) $ ([minBound .. maxBound] :: [Scope])
 
 postSpace :: RuleParser a -> RuleParser a
 postSpace rule = try $ do
