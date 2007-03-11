@@ -70,7 +70,7 @@ plan 9;
     my @a;
     my @b;
 
-    (@a ¥ @b) = (1, 2, 3, 4);
+    (@a Z @b) = (1, 2, 3, 4);
     # XXX - The arrays below are most likely Seq's
     is(@a, [1, 3], "first half of two zipped arrays as lvalues", :todo);
     is(@b, [2, 4], "second half of the lvalue zip", :todo);
