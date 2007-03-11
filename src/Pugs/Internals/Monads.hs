@@ -2,7 +2,10 @@
 
 module Pugs.Internals.Monads (
     internalError,
+    fatalError,
+
     traceM,
+
     warn,
     die,
 
@@ -107,10 +110,13 @@ internalError :: String -> a
 internalError s = error $
     "Internal error:\n    " ++ s ++ "\nPlease file a bug report."
 
-die :: (MonadIO m, Show a) => String -> a -> m b
-die x y = do
+fatalError :: (MonadIO m, Show a) => String -> a -> m b
+fatalError x y = do
     warn x y
     liftIO $ exitFailure
+
+die :: (Monad m, Show a) => String -> a -> m b
+die str a = fail $ str ++ ": " ++ show a
 
 warn :: (MonadIO m, Show a) => String -> a -> m ()
 warn str val = liftIO $ do
