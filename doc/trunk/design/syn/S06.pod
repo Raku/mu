@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 10 Mar 2007
+  Last Modified: 11 Mar 2007
   Number: 6
-  Version: 75
+  Version: 76
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -1680,61 +1680,98 @@ could happen more than once).
 
 =head2 The C<context> and C<caller> functions
 
-The C<context> function returns an object that describes a particular 
-dynamic scope, either the current dynamic scope or some outer dynamic
-scope from which the current scope was called.  The current context
-is numbered 0, and the immediate caller is numbered 1:
+The C<context> function takes a list of matchers and interprets them
+as a navigation path from the current context to a location in the
+dynamic scope, either the current context itself or some context
+from which the current context was called.  It returns an object
+that describes that particular dynamic scope, or a false value if
+there is no such scope.  Numeric arguments are interpreted as number
+of contexts to skip, while non-numeric arguments scan outward for a
+context matching the argument as a smartmatch.
+
+The current context is accessed with a null argument list.
+
+    say " file ", context().file,
+        " line ", context().line;
+
+which is equivalent to:
+
+    say " file ", CONTEXT::<$?FILE>,
+        " line ", CONTEXT::<$?LINE>;
+
+The immediate caller of this context is accessed by skipping one level:
 
     say " file ", context(1).file,
         " line ", context(1).line;
 
-The C<caller> function is defined as
+You might think that that must be the current function's caller,
+but that's not necessarily so.  This might return an outer block in
+our own routine, or even some function elsewhere that implements a
+control operator on behalf of our block.
 
-    &caller ::= &context.assuming(1, *);
+The C<caller> function is special-cased to pay attention only to
+the current C<Routine> scope.  It is defined as navigating to the
+innermost scope matching <&?ROUTINE> (which may be a no-op when
+immediately inside a routine) and then going out one context from that:
 
-so the preceding example can also be written:
+    &caller ::= &context.assuming(&?ROUTINE,1);
+
+So to find where the current routine was called you can say:
 
     say " file ", caller.file,
         " line ", caller.line;
 
-or even
+which is equivalent to:
 
     say " file ", CALLER::<$?FILE>,
         " line ", CALLER::<$?LINE>;
 
 The C<caller> function always returns the immediate caller's context,
 but the more general C<context> function may be given arguments
-telling it which higher scope to look for.  The first argument is always
-a count of how many contexts to skip:
+telling it which higher scope to look for.  Each argument is processed
+in order, left to right.  Note that C<Any> and C<0> are no-ops:
 
-    $ctx = context(0);     # context(0), my own context
-    $ctx = context(1);     # context(1), my caller's context
-    $ctx = context(2);     # context(2), my caller's caller's context
-    $ctx = context($i);    # $i'th caller's context
+    $ctx = context();        # currently running context for &?BLOCK
+    $ctx = context(Any);     # currently running context for &?BLOCK
+    $ctx = context(Any,Any); # currently running context for &?BLOCK
+    $ctx = context(1);       # my context's context
+    $ctx = context(2);       # my context's context's context
+    $ctx = context(3);       # my context's context's context's context
+    $ctx = context(1,0,1,1); # my context's context's context's context
+    $ctx = context($i);      # $i'th context
 
-The second argument is optional and is a matcher to apply against the
-context object.  The first argument only counts matching contexts:
+Repeating any smartmatch just matches the same context again unless
 
-    $ctx = context(0, Method);           # nearest context that is method
-    $ctx = context(1, Method);           # 2nd nearest context that is method
-    $ctx = context(1, Method).caller;    # caller of that 2nd nearest method
-    $ctx = context(0, Block);            # nearest context that is block
-    $ctx = context(2, Sub);              # 3rd nearest sub context
-    $ctx = context(0, Block where { .label eq 'Foo' });
-                                        # nearest context whose label is 'Foo'
+    $ctx = context(Method);              # nearest context that is method
+    $ctx = context(Method,Method);       # nearest context that is method
+    $ctx = context(Method,1,Method);     # 2nd nearest method context
+    $ctx = context(Method,1,Method,1)    # caller of that 2nd nearest method
+    $ctx = context(1,Block);             # nearest outer context that is block
+    $ctx = context(Sub,Sub,Sub);         # 3rd nearest sub context
+    $ctx = context({ .label eq 'Foo' }); # nearest context whose label is 'Foo'
 
 Note that this last potentially differs from the answer returned by
 
     Foo.context
 
-which returns the context of the innermost Foo block in the lexical scope
-rather than the dynamic scope.
+which returns the context of the innermost C<Foo> block in the lexical scope
+rather than the dynamic scope.  A context also responds to the C<.context>
+method, so a given context may be used as the basis for further navigation:
+
+    $ctx = context(Method,1,Method);
+    $ctx = context(Method).context(1).context(Method);     # same
+
+You must supply args to get anywhere else, since C<.context> is
+the identity operator when called on something that is already
+a C<Context>:
+
+    $ctx = context;
+    $ctx = context.context.context.context;                # same
 
 The returned context object supports at least the following methods:
 
     .want
     .context
-    .caller
     .file
     .line
     .subname
@@ -1748,9 +1785,13 @@ that is not marked as C<< context<rw> >>.
 
 =head2 The C<want> function
 
-The C<want> function returns a C<Signature> object that contains information
-about the context in which the current block, closure, or subroutine was
-called.  The C<want> function is really just short for C<context(0).want>.
+The C<want> function returns a C<Signature> object that contains
+information about the context in which the current block, closure,
+or subroutine was called.  The C<want> function is really just
+short for C<caller.want>.  (Note that this is what your current
+routine's caller wants from your routine, not necessarily the same as
+C<context.want> when you are embedded in a block within a subroutine.
+Use C<context.want> if that's what you want.)
 
 As with normal function signatures, you can test the result of C<want> with a
 smart match (C<~~>) or a C<when>:
@@ -1804,7 +1845,7 @@ instead.  (It can be taken to mean either "go away from" or "bequeath
 to your successor" as appropriate.)  The object specifies the scope to exit,
 and the method's arguments specify the return value.  If the object
 is omitted (by use of the function or listop forms), the innermost
-block is exited.  Otherwise you must use something like C<caller>
+block is exited.  Otherwise you must use something like C<context>
 or C<$?BLOCK> or a contextual variable to specify the scope you
 want to exit.  A label (such as a loop label) previously seen in
 the lexical scope also works as a kind of singleton context object:
@@ -1815,7 +1856,7 @@ As with C<return>, the arguments are taken to be a C<Capture> holding the
 return values.
 
     leave;                      # return from innermost block of any kind
-    caller(Method).leave;       # return from innermost calling method
+    context(Method).leave;      # return from innermost calling method
     &?ROUTINE.leave(1,2,3);     # Return from current sub. Same as: return 1,2,3
     &?ROUTINE.leave <== 1,2,3;  # same thing, force return as feed
     OUTER.leave;                # Return from OUTER label in lexical scope
