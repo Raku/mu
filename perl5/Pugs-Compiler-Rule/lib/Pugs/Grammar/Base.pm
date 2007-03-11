@@ -26,7 +26,7 @@ sub no_match {
 *fail = \&no_match;
 
 *any = Pugs::Compiler::RegexPerl5->compile( 
-    '.' 
+    '\X' 
 )->code;
 
 # <<word

@@ -168,6 +168,29 @@ sub quant {
     # TODO: *? +? ??
     # TODO: *+ ++ ?+
     # TODO: quantifier + capture creates Array
+    #warn Dumper( $quantifier );
+    if ( ref( $quantifier ) eq 'HASH' ) 
+    {
+        my $code = $quantifier->{closure};
+        if ( ref( $code ) ) {
+            if ( defined $Pugs::Compiler::Perl6::VERSION ) {
+                #print " perl6 compiler is loaded \n";
+                $code = Pugs::Emitter::Perl6::Perl5::emit( 'grammar', $code, 'self' );
+            } 
+        };
+        my @count = eval $code;
+        #warn "code: $code = [ @count ]";
+        
+        die "quantifier not implemented: " . Dumper( $quantifier )
+            if @count ne 1
+            || $count[0] == 0;
+        
+        return
+            "$_[1] (\n " .
+            join( ' && ', ($rul) x $count[0] ) .
+            "\n" .
+            "$_[1] ) $ws3";
+    }
     return 
         "$_[1] (\n$rul\n" .
         "$_[1] || ( \$bool = 1 )\n" .

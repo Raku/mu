@@ -62,6 +62,7 @@ sub emit {
     local %capture_seen = ();
     #print "emit capture_to_array $capture_to_array\n";
     # print "emit: ", Dumper($ast);
+    #die emit_rule( $ast, '    ' );
     
     return 
 "do {
@@ -169,7 +170,18 @@ sub non_capturing_group {
 sub quant {
     my $term = $_[0]->{'term'};
     my $quantifier = $_[0]->{quant}  || '';
-    my $greedy     = $_[0]->{greedy} || '';   # + ?    
+    my $greedy     = $_[0]->{greedy} || '';   # + ?   
+    
+    if ( ref( $quantifier ) eq 'HASH' ) 
+    {
+        die "quantifier not implemented: " . Dumper( $quantifier );
+
+        #return 
+        #    "$_[1] concat(\n" .
+        #    join( ',', ($rul) x $count ) .
+        #    "$_[1] )\n";
+    }
+       
     my $quant = $quantifier . $greedy;
     my $sub = { 
             '*' =>'greedy_star',     
@@ -283,14 +295,14 @@ sub variable {
 sub special_char {
     my ($char, $data) = $_[0] =~ /^.(.)(.*)/;
 
-    return  "$_[1] perl5( '\\N{$data}' )\n"
+    return  "$_[1] perl5( '\\N{" . join( "}\\N{", split( /;/, $data ) ) . "}' )\n"
         if $char eq 'c';
-    return  "$_[1] perl5( '(?!\\N{$data}).' )\n"
+    return  "$_[1] perl5( '(?!\\N{" . join( "}\\N{", split( /;/, $data ) ) . "})\\X' )\n"
         if $char eq 'C';
 
     return  "$_[1] perl5( '\\x{$data}' )\n"
         if $char eq 'x';
-    return  "$_[1] perl5( '(?!\\x{$data}).' )\n"
+    return  "$_[1] perl5( '(?!\\x{$data})\\X' )\n"
         if $char eq 'X';
 
     return special_char( sprintf("\\x%X", oct($data) ) )
@@ -298,21 +310,21 @@ sub special_char {
     return special_char( sprintf("\\X%X", oct($data) ) )
         if $char eq 'O';
 
-    return  "$_[1] perl5( '(?:\\n\\r?|\\r\\n?)' )\n"
+    return  "$_[1] perl5( '(?:\\n\\r?|\\r\\n?|\\x85|\\x{2028})' )\n"
         if $char eq 'n';
-    return  "$_[1] perl5( '(?!\\n\\r?|\\r\\n?).' )\n"
+    return  "$_[1] perl5( '(?!\\n\\r?|\\r\\n?|\\x85|\\x{2028})\\X' )\n"
         if $char eq 'N';
 
     # XXX - Infinite loop in pugs stdrules.t
     #return metasyntax( '?_horizontal_ws', $_[1] )
-    return "$_[1] perl5( '[\x20\x09]' )\n" 
+    return "$_[1] perl5( '[\\x20\\x09]' )\n" 
         if $char eq 'h';
-    return "$_[1] perl5( '[^\x20\x09]' )\n" 
+    return "$_[1] perl5( '[^\\x20\\x09]' )\n" 
         if $char eq 'H';
     #return metasyntax( '?_vertical_ws', $_[1] )
-    return "$_[1] perl5( '[\x0A\x0D]' )\n" 
+    return "$_[1] perl5( '[\\x0A\\x0D]' )\n" 
         if $char eq 'v';
-    return "$_[1] perl5( '[^\x0A\x0D]' )\n" 
+    return "$_[1] perl5( '[^\\x0A\\x0D]' )\n" 
         if $char eq 'V';
 
     for ( qw( r n t e f w d s ) ) {
@@ -523,8 +535,44 @@ sub metasyntax {
     }
     if ( $prefix =~ /[-+[]/ ) {   # character class 
         #die "SET regex: $cmd\n";
-        $cmd =~ s/\.\./-/g;
-        if ( $cmd =~ /^ - \s* \[ (.*) /x ) {
+        
+        $cmd =~ s/\.\./-/g;  # ranges
+        
+        # TODO - \o \O
+
+        if    ( $cmd =~ /^ \+? \[ \\ c \[ (.*) \] \] /x ) {
+            #$cmd = "(?:\\N{" . join( "}|\\N{", split( /;/, $1 ) ) . "})";
+            $cmd = "[\\N{" . join( "}\\N{", split( /;/, $1 ) ) . "}]";
+        }
+        elsif ( $cmd =~ /^ \+? \[ \\ C \[ (.*) \] \] /x ) {
+            #$cmd = "(?!\\N{" . join( "}|\\N{", split( /;/, $1 ) ) . "})\\X";
+            $cmd = "[^\\N{" . join( "}\\N{", split( /;/, $1 ) ) . "}]";
+        }
+        elsif ( $cmd =~ /^ -  \[ \\ C \[ (.*) \] \] /x ) {
+            #$cmd = "(?:\\N{" . join( "}|\\N{", split( /;/, $1 ) ) . "})";
+            $cmd = "[\\N{" . join( "}\\N{", split( /;/, $1 ) ) . "}]";
+        }
+        elsif ( $cmd =~ /^ -  \[ \\ c \[ (.*) \] \] /x ) {
+            #$cmd = "(?!\\N{" . join( "}|\\N{", split( /;/, $1 ) ) . "})\\X";
+            $cmd = "[^\\N{" . join( "}\\N{", split( /;/, $1 ) ) . "}]";
+        }
+
+        
+        elsif ( $cmd =~ /^ \+? \[ \\ x \[ (.*) \] \] /x ) {
+            $cmd = "(?:\\x{$1})";
+        }
+        elsif ( $cmd =~ /^ \+? \[ \\ X \[ (.*) \] \] /x ) {
+            $cmd = "(?!\\x{$1})\\X";
+        }
+        elsif ( $cmd =~ /^ -  \[ \\ X \[ (.*) \] \] /x ) {
+            $cmd = "(?:\\x{$1})";
+        }
+        elsif ( $cmd =~ /^ -  \[ \\ x \[ (.*) \] \] /x ) {
+            $cmd = "(?!\\x{$1})\\X";
+        }
+        
+        
+        elsif ( $cmd =~ /^ - \s* \[ (.*) /x ) {
            $cmd = '[^' . $1;
         } 
         elsif ( $cmd =~ /^ - \s* (.*) /x ) {

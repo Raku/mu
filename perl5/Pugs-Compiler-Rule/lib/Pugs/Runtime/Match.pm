@@ -48,6 +48,7 @@ sub from  {
     #return ${$obj->{from}} if blessed ${$obj->{from}};
     Pugs::Runtime::StrPos->from_str_codes( ${$obj->{str}}, ${$obj->{from}} );
 }
+sub pos   { $_[0]->to } # pugs pos.t - lvalue ??? 
 sub to    {  
 
     return ${$_data{refaddr $_[0]}->{to}};

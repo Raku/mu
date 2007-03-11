@@ -187,9 +187,19 @@ sub constant {
 }
 
 sub perl5 {
-    my $rx = qr(^($_[0]))s;
+    my $rx;
     no warnings qw( uninitialized );
+    { 
+        local $@;
+        $rx = eval " use charnames ':full'; qr(^($_[0]))s ";
+        #print "regex perl5<< $_[0] >>\n";
+        print "Error in perl5 regex: << $_[0] >> \n$@\n"
+            if $@;
+        #die "Error in perl5 regex: $_[0]"
+        #    if $@;
+    }
     return sub {
+        #use charnames ':full';
         my $bool = substr( $_[0], $_[5] ) =~ m/$rx/;
         $_[3] = Pugs::Runtime::Match->new({ 
                 bool  => \$bool,

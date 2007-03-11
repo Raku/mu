@@ -16,16 +16,7 @@ use v6-alpha;
         use Pugs::Runtime::Regex;
         our %rule_terms;
         our %variables;
-    - replace:  # emitter bug
-            $named{'concat'} = $match;
-            $named{'conjunctive'} = $match;
-
-       - with:
-            push @{ $named{'concat'} }, $match;
-            push @{ $named{'conjunctive'} }, $match;
-
-update: also replace in 'conjunctive1' and 'disjunctive1'
-
+        
 =cut
 
 grammar Pugs::Grammar::Rule;
@@ -66,16 +57,41 @@ token ident {
     [ <?alnum> | _ | <'::'> ]+
 }
 
+# after '\\'
+token special_char {  
+        | ( c | C ) \[ ( [<alnum>|\s|<';'>|<'('>|<')'>]+) \]
+          #  \c[LATIN LETTER A] 
+          { return { special_char => '\\' ~ $0 ~ $1 , } } 
+
+        | [ x | X ] <xdigit>+
+          #  \x0021    \X0021
+          { return { special_char => '\\' ~ $/ , } } 
+        | ( x | X ) \[ (<xdigit>+) \]
+          #  \x[0021]  \X[0021]
+          { return { special_char => '\\' ~ $0 ~ $1 , } } 
+
+        | [ o | O ] \d+
+          #  \o0021    \O0021
+          { return { special_char => '\\' ~ $/ , } } 
+        | ( o | O ) \[ (\d+) \]
+          #  \o[0021]  \O[0021]
+          { return { special_char => '\\' ~ $0 ~ $1 , } } 
+
+        | .
+          #  \e  \E
+          { return { special_char => '\\' ~ $/ , } } 
+}
+
 token literal {
     [ 
-    |  \\ .
+    |  \\ <special_char>
     |  <-[ \' ]> 
     ]*
 }
 
 token metasyntax {
     [ 
-    |  \\ .
+    |  \\ <special_char>
     |  \'  <?literal>     \'
     |  \{  <?string_code>        \}
     |  \<  <?metasyntax>  \>
@@ -86,7 +102,7 @@ token metasyntax {
 
 token char_range {
     [ 
-    |  \\ .
+    |  \\ <special_char>
     |  <-[ \] ]> 
     ]+ 
 }
@@ -99,7 +115,7 @@ token char_class {
 token string_code {
     # bootstrap "code"
     [ 
-    |  \\ .
+    |  \\ <special_char>
     |  \'  <?literal>     \'
     |  \{  <?string_code> \}
     |  <-[ \} ]> 
@@ -290,27 +306,8 @@ token named_capture_body {
         { return { closure => $$<parsed_code> ,} }
     },
     '\\' => token {  
-        | ( c | C ) \[ ( [<alnum>|\s|<';'>]+) \]
-          #  \c[LATIN LETTER A] 
-          { return { special_char => '\\' ~ $0 ~ $1 , } } 
-
-        | [ x | X ] <xdigit>+
-          #  \x0021    \X0021
-          { return { special_char => '\\' ~ $/ , } } 
-        | ( x | X ) \[ (<xdigit>+) \]
-          #  \x[0021]  \X[0021]
-          { return { special_char => '\\' ~ $0 ~ $1 , } } 
-
-        | [ o | O ] \d+
-          #  \o0021    \O0021
-          { return { special_char => '\\' ~ $/ , } } 
-        | ( o | O ) \[ (\d+) \]
-          #  \o[0021]  \O[0021]
-          { return { special_char => '\\' ~ $0 ~ $1 , } } 
-
-        | .
-          #  \e  \E
-          { return { special_char => '\\' ~ $/ , } } 
+        <special_char>
+        { return $$<special_char> }
     },
     '.' => token { 
         { return { 'dot' => 1 ,} }
@@ -434,7 +431,7 @@ token concat {
 token conjunctive1 {
     [ <?ws>? \& ]?
     
-    <concat>
+    <concat>**{1}
     [
         \&  <concat> 
     ]*
@@ -451,7 +448,7 @@ token conjunctive1 {
 token disjunctive1 {
     [ <?ws>? \| ]?
     
-    <conjunctive1>
+    <conjunctive1>**{1}
     [
         \|  <conjunctive1> 
     ]*
@@ -468,7 +465,7 @@ token disjunctive1 {
 token conjunctive {
     [ <?ws>? \& \& ]?
     
-    <disjunctive1>
+    <disjunctive1>**{1}
     [
         \& \& <disjunctive1> 
     ]*
@@ -485,7 +482,7 @@ token conjunctive {
 token rule {
     [ <?ws>? \| \| ]?
     
-    <conjunctive>
+    <conjunctive>**{1}
     [
         \| \| <conjunctive> 
     ]*
