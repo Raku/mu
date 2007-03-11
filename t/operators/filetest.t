@@ -8,7 +8,7 @@ This test tests the various filetest operators.
 
 =cut
 
-plan 38;
+plan 37;
 
 #if $*OS eq any <MSWin32 mingw msys cygwin> {
 #    skip 30, "file tests not fully available on win32";
@@ -68,7 +68,7 @@ ok not 'doesnotexist.t' ~~ :f, "~~:f returns false on non existant files";
 #}
 #else {
   # XXX - Without parens, $*PROGRAM_NAME ~~ :s>42 is chaincomp.
-  ok $*PROGRAM_NAME.TEST(:s) > 42,   "~~:s returns size on existant files";
+  ok(($*PROGRAM_NAME~~:s) > 42,   "~~:s returns size on existant files");
 #}
 ok not "doesnotexist.t" ~~ :s, "~~:s returns false on non existant files";
 
