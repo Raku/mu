@@ -170,9 +170,9 @@ ruleDeclaration = rule "declaration" $ choice
     , ruleTrustsDeclaration
     ]
 
-data ImplicitSub = ImplicitNil | ImplicitMulti | ImplicitProto deriving (Eq)
+data SubModifier = ImplicitNil | ImplicitMulti | ImplicitProto deriving (Eq)
 
-ruleSubHead :: RuleParser (Bool, SubType, String)
+ruleSubHead :: RuleParser (SubModifier, SubType, String)
 ruleSubHead = rule "subroutine head" $ do
     prefix <- choice
         [ symbol "multi" >> return ImplicitMulti
@@ -198,14 +198,14 @@ ruleSubHead = rule "subroutine head" $ do
              return _SubSet_
         ] <|> implicitSub
     name    <- ruleSubName
-    return (prefix == ImplicitMulti, styp, name)
+    return (prefix, styp, name)
 
 -- XXX - Kluged up way to mark a subset parsed as a sub
 _SubSet_ :: SubType
 _SubSet_ = SubPrim
 
 -- | Scope, context, isMulti, styp, name
-type SubDescription = (Scope, String, Bool, SubType, String)
+type SubDescription = (Scope, String, SubModifier, SubType, String)
 
 ruleSubScopedWithContext :: RuleParser SubDescription
 ruleSubScopedWithContext = tryRule "scoped subroutine with context" $ do
@@ -237,8 +237,7 @@ ruleRuleDeclaration = rule "rule declaration" $ do
     if mod == "proto" then return emptyExp else do
     ch      <- char '{'
     expr    <- rxLiteralAny adverbs ch (balancedDelim ch)
-    let exp = Syn ":=" [_Var ('<':'*':name), Syn "rx" [expr, adverbs]]
-    unsafeEvalExp (_Sym SGlobal ('<':'*':name) exp)
+    unsafeEvalExp (_Sym SGlobal ('<':'*':name) (Syn "rx" [expr, adverbs]) Noop)
     insertIntoPosition $ "method " ++ name ++ " ($_) { $_ ~~ m/<" ++ name ++ ">/ };"
     return emptyExp
 
@@ -355,18 +354,18 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
         isBuiltin = ("builtin" `elem` traits)
         isExported = ("export" `elem` traits)
         -- Horrible hack! _Sym "&&" is the multi form.
-        mkMulti | isMulti   = ('&':)
-                | otherwise = id
-        mkExp sub n = Syn ":=" [_Var n, Syn "sub" [Val sub]]
-        mkSym sub n = _Sym scope (mkMulti n) (mkExp sub n)
+        mkMulti | isMulti /= ImplicitNil = ('&':)
+                | otherwise              = id
+        mkSym sub n x = _Sym scope (mkMulti n) (Syn "sub" [Val sub]) x
         var = cast nameQualified
 
     -- We have the prototype now; install it immediately!
     --   fill in what we can about the sub before getting the block (below)
     let template = mkCode
-            { isMulti       = isMulti
+            { isMulti       = isMulti /= ImplicitNil
             , subName       = cast nameQualified
             , subEnv        = Just env
+            , subParams     = maybe [] id formal
             , subType       = if "primitive" `elem` traits
                 then SubPrim else styp
             , subAssoc      = case v_categ var of
@@ -380,14 +379,19 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             }
     sub <- fmap VCode . collectTraits $ template
 
-    
     -- Don't add the sub if it's unsafe and we're in safemode (XXX repeated below)
-    when (not ("unsafe" `elem` traits && safeMode)) $ do 
-        lexDiff <- unsafeEvalLexDiff $ mkSym sub nameQualified
-        addBlockPad scope lexDiff
+    newPad <- if ("unsafe" `elem` traits && safeMode) then return (mkPad []) else do
+        -- This is ignored for multi-dispatch; see Pugs.Eval.Var comment "PROTO"
+        unsafeEvalLexDiff (mkSym sub nameQualified Noop)
+            `finallyM` clearDynParsers
+        {-
+         - env <- getRuleEnv
+        env' <- unsafeEvalEnv (mkSym sub nameQualified Noop)
+        putRuleEnv env'
         clearDynParsers
+        return (envLexical env' `diffPads` envLexical env)
+        -}
 
-    -- bodyPos <- getPosition
     body    <- localEnv ruleBlock
     let (fun, names, params) = doExtract styp formal body
     -- Check for placeholder vs formal parameters
@@ -401,20 +405,22 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
 
     let template' = template
                 { subParams = self ++ paramsFor styp formal params
-                , subBody = fun
-                , subEnv = Just env
+                , subBody   = case isMulti of
+                    ImplicitProto   -> fun -- XXX - Give Proto the tie-breaker status?
+                    _               -> fun
+                , subEnv    = Just env
                 }
     sub <- fmap VCode . collectTraits $ template'
     
     -- Don't add the sub if it's unsafe and we're in safemode.
     if "unsafe" `elem` traits && safeMode then return emptyExp else do
-    case scope of
+    (`finallyM` clearDynParsers) $ case scope of
         SGlobal | isExported -> do
             -- we mustn't perform the export immediately upon parse, because
             -- then only the first consumer of a module will see it. Instead,
             -- make a note of this symbol being exportable, and defer the
             -- actual symbol table manipulation to opEval.
-            Val rv <- unsafeEvalExp $ mkSym sub nameQualified
+            Val rv <- unsafeEvalExp $ mkSym sub nameQualified (_Var (mkMulti nameQualified))
             -- %*INC<This::Package><exports><&this_sub> |= expression-binding-&this_sub
             --    ==>
             -- %This::Package::EXPORTS<&this_sub> |= expression-binding-&this_sub
@@ -431,14 +437,23 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
                 [ Syn "{}" [_Var ("%" ++ pkg ++ "::EXPORTS"), Val $ VStr name]
                 , Val exportedSub
                 ]
-        SGlobal -> do
-            unsafeEvalExp $ mkSym sub nameQualified
-            return emptyExp
+        SGlobal -> unsafeEvalExp $ mkSym sub nameQualified Noop
         _ -> do
-            lexDiff <- unsafeEvalLexDiff $ mkSym sub nameQualified
-            addBlockPad scope lexDiff
-            return $ mkExp sub name
-
+            case lookupPad (cast (mkMulti nameQualified)) newPad of
+                Just EntryConstant{}            -> regenLexicalEntry
+                Just entry                      -> do
+                    addBlockPad scope newPad
+                    Val (VCode code) <- unsafeEvalExp (Syn "sub" [Val sub])
+                    return $! unsafePerformSTM $! do
+                        rv  <- writePadEntry entry $! MkRef (ICode code)
+                        return (rv `seq` emptyExp)
+                _                               -> regenLexicalEntry
+            where
+            regenLexicalEntry = do
+                env' <- unsafeEvalEnv $ mkSym sub nameQualified Noop
+                putRuleEnv env'
+                addBlockPad scope (envLexical env' `diffPads` envLexical env)
+                return $ _Var (mkMulti nameQualified)
 
 ruleSubNamePossiblyWithTwigil :: RuleParser String
 ruleSubNamePossiblyWithTwigil = tryVerbatimRule "subroutine name" $ do
@@ -595,14 +610,14 @@ ruleMemberDeclaration = do
             , subLValue     = "rw" `elem` traits
             , subType       = SubMethod
             }
-        exp = Syn ":=" [_Var name, Syn "sub" [Val $ VCode sub]]
+        exp = Syn "sub" [Val $ VCode sub]
         name | twigil == '.' = '&':(pkg ++ "::" ++ key)
              | otherwise     = '&':(pkg ++ "::" ++ (twigil:key))
         fun = Syn (sigil:"{}") [Ann (Cxt (cxtOfSigil $ cast sigil)) (Syn "{}" [_Var "&self", Val (VStr key)])]
         pkg = cast (envPackage env)
         metaObj = _Var (':':'*':pkg)
         attrDef = Syn "{}" [Syn "{}" [metaObj, Val (VStr "attrs")], Val (VStr key)]
-    unsafeEvalExp (Stmts (_Sym SGlobal name exp) (Syn "=" [attrDef, def]))
+    unsafeEvalExp (_Sym SGlobal name exp (Syn "=" [attrDef, def]))
     return emptyExp
 
 {-
@@ -1072,7 +1087,7 @@ vcode2startBlock code = do
     -- These are the two state variables we need.
     -- This will soon add our two state vars to our pad
     lexDiff <- unsafeEvalLexDiff $
-        (_Sym SState "$?START_RESULT") . (_Sym SState "$?START_RUN") $ emptyExp
+        _Sym SState "$?START_RESULT" emptyExp (_Sym SState "$?START_RUN" emptyExp emptyExp)
     -- And that's the transformation part.
     return $ Syn "block"        -- The outer block
         [ Pad SState lexDiff $  -- state ($?START_RESULT, $?START_RUN);
@@ -1086,19 +1101,18 @@ vcode2startBlock code = do
 vcode2initBlock :: Val -> RuleParser Exp
 vcode2initBlock code = do
     body    <- vcode2startBlock code
-    fstcode <- unsafeEvalExp $ Syn "sub" [ Val $ VCode mkSub { subBody = body } ]
+    let fstcode = Syn "sub" [ Val $ VCode mkSub { subBody = body } ]
     Val res <- unsafeEvalExp $
         App (_Var "&push") (Just $ _Var "@*INIT") [ fstcode ]
-    return (res `seq` App fstcode Nothing [])
+    return (res `seq` emptyExp)
 
 vcode2checkBlock :: Val -> RuleParser Exp
 vcode2checkBlock code = do
     body    <- vcode2startBlock code
-    fstcode <- unsafeEvalExp $ 
-        Syn "sub" [ Val $ VCode mkSub { subBody = checkForIOLeak body } ]
+    let fstcode = Syn "sub" [ Val $ VCode mkSub { subBody = checkForIOLeak body } ]
     Val res <- unsafeEvalExp $
         App (_Var "&unshift") (Just $ _Var "@*CHECK") [ fstcode ]
-    return (res `seq` App fstcode Nothing [])
+    return (res `seq` emptyExp)
 
 -- Constructs ------------------------------------------------
 
@@ -1383,7 +1397,7 @@ ruleVarDecl = rule "variable declaration" $ do
             | ('$':_) <- name, typ /= anyType   = mkSym . bindSym
             | otherwise                         = mkSym
             where
-            mkSym   = _Sym scope' name
+            mkSym   = _Sym scope' name emptyExp
             bindSym = Stmts (Syn "=" [_Var name, Val (VType typ)])
         scope' = if seenIsContextXXX then SEnv else scope -- XXX Hack
     lexDiff <- unsafeEvalLexDiff $ combine (map makeBinding nameTypes) emptyExp
