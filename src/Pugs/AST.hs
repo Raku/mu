@@ -13,7 +13,7 @@
 
 module Pugs.AST (
     evalExp, readCodesFromRef,
-    genMultiSym, genSym, genSymScoped,
+    genMultiSym, genSym, genSymScoped, genPadEntryScoped, mkPadMutator,
     strRangeInf, strRange, strInc,
     mergeStmts, isEmptyParams,
     newPackage, newType, newMetaType, typeMacro, isScalarLValue,
@@ -149,23 +149,29 @@ isStaticScope SOur    = True
 isStaticScope SState  = True
 isStaticScope _       = False
 
--- XXX - SConstant support
-genSymScoped :: MonadSTM m => Scope -> Var -> VRef -> m PadMutator
-genSymScoped scope var ref
+genPadEntryScoped :: MonadSTM m => Scope -> VRef -> m PadEntry
+genPadEntryScoped scope ref
     | SConstant <- scope = do
-        return (makeEntry $ EntryConstant typ ref)
+        return (EntryConstant typ ref)
     | isStaticScope scope = do
         tvar    <- liftSTM $ newTVar ref
-        return (makeEntry $ EntryStatic typ ref tvar)
+        return (EntryStatic typ ref tvar)
     | otherwise = do
         tvar    <- liftSTM $ newTVar ref
         fresh   <- liftSTM $ newTVar True
-        return (makeEntry $ EntryLexical typ ref tvar fresh)
+        return (EntryLexical typ ref tvar fresh)
     where
     typ = refType ref
-    makeEntry entry
-        | SCodeMulti <- v_sigil var = \(MkPad map) -> MkPad (Map.insertWith (mergePadEntry var) var entry map)
-        | otherwise                 = \(MkPad map) -> MkPad (Map.insert var entry map)
+
+genSymScoped :: MonadSTM m => Scope -> Var -> VRef -> m PadMutator
+genSymScoped scope var ref = do
+    entry <- genPadEntryScoped scope ref
+    return (mkPadMutator var entry)
+
+mkPadMutator :: Var -> PadEntry -> PadMutator
+mkPadMutator var entry
+    | SCodeMulti <- v_sigil var = \(MkPad map) -> MkPad (Map.insertWith (mergePadEntry var) var entry map)
+    | otherwise                 = \(MkPad map) -> MkPad (Map.insert var entry map)
 
 {-|
 Create a lexical 'Pad'-transforming transaction that will install a symbol

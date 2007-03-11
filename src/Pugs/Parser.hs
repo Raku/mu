@@ -346,10 +346,9 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     env <- ask
     let pkg = cast (envPackage env)
         nameQualified | ':' `elem` name     = name
---                    | scope <= SMy        = name
                       | isGlobal            = name
                       | isBuiltin           = (head name:'*':tail name)
-                      | otherwise           = (head name:pkg) ++ "::" ++ tail name
+                      | otherwise           = name
         isGlobal = '*' `elem` name
         isBuiltin = ("builtin" `elem` traits)
         isExported = ("export" `elem` traits)

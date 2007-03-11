@@ -405,13 +405,15 @@ reduceSym scope var init exp
         sym <- genSymScoped scope qn ref
         addGlobalSym sym
         evalExp exp
+    | SOur <- scope = do
+        ref     <- createRef
+        entry   <- genPadEntryScoped scope ref
+        qn      <- toQualified var
+        addGlobalSym (mkPadMutator qn entry)
+        enterLex [ mkPadMutator var entry ] $ evalExp exp
     | otherwise = do
         ref <- createRef
         sym <- genSymScoped scope var ref
-        when (scope == SOur) $ do
-            qn  <- toQualified var
-            sym' <- genSymScoped scope qn ref
-            addGlobalSym sym'
         enterLex [ sym ] $ evalExp exp
     where
     createRef | Noop <- init = newObject (typeOfSigilVar var)
