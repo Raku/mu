@@ -36,13 +36,13 @@ doMatch cs rule@MkRulePGE{ rxRule = ruleStr } = do
     hasSrc <- liftIO $ doesDirectoryExist pwd2
     let pwd = if hasSrc then pwd2 else pwd1
     glob    <- askGlobal
-    let syms = [ (cast $ v_name var, tvar)
-               | (var, [(_, tvar)]) <- padToList glob
+    let syms = [ (cast $ v_name var, entry)
+               | (var, entry) <- padToList glob
                , SRegex == v_sigil var
                , isGlobalVar var
                ]
-    subrules <- forM syms $ \(name, tvar) -> do
-        ref         <- liftSTM $ readTVar tvar
+    subrules <- forM syms $ \(name, entry) -> do
+        ref         <- readPadEntry entry
         VRule rule  <- fromVal =<< readRef ref
         text        <- ruleWithAdverbs rule
         return (name, text)

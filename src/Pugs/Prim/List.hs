@@ -66,7 +66,7 @@ op1Pick (VJunc (MkJunc JOne dups set)) =
     if (Set.size $ set) == 1 && (Set.size $ dups) == 0
     then return $ head $ Set.elems set
     else return undef
-op1Pick v = retError "pick not defined" v
+op1Pick v = die "pick not defined" v
 
 shuffleN :: Int -> [a] -> Eval [a]
 shuffleN _ [] = return []
@@ -87,7 +87,7 @@ op2Pick l@(VList xs) (VNum n)
 op2Pick (VList xs) (VInt num) = do
     shuffled <- shuffleN (fromInteger num) xs
     return $ VList shuffled
-op2Pick r _ = retError "pick not defined" r
+op2Pick r _ = die "pick not defined" r
 
 op1Sum :: Val -> Eval Val
 op1Sum list = do

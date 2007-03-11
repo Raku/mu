@@ -28,9 +28,9 @@ fallback :: (Val -> Eval b) -> Val -> Eval b
 fallback f v@(VV vv) = do
     val <- vvToVal vv
     case val of
-        VV{} -> retError "Not a keyed object" v
+        VV{} -> die "Not a keyed object" v
         _    -> f val
-fallback _ v = retError "Not a keyed value" v
+fallback _ v = die "Not a keyed value" v
 
 keysFromVal :: Val -> Eval Val
 keysFromVal VUndef = return $ VList []
@@ -70,7 +70,7 @@ pairsFromRef (MkRef (IArray av)) = do
 pairsFromRef (MkRef (IScalar sv)) = do
     refVal  <- scalar_fetch' sv
     pairsFromVal refVal
-pairsFromRef ref = retError "Not a keyed reference" ref
+pairsFromRef ref = die "Not a keyed reference" ref
 
 keysFromRef :: VRef -> Eval [Val]
 keysFromRef (MkRef (IPair pv)) = do
@@ -87,7 +87,7 @@ keysFromRef (MkRef (IScalar sv)) = do
     if defined refVal
         then fromVal =<< keysFromVal refVal
         else return []
-keysFromRef ref = retError "Not a keyed reference" ref
+keysFromRef ref = die "Not a keyed reference" ref
 
 valuesFromRef :: VRef -> Eval [Val]
 valuesFromRef (MkRef (IPair pv)) = do
@@ -102,7 +102,7 @@ valuesFromRef (MkRef (IScalar sv)) = do
     if defined refVal
         then fromVal =<< valuesFromVal refVal
         else return []
-valuesFromRef ref = retError "Not a keyed reference" ref
+valuesFromRef ref = die "Not a keyed reference" ref
 
 existsFromRef :: VRef -> Val -> Eval VBool
 existsFromRef (MkRef (IHash hv)) val = do
@@ -117,7 +117,7 @@ existsFromRef (MkRef (IScalar sv)) val = do
         VRef ref    -> existsFromRef ref val
         VList _     -> (`existsFromRef` val) =<< fromVal refVal
         _           -> return False
-existsFromRef ref _ = retError "Not a keyed reference" ref
+existsFromRef ref _ = die "Not a keyed reference" ref
 
 deleteFromRef :: VRef -> Val -> Eval Val
 deleteFromRef (MkRef (IHash hv)) val = do
@@ -139,6 +139,6 @@ deleteFromRef (MkRef (IScalar sv)) val = do
     case refVal of
         VRef ref    -> deleteFromRef ref val
         VList _     -> (`deleteFromRef` val) =<< fromVal refVal
-        v           -> retError "Argument is not a Hash or Array element or slice in delete" v
-deleteFromRef ref _ = retError "Argument is not a Hash or Array element or slice in delete" ref
+        v           -> die "Argument is not a Hash or Array element or slice in delete" v
+deleteFromRef ref _ = die "Argument is not a Hash or Array element or slice in delete" ref
 
