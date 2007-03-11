@@ -3,7 +3,7 @@
 use Test;
 use Cipher::Caesar;
 
-my $rot13 = new Cipher::Caesar;
+my $rot13 = Cipher::Caesar.new;
 
 plan(2);
 is($rot13.cipher("test"), "grfg", "seems to work");

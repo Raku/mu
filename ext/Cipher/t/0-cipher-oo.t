@@ -2,7 +2,7 @@ use v6-alpha;
 use Test;
 use Cipher::TestGuts;
 
-my $ec1 = new Cipher::TestGuts;
+my $ec1 = Cipher::TestGuts.new;
 my $ec2 = Cipher::TestGuts.new(:mode<encrypting>);
 my $dc1 = Cipher::TestGuts.new(:mode<decrypting>);
 
