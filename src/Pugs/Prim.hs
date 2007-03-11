@@ -247,7 +247,7 @@ op1 "require_perl5" = \v -> do
         envSV   <- mkEnv env
         sv      <- evalPerl5 requireLine envSV $ enumCxt cxtItemAny
         return (PerlSV sv)
-    evalExp (_Sym SGlobal (':':'*':pkg) (Val val) (newMetaType pkg))
+    evalExp (_Sym SOur (':':'*':pkg) (Val val) (newMetaType pkg))
     return val
 op1 "Pugs::Internals::eval_parrot" = \v -> do
     code    <- fromVal v

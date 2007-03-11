@@ -293,14 +293,14 @@ reduceVar var@MkVar{ v_sigil = sig, v_twigil = twi, v_name = name, v_package = p
                             v' <- findVar var{ v_sigil = SCodeMulti }
                             case v' of
                                 Just ref -> evalRef ref
-                                Nothing  -> evalExp (Sym SGlobal var Noop (Var var))
-                        _ -> evalExp (Sym SGlobal var Noop (Var var))
+                                Nothing  -> evalExp (Sym SOur var Noop (Var var))
+                        _ -> evalExp (Sym SOur var Noop (Var var))
                 | SCode <- sig      -> reduceVar var{ v_sigil = SCodeMulti }
                 | otherwise -> do
                     s <- isStrict
                     if s then do die "Undeclared variable" var
                          else do lv <- asks envLValue
-                                 if lv then evalExp (Sym SGlobal var Noop (Var var)) else retEmpty
+                                 if lv then evalExp (Sym SOur var Noop (Var var)) else retEmpty
 
 _scalarContext :: Cxt
 _scalarContext = CxtItem $ mkType "Scalar"
@@ -350,15 +350,18 @@ reducePos pos exp = do
         evalExp exp
 
 reducePad :: Scope -> Pad -> Exp -> Eval Val
+{-
 reducePad SEnv lex@(MkPad lex') exp = do
     local (\e -> e{ envImplicit = Map.map (const ()) lex' `Map.union` envImplicit e }) $
         reducePad SMy lex exp
+-}
 reducePad SMy lex exp = do
     -- heuristics: if we are repeating ourselves, generate a new TVar.
     lex' <- refreshPad lex
     local (\e -> e{ envLexical = lex' `unionPads` envLexical e }) $ do
         evalExp exp
 
+{-
 reducePad STemp lex exp = do
     tmps <- mapM (\(sym, _) -> evalExp $ App (_Var "&TEMP") (Just $ Var sym) []) $ padToList lex
     -- default to nonlocal exit
@@ -388,6 +391,7 @@ reducePad SLet lex exp = do
     isFailure VError{}      = True
     isFailure (VRef r)      = refType r == mkType "Failure"
     isFailure _             = False
+-}
 
 reducePad _ lex exp = do
     local (\e -> e{ envLexical = lex `unionPads` envLexical e }) $ do
@@ -395,16 +399,20 @@ reducePad _ lex exp = do
         
 reduceSym :: Scope -> Var -> Exp -> Exp -> Eval Val
 reduceSym scope var init exp
-    | scope <= SMy = do
-        ref <- createRef
-        sym <- genSymScoped scope var ref
-        enterLex [ sym ] $ evalExp exp
-    | otherwise = do
-        ref <- createRef
+    | isQualifiedVar var || isGlobalVar var = do
         qn  <- toQualified var
+        ref <- createRef
         sym <- genSymScoped scope qn ref
         addGlobalSym sym
         evalExp exp
+    | otherwise = do
+        ref <- createRef
+        sym <- genSymScoped scope var ref
+        when (scope == SOur) $ do
+            qn  <- toQualified var
+            sym' <- genSymScoped scope qn ref
+            addGlobalSym sym'
+        enterLex [ sym ] $ evalExp exp
     where
     createRef | Noop <- init = newObject (typeOfSigilVar var)
               | otherwise    = fromVal =<< enterLValue (evalExp init)
@@ -478,7 +486,7 @@ reduceSyn "sub" [exp] = do
     clonePad pad = do
         fmap listToPad $ forM (padToList pad) $ \(var, entry) -> do
             let preserveContent   = liftSTM . readTVar . pe_store
-                regenerateContent = newObject . pe_type
+                regenerateContent = cloneRef . pe_proto
             entry' <- clonePadEntry entry $ case v_sigil var of
                 SType       -> preserveContent
                 SCode       -> preserveContent
@@ -680,7 +688,7 @@ reduceSyn ":=" exps
                 Just tvar -> return (tvar, ref)
                 _ | isGlobalVar var || v_package var `notElem` [emptyPkg, callerPkg, outerPkg, contextPkg] -> do
                     -- '$Qualified::Var' is not found.  Vivify at lvalue context.
-                    evalExp (Sym SGlobal var Noop Noop)
+                    evalExp (Sym SOur var Noop Noop)
                     rv' <- findVarRef var
                     case rv' of
                         Just EntryConstant{}    -> die "Bind to constant variable" var
