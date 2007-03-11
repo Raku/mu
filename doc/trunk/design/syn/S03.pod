@@ -14,7 +14,7 @@ Luke Palmer <luke@luqui.org>
   Date: 8 Mar 2004
   Last Modified: 12 Mar 2007
   Number: 3
-  Version: 106
+  Version: 107
 
 =head1 Overview
 
@@ -3171,6 +3171,15 @@ associated type, traits and the initializer:
     constant ($foo = 123);  # same thing
     constant :($foo = 123); # same thing (full Signature form)
     constant ($foo) = 123;  # wrong: constants cannot be assigned to
+
+When parentheses are omitted, you may use an infix assignment operator
+instea dof C<=> as the initializer.  In that case, the left hand side of
+the infix operator will be the variable's prototype object:
+
+    constant Dog $fido .= new;      # okay: a constant Dog object
+    constant Dog $fido = Dog.new;   # same thing
+    constant Dog $fido = $fido.new; # error: cannot refer to itself
+    constant (Dog $fido .= new);    # error: cannot use .= with parens
 
 Parentheses must always be used when declaring multiple parameters:
 
