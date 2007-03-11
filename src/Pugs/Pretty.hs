@@ -41,7 +41,7 @@ instance Pretty Exp where
     format (Stmts exp1 exp2) = (vcat $ punctuate (text ";") $ (map format) [exp1, exp2])
     format (App (Var name) invs args) = text "App" <+> text (cast name) <+> parens (nest defaultIndent $ cat (punctuate (text ": ") [ cat (punctuate (text ", ") (map format x)) | x <- [maybeToList invs, args] ]))
     format (App sub invs args) = text "App" <+> parens (format sub) <+> parens (nest defaultIndent $ vcat (punctuate (text ", ") (map format $ maybeToList invs ++ args)))
-    format (Sym scope name exp) = text "Sym" <+> text (show scope) <+> format name $+$ format exp
+    format (Sym scope name init exp) = text "Sym" <+> text (show scope) <+> format name <+> format init $+$ format exp
     format (Pad scope pad exp) = text "Pad" <+> text (show scope) <+> format pad $+$ format exp
     format (Ann _ exp) = format exp
     format x = text $ show x
@@ -63,10 +63,16 @@ instance Pretty [Exp] where
 instance Pretty (TVar Bool, TVar VRef) where
     format (_, tvar) = format tvar
 
+instance Pretty Type where
+    format = format . showType
+
+instance Pretty PadEntry where
+    format = format . pe_type
+
 instance Pretty Pad where
     format pad = vcat $ map formatAssoc $ padToList pad
         where
-        formatAssoc (name, var) = format name <+> text ":=" <+> (nest defaultIndent $ vcat $ map format var)
+        formatAssoc (name, var) = format name <+> text ":=" <+> (nest defaultIndent $ format var)
 
 instance Pretty Pos where
     format pos =

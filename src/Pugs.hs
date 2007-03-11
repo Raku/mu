@@ -369,7 +369,7 @@ doRunSingle menv opts prog = (`catchIO` handler) $ do
     makeDumpEnv (Stmts x exp)   = Stmts x   $ makeDumpEnv exp
     makeDumpEnv (Ann ann exp)   = Ann ann   $ makeDumpEnv exp
     makeDumpEnv (Pad x y exp)   = Pad x y   $ makeDumpEnv exp
-    makeDumpEnv (Sym x y exp)   = Sym x y   $ makeDumpEnv exp
+    makeDumpEnv (Sym x y z exp) = Sym x y z $ makeDumpEnv exp
     makeDumpEnv exp             = Stmts (Ann (Cxt cxtItemAny) exp) (Syn "continuation" [])
     handler (IOException ioe) | isUserError ioe = do
         putStrLn "Internal error while running expression:"

@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances -fparr #-}
 
 module Pugs.Compile.Pugs (genPugs) where
 import Pugs.AST
@@ -23,6 +23,9 @@ joinMany xs = Str.join cm (filter (not . Str.null) xs)
 
 instance (Compile x) => Compile [x] where
     compile = compileList
+
+instance (Compile x) => Compile [:x:] where
+    compile xs = compWith "toP" [compileList (fromP xs)]
 
 instance Compile (Maybe Exp) where
     compile Nothing = return $ Str.pack "Nothing"
@@ -62,6 +65,12 @@ instance Compile Exp where
 
 instance Compile Var where
     compile var = ret $ "(cast " ++ show var ++ ")"
+
+instance Compile (Var, PadEntry) where
+    compile (x, y) = do
+        xC  <- compile x
+        yC  <- compile y
+        return $ Str.concat [pl, xC, cm, yC, pr]
 
 instance Compile Pad where
     compile pad = do
@@ -114,12 +123,21 @@ instance (Typeable a, Compile a) => Compile (TVar a) where
         tell [Str.concat [tv, Str.pack " <- liftSTM (newTVar ", vrefC, Str.pack ");\n"]]
         return tv
 
+instance Compile PadEntry where
+    compile c@EntryConstant{} = return $ Str.pack (show c)
+    compile (EntryStatic typ ref tv) = compWith "EntryStatic" [compile typ, compile ref, compile tv]
+    compile (EntryLexical typ ref tv fresh) = compWith "EntryLexical" [compile typ, compile ref, compile tv, compile fresh]
+
 instance Compile VRef where
-    compile (MkRef (ICode cv)) = do
-        vsub    <- lift $ code_fetch cv
-        vsubC   <- compile vsub
-        if Str.null vsubC then return Str.empty else do
-        return $ Str.concat [Str.pack "(MkRef (ICode ", vsubC, pr, pr]
+    compile (MkRef (ICode cv))
+        | Just (MkMultiCode x y z w) <- fromTypeable cv = do
+            vsubC   <- compWith "MkMultiCode" [compile x, ret (show y), ret (show z), compile w]
+            return $ Str.concat [Str.pack "(MkRef (ICode ", vsubC, pr, pr]
+        | otherwise = do
+            vsub    <- lift $ code_fetch cv
+            vsubC   <- compile vsub
+            if Str.null vsubC then return Str.empty else do
+            return $ Str.concat [Str.pack "(MkRef (ICode ", vsubC, pr, pr]
     compile (MkRef (IScalar sv)) | scalar_iType sv == mkType "Scalar::Const" = do
         sv  <- lift $ scalar_fetch sv
         svC <- compile sv
@@ -144,6 +162,9 @@ instance Compile VObject where
         tell [Str.append uniq (Str.pack " <- liftIO newUnique;\n")]
         return $ Str.unwords [pl, Str.pack "MkObject", Str.pack (show typ), attrsC, Str.pack "Nothing", uniq, pr]
     compile obj = fail $ "Cannot compile Object of Dynamic type: " ++ show obj
+
+instance Compile VType where
+    compile typ = ret $ "(mkType " ++ show typ ++ ")"
 
 -- Haddock can't cope with Template Haskell
 instance Compile VCode where

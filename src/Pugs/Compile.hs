@@ -72,28 +72,29 @@ instance Compile Pad [PIL_Decl] where
         entries' <- mapM canCompile entries
         return $ concat entries'
         where
-        entries = sortBy padSort [ (cast var, ref) | (var, ref) <- padToList pad ]
-        canCompile (name@('&':_), xs) | length xs > 1 = do
-            fmap concat $ mapM (\x -> canCompile (name, [x])) xs
-        canCompile (name@('&':_), [(_, sym)]) = do
-            ref <- liftSTM $ readTVar sym
+        entries = sortBy padSort [ (cast var, readPadEntry ref) | (var, ref) <- padToList pad ]
+--      canCompile (name@('&':_), xs) | length xs > 1 = do
+--          fmap concat $ mapM (\x -> canCompile (name, [x])) xs
+        canCompile (name@('&':_), sym) = do
+            ref <- sym
             case ref of
-                MkRef (ICode cv)
-                    -> doCode name =<< code_fetch cv
+                MkRef ICode{} -> do
+                    codes <- readCodesFromRef ref
+                    fmap concat $ forM codes (doCode name)
                 MkRef (IScalar sv) | scalar_iType sv == mkType "Scalar::Const"
                     -> doCode name =<< fromVal =<< scalar_fetch sv
                 _ -> return []
-        canCompile ("@*END", [(_, sym)]) = do
-            ref     <- liftSTM $ readTVar sym
+        canCompile ("@*END", sym) = do
+            ref     <- sym
             cvList  <- fromVals =<< readRef ref :: Comp [VCode]
             decls   <- eachM cvList $ \(i, cv) -> do
                 compile (("&*END_" ++ show i), cv) :: Comp [PIL_Decl]
             compile ("&*END", concat decls)
         canCompile ((_:twigil:_), _) | not (isAlphaNum twigil) = return []
-        canCompile (name, [(_, sym)]) = do
+        canCompile (name, sym) = do
             -- translate them into store_global calls?
             -- placing them each into one separate init function?
-            val     <- readRef =<< liftSTM (readTVar sym)
+            val     <- readRef =<< sym
             valC    <- compile val
             let assignC = PAssign [PVar name'] valC
                 bodyC   = PStmts (PStmt . PExp $ assignC) PNil
@@ -131,13 +132,12 @@ instance Compile (SubName, VCode) [PIL_Decl] where
         paramsC <- compile $ subParams vsub
         return [PSub name (subType vsub) paramsC (subLValue vsub) (isMulti vsub) bodyC]
 
-instance Compile (String, [(TVar Bool, TVar VRef)]) PIL_Expr where
-    compile (name, ((_, ref):_)) = do
-        rv <- readRef =<< liftSTM (readTVar ref)
+instance Compile (String, PadEntry) PIL_Expr where
+    compile (name, entry) = do
+        rv <- readRef =<< readPadEntry entry
         case rv of
             VCode sub   -> return $ PRawName (cast $ subName sub)
             _           -> return $ PRawName name
-    compile (name, _) = return $ PRawName name
 
 instance Compile Exp PIL_Stmts where
     -- XXX: pragmas?
@@ -427,8 +427,8 @@ instance Compile Val PIL_Literal where
     compile val = return $ PVal val
 
 -- utility functions
-padSort :: (String, [(TVar Bool, TVar VRef)]) -> (String, [(a, b)]) -> Ordering
-padSort (a, [(_, _)]) (b, [(_, _)])
+padSort :: (String, a) -> (String, a) -> Ordering
+padSort (a, _) (b, _)
     | (head a == ':' && head b == '&') = LT
     | (head b == ':' && head a == '&') = GT
     | otherwise = GT
