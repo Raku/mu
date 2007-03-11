@@ -156,8 +156,6 @@ instance (Show a, Typeable a, Ord a) => Boxable (Maybe a)
 
 instance Boxable a => Boxable [a]
 instance Boxable a => Boxable [:a:]
-instance Typeable1 [::] where
-    typeOf1 _ = mkTyConApp (mkTyCon "[::]") []
 
 instance Boxable ID
 instance Boxable PureClass where

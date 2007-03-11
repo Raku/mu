@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -fno-full-laziness -fno-cse -fno-warn-deprecations -fallow-undecidable-instances -fallow-overlapping-instances -funbox-strict-fields #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -fno-full-laziness -fno-cse -fno-warn-deprecations -fallow-undecidable-instances -fallow-overlapping-instances -funbox-strict-fields -fparr #-}
 
 {-|
     Internal utilities and library imports.
@@ -40,6 +40,7 @@ module Pugs.Internals (
     module Data.List,
     module Data.Map,
     module Data.Maybe,
+    module Data.Monoid,
     module Data.Ratio,
     module Data.Set,
     module Data.Sequence,
@@ -104,13 +105,14 @@ import System.Mem.Weak
 import System.Directory (Permissions(..), getPermissions, getTemporaryDirectory, createDirectory, removeDirectory, removeFile, getDirectoryContents, getModificationTime)
 import Control.Exception (catchJust, errorCalls, Exception(..))
 import Control.Monad (replicateM, forM, forM_)
-import Control.Monad.RWS (MonadIO(..), MonadReader(..), MonadState(..), MonadWriter(..), MonadTrans(..), asks, ReaderT(..), WriterT(..), when, join, liftM, filterM, modify, unless, gets, foldM, guard, liftM2, liftM3, fix, mplus, mappend, mzero, mconcat, msum, censor)
+import Control.Monad.RWS (MonadIO(..), MonadReader(..), MonadState(..), MonadWriter(..), MonadTrans(..), asks, ReaderT(..), WriterT(..), when, join, liftM, filterM, modify, unless, gets, foldM, guard, liftM2, liftM3, fix, mplus, mzero, msum, censor)
 import Control.Monad.Identity (Identity(..))
 import Control.Monad.Error (MonadError(..), ErrorT(..), Error(..))
 import Control.Concurrent
 import Control.Concurrent.STM
 import Data.Bits hiding (shift)
 import Data.Maybe
+import Data.Monoid
 import Data.Either
 import Data.List (
     (\\), find, genericLength, insert, sortBy, intersperse,
@@ -153,3 +155,6 @@ instance Eq Dynamic where
     x == y = show x == show y
 instance Ord Dynamic where
     compare x y = compare (show x) (show y)
+
+instance Typeable1 [::] where
+    typeOf1 _ = mkTyConApp (mkTyCon "[::]") []
