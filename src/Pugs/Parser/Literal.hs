@@ -596,10 +596,10 @@ ruleQuoteAdverbs = enterBracketLevel QuoteAdverbBracket $ do
 substLiteral :: RuleParser Exp
 substLiteral = do
     (declarator, pseudo) <- choice
-        [ symbol "s"  >> return ("subst", (pseudoAssignment <|>))
+        [ symbol "s"  >> return ("subst", (pseudoAssignment matchResult <|>))
         , do symbol "ss"
              insertIntoPosition ":sigspace(1)"
-             return ("subst", (pseudoAssignment <|>))
+             return ("subst", (pseudoAssignment matchResult <|>))
         , symbol "tr" >> return ("trans", id)
         ]
     adverbs <- case declarator of
@@ -624,9 +624,11 @@ substLiteral = do
             (string $ replicate rep endch')
             flags{ qfProtectedChar = endch' }
     return $ Syn declarator [expr, subst, adverbs]
+    where
+    matchResult = Syn "${}" [_Var "$/"]
 
-pseudoAssignment :: RuleParser Exp
-pseudoAssignment = verbatimRule "infix assignment" $ do
+pseudoAssignment :: Exp -> RuleParser Exp
+pseudoAssignment lhs = verbatimRule "infix assignment" $ do
     ahead <- lookAhead (string ".=" <|> ruleInfixAssignment <|> string "=")
     insertIntoPosition "$_ "
     item <- parseExpWithTightOps
@@ -634,7 +636,6 @@ pseudoAssignment = verbatimRule "infix assignment" $ do
         ".=" -> fixPseudo (applyPseudo item)
         _    -> applyPseudo item
     where
-    matchResult = Syn "${}" [_Var "$/"]
     applyPseudo (Ann ann exp)       = Ann ann (applyPseudo exp)
     applyPseudo (Syn "=" [Var var, exp])
         | var == varTopic
@@ -642,12 +643,12 @@ pseudoAssignment = verbatimRule "infix assignment" $ do
     applyPseudo (Syn syn [Var var, exp])
         | last syn == '='
         , var == varTopic
-        = App (_Var ("&infix:" ++ init syn)) Nothing [matchResult, exp]
+        = App (_Var ("&infix:" ++ init syn)) Nothing [lhs, exp]
     applyPseudo x = internalError $ "Unknown pseudo-assignment form:" ++ show x
     fixPseudo (Ann ann exp) = Ann ann (fixPseudo exp)
     fixPseudo (App meth (Just (Var var)) args)
         | var == varTopic
-        = App meth (Just matchResult) args
+        = App meth (Just lhs) args
     fixPseudo x = x
 
 
