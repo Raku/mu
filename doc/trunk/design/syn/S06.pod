@@ -64,7 +64,7 @@ name within its scope, unless they have an explicit modifier.
 (This is particularly useful when adding to rule sets or when attempting
 to compose conflicting methods from roles.)
 
-C<Only> (keyword: C<only>) routines do not share its short name
+C<Only> (keyword: C<only>) routines do not share their short names
 with other routines.  This is the default modifier for all routines,
 unless a C<proto> of the same name was already in scope.
 
