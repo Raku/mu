@@ -51,6 +51,8 @@ class (Typeable a) => HashClass a where
     hash_isEmpty hv = do
         keys <- hash_fetchKeys hv
         return $ null keys 
+    hash_clone :: a -> Eval a
+    hash_clone = return
 
 instance HashClass (IVar VPair) where
     hash_iType = const $ mkType "Pair"
@@ -100,6 +102,12 @@ encodeKey x = x
 decodeKey x = x
 
 instance HashClass IHash where
+    hash_clone hv = do
+        ps  <- liftIO $ H.toList hv
+        ps' <- forM ps $ \(k, sv) -> do
+            sv' <- cloneIVar sv
+            return (k, sv')
+        liftIO $ H.fromList H.hashString ps'
     hash_fetch hv = do
         ps  <- liftIO $ H.toList hv
         ps' <- forM ps $ \(k, sv) -> do

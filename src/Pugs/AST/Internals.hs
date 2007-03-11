@@ -61,6 +61,9 @@ module Pugs.AST.Internals (
     ifListContext, ifValTypeIsa, evalValType, fromVal',
     scalarRef, codeRef, arrayRef, hashRef, thunkRef, pairRef,
     newScalar, newArray, newHash, newHandle, newObject,
+
+    cloneRef, cloneIVar,
+
     proxyScalar, constScalar, lazyScalar, lazyUndef, constArray,
     retControl, retShift, retShiftEmpty, retEmpty, retIVar, readIVar, writeIVar,
     fromVals, refType,
@@ -1407,9 +1410,9 @@ newtype Pad = MkPad { padEntries :: Map Var PadEntry }
     deriving (Eq, Ord, Typeable)
 
 data PadEntry
-    = EntryLexical  { pe_type :: !Type, pe_value :: !VRef, pe_store :: !(TVar VRef), pe_fresh :: !(TVar Bool) }
-    | EntryStatic   { pe_type :: !Type, pe_value :: !VRef, pe_store :: !(TVar VRef) }
-    | EntryConstant { pe_type :: !Type, pe_value :: !VRef }
+    = EntryLexical  { pe_type :: !Type, pe_proto :: !VRef, pe_store :: !(TVar VRef), pe_fresh :: !(TVar Bool) }
+    | EntryStatic   { pe_type :: !Type, pe_proto :: !VRef, pe_store :: !(TVar VRef) }
+    | EntryConstant { pe_type :: !Type, pe_proto :: !VRef }
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 data IHashEnv = MkHashEnv deriving (Show, Typeable) {-!derive: YAML_Pos!-}
@@ -1418,7 +1421,7 @@ data IScalarCwd = MkScalarCwd deriving (Show, Typeable) {-!derive: YAML_Pos!-}
 {-# SPECIALISE readPadEntry :: PadEntry -> Eval VRef #-}
 {-# SPECIALISE readPadEntry :: PadEntry -> STM VRef #-}
 readPadEntry :: MonadSTM m => PadEntry -> m VRef
-readPadEntry EntryConstant{ pe_value = v } = return v
+readPadEntry EntryConstant{ pe_proto = v } = return v
 readPadEntry x                             = liftSTM (readTVar (pe_store x))
 
 {-# SPECIALISE writePadEntry :: PadEntry -> VRef -> Eval () #-}
@@ -1427,21 +1430,16 @@ writePadEntry :: MonadSTM m => PadEntry -> VRef -> m ()
 writePadEntry x@EntryConstant{} _ = die "Cannot rebind constant" x
 writePadEntry x                 v = liftSTM (writeTVar (pe_store x) v)
 
-refreshPad :: (MonadIO m, MonadSTM m) => Pad -> m Pad
+refreshPad :: Pad -> Eval Pad
 refreshPad pad = do
     fmap listToPad $ forM (padToList pad) $ \(name, entry) -> do
         entry' <- case entry of
-            EntryLexical{ pe_store = old, pe_type = typ, pe_fresh = fresh } -> do
-                isFresh <- liftSTM (readTVar fresh)
-                if isFresh then do { liftSTM (writeTVar fresh False); return entry } else do
-                -- regen TVar -- this is not the first time entering this scope
-                ref     <- case v_sigil name of
-                    SType       -> liftSTM $ readTVar old
-                    SCode       -> liftSTM $ readTVar old
-                    SCodeMulti  -> liftSTM $ readTVar old
-                    _           -> newObject (if typ == anyType then typeOfSigilVar name else typ)
-                tvar'   <- liftSTM (newTVar ref)
-                return entry{ pe_store = tvar' }
+            EntryLexical{ pe_proto = proto, pe_fresh = fresh } -> do
+                isFresh <- liftSTM $ readTVar fresh
+                if isFresh then liftSTM (writeTVar fresh False) >> return entry else do
+                    ref     <- cloneRef proto
+                    tvar'   <- liftSTM (newTVar ref)
+                    return entry{ pe_store = tvar' }
             _ -> return entry
         return (name, entry')
 
@@ -1478,7 +1476,7 @@ findSymRef name pad = liftSTM $ join (findSym name pad)
 {-# SPECIALISE findSym :: Var -> Pad -> Maybe (STM VRef) #-}
 findSym :: Monad m => Var -> Pad -> m (STM VRef)
 findSym name pad = case lookupPad name pad of
-    Just EntryConstant{ pe_value = v }  -> return (return v)
+    Just EntryConstant{ pe_proto = v }  -> return (return v)
     Just x                              -> return (readTVar (pe_store x))
     _      -> fail $ "Cannot find variable: " ++ show name
 
@@ -1526,7 +1524,7 @@ mkCompUnit :: String -> Pad -> Exp -> CompUnit
 mkCompUnit _ pad ast = MkCompUnit compUnitVersion pad ast
 
 compUnitVersion :: Int
-compUnitVersion = 11
+compUnitVersion = 12
 
 {-|
 Retrieve the global 'Pad' from the current evaluation environment.
@@ -1653,6 +1651,9 @@ writeRef (MkRef (ICode s)) val   = code_store s =<< fromVal val
 writeRef (MkRef (IPair s)) val   = pair_storeVal s val
 writeRef (MkRef (IThunk tv)) val = (`writeRef` val) =<< fromVal =<< thunk_force tv
 writeRef r _ = die "Cannot writeRef" r
+
+cloneRef :: VRef -> Eval VRef
+cloneRef (MkRef x) = fmap MkRef (cloneIVar x)
 
 clearRef :: VRef -> Eval ()
 clearRef (MkRef (IScalar s)) = scalar_store s undef
@@ -1834,6 +1835,12 @@ readIVar (IPair x)   = pair_fetch x
 readIVar (IArray x)  = array_fetch x
 readIVar (IHash x)   = hash_fetch x
 readIVar _ = fail "readIVar"
+
+cloneIVar :: IVar v -> Eval (IVar v)
+cloneIVar (IScalar x) = fmap IScalar $ scalar_clone x
+cloneIVar (IArray x)  = fmap IArray  $ array_clone x
+cloneIVar (IHash x)   = fmap IHash   $ hash_clone x
+cloneIVar x = return x
 
 writeIVar :: IVar v -> v -> Eval ()
 writeIVar (IScalar x) = scalar_store x
@@ -2207,7 +2214,7 @@ data VJunc = MkJunc
 data JuncType = JAny | JAll | JNone | JOne
     deriving (Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
-data Scope = SState | SLet | STemp | SEnv | SMy | SOur | SGlobal
+data Scope = SState | SConstant | SHas | SMy | SOur
     {-!derive: YAML_Pos, JSON, Perl5!-}
 
 data Pad = MkPad { padEntries :: IntMap PadEntry }

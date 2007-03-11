@@ -117,6 +117,8 @@ class (Typeable a) => ArrayClass a where
         forM_ ([0..] `zip` vals) $ \(idx, val) -> do
             array_storeElem av (off + idx) (lazyScalar val)
         mapM readIVar result
+    array_clone :: a -> Eval a
+    array_clone = return
 
 instance ArrayClass IArraySlice where
     array_iType = const $ mkType "Array::Slice"
@@ -133,6 +135,10 @@ a_update :: Int -> TVar VScalar -> [:TVar VScalar:] -> [:TVar VScalar:]
 a_update i x xs = takeP i xs +:+ [:x:] +:+ sliceP (i + 1) (lengthP xs - 1) xs
 
 instance ArrayClass IArray where
+    array_clone (MkIArray iv) = liftSTM $ do
+        a   <- readTVar iv
+        tvs <- mapM ((newTVar =<<) . readTVar) (fromP a)
+        fmap MkIArray (newTVar (toP tvs))
     array_store (MkIArray iv) vals = liftSTM $ do
         tvs <- mapM newTVar vals
         writeTVar iv (toP tvs)

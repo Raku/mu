@@ -5,6 +5,8 @@ class (Typeable a) => ScalarClass a where
     scalar_fetch :: a -> Eval VScalar
     scalar_store :: a -> VScalar -> Eval ()
     scalar_const :: a -> Maybe VScalar
+    scalar_clone :: a -> Eval a
+    scalar_clone = return
     scalar_fetch' :: a -> Eval VScalar
     scalar_fetch' x = scalar_fetch x
     scalar_type  :: a -> Eval Type
@@ -22,6 +24,7 @@ instance ScalarClass IScalar where
     scalar_fetch = liftSTM . readTVar
     scalar_store = (liftSTM .) . writeTVar
     scalar_const = const Nothing
+    scalar_clone sv = liftSTM (newTVar =<< readTVar sv)
 
 instance ScalarClass IScalarLazy where
     scalar_iType = const $ mkType "Scalar::Lazy"
