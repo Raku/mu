@@ -245,7 +245,7 @@ reduce (Ann _ exp) = reduce exp
 
 reduce (Pad scope lexEnv exp) = reducePad scope lexEnv exp
 
-reduce (Sym scope name exp) = reduceSym scope name exp
+reduce (Sym scope name init exp) = reduceSym scope name init exp
 
 -- Reduction for no-operations
 reduce Noop = retEmpty
@@ -254,7 +254,7 @@ reduce (Syn name subExps) = reduceSyn name subExps
 
 reduce (App subExp inv args) = reduceApp subExp inv args
 
-reduce exp = retError "Invalid expression" exp
+reduce exp = die "Invalid expression" exp
 
 reduceVal :: Val -> Eval Val
 reduceVal v@(VRef (MkRef IPair{})) = return v
@@ -288,12 +288,19 @@ reduceVar var@MkVar{ v_sigil = sig, v_twigil = twi, v_name = name, v_package = p
                 | isGlobalVar var || pkg `notElem` [emptyPkg, callerPkg, outerPkg, contextPkg] -> do
                     -- '$Qualified::Var' is not found.  Vivify at lvalue context.
                     lv <- asks envLValue
-                    if lv then evalExp (Sym SGlobal var (Var var)) else retEmpty
+                    if not lv then retEmpty else case sig of
+                        SCode -> do
+                            v' <- findVar var{ v_sigil = SCodeMulti }
+                            case v' of
+                                Just ref -> evalRef ref
+                                Nothing  -> evalExp (Sym SGlobal var Noop (Var var))
+                        _ -> evalExp (Sym SGlobal var Noop (Var var))
+                | SCode <- sig      -> reduceVar var{ v_sigil = SCodeMulti }
                 | otherwise -> do
                     s <- isStrict
-                    if s then do retError "Undeclared variable" var
+                    if s then do die "Undeclared variable" var
                          else do lv <- asks envLValue
-                                 if lv then evalExp (Sym SGlobal var (Var var)) else retEmpty
+                                 if lv then evalExp (Sym SGlobal var Noop (Var var)) else retEmpty
 
 _scalarContext :: Cxt
 _scalarContext = CxtItem $ mkType "Scalar"
@@ -386,30 +393,21 @@ reducePad _ lex exp = do
     local (\e -> e{ envLexical = lex `unionPads` envLexical e }) $ do
         evalExp exp
         
-reduceSym :: Scope -> Var -> Exp -> Eval Val
--- Special case: my (undef) is no-op
-reduceSym scope var exp
---  | var == cast "" = evalExp exp
+reduceSym :: Scope -> Var -> Exp -> Exp -> Eval Val
+reduceSym scope var init exp
     | scope <= SMy = do
-        ref <- newObject (typeOfSigilVar var)
-        let (gen, var')
-                | SCodeMulti <- v_sigil var
-                = (genMultiSym, var{ v_sigil = SCode })
-                | otherwise
-                = (genSym, var)
-        sym <- gen var' ref
+        ref <- createRef
+        sym <- genSymScoped scope var ref
         enterLex [ sym ] $ evalExp exp
     | otherwise = do
-        ref <- newObject (typeOfSigilVar var)
-        let (gen, var')
-                | SCodeMulti <- v_sigil var
-                = (genMultiSym, var{ v_sigil = SCode })
-                | otherwise
-                = (genSym, var)
-        qn      <- toQualified var'
-        sym     <- gen qn ref
+        ref <- createRef
+        qn  <- toQualified var
+        sym <- genSymScoped scope qn ref
         addGlobalSym sym
         evalExp exp
+    where
+    createRef | Noop <- init = newObject (typeOfSigilVar var)
+              | otherwise    = fromVal =<< enterLValue (evalExp init)
 
 -- Context forcing
 reduceCxt :: Cxt -> Exp -> Eval Val
@@ -478,7 +476,15 @@ reduceSyn "sub" [exp] = do
         return $ Pad scope pad' exp
     cloneBodyStates x = return x
     clonePad pad = do
-        fmap listToPad $ forM (padToList pad) $ \(var, tvars) -> do
+        fmap listToPad $ forM (padToList pad) $ \(var, entry) -> do
+            let preserveContent   = liftSTM . readTVar . pe_store
+                regenerateContent = newObject . pe_type
+            entry' <- clonePadEntry entry $ case v_sigil var of
+                SType       -> preserveContent
+                SCode       -> preserveContent
+                SCodeMulti  -> preserveContent
+                _           -> regenerateContent
+{-
             tvars' <- forM tvars $ \(_, tvar) -> do
                 fresh'  <- liftSTM $ newTVar False
                 tvar'   <- (liftSTM . newTVar) =<< case v_sigil var of
@@ -487,7 +493,16 @@ reduceSyn "sub" [exp] = do
                     SCodeMulti  -> liftSTM $ readTVar tvar
                     _           -> newObject (typeOfSigilVar var)
                 return (fresh', tvar')
-            return (var, tvars')
+-}
+            return (var, entry')
+    clonePadEntry x@EntryConstant{} _ = return x
+    clonePadEntry x@EntryStatic{} f = do
+        tvar'   <- (liftSTM . newTVar) =<< f x
+        return x{ pe_store = tvar' }
+    clonePadEntry x@EntryLexical{} f = do
+        tvar'   <- (liftSTM . newTVar) =<< f x
+        fresh'  <- liftSTM $ newTVar False
+        return x{ pe_store = tvar', pe_fresh = fresh' }
 
 reduceSyn "but" [obj, block] = do
     evalExp $ App (_Var "&Pugs::Internals::but_block") Nothing [obj, block]
@@ -651,7 +666,7 @@ reduceSyn ":=" exps
             Var name -> return name
             Syn [sigil,':',':','(',')'] [vexp]
                 | Val (VStr name) <- unwrap vexp -> return $ possiblyFixOperatorName (cast (sigil:name))
-            _        -> retError "Cannot bind this as lhs" var
+            _        -> die "Cannot bind this as lhs" var
         bindings <- forM (names `zip` vexps) $ \(var, vexp) -> enterLValue $ do
             {- FULL THUNKING
             let ref = thunkRef . MkThunk $ do
@@ -665,14 +680,14 @@ reduceSyn ":=" exps
                 Just tvar -> return (tvar, ref)
                 _ | isGlobalVar var || v_package var `notElem` [emptyPkg, callerPkg, outerPkg, contextPkg] -> do
                     -- '$Qualified::Var' is not found.  Vivify at lvalue context.
-                    evalExp (Sym SGlobal var Noop)
+                    evalExp (Sym SGlobal var Noop Noop)
                     rv' <- findVarRef var
                     case rv' of
-                        Just tvar   -> return (tvar, ref)
-                        _           -> retError "Bind to undeclared variable" var
-                _   -> retError "Bind to undeclared variable" var
-        forM_ bindings $ \(tvar, ref) -> do
-            liftSTM $ writeTVar tvar ref
+                        Just EntryConstant{}    -> die "Bind to constant variable" var
+                        Just entry              -> return (entry, ref)
+                        _                       -> die "Bind to undeclared variable" var
+                _   -> die "Bind to undeclared variable" var
+        forM_ bindings $ \(entry, ref) -> writePadEntry entry ref
         return $ case map (VRef . snd) bindings of
             [v] -> v
             vs  -> VList vs
@@ -881,7 +896,7 @@ reduceSyn "inline" [langExp, _] = do
     langVal <- evalExp langExp
     lang    <- fromVal langVal
     when (lang /= "Haskell") $
-        retError "Inline: Unknown language" langVal
+        die "Inline: Unknown language" langVal
     pkg     <- asks envPackage -- full module name here
     let file = (`concatMap` cast pkg) $ \v -> case v of
                     '-' -> "__"
@@ -921,7 +936,7 @@ reduceSyn "CCallDyn" (Val (VStr quant):methExp:invExp:args) = do
                 Left{}      -> case quant of
                     "+" -> do
                         typ     <- fromVal invVal
-                        retError ("No such method in class " ++ showType typ) meth
+                        die ("No such method in class " ++ showType typ) meth
                     _   -> do
                         retEmpty
                 Right sub   -> applySub sub Nothing (klugedInv:args)
@@ -944,7 +959,7 @@ reduceSyn "CCallDyn" (Val (VStr quant):methExp:invExp:args) = do
             _         -> return []
 
 reduceSyn name exps =
-    retError "Unknown syntactic construct" (Syn name exps)
+    die "Unknown syntactic construct" (Syn name exps)
 
 data SpecialApp
     = AppInv        !(Exp -> Eval Val)
@@ -1072,17 +1087,7 @@ reduceApp (Var var) invs args
         Just (AppSub f)     | Nothing <- invs   -> f args
         Just (AppMeth f)    | Just inv <- invs  -> f inv args
         Just (AppSubMeth f)                     -> f invs args
-        _ | Nothing <- invs
-          , [inv] <- args
-          , not (isInterpolated inv)            -> case inv of
-            Syn "named" _   -> normalDispatch
-            _               -> do
-                -- Try a local lookup of subs only.  If found, don't bother a method lookup.
-                rv <- findVar var
-                if isJust rv
-                    then normalDispatch
-                    else doCall var (Just inv) [] -- XXX - This will go away!
-        _ -> doCall var invs args
+        _                                       -> doCall var invs args
     | otherwise = normalDispatch
     where
     sig = v_sigil var
@@ -1236,20 +1241,26 @@ doCall var invs origArgs = do
             Just Syn{}  -> invs' -- no re-evaluation
             _           -> invs  -- re-evaluation assumed to be ok
     case sub of
-        Right sub    -> do
-            applySub sub klugedInvs args
+        Right s -> applySub s klugedInvs args
         _ | [Syn "," args'] <- unwrap args -> do
             sub <- findSub var klugedInvs args'
             either err (fail errSpcMessage) sub
         -- If a method called failed, fallback to sub call
-        Left NoSuchMethod{} | Just inv <- klugedInvs -> do
-            doCall var Nothing (inv:args)
+        Left e@NoSuchMethod{} | Just inv <- klugedInvs -> do
+            sub' <- findSub var Nothing (inv:args)
+            case sub' of
+                Right s'            -> applySub s' klugedInvs args
+                Left NoSuchSub{}    -> err e
+                Left e'             -> err e'
+        Left NoSuchSub{} | Just (Val inv') <- invs' -> do
+            typ <- fromVal inv'
+            err (NoSuchMethod typ)
         Left failure -> err failure
     where
     errSpcMessage = "Extra space found after " ++ cast var ++ " (...) -- did you mean " ++ cast var ++ "(...) instead?"
-    err NoMatchingMulti    = retError "No compatible subroutine found" var
-    err NoSuchSub          = retError "No such sub" var
-    err (NoSuchMethod typ) = retError ("No such method in class " ++ showType typ) var
+    err NoMatchingMulti    = die "No compatible multi variant found" var
+    err NoSuchSub          = die "No such subroutine" var
+    err (NoSuchMethod typ) = die ("No such method in class " ++ showType typ) var
 
 applySub :: VCode -> (Maybe Exp) -> [Exp] -> Eval Val
 applySub sub invs args
