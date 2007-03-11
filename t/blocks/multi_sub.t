@@ -57,7 +57,7 @@ is declared_wo_sub("42"), 2, "omitting 'sub' when declaring 'multi sub's works (
 
 # Test for slurpy MMDs
 
-proto mmd () {...}  # L<S06/"Routine modifiers">
+proto mmd {}  # L<S06/"Routine modifiers">
 multi mmd () { 1 }
 multi mmd (*$x, *@xs) { 2 }
 
