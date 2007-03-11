@@ -521,7 +521,7 @@ ruleFormalParam opt = rule "formal parameter" $ do
             ('@':_) -> Val (VList [])
             ('%':_) -> Val (VList [])
             _       -> Noop
-    rv <- if isOptional then return emptyExp else case opt of
+    rv <- case opt of
         FormalsSimple   -> option emptyExp $ do
             pseudoAssignment (Val (VType (if null typ then typeOfSigilVar (cast name) else mkType typ)))
         FormalsComplex  -> ruleParamDefault
