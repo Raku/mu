@@ -6,11 +6,9 @@ module Pugs.AST.Scope (
 import Data.Typeable
 
 -- | The scope of a variable declaration.
-data Scope = SState  -- ^ Persistent across calls
-           | SLet    -- ^ Hypotheticalised (reverted upon failure)
-           | STemp   -- ^ Temporary (reverted at scope exit)
-           | SEnv    -- ^ Environment (declared with @env@)
-           | SMy     -- ^ Lexical
-           | SOur    -- ^ Package
-           | SGlobal -- ^ Global
-    deriving (Show, Eq, Ord, Enum, Typeable)
+data Scope = SMy        -- ^ Ordinary lexically scoped variable
+           | SConstant  -- ^ Lexically scoped alias to package variable
+           | SHas       -- ^ Object attribute
+           | SState     -- ^ Persistent lexical (cloned with closures)
+           | SOur       -- ^ Lexically scoped compile-time constant
+    deriving (Show, Eq, Ord, Enum, Typeable, Bounded)
