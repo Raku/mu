@@ -259,11 +259,12 @@ enterSub sub action
     runBlocks f = mapM_ (evalExp . Syn "block" . (:[]) . Syn "sub" . (:[]) . Val . castV) (f sub)
     assertBlocks f name = forM_ (f sub) $ \cv -> do
         rv <- fromVal =<< (evalExp . Syn "block" . (:[]) . Syn "sub" . (:[]) . Val . castV $ cv)
-        if rv then return () else retError (name ++ " assertion failed") (subName sub)
+        if rv then return () else die (name ++ " assertion failed") (subName sub)
     typ = subType sub
     doCC :: (Val -> Eval b) -> [Val] -> Eval b
+    doCC cc []  = cc undef
     doCC cc [v] = cc =<< evalVal v
-    doCC _  _   = internalError "enterSub: doCC list length /= 1"
+    doCC _  _   = internalError "enterSub: doCC list length > 1"
     orig :: VCode -> VCode
     orig sub = sub { subBindings = [], subParams = (map fst (subBindings sub)) }
     fixEnv :: (Val -> Eval Val) -> Env -> Eval (Env -> Env)
@@ -279,13 +280,10 @@ enterSub sub action
                     [ (cast "&?BLOCK", ()) ]
                 }
         | otherwise = do
-            subRec <- sequence
-                [ genSym (cast "&?ROUTINE") (codeRef (orig sub))
-                ]
-            -- retRec    <- genSubs env "&return" retSub
-            callerRec <- genSubs env "&?CALLER_CONTINUATION" (ccSub cc)
+            subRec    <- genSym (cast "&?ROUTINE") (codeRef (orig sub))
+            callerRec <- genSym (cast "&?CALLER_CONTINUATION") (codeRef $ ccSub cc env)
             return $ \e -> e
-                { envLexical = combine (concat [subRec, callerRec]) (subPad sub)
+                { envLexical = combine ([subRec, callerRec]) (subPad sub)
                 , envPackage = maybe (envPackage e) envPackage (subEnv sub)
                 , envOuter   = maybe Nothing envOuter (subEnv sub)
                 , envImplicit= envImplicit e `Map.union` Map.fromList
@@ -298,17 +296,11 @@ enterSub sub action
         , subBody = Prim $ doCC cc
         }
 
-genSubs :: t -> String -> (t -> VCode) -> Eval [PadMutator]
-genSubs env name gen = sequence
-    [ genMultiSym (cast name) (codeRef $ gen env)
-    , genMultiSym (cast name) (codeRef $ (gen env) { subParams = [] })
-    ]
-
 makeParams :: Env -> [Param]
 makeParams MkEnv{ envContext = cxt, envLValue = lv }
     = [ MkOldParam
         { isInvocant = False
-        , isOptional = False
+        , isOptional = True
         , isNamed    = False
         , isLValue   = lv
         , isWritable = lv
