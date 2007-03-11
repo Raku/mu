@@ -18,8 +18,8 @@ is($pair.perl, '("foo" => "bar")', 'canonical representation');
 
 # get key and value from the pair as many ways as possible
 
-is(key($pair), 'foo', 'got the right key($pair)');
-is(value($pair), 'bar', 'got the right value($pair)');
+is(key($pair:), 'foo', 'got the right key($pair:)');
+is(value($pair:), 'bar', 'got the right value($pair:)');
 
 is($pair.key(), 'foo', 'got the right $pair.key()');
 is($pair.value(), 'bar', 'got the right $pair.value()');
