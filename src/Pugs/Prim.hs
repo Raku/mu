@@ -247,9 +247,7 @@ op1 "require_perl5" = \v -> do
         envSV   <- mkEnv env
         sv      <- evalPerl5 requireLine envSV $ enumCxt cxtItemAny
         return (PerlSV sv)
-    evalExp $ Stmts
-        (_Sym SGlobal (':':'*':pkg) (Syn ":=" [ _Var (':':'*':pkg), Val val]))
-        (newMetaType pkg)
+    evalExp (_Sym SGlobal (':':'*':pkg) (Val val) (newMetaType pkg))
     return val
 op1 "Pugs::Internals::eval_parrot" = \v -> do
     code    <- fromVal v
@@ -729,7 +727,7 @@ cascadeMethod f meth v args = do
     -- The monad in the "do" below is List.
     syms <- forM pkgs $ \pkg -> do
         let sym = cast $ ('&':pkg) ++ "::" ++ meth
-        maybeM (fmap (findSym sym) askGlobal) $ \ref -> do
+        maybeM (fmap (lookupPad sym) askGlobal) $ \ref -> do
             return (sym, ref)
 
     forM_ (nubBy (\(_, x) (_, y) -> x == y) (catMaybes syms)) $ \(sym, _) -> do
@@ -1359,7 +1357,7 @@ mixinRoles name roles = do
         thisPkg  = cast name
 
     liftSTM . modifyTVar glob $ \(MkPad entries) ->
-        MkPad . Map.unionWith mergePadEntry entries . Map.fromList $
+        MkPad . Map.unionWithKey mergePadEntry entries . Map.fromList $
             [ (k{ v_package = thisPkg }, v)
             | (k, v) <- Map.assocs entries
             , v_package k `elem` rolePkgs
@@ -1899,11 +1897,11 @@ initSyms = seq (length syms) $ do
 \\n   List      pre     roundrobin    safe   (List)\
 \\n   List      pre     keys    safe   (rw!Hash)\
 \\n   List      pre     values  safe   (rw!Hash)\
-\\n   List      pre     List::kv      safe   (rw!Hash)\
+\\n   List      pre     List::kv      safe,export   (rw!Hash)\
 \\n   List      pre     pairs   safe   (rw!Hash)\
 \\n   List      pre     keys    safe   (rw!Array)\
 \\n   List      pre     values  safe   (rw!Array)\
-\\n   List      pre     List::kv      safe   (rw!Array)\
+\\n   List      pre     List::kv      safe,export   (rw!Array)\
 \\n   List      pre     pairs   safe   (rw!Array)\
 \\n   Scalar    pre     delete  safe   (rw!Hash: List)\
 \\n   Scalar    pre     delete  safe   (rw!Array: List)\
@@ -1999,18 +1997,18 @@ initSyms = seq (length syms) $ do
 \\n   Bool      pre     rmdir   unsafe (Str)\
 \\n   Bool      pre     mkdir   unsafe (Str)\
 \\n   Bool      pre     chdir   unsafe (Str)\
-\\n   Int       pre     List::elems   safe   (rw!Array)\
-\\n   Int       pre     List::end     safe   (Array)\
+\\n   Int       pre     List::elems   safe,export   (rw!Array)\
+\\n   Int       pre     List::end     safe,export   (Array)\
 \\n   Int       pre     graphs  safe   (Str)\
 \\n   Int       pre     codes   safe   (Str)\
 \\n   Int       pre     chars   safe   (Str)\
 \\n   Int       pre     bytes   safe   (Str)\
 \\n   Int       pre     chmod   unsafe (Int, List)\
-\\n   Scalar    pre     Pair::key     safe   (rw!Pair)\
-\\n   Scalar    pre     Pair::value   safe   (rw!Pair)\
+\\n   Scalar    pre     Pair::key     safe (rw!Pair)\
+\\n   Scalar    pre     Pair::value   safe (rw!Pair)\
 \\n   List      pre     keys    safe   (rw!Pair)\
 \\n   List      pre     values  safe   (Pair|Junction)\
-\\n   List      pre     Pair::kv      safe   (rw!Pair)\
+\\n   List      pre     Pair::kv      safe,export   (rw!Pair)\
 \\n   List      pre     pairs   safe   (rw!Pair)\
 \\n   Any       pre     pick    safe   (Any|Junction)\
 \\n   List      pre     pick    safe   (Any|Junction: Int)\
