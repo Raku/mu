@@ -1690,7 +1690,7 @@ is numbered 0, and the immediate caller is numbered 1:
 
 The C<caller> function is defined as
 
-    &caller ::= &context.assuming(1);
+    &caller ::= &context.assuming(1, *);
 
 so the preceding example can also be written:
 
@@ -1713,10 +1713,11 @@ a count of how many contexts to skip:
     $ctx = context($i);    # $i'th caller's context
 
 The second argument is optional and is a matcher to apply against the
-context object.
+context object.  The first argument only counts matching contexts:
 
     $ctx = context(0, Method);           # nearest context that is method
     $ctx = context(1, Method);           # 2nd nearest context that is method
+    $ctx = context(1, Method).caller;    # caller of that 2nd nearest method
     $ctx = context(0, Block);            # nearest context that is block
     $ctx = context(2, Sub);              # 3rd nearest sub context
     $ctx = context(0, Block where { .label eq 'Foo' });
@@ -1729,20 +1730,27 @@ Note that this last potentially differs from the answer returned by
 which returns the context of the innermost Foo block in the lexical scope
 rather than the dynamic scope.
 
-The returned context object has the following methods:
+The returned context object supports at least the following methods:
 
     .want
+    .context
+    .caller
     .file
     .line
     .subname
+    .lookup
 
-and basically anything else defined as C<$?NAME> there.  (XXX cop out)
+The C<.lookup> method provides access to the lexical namespace in effect
+at the given dynamic context's current position.  It may be used to look
+up ordinary lexical variables as well as special compiler variables such
+as C<$?PACKAGE>.  It must not be used to change any lexical variable
+that is not marked as C<< context<rw> >>.
 
 =head2 The C<want> function
 
 The C<want> function returns a C<Signature> object that contains information
 about the context in which the current block, closure, or subroutine was
-called.
+called.  The C<want> function is really just short for C<context(0).want>.
 
 As with normal function signatures, you can test the result of C<want> with a
 smart match (C<~~>) or a C<when>:

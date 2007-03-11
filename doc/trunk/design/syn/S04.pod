@@ -690,9 +690,9 @@ To return from your immediate caller, you can say:
     caller.leave(1,2,3)
 
 Further contexts up the caller stack may be located by the selector
-that is built into the C<caller> function itself:
+that is built into the C<context> function itself:
 
-    caller({ .label eq 'LINE' }).leave(1,2,3);
+    context(0, { .label eq 'LINE' }).leave(1,2,3);
 
 By default the innermost dynamic scope matching the selection criteria
 will be exited.  This can be a bit cumbersome, so in the particular
@@ -729,7 +729,7 @@ in this respect arises only because Perl 5 didn't have user-defined
 control structures, hence the sub's lexical scope was I<always>
 the innermost dynamic scope, so the preference to the lexical scope
 in the current sub was implicit.  For Perl 6 we have to make this
-preference explicit.)  So this fallback is more like the C<caller>
+preference explicit.)  So this fallback is more like the C<context>
 form we saw earlier.
 
 Warnings are produced in Perl 6 by throwing a resumable control
