@@ -145,13 +145,15 @@ genMultiSym var = case v_sigil var of
     _           -> const $ die "Cannot generate multi variants of variable" var
 
 isStaticScope :: Scope -> Bool
+isStaticScope SOur    = True
 isStaticScope SState  = True
-isStaticScope SGlobal = True
 isStaticScope _       = False
 
 -- XXX - SConstant support
 genSymScoped :: MonadSTM m => Scope -> Var -> VRef -> m PadMutator
 genSymScoped scope var ref
+    | SConstant <- scope = do
+        return (makeEntry $ EntryConstant typ ref)
     | isStaticScope scope = do
         tvar    <- liftSTM $ newTVar ref
         return (makeEntry $ EntryStatic typ ref tvar)
@@ -289,7 +291,7 @@ _underscore = cast "_"
 newPackage :: String -> String -> [String] -> [String] -> Exp
 newPackage cls name classes roles = Stmts metaObj (newType name)
     where
-    metaObj = _Sym SGlobal (':':'*':name) (
+    metaObj = _Sym SOur (':':'*':name) (
         App (_Var "&HOW::new")
             (Just $ Val (VType $ mkType cls))
             [ Syn "named"
@@ -312,13 +314,13 @@ newPackage cls name classes roles = Stmts metaObj (newType name)
             ) Noop
 
 newType :: String -> Exp
-newType name = _Sym SGlobal ('&':'&':'*':termName) (typeMacro name (Val . VType . mkType $ name)) Noop
+newType name = _Sym SOur ('&':'&':'*':termName) (typeMacro name (Val . VType . mkType $ name)) Noop
     where
     termName = "term:" ++ name
 
 
 newMetaType :: String -> Exp
-newMetaType name = _Sym SGlobal ('&':'&':'*':termName) (typeMacro name (_Var (':':'*':name))) Noop
+newMetaType name = _Sym SOur ('&':'&':'*':termName) (typeMacro name (_Var (':':'*':name))) Noop
     where
     termName = "term:" ++ name
 
