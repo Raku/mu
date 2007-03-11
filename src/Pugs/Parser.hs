@@ -223,7 +223,7 @@ ruleSubScoped = tryRule "scoped subroutine" $ do
 ruleSubGlobal :: RuleParser SubDescription
 ruleSubGlobal = tryRule "global subroutine" $ do
     (isMulti, styp, name) <- ruleSubHead
-    return (SGlobal, "Any", isMulti, styp, name)
+    return (SOur, "Any", isMulti, styp, name)
 
 ruleRuleDeclaration :: RuleParser Exp
 ruleRuleDeclaration = rule "rule declaration" $ do
@@ -237,7 +237,7 @@ ruleRuleDeclaration = rule "rule declaration" $ do
     if mod == "proto" then return emptyExp else do
     ch      <- char '{'
     expr    <- rxLiteralAny adverbs ch (balancedDelim ch)
-    unsafeEvalExp (_Sym SGlobal ('<':'*':name) (Syn "rx" [expr, adverbs]) Noop)
+    unsafeEvalExp (_Sym SOur ('<':'*':name) (Syn "rx" [expr, adverbs]) Noop)
     insertIntoPosition $ "method " ++ name ++ " ($_) { $_ ~~ m/<" ++ name ++ ">/ };"
     return emptyExp
 
@@ -346,7 +346,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     env <- ask
     let pkg = cast (envPackage env)
         nameQualified | ':' `elem` name     = name
-                      | scope <= SMy        = name
+--                    | scope <= SMy        = name
                       | isGlobal            = name
                       | isBuiltin           = (head name:'*':tail name)
                       | otherwise           = (head name:pkg) ++ "::" ++ tail name
@@ -415,7 +415,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     -- Don't add the sub if it's unsafe and we're in safemode.
     if "unsafe" `elem` traits && safeMode then return emptyExp else do
     (`finallyM` clearDynParsers) $ case scope of
-        SGlobal | isExported -> do
+        SOur | isQualifiedVar var && isExported -> do
             -- we mustn't perform the export immediately upon parse, because
             -- then only the first consumer of a module will see it. Instead,
             -- make a note of this symbol being exportable, and defer the
@@ -437,18 +437,22 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
                 [ Syn "{}" [_Var ("%" ++ pkg ++ "::EXPORTS"), Val $ VStr name]
                 , Val exportedSub
                 ]
-        SGlobal -> unsafeEvalExp $ mkSym sub nameQualified Noop
+        _ | isQualifiedVar var -> unsafeEvalExp $ mkSym sub nameQualified Noop
         _ -> do
-            case lookupPad (cast (mkMulti nameQualified)) newPad of
-                Just EntryConstant{}            -> regenLexicalEntry
-                Just entry                      -> do
-                    addBlockPad scope newPad
+            case lookupPad var' newPad of
+                Just entry  -> do
                     Val (VCode code) <- unsafeEvalExp (Syn "sub" [Val sub])
-                    return $! unsafePerformSTM $! do
-                        rv  <- writePadEntry entry $! MkRef (ICode code)
-                        return (rv `seq` emptyExp)
-                _                               -> regenLexicalEntry
+                    let entry'  = entry{ pe_proto = cv' }
+                        cv'     = MkRef (ICode code)
+                    addBlockPad scope (adjustPad (const entry') var newPad)
+                    case entry' of
+                        EntryConstant{} -> return emptyExp
+                        _               -> return $! unsafePerformSTM $! do
+                            rv  <- writePadEntry entry' cv'
+                            return (rv `seq` emptyExp)
+                _           -> regenLexicalEntry
             where
+            var' = cast (mkMulti nameQualified)
             regenLexicalEntry = do
                 env' <- unsafeEvalEnv $ mkSym sub nameQualified Noop
                 putRuleEnv env'
@@ -505,11 +509,9 @@ ruleFormalParam opt = rule "formal parameter" $ do
     --  :$foo             --> ?:$foo
     --  :$foo!            --> !:$foo
     --  :$foo is required --> !:$foo
-    isDefaultSpecified <- case opt of
-        FormalsSimple  -> return False
-        FormalsComplex -> option False $ do
-            lookAhead $ symbol "="
-            return True
+    isDefaultSpecified <- option False $ do
+        lookAhead $ symbol "="
+        return True
     let isOptional = isDefaultSpecified
                   || sigil2 == "?"
                   || sigil1 == ":" && sigil2 /= "!" && "required" `notElem` traits
@@ -519,19 +521,19 @@ ruleFormalParam opt = rule "formal parameter" $ do
             ('@':_) -> Val (VList [])
             ('%':_) -> Val (VList [])
             _       -> Noop
-    exp <- case opt of
-        FormalsSimple -> return defaultExp
-        FormalsComplex -> do
-            rv <- ruleParamDefault (not isOptional)
-            optional $ do
-                symbol "-->"
-                ruleParamList ParensOptional $ choice
-                    [ ruleType `sepBy1` symbol "of"
-                    , ruleFormalParam FormalsComplex >> return []
-                    ]
-            return $ case rv of
-                Noop -> defaultExp
-                _    -> rv
+    rv <- if isOptional then return emptyExp else case opt of
+        FormalsSimple   -> option emptyExp $ do
+            pseudoAssignment (Val (VType (if null typ then typeOfSigilVar (cast name) else mkType typ)))
+        FormalsComplex  -> ruleParamDefault
+    when (opt == FormalsComplex) . optional $ do
+        symbol "-->"
+        ruleParamList ParensOptional $ choice
+            [ ruleType `sepBy1` symbol "of"
+            , ruleFormalParam FormalsComplex >> return []
+            ]
+    let exp = case rv of
+            Noop -> defaultExp
+            _    -> rv
     return $ foldr appTrait (buildParam typ sigil' name exp) traits
     where
     appTrait "rw"   x = x { isWritable = True }
@@ -540,9 +542,8 @@ ruleFormalParam opt = rule "formal parameter" $ do
     appTrait "context" x = x { paramName = (paramName x){ v_twigil = TImplicit } }
     appTrait _      x = x -- error "unknown trait"
 
-ruleParamDefault :: Bool -> RuleParser Exp
-ruleParamDefault True  = return emptyExp
-ruleParamDefault False = rule "default value" $ option emptyExp $ do
+ruleParamDefault :: RuleParser Exp
+ruleParamDefault = rule "default value" $ option emptyExp $ do
     symbol "="
     parseExpWithItemOps
 
@@ -597,7 +598,7 @@ ruleMemberDeclaration = do
         _           -> fail $ "Invalid member variable name '" ++ attr ++ "'"
     traits  <- ruleTraitsIsOnly
     optional $ do { symbol "handles"; ruleExpression }
-    def     <- ruleParamDefault False
+    def     <- ruleParamDefault
     env     <- ask
     -- manufacture an accessor, and register this slot into metaobject
     let sub = mkPrim
@@ -617,82 +618,8 @@ ruleMemberDeclaration = do
         pkg = cast (envPackage env)
         metaObj = _Var (':':'*':pkg)
         attrDef = Syn "{}" [Syn "{}" [metaObj, Val (VStr "attrs")], Val (VStr key)]
-    unsafeEvalExp (_Sym SGlobal name exp (Syn "=" [attrDef, def]))
+    unsafeEvalExp (_Sym SOur name exp (Syn "=" [attrDef, def]))
     return emptyExp
-
-{-
-ruleVarDeclaration :: RuleParser Exp
-ruleVarDeclaration = rule "variable declaration" $ do
-    scope       <- ruleScope
-    typename    <- choice
-        [ lexeme (optional (string "::") >> ruleQualifiedIdentifier)
-        , return ""
-        ]  -- Type
-    (decl, lhs) <- choice
-        [ do -- pos  <- getPosition
-             name <- ruleVarName
-             return ((Sym scope name), Var name)
-        , do names <- parens . (`sepEndBy` ruleComma) $
-                ruleVarName <|> do { undefLiteral; return "" }
-             let mkVar v = if null v then Val undef else Var v
-             return (combine (map (Sym scope) names), Syn "," (map mkVar names))
-        ]
-    _traits <- many ruleTrait
-    -- pos <- getPosition
-    (sym, expMaybe) <- option ("=", Nothing) $ do
-        sym <- choice $ map (try . string) $ words " = .= := ::= "
-        when (sym == "=") $ do
-           lookAhead (satisfy (/= '='))
-           return ()
-        whiteSpace
-        -- XXX handle 'my $a = my $b = foo'.
-        -- matching ruleVarDeclaration here results in nested pads,
-        -- i.e. Pad SMy _ (Syn "=",[Var _,Stmts Noop (Pad SMy _ _)]),
-        -- which is NOT what we want. we re-arrange this below in unnestPad.
-        exp <- choice
-            [ ruleVarDeclaration
-            , ruleExpression
-            ]
-        -- Slightly hacky. Here "my Foo $foo .= new(...)" is rewritten into
-        -- "my Foo $foo = Foo.new(...)".
-        -- And note that IIRC not the type object should be the invocant, but
-        -- an undef which knows to dispatch .new to the real class.
-        let exp' | Ann (Pos _) (App sub Nothing args) <- exp, sym == ".=" && typename /= "" -- XXX: App _ maybe?
-                 = return $ App sub (Just . Var $ ':':typename) args
-                 | sym == ".=" && typename /= ""
-                 = fail "The .= operator expects a method application as RHS."
-                 | sym == ".="
-                 = fail "The .= operator needs a type specification."
-                 | otherwise
-                 = return exp
-        let sym' | sym == ".=" = "="
-                 | otherwise   = sym
-        exp'' <- exp'
-        return (sym', Just exp'')
-    lexDiff <- case sym of
-        "::="   -> do
-            env  <- ask
-            env' <- unsafeEvalEnv $ decl (Syn sym [lhs, fromJust expMaybe])
-            return $ envLexical env' `diffPads` envLexical env
-        _       -> unsafeEvalLexDiff (decl emptyExp)
-    let rhs | sym == "::=" = emptyExp
-            | otherwise = maybe emptyExp (\exp -> Syn sym [lhs, exp]) expMaybe
-    -- state $x = 42 is really syntax sugar for state $x; START { $x = 42 }
-    -- XXX always wrap the Pad in a Stmts so that expRule has something to unwrap
-    case scope of
-        SState -> do
-            implicit_first_block <- vcode2startBlock $ VCode mkSub { subBody = rhs }
-            return $ Stmts Noop $ unnestPad $ Pad scope lexDiff implicit_first_block
-        _      -> return $ Stmts Noop $ unnestPad $ Pad scope lexDiff rhs
-    where
-    -- XXX here's the other half of the squinting fix.
-    -- see above. together, we turn 'my $a = my $b = foo' into
-    -- 'my $a; my $b; $a = $b = foo'. should we handle more scopes than 'SMy'?
-    -- more syntax than '(Syn "=" _)'?
-    --unnestPad (Pad SMy lex (Syn "=" [v,Pad SMy lex' (Syn "=" [v',x])])) = Pad SMy lex (Stmts Noop (Pad SMy lex' (Syn "=" [v,(Syn "=" [v',unnestPad x])])))
-    unnestPad (Pad scope1 lex (Syn "=" [v,Stmts Noop (Pad scope2 lex' (Syn "=" [v',x]))])) = Pad scope1 lex (Stmts Noop (Pad scope2 lex' (Syn "=" [v,(Syn "=" [v',unnestPad x])])))
-    unnestPad x@_ = x
--}
 
 {-|
 Match a @no@ declaration, i.e. the opposite of @use@ (see
@@ -1392,19 +1319,25 @@ ruleVarDecl = rule "variable declaration" $ do
     --       constraints; for now we abuse ruleFormalParam to add an
     --       extra "+" as part of the name when "is context" is seen,
     --       so we can rewrite the declarator to SEnv, but it's Wrong.
-    (nameTypes, exp, accessors, seenIsContextXXX) <- try oneDecl <|> manyDecl
-    let makeBinding (name, typ)
-            | ('$':_) <- name, typ /= anyType   = mkSym . bindSym
-            | otherwise                         = mkSym
+    (isOne, nameTypes, accessors, seenIsContextXXX) <- try oneDecl <|> manyDecl
+    let makeBinding (name, typ, def)
+            | SConstant <- scope                                    = mkConstSym
+            | ('$':_) <- name, typ /= anyType, scope /= SConstant   = mkSym . bindSym
+            | otherwise                                             = mkSym
             where
-            mkSym   = _Sym scope' name emptyExp
-            bindSym = Stmts (Syn "=" [_Var name, Val (VType typ)])
-        scope' = if seenIsContextXXX then SEnv else scope -- XXX Hack
+            mkSym       = _Sym scope name emptyExp
+            mkConstSym  = _Sym scope name def
+            bindSym     = Stmts (Syn "=" [_Var name, Val (VType typ)])
+--      scope' = if seenIsContextXXX then SEnv else scope -- XXX Hack
     lexDiff <- unsafeEvalLexDiff $ combine (map makeBinding nameTypes) emptyExp
     -- Now hoist the lexDiff to the current block
-    addBlockPad scope' lexDiff
+    addBlockPad scope lexDiff
     forM_ accessors makeAccessor
-    return (Ann (Decl scope') exp)
+    initializers <- mapM (makeInitializer scope) nameTypes
+    return . Ann (Decl scope) $ case filter (/= Noop) initializers of
+        []          -> Noop
+        [x] | isOne -> x
+        xs          -> Syn "," xs
     where
     oneDecl = do
         param <- ruleFormalParam FormalsSimple
@@ -1412,25 +1345,27 @@ ruleVarDecl = rule "variable declaration" $ do
             name = cast var{ v_twigil = TNil }
             seenIsContextXXX = v_twigil var == TImplicit
             typ  = typeOfCxt (paramContext param)
-            nameType = (name, typ)
+            nameType = (name, typ, paramDefault param)
             accessors
                 | TAttribute <- v_twigil var    = [param]
                 | otherwise                     = []
-        return ([nameType], makeExpFromNameType nameType, accessors, seenIsContextXXX)
+        return (True, [nameType], accessors, seenIsContextXXX)
     manyDecl = do
         defType <- option "" $ ruleType
+        optional (char ':')
         params  <- verbatimParens . enterBracketLevel ParensBracket $
             ruleFormalParam FormalsComplex `sepBy1` ruleComma
         let vars  = map paramName params
             names = map (\v -> cast v{ v_twigil = TNil }) vars
             types = map (maybeDefaultType . typeOfCxt . paramContext) params
+            defs  = map paramDefault params
             maybeDefaultType t
                 | t == anyType, defType /= ""   = mkType defType
                 | otherwise                     = t
             seenIsContextXXX = any ((== TImplicit) . v_twigil) vars
-            nameTypes = names `zip` types
+            nameTypes = zip3 names types defs
             accessors = filter ((== TAttribute) . v_twigil . paramName) params
-        return (nameTypes, Syn "," $ map makeExpFromNameType nameTypes, accessors, seenIsContextXXX)
+        return (False, nameTypes, accessors, seenIsContextXXX)
     makeAccessor prm = do
         -- Generate accessor for class attributes.
         pkg <- asks envPackage
@@ -1449,11 +1384,15 @@ ruleVarDecl = rule "variable declaration" $ do
             accessor = var{ v_package = pkg, v_sigil = SCode, v_twigil = TNil }
         unsafeEvalExp $ Syn ":=" [Var accessor, Syn "sub" [Val $ VCode sub]]
     -- Note that the reassignment below is _wrong_ when scope is SState.
-    makeExpFromNameType (name@('$':_), typ)
-        | typ /= anyType
-        = Syn "=" [_Var name, Val (VType typ)]
-    makeExpFromNameType (name, _)
-        = _Var name
+    makeInitializer SState (name, _, def)
+        | def /= Noop, def /= Val (VList []) = do
+        assign <- vcode2startBlock (VCode $ mkSub { subBody = Syn "=" [_Var name, def]})
+        return $ Stmts assign (_Var name)
+    makeInitializer SConstant (name, _, _) = return (_Var name)
+    makeInitializer _ (name, _, def)
+        | def /= Noop, def /= Val (VList []) = do
+        return $ Stmts (Syn "=" [_Var name, def]) (_Var name)
+    makeInitializer _ (name, _, _) = return (_Var name)
 
 parseTerm :: RuleParser Exp
 parseTerm = rule "term" $! do
