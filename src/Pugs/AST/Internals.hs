@@ -36,6 +36,7 @@ module Pugs.AST.Internals (
     ObjectId(..),
     VType, -- uses Type
     VRule(..), -- uses Val
+    VMultiCode(..),
 
     IVar(..), -- uses *Class and V*
     IArray, IArraySlice, IHash, IScalar, ICode, IScalarProxy,
@@ -61,9 +62,9 @@ module Pugs.AST.Internals (
     scalarRef, codeRef, arrayRef, hashRef, thunkRef, pairRef,
     newScalar, newArray, newHash, newHandle, newObject,
     proxyScalar, constScalar, lazyScalar, lazyUndef, constArray,
-    retError, retControl, retShift, retShiftEmpty, retEmpty, retIVar, readIVar, writeIVar,
+    retControl, retShift, retShiftEmpty, retEmpty, retIVar, readIVar, writeIVar,
     fromVals, refType,
-    refreshPad, lookupPad, padToList, listToPad,
+    readPadEntry, writePadEntry, refreshPad, lookupPad, padToList, listToPad,
     mkPrim, mkSub, mkCode, showRat, showTrueRat,
     cxtOfSigil, cxtOfSigilVar, typeOfSigil, typeOfSigilVar,
     buildParam, defaultArrayParam, defaultHashParam, defaultScalarParam,
@@ -335,6 +336,7 @@ instance Value VMatch where
 instance Value VRef where
     fromVal (VRef r)   = return $ r
     fromVal (VList vs) = return $ arrayRef vs
+    fromVal (VCode c)  = return $ codeRef c
     fromVal v          = return $ scalarRef v
     castV = VRef
     doCast v = castFailM v "VRef"
@@ -1009,6 +1011,11 @@ data SubAssoc
     = ANil | AIrrelevantToParsing | A_left | A_right | A_non | A_chain | A_list 
     deriving (Show, Eq, Ord, Typeable, Data) {-!derive: YAML_Pos, JSON, Perl5 !-}
 
+instance Monoid SubAssoc where
+    mempty = ANil
+    mappend ANil y = y
+    mappend x    _ = x
+
 -- | Represents a sub, method, closure etc. -- basically anything callable.
 data VCode = MkCode
     { isMulti           :: !Bool        -- ^ Is this a multi sub\/method?
@@ -1161,7 +1168,7 @@ data Exp
                                         --     be represented by 'App'.
     | Ann !Ann !Exp                     -- ^ Annotation (see @Ann@)
     | Pad !Scope !Pad !Exp              -- ^ Lexical pad
-    | Sym !Scope !Var !Exp              -- ^ Symbol declaration
+    | Sym !Scope !Var !Exp !Exp         -- ^ Symbol declaration
     | Stmts !Exp !Exp                   -- ^ Multiple statements
     | Prim !([Val] -> Eval Val)         -- ^ Primitive
     | Val !Val                          -- ^ Value
@@ -1169,8 +1176,8 @@ data Exp
     | NonTerm !Pos                      -- ^ Parse error
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
-_Sym :: Scope -> String -> Exp -> Exp
-_Sym scope str exp = Sym scope (cast str) exp
+_Sym :: Scope -> String -> Exp -> Exp -> Exp
+_Sym scope str init exp = Sym scope (cast str) init exp
 
 _Var :: String -> Exp
 _Var str = Var (possiblyFixOperatorName (cast str))
@@ -1196,7 +1203,7 @@ transformExp f (App a b cs) = do
 transformExp f (Syn t es) = f =<< liftM (Syn t) (mapM (transformExp f) es)
 transformExp f (Ann a e) = f =<< liftM (Ann a) (transformExp f e)
 transformExp f (Pad s p e) = f =<< liftM (Pad s p) (transformExp f e)
-transformExp f (Sym s v e) = f =<< liftM (Sym s v) (transformExp f e)
+transformExp f (Sym s v i e) = f =<< liftM (Sym s v i) (transformExp f e)
 transformExp f (Stmts e1 e2) = do 
     e1' <- transformExp f e1
     e2' <- transformExp f e2
@@ -1222,7 +1229,7 @@ instance Unwrap [Exp] where
 instance Unwrap Exp where
     unwrap (Ann _ exp)      = unwrap exp
     unwrap (Pad _ _ exp)    = unwrap exp
-    unwrap (Sym _ _ exp)    = unwrap exp
+    unwrap (Sym _ _ _ exp)  = unwrap exp
     unwrap x                = x
 
 fromVals :: (Value n) => Val -> Eval [n]
@@ -1277,7 +1284,7 @@ extractPlaceholderVars (Ann ann ex) vs = ((Ann ann ex'), vs')
 extractPlaceholderVars (Pad scope pad ex) vs = ((Pad scope pad ex'), vs')
     where
     (ex', vs') = extractPlaceholderVars ex vs
-extractPlaceholderVars (Sym scope var ex) vs = ((Sym scope var ex'), vs')
+extractPlaceholderVars (Sym scope var ini ex) vs = ((Sym scope var ini ex'), vs')
     where
     (ex', vs') = extractPlaceholderVars ex vs
 extractPlaceholderVars exp vs = (exp, vs)
@@ -1400,31 +1407,43 @@ newtype Pad = MkPad { padEntries :: Map Var PadEntry }
     deriving (Eq, Ord, Typeable)
 
 data PadEntry
-    = MkEntry !(TVar Bool, TVar VRef)           -- single entry
-    | MkEntryMulti ![(TVar Bool, TVar VRef)]    -- multi subs
+    = EntryLexical  { pe_type :: !Type, pe_value :: !VRef, pe_store :: !(TVar VRef), pe_fresh :: !(TVar Bool) }
+    | EntryStatic   { pe_type :: !Type, pe_value :: !VRef, pe_store :: !(TVar VRef) }
+    | EntryConstant { pe_type :: !Type, pe_value :: !VRef }
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
-{-
-    = MkEntry
-        { entryFresh :: !(TVar Bool)
-        , entryRef   :: !(TVar VRef)
-        , entryType  :: !Type
-        }
--}
 
 data IHashEnv = MkHashEnv deriving (Show, Typeable) {-!derive: YAML_Pos!-}
 data IScalarCwd = MkScalarCwd deriving (Show, Typeable) {-!derive: YAML_Pos!-}
 
+{-# SPECIALISE readPadEntry :: PadEntry -> Eval VRef #-}
+{-# SPECIALISE readPadEntry :: PadEntry -> STM VRef #-}
+readPadEntry :: MonadSTM m => PadEntry -> m VRef
+readPadEntry EntryConstant{ pe_value = v } = return v
+readPadEntry x                             = liftSTM (readTVar (pe_store x))
+
+{-# SPECIALISE writePadEntry :: PadEntry -> VRef -> Eval () #-}
+{-# SPECIALISE writePadEntry :: PadEntry -> VRef -> STM () #-}
+writePadEntry :: MonadSTM m => PadEntry -> VRef -> m ()
+writePadEntry x@EntryConstant{} _ = die "Cannot rebind constant" x
+writePadEntry x                 v = liftSTM (writeTVar (pe_store x) v)
+
 refreshPad :: (MonadIO m, MonadSTM m) => Pad -> m Pad
 refreshPad pad = do
-    fmap listToPad $ forM (padToList pad) $ \(name, tvars) -> do
-        tvars' <- forM tvars $ \orig@(fresh, _) -> do
-            isFresh <- liftSTM $ readTVar fresh
-            if isFresh then do { liftSTM (writeTVar fresh False); return orig } else do
-            -- regen TVar -- this is not the first time entering this scope
-            ref <- newObject (typeOfSigilVar name)
-            tvar' <- liftSTM $ newTVar ref
-            return (fresh, tvar')
-        return (name, tvars')
+    fmap listToPad $ forM (padToList pad) $ \(name, entry) -> do
+        entry' <- case entry of
+            EntryLexical{ pe_store = old, pe_type = typ, pe_fresh = fresh } -> do
+                isFresh <- liftSTM (readTVar fresh)
+                if isFresh then do { liftSTM (writeTVar fresh False); return entry } else do
+                -- regen TVar -- this is not the first time entering this scope
+                ref     <- case v_sigil name of
+                    SType       -> liftSTM $ readTVar old
+                    SCode       -> liftSTM $ readTVar old
+                    SCodeMulti  -> liftSTM $ readTVar old
+                    _           -> newObject (if typ == anyType then typeOfSigilVar name else typ)
+                tvar'   <- liftSTM (newTVar ref)
+                return entry{ pe_store = tvar' }
+            _ -> return entry
+        return (name, entry')
 
 newtype ObjectId = MkObjectId { unObjectId :: Int }
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
@@ -1453,21 +1472,20 @@ instance Show Pad where
     show pad = "MkPad (padToList " ++ show (padToList pad) ++ ")"
 
 findSymRef :: Var -> Pad -> Eval VRef
-findSymRef name pad = liftSTM $ do
-    ref <- findSym name pad
-    readTVar ref
+findSymRef name pad = liftSTM $ join (findSym name pad)
 
-{-# SPECIALISE findSym :: Var -> Pad -> Eval (TVar VRef) #-}
-{-# SPECIALISE findSym :: Var -> Pad -> Maybe (TVar VRef) #-}
-findSym :: Monad m => Var -> Pad -> m (TVar VRef)
+{-# SPECIALISE findSym :: Var -> Pad -> Eval (STM VRef) #-}
+{-# SPECIALISE findSym :: Var -> Pad -> Maybe (STM VRef) #-}
+findSym :: Monad m => Var -> Pad -> m (STM VRef)
 findSym name pad = case lookupPad name pad of
-    Just (x:_)  -> return x
-    _           -> fail $ "Cannot find variable: " ++ show name
+    Just EntryConstant{ pe_value = v }  -> return (return v)
+    Just x                              -> return (readTVar (pe_store x))
+    _      -> fail $ "Cannot find variable: " ++ show name
 
 -- | Look up a symbol in a 'Pad', returning the ref it is bound to.
 lookupPad :: Var -- ^ Symbol to look for
           -> Pad -- ^ Pad to look in
-          -> Maybe [TVar VRef] -- ^ Might return 'Nothing' if var is not found
+          -> Maybe PadEntry -- ^ Might return 'Nothing' if var is not found
 
 {-
     We (may) have to fix the name, as the user can write things like
@@ -1476,27 +1494,18 @@ lookupPad :: Var -- ^ Symbol to look for
     stored as &infix:+, i.e. without the brackets.
 -}
 
-lookupPad key (MkPad map) = case Map.lookup key map of
-    Just (MkEntryMulti xs)   -> Just [tvar | (_, tvar) <- xs]
-    Just (MkEntry (_, tvar)) -> Just [tvar]
-    Nothing -> Nothing
+lookupPad key (MkPad pad) = Map.lookup key pad
 
 {-|
 Transform a pad into a flat list of bindings. The inverse of 'mkPad'.
 
 Note that @Data.Map.assocs@ returns a list of mappings in ascending key order.
 -}
-padToList :: Pad -> [(Var, [(TVar Bool, TVar VRef)])]
-padToList (MkPad map) = [ (cast k, entryToList v) | (k, v) <- Map.assocs map ]
-    where
-    entryToList (MkEntry x)         = [x]
-    entryToList (MkEntryMulti xs)   = xs
+padToList :: Pad -> [(Var, PadEntry)]
+padToList (MkPad pad) = Map.assocs pad
 
-listToPad :: [(Var, [(TVar Bool, TVar VRef)])] -> Pad
-listToPad entries = MkPad (Map.fromList [ (cast k, listToEntry v) | (k, v) <- entries ])
-    where
-    listToEntry [x] = MkEntry x
-    listToEntry xs  = MkEntryMulti xs
+listToPad :: [(Var, PadEntry)] -> Pad
+listToPad entries = MkPad (Map.fromList entries)
 
 -- | type for a function introducing a change to a Pad
 type PadMutator = (Pad -> Pad)
@@ -1517,7 +1526,7 @@ mkCompUnit :: String -> Pad -> Exp -> CompUnit
 mkCompUnit _ pad ast = MkCompUnit compUnitVersion pad ast
 
 compUnitVersion :: Int
-compUnitVersion = 10
+compUnitVersion = 11
 
 {-|
 Retrieve the global 'Pad' from the current evaluation environment.
@@ -1534,29 +1543,30 @@ askGlobal = do
 writeVar :: Var -> Val -> Eval ()
 writeVar name val = do
     glob <- askGlobal
-    case findSym name glob of
-        Just tvar -> do
-            ref <- liftSTM $ readTVar tvar
+    case lookupPad name glob of
+        Just EntryConstant{} -> fail $ "Cannot rebind constant: " ++ show name
+        Just c -> do
+            ref <- liftSTM $ readTVar (pe_store c)
             writeRef ref val
-        _        -> return () -- XXX Wrong
+        _  -> fail $ "Cannot bind to non-existing variable: " ++ show name
 
 readVar :: Var -> Eval Val
 readVar var
     | isGlobalVar var = do
         glob <- askGlobal
         case findSym var glob of
-            Just tvar -> do
-                ref <- liftSTM $ readTVar tvar
-                readRef ref
-            _        -> return undef
+            Just action -> liftSTM action >>= readRef
+            _           -> case v_sigil var of
+                SCode   -> readVar var{ v_sigil = SCodeMulti }
+                _       -> return undef
     | otherwise = do
         lex <- asks envLexical
         case findSym var lex of
-            Just tvar -> do
-                ref <- liftSTM $ readTVar tvar
-                readRef ref
+            Just action -> liftSTM action >>= readRef
             -- XXX - fallback to global should be eliminated here
-            _  -> readVar (toGlobalVar var)
+            _  -> case findSym var{ v_sigil = SCodeMulti } lex of
+                Just action -> liftSTM action >>= readRef
+                _           -> readVar (toGlobalVar var)
 
 {-|
 The \'empty expression\' is just a no-op ('Noop').
@@ -1586,11 +1596,11 @@ undef = VUndef
 forceRef :: VRef -> Eval Val
 forceRef (MkRef (IScalar sv)) = forceRef =<< fromVal =<< scalar_fetch sv
 forceRef (MkRef (IThunk tv)) = thunk_force tv
-forceRef r = retError "Cannot forceRef" r
+forceRef r = die "Cannot forceRef" r
 
 dumpRef :: VRef -> Eval Val
 dumpRef (MkRef (ICode cv)) = do
-    vsub <- code_assuming cv [] []
+    vsub <- code_fetch cv
     return (VStr $ "(MkRef (ICode $ " ++ show vsub ++ "))")
 dumpRef (MkRef (IScalar sv)) | scalar_iType sv == mkType "Scalar::Const" = do
     sv <- scalar_fetch sv
@@ -1601,7 +1611,7 @@ dumpRef ref = return (VStr $ "(unsafePerformIO . newObject $ mkType \"" ++ showT
 readRef :: VRef -> Eval Val
 readRef (MkRef (IScalar sv)) = scalar_fetch sv
 readRef (MkRef (ICode cv)) = do
-    vsub <- code_assuming cv [] []
+    vsub <- code_fetch cv
     return $ VCode vsub
 readRef (MkRef (IHash hv)) = do
     pairs <- hash_fetch hv
@@ -1642,7 +1652,7 @@ writeRef (MkRef (IHash s)) val   = hash_store s =<< fromVHash val
 writeRef (MkRef (ICode s)) val   = code_store s =<< fromVal val
 writeRef (MkRef (IPair s)) val   = pair_storeVal s val
 writeRef (MkRef (IThunk tv)) val = (`writeRef` val) =<< fromVal =<< thunk_force tv
-writeRef r _ = retError "Cannot writeRef" r
+writeRef r _ = die "Cannot writeRef" r
 
 clearRef :: VRef -> Eval ()
 clearRef (MkRef (IScalar s)) = scalar_store s undef
@@ -1650,12 +1660,13 @@ clearRef (MkRef (IArray s))  = array_clear s
 clearRef (MkRef (IHash s))   = hash_clear s
 clearRef (MkRef (IPair s))   = pair_storeVal s undef
 clearRef (MkRef (IThunk tv)) = clearRef =<< fromVal =<< thunk_force tv
-clearRef r = retError "Cannot clearRef" r
+clearRef r = die "Cannot clearRef" r
 
 {-# SPECIALISE newObject :: Type -> Eval VRef #-}
 {-# SPECIALISE newObject :: Type -> IO VRef #-}
 newObject :: (MonadSTM m, MonadIO m) => Type -> m VRef
 newObject typ = case showType typ of
+    "Any"       -> liftSTM $ fmap scalarRef $ newTVar undef
     "Item"      -> liftSTM $ fmap scalarRef $ newTVar undef
     "Scalar"    -> liftSTM $ fmap scalarRef $ newTVar undef
     "Array"     -> liftSTM $ do
@@ -1664,6 +1675,10 @@ newObject typ = case showType typ of
     "Hash"      -> do
         h   <- liftIO (H.new (==) H.hashString)
         return $ hashRef (h :: IHash)
+    "Sub"       -> newObject $ mkType "Code"
+    "Routine"   -> newObject $ mkType "Code"
+    "Method"    -> newObject $ mkType "Code"
+    "Submethod" -> newObject $ mkType "Code"
     "Code"      -> return $! codeRef $ mkPrim
         { subAssoc = ANil
         , subBody  = Prim . const $ fail "Cannot use Undef as a Code object"
@@ -1695,7 +1710,7 @@ doPair (VRef (MkRef (IScalar sv))) f = do
             scalar_store sv (VRef ref)
             return $ f pv
         _  -> doPair val f
-doPair (VRef x) _ = retError "Cannot cast into Pair" x
+doPair (VRef x) _ = die "Cannot cast into Pair" x
 doPair val f = do
     vs <- fromVal val
     case (vs :: VList) of
@@ -1720,7 +1735,7 @@ doHash (VRef (MkRef p@(IPair _))) f = return $ f p
 doHash (VObject o) f = return $ f (objAttrs o)
 doHash (VMatch m) f = do
     return $ f (matchSubNamed m)
-doHash val@(VRef _) _ = retError "Cannot cast into Hash" val
+doHash val@(VRef _) _ = die "Cannot cast into Hash" val
 doHash val f = do
     hv  <- fromVal val
     return $ f (hv :: VHash)
@@ -1753,7 +1768,7 @@ doArray (VRef (MkRef p@(IPair _))) f = return $ f p
 doArray val@(VRef (MkRef IHash{})) f = do
     av  <- fromVal val
     return $ f (av :: VArray)
-doArray val@(VRef _) _ = retError "Cannot cast into Array" val
+doArray val@(VRef _) _ = die "Cannot cast into Array" val
 doArray (VMatch m) f = do
     return $ f (matchSubPos m)
 doArray val f = do
@@ -1916,7 +1931,7 @@ constArray :: VArray -> IVar VArray
 constArray = IArray
 
 retConstError :: VScalar -> Eval b
-retConstError val = retError "Can't modify constant item" val
+retConstError val = die "Can't modify constant item" val
 
 
 -- Haddock doesn't like these; not sure why ...
@@ -1954,6 +1969,13 @@ type IScalarProxy       = (Eval VScalar, (VScalar -> Eval ()))
 type IScalarLazy        = Maybe VScalar
 type IPairHashSlice     = (VStr, IVar VScalar)
 
+data VMultiCode = MkMultiCode
+    { mc_type       :: !Type
+    , mc_assoc      :: !SubAssoc
+    , mc_signature  :: !Params
+    , mc_variants   :: ![:PadEntry:]
+    }
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 -- these implementation allows no destructions
 type IRule   = VRule
@@ -2021,6 +2043,13 @@ instance YAML (Maybe Env) where
 instance YAML (Eval Val) where
     asYAML x = asYAML =<< fakeEval x
     fromYAML x = return =<< fromYAML x
+instance (Ord a, YAML a) => YAML (Set a) where
+    asYAML x = do
+        x' <- mapM asYAML (Set.toAscList x)
+        (return . mkTagNode "Set" . ESeq) x'
+    fromYAML node = do
+        fmap Set.fromDistinctAscList (fromYAMLseq node)
+
 instance YAML a => YAML (Map String a) where
     asYAML x = asYAMLmap "Map" $ Map.toAscList (Map.map asYAML x)
     fromYAML node = fmap Map.fromList (fromYAMLmap node)
@@ -2033,10 +2062,17 @@ instance YAML a => YAML (Map Var a) where
 instance Typeable a => YAML (IVar a) where
     asYAML x = asYAML (MkRef x)
 instance YAML VRef where
-    asYAML (MkRef (ICode cv)) = do
-        VCode vsub  <- fakeEval $ fmap VCode (code_fetch cv)
-        vsubC       <- asYAML vsub
-        return $ mkTagNode (tagHs "VCode") $ ESeq [vsubC]
+    asYAML (MkRef (ICode cv))
+        | Just mc <- fromTypeable cv = do
+            mcC <- asYAML (mc :: VMultiCode)
+            return $ mkTagNode (tagHs "VMultiCode") $ ESeq [mcC]
+        | Just ic <- fromTypeable cv = do
+            icC <- asYAML (ic :: ICode)
+            return $ mkTagNode (tagHs "ICode") $ ESeq [icC]
+        | otherwise = do
+            VCode vsub  <- fakeEval $ fmap VCode (code_fetch cv)
+            vsubC       <- asYAML vsub
+            return $ mkTagNode (tagHs "VCode") $ ESeq [vsubC]
     asYAML (MkRef (IScalar sv)) = do
         val <- fakeEval $ scalar_fetch sv
         svC <- asYAML val
@@ -2062,6 +2098,10 @@ instance YAML VRef where
         liftIO $ print svC
         fail ("Not implemented: asYAML \"" ++ showType (refType ref) ++ "\"")
     fromYAML MkNode{n_tag=Just s, n_elem=ESeq [node]}
+        | s == packBuf "tag:hs:VMultiCode"   =
+            fmap (MkRef . ICode) (fromYAML node :: IO VMultiCode)
+        | s == packBuf "tag:hs:ICode"   =
+            fmap (MkRef . ICode) (fromYAML node :: IO ICode)
         | s == packBuf "tag:hs:VCode"   =
             fmap (MkRef . ICode) (fromYAML node :: IO VCode)
         | s == packBuf "tag:hs:VScalar" =
