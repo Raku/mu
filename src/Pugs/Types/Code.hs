@@ -11,6 +11,21 @@ class (Typeable a) => CodeClass a where
     code_params   :: a -> Params
     code_type     :: a -> SubType
 
+instance CodeClass VMultiCode where
+    code_iType      = mc_type
+    code_fetch c    = do
+        -- warn "XXX - Multi dispatc -- Not yet" (mc_variants c)
+        fromVal =<< readRef =<< readPadEntry (mc_variants c !: 0)
+    code_store c _  = retConstError . VStr $ show c
+    code_params     = mc_signature
+    code_assuming c [] [] = code_fetch c
+    code_assuming _ _ _   = error "assuming"
+    code_assoc      = mc_assoc
+    code_apply      = error "apply"
+    code_type c
+        | mc_type c == mkType "Method"  = SubMethod
+        | otherwise                     = SubRoutine
+
 instance CodeClass ICode where
     code_iType c  = code_iType . inlinePerformSTM $ readTVar c
     code_fetch    = liftSTM . readTVar
@@ -30,11 +45,12 @@ instance CodeClass VCode where
         SubMethod   -> mkType "Method"
         _           -> mkType "Sub"
     code_fetch    = return
-    code_store c _= retConstError $ VStr $ show c
+    code_store c _= retConstError . VStr $ show c
     code_assuming c [] [] = return c
     code_assuming _ _ _   = error "assuming"
     code_apply    = error "apply"
     code_assoc    = subAssoc
     code_params   = subParams
     code_type     = subType
+
 
