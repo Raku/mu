@@ -1740,14 +1740,15 @@ in order, left to right.  Note that C<Any> and C<0> are no-ops:
     $ctx = context(1,0,1,1); # my context's context's context's context
     $ctx = context($i);      # $i'th context
 
-Repeating any smartmatch just matches the same context again unless
+Repeating any smartmatch just matches the same context again unless you
+intersperse a 1 to skip the current level:
 
     $ctx = context(Method);              # nearest context that is method
     $ctx = context(Method,Method);       # nearest context that is method
     $ctx = context(Method,1,Method);     # 2nd nearest method context
     $ctx = context(Method,1,Method,1)    # caller of that 2nd nearest method
     $ctx = context(1,Block);             # nearest outer context that is block
-    $ctx = context(Sub,Sub,Sub);         # 3rd nearest sub context
+    $ctx = context(Sub,1,Sub,1,Sub);     # 3rd nearest sub context
     $ctx = context({ .label eq 'Foo' }); # nearest context whose label is 'Foo'
 
 Note that this last potentially differs from the answer returned by
