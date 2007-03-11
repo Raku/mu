@@ -12,7 +12,7 @@ L<<S12/"Methods" /Indirect object notation now requires a colon after the invoca
 
 =cut
 
-plan 7;
+plan 6;
 
 
 ##### Without arguments
@@ -30,7 +30,6 @@ ok( "Still alive after new" );
 
 is( $o.a(), 'test', "The indirect object notation call without argument 1" );
 is( (a $o:), 'test', "The indirect object notation call without arguments 2" );
-is( (a $o), 'test', "The indirect object notation call without arguments 3" );
 }
 
 ##### With arguments
