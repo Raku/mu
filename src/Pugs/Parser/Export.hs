@@ -37,10 +37,10 @@ exportSym _ _ _ = fail "Non-Code exports does not work yet"
 --exportSym' scope name sym = other vars...
 
 doExport :: Scope -> Exp -> RuleParser Exp
-doExport SGlobal sym = do
+doExport SState sym = do
     unsafeEvalExp sym
     return emptyExp
 doExport SMy sym = do
-    lexDiff <- unsafeEvalLexDiff $ sym
+    lexDiff <- unsafeEvalLexDiff sym
     return $ Pad SMy lexDiff emptyExp
 doExport _ _ = fail "notyet" -- XXX writeme. but do they all make sense at all?

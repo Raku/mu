@@ -36,7 +36,7 @@ findVar var
 
 
 constPadEntry :: VRef -> PadEntry
-constPadEntry r = EntryConstant{ pe_type = refType r, pe_value = r }
+constPadEntry r = EntryConstant{ pe_type = refType r, pe_proto = r }
 
 lookupShellEnvironment :: ByteString -> Eval (Maybe PadEntry)
 lookupShellEnvironment name = do

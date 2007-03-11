@@ -183,7 +183,7 @@ _RefToFunction :: H.HashTable PadEntry (Maybe CurrentFunction)
 _RefToFunction = unsafePerformIO (H.new (==) hashPadEntry)
 
 hashPadEntry :: PadEntry -> Int32
-hashPadEntry EntryConstant{ pe_value = v }  = I32# (unsafeCoerce# v)
+hashPadEntry EntryConstant{ pe_proto = v }  = I32# (unsafeCoerce# v)
 hashPadEntry x                              = I32# (unsafeCoerce# (pe_store x))
 
 -- hashTVar :: TVar VRef -> Int32
@@ -404,7 +404,7 @@ declAssignHack exp@(Syn "=" [lhs, _])
         let pad = unsafePerformSTM $! do
                 proto           <- fmap scalarRef $! newTVar (VInt 0)
                 state_first_run <- newTVar proto
-                return $! mkPad [(_STATE_START_RUN, EntryStatic{ pe_type = mkType "Scalar", pe_value = proto, pe_store = state_first_run})] in
+                return $! mkPad [(_STATE_START_RUN, EntryStatic{ pe_type = mkType "Scalar", pe_proto = proto, pe_store = state_first_run})] in
         Syn "block"
             [ Pad SState pad $!
                 Syn "if"
