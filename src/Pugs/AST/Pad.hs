@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fglasgow-exts -fparr #-}
 module Pugs.AST.Pad (
-  mkPad, subPad, diffPads, unionPads, updateSubPad, mergePadEntry, padKeys, filterPad
+  mkPad, subPad, diffPads, unionPads, updateSubPad, mergePadEntry, padKeys, filterPad, adjustPad
 ) where
 import Pugs.Internals
 import Pugs.AST.Internals
@@ -44,10 +44,13 @@ If the same key is found in both pads, merging multi subs into one.
 unionPads :: Pad -> Pad -> Pad
 unionPads (MkPad map1) (MkPad map2) = MkPad $ Map.unionWithKey mergePadEntry map1 map2
 
+adjustPad :: (PadEntry -> PadEntry) -> Var -> Pad -> Pad
+adjustPad f v (MkPad p) = MkPad (Map.adjust f v p)
+
 mergePadEntry :: Var -> PadEntry -> PadEntry -> PadEntry
 mergePadEntry MkVar{ v_sigil = SCodeMulti } x y = EntryConstant
     { pe_type  = pe_type x -- XXX - Select a narrower type?
-    , pe_value = MkRef . ICode $! MkMultiCode
+    , pe_proto = MkRef . ICode $! MkMultiCode
         { mc_type       = pe_type x
         , mc_assoc      = assocOf x `mappend` assocOf y 
         , mc_signature  = case (paramOf x, paramOf y) of
@@ -59,14 +62,13 @@ mergePadEntry MkVar{ v_sigil = SCodeMulti } x y = EntryConstant
         }
     }
     where
-    paramOf entry = case pe_value entry of
+    paramOf entry = case pe_proto entry of
         MkRef (ICode c) -> Just (code_params c)
         _               -> Nothing
-    assocOf entry = case pe_value entry of
+    assocOf entry = case pe_proto entry of
         MkRef (ICode c) -> code_assoc c
         _               -> mempty
-    assocOf _ = mempty
-    variantsOf e@EntryConstant{ pe_value = MkRef r } = case r of
+    variantsOf e@EntryConstant{ pe_proto = MkRef r } = case r of
         ICode c | Just cset <- fromTypeable c -> mc_variants cset
         _ -> [:e:]
     variantsOf e = [:e:]
