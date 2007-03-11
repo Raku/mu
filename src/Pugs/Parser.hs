@@ -499,7 +499,7 @@ ruleSubParameters wantParens = rule "subroutine parameters" $ do
 ruleFormalParam :: FormalsOption -> RuleParser Param
 ruleFormalParam opt = rule "formal parameter" $ do
     typ     <- option "" $ ruleType
-    optional $ char '\\'  -- XXX hack to parse arglist (\$foo)
+    optional $ char '|'  -- XXX hack to parse arglist (|$foo)
     sigil1  <- option "" $ choice . map symbol $ words " : * "
     name    <- ruleParamName -- XXX support *[...]
     sigil2  <- option "" $ choice . map symbol $ words " ? ! "
