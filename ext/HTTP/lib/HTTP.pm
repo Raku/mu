@@ -51,7 +51,7 @@ class HTTP::Request {
     has HTTP::Argument %.post;  # lazy if .method eq 'POST' and
                                 # .headers<Content-Length>
                                 # > $arbitrary_yet_configurable
-    has Str            %.cookies
+    has Str            %.cookies;
     has Str            $.method where { $_ eq any <GET POST> };
     has URI            $.uri;
 
