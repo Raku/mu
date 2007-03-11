@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 8 Mar 2007
+  Last Modified: 12 Mar 2007
   Number: 3
-  Version: 105
+  Version: 106
 
 =head1 Overview
 
@@ -3162,14 +3162,22 @@ to include:
 
 Variable declarators such as C<my> now take a I<signature> as their
 argument.  (The syntax of function signatures is described more fully in S06.)
+
 The parentheses around the signature may be omitted for a
 simple declaration that declares a single variable, along with its
-associated type and traits.  Parentheses must always be used when
-declaring multiple parameters:
+associated type, traits and the initializer:
 
-    my $a;              # okay
-    my ($b, $c);        # okay
-    my $b, $c;          # wrong: "Use of undeclared variable: $c"
+    constant $foo = 123;    # okay: initializes $foo to 123
+    constant ($foo = 123);  # same thing
+    constant :($foo = 123); # same thing (full Signature form)
+    constant ($foo) = 123;  # wrong: constants cannot be assigned to
+
+Parentheses must always be used when declaring multiple parameters:
+
+    my $a;                  # okay
+    my ($b, $c);            # okay
+    my ($b = 1, $c = 2);    # okay - "my" intializers assign at runtime
+    my $b, $c;              # wrong: "Use of undeclared variable: $c"
 
 Types occurring between the declarator and the signature are distributed into
 each variable:
