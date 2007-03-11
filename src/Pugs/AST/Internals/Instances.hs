@@ -727,45 +727,35 @@ instance YAML Scope where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
 	"SState" -> do
 	    return SState
-	"SLet" -> do
-	    return SLet
-	"STemp" -> do
-	    return STemp
-	"SEnv" -> do
-	    return SEnv
+	"SConstant" -> do
+	    return SConstant
+	"SHas" -> do
+	    return SHas
 	"SMy" -> do
 	    return SMy
 	"SOur" -> do
 	    return SOur
-	"SGlobal" -> do
-	    return SGlobal
-	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["SState","SLet","STemp","SEnv","SMy","SOur","SGlobal"] ++ " in node " ++ show e
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["SState","SConstant","SHas","SMy","SOur"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (SState) = asYAMLcls "SState"
-    asYAML (SLet) = asYAMLcls "SLet"
-    asYAML (STemp) = asYAMLcls "STemp"
-    asYAML (SEnv) = asYAMLcls "SEnv"
+    asYAML (SConstant) = asYAMLcls "SConstant"
+    asYAML (SHas) = asYAMLcls "SHas"
     asYAML (SMy) = asYAMLcls "SMy"
     asYAML (SOur) = asYAMLcls "SOur"
-    asYAML (SGlobal) = asYAMLcls "SGlobal"
 
 instance JSON Scope where
     showJSON (SState) = showJSScalar "SState"
-    showJSON (SLet) = showJSScalar "SLet"
-    showJSON (STemp) = showJSScalar "STemp"
-    showJSON (SEnv) = showJSScalar "SEnv"
+    showJSON (SConstant) = showJSScalar "SConstant"
+    showJSON (SHas) = showJSScalar "SHas"
     showJSON (SMy) = showJSScalar "SMy"
     showJSON (SOur) = showJSScalar "SOur"
-    showJSON (SGlobal) = showJSScalar "SGlobal"
 
 instance Perl5 Scope where
     showPerl5 (SState) = showP5Class "SState"
-    showPerl5 (SLet) = showP5Class "SLet"
-    showPerl5 (STemp) = showP5Class "STemp"
-    showPerl5 (SEnv) = showP5Class "SEnv"
+    showPerl5 (SConstant) = showP5Class "SConstant"
+    showPerl5 (SHas) = showP5Class "SHas"
     showPerl5 (SMy) = showP5Class "SMy"
     showPerl5 (SOur) = showP5Class "SOur"
-    showPerl5 (SGlobal) = showP5Class "SGlobal"
 
 instance YAML Pad where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
