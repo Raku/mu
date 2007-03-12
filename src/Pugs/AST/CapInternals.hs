@@ -408,7 +408,7 @@ instance ScalarClass (TVar Val) where
     doScalarFetch t = do
         lv <- asks envLValue
         case lv of
-            RValue -> liftSTM (readTVar t)
+            RValue -> stm (readTVar t)
             LValue typ -> do
                 rv <- readTVar t
                 case rv of

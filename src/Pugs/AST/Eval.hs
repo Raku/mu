@@ -31,7 +31,7 @@ runEvalIO :: Env -> Eval Val -> IO Val
 runEvalIO env = fmap liftResult . runIO . (`runReaderT` env) . (`runContT` return) . runEvalT
 
 tryIO :: a -> IO a -> Eval a
-tryIO err = liftEval . liftIO . (`catchIO` (const $ return err))
+tryIO err = liftEval . io . (`catchIO` (const $ return err))
 
 {-|
 'shiftT' is like @callCC@, except that when you activate the continuation
@@ -136,7 +136,7 @@ instance Functor Eval where
             RException x-> RException x
 
 instance MonadIO Eval where
-    liftIO = liftEval . liftIO
+    liftIO = liftEval . io
 
 instance MonadError Val Eval where
     throwError err = do
@@ -152,8 +152,8 @@ instance MonadError Val Eval where
 Perform an IO action and raise an exception if it fails.
 -}
 guardIO :: IO a -> Eval a
-guardIO io = do
-    rv <- liftIO $ try io
+guardIO x = do
+    rv <- io $ try x
     case rv of
         Left e -> fail (show e)
         Right v -> return v
@@ -165,8 +165,8 @@ If t
 supress the exception and return an associated value instead.
 -}
 guardIOexcept :: MonadIO m => [((Exception -> Bool), a)] -> IO a -> m a
-guardIOexcept safetyNet io = do
-    rv <- liftIO $ try io
+guardIOexcept safetyNet x = do
+    rv <- io $ try x
     case rv of
         Right v -> return v
         Left  e -> catcher e safetyNet
@@ -177,19 +177,19 @@ guardIOexcept safetyNet io = do
         | otherwise = catcher e safetyNets
 
 guardSTM :: STM a -> Eval a
-guardSTM stm = do
-    rv <- liftSTM $ fmap Right stm `catchSTM` (return . Left)
+guardSTM x = do
+    rv <- stm $ fmap Right x `catchSTM` (return . Left)
     case rv of
         Left e -> fail (show e)
         Right v -> return v
     
 instance MonadSTM Eval where
     liftSIO = EvalT . fmap RNormal . lift . lift
-    liftSTM stm = do
+    liftSTM x = do
         atom <- asks envAtomic
         if atom
-            then EvalT (fmap RNormal . lift . lift . liftSTM $ stm)
-            else EvalT (fmap RNormal . lift . lift . liftIO . liftSTM $ stm)
+            then EvalT (fmap RNormal . lift . lift . stm $ x)
+            else EvalT (fmap RNormal . lift . lift . io . stm $ x)
 
 instance MonadReader Env Eval where
     ask       = liftEval ask

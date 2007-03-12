@@ -75,7 +75,7 @@ createObject typ attrList = do
 newObjectId :: Eval ObjectId
 newObjectId = do
     tv <- asks envMaxId
-    liftSTM $ do
+    stm $ do
         rv <- readTVar tv
         writeTVar tv (MkObjectId (succ (unObjectId rv)))
         return rv

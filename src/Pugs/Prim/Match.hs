@@ -33,7 +33,7 @@ doMatch :: String -> VRule -> Eval VMatch
 doMatch cs rule@MkRulePGE{ rxRule = ruleStr } = do
     let pwd1 = getConfig "installsitelib" ++ "/auto/pugs/perl5/lib"
         pwd2 = getConfig "sourcedir" ++ "/perl5/Pugs-Compiler-Rule/lib"
-    hasSrc <- liftIO $ doesDirectoryExist pwd2
+    hasSrc <- io $ doesDirectoryExist pwd2
     let pwd = if hasSrc then pwd2 else pwd1
     glob    <- askGlobal
     let syms = [ (cast $ v_name var, entry)
@@ -47,10 +47,10 @@ doMatch cs rule@MkRulePGE{ rxRule = ruleStr } = do
         text        <- ruleWithAdverbs rule
         return (name, text)
     text <- ruleWithAdverbs rule
-    rv   <- liftIO $ fmap (fmap (fmap toUpper)) (getEnv "PUGS_REGEX_ENGINE")
+    rv   <- io $ fmap (fmap (fmap toUpper)) (getEnv "PUGS_REGEX_ENGINE")
     let ruleEngine | Just "PGE" <- rv   = evalPGE
                    | otherwise          = evalPCR
-    pge  <- liftIO $ ruleEngine pwd cs text subrules
+    pge  <- io $ ruleEngine pwd cs text subrules
             `catchIO` (\e -> return $ show e)
     rv  <- tryIO Nothing $ fmap Just (readIO $ decodeUTF8 pge)
     let matchToVal PGE_Fail = VMatch mkMatchFail
@@ -65,11 +65,11 @@ doMatch cs rule@MkRulePGE{ rxRule = ruleStr } = do
     case rv of
         Just m  -> fromVal (matchToVal m)
         Nothing -> do
-            liftIO $ putStrLn ("*** Cannot parse regex: " ++ ruleStr ++ "\n*** Error: " ++ pge)
+            io $ putStrLn ("*** Cannot parse regex: " ++ ruleStr ++ "\n*** Error: " ++ pge)
             return mkMatchFail
 
 doMatch csChars MkRulePCRE{ rxRegex = re } = do
-    rv <- liftIO $ matchRegexWithPCRE re csBytes 0
+    rv <- io $ matchRegexWithPCRE re csBytes 0
     if isNothing rv then return mkMatchFail else do
     let ((fromBytes, lenBytes):subs) = Array.elems (fromJust rv)
         substr str from len = take len (drop from str)

@@ -36,5 +36,5 @@ genPIL2JSON = do
 genPIL2YAML :: Eval Val
 genPIL2YAML = do
     penv <- compile () :: Eval PIL_Environment
-    yaml <- liftIO (showYaml penv)
+    yaml <- io (showYaml penv)
     return . VStr . unlines $ [yaml]

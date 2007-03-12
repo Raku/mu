@@ -32,7 +32,7 @@ fromYaml MkNode{n_elem=EMap nodes, n_tag=tag} = do
                 key <- fromVal =<< fromYaml keyNode
                 val <- newScalar =<< fromYaml valNode
                 return (key, val)
-            hv      <- liftIO $ (H.fromList H.hashString vals :: IO IHash)
+            hv      <- io $ (H.fromList H.hashString vals :: IO IHash)
             return $ VRef (hashRef hv)
         Just s | (pre, post) <- Str.splitAt 16 s   -- 16 == length "tag:pugs:Object:"
                , pre == packBuf "tag:pugs:Object:" -> do
@@ -48,9 +48,9 @@ fromYaml MkNode{n_elem=EMap nodes, n_tag=tag} = do
                 val <- fromYaml valNode
                 return (key, val)
             --let spec    = Map.fromList (vals :: [(String, Val)])
-            --spec    <- liftSTM . newTVar . Map.map lazyScalar $ Map.fromList (vals :: [(String, Val)])
-            spec'   <- liftSTM . newTVar $ Map.fromList (vals :: [(String, Val)])
-            spec    <- liftSTM . readTVar $ spec'
+            --spec    <- stm . newTVar . Map.map lazyScalar $ Map.fromList (vals :: [(String, Val)])
+            spec'   <- stm . newTVar $ Map.fromList (vals :: [(String, Val)])
+            spec    <- stm . readTVar $ spec'
             rule    <- fromVal =<< Map.lookup "rule" spec
             global  <- fromVal =<< Map.lookup "global" spec
             stringify <- fromVal =<< Map.lookup "stringify" spec
@@ -73,7 +73,7 @@ toYaml VUndef       = return $ mkNode ENil
 toYaml (VBool x)    = return $ boolToYaml x
 toYaml (VStr str)   = return $ strNode (encodeUTF8 str)
 toYaml v@(VRef r)   = do
-    ptr <- liftIO $ stableAddressOf r
+    ptr <- io $ stableAddressOf r
     if IntSet.member ptr ?seen then return nilNode{ n_anchor = AReference ptr } else do
         let ?seen = IntSet.insert ptr ?seen
         node <- ifValTypeIsa v "Hash" (hashToYaml r) $ do
@@ -81,7 +81,7 @@ toYaml v@(VRef r)   = do
             nodes   <- toYaml v'
             ifValTypeIsa v "Array" (return nodes) $ case v' of
                 VObject _   -> return nodes
-                _           -> liftIO $ toYamlNode r
+                _           -> io $ toYamlNode r
         return node{ n_anchor = AAnchor ptr }
 toYaml (VList nodes) = do
     n <- mapM toYaml nodes

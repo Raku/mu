@@ -48,9 +48,9 @@ fileATime    = fileTime statFileATime
 fileTestViaPerl5 :: String -> Val -> Eval Val
 fileTestViaPerl5 testOp v = do
     env     <- ask
-    envSV   <- liftIO $ mkEnv env
+    envSV   <- io $ mkEnv env
     argSV   <- fromVal v
-    subSV   <- liftIO $ evalPerl5 ("sub { -" ++ testOp ++ " $_[0] }") envSV (enumCxt cxtItemAny)
+    subSV   <- io $ evalPerl5 ("sub { -" ++ testOp ++ " $_[0] }") envSV (enumCxt cxtItemAny)
     rv      <- runInvokePerl5 subSV nullSV [argSV]
     return $ case rv of
         VStr "" -> VBool False

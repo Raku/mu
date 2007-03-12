@@ -315,7 +315,7 @@ tellLabel name = tellIns $ InsLabel name
 lastPMC :: (RegClass a) => CodeGen a
 lastPMC = do
     tvar    <- asks tReg
-    liftIO $ liftSTM $ do
+    io $ stm $ do
         (cur, name) <- readTVar tvar
         return $ case cur of
             0 -> nullPMC
@@ -324,7 +324,7 @@ lastPMC = do
 genPMC :: (RegClass a) => String -> CodeGen a
 genPMC name = do
     tvar    <- asks tReg
-    name'   <- liftIO $ liftSTM $ do
+    name'   <- io $ stm $ do
         (cur, _) <- readTVar tvar
         writeTVar tvar (cur + 1, name)
         return $ ('p':show (cur + 1)) ++ ('_':name)
@@ -349,7 +349,7 @@ genArray = genWith (`InsNew` PerlArray)
 genLabel :: [String] -> CodeGen [LabelName]
 genLabel names = do
     tvar    <- asks tLabel
-    cnt     <- liftIO $ liftSTM $ do
+    cnt     <- io $ stm $ do
         cur <- readTVar tvar
         writeTVar tvar (cur + 1)
         return cur
@@ -371,13 +371,13 @@ varInit x       = internalError $ "Invalid name: " ++ x
 
 genPIR_YAML :: Eval Val
 genPIR_YAML = genPIRWith $ \globPIR mainPIR _ -> do
-    yaml <- liftIO (showYaml (mainPIR, globPIR))
+    yaml <- io (showYaml (mainPIR, globPIR))
     return (VStr yaml)
 
 {-| Compiles the current environment to PIR code. -}
 genPIR :: Eval Val
 genPIR = genPIRWith $ \globPIR mainPIR penv -> do
-    libs        <- liftIO $ getLibs
+    libs        <- io $ getLibs
     return . VStr . unlines $
         [ "#!/usr/bin/env parrot"
         , renderStyle (Style PageMode 0 0) $ preludePIR $+$ vcat
@@ -451,4 +451,4 @@ runCodeGenMain :: TEnv -> PIL_Stmts -> Eval [Stmt]
 runCodeGenMain tenv = fmap snd . runCodeGen tenv
 
 runCodeGen :: (Translate a b) => TEnv -> a -> Eval (b, [Stmt])
-runCodeGen tenv = liftIO . (`runReaderT` tenv) . runWriterT . trans
+runCodeGen tenv = io . (`runReaderT` tenv) . runWriterT . trans

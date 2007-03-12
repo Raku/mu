@@ -67,7 +67,7 @@ opRequire dumpEnv v = do
         return rv
     where
     tryFastEval pathName pathNameYml = do
-        ok <- liftIO $ doesFileExist pathNameYml
+        ok <- io $ doesFileExist pathNameYml
         if not ok then slowEval pathName else do
         isYamlStale <- tryIO False $ do
             timePm  <- getModificationTime pathName
@@ -82,7 +82,7 @@ opRequire dumpEnv v = do
         
     fastEval = op1EvalP6Y . VStr
     slowEval pathName = do 
-        str      <- liftIO $ readFile pathName
+        str      <- io $ readFile pathName
         opEval style pathName str
     style = MkEvalStyle
         { evalError  = EvalErrorFatal
@@ -96,18 +96,18 @@ requireInc :: (MonadIO m) => [FilePath] -> FilePath -> String -> m String
 requireInc [] _ msg = fail msg
 requireInc (p:ps) file msg = do
     let pathName  = p ++ (getConfig "file_sep") ++ file
-    ok <- liftIO $ doesFileExist pathName
+    ok <- io $ doesFileExist pathName
     if (not ok)
         then requireInc ps file msg
         else return pathName
 
 opEvalFile :: String -> Eval Val
 opEvalFile filename = do
-    ok <- liftIO $ doesFileExist filename
+    ok <- io $ doesFileExist filename
     if (not ok)
         then fail $ "Can't locate " ++ filename ++ "."
         else do
-            contents <- liftIO $ readFile filename
+            contents <- io $ readFile filename
             opEval style filename contents
     where
     style = MkEvalStyle{ evalError=EvalErrorUndef
@@ -125,7 +125,7 @@ op1EvalHaskell cv = do
 op1EvalP6Y :: Val -> Eval Val
 op1EvalP6Y fileName = do
     fileName' <- fromVal fileName
-    yml  <- liftIO $ (`catchIO` (return . Left . show)) $
+    yml  <- io $ (`catchIO` (return . Left . show)) $
         fmap Right (parseYamlFile fileName')
     case yml of
         Right MkNode{ n_elem=ESeq (v:_) }
@@ -134,10 +134,10 @@ op1EvalP6Y fileName = do
                 err "incompatible version number for compilation unit"
         Right yml' -> do
             globTVar    <- asks envGlobal
-            MkCompUnit _ glob ast <- liftIO $ fromYAML yml'
+            MkCompUnit _ glob ast <- io $ fromYAML yml'
             tryT $ do
                 -- Inject the global bindings
-                liftSTM $ do
+                stm $ do
                     glob' <- readTVar globTVar
                     writeTVar globTVar (glob `unionPads` glob')
                 evl <- asks envEval
@@ -151,7 +151,7 @@ opEval :: EvalStyle -> FilePath -> String -> Eval Val
 opEval style path str = enterCaller $ do
     env     <- ask
     let errHandler err = return env{ envBody = Val $ VError (VStr (show err)) [] }
-    env'    <- liftIO $ evaluateIO (parseProgram env path str) `catchIO` errHandler
+    env'    <- io $ evaluateIO (parseProgram env path str) `catchIO` errHandler
     val     <- tryT $ local (const env') $ do
         evl <- asks envEval
         initAV   <- evalExp (_Var "@*INIT")
@@ -171,7 +171,7 @@ retEvalResult style val = do
         err@(VError e _) -> do
             writeRef errSV e
             when (evalError style == EvalErrorFatal) $ do
-                liftIO $ fail $ pretty err
+                io $ fail $ pretty err
             retEmpty
         _ -> do
             writeRef errSV VUndef

@@ -52,11 +52,11 @@ op1Pick :: Val -> Eval Val
 op1Pick (VRef r) = op1Pick =<< readRef r
 op1Pick (VList []) = return undef
 op1Pick (VList vs) = do
-    rand <- liftIO $ randomRIO (0, length vs - 1)
+    rand <- io $ randomRIO (0, length vs - 1)
     return $ vs !! rand
 op1Pick (VJunc (MkJunc _ _ set)) | Set.null set = return undef
 op1Pick (VJunc (MkJunc JAny _ set)) = do -- pick mainly works on 'any'
-    rand <- liftIO $ randomRIO (0 :: Int, (Set.size set) - 1)
+    rand <- io $ randomRIO (0 :: Int, (Set.size set) - 1)
     return $ (Set.elems set) !! rand
 op1Pick (VJunc (MkJunc JNone _ _)) = return undef
 op1Pick (VJunc (MkJunc JAll _ set)) =
@@ -73,7 +73,7 @@ shuffleN _ [] = return []
 shuffleN 0 _  = return []
 shuffleN n xs = do
     -- pick the first element
-    first <- liftIO $ randomRIO (0 :: Int, length xs - 1)
+    first <- io $ randomRIO (0 :: Int, length xs - 1)
     rest <- shuffleN (n-1) $ take first xs ++ drop (first+1) xs
     return $ head (drop first xs) : rest
 
@@ -422,7 +422,7 @@ op1HyperPrefix sub x
         = enterEvalContext cxtItemAny $ App (Val $ VCode sub) Nothing [Val x]
     hyperList xs = do
         env <- ask
-        liftIO $ do
+        io $ do
             mvs <- forM xs $ \x -> do
                 mv  <- newEmptyMVar
                 forkIO $ do
@@ -466,7 +466,7 @@ op2Hyper sub x y
         = enterEvalContext cxtItemAny $ App (Val $ VCode sub) Nothing [Val x, Val y]
     hyperLists xs ys = do
         env <- ask
-        liftIO $ do
+        io $ do
             mvs <- doHyperLists env xs ys
             mapM takeMVar mvs
     doHyperLists _ [] [] = return []

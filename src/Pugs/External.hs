@@ -39,8 +39,8 @@ externLoad backend   = error $ "Unrecognized inline backend: " ++ backend
 externRequire :: String -> FilePath -> Eval ()
 externRequire lang name = do
     glob        <- asks envGlobal
-    bindings    <- liftIO $ externLoad lang name
-    liftSTM $ do
+    bindings    <- io $ externLoad lang name
+    stm $ do
         newSyms     <- mapM gen bindings
         modifyTVar glob (\pad -> combine newSyms pad)
     where

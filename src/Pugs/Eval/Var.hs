@@ -103,7 +103,7 @@ doFindVarRef var = do
     lexSym  <- fmap (lookupPad var . envLexical) ask
     if isJust lexSym then return lexSym else do
     -- XXX - this is bogus; we should not fallback if it's not in lex scope.
-    glob    <- liftSTM . readTVar . envGlobal =<< ask
+    glob    <- stm . readTVar . envGlobal =<< ask
     var'    <- toQualified var
     let globSym = lookupPad var' glob
     if isJust globSym then return globSym else do
@@ -258,7 +258,7 @@ findSub _var _invs _args
                 posSVs  <- fromVals pos
                 namSVs  <- fmap concat (fromVals named)
                 let svs = posSVs ++ namSVs
-                found   <- liftIO $ do
+                found   <- io $ do
                     rv <- canPerl5 sv name
                     if rv then return rv else canPerl5 sv (__"AUTOLOAD")
                 if not found
@@ -269,7 +269,7 @@ findSub _var _invs _args
                             App (Var _var{ v_sigil = SCodeMulti }) Nothing
                                 (map (Val . PerlSV) (sv:svs))
                     else do
-                        subSV   <- liftIO . bufToSV $ name
+                        subSV   <- io . bufToSV $ name
                         runInvokePerl5 subSV sv svs
             }
     -}

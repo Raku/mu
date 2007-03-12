@@ -225,7 +225,7 @@ class (Typeable n, Show n, Ord n) => Value n where
         fail $ "Cannot cast from VV (" ++ cast str ++ ") to " ++ errType (undefined :: n)
     fromSV :: PerlSV -> Eval n
     fromSV sv = do
-        str <- liftIO $ svToVStr sv
+        str <- io $ svToVStr sv
         fail $ "Cannot cast from SV (" ++ str ++ ") to " ++ errType (undefined :: n)
     castV :: n -> Val
     castV x = VOpaque (MkOpaque x) -- error $ "Cannot cast into Val"
@@ -246,7 +246,7 @@ fromVal' (VList vs) | any isRef vs = do
     isRef VRef{}    = True
     isRef _         = False
 fromVal' (PerlSV sv) = do
-    v <- liftIO $ svToVal sv
+    v <- io $ svToVal sv
     case v of
         PerlSV sv'  -> fromSV sv'   -- it was a SV
         VV vv
@@ -265,7 +265,7 @@ fromVal' v = doCast v
 vvToVal :: Val.Val -> Eval Val
 vvToVal x
     | Just sv <- Val.castVal x  = do
-        rv <- liftIO (svToVal sv)
+        rv <- io (svToVal sv)
         case rv of
             VV vv
                 | Just sv  <- Val.castVal vv -> return (PerlSV sv)
@@ -286,18 +286,18 @@ getArrayIndex :: Int -> Maybe (IVar VScalar) -> Eval IArray -> Maybe (Eval b) ->
 getArrayIndex idx def getArr _ | idx < 0 = do
     -- first, check if the list is at least abs(idx) long
     MkIArray iv <- getArr
-    a   <- liftSTM $ readTVar iv
+    a   <- stm $ readTVar iv
     let size = a_size a
     if size > abs (idx+1)
-        then return (IScalar (a !: (idx `mod` size)))
+        then return (a !: (idx `mod` size))
         else errIndex def idx
 -- now we are all positive; either extend or return
 getArrayIndex idx def getArr ext = do
     MkIArray iv <- getArr
-    a   <- liftSTM $ readTVar iv
+    a   <- stm $ readTVar iv
     let size = a_size a
     if size > idx
-        then return (IScalar (a !: idx))
+        then return (a !: idx)
         else case ext of
             Just doExt -> do { doExt; getArrayIndex idx def getArr Nothing }
             Nothing    -> errIndex def idx
@@ -305,7 +305,7 @@ getArrayIndex idx def getArr ext = do
 createObjectRaw :: (MonadSTM m)
     => ObjectId -> Maybe Dynamic -> VType -> [(VStr, Val)] -> m VObject
 createObjectRaw uniq opaq typ attrList = do
-    attrs   <- liftSTM . unsafeIOToSTM . H.fromList H.hashString $ map (\(a,b) -> (a, lazyScalar b)) attrList
+    attrs   <- stm . unsafeIOToSTM . H.fromList H.hashString $ map (\(a,b) -> (a, lazyScalar b)) attrList
     return $ MkObject
         { objType   = typ
         , objId     = uniq
@@ -380,7 +380,7 @@ instance Value VObject where
 
 instance Value VHash where
     fromVal (VObject o) = do
-        l <- liftIO $ H.toList (objAttrs o)
+        l <- io $ H.toList (objAttrs o)
         fmap Map.fromList . forM l $ \(k, ivar) -> do
             v <- readIVar ivar
             return (k, v)
@@ -432,12 +432,12 @@ instance Value VCode where
 runInvokePerl5 :: PerlSV -> PerlSV -> [PerlSV] -> Eval Val
 runInvokePerl5 sub inv args = do 
     env     <- ask
-    rv      <- liftIO $ do
+    rv      <- io $ do
         envSV   <- mkEnv env
         invokePerl5 sub inv args envSV (enumCxt $ envContext env)
     case rv of
-        Perl5ReturnValues [x]   -> liftIO $ svToVal x
-        Perl5ReturnValues xs    -> liftIO $ fmap VList (mapM svToVal xs)
+        Perl5ReturnValues [x]   -> io $ svToVal x
+        Perl5ReturnValues xs    -> io $ fmap VList (mapM svToVal xs)
         Perl5ErrorString str    -> fail str
         Perl5ErrorObject err    -> throwError (PerlSV err)
 
@@ -458,7 +458,7 @@ anyToVal x
 
 instance Value VBool where
     castV = VBool
-    fromSV sv = liftIO $ svToVBool sv
+    fromSV sv = io $ svToVBool sv
     fromVV vv = fmap cast (Val.asBit vv)
     doCast (VJunc j)   = juncToBool j
     doCast (VMatch m)  = return $ matchOk m
@@ -477,13 +477,13 @@ instance Value VBool where
 instance Value VInt where
     castV = VInt
     fromVV vv = fmap cast (Val.asInt vv)
-    fromSV sv = liftIO $ svToVInt sv
+    fromSV sv = io $ svToVInt sv
     doCast (VInt i)     = return $ i
     doCast x            = fmap truncate (fromVal x :: Eval VRat)
 
 instance Value VRat where
     castV = VRat
-    fromSV sv = liftIO $ svToVNum sv
+    fromSV sv = io $ svToVNum sv
     doCast (VInt i)     = return $ i % 1
     doCast (VRat r)     = return $ r
     doCast (VBool b)    = return $ if b then 1 % 1 else 0 % 1
@@ -505,7 +505,7 @@ instance Value VRat where
 instance Value VNum where
     castV = VNum
     fromVV vv = fmap cast (Val.asNum vv)
-    fromSV sv = liftIO $ svToVNum sv
+    fromSV sv = io $ svToVNum sv
     doCast VUndef       = return $ 0
     doCast VType{}      = return $ 0
     doCast (VBool b)    = return $ if b then 1 else 0
@@ -553,14 +553,14 @@ instance Value VComplex where
 
 instance Value ID where
     castV = VStr . cast
-    fromSV sv = fmap cast (liftIO $ svToVStr sv)
+    fromSV sv = fmap cast (io $ svToVStr sv)
     fromVV vv = fmap cast (Val.asStr vv)
     fromVal = fmap (cast :: VStr -> ID) . fromVal
     doCast = fmap (cast :: VStr -> ID) . doCast
 
 instance Value VStr where
     castV = VStr
-    fromSV sv = liftIO $ svToVStr sv
+    fromSV sv = io $ svToVStr sv
     fromVV vv = fmap cast (Val.asStr vv)
     fromVal (VList l)    = return . unwords =<< mapM fromVal l
     fromVal v@(PerlSV _) = fromVal' v
@@ -608,7 +608,7 @@ instance Value [PerlSV] where
     doCast v = castFailM v "[PerlSV]"
 
 instance Value PerlSV where
-    fromVal val = liftIO $ newSVval val
+    fromVal val = io $ newSVval val
     doCast v = castFailM v "PerlSV"
 
 newSVval :: Val -> IO PerlSV
@@ -695,7 +695,7 @@ instance Value VProcess where
     doCast v = castFailM v "VProcess"
 
 instance Value Int where
-    fromSV sv = liftIO $ svToVInt sv
+    fromSV sv = io $ svToVInt sv
     doCast x = intCast x
     castV = VInt . fromIntegral
 instance Value Word  where 
@@ -1422,23 +1422,23 @@ data IScalarCwd = MkScalarCwd deriving (Show, Typeable) {-!derive: YAML_Pos!-}
 {-# SPECIALISE readPadEntry :: PadEntry -> STM VRef #-}
 readPadEntry :: MonadSTM m => PadEntry -> m VRef
 readPadEntry EntryConstant{ pe_proto = v } = return v
-readPadEntry x                             = liftSTM (readTVar (pe_store x))
+readPadEntry x                             = stm (readTVar (pe_store x))
 
 {-# SPECIALISE writePadEntry :: PadEntry -> VRef -> Eval () #-}
 {-# SPECIALISE writePadEntry :: PadEntry -> VRef -> STM () #-}
 writePadEntry :: MonadSTM m => PadEntry -> VRef -> m ()
 writePadEntry x@EntryConstant{} _ = die "Cannot rebind constant" x
-writePadEntry x                 v = liftSTM (writeTVar (pe_store x) v)
+writePadEntry x                 v = stm (writeTVar (pe_store x) v)
 
 refreshPad :: Pad -> Eval Pad
 refreshPad pad = do
     fmap listToPad $ forM (padToList pad) $ \(name, entry) -> do
         entry' <- case entry of
-            EntryLexical{ pe_proto = proto, pe_fresh = fresh } -> do
-                isFresh <- liftSTM $ readTVar fresh
-                if isFresh then liftSTM (writeTVar fresh False) >> return entry else do
+            EntryLexical{ pe_proto = proto, pe_fresh = fresh } -> stm $ do
+                isFresh <- readTVar fresh
+                if isFresh then writeTVar fresh False >> return entry else do
                     ref     <- cloneRef proto
-                    tvar'   <- liftSTM (newTVar ref)
+                    tvar'   <- newTVar ref
                     return entry{ pe_store = tvar' }
             _ -> return entry
         return (name, entry')
@@ -1470,7 +1470,7 @@ instance Show Pad where
     show pad = "MkPad (padToList " ++ show (padToList pad) ++ ")"
 
 findSymRef :: Var -> Pad -> Eval VRef
-findSymRef name pad = liftSTM $ join (findSym name pad)
+findSymRef name pad = stm $ join (findSym name pad)
 
 {-# SPECIALISE findSym :: Var -> Pad -> Eval (STM VRef) #-}
 {-# SPECIALISE findSym :: Var -> Pad -> Maybe (STM VRef) #-}
@@ -1537,7 +1537,7 @@ STM var.
 askGlobal :: Eval Pad
 askGlobal = do
     glob <- asks envGlobal
-    liftSTM $ readTVar glob
+    stm $ readTVar glob
 
 writeVar :: Var -> Val -> Eval ()
 writeVar name val = do
@@ -1545,7 +1545,7 @@ writeVar name val = do
     case lookupPad name glob of
         Just EntryConstant{} -> fail $ "Cannot rebind constant: " ++ show name
         Just c -> do
-            ref <- liftSTM $ readTVar (pe_store c)
+            ref <- stm $ readTVar (pe_store c)
             writeRef ref val
         _  -> fail $ "Cannot bind to non-existing variable: " ++ show name
 
@@ -1554,17 +1554,17 @@ readVar var
     | isGlobalVar var = do
         glob <- askGlobal
         case findSym var glob of
-            Just action -> liftSTM action >>= readRef
+            Just action -> stm action >>= readRef
             _           -> case v_sigil var of
                 SCode   -> readVar var{ v_sigil = SCodeMulti }
                 _       -> return undef
     | otherwise = do
         lex <- asks envLexical
         case findSym var lex of
-            Just action -> liftSTM action >>= readRef
+            Just action -> stm action >>= readRef
             -- XXX - fallback to global should be eliminated here
             _  -> case findSym var{ v_sigil = SCodeMulti } lex of
-                Just action -> liftSTM action >>= readRef
+                Just action -> stm action >>= readRef
                 _           -> readVar (toGlobalVar var)
 
 {-|
@@ -1653,7 +1653,7 @@ writeRef (MkRef (IPair s)) val   = pair_storeVal s val
 writeRef (MkRef (IThunk tv)) val = (`writeRef` val) =<< fromVal =<< thunk_force tv
 writeRef r _ = die "Cannot writeRef" r
 
-cloneRef :: VRef -> Eval VRef
+cloneRef :: VRef -> STM VRef
 cloneRef (MkRef x) = fmap MkRef (cloneIVar x)
 
 clearRef :: VRef -> Eval ()
@@ -1668,14 +1668,14 @@ clearRef r = die "Cannot clearRef" r
 {-# SPECIALISE newObject :: Type -> IO VRef #-}
 newObject :: (MonadSTM m, MonadIO m) => Type -> m VRef
 newObject typ = case showType typ of
-    "Any"       -> liftSTM $ fmap scalarRef $ newTVar undef
-    "Item"      -> liftSTM $ fmap scalarRef $ newTVar undef
-    "Scalar"    -> liftSTM $ fmap scalarRef $ newTVar undef
-    "Array"     -> liftSTM $ do
+    "Any"       -> stm $ fmap scalarRef $ newTVar undef
+    "Item"      -> stm $ fmap scalarRef $ newTVar undef
+    "Scalar"    -> stm $ fmap scalarRef $ newTVar undef
+    "Array"     -> stm $ do
         iv  <- newTVar [::]
         return $ arrayRef (MkIArray iv)
     "Hash"      -> do
-        h   <- liftIO (H.new (==) H.hashString)
+        h   <- io (H.new (==) H.hashString)
         return $ hashRef (h :: IHash)
     "Sub"       -> newObject $ mkType "Code"
     "Routine"   -> newObject $ mkType "Code"
@@ -1685,13 +1685,13 @@ newObject typ = case showType typ of
         { subAssoc = ANil
         , subBody  = Prim . const $ fail "Cannot use Undef as a Code object"
         }
-    "Type"      -> liftSTM $ fmap scalarRef $ newTVar undef
+    "Type"      -> stm $ fmap scalarRef $ newTVar undef
     "Pair"      -> do
         key <- newObject (mkType "Scalar")
         val <- newObject (mkType "Scalar")
         return $ MkRef (IPair (VRef key, VRef val))
-    "Regex"     -> liftSTM $ fmap scalarRef $ newTVar undef -- XXX Wrong
-    "Capture"   -> liftSTM $ fmap scalarRef $ newTVar undef -- XXX Wrong
+    "Regex"     -> stm $ fmap scalarRef $ newTVar undef -- XXX Wrong
+    "Capture"   -> stm $ fmap scalarRef $ newTVar undef -- XXX Wrong
     _           -> fail ("Class prototype occured where its instance object expected: " ++ showType typ)
 
 doPair :: Val -> (forall a. PairClass a => a -> b) -> Eval b
@@ -1837,7 +1837,7 @@ readIVar (IArray x)  = array_fetch x
 readIVar (IHash x)   = hash_fetch x
 readIVar _ = fail "readIVar"
 
-cloneIVar :: IVar v -> Eval (IVar v)
+cloneIVar :: IVar v -> STM (IVar v)
 cloneIVar (IScalar x) = fmap IScalar $ scalar_clone x
 cloneIVar (IArray x)  = fmap IArray  $ array_clone x
 cloneIVar (IHash x)   = fmap IHash   $ hash_clone x
@@ -1906,18 +1906,18 @@ pairRef     :: PairClass a  => a -> VRef
 pairRef x   = MkRef (IPair x)
 
 newScalar :: (MonadSTM m) => VScalar -> m (IVar VScalar)
-newScalar = liftSTM . (fmap IScalar) . newTVar
+newScalar = stm . (fmap IScalar) . newTVar
 
 newArray :: (MonadSTM m) => VArray -> m (IVar VArray)
-newArray vals = liftSTM $ do
-    tvs <- mapM newTVar vals
+newArray vals = stm $ do
+    tvs <- mapM newScalar vals
     iv  <- newTVar (toP tvs)
     return $ IArray (MkIArray iv)
 
 newHash :: (MonadSTM m) => VHash -> m (IVar VHash)
 newHash hash = do
-    --liftSTM $ unsafeIOToSTM $ putStrLn "new hash"
-    ihash <- liftSTM . unsafeIOToSTM $ H.fromList H.hashString (map (\(a,b) -> (a, lazyScalar b)) (Map.toList hash))
+    --stm $ unsafeIOToSTM $ putStrLn "new hash"
+    ihash <- stm . unsafeIOToSTM $ H.fromList H.hashString (map (\(a,b) -> (a, lazyScalar b)) (Map.toList hash))
     return $ IHash ihash
 
 newHandle :: (MonadSTM m) => VHandle -> m (IVar VHandle)
@@ -1966,7 +1966,7 @@ instance A.MArray IArray ArrayIndex STM where
         writeTVar (A.unsafeAt a i) e
 -}
 
-newtype IArray = MkIArray (TVar [:TVar VScalar:])
+newtype IArray = MkIArray (TVar [:IVar VScalar:])
     deriving (Typeable)
 
 type IArraySlice        = [IVar VScalar]
@@ -2012,7 +2012,7 @@ instance Typeable1 IVar where
 
 {-# NOINLINE _FakeEnv #-}
 _FakeEnv :: Env
-_FakeEnv = unsafePerformIO $ liftSTM $ do
+_FakeEnv = unsafePerformIO $ stm $ do
     ref  <- newTVar Map.empty
     glob <- newTVar $ MkPad Map.empty
     init <- newTVar $ MkInitDat { initPragmas=[] }
@@ -2039,7 +2039,7 @@ _FakeEnv = unsafePerformIO $ liftSTM $ do
         }
 
 fakeEval :: MonadIO m => Eval Val -> m Val
-fakeEval = liftIO . runEvalIO _FakeEnv
+fakeEval = io . runEvalIO _FakeEnv
 
 instance YAML Val.Val
 instance YAML ([Val] -> Eval Val) where
@@ -2102,8 +2102,8 @@ instance YAML VRef where
     asYAML ref = do
         val <- fakeEval $ readRef ref
         svC <- asYAML val
-        liftIO $ print "====>"
-        liftIO $ print svC
+        io $ print "====>"
+        io $ print svC
         fail ("Not implemented: asYAML \"" ++ showType (refType ref) ++ "\"")
     fromYAML MkNode{n_tag=Just s, n_elem=ESeq [node]}
         | s == packBuf "tag:hs:VMultiCode"   =
@@ -2123,7 +2123,7 @@ instance YAML VRef where
     fromYAML node = fail $ "Unhandled YAML node: " ++ show node
 instance YAML IHash where
      asYAML x = do
-         l      <- liftIO $ H.toList x
+         l      <- io $ H.toList x
          asYAMLmap "IHash" (map (\(k, v) -> (k, asYAML v)) l)
      fromYAML node = do
          l  <- fromYAMLmap node

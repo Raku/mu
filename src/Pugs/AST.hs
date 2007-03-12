@@ -154,11 +154,11 @@ genPadEntryScoped scope ref
     | SConstant <- scope = do
         return (EntryConstant typ ref)
     | isStaticScope scope = do
-        tvar    <- liftSTM $ newTVar ref
+        tvar    <- stm $ newTVar ref
         return (EntryStatic typ ref tvar)
     | otherwise = do
-        tvar    <- liftSTM $ newTVar ref
-        fresh   <- liftSTM $ newTVar True
+        tvar    <- stm $ newTVar ref
+        fresh   <- stm $ newTVar True
         return (EntryLexical typ ref tvar fresh)
     where
     typ = refType ref
@@ -368,7 +368,7 @@ typeMacro name exp = Syn "sub" . (:[]) . Val . VCode $ MkCode
 
 filterPrim :: (TVar Pad) -> Eval Pad
 filterPrim glob = do
-    MkPad pad   <- liftSTM $ readTVar glob
+    MkPad pad   <- stm $ readTVar glob
     fmap (MkPad . Map.fromAscList . catMaybes) . mapM checkPrim $ Map.toAscList pad
 
 checkPrim :: (Var, PadEntry) -> Eval (Maybe (Var, PadEntry))

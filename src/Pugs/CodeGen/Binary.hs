@@ -12,7 +12,7 @@ import System.Directory
 genBinary :: Eval Val
 genBinary = do
     penv <- compile () :: Eval PIL_Environment
-    liftIO $ do
+    io $ do
         tmp         <- getTemporaryDirectory
         (file, fh)  <- openBinaryTempFile tmp "pugs.bin"
         bh          <- openBinIO fh

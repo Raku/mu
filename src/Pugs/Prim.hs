@@ -237,7 +237,7 @@ op1 "require_haskell" = \v -> do
     return $ VBool True
 op1 "require_parrot" = \v -> do
     name    <- fromVal v
-    liftIO $ evalParrotFile name
+    io $ evalParrotFile name
     return $ VBool True
 op1 "require_perl5" = \v -> do
     pkg     <- fromVal v
@@ -251,7 +251,7 @@ op1 "require_perl5" = \v -> do
     return val
 op1 "Pugs::Internals::eval_parrot" = \v -> do
     code    <- fromVal v
-    liftIO . evalParrot $ case code of
+    io . evalParrot $ case code of
         ('.':_) -> code
         _       -> unlines
             [ ".sub pugs_eval_parrot"
@@ -292,8 +292,8 @@ op1 "Pugs::Internals::eval_perl5" = \v -> do
         args    <- mapM newSVval vals
         invokePerl5 sub nullSV args envSV (enumCxt $ envContext env)
     case rv of
-        Perl5ReturnValues [x]   -> liftIO $ svToVal x
-        Perl5ReturnValues xs    -> liftIO $ fmap VList (mapM svToVal xs)
+        Perl5ReturnValues [x]   -> io $ svToVal x
+        Perl5ReturnValues xs    -> io $ fmap VList (mapM svToVal xs)
         Perl5ErrorString str    -> fail str
         Perl5ErrorObject err    -> throwError (PerlSV err)
 op1 "Pugs::Internals::eval_p6y" = op1EvalP6Y
@@ -317,14 +317,14 @@ op1 "try" = \v -> do
 -- Tentative implementation of nothingsmuch's lazy proposal.
 op1 "lazy" = \v -> do
     sub     <- fromVal v
-    memo    <- liftSTM $ newTVar Nothing
+    memo    <- stm $ newTVar Nothing
     let exp = App (Val $ VCode sub) Nothing []
         thunk = do
-            cur <- liftSTM $ readTVar memo
+            cur <- stm $ readTVar memo
             maybe eval return cur
         eval = do
             res <- evalExp exp
-            liftSTM $ writeTVar memo (Just res)
+            stm $ writeTVar memo (Just res)
             return res
     typ <- inferExpType exp
     return . VRef . thunkRef $ MkThunk thunk typ
@@ -519,7 +519,7 @@ op1 "accept" = \v -> do
 op1 "detach" = \v -> do
     case v of
         VThread thr -> do
-            liftSTM $ tryPutTMVar (threadLock thr) undef
+            stm $ tryPutTMVar (threadLock thr) undef
             return $ VBool True
         _           -> fail $ "Not a thread: " ++ show v
 op1 "kill" = \v -> do
@@ -530,16 +530,16 @@ op1 "kill" = \v -> do
         _           -> fail $ "Not a thread: " ++ show v
 op1 "join" = \v -> do
     case v of
-        VThread thr -> liftSTM $ takeTMVar (threadLock thr)
+        VThread thr -> stm $ takeTMVar (threadLock thr)
         _           -> op2Join v (VList [])
 op1 "async" = \v -> do
     env     <- ask
     code    <- fromVal v
-    lock    <- liftSTM $ newEmptyTMVar
+    lock    <- stm $ newEmptyTMVar
     tid     <- guardIO . forkIO $ do -- (if rtsSupportsBoundThreads then forkOS else forkIO) $ do
         val <- runEvalIO env $ do
             enterEvalContext CxtVoid $ App (Val code) Nothing []
-        liftSTM $ tryPutTMVar lock val
+        stm $ tryPutTMVar lock val
         return ()
     return . VThread $ MkThread
         { threadId      = tid
@@ -671,7 +671,7 @@ op1 "eager" = \v -> do
     return $! VList $! deepSeq vlist vlist
 op1 "Pugs::Internals::emit_yaml" = \v -> do
     glob <- filterPrim =<< asks envGlobal
-    yml  <- liftIO $ showYaml (filterUserDefinedPad glob, v)
+    yml  <- io $ showYaml (filterUserDefinedPad glob, v)
     return $ VStr yml
 op1 "Object::HOW" = \v -> do
     typ     <- evalValType v
@@ -747,9 +747,9 @@ op1Return action = assertFrame FrameRoutine $ do
         Just tvar -> do
             let thunk = (`MkThunk` anyType) . fix $ \redo -> do
                 evalExp $ subBody sub
-                liftSTM $ writeTVar tvar thunk
+                stm $ writeTVar tvar thunk
                 redo
-            liftSTM $ writeTVar tvar thunk
+            stm $ writeTVar tvar thunk
             action
 
 op1Yield :: Eval Val -> Eval Val
@@ -758,7 +758,7 @@ op1Yield action = assertFrame FrameRoutine $ do
     case subCont sub of
         Nothing -> fail $ "cannot yield() from a " ++ pretty (subType sub)
         Just tvar -> callCC $ \esc -> do
-            liftSTM $ writeTVar tvar (MkThunk (esc undef) anyType)
+            stm $ writeTVar tvar (MkThunk (esc undef) anyType)
             action
 
 op1ShiftOut :: Val -> Eval Val
@@ -784,7 +784,7 @@ op1StrFirst f = op1Cast $ VStr .
 -- and op1 "getc", but those may be hidden in safe mode. We still want to use
 -- the functionality with the safe variants, hence these functions.
 op1Readline :: Val -> Eval Val
-op1Readline = \v -> op1Read v (liftIO . getLines) getLine
+op1Readline = \v -> op1Read v (io . getLines) getLine
     where
     getLines :: VHandle -> IO Val
     getLines fh = unsafeInterleaveIO $ do
@@ -796,7 +796,7 @@ op1Readline = \v -> op1Read v (liftIO . getLines) getLine
             _ -> return (VList [])
     getLine :: VHandle -> Eval Val
     getLine fh = do
-        line <- liftIO $! doGetLine fh
+        line <- io $! doGetLine fh
         case line of
             Just str    -> return $! VStr $! (length str `seq` str)
             _           -> return undef
@@ -1108,10 +1108,10 @@ op2 "Pugs::Internals::install_pragma_value" = \x y -> do
     name <- fromVal x
     val  <- fromVal y
     idat <- asks envInitDat
-    idatval <- liftSTM $ readTVar idat
+    idatval <- stm $ readTVar idat
     --trace ("installing " ++ name ++ "/" ++ (show val)) $ return ()
     let prag = initPragmas idatval
-    liftSTM $ writeTVar idat idatval{initPragmas = 
+    stm $ writeTVar idat idatval{initPragmas = 
         MkPrag{ pragName=name, pragDat=val } : prag }
     return (VBool True)
 op2 "Pugs::Internals::base" = \x y -> do
@@ -1287,7 +1287,7 @@ op3 "Object::new" = \t n p -> do
     named   <- fromVal n
 
     defs    <- fetchMetaInfo "attrs" (showType typ)
-    attrs   <- liftIO $ H.new (==) H.hashString
+    attrs   <- io $ H.new (==) H.hashString
     writeIVar (IHash attrs) (named `Map.union` defs)
     uniq    <- newObjectId
     unless (positionals == VList []) (fail "Must only use named arguments to new() constructor\nBe sure to use bareword keys.")
@@ -1306,7 +1306,7 @@ op3 "Object::clone" = \t n _ -> do
     named <- fromVal n
     (VObject o) <- fromVal t
     attrs   <- readIVar (IHash $ objAttrs o)
-    attrs'  <- liftIO $ H.new (==) H.hashString
+    attrs'  <- io $ H.new (==) H.hashString
     uniq    <- newObjectId
     writeIVar (IHash attrs') (named `Map.union` attrs)
     return $ VObject o{ objAttrs = attrs', objId = uniq }
@@ -1356,7 +1356,7 @@ mixinRoles name roles = do
     let rolePkgs = map cast roles
         thisPkg  = cast name
 
-    liftSTM . modifyTVar glob $ \(MkPad entries) ->
+    stm . modifyTVar glob $ \(MkPad entries) ->
         MkPad . Map.unionWithKey mergePadEntry entries . Map.fromList $
             [ (k{ v_package = thisPkg }, v)
             | (k, v) <- Map.assocs entries
@@ -1568,9 +1568,9 @@ op3Caller kind skip _ = do                                 -- figure out label
 opPerl5 :: String -> [Val] -> Eval Val
 opPerl5 sub args = do
     env     <- ask
-    envSV   <- liftIO $ mkEnv env
+    envSV   <- io $ mkEnv env
     let prms = map (\i -> "$_[" ++ show i ++ "]") [0 .. (length args - 1)]
-    subSV   <- liftIO $ evalPerl5 ("sub { " ++ sub ++ "(" ++ (concat $ intersperse ", " prms) ++ ") }") envSV (enumCxt cxtItemAny)
+    subSV   <- io $ evalPerl5 ("sub { " ++ sub ++ "(" ++ (concat $ intersperse ", " prms) ++ ") }") envSV (enumCxt cxtItemAny)
     argsSV  <- mapM fromVal args
     runInvokePerl5 subSV nullSV argsSV
 
@@ -1704,8 +1704,8 @@ setFinalization obj = do
     env <- ask
     -- XXX - Not sure if this can break guarantees in STM or not; disable for now
     if envAtomic env
-        then return obj -- liftSTM $ unsafeIOToSTM (obj `setFinalization` env)
-        else liftIO $ obj `setFinalizationIn` env
+        then return obj -- stm $ unsafeIOToSTM (obj `setFinalization` env)
+        else io $ obj `setFinalizationIn` env
     where
     setFinalizationIn obj env = do
         objRef <- mkWeakPtr obj . Just $ do
@@ -1721,20 +1721,20 @@ newtype PrettyPrinter = MkPrettyPrinter { runPrinter :: forall a. Pretty a => a 
 -- op1 "perl"
 op1Pretty :: PrettyPrinter -> Val -> Eval Val
 op1Pretty printer v = do
-    recur   <- liftSTM (newTVar False)
+    recur   <- stm (newTVar False)
     let ?seen    = IntSet.empty
         ?recur   = recur
         ?printer = printer
     rv      <- prettyVal v
-    isRecur <- liftSTM (readTVar recur)
+    isRecur <- stm (readTVar recur)
     return $ VStr $ decodeUTF8 $ if isRecur then "$_ := " ++ rv else rv
 
 prettyVal :: (?seen :: IntSet.IntSet, ?recur :: TVar Bool, ?printer :: PrettyPrinter) => Val -> Eval VStr
 prettyVal v@(VRef r) = do
-    ptr <- liftIO (stableAddressOf r)
+    ptr <- io (stableAddressOf r)
     if IntSet.member ptr ?seen
         then do
-            liftSTM $ writeTVar ?recur True
+            stm $ writeTVar ?recur True
             return "\\$_"
         else let ?seen = IntSet.insert ptr ?seen in doPrettyVal v
 prettyVal v = doPrettyVal v

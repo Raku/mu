@@ -51,7 +51,7 @@ runEvalMain :: Env -> Eval Val -> IO Val
 runEvalMain env eval = withSocketsDo $ do
     val     <- runEvalIO env eval
     -- freePerl5 my_perl
-    liftIO performGC
+    io performGC
     return val
 
 runEnv :: Env -> IO Val
@@ -64,7 +64,7 @@ runAST glob ast = do
     name    <- getProgName
     args    <- getArgs
     env     <- prepareEnv name args
-    globRef <- liftSTM $ do
+    globRef <- stm $ do
         glob' <- readTVar $ envGlobal env
         newTVar (glob `unionPads` glob')
     runEnv env{ envBody = ast, envGlobal = globRef, envDebug = Nothing }
@@ -255,9 +255,9 @@ initPreludePC env = do
     evalPrelude = runEvalIO env{ envDebug = Nothing } $ opEval style "<prelude>" preludeStr
     loadPreludePC = do  -- XXX: this so wants to reuse stuff from op1EvalP6Y
         -- print "Parsing yaml..."
-        incs     <- liftIO $ fmap ("blib6/lib":) getLibs
-        pathName <- liftIO $ requireInc incs "Prelude.pm.yml" ""
-        yml      <- liftIO $ parseYamlBytes =<< Str.readFile pathName
+        incs     <- io $ fmap ("blib6/lib":) getLibs
+        pathName <- io $ requireInc incs "Prelude.pm.yml" ""
+        yml      <- io $ parseYamlBytes =<< Str.readFile pathName
         when (n_elem yml == ENil) $ fail ""
         -- FIXME: this detects an error if a bad version number was found,
         -- but not if no number was found at all. Then again, if that
@@ -274,8 +274,8 @@ initPreludePC env = do
         -- print "Parsing done!"
         -- print "Loading yaml..."
         --(glob, ast) <- fromYAML yml
-        MkCompUnit _ glob ast <- liftIO $ fromYAML yml
+        MkCompUnit _ glob ast <- io $ fromYAML yml
         -- print "Loading done!"
-        liftSTM $ modifyTVar (envGlobal env) (`unionPads` glob)
+        stm $ modifyTVar (envGlobal env) (`unionPads` glob)
         runEnv env{ envBody = ast, envDebug = Nothing }
         --     Right Nothing -> fail ""

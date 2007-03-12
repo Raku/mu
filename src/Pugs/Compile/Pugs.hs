@@ -116,11 +116,11 @@ instance Compile (IVar VScalar) where
 
 instance (Typeable a, Compile a) => Compile (TVar a) where
     compile fresh = do
-        vref    <- liftIO $ atomically (readTVar fresh)
+        vref    <- io $ atomically (readTVar fresh)
         vrefC   <- compile vref
         if Str.null vrefC then return Str.empty else do
-        tv      <- liftIO $ fmap (Str.pack . ('t':) . show . hashUnique) newUnique
-        tell [Str.concat [tv, Str.pack " <- liftSTM (newTVar ", vrefC, Str.pack ");\n"]]
+        tv      <- io $ fmap (Str.pack . ('t':) . show . hashUnique) newUnique
+        tell [Str.concat [tv, Str.pack " <- stm (newTVar ", vrefC, Str.pack ");\n"]]
         return tv
 
 instance Compile PadEntry where
@@ -144,7 +144,7 @@ instance Compile VRef where
         if Str.null svC then return Str.empty else do
         return $ Str.concat [Str.pack "(MkRef (IScalar ", svC, pr, pr]
     compile ref = do
-        objc   <- liftIO $ fmap (Str.pack . ('o':) . show . hashUnique) newUnique
+        objc   <- io $ fmap (Str.pack . ('o':) . show . hashUnique) newUnique
         tell [Str.append objc (Str.pack (" <- newObject (mkType \"" ++ showType (refType ref) ++ "\");\n"))]
         return objc
 
@@ -158,8 +158,8 @@ instance Compile Val where
 instance Compile VObject where
     compile (MkObject typ attrs Nothing _) = do
         attrsC <- compile attrs
-        uniq   <- liftIO $ fmap (Str.pack . ('u':) . show . hashUnique) newUnique
-        tell [Str.append uniq (Str.pack " <- liftIO newUnique;\n")]
+        uniq   <- io $ fmap (Str.pack . ('u':) . show . hashUnique) newUnique
+        tell [Str.append uniq (Str.pack " <- io newUnique;\n")]
         return $ Str.unwords [pl, Str.pack "MkObject", Str.pack (show typ), attrsC, Str.pack "Nothing", uniq, pr]
     compile obj = fail $ "Cannot compile Object of Dynamic type: " ++ show obj
 

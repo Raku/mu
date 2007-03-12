@@ -55,7 +55,7 @@ emptyEnv :: (MonadIO m, MonadSTM m)
                                --     to declare an initial set of global
                                --     variables
          -> m Env
-emptyEnv name genPad = liftSTM $ do
+emptyEnv name genPad = stm $ do
     pad  <- sequence genPad
     ref  <- newTVar Map.empty
     syms <- initSyms
@@ -103,14 +103,14 @@ type DebugCache = TVar (Map ID String)
 {-# SPECIALIZE debug :: DebugCache -> ID -> (String -> String) -> String -> String -> Eval () #-}
 debug :: Pretty a => DebugCache -> ID -> (String -> String) -> String -> a -> Eval ()
 debug ref key fun str a = do
-    val <- liftSTM $ do
+    val <- stm $ do
         fm <- readTVar ref
         let val = fun $ Map.findWithDefault "" key fm
         writeTVar ref (Map.insert key val fm)
         return val
     when (length val > 100) $ do
-        liftSTM . unsafeIOToSTM $ putStrLn "*** Warning: deep recursion"
-    liftSTM . unsafeIOToSTM $ putStrLn ("***" ++ val ++ str ++ encodeUTF8 (pretty a))
+        stm . unsafeIOToSTM $ putStrLn "*** Warning: deep recursion"
+    stm . unsafeIOToSTM $ putStrLn ("***" ++ val ++ str ++ encodeUTF8 (pretty a))
 
 evaluateMain :: Exp -> Eval Val
 evaluateMain exp = do
@@ -172,7 +172,7 @@ addGlobalSym :: PadMutator -- ^ 'Pad'-transformer that will insert the new
              -> Eval ()
 addGlobalSym newSym = do
     glob <- asks envGlobal
-    liftSTM $ do
+    stm $ do
         syms <- readTVar glob
         writeTVar glob (newSym syms)
 
@@ -365,24 +365,24 @@ reducePad SMy lex exp = do
 reducePad STemp lex exp = do
     tmps <- mapM (\(sym, _) -> evalExp $ App (_Var "&TEMP") (Just $ Var sym) []) $ padToList lex
     -- default to nonlocal exit
-    isNonLocal  <- liftSTM $ newTVar True
+    isNonLocal  <- stm $ newTVar True
     val <- tryT $ do
-        -- if the liftSTM is reached, exp evaluated without error; no need to shift out
-        evalExp exp `finallyM` liftSTM (writeTVar isNonLocal False)
+        -- if the stm is reached, exp evaluated without error; no need to shift out
+        evalExp exp `finallyM` stm (writeTVar isNonLocal False)
     mapM_ (\tmp -> evalExp $ App (Val tmp) Nothing []) tmps
-    isn <- liftSTM $ readTVar isNonLocal
+    isn <- stm $ readTVar isNonLocal
     (if isn then retShift else return) val
 
 reducePad SLet lex exp = do
     tmps <- mapM (\(sym, _) -> evalExp $ App (_Var "&TEMP") (Just $ Var sym) []) $ padToList lex
     -- default to nonlocal exit
-    isNonLocal  <- liftSTM $ newTVar True
+    isNonLocal  <- stm $ newTVar True
     val <- tryT $ do
-        -- if the liftSTM is reached, exp evaluated without error; no need to shift out
-        evalExp exp `finallyM` liftSTM (writeTVar isNonLocal False)
+        -- if the stm is reached, exp evaluated without error; no need to shift out
+        evalExp exp `finallyM` stm (writeTVar isNonLocal False)
     when (isFailure val) $ do
         mapM_ (\tmp -> evalExp $ App (Val tmp) Nothing []) tmps
-    isn <- liftSTM $ readTVar isNonLocal
+    isn <- stm $ readTVar isNonLocal
     if isn then retShift val else return val
     where
     isFailure (VControl ControlLeave{ leaveValue = v }) = isFailure v
@@ -466,11 +466,11 @@ reduceSyn "block-perl5" args = do
 reduceSyn "sub" [exp] = do
     (VCode sub) <- enterEvalContext (cxtItem "Code") exp
     env  <- ask
-    cont <- if subType sub /= SubCoroutine then return Nothing else liftSTM $ do
+    cont <- if subType sub /= SubCoroutine then return Nothing else stm $ do
         tvar <- newTVar (error "empty sub")
         let thunk = (`MkThunk` anyType) . fix $ \redo -> do
             evalExp $ subBody sub
-            liftSTM $ writeTVar tvar thunk
+            stm $ writeTVar tvar thunk
             redo
         writeTVar tvar thunk
         return $ Just tvar
@@ -485,9 +485,9 @@ reduceSyn "sub" [exp] = do
         pad' <- clonePad pad
         return $ Pad scope pad' exp
     cloneBodyStates x = return x
-    clonePad pad = do
+    clonePad pad = stm $ do
         fmap listToPad $ forM (padToList pad) $ \(var, entry) -> do
-            let preserveContent   = liftSTM . readTVar . pe_store
+            let preserveContent   = readTVar . pe_store
                 regenerateContent = cloneRef . pe_proto
             entry' <- clonePadEntry entry $ case v_sigil var of
                 SType       -> preserveContent
@@ -496,22 +496,22 @@ reduceSyn "sub" [exp] = do
                 _           -> regenerateContent
 {-
             tvars' <- forM tvars $ \(_, tvar) -> do
-                fresh'  <- liftSTM $ newTVar False
-                tvar'   <- (liftSTM . newTVar) =<< case v_sigil var of
-                    SType       -> liftSTM $ readTVar tvar
-                    SCode       -> liftSTM $ readTVar tvar
-                    SCodeMulti  -> liftSTM $ readTVar tvar
+                fresh'  <- stm $ newTVar False
+                tvar'   <- (stm . newTVar) =<< case v_sigil var of
+                    SType       -> stm $ readTVar tvar
+                    SCode       -> stm $ readTVar tvar
+                    SCodeMulti  -> stm $ readTVar tvar
                     _           -> newObject (typeOfSigilVar var)
                 return (fresh', tvar')
 -}
             return (var, entry')
     clonePadEntry x@EntryConstant{} _ = return x
     clonePadEntry x@EntryStatic{} f = do
-        tvar'   <- (liftSTM . newTVar) =<< f x
+        tvar'   <- newTVar =<< f x
         return x{ pe_store = tvar' }
     clonePadEntry x@EntryLexical{} f = do
-        tvar'   <- (liftSTM . newTVar) =<< f x
-        fresh'  <- liftSTM $ newTVar False
+        tvar'   <- newTVar =<< f x
+        fresh'  <- newTVar False
         return x{ pe_store = tvar', pe_fresh = fresh' }
 
 reduceSyn "but" [obj, block] = do
@@ -563,14 +563,14 @@ reduceSyn "for" [list, body] = enterLoop $ do
 reduceSyn "gather" [exp] = do
     sub     <- fromVal =<< evalExp exp
     globTV  <- asks envGlobal
-    glob    <- liftSTM $ readTVar globTV
+    glob    <- stm $ readTVar globTV
     oldAV   <- findSymRef takeVar glob
     oldSym  <- genSym takeVar oldAV
     newAV   <- newObject (mkType "Array")
     newSym  <- genSym takeVar newAV
-    liftSTM $ writeTVar globTV (newSym glob)
+    stm $ writeTVar globTV (newSym glob)
     enterGather $ apply sub Nothing []
-    readRef newAV `finallyM` liftSTM (modifyTVar globTV oldSym)
+    readRef newAV `finallyM` stm (modifyTVar globTV oldSym)
     where
     takeVar = cast "$*TAKE"
 
@@ -860,7 +860,7 @@ reduceSyn "rx" [exp, adverbs] = do
              | ':':_ <- str  = p6reAdvs ++ str
              | otherwise     = p6reAdvs ++ "::" ++ str
         -}
-        rx | p5 = do ns <- liftIO $ numSubs p5re
+        rx | p5 = do ns <- io $ numSubs p5re
                      return $ MkRulePCRE p5re g ns flag_tilde str adverbHash
            | otherwise = return $ MkRulePGE p6re g flag_tilde adverbHash
     return . VRule =<< rx
@@ -1430,7 +1430,7 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
                 (`juncApply` bound) $ \realBound -> do
                     enterSub sub $ case cont of
                         Just tvar   -> do
-                            thunk <- liftSTM $ readTVar tvar
+                            thunk <- stm $ readTVar tvar
                             applyThunk (subType sub) realBound thunk
                         Nothing     -> applyExp (subType sub) realBound fun
             case typ of 
@@ -1474,13 +1474,13 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
         let eval = local (const env{ envLValue = lv }) $ do
                 enterEvalContext cxt exp
             thunkify = do
-                memo    <- liftSTM $ newTVar Nothing
+                memo    <- stm $ newTVar Nothing
                 let forceThunk = do
                         res <- eval
-                        liftSTM $ writeTVar memo (Just res)
+                        stm $ writeTVar memo (Just res)
                         return res
                     evalThunk = do
-                        cur <- liftSTM $ readTVar memo
+                        cur <- stm $ readTVar memo
                         maybe forceThunk return cur
                 return . VRef . thunkRef $ MkThunk evalThunk anyType
         val <- if thunk then thunkify else do
