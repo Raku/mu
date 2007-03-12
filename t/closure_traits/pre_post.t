@@ -10,7 +10,7 @@ use Test;
 
 # TODO: Test PRE and POST with inheritance
 
-plan 10;
+plan 13;
 
 my $foo = '
 sub foo(Num $i) {
@@ -86,3 +86,39 @@ try {
 }
 
 ok(defined($!), "sub with two POSTs fails if second POST is violated");
+
+# inheritance
+
+my $ih_pre = 
+' class Foo {
+    method test(Num $i) {
+        PRE {
+	    $i > 0
+        }
+		
+        return 1;
+    }
+}
+
+class Bar is Foo{
+    method test(Num $i){
+        PRE {
+            $i < 23
+        }
+        return 1;
+    }
+}
+my $foo = Bar.new; ';
+
+ok(eval($ih_pre ~ '$foo.test(1)'), "PRE in methods compiles and runs");
+
+try {
+    eval($ih_pre ~ '$foo.test(-1)');
+}
+
+ok(defined($!), "violated PRE inherited from ancestor fails OK");
+
+try {
+    eval($ih_pre ~ '$foo.test(42)');
+}
+ok(defined($!), "violated PRE in method fails OK");
