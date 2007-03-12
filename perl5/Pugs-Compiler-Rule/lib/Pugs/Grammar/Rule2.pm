@@ -1,5 +1,6 @@
 
 use v6-alpha;
+use utf8;
 
 # Perl6 implementation of the 'Rule' syntax 
 # author: Flavio S. Glock - fglock@gmail.com
@@ -327,10 +328,10 @@ token named_capture_body {
     '^'   => token { { return { colon => '^'  ,} } },
     
     '>>'  => token { { return { colon => '>>' ,} } },
-    '»'   => token { { return { colon => '>>' ,} } },
+    'Â»'   => token { { return { colon => '>>' ,} } },
 
     '<<'  => token { { return { colon => '<<' ,} } },
-    '«'   => token { { return { colon => '<<' ,} } },
+    'Â«'   => token { { return { colon => '<<' ,} } },
 
     ':i'  => token { 
         <?ws> <rule> 
