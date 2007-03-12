@@ -17,8 +17,8 @@ multi earth ($me, :$her)         {"pos $me her $her"};
 multi earth ($me, $you)          {"pos $me pos $you"};
 multi earth ($me, $you, :$her)   {"pos $me pos $you her $her"};
 
-is( try { earth(me => 1) },                     'me 1',             'named me', :todo<unspecced>);
-is( try { earth(him => 2) },                    'him 2',            'named you', :todo<unspecced>);
+is( try { earth(me => 1) },                     'me 1',             'named me');
+is( try { earth(him => 2) },                    'him 2',            'named you');
 is( try { earth(me => 1, him => 2) },           'me 1 him 2',       'named me, named him');
 is( try { earth(him => 2, me => 1) },           'me 1 him 2',       'named him, named me');
 is( try { earth(me => 1, him => 2, her => 3) }, 'me 1 him 2 her 3', 'named me named him named her');
