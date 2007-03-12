@@ -413,50 +413,49 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     
     -- Don't add the sub if it's unsafe and we're in safemode.
     if "unsafe" `elem` traits && safeMode then return emptyExp else do
-    (`finallyM` clearDynParsers) $ case scope of
-        SOur | isExported -> do
-            -- we mustn't perform the export immediately upon parse, because
-            -- then only the first consumer of a module will see it. Instead,
-            -- make a note of this symbol being exportable, and defer the
-            -- actual symbol table manipulation to opEval.
-            Val rv <- unsafeEvalExp $ mkSym sub nameQualified (_Var (mkMulti nameQualified))
-            -- %*INC<This::Package><exports><&this_sub> |= expression-binding-&this_sub
-            --    ==>
-            -- %This::Package::EXPORTS<&this_sub> |= expression-binding-&this_sub
-            -- (a singleton list for subs, a full list of subs for multis)
-            let exportedSub
-                    -- "method foo is export" is exported into "multi foo" here.
-                    | styp == SubMethod = VCode cv
-                        { isMulti   = True
-                        , subParams = map (\x -> x{ isInvocant = False }) (subParams cv)
-                        }
-                    | otherwise         = sub
-                VCode cv    = sub
-            return . seq rv $ Syn "|="
-                [ Syn "{}" [_Var ("%" ++ pkg ++ "::EXPORTS"), Val $ VStr name]
-                , Val exportedSub
-                ]
-        _ | isQualifiedVar var -> unsafeEvalExp $ mkSym sub nameQualified Noop
-        _ -> do
+    (`finallyM` clearDynParsers) $ if isQualifiedVar var || isGlobalVar var
+        then do unsafeEvalExp $ mkSym sub nameQualified Noop
+        else do
+            let var' = cast (mkMulti nameQualified)
+                regenLexicalEntry = do
+                    env' <- unsafeEvalEnv $ mkSym sub nameQualified Noop
+                    putRuleEnv env'
+                    addBlockPad scope (envLexical env' `diffPads` envLexical env)
+                    return $ _Var (mkMulti nameQualified)
+                doExportCode rv = if not isExported then return emptyExp else do
+                    -- we mustn't perform the export immediately upon parse, because
+                    -- then only the first consumer of a module will see it. Instead,
+                    -- make a note of this symbol being exportable, and defer the
+                    -- actual symbol table manipulation to opEval.
+                    -- %*INC<This::Package><exports><&this_sub> |= expression-binding-&this_sub
+                    --    ==>
+                    -- %This::Package::EXPORTS<&this_sub> |= expression-binding-&this_sub
+                    -- (a singleton list for subs, a full list of subs for multis)
+                    let exportedSub
+                            -- "method foo is export" is exported into "multi foo" here.
+                            | styp == SubMethod = VCode cv
+                                { isMulti   = True
+                                , subParams = map (\x -> x{ isInvocant = False }) (subParams cv)
+                                }
+                            | otherwise         = sub
+                        VCode cv    = sub
+                    return . seq rv $ Syn "|="
+                        [ Syn "{}" [_Var ("%" ++ pkg ++ "::EXPORTS"), Val $ VStr name]
+                        , Val exportedSub
+                        ]
             case lookupPad var' newPad of
                 Just entry  -> do
-                    Val (VCode code) <- unsafeEvalExp (Syn "sub" [Val sub])
+                    Val val@(VCode code) <- unsafeEvalExp (Syn "sub" [Val sub])
                     let entry'  = entry{ pe_proto = cv' }
                         cv'     = MkRef (ICode code)
                     addBlockPad scope (adjustPad (const entry') var newPad)
+                    result <- doExportCode val
                     case entry' of
-                        EntryConstant{} -> return emptyExp
+                        EntryConstant{} -> return result
                         _               -> return $! unsafePerformSTM $! do
                             rv  <- writePadEntry entry' cv'
-                            return (rv `seq` emptyExp)
+                            return (rv `seq` result)
                 _           -> regenLexicalEntry
-            where
-            var' = cast (mkMulti nameQualified)
-            regenLexicalEntry = do
-                env' <- unsafeEvalEnv $ mkSym sub nameQualified Noop
-                putRuleEnv env'
-                addBlockPad scope (envLexical env' `diffPads` envLexical env)
-                return $ _Var (mkMulti nameQualified)
 
 ruleSubNamePossiblyWithTwigil :: RuleParser String
 ruleSubNamePossiblyWithTwigil = tryVerbatimRule "subroutine name" $ do
