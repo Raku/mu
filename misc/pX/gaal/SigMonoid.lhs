@@ -7,18 +7,19 @@ Params
 
   s            :+:  s                    = s   -- identity
 
+  -- contexts
   :($x)        :+:  :($x is rw)          = :($x is rw)
   :($x)        :+:  :($x is copy)        = :($x is copy)
-  :($x is rw)  :+:  :($x is copy)        = fail "incompat" -- ???:($x is copy)
+  :($x is rw)  :+:  :($x is copy)        = :($x is rw)
 
   -- user traits
-  :($x is tr1) :+:  :($x is tr2)         = :($x is tr1 is tr2) ? or drop?
+  :($x is tr1) :+:  :($x is tr2)         = :($x)    -- drop
 
-  :($x)        :+:  :($x?)               = :($x)
-  :($x = 42)   :+:  :($x = 54)           = fail "incompat" -- or :($x?) ???
+  :($x)        :+:  :($x?)               = :($x?)
+  :($x = 42)   :+:  :($x = 54)           = :($x?)
 
-  :($x)        :+:  :(Int $x)            = :($x)         -- ???
-  :(Str $x)    :+:  :(Int $x)            = :(Str|Int $x) -- ???
+  :($x)        :+:  :(Int $x)            = :($x)
+  :(Str $x)    :+:  :(Int $x)            = :(Str|Int $x)
 
   :($x)        :+:  :($x where {...})    = :($x)
 
@@ -28,6 +29,7 @@ Signatures
 
 -- mandatories must match
 
+  :($)         :+:  :($)                 = :($x)
   :($x)        :+:  :($y)                = fail "incompat"
   :($x)        :+:  :($y?)               = :($x, $y?)
 
