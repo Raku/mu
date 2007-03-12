@@ -27,7 +27,7 @@ is( try { earth(her => 3, me => 1, him => 2) }, 'me 1 him 2 her 3', 'named her n
 is( try { earth(her => 3, him => 2, me => 1) }, 'me 1 him 2 her 3', 'named her named him named me');
 
 is( try { earth('a') },                'pos a',             'pos', :todo<unspecced>);
-is( try { earth('b', you => 4) },      'pos b you 4',       'pos, named you', :todo<unspecced>);
+is( try { earth('b', you => 4) },      'pos b you 4',       'pos, named you');
 is( try { earth('c', her => 3) },      'pos c her 3',       'pos, named her', :todo<unspecced>);
 is( try { earth('d', 'e') },           'pos d pos e',       'pos, pos', :todo<unspecced>);
 is( try { earth('f', 'g', her => 3) }, 'pos f pos g her 3', 'pos, pos, named', :todo<unspecced>);
