@@ -22,6 +22,8 @@ Params
 
   :($x)        :+:  :($x where {...})    = :($x)
 
+  :(BinTree $t) :+:  :(BinTree $t (Left $l, Right $r))
+                                         = :(BinTree $t (Left $l, Right $r)) 
 Signatures
 
 -- mandatories must match
