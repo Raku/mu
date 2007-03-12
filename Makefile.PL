@@ -226,6 +226,7 @@ EOD
     my $ghci_debugging =
             (defined $ENV{PUGS_GHCI_DEBUGGING} ? $ENV{PUGS_GHCI_DEBUGGING} : 1)
         ? '-fdebugging' : '';
+    $ghci_debugging = '' if $ghc_version eq '6.6';
 
     my $native_fps;
 
