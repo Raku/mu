@@ -295,9 +295,9 @@ sub variable {
 sub special_char {
     my ($char, $data) = $_[0] =~ /^.(.)(.*)/;
 
-    return  "$_[1] perl5( '\\N{" . join( "}\\N{", split( /;/, $data ) ) . "}' )\n"
+    return  "$_[1] perl5( '\\N{" . join( "}\\N{", split( /\s*;\s*/, $data ) ) . "}' )\n"
         if $char eq 'c';
-    return  "$_[1] perl5( '(?!\\N{" . join( "}\\N{", split( /;/, $data ) ) . "})\\X' )\n"
+    return  "$_[1] perl5( '(?!\\N{" . join( "}\\N{", split( /\s*;\s*/, $data ) ) . "})\\X' )\n"
         if $char eq 'C';
 
     return  "$_[1] perl5( '\\x{$data}' )\n"
@@ -475,7 +475,14 @@ sub colon {
     die "'$str' not implemented";
 }
 sub modifier {
-    my $str = $_[0];
+    my $str = $_[0]{modifier};
+    my $rule = $_[0]{rule};
+
+    return "$_[1] ignorecase( \n"
+        . emit_rule( $rule, $_[1] . '  ' )
+        . " )\n" 
+        if $str eq 'ignorecase';
+
     die "modifier '$str' not implemented";
 }
 sub constant {
@@ -541,20 +548,20 @@ sub metasyntax {
         # TODO - \o \O
 
         if    ( $cmd =~ /^ \+? \[ \\ c \[ (.*) \] \] /x ) {
-            #$cmd = "(?:\\N{" . join( "}|\\N{", split( /;/, $1 ) ) . "})";
-            $cmd = "[\\N{" . join( "}\\N{", split( /;/, $1 ) ) . "}]";
+            #$cmd = "(?:\\N{" . join( "}|\\N{", split( /\s*;\s*/, $1 ) ) . "})";
+            $cmd = "[\\N{" . join( "}\\N{", split( /\s*;\s*/, $1 ) ) . "}]";
         }
         elsif ( $cmd =~ /^ \+? \[ \\ C \[ (.*) \] \] /x ) {
-            #$cmd = "(?!\\N{" . join( "}|\\N{", split( /;/, $1 ) ) . "})\\X";
-            $cmd = "[^\\N{" . join( "}\\N{", split( /;/, $1 ) ) . "}]";
+            #$cmd = "(?!\\N{" . join( "}|\\N{", split( /\s*;\s*/, $1 ) ) . "})\\X";
+            $cmd = "[^\\N{" . join( "}\\N{", split( /\s*;\s*/, $1 ) ) . "}]";
         }
         elsif ( $cmd =~ /^ -  \[ \\ C \[ (.*) \] \] /x ) {
-            #$cmd = "(?:\\N{" . join( "}|\\N{", split( /;/, $1 ) ) . "})";
-            $cmd = "[\\N{" . join( "}\\N{", split( /;/, $1 ) ) . "}]";
+            #$cmd = "(?:\\N{" . join( "}|\\N{", split( /\s*;\s*/, $1 ) ) . "})";
+            $cmd = "[\\N{" . join( "}\\N{", split( /\s*;\s*/, $1 ) ) . "}]";
         }
         elsif ( $cmd =~ /^ -  \[ \\ c \[ (.*) \] \] /x ) {
-            #$cmd = "(?!\\N{" . join( "}|\\N{", split( /;/, $1 ) ) . "})\\X";
-            $cmd = "[^\\N{" . join( "}\\N{", split( /;/, $1 ) ) . "}]";
+            #$cmd = "(?!\\N{" . join( "}|\\N{", split( /\s*;\s*/, $1 ) ) . "})\\X";
+            $cmd = "[^\\N{" . join( "}\\N{", split( /\s*;\s*/, $1 ) ) . "}]";
         }
 
         
@@ -563,9 +570,11 @@ sub metasyntax {
         }
         elsif ( $cmd =~ /^ \+? \[ \\ X \[ (.*) \] \] /x ) {
             $cmd = "(?!\\x{$1})\\X";
+            #$cmd = "[^\\x{$1}]";
         }
         elsif ( $cmd =~ /^ -  \[ \\ X \[ (.*) \] \] /x ) {
             $cmd = "(?:\\x{$1})";
+            #$cmd = "[\\x{$1}]";
         }
         elsif ( $cmd =~ /^ -  \[ \\ x \[ (.*) \] \] /x ) {
             $cmd = "(?!\\x{$1})\\X";

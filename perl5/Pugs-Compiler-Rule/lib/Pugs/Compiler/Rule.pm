@@ -141,6 +141,10 @@ Specify a string position to match. Starts in zero. Defaults to C<undef>, which 
 
 Whitespace is significant. Defaults to 1 in Rules.
 
+=item * ignorecase => 1
+
+Ignore character case. The default is significant case.
+
 =item * Perl5 => 1
 
 Use Perl 5 grammar and semantics for Regex.

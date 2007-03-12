@@ -1,5 +1,5 @@
 
-use Test::More tests => 69;
+use Test::More tests => 78;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -453,4 +453,30 @@ no warnings qw( once );
     my $rule = Pugs::Compiler::Regex->compile( '<!alpha> x' );
     my $match = $rule->match( "xy12" );
     ok !$match->bool, '<!alpha> x never matches';
+}
+
+{
+    # compile-time external ignorecase
+    my $rule = Pugs::Compiler::Regex->compile( 'aBc', { ignorecase => 1 } );
+    #print $rule->perl;
+    ok $rule->match( "AbC" )->bool, 'mixed case matches';
+    ok $rule->match( "abc" )->bool, 'lower case matches';
+    ok $rule->match( "ABC" )->bool, 'upper case matches';
+}
+
+{
+    # run-time external ignorecase
+    my $rule = Pugs::Compiler::Regex->compile( 'aBc' );
+    ok $rule->match( "AbC", { ignorecase => 1 } )->bool, 'mixed case matches';
+    ok $rule->match( "abc", { ignorecase => 1 } )->bool, 'lower case matches';
+    ok $rule->match( "ABC", { ignorecase => 1 } )->bool, 'upper case matches';
+}
+
+{
+    # internal ignorecase
+    my $rule = Pugs::Compiler::Regex->compile( ':i aBc' );
+    #print $rule->perl;
+    ok $rule->match( "AbC" )->bool, 'internal ignorecase; mixed case matches';
+    ok $rule->match( "abc" )->bool, 'internal ignorecase; lower case matches';
+    ok $rule->match( "ABC" )->bool, 'internal ignorecase; upper case matches';
 }

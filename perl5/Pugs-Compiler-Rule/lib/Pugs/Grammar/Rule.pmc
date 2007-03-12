@@ -1017,6 +1017,13 @@
                                ) 
                              || ( 
                                ( ( $bool = 1 ) && ( $pos = $pad{I1447} ) or 1 ) 
+                               &&                                  ( ( substr( $s, $pos, 1 ) eq '-' ) 
+                                     ? ( $pos += 1 or 1 )
+                                     : 0
+                                 )
+                               ) 
+                             || ( 
+                               ( ( $bool = 1 ) && ( $pos = $pad{I1447} ) or 1 ) 
                                &&                                  ( ( substr( $s, $pos, 1 ) eq ')' ) 
                                      ? ( $pos += 1 or 1 )
                                      : 0
@@ -4496,7 +4503,7 @@ do {
 do { 
                     $::_V6_MATCH_ = $m; 
                     local $::_V6_SUCCEED = 1;
-                    $m->data->{capture} = \( sub  { return({'modifier' => 'ignorecase', 'rule'=>${ $::_V6_MATCH_->{ qw(rule) }}});
+                    $m->data->{capture} = \( sub  { return({'modifier' => { modifier => 'ignorecase', 'rule'=>${ $::_V6_MATCH_->{ qw(rule) }}}});
  } ->() );
                     $bool = $::_V6_SUCCEED;
                     $::_V6_MATCH_ = $m if $bool; 
@@ -4569,7 +4576,7 @@ do {
 do { 
                     $::_V6_MATCH_ = $m; 
                     local $::_V6_SUCCEED = 1;
-                    $m->data->{capture} = \( sub  { return({'modifier' => 'ignorecase', 'rule'=>${ $::_V6_MATCH_->{ qw(rule) }}});
+                    $m->data->{capture} = \( sub  { return({'modifier' => { modifier => 'ignorecase', 'rule'=>${ $::_V6_MATCH_->{ qw(rule) }}}});
  } ->() );
                     $bool = $::_V6_SUCCEED;
                     $::_V6_MATCH_ = $m if $bool; 

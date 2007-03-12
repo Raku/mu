@@ -59,7 +59,7 @@ token ident {
 
 # after '\\'
 token special_char {  
-        | ( c | C ) \[ ( [<alnum>|\s|<';'>|<'('>|<')'>]+) \]
+        | ( c | C ) \[ ( [<alnum>|\s|<';'>|<'('>|<')'>|<'-'>]+) \]
           #  \c[LATIN LETTER A] 
           { return { special_char => '\\' ~ $0 ~ $1 , } } 
 
@@ -334,10 +334,10 @@ token named_capture_body {
 
     ':i'  => token { 
         <?ws> <rule> 
-        { return { modifier => 'ignorecase', :$$<rule>, } } },
+        { return { modifier => { modifier => 'ignorecase', :$$<rule>, } } } },
     ':ignorecase'  => token { 
         <?ws> <rule> 
-        { return { modifier => 'ignorecase', :$$<rule>, } } },
+        { return { modifier => { modifier => 'ignorecase', :$$<rule>, } } } },
     ':s'  => token { 
         <?ws> <rule> 
         { return { modifier => 'sigspace',   :$$<rule>, } } },

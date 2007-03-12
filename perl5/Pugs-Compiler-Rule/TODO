@@ -24,12 +24,14 @@ TODO for Pugs::Compiler::Rule (PCR)
   the same rule
 
 - finish **{...} implementation
+- finish modifiers implementation
 
 - check failing (infinite-loop) tests
 
 * OLDER TODO
 
 - complex char classes
+  - move to a module
 
     # <+foo+bar-alpha>
 

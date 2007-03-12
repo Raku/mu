@@ -169,12 +169,24 @@ sub try_method {
     return eval $sub;
 }
 
+
+sub ignorecase { 
+    my $sub = shift;
+    no warnings qw( uninitialized );
+    return sub {
+        my %param = ( ( defined $_[7] ? %{$_[7]} : () ), ignorecase => 1 );
+        $sub->( @_[0..6], \%param );
+    }
+}
+
 sub constant { 
     my $const = shift;
     my $lconst = length( $const );
     no warnings qw( uninitialized );
     return sub {
-        my $bool = $const eq substr( $_[0], $_[5], $lconst );
+        my $bool = $_[7]{ignorecase}
+            ? lc( $const ) eq lc( substr( $_[0], $_[5], $lconst ) )
+            : $const eq substr( $_[0], $_[5], $lconst );
         $_[3] = Pugs::Runtime::Match->new({ 
                 bool  => \$bool,
                 str   => \$_[0],
@@ -200,7 +212,9 @@ sub perl5 {
     }
     return sub {
         #use charnames ':full';
-        my $bool = substr( $_[0], $_[5] ) =~ m/$rx/;
+        my $bool = $_[7]{ignorecase}
+            ? substr( $_[0], $_[5] ) =~ m/(?i)$rx/
+            : substr( $_[0], $_[5] ) =~ m/$rx/;
         $_[3] = Pugs::Runtime::Match->new({ 
                 bool  => \$bool,
                 str   => \$_[0],
