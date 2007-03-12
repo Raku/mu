@@ -20,17 +20,19 @@ our $GLOBAL = "Main global";
 is($?PACKAGE, ::Main::, "default package is ::Main::");
 is($GLOBAL, "Main global", "global var");
 
-package A;
+package A {
 
 Test::is($?PACKAGE, "A", "switching package, file scope");
-Test::lives_ok({ $GLOBAL = 1 }, "'our' is lexically scoped, even across namespaces", :todo<feature>);
 Test::is(eval('$Main::GLOBAL'), "Main global", "fully qualified name, Main::");
+Test::lives_ok({ $GLOBAL = 1 }, "'our' is lexically scoped, even across namespaces");
 
 eval '$A::GLOBAL = "A global"';
 
 Test::is(eval('$A::GLOBAL'), "A global", "fully qualified name, other package");
 
-package B;
+}
+
+package B {
 
 Test::is($?PACKAGE, "B", "switching package, file scope");
 
@@ -43,3 +45,4 @@ eval '$B::UN_OURED = 1';
 
 Test::is(eval('$B::UN_OURED'), undef, "can't refer to global outside scope when not qualified", :todo<feature>);
 
+}
