@@ -128,7 +128,7 @@ sub on_privmsg($event) {
 
 sub evalhelper(Str $code) {
   # Find the location of evalhelper-p5.pl.
-  my $evalhelper = INIT {
+  state $evalhelper = do {
     print $*ERR: "evalhelper-p5.pl...";
     my @path_parts = splitpath $*PROGRAM_NAME;
     my $progdir = @path_parts[1];
