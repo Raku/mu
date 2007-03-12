@@ -23,15 +23,15 @@ Params
 
   :($x)        :+:  :($x where {...})    = :($x)
 
-  :(BinTree $t) :+:  :(BinTree $t (Left $l, Right $r))
+  :($t)        :+:  :(BinTree $t (Left $l, Right $r))
                                          = :(BinTree $t (Left $l, Right $r)) 
 Signatures
 
 -- mandatories must match
 
-  :($)         :+:  :($)                 = :($x)
+  :($)         :+:  :($x)                = :($x)   -- name-fixing positionals
   :($x)        :+:  :($y)                = fail "incompat"
-  :($x)        :+:  :($y?)               = :($x, $y?)
+  :($x)        :+:  :($y?)               = fail "incompat"
 
   :(:$elk)     :+:  :(:$caribou)         = fail "incompat"
 
@@ -41,7 +41,7 @@ Signatures
                :+:  :($mand1, $opt1?, *%slurpy1)
                                          = :($mand1, $opt1?, *%slurpy1)
 
-  -- slurpies don't have to be treated as mandatory (right?)
+-- slurpies don't have to be treated as mandatory
   :($mand1, *%slurpy1)
                :+:  :($mand1, $opt1?)
                                          = :($mand1, $opt1?, *%slurpy1)
