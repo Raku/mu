@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -cpp -fglasgow-exts -fno-warn-orphans -funbox-strict-fields -fallow-overlapping-instances #-}
+{-# OPTIONS_GHC -cpp -fglasgow-exts -fno-warn-orphans -funbox-strict-fields -fallow-overlapping-instances -fparr #-}
 
 {-|
     Abstract syntax tree.
@@ -13,7 +13,7 @@
 
 module Pugs.AST (
     evalExp, readCodesFromRef,
-    genMultiSym, genSym, genSymScoped, genPadEntryScoped, mkPadMutator,
+    genSym, genMultiSym, genSymScoped, genPadEntryScoped, mkPadMutator,
     strRangeInf, strRange, strInc,
     mergeStmts, isEmptyParams,
     newPackage, newType, newMetaType, typeMacro, isScalarLValue,
@@ -140,8 +140,12 @@ evalExp exp = do
 
 genMultiSym :: MonadSTM m => Var -> VRef -> m PadMutator
 genMultiSym var = case v_sigil var of
-    SCode       -> genSym var{ v_sigil = SCodeMulti }
-    SCodeMulti  -> genSym var
+    SCode -> \ref -> do
+        case ref of
+            MkRef (ICode c) -> do
+                let var' = var{ v_longname = _cast (cast (code_params c)) }
+                genSymScoped SMy var' ref
+            _               -> genSym var ref
     _           -> const $ die "Cannot generate multi variants of variable" var
 
 isStaticScope :: Scope -> Bool
@@ -163,15 +167,42 @@ genPadEntryScoped scope ref
     where
     typ = refType ref
 
+{-# NOINLINE genSymScoped #-}
 genSymScoped :: MonadSTM m => Scope -> Var -> VRef -> m PadMutator
 genSymScoped scope var ref = do
     entry <- genPadEntryScoped scope ref
-    return (mkPadMutator var entry)
+    return (mkPadMutator var entry ref)
 
-mkPadMutator :: Var -> PadEntry -> PadMutator
-mkPadMutator var entry
-    | SCodeMulti <- v_sigil var = \(MkPad map) -> MkPad (Map.insertWith (mergePadEntry var) var entry map)
-    | otherwise                 = \(MkPad map) -> MkPad (Map.insert var entry map)
+
+mkPadMutator :: Var -> PadEntry -> VRef -> PadMutator
+mkPadMutator var entry ref (MkPad map)
+    | v_longname var /= nullID, MkRef (ICode c) <- ref
+    = let   var'        = var{ v_longname = nullID }
+            protoEntry  = EntryConstant
+                { pe_type  = pe_type entry
+                , pe_proto = MkRef (ICode protoCode)
+                }
+            protoCode = MkMultiCode
+                { mc_type       = pe_type entry
+                , mc_subtype    = code_type c
+                , mc_assoc      = code_assoc c
+                , mc_signature  = code_params c
+                , mc_variants   = Map.singleton var entry
+                }
+            merge _ old = case old of
+                EntryConstant{ pe_proto = MkRef (ICode oldCV) }
+                    | Just mc <- fromTypeable oldCV -> protoEntry
+                        { pe_proto = MkRef . ICode $ protoCode
+                            { mc_assoc      = code_assoc c `mappend` code_assoc mc
+                            , mc_variants   = Map.insert var entry (mc_variants mc)
+                            , mc_signature  = if length (mc_signature mc) == length (code_params c)
+                                then code_params c
+                                else [defaultArrayParam]
+                            }
+                        }
+                _ -> old -- sub overrides multi -- XXX - error?
+       in MkPad (Map.insertWith' merge var' protoEntry (Map.insert var entry map))
+    | otherwise = MkPad (Map.insert var entry map)
 
 {-|
 Create a lexical 'Pad'-transforming transaction that will install a symbol
@@ -230,6 +261,7 @@ opSet cat posts = Set.fromList $ map doMakeVar posts
         , v_categ   = cat
         , v_name    = cast name
         , v_meta    = MNil
+        , v_longname= nullID
         }
 
 coercePrefixOps, simplePrefixOps, simplePostfixOps, simpleInfixOps :: Set Var
@@ -320,13 +352,13 @@ newPackage cls name classes roles = Stmts metaObj (newType name)
             ) Noop
 
 newType :: String -> Exp
-newType name = _Sym SOur ('&':'&':'*':termName) (typeMacro name (Val . VType . mkType $ name)) Noop
+newType name = _Sym SOur ('&':'*':termName) (typeMacro name (Val . VType . mkType $ name)) Noop
     where
     termName = "term:" ++ name
 
 
 newMetaType :: String -> Exp
-newMetaType name = _Sym SOur ('&':'&':'*':termName) (typeMacro name (_Var (':':'*':name))) Noop
+newMetaType name = _Sym SOur ('&':'*':termName) (typeMacro name (_Var (':':'*':name))) Noop
     where
     termName = "term:" ++ name
 
@@ -442,7 +474,7 @@ __ITEM__ = cast "ITEM"
 
 readCodesFromRef :: VRef -> Eval [VCode]
 readCodesFromRef (MkRef (ICode c))
-    | Just mc <- fromTypeable c = fmap concat . forM (fromP $ mc_variants mc) $ \entry -> do
+    | Just mc <- fromTypeable c = fmap concat . forM (Map.elems $ mc_variants mc) $ \entry -> do
         ref     <- readPadEntry entry
         readCodesFromRef ref
 readCodesFromRef ref = do
