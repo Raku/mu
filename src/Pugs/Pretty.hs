@@ -67,7 +67,7 @@ instance Pretty Type where
     format = format . showType
 
 instance Pretty PadEntry where
-    format = format . pe_type
+    format x = format (pe_type x) <+> format (pe_proto x)
 
 instance Pretty Pad where
     format pad = vcat $ map formatAssoc $ padToList pad

@@ -72,6 +72,11 @@ instance Compile (Var, PadEntry) where
         yC  <- compile y
         return $ Str.concat [pl, xC, cm, yC, pr]
 
+instance Compile (Map Var PadEntry) where
+    compile xs = do
+        symsC <- mapM compile (Map.toAscList xs)
+        return $ Str.concat [Str.pack "(Map.fromDistinctAscList [", joinMany symsC, Str.pack "])"]
+
 instance Compile Pad where
     compile pad = do
         symsC <- mapM compile syms
@@ -130,8 +135,8 @@ instance Compile PadEntry where
 
 instance Compile VRef where
     compile (MkRef (ICode cv))
-        | Just (MkMultiCode x y z w) <- fromTypeable cv = do
-            vsubC   <- compWith "MkMultiCode" [compile x, ret (show y), ret (show z), compile w]
+        | Just (MkMultiCode t x y z w) <- fromTypeable cv = do
+            vsubC   <- compWith "MkMultiCode" [compile t, ret (show x), ret (show y), ret (show z), compile w]
             return $ Str.concat [Str.pack "(MkRef (ICode ", vsubC, pr, pr]
         | otherwise = do
             vsub    <- lift $ code_fetch cv

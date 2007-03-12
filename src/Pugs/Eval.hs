@@ -288,14 +288,7 @@ reduceVar var@MkVar{ v_sigil = sig, v_twigil = twi, v_name = name, v_package = p
                 | isGlobalVar var || pkg `notElem` [emptyPkg, callerPkg, outerPkg, contextPkg] -> do
                     -- '$Qualified::Var' is not found.  Vivify at lvalue context.
                     lv <- asks envLValue
-                    if not lv then retEmpty else case sig of
-                        SCode -> do
-                            v' <- findVar var{ v_sigil = SCodeMulti }
-                            case v' of
-                                Just ref -> evalRef ref
-                                Nothing  -> evalExp (Sym SOur var Noop (Var var))
-                        _ -> evalExp (Sym SOur var Noop (Var var))
-                | SCode <- sig      -> reduceVar var{ v_sigil = SCodeMulti }
+                    if not lv then retEmpty else evalExp (Sym SOur var Noop (Var var))
                 | otherwise -> do
                     s <- isStrict
                     if s then do die "Undeclared variable" var
@@ -399,7 +392,7 @@ reducePad _ lex exp = do
         
 reduceSym :: Scope -> Var -> Exp -> Exp -> Eval Val
 reduceSym scope var init exp
-    | isQualifiedVar var || isGlobalVar var = do
+    | not (isLexicalVar var) = do
         qn  <- toQualified var
         ref <- createRef
         sym <- genSymScoped scope qn ref
@@ -409,8 +402,8 @@ reduceSym scope var init exp
         ref     <- createRef
         entry   <- genPadEntryScoped scope ref
         qn      <- toQualified var
-        addGlobalSym (mkPadMutator qn entry)
-        enterLex [ mkPadMutator var entry ] $ evalExp exp
+        addGlobalSym (mkPadMutator qn entry ref)
+        enterLex [ mkPadMutator var entry ref ] $ evalExp exp
     | otherwise = do
         ref <- createRef
         sym <- genSymScoped scope var ref
@@ -492,18 +485,7 @@ reduceSyn "sub" [exp] = do
             entry' <- clonePadEntry entry $ case v_sigil var of
                 SType       -> preserveContent
                 SCode       -> preserveContent
-                SCodeMulti  -> preserveContent
                 _           -> regenerateContent
-{-
-            tvars' <- forM tvars $ \(_, tvar) -> do
-                fresh'  <- stm $ newTVar False
-                tvar'   <- (stm . newTVar) =<< case v_sigil var of
-                    SType       -> stm $ readTVar tvar
-                    SCode       -> stm $ readTVar tvar
-                    SCodeMulti  -> stm $ readTVar tvar
-                    _           -> newObject (typeOfSigilVar var)
-                return (fresh', tvar')
--}
             return (var, entry')
     clonePadEntry x@EntryConstant{} _ = return x
     clonePadEntry x@EntryStatic{} f = do
@@ -1091,7 +1073,6 @@ specialApp = Map.fromList
 
 reduceApp :: Exp -> Maybe Exp -> [Exp] -> Eval Val
 reduceApp (Var var) invs args
-    | SCodeMulti <- sig = doCall var{ v_sigil = SCode } invs args
     | SCode <- sig = case Map.lookup var specialApp of
         Just (AppInv f)     | Just inv <- invs, null args -> f inv
         Just (AppSub f)     | Nothing <- invs   -> f args

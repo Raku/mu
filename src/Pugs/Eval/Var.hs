@@ -27,12 +27,12 @@ findVar var
     | otherwise = do
         rv <- findVarRef var
         case rv of
-            Just ref -> fmap Just (readPadEntry ref)
-            Nothing
-                | SCode == v_sigil var || SCodeMulti == v_sigil var -> do
+            Just ref    -> fmap Just (readPadEntry ref)
+            Nothing     -> case v_sigil var of
+                SCode -> do
                     sub <- findSub var Nothing []
                     return $ either (const Nothing) (Just . codeRef) sub
-                | otherwise -> return Nothing
+                _ -> return Nothing
 
 
 constPadEntry :: VRef -> PadEntry
@@ -235,7 +235,7 @@ findSub _var _invs _args
                     VError (VStr s) _
                         | "Can't locate object method" `isPrefixOf` s || "Can't call method" `isPrefixOf` s -> do
                         let capt = mi_arguments (cast (methName, (invVV:posVVs), namVVs) :: Call)
-                        rv' <- tryT . evalExp $ App (Var _var{ v_sigil = SCodeMulti }) Nothing [Syn "|" [Val (VV (mkVal capt))]]
+                        rv' <- tryT . evalExp $ App (Var _var) Nothing [Syn "|" [Val (VV (mkVal capt))]]
                         case rv' of
                             VError (VStr s') _ | "No compatible subroutine found" `isPrefixOf` s' -> EvalT $ return (RException rv)
                             VError{} -> EvalT $ return (RException rv')
@@ -246,33 +246,6 @@ findSub _var _invs _args
 
     -- callMethodPerl5 :: (_var :: Var, _invs :: Maybe Exp, _args :: [Exp])
     --     => Eval (Maybe VCode)
-    {-
-    callMethodPerl5 = do
-        let name = cast (v_name _var)
-        return . Just $ mkPrim
-            { subName     = name
-            , subParams   = makeParams ["Object", "List", "Named"]
-            , subReturns  = mkType "Scalar::Perl5"
-            , subBody     = Prim $ \(inv:named:pos:_) -> do
-                sv      <- fromVal inv
-                posSVs  <- fromVals pos
-                namSVs  <- fmap concat (fromVals named)
-                let svs = posSVs ++ namSVs
-                found   <- io $ do
-                    rv <- canPerl5 sv name
-                    if rv then return rv else canPerl5 sv (__"AUTOLOAD")
-                if not found
-                    then do
-                        -- XXX - when svs is empty, this could call back here infinitely
-                        --       add an extra '&' to force no-reinterpretation.
-                        evalExp $
-                            App (Var _var{ v_sigil = SCodeMulti }) Nothing
-                                (map (Val . PerlSV) (sv:svs))
-                    else do
-                        subSV   <- io . bufToSV $ name
-                        runInvokePerl5 subSV sv svs
-            }
-    -}
     -- findWithPkg :: (_var :: Var, _invs :: Maybe Exp, _args :: [Exp])
     --     => Pkg -> Var -> Eval (Either FindSubFailure VCode)
     findWithPkg pkg var = do
@@ -588,7 +561,6 @@ findCodeSyms var
                 Nothing  -> return []
         _              -> findWith findQualified
     | SCode <- v_sigil var      = findWith (findLexical `mplus` findPackage)
-    | SCodeMulti <- v_sigil var = findWith (findLexical `mplus` findPackage)
     | otherwise                 = do
         rv <- findWith findLexical
         if null rv then findWith findPackage else return rv
@@ -624,7 +596,6 @@ findCodeSyms var
         padSym glob (toGlobalVar var)
 
     padSym :: Pad -> Var -> MaybeT Eval [VCode]
-    padSym pad var@MkVar{ v_sigil = SCode } = padSym' pad var `mplus` padSym' pad var{ v_sigil = SCodeMulti }
     padSym pad var = padSym' pad var
 
     padSym' :: Pad -> Var -> MaybeT Eval [VCode]

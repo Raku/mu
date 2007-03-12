@@ -21,10 +21,7 @@ exportSym scope ('&':subname) ref = do
         Val (VList subs) -> do
             exps <- forM (filter defined subs) $ \val -> do
                 let name    = '&':subname
-                    mkMulti = case val of
-                        VCode sub | isMulti sub -> ('&':)
-                        _                       -> id
-                    mkSym   = _Sym scope (mkMulti name) (Val val) Noop
+                    mkSym   = _Sym scope name (Val val) Noop
                 doExport scope mkSym
             case scope of
                 SMy -> addBlockPad SState 
