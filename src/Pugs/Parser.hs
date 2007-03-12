@@ -414,7 +414,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
                     env' <- unsafeEvalEnv $ mkSym sub nameQualified Noop
                     putRuleEnv env'
                     addBlockPad scope (envLexical env' `diffPads` envLexical env)
-                    return $ Var (mkMulti nameQualified)
+                    return $ Var var
                 doExportCode rv = if not isExported then return emptyExp else do
                     -- we mustn't perform the export immediately upon parse, because
                     -- then only the first consumer of a module will see it. Instead,
@@ -423,16 +423,19 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
                     -- %*INC<This::Package><exports><&this_sub> = expression-binding-&this_sub
                     --    ==>
                     -- %This::Package::EXPORTS<&this_sub> = expression-binding-&this_sub
-                    let exportedSub
+                    let VCode cv = sub
+                        (exportedSub, exportedName)
                             -- "method foo is export" is exported into "multi foo" here.
-                            | styp == SubMethod = VCode cv
+                            | SubMethod <- styp = (multiCode, cast var{ v_longname = _cast (cast multiSig) })
+                            | otherwise         = (sub, cast var)
+                            where
+                            multiSig  = map (\x -> x{ isInvocant = False }) (subParams cv)
+                            multiCode = VCode cv
                                 { isMulti   = True
-                                , subParams = map (\x -> x{ isInvocant = False }) (subParams cv)
+                                , subParams = multiSig
                                 }
-                            | otherwise         = sub
-                        VCode cv    = sub
                     return . seq rv $ Syn "|="
-                        [ Syn "{}" [_Var ("%" ++ pkg ++ "::EXPORTS"), Val $ VStr (cast var)]
+                        [ Syn "{}" [_Var ("%" ++ pkg ++ "::EXPORTS"), Val $ VStr exportedName]
                         , Val exportedSub
                         ]
             case lookupPad var newPad of
