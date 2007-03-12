@@ -11,28 +11,27 @@ Splatted parameters shouldn't be rw even if stated as such
 plan 3;
 
 # test splatted parameter for rw ability
+# L<S06/"Subroutine traits"/"is rw">
 
 my @test = 1..5;
 try {
-    sub should_fail ( *@list is rw ) {
-        @list[0] = "failure expected"; 
+    my sub should_work ( *@list is rw ) {
+        @list[0] = "hi"; 
     }
-    should_fail(@test);
+    should_work(@test);
 };
 
 ok(
-    defined($!),
-    "trying to use an 'is rw' splat doesn't work out",
-    :todo<feature>
+    !$!,
+    "trying to use an 'is rw' splat does work out",
 );
-is(@test[0], 1, "@test was unchanged");
+is(@test[0], "hi", "@test was unchanged");
 
 try {
-    sub should_fail (*@list is rw) { }
+    my sub should_work (*@list is rw) { }
 };
 
 ok(
-    defined($!),
-    "trying to define an 'is rw' splat doesn't work either",
-    :todo<feature>
+    !$!,
+    "trying to define an 'is rw' splat works too",
 );
