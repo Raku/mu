@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fglasgow-exts -fparr #-}
 module Pugs.AST.Pad (
-  mkPad, subPad, diffPads, unionPads, updateSubPad, mergePadEntry, padKeys, filterPad, adjustPad
+  mkPad, subPad, diffPads, unionPads, updateSubPad, padKeys, filterPad, adjustPad, mergePadEntry
 ) where
 import Pugs.Internals
 import Pugs.AST.Internals
@@ -42,37 +42,28 @@ Return the key-wise union of two 'Pad's.
 If the same key is found in both pads, merging multi subs into one.
 -}
 unionPads :: Pad -> Pad -> Pad
-unionPads (MkPad map1) (MkPad map2) = MkPad $ Map.unionWithKey mergePadEntry map1 map2
+unionPads (MkPad map1) (MkPad map2) = MkPad $ Map.unionWith mergePadEntry map1 map2
 
 adjustPad :: (PadEntry -> PadEntry) -> Var -> Pad -> Pad
 adjustPad f v (MkPad p) = MkPad (Map.adjust f v p)
 
-mergePadEntry :: Var -> PadEntry -> PadEntry -> PadEntry
-mergePadEntry MkVar{ v_sigil = SCodeMulti } x y = EntryConstant
-    { pe_type  = pe_type x -- XXX - Select a narrower type?
-    , pe_proto = MkRef . ICode $! MkMultiCode
-        { mc_type       = pe_type x
-        , mc_assoc      = assocOf x `mappend` assocOf y 
-        , mc_signature  = case (paramOf x, paramOf y) of
-            (Nothing, Nothing)  -> [defaultArrayParam]
-            (Just x,  Nothing)  -> x
-            (Nothing, Just y)   -> y
-            (Just x, Just y)    -> if length x == length y then x else [defaultArrayParam] -- XXX - properly unify!
-        , mc_variants   = variantsOf x +:+ variantsOf y
+mergePadEntry :: PadEntry -> PadEntry -> PadEntry
+mergePadEntry EntryConstant{ pe_proto = MkRef (ICode newCV) } EntryConstant{ pe_proto = MkRef (ICode oldCV) }
+    | Just newMC <- fromTypeable newCV
+    , Just oldMC <- fromTypeable oldCV
+    = EntryConstant
+        { pe_type  = mc_type newMC -- XXX - Select a narrower type?
+        , pe_proto = MkRef . ICode $! MkMultiCode
+            { mc_type       = mc_type newMC
+            , mc_subtype    = mc_subtype newMC
+            , mc_assoc      = code_assoc newMC `mappend` code_assoc oldMC
+            , mc_signature  = if length (mc_signature newMC) == length (code_params oldMC)
+                then code_params newMC
+                else [defaultArrayParam]
+            , mc_variants   = mc_variants newMC `Map.union` mc_variants oldMC
+            }
         }
-    }
-    where
-    paramOf entry = case pe_proto entry of
-        MkRef (ICode c) -> Just (code_params c)
-        _               -> Nothing
-    assocOf entry = case pe_proto entry of
-        MkRef (ICode c) -> code_assoc c
-        _               -> mempty
-    variantsOf e@EntryConstant{ pe_proto = MkRef r } = case r of
-        ICode c | Just cset <- fromTypeable c -> mc_variants cset
-        _ -> [:e:]
-    variantsOf e = [:e:]
-mergePadEntry _ x _ = x
+mergePadEntry x _ = x
 
 {-|
 Apply a 'Pad'-transformer to the given sub's lexical pad, producing a 'VCode'
