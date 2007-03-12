@@ -239,13 +239,12 @@ local $Regexp::ModuleA::ReentrantEngine::Env::alias_match;
   sub RMARE_concat {
     my($o,$aref)=@_;
     die "bug $aref" if ref($aref) ne 'ARRAY';
-    my @a = @$aref;
-    return $o->RMARE_noop if @a == 0;
-    return $a[0]->RMARE_emit if @a == 1;
-    my @fs = map { $_->RMARE_emit } @a;
+    my @fs = @$aref;
+    return $o->RMARE_noop if @fs == 0;
+    return $fs[0] if @fs == 1;
     my $code1 = ""; my $code2 = "";
     my $code0 = "my \$f0 = \$fs[0]; ";
-    for my $i (reverse(1..$#a)) {
+    for my $i (reverse(1..$#fs)) {
       $code0 .= "my \$f$i = \$fs[$i]; ";
       $code1 .= "sub {\@_=";
       $code2 .= ";goto \&\$f$i}";
@@ -709,14 +708,24 @@ sub {
     $max = 1000**1000**1000 if !defined $max; #XXX inf
     die "assert - Quant min <= max" if $min > $max;
     my $f = $o->{expr}->RMARE_emit;
-    $o->RMARE_repeat($f,$min,$max,$nongreedy);
+    my $f1 = $o->RMARE_repeat($f,$min,$max,$nongreedy);
+    if($o->{flags}{ratchet}) {
+      $o->RMARE_concat([$f1,$o->RMARE_commit_sequence()]);
+    } else {
+      $f1;
+    }
   }
 
   # a|b
   package Regexp::ModuleA::AST::Alt;
   sub RMARE_emit {
     my($o)=@_;
-    $o->RMARE_alt([map{$_->RMARE_emit}@{$o->{exprs}}]);
+    my $f1 = $o->RMARE_alt([map{$_->RMARE_emit}@{$o->{exprs}}]);
+    if($o->{flags}{ratchet}) {
+      $o->RMARE_concat([$f1,$o->RMARE_commit_sequence()]);
+    } else {
+      $f1;
+    }
   }
   
   # a&b
@@ -730,7 +739,7 @@ sub {
   package Regexp::ModuleA::AST::Seq;
   sub RMARE_emit {
     my($o)=@_;
-    $o->RMARE_concat($o->{exprs});
+    $o->RMARE_concat([map{$_->RMARE_emit}@{$o->{exprs}}]);
   }
   
   # .. := ...
