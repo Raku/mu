@@ -37,7 +37,7 @@ plan 18;
     # L<S03/Argument List Interpolating/explicitly flatten it in one of/>
     my sub foo ($a, $pair) { "$a!$pair" }
     is try { &foo.callwith(|$capture) }, "1!positional\tpair",
-        "simply capture creation with \\( works (4)", :todo<feature>;
+        "simply capture creation with \\( works (4)";
 }
 
 {
@@ -47,7 +47,7 @@ plan 18;
     # L<S03/Argument List Interpolating/explicitly flatten it in one of/>
     my sub foo (@arr) { ~@arr }
     is try { &foo.callwith(|$capture) }, "a b c",
-        "capture creation with \\( works", :todo<feature>;
+        "capture creation with \\( works";
 }
 
 # L<S06/"Argument list binding" /single scalar parameter marked/>
