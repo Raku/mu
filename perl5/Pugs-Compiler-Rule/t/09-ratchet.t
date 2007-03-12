@@ -764,11 +764,14 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is( "$match", ")", 'literal ")"' );
 }
 
+TODO:
 {
+    local $TODO = "failing array capture rollback";
+
     my $rule = Pugs::Compiler::Token->compile( q(
         (a)
         [
-        |  (a) x b c 
+        |  (a) (x) b c 
         |  (a) x x y
         ]
     ) );

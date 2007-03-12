@@ -138,6 +138,8 @@ sub prior {
 #    }
 #}
 
+sub DESTROY { }  # avoid autoloading this
+
     sub AUTOLOAD {
         #my $self = shift;
         my $meth = $AUTOLOAD;
