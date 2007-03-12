@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 15 Feb 2007
+  Last Modified: 12 Mar 2007
   Number: 4
-  Version: 53
+  Version: 54
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -689,10 +689,10 @@ To return from your immediate caller, you can say:
 
     caller.leave(1,2,3)
 
-Further contexts up the caller stack may be located by the selector
-that is built into the C<context> function itself:
+Further contexts up the caller stack may be located by use of the
+C<context> function:
 
-    context(0, { .label eq 'LINE' }).leave(1,2,3);
+    context({ .labels.any eq 'LINE' }).leave(1,2,3);
 
 By default the innermost dynamic scope matching the selection criteria
 will be exited.  This can be a bit cumbersome, so in the particular

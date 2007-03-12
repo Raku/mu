@@ -15,7 +15,7 @@ Allison Randal <al@shadowed.net>
   Date: 21 Mar 2003
   Last Modified: 12 Mar 2007
   Number: 6
-  Version: 77
+  Version: 78
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -420,18 +420,6 @@ for any sigil:
     :%what      :what(%what)
     :&what      :what(&what)
 
-There is a corresponding shortcut for hash keys if you prefix the
-subscript instead of the sigil.  The C<:> is not functioning as an
-operator here, but as a modifier of the following token:
-
-    doit %hash:<a>,1,2,3;
-    doit %hash:{'b'},1,2,3;
-
-are short for
-
-    doit :a(%hash<a>),1,2,3;
-    doit :b(%hash{'b'}),1,2,3;
-
 Ordinary hash notation will just pass the value of the hash entry as a
 positional argument regardless of whether it is a pair or not.
 To pass both key and value out of hash as a positional pair, use C<:p>
@@ -440,9 +428,13 @@ instead:
     doit %hash<a>:p,1,2,3;
     doit %hash{'b'}:p,1,2,3;
 
-(The C<:p> stands for "pairs", not "positional"--the
-C<:p> adverb may be placed on any Hash objects to make it mean
-"pairs" instead of "values".)
+The C<:p> stands for "pairs", not "positional"--the C<:p> adverb may be
+placed on any Hash access to make it mean "pairs" instead of "values".
+If you want the pair (or pairs) to be interpreted a named argument,
+you may do so by prefixing with the C<< prefix:<|> >> operator:
+
+    doit |%hash<a>:p,1,2,3;
+    doit |%hash{'b'}:p,1,2,3;
 
 Pair constructors are recognized syntactically at the call level and
 put into the named slot of the C<Capture> structure.  Hence they may be
@@ -519,7 +511,7 @@ with the C<self> pragma.
 
 =head2 Longname parameters
 
-Routines marked with C<multi> can mark part of its parameters to
+A routine marked with C<multi> can mark part of its parameters to
 be considered in the multi dispatch.  These are called I<longnames>;
 see S12 for more about the semantics of multiple dispatch.
 
@@ -640,14 +632,20 @@ short and a long name:
 
 Arguments that correspond to named parameters are evaluated in scalar
 context. They can only be passed by name, so it doesn't matter what
-order you pass them in, so long as they don't intermingle with any
-positional arguments:
+order you pass them in:
 
     $formal = formalize($title, case=>'upper');
     $formal = formalize($title, justify=>'left');
     $formal = formalize($title, :justify<right>, :case<title>);
 
-Named parameters are optional unless marked with a following C<!>.  Default values for
+While named and position arguments may be intermixed, it is suggested
+that you keep all the positionals in one place for clarity unless you
+have a good reason not to.  This is likely bad style:
+
+    $formal = formalize(:justify<right>, $title, :case<title>, $date);
+
+Named parameters are optional unless marked with a following C<!>.
+Default values for
 optional named parameters are defined in the same way as for positional
 parameters, but may depend only on the values of parameters that have
 already been bound.  (Note that binding happens in the call order,
@@ -949,30 +947,32 @@ list receiver.
 
 Any prefix list operator is considered a variadic operation, so ordinarily
 a list operator adds any feed input to the end of its list.
-But sometimes you want to interpolate elsewhere, so any empty contextualizer
-may be used to indicate the target of a feed without the use of a
-temporary array:
+But sometimes you want to interpolate elsewhere, so any contextualizer
+with C<*> as an argument may be used to indicate the target of a
+feed without the use of a temporary array:
 
-    foo() ==> say @(), " is what I meant";
-    bar() ==> (@@).baz();
+    foo() ==> say @(*), " is what I meant";
+    bar() ==> @@(*).baz();
 
-Feeding into the C<*> "whatever" term adds extra sources to the next sink:
+Feeding into the C<*> "whatever" term sets the source for the next sink.
+To append multiple sources to the next sink, double the angle:
 
-    0..*       ==> *;
-    'a'..*     ==> *;
-    pidigits() ==> *;
+    0..*       ==>  *;
+    'a'..*     ==>> *;
+    pidigits() ==>> *;
 
     # outputs "(0, 'a', 3)\n"...
-    for zip(@@) { .perl.say }
+    for zip(@@(*)) { .perl.say }
 
 You may use a variable (or variable declaration) as a receiver, in
 which case the list value is bound as the "todo" of the variable.
+(The append form binds addition todos to the receiver's todo list.)
 Do not think of it as an assignment, nor as an ordinary binding.
 Think of it as iterator creation.  In the case of a scalar variable,
 that variable contains the newly created iterator itself.  In the case
 of an array, the new iterator is installed as the method for extending
-the array.  Unlike with assignment, no clobbering of the array is implied.
-It's therefore more like a push than an assignment.
+the array.  As with assignment, the old todo list is clobbered; use the
+append form to avoid that and get push semantics.
 
 In general you can simply think of a receiver array as representing
 the results of the chain, so you can equivalently write any of:
@@ -996,12 +996,12 @@ the results of the chain, so you can equivalently write any of:
 Since the feed iterator is bound into the final variable, the variable
 can be just as lazy as the feed that is producing the values.
 
-Because feeds are bound to arrays with "push" semantics, you can have
+When feeds are bound to arrays with "push" semantics, you can have
 a receiver for multiple feeds:
 
     my @foo;
-    0..2       ==> @foo;
-    'a'..'c'   ==> @foo;
+    0..2       ==>  @foo;
+    'a'..'c'   ==>> @foo;
     say @foo;   # 0,1,2,'a','b','c'
 
 Note how the feeds are concatenated in C<@foo> so that C<@foo>
@@ -1012,9 +1012,9 @@ get at those two iterators by using the name C<@@foo> instead, where
 the "multislice" twigil marks a multidimensional array, that is, an
 array of slices.
 
-    0..*       ==> @@foo;
-    'a'..*     ==> @@foo;
-    pidigits() ==> @@foo;
+    0..*       ==>  @@foo;
+    'a'..*     ==>> @@foo;
+    pidigits() ==>> @@foo;
 
     for zip(@@foo) { .say }
 
@@ -1444,7 +1444,9 @@ The C<inner> type constraint that a routine imposes on its return value.
 
 =item C<of>/C<is of>
 
-The C<of> type that is the official return type of the routine.
+The C<of> type that is the official return type of the routine.  Or you
+can think of "of" as outer/formal.  If there is no inner type, the outer
+type also serves as the inner type to constraint the return value.
 
 =item C<will do>
 
@@ -1662,14 +1664,14 @@ being "additional".  However, as with any function, whitespace after the
 C<return> keyword prevents that interpretation and turns it instead
 into a list operator:
 
-    return :x<1>, :y<2>; # two named arguments (if caller uses *)
+    return :x<1>, :y<2>; # two named arguments (if caller uses |)
     return ( :x<1>, :y<2> ); # two positional Pair objects
 
 If the function ends with an expression without an explicit C<return>,
 that expression is also taken to be a C<Capture>, just as if the expression
 were the argument to a C<return> list operator (with whitespace):
 
-    sub f { :x<1> } # named-argument binding (if caller uses *)
+    sub f { :x<1> } # named-argument binding (if caller uses |)
     sub f { (:x<1>) } # always just one positional Pair object 
 
 On the caller's end, the C<Capture> is interpolated into any new argument list
@@ -1680,7 +1682,9 @@ new argument list.  The caller may also bind the returned C<Capture> directly.
 
 If any function called as part of a return list asks what its context
 is, it will be told it was called in list context regardless of the
-eventual binding of the returned C<Capture>.  If that is not the
+eventual binding of the returned C<Capture>.  (This is quite
+different from Perl 5, where a C<return> statement always propagates its
+caller's context to its own argument(s).)  If that is not the
 desired behavior you must coerce the call to an appropriate context,
 (or declare the return type of the function to perform such a coercion).
 In any event, such a function is called only once at the time the
@@ -1758,7 +1762,7 @@ intersperse a 1 to skip the current level:
     $ctx = context(Method,1,Method,1)    # caller of that 2nd nearest method
     $ctx = context(1,Block);             # nearest outer context that is block
     $ctx = context(Sub,1,Sub,1,Sub);     # 3rd nearest sub context
-    $ctx = context({ .label eq 'Foo' }); # nearest context whose label is 'Foo'
+    $ctx = context({ .labels.any eq 'Foo' }); # nearest context labeled 'Foo'
 
 Note that this last potentially differs from the answer returned by
 
@@ -1782,16 +1786,23 @@ The returned context object supports at least the following methods:
 
     .want
     .context
+    .caller
+    .my
     .file
     .line
     .subname
-    .lookup
 
-The C<.lookup> method provides access to the lexical namespace in effect
-at the given dynamic context's current position.  It may be used to look
-up ordinary lexical variables as well as special compiler variables such
-as C<$?PACKAGE>.  It must not be used to change any lexical variable
-that is not marked as C<< context<rw> >>.
+The C<.caller> method is subtly different from the C<caller>
+function.  Instead of looking up the current lexically scoped
+by C<.context(&?ROUTINE,1)>, it just looks up the next matching
+C<.context(Routine,1)>.
+
+The C<.my> method provides access to the lexical namespace in effect at
+the given dynamic context's current position.  It may be used to look
+up ordinary lexical variables in that lexical scope (not your lexical
+scope) as well as special compiler variables such as C<$?PACKAGE>.
+It must not be used to change any lexical variable that is not marked
+as C<< context<rw> >>.
 
 =head2 The C<want> function
 
@@ -1840,8 +1851,9 @@ subroutine, method, rule, token, regex (as a keyword) or macro
 to return.  Only declarations with an explicit declarator keyword
 (C<sub>, C<submethod>, C<method>, C<macro>, C<regex>, C<token>, and
 C<rule>) may be returned from.  Statement prefixes such a C<do> and
-C<try> do not fall into that category.  You may not use C<return> to
-return from loops, bare blocks, pointy blocks, or quotelike operators
+C<try> do not fall into that category.
+You cannot use C<return> to escape directly into the surrounding
+context from loops, bare blocks, pointy blocks, or quotelike operators
 such as C<rx//>; a C<return> within one of those constructs will
 continue searching outward for a "proper" routine to return from.
 Nor may you return from property blocks such as C<BEGIN> or C<CATCH>
@@ -1899,7 +1911,7 @@ of the method always requires a colon:
 
 =head2 Temporization
 
-The C<temp> function temporarily replaces the value of an existing
+The C<temp> macro temporarily replaces the value of an existing
 variable, subroutine, context of a function call, or other object in a given scope:
 
     {
@@ -1956,6 +1968,11 @@ the temporizing scope to restore the subroutine to its pre-C<temp> state:
     }                     # $next = 3
     say next();     # prints 3; $next == 4
     say next();     # prints 4; $next == 5
+
+Note that C<temp> must be a macro rather than a function because the
+temporization must be arranged before the function causes any state
+changes, and if it were a normal argument to a normal function, the state
+change would be happen before C<temp> got control.
 
 Hypothetical variables use the same mechanism, except that the restoring
 closure is called only on failure.
@@ -2072,7 +2089,10 @@ specify tail-recursion on an anonymous block:
                                         !! $n * &?BLOCK($n-1)
                                   };
 
-C<&?BLOCK.label> contains the label of the current block, if any.
+C<&?BLOCK.labels> contains a list of all labels of the current block.
+This is typically matched by saying
+
+    if &?BLOCK.labels.any eq 'Foo' {...}
 
 If the innermost lexical block happens to be the main block of a C<Routine>,
 then C<&?BLOCK> just returns the C<Block> object, not the C<Routine> object
@@ -2419,12 +2439,11 @@ the file is run directly (see a above).  This corresponds to the
 "unless caller" idiom of Perl 5.)  In general, you may have only one
 semicolon-style declaration that controls the whole file.
 
-If the dispatch to C<MAIN> fails the C<USAGE> routine is called.
-If there is no such routine, a default message is printed.  This
+If an attempted dispatch to C<MAIN> fails, the C<USAGE> routine is called.
+If there is no C<USAGE> routine, a default message is printed.  This
 usage message is automatically generated from the signature (or
 signatures) of C<MAIN>.  This message is generated at compile time,
-and hence is available at "mainline" time as the rw property
-C<&USAGE.text>.  You may also access it from your own C<USAGE> routine.
+and hence is available at any later time as C<$?USAGE>.
 
 Common Unix command-line conventions are mapped onto the capture
 as follows:

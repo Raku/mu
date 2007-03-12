@@ -14,7 +14,7 @@ Luke Palmer <luke@luqui.org>
   Date: 8 Mar 2004
   Last Modified: 12 Mar 2007
   Number: 3
-  Version: 107
+  Version: 108
 
 =head1 Overview
 
@@ -50,7 +50,7 @@ levels. (Perl 5 has 23!)  Here we list the levels from "tightest" to
     List prefix         = : print push say die map substr ... [+] [*] any all
     Loose and           and
     Loose or            or xor err
-    Terminator          ; <==, ==>, {...}, modifiers, unmatched ), ], }
+    Terminator          ; <==, ==>, <<==, ==>>, {...}, modifiers, extra ), ], }
 
 If you don't see your favorite operator there, the following
 sections cover all the operators in precedence order.  Basic operator
@@ -1393,9 +1393,23 @@ entirely.)
 
 =item *
 
-Feed operators: <==, ==>
+Feed operators: <==, ==>, <<==, ==>>
 
     source() ==> filter() ==> sink()
+
+The forms with the double angle append rather than clobber the sink's
+todo list.  The C<<< ==>> >>> form always looks ahead for an appropriate
+target to append to, either the final sink in the chain, or the next
+filter stage with an explicit C<@(*)> or C<@@(*)> target.  This means
+you can stack multiple feeds onto one filter command:
+
+    source1() ==>>
+    source2() ==>>
+    source3() ==>>
+    filter(@(*)) ==> sink()
+
+Similar semantics apply to C<<< <<== >>> except it looks backward for
+an appropriate target to append to.
 
 =item *
 
@@ -2521,7 +2535,7 @@ a separate token.  Therefore, under the longest-token rule,
 
     $hacker.feed:xxx('Pizza and cola');
 
-is tokenized as an adverb applying to the method:
+is tokenized as an adverb applying to the method as its "preceding operator":
 
     $hacker.feed :xxx('Pizza and cola');
 
@@ -2529,7 +2543,8 @@ not as an xxx sub in the argument list of .feed:
 
     $hacker.feed: xxx('Pizza and cola');  # wrong
 
-If you want both meanings of colon, you have to put it twice:
+If you want both meanings of colon in order to supply both an adverb
+and some positional arguments, you have to put the colon twice:
 
     $hacker.feed: :xxx('Pizza and cola'), 1,2,3;
 
@@ -3366,27 +3381,30 @@ its bits at once using the C<< prefix:<|> >> operator:
 
 =head1 Traversing arrays in parallel
 
-In order to support parallel iteration over multiple arrays, Perl 6 has
-a C<zip> function that builds C<Seq> objects from the elements of two or more
-arrays.
+In order to support parallel iteration over multiple arrays, Perl 6
+has a C<zip> function that builds a list of C<Seq> objects from the
+elements of two or more arrays.  In ordinary list context this behaves
+as a list of C<Captures> and automatically flattens.
 
-    for zip(@names; @codes) -> [$name, $zip] {
+    for zip(@names; @codes) -> $name, $zip {
         print "Name: $name;   Zip code: $zip\n";
     }
 
 C<zip> has an infix synonym, the C<Z> operator.
 
-To read arrays in parallel like C<zip> but just sequence the values
-rather than generating tuples, use C<each> instead of C<zip>.
+In an explicitly multidimensional list context, however, the sequences
+turn into subarrays, and each element would then have to be unpacked
+by the signature:
 
-    for each(@names; @codes) -> $name, $zip {
+    for @@(zip(@names; @codes)) -> [$name, $zip] {
         print "Name: $name;   Zip code: $zip\n";
     }
 
-The C<each> function reads to the end of the longest list, not counting
-lists that are known to be infinite such as C<0..Inf>.  Missing values
-are replaced with C<undef>.  In contrast, use C<roundrobin> if you just
-wish to skip missing entries:
+By default the C<zip> function reads to the end of the shortest list,
+but a short list may always be extended arbitrarily by putting C<*>
+after the final value, which replicates the final value as many times
+as necessary.  If instead of supplying a default value for short lists,
+you just wish to skip missing entries, use C<roundrobin> instead:
 
     for roundrobin(@queue1; @queue2; @queue3) -> $next {
         ...
@@ -3398,6 +3416,9 @@ always just write C<(@x,@y)> to mean the same thing.  But sometimes
 it's nice to be explicit about that:
 
     @foo := [[1,2,3],[4,5,6]]; say cat([;] @foo); # 1,2,3,4,5,6
+
+(The C<cat> function is not entirely useless; it also provides stringy
+semantics in string context.)
 
 =head1 Minimal whitespace DWIMmery
 
