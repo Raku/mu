@@ -356,7 +356,10 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
                 | otherwise              = cast
         mkSym sub n x = Sym scope (mkMulti n) (Syn "sub" [Val sub]) x
         var = mkMulti nameQualified
-        signature = maybe [] id formal
+        signature = self ++ paramsFor styp formal (maybe [] id formal)
+        self | styp > SubMethod = []
+             | Just (prm:_) <- formal, isInvocant prm = []
+             | otherwise = [selfParam . cast $ envPackage env]
 
     -- We have the prototype now; install it immediately!
     --   fill in what we can about the sub before getting the block (below)
@@ -383,28 +386,19 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
         -- This is ignored for multi-dispatch; see Pugs.Eval.Var comment "PROTO"
         unsafeEvalLexDiff (mkSym sub nameQualified Noop)
             `finallyM` clearDynParsers
-        {-
-         - env <- getRuleEnv
-        env' <- unsafeEvalEnv (mkSym sub nameQualified Noop)
-        putRuleEnv env'
-        clearDynParsers
-        return (envLexical env' `diffPads` envLexical env)
-        -}
 
     body    <- localEnv ruleBlock
-    let (fun, names, params) = doExtract styp formal body
+
+    let (fun, names, _) = doExtract styp formal body
+
     -- Check for placeholder vs formal parameters
     when (isJust formal && (not.null) names) $
         fail "Cannot mix placeholder variables with formal parameters"
+
     env <- ask
-    let self :: [Param]
-        self | styp > SubMethod = []
-             | (prm:_) <- params, isInvocant prm = []
-             | otherwise = [selfParam . cast $ envPackage env]
 
     let template' = template
-                { subParams = self ++ paramsFor styp formal params
-                , subBody   = case isMulti of
+                { subBody   = case isMulti of
                     ImplicitProto   -> fun -- XXX - Give Proto the tie-breaker status?
                     _               -> fun
                 , subEnv    = Just env
