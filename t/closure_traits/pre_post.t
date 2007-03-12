@@ -3,12 +3,12 @@ use v6-alpha;
 use Test;
 # Test of PRE and POST traits
 #
-# L<S04/Closure traits>
+# L<S04/Closure traits/"assert precondition at every block ">
 #
 # I don't get this one working:
-## L<S06/Properties and traits/Subroutine traits>
+## L<S06/Properties and traits/"Mark blocks that are to be unconditionally executed">
 
-# TODO: Test PRE and POST with inheritance
+# TODO: Test  POST with inheritance
 
 plan 13;
 
@@ -93,7 +93,7 @@ my $ih_pre =
 ' class Foo {
     method test(Num $i) {
         PRE {
-	    $i > 0
+	    $i > 23
         }
 		
         return 1;
@@ -103,22 +103,18 @@ my $ih_pre =
 class Bar is Foo{
     method test(Num $i){
         PRE {
-            $i < 23
+            $i < -23
         }
         return 1;
     }
 }
 my $foo = Bar.new; ';
 
-ok(eval($ih_pre ~ '$foo.test(1)'), "PRE in methods compiles and runs");
+ok(eval($ih_pre ~ '$foo.test(-42)'), "PRE in methods compiles and runs");
+ok(eval($ih_pre ~ '$foo.test(42)'), "inherited PRE in compiles and runs");
 
 try {
-    eval($ih_pre ~ '$foo.test(-1)');
+    eval($ih_pre ~ '$foo.test(0)');
 }
 
-ok(defined($!), "violated PRE inherited from ancestor fails OK");
-
-try {
-    eval($ih_pre ~ '$foo.test(42)');
-}
-ok(defined($!), "violated PRE in method fails OK");
+ok(defined($!), "violated PRE in methods fails OK");
