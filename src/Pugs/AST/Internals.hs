@@ -942,6 +942,9 @@ data Param = MkOldParam -- "Old" because Pugs.Val.Code defined a new one
 -- | A list of formal parameters.
 type Params     = [Param]
 
+instance ((:>:) String) Params where
+    cast = show . paramsToSig
+
 paramToValParam :: Param -> Val.SigParam
 paramToValParam param = ret
     where 
@@ -1525,7 +1528,7 @@ mkCompUnit _ pad ast = MkCompUnit compUnitVersion pad ast
 
 {-# NOINLINE compUnitVersion #-}
 compUnitVersion :: Int
-compUnitVersion = 13
+compUnitVersion = 14
 
 {-|
 Retrieve the global 'Pad' from the current evaluation environment.
@@ -1551,21 +1554,16 @@ writeVar name val = do
 
 readVar :: Var -> Eval Val
 readVar var
-    | isGlobalVar var = do
-        glob <- askGlobal
-        case findSym var glob of
-            Just action -> stm action >>= readRef
-            _           -> case v_sigil var of
-                SCode   -> readVar var{ v_sigil = SCodeMulti }
-                _       -> return undef
-    | otherwise = do
+    | isLexicalVar var = do
         lex <- asks envLexical
         case findSym var lex of
             Just action -> stm action >>= readRef
-            -- XXX - fallback to global should be eliminated here
-            _  -> case findSym var{ v_sigil = SCodeMulti } lex of
-                Just action -> stm action >>= readRef
-                _           -> readVar (toGlobalVar var)
+            _           -> return undef
+    | otherwise = do
+        glob <- askGlobal
+        case findSym var glob of
+            Just action -> stm action >>= readRef
+            _           -> return undef
 
 {-|
 The \'empty expression\' is just a no-op ('Noop').
@@ -1979,9 +1977,10 @@ type IPairHashSlice     = (VStr, IVar VScalar)
 
 data VMultiCode = MkMultiCode
     { mc_type       :: !Type
+    , mc_subtype    :: !SubType
     , mc_assoc      :: !SubAssoc
     , mc_signature  :: !Params
-    , mc_variants   :: ![:PadEntry:]
+    , mc_variants   :: !(Map Var PadEntry)
     }
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
