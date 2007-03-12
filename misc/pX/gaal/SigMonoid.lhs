@@ -15,7 +15,7 @@ Params
   -- user traits
   :($x is tr1) :+:  :($x is tr2)         = :($x)    -- drop
 
-  :($x)        :+:  :($x?)               = :($x?)
+  :($x)        :+:  :($x?)               = :($x?)   -- see below on matching with optionals
   :($x = 42)   :+:  :($x = 54)           = :($x?)
 
   :($x)        :+:  :(Int $x)            = :($x)
@@ -27,13 +27,20 @@ Params
                                          = :(BinTree $t (Left $l, Right $r)) 
 Signatures
 
--- mandatories must match
+-- mandatories must match, modulo the other sig allowing the same name as optional
 
   :($)         :+:  :($x)                = :($x)   -- name-fixing positionals
   :($x)        :+:  :($y)                = fail "incompat"
   :($x)        :+:  :($y?)               = fail "incompat"
+  :($x)        :+:  :(:$x)               = :($x)
+  :($x?)       :+:  :(:$x?)              = :($x?)  -- unify named to positional (optional both)
+
+  :($x, $y)    :+:  :($x?, $y?)          = :($x?, $y?) -- can get away with it
+  :($x, $y)    :+:  :($x?, $z?)          = :($x?)
 
   :(:$elk)     :+:  :(:$caribou)         = fail "incompat"
+  :(:$elk, :$caribou?)
+               :+:  :(:$caribou, :$elk?) = :(:$elk?, :$caribou?)
 
 -- slurpy coherence
 

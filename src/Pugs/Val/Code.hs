@@ -6,6 +6,7 @@ import Pugs.Types
 -- import Pugs.Val.Capture
 import Pugs.Class
 import Text.PrettyPrint
+import Data.Monoid
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 import qualified Pugs.Types as Types
@@ -113,6 +114,60 @@ data SigParam = MkParam
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 type Param = SigParam -- to get around name clashes in Pugs.AST :(
+
+paramWhatever :: Param
+paramWhatever = MkParam
+    { p_variable    = varNullScalar
+    , p_types       = []
+    , p_constraints = []
+    , p_unpacking   = Nothing
+    , p_default     = MkParamDefault Nothing
+    , p_label       = nullID
+    , p_slots       = Map.empty
+    , p_hasAccess   = AccessRO
+    , p_isRef       = False
+    , p_isContext   = False
+    , p_isLazy      = False
+    }
+
+instance Monoid Sig where
+    mempty  = sigEmpty
+    mappend = sigAppend
+
+sigEmpty, sigWhatever :: Sig
+sigEmpty = MkSig
+    { s_invocant                  = Nothing
+    , s_requiredPositionalCount   = 0
+    , s_requiredNames             = Set.empty
+    , s_positionalList            = []
+    , s_namedSet                  = Map.empty
+    , s_slurpyScalarList          = []
+    , s_slurpyArray               = Nothing
+    , s_slurpyHash                = Nothing
+    , s_slurpyCode                = Nothing
+    , s_slurpyCapture             = Nothing
+    }
+
+sigWhatever = sigEmpty{ s_slurpyCapture = Just paramWhatever }
+
+sigAppend :: Sig -> Sig -> Sig
+sigAppend x y
+    | x == y = x
+    | sigIsMethod x `xor` sigIsMethod y
+    = orz             -- "incompatible Signature: method and nonmenthod"
+    | s_requiredPositionalCount x /= s_requiredPositionalCount y
+    = orz             -- "incompatible Signature: arity mismatch: positionals" -- XXX WRONG: ?-floating
+    | (Set.size . s_requiredNames) x /= (Set.size . s_requiredNames) y
+    = orz             -- "incompatible Signature: arity mismatch: nameds"
+    where
+    orz = sigWhatever
+    xor True False = True
+    xor False True = True
+    xor _     _    = False
+
+sigIsMethod :: Sig -> Bool
+sigIsMethod MkSig{ s_invocant = Nothing } = False
+sigIsMethod _                             = True
 
 newtype CodeBody = MkCodeBody [Stmt]
     deriving (Typeable)
