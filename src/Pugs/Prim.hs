@@ -2115,7 +2115,7 @@ initSyms = seq (length syms) $ do
 \\n   Object    pre     DESTROYALL safe   (Object)\
 \\n   Code      pre     TEMP    safe   (rw!Any)\
 \\n   Object    pre     Object::clone   safe   (Object: Named)\
-\\n   Class     pre     Object::HOW    safe   (Object)\
+\\n   Class     pre     Object::HOW    safe,export   (Object)\
 \\n   Object    pre     HOW::new     safe   (Object: Named)\
 \\n   Object    pre     HOW::does     safe   (Object: List)\
 \\n   Str       pre     Class::name    safe   (Class)\
