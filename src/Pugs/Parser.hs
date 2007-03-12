@@ -352,11 +352,11 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
         isGlobal = '*' `elem` name
         isBuiltin = ("builtin" `elem` traits)
         isExported = ("export" `elem` traits)
-        -- Horrible hack! _Sym "&&" is the multi form.
-        mkMulti | isMulti /= ImplicitNil = ('&':)
-                | otherwise              = id
-        mkSym sub n x = _Sym scope (mkMulti n) (Syn "sub" [Val sub]) x
-        var = cast nameQualified
+        mkMulti | isMulti /= ImplicitNil = \x -> (cast x){ v_longname = _cast (cast signature) }
+                | otherwise              = cast
+        mkSym sub n x = Sym scope (mkMulti n) (Syn "sub" [Val sub]) x
+        var = mkMulti nameQualified
+        signature = maybe [] id formal
 
     -- We have the prototype now; install it immediately!
     --   fill in what we can about the sub before getting the block (below)
@@ -364,7 +364,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             { isMulti       = isMulti /= ImplicitNil
             , subName       = cast nameQualified
             , subEnv        = Just env
-            , subParams     = maybe [] id formal
+            , subParams     = signature
             , subType       = if "primitive" `elem` traits
                 then SubPrim else styp
             , subAssoc      = case v_categ var of
@@ -413,24 +413,22 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     
     -- Don't add the sub if it's unsafe and we're in safemode.
     if "unsafe" `elem` traits && safeMode then return emptyExp else do
-    (`finallyM` clearDynParsers) $ if isQualifiedVar var || isGlobalVar var
+    (`finallyM` clearDynParsers) $ if not (isLexicalVar var)
         then do unsafeEvalExp $ mkSym sub nameQualified Noop
         else do
-            let var' = cast (mkMulti nameQualified)
-                regenLexicalEntry = do
+            let regenLexicalEntry = do
                     env' <- unsafeEvalEnv $ mkSym sub nameQualified Noop
                     putRuleEnv env'
                     addBlockPad scope (envLexical env' `diffPads` envLexical env)
-                    return $ _Var (mkMulti nameQualified)
+                    return $ Var (mkMulti nameQualified)
                 doExportCode rv = if not isExported then return emptyExp else do
                     -- we mustn't perform the export immediately upon parse, because
                     -- then only the first consumer of a module will see it. Instead,
                     -- make a note of this symbol being exportable, and defer the
                     -- actual symbol table manipulation to opEval.
-                    -- %*INC<This::Package><exports><&this_sub> |= expression-binding-&this_sub
+                    -- %*INC<This::Package><exports><&this_sub> = expression-binding-&this_sub
                     --    ==>
-                    -- %This::Package::EXPORTS<&this_sub> |= expression-binding-&this_sub
-                    -- (a singleton list for subs, a full list of subs for multis)
+                    -- %This::Package::EXPORTS<&this_sub> = expression-binding-&this_sub
                     let exportedSub
                             -- "method foo is export" is exported into "multi foo" here.
                             | styp == SubMethod = VCode cv
@@ -440,10 +438,10 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
                             | otherwise         = sub
                         VCode cv    = sub
                     return . seq rv $ Syn "|="
-                        [ Syn "{}" [_Var ("%" ++ pkg ++ "::EXPORTS"), Val $ VStr name]
+                        [ Syn "{}" [_Var ("%" ++ pkg ++ "::EXPORTS"), Val $ VStr (cast var)]
                         , Val exportedSub
                         ]
-            case lookupPad var' newPad of
+            case lookupPad var newPad of
                 Just entry  -> do
                     Val val@(VCode code) <- unsafeEvalExp (Syn "sub" [Val sub])
                     let entry'  = entry{ pe_proto = cv' }
@@ -455,7 +453,8 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
                         _               -> return $! unsafePerformSTM $! do
                             rv  <- writePadEntry entry' cv'
                             return (rv `seq` result)
-                _           -> regenLexicalEntry
+                _           -> do
+                    regenLexicalEntry
 
 ruleSubNamePossiblyWithTwigil :: RuleParser String
 ruleSubNamePossiblyWithTwigil = tryVerbatimRule "subroutine name" $ do
@@ -1369,7 +1368,7 @@ ruleVarDecl = rule "variable declaration" $ do
         pkg <- asks envPackage
         let sub = mkPrim
                 { isMulti       = False
-                , subName       = cast (showsVar accessor "")
+                , subName       = _cast (cast accessor)
                 , subEnv        = Nothing
                 , subReturns    = typeOfParam prm
                 , subBody       = if isWritable prm then fun else Syn "val" [fun]
@@ -1997,7 +1996,12 @@ regularVarWithOptionalName = do
 -- Twigil: ^ placeholder, * global, ? magical, . member, ! private member
 -- XXX - ruleQualifiedIdentifier doesn't handle names /beginning/ with "::"
 regularVarNameForSigil :: VarSigil -> RuleParser String
-regularVarNameForSigil SCode = ruleSubNamePossiblyWithTwigil
+regularVarNameForSigil SCode = do
+    name    <- ruleSubNamePossiblyWithTwigil
+    sig     <- option "" $ do
+        Val (VV obj) <- ruleSignatureVal
+        return (show obj)
+    return (name ++ sig)
 regularVarNameForSigil sigil = do
     twi <- ruleTwigil
     idt <- ruleQualifiedIdentifier
