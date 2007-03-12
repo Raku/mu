@@ -688,7 +688,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     $match = $rule1->match("iff123");
     is($match,'iff123',"Matched hash{iff}");
     #print Dumper( $match->{test}->data );
-    is($match->{test},'',"Matched hash{iff} capture");
+    is($match->{'Test123::test'},'',"Matched hash{iff} capture");
 
     $match = $rule1->match("if123");
     is($match,'',"fail hash{if} - value != 1");
@@ -702,20 +702,20 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is($match->(),'untilaba123',"subrule hash{until} - 2");
 
     # is($match->{test},'aba',"Matched hash{until} capture");
-    is("" . $match->{test}, 42, "Matched hash{until} capture handles stringification");
+    is("" . $match->{'Test123::test'}, 42, "Matched hash{until} capture handles stringification");
 
     #print "\$/ ",Dumper($match->data);
     #print "\$/{test} ",Dumper($match->{test}->data);
-    is( ${ $match->{test} }, 42, "Matched hash{until} return object");
+    is( ${ $match->{'Test123::test'} }, 42, "Matched hash{until} return object");
 
     $match = $rule1->match("other123");
     is($match,'other123',"default subrule");
 
 }
 
-TODO:
+#TODO:
 {
-    local $TODO = "failing hash rule interpolation inside itself";
+    #local $TODO = "failing hash rule interpolation inside itself";
     my $match;
     %Test123::test = (
         rule1 => Pugs::Compiler::Token->compile('xx %Test123::test yy'),  

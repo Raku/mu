@@ -3,6 +3,7 @@ use Pugs::Runtime::Match;
 use Pugs::Compiler::RegexPerl5;
 use Pugs::Compiler::Regex;
 use Data::Dumper;
+use Carp;
 
 use charnames ":full";   # support \c[DIGIT SIX]
 
@@ -166,7 +167,7 @@ sub prior {
           }
         }
         
-        die "unknown rule: <$meth>";
+        carp "unknown rule: <$meth>";
     }    
 
 1;

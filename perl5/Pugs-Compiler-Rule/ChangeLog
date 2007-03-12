@@ -1,4 +1,6 @@
-- added external 'ignorecase' flag in regex
+0.21  2007-03-12
+
+- added external/internal 'ignorecase' flag in regex
 - implemented hex/octal/named constants - \x, \o, \c, \X, \O, \C
 - added Unicode properties, such as <isL> <!isL> <+isL> <-isL> 
 - added StrPos class (Pugs::Runtime::StrPos)
