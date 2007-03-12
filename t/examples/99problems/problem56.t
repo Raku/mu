@@ -1,6 +1,4 @@
 use v6-alpha;
-use Test;
-plan 1;
 
 # P56 (**) Symmetric binary trees
 # 
@@ -11,9 +9,50 @@ plan 1;
 # the mirror image of another. We are only interested in the structure, not in
 # the contents of the nodes.
 
-if 1 {
-    skip 1, "Test(s) not yet written: (**) Symmetric binary trees";
+sub symmetric($tree) {
+  mirror(left($tree),right($tree))
 }
-else {
-    ok 1, '(**) Symmetric binary trees';
+
+ 
+# We use multi subs so that in theory we can replace this definitions 
+# for example using classes or Array subtyping instead of lispish trees
+
+multi sub mirror(Array @first, Array @second) {
+  if (@first|@second == (undef,)) {
+     return @first == @second ;
+   }
+   mirror(left(@first),right(@second)) and mirror(right(@first),left(@second))
+}
+
+
+
+multi sub left(Array @tree) {
+  @tree[1]
+}
+multi sub right(Array @tree) {
+  @tree[2]
+}
+
+unless caller {
+  use Test;
+  plan 9;
+
+  is left(['a',1,2]), 1, "left()  works";
+  is right(['b',1,2]), 2, "right() works";
+
+  ok mirror(undef,undef),"mirror works with empty trees";
+  ok !mirror(undef,[]),"mirror spots differences";
+  ok mirror([1,undef,undef],[2,undef,undef]),"mirror can recurse";
+  ok !mirror([1,undef,[]],[2,undef,undef]),"mirror spots differences recurring";
+  
+  ok symmetric([1,undef,undef]), "symmetric works with 1-level trees";
+  ok !symmetric([1,undef,[2,undef,undef]]),"symmetric find asymettric trees";
+  ok symmetric([1,
+                 [11,
+                   [111,undef,undef],
+                   [112,[1121,undef,undef],undef]],
+                 [12,
+                   [121,undef,[1221,undef,undef]],
+                   [122,undef,undef]]]),
+                "symmetric works with n-level trees"; 
 }
