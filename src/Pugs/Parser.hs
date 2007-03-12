@@ -1029,7 +1029,7 @@ vcode2initBlock code = do
     let fstcode = Syn "sub" [ Val $ VCode mkSub { subBody = body } ]
     Val res <- unsafeEvalExp $
         App (_Var "&push") (Just $ _Var "@*INIT") [ fstcode ]
-    return (res `seq` emptyExp)
+    return (res `seq` App fstcode Nothing [])
 
 vcode2checkBlock :: Val -> RuleParser Exp
 vcode2checkBlock code = do
@@ -1037,7 +1037,7 @@ vcode2checkBlock code = do
     let fstcode = Syn "sub" [ Val $ VCode mkSub { subBody = checkForIOLeak body } ]
     Val res <- unsafeEvalExp $
         App (_Var "&unshift") (Just $ _Var "@*CHECK") [ fstcode ]
-    return (res `seq` emptyExp)
+    return (res `seq` App fstcode Nothing [])
 
 -- Constructs ------------------------------------------------
 
