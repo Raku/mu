@@ -152,6 +152,7 @@ data Var = MkVar
     , v_categ   :: !VarCateg
     , v_package :: !Pkg
     , v_meta    :: !VarMeta
+    , v_longname:: !ID
     }
     deriving (Eq, Ord, Typeable, Data)
 
@@ -160,6 +161,7 @@ data Var = MkVar
 varNullScalar :: Var
 varNullScalar = MkVar
     { v_name    = nullID
+    , v_longname= nullID
     , v_sigil   = SScalar
     , v_twigil  = TNil
     , v_categ   = CNil
@@ -185,6 +187,13 @@ data VarMeta
     | MHyperScan        -- [\>>+<<]
 --  | MHyperScanPost    -- [\>>+<<]<<
     deriving (Show, Enum, Eq, Ord, Typeable, Data, Read)
+
+isLexicalVar :: Var -> Bool
+isLexicalVar MkVar{ v_package = MkPkg [], v_twigil = twi } = case twi of
+    TGlobal -> False
+    TDoc    -> False    -- XXX noncanonical
+    _       -> True
+isLexicalVar _ = True
 
 isQualifiedVar :: Var -> Bool
 isQualifiedVar MkVar{ v_package = MkPkg [] } = False
@@ -215,10 +224,13 @@ showsVar MkVar
     , v_package = pkg@(MkPkg ns)
     , v_categ   = cat
     , v_name    = name
+    , v_longname= longname
     , v_meta    = meta
     } = showsPrec 0 sig . showsPrec 0 twi . showPkg . showCateg . showsMeta meta showName
     where
-    showName = ((++) (cast name))
+    showName
+        | longname == nullID    = ((++) (cast name))
+        | otherwise             = ((++) (cast name)) . ((++) (cast longname))
     showCateg = case cat of
         CNil    -> id
         _       -> drop 2 . showsPrec 0 cat . (':':)
@@ -272,7 +284,7 @@ data VarCateg
     | C_term
     deriving (Show, Enum, Eq, Ord, Typeable, Data, Read)
 
-data VarSigil = SScalar | SArray | SHash | SType | SCode | SRegex | SCodeMulti | SArrayMulti
+data VarSigil = SScalar | SArray | SHash | SType | SCode | SRegex | SArrayMulti
     deriving (Enum, Eq, Ord, Typeable, Data)
 
 data VarTwigil = TNil | TAttribute | TPrivate | TImplicit | TMagical | TDoc
@@ -296,7 +308,6 @@ instance Show VarSigil where
         SCode       -> ('&':)
         SRegex      -> ('<':)
         SType       -> \x -> (':':':':x)
-        SCodeMulti  -> \x -> ('&':'&':x)
         SArrayMulti -> \x -> ('@':'@':x)
 
 instance Show VarTwigil where
@@ -338,7 +349,7 @@ instance ((:>:) VarSigil) ByteString where
         | name == __"<"     = SRegex
         | name == __":"     = SType
         | name == __"::"    = SType
-        | name == __"&&"    = SCodeMulti
+        | name == __"&&"    = SCode -- XXX
         | name == __"@@"    = SArrayMulti
         | otherwise         = internalError $ "Invalid sigil " ++ show name
 
@@ -400,7 +411,8 @@ doBufToVar buf = MkVar
     , v_package = pkg
     , v_categ   = cat
     , v_meta    = meta
-    , v_name    = cast name
+    , v_name    = name
+    , v_longname= longname
     }
     where
     (sig, afterSig) = Buf.span isSigilChar buf
@@ -426,19 +438,24 @@ doBufToVar buf = MkVar
     toPkg (pkg, rest) = (MkPkg pkg, rest)
     tokenPkg :: ByteString -> ([ByteString], (VarCateg, ByteString))
     tokenPkg str = case Buf.elemIndex ':' str of
-        Just idx1 -> case Buf.findSubstring (__"::") str of
-            Nothing  -> ([], (cast (Buf.take idx1 str), Buf.drop (succ idx1) str))
-            Just 0   -> tokenPkg (Buf.drop 2 str) -- '$::x' is the same as $x
-            Just idx
-                | idx == idx1 -> case cast (Buf.take idx1 str) of
-                    -- &infix::= should parse as infix:<:=>, not infix::<=>
-                    Just cat -> ([], (cat, Buf.drop (succ idx1) str))
-                    -- &Infix::= should parse as Infix::<=>, not Infix:<:=>
-                    _        -> let (rest, final) = tokenPkg (Buf.drop (idx + 2) str) in
-                        ((Buf.take idx str:rest), final)
-                | otherwise -> ([], (cast (Buf.take idx1 str), Buf.drop (succ idx1) str))
+        Just idx1 -> case Buf.findSubstring (__":(") str of
+            Just idxSig | idx1 == idxSig -> ([], (CNil, str))
+            _ -> case Buf.findSubstring (__"::") str of
+                Nothing  -> ([], (cast (Buf.take idx1 str), Buf.drop (succ idx1) str))
+                Just 0   -> tokenPkg (Buf.drop 2 str) -- '$::x' is the same as $x
+                Just idx
+                    | idx == idx1 -> case cast (Buf.take idx1 str) of
+                        -- &infix::= should parse as infix:<:=>, not infix::<=>
+                        Just cat -> ([], (cat, Buf.drop (succ idx1) str))
+                        -- &Infix::= should parse as Infix::<=>, not Infix:<:=>
+                        _        -> let (rest, final) = tokenPkg (Buf.drop (idx + 2) str) in
+                            ((Buf.take idx str:rest), final)
+                    | otherwise -> ([], (cast (Buf.take idx1 str), Buf.drop (succ idx1) str))
         _ -> ([], (CNil, str))
-    (name, meta)
+    (name, longname) = case Buf.findSubstring (__":(") fullname of
+        Just idx -> (cast (Buf.take idx fullname), cast (Buf.drop idx fullname))
+        _        -> (cast fullname, nullID)
+    (fullname, meta)
         | C_postfix <- cat, __"\187" `Buf.isPrefixOf` afterCat
         = (Buf.drop 2 afterCat, MPre)
         | C_postfix <- cat, __">>" `Buf.isPrefixOf` afterCat
@@ -519,8 +536,7 @@ instance ((:>:) Type) ID where
 
 possiblyFixOperatorName :: Var -> Var
 possiblyFixOperatorName var@MkVar{ v_categ = CNil } = var
-possiblyFixOperatorName var@MkVar{ v_sigil = sig, v_name = name }
-    | sig /= SCode, sig /= SCodeMulti = var
+possiblyFixOperatorName var@MkVar{ v_sigil = SCode, v_name = name }
     | __"\171" `Buf.isPrefixOf` buf, __"\187" `Buf.isSuffixOf` buf
     = var{ v_name = cast (dropEnd 2 (Buf.drop 2 buf)) }
     | __"<<" `Buf.isPrefixOf` buf, __">>" `Buf.isSuffixOf` buf
@@ -531,6 +547,7 @@ possiblyFixOperatorName var@MkVar{ v_sigil = sig, v_name = name }
     = var
     where
     buf = cast name
+possiblyFixOperatorName var = var
 
 dropEnd :: Int -> ByteString -> ByteString
 dropEnd i buf = Buf.take (Buf.length buf - i) buf
