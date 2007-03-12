@@ -305,13 +305,13 @@ method finishstr(Cipher $self:) returns Str {
     return stringify($self.finish());
 }
 
-multi method cipher(Cipher $self: Array $data) returns Array {
+multi method cipher(Cipher $self: @data) returns Array {
     return gather {
         unless $!seen_head {
             take @._head();
             $!seen_head = 1;
         }
-        take @._cipher($data);
+        take @._cipher(@data);
     };
 }
 multi method cipher(Cipher $self: Str $data) {
