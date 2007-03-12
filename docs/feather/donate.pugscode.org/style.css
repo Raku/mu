@@ -1,0 +1,26 @@
+.donate {
+    margin: auto;
+}
+
+#banner {
+    font-weight: bold;
+    font-size: 120%;
+    color: white;
+    font-family:helvetica,sans-serif;
+    background-color:#191970;
+    padding-top: .4em;
+    padding-left:.5em;
+    padding-bottom:.4em;
+    border-bottom: 4px solid #39f;
+    border-top: 4px solid #39f; 
+    letter-spacing: 0.3ex;
+}
+
+.pugs_name {
+    color: #ccff66;
+}
+
+#main {
+    margin-left: 12em;
+
+}
