@@ -51,7 +51,7 @@ import qualified Data.HashTable    as H
 
 {-# NOINLINE _FakeEnv #-}
 _FakeEnv :: Env
-_FakeEnv = unsafePerformIO $ liftSTM $ do
+_FakeEnv = unsafePerformIO $ stm $ do
     ref  <- newTVar Map.empty
     glob <- newTVar $ MkPad Map.empty
     init <- newTVar $ MkInitDat { initPragmas=[] }
@@ -78,7 +78,7 @@ _FakeEnv = unsafePerformIO $ liftSTM $ do
         }
 
 fakeEval :: MonadIO m => Eval Val -> m Val
-fakeEval = liftIO . runEvalIO _FakeEnv
+fakeEval = io . runEvalIO _FakeEnv
 
 instance YAML Val.Val
 instance YAML ([Val] -> Eval Val) where
@@ -141,8 +141,8 @@ instance YAML VRef where
     asYAML ref = do
         val <- fakeEval $ readRef ref
         svC <- asYAML val
-        liftIO $ print "====>"
-        liftIO $ print svC
+        io $ print "====>"
+        io $ print svC
         fail ("Not implemented: asYAML \"" ++ showType (refType ref) ++ "\"")
     fromYAML MkNode{n_tag=Just s, n_elem=ESeq [node]}
         | s == packBuf "tag:hs:VMultiCode"   =
@@ -162,7 +162,7 @@ instance YAML VRef where
     fromYAML node = fail $ "Unhandled YAML node: " ++ show node
 instance YAML IHash where
      asYAML x = do
-         l      <- liftIO $ H.toList x
+         l      <- io $ H.toList x
          asYAMLmap "IHash" (map (\(k, v) -> (k, asYAML v)) l)
      fromYAML node = do
          l  <- fromYAMLmap node
