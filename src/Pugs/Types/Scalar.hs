@@ -5,7 +5,7 @@ class (Typeable a) => ScalarClass a where
     scalar_fetch :: a -> Eval VScalar
     scalar_store :: a -> VScalar -> Eval ()
     scalar_const :: a -> Maybe VScalar
-    scalar_clone :: a -> Eval a
+    scalar_clone :: a -> STM a
     scalar_clone = return
     scalar_fetch' :: a -> Eval VScalar
     scalar_fetch' x = scalar_fetch x
@@ -21,10 +21,10 @@ instance ScalarClass IScalarProxy where
     scalar_const = const Nothing
 
 instance ScalarClass IScalar where
-    scalar_fetch = liftSTM . readTVar
-    scalar_store = (liftSTM .) . writeTVar
+    scalar_fetch = stm . readTVar
+    scalar_store = (stm .) . writeTVar
     scalar_const = const Nothing
-    scalar_clone sv = liftSTM (newTVar =<< readTVar sv)
+    scalar_clone sv = newTVar =<< readTVar sv
 
 instance ScalarClass IScalarLazy where
     scalar_iType = const $ mkType "Scalar::Lazy"
@@ -35,7 +35,7 @@ instance ScalarClass IScalarLazy where
 instance ScalarClass IScalarCwd where
     scalar_iType = const $ mkType "Scalar::Cwd"
     scalar_fetch _ = do
-        str <- liftIO $ getCurrentDirectory
+        str <- io getCurrentDirectory
         return $ VStr str
     scalar_store _ val = do
         str <- fromVal val

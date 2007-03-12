@@ -51,7 +51,7 @@ class (Typeable a) => HashClass a where
     hash_isEmpty hv = do
         keys <- hash_fetchKeys hv
         return $ null keys 
-    hash_clone :: a -> Eval a
+    hash_clone :: a -> STM a
     hash_clone = return
 
 instance HashClass (IVar VPair) where
@@ -83,19 +83,19 @@ instance HashClass VHash where
 instance HashClass IHashEnv where
     hash_iType = const $ mkType "Hash::Env"
     hash_fetch _ = do
-        envs <- liftIO getEnvironment
+        envs <- io getEnvironment
         return . Map.map (VStr . decodeUTF8) $ Map.fromList envs
     hash_fetchVal _ key = tryIO undef $ do
         str <- getEnv key
         return $ fromMaybe VUndef (fmap (VStr . decodeUTF8) str)
     hash_storeVal _ key val = do
         str <- fromVal val
-        liftIO $ setEnv key (encodeUTF8 str) True
+        io $ setEnv key (encodeUTF8 str) True
     hash_existsElem _ key = tryIO False $ do
         str <- getEnv key
         return (isJust str)
     hash_deleteElem _ key = do
-        liftIO $ unsetEnv key
+        io $ unsetEnv key
 
 encodeKey, decodeKey :: HashIndex -> HashIndex
 encodeKey x = x
@@ -103,35 +103,35 @@ decodeKey x = x
 
 instance HashClass IHash where
     hash_clone hv = do
-        ps  <- liftIO $ H.toList hv
+        ps  <- unsafeIOToSTM $ H.toList hv
         ps' <- forM ps $ \(k, sv) -> do
             sv' <- cloneIVar sv
             return (k, sv')
-        liftIO $ H.fromList H.hashString ps'
+        unsafeIOToSTM $ H.fromList H.hashString ps'
     hash_fetch hv = do
-        ps  <- liftIO $ H.toList hv
+        ps  <- io $ H.toList hv
         ps' <- forM ps $ \(k, sv) -> do
             val <- readIVar sv
             return (decodeKey k, val)
         return (length ps' `seq` Map.fromList ps')
     hash_fetchKeys hv = do
-        fmap (map (decodeKey . fst)) (liftIO $ H.toList hv)
+        fmap (map (decodeKey . fst)) (io $ H.toList hv)
     hash_fetchElem hv idx = do
         let idx' = encodeKey idx
-        r <- liftIO $ H.lookup hv idx'
+        r <- io $ H.lookup hv idx'
         case r of
              Just sv -> return sv
              Nothing -> do
                 sv <- newScalar undef
-                liftIO $ H.insert hv idx' sv
+                io $ H.insert hv idx' sv
                 return sv
     hash_storeElem hv idx sv = do
-        liftIO $ H.insert hv (encodeKey idx) sv
+        io $ H.insert hv (encodeKey idx) sv
     hash_deleteElem hv idx = do
-        liftIO $ H.delete hv (encodeKey idx)
+        io $ H.delete hv (encodeKey idx)
         return ()
     hash_existsElem hv idx = do
-        liftIO $ fmap isJust (H.lookup hv (encodeKey idx))
+        io $ fmap isJust (H.lookup hv (encodeKey idx))
 
 instance HashClass PerlSV where
     hash_iType = const $ mkType "Hash::Perl"

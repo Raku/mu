@@ -117,7 +117,7 @@ class (Typeable a) => ArrayClass a where
         forM_ ([0..] `zip` vals) $ \(idx, val) -> do
             array_storeElem av (off + idx) (lazyScalar val)
         mapM readIVar result
-    array_clone :: a -> Eval a
+    array_clone :: a -> STM a
     array_clone = return
 
 instance ArrayClass IArraySlice where
@@ -128,60 +128,60 @@ instance ArrayClass IArraySlice where
     array_storeSize _ _ = return () -- XXX error?
     array_storeElem _ _ _ = retConstError undef
 
-a_size :: [:TVar VScalar:] -> Int
+a_size :: [:IVar VScalar:] -> Int
 a_size = lengthP
 
-a_update :: Int -> TVar VScalar -> [:TVar VScalar:] -> [:TVar VScalar:]
+a_update :: Int -> IVar VScalar -> [:IVar VScalar:] -> [:IVar VScalar:]
 a_update i x xs = takeP i xs +:+ [:x:] +:+ sliceP (i + 1) (lengthP xs - 1) xs
 
 instance ArrayClass IArray where
-    array_clone (MkIArray iv) = liftSTM $ do
+    array_clone (MkIArray iv) = do
         a   <- readTVar iv
-        tvs <- mapM ((newTVar =<<) . readTVar) (fromP a)
+        tvs <- mapM cloneIVar (fromP a)
         fmap MkIArray (newTVar (toP tvs))
-    array_store (MkIArray iv) vals = liftSTM $ do
-        tvs <- mapM newTVar vals
+    array_store (MkIArray iv) vals = stm $ do
+        tvs <- mapM newScalar vals
         writeTVar iv (toP tvs)
-    array_fetchSize (MkIArray iv) = liftSTM $ do
+    array_fetchSize (MkIArray iv) = stm $ do
         a   <- readTVar iv
         return $ a_size a
-    array_storeSize (MkIArray iv) sz = liftSTM $ do
+    array_storeSize (MkIArray iv) sz = stm $ do
         a       <- readTVar iv
         case a_size a `compare` sz of
             GT -> writeTVar iv (takeP sz a) -- shrink
             EQ -> return ()
             LT -> do
-                tvs <- replicateM (sz - a_size a) (newTVar undef)
+                tvs <- replicateM (sz - a_size a) (newScalar undef)
                 writeTVar iv (a +:+ toP tvs) -- extend
-    array_shift (MkIArray iv) = liftSTM $ do
+    array_shift (MkIArray iv) = join . stm $ do
         a   <- readTVar iv
         case a_size a of
-            0   -> return undef
+            0   -> return (return undef)
             l   -> do
                 writeTVar iv (sliceP 1 (l - 1) a)
-                readTVar (a !: 0)
+                return (readIVar (a !: 0))
     array_unshift _ [] = return ()
-    array_unshift (MkIArray iv) vals = liftSTM $ do
+    array_unshift (MkIArray iv) vals = stm $ do
         a   <- readTVar iv
-        tvs <- mapM newTVar vals
+        tvs <- mapM newScalar vals
         writeTVar iv (toP tvs +:+ a)
-    array_pop (MkIArray iv) = liftSTM $ do
+    array_pop (MkIArray iv) = join . stm $ do
         a   <- readTVar iv
         case a_size a of
-            0   -> return undef
+            0   -> return (return undef)
             sz  -> do
                 writeTVar iv (takeP (sz - 1) a)
-                readTVar (a !: (sz - 1))
+                return (readIVar (a !: (sz - 1)))
     array_push _ [] = return ()
-    array_push (MkIArray iv) vals = liftSTM $ do
+    array_push (MkIArray iv) vals = stm $ do
         a   <- readTVar iv
-        tvs <- mapM newTVar vals
+        tvs <- mapM newScalar vals
         writeTVar iv (a +:+ toP tvs)
-    array_extendSize (MkIArray iv) sz = liftSTM $ do
+    array_extendSize (MkIArray iv) sz = stm $ do
         a       <- readTVar iv
         case a_size a `compare` sz of
             LT  -> do
-                tvs <- replicateM (sz - a_size a) (newTVar undef)
+                tvs <- replicateM (sz - a_size a) (newScalar undef)
                 writeTVar iv (a +:+ toP tvs)
             _   -> return ()
     array_fetchVal arr idx = do
@@ -189,7 +189,7 @@ instance ArrayClass IArray where
                 (return arr)
                 Nothing -- don't bother extending
         readIVar rv
-    array_fetchKeys (MkIArray iv) = liftSTM $ do
+    array_fetchKeys (MkIArray iv) = stm $ do
         a   <- readTVar iv
         return [0 .. (a_size a - 1)]
     array_fetchElem arr idx = do
@@ -197,24 +197,17 @@ instance ArrayClass IArray where
             (return arr)
             (Just (array_extendSize arr $ idx+1))
     array_existsElem arr idx | idx < 0 = array_existsElem arr (abs idx - 1)    -- FIXME: missing mod?
-    array_existsElem (MkIArray iv) idx = liftSTM $ do
+    array_existsElem (MkIArray iv) idx = stm $ do
         a   <- readTVar iv
         return (idx < a_size a)
-    array_storeElem arr@(MkIArray iv) idx (IScalar sv) = do
-        a   <- liftSTM $ readTVar iv
+    array_storeElem arr@(MkIArray iv) idx sv = do
+        a   <- stm $ readTVar iv
         let size = a_size a
         when (size <= idx) $ do
             array_extendSize arr (idx + 1)
-        case fromTypeable sv of
-            Just tvar   -> do
-                liftSTM $ modifyTVar iv (a_update idx tvar)
-            _           -> do
-                val <- scalar_fetch sv
-                liftSTM $ do
-                    tvar <- newTVar val
-                    modifyTVar iv (a_update idx tvar)
+        stm $ modifyTVar iv (a_update idx sv)
     array_storeElem _ _ _ = fail "impossible"
-    array_deleteElem (MkIArray iv) idx = liftSTM $ do
+    array_deleteElem (MkIArray iv) idx = stm $ do
         a   <- readTVar iv
         let idx' | idx < 0   = idx `mod` size        --- XXX wrong; wraparound => what do you mean?
                  | otherwise = idx
@@ -223,21 +216,21 @@ instance ArrayClass IArray where
             LT -> return ()
             EQ -> writeTVar iv (takeP (size-1) a)
             GT -> do
-                tvar <- newTVar undef
+                tvar <- newScalar undef
                 writeTVar iv (a_update idx' tvar a)
-    array_splice (MkIArray iv) off len vals = liftSTM $ do
+    array_splice (MkIArray iv) off len vals = join . stm $ do
         a    <- readTVar iv
 
         let off' = if off < 0 then off + size else off
             len' = if len < 0 then len + size - off' else len
             size = a_size a
 
-        result <- mapM readTVar (fromP (sliceP off' (off' + len' - 1) a))
+        let result = mapM readIVar (fromP (sliceP off' (off' + len' - 1) a))
 
         let off = if off' > size then size else off'
             len = if off + len' > size then size - off else len'
 
-        tvars  <- mapM newTVar vals
+        tvars  <- mapM newScalar vals
         writeTVar iv (takeP off a +:+ toP tvars +:+ sliceP (off+len) (size-1) a)
         return result
 
@@ -292,8 +285,8 @@ instance ArrayClass (IVar VPair) where
 perl5EvalApply :: String -> [PerlSV] -> Eval Val
 perl5EvalApply code args = do
     env     <- ask
-    envSV   <- liftIO $ mkEnv env
-    subSV   <- liftIO $ evalPerl5 code envSV (enumCxt cxtItemAny)
+    envSV   <- io $ mkEnv env
+    subSV   <- io $ evalPerl5 code envSV (enumCxt cxtItemAny)
     runInvokePerl5 subSV nullSV args
 
 instance ArrayClass PerlSV where
