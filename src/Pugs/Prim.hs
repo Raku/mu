@@ -1577,7 +1577,12 @@ opPerl5 sub args = do
 atomicEval :: Eval Val -> Eval Val
 atomicEval action = do
     env <- ask
-    if envAtomic env then action else guardSTM (runEvalSTM env action)
+    if envAtomic env then action else do
+        rv <- guardSTM (runEvalSTM env action)
+        case rv of
+            VError{}    -> retShift rv
+            VControl{}  -> retShift rv
+            _           -> return rv
 
 {-| Assert that a list of Vals is all defined.
 This should 'fail' (in the Perl sense).
@@ -2105,7 +2110,7 @@ initSyms = seq (length syms) $ do
 \\n   Int       pre     sign    safe   (Num)\
 \\n   Bool      pre     kill    safe   (Thread)\
 \\n   Int       pre     kill    unsafe (Int, List)\
-\\n   Object    pre     Object::new     safe   (Object: Named)\
+\\n   Object    pre     Object::new     safe,export   (Object: Named)\
 \\n   Object    pre     BUILDALL   safe   (Object)\
 \\n   Object    pre     DESTROYALL safe   (Object)\
 \\n   Code      pre     TEMP    safe   (rw!Any)\
