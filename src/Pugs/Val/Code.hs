@@ -5,6 +5,7 @@ import Pugs.Types
 -- import Pugs.Val.Base
 -- import Pugs.Val.Capture
 import Pugs.Class
+import Text.PrettyPrint
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 import qualified Pugs.Types as Types
@@ -93,7 +94,7 @@ data Sig
         , s_slurpyCode                :: Maybe Param
         , s_slurpyCapture             :: Maybe Param
         }
-    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+    deriving (Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 type PureSig = Sig
 
@@ -153,8 +154,9 @@ instance ICoercible P Sig where
 
 instance Pure Sig where
 -}
-{-
-purePretty s = colon <> (parens $ prettySig s)
+
+instance Show Sig where
+   show = render . (colon <>) . parens . prettySig
 
 prettySig :: Sig -> Doc
 prettySig s@(SigMethSingle {}) = invocant <> colon `invSpace` (prettySubSig s)
@@ -178,7 +180,7 @@ prettyParam p isReq isPos = sep [ staticTypes, varDecl, defaultVal, traits, unpa
     varName
         | isPos = text (cast $ p_variable p)
         | v_name (p_variable p) == p_label p = text $ ":" ++ (cast $ p_variable p)
-        | otherwise = text ":" <> text (cast p_label p) <> (parens $ text (cast p_variable p))
+        | otherwise = text ":" <> text (cast $ p_label p) <> (parens $ text (cast $ p_variable p))
     staticTypes = hsep $ map (text . Types.showType) $ p_types p
     defaultHint = if not isReq && not haveDefault then text "?" else empty
     defaultExp  = fromJust .  unDefault $ p_default p
@@ -186,7 +188,7 @@ prettyParam p isReq isPos = sep [ staticTypes, varDecl, defaultVal, traits, unpa
     defaultVal  = if haveDefault then equals <+> prettyExp defaultExp else empty
     traits      = sep [acc, ref, lazy, slots]
     unpacking   = case p_unpacking p of
-        (Just s)   -> purePretty s
+        (Just s)   -> prettySig s
         _          -> empty
     acc         = case p_hasAccess p of
         AccessRO   -> empty
@@ -199,7 +201,6 @@ prettyParam p isReq isPos = sep [ staticTypes, varDecl, defaultVal, traits, unpa
     constraints = hsep $ replicate (length $ p_constraints p) (text "where {...}")
     debugDump   = if True then empty else braces $ text $ show p -- XXX delme
 --------------------------------------------------------------------------------------
--}
 
 -- | Runtime Capture with dynamic Exp for leaves
 --type ExpCapt = Capt Exp
