@@ -1478,9 +1478,7 @@ ruleSignature = rule "signature" $ do
         slpHsh   = Nothing
         slpCd    = Nothing
         slpCapt  = Nothing
-    return . Val . VV . mkVal $ case inv of
-        Nothing -> SigSubSingle    reqPosC reqNms posLs nmSt slpScLs slpArrLs slpHsh slpCd slpCapt
-        Just i  -> SigMethSingle i reqPosC reqNms posLs nmSt slpScLs slpArrLs slpHsh slpCd slpCapt
+    return . Val . VV . mkVal $ MkSig inv reqPosC reqNms posLs nmSt slpScLs slpArrLs slpHsh slpCd slpCapt
     where
         validateRequired _     []     = return 0
         validateRequired False (x:_)

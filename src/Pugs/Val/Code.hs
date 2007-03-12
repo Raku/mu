@@ -70,30 +70,18 @@ data CodeAssoc
 
 -- | AST for function signature. Separated to method and function variants
 --   for ease of pattern matching.
-data Sig
-    = SigMethSingle
-        { s_invocant                  :: Param
-        , s_requiredPositionalCount   :: Int
-        , s_requiredNames             :: Set ID
-        , s_positionalList            :: [Param]
-        , s_namedSet                  :: Map.Map ID Param
-        , s_slurpyScalarList          :: [Param]
-        , s_slurpyArray               :: Maybe Param
-        , s_slurpyHash                :: Maybe Param
-        , s_slurpyCode                :: Maybe Param
-        , s_slurpyCapture             :: Maybe Param
-        }
-    | SigSubSingle
-        { s_requiredPositionalCount   :: Int
-        , s_requiredNames             :: Set ID
-        , s_positionalList            :: [Param]
-        , s_namedSet                  :: Map.Map ID Param
-        , s_slurpyScalarList          :: [Param]
-        , s_slurpyArray               :: Maybe Param
-        , s_slurpyHash                :: Maybe Param
-        , s_slurpyCode                :: Maybe Param
-        , s_slurpyCapture             :: Maybe Param
-        }
+data Sig = MkSig
+    { s_invocant                  :: Maybe Param
+    , s_requiredPositionalCount   :: Int
+    , s_requiredNames             :: Set ID
+    , s_positionalList            :: [Param]
+    , s_namedSet                  :: Map.Map ID Param
+    , s_slurpyScalarList          :: [Param]
+    , s_slurpyArray               :: Maybe Param
+    , s_slurpyHash                :: Maybe Param
+    , s_slurpyCode                :: Maybe Param
+    , s_slurpyCapture             :: Maybe Param
+    }
     deriving (Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 type PureSig = Sig
@@ -159,9 +147,9 @@ instance Show Sig where
    show = render . (colon <>) . parens . prettySig
 
 prettySig :: Sig -> Doc
-prettySig s@(SigMethSingle {}) = invocant <> colon `invSpace` (prettySubSig s)
+prettySig s@MkSig{s_invocant = Just i} = invocant <> colon `invSpace` (prettySubSig s)
     where
-    invocant = if (v_name $ p_variable $ s_invocant s) == nullID then text "$ " else prettyParam (s_invocant s) True True
+    invocant = if (v_name $ p_variable $ i) == nullID then text "$ " else prettyParam i True True
     invSpace :: Doc -> Doc -> Doc
     invSpace = if (isEmpty $ prettySubSig s) then (<>) else (<+>)
 prettySig s = prettySubSig s

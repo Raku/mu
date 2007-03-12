@@ -967,8 +967,9 @@ paramToValParam param = ret
 
 paramsToSig :: Params -> Val.Sig
 paramsToSig params = 
-    Val.SigSubSingle
-        { Val.s_requiredPositionalCount =
+    Val.MkSig
+        { Val.s_invocant = Nothing
+        , Val.s_requiredPositionalCount =
             length $ filter (\x -> not (isNamed x) && not (isOptional x)) params
         , Val.s_requiredNames =
             Set.fromList $ map (v_name . paramName) $ filter (not . isOptional) params
