@@ -48,7 +48,7 @@ multi wind (:$him)              {"him $him"};
 multi wind (:$me)               {"me $me"};
 
 is( try { wind(me => 1) },                     'me 1',             'named me', :todo<unspecced>);
-is( try { wind(him => 2) },                    'him 2',            'named you', :todo<unspecced>);
+is( try { wind(him => 2) },                    'him 2',            'named you');
 is( try { wind(me => 1, him => 2) },           'me 1 him 2',       'named me, named him');
 is( try { wind(him => 2, me => 1) },           'me 1 him 2',       'named him, named me');
 is( try { wind(me => 1, him => 2, her => 3) }, 'me 1 him 2 her 3', 'named me named him named her');
