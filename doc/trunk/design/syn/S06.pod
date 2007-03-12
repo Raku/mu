@@ -15,7 +15,7 @@ Allison Randal <al@shadowed.net>
   Date: 21 Mar 2003
   Last Modified: 12 Mar 2007
   Number: 6
-  Version: 78
+  Version: 79
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -886,39 +886,18 @@ lexical on the blunt end that is not enclosed in curlies somehow.
 
 Because feeds are defined as lazy pipes, a chain of feeds may not begin
 and end with the same array without some kind of eager sequence point.
-That is, this doesn't work:
-
-    my @data = 1,2,3;
-    @data <== grep { $_ % 2 } <== @data;
-
-but this does:
-
-    my @data = 1,2,3;
-    my @tmp = eager @data;
-    @data <== grep { $_ % 2 } <== @tmp;
-
-(But note: feed operators have push semantics when the receiver is an array.
-Use assignment to get clear-first semantics.)
-
-Conjecture: the following are possible, but only if we are very careful
-to cut loose the old @data on the blunt end of the pipe before rebinding
-the pointy end:
+That is, this isn't guaranteed to work:
 
     @data <== grep { $_ % 2 } <== @data;
-    @data := do { grep { $_ % 2 } <== @data; }
 
-And this would need to force an "eager" evaluation to a temporary
-list to work at all:
+either of these do:
 
-    @data = do { grep { $_ % 2 } <== @data; }
+    @data <== grep { $_ % 2 } <== eager @data;
+    @data <== eager grep { $_ % 2 } <== @data;
 
-Otherwise it's the equivalent of the Unix newbie mistake:
-
-    filter foo >foo
-
-Arguably we could take the Unix approach and force the newbie to just
-learn to deal with it explicitly.  (Arguably this could also be construed
-as antisocial.)
+Conjecture: if the cloning process eagerly duplicates C<@data>, it could
+be forced to work.  Not clear if this is desirable, since ordinary clones
+just clone the container, not the value.
 
 Leftward feeds are a convenient way of explicitly indicating the typical
 right-to-left flow of data through a chain of operations:
@@ -942,8 +921,22 @@ Note that the C<do> is necessary because feeds operate at the statement
 level.  (Parens would also work, since a "do" is assumed there.)
 
 If the operand on the sharp end of a feed is not a call to a variadic
-operation, it must be something else that can be interpreted as a
-list receiver.
+operation, it must be something else that can be interpreted as a list
+receiver, or a scalar expression that can be evaluated to produce an
+object that does the C<KitchenSink> role, such as an C<IO> object.
+Such an object provides C<.clear> and C<.push> methods that will
+be called as appropriate to send data.  (Note that an C<IO> object
+used as a sink will force eager evaluation on its pipeline, so the
+next statement is guaranteed not to run till the file is closed.
+In contrast, an C<Array> object used as a sink turns into a lazy
+array.)
+
+Any non-variadic object (such as an C<Array> or C<IO> object) used as a filter
+between two feeds is treated specially as a I<tap> that merely captures
+data I<en passant>.  You can safely install such a tap in an extended pipeline
+without changing the semantics.  An C<IO> object used as a tap does not
+force eager evaluation since the eagerness is controlled instead by the
+downstream feed.
 
 Any prefix list operator is considered a variadic operation, so ordinarily
 a list operator adds any feed input to the end of its list.
@@ -953,6 +946,12 @@ feed without the use of a temporary array:
 
     foo() ==> say @(*), " is what I meant";
     bar() ==> @@(*).baz();
+
+Likewise, an C<Array> used as a tap may be distinguished from an C<Array> used
+as a translation function:
+
+    numbers() ==> @array ==> bar()          # tap
+    numbers() ==> @array[@(*)] ==> bar()    # translation
 
 Feeding into the C<*> "whatever" term sets the source for the next sink.
 To append multiple sources to the next sink, double the angle:
