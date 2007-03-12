@@ -192,7 +192,7 @@ op1 "sort" = \v -> do
                     (return (args, Nothing)))
         _  -> return (args, Nothing)
     sortBy <- case sortByGiven of
-        Nothing -> readVar (cast "&infix:cmp")
+        Nothing -> readVar (cast "&*infix:cmp")
         Just subVal -> return subVal
     sub <- fromVal sortBy
     sorted <- (`sortByM` valList) $ \v1 v2 -> do
