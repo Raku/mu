@@ -514,7 +514,9 @@ ruleFormalParam opt = rule "formal parameter" $ do
             _       -> Noop
     rv <- case opt of
         FormalsSimple   -> option emptyExp $ do
-            pseudoAssignment (Val (VType (if null typ then typeOfSigilVar (cast name) else mkType typ)))
+            pseudoAssignment (cxtOfSigilVar var) (Val (VType (if null typ then typeOfSigilVar var else mkType typ)))
+            where
+            var = cast name
         FormalsComplex  -> ruleParamDefault
     when (opt == FormalsComplex) . optional $ do
         symbol "-->"

@@ -596,10 +596,10 @@ ruleQuoteAdverbs = enterBracketLevel QuoteAdverbBracket $ do
 substLiteral :: RuleParser Exp
 substLiteral = do
     (declarator, pseudo) <- choice
-        [ symbol "s"  >> return ("subst", (pseudoAssignment matchResult <|>))
+        [ symbol "s"  >> return ("subst", (pseudoAssignment cxtSlurpyAny matchResult <|>))
         , do symbol "ss"
              insertIntoPosition ":sigspace(1)"
-             return ("subst", (pseudoAssignment matchResult <|>))
+             return ("subst", (pseudoAssignment cxtSlurpyAny matchResult <|>))
         , symbol "tr" >> return ("trans", id)
         ]
     adverbs <- case declarator of
@@ -627,27 +627,28 @@ substLiteral = do
     where
     matchResult = Syn "${}" [_Var "$/"]
 
-pseudoAssignment :: Exp -> RuleParser Exp
-pseudoAssignment lhs = verbatimRule "infix assignment" $ do
+pseudoAssignment :: Cxt -> Exp -> RuleParser Exp
+pseudoAssignment cxt lhs = verbatimRule "infix assignment" $ do
     ahead <- lookAhead (string ".=" <|> ruleInfixAssignment <|> string "=")
-    insertIntoPosition "$_ "
+    insertIntoPosition (cast varStub ++ " ")
     item <- parseExpWithTightOps
     return $ case ahead of
         ".=" -> fixPseudo (applyPseudo item)
         _    -> applyPseudo item
     where
+    varStub = if isSlurpyCxt cxt then cast "@_" else varTopic
     applyPseudo (Ann ann exp)       = Ann ann (applyPseudo exp)
     applyPseudo (Syn "=" [Var var, exp])
-        | var == varTopic
+        | var == varStub
         = exp
     applyPseudo (Syn syn [Var var, exp])
         | last syn == '='
-        , var == varTopic
+        , var == varStub
         = App (_Var ("&infix:" ++ init syn)) Nothing [lhs, exp]
     applyPseudo x = internalError $ "Unknown pseudo-assignment form:" ++ show x
     fixPseudo (Ann ann exp) = Ann ann (fixPseudo exp)
     fixPseudo (App meth (Just (Var var)) args)
-        | var == varTopic
+        | var == varStub
         = App meth (Just lhs) args
     fixPseudo x = x
 
