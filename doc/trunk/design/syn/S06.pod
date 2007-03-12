@@ -1446,7 +1446,7 @@ The C<inner> type constraint that a routine imposes on its return value.
 
 The C<of> type that is the official return type of the routine.  Or you
 can think of "of" as outer/formal.  If there is no inner type, the outer
-type also serves as the inner type to constraint the return value.
+type also serves as the inner type to constrain the return value.
 
 =item C<will do>
 
@@ -1793,9 +1793,9 @@ The returned context object supports at least the following methods:
     .subname
 
 The C<.caller> method is subtly different from the C<caller>
-function.  Instead of looking up the current lexically scoped
-by C<.context(&?ROUTINE,1)>, it just looks up the next matching
-C<.context(Routine,1)>.
+function.  Instead of looking up the current lexically scoped caller
+by C<.context(&?ROUTINE,1)>, it just looks up the next matching dynamic
+caller using C<.context(Routine,1)>.
 
 The C<.my> method provides access to the lexical namespace in effect at
 the given dynamic context's current position.  It may be used to look
