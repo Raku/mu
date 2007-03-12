@@ -193,7 +193,7 @@ isLexicalVar MkVar{ v_package = MkPkg [], v_twigil = twi } = case twi of
     TGlobal -> False
     TDoc    -> False    -- XXX noncanonical
     _       -> True
-isLexicalVar _ = True
+isLexicalVar _ = False
 
 isQualifiedVar :: Var -> Bool
 isQualifiedVar MkVar{ v_package = MkPkg [] } = False
