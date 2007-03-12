@@ -173,8 +173,7 @@ currentFunctions = do
         let vars  = padToList (filterPad cur glob)
                     ++ padToList (filterPad cur (envLexical env))
             pkg   = envPackage env
-            cur var@MkVar{ v_sigil = SCode } = inScope pkg var
-            cur var@MkVar{ v_sigil = SCodeMulti } = inScope pkg var
+            cur var@MkVar{ v_sigil = SCode, v_longname = name } | name == nullID = inScope pkg var
             cur _ = False
         mapM (uncurry filterFun) vars
     return (length funs `seq` funs)
@@ -659,6 +658,7 @@ refillCache state f = do
                 , v_categ   = categ
                 , v_package = emptyPkg
                 , v_meta    = MNil
+                , v_longname= nullID
                 }
     setState state{ s_dynParsers = opParsers }
     f opParsers
