@@ -24,7 +24,7 @@ my @test = (1..5);
 $test = @test!;
 $test.perl.say;
 
-multi sub postfix:<<%%>> { $_ / 100 }; #since overloading % breaks it in infix
+multi sub postfix:<<%%>> ($_) { $_ / 100 }; #since overloading % breaks it in infix
 multi sub infix:<<of>> ($x,$y) {$x * $y};
 say 50%% of 100;
 
