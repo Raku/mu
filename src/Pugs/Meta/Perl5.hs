@@ -7,7 +7,7 @@ import Pugs.Embed.Perl5
 import Pugs.Internals
 import Data.Typeable (Typeable)
 import qualified Data.Map as Map
-import {-# SOURCE #-} Pugs.AST.Internals (envContext, anyToVal, anyFromVal)
+import Pugs.AST.Internals (envContext, anyToVal, anyFromVal)
 import Pugs.Types
 
 data Perl5Responder = Perl5Responder deriving Typeable
