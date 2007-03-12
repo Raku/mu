@@ -39,10 +39,9 @@ eval 'class Foo {
 }';
 
 {
-    is $got_a_num, 1, "default should be called at compile-time", :todo<feature>;
+    is $got_a_num, 1, "default should be called at compile-time";
     my Foo $foo .= new;
-    is $got_a_num, 1, "default should be called only once, at compile-time (1)", :todo<feature>;
-    is $foo.num,  42, "attribute default worked", :todo<feature>;
+    is $got_a_num, 1, "default should be called only once, at compile-time (1)",     is $foo.num,  42, "attribute default worked";
     is $got_a_num, 1, "default should be called only once, at compile-time (2)", :todo<feature>;
 }
 

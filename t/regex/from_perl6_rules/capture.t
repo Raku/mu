@@ -24,10 +24,10 @@ regex dotdot { (.)(.) };
 ok("zzzabcdefzzz" ~~ m/(a.)<?dotdot>(..)/, 'Match');
 ok($/, 'Matched');
 is($/, "abcdef", 'Captured');
-is($/[0], 'ab', '$/[0]', :todo<bug>);
-is($0, 'ab', '$0', :todo<bug>);
-is($/[1], 'ef', '$/[1]', :todo<bug>);
-is($1, 'ef', '$1', :todo<bug>);
+is($/[0], 'ab', '$/[0]');
+is($0, 'ab', '$0');
+is($/[1], 'ef', '$/[1]');
+is($1, 'ef', '$1');
 ok(!defined($/[2]), 'no $/[2]');
 ok(!defined($2), 'no $2');
 ok(!defined($/<dotdot>), 'no $/<dotdot>');
@@ -64,9 +64,9 @@ ok(eval(' "bookkeeper" ~~ m/<single> ($/<single>)/ '), 'Named backref', :todo<fe
 is($/<single>, 'o', 'Named capture', :todo<feature>);
 is($0, 'o', 'Backref capture', :todo<feature>);
 
-ok("bookkeeper" ~~ m/(<?single>) ($0)/, 'Positional backref', :todo<bug>);
-is($0, 'o', 'Named capture', :todo<bug>);
-is($1, 'o', 'Backref capture', :todo<bug>);
+ok("bookkeeper" ~~ m/(<?single>) ($0)/, 'Positional backref');
+is($0, 'o', 'Named capture');
+is($1, 'o', 'Backref capture');
 
 skip 1, "looping test"; # ok(!( "bokeper" ~~ m/(<?single>) ($0)/ ), 'Failed positional backref');
 ok(eval(' !( "bokeper" ~~ m/<single> ($/<single>)/ ) '), 'Failed named backref', :todo<feature>);

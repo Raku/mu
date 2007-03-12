@@ -14,8 +14,6 @@ if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
 
-force_todo(6,7,13,14);
-
 ok("\n" ~~ m/\n/, '\n');
 
 ok("\o15\o12" ~~ m/\n/, 'CR/LF');

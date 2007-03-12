@@ -28,7 +28,7 @@ ok(!( "a" ~~ m/(<[a..z]-[aeiou]>)/ ), 'Difference set failure');
 ok("y" ~~ m/(<[a..z]-[aeiou]>)/, 'Difference set match', :todo<feature>);
 is($0, 'y', 'Difference set capture', :todo<feature>);
 ok(!( "a" ~~ m/(<+alpha-[aeiou]>)/ ), 'Named difference set failure');
-ok("y" ~~ m/(<+alpha-[aeiou]>)/, 'Named difference set match', :todo<feature>);
+ok("y" ~~ m/(<+alpha-[aeiou]>)/, 'Named difference set match');
 is($0, 'y', 'Named difference set capture', :todo<feature>);
 ok(!( "y" ~~ m/(<[a..z]-[aeiou]-[y]>)/ ), 'Multi-difference set failure');
 ok("f" ~~ m/(<[a..z]-[aeiou]-[y]>)/, 'Multi-difference set match', :todo<feature>);
