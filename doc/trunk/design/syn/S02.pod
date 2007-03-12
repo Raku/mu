@@ -2472,7 +2472,7 @@ yourself.  Each chunk has a C<.range> property that indicates its
 line number range within the source file.
 
 The lexical routine itself is C<&?ROUTINE>; you can get its name with
-C<&ROUTINE.name>.  The current block is C<&?BLOCK>.  If the block has any
+C<&?ROUTINE.name>.  The current block is C<&?BLOCK>.  If the block has any
 labels, those shows up in C<&?BLOCK.labels>.  Within the lexical scope of
 a statement with a label, the label is a pseudo-object representing
 the dynamic context of that statement.  (If inside multiple dynamic
