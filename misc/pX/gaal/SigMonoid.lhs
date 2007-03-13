@@ -41,7 +41,8 @@ Params
   :($x)        :+:  :($x?)               = same as the above case
 
   -- UNIFY: Unpacking
-  :($t)        :+:  :($t (Left $l, Right $r)) = :(BinTree $t) 
+  :($t)        :+:  :($t (Left $l, Right $r))
+                                         = :($t) 
 
 
 Signatures
