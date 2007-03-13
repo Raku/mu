@@ -8,9 +8,7 @@ use Test;
 # I don't get this one working:
 ## L<S06/Properties and traits/"Mark blocks that are to be unconditionally executed">
 
-# TODO: Test  POST with inheritance
-
-plan 13;
+plan 16;
 
 my $foo = '
 sub foo(Num $i) {
@@ -118,3 +116,35 @@ try {
 }
 
 ok(defined($!), "violated PRE in methods fails OK");
+
+
+class Foo {
+    method test(Num $i) {
+        return 1;
+        POST {
+	    $i < 23
+        }
+    }
+}
+
+class Bar is Foo{
+    method test(Num $i){
+        return 1;
+        POST {
+            $i > -23
+        }
+    }
+}
+my $foo_post = Bar.new;
+
+ok(eval('$foo_post.test(0)'), "Inherited POST compiles and runs");
+
+try {
+    $foo_post.test(42);
+}
+ok(defined($!), "Inherited POST fails ok");
+
+try {
+    $foo_post.test(-42);
+}
+ok(defined($!), "Own POST fails ok");
