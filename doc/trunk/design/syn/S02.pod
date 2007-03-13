@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 12 Mar 2007
+  Last Modified: 13 Mar 2007
   Number: 2
-  Version: 95
+  Version: 96
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -2287,7 +2287,7 @@ a single character:
 =item *
 
 There are no barewords in Perl 6.  An undeclared bare identifier will
-always be taken to mean a subroutine or method name.  (Class names
+always be taken to mean a subroutine name.  (Class names
 (and other type names) are predeclared, or prefixed with the C<::>
 type sigil when you're declaring a new one.)  A consequence of this
 is that there's no longer any "C<use strict 'subs'>".  Since the syntax
@@ -2300,9 +2300,12 @@ such a declaration will occur by the end of the current compilation unit:
 
     foo;         # provisional call if neither &foo nor ::foo is defined so far
     foo();       # provisional call if &foo is not defined so far
+    foo($x);     # provisional call if &foo is not defined so far
     foo($x, $y); # provisional call if &foo is not defined so far
+
     $x.foo;      # not a provisional call; it's a method call on $x
-    foo($x);     # not a provisional call; it's a method call on $x
+    foo $x:;     # not a provisional call; it's a method call on $x
+    foo $x: $y;  # not a provisional call; it's a method call on $x
 
 If a postdeclaration is not seen, the compile fails at C<CHECK> time.
 (You are still free to predeclare subroutines explicitly, of course.)
