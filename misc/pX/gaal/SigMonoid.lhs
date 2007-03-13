@@ -25,7 +25,7 @@ Params
 
   :($x)        :+:  :($x?)               = :($x?)   -- see below on matching with optionals
   :($x = 42)   :+:  :($x = 42)           = :($x = 42) -- eq rule
-  :($x = 42)   :+:  :($x = 54)           = :($x?)
+  :($x = 42)   :+:  :($x = 54)           = :($x?)     -- but particular defaults don't matter
 
   :($x)        :+:  :(Int $x)            = :($x)
   :(Str $x)    :+:  :(Int $x)            = :(Str|Int $x)
@@ -44,7 +44,7 @@ Signatures
   :($x)        :+:  :(:$x)               = :($x)
   :($x?)       :+:  :(:$x?)              = :($x?)  -- unify named to positional (optional both)
 
-  :($x)        :+:  :($x, $y?)           = :($x)       -- $y cannot appear
+  :($x)        :+:  :($x, $y?)           = :($x, $y?)
   :($x, $y)    :+:  :($x?, $y?)          = :($x?, $y?) -- can get away with it
   :($x, $y)    :+:  :($x?, $z?)          = :($x?)
 
