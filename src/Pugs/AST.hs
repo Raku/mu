@@ -187,14 +187,14 @@ mkPadMutator var entry ref (MkPad map)
                 , mc_subtype    = code_type c
                 , mc_assoc      = code_assoc c
                 , mc_signature  = code_params c
-                , mc_variants   = Map.singleton var entry
+                , mc_variants   = Set.singleton var
                 }
             merge _ old = case old of
                 EntryConstant{ pe_proto = MkRef (ICode oldCV) }
                     | Just mc <- fromTypeable oldCV -> protoEntry
                         { pe_proto = MkRef . ICode $ protoCode
                             { mc_assoc      = code_assoc c `mappend` code_assoc mc
-                            , mc_variants   = Map.insert var entry (mc_variants mc)
+                            , mc_variants   = Set.insert var (mc_variants mc)
                             , mc_signature  = if length (mc_signature mc) == length (code_params c)
                                 then code_params c
                                 else [defaultArrayParam]
@@ -474,12 +474,19 @@ __ITEM__ = cast "ITEM"
 
 readCodesFromRef :: VRef -> Eval [VCode]
 readCodesFromRef (MkRef (ICode c))
-    | Just mc <- fromTypeable c = fmap concat . forM (Map.elems $ mc_variants mc) $ \entry -> do
-        ref     <- readPadEntry entry
-        readCodesFromRef ref
+    | Just mc <- fromTypeable c = do
+        let names@(pivot:_) = Set.elems (mc_variants mc)
+        rvs <- fmap concat . forM names $ \var -> do
+            ref  <- fromVal =<< readVar var
+            readCodesFromRef ref
+        if not (isLexicalVar pivot) then return rvs else do
+            -- Lexical multis must also include global variants.
+            cvGlobal <- readVar (toGlobalVar pivot{ v_longname = nullID })
+            if not (defined cvGlobal) then return rvs else do
+                rvsGlobal <- readCodesFromRef =<< fromVal cvGlobal
+                return (rvsGlobal ++ rvs)
+    | Just cv <- fromTypeable c = return [cv]
 readCodesFromRef ref = do
     code <- fromVal =<< readRef ref
-    case code of 
-        MkCode{ subBody = Noop }    -> return [] -- XXX - Ignored; see Pugs.Parser comment "PROTO"
-        _                           -> return [code]
+    readCodesFromRef (MkRef (ICode (code :: VCode)))
 
