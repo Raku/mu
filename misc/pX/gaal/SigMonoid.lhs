@@ -34,6 +34,10 @@ Params
 
   :($t)        :+:  :(BinTree $t (Left $l, Right $r))
                                          = :(BinTree $t (Left $l, Right $r)) 
+
+  :($x)        :+:  :()                  = :($x?),    but because it's easier to implement,
+                                           :($?, :$x) which is isomorphic.
+
 Signatures
 
 -- mandatories must match, modulo the other sig allowing the same name as optional
@@ -43,6 +47,9 @@ Signatures
   :($x)        :+:  :($y?)               = fail "incompat"
   :($x)        :+:  :(:$x)               = :($x)
   :($x?)       :+:  :(:$x?)              = :($x?)  -- unify named to positional (optional both)
+
+  :($x, $y)    :+:  :($y, $x)            = :($, $, :$x, :$y)
+  :($x?, $y?)  :+:  :($y?, $x?)          = :($?, $?, :$x, :$y)
 
   :($x)        :+:  :($x, $y?)           = :($x, $y?)
   :($x, $y)    :+:  :($x?, $y?)          = :($x?, $y?) -- can get away with it
