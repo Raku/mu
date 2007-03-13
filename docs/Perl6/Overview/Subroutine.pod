@@ -191,7 +191,7 @@ Following the "assignments should look like assignments" rule, usage of
 Note that assigning a proxy to a variable with = will loose the proxy's
 magicalness:
 
-    my $var = foo();
+    my $var = foo();        # invokes FETCH on foo()
     $var = $invalid_input;  # works; STORE not called
 
 You have to use binding (:=) instead:
