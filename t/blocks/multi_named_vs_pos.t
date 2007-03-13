@@ -57,7 +57,7 @@ is( try { wind(her => 3, me => 1, him => 2) }, 'me 1 him 2 her 3', 'named her na
 is( try { wind(her => 3, him => 2, me => 1) }, 'me 1 him 2 her 3', 'named her named him named me');
 
 is( try { wind('a') },                'pos a',             'pos', :todo<unspecced>);
-is( try { wind('b', you => 4) },      'pos b you 4',       'pos, named you', :todo<unspecced>);
+is( try { wind('b', you => 4) },      'pos b you 4',       'pos, named you');
 is( try { wind('c', her => 3) },      'pos c her 3',       'pos, named her', :todo<unspecced>);
 is( try { wind('d', 'e') },           'pos d pos e',       'pos, pos', :todo<unspecced>);
 is( try { wind('f', 'g', her => 3) }, 'pos f pos g her 3', 'pos, pos, named', :todo<unspecced>);
