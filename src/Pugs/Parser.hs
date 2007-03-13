@@ -410,12 +410,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     (`finallyM` clearDynParsers) $ if not (isLexicalVar var)
         then do unsafeEvalExp $ mkSym sub nameQualified Noop
         else do
-            let regenLexicalEntry = do
-                    env' <- unsafeEvalEnv $ mkSym sub nameQualified Noop
-                    putRuleEnv env'
-                    addBlockPad scope (envLexical env' `diffPads` envLexical env)
-                    return $ Var var
-                doExportCode rv = if not isExported then return emptyExp else do
+            let doExportCode rv = if not isExported then return emptyExp else do
                     -- we mustn't perform the export immediately upon parse, because
                     -- then only the first consumer of a module will see it. Instead,
                     -- make a note of this symbol being exportable, and defer the
@@ -450,8 +445,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
                         _               -> return $! unsafePerformSTM $! do
                             rv  <- writePadEntry entry' cv'
                             return (rv `seq` result)
-                _           -> do
-                    regenLexicalEntry
+                _           -> error "Impossible: Disappearing entry?"
 
 ruleSubNamePossiblyWithTwigil :: RuleParser String
 ruleSubNamePossiblyWithTwigil = tryVerbatimRule "subroutine name" $ do
