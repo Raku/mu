@@ -39,7 +39,7 @@ module Pugs.AST.Internals (
     VMultiCode(..),
 
     IVar(..), -- uses *Class and V*
-    IArray, IArraySlice, IHash, IScalar, ICode, IScalarProxy,
+    IArray, IArraySlice, IHash, IScalar, IScalarProxy,
     IScalarLazy, IPairHashSlice, IRule, IHandle, IHashEnv(..),
     IScalarCwd(..),
 
@@ -1529,7 +1529,7 @@ mkCompUnit _ pad ast = MkCompUnit compUnitVersion pad ast
 
 {-# NOINLINE compUnitVersion #-}
 compUnitVersion :: Int
-compUnitVersion = 14
+compUnitVersion = 15
 
 {-|
 Retrieve the global 'Pad' from the current evaluation environment.
@@ -1971,7 +1971,6 @@ newtype IArray = MkIArray (TVar [:IVar VScalar:])
 type IArraySlice        = [IVar VScalar]
 type IHash              = H.HashTable VStr (IVar VScalar) -- XXX UTF8 handled at Types/Hash.hs
 type IScalar            = TVar Val
-type ICode              = TVar VCode
 type IScalarProxy       = (Eval VScalar, (VScalar -> Eval ()))
 type IScalarLazy        = Maybe VScalar
 type IPairHashSlice     = (VStr, IVar VScalar)
@@ -1981,7 +1980,7 @@ data VMultiCode = MkMultiCode
     , mc_subtype    :: !SubType
     , mc_assoc      :: !SubAssoc
     , mc_signature  :: !Params
-    , mc_variants   :: !(Map Var PadEntry)
+    , mc_variants   :: !(Set Var)
     }
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
@@ -2074,9 +2073,6 @@ instance YAML VRef where
         | Just mc <- fromTypeable cv = do
             mcC <- asYAML (mc :: VMultiCode)
             return $ mkTagNode (tagHs "VMultiCode") $ ESeq [mcC]
-        | Just ic <- fromTypeable cv = do
-            icC <- asYAML (ic :: ICode)
-            return $ mkTagNode (tagHs "ICode") $ ESeq [icC]
         | otherwise = do
             VCode vsub  <- fakeEval $ fmap VCode (code_fetch cv)
             vsubC       <- asYAML vsub
@@ -2108,8 +2104,6 @@ instance YAML VRef where
     fromYAML MkNode{n_tag=Just s, n_elem=ESeq [node]}
         | s == packBuf "tag:hs:VMultiCode"   =
             fmap (MkRef . ICode) (fromYAML node :: IO VMultiCode)
-        | s == packBuf "tag:hs:ICode"   =
-            fmap (MkRef . ICode) (fromYAML node :: IO ICode)
         | s == packBuf "tag:hs:VCode"   =
             fmap (MkRef . ICode) (fromYAML node :: IO VCode)
         | s == packBuf "tag:hs:VScalar" =
