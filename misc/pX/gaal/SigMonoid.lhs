@@ -11,42 +11,49 @@ sigEmpty = :(|$) -- what is meant by fail below
 
 Params
 
-  s            :+:  s                    = s   -- identity
+  -- identity, modulo user traits, constraints and defaults
+  s            :+:  s                    = s'
 
-  -- contexts
+  -- DROP: user traits
+  :($x is tr1) :+:  :($x is tr2)         = :($x)        -- drop
+  :($x is tr1) :+:  :($x is tr1)         = :($x)        -- drop
+  :($x is tr1) :+:  :($x)                = :($x)        -- drop
+
+  -- DROP: default values
+  :($x = 42)   :+:  :($x = 42)           = :($x?)       -- drop
+  :($x = 42)   :+:  :($x = 54)           = :($x?)       -- drop
+
+  -- DROP: "where" constraints
+  :($x)        :+:  :($x where {...})    = :($x)        -- drop
+
+  -- UNIFY: contexts
   :($x)        :+:  :($x is rw)          = :($x is rw)
   :($x)        :+:  :($x is copy)        = :($x is copy)
   :($x is rw)  :+:  :($x is copy)        = :($x is rw)
 
-  -- user traits
-  :($x is tr1) :+:  :($x is tr2)         = :($x)    -- drop
-  :($x is tr1) :+:  :($x is tr1)         = :($x)    -- eq rule
-  :($x is tr1) :+:  :($x)                = :($x)    -- drop
-
-  :($x)        :+:  :($x?)               = :($x?)   -- see below on matching with optionals
-  :($x = 42)   :+:  :($x = 42)           = :($x = 42) -- eq rule
-  :($x = 42)   :+:  :($x = 54)           = :($x?)     -- but particular defaults don't matter
-
+  -- UNIFY: type constraints
   :($x)        :+:  :(Int $x)            = :($x)
   :(Str $x)    :+:  :(Int $x)            = :(Str|Int $x)
 
-  :($x)        :+:  :($x where {...})    = :($x)
-
-  :($t)        :+:  :(BinTree $t (Left $l, Right $r))
-                                         = :(BinTree $t (Left $l, Right $r)) 
-
+  -- UNIFY: Arity
   :($x)        :+:  :()                  = :($x?),    but because it's easier to implement,
                                            :($?, :$x) which is isomorphic.
+  :($x)        :+:  :($x?)               = same as the above case
+
+  -- UNIFY: Unpacking
+  :($t)        :+:  :($t (Left $l, Right $r)) = :(BinTree $t) 
+
 
 Signatures
 
 -- mandatories must match, modulo the other sig allowing the same name as optional
 
-  :($)         :+:  :($x)                = :($x)   -- name-fixing positionals
-  :($x)        :+:  :($y)                = fail "incompat"
-  :($x)        :+:  :($y?)               = fail "incompat"
-  :($x)        :+:  :(:$x)               = :($x)
-  :($x?)       :+:  :(:$x?)              = :($x?)  -- unify named to positional (optional both)
+  :($)         :+:  :($x)                = :($, :$x)
+  :($x)        :+:  :($y)                = :($, :$x, :$y)
+  :($x)        :+:  :($y?)               = :($?, :$x, :$y)
+  :($x)        :+:  :(:$x)               = :($?, :$x)
+  :($x?)       :+:  :(:$x)               = :($?, :$x)
+  :($x)        :+:  :(:$x!)              = :($?, :$x!)
 
   :($x, $y)    :+:  :($y, $x)            = :($, $, :$x, :$y)
   :($x?, $y?)  :+:  :($y?, $x?)          = :($?, $?, :$x, :$y)
@@ -57,9 +64,10 @@ Signatures
   :($x, $y)    :+:  :($x?, $z?)          = :($?, $?, :$x, :$y, :$z)
   :($x?)       :+:  :($y?)               = :($?, :$x, :$y)
 
-  :(:$elk)     :+:  :(:$caribou)         = fail "incompat"
-  :(:$elk, :$caribou?)
-               :+:  :(:$caribou, :$elk?) = :(:$elk?, :$caribou?)
+  :(:$elk)     :+:  :(:$caribou)         = :(:$elk, :$caribou)
+  :(:$elk!)    :+:  :(:$caribou!)        = :(:$elk, :$caribou)
+  :(:$elk!, :$caribou)
+               :+:  :(:$caribou, :$elk!) = :(:$elk, :$caribou)
 
 -- slurpy coherence
 
