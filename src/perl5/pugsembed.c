@@ -58,12 +58,13 @@ pugs_SvToVal ( SV *sv )
         }
     }
     else if (SvPOKp(sv)) {
-        /* XXX - This is wrong; byte buffers in Perl5 land will be autoupgraded via Latin1!
-         *       A better way, once we have a native Buf type in Pugs, is to check SvUTF8
-         *       and convert to Buf if it's off.
-         */
         STRLEN len = sv_len(sv);
-        return pugs_PvnToVal(SvPV_nolen(sv), (int)len);
+        if (SvUTF8(sv)) {
+            return pugs_PvnToValUTF8(SvPV_nolen(sv), (int)len);
+        }
+        else {
+            return pugs_PvnToVal(SvPV_nolen(sv), (int)len);
+        }
     }
     else {
         return pugs_MkSvRef(sv);
