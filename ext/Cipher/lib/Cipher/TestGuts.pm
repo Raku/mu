@@ -30,6 +30,6 @@ class Cipher::TestGuts is Cipher {
         }, @$data;
     }
     
-    submethod BUILD() { .zeroize() }
+    submethod BUILD () { self.zeroize() }
     method zeroize() { $.num_invocations = 0 }
 }
