@@ -60,7 +60,7 @@ mergePadEntry EntryConstant{ pe_proto = MkRef (ICode newCV) } EntryConstant{ pe_
             , mc_signature  = if length (mc_signature newMC) == length (code_params oldMC)
                 then code_params newMC
                 else [defaultArrayParam]
-            , mc_variants   = mc_variants newMC `Map.union` mc_variants oldMC
+            , mc_variants   = mc_variants newMC `Set.union` mc_variants oldMC
             }
         }
 mergePadEntry x _ = x

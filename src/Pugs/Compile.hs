@@ -73,8 +73,6 @@ instance Compile Pad [PIL_Decl] where
         return $ concat entries'
         where
         entries = sortBy padSort [ (cast var, readPadEntry ref) | (var, ref) <- padToList pad ]
---      canCompile (name@('&':_), xs) | length xs > 1 = do
---          fmap concat $ mapM (\x -> canCompile (name, [x])) xs
         canCompile (name@('&':_), sym) = do
             ref <- sym
             case ref of
@@ -102,7 +100,6 @@ instance Compile Pad [PIL_Decl] where
                 name' | ':' `elem` name = name
                       | otherwise = "Main::" ++ name -- XXX wrong
             return [PSub initL SubPrim [] False False bodyC]
-        canCompile _ = return []
         doCode name vsub = case subBody vsub of
             Prim _  -> return []
             _       -> compile (name, vsub)
@@ -431,8 +428,7 @@ padSort :: (String, a) -> (String, a) -> Ordering
 padSort (a, _) (b, _)
     | (head a == ':' && head b == '&') = LT
     | (head b == ':' && head a == '&') = GT
-    | otherwise = GT
-padSort _ _ = EQ
+    | otherwise = compare a b
 
 varText :: String -> Doc
 varText ('$':name)  = text $ "s__" ++ escaped name

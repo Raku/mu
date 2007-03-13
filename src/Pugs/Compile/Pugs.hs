@@ -6,6 +6,7 @@ import Pugs.Types
 import Pugs.Internals
 import qualified UTF8 as Str
 import qualified Data.Map as Map
+import qualified Data.Set as Set
 
 type Str = Str.ByteString
 type Comp a = WriterT [a] Eval a
@@ -26,6 +27,9 @@ instance (Compile x) => Compile [x] where
 
 instance (Compile x) => Compile [:x:] where
     compile xs = compWith "toP" [compileList (fromP xs)]
+
+instance (Compile x) => Compile (Set x) where
+    compile xs = compWith "Set.fromDistinctAscList" [compileList (Set.toAscList xs)]
 
 instance Compile (Maybe Exp) where
     compile Nothing = return $ Str.pack "Nothing"
@@ -206,6 +210,7 @@ genPugs = do
         , "import Pugs.Types"
         , "import Pugs.Internals"
         , "import qualified Data.Map as Map"
+        , "import qualified Data.Set as Set"
         , ""
         , "main = do"
         , "    glob <- globC"
