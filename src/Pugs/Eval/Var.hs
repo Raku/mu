@@ -28,12 +28,7 @@ findVar var
         rv <- findVarRef var
         case rv of
             Just ref    -> fmap Just (readPadEntry ref)
-            Nothing     -> case v_sigil var of
-                SCode -> do
-                    sub <- findSub var Nothing []
-                    return $ either (const Nothing) (Just . codeRef) sub
-                _ -> return Nothing
-
+            Nothing     -> return Nothing
 
 constPadEntry :: VRef -> PadEntry
 constPadEntry r = EntryConstant{ pe_type = refType r, pe_proto = r }
@@ -560,8 +555,7 @@ findCodeSyms var
                 Just env -> local (const env) $ findCodeSyms var'
                 Nothing  -> return []
         _              -> findWith findQualified
-    | SCode <- v_sigil var      = findWith (findLexical `mplus` findPackage)
-    | otherwise                 = do
+    | otherwise          = do
         rv <- findWith findLexical
         if null rv then findWith findPackage else return rv
     where
@@ -573,20 +567,20 @@ findCodeSyms var
         lex <- lift $ asks envLexical
         padSym lex var
         
-    -- $x then fallbacks to $This::Package::x, or maybe $*x.
-    findPackage :: MaybeT Eval [VCode]
-    findPackage = do
-        glob <- lift $ askGlobal
-        pkg  <- lift $ asks envPackage
-        padSym glob var
-            `mplus` padSym glob (toPackage pkg var)
-            `mplus` padSym glob (toGlobalVar var)
-
     -- $Foo::x is just $Foo::x, or maybe $*Foo::x.
     findQualified :: MaybeT Eval [VCode]
     findQualified = do
         glob <- lift $ askGlobal
         padSym glob var
+            `mplus` padSym glob (toGlobalVar var)
+
+    -- $x then fallbacks to $This::Package::x, or maybe $*x.
+    findPackage :: MaybeT Eval [VCode]
+    findPackage = do
+        -- XXX - This is bogus; pending Pad fixup code in Pugs.Parser
+        glob <- lift $ askGlobal
+        pkg  <- lift $ asks envPackage
+        padSym glob (toPackage pkg var)
             `mplus` padSym glob (toGlobalVar var)
 
     -- $*Foo::x is just that.
@@ -596,10 +590,7 @@ findCodeSyms var
         padSym glob (toGlobalVar var)
 
     padSym :: Pad -> Var -> MaybeT Eval [VCode]
-    padSym pad var = padSym' pad var
-
-    padSym' :: Pad -> Var -> MaybeT Eval [VCode]
-    padSym' pad var = do
+    padSym pad var = do
         case lookupPad var pad of
             Just entry -> lift $ do
                 ref     <- readPadEntry entry
