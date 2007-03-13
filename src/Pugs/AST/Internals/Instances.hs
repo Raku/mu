@@ -113,9 +113,9 @@ instance YAML VRef where
         | Just mc <- fromTypeable cv = do
             mcC <- asYAML (mc :: VMultiCode)
             return $ mkTagNode (tagHs "VMultiCode") $ ESeq [mcC]
-        | Just ic <- fromTypeable cv = do
-            icC <- asYAML (ic :: ICode)
-            return $ mkTagNode (tagHs "ICode") $ ESeq [icC]
+--      | Just ic <- fromTypeable cv = do
+--          icC <- asYAML (ic :: ICode)
+--          return $ mkTagNode (tagHs "ICode") $ ESeq [icC]
         | otherwise = do
             VCode vsub  <- fakeEval $ fmap VCode (code_fetch cv)
             vsubC       <- asYAML vsub
@@ -147,8 +147,6 @@ instance YAML VRef where
     fromYAML MkNode{n_tag=Just s, n_elem=ESeq [node]}
         | s == packBuf "tag:hs:VMultiCode"   =
             fmap (MkRef . ICode) (fromYAML node :: IO VMultiCode)
-        | s == packBuf "tag:hs:ICode"   =
-            fmap (MkRef . ICode) (fromYAML node :: IO ICode)
         | s == packBuf "tag:hs:VCode"   =
             fmap (MkRef . ICode) (fromYAML node :: IO VCode)
         | s == packBuf "tag:hs:VScalar" =
