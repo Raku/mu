@@ -46,7 +46,9 @@ Signatures
 
   :($x)        :+:  :($x, $y?)           = :($x, $y?)
   :($x, $y)    :+:  :($x?, $y?)          = :($x?, $y?) -- can get away with it
-  :($x, $y)    :+:  :($x?, $z?)          = :($x?)
+
+  :($x, $y)    :+:  :($x?, $z?)          = :($?, $?, :$x, :$y, :$z)
+  :($x?)       :+:  :($y?)               = :($?, :$x, :$y)
 
   :(:$elk)     :+:  :(:$caribou)         = fail "incompat"
   :(:$elk, :$caribou?)
