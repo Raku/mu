@@ -14,8 +14,8 @@ class (Typeable a) => CodeClass a where
 instance CodeClass VMultiCode where
     code_iType      = mc_type
     code_fetch c    = do
-        -- warn "XXX - Multi dispatc -- Not yet" (mc_variants c)
-        fromVal =<< readRef =<< readPadEntry (snd $ Map.findMax (mc_variants c))
+        -- warn "XXX - Multi dispatch -- Not yet!" ()
+        fromVal =<< readVar (Set.findMax (mc_variants c))
     code_store c _  = retConstError . VStr $ show c
     code_params     = mc_signature
     code_assuming c [] [] = code_fetch c
@@ -23,17 +23,6 @@ instance CodeClass VMultiCode where
     code_assoc      = mc_assoc
     code_apply      = error "apply"
     code_type       = mc_subtype
-
-instance CodeClass ICode where
-    code_iType c  = code_iType . inlinePerformSTM $ readTVar c
-    code_fetch    = liftSTM . readTVar
-    code_store    = (liftSTM .) . writeTVar
-    code_assuming c [] [] = code_fetch c
-    code_assuming _ _ _   = error "assuming"
-    code_apply    = error "apply"
-    code_assoc c  = code_assoc . inlinePerformSTM $ readTVar c
-    code_params c = code_params . inlinePerformSTM $ readTVar c
-    code_type c   = code_type . inlinePerformSTM $ readTVar c
 
 instance CodeClass VCode where
     -- XXX - subType should really just be a mkType itself
