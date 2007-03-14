@@ -233,11 +233,11 @@ ruleRuleDeclaration = rule "rule declaration" $ do
         fmap ((,,) mod advs) identifier
     optional (ruleSubParameters ParensMandatory)
     adverbs <- fmap withAdvs ruleQuoteAdverbs
-    skipMany (symbol "is" >> regularAdverbPair)
+    skipMany (symbol "is" >> regularAdverbPair) -- XXX - context
     if mod == "proto" then return emptyExp else do
     ch      <- char '{'
     expr    <- rxLiteralAny adverbs ch (balancedDelim ch)
-    unsafeEvalExp (_Sym SOur ('<':'*':name) (Syn "rx" [expr, adverbs]) Noop)
+    unsafeEvalExp (_Sym SOur ('<':'*':name) mempty (Syn "rx" [expr, adverbs]) Noop)
     insertIntoPosition $ "method " ++ name ++ " ($_) { $_ ~~ m/<" ++ name ++ ">/ };"
     return emptyExp
 
@@ -354,7 +354,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
         isExported = ("export" `elem` traits)
         mkMulti | isMulti /= ImplicitNil = \x -> (cast x){ v_longname = _cast (cast signature) }
                 | otherwise              = cast
-        mkSym sub n x = Sym scope (mkMulti n) (Syn "sub" [Val sub]) x
+        mkSym sub n x = Sym scope (mkMulti n) mempty (Syn "sub" [Val sub]) x
         var = mkMulti nameQualified
         signature = self ++ paramsFor styp formal (maybe [] id formal)
         self | styp > SubMethod = []
@@ -441,7 +441,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
                     addBlockPad scope (adjustPad (const entry') var newPad)
                     result <- doExportCode val
                     case entry' of
-                        EntryConstant{} -> return result
+                        PEConstant{} -> return result
                         _               -> return $! unsafePerformSTM $! do
                             rv  <- writePadEntry entry' cv'
                             return (rv `seq` result)
@@ -608,7 +608,7 @@ ruleMemberDeclaration = do
         pkg = cast (envPackage env)
         metaObj = _Var (':':'*':pkg)
         attrDef = Syn "{}" [Syn "{}" [metaObj, Val (VStr "attrs")], Val (VStr key)]
-    unsafeEvalExp (_Sym SOur name exp (Syn "=" [attrDef, def]))
+    unsafeEvalExp (_Sym SOur name mempty exp (Syn "=" [attrDef, def]))
     return emptyExp
 
 {-|
@@ -1004,7 +1004,7 @@ vcode2startBlock code = do
     -- These are the two state variables we need.
     -- This will soon add our two state vars to our pad
     lexDiff <- unsafeEvalLexDiff $
-        _Sym SState "$?START_RESULT" emptyExp (_Sym SState "$?START_RUN" emptyExp emptyExp)
+        _Sym SState "$?START_RESULT" mempty emptyExp (_Sym SState "$?START_RUN" mempty emptyExp emptyExp)
     -- And that's the transformation part.
     return $ Syn "block"        -- The outer block
         [ Pad SState lexDiff $  -- state ($?START_RESULT, $?START_RUN);
@@ -1309,16 +1309,15 @@ ruleVarDecl = rule "variable declaration" $ do
     --       constraints; for now we abuse ruleFormalParam to add an
     --       extra "+" as part of the name when "is context" is seen,
     --       so we can rewrite the declarator to SEnv, but it's Wrong.
-    (isOne, nameTypes, accessors, seenIsContextXXX) <- try oneDecl <|> manyDecl
-    let makeBinding (name, typ, def)
+    (isOne, nameTypes, accessors) <- try oneDecl <|> manyDecl
+    let makeBinding (name, typ, flag, def)
             | SConstant <- scope                                    = mkConstSym
             | ('$':_) <- name, typ /= anyType, scope /= SConstant   = mkSym . bindSym
             | otherwise                                             = mkSym
             where
-            mkSym       = _Sym scope name emptyExp
-            mkConstSym  = _Sym scope name def
+            mkSym       = _Sym scope name flag emptyExp
+            mkConstSym  = _Sym scope name flag def
             bindSym     = Stmts (Syn "=" [_Var name, Val (VType typ)])
---      scope' = if seenIsContextXXX then SEnv else scope -- XXX Hack
     lexDiff <- unsafeEvalLexDiff $ combine (map makeBinding nameTypes) emptyExp
     -- Now hoist the lexDiff to the current block
     addBlockPad scope lexDiff
@@ -1333,13 +1332,13 @@ ruleVarDecl = rule "variable declaration" $ do
         param <- ruleFormalParam FormalsSimple
         let var  = paramName param
             name = cast var{ v_twigil = TNil }
-            seenIsContextXXX = v_twigil var == TImplicit
+            flag = MkEntryFlags { ef_isContext = (v_twigil var == TImplicit) }
             typ  = typeOfCxt (paramContext param)
-            nameType = (name, typ, paramDefault param)
+            nameType = (name, typ, flag, paramDefault param)
             accessors
                 | TAttribute <- v_twigil var    = [param]
                 | otherwise                     = []
-        return (True, [nameType], accessors, seenIsContextXXX)
+        return (True, [nameType], accessors)
     manyDecl = do
         defType <- option "" $ ruleType
         optional (char ':')
@@ -1348,14 +1347,14 @@ ruleVarDecl = rule "variable declaration" $ do
         let vars  = map paramName params
             names = map (\v -> cast v{ v_twigil = TNil }) vars
             types = map (maybeDefaultType . typeOfCxt . paramContext) params
+            flags = map (MkEntryFlags . (== TImplicit) . v_twigil) vars
             defs  = map paramDefault params
             maybeDefaultType t
                 | t == anyType, defType /= ""   = mkType defType
                 | otherwise                     = t
-            seenIsContextXXX = any ((== TImplicit) . v_twigil) vars
-            nameTypes = zip3 names types defs
+            nameTypes = [ (n, t, f, d) | n <- names | t <- types | f <- flags | d <- defs ]
             accessors = filter ((== TAttribute) . v_twigil . paramName) params
-        return (False, nameTypes, accessors, seenIsContextXXX)
+        return (False, nameTypes, accessors)
     makeAccessor prm = do
         -- Generate accessor for class attributes.
         pkg <- asks envPackage
@@ -1374,15 +1373,15 @@ ruleVarDecl = rule "variable declaration" $ do
             accessor = var{ v_package = pkg, v_sigil = SCode, v_twigil = TNil }
         unsafeEvalExp $ Syn ":=" [Var accessor, Syn "sub" [Val $ VCode sub]]
     -- Note that the reassignment below is _wrong_ when scope is SState.
-    makeInitializer SState (name, _, def)
+    makeInitializer SState (name, _, _, def)
         | def /= Noop, def /= Val (VList []) = do
         assign <- vcode2startBlock (VCode $ mkSub { subBody = Syn "=" [_Var name, def]})
         return $ Stmts assign (_Var name)
-    makeInitializer SConstant (name, _, _) = return (_Var name)
-    makeInitializer _ (name, _, def)
+    makeInitializer SConstant (name, _, _, _) = return (_Var name)
+    makeInitializer _ (name, _, _, def)
         | def /= Noop, def /= Val (VList []) = do
         return $ Stmts (Syn "=" [_Var name, def]) (_Var name)
-    makeInitializer _ (name, _, _) = return (_Var name)
+    makeInitializer _ (name, _, _, _) = return (_Var name)
 
 parseTerm :: RuleParser Exp
 parseTerm = rule "term" $! do
