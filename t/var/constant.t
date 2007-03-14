@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 13;
+plan 19;
 
 # Following tests test whether the declaration succeeded.
 {
@@ -25,6 +25,78 @@ plan 13;
     ';
 
     ok $ok, "declaring a constant with a sigil using 'constant' works";
+}
+
+{
+    my $ok;
+
+    eval '
+        constant $foo = 582;
+        constant $bar = $foo;
+        $ok = $bar == 582;
+    ';
+
+    ok $ok, "declaring a constant in terms of another constant works";
+}
+
+{
+    my $ok;
+
+    eval '
+        constant $foo = 8224;
+        constant $bar = COMPILING::<$foo>;
+        $ok = $bar == 8224;
+    ';
+
+    ok $ok, "declaring a constant in terms of COMPILING constant works";
+}
+
+{
+    my $ok;
+
+    eval '
+        constant %foo = { :a(582) };
+        constant $bar = %foo<a>;
+        $ok = $bar == 582;
+    ';
+
+    ok $ok, "declaring a constant in terms of hash constant works";
+}
+
+{
+    my $ok;
+
+    eval '
+        constant %foo = { :b(8224) };
+        constant $bar = COMPILING::<%foo><b>;
+        $ok = $bar == 8224;
+    ';
+
+    ok $ok, "declaring a constant in terms of COMPILING hash constant works";
+}
+
+{
+    my $ok;
+
+    eval '
+        constant @foo = [ 0, 582 ];
+        constant $bar = @foo[1];
+        $ok = $bar == 582;
+    ';
+
+    ok $ok, "declaring a constant in terms of hash constant works";
+}
+
+{
+    my $ok;
+
+    eval '
+        constant @foo = [ 1, 2, 8224 ];
+        constant $bar = COMPILING::<@foo>[2];
+        $ok = $bar == 8224;
+    ';
+
+    ok $ok, "declaring a constant in terms of COMPILING hash constant works";
 }
 
 {
