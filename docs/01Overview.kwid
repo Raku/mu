@@ -24,6 +24,12 @@ language, designed by a team led by Larry Wall. The Pugs project was
 welcomed|http://www.nntp.perl.org/group/perl.perl6.language/19263] by the Perl 6
 team.
 
+== Is Pugs the official Perl 6?
+
+Official Perl 6 is now defined as any implementation which passes the
+Perl 6 testsuite.  So Pugs is expected to be an official Perl 6, but
+not necessarily the only one.
+
 == Has Perl 6 been specified?
 
 By December 2004, most of Perl 6 had been specified as a series of
