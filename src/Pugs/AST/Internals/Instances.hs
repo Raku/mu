@@ -113,9 +113,6 @@ instance YAML VRef where
         | Just mc <- fromTypeable cv = do
             mcC <- asYAML (mc :: VMultiCode)
             return $ mkTagNode (tagHs "VMultiCode") $ ESeq [mcC]
---      | Just ic <- fromTypeable cv = do
---          icC <- asYAML (ic :: ICode)
---          return $ mkTagNode (tagHs "ICode") $ ESeq [icC]
         | otherwise = do
             VCode vsub  <- fakeEval $ fmap VCode (code_fetch cv)
             vsubC       <- asYAML vsub
@@ -178,9 +175,17 @@ instance Perl5 ID where
 instance JSON ID where
     showJSON x = showJSON (cast x :: ByteString)
 
+instance YAML Pkg where
+    asYAML x = asYAML (cast x :: ByteString)
+    fromYAML = fmap (cast :: ByteString -> Pkg) . fromYAML
+
 instance YAML Var where
-    asYAML x = asYAML (cast x :: String)
-    fromYAML = fmap (cast :: String -> Var) . fromYAML
+    asYAML x = asYAML (cast x :: ByteString)
+    fromYAML = fmap (cast :: ByteString -> Var) . fromYAML
+
+instance YAML EntryFlags where
+    asYAML (MkEntryFlags x) = asYAML x
+    fromYAML = fmap MkEntryFlags . fromYAML
  
 instance Perl5 Var where
     showPerl5 x = showPerl5 (cast x :: String)
@@ -564,8 +569,8 @@ instance YAML Exp where
 	    let ESeq [aa, ab, ac] = e
 	    liftM3 Pad (fromYAML aa) (fromYAML ab) (fromYAML ac)
 	"Sym" -> do
-	    let ESeq [aa, ab, ac, ad] = e
-	    liftM4 Sym (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad)
+	    let ESeq [aa, ab, ac, ad, ae] = e
+	    liftM5 Sym (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae)
 	"Stmts" -> do
 	    let ESeq [aa, ab] = e
 	    liftM2 Stmts (fromYAML aa) (fromYAML ab)
@@ -590,8 +595,8 @@ instance YAML Exp where
     asYAML (Ann aa ab) = asYAMLseq "Ann" [asYAML aa, asYAML ab]
     asYAML (Pad aa ab ac) = asYAMLseq "Pad"
 	   [asYAML aa, asYAML ab, asYAML ac]
-    asYAML (Sym aa ab ac ad) = asYAMLseq "Sym"
-	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad]
+    asYAML (Sym aa ab ac ad ae) = asYAMLseq "Sym"
+	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae]
     asYAML (Stmts aa ab) = asYAMLseq "Stmts" [asYAML aa, asYAML ab]
     asYAML (Prim aa) = asYAMLseq "Prim" [asYAML aa]
     asYAML (Val aa) = asYAMLseq "Val" [asYAML aa]
@@ -609,23 +614,23 @@ instance YAML InitDat where
 
 instance YAML PadEntry where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
-	"EntryLexical" -> do
+	"PELexical" -> do
+	    let ESeq [aa, ab, ac, ad, ae] = e
+	    liftM5 PELexical (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae)
+	"PEStatic" -> do
 	    let ESeq [aa, ab, ac, ad] = e
-	    liftM4 EntryLexical (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad)
-	"EntryStatic" -> do
+	    liftM4 PEStatic (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad)
+	"PEConstant" -> do
 	    let ESeq [aa, ab, ac] = e
-	    liftM3 EntryStatic (fromYAML aa) (fromYAML ab) (fromYAML ac)
-	"EntryConstant" -> do
-	    let ESeq [aa, ab] = e
-	    liftM2 EntryConstant (fromYAML aa) (fromYAML ab)
-	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["EntryLexical","EntryStatic","EntryConstant"] ++ " in node " ++ show e
+	    liftM3 PEConstant (fromYAML aa) (fromYAML ab) (fromYAML ac)
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["PELexical","PEStatic","PEConstant"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML (EntryLexical aa ab ac ad) = asYAMLseq "EntryLexical"
+    asYAML (PELexical aa ab ac ad ae) = asYAMLseq "PELexical"
+	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae]
+    asYAML (PEStatic aa ab ac ad) = asYAMLseq "PEStatic"
 	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad]
-    asYAML (EntryStatic aa ab ac) = asYAMLseq "EntryStatic"
+    asYAML (PEConstant aa ab ac) = asYAMLseq "PEConstant"
 	   [asYAML aa, asYAML ab, asYAML ac]
-    asYAML (EntryConstant aa ab) = asYAMLseq "EntryConstant"
-	   [asYAML aa, asYAML ab]
 
 instance YAML IHashEnv where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
