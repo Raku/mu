@@ -245,7 +245,7 @@ reduce (Ann _ exp) = reduce exp
 
 reduce (Pad scope lexEnv exp) = reducePad scope lexEnv exp
 
-reduce (Sym scope name init exp) = reduceSym scope name init exp
+reduce (Sym scope name flags init rest) = reduceSym scope name flags init rest
 
 -- Reduction for no-operations
 reduce Noop = retEmpty
@@ -288,12 +288,12 @@ reduceVar var@MkVar{ v_sigil = sig, v_twigil = twi, v_name = name, v_package = p
                 | isGlobalVar var || pkg `notElem` [emptyPkg, callerPkg, outerPkg, contextPkg] -> do
                     -- '$Qualified::Var' is not found.  Vivify at lvalue context.
                     lv <- asks envLValue
-                    if not lv then retEmpty else evalExp (Sym SOur var Noop (Var var))
+                    if not lv then retEmpty else evalExp (Sym SOur var mempty Noop (Var var))
                 | otherwise -> do
                     s <- isStrict
                     if s then do die "Undeclared variable" var
                          else do lv <- asks envLValue
-                                 if lv then evalExp (Sym SOur var Noop (Var var)) else retEmpty
+                                 if lv then evalExp (Sym SOur var mempty Noop (Var var)) else retEmpty
 
 _scalarContext :: Cxt
 _scalarContext = CxtItem $ mkType "Scalar"
@@ -343,16 +343,16 @@ reducePos pos exp = do
         evalExp exp
 
 reducePad :: Scope -> Pad -> Exp -> Eval Val
-{-
-reducePad SEnv lex@(MkPad lex') exp = do
-    local (\e -> e{ envImplicit = Map.map (const ()) lex' `Map.union` envImplicit e }) $
-        reducePad SMy lex exp
--}
-reducePad SMy lex exp = do
+reducePad scope lex exp = do
     -- heuristics: if we are repeating ourselves, generate a new TVar.
-    lex' <- refreshPad lex
-    local (\e -> e{ envLexical = lex' `unionPads` envLexical e }) $ do
-        evalExp exp
+    lex' <- case scope of
+        SMy -> refreshPad lex
+        _   -> return lex
+    let implicits = Map.map (const ()) . Map.filter (ef_isContext . pe_flags) $ padEntries lex'
+    local (\e -> e
+        { envLexical    = lex' `unionPads` envLexical e
+        , envImplicit   = implicits `Map.union` envImplicit e
+        }) $ evalExp exp
 
 {-
 reducePad STemp lex exp = do
@@ -386,28 +386,24 @@ reducePad SLet lex exp = do
     isFailure _             = False
 -}
 
-reducePad _ lex exp = do
-    local (\e -> e{ envLexical = lex `unionPads` envLexical e }) $ do
-        evalExp exp
-        
-reduceSym :: Scope -> Var -> Exp -> Exp -> Eval Val
-reduceSym scope var init exp
+reduceSym :: Scope -> Var -> EntryFlags -> Exp -> Exp -> Eval Val
+reduceSym scope var flags init rest
     | not (isLexicalVar var) = do
         qn  <- toQualified var
         ref <- createRef
-        sym <- genSymScoped scope qn ref
+        sym <- genSymScoped scope qn ref flags
         addGlobalSym sym
-        evalExp exp
+        evalExp rest
     | SOur <- scope = do
         ref     <- createRef
-        entry   <- genPadEntryScoped scope ref
+        entry   <- genPadEntryScoped scope ref flags
         qn      <- toQualified var
         addGlobalSym (mkPadMutator qn entry ref)
-        enterLex [ mkPadMutator var entry ref ] $ evalExp exp
+        enterLex [ mkPadMutator var entry ref ] $ evalExp rest
     | otherwise = do
         ref <- createRef
-        sym <- genSymScoped scope var ref
-        enterLex [ sym ] $ evalExp exp
+        sym <- genSymScoped scope var ref flags
+        enterLex [ sym ] $ evalExp rest
     where
     createRef | Noop <- init = newObject (typeOfSigilVar var)
               | otherwise    = fromVal =<< enterLValue (evalExp init)
@@ -487,11 +483,11 @@ reduceSyn "sub" [exp] = do
                 SCode       -> preserveContent
                 _           -> regenerateContent
             return (var, entry')
-    clonePadEntry x@EntryConstant{} _ = return x
-    clonePadEntry x@EntryStatic{} f = do
+    clonePadEntry x@PEConstant{} _ = return x
+    clonePadEntry x@PEStatic{} f = do
         tvar'   <- newTVar =<< f x
         return x{ pe_store = tvar' }
-    clonePadEntry x@EntryLexical{} f = do
+    clonePadEntry x@PELexical{} f = do
         tvar'   <- newTVar =<< f x
         fresh'  <- newTVar False
         return x{ pe_store = tvar', pe_fresh = fresh' }
@@ -672,10 +668,10 @@ reduceSyn ":=" exps
                 Just tvar -> return (tvar, ref)
                 _ | isGlobalVar var || v_package var `notElem` [emptyPkg, callerPkg, outerPkg, contextPkg] -> do
                     -- '$Qualified::Var' is not found.  Vivify at lvalue context.
-                    evalExp (Sym SOur var Noop Noop)
+                    evalExp (Sym SOur var mempty Noop Noop)
                     rv' <- findVarRef var
                     case rv' of
-                        Just EntryConstant{}    -> die "Bind to constant variable" var
+                        Just PEConstant{}    -> die "Bind to constant variable" var
                         Just entry              -> return (entry, ref)
                         _                       -> die "Bind to undeclared variable" var
                 _   -> die "Bind to undeclared variable" var

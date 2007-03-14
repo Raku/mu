@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fglasgow-exts -fparr #-}
 module Pugs.AST.Pad (
-  mkPad, subPad, diffPads, unionPads, updateSubPad, padKeys, filterPad, adjustPad, mergePadEntry
+  mkPad, subPad, diffPads, unionPads, padKeys, filterPad, adjustPad, mergePadEntry
 ) where
 import Pugs.Internals
 import Pugs.AST.Internals
@@ -48,10 +48,12 @@ adjustPad :: (PadEntry -> PadEntry) -> Var -> Pad -> Pad
 adjustPad f v (MkPad p) = MkPad (Map.adjust f v p)
 
 mergePadEntry :: PadEntry -> PadEntry -> PadEntry
-mergePadEntry EntryConstant{ pe_proto = MkRef (ICode newCV) } EntryConstant{ pe_proto = MkRef (ICode oldCV) }
+mergePadEntry
+    PEConstant{ pe_proto = MkRef (ICode newCV), pe_flags = flags }
+    PEConstant{ pe_proto = MkRef (ICode oldCV) }
     | Just newMC <- fromTypeable newCV
     , Just oldMC <- fromTypeable oldCV
-    = EntryConstant
+    = PEConstant
         { pe_type  = mc_type newMC -- XXX - Select a narrower type?
         , pe_proto = MkRef . ICode $! MkMultiCode
             { mc_type       = mc_type newMC
@@ -62,19 +64,9 @@ mergePadEntry EntryConstant{ pe_proto = MkRef (ICode newCV) } EntryConstant{ pe_
                 else [defaultArrayParam]
             , mc_variants   = mc_variants newMC `Set.union` mc_variants oldMC
             }
+        , pe_flags          = flags
         }
 mergePadEntry x _ = x
-
-{-|
-Apply a 'Pad'-transformer to the given sub's lexical pad, producing a 'VCode'
-with the new pad.
--}
-updateSubPad :: VCode        -- ^ Initial sub
-             -> PadMutator   -- ^ 'Pad'-transforming function
-             -> VCode        -- ^ Sub with altered lexical pad
-updateSubPad sub f = sub
-    { subEnv = fmap (\e -> e{ envLexical = f (subPad sub) }) (subEnv sub) 
-    }
 
 padKeys :: Pad -> Set Var
 padKeys (MkPad pad) = Map.keysSet pad

@@ -133,9 +133,9 @@ instance (Typeable a, Compile a) => Compile (TVar a) where
         return tv
 
 instance Compile PadEntry where
-    compile c@EntryConstant{} = return $ Str.pack (show c)
-    compile (EntryStatic typ ref tv) = compWith "EntryStatic" [compile typ, compile ref, compile tv]
-    compile (EntryLexical typ ref tv fresh) = compWith "EntryLexical" [compile typ, compile ref, compile tv, compile fresh]
+    compile c@PEConstant{} = return $ Str.pack (show c)
+    compile (PEStatic typ ref flags tv) = compWith "PEStatic" [compile typ, compile ref, ret (show flags), compile tv]
+    compile (PELexical typ ref flags tv fresh) = compWith "PELexical" [compile typ, compile ref, ret (show flags), compile tv, compile fresh]
 
 instance Compile VRef where
     compile (MkRef (ICode cv))

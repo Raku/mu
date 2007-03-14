@@ -247,7 +247,7 @@ op1 "require_perl5" = \v -> do
         envSV   <- mkEnv env
         sv      <- evalPerl5 requireLine envSV $ enumCxt cxtItemAny
         return (PerlSV sv)
-    evalExp (_Sym SOur (':':'*':pkg) (Val val) (newMetaType pkg))
+    evalExp (_Sym SOur (':':'*':pkg) mempty (Val val) (newMetaType pkg))
     return val
 op1 "Pugs::Internals::eval_parrot" = \v -> do
     code    <- fromVal v
@@ -1608,7 +1608,7 @@ withDefined (_:xs) c = withDefined xs c
 -- \"&*\" ~ fixity ~ \":\" for operators.
 primOp :: String -> String -> Params -> String -> Bool -> Bool -> Bool -> STM PadMutator
 primOp sym assoc prms ret isSafe isMacro isExport = fullEval $ do
-    prim <- genMultiSym var (sub (isSafe || not safeMode))
+    prim <- genMultiSym var (sub (isSafe || not safeMode)) mempty
     case assoc of
         -- Manufacture &infix:<!===> from &infix:<===>.
         "chain" | head sym /= '!' -> do
@@ -1616,7 +1616,7 @@ primOp sym assoc prms ret isSafe isMacro isExport = fullEval $ do
             return (prim . prim')
         _       | isExport -> do
             -- Here we rewrite a multi form that redispatches into the method form.
-            prim' <- genMultiSym (var{ v_package = emptyPkg }) (sub (isSafe || not safeMode))
+            prim' <- genMultiSym (var{ v_package = emptyPkg }) (sub (isSafe || not safeMode)) mempty
             return (prim . prim')
         _       -> return prim
     where

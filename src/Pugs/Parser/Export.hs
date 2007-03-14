@@ -21,7 +21,7 @@ exportSym scope ('&':subname) ref = do
         Val (VList subs) -> do
             exps <- forM (filter defined subs) $ \val -> do
                 let name    = '&':subname
-                    mkSym   = _Sym scope name (Val val) Noop
+                    mkSym   = _Sym scope name mempty (Val val) Noop
                 doExport scope mkSym
             case scope of
                 SMy -> addBlockPad SState 

@@ -34,6 +34,10 @@ class (Show a) => Pretty a where
 instance Pretty VStr
 instance Pretty Var
 
+instance Pretty EntryFlags where
+    format (MkEntryFlags True)  = text "(is context)"
+    format _                    = empty
+
 instance Pretty Exp where
     format (NonTerm pos) = text "Syntax error at" <+> format pos
     format (Val v) = format v
@@ -41,7 +45,7 @@ instance Pretty Exp where
     format (Stmts exp1 exp2) = (vcat $ punctuate (text ";") $ (map format) [exp1, exp2])
     format (App (Var name) invs args) = text "App" <+> text (cast name) <+> parens (nest defaultIndent $ cat (punctuate (text ": ") [ cat (punctuate (text ", ") (map format x)) | x <- [maybeToList invs, args] ]))
     format (App sub invs args) = text "App" <+> parens (format sub) <+> parens (nest defaultIndent $ vcat (punctuate (text ", ") (map format $ maybeToList invs ++ args)))
-    format (Sym scope name init exp) = text "Sym" <+> text (show scope) <+> format name <+> format init $+$ format exp
+    format (Sym scope name flags init exp) = text "Sym" <+> text (show scope) <+> format name <+> format flags <+> format init $+$ format exp
     format (Pad scope pad exp) = text "Pad" <+> text (show scope) <+> format pad $+$ format exp
     format (Ann _ exp) = format exp
     format x = text $ show x

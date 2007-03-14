@@ -31,7 +31,7 @@ findVar var
             Nothing     -> return Nothing
 
 constPadEntry :: VRef -> PadEntry
-constPadEntry r = EntryConstant{ pe_type = refType r, pe_proto = r }
+constPadEntry r = PEConstant{ pe_type = refType r, pe_proto = r, pe_flags = mempty }
 
 lookupShellEnvironment :: ByteString -> Eval (Maybe PadEntry)
 lookupShellEnvironment name = do
@@ -475,7 +475,7 @@ inferExpType (App (Var name) invs args) = do
 inferExpType (Ann (Cxt cxt) _) | typeOfCxt cxt /= (mkType "Any") = return $ typeOfCxt cxt
 inferExpType (Ann _ exp) = inferExpType exp
 inferExpType (Pad _ _ exp) = inferExpType exp
-inferExpType (Sym _ _ _ exp) = inferExpType exp
+inferExpType (Sym _ _ _ _ exp) = inferExpType exp
 inferExpType (Stmts _ exp) = inferExpType exp
 inferExpType (Syn "," _)    = return $ mkType "List"
 inferExpType (Syn "\\[]" _) = return $ mkType "Array"

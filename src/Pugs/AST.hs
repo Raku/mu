@@ -138,14 +138,14 @@ evalExp exp = do
     evl <- asks envEval
     evl exp
 
-genMultiSym :: MonadSTM m => Var -> VRef -> m PadMutator
+genMultiSym :: MonadSTM m => Var -> VRef -> EntryFlags -> m PadMutator
 genMultiSym var = case v_sigil var of
-    SCode -> \ref -> do
+    SCode -> \ref flags -> do
         case ref of
             MkRef (ICode c) -> do
                 let var' = var{ v_longname = _cast (cast (code_params c)) }
-                genSymScoped SMy var' ref
-            _               -> genSym var ref
+                genSymScoped SMy var' ref flags
+            _               -> die "Cannot generate multi variants of non-code object" ref
     _           -> const $ die "Cannot generate multi variants of variable" var
 
 isStaticScope :: Scope -> Bool
@@ -153,34 +153,34 @@ isStaticScope SOur    = True
 isStaticScope SState  = True
 isStaticScope _       = False
 
-genPadEntryScoped :: MonadSTM m => Scope -> VRef -> m PadEntry
-genPadEntryScoped scope ref
+genPadEntryScoped :: MonadSTM m => Scope -> VRef -> EntryFlags -> m PadEntry
+genPadEntryScoped scope ref flags
     | SConstant <- scope = do
-        return (EntryConstant typ ref)
+        return (PEConstant typ ref flags)
     | isStaticScope scope = do
         tvar    <- stm $ newTVar ref
-        return (EntryStatic typ ref tvar)
+        return (PEStatic typ ref flags tvar)
     | otherwise = do
         tvar    <- stm $ newTVar ref
         fresh   <- stm $ newTVar True
-        return (EntryLexical typ ref tvar fresh)
+        return (PELexical typ ref flags tvar fresh)
     where
     typ = refType ref
 
 {-# NOINLINE genSymScoped #-}
-genSymScoped :: MonadSTM m => Scope -> Var -> VRef -> m PadMutator
-genSymScoped scope var ref = do
-    entry <- genPadEntryScoped scope ref
+genSymScoped :: MonadSTM m => Scope -> Var -> VRef -> EntryFlags -> m PadMutator
+genSymScoped scope var ref flags = do
+    entry <- genPadEntryScoped scope ref flags
     return (mkPadMutator var entry ref)
-
 
 mkPadMutator :: Var -> PadEntry -> VRef -> PadMutator
 mkPadMutator var entry ref (MkPad map)
     | v_longname var /= nullID, MkRef (ICode c) <- ref
     = let   var'        = var{ v_longname = nullID }
-            protoEntry  = EntryConstant
+            protoEntry  = PEConstant
                 { pe_type  = pe_type entry
                 , pe_proto = MkRef (ICode protoCode)
+                , pe_flags = pe_flags entry
                 }
             protoCode = MkMultiCode
                 { mc_type       = pe_type entry
@@ -190,7 +190,7 @@ mkPadMutator var entry ref (MkPad map)
                 , mc_variants   = Set.singleton var
                 }
             merge _ old = case old of
-                EntryConstant{ pe_proto = MkRef (ICode oldCV) }
+                PEConstant{ pe_proto = MkRef (ICode oldCV) }
                     | Just mc <- fromTypeable oldCV -> protoEntry
                         { pe_proto = MkRef . ICode $ protoCode
                             { mc_assoc      = code_assoc c `mappend` code_assoc mc
@@ -209,7 +209,13 @@ Create a lexical 'Pad'-transforming transaction that will install a symbol
 mapping from a name to a thing, in the 'Pad' it is applied to.
 -}
 genSym :: MonadSTM m => Var -> VRef -> m PadMutator
-genSym = genSymScoped SMy
+genSym var ref = genSymScoped scope var ref $! case v_twigil var of
+    TMagical    -> mempty{ ef_isContext = True }
+    _           -> mempty
+    where
+    scope = case v_twigil var of
+        TMagical -> SConstant
+        _        -> SMy
 
 {-|
 Tests whether an expression is /simple/, per the definition of S03.
@@ -220,7 +226,7 @@ isScalarLValue x = case x of
     Ann Parens _    -> False
     Ann _ exp       -> isScalarLValue exp
     Pad _ _ exp     -> isScalarLValue exp
-    Sym _ _ _ exp   -> isScalarLValue exp
+    Sym _ _ _ _ exp -> isScalarLValue exp
     Var var | SScalar <- v_sigil var -> True
     Syn "${}" _     -> True -- XXX - Change tp App("&prefix:<$>") later
     Syn "$::()" _   -> True
@@ -288,7 +294,7 @@ simpleInfixOps = opSet C_infix
 mergeStmts :: Exp -> Exp -> Exp
 mergeStmts (Stmts x1 x2) y = mergeStmts x1 (mergeStmts x2 y)
 mergeStmts Noop y@(Stmts _ _) = y
-mergeStmts (Sym scope name init x) y = Sym scope name init (mergeStmts x y)
+mergeStmts (Sym scope name flag init x) y = Sym scope name flag init (mergeStmts x y)
 mergeStmts (Pad scope lex x) y = Pad scope lex (mergeStmts x y)
 mergeStmts (Syn "package" [kind, pkg@(Val (VStr _))]) y =
     Syn "namespace" [kind, pkg, y]
@@ -329,7 +335,7 @@ _underscore = cast "_"
 newPackage :: String -> String -> [String] -> [String] -> Exp
 newPackage cls name classes roles = Stmts metaObj (newType name)
     where
-    metaObj = _Sym SOur (':':'*':name) (
+    metaObj = _Sym SOur (':':'*':name) mempty (
         App (_Var "&HOW::new")
             (Just $ Val (VType $ mkType cls))
             [ Syn "named"
@@ -352,13 +358,13 @@ newPackage cls name classes roles = Stmts metaObj (newType name)
             ) Noop
 
 newType :: String -> Exp
-newType name = _Sym SOur ('&':'*':termName) (typeMacro name (Val . VType . mkType $ name)) Noop
+newType name = _Sym SOur ('&':'*':termName) mempty (typeMacro name (Val . VType . mkType $ name)) Noop
     where
     termName = "term:" ++ name
 
 
 newMetaType :: String -> Exp
-newMetaType name = _Sym SOur ('&':'*':termName) (typeMacro name (_Var (':':'*':name))) Noop
+newMetaType name = _Sym SOur ('&':'*':termName) mempty (typeMacro name (_Var (':':'*':name))) Noop
     where
     termName = "term:" ++ name
 

@@ -136,7 +136,7 @@ listAssignment x = do
         | Syn "," _ <- unwrap exp   = exp
         | otherwise                 = Ann Parens (Syn "," [inner])
     forceParens (Ann x inner)       = Ann x (forceParens inner)
-    forceParens (Sym x y init inner)= Sym x y init (forceParens inner)
+    forceParens (Sym x y flags init inner) = Sym x y flags init (forceParens inner)
     forceParens (Pad x y inner)     = Pad x y (forceParens inner)
     forceParens exp                 = exp
 
@@ -183,7 +183,7 @@ _RefToFunction :: H.HashTable PadEntry (Maybe CurrentFunction)
 _RefToFunction = unsafePerformIO (H.new (==) hashPadEntry)
 
 hashPadEntry :: PadEntry -> Int32
-hashPadEntry EntryConstant{ pe_proto = v }  = I32# (unsafeCoerce# v)
+hashPadEntry PEConstant{ pe_proto = v }  = I32# (unsafeCoerce# v)
 hashPadEntry x                              = I32# (unsafeCoerce# (pe_store x))
 
 -- hashTVar :: TVar VRef -> Int32
