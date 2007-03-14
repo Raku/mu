@@ -1013,7 +1013,7 @@ specialApp = Map.fromList
                 []      -> retEmpty
                 [arg]   -> evalExp arg
                 args    -> evalExp (Syn "," args)
-    , "&goto"       ... \inv args -> do
+    , "&nextwith"       ... \inv args -> do
         sub     <- fromCodeExp inv
         let callerEnv :: Env -> Env
             callerEnv env = let caller = maybe env id (envCaller env) in
