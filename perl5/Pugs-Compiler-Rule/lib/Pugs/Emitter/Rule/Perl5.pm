@@ -490,6 +490,13 @@ sub constant {
     return "$_[1] constant( q!$char! )\n" unless $char =~ /!/;
     return "$_[1] constant( q($char) )\n";
 }
+sub char_class {
+    my $cmd = Pugs::Emitter::Rule::Perl5::CharClass::emit( $_[0] );
+    #print "Char Set Expression: $cmd \n";
+    return "$_[1] perl5( q!$cmd! )\n" unless $cmd =~ /!/;
+    return "$_[1] perl5( q($cmd) )\n"; # XXX if $cmd eq '!)'
+}
+
 sub metasyntax {
     # <cmd>
     my $cmd = $_[0];   

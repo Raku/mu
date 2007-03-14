@@ -210,6 +210,14 @@ BEGIN {
     );
 }
 
+sub char_class {
+    my $cmd = Pugs::Emitter::Rule::Perl5::CharClass::emit( $_[0] );
+    #print "Char Set Expression: $cmd \n";
+    # $cmd =~ s/\s+|\n//g;
+    # XXX <[^a]> means [\^a] instead of [^a] in perl5re
+    return $cmd;
+}
+
 sub metasyntax {
     # <cmd>
     my $cmd = $_[0];   

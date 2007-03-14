@@ -15,6 +15,7 @@ lib/Pugs/Compiler/Token.pm
 
 lib/Pugs/Emitter/Rule/Perl5.pm
 lib/Pugs/Emitter/Rule/Perl5/Ratchet.pm
+lib/Pugs/Emitter/Rule/Perl5/CharClass.pm
 
 lib/Pugs/Grammar/Base.pm
 lib/Pugs/Grammar/Precedence.pm
