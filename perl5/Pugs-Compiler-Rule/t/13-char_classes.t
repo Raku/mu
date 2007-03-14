@@ -1,5 +1,5 @@
 
-use Test::More tests => 15;
+use Test::More tests => 22;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -81,6 +81,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     my $rule = Pugs::Compiler::Regex->compile( '^<-alpha>$' );
     my $match = $rule->match( "3" );
     is( "$match", "3", '^<-alpha>$ regex' );
+    is( "".$rule->match( "b" ), "",  'b' );
 }
 
 # ---
@@ -111,4 +112,18 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     my $rule = Pugs::Compiler::Regex->compile( '^<-[ax]>$' );
     my $match = $rule->match( "3" );
     is( "$match", "3", '^<-[ax]>$ regex' );
+}
+
+{
+    my $rule = Pugs::Compiler::Regex->compile( '^<+[a..z]-[bx]>$' );
+    is( "".$rule->match( "3" ), "",  '3 ^<+[a..z]-[bx]>$ regex' );
+    is( "".$rule->match( "a" ), "a", 'a' );
+    is( "".$rule->match( "b" ), "",  'b' );
+}
+
+{
+    my $rule = Pugs::Compiler::Regex->compile( '^<+[3]+[a..z]-[bx]>$' );
+    is( "".$rule->match( "3" ), "3", '3 ^<+[a..z]-[bx]>$ regex' );
+    is( "".$rule->match( "a" ), "a", 'a' );
+    is( "".$rule->match( "b" ), "",  'b' );
 }
