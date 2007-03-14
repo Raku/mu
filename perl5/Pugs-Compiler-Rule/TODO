@@ -7,7 +7,8 @@ TODO for Pugs::Compiler::Rule (PCR)
 
 - remove PadWalker dependency?
 
-- move all unicode tables (\n, \t, \v, char classes) into a module
+- move all unicode tables (\n, \t, \v, \h, char classes) into 
+  Pugs::Emitter::Rule::Perl5::CharClass
 
 - try to compile Perl-6.0.0-STD.pm 
 
@@ -30,33 +31,6 @@ TODO for Pugs::Compiler::Rule (PCR)
 
 * OLDER TODO
 
-- complex char classes
-  - move to a module
-
-    # <+foo+bar-alpha>
-
-    [
-    |  <before <foo>> 
-    |  <before <bar>> 
-    ]
-    <!alpha> 
-    .
-
-    # <[a..z] - [aeiou] + xdigit>
-
-    |   [ 
-            <before <[a..z]> 
-            <![aeiou]> 
-        ] 
-    | <before <xdigit> >  
-    .
-
-  parsing - Rule2.pm:
-    <alpha>
-    <alpha+digit>
-    <+alpha>
-    <-alpha>
-
 - integrate pure-regex into the main compiler
 
 - fix static count for repeated captures: 
@@ -74,10 +48,6 @@ TODO for Pugs::Compiler::Rule (PCR)
 - add 'inlined' switch to disable PadWalker lookups
 
 - fix the <ws> rule
-
-Unicode:
-
-- \v \h \V \H
 
 Sigspace switch:
 
@@ -108,7 +78,6 @@ Priorities:
 
 - features used in PGE P6 Grammar
 - <after ...> in non-ratchet
-- char classes
 
 - make PadWalker optional, as most distros don't hold PW 1.0
 
@@ -239,6 +208,7 @@ TODO for Pugs-Compiler-Precedence
   $/ $()  - global match variables 
   $var := [non-capture]
   $var := <rule>
+  <unicode-class> <+unicode-class> <+unicode-class+unicode-class>
 
 = Unimplemented or untested features
 
@@ -250,7 +220,6 @@ TODO for Pugs-Compiler-Precedence
   $/0 $/1
   <"literal">
   ^^ $$
-  <unicode-class> <+unicode-class> <+unicode-class+unicode-class>
   <&var> 
   <%var>
   **{n..m}
