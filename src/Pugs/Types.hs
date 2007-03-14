@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -funbox-strict-fields -fallow-overlapping-instances #-} 
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -funbox-strict-fields -fallow-overlapping-instances -fparr #-} 
 {-|
     Implementation Types.
 
@@ -29,6 +29,7 @@ module Pugs.Types
 where
 import Pugs.Internals
 import Data.Bits (shiftL)
+import qualified Data.Map as Map
 import qualified Data.HashTable as H
 import qualified Data.IntMap as IntMap
 import qualified Data.ByteString.Char8 as Buf -- Intentionally not UTF8!
@@ -215,28 +216,38 @@ instance ((:>:) ByteString) Pkg where
     cast (MkPkg ns) = Buf.join (__"::") ns
 
 instance Show Var where
-    showsPrec _ var = ('"':) . showsVar var . ('"':)
+    show var = Buf.unpack (cast var)
 
-showsVar :: Var -> String -> String
-showsVar MkVar
+varToBuf :: Var -> ByteString
+varToBuf MkVar
     { v_sigil   = sig
     , v_twigil  = twi
-    , v_package = pkg@(MkPkg ns)
+    , v_package = (MkPkg ns)
     , v_categ   = cat
     , v_name    = name
     , v_longname= longname
     , v_meta    = meta
-    } = showsPrec 0 sig . showsPrec 0 twi . showPkg . showCateg . showsMeta meta showName
+    } = Buf.concat . (cast sig:) . (cast twi:) . doPkg ns . doCat $ doMeta
     where
-    showName
-        | longname == nullID    = ((++) (cast name))
-        | otherwise             = ((++) (cast name)) . ((++) (cast longname))
-    showCateg = case cat of
+    n = cast name
+    l = cast longname
+    doPkg []     = id
+    doPkg (x:xs) = (x:) . (__"::":) . doPkg xs
+    doCat = case cat of
         CNil    -> id
-        _       -> drop 2 . showsPrec 0 cat . (':':)
-    showPkg = if null ns
-        then id
-        else showsPrec 0 pkg . (\x -> (':':':':x))
+        _       -> (cast cat:) . (__":":)
+    doMeta = case meta of
+        MNil        -> [n, l]
+        MFold       -> [__"[", n, l, __"]"]
+        MScan       -> [__"[\\", n, l, __"]"]
+        MPre        -> [__">>", n, l]
+        MPost       -> [n, l, __"<<"]
+        MHyper      -> [__">>", n, l, __"<<"]
+        MHyperFold  -> [__"[>>", n, l, __"<<]"]
+        MHyperScan  -> [__"[\\>>", n, l, __"<<]"]
+
+showsVar :: Var -> String -> String
+showsVar var = (show var ++)
 
 showsMeta :: VarMeta -> (String -> String) -> String -> String
 showsMeta MNil              f x = f x
@@ -252,8 +263,11 @@ showsMeta MHyperFold        f x = ('[':'>':'>':f ('<':'<':']':x))
 showsMeta MHyperScan        f x = ('[':'\\':'>':'>':f ('<':'<':']':x))
 --showsMeta MHyperScanPost    f x = ('[':'\\':'>':'>':f ('<':'<':']':'<':'<':x))
 
+instance ((:>:) ByteString) Var where
+    cast var = varToBuf var
+
 instance ((:>:) String) Var where
-    cast var = showsVar var ""
+    cast var = cast (varToBuf var)
 
 instance ((:>:) String) Pkg where
     cast = cast . (cast :: Pkg -> ByteString)
@@ -282,7 +296,7 @@ data VarCateg
     | C_prefix
     | C_quote
     | C_term
-    deriving (Show, Enum, Eq, Ord, Typeable, Data, Read)
+    deriving (Show, Enum, Eq, Ord, Bounded, Typeable, Data, Read)
 
 data VarSigil = SScalar | SArray | SHash | SType | SCode | SRegex | SArrayMulti
     deriving (Enum, Eq, Ord, Typeable, Data)
@@ -299,6 +313,26 @@ isSigilChar '&' = True
 isSigilChar '<' = True -- XXX wrong
 isSigilChar ':' = True
 isSigilChar _   = False
+
+instance ((:>:) ByteString) VarSigil where
+    cast x = case x of
+        SScalar     -> __"$"
+        SArray      -> __"@"
+        SHash       -> __"%"
+        SCode       -> __"&"
+        SRegex      -> __"<"
+        SType       -> __"::"
+        SArrayMulti -> __"@@"
+
+instance ((:>:) ByteString) VarTwigil where
+    cast x = case x of
+        TNil        -> Buf.empty
+        TAttribute  -> __"."
+        TPrivate    -> __"!"
+        TImplicit   -> __"^"
+        TMagical    -> __"?"
+        TDoc        -> __"="
+        TGlobal     -> __"*"
 
 instance Show VarSigil where
     showsPrec _ sig = case sig of
@@ -320,16 +354,24 @@ instance Show VarTwigil where
         TDoc        -> ('=':)
         TGlobal     -> ('*':)
 
+-- Cached Categ->ByteString mappings.
+catBufMap :: [:ByteString:]
+catBufMap = mapP (_cast . drop 2 . show) [:minBound..(maxBound :: VarCateg):]
+
+-- Cached ByteString->Categ mappings.
+bufCatMap :: Map ByteString VarCateg
+bufCatMap = Map.fromList (fromP catBufMap `zip` [minBound..(maxBound :: VarCateg)])
+
+instance ((:>:) ByteString) VarCateg where
+    cast categ = catBufMap !: fromEnum categ
+
 instance ((:>:) (Maybe VarCateg)) ByteString where
-    cast buf = case reads ('C':'_':cast buf) of
-        ((x, _):_)  -> Just x
-        _           -> Nothing
+    cast buf = Map.lookup buf bufCatMap
 
 instance ((:>:) VarCateg) ByteString where
-    -- XXX slow
-    cast buf = case reads ('C':'_':cast buf) of
-        ((x, _):_)  -> x
-        _           -> internalError $ "Invalid grammatical category: " ++ show buf
+    cast buf = case Map.lookup buf bufCatMap of
+        Just x  -> x
+        _       -> internalError $ "Invalid grammatical category: " ++ show buf
 
 instance ((:>:) VarSigil) Char where
     cast '$'    = SScalar
