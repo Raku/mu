@@ -206,7 +206,6 @@ instance ArrayClass IArray where
         when (size <= idx) $ do
             array_extendSize arr (idx + 1)
         stm $ modifyTVar iv (a_update idx sv)
-    array_storeElem _ _ _ = fail "impossible"
     array_deleteElem (MkIArray iv) idx = stm $ do
         a   <- readTVar iv
         let idx' | idx < 0   = idx `mod` size        --- XXX wrong; wraparound => what do you mean?

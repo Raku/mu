@@ -10,7 +10,7 @@ module Pugs.AST.Internals (
     InitDat(..),
     SubAssoc(..),
 
-    Pad(..), PadEntry(..), PadMutator, -- uses Var, TVar, VRef
+    Pad(..), PadEntry(..), EntryFlags(..), PadMutator, -- uses Var, TVar, VRef
     Param(..), -- uses Cxt, Exp
     Params, -- uses Param
     Bindings, -- uses Param, Exp
@@ -1175,7 +1175,7 @@ data Exp
                                         --     be represented by 'App'.
     | Ann !Ann !Exp                     -- ^ Annotation (see @Ann@)
     | Pad !Scope !Pad !Exp              -- ^ Lexical pad
-    | Sym !Scope !Var !Exp !Exp         -- ^ Symbol declaration
+    | Sym !Scope !Var !EntryFlags !Exp !Exp -- ^ Symbol declaration
     | Stmts !Exp !Exp                   -- ^ Multiple statements
     | Prim !([Val] -> Eval Val)         -- ^ Primitive
     | Val !Val                          -- ^ Value
@@ -1183,8 +1183,8 @@ data Exp
     | NonTerm !Pos                      -- ^ Parse error
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
-_Sym :: Scope -> String -> Exp -> Exp -> Exp
-_Sym scope str init exp = Sym scope (cast str) init exp
+_Sym :: Scope -> String -> EntryFlags -> Exp -> Exp -> Exp
+_Sym scope str flags init rest = Sym scope (cast str) flags init rest
 
 _Var :: String -> Exp
 _Var str = Var (possiblyFixOperatorName (cast str))
@@ -1210,7 +1210,7 @@ transformExp f (App a b cs) = do
 transformExp f (Syn t es) = f =<< liftM (Syn t) (mapM (transformExp f) es)
 transformExp f (Ann a e) = f =<< liftM (Ann a) (transformExp f e)
 transformExp f (Pad s p e) = f =<< liftM (Pad s p) (transformExp f e)
-transformExp f (Sym s v i e) = f =<< liftM (Sym s v i) (transformExp f e)
+transformExp f (Sym s v c i e) = f =<< liftM (Sym s v c i) (transformExp f e)
 transformExp f (Stmts e1 e2) = do 
     e1' <- transformExp f e1
     e2' <- transformExp f e2
@@ -1236,7 +1236,7 @@ instance Unwrap [Exp] where
 instance Unwrap Exp where
     unwrap (Ann _ exp)      = unwrap exp
     unwrap (Pad _ _ exp)    = unwrap exp
-    unwrap (Sym _ _ _ exp)  = unwrap exp
+    unwrap (Sym _ _ _ _ exp)= unwrap exp
     unwrap x                = x
 
 fromVals :: (Value n) => Val -> Eval [n]
@@ -1291,7 +1291,7 @@ extractPlaceholderVars (Ann ann ex) vs = ((Ann ann ex'), vs')
 extractPlaceholderVars (Pad scope pad ex) vs = ((Pad scope pad ex'), vs')
     where
     (ex', vs') = extractPlaceholderVars ex vs
-extractPlaceholderVars (Sym scope var ini ex) vs = ((Sym scope var ini ex'), vs')
+extractPlaceholderVars (Sym scope var flags ini ex) vs = ((Sym scope var flags ini ex'), vs')
     where
     (ex', vs') = extractPlaceholderVars ex vs
 extractPlaceholderVars exp vs = (exp, vs)
@@ -1413,10 +1413,17 @@ is stored in the @Reader@-monad component of the current 'Eval' monad.
 newtype Pad = MkPad { padEntries :: Map Var PadEntry }
     deriving (Eq, Ord, Typeable)
 
+newtype EntryFlags = MkEntryFlags { ef_isContext :: Bool }
+    deriving (Show, Eq, Ord, Typeable)
+
+instance Monoid EntryFlags where
+    mempty = MkEntryFlags False
+    mappend (MkEntryFlags x) (MkEntryFlags y) = MkEntryFlags (x || y)
+
 data PadEntry
-    = EntryLexical  { pe_type :: !Type, pe_proto :: !VRef, pe_store :: !(TVar VRef), pe_fresh :: !(TVar Bool) }
-    | EntryStatic   { pe_type :: !Type, pe_proto :: !VRef, pe_store :: !(TVar VRef) }
-    | EntryConstant { pe_type :: !Type, pe_proto :: !VRef }
+    = PELexical  { pe_type :: !Type, pe_proto :: !VRef, pe_flags :: !EntryFlags, pe_store :: !(TVar VRef), pe_fresh :: !(TVar Bool) }
+    | PEStatic   { pe_type :: !Type, pe_proto :: !VRef, pe_flags :: !EntryFlags, pe_store :: !(TVar VRef) }
+    | PEConstant { pe_type :: !Type, pe_proto :: !VRef, pe_flags :: !EntryFlags }
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 data IHashEnv = MkHashEnv deriving (Show, Typeable) {-!derive: YAML_Pos!-}
@@ -1425,20 +1432,20 @@ data IScalarCwd = MkScalarCwd deriving (Show, Typeable) {-!derive: YAML_Pos!-}
 {-# SPECIALISE readPadEntry :: PadEntry -> Eval VRef #-}
 {-# SPECIALISE readPadEntry :: PadEntry -> STM VRef #-}
 readPadEntry :: MonadSTM m => PadEntry -> m VRef
-readPadEntry EntryConstant{ pe_proto = v } = return v
+readPadEntry PEConstant{ pe_proto = v } = return v
 readPadEntry x                             = stm (readTVar (pe_store x))
 
 {-# SPECIALISE writePadEntry :: PadEntry -> VRef -> Eval () #-}
 {-# SPECIALISE writePadEntry :: PadEntry -> VRef -> STM () #-}
 writePadEntry :: MonadSTM m => PadEntry -> VRef -> m ()
-writePadEntry x@EntryConstant{} _ = die "Cannot rebind constant" x
+writePadEntry x@PEConstant{} _ = die "Cannot rebind constant" x
 writePadEntry x                 v = stm (writeTVar (pe_store x) v)
 
 refreshPad :: Pad -> Eval Pad
 refreshPad pad = do
     fmap listToPad $ forM (padToList pad) $ \(name, entry) -> do
         entry' <- case entry of
-            EntryLexical{ pe_proto = proto, pe_fresh = fresh } -> stm $ do
+            PELexical{ pe_proto = proto, pe_fresh = fresh } -> stm $ do
                 isFresh <- readTVar fresh
                 if isFresh then writeTVar fresh False >> return entry else do
                     ref     <- cloneRef proto
@@ -1480,7 +1487,7 @@ findSymRef name pad = stm $ join (findSym name pad)
 {-# SPECIALISE findSym :: Var -> Pad -> Maybe (STM VRef) #-}
 findSym :: Monad m => Var -> Pad -> m (STM VRef)
 findSym name pad = case lookupPad name pad of
-    Just EntryConstant{ pe_proto = v }  -> return (return v)
+    Just PEConstant{ pe_proto = v }  -> return (return v)
     Just x                              -> return (readTVar (pe_store x))
     _      -> fail $ "Cannot find variable: " ++ show name
 
@@ -1529,7 +1536,7 @@ mkCompUnit _ pad ast = MkCompUnit compUnitVersion pad ast
 
 {-# NOINLINE compUnitVersion #-}
 compUnitVersion :: Int
-compUnitVersion = 15
+compUnitVersion = 16
 
 {-|
 Retrieve the global 'Pad' from the current evaluation environment.
@@ -1547,7 +1554,7 @@ writeVar :: Var -> Val -> Eval ()
 writeVar name val = do
     glob <- askGlobal
     case lookupPad name glob of
-        Just EntryConstant{} -> fail $ "Cannot rebind constant: " ++ show name
+        Just PEConstant{} -> fail $ "Cannot rebind constant: " ++ show name
         Just c -> do
             ref <- stm $ readTVar (pe_store c)
             writeRef ref val
@@ -2135,9 +2142,17 @@ instance Perl5 ID where
 instance JSON ID where
     showJSON x = showJSON (cast x :: ByteString)
 
+instance YAML Pkg where
+    asYAML x = asYAML (cast x :: ByteString)
+    fromYAML = fmap (cast :: ByteString -> Pkg) . fromYAML
+
 instance YAML Var where
-    asYAML x = asYAML (cast x :: String)
-    fromYAML = fmap (cast :: String -> Var) . fromYAML
+    asYAML x = asYAML (cast x :: ByteString)
+    fromYAML = fmap (cast :: ByteString -> Var) . fromYAML
+
+instance YAML EntryFlags where
+    asYAML (MkEntryFlags x) = asYAML x
+    fromYAML = fmap MkEntryFlags . fromYAML
  
 instance Perl5 Var where
     showPerl5 x = showPerl5 (cast x :: String)
