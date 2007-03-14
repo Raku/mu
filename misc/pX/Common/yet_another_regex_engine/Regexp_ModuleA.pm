@@ -2272,6 +2272,7 @@ require Exporter;
      commit null before after sp lt gt dot ident wb ws fail
      name _nofat
      );
+# also exports the unicode classes defined below.
 
 sub regex_api0 {'Regexp::ModuleA::Api::RegexApi0'}
 sub regex_ast_maker_api0 {'Regexp::ModuleA::AST::Make1'}
@@ -2302,6 +2303,40 @@ namespace(""
                           plus(exact('::'),sr('ident'))))
           ,nrx('_nofat',pat5('')) # <!before \h* <?unsp>? =\> >
           )->RAST_init->RMARE_emit;
+
+my @unicode_classes = (
+  #perl-5.9.4/pod/perlunicode.pod
+  #=item General Category
+  qw(L  Letter LC CasedLetter Lu UppercaseLetter Ll LowercaseLetter Lt TitlecaseLetter Lm ModifierLetter Lo OtherLetter M  Mark Mn NonspacingMark Mc SpacingMark Me EnclosingMark N  Number Nd DecimalNumber Nl LetterNumber No OtherNumber P  Punctuation Pc ConnectorPunctuation Pd DashPunctuation Ps OpenPunctuation Pe ClosePunctuation Pi InitialPunctuation Pf FinalPunctuation Po OtherPunctuation S  Symbol Sm MathSymbol Sc CurrencySymbol Sk ModifierSymbol So OtherSymbol Z  Separator Zs SpaceSeparator Zl LineSeparator Zp ParagraphSeparator C  Other Cc Control Cf Format Cs Surrogate Co PrivateUse Cn Unassigned),
+  #=item Bidirectional Character Types
+  # separate
+  #=item Scripts
+  qw(Arabic Armenian Bengali Bopomofo Buhid CanadianAboriginal Cherokee Cyrillic Deseret Devanagari Ethiopic Georgian Gothic Greek Gujarati Gurmukhi Han Hangul Hanunoo Hebrew Hiragana Inherited Kannada Katakana Khmer Lao Latin Malayalam Mongolian Myanmar Ogham OldItalic Oriya Runic Sinhala Syriac Tagalog Tagbanwa Tamil Telugu Thaana Thai Tibetan Yi),
+  #=item Extended property classes
+  qw(ASCIIHexDigit BidiControl Dash Deprecated Diacritic Extender GraphemeLink HexDigit Hyphen Ideographic IDSBinaryOperator IDSTrinaryOperator JoinControl LogicalOrderException NoncharacterCodePoint OtherAlphabetic OtherDefaultIgnorableCodePoint OtherGraphemeExtend OtherLowercase OtherMath OtherUppercase QuotationMark Radical SoftDotted TerminalPunctuation UnifiedIdeograph WhiteSpace),
+  # and there are further derived properties:
+  qw(Alphabetic Lowercase Uppercase Math ID_Start ID_Continue Any Assigned Unassigned Common),
+  #=item Blocks
+  qw(InAlphabeticPresentationForms InArabic InArabicPresentationFormsA InArabicPresentationFormsB InArmenian InArrows InBasicLatin InBengali InBlockElements InBopomofo InBopomofoExtended InBoxDrawing InBraillePatterns InBuhid InByzantineMusicalSymbols InCJKCompatibility InCJKCompatibilityForms InCJKCompatibilityIdeographs InCJKCompatibilityIdeographsSupplement InCJKRadicalsSupplement InCJKSymbolsAndPunctuation InCJKUnifiedIdeographs InCJKUnifiedIdeographsExtensionA InCJKUnifiedIdeographsExtensionB InCherokee InCombiningDiacriticalMarks InCombiningDiacriticalMarksforSymbols InCombiningHalfMarks InControlPictures InCurrencySymbols InCyrillic InCyrillicSupplementary InDeseret InDevanagari InDingbats InEnclosedAlphanumerics InEnclosedCJKLettersAndMonths InEthiopic InGeneralPunctuation InGeometricShapes InGeorgian InGothic InGreekExtended InGreekAndCoptic InGujarati InGurmukhi InHalfwidthAndFullwidthForms InHangulCompatibilityJamo InHangulJamo InHangulSyllables InHanunoo InHebrew InHighPrivateUseSurrogates InHighSurrogates InHiragana InIPAExtensions InIdeographicDescriptionCharacters InKanbun InKangxiRadicals InKannada InKatakana InKatakanaPhoneticExtensions InKhmer InLao InLatin1Supplement InLatinExtendedA InLatinExtendedAdditional InLatinExtendedB InLetterlikeSymbols InLowSurrogates InMalayalam InMathematicalAlphanumericSymbols InMathematicalOperators InMiscellaneousMathematicalSymbolsA InMiscellaneousMathematicalSymbolsB InMiscellaneousSymbols InMiscellaneousTechnical InMongolian InMusicalSymbols InMyanmar InNumberForms InOgham InOldItalic InOpticalCharacterRecognition InOriya InPrivateUseArea InRunic InSinhala InSmallFormVariants InSpacingModifierLetters InSpecials InSuperscriptsAndSubscripts InSupplementalArrowsA InSupplementalArrowsB InSupplementalMathematicalOperators InSupplementaryPrivateUseAreaA InSupplementaryPrivateUseAreaB InSyriac InTagalog InTagbanwa InTags InTamil InTelugu InThaana InThai InTibetan InUnifiedCanadianAboriginalSyllabics InVariationSelectors InYiRadicals InYiSyllables));
+my @unicode_bidi_classes = (
+  qw(L LRE LRO R AL RLE RLO PDF EN ES ET AN CS NSM BN B S WS ON));
+for my $class (@unicode_classes) {
+  my $name = "is$class";
+  namespace("",nrx($name,pat5("\\p{$class}")))->RAST_init->RMARE_emit;
+  push(@Regexp::ModuleA::Api::PreludeA::EXPORT,$name);
+  push(@Regexp::ModuleA::Api::PreludeA::EXPORT_OK,$name);
+}
+for my $class (@unicode_bidi_classes) {
+  my $name = "isBidi$class";
+  namespace("",nrx($name,pat5("\\p{BidiClass:$class}")))->RAST_init->RMARE_emit;
+  push(@Regexp::ModuleA::Api::PreludeA::EXPORT,$name);
+  push(@Regexp::ModuleA::Api::PreludeA::EXPORT_OK,$name);
+}
+#XXX Lr - it's defined in propcharset.t, but its not in perlunicode.
+namespace("",nrx('isLr',pat5("\\p{Ll}|\\p{Lu}|\\p{Lt}")))->RAST_init->RMARE_emit;
+push(@Regexp::ModuleA::Api::PreludeA::EXPORT,'isLr');
+push(@Regexp::ModuleA::Api::PreludeA::EXPORT_OK,'isLr');
+
 1;
 #======================================================================
 package Regexp::ModuleA::P6;
