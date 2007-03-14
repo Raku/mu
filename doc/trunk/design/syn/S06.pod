@@ -1735,6 +1735,11 @@ in order, left to right.  Note that C<Any> and C<0> are no-ops:
     $ctx = context(1,0,1,1); # my context's context's context's context
     $ctx = context($i);      # $i'th context
 
+Note also that negative numbers are allowed as long as you stay within
+the existing context stack:
+
+    $ctx = context(4,-1);    # my context's context's context's context
+
 Repeating any smartmatch just matches the same context again unless you
 intersperse a 1 to skip the current level:
 
@@ -1764,12 +1769,15 @@ a C<Context>:
     $ctx = context;
     $ctx = context.context.context.context;                # same
 
-The C<caller> function is special-cased to pay attention only to
-the current C<Routine> scope.  It is defined as navigating to the
-innermost scope matching C<&?ROUTINE> (which may be a no-op when
-immediately inside a routine) and then going out one context from that:
+The C<caller> function is special-cased to go outward just far enough
+to escape from the current routine scope, after first ignoring any
+inner blocks that are embedded, or are otherwise pretending to be "inline":
 
-    &caller ::= &context.assuming(&?ROUTINE,1);
+    &caller ::= &context.assuming({ !.inline }, 1);
+
+Note that this is usually the same as C<context(&?ROUTINE,1)>,
+but not always.  A call to a returned closure might not even have
+C<&?ROUTINE> in its dynamic scope anymore, but it still has a caller.
 
 So to find where the current routine was called you can say:
 
@@ -1781,10 +1789,12 @@ which is equivalent to:
     say " file ", CALLER::<$?FILE>,
         " line ", CALLER::<$?LINE>;
 
-Note that one context out is I<not> guaranteed to be a C<Routine>
-context.  You must say C<caller(Routine)> to get to the next-most-inner
-routine, which is equivalent to C<context(&?ROUTINE,1,Routine)>.
-But C<caller(Routine).line> is not necessarily going to give you the
+Additional arguments to C<caller> are treated as navigational from the
+calling context.  One context out from your current routine is I<not>
+guaranteed to be a C<Routine> context.  You must say C<caller(Routine)>
+to get to the next-most-inner routine.
+
+Note that C<caller(Routine).line> is not necessarily going to give you the
 line number that your current routine was called from; you're rather
 likely to get the line number of the topmost block that is executing
 within that outer routine, where that block contains the call to
@@ -1793,18 +1803,27 @@ your routine.
 For either C<context> or C<caller>,
 the returned context object supports at least the following methods:
 
-    .want
     .context
     .caller
+    .leave
+    .want
+    .inline
     .my
     .file
     .line
     .subname
 
-The C<.caller> method is subtly different from the C<caller>
-function.  Instead of looking up the current lexically scoped caller
-by C<.context(&?ROUTINE,1)>, it just looks up the next matching dynamic
-caller using C<.context(Routine,1)>.
+The C<.context> and C<.caller> methods work the same as the functions
+except that they are relative to the context supplied as invocant.
+The C<.leave> method can force an immediate return from the
+specified context.  The C<.want> method returns known smart-matchable
+characteristics of the specified context.
+
+The C<.inline> method says whether this block was entered implicitly
+by some surrounding control structure.  Any time you invoke a block or
+routine explicitly with C<.()> this is false.  However, it is defined
+to be true for any block entered using dispatcher-level primitives
+such as C<.callwith>, C<.callsame>, C<.nextwith>, or C<.nextsame>.
 
 The C<.my> method provides access to the lexical namespace in effect at
 the given dynamic context's current position.  It may be used to look
