@@ -14,18 +14,20 @@
 
 =head1 DRAFT NOTES
 
-This is very much a work-in-progress. 
-When this current draft is fairly complete, I (dvergin) intend 
-to solicit critique and additions from the p6l. 
-(In the meantime 
-if you see needed changes and are unable to submit them yourself, 
-you are welcome to email: dvergin at igc dot org.)
+As of 2007-03-13:
+
+There is a more recent document at docs/Perl6/Overview/Variable.pod
+which contains the bare bones of the next
+iteration of work on special variables in Perl 6.
+
+While the list there appears to be more complete, there remains information
+here that may still be of help in roughing in more details there.
+
+=head1 INTRODUCTION
 
 This document serves as a collection point 
 for what is known about special variables 
 in Perl 6 and correlates them with the changes from Perl 5. 
-
-=head1 INTRODUCTION
 
 If you are trying to find the Perl 6 equivalent of a Perl 5 special
 variable you know, try searching this file for the Perl 5 version.
@@ -485,6 +487,7 @@ schemes may become appropriate when the table is more complete.
 
 =head1 HISTORY
 
+ 2007-03-13 dvergin     Reference to docs/Perl6/Overview/Variable.pod
  2005-04-11 dvergin     Filling in more pieces
  2005-04-10 dvergin     Roughed in main table 
  2005-04-02 anonpugster Placeholder file containing Larry's email
