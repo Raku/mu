@@ -1,6 +1,30 @@
 use v6-alpha;
 use Test;
-plan 1;
+plan 4;
+
+#P62 (*) Collect the internal nodes of a binary tree in a list
+
+# An internal node of a binary tree has either one or two non-empty 
+# successors. Write a predicate internals/2 to collect them in a list.
+#
+#    % internals(T,S) :- S is the list of internal nodes of the binary tree T.
+ 
+my $tree = ['A', ['B', ['C', undef, undef], ['D', undef, undef]], ['E', undef, undef]];
+
+my @expected = ('A', 'B');
+
+# assume preorder traversal
+
+sub internals($tree){
+    return () unless defined($tree);
+    if defined($tree[1]) and defined($tree[2]) {
+        return $tree[0], internals($tree[1]), internals($tree[2]);
+    } else {
+        return internals($tree[1]), internals($tree[2]);
+    }
+}
+
+is(internals($tree), @expected, "internals() collects internal nodes");
 
 # P62B (*) Collect the nodes at a given level in a list
 # 
@@ -14,9 +38,15 @@ plan 1;
 # the level-order sequence of the nodes. However, there are more efficient ways
 # to do that.
 
-if 1 {
-    skip 1, "Test(s) not yet written: B (*) Collect the nodes at a given level in a list";
+sub atlevel($tree, $level) {
+    return () unless defined($tree);
+    return $tree[0], if $level == 1;
+    return atlevel($tree[1], $level - 1), atlevel($tree[2], $level - 1);
 }
-else {
-    ok 1, 'B (*) Collect the nodes at a given level in a list';
-}
+
+my @e1 = 'A', ;
+my @e2 = 'B', 'E';
+my @e3 = 'C', 'D';
+is(atlevel($tree, 1), @e1, "atlevel() works at level 1");
+is(atlevel($tree, 2), @e2, "atlevel() works at level 2");
+is(atlevel($tree, 3), @e3, "atlevel() works at level 3");
