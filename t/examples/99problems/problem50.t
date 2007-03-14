@@ -35,9 +35,50 @@ plan 1;
 # You can check your predicates using these example trees. They are given as test
 # cases in p54.lisp.
 
-if 1 {
-    skip 1, "Test(s) not yet written: (***) Huffman code.";
+my @fr = (
+        ['a', 45],
+        ['b', 13],
+        ['c', 12],
+        ['d', 16],
+        ['e', 9 ],
+        ['f', 5 ],
+	 );
+
+my %expected = (
+        'a' => '0',
+        'b' => '101',
+        'c' => '100',
+        'd' => '111',
+        'e' => '1101',
+        'f' => '1100'
+        );
+
+my @c = @fr;
+
+# build the tree:
+while @c.elems > 1 {
+    @c = sort { $^a[1] <=> $^b[1] }, @c;
+    my $a = shift @c;
+    my $b = shift @c;
+    unshift @c, [[$a[0], $b[0]], $a[1] + $b[1]];
 }
-else {
-    ok 1, '(***) Huffman code.';
+#say @c[0][0].perl;
+
+my %res;
+
+sub traverse ($a, Str $code = ""){
+    if $a.WHAT eq "Str" {
+        %res{$a} = $code;
+    } else {
+        traverse($a[0], $code ~ '0');
+        traverse($a[1], $code ~ '1');
+    }
 }
+traverse(@c[0][0]);
+
+#for %res.kv -> $key, $val {
+#    say "$key: $val";
+#}
+
+is(%res, %expected, "Huffman tree builds correctly");
+
