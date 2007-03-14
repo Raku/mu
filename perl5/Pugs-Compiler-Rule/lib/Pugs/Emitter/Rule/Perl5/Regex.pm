@@ -212,9 +212,6 @@ BEGIN {
 
 sub char_class {
     my $cmd = Pugs::Emitter::Rule::Perl5::CharClass::emit( $_[0] );
-    #print "Char Set Expression: $cmd \n";
-    # $cmd =~ s/\s+|\n//g;
-    # XXX <[^a]> means [\^a] instead of [^a] in perl5re
     return $cmd;
 }
 
@@ -225,18 +222,6 @@ sub metasyntax {
     if ( $prefix eq q(') ) {   # single quoted literal ' 
         $cmd = substr( $cmd, 1, -1 );
         $cmd =~ s/([\$\@\%\[\]\+\*\(\)\?\/])/\\$1/g;
-        return $cmd;
-    }
-    if ( $prefix =~ /[-+[]/ ) {   # character class 
-        $cmd =~ s/\.\./-/g;
-        if ( $prefix eq '-' ) {
-           $cmd = '[^' . substr($cmd, 2);
-        } 
-        elsif ( $prefix eq '+' ) {
-           $cmd = substr($cmd, 1);
-        }
-        $cmd =~ s/\s+|\n//g;
-        # XXX <[^a]> means [\^a] instead of [^a] in perl5re
         return $cmd;
     }
     if ( $prefix eq '?' ) {   # non_capturing_subrule / code assertion

@@ -1,10 +1,16 @@
 package Pugs::Emitter::Rule::Perl5::CharClass;
 
+use strict;
+use Data::Dumper;
+
 # input format:
 # [
 #    '+alpha'
 #    '-[z]'
 # ]
+
+# TODO - set composition logic
+# ( before +alpha | +digit ) ( before not-alpha ) ( before not-digit )
 
 sub emit {
     #print Dumper( $_[0] );
@@ -88,6 +94,9 @@ sub emit {
         $out .= '(?=' . $cmd . ')';
     }
     $out .= ')\X';
+
+    #print Dumper( @c ), ' == ', $out, "\n";
+
     return $out;
 }
 

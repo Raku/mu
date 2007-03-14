@@ -231,6 +231,17 @@ token named_capture_body {
             ] } 
         }
     },
+    '<[' => token { 
+        <char_range>  \]
+        ( <[+-]> <char_class> )*
+        \>
+        { return { 
+            char_class => [ 
+                '+[' ~ $<char_range> ~ ']',
+                @($/[0]),   # TODO - stringify
+            ] } 
+        }
+    },
     '<' => token { 
         <char_class>
         ( <[+-]> <char_class> )+

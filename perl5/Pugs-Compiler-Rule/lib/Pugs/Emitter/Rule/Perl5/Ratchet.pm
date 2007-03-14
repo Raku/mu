@@ -749,21 +749,8 @@ sub constant {
     call_constant( @_ );
 }
 
-use vars qw( %char_class );
-BEGIN {
-    %char_class = map { $_ => 1 } qw( 
-        alpha alnum ascii blank
-        cntrl digit graph lower
-        print punct space upper
-        word  xdigit
-    );
-}
-
 sub char_class {
     my $cmd = Pugs::Emitter::Rule::Perl5::CharClass::emit( $_[0] );
-    #print "Char Set Expression: $cmd \n";
-    # $cmd =~ s/\s+|\n//g;
-    # XXX <[^a]> means [\^a] instead of [^a] in perl5re
     return call_perl5($cmd, $_[1]);
 }
 
@@ -846,41 +833,11 @@ sub metasyntax {
         warn "<\"...\"> not implemented";
         return;
     }
-    if ( $prefix =~ /[-+[]/ ) {   # character class 
-        #die "SET ratchet: $cmd\n";
-        $cmd =~ s/\.\./-/g;
-        if ( $cmd =~ /^ - \s* \[ (.*) /x ) {
-           $cmd = '[^' . $1;
-        } 
-        elsif ( $cmd =~ /^ - \s* (.*) /x ) {
-           #$cmd = substr($cmd, 1);
-           my $name = $1;
-           $cmd = ( $name =~ /^is/ )
-                ? "\\P{$name}"
-                : "[^[:$name:]]";
-        } 
-        elsif ( $cmd =~ /^ \+ \s* \[ (.*) /x ) {
-           $cmd = '[' . $1;
-	    }
-        elsif ( $cmd =~ /^ \+ \s* (.*) /x ) {
-           my $name = $1;
-           $cmd = ( $name =~ /^is/ )
-                ? "\\p{$name}"
-                : "[[:$name:]]";
-        } 
-        $cmd =~ s/\s+|\n//g;
-        # XXX <[^a]> means [\^a] instead of [^a] in perl5re
-        return call_perl5($cmd, $_[1]);
-    }
     if ( $prefix eq '?' ) {   # non_capturing_subrule / code assertion
         $cmd = substr( $cmd, 1 );
         if ( $cmd =~ /^{/ ) {
             warn "code assertion not implemented";
             return;
-        }
-        if ( exists $char_class{$cmd} ) {
-            # XXX - inlined char classes are not inheritable, but this should be ok
-            return call_perl5( "[[:$cmd:]]", $_[1] );
         }
         my @param; # TODO
         my $subrule = $cmd;
