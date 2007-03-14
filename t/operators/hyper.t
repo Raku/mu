@@ -26,7 +26,7 @@ plan 56;
 
         @r = (1, 2, 3) >>-<< (2, 4, 6);
         @e = (-1, -2, -3);
-        is(~@r, ~@e, "hyper-subtract two arrays");
+        is(~@r, ~@e, "hyper-subtract two arrays ASCII notation");
 
         @r = (1, 2, 3) »*« (2, 4, 6);
         @e = (2, 8, 18);
