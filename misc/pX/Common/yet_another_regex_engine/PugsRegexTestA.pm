@@ -26,9 +26,9 @@ our $M;
 sub rx_match { my $pkg = caller; $M = regex_api0->create_and_match('regex',undef,@_,pkg=>$pkg) }
 BEGIN{ Regexp::ModuleA::Api::PreludeA->import };
 END
-  s/\b(if\s+(?!\())([^\{]+)\{/$1($2)\{/g;
+  s/\b((?:if|unless)\s+(?!\())([^\{]+)\{/$1($2)\{/g;
   my $re_lit = qr/\$\w+|$RE{quoted}/;
-  my $re_rx = qr{m?((?:(?<=m)\:[:\w]+)?)$RE{delimited}{-delim=>'/'}{-keep}};
+  my $re_rx = qr{(?:(?:m|rx)((?:\:[:\w]+)?))?$RE{delimited}{-delim=>'/'}{-keep}};
   s/($re_lit)\s*~~\s*$re_rx/'rx_match('.quote($5).",$1,mods=>q{$2})"/eg;
   s/([\$\@\%\w<>\/]+)\.(keys)/$2($1)/g;
   my $mark = "\014";
@@ -38,6 +38,7 @@ END
 	 s/$mark\[(\d+)\]/->[$1]$mark/g) {}
   s/$mark//g;
   s/:(\w+)<([^>]*?)>/$1=>q{$2}/g;
+  s/\\x\[(....)\]/\\x{$1}/g;
   $_ = Regexp::ModuleA::Api::FilterRegexDefinitionsA::filter_string($_);
   $_ = Regexp::ModuleA::Api::FilterWithenvA::filter_string($_);
 
