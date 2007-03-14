@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 12 Mar 2007
+  Last Modified: 14 Mar 2007
   Number: 6
-  Version: 79
+  Version: 80
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -1719,27 +1719,10 @@ The immediate caller of this context is accessed by skipping one level:
 You might think that that must be the current function's caller,
 but that's not necessarily so.  This might return an outer block in
 our own routine, or even some function elsewhere that implements a
-control operator on behalf of our block.
+control operator on behalf of our block.  To get outside your current
+routine, see C<caller> below.
 
-The C<caller> function is special-cased to pay attention only to
-the current C<Routine> scope.  It is defined as navigating to the
-innermost scope matching <&?ROUTINE> (which may be a no-op when
-immediately inside a routine) and then going out one context from that:
-
-    &caller ::= &context.assuming(&?ROUTINE,1);
-
-So to find where the current routine was called you can say:
-
-    say " file ", caller.file,
-        " line ", caller.line;
-
-which is equivalent to:
-
-    say " file ", CALLER::<$?FILE>,
-        " line ", CALLER::<$?LINE>;
-
-The C<caller> function always returns the immediate caller's context,
-but the more general C<context> function may be given arguments
+The C<context> function may be given arguments
 telling it which higher scope to look for.  Each argument is processed
 in order, left to right.  Note that C<Any> and C<0> are no-ops:
 
@@ -1781,7 +1764,34 @@ a C<Context>:
     $ctx = context;
     $ctx = context.context.context.context;                # same
 
-The returned context object supports at least the following methods:
+The C<caller> function is special-cased to pay attention only to
+the current C<Routine> scope.  It is defined as navigating to the
+innermost scope matching C<&?ROUTINE> (which may be a no-op when
+immediately inside a routine) and then going out one context from that:
+
+    &caller ::= &context.assuming(&?ROUTINE,1);
+
+So to find where the current routine was called you can say:
+
+    say " file ", caller.file,
+        " line ", caller.line;
+
+which is equivalent to:
+
+    say " file ", CALLER::<$?FILE>,
+        " line ", CALLER::<$?LINE>;
+
+Note that one context out is I<not> guaranteed to be a C<Routine>
+context.  You must say C<caller(Routine)> to get to the next-most-inner
+routine, which is equivalent to C<context(&?ROUTINE,1,Routine)>.
+But C<caller(Routine).line> is not necessarily going to give you the
+line number that your current routine was called from; you're rather
+likely to get the line number of the topmost block that is executing
+within that outer routine, where that block contains the call to
+your routine.
+
+For either C<context> or C<caller>,
+the returned context object supports at least the following methods:
 
     .want
     .context
