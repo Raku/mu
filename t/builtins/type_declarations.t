@@ -11,7 +11,7 @@ Test for some type declarations for built-in functions.
 
 plan 9;
 
-my sub ok_eval1($code, :$todo = 'feature') { &Test::ok.goto(eval($code),$code,:$todo) }
+my sub ok_eval1($code, :$todo = 'feature') { &Test::ok.nextwith(eval($code),$code,:$todo) }
 
 ok_eval1('AnyChar.isa(Str)');
 ok_eval1('Char.isa(Str)');

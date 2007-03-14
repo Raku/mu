@@ -91,7 +91,7 @@ sub unlike (Str $got, Rule $expected, Str $desc?, :$todo, :$depends) returns Boo
 sub eval_dies_ok (Str $code, Str $desc?, :$todo, :$depends) returns Bool is export {
     eval $code;
     if (defined $!) {
-        &Test::ok.goto(1, $desc, :$todo);
+        &Test::ok.nextwith(1, $desc, :$todo);
     }
     else {
         Test::proclaim(undef, $desc, $todo, "No exception thrown", :$depends);
@@ -121,14 +121,14 @@ sub use_ok (Str $module, :$todo, :$depends) is export {
     eval "package $caller; require $module";
 
     #try {
-    #    &::($module)::import.goto();
+    #    &::($module)::import.nextwith();
     #};
 
     if ($!) {
         Test::proclaim(undef, "require $module;", $todo, "Import error when loading $module: $!", :$depends);
     }
     else {
-        &Test::ok.goto(1, "$module imported OK", :$todo, :$depends);
+        &Test::ok.nextwith(1, "$module imported OK", :$todo, :$depends);
     }
 }
 
@@ -137,7 +137,7 @@ sub use_ok (Str $module, :$todo, :$depends) is export {
 sub throws_ok (Code &code, Any $match, Str $desc?, :$todo, :$depends) returns Bool is export {
     try { code() };
     if ($!) {
-        &Test::ok.goto($! ~~ $match, $desc, :$todo, :$depends);
+        &Test::ok.nextwith($! ~~ $match, $desc, :$todo, :$depends);
     }
     else {
         Test::proclaim(undef, $desc, $todo, "No exception thrown", :$depends);
@@ -149,7 +149,7 @@ sub throws_ok (Code &code, Any $match, Str $desc?, :$todo, :$depends) returns Bo
 sub dies_ok (Code &code, Str $desc?, :$todo, :$depends) returns Bool is export {
     try { code() };
     if ($!) {
-        &Test::ok.goto(1, $desc, :$todo);
+        &Test::ok.nextwith(1, $desc, :$todo);
     }
     else {
         Test::proclaim(undef, $desc, $todo, "No exception thrown", :$depends);
@@ -164,7 +164,7 @@ sub lives_ok (Code &code, Str $desc?, :$todo, :$depends) returns Bool is export 
         Test::proclaim(undef, $desc, $todo, "An exception was thrown : $!", :$depends);
     }
     else {
-        &Test::ok.goto(1, $desc, :$todo, :$depends);
+        &Test::ok.nextwith(1, $desc, :$todo, :$depends);
     }
 }
 

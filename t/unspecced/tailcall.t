@@ -5,7 +5,7 @@ say "1..3";
 
 sub foo () {
     say "ok 2";
-    &baz.goto("param1", "param2");
+    &baz.nextwith("param1", "param2");
 }
 
 sub bar ($param1, $param2) {

@@ -34,7 +34,7 @@ accomidate and print out the new TODO information.
 * Fixed signature for `eval_is` and `todo_eval_is` (`$expected` is now `Str`)
 * Some work on `throws_ok` and company ...
 ** Added a `todo_throws_ok` to go with `throws_ok`
-** Moved the smart-match in `throws_ok` to `&ok.goto($! ~~ $match)`
+** Moved the smart-match in `throws_ok` to `&ok.nextwith($! ~~ $match)`
 ** Added some tests for both functions
 * Changed the name and case of several global variables
 ** `$loop` becomes `$NUM_OF_TESTS_RUN`

@@ -17,25 +17,25 @@ our $phase;
 
 sub test1_ok { return 1 }
 sub test1 {
-    &test1_ok.goto();
+    &test1_ok.nextwith();
     return 0;
 }
-ok(test1(), "&sub.goto does");
+ok(test1(), "&sub.nextwith does");
 is(++$phase, 1, "phase completed");
 
 # the same, but with subs declared after the call.
 
 sub test2 {
-    &test2_ok.goto();
+    &test2_ok.nextwith();
     return 0;
 }
 sub test2_ok { return 1 }
-ok(test2(), "&sub.goto does (forward reference)");
+ok(test2(), "&sub.nextwith does (forward reference)");
 is(++$phase, 2, "phase completed");
 
-ok(test3(), "&sub.goto does (real forward reference)");
+ok(test3(), "&sub.nextwith does (real forward reference)");
 sub test3 {
-    &test3_ok.goto();
+    &test3_ok.nextwith();
     return 0;
 }
 sub test3_ok { 1 }
@@ -45,7 +45,7 @@ is(moose(), $?LINE, "regular call to moose() is consistent");
 is(foo(), $?LINE, "goto eliminates call stack frames");
 
 sub foo {
-    &moose.goto();
+    &moose.nextwith();
 }
 
 sub moose {
