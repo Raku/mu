@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 13 Sep 2004
-  Last Modified: 27 Jan 2007
+  Last Modified: 14 Mar 2007
   Number: 9
-  Version: 17
+  Version: 18
 
 =head1 Overview
 
@@ -692,7 +692,7 @@ In the abstract (and often in the concrete), this puts an implicit
 loop around the block of the closure that visits all the possible
 subscript values for that dimension (unless the parameter is actually
 supplied to the closure, in which case that is what is used as the
-slice subscript).
+slice subscript).  This implicit loop is assumed to be parallelizable.
 
 So to write a typical tensor multiplication:
 
