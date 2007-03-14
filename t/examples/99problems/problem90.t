@@ -1,6 +1,6 @@
 use v6-alpha;
 use Test;
-plan 1;
+plan 93;
 
 # P90 (**) Eight queens problem
 # 
@@ -14,9 +14,51 @@ plan 1;
 # 4, the queen in the second column is in row 2, etc. Use the generate-and-test
 # paradigm.
 
-if 1 {
-    skip 1, "Test(s) not yet written: (**) Eight queens problem";
+# note that this solution tries to find _all_ solutions, thus taking its time
+# if you think this is superflous just modify it to report only the first
+# solution
+
+sub collision(@a, $num = 8){
+    for (0 .. $num - 1) -> $i {
+        if row_collision(@a, $i) {
+            say "Collision found in ", @a.join(", ");
+            return 1;
+        }
+    }
+    return 0;
 }
-else {
-    ok 1, '(**) Eight queens problem';
+
+# row_collision detects collisions only in row $row
+sub row_collision(@a, $row){
+    for (0 .. $row-1) -> $j {
+        my $diff = @a[$row] - @a[$j];
+        if $diff == 0 or $diff == $row - $j or $diff == $j - $row {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+my @results;
+
+sub search(@a, Int $row){
+    if $row == 8 {
+        my @b = @a;
+        push @results, \@b;
+    } else {
+        for 0 .. 7 -> my $i {
+            @a[$row] = $i;
+            if 0 == row_collision(@a, $row) {
+                search(@a, $row + 1);
+            }
+        }
+    }
+}
+
+search([0 xx 8], 0);
+is(@results.elems, 92, "The 8 Queens Problem has 92 solutions");
+my $i = 1;
+for @results -> $r {
+    is(collision($r), 0, "$i-th solution is correct");
+    $i++;
 }
