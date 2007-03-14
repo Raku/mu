@@ -29,10 +29,42 @@ plan 1;
 # the binary tree T. (+,?)
 # 
 # Test your predicate in an appropriate way.
+ 
+my $tree = ['n', ['k', ['c', ['a', undef, undef], ['h', ['g', ['e', undef, undef], undef], undef]], ['m', undef, undef]], ['u', ['p', undef, ['s', ['q', undef, undef]], undef], undef]];
+  
+my $expected = ['n', 8, 1, 
+        ['k', 6, 2, 
+            ['c', 2, 3, 
+                ['a', 1, 4,  undef, undef], 
+                ['h', 5, 4,  
+                    ['g', 4, 5, 
+                        ['e', 3, 6, undef, undef], undef], undef]], 
+            ['m', 7, 3, undef, undef]], 
+        ['u', 12, 2, 
+            ['p', 9, 3, undef, 
+                ['s', 11, 4,
+                    ['q', 10, 5, undef, undef]], undef], undef]];
 
-if 1 {
-    skip 1, "Test(s) not yet written: (**) Layout a binary tree (1)";
+sub count($tree) {
+    return 0 unless defined ($tree);
+    return 1 + count($tree[1]) + count($tree[2]);
 }
-else {
-    ok 1, '(**) Layout a binary tree (1)';
+
+sub align($tree, $prev_x, $prev_y, $lr){
+    return undef unless defined($tree);
+    my $y = $prev_y + 1;
+    my $x = 0;
+    if $lr eq "l" {
+        $x = $prev_x - 1 - count($tree[2]);
+    } else {
+        $x = $prev_x + 1 + count($tree[1]);
+    }
+    return [$tree[0], 
+           $x, 
+           $y, 
+           align($tree[1], $x, $y, "l"),
+           align($tree[2], $x, $y, "r")];
 }
+my $result = align($tree, 0, 0, "r");
+
+is($result, $expected, "tree alignment works");
