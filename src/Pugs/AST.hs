@@ -12,7 +12,7 @@
 -}
 
 module Pugs.AST (
-    evalExp, readCodesFromRef,
+    evalExp, evalExp_, readCodesFromRef,
     genSym, genMultiSym, genSymScoped, genPadEntryScoped, mkPadMutator,
     strRangeInf, strRange, strInc,
     mergeStmts, isEmptyParams,
@@ -137,6 +137,11 @@ evalExp :: Exp -> Eval Val
 evalExp exp = do
     evl <- asks envEval
     evl exp
+
+evalExp_ :: Exp -> Eval ()
+evalExp_ exp = do
+    evalExp exp
+    return ()
 
 genMultiSym :: MonadSTM m => Var -> VRef -> EntryFlags -> m PadMutator
 genMultiSym var = case v_sigil var of

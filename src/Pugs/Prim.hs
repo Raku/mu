@@ -241,13 +241,19 @@ op1 "require_parrot" = \v -> do
     return $ VBool True
 op1 "require_perl5" = \v -> do
     pkg     <- fromVal v
-    env     <- ask
     let requireLine = "require " ++ pkg ++ "; '" ++ pkg ++ "'"
-    val     <- guardIO $ do
-        envSV   <- mkEnv env
-        sv      <- evalPerl5 requireLine envSV $ enumCxt cxtItemAny
-        return (PerlSV sv)
+    val     <- evalPerl5WithCurrentEnv requireLine
     evalExp (_Sym SOur (':':'*':pkg) mempty (Val val) (newMetaType pkg))
+    return val
+op1 "require_java" = \v -> do
+    pkg     <- fromVal v
+    let requireLine = "package main; use Inline (qw( Java STUDY AUTOSTUDY 1 STUDY ), ['" ++ mod ++ "']); '" ++ pkg ++ "'"
+        lastPart    = last (split "::" pkg)
+        mod         = concat (intersperse "." (split "::" pkg))
+    val     <- evalPerl5WithCurrentEnv requireLine
+    evalExp (_Sym SOur (':':'*':pkg) mempty (Val val) (newMetaType pkg))
+    when (lastPart /= pkg) $ do
+        evalExp_ (_Sym SOur (':':'*':lastPart) mempty (Val val) (newMetaType lastPart))
     return val
 op1 "Pugs::Internals::eval_parrot" = \v -> do
     code    <- fromVal v
@@ -1574,6 +1580,14 @@ opPerl5 sub args = do
     argsSV  <- mapM fromVal args
     runInvokePerl5 subSV nullSV argsSV
 
+evalPerl5WithCurrentEnv :: String -> Eval Val
+evalPerl5WithCurrentEnv code = do
+    env     <- ask
+    guardIO $ do
+        envSV   <- mkEnv env
+        sv      <- evalPerl5 code envSV $ enumCxt cxtItemAny
+        return (PerlSV sv)
+
 atomicEval :: Eval Val -> Eval Val
 atomicEval action = do
     env <- ask
@@ -1934,6 +1948,7 @@ initSyms = seq (length syms) $ do
 \\n   Any       pre     require_haskell unsafe (Str)\
 \\n   Any       pre     require_parrot  unsafe (Str)\
 \\n   Any       pre     require_perl5   unsafe (Str)\
+\\n   Any       pre     require_java    unsafe (Str)\
 \\n   Any       pre     last    safe   (?Int=1)\
 \\n   Any       pre     next    safe   (?Int=1)\
 \\n   Any       pre     redo    safe   (?Int=1)\

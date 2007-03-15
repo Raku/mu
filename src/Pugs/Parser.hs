@@ -696,9 +696,12 @@ ruleUsePackage use = rule "use package" $ do
         "jsperl5" -> if use
                       then ruleUseJSPerl5Module
                       else fail "can't 'no' a Perl5 module"
+        "java" -> if use
+                      then ruleUseJavaModule
+                      else fail "can't 'no' a Java module"
         _      -> ruleUsePerlPackage use lang
     where
-    ruleUsePackageLang = option "pugs" $ try $ do
+    ruleUsePackageLang = option "perl6" $ try $ do
         lang <- identifier
         char ':'
         notFollowedBy (char ':')
@@ -718,17 +721,21 @@ which is passed in as the second argument.
 -}
 ruleUsePerlPackage :: Bool   -- ^ @True@ for @use@; @False@ for @no@
                    -> String -- ^ \'lang\' prefix (e.g. \"@perl5@\" or
-                             --     \"@pugs@\")
+                             --     \"@perl6@\")
                    -> RuleParser Exp
 ruleUsePerlPackage use lang = rule "use perl package" $ do
     -- author and version get thrown away for now
     (names, _, _) <- rulePackageFullName
-    let pkg = concat (intersperse "::" names)
+    let name = concat (intersperse "::" names)
+    ruleLoadPerlPackage name use lang
+
+ruleLoadPerlPackage :: String -> Bool -> String -> RuleParser Exp
+ruleLoadPerlPackage pkg use lang = do
     when use $ do   -- for &no, don't load code
         env  <- ask
-        env' <- unsafeEvalEnv $ if lang == "perl5"
-            then (App (_Var "&require_perl5") Nothing [Val $ VStr pkg])
-            else (App (_Var "&use") Nothing [Val $ VStr pkg])
+        env' <- unsafeEvalEnv $ if lang == "perl6"
+            then (App (_Var "&use") Nothing [Val $ VStr pkg])
+            else (App (_Var $ "&require_" ++ lang) Nothing [Val $ VStr pkg])
         modify $ \state -> state
             { s_env = env
                 { envClasses = envClasses env' `addNode` mkType pkg
@@ -781,16 +788,7 @@ More info about JSAN can be found at <http://www.openjsan.org/>.
 -}
 ruleUseJSANModule :: RuleParser Exp
 ruleUseJSANModule = do
-    (names, _, _) <- choice
-        [ rulePackageFullName
-        -- leave this in as a hack, until we decide
-        -- whether to allow it or not
-        , do
-            name <- ruleDelimitedIdentifier "."
-            return (name, Nothing, Nothing)
-        ]
-    
-    let name = Val . VStr . concat $ intersperse "." names
+    name <- fmap (Val . VStr) (ruleDotOrColonSeparatedModuleName ".")
     choice
         [ try $ do
             verbatimParens whiteSpace
@@ -802,6 +800,18 @@ ruleUseJSANModule = do
             return $ App (_Var "&PIL2JS::Internals::use_jsan_module_imp") Nothing $ name:exp'
         ] 
 
+ruleUseJavaModule :: RuleParser Exp
+ruleUseJavaModule = do
+    name <- ruleDotOrColonSeparatedModuleName "::"
+    ruleLoadPerlPackage name True "java"
+
+ruleDotOrColonSeparatedModuleName :: String -> RuleParser String
+ruleDotOrColonSeparatedModuleName sep = lexeme $ do
+    names <- ruleVerbatimIdentifier `sepBy1` (try (string "::" <|> string "."))
+    optional ruleVersionPart
+    optional ruleAuthorPart
+    return . concat $ intersperse sep names
+
 {-|
 Match a perl5 module for js backend, returning an appropriate
 sub call 'Pugs.AST.Exp' that will load the module using subs defined in
@@ -810,16 +820,8 @@ sub call 'Pugs.AST.Exp' that will load the module using subs defined in
 -}
 ruleUseJSPerl5Module :: RuleParser Exp
 ruleUseJSPerl5Module = do
-    (names, _, _) <- choice
-        [ rulePackageFullName
-        -- leave this in as a hack, until we decide
-        -- whether to allow it or not
-        , do
-            name <- ruleDelimitedIdentifier "::"
-            return (name, Nothing, Nothing)
-        ]
+    name <- fmap (Val . VStr) (ruleDotOrColonSeparatedModuleName "::")
     
-    let name = Val . VStr . concat $ intersperse "::" names
     choice
         [ try $ do
             verbatimParens whiteSpace
