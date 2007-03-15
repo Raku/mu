@@ -293,7 +293,7 @@ multi decode_entities(Str $string is rw) is export
     return $result;
 }
 
-multi decode_entities(Str @strings is rw) is export
+multi decode_entities(Str @strings) is export
 {
     @strings.map: -> $string is copy { decode_entities($string); };
 }
