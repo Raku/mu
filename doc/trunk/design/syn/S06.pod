@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 14 Mar 2007
+  Last Modified: 15 Mar 2007
   Number: 6
-  Version: 80
+  Version: 81
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -1808,10 +1808,11 @@ the returned context object supports at least the following methods:
     .leave
     .want
     .inline
-    .my
+    .package
     .file
     .line
-    .subname
+    .my
+    .hints
 
 The C<.context> and C<.caller> methods work the same as the functions
 except that they are relative to the context supplied as invocant.
@@ -1827,10 +1828,15 @@ such as C<.callwith>, C<.callsame>, C<.nextwith>, or C<.nextsame>.
 
 The C<.my> method provides access to the lexical namespace in effect at
 the given dynamic context's current position.  It may be used to look
-up ordinary lexical variables in that lexical scope (not your lexical
-scope) as well as special compiler variables such as C<$?PACKAGE>.
-It must not be used to change any lexical variable that is not marked
-as C<< context<rw> >>.
+up ordinary lexical variables in that lexical scope.  It must not be
+used to change any lexical variable that is not marked as C<< context<rw> >>.
+
+The C<.hints> method gives access to a snapshot of compiler symbols in
+effect at the point of the call when the call was originally compiled.
+(For instance, C<caller.hints('&?ROUTINE')> will give you the caller's
+routine object.)  Such values are always read-only, though in the
+case of some (like the caller's routine above) may return a fixed
+object that is nevertheless mutable.
 
 =head2 The C<want> function
 
