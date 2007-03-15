@@ -31,7 +31,7 @@ import System.IO (hPutStrLn, stderr)
 import System.IO.Unsafe
 import Control.Exception (Exception(..))
 import Control.Concurrent.STM
-import Control.Monad.RWS (MonadIO(..))
+import Control.Monad.Trans (MonadIO(..))
 import qualified Control.Exception (catch, evaluate)
 
 {-|
