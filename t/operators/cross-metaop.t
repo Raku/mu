@@ -1,7 +1,7 @@
 use v6-alpha;
 
 use Test;
-plan 9;
+plan 11;
 
 # L<S03/List infix precedence/the cross operator>
 ok eval('<a b> X <c d>'), 'cross non-meta operator parses';
@@ -9,6 +9,22 @@ ok eval('<a b> X <c d>'), 'cross non-meta operator parses';
 # L<S03/List infix precedence/permutations of its sublists>
 is eval('@(<a b> X <1 2>)'), <a 1 a 2 b 1 b 2>,
     'non-meta cross produces expected result';
+
+# L<S03/List infix precedence/This becomes a flat list in>
+my @result = gather {
+    for @(1..3 X 'a'..'b') -> $n, $a {
+	take "$n:$a"
+    }
+}
+is @result, <1:a 1:b 2:a 2:b 3:a 3:b>, 'smooth cross operator works';
+
+# L<S03/List infix precedence/and a list of arrays in>
+@result = eval q{{
+    gather for @@(1..3 X 'A'..'B') -> $na {
+	take $na.join(':');
+    }
+}};
+is @result, <1:A 1:B 2:A 2:B 3:A 3:B>, 'chunky cross operator works';
 
 # L<S03/Cross operators/formed syntactically by placing>
 ok eval('<a b> X,X <c d>'), 'cross metaoperator parses', :todo<feature>;
