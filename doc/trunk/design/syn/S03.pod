@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 13 Mar 2007
+  Last Modified: 16 Mar 2007
   Number: 3
-  Version: 109
+  Version: 110
 
 =head1 Overview
 
@@ -513,7 +513,7 @@ infix:<div>, generic division
 
     $numerator div $denominator
 
-Dispatches to the infix:<div> multi most appropriate to the operand
+Dispatches to the C<< infix:<div> >> multi most appropriate to the operand
 types.  Policy on what to do about division by zero is up to the type,
 but for the sake of hyperoperators and junctions those types that
 can represent overflow (or that can contain an unthrown exception)
@@ -521,6 +521,9 @@ should try to do so rather than simply throwing an exception.  (And in
 general, other operators that might fail should also consider their
 use in hyperops and junctions, and whether they can profitably benefit
 from a lazy exception model.)
+
+Use of C<div> on two C<Int> values results in a ratio of the C<Rat> type.
+Integerizing a rat involves truncating its tail.
 
 =item *
 

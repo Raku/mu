@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 15 Mar 2007
+  Last Modified: 16 Mar 2007
   Number: 2
-  Version: 99
+  Version: 100
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -543,13 +543,13 @@ system of type declarations.  C<Int> automatically supports promotion
 to arbitrary precision, as well as holding C<Inf> and C<NaN> values.
 
 (C<Num> may support arbitrary-precision floating-point arithmetic, but
-is not required to unless we can do so portably and efficiently.  Num
+is not required to unless we can do so portably and efficiently.  C<Num>
 must support the largest native floating point format that runs at full speed.)
 
-C<Rational> supports arbitrary precision rational arithmetic.  However,
-dividing two C<Int> objects produces fractionals as C<Num> objects by
-default, not C<Rational> objects.  You can override this behavior with
-a pragma.
+C<Rat> supports arbitrary precision rational arithmetic.  However,
+dividing two C<Int> objects using C<< infix:</> >> produces a
+fraction of C<Num> type, not a ratio.  You can produce a ratio by
+using C<infix:<div> >> on two integers instead.
 
 Lower-case types like C<int> and C<num> imply the native
 machine representation for integers and floating-point numbers,
