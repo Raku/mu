@@ -234,7 +234,7 @@ initPreludePC :: Env -> IO Env
 initPreludePC env = do
     bypass <- bypassPreludePC
     if bypass then return env else do
-        let dispProgress = (posName . envPos $ env) == "<interactive>"
+        let dispProgress = (posName . envPos $ env) == (__"<interactive>")
         when dispProgress $ putStr "Loading Prelude... "
         catchIO loadPreludePC $ \e -> do
             case e of

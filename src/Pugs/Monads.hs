@@ -325,9 +325,8 @@ evalVal val@(VRef ref) = do
         else if refType ref == mkType "Scalar::Const"
             then evalVal =<< readRef ref
             else do
-                cls <- asks envClasses
                 typ <- evalValType val
-                if isaType cls "Junction" typ
+                if isaType "Junction" typ
                     then evalVal =<< readRef ref
                     else return val
 evalVal val = return val

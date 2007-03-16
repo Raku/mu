@@ -1536,7 +1536,7 @@ op3Caller kind skip _ = do                                 -- figure out label
     formatFrame [] = retEmpty
     formatFrame ((env, Just sub):_) = retSeq
         [ VStr $ cast (envPackage env)                 -- .package
-        , VStr $ posName $ envPos env                  -- .file
+        , VStr $ cast (posName $ envPos env)           -- .file
         , VInt $ toInteger $ posBeginLine $ envPos env -- .line
         , VStr $ cast (subName sub)                    -- .subname
         , VStr $ show $ subType sub                    -- .subtype
@@ -1545,7 +1545,7 @@ op3Caller kind skip _ = do                                 -- figure out label
         ]
     formatFrame ((env, _):_) = retSeq
         [ VStr $ cast (envPackage env)                 -- .package
-        , VStr $ posName $ envPos env                  -- .file
+        , VStr $ cast (posName $ envPos env)           -- .file
         , VInt $ toInteger $ posBeginLine $ envPos env -- .line
         ]
     kindFilter :: (Env, Maybe VCode) -> Bool

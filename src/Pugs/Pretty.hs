@@ -80,7 +80,7 @@ instance Pretty Pad where
 
 instance Pretty Pos where
     format pos =
-        let file = posName pos
+        let file = cast (posName pos)
             bln  = show $ posBeginLine pos
             bcl  = show $ posBeginColumn pos
             eln  = show $ posEndLine pos

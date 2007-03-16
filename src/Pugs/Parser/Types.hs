@@ -320,7 +320,7 @@ mkPos :: SourcePos -- ^ Starting position of the region
       -> SourcePos -- ^ Ending position of the region
       -> Pos
 mkPos pos1 pos2 = MkPos
-    { posName         = sourceName pos1 
+    { posName         = __(sourceName pos1)
     , posBeginLine    = sourceLine pos1
     , posBeginColumn  = sourceColumn pos1
     , posEndLine      = sourceLine pos2

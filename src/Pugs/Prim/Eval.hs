@@ -76,8 +76,8 @@ opRequire dumpEnv v = do
         if isYamlStale then slowEval pathName else do
         rv <- tryT $ fastEval pathNameYml
         case rv of
-            VError _ [MkPos{posName=""}] -> slowEval pathName
-            _                            -> opEval style pathName ""
+            VError _ [MkPos{posBeginLine=0}]-> slowEval pathName
+            _                               -> opEval style pathName ""
         
         
     fastEval = op1EvalP6Y . VStr
@@ -144,7 +144,7 @@ op1EvalP6Y fileName = do
                 evl ast
         x -> err x
     where
-    err x = local (\e -> e{ envPos = (envPos e){ posName="" } }) $
+    err x = local (\e -> e{ envPos = (envPos e){ posBeginLine=0 } }) $
         fail $ "failed loading Yaml: " ++ show x
 
 opEval :: EvalStyle -> FilePath -> String -> Eval Val

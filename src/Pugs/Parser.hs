@@ -300,7 +300,6 @@ rulePackageHead = do
             modify $ \state -> state
                 { s_env = (s_env state)
                     { envPackage = cast newName
-                    , envClasses = envClasses env `addNode` mkType newName
                     }
                 , s_dynParsers = MkDynParsersEmpty
                 }
@@ -738,8 +737,7 @@ ruleLoadPerlPackage pkg use lang = do
             else (App (_Var $ "&require_" ++ lang) Nothing [Val $ VStr pkg])
         modify $ \state -> state
             { s_env = env
-                { envClasses = envClasses env' `addNode` mkType pkg
-                , envGlobal  = envGlobal env'
+                { envGlobal  = envGlobal env'
                 }
             , s_dynParsers = MkDynParsersEmpty
             }

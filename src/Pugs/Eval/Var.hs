@@ -305,15 +305,14 @@ findSub _var _invs _args
             (deltaArgs, deltaCxt) <- case bindParams sub _invs _args of
                 Left{}  -> return ([maxBound], 0)
                 Right s -> do
-                    cls <- asks envClasses
                     ds  <- forM (subBindings s) $ \(prm, arg) -> case arg of
                         Syn "param-default" _   -> return Nothing
                         _  | isSlurpy prm       -> return Nothing
                         _                       -> do
                             argType <- inferExpType arg
-                            return (Just $ deltaType cls (typeOfParam prm) argType)
+                            return (Just $ deltaType (typeOfParam prm) argType)
                     cxt <- asks envContext
-                    return (catMaybes ds, deltaType cls (typeOfCxt cxt) ret)
+                    return (catMaybes ds, deltaType (typeOfCxt cxt) ret)
             return ((isMulti sub, sum deltaArgs, -(length deltaArgs), deltaCxt), fun)
 
     -- findBuiltinSub :: (_var :: Var, _invs :: Maybe Exp, _args :: [Exp])
@@ -458,8 +457,7 @@ inferExpType exp@(Var var)
             Nothing  -> return $ typeOfSigilVar var
             Just ref -> do
                 let typ = refType ref
-                cls <- asks envClasses
-                if isaType cls "List" typ
+                if isaType "List" typ
                     then return typ
                     else fromVal =<< readRef ref
 inferExpType (Val val) = fromVal val
@@ -524,7 +522,7 @@ getMagical var = Map.findWithDefault (return Nothing) var magicalMap
 
 magicalMap :: Map Var (Eval (Maybe Val))
 magicalMap = Map.fromList
-    [ (cast "$?FILE"     , posSym posName)
+    [ (cast "$?FILE"     , posSym ((cast . posName) :: Pos -> String))
     , (cast "$?LINE"     , posSym posBeginLine)
     , (cast "$?COLUMN"   , posSym posBeginColumn)
     , (cast "$?POSITION" , posSym pretty)

@@ -462,10 +462,9 @@ listVal x           = [x]
 isImmediateMatchContext :: Eval Bool
 isImmediateMatchContext = do
     env <- ask
-    let cls = envClasses env
-        cxt = envContext env
+    let cxt = envContext env
         typ = typeOfCxt cxt
-    return (cxt == CxtVoid || (any (\x -> isaType cls x typ) ["Bool", "Num", "Str"]))
+    return (cxt == CxtVoid || (any (\x -> isaType x typ) ["Bool", "Num", "Str"]))
 
 (./) :: ((:>:) Call a) => Val -> a -> Eval Val
 (VV vv) ./ y = vvToVal =<< ivDispatch vv (cast y)

@@ -70,14 +70,13 @@ emptyEnv name genPad = stm $ do
         , envLValue  = False
         , envGlobal  = length (show (padKeys globPad)) `seq` glob -- force eval of all sym names
         , envPackage = cast "Main"
-        , envClasses = initTree
         , envEval    = evaluate
         , envCaller  = Nothing
         , envOuter   = Nothing
         , envFrames  = emptyFrames
         , envBody    = Val undef
         , envDebug   = Just ref -- Set to "Nothing" to disable debugging
-        , envPos     = MkPos name 1 1 1 1
+        , envPos     = MkPos (cast name) 1 1 1 1
         , envPragmas = []
         , envInitDat = init
         , envMaxId   = maxi
@@ -188,9 +187,9 @@ evalRef :: VRef -> Eval Val
 evalRef ref = do
     if refType ref == (mkType "Thunk") then forceRef ref else do
     val <- catchT $ \esc -> do
-        MkEnv{ envContext = cxt, envLValue = lv, envClasses = cls } <- ask
+        MkEnv{ envContext = cxt, envLValue = lv } <- ask
         let typ = typeOfCxt cxt
-            isCollectionRef = isaType cls "List" (refType ref)
+            isCollectionRef = isaType "List" (refType ref)
         -- If RValue, read from the reference
         unless lv $ do
             when (isCollectionRef && isItemCxt cxt) $ do
@@ -628,9 +627,8 @@ reduceSyn name [cond, body]
 reduceSyn "=" [lhs, rhs] = do
     refVal  <- enterLValue $ evalExp lhs
     ref     <- fromVal refVal
-    cls     <- asks envClasses
     let typ = refType ref
-        cxt | isaType cls "List" typ = cxtSlurpyAny
+        cxt | isaType "List" typ = cxtSlurpyAny
             | otherwise = cxtItem $ takeWhile (/= ':') . show $ refType ref
     val <- enterRValue $ enterEvalContext cxt rhs
     writeRef ref val
@@ -1364,9 +1362,7 @@ apply :: VCode       -- ^ The sub to apply
       -> (Maybe Exp) -- ^ Explicit invocant
       -> [Exp]       -- ^ List of arguments (not including explicit invocant)
       -> Eval Val
-apply sub invs args = do
-    env <- ask
-    doApply env sub invs args
+apply = doApply
 
 -- XXX not entirely sure how this evaluation should proceed
 reduceNamedArg :: Exp -> Eval Exp
@@ -1383,12 +1379,11 @@ reduceNamedArg other = return other
 Apply a sub (or other code object) to an (optional) invocants, and a list of
 arguments, in the specified environment.
 -}
-doApply :: Env         -- ^ Environment to evaluate in
-        -> VCode       -- ^ The sub to apply
+doApply :: VCode       -- ^ The sub to apply
         -> (Maybe Exp) -- ^ Explicit invocant
         -> [Exp]       -- ^ List of arguments (not including explicit invocant)
         -> Eval Val
-doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args = do
+doApply sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args = do
     realInvs <- fmapM reduceNamedArg invs
     realArgs <-  mapM reduceNamedArg args  
     case bindParams sub realInvs realArgs of
@@ -1463,8 +1458,7 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
         val <- if thunk then thunkify else do
             v   <- eval
             typ <- evalValType v
-            let cls = envClasses env
-            if isaType cls "Junction" typ then return v else do
+            if isaType "Junction" typ then return v else do
             case (lv, rw) of
                 (True, True)    -> return v
                 (True, False)   -> do
@@ -1497,9 +1491,9 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
         return $ genericDrop n (concat elms :: [Val])
     isCollapsed :: Type -> Bool
     isCollapsed typ
-        | isaType (envClasses env) "Bool" typ        = True
-        | isaType (envClasses env) "Junction" typ    = True
-        | otherwise                     = False
+        | isaType "Bool" typ        = True
+        | isaType "Junction" typ    = True
+        | otherwise                 = False
 
 doFetch :: (Val -> Eval (IVar VScalar))
         -> (Val -> Eval Val)
