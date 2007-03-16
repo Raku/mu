@@ -239,15 +239,13 @@ instance ArrayClass VArray where
     array_store (VUndef:as) (_:vs) = array_store as vs
     array_store as [] = forM_ as $ \a -> do
         -- clear out everything
-        env <- ask
         ref <- fromVal a
-        if isaType (envClasses env) "List" (refType ref)
+        if isaType "List" (refType ref)
             then writeRef ref (VList [])
             else writeRef ref VUndef
     array_store (a:as) vals@(v:vs) = do
-        env <- ask
         ref <- fromVal a
-        if isaType (envClasses env) "List" (refType ref)
+        if isaType "List" (refType ref)
             then do
                 writeRef ref (VList vals)
                 array_store as []

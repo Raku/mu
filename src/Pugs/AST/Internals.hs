@@ -167,9 +167,8 @@ ifValTypeIsa :: Val      -- ^ Value to check the type of
              -> Eval a
 ifValTypeIsa v (':':typ) trueM falseM = ifValTypeIsa v typ trueM falseM
 ifValTypeIsa v typ trueM falseM = do
-    env <- ask
     vt  <- evalValType v
-    if isaType (envClasses env) typ vt
+    if isaType typ vt
         then trueM
         else falseM
 
@@ -1342,7 +1341,6 @@ data Env = MkEnv
     , envImplicit:: !(Map Var ())        -- ^ Set of implicit variables
     , envGlobal  :: !(TVar Pad)          -- ^ Global pad for variable lookup
     , envPackage :: !Pkg                 -- ^ Current package
-    , envClasses :: !ClassTree           -- ^ Current class tree
     , envEval    :: !(Exp -> Eval Val)   -- ^ Active evaluator
     , envCaller  :: !(Maybe Env)         -- ^ Caller's "env" pad
     , envOuter   :: !(Maybe Env)         -- ^ Outer block's env
@@ -1747,18 +1745,6 @@ doHash val@(VRef _) _ = die "Cannot cast into Hash" val
 doHash val f = do
     hv  <- fromVal val
     return $ f (hv :: VHash)
-    {-
-    typ <- evalValType val
-    cls <- asks envClasses
-    if (isaType cls "List" typ)
-        then do
-            hv  <- fromVal val
-            return $ f (hv :: VHash)
-        else do
-            -- XXX: Fail or return undef?
-            -- return $ f (Map.empty :: VHash)
-            fail $ "Not an Hash reference: " ++ show val
-    -}
 
 -- can be factored out
 doArray :: Val -> (forall a. ArrayClass a => a -> b) -> Eval b
@@ -1782,18 +1768,6 @@ doArray (VMatch m) f = do
 doArray val f = do
     av  <- fromVal val
     return $ f (av :: VArray)
-    {-
-    typ <- evalValType val
-    cls <- asks envClasses
-    if (isaType cls "List" typ)
-        then do
-            av  <- fromVal val
-            return $ f (av :: VArray)
-        else do
-            -- XXX: Fail or return undef?
-            -- return $ f ([] :: VArray)
-            fail $ "Not an Array reference: " ++ show val
-    -}
 
 -- Haddock doesn't seem to like data/instance declarations with a where clause.
 #ifndef HADDOCK
@@ -2030,14 +2004,13 @@ _FakeEnv = unsafePerformIO $ stm $ do
         , envLValue  = False
         , envGlobal  = glob
         , envPackage = cast "Main"
-        , envClasses = initTree
         , envEval    = const (return VUndef)
         , envCaller  = Nothing
         , envOuter   = Nothing
         , envFrames  = Set.empty
         , envBody    = Val undef
         , envDebug   = Just ref -- Set to "Nothing" to disable debugging
-        , envPos     = MkPos "<null>" 1 1 1 1
+        , envPos     = MkPos (__"<null>") 1 1 1 1
         , envPragmas = []
         , envInitDat = init
         , envMaxId   = maxi

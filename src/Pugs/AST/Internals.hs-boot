@@ -32,7 +32,6 @@ errValPos :: Val -> Pos -> Val
 envAtomic :: Env -> Bool
 envContext :: Env -> Cxt
 envMaxId :: Env -> TVar ObjectId
-envClasses :: Env -> ClassTree
 enterAtomicEnv :: Env -> Env
 objOpaque :: VObject -> Maybe Dynamic
 
