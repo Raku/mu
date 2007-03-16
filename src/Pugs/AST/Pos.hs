@@ -4,6 +4,7 @@ module Pugs.AST.Pos (
     Pos(..),
 ) where
 import Data.Typeable
+import Data.ByteString (ByteString)
 
 {-|
 Represents the position of a chunk of source code: filename; start
@@ -13,7 +14,7 @@ Not to be confused with the 'Exp' constructor of the same name, which stores
 a sub-tree and its associated 'Pos'.
 -}
 data Pos = MkPos
-    { posName           :: !String -- ^ Source file name
+    { posName           :: !ByteString -- ^ Source file name
     , posBeginLine      :: !Int
     , posBeginColumn    :: !Int
     , posEndLine        :: !Int
