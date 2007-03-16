@@ -1,11 +1,6 @@
 mp6/kp6 FAQ
 
 
-* Where is fglock?
-
-fglock will be in Capao da Canoa beach until feb. 25, mostly offline.
-
-
 * Overview - What is mp6/kp6/v6?
 
 v6 is a perl6-on-perl6 project.
