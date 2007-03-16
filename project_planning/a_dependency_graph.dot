@@ -182,13 +182,13 @@ digraph G {
 
   {
     "OO core defined"
-    kp6
+    kp6 [URL="http://svn.pugscode.org/pugs/v6/v6-KindaPerl6/"]
   } -> "kp6 with real OO" -> {
     "6-on-6"
     "Have backends"
   }
   "6-on-6" -> {
-    "v6-alpha"
+    "v6-alpha" [URL="http://svn.pugscode.org/pugs/perl5/Pugs-Compiler-Perl6/"]
     "Perl6 in P6"
   }
 
@@ -197,6 +197,7 @@ digraph G {
 # http://www.perlfoundation.org/gc/grants/2005-p6-proposal.html
 
   subgraph "cluster Parrot stuff" {
+    URL="http://www.perlfoundation.org/gc/grants/2005-p6-proposal.html"
     label=""
 
     milestone_4 [label="Parrot 1.0\nParrot Milestone 4\nGrammar Engine\nMilestone 4"];
