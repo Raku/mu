@@ -55,11 +55,10 @@ sub fix_config {
         no warnings 'redefine';
         *run_children = sub {
             my ($self, $child_count, $all_tests) = @_;
-            my $pm =  Parallel::ForkManager->new($child_count);
-            my $chunk_size = POSIX::ceil(@$all_tests / $child_count);
+            my $pm = Parallel::ForkManager->new($child_count);
 
             for my $child (1 .. $child_count) {
-                my @own_tests = splice @$all_tests, 0, $chunk_size;
+                my @own_tests = @{$all_tests}[grep { ($_ % $child_count) == ($child-1) } (0..$#{$all_tests})];
                 my $pid = $pm->start and next;
                 # Inside child process now
                 $self->{_child_num} = $child;
@@ -231,9 +230,8 @@ sub run {
 
 sub run_children {
     my ($self, $child_count, $all_tests) = @_;
-    my $chunk_size = POSIX::ceil(@$all_tests / $child_count);
     for my $child (1 .. $child_count) {
-        my @own_tests = splice @$all_tests, 0, $chunk_size;
+        my @own_tests = @{$all_tests}[grep { ($_ % $child_count) == ($child-1) } (0..$#{$all_tests})];
         defined(my $pid = fork) or die "Can't fork: $!";
         if ($pid) {
             push @{ $self->{_children} }, $pid;
