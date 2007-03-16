@@ -4,7 +4,11 @@ for Perl 6 development.
 == How-to ==
 
 Requires graphviz.
-$ dot -Tpng file.dot > image.png
+$ dot -Tpng   a_dependency_graph.dot > a_dependency_graph.png
+$ dot -Tcmapx a_dependency_graph.dot > a_dependency_graph.map
+$ perl -MCGI=:standard -e \
+  'print start_html,img {src=>shift,usemap=>"#G",border=>0},<STDIN>,end_html' \
+  a_dependency_graph.png < a_dependency_graph.map > a_dependency_graph.html
 
 == Meaning ==
 
