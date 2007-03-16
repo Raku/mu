@@ -32,6 +32,7 @@ import Data.Bits (shiftL)
 import qualified Data.Map as Map
 import qualified Data.HashTable as H
 import qualified Data.IntMap as IntMap
+import qualified Data.IntSet as IntSet
 import qualified Data.ByteString.Char8 as Buf -- Intentionally not UTF8!
 
 data Type
@@ -666,14 +667,13 @@ the tree, the result is a very large number.
 > <scook0> I think I'll just document the current behaviour for now
 > <autrijus> nod. it is a mess. it really wants a rewrite.
 -}
-deltaType :: ClassTree -- ^ Class tree to use for the comparison
-          -> Type      -- ^ Base type
+deltaType :: Type      -- ^ Base type
           -> Type      -- ^ Possibly-derived type
           -> Int
-deltaType = junctivate min max $ \tree base target ->
-    let distance = distanceType tree base target in
+deltaType = junctivate min max $ \base target ->
+    let distance = distanceType base target in
     if distance < 0
-        then countTree tree - distance
+        then initTreeCount - distance
         else distance
 
 {-|
@@ -693,14 +693,13 @@ junctivate :: (t -> t -> t) -- ^ Function to combine results over disjunctive
                             --     (@|@) types
            -> (t -> t -> t) -- ^ Function to combine results over conjunctive 
                             --     (@\&@) types
-           -> (ClassTree -> Type -> Type -> t)
+           -> (Type -> Type -> t)
                             -- ^ Function that will actually perform the 
                             --     comparison (on non-junctive types)
-           -> ClassTree     -- ^ Class tree to pass to the comparison function
            -> Type          -- ^ First type to compare
            -> Type          -- ^ Second type to compare
            -> t
-junctivate or and f tree base target
+junctivate or and f base target
     | TypeOr t1 t2 <- target
     = redo base t1 `or` redo base t2
     | TypeOr b1 b2 <- base
@@ -710,20 +709,19 @@ junctivate or and f tree base target
     | TypeAnd b1 b2 <- base
     = redo b1 target `and` redo b2 target
     | otherwise
-    = f tree base target
+    = f base target
     where
-    redo = junctivate or and f tree
+    redo = junctivate or and f
 
 -- When saying Int.isa(Scalar), Scalar is the base, Int is the target
 {-|
 A more convenient version of 'isaType\'' that automatically converts the base
 type string into an actual 'Type' value.
 -}
-isaType :: ClassTree -- ^ Class tree to use for the comparison
-        -> String    -- ^ Base type
+isaType :: String    -- ^ Base type
         -> Type      -- ^ Possibly-derived type
         -> Bool
-isaType tree base target = isaType' tree (mkType base) target
+isaType base target = isaType' (mkType base) target
 
 {-|
 Return true if the second type (the \'target\') is derived-from or equal-to the 
@@ -731,27 +729,35 @@ first type (the \'base\'), in the context of the given class tree.
 
 This function will autothread over junctive types.
 -}
-isaType' :: ClassTree -- ^ Class tree to use for the comparison
-         -> Type      -- ^ Base type
+isaType' :: Type      -- ^ Base type
          -> Type      -- ^ Possibly-derived type
          -> Bool
-isaType' = junctivate (||) (&&) $ \tree base target ->
-    distanceType tree base target >= 0
+isaType' = junctivate (||) (&&) $ \base target ->
+    distanceType base target >= 0
 
 {-|
 Compute the \'distance\' between two types by applying 'findList' to each of
 /bin/bash: line 1: :1: command not found
 See 'compareList' for further details.
 -}
-distanceType :: ClassTree -> Type -> Type -> Int
-distanceType (MkClassTree tree) base@(MkType b) target@(MkType t) = 
-    IntMap.findWithDefault (compareList l1 l2) (idKey b `shiftL` 16 + idKey t) initCache
+distanceType :: Type -> Type -> Int
+distanceType base@(MkType b) target@(MkType t) = 
+    IntMap.findWithDefault (distanceType base' target') (bk `shiftL` 16 + tk) initCache
 --  | not (castOk base target)  = 0
 --  | otherwise = compareList l1 l2
     where
-    l1 = findList base tree
-    l2 = findList target tree
-distanceType _ _ _ = error "distanceType: MkType not 'simple'"
+    bk      = idKey b
+    tk      = idKey t
+    base'   = if IntSet.member bk initKeySet then base else anonType1
+    target' = if IntSet.member tk initKeySet then target else anonType2
+distanceType _ _ = error "distanceType: MkType not 'simple'"
+
+anonType1, anonType2 :: Type
+anonType1 = mkType "\1"
+anonType2 = mkType "\2"
+
+initKeySet :: IntSet.IntSet
+initKeySet = IntSet.fromList (map idKey initLeaves)
 
 initCache :: IntMap.IntMap Int
 initCache = IntMap.fromList leaves
@@ -860,6 +866,9 @@ Default class tree, containing all built-in types.
 initTree :: ClassTree
 initTree = MkClassTree (fmap MkType rawTree)
 
+initTreeCount :: Int
+initTreeCount = countTree initTree
+
 rawTree :: Tree ID
 rawTree = fmap cast $! Node "Object"
     [ Node "Any"
@@ -925,5 +934,8 @@ rawTree = fmap cast $! Node "Object"
             [ Node "Pair::HashSlice" []
             ]
         ]
-    , Node "Junction" [] ]
+    , Node "Junction" []
+    , Node "\1" []
+    , Node "\2" []
+    ]
 
