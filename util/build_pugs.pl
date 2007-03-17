@@ -300,12 +300,16 @@ sub build {
         build_exe($version, $runcompiler, $ghc_version, @args);
     }
 
-    my $pm = "src/perl6/Prelude.pm";
-    my $ppc_hs = "src/Pugs/Prelude.hs";
     my $ppc_yml = "blib6/lib/Prelude.pm.yml";
-    my $instances_hs = "src/Pugs/AST/Internals/Instances.hs";
 
-    if ((!-s $ppc_yml) or -M $ppc_yml > -M $ppc_hs or -M $ppc_yml > -M $instances_hs) {
+    my @depends = qw(
+        src/perl6/Prelude.pm
+        src/Pugs/Prelude.hs
+        src/Pugs/AST/Internals/Instances.hs
+        src/DrIFT/YAML.hs
+    );
+
+    if ((!-s $ppc_yml) or grep { -M $ppc_yml > -M $_ } @depends) {
         # can't assume blib6/lib exists: the user may be running
         # `make unoptimised` which doesn't create it.
         mkpath(dirname($ppc_yml));
