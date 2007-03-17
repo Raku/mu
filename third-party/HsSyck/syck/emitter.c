@@ -51,12 +51,15 @@ syck_base64enc( char *s, long len )
         buff[i++] = padding;
         buff[i++] = padding;
     }
-    buff[i++] = '\n';
+
+    /* XXX - Changed by Audrey Tang to terminate the string instead of adding an useless \n */
+    buff[i++] = '\0';
     return buff;
 }
 
+/* XXX - Changed by Audrey Tang to deal with \0 in decoded base64 buffers */
 char *
-syck_base64dec( char *s, long len )
+syck_base64dec( char *s, long len, long *out_len )
 {
     int a = -1,b = -1,c = 0,d;
     static int first = 1;
@@ -97,6 +100,8 @@ syck_base64dec( char *s, long len )
     }
     *end = '\0';
     /*RSTRING(buf)->len = ptr - RSTRING(buf)->ptr;*/
+
+    *out_len = end - ptr;
     return ptr;
 }
 
@@ -699,9 +704,9 @@ void syck_emit_scalar( SyckEmitter *e, char *tag, enum scalar_style force_style,
     }
 
     /* Determine block style */
-    if ( scan & SCAN_NONPRINT ) {
+    if ( (scan & SCAN_NONPRINT) && (e->style != scalar_fold) ) {
         force_style = scalar_2quote;
-    } else if ( scan & SCAN_WHITEEDGE ) {
+    } else if ( force_style != scalar_1quote && ( scan & SCAN_WHITEEDGE ) ) {
         force_style = scalar_2quote;
     } else if ( force_style != scalar_fold && ( scan & SCAN_INDENTED ) ) {
         force_style = scalar_literal;
@@ -826,7 +831,7 @@ void syck_emit_1quoted( SyckEmitter *e, int width, char *str, long len )
             do_indent = 0;
         }
         switch ( *mark ) {
-            case '\'':  syck_emitter_write( e, "'", 1 ); break;
+            case '\'':  syck_emitter_write( e, "\\'", 2 ); break;
 
             case '\n':
                 end = mark + 1;
@@ -888,16 +893,19 @@ void syck_emit_2quoted( SyckEmitter *e, int width, char *str, long len )
             case '\t': syck_emitter_write( e, "\\t",  2 ); break;
             case '\v': syck_emitter_write( e, "\\v",  2 ); break;
             case 0x1b: syck_emitter_write( e, "\\e",  2 ); break;
+            case '\n': syck_emitter_write( e, "\\n",  2 ); break;
 
+            /* XXX - Disabled by Audrey Tang for YAML.pm compat
             case '\n':
                 end = mark + 1;
                 syck_emitter_write( e, "\\n", 2 );
-                do_indent = 2;
+                do_indent = e->indent;
                 start = mark + 1;
                 if ( start < str + len && ( *start == ' ' || *start == '\n' ) ) {
                     do_indent = 0;
                 }
             break;
+            */
 
             case ' ':
                 if ( width > 0 && *start != ' ' && mark - end > width ) {
@@ -1267,10 +1275,10 @@ syck_emitter_mark_node( SyckEmitter *e, st_data_t n )
              * Insert into anchors table
              */
             st_insert( e->anchors, (st_data_t)oid, (st_data_t)anchor_name );
-
-            /* XXX - Added by Audrey Tang to handle self-recursive structures - XXX */
-            return 0;
         }
+
+        /* XXX - Added by Audrey Tang to handle self-recursive structures - XXX */
+        return 0;
     }
     return oid;
 }
