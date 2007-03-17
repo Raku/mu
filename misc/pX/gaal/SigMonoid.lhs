@@ -63,6 +63,7 @@ Signatures
   :($x, $y)    :+:  :($x?, $y?)          = :($x?, $y?) -- can get away with it
 
   :($x, $y)    :+:  :($x?, $z?)          = :($?, $?, :$x, :$y, :$z)
+  :($x, $y)    :+:  :($z, $y)            = :($, $, :$x, :$y, :$z)
   :($x?)       :+:  :($y?)               = :($?, :$x, :$y)
 
   :(:$elk)     :+:  :(:$caribou)         = :(:$elk, :$caribou)
