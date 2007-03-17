@@ -241,10 +241,8 @@ instance YAML VSubst where
 	    liftM2 MkTrans (fromYAML aa) (fromYAML ab)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkSubst","MkTrans"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML a@(MkSubst aa ab) = asYAMLanchor a $! asYAMLseq "MkSubst"
-	   [asYAML aa, asYAML ab]
-    asYAML a@(MkTrans aa ab) = asYAMLanchor a $! asYAMLseq "MkTrans"
-	   [asYAML aa, asYAML ab]
+    asYAML (MkSubst aa ab) = asYAMLseq "MkSubst" [asYAML aa, asYAML ab]
+    asYAML (MkTrans aa ab) = asYAMLseq "MkTrans" [asYAML aa, asYAML ab]
 
 instance YAML VThunk where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
@@ -253,8 +251,7 @@ instance YAML VThunk where
 	    liftM2 MkThunk (fromYAML aa) (fromYAML ab)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkThunk"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML a@(MkThunk aa ab) = asYAMLanchor a $! asYAMLseq "MkThunk"
-	   [asYAML aa, asYAML ab]
+    asYAML (MkThunk aa ab) = asYAMLseq "MkThunk" [asYAML aa, asYAML ab]
 
 instance YAML VProcess where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
@@ -263,8 +260,7 @@ instance YAML VProcess where
 	    liftM MkProcess (fromYAML aa)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkProcess"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML a@(MkProcess aa) = asYAMLanchor a $! asYAMLseq "MkProcess"
-	   [asYAML aa]
+    asYAML (MkProcess aa) = asYAMLseq "MkProcess" [asYAML aa]
 
 instance YAML VRule where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
@@ -278,11 +274,10 @@ instance YAML VRule where
 	    liftM4 MkRulePGE (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkRulePCRE","MkRulePGE"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML a@(MkRulePCRE aa ab ac ad ae af) = asYAMLanchor a $!
-	   asYAMLseq "MkRulePCRE"
+    asYAML (MkRulePCRE aa ab ac ad ae af) = asYAMLseq "MkRulePCRE"
 	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae, asYAML af]
-    asYAML a@(MkRulePGE aa ab ac ad) = asYAMLanchor a $!
-	   asYAMLseq "MkRulePGE" [asYAML aa, asYAML ab, asYAML ac, asYAML ad]
+    asYAML (MkRulePGE aa ab ac ad) = asYAMLseq "MkRulePGE"
+	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad]
 
 instance YAML Val where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
@@ -366,50 +361,31 @@ instance YAML Val where
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["VUndef","VBool","VInt","VRat","VNum","VComplex","VStr","VList","VType","VJunc","VError","VControl","VRef","VCode","VBlock","VHandle","VSocket","VThread","VProcess","VRule","VSubst","VMatch","VObject","VOpaque","PerlSV","VV"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (VUndef) = asYAMLcls "VUndef"
-    asYAML a@(VBool aa) = asYAMLanchor a $! asYAMLseq "VBool"
-	   [asYAML aa]
-    asYAML a@(VInt aa) = asYAMLanchor a $! asYAMLseq "VInt" [asYAML aa]
-    asYAML a@(VRat aa) = asYAMLanchor a $! asYAMLseq "VRat" [asYAML aa]
-    asYAML a@(VNum aa) = asYAMLanchor a $! asYAMLseq "VNum" [asYAML aa]
-    asYAML a@(VComplex aa) = asYAMLanchor a $! asYAMLseq "VComplex"
-	   [asYAML aa]
-    asYAML a@(VStr aa) = asYAMLanchor a $! asYAMLseq "VStr" [asYAML aa]
-    asYAML a@(VList aa) = asYAMLanchor a $! asYAMLseq "VList"
-	   [asYAML aa]
-    asYAML a@(VType aa) = asYAMLanchor a $! asYAMLseq "VType"
-	   [asYAML aa]
-    asYAML a@(VJunc aa) = asYAMLanchor a $! asYAMLseq "VJunc"
-	   [asYAML aa]
-    asYAML a@(VError aa ab) = asYAMLanchor a $! asYAMLseq "VError"
-	   [asYAML aa, asYAML ab]
-    asYAML a@(VControl aa) = asYAMLanchor a $! asYAMLseq "VControl"
-	   [asYAML aa]
-    asYAML a@(VRef aa) = asYAMLanchor a $! asYAMLseq "VRef" [asYAML aa]
-    asYAML a@(VCode aa) = asYAMLanchor a $! asYAMLseq "VCode"
-	   [asYAML aa]
-    asYAML a@(VBlock aa) = asYAMLanchor a $! asYAMLseq "VBlock"
-	   [asYAML aa]
-    asYAML a@(VHandle aa) = asYAMLanchor a $! asYAMLseq "VHandle"
-	   [asYAML aa]
-    asYAML a@(VSocket aa) = asYAMLanchor a $! asYAMLseq "VSocket"
-	   [asYAML aa]
-    asYAML a@(VThread aa) = asYAMLanchor a $! asYAMLseq "VThread"
-	   [asYAML aa]
-    asYAML a@(VProcess aa) = asYAMLanchor a $! asYAMLseq "VProcess"
-	   [asYAML aa]
-    asYAML a@(VRule aa) = asYAMLanchor a $! asYAMLseq "VRule"
-	   [asYAML aa]
-    asYAML a@(VSubst aa) = asYAMLanchor a $! asYAMLseq "VSubst"
-	   [asYAML aa]
-    asYAML a@(VMatch aa) = asYAMLanchor a $! asYAMLseq "VMatch"
-	   [asYAML aa]
-    asYAML a@(VObject aa) = asYAMLanchor a $! asYAMLseq "VObject"
-	   [asYAML aa]
-    asYAML a@(VOpaque aa) = asYAMLanchor a $! asYAMLseq "VOpaque"
-	   [asYAML aa]
-    asYAML a@(PerlSV aa) = asYAMLanchor a $! asYAMLseq "PerlSV"
-	   [asYAML aa]
-    asYAML a@(VV aa) = asYAMLanchor a $! asYAMLseq "VV" [asYAML aa]
+    asYAML (VBool aa) = asYAMLseq "VBool" [asYAML aa]
+    asYAML (VInt aa) = asYAMLseq "VInt" [asYAML aa]
+    asYAML (VRat aa) = asYAMLseq "VRat" [asYAML aa]
+    asYAML (VNum aa) = asYAMLseq "VNum" [asYAML aa]
+    asYAML (VComplex aa) = asYAMLseq "VComplex" [asYAML aa]
+    asYAML (VStr aa) = asYAMLseq "VStr" [asYAML aa]
+    asYAML (VList aa) = asYAMLseq "VList" [asYAML aa]
+    asYAML (VType aa) = asYAMLseq "VType" [asYAML aa]
+    asYAML (VJunc aa) = asYAMLseq "VJunc" [asYAML aa]
+    asYAML (VError aa ab) = asYAMLseq "VError" [asYAML aa, asYAML ab]
+    asYAML (VControl aa) = asYAMLseq "VControl" [asYAML aa]
+    asYAML (VRef aa) = asYAMLseq "VRef" [asYAML aa]
+    asYAML (VCode aa) = asYAMLseq "VCode" [asYAML aa]
+    asYAML (VBlock aa) = asYAMLseq "VBlock" [asYAML aa]
+    asYAML (VHandle aa) = asYAMLseq "VHandle" [asYAML aa]
+    asYAML (VSocket aa) = asYAMLseq "VSocket" [asYAML aa]
+    asYAML (VThread aa) = asYAMLseq "VThread" [asYAML aa]
+    asYAML (VProcess aa) = asYAMLseq "VProcess" [asYAML aa]
+    asYAML (VRule aa) = asYAMLseq "VRule" [asYAML aa]
+    asYAML (VSubst aa) = asYAMLseq "VSubst" [asYAML aa]
+    asYAML (VMatch aa) = asYAMLseq "VMatch" [asYAML aa]
+    asYAML (VObject aa) = asYAMLseq "VObject" [asYAML aa]
+    asYAML (VOpaque aa) = asYAMLseq "VOpaque" [asYAML aa]
+    asYAML (PerlSV aa) = asYAMLseq "PerlSV" [asYAML aa]
+    asYAML (VV aa) = asYAMLseq "VV" [asYAML aa]
 
 instance YAML SubType where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
@@ -464,8 +440,7 @@ instance YAML Param where
 	    liftM9 MkOldParam (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae) (fromYAML af) (fromYAML ag) (fromYAML ah) (fromYAML ai)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkOldParam"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML a@(MkOldParam aa ab ac ad ae af ag ah ai) =
-	   asYAMLanchor a $!
+    asYAML (MkOldParam aa ab ac ad ae af ag ah ai) =
 	   asYAMLseq "MkOldParam"
 	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae, asYAML af,
 	    asYAML ag, asYAML ah, asYAML ai]
@@ -543,8 +518,7 @@ instance YAML VCode where
 	    liftM13 MkCode (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae) (fromYAML af) (fromYAML ag) (fromYAML ah) (fromYAML ai) (fromYAML aj) (fromYAML ak) (fromYAML al) (fromYAML am)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkCode"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML a@(MkCode aa ab ac ad ae af ag ah ai aj ak al am) =
-	   asYAMLanchor a $!
+    asYAML (MkCode aa ab ac ad ae af ag ah ai aj ak al am) =
 	   asYAMLseq "MkCode"
 	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae, asYAML af,
 	    asYAML ag, asYAML ah, asYAML ai, asYAML aj, asYAML ak, asYAML al,
@@ -559,8 +533,7 @@ instance YAML TraitBlocks where
 	    liftM11 MkTraitBlocks (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae) (fromYAML af) (fromYAML ag) (fromYAML ah) (fromYAML ai) (fromYAML aj) (fromYAML ak)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkTraitBlocks"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML a@(MkTraitBlocks aa ab ac ad ae af ag ah ai aj ak) =
-	   asYAMLanchor a $!
+    asYAML (MkTraitBlocks aa ab ac ad ae af ag ah ai aj ak) =
 	   asYAMLseq "MkTraitBlocks"
 	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae, asYAML af,
 	    asYAML ag, asYAML ah, asYAML ai, asYAML aj, asYAML ak]
@@ -583,10 +556,10 @@ instance YAML Ann where
 	    return Parens
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["Cxt","Pos","Prag","Decl","Parens"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML a@(Cxt aa) = asYAMLanchor a $! asYAMLseq "Cxt" [asYAML aa]
-    asYAML a@(Pos aa) = asYAMLanchor a $! asYAMLseq "Pos" [asYAML aa]
-    asYAML a@(Prag aa) = asYAMLanchor a $! asYAMLseq "Prag" [asYAML aa]
-    asYAML a@(Decl aa) = asYAMLanchor a $! asYAMLseq "Decl" [asYAML aa]
+    asYAML (Cxt aa) = asYAMLseq "Cxt" [asYAML aa]
+    asYAML (Pos aa) = asYAMLseq "Pos" [asYAML aa]
+    asYAML (Prag aa) = asYAMLseq "Prag" [asYAML aa]
+    asYAML (Decl aa) = asYAMLseq "Decl" [asYAML aa]
     asYAML (Parens) = asYAMLcls "Parens"
 
 instance YAML Exp where
@@ -626,23 +599,19 @@ instance YAML Exp where
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["Noop","App","Syn","Ann","Pad","Sym","Stmts","Prim","Val","Var","NonTerm"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (Noop) = asYAMLcls "Noop"
-    asYAML a@(App aa ab ac) = asYAMLanchor a $! asYAMLseq "App"
+    asYAML (App aa ab ac) = asYAMLseq "App"
 	   [asYAML aa, asYAML ab, asYAML ac]
-    asYAML a@(Syn aa ab) = asYAMLanchor a $! asYAMLseq "Syn"
-	   [asYAML aa, asYAML ab]
-    asYAML a@(Ann aa ab) = asYAMLanchor a $! asYAMLseq "Ann"
-	   [asYAML aa, asYAML ab]
-    asYAML a@(Pad aa ab ac) = asYAMLanchor a $! asYAMLseq "Pad"
+    asYAML (Syn aa ab) = asYAMLseq "Syn" [asYAML aa, asYAML ab]
+    asYAML (Ann aa ab) = asYAMLseq "Ann" [asYAML aa, asYAML ab]
+    asYAML (Pad aa ab ac) = asYAMLseq "Pad"
 	   [asYAML aa, asYAML ab, asYAML ac]
-    asYAML a@(Sym aa ab ac ad ae) = asYAMLanchor a $! asYAMLseq "Sym"
+    asYAML (Sym aa ab ac ad ae) = asYAMLseq "Sym"
 	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae]
-    asYAML a@(Stmts aa ab) = asYAMLanchor a $! asYAMLseq "Stmts"
-	   [asYAML aa, asYAML ab]
-    asYAML a@(Prim aa) = asYAMLanchor a $! asYAMLseq "Prim" [asYAML aa]
-    asYAML a@(Val aa) = asYAMLanchor a $! asYAMLseq "Val" [asYAML aa]
-    asYAML a@(Var aa) = asYAMLanchor a $! asYAMLseq "Var" [asYAML aa]
-    asYAML a@(NonTerm aa) = asYAMLanchor a $! asYAMLseq "NonTerm"
-	   [asYAML aa]
+    asYAML (Stmts aa ab) = asYAMLseq "Stmts" [asYAML aa, asYAML ab]
+    asYAML (Prim aa) = asYAMLseq "Prim" [asYAML aa]
+    asYAML (Val aa) = asYAMLseq "Val" [asYAML aa]
+    asYAML (Var aa) = asYAMLseq "Var" [asYAML aa]
+    asYAML (NonTerm aa) = asYAMLseq "NonTerm" [asYAML aa]
 
 instance YAML InitDat where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
@@ -651,8 +620,7 @@ instance YAML InitDat where
 	    liftM MkInitDat (fromYAML aa)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkInitDat"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML a@(MkInitDat aa) = asYAMLanchor a $! asYAMLseq "MkInitDat"
-	   [asYAML aa]
+    asYAML (MkInitDat aa) = asYAMLseq "MkInitDat" [asYAML aa]
 
 instance YAML PadEntry where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
@@ -667,13 +635,12 @@ instance YAML PadEntry where
 	    liftM3 PEConstant (fromYAML aa) (fromYAML ab) (fromYAML ac)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["PELexical","PEStatic","PEConstant"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML a@(PELexical aa ab ac ad ae) = asYAMLanchor a $!
-	   asYAMLseq "PELexical"
+    asYAML (PELexical aa ab ac ad ae) = asYAMLseq "PELexical"
 	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae]
-    asYAML a@(PEStatic aa ab ac ad) = asYAMLanchor a $!
-	   asYAMLseq "PEStatic" [asYAML aa, asYAML ab, asYAML ac, asYAML ad]
-    asYAML a@(PEConstant aa ab ac) = asYAMLanchor a $!
-	   asYAMLseq "PEConstant" [asYAML aa, asYAML ab, asYAML ac]
+    asYAML (PEStatic aa ab ac ad) = asYAMLseq "PEStatic"
+	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad]
+    asYAML (PEConstant aa ab ac) = asYAMLseq "PEConstant"
+	   [asYAML aa, asYAML ab, asYAML ac]
 
 instance YAML IHashEnv where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
@@ -698,8 +665,7 @@ instance YAML ObjectId where
 	    liftM MkObjectId (fromYAML aa)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkObjectId"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML a@(MkObjectId aa) = asYAMLanchor a $! asYAMLseq "MkObjectId"
-	   [asYAML aa]
+    asYAML (MkObjectId aa) = asYAMLseq "MkObjectId" [asYAML aa]
 
 instance YAML VObject where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
@@ -708,8 +674,8 @@ instance YAML VObject where
 	    liftM4 MkObject (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkObject"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML a@(MkObject aa ab ac ad) = asYAMLanchor a $!
-	   asYAMLseq "MkObject" [asYAML aa, asYAML ab, asYAML ac, asYAML ad]
+    asYAML (MkObject aa ab ac ad) = asYAMLseq "MkObject"
+	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad]
 
 instance YAML VMatch where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
@@ -720,8 +686,7 @@ instance YAML VMatch where
 	    liftM6 MkMatch (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae) (fromYAML af)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkMatch"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML a@(MkMatch aa ab ac ad ae af) = asYAMLanchor a $!
-	   asYAMLseq "MkMatch"
+    asYAML (MkMatch aa ab ac ad ae af) = asYAMLseq "MkMatch"
 	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae, asYAML af]
 
 instance YAML CompUnit where
@@ -731,8 +696,8 @@ instance YAML CompUnit where
 	    liftM3 MkCompUnit (fromYAML aa) (fromYAML ab) (fromYAML ac)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkCompUnit"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML a@(MkCompUnit aa ab ac) = asYAMLanchor a $!
-	   asYAMLseq "MkCompUnit" [asYAML aa, asYAML ab, asYAML ac]
+    asYAML (MkCompUnit aa ab ac) = asYAMLseq "MkCompUnit"
+	   [asYAML aa, asYAML ab, asYAML ac]
 
 instance YAML VMultiCode where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
@@ -741,8 +706,7 @@ instance YAML VMultiCode where
 	    liftM5 MkMultiCode (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkMultiCode"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML a@(MkMultiCode aa ab ac ad ae) = asYAMLanchor a $!
-	   asYAMLseq "MkMultiCode"
+    asYAML (MkMultiCode aa ab ac ad ae) = asYAMLseq "MkMultiCode"
 	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae]
 
 instance YAML VJunc where
@@ -752,7 +716,7 @@ instance YAML VJunc where
 	    liftM3 MkJunc (fromYAML aa) (fromYAML ab) (fromYAML ac)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkJunc"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML a@(MkJunc aa ab ac) = asYAMLanchor a $! asYAMLseq "MkJunc"
+    asYAML (MkJunc aa ab ac) = asYAMLseq "MkJunc"
 	   [asYAML aa, asYAML ab, asYAML ac]
 
 instance YAML JuncType where
@@ -813,8 +777,7 @@ instance YAML Pad where
 	    liftM MkPad (fromYAML aa)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkPad"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML a@(MkPad aa) = asYAMLanchor a $! asYAMLseq "MkPad"
-	   [asYAML aa]
+    asYAML (MkPad aa) = asYAMLseq "MkPad" [asYAML aa]
 
 instance YAML Pos where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
@@ -823,8 +786,7 @@ instance YAML Pos where
 	    liftM5 MkPos (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkPos"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML a@(MkPos aa ab ac ad ae) = asYAMLanchor a $!
-	   asYAMLseq "MkPos"
+    asYAML (MkPos aa ab ac ad ae) = asYAMLseq "MkPos"
 	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae]
 
 instance JSON Pos where
@@ -852,12 +814,9 @@ instance YAML Type where
 	    liftM2 TypeAnd (fromYAML aa) (fromYAML ab)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkType","TypeOr","TypeAnd"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML a@(MkType aa) = asYAMLanchor a $! asYAMLseq "MkType"
-	   [asYAML aa]
-    asYAML a@(TypeOr aa ab) = asYAMLanchor a $! asYAMLseq "TypeOr"
-	   [asYAML aa, asYAML ab]
-    asYAML a@(TypeAnd aa ab) = asYAMLanchor a $! asYAMLseq "TypeAnd"
-	   [asYAML aa, asYAML ab]
+    asYAML (MkType aa) = asYAMLseq "MkType" [asYAML aa]
+    asYAML (TypeOr aa ab) = asYAMLseq "TypeOr" [asYAML aa, asYAML ab]
+    asYAML (TypeAnd aa ab) = asYAMLseq "TypeAnd" [asYAML aa, asYAML ab]
 
 instance JSON Type where
     showJSON (MkType aa) = showJSArrayObj "MkType" [showJSON aa]
@@ -886,10 +845,8 @@ instance YAML Cxt where
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["CxtVoid","CxtItem","CxtSlurpy"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (CxtVoid) = asYAMLcls "CxtVoid"
-    asYAML a@(CxtItem aa) = asYAMLanchor a $! asYAMLseq "CxtItem"
-	   [asYAML aa]
-    asYAML a@(CxtSlurpy aa) = asYAMLanchor a $! asYAMLseq "CxtSlurpy"
-	   [asYAML aa]
+    asYAML (CxtItem aa) = asYAMLseq "CxtItem" [asYAML aa]
+    asYAML (CxtSlurpy aa) = asYAMLseq "CxtSlurpy" [asYAML aa]
 
 instance JSON Cxt where
     showJSON (CxtVoid) = showJSScalar "CxtVoid"
@@ -919,8 +876,7 @@ instance YAML Pragma where
 	    liftM2 MkPrag (fromYAML aa) (fromYAML ab)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkPrag"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML a@(MkPrag aa ab) = asYAMLanchor a $! asYAMLseq "MkPrag"
-	   [asYAML aa, asYAML ab]
+    asYAML (MkPrag aa ab) = asYAMLseq "MkPrag" [asYAML aa, asYAML ab]
 
 instance JSON Pragma where
     showJSON (MkPrag aa ab) = showJSHashObj "MkPrag"
