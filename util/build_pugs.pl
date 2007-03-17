@@ -313,7 +313,11 @@ sub build {
         # can't assume blib6/lib exists: the user may be running
         # `make unoptimised` which doesn't create it.
         mkpath(dirname($ppc_yml));
+
+        # also, remove all .pm.yml files there too.
+        unlink($_) for glob(File::Spec->catfile(dirname($ppc_yml) . "*.pm.yml"));
         
+        # finally regenerate the prelude.
         run($^X, qw<util/gen_prelude.pl -v -i src/perl6/Prelude.pm>,
                 (map { ('-i' => $_) } @{ PugsBuild::Config->lookup('precompile_modules') }),
                 '-p', $thispugs, '--output', $ppc_yml);
