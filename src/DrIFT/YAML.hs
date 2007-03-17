@@ -8,7 +8,7 @@ import Data.Typeable
 import Data.Char
 import Control.Exception
 import Control.Concurrent.STM
-import qualified Data.IntSet as IntSet
+import qualified Data.IntMap as IntMap
 import Foreign.StablePtr
 import Foreign.Ptr
 import Control.Monad.Reader
@@ -23,11 +23,11 @@ type Buf = Buf.ByteString
 type YAMLClass = String
 type YAMLKey = String
 type YAMLVal = YamlNode
-type SeenCache = IORef IntSet.IntSet
+type SeenCache = IORef (IntMap.IntMap (Ptr ()))
 
 toYamlNode :: YAML a => a -> IO YamlNode
 toYamlNode x = do
-    cache   <- newIORef IntSet.empty 
+    cache   <- newIORef IntMap.empty 
     runReaderT (asYAML x) cache
 
 showYaml :: YAML a => a -> IO String
@@ -225,23 +225,19 @@ instance (Typeable a, YAML a) => YAML (TVar a) where
 
 asYAMLanchor :: a -> EmitAs YamlNode -> EmitAs YamlNode
 asYAMLanchor x m = do
-    ptr     <- liftIO $ stableAddressOf x
     cache   <- ask
     seen    <- liftIO $ readIORef cache
-    if IntSet.member ptr seen
+    ref     <- liftIO $ fmap castStablePtrToPtr (newStablePtr x)
+    let ptr = ref `minusPtr` nullPtr
+    if IntMap.member ptr seen
         then return nilNode{ n_anchor = AReference ptr } 
         else do
-            liftIO $ modifyIORef cache (IntSet.insert ptr)
+            liftIO $ modifyIORef cache (IntMap.insert ptr ref)
             rv  <- m
             return rv{ n_anchor = AAnchor ptr }
 
 asYAMLwith :: (YAML a, YAML b) => (a -> EmitAs b) -> a -> EmitAs YamlNode
 asYAMLwith f x = asYAMLanchor x (asYAML =<< f x)
-
-stableAddressOf :: a -> IO Int
-stableAddressOf x = do
-    ptr <- newStablePtr x
-    return (castStablePtrToPtr ptr `minusPtr` (nullPtr :: Ptr ()))
 
 failWith :: forall a. YAML a => YamlElem -> IO a
 failWith e = fail $ "no parse: " ++ show e ++ " as " ++ show typ

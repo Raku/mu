@@ -68,6 +68,11 @@ dumpYaml v = do
 strNode :: String -> YamlNode
 strNode = mkNode . EStr . packBuf
 
+stableAddressOf :: a -> IO Int
+stableAddressOf x = do
+    ptr <- newStablePtr x
+    return (castStablePtrToPtr ptr `minusPtr` (nullPtr :: Ptr ()))
+
 toYaml :: (?seen :: IntSet.IntSet) => Val -> Eval YamlNode
 toYaml VUndef       = return $ mkNode ENil
 toYaml (VBool x)    = return $ boolToYaml x
