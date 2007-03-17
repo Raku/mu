@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans #-}
 
-module Pugs.Prim.Yaml ( evalYaml, dumpYaml ) where
+module Pugs.Prim.Yaml ( evalYaml, dumpYaml, stableAddressOf ) where
 import Pugs.Internals
 import Pugs.AST
 import Pugs.Pretty
