@@ -13,6 +13,7 @@ import Foreign.StablePtr
 import Foreign.Ptr
 import Control.Monad.Reader
 import GHC.PArr
+import Data.IORef
 import qualified UTF8 as Buf
 import qualified Data.ByteString as Bytes
 import Pugs.Internals (encodeUTF8, decodeUTF8)
@@ -22,10 +23,12 @@ type Buf = Buf.ByteString
 type YAMLClass = String
 type YAMLKey = String
 type YAMLVal = YamlNode
-type SeenCache = IntSet.IntSet
+type SeenCache = IORef IntSet.IntSet
 
 toYamlNode :: YAML a => a -> IO YamlNode
-toYamlNode x = runReaderT (asYAML x) IntSet.empty 
+toYamlNode x = do
+    cache   <- newIORef IntSet.empty 
+    runReaderT (asYAML x) cache
 
 showYaml :: YAML a => a -> IO String
 showYaml x = do
@@ -129,7 +132,7 @@ instance YAML Buf where
     fromYAMLElem e = failWith e
 
 instance YAML String where
-    asYAML = return .  mkTagNode "str" . EStr . Buf.pack . encodeUTF8
+    asYAML = return . mkTagNode "str" . EStr . Buf.pack . encodeUTF8
     fromYAMLElem (EStr str) = return . decodeUTF8 $ Buf.unpack str
     fromYAMLElem e = failWith e
 
@@ -178,14 +181,14 @@ instance (YAML a) => YAML (Maybe a) where
     fromYAMLElem x = return . Just =<< fromYAMLElem x
 
 instance (YAML a) => YAML [a] where
-    asYAML xs = do
+    asYAML xs = asYAMLanchor xs $ do
         xs' <- mapM asYAML xs
         (return . mkNode . ESeq) xs'
     fromYAMLElem (ESeq s) = mapM fromYAML s
     fromYAMLElem e = fail $ "no parse: " ++ show e
 
 instance (YAML a) => YAML [:a:] where
-    asYAML xs = do
+    asYAML xs = asYAMLanchor xs $ do
         xs' <- mapM asYAML (fromP xs)
         (return . mkNode . ESeq) xs'
     fromYAMLElem (ESeq s) = fmap toP (mapM fromYAML s)
@@ -220,15 +223,20 @@ instance (Typeable a, YAML a) => YAML (TVar a) where
     fromYAML = (atomically . newTVar =<<) . fromYAML
     fromYAMLElem = (atomically . newTVar =<<) . fromYAMLElem
 
-asYAMLwith :: (YAML a, YAML b) => (a -> EmitAs b) -> a -> EmitAs YamlNode
-asYAMLwith f x = do
-    ptr  <- liftIO $ stableAddressOf x
-    seen <- ask
+asYAMLanchor :: a -> EmitAs YamlNode -> EmitAs YamlNode
+asYAMLanchor x m = do
+    ptr     <- liftIO $ stableAddressOf x
+    cache   <- ask
+    seen    <- liftIO $ readIORef cache
     if IntSet.member ptr seen
         then return nilNode{ n_anchor = AReference ptr } 
         else do
-            rv   <- local (IntSet.insert ptr) (asYAML =<< f x)
+            liftIO $ modifyIORef cache (IntSet.insert ptr)
+            rv  <- m
             return rv{ n_anchor = AAnchor ptr }
+
+asYAMLwith :: (YAML a, YAML b) => (a -> EmitAs b) -> a -> EmitAs YamlNode
+asYAMLwith f x = asYAMLanchor x (asYAML =<< f x)
 
 stableAddressOf :: a -> IO Int
 stableAddressOf x = do
