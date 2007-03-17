@@ -8,7 +8,7 @@ module Pugs.AST.Internals (
     Val(..),   -- uses V.* (which ones?)
     Value(..), -- uses Val, Eval
     InitDat(..),
-    SubAssoc(..),
+    SubAssoc(..), TraitBlocks(..), emptyTraitBlocks,
 
     Pad(..), PadEntry(..), EntryFlags(..), PadMutator, -- uses Var, TVar, VRef
     Param(..), -- uses Cxt, Exp
@@ -1036,19 +1036,27 @@ data VCode = MkCode
     , subLValue         :: !Bool        -- ^ Is this a lvalue sub?
     , subBody           :: !Exp         -- ^ Body of the closure
     , subCont           :: !(Maybe (TVar VThunk)) -- ^ Coroutine re-entry point
-    , subPreBlocks      :: [VCode]
-    , subPostBlocks     :: [VCode]
-    , subFirstBlocks    :: [VCode]
-    , subLastBlocks     :: [VCode]
-    , subNextBlocks     :: [VCode]
-    , subKeepBlocks     :: [VCode]
-    , subUndoBlocks     :: [VCode]
-    , subEnterBlocks    :: [VCode]
-    , subLeaveBlocks    :: [VCode]
-    , subControlBlocks  :: [VCode]
-    , subCatchBlocks    :: [VCode]
+    , subTraitBlocks    :: !TraitBlocks
     }
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
+
+data TraitBlocks = MkTraitBlocks
+    { subPreBlocks      :: ![VCode]
+    , subPostBlocks     :: ![VCode]
+    , subFirstBlocks    :: ![VCode]
+    , subLastBlocks     :: ![VCode]
+    , subNextBlocks     :: ![VCode]
+    , subKeepBlocks     :: ![VCode]
+    , subUndoBlocks     :: ![VCode]
+    , subEnterBlocks    :: ![VCode]
+    , subLeaveBlocks    :: ![VCode]
+    , subControlBlocks  :: ![VCode]
+    , subCatchBlocks    :: ![VCode]
+    }
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
+
+emptyTraitBlocks :: TraitBlocks
+emptyTraitBlocks = MkTraitBlocks [] [] [] [] [] [] [] [] [] [] []
 
 {-|
 Construct a 'VCode' representing a built-in primitive operator.
@@ -1069,17 +1077,7 @@ mkPrim = MkCode
     , subBody = emptyExp
     , subLValue = False
     , subCont = Nothing
-    , subPreBlocks = []
-    , subPostBlocks = []
-    , subFirstBlocks = []
-    , subLastBlocks = []
-    , subNextBlocks = []
-    , subKeepBlocks = []
-    , subUndoBlocks = []
-    , subEnterBlocks = []
-    , subLeaveBlocks = []
-    , subControlBlocks = []
-    , subCatchBlocks = []
+    , subTraitBlocks = emptyTraitBlocks
     }
 
 mkSub :: VCode
@@ -1096,17 +1094,7 @@ mkSub = MkCode
     , subBody = emptyExp
     , subLValue = False
     , subCont = Nothing
-    , subPreBlocks = []
-    , subPostBlocks = []
-    , subFirstBlocks = []
-    , subLastBlocks = []
-    , subNextBlocks = []
-    , subKeepBlocks = []
-    , subUndoBlocks = []
-    , subEnterBlocks = []
-    , subLeaveBlocks = []
-    , subControlBlocks = []
-    , subCatchBlocks = []
+    , subTraitBlocks = emptyTraitBlocks
     }
 
 mkCode :: VCode
@@ -1123,17 +1111,7 @@ mkCode = MkCode
     , subBody = emptyExp
     , subLValue = False
     , subCont = Nothing
-    , subPreBlocks = []
-    , subPostBlocks = []
-    , subFirstBlocks = []
-    , subLastBlocks = []
-    , subNextBlocks = []
-    , subKeepBlocks = []
-    , subUndoBlocks = []
-    , subEnterBlocks = []
-    , subLeaveBlocks = []
-    , subControlBlocks = []
-    , subCatchBlocks = []
+    , subTraitBlocks = emptyTraitBlocks
     } 
 
 instance Ord VComplex where
@@ -1534,7 +1512,7 @@ mkCompUnit _ pad ast = MkCompUnit compUnitVersion pad ast
 
 {-# NOINLINE compUnitVersion #-}
 compUnitVersion :: Int
-compUnitVersion = 16
+compUnitVersion = 17
 
 {-|
 Retrieve the global 'Pad' from the current evaluation environment.
@@ -2031,17 +2009,17 @@ instance YAML (Eval Val) where
     asYAML x = asYAML =<< fakeEval x
     fromYAML x = return =<< fromYAML x
 instance (Ord a, YAML a) => YAML (Set a) where
-    asYAML x = do
+    asYAML x = asYAMLanchor x $! do
         x' <- mapM asYAML (Set.toAscList x)
         (return . mkTagNode "Set" . ESeq) x'
     fromYAML node = do
         fmap Set.fromDistinctAscList (fromYAMLseq node)
 
 instance YAML a => YAML (Map String a) where
-    asYAML x = asYAMLmap "Map" $ Map.toAscList (Map.map asYAML x)
+    asYAML x = asYAMLanchor x (asYAMLmap "Map" $ Map.toAscList (Map.map asYAML x))
     fromYAML node = fmap Map.fromList (fromYAMLmap node)
 instance YAML a => YAML (Map Var a) where
-    asYAML x = asYAMLmap "Map" . sortBy (\x y -> fst x `compare` fst y) $
+    asYAML x = asYAMLanchor x . asYAMLmap "Map" . sortBy (\x y -> fst x `compare` fst y) $
         [ (cast k, asYAML v) | (k, v) <- Map.toList x ]
     fromYAML node = do
         list <- fromYAMLmapBuf node
@@ -2200,7 +2178,7 @@ data JuncType = JAny | JAll | JNone | JOne
 data Scope = SState | SConstant | SHas | SMy | SOur
     {-!derive: YAML_Pos, JSON, Perl5!-}
 
-data Pad = MkPad { padEntries :: IntMap PadEntry }
+data Pad = MkPad { padEntries :: Map Var PadEntry }
     {-!derive: YAML_Pos!-}
 
 data Pos = MkPos
