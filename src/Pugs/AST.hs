@@ -391,17 +391,7 @@ typeMacro name exp = Syn "sub" . (:[]) . Val . VCode $ MkCode
             []  -> expToEvalVal $ exp
             xs  -> die ("Cannot coerce to " ++ name) xs
     , subCont          = Nothing
-    , subPreBlocks     = []
-    , subPostBlocks    = []
-    , subFirstBlocks   = []
-    , subLastBlocks    = []
-    , subNextBlocks    = []
-    , subKeepBlocks    = []
-    , subUndoBlocks    = []
-    , subEnterBlocks   = []
-    , subLeaveBlocks   = []
-    , subControlBlocks = []
-    , subCatchBlocks   = []
+    , subTraitBlocks   = emptyTraitBlocks
     }
     where
     typ = mkType name

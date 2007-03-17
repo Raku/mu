@@ -1279,7 +1279,7 @@ collectTraits :: VCode -> RuleParser VCode
 collectTraits sub = do
     (withTraitBlocks:prevLevel) <- gets s_closureTraits
     modify $ \state -> state{ s_closureTraits = if null prevLevel then [id] else prevLevel }
-    return $ withTraitBlocks sub
+    return $ sub{ subTraitBlocks = withTraitBlocks (subTraitBlocks sub) }
 
 
 ruleBlockFormalStandard :: RuleParser (SubType, Maybe [Param], Bool)

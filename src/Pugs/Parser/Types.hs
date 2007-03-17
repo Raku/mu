@@ -137,7 +137,7 @@ data RuleState = MkState
     , s_blockPads     :: Map Scope Pad  -- ^ Hoisted pad for this block
     , s_outerVars     :: Set Var        -- ^ OUTER symbols we remembers
                                        
-    , s_closureTraits :: [VCode -> VCode]
+    , s_closureTraits :: [TraitBlocks -> TraitBlocks]
                                        -- ^ Closure traits: head is this block, tail is all outer blocks
     }
 

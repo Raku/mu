@@ -256,8 +256,8 @@ enterSub sub action
         assertBlocks subPreBlocks "PRE"
         runBlocks subEnterBlocks
         action
-    runBlocks f = mapM_ (evalExp . Syn "block" . (:[]) . Syn "sub" . (:[]) . Val . castV) (f sub)
-    assertBlocks f name = forM_ (f sub) $ \cv -> do
+    runBlocks f = mapM_ (evalExp . Syn "block" . (:[]) . Syn "sub" . (:[]) . Val . castV) (f (subTraitBlocks sub))
+    assertBlocks f name = forM_ (f (subTraitBlocks sub)) $ \cv -> do
         rv <- fromVal =<< (evalExp . Syn "block" . (:[]) . Syn "sub" . (:[]) . Val . castV $ cv)
         if rv then return () else die (name ++ " assertion failed") (subName sub)
     typ = subType sub

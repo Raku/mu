@@ -1527,20 +1527,20 @@ mkFetch f v = do
     v' <- fromVal v
     f' v'
 
-afterLeave :: VCode -> (VCode -> [VCode]) -> VCode
+afterLeave :: VCode -> (TraitBlocks -> [VCode]) -> VCode
 afterLeave code@MkCode{ subBody = Syn "block" [Val (VCode code')] } f =
     code{ subBody = Syn "block" [Val (VCode (afterLeave code' f))] }
-afterLeave code f = code{ subLeaveBlocks = subLeaveBlocks code ++ f code }
+afterLeave code@MkCode{ subTraitBlocks = blocks } f = code{ subTraitBlocks = blocks{ subLeaveBlocks = subLeaveBlocks blocks ++ f blocks } }
 
-beforeLeave :: VCode -> (VCode -> [VCode]) -> VCode
+beforeLeave :: VCode -> (TraitBlocks -> [VCode]) -> VCode
 beforeLeave code@MkCode{ subBody = Syn "block" [Val (VCode code')] } f =
     code{ subBody = Syn "block" [Val (VCode (afterLeave code' f))] }
-beforeLeave code f = code{ subLeaveBlocks = f code ++ subLeaveBlocks code }
+beforeLeave code@MkCode{ subTraitBlocks = blocks } f = code{ subTraitBlocks = blocks{ subLeaveBlocks = f blocks ++ subLeaveBlocks blocks } }
 
-beforeEnter :: VCode -> (VCode -> [VCode]) -> VCode
+beforeEnter :: VCode -> (TraitBlocks -> [VCode]) -> VCode
 beforeEnter code@MkCode{ subBody = Syn "block" [Val (VCode code')] } f =
     code{ subBody = Syn "block" [Val (VCode (beforeEnter code' f))] }
-beforeEnter code f = code{ subEnterBlocks = f code ++ subEnterBlocks code }
+beforeEnter code@MkCode{ subTraitBlocks = blocks } f = code{ subTraitBlocks = blocks{ subEnterBlocks = f blocks ++ subEnterBlocks blocks } }
 
 fromCodeExp :: Exp -> Eval VCode
 fromCodeExp x = case x of
