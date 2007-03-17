@@ -6,6 +6,8 @@ import Pugs.AST
 import Pugs.Pretty
 import Pugs.Types
 import Data.Yaml.Syck
+import Foreign.StablePtr
+import Foreign.Ptr
 import qualified Data.Map as Map
 import qualified Data.IntSet as IntSet
 import qualified Data.ByteString as Str
