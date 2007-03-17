@@ -316,7 +316,7 @@ sub build {
         mkpath(dirname($ppc_yml));
 
         # also, remove all .pm.yml files there too.
-        unlink($_) for glob(File::Spec->catfile(dirname($ppc_yml) . "*.pm.yml"));
+        unlink($_) for glob(File::Spec->catfile(dirname($ppc_yml), "*.pm.yml"));
         
         # finally regenerate the prelude.
         run($^X, qw<util/gen_prelude.pl -v -i src/perl6/Prelude.pm>,
