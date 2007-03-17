@@ -307,9 +307,10 @@ sub build {
         src/Pugs/Prelude.hs
         src/Pugs/AST/Internals/Instances.hs
         src/DrIFT/YAML.hs
+        util/build_pugs.pl
     );
 
-    if ((!-s $ppc_yml) or grep { -M $ppc_yml > -M $_ } @depends) {
+    if ((!-s $ppc_yml) or grep { -e $_ and (-M $ppc_yml > -M $_) } @depends) {
         # can't assume blib6/lib exists: the user may be running
         # `make unoptimised` which doesn't create it.
         mkpath(dirname($ppc_yml));
