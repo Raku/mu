@@ -178,17 +178,17 @@ emitNode _ e n | EStr s <- n_elem n, Buf.length s == 1, Buf.head s == '~' = do
 emitNode _ e n | EStr s <- n_elem n = do
     withTag n (Ptr "string"##) $ \tag ->
         useAsCStringLen s $ \(cs, l) ->       
-        syck_emit_scalar e tag scalarNone 0 0 0 cs (toEnum l)
+        syck_emit_scalar e tag scalarFold 0 0 0 cs (toEnum l)
 
 emitNode freeze e n | ESeq sq <- n_elem n = do
     withTag n (Ptr "array"##) $ \tag ->
-        syck_emit_seq e tag seqNone
+        syck_emit_seq e tag seqInline
     mapM_ (syck_emit_item e) =<< mapM freeze sq
     syck_emit_end e
 
 emitNode freeze e n | EMap m <- n_elem n = do
     withTag n (Ptr "map"##) $ \tag ->
-        syck_emit_map e tag mapNone
+        syck_emit_map e tag mapInline
     flip mapM_ m (\(k,v) -> do
         syck_emit_item e =<< freeze k
         syck_emit_item e =<< freeze v)
