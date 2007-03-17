@@ -254,12 +254,19 @@ freezeNode nodes MkNode{ n_anchor = AReference n } = do
     return ptr
 freezeNode nodes node = do
     ptr     <- newStablePtr node
-    let ptr' = castPtr $ castStablePtrToPtr ptr
     case n_anchor node of
         AAnchor n -> do
-            Hash.insert nodes n ptr'
-            return ptr'
-        _         -> return ptr'
+            rv <- Hash.lookup nodes n
+            case rv of
+                Just ptr -> return ptr
+                _ -> do
+                    ptr     <- newStablePtr node
+                    let ptr' = castPtr (castStablePtrToPtr ptr)
+                    Hash.insert nodes n ptr'
+                    return $! ptr'
+        _         -> do
+            ptr     <- newStablePtr node
+            return $! castPtr (castStablePtrToPtr ptr)
 
 thawNode :: Ptr () -> IO YamlNode
 thawNode nodePtr = deRefStablePtr (castPtrToStablePtr nodePtr)
