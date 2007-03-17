@@ -10,7 +10,7 @@ import DrIFT.YAML
 
 genParseHsYAML, genParseYAML :: Eval Val
 genParseHsYAML = doGenParseYAML (fmap show . toYamlNode)
-genParseYAML   = doGenParseYAML showYaml
+genParseYAML   = doGenParseYAML showYamlCompressed
 
 doGenParseYAML :: (CompUnit -> IO String) -> Eval Val
 doGenParseYAML f = do
@@ -22,5 +22,6 @@ doGenParseYAML f = do
 genYAML :: Eval Val
 genYAML = do
     penv <- compile () :: Eval PIL_Environment
-    yaml <- io (showYaml penv)
+    yaml <- io (showYamlCompressed penv)
     return $ VStr yaml
+

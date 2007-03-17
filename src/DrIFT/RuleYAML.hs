@@ -74,9 +74,9 @@ makeFromYAML alwaysPos (Body constructor labels types) =
 makeAsYAML alwaysPos (Body constructor labels types)
     | null types = fnName <+> fsep [headfn, clsName constructor]
     | (alwaysPos || null labels) = fnName <+> fsep
-        [headfnA, bodyStartArray, bodyArray]
+        [headfn, bodyStartArray, bodyArray]
     | otherwise = fnName <+> fsep
-        [headfnA, bodyStartHash, bodyHash]
+        [headfn, bodyStartHash, bodyHash]
     where
     fnName = text "asYAML"
     headfn  = fsep [(pattern constructor types), equals]

@@ -8,15 +8,21 @@ import Data.Typeable
 import Data.Char
 import Control.Exception
 import Control.Concurrent.STM
-import qualified Data.IntMap as IntMap
 import Foreign.StablePtr
 import Foreign.Ptr
 import Control.Monad.Reader
 import GHC.PArr
 import Data.IORef
+import Foreign.C.Types
+import Data.Bits
+import Data.List	( foldl' )
+import Data.Int		( Int32, Int64 )
+import Pugs.Internals (encodeUTF8, decodeUTF8)
+import Data.HashTable (HashTable)
 import qualified UTF8 as Buf
 import qualified Data.ByteString as Bytes
-import Pugs.Internals (encodeUTF8, decodeUTF8)
+import qualified Data.IntMap as IntMap
+import qualified Data.HashTable as Hash
 
 type Buf = Buf.ByteString
 
@@ -34,6 +40,12 @@ showYaml :: YAML a => a -> IO String
 showYaml x = do
     node <- toYamlNode x
     emitYaml node
+
+showYamlCompressed :: YAML a => a -> IO String
+showYamlCompressed x = do
+    node    <- toYamlNode x
+    node'   <- compressYamlNode node
+    emitYaml node'
 
 type EmitAs = ReaderT SeenCache IO
 
@@ -224,7 +236,8 @@ instance (Typeable a, YAML a) => YAML (TVar a) where
     fromYAMLElem = (atomically . newTVar =<<) . fromYAMLElem
 
 asYAMLanchor :: a -> EmitAs YamlNode -> EmitAs YamlNode
-asYAMLanchor x m = do
+asYAMLanchor _ m = m
+{-do
     cache   <- ask
     seen    <- liftIO $ readIORef cache
     ref     <- liftIO $ fmap castStablePtrToPtr (newStablePtr x)
@@ -235,6 +248,7 @@ asYAMLanchor x m = do
             liftIO $ modifyIORef cache (IntMap.insert ptr ref)
             rv  <- m
             return rv{ n_anchor = AAnchor ptr }
+-}
 
 asYAMLwith :: (YAML a, YAML b) => (a -> EmitAs b) -> a -> EmitAs YamlNode
 asYAMLwith f x = asYAMLanchor x (asYAML =<< f x)
@@ -244,3 +258,115 @@ failWith e = fail $ "no parse: " ++ show e ++ " as " ++ show typ
     where
     typ :: TypeRep
     typ = typeOf (undefined :: a)
+
+
+type SeenHash = HashTable SYMID (Maybe YamlNode)
+type DuplHash = HashTable YamlNode Int
+
+-- Compress a YAML tree by finding common subexpressions.
+compressYamlNode :: YamlNode -> IO YamlNode
+compressYamlNode node = do
+    -- Phase 1: Update YamlNode to fill in SYMID based on hashing its values.
+    --          First time a SYMID is seen, firstTime (Hash from SYMID to (Maybe YamlNode))
+    --          is inserted.  Next time, both YamlNodes are written to the dupNode
+    --          hash (Hash from YamlNode to Int), and firstTime now contains Nothing.
+    seen    <- Hash.new (==) fromIntegral
+    dupl    <- Hash.new eqNode (fromIntegral . n_id)
+    count   <- newIORef 1
+
+    let ?seenHash = seen
+        ?duplHash = dupl
+        ?countRef = count
+    
+    node' <- markNode node
+
+    -- Phase 2: Revisit YamlNode and lookup dupNode; if it's 0 then increment curId
+    --          and mark this as AAnchor; otherwise retrieve and mark this as AReference.
+    visitNode node'
+
+eqNode :: YamlNode -> YamlNode -> Bool
+eqNode x y = (n_tag x == n_tag y) && eqElem (n_elem x) (n_elem y)
+
+eqElem :: YamlElem -> YamlElem -> Bool
+eqElem ENil         ENil        = True
+eqElem (EStr x)     (EStr y)    = x == y
+eqElem (ESeq xs)    (ESeq ys)   = and ((length xs == length ys):zipWith eqNode xs ys)
+eqElem (EMap xs)    (EMap ys)   = and ((length xs == length ys):zipWith eqPair xs ys)
+    where
+    eqPair (kx, vx) (ky, vy)    = eqNode kx ky && eqNode vx vy
+eqElem _            _           = False
+
+
+visitNode :: (?countRef :: IORef Int, ?duplHash :: DuplHash) => YamlNode -> IO YamlNode
+visitNode node = do
+    rv  <- Hash.lookup ?duplHash node
+    case rv of
+        Just 0  -> do
+            i   <- readIORef ?countRef
+            Hash.update ?duplHash node i 
+            writeIORef ?countRef (i+1)
+            elem'   <- visitElem (n_elem node)
+            return node{ n_anchor = AAnchor i, n_elem = elem' }
+        Just i  -> return nilNode{ n_anchor = AReference i }
+        _       -> do
+            elem'   <- visitElem (n_elem node)
+            return node{ n_elem = elem' }
+
+visitElem :: (?countRef :: IORef Int, ?duplHash :: DuplHash) => YamlElem -> IO YamlElem
+visitElem (ESeq ns)      = fmap ESeq (mapM visitNode ns)
+visitElem (EMap ps)      = fmap EMap (mapM visitPair ps)
+    where
+    visitPair (k, v) = do
+        k'  <- visitNode k
+        v'  <- visitNode v
+        return (k', v')
+visitElem e             = return e
+
+markNode :: (?seenHash :: SeenHash, ?duplHash :: DuplHash) => YamlNode -> IO YamlNode
+markNode node = do
+    (symid32, elem')    <- markElem (n_elem node)
+    let node' = node{ n_id = symid }
+        symid = fromIntegral (iterI32s tagid symid32)
+        tagid = maybe 0 Buf.hash (n_tag node)
+    rv  <- Hash.lookup ?seenHash symid
+    case rv of
+        Just (Just prevNode)   -> do
+            Hash.update ?duplHash node' 0
+            Hash.update ?duplHash prevNode 0
+            Hash.update ?seenHash symid Nothing
+        Just _  -> Hash.update ?duplHash node' 0
+        _       -> Hash.update ?seenHash symid (Just node')
+    return node'{ n_elem = elem' }
+
+markElem :: (?seenHash :: SeenHash, ?duplHash :: DuplHash) => YamlElem -> IO (Int32, YamlElem)
+markElem ENil           = return (0, ENil)
+markElem n@(EStr buf)   = return (Buf.hash buf, n)
+markElem (ESeq ns)      = do
+    ns' <- mapM markNode ns
+    return (hashIDs (map n_id ns'), ESeq ns')
+markElem (EMap ps)      = do
+    (symid, ps') <- foldM markPair (0, []) ps
+    return (symid, EMap ps')
+    where
+    markPair (symid, ps) (k, v) = do
+        k'  <- markNode k
+        v'  <- markNode v
+        return (iterIDs (iterIDs symid (n_id k')) (n_id v'), ((k', v'):ps))
+
+hashIDs :: [SYMID] -> Int32
+hashIDs = foldl' iterIDs 0
+
+iterIDs :: Int32 -> SYMID -> Int32
+iterIDs m c = fromIntegral (c + 1) * golden + mulHi m golden
+
+iterI32s :: Int32 -> Int32 -> Int32
+iterI32s m c = (c + 1) * golden + mulHi m golden
+
+golden :: Int32
+golden = -1640531527
+
+mulHi :: Int32 -> Int32 -> Int32
+mulHi a b = fromIntegral (r `shiftR` 32)
+    where
+    r :: Int64
+    r = fromIntegral a * fromIntegral b :: Int64
