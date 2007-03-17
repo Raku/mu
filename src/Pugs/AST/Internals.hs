@@ -2009,17 +2009,17 @@ instance YAML (Eval Val) where
     asYAML x = asYAML =<< fakeEval x
     fromYAML x = return =<< fromYAML x
 instance (Ord a, YAML a) => YAML (Set a) where
-    asYAML x = asYAMLanchor x $! do
+    asYAML x = do
         x' <- mapM asYAML (Set.toAscList x)
         (return . mkTagNode "Set" . ESeq) x'
     fromYAML node = do
         fmap Set.fromDistinctAscList (fromYAMLseq node)
 
 instance YAML a => YAML (Map String a) where
-    asYAML x = asYAMLanchor x (asYAMLmap "Map" $ Map.toAscList (Map.map asYAML x))
+    asYAML x = asYAMLmap "Map" $ Map.toAscList (Map.map asYAML x)
     fromYAML node = fmap Map.fromList (fromYAMLmap node)
 instance YAML a => YAML (Map Var a) where
-    asYAML x = asYAMLanchor x . asYAMLmap "Map" . sortBy (\x y -> fst x `compare` fst y) $
+    asYAML x = asYAMLmap "Map" . sortBy (\x y -> fst x `compare` fst y) $
         [ (cast k, asYAML v) | (k, v) <- Map.toList x ]
     fromYAML node = do
         list <- fromYAMLmapBuf node
