@@ -36,7 +36,7 @@ lists:
   - name: perl6-language
     threads:
       - date_from: 1172256588
-        date_to: 1172617749
+        date_to: 1173347567
         hidden: ~
         message_id: ef30550b0702231049o109d723r16add32940557f3e@mail.gmail.com
         messages:
@@ -55,6 +55,10 @@ lists:
             name: David Green
           - email: lrpalmer@gmail.com
             name: Luke Palmer
+          - email: juerd@convolution.nl
+            name: Juerd Waalboer
+          - email: rvtol+news@isolution.nl
+            name: Dr.Ruud
         subject: '[S09] "Whatever" indices and shaped arrays'
         summary: ''
       - date_from: 1172385763
@@ -176,7 +180,7 @@ lists:
         subject: '[svn:perl6-synopsis] r13705 - doc/trunk/design/syn'
         summary: ''
       - date_from: 1172564322
-        date_to: 1172619995
+        date_to: 1174173687
         hidden: ~
         message_id: 'p06240800c2097f7c5bd0@[192.168.1.101]'
         messages:
@@ -194,6 +198,8 @@ lists:
             name: Aaron Crane
           - email: Smylers@stripey.com
             name: Smylers
+          - email: david.green@telus.net
+            name: David Green
         subject: request new Mapping|Hash operators
         summary: ''
       - date_from: 1172583520
@@ -341,19 +347,23 @@ lists:
         subject: '[svn:perl6-synopsis] r14307 - doc/trunk/design/syn'
         summary: ''
       - date_from: 1172697714
-        date_to: 1172697714
+        date_to: 1173325048
         hidden: ~
         message_id: 20070228212148.2DAE3CBA1B@x12.develooper.com
+        messages:
+          - 'a06230905c2152df074b1@[172.27.1.7]'
         posters:
           - email: larry@cvs.perl.org
             name: larry
+          - email: david.green@telus.net
+            name: David Green
         subject: '[svn:perl6-synopsis] r14308 - doc/trunk/design/syn'
         summary: ''
     title: Language
   - name: perl6-internals
     threads:
       - date_from: 1171729135
-        date_to: 1172874310
+        date_to: 1174013144
         hidden: ~
         message_id: rt-3.6.HEAD-24617-1171729125-426.41364-15-0@perl.org
         messages:
@@ -448,8 +458,6 @@ lists:
         posters:
           - email: parrotbug-followup@parrotcode.org
             name: Klaas-Jan Stol
-          - email: parrotcode@gmail.com
-            name: Klaas-Jan Stol
           - email: lt@toetsch.at
             name: Leopold Toetsch
           - email: jerry.gay@gmail.com
@@ -505,8 +513,6 @@ lists:
         posters:
           - email: parrotbug-followup@parrotcode.org
             name: Will Coleda
-          - email: will@coleda.com
-            name: Will Coleda
           - email: chromatic@wgz.org
             name: chromatic
           - email: pmichaud@pobox.com
@@ -526,8 +532,6 @@ lists:
             name: Will Coleda
           - email: alek.storm@gmail.com
             name: Alek Storm
-          - email: will@coleda.com
-            name: Will Coleda
         rt_ticket: 'perl #41614'
         subject: "[perl #41614] Can't set non-core object attribs yet  "
         summary: ''
@@ -741,9 +745,11 @@ lists:
         subject: '[Pynie] Grammar mostly done, but help needed'
         summary: ''
       - date_from: 1172660162
-        date_to: 1172660162
+        date_to: 1173808506
         hidden: ~
         message_id: rt-3.6.HEAD-2051-1172660151-1734.41636-72-0@perl.org
+        messages:
+          - rt-3.6.HEAD-30201-1173808497-313.41636-15-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
             name: Klaas-Jan Stol
@@ -790,9 +796,12 @@ lists:
         subject: '[Pynie] Updated grammar: is [not] and [not] in workin'
         summary: ''
       - date_from: 1172780510
-        date_to: 1172780510
+        date_to: 1173989479
         hidden: ~
         message_id: rt-3.6.HEAD-2051-1172780503-566.41658-72-0@perl.org
+        messages:
+          - 4ff0b0d1aa18d785db0b644e1799bc14@gmail.com
+          - af625860bf80b4e150f82f5db3d0b02b@gmail.com
         posters:
           - email: parrotbug-followup@parrotcode.org
             name: Joshua Isom
@@ -808,6 +817,38 @@ lists:
             name: Klaas-Jan Stol
         rt_ticket: 'perl #41659'
         subject: '[perl #41659] [PATCH] Updates for languages/pynie '
+        summary: ''
+      - date_from: 1172463159
+        date_to: 1173703192
+        hidden: ~
+        message_id: 085d0590b634afd5b2bd684e063dcb45@gmail.com
+        messages:
+          - 189adbd0703041913l45542ef0oe8f71223a14fb85b@mail.gmail.com
+          - 200703041924.29034.chromatic@wgz.org
+          - 189adbd0703041939t1d3e6a69qc4b79eeccebef7ef@mail.gmail.com
+          - 189adbd0703120539t482eba9aofb96302457b28726@mail.gmail.com
+          - rt-3.6.HEAD-2051-1172463152-278.41619-72-0@perl.org
+          - 45E8B3DA.7020304@perl.org
+          - 189adbd0703041040h1d447452lc548af03f2fe6591@mail.gmail.com
+          - 189adbd0703041913l45542ef0oe8f71223a14fb85b@mail.gmail.com
+          - 200703041924.29034.chromatic@wgz.org
+          - 189adbd0703041939t1d3e6a69qc4b79eeccebef7ef@mail.gmail.com
+          - 189adbd0703120539t482eba9aofb96302457b28726@mail.gmail.com
+          - 45E3A1A6.10104@verizon.net
+        posters:
+          - email: jrisom@gmail.com
+            name: Joshua Isom
+          - email: alek.storm@gmail.com
+            name: Alek Storm
+          - email: chromatic@wgz.org
+            name: chromatic
+          - email: parrotbug-followup@parrotcode.org
+            name: Alek Storm
+          - email: allison@perl.org
+            name: Allison Randal
+          - email: jkeen@verizon.net
+            name: James E Keenan
+        subject: 'Re: [perl #41619] [PATCH] add add_attr, rem_attr, and rem_attr_str vtable methods'
         summary: ''
     title: Parrot Porters
   - name: perl6-users
@@ -827,8 +868,6 @@ lists:
             name: Eric Hanchrow
           - email: audreyt@audreyt.org
             name: Audrey Tang
-          - email: offby1@blarg.net
-            name: Eric Hanchrow
         rt_ticket: 'perl #41617'
         subject: '[perl #41617] "make test-pir" fails on x86 linux, r14402 '
         summary: ''
