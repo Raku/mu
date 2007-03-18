@@ -26,7 +26,6 @@ module Pugs.Monads (
 import Pugs.Internals
 import Pugs.AST
 import Pugs.Types
-import Control.Monad.RWS (MonadPlus(..))
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 

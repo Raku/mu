@@ -25,7 +25,11 @@ module Pugs.Internals (
     module Control.Exception,
     module Control.Monad,
     module Control.Monad.Error,
-    module Control.Monad.RWS,
+    module Control.Monad.Writer,
+    module Control.Monad.Reader,
+    module Control.Monad.State,
+    module Control.Monad.Trans,
+    module Control.Monad.Fix,
     module Control.Monad.Identity,
     module Data.Array,
     module Data.Bits,
@@ -104,10 +108,14 @@ import System.Mem
 import System.Mem.Weak
 import System.Directory (Permissions(..), getPermissions, getTemporaryDirectory, createDirectory, removeDirectory, removeFile, getDirectoryContents, getModificationTime)
 import Control.Exception (catchJust, errorCalls, Exception(..))
-import Control.Monad (replicateM, forM, forM_)
-import Control.Monad.RWS (MonadIO(..), MonadReader(..), MonadState(..), MonadWriter(..), MonadTrans(..), asks, ReaderT(..), WriterT(..), when, join, liftM, filterM, modify, unless, gets, foldM, guard, liftM2, liftM3, fix, mplus, mzero, msum, censor)
+import Control.Monad (replicateM, forM, forM_, MonadPlus(..), msum, liftM2, liftM3, guard, foldM, unless, liftM, filterM, join, when)
 import Control.Monad.Identity (Identity(..))
+import Control.Monad.State (MonadState(..), gets, modify)
+import Control.Monad.Writer (MonadWriter(..), WriterT(..), censor)
+import Control.Monad.Reader (MonadReader(..), ReaderT(..), asks)
 import Control.Monad.Error (MonadError(..), ErrorT(..), Error(..))
+import Control.Monad.Trans (MonadIO(..), MonadTrans(..))
+import Control.Monad.Fix (fix)
 import Control.Concurrent
 import Control.Concurrent.STM
 import Data.Bits hiding (shift)
