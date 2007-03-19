@@ -222,6 +222,15 @@ sub _emit {
     #die "_emit: ", Dumper( $n ); 
     #warn "_emit: ", Dumper( $n ); 
     
+    
+    # special-case '@_' to use v6.pm calling convention
+    if (exists $n->{array}
+        && $n->{array} eq '@_'
+        )
+    {
+        return '$_[0]';
+    }
+    
     # 'undef' example: parameter list, in a sub call without parameters
     return ''
         unless defined $n;
