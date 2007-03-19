@@ -153,7 +153,9 @@ my %h = hash (a => 'b');
 #sanity: Hash created in a sub is a Hash 
 test1;
 
-test2 %h;
+try {
+    test2 %h;
+}
 
 # See thread "Hash creation with duplicate keys" on p6l started by Ingo
 # Blechschmidt: L<"http://www.nntp.perl.org/group/perl.perl6.language/22401">

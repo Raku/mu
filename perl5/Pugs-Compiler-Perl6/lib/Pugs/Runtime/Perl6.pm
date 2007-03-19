@@ -124,20 +124,50 @@ sub yaml {
         no warnings 'redefine';  # Moose already does this?
         *{'::'.$class} = sub {
             my ($pos, $nam) = @_;
-            if (@$pos == 1) {
+            if (defined $pos && @$pos == 1) {
                 my ($payload) = @$pos;
                 bless($$payload, $class->meta->name);
             }
-            elsif (@$pos) {
+            elsif (defined $pos && @$pos) {
                 bless([map { $$_ } @$pos], $class->meta->name);
             }
-            elsif (%$nam) {
+            elsif (defined $nam && %$nam) {
                 bless({ map { $_ => ${$nam->{$_}} } keys %$nam }, $class->meta->name);
             }
             else {
-                $class->meta->name;
+                # "the prototype object of the type, stringifies to short name"
+                my $class_name = $class->meta->name;
+                #print "CLASS NAME: ",$class_name,"\n";
+                bless \$class_name, 'Pugs::Runtime::Class';
             }
         };
+    }
+    
+package Pugs::Runtime::Class;
+    # "the prototype object of the type, stringifies to short name"
+    use overload (
+        'eq'     => \&eq,
+        '""'     => \&str,
+        '0+'     => sub { 0 },  # ???
+        'bool'   => sub { 1 },
+        fallback => 1,
+    );
+    sub str {
+        ${$_[0]};
+    }
+    sub eq {
+        my ($self, $str) = @_;
+        # XXX  ref("aa") eq Str() -- args are reversed, but Str() is the first arg ???
+        #($self, $str) = ($str, $self) if $_[2];  
+        
+        #print "CLASS.EQ: (@_) '$self' eq '$str'\n";
+        #print "self=",ref($self)," str=",ref($str),"\n";
+        
+        # special case for perl5 scalars, they can be of any basic type
+        return 1 if $str eq ''
+            && ( $$self eq 'Str' || $$self eq 'Int' || $$self eq 'Bool' );
+        
+        $$self eq $str;
     }
 
 package Pugs::Runtime::Perl6::IO;

@@ -558,7 +558,7 @@ sub default {
     }
 
     if ( exists $n->{op1} && $n->{op1} eq 'call' ) {
-        # warn "call: ",Dumper $n;
+        #warn "call: ",Dumper $n;
 
         if ($n->{sub}{scalar} || $n->{sub}{exp1} || $n->{sub}{statement}) {
             return _emit($n->{sub}). '->(' . 
@@ -874,7 +874,7 @@ sub default {
     
         # normal methods or subs
         
-        if ( exists $n->{sub}{bareword} ) {
+        if ( exists $n->{sub} && exists $n->{sub}{bareword} ) {
             return " " . Pugs::Runtime::Common::mangle_ident( $n->{sub}{bareword} ) .
             '(' .
             join ( ";\n",   # XXX

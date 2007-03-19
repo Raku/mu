@@ -219,6 +219,42 @@ sub lexer {
                 $m2 = $meth;
                 next;
             }
+            
+            # term.>>meth: list  # TODO 
+            # term( invocant : list )   # TODO - arity({ $^a,$^b }:)
+            
+            # term.meth: list  
+            if ( $m2 && $m2->tail && $m2->tail =~ /^\:(?!=)/ ) {
+                my $paren = Pugs::Grammar::Expression->parse( $match, { p => $pos2 + 1 } );
+                #print "paren: ",Dumper($paren);
+                if ( exists $m2->()->{dot_bareword} ) {
+                    $paren->data->{capture} = \{ 
+                        op1 => 'method_call', 
+                        self => { 'scalar' => '$_' }, 
+                        method => $m2->(), 
+                        param => $paren->(), 
+                    };
+                }
+                elsif ( exists $m2->()->{op1} 
+                     && $m2->()->{op1} eq 'method_call'
+                     && ! defined $m2->()->{param} 
+                ) {
+                    $paren->data->{capture} = \{ 
+                        %{$m2->()}, 
+                        param => $paren->(), 
+                    };
+                }
+                else {
+                    $paren->data->{capture} = \{ 
+                        op1 => 'call', 
+                        sub => $m2->(), 
+                        param => $paren->(), 
+                    };
+                }
+                $m2 = $paren;
+                next;
+            }
+
             # term.meth() 
             if ( $m2 && $m2->tail && $m2->tail =~ /^\.[^.([{<«]/ ) {
                 my $meth = Pugs::Grammar::Term->parse( $match, { p => $pos2 } );
@@ -237,9 +273,25 @@ sub lexer {
             }
             # term() 
             if ( $m2 && $m2->tail && $m2->tail =~ /^\.?\(/ ) {
+                #print "PAREN\n";
                 my $paren = Pugs::Grammar::Term->parse( $match, { p => $pos2 } );
                 #print "paren: ",Dumper($paren);
-                if ( exists $m2->()->{dot_bareword} ) {
+                if ( exists $paren->()->{self} ) {
+                    #print "SELF\n";
+                    my %param = %{$paren->()};
+                    #print "paren: ",Dumper(\%param);
+                    my $self = delete $param{self};
+                    my $method = $m2->();
+                    $method = { dot_bareword => $method->{bareword} }
+                        if exists $method->{bareword};
+                    $paren->data->{capture} = \{ 
+                        op1 => 'method_call', 
+                        self => $self, 
+                        method => $method, 
+                        param => {%param}, 
+                    };
+                }
+                elsif ( exists $m2->()->{dot_bareword} ) {
                     $paren->data->{capture} = \{ 
                         op1 => 'method_call', 
                         self => { 'scalar' => '$_' }, 

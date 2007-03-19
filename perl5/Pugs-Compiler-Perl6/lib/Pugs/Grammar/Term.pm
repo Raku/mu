@@ -126,6 +126,40 @@ sub rx_body {
 ) )->code;
 
 *parenthesis = Pugs::Compiler::Token->compile( q^
+                <?ws>? $<invocant> := <Pugs::Grammar::Term.parse> <?ws>? \:
+                [
+                    <?ws> 
+                    <Pugs::Grammar::Expression.parse('allow_semicolon', 1)> <?ws>? 
+                    <')'>
+                    { return {
+                        op1      => "(",
+                        op2      => ")",
+                        fixity   => "circumfix",
+                        self     => $_[0]{'invocant'}->(),
+                        exp1     => $_[0]{'Pugs::Grammar::Expression.parse'}->() 
+                    } }
+                |
+                    <?ws>? 
+                    <')'>
+                    { return {
+                        op1      => "(",
+                        op2      => ")",
+                        fixity   => "circumfix",
+                        self     => $_[0]{'invocant'}->(),
+                    } }
+                ]
+            |
+                <?ws>? <Pugs::Grammar::Perl6.block> <?ws>? \:  
+                <?ws>?
+                <')'>
+                { return {
+                    op1      => "(",
+                    op2      => ")",
+                    fixity   => "circumfix",
+                    self     => $_[0]{'Pugs::Grammar::Perl6.block'}->() 
+                } }
+            |
+
                 <?ws>? <Pugs::Grammar::Expression.parse('allow_semicolon', 1)> <?ws>? 
                 <')'>
                 { return {
@@ -517,6 +551,7 @@ sub recompile {
                 }
             |
                 # default
+                <?ws> 
                 { return { bareword => 'use' } }
             ),
         q(do) =>  q( 
