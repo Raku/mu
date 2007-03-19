@@ -1,3 +1,8 @@
+
+[Changes for 0.003 - 21 Mar, 2007]
+  - dispatch() doesn't change @_,
+    needed by v6.pm t/01-sanity/07-simple-multisubs.t (fglock)
+
 [Changes for 0.002 - 16 Jul, 2006]
   - Same as 0.001_2, except removed an underscore now v6.pm depends on us.
 

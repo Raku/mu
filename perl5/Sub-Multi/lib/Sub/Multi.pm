@@ -1,5 +1,5 @@
 package Sub::Multi;
-our $VERSION = '0.002';
+our $VERSION = '0.003';
 use 5.008;
 use base 'Class::Multimethods::Pure';
 use Data::Bind 0.27;
@@ -78,7 +78,7 @@ sub dispatch {
     my @compat;
     for my $variant (@$subs) {
 	my $cv = Data::Bind::_get_cv($variant);
-	push @compat, $variant if *$cv->{sig}->is_compatible(@_);
+	push @compat, $variant if *$cv->{sig}->is_compatible( [ @{$_[0]} ], { %{$_[1]} } );
     }
     die 'I hate vapour ware' unless @compat;
     while (@compat != 1) {
