@@ -1,4 +1,13 @@
 
+- Moose requires that attributes have an 'is ro' declaration; noticed by
+k
+olibrie++
+- @_ is now aliased to the list of positional arguments
+- bare 'Str' is an object
+- added syntax: 'term.meth: list'
+- added syntax: 'meth(term: list)'
+- requires Sub::Multi 0.003
+
 0.016  2006-12-14
 
 - command-line switch -B can be set to alternate backends.
