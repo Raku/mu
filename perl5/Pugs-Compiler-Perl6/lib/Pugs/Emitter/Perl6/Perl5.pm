@@ -1757,6 +1757,16 @@ sub variable_declarator {
             #warn Dumper @{$n->{attribute}};
             my $is_rw = grep { $_->[0]{bareword} eq 'is' &&
                                $_->[1]{bareword} eq 'rw' } @{$n->{attribute}};
+
+            unless ( $is_rw ) {
+                # ... then it 'is ro'
+                my $is_ro = grep { $_->[0]{bareword} eq 'is' &&
+                               $_->[1]{bareword} eq 'ro' } @{$n->{attribute}};
+                unless ( $is_ro ) {
+                    push @{$n->{attribute}}, [ { bareword => 'is' }, { bareword => 'ro' } ];
+                }
+            }
+
             if ( $is_rw ) {
                 $_V6_ENV{$raw_name}{set} = sub { 
                     "\$_V6_SELF->{'" . substr($raw_name,2) . "'} = " . $_[0] 
