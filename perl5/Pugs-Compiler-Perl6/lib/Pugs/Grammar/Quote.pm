@@ -42,15 +42,20 @@ sub angle_quoted {
 }
 
 *double_quoted_expression = Pugs::Compiler::Token->compile(q(
-        <before [ <'$'> | <'@'> | <'%'> | <'&'> ] >
+    <before [ <'$'> | <'@'> | <'%'> | <'&'> ] >
+    [
         <Pugs::Grammar::Term.parse>
         { return $/{'Pugs::Grammar::Term.parse'}() }
+    |
+        .
+        { return { double_quoted => '\\\\' . $/() ,} }
+    ]
 ))->code;
 
 *double_quoted_text = Pugs::Compiler::Token->compile(q(
     (
         <!before [ <'$'> | <'@'> | <'%'> | <'&'> | <'"'> ] >
-        [ <'\"'> | . ]
+        [ <'\\'> . | . ]
     )+
     { return { double_quoted => $/() ,} }
 ))->code;

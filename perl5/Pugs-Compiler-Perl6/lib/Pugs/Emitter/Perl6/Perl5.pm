@@ -228,7 +228,7 @@ sub _emit {
         && $n->{array} eq '@_'
         )
     {
-        return '$_[0]';
+        #return '$_[0]';
     }
     
     # 'undef' example: parameter list, in a sub call without parameters
@@ -408,7 +408,7 @@ sub _emit_data_bind_param_spec {
     return $dumped;
 }
 
-sub _emit_parameter_binding {
+sub _emit_parameter_binding_2 {
     my $n = $_[0];
     # no parameters
     return ''
@@ -441,6 +441,14 @@ sub _emit_parameter_binding {
     }
     return((length($param) ? "  my ($param);\n" : '').
            "  Data::Bind->arg_bind(\\\@_);\n  $defaults;\n");
+}
+sub _emit_parameter_binding {
+    return
+        _emit_parameter_binding_2(@_)
+        # construct '@_'
+        . ' @_ = map { ref $_ eq "SCALAR" ? $$_ : $_ } @{$_[0]}; '
+        #. ' use Data::Dumper; print Dumper( \@_ ); '
+        ;
 }
 
 sub _emit_parameter_capture {
@@ -579,7 +587,12 @@ sub default {
             return 
                 " bless({" . emit_parenthesis( $n->{param} ) . "}, '$type')";
         }
-        
+    }
+    if ( exists $n->{op1} 
+        && $n->{op1} eq 'call' 
+        && exists $n->{sub}{bareword} 
+        ) 
+    {
         if ( $n->{sub}{bareword} eq 'call' ) {
             # call;
             #warn "super call: ",Dumper $n;

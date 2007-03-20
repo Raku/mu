@@ -1,4 +1,4 @@
-
+- minor fix in quoted string parser
 - Moose requires that attributes have an 'is ro' declaration; noticed by
 k
 olibrie++
