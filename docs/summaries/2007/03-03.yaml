@@ -23,7 +23,10 @@ extra:
         * [ONLamp](http://www.oreillynet.com/onlamp/blog/)
       title: Distribution
   header:
-    - body: ~
+    - body: |-
+        "It seems you are presuming a Waterfall model of development here.  We're not doing the Waterfall, we're doing the Whirlpool, where the strange attractor whirls around with feedback at many levels but eventually converges on something in the middle.  In other words, a whirlpool sucks, but the trick is to position your whirlpool over your intended destination, and you'll eventually get there, though perhaps a bit dizzier than you'd like."
+        
+        -- Larry Wall, in '<msgid:45E12FCE.6080000@hainsworth.ru>'
       title: This week on the Perl 6 mailing lists
   see_also:
     - name: Perl Foundation activities
@@ -60,7 +63,21 @@ lists:
           - email: rvtol+news@isolution.nl
             name: Dr.Ruud
         subject: '[S09] "Whatever" indices and shaped arrays'
-        summary: ''
+        summary: |-
+          Jonathan Lang suggested dropping some specification from S09 which described
+          how `*` works in conjunction with `+` and `-`.  He suggested using `[0]`
+          for the first index instead of `*+0`.  Larry Wall added his thoughts,
+          noting that it was 'shiny', but that nested `[]`s might not be visually
+          appealing.
+          
+          Luke Palmer decided to mention Ruby's boolean truth model which he admires.
+          With it, 'nil' and 'false' are false, and everything else--including an
+          empty string and '0'--are true.  In summary he stated that simple rules
+          are a blessing if you find the right ones, and that he's a fan of
+          boolean predictability.
+          
+          The shaped arrays thread continued, and eventually Larry was satisfied
+          and requested a patch to S09.
       - date_from: 1172385763
         date_to: 1172443231
         hidden: ~
@@ -109,10 +126,39 @@ lists:
           - email: larry@wall.org
             name: Larry Wall
         subject: What criteria mark the closure of perl6 specification
-        summary: ''
+        summary: |-
+          Richard Hainsworth asked when the Perl 6 specification will be complete.
+          He is eager to begin using Perl 6, but wants to see it stabilize.
+          Geoffrey Broadwell was perfectly willing to work with a moving
+          specification, so long as the current version of the specification
+          was mostly implemented.  chromatic noted that this is what everyone
+          wants.
+          
+          Geoffrey offered to write some tests which would demonstrate
+          missing features, if someone could implement the features.  Gabor
+          Szabo said that he wished there were many people writing tests
+          for unimplemented features, as someone would surely implement
+          the feature to make tests pass.
+          
+          There was a discussion on how out-of-date the Exegesis files are.
+          Masak suggested porting the code examples in the Exegesis to current
+          Perl 6, and storing them in the Pugs repository.  Herbert Breunung
+          thought a disclaimer that they are outdated would be adequate.
+          
+          Patrick Michaud noted that the changes to the specification have not
+          had a negative impact on the development of the Perl 6 on Parrot
+          implementation; to the contrary, they have made the work easier.
+          
+          Smylers added that there is no point in freezing the specification if
+          it turns out it can't be implemented.  Smylers felt that most of the
+          current work is clarifying, rather than adding new features. 
+          
+          Larry Wall explained that Perl 6 development doesn't follow the
+          Waterfall model.  He cannot design something without feedback from
+          implementors.  The development model was described as a 'whirlpool'.
       - date_from: 1172425469
         date_to: 1172426257
-        hidden: ~
+        hidden: child of 45E12FCE.6080000@hainsworth.ru
         message_id: 437125805@web.de
         messages:
           - 16d769b70702250957g50d9e251l6551ff49b9b60ff1@mail.gmail.com
@@ -125,7 +171,7 @@ lists:
         summary: ''
       - date_from: 1172426777
         date_to: 1172426777
-        hidden: ~
+        hidden: child of 45E12FCE.6080000@hainsworth.ru
         message_id: 437155200@web.de
         posters:
           - email: deirdre_skye@web.de
@@ -160,7 +206,16 @@ lists:
           - email: audreyt.org@gmail.com
             name: Audrey Tang
         subject: Packed array status?
-        summary: ''
+        summary: |-
+          Geoffrey Broadwell wanted to know what backends support packed native
+          arrays.  He also added a comment on '<msgid:45E12FCE.6080000@hainsworth.ru>'.
+          
+          chromatic replied that Parrot has `ManagedStruct` and `UnManagedStruct`
+          PMCs for mapping complex C structures.  Patrick Michaud replied that
+          the PIR libraries aren't working yet, but that implementing them should
+          not be too difficult.  Audrey Tang also described the situation in
+          Pugs.  Geoffrey wondered if he could follow the development status.
+          He offered to write some tests.
       - date_from: 1172513119
         date_to: 1172513119
         hidden: ~
@@ -169,10 +224,12 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r13704 - doc/trunk/design/syn'
-        summary: ''
+        summary: |-
+          Larry Wall's commit made the one-pass parsing rule explicit so that
+          tests can reference it.
       - date_from: 1172515323
         date_to: 1172515323
-        hidden: ~
+        hidden: nit
         message_id: 20070226194217.443E5CBA1B@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -201,7 +258,31 @@ lists:
           - email: david.green@telus.net
             name: David Green
         subject: request new Mapping|Hash operators
-        summary: ''
+        summary: |-
+          Darren Duncan believes that there is room for some additional convenience
+          operators or functions which are used with mapping and hash values.  In
+          particular, he would like the relational data model concept of a tuple.
+          He feels that this could be satisfied with the data types `Mapping` and
+          `Hash` with the addition of some common relational operators such
+          as `join()`, `semijoin()`, `semidifference()`, `rename()`, `project()`,
+          `remove()`, `compose()`, `wrap()`, and `unwrap()`.
+          
+          Nicholas Clark noted that `rename` is a Perl 5 builtin, which he doesn't
+          believe has been dropped for Perl 6.  Smylers added that Perl already has
+          a `join` function for renaming strings.  Darren reiterated that he isn't
+          concerned with the names so much as the concepts they express.
+          
+          Aaron Crane wondered why Darren was specifically against putting this
+          functionality into a third-party module.  Darren supplied an argument
+          for the usefulness of relational operators in response.  Smylers pointed
+          out that it would be odd to include core support for database operations
+          when most people would opt to use DBI (a module) instead.  David Green
+          wasn't concerned about whether the features were core or in a module,
+          but thought it would be nice to have them.
+          
+          There was some discussion on whether certain features, such as renaming
+          hash keys, are implemented in Perl 5, with David Green, Darren Duncan,
+          Aaron Crane and Uri Guttman taking part.
       - date_from: 1172583520
         date_to: 1172583520
         hidden: ~
@@ -210,7 +291,10 @@ lists:
           - email: geoff@broadwell.org
             name: Geoffrey Broadwell
         subject: 'request: num16'
-        summary: ''
+        summary: |-
+          Geoffrey Broadwell requested that `num16` and `complex16` be added to S09
+          and made optional.  These half-sized floating point types are commonly used
+          in graphics.
       - date_from: 1172584568
         date_to: 1172605880
         hidden: ~
@@ -229,7 +313,15 @@ lists:
           - email: john@perlwolf.com
             name: John Macdonald
         subject: Bit shifts on low-level types
-        summary: ''
+        summary: |-
+          Geoffrey Broadwell asked how bitwise shifts are defined on low-level types.
+          Smylers remarked that it is rare to deal with anything as low-level as
+          bits in Perl 5 programming.  He feared that introducing more operators
+          into the core language, especially if they would be rarely used, raises
+          the entry barrier.
+          
+          Nicholas Clark added that it's something you don't want to do in Perl 5,
+          because it is so bad at it.
       - date_from: 1172584827
         date_to: 1172584827
         hidden: ~
@@ -238,7 +330,7 @@ lists:
           - email: geoff@broadwell.org
             name: Geoffrey Broadwell
         subject: Rotation ops?
-        summary: ''
+        summary: Geoffrey Broadwell asked if Perl 6 has bit/string rotation operators.
       - date_from: 1172585449
         date_to: 1172620569
         hidden: ~
@@ -251,7 +343,14 @@ lists:
           - email: darren@DarrenDuncan.net
             name: Darren Duncan
         subject: Low-level types and over/underflow
-        summary: ''
+        summary: |-
+          Geoffrey Broadwell wanted to know what would happen if a low-level type
+          underflows or overflows.  For example, if you incremented a `uint8` past
+          255, what would be the result?
+          
+          Darren Duncan thought that it depended upon what the underlying hardware
+          does.  He suspected it would be a wraparound or an overflow, not a type
+          upgrade.
       - date_from: 1172586054
         date_to: 1172623133
         hidden: ~
@@ -264,7 +363,11 @@ lists:
           - email: larry@wall.org
             name: Larry Wall
         subject: Casting and low-level types
-        summary: ''
+        summary: |-
+          In this thread, Geoffrey Broadwell asked what happens when you cast between
+          low-level types if the source value is out of range for the destination
+          type.  Larry Wall replied that it would be an warning if the destination
+          is an `int`, and a clip to infinities when the destination is a `num`.
       - date_from: 1172587763
         date_to: 1172623132
         hidden: ~
@@ -277,7 +380,10 @@ lists:
           - email: larry@wall.org
             name: Larry Wall
         subject: Compact structs and "byte-stringification"
-        summary: ''
+        summary: |-
+          Geoffrey Broadwell wanted to know how you specify that you want to 
+          byte-stringify a structure, rather than normally stringifying it.
+          Larry Wall advised coercing to a buffer type rather than using `~`.
       - date_from: 1172596504
         date_to: 1172623131
         hidden: ~
@@ -291,10 +397,14 @@ lists:
           - email: larry@wall.org
             name: Larry Wall
         subject: Expressions with mixed types including low-level types
-        summary: ''
+        summary: |-
+          Geoffrey Broadwell asked how casting and coercion are handled with
+          expressions which involve mixing low- and high-level types.
+          Larry Wall answered the question, and pointed to a recent update of
+          S09.
       - date_from: 1172619678
         date_to: 1172619678
-        hidden: ~
+        hidden: clarifications
         message_id: 20070227234111.593A3CBA1B@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -303,7 +413,7 @@ lists:
         summary: ''
       - date_from: 1172620612
         date_to: 1172620612
-        hidden: ~
+        hidden: minor change
         message_id: 20070227235645.5B4EBCBA1B@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -312,7 +422,7 @@ lists:
         summary: ''
       - date_from: 1172624426
         date_to: 1172624426
-        hidden: ~
+        hidden: clarification
         message_id: 20070228010010.CFE26CBA1B@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -321,7 +431,7 @@ lists:
         summary: ''
       - date_from: 1172624494
         date_to: 1172624494
-        hidden: ~
+        hidden: nit
         message_id: 20070228010124.4177DCBA1B@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -330,7 +440,7 @@ lists:
         summary: ''
       - date_from: 1172678163
         date_to: 1172678163
-        hidden: ~
+        hidden: Seems fairly minor
         message_id: 20070228155552.92EB4CBA1B@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -339,7 +449,7 @@ lists:
         summary: ''
       - date_from: 1172685290
         date_to: 1172685290
-        hidden: ~
+        hidden: minor
         message_id: 20070228175441.11DCBCBA1B@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -358,13 +468,15 @@ lists:
           - email: david.green@telus.net
             name: David Green
         subject: '[svn:perl6-synopsis] r14308 - doc/trunk/design/syn'
-        summary: ''
+        summary: |-
+          Larry Wall made a commit to S03 which distinguished Range's intervalic
+          `.min` and `.max` from its directed `.from` and `.to`.
     title: Language
   - name: perl6-internals
     threads:
       - date_from: 1171729135
         date_to: 1174013144
-        hidden: ~
+        hidden: 'Summary of 02-24 covers up through March 2; next post, March 4, goes in next summary'
         message_id: rt-3.6.HEAD-24617-1171729125-426.41364-15-0@perl.org
         messages:
           - 189adbd0702191444o70399827nc3fb57c3c0ac7934@mail.gmail.com
@@ -380,7 +492,7 @@ lists:
         summary: ''
       - date_from: 1171973003
         date_to: 1172614650
-        hidden: ~
+        hidden: Allison's message from Feb 27 was summarized in the Feb 24 summary
         message_id: 45DAE19C.70804@perl.it
         messages:
           - 1d9a3f400702200644s2f854d84r7c46a3b997297cbd@mail.gmail.com
@@ -406,7 +518,7 @@ lists:
         summary: ''
       - date_from: 1172159597
         date_to: 1172613531
-        hidden: ~
+        hidden: Summarized in 02-24 summary
         message_id: rt-3.6.HEAD-18680-1172159585-1148.41577-72-0@perl.org
         messages:
           - rt-3.6.HEAD-2051-1172613522-569.41577-15-0@perl.org
@@ -432,7 +544,16 @@ lists:
             name: Jerome Quelin
         rt_ticket: 'perl #41601'
         subject: '[perl #41601] [BUG] parrotbug b0rken '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41601>, Klaas-Jan Stol reported a problem with
+          Parrotbug on Win32.  Paul Cochrane thought that the problem existed
+          on all platforms.   Because people are currently advised to send an
+          email, Paul thought that Parrotbug is confusing and should perhaps
+          be removed.
+          
+          Jerome Quelin remarked that he has no time to work on Parrotbug,
+          which he originally created.  He said that anyone willing to work
+          on it was welcome to take over maintenance.
       - date_from: 1172267069
         date_to: 1172530977
         hidden: ~
@@ -464,7 +585,24 @@ lists:
             name: jerry gay
         rt_ticket: 'perl #41604'
         subject: "[perl #41604] [BUG] pbc_output_is doesn't work? "
-        summary: ''
+        summary: |-
+          Klaas-Jan Stol tried to add a test which runs some PIR code as PBC.  He
+          noted that a PBC file wasn't being created, and sent a patch which could
+          fix this to ticket <rt://perl/41604>.  He also wondered if it was a good
+          idea to store PBC files in the repository.
+          
+          Leopold Toetsch explained that the files which are in the repository are
+          generated on different machines, and the tests check that Parrot can
+          read PBCs from different platforms.
+          
+          Klaas-Jan wondered if `pbc_output_is` could take PIR code and compile
+          it while running a test, or if it expects the PBC file to be present.
+          Leopold confirmed that the PBC file must be present.
+          
+          Jerry Gay noted that there are no test functions which accept PIR,
+          compile to PBC, and run the PBC.  He wasn't sure it was a good idea
+          to add this functionality before the refactoring of Parrot::Test is
+          complete.
       - date_from: 1172270785
         date_to: 1172485937
         hidden: ~
@@ -476,7 +614,13 @@ lists:
             name: Klaas-Jan Stol via RT
         rt_ticket: 'perl #41606'
         subject: '[perl #41606] [TODO] Add flag to do runtime check on deprecated ops '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41606>, Klaas-Jan Stol  proposed adding a
+          flag which checks at runtime if any deprecated ops are used.
+          
+          Later, he remarked that such a check would be rather slow, so it
+          would be better to add some annotation in the `.ops` file.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/28ed82c4176d9790/8784f63d20f34c82?#8784f63d20f34c82
       - date_from: 1172271114
         date_to: 1172607270
         hidden: ~
@@ -489,7 +633,9 @@ lists:
           - email: allison@perl.org
             name: Allison Randal
         subject: '[PATCH] Update DEPRECATED.pod'
-        summary: ''
+        summary: |-
+          Klaas-Jan Stol submitted a patch to `DEPRECATED.pod` which includes some
+          of the deprecated ops.  Allison Randal applied it as r17206.
       - date_from: 1172289653
         date_to: 1172414409
         hidden: ~
@@ -501,7 +647,9 @@ lists:
             name: James Keenan via RT
         rt_ticket: 'perl #41608'
         subject: '[perl #41608] [NEW] and [PATCH]:  tools/build/ops2c.pl refactored '
-        summary: ''
+        summary: |-
+          James Keenan submitted two patches which replace his earlier patches
+          by the same name.  This was ticket <rt://perl/41608>.
       - date_from: 1172350990
         date_to: 1172351285
         hidden: ~
@@ -519,7 +667,12 @@ lists:
             name: Patrick R. Michaud
         rt_ticket: 'perl #41612'
         subject: '[perl #41612] parrot on CPAN testers.. '
-        summary: ''
+        summary: |-
+          Will Coleda created ticket <rt://perl/41612> because he noticed that
+          Parrot hadn't passed on Windows since 0.4.6.  chromatic thought that
+          0.4.9 would help resolve some of the recent failures.
+          Patrick R. Michaud had seen a report of 0.4.9, and said there were
+          still failures with positive and negative numbers very close to zero.
       - date_from: 1172385728
         date_to: 1172539299
         hidden: ~
@@ -534,10 +687,16 @@ lists:
             name: Alek Storm
         rt_ticket: 'perl #41614'
         subject: "[perl #41614] Can't set non-core object attribs yet  "
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41614>, Will Coleda reported some problems with
+          adding an attribute to a TclProc PMC.  Alek Storm remarked that a Sub
+          is not a ParrotObject, so it has nowhere to store attributes.  He
+          submitted a patch which implements a basic storage system for TclProc.
+          Will commented that it was annoying that attributes aren't just available
+          everywhere, and that ParrotClass and PMC don't have much in common.
       - date_from: 1172415515
         date_to: 1172415515
-        hidden: ~
+        hidden: see 45E3184E.10408@gmail.com
         message_id: 45E1A400.7060806@gmail.com
         posters:
           - email: parrotcode@gmail.com
@@ -564,7 +723,16 @@ lists:
           - email: francois.perrad@gadz.org
             name: François PERRAD
         subject: '[PATCH] welcome message and prompt for HLLCompiler'
-        summary: ''
+        summary: |-
+          Klaas-Jan Stol noted that most languages which can be run interactively
+          print a welcome message.  He submitted a patch to give a message when
+          interactive mode is entered, before printing a prompt.
+          
+          Patrick R. Michaud thought the effort was useful, but that it shouldn't
+          mention help which isn't available.  Also, there was a bit of a problem
+          with multi-line input.
+          
+          There was a bit of further discussion on the topic.
       - date_from: 1172463159
         date_to: 1172878319
         hidden: ~
@@ -581,7 +749,27 @@ lists:
             name: James E Keenan
         rt_ticket: 'perl #41619'
         subject: '[perl #41619] [PATCH] add add_attr, rem_attr, and rem_attr_str vtable methods '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41619>, Alek Storm submitted a patch which adds
+          several vtable methods which can be used by Ruby and Smalltalk.
+          James E Keenan reported that the patch, when applied to the branch,
+          did not cause any problems with tests.
+          
+          Allison Randal thought this raised a design issue.  She wanted to know
+          why `add_attr`, `rem_attr` and `rem_attr_str` were vtable methods instead
+          of methods on the Class class.  Alek thought that this was in line with
+          PDD 15.  Joshua Isom was concerned about interoperability, and wondered
+          if Perl 6 and Tcl (for example) would be able to use the new class 
+          implementation.
+          
+          Alek replied that the vtable provides an abstract interface everyone
+          can use seamlessly.  He thought that it would in fact encourage people
+          to use multiple languages in a single application.
+          
+          chromatic asked Alek to clarify what behavior he wanted to enable in the
+          HLL.  Alek said he would put together some code which would demonstrate
+          his intention.  As of March 12th, he was still working on the use case.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/cb3399d8088acdb8/3610a7f266afc4b2?#3610a7f266afc4b2
       - date_from: 1172463188
         date_to: 1172546058
         hidden: ~
@@ -595,7 +783,12 @@ lists:
             name: James E Keenan
         rt_ticket: 'perl #41620'
         subject: '[perl #41620] [PATCH] change opcode syntax for label arguments '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41620>, Alek Storm included a patch which changes the
+          `label INT`, `labelvar INT` and `labelconst INT` syntax to `in LABEL`,
+          `invar LABEL` and `inconst LABEL`.  This reduces the number of arguments
+          and makes the code cleaner.  It was applied to the buildtools branch,
+          and all tests passed.
       - date_from: 1172482505
         date_to: 1172612977
         hidden: ~
@@ -612,10 +805,13 @@ lists:
           - email: allison@perl.org
             name: Allison Randal
         subject: '[PATCH] PDD6 updates'
-        summary: ''
+        summary: |-
+          Klaas-Jan Stol made some changes to PDD 16 and posted a patch.
+          chromatic was mostly satisfied with the patch.  It was applied
+          as r17209.
       - date_from: 1172498431
         date_to: 1172498431
-        hidden: ~
+        hidden: summary
         message_id: 20070226140015.6387.qmail@x1.develooper.com
         posters:
           - email: perlbug-summary@perl.org
@@ -624,7 +820,7 @@ lists:
         summary: ''
       - date_from: 1172499682
         date_to: 1172504932
-        hidden: ~
+        hidden: see 45E3184E.10408@gmail.com
         message_id: 45E2ECCB.5040400@gmail.com
         messages:
           - 20070226154842.GB32533@host.pmichaud.com
@@ -651,10 +847,16 @@ lists:
             name: Larry Wall
         rt_ticket: 'perl #41623'
         subject: '[perl #41623] [TODO] modify p6regex op naming convention to match perl 6 '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41623>, Jerry Gay remarked that PGE's syntax for
+          specifying ops in the precedence parser should follow the Perl 6
+          specification.  Patrick R. Michaud noted that Larry Wall's recent
+          work on the grammar may introduce some radical changes to the
+          current syntax.  Larry tried to explain what he hopes to do with
+          the modifications.
       - date_from: 1172508005
         date_to: 1172508005
-        hidden: ~
+        hidden: see 45E3184E.10408@gmail.com
         message_id: 45E30D4B.8040709@gmail.com
         posters:
           - email: parrotcode@gmail.com
@@ -669,10 +871,21 @@ lists:
           - email: parrotcode@gmail.com
             name: Klaas-Jan Stol
         subject: Pynie Grammar
-        summary: ''
+        summary: |-
+          In several threads, Klaas-Jan Stol chronicled his attempts to update
+          the grammar for Pynie.  He remarked that it is mostly complete, but
+          that he still has some difficulty with the binary operators "is not"
+          and "not in" and asked for insight.
+          
+          The following messages charted the development:
+          * <msgid:45E1A400.7060806@gmail.com>
+          * <msgid:45E2ECCB.5040400@gmail.com>
+          * <msgid:45E30D4B.8040709@gmail.com>
+          * <msgid:45E554F0.8090908@gmail.com>
+          * <msgid:rt-3.6.HEAD-2051-1172781370-423.41659-72-0@perl.org>
       - date_from: 1172577636
         date_to: 1172577636
-        hidden: ~
+        hidden: update reflects other things which have been discussed
         message_id: 20070227120023.A3B1ECBA1B@x12.develooper.com
         posters:
           - email: allison@cvs.perl.org
@@ -687,10 +900,12 @@ lists:
           - email: allison@perl.org
             name: Allison Randal
         subject: 'reviewing PDD01 - Overview'
-        summary: ''
+        summary: |-
+          Allison Randal announced that she had checked in an updated version
+          of PDD01 for review.
       - date_from: 1172606648
         date_to: 1172606648
-        hidden: ~
+        hidden: clarification
         message_id: 20070227200357.56B84CBA1B@x12.develooper.com
         posters:
           - email: allison@cvs.perl.org
@@ -706,7 +921,10 @@ lists:
             name: Jerry Gay
         rt_ticket: 'perl #41633'
         subject: '[perl #41633] [CAGE] convert handrolled .IMPORT macros with library function '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41633>, Jerry Gay noted that some handrolled
+          implementations of namespace import macros had crept in to the code.
+          He wrote an import subroutine, and would like it to be used.
       - date_from: 1172610639
         date_to: 1172610639
         hidden: ~
@@ -716,10 +934,13 @@ lists:
             name: Jerry Gay
         rt_ticket: 'perl #41634'
         subject: '[perl #41634] [TODO] warn and abort make if pbc compatibility has changed '
-        summary: ''
+        summary: |-
+          Jerry Gay felt that if PBCs need to be regenerated due to incompatibilities,
+          `make` should inform the user of this.  He created ticket
+          <rt://perl/41634> to track this development.
       - date_from: 1172612754
         date_to: 1172612754
-        hidden: ~
+        hidden: minor change
         message_id: 20070227214545.896C4CBA1B@x12.develooper.com
         posters:
           - email: allison@cvs.perl.org
@@ -728,7 +949,7 @@ lists:
         summary: ''
       - date_from: 1172612929
         date_to: 1172612929
-        hidden: ~
+        hidden: cleanup
         message_id: 20070227214839.93914CBA1B@x12.develooper.com
         posters:
           - email: allison@cvs.perl.org
@@ -737,7 +958,7 @@ lists:
         summary: ''
       - date_from: 1172657443
         date_to: 1172657443
-        hidden: ~
+        hidden: see 45E3184E.10408@gmail.com
         message_id: 45E554F0.8090908@gmail.com
         posters:
           - email: parrotcode@gmail.com
@@ -755,7 +976,9 @@ lists:
             name: Klaas-Jan Stol
         rt_ticket: 'perl #41636'
         subject: '[perl #41636] [PATCH] Updates for PDD06 '
-        summary: ''
+        summary: |-
+          Klaas-Jan Stol attached a patch for PDD06 to ticket <rt://perl/41636>.
+          It was applied in r17469.
       - date_from: 1172662765
         date_to: 1172662765
         hidden: ~
@@ -765,7 +988,9 @@ lists:
             name: Klaas-Jan Stol
         rt_ticket: 'perl #41637'
         subject: "[perl #41637] [PATCH] SMOP; won't compile on MSVC due to declarations not at top of block "
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41637>, Klaas-Jan Stol reported that SMOP won't
+          compile with MicroSoft Visual Studio.
       - date_from: 1172681668
         date_to: 1172889295
         hidden: ~
@@ -785,10 +1010,21 @@ lists:
             name: Mehmet Yavuz Selim Soyturk
         rt_ticket: 'perl #41642'
         subject: '[perl #41642] [BUG] tailcall with slurpy gives segfault '
-        summary: ''
+        summary: |-
+          Earlier, in ticket <rt://perl/41642>, Mehmet Yavuz Selim Soyturk
+          reported a bug.  
+          
+          This week, Jonathan Worthington reported that he had fixed a bug 
+          asked someone to check with the latest code.  Bob Rogers reported that
+          Mehmet's test case works in r17298, but that it still fails for him
+          even when the patch is applied.
+          
+          Later, Bob was able to look into the issue further, and found that
+          there are some more serious problems and that he needs to think on
+          how to solve them.
       - date_from: 1172682216
         date_to: 1172682216
-        hidden: ~
+        hidden: see 45E3184E.10408@gmail.com
         message_id: 45E5B5D1.6020701@gmail.com
         posters:
           - email: parrotcode@gmail.com
@@ -807,10 +1043,13 @@ lists:
             name: Joshua Isom
         rt_ticket: 'perl #41658'
         subject: '[perl #41658] [TODO] Move all gc source files into a separate directory '
-        summary: ''
+        summary: |-
+          Joshua Isom created ticket <rt://perl/41658> to suggest a cleanup of
+          the garbage collection files, which are not located where one would
+          expect to find them.  He submitted a patch for it.
       - date_from: 1172781381
         date_to: 1172781381
-        hidden: ~
+        hidden: see 45E3184E.10408@gmail.com
         message_id: rt-3.6.HEAD-2051-1172781370-423.41659-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
@@ -820,7 +1059,7 @@ lists:
         summary: ''
       - date_from: 1172463159
         date_to: 1173703192
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-2051-1172463152-278.41619-72-0@perl.org
         message_id: 085d0590b634afd5b2bd684e063dcb45@gmail.com
         messages:
           - 189adbd0703041913l45542ef0oe8f71223a14fb85b@mail.gmail.com
@@ -870,6 +1109,9 @@ lists:
             name: Audrey Tang
         rt_ticket: 'perl #41617'
         subject: '[perl #41617] "make test-pir" fails on x86 linux, r14402 '
-        summary: ''
+        summary: |-
+          Eric Hanchrow reported a failing test in ticket <rt://perl/41617>.
+          Audrey Tang wanted to know if the problem still existed in r15386;
+          Eric confirmed it did.
     title: Compiler
 title: Weekly Perl 6 mailing list summary
