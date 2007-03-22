@@ -228,22 +228,6 @@ EOD
         ? '-fdebugging' : '';
     $ghci_debugging = '' if $ghc_version eq '6.6';
 
-    my $native_fps;
-
-    if (try_compile("import Data.ByteString (useAsCStringLen)\n"
-            ."main :: IO ()\n"
-            ."main = main\n", $ghc, qw(-hide-all-packages -package base))) {
-        # We have native ByteString; dummy the fps out
-        $native_fps = 1;
-        copy "third-party/fps/fps.cabal.dummy" => "third-party/fps/pugs-fps.cabal";
-        unlink "third-party/fps/fps.cabal"; # legacy
-    } else {
-        # Use bundled ByteString - unregister user-fps installed by earlier Pugs
-        system($ghc_pkg, qw( --user unregister fps ));
-        copy "third-party/fps/fps.cabal.in" => "third-party/fps/pugs-fps.cabal";
-        unlink "third-party/fps/fps.cabal"; # legacy
-    }
-
     $ghc = $ghc_wrapper;
     $ghc_pkg = $ghc_pkg_wrapper;
 

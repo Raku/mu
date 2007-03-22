@@ -188,7 +188,7 @@ sub build {
 
 =cut
 
-    foreach my $module (qw< filepath fps HsSyck >) {
+    foreach my $module (qw< filepath HsSyck >) {
         if ( my ($archive_dir) = (
                 glob("third-party/installed/*/$module-*"),
                 glob("third-party/installed/*/pugs-$module-*"),
@@ -454,7 +454,7 @@ sub build_exe {
     #push @o, 'src/UnicodeC.o' if grep /WITH_UNICODEC/, @_;
     #system $ghc, '--make', @_, @o, '-o' => 'pugs', 'src/Main.hs';
 
-    $push_pkgs->(qw(stm network mtl template-haskell base pugs-fps pugs-HsSyck));
+    $push_pkgs->(qw(stm network mtl template-haskell base pugs-HsSyck));
     if ($^O =~ /(?:MSWin32|mingw|msys|cygwin)/) {
         $push_pkgs->('Win32') unless $ghc_version =~ /^6.4(?:.0)?$/;
     }
@@ -557,7 +557,7 @@ sub write_buildinfo {
             s/hs-source-dir/hs-source-dirs/;
         }
         else {
-            s/pugs-fps -any, pugs-HsSyck -any, //;
+            s/pugs-HsSyck -any, //;
         }
         s/__OPTIONS__/@args/;
         s/__VERSION__/$version/;

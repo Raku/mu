@@ -6,7 +6,7 @@ License:             BSD3
 License-file:        LICENSE
 Author:              Audrey Tang
 Maintainer:          audreyt@audreyt.org
-Build-Depends:       base, pugs-fps >= 0.7
+Build-Depends:       base
 Exposed-modules:     Data.Yaml.Syck
 extensions:          ForeignFunctionInterface
 ghc-options:         -fglasgow-exts -O2 -optc-w -funbox-strict-fields -fno-warn-orphans
