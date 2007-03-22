@@ -616,7 +616,7 @@ None reported.
 
 =item C<$^N $+ $` $'> are not supported in patterns.  C<$^N $` $'> are not supported in strings.  C<$` $'> should perhaps be done with C<.prematch .postmatch>.  What else is missing?
 
-=item Looses comments in //x.  Avoidable?
+=item Loses comments in //x.  Avoidable?
 
 =item More selective slashification would be nice.
 
