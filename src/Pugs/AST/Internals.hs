@@ -1650,11 +1650,11 @@ clearRef r = die "Cannot clearRef" r
 {-# SPECIALISE newObject :: Type -> IO VRef #-}
 newObject :: (MonadSTM m, MonadIO m) => Type -> m VRef
 newObject typ = case showType typ of
-    "Any"       -> stm $ fmap scalarRef $ newTVar undef
-    "Item"      -> stm $ fmap scalarRef $ newTVar undef
-    "Scalar"    -> stm $ fmap scalarRef $ newTVar undef
-    "Array"     -> stm $ do
-        iv  <- newTVar [::]
+    "Any"       -> io $ fmap scalarRef $ newTVarIO undef
+    "Item"      -> io $ fmap scalarRef $ newTVarIO undef
+    "Scalar"    -> io $ fmap scalarRef $ newTVarIO undef
+    "Array"     -> io $ do
+        iv  <- newTVarIO [::]
         return $ arrayRef (MkIArray iv)
     "Hash"      -> do
         h   <- io (H.new (==) H.hashString)
@@ -1667,13 +1667,13 @@ newObject typ = case showType typ of
         { subAssoc = ANil
         , subBody  = Prim . const $ fail "Cannot use Undef as a Code object"
         }
-    "Type"      -> stm $ fmap scalarRef $ newTVar undef
+    "Type"      -> io $ fmap scalarRef $ newTVarIO undef
     "Pair"      -> do
         key <- newObject (mkType "Scalar")
         val <- newObject (mkType "Scalar")
         return $ MkRef (IPair (VRef key, VRef val))
-    "Regex"     -> stm $ fmap scalarRef $ newTVar undef -- XXX Wrong
-    "Capture"   -> stm $ fmap scalarRef $ newTVar undef -- XXX Wrong
+    "Regex"     -> io $ fmap scalarRef $ newTVarIO undef -- XXX Wrong
+    "Capture"   -> io $ fmap scalarRef $ newTVarIO undef -- XXX Wrong
     _           -> fail ("Class prototype occured where its instance object expected: " ++ showType typ)
 
 doPair :: Val -> (forall a. PairClass a => a -> b) -> Eval b

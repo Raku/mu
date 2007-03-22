@@ -61,7 +61,7 @@ run xs = let ?debugInfo = Nothing in run' xs
 -- see also Run/Args.hs
 run' :: (?debugInfo :: DebugInfo) => [String] -> IO ()
 run' ("-d":rest)                 = do
-    info <- fmap Just (liftSTM $ newTVar Map.empty)
+    info <- fmap Just (io $ newTVarIO Map.empty)
     let ?debugInfo = info
     run' rest
 run' ("-l":rest)                 = run' rest
@@ -124,15 +124,15 @@ readStdin = do
 repLoop :: IO ()
 repLoop = do
     initializeShell
-    tvEnv <- liftSTM . newTVar . noEnvDebug =<< tabulaRasa defaultProgramName
+    tvEnv <- io . newTVarIO . noEnvDebug =<< tabulaRasa defaultProgramName
     fix $ \loop -> do
         command <- getCommand
         let parseEnv f prog = do
-                env <- liftSTM (readTVar tvEnv)
+                env <- stm (readTVar tvEnv)
                 doParse env f defaultProgramName prog
             resetEnv = do
                 env <- fmap noEnvDebug (tabulaRasa defaultProgramName)
-                liftSTM (writeTVar tvEnv env)
+                stm (writeTVar tvEnv env)
         case command of
             CmdQuit           -> putStrLn "Leaving pugs."
             CmdLoad fn        -> doLoad tvEnv fn >> loop
@@ -169,7 +169,7 @@ globalFinalize = join $ readIORef _GlobalFinalizer
 
 dumpGlob :: String -> IO ()
 dumpGlob = (doParseWith $ \env _ -> do
-    glob <- liftSTM $ readTVar $ envGlobal env
+    glob <- stm . readTVar $ envGlobal env
     print $ filterUserDefinedPad glob) "-"
 
 {-|
@@ -193,7 +193,7 @@ doExternal mod = doParseWith $ \env _ -> do
 
 doCompile :: String -> FilePath -> String -> IO String
 doCompile backend = doParseWith $ \env _ -> do
-    globRef <- liftSTM $ do
+    globRef <- stm $ do
         glob <- readTVar $ envGlobal env
         newTVar $ filterUserDefinedPad glob
     codeGen backend env{ envGlobal = globRef }
@@ -321,13 +321,13 @@ doRunSingle menv opts prog = (`catchIO` handler) $ do
     rv      <- runImperatively env (evaluate exp)
     result  <- case rv of
         VControl (ControlContinuation env' val _) -> do
-            liftSTM $ writeTVar menv env'
+            stm $ writeTVar menv env'
             return val
         _ -> return rv
     printer env result
     where
     parse = do
-        env <- liftSTM $ readTVar menv
+        env <- stm $ readTVar menv
         return $ envBody $ parseProgram env defaultProgramName $
           (dropTrailingSemi prog)
     dropTrailingSemi = reverse .
@@ -337,12 +337,12 @@ doRunSingle menv opts prog = (`catchIO` handler) $ do
         where f = dropWhile (`elem` " \t\r\n\f") . reverse
     theEnv = do
         ref <- if runOptSeparately opts
-                then (liftSTM . newTVar) =<< tabulaRasa defaultProgramName
+                then (io . newTVarIO) =<< tabulaRasa defaultProgramName
                 else return menv
         debug <- if runOptDebug opts
-                then fmap Just (liftSTM $ newTVar Map.empty)
+                then fmap Just (io $ newTVarIO Map.empty)
                 else return Nothing
-        liftSTM $ modifyTVar ref $ \e -> e{ envDebug = debug }
+        stm $ modifyTVar ref $ \e -> e{ envDebug = debug }
         return ref
     printer' = if runOptShowPretty opts then putStrLn . pretty else print
     printer env = \val -> do
@@ -380,11 +380,11 @@ doRunSingle menv opts prog = (`catchIO` handler) $ do
 
 runImperatively :: TVar Env -> Eval Val -> IO Val
 runImperatively menv eval = do
-    env <- liftSTM $ readTVar menv
+    env <- stm $ readTVar menv
     runEvalIO env $ do
         val <- eval
         newEnv <- ask
-        liftSTM $ writeTVar menv newEnv
+        stm $ writeTVar menv newEnv
         return val
 
 doRun :: (?debugInfo :: DebugInfo) => String -> [String] -> String -> IO ()

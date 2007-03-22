@@ -162,12 +162,12 @@ genPadEntryScoped :: MonadSTM m => Scope -> VRef -> EntryFlags -> m PadEntry
 genPadEntryScoped scope ref flags
     | SConstant <- scope = do
         return (PEConstant typ ref flags)
-    | isStaticScope scope = do
-        tvar    <- stm $ newTVar ref
+    | isStaticScope scope = stm $ do
+        tvar    <- newTVar ref
         return (PEStatic typ ref flags tvar)
-    | otherwise = do
-        tvar    <- stm $ newTVar ref
-        fresh   <- stm $ newTVar True
+    | otherwise = stm $ do
+        tvar    <- newTVar ref
+        fresh   <- newTVar True
         return (PELexical typ ref flags tvar fresh)
     where
     typ = refType ref

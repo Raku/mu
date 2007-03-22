@@ -357,7 +357,7 @@ reducePad scope lex exp = do
 reducePad STemp lex exp = do
     tmps <- mapM (\(sym, _) -> evalExp $ App (_Var "&TEMP") (Just $ Var sym) []) $ padToList lex
     -- default to nonlocal exit
-    isNonLocal  <- stm $ newTVar True
+    isNonLocal  <- io $ newTVarIO True
     val <- tryT $ do
         -- if the stm is reached, exp evaluated without error; no need to shift out
         evalExp exp `finallyM` stm (writeTVar isNonLocal False)
@@ -368,7 +368,7 @@ reducePad STemp lex exp = do
 reducePad SLet lex exp = do
     tmps <- mapM (\(sym, _) -> evalExp $ App (_Var "&TEMP") (Just $ Var sym) []) $ padToList lex
     -- default to nonlocal exit
-    isNonLocal  <- stm $ newTVar True
+    isNonLocal  <- io $ newTVarIO True
     val <- tryT $ do
         -- if the stm is reached, exp evaluated without error; no need to shift out
         evalExp exp `finallyM` stm (writeTVar isNonLocal False)
@@ -1446,7 +1446,7 @@ doApply sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args = d
         let eval = local (const env{ envLValue = lv }) $ do
                 enterEvalContext cxt exp
             thunkify = do
-                memo    <- stm $ newTVar Nothing
+                memo    <- io $ newTVarIO Nothing
                 let forceThunk = do
                         res <- eval
                         stm $ writeTVar memo (Just res)

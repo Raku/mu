@@ -742,7 +742,7 @@ instance Binary Double where
 
 instance Binary a => Binary (TVar a) where
     put_ bh v = put_ bh =<< (atomically $ readTVar v)
-    get  bh   = atomically . newTVar =<< get bh
+    get  bh   = newTVarIO =<< get bh
 
 instance Binary a => Binary (IORef a) where
     put_ bh v = put_ bh =<< readIORef v

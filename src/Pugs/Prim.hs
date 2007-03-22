@@ -323,7 +323,7 @@ op1 "try" = \v -> do
 -- Tentative implementation of nothingsmuch's lazy proposal.
 op1 "lazy" = \v -> do
     sub     <- fromVal v
-    memo    <- stm $ newTVar Nothing
+    memo    <- io $ newTVarIO Nothing
     let exp = App (Val $ VCode sub) Nothing []
         thunk = do
             cur <- stm $ readTVar memo
@@ -1740,7 +1740,7 @@ newtype PrettyPrinter = MkPrettyPrinter { runPrinter :: forall a. Pretty a => a 
 -- op1 "perl"
 op1Pretty :: PrettyPrinter -> Val -> Eval Val
 op1Pretty printer v = do
-    recur   <- stm (newTVar False)
+    recur   <- io (newTVarIO False)
     let ?seen    = IntSet.empty
         ?recur   = recur
         ?printer = printer

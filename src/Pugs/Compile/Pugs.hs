@@ -129,7 +129,7 @@ instance (Typeable a, Compile a) => Compile (TVar a) where
         vrefC   <- compile vref
         if Str.null vrefC then return Str.empty else do
         tv      <- io $ fmap (Str.pack . ('t':) . show . hashUnique) newUnique
-        tell [Str.concat [tv, Str.pack " <- stm (newTVar ", vrefC, Str.pack ");\n"]]
+        tell [Str.concat [tv, Str.pack " <- io (newTVarIO ", vrefC, Str.pack ");\n"]]
         return tv
 
 instance Compile PadEntry where

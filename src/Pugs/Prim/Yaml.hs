@@ -50,8 +50,8 @@ fromYaml MkNode{n_elem=EMap nodes, n_tag=tag} = do
                 val <- fromYaml valNode
                 return (key, val)
             --let spec    = Map.fromList (vals :: [(String, Val)])
-            --spec    <- stm . newTVar . Map.map lazyScalar $ Map.fromList (vals :: [(String, Val)])
-            spec'   <- stm . newTVar $ Map.fromList (vals :: [(String, Val)])
+            --spec    <- io . newTVarIO . Map.map lazyScalar $ Map.fromList (vals :: [(String, Val)])
+            spec'   <- io . newTVarIO $ Map.fromList (vals :: [(String, Val)])
             spec    <- stm . readTVar $ spec'
             rule    <- fromVal =<< Map.lookup "rule" spec
             global  <- fromVal =<< Map.lookup "global" spec

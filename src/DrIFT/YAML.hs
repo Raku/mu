@@ -232,8 +232,8 @@ instance (YAML a, YAML b, YAML c) => YAML (a, b, c) where
 
 instance (Typeable a, YAML a) => YAML (TVar a) where
     asYAML = asYAMLwith (lift . atomically . readTVar)
-    fromYAML = (atomically . newTVar =<<) . fromYAML
-    fromYAMLElem = (atomically . newTVar =<<) . fromYAMLElem
+    fromYAML = (newTVarIO =<<) . fromYAML
+    fromYAMLElem = (newTVarIO =<<) . fromYAMLElem
 
 asYAMLanchor :: a -> EmitAs YamlNode -> EmitAs YamlNode
 asYAMLanchor _ m = m

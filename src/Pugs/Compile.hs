@@ -439,8 +439,8 @@ varText x           = error $ "invalid name: " ++ x
 
 initTEnv :: Eval TEnv
 initTEnv = do
-    initReg <- stm $ newTVar (0, "")
-    initLbl <- stm $ newTVar 0
+    initReg <- io $ newTVarIO (0, "")
+    initLbl <- io $ newTVarIO 0
     return $ MkTEnv
         { tLexDepth = 0
         , tTokDepth = 0
