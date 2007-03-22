@@ -11,6 +11,7 @@ module Data.Yaml.Syck (
 
 import Control.Exception (bracket)
 import Data.IORef
+import Data.Maybe (fromJust)
 import Data.Generics
 import Foreign.Ptr
 import Foreign.StablePtr
@@ -19,6 +20,7 @@ import Foreign.C.String
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Utils
 import Foreign.Storable
+import System.IO.Unsafe
 import GHC.Ptr (Ptr(..))
 import qualified Data.HashTable as Hash
 import qualified Data.ByteString.Char8 as Buf
@@ -60,7 +62,7 @@ type SyckNode = Ptr ()
 type SyckParser = Ptr ()
 type SyckNodeHandler = SyckParser -> SyckNode -> IO SYMID
 type SyckErrorHandler = SyckParser -> CString -> IO ()
-type SyckBadAnchorHandler = SyckParser -> CString -> IO SyckNode
+type SyckBadAnchorHandler = SyckParser -> CString -> IO SyckNodePtr
 type SyckNodePtr = Ptr CString
 type SyckEmitter = Ptr ()  
 type SyckEmitterHandler = SyckEmitter -> Ptr () -> IO ()
@@ -209,11 +211,12 @@ parseYamlBytes = (`useAsCString` parseYamlCStr)
 parseYamlCStr :: CString -> IO YamlNode
 parseYamlCStr cstr = do
     bracket syck_new_parser syck_free_parser $ \parser -> do
-        err <- newIORef Nothing
+        err     <- newIORef Nothing
+        badancs <- Hash.new (==) Hash.hashInt
         syck_parser_str_auto parser cstr nullFunPtr
-        syck_parser_handler parser =<< mkNodeCallback nodeCallback
+        syck_parser_handler parser =<< mkNodeCallback (nodeCallback badancs)
         syck_parser_error_handler parser =<< mkErrorCallback (errorCallback err)
-        syck_parser_bad_anchor_handler parser =<< mkBadHandlerCallback badAnchorHandlerCallback
+        syck_parser_bad_anchor_handler parser =<< mkBadHandlerCallback (badAnchorHandlerCallback badancs)
         syck_parser_implicit_typing parser 0
         syck_parser_taguri_expansion parser 0
         symId <- syck_parse parser
@@ -223,18 +226,47 @@ parseYamlCStr cstr = do
             Nothing     -> return nilNode
             Just e      -> fail e
 
-nodeCallback :: SyckParser -> SyckNode -> IO SYMID
-nodeCallback parser syckNode = do
+type BadAnchorTable = Hash.HashTable Int YamlNode
+
+
+nodeCallback :: BadAnchorTable -> SyckParser -> SyckNode -> IO SYMID
+nodeCallback badancs parser syckNode = mdo
     kind    <- syckNodeKind syckNode
-    len     <- syckNodeLength kind syckNode
-    node    <- parseNode kind parser syckNode len
+    node    <- case kind of
+        SyckMap -> do
+            rv  <- Hash.lookup badancs (syckNode `minusPtr` nullPtr)
+            case rv of
+                Just{}  -> do
+                    -- print ("bad anchor wanted", syckNode)
+                    unsafeInterleaveIO (fmap fromJust (Hash.lookup badancs (nodePtr `minusPtr` nullPtr)))
+                _       -> makeRegularNode kind
+        _       -> makeRegularNode kind
     nodePtr <- writeNode node
+
+    -- Do something here about circular refs.
+    nodeId  <- #{peek SyckNode, id} syckNode
+    case nodeId :: SYMID of
+        0   -> return False
+        _   -> alloca $ \origPtr -> do
+            syck_lookup_sym parser nodeId origPtr
+            ptr <- peek origPtr
+            -- print ("bad anchor handled", nodeId, ptr)
+            Hash.update badancs (ptr `minusPtr` nullPtr) node
+
     symId   <- syck_add_sym parser nodePtr
     return (fromIntegral symId)
+    where
+    makeRegularNode kind = do
+        len     <- syckNodeLength kind syckNode
+        parseNode kind parser syckNode len
 
-badAnchorHandlerCallback :: SyckBadAnchorHandler
-badAnchorHandlerCallback _parser _cstr = do
-    fail "moose!"
+badAnchorHandlerCallback :: BadAnchorTable -> SyckBadAnchorHandler
+badAnchorHandlerCallback badancs parser cstr = do
+    syckNode    <- syck_alloc_map
+    -- msg         <- peekCString cstr
+    -- print ("bad anchor encountered", syckNode)
+    Hash.insert badancs (syckNode `minusPtr` nullPtr) (error "unhandled bad anchor")
+    return syckNode
 
 errorCallback :: IORef (Maybe String) -> SyckErrorHandler
 errorCallback err parser cstr = do
@@ -356,6 +388,9 @@ foreign import ccall "wrapper"
 
 foreign import ccall
     syck_new_parser :: IO SyckParser
+
+foreign import ccall
+    syck_alloc_map :: IO SyckNodePtr
 
 foreign import ccall
     syck_parser_str_auto :: SyckParser -> CString -> FunPtr () -> IO ()
