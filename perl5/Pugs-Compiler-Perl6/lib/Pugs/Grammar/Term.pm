@@ -26,8 +26,8 @@ our %hash;
 )->code;
 
 *perl5source = Pugs::Compiler::Token->compile( q(
-    ( [ <!before [ ; | <?ws> ] use <?ws> v6 > . ]+ )
-    <-[ ;\}\)\] ]>* 
+    ( [ <!before [ \} | ; | <?ws> ] use <?ws> v6 > . ]+ )
+    #<-[ ;\}\)\] ]>* 
         { return { 
             perl5source => $_[0][0]->() 
         } }
