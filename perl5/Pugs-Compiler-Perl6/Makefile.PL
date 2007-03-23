@@ -24,7 +24,7 @@ requires('Devel::Caller'        => '0.10');
 requires('Data::Bind'           => '0.28');
 requires('Sub::Multi'           => '0.003');
 requires('Moose'                => '0.10');
-requires('Pugs::Emitter::Perl6::Perl5' => '0');
+#requires('Pugs::Emitter::Perl6::Perl5' => '0');
 #requires('Lexical::Alias'       => '0');
 requires('YAML::Syck'           => '0');
 
