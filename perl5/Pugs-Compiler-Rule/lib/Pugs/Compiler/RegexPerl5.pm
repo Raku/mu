@@ -65,7 +65,7 @@ q(do {
   
   if ( defined $_[3]{p} ) {
       pos(${$_[1]}) = $_[3]{p};
-      $bool = \( ${$_[1]} =~ /\G) . $rule_source . q(/ \) ? 1 : 0; ) . 
+      $bool = \( ${$_[1]} =~ /\G\(?:) . $rule_source . q(\)/ \) ? 1 : 0; ) . 
       $captures . q(
   }
   else {
