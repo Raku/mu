@@ -1,6 +1,6 @@
 use v6-alpha;
 use Test;
-plan 1;
+plan 2;
 
 # P07 (**) Flatten a nested list structure.
 # 
@@ -17,3 +17,12 @@ plan 1;
 my $flatten = -> $x { $x.isa(Array) ?? ( map $flatten, $x ) !! $x }; 
 my @flattened = map $flatten, ('a', ['b', ['c', 'd', 'e']]);
 is @flattened, <a b c d e>, 'We should be able to flatten lists';
+
+sub my_flatten (@xs) {
+    sub inner_flatten (*@xs) { return @xs; }
+
+    return inner_flatten(@xs);
+}
+
+is my_flatten( ('a', ['b', ['c', 'd', 'e']]) ), <a b c d e>,
+    'We should be able to flatten lists by func';
