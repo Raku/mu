@@ -14,7 +14,7 @@ if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
 
-force_todo(2,4,6,7,8,9);
+force_todo(2,4,6,8,9);
 
 my $str = "abrAcadAbbra";
 

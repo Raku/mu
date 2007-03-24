@@ -25,17 +25,17 @@ ok("f" ~~ m/(<-[aeiou]>)/, 'Simple neg set match');
 is($0, 'f', 'Simple neg set capture');
 
 ok(!( "a" ~~ m/(<[a..z]-[aeiou]>)/ ), 'Difference set failure');
-ok("y" ~~ m/(<[a..z]-[aeiou]>)/, 'Difference set match', :todo<feature>);
-is($0, 'y', 'Difference set capture', :todo<feature>);
+ok("y" ~~ m/(<[a..z]-[aeiou]>)/, 'Difference set match');
+is($0, 'y', 'Difference set capture');
 ok(!( "a" ~~ m/(<+alpha-[aeiou]>)/ ), 'Named difference set failure');
 ok("y" ~~ m/(<+alpha-[aeiou]>)/, 'Named difference set match');
-is($0, 'y', 'Named difference set capture', :todo<feature>);
+is($0, 'y', 'Named difference set capture');
 ok(!( "y" ~~ m/(<[a..z]-[aeiou]-[y]>)/ ), 'Multi-difference set failure');
-ok("f" ~~ m/(<[a..z]-[aeiou]-[y]>)/, 'Multi-difference set match', :todo<feature>);
-is($0, 'f', 'Multi-difference set capture', :todo<feature>);
+ok("f" ~~ m/(<[a..z]-[aeiou]-[y]>)/, 'Multi-difference set match');
+is($0, 'f', 'Multi-difference set capture');
 
-ok(']' ~~ m/(<[]]>)/, 'LSB match');
-is($0, ']', 'LSB capture');
+ok(']' ~~ m/(<[]]>)/, 'LSB match', :todo<feature>);
+is($0, ']', 'LSB capture', :todo<bug>);
 ok(']' ~~ m/(<[\]]>)/, 'quoted close LSB match');
 is($0, ']', 'quoted close LSB capture');
 ok('[' ~~ m/(<[\[]>)/, 'quoted open LSB match');

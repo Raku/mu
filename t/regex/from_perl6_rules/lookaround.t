@@ -14,7 +14,7 @@ if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
 
-force_todo(1,4,5,6,9,10);
+force_todo(1,4,9,10);
 
 regex bc { b?c }
 

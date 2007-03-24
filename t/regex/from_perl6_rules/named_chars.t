@@ -14,7 +14,7 @@ if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
 
-force_todo(9,24,39,52,61,88,148,149,158,214,244,274,345,348,349,353,364,379); 
+force_todo(148,149,158); 
 
 ok("abc\x[a]def" ~~ m/\c[LINE FEED (LF)]/, 'Unanchored named LINE FEED (LF)');
 ok("abc\c[LINE FEED (LF)]def" ~~ m/\x[A]/, 'Unanchored \x[A]');

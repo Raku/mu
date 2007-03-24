@@ -14,7 +14,7 @@ if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
 
-force_todo(3,8,11,13,14,15,17,19);
+force_todo(3,11,13,14,15,17,19);
 
 my $var = rx/a+b/;
 
