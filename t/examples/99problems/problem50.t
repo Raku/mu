@@ -57,7 +57,9 @@ my @c = @fr;
 
 # build the tree:
 while @c.elems > 1 {
-    @c = sort { $^a[1] <=> $^b[1] }, @c;
+    # Choose lowest frequency nodes and combine.  Break ties
+    # to create the tree the same way each time.
+    @c = sort { $^a[1] <=> $^b[1] || $^a[0] cmp $^b[0] }, @c;
     my $a = shift @c;
     my $b = shift @c;
     unshift @c, [[$a[0], $b[0]], $a[1] + $b[1]];
