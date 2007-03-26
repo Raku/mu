@@ -41,20 +41,63 @@ sub angle_quoted {
     } );
 }
 
-*double_quoted_expression = Pugs::Compiler::Token->compile(q(
-    <before [ <'$'> | <'@'> | <'%'> | <'&'> ] >
+*double_quoted_expression = Pugs::Compiler::Token->compile(q!
+    <before <'$'> >
     [
+        <before <'$'> [ \w | \. | \! ] >
         <Pugs::Grammar::Term.parse>
         { return $/{'Pugs::Grammar::Term.parse'}() }
     |
         .
         { return { double_quoted => '\\\\' . $/() ,} }
     ]
-))->code;
+  |
+    <before <'@'> >
+    [
+        <before <'@'> [ \w | \. ]+ <'['> >
+        <Pugs::Grammar::Term.parse>
+        { return $/{'Pugs::Grammar::Term.parse'}() }
+    |
+        .
+        { return { double_quoted => '\\\\' . $/() ,} }
+    ]
+  |
+    <before <'%'> >
+    [
+        <before <'%'> [ \w | \. ]+ [ <'{'> | <'<'> ] >
+        <Pugs::Grammar::Term.parse>
+        { return $/{'Pugs::Grammar::Term.parse'}() }
+    |
+        .
+        { return { double_quoted => '\\\\' . $/() ,} }
+    ]
+  |
+    <before <'&'> >
+    [
+        <before <'&'> [ \w | \. ]+ <'('> >
+        <Pugs::Grammar::Term.parse>
+        { return $/{'Pugs::Grammar::Term.parse'}() }
+    |
+        .
+        { return { double_quoted => '\\\\' . $/() ,} }
+    ]
+  |
+    <before <'{'> >
+    [
+        <Pugs::Grammar::Expression.parse>
+        { return {
+            statement => 'do',
+            exp1 => $/{'Pugs::Grammar::Expression.parse'}() 
+        } }
+    |
+        .
+        { return { double_quoted => '\\\\' . $/() ,} }
+    ]
+!)->code;
 
 *double_quoted_text = Pugs::Compiler::Token->compile(q(
     (
-        <!before [ <'$'> | <'@'> | <'%'> | <'&'> | <'"'> ] >
+        <!before [ <'$'> | <'@'> | <'%'> | <'&'> | <'"'> | <'{'> ] >
         [ <'\\'> . | . ]
     )+
     { return { double_quoted => $/() ,} }

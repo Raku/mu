@@ -137,6 +137,15 @@ sub _emit_code {
     return "Pugs::Runtime::Perl6::Routine->new(\\$code)";
 }
 
+
+sub _emit_str {
+    my $n = $_[0];
+    return '"@{[ ' . _emit( $n ) . ' ]}"'
+        if exists $n->{array};
+    return _emit( $n );
+}
+
+# XXX - dead code?
 sub _emit_double_quoted {
     my $n = $_[0];
     # special case for $POSITION
@@ -658,7 +667,7 @@ sub default {
             }
         }
 
-        return " " . $n->{sub}{bareword} . " '', " . _emit( $n->{param} ) 
+        return " " . $n->{sub}{bareword} . " '', " . _emit_str( $n->{param} ) 
             if $n->{sub}{bareword} eq 'print' ||
                $n->{sub}{bareword} eq 'warn';
         return " ( print '', " . emit_parenthesis( $n->{param} ) . "," . '"\n" ) '
@@ -1278,7 +1287,7 @@ sub infix {
             ')';
     }
     if ( $n->{op1} eq '~' ) {
-        return _emit( $n->{exp1} ) . ' . ' . _emit( $n->{exp2} );
+        return _emit_str( $n->{exp1} ) . ' . ' . _emit_str( $n->{exp2} );
     }
     if ( $n->{op1} eq '=>' ) {
         #print "autoquote: ", Dumper( $n->{exp1} );
@@ -1291,7 +1300,7 @@ sub infix {
         return autoquote( $n->{exp1} ) . ' => ' . _emit( $n->{exp2} );
     }
     if ( $n->{op1} eq '~=' ) {
-        return _emit( $n->{exp1} ) . ' .= ' . _emit( $n->{exp2} );
+        return _emit( $n->{exp1} ) . ' .= ' . _emit_str( $n->{exp2} );
     }
     if ( $n->{op1} eq '//'  ||
          $n->{op1} eq 'err' ) {
@@ -1496,6 +1505,14 @@ sub postcircumfix {
             return '@{ ' . _emit( $n->{exp1} ) . ' }';
         }
                 
+        if ( ! defined $n->{exp2} 
+            && exists $n->{exp1}{array}
+            ) 
+        {
+            # @array[]
+            return _emit( $n->{exp1} );
+        }
+                
         # avoid p5 warning - "@a[1] better written as $a[1]"
         if (   (  exists $n->{exp2}{int} 
                || exists $n->{exp2}{scalar} 
@@ -1645,6 +1662,7 @@ sub prefix {
             Pugs::Runtime::Common::mangle_var( '$!' ) . ' = $@; @{$_V6_PAD{'.$id1.'}} }';
     }
     if ( $n->{op1} eq '~' ) {
+        # TODO - use _emit_str() instead
         return ' Pugs::Runtime::Perl6::Hash::str( \\' . _emit( $n->{exp1} ) . ' ) '
             if exists $n->{exp1}{hash};
         return ' "' . _emit( $n->{exp1} ) . '"' 
