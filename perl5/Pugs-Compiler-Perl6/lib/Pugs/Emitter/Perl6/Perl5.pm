@@ -511,7 +511,7 @@ sub runtime_method {
           _emit( $n->{method} ) . emit_parenthesis( $n->{param} ) .
         " : " .
           " Pugs::Runtime::Perl6::Scalar::" . _emit( $n->{method}, '  ' ) . 
-          '( @_V6_TMP, ' . _emit( $n->{param} ) . ")" .
+          '( @_V6_TMP, ' . emit_parenthesis( $n->{param} ) . ")" .
         " ) }";
 }
 
