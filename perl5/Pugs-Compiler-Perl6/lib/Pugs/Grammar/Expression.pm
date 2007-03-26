@@ -354,7 +354,17 @@ sub lexer {
             # term{} 
             if ( $m2 && $m2->tail && $m2->tail =~ /^\.?\{/ ) {
                 my $paren = Pugs::Grammar::Term->parse( $match, { p => $pos2 } );
-                if ( exists $m2->()->{dot_bareword} ) {
+                if (  exists $paren->()->{anon_hash} 
+                   && exists $paren->()->{anon_hash}{null}
+                   ) {
+                    # %var{}
+                    $paren->data->{capture} = \{ 
+                        exp1   => $m2->(), 
+                        fixity => 'prefix', 
+                        op1    => '%',
+                    };
+                }
+                elsif ( exists $m2->()->{dot_bareword} ) {
                     $paren->data->{capture} = \{ 
                         op1 => 'method_call', 
                         self => { 'scalar' => '$_' }, 
