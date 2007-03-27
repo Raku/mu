@@ -64,13 +64,18 @@ sub to_as_codes    {  ${$_data{refaddr $_[0]}->{to}}    }
 
 sub hash  {   
     my $array = $_data{refaddr $_[0]}->{match};
-    return {
-        %{ $_data{refaddr $_[0]}->{named} },
-        (
-        map { ( $_, $array->[$_] ) } 
-            0 .. $#$array
-        ),
-    }
+    my $hash  = $_data{refaddr $_[0]}->{named};
+    $hash->{$_} = $array->[$_] for 0 .. $#$array;
+    return $hash;
+
+    #my $array = $_data{refaddr $_[0]}->{match};
+    #return {
+    #    %{ $_data{refaddr $_[0]}->{named} },
+    #    (
+    #    map { ( $_, $array->[$_] ) } 
+    #        0 .. $#$array
+    #    ),
+    #}
 }
 sub keys   { 
     CORE::keys   %{$_data{refaddr $_[0]}->{named}},
