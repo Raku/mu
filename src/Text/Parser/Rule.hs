@@ -57,8 +57,8 @@ name ~&~ tbl = (pack name, dynOpRule name tbl)
 defaultGrammar :: Grammar
 defaultGrammar = grammar
     [ "p6rule"      ~&~ ruleTable
-    , "p6namedrule" ~:~ "rule \\s+ ([\\w|<'::'>]+) \\s* \\{ <p6rule> \\} ;? \\s*"
-    , "p6grammar"   ~:~ "^ grammar \\s+ ([\\w|<'::'>]+); \\s* <p6namedrule>* $"
+    , "p6namedrule" ~:~ "rule \\s+ ([\\w|'::']+) \\s* \\{ <p6rule> \\} ;? \\s*"
+    , "p6grammar"   ~:~ "^ grammar \\s+ ([\\w|'::']+); \\s* <p6namedrule>* $"
     ]
 
 parseGrammar :: String -> Grammar

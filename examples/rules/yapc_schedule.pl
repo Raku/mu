@@ -6,11 +6,11 @@ grammar yapc_schedule;
 
 rule schedule { <title> [ <talk> ]+ }
 
-token title { <'<title>'> .+? <'</title>'> }
+token title { '<title>' .+? '</title>' }
 
 regex ws { .*? }
 
-token talk { <'<small>'> <speaker> <'</small>'> }
+token talk { '<small>' <speaker> '</small>' }
 
 token speaker { [\w|\s|,]+ }
 

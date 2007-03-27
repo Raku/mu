@@ -42,18 +42,18 @@ rule talk  {
 }
 
 token presenter {
-    <'<span class="speaker">'> <'<tt>'>? <( <alpha>+ [<ws> <alpha>+]+ )>
+    '<span class="speaker">' '<tt>'? <( <alpha>+ [<ws> <alpha>+]+ )>
 }
 
 token title {
-    <'<span class="talk">'> <link> <'</span>'>
+    '<span class="talk">' <link> '</span>'
     { return $<link><label> }
 }
 
 token link {
-    <'<a href="'>
-    $<url> := ([\/]? \w+ [\/ \w+]+ \. \w+) <'">'>
-    $<label> := (<alpha>+ [<ws> <alpha>+]+) <'</a>'>
+    '<a href="'
+    $<url> := ([\/]? \w+ [\/ \w+]+ \. \w+) '">'
+    $<label> := (<alpha>+ [<ws> <alpha>+]+) '</a>'
 }
 
 # ------------------------- S O U R C E ------------------------- #

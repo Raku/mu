@@ -311,10 +311,18 @@ ab:::cd | gh:::ij	xyabghij	n	rule cut at top
 ^<[<>]>**{2}		><		y	lt, gt  character class
 ^<-[><]>		><		n	not gt, lt character class
 ^<-[<>]>		><		n	not lt, gt  character class
-<'... --- ...'>		... --- ...	y	literal match (\')
-<'... --- ...'>		...---...	n	literal match (\')
-<'ab\'>cd'>		ab'>cd		y	literal match with quote
-<'ab\\cd'>		ab\o134cd	y	literal match with backslash
+'... --- ...'		... --- ...	y	literal match (\')
+'... --- ...'		...---...	n	literal match (\')
+'ab\'>cd'		ab'>cd		y	literal match with quote
+'ab"cd'		ab"cd		y	literal match with quote
+'ab\\cd'		ab\o134cd	y	literal match with backslash
+"... --- ..."		... --- ...	y	literal match (\")
+"... --- ..."		...---...	n	literal match (\")
+"ab<\">cd"		ab<">cd		y	literal match with quote
+"ab<'>cd"		ab<'>cd		y	literal match with quote
+"ab\\cd"		ab\o134cd	y	literal match with backslash
+(ab)x"$0"		abxab		y	literal match with interpolation
+(ab)"x$0"		abxab		y	literal match with interpolation
 
 ##  builtin subrules
 abc <fail> def	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	n				<fail>
@@ -324,13 +332,13 @@ abc<?wb>		abc\ndef\n-==\nghi	y	word boundary \w\W
 <?wb>abc		abc\ndef\n-==\nghi	y	BOS word boundary
 ghi<?wb>		abc\ndef\n-==\nghi	y	EOS word boundary
 a<?wb>			abc\ndef\n-==\nghi	n	\w\w word boundary
--<?wb>			abc\ndef\n-==\nghi	n	\W\W word boundary
+\-<?wb>			abc\ndef\n-==\nghi	n	\W\W word boundary
 <!wb>def		abc\ndef\n-==\nghi	n	nonword boundary \W\w
 abc<!wb>		abc\ndef\n-==\nghi	n	nonword boundary \w\W
 <!wb>abc		abc\ndef\n-==\nghi	n	BOS nonword boundary
 ghi<!wb>		abc\ndef\n-==\nghi	n	EOS nonword boundary
 a<!wb>			abc\ndef\n-==\nghi	y	\w\w nonword boundary
--<!wb>			abc\ndef\n-==\nghi	y	\W\W nonword boundary
+\-<!wb>			abc\ndef\n-==\nghi	y	\W\W nonword boundary
 
 <upper>		\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob<upper>: <A @ 45>/		<upper>
 <?upper>	\t\n\r !"#$%&'()*+,-./:;<=>?@[\]^`_{|}0123456789ABCDEFGHIJabcdefghij	/mob: <A @ 45>/			<?upper>
@@ -444,7 +452,7 @@ $1:=[ (.) (.) (.) ] (.)			abcdefg	/mob 5: <d @ 3>/	perl5 numbered captures $1
 #:s $<key>:=[\w+] = $<val>:=[\S+]	 abc = 123	/mob<val>: <123 @ 7>/	named capture
 #:s (\w+) $<foo>:=(\w+) (\w+)	   	abc def ghi	/mob<foo>: <def @ 7>/	mixing named and unnamed capture
 #:s (\w+) $<foo>:=(\w+) (\w+)	   	abc def ghi	/mob 1: <ghi @ 11>/	mixing named and unnamed capture
-#<alpha> [ - <alpha> ]?	   		abc def ghi	/mob<alpha> 0: <a @ 3>/	multiple subrule captures in same scope
+#<alpha> [ \- <alpha> ]?	   		abc def ghi	/mob<alpha> 0: <a @ 3>/	multiple subrule captures in same scope
 #[(.)$0]+				bookkeeper	y			backreference
 #(\w+) <?ws> $0				hello hello	y			backreference at end of string
 #[(.)$0]+				bookkeeper	/mob 0 0: <o @ 1>/	backref $1
@@ -528,25 +536,25 @@ ab [:ignorecase cd ] ef		aBCDef	n	ignorecase, lexical (:ignorecase)
 :s(0) b c [:s(0) d e f ]	a b c def	n	sigspace, lexical repetition (:s)
 :!s b c [:!s d e f ]	a b c def	n	sigspace, lexical repetition (:s)
 :s ab 				ab		y	sigspace, trailing ws
-foo\s*-?\s*bar			foo\t \n-\n\t bar	y	basic match
-foo\s*-?\s*bar			foo - bar	y	basic match
-foo\s+-?\s*bar			foo   bar	y	basic match \s+ \s*
-foo\s+-?\s*bar			foo  -bar	y	basic match \s+ \s*
-foo\s*-?\s+bar			foo-  bar	y	basic match \s* \s+
-foo -? bar			foo-bar		y	basic match \s* \s*
-foo -? bar			foobar		y	basic match
-foo -? bar			foo - bar	n	basic non-match
-:s foo -? bar			foo\n \t- \t\t\nbar	y	basic ws match
-:s foo -? bar			foo - bar	y	basic ws match
-:s foo -? bar			foo   bar	y	basic ws match \s+ \s*
-:s foo -? bar			foo  -bar	y	basic ws match \s+ \s*
-:s foo -? bar			foo-  bar	y	basic ws match \s* \s+
-:s foo -? bar			foo-bar		y	basic ws match \s* \s*
-:s foo -? bar			foobar		n	basic ws non-match
-:s()foo -? bar			foo - bar	n	basic ws match
-:s[]foo -? bar			foo - bar	y	basic ws match
-:s<?wb>foo -? bar		foo - bar	y	basic ws match with boundary modifier separation
-:s::foo -? bar			foo - bar	y	basic ws match with backtrack no-op modifier separation
+foo\s*'-'?\s*bar		foo\t \n-\n\t bar	y	basic match
+foo\s*'-'?\s*bar		foo - bar	y	basic match
+foo\s+'-'?\s*bar		foo   bar	y	basic match \s+ \s*
+foo\s+'-'?\s*bar		foo  -bar	y	basic match \s+ \s*
+foo\s*'-'?\s+bar		foo-  bar	y	basic match \s* \s+
+foo '-'? bar			foo-bar		y	basic match \s* \s*
+foo '-'? bar			foobar		y	basic match
+foo '-'? bar			foo - bar	n	basic non-match
+:s foo '-'? bar			foo\n \t- \t\t\nbar	y	basic ws match
+:s foo '-'? bar			foo - bar	y	basic ws match
+:s foo '-'? bar			foo   bar	y	basic ws match \s+ \s*
+:s foo '-'? bar			foo  -bar	y	basic ws match \s+ \s*
+:s foo '-'? bar			foo-  bar	y	basic ws match \s* \s+
+:s foo '-'? bar			foo-bar		y	basic ws match \s* \s*
+:s foo '-'? bar			foobar		n	basic ws non-match
+:s()foo '-'? bar		foo - bar	n	basic ws match
+:s[]foo '-'? bar		foo - bar	y	basic ws match
+:s<?wb>foo '-'? bar		foo - bar	y	basic ws match with boundary modifier separation
+:s::foo '-'? bar			foo - bar	y	basic ws match with backtrack no-op modifier separation
 :s::(\w+) \:= (\S+)		dog := spot	/mob 0: <dog @ 0>/	sigspace and capture together
 :s::(\w+) \:= (\S+)		dog := spot	/mob 1: <spot @ 7>/	sigspace and capture together
 :perl5 \A.*? bcd\Q$\E..\z	a bcd$ef	y	perl5 syntax (:perl5)
