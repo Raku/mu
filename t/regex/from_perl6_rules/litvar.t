@@ -49,11 +49,11 @@ ok(!( '1' ~~ m/%var{b}/ ), 'Hash B');
 
 # ArrayS
 
-ok("a" ~~ m/@var/, 'Simple array interpolation (a)');
-ok("b" ~~ m/@var/, 'Simple array interpolation (b)');
-ok("c" ~~ m/@var/, 'Simple array interpolation (c)');
+ok("a" ~~ m/@var/, 'Simple array interpolation (a)', :todo<feature>);
+ok("b" ~~ m/@var/, 'Simple array interpolation (b)', :todo<feature>);
+ok("c" ~~ m/@var/, 'Simple array interpolation (c)', :todo<feature>);
 ok(!( "d" ~~ m/@var/ ), 'Simple array interpolation (d)');
-ok("ddddaddddd" ~~ m/@var/, 'Nested array interpolation (a)');
+ok("ddddaddddd" ~~ m/@var/, 'Nested array interpolation (a)', :todo<feature>);
 
 ok("abca" ~~ m/^@var+$/, 'Multiple array matching', :todo<feature>);
 ok(!( "abcad" ~~ m/^@var+$/ ), 'Multiple array non-matching');
