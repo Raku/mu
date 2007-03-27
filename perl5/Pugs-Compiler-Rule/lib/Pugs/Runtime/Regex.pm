@@ -97,7 +97,7 @@ sub concat {
 
         # push capture data
         # print "Concat positional: ", Dumper( $_[3]->data->{match}, $m2->data->{match} );
-        for ( 0 .. $#{ @$m2 } ) {
+        for ( 0 .. $#{ $m2 } ) { 
             if ( ref $m2->[$_] eq 'ARRAY' ) {
                 # TODO - fully static count
                 # push @{ $_[3]->data->{match}[$_] }, @{ $m2->[$_] };
