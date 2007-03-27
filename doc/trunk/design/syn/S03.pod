@@ -3196,7 +3196,7 @@ List-context assignment is supported for simple declarations:
     constant (@foo = 1,2,3);    # wrong: 2 and 3 are not variable names
 
 When parentheses are omitted, you may use an infix assignment operator
-instea dof C<=> as the initializer.  In that case, the left hand side of
+instead of C<=> as the initializer.  In that case, the left hand side of
 the infix operator will be the variable's prototype object:
 
     constant Dog $fido .= new;      # okay: a constant Dog object
