@@ -4,7 +4,7 @@ use v6-alpha;
 
 use Test;
 
-plan 527;
+plan 535;
 
 if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
