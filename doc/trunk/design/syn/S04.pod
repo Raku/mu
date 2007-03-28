@@ -608,7 +608,7 @@ explicitly or implicitly), that parameter can function as the topic
 of any C<when> statements within the loop.
 
 You can explicitly break out of a C<when> block (and its surrounding topicalizer
-block) early using the C<break> verb.  More precidely, it leaves the
+block) early using the C<break> verb.  More precisely, it leaves the
 innermost block outside the C<when> that uses C<$_> as one of its formal
 parameters, either explicitly or implicitly.
 
