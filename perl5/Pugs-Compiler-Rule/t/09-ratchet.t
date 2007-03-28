@@ -732,14 +732,14 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
         '>>' 
     ) );
     #print $rule->perl;
-    #print Dumper( Pugs::Grammar::Rule->rule( " <'>>'> " )->() );
+    #print Dumper( Pugs::Grammar::Rule->rule( " '>>' " )->() );
     my $match = $rule->match( "abc>>zzz" );
     is( "$match", ">>", 'literal ">"' );
 }
 
 {
     my $rule = Pugs::Compiler::Rule->compile( q(
-        <'::'> 
+        '::' 
     ) );
     #print $rule->perl;
     my $match = $rule->match( "abc::zzz" );
@@ -748,7 +748,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
 
 {
     my $rule = Pugs::Compiler::Rule->compile( q(
-        <'}'> 
+        '}' 
     ) );
     #print $rule->perl;
     my $match = $rule->match( "abc}zzz" );
@@ -757,7 +757,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
 
 {
     my $rule = Pugs::Compiler::Rule->compile( q^
-        <')'> 
+        ')' 
     ^ );
     #print $rule->perl;
     my $match = $rule->match( "abc)zzz" );

@@ -22,7 +22,7 @@ sub is_rule_match {
 
 is_rule_match(
 q#
-        $<sym> := [ <'...'> | <'???'> | <'!!!'> ]
+        $<sym> := [ '...' | '???' | '!!!' ]
         {
 	  return App(
             Var( doYada( $<sym> ) ),
@@ -160,7 +160,7 @@ q#do
 
 is_rule_match(
 q#
-	(<'for'>|<'while'>|<'until'>) : <?ws>?
+	('for'|'while'|'until') : <?ws>?
 	$<exp1> := <perl6_expression("no_blocks",0)> <?ws>?
 	$<exp2> := <block>
         { return mkHash([

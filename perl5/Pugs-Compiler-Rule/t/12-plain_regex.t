@@ -167,7 +167,7 @@ sub compile {
 }
 
 {
-    my $rule = __PACKAGE__->compile( q( <'[ab]+$a@b\'"%c/'> \$ x / \\\\ \\/ \. ) );
+    my $rule = __PACKAGE__->compile( q( '[ab]+$a@b\'"%c/' \$ x / \\\\ \\/ \. ) );
     my $match = $rule->match( q([ab]+$a@b'"%c/$x/\\/.) );
     #print "Source: ", $rule->{perl5};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
