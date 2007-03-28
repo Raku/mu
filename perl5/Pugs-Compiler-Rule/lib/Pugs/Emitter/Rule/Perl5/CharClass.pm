@@ -31,6 +31,9 @@ sub emit {
     #my $last_cmd = '';
     for ( @c ) { 
         my ( $op, $cmd ) = /(.)(.*)/;
+        
+        $cmd =~ s/\s//g;
+
         #if ( $last_cmd eq '-'
         #    && substr($cmd,0,1) eq '+' 
         #    )
