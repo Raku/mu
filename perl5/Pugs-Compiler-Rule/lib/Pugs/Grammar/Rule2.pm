@@ -56,12 +56,12 @@ token ws {
 
 # regex ident can start with a number
 token ident {
-    [ <?alnum> | _ | <'::'> ]+
+    [ <?alnum> | _ | '::' ]+
 }
 
 # after '\\'
 token special_char {  
-        | ( c | C ) \[ ( [<alnum>|\s|<';'>|<'('>|<')'>|<'-'>]+) \]
+        | ( c | C ) \[ ( [<alnum>|\s| ';' | '(' | ')' | '-' ]+) \]
           #  \c[LATIN LETTER A] 
           { return { special_char => '\\' ~ $0 ~ $1 , } } 
 
@@ -182,7 +182,7 @@ token named_capture_body {
         { return { capturing_group => $$<rule> ,} }
     },
     '<(' => token {
-        <rule>  <')>'>
+        <rule>  ')>'
         { return { capture_as_result => $$<rule> ,} }
     },
     '<after' => token {
@@ -326,7 +326,7 @@ token named_capture_body {
     
 token term {
     |  <%Pugs::Grammar::Rule::variables>
-       [  <?ws>? <':='> <?ws>? <named_capture_body>
+       [  <?ws>? ':=' <?ws>? <named_capture_body>
           { 
             return { named_capture => {
                 rule =>  $$<named_capture_body>,
@@ -351,7 +351,7 @@ token term {
 }
 
 token quant {
-    |   <'**'> <?ws>? \{  <parsed_code>  \}
+    |   '**' <?ws>? \{  <parsed_code>  \}
         { return { closure => $$<parsed_code> ,} }
     |   <[  \? \* \+  ]>?
 }
