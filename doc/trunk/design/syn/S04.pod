@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 12 Mar 2007
+  Last Modified: 28 Mar 2007
   Number: 4
-  Version: 54
+  Version: 55
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -390,8 +390,23 @@ which is short for
 
     for =$*ARGS {...}
 
-Parameters are by default readonly within the block.  You can
-declare a parameter read/write by including the "C<is rw>" trait.
+Arguments bound to the formal parameters of a pointy block are by
+default readonly within the block.  You can declare a parameter
+read/write by including the "C<is rw>" trait.  The following treats
+every other value in C<@values> as modifiable:
+
+    for @values -> $even is rw, $odd { ... }
+
+In the case where you want all your parameters to default to C<rw>,
+you may use the visually suggestive double-ended arrow to indicate that
+values flow both ways:
+
+    for @values <-> $even, $odd { ... }
+
+This is equivalent to
+
+    for @values -> $even is rw, $odd is rw { ... }
+
 If you rely on C<$_> as the implicit parameter to a block,
 then C<$_> is considered read/write by default.  That is,
 the construct:
@@ -400,10 +415,9 @@ the construct:
 
 is actually short for:
 
-    for @foo -> $_ is rw {...}
+    for @foo <-> $_ {...}
 
-so you can modify the current list element in that case.  However,
-any time you specify the arguments, they default to read only.
+so you can modify the current list element in that case.
 
 When used as statement modifiers, C<for> and C<given> use a private
 instance of C<$_> for the left side of the statement.  The outer C<$_>
@@ -551,16 +565,20 @@ cases is C<when>:
     }
 
 The current topic is always aliased to the special variable C<$_>.
-The C<given> block is just one way to set the current topic, but a
-switch statement can be any block that sets C<$_>, including a C<for>
-loop (in which the first loop parameter is the topic) or the body
-of a method (if you have declared the invocant as C<$_>).  So switching
-behavior is actually caused by the C<when> statements in the block,
-not by the nature of the block itself.  A C<when> statement implicitly
-does a "smart match" between the current topic (C<$_>) and the argument
-of the C<when>.  If the smart match succeeds, C<when>'s associated block
-is executed, and the surrounding block is automatically broken out of.
-The value of the inner block is returned as the value of the outer block.
+The C<given> block is just one way to set the current topic, but
+a switch statement can be any block that sets C<$_>, including a
+C<for> loop (assuming one of its loop variables is bound to C<$_>)
+or the body of a method (if you have declared the invocant as C<$_>).
+So switching behavior is actually caused by the C<when> statements in
+the block, not by the nature of the block itself.  A C<when> statement
+implicitly does a "smart match" between the current topic (C<$_>) and
+the argument of the C<when>.  If the smart match succeeds, C<when>'s
+associated block is executed, and the immediatly surrounding block
+is automatically broken out of.  (If that is not the block you wish
+to leave, you must use the C<LABEL.leave> method to be more specific,
+since the compiler may find it difficult to guess which surrounding
+construct last set C<$_> as the topic.)  The value of the inner block
+is returned as the value of the outer block.
 
 If the smart match fails, control passes to the next statement
 normally, which may or may not be a C<when> statement.  Since C<when>
@@ -583,14 +601,12 @@ come last.  You don't have to use an explicit default--you can just
 fall off the last C<when> into ordinary code.  But use of a C<default>
 block is good documentation.
 
-If you use a C<for> loop with a named parameter, the parameter is
-also aliased to C<$_> so that it can function as the topic of any
-C<when> statements within the loop.  If you use a C<for> statement
-with multiple parameters, only the first parameter is aliased to C<$_>
-as the topic.
+If you use a C<for> loop with a parameter named C<$_> (either
+explicitly or implicitly), that parameter can function as the topic
+of any C<when> statements within the loop.
 
 You can explicitly break out of a C<when> block (and its surrounding
-switch) early using the C<break> verb.  You can explicitly break out
+block) early using the C<break> verb.  You can explicitly break out
 of a C<when> block and go to the next statement by using C<continue>.
 (Note that, unlike C's idea of falling through, subsequent C<when>
 conditions are evaluated.  To jump into the next C<when> block you
