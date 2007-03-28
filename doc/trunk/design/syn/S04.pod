@@ -14,7 +14,7 @@ Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
   Last Modified: 28 Mar 2007
   Number: 4
-  Version: 55
+  Version: 56
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -573,12 +573,14 @@ So switching behavior is actually caused by the C<when> statements in
 the block, not by the nature of the block itself.  A C<when> statement
 implicitly does a "smart match" between the current topic (C<$_>) and
 the argument of the C<when>.  If the smart match succeeds, C<when>'s
-associated block is executed, and the immediatly surrounding block
-is automatically broken out of.  (If that is not the block you wish
-to leave, you must use the C<LABEL.leave> method to be more specific,
-since the compiler may find it difficult to guess which surrounding
-construct last set C<$_> as the topic.)  The value of the inner block
-is returned as the value of the outer block.
+associated block is executed, and the innermost surrounding block
+that has C<$_> as one of its formal parameters (either explicit
+or implicit) is automatically broken out of.  (If that is not the
+block you wish to leave, you must use the C<LABEL.leave> method to
+be more specific, since the compiler may find it difficult to guess
+which surrounding construct was intended as the actual topicalizer.)
+The value of the inner block is returned as the value of the outer
+block.
 
 If the smart match fails, control passes to the next statement
 normally, which may or may not be a C<when> statement.  Since C<when>
@@ -605,8 +607,12 @@ If you use a C<for> loop with a parameter named C<$_> (either
 explicitly or implicitly), that parameter can function as the topic
 of any C<when> statements within the loop.
 
-You can explicitly break out of a C<when> block (and its surrounding
-block) early using the C<break> verb.  You can explicitly break out
+You can explicitly break out of a C<when> block (and its surrounding topicalizer
+block) early using the C<break> verb.  More precidely, it leaves the
+innermost block outside the C<when> that uses C<$_> as one of its formal
+parameters, either explicitly or implicitly.
+
+You can explicitly break out
 of a C<when> block and go to the next statement by using C<continue>.
 (Note that, unlike C's idea of falling through, subsequent C<when>
 conditions are evaluated.  To jump into the next C<when> block you
