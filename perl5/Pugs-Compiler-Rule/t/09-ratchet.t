@@ -729,7 +729,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
 
 {
     my $rule = Pugs::Compiler::Rule->compile( q(
-        <'>>'> 
+        '>>' 
     ) );
     #print $rule->perl;
     #print Dumper( Pugs::Grammar::Rule->rule( " <'>>'> " )->() );

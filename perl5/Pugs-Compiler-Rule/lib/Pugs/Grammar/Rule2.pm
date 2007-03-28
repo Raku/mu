@@ -173,6 +173,10 @@ token named_capture_body {
 
 %rule_terms = (
 
+    '\'' => token {
+        <?literal>     \'
+        { return { metasyntax => '\'' ~ $$/ ,} }
+    },
     '(' => token {
         <rule> \)
         { return { capturing_group => $$<rule> ,} }

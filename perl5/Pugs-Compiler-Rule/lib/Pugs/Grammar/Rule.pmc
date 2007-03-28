@@ -2889,7 +2889,76 @@ do {
   return $m;
 } }
 );
-%rule_terms = ('(' => do { my $rule; $rule = sub {
+%rule_terms = (
+
+'\'' => do { my $rule; $rule = sub {
+  
+              my $s       = $_[0] || '';
+              my $grammar = $_[1] || __PACKAGE__;
+              $_[3] = $_[2]; 
+              $_[2] = undef;
+            
+  no warnings 'substr', 'uninitialized', 'syntax';
+  my %pad;
+  my $m;
+  for my $pos ( defined $_[3]{p} && ! $_[3]{continue} 
+        ? $_[3]{p} 
+        : ( ( $_[3]{p} || 0 ) .. length( $s ) ) ) {
+    my %index; 
+    my @match;
+    my %named;
+    my $bool = 1;
+    $named{KEY} = $_[3]{KEY} if exists $_[3]{KEY};
+    $m = Pugs::Runtime::Match->new( { 
+      str => \$s, from => \(0+$pos), to => \($pos), 
+      bool => \$bool, match => \@match, named => \%named, capture => undef, 
+    } );
+    {
+      my $prior = $::_V6_PRIOR_;
+      local $::_V6_PRIOR_ = $prior; 
+      $bool = 0 unless
+       (
+           do { 
+                my $prior = $::_V6_PRIOR_; 
+                my $match = 
+                       $grammar->literal( $s, { p => $pos, args => {} }, undef );
+                $::_V6_PRIOR_ = $prior; 
+                my $bool = (!$match != 1);
+                $pos = $match->to if $bool;
+                $match;
+           }
+       &&
+           ( ( substr( $s, $pos, 1 ) eq chr(39) ) 
+               ? ( $pos += 1 or 1 )
+               : 0
+           )
+       &&
+do { 
+                    $::_V6_MATCH_ = $m; 
+                    local $::_V6_SUCCEED = 1;
+                    $m->data->{capture} = \( sub  { return({'metasyntax' => '\'' . ${$::_V6_MATCH_}});
+ } ->() );
+                    $bool = $::_V6_SUCCEED;
+                    $::_V6_MATCH_ = $m if $bool; 
+                    return $m if $bool;
+                }
+       );
+    }
+    if ( $bool ) {
+      my $prior = $::_V6_PRIOR_;
+      $::_V6_PRIOR_ = sub { 
+        local $main::_V6_PRIOR_ = $prior; 
+        $rule->(@_);
+      };
+      last;
+    }
+  } # /for
+  $::_V6_MATCH_ = $m;
+  return $m;
+} }
+,
+
+'(' => do { my $rule; $rule = sub {
   
               my $s       = $_[0] || '';
               my $grammar = $_[1] || __PACKAGE__;

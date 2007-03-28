@@ -1,3 +1,4 @@
+- new syntax 'xxx' instead of <'xxx'>
 - %($/) is read-write
 
 0.22  2007-03-27
