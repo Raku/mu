@@ -11,9 +11,6 @@ if !eval('("a" ~~ /a/)') {
   exit;
 }
 
-my @force_todo = (31,32,36,62,64,66,68,82,86,87,88,89,101,114,115,117,121,122,124,129,130,143,144,157,158,170,171,172,173,179,181,182,185,186,191,192,194,202,210,214,219,221,256,257,260,262,266,268,269,278,303,309,310,368,371,373,375,377,378,379,380,434,436,437,439,441,442,443,454,455,458,459,460,461,464,466,467,469,470,472,475,476,477,481,482,486,487,489,490,492,493,494,499,508,509,510,511,512,513,516,517,518,521,522,523,524,525);
-my %force_todo = @force_todo.map:{($_,1)};
-
 #my $test_data = slurp 'regex_tests';
 #ok $test_data, 'slurp data successful';
 
@@ -44,9 +41,27 @@ sub p6rule_like( $target, $pattern, $expected, $description?, :$todo ) {
 }
 
 my $line_count = 1;
+my $todotodo = '';
 for slurp($fh) -> $line {
+    if $line ~~ rx:P5/^#/ {
+	if not $todotodo and $line ~~ /todo/ {
+	    # XXX regex can't parse vars yet, so fake it with switch
+	    $todotodo = do given $*EXECUTABLE_NAME {
+		when /pugs/ {
+		    # XXX eventually should use STD grammar adverb def here
+		    if $line ~~ rx:P5/:pugs<(.*?)>/ { $0 }
+		}
+		when /parrot/ {
+		    # XXX eventually should use STD grammar adverb def here
+		    if $line ~~ rx:P5/:parrot<(.*?)>/ { $0 }
+		}
+		# your ad here
+		default { '' }
+	    }
+	}
+	next;
+    }
     next unless $line ~~ rx:P5/\t/;
-    next if $line ~~ rx:P5/^#/;
     chomp $line;
 
     my ($pattern, $target, $result, $description) = split rx:P5/\t+/, $line;
@@ -63,10 +78,9 @@ for slurp($fh) -> $line {
 
     my $todo;
 
-    if $description ~~ rx:P5 {TODO:} {
-	$todo = $description;
-    } else {
-        $todo = 'for release' if %force_todo{$line_count};
+    if $todotodo {
+	$todo = $todotodo;
+	$todotodo = '';		# assume no todo for next data line
     }
 
     if $result ~~ rx:P5 {^/(.*)/$} {
