@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 13 Sep 2004
-  Last Modified: 14 Mar 2007
+  Last Modified: 28 Mar 2007
   Number: 9
-  Version: 18
+  Version: 19
 
 =head1 Overview
 
@@ -146,6 +146,87 @@ The packing serialization is performed by coercion to an appropriate
 buffer type.  The unpacking is performed by coercion of such a buffer
 type back to the type of the compact struct.
 
+=head1 Standard array indexing
+
+Standard array indices are specified using square brackets. Standard
+indices always start at zero in each dimension of the array (see
+L<"Multidimensional arrays">), and are always contiguous:
+
+    @dwarves[0] = "Happy";           # The 1st dwarf
+    @dwarves[6] = "Doc";             # The 7th dwarf
+
+    @seasons[0] = "Spring";          # The 1st season
+    @seasons[2] = "Autumn"|"Fall";   # The 3rd season
+
+
+=head1 Fixed-size arrays
+
+A basic array declaration like:
+
+    my @array;
+    
+declares a one-dimensional array of indeterminate length. Such arrays
+are autoextending. For many purposes, though, it's useful to define
+array types of a particular size and shape that, instead of
+autoextending, fail if you try to access outside their
+declared dimensionality. Such arrays tend to be faster to allocate and
+access as well. (The language must, however, continue to protect you
+against overflow--these days, that's not just a reliability issue, but
+also a security issue.)
+
+To declare an array of fixed size, specify its maximum number of elements
+in square brackets immediately after its name:
+
+    my @dwarves[7];           # Valid indices are 0..6
+
+    my @seasons[4];           # Valid indices are 0..4
+
+No intervening whitespace is permitted between the name and the size
+specification, but "unspace" is allowed:
+
+    my @values[10];           # Okay
+    my @keys  [10];           # Error
+    my @keys\ [10];           # Okay
+
+Note that the square brackets are a compile-time declarator, not a run-time
+operator, so you can't use the "dotted" form either:
+
+    my @values.[10];          # Error
+    my @keys\ .[10];          # Error
+
+Attempting to access an index outside a array's defined range will fail:
+
+    @dwarves[7] = 'Sneaky';   # Fails with "invalid index" exception
+
+It's also possible to explicitly specify a normal autoextending array:
+
+    my @vices[*];             # Length is: "whatever"
+                              # Valid indices are 0..*
+
+=head1 Typed arrays
+
+The type of value stored in each element of the array (normally C<Any>)
+can be explicitly specified too, as an external C<of> type:
+
+    my num @nums;                     # Each element stores a native number
+    my @nums of num;                  # Same
+
+    my Book @library[1_000_000];      # Each element stores a Book object
+    my @library[1_000_000] of Book;   # Same
+
+Alternatively, the element storage type may be specified as part of the
+dimension specifier (much like a subroutine definition):
+
+    my @nums[-->num];
+
+    my @library[1_000_000 --> Book];
+
+Arrays may also be defined with a mixture of fixed and autoextending
+dimensions:
+
+    my @calendar[12;*;24];     # "Month" dimension unlimited
+
+
 =head1 Compact arrays
 
 In declarations of the form:
@@ -165,6 +246,10 @@ elements of the specified type without any fancy object boxing that
 typically applies to undifferentiated scalars.  (Perl tries really
 hard to make these elements look like objects when you treat them
 like objects--this is called autoboxing.)
+
+Such arrays are autoextending just like ordinary Perl arrays
+(at the price of occasionally copying the block of data to another
+memory location, or using a tree structure).
 
 A compact array is for most purposes interchangeable with the
 corresponding buffer type.  For example, apart from the sigil,
@@ -204,33 +289,45 @@ a buffer type as their minimum abstraction level, hopefully with a
 known encoding.  Otherwise you must encode them explicitly from the
 higher-level abstraction into some buffer type.)
 
+
 =head1 Multidimensional arrays
 
-The declarations above declare one-dimensional arrays of indeterminate
-length.  Such arrays are autoextending just like ordinary Perl arrays
-(at the price of occasionally copying the block of data to another
-memory location, or using a tree structure).  For many purposes,
-though, it's useful to define array types of a particular size and
-shape that, instead of autoextending, throw an exception if you try
-to access outside their declared dimensionality.  Such arrays tend
-to be faster to allocate and access as well.  (The language must,
-however, continue to protect you against overflow--these days, that's
-not just a reliability issue, but also a security issue.)
+Perl 6 arrays are not restricted to being one-dimensional (that's simply
+the default). To declare a multidimensional array, you specify it with a
+semicolon-separated list of dimension lengths:
+
+    my int @ints[4;2];          # Valid indices are 0..3 ; 0..1
+
+    my @calendar[12;31;24];     # Valid indices are 0..11 ; 0..30 ; 0..23
+
+You can pass a multislice for the shape as well:
+
+    @@shape = (4;2);
+    my int @ints[ [;]@shape ];
+    my int @ints[@@shape];      # Same thing
+
+Again, the C<[;]> list operator interpolates a list into a semicolon
+list.
+
+The shape may be supplied entirely by the object at run-time:
+
+    my num @nums = Array of num.new(:shape(3;3;3));
+    my num @nums .=new():shape(3;3;3); # same thing 
 
 A multidimensional array is indexed by a semicolon list, which is really
-a list of feeds in disguise.  Each sublist is a slice/feed of one particular
-dimension.  So
+a list of feeds in disguise. Each sublist is a slice/feed of one
+particular dimension. So:
 
     @array[0..10; 42; @x]
 
-is really short for
+is really short for:
 
     @array.postcircumfix:<[ ]>( <== 0..10 <== 42 <== @x );
 
 The compiler is free to optimize to something faster when it is known
 that lazy multidimensional subscripts are not necessary.
 
-Note that
+Note that:
 
     @array[@x,@y]
 
@@ -261,122 +358,359 @@ are being defined.  Use of multislice syntax can then pull out those
 distinct dimensions:
 
     my @@x;
-    @@x <==  %hash.keys.grep: {/^X/};
+    @@x <==  %hash.keys.grep: {/^\d+$/};
     @@x <== =<>;
     @@x <== 1..*;
     @@x <== gather { loop { take rand 100 } };
 
-    %hash{@@x}
+    @array{@@x}
 
-Conjecture, since @@x and @x are really the same object, any array can
+Conjecture: since @@x and @x are really the same object, any array can
 keep track of its dimensionality, and it only matters how you use it
 in contexts that care about the dimensionality:
 
     my @x;
-    @x <==  %hash.keys.grep: {/^X/};
+    @x <==  %hash.keys.grep: {/^\d+$/};
     @x <== =<>;
     @x <== 1..*;
     @x <== gather { loop { take rand 100 } };
 
-    %hash{@@x}  # multidimensional
-    %hash{@x}   # flattened
+    @array{@@x}  # multidimensional
+    @array{@x}   # flattened
 
-To declare a multidimensional array, you may declare it with a signature as
-if it were a function returning I<one> of its entries:
+=head2 Autoextending multidimensional arrays
 
-    my num @nums (Int);   # one dimension, @nums[Int]
-
-or alternately:
-
-    my @nums (Int --> num);   # one dimension, @nums[Int]
-
-You can use ranges as types:
-
-    my @nums (0..2 --> num);   # one dimension, @nums[0..2]
-    my @ints (0..3, 0..1 --> int);   # one dimension, @ints[0..3; 0..1]
-
-That includes the "upto" range type:
-
-    my @ints (^4, ^2 --> int);   # one dimension, @ints[0..3; 0..1]
-
-You can pretend you're programming in Fortran, or awk:
-
-    my int @ints (1..4, 1..2); # two dimensions, @ints[1..4; 1..2]
-
-Note that this only influences your view of the array in the current
-lexical scope, not the actual shape of the array.  If you pass
-this array to another module, it will see it as having a shape
-of C<(0..3,0..1)> unless it also declares a variable to view it
-differently.
-
-Alternately, you may declare it using a prototype subscript,
-but then you must remember to use semicolons instead of commas to
-separate dimensions, because each slice represents an enumeration of
-the possible values, so the following are all equivalent:
-
-    my @ints (0..3, 0..1 --> int);
-    my int @ints (0..3, 0..1);
-    my int @ints[^4;^2];
-    my int @ints[0..3; 0..1];
-    my int @ints[0,1,2,3; 0,1];
-
-You can pass a multislice for the shape as well:
-
-    @@fooshape = (0..3; 0..1);
-    my int @ints[[;]@fooshape];
-    my int @ints[@@fooshape];   # same thing
-
-Again, the C<[;]> list operator interpolates a list into a semicolon
-list, which we do for consistency with subscript notation, not because
-it makes a great deal of sense to allow slices for dimensional specs
-(apart from ranges).  So while the following is okay:
-
-    my int @ints[0,1,2,3,4];    # same as 0..4
-
-the following is a semantic error that the compiler should catch:
-
-    my int @ints[^3,^3,^3];     # oops, comma instead of semicolon
-
-The shape may be supplied entirely by the object at run-time:
-
-    my num @nums = Array of num.new(:shape(^3;^3;^3));
-    my num @nums .=new():shape(^3;^3;^3); # same thing 
-
-Any dimension of the array may be specified as "C<Int>", in which case
+Any dimension of the array may be specified as "C<*>", in which case
 that dimension will autoextend.  Typically this would be used in the
 final dimension to make a ragged array functionally equivalent to an
 array of arrays:
 
-    my int @ints[^42; Int];
+    my int @ints[42; *];            # Second dimension unlimited
     push(@ints[41], getsomeints());
 
-The shape may also be specified by types rather than sizes:
+but I<any> dimensional of an array may be declared as autoextending:
 
-    my int @ints[Even; Odd];
+    my @calendar[12;*;24];          # "Month" dimension unlimited
+    @calendar[1;42;8] = 'meeting'   # See you on January 42nd
 
-or by both:
+It is also possible to specify that an array has an arbitrary number
+of dimensions, using a "hyperwhatever" (C<**>) at the end of the
+dimensional specification:
 
-    my int @ints[0..100 where Even; 1..99 where Odd];
+    my @grid[**];                      # Any number of dimensions
+    my @spacetime[*;*;*;**];           # Three or more dimensions
+    my @coordinates[100;100;100;**];   # Three or more dimensions
 
-(presuming C<Even> and C<Odd> are types already constrained to be even or odd).
+Note that C<**> is a shorthand for C<[;] * xx *>, so the extra
+dimensions are all of arbitrary size. To specify an arbitrary number
+of fixed-size dimensions, write:
 
-The C<Whatever> type will be taken to mean C<Int> within an array
-subscript, so you can also write:
+    my @coordinates[ [;] 100 xx * ];
 
-    my int @ints[^42; *];
+This syntax is also convenient if you need to define a large number of
+consistently sized dimensions:
 
-Saying
+    my @string_theory[ [;] 100 xx 11 ];    # 11-dimensional
 
-    my int @ints[^42; **];
+=head1 User-defined array indexing
 
-would give you an array of indeterminate dimensionality.
+Any array may also be given a second set of user-defined indices, which
+need not be zero-based, monotonic, or even integers. Whereas standard array
+indices always start at zero, user-defined indices may start at any
+finite value of any enumerable type. Standard indices are always
+contiguous, but user-defined indices need only be distinct and in an
+enumerable sequence.
+
+To define a set of user-defined indices, specify an explicit or
+enumerable list of the indices of each dimension (or the name of an
+enumerable type) in a set of curly braces immediately after the
+array name:
+
+    my @dwarves{ 1..7 };
+    my @seasons{ <Spring Summer Autumn Winter> };
+
+    my enum Months
+        «:Jan(1) Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec»;
+
+    my @calendar{ Months; 1..31; 9..12,14..17 };    # Business hours only
+
+Array look-ups via user-defined indices are likewise specified in curly
+braces instead of square brackets:
+
+    @dwarves{7} = "Doc";             # The 7th dwarf
+
+    say @calendar{Jan;13;10};        # Jan 13th, 10am
+
+User-defined indices merely provide a second, non-standard "view" of the
+array; the underlying container remains the same. Each user-defined
+index in each dimension is mapped one-to-one back to the standard (zero-
+based) indices of that dimension. So, given the preceding definitions:
+
+                 maps to
+    @dwarves{1}  ------>  @dwarves[0]
+    @dwarves{2}  ------>  @dwarves[1]
+            :                   :
+    @dwarves{7}  ------>  @dwarves[6]
+
+and:
+
+                        maps to
+    @seasons{'Summer'}  ------>  @seasons[0]
+    @seasons{'Spring'}  ------>  @seasons[1]
+    @seasons{'Autumn'}  ------>  @seasons[2]
+    @seasons{'Winter'}  ------>  @seasons[3]
+
+    @seasons<Summer>    ------>  @seasons[0]
+    @seasons<Spring>    ------>  @seasons[1]
+    @seasons<Autumn>    ------>  @seasons[2]
+    @seasons<Winter>    ------>  @seasons[3]
+
+and:
+
+                          maps to
+    @calendar{Jan;1;9}    ------>  @calendar[0;0;0]
+    @calendar{Jan;1;10}   ------>  @calendar[0;0;1]
+            :                              :
+    @calendar{Jan;1;12}   ------>  @calendar[0;0;3]
+    @calendar{Jan;1;14}   ------>  @calendar[0;0;4]
+            :                              :
+    @calendar{Feb;1;9}    ------>  @calendar[1;0;0]
+            :                              :
+    @calendar{Dec;31;17}  ------>  @calendar[11;30;7]
+
+User-defined indices can be open-ended, but only on the upper end (i.e.
+just like standard indices). That is, you can specify:
+
+    my @sins{7..*};      # Indices are: 7, 8, 9, etc.
+
+but not:
+
+    my @virtue{*..6};
+    my @koalas{*..*};
+    my @celebs{*};
+
+These last three are not allowed because there is no first index, and
+hence no way to map the infinity of negative user-defined indices back
+to the standard zero-based indexing scheme.
+
+Declaring a set of user-defined indices implicitly declares the array's
+standard indices as well (which are still zero-based in each dimension).
+Such arrays can be accessed using either notation. The standard indices
+provide an easy way of referring to "ordinal" positions, independent of
+user-specified indices:
+
+    say "The first sin was @sins[0]";
+    # First element, no matter what @sin's user-defined indexes are
+
+Note that if an array is defined with fixed indices (either standard or
+user-defined), any attempt to use an index that wasn't specified in the
+definition will fail. For example:
+
+    my @values{2,3,5,7,11};   # Also has standard indices: 0..4
+
+    say @values[-1];           # Fails (not a valid standard index)
+    say @values{1};            # Fails (not a valid user-defined index)
+
+    say @values{4};            # Fails (not a valid user-defined index)
+
+    say @values[5];            # Fails (not a valid standard index)
+    say @values{13};           # Fails (not a valid user-defined index)
+
+Furthermore, if an array wasn't specified with user-defined indices,
+I<any> attempt to index it via C<.{}> will fail:
+
+    my @dwarves[7];    # No user-defined indices;
+
+    say @dwarves{1};   # Fails: can't map .{1} to a standard .[] index
+
+When a C<:k>, C<:kv>, or C<:p> adverb is applied to a full array,
+the keys returned are always the standard indices.
+
+    my @arr{1,3,5,7,9} = <one two three four five>;
+
+    say @arr:k;           # 0, 1, 2, 3, 4
+
+However, you can specify which set of keys are returned:
+
+    say @arr:k[]          # 0, 1, 2, 3, 4
+    say @arr:k{}          # 1, 3, 5, 7, 9
+
+When C<:k>, C<:kv>, or C<:p> is applied to an array slice, it returns
+the kind of indices that were used to produce the slice, unless the type
+of index is explicitly requested:
+
+    @arr[0..2]:p          # 0=>'one', 1=>'two', 2=>'three'
+    @arr[0..2]:p[]        # 0=>'one', 1=>'two', 2=>'three'
+    @arr[0..2]:p{}        # 1=>'one', 3=>'two', 5=>'three'
+
+    @arr{1,3,5}:p         # 1=>'one', 3=>'two', 5=>'three'
+    @arr{1,3,5}:p[]       # 0=>'one', 1=>'two', 2=>'three'
+    @arr{1,3,5}:p{}       # 1=>'one', 3=>'two', 5=>'three' 
+
+
+=head1 Inclusive subscripts
+
+Within any array look-up (whether via C<.[]> or C<.{}>), the "whatever
+star" can be used to indicate "all the indices". The meaning of
+"all" here depends on the definition of the array. If there are no
+pre-specified indices, the star means "all the indices of currently
+allocated elements":
+
+    my @data                      # No pre-specified indices
+        = 21, 43, 9, 11;          # Four elements allocated
+    say @data[*];                 # So same as:  say @data[0..3]
+
+    @data[5] = 101;               # Now six elements allocated
+    say @data[*];                 # So same as:  say @data[0..5]
+
+If the array is defined with predeclared fixed indices (either standard
+or user-defined), the star means "all the defined indices":
+
+    my @results{1..100 :by(2)}   # Pre-specified indices
+        = 42, 86, 99, 1;
+
+    say @results[*];              # Same as:  say @results[0..49]
+    say @results{*};              # Same as:  say @results{1..100 :by(2)}
+
+You can omit unallocated elements, either by using the :v adverb:
+
+    say @results[*]:v;            # Same as:  say @results[0..3]
+    say @results{*}:v;            # Same as:  say @results{1,3,5,7}
+
+or by using a "zen slice":
+
+    say @results[];               # Same as:  say @results[0..3]
+    say @results{};               # Same as:  say @results{1,3,5,7}
+
+A "whatever star" can also be used as the starting-point of a range
+within a slice, in which case it means "from the first index":
+
+    say @calendar[*..5];          # Same as:  say @calendar[0..5]
+    say @calendar{*..Jun};        # Same as:  say @calendar{Jan..Jun}
+
+    say @data[*..3];              # Same as:  say @data[0..3]
+
+As the end-point of a range, a lone "whatever" means "to the maximum
+specified index" (if fixed indices were defined):
+
+    say @calendar[5..*];          # Same as:  say @calendar[5..11]
+    say @calendar{Jun..*};        # Same as:  say @calendar{Jun..Dec}
+
+or "to the largest allocated index" (if there are no fixed indices):
+
+    say @data[1..*];              # Same as:  say @results[1..5]
+
+=head1 Negative and differential subscripts
+
+The "whatever star" can also be treated as a number inside a
+standard index, in which case it evaluates to the length of the
+array. This provides a clean and consistent way to count back or
+forwards from the end of an array:
+
+    @array[*-$N]      # $N-th element back from end of array
+    @array[*+$N]      # $N-th element at or after end of array
+
+More specifically:
+
+    @array[*-2]       # Second-last element of the array
+    @array[*-1]       # Last element of the array
+    @array[+*]        # First element after the end of the array
+    @array[*+0]       # First element after the end of the array
+    @array[*+1]       # Second element after the end of the array
+
+    @array[*-3..*-1]  # Slice from third-last element to last element
+
+(Note that, if a particular array dimension has fixed indices, any
+attempt to index elements after the last defined index will fail.)
+
+Using a standard index less than zero prepends the corresponding number
+of elements to the start of the array and then maps the negative index
+back to zero:
+
+    @results[-1] = 42;      # Same as: @results.unshift(42)
+
+    @dwarves[-2..-1]        # Same as: @dwarves.unshift(<Groovy Sneaky>)
+        = <Groovy Sneaky>;
+
+Note that, as with a normal C<unshift>, the new elements are
+actually stored starting at standard index zero, after pre-existing
+elements have been bumped to the right. Hence after the assignments
+in the preceding example:
+
+    say @results[0];        # 42
+    say @dwarves[0];        # Groovy
+
+Using a negative index on an array of fixed size will fail if the
+resulting number of elements exceeds the defined size.
+
+Note that the behaviour of negative indices in Perl 6 is 
+different to that in Perl 5:
+
+    # Perl 5...
+    ............_____________________________..................
+         :     |     |     |     |     |     |     :     :
+    .....:.....|_____|_____|_____|_____|_____|.....:.....:.....
+                 [0]   [1]   [2]   [3]   [4]   [5]   [6]   [7]
+     [-7]  [-6]  [-5]  [-4]  [-3]  [-2]  [-1]
+    
+
+    # Perl 6...
+    ............_____________________________..................
+         :     |     |     |     |     |     |     :     :
+    .....:.....|_____|_____|_____|_____|_____|.....:.....:.....
+     [-2]  [-1]  [0]   [1]   [2]   [3]   [4]   [5]   [6]   [7]
+    [*-7] [*-6] [*-5] [*-4] [*-3] [*-2] [*-1] [*+0] [*+1] [*+2]
+
+The Perl 6 semantics avoids indexing discontinuities (a source of subtle
+runtime errors), and provides ordinal access in both directions at both
+ends of the array.
+
+=head1 Mixing subscripts
+
+Occasionally it's convenient to be able to mix standard and user-defined
+indices in a single look-up.
+
+Within a C<.[]> indexing operation you can use C<*{$idx}> to
+convert a user-defined index C<$idx> to a standard index. That is:
+
+    my @lengths{ Months } = (31,28,31,30,31,30,31,31,30,31,30,31);
+
+    @lengths[ 2 .. *{Oct} ]      # Same as:  @lengths[ 2 .. 9 ]
+
+Similarly, within a C<.{}> indexing operation you can use C<*[$idx]>
+to convert from standard indices to user-defined:
+
+    @lengths{ *[2] .. Oct }      # Same as:  @lengths{ Jan .. Oct }
+
+In other words, when treated as an array within an indexing
+operation, C<*> allows you to convert between standard and
+user-defined indices, by acting like an array of the indices
+of the indexed array. This is especially useful for mixing
+standard and user-defined indices within multidimensional
+array look-ups:
+
+    # First three business hours of every day in December...
+    @calendar{Dec; *; *[0..2]}
+
+    # Last three business hours of first three days in July...
+    @calendar[*{July}; 0..2; *-3..*-1]
+
+Extending this feature, you can use C<**> within an indexing operation
+as if it were a multidimensional array of I<all> the indices of a fixed
+number of dimensions of the indexed array:
+
+    # Last three business hours of first three days in July...
+    @calendar{ July; **[0..2; *-3..*-1] }
+
+    # Same...
+    @calendar[ **{July; 1..3}; *-3..*-1]
 
 =head1 PDL support
 
 An array C<@array> can be tied to a PDL at declaration time:
 
     my num @array[@@mytensorshape] is PDL;
-    my @array is PDL(:shape(^2;^2;^2;^2)) of int8;
+    my @array is PDL(:shape(2;2;2;2)) of int8;
 
 PDLs are allowed to assume a type of C<num> by default rather than
 the usual simple scalar.  (And in general, the type info is merely
@@ -404,7 +738,7 @@ the actual dimensionality.  It's quite possible that the array variable
 is deliberately declared with a different dimensionality to provide a
 different "view" on the actual value:
 
-    my int @array[^2;^2] is Puddle .= new(:shape(^4) <== 0,1,2,3);
+    my int @array[2;2] is Puddle .= new(:shape(4) <== 0,1,2,3);
 
 Again, reconciling those ideas is up to the implementation, C<Puddle>
 in this case.  The traits system is flexible enough to pass any
@@ -434,6 +768,7 @@ index value to each slice list:
 
     @x[0;1;42]
 
+
 =head1 The semicolon operator
 
 At the statement level, a semicolon terminates the current expression.
@@ -450,7 +785,7 @@ handle multiple slices, one for each dimension.  You need not specify
 all the dimensions; if you don't, the unspecified dimensions are
 "wildcarded".  Supposing you have:
 
-    my num @nums[^3;^3;^3];
+    my num @nums[3;3;3];
 
 Then
 
@@ -466,7 +801,7 @@ which is the same as
 
 But you should maybe write the last form anyway just for good
 documentation, unless you don't actually know how many more dimensions
-there are.  For that case you may use C<**>:
+there are.  For that case use C<**>:
 
     @nums[0,1,2;**]
 
@@ -524,7 +859,6 @@ rather than
     0 .. Inf :by(2)
 
 That's why we have C<..*> to mean C<..Inf>.
-
 =head1 PDL signatures
 
 To rewrite a Perl 5 PDL definition like this:
@@ -744,16 +1078,25 @@ proposed there is rather different).
 
 =head1 Hashes
 
-Everything we've said for arrays applies to hashes as well, except that
-if you're going to limit the keys of one dimension of a hash, you have
-to provide an explicit list of keys to that dimension of the shape,
-or an equivalent range:
+Like arrays, you can specify hashes with multiple dimensions and fixed
+sets of keys:
 
-    my num %hash{<a b c d e f>; Str};
-    my num %hash{'a'..'f'; Str};                # same thing
+    my num %hash{<a b c d e f>};        # Only valid keys are 'a'..'f'
+    my num %hash{'a'..'f'};             # Same thing
+
+    my %rainfall{ Months; 1..31 }       # Keys: Jan..Dec ; 1..31
+
+Unlike arrays, you can also specify a hash dimension via a non-
+enumerated type, which then allows all values of that type as keys in
+that dimension:
+
+    my num %hash{<a b c d e f>; Str};   # 2nd dimension key may be any string
+    my num %hash{'a'..'f'; Str};        # Same thing
+
+    my %rainfall{ Months; Int };        # Keys: Jan..Dec ; any integer
 
 To declare a hash that can take any object as a key rather than
-just a string, say something like:
+just a string or integer, say something like:
 
     my %hash{Any};
     my %hash{*};
@@ -762,7 +1105,7 @@ A hash of indeterminate dimensionality is:
 
     my %hash{**};
 
-As with arrays, you can limit the keys to objects of particular types:
+You can limit the keys to objects of particular types:
 
     my Fight %hash{Dog; Cat where {!.scared}};
 
@@ -785,8 +1128,6 @@ start one.  In scalar context, C<.iterator> returns an iterator object.
 In list context, it returns a lazy list fed by the iterator.  It must
 be possible for a hash to be in more than one iterator at a time,
 as long as the iterator state is stored in a lazy list.
-However, there is only one implicit iterator (the C<each> iterator)
-that works in scalar context to return the next pair.  [Or maybe not.]
 
 The downside to making a hash autosort via the iterator is that you'd
 have to store all the keys in sorted order, and resort it when the
@@ -828,61 +1169,5 @@ But these ones I<do> autovivify:
     %hash<foo><bar> = "foo"; # duh
 
 This rule applies to C<Array>, C<Hash>, and C<Scalar> container objects.
-
-=head1 Negative subscript dwimmery
-
-It has become the custom to use negative subscripts to indicate counting
-from the end of an array.  This is still supported, but only for unshaped
-arrays:
-
-    my @a1 = 1,2,3;
-    my @a2[*] = 1,2,3;
-    @a1[-1]       # 3
-    @a1[-0.5]     # also 3 (uses floor semantics)
-    @a2[-1]       # ERROR
-    @a2[-0.0001]  # ERROR
-    @a2[0.0001]   # 1
-
-For shaped arrays you must explicitly refer to the current endpoint
-using C<*>, the C<Whatever> object:
-
-    @a2[*-1]      # 3
-    @a2[+*] = 1   # same as push(@a2, 1)
-
-When you use C<*> with C<+> and C<->, it creates a value of C<Whatever>
-but C<Num>, which the array subscript interpreter will interpret as the
-subscript one off the end of that dimension of the array.  The lower
-right corner of a two dimensional array is C<@array[*-1; *-1]>.
-
-This policy has the fortuitous outcome that arrays declared with negative
-subscripts will never interpret negative subscripts as relative to the end:
-
-    my @array[-5..5];
-    @array[-1];         # always the 4th element, not the 11th.
-    @array[*-1];        # always the 11th element, not the 4th.
-
-Oddly, this gives us a canonical way to get the last element, but no
-canonical way to get the first element, unless
-
-    @array[*-*];
-
-works...
-
-Alternately, C<*+0> is the first element, and the subscript dwims
-from the front or back depending on the sign.  That would be more
-symmetrical, but makes the idea of C<*> in a subscript a little more
-distant from the notion of "all the keys", which would be a loss,
-and potentially makes C<+*> not mean the number of keys.
-
-Conjecture: we might provide a way to declare a modular subscript that
-emulates the dwimmery, perhaps by using a subset type:
-
-    subset Mod10 of Int where ^10;
-    my @array[Mod5];
-    @array[42] = 1;     # sets @array[2]
-    @array[582];        # returns 1
-
-But perhaps C<Mod10> should work just like C<^10>, and the modular behavior
-requires some extra syntax.
 
 =for vim:set expandtab sw=4:
