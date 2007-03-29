@@ -387,12 +387,12 @@ that dimension will autoextend.  Typically this would be used in the
 final dimension to make a ragged array functionally equivalent to an
 array of arrays:
 
-    my int @ints[42; *];            # Second dimension unlimited
+    my int @ints[42; *];            # Second dimension unlimited/ragged
     push(@ints[41], getsomeints());
 
 but I<any> dimensional of an array may be declared as autoextending:
 
-    my @calendar[12;*;24];          # "Month" dimension unlimited
+    my @calendar[12;*;24];          # day-of-month dimension unlimited/ragged
     @calendar[1;42;8] = 'meeting'   # See you on January 42nd
 
 It is also possible to specify that an array has an arbitrary number
