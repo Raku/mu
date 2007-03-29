@@ -861,6 +861,7 @@ rather than
     0 .. Inf :by(2)
 
 That's why we have C<..*> to mean C<..Inf>.
+
 =head1 PDL signatures
 
 To rewrite a Perl 5 PDL definition like this:
