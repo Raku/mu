@@ -854,8 +854,8 @@ exceptions and exit values:
        NEXT {...}       at loop continuation time, before any LEAVE
        LAST {...}       at loop termination time, after any LEAVE
 
-        PRE {...}       assert precondition at every block entry, before any
-       POST {...}       assert postcondition at every block exit, after any
+        PRE {...}       assert precondition at every block entry, before ENTER
+       POST {...}       assert postcondition at every block exit, after LEAVE
 
       CATCH {...}       catch exceptions, before LEAVE
     CONTROL {...}       catch control exceptions, before LEAVE
