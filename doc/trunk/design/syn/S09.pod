@@ -179,7 +179,7 @@ in square brackets immediately after its name:
 
     my @dwarves[7];           # Valid indices are 0..6
 
-    my @seasons[4];           # Valid indices are 0..4
+    my @seasons[4];           # Valid indices are 0..3
 
 No intervening whitespace is permitted between the name and the size
 specification, but "unspace" is allowed:
@@ -222,9 +222,10 @@ dimension specifier (much like a subroutine definition):
     my @library[1_000_000 --> Book];
 
 Arrays may also be defined with a mixture of fixed and autoextending
-dimensions:
+dimensions.  There are always 12 months in a year and 24 hours in a day,
+but the number of days in the month can vary:
 
-    my @calendar[12;*;24];     # "Month" dimension unlimited
+    my @calendar[12;*;24];     # day-of-month dimension unlimited/ragged
 
 
 =head1 Compact arrays
