@@ -222,8 +222,9 @@ dimension specifier (much like a subroutine definition):
     my @library[1_000_000 --> Book];
 
 Arrays may also be defined with a mixture of fixed and autoextending
-dimensions.  There are always 12 months in a year and 24 hours in a day,
-but the number of days in the month can vary:
+dimensions (see below).  For example, there are always 12 months in
+a year and 24 hours in a day, but the number of days in the month
+can vary:
 
     my @calendar[12;*;24];     # day-of-month dimension unlimited/ragged
 
