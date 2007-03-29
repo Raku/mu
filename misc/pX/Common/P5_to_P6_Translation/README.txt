@@ -58,8 +58,8 @@ TestInit.pm - This is a sample output of the reconstructed, P6 version of TestIn
 
 TestInit.pm.yaml - The AST output of Larry's parser. This is the first sample input I'm working on. I have parsed versions of the rest of /t, but for now this is my main test file.
 
-translate.hs - DEPRECIATED. Everything from this file was moved to modules to make everything cleaner and easier to use.
+translate.hs - DEPRECATED. Everything from this file was moved to modules to make everything cleaner and easier to use.
 
-translate-sage.hs - DEPRECIATED. Everything from this file was moved to modules to make everything cleaner and easier to use.
+translate-sage.hs - DEPRECATED. Everything from this file was moved to modules to make everything cleaner and easier to use.
 
 

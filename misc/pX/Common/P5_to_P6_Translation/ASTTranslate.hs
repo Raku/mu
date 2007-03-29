@@ -74,7 +74,7 @@ decWrapper :: P5AST -> P5AST
 decWrapper tree = (addDecs (getUndeclaredVars tree) tree)
 
 
---Declerations are added to the beginng of the tree. The first input is a list of names of variables to be declared, the second arg is the AST they are to be added to.
+--Declarations are added to the beginng of the tree. The first input is a list of names of variables to be declared, the second arg is the AST they are to be added to.
 
 addDecs :: [String] -> P5AST -> P5AST
 addDecs [] (AbstractNode atype kids)   = (AbstractNode atype kids)
@@ -550,7 +550,7 @@ newForeach kids = if (matchOnType (head kids) (LiteralNode "junk" "" "")) then (
         _                           -> []
 
 
---Changes a split on a sinle space into a call to the .words method
+--Changes a split on a single space into a call to the .words method
 
 toWords :: P5AST -> P5AST
 toWords (AbstractNode "op_split" kids) = if (and [(isIn (AbstractNode "op_const" []) kids),(isInSequence [(LiteralNode "openquote" "1" "'"), (LiteralNode "text" "1" " "), (LiteralNode "closequote" "1" "'")] (extractKids (extractNodetype (AbstractNode "op_const" []) kids)))]) then (AbstractNode "op_split" [(getSecondArg kids), (LiteralNode "operator" "1" "."), (AbstractNode "op_method" [(AbstractNode "op_const" [(LiteralNode "token" "1" "words")])])])
@@ -780,7 +780,7 @@ hashKey (LiteralNode atype enc uni)    = (LiteralNode atype enc uni)
 hashKey (Heredoc doc start end kids)   = (Heredoc doc start end (map hashKey kids))
 
 
-{-Actually applie changes for hashKey-}
+{-Actually applies changes for hashKey-}
 
 hashChanges :: P5AST -> P5AST
 hashChanges (AbstractNode "op_rv2hv" kids) = (AbstractNode "op_rv2hv" (map scalarSigilToHashSigil kids))
@@ -789,7 +789,7 @@ hashChanges (LiteralNode atype enc uni)    = (LiteralNode atype enc uni)
 hashChanges (Heredoc doc start end kids)   = (Heredoc doc start end kids)
 
 
-{-Additional changes for when a has has a constant key ({word}-><word>)-}
+{-Additional changes for when a hash has a constant key ({word}-><word>)-}
 
 constHashChanges :: P5AST -> P5AST
 constHashChanges (LiteralNode "opener" enc "{") = (LiteralNode "opener" enc "<")

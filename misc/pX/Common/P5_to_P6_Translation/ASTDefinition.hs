@@ -1,10 +1,10 @@
 module ASTDefinition where
 {------------------------
 This module defines the AST as used by ASTParser and ASTTranslate (and ASTUtil also, for that matter).
-It's really a very simple structure, as described bellow. It is designed to be used with ASTTranslate, 
+It's really a very simple structure, as described below. It is designed to be used with ASTTranslate, 
 but feel free to use it elsewhere if it's useful.
 
-This was originalyl a much bigger file, since node types were explicitly listed. Now that types
+This was originally a much bigger file, since node types were explicitly listed. Now that types
 are just strings, this file is _very_ small, but the decleration stays in it's own file for backwards
 compatability and so it can be used without the rest of the translator.
 

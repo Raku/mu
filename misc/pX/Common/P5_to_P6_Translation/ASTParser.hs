@@ -58,7 +58,7 @@ withKids indent = do
 
 
 {-
-A node with kids has a type, and enc and uni fields.
+A node without kids has a type, and enc and uni fields.
 The int parameter is the whitespace it expects.
 -}
 noKids :: Int -> Parser P5AST

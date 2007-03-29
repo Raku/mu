@@ -1,6 +1,6 @@
 This translator uses an AST produced by Larry Wall's P5 parser. For testing purposes, I've included the file containing the tree for TestInit.pm (more of the /t directory of the core Perl dist will be added for further testing).
 
-This file describes the AST in more detail, in particular the node types. This is both for other coders and to aid my underdstanding. If you think something's not right, change it or comment (#...) on it.
+This file describes the AST in more detail, in particular the node types. This is both for other coders and to aid my understanding. If you think something's not right, change it or comment (#...) on it.
 
 All node type names start with an upper case character (since they're haskell data types), they are all lowercase in the yaml tree files.
 
@@ -26,7 +26,7 @@ PNothing - This corresponds to the "nothing" node in the yaml file, renamed to a
 
 Op_aassign - Array assignment. Any operation (usually '=') that assigns to an array. Has kids (one of which will usually be operator "=").
 
-Op_aelem - Array element. Has kids (usuallu including '[' and ']').
+Op_aelem - Array element. Has kids (usually including '[' and ']').
 
 Op_chdir - Change directory operation. Has kids, one of which is usually operator "chdir."
 
