@@ -118,11 +118,11 @@ BEGIN {
         'loop' =>  q( 
             <?ws> 
             [
-              <'('> 
-                $<exp1> := <Pugs::Grammar::Perl6.perl6_expression_or_null> <?ws>? <';'>
-                $<exp2> := <Pugs::Grammar::Perl6.perl6_expression_or_null> <?ws>? <';'>
+              '(' 
+                $<exp1> := <Pugs::Grammar::Perl6.perl6_expression_or_null> <?ws>? ';'
+                $<exp2> := <Pugs::Grammar::Perl6.perl6_expression_or_null> <?ws>? ';'
                 $<exp3> := <Pugs::Grammar::Perl6.perl6_expression_or_null> <?ws>? 
-              <')'> 
+              ')' 
               <?ws>? $<content> := <Pugs::Grammar::Perl6.block>
               { return { statement => 'loop',
                      exp1      => $_[0]{exp1}->(),

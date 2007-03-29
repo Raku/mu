@@ -111,7 +111,7 @@ sub rx_body {
 *ident = Pugs::Compiler::Token->compile( q(
         <[ \? \* \: ]>?     # $?CALLER  $*x  $:x
         [
-            [ <'::'> | <null> ]
+            [ '::' | <null> ]
             [ _ | <?alpha> ]
             [ _ | <?alnum> ]*
         ]+
@@ -119,7 +119,7 @@ sub rx_body {
 
 *bare_ident = Pugs::Compiler::Token->compile( q(
         [
-            [ <'::'> | <null> ]
+            [ '::' | <null> ]
             [ _ | <?alpha> ]
             [ _ | <?alnum> ]*
         ]+
@@ -130,7 +130,7 @@ sub rx_body {
                 [
                     <?ws> 
                     <Pugs::Grammar::Expression.parse('allow_semicolon', 1)> <?ws>? 
-                    <')'>
+                    ')'
                     { return {
                         op1      => "(",
                         op2      => ")",
@@ -140,7 +140,7 @@ sub rx_body {
                     } }
                 |
                     <?ws>? 
-                    <')'>
+                    ')'
                     { return {
                         op1      => "(",
                         op2      => ")",
@@ -151,7 +151,7 @@ sub rx_body {
             |
                 <?ws>? <Pugs::Grammar::Perl6.block> <?ws>? \:  
                 <?ws>?
-                <')'>
+                ')'
                 { return {
                     op1      => "(",
                     op2      => ")",
@@ -161,7 +161,7 @@ sub rx_body {
             |
 
                 <?ws>? <Pugs::Grammar::Expression.parse('allow_semicolon', 1)> <?ws>? 
-                <')'>
+                ')'
                 { return {
                     op1 => "(",
                     op2 => ")",
@@ -170,7 +170,7 @@ sub rx_body {
                 } }
             |
                 <?ws>? <Pugs::Grammar::Perl6.block> <?ws>? 
-                <')'>
+                ')'
                 { return {
                     op1 => "(",
                     op2 => ")",
@@ -179,7 +179,7 @@ sub rx_body {
                 } }
             |
                 <?ws>? 
-                <')'>
+                ')'
                 { return {
                     op1 => "(",
                     op2 => ")",
@@ -189,14 +189,14 @@ sub rx_body {
 
 *brackets = Pugs::Compiler::Token->compile( q(
                 <Pugs::Grammar::Infix.parse> 
-                <']'>
+                ']'
                 { return {
                     op => $_[0]{'Pugs::Grammar::Infix.parse'}->(),
                     reduce => 1, 
                 } }
             |
                 <?ws>? <Pugs::Grammar::Expression.parse> <?ws>? 
-                <']'>
+                ']'
                 { return {
                     op1 => "[",
                     op2 => "]",
@@ -205,7 +205,7 @@ sub rx_body {
                 } }
             |
                 <?ws>? <Pugs::Grammar::Perl6.block> <?ws>? 
-                <']'>
+                ']'
                 { return {
                     op1 => "[",
                     op2 => "]",
@@ -214,7 +214,7 @@ sub rx_body {
                 } }
             |
                 <?ws>? 
-                <']'>
+                ']'
                 { return {
                     op1 => "[",
                     op2 => "]",
@@ -359,14 +359,14 @@ sub recompile {
         '{' => q(
                 # S06 - Anonymous hashes vs blocks
                 # if it is completely empty 
-                <?ws>? <'}'>
+                <?ws>? '}'
                 { 
                   return { 
                     anon_hash => { null => 1, },
                 } }
             |
                 # consists of a single list, first element is either a hash or a pair
-                <?ws>? <Pugs::Grammar::Perl6.statements> <?ws>? <'}'>
+                <?ws>? <Pugs::Grammar::Perl6.statements> <?ws>? '}'
                 { 
                     #print "Term block\n";
                     my $stmt = $_[0]{'Pugs::Grammar::Perl6.statements'}->();
@@ -593,7 +593,7 @@ sub recompile {
                 } } }
             |
                 # :$<foo>
-                <'$<'> ((_|\w)+) \>
+                '$<' ((_|\w)+) \>
                 { return {
                     pair => { 
                         key   => { single_quoted => $/[0]() }, 
@@ -611,7 +611,7 @@ sub recompile {
                 } } }
             |
                 # :$$<foo>
-                <'$$<'> ((_|\w)+) \>
+                '$$<' ((_|\w)+) \>
                 { return {
                     pair => { 
                         key   => { single_quoted => $/[0]() }, 
@@ -642,7 +642,7 @@ sub recompile {
                 } } }
             |
                 # :!foo 
-                <'!'> ((_|\w)+)
+                '!' ((_|\w)+)
                 { return {
                     pair => { 
                         key   => { single_quoted => $/[0]() }, 

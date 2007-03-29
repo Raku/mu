@@ -42,9 +42,9 @@ sub angle_quoted {
 }
 
 *double_quoted_expression = Pugs::Compiler::Token->compile(q!
-    <before <'$'> >
+    <before '$' >
     [
-        <before <'$'> [ \w | \. | \! ] >
+        <before '$' [ \w | \. | \! ] >
         <Pugs::Grammar::Term.parse>
         { return $/{'Pugs::Grammar::Term.parse'}() }
     |
@@ -52,9 +52,9 @@ sub angle_quoted {
         { return { double_quoted => '\\\\' . $/() ,} }
     ]
   |
-    <before <'@'> >
+    <before '@' >
     [
-        <before <'@'> [ \w | \. ]+ <'['> >
+        <before '@' [ \w | \. ]+ '[' >
         <Pugs::Grammar::Term.parse>
         { return $/{'Pugs::Grammar::Term.parse'}() }
     |
@@ -62,9 +62,9 @@ sub angle_quoted {
         { return { double_quoted => '\\\\' . $/() ,} }
     ]
   |
-    <before <'%'> >
+    <before '%' >
     [
-        <before <'%'> [ \w | \. ]+ [ <'{'> | <'<'> ] >
+        <before '%' [ \w | \. ]+ [ '{' | '<' ] >
         <Pugs::Grammar::Term.parse>
         { return $/{'Pugs::Grammar::Term.parse'}() }
     |
@@ -72,9 +72,9 @@ sub angle_quoted {
         { return { double_quoted => '\\\\' . $/() ,} }
     ]
   |
-    <before <'&'> >
+    <before '&' >
     [
-        <before <'&'> [ \w | \. ]+ <'('> >
+        <before '&' [ \w | \. ]+ '(' >
         <Pugs::Grammar::Term.parse>
         { return $/{'Pugs::Grammar::Term.parse'}() }
     |
@@ -82,7 +82,7 @@ sub angle_quoted {
         { return { double_quoted => '\\\\' . $/() ,} }
     ]
   |
-    <before <'{'> >
+    <before '{' >
     [
         <Pugs::Grammar::Expression.parse>
         { return {
@@ -97,8 +97,8 @@ sub angle_quoted {
 
 *double_quoted_text = Pugs::Compiler::Token->compile(q(
     (
-        <!before [ <'$'> | <'@'> | <'%'> | <'&'> | <'"'> | <'{'> ] >
-        [ <'\\'> . | . ]
+        <!before [ '$' | '@' | '%' | '&' | '"' | '{' ] >
+        [ '\\' . | . ]
     )+
     { return { double_quoted => $/() ,} }
 ))->code;
@@ -122,8 +122,8 @@ sub angle_quoted {
 
 *double_angle_quoted_text = Pugs::Compiler::Token->compile(q(
     (
-        <!before [ <'$'> | <'@'> | <'%'> | <'&'> | <'»'> | \>\> ] >
-        [ <'\»'> | . ]
+        <!before [ '$' | '@' | '%' | '&' | '»' | \>\> ] >
+        [ '\»' | . ]
     )+
     { return { double_quoted => $/() ,} }
 ))->code;
@@ -155,9 +155,9 @@ BEGIN {
         ) );
     __PACKAGE__->add_rule(
         q(") =>  q( 
-            <Pugs::Grammar::Quote.double_quoted> <'"'>
+            <Pugs::Grammar::Quote.double_quoted> '"'
             { return $/{'Pugs::Grammar::Quote.double_quoted'}->() }
-          | <'"'>
+          | '"'
             { return { double_quoted => '' } }
         ) );
     __PACKAGE__->add_rule(
@@ -167,7 +167,7 @@ BEGIN {
         ) );
     __PACKAGE__->add_rule(
         q(«) => q(
-            <Pugs::Grammar::Quote.double_angle_quoted> <'»'>
+            <Pugs::Grammar::Quote.double_angle_quoted> '»'
             { return { 
                     double_angle_quoted => $/{'Pugs::Grammar::Quote.double_angle_quoted'}->(),
                 } 

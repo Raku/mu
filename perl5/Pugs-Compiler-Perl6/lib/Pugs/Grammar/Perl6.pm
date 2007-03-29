@@ -105,7 +105,7 @@ use Data::Dumper;
 )->code;
 
 *signature_term_type = Pugs::Compiler::Token->compile( q(
-        <!before <'sub'> >   # TODO
+        <!before 'sub' >   # TODO
         <signature_term_type_2>
         { return $_[0]{'signature_term_type_2'}->() }
     |
@@ -119,7 +119,7 @@ use Data::Dumper;
             \\@ ; <?Pugs::Grammar::Term.ident>
             { return { die => "not implemented" } }
      |
-        (  ( <'$'>|<'%'>|<'@'>|<'&'> ) <?Pugs::Grammar::Term.ident> )
+        (  ( '$' | '%' | '@' | '&' ) <?Pugs::Grammar::Term.ident> )
             { return $_[0][0]->() }
 ),
     { grammar => __PACKAGE__ }
@@ -127,11 +127,11 @@ use Data::Dumper;
 
 *signature_term = Pugs::Compiler::Token->compile( q(
         <signature_term_type> : <?ws>?
-        (<':'>?)
-        (<'*'>?)
+        (':'?)
+        ('*'?)
         <signature_term_ident>
-        (<'?'>?)
-        (<?ws>? <'='> <Pugs::Grammar::Expression.parse('no_blocks', 1)>)?
+        ('?'?)
+        (<?ws>? '=' <Pugs::Grammar::Expression.parse('no_blocks', 1)>)?
         <?ws>? <attribute> 
             { return {
                 default    => $_[0][3] ? $_[0][3][0]{'Pugs::Grammar::Expression.parse'}->() : undef,
@@ -149,7 +149,7 @@ use Data::Dumper;
 *signature_no_invocant = Pugs::Compiler::Token->compile( q(
         <signature_term>
         [
-            <?ws>? <','> <?ws>? <signature_no_invocant>
+            <?ws>? ',' <?ws>? <signature_no_invocant>
             { return [
                     $_[0]{signature_term}->(), 
                     @{$_[0]{signature_no_invocant}->()},
@@ -164,7 +164,7 @@ use Data::Dumper;
 )->code;
 
 *signature = Pugs::Compiler::Token->compile( q(
-        <signature_term> <?ws>? <':'>
+        <signature_term> <?ws>? ':'
         [
             <?ws>? <signature_no_invocant>
             { return [
@@ -191,7 +191,7 @@ use Data::Dumper;
 
 *category_name = Pugs::Compiler::Token->compile( q(
         <Pugs::Grammar::Term.bare_ident> 
-        [   <':'> 
+        [   ':' 
             [ 
                 <before \{ > 
                 <%Pugs::Grammar::Term::hash> 
@@ -239,7 +239,7 @@ use Data::Dumper;
 )->code;
 
 *sub_signature = Pugs::Compiler::Token->compile( q(
-        <'('> <?ws>? <signature> <?ws>? <')'>
+        '(' <?ws>? <signature> <?ws>? ')'
         { 
             #print "sig ", Dumper( $_[0]{signature}->() );
             return $_[0]{signature}->() 
@@ -282,10 +282,10 @@ use Data::Dumper;
     <category_name>  <?ws>?
     <sub_signature>  <?ws>? 
     <attribute>      <?ws>?
-    <'{'>            <?ws>?
+    '{'            <?ws>?
     [
         <Pugs::Grammar::P6Rule.rule> <?ws>?
-        <'}'>
+        '}'
         { return { 
                 multi      => $_[0][0]->(),
                 term       => $_[0][1]->(),
@@ -354,12 +354,12 @@ use Data::Dumper;
 *statements = Pugs::Compiler::Token->compile( q(
     [ ; <?ws>? ]*
     [
-        <!before <'}'> >
+        <!before '}' >
         <statement> 
         #{ print "02 end statement", Dumper( $_[0]{statement}->() ) } 
         <?ws>? [ ; <?ws>? ]*
         [
-            <!before <'}'> >
+            <!before '}' >
             #{ print "04 another statement\n"; }
             <statements> 
             { 
