@@ -194,7 +194,7 @@ operator, so you can't use the "dotted" form either:
     my @values.[10];          # Error
     my @keys\ .[10];          # Error
 
-Attempting to access an index outside a array's defined range will fail:
+Attempting to access an index outside an array's defined range will fail:
 
     @dwarves[7] = 'Sneaky';   # Fails with "invalid index" exception
 
