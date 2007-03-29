@@ -682,7 +682,7 @@ convert a user-defined index C<$idx> to a standard index. That is:
 Similarly, within a C<.{}> indexing operation you can use C<*[$idx]>
 to convert from standard indices to user-defined:
 
-    @lengths{ *[2] .. Oct }      # Same as:  @lengths{ Jan .. Oct }
+    @lengths{ *[2] .. Oct }      # Same as:  @lengths{ Mar .. Oct }
 
 In other words, when treated as an array within an indexing
 operation, C<*> allows you to convert between standard and
