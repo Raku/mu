@@ -119,7 +119,11 @@ token rule_terms {
         # TODO
         <char_class> \>
         { return ::Rul::NegateCharClass( 'chars' => ~$<char_class> ) }
-    |   \< \'
+    |   \'
+        <literal> \'
+        { return ::Rul::Constant( 'constant' => $$<literal> ) }
+    |   # XXX - obsolete syntax
+        \< \'
         <literal> \' \>
         { return ::Rul::Constant( 'constant' => $$<literal> ) }
     |   \< 
