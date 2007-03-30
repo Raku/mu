@@ -39,23 +39,43 @@ sub row_collision(@a, $row){
     return 0;
 }
 
-my @results;
-
-sub search(@a, Int $row){
+sub search(@part_solved, @chessboard){
+    my $row = @part_solved.elems;
+    my @results;
     if $row == 8 {
-        my @b = @a;
-        push @results, \@b;
-    } else {
-        for 0 .. 7 -> my $i {
-            @a[$row] = $i;
-            if 0 == row_collision(@a, $row) {
-                search(@a, $row + 1);
-            }
+        return [@part_solved];
+    }
+    for (0..7) -> $col {
+        if @chessboard[$row][$col] == 0 {
+            inc_collisions($row,$col,@chessboard);
+            push @results, search([@part_solved, $col], @chessboard);
+            decr_collisions($row,$col,@chessboard);
         }
+    }
+    return @results;
+}
+
+sub inc_collisions(int $row, int $col, @chessboard){
+    for (1..(7-$row)) -> $i {
+        @chessboard[$row+$i][$col]++;
+        @chessboard[$row+$i][$col-$i]++ if ($col-$i > -1);
+        @chessboard[$row+$i][$col+$i]++ if ($col+$i < 8);
     }
 }
 
-search([0 xx 8], 0);
+sub decr_collisions(int $row, int $col, @chessboard){
+    for (1..(7-$row)) -> $i {
+        @chessboard[$row+$i][$col]--;
+        @chessboard[$row+$i][$col-$i]-- if ($col-$i > -1);
+        @chessboard[$row+$i][$col+$i]-- if ($col+$i < 8);
+    }
+}
+
+my int @chessboard[8];
+for ( 0..7 ) -> $i {
+    @chessboard[$i] = [0 xx 8];
+}
+my @results = search([], @chessboard);
 is(@results.elems, 92, "The 8 Queens Problem has 92 solutions");
 my $i = 1;
 for @results -> $r {
