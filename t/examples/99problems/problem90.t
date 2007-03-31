@@ -41,20 +41,19 @@ sub row_collision(@a, $row){
 
 sub search(@part_solved, @chessboard){
     my $row = @part_solved.elems;
-    my @results;
     if $row == 8 {
         return [@part_solved];
     }
-    for (0..7) -> $col {
-        if @chessboard[$row][$col] == 0 {
+    gather for (0..7) -> $col {
+        if not @chessboard[$row][$col] {
             inc_collisions($row,$col,@chessboard);
-            push @results, search([@part_solved, $col], @chessboard);
+            take search([@part_solved, $col], @chessboard);
             decr_collisions($row,$col,@chessboard);
         }
     }
-    return @results;
 }
 
+# update the chessboard when a queen is placed at $row,$col
 sub inc_collisions(int $row, int $col, @chessboard){
     for (1..(7-$row)) -> $i {
         @chessboard[$row+$i][$col]++;
@@ -63,6 +62,7 @@ sub inc_collisions(int $row, int $col, @chessboard){
     }
 }
 
+# update the chessboard when a queen is removed from $row,$col
 sub decr_collisions(int $row, int $col, @chessboard){
     for (1..(7-$row)) -> $i {
         @chessboard[$row+$i][$col]--;
@@ -71,6 +71,8 @@ sub decr_collisions(int $row, int $col, @chessboard){
     }
 }
 
+# this chessboard keep track of the number of queens attacking a case 
+# from a row over it
 my int @chessboard[8];
 for ( 0..7 ) -> $i {
     @chessboard[$i] = [0 xx 8];
