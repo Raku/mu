@@ -23,7 +23,10 @@ extra:
         * [ONLamp](http://www.oreillynet.com/onlamp/blog/)
       title: Distribution
   header:
-    - body: ~
+    - body: |-
+        "Q: Can February March?  A: No, but April May..."
+        
+        -- Larry Wall's r14313 log message for a date correction
       title: This week on the Perl 6 mailing lists
   see_also:
     - name: Perl Foundation activities
@@ -37,7 +40,7 @@ lists:
     threads:
       - date_from: 1172256588
         date_to: 1173347567
-        hidden: ~
+        hidden: covered in last week's summary
         message_id: ef30550b0702231049o109d723r16add32940557f3e@mail.gmail.com
         messages:
           - 20070223203618.GA32227@wall.org
@@ -90,7 +93,7 @@ lists:
         summary: ''
       - date_from: 1172564322
         date_to: 1174173687
-        hidden: ~
+        hidden: covered in last week's summary
         message_id: 'p06240800c2097f7c5bd0@[192.168.1.101]'
         messages:
           - 20070227164532.GB52650@plum.flirble.org
@@ -129,7 +132,12 @@ lists:
           - email: david.green@telus.net
             name: David Green
         subject: '[svn:perl6-synopsis] r14308 - doc/trunk/design/syn'
-        summary: ''
+        summary: |-
+          David Green asked if the reason behind Larry Wall's decision not to
+          have ranges automatically go in either direction is to prevent subtle
+          bugs from creeping in.  Nevertheless, he thought it would be useful
+          to have a way to travel in the 'natural' direction, whichever direction
+          that might be.
       - date_from: 1172874004
         date_to: 1173107405
         hidden: ~
@@ -184,10 +192,27 @@ lists:
           - email: mail@seamons.com
             name: Paul Seamons
         subject: for ... else
-        summary: ''
+        summary: |-
+          Thomas Wittek recently encountered the Perl 5 module For::Else, which
+          allows `if (@lar) { foreach my $moose (@lar) { ... } } else { ...}` to
+          be written as `foreach my $moose (@lar) { ... } else { ... }`.  He
+          wondered if something similar could be added to Perl 6.  Rick Delaney
+          found the current syntax awkward, but wasn't certain that Thomas' solution
+          was ideal, and Paul Seamons was of the same mind.  Jonathan Lang liked
+          the idea.
+          
+          Steve Lukas was against the suggestion because he felt that idea
+          contradicted the common meaning of `else` and would discourage people
+          who are used to other languages.
+          
+          Luke Palmer noted that it would confuse Python programmers, as the
+          Python construct assumes that you are looping in order to find something.
+          Larry Wall suggested using a `gather` to achieve this effect.
+          
+          The discussion continued, for a total of 29 messages.
       - date_from: 1173008439
         date_to: 1173009815
-        hidden: ~
+        hidden: spawn of 20070302221955.765.qmail@lists.develooper.com
         message_id: 452391116@web.de
         messages:
           - ef30550b0703040359g33ccb210o3827621e1ec4615c@mail.gmail.com
@@ -201,7 +226,7 @@ lists:
         summary: ''
       - date_from: 1173039177
         date_to: 1173050528
-        hidden: ~
+        hidden: spawn of 20070302221955.765.qmail@lists.develooper.com
         message_id: 540880.80834.qm@web33710.mail.mud.yahoo.com
         messages:
           - 87hct0wwxa.fsf@wigwam.brockman.se
@@ -236,7 +261,18 @@ lists:
           - email: larry@wall.org
             name: Larry Wall
         subject: statement modifiers
-        summary: ''
+        summary: |-
+          Jonathan Lang noted that S02, S03, and S04 contain references to the
+          deprecated concept `statement_modifier`.  Larry Wall was aware of the
+          problem, but was waiting for a few things to settle down before he
+          corrected them.
+          
+          Jonathan also asked why statement modifiers are explicitly forbidden to 'do'
+          blocks, and if `given` is considered conditional or looping when it is
+          used as a statement modifier.  Larry replied that the ruling discourages
+          people from violating the endweight principle.  In answer to the second
+          question, he said that `given` is considered to be a loop, and `when`
+          is a conditional.
       - date_from: 1173072339
         date_to: 1173073225
         hidden: ~
@@ -250,7 +286,10 @@ lists:
           - email: larry@wall.org
             name: Larry Wall
         subject: Compound grammar
-        summary: ''
+        summary: |-
+          Jonathan Lang wondered how to define a statement or operator with syntax
+          like `if ... else ...` or `... ?? ... :: ...`.  Larry Wall suggested reading
+          [the grammar POD](http://svn.pugscode.org/pugs/src/perl6/Perl-6.0.0-STD.pm).
       - date_from: 1173100019
         date_to: 1173136643
         hidden: ~
@@ -264,10 +303,15 @@ lists:
           - email: larry@wall.org
             name: Larry Wall
         subject: resumable exceptions and LEAVE/KEEP/UNDO blocks
-        summary: ''
+        summary: |-
+          Daniel Hulme wanted to know what happens if a resumable exception is
+          propagated through a block with a `LEAVE`, `KEEP` or `UNDO` block.
+          Larry Wall thought that perhaps Daniel had missed part of the documentation
+          which describes how a `CATCH` block works, and quoted the relevant section.
+          Daniel agreed that he had overlooked it.
       - date_from: 1173111669
         date_to: 1173111669
-        hidden: ~
+        hidden: small change
         message_id: 20070305162057.160D8CBA2A@x12.develooper.com
         posters:
           - email: audreyt@cvs.perl.org
@@ -276,7 +320,7 @@ lists:
         summary: ''
       - date_from: 1173112056
         date_to: 1173112056
-        hidden: ~
+        hidden: clarification
         message_id: 20070305162726.3412ACBA2A@x12.develooper.com
         posters:
           - email: audreyt@cvs.perl.org
@@ -295,10 +339,13 @@ lists:
           - email: larry@wall.org
             name: Larry Wall
         subject: Coercion of non-numerics to numbers
-        summary: ''
+        summary: |-
+          Dave Whipp was curious about the semantics of coercion of non-numbers.
+          In his experiments, he wondered if it was correct for a `x42` to become
+          `0.0` instead of `NaN`.  Larry Wall felt that it should create a warning.
       - date_from: 1173150086
         date_to: 1173150086
-        hidden: ~
+        hidden: finish previous commit
         message_id: 20070306030118.DE988CBA2A@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -313,10 +360,15 @@ lists:
           - email: allison@perl.org
             name: Allison Randal
         subject: new Parrot project manager
-        summary: ''
+        summary: |-
+          Allison Randal announced that the Parrot project manager role will now
+          be distinct from the Perl 6 project manager role.  Will Coleda will be
+          responsible for Parrot, and Jesse Vincent will continue as the project
+          manager for Perl 6.  Meanwhile, Chip Salzenberg is officially on
+          sabbatical for a while.
       - date_from: 1173245677
         date_to: 1173245677
-        hidden: ~
+        hidden: clarification
         message_id: 20070307053430.1159CCBA2A@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -325,7 +377,7 @@ lists:
         summary: ''
       - date_from: 1173246849
         date_to: 1173246849
-        hidden: ~
+        hidden: date fix
         message_id: 20070307055403.62D43CBA2A@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -334,7 +386,7 @@ lists:
         summary: ''
       - date_from: 1173287464
         date_to: 1173287464
-        hidden: ~
+        hidden: clarification
         message_id: 20070307171050.E3955CBA2A@x12.develooper.com
         posters:
           - email: audreyt@cvs.perl.org
@@ -343,7 +395,7 @@ lists:
         summary: ''
       - date_from: 1173313102
         date_to: 1173313102
-        hidden: ~
+        hidden: clarification
         message_id: 20070308001816.9CF66CBA2A@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -352,7 +404,7 @@ lists:
         summary: ''
       - date_from: 1173317141
         date_to: 1173408653
-        hidden: ~
+        hidden: nit
         message_id: 20070308012532.DD050CBA2A@x12.develooper.com
         messages:
           - 45F0CB39.6060509@xmission.com
@@ -389,10 +441,25 @@ lists:
           - email: andreas.koenig.7os6VVqR@franz.ak.mind.de
             name: andreas.koenig.7os6VVqR
         subject: '[svn:perl6-synopsis] r14317 - doc/trunk/design/syn'
-        summary: ''
+        summary: |-
+          A commit from Larry Wall made module longnames specified in terms of
+          identification plus adverbs.
+          
+          Smylers questioned the decision to put a range operator in parenthesis
+          to match more than one version number.  He thought it would be better to
+          specify a minimum version and assume that later versions will also have
+          the feature or bug fix, because otherwise systems may break due from
+          new library installations.  Larry explained that this would not be a problem
+          because Perl 6 would keep old versions of modules in the library unless
+          the new versions claim to emulate the old version.  
+          
+          David Green asked how this emulation would be expressed.  He also wanted
+          to know what would happen if you were installing for the first time: would
+          you get all versions of the module?  Larry replied that the emulation 
+          syntax was not yet specified.
       - date_from: 1173328840
         date_to: 1173328840
-        hidden: ~
+        hidden: typo
         message_id: 20070308044035.1E03BCBA2A@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -411,10 +478,13 @@ lists:
           - email: geoff@broadwell.org
             name: Geoffrey Broadwell
         subject: '[svn:perl6-synopsis] r14319 - doc/trunk/design/syn'
-        summary: ''
+        summary: |-
+          In this revision, Larry Wall defined the library version sorting order. 
+          Geoffrey Broadwell suggested using the versioning system of Debian to
+          test, because it has an unusual design.
       - date_from: 1173378793
         date_to: 1173378793
-        hidden: ~
+        hidden: clarification
         message_id: 20070308183253.3D6A6CBA2A@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -423,7 +493,7 @@ lists:
         summary: ''
       - date_from: 1173379521
         date_to: 1173379521
-        hidden: ~
+        hidden: clarification
         message_id: 20070308184512.84169CBA2A@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -432,7 +502,7 @@ lists:
         summary: ''
       - date_from: 1173410182
         date_to: 1173410182
-        hidden: ~
+        hidden: correction
         message_id: 20070309031615.9E87CCBA2A@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -456,7 +526,14 @@ lists:
           - email: parrotbug-followup@parrotcode.org
             name: Will Coleda via RT
         subject: "Re: [perl #41195] [BUG]:  Change to Configure.pl causing 'make' to fail on Darwin"
-        summary: ''
+        summary: |-
+          Some time ago, in ticket <rt://perl/41195>, James Keenan produced
+          a bug report.  Will Coleda reported that he was unable to see the
+          bug, and asked if reverting `Configure.pl` fixed the problem.  James
+          reported that with r17419, there were still some problems.  Will
+          remarked that he had reverted the order of the steps in `Configure.pl`
+          to fix the problem.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/c6b86a46fecbec41/8a87ca18947312b1?#8a87ca18947312b1
       - date_from: 1171729135
         date_to: 1174013144
         hidden: ~
@@ -482,7 +559,19 @@ lists:
             name: Alek Storm
         rt_ticket: 'perl #41364'
         subject: '[perl #41364] [PATCH] Fixed object vtable method overrides in PIR '
-        summary: ''
+        summary: |-
+          Earlier, in ticket <rt://perl/41364>, Patrick R. Michaud noted that
+          the double-underscore method of overriding vtable methods cannot be
+          deprecated until ticket <rt://perl/40626> is resolved.  Allison
+          approved of the patch by Alek Storm and requested a regression test.
+          She included a rough version.
+          
+          Alek wondered if it could be committed now that 0.4.9 has been
+          released.  Jonathan Worthington noted some problems he had had with
+          applying it.
+          
+          This week, Jonathan Worthington made a few changes and committed it
+          as r17514.
       - date_from: 1171910384
         date_to: 1173094954
         hidden: ~
@@ -500,7 +589,11 @@ lists:
             name: James E Keenan
         rt_ticket: 'perl #41455'
         subject: '[perl #41455] [NEW] and [PATCH]:  tools/build/ops2pm.pl refactored '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41455>, in February, James Keenan attached some
+          new patches and files.  Recently he decided to pull the patch from submission
+          because some other changes have broken them.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/03de682a295f7c36/485f99e22495d7b1?#485f99e22495d7b1
       - date_from: 1171938248
         date_to: 1173195533
         hidden: ~
@@ -513,7 +606,11 @@ lists:
             name: Nuno Carvalho via RT
         rt_ticket: 'perl #41548'
         subject: '[perl #41548] [Tcl] - internals tests failings '
-        summary: ''
+        summary: |-
+          Earlier, Will Coleda created ticket <rt://perl/41548> to report failing
+          tests.  Nuno Carvalho tested with r17365 and marked the ticket as closed
+          because the issue appeared to be solved.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/6d9873c4fec08170/6686f5b6db7a819c?#6686f5b6db7a819c
       - date_from: 1172165375
         date_to: 1173034605
         hidden: ~
@@ -530,7 +627,11 @@ lists:
             name: Alek Storm
         rt_ticket: 'perl #41583'
         subject: '[perl #41583] Tail calls from within vtable methods broken '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41583>, Bram Geron reported a problem with tail calls
+          in v-table methods.  Recently, Alek Storm remarked that he had nearly
+          completed a patch to fix it.  Jonathan Worthington described the issue
+          in more detail.
       - date_from: 1172266350
         date_to: 1174088331
         hidden: ~
@@ -563,10 +664,20 @@ lists:
             name: Nicholas Clark
         rt_ticket: 'perl #41602'
         subject: '[perl #41602] [TODO] MS VS 2005 deprecates strdup '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41602>, Klaas-Jan Stol submitted a patch
+          which fixes the problem of `strdup` being deprecated in Microsoft
+          Visual Studio 2005.  It was applied as of r17281.  
+          
+          Klaas-Jan also wondered if `strdup` should be used because of possible
+          memory issues.  Jonathan Worthington clarified that it was not a problem.
+          
+          There was some further discussion about the best solution for the
+          original problem, with Kevin Tew, Philip Taylor
+          and Jerry Gay adding their thoughts.
       - date_from: 1172463159
         date_to: 1173703192
-        hidden: ~
+        hidden: completely covered in the previous summary
         message_id: 085d0590b634afd5b2bd684e063dcb45@gmail.com
         messages:
           - 189adbd0703041913l45542ef0oe8f71223a14fb85b@mail.gmail.com
@@ -598,7 +709,7 @@ lists:
         summary: ''
       - date_from: 1172958226
         date_to: 1173008790
-        hidden: ~
+        hidden: appears to be a small modification
         message_id: 20070303214339.6E318CBA2A@x12.develooper.com
         messages:
           - 45EA86CC.5010802@vilain.net
@@ -641,7 +752,23 @@ lists:
           - email: parrotbug-followup@parrotcode.org
             name: James Keenan via RT
         subject: '[PATCH]:  tools for using Subversion branches; ops2c.pl refactored'
-        summary: ''
+        summary: |-
+          James Keenan submitted a patch which includes a refactoring of
+          `tools/build/ops2c.pl` and files which argue for using more subversion
+          branches.  Sam Vilain wondered why the two changes were linked together
+          and felt that the tracking method for branches didn't follow the best
+          practices which have emerged through use.
+          
+          James said that he had submitted the patches as one because he has been
+          ill recently and wanted to complete the task quickly.  He went into more
+          detail about his reasons behind the subversion suggestions.  Sam
+          agreed with the goal of trying to get people to develop more in branches,
+          but still disagreed with James.  chromatic felt that experiments--such
+          as James' ideas--are okay, because if they fail people will still learn
+          something from it.
+          
+          Later the patches were pulled from submission because some other changes
+          in code meant that they were no longer passing tests.
       - date_from: 1172993397
         date_to: 1173029298
         hidden: ~
@@ -657,10 +784,13 @@ lists:
           - email: jerry.gay@gmail.com
             name: jerry gay
         subject: AIX 5.3
-        summary: ''
+        summary: |-
+          Theodore Katseres reported success with building Parrot on AIX with
+          GCC 4.0.0.  Jerry Gay wanted to know if the test could be run more
+          frequently, and reported in the smoke results.
       - date_from: 1173000822
         date_to: 1173000822
-        hidden: ~
+        hidden: small addition
         message_id: 20070304093334.C7B3BCBA2A@x12.develooper.com
         posters:
           - email: allison@cvs.perl.org
@@ -679,10 +809,13 @@ lists:
           - email: rogers-perl6@rgrjr.dyndns.org
             name: Bob Rogers
         subject: '[svn:parrot-pdd] r17322 - trunk/docs/pdds/draft'
-        summary: ''
+        summary: |-
+          A commit from Jonathan Worthington described the new class and object
+          layout for objects.  Subsequent commits from Allison Randal modified
+          the document.
       - date_from: 1173004246
         date_to: 1173004246
-        hidden: ~
+        hidden: clarification
         message_id: 20070304103039.334E9CBA2A@x12.develooper.com
         posters:
           - email: allison@cvs.perl.org
@@ -691,7 +824,7 @@ lists:
         summary: ''
       - date_from: 1173008409
         date_to: 1173008409
-        hidden: ~
+        hidden: more on objects
         message_id: 20070304114000.E8ABCCBA2A@x12.develooper.com
         posters:
           - email: allison@cvs.perl.org
@@ -706,7 +839,7 @@ lists:
           - email: parrotcode@gmail.com
             name: Klaas-Jan Stol
         subject: Parrot won't build on cygwin
-        summary: ''
+        summary: Klaas-Jan Stol reported a problem with compiling Parrot on Cygwin.
       - date_from: 1173014153
         date_to: 1173028919
         hidden: ~
@@ -720,7 +853,9 @@ lists:
             name: Bob Rogers
         rt_ticket: 'perl #41693'
         subject: '[perl #41693] [PATCH] STM article reference corrected '
-        summary: ''
+        summary: |-
+          Elizabeth Mattijsen pointed out a broken link and submitted a patch
+          to correct it in <rt://perl/41693>.  It was committed.
       - date_from: 1173024185
         date_to: 1173044326
         hidden: ~
@@ -734,10 +869,14 @@ lists:
           - email: parrotbug-followup@parrotcode.org
             name: James Keenan via RT
         subject: 'Re: [perl #41695] [CAGE]:  Refactor Parrot::Distribution'
-        summary: ''
+        summary: |-
+          James Keenan created ticket <rt://perl/41695> to log efforts to
+          re-factor Parrot::Distribution.  He included his notes from previous
+          discussions on the topic.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/5559a5faf9617efe/33cfe67c86a07225?#33cfe67c86a07225
       - date_from: 1173048427
         date_to: 1173048427
-        hidden: ~
+        hidden: correction
         message_id: 20070304224701.74229CBA2A@x12.develooper.com
         posters:
           - email: jonathan@cvs.perl.org
@@ -753,10 +892,12 @@ lists:
             name: James Keenan
         rt_ticket: 'perl #41704'
         subject: '[perl #41704] [BUG]:  Test failures:  t/pmc/object-mro.t t/pmc/timer.t '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41704>, James Keenan reported test failures with
+          `make test`.
       - date_from: 1173103241
         date_to: 1173103241
-        hidden: ~
+        hidden: summary
         message_id: 20070305140032.18624.qmail@x1.develooper.com
         posters:
           - email: perlbug-summary@perl.org
@@ -765,7 +906,7 @@ lists:
         summary: ''
       - date_from: 1173111457
         date_to: 1173111457
-        hidden: ~
+        hidden: more object fixes
         message_id: 20070305161729.D4B6DCBA2A@x12.develooper.com
         posters:
           - email: mdiep@cvs.perl.org
@@ -783,10 +924,13 @@ lists:
             name: Nuno Carvalho via RT
         rt_ticket: 'perl #41707'
         subject: '[perl #41707] [TODO] Tcl - relocate stub files '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41707>, Will Coleda described a task of moving some
+          Tcl code to a new location.  Nuno Carvalho made the changes in r17354.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/e2a6fd0bd38647f8/3d466b18d22bb444?#3d466b18d22bb444
       - date_from: 1173119719
         date_to: 1173119719
-        hidden: ~
+        hidden: spelling corrections
         message_id: 20070305183508.A799BCBA2A@x12.develooper.com
         posters:
           - email: nicholas@cvs.perl.org
@@ -810,7 +954,10 @@ lists:
             name: jerry gay
         rt_ticket: 'perl #41712'
         subject: '[perl #41712] [TODO] deprecate CSub '
-        summary: ''
+        summary: |-
+          Jerry Gay wanted `CSub` deprecated before the 0.4.10 release.  Allison
+          Randal agreed.  This was handled in ticket <rt://perl/41712>.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/139546c89ccd7c95/25f73641ea6df81b?#25f73641ea6df81b
       - date_from: 1173202604
         date_to: 1173202604
         hidden: ~
@@ -820,7 +967,10 @@ lists:
             name: Klaas-Jan Stol
         rt_ticket: 'perl #41713'
         subject: '[perl #41713] [PATCH] Updates for lang/PIR '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41713>, Klaas-Jan Stol attached a patch for
+          `lang/PIR` which cleaned up the layout, changed some rules to tokens,
+          added tests, and added rules.
       - date_from: 1173247956
         date_to: 1173291192
         hidden: ~
@@ -839,7 +989,11 @@ lists:
             name: chromatic
         rt_ticket: 'perl #41724'
         subject: '[perl #41724] [BUG] miniparrot fails to build on strawberry perl '
-        summary: ''
+        summary: |-
+          Jerry Gay reported a platform-specific issue with miniparrot in ticket
+          <rt://perl/41724>.  Aldo Calpini tried it but got different warnings.
+          chromatic replied that the configuration process assumes a tight
+          connection between the operating system and compiler.
       - date_from: 1173253264
         date_to: 1173253264
         hidden: ~
@@ -849,7 +1003,10 @@ lists:
             name: Julian Fondren
         rt_ticket: 'perl #41726'
         subject: '[perl #41726] [PATCH] make lua fail more gracefully with an exception handler '
-        summary: ''
+        summary: |-
+          Julian Fondren submitted a patch in ticket <rt://perl/41726>.  The
+          patch makes Lua generate `.pir` files which push an exception handler
+          before evaluating code.
       - date_from: 1173282350
         date_to: 1173282350
         hidden: ~
@@ -859,7 +1016,9 @@ lists:
             name: Will Coleda
         rt_ticket: 'perl #41732'
         subject: '[perl #41732] [BUG] parrot objects segfault on improper invoke override '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41732>, Will Coleda reported a segmentation fault
+          when invoke is improperly overridden.
       - date_from: 1173284073
         date_to: 1173499693
         hidden: ~
@@ -886,7 +1045,16 @@ lists:
           - email: chromatic@wgz.org
             name: chromatic
         subject: 'Re: [perl #41733] invoke :vtable - execution stops'
-        summary: ''
+        summary: |-
+          Richard reported a problem with the latest Parrot.  He included some
+          code demonstrating the issue in ticket <rt://perl/41733>.  Alek Storm
+          pointed out that the invoke vtable method is meant to take one argument.
+          He showed some example text.
+          
+          Matt Diephouse saw a problem with Alek's approach and suggested an
+          alternative.  chromatic agreed with Matt, but then Matt came up with
+          another solution, which was applied in r17385.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/a4dc0b55cbea9697/26dac7dbcef67d7d?#26dac7dbcef67d7d
       - date_from: 1173305919
         date_to: 1173305919
         hidden: ~
@@ -896,7 +1064,10 @@ lists:
             name: Bernhard Schmalhofer
         rt_ticket: 'perl #41738'
         subject: '[perl #41738] languages/APL is broken '
-        summary: ''
+        summary: |-
+          Bernhard Schmalhofer used ticket <rt://perl/41738> to report that
+          `languages/APL` fails smoke tests on all platforms.  He suspected
+          it hadn't been updated to the HLL refactoring in r16974.
       - date_from: 1173313407
         date_to: 1173458732
         hidden: ~
@@ -908,10 +1079,13 @@ lists:
             name: Matt Diephouse via RT
         rt_ticket: 'perl #41739'
         subject: '[perl #41739] [PATCH]: add "clone" method for iterators '
-        summary: ''
+        summary: |-
+          Eric Hanchrow submitted a patch in <rt://perl/41739> which added a
+          `clone` method for iterators.  It was applied in r17411.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/f61c92eb920e56ae/947699521b2bf3eb?#947699521b2bf3eb
       - date_from: 1173314338
         date_to: 1173314338
-        hidden: ~
+        hidden: documentation changes
         message_id: 20070308003851.BD1D5CBA2A@x12.develooper.com
         posters:
           - email: particle@cvs.perl.org
@@ -926,7 +1100,9 @@ lists:
           - email: will@coleda.com
             name: Will Coleda
         subject: Parrot 0.4.10 (Coming Soon)
-        summary: ''
+        summary: |-
+          Will Coleda created a placeholder ticket <rt://perl/41581> to mark
+          the upcoming release of Parrot 0.4.10, expected in less than two weeks.
       - date_from: 1173345072
         date_to: 1173376603
         hidden: ~
@@ -940,7 +1116,9 @@ lists:
             name: Jerome Quelin
         rt_ticket: 'perl #41743'
         subject: '[perl #41743] [PATCH] Make all but (perl5|pugs|t) have a MAINTAINER '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41743>, Julian Fondren submitted a patch which added
+          `MAINTAINER` files for parts of the languages tree which didn't have them.
       - date_from: 1173356784
         date_to: 1173441334
         hidden: ~
@@ -957,7 +1135,10 @@ lists:
           - email: jkeen_via_google@yahoo.com
             name: James E Keenan
         subject: PIR Tutorial
-        summary: ''
+        summary: |-
+          Klaas-Jan Stol remarked that he had started a PIR tutorial on the wiki,
+          and invited people to help.  Julian Fondren suggested several topics
+          which hadn't yet been addressed.  James E Keenan also offered a suggestion.
       - date_from: 1173363854
         date_to: 1173363854
         hidden: ~
@@ -967,7 +1148,7 @@ lists:
             name: Will Coleda
         rt_ticket: 'perl #41746'
         subject: "[perl #41746] [BUG] pdump doesn't build. "
-        summary: ''
+        summary: Will Coleda reported a bug with `pdump` in ticket <rt://perl/41746>.
       - date_from: 1173376393
         date_to: 1173376393
         hidden: ~
@@ -976,7 +1157,10 @@ lists:
           - email: mehmet.yavuz.selim@gmail.com
             name: Mehmet Yavuz Selim Soyturk
         subject: 'C pmclass - parrot object inheritance, interaction vtables/methods/object identities'
-        summary: ''
+        summary: |-
+          Mehmet Yavuz Selim Soyturk is implementing ECMAscript and ran into
+          problems.  The question was if `get_pmc` is an appropriate solution
+          for the problem, or if there is a better way to handle it.
       - date_from: 1173381948
         date_to: 1173815286
         hidden: ~
@@ -993,7 +1177,11 @@ lists:
             name: Allison Randal
         rt_ticket: 'perl #41749'
         subject: '[perl #41749] [TODO] deprecate substr_r op '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41749>, Jerry Gay suggested deprecating
+          `substr_r`.  Leopold Toetsch asked if it could remain an experimental
+          operator until the string issues are resolved.  Allison Randal said
+          to move it to `experimental.ops` and note it in `DEPRECATED.pod`.
       - date_from: 1173389010
         date_to: 1173485193
         hidden: ~
@@ -1014,7 +1202,17 @@ lists:
           - email: chromatic@wgz.org
             name: chromatic
         subject: '[perl #41569] t/distro/file_metadata.t fails on win32'
-        summary: ''
+        summary: |-
+          Ron Blaschke asked what result he could expect from `t/distro/file_metadata.pl`
+          as of r17389.  In ticket <rt://perl/41569> he  showed what he was seeing on
+          a Windows system.  Will Coleda thought that the second test should be
+          passing as of r17398, and that the first two ought to pass.  Ron
+          submitted a patch to make the test work on Windows, which was applied
+          in r17406.
+          
+          chromatic wondered if it would be better to use File::Spec, as the problem
+          involved `/` versus `\`.  Ron elaborated that the problem is that the
+          `MANIFEST` doesn't match the output from svn.
       - date_from: 1173389519
         date_to: 1173389519
         hidden: ~
@@ -1024,7 +1222,9 @@ lists:
             name: Jerry Gay via RT
         rt_ticket: 'perl #25253'
         subject: '[perl #25253] [PATCH] Remove Parrot_INTERP '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/25253>, Jerry Gay asked chromatic to look at
+          removing `Parrot_INTERP`.
       - date_from: 1173396242
         date_to: 1173434691
         hidden: ~
@@ -1036,7 +1236,10 @@ lists:
             name: Klaas-Jan Stol
         rt_ticket: 'perl #41750'
         subject: '[perl #41750] [PATCH] Pynie updates '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41750>, Klaas-Jan Stol submitted a patch for Pynie,
+          which was applied.  This patch fixed the rule for floating points,
+          among other things.
       - date_from: 1173407570
         date_to: 1173407570
         hidden: ~
@@ -1046,7 +1249,10 @@ lists:
             name: Jerry Gay
         rt_ticket: 'perl #41753'
         subject: '[perl #41753] [CAGE] better document and test PMETHOD and PMINVOKE '
-        summary: ''
+        summary: |-
+          Jerry Gay wanted documentation for the  C-level support for Parrot calling
+          conventions which was recently added.  He made this remark in ticket
+          <rt://perl/41753>.
       - date_from: 1173440058
         date_to: 1173485497
         hidden: ~
@@ -1059,7 +1265,9 @@ lists:
           - email: parrotbug-followup@parrotcode.org
             name: Will Coleda
         subject: Glossary is missing from parrotcode.org
-        summary: ''
+        summary: |-
+          Will Coleda created ticket <rt://perl/41768> to store Klaas-Jan Stol's
+          comment that the glossary page should output to the website.
       - date_from: 1173440962
         date_to: 1173440962
         hidden: ~
@@ -1068,7 +1276,10 @@ lists:
           - email: parrotcode@gmail.com
             name: Klaas-Jan Stol
         subject: 'Q: Should Op names be allowed to be identifiers. '
-        summary: ''
+        summary: |-
+          Klaas-Jan Stol noted that it is permitted to use ops as names for
+          variables in PIR, but if you tried to increment the resulting variable,
+          it will not compile.  He suggested disallowing using opnames in this way.
       - date_from: 1173444861
         date_to: 1173450555
         hidden: ~
@@ -1081,7 +1292,9 @@ lists:
             name: Nuno Carvalho via RT
         rt_ticket: 'perl #41760'
         subject: '[perl #41760] [PATCH] lang/pynie some bin.ops '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41760>, Klaas-Jan Stol submitted another Pynie patch.
+          It was applied as r17407.
       - date_from: 1173459147
         date_to: 1173459147
         hidden: ~
@@ -1091,7 +1304,9 @@ lists:
             name: Klaas-Jan Stol
         rt_ticket: 'perl #41762'
         subject: '[perl #41762] [PATCH] Languages/Pynie functions! '
-        summary: ''
+        summary: |-
+          The patch in ticket <rt://perl/41762>, by Klaas-Jan Stol, implements basic
+          function calling in Pynie.
       - date_from: 1173461253
         date_to: 1173461253
         hidden: ~
@@ -1101,7 +1316,10 @@ lists:
             name: Eric Hanchrow
         rt_ticket: 'perl #41763'
         subject: '[perl #41763] [PATCH]: fix "clone" method for iterators '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41763>, Eric Hanchrow submitted a patch
+          for iterator cloning.  It was applied, with minor changes, in
+          r17691.
       - date_from: 1173753900
         date_to: 1173753906
         hidden: ~
@@ -1118,7 +1336,7 @@ lists:
           - email: sam.vilain@catalyst.net.nz
             name: Sam Vilain
         subject: '[PATCH 0/6] A round of updates to Test::More'
-        summary: ''
+        summary: Sam Vilain submitted a patch to extend the `Test/More.pir` library.
     title: Parrot Porters
   - name: perl6-users
     threads: []
@@ -1130,7 +1348,7 @@ lists:
     threads:
       - date_from: 1173140054
         date_to: 1173140403
-        hidden: ~
+        hidden: small change in who is in charge of releases
         message_id: 20070306001408.B6226CBA2A@x12.develooper.com
         messages:
           - E5564FE7-A4DB-4899-8BB8-498D590595C1@coleda.com
@@ -1157,6 +1375,43 @@ lists:
           - email: juerd@convolution.nl
             name: Juerd Waalboer
         subject: lexical subs
-        summary: ''
+        summary: |-
+          H.Merijn Brand kicked off a very large thread (53 messages in
+          total) by requesting lexical subroutines.   Although the message
+          was posted to the Perl 5 porter's list, it involved Perl 6 and
+          appears to have been cross-posted.
+          
+          Dr. Ruud was in favour of the idea, as was Paul Johnson.
+          Tels didn't like having two subroutines of the same name, and suggested
+          an anonymous subroutine with a variable referencing it.  The concern
+          was that it would be hard for a human to know which subroutine was
+          called without checking the lexical scope.
+          David Nicol also considered it unnecessary.  Johan Vromans found it
+          no more confusing than a lexical variable.  Abigail agreed with Johan.
+          Michael Schwern felt that it was in fact less confusing, as in his
+          experience, Perl trainers are often faced with the question "how
+          do I declare a lexical subroutine?"
+          
+          Demerphq noted that it is difficult to do a recursive subroutine with
+          lexically scoped references to anonymous subroutines and avoid memory
+          leaks.  Aaron Crane pointed out that a subroutine with a fully-lexical
+          name wouldn't be mistaken for a method.
+          
+          Mark Jason Dominus didn't care one way or the other about lexical
+          subroutines, but wanted to add a number of test cases to define the
+          feature if it is added.  His example test case generated some discussion.
+          Larry Wall invited anyone to translate the test cases to Perl 6 and install
+          them in the Pugs test repository, as Pugs should already handle lexically
+          scoped subroutines.
+          
+          There was some question of whether lexical subroutines exist in Perl 5 bleed.
+          Rafael Garcia-Suarez, Abigail, and Jan Dubois contributed information.  It
+          appears that they were in to the 'todo' list for 5.6.1, but haven't been
+          implemented.  Juerd Waalboer wanted Perl 6 to conform to Perl 5's
+          implementation, or vice versa.
+          
+          Meanwhile, Wolfgang Laun wondered if Perl would incorporate any sort
+          of information hiding, which Rafael summed up as "a whole
+          can of worms."
     title: perl5-porters
 title: Weekly Perl 6 mailing list summary
