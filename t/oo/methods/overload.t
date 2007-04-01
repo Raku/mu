@@ -14,26 +14,22 @@ plan 9*2;
 class StubClass {}
 my ($foo_class, $bar_class) = (StubClass, StubClass);
 
-eval '
     class Foo {
     has $.bar is rw;
     multi method prefix:<~> ($self)  { return $.bar }
-    mutli method infix:<+>  ($a, $b) { return "$a $b" }
+    multi method infix:<+>  ($a, $b) { return "$a $b" }
     }
 
     $foo_class = Foo;
-';
 
-eval '
     class Bar {
     has $.bar is rw;
     }
 
     multi sub prefix:<~> (Bar $self)      { return $self.bar }
-    mutli sub infix:<+>  (Bar $a, Bar $b) { return "$a $b" }
+    multi sub infix:<+>  (Bar $a, Bar $b) { return "$a $b" }
 
     $bar_class = Bar;
-';
 
 run_tests_with($foo_class);
 run_tests_with($bar_class);
