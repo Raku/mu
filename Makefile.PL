@@ -1,6 +1,21 @@
 #!/usr/local/bin/perl
 
 =pod
+=head1 NAME
+
+Makefile.PL - Configure pugs build
+
+=head1 SYNOPSIS
+
+perl Makefile.PL [options]
+
+Options:
+
+    --precompile-prelude        Force prelude to be precompiled
+    --no-precompile-prelude     Force prelude to be precompiled
+    --help                      Print documentation (build system overview)
+
+=head1 DESCRIPTION
 
 Build System Overview
 
@@ -32,6 +47,17 @@ use inc::Module::Install;
 use lib 'inc';
 use PugsBuild::Config;
 use Carp;
+use Getopt::Long;
+use Pod::Usage;
+
+our %options;
+GetOptions \%options, qw( precompile-prelude! help ) or pod2usage(2);
+
+pod2usage(-verbose => 2) if $options{'help'};
+
+if ( $options{'precompile-prelude'} ) {
+    $PugsBuild::Config::Conf->{precompile_prelude} = $options{'precompile-prelude'}
+}
 
 # Win32/CygWin GHC appears to be more memory hungry than its
 # *nix counterpart, causing it to bail part-way through builds.
@@ -561,6 +587,7 @@ EOD
     }
 
     my $setup_flags = "--prefix=\$(DESTDIR) --with-hc-pkg=$ghc_pkg --with-hsc2hs=$hsc2hs --ghc --with-compiler=$ghc";
+    my $precompile_prelude = ' --precompile-prelude '.PugsBuild::Config->lookup('precompile_prelude');
 
     my $svn_entries = '';
 
@@ -572,31 +599,26 @@ EOD
 
     # logic for Judy:
 
-=begin NOJUDY
-
-    if ($Config{osname} ne 'MSWin32') {
-        warn "Configuring Judy...\n";
-        chdir "third-party/judy/Judy-1.0.3";
-        copy('src/Judy.h', '../../HsJudy');
-        system("./configure") unless -e "config.status" and -e "Makefile";
-        chdir "../../..";
-    }
-
-    my $judyclean;
-    if ($Config{osname} eq 'MSWin32') {
-        $judyclean = 'cd third-party\judy\Judy-1.0.3\src && '.
-            'nmake /nologo /F Makefile.win32 clean';
-    } else {
-        my $make = $Config{make};
-
-        # Judy at this moment wants GNU make.
-        $make = 'gmake' unless `$make --version` =~ /GNU/;
-
-        $judyclean = "cd third-party/judy/Judy-1.0.3 \&\& $make clean \&\& perl cleanmore.pl";
-    }
-
-=end NOJUDY
-=cut
+#    if ($Config{osname} ne 'MSWin32') {
+#        warn "Configuring Judy...\n";
+#        chdir "third-party/judy/Judy-1.0.3";
+#        copy('src/Judy.h', '../../HsJudy');
+#        system("./configure") unless -e "config.status" and -e "Makefile";
+#        chdir "../../..";
+#    }
+#
+#    my $judyclean;
+#    if ($Config{osname} eq 'MSWin32') {
+#        $judyclean = 'cd third-party\judy\Judy-1.0.3\src && '.
+#            'nmake /nologo /F Makefile.win32 clean';
+#    } else {
+#        my $make = $Config{make};
+#
+#        # Judy at this moment wants GNU make.
+#        $make = 'gmake' unless `$make --version` =~ /GNU/;
+#
+#        $judyclean = "cd third-party/judy/Judy-1.0.3 \&\& $make clean \&\& perl cleanmore.pl";
+#    }
 
     postamble(fixpaths(<< "."));
 $config_h : lib/Perl6/Pugs.pm util/config_h.pl
@@ -672,10 +694,10 @@ soonprof :: unoptimised-profiled
 unoptimized-profiled :: unoptimised-profiled
 
 unoptimised-profiled :: pugs_requirements
-	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_pkg $ghc_version $setup --make -O0 -auto-all -prof $threaded $profiled_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_pkg $ghc_version $setup --make -O0 -auto-all -prof $threaded $profiled_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE $precompile_prelude --pugs $thispugs
 
 profiled :: pugs_requirements
-	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_pkg $ghc_version $setup --make -O -auto-all -prof $threaded $profiled_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_pkg $ghc_version $setup --make -O -auto-all -prof $threaded $profiled_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE $precompile_prelude --pugs $thispugs
 
 pugs.prof :: profiled
 	find t -type f | grep -v D | grep -v R | grep -v pugsrun | ./pugs +RTS -p -RTS -e 'my sub exit {}; for =\$\$*IN -> \$\$t is copy { \$\$t .= chomp; require \$\$t }'
@@ -683,17 +705,17 @@ pugs.prof :: profiled
 optimised :: optimized
 
 optimized :: pugs_requirements
-	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_pkg $ghc_version $setup --make -O $threaded $ghc_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_pkg $ghc_version $setup --make -O $threaded $ghc_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE $precompile_prelude --pugs $thispugs
 
 soon :: unoptimized
 
 unoptimised :: unoptimized
 
 unoptimized :: pugs_requirements
-	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_pkg $ghc_version $setup --make -O0 $threaded $ghc_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_pkg $ghc_version $setup --make -O0 $threaded $ghc_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE $precompile_prelude --pugs $thispugs
 
 $pugs : pugs_requirements
-	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_pkg $ghc_version $setup --make __optimization__ $threaded $ghc_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_pkg $ghc_version $setup --make __optimization__ $threaded $ghc_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE $precompile_prelude --pugs $thispugs
 
 
 pirtest : test-pir
@@ -703,6 +725,8 @@ pirsmoke : smoke-pir
 jssmoke : smoke-js
 
 test :: blib6/lib/Test.pm.yml
+
+prelude :: blib6/lib/Prelude.pm.yml
 
 pure_all :: blib6/lib/Test.pm.yml
 
@@ -723,6 +747,10 @@ test-redsix :
 blib6/lib/Test.pm.yml :: ext/Test/lib/Test.pm
 	\$(NOECHO) \$(ECHO) "Precompiling Test.pm..."
 	$thispugs -CParse-YAML ext/Test/lib/Test.pm > blib6/lib/Test.pm.yml 
+
+blib6/lib/Prelude.pm.yml :
+	\$(NOECHO) \$(ECHO) "Precompiling Prelude.pm..."
+	util/gen_prelude.pl -v -i src/perl6/Prelude.pm -p $thispugs --output blib6/lib/Prelude.pm.yml
 
 upload-smoke : smoke.yml
 	\$(PERL) util/smokeserv/smokeserv-client.pl smoke.html smoke.yml
@@ -976,3 +1004,5 @@ $_/Instances.hs: $_.hs util/drift.pl
 \t\$(PERL) util/drift.pl $_.hs
 .
 }
+__END__
+

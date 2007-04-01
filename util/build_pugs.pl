@@ -47,6 +47,11 @@ sub build {
     my $thispugs = { @{ $opts->{GEN_PRELUDE} } }->{'--pugs'} or # laugh at me now.
         die "$0: no pugs passed in _+GEN_PRELUDE segment";
     
+    if ( grep '--precompile-prelude', @{ $opts->{GEN_PRELUDE} } ) {
+        $PugsBuild::Config::Conf->{'precompile_prelude'}
+            = { @{ $opts->{GEN_PRELUDE} } }->{'--precompile-prelude'}
+    }
+
     print "Build configuration:\n" . PugsBuild::Config->pretty_print;
 
     my ($version, $ghc, $ghc_pkg, $ghc_version, $setup, @args) = @{$opts->{GHC}};
@@ -299,6 +304,10 @@ sub build {
         $want_profiling = 0;
         build_exe($version, $runcompiler, $ghc_version, @args);
     }
+
+    # determine if prelude wants be precompiled first,
+    # then does so if it needs to be
+    return unless PugsBuild::Config->lookup('precompile_prelude');
 
     my $ppc_yml = "blib6/lib/Prelude.pm.yml";
 
