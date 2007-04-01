@@ -1,3 +1,6 @@
+# Run this script, then create buildmaster according to directions @
+# http://buildbot.sourceforge.net/manual-0.7.5.html#Creating-a-buildmaster
+# Look at master.cfg for port and slave configuration
 if [[ ! $PREFIX ]]
 then
   PREFIX=/usr/local
