@@ -96,10 +96,15 @@ lists:
           - email: john@perlwolf.com
             name: John Macdonald
         subject: '[svn:perl6-synopsis] r14325 - doc/trunk/design/syn'
-        summary: ''
+        summary: |-
+          A commit by Larry Wall included a specification for the version sharing and
+          emulation model for libraries.  Zev Benjamin wondered if there could
+          be an API version attribute.  Larry thought that this was covered by
+          'emulation', but that maybe an API naming convention was needed.
+          John Macdonald added his thoughts on the terminology employed.
       - date_from: 1173571365
         date_to: 1173571365
-        hidden: ~
+        hidden: caller/context rethink
         message_id: 20070311000237.87F0CCBA2A@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -108,7 +113,7 @@ lists:
         summary: ''
       - date_from: 1173592755
         date_to: 1173592755
-        hidden: ~
+        hidden: continues previous commit
         message_id: 20070311055908.5D78BCBA2A@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -117,7 +122,7 @@ lists:
         summary: ''
       - date_from: 1173626287
         date_to: 1173626287
-        hidden: ~
+        hidden: clarification by audrey
         message_id: 20070311151800.86C9ACBA2A@x12.develooper.com
         posters:
           - email: audreyt@cvs.perl.org
@@ -126,7 +131,7 @@ lists:
         summary: ''
       - date_from: 1173634133
         date_to: 1173634133
-        hidden: ~
+        hidden: more about context
         message_id: 20070311172845.358F3CBA2A@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -135,7 +140,7 @@ lists:
         summary: ''
       - date_from: 1173635205
         date_to: 1173635205
-        hidden: ~
+        hidden: seems fairly moinor
         message_id: 20070311174638.332E9CBA2A@x12.develooper.com
         posters:
           - email: audreyt@cvs.perl.org
@@ -144,7 +149,7 @@ lists:
         summary: ''
       - date_from: 1173645696
         date_to: 1173645696
-        hidden: ~
+        hidden: nit
         message_id: 20070311204130.450E5CBA2A@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -153,7 +158,7 @@ lists:
         summary: ''
       - date_from: 1173647852
         date_to: 1173655391
-        hidden: ~
+        hidden: adds 'only'
         message_id: 20070311211725.6DC41CBA2A@x12.develooper.com
         messages:
           - 20070311232304.GA24965@istic.org
@@ -166,7 +171,7 @@ lists:
         summary: ''
       - date_from: 1173648455
         date_to: 1173648455
-        hidden: ~
+        hidden: typo
         message_id: 20070311212727.B5423CBA2A@x12.develooper.com
         posters:
           - email: audreyt@cvs.perl.org
@@ -175,7 +180,7 @@ lists:
         summary: ''
       - date_from: 1173649969
         date_to: 1173649969
-        hidden: ~
+        hidden: small change
         message_id: 20070311215242.0DA48CBA2A@x12.develooper.com
         posters:
           - email: audreyt@cvs.perl.org
@@ -184,7 +189,7 @@ lists:
         summary: ''
       - date_from: 1173697243
         date_to: 1173697243
-        hidden: ~
+        hidden: formatting
         message_id: 20070312110035.46730CBA2A@x12.develooper.com
         posters:
           - email: audreyt@cvs.perl.org
@@ -207,10 +212,13 @@ lists:
           - email: larry@wall.org
             name: Larry Wall
         subject: '[svn:perl6-synopsis] r14339 - doc/trunk/design/syn'
-        summary: ''
+        summary: |-
+          A commit by Larry Wall clarified S02, S03, S04, and S06.  The explicit
+          pipe target became `@(*)` or `@@(*)`.  Pushy pipes were modified.
+          `$?BLOCK` returns a list of labels.
       - date_from: 1173733365
         date_to: 1173733365
-        hidden: ~
+        hidden: typo
         message_id: 20070312210233.3B05DCBA2A@x12.develooper.com
         posters:
           - email: audreyt@cvs.perl.org
@@ -219,7 +227,7 @@ lists:
         summary: ''
       - date_from: 1173733379
         date_to: 1173733379
-        hidden: ~
+        hidden: typo
         message_id: 20070312210252.C91E3CBA2A@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -228,7 +236,7 @@ lists:
         summary: ''
       - date_from: 1173734460
         date_to: 1173734460
-        hidden: ~
+        hidden: clarification
         message_id: 20070312212053.A024FCBA2A@x12.develooper.com
         posters:
           - email: audreyt@cvs.perl.org
@@ -237,7 +245,7 @@ lists:
         summary: ''
       - date_from: 1173741037
         date_to: 1173741037
-        hidden: ~
+        hidden: 'clarification, I think'
         message_id: 20070312231027.DCF5ECBA2A@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -246,7 +254,7 @@ lists:
         summary: ''
       - date_from: 1173782636
         date_to: 1173782636
-        hidden: ~
+        hidden: more clarification
         message_id: 20070313104332.549FFCBA2A@x12.develooper.com
         posters:
           - email: audreyt@cvs.perl.org
@@ -268,7 +276,7 @@ lists:
         summary: ''
       - date_from: 1173888212
         date_to: 1173888212
-        hidden: ~
+        hidden: clarification
         message_id: 20070314160317.6A0DBCBA2A@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -277,7 +285,7 @@ lists:
         summary: ''
       - date_from: 1173895749
         date_to: 1173895749
-        hidden: ~
+        hidden: clarification
         message_id: 20070314180854.25252CBA2A@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -286,7 +294,7 @@ lists:
         summary: ''
       - date_from: 1173896893
         date_to: 1173896893
-        hidden: ~
+        hidden: small new op
         message_id: 20070314182804.B0A11CBA2A@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -295,7 +303,7 @@ lists:
         summary: ''
       - date_from: 1173897902
         date_to: 1173897902
-        hidden: ~
+        hidden: clarification
         message_id: 20070314184447.D1032CBA2A@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -304,7 +312,7 @@ lists:
         summary: ''
       - date_from: 1173899550
         date_to: 1173899550
-        hidden: ~
+        hidden: clarification
         message_id: 20070314191221.96022CBA2A@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -313,7 +321,7 @@ lists:
         summary: ''
       - date_from: 1173990621
         date_to: 1173990621
-        hidden: ~
+        hidden: more on context
         message_id: 20070315202954.DE2B5CBA2F@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -322,7 +330,7 @@ lists:
         summary: ''
       - date_from: 1174015682
         date_to: 1174015682
-        hidden: ~
+        hidden: clarification
         message_id: 20070315212628.F2ECACBA86@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -331,7 +339,7 @@ lists:
         summary: ''
       - date_from: 1174087688
         date_to: 1174087688
-        hidden: ~
+        hidden: Rats
         message_id: 20070316163157.DEBAECBB1D@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -403,7 +411,7 @@ lists:
         summary: ''
       - date_from: 1172266350
         date_to: 1174088331
-        hidden: ~
+        hidden: covered in previous week
         message_id: rt-3.6.HEAD-28041-1172266343-1272.41602-72-0@perl.org
         messages:
           - rt-3.6.HEAD-2051-1172872978-1343.41602-14-0@perl.org
@@ -495,7 +503,7 @@ lists:
         summary: ''
       - date_from: 1173381948
         date_to: 1173815286
-        hidden: ~
+        hidden: covered in previous week
         message_id: rt-3.6.HEAD-30201-1173381938-1343.41749-72-0@perl.org
         messages:
           - 200703082217.53532.lt@toetsch.at
@@ -773,7 +781,7 @@ lists:
         summary: ''
       - date_from: 1173708045
         date_to: 1173708045
-        hidden: ~
+        hidden: summary
         message_id: 20070312140032.8832.qmail@x1.develooper.com
         posters:
           - email: perlbug-summary@perl.org
@@ -805,7 +813,7 @@ lists:
         summary: ''
       - date_from: 1173753900
         date_to: 1173753906
-        hidden: ~
+        hidden: covered in previous week
         message_id: test-more-take-2@vilain.net
         messages:
           - 20070313024448.E613B13A382@magnus.utsl.gen.nz
@@ -856,7 +864,7 @@ lists:
         summary: ''
       - date_from: 1173808395
         date_to: 1173808395
-        hidden: ~
+        hidden: update of PASM spec
         message_id: 20070313175307.0FB57CBA2A@x12.develooper.com
         posters:
           - email: allison@cvs.perl.org
@@ -875,7 +883,7 @@ lists:
         summary: ''
       - date_from: 1173825973
         date_to: 1173825973
-        hidden: ~
+        hidden: duplicate of 41809
         message_id: rt-3.6.HEAD-1687-1173825967-1149.41803-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
@@ -885,7 +893,7 @@ lists:
         summary: ''
       - date_from: 1173826549
         date_to: 1173826549
-        hidden: ~
+        hidden: duplicate of 41810
         message_id: rt-3.6.HEAD-1687-1173826541-1571.41804-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
@@ -895,7 +903,7 @@ lists:
         summary: ''
       - date_from: 1173827413
         date_to: 1173980077
-        hidden: ~
+        hidden: duplicate of 41811
         message_id: rt-3.6.HEAD-30201-1173827405-710.41805-72-0@perl.org
         messages:
           - rt-3.6.HEAD-1687-1173977510-665.41805-15-0@perl.org
@@ -910,7 +918,7 @@ lists:
         summary: ''
       - date_from: 1173827423
         date_to: 1173827423
-        hidden: ~
+        hidden: duplicate of 41813
         message_id: rt-3.6.HEAD-1687-1173827413-544.41806-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
@@ -920,7 +928,7 @@ lists:
         summary: ''
       - date_from: 1173827436
         date_to: 1173827436
-        hidden: ~
+        hidden: duplicate of 41812
         message_id: rt-3.6.HEAD-2051-1173827421-1376.41807-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
@@ -930,7 +938,7 @@ lists:
         summary: ''
       - date_from: 1173827989
         date_to: 1174112875
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-30201-1173828028-136.41812-72-0@perl.org
         message_id: rt-3.6.HEAD-2051-1174112863-876.41808-15-0@perl.org
         messages:
           - rt-3.6.HEAD-30201-1173827982-149.41808-72-0@perl.org
@@ -942,7 +950,7 @@ lists:
         summary: ''
       - date_from: 1173827995
         date_to: 1173827995
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-30201-1173828028-136.41812-72-0@perl.org
         message_id: rt-3.6.HEAD-1687-1173827988-619.41809-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
@@ -952,7 +960,7 @@ lists:
         summary: ''
       - date_from: 1173828006
         date_to: 1173828006
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-30201-1173828028-136.41812-72-0@perl.org
         message_id: rt-3.6.HEAD-2051-1173827996-894.41810-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
@@ -962,7 +970,7 @@ lists:
         summary: ''
       - date_from: 1173828026
         date_to: 1173828026
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-30201-1173828028-136.41812-72-0@perl.org
         message_id: rt-3.6.HEAD-11234-1173828013-1638.41811-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
@@ -979,10 +987,29 @@ lists:
             name: Sam Vilain
         rt_ticket: 'perl #41812'
         subject: '[perl #41812] [PATCH 6/6] [lib] Test::More - add isa_ok() '
-        summary: ''
+        summary: |-
+          In tickets
+          <rt:/perl/41809>,
+          <rt:/perl/41810>,
+          <rt:/perl/41811>,
+          <rt:/perl/41812>, and
+          <rt:/perl/41813>, Sam Vilain submitted several patches for
+          Test::More.  
+          
+          The patches do the following:
+          * factor out the comparision and test function
+          * clean up `test_skip()` output
+          * add the `isa_ok()` method
+          * refactor `is() :multi` for integers
+          * changed `is()` to expect a different order of arguments
+          * modify symbol exports in the example
+          
+          Allison Randal looked at two of the patches and requested some refactoring.
+          She explained in some detail what she is looking for.  In addition, she
+          suggested removing the `.IMPORT` macros which she had introduced.
       - date_from: 1173828039
         date_to: 1173828039
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-30201-1173828028-136.41812-72-0@perl.org
         message_id: rt-3.6.HEAD-2051-1173828030-1892.41813-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
@@ -1015,7 +1042,9 @@ lists:
           - email: will@coleda.com
             name: Will Coleda
         subject: Bug Day for 0.4.10 on 3/17
-        summary: ''
+        summary: |-
+          Will Coleda announced a Bug Day for 0.4.10 on March 17th.
+          Although this Bug Day has passed, there will be others...
       - date_from: 1173837169
         date_to: 1173837169
         hidden: ~
@@ -1146,7 +1175,9 @@ lists:
             name: parrotbug-followup
         rt_ticket: 'perl #41837'
         subject: '[perl #41837] [PATCH] integer overflow in include/parrot/sub.h '
-        summary: ''
+        summary: |-
+          Ticket <rt://perl/41837> demonstrates an integer overflow in
+          `include/parrot/sub.h`.  chromatic applied the patch in r17853.
       - date_from: 1173940766
         date_to: 1173940766
         hidden: ~
@@ -1155,7 +1186,10 @@ lists:
           - email: penguinhead@linux-delhi.org
             name: Pankaj kaushal
         subject: 'Re: [perl #38764] Test results of parrot on Freebsd'
-        summary: ''
+        summary: |-
+          Pankaj kaushal, chromatic, and Paul Cochrane discussed ticket
+          <rt://perl/38764>.  Will Coleda had asked for tests to run against
+          parrot-0.4.9.
       - date_from: 1173946689
         date_to: 1173946689
         hidden: ~
@@ -1180,7 +1214,11 @@ lists:
             name: jnthn@jnthn.net via RT
         rt_ticket: 'perl #40087'
         subject: '[perl #40087] [BUG] Segfault in key.pmc '
-        summary: ''
+        summary: |-
+          Will Coleda created ticket <rt://perl/40087> several months ago.
+          Jonathan Worthington tried to reproduce the error and requested updated
+          instructions on how to produce the problem.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/6d3881551ecd5792/6afc70b6ccfc81f2?#6afc70b6ccfc81f2
       - date_from: 1174011101
         date_to: 1174011101
         hidden: ~
@@ -1190,7 +1228,9 @@ lists:
             name: Paul Cochrane
         rt_ticket: 'perl #41857'
         subject: '[perl #41857] [CAGE] Make a "make valgrind" target '
-        summary: ''
+        summary: |-
+          Paul Cochrane wanted a makefile target so that the valgrint tool suite
+          could be used.  He noted this in ticket <rt://perl/41857>.
       - date_from: 1174011223
         date_to: 1174011223
         hidden: ~
@@ -1200,7 +1240,10 @@ lists:
             name: Paul Cochrane
         rt_ticket: 'perl #41858'
         subject: '[perl #41858] [CAGE] Make a reasonable set of rules for splint '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41858>, Paul Cochrane reported that `splint`
+          creates a number of errors by default, and suggested that a set of
+          rules be created for it.
       - date_from: 1174011261
         date_to: 1174169629
         hidden: ~
@@ -1214,7 +1257,9 @@ lists:
             name: Paul Cochrane via RT
         rt_ticket: 'perl #41859'
         subject: '[perl #41859] [TODO] Replace cage/todo.pod files by RT tickets '
-        summary: ''
+        summary: |-
+          Paul Cochrane created a ticket to make tickets of cage todo items, and
+          then resolved his own ticket (<rt://perl/41859>).
       - date_from: 1174011886
         date_to: 1174011886
         hidden: ~
@@ -1224,7 +1269,9 @@ lists:
             name: Paul Cochrane
         rt_ticket: 'perl #41860'
         subject: '[perl #41860] [CAGE] Run Parrot under Coverity Prevent '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41860>, Paul Cochrane noted that he wanted to see
+          Parrot running under Coverity Prevent.
       - date_from: 1174012643
         date_to: 1174164607
         hidden: ~
@@ -1238,7 +1285,9 @@ lists:
             name: Paul Cochrane via RT
         rt_ticket: 'perl #41861'
         subject: '[perl #41861] [TODO] Create (and start the basics of) a cage cleaner guide '
-        summary: ''
+        summary: |-
+          Paul Cochrane created ticket <rt://perl/41861> to create the TODO item
+          'create a cage cleaner guide'.  It was resolved in r17556.
       - date_from: 1174012951
         date_to: 1174012951
         hidden: ~
@@ -1248,7 +1297,9 @@ lists:
             name: Paul Cochrane
         rt_ticket: 'perl #41862'
         subject: '[perl #41862] [CAGE] Make a reasonable set of rules for lint '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41862>, Paul Cochrane requested a reasonable
+          set of rules for `lint` and provided a suggested starting point.
     title: Parrot Porters
   - name: perl6-users
     threads: []
