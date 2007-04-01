@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 26 Mar 2007
+   Last Modified: 31 Mar 2007
    Number: 5
-   Version: 55
+   Version: 56
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -3064,7 +3064,7 @@ As with any multidimensional list, each sublist can be lazy separately.
 For example:
 
      if $text ~~ mm:g/ (\S+:) <rocks> / {
-         say 'Full match context is: [$/]';
+         say "Full match context is: [$/]";
      }
 
 But the list of individual match objects corresponding to each separate
