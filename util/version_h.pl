@@ -1,14 +1,21 @@
 #!/usr/bin/perl -w
 
-# TODO: add a comment explaining what this small program does.
+# This program determines the revision (number) that has been checked out. It
+# then sets the version inside src/Pugs/pugs_version.sh to the revision
+# number. Call it like so:
+#   util/version_h.pl src/Pugs/pugs_version.h
+# It currently works when you have checked out the pugs project with SVN or
+# SVK. If the revision number from the checkout is the same as the version
+# number found in src/Pugs/pugs_version.h, then it doesn't update the file. If
+# it can't determine the pugs revision, then the pugs version is set to 0.
 
 use strict;
 use warnings;
 use FindBin qw($Bin);
 
-chdir_to_base();
 my $version_h = shift || "$Bin/../src/Pugs/pugs_version.h";
 my $base = shift || "$Bin/../";
+chdir $base;
 my $svn_entries = "$base/.svn/entries";
 
 my $old_revision = -1;
@@ -55,7 +62,11 @@ elsif (my @svk_info = qx/svk info/ and $? == 0) {
         ($revision) = $line =~ / (\d+)$/;
     } elsif (my ($source_line) = grep /^(Copied|Merged) From/, @svk_info) {
         if (my ($source_depot) = $source_line =~ /From: (.*?), Rev\. \d+/) {
-            $source_depot = '/'.$source_depot; # convert /svk/trunk to //svk/trunk
+            if (my ($path_line) = grep /^Depot Path/, @svk_info ) {
+                if (my ($depot_path) = $path_line =~ m!Path: (/[^/]*)! ) {
+                    $source_depot = "$depot_path$source_depot";
+                }
+            }
             if (my @svk_info = qx/svk info $source_depot/ and $? == 0) {
                 if (my ($line) = grep /(?:file|svn|https?)\b/, @svk_info) {
                     ($revision) = $line =~ / (\d+)$/;
@@ -96,30 +107,4 @@ if ($revision != $old_revision) {
   }
 } elsif ($revision) {
   print "Not writing $version_h because $old_revision == $revision\n";
-}
-
-sub chdir_to_base {
-    # rest of script expects us to be at the base dir, so find it
-    # and chdir to it
-    my $svn_entries = ".svn/entries";
-    if (-r $svn_entries) {
-        open my $fh, "<", $svn_entries
-            or die "Couldn't open $svn_entries: $!\n";
-        my ($url, $repo);
-        while (<$fh>) {
-            if (/^ *url="(.*)"/) {
-                $url = $1
-            } elsif (/^ *repos="(.*)"/) {
-                $repo = $1;
-            }
-            $url && $repo && last;
-        }
-        close $fh;
-        return unless $url && $repo;
-        return if $url eq $repo;
-        $url =~ s|$repo/||;
-        $url =~ s|[^/]+|..|g;
-        chdir $url;
-    }
-    # XXX Make work for svk too
 }
