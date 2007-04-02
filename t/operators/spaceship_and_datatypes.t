@@ -3,7 +3,7 @@ use v6-alpha;
 use Test;
 
 plan 6;
-#L<S03/Changes to Perl 5 operators/"The <=> operator">
+#L<S03/Comparison semantics/The <=> operator>
 
 my %h = ("a" => 1, "b" => 2);
 ok(%h{"a"} < %h{"b"}, 'comparing hash values');

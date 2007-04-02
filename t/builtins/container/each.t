@@ -4,7 +4,7 @@ use Test;
 
 plan 8;
 
-# L<S29/Container/"=item each">
+# L<S02/Lists/if an each()>
 
 =pod
 

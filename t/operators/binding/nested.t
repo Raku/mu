@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-# L<S03/"Binding">
+# L<S03/Item assignment precedence>
 
 # Tests for binding multidimensional structures.
 

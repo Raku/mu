@@ -2,7 +2,7 @@ use v6-alpha;
 use Test;
 plan 10;
 
-# L<S29/"Control::Basic"/"=item die">
+# L<S29/Context/"=item die">
 
 =pod
 

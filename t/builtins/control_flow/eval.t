@@ -2,7 +2,7 @@ use v6-alpha;
 use Test;
 plan 6;
 
-# L<S29/"Control::Basic"/"=item eval">
+# L<S29/Context/"=item eval">
 
 =pod
 

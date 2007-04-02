@@ -3,7 +3,7 @@ use v6-alpha;
 use Test;
 
 plan 4;
-# L<S03/Precedence /loose and/>
+# L<S03/Loose and precedence>
 my $run = 1;
 
 sub isfive (*@args) {

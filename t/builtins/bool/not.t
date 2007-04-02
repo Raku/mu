@@ -2,7 +2,7 @@ use v6-alpha;
 use Test;
 plan 10;
 
-# L<S03/Precedence /loose unary/>
+# L<S03/Loose unary precedence>
 
 is(not 1,     False, "not 1 is false");
 is(not -1,    False, "not -1 is false");

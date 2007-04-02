@@ -2,7 +2,7 @@ use v6-alpha;
 use Test;
 plan 1;
 
-# L<S29/"Control::Basic"/"=item exit">
+# L<S29/Context/"=item exit">
 
 # This test is primarily aimed at PIL2JS.
 # In conditionals, or, to be more exact, in all things using PIL2JS.cps2normal,

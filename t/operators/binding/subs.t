@@ -4,7 +4,7 @@ use Test;
 
 plan 12;
 
-# L<S03/"Binding">
+# L<S03/Item assignment precedence>
 
 # Tests for rebinding subroutines themselves
 

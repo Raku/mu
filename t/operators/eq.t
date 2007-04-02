@@ -4,7 +4,7 @@ use Test;
 
 plan 10;
 
-#L<S03/Changes to Perl 5 operators/"same as in Perl 5">
+#L<S03/Comparison semantics/eq always coerces to string>
 
 ok("a" eq "a");
 ok(!("a" eq "ab"));

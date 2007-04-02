@@ -4,15 +4,15 @@ use Test;
 
 =head1 Binding tests
 
-These tests are derived from the "Binding" section of Synopsis 3
+These tests are derived from the "Item assignment precedence" section of Synopsis 3
 
-L<S03/"Binding">
+L<S03/Item assignment precedence>
 
 =cut
 
 plan 28;
 
-# L<S03/"Binding" /replaces the container itself\.  For instance:/>
+# L<S03/Item assignment precedence/replaces the container itself\.  For instance:/>
 # Basic scalar binding tests
 {
   my $x = 'Just Another';

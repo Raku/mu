@@ -4,14 +4,14 @@ use Test;
 
 =kwid
 
-Tests some basic conditional operators
+Tests some basic comparison operators
 (==, !=, eq and ne)
 
 =cut
 
 plan 6;
 
-#L<S03/Changes to Perl 5 operators/"same as in Perl 5">
+#L<S03/Comparison semantics>
 
 my $x = '1';
 my $y = 'a';

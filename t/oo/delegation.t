@@ -39,7 +39,7 @@ is eval('Backend2.new.hi'), 23, "basic sanity (2)";
 }
 
 
-# L<S12/"Delegation" /Any other kind of argument to handles is considered to be a smartmatch selector for methods/>
+# L<S12/Delegation/"Any other kind of argument" "smartmatch selector for method">
 class ReFrontend { has $.backend is rw handles /^hi/ };
 ok ReFrontend.new, "class definition using a smartmatch handle worked";
 

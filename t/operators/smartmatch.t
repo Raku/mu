@@ -61,7 +61,7 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
     ok(!(%hash1 ~~ any(<gorch ding>)), "no listed key exists");
 };
 
-#L<<S03/Smart matching/hash key slice existence>>
+#L<<S03/Smart matching/hash slice existence>>
 { 
     ok((%hash1 ~~ all(<foo blah>)), "all keys exist", :todo);
     ok(!(%hash1 ~~ all(<foo edward>)), "not all keys exist");
@@ -69,7 +69,7 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 
 #Hash    Rule      hash key grep            match if any($_.keys) ~~ /$x/
 
-#L<<S03/Smart matching/hash key slice existence>>
+#L<<S03/Smart matching/hash slice existence>>
 { 
     ok((%hash5 ~~ "foo"), "foo exists", :todo);
     ok((%hash5 ~~ "gorch"),
@@ -77,7 +77,7 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
     ok((%hash5 ~~ "wasabi"), "wasabi does not exist", :todo);
 };
 
-#L<<S03/Smart matching/hash key slice existence>>
+#L<<S03/Smart matching/hash slice existence>>
 { 
     my $string is context = "foo";
     ok eval_elsewhere('(%+hash5 ~~ .{$+string})'), 'hash.{Any} truth';
@@ -97,7 +97,7 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
     ok(!((1, 2) ~~ (1, 1)), "1 2 !~~ 1 1");
 };
 
-#L<<S03/Smart matching/list intersection>>
+#L<<S03/Smart matching/numeric equality>>
 { 
     ok(((1, 2) ~~ any(2, 3)),
        "there is intersection between (1, 2) and (2, 3)", :todo);
@@ -120,7 +120,7 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
     ok(!(("x", "y", "z") ~~ "a"), "a is not in qw/x y z/");
 };
 
-#L<<S03/Smart matching/not defined $_>>
+#L<S03/Smart matching/array value slice truth>
 { 
     ok eval('((undef, 1, undef) ~~ .[1])'),
         "element 1 of (undef, 1, undef) is true";
@@ -138,7 +138,7 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 
 #Str     StrRange  in string range          match if $min le $_ le $max
 
-#L<<S03/Smart matching/simple closure truth*>>
+#L<S03/Smart matching/"simple closure truth">
 { 
     ok((1 ~~ { 1 }), "closure truth");
     ok((undef ~~ { 1 }), 'ignores $_');
@@ -177,7 +177,7 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 # i don't understand this one
 #Any     boolean   simple expression truth* match if true given $_
 
-#L<<S03/Smart matching/default                  True>>
+#L<S03/Smart matching/Any undef undefined not .defined>
 { 
     ok(!("foo" ~~ undef), "foo is not ~~ undef");
     ok((undef ~~ undef), "undef is");

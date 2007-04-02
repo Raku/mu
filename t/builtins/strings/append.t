@@ -5,7 +5,7 @@ use Test;
 =kwid
 
 String appending with ~ operator
-L<S03/Changes to Perl 5 operators/=item * The string concatenation>
+L<S03/Changes to Perl 5 operators/string concatenation becomes stitching>
 =cut
 
 plan 4;

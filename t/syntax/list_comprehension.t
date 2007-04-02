@@ -4,7 +4,7 @@ use Test;
 
 plan 4;
 
-#L<S02/Lists/"list() comprehension">
+#L<S02/Lists/each() comprehension>
 my @x = -1..10;
 my @y = 4..12;
 my @results =

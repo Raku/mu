@@ -2,7 +2,7 @@ use v6-alpha;
 use Test;
 plan 4;
 
-# L<S29/"Hash"/"=item delete">
+# L<S29/Array/=item delete>
 
 =pod
 

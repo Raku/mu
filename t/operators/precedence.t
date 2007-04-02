@@ -9,7 +9,7 @@ Tests that each level bind tighter than the next by sampling some ops.
 In between each precedence level are some tests that demonstrate the
 proper separation of the two levels.
 
-L<S03/"Precedence">
+L<S03/Operator precedence>
 
 =cut
 

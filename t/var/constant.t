@@ -250,7 +250,8 @@ plan 19;
     is $ok, 2, "declaring constants using 'constant' creates package-scoped vars", :todo<feature>;
 }
 
-# L<S04/"The Relationship of Blocks and Declarations" /In any case the initializing value is evaluated at BEGIN time./>
+# L<S04/The Relationship of Blocks and Declarations/The initializing
+# expression is evaluated at BEGIN time./>
 {
     my $ok;
 

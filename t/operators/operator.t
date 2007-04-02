@@ -5,7 +5,6 @@ use Test;
 =kwid
 
 Tests for Synopsis 3
-L<S03/"New operators">
 =cut
 
 plan 29;
@@ -15,13 +14,16 @@ my $str2 = "bar";
 my $str3 = "foobar";
 my $str4 = $str1~$str2;
 
+# L<S03/Additive precedence/string concatenation>
 is($str3, $str4, "~");
 
+# L<S03/Conditional operator precedence/Also known as the ternary or trinary operator>
 my $bar = "";
 ($str3 eq $str4) ?? ($bar = 1) !! ($bar = 0);
 
 ok($bar, "?? !!");
 
+# L<S03/Chaining binary precedence/==>
 my $five = 5;
 my $four = 4;
 my $wibble = 4;
@@ -44,18 +46,18 @@ is(2 + 3, $five, "== (sum on lhs)");
 ok((2 + 3) == 5, "== (sum on lhs)");
 ok(!((2 + 3) != $five), "== (sum on lhs)");
 
-# String Operations
+# L<S03/Additive precedence/string concatenation>
 is("text " ~ "stitching", "text stitching", 'concatenation with ~ operator');
 
 # Bit Stitching
 
+# L<S03/Tight or precedence/short-circuiting inclusive-or>
 is(2 || 3, 2, "|| returns first true value");
 is(2 ?| 3, 1, "boolean or (?|) returns 0 or 1");
 ok(!(defined( 0 || undef)), "|| returns last false value of list?");
 is(0 ?| undef, 0, "boolean or (?|) returns 0 or 1", :todo);
 
-#junctions
-
+# L<S03/Junctive operators/They thread through operations>
 ok((all((4|5|6) + 3) == one(7|8|9)), "all elements in junction are incremented");
 ok((any(1..6) == one(1|2|3|4|5|6)), "any elements will match via junction");
 
@@ -78,7 +80,7 @@ ok( all(@newval1) > all(@oldval), "all test array against all array" );
 ok(42 > 12 & 20 & 32, "test the all infix operator");
 
 
-# Hyper ops
+# L<S03/Hyper operators/hyper operator distributes over them as lists>
 my @rv;
 @rv = (1,2,3,4) >>+<< (1,2,3,4);
 is("@rv[]", "2 4 6 8", 'hyper-add');

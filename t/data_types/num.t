@@ -8,7 +8,7 @@ basic Number tests
 
 =cut
 
-#L<S02/Integer Data Type>
+#L<S02/Built-In Data Types/Perl intrinsically supports big integers>
 
 plan 46;
 
@@ -20,7 +20,7 @@ my $a = -1; "$a";
 isa_ok($a, 'Int');
 is($a, "-1", '-1 stringification works');
 
-#L<S02/Rational Data Type>
+#L<S02/Built-In Data Types/Rat supports arbitrary precision rational arithmetic>
 
 my $a = 1.0; "$a";
 isa_ok($a, 'Rat');
@@ -50,7 +50,7 @@ my $a = 10.01e3; "$a";
 isa_ok($a, 'Rat');
 is($a, "10010", '10.01e3 stringification works');
 
-#L<S02/Integer Data Type>
+#L<S02/Built-In Data Types/Perl intrinsically supports big integers>
 
 my $a = 0b100; "$a";
 isa_ok($a, 'Int');
@@ -70,7 +70,7 @@ is($a + 1, 2, 'basic addition works');
 my $a = -1; "$a";
 ok($a + 1 == 0, 'basic addition with negative numbers works'); # parsing bug
 
-#L<S02/Rational Data Type>
+#L<S02/Built-In Data Types/Rat supports arbitrary precision rational arithmetic>
 
 my $a = 80000.0000000000000000000000000;
 isa_ok($a, 'Rat');
@@ -80,7 +80,7 @@ my $a = 1.0000000000000000000000000000000000000000000000000000000000000000000e1;
 isa_ok($a, 'Rat');
 ok($a == 10.0, 'trailing zeros compare correctly');
 
-#L<S02/Number Data Type>
+#L<S02/Built-In Data Types/Num may support arbitrary-precision floating-point>
 
 my $a = "1.01";
 isa_ok(+$a, "Num");
@@ -90,13 +90,13 @@ my $a = "0d01.01";
 isa_ok(+$a, "Num");
 is(+$a, 1.01, "0d01.01 numifies to 1.01", :todo<bug>);
 
-#L<S02/Integer Data Type>
+#L<S02/Built-In Data Types/Perl intrinsically supports big integers>
 
 my $a = "1.01";
 isa_ok(int($a), "Int");
 is(int($a), 1, "1.01 intifies to 1");
 
-#L<S02/Number Data Type>
+#L<S02/Built-In Data Types/Num may support arbitrary-precision floating-point>
 
 my $a = "0d0101";
 isa_ok(+$a, "Num");

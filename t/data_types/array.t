@@ -10,7 +10,7 @@ Arrays
 
 plan 67;
 
-#L<S02/Arrays>
+#L<S02/Mutable types/Array>
 
 # array of strings
 

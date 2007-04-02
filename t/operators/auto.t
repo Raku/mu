@@ -6,7 +6,7 @@ use Test;
 
 plan 37;
 
-#L<S03/Changes to Perl 5 operators/"same as in Perl 5">
+#L<S03/Autoincrement precedence>
 
 my $base = 10000;
 
