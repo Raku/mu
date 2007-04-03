@@ -23,7 +23,10 @@ extra:
         * [ONLamp](http://www.oreillynet.com/onlamp/blog/)
       title: Distribution
   header:
-    - body: ~
+    - body: |-
+        Due to a lack of free time, I will be unable to continue creating the Perl 6 summaries after April.  We are looking for a volunteer or group of volunteers to take over the task.
+        
+        Please contact me if you would like more information about what the job entails (contact information can be found at the end of this post).
       title: This week on the Perl 6 mailing lists
   see_also:
     - name: Perl Foundation activities
@@ -37,7 +40,7 @@ lists:
     threads:
       - date_from: 1172564322
         date_to: 1174173687
-        hidden: ~
+        hidden: covered in 03-03 summary
         message_id: 'p06240800c2097f7c5bd0@[192.168.1.101]'
         messages:
           - 20070227164532.GB52650@plum.flirble.org
@@ -76,8 +79,14 @@ lists:
             name: Ryan Richter
           - email: larry@wall.org
             name: Larry Wall
-        subject: Some questions about miltislices and other things
-        summary: ''
+        subject: Some questions about multislices and other things
+        summary: |-
+          Ryan Richter translated the Perl 5 Markov chain to Perl 6.  He wondered
+          if he has the correct syntax; he cannot test it because Pugs doesn't
+          have full multislice support yet.
+          
+          Larry Wall noted that `<==` had become `<<==` recently, and gave a
+          few other comments.
       - date_from: 1173487108
         date_to: 1174097800
         hidden: ~
@@ -273,7 +282,12 @@ lists:
           - email: larry@wall.org
             name: Larry Wall
         subject: DFA rules and p5's $/
-        summary: ''
+        summary: |-
+          Brad Bowman wanted to know if the form of per-filehandle input record
+          separators had been added to the Synopses.
+          
+          Larry Wall replied that it hasn't been, although it was discussed.
+          He added a remark to `Functions.pod` about `.split` on filehandles.
       - date_from: 1173888212
         date_to: 1173888212
         hidden: clarification
@@ -374,7 +388,19 @@ lists:
             name: Alek Storm
         rt_ticket: 'perl #41364'
         subject: '[perl #41364] [PATCH] Fixed object vtable method overrides in PIR '
-        summary: ''
+        summary: |-
+          Earlier, in ticket <rt://perl/41364>, Patrick R. Michaud noted that
+          the double-underscore method of overriding vtable methods cannot be
+          deprecated until ticket <rt://perl/40626> is resolved.  Allison
+          approved of the patch by Alek Storm and requested a regression test.
+          She included a rough version.  
+          
+          Alek wondered if it could be committed now that 0.4.9 has been
+          released.  Jonathan Worthington noted some problems he had had with
+          applying it.  Alek discovered that this was due to a change in r41549,
+          and updated the patch.  Jonathan applied the patch manually in r17514
+          so that it could be included in the release.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/d0b73b45046d4975/58c70a1246d114b5?#58c70a1246d114b5
       - date_from: 1171936843
         date_to: 1173976962
         hidden: ~
@@ -393,7 +419,20 @@ lists:
             name: Paul Cochrane
         rt_ticket: 'perl #40544'
         subject: '[perl #40544] [NEW] Test for DOS line endings in Parrot text files '
-        summary: ''
+        summary: |-
+          Earlier, in ticket <rt://perl/40544>, Paul Cochrane submitted a test
+          which checks for DOS line endings in the Parrot distribution.          
+          
+          Will Coleda recently noted that some of the problems are related to
+          <rt://perl/41485> and that when he sets the properties in his working
+          copy, the tests succeed.  Paul provided an update: he will be do a
+          few commits which update the svn eol property.  Because a large number          of files will be affected, the update will done in a small time slot.
+          
+          As of r17102, it was fixed.
+          
+          However, on March 15th, Will Coleda asked Paul and Jerry Gay to insure
+          that the test doesn't encourage people to update files which would break
+          the Windows build, because the tests were failing again.
       - date_from: 1172162501
         date_to: 1173861236
         hidden: ~
@@ -408,7 +447,13 @@ lists:
             name: chromatic
         rt_ticket: 'perl #41579'
         subject: '[perl #41579] [BUG]  t/pmc/ref.t, t/pmc/threads.t file with -C runcore '
-        summary: ''
+        summary: |-
+          Previously,
+          in ticket <rt://perl/41579>, Patrick R . Michaud reported two failing
+          tests.  chromatic confirmed that this was not restricted to x86_64.
+          
+          This week chromatic supplied a patch but he wasn't sure that it was
+          correct with regard to the Ref PMC.
       - date_from: 1172266350
         date_to: 1174088331
         hidden: covered in previous week
@@ -444,7 +489,7 @@ lists:
         summary: ''
       - date_from: 1172463159
         date_to: 1173703192
-        hidden: ~
+        hidden: covered in 03-03 summary
         message_id: 085d0590b634afd5b2bd684e063dcb45@gmail.com
         messages:
           - 189adbd0703041913l45542ef0oe8f71223a14fb85b@mail.gmail.com
@@ -476,7 +521,7 @@ lists:
         summary: ''
       - date_from: 1172660162
         date_to: 1173808506
-        hidden: ~
+        hidden: covered in 03-03 summary
         message_id: rt-3.6.HEAD-2051-1172660151-1734.41636-72-0@perl.org
         messages:
           - rt-3.6.HEAD-30201-1173808497-313.41636-15-0@perl.org
@@ -488,7 +533,7 @@ lists:
         summary: ''
       - date_from: 1172780510
         date_to: 1173989479
-        hidden: ~
+        hidden: don't need to summarize that a patch was applied.
         message_id: rt-3.6.HEAD-2051-1172780503-566.41658-72-0@perl.org
         messages:
           - 4ff0b0d1aa18d785db0b644e1799bc14@gmail.com
@@ -529,7 +574,9 @@ lists:
             name: Julian Fondren
         rt_ticket: 'perl #41764'
         subject: '[perl #41764] [PATCH] teach differentiation of C<exit 1> in exception handling in docs/compiler_faq.pod '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41764>, Julian Fondren submitted a patch because
+          exception severity wasn't documented.  It was applied in r17431.
       - date_from: 1173518453
         date_to: 1173594523
         hidden: ~
@@ -543,7 +590,10 @@ lists:
             name: Bob Rogers
         rt_ticket: 'perl #41771'
         subject: '[perl #41771] Uncaught Parse Error Leads to Segfault '
-        summary: ''
+        summary: |-
+          chromatic reported a segmentation fault in ticket <rt://perl/41771>.  He
+          included some code which demonstrated the problem.  Bob Rogers claimed
+          that this was the same issue as <rt://perl/41097>.
       - date_from: 1173524386
         date_to: 1173650950
         hidden: ~
@@ -556,7 +606,12 @@ lists:
           - email: jonathan@jnthn.net
             name: Jonathan Worthington
         subject: '[Parrot::Embed] Use ExtUtils::MakeMaker for In-Tree Parrot::Embed Builds'
-        summary: ''
+        summary: |-
+          chromatic supplied a patch which tells ExtUtils::MakeMaker how to
+          build Parrot::Embed from a compiled but uninstalled Parrot.  He requested
+          tests from non-Linux platforms.  Jonathan Worthington found some problems,
+          but thought that they might be due to his installation, not chromatic's
+          patch.
       - date_from: 1173545459
         date_to: 1173555223
         hidden: ~
@@ -575,7 +630,14 @@ lists:
           - email: nick@ccl4.org
             name: Nicholas Clark
         subject: '[PDD15 PROPOSAL] Pluggable MRO'
-        summary: ''
+        summary: |-
+          Jonathan Worthington outlined one of the things he'd like to see in PDD15:
+          method resolution order.  Larry Wall offered his thoughts on children
+          and parents having different method resolution orders.
+          
+          Nicholas Clark said that Brandon Black has been working on making
+          pluggable method resolution order for Perl 5, and suggested that
+          Jonathan talk to him about it.
       - date_from: 1173582475
         date_to: 1173582475
         hidden: ~
@@ -585,7 +647,10 @@ lists:
             name: Will Coleda
         rt_ticket: 'perl #41776'
         subject: '[perl #41776] [RFE] ParrotIO objects that work on strings '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41776>, Will Coleda noted that it should be
+          possible to redirect input from and output to ParriotIO objects
+          which don't perform IO.  This was documented in `docs/BROKEN.pod`.
       - date_from: 1173582563
         date_to: 1173582563
         hidden: ~
@@ -595,7 +660,9 @@ lists:
             name: Will Coleda
         rt_ticket: 'perl #41777'
         subject: '[perl #41777] [RFE] Submethods '
-        summary: ''
+        summary: |-
+          Ticket <rt://perl/417777> contains an entry from `docs/BROKEN.pod`
+          which needs to be fixed.
       - date_from: 1173582570
         date_to: 1173582570
         hidden: ~
@@ -605,7 +672,9 @@ lists:
             name: Will Coleda
         rt_ticket: 'perl #41779'
         subject: '[perl #41779] [RFE] Anonymous Classes '
-        summary: ''
+        summary: |-
+          Will Coleda copied this item from `docs/BROKEN.pod` to the ticketing
+          system, creating ticket <rt://perl/41779>.
       - date_from: 1173582570
         date_to: 1173582570
         hidden: ~
@@ -615,7 +684,7 @@ lists:
             name: Will Coleda
         rt_ticket: 'perl #41778'
         subject: '[perl #41778] [RFE] Lexical Classes '
-        summary: ''
+        summary: Ticket <rt://perl/41778> documents another item from `docs/BROKEN.pod`.
       - date_from: 1173582617
         date_to: 1173582617
         hidden: ~
@@ -625,7 +694,10 @@ lists:
             name: Will Coleda
         rt_ticket: 'perl #41780'
         subject: '[perl #41780] [BUG] Nested *Struct PMCs Share State '
-        summary: ''
+        summary: |-
+          Another ticket (<rt://perl/41780>) was created for an item in
+          `docs/BROKEN.pod`.  chromatic was working on a test case to demonstrate
+          the problem.
       - date_from: 1173582701
         date_to: 1173582701
         hidden: ~
@@ -635,7 +707,10 @@ lists:
             name: Will Coleda
         rt_ticket: 'perl #41781'
         subject: '[perl #41781] [RFE] Store HLL information in invokable PMCs '
-        summary: ''
+        summary: |-
+          Ticket <rt://perl/41781> tracks an entry from `docs/BROKEN.pod` which
+          explains that invokable PMCs need a canonical way to store their associated
+          HLL source and argument information.
       - date_from: 1173582810
         date_to: 1173582810
         hidden: ~
@@ -645,7 +720,10 @@ lists:
             name: Will Coleda
         rt_ticket: 'perl #41782'
         subject: '[perl #41782] [RFE] Allow Runtime Compiler Registration '
-        summary: ''
+        summary: |-
+          Will Coleda copied yet another item from `docs/BROKEN.pod` to the
+          ticketing system: <rt://perl/41782>.  Leopold Toesch's proposed startup
+          sequence is described in the ticket.
       - date_from: 1173582930
         date_to: 1173582930
         hidden: ~
@@ -655,7 +733,9 @@ lists:
             name: Will Coleda
         rt_ticket: 'perl #41783'
         subject: "[perl #41783] [BUG?] main isn't in src/parrot.c "
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41783>, Will Coleda documented the `docs/BROKEN.pod`
+          item from `compilers/imcc/main.c`.
       - date_from: 1173613903
         date_to: 1173613903
         hidden: ~
@@ -665,7 +745,9 @@ lists:
             name: Bernhard Schmalhofer
         rt_ticket: 'perl #41784'
         subject: '[perl #41784] [parrotcode] Link to IMCC FAQ is broken '
-        summary: ''
+        summary: |-
+          Bernhard Schmalhofer reported in ticket <rt://perl/41784> that the
+          link to `IMCC FAQ` is broken in the main (parrotcode) FAQ.
       - date_from: 1173617074
         date_to: 1173617074
         hidden: ~
@@ -675,7 +757,10 @@ lists:
             name: James Keenan
         rt_ticket: 'perl #41786'
         subject: '[perl #41786] [PATCH]:  tools/build/ops2c.pl refactored '
-        summary: ''
+        summary: |-
+          James Keenan resubmitted patches previously submitted in
+          <rt://perl/41608>, this time using ticket <rt://perl/41786>.  He
+          had some problems with the original submissions.
       - date_from: 1173625397
         date_to: 1174105407
         hidden: ~
@@ -745,10 +830,23 @@ lists:
             name: Klaas-Jan Stol
         rt_ticket: 'perl #41788'
         subject: '[perl #41788] [BUG] Real registers are limited to 2 digits '
-        summary: ''
+        summary: |-
+          Klaas-Jan Stol created ticket <rt://perl/41788> to report that the several
+          registers are limited to 2 digits.  Because Parrot is no longer limited
+          to 32 registers per type, this can be considered a bug.
+          
+          Nuno Carvalho submitted a patch to change the lexer to accept additional
+          digits.  chromatic wondered what the effect would be on the register
+          allocator and memory usage.  Leopold Toetsch didn't see this as a problem.
+          Jonathan Worthington also thought that it would be more usual for the
+          programmer to ask Parrot to make the allocation.  Nuno reminded the
+          list that the field is a type of INTVAL, and therefore will already
+          be limited.  There was a bit of further discussion on this.  Allison
+          Randal saw no reason not to limit the lexer to a 32-bit integer.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/97c39e72827d04ea/11640246791ea63f?#11640246791ea63f
       - date_from: 1173631585
         date_to: 1173631585
-        hidden: ~
+        hidden: closing a ticket doesn't require a summary
         message_id: rt-3.6.HEAD-2051-1173631579-447.41388-14-0@perl.org
         posters:
           - email: bugs-parrot-track@netlabs.develooper.com
@@ -778,7 +876,16 @@ lists:
             name: Matt Diephouse via RT
         rt_ticket: 'perl #41790'
         subject: "[perl #41790] [PATCH] Change sub's get_string to return short name "
-        summary: ''
+        summary: |-
+          Will Coleda created ticket <rt://perl/41790>.  He is working on Tcl and
+          needs to know the name of a `.Sub` at runtime and included a patch which
+          he'd like to see in 0.4.10.  The patch did make some tests fail.
+          
+          Jonathan Worthington was mostly in favour of the plan,
+          but wanted to know more about how the tests were failing.
+          Matt Diephouse liked it too; he had nearly changed it himself
+          the previous week.  Allison Randal approved the change, and it
+          was applied in r17484.
       - date_from: 1173708045
         date_to: 1173708045
         hidden: summary
@@ -796,10 +903,13 @@ lists:
           - email: parrotcode@gmail.com
             name: Klaas-Jan Stol
         subject: stuck with tge transformation for pynie using PAST::VarList
-        summary: ''
+        summary: |-
+          Klaas-Jan Stol expressed some difficulties he was having with tree
+          transformation for Pynie, and asked for help from anyone with knowledge
+          in this area.
       - date_from: 1173753018
         date_to: 1173757373
-        hidden: ~
+        hidden: The individual patches have been summarized
         message_id: 45F60CA8.2030703@vilain.net
         messages:
           - CCAA34A0-2F5F-493A-9724-8546CCE63E32@coleda.com
@@ -830,7 +940,7 @@ lists:
         summary: ''
       - date_from: 1173756899
         date_to: 1173756899
-        hidden: ~
+        hidden: This was covered in several other threads
         message_id: 20070313031731.11588.92309.stgit@localhost.localdomain
         messages:
           - 20070313031804.11588.99578.stgit@localhost.localdomain
@@ -861,7 +971,12 @@ lists:
             name: Will Coleda via RT
         rt_ticket: 'perl #41230'
         subject: '[perl #41230] [BUG] t/codingstd/perlcritic.t uses too many resources '
-        summary: ''
+        summary: |-
+          Earlier, Jerry Gay created ticket <rt://perl/41230>.  Recently,
+          Will Coleda reported that it had been updated to run all the policies
+          at once, but to report by policy.  This way, each file is only processed
+          once.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/e2216d670a51f3a7/787c252f6c0b6c09?#787c252f6c0b6c09
       - date_from: 1173808395
         date_to: 1173808395
         hidden: update of PASM spec
@@ -880,7 +995,11 @@ lists:
             name: Jerry Gay
         rt_ticket: 'perl #41802'
         subject: '[perl #41802] [BUG] GC errors with PGE (may have failing tests!) '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41802>, Jerry Gay noted that in r17470 he's
+          disabled the `-G` flag on three test files.  The change addressed some
+          garbage collector bugs, and the ticket prevents the (known) issue from being
+          reported.
       - date_from: 1173825973
         date_to: 1173825973
         hidden: duplicate of 41809
@@ -989,15 +1108,15 @@ lists:
         subject: '[perl #41812] [PATCH 6/6] [lib] Test::More - add isa_ok() '
         summary: |-
           In tickets
-          <rt:/perl/41809>,
-          <rt:/perl/41810>,
-          <rt:/perl/41811>,
-          <rt:/perl/41812>, and
-          <rt:/perl/41813>, Sam Vilain submitted several patches for
+          <rt://perl/41809>,
+          <rt://perl/41810>,
+          <rt://perl/41811>,
+          <rt://perl/41812>, and
+          <rt://perl/41813>, Sam Vilain submitted several patches for
           Test::More.  
           
           The patches do the following:
-          * factor out the comparision and test function
+          * factor out the comparison and test function
           * clean up `test_skip()` output
           * add the `isa_ok()` method
           * refactor `is() :multi` for integers
@@ -1033,7 +1152,7 @@ lists:
             name: Sam Vilain
         rt_ticket: 'perl #41818'
         subject: '[perl #41818] [PATCH */4]: [t/op] add tests for string memory layout '
-        summary: ''
+        summary: Sam Vilain created ticket <rt://perl/41818> to provide a patch.
       - date_from: 1173836788
         date_to: 1173836788
         hidden: ~
@@ -1054,7 +1173,7 @@ lists:
             name: Sam Vilain
         rt_ticket: 'perl #41819'
         subject: '[perl #41819] [PATCH */2]: [t/pmc] minor object-meths.t clean-ups '
-        summary: ''
+        summary: Sam Vilain submitted a patch in ticket <rt://perl/41819>.
       - date_from: 1173847359
         date_to: 1173847359
         hidden: ~
@@ -1063,7 +1182,9 @@ lists:
           - email: chromatic@wgz.org
             name: chromatic
         subject: '[PATCH] Free Thread Interpreter Pool During Shutdown'
-        summary: ''
+        summary: |-
+          chromatic supplied a patch which fixed some unneeded output in a
+          Valgrind report.
       - date_from: 1173850927
         date_to: 1173850927
         hidden: ~
@@ -1072,7 +1193,7 @@ lists:
           - email: chromatic@wgz.org
             name: chromatic
         subject: '[PATCH] Free Context After Copy'
-        summary: ''
+        summary: 'chromatic had another Valgrind report, and submitted a patch.'
       - date_from: 1173883785
         date_to: 1173883785
         hidden: ~
@@ -1082,7 +1203,9 @@ lists:
             name: richard @ hive-systems . com
         rt_ticket: 'perl #41825'
         subject: '[perl #41825] morph vtable method not working in PIR '
-        summary: ''
+        summary: |-
+          Richard used ticket <rt://perl/41825> to report the problem described
+          in the subject, and supplied a code example.
       - date_from: 1173883916
         date_to: 1173883916
         hidden: ~
@@ -1092,7 +1215,9 @@ lists:
             name: richard @ hive-systems . com
         rt_ticket: 'perl #41826'
         subject: "[perl #41826] vtable method 'find_method' not working in PIR "
-        summary: ''
+        summary: |-
+          Richard included some example code in ticket <rt://perl/41826> to
+          demonstrate the problem described in the subject.
       - date_from: 1173896231
         date_to: 1173965517
         hidden: ~
@@ -1106,7 +1231,13 @@ lists:
             name: jerry gay
         rt_ticket: 'perl #39908'
         subject: '[perl #39908] [BUG] IMCC treats $S as a non-register instead of throwing an error '
-        summary: ''
+        summary: |-
+          Nuno Carvalho replied to ticket <rt://perl/39908>.  In the ticket,
+          Matt Diephouse had included an example of the error.  Nuno noted
+          that this was related to
+          '<msgid:rt-3.6.HEAD-5405-1173721949-830.41788-15-0@perl.org>' and
+          attached a patch to correct the test.  Jerry Gay wanted to see 
+          the examples in the ticket converted to tests.
       - date_from: 1173898012
         date_to: 1173898012
         hidden: ~
@@ -1116,7 +1247,10 @@ lists:
             name: Joshua Isom
         rt_ticket: 'perl #41827'
         subject: '[perl #41827] ICU endian issues causing test failures. '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41827>, Joshua Isom reported a failure with
+          `t/op/stringu.t`, which was probably due to an assumption of
+          small endianness.
       - date_from: 1173898632
         date_to: 1173898632
         hidden: ~
@@ -1126,7 +1260,9 @@ lists:
             name: Bernhard Schmalhofer
         rt_ticket: 'perl #41829'
         subject: '[perl #41829] languages/Zcode is broken '
-        summary: ''
+        summary: |-
+          Bernhard Schmalhofer created ticket <rt://perl/41829> to discuss some
+          errors in `languages/Zcode`.
       - date_from: 1173933131
         date_to: 1173933131
         hidden: ~
@@ -1136,7 +1272,17 @@ lists:
             name: Will Coleda via RT
         rt_ticket: 'perl #37178'
         subject: '[perl #37178] [PATCH] Quiet a few alignment warnings '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/37178>, Will Coleda applied a patch which quieted
+          some alignment warnings.  Andy Dougherty had created it some time ago.
+          He hoped someone else would take up the task of trying to document
+          and check Parrot's alignment assumptions.  
+          
+          Later, the patch had to be removed because it had introduced some
+          problems.  One problem was that it incorrectly assumed that all
+          compilers accept a `-h`, `--help` or `/?` switch.  He and chromatic
+          tried to find a solution but were not successful; chromatic promised
+          to work on a better patch.
       - date_from: 1173935206
         date_to: 1173935206
         hidden: ~
@@ -1146,10 +1292,13 @@ lists:
             name: Will Coleda
         rt_ticket: 'perl #41833'
         subject: '[perl #41833] [TODO] test conv_i2 opcode '
-        summary: ''
+        summary: |-
+          Will Coleda created ticket <rt://perl/41833>.  In it, he said that
+          the `conv_i2` opcode had been resurrected, and that there may already
+          be some tests for it.
       - date_from: 1173936210
         date_to: 1173936210
-        hidden: ~
+        hidden: 0.4.10 is already released
         message_id: rt-3.6.HEAD-30201-1173936201-1210.41834-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
@@ -1159,7 +1308,7 @@ lists:
         summary: ''
       - date_from: 1173938192
         date_to: 1173938192
-        hidden: ~
+        hidden: 0.4.10 is already released
         message_id: D452BE39-8AF7-4111-8495-D44ADE91D256@coleda.com
         posters:
           - email: will@coleda.com
@@ -1192,7 +1341,7 @@ lists:
           parrot-0.4.9.
       - date_from: 1173946689
         date_to: 1173946689
-        hidden: ~
+        hidden: covered in master thread on this topic
         message_id: 11737529393586-git-send-email-sam@vilain.net
         messages:
           - 11737529394188-git-send-email-sam@vilain.net
@@ -1229,7 +1378,7 @@ lists:
         rt_ticket: 'perl #41857'
         subject: '[perl #41857] [CAGE] Make a "make valgrind" target '
         summary: |-
-          Paul Cochrane wanted a makefile target so that the valgrint tool suite
+          Paul Cochrane wanted a makefile target so that the valgrind tool suite
           could be used.  He noted this in ticket <rt://perl/41857>.
       - date_from: 1174011223
         date_to: 1174011223
@@ -1332,6 +1481,18 @@ lists:
           - email: szabgab@gmail.com
             name: Gabor Szabo
         subject: 'Parrot, Perl 5 and performance'
-        summary: ''
+        summary: |-
+          Ozgun wondered if compiling Perl 5 to Parrot byte code would provide
+          any performance benefit, and how difficult it would be to do this.
+          
+          chromatic explained that it would take quite a bit of effort to completely
+          translate Perl 5 syntax.  He did expect that it would improve
+          performance, but pointed out that Parrot isn't as mature as Perl 5.
+          Nicholas Clark said he didn't expect it would create an enormous
+          increase in speed.  He suggested profiling the Perl interpreter rather
+          than profiling the code itself.
+          
+          Isaac Gouy noted that PIR is included in the Debian performance
+          comparison page which Ozgun had cited.
     title: Compiler
 title: Weekly Perl 6 mailing list summary
