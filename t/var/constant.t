@@ -183,9 +183,9 @@ plan 19;
 }
 
 # See thread "our constant pi, my constant pi" on p6l started by Ingo
-# Blechschmidt L<"http://www.nntp.perl.org/group/perl.perl6.language/23000">,
+# Blechschmidt L<http://www.nntp.perl.org/group/perl.perl6.language/23000>,
 # especially Luke's reply
-# L<"http://www.nntp.perl.org/group/perl.perl6.language/23000">.
+# L<http://www.nntp.perl.org/group/perl.perl6.language/23000>.
 
 {
     my $ok;
@@ -251,7 +251,7 @@ plan 19;
 }
 
 # L<S04/The Relationship of Blocks and Declarations/The initializing
-# expression is evaluated at BEGIN time./>
+# expression is evaluated at BEGIN time.>
 {
     my $ok;
 

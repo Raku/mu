@@ -12,7 +12,7 @@ perl6-specific tests.
 =cut
 
 # Note: See thread "Undef issues" by Adrian Taylor on p6l
-# L<"http://groups.google.com/groups?threadm=20050601002444.GB32060@wall.org">
+# L<http://groups.google.com/groups?threadm=20050601002444.GB32060@wall.org>
 #   On Tue, May 24, 2005 at 10:53:59PM +1000, Stuart Cook wrote:
 #   : I'm not sure whether this behaviour is supposed to be changing.
 #   
@@ -259,10 +259,10 @@ else {
     sub bar ($bar, $baz?, :$quux) {
         is($bar, "BAR", "defined param"); # sanity
 
-        # L<<S06/"Optional parameters" /Missing optional arguments/>>
+        # L<<S06/Optional parameters/Missing optional arguments>>
         ok(!defined($baz), "unspecified optional param");
 
-        # L<<S06/"Named parameters" /Named parameters are optional/>>
+        # L<<S06/Named parameters/Named parameters are optional>>
         ok(!defined($quux), "unspecified optional param");
     }
 

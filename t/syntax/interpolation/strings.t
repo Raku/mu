@@ -6,7 +6,7 @@ use Test;
 
 =head1 String interpolation
 
-These tests derived from comments in L<"http://use.perl.org/~autrijus/journal/23398">
+These tests derived from comments in L<http://use.perl.org/~autrijus/journal/23398>
 
 =cut
 
@@ -28,10 +28,10 @@ is("Wont you take me to &func()", 'Wont you take me to func-y town', 'closure in
 is("2 + 2 = { 2+2 }", '2 + 2 = 4', 'double quoted closure interpolation works');
 is("&func() is where I live", 'func-y town is where I live', "make sure function interpolation doesn't eat all trailing whitespace");
 
-# L<S02/Names and Variables/form of each subscript/>
+# L<S02/Names and Variables/form of each subscript>
 is("&func. () is where I live", '&func. () is where I live', '"&func. ()" should not interpolate');
 is("&func_w_args("foo","bar"))", '[foo][bar])', '"&func_w_args(...)" should interpolate');
-# L<S02/"Literals" /"In order to interpolate the result of a method call">
+# L<S02/Literals/"In order to interpolate the result of a method call">
 is("$world.chars()", '5', 'method calls with parens should interpolate');
 is("$world.chars", 'World.chars', 'method calls without parens should not interpolate');
 is("$world.reverse.chars()", '5', 'cascade of argumentless methods, last ending in paren');
@@ -61,7 +61,7 @@ is('$world \qq[@list[]] %hash{}', '$world 1 2 %hash{}', "interpolate quoting con
 
 is(" \d[111] \d[107] ", ' o k ', "\\d[] respects whitespaces around it");
 
-# L<S02/"Literals" /separating the numbers with comma:/>
+# L<S02/Literals/separating the numbers with comma:>
 is("x  \x[41,42,43]  x",     "x  ABC  x",  "\\x[] allows multiple chars (1)");
 is("x  \x[41,42,00043]  x",  "x  ABC  x",  "\\x[] allows multiple chars (2)");
 is("x  \d[65,66,67]  x",     "x  ABC  x",  "\\d[] allows multiple chars (1)");

@@ -6,14 +6,14 @@ use Test;
 
 This tests the &?ROUTINE magical value
 
-L<S06/"The C<&?ROUTINE> object">
+L<S06/The C<&?ROUTINE> object>
 
 =cut
 
 plan 4;
 
-# L<S06/"The C<&?ROUTINE> object">
-# L<S02/"Names" /Which routine am I in/>
+# L<S06/The C<&?ROUTINE> object>
+# L<S02/Names/Which routine am I in>
 sub factorial { @_[0] < 2 ?? 1 !! @_[0] * &?ROUTINE(@_[0] - 1) }
 
 my $result1 = factorial(3);

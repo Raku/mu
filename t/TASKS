@@ -2,10 +2,3 @@ TASKS for the Pugs Test Suite
 
 * Update t/closure_traits/*.t to conform with the latest S04.
 * Remove :todo marks from the tests and make them failing (or use the todo functions)
-* Update the legacy smartlink syntax like
-    L<syn/sec /regex/>
-  or
-    L<<syn/sec /regex/>>
-  with the keyphrase version:
-    L<syn/sec/key phrases>
-  See t/README for more info.

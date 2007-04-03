@@ -4,7 +4,7 @@ use Test;
 
 plan 20;
 
-# L<S04/"The Relationship of Blocks and Declarations" /There is a new state declarator that introduces/>
+# L<S04/The Relationship of Blocks and Declarations/There is a new state declarator that introduces>
 
 # state() inside subs
 {
@@ -25,7 +25,7 @@ plan 20;
         # Note: The following line is only executed once, because it's equivalent
         # to
         #   state $svar will first { 42 };
-        # See L<S04/"Closure traits" /emantics to any initializer, so this also works/>
+        # See L<S04/Closure traits/emantics to any initializer, so this also works>
         state $svar = 42;
         my $ret = { $svar++ };
     };
@@ -81,7 +81,7 @@ plan 20;
 }
 
 # Anonymous state vars
-# L<"http://groups.google.de/group/perl.perl6.language/msg/07aefb88f5fc8429">
+# L<http://groups.google.de/group/perl.perl6.language/msg/07aefb88f5fc8429>
 {
     # XXX -- currently this is parsed as \&state()
     my $gen = eval '{ try { \state } }';
@@ -94,7 +94,7 @@ plan 20;
     is try { $$svar_ref }, 2, "anonymous state() vars", :todo<feature>;
 }
 
-# L<"http://www.nntp.perl.org/group/perl.perl6.language/20888">
+# L<http://www.nntp.perl.org/group/perl.perl6.language/20888>
 # ("Re: Declaration and definition of state() vars" from Larry)
 {
     my ($a, $b);

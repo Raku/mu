@@ -4,7 +4,7 @@ use Test;
 
 plan 58;
 
-# L<S02/"Names and Variables" /appropriate adverb to the subscript/>
+# L<S02/Names and Variables/appropriate adverb to the subscript>
 
 # Adverbs on array subscripts
 # :p

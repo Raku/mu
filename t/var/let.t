@@ -4,8 +4,8 @@ use Test;
 
 plan 11;
 
-# L<S04/"The Relationship of Blocks and Declarations" /There is also a let function/>
-# L<S04/"Definition of Success">
+# L<S04/The Relationship of Blocks and Declarations/There is also a let function>
+# L<S04/Definition of Success>
 # let() should not restore the variable if the block exited successfully
 # (returned a true value).
 {

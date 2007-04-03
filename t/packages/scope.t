@@ -4,11 +4,11 @@ use Test;
 
 # test that packages work.  Note that the correspondance between type
 # objects as obtained via the ::() syntax and packages is only hinted
-# at in L<S10/"Packages" /or use the sigil-like/>
+# at in L<S10/Packages/or use the sigil-like>
 plan 23;
 
 # 4 different ways to be imported
-# L<S10/"Packages" /A bare/>
+# L<S10/Packages/A bare>
 {
     package Test1 {
         sub ns  { "Test1" }
@@ -30,7 +30,7 @@ use t::packages::Test;
 # test that all the functions are in the right place
 
 # sanity test
-# L<S10/"Packages" /package for Perl 6 code/>
+# L<S10/Packages/package for Perl 6 code>
 is($?PACKAGE, "Main", 'The Main $?PACKAGE was not broken by any declarations');
 
 # block level

@@ -8,8 +8,8 @@ Basic tests for the ord() and chr() built-in.
 
 =cut
 
-# L<S29/"Conversions" /ord/>
-# L<S29/"Conversions" /chr/>
+# L<S29/Conversions/ord>
+# L<S29/Conversions/chr>
 
 # What is the best way to test 0 through 31??
 my @maps = (

@@ -71,7 +71,7 @@ Tests quoting constructs as defined in L<S02/Literals>
     is(@q[0], '$foo $bar', 'and did not interpolate either');
 };
 
-# L<S02/Literals /That is.*?\(\).*?have no special significance/>
+# L<S02/Literals/That is () have no special significance>
 # non interpolating single quotes with nested parens
 {
     my @q = ();
@@ -80,21 +80,21 @@ Tests quoting constructs as defined in L<S02/Literals>
     is(@q[0], '$foo $bar', 'and nests parens appropriately');
 };
 
-{ # non interpolating single quotes with nested parens L<S02/Literals /That is.*?\(\).*?have no special significance/>
+{ # non interpolating single quotes with nested parens L<S02/Literals/That is () have no special significance>
     my @q = ();
     @q = (q ( ($foo $bar)));
     is(+@q, 1, 'q () is singular');
     is(@q[0], ' ($foo $bar)', 'and nests parens appropriately');
 };
 
-{ # q() is bad L<S02/Literals /Which is mandatory for parens/>
+{ # q() is bad L<S02/Literals/Which is mandatory for parens>
     my @q;
     sub q { @_ }
     @q = q($foo,$bar);
     is(+@q, 2, 'q() is always sub call');
 };
 
-{ # adverb variation L<S02/Literals /:q/>
+{ # adverb variation L<S02/Literals/:q>
     my @q = ();
     @q = (q:q/$foo $bar/);
     is(+@q, 1, "q:q// is singular");
@@ -115,7 +115,7 @@ Tests quoting constructs as defined in L<S02/Literals>
     is(@q[0], '$foo $bar', 'and nests brackets appropriately');
 };
 
-{ # interpolating quotes L<S02/Literals /same as qq/>
+{ # interpolating quotes L<S02/Literals/same as qq>
     my @q = ();
         @q = qq/$foo $bar/;
     is(+@q, 1, 'qq// is singular');
@@ -129,14 +129,14 @@ Tests quoting constructs as defined in L<S02/Literals>
     is(@q[0], "FOO BAR", '"" interpolates');
 };
 
-{ # adverb variation L<S02/Literals /:qq/>
+{ # adverb variation L<S02/Literals/:qq>
     my @q = ();
     @q = q:qq/$foo $bar/;
     is(+@q, 1, "q:qq// is singular");
     is(@q[0], "FOO BAR", "blah blah interp");
 };
 
-{ # \qq[] constructs interpolate in q[] L<S02/Literals /using the \\qq/>
+{ # \qq[] constructs interpolate in q[] L<S02/Literals/using the \\qq>
     my( @q1, @q2, @q3, @q4 ) = ();
     @q1 = q[$foo \qq[$bar]];
     is(+@q1, 1, "q[...\\qq[...]...] is singular");
@@ -171,7 +171,7 @@ Tests quoting constructs as defined in L<S02/Literals>
     is(@q[1], '$bar', "...");
 };
 
-{ # angle brackets L<S02/Literals /the qw.*?quote operator.*?bracketed form/>
+{ # angle brackets L<S02/Literals/the qw quote operator bracketed form>
     my @q = ();
     @q = <$foo $bar>;
     is(+@q, 2, "<> behaves the same way");
@@ -179,7 +179,7 @@ Tests quoting constructs as defined in L<S02/Literals>
     is(@q[1], '$bar', '...');
 };
 
-{ # angle brackets L<S02/Literals /the qw.*?quote operator.*?bracketed form/>
+{ # angle brackets L<S02/Literals/the qw quote operator bracketed form>
     my @q = ();
     @q = < $foo $bar >;
     is(+@q, 2, "<> behaves the same way, with leading (and trailing) whitespace");
@@ -196,7 +196,7 @@ Tests quoting constructs as defined in L<S02/Literals>
 };
 
 { # whitespace sep aration does not break quote constructor 
-  # L<S02/Literals /Whitespace is allowed between the "q" and its adverb: q :w /..././>
+  # L<S02/Literals/Whitespace is allowed between the "q" and its adverb: q :w /.../.>
     my @q = ();
     @q = (q :w /$foo $bar/);
     is(+@q, 2, "q :w // is the same as q:w//");
@@ -206,7 +206,7 @@ Tests quoting constructs as defined in L<S02/Literals>
 
 
 { # qq:w,Interpolating quote constructor with words adverb 
-  # L<S02/Literals /"Split result on words (no quote protection)">
+  # L<S02/Literals/"Split result on words (no quote protection)">
     my (@q1, @q2) = ();
     @q1 = qq:w/$foo "gorch $bar"/;
     @q2 = qq:words/$foo "gorch $bar"/;
@@ -218,7 +218,7 @@ Tests quoting constructs as defined in L<S02/Literals>
     is(~@q2, 'FOO "gorch BAR"', "long form output is the same as the short");
 };
 
-{ # qq:ww, interpolating L<S02/Literals /double angles do interpolate/>
+{ # qq:ww, interpolating L<S02/Literals/double angles do interpolate>
   # L<S02/Literals/"implicit split" "shell-like fashion">
     my (@q1, @q2, @q3, @q4) = ();
     @q1 = qq:ww/$foo "gorch $bar"/;
@@ -246,7 +246,7 @@ Tests quoting constructs as defined in L<S02/Literals>
     ok(«$x $y» === <a b>, "«$x $y» interpolation works correctly");
 };
 
-{ # qw, interpolating, shell quoting L<S02/Literals /respects quotes in a shell-like fashion/>
+{ # qw, interpolating, shell quoting L<S02/Literals/respects quotes in a shell-like fashion>
     my (@q1, @q2) = ();
     my $gorch = "foo bar";
 
@@ -261,7 +261,7 @@ Tests quoting constructs as defined in L<S02/Literals>
     is(@q2[2], '$bar', 'single quoted $bar was not interpolated');
 };
 
-{ # qq:to L<S02/Literals /Heredocs are no longer written/>
+{ # qq:to L<S02/Literals/Heredocs are no longer written>
     my @q = ();
 
     @q = qq:to/FOO/;
@@ -275,7 +275,7 @@ FOO
     is(@q[0], "blah\nBAR\nblah\nFOO\n", "here doc interpolated");
 };
 
-{ # q:to indented L<S02/Literals /Here docs allow optional whitespace/>
+{ # q:to indented L<S02/Literals/Here docs allow optional whitespace>
     my @q = ();
 
     @q = q:to/FOO/;
@@ -297,7 +297,7 @@ FOO
         is(@q[0], "yoink\\n\nsplort\\n\n", "backslashes");
 }
 
-{ # q:n L<S02/Literals /No escapes at all/>
+{ # q:n L<S02/Literals/No escapes at all>
     my @q = ();
     
     my $backslash = "\\";
@@ -308,7 +308,7 @@ FOO
     is(@q[0], "foo\\\\bar\$foo", "special chars are meaningless"); # double quoting is to be more explicit
 };
 
-{ # q:n L<S02/Literals /No escapes at all/>
+{ # q:n L<S02/Literals/No escapes at all>
     my @q = ();
     
     my $backslash = "\\";
@@ -359,7 +359,7 @@ FOO
 }
 
 
-# L<S02/"Literals"/"for user-defined quotes">
+# L<S02/Literals/"for user-defined quotes">
 # q:to
 {
     my $t;

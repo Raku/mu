@@ -4,7 +4,7 @@ use Test;
 
 plan 4;
 
-# L<S04/"Exceptions" /The fail function/>
+# L<S04/Exceptions/The fail function>
 
 {
   # "use fatal" is not standard, so we don't have to disable it here

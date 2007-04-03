@@ -30,7 +30,7 @@ plan 11;
 my %Config; # Empty means there's no 'ebcdic' key defined...
 is('Config.pm', 'available', 'Config.pm availability', :todo<feature>);
 
-# L<S29/"Str" /quotemeta/>
+# L<S29/Str/quotemeta>
 
 is(quotemeta("HeLLo World-72_1"), "HeLLo\\ World\\-72_1", "simple quotemeta test");
 is(quotemeta(""), "", "empty string");

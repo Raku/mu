@@ -48,7 +48,7 @@ plan 18;
   ok !(try{ $result_of_sub2() }), '$CALLER::CALLER:: is recalculated on each access (2)';
 }
 
-# L<S02/"Names" /The CALLER package refers to the lexical scope/>
+# L<S02/Names/The CALLER package refers to the lexical scope>
 {
   # $_ is always implicitly declared "is context".
   my sub foo () { $CALLER::_ }

@@ -26,7 +26,7 @@ if (1) { # create a new lexical scope
 is($c, 2, '$c is available, and the outer value has been changed');
 
 # This next test is inconsistent with the spirit of S04 (5 May 2006).
-# L<S04/"The Relationship of Blocks and Declarations" /prior to the first declaration/>
+# L<S04/The Relationship of Blocks and Declarations/prior to the first declaration>
 # "If you've referred to $x prior to the first declaration, and the
 #  compiler tentatively bound it to $OUTER::x, then it's an error to
 #  declare it, and the compiler is allowed to complain at that point."

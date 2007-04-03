@@ -37,7 +37,7 @@ is((&foo.assuming:x(1):y(2))(), foo(1, 2), "same thing, but more pre colon");
 
 ok(!(try { &foo.assuming(f => 3) }), "can't curry nonexistent named param");
 
-# L<S06/"Currying" /The result of a use statement/>
+# L<S06/Currying/The result of a use statement>
 try {
 (eval('use t::packages::Test') // {}).assuming(arg1 => "foo");
 }

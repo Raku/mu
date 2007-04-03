@@ -6,11 +6,11 @@ plan 41;
 
 =pod
 
-Delegation tests from L<S12/"Delegation">
+Delegation tests from L<S12/Delegation>
 
 =cut
 
-# L<S12/"Delegation">
+# L<S12/Delegation>
 
 class Backend1 { method hi() { 42 } method cool() { 1337 } }
 class Backend2 { method hi() { 23 } method cool() {  539 } }
@@ -53,7 +53,7 @@ ok ReFrontend.new, "class definition using a smartmatch handle worked";
 }
 
 
-# L<S12/"Delegation" /If you say/>
+# L<S12/Delegation/If you say>
 class ClassFrontend { has $.backend is rw handles Backend2 };
 ok ClassFrontend.new, "class definition using a Class handle worked";
 {
@@ -67,7 +67,7 @@ ok ClassFrontend.new, "class definition using a Class handle worked";
 }
 
 
-# L<S12/"Delegation" /You can specify multiple method names:/>
+# L<S12/Delegation/You can specify multiple method names:>
 class MultiFrontend { has $.backend is rw handles <hi cool> }
 ok MultiFrontend.new, "class definition using multiple method names worked";
 {

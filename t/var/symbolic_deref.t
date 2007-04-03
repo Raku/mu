@@ -4,11 +4,11 @@ use Test;
 
 plan 22;
 
-# See L<"http://www.nntp.perl.org/group/perl.perl6.language/22858"> --
+# See L<http://www.nntp.perl.org/group/perl.perl6.language/22858> --
 # previously, "my $a; say $::("a")" died (you had to s/my/our/). Now, it was
 # re-specced to work.
 
-# L<S02/Names/Most symbolic references are done with this notation:/>
+# L<S02/Names/Most symbolic references are done with this notation:>
 {
   my $a_var = 42;
   my $b_var = "a_var";

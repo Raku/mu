@@ -7,7 +7,7 @@ plan 18;
 {
     my $capture = \(1,2,3);
     
-    # L<S03/Argument List Interpolating/explicitly flatten it in one of/>
+    # L<S03/Argument List Interpolating/explicitly flatten it in one of>
     my sub foo ($a, $b, $c) { "$a!$b!$c" }
     is try { &foo.callwith(|$capture) }, "1!2!3",
         "simply capture creation with \\( works (1)";
@@ -16,7 +16,7 @@ plan 18;
 {
     my $capture = \(1,2,3,'too','many','args');
     
-    # L<S03/Argument List Interpolating/explicitly flatten it in one of/>
+    # L<S03/Argument List Interpolating/explicitly flatten it in one of>
     my sub foo ($a, $b, $c) { "$a!$b!$c" }
     dies_ok { &foo.callwith(|$capture) },
         "simply capture creation with \\( works (2)";
@@ -25,7 +25,7 @@ plan 18;
 {
     my $capture = \(1, named => "arg");
     
-    # L<S03/Argument List Interpolating/explicitly flatten it in one of/>
+    # L<S03/Argument List Interpolating/explicitly flatten it in one of>
     my sub foo ($a, :$named) { "$a!$named" }
     is try { &foo.callwith(|$capture) }, "1!arg",
         "simply capture creation with \\( works (3)";
@@ -34,7 +34,7 @@ plan 18;
 {
     my $capture = try { \(1, 'positional' => "pair") };
     
-    # L<S03/Argument List Interpolating/explicitly flatten it in one of/>
+    # L<S03/Argument List Interpolating/explicitly flatten it in one of>
     my sub foo ($a, $pair) { "$a!$pair" }
     is try { &foo.callwith(|$capture) }, "1!positional\tpair",
         "simply capture creation with \\( works (4)";
@@ -44,13 +44,13 @@ plan 18;
     my @array   = <a b c>;
     my $capture = try { \(@array) };
 
-    # L<S03/Argument List Interpolating/explicitly flatten it in one of/>
+    # L<S03/Argument List Interpolating/explicitly flatten it in one of>
     my sub foo (@arr) { ~@arr }
     is try { &foo.callwith(|$capture) }, "a b c",
         "capture creation with \\( works";
 }
 
-# L<S06/"Argument list binding" /single scalar parameter marked/>
+# L<S06/Argument list binding/single scalar parameter marked>
 {
     my sub bar ($a, $b, $c) { "$a!$b!$c" }
     my sub foo (|$capture)  { &bar.callwith(|$capture) }

@@ -8,7 +8,7 @@ Test for the C<nothing> builtin.
 
 =cut
 
-# L<S29/Context/=item nothing/>
+# L<S29/Context/=item nothing>
 
 plan 2;
 

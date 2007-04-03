@@ -6,12 +6,12 @@ plan 31;
 
 =pod
 
-Parameterized role tests, see L<S12/"Roles">
+Parameterized role tests, see L<S12/Roles>
 
 =cut
 
-# L<S12/"Roles" /to be considered part of the long name:/>
-# L<A12/"Encapsulated Attributes" /to be considered part of the long name:/>
+# L<S12/Roles/to be considered part of the long name:>
+# L<A12/Encapsulated Attributes/to be considered part of the long name:>
 ok eval('
   role InitialAttribVal[: $val] {
     has $.attr = $val;
@@ -24,12 +24,12 @@ ok eval('$a does InitialAttribVal[42]'),
   "imperative does to apply a parametrized role (1)", :todo<feature>;
 is try { $a.attr }, 42,
   "attribute was initialized correctly (1)", :todo<feature>;
-# L<A12/"Encapsulated Attributes" /In which case all of these are true:/>
+# L<A12/Encapsulated Attributes/In which case all of these are true:>
 ok eval('$a.HOW.does(InitialAttribVal)'),
   ".HOW.does gives correct information (1-1)", :todo<feature>;
 ok eval('$a.^does(InitialAttribVal)'),
   ".^does gives correct information (1-1)", :todo<feature>;
-# L<A12/"Encapsulated Attributes" /but this is false:/>
+# L<A12/Encapsulated Attributes/but this is false:>
 ok eval('!$a.HOW.does(InitialAttribVal[42])'),
   ".HOW.does gives correct information (1-2)", :todo<feature>;
 ok eval('!$a.^does(InitialAttribVal[42])'),
@@ -40,12 +40,12 @@ ok eval('$a does InitialAttribVal[23]'),
   "imperative does to apply a parametrized role (2)", :todo<feature>;
 is try { $a.attr }, 23,
   "attribute was initialized correctly (2)", :todo<feature>;
-# L<A12/"Encapsulated Attributes" /In which case all of these are true:/>
+# L<A12/Encapsulated Attributes/In which case all of these are true:>
 ok eval('$a.HOW.does(InitialAttribVal)'),
   ".HOW.does gives correct information (2-1)", :todo<feature>;
 ok eval('$a.^does(InitialAttribVal)'),
   ".^does gives correct information (2-1)", :todo<feature>;
-# L<A12/"Encapsulated Attributes" /but this is false:/>
+# L<A12/Encapsulated Attributes/but this is false:>
 ok eval('!$a.HOW.does(InitialAttribVal[23])'),
   ".HOW.does gives correct information (2-2)", :todo<feature>;
 ok eval('!$a.^does(InitialAttribVal[23])'),
@@ -53,8 +53,8 @@ ok eval('!$a.^does(InitialAttribVal[23])'),
 
 
 
-# L<A12/"Parametric types" /but you can also parameterize other types explicitly:/>
-# L<S12/"Roles" /A role's main type is generic by default/>
+# L<A12/Parametric types/but you can also parameterize other types explicitly:>
+# L<S12/Roles/A role's main type is generic by default>
 ok eval('
   role InitialAttribType[^vartype:] {
     method hi(vartype $foo) { 42 }

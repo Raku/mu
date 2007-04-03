@@ -4,7 +4,7 @@ use Test;
 
 plan 11;
 
-# L<S29/"Str" /lc/>
+# L<S29/Str/lc>
 
 is(lc("hello world"), "hello world", "lowercasing string which is already lowercase");
 is(lc("Hello World"), "hello world", "simple lc test");

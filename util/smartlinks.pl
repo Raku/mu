@@ -230,9 +230,6 @@ sub emit_pod ($) {
 # convert patterns used in smartlinks to perl 5 regexes
 sub parse_pattern ($) {
     my $pat = shift;
-    if ($pat =~ m{^/(.*)/}) {
-        return $1;
-    }
     my @keys;
     while (1) {
         if ($pat =~ /\G\s*"([^"]+)"/gc ||
@@ -828,13 +825,12 @@ or without quotes:
 Try running 'grep -r "L<" t/' to see some examples, or look at
 t/syntax/comments.t.
 
-There're also some legacy smartlinks using the following syntax:
+There were also some legacy smartlinks using the following syntax:
 
    L<S04/"section name" /regex/>
    L<<S04/"section name" /regex/>>
 
-They're also supported by util/smartlinks.pl for backward-compatibility,
-but are definitely deprecated now.
+They're no longer supported by util/smartlinks.pl. Use the current syntax.
 
 =head1 Basic Algorithm
 

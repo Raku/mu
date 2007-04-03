@@ -12,7 +12,8 @@ L<S06/""Pointy blocks"">
 
 =cut
 
-# L<S06/""Pointy blocks""/the parameter list of a pointy block does not require parenthese/>
+# L<S06/""Pointy blocks""/the parameter list of a pointy block does not
+# require parentheses>
 my ($sub, $got);
 
 $got = '';
@@ -37,7 +38,7 @@ $got = '';
 is $got, 'x 123', 'called pointy immediately: -> $x { ... }(...)';
 
 
-# L<S04/Statement-ending blocks /End-of-statement cannot occur within a bracketed expression/>
+# L<S04/Statement-ending blocks/End-of-statement cannot occur within a bracketed expression>
 my @a;
 ok eval('@a = ("one", -> $x { $x**2 }, "three")'), 
         'pointy sub without preceding comma';
@@ -46,7 +47,7 @@ isa_ok @a[1], 'Code', 'pointy sub in list';
 is @a[2], 'three', 'pointy sub in list following argument';
 
 
-# L<S06/""Pointy blocks"" /behaves like a block with respect to control exceptions/>
+# L<S06/""Pointy blocks""/behaves like a block with respect to control exceptions>
 my $n = 1;
 my $s = -> { 
     last if $n == 10;
@@ -57,7 +58,7 @@ try { $s.() };
 is($!, undef, 'pointy with block control exceptions', :todo<feature>);
 is $n, 10, "pointy control exceptions ran", :todo<feature>;
 
-# L<S06/""Pointy blocks"" /will return from the innermost enclosing sub or method>
+# L<S06/""Pointy blocks""/will return from the innermost enclosing sub or method>
 my $str = '';
 
 sub outer {  
@@ -78,5 +79,5 @@ is $str, 'inner', 'return in pointy returns from enclosing sub';
 # What about nested pointies -> { ... -> {} }?
 
 
-# L<S06/""Pointy blocks"" /It is referenced/>
+# L<S06/""Pointy blocks""/It is referenced>
 # Coming soon...

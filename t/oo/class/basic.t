@@ -6,11 +6,11 @@ plan 21;
 
 =pod
 
-Very basic class tests from L<S12/"Classes">
+Very basic class tests from L<S12/Classes>
 
 =cut
 
-# L<S12/"Classes">
+# L<S12/Classes>
 class Foo {}
 
 my $foo = Foo.new();
@@ -36,7 +36,7 @@ ok($foo_bar.isa(Foo::Bar), '.isa(Foo::Bar)');
 ok(!$foo_bar.isa(::Foo), '!Foo::Bar.new.isa(::Foo)');
 
 
-# L<S12/"Classes" /An \"isa\" is just a trait that happens to be another class\:/>
+# L<S12/Classes/An isa is just a trait that happens to be another class>
 class Bar is Foo {}
 
 ok(Bar ~~ Foo, '... smartmatch our Bar to the Foo class');

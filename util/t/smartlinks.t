@@ -11,7 +11,7 @@ require "$FindBin::Bin/../smartlinks.pl";
 # Test sub parse_pattern
 {
     my $got = parse_pattern('/abc .* C<cd>/');
-    is $got, 'abc .* C<cd>', 'legacy regex pattern works';
+    isnt $got, 'abc .* C<cd>', 'legacy regex pattern no longer works';
 
     $got = parse_pattern(q{'abc' '"123"' 567});
     is $got, '\babc\b.+?\"123\".+?\b567\b', 'keyphrase pattern works';

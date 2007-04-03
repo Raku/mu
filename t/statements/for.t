@@ -9,7 +9,7 @@ Tests the "for" statement
 This attempts to test as many variations of the
 for statement as possible
 
-L<S04/"The C<for> statement">
+L<S04/The C<for> statement>
 
 =cut
 
@@ -33,14 +33,14 @@ plan 41;
 }
 
 ## for with plain old range operator w/out parens
-# L<S04/"The C<for> statement"/always takes a list as an argument>
+# L<S04/The C<for> statement/always takes a list as an argument>
 
 my $a;
 for 0 .. 5 { $a = $a ~ $_; };
 is($a, '012345', 'for 0..5 {} works');
 
 # ... with 'pointer'
-# L<S04/"The C<for> statement" /to the closure:/>
+# L<S04/The C<for> statement/to the closure:>
 
 my $b;
 for 0 .. 5 -> $_ { $b = $b ~ $_; };

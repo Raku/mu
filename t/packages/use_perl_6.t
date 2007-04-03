@@ -1,6 +1,6 @@
 use v6-alpha;
 
-# L<S11/"Versioning" /which is short for/>
+# L<S11/Versioning/which is short for>
 
 use Perl-6;
 use Test;

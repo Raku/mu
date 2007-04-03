@@ -8,11 +8,11 @@ use Test;
 
 These tests are the testing for "List paameters" section of Synopsis 06
 
-L<<S06/"List parameters" /Slurpy parameters follow.*?:/>>
+L<<S06/List parameters/Slurpy parameters follow any required>>
 
 You might also be interested in the thread Calling positionals by name in
 presence of a slurpy hash" on p6l started by Ingo
-Blechschmidt L<"http://www.nntp.perl.org/group/perl.perl6.language/22883">
+Blechschmidt L<http://www.nntp.perl.org/group/perl.perl6.language/22883>
 
 =cut
 
@@ -130,7 +130,7 @@ dies_ok { foo 1, x => 20, y => 300, 4000 },
 
 These tests are the testing for "List paameters" section of Synopsis 06
 
-L<<S06/"List parameters" /Slurpy scalar parameters capture what would otherwise be the first elements of the variadic array:/>>
+L<<S06/List parameters/Slurpy scalar parameters capture what would otherwise be the first elements of the variadic array:>>
 
 =cut
 

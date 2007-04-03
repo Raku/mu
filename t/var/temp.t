@@ -4,7 +4,7 @@ use Test;
 
 plan 31;
 
-# L<S04/"The Relationship of Blocks and Declarations" /function has been renamed/>
+# L<S04/The Relationship of Blocks and Declarations/function has been renamed>
 {
   my $a = 42;
   {
@@ -105,7 +105,7 @@ eval('
 ') or skip(2, "parsefail: temp \$struct[1]<key>[1]");
 
 # Block TEMP{}
-# L<S06/"Temporization" /You can also modify the behaviour of temporized code structures/>
+# L<S06/Temporization/You can also modify the behaviour of temporized code structures>
 # (Test is more or less directly from S06.)
 {
   my $next    = 0;
@@ -148,7 +148,7 @@ eval('
 
 # Following are OO tests, but I think they fit better in var/temp.t than in
 # oo/.
-# L<S06/"Temporization" /temp invokes its argument's .TEMP method./>
+# L<S06/Temporization/temp invokes its argument's .TEMP method.>
 {
   my $was_in_own_temp_handler = 0;
 

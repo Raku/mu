@@ -4,13 +4,13 @@ use Test;
 
 plan 33;
 
-# L<S02/"Names" /names are reserved in the first position/>
+# L<S02/Names/names are reserved in the first position>
 ok !eval('module MY;     1'), "MY is an out of scope name";
 ok !eval('module OUTER;  1'), "OUTER is an out of scope name";
 ok !eval('module CALLER; 1'), "CALLER is an out of scope name";
 
 
-# L<S04/"The Relationship of Blocks and Declarations">
+# L<S04/The Relationship of Blocks and Declarations>
 ok eval('my $x; my $x; 1'),       'it is legal to declare $x twice in the same scope.';
 ok eval('state $x; state $x; 1'), 'it is legal to declare $x twice in the same scope.';
 
