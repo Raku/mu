@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 # This program determines the revision (number) that has been checked out. It
-# then sets the version inside src/Pugs/pugs_version.sh to the revision
+# then sets the version inside src/Pugs/pugs_version.h to the revision
 # number. Call it like so:
 #   util/version_h.pl src/Pugs/pugs_version.h
 # It currently works when you have checked out the pugs project with SVN or
