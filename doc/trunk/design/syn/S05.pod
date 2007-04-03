@@ -110,11 +110,11 @@ quantifies the whole string and would match "moosemoose".
 
 Here is a table that summarizes the distinctions:
 
-                Alphanumerics        Non-alphanumerics         Mixed
+                 Alphanumerics        Non-alphanumerics         Mixed
 
-Literal glyphs   a    1    _        \*  \$  \.   \\   \'       K\-9\!
-Metasyntax      \a   \1   \_         *   $   .    \    '      \K-\9!
-Quoted glyphs   'a'  '1'  '_'       '*' '$' '.' '\\' '\''     'K-9!'
+ Literal glyphs   a    1    _        \*  \$  \.   \\   \'       K\-9\!
+ Metasyntax      \a   \1   \_         *   $   .    \    '      \K-\9!
+ Quoted glyphs   'a'  '1'  '_'       '*' '$' '.' '\\' '\''     'K-9!'
 
 In other words, identifier glyphs are literal (or metasyntactic when
 escaped), non-identifier glyphs are metasyntactic (or literal when
