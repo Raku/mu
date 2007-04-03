@@ -695,6 +695,8 @@ op1 "Class::traits" = \v -> do
     str     <- fromVal =<< fetch "is"
     return str
 op1 "vv" = op1Cast VV
+op1 "stat" = \x -> opPerl5 "require File::stat; File::stat::stat" [x]
+op1 "lstat" = \x -> opPerl5 "require File::stat; File::stat::lstat" [x]
 
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 
@@ -2113,6 +2115,8 @@ initSyms = seq (length syms) $ do
 \\n   Str       pre     chr     safe   (Int)\
 \\n   Int       pre     ord     safe   (Str)\
 \\n   Str       pre     oct     safe   (Str)\
+\\n   Object    pre     stat    unsafe  (Str)\
+\\n   Object    pre     lstat   unsafe  (Str)\
 \\n   Int       pre     from    safe   (Match)\
 \\n   Int       pre     to      safe   (Match)\
 \\n   List      pre     matches safe   (Match)\
