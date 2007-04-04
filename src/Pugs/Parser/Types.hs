@@ -2,11 +2,13 @@
 
 module Pugs.Parser.Types (
     RuleParser, RuleState(..), CharClass(..),
-    DynParsers(..), ParensOption(..), FormalsOption(..), BracketLevel(..),
+    DynParsers(..), ParensOption(..), FormalsOption(..), BracketLevel(..), OuterLevel,
+    BlockInfo(..), emptyBlockInfo,
+
     RuleOperator, RuleOperatorTable,
     getRuleEnv, modifyRuleEnv, putRuleEnv, insertIntoPosition,
     clearDynParsers, enterBracketLevel, getCurrCharClass, charClassOf,
-    addBlockPad, popClosureTrait, addClosureTrait, addOuterVar,
+    addBlockPad, popClosureTrait, addClosureTrait,
     -- Alternate Char implementations that keeps track of s_charClass
     satisfy, string, oneOf, noneOf, char, hexDigit, octDigit,
     digit, upper, anyChar, expRule, parserWarn, mkPos,
@@ -22,6 +24,16 @@ import Text.ParserCombinators.Parsec.Pos
 import Debug.Trace
 import qualified Data.Map as Map
 import qualified Data.Set as Set
+
+data BlockInfo = MkBlockInfo
+    { bi_pad    :: !Pad
+    , bi_traits :: !(TraitBlocks -> TraitBlocks)
+    , bi_body   :: !Exp
+    }
+
+emptyBlockInfo :: BlockInfo
+emptyBlockInfo = MkBlockInfo emptyPad id emptyExp
+
 
 {-# INLINE satisfy #-}
 satisfy :: (Char -> Bool) -> RuleParser Char
@@ -119,24 +131,27 @@ data DynParsers = MkDynParsersEmpty | MkDynParsers
     , dynParsePrePost  :: !(RuleParser String)
     }
 
+type OuterLevel = Int
+
 {-|
 State object that gets passed around during the parsing process.
 -}
 data RuleState = MkState
     { s_env           :: Env
     , s_parseProgram  :: (Env -> FilePath -> String -> Env)
-    , s_dynParsers    :: DynParsers     -- ^ Cache for dynamically-generated
-                                        --     parsers
-    , s_bracketLevel  :: !BracketLevel  -- ^ The kind of "bracket" we are in
-                                        --     part and has to suppress {..} literals
---  , s_char          :: Char           -- ^ What the previous character contains
---  , s_name          :: !ID            -- ^ Capture name
---  , s_pos           :: !Int           -- ^ Capture position
-    , s_wsLine        :: !Line          -- ^ Last whitespace position
-    , s_wsColumn      :: !Column        -- ^ Last whitespace position
-    , s_blockPads     :: Map Scope Pad  -- ^ Hoisted pad for this block
-    , s_outerVars     :: Set Var        -- ^ OUTER symbols we remembers
-                                       
+    , s_dynParsers    :: DynParsers         -- ^ Cache for dynamically-generated
+                                            --     parsers
+    , s_bracketLevel  :: !BracketLevel      -- ^ The kind of "bracket" we are in
+                                            --     part and has to suppress {..} literals
+--  , s_char          :: Char               -- ^ What the previous character contains
+--  , s_name          :: !ID                -- ^ Capture name
+--  , s_pos           :: !Int               -- ^ Capture position
+    , s_wsLine        :: !Line              -- ^ Last whitespace position
+    , s_wsColumn      :: !Column            -- ^ Last whitespace position
+--  , s_blockPads     :: Map Scope Pad      -- ^ Hoisted pad for this block
+    , s_knownVars     :: !(Map Var MPad)        -- ^ Map from variables to its associated scope
+    , s_freeVars      :: !(Set (Var, LexPads))  -- ^ Set of free vars and the mpadlist to check with
+    , s_protoPad      :: !Pad                   -- ^ Pad that's part of all scopes; used in param init
     , s_closureTraits :: [TraitBlocks -> TraitBlocks]
                                        -- ^ Closure traits: head is this block, tail is all outer blocks
     }
@@ -161,6 +176,9 @@ data ParensOption = ParensMandatory | ParensOptional
 
 data FormalsOption = FormalsSimple | FormalsComplex
     deriving (Show, Eq)
+
+instance MonadSTM RuleParser where
+    liftSTM x = return $! unsafePerformSTM x
 
 instance MonadReader Env RuleParser where
     ask = getRuleEnv
@@ -228,16 +246,28 @@ modifyRuleEnv f = modify $ \state -> state{ s_env = f (s_env state) }
 {-|
 Update the 's_blockPads' in the parser's state by applying a transformation function.
 -}
-addBlockPad :: Scope -> Pad -> RuleParser ()
-addBlockPad scope pad = do
-    -- First we check that our pad does not contain shadows OUTER symbols.
+addBlockPad :: Pad -> RuleParser ()
+addBlockPad pad = do
+    -- To add a Pad to the COMPILING block, we do two things:
+    -- First, we check that our pad does not contain shadowed OUTER symbols.
+    -- XXX TODO: it should be fine for two identical padEntry to shadow each other,
+    --     as is the case with { our multi f () {}; { &f(); our multi f ($x) {} } }.
     state <- get
-    let dupSyms = padKeys pad `Set.intersection` s_outerVars state
-    unless (Set.null dupSyms) $ do
+    let myVars          = padKeys pad
+        dupVars         = myVars `Set.intersection` Map.keysSet outerKnownVars
+        outerKnownVars  = Map.filter (/= compPad) (s_knownVars state)
+        Just compPad    = envCompPad (s_env state)
+
+    unless (Set.null dupVars) $ do
         fail $ "Redeclaration of "
-            ++ unwords (map show (Set.elems dupSyms))
+            ++ unwords (map show (Set.elems dupVars))
             ++ " conflicts with earlier OUTER references in the same scope"
-    put state{ s_blockPads = Map.insertWith unionPads scope pad (s_blockPads state) }
+
+    -- Then we merge the Pad into COMPILING, and add those vars into s_knownVars.
+    ()  <- stm $ modifyTVar compPad (`unionPads` pad)
+
+    let myKnownVars = Map.fromDistinctAscList [ (var, compPad) | var <- Set.toAscList myVars ]
+    put state{ s_knownVars = s_knownVars state `Map.union` myKnownVars }
 
 popClosureTrait :: RuleParser ()
 popClosureTrait = do
@@ -279,12 +309,6 @@ addClosureTrait name code = do
         "POST"      -> block{ subPostBlocks = trait:subPostBlocks block }
         "FIRST"     -> block{ subFirstBlocks = subFirstBlocks block ++ [trait] }
         _           -> trace ("Wrong closure trait name: "++name) block
-{-|
-Update the 's_outerVars' in the parser's state by applying a transformation function.
--}
-addOuterVar :: Var -> RuleParser ()
-addOuterVar var = modify $ \state ->
-    state{ s_outerVars = Set.insert var (s_outerVars state) }
 
 {-|
 Replace the 'Pugs.AST.Internals.Env' in the parser's state with a new one.

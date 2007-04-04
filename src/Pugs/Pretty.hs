@@ -46,7 +46,6 @@ instance Pretty Exp where
     format (App (Var name) invs args) = text "App" <+> text (cast name) <+> parens (nest defaultIndent $ cat (punctuate (text ": ") [ cat (punctuate (text ", ") (map format x)) | x <- [maybeToList invs, args] ]))
     format (App sub invs args) = text "App" <+> parens (format sub) <+> parens (nest defaultIndent $ vcat (punctuate (text ", ") (map format $ maybeToList invs ++ args)))
     format (Sym scope name flags init exp) = text "Sym" <+> text (show scope) <+> format name <+> format flags <+> format init $+$ format exp
-    format (Pad scope pad exp) = text "Pad" <+> text (show scope) <+> format pad $+$ format exp
     format (Ann _ exp) = format exp
     format x = text $ show x
     formatQuite (Syn "," xs) = parens (formatQuite xs)
@@ -134,6 +133,9 @@ instance Pretty VList where
         | not . null . (drop 100) $ xs = parens $ (format (head xs) <+> text ", ...")
         | otherwise = parens $ (joinList $ text ", ") (map format xs)
 
+instance Pretty Params where
+    format = text . show . paramsToSig
+
 instance Pretty VHash where
     format x = cat
         [ text "{"
@@ -176,7 +178,7 @@ instance Pretty Val where
 -}
     format (VRef x) = format x
     format (VList x) = format x
-    format (VCode x) = (<> braces (format $ subBody x)) . text $ case subType x of
+    format (VCode x) = (<> braces (format $ subBody x)) . (<+> format (subInnerPad x)) . (<> format (subParams x)) . text $ case subType x of
         SubMacro        -> "macro "
         SubRoutine      -> "sub "
         SubMethod       -> "method "

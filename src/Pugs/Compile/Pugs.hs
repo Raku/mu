@@ -57,8 +57,6 @@ instance Compile Exp where
         compWith "Syn" [ret (show syn), compile exps]
     compile (Ann ann exp) = do
         compWith "Ann" [ret (show ann), compile exp]
-    compile (Pad scope pad exp) = do
-        compWith "Pad" [ret (show scope), compile pad, compile exp]
     compile (Stmts exp1 exp2) = do
         compWith "Stmts" [compile exp1, compile exp2]
     compile (Val val) = do
@@ -135,7 +133,7 @@ instance (Typeable a, Compile a) => Compile (TVar a) where
 instance Compile PadEntry where
     compile c@PEConstant{} = return $ Str.pack (show c)
     compile (PEStatic typ ref flags tv) = compWith "PEStatic" [compile typ, compile ref, ret (show flags), compile tv]
-    compile (PELexical typ ref flags tv fresh) = compWith "PELexical" [compile typ, compile ref, ret (show flags), compile tv, compile fresh]
+    compile (PELexical typ ref flags tv) = compWith "PELexical" [compile typ, compile ref, ret (show flags), compile tv]
 
 instance Compile VRef where
     compile (MkRef (ICode cv))
@@ -180,7 +178,9 @@ instance Compile VCode where
     -- compile MkCode{ subBody = Prim _ } = return $ text "return mkPrim"
     compile MkCode{ subBody = Prim _ } = return Str.empty
     -- XXX - Ew. This signature can't be right.
-    compile (MkCode v1 v2 v3 _ v4 v5 v6 v7 v8 v9 v10 _ _) = do
+    compile _ = error "XXX"
+    {-do 
+     -(MkCode v1 v2 v3 _ v4 v5 v6 v7 v8 v9 v10 _ _ _ _ _ _ _ _ _ _ _ _)
         compWith "MkCode"
             [ compile v1
             , ret (show v2)
@@ -195,6 +195,7 @@ instance Compile VCode where
             , compile v10
             , ret "Nothing"
             ]
+    -}
 
 genPugs :: Eval Val
 genPugs = do

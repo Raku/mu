@@ -98,19 +98,30 @@ detectSourceEncoding bytes = case bytes of
 
 makeState :: Env -> RuleState
 makeState env = MkState
-    { s_env           = env
-    , s_parseProgram  = parseProgram
-    , s_dynParsers    = MkDynParsersEmpty
-    , s_bracketLevel  = StatementBracket
---  , s_char          = ' '
---  , s_name          = nullID
---  , s_pos           = 0
-    , s_wsLine        = 0
-    , s_wsColumn      = 0
-    , s_blockPads     = Map.empty
-    , s_closureTraits = [id]
-    , s_outerVars     = Set.empty
+    { s_env             = env
+    , s_parseProgram    = parseProgram
+    , s_dynParsers      = MkDynParsersEmpty
+    , s_bracketLevel    = StatementBracket
+--  , s_char            = ' '
+--  , s_name            = nullID
+--  , s_pos             = 0
+    , s_wsLine          = 0
+    , s_wsColumn        = 0
+    , s_closureTraits   = [id]
+    , s_freeVars        = Set.empty
+    , s_knownVars       = Map.empty
+    , s_protoPad        = emptyPad
     }
+
+-- XXX - Pending clarification about those 3 -- are they routine-implicit or block-implicit?
+{-
+protoPad :: Pad
+protoPad = mkPad
+    [ (cast "$_", PELexical
+    , (cast "$/",
+    , (cast "$!", 
+    ]
+-}
 
 runRule :: Env -> RuleParser Env -> FilePath -> String -> Env
 runRule env p name str =
@@ -152,8 +163,15 @@ showErr err =
 
 ruleProgram :: RuleParser Env
 ruleProgram = rule "program" $ do
-    env <- getRuleEnv
-    statements <- ruleBlockBody
+    env     <- getRuleEnv
+
+    topPad  <- genParamEntries SubRoutine [defaultArrayParam]
+    modify $ \s -> s{ s_protoPad = topPad }
+
+    block   <- ruleBlockBody
+    main    <- retVerbatimBlock SubPointy Nothing False $
+        block{ bi_body = mergeStmts emptyExp $ bi_body block }
+
     -- error $ show statements
     eof
     -- S04: CHECK {...}*      at compile time, ALAP
@@ -171,7 +189,7 @@ ruleProgram = rule "program" $ do
     possiblyExit rv
     env' <- getRuleEnv
     return $ env'
-        { envBody       = mergeStmts emptyExp statements
+        { envBody       = App main Nothing [] -- _Var "@*ARGS"]
         , envPackage    = envPackage env
         }
 

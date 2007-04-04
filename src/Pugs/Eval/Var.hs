@@ -64,11 +64,18 @@ findVarRef var@MkVar{ v_sigil = sig, v_twigil = twi, v_name = name, v_package = 
             --      should we allow writes?
             Nothing -> lookupShellEnvironment (cast name)
 
-    | Just var' <- dropVarPkg (__"OUTER") var = do
-        maybeOuter <- asks envOuter
-        case maybeOuter of
-            Just env -> local (const env) $ findVarRef var'
-            Nothing -> die "cannot access OUTER:: in top level" name
+    | Just var' <- dropVarPkg (__"OUTER") var = ($ var') . fix $ \outerLevel v -> do
+        mpads <- asks envLexPads
+        case mpads of
+            (_:outers@(outer:_))  -> local (\env -> env{ envLexPads = outers }) $ do
+                case dropVarPkg (__"OUTER") v of
+                    Just v' -> outerLevel v'
+                    _       -> do
+                        pad <- case outer of
+                            PRuntime p  -> return p
+                            PCompiling p-> stm $ readTVar p
+                        return (lookupPad v pad)
+            _       -> die "cannot access OUTER:: in top level" name
 
     | pkg /= emptyPkg = doFindVarRef var
 
@@ -472,7 +479,6 @@ inferExpType (App (Var name) invs args) = do
     return (either (const anyType) subReturns sub)
 inferExpType (Ann (Cxt cxt) _) | typeOfCxt cxt /= (mkType "Any") = return $ typeOfCxt cxt
 inferExpType (Ann _ exp) = inferExpType exp
-inferExpType (Pad _ _ exp) = inferExpType exp
 inferExpType (Sym _ _ _ _ exp) = inferExpType exp
 inferExpType (Stmts _ exp) = inferExpType exp
 inferExpType (Syn "," _)    = return $ mkType "List"
@@ -547,12 +553,8 @@ findCodeSyms :: Var -> Eval [VCode]
 findCodeSyms var
     | isGlobalVar var    = findWith findGlobal
     | isQualifiedVar var = case dropVarPkg (__"OUTER") var of
-        Just var' -> do
-            maybeOuter <- asks envOuter
-            case maybeOuter of
-                Just env -> local (const env) $ findCodeSyms var'
-                Nothing  -> return []
-        _              -> findWith findQualified
+        Just var'       -> die "outer - not yet implemented" var'
+        _               -> findWith findQualified
     | otherwise          = do
         rv <- findWith findLexical
         if null rv then findWith findPackage else return rv

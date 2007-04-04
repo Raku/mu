@@ -82,7 +82,8 @@ possiblyApplyMacro app@(App (Var name) invs args) = do
         = do
             -- The vcode is a macro! Apply it and substitute its return value.
             ret <- unsafeEvalExp $! App (Val $ VCode vcode{ subType = SubRoutine }) invs args
-            local (maybe id const (subEnv vcode)) $ substMacroResult ret
+            -- local (maybe id const (subEnv vcode)) $ 
+            substMacroResult ret
         | otherwise
         = return app
     {-# NOINLINE substMacroResult #-}
@@ -91,7 +92,7 @@ possiblyApplyMacro app@(App (Var name) invs args) = do
     substMacroResult (Val (VObject o)) | objType o == mkType "Code::Exp" = do
         return $! fromObject o
     -- A Str should be (re)parsed.
-    substMacroResult (Val (VStr code)) = localEnv $ do
+    substMacroResult (Val (VStr code)) = fmap bi_body . localBlock $ do
         parseProgram <- gets s_parseProgram
         env          <- ask
         pos          <- getPosition

@@ -10,12 +10,14 @@ module Pugs.AST.Internals (
     InitDat(..),
     SubAssoc(..), TraitBlocks(..), emptyTraitBlocks,
 
-    Pad(..), PadEntry(..), EntryFlags(..), PadMutator, -- uses Var, TVar, VRef
+    MPad, LexPad(..), LexPads, Pad(..), PadEntry(..), EntryFlags(..), PadMutator, -- uses Var, TVar, VRef
     Param(..), -- uses Cxt, Exp
     Params, -- uses Param
     Bindings, -- uses Param, Exp
     SlurpLimit, -- VInt, Exp
     
+    emptyPad,
+
     VRef(..), -- uses IVar
     VOpaque(..), -- uses Value
     VControl(..), -- uses Env, Eval, Val
@@ -1022,20 +1024,26 @@ instance Monoid SubAssoc where
     mappend ANil y = y
     mappend x    _ = x
 
+type MPad = TVar Pad
+
 -- | Represents a sub, method, closure etc. -- basically anything callable.
 data VCode = MkCode
-    { isMulti           :: !Bool        -- ^ Is this a multi sub\/method?
-    , subName           :: !ByteString  -- ^ Name of the closure
-    , subType           :: !SubType     -- ^ Type of the closure
-    , subEnv            :: !(Maybe Env) -- ^ Lexical pad for sub\/method
-    , subAssoc          :: !SubAssoc    -- ^ Associativity
-    , subParams         :: !Params      -- ^ Parameters list
-    , subBindings       :: !Bindings    -- ^ Currently assumed bindings
-    , subSlurpLimit     :: !SlurpLimit  -- ^ Max. number of slurpy arguments
-    , subReturns        :: !Type        -- ^ Return type
-    , subLValue         :: !Bool        -- ^ Is this a lvalue sub?
-    , subBody           :: !Exp         -- ^ Body of the closure
+    { isMulti           :: !Bool                  -- ^ Is this a multi sub\/method?
+    , subName           :: !ByteString            -- ^ Name of the closure
+    , subType           :: !SubType               -- ^ Type of the closure
+    , subOuterPads      :: !LexPads               -- ^ Lexical pads for this scope
+    , subInnerPad       :: !Pad                   -- ^ Inner lexical pad (immutable)
+    , subLexical        :: !Pad                   -- ^ Cached merged pads
+    , subPackage        :: !Pkg                   -- ^ Package of the subroutine
+    , subAssoc          :: !SubAssoc              -- ^ Associativity
+    , subParams         :: !Params                -- ^ Parameters list
+    , subBindings       :: !Bindings              -- ^ Currently assumed bindings
+    , subSlurpLimit     :: !SlurpLimit            -- ^ Max. number of slurpy arguments
+    , subReturns        :: !Type                  -- ^ Return type
+    , subLValue         :: !Bool                  -- ^ Is this a lvalue sub?
+    , subBody           :: !Exp                   -- ^ Body of the closure
     , subCont           :: !(Maybe (TVar VThunk)) -- ^ Coroutine re-entry point
+    , subStarted        :: !(Maybe (TVar Bool))   -- ^ Whether START was run
     , subTraitBlocks    :: !TraitBlocks
     }
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
@@ -1065,52 +1073,64 @@ See "Pugs.Prim" for more info.
 -}
 mkPrim :: VCode
 mkPrim = MkCode
-    { isMulti = True
-    , subName = cast "&"
-    , subType = SubPrim
-    , subEnv = Nothing
-    , subAssoc = ANil
-    , subParams = []
-    , subBindings = []
-    , subSlurpLimit = []
-    , subReturns = anyType
-    , subBody = emptyExp
-    , subLValue = False
-    , subCont = Nothing
+    { isMulti        = True
+    , subName        = cast "&"
+    , subType        = SubPrim
+    , subOuterPads   = []
+    , subInnerPad    = emptyPad
+    , subLexical     = emptyPad
+    , subPackage     = emptyPkg
+    , subAssoc       = ANil
+    , subParams      = []
+    , subBindings    = []
+    , subSlurpLimit  = []
+    , subReturns     = anyType
+    , subBody        = emptyExp
+    , subLValue      = False
+    , subCont        = Nothing
+    , subStarted     = Nothing
     , subTraitBlocks = emptyTraitBlocks
     }
 
 mkSub :: VCode
 mkSub = MkCode
-    { isMulti = False
-    , subName = cast "&"
-    , subType = SubBlock
-    , subEnv = Nothing
-    , subAssoc = ANil
-    , subParams = []
-    , subBindings = []
-    , subSlurpLimit = []
-    , subReturns = anyType
-    , subBody = emptyExp
-    , subLValue = False
-    , subCont = Nothing
+    { isMulti        = False
+    , subName        = cast "&"
+    , subType        = SubBlock
+    , subOuterPads   = []
+    , subInnerPad    = emptyPad
+    , subLexical     = emptyPad
+    , subPackage     = emptyPkg
+    , subAssoc       = ANil
+    , subParams      = []
+    , subBindings    = []
+    , subSlurpLimit  = []
+    , subReturns     = anyType
+    , subBody        = emptyExp
+    , subLValue      = False
+    , subCont        = Nothing
+    , subStarted     = Nothing
     , subTraitBlocks = emptyTraitBlocks
     }
 
 mkCode :: VCode
 mkCode = MkCode
-    { isMulti = False
-    , subName = cast "&"
-    , subType = SubBlock
-    , subEnv = Nothing
-    , subAssoc = ANil
-    , subParams = []
-    , subBindings = []
-    , subSlurpLimit = []
-    , subReturns = anyType
-    , subBody = emptyExp
-    , subLValue = False
-    , subCont = Nothing
+    { isMulti        = False
+    , subName        = cast "&"
+    , subType        = SubBlock
+    , subOuterPads   = []
+    , subInnerPad    = emptyPad
+    , subLexical     = emptyPad
+    , subPackage     = emptyPkg
+    , subAssoc       = ANil
+    , subParams      = []
+    , subBindings    = []
+    , subSlurpLimit  = []
+    , subReturns     = anyType
+    , subBody        = emptyExp
+    , subLValue      = False
+    , subCont        = Nothing
+    , subStarted     = Nothing
     , subTraitBlocks = emptyTraitBlocks
     } 
 
@@ -1151,7 +1171,7 @@ data Exp
     | Syn !String ![Exp]                -- ^ Syntactic construct that cannot
                                         --     be represented by 'App'.
     | Ann !Ann !Exp                     -- ^ Annotation (see @Ann@)
-    | Pad !Scope !Pad !Exp              -- ^ Lexical pad
+--  | Pad !Scope !Pad !Exp              -- ^ Lexical pad
     | Sym !Scope !Var !EntryFlags !Exp !Exp -- ^ Symbol declaration
     | Stmts !Exp !Exp                   -- ^ Multiple statements
     | Prim !([Val] -> Eval Val)         -- ^ Primitive
@@ -1186,7 +1206,7 @@ transformExp f (App a b cs) = do
     f $ App a' b' cs'
 transformExp f (Syn t es) = f =<< liftM (Syn t) (mapM (transformExp f) es)
 transformExp f (Ann a e) = f =<< liftM (Ann a) (transformExp f e)
-transformExp f (Pad s p e) = f =<< liftM (Pad s p) (transformExp f e)
+-- transformExp f (Pad s p e) = f =<< liftM (Pad s p) (transformExp f e)
 transformExp f (Sym s v c i e) = f =<< liftM (Sym s v c i) (transformExp f e)
 transformExp f (Stmts e1 e2) = do 
     e1' <- transformExp f e1
@@ -1212,7 +1232,7 @@ instance Unwrap [Exp] where
 
 instance Unwrap Exp where
     unwrap (Ann _ exp)      = unwrap exp
-    unwrap (Pad _ _ exp)    = unwrap exp
+    -- unwrap (Pad _ _ exp)    = unwrap exp
     unwrap (Sym _ _ _ _ exp)= unwrap exp
     unwrap x                = x
 
@@ -1265,9 +1285,9 @@ extractPlaceholderVars (Var var) vs
 extractPlaceholderVars (Ann ann ex) vs = ((Ann ann ex'), vs')
     where
     (ex', vs') = extractPlaceholderVars ex vs
-extractPlaceholderVars (Pad scope pad ex) vs = ((Pad scope pad ex'), vs')
-    where
-    (ex', vs') = extractPlaceholderVars ex vs
+-- extractPlaceholderVars (Pad scope pad ex) vs = ((Pad scope pad ex'), vs')
+--     where
+--     (ex', vs') = extractPlaceholderVars ex vs
 extractPlaceholderVars (Sym scope var flags ini ex) vs = ((Sym scope var flags ini ex'), vs')
     where
     (ex', vs') = extractPlaceholderVars ex vs
@@ -1300,9 +1320,15 @@ defaultScalarParam :: Param
 
 defaultArrayParam   = buildParam "" "*" "@_" (Val VUndef)
 defaultHashParam    = buildParam "" "*" "%_" (Val VUndef)
-defaultScalarParam  = buildParam "" "?" "$_" (Var $ cast "$_")
+defaultScalarParam  = buildParam "" "?" "$_" (Var $ cast "$OUTER::_")
 
 type DebugInfo = Maybe (TVar (Map ID String))
+
+type LexPads = [LexPad]
+data LexPad
+    = PRuntime      { pr_pad :: !Pad }
+    | PCompiling    { pc_pad :: !MPad }
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 {-|
 Evaluation environment.
@@ -1312,24 +1338,24 @@ The current environment is stored in the @Reader@ monad inside the current
 if you just want a single field.
 -}
 data Env = MkEnv
-    { envContext :: !Cxt                 -- ^ Current context
-                                         -- ('CxtVoid', 'CxtItem' or 'CxtSlurpy')
-    , envLValue  :: !Bool                -- ^ Are we in an LValue context?
-    , envLexical :: !Pad                 -- ^ Lexical pad for variable lookup
-    , envImplicit:: !(Map Var ())        -- ^ Set of implicit variables
-    , envGlobal  :: !(TVar Pad)          -- ^ Global pad for variable lookup
-    , envPackage :: !Pkg                 -- ^ Current package
-    , envEval    :: !(Exp -> Eval Val)   -- ^ Active evaluator
-    , envCaller  :: !(Maybe Env)         -- ^ Caller's "env" pad
-    , envOuter   :: !(Maybe Env)         -- ^ Outer block's env
-    , envBody    :: !Exp                 -- ^ Current AST expression
-    , envFrames  :: !(Set Frame)         -- ^ Recursion depth
-    , envDebug   :: !DebugInfo           -- ^ Debug info map
-    , envPos     :: !Pos                 -- ^ Source position range
-    , envPragmas :: ![Pragma]            -- ^ List of pragmas in effect
-    , envInitDat :: !(TVar InitDat)      -- ^ BEGIN result information
-    , envMaxId   :: !(TVar ObjectId)     -- ^ Current max object id
-    , envAtomic  :: !Bool                -- ^ Are we in an atomic transaction?
+    { envContext :: !Cxt                -- ^ Current context
+                                        -- ('CxtVoid', 'CxtItem' or 'CxtSlurpy')
+    , envLValue  :: !Bool               -- ^ Are we in an LValue context?
+    , envLexical :: !Pad                -- ^ Cached lexical pad for variable lookup
+    , envLexPads :: !LexPads            -- ^ Current lexical pads; MY is leftmost, OUTER is next, etc
+    , envCaller  :: !(Maybe Env)        -- ^ CALLER pads
+    , envCompPad :: !(Maybe MPad)       -- ^ Current COMPILING pad
+    , envGlobal  :: !MPad               -- ^ Global pad for variable lookup
+    , envPackage :: !Pkg                -- ^ Current package
+    , envEval    :: !(Exp -> Eval Val)  -- ^ Active evaluator
+    , envBody    :: !Exp                -- ^ Current AST expression
+    , envFrames  :: !(Set Frame)        -- ^ Special-markers in the dynamic path
+    , envDebug   :: !DebugInfo          -- ^ Debug info map
+    , envPos     :: !Pos                -- ^ Source position range
+    , envPragmas :: ![Pragma]           -- ^ List of pragmas in effect
+    , envInitDat :: !(TVar InitDat)     -- ^ BEGIN result information
+    , envMaxId   :: !(TVar ObjectId)    -- ^ Current max object id
+    , envAtomic  :: !Bool               -- ^ Are we in an atomic transaction?
     } 
     deriving (Show, Eq, Ord, Typeable) -- don't derive YAML for now
 
@@ -1389,6 +1415,13 @@ is stored in the @Reader@-monad component of the current 'Eval' monad.
 newtype Pad = MkPad { padEntries :: Map Var PadEntry }
     deriving (Eq, Ord, Typeable)
 
+{-|
+An empty Pad with no symbols.
+-}
+
+emptyPad :: Pad
+emptyPad = MkPad Map.empty
+
 newtype EntryFlags = MkEntryFlags { ef_isContext :: Bool }
     deriving (Show, Eq, Ord, Typeable)
 
@@ -1397,7 +1430,7 @@ instance Monoid EntryFlags where
     mappend (MkEntryFlags x) (MkEntryFlags y) = MkEntryFlags (x || y)
 
 data PadEntry
-    = PELexical  { pe_type :: !Type, pe_proto :: !VRef, pe_flags :: !EntryFlags, pe_store :: !(TVar VRef), pe_fresh :: !(TVar Bool) }
+    = PELexical  { pe_type :: !Type, pe_proto :: !VRef, pe_flags :: !EntryFlags, pe_store :: !(TVar VRef) } -- pe_fresh :: !(TVar Bool) }
     | PEStatic   { pe_type :: !Type, pe_proto :: !VRef, pe_flags :: !EntryFlags, pe_store :: !(TVar VRef) }
     | PEConstant { pe_type :: !Type, pe_proto :: !VRef, pe_flags :: !EntryFlags }
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
@@ -1421,12 +1454,10 @@ refreshPad :: Pad -> Eval Pad
 refreshPad pad = do
     fmap listToPad $ forM (padToList pad) $ \(name, entry) -> do
         entry' <- case entry of
-            PELexical{ pe_proto = proto, pe_fresh = fresh } -> stm $ do
-                isFresh <- readTVar fresh
-                if isFresh then writeTVar fresh False >> return entry else do
-                    ref     <- cloneRef proto
-                    tvar'   <- newTVar ref
-                    return entry{ pe_store = tvar' }
+            PELexical{ pe_proto = proto } -> stm $ do
+                ref     <- cloneRef proto
+                tvar'   <- newTVar ref
+                return entry{ pe_store = tvar' }
             _ -> return entry
         return (name, entry')
 
@@ -1527,14 +1558,18 @@ askGlobal = do
     stm $ readTVar glob
 
 writeVar :: Var -> Val -> Eval ()
-writeVar name val = do
-    glob <- askGlobal
-    case lookupPad name glob of
-        Just PEConstant{} -> fail $ "Cannot rebind constant: " ++ show name
-        Just c -> do
-            ref <- stm $ readTVar (pe_store c)
-            writeRef ref val
-        _  -> fail $ "Cannot bind to non-existing variable: " ++ show name
+writeVar var val
+    | isLexicalVar var  = doWriteVar (asks envLexical)
+    | otherwise         = doWriteVar askGlobal
+    where
+    doWriteVar askPad = do
+        pad <- askPad
+        case lookupPad var pad of
+            Just PEConstant{} -> fail $ "Cannot rebind constant: " ++ show var
+            Just c -> do
+                ref <- stm $ readTVar (pe_store c)
+                writeRef ref val
+            _  -> fail $ "Cannot bind to non-existing variable: " ++ show var
 
 readVar :: Var -> Eval Val
 readVar var
@@ -1799,6 +1834,7 @@ cloneIVar :: IVar v -> STM (IVar v)
 cloneIVar (IScalar x) = fmap IScalar $ scalar_clone x
 cloneIVar (IArray x)  = fmap IArray  $ array_clone x
 cloneIVar (IHash x)   = fmap IHash   $ hash_clone x
+cloneIVar (ICode x)   = fmap ICode   $ code_clone x
 cloneIVar x = return x
 
 writeIVar :: IVar v -> v -> Eval ()
@@ -1977,14 +2013,14 @@ _FakeEnv = unsafePerformIO $ stm $ do
     maxi <- newTVar $ MkObjectId 1
     return $ MkEnv
         { envContext = CxtVoid
-        , envLexical = MkPad Map.empty
-        , envImplicit= Map.empty
+        , envLexical = emptyPad
+        , envLexPads = []
+        , envCaller  = Nothing
+        , envCompPad = Nothing
         , envLValue  = False
         , envGlobal  = glob
         , envPackage = cast "Main"
         , envEval    = const (return VUndef)
-        , envCaller  = Nothing
-        , envOuter   = Nothing
         , envFrames  = Set.empty
         , envBody    = Val undef
         , envDebug   = Just ref -- Set to "Nothing" to disable debugging

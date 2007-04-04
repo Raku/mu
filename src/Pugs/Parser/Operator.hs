@@ -137,7 +137,6 @@ listAssignment x = do
         | otherwise                 = Ann Parens (Syn "," [inner])
     forceParens (Ann x inner)       = Ann x (forceParens inner)
     forceParens (Sym x y flags init inner) = Sym x y flags init (forceParens inner)
-    forceParens (Pad x y inner)     = Pad x y (forceParens inner)
     forceParens exp                 = exp
 
 immediateBinding :: Exp -> RuleParser Exp

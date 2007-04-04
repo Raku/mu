@@ -247,7 +247,7 @@ qInterpolator flags = choice [
             then fmap (Ann Parens) (lookAhead (oneOf "'\"") >> qLiteral)
             else mzero
         closure = if qfInterpolateClosure flags
-            then ruleVerbatimBlock
+            then retInterpolatedBlock =<< ruleVerbatimBlock
             else mzero
         backslash = case qfInterpolateBackslash flags of
             QB_All -> try qInterpolatorChar
