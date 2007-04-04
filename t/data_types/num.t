@@ -10,7 +10,7 @@ basic Number tests
 
 #L<S02/Built-In Data Types/Perl intrinsically supports big integers>
 
-plan 46;
+plan 47;
 
 my $a = 1; "$a";
 isa_ok($a, 'Int');
@@ -114,3 +114,5 @@ ok(!eval('4_2._0_1') && $!, 'single underscores are not ok directly after the do
 is(eval('4_2.0_1'), 42.01,  'single underscores are ok');
 
 is 0_1, 1, "0_1 is parsed as 0d1";
+
+ok(1i ~~ Num,		'Complex Numbers are Nums');
