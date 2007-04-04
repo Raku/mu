@@ -13,8 +13,7 @@ ruleHashSubscript :: RuleParser (Exp -> Exp)
 ruleCodeSubscript :: RuleParser (Exp -> Exp)
 ruleInvocationParens :: RuleParser (Exp -> Exp)
 verbatimVarNameString :: RuleParser String
-retInterpolatedBlock :: BlockInfo -> RuleParser Exp
-ruleVerbatimBlock :: RuleParser BlockInfo
+ruleVerbatimBlock :: RuleParser Exp
 ruleBlockLiteral :: RuleParser Exp
 ruleDoBlock :: RuleParser Exp
 ruleNamedMethodCall :: RuleParser (Maybe Char, String)

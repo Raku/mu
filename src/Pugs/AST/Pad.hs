@@ -1,19 +1,12 @@
 {-# OPTIONS_GHC -fglasgow-exts -fparr #-}
 module Pugs.AST.Pad (
-  mkPad, diffPads, unionPads, padKeys, filterPad, adjustPad, mergePadEntry,
-  mergeLexPads, readMPad, writeMPad, appendMPad
+  mkPad, subPad, diffPads, unionPads, padKeys, filterPad, adjustPad, mergePadEntry
 ) where
 import Pugs.Internals
-import Pugs.AST.SIO
 import Pugs.AST.Internals
 import Pugs.Types
 import qualified Data.Map as Map
 import qualified Data.Set as Set
-
-instance Monoid Pad where
-    mempty  = emptyPad
-    mappend = unionPads
-    mconcat = MkPad . Map.unionsWith mergePadEntry . map padEntries
 
 {-|
 Produce a 'Pad' from a list of bindings. The inverse of 'padToList'.
@@ -24,24 +17,12 @@ mkPad :: [(Var, PadEntry)] -> Pad
 mkPad = listToPad
 
 {-|
-Merge multiple (possibly mutable) pads into one.
+Retrieve a sub's lexical 'Pad' from its environment ('Env').
+
+If the sub has no associated environment, an empty 'Pad' is returned.
 -}
-mergeLexPads :: MonadSTM m => LexPads -> m Pad
-mergeLexPads chain = stm $ do
-    pads <- forM chain $ \lpad -> case lpad of
-        PRuntime p      -> return p
-        PCompiling p    -> readTVar p
-    return . MkPad $ Map.unionsWith mergePadEntry (map padEntries pads)
-
-readMPad :: MonadSTM m => MPad -> m Pad
-readMPad = stm . readTVar
-
-writeMPad :: MonadSTM m => MPad -> Pad -> m ()
-writeMPad mp p = stm $ writeTVar mp p
-
-appendMPad :: MonadSTM m => MPad -> Pad -> m ()
-appendMPad mp p = stm $ modifyTVar mp (`unionPads` p)
-
+subPad :: VCode -> Pad
+subPad sub = maybe (mkPad []) envLexical (subEnv sub)
 
 {-|
 Return the difference between two 'Pad's.

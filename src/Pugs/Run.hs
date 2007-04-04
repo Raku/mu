@@ -241,9 +241,7 @@ initPreludePC env = do
                 IOException ioe
                     | isUserError ioe, not . null $ ioeGetErrorString ioe
                     -> hPrint stderr ioe
-                _ -> do
-                    hPrint stderr e
-                    return ()
+                _ -> return ()
             when dispProgress $ do
                 hPutStr stderr "Reloading Prelude from source..."
             evalPrelude
@@ -276,12 +274,8 @@ initPreludePC env = do
         -- print "Parsing done!"
         -- print "Loading yaml..."
         --(glob, ast) <- fromYAML yml
-        cleanSeen
         MkCompUnit _ glob ast <- io $ fromYAML yml
         -- print "Loading done!"
-        z   <- stm $ join (findSym (cast "&*__fail") glob)
-        -- j   <- showYaml z
-        -- print j
         stm $ modifyTVar (envGlobal env) (`unionPads` glob)
         runEnv env{ envBody = ast, envDebug = Nothing }
         --     Right Nothing -> fail ""

@@ -55,7 +55,7 @@ plan 24;
     my $foo   = "B";
     my $bar   = "C";
 
-    @array[1, 2] := ($foo, $bar);
+    try { @array[1, 2] := ($foo, $bar) };
     is ~@array, "a B C d", "binding array slices works (3-1)", :todo<feature>;
 
     $foo = "BB";

@@ -217,7 +217,7 @@ instance ((:>:) ByteString) Pkg where
     cast (MkPkg ns) = Buf.join (__"::") ns
 
 instance Show Var where
-    show var = show (cast var :: ByteString)
+    show var = Buf.unpack (cast var)
 
 varToBuf :: Var -> ByteString
 varToBuf MkVar
@@ -463,7 +463,6 @@ doBufToVar buf = MkVar
     len = Buf.length afterSig
     (twi, (pkg, (cat, afterCat)))
         | len == 0 = (TNil, (emptyPkg, (CNil, afterSig)))
---      | len <= 1 = (TNil, (emptyPkg, (CNil, afterSig)))
         | len == 1 = case Buf.head afterSig of
             '!' -> (TGlobal, (emptyPkg, (CNil, afterSig)))  -- XXX $! always global - WRONG
             '/' -> (TGlobal, (emptyPkg, (CNil, afterSig)))  -- XXX $/ always global - WRONG

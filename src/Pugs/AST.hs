@@ -15,7 +15,7 @@ module Pugs.AST (
     evalExp, evalExp_, readCodesFromRef,
     genSym, genMultiSym, genSymScoped, genPadEntryScoped, mkPadMutator,
     strRangeInf, strRange, strInc,
-    mergeStmts, isEmptyParams, isCompileTime,
+    mergeStmts, isEmptyParams,
     newPackage, newType, newMetaType, typeMacro, isScalarLValue,
     filterPrim, filterUserDefinedPad, typeOfParam, listVal, isImmediateMatchContext,
     (./),
@@ -167,7 +167,8 @@ genPadEntryScoped scope ref flags
         return (PEStatic typ ref flags tvar)
     | otherwise = stm $ do
         tvar    <- newTVar ref
-        return (PELexical typ ref flags tvar)
+        fresh   <- newTVar True
+        return (PELexical typ ref flags tvar fresh)
     where
     typ = refType ref
 
@@ -229,6 +230,7 @@ isScalarLValue :: Exp -> Bool
 isScalarLValue x = case x of
     Ann Parens _    -> False
     Ann _ exp       -> isScalarLValue exp
+    Pad _ _ exp     -> isScalarLValue exp
     Sym _ _ _ _ exp -> isScalarLValue exp
     Var var | SScalar <- v_sigil var -> True
     Syn "${}" _     -> True -- XXX - Change tp App("&prefix:<$>") later
@@ -298,6 +300,7 @@ mergeStmts :: Exp -> Exp -> Exp
 mergeStmts (Stmts x1 x2) y = mergeStmts x1 (mergeStmts x2 y)
 mergeStmts Noop y@(Stmts _ _) = y
 mergeStmts (Sym scope name flag init x) y = Sym scope name flag init (mergeStmts x y)
+mergeStmts (Pad scope lex x) y = Pad scope lex (mergeStmts x y)
 mergeStmts (Syn "package" [kind, pkg@(Val (VStr _))]) y =
     Syn "namespace" [kind, pkg, y]
 mergeStmts x@(Ann ann (Syn syn _)) y | isImplicitTopic syn =
@@ -374,11 +377,7 @@ typeMacro :: String -> Exp -> Exp
 typeMacro name exp = Syn "sub" . (:[]) . Val . VCode $ MkCode
     { isMulti       = True
     , subName       = cast name
-    , subOuterPads  = []
-    , subInnerPad   = emptyPad
-    , subLexical    = emptyPad
-    , subStarted    = Nothing
-    , subPackage    = emptyPkg
+    , subEnv        = Nothing
     , subType       = SubMacro
     , subAssoc      = ANil
     , subReturns    = typ
@@ -490,7 +489,4 @@ readCodesFromRef (MkRef (ICode c))
 readCodesFromRef ref = do
     code <- fromVal =<< readRef ref
     readCodesFromRef (MkRef (ICode (code :: VCode)))
-
-isCompileTime :: Env -> Bool
-isCompileTime = isJust . envCompPad
 

@@ -4,7 +4,7 @@ module Pugs.Prim.Code (
 ) where
 import Pugs.AST
 import Pugs.Internals
--- import Pugs.Pretty
+import Pugs.Pretty
 
 {- On Code -}
 
@@ -36,16 +36,12 @@ op1CodeBody v = do
     expToEvalVal $ subBody code
 
 op1CodePos :: Val -> Eval Val
-op1CodePos v = do -- die "XXX - code.pos not implemented" v
-    return $ castV (show v)
-{-
-do
+op1CodePos v = do
     code <- fromVal v
     let env = subEnv code
     case env of
         Nothing  -> return VUndef
         Just env -> return $ castV $ pretty $ envPos env
--}
 
 op1CodeSignature :: Val -> Eval Val
 op1CodeSignature v = do

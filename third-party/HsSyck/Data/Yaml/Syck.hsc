@@ -70,11 +70,8 @@ type SyckOutputHandler = SyckEmitter -> CString -> CLong -> IO ()
 data SyckKind = SyckMap | SyckSeq | SyckStr
     deriving (Show, Ord, Eq, Enum)
 
-maxId :: SYMID
-maxId = maxBound
-
 nilNode :: YamlNode
-nilNode = MkNode maxId ENil Nothing ASingleton
+nilNode = MkNode 0 ENil Nothing ASingleton
 
 {-# INLINE unpackBuf #-}
 unpackBuf :: Buf -> String
@@ -89,10 +86,10 @@ tagNode _ MkNode{n_tag=Just x} = error $ "can't add tag: already tagged with" ++
 tagNode tag node               = node{n_tag = tag}
 
 mkNode :: YamlElem -> YamlNode
-mkNode x = MkNode maxId x Nothing ASingleton
+mkNode x = MkNode 0 x Nothing ASingleton
 
 mkTagNode :: String -> YamlElem -> YamlNode
-mkTagNode tag e = MkNode maxId e (Just $! packBuf tag) ASingleton
+mkTagNode tag e = MkNode 0 e (Just $! packBuf tag) ASingleton
 
 mkTagStrNode :: String -> String -> YamlNode
 mkTagStrNode tag str = mkTagNode tag (EStr $! packBuf str)
@@ -188,14 +185,12 @@ emitNode _ e n | EStr s <- n_elem n = do
 emitNode freeze e n | ESeq sq <- n_elem n = do
     withTag n (Ptr "array"##) $ \tag ->
         syck_emit_seq e tag seqInline
---      syck_emit_seq e tag seqNone
     mapM_ (syck_emit_item e) =<< mapM freeze sq
     syck_emit_end e
 
 emitNode freeze e n | EMap m <- n_elem n = do
     withTag n (Ptr "map"##) $ \tag ->
         syck_emit_map e tag mapInline
---      syck_emit_map e tag mapNone
     flip mapM_ m (\(k,v) -> do
         syck_emit_item e =<< freeze k
         syck_emit_item e =<< freeze v)
@@ -236,13 +231,7 @@ type BadAnchorTable = Hash.HashTable Int YamlNode
 
 nodeCallback :: BadAnchorTable -> SyckParser -> SyckNode -> IO SYMID
 nodeCallback badancs parser syckNode = mdo
-    nodeId  <- #{peek SyckNode, id} syckNode
     kind    <- syckNodeKind syckNode
-
-    let makeRegularNode = do
-        len     <- syckNodeLength kind syckNode
-        parseNode kind parser syckNode len symId
-
     node    <- case kind of
         SyckMap -> do
             rv  <- Hash.lookup badancs (syckNode `minusPtr` nullPtr)
@@ -250,11 +239,12 @@ nodeCallback badancs parser syckNode = mdo
                 Just{}  -> do
                     -- print ("bad anchor wanted", syckNode)
                     unsafeInterleaveIO (fmap fromJust (Hash.lookup badancs (nodePtr `minusPtr` nullPtr)))
-                _       -> makeRegularNode
-        _       -> makeRegularNode
+                _       -> makeRegularNode kind
+        _       -> makeRegularNode kind
     nodePtr <- writeNode node
 
     -- Do something here about circular refs.
+    nodeId  <- #{peek SyckNode, id} syckNode
     case nodeId :: SYMID of
         0   -> return False
         _   -> alloca $ \origPtr -> do
@@ -263,9 +253,12 @@ nodeCallback badancs parser syckNode = mdo
             -- print ("bad anchor handled", nodeId, ptr)
             Hash.update badancs (ptr `minusPtr` nullPtr) node
 
-    symId   <- fmap fromIntegral (syck_add_sym parser nodePtr)
-
-    return symId
+    symId   <- syck_add_sym parser nodePtr
+    return (fromIntegral symId)
+    where
+    makeRegularNode kind = do
+        len     <- syckNodeLength kind syckNode
+        parseNode kind parser syckNode len
 
 badAnchorHandlerCallback :: BadAnchorTable -> SyckBadAnchorHandler
 badAnchorHandlerCallback badancs parser cstr = do
@@ -289,10 +282,8 @@ errorCallback err parser cstr = do
 
 freezeNode :: Hash.HashTable Int (Ptr a) -> YamlNode -> IO (Ptr a)
 freezeNode nodes MkNode{ n_anchor = AReference n } = do
-    rv <- Hash.lookup nodes n
-    case rv of
-        Just ptr    -> return ptr
-        _           -> fail $ "Failed to resolve reference: " ++ show n
+    Just ptr <- Hash.lookup nodes n
+    return ptr
 freezeNode nodes node = do
     ptr     <- newStablePtr node
     case n_anchor node of
@@ -349,8 +340,8 @@ syckNodeLength SyckMap = (#{peek struct SyckMap, idx} =<<) . #{peek SyckNode, da
 syckNodeLength SyckSeq = (#{peek struct SyckSeq, idx} =<<) . #{peek SyckNode, data}
 syckNodeLength SyckStr = (#{peek struct SyckStr, len} =<<) . #{peek SyckNode, data}
 
-parseNode :: SyckKind -> SyckParser -> SyckNode -> CLong -> SYMID -> IO YamlNode
-parseNode SyckMap parser syckNode len nid = do
+parseNode :: SyckKind -> SyckParser -> SyckNode -> CLong -> IO YamlNode
+parseNode SyckMap parser syckNode len = do
     tag   <- syckNodeTag syckNode
     pairs <- (`mapM` [0..len-1]) $ \idx -> do
         keyId   <- syck_map_read syckNode 0 idx
@@ -358,20 +349,20 @@ parseNode SyckMap parser syckNode len nid = do
         valId   <- syck_map_read syckNode 1 idx
         val     <- readNode parser valId
         return (key, val)
-    return $ nilNode{ n_elem = EMap pairs, n_tag = tag, n_id = nid }
+    return $ nilNode{ n_elem = EMap pairs, n_tag = tag}
 
-parseNode SyckSeq parser syckNode len nid = do
+parseNode SyckSeq parser syckNode len = do
     tag   <- syckNodeTag syckNode
     nodes <- (`mapM` [0..len-1]) $ \idx -> do
         symId   <- syck_seq_read syckNode idx
         readNode parser symId
-    return $ nilNode{ n_elem = ESeq nodes, n_tag = tag, n_id = nid }
+    return $ nilNode{ n_elem = ESeq nodes, n_tag = tag }
 
-parseNode SyckStr _ syckNode len nid = do
+parseNode SyckStr _ syckNode len = do
     tag   <- syckNodeTag syckNode
     cstr  <- syck_str_read syckNode
     buf   <- copyCStringLen (cstr, fromEnum len)
-    let node = nilNode{ n_elem = EStr buf, n_tag = tag, n_id = nid }
+    let node = nilNode{ n_elem = EStr buf, n_tag = tag }
     if tag == Nothing && Buf.length buf == 1 && Buf.index buf 0 == '~'
         then do
             style <- syck_str_style syckNode

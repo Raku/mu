@@ -142,7 +142,6 @@ instance Compile Exp PIL_Stmts where
     compile (Ann Prag{} rest) = compile rest -- fmap (PPos pos rest) $ compile rest
     compile (Ann (Cxt cxt) rest) = enter cxt $ compile rest
     compile (Ann _ rest) = compile rest
-{-
     compile (Stmts (Pad SOur _ exp) rest) = do
         compile $ mergeStmts exp rest
     compile (Stmts (Pad scope pad exp) rest) = do
@@ -154,7 +153,6 @@ instance Compile Exp PIL_Stmts where
                    ]
         expC    <- compile $ mergeStmts (foldl1 mergeStmts (exps ++ [exp])) rest
         return $ PPad scope symC expC
--}
     compile exp = compileStmts exp
 
 class EnterClass m a where
