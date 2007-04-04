@@ -1,0 +1,11 @@
+Ideas
+
+6-on-6 on parrot
+- through onion (perl6 on parrot)
+
+6-on-6 on pugs
+- simple syntax fixes (mp6)
+
+regex engine
+- implement DFA
+
