@@ -5,8 +5,8 @@ use Test;
 plan 15;
 
 # L<S06/The C<want> function/shorthand methods to reduce line noise>
-sub obj_ok_in_item   { want.Item         ?? 42 !! 0 }
-sub obj_ok_in_list   { want.List         ?? 42 !! 0 }
+sub obj_ok_in_item   { want.item         ?? 42 !! 0 }
+sub obj_ok_in_list   { want.list         ?? 42 !! 0 }
 sub obj_ok_in_count2 { (want.count == 2) ?? 42 !! 0 }
 sub obj_ok_in_count3 { (want.count == 3) ?? 42 !! 0 }
 
