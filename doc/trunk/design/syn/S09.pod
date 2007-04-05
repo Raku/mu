@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 13 Sep 2004
-  Last Modified: 28 Mar 2007
+  Last Modified: 4 Apr 2007
   Number: 9
-  Version: 19
+  Version: 20
 
 =head1 Overview
 
@@ -221,13 +221,6 @@ dimension specifier (much like a subroutine definition):
 
     my @library[1_000_000 --> Book];
 
-Arrays may also be defined with a mixture of fixed and autoextending
-dimensions (see below).  For example, there are always 12 months in
-a year and 24 hours in a day, but the number of days in the month
-can vary:
-
-    my @calendar[12;*;24];     # day-of-month dimension unlimited/ragged
-
 
 =head1 Compact arrays
 
@@ -301,6 +294,12 @@ semicolon-separated list of dimension lengths:
     my int @ints[4;2];          # Valid indices are 0..3 ; 0..1
 
     my @calendar[12;31;24];     # Valid indices are 0..11 ; 0..30 ; 0..23
+
+Arrays may also be defined with a mixture of fixed and autoextending
+dimensions.  For example, there are always 12 months in a year and
+24 hours in a day, but the number of days in the month can vary:
+
+    my @calendar[12;*;24];     # day-of-month dimension unlimited/ragged
 
 You can pass a multislice for the shape as well:
 
