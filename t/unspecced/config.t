@@ -12,65 +12,73 @@ Currently the test is hardcoded to check for the
 following values in C<< %?CONFIG >>:
 
     archlib
-    archname
-    bin
-    exe_ext
+    cc
+    embedded
     file_sep
-    installarchlib
+    ghc
     installbin
-    installprivlib
+    installman1dir
+    installman3dir
     installscript
-    installsitearch
     installsitebin
-    installsitelib
+    installsiteman1dir
+    installsiteman3dir
     osname
-    pager
     path_sep
+    perl5_path
+    perl_compiler
     perl_revision
     perl_subversion
     perl_version
-    prefix
     privlib
+    pugs_revision
+    pugs_version
+    pugs_versnum
     pugspath
-    scriptdir
+    regex_engine
     sitearch
     sitebin
     sitelib
-    pugs_versnum
-    pugs_version
-    pugs_revision
+    siteprefix
+    sitescript
+    sourcedir
+    uname
 
 =cut
 
 my @config = <
     archlib
-    archname
-    bin
-    exe_ext
+    cc
+    embedded
     file_sep
-    installarchlib
+    ghc
     installbin
-    installprivlib
+    installman1dir
+    installman3dir
     installscript
-    installsitearch
     installsitebin
-    installsitelib
+    installsiteman1dir
+    installsiteman3dir
     osname
-    pager
     path_sep
+    perl5_path
+    perl_compiler
     perl_revision
     perl_subversion
     perl_version
-    prefix
     privlib
+    pugs_revision
+    pugs_version
+    pugs_versnum
     pugspath
-    scriptdir
+    regex_engine
     sitearch
     sitebin
     sitelib
-    pugs_versnum
-    pugs_version
-    pugs_revision
+    siteprefix
+    sitescript
+    sourcedir
+    uname
 >;
 
 plan @config+2;

@@ -4,56 +4,50 @@ use warnings;
 use Cwd;
 use Config();
 use File::Spec;
+use FindBin; 
 our %Config = %Config::Config;
 
 sub get_config {
+    my $self = shift;
+    if ( -e ( my $build_config = File::Spec->catfile( $FindBin::RealBin, 'current.build.yml' ) ) ) {
+        open my $fh, $build_config or die "Cannot read from $build_config";
+        my $config = {};
+        while (<$fh>) {
+            next if /^#/;
+            $config->{$1} = /^(\S+):\s(.*)$/ && ( @+ > 1 ? $2 : '');
+        }
+        return $config;
+    }
+
+    my %args = @_;
     my $config = {
         perl_revision   => '6',
         perl_version    => '0',
         perl_subversion => '0',
         perl_compiler   => 'pugs',
-
-        osname    => $Config{osname},
-        pager     => $Config{pager},
-        prefix    => $Config{prefix},
-        archname  => $Config{archname},
-        exe_ext   => $Config{exe_ext},
-        path_sep  => $Config{path_sep},
-
-        scriptdir => $Config{scriptdir},
-        bin       => $Config{bin},
-        sitebin   => $Config{sitebin},
-        siteprefix=> $Config{siteprefix},
-
-        installscript  => $Config{installscript},
-        sitescript     => $Config{installsitescript} || $Config{installscript},
-        installbin     => $Config{installbin},
-        installsitebin => $Config{installsitebin} || $Config{installsbin},
-
-        installman1dir     => $Config{installman1dir},
-        installman3dir     => $Config{installman3dir},
-        installsiteman1dir => $Config{installsiteman1dir} || $Config{installman1dir},
-        installsiteman3dir => $Config{installsiteman3dir} || $Config{installman3dir},
-
-        sourcedir      => Cwd::abs_path(),
+        osname          => $^O,
+        sourcedir       => Cwd::abs_path(),
     };
+    if ( @_ ) {
+        $config->{$_} = $args{$_} for keys %args;
+    }
 
-    add_path(archlib            => $config); 
-    add_path(privlib            => $config); 
-    add_path(sitearch           => $config); 
-    add_path(sitelib            => $config); 
+    $config->{perl5_path} = $Config{perlpath};
 
-    add_path(installarchlib     => $config); 
-    add_path(installprivlib     => $config); 
-    add_path(installsitearch    => $config); 
-    add_path(installsitelib     => $config); 
+    for ( qw/path_sep privlib archlib siteprefix sitebin sitescript sitearch sitelib 
+            installbin installscript installman1dir installman3dir installsitebin
+            installsiteman1dir installsiteman3dir / ) {
+        $config->{$_} ||= $Config{$_}
+    }
+    $config->{"installsiteman${_}dir"} ||= $Config{"installman${_}dir"} for 1,3;
+    $config->{sitescript} ||= $Config{$_} for (qw/installsitescript installscript/);
+    $config->{installsitebin} ||= $Config{installsbin};
 
-    $config->{perl5path} = $^X;
     $config->{pugspath}  =
-      File::Spec->catfile($config->{bin}, "pugs$config->{exe_ext}");
+      File::Spec->catfile($config->{installbin}, "pugs$Config{exe_ext}");
 
     ($config->{file_sep}) =
-      ($Config{sitelib} =~ /([\/\\])/)
+      ($config->{sitelib} =~ /([\/\\])/)
         or die "Can't determine file_sep";
 
     return $config;

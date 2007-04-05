@@ -19,6 +19,9 @@ Options:
 
 Build System Overview
 
+ - Makefile.PL calls get_pugs_config() in inc/Module/Install/Pugs.pm which
+   then calls util/PugsConfig.pm to get configuration data printed with
+   ./pugs -V
  - Makefile.PL calls GHC to compile Setup.hs to ./Setup.exe.
  - Makefile.PL writes a Makefile that will call util/build_pugs.pl
    upon "make".
@@ -49,6 +52,7 @@ use PugsBuild::Config;
 use Carp;
 use Getopt::Long;
 use Pod::Usage;
+use POSIX qw/uname/;
 
 our %options;
 GetOptions \%options, qw( precompile-prelude! help ) or pod2usage(2);
@@ -535,7 +539,6 @@ EOD
         }
     }
 
-    my $config = get_pugs_config();
     my $is_win32 = ($^O =~ /MSWin|mingw|cygwin/i);
     my $threaded = (try_compile_and_run("main :: IO ()\nmain = return ()", $ghc, "-threaded")) ? '-threaded' : '';
 
@@ -545,6 +548,42 @@ EOD
 
 .
         $threaded = '';
+    }
+
+    my $find_ver = sub {
+        `$_[0] $_ 2>&1` =~ /(.* (?:version|build) .*)/i && return $1
+            for qw{--version -v -V -? /?};
+        return "unknown";
+    };
+
+    unlink (my $build_config = 'current.build.yml');
+    my $config = get_pugs_config(
+        uname               =>  join (" ", (uname)[0,2,4] ),
+        regex_engine        =>  ( $ENV{PUGS_REGEX_ENGINE} ?  $ENV{PUGS_REGEX_ENGINE} : 'default' ),
+        embedded            =>  join (" ", ( $embed_flags =~ /HAVE_PERL5/ ?  $Config{perlpath} : 'noperl' ),
+                                    ( $embed_flags =~ /HAVE_PARROT/
+                                        ?  abs_path( File::Spec->catfile( "$ENV{PARROT_PATH}", "parrot" ) )
+                                        : 'noparrot' ),
+                                    ( $ENV{PUGS_EMBED} =~ /\bhaskell\b/ ?  $ghc : 'nohaskell' )
+                                ),
+        ghc                 =>  join (" ", [ assert_ghc() ]->[0], $ghc_version,
+                                    ( $ghc_flags =~ /HAVE_READLINE/ ?  'readline' : 'noreadline' ),
+                                    ( $ghc_flags =~ /HAVE_HSPLUGINS/ ?  'hsplugins' : 'nohsplugins' ),
+                                    ( $threaded ? "threads" : "nothreads" ),
+                                ),
+        cc                  =>  $find_ver->( $Config{cc} ),
+    );
+
+    {
+        # maybe move this to inc/PugsBuild/MiniYAML.pm ?
+        open my $fh, '>', $build_config or die "Cannot open $build_config for writing";
+        print $fh "# *** NOTE ***\n";
+        print $fh "# This file is generated during Makefile.PL.\n";
+        print $fh "# Changes will not persist after running Makefile.PL\n";
+        for ( sort keys %$config ) {
+            print $fh "$_: $config->{$_}\n";
+        }
+        close $fh;
     }
 
     # As of now, Test::TAP::HTMLMatrix is the key dependency for smokes,
@@ -629,7 +668,7 @@ $version_h :
 
 @{[join("\n", map {$emit->($_)} grep { /\.o$/ } @prereqs)]}
 
-src/Pugs/Config.hs : util/PugsConfig.pm
+src/Pugs/Config.hs : util/PugsConfig.pm current.build.yml
 	\$(PERL) -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Pugs/Config.hs
 
 src/gen_prelude$Config{_exe} : src/gen_prelude.hs

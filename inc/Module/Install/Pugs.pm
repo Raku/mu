@@ -147,6 +147,7 @@ sub pugs_fix_makefile {
 
 sub get_pugs_config {
     my $self = shift;
+    my %args = @_;
     my $base = $self->is_extension_build
     ? '../..'
     : $self->{_top}{base};
@@ -156,12 +157,12 @@ sub get_pugs_config {
 
     eval "use lib '$base/util'; 1" or die $@;
     eval "use PugsConfig; 1" or die $@;
-    PugsConfig->get_config;
+    PugsConfig->get_config( %args );
 }
 
 sub pugs_binary {
     my $self = shift;
-    my $pugs = "pugs$Config{_exe}";
+    my $pugs = "pugs$Config{exe_ext}"; # exe_ext is used in util/PugsConfig.pm
     my $base = $self->{_top}{base};
     "$base/blib/script/$pugs";
 }

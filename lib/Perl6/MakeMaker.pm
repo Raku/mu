@@ -10,6 +10,8 @@ use File::Spec;
 use Config;
 use FindBin;
 
+my $config_output;
+
 sub WriteMakefile {
     my $libs = get_perl6_libs();
     my @mm_args = @_;
@@ -23,15 +25,8 @@ sub WriteMakefile {
 }
 
 sub get_perl6_libs {
-    # Special case: check if we are in Pugs itself
-    if (-e "$FindBin::Bin/util/PugsConfig.pm") {
-        local $SIG{__WARN__} = sub { 1 };
-        do "$FindBin::Bin/util/PugsConfig.pm";
-        return PugsConfig::get_config();
-    }
-
     my $pugs_path = shift || 'pugs';
-    my $output = `$pugs_path -V` or die "Pugs not installed";
+    $config_output = `$pugs_path -V` or die "Pugs not installed";
     my ($archlib) = ($output =~ /^\s*archlib:\s+(\S+)/m);
     my ($privlib) = ($output =~ /^\s*privlib:\s+(\S+)/m);
     my ($sitearch) = ($output =~ /^\s*sitearch:\s+(\S+)/m);
@@ -46,7 +41,7 @@ sub get_perl6_libs {
 
 my $postamble = '';
 sub fix_makefile {
-    my $full_pugs = File::Spec->catfile($Config{installbin}, 'pugs');
+    my $full_pugs = File::Spec->catfile( ($config_output =~ /^\s*installbin:\s+(\S+)/m && $1), 'pugs');
     my $full_blib = File::Spec->rel2abs(File::Spec->catfile('blib', 'lib'));
     open MAKEFILE, '< Makefile' or die $!;
     my $makefile = do { local $/; <MAKEFILE> };
