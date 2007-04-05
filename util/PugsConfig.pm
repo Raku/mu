@@ -36,7 +36,10 @@ sub get_config {
 
     for ( qw/path_sep privlib archlib siteprefix sitebin sitescript sitearch sitelib 
             installbin installscript installman1dir installman3dir installsitebin
-            installsiteman1dir installsiteman3dir / ) {
+            installsiteman1dir installsiteman3dir
+            archname bin exe_ext installarchlib installprivlib
+            installsitearch installsitelib pager prefix scriptdir  
+            / ) {
         $config->{$_} ||= $Config{$_}
     }
     $config->{"installsiteman${_}dir"} ||= $Config{"installman${_}dir"} for 1,3;

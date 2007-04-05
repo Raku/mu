@@ -12,10 +12,20 @@ Currently the test is hardcoded to check for the
 following values in C<< %?CONFIG >>:
 
     archlib
+    archname
+    bin
     cc
     embedded
+    exe_ext
     file_sep
     ghc
+    installarchlib
+    installprivlib
+    installsitearch
+    installsitelib
+    pager
+    prefix
+    scriptdir
     installbin
     installman1dir
     installman3dir
@@ -48,10 +58,20 @@ following values in C<< %?CONFIG >>:
 
 my @config = <
     archlib
+    archname
+    bin
     cc
     embedded
+    exe_ext
     file_sep
     ghc
+    installarchlib
+    installprivlib
+    installsitearch
+    installsitelib
+    pager
+    prefix
+    scriptdir
     installbin
     installman1dir
     installman3dir
