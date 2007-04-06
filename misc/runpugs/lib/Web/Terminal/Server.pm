@@ -48,13 +48,11 @@ $SIG{CHLD} = 'IGNORE';
 # verbose
 my $v                 = (1 - $Web::Terminal::Settings::daemon)*(1-$Web::Terminal::Settings::test);
 
-#my %sessions = ();    # session_number (from stack) =>  actual session object
 #Datastructures per app, so $session{$app}{...}, $inactive[$app][...] or @{$inactive[$app]}
 my @active_sessions             = (); # id => session_number for active sessions
 my @sessions              = (); # session_number (from stack) =>  actual session object
 my @session_numbers_stack = ();  # stack for session numbers, i.e. those not active or inactive!
 my @inactive_sessions     = ();  # => stack of session numbers for inactive sessions
-#my @unused       = ();  # => hash keyed by session number. value is id.
 
 # Counters.
 # initialised via init_sessions()
@@ -160,6 +158,16 @@ sub login_proc {
 # Or a compatible API :-)
 sub rcvd_msg_from_client {
 	my ( $conn, $msg, $err ) = @_;
+	my $check='';
+	print "CONN:\n" if $v;
+				for my $key (keys( %{$conn}) ) {
+					print $key,':',$conn->{$key},"\n" if $v;
+					if ($key eq 'queue') {
+						print "len:",scalar @{$conn->{$key}},"\n" if $v;
+						print "cont:",join(';',@{$conn->{$key}}),"\n" if $v;
+					}
+				}
+					print "MSG:<",$msg,">;ERR:<",$err,">\n" if $v;
 	my $success=1;
 	if ( defined $msg ) {
 #				for my $key (keys( %{$conn}) ) {
@@ -178,7 +186,7 @@ sub rcvd_msg_from_client {
 			my $cmd     = $mesgref->{cmd};
 			my $app     = $mesgref->{app};
 			my $ia      = $mesgref->{ia};
-
+print "MSG LEN $len: id:$id;cmd:$cmd;ip:$ip,app:$app,ia:$ia\n" if $v;
 			#            $cmd=pack("U0C*", unpack("C*",$cmd));
 			
 			# Next bit is purely for logging.
@@ -235,6 +243,8 @@ sub rcvd_msg_from_client {
 						@history = @{ $term->{recent} };
 					}
 				}
+				print "LINES: $lines\n" if $v;
+				$check=$lines;
 				$replyref = YAML::Syck::Dump(
 											  {
 												id     => $id,
@@ -243,14 +253,33 @@ sub rcvd_msg_from_client {
 												prompt => $prompt
 											  }
 				);
+				
 			}
+			print "REPLY: $id: $cmd=>$replyref\n" if ($id ne '0' and $v);
 			$success=$conn->send_now($replyref);
+			if ($id ne '0' and $v) {
+			print "send_now() status: $success;\n";
+				print "CONN after send_now():\n";
+				for my $key (keys( %{$conn}) ) {
+					print $key,':',$conn->{$key},"\n";
+					if ($key eq 'queue') {
+						print "len:",scalar @{$conn->{$key}},"\n";
+						print "cont:",join(';',@{$conn->{$key}}),"\n";
+					}
+				}
+				print "\n";
+			assert(not($check eq '0' and $cmd ne '1'));
+			}
+			
 		} 
 		# It seems for every non-0-length there is a 0-length message. Don't know why, I guess that's down to how Msg does its job. 
-#		else {
+		else {
 #			$success=-1;
-#			print "!!!! Received 0-length message. Ignoring.\n" if $v;
-#		}
+			print "0000 Received 0-length message. Ignoring.\n" if $v;
+		}
+		
+	} else {
+		print ".... Received undefined message. Ignoring.\n" if $v;
 	}
 	assert(defined $msg);
 	assert($success!=0);
@@ -332,15 +361,18 @@ sub termhandler {
 						print "Sending $cmd to the application.\n" if $v;
 						$lines = $term->write($cmd);
 print "Application returned '$lines'.\n" if $v;
-if($Web::Terminal::Settings::test and $cmd ne ':A') {
+if($Web::Terminal::Settings::test==1 and $cmd ne ':A') {
 my $reply=$lines;
 $reply=~s/^.*?called\ with\ //;
 $reply=~s/\.\s*$//;
+
 assert($reply eq $cmd);
+} elsif ($Web::Terminal::Settings::test==1 and $cmd eq ':A') {
+	print "Simulated Abort. Application returned '$lines'\n" if $v;
 }
 						if ( $term->{error} == 1 ) {
-							&kill_session( $app, $id, $ip )
-							  ; # Well, really. If the session returns an error, we should kill it.
+							&kill_session( $app, $id, $ip );
+							   # Well, really. If the session returns an error, we should kill it.
 							$n_sessions_ip{$ip}--;
 						}
 					} else {    # it's a quit
@@ -362,14 +394,17 @@ assert($reply eq $cmd);
 					return $Web::Terminal::Settings::prompt;
 				}
 			} else {
-
+print "    Session $id ($app,$cmd) is not active:", exists( $active_sessions[$app]{$id}),"\n" if $v;
 				# new session
+			   assert($n_inactive_sessions[$app]==scalar( @{ $inactive_sessions[$app] }));
 				if ( $n_inactive_sessions[$app] > 0
 					 and scalar @{ $inactive_sessions[$app] } > 0 )
 				{
 
 					# activate
-					&activate_session( $app, $id, $ip );
+					
+					my $sessnum=&activate_session( $app, $id, $ip );
+					print "Activated session $sessnum\n" if $v;
 					$n_sessions_ip{$ip}++;
 
 					# Check if there are enough inactive sessions left
@@ -386,8 +421,11 @@ assert($reply eq $cmd);
 					if ( $n_sessions[$app] < $n_max[$app] )
 					{       # a session can be created
 						    # synchronously create a new session
+						    
 						my $ret = &create_session($app);
-
+							print "Created a new session $ret\n" if $v;
+							my $sessnum=&activate_session( $app, $id, $ip );
+							print "Then activated a session $sessnum\n" if $v;
 						# asynchronously create new sessions
 						&async_init_create();
 						return $ret;
@@ -576,7 +614,10 @@ sub clean_up_timed_out_sessions() {
 					my $app  = $term->{app};
 					$n_sessions_ip{$ip}--;
 					$cleaned_up[$app]++;
-					if ( $n_inactive_sessions[$app] <= $n_inactive_min[$app] ) {						
+					if ( $n_inactive_sessions[$app] <= $n_inactive_min[$app] ) {	#problem here: if the session was left on an unfinished multi-line command, the reset will fail.
+# So in that case the session must be killed and a new one created
+# i.e. &kill_session &create_session
+# the detection is $tprompt=~/$promt_pattern/ & $tprompt ne $promt 					
 						&deactivate_session( $app, $id, $ip );
 					} else {
 						&kill_session( $app, $id, $ip );
@@ -681,8 +722,8 @@ sub call_clean_up {
 			( my $ret, my $p, my $h ) =
 			  Web::Terminal::Dispatcher::send( 0, '127.0.0.1', 1, 1,
 									  'Web::Terminal::Server::Sessions.clean-up' );
-			print "call_clean_up() call returned <$ret>:",
-			  ( $ret < 1 ) ? "ERROR" : "OK", "\n" if $v;
+			print "call_clean_up() call returned: cleaned up <$ret> sessions\n" if $v;
+			  #( $ret < 1 ) ? "Nothing to clean up" : "OK", "\n" if $v;
 		
 }    # END of call_clean_up()
 #-------------------------------------------------------------------------------

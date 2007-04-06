@@ -2,6 +2,7 @@ package Web::Terminal::Dispatcher;
 use vars qw( $VERSION );
 $VERSION = '0.4.0';
 use strict;
+use Carp::Assert;
 use utf8;
 use YAML::Syck;
 
@@ -74,6 +75,16 @@ sub send {
 			print "Terminal server returned wrong id: $rid, should be $id" if $v;
 			return "Sorry, the pugs session died.";
 		}
+		if($Web::Terminal::Settings::test==1 and $cmd ne ':A' and $cmd ne ':q' and $cmd!~/Web::Terminal/) {
+my $cmdreply=$reply;
+$cmdreply=~s/^.*?called\ with\ //;
+$cmdreply=~s/\.\s*$//;
+if($cmdreply ne $cmd and $cmd!=1 ) {
+	print "D: Application returned '$reply'<>'$cmd':",($reply eq '0'),"<>",($reply==0),';',$rmesg,"\n";
+}
+} elsif ($Web::Terminal::Settings::test==1 and $cmd eq ':A') {
+	print "D: Simulated Abort. Application returned '$reply'\n" if $v;
+}
 		return ( $reply, $prompt, $histref );
 	}
 }

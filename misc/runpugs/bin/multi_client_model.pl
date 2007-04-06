@@ -15,8 +15,8 @@ my $v=0;
 my $hist=0; # don't display command history
 
 my @threads=();
-my $n_threads=10;
-our $nclients_serial=100;
+my $n_threads=20;
+our $nclients_serial=500;
 
 for my $i (0..$n_threads-1) {
 	$threads[$i]=threads->create("client_session",$i);
@@ -28,8 +28,8 @@ $threads[0]->join();
 
 sub client_session {
 my $i=shift;
-my $w_max=60;
-my $w_min=1;
+my $w_max_log=8; 
+my $w_min_log=0;
 
 # All probabilities are in %
 
@@ -94,16 +94,22 @@ my $quit=($throw<$quit_prob)?1:0;
 print $i*$nclients_serial+$j,": Client $ip/$id, app: $app, #commands: $ncommands, quit: $quit, abort: $abort\n",'-' x 80,"\n";# if $v;
 my $cmd='1';
 my $reply=&send_cmd($cmd,$id,$ip,$app,);
+print "$i:Cmd 0:\t",$cmd,"\n";# if $v;
 if ($cmd ne $reply) {
-print "$i:WARNING: $cmd<>$reply\n" if $v;
+print "$i:WARNING1: $cmd<>$reply\n" if $v;
 }
 for my $n (1..$ncommands) {
 	my $ncmd=int(rand(20));
 my $cmd=($ncmd<scalar @commands)?$commands[$ncmd]:&create_command();
-print "$i:Cmd $n:\t",$cmd,"\n" if $v;
+print "$i:Cmd $n:\t",$cmd,"\n";# if $v;
 my $reply=&send_cmd($cmd,$id,$ip,$app,);
+
 if ($cmd ne $reply) {
-print "$i:WARNING: $cmd<>$reply\n";# if $v;
+print "$i:WARNING2: $cmd<>$reply\n";# if $v;
+#if ($reply eq '0') {
+system("./killall_perl");
+exit() ;
+#}
 }
 sleep int(rand($t_max))+$t_min 
 }
@@ -112,7 +118,8 @@ if($quit) {
 } elsif ($abort) {
 &send_cmd(':A',$id,$ip,$app);
 } #Êotherwise do nothing, server should time the session out
-my $wait= int(rand($w_max))+$w_min;
+my $w_log= rand($w_max_log)+$w_min_log;
+my $wait=int(2**$w_log);
 print "\n$i:Waiting for $wait seconds...\n" if $v;
 sleep $wait; 
 } #Êend of nclients_serial loop
