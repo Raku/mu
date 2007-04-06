@@ -247,6 +247,7 @@ sub set_postamble {
     To install extra libraries, extract both "-src" and "-src-extralibs"
     distributions from http://haskell.org/ghc/download_ghc_66.html in the
     same directory, then cd into ghc-6.6/ and build GHC from there.
+    In Ubuntu Feisty type "sudo aptitude install libghc6-mtl-dev"
 EOD
     }
 
