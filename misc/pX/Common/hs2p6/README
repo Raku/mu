@@ -1,0 +1,3 @@
+compile & run with:
+ghc --make -fth Main.hs
+./a.out
