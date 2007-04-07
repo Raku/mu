@@ -46,20 +46,6 @@ implements its principles without compromise, and so its API is a concrete
 language that qualifies as a D.  The TTM web site contains various useful
 documents and links on the subject, some being specified further below.
 
-=item B<Database in Depth: Relational Theory for Practitioners>
-
-Christopher J. Date - "Database in Depth: Relational Theory for
-Practitioners, 1st edition, Oreilly, 2005 (ISBN: 0-596-10012-4)"; see
-L<http://www.oreilly.com/catalog/databaseid/>.
-
-This is the first printed book that I read fully, which is related to The
-Third Manifesto, and it was my main introduction.  It explains in an easy
-to follow matter just what the relational data model really is, a solid and
-provable logical system, and partially contrasts with SQL's distorted view
-of it.  While being easy to follow, the book is written towards people that
-are already database professionals, and doesn't go into the basics that we
-should already know.
-
 =item B<Databases, Types, and The Relational Model: The Third Manifesto>
 
 Christopher J. Date, Hugh Darwen - "Databases, Types, and The Relational
@@ -85,6 +71,20 @@ rest of the book expands on, rationalizes, and gives examples of.  Chapter
 the the complete grammar of "Tutorial D", which is a computationally
 complete programming language with fully integrated database functionality,
 whose principal purpose is to serve as a teaching vehicle.
+
+=item B<Database in Depth: Relational Theory for Practitioners>
+
+Christopher J. Date - "Database in Depth: Relational Theory for
+Practitioners, 1st edition, Oreilly, 2005 (ISBN: 0-596-10012-4)"; see
+L<http://www.oreilly.com/catalog/databaseid/>.
+
+This is the first printed book that I read fully, which is related to The
+Third Manifesto, and it was my main introduction.  It explains in an easy
+to follow matter just what the relational data model really is, a solid and
+provable logical system, and partially contrasts with SQL's distorted view
+of it.  While being easy to follow, the book is written towards people that
+are already database professionals, and doesn't go into the basics that we
+should already know.
 
 =item L<http://www.acm.org/classics/nov95/toc.html>
 
@@ -141,17 +141,24 @@ to examine the project source code, change it, and redistribute it:
 =item B<Rel> - L<http://dbappbuilder.sourceforge.net/Rel.html>
 
 Rel is a relational database server, written by Dave Voorhis
-(d.voorhis@derby.ac.uk), that implements Date and Darwen's "Tutorial D"
+(C<d.voorhis@derby.ac.uk>), that implements Date and Darwen's "Tutorial D"
 language mainly "by the book".  It is written in Java (version 1.5) and is
 operating-system independent.  It is licensed under the GNU GPL.
 
 =item B<Duro> - L<http://duro.sourceforge.net/>
 
 Duro is a relational database library, written by René Hartmann
-(rhartmann@users.sourceforge.net).  It is written in C (with a Tcl
+(C<rhartmann@users.sourceforge.net>).  It is written in C (with a Tcl
 interface), is implemented on top of the Berkeley DB database library, and
 runs on all POSIX/Unix-like and 32-bit Windows operating systems.  It is
 licensed under the GNU GPL.
+
+=item B<Dee> - L<http://www.quicksort.co.uk/>
+
+Dee is an implementation of D (built on the relational algebra operators)
+as an extension to Python, written by Greg Gaughan
+(C<gjgaughan@users.sourceforge.net>).  It is written in Python and is
+operating-system independent.  It is licensed under the GNU GPL.
 
 =back
 
@@ -167,15 +174,15 @@ at zero cost:
 =item B<FlipDB> - L<http://www.flipdb.com/>
 
 FlipDB is a relational database management system written by Paul Mansour
-(paul@carlislegroup.com).  Pending a full implementation of the relational
-algebra, FlipDB uses a simple but powerful query technique that simulates
-relation-valued attributes and obviates the need for outer join (or any
-explicit join).  The author is using Date's and Darwen's work as a guide,
-and his intention is to not violate any of the principles set forth in TTM,
-if not to implement all of Tutorial D.  It is written in Dyalog APL, in a
-functional style with no loops or control structures, and runs only on
-32-bit Windows operating systems.  It is available under a shared source
-agreement for personal use and study.
+(C<paul@carlislegroup.com>).  Pending a full implementation of the
+relational algebra, FlipDB uses a simple but powerful query technique that
+simulates relation-valued attributes and obviates the need for outer join
+(or any explicit join).  The author is using Date's and Darwen's work as a
+guide, and his intention is to not violate any of the principles set forth
+in TTM, if not to implement all of Tutorial D.  It is written in Dyalog
+APL, in a functional style with no loops or control structures, and runs
+only on 32-bit Windows operating systems.  It is available under a shared
+source agreement for personal use and study.
 
 =back
 
@@ -189,7 +196,7 @@ code or permission to change them, though some are available at zero cost:
 =item B<Opus> - L<http://ca.geocities.com/dcauz@rogers.com/opus/>
 
 Opus is a command-line relational database development system, written by
-David Cauz (dcauz@rogers.com) and Paul Church, that implements its own
+David Cauz (C<dcauz@rogers.com>) and Paul Church, that implements its own
 "Opus" language (that has the syntactic style of C).  It is written in C
 and only runs on Windows.
 
@@ -222,7 +229,7 @@ a SQL dialect as their command language.
 =item B<Genezzo> - L<http://www.genezzo.com/>
 
 Genezzo is a micro kernel style enterprise-strength SQL database server,
-written mainly by Jeffrey Cohen (jcohen@cpan.org), currently under
+written mainly by Jeffrey Cohen (C<jcohen@cpan.org>), currently under
 construction.  It is written in a hybrid of C and Perl 5, and runs on any
 operating system.  It is licensed under the GNU GPL.
 
