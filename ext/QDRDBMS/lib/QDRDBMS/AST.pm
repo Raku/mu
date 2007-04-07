@@ -4,11 +4,11 @@ use v6-alpha;
 ###########################################################################
 
 my $LITERAL_TYPE_MAP = {
-    'Bool' => QDRDBMS::AST::TypeRef.new({ 'text' => 'sys.type.Bool' }),
-    'Str'  => QDRDBMS::AST::TypeRef.new({ 'text' => 'sys.type.Text' }),
-    'Blob' => QDRDBMS::AST::TypeRef.new({ 'text' => 'sys.type.Blob' }),
-    'Int'  => QDRDBMS::AST::TypeRef.new({ 'text' => 'sys.type.Int' }),
-    'Num'  => QDRDBMS::AST::TypeRef.new({ 'text' => 'sys.type.Num.Rat' }),
+    'Bool' => QDRDBMS::AST::TypeRef.new( :text('sys.type.Bool') ),
+    'Str'  => QDRDBMS::AST::TypeRef.new( :text('sys.type.Text') ),
+    'Blob' => QDRDBMS::AST::TypeRef.new( :text('sys.type.Blob') ),
+    'Int'  => QDRDBMS::AST::TypeRef.new( :text('sys.type.Int') ),
+    'Num'  => QDRDBMS::AST::TypeRef.new( :text('sys.type.Num.Rat') ),
 };
 
 ###########################################################################
@@ -17,51 +17,45 @@ my $LITERAL_TYPE_MAP = {
 module QDRDBMS::AST-0.0.0 {
     # Note: This given version applies to all of this file's packages.
 
-    use base 'Exporter';
-    our @EXPORT_OK = qw(
-        TypeRef FuncRef ProcRef VarRef
-        LitDefExpr VarRefExpr FuncInvExpr Stmt Func Proc
-    );
-
 ###########################################################################
 
-sub TypeRef {
+sub TypeRef is export {
     return QDRDBMS::AST::TypeRef.new( @_ );
 }
 
-sub FuncRef {
+sub FuncRef is export {
     return QDRDBMS::AST::FuncRef.new( @_ );
 }
 
-sub ProcRef {
+sub ProcRef is export {
     return QDRDBMS::AST::ProcRef.new( @_ );
 }
 
-sub VarRef {
+sub VarRef is export {
     return QDRDBMS::AST::VarRef.new( @_ );
 }
 
-sub LitDefExpr {
+sub LitDefExpr is export {
     return QDRDBMS::AST::LitDefExpr.new( @_ );
 }
 
-sub VarRefExpr {
+sub VarRefExpr is export {
     return QDRDBMS::AST::VarRefExpr.new( @_ );
 }
 
-sub FuncInvExpr {
+sub FuncInvExpr is export {
     return QDRDBMS::AST::FuncInvExpr.new( @_ );
 }
 
-sub Stmt {
+sub Stmt is export {
     return QDRDBMS::AST::Stmt.new( @_ );
 }
 
-sub Func {
+sub Func is export {
     return QDRDBMS::AST::Func.new( @_ );
 }
 
-sub Proc {
+sub Proc is export {
     return QDRDBMS::AST::Proc.new( @_ );
 }
 
@@ -73,9 +67,6 @@ sub Proc {
 ###########################################################################
 
 role QDRDBMS::AST::_EntityRef {
-
-    use Carp;
-    use Scalar::Util qw( blessed );
 
     my $ATTR_TEXT_POSSREP;
     BEGIN { $ATTR_TEXT_POSSREP = 'text_possrep'; }
@@ -95,8 +86,7 @@ submethod BUILD (Str :$text!) {
 
 ###########################################################################
 
-sub as_text {
-    my ($self) = @_;
+method as_text of Str () {
     return $self.{$ATTR_TEXT_POSSREP};
 }
 
@@ -108,37 +98,34 @@ sub as_text {
 ###########################################################################
 
 class QDRDBMS::AST::TypeRef {
-    use base 'QDRDBMS::AST::_EntityRef';
+    does QDRDBMS::AST::_EntityRef;
 } # class QDRDBMS::AST::TypeRef
 
 ###########################################################################
 ###########################################################################
 
 class QDRDBMS::AST::FuncRef {
-    use base 'QDRDBMS::AST::_EntityRef';
+    does QDRDBMS::AST::_EntityRef;
 } # class QDRDBMS::AST::FuncRef
 
 ###########################################################################
 ###########################################################################
 
 class QDRDBMS::AST::ProcRef {
-    use base 'QDRDBMS::AST::_EntityRef';
+    does QDRDBMS::AST::_EntityRef;
 } # class QDRDBMS::AST::ProcRef
 
 ###########################################################################
 ###########################################################################
 
 class QDRDBMS::AST::VarRef {
-    use base 'QDRDBMS::AST::_EntityRef';
+    does QDRDBMS::AST::_EntityRef;
 } # class QDRDBMS::AST::VarRef
 
 ###########################################################################
 ###########################################################################
 
 class QDRDBMS::AST::LitDefExpr {
-
-    use Carp;
-    use Scalar::Util qw( blessed );
 
     my $ATTR_LIT_VAL = 'lit_val';
     my $ATTR_LIT_TYPE = 'lit_type';
@@ -171,9 +158,6 @@ submethod BUILD (Bool|Str|Blob|Int|Num :lit($lit_val)!) {
 
 class QDRDBMS::AST::VarRefExpr {
 
-    use Carp;
-    use Scalar::Util qw( blessed );
-
     my $ATTR_VAR_NAME = 'var_name';
 
 ###########################################################################
@@ -198,9 +182,6 @@ submethod BUILD (QDRDBMS::AST::VarRef :var($var_ref)!) {
 
 class QDRDBMS::AST::FuncInvExpr {
 
-    use Carp;
-    use Scalar::Util qw( blessed );
-
     my $ATTR_FUNC_NAME = 'func_name';
     my $ATTR_FUNC_ARGS_AOA = 'func_args_aoa';
     my $ATTR_FUNC_ARGS_HASH = 'func_args_hash';
@@ -208,7 +189,7 @@ class QDRDBMS::AST::FuncInvExpr {
 ###########################################################################
 
 submethod BUILD (QDRDBMS::AST::FuncRef :func($func_ref)!,
-        QDRDBMS::AST::Expr :%func_args!) {
+        Hash of QDRDBMS::AST::Expr :$func_args!) {
 
     confess q{new(): Bad $func arg; it is not a valid object}
             ~ q{ of a QDRDBMS::AST::FuncRef-doing class.}
@@ -241,9 +222,6 @@ submethod BUILD (QDRDBMS::AST::FuncRef :func($func_ref)!,
 
 class QDRDBMS::AST::Stmt {
 
-    use Carp;
-    use Scalar::Util qw( blessed );
-
 
 
 ###########################################################################
@@ -260,9 +238,6 @@ class QDRDBMS::AST::Stmt {
 
 class QDRDBMS::AST::Func {
 
-    use Carp;
-    use Scalar::Util qw( blessed );
-
 
 
 ###########################################################################
@@ -278,9 +253,6 @@ class QDRDBMS::AST::Func {
 ###########################################################################
 
 class QDRDBMS::AST::Proc {
-
-    use Carp;
-    use Scalar::Util qw( blessed );
 
 
 

@@ -11,9 +11,10 @@ package QDRDBMS::Engine::Example-0.0.0 {
 
 ###########################################################################
 
-sub new_dbms {
-    my (undef, $args) = @_;
-    return QDRDBMS::Engine::Example::DBMS.new( $args );
+sub new_dbms of QDRDBMS::Engine::Example::DBMS
+        (Hash of Any :$dbms_config!) {
+    return QDRDBMS::Engine::Example::DBMS.new(
+        :dbms_config($dbms_config) );
 }
 
 ###########################################################################
@@ -31,7 +32,7 @@ class QDRDBMS::Engine::Example::DBMS {
 
 ###########################################################################
 
-submethod BUILD (Any :%dbms_config!) {
+submethod BUILD (Hash of Any :$dbms_config!) {
 
     $self.{$ATTR_DBMS_CONFIG} = $dbms_config;
 
@@ -40,16 +41,14 @@ submethod BUILD (Any :%dbms_config!) {
 
 ###########################################################################
 
-sub prepare_routine {
-    my ($self, $args) = @_;
-    $args = {%{$args}, 'dbms' => $self};
-    return QDRDBMS::Engine::Example::Routine.new( $args );
+method prepare_routine of QDRDBMS::Engine::Example::Routine
+        (QDRDBMS::AST::Proc :routine($rtn_ast)!) {
+    return QDRDBMS::Engine::Example::Routine.new(
+        :dbms(self), :routine($rtn_ast) );
 }
 
-sub new_variable {
-    my ($self, $args) = @_;
-    $args = {%{$args}, 'dbms' => $self};
-    return QDRDBMS::Engine::Example::Variable.new( $args );
+method new_variable of QDRDBMS::Engine::Example::Variable () {
+    return QDRDBMS::Engine::Example::Variable.new( :dbms(self) );
 }
 
 ###########################################################################
@@ -85,7 +84,7 @@ submethod BUILD (QDRDBMS::Engine::Example::DBMS :dbms($dbms_eng)!,
 
 ###########################################################################
 
-sub bind_variables {
+method bind_variables () {
     my ($self, $args) = @_;
     my ($var_engs) = @{$args}{'variables'};
     $self.{$ATTR_BOUND_VARS}
@@ -95,8 +94,7 @@ sub bind_variables {
 
 ###########################################################################
 
-sub execute {
-    my ($self, undef) = @_;
+method execute () {
     $self.{$ATTR_PREP_RTN}.( $self.{$ATTR_BOUND_VARS} );
     return;
 }

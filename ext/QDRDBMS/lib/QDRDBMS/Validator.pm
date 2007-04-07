@@ -12,15 +12,15 @@ module QDRDBMS::Validator-0.0.0 {
 
 ###########################################################################
 
-sub main (Str :$engine_name!, Any :%dbms_config!) {
+sub main (Str :$engine_name!, Hash of Any :$dbms_config!) {
 
     plan( 1 );
 
     print "#### QDRDBMS::Validator starting test of $engine_name ####\n";
 
     # Instantiate a QDRDBMS DBMS / virtual machine.
-    my $dbms = QDRDBMS.new_dbms({
-        'engine_name' => $engine_name, 'dbms_config' => $dbms_config });
+    my $dbms = QDRDBMS.new_dbms(
+        :engine_name($engine_name), :dbms_config($dbms_config) );
     isa_ok( $dbms, 'QDRDBMS::Interface::DBMS' );
 
     print "#### QDRDBMS::Validator finished test of $engine_name ####\n";
@@ -59,10 +59,10 @@ QDRDBMS Engine distribution:
     use QDRDBMS::Validator;
 
     # Run the test suite.
-    QDRDBMS::Validator::main({
-            'engine_name' => 'QDRDBMS::Engine::Example',
-            'dbms_config' => {},
-        });
+    QDRDBMS::Validator::main(
+            :engine_name('QDRDBMS::Engine::Example'),
+            :dbms_config({}),
+        );
 
     1;
 

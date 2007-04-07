@@ -10,9 +10,10 @@ package QDRDBMS-0.0.0 {
 
 ###########################################################################
 
-sub new_dbms {
-    my (undef, $args) = @_;
-    return QDRDBMS::Interface::DBMS.new( $args );
+sub new_dbms of QDRDBMS::Interface::DBMS
+        (Str :$engine_name!, Hash of Any :$dbms_config!) {
+    return QDRDBMS::Interface::DBMS.new(
+        :engine_name($engine_name), :dbms_config($dbms_config) );
 }
 
 ###########################################################################
@@ -24,14 +25,11 @@ sub new_dbms {
 
 class QDRDBMS::Interface::DBMS {
 
-    use Carp;
-    use Scalar::Util qw( blessed );
-
     my $ATTR_DBMS_ENG = 'dbms_eng';
 
 ###########################################################################
 
-submethod BUILD (Str :$engine_name!, Any :%dbms_config!) {
+submethod BUILD (Str :$engine_name!, Hash of Any :$dbms_config!) {
 
     confess q{new(): Bad $engine_name arg; it is not an object of a}
             ~ q{ Str-doing class.}
@@ -69,7 +67,7 @@ submethod BUILD (Str :$engine_name!, Any :%dbms_config!) {
             ~ q{ provide the new_dbms() constructor function.}
         if !$engine_name.can( 'new_dbms' );
     my $dbms_eng = eval {
-        $engine_name.new_dbms({ 'dbms_config' => $dbms_config });
+        $engine_name.new_dbms( :dbms_config($dbms_config) );
     };
     if (my $err = $@) {
         confess qq{new(): The QDRDBMS Engine class '$engine_name' threw an}
@@ -95,16 +93,14 @@ submethod BUILD (Str :$engine_name!, Any :%dbms_config!) {
 
 ###########################################################################
 
-sub prepare_routine {
-    my ($self, $args) = @_;
-    $args = {%{$args}, 'dbms' => $self};
-    return QDRDBMS::Interface::Routine.new( $args );
+method prepare_routine of QDRDBMS::Interface::Routine
+        (QDRDBMS::AST::Proc :routine($rtn_ast)!) {
+    return QDRDBMS::Interface::Routine.new(
+        :dbms(self), :routine($rtn_ast) );
 }
 
-sub new_variable {
-    my ($self, $args) = @_;
-    $args = {%{$args}, 'dbms' => $self};
-    return QDRDBMS::Interface::Variable.new( $args );
+method new_variable of QDRDBMS::Interface::Variable () {
+    return QDRDBMS::Interface::Variable.new( :dbms(self) );
 }
 
 ###########################################################################
@@ -115,9 +111,6 @@ sub new_variable {
 ###########################################################################
 
 class QDRDBMS::Interface::Routine {
-
-    use Carp;
-    use Scalar::Util qw( blessed );
 
     my $ATTR_DBMS_INTF = 'dbms_intf';
     my $ATTR_RTN_AST   = 'rtn_ast';
@@ -143,7 +136,7 @@ submethod BUILD (QDRDBMS::Interface::DBMS :dbms($dbms_intf)!,
         if !blessed $rtn_ast or !$rtn_ast.isa( 'QDRDBMS::AST::Proc' );
 
     my $rtn_eng = eval {
-        $dbms_eng.prepare_routine({ 'routine' => $rtn_ast });
+        $dbms_eng.prepare_routine( :routine($rtn_ast) );
     };
     if (my $err = $@) {
         confess qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class'}
@@ -172,9 +165,8 @@ submethod BUILD (QDRDBMS::Interface::DBMS :dbms($dbms_intf)!,
 
 ###########################################################################
 
-sub bind_variables {
-    my ($self, $args) = @_;
-    my ($var_intfs) = @{$args}{'variables'};
+method bind_variables
+        (Hash of QDRDBMS::Interface::Variable :variables($var_intfs)!) {
 
     confess q{new(): Bad $variables arg; it is not an object of a}
             ~ q{ Hash-doing class.}
@@ -191,14 +183,13 @@ sub bind_variables {
         $var_engs.{$var_name} = $var_intf.{$VAR_ATTR_VAR_ENG};
     }
 
-    $self.{$ATTR_RTN_ENG}.bind_variables({ 'variables' => $var_engs });
+    $self.{$ATTR_RTN_ENG}.bind_variables( :variables($var_intfs) );
     return;
 }
 
 ###########################################################################
 
-sub execute {
-    my ($self, undef) = @_;
+method execute () {
     $self.{$ATTR_RTN_ENG}.execute();
     return;
 }
@@ -211,9 +202,6 @@ sub execute {
 ###########################################################################
 
 class QDRDBMS::Interface::Variable {
-
-    use Carp;
-    use Scalar::Util qw( blessed );
 
     my $ATTR_DBMS_INTF = 'dbms_intf';
     my $ATTR_VAR_ENG   = 'var_eng';
@@ -232,7 +220,7 @@ submethod BUILD (QDRDBMS::Interface::DBMS :dbms($dbms_intf)!) {
     my $dbms_eng_class = blessed $dbms_eng;
 
     my $var_eng = eval {
-        $dbms_eng.new_variable({});
+        $dbms_eng.new_variable();
     };
     if (my $err = $@) {
         confess qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class'}
@@ -290,10 +278,10 @@ code; instead refer to other above-named packages in this file.>
     use QDRDBMS;
 
     # Instantiate a QDRDBMS DBMS / virtual machine.
-    my $dbms = QDRDBMS.new_dbms({
-            'engine_name' => 'QDRDBMS::Engine::Example',
-            'dbms_config' => {},
-        });
+    my $dbms = QDRDBMS.new_dbms(
+            :engine_name('QDRDBMS::Engine::Example'),
+            :dbms_config({}),
+        );
 
     # TODO: Create or connect to a repository and work with it.
 

@@ -14,44 +14,46 @@ my $TRUE  = (1 == 1);
 module QDRDBMS::Engine::Example::PhysType-0.0.0 {
     # Note: This given version applies to all of this file's packages.
 
-    use base 'Exporter';
-    our @EXPORT_OK = qw(
-        Bool Text Blob Int TextKeyedMap Heading Tuple Relation
-        Cat_DeclEntityName Cat_InvokEntityName
-    );
-
 ###########################################################################
 
-sub Bool {
+sub Bool is export {
     return QDRDBMS::Engine::Example::PhysType::Bool.new( @_ );
 }
 
-sub Text {
+sub Text is export {
     return QDRDBMS::Engine::Example::PhysType::Text.new( @_ );
 }
 
-sub Blob {
+sub Blob is export {
     return QDRDBMS::Engine::Example::PhysType::Blob.new( @_ );
 }
 
-sub Int {
+sub Int is export {
     return QDRDBMS::Engine::Example::PhysType::Int.new( @_ );
 }
 
-sub TextKeyedMap {
+sub TextKeyedMap is export {
     return QDRDBMS::Engine::Example::PhysType::TextKeyedMap.new( @_ );
 }
 
-sub Heading {
+sub Heading is export {
     return QDRDBMS::Engine::Example::PhysType::Heading.new( @_ );
 }
 
-sub Tuple {
+sub Tuple is export {
     return QDRDBMS::Engine::Example::PhysType::Tuple.new( @_ );
 }
 
-sub Relation {
+sub Relation is export {
     return QDRDBMS::Engine::Example::PhysType::Relation.new( @_ );
+}
+
+sub Cat_DeclEntityName is export {
+    return QDRDBMS::Engine::Example::PhysType::Cat_DeclEntityName.new( @_ );
+}
+
+sub Cat_InvokEntityName is export {
+    return QDRDBMS::Engine::Example::PhysType::Cat_InvokEntityName.new( @_ );
 }
 
 ###########################################################################
@@ -67,16 +69,7 @@ class QDRDBMS::Engine::Example::PhysType::_Base {
 
 ###########################################################################
 
-submethod BUILD () {
-    my ($class, @args) = @_;
-    my $self = bless {}, $class;
-    return $self._build( @args );
-}
-
-###########################################################################
-
-sub which {
-    my ($self) = @_;
+method which of Str () {
     if (!exists $self.{$ATTR_WHICH}) {
         my ($cls_nm_unq_part, $scalarified_value)
             = $self._calc_parts_of_self_which();
@@ -96,21 +89,21 @@ sub which {
 ###########################################################################
 
 class QDRDBMS::Engine::Example::PhysType::Bool {
-    use base 'QDRDBMS::Engine::Example::PhysType::_Base';
+    does QDRDBMS::Engine::Example::PhysType::_Base;
 
     my $ATTR_SCALAR = 'scalar';
         # A p5 Scalar that equals $FALSE|$TRUE.
 
 ###########################################################################
 
-sub _build {
+submethod BUILD () {
     my ($self, $scalar) = @_;
     $self.{$ATTR_SCALAR} = $scalar;
 }
 
 ###########################################################################
 
-sub _calc_parts_of_self_which {
+method _calc_parts_of_self_which of  () {
     my ($self) = @_;
     return ('Bool', $self.{$ATTR_SCALAR});
 }
@@ -123,7 +116,7 @@ sub _calc_parts_of_self_which {
 ###########################################################################
 
 class QDRDBMS::Engine::Example::PhysType::Text {
-    use base 'QDRDBMS::Engine::Example::PhysType::_Base';
+    does QDRDBMS::Engine::Example::PhysType::_Base;
 
     my $ATTR_SCALAR = 'scalar';
         # A p5 Scalar that is a text-mode string;
@@ -131,14 +124,14 @@ class QDRDBMS::Engine::Example::PhysType::Text {
 
 ###########################################################################
 
-sub _build {
+submethod BUILD () {
     my ($self, $scalar) = @_;
     $self.{$ATTR_SCALAR} = $scalar;
 }
 
 ###########################################################################
 
-sub _calc_parts_of_self_which {
+method _calc_parts_of_self_which of  () {
     my ($self) = @_;
     return ('Text', $self.{$ATTR_SCALAR});
 }
@@ -151,21 +144,21 @@ sub _calc_parts_of_self_which {
 ###########################################################################
 
 class QDRDBMS::Engine::Example::PhysType::Blob {
-    use base 'QDRDBMS::Engine::Example::PhysType::_Base';
+    does QDRDBMS::Engine::Example::PhysType::_Base;
 
     my $ATTR_SCALAR = 'scalar';
         # A p5 Scalar that is a byte-mode string; it has false utf8 flag.
 
 ###########################################################################
 
-sub _build {
+submethod BUILD () {
     my ($self, $scalar) = @_;
     $self.{$ATTR_SCALAR} = $scalar;
 }
 
 ###########################################################################
 
-sub _calc_parts_of_self_which {
+method _calc_parts_of_self_which of  () {
     my ($self) = @_;
     return ('Blob', $self.{$ATTR_SCALAR});
 }
@@ -178,7 +171,7 @@ sub _calc_parts_of_self_which {
 ###########################################################################
 
 class QDRDBMS::Engine::Example::PhysType::Int {
-    use base 'QDRDBMS::Engine::Example::PhysType::_Base';
+    does QDRDBMS::Engine::Example::PhysType::_Base;
 
     use bigint; # this is experimental
 
@@ -187,14 +180,14 @@ class QDRDBMS::Engine::Example::PhysType::Int {
 
 ###########################################################################
 
-sub _build {
+submethod BUILD () {
     my ($self, $scalar) = @_;
     $self.{$ATTR_SCALAR} = $scalar;
 }
 
 ###########################################################################
 
-sub _calc_parts_of_self_which {
+method _calc_parts_of_self_which of  () {
     my ($self) = @_;
     return ('Int', $self.{$ATTR_SCALAR});
 }
@@ -207,7 +200,7 @@ sub _calc_parts_of_self_which {
 ###########################################################################
 
 class QDRDBMS::Engine::Example::PhysType::TextKeyedMap {
-    use base 'QDRDBMS::Engine::Example::PhysType::_Base';
+    does QDRDBMS::Engine::Example::PhysType::_Base;
 
     my $ATTR_MAP = 'map';
         # A p5 Hash with 0..N elements:
@@ -216,14 +209,14 @@ class QDRDBMS::Engine::Example::PhysType::TextKeyedMap {
 
 ###########################################################################
 
-sub _build {
+submethod BUILD () {
     my ($self, $map) = @_;
     $self.{$ATTR_MAP} = $map;
 }
 
 ###########################################################################
 
-sub _calc_parts_of_self_which {
+method _calc_parts_of_self_which of  () {
     my ($self) = @_;
     my $map = $self.{$ATTR_MAP};
     return ('TextKeyedMap', join ' ', map {
@@ -235,14 +228,14 @@ sub _calc_parts_of_self_which {
 
 ###########################################################################
 
-sub ref_to_attr_map {
+method ref_to_attr_map of  () {
     my ($self) = @_;
     return $self.{$ATTR_MAP};
 }
 
 ###########################################################################
 
-sub pairs {
+method pairs of  () {
     my ($self) = @_;
     my $map = $self.{$ATTR_MAP};
     return [map { [$_, $map.{$_} ] } keys %{$map}];
@@ -256,7 +249,7 @@ sub pairs {
 ###########################################################################
 
 class QDRDBMS::Engine::Example::PhysType::Heading {
-    use base 'QDRDBMS::Engine::Example::PhysType::_Base';
+    does QDRDBMS::Engine::Example::PhysType::_Base;
 
     my $ATTR_ATTR_DEFS_BY_NAME = 'attr_defs_by_name';
         # A p5 Hash with 0..N elements:
@@ -274,7 +267,7 @@ class QDRDBMS::Engine::Example::PhysType::Heading {
 
 ###########################################################################
 
-sub _build {
+submethod BUILD () {
     my ($self, $attr_defs_aoa) = @_;
     my $attr_defs_by_name
         = $self.{$ATTR_ATTR_DEFS_BY_NAME}
@@ -286,7 +279,7 @@ sub _build {
 
 ###########################################################################
 
-sub _calc_parts_of_self_which {
+method _calc_parts_of_self_which of  () {
     my ($self) = @_;
     my $defs = $self.{$ATTR_ATTR_DEFS_ORDERED};
     return ('Heading', join ' ', map {
@@ -299,7 +292,7 @@ sub _calc_parts_of_self_which {
 
 ###########################################################################
 
-sub get_attr_attr_defs_ordered {
+method get_attr_attr_defs_ordered of  () {
     my ($self) = @_;
     return $self.{$ATTR_ATTR_DEFS_ORDERED};
 }
@@ -312,7 +305,7 @@ sub get_attr_attr_defs_ordered {
 ###########################################################################
 
 class QDRDBMS::Engine::Example::PhysType::Tuple {
-    use base 'QDRDBMS::Engine::Example::PhysType::_Base';
+    does QDRDBMS::Engine::Example::PhysType::_Base;
 
     my $ATTR_HEADING = 'heading';
         # A Heading.
@@ -322,7 +315,7 @@ class QDRDBMS::Engine::Example::PhysType::Tuple {
 
 ###########################################################################
 
-sub _build {
+submethod BUILD () {
     my ($self, $heading, $body) = @_;
     $self.{$ATTR_HEADING} = $heading;
     $self.{$ATTR_BODY}    = $body;
@@ -330,7 +323,7 @@ sub _build {
 
 ###########################################################################
 
-sub _calc_parts_of_self_which {
+method _calc_parts_of_self_which of  () {
     my ($self) = @_;
     return ('Tuple H ', $self.{$ATTR_HEADING}.which()
         ~ ' B ' ~ $self.{$ATTR_BODY}.which());
@@ -344,7 +337,7 @@ sub _calc_parts_of_self_which {
 ###########################################################################
 
 class QDRDBMS::Engine::Example::PhysType::Relation {
-    use base 'QDRDBMS::Engine::Example::PhysType::_Base';
+    does QDRDBMS::Engine::Example::PhysType::_Base;
 
     my $ATTR_HEADING    = 'heading';
         # A Heading.
@@ -361,7 +354,7 @@ class QDRDBMS::Engine::Example::PhysType::Relation {
 
 ###########################################################################
 
-sub _build {
+submethod BUILD () {
     my ($self, $heading, $body, $key_defs_aoh, $index_defs_aoh) = @_;
     # Assume input $body may contain duplicate elements (okay; silently
     # remove), and/or duplicate attributes where the attributes are keys
@@ -386,7 +379,7 @@ sub _build {
 
 ###########################################################################
 
-sub _calc_parts_of_self_which {
+method _calc_parts_of_self_which of  () {
     my ($self) = @_;
     return ('Relation H ', $self.{$ATTR_HEADING}.which()
         ~ ' B ' ~ (join ' ',
