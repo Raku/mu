@@ -1,0 +1,163 @@
+OSCON 2005 Lightning Talk
+by Darren Duncan
+presented on 2005 August 4
+
+-------------------------
+TITLE
+-------------------------
+
+Rosetta: Not Just Another Database Wrapper
+
+-------------------------
+ABSTRACT
+-------------------------
+
+This is a brief introduction to 'Rosetta', my unprecedented solution for
+rigorous database portability, in native Perl 5 and Perl 6 versions.  It
+offers nothing less than to empower "write once, run anywhere"
+applications, freeing you from database vendor lock-in.  At the same time,
+it gets the database to do the most work possible, exploiting what it is
+good for, and minimizing the application tier.  Rosetta's aim is to be a
+new defacto standard for a lower database access layer, over DBI's
+down-to-the-metal approach, for people that value Rosetta's bleeding edge
+portability over DBI's bleeding edge performance; it can work both over DBI
+and fully apart from it, supporting on equal terms databases that take
+string SQL input and those that don't.
+
+-------------------------
+SPEECH
+-------------------------
+
+Next to web templating tools, the most popular type of CPAN modules are
+so-called "DBI wrappers", whose sworn duty is to make databases more
+convenient to use than vanilla DBI provides for.
+
+They're not alone.
+
+Introducing 'Rosetta', my unprecedented solution for rigorous database
+portability.
+
+Its "Not Just Another Database Wrapper" (tm).
+
+You can get it here:
+
+
+  * A copy of this talk:
+  http://www.DarrenDuncan.net/OSCON/OSCON2005LightningTalk.txt
+
+  * Perl 5 version control:
+  http://svn.utsl.gen.nz/trunk/Rosetta/
+
+  * Perl 5 distros on CPAN:
+  http://search.cpan.org/~duncand/
+
+  * Perl 6 versions are bundled with Pugs in its ext/ directory
+
+  * LIVE - Advanced Perl DBI and DBI Wrapper BOF in room E148 tonight at
+  8:30; same room as the mod_perl BOF and Perl Monks BOF
+
+
+Rosetta's purpose is nothing less than to empower "write once, run
+anywhere" applications, freeing you from database vendor lock-in, caused by
+reams of SQL or other code that is tailored to a specific product.
+
+Database vendors treat you better when you aren't dependent on them, and
+your apps are more attractive to buyers when they aren't forced to buy
+under-performing databases to use it.
+
+Rosetta accounts for each vendor's penchant to do the same things their own
+way, and maps those to a single common API for database access.
+
+Rosetta makes every database product look the same to applications, as if
+they all natively support the SQL:2003 standard, and as if they all accept
+and return scalar data in the same format, such as dates.
+
+Now, database independence has gotten a bad rep over the years, due to all
+the poor implementations out there.
+
+They employ the "least common denominator", treating powerful databases
+like Oracle the same as text files for storage; they waste the database by
+doing work in the application tier that would be a lot faster, more secure,
+and reliable to do in the database.
+
+By contrast, Rosetta gets the database to do the most work possible,
+exploiting what it is good for, and minimizing the application tier.
+
+Rosetta is a multi-part system, like the DBI framework.
+
+The core module 'SQL::Routine' implements an abstract syntax tree for SQL,
+in the form of a Container or model holding a tree of related Node objects;
+they can be defined using Perl arrays and hashes.
+
+An app uses a SQL::Routine model to store blueprints of all database schema
+objects the app will create or invoke, and of any client-side instructions
+it will issue, and connection details.
+
+All client-issuable instructions are founded in 'routine' rooted Node
+trees, each of which is arbitrarily complex and defines a set of N SQL
+statements to be performed as a unit; each routine's args determine the
+host params or bind vars to take on execution; its return value determines
+what the app gets back, such as a row set.
+
+A routine defines everything you do, from opening a database connection to
+issuing a query to manipulating schema.
+
+The core module 'Rosetta' is used like DBI, having a "Command" design
+pattern, but it takes 'routine' Nodes instead of SQL strings as input, but
+more so because routines replace a connect() call as well; this module only
+defines an API, and requires an Engine module to implement it against a
+database, as DBI requires a driver.
+
+Engines are interchangeable.
+
+Data-defined apps benefit greatly, and can just copy data dictionaries into
+a model.
+
+Rosetta is especially for large applications, using advanced database
+features.
+
+You can define base tables, views, triggers, stored procedures, functions,
+sequences, and domains.
+
+Tables have multi-column keys, full text indexes, and set constraints.
+
+Queries are arbitrarily complex, using multi-column self and outer joins,
+grouping, expressions, compound ops like unions, function calls, and
+N-depth sub-queries that are named, correlated, and recursive.
+
+You can insert arrays, use LOBs, cursors, Unicode, and transactions.
+
+Views are updateable.
+
+Each Engine implements the Rosetta API as it wishes, handling tasks like
+generating string SQL, or Perl closures to invoke DBI handles or emulate
+features; DBI isn't even required.
+
+Rosetta could even serve as a native API for a database, such as the
+Perl-native Genezzo; it can forgo parsing string SQL entirely, and read
+from the SQL::Routine model instead.
+
+Any other API can be built above Rosetta, including SQL string parsers, and
+object to relational mappers such as Tangram and DBIx::Class; they can
+focus on their added value.
+
+Supporting the whole Rosetta API can be difficult, so Rosetta has a feature
+checklist for which each Engine must programmatically declare its support
+level.
+
+An app can query the features() method to see if an Engine satisfies it's
+needs.
+
+The 'Rosetta::Validator' module is a standard test suite for Engines.
+
+Now, I know what you're thinking; not *another* API!
+
+Worry not.
+
+Use the 'Rosetta::Emulator::DBI' module, a DBI clone, and your legacy apps
+will gain freedom with nary a change; so no porting is necessary.
+
+In conclusion, I welcome your feedback and assistence with Rosetta, and
+greet the day when it can satisfy all database using applications.
+
+Thank you.

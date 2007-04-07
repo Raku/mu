@@ -1,0 +1,46 @@
+                                  QDRDBMS
+---------------------------------------------------------------------------
+
+2007-04-xx   Darren Duncan <perl@DarrenDuncan.net>
+
+    * QDRDBMS Release 0.0.0 for Perl 5.
+
+    * This is the first release of the QDRDBMS distribution, and the first
+    release of any distribution to contain modules named QDRDBMS::*.
+
+    * QDRDBMS is the first successor of the now-defunct Rosetta DBMS
+    framework, which it is heavily based on and has learned from, though
+    for all practical purposes, QDRDBMS is a complete rewrite with
+    significant changes.  Given the magnitude of the differences, the
+    actual change history of Rosetta itself is not relevant, and so QDRDBMS
+    does not continue its version numbering or maintain the older change
+    log.  The first QDRDBMS release on CPAN is version 0.0.0.  But QDRDBMS
+    does still declare copyright of 2002-present, incorporating the Rosetta
+    development/release time-period.
+
+    * Initial code file versions are: QDRDBMS.pm and AST.pm and GSTV.pm and
+    Validator.pm and Example.pm and PhysType.pm 0.0.0.
+
+    * This is the initial file manifest:
+
+        archives/OSCON2005LightningTalk.txt
+        archives/OSCON2006SessionProposal.txt
+        Changes
+        GPL
+        INSTALL
+        lib/QDRDBMS.pm
+        lib/QDRDBMS/AST.pm
+        lib/QDRDBMS/Copying.pod
+        lib/QDRDBMS/Engine/Example.pm
+        lib/QDRDBMS/Engine/Example/PhysType.pm
+        lib/QDRDBMS/GSTV.pm
+        lib/QDRDBMS/Language.pod
+        lib/QDRDBMS/SeeAlso.pod
+        lib/QDRDBMS/Validator.pm
+        Makefile.PL
+        MANIFEST			This list of files
+        MANIFEST.SKIP
+        META.yml
+        README
+        t/QDR_00_Compile.t
+        t/QDR_50_Validate_Example.t

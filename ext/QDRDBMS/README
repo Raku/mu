@@ -1,0 +1,93 @@
+                                  QDRDBMS
+---------------------------------------------------------------------------
+
+by Darren Duncan <perl@DarrenDuncan.net>
+
+PREFACE
+
+This distribution features the Perl 5 module named "QDRDBMS" (A
+fully-featured truly relational DBMS in Perl) and its support structure.
+
+QDRDBMS is the first successor of the now-defunct Rosetta DBMS framework,
+which it is heavily based on and has learned from, though for all practical
+purposes, QDRDBMS is a complete rewrite with significant changes.  Given
+the magnitude of the differences, the actual change history of Rosetta
+itself is not relevant, and so QDRDBMS does not continue its version
+numbering or maintain the older change log.  The first QDRDBMS release on
+CPAN is version 0.0.0.  But QDRDBMS does still declare copyright of
+2002-present, incorporating the Rosetta development/release time-period.
+
+The QDRDBMS name was intentionally picked to be temporary (it should evoke
+"QDOS"), as the current release is a prototype.  In the future, when
+QDRDBMS has matured significantly, it is expected that it will be renamed
+again to a permanent long-term name.
+
+The long-term name of this project has not yet been decided, though the
+author has a 6-letter candidate in mind, to be revealed later for feedback.
+In general, new name suggestions are welcomed, with the limitation that
+they need to be easy to pronounce, short, and be easily brandable (as well
+as trademarkable), so no dictionary words and no names of existing
+entities.  Similarly, suggestions for what to name a business, whose
+primary activity is commercially developing and supporting this project
+plus associated products, is appreciated.  Likewise, the author has a name
+in mind, to be revealed later for feedback.
+
+QDRDBMS also has a native Perl 6 version, distributed separately, which is
+being co-developed with it, and which will change names at the same time,
+but while the 2 versions would be similar, they are explicitly not intended
+to be drop-in substitutable for each other, as each would have some API
+differences that optimizes it for its host language.  The actual QDRDBMS D
+language specification document will be identical for both, though.
+
+The Perl 6 version is intended to be the primary version over the long
+term, while the Perl 5 version is intended mainly for use in the short
+term.  Technically, the Perl 5 version is deprecated in favor of the Perl 6
+one, but the Perl 5 version will still be supported for several years in
+production environments, as the user demand requires.
+
+Read below for how to get support or keep up to date.
+
+KEEPING UP TO DATE
+
+My module set is constantly under development.  The canonical copies are
+all linked to through my website, "http://www.DarrenDuncan.net/", on the
+page called "Perl Libraries I Made" (name subject to change).
+
+For those of you that are interested in the bleeding edge of development, I
+have all parts of the QDRDBMS project in one or more public repositories.
+The Perl 5 QDRDBMS project is in a Git repository whose Git read-access url
+is "git://utsl.gen.nz/QDRDBMS" and whose Gitweb information url is at
+"http://utsl.gen.nz/gitweb/?p=QDRDBMS".  The Perl 6 QDRDBMS project is in a
+Subversion repository at "http://svn.pugscode.org/pugs/ext/QDRDBMS/".  The
+last version of Rosetta which was the closest to being functional, created
+between late 2002 and late 2005, is in a Subversion repository at
+"http://svn.utsl.gen.nz/trunk/Rosetta-old/".
+
+You can download slightly older versions of all of my modules from the
+public CPAN archives at "http://www.cpan.org/authors/id/D/DU/DUNCAND/", or
+on my own web server at "http://www.DarrenDuncan.net/d/perl/".
+
+CPAN also extracts the POD from modules and maintains that documentation in
+an organized and searchable fashion.  Their main search site is at
+"http://search.cpan.org", and my own DUNCAND author page is at
+"http://search.cpan.org/search?author=DUNCAND".
+
+You can download my oldest tarred and gzipped distributions from BACKPAN,
+at "http://history.perl.org/backpan/authors/id/D/DU/DUNCAND/", or from my
+web server, at "http://www.DarrenDuncan.net/d/perl/archives/", right back
+to the libdwg 1.0, first released on 2000 July 23.
+
+SUPPORT
+
+Currently, the best place to get basic support is the appropriate user
+forums (see "http://mm.DarrenDuncan.net/mailman/listinfo"), which exist so
+that QDRDBMS users can help each other, or that help coming from QDRDBMS
+developers can be said once to many people, rather than to each
+individually.
+
+Alternately, you can purchase more advanced commercial support for QDRDBMS
+from the author; contact "perl@DarrenDuncan.net" for details.
+
+FIN
+
+Share and Enjoy!

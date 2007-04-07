@@ -1,0 +1,197 @@
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+QDRDBMS::Copying -
+Matters of ownership, licensing, contributions
+
+=head1 DESCRIPTION
+
+This document is about copyright issues concerning the QDRDBMS framework,
+both as they are now, and how they are anticipated to be in the future.
+
+These may very well be intuitive, but the principle of least surprise will
+be followed such that they are explicitly spelled out anyway, so that no
+one is surprised later on.
+
+First note that QDRDBMS was renamed from "Rosetta" in 2006.  In this
+document, any reference to "QDRDBMS" should be read as "QDRDBMS, Rosetta,
+and any derived works of either".
+
+=head1 COMPOSITION
+
+For the purposes of this document, the I<QDRDBMS framework core> aka the
+I<QDRDBMS framework> aka the I<core> is composed entirely of all the files
+included with this QDRDBMS distribution in its C<lib/> directory.  This
+also includes its main test suite, since that is implemented using modules
+in C<lib/> such as C<QDRDBMS::Validator>.
+
+By contrast, this QDRDBMS distribution may also include some extra files,
+particularly in its C<examples/> directory, which are explicitly not part
+of the core, and which may be the copyright of other parties.
+
+=head1 OWNERSHIP
+
+Presently, all of the QDRDBMS framework core files are owned entirely by
+Darren Duncan, the sole copyright holder, all rights reserved; there are no
+co-owners to consult.
+
+Presently, all of the QDRDBMS framework core files have been created and
+maintained entirely by Darren, both code and documentation, save for small
+amounts of casual assistence by other people.  This consists mainly of
+providing advice in discussions that went to improve QDRDBMS, or in
+correcting minor code details or typos.  Any exceptions are specifically
+mentioned.
+
+In accordance with common sense, it is maintained that none of the
+assistence received to date, save any specifically mentioned, is enough to
+warrant partial ownership of affected portions of QDRDBMS to the other
+people, and so they remain entirely Darren's.
+
+Likewise, Darren disclaims any possible ownership over portions of other
+peoples' projects where contributions to said by Darren were minor and
+casual, and even with more major contributions, Darren disclaims any
+ownership interest in them, unless explicitly stated otherwise.
+
+=head1 LICENSING
+
+All components of the QDRDBMS framework that Darren owns, particularly the
+core, are now and pledged to forever be available under at least one free
+and open source license.  This grants all users the right to use it for any
+purpose, to make modifications, and to redistribute both the pristine and
+modified versions.  The specific license terms may differ for each
+component, and are specified in that component's documentation.
+
+This is a summary of their licensing terms, usually taking the core as an
+example, but what is written in the components themselves takes precedence.
+
+This QDRDBMS core distribution is currently licensed under the GPL version
+2.0 or later.  In the near future, it is expected to be relicensed instead
+under the GPL version 3.0 or later instead, assuming no difficulties arise
+with the final version of that license (which is currently still in the
+draft stage).
+
+Therefore, any third party component that links to QDRDBMS is required to
+be distributed under the GPL unless at least one of the following
+conditions is met:
+
+1.  It is distributed separately from QDRDBMS, listing QDRDBMS as an
+I<external> dependency, and the end user obtains the third party component
+and QDRDBMS separately.
+
+2.  The copyright holder has sold them a proprietary license allowing it.
+
+3.  The copyright holder generally re-releases QDRDBMS with additional
+permissions concerning linking.  (Should that be a necessary pre-condition
+for significant other free software projects, that use different licenses,
+to choose to link with QDRDBMS.)
+
+These licensing terms are being applied to QDRDBMS partly because the
+copyright holder agrees with, and wants to support, the principles of user
+freedom provided by use of the GPL.  They are also being applied so that
+the copyright holder has an exclusive method of generating income from
+QDRDBMS, which comes from those people that want to distribute QDRDBMS
+while extricating their linked non-free components from the GPL's terms,
+within a limited scope.  Of course, the copyright holder can also generate
+income from QDRDBMS using the methods that the GPL license provides to
+everyone, such as support contracts and sponsored improvements.  This same
+dual-license business practice is also used effectively by MySQL AB and
+others.
+
+The copyright holder has no intention of broadly releasing QDRDBMS itself
+under any free or open source license but the GPL, such as the Perl or
+Artistic or BSD licenses.  One reason is that doing so would be irrevokably
+granting the legal means for anyone to make non-free derivitives, due to
+other licenses having weaker or nonexistent copyleft protections.  Another
+reason is that doing so would open a large hole in the dual-licensing
+business plan.  However, workable and limited scope arrangements can be
+made on a case by case basis if someone has different needs.
+
+All extensions to the QDRDBMS framework, that Darren creates, whose sole
+purpose is to enable other free software modules or applications on top of
+QDRDBMS, such as Tangram or DBIx::Class or Bricolage, will typically be
+individually licensed under the same terms as those components being
+enabled.
+
+For example, "DBIx::Class::Storage::QDRDBMS is free software and is
+licensed under the same terms as DBIx::Class itself".
+
+A primary advantage of this approach is that the enabling glue code can be
+both distributed with the enabled module or application regardless of the
+latter's license, and the latter can choose to refactor itself by moving
+code from the glue code to itself, without affecting its licensing
+implications.  It also makes conceptual sense, since the glue is more part
+of the enabled component than QDRDBMS.
+
+=head1 CONTRIBUTIONS
+
+The copyright holder of QDRDBMS welcomes and encourages contributions
+towards improving QDRDBMS from anyone and at any time, big or small, and
+for any part of the system.
+
+Considering QDRDBMS's heavily componentized design, some improvements are
+best included in the core, and others are best done as externally
+distributed extensions.  As QDRDBMS matures, changes to extensions should
+become the more common way to extend it than modifying the core is, since a
+mature core should readily support a wide variety of extensions.
+
+In the case of extensions that you write and distribute separately, you
+retain ownership of them as usual.
+
+If your contribution fits best inside one of Darren's modules and is
+non-trivial, then you would normally retain ownership of that contribution
+unless you grant said ownership to Darren.
+
+In the case of the QDRDBMS core modules, Darren will require the transfer
+of ownership for your contribution (which can be done, eg, with an informal
+statement by email), as a precondition for merging that into the official
+releases of the core modules, so that sole ownership of said core modules
+can be maintained.  (But you can still reuse your contributed code as you
+see fit in external projects.)
+
+If you refuse the ownership transfer, then Darren will not accept the
+contribution into the QDRDBMS core distribution, or may possibly rewrite the
+contribution instead, in which case the contribution would effectively be
+'advice'.
+
+As an exception to the above, material changes to a core module that are
+distributed independently as a patch will remain yours.
+
+In a worst case scenario, you are always allowed to fork QDRDBMS, and have
+shared ownership in your alternate version, though the QDRDBMS copyright
+holder would hope that a fork would never happen.
+
+=head1 CONCLUSION
+
+Darren Duncan created QDRDBMS in the hope that it would be greatly useful
+to and be used by a lot of people, and through its use, lead to positive
+change in society.  Releasing it as free software should take care that it
+serves this purpose over the long term.  But it is also hoped that QDRDBMS
+can contribute to the ability of its copyright holder to earn a living over
+the long term.  Hopefully the policies that have been laid out in this
+document are fair and acceptable to everyone.
+
+=head1 SEE ALSO
+
+Go to L<QDRDBMS> for the majority of distribution-internal references, and
+L<QDRDBMS::SeeAlso> for the majority of distribution-external references.
+
+=head1 AUTHOR
+
+Darren Duncan (C<perl@DarrenDuncan.net>)
+
+=head1 LICENCE AND COPYRIGHT
+
+This file is part of the QDRDBMS framework.
+
+QDRDBMS is Copyright © 2002-2007, Darren Duncan.
+
+See the LICENCE AND COPYRIGHT of L<QDRDBMS> for details.
+
+=head1 ACKNOWLEDGEMENTS
+
+The ACKNOWLEDGEMENTS in L<QDRDBMS> apply to this file too.
+
+=cut

@@ -1,0 +1,83 @@
+OSCON 2006 Session Proposal
+by Darren Duncan
+submitted for consideration on 2006 February 13
+notification of its non-approval received on 2006 April 12
+
+-----------------
+
+Title of your Proposal:
+
+    Better databases in Perl with Rosetta
+
+Track:
+
+    Perl
+
+Proposal Type:
+
+    45 Minute Conference Session
+
+Audience Level:
+
+    General
+
+Audience Type:
+
+    This talk is for intermediate Perl programmers that already have some
+    experience using DBI and/or its wrapper modules.
+
+Brief Description:
+
+    This talk introduces the new "Rosetta" DBMS framework, which makes it
+    easy to create and use relational databases in a very reliable,
+    powerful, portable, and efficient way.  Making reliable solutions need
+    not be error prone and slow.  Native Perl 5 and 6 implementations.
+    Includes examples of use.
+
+Abstract or Full Description:
+
+    The daily work of many Perl developers involves databases, which their
+    applications depend on to manage information, or to store their objects
+    persistently.  But they often aren't being used anywhere near as
+    effectively as they could be, meaning that just getting things done
+    involves too much developer effort and time, and leads to reliability
+    problems from various complexities or ambiguities they face.  This is
+    even more the case when the databases are large, involving complex
+    business rules, and developers want the freedom to switch from one
+    database vendor to another.
+
+    This talk introduces the new "Rosetta" DBMS framework, an unprecedented
+    solution, which makes it easy to create and use relational databases in
+    a very reliable, powerful, portable, and efficient way.  Native Perl 5
+    and 6 implementations.  This talk outlines how it works, how you would
+    use it, and how to migrate to it from other database solutions, like
+    DBI.
+
+    Rosetta is a complete and uncompromising implementation of "The Third
+    Manifesto", Christopher J. Date's and Hugh Darwen's proposal for a
+    foundation for data and database management systems.  You are saved a
+    lot of work because you can just focus on saying *what* your database
+    is like, and Rosetta figures out for itself how to implement that in an
+    optimal fashion; you don't have to design or code in an unpleasantly
+    verbose way just to optimize the database engine.
+
+    Its truly relational database structure allows you to model anything in
+    the real world accurately, and it ensures that your data is always in a
+    consistent and correct state, so you can trust what it says.  You can
+    easily define arbitrarily complex custom data types, and operators, and
+    constraints that enforce any kind of business rules.  Queries and
+    updates are formed using logically sound expressions that give you a
+    lot of flexibility without verbosity.  Using the database catalog, can
+    also perform all data definition using the same operators you use for
+    querying and data manipulation.
+
+Biography:
+
+    Darren Duncan is a developer of applications and databases, has written
+    several CPAN modules, and participates in Pugs / Perl 6 development.
+    His life's work is to build consumer-useable ontological database
+    solutions for accurately organizing and easily sharing the world's
+    knowledge over the long term, including scientific, historical, and
+    genealogical.
+
+----------------
