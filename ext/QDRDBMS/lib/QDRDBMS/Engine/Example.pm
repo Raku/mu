@@ -1,7 +1,4 @@
-use 5.008001;
-use utf8;
-use strict;
-use warnings FATAL => 'all';
+use v6-alpha;
 
 use QDRDBMS;
 use QDRDBMS::Engine::Example::PhysType;
@@ -9,8 +6,7 @@ use QDRDBMS::Engine::Example::PhysType;
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::Engine::Example; # package
-    our $VERSION = 0.000;
+package QDRDBMS::Engine::Example-0.0.0 {
     # Note: This given version applies to all of this file's packages.
 
 ###########################################################################
@@ -27,7 +23,7 @@ sub new_dbms {
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::Engine::Example::DBMS; # class
+class QDRDBMS::Engine::Example::DBMS {
 
     use Carp;
 
@@ -66,7 +62,7 @@ sub new_variable {
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::Engine::Example::Routine; # class
+class QDRDBMS::Engine::Example::Routine {
 
     use Carp;
 
@@ -117,7 +113,7 @@ sub execute {
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::Engine::Example::Variable; # class
+class QDRDBMS::Engine::Example::Variable {
 
     use Carp;
 
@@ -142,7 +138,7 @@ sub new {
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::Engine::Example::Value; # class
+class QDRDBMS::Engine::Example::Value {
 
 
 
@@ -195,9 +191,9 @@ I<This documentation is pending.>
 
 =head1 DEPENDENCIES
 
-This file requires any version of Perl 5.x.y that is at least 5.8.1.
+This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
-It also requires these Perl 5 classes that are in the current distribution:
+It also requires these Perl 6 classes that are in the current distribution:
 L<QDRDBMS-0.0.0|QDRDBMS>.
 
 =head1 INCOMPATIBILITIES

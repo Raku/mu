@@ -5,8 +5,9 @@ by Darren Duncan <perl@DarrenDuncan.net>
 
 PREFACE
 
-This distribution features the Perl 5 module named "QDRDBMS" (A
-fully-featured truly relational DBMS in Perl) and its support structure.
+This distribution features the Perl 5 or 6 (depending on which copy of this
+README file you are reading) module named "QDRDBMS" (A fully-featured truly
+relational DBMS in Perl) and its support structure.
 
 QDRDBMS is the first successor of the now-defunct Rosetta DBMS framework,
 which it is heavily based on and has learned from, though for all practical
@@ -32,12 +33,13 @@ primary activity is commercially developing and supporting this project
 plus associated products, is appreciated.  Likewise, the author has a name
 in mind, to be revealed later for feedback.
 
-QDRDBMS also has a native Perl 6 version, distributed separately, which is
-being co-developed with it, and which will change names at the same time,
-but while the 2 versions would be similar, they are explicitly not intended
-to be drop-in substitutable for each other, as each would have some API
-differences that optimizes it for its host language.  The actual QDRDBMS D
-language specification document will be identical for both, though.
+QDRDBMS has 2 co-developed versions, which are written in native Perl 5 and
+Perl 6 respectively, and which are distributed separately from each other,
+and which will change names at the same time.  But while the 2 versions
+would be similar, they are explicitly not intended to be drop-in
+substitutable for each other, as each would have some API differences that
+optimizes it for its host language.  The actual QDRDBMS D language
+specification document will be identical for both, though.
 
 The Perl 6 version is intended to be the primary version over the long
 term, while the Perl 5 version is intended mainly for use in the short

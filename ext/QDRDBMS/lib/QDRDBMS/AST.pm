@@ -1,32 +1,21 @@
-use 5.008001;
-use utf8;
-use strict;
-use warnings FATAL => 'all';
-
-use QDRDBMS::GSTV qw( Bool Str Blob Int Num Hash );
+use v6-alpha;
 
 ###########################################################################
 ###########################################################################
 
 my $LITERAL_TYPE_MAP = {
-    'QDRDBMS::GSTV::Bool'
-        => QDRDBMS::AST::TypeRef->new({ 'text' => Str('sys.type.Bool') }),
-    'QDRDBMS::GSTV::Str'
-        => QDRDBMS::AST::TypeRef->new({ 'text' => Str('sys.type.Text') }),
-    'QDRDBMS::GSTV::Blob'
-        => QDRDBMS::AST::TypeRef->new({ 'text' => Str('sys.type.Blob') }),
-    'QDRDBMS::GSTV::Int'
-        => QDRDBMS::AST::TypeRef->new({ 'text' => Str('sys.type.Int') }),
-    'QDRDBMS::GSTV::Num'
-        => QDRDBMS::AST::TypeRef->new({
-            'text' => Str('sys.type.Num.Rat') }),
+    'Bool' => QDRDBMS::AST::TypeRef->new({ 'text' => 'sys.type.Bool' }),
+    'Str'  => QDRDBMS::AST::TypeRef->new({ 'text' => 'sys.type.Text' }),
+    'Blob' => QDRDBMS::AST::TypeRef->new({ 'text' => 'sys.type.Blob' }),
+    'Int'  => QDRDBMS::AST::TypeRef->new({ 'text' => 'sys.type.Int' }),
+    'Num'  => QDRDBMS::AST::TypeRef->new({
+        'text' => Str('sys.type.Num.Rat') }),
 };
 
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::AST; # module
-    our $VERSION = 0.000;
+module QDRDBMS::AST-0.0.0 {
     # Note: This given version applies to all of this file's packages.
 
     use base 'Exporter';
@@ -76,7 +65,7 @@ sub Proc {
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::AST::_EntityRef; # role
+role QDRDBMS::AST::_EntityRef {
 
     use Carp;
     use Scalar::Util qw( blessed );
@@ -92,8 +81,8 @@ sub new {
     my ($text) = @{$args}{'text'};
 
     confess q{new(): Bad $text arg; it is not a valid object}
-            . q{ of a QDRDBMS::GSTV::Str-doing class.}
-        if !blessed $text or !$text->isa( 'QDRDBMS::GSTV::Str' );
+            . q{ of a Str-doing class.}
+        if !blessed $text or !$text->isa( 'Str' );
 
     $self->{$ATTR_TEXT_POSSREP} = $text;
 
@@ -114,35 +103,35 @@ sub as_text {
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::AST::TypeRef; # class
+class QDRDBMS::AST::TypeRef {
     use base 'QDRDBMS::AST::_EntityRef';
 } # class QDRDBMS::AST::TypeRef
 
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::AST::FuncRef; # class
+class QDRDBMS::AST::FuncRef {
     use base 'QDRDBMS::AST::_EntityRef';
 } # class QDRDBMS::AST::FuncRef
 
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::AST::ProcRef; # class
+class QDRDBMS::AST::ProcRef {
     use base 'QDRDBMS::AST::_EntityRef';
 } # class QDRDBMS::AST::ProcRef
 
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::AST::VarRef; # class
+class QDRDBMS::AST::VarRef {
     use base 'QDRDBMS::AST::_EntityRef';
 } # class QDRDBMS::AST::VarRef
 
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::AST::Expr; # class
+class QDRDBMS::AST::Expr {
 
     use Carp;
     use Scalar::Util qw( blessed );
@@ -177,7 +166,7 @@ sub new {
         }
         else {
             confess q{new(): Bad $lit arg; it is not an object of a}
-                . q{ QDRDBMS::GSTV::(Bool|Str|Blob|Int|Num) class.};
+                . q{ (Bool|Str|Blob|Int|Num) class.};
         }
     }
 
@@ -230,7 +219,7 @@ sub new {
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::AST::Stmt; # class
+class QDRDBMS::AST::Stmt {
 
     use Carp;
     use Scalar::Util qw( blessed );
@@ -249,7 +238,7 @@ sub new {
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::AST::Func; # class
+class QDRDBMS::AST::Func {
 
     use Carp;
     use Scalar::Util qw( blessed );
@@ -268,7 +257,7 @@ sub new {
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::AST::Proc; # class
+class QDRDBMS::AST::Proc {
 
     use Carp;
     use Scalar::Util qw( blessed );
@@ -335,10 +324,7 @@ I<This documentation is pending.>
 
 =head1 DEPENDENCIES
 
-This file requires any version of Perl 5.x.y that is at least 5.8.1.
-
-It also requires these Perl 5 classes that are in the current distribution:
-L<QDRDBMS::GSTV-(0.0.0)|QDRDBMS::GSTV>.
+This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
 =head1 INCOMPATIBILITIES
 

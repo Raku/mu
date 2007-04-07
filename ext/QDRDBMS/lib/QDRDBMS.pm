@@ -1,15 +1,11 @@
-use 5.008001;
-use utf8;
-use strict;
-use warnings FATAL => 'all';
+use v6-alpha;
 
 use QDRDBMS::AST;
 
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS; # package
-    our $VERSION = 0.000;
+package QDRDBMS-0.0.0 {
     # Note: This given version applies to all of this file's packages.
 
 ###########################################################################
@@ -26,7 +22,7 @@ sub new_dbms {
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::Interface::DBMS; # class
+class QDRDBMS::Interface::DBMS {
 
     use Carp;
     use Scalar::Util qw( blessed );
@@ -42,16 +38,16 @@ sub new {
         = @{$args}{'engine_name', 'dbms_config'};
 
     confess q{new(): Bad $engine_name arg; it is not an object of a}
-            . q{ QDRDBMS::GSTV::Str-doing class.}
+            . q{ Str-doing class.}
         if !blessed $engine_name
-            or !$engine_name->isa( 'QDRDBMS::GSTV::Str' );
+            or !$engine_name->isa( 'Str' );
     $engine_name = ${$engine_name};
 
     if (defined $dbms_config) {
         confess q{new(): Bad $dbms_config arg; it is not an object of a}
-                . q{ QDRDBMS::GSTV::Hash-doing class.}
+                . q{ Hash-doing class.}
             if !blessed $dbms_config
-                or !$dbms_config->isa( 'QDRDBMS::GSTV::Hash' );
+                or !$dbms_config->isa( 'Hash' );
     }
     else {
         $dbms_config = {};
@@ -127,7 +123,7 @@ sub new_variable {
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::Interface::Routine; # class
+class QDRDBMS::Interface::Routine {
 
     use Carp;
     use Scalar::Util qw( blessed );
@@ -192,9 +188,9 @@ sub bind_variables {
     my ($var_intfs) = @{$args}{'variables'};
 
     confess q{new(): Bad $variables arg; it is not an object of a}
-            . q{ QDRDBMS::GSTV::Hash-doing class.}
+            . q{ Hash-doing class.}
         if !blessed $var_intfs
-            or !$var_intfs->isa( 'QDRDBMS::GSTV::Hash' );
+            or !$var_intfs->isa( 'Hash' );
 
     my $var_engs = {};
     for my $var_name (keys %{$var_intfs}) {
@@ -225,7 +221,7 @@ sub execute {
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::Interface::Variable; # class
+class QDRDBMS::Interface::Variable {
 
     use Carp;
     use Scalar::Util qw( blessed );
@@ -308,13 +304,11 @@ code; instead refer to other above-named packages in this file.>
 
 =head1 SYNOPSIS
 
-    use QDRDBMS::GSTV qw( Str );
-
     use QDRDBMS;
 
     # Instantiate a QDRDBMS DBMS / virtual machine.
     my $dbms = QDRDBMS->new_dbms({
-        'engine_name' => Str('QDRDBMS::Engine::Example') });
+        'engine_name' => 'QDRDBMS::Engine::Example' });
 
     # TODO: Create or connect to a repository and work with it.
 
@@ -512,10 +506,9 @@ I<This documentation is pending.>
 
 =head1 DEPENDENCIES
 
-This file requires any version of Perl 5.x.y that is at least 5.8.1.
+This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
-It also requires these Perl 5 classes that are in the current distribution:
-L<QDRDBMS::GSTV-(0.0.0)|QDRDBMS::GSTV>,
+It also requires these Perl 6 classes that are in the current distribution:
 L<QDRDBMS::AST-(0.0.0)|QDRDBMS::AST>.
 
 =head1 INCOMPATIBILITIES
@@ -527,24 +520,15 @@ None reported.
 These documentation files are included in the QDRDBMS distribution:
 L<QDRDBMS::Language>.
 
-The Perl 5 module L<QDRDBMS::Validator> is bundled with QDRDBMS and can be
+The Perl 6 module L<QDRDBMS::Validator> is bundled with QDRDBMS and can be
 used to test QDRDBMS Engines.
 
-The Perl 5 package L<QDRDBMS::Engine::Example> is bundled with QDRDBMS and
+The Perl 6 package L<QDRDBMS::Engine::Example> is bundled with QDRDBMS and
 implements a self-contained reference implementation of a QDRDBMS Engine.
 
 Go to the L<QDRDBMS::SeeAlso> file for the majority of external references.
 
 =head1 BUGS AND LIMITATIONS
-
-The QDRDBMS Perl-5 framework has been built according to certain old-school
-or traditional Perl-5-land design principles, including that there are no
-explicit attempts in code to enforce privacy of the framework's internals,
-besides not documenting them as part of the public API.  (The Perl 6
-version of QDRDBMS will be different.)  That said, you should still respect
-that privacy and just use the public API that QDRDBMS provides.  If you
-bypass the public API anyway, as Perl 5 allows, you do so at your own
-peril.
 
 I<This documentation is pending.>
 

@@ -1,7 +1,4 @@
-use 5.008001;
-use utf8;
-use strict;
-use warnings FATAL => 'all';
+use v6-alpha;
 
 ###########################################################################
 ###########################################################################
@@ -14,8 +11,7 @@ my $TRUE  = (1 == 1);
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::Engine::Example::PhysType; # module
-    our $VERSION = 0.000;
+module QDRDBMS::Engine::Example::PhysType-0.0.0 {
     # Note: This given version applies to all of this file's packages.
 
     use base 'Exporter';
@@ -65,7 +61,7 @@ sub Relation {
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::Engine::Example::PhysType::_Base; # class
+class QDRDBMS::Engine::Example::PhysType::_Base {
 
     my $ATTR_WHICH = '_Base::which';
 
@@ -99,7 +95,7 @@ sub which {
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::Engine::Example::PhysType::Bool; # class
+class QDRDBMS::Engine::Example::PhysType::Bool {
     use base 'QDRDBMS::Engine::Example::PhysType::_Base';
 
     my $ATTR_SCALAR = 'scalar';
@@ -126,7 +122,7 @@ sub _calc_parts_of_self_which {
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::Engine::Example::PhysType::Text; # class
+class QDRDBMS::Engine::Example::PhysType::Text {
     use base 'QDRDBMS::Engine::Example::PhysType::_Base';
 
     my $ATTR_SCALAR = 'scalar';
@@ -154,7 +150,7 @@ sub _calc_parts_of_self_which {
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::Engine::Example::PhysType::Blob; # class
+class QDRDBMS::Engine::Example::PhysType::Blob {
     use base 'QDRDBMS::Engine::Example::PhysType::_Base';
 
     my $ATTR_SCALAR = 'scalar';
@@ -181,7 +177,7 @@ sub _calc_parts_of_self_which {
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::Engine::Example::PhysType::Int; # class
+class QDRDBMS::Engine::Example::PhysType::Int {
     use base 'QDRDBMS::Engine::Example::PhysType::_Base';
 
     use bigint; # this is experimental
@@ -210,7 +206,7 @@ sub _calc_parts_of_self_which {
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::Engine::Example::PhysType::TextKeyedMap; # class
+class QDRDBMS::Engine::Example::PhysType::TextKeyedMap {
     use base 'QDRDBMS::Engine::Example::PhysType::_Base';
 
     my $ATTR_MAP = 'map';
@@ -259,7 +255,7 @@ sub pairs {
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::Engine::Example::PhysType::Heading; # class
+class QDRDBMS::Engine::Example::PhysType::Heading {
     use base 'QDRDBMS::Engine::Example::PhysType::_Base';
 
     my $ATTR_ATTR_DEFS_BY_NAME = 'attr_defs_by_name';
@@ -315,7 +311,7 @@ sub get_attr_attr_defs_ordered {
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::Engine::Example::PhysType::Tuple; # class
+class QDRDBMS::Engine::Example::PhysType::Tuple {
     use base 'QDRDBMS::Engine::Example::PhysType::_Base';
 
     my $ATTR_HEADING = 'heading';
@@ -347,7 +343,7 @@ sub _calc_parts_of_self_which {
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::Engine::Example::PhysType::Relation; # class
+class QDRDBMS::Engine::Example::PhysType::Relation {
     use base 'QDRDBMS::Engine::Example::PhysType::_Base';
 
     my $ATTR_HEADING    = 'heading';

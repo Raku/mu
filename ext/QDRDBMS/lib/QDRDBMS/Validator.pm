@@ -1,19 +1,14 @@
-use 5.008001;
-use utf8;
-use strict;
-use warnings FATAL => 'all';
+use v6-alpha;
 
 use QDRDBMS;
 
 ###########################################################################
 ###########################################################################
 
-{ package QDRDBMS::Validator; # module
-    our $VERSION = 0.000;
+module QDRDBMS::Validator-0.0.0 {
     # Note: This given version applies to all of this file's packages.
 
-    use QDRDBMS::GSTV qw( Bool Str Blob Int Num Hash );
-    use Test::More;
+    use Test;
 
 ###########################################################################
 
@@ -22,7 +17,7 @@ sub main {
     my ($engine_name, $dbms_config)
         = @{$args}{'engine_name', 'dbms_config'};
 
-    plan( 'tests' => 1 );
+    plan( 1 );
 
     print "#### QDRDBMS::Validator starting test of $engine_name ####\n";
 
@@ -62,34 +57,29 @@ This document describes QDRDBMS::Validator version 0.0.0.
 This can be the complete content of the main C<t/*.t> file for an example
 QDRDBMS Engine distribution:
 
-    use 5.008001;
-    use utf8;
-    use strict;
-    use warnings FATAL => 'all';
-
-    use QDRDBMS::GSTV qw( Str Hash );
+    use v6-alpha;
 
     # Load the test suite.
     use QDRDBMS::Validator;
 
     # Run the test suite.
     QDRDBMS::Validator::main({
-            'engine_name'   => Str('QDRDBMS::Engine::Example'),
-            'engine_config' => Hash({}),
+            'engine_name'   => 'QDRDBMS::Engine::Example',
+            'engine_config' => {},
         });
 
     1;
 
-The current release of QDRDBMS::Validator uses L<Test::More> internally,
-and C<main()> will invoke it to output what the standard Perl test harness
+The current release of QDRDBMS::Validator uses L<Test> internally, and
+C<main()> will invoke it to output what the standard Perl test harness
 expects.  I<It is expected that this will change in the future so that
-Validator does not use Test::More internally, and rather will simply return
-test results in a data structure that the main t/*.t then can disseminate
-and pass the components to Test::More itself.>
+Validator does not use Test internally, and rather will simply return test
+results in a data structure that the main t/*.t then can disseminate and
+pass the components to Test itself.>
 
 =head1 DESCRIPTION
 
-The QDRDBMS::Validator Perl 5 module is a common comprehensive test suite
+The QDRDBMS::Validator Perl 6 module is a common comprehensive test suite
 to run against all QDRDBMS Engines.  You run it against a QDRDBMS Engine
 module to ensure that the Engine and/or the database behind it implements
 the parts of the QDRDBMS API that your application needs, and that the API
@@ -134,10 +124,9 @@ I<This documentation is pending.>
 
 =head1 DEPENDENCIES
 
-This file requires any version of Perl 5.x.y that is at least 5.8.1.
+This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
-It also requires these Perl 5 classes that are in the current distribution:
-L<QDRDBMS::GSTV-(0.0.0)|QDRDBMS::GSTV>,
+It also requires these Perl 6 classes that are in the current distribution:
 L<QDRDBMS::AST-(0.0.0)|QDRDBMS::AST>, L<QDRDBMS-0.0.0|QDRDBMS>.
 
 =head1 INCOMPATIBILITIES

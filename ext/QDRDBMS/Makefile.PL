@@ -1,28 +1,13 @@
-use 5.008001;
-use utf8;
 use strict;
-use warnings FATAL => 'all';
+use warnings;
 
-warn q{
----------------------------------------------------------------------------
-  NOTE: Please ignore any warnings during installation about the use of
-  "=encoding utf8" in the pod documentation.
+use lib '../..', '../../inc';
+use inc::Module::Install prefix => '../../inc';
 
-  Continuing in 3 seconds...
----------------------------------------------------------------------------
-};
-sleep 3;
+name       ('QDRDBMS');
+version    ('0.0.0'); # 'VERSION_FROM' => 'lib/QDRDBMS.pm'
+abstract   ('A fully-featured truly relational DBMS in Perl');
+author     ('Darren Duncan <perl@DarrenDuncan.net>');
+license    ('gpl');
 
-use ExtUtils::MakeMaker;
-
-WriteMakefile(
-    'NAME' => 'QDRDBMS',
-    'VERSION_FROM' => 'lib/QDRDBMS.pm', # finds $VERSION
-    'ABSTRACT' => 'A fully-featured truly relational DBMS in Perl',
-    'AUTHOR' => 'Darren Duncan <perl@DarrenDuncan.net>',
-#    'LICENSE' => 'gpl',
-    'PREREQ_PM' => {
-    },
-);
-
-1; # Magic true value required at end of a reuseable file's code.
+WritePugs  (6);

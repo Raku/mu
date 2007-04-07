@@ -1,34 +1,25 @@
-use 5.008001;
-use utf8;
-use strict;
-use warnings FATAL => 'all';
+use v6-alpha;
 
-use Test::More;
+use Test;
 
-plan( 'tests' => 12 );
+plan( 10 );
 
-use_ok( 'QDRDBMS::GSTV' );
-is( $QDRDBMS::GSTV::VERSION, 0.000,
-    'QDRDBMS::GSTV is the correct version' );
+use QDRDBMS::AST; pass "(dummy instead of broken use_ok)";
+skip( 1, q{is( QDRDBMS::AST.WHO.version, 0.0.0,
+    'QDRDBMS::AST is the correct version' );} );
 
-use_ok( 'QDRDBMS::AST' );
-is( $QDRDBMS::AST::VERSION, 0.000,
-    'QDRDBMS::AST is the correct version' );
+use QDRDBMS; pass "(dummy instead of broken use_ok)";
+skip( 1, q{is( QDRDBMS.WHO.version, 0.0.0,
+    'QDRDBMS is the correct version' );} );
 
-use_ok( 'QDRDBMS' );
-is( $QDRDBMS::VERSION, 0.000,
-    'QDRDBMS is the correct version' );
+use QDRDBMS::Validator; pass "(dummy instead of broken use_ok)";
+skip( 1, q{is( QDRDBMS::Validator.WHO.version, 0.0.0,
+    'QDRDBMS::Validator is the correct version' );} );
 
-use_ok( 'QDRDBMS::Validator' );
-is( $QDRDBMS::Validator::VERSION, 0.000,
-    'QDRDBMS::Validator is the correct version' );
+use QDRDBMS::Engine::Example::PhysType; pass "(dummy instead of broken use_ok)";
+skip( 1, q{is( QDRDBMS::Engine::Example::PhysType.WHO.version, 0.0.0,
+    'QDRDBMS::Engine::Example::PhysType is the correct version' );} );
 
-use_ok( 'QDRDBMS::Engine::Example::PhysType' );
-is( $QDRDBMS::Engine::Example::PhysType::VERSION, 0.000,
-    'QDRDBMS::Engine::Example::PhysType is the correct version' );
-
-use_ok( 'QDRDBMS::Engine::Example' );
-is( $QDRDBMS::Engine::Example::VERSION, 0.000,
-    'QDRDBMS::Engine::Example is the correct version' );
-
-1; # Magic true value required at end of a reuseable file's code.
+use QDRDBMS::Engine::Example; pass "(dummy instead of broken use_ok)";
+skip( 1, q{is( QDRDBMS::Engine::Example.WHO.version, 0.0.0,
+    'QDRDBMS::Engine::Example is the correct version' );} );
