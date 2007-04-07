@@ -12,7 +12,7 @@ package QDRDBMS-0.0.0 {
 
 sub new_dbms {
     my (undef, $args) = @_;
-    return QDRDBMS::Interface::DBMS->new( $args );
+    return QDRDBMS::Interface::DBMS.new( $args );
 }
 
 ###########################################################################
@@ -31,32 +31,23 @@ class QDRDBMS::Interface::DBMS {
 
 ###########################################################################
 
-sub new {
-    my ($class, $args) = @_;
-    my $self = bless {}, $class;
-    my ($engine_name, $dbms_config)
-        = @{$args}{'engine_name', 'dbms_config'};
+submethod BUILD (Str :$engine_name!, Any :%dbms_config!) {
 
     confess q{new(): Bad $engine_name arg; it is not an object of a}
-            . q{ Str-doing class.}
+            ~ q{ Str-doing class.}
         if !blessed $engine_name
-            or !$engine_name->isa( 'Str' );
+            or !$engine_name.isa( 'Str' );
     $engine_name = ${$engine_name};
 
-    if (defined $dbms_config) {
-        confess q{new(): Bad $dbms_config arg; it is not an object of a}
-                . q{ Hash-doing class.}
-            if !blessed $dbms_config
-                or !$dbms_config->isa( 'Hash' );
-    }
-    else {
-        $dbms_config = {};
-    }
+    confess q{new(): Bad $dbms_config arg; it is not an object of a}
+            ~ q{ Hash-doing class.}
+        if !blessed $dbms_config
+            or !$dbms_config.isa( 'Hash' );
 
     # A package may be loaded due to it being embedded in a non-excl file.
     if (!do {
             no strict 'refs';
-            defined %{$engine_name . '::'};
+            defined %{$engine_name ~ '::'};
         }) {
         # Note: We have to invoke this 'require' in an eval string
         # because we need the bareword semantics, where 'require'
@@ -64,42 +55,42 @@ sub new {
         eval "require $engine_name;";
         if (my $err = $@) {
             confess q{new(): Could not load QDRDBMS Engine class}
-                . qq{ '$engine_name': $err};
+                ~ qq{ '$engine_name': $err};
         }
         confess qq{new(): Could not load QDRDBMS Engine class}
-                . qq{ '$engine_name': while that file did compile without}
-                . q{ errors, it did not declare the same-named package.}
+                ~ qq{ '$engine_name': while that file did compile without}
+                ~ q{ errors, it did not declare the same-named package.}
             if !do {
                 no strict 'refs';
-                defined %{$engine_name . '::'};
+                defined %{$engine_name ~ '::'};
             };
     }
     confess qq{new(): The QDRDBMS Engine class '$engine_name' does not}
-            . q{ provide the new_dbms() constructor function.}
-        if !$engine_name->can( 'new_dbms' );
+            ~ q{ provide the new_dbms() constructor function.}
+        if !$engine_name.can( 'new_dbms' );
     my $dbms_eng = eval {
-        $engine_name->new_dbms({ 'dbms_config' => $dbms_config });
+        $engine_name.new_dbms({ 'dbms_config' => $dbms_config });
     };
     if (my $err = $@) {
         confess qq{new(): The QDRDBMS Engine class '$engine_name' threw an}
-            . qq{ exception during its new_dbms() execution: $err}
+            ~ qq{ exception during its new_dbms() execution: $err}
     }
     confess q{new(): The new_dbms() constructor function of the QDRDBMS}
-            . qq{ Engine class '$engine_name' did not return an object}
-            . q{ to serve as a DBMS Engine.}
+            ~ qq{ Engine class '$engine_name' did not return an object}
+            ~ q{ to serve as a DBMS Engine.}
         if !blessed $dbms_eng;
     my $dbms_eng_class = blessed $dbms_eng;
 
     confess qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class' does}
-            . q{ not provide the prepare_routine() method.}
-        if !$dbms_eng->can( 'prepare_routine' );
+            ~ q{ not provide the prepare_routine() method.}
+        if !$dbms_eng.can( 'prepare_routine' );
     confess qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class' does}
-            . q{ not provide the new_variable() method.}
-        if !$dbms_eng->can( 'new_variable' );
+            ~ q{ not provide the new_variable() method.}
+        if !$dbms_eng.can( 'new_variable' );
 
-    $self->{$ATTR_DBMS_ENG} = $dbms_eng;
+    $self.{$ATTR_DBMS_ENG} = $dbms_eng;
 
-    return $self;
+    return;
 }
 
 ###########################################################################
@@ -107,13 +98,13 @@ sub new {
 sub prepare_routine {
     my ($self, $args) = @_;
     $args = {%{$args}, 'dbms' => $self};
-    return QDRDBMS::Interface::Routine->new( $args );
+    return QDRDBMS::Interface::Routine.new( $args );
 }
 
 sub new_variable {
     my ($self, $args) = @_;
     $args = {%{$args}, 'dbms' => $self};
-    return QDRDBMS::Interface::Variable->new( $args );
+    return QDRDBMS::Interface::Variable.new( $args );
 }
 
 ###########################################################################
@@ -137,48 +128,46 @@ class QDRDBMS::Interface::Routine {
 
 ###########################################################################
 
-sub new {
-    my ($class, $args) = @_;
-    my $self = bless {}, $class;
-    my ($dbms_intf, $rtn_ast) = @{$args}{'dbms', 'routine'};
+submethod BUILD (QDRDBMS::Interface::DBMS :dbms($dbms_intf)!,
+        QDRDBMS::AST::Proc :routine($rtn_ast)!) {
 
     confess q{new(): Bad $dbms arg; it is not an object of a}
-            . q{ QDRDBMS::Interface::DBMS-doing class.}
+            ~ q{ QDRDBMS::Interface::DBMS-doing class.}
         if !blessed $dbms_intf
-            or !$dbms_intf->isa( 'QDRDBMS::Interface::DBMS' );
-    my $dbms_eng = $dbms_intf->{$DBMS_ATTR_DBMS_ENG};
+            or !$dbms_intf.isa( 'QDRDBMS::Interface::DBMS' );
+    my $dbms_eng = $dbms_intf.{$DBMS_ATTR_DBMS_ENG};
     my $dbms_eng_class = blessed $dbms_eng;
 
     confess q{new(): Bad $dbms arg; it is not an object of a}
-            . q{ QDRDBMS::AST::Routine-doing class.}
-        if !blessed $rtn_ast or !$rtn_ast->isa( 'QDRDBMS::AST::Routine' );
+            ~ q{ QDRDBMS::AST::Proc-doing class.}
+        if !blessed $rtn_ast or !$rtn_ast.isa( 'QDRDBMS::AST::Proc' );
 
     my $rtn_eng = eval {
-        $dbms_eng->prepare_routine({ 'routine' => $rtn_ast });
+        $dbms_eng.prepare_routine({ 'routine' => $rtn_ast });
     };
     if (my $err = $@) {
         confess qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class'}
-            . q{ threw an exception during its prepare_routine()}
-            . qq{ execution: $err}
+            ~ q{ threw an exception during its prepare_routine()}
+            ~ qq{ execution: $err}
     }
     confess q{new(): The prepare_routine() method of the QDRDBMS}
-            . qq{ DBMS class '$dbms_eng_class' did not return an object}
-            . q{ to serve as a Routine Engine.}
+            ~ qq{ DBMS class '$dbms_eng_class' did not return an object}
+            ~ q{ to serve as a Routine Engine.}
         if !blessed $rtn_eng;
     my $rtn_eng_class = blessed $rtn_eng;
 
     confess qq{new(): The QDRDBMS Routine Engine class '$rtn_eng_class'}
-            . q{ does not provide the bind_variables() method.}
-        if !$rtn_eng->can( 'bind_variables' );
+            ~ q{ does not provide the bind_variables() method.}
+        if !$rtn_eng.can( 'bind_variables' );
     confess qq{new(): The QDRDBMS Routine Engine class '$rtn_eng_class'}
-            . q{ does not provide the execute() method.}
-        if !$rtn_eng->can( 'execute' );
+            ~ q{ does not provide the execute() method.}
+        if !$rtn_eng.can( 'execute' );
 
-    $self->{$ATTR_DBMS_INTF} = $dbms_intf;
-    $self->{$ATTR_RTN_AST}   = $rtn_ast;
-    $self->{$ATTR_RTN_ENG}   = $rtn_eng;
+    $self.{$ATTR_DBMS_INTF} = $dbms_intf;
+    $self.{$ATTR_RTN_AST}   = $rtn_ast;
+    $self.{$ATTR_RTN_ENG}   = $rtn_eng;
 
-    return $self;
+    return;
 }
 
 ###########################################################################
@@ -188,21 +177,21 @@ sub bind_variables {
     my ($var_intfs) = @{$args}{'variables'};
 
     confess q{new(): Bad $variables arg; it is not an object of a}
-            . q{ Hash-doing class.}
+            ~ q{ Hash-doing class.}
         if !blessed $var_intfs
-            or !$var_intfs->isa( 'Hash' );
+            or !$var_intfs.isa( 'Hash' );
 
     my $var_engs = {};
     for my $var_name (keys %{$var_intfs}) {
-        my $var_intf = $var_intfs->{$var_name};
+        my $var_intf = $var_intfs.{$var_name};
         confess q{new(): Bad $var_value arg elem; it is not an object of a}
-                . q{ QDRDBMS::Interface::Variable-doing class.}
+                ~ q{ QDRDBMS::Interface::Variable-doing class.}
             if !blessed $var_intf
-                or !$var_intf->isa( 'QDRDBMS::Interface::Variable' );
-        $var_engs->{$var_name} = $var_intf->{$VAR_ATTR_VAR_ENG};
+                or !$var_intf.isa( 'QDRDBMS::Interface::Variable' );
+        $var_engs.{$var_name} = $var_intf.{$VAR_ATTR_VAR_ENG};
     }
 
-    $self->{$ATTR_RTN_ENG}->bind_variables({ 'variables' => $var_engs });
+    $self.{$ATTR_RTN_ENG}.bind_variables({ 'variables' => $var_engs });
     return;
 }
 
@@ -210,7 +199,7 @@ sub bind_variables {
 
 sub execute {
     my ($self, undef) = @_;
-    $self->{$ATTR_RTN_ENG}->execute();
+    $self.{$ATTR_RTN_ENG}.execute();
     return;
 }
 
@@ -233,40 +222,37 @@ class QDRDBMS::Interface::Variable {
 
 ###########################################################################
 
-sub new {
-    my ($class, $args) = @_;
-    my $self = bless {}, $class;
-    my ($dbms_intf) = @{$args}{'dbms'};
+submethod BUILD (QDRDBMS::Interface::DBMS :dbms($dbms_intf)!) {
 
     confess q{new(): Bad $dbms arg; it is not an object of a}
-            . q{ QDRDBMS::Interface::DBMS-doing class.}
+            ~ q{ QDRDBMS::Interface::DBMS-doing class.}
         if !blessed $dbms_intf
-            or !$dbms_intf->isa( 'QDRDBMS::Interface::DBMS' );
-    my $dbms_eng = $dbms_intf->{$DBMS_ATTR_DBMS_ENG};
+            or !$dbms_intf.isa( 'QDRDBMS::Interface::DBMS' );
+    my $dbms_eng = $dbms_intf.{$DBMS_ATTR_DBMS_ENG};
     my $dbms_eng_class = blessed $dbms_eng;
 
     my $var_eng = eval {
-        $dbms_eng->new_variable({});
+        $dbms_eng.new_variable({});
     };
     if (my $err = $@) {
         confess qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class'}
-            . q{ threw an exception during its new_variable()}
-            . qq{ execution: $err}
+            ~ q{ threw an exception during its new_variable()}
+            ~ qq{ execution: $err}
     }
     confess q{new(): The prepare_routine() method of the QDRDBMS}
-            . qq{ DBMS class '$dbms_eng_class' did not return an object}
-            . q{ to serve as a Routine Engine.}
+            ~ qq{ DBMS class '$dbms_eng_class' did not return an object}
+            ~ q{ to serve as a Routine Engine.}
         if !blessed $var_eng;
     my $var_eng_class = blessed $var_eng;
 
 #    confess qq{new(): The QDRDBMS Variable Engine class '$var_eng_class'}
-#            . q{ does not provide the ...() method.}
-#        if !$var_eng->can( '...' );
+#            ~ q{ does not provide the ...() method.}
+#        if !$var_eng.can( '...' );
 
-    $self->{$ATTR_DBMS_INTF} = $dbms_intf;
-    $self->{$ATTR_VAR_ENG} = $var_eng;
+    $self.{$ATTR_DBMS_INTF} = $dbms_intf;
+    $self.{$ATTR_VAR_ENG} = $var_eng;
 
-    return $self;
+    return;
 }
 
 ###########################################################################
@@ -275,9 +261,6 @@ sub new {
 
 ###########################################################################
 ###########################################################################
-
-1; # Magic true value required at end of a reuseable file's code.
-__END__
 
 =pod
 
@@ -307,8 +290,10 @@ code; instead refer to other above-named packages in this file.>
     use QDRDBMS;
 
     # Instantiate a QDRDBMS DBMS / virtual machine.
-    my $dbms = QDRDBMS->new_dbms({
-        'engine_name' => 'QDRDBMS::Engine::Example' });
+    my $dbms = QDRDBMS.new_dbms({
+            'engine_name' => 'QDRDBMS::Engine::Example',
+            'dbms_config' => {},
+        });
 
     # TODO: Create or connect to a repository and work with it.
 

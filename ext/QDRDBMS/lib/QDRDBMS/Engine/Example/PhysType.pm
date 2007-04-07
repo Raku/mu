@@ -23,35 +23,35 @@ module QDRDBMS::Engine::Example::PhysType-0.0.0 {
 ###########################################################################
 
 sub Bool {
-    return QDRDBMS::Engine::Example::PhysType::Bool->new( @_ );
+    return QDRDBMS::Engine::Example::PhysType::Bool.new( @_ );
 }
 
 sub Text {
-    return QDRDBMS::Engine::Example::PhysType::Text->new( @_ );
+    return QDRDBMS::Engine::Example::PhysType::Text.new( @_ );
 }
 
 sub Blob {
-    return QDRDBMS::Engine::Example::PhysType::Blob->new( @_ );
+    return QDRDBMS::Engine::Example::PhysType::Blob.new( @_ );
 }
 
 sub Int {
-    return QDRDBMS::Engine::Example::PhysType::Int->new( @_ );
+    return QDRDBMS::Engine::Example::PhysType::Int.new( @_ );
 }
 
 sub TextKeyedMap {
-    return QDRDBMS::Engine::Example::PhysType::TextKeyedMap->new( @_ );
+    return QDRDBMS::Engine::Example::PhysType::TextKeyedMap.new( @_ );
 }
 
 sub Heading {
-    return QDRDBMS::Engine::Example::PhysType::Heading->new( @_ );
+    return QDRDBMS::Engine::Example::PhysType::Heading.new( @_ );
 }
 
 sub Tuple {
-    return QDRDBMS::Engine::Example::PhysType::Tuple->new( @_ );
+    return QDRDBMS::Engine::Example::PhysType::Tuple.new( @_ );
 }
 
 sub Relation {
-    return QDRDBMS::Engine::Example::PhysType::Relation->new( @_ );
+    return QDRDBMS::Engine::Example::PhysType::Relation.new( @_ );
 }
 
 ###########################################################################
@@ -67,25 +67,25 @@ class QDRDBMS::Engine::Example::PhysType::_Base {
 
 ###########################################################################
 
-sub new {
+submethod BUILD () {
     my ($class, @args) = @_;
     my $self = bless {}, $class;
-    return $self->_build( @args );
+    return $self._build( @args );
 }
 
 ###########################################################################
 
 sub which {
     my ($self) = @_;
-    if (!exists $self->{$ATTR_WHICH}) {
+    if (!exists $self.{$ATTR_WHICH}) {
         my ($cls_nm_unq_part, $scalarified_value)
-            = $self->_calc_parts_of_self_which();
+            = $self._calc_parts_of_self_which();
         my $len_cnup = length $cls_nm_unq_part;
         my $len_sv = length $scalarified_value;
-        $self->{$ATTR_WHICH} = '8 PhysType'
-            . " $len_cnup $cls_nm_unq_part $len_sv $scalarified_value";
+        $self.{$ATTR_WHICH} = '8 PhysType'
+            ~ " $len_cnup $cls_nm_unq_part $len_sv $scalarified_value";
     }
-    return $self->{$ATTR_WHICH};
+    return $self.{$ATTR_WHICH};
 }
 
 ###########################################################################
@@ -105,14 +105,14 @@ class QDRDBMS::Engine::Example::PhysType::Bool {
 
 sub _build {
     my ($self, $scalar) = @_;
-    $self->{$ATTR_SCALAR} = $scalar;
+    $self.{$ATTR_SCALAR} = $scalar;
 }
 
 ###########################################################################
 
 sub _calc_parts_of_self_which {
     my ($self) = @_;
-    return ('Bool', $self->{$ATTR_SCALAR});
+    return ('Bool', $self.{$ATTR_SCALAR});
 }
 
 ###########################################################################
@@ -133,14 +133,14 @@ class QDRDBMS::Engine::Example::PhysType::Text {
 
 sub _build {
     my ($self, $scalar) = @_;
-    $self->{$ATTR_SCALAR} = $scalar;
+    $self.{$ATTR_SCALAR} = $scalar;
 }
 
 ###########################################################################
 
 sub _calc_parts_of_self_which {
     my ($self) = @_;
-    return ('Text', $self->{$ATTR_SCALAR});
+    return ('Text', $self.{$ATTR_SCALAR});
 }
 
 ###########################################################################
@@ -160,14 +160,14 @@ class QDRDBMS::Engine::Example::PhysType::Blob {
 
 sub _build {
     my ($self, $scalar) = @_;
-    $self->{$ATTR_SCALAR} = $scalar;
+    $self.{$ATTR_SCALAR} = $scalar;
 }
 
 ###########################################################################
 
 sub _calc_parts_of_self_which {
     my ($self) = @_;
-    return ('Blob', $self->{$ATTR_SCALAR});
+    return ('Blob', $self.{$ATTR_SCALAR});
 }
 
 ###########################################################################
@@ -189,14 +189,14 @@ class QDRDBMS::Engine::Example::PhysType::Int {
 
 sub _build {
     my ($self, $scalar) = @_;
-    $self->{$ATTR_SCALAR} = $scalar;
+    $self.{$ATTR_SCALAR} = $scalar;
 }
 
 ###########################################################################
 
 sub _calc_parts_of_self_which {
     my ($self) = @_;
-    return ('Int', $self->{$ATTR_SCALAR});
+    return ('Int', $self.{$ATTR_SCALAR});
 }
 
 ###########################################################################
@@ -218,17 +218,17 @@ class QDRDBMS::Engine::Example::PhysType::TextKeyedMap {
 
 sub _build {
     my ($self, $map) = @_;
-    $self->{$ATTR_MAP} = $map;
+    $self.{$ATTR_MAP} = $map;
 }
 
 ###########################################################################
 
 sub _calc_parts_of_self_which {
     my ($self) = @_;
-    my $map = $self->{$ATTR_MAP};
+    my $map = $self.{$ATTR_MAP};
     return ('TextKeyedMap', join ' ', map {
-            my $mk = (length $_) . ' ' . $_;
-            my $mv = $map->{$_}->which();
+            my $mk = (length $_) ~ ' ' ~ $_;
+            my $mv = $map.{$_}.which();
             "K $mk V $mv";
         } sort keys %{$map});
 }
@@ -237,15 +237,15 @@ sub _calc_parts_of_self_which {
 
 sub ref_to_attr_map {
     my ($self) = @_;
-    return $self->{$ATTR_MAP};
+    return $self.{$ATTR_MAP};
 }
 
 ###########################################################################
 
 sub pairs {
     my ($self) = @_;
-    my $map = $self->{$ATTR_MAP};
-    return [map { [$_, $map->{$_} ] } keys %{$map}];
+    my $map = $self.{$ATTR_MAP};
+    return [map { [$_, $map.{$_} ] } keys %{$map}];
 }
 
 ###########################################################################
@@ -277,10 +277,10 @@ class QDRDBMS::Engine::Example::PhysType::Heading {
 sub _build {
     my ($self, $attr_defs_aoa) = @_;
     my $attr_defs_by_name
-        = $self->{$ATTR_ATTR_DEFS_BY_NAME}
-        = {map { $_->[0] => $_ } @{$attr_defs_aoa}};
-    $self->{$ATTR_ATTR_DEFS_ORDERED}
-        = [map { $attr_defs_by_name->{$_} }
+        = $self.{$ATTR_ATTR_DEFS_BY_NAME}
+        = {map { $_.[0] => $_ } @{$attr_defs_aoa}};
+    $self.{$ATTR_ATTR_DEFS_ORDERED}
+        = [map { $attr_defs_by_name.{$_} }
             sort keys %{$attr_defs_by_name}];
 }
 
@@ -288,12 +288,12 @@ sub _build {
 
 sub _calc_parts_of_self_which {
     my ($self) = @_;
-    my $defs = $self->{$ATTR_ATTR_DEFS_ORDERED};
+    my $defs = $self.{$ATTR_ATTR_DEFS_ORDERED};
     return ('Heading', join ' ', map {
             my ($atnm, $mjtp, $mntp) = @{$_};
-            'ATNM ' . (length $atnm) . ' ' . $atnm
-                . ' MJTP ' . (length $mjtp) . ' ' . $mjtp
-                . ' MNTP ' . $mntp->which();
+            'ATNM ' ~ (length $atnm) ~ ' ' ~ $atnm
+                ~ ' MJTP ' ~ (length $mjtp) ~ ' ' ~ $mjtp
+                ~ ' MNTP ' ~ $mntp.which();
         } @{$defs});
 }
 
@@ -301,7 +301,7 @@ sub _calc_parts_of_self_which {
 
 sub get_attr_attr_defs_ordered {
     my ($self) = @_;
-    return $self->{$ATTR_ATTR_DEFS_ORDERED};
+    return $self.{$ATTR_ATTR_DEFS_ORDERED};
 }
 
 ###########################################################################
@@ -324,16 +324,16 @@ class QDRDBMS::Engine::Example::PhysType::Tuple {
 
 sub _build {
     my ($self, $heading, $body) = @_;
-    $self->{$ATTR_HEADING} = $heading;
-    $self->{$ATTR_BODY}    = $body;
+    $self.{$ATTR_HEADING} = $heading;
+    $self.{$ATTR_BODY}    = $body;
 }
 
 ###########################################################################
 
 sub _calc_parts_of_self_which {
     my ($self) = @_;
-    return ('Tuple H ', $self->{$ATTR_HEADING}->which()
-        . ' B ' . $self->{$ATTR_BODY}->which());
+    return ('Tuple H ', $self.{$ATTR_HEADING}.which()
+        ~ ' B ' ~ $self.{$ATTR_BODY}.which());
 }
 
 ###########################################################################
@@ -367,7 +367,7 @@ sub _build {
     # remove), and/or duplicate attributes where the attributes are keys
     # (not okay; throw an exception).
     # Otherwise assume all input is okay, and no key|index redundancy.
-    my $attr_defs_ordered = $heading->get_attr_attr_defs_ordered();
+    my $attr_defs_ordered = $heading.get_attr_attr_defs_ordered();
     if (scalar keys %{$key_defs_aoh} == 0) {
         # There is no explicit key, so make an implicit one over all attrs.
         push @{$key_defs_aoh}, map { $_ => undef } @{$attr_defs_ordered};
@@ -378,19 +378,19 @@ sub _build {
 
 
 
-    $self->{$ATTR_HEADING}    = $heading;
-    $self->{$ATTR_BODY}       = $body;
-    $self->{$ATTR_KEY_DEFS}   = $key_defs;
-    $self->{$ATTR_INDEX_DEFS} = $index_defs;
+    $self.{$ATTR_HEADING}    = $heading;
+    $self.{$ATTR_BODY}       = $body;
+    $self.{$ATTR_KEY_DEFS}   = $key_defs;
+    $self.{$ATTR_INDEX_DEFS} = $index_defs;
 }
 
 ###########################################################################
 
 sub _calc_parts_of_self_which {
     my ($self) = @_;
-    return ('Relation H ', $self->{$ATTR_HEADING}->which()
-        . ' B ' . (join ' ',
-            sort map { $_->which() } @{$self->{$ATTR_BODY}}));
+    return ('Relation H ', $self.{$ATTR_HEADING}.which()
+        ~ ' B ' ~ (join ' ',
+            sort map { $_.which() } @{$self.{$ATTR_BODY}}));
 }
 
 ###########################################################################
@@ -399,9 +399,6 @@ sub _calc_parts_of_self_which {
 
 ###########################################################################
 ###########################################################################
-
-1; # Magic true value required at end of a reuseable file's code.
-__END__
 
 =pod
 

@@ -4,12 +4,11 @@ use v6-alpha;
 ###########################################################################
 
 my $LITERAL_TYPE_MAP = {
-    'Bool' => QDRDBMS::AST::TypeRef->new({ 'text' => 'sys.type.Bool' }),
-    'Str'  => QDRDBMS::AST::TypeRef->new({ 'text' => 'sys.type.Text' }),
-    'Blob' => QDRDBMS::AST::TypeRef->new({ 'text' => 'sys.type.Blob' }),
-    'Int'  => QDRDBMS::AST::TypeRef->new({ 'text' => 'sys.type.Int' }),
-    'Num'  => QDRDBMS::AST::TypeRef->new({
-        'text' => Str('sys.type.Num.Rat') }),
+    'Bool' => QDRDBMS::AST::TypeRef.new({ 'text' => 'sys.type.Bool' }),
+    'Str'  => QDRDBMS::AST::TypeRef.new({ 'text' => 'sys.type.Text' }),
+    'Blob' => QDRDBMS::AST::TypeRef.new({ 'text' => 'sys.type.Blob' }),
+    'Int'  => QDRDBMS::AST::TypeRef.new({ 'text' => 'sys.type.Int' }),
+    'Num'  => QDRDBMS::AST::TypeRef.new({ 'text' => 'sys.type.Num.Rat' }),
 };
 
 ###########################################################################
@@ -27,35 +26,35 @@ module QDRDBMS::AST-0.0.0 {
 ###########################################################################
 
 sub TypeRef {
-    return QDRDBMS::AST::TypeRef->new( @_ );
+    return QDRDBMS::AST::TypeRef.new( @_ );
 }
 
 sub FuncRef {
-    return QDRDBMS::AST::FuncRef->new( @_ );
+    return QDRDBMS::AST::FuncRef.new( @_ );
 }
 
 sub ProcRef {
-    return QDRDBMS::AST::ProcRef->new( @_ );
+    return QDRDBMS::AST::ProcRef.new( @_ );
 }
 
 sub VarRef {
-    return QDRDBMS::AST::VarRef->new( @_ );
+    return QDRDBMS::AST::VarRef.new( @_ );
 }
 
 sub Expr {
-    return QDRDBMS::AST::Expr->new( @_ );
+    return QDRDBMS::AST::Expr.new( @_ );
 }
 
 sub Stmt {
-    return QDRDBMS::AST::Stmt->new( @_ );
+    return QDRDBMS::AST::Stmt.new( @_ );
 }
 
 sub Func {
-    return QDRDBMS::AST::Func->new( @_ );
+    return QDRDBMS::AST::Func.new( @_ );
 }
 
 sub Proc {
-    return QDRDBMS::AST::Proc->new( @_ );
+    return QDRDBMS::AST::Proc.new( @_ );
 }
 
 ###########################################################################
@@ -75,25 +74,22 @@ role QDRDBMS::AST::_EntityRef {
 
 ###########################################################################
 
-sub new {
-    my ($class, $args) = @_;
-    my $self = bless {}, $class;
-    my ($text) = @{$args}{'text'};
+submethod BUILD (Str :$text!) {
 
     confess q{new(): Bad $text arg; it is not a valid object}
-            . q{ of a Str-doing class.}
-        if !blessed $text or !$text->isa( 'Str' );
+            ~ q{ of a Str-doing class.}
+        if !blessed $text or !$text.isa( 'Str' );
 
-    $self->{$ATTR_TEXT_POSSREP} = $text;
+    $self.{$ATTR_TEXT_POSSREP} = $text;
 
-    return $self;
+    return;
 }
 
 ###########################################################################
 
 sub as_text {
     my ($self) = @_;
-    return $self->{$ATTR_TEXT_POSSREP};
+    return $self.{$ATTR_TEXT_POSSREP};
 }
 
 ###########################################################################
@@ -146,52 +142,53 @@ class QDRDBMS::AST::Expr {
 
 ###########################################################################
 
-sub new {
-    my ($class, $args) = @_;
-    my $self = bless {}, $class;
-    my ($lit_val, $var_ref, $func_ref, $func_args)
-        = @{$args}{'lit', 'var', 'func', 'func_args'};
+multi submethod BUILD (Bool|Str|Blob|Int|Num :lit($lit_val)!) {
+}
+multi submethod BUILD (QDRDBMS::AST::VarRef :var($var_ref)!) {
+}
+multi submethod BUILD (QDRDBMS::AST::FuncRef :func($func_ref)!,
+        QDRDBMS::AST::Expr :%func_args!) {
 
     if (defined $lit_val) {
-        $self->{$ATTR_KIND} = 'lit';
+        $self.{$ATTR_KIND} = 'lit';
         confess q{new(): The args $var, $func, $func_args}
-                . q{ can not be set when the $lit arg is set.}
+                ~ q{ can not be set when the $lit arg is set.}
             if defined $var_ref or defined $func_ref or defined $func_args;
         my $lit_class = blessed $lit_val;
         confess q{new(): Bad $var arg; it is not an object.}
             if !$lit_class;
-        if (my $lit_type = $LITERAL_TYPE_MAP->{$lit_class}) {
-            $self->{$ATTR_LIT_VAL} = $lit_val;
-            $self->{$ATTR_LIT_TYPE} = $lit_type;
+        if (my $lit_type = $LITERAL_TYPE_MAP.{$lit_class}) {
+            $self.{$ATTR_LIT_VAL} = $lit_val;
+            $self.{$ATTR_LIT_TYPE} = $lit_type;
         }
         else {
             confess q{new(): Bad $lit arg; it is not an object of a}
-                . q{ (Bool|Str|Blob|Int|Num) class.};
+                ~ q{ (Bool|Str|Blob|Int|Num) class.};
         }
     }
 
     elsif (defined $var_ref) {
-        $self->{$ATTR_KIND} = 'var';
+        $self.{$ATTR_KIND} = 'var';
         confess q{new(): The args $lit, $func, $func_args}
-                . q{ can not be set when the $var arg is set.}
+                ~ q{ can not be set when the $var arg is set.}
             if defined $func_ref or defined $func_args;
         confess q{new(): Bad $var arg; it is not a valid object}
-                . q{ of a QDRDBMS::AST::VarRef-doing class.}
+                ~ q{ of a QDRDBMS::AST::VarRef-doing class.}
             if !blessed $var_ref
-                or !$var_ref->isa( 'QDRDBMS::AST::VarRef' );
-        $self->{$ATTR_VAR_NAME} = $var_ref;
+                or !$var_ref.isa( 'QDRDBMS::AST::VarRef' );
+        $self.{$ATTR_VAR_NAME} = $var_ref;
     }
 
     elsif (defined $func_ref) {
-        $self->{$ATTR_KIND} = 'func';
+        $self.{$ATTR_KIND} = 'func';
         confess q{new(): Bad $func arg; it is not a valid object}
-                . q{ of a QDRDBMS::AST::FuncRef-doing class.}
+                ~ q{ of a QDRDBMS::AST::FuncRef-doing class.}
             if !blessed $func_ref
-                or !$func_ref->isa( 'QDRDBMS::AST::FuncRef' );
-        $self->{$ATTR_FUNC_NAME} = $func_ref;
+                or !$func_ref.isa( 'QDRDBMS::AST::FuncRef' );
+        $self.{$ATTR_FUNC_NAME} = $func_ref;
         if (!defined $func_args) {
-            $self->{$ATTR_FUNC_ARGS_AOA}  = [];
-            $self->{$ATTR_FUNC_ARGS_HASH} = {};
+            $self.{$ATTR_FUNC_ARGS_AOA}  = [];
+            $self.{$ATTR_FUNC_ARGS_HASH} = {};
         }
         elsif (ref $func_args eq 'ARRAY') {
             # TODO.
@@ -206,10 +203,10 @@ sub new {
 
     else {
         confess q{new(): None of the args $lit, $var, $func}
-            . q{ were set, but one of those must be.};
+            ~ q{ were set, but one of those must be.};
     }
 
-    return $self;
+    return;
 }
 
 ###########################################################################
@@ -275,9 +272,6 @@ class QDRDBMS::AST::Proc {
 
 ###########################################################################
 ###########################################################################
-
-1; # Magic true value required at end of a reuseable file's code.
-__END__
 
 =pod
 

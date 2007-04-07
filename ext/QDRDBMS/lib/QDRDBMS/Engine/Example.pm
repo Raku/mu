@@ -13,7 +13,7 @@ package QDRDBMS::Engine::Example-0.0.0 {
 
 sub new_dbms {
     my (undef, $args) = @_;
-    return QDRDBMS::Engine::Example::DBMS->new( $args );
+    return QDRDBMS::Engine::Example::DBMS.new( $args );
 }
 
 ###########################################################################
@@ -31,14 +31,11 @@ class QDRDBMS::Engine::Example::DBMS {
 
 ###########################################################################
 
-sub new {
-    my ($class, $args) = @_;
-    my $self = bless {}, $class;
-    my ($dbms_config) = @{$args}{'dbms_config'};
+submethod BUILD (Any :%dbms_config!) {
 
-    $self->{$ATTR_DBMS_CONFIG} = $dbms_config;
+    $self.{$ATTR_DBMS_CONFIG} = $dbms_config;
 
-    return $self;
+    return;
 }
 
 ###########################################################################
@@ -46,13 +43,13 @@ sub new {
 sub prepare_routine {
     my ($self, $args) = @_;
     $args = {%{$args}, 'dbms' => $self};
-    return QDRDBMS::Engine::Example::Routine->new( $args );
+    return QDRDBMS::Engine::Example::Routine.new( $args );
 }
 
 sub new_variable {
     my ($self, $args) = @_;
     $args = {%{$args}, 'dbms' => $self};
-    return QDRDBMS::Engine::Example::Variable->new( $args );
+    return QDRDBMS::Engine::Example::Variable.new( $args );
 }
 
 ###########################################################################
@@ -73,19 +70,17 @@ class QDRDBMS::Engine::Example::Routine {
 
 ###########################################################################
 
-sub new {
-    my ($class, $args) = @_;
-    my $self = bless {}, $class;
-    my ($dbms_eng, $rtn_ast) = @{$args}{'dbms', 'routine'};
+submethod BUILD (QDRDBMS::Engine::Example::DBMS :dbms($dbms_eng)!,
+        QDRDBMS::AST::Proc :routine($rtn_ast)!) {
 
     my $prep_rtn = sub { 1; }; # TODO; the real thing.
 
-    $self->{$ATTR_DBMS_ENG}   = $dbms_eng;
-    $self->{$ATTR_RTN_AST}    = $rtn_ast;
-    $self->{$ATTR_PREP_RTN}   = $prep_rtn;
-    $self->{$ATTR_BOUND_VARS} = {};
+    $self.{$ATTR_DBMS_ENG}   = $dbms_eng;
+    $self.{$ATTR_RTN_AST}    = $rtn_ast;
+    $self.{$ATTR_PREP_RTN}   = $prep_rtn;
+    $self.{$ATTR_BOUND_VARS} = {};
 
-    return $self;
+    return;
 }
 
 ###########################################################################
@@ -93,8 +88,8 @@ sub new {
 sub bind_variables {
     my ($self, $args) = @_;
     my ($var_engs) = @{$args}{'variables'};
-    $self->{$ATTR_BOUND_VARS}
-        = {%{$self->{$ATTR_BOUND_VARS}}, %{$var_engs}};
+    $self.{$ATTR_BOUND_VARS}
+        = {%{$self.{$ATTR_BOUND_VARS}}, %{$var_engs}};
     return;
 }
 
@@ -102,7 +97,7 @@ sub bind_variables {
 
 sub execute {
     my ($self, undef) = @_;
-    $self->{$ATTR_PREP_RTN}->( $self->{$ATTR_BOUND_VARS} );
+    $self.{$ATTR_PREP_RTN}.( $self.{$ATTR_BOUND_VARS} );
     return;
 }
 
@@ -121,14 +116,11 @@ class QDRDBMS::Engine::Example::Variable {
 
 ###########################################################################
 
-sub new {
-    my ($class, $args) = @_;
-    my $self = bless {}, $class;
-    my ($dbms_eng) = @{$args}{'dbms'};
+submethod BUILD (QDRDBMS::Engine::Example::DBMS :dbms($dbms_eng)!) {
 
-    $self->{$ATTR_DBMS_ENG} = $dbms_eng;
+    $self.{$ATTR_DBMS_ENG} = $dbms_eng;
 
-    return $self;
+    return;
 }
 
 ###########################################################################
@@ -152,9 +144,6 @@ class QDRDBMS::Engine::Example::Value {
 
 ###########################################################################
 ###########################################################################
-
-1; # Magic true value required at end of a reuseable file's code.
-__END__
 
 =pod
 
