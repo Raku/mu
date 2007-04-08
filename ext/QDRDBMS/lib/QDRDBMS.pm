@@ -5,7 +5,7 @@ use QDRDBMS::AST;
 ###########################################################################
 ###########################################################################
 
-package QDRDBMS-0.0.0 {
+module QDRDBMS-0.0.0 {
     # Note: This given version applies to all of this file's packages.
 
 ###########################################################################
@@ -19,7 +19,7 @@ sub new_dbms of QDRDBMS::Interface::DBMS
 
 ###########################################################################
 
-} # package QDRDBMS
+} # module QDRDBMS
 
 ###########################################################################
 ###########################################################################
@@ -43,35 +43,35 @@ submethod BUILD (Str :$engine_name!, Hash :$dbms_config!) {
             ~ q{ Hash-doing class.}
         if !defined $dbms_config or !$dbms_config.does(Hash);
 
-    # A package may be loaded due to it being embedded in a non-excl file.
-    if (!::($engine_name).does(Package)) {
+    # A module may be loaded due to it being embedded in a non-excl file.
+    if (!::($engine_name).does(Module)) {
         # Note: We have to invoke this 'require' in an eval string
         # because we need the bareword semantics, where 'require'
-        # will munge the package name into file system paths.
+        # will munge the module name into file system paths.
         eval "require $engine_name;";
         if (my $err = $!) {
-            die q{new(): Could not load QDRDBMS Engine class}
+            die q{new(): Could not load QDRDBMS Engine module}
                 ~ qq{ '$engine_name': $err};
         }
-#        die qq{new(): Could not load QDRDBMS Engine class}
+#        die qq{new(): Could not load QDRDBMS Engine module}
 #                ~ qq{ '$engine_name': while that file did compile without}
-#                ~ q{ errors, it did not declare the same-named package.}
-#            if !::($engine_name).does(Package);
+#                ~ q{ errors, it did not declare the same-named module.}
+#            if !::($engine_name).does(Module);
     }
-#    die qq{new(): The QDRDBMS Engine class '$engine_name' does not}
+#    die qq{new(): The QDRDBMS Engine module '$engine_name' does not}
 #            ~ q{ provide the new_dbms() constructor function.}
 #        if !::($engine_name).HOW.can( 'new_dbms' );
     my $dbms_eng = undef;
     try {
-        $dbms_eng
-            = &::($engine_name)::new_dbms( :dbms_config($dbms_config) );
+        $dbms_eng = &::($engine_name)::new_dbms(
+            :dbms_config($dbms_config) );
     };
     if (my $err = $!) {
-        die qq{new(): The QDRDBMS Engine class '$engine_name' threw an}
-            ~ qq{ exception during its new_dbms() execution: $err}
+        die qq{new(): The QDRDBMS Engine module '$engine_name' threw}
+            ~ qq{ an exception during its new_dbms() execution: $err}
     }
     die q{new(): The new_dbms() constructor function of the QDRDBMS}
-            ~ qq{ Engine class '$engine_name' did not return an object}
+            ~ qq{ Engine module '$engine_name' did not return an object}
             ~ q{ to serve as a DBMS Engine.}
         if !defined $dbms_eng;
     my $dbms_eng_class = $dbms_eng.WHAT;
@@ -268,12 +268,6 @@ This document describes QDRDBMS version 0.0.0.
 It also describes the same-number versions of QDRDBMS::Interface::DBMS
 ("DBMS"), QDRDBMS::Interface::Routine ("Routine"), and
 QDRDBMS::Interface::Variable ("Variable").
-
-I<Note that the "QDRDBMS" package serves only as the name-sake
-representative for this whole file, which can be referenced as a unit by
-documentation or 'use' statements or Perl archive indexes.  Aside from
-'use' statements, you should never refer directly to "QDRDBMS" in your
-code; instead refer to other above-named packages in this file.>
 
 =head1 SYNOPSIS
 
@@ -498,7 +492,7 @@ L<QDRDBMS::Language>.
 The Perl 6 module L<QDRDBMS::Validator> is bundled with QDRDBMS and can be
 used to test QDRDBMS Engines.
 
-The Perl 6 package L<QDRDBMS::Engine::Example> is bundled with QDRDBMS and
+The Perl 6 module L<QDRDBMS::Engine::Example> is bundled with QDRDBMS and
 implements a self-contained reference implementation of a QDRDBMS Engine.
 
 Go to the L<QDRDBMS::SeeAlso> file for the majority of external references.
