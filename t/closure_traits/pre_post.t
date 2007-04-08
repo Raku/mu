@@ -4,8 +4,6 @@ use Test;
 # Test of PRE and POST traits
 #
 # L<S04/Closure traits/"assert precondition at every block ">
-#
-# I don't get this one working:
 # L<S06/Subroutine traits/"Mark blocks that are to be unconditionally executed">
 
 plan 16;
