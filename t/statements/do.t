@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 19;
+plan 20;
 
 # L<S04/The do-once loop/"can't" put "statement modifier">
 eval_dies_ok 'my $i = 1; do { $i++ } while $i < 5;',
@@ -33,6 +33,14 @@ eval_dies_ok 'my $i; do { $i++ } given $i;',
 
     $x = do if !$a { $b } else { $c };
     is $x, 'c', "prefixing 'if' statement with 'do' (else)";
+	
+=begin comment
+	If the final statement is a conditional which does not execute 
+	any branch, the return value is undef in item context and () 
+	in list context.
+=end comment
+	$x = do if 0 { 1 } elsif 0 { 2 };
+	is $x, undef, 'when if dose not execute any branch, return undef';
 }
 
 {
