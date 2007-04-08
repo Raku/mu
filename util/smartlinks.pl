@@ -8,7 +8,8 @@
 # modifying the source.
 # CAUTION: please make sure your changes don't break anything, because
 # breakage of this script will also break http://perlcabal.org/syn/
-# immediately. Thank you :)
+# immediately. Running *.t under util/t/ before committing is
+# strongly recommended. Thank you for your contribution :)
 
 use strict;
 #use warnings;
@@ -971,6 +972,11 @@ L<http://pugs.blogs.com/pugs/2006/09/check_smoke_res.html>
 
 Consult util/t/smartlinks.t in the Pugs source tree for unit
 tests and usage of the internal API.
+
+=item *
+
+Consult util/t/smartlinks2.t for a corresponding regression test
+suite harness.
 
 =item *
 
