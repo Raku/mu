@@ -1,4 +1,4 @@
-= Changes for 6.28.0 (rXXXXX) - October XX, 2006
+= Changes for 6.28.0 (rXXXXX) - April XX, 2007
 
 == Build System
 
@@ -46,9 +46,16 @@
 
 === New modules
 
+* [ext/HTTP/] - A general purpose HTTP toolkit for Perl 6
+* [ext/MessageBus/] - Message Bus with PubSub protocol
+* [ext/QDRDBMS/] - A fully-featured truly relational DBMS in Perl
+** This is a rewrite of ext/Rosetta/, which is now deleted
+** Note that any further release changes for QDRDBMS will be detailed in
+   its own Changes file rather than the general Pugs ChangeLog file
+* [ext/Web/] - A general purpose Web toolkit for Perl 6
 
 
-=== [ext/<Foo>] 
+=== [ext/<Foo>]
 
 
 
@@ -166,7 +173,7 @@
 
 === Declarators and Operators
 
-* Argument interpolation via prefix `|` and `|<<` 
+* Argument interpolation via prefix `|` and `|<<`
 * Binding to qualified uninitialised symbols: `&fully::qualify := sub {...}`
 * Contextual variables are now declared with `my $x is context`, not `env $x`
 * Hyperised reduce operators: `[>>+<<]` and `[\>>+<<]`
@@ -203,7 +210,7 @@
 * `&take` no longer flattens array literals: `take [1,2,3];`
 * `&take` now works in functions called from within a `gather {...}` block
 * `BEGIN(...)`, `END(...)`, etc., are now parsed as calls, not syntax errors
-* `END {...}` in `.pm` files are no longer ignored when executed directly 
+* `END {...}` in `.pm` files are no longer ignored when executed directly
 * `INIT {...}` now works correctly inside `eval "..."`
 * `do {...}` is now a loop block that takes standard loop controls
 * `do {...}` with statement modifiers is explicitly disallowed
@@ -236,7 +243,7 @@
 * `&yield` in coroutines works correctly within loop blocks
 * `sub ($x = 0 is copy)` no longer allowed; say `sub ($x is copy = 0)` instead
 * `sub f ($x is lazy) {...}` no longer evaluates $x more than once
-* `sub f (@x?) {...}; f()` now sets `@x` to `[]`, not `[undef]` 
+* `sub f (@x?) {...}; f()` now sets `@x` to `[]`, not `[undef]`
 
 === Classes and Objects
 
@@ -265,8 +272,8 @@
 * New `&printf` function for formatted printing
 * New `&quotemeta` function for escaping strings
 * Support for `%b` in formatted printing
-* The `&system` function no longer dies when the command does not exist 
-* The `.as` method is renamed to `.fmt` for formatted printing 
+* The `&system` function no longer dies when the command does not exist
+* The `.as` method is renamed to `.fmt` for formatted printing
 * The `.perl` method now returns Unicode strings
 
 == Bundled Modules
@@ -278,7 +285,7 @@
 * [ext/Math-Random-Kiss/] - Pseudo-random number generator
 * [ext/re/] - Pragma to choose among grammar engine backends
 
-=== [ext/CGI/] 
+=== [ext/CGI/]
 
 * A new `as_yaml` method to dump CGI parameters as YAML
 * Allow initializing the CGI object with a hash of parameters
@@ -472,7 +479,7 @@ truncated in r8916, apparently from gnome's copy-paste buffer limit
 * [examples/concurrency/]: Added sample usage on Software Transactional Memory
 * [examples/qotw/]: Added the QOTW 8 Expert solution
 * [examples/rules/]: Added a sample BASIC parser
-* [src/Pugs/Parser] - Perl 6 grammars for Capture.pg and Signature.pg 
+* [src/Pugs/Parser] - Perl 6 grammars for Capture.pg and Signature.pg
 * [util/cperl-mode.el] - Emacs mode for Perl 6
 
 == Feature Changes
@@ -502,7 +509,7 @@ from the current environment; use :reset to reset the environment
 * Names of named arguments must always be a bareword now, such as:
     f(name=>1); f(:name(1));
 * New AST-dumping backends: `Parse-Pretty`, `Parse-YAML`, `Parse-HsYAML`
-* Parse-time binding `::=` is now fully supported 
+* Parse-time binding `::=` is now fully supported
 * Proper desugaring of `.=` expressions, such as `@a .= map(&sqrt)`
 * Prototype objects: `my Dog $fifo` now assigns `::Foo` into `$fido`
 * Removed support for `require ::Class::Literal`
@@ -530,7 +537,7 @@ from the current environment; use :reset to reset the environment
 * `:!foo` is now a shorthand for `foo => False`
 * `bool::true` and `bool::false` are renamed to `Bool::True` and `Bool::False`
 * `make upload-smoke` now uploads smoke test automatically
-* `my $!x` is now recognized as an alternative spelling for `my $x` 
+* `my $!x` is now recognized as an alternative spelling for `my $x`
 * `q:code {...}` gives ASTs in macros
 * `readline` and `=$fh` now autochomps
 
@@ -540,10 +547,10 @@ from the current environment; use :reset to reset the environment
 * An uninitialized Code is no longer nullary: `my &f; f 1` is not a parsefail
 * Chained assignments now return lvalues properly: `$x = %y = (1,2,3,4);`
 * Implicit variables ($^x) is no longer allowed in statemeent-level bare blocks
-* Implicit variables following a declarator was broken: `{my $x; $^y}.(42)` 
+* Implicit variables following a declarator was broken: `{my $x; $^y}.(42)`
 * In `(@x, @y) = (1,2,3)`, the `@y` is now cleared into an empty list
 * Invalid rules in embedded Parrot no longer triggers an uncatchable `exit`
-* Lexical imports are no longer discarded upon block reentry 
+* Lexical imports are no longer discarded upon block reentry
 * Method invocant is `self` and `$?SELF` but no longer `$_`
 * Named-only subs such as `sub f (:$x!) {}` no longer parse as unary positional
 * Opening a file for writing now turns autoflushing on by default
@@ -738,7 +745,7 @@ from the current environment; use :reset to reset the environment
 * Perl 5 backend can be invoked with `pugs -B Perl5`
 * Pugs will now compile version ranges in 'use/require' statements
 * Significant backend enhancements; see below
-* `$?PUGS_BACKEND` can be used to tell which runtime is in use 
+* `$?PUGS_BACKEND` can be used to tell which runtime is in use
 * `exec` emulated (partially) on Win32
 
 === JavaScript backend
@@ -818,7 +825,7 @@ from the current environment; use :reset to reset the environment
 === Experimental modules (in misc/, not installed)
 
 * Blondie, prototype compiler for native code generation and type-inferencing
-  with Attribute Grammers 
+  with Attribute Grammers
 * XML::SAX
 * Getopt::Long
 * Rosetta-Incubator, a complete set of Rosetta[|::*] and SQL::Routine[|::*]
@@ -851,7 +858,7 @@ from the current environment; use :reset to reset the environment
 ** Begun in `perl5/PIL-Run`
 ** Primitive interactive shell as `crude_repl.pl`
 * Object MetaModel
-** Perl 5 prototype is mostly self-hosting 
+** Perl 5 prototype is mostly self-hosting
 ** New C3-based method dispatch algorithm
 ** JavaScript version partially completed
 ** Java version begun (in very early stages)
@@ -913,7 +920,7 @@ from the current environment; use :reset to reset the environment
 ** Pugs can now generate PIL (Pugs Intermediate Language)
 ** ...and emit PIR (Parrot Intermediate Representation) from PIL
 ** New `make pirsmoke` target runs test suite using PIR backend
-** `Test.pm` can be compiled to PIR 
+** `Test.pm` can be compiled to PIR
 ** `Prelude/PIR.pm` added with Perl 6 versions of some builtins
 ** `pugs -CPIL -e 'say 123'` for dumping PIL from code
 * Implicit variables like `$^a` now only work in bare blocks
@@ -987,7 +994,7 @@ from the current environment; use :reset to reset the environment
 * `(42).kv` now dies and `(42,).kv` works
 * `[1] <=> [2]` no longer misparsed as `[1]{'='}[2]`
 * `caller` now counts `eval` and the topmost `main` as one frame
-* `qq{ ... { code } ... }` no longer ignores the interpolated code 
+* `qq{ ... { code } ... }` no longer ignores the interpolated code
 * `redo` and `next` now works correctly inside loop blocks
 * `sleep()` returns seconds slept instead of undef
 * `try` is now capable of catching all type casting errors
@@ -1078,7 +1085,7 @@ from the current environment; use :reset to reset the environment
 * `SUPER::`, `BUILDALL` and `DESTROYALL`
 * `is export` now works as specified
 * `loop {...} while`, `loop {...} until`
-* `map` and `reduce` can now take n-ary functions. 
+* `map` and `reduce` can now take n-ary functions.
 * `when .does(Foo)`, `when $_.does(Foo)` and `when Foo`
 
 == Bundled Modules
@@ -1102,7 +1109,7 @@ from the current environment; use :reset to reset the environment
 
 * Some new test and several tests refactored, we now have 7200+ tests
 * Pugs Apocryphon 2 improved and edited in `docs/02Internals.pod`
-* Many improvements to `util/perl6.vim` to handle new features 
+* Many improvements to `util/perl6.vim` to handle new features
 * More Haddock documentation added to the Haskell source
 * New IRC bot `evalbot` added to `examples/network`
 * New JAPH for Italian Perl Workshop added in `examples/japh`
@@ -1231,7 +1238,7 @@ from the current environment; use :reset to reset the environment
 ** Accessors generated for public attributes
 ** Identity operator: `=:=`
 ** Method chaining: `$foo.bar().baz()`
-** Method invocant: `method foo ($self: $x)` and topicalized as `$_` 
+** Method invocant: `method foo ($self: $x)` and topicalized as `$_`
 ** Public and private attributes, as well as `has $.attr is rw`
 ** `$obj ~~ Class` support
 ** `$obj.clone()` support
@@ -1368,7 +1375,7 @@ from the current environment; use :reset to reset the environment
 * Better handling for size extensions and `exists()` for negative indices
 * Bindings implemented for multiple variables
 * Experimental support for `eval_haskell()` builtin
-* First stab at a lexical `$*CWD` variable 
+* First stab at a lexical `$*CWD` variable
 * Index in slices now defaults to List: `@a[func_returns_array()]` now works
 * Initialize readline properly in interactive shell
 * Junctive types in subroutine signatures `sub foo (Str|Array)`
@@ -1465,14 +1472,14 @@ from the current environment; use :reset to reset the environment
 * Support for `$*UID`, `$*EUID`, `$*GID`, and `$*EGID` on *nix
 * Stacked file test operators now (mostly) work
 * Added `is rw` trait for subroutine parameters
-* `$*PID` now works on *nix systems 
+* `$*PID` now works on *nix systems
 * Several command line switches implemented: `-I` `-p` `-n` and more
 * `s:perl5/.../{ <code> }/` works correctly
 * Type casting errors are now more descriptive
 * `require ""` now works on UTF-8 files
 * Regex substitution is now UTF-8 safe
 * `sort {}` now works
-* Some support for the /splat/ star `*` 
+* Some support for the /splat/ star `*`
 
 == Tests, Examples and Documentations
 
@@ -1569,14 +1576,14 @@ from the current environment; use :reset to reset the environment
 * Support for Perl5 style `-I` on the command line
 * Command line equivalents of shell commands `:i` and `!`
 * Regex now supports `s:perl5///` and `s:perl5:g///`
-* `$1`, `$2` etc can be used in `s:perl5:g///` substitutions 
+* `$1`, `$2` etc can be used in `s:perl5:g///` substitutions
 * Experimental *pugscc* backends generating limited Parrot and Haskell code
-* Refactored the /VSub/ type to support currying 
+* Refactored the /VSub/ type to support currying
 * Support for currying: `&foo.assuming(param => 'bar')`
 * New file test primitives: `-d` and `-f`
 * New logical primitive: `?|`
 * Experimental support for `eval_perl5` (not built by default)
-* Experimental Inline support; see `ext/SHA1` for example 
+* Experimental Inline support; see `ext/SHA1` for example
 * New magicals: `$*EXECUTABLE_NAME` and `$*PROGRAM_NAME`
 * Several numeric builtins: `atan2`, `cos`, `sin`, `sqrt`, `exp`
 * Beginings of a Pugs class meta-model
@@ -1594,7 +1601,7 @@ from the current environment; use :reset to reset the environment
 * Added support for outputing test logs with *Test.pm*
 * Added documentation to *pugscc*
 * Several TODO tests for command line options
-* `fix_authors.pl` now handles UTF8 input 
+* `fix_authors.pl` now handles UTF8 input
 * New golf-based tests in `t/examples/golf.t`
 * Added `examples/mandel.p5` for benchmarking against `mandel.p6`
 * The first JAPH for Pugs in `examples/japh/`
@@ -1643,7 +1650,7 @@ from the current environment; use :reset to reset the environment
 * Locale::KeyedText is made more perl6ish with subtypes
 * Test.pm has been massively refactored, and now has its own test suite
 * isa_ok(), eval_ok() and eval_is() in Test.pm
-* perlpodspec.kwid, describing POD document model and dialects. 
+* perlpodspec.kwid, describing POD document model and dialects.
 * perlkwidspec.kwid, specification for the Kwid dialect of POD
 * PA01.kwid, Kwid version of Pugs Apocryphon 1
 * Perl5-Kwid, Perl 5 implementation of the Kwid language
@@ -1670,7 +1677,7 @@ from the current environment; use :reset to reset the environment
   is compiled with unicode support
 * We no longer look for Perl6::lib::* namespace in Perl 5;
   Pugs now has its own library path independent from Perl 5
-* New primitives: scalar(), list(), reverse(). 
+* New primitives: scalar(), list(), reverse().
 * Infix Y (and its UTF8 form)
 * $! is now set after an eval call
 * Stub implementation for ~~ and !~ operators
