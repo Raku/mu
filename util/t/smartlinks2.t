@@ -50,7 +50,7 @@ for my $path (glob "expected/*.html") {
     warn "$file1 <=> $file2\n";
     my $out = diff $file1, $file2, {STYLE => 'OldStyle'};
     $out =~ s/52c52\n<[^\n]*\n---\n>[^\n]*\n//;
-    $out =~ s/64c64\n<[^\n]*\n---\n>[^\n]*\n//;
+    $out =~ s/64,65c64,65\n<[^\n]*\n<[^\n]*\n---\n>[^\n]*\n>[^\n]*\n//;
     $out =~ s/^\s+|\s+$//g;
     is $out, '', 'no diff';
 }
