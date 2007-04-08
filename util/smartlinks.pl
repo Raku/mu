@@ -724,6 +724,7 @@ smartlinks.pl - The successor to catalog_tests.pl.
 =head1 SYNOPSIS
 
   smartlinks.pl t/*/*.t t/*/*/*.t
+  smartlinks.pl --dir t
   smartlinks.pl --css foo.css --out-dir=public_html t/syntax/*.t
   smartlinks.pl --check t/*/*.t t/*/*/*.t
   smartlinks.pl --check t/some/test.t
@@ -756,11 +757,15 @@ They look like pod links:
                              # but is NOT required.
     L<S03/Hyper operators>   # just fine
 
-The section name should be copied verbatim from the POD (usually after =head),
-including any POD tags like C<...> and punctuations.
+The section name should be copied verbatim from the POD
+(usually after C<=head>), including any POD tags like C<...>
+and punctuations. The sections, however, are not supposed to be nested.
+That is, a C<=head1> won't really contain a C<=head2>; they're disjoint
+according to the current implementation.
 
-The smartlinks also have a weird (also important) extension: you can specify some
-keyphrases, to skip forward from the linked section, so the smartlink is put into
+The smartlinks also have a weird (also important) extension:
+you can specify some keyphrases, to skip forward from the linked
+section, so the smartlink is put into
 a more specific place:
 
     L<S05/"Return values from matches"/"In numeric context" number 'matches:'>
