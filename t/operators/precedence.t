@@ -47,7 +47,7 @@ is(?2*2, 2, "binary -> numify causes reinterpretation as, binds tighter than *")
 
 is(2 x 2 + 10, 32, "x bind tighter than binary +");
 is(4 + 3 * 2, 10, "* binds tighter than binary +");
-is(0 - 3 / 3, -1, "/ bind tighter than binary -");
+is(2 - 2 / 2, 1, "/ bind tighter than binary -");
 
 # 7. additive
 
@@ -128,7 +128,7 @@ is((1 && 0 ?? 2 !! 3), 3, "&& binds tighter than ??");
 # 17. loose unary
 
 my $x;
-is((true $x = 42), "item assignment is tighter than true");
+is((true $x = 42), 1, "item assignment is tighter than true");
 
 # 18. comma
 
