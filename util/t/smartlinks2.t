@@ -1,12 +1,32 @@
+# This test script serves as a regression test suite harness
+# for util/smartlinks.pl
+# Because smartlinks.pl depends on many changing things like
+# the Pugs test suite and Perl 6 Synopses, we have to freeze
+# the dependencies in order to do an effiective regression.
+# To save the room in the SVN repos, this script downloads
+# a tarball from feather itself, which contains a particular version
+# of the test suite and Synopses, as well as the reference outputs
+# in HTML.
+#
+# Dependencies:
+#   LWP::UserAgent
+#   Archive::Tar
+#   Text::Diff
+
 use strict;
 use warnings;
 
 #use Smart::Comments;
 use Test::More tests => 19;
-use LWP::UserAgent;
-use Archive::Tar;
 use FindBin qw( $Bin );
-use Text::Diff;
+BEGIN {
+    eval "use LWP::UserAgent;";
+    if ($@) { die "LWP::UserAgent is required to run this test script"; }
+    eval "use Archive::Tar;";
+    if ($@) { die "Archive::Tar is required to run this test script"; }
+    eval "use Text::Diff;";
+    if ($@) { die "Text::Diff is required to run this test script"; }
+};
 
 my $data_path = "$Bin/smartlinks_data";
 ### $data_path;
