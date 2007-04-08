@@ -64,21 +64,20 @@ sub Cat_InvokEntityName is export {
 ###########################################################################
 
 class QDRDBMS::Engine::Example::PhysType::_Base {
-
-    my $ATTR_WHICH = '_Base::which';
+    has Str $!which;
 
 ###########################################################################
 
 method which of Str () {
-    if (!exists $self.{$ATTR_WHICH}) {
+    if (!defined $!which) {
         my ($cls_nm_unq_part, $scalarified_value)
             = $self._calc_parts_of_self_which();
         my $len_cnup = length $cls_nm_unq_part;
         my $len_sv = length $scalarified_value;
-        $self.{$ATTR_WHICH} = '8 PhysType'
+        $!which = '8 PhysType'
             ~ " $len_cnup $cls_nm_unq_part $len_sv $scalarified_value";
     }
-    return $self.{$ATTR_WHICH};
+    return $!which;
 }
 
 ###########################################################################
@@ -91,21 +90,21 @@ method which of Str () {
 class QDRDBMS::Engine::Example::PhysType::Bool {
     does QDRDBMS::Engine::Example::PhysType::_Base;
 
-    my $ATTR_SCALAR = 'scalar';
+    has Scalar $!scalar;
         # A p5 Scalar that equals $FALSE|$TRUE.
 
 ###########################################################################
 
 submethod BUILD () {
     my ($self, $scalar) = @_;
-    $self.{$ATTR_SCALAR} = $scalar;
+    $!scalar = $scalar;
 }
 
 ###########################################################################
 
 method _calc_parts_of_self_which of  () {
     my ($self) = @_;
-    return ('Bool', $self.{$ATTR_SCALAR});
+    return ('Bool', $!scalar);
 }
 
 ###########################################################################
@@ -118,7 +117,7 @@ method _calc_parts_of_self_which of  () {
 class QDRDBMS::Engine::Example::PhysType::Text {
     does QDRDBMS::Engine::Example::PhysType::_Base;
 
-    my $ATTR_SCALAR = 'scalar';
+    has Scalar $!scalar;
         # A p5 Scalar that is a text-mode string;
         # it either has true utf8 flag or is only 7-bit bytes.
 
@@ -126,14 +125,14 @@ class QDRDBMS::Engine::Example::PhysType::Text {
 
 submethod BUILD () {
     my ($self, $scalar) = @_;
-    $self.{$ATTR_SCALAR} = $scalar;
+    $!scalar = $scalar;
 }
 
 ###########################################################################
 
 method _calc_parts_of_self_which of  () {
     my ($self) = @_;
-    return ('Text', $self.{$ATTR_SCALAR});
+    return ('Text', $!scalar);
 }
 
 ###########################################################################
@@ -146,21 +145,21 @@ method _calc_parts_of_self_which of  () {
 class QDRDBMS::Engine::Example::PhysType::Blob {
     does QDRDBMS::Engine::Example::PhysType::_Base;
 
-    my $ATTR_SCALAR = 'scalar';
+    has Scalar $!scalar;
         # A p5 Scalar that is a byte-mode string; it has false utf8 flag.
 
 ###########################################################################
 
 submethod BUILD () {
     my ($self, $scalar) = @_;
-    $self.{$ATTR_SCALAR} = $scalar;
+    $!scalar = $scalar;
 }
 
 ###########################################################################
 
 method _calc_parts_of_self_which of  () {
     my ($self) = @_;
-    return ('Blob', $self.{$ATTR_SCALAR});
+    return ('Blob', $!scalar);
 }
 
 ###########################################################################
@@ -173,23 +172,21 @@ method _calc_parts_of_self_which of  () {
 class QDRDBMS::Engine::Example::PhysType::Int {
     does QDRDBMS::Engine::Example::PhysType::_Base;
 
-    use bigint; # this is experimental
-
-    my $ATTR_SCALAR = 'scalar';
+    has Scalar $!scalar;
         # A p5 Scalar that is a Perl integer or BigInt or canonical string.
 
 ###########################################################################
 
 submethod BUILD () {
     my ($self, $scalar) = @_;
-    $self.{$ATTR_SCALAR} = $scalar;
+    $!scalar = $scalar;
 }
 
 ###########################################################################
 
 method _calc_parts_of_self_which of  () {
     my ($self) = @_;
-    return ('Int', $self.{$ATTR_SCALAR});
+    return ('Int', $!scalar);
 }
 
 ###########################################################################
@@ -202,7 +199,7 @@ method _calc_parts_of_self_which of  () {
 class QDRDBMS::Engine::Example::PhysType::TextKeyedMap {
     does QDRDBMS::Engine::Example::PhysType::_Base;
 
-    my $ATTR_MAP = 'map';
+    has Hash(Str) of Any $!map;
         # A p5 Hash with 0..N elements:
             # Each Hash key is a p5 text-mode string.
             # Each Hash value is a ::Example::* value of some kind.
@@ -211,14 +208,14 @@ class QDRDBMS::Engine::Example::PhysType::TextKeyedMap {
 
 submethod BUILD () {
     my ($self, $map) = @_;
-    $self.{$ATTR_MAP} = $map;
+    $!map = $map;
 }
 
 ###########################################################################
 
 method _calc_parts_of_self_which of  () {
     my ($self) = @_;
-    my $map = $self.{$ATTR_MAP};
+    my $map = $!map;
     return ('TextKeyedMap', join ' ', map {
             my $mk = (length $_) ~ ' ' ~ $_;
             my $mv = $map.{$_}.which();
@@ -230,14 +227,14 @@ method _calc_parts_of_self_which of  () {
 
 method ref_to_attr_map of  () {
     my ($self) = @_;
-    return $self.{$ATTR_MAP};
+    return $!map;
 }
 
 ###########################################################################
 
 method pairs of  () {
     my ($self) = @_;
-    my $map = $self.{$ATTR_MAP};
+    my $map = $!map;
     return [map { [$_, $map.{$_} ] } keys %{$map}];
 }
 
@@ -251,7 +248,7 @@ method pairs of  () {
 class QDRDBMS::Engine::Example::PhysType::Heading {
     does QDRDBMS::Engine::Example::PhysType::_Base;
 
-    my $ATTR_ATTR_DEFS_BY_NAME = 'attr_defs_by_name';
+    has Hash of Array $!attr_defs_by_name;
         # A p5 Hash with 0..N elements:
             # Each Hash key is a p5 text-mode string; an attr name.
             # Each Hash value would describe a single tuple|relation
@@ -261,7 +258,7 @@ class QDRDBMS::Engine::Example::PhysType::Heading {
                 # 3. minor type: a disjunction depending on maj-tp value:
                     # 'S': a p5 text-mode string.
                     # 'T'|'R': a Heading.
-    my $ATTR_ATTR_DEFS_ORDERED = 'attr_defs_ordered';
+    has Array of Array $!attr_defs_ordered;
         # A p5 Array with 0..N elements; its elements are all of the Hash
         # values of $!attr_defs_by_name, sorted by the attr-name/Hash key.
 
@@ -270,9 +267,9 @@ class QDRDBMS::Engine::Example::PhysType::Heading {
 submethod BUILD () {
     my ($self, $attr_defs_aoa) = @_;
     my $attr_defs_by_name
-        = $self.{$ATTR_ATTR_DEFS_BY_NAME}
+        = $!attr_defs_by_name
         = {map { $_.[0] => $_ } @{$attr_defs_aoa}};
-    $self.{$ATTR_ATTR_DEFS_ORDERED}
+    $!attr_defs_ordered
         = [map { $attr_defs_by_name.{$_} }
             sort keys %{$attr_defs_by_name}];
 }
@@ -281,7 +278,7 @@ submethod BUILD () {
 
 method _calc_parts_of_self_which of  () {
     my ($self) = @_;
-    my $defs = $self.{$ATTR_ATTR_DEFS_ORDERED};
+    my $defs = $!attr_defs_ordered;
     return ('Heading', join ' ', map {
             my ($atnm, $mjtp, $mntp) = @{$_};
             'ATNM ' ~ (length $atnm) ~ ' ' ~ $atnm
@@ -294,7 +291,7 @@ method _calc_parts_of_self_which of  () {
 
 method get_attr_attr_defs_ordered of  () {
     my ($self) = @_;
-    return $self.{$ATTR_ATTR_DEFS_ORDERED};
+    return $!attr_defs_ordered;
 }
 
 ###########################################################################
@@ -307,9 +304,9 @@ method get_attr_attr_defs_ordered of  () {
 class QDRDBMS::Engine::Example::PhysType::Tuple {
     does QDRDBMS::Engine::Example::PhysType::_Base;
 
-    my $ATTR_HEADING = 'heading';
+    has $!heading;
         # A Heading.
-    my $ATTR_BODY    = 'body';
+    has $!body;
         # A TextKeyedMap whose keys match the attribute names in $!heading,
         # and whose values are of the types specified in $!heading.
 
@@ -317,16 +314,16 @@ class QDRDBMS::Engine::Example::PhysType::Tuple {
 
 submethod BUILD () {
     my ($self, $heading, $body) = @_;
-    $self.{$ATTR_HEADING} = $heading;
-    $self.{$ATTR_BODY}    = $body;
+    $!heading = $heading;
+    $!body    = $body;
 }
 
 ###########################################################################
 
 method _calc_parts_of_self_which of  () {
     my ($self) = @_;
-    return ('Tuple H ', $self.{$ATTR_HEADING}.which()
-        ~ ' B ' ~ $self.{$ATTR_BODY}.which());
+    return ('Tuple H ', $!heading.which()
+        ~ ' B ' ~ $!body.which());
 }
 
 ###########################################################################
@@ -339,18 +336,18 @@ method _calc_parts_of_self_which of  () {
 class QDRDBMS::Engine::Example::PhysType::Relation {
     does QDRDBMS::Engine::Example::PhysType::_Base;
 
-    my $ATTR_HEADING    = 'heading';
+    has $!heading;
         # A Heading.
-    my $ATTR_BODY       = 'body';
+    has $!body;
         # A p5 Array with 0..N elements, each element being a
         # TextKeyedMap whose keys match the attribute names in $!heading,
         # and whose values are of the types specified in $!heading.
-    my $ATTR_KEY_DEFS   = 'key_defs';
+    has $!key_defs;
         # A p5 Hash with 1..N elements
-    my $ATTR_KEY_DATA   = 'key_data';
-    my $ATTR_INDEX_DEFS = 'index_defs';
+    has $!key_data;
+    has $!index_defs;
         # A p5 Hash with 0..N elements
-    my $ATTR_INDEX_DATA = 'index_data';
+    has $!index_data;
 
 ###########################################################################
 
@@ -371,19 +368,19 @@ submethod BUILD () {
 
 
 
-    $self.{$ATTR_HEADING}    = $heading;
-    $self.{$ATTR_BODY}       = $body;
-    $self.{$ATTR_KEY_DEFS}   = $key_defs;
-    $self.{$ATTR_INDEX_DEFS} = $index_defs;
+    $!heading    = $heading;
+    $!body       = $body;
+    $!key_defs   = $key_defs;
+    $!index_defs = $index_defs;
 }
 
 ###########################################################################
 
 method _calc_parts_of_self_which of  () {
     my ($self) = @_;
-    return ('Relation H ', $self.{$ATTR_HEADING}.which()
+    return ('Relation H ', $!heading.which()
         ~ ' B ' ~ (join ' ',
-            sort map { $_.which() } @{$self.{$ATTR_BODY}}));
+            sort map { $_.which() } @{$!body}));
 }
 
 ###########################################################################

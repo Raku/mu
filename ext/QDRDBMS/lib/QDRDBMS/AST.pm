@@ -67,9 +67,7 @@ sub Proc is export {
 ###########################################################################
 
 role QDRDBMS::AST::_EntityRef {
-
-    my $ATTR_TEXT_POSSREP;
-    BEGIN { $ATTR_TEXT_POSSREP = 'text_possrep'; }
+    has Str $!text_possrep;
 
 ###########################################################################
 
@@ -79,7 +77,7 @@ submethod BUILD (Str :$text!) {
             ~ q{ of a Str-doing class.}
         if !blessed $text or !$text.isa( 'Str' );
 
-    $self.{$ATTR_TEXT_POSSREP} = $text;
+    $!text_possrep = $text;
 
     return;
 }
@@ -87,7 +85,7 @@ submethod BUILD (Str :$text!) {
 ###########################################################################
 
 method as_text of Str () {
-    return $self.{$ATTR_TEXT_POSSREP};
+    return $!text_possrep;
 }
 
 ###########################################################################
@@ -126,9 +124,8 @@ class QDRDBMS::AST::VarRef {
 ###########################################################################
 
 class QDRDBMS::AST::LitDefExpr {
-
-    my $ATTR_LIT_VAL = 'lit_val';
-    my $ATTR_LIT_TYPE = 'lit_type';
+    has Bool|Str|Blob|Int|Num $!lit_val;
+    has Type                  $!lit_type;
 
 ###########################################################################
 
@@ -138,8 +135,8 @@ submethod BUILD (Bool|Str|Blob|Int|Num :lit($lit_val)!) {
     confess q{new(): Bad $lit arg; it is not an object.}
         if !$lit_class;
     if (my $lit_type = $LITERAL_TYPE_MAP.{$lit_class}) {
-        $self.{$ATTR_LIT_VAL} = $lit_val;
-        $self.{$ATTR_LIT_TYPE} = $lit_type;
+        $!lit_val  = $lit_val;
+        $!lit_type = $lit_type;
     }
     else {
         confess q{new(): Bad $lit arg; it is not an object of a}
@@ -157,8 +154,7 @@ submethod BUILD (Bool|Str|Blob|Int|Num :lit($lit_val)!) {
 ###########################################################################
 
 class QDRDBMS::AST::VarRefExpr {
-
-    my $ATTR_VAR_NAME = 'var_name';
+    has QDRDBMS::AST::VarRef $!var_name;
 
 ###########################################################################
 
@@ -168,7 +164,7 @@ submethod BUILD (QDRDBMS::AST::VarRef :var($var_ref)!) {
             ~ q{ of a QDRDBMS::AST::VarRef-doing class.}
         if !blessed $var_ref
             or !$var_ref.isa( 'QDRDBMS::AST::VarRef' );
-    $self.{$ATTR_VAR_NAME} = $var_ref;
+    $!var_name = $var_ref;
 
     return;
 }
@@ -181,10 +177,8 @@ submethod BUILD (QDRDBMS::AST::VarRef :var($var_ref)!) {
 ###########################################################################
 
 class QDRDBMS::AST::FuncInvExpr {
-
-    my $ATTR_FUNC_NAME = 'func_name';
-    my $ATTR_FUNC_ARGS_AOA = 'func_args_aoa';
-    my $ATTR_FUNC_ARGS_HASH = 'func_args_hash';
+    has QDRDBMS::AST::FuncRef      $!func_name;
+    has Hash of QDRDBMS::AST::Expr $!func_args;
 
 ###########################################################################
 
@@ -195,10 +189,9 @@ submethod BUILD (QDRDBMS::AST::FuncRef :func($func_ref)!,
             ~ q{ of a QDRDBMS::AST::FuncRef-doing class.}
         if !blessed $func_ref
             or !$func_ref.isa( 'QDRDBMS::AST::FuncRef' );
-    $self.{$ATTR_FUNC_NAME} = $func_ref;
+    $!func_name = $func_ref;
     if (!defined $func_args) {
-        $self.{$ATTR_FUNC_ARGS_AOA}  = [];
-        $self.{$ATTR_FUNC_ARGS_HASH} = {};
+        $!func_args = {};
     }
     elsif (ref $func_args eq 'ARRAY') {
         # TODO.

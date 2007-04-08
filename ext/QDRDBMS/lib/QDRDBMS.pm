@@ -24,8 +24,10 @@ sub new_dbms of QDRDBMS::Interface::DBMS
 ###########################################################################
 
 class QDRDBMS::Interface::DBMS {
+    has Any $!dbms_eng;
 
-    my $ATTR_DBMS_ENG = 'dbms_eng';
+    trusts QDRDBMS::Interface::Routine;
+    trusts QDRDBMS::Interface::Variable;
 
 ###########################################################################
 
@@ -86,7 +88,7 @@ submethod BUILD (Str :$engine_name!, Hash of Any :$dbms_config!) {
             ~ q{ not provide the new_variable() method.}
         if !$dbms_eng.can( 'new_variable' );
 
-    $self.{$ATTR_DBMS_ENG} = $dbms_eng;
+    $!dbms_eng = $dbms_eng;
 
     return;
 }
@@ -111,13 +113,9 @@ method new_variable of QDRDBMS::Interface::Variable () {
 ###########################################################################
 
 class QDRDBMS::Interface::Routine {
-
-    my $ATTR_DBMS_INTF = 'dbms_intf';
-    my $ATTR_RTN_AST   = 'rtn_ast';
-    my $ATTR_RTN_ENG   = 'rtn_eng';
-
-    my $DBMS_ATTR_DBMS_ENG = 'dbms_eng';
-    my $VAR_ATTR_VAR_ENG   = 'var_eng';
+    has QDRDBMS::Interface::DBMS $!dbms_intf;
+    has QDRDBMS::AST::Proc       $!rtn_ast;
+    has Any                      $!rtn_eng;
 
 ###########################################################################
 
@@ -128,7 +126,7 @@ submethod BUILD (QDRDBMS::Interface::DBMS :dbms($dbms_intf)!,
             ~ q{ QDRDBMS::Interface::DBMS-doing class.}
         if !blessed $dbms_intf
             or !$dbms_intf.isa( 'QDRDBMS::Interface::DBMS' );
-    my $dbms_eng = $dbms_intf.{$DBMS_ATTR_DBMS_ENG};
+    my $dbms_eng = $dbms_intf!dbms_eng;
     my $dbms_eng_class = blessed $dbms_eng;
 
     confess q{new(): Bad $dbms arg; it is not an object of a}
@@ -156,9 +154,9 @@ submethod BUILD (QDRDBMS::Interface::DBMS :dbms($dbms_intf)!,
             ~ q{ does not provide the execute() method.}
         if !$rtn_eng.can( 'execute' );
 
-    $self.{$ATTR_DBMS_INTF} = $dbms_intf;
-    $self.{$ATTR_RTN_AST}   = $rtn_ast;
-    $self.{$ATTR_RTN_ENG}   = $rtn_eng;
+    $!dbms_intf = $dbms_intf;
+    $!rtn_ast   = $rtn_ast;
+    $!rtn_eng   = $rtn_eng;
 
     return;
 }
@@ -180,17 +178,17 @@ method bind_variables
                 ~ q{ QDRDBMS::Interface::Variable-doing class.}
             if !blessed $var_intf
                 or !$var_intf.isa( 'QDRDBMS::Interface::Variable' );
-        $var_engs.{$var_name} = $var_intf.{$VAR_ATTR_VAR_ENG};
+        $var_engs.{$var_name} = $var_intf!var_eng;
     }
 
-    $self.{$ATTR_RTN_ENG}.bind_variables( :variables($var_intfs) );
+    $!rtn_eng.bind_variables( :variables($var_intfs) );
     return;
 }
 
 ###########################################################################
 
 method execute () {
-    $self.{$ATTR_RTN_ENG}.execute();
+    $!rtn_eng.execute();
     return;
 }
 
@@ -202,11 +200,10 @@ method execute () {
 ###########################################################################
 
 class QDRDBMS::Interface::Variable {
+    has QDRDBMS::Interface::DBMS $!dbms_intf;
+    has Any                      $!var_eng;
 
-    my $ATTR_DBMS_INTF = 'dbms_intf';
-    my $ATTR_VAR_ENG   = 'var_eng';
-
-    my $DBMS_ATTR_DBMS_ENG = 'dbms_eng';
+    trusts QDRDBMS::Interface::Routine;
 
 ###########################################################################
 
@@ -216,7 +213,7 @@ submethod BUILD (QDRDBMS::Interface::DBMS :dbms($dbms_intf)!) {
             ~ q{ QDRDBMS::Interface::DBMS-doing class.}
         if !blessed $dbms_intf
             or !$dbms_intf.isa( 'QDRDBMS::Interface::DBMS' );
-    my $dbms_eng = $dbms_intf.{$DBMS_ATTR_DBMS_ENG};
+    my $dbms_eng = $dbms_intf!dbms_eng;
     my $dbms_eng_class = blessed $dbms_eng;
 
     my $var_eng = eval {
@@ -237,8 +234,8 @@ submethod BUILD (QDRDBMS::Interface::DBMS :dbms($dbms_intf)!) {
 #            ~ q{ does not provide the ...() method.}
 #        if !$var_eng.can( '...' );
 
-    $self.{$ATTR_DBMS_INTF} = $dbms_intf;
-    $self.{$ATTR_VAR_ENG} = $var_eng;
+    $!dbms_intf = $dbms_intf;
+    $!var_eng   = $var_eng;
 
     return;
 }

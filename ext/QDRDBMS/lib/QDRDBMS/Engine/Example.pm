@@ -25,16 +25,13 @@ sub new_dbms of QDRDBMS::Engine::Example::DBMS
 ###########################################################################
 
 class QDRDBMS::Engine::Example::DBMS {
-
-    use Carp;
-
-    my $ATTR_DBMS_CONFIG = 'dbms_config';
+    has Hash of Any $!dbms_config;
 
 ###########################################################################
 
 submethod BUILD (Hash of Any :$dbms_config!) {
 
-    $self.{$ATTR_DBMS_CONFIG} = $dbms_config;
+    $!dbms_config = $dbms_config;
 
     return;
 }
@@ -59,13 +56,10 @@ method new_variable of QDRDBMS::Engine::Example::Variable () {
 ###########################################################################
 
 class QDRDBMS::Engine::Example::Routine {
-
-    use Carp;
-
-    my $ATTR_DBMS_ENG   = 'dbms_eng';
-    my $ATTR_RTN_AST    = 'rtn_ast';
-    my $ATTR_PREP_RTN   = 'prep_rtn';
-    my $ATTR_BOUND_VARS = 'bound_vars';
+    has QDRDBMS::Engine::Example::DBMS             $!dbms_eng;
+    has QDRDBMS::AST::Proc                         $!rtn_ast;
+    has Code                                       $!prep_rtn;
+    has Hash of QDRDBMS::Engine::Example::Variable $!bound_vars;
 
 ###########################################################################
 
@@ -74,28 +68,27 @@ submethod BUILD (QDRDBMS::Engine::Example::DBMS :dbms($dbms_eng)!,
 
     my $prep_rtn = sub { 1; }; # TODO; the real thing.
 
-    $self.{$ATTR_DBMS_ENG}   = $dbms_eng;
-    $self.{$ATTR_RTN_AST}    = $rtn_ast;
-    $self.{$ATTR_PREP_RTN}   = $prep_rtn;
-    $self.{$ATTR_BOUND_VARS} = {};
+    $!dbms_eng   = $dbms_eng;
+    $!rtn_ast    = $rtn_ast;
+    $!prep_rtn   = $prep_rtn;
+    $!bound_vars = {};
 
     return;
 }
 
 ###########################################################################
 
-method bind_variables () {
-    my ($self, $args) = @_;
-    my ($var_engs) = @{$args}{'variables'};
-    $self.{$ATTR_BOUND_VARS}
-        = {%{$self.{$ATTR_BOUND_VARS}}, %{$var_engs}};
+method bind_variables
+        (Hash of QDRDBMS::Engine::Example::Variable
+            :variables($var_engs)!) {
+    $!bound_vars = {%{$!bound_vars}, %{$var_engs}};
     return;
 }
 
 ###########################################################################
 
 method execute () {
-    $self.{$ATTR_PREP_RTN}.( $self.{$ATTR_BOUND_VARS} );
+    $!prep_rtn.( |%{$!bound_vars} );
     return;
 }
 
@@ -107,16 +100,13 @@ method execute () {
 ###########################################################################
 
 class QDRDBMS::Engine::Example::Variable {
-
-    use Carp;
-
-    my $ATTR_DBMS_ENG = 'dbms_eng';
+    has QDRDBMS::Engine::Example::DBMS $!dbms_eng;
 
 ###########################################################################
 
 submethod BUILD (QDRDBMS::Engine::Example::DBMS :dbms($dbms_eng)!) {
 
-    $self.{$ATTR_DBMS_ENG} = $dbms_eng;
+    $!dbms_eng = $dbms_eng;
 
     return;
 }
