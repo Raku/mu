@@ -33,16 +33,13 @@ class QDRDBMS::Interface::DBMS {
 
 submethod BUILD (Str :$engine_name!, Hash of Any :$dbms_config!) {
 
-    confess q{new(): Bad $engine_name arg; it is not an object of a}
+    die q{new(): Bad :$engine_name arg; it is not an object of a}
             ~ q{ Str-doing class.}
-        if !blessed $engine_name
-            or !$engine_name.isa( 'Str' );
-    $engine_name = ${$engine_name};
+        if !defined $engine_name or !$engine_name.does(Str);
 
-    confess q{new(): Bad $dbms_config arg; it is not an object of a}
+    die q{new(): Bad :$dbms_config arg; it is not an object of a}
             ~ q{ Hash-doing class.}
-        if !blessed $dbms_config
-            or !$dbms_config.isa( 'Hash' );
+        if !defined $dbms_config or !$dbms_config.does(Hash);
 
     # A package may be loaded due to it being embedded in a non-excl file.
     if (!do {
@@ -54,10 +51,10 @@ submethod BUILD (Str :$engine_name!, Hash of Any :$dbms_config!) {
         # will munge the package name into file system paths.
         eval "require $engine_name;";
         if (my $err = $@) {
-            confess q{new(): Could not load QDRDBMS Engine class}
+            die q{new(): Could not load QDRDBMS Engine class}
                 ~ qq{ '$engine_name': $err};
         }
-        confess qq{new(): Could not load QDRDBMS Engine class}
+        die qq{new(): Could not load QDRDBMS Engine class}
                 ~ qq{ '$engine_name': while that file did compile without}
                 ~ q{ errors, it did not declare the same-named package.}
             if !do {
@@ -65,26 +62,26 @@ submethod BUILD (Str :$engine_name!, Hash of Any :$dbms_config!) {
                 defined %{$engine_name ~ '::'};
             };
     }
-    confess qq{new(): The QDRDBMS Engine class '$engine_name' does not}
+    die qq{new(): The QDRDBMS Engine class '$engine_name' does not}
             ~ q{ provide the new_dbms() constructor function.}
         if !$engine_name.can( 'new_dbms' );
     my $dbms_eng = eval {
         $engine_name.new_dbms( :dbms_config($dbms_config) );
     };
     if (my $err = $@) {
-        confess qq{new(): The QDRDBMS Engine class '$engine_name' threw an}
+        die qq{new(): The QDRDBMS Engine class '$engine_name' threw an}
             ~ qq{ exception during its new_dbms() execution: $err}
     }
-    confess q{new(): The new_dbms() constructor function of the QDRDBMS}
+    die q{new(): The new_dbms() constructor function of the QDRDBMS}
             ~ qq{ Engine class '$engine_name' did not return an object}
             ~ q{ to serve as a DBMS Engine.}
-        if !blessed $dbms_eng;
-    my $dbms_eng_class = blessed $dbms_eng;
+        if !defined $dbms_eng;
+    my $dbms_eng_class = $dbms_eng.WHAT;
 
-    confess qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class' does}
+    die qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class' does}
             ~ q{ not provide the prepare_routine() method.}
         if !$dbms_eng.can( 'prepare_routine' );
-    confess qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class' does}
+    die qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class' does}
             ~ q{ not provide the new_variable() method.}
         if !$dbms_eng.can( 'new_variable' );
 
@@ -122,35 +119,35 @@ class QDRDBMS::Interface::Routine {
 submethod BUILD (QDRDBMS::Interface::DBMS :dbms($dbms_intf)!,
         QDRDBMS::AST::Proc :routine($rtn_ast)!) {
 
-    confess q{new(): Bad $dbms arg; it is not an object of a}
+    die q{new(): Bad :$dbms arg; it is not an object of a}
             ~ q{ QDRDBMS::Interface::DBMS-doing class.}
-        if !blessed $dbms_intf
-            or !$dbms_intf.isa( 'QDRDBMS::Interface::DBMS' );
+        if !defined $dbms_intf
+            or !$dbms_intf.does(QDRDBMS::Interface::DBMS);
     my $dbms_eng = $dbms_intf!dbms_eng;
-    my $dbms_eng_class = blessed $dbms_eng;
+    my $dbms_eng_class = $dbms_eng.WHAT;
 
-    confess q{new(): Bad $dbms arg; it is not an object of a}
+    die q{new(): Bad :$dbms arg; it is not an object of a}
             ~ q{ QDRDBMS::AST::Proc-doing class.}
-        if !blessed $rtn_ast or !$rtn_ast.isa( 'QDRDBMS::AST::Proc' );
+        if !defined $rtn_ast or !$rtn_ast.does(QDRDBMS::AST::Proc);
 
     my $rtn_eng = eval {
         $dbms_eng.prepare_routine( :routine($rtn_ast) );
     };
     if (my $err = $@) {
-        confess qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class'}
+        die qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class'}
             ~ q{ threw an exception during its prepare_routine()}
             ~ qq{ execution: $err}
     }
-    confess q{new(): The prepare_routine() method of the QDRDBMS}
+    die q{new(): The prepare_routine() method of the QDRDBMS}
             ~ qq{ DBMS class '$dbms_eng_class' did not return an object}
             ~ q{ to serve as a Routine Engine.}
-        if !blessed $rtn_eng;
-    my $rtn_eng_class = blessed $rtn_eng;
+        if !defined $rtn_eng;
+    my $rtn_eng_class = $rtn_eng.WHAT;
 
-    confess qq{new(): The QDRDBMS Routine Engine class '$rtn_eng_class'}
+    die qq{new(): The QDRDBMS Routine Engine class '$rtn_eng_class'}
             ~ q{ does not provide the bind_variables() method.}
         if !$rtn_eng.can( 'bind_variables' );
-    confess qq{new(): The QDRDBMS Routine Engine class '$rtn_eng_class'}
+    die qq{new(): The QDRDBMS Routine Engine class '$rtn_eng_class'}
             ~ q{ does not provide the execute() method.}
         if !$rtn_eng.can( 'execute' );
 
@@ -166,18 +163,17 @@ submethod BUILD (QDRDBMS::Interface::DBMS :dbms($dbms_intf)!,
 method bind_variables
         (Hash of QDRDBMS::Interface::Variable :variables($var_intfs)!) {
 
-    confess q{new(): Bad $variables arg; it is not an object of a}
+    die q{new(): Bad :$variables arg; it is not an object of a}
             ~ q{ Hash-doing class.}
-        if !blessed $var_intfs
-            or !$var_intfs.isa( 'Hash' );
+        if !defined $var_intfs or !$var_intfs.does(Hash);
 
     my $var_engs = {};
     for my $var_name (keys %{$var_intfs}) {
         my $var_intf = $var_intfs.{$var_name};
-        confess q{new(): Bad $var_value arg elem; it is not an object of a}
+        die q{new(): Bad :$var_value arg elem; it is not an object of a}
                 ~ q{ QDRDBMS::Interface::Variable-doing class.}
-            if !blessed $var_intf
-                or !$var_intf.isa( 'QDRDBMS::Interface::Variable' );
+            if !defined $var_intf
+                or !$var_intf.does(QDRDBMS::Interface::Variable);
         $var_engs.{$var_name} = $var_intf!var_eng;
     }
 
@@ -209,28 +205,28 @@ class QDRDBMS::Interface::Variable {
 
 submethod BUILD (QDRDBMS::Interface::DBMS :dbms($dbms_intf)!) {
 
-    confess q{new(): Bad $dbms arg; it is not an object of a}
+    die q{new(): Bad :$dbms arg; it is not an object of a}
             ~ q{ QDRDBMS::Interface::DBMS-doing class.}
-        if !blessed $dbms_intf
-            or !$dbms_intf.isa( 'QDRDBMS::Interface::DBMS' );
+        if !defined $dbms_intf
+            or !$dbms_intf.does(QDRDBMS::Interface::DBMS);
     my $dbms_eng = $dbms_intf!dbms_eng;
-    my $dbms_eng_class = blessed $dbms_eng;
+    my $dbms_eng_class = $dbms_eng.WHAT;
 
     my $var_eng = eval {
         $dbms_eng.new_variable();
     };
     if (my $err = $@) {
-        confess qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class'}
+        die qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class'}
             ~ q{ threw an exception during its new_variable()}
             ~ qq{ execution: $err}
     }
-    confess q{new(): The prepare_routine() method of the QDRDBMS}
+    die q{new(): The prepare_routine() method of the QDRDBMS}
             ~ qq{ DBMS class '$dbms_eng_class' did not return an object}
             ~ q{ to serve as a Routine Engine.}
-        if !blessed $var_eng;
-    my $var_eng_class = blessed $var_eng;
+        if !defined $var_eng;
+    my $var_eng_class = $var_eng.WHAT;
 
-#    confess qq{new(): The QDRDBMS Variable Engine class '$var_eng_class'}
+#    die qq{new(): The QDRDBMS Variable Engine class '$var_eng_class'}
 #            ~ q{ does not provide the ...() method.}
 #        if !$var_eng.can( '...' );
 

@@ -3,12 +3,13 @@ use v6-alpha;
 ###########################################################################
 ###########################################################################
 
-my $LITERAL_TYPE_MAP = {
-    'Bool' => QDRDBMS::AST::TypeRef.new( :text('sys.type.Bool') ),
-    'Str'  => QDRDBMS::AST::TypeRef.new( :text('sys.type.Text') ),
-    'Blob' => QDRDBMS::AST::TypeRef.new( :text('sys.type.Blob') ),
-    'Int'  => QDRDBMS::AST::TypeRef.new( :text('sys.type.Int') ),
-    'Num'  => QDRDBMS::AST::TypeRef.new( :text('sys.type.Num.Rat') ),
+#my Hash of QDRDBMS::AST::TypeRef $LITERAL_TYPE_MAP = {
+my Hash $LITERAL_TYPE_MAP = {
+#    'Bool' => QDRDBMS::AST::TypeRef.new( :text('sys.type.Bool') ),
+#    'Str'  => QDRDBMS::AST::TypeRef.new( :text('sys.type.Text') ),
+#    'Blob' => QDRDBMS::AST::TypeRef.new( :text('sys.type.Blob') ),
+#    'Int'  => QDRDBMS::AST::TypeRef.new( :text('sys.type.Int') ),
+#    'Num'  => QDRDBMS::AST::TypeRef.new( :text('sys.type.Num.Rat') ),
 };
 
 ###########################################################################
@@ -73,9 +74,9 @@ role QDRDBMS::AST::_EntityRef {
 
 submethod BUILD (Str :$text!) {
 
-    confess q{new(): Bad $text arg; it is not a valid object}
+    die q{new(): Bad :$text arg; it is not a valid object}
             ~ q{ of a Str-doing class.}
-        if !blessed $text or !$text.isa( 'Str' );
+        if !defined $text or !$text.does(Str);
 
     $!text_possrep = $text;
 
@@ -124,22 +125,25 @@ class QDRDBMS::AST::VarRef {
 ###########################################################################
 
 class QDRDBMS::AST::LitDefExpr {
-    has Bool|Str|Blob|Int|Num $!lit_val;
+#    has Bool|Str|Blob|Int|Num $!lit_val;
+    has Scalar $!lit_val;
     has Type                  $!lit_type;
 
 ###########################################################################
 
-submethod BUILD (Bool|Str|Blob|Int|Num :lit($lit_val)!) {
+#submethod BUILD (Bool|Str|Blob|Int|Num :lit($lit_val)!) {
+submethod BUILD (Bool|Str|Blob|Int|Num :$lit!) {
+    my $lit_val = $lit;
 
-    my $lit_class = blessed $lit_val;
-    confess q{new(): Bad $lit arg; it is not an object.}
+    my $lit_class = $lit_val.WHAT;
+    die q{new(): Bad :$lit arg; it is not an object.}
         if !$lit_class;
     if (my $lit_type = $LITERAL_TYPE_MAP.{$lit_class}) {
         $!lit_val  = $lit_val;
         $!lit_type = $lit_type;
     }
     else {
-        confess q{new(): Bad $lit arg; it is not an object of a}
+        die q{new(): Bad :$lit arg; it is not an object of a}
             ~ q{ (Bool|Str|Blob|Int|Num) class.};
     }
 
@@ -158,12 +162,13 @@ class QDRDBMS::AST::VarRefExpr {
 
 ###########################################################################
 
-submethod BUILD (QDRDBMS::AST::VarRef :var($var_ref)!) {
+#submethod BUILD (QDRDBMS::AST::VarRef :var($var_ref)!) {
+submethod BUILD (QDRDBMS::AST::VarRef :$var!) {
+    my $var_ref = $var;
 
-    confess q{new(): Bad $var arg; it is not a valid object}
+    die q{new(): Bad :$var arg; it is not a valid object}
             ~ q{ of a QDRDBMS::AST::VarRef-doing class.}
-        if !blessed $var_ref
-            or !$var_ref.isa( 'QDRDBMS::AST::VarRef' );
+        if !defined $var_ref or !$var_ref.does(QDRDBMS::AST::VarRef);
     $!var_name = $var_ref;
 
     return;
@@ -178,17 +183,20 @@ submethod BUILD (QDRDBMS::AST::VarRef :var($var_ref)!) {
 
 class QDRDBMS::AST::FuncInvExpr {
     has QDRDBMS::AST::FuncRef      $!func_name;
-    has Hash of QDRDBMS::AST::Expr $!func_args;
+#    has Hash of QDRDBMS::AST::Expr $!func_args;
+    has Hash $!func_args;
 
 ###########################################################################
 
-submethod BUILD (QDRDBMS::AST::FuncRef :func($func_ref)!,
-        Hash of QDRDBMS::AST::Expr :$func_args!) {
+#submethod BUILD (QDRDBMS::AST::FuncRef :func($func_ref)!,
+#        Hash of QDRDBMS::AST::Expr :$func_args!) {
+submethod BUILD (QDRDBMS::AST::FuncRef :$func!,
+        Hash :$func_args!) {
+    my $func_ref = $func;
 
-    confess q{new(): Bad $func arg; it is not a valid object}
+    die q{new(): Bad :$func arg; it is not a valid object}
             ~ q{ of a QDRDBMS::AST::FuncRef-doing class.}
-        if !blessed $func_ref
-            or !$func_ref.isa( 'QDRDBMS::AST::FuncRef' );
+        if !defined $func_ref or !$func_ref.does(QDRDBMS::AST::FuncRef);
     $!func_name = $func_ref;
     if (!defined $func_args) {
         $!func_args = {};
@@ -200,7 +208,7 @@ submethod BUILD (QDRDBMS::AST::FuncRef :func($func_ref)!,
         # TODO.
     }
     else {
-        confess q{new(): Bad $func_args arg; its not a Array|Hash.};
+        die q{new(): Bad :$func_args arg; its not a Array|Hash.};
     }
 
     return;
