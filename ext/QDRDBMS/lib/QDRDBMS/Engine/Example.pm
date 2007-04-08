@@ -12,8 +12,9 @@ package QDRDBMS::Engine::Example-0.0.0 {
 ###########################################################################
 
 sub new_dbms of QDRDBMS::Engine::Example::DBMS
-        (Hash of Any :$dbms_config!) {
-    return QDRDBMS::Engine::Example::DBMS.new(
+#        (Hash of Any :$dbms_config!) {
+        (Hash :$dbms_config!) {
+    return ::QDRDBMS::Engine::Example::DBMS.new(
         :dbms_config($dbms_config) );
 }
 
@@ -25,11 +26,13 @@ sub new_dbms of QDRDBMS::Engine::Example::DBMS
 ###########################################################################
 
 class QDRDBMS::Engine::Example::DBMS {
-    has Hash of Any $!dbms_config;
+#    has Hash of Any $!dbms_config;
+    has Hash $!dbms_config;
 
 ###########################################################################
 
-submethod BUILD (Hash of Any :$dbms_config!) {
+#submethod BUILD (Hash of Any :$dbms_config!) {
+submethod BUILD (Hash :$dbms_config!) {
 
     $!dbms_config = $dbms_config;
 
@@ -39,7 +42,9 @@ submethod BUILD (Hash of Any :$dbms_config!) {
 ###########################################################################
 
 method prepare_routine of QDRDBMS::Engine::Example::Routine
-        (QDRDBMS::AST::Proc :routine($rtn_ast)!) {
+#        (QDRDBMS::AST::Proc :routine($rtn_ast)!) {
+        (QDRDBMS::AST::Proc :$routine!) {
+    my $rtn_ast = $routine;
     return QDRDBMS::Engine::Example::Routine.new(
         :dbms(self), :routine($rtn_ast) );
 }
@@ -59,12 +64,17 @@ class QDRDBMS::Engine::Example::Routine {
     has QDRDBMS::Engine::Example::DBMS             $!dbms_eng;
     has QDRDBMS::AST::Proc                         $!rtn_ast;
     has Code                                       $!prep_rtn;
-    has Hash of QDRDBMS::Engine::Example::Variable $!bound_vars;
+#    has Hash of QDRDBMS::Engine::Example::Variable $!bound_vars;
+    has Hash $!bound_vars;
 
 ###########################################################################
 
-submethod BUILD (QDRDBMS::Engine::Example::DBMS :dbms($dbms_eng)!,
-        QDRDBMS::AST::Proc :routine($rtn_ast)!) {
+#submethod BUILD (QDRDBMS::Engine::Example::DBMS :dbms($dbms_eng)!,
+#        QDRDBMS::AST::Proc :routine($rtn_ast)!) {
+submethod BUILD (QDRDBMS::Engine::Example::DBMS :$dbms!,
+        QDRDBMS::AST::Proc :$routine!) {
+    my $dbms_eng = $dbms;
+    my $rtn_ast = $routine;
 
     my $prep_rtn = sub { 1; }; # TODO; the real thing.
 
@@ -78,17 +88,19 @@ submethod BUILD (QDRDBMS::Engine::Example::DBMS :dbms($dbms_eng)!,
 
 ###########################################################################
 
-method bind_variables
-        (Hash of QDRDBMS::Engine::Example::Variable
-            :variables($var_engs)!) {
-    $!bound_vars = {%{$!bound_vars}, %{$var_engs}};
+#method bind_variables
+#        (Hash of QDRDBMS::Engine::Example::Variable
+#            :variables($var_engs)!) {
+method bind_variables (Hash :$variables!) {
+    my $var_engs = $variables;
+    $!bound_vars = {$!bound_vars.kv, $var_engs.kv};
     return;
 }
 
 ###########################################################################
 
 method execute () {
-    $!prep_rtn.( |%{$!bound_vars} );
+    $!prep_rtn.( |%$!bound_vars );
     return;
 }
 
@@ -104,7 +116,9 @@ class QDRDBMS::Engine::Example::Variable {
 
 ###########################################################################
 
-submethod BUILD (QDRDBMS::Engine::Example::DBMS :dbms($dbms_eng)!) {
+#submethod BUILD (QDRDBMS::Engine::Example::DBMS :dbms($dbms_eng)!) {
+submethod BUILD (QDRDBMS::Engine::Example::DBMS :$dbms!) {
+    my $dbms_eng = $dbms;
 
     $!dbms_eng = $dbms_eng;
 

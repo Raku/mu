@@ -13,7 +13,7 @@ package QDRDBMS-0.0.0 {
 sub new_dbms of QDRDBMS::Interface::DBMS
 #        (Str :$engine_name!, Hash of Any :$dbms_config!) {
         (Str :$engine_name!, Hash :$dbms_config!) {
-    return QDRDBMS::Interface::DBMS.new(
+    return ::QDRDBMS::Interface::DBMS.new(
         :engine_name($engine_name), :dbms_config($dbms_config) );
 }
 
@@ -53,17 +53,18 @@ submethod BUILD (Str :$engine_name!, Hash :$dbms_config!) {
             die q{new(): Could not load QDRDBMS Engine class}
                 ~ qq{ '$engine_name': $err};
         }
-        die qq{new(): Could not load QDRDBMS Engine class}
-                ~ qq{ '$engine_name': while that file did compile without}
-                ~ q{ errors, it did not declare the same-named package.}
-            if !::($engine_name).does(Package);
+#        die qq{new(): Could not load QDRDBMS Engine class}
+#                ~ qq{ '$engine_name': while that file did compile without}
+#                ~ q{ errors, it did not declare the same-named package.}
+#            if !::($engine_name).does(Package);
     }
-    die qq{new(): The QDRDBMS Engine class '$engine_name' does not}
-            ~ q{ provide the new_dbms() constructor function.}
-        if !$engine_name.can( 'new_dbms' );
+#    die qq{new(): The QDRDBMS Engine class '$engine_name' does not}
+#            ~ q{ provide the new_dbms() constructor function.}
+#        if !::($engine_name).HOW.can( 'new_dbms' );
     my $dbms_eng = undef;
     try {
-        &::($engine_name).new_dbms( :dbms_config($dbms_config) );
+        $dbms_eng
+            = &::($engine_name)::new_dbms( :dbms_config($dbms_config) );
     };
     if (my $err = $!) {
         die qq{new(): The QDRDBMS Engine class '$engine_name' threw an}
@@ -75,12 +76,12 @@ submethod BUILD (Str :$engine_name!, Hash :$dbms_config!) {
         if !defined $dbms_eng;
     my $dbms_eng_class = $dbms_eng.WHAT;
 
-    die qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class' does}
-            ~ q{ not provide the prepare_routine() method.}
-        if !$dbms_eng.can( 'prepare_routine' );
-    die qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class' does}
-            ~ q{ not provide the new_variable() method.}
-        if !$dbms_eng.can( 'new_variable' );
+#    die qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class' does}
+#            ~ q{ not provide the prepare_routine() method.}
+#        if !$dbms_eng.HOW.can( 'prepare_routine' );
+#    die qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class' does}
+#            ~ q{ not provide the new_variable() method.}
+#        if !$dbms_eng.HOW.can( 'new_variable' );
 
     $!dbms_eng = $dbms_eng;
 
@@ -135,7 +136,7 @@ submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!,
 
     my $rtn_eng = undef;
     try {
-        $dbms_eng.prepare_routine( :routine($rtn_ast) );
+        $rtn_eng = $dbms_eng.prepare_routine( :routine($rtn_ast) );
     };
     if (my $err = $!) {
         die qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class'}
@@ -148,12 +149,12 @@ submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!,
         if !defined $rtn_eng;
     my $rtn_eng_class = $rtn_eng.WHAT;
 
-    die qq{new(): The QDRDBMS Routine Engine class '$rtn_eng_class'}
-            ~ q{ does not provide the bind_variables() method.}
-        if !$rtn_eng.can( 'bind_variables' );
-    die qq{new(): The QDRDBMS Routine Engine class '$rtn_eng_class'}
-            ~ q{ does not provide the execute() method.}
-        if !$rtn_eng.can( 'execute' );
+#    die qq{new(): The QDRDBMS Routine Engine class '$rtn_eng_class'}
+#            ~ q{ does not provide the bind_variables() method.}
+#        if !$rtn_eng.HOW.can( 'bind_variables' );
+#    die qq{new(): The QDRDBMS Routine Engine class '$rtn_eng_class'}
+#            ~ q{ does not provide the execute() method.}
+#        if !$rtn_eng.HOW.can( 'execute' );
 
     $!dbms_intf = $dbms_intf;
     $!rtn_ast   = $rtn_ast;
@@ -221,7 +222,7 @@ submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!) {
 
     my $var_eng = undef;
     try {
-        $dbms_eng.new_variable();
+        $var_eng = $dbms_eng.new_variable();
     };
     if (my $err = $!) {
         die qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class'}
@@ -236,7 +237,7 @@ submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!) {
 
 #    die qq{new(): The QDRDBMS Variable Engine class '$var_eng_class'}
 #            ~ q{ does not provide the ...() method.}
-#        if !$var_eng.can( '...' );
+#        if !$var_eng.HOW.can( '...' );
 
     $!dbms_intf = $dbms_intf;
     $!var_eng   = $var_eng;
@@ -279,7 +280,7 @@ code; instead refer to other above-named packages in this file.>
     use QDRDBMS;
 
     # Instantiate a QDRDBMS DBMS / virtual machine.
-    my $dbms = QDRDBMS.new_dbms(
+    my $dbms = QDRDBMS::new_dbms(
             :engine_name('QDRDBMS::Engine::Example'),
             :dbms_config({}),
         );
