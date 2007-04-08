@@ -16,45 +16,52 @@ module QDRDBMS::Engine::Example::PhysType-0.0.0 {
 
 ###########################################################################
 
-sub Bool is export {
-    return QDRDBMS::Engine::Example::PhysType::Bool.new( @_ );
+=pod
+sub Bool of QDRDBMS::Engine::Example::PhysType::Bool () is export {
+    return QDRDBMS::Engine::Example::PhysType::Bool.new();
 }
 
-sub Text is export {
-    return QDRDBMS::Engine::Example::PhysType::Text.new( @_ );
+sub Text of QDRDBMS::Engine::Example::PhysType::Text () is export {
+    return QDRDBMS::Engine::Example::PhysType::Text.new();
 }
 
-sub Blob is export {
-    return QDRDBMS::Engine::Example::PhysType::Blob.new( @_ );
+sub Blob of QDRDBMS::Engine::Example::PhysType::Blob () is export {
+    return QDRDBMS::Engine::Example::PhysType::Blob.new();
 }
 
-sub Int is export {
-    return QDRDBMS::Engine::Example::PhysType::Int.new( @_ );
+sub Int of QDRDBMS::Engine::Example::PhysType::Int () is export {
+    return QDRDBMS::Engine::Example::PhysType::Int.new();
 }
 
-sub TextKeyedMap is export {
-    return QDRDBMS::Engine::Example::PhysType::TextKeyedMap.new( @_ );
+sub TextKeyedMap of QDRDBMS::Engine::Example::PhysType::TextKeyedMap
+        () is export {
+    return QDRDBMS::Engine::Example::PhysType::TextKeyedMap.new();
 }
 
-sub Heading is export {
-    return QDRDBMS::Engine::Example::PhysType::Heading.new( @_ );
+sub Heading of QDRDBMS::Engine::Example::PhysType::Heading () is export {
+    return QDRDBMS::Engine::Example::PhysType::Heading.new();
 }
 
-sub Tuple is export {
-    return QDRDBMS::Engine::Example::PhysType::Tuple.new( @_ );
+sub Tuple of QDRDBMS::Engine::Example::PhysType::Tuple () is export {
+    return QDRDBMS::Engine::Example::PhysType::Tuple.new();
 }
 
-sub Relation is export {
-    return QDRDBMS::Engine::Example::PhysType::Relation.new( @_ );
+sub Relation of QDRDBMS::Engine::Example::PhysType::Relation () is export {
+    return QDRDBMS::Engine::Example::PhysType::Relation.new();
 }
 
-sub Cat_DeclEntityName is export {
-    return QDRDBMS::Engine::Example::PhysType::Cat_DeclEntityName.new( @_ );
+sub Cat_DeclEntityName
+        of QDRDBMS::Engine::Example::PhysType::Cat_DeclEntityName
+        () is export {
+    return QDRDBMS::Engine::Example::PhysType::Cat_DeclEntityName.new();
 }
 
-sub Cat_InvokEntityName is export {
-    return QDRDBMS::Engine::Example::PhysType::Cat_InvokEntityName.new( @_ );
+sub Cat_InvokEntityName
+        of QDRDBMS::Engine::Example::PhysType::Cat_InvokEntityName
+        () is export {
+    return QDRDBMS::Engine::Example::PhysType::Cat_InvokEntityName.new();
 }
+=cut
 
 ###########################################################################
 
@@ -62,6 +69,7 @@ sub Cat_InvokEntityName is export {
 
 ###########################################################################
 ###########################################################################
+=pod
 
 class QDRDBMS::Engine::Example::PhysType::_Base {
     has Str $!which;
@@ -102,7 +110,7 @@ submethod BUILD () {
 
 ###########################################################################
 
-method _calc_parts_of_self_which of  () {
+method _calc_parts_of_self_which of Seq () {
     my ($self) = @_;
     return ('Bool', $!scalar);
 }
@@ -130,7 +138,7 @@ submethod BUILD () {
 
 ###########################################################################
 
-method _calc_parts_of_self_which of  () {
+method _calc_parts_of_self_which of Seq () {
     my ($self) = @_;
     return ('Text', $!scalar);
 }
@@ -157,7 +165,7 @@ submethod BUILD () {
 
 ###########################################################################
 
-method _calc_parts_of_self_which of  () {
+method _calc_parts_of_self_which of Seq () {
     my ($self) = @_;
     return ('Blob', $!scalar);
 }
@@ -184,7 +192,7 @@ submethod BUILD () {
 
 ###########################################################################
 
-method _calc_parts_of_self_which of  () {
+method _calc_parts_of_self_which of Seq () {
     my ($self) = @_;
     return ('Int', $!scalar);
 }
@@ -199,7 +207,8 @@ method _calc_parts_of_self_which of  () {
 class QDRDBMS::Engine::Example::PhysType::TextKeyedMap {
     does QDRDBMS::Engine::Example::PhysType::_Base;
 
-    has Hash(Str) of Any $!map;
+#    has Hash(Str) of Any $!map;
+    has Hash $!map;
         # A p5 Hash with 0..N elements:
             # Each Hash key is a p5 text-mode string.
             # Each Hash value is a ::Example::* value of some kind.
@@ -213,7 +222,7 @@ submethod BUILD () {
 
 ###########################################################################
 
-method _calc_parts_of_self_which of  () {
+method _calc_parts_of_self_which of Seq () {
     my ($self) = @_;
     my $map = $!map;
     return ('TextKeyedMap', join ' ', map {
@@ -248,7 +257,8 @@ method pairs of  () {
 class QDRDBMS::Engine::Example::PhysType::Heading {
     does QDRDBMS::Engine::Example::PhysType::_Base;
 
-    has Hash of Array $!attr_defs_by_name;
+#    has Hash of Array $!attr_defs_by_name;
+    has Hash $!attr_defs_by_name;
         # A p5 Hash with 0..N elements:
             # Each Hash key is a p5 text-mode string; an attr name.
             # Each Hash value would describe a single tuple|relation
@@ -258,7 +268,8 @@ class QDRDBMS::Engine::Example::PhysType::Heading {
                 # 3. minor type: a disjunction depending on maj-tp value:
                     # 'S': a p5 text-mode string.
                     # 'T'|'R': a Heading.
-    has Array of Array $!attr_defs_ordered;
+#    has Array of Array $!attr_defs_ordered;
+    has Array $!attr_defs_ordered;
         # A p5 Array with 0..N elements; its elements are all of the Hash
         # values of $!attr_defs_by_name, sorted by the attr-name/Hash key.
 
@@ -276,7 +287,7 @@ submethod BUILD () {
 
 ###########################################################################
 
-method _calc_parts_of_self_which of  () {
+method _calc_parts_of_self_which of Seq () {
     my ($self) = @_;
     my $defs = $!attr_defs_ordered;
     return ('Heading', join ' ', map {
@@ -320,7 +331,7 @@ submethod BUILD () {
 
 ###########################################################################
 
-method _calc_parts_of_self_which of  () {
+method _calc_parts_of_self_which of Seq () {
     my ($self) = @_;
     return ('Tuple H ', $!heading.which()
         ~ ' B ' ~ $!body.which());
@@ -376,7 +387,7 @@ submethod BUILD () {
 
 ###########################################################################
 
-method _calc_parts_of_self_which of  () {
+method _calc_parts_of_self_which of Seq () {
     my ($self) = @_;
     return ('Relation H ', $!heading.which()
         ~ ' B ' ~ (join ' ',

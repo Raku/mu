@@ -20,44 +20,48 @@ module QDRDBMS::AST-0.0.0 {
 
 ###########################################################################
 
-sub TypeRef is export {
-    return QDRDBMS::AST::TypeRef.new( @_ );
+sub TypeRef of QDRDBMS::AST::TypeRef (Str :$text!) is export {
+    return QDRDBMS::AST::TypeRef.new( :text($text) );
 }
 
-sub FuncRef is export {
-    return QDRDBMS::AST::FuncRef.new( @_ );
+sub FuncRef of QDRDBMS::AST::FuncRef (Str :$text!) is export {
+    return QDRDBMS::AST::FuncRef.new( :text($text) );
 }
 
-sub ProcRef is export {
-    return QDRDBMS::AST::ProcRef.new( @_ );
+sub ProcRef of QDRDBMS::AST::ProcRef (Str :$text!) is export {
+    return QDRDBMS::AST::ProcRef.new( :text($text) );
 }
 
-sub VarRef is export {
-    return QDRDBMS::AST::VarRef.new( @_ );
+sub VarRef of QDRDBMS::AST::VarRef (Str :$text!) is export {
+    return QDRDBMS::AST::VarRef.new( :text($text) );
 }
 
-sub LitDefExpr is export {
-    return QDRDBMS::AST::LitDefExpr.new( @_ );
+sub LitDefExpr of QDRDBMS::AST::LitDefExpr
+        (Bool|Str|Blob|Int|Num :$lit!) is export {
+    return QDRDBMS::AST::LitDefExpr.new( :lit($lit) );
 }
 
-sub VarRefExpr is export {
-    return QDRDBMS::AST::VarRefExpr.new( @_ );
+sub VarRefExpr of QDRDBMS::AST::VarRefExpr
+        (QDRDBMS::AST::VarRef :$var!) is export {
+    return QDRDBMS::AST::VarRefExpr.new( :var($var) );
 }
 
-sub FuncInvExpr is export {
-    return QDRDBMS::AST::FuncInvExpr.new( @_ );
+sub FuncInvExpr of QDRDBMS::AST::FuncInvExpr
+        (QDRDBMS::AST::FuncRef :$func!, Hash :$func_args!) is export {
+    return QDRDBMS::AST::FuncInvExpr.new(
+        :func($func), :func_args($func_args) );
 }
 
-sub Stmt is export {
-    return QDRDBMS::AST::Stmt.new( @_ );
+sub Stmt of QDRDBMS::AST::Stmt () is export {
+    return QDRDBMS::AST::Stmt.new();
 }
 
-sub Func is export {
-    return QDRDBMS::AST::Func.new( @_ );
+sub Func of QDRDBMS::AST::Func () is export {
+    return QDRDBMS::AST::Func.new();
 }
 
-sub Proc is export {
-    return QDRDBMS::AST::Proc.new( @_ );
+sub Proc of QDRDBMS::AST::Proc () is export {
+    return QDRDBMS::AST::Proc.new();
 }
 
 ###########################################################################
