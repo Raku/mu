@@ -12,7 +12,8 @@ module QDRDBMS::Validator-0.0.0 {
 
 ###########################################################################
 
-sub main (Str :$engine_name!, Hash of Any :$dbms_config!) {
+#sub main (Str :$engine_name!, Hash of Any :$dbms_config!) {
+sub main (Str :$engine_name!, Hash :$dbms_config!) {
 
     plan( 1 );
 
