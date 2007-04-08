@@ -48,7 +48,9 @@ ok -f $tarball, 'tarball downloaded okay';
 warn "info: Extracting $tarball...\n";
 my $tar = Archive::Tar->new;
 $tar->read($tarball);
+chdir $Bin;
 $tar->extract;
+
 ok -d $data_path, 'tarball extracted successfully';
 ok -d "$data_path/Spec", 'Spec/ okay';
 ok -d "$data_path/expected", 'expected/ okay';
