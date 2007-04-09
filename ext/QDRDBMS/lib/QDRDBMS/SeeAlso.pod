@@ -361,8 +361,10 @@ L<QDRDBMS::Engine::Example>.
 
 I<This documentation is pending.>
 
-These Perl 5 applications and frameworks are at the front of the line to
-get QDRDBMS bindings: L<Catalyst>, L<Maypole>, L<Bricolage>, L<RT>.
+These Perl 5 applications and frameworks are, perhaps, at the front of the
+line to get QDRDBMS bindings: L<Jifty>, L<Catalyst>, L<Maypole>,
+L<Bricolage>, L<RT>.  Generally speaking, the more active the development
+or the more popular the project, the higher the priority to support it.
 
 =head1 DBMS-RELATED PERL MODULES
 
@@ -374,7 +376,7 @@ data or data definitions or connections to databases:
 L<Set::Relation>, L<Set>.
 
 These other Perl 5 packages also work in the problem domain of managing
-data or data definitions or connections to databases:
+data or data definitions or connections to databases (list not exhaustive):
 
 L<DBI>, L<Tangram>, L<DBIx::Class>, L<HDB>, L<Class::DBI>, L<Pixie>,
 L<Alzabo>, L<DBIx::SQLEngine>, L<Rose::DB>, L<SPOPS>, L<Set::Object>,

@@ -3,23 +3,16 @@
 
 2007-04-xx   Darren Duncan <perl@DarrenDuncan.net>
 
-    * QDRDBMS Release 0.0.0 for Perl 5.
+    * QDRDBMS version 0.0.0 for Perl 5 is released on CPAN as
+    QDRDBMS-v0.0.0.tar.gz.  QDRDBMS version 0.0.0 for Perl 6 is not
+    released at this time, if ever, since it is currently released only as
+    part of the Perl6-Pugs project (in its ext/QDRDBMS/ subdirectory),
+    which sets its own less frequent release schedule.  The rest of this
+    Changes entry refers only to the Perl 5 version.
 
-    * This is the first release of the QDRDBMS distribution, and the first
-    release of any distribution to contain modules named QDRDBMS::*.
-
-    * QDRDBMS is the first successor of the now-defunct Rosetta DBMS
-    framework, which it is heavily based on and has learned from, though
-    for all practical purposes, QDRDBMS is a complete rewrite with
-    significant changes.  Given the magnitude of the differences, the
-    actual change history of Rosetta itself is not relevant, and so QDRDBMS
-    does not continue its version numbering or maintain the older change
-    log.  The first QDRDBMS release on CPAN is version 0.0.0.  But QDRDBMS
-    does still declare copyright of 2002-present, incorporating the Rosetta
-    development/release time-period.
-
-    * Initial code file versions are: QDRDBMS.pm and AST.pm and GSTV.pm and
-    Validator.pm and Example.pm and PhysType.pm 0.0.0.
+    * This is the first release of the Perl 5 QDRDBMS distribution, and the
+    first release of any distribution to contain Perl 5 modules named
+    QDRDBMS::*.
 
     * This is the initial file manifest:
 
@@ -44,3 +37,6 @@
         README
         t/QDR_00_Compile.t
         t/QDR_50_Validate_Example.t
+
+    * Initial code file versions are: QDRDBMS.pm and AST.pm and GSTV.pm and
+    Validator.pm and Example.pm and PhysType.pm 0.0.0.
