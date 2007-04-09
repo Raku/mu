@@ -6,6 +6,13 @@ Ideas
 6-on-6 on pugs
 - simple syntax fixes (mp6)
 
-regex engine
+mp6 regex engine
 - implement DFA
 
+mp6
+- merge back the AST processor from kp6
+- improve the regex compiler architecture with OO nodes, AST processor
+
+PCR
+- implement DFA
+- OO nodes, AST processor
