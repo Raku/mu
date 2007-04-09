@@ -14,6 +14,14 @@
 " if exists("b:current_syntax")
 "   finish
 " endif
+"
+" TODO: (added by Moritz Lenz <moritz@faui2k3.org>
+"   * syntax for reading from stdin: =<> or from arbitrary file handles:
+"     =<$fh>
+"   * List initialization via the @a = <foo bar> construct brakes when there
+"     is a newline between '<' and '>'
+"   * The regex regex_name { ... } syntax for regexes/tokens seems to be
+"     unsupported
 
 " Recommended formatting options (see pugs::hack)
 setlocal shiftwidth=4 autoindent expandtab smarttab softtabstop=1
@@ -53,7 +61,7 @@ syn keyword p6KeyFunc       nothing want bless chr ord list item gmtime
 syn keyword p6KeyFunc       localtime time gethost getpw chroot getlogin kill
 syn keyword p6KeyFunc       fork wait
 syn keyword p6KeySpecial    eval operator undef undefine
-syn keyword p6KeyCompare    eq ne lt le gt ge == != < <= > >=
+syn keyword p6KeyCompare    eq ne lt le gt ge cmp == != < <= > >=
 syn match   p6Normal        "\w*::\w\+"
 
 " Comments
