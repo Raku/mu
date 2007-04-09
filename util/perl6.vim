@@ -40,10 +40,18 @@ syn keyword p6KeyType       Array Bool Class Code Hash Int IO Num NumRange
 syn keyword p6KeyType       Str StrRange Sub Role Rule Rat
 syn keyword p6KeyFunc       substr index rindex
 syn keyword p6KeyFunc       grep map sort join split reduce min max reverse truncate zip
-syn keyword p6KeyFunc       keys values pairs defined delete exists elems 
+syn keyword p6KeyFunc       cat roundrobin classify first 
+syn keyword p6KeyFunc       keys values pairs defined delete exists elems end
 syn keyword p6KeyFunc       arity assuming gather take any pick all none
 syn keyword p6KeyFunc       pop push shift splice unshift  
-syn keyword p6KeyFunc       abs exp log log10 rand sign sqrt      
+syn keyword p6KeyFunc       abs exp log log10 rand sign sqrt sin cos tan       
+syn keyword p6KeyFunc       floor ceiling round srand roots cis unpolar polar
+syn keyword p6KeyFunc       p5chop chop p5chomp chomp lc lcfirst uc ucfirst
+syn keyword p6KeyFunc       capitalize normalize pack unpack quotemeta comb
+syn keyword p6KeyFunc       printf sprintf caller evalfile run runinstead 
+syn keyword p6KeyFunc       nothing want bless chr ord list item gmtime 
+syn keyword p6KeyFunc       localtime time gethost getpw chroot getlogin kill
+syn keyword p6KeyFunc       fork wait
 syn keyword p6KeySpecial    eval operator undef undefine
 syn keyword p6KeyCompare    eq ne lt le gt ge == != < <= > >=
 syn match   p6Normal        "\w*::\w\+"
