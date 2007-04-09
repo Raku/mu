@@ -231,7 +231,7 @@ sub emit_pod ($) {
     $str;
 }
 
-# convert patterns used in smartlinks to perl 5 regexes
+# convert patterns used in 00-smartlinks.to perl 5 regexes
 sub parse_pattern ($) {
     my $pat = shift;
     my @keys;
@@ -970,12 +970,12 @@ L<http://pugs.blogs.com/pugs/2006/09/check_smoke_res.html>
 
 =item *
 
-Consult util/t/smartlinks.t in the Pugs source tree for unit
+Consult util/t/00-smartlinks.t in the Pugs source tree for unit
 tests and usage of the internal API.
 
 =item *
 
-Consult util/t/smartlinks2.t for a corresponding regression test
+Consult util/t/01-smartlinks.t for a corresponding regression test
 suite harness.
 
 =item *
