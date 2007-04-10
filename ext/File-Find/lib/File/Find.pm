@@ -5,13 +5,14 @@ module File::Find-6.0.0;
 use File::Spec;
 
 has Int   $.debug;
+has Int   $.follow;
 has Array $.dirs;
 has Array $.queue;
 has Array $.results;
 has Code  $.wanted_dir;
 has Code  $.wanted_file;
 
-submethod BUILD { $.debug = 0 }
+submethod BUILD { $.debug = 0; $.follow = 0; }
 
 method find ( $self: :@dirs, :$wanted_dir, :$wanted_file ) {
     my @start    = @dirs        || @.dirs;
@@ -32,16 +33,19 @@ method find ( $self: :@dirs, :$wanted_dir, :$wanted_file ) {
             unless $abs ~~ :d  {
                 $abs = catfile( $dir, $node );
                 if $wfile_cb( $node, $dir, $abs ) {
-                    $.results.push($abs);
-                    say "  $abs ~~ :!f " if $.debug;
+                    if ($abs ~~ :l && $.follow) || $abs ~~ :!l {
+                        $.results.push($abs);
+                        say "  $abs ~~ :!f " if $.debug;                        
+                    }else{ say "    $abs ~~ :l " if $.debug }
                 }
                 else { say "  $abs ~~ :f " if $.debug }
             }
-            # XXX: Add symlink detection!
             else {
                 if $wdir_cb( $node, $dir, $abs ) {
-                    $.queue.push($abs);
-                    say "  $abs ~~ :!d " if $.debug;
+                    if ($abs ~~ :l && $.follow) || $abs ~~ :!l {
+                        $.queue.push($abs);
+                        say "  $abs ~~ :!d " if $.debug;
+                    }else { say "   $abs ~~ :l " if $.debug }
                 }
                 else { say "  $abs ~~ :d " if $.debug }
             }
@@ -70,6 +74,9 @@ File::Find - Traverse a directory tree
     # debug attribute for statistics
     $f.debug = 1;
 
+    # attribute for following symlink
+    $f.follow = 1;
+    
 =head1 DESCRIPTION
 
 Perl 6 port of the C<File::Find> library.
