@@ -1,4 +1,4 @@
-Ideas
+* Ideas
 
 6-on-6 on parrot
 - through onion (perl6 on parrot)
@@ -16,3 +16,12 @@ mp6
 PCR
 - implement DFA
 - OO nodes, AST processor
+
+* Startup list
+
+- make an "almost pass-thru" emitter for mp6->pugs, bootstrap with it
+
+- make some experiments with "onion", see what works
+
+- regex parser - create ast nodes; change the grammar to emit these nodes
+
