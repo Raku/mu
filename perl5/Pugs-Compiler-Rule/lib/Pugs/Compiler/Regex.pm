@@ -212,8 +212,10 @@ sub reinstall {
   my $rule = index($name, '::') > -1 ? $name : scalar(caller)."::$name";
   my $slot = qualify_to_ref($rule);
 
-  no warnings 'redefine';
-  *$slot = $class->compile(@etc)->code;
+  eval {
+      no warnings 'redefine';
+      *$slot = $class->compile(@etc)->code;
+  }; warn $@ if $@;
 }
 
 sub install {
