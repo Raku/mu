@@ -1,323 +1,253 @@
-#!/usr/bin/perl
+#!perl -l012
 
-use strict;
-use warnings;
+=pod
+=head1 NAME
 
-unless (@ARGV == 2) {
-    print <<"";
-Usage:
-    package-osx.pl [pugs|parrot|pugs-parrot] target_base_dir
-        Run after make install'ing pugs and parrot under /usr/local
+package-osx.pl - Build distribution of pugs w/embedded perl5 and parrot
 
-    exit;
+=head1 SYNOPSIS
+
+perl package-osx.pl
+
+Options:
+
+    --prefix        Installation parent directory
+    --readline     Readline build directory
+    --perl          Perl build directory
+    --parrot        Parrot build directory
+    --ghc           GHC build directory
+    --gmp           Directory of GMP Framework
+    --help          This message
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-prefix>
+
+Pugs, et c. are installed in a subdirectory of B<-prefix>, which is the
+revision number of Pugs. For instance, if you pass in /usr/local/pugs for
+B<-prefix>, and the current Pugs revision is 12321, then Pugs and friends
+will be installed under /usr/local/pugs/r12321.
+
+=item B<-readline>
+
+The readline build directory if you want to use that version of readline for
+parrot, ghc, and pugs rather than the system's version (OS X has a broken
+one).
+
+=item B<-perl>
+
+The perl build directory if you want to bundle a perl installation with pugs.
+It will be installed under B<-prefix>, and then used to build parrot (if
+specified) and pugs.
+
+=item B<-parrot>
+
+The parrot build directory if you want to embed parrot (e.g., /src/parrot).
+
+=item B<-ghc>
+
+The ghc build directory if you want to bundle ghc with pugs and use it to
+build pugs. B<TODO:> Haskell can't be embedded in pugs because I haven't built
+hs-plugins.
+
+=item B<-gmp>
+
+The path to the GMP framework that you want to bundle with pugs. If not used,
+the pugs and ghc will link to the system's GMP.framework.
+
+=back
+
+=head1 DESCRIPTION
+
+You must have GHC and Perl versions needed for Pugs in order to be built. Pugs
+needs both of these in order to be built. The options that are passed in
+(e.g., B<-ghc>) will be used in the build process, but otherwise you need GHC
+and Perl in your PATH.  (GHC needs GHC in order to be built, so you must have
+a version lying around somewhere :-)
+
+You must also have wget and patch in your PATH, or just change the fetching,
+patching, and installing of readline yourself.
+
+=cut
+use FindBin qw/$Bin/;
+use File::Spec;
+use Getopt::Long;
+use Pod::Usage;
+
+my @build_dirs = qw/readline perl parrot ghc gmp/;
+my @relink_dirs = qw/readline gmp/;
+our %options;
+GetOptions \%options, qw/help prefix=s/, map "$_=s", @build_dirs
+    or pod2usage(2);
+pod2usage(-verbose => 2) if $options{'help'};
+s/^~/$ENV{HOME}/ for values %options;
+
+chdir $Bin && qx/$^X version_h.pl/;
+my $version_h_file = File::Spec->catfile( File::Spec->updir,"src", "Pugs",
+    "pugs_version.h");
+open my $version_h, '<', $version_h_file or die "Cannot open $version_h_file!";
+my ($version) = join '', 'r', grep $_, map { /\d+/g } <$version_h>;
+my $install_dir = File::Spec->catfile( $options{'prefix'}, $version );
+
+
+my $perl_exe = $^X;
+
+my $log_file = File::Spec->catfile( $Bin, 'package-osx.pl.log' );
+
+open my $log, '>', $log_file or die "Cannot open $log_file!";
+
+my @build = grep $options{$_}, @build_dirs;
+chdir $options{$_} or die "Can't chdir to $options{$_}!\n" for @build;
+for my $pkg ( @build ) {
+    eval "install_$pkg()";
+    die $@ if $@;
+}
+install_pugs();
+
+my @relink = grep $options{$_}, @relink_dirs;
+for my $pkg ( @relink ) {
+    eval "relink_$pkg()";
+    die $@ if $@;
 }
 
-my ($bundle, $dest) = @ARGV;
+create_pkg();
 
-$dest =~ s#/([^/]+)/?$#/$1#;
-my $remover = "/usr/local/bin/remove-$1.pl";
+create_dmg();
 
-my (%symlinks, %change_files, @files);
+close $log;
 
-if ($bundle =~ /parrot/) {
-    @files = qw(
-        /usr/local/bin/parrot-config
-        /usr/local/bin/pbc_merge
-        /usr/local/bin/disassemble
-        /usr/local/bin/parrot
-        /usr/local/bin/pbc_info
-        /usr/local/bin/pbc_merge
-        /usr/local/bin/pdb
-        /usr/local/bin/pdump
-        /usr/local/include/parrot
-        /usr/local/lib/libreadline.5.1.dylib
-        /usr/local/lib/libhistory.5.1.dylib
-        /usr/local/lib/libparrot.0.4.4.dylib
-        /usr/local/lib/libparrot.a
-        /usr/local/lib/libparrot.dylib
-        /usr/local/lib/parrot
-        /usr/local/lib/pkgconfig/parrot.pc
-        /usr/local/share/doc/parrot
-        /usr/local/info/readline.info
-        /usr/local/info/rluserman.info
-        /usr/local/info/history.info
-        /usr/local/man/man3/readline.3
-        /usr/local/man/man3/history.3
-        /usr/local/lib/libreadline.a
-        /usr/local/lib/libhistory.a
-    );
-}
-if ($bundle =~ /pugs/) {
-
-    %symlinks = qw(
-        /usr/local/bin/pugs ../../bin/pugs
-        /usr/local/bin/pugscc ../../bin/pugscc
-        /usr/local/bin/p6doc ../../bin/p6doc
-    );
-
-    %change_files = qw(
-        /usr/local/lib/perl5/site_perl/jspugs.pl /Library/Perl/5.8.6/jspugs.pl
-        /usr/local/lib/perl5/site_perl/PIL.pm /Library/Perl/5.8.6/PIL.pm
-        /usr/local/lib/perl5/site_perl/pil2js.pl /Library/Perl/5.8.6/pil2js.pl
-        /usr/local/lib/perl5/site_perl/PIL2JS.pm /Library/Perl/5.8.6/PIL2JS.pm
-        /usr/local/lib/perl5/site_perl/pugs-smokejs.pl /Library/Perl/5.8.6/pugs-smokejs.pl
-        /usr/local/lib/perl5/site_perl/runjs.pl /Library/Perl/5.8.6/runjs.pl
-        /usr/local/lib/perl5/site_perl/Class/Rebless.pm /Library/Perl/5.8.6/Class/Rebless.pm
-        /usr/local/lib/perl5/site_perl/Perl6 /Library/Perl/5.8.6/Perl6/
-        /usr/local/lib/perl5/site_perl/PIL /Library/Perl/5.8.6/PIL
-        /usr/local/lib/perl5/site_perl/PIL2JS /Library/Perl/5.8.6/PIL2JS
-        /usr/local/lib/perl5/site_perl/Prelude/JS.pm /Library/Perl/5.8.6/Prelude/JS.pm
-        /Users/dromano/dev/pugs/examples /usr/local/share/doc/pugs/examples
-        /Users/dromano/dev/pugs/docs /usr/local/share/doc/pugs/docs
-        /Users/dromano/dev/pugs/LICENSE /usr/local/share/doc/pugs/LICENSE
-        /usr/local/usr/bin/p6doc /usr/local/bin/p6doc
-        /usr/local/usr/bin/pugs /usr/local/bin/pugs
-        /usr/local/usr/bin/pugscc /usr/local/bin/pugscc
-        blank /System/Library/Perl6/
-        /Users/dromano/dev/pugs/src/pge/run_pge.pir /System/Library/Perl6/darwin-thread-multi-2level/CORE/pugs/pge/run_pge.pir
-    );
-    unless (grep /pugs-parrot/, @ARGV) { 
-        @files = ();
-    }
-
-    push @files, qw(
-        /usr/local/lib/libreadline.5.1.dylib
-        /usr/local/lib/libhistory.5.1.dylib
-        /Library/Frameworks/GMP.Framework
-        /Library/Perl6
-        /Library/Perl/5.8.6/darwin-thread-multi-2level/auto/Perl6/Pugs/.packlist
-        /Library/Perl/5.8.6/v6.pm
-        /Library/Perl/5.8.6/Inline/Pugs.pm
-        /usr/local/info/readline.info
-        /usr/local/info/rluserman.info
-        /usr/local/info/history.info
-        /usr/local/man/man3/readline.3
-        /usr/local/man/man3/history.3
-        /usr/local/man/man3/Inline::Pugs.3pm
-        /usr/local/man/man3/v6.3pm
-        /usr/local/man/man3/Perl6::API.3
-        /usr/local/man/man3/Perl6::API.3pm
-        /usr/local/man/man3/Perl6::Bible.3pm
-        /usr/local/man/man3/Perl6::Bible::A01.3pm
-        /usr/local/man/man3/Perl6::Bible::A02.3pm
-        /usr/local/man/man3/Perl6::Bible::A03.3pm
-        /usr/local/man/man3/Perl6::Bible::A04.3pm
-        /usr/local/man/man3/Perl6::Bible::A05.3pm
-        /usr/local/man/man3/Perl6::Bible::A06.3pm
-        /usr/local/man/man3/Perl6::Bible::A12.3pm
-        /usr/local/man/man3/Perl6::Bible::A20.3pm
-        /usr/local/man/man3/Perl6::Bible::E02.3pm
-        /usr/local/man/man3/Perl6::Bible::E03.3pm
-        /usr/local/man/man3/Perl6::Bible::E04.3pm
-        /usr/local/man/man3/Perl6::Bible::E05.3pm
-        /usr/local/man/man3/Perl6::Bible::E06.3pm
-        /usr/local/man/man3/Perl6::Bible::E07.3pm
-        /usr/local/man/man3/Perl6::Bible::S01.3pm
-        /usr/local/man/man3/Perl6::Bible::S02.3pm
-        /usr/local/man/man3/Perl6::Bible::S03.3pm
-        /usr/local/man/man3/Perl6::Bible::S04.3pm
-        /usr/local/man/man3/Perl6::Bible::S05.3pm
-        /usr/local/man/man3/Perl6::Bible::S06.3pm
-        /usr/local/man/man3/Perl6::Bible::S09.3pm
-        /usr/local/man/man3/Perl6::Bible::S10.3pm
-        /usr/local/man/man3/Perl6::Bible::S11.3pm
-        /usr/local/man/man3/Perl6::Bible::S12.3pm
-        /usr/local/man/man3/Perl6::Bible::S13.3pm
-        /usr/local/man/man3/Perl6::Bible::S17.3pm
-        /usr/local/man/man3/Perl6::Bible::S22.3pm
-        /usr/local/man/man3/Perl6::Bible::S26.3pm
-        /usr/local/man/man3/Perl6::Bible::S27.3pm
-        /usr/local/man/man3/Perl6::Bible::S28.3pm
-        /usr/local/man/man3/Perl6::Bible::S29.3pm
-        /usr/local/man/man3/Perl6::Doc.3
-        /usr/local/man/man3/Perl6::Doc.3pm
-        /usr/local/man/man3/Perl6::FAQ::Capture.3
-        /usr/local/man/man3/Perl6::FAQ::Capture.3pm
-        /usr/local/man/man3/Perl6::FAQ::FUD.3
-        /usr/local/man/man3/Perl6::FAQ::FUD.3pm
-        /usr/local/man/man3/Perl6::Overview.3
-        /usr/local/man/man3/Perl6::Overview.3pm
-        /usr/local/man/man3/Perl6::Overview::Control.3
-        /usr/local/man/man3/Perl6::Overview::Control.3pm
-        /usr/local/man/man3/Perl6::Overview::Data.3
-        /usr/local/man/man3/Perl6::Overview::Data.3pm
-        /usr/local/man/man3/Perl6::Overview::File.3
-        /usr/local/man/man3/Perl6::Overview::File.3pm
-        /usr/local/man/man3/Perl6::Overview::Functions.3
-        /usr/local/man/man3/Perl6::Overview::Functions.3pm
-        /usr/local/man/man3/Perl6::Overview::Object.3
-        /usr/local/man/man3/Perl6::Overview::Object.3pm
-        /usr/local/man/man3/Perl6::Overview::Operator.3
-        /usr/local/man/man3/Perl6::Overview::Operator.3pm
-        /usr/local/man/man3/Perl6::Overview::Reduce.3
-        /usr/local/man/man3/Perl6::Overview::Reduce.3pm
-        /usr/local/man/man3/Perl6::Overview::Rule.3
-        /usr/local/man/man3/Perl6::Overview::Rule.3pm
-        /usr/local/man/man3/Perl6::Overview::Smartmatch.3
-        /usr/local/man/man3/Perl6::Overview::Smartmatch.3pm
-        /usr/local/man/man3/Perl6::Overview::Subroutine.3
-        /usr/local/man/man3/Perl6::Overview::Subroutine.3pm
-        /usr/local/man/man3/Perl6::Overview::Variable.3
-        /usr/local/man/man3/Perl6::Overview::Variable.3pm
-        /usr/local/man/man3/Perl6::Perl5::Differences.3
-        /usr/local/man/man3/Perl6::Perl5::Differences.3pm
-        /usr/local/man/man3/Perl6::Perl5::Docfinder.3
-        /usr/local/man/man3/Perl6::Perl5::Docfinder.3pm
-        /usr/local/man/man3/Perl6::Pugs.3
-        /usr/local/man/man3/Perl6::Pugs.3pm
-        /usr/local/man/man3/Perl6::Spec.3
-        /usr/local/man/man3/Perl6::Spec.3pm
-        /usr/local/man/man3/Perl6::Spec::CPAN.3
-        /usr/local/man/man3/Perl6::Spec::CPAN.3pm
-        /usr/local/man/man3/Perl6::Spec::Concurrency.3
-        /usr/local/man/man3/Perl6::Spec::Concurrency.3pm
-        /usr/local/man/man3/Perl6::Spec::Documentation.3
-        /usr/local/man/man3/Perl6::Spec::Documentation.3pm
-        /usr/local/man/man3/Perl6::Spec::Functions.3
-        /usr/local/man/man3/Perl6::Spec::Functions.3pm
-        /usr/local/man/man3/Perl6::Spec::Block.3pm
-        /usr/local/man/man3/Perl6::Spec::Module.3pm
-        /usr/local/man/man3/Perl6::Spec::Object.3pm
-        /usr/local/man/man3/Perl6::Spec::Operator.3pm
-        /usr/local/man/man3/Perl6::Spec::Overload.3pm
-        /usr/local/man/man3/Perl6::Spec::Overview.3pm
-        /usr/local/man/man3/Perl6::Spec::Package.3pm
-        /usr/local/man/man3/Perl6::Spec::Rule.3pm
-        /usr/local/man/man3/Perl6::Spec::Structure.3pm
-        /usr/local/man/man3/Perl6::Spec::Subroutine.3pm
-        /usr/local/man/man3/Perl6::Spec::Syntax.3pm
-        /usr/local/man/man3/Perl6::Tutorial.3
-        /usr/local/man/man3/Perl6::Tutorial.3pm
-        /usr/local/man/man3/Pugs::Doc::Hack.3
-        /usr/local/man/man3/Pugs::Doc::Hack.3pm
-        /usr/local/man/man3/Pugs::Doc::Run.3
-        /usr/local/man/man3/Pugs::Doc::Run.3pm
-
-    );
+sub install_readline {
+    $_ = "Installing Readline from $options{'readline'}";
+    chdir $options{'readline'};
+    print, print $log $_, '-' x length;
+    print, print $log $_, qx/$_/ for "sh ./configure --prefix=$install_dir 2>&1",
+        'make 2>&1', 'make install 2>&1';
 }
 
-sub change_files {
-    my ($dest, %change_files) = @_;
-    for my $orig (keys %change_files) {
-        my $dirs = $change_files{$orig};
-        $dirs =~ s#/[^/]+$##;
-        make_dir("$dest$dirs") unless (-d "$dest$dirs");
-    
-        qx/cp -r $orig $dest$change_files{$orig}/;
-        remove_svn("$dest$dirs");
-        print "Copied $orig to $dest$change_files{$orig}\n";
+sub install_perl {
+    $_ = "Installing Perl from $options{'perl'}";
+    chdir $options{perl};
+    print, print $log $_, '-' x length;
+    print, print $log $_, qx/$_/ for 'rm -f config.sh Policy.sh',
+        "sh Configure -de -Dprefix=$install_dir 2>&1", 'make 2>&1',
+        'make install 2>&1';
+    $perl_exe = File::Spec->catfile( $install_dir, 'bin', 'perl' );
+    $ENV{PUGS_EMBED} .= " perl5";
+}
+
+sub install_parrot {
+    $_ = "Installing Parrot from $options{'parrot'}";
+    chdir $options{parrot};
+    print, print $log $_, '-' x length;
+    print, print $log $_, qx/$_/ for "$perl_exe Configure.pl --prefix=$install_dir 2>&1",
+        'make 2>&1', 'make reallyinstall 2>&1';
+    $ENV{PARROT_PATH} = $options{parrot};
+    $ENV{PUGS_EMBED} .= " parrot";
+}
+
+sub install_ghc {
+    $_ = "Installing GHC from $options{'ghc'}";
+    chdir $options{ghc};
+    print, print $log $_, '-' x length;
+    $ENV{LDFLAGS} = "-L$install_dir/lib $ENV{LDFLAGS}";
+    $ENV{CPPFLAGS} = "-I$install_dir/include $ENV{CPPFLAGS}";
+    print, print $log $_, qx/$_/ for "sh ./configure --prefix=$install_dir 2>&1",
+        'make 2>&1', 'make install 2>&1';
+    $ENV{GHC} = File::Spec->catfile( $install_dir, 'bin', 'ghc' );
+    # TODO hs-plugins install
+    # $ENV{PUGS_EMBED} .= " $_";
+}
+
+# install GMP to pugs dir
+sub install_gmp {
+    print, print $log $_, qx/$_/ for
+        "cp -r $options{gmp} $install_dir/lib/GMP.framework 2>&1",
+        "touch $install_dir/lib/GMP.framework/build-framework.sh.Emm 2>&1";
+}
+
+# install pugs
+sub install_pugs {
+    chdir $Bin && chdir File::Spec->updir;
+    print, print $log $_, qx/$_/
+        for "$perl_exe Makefile.PL 2>&1", "make install 2>&1";
+}
+
+# change libreadline link if needed
+sub relink_readline {
+    chdir $install_dir;
+    for my $util ( grep !/(readline|history)/ && -f, <lib/*>,  <bin/*> ) {
+        $_ = `otool -L $install_dir/$util`;
+        next if /not an object file/;
+
+        my ($rl_lib) = grep $_, map { /\S+libreadline\S+/g } $_;
+        next unless $rl_lib;
+
+        my $mode_orig = (stat $util)[2];
+        chmod 0777, $util or die "Cannot chmod $_ to 0777!\n";
+        my $change = "-change $rl_lib $install_dir/lib/libreadline.dylib";
+        print $log $_, qx/$_/
+            for "install_name_tool $change $install_dir/$util";
+        chmod $mode_orig, $util;
     }
 }
 
-sub make_symlinks {
-    my ($dest, %symlinks) = @_;
-    make_dir("${dest}/usr/bin") unless (-d "${dest}/usr/bin");
-    chdir("${dest}/usr/local/bin");
-    qx/ln -s $_ $symlinks{$_}/ for (keys %symlinks);
-}
+# change GMP.framework link if needed
+sub relink_gmp {
+    chdir $install_dir;
+    for my $util ( grep -f, <lib/*>,  <bin/*> ) {
+        $_ = `otool -L $install_dir/$util`;
+        next if /not an object file/;
 
+        my ($gmp_lib) = grep $_, map { /\S*GMP\.framework\S*/g } $_;
+        next unless $gmp_lib;
 
-sub make_dir {
-    my ($dir) = @_;
-    my $curr_dir = "";
-    for (split m#/#, $dir) {
-        $curr_dir .= "$_/";
-        if (!-d $curr_dir) {
-            mkdir $curr_dir;
-            print "Made $curr_dir\n";
-        }
+        my $mode_orig = (stat $util)[2];
+        chmod 0777, $util or die "Cannot chmod $_ to 0777!\n";
+
+        my $change = "-change $gmp_lib $install_dir/lib/$gmp_lib";
+        print $log $_, qx/$_/
+                for "install_name_tool $change $install_dir/$util";
+        chmod $mode_orig, $util;
     }
 }
 
-sub remove_svn {
-    my ($dir) = @_;
-    print "Removing .svn under $dir\n";
-    if (-e "$dir/.svn") {
-        print `rm -rf $dir/.svn`;
-        print "Removed $dir/.svn\n";
-    }
-    for my $sub_dir (grep -d, <$dir/*>) {
-        remove_svn("$sub_dir");
-    }
-}    
-    
-sub copy_files {
-    my ($dest, @files) = @_;
-    for my $from (@files) {
-        my $dirs = $from;
-        $dirs =~ s#/[^/]+$##;
-        make_dir("$dest$dirs") unless (-d "$dest$dirs");
+sub create_pkg {
+    chdir $Bin;
+    print $log $_, qx/$_/ for "tar -P --preserve -zcf pugs-$version.tar.gz $install_dir";
+    return;
 
-        if ($_ = qx/cp -r $from $dest$from 2>&1/) {
-            print "Error copying $from to $dest$from: $_\n";
-        }
-        else {
-            print "Copied $from to $dest$from\n";
-        }
+    # TODO need to fill in create_pkg_resources and create_pkg_info
+    # create root directory
+    for ( "package-osx", grep $_, File::Spec->splitdir( $install_dir ) ) {
+        mkdir($_, 0777) && chdir $_ or die "Cannot chdir to $_\n";
     }
+    `ditto $install_dir $Bin/package-osx/$install_dir`;
+
+    chdir $Bin;
+
+    create_pkg_resources();
+
+    create_pkg_info();
+
+    my $pmaker = File::Spec->catfile( qw/Developer Applications Utilities
+        PackageMaker.app Contents MacOS PackageMaker /);
+    print $log $_, qx/$_/
+        for join " ", $pmaker, "-build", "-p pugs-$version.pkg",
+            "-f $Bin/osx/root", "-r $Bin/osx/Resources",
+            "-i $Bin/osx/info.plist";
 }
 
-
-# @files are all files that will be removed. The last one passed in is the
-# remover that will be installed on the target machine (hence the $file[-1]).
-sub create_remover {
-    my ($dest, @files) = @_;
-    my $dirs = $files[-1];
-    $dirs =~ s#/[^/]+$##;
-    make_dir($dirs) unless (-d $dirs);
-    
-    open  REMOVER, '>', "$dest$files[-1]" or die "Can't open $dest$files[-1]!";
-
-    my @header = qq(
-        #!/usr/bin/perl
-        # $files[-1]
-        use strict;
-        use warnings;\n
-        chdir '/usr/local/bin';\n
-        my \@files = qw\(
-    );
-    @header = map { s/^(?:\s{9}|\s{5}$)//; $_ } split /$/m, $header[0];
-
-    my @footer = qq(
-        \ 
-        \);\n
-        for my \$file \(\@files\) \{
-            if \( `which parrot` !~ /^no / and \$file =~ /\(?:parrot\).*\\.\(?:dylib|3|info\)\$/ \) \{
-                print "Not removing \$file\\n"; 
-                next;
-            \}
-            if \(\$file =~ /\(?:readline|history\).*\\.\(?:dylib|3|info\)\$/ \) \{
-                print "Not removing \$file\\n"; 
-                next;
-            \}
-            print "Removing \$file\\n"\;
-            print "Removing \$file\\n"\;
-            if \( \$_ \= qx\/rm \-rf \$file 2>&1 \/ \) \{
-                print "Problem removing \$file\: \$_\\n";
-            \}
-            else \{
-                print "Successfully removed \$file\\n";
-            \}
-        \}
-    );
-    @footer = map { s/^(?:\s{9}|\s{5}$)//; $_ } split /$/m, $footer[0];
-
-    print REMOVER "$_\n" for @header;
-    print REMOVER "    $_\n" for @files; 
-    print REMOVER "$_\n" for @footer;
-
-    close REMOVER;
-    chmod 0755, "$dest$files[-1]";
-    print "Made $dest$files[-1]\n";
+sub create_pkg_resources {
+    # TODO
 }
 
-sub chown_all {
-    my ($dest) = @_;
-    system("sudo -S chown -R root:wheel $dest < ~/.pass");
+sub create_pkg_info {
+    # TODO
 }
 
-&change_files($dest, %change_files) if (keys %change_files > 0);
-&copy_files($dest, @files);
-&make_symlinks($dest, %symlinks) if (keys %symlinks > 0);
-&create_remover($dest, values %change_files, @files, %symlinks, $remover);
-&chown_all($dest);
+sub create_dmg {
+    # TODO
+
+}
