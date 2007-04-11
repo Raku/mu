@@ -263,11 +263,11 @@ A fully-featured truly relational DBMS in Perl
 
 =head1 VERSION
 
-This document describes QDRDBMS version 0.0.0.
+This document describes QDRDBMS version 0.0.0 for Perl 6.
 
-It also describes the same-number versions of QDRDBMS::Interface::DBMS
-("DBMS"), QDRDBMS::Interface::Routine ("Routine"), and
-QDRDBMS::Interface::Variable ("Variable").
+It also describes the same-number versions for Perl 6 of
+QDRDBMS::Interface::DBMS ("DBMS"), QDRDBMS::Interface::Routine ("Routine"),
+and QDRDBMS::Interface::Variable ("Variable").
 
 =head1 SYNOPSIS
 

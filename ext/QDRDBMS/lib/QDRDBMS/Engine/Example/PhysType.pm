@@ -412,10 +412,11 @@ Physical representations of all core data types
 
 =head1 VERSION
 
-This document describes QDRDBMS::Engine::Example::PhysType version 0.0.0.
+This document describes QDRDBMS::Engine::Example::PhysType version 0.0.0
+for Perl 6.
 
-It also describes the same-number versions of ::Bool, ::Text, ::Blob,
-::Int, ::Tuple, and ::Relation.
+It also describes the same-number versions for Perl 6 of ::Bool, ::Text,
+::Blob, ::Int, ::Tuple, and ::Relation.
 
 =head1 DESCRIPTION
 
