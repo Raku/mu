@@ -27,9 +27,11 @@ sub totient_phi(Int $num) {
 if !caller {
     use Test;
     plan 20;
-    
+
+    constant @phi = *,1,1,2,2,4,2,6,4,6,4,10,4,12,6,8,8,16,6,18,8;
+
     # from Sloane OEIS A000010
-    for each((1..20) ; (1,1,2,2,4,2,6,4,6,4,10,4,12,6,8,8,16,6,18,8)) -> $n, $phi {
-        is $phi, totient_phi($n), "totient of $n is $phi";
+    for 1..20 -> $n {
+        is @phi[$n], totient_phi($n), "totient of $n is @phi[$n]";
     }
 }

@@ -30,17 +30,20 @@ sub phi($n) {
   # in one step but don't know how
 
   for prime_factors_mult($n) -> @a  {
-    my ($p,$m)=@a;
+    my ($p,$m) = @a;
     $result *= $p ** ($m - 1) * ($p - 1);
   }
-  $result ;
+  $result;
 }
 
 unless caller {
   use Test;
   plan 20;
-  for each((1..20) ; (1,1,2,2,4,2,6,4,6,4,10,4,12,6,8,8,16,6,18,8)) -> $n, $phi {
-        is phi($n),$phi, "totient of $n is $phi";
-    }
+
+  constant @phi = *,1,1,2,2,4,2,6,4,6,4,10,4,12,6,8,8,16,6,18,8;
+
+  for 1..20 -> $n {
+        is phi($n), @phi[$n], "totient of $n is @phi[$n]";
+  }
 }
 

@@ -9,8 +9,8 @@ use v6-alpha;
 # 
 # Hint: The problem is similar to problem P13.
 
-sub prime_factors_mult($n is copy){
-  return if $n == 1;
+sub prime_factors_mult(Int $n is copy){
+  return () if $n == 1;
   my $count = 0;
   my $cond = 2;
   return gather {
