@@ -1,7 +1,7 @@
 * Ideas
 
 6-on-6 on parrot
-- through onion (perl6 on parrot)
+- through perl6 on parrot
 
 6-on-6 on pugs
 - simple syntax fixes (mp6)
@@ -19,9 +19,18 @@ PCR
 
 * Startup list
 
-- make an "almost pass-thru" emitter for mp6->pugs, bootstrap with it
+- make an "almost pass-thru" emitter for mp6->pugs
+  - bootstrap with it
+  - can we reuse the native '$/' ? 
+  - consider redefining mp6 to run natively on pugs
 
-- make some experiments with "onion", see what works
+- make some experiments with perl6-in-parrot, see what works
+  - alternately, try out tcl-in-parrot
 
-- regex parser - create ast nodes; change the grammar to emit these nodes
+- regex parser 
+  - create ast nodes; 
+  - change the grammar and emitters to use these nodes
+  - implement '|', possibly reusing <%hash>
 
+- merge kp6 back into v6.pm/PCR
+  - implement the kp6 ast-processor into v6.pm
