@@ -1,0 +1,54 @@
+Perl6::Perldoc version 0.0.2
+
+This distribution provides modules and applications that allow you to
+use the "Pod" dialect of the new Perl 6 documentation markup language
+"Perldoc".
+
+    * The Perl6::Perldoc module allows you to document Perl 5 code with
+      Perl 6 markup.
+
+    * The Perl6::Perldoc::Parser module converts the markup into a OO
+      parse tree.
+
+    * The Perl6::Perldoc::To:Text module augments the OO parse tree with
+      to_text() methods, to facilitate Perldoc-to-text conversion. The
+      perldoc2text application provides a command-line front-end for
+      this module.
+
+    * The Perl6::Perldoc::To:Xhtml module augments the OO parse tree
+      with to_xhtml() methods, to facilitate Perldoc-to-XHTML conversion. The
+      perldoc2xhtml application provides a command-line front-end for
+      this module.
+
+
+
+INSTALLATION
+
+To install this module, run the following commands:
+
+    perl Makefile.PL
+    make
+    make test
+    make install
+
+
+Alternatively, to install with Module::Build, you can use the following commands:
+
+    perl Build.PL
+    ./Build
+    ./Build test
+    ./Build install
+
+
+
+DEPENDENCIES
+
+None.
+
+
+COPYRIGHT AND LICENCE
+
+Copyright (C) 2007, Damian Conway
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
