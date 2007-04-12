@@ -6,8 +6,8 @@ class CompUnit {
     has %.methods;
     has @.body;
     method emit {
-        'package ' ~ $.name ~ "; " ~ 
-        'sub new { shift; bless { @_ }, "' ~ $.name ~ '" }' ~ " " ~
+        '# class ' ~ $.name ~ "; " ~ Main::newline ~
+        '# TODO - sub new { shift; bless { @_ }, "' ~ $.name ~ '" }' ~ Main::newline ~
         (@.body.>>emit).join( "; " )
     }
 }
@@ -245,11 +245,11 @@ class Call {
         { 
             if ($.hyper) {
                 return 
-                    '[ map { Main::' ~ $.method ~ '( $_, ' ~ ', ' ~ (@.arguments.>>emit).join(', ') ~ ')' ~ ' } @{ ' ~ $invocant ~ ' } ]';
+                    '[ map { &Main::' ~ $.method ~ '( $_, ' ~ ', ' ~ (@.arguments.>>emit).join(', ') ~ ')' ~ ' } @{ ' ~ $invocant ~ ' } ]';
             }
             else {
                 return
-                    'Main::' ~ $.method ~ '(' ~ $invocant ~ ', ' ~ (@.arguments.>>emit).join(', ') ~ ')';
+                    '&Main::' ~ $.method ~ '(' ~ $invocant ~ ', ' ~ (@.arguments.>>emit).join(', ') ~ ')';
             }
         };
 
@@ -283,8 +283,8 @@ class Apply {
 
         if $code eq 'self'       { return '$self' };
 
-        if $code eq 'say'        { return 'Main::say('   ~ (@.arguments.>>emit).join(', ') ~ ')' };
-        if $code eq 'print'      { return 'Main::print(' ~ (@.arguments.>>emit).join(', ') ~ ')' };
+        if $code eq 'say'        { return '&Main::say('   ~ (@.arguments.>>emit).join(', ') ~ ')' };
+        if $code eq 'print'      { return '&Main::print(' ~ (@.arguments.>>emit).join(', ') ~ ')' };
 
         if $code eq 'array'      { return '@{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
 
