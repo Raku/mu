@@ -7,6 +7,7 @@ WriteMakefile(
     AUTHOR              => 'Damian Conway <DCONWAY@CPAN.org>',
     VERSION_FROM        => 'lib/Perl6/Perldoc.pm',
     ABSTRACT_FROM       => 'lib/Perl6/Perldoc.pm',
+    EXE_FILES           => ['bin/perldoc2text','bin/perldoc2xhtml'],
     PL_FILES            => {},
     PREREQ_PM => {
         'Test::More' => 0,
