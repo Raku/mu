@@ -4,7 +4,6 @@ MANIFEST
 META.yml # Will be created by "make dist"
 Makefile.PL
 README
-S26.pod6
 bin/perldoc2text
 bin/perldoc2xhtml
 lib/Perl6/Perldoc.pm
