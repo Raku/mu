@@ -63,7 +63,19 @@ confusion given what meaning is often attributed to them.
 
 The term I<type> as a noun always refers to a I<data type>; the term is not
 used to indicate classifications of other things; eg, I<kind> or other
-terms will be used for such instead, to avoid confusion.
+terms will be used for such instead, to avoid confusion.  The terms
+I<class> and I<domain> are not used in this documentation to mean I<type>.
+
+=item value, variable, constant
+
+A I<value> is unique, eternal, immutable, and is not fixed in time or space
+(it has no address).  A I<variable> is fixed in time and space (it does
+have an address); it holds an appearance of a value; it is neither unique
+nor eternal nor immutable in the general case.  A I<constant> is a variable
+which is defined to not mutate after initially being set.  Terms like
+I<object> are not used in this documentation for any aspects of QDRDBMS D
+since their meaning in practice is both ambiguous and wide-reaching, and
+could refer to both values and variables depending on usage context.
 
 =item text, character
 
@@ -306,6 +318,19 @@ another peer subtype of that union type are complementary with respect to
 the union type; every union type value is in either the difference type or
 its complement, but not both.  In this way, C<Universal> is a union type of
 all other types, and C<Empty> is an intersection type of all other types.
+
+A I<root type> is a data type for which all of its values can be selected
+by the same single selector, and which has no proper supertype that is a
+root type.  All root types are mutually disjoint, so every value is a
+member of exactly one root type.  Generally speaking, root types are the
+implementational foundation over which all operators and all other types
+are built, and the declared parameter and return types of most
+system-defined operators are root types.  The 6 core system-defined root
+types are: C<Bool>, C<Text>, C<Blob>, C<Int>, C<Tuple>, C<Relation>.  All
+user-defined root types are scalar types that are defined not in terms of
+other types except for that any components of their I<possreps> (possible
+representations) have declared types.  I<Perhaps it should be said that all
+root types are defined by this last sentence?>
 
 =head2 Type Identification
 

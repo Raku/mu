@@ -16,7 +16,6 @@ module QDRDBMS::Engine::Example::PhysType-0.0.0 {
 
 ###########################################################################
 
-=pod
 sub Bool of QDRDBMS::Engine::Example::PhysType::Bool () is export {
     return QDRDBMS::Engine::Example::PhysType::Bool.new();
 }
@@ -61,7 +60,6 @@ sub Cat_InvokEntityName
         () is export {
     return QDRDBMS::Engine::Example::PhysType::Cat_InvokEntityName.new();
 }
-=cut
 
 ###########################################################################
 
@@ -69,10 +67,42 @@ sub Cat_InvokEntityName
 
 ###########################################################################
 ###########################################################################
-=pod
 
-class QDRDBMS::Engine::Example::PhysType::_Base {
+role QDRDBMS::Engine::Example::PhysType::Value {
+    has QDRDBMS::Engine::Example::PhysType::TypeRef $!root_type;
+        # QDRDBMS::Engine::Example::PhysType::TypeRef.
+        # This is the fundamental QDRDBMS D data type that this ::Value
+        # object's implementation sees it as a generic member of, and which
+        # generally determines what operators can be used with it.
+        # It is a supertype of the declared type.
+    has QDRDBMS::Engine::Example::PhysType::TypeRef $!decl_type;
+        # QDRDBMS::Engine::Example::PhysType::TypeRef.
+        # This is the QDRDBMS D data type that the ::Value was declared to
+        # be a member of when the ::Value object was created.
+    has QDRDBMS::Engine::Example::PhysType::TypeRef $!last_known_mst;
+        # QDRDBMS::Engine::Example::PhysType::TypeRef.
+        # This is the QDRDBMS data type that is the most specific type of
+        # this ::Value, as it was last determined.
+        # It is a subtype of the declared type.
+        # Since calculating a value's mst may be expensive, this object
+        # attribute may either be unset or be out of date with respect to
+        # the current type system, that is, not be automatically updated at
+        # the same time that a new subtype of its old mst is declared.
     has Str $!which;
+        # Str.
+        # This is a unique identifier for the value that this object
+        # represents that should compare correctly with the corresponding
+        # identifiers of all ::Value-doing objects.
+        # It is a text string of format "<tnl>_<tn>_<vll>_<vl>" where:
+        #   1. <tn> is the value's root type name (fully qualified)
+        #   2. <tnl> is the character-length of <tn>
+        #   3. <vl> is the (class-determined) stringified value itself
+        #   4. <vll> is the character-length of <vl>
+        # This identifier is mainly used when a ::Value needs to be used as
+        # a key to index the ::Value with, not necessarily when comparing
+        # 2 values for equality.
+        # This identifier can be expensive to calculate, so it will be done
+        # only when actually required; eg, by the which() method.
 
 ###########################################################################
 
@@ -90,13 +120,14 @@ method which of Str () {
 
 ###########################################################################
 
-} # class QDRDBMS::Engine::Example::PhysType::_Base
+} # role QDRDBMS::Engine::Example::PhysType::Value
 
 ###########################################################################
 ###########################################################################
 
+=pod
 class QDRDBMS::Engine::Example::PhysType::Bool {
-    does QDRDBMS::Engine::Example::PhysType::_Base;
+    does QDRDBMS::Engine::Example::PhysType::Value;
 
     has Scalar $!scalar;
         # A p5 Scalar that equals $FALSE|$TRUE.
@@ -123,7 +154,7 @@ method _calc_parts_of_self_which of Seq () {
 ###########################################################################
 
 class QDRDBMS::Engine::Example::PhysType::Text {
-    does QDRDBMS::Engine::Example::PhysType::_Base;
+    does QDRDBMS::Engine::Example::PhysType::Value;
 
     has Scalar $!scalar;
         # A p5 Scalar that is a text-mode string;
@@ -151,7 +182,7 @@ method _calc_parts_of_self_which of Seq () {
 ###########################################################################
 
 class QDRDBMS::Engine::Example::PhysType::Blob {
-    does QDRDBMS::Engine::Example::PhysType::_Base;
+    does QDRDBMS::Engine::Example::PhysType::Value;
 
     has Scalar $!scalar;
         # A p5 Scalar that is a byte-mode string; it has false utf8 flag.
@@ -178,7 +209,7 @@ method _calc_parts_of_self_which of Seq () {
 ###########################################################################
 
 class QDRDBMS::Engine::Example::PhysType::Int {
-    does QDRDBMS::Engine::Example::PhysType::_Base;
+    does QDRDBMS::Engine::Example::PhysType::Value;
 
     has Scalar $!scalar;
         # A p5 Scalar that is a Perl integer or BigInt or canonical string.
@@ -205,7 +236,7 @@ method _calc_parts_of_self_which of Seq () {
 ###########################################################################
 
 class QDRDBMS::Engine::Example::PhysType::TextKeyedMap {
-    does QDRDBMS::Engine::Example::PhysType::_Base;
+    does QDRDBMS::Engine::Example::PhysType::Value;
 
 #    has Hash(Str) of Any $!map;
     has Hash $!map;
@@ -255,7 +286,7 @@ method pairs of  () {
 ###########################################################################
 
 class QDRDBMS::Engine::Example::PhysType::Heading {
-    does QDRDBMS::Engine::Example::PhysType::_Base;
+    does QDRDBMS::Engine::Example::PhysType::Value;
 
 #    has Hash of Array $!attr_defs_by_name;
     has Hash $!attr_defs_by_name;
@@ -313,7 +344,7 @@ method get_attr_attr_defs_ordered of  () {
 ###########################################################################
 
 class QDRDBMS::Engine::Example::PhysType::Tuple {
-    does QDRDBMS::Engine::Example::PhysType::_Base;
+    does QDRDBMS::Engine::Example::PhysType::Value;
 
     has $!heading;
         # A Heading.
@@ -345,7 +376,7 @@ method _calc_parts_of_self_which of Seq () {
 ###########################################################################
 
 class QDRDBMS::Engine::Example::PhysType::Relation {
-    does QDRDBMS::Engine::Example::PhysType::_Base;
+    does QDRDBMS::Engine::Example::PhysType::Value;
 
     has $!heading;
         # A Heading.
