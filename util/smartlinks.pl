@@ -412,6 +412,42 @@ sub process_syn ($$$$) {
         my $base = basename($infile, '.pod');
         $syn_id = $Spec{$base};
     }
+    if ($syn_id == 26) { #hardcode the only pod6 one for now; detect pod6 later.
+      
+      eval { use Perl6::Perldoc::Parser; use Perl6::Perldoc::To::Xhtml; };
+      if ($@) {
+            warn "Please install Perl6::Perldoc from the CPAN to parse S26";
+            return;
+        }
+
+      my $pod6html = qq{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+           "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>S$syn_id</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" >
+<link rel="stylesheet" type="text/css" title="pod_stylesheet" href="http://dev.perl.org/css/perl.css">
+</head>
+<body class='pod'>
+  <!-- start doc -->
+}.    Perl6::Perldoc::Parser->parse( $infile, {all_pod=>'auto'} )->report_errors()->to_xhtml .
+      qq{  <!-- end doc -->
+
+</body></html>};  #Again, hardcode the markup until we have an xhtml wrapper emitter for Perl6::Perldoc::To::Xhtml
+        my ($sec, $min, $hour, $mday, $mon, $year) = gmtime;  # copy/paste tons of stuff until Zhang wants to help it.
+        $year += 1900; $mon += 1;
+        my $time = sprintf "%04d-%02d-%02d %02d:%02d:%02d GMT",
+            $year, $mon, $mday, $hour, $min, $sec;
+        $html =~ s{<!-- start doc -->}{$&
+            <I>This page was generated at $time.
+            (syn <strong>$syn_rev</strong>, pugs <strong>$pugs_rev</strong>)</I>
+        };
+        my $htmfile = "$out_dir/S$syn_id.html";
+        warn "info: generating $htmfile...\n";
+        open my $out, "> $htmfile" or
+            die "Can't open $htmfile for writing: $!\n";
+        print $out $pod6html;
+        close $out;
+        return;
+    }
     if (!$syn_id) {
         warn "  warning: $infile skipped.\n";
         return;
