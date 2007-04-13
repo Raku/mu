@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 16 Mar 2007
+  Last Modified: 12 Apr 2007
   Number: 2
-  Version: 100
+  Version: 101
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -2274,7 +2274,15 @@ And so on.
 
 Backslash sequences still interpolate, but there's no longer any C<\v>
 to mean I<vertical tab>, whatever that is...  (C<\v> now match vertical
-whitespace in a regex.)
+whitespace in a regex.)  Literal character representations are:
+
+    \a          BELL
+    \b          BACKSPACE
+    \t          TAB
+    \n          LINE FEED
+    \f          FORM FEED
+    \r          CARRIAGE RETURN
+    \e          ESCAPE
 
 =item *
 
@@ -2301,6 +2309,22 @@ a single character:
     "\c[LATIN CAPITAL LETTER A, LATIN CAPITAL LETTER B]"
 
 [Note: none of the official Unicode character names contains comma.]
+
+(Within a regex you may also use C<\C> to match a character that is
+not the specified character.)
+
+If the character following C<\c> or C<\C> is not a left square bracket,
+the single following character is turned into a control character by
+the usual trick of XORing the 64 bit.  This allows C<\c@> for NULL
+and C<\c?> for DELETE, but note that the ESCAPE character may not be
+represented that way; it must be represented something like:
+
+    \e
+    \c[ESCAPE]
+    \x1B
+    \o33
+
+Obviously C<\e> is preferred when brevity is needed.
 
 =item *
 
