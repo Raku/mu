@@ -142,6 +142,7 @@ class QDRDBMS::Engine::Example::PhysType::Bool {
 
 submethod BUILD (Bool :$v!) {
     $!v = $v;
+    return;
 }
 
 ###########################################################################
@@ -176,6 +177,7 @@ class QDRDBMS::Engine::Example::PhysType::Text {
 
 submethod BUILD (Str :$v!) {
     $!v = $v;
+    return;
 }
 
 ###########################################################################
@@ -210,6 +212,7 @@ class QDRDBMS::Engine::Example::PhysType::Blob {
 
 submethod BUILD (Blob :$v!) {
     $!v = $v;
+    return;
 }
 
 ###########################################################################
@@ -244,6 +247,7 @@ class QDRDBMS::Engine::Example::PhysType::Int {
 
 submethod BUILD (Int :$v!) {
     $!v = $v;
+    return;
 }
 
 ###########################################################################
@@ -281,8 +285,8 @@ class QDRDBMS::Engine::Example::PhysType::TextKeyedMap {
 ###########################################################################
 
 submethod BUILD (Hash :$map!) {
-    my ($self, $map) = @_;
     $!map = $map;
+    return;
 }
 
 ###########################################################################
@@ -346,6 +350,7 @@ class QDRDBMS::Engine::Example::PhysType::Heading {
 submethod BUILD (Array :$attr_defs_aoa!) {
     $!attr_defs_by_name = {$attr_defs_aoa.map:{ .[0] => $_ }};
     $!attr_defs_ordered = [$!attr_defs_by_name.pairs.sort.map:{ .value }];
+    return;
 }
 
 ###########################################################################
@@ -397,6 +402,7 @@ submethod BUILD (QDRDBMS::Engine::Example::PhysType::Heading :$heading!,
         QDRDBMS::Engine::Example::PhysType::TextKeyedMap :$body!) {
     $!heading = $heading;
     $!body    = $body;
+    return;
 }
 
 ###########################################################################
@@ -460,6 +466,7 @@ submethod BUILD (:$heading!, :$body!, :$key_defs_aoh!, :$index_defs_aoh!) {
     $!body       = $body;
     $!key_defs   = $key_defs;
     $!index_defs = $index_defs;
+    return;
 }
 
 ###########################################################################
