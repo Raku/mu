@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 16 Mar 2007
+  Last Modified: 13 Apr 2007
   Number: 3
-  Version: 110
+  Version: 111
 
 =head1 Overview
 
@@ -1477,29 +1477,35 @@ is likewise C<~=>.
 
 =item *
 
-The filetest operators are gone.  We now use a Pair as either a
+The filetest operators are gone.  We now use a C<Pair> as either a
 pattern or a method name to get the same effect:
 
     if $filename ~~ :e { say "exists" }
     if $filename.:e { say "exists" }
 
-Both of these forms actually translate to
-
-    if $filename.STATUS(:e) { say "exists" }
-
-which is a generic mechanism that dispatches to the object's
-class to find the definition of C<STATUS>.  (It just happens that C<Str>
-(filenames) and C<IO> (filehandles) default to the expected filetest
-semantics, but C<$regex.:i> might tell you whether the regex is case
-insensitive, for instance.)
+The 1st form actually translates to the latter form, so the object's
+class decides how to dispatch pair methods.  It just happens that
+C<Str> (filenames), C<IO> (filehandles), and C<Statbuf> (stat buffers)
+default to the expected filetest semantics, but C<$regex.:i> might
+tell you whether the regex is case insensitive, for instance.
 
 Using the pattern form, multiple tests may be combined via junctions:
 
     given $handle {
-        when all :r :w :x {...}
+        when :r & :w & :x {...}
         when :!w | :!x    {...}
         when *            {...}
     }
+
+When adverbial pairs are stacked into one term, it is assumed they are
+ANDed together, so
+
+    when :r :w :x
+
+is equivalent to either of:
+
+    when :r & :w & :x
+    when all(:r,:w,:x)
 
 The advantage of the method form is that it can be used in places that
 require tighter precedence than C<~~> provides:
@@ -1510,13 +1516,23 @@ though that's a silly example since you could just write:
 
     sort { .:M }, @files
 
-But that demonstrates the other advantage of the method form.
+But that demonstrates the other advantage of the method form, which is
+that it allows the "unary dot" syntax to test the current topic.
 
-In general, the user need not worry about caching the stat buffer.
-The stat buffer will automatically be reused if the same object has
-recently been queried, where "recently" is defined as less than a
-second or so.  If this is a concern, an explicit stat() or lstat()
-on that file will automatically reset the stat buffer for that file.
+Unlike in earlier versions of Perl 6, these filetests do not return
+stat buffers, but simple scalars of type C<Bool>, C<Int>, or C<Num>.
+
+In general, the user need not worry about caching the stat buffer
+when a filename is queried.  The stat buffer will automatically be
+reused if the same object has recently been queried, where "recently"
+is defined as less than a second or so.  If this is a concern, an
+explicit stat() or lstat() may be used to return an explicit stat
+buffer object that will not be subject to timeout, and may be tested
+repeatedly just as a filename or handle can.  A C<Statbuf> object has
+a C<.file> method that can be queried for its filename (if known);
+the C<.io> method returns the handle (if known).  If the C<Statbuf>
+object doesn't know its filename but does know its IO handle, then
+C<.file> attempts to return C<.io.file>.
 
 Note that C<:s> still returns the filesize, but C<:!s> is true
 only if the file is of size 0.
