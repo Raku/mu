@@ -10,7 +10,7 @@ my $builder = Module::Build->new(
     requires => {
         'Test::More' => 0,
         'version'    => 0,
-        'YAML::Syck' => 0,
+        'YAML::Syck' => '>= 0.62, <= 0.70',
     },
     add_to_cleanup      => [ 'Perl6-Perldoc-*' ],
 );

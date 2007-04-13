@@ -18,7 +18,8 @@ my $P6_QUAL_IDENT = qr{ $QUAL_IDENT (?: -\S+ )}xms;
 my $DIR_NC   # DIRective but Not a Comment
     = qr{ (?= ^ = (?! \s | (?:(?:begin|end|for) [^\S\n]+)? comment\b ))}xms;
 
-my $BALANCED_BRACKETS = qr{  <   (?: (??{$BALANCED_BRACKETS}) | . )*?  >
+our $BALANCED_BRACKETS;
+    $BALANCED_BRACKETS = qr{  <   (?: (??{$BALANCED_BRACKETS}) | . )*?  >
                           | \[   (?: (??{$BALANCED_BRACKETS}) | . )*? \]
                           | \{   (?: (??{$BALANCED_BRACKETS}) | . )*? \}
                           | \(   (?: (??{$BALANCED_BRACKETS}) | . )*? \)
