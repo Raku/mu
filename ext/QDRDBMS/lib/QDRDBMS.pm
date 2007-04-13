@@ -37,11 +37,11 @@ submethod BUILD (Str :$engine_name!, Hash :$dbms_config!) {
 
     die q{new(): Bad :$engine_name arg; it is not an object of a}
             ~ q{ Str-doing class.}
-        if !defined $engine_name or !$engine_name.does(Str);
+        if !$engine_name.defined or !$engine_name.does(Str);
 
     die q{new(): Bad :$dbms_config arg; it is not an object of a}
             ~ q{ Hash-doing class.}
-        if !defined $dbms_config or !$dbms_config.does(Hash);
+        if !$dbms_config.defined or !$dbms_config.does(Hash);
 
     # A module may be loaded due to it being embedded in a non-excl file.
     if (!::($engine_name).does(Module)) {
@@ -73,7 +73,7 @@ submethod BUILD (Str :$engine_name!, Hash :$dbms_config!) {
     die q{new(): The new_dbms() constructor function of the QDRDBMS}
             ~ qq{ Engine module '$engine_name' did not return an object}
             ~ q{ to serve as a DBMS Engine.}
-        if !defined $dbms_eng;
+        if !$dbms_eng.defined;
     my $dbms_eng_class = $dbms_eng.WHAT;
 
 #    die qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class' does}
@@ -125,14 +125,14 @@ submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!,
 
     die q{new(): Bad :$dbms arg; it is not an object of a}
             ~ q{ QDRDBMS::Interface::DBMS-doing class.}
-        if !defined $dbms_intf
+        if !$dbms_intf.defined
             or !$dbms_intf.does(QDRDBMS::Interface::DBMS);
     my $dbms_eng = $dbms_intf!dbms_eng;
     my $dbms_eng_class = $dbms_eng.WHAT;
 
     die q{new(): Bad :$dbms arg; it is not an object of a}
             ~ q{ QDRDBMS::AST::Proc-doing class.}
-        if !defined $rtn_ast or !$rtn_ast.does(QDRDBMS::AST::Proc);
+        if !$rtn_ast.defined or !$rtn_ast.does(QDRDBMS::AST::Proc);
 
     my $rtn_eng = undef;
     try {
@@ -146,7 +146,7 @@ submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!,
     die q{new(): The prepare_routine() method of the QDRDBMS}
             ~ qq{ DBMS class '$dbms_eng_class' did not return an object}
             ~ q{ to serve as a Routine Engine.}
-        if !defined $rtn_eng;
+        if !$rtn_eng.defined;
     my $rtn_eng_class = $rtn_eng.WHAT;
 
 #    die qq{new(): The QDRDBMS Routine Engine class '$rtn_eng_class'}
@@ -172,13 +172,13 @@ method bind_variables (Hash :$variables!) {
 
     die q{new(): Bad :$variables arg; it is not an object of a}
             ~ q{ Hash-doing class.}
-        if !defined $var_intfs or !$var_intfs.does(Hash);
+        if !$var_intfs.defined or !$var_intfs.does(Hash);
 
     my $var_engs = {};
     for $var_intfs.kv -> $var_name, $var_intf {
         die q{new(): Bad :$var_value arg elem; it is not an object of a}
                 ~ q{ QDRDBMS::Interface::Variable-doing class.}
-            if !defined $var_intf
+            if !$var_intf.defined
                 or !$var_intf.does(QDRDBMS::Interface::Variable);
         $var_engs.{$var_name} = $var_intf!var_eng;
     }
@@ -215,7 +215,7 @@ submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!) {
 
     die q{new(): Bad :$dbms arg; it is not an object of a}
             ~ q{ QDRDBMS::Interface::DBMS-doing class.}
-        if !defined $dbms_intf
+        if !$dbms_intf.defined
             or !$dbms_intf.does(QDRDBMS::Interface::DBMS);
     my $dbms_eng = $dbms_intf!dbms_eng;
     my $dbms_eng_class = $dbms_eng.WHAT;
@@ -232,7 +232,7 @@ submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!) {
     die q{new(): The prepare_routine() method of the QDRDBMS}
             ~ qq{ DBMS class '$dbms_eng_class' did not return an object}
             ~ q{ to serve as a Routine Engine.}
-        if !defined $var_eng;
+        if !$var_eng.defined;
     my $var_eng_class = $var_eng.WHAT;
 
 #    die qq{new(): The QDRDBMS Variable Engine class '$var_eng_class'}

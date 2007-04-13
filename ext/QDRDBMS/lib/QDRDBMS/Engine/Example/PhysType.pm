@@ -16,49 +16,50 @@ module QDRDBMS::Engine::Example::PhysType-0.0.0 {
 
 ###########################################################################
 
-sub Bool of QDRDBMS::Engine::Example::PhysType::Bool () is export {
-    return QDRDBMS::Engine::Example::PhysType::Bool.new();
+sub Bool of QDRDBMS::Engine::Example::PhysType::Bool
+        (Bool :$v!) is export {
+    return QDRDBMS::Engine::Example::PhysType::Bool.new( :v($v) );
 }
 
-sub Text of QDRDBMS::Engine::Example::PhysType::Text () is export {
-    return QDRDBMS::Engine::Example::PhysType::Text.new();
+sub Text of QDRDBMS::Engine::Example::PhysType::Text (Str :$v!) is export {
+    return QDRDBMS::Engine::Example::PhysType::Text.new( :v($v) );
 }
 
-sub Blob of QDRDBMS::Engine::Example::PhysType::Blob () is export {
-    return QDRDBMS::Engine::Example::PhysType::Blob.new();
+sub Blob of QDRDBMS::Engine::Example::PhysType::Blob
+        (Blob :$v!) is export {
+    return QDRDBMS::Engine::Example::PhysType::Blob.new( :v($v) );
 }
 
-sub Int of QDRDBMS::Engine::Example::PhysType::Int () is export {
-    return QDRDBMS::Engine::Example::PhysType::Int.new();
+sub Int of QDRDBMS::Engine::Example::PhysType::Int (Int :$v!) is export {
+    return QDRDBMS::Engine::Example::PhysType::Int.new( :v($v) );
 }
 
 sub TextKeyedMap of QDRDBMS::Engine::Example::PhysType::TextKeyedMap
-        () is export {
-    return QDRDBMS::Engine::Example::PhysType::TextKeyedMap.new();
+        (Hash :$map!) is export {
+    return QDRDBMS::Engine::Example::PhysType::TextKeyedMap.new(
+        :map($map) );
 }
 
-sub Heading of QDRDBMS::Engine::Example::PhysType::Heading () is export {
-    return QDRDBMS::Engine::Example::PhysType::Heading.new();
+sub Heading of QDRDBMS::Engine::Example::PhysType::Heading
+        (Array :$attr_defs_aoa!) is export {
+    return QDRDBMS::Engine::Example::PhysType::Heading.new(
+        :attr_defs_aoa($attr_defs_aoa) );
 }
 
-sub Tuple of QDRDBMS::Engine::Example::PhysType::Tuple () is export {
-    return QDRDBMS::Engine::Example::PhysType::Tuple.new();
+sub Tuple of QDRDBMS::Engine::Example::PhysType::Tuple
+        (QDRDBMS::Engine::Example::PhysType::Heading :$heading!,
+        QDRDBMS::Engine::Example::PhysType::TextKeyedMap :$body!)
+        is export {
+    return QDRDBMS::Engine::Example::PhysType::Tuple.new(
+        :heading($heading), :body($body) );
 }
 
-sub Relation of QDRDBMS::Engine::Example::PhysType::Relation () is export {
-    return QDRDBMS::Engine::Example::PhysType::Relation.new();
-}
-
-sub Cat_DeclEntityName
-        of QDRDBMS::Engine::Example::PhysType::Cat_DeclEntityName
-        () is export {
-    return QDRDBMS::Engine::Example::PhysType::Cat_DeclEntityName.new();
-}
-
-sub Cat_InvokEntityName
-        of QDRDBMS::Engine::Example::PhysType::Cat_InvokEntityName
-        () is export {
-    return QDRDBMS::Engine::Example::PhysType::Cat_InvokEntityName.new();
+sub Relation of QDRDBMS::Engine::Example::PhysType::Relation
+        (:$heading!, :$body!, :$key_defs_aoh!, :$index_defs_aoh!)
+        is export {
+    return QDRDBMS::Engine::Example::PhysType::Relation.new(
+        :heading($heading), :body($body),
+        :key_defs_aoh($key_defs_aoh), :index_defs_aoh($index_defs_aoh) );
 }
 
 ###########################################################################
@@ -69,17 +70,17 @@ sub Cat_InvokEntityName
 ###########################################################################
 
 role QDRDBMS::Engine::Example::PhysType::Value {
-    has QDRDBMS::Engine::Example::PhysType::TypeRef $!root_type;
+#    has QDRDBMS::Engine::Example::PhysType::TypeRef $!root_type;
         # QDRDBMS::Engine::Example::PhysType::TypeRef.
         # This is the fundamental QDRDBMS D data type that this ::Value
         # object's implementation sees it as a generic member of, and which
         # generally determines what operators can be used with it.
         # It is a supertype of the declared type.
-    has QDRDBMS::Engine::Example::PhysType::TypeRef $!decl_type;
+#    has QDRDBMS::Engine::Example::PhysType::TypeRef $!decl_type;
         # QDRDBMS::Engine::Example::PhysType::TypeRef.
         # This is the QDRDBMS D data type that the ::Value was declared to
         # be a member of when the ::Value object was created.
-    has QDRDBMS::Engine::Example::PhysType::TypeRef $!last_known_mst;
+#    has QDRDBMS::Engine::Example::PhysType::TypeRef $!last_known_mst;
         # QDRDBMS::Engine::Example::PhysType::TypeRef.
         # This is the QDRDBMS data type that is the most specific type of
         # this ::Value, as it was last determined.
@@ -88,12 +89,13 @@ role QDRDBMS::Engine::Example::PhysType::Value {
         # attribute may either be unset or be out of date with respect to
         # the current type system, that is, not be automatically updated at
         # the same time that a new subtype of its old mst is declared.
-    has Str $!which;
+
+#    has Str $!which;
         # Str.
         # This is a unique identifier for the value that this object
         # represents that should compare correctly with the corresponding
         # identifiers of all ::Value-doing objects.
-        # It is a text string of format "<tnl>_<tn>_<vll>_<vl>" where:
+        # It is a text string of format "<tnl> <tn> <vll> <vl>" where:
         #   1. <tn> is the value's root type name (fully qualified)
         #   2. <tnl> is the character-length of <tn>
         #   3. <vl> is the (class-determined) stringified value itself
@@ -106,16 +108,20 @@ role QDRDBMS::Engine::Example::PhysType::Value {
 
 ###########################################################################
 
-method which of Str () {
-    if (!defined $!which) {
-        my ($cls_nm_unq_part, $scalarified_value)
-            = $self._calc_parts_of_self_which();
-        my $len_cnup = length $cls_nm_unq_part;
-        my $len_sv = length $scalarified_value;
-        $!which = '8 PhysType'
-            ~ " $len_cnup $cls_nm_unq_part $len_sv $scalarified_value";
-    }
-    return $!which;
+method root_type () {
+    die "not implemented by subclass\n";
+}
+
+method declared_type () {
+    die "not implemented by subclass\n";
+}
+
+method most_specific_type () {
+    die "not implemented by subclass\n";
+}
+
+method which () {
+    die "not implemented by subclass\n";
 }
 
 ###########################################################################
@@ -125,25 +131,31 @@ method which of Str () {
 ###########################################################################
 ###########################################################################
 
-=pod
 class QDRDBMS::Engine::Example::PhysType::Bool {
     does QDRDBMS::Engine::Example::PhysType::Value;
 
-    has Scalar $!scalar;
-        # A p5 Scalar that equals $FALSE|$TRUE.
+    has Bool $!v;
+
+    has Str $!which;
 
 ###########################################################################
 
-submethod BUILD () {
-    my ($self, $scalar) = @_;
-    $!scalar = $scalar;
+submethod BUILD (Bool :$v!) {
+    $!v = $v;
 }
 
 ###########################################################################
 
-method _calc_parts_of_self_which of Seq () {
-    my ($self) = @_;
-    return ('Bool', $!scalar);
+method root_type of Str () {
+    return 'sys.type.Bool';
+}
+
+method which of Str () {
+    if (!$!which.defined) {
+        my Str $s = ~$!v;
+        $!which = "13 sys.type.Bool {$s.graphs} $s";
+    }
+    return $!which;
 }
 
 ###########################################################################
@@ -156,22 +168,28 @@ method _calc_parts_of_self_which of Seq () {
 class QDRDBMS::Engine::Example::PhysType::Text {
     does QDRDBMS::Engine::Example::PhysType::Value;
 
-    has Scalar $!scalar;
-        # A p5 Scalar that is a text-mode string;
-        # it either has true utf8 flag or is only 7-bit bytes.
+    has Str $!v;
+
+    has Str $!which;
 
 ###########################################################################
 
-submethod BUILD () {
-    my ($self, $scalar) = @_;
-    $!scalar = $scalar;
+submethod BUILD (Str :$v!) {
+    $!v = $v;
 }
 
 ###########################################################################
 
-method _calc_parts_of_self_which of Seq () {
-    my ($self) = @_;
-    return ('Text', $!scalar);
+method root_type of Str () {
+    return 'sys.type.Text';
+}
+
+method which of Str () {
+    if (!$!which.defined) {
+        my Str $s = $!v;
+        $!which = "13 sys.type.Text {$s.graphs} $s";
+    }
+    return $!which;
 }
 
 ###########################################################################
@@ -184,21 +202,28 @@ method _calc_parts_of_self_which of Seq () {
 class QDRDBMS::Engine::Example::PhysType::Blob {
     does QDRDBMS::Engine::Example::PhysType::Value;
 
-    has Scalar $!scalar;
-        # A p5 Scalar that is a byte-mode string; it has false utf8 flag.
+    has Blob $!v;
+
+    has Str $!which;
 
 ###########################################################################
 
-submethod BUILD () {
-    my ($self, $scalar) = @_;
-    $!scalar = $scalar;
+submethod BUILD (Blob :$v!) {
+    $!v = $v;
 }
 
 ###########################################################################
 
-method _calc_parts_of_self_which of Seq () {
-    my ($self) = @_;
-    return ('Blob', $!scalar);
+method root_type of Str () {
+    return 'sys.type.Blob';
+}
+
+method which of Str () {
+    if (!$!which.defined) {
+        my Str $s = ~$!v;
+        $!which = "13 sys.type.Blob {$s.graphs} $s";
+    }
+    return $!which;
 }
 
 ###########################################################################
@@ -211,21 +236,28 @@ method _calc_parts_of_self_which of Seq () {
 class QDRDBMS::Engine::Example::PhysType::Int {
     does QDRDBMS::Engine::Example::PhysType::Value;
 
-    has Scalar $!scalar;
-        # A p5 Scalar that is a Perl integer or BigInt or canonical string.
+    has Int $!v;
+
+    has Str $!which;
 
 ###########################################################################
 
-submethod BUILD () {
-    my ($self, $scalar) = @_;
-    $!scalar = $scalar;
+submethod BUILD (Int :$v!) {
+    $!v = $v;
 }
 
 ###########################################################################
 
-method _calc_parts_of_self_which of Seq () {
-    my ($self) = @_;
-    return ('Int', $!scalar);
+method root_type of Str () {
+    return 'sys.type.Int';
+}
+
+method which of Str () {
+    if (!$!which.defined) {
+        my Str $s = ~$!v;
+        $!which = "12 sys.type.Int {$s.graphs} $s";
+    }
+    return $!which;
 }
 
 ###########################################################################
@@ -240,42 +272,45 @@ class QDRDBMS::Engine::Example::PhysType::TextKeyedMap {
 
 #    has Hash(Str) of Any $!map;
     has Hash $!map;
-        # A p5 Hash with 0..N elements:
-            # Each Hash key is a p5 text-mode string.
+        # A Hash with 0..N elements:
+            # Each Hash key is a Str.
             # Each Hash value is a ::Example::* value of some kind.
+
+    has Str $!which;
 
 ###########################################################################
 
-submethod BUILD () {
+submethod BUILD (Hash :$map!) {
     my ($self, $map) = @_;
     $!map = $map;
 }
 
 ###########################################################################
 
-method _calc_parts_of_self_which of Seq () {
-    my ($self) = @_;
-    my $map = $!map;
-    return ('TextKeyedMap', join ' ', map {
-            my $mk = (length $_) ~ ' ' ~ $_;
-            my $mv = $map.{$_}.which();
-            "K $mk V $mv";
-        } sort keys %{$map});
+method root_type of Str () {
+    return 'sys.type._TextKeyedMap';
+}
+
+method which of Str () {
+    if (!$!which.defined) {
+        my Str $s = $!map.pairs.sort.map:{
+                "K {.key.graphs} {.key} V {.value.which()}";
+            }.join( q{ } );
+        $!which = "22 sys.type._TextKeyedMap {$s.graphs} $s";
+    }
+    return $!which;
 }
 
 ###########################################################################
 
-method ref_to_attr_map of  () {
-    my ($self) = @_;
+method ref_to_attr_map of Hash () {
     return $!map;
 }
 
 ###########################################################################
 
-method pairs of  () {
-    my ($self) = @_;
-    my $map = $!map;
-    return [map { [$_, $map.{$_} ] } keys %{$map}];
+method pairs of Array () {
+    return $!map.pairs;
 }
 
 ###########################################################################
@@ -290,49 +325,51 @@ class QDRDBMS::Engine::Example::PhysType::Heading {
 
 #    has Hash of Array $!attr_defs_by_name;
     has Hash $!attr_defs_by_name;
-        # A p5 Hash with 0..N elements:
-            # Each Hash key is a p5 text-mode string; an attr name.
+        # A p6 Hash with 0..N elements:
+            # Each Hash key is a Str; an attr name.
             # Each Hash value would describe a single tuple|relation
-            # attribute; it is a p5 Array with 3 elements:
-                # 1. attr name: a p5 text-mode string; same as Hash key.
-                # 2. major type: a p5 text-mode string, one of: 'S','T','R'
+            # attribute; it is a p6 Array with 3 elements:
+                # 1. attr name: a Str; same as Hash key.
+                # 2. major type: a Str, one of: 'S','T','R'
                 # 3. minor type: a disjunction depending on maj-tp value:
-                    # 'S': a p5 text-mode string.
+                    # 'S': a Str.
                     # 'T'|'R': a Heading.
 #    has Array of Array $!attr_defs_ordered;
     has Array $!attr_defs_ordered;
-        # A p5 Array with 0..N elements; its elements are all of the Hash
+        # A p6 Array with 0..N elements; its elements are all of the Hash
         # values of $!attr_defs_by_name, sorted by the attr-name/Hash key.
 
+    has Str $!which;
+
 ###########################################################################
 
-submethod BUILD () {
-    my ($self, $attr_defs_aoa) = @_;
-    my $attr_defs_by_name
-        = $!attr_defs_by_name
-        = {map { $_.[0] => $_ } @{$attr_defs_aoa}};
-    $!attr_defs_ordered
-        = [map { $attr_defs_by_name.{$_} }
-            sort keys %{$attr_defs_by_name}];
+submethod BUILD (Array :$attr_defs_aoa!) {
+    $!attr_defs_by_name = {$attr_defs_aoa.map:{ .[0] => $_ }};
+    $!attr_defs_ordered = [$!attr_defs_by_name.pairs.sort.map:{ .value }];
 }
 
 ###########################################################################
 
-method _calc_parts_of_self_which of Seq () {
-    my ($self) = @_;
-    my $defs = $!attr_defs_ordered;
-    return ('Heading', join ' ', map {
-            my ($atnm, $mjtp, $mntp) = @{$_};
-            'ATNM ' ~ (length $atnm) ~ ' ' ~ $atnm
-                ~ ' MJTP ' ~ (length $mjtp) ~ ' ' ~ $mjtp
-                ~ ' MNTP ' ~ $mntp.which();
-        } @{$defs});
+method root_type of Str () {
+    return 'sys.type._Heading';
+}
+
+method which of Str () {
+    if (!$!which.defined) {
+        my Str $s = $!attr_defs_ordered.map:{
+                my ($atnm, $mjtp, $mntp) = .values;
+                "ATNM {$atnm.graphs} $atnm"
+                    ~ " MJTP {$mjtp.graphs} $mjtp"
+                    ~ " MNTP {$mntp.which()}";
+            }.join( q{ } );
+        $!which = "17 sys.type._Heading {$s.graphs} $s";
+    }
+    return $!which;
 }
 
 ###########################################################################
 
-method get_attr_attr_defs_ordered of  () {
-    my ($self) = @_;
+method get_attr_attr_defs_ordered of Array () {
     return $!attr_defs_ordered;
 }
 
@@ -346,26 +383,34 @@ method get_attr_attr_defs_ordered of  () {
 class QDRDBMS::Engine::Example::PhysType::Tuple {
     does QDRDBMS::Engine::Example::PhysType::Value;
 
-    has $!heading;
+    has QDRDBMS::Engine::Example::PhysType::Heading $!heading;
         # A Heading.
-    has $!body;
+    has QDRDBMS::Engine::Example::PhysType::TextKeyedMap $!body;
         # A TextKeyedMap whose keys match the attribute names in $!heading,
         # and whose values are of the types specified in $!heading.
 
+    has Str $!which;
+
 ###########################################################################
 
-submethod BUILD () {
-    my ($self, $heading, $body) = @_;
+submethod BUILD (QDRDBMS::Engine::Example::PhysType::Heading :$heading!,
+        QDRDBMS::Engine::Example::PhysType::TextKeyedMap :$body!) {
     $!heading = $heading;
     $!body    = $body;
 }
 
 ###########################################################################
 
-method _calc_parts_of_self_which of Seq () {
-    my ($self) = @_;
-    return ('Tuple H ', $!heading.which()
-        ~ ' B ' ~ $!body.which());
+method root_type of Str () {
+    return 'sys.type.Tuple';
+}
+
+method which of Str () {
+    if (!$!which.defined) {
+        my Str $s = "H {$!heading.which()} B {$!body.which()}";
+        $!which = "14 sys.type.Tuple {$s.graphs} $s";
+    }
+    return $!which;
 }
 
 ###########################################################################
@@ -381,28 +426,29 @@ class QDRDBMS::Engine::Example::PhysType::Relation {
     has $!heading;
         # A Heading.
     has $!body;
-        # A p5 Array with 0..N elements, each element being a
+        # A p6 Array with 0..N elements, each element being a
         # TextKeyedMap whose keys match the attribute names in $!heading,
         # and whose values are of the types specified in $!heading.
     has $!key_defs;
-        # A p5 Hash with 1..N elements
+        # A p6 Hash with 1..N elements
     has $!key_data;
     has $!index_defs;
-        # A p5 Hash with 0..N elements
+        # A p6 Hash with 0..N elements
     has $!index_data;
+
+    has Str $!which;
 
 ###########################################################################
 
-submethod BUILD () {
-    my ($self, $heading, $body, $key_defs_aoh, $index_defs_aoh) = @_;
+submethod BUILD (:$heading!, :$body!, :$key_defs_aoh!, :$index_defs_aoh!) {
     # Assume input $body may contain duplicate elements (okay; silently
     # remove), and/or duplicate attributes where the attributes are keys
     # (not okay; throw an exception).
     # Otherwise assume all input is okay, and no key|index redundancy.
     my $attr_defs_ordered = $heading.get_attr_attr_defs_ordered();
-    if (scalar keys %{$key_defs_aoh} == 0) {
+    if ($key_defs_aoh.elems == 0) {
         # There is no explicit key, so make an implicit one over all attrs.
-        push @{$key_defs_aoh}, map { $_ => undef } @{$attr_defs_ordered};
+        $key_defs_aoh.push( {$attr_defs_ordered.map:{ .[0] => undef }} );
     }
     my $key_defs = {};
     my $index_defs = {};
@@ -418,11 +464,18 @@ submethod BUILD () {
 
 ###########################################################################
 
-method _calc_parts_of_self_which of Seq () {
-    my ($self) = @_;
-    return ('Relation H ', $!heading.which()
-        ~ ' B ' ~ (join ' ',
-            sort map { $_.which() } @{$!body}));
+method root_type of Str () {
+    return 'sys.type.Relation';
+}
+
+method which of Str () {
+    if (!$!which.defined) {
+        my Str $s = "H {$!heading.which()} B " ~ $!body.map:{
+                .which();
+            }.sort.join( q{ } );
+        $!which = "17 sys.type.Relation {$s.graphs} $s";
+    }
+    return $!which;
 }
 
 ###########################################################################

@@ -80,7 +80,7 @@ submethod BUILD (Str :$text!) {
 
     die q{new(): Bad :$text arg; it is not a valid object}
             ~ q{ of a Str-doing class.}
-        if !defined $text or !$text.does(Str);
+        if !$text.defined or !$text.does(Str);
 
     $!text_possrep = $text;
 
@@ -172,7 +172,7 @@ submethod BUILD (QDRDBMS::AST::VarRef :$var!) {
 
     die q{new(): Bad :$var arg; it is not a valid object}
             ~ q{ of a QDRDBMS::AST::VarRef-doing class.}
-        if !defined $var_ref or !$var_ref.does(QDRDBMS::AST::VarRef);
+        if !$var_ref.defined or !$var_ref.does(QDRDBMS::AST::VarRef);
     $!var_name = $var_ref;
 
     return;
@@ -200,9 +200,9 @@ submethod BUILD (QDRDBMS::AST::FuncRef :$func!,
 
     die q{new(): Bad :$func arg; it is not a valid object}
             ~ q{ of a QDRDBMS::AST::FuncRef-doing class.}
-        if !defined $func_ref or !$func_ref.does(QDRDBMS::AST::FuncRef);
+        if !$func_ref.defined or !$func_ref.does(QDRDBMS::AST::FuncRef);
     $!func_name = $func_ref;
-    if (!defined $func_args) {
+    if (!$func_args.defined) {
         $!func_args = {};
     }
     elsif (ref $func_args eq 'ARRAY') {
