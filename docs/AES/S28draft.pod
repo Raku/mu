@@ -461,7 +461,7 @@ schemes may become appropriate when the table is more complete.
 
  ?       $ARGV
 
- $*ARGS  @ARGV
+ @*ARGS  @ARGV
 
  $*ARGVOUT
          ARGVOUT
