@@ -1,0 +1,6 @@
+=begin item1    
+The choices are:
+=item2 Liberty  
+=item2 Death    
+=item2 Beer     
+=end item1      

@@ -1,3 +1,4 @@
+# Testing this Pod specification...
 my $perldoc_data = <<'END_PERLDOC';
 =for item1 :numbered
 Visito
@@ -13,90 +14,166 @@ Vici
 
 END_PERLDOC
 
-my $expected_structure = <<'END_EXPECTED';
-errors: []
-
-tree: !!perl/hash:Perl6::Perldoc::Document 
-  content: 
-    - !!perl/hash:Perl6::Perldoc::Block::pod 
-      content: 
-        - !!perl/hash:Perl6::Perldoc::Block::list 
-          content: 
-            - !!perl/hash:Perl6::Perldoc::Block::item1 
-              content: 
-                - "Visito\n"
-              number: 1
-              options: 
-                numbered: 1
-              style: paragraph
-              typename: item1
-            - !!perl/hash:Perl6::Perldoc::Block::list 
-              content: 
-                - !!perl/hash:Perl6::Perldoc::Block::item2 
-                  content: 
-                    - "Veni\n"
-                  number: 1.1
-                  options: 
-                    numbered: 1
-                  style: paragraph
-                  typename: item2
-                - !!perl/hash:Perl6::Perldoc::Block::item2 
-                  content: 
-                    - "Vidi\n"
-                  number: 1.2
-                  options: 
-                    numbered: 1
-                  style: paragraph
-                  typename: item2
-                - !!perl/hash:Perl6::Perldoc::Block::item2 
-                  content: 
-                    - "Vici\n"
-                  number: 1.3
-                  options: 
-                    numbered: 1
-                  style: paragraph
-                  typename: item2
-              level: 2
-              style: implicit
-              typename: list
-          level: 1
-          style: implicit
-          typename: list
-      typename: pod
-  typename: (document)
-warnings: []
-
+# Expect it to parse to this ADT...
+my $expected_structure = eval <<'END_EXPECTED';
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'list',
+            'content' => [
+              bless( {
+                'typename' => 'item1',
+                'number' => '1',
+                'content' => [
+                  'Visito
+'
+                ],
+                'style' => 'paragraph'
+              }, 'Perl6::Perldoc::Block::item1' ),
+              bless( {
+                'typename' => 'list',
+                'content' => [
+                  bless( {
+                    'typename' => 'item2',
+                    'number' => '1.1',
+                    'content' => [
+                      'Veni
+'
+                    ],
+                    'style' => 'paragraph'
+                  }, 'Perl6::Perldoc::Block::item2' ),
+                  bless( {
+                    'typename' => 'item2',
+                    'number' => '1.2',
+                    'content' => [
+                      'Vidi
+'
+                    ],
+                    'style' => 'paragraph'
+                  }, 'Perl6::Perldoc::Block::item2' ),
+                  bless( {
+                    'typename' => 'item2',
+                    'number' => '1.3',
+                    'content' => [
+                      'Vici
+'
+                    ],
+                    'style' => 'paragraph'
+                  }, 'Perl6::Perldoc::Block::item2' )
+                ],
+                'style' => 'implicit'
+              }, 'Perl6::Perldoc::Block::list' )
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::list' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );
 
 END_EXPECTED
+
+# Remove filenames from error messages (since two sources differ)...
+for my $msg ( @{ $expected_structure->{warnings} },
+              @{ $expected_structure->{errors} }
+) {
+    $msg =~ s{at \S+ line}{at line};
+}
 
 use Perl6::Perldoc::Parser;
 use Test::More 'no_plan';
 
-sub is_subset {
-    my ($found, $expected) = @_;
-    my @found    = split /\n/, $found;
-    my @expected = split /\n/, $expected;
+# Open input filehandle on Pod daa and parse it...
+open my $fh, '<', \$perldoc_data
+    or die "Could not open file on test data";
+my $representation = Perl6::Perldoc::Parser->parse($fh ,{all_pod=>1});
 
-    while (@found && @expected) {
-        if ($found[0] eq $expected[0]) {
-            is $found[0], $expected[0], $expected[0];
-            shift @found;
-            shift @expected;
-        }
-        else {
-            shift @found;
+# Walk resulting representation and expectation tree in parallel, comparing...
+compare(
+    '  ',                     # Indent
+    'return value',           # Description
+    {%{$representation}},     # What we got
+    {%{$expected_structure}}  # What we expected
+);
+
+
+use Scalar::Util qw< reftype blessed >;
+
+# Only consider valid accessor methods...
+my %is_valid_scalar_method;
+my %is_valid_list_method;
+BEGIN {
+   @is_valid_scalar_method{ qw< typename style number target > } = ();
+   @is_valid_list_method{   qw< content rows cells >           } = ();
+}
+
+# Walk two trees, comparing nodes as we go...
+sub compare {
+    my ($indent, $desc, $rep, $expected) = @_;
+
+    # Verify data at current node is of correct class...
+    my ($rep_class, $expected_class)
+        = map {ref($_) || q{STRING}} $rep, $expected;
+
+    is $rep_class, $expected_class => "$indent$desc is $expected_class";
+
+    # Recurse down trees according to type of node expected...
+    $indent .= q{  };
+    my $expected_type = reftype($expected) || q{STRING};
+
+    # If current node an object -> match keys as method calls...
+    if (blessed $expected) {
+        for my $attr ( keys %{ $expected } ) {
+            # Expected subnode must be retrieved via known accessor...
+            my $is_scalar = exists $is_valid_scalar_method{$attr};
+            my $is_list   = exists $is_valid_list_method{$attr};
+            if (!$is_scalar && !$is_list) {
+                fail "Internal error: unknown method $attr() "
+                   . "expected for $rep_class node";
+            }
+
+            # Known accessor must be available...
+            elsif (! $rep->can($attr) ) {
+                fail "Can't call $attr() on $rep_class node";
+            }
+
+            # If accessor returns a list, recursively compare the lists...
+            elsif ($is_list) {
+                compare($indent,$attr, [$rep->$attr], $expected->{$attr});
+            }
+
+            # If accessor returns a scalar, string-compare the values...
+            else {
+                compare($indent,$attr, scalar($rep->$attr), $expected->{$attr});
+            }
         }
     }
     
-    for my $expected (@expected) {
-        ok 0, "Missing '$expected'";
+    # If current node a hash -> match keys as hash entries...
+    elsif ($expected_type eq 'HASH') {
+        for my $attr ( keys %{ $expected } ) {
+            compare($indent, $attr, $rep->{$attr}, $expected->{$attr});
+        }
     }
-}
 
-open my $fh, '<', \$perldoc_data
-    or die "Could not open file on test data";
+    # If current node an array -> match each element in sequence...
+    elsif ($expected_type eq 'ARRAY') {
+        for my $idx ( 0..$#{$expected} ) {
+            compare($indent,"[$idx]", $rep->[$idx], $expected->[$idx]);
+        }
+    }
 
-my $representation = Perl6::Perldoc::Parser->parse($fh ,{all_pod=>1});
-
-use YAML::Syck 'Dump';
-is_subset Dump($representation), $expected_structure;
+    # Otherwise current node is raw text -> simple string comparison...
+    else {
+        is $rep, $expected  =>  "$indent$desc content was correct";
+    }
+} 

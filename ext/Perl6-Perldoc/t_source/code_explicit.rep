@@ -1,0 +1,45 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'para',
+            'content' => [
+              'The ',
+              bless( {
+                'typename' => 'C',
+                'content' => [
+                  'loud_update()'
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::C' ),
+              ' subroutine adds feedback:
+'
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::para' ),
+          bless( {
+            'typename' => 'code',
+            'content' => [
+              '
+sub loud_update ($who, $status) {
+    say "$who -> $status";
+
+    silent_update($who, $status);
+}
+
+'
+            ],
+            'style' => 'delimited'
+          }, 'Perl6::Perldoc::Block::code' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

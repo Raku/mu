@@ -1,0 +1,11 @@
+The C<loud_update()> subroutine adds feedback:
+
+=begin code
+
+sub loud_update ($who, $status) {
+    say "$who -> $status";
+
+    silent_update($who, $status);
+}
+
+=end code

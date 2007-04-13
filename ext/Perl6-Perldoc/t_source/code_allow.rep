@@ -1,0 +1,41 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'code',
+            'content' => [
+              'sub demo {
+    ',
+              bless( {
+                'typename' => 'B',
+                'content' => [
+                  'say'
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::B' ),
+              ' \'Hello ',
+              bless( {
+                'typename' => 'R',
+                'content' => [
+                  'name'
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::R' ),
+              '\', $I<code>;
+}
+'
+            ],
+            'style' => 'delimited'
+          }, 'Perl6::Perldoc::Block::code' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

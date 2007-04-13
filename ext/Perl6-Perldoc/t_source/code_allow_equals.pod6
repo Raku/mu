@@ -1,0 +1,5 @@
+=begin code :allow<V>
+
+V<=> in the first column is always a Perldoc directive
+
+=end code

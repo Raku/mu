@@ -1,0 +1,67 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'list',
+            'content' => [
+              bless( {
+                'typename' => 'item',
+                'number' => '1',
+                'content' => [
+                  'Retreat to remote Himalayan monastery
+'
+                ],
+                'style' => 'abbreviated'
+              }, 'Perl6::Perldoc::Block::item' ),
+              bless( {
+                'typename' => 'item',
+                'number' => '2',
+                'content' => [
+                  'Learn the hidden mysteries of space and time
+'
+                ],
+                'style' => 'abbreviated'
+              }, 'Perl6::Perldoc::Block::item' ),
+              bless( {
+                'typename' => 'item',
+                'number' => '3',
+                'content' => [
+                  'Achieve enlightenment
+'
+                ],
+                'style' => 'abbreviated'
+              }, 'Perl6::Perldoc::Block::item' ),
+              bless( {
+                'typename' => 'comment',
+                'content' => [
+                  '=item # Prophet!
+'
+                ],
+                'style' => 'delimited'
+              }, 'Perl6::Perldoc::Block::comment' ),
+              '
+',
+              bless( {
+                'typename' => 'item',
+                'number' => '4',
+                'content' => [
+                  'Profit!
+'
+                ],
+                'style' => 'abbreviated'
+              }, 'Perl6::Perldoc::Block::item' )
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::list' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

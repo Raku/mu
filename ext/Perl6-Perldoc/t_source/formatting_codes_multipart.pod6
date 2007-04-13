@@ -1,0 +1,4 @@
+D<defined term|synonym;synonym;etc>
+L<display text|destination URI>
+M<scheme:contents>
+X<display text|entry,subentry;entry,subentry;etc>

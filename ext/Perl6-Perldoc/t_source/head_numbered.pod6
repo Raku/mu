@@ -1,0 +1,20 @@
+=for head1 :numbered
+The Problem
+
+=for head1 :numbered
+The Solution
+
+=for head2 :numbered
+Analysis
+
+=for head3 
+Overview
+
+=for head3
+Details
+
+=for head2 :numbered
+Design
+
+=for head1 :numbered
+The Implementation

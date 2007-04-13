@@ -1,0 +1,13 @@
+B<basis>
+C<code>
+E<entity>
+I<important>
+K<keyboard input>
+N<note>
+P<placement link>
+R<replaceable>
+S<space preserving>
+T<terminal output>
+U<unusual>
+V<verbatim>
+Z<zero width comment>

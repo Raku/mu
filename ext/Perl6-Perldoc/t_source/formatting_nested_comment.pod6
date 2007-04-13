@@ -1,0 +1,10 @@
+B<I shall say this loudly
+=begin comment
+and repeatedly
+=end comment
+and with emphasis.>
+C<I shall say this loudly
+=begin comment
+and repeatedly
+=end comment
+and with emphasis.>

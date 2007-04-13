@@ -1,0 +1,97 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'para',
+            'content' => [
+              'The options are:
+'
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::para' ),
+          bless( {
+            'typename' => 'list',
+            'content' => [
+              bless( {
+                'typename' => 'item1',
+                'number' => '1',
+                'content' => [
+                  'Liberty
+'
+                ],
+                'style' => 'abbreviated'
+              }, 'Perl6::Perldoc::Block::item1' ),
+              bless( {
+                'typename' => 'item1',
+                'number' => '2',
+                'content' => [
+                  'Death
+'
+                ],
+                'style' => 'abbreviated'
+              }, 'Perl6::Perldoc::Block::item1' ),
+              bless( {
+                'typename' => 'item1',
+                'number' => '3',
+                'content' => [
+                  'Beer
+'
+                ],
+                'style' => 'abbreviated'
+              }, 'Perl6::Perldoc::Block::item1' )
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::list' ),
+          bless( {
+            'typename' => 'para',
+            'content' => [
+              'The tools are:
+'
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::para' ),
+          bless( {
+            'typename' => 'list',
+            'content' => [
+              bless( {
+                'typename' => 'item1',
+                'number' => '1',
+                'content' => [
+                  'Revolution
+'
+                ],
+                'style' => 'abbreviated'
+              }, 'Perl6::Perldoc::Block::item1' ),
+              bless( {
+                'typename' => 'item1',
+                'number' => '2',
+                'content' => [
+                  'Deep-fried peanut butter sandwich
+'
+                ],
+                'style' => 'abbreviated'
+              }, 'Perl6::Perldoc::Block::item1' ),
+              bless( {
+                'typename' => 'item1',
+                'number' => '3',
+                'content' => [
+                  'Keg
+'
+                ],
+                'style' => 'abbreviated'
+              }, 'Perl6::Perldoc::Block::item1' )
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::list' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

@@ -1,0 +1,52 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'nested',
+            'content' => [
+              bless( {
+                'typename' => 'para',
+                'content' => [
+                  'We are all of us in the gutter,',
+                  bless( {
+                    'typename' => 'E',
+                    'content' => [
+                      'NL'
+                    ],
+                    'style' => 'formatting'
+                  }, 'Perl6::Perldoc::FormattingCode::E' ),
+                  '
+but some of us are looking at the stars!
+'
+                ],
+                'style' => 'implicit'
+              }, 'Perl6::Perldoc::Block::para' ),
+              bless( {
+                'typename' => 'nested',
+                'content' => [
+                  bless( {
+                    'typename' => 'para',
+                    'content' => [
+                      '-- Oscar Wilde
+'
+                    ],
+                    'style' => 'implicit'
+                  }, 'Perl6::Perldoc::Block::para' )
+                ],
+                'style' => 'delimited'
+              }, 'Perl6::Perldoc::Block::nested' )
+            ],
+            'style' => 'delimited'
+          }, 'Perl6::Perldoc::Block::nested' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

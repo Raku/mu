@@ -20,11 +20,11 @@ my $DIR_NC   # DIRective but Not a Comment
 
 our $BALANCED_BRACKETS;
     $BALANCED_BRACKETS = qr{  <   (?: (??{$BALANCED_BRACKETS}) | . )*?  >
-                          | \[   (?: (??{$BALANCED_BRACKETS}) | . )*? \]
-                          | \{   (?: (??{$BALANCED_BRACKETS}) | . )*? \}
-                          | \(   (?: (??{$BALANCED_BRACKETS}) | . )*? \)
-                          | \xAB (?: (??{$BALANCED_BRACKETS}) | . )*? \xBB
-                          }xms;
+                           | \[   (?: (??{$BALANCED_BRACKETS}) | . )*? \]
+                           | \{   (?: (??{$BALANCED_BRACKETS}) | . )*? \}
+                           | \(   (?: (??{$BALANCED_BRACKETS}) | . )*? \)
+                           | \xAB (?: (??{$BALANCED_BRACKETS}) | . )*? \xBB
+                           }xms;
 
 my $OPTION         = qr{ :   $IDENT  $BALANCED_BRACKETS?  | : !  $IDENT    }xms;
 my $OPTION_EXTRACT = qr{ :()($IDENT)($BALANCED_BRACKETS?) | :(!)($IDENT)() }xms;
@@ -286,6 +286,8 @@ sub _resolve_numbering {
 
 
 # Create object tree from hash tree...
+my $head_max = 4;   # Maximum predefined =headN block
+
 sub _create_objects {
     my ($tree, $state_ref) = @_;    # $state_ref tracks global numbering, etc.
 
@@ -316,12 +318,35 @@ sub _create_objects {
     # Mixed-class block names -> user-defined subclass of Named...
     elsif ($typename =~ m{[[:upper:]]}xms && $typename =~ m{[[:lower:]]}xms) {
         $classname .= "Block::Named::$tree->{typename}";
+        no strict 'refs';
+        push @{$classname.'::ISA'}, 'Perl6::Perldoc::Block::Named';
     }
     # All upper or all lower case -> reserved block
     else {
         $is_reserved
             = !( $typename =~ m{[[:upper:]] | \A (?:head|item) \d+ \z }xms );
         $classname .= "Block::$tree->{typename}";
+
+        # Any non-existent headN classes inherit last defined headN class...
+        if ($classname =~ m{:: head (\d+) \z}xms) {
+            my $head_level = $1;
+            $tree->{level} = $head_level;
+            if ($head_level > $head_max) {
+                no strict 'refs';
+                @{ 'Perl6::Perldoc::Block::head'.$head_level.'::ISA' }
+                    = 'Perl6::Perldoc::Block::head'.$head_max;
+            }
+        }
+
+        # Any non-existent itemN classes act like existent itemN classes...
+        elsif ($classname =~ m{:: item (\d+) \z}xms) {
+            my $item_level = $1 || 1;
+            $tree->{level} = $item_level;
+
+            no strict 'refs';
+            @{ 'Perl6::Perldoc::Block::item'.$item_level.'::ISA' }
+                = 'Perl6::Perldoc::Block::item';
+        }
     }
 
     # Construct corresponding object if possible...
@@ -542,7 +567,7 @@ sub parse {
             or require 'Carp'
             and Carp::croak "parse() can't open file $filename ($!)";
 
-        if ($opt_ref->{all_pod} && $opt_ref->{all_pod} =~ m{\A auto \z}ixms) {
+        if (!exists $opt_ref->{all_pod} || $opt_ref->{all_pod} =~ m{\A auto \z}ixms) {
             $opt_ref->{all_pod} = $filename =~ m{ [.] pod6? }xms;
         }
     }
@@ -1314,33 +1339,9 @@ package Perl6::Perldoc::Root;
 use strict;
 use warnings;
 
-my $head_max = 4;
-
-# Root ctor has to handle "unlimited depth" classes like =head and =item...
+# Root ctor just blesses the data structure...
 sub new {
     my ($classname, $data_ref) = @_;
-
-    # Any non-existent headN classes act like the last defined headN class...
-    if ($data_ref->{typename} =~ m{\A head (\d+) \z}xms) {
-        my $head_level = $1;
-        $data_ref->{level} = $head_level;
-        if ($head_level > $head_max) {
-            no strict 'refs';
-            @{ 'Perl6::Perldoc::Block::head'.$head_level.'::ISA' }
-                = 'Perl6::Perldoc::Block::head'.$head_max;
-        }
-    }
-
-    # Any non-existent itemN classes act like existent itemN classes...
-    elsif ($data_ref->{typename} =~ m{\A item (\d+) \z}xms) {
-        my $item_level = $1 || 1;
-        $data_ref->{level} = $item_level;
-        {
-            no strict 'refs';
-            @{ 'Perl6::Perldoc::Block::item'.$item_level.'::ISA' }
-                = 'Perl6::Perldoc::Block::item';
-        }
-    }
 
     return bless $data_ref, $classname;
 }
@@ -1349,7 +1350,7 @@ sub new {
 BEGIN {
 
     # Scalar-returning accessors...
-    for my $attr (qw<typename target range config number>) {
+    for my $attr (qw<typename style target range config number>) {
         no strict qw< refs >;
         *{$attr} = sub {
             my ($self) = @_;
@@ -1413,6 +1414,10 @@ BEGIN {
 package Perl6::Perldoc::File;  
     use base 'Perl6::Perldoc::Root';
 
+# Representation of document...
+package Perl6::Perldoc::Document;  
+    use base 'Perl6::Perldoc::Root';
+
 # Ambient text around the Pod...
 package Perl6::Perldoc::Ambient;  
     use base 'Perl6::Perldoc::Root';
@@ -1423,21 +1428,25 @@ package Perl6::Perldoc::Directive;
     use base 'Perl6::Perldoc::Root';
 
 # Standard =use directive...
-package Perl6::Perldoc::Block::use; 
+package Perl6::Perldoc::Directive::use; 
     use base 'Perl6::Perldoc::Directive';
 
 # Standard =config directive...
-package Perl6::Perldoc::Block::config; 
+package Perl6::Perldoc::Directive::config; 
     use base 'Perl6::Perldoc::Directive';
 
 # Standard =encoding directive...
-package Perl6::Perldoc::Block::encoding; 
+package Perl6::Perldoc::Directive::encoding; 
     use base 'Perl6::Perldoc::Directive';
 
 
 # Pod blocks...
 package Perl6::Perldoc::Block;    
     use base 'Perl6::Perldoc::Root';
+
+# Base class for user-defined blocks...
+package Perl6::Perldoc::Block::Named;    
+    use base 'Perl6::Perldoc::Block';
 
 # Standard =pod block...
 package Perl6::Perldoc::Block::pod;    
@@ -1497,6 +1506,51 @@ sub new {
 package Perl6::Perldoc::Block::comment;   
     use base 'Perl6::Perldoc::Block';
 
+# Standard =END block...
+package Perl6::Perldoc::Block::END;   
+    use base 'Perl6::Perldoc::Block';
+
+# Standard SEMANTIC blocks...
+BEGIN {
+    my @semantic_blocks = qw(
+        NAME              NAMES
+        VERSION           VERSIONS
+        SYNOPSIS          SYNOPSES
+        DESCRIPTION       DESCRIPTIONS
+        USAGE             USAGES
+        INTERFACE         INTERFACES
+        METHOD            METHODS
+        SUBROUTINE        SUBROUTINES
+        OPTION            OPTIONS
+        DIAGNOSTIC        DIAGNOSTICS
+        ERROR             ERRORS
+        WARNING           WARNINGS
+        DEPENDENCY        DEPENDENCIES
+        BUG               BUGS
+        SEEALSO           SEEALSOS
+        ACKNOWLEDGEMENT   ACKNOWLEDGEMENTS
+        AUTHOR            AUTHORS
+        COPYRIGHT         COPYRIGHTS
+        DISCLAIMER        DISCLAIMERS
+        LICENCE           LICENCES
+        LICENSE           LICENSES
+        TITLE             TITLES
+        SECTION           SECTIONS
+        CHAPTER           CHAPTERS
+        APPENDIX          APPENDIXES       APPENDICES
+        TOC               TOCS
+        INDEX             INDEXES          INDICES
+        FOREWORD          FOREWORDS
+        SUMMARY           SUMMARIES
+    );
+
+    for my $blockname (@semantic_blocks) {
+        no strict qw< refs >;
+
+        @{ "Perl6::Perldoc::Block::${blockname}::ISA" }  
+            = 'Perl6::Perldoc::Block';
+    }
+}
 
 # Base class for formatting codes...
 package Perl6::Perldoc::FormattingCode; 
@@ -1962,12 +2016,24 @@ The options that can be passed in this second argument are:
 
 =over
 
-=item C<< all_pod => 1 >>
+=item C<< all_pod => $status >>
 
-Specifies that the entire text should be considered to be Pod. Any text not
-inside a block will be treated as a plain paragraph or code block, rather than
-as ambient source code. Specifying this option is the same as placing a
-C<=begin pod>/C<=end pod> block around the entire text. Defaults to false.
+If $status is true, specifies that the entire text should be considered
+to be Pod. Any text not inside a Pod block will be treated as a plain
+paragraph or code block, rather than as ambient source code. Specifying
+this option is the same as placing a C<=begin pod>/C<=end pod> block
+around the entire text.
+
+If $status is false, specifies that the text should be considered to be
+heterogeneous: a mixture of Pod and source code. Any text not
+inside a Pod block will be treated as ambient source code.
+
+As a specical if $status is the string C<'auto'>, the option will be
+automatically set by looking at the filename passed to C<parse()>. If that
+filename ends in '.pod6' or '.pod', the option will be set true.
+
+Defaults to false when C<parse()> is passed a filehandle and C<'auto'> when
+C<parse()> is passed a filename.
 
 =item C<< allow => \%allowed >>
 
@@ -2041,6 +2107,10 @@ The class hierarchy of the objects returned by C<parse()> is as follows:
             Block::code
             Block::input
             Block::output
+            Block::Named
+                Block::Named::Whatever
+                Block::Named::WhateverElse
+                etc.
             Block::head
                 Block::head1
                 Block::head2
@@ -2060,6 +2130,11 @@ The class hierarchy of the objects returned by C<parse()> is as follows:
             Block::table
             Block::table::Row
             Block::table::Cell
+            Block::NAME
+            Block::VERSION
+            Block::SYNOPSIS
+            Block::DESCRIPTION
+            etc.
         FormattingCode
             FormattingCode::B
             FormattingCode::C
@@ -2100,6 +2175,44 @@ currently read-only accessors:
 Returns the name of the block type, typically the same as the last
 component of the object's classname. Handy for text (re)generation, but
 consider using polymorphic methods instead of switching on this value.
+
+=item C<style()>
+
+Returns the style of block that the object was generated from. The
+possibilities are: 
+
+=over
+
+=item C<'delimited'>
+
+The object was derived from a block that was specified in
+C<=begin>/C<=end> markers
+
+=item C<'paragraph'>
+
+The object was derived from a block that was specified
+with a C<=for> marker
+
+=item C<'abbreviated'>
+
+The object was derived from a block that was specified
+using the short-form C<=I<typename>> syntax
+
+=item C<'directive'>
+
+The object was derived from a C<=use>, C<=config>, or C<=encoding> directive
+
+=item C<'formatting'>
+
+The object was derived from a formatting code.
+
+=item C<'implicit'>
+
+The object was created internally by the parser. Such objects are
+typically list containers, top-level pod blocks, or representations of
+raw code or text paragraph blocks.
+
+=back
 
 =item C<content()>
 
@@ -2422,13 +2535,6 @@ are supported.
 =item * 
 
 The C<=encoding> directive is not respected.
-
-=item * 
-
-The test suite is data-structure specific and not (directly) reusable for
-other Perl 6 projects. See the C<t_source/> directory for the files from which
-the tests are generated. With a little effort, the YAML representations could
-be adapted to a reusable abstract tree-walking test (but that's still TODO).
 
 =back
 

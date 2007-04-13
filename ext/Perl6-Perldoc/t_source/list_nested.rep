@@ -1,0 +1,97 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'list',
+            'content' => [
+              bless( {
+                'typename' => 'item1',
+                'content' => [
+                  'Animal
+'
+                ],
+                'style' => 'abbreviated'
+              }, 'Perl6::Perldoc::Block::item1' ),
+              bless( {
+                'typename' => 'list',
+                'content' => [
+                  bless( {
+                    'typename' => 'item2',
+                    'content' => [
+                      'Vertebrate
+'
+                    ],
+                    'style' => 'abbreviated'
+                  }, 'Perl6::Perldoc::Block::item2' ),
+                  bless( {
+                    'typename' => 'item2',
+                    'content' => [
+                      'Invertebrate
+'
+                    ],
+                    'style' => 'abbreviated'
+                  }, 'Perl6::Perldoc::Block::item2' )
+                ],
+                'style' => 'implicit'
+              }, 'Perl6::Perldoc::Block::list' ),
+              bless( {
+                'typename' => 'item1',
+                'content' => [
+                  'Phase
+'
+                ],
+                'style' => 'abbreviated'
+              }, 'Perl6::Perldoc::Block::item1' ),
+              bless( {
+                'typename' => 'list',
+                'content' => [
+                  bless( {
+                    'typename' => 'item2',
+                    'content' => [
+                      'Solid
+'
+                    ],
+                    'style' => 'abbreviated'
+                  }, 'Perl6::Perldoc::Block::item2' ),
+                  bless( {
+                    'typename' => 'item2',
+                    'content' => [
+                      'Liquid
+'
+                    ],
+                    'style' => 'abbreviated'
+                  }, 'Perl6::Perldoc::Block::item2' ),
+                  bless( {
+                    'typename' => 'item2',
+                    'content' => [
+                      'Gas
+'
+                    ],
+                    'style' => 'abbreviated'
+                  }, 'Perl6::Perldoc::Block::item2' ),
+                  bless( {
+                    'typename' => 'item2',
+                    'content' => [
+                      'Chocolate
+'
+                    ],
+                    'style' => 'abbreviated'
+                  }, 'Perl6::Perldoc::Block::item2' )
+                ],
+                'style' => 'implicit'
+              }, 'Perl6::Perldoc::Block::list' )
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::list' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

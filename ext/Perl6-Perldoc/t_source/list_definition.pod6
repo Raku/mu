@@ -1,0 +1,17 @@
+=for item  :term<MAD>
+Affected with a high degree of intellectual independence.
+
+=for item  :term<MEEKNESS>
+Uncommon patience in planning a revenge that is worth while.
+
+=for item  :term<MORAL>
+Conforming to a local and mutable standard of right.
+Having the quality of general expediency.
+
+An item that's specified as a term can still be numbered:
+
+=for item :numbered :term<SELFISH>
+Devoid of consideration for the selfishness of others. 
+
+=for item :numbered :term<SUCCESS> 
+The one unpardonable sin against one's fellows.

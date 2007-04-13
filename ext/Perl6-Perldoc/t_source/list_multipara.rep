@@ -1,0 +1,86 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'list',
+            'content' => [
+              bless( {
+                'typename' => 'item',
+                'number' => '1',
+                'content' => [
+                  bless( {
+                    'typename' => 'para',
+                    'content' => [
+                      bless( {
+                        'typename' => 'I',
+                        'content' => [
+                          'The rain in Spain falls mainly on the plain.'
+                        ],
+                        'style' => 'formatting'
+                      }, 'Perl6::Perldoc::FormattingCode::I' ),
+                      '
+'
+                    ],
+                    'style' => 'implicit'
+                  }, 'Perl6::Perldoc::Block::para' ),
+                  bless( {
+                    'typename' => 'para',
+                    'content' => [
+                      'This is a common myth and an unconscionable slur on the Spanish
+people, the majority of whom are extremely attractive.
+'
+                    ],
+                    'style' => 'implicit'
+                  }, 'Perl6::Perldoc::Block::para' )
+                ],
+                'style' => 'delimited'
+              }, 'Perl6::Perldoc::Block::item' ),
+              '
+',
+              bless( {
+                'typename' => 'item',
+                'number' => '2',
+                'content' => [
+                  bless( {
+                    'typename' => 'para',
+                    'content' => [
+                      bless( {
+                        'typename' => 'I',
+                        'content' => [
+                          'The early bird gets the worm.'
+                        ],
+                        'style' => 'formatting'
+                      }, 'Perl6::Perldoc::FormattingCode::I' ),
+                      '
+'
+                    ],
+                    'style' => 'implicit'
+                  }, 'Perl6::Perldoc::Block::para' ),
+                  bless( {
+                    'typename' => 'para',
+                    'content' => [
+                      'In deciding whether to become an early riser, it is worth
+considering whether you would actually enjoy annelids
+for breakfast.
+'
+                    ],
+                    'style' => 'implicit'
+                  }, 'Perl6::Perldoc::Block::para' )
+                ],
+                'style' => 'delimited'
+              }, 'Perl6::Perldoc::Block::item' )
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::list' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

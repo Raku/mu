@@ -1,0 +1,180 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'table',
+            'content' => [
+              '    Constants           1
+    Variables           10
+    Subroutines         33
+    Everything else     57
+'
+            ],
+            'style' => 'delimited',
+            'rows' => [
+              bless( {
+                'cells' => [
+                  bless( {
+                    'content' => [
+                      bless( {
+                        'typename' => 'pod',
+                        'content' => [
+                          bless( {
+                            'typename' => 'para',
+                            'content' => [
+                              'Constants'
+                            ],
+                            'style' => 'implicit'
+                          }, 'Perl6::Perldoc::Block::para' )
+                        ],
+                        'style' => 'implicit'
+                      }, 'Perl6::Perldoc::Block::pod' )
+                    ]
+                  }, 'Perl6::Perldoc::Block::table::Cell' ),
+                  bless( {
+                    'content' => [
+                      bless( {
+                        'typename' => 'pod',
+                        'content' => [
+                          bless( {
+                            'typename' => 'para',
+                            'content' => [
+                              '1'
+                            ],
+                            'style' => 'implicit'
+                          }, 'Perl6::Perldoc::Block::para' )
+                        ],
+                        'style' => 'implicit'
+                      }, 'Perl6::Perldoc::Block::pod' )
+                    ]
+                  }, 'Perl6::Perldoc::Block::table::Cell' )
+                ]
+              }, 'Perl6::Perldoc::Block::table::Row' ),
+              bless( {
+                'cells' => [
+                  bless( {
+                    'content' => [
+                      bless( {
+                        'typename' => 'pod',
+                        'content' => [
+                          bless( {
+                            'typename' => 'para',
+                            'content' => [
+                              'Variables'
+                            ],
+                            'style' => 'implicit'
+                          }, 'Perl6::Perldoc::Block::para' )
+                        ],
+                        'style' => 'implicit'
+                      }, 'Perl6::Perldoc::Block::pod' )
+                    ]
+                  }, 'Perl6::Perldoc::Block::table::Cell' ),
+                  bless( {
+                    'content' => [
+                      bless( {
+                        'typename' => 'pod',
+                        'content' => [
+                          bless( {
+                            'typename' => 'para',
+                            'content' => [
+                              '10'
+                            ],
+                            'style' => 'implicit'
+                          }, 'Perl6::Perldoc::Block::para' )
+                        ],
+                        'style' => 'implicit'
+                      }, 'Perl6::Perldoc::Block::pod' )
+                    ]
+                  }, 'Perl6::Perldoc::Block::table::Cell' )
+                ]
+              }, 'Perl6::Perldoc::Block::table::Row' ),
+              bless( {
+                'cells' => [
+                  bless( {
+                    'content' => [
+                      bless( {
+                        'typename' => 'pod',
+                        'content' => [
+                          bless( {
+                            'typename' => 'para',
+                            'content' => [
+                              'Subroutines'
+                            ],
+                            'style' => 'implicit'
+                          }, 'Perl6::Perldoc::Block::para' )
+                        ],
+                        'style' => 'implicit'
+                      }, 'Perl6::Perldoc::Block::pod' )
+                    ]
+                  }, 'Perl6::Perldoc::Block::table::Cell' ),
+                  bless( {
+                    'content' => [
+                      bless( {
+                        'typename' => 'pod',
+                        'content' => [
+                          bless( {
+                            'typename' => 'para',
+                            'content' => [
+                              '33'
+                            ],
+                            'style' => 'implicit'
+                          }, 'Perl6::Perldoc::Block::para' )
+                        ],
+                        'style' => 'implicit'
+                      }, 'Perl6::Perldoc::Block::pod' )
+                    ]
+                  }, 'Perl6::Perldoc::Block::table::Cell' )
+                ]
+              }, 'Perl6::Perldoc::Block::table::Row' ),
+              bless( {
+                'cells' => [
+                  bless( {
+                    'content' => [
+                      bless( {
+                        'typename' => 'pod',
+                        'content' => [
+                          bless( {
+                            'typename' => 'para',
+                            'content' => [
+                              'Everything else'
+                            ],
+                            'style' => 'implicit'
+                          }, 'Perl6::Perldoc::Block::para' )
+                        ],
+                        'style' => 'implicit'
+                      }, 'Perl6::Perldoc::Block::pod' )
+                    ]
+                  }, 'Perl6::Perldoc::Block::table::Cell' ),
+                  bless( {
+                    'content' => [
+                      bless( {
+                        'typename' => 'pod',
+                        'content' => [
+                          bless( {
+                            'typename' => 'para',
+                            'content' => [
+                              '57'
+                            ],
+                            'style' => 'implicit'
+                          }, 'Perl6::Perldoc::Block::para' )
+                        ],
+                        'style' => 'implicit'
+                      }, 'Perl6::Perldoc::Block::pod' )
+                    ]
+                  }, 'Perl6::Perldoc::Block::table::Cell' )
+                ]
+              }, 'Perl6::Perldoc::Block::table::Row' )
+            ]
+          }, 'Perl6::Perldoc::Block::table' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

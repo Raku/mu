@@ -1,0 +1,5 @@
+=begin code :allow< B R >
+sub demo {
+    B<say> 'Hello R<name>', $I<code>;
+}
+=end code

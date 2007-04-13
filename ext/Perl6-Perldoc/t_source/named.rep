@@ -1,0 +1,39 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'Xhtml',
+            'content' => [
+              '<object type="video/quicktime" data="onion.mov">
+'
+            ],
+            'style' => 'delimited'
+          }, 'Perl6::Perldoc::Block::Named::Xhtml' ),
+          bless( {
+            'typename' => 'para',
+            'content' => [
+              'or:
+'
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::para' ),
+          bless( {
+            'typename' => 'Image',
+            'content' => [
+              'http://www.perlfoundation.org/images/perl_logo_32x104.png
+'
+            ],
+            'style' => 'abbreviated'
+          }, 'Perl6::Perldoc::Block::Named::Image' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

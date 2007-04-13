@@ -1,0 +1,31 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'para',
+            'content' => [
+              '"We\'re going deep, deep, ',
+              bless( {
+                'typename' => 'I',
+                'content' => [
+                  'deep'
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::I' ),
+              ' undercover!"
+'
+            ],
+            'style' => 'delimited'
+          }, 'Perl6::Perldoc::Block::para' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

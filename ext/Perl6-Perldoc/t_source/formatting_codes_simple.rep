@@ -1,0 +1,139 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'para',
+            'content' => [
+              bless( {
+                'typename' => 'B',
+                'content' => [
+                  'basis'
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::B' ),
+              '
+',
+              bless( {
+                'typename' => 'C',
+                'content' => [
+                  'code'
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::C' ),
+              '
+',
+              bless( {
+                'typename' => 'E',
+                'content' => [
+                  'entity'
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::E' ),
+              '
+',
+              bless( {
+                'typename' => 'I',
+                'content' => [
+                  'important'
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::I' ),
+              '
+',
+              bless( {
+                'typename' => 'K',
+                'content' => [
+                  'keyboard input'
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::K' ),
+              '
+',
+              bless( {
+                'typename' => 'N',
+                'content' => [
+                  'note'
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::N' ),
+              '
+',
+              bless( {
+                'typename' => 'P',
+                'content' => [
+                  'placement link'
+                ],
+                'style' => 'formatting',
+                'target' => 'placement link'
+              }, 'Perl6::Perldoc::FormattingCode::P' ),
+              '
+',
+              bless( {
+                'typename' => 'R',
+                'content' => [
+                  'replaceable'
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::R' ),
+              '
+',
+              bless( {
+                'typename' => 'S',
+                'content' => [
+                  'space preserving'
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::S' ),
+              '
+',
+              bless( {
+                'typename' => 'T',
+                'content' => [
+                  'terminal output'
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::T' ),
+              '
+',
+              bless( {
+                'typename' => 'U',
+                'content' => [
+                  'unusual'
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::U' ),
+              '
+',
+              bless( {
+                'typename' => 'V',
+                'content' => [
+                  'verbatim'
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::V' ),
+              '
+',
+              bless( {
+                'typename' => 'Z',
+                'content' => [
+                  'zero width comment'
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::Z' ),
+              '
+'
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::para' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

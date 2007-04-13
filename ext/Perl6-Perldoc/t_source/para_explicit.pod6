@@ -1,0 +1,9 @@
+=para
+This is an ordinary paragraph.
+Its text  will   be     squeezed     and
+short lines filled.
+=begin para
+    This is an ordinary paragraph.
+    Its text  will   be     squeezed     and
+    short lines filled.
+=end para

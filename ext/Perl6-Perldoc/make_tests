@@ -1,0 +1,155 @@
+#! /usr/local/bin/perl -w
+
+use strict;
+use Carp;
+
+my $master_template = do { local $/; <DATA> };
+
+my @pod_files = glob 't_source/*.pod6';
+
+print "Building ", scalar(@pod_files), " tests\n";
+
+POD_FILE:
+for my $pod_file (@pod_files) {
+    my $rep_file  = substr($pod_file,0,-5) . '.rep';
+    my $test_file = substr($pod_file,0,-5) . '.t';
+    $test_file =~ s{t_source/}{t/}xms;
+
+    open my $pod_fh, '<', $pod_file
+        or carp "Can't open Perldoc source file '$pod_file'"
+        and next POD_FILE;
+
+    open my $rep_fh, '<', $rep_file
+        or carp "Can't open representation source file '$rep_file'"
+        and next POD_FILE;
+
+    open my $test_fh, '>', $test_file
+        or carp "Can't create test file '$test_file'"
+        and next POD_FILE;
+
+    print "Creating $test_file\n";
+    print {$test_fh} fill_template($pod_fh, $rep_fh);
+}
+
+sub fill_template {
+    my ($pod_fh, $rep_fh) = @_;
+
+    my %data;
+
+    local $/;
+    $data{'<POD>'} = <$pod_fh>;
+    $data{'<REP>'} = <$rep_fh>;
+
+    my $template = $master_template;
+
+    $template =~ s{( <POD> | <REP> )}{$data{$1}}gxms;
+
+    return $template;
+}
+
+__DATA__
+# Testing this Pod specification...
+my $perldoc_data = <<'END_PERLDOC';
+<POD>
+END_PERLDOC
+
+# Expect it to parse to this ADT...
+my $expected_structure = eval <<'END_EXPECTED';
+<REP>
+END_EXPECTED
+
+# Remove filenames from error messages (since two sources differ)...
+for my $msg ( @{ $expected_structure->{warnings} },
+              @{ $expected_structure->{errors} }
+) {
+    $msg =~ s{at \S+ line}{at line};
+}
+
+use Perl6::Perldoc::Parser;
+use Test::More 'no_plan';
+
+# Open input filehandle on Pod daa and parse it...
+open my $fh, '<', \$perldoc_data
+    or die "Could not open file on test data";
+my $representation = Perl6::Perldoc::Parser->parse($fh ,{all_pod=>1});
+
+# Walk resulting representation and expectation tree in parallel, comparing...
+compare(
+    '  ',                     # Indent
+    'return value',           # Description
+    {%{$representation}},     # What we got
+    {%{$expected_structure}}  # What we expected
+);
+
+
+use Scalar::Util qw< reftype blessed >;
+
+# Only consider valid accessor methods...
+my %is_valid_scalar_method;
+my %is_valid_list_method;
+BEGIN {
+   @is_valid_scalar_method{ qw< typename style number target > } = ();
+   @is_valid_list_method{   qw< content rows cells >           } = ();
+}
+
+# Walk two trees, comparing nodes as we go...
+sub compare {
+    my ($indent, $desc, $rep, $expected) = @_;
+
+    # Verify data at current node is of correct class...
+    my ($rep_class, $expected_class)
+        = map {ref($_) || q{STRING}} $rep, $expected;
+
+    is $rep_class, $expected_class => "$indent$desc is $expected_class";
+
+    # Recurse down trees according to type of node expected...
+    $indent .= q{  };
+    my $expected_type = reftype($expected) || q{STRING};
+
+    # If current node an object -> match keys as method calls...
+    if (blessed $expected) {
+        for my $attr ( keys %{ $expected } ) {
+            # Expected subnode must be retrieved via known accessor...
+            my $is_scalar = exists $is_valid_scalar_method{$attr};
+            my $is_list   = exists $is_valid_list_method{$attr};
+            if (!$is_scalar && !$is_list) {
+                fail "Internal error: unknown method $attr() "
+                   . "expected for $rep_class node";
+            }
+
+            # Known accessor must be available...
+            elsif (! $rep->can($attr) ) {
+                fail "Can't call $attr() on $rep_class node";
+            }
+
+            # If accessor returns a list, recursively compare the lists...
+            elsif ($is_list) {
+                compare($indent,$attr, [$rep->$attr], $expected->{$attr});
+            }
+
+            # If accessor returns a scalar, string-compare the values...
+            else {
+                compare($indent,$attr, scalar($rep->$attr), $expected->{$attr});
+            }
+        }
+    }
+    
+    # If current node a hash -> match keys as hash entries...
+    elsif ($expected_type eq 'HASH') {
+        for my $attr ( keys %{ $expected } ) {
+            compare($indent, $attr, $rep->{$attr}, $expected->{$attr});
+        }
+    }
+
+    # If current node an array -> match each element in sequence...
+    elsif ($expected_type eq 'ARRAY') {
+        for my $idx ( 0..$#{$expected} ) {
+            compare($indent,"[$idx]", $rep->[$idx], $expected->[$idx]);
+        }
+    }
+
+    # Otherwise current node is raw text -> simple string comparison...
+    else {
+        is $rep, $expected  =>  "$indent$desc content was correct";
+    }
+} 

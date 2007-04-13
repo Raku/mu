@@ -1,0 +1,7 @@
+=begin nested
+We are all of us in the gutter,E<NL>
+but some of us are looking at the stars!
+=begin nested
+-- Oscar Wilde
+=end nested
+=end nested

@@ -1,0 +1,196 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'table',
+            'content' => [
+              '    Superhero     | Secret          | 
+                  | Identity        | Superpower 
+    ==============|=================|================================
+    The Shoveller | Eddie Stevens   | King Arthur\'s singing shovel   
+    Blue Raja     | Geoffrey Smith  | Master of cutlery 
+'
+            ],
+            'style' => 'abbreviated',
+            'rows' => [
+              bless( {
+                'cells' => [
+                  bless( {
+                    'content' => [
+                      bless( {
+                        'typename' => 'pod',
+                        'content' => [
+                          bless( {
+                            'typename' => 'para',
+                            'content' => [
+                              'Superhero
+'
+                            ],
+                            'style' => 'implicit'
+                          }, 'Perl6::Perldoc::Block::para' )
+                        ],
+                        'style' => 'implicit'
+                      }, 'Perl6::Perldoc::Block::pod' )
+                    ]
+                  }, 'Perl6::Perldoc::Block::table::Cell' ),
+                  bless( {
+                    'content' => [
+                      bless( {
+                        'typename' => 'pod',
+                        'content' => [
+                          bless( {
+                            'typename' => 'para',
+                            'content' => [
+                              'Secret
+Identity'
+                            ],
+                            'style' => 'implicit'
+                          }, 'Perl6::Perldoc::Block::para' )
+                        ],
+                        'style' => 'implicit'
+                      }, 'Perl6::Perldoc::Block::pod' )
+                    ]
+                  }, 'Perl6::Perldoc::Block::table::Cell' ),
+                  bless( {
+                    'content' => [
+                      bless( {
+                        'typename' => 'pod',
+                        'content' => [
+                          bless( {
+                            'typename' => 'code',
+                            'content' => [
+                              ' Superpower'
+                            ],
+                            'style' => 'implicit'
+                          }, 'Perl6::Perldoc::Block::code' )
+                        ],
+                        'style' => 'implicit'
+                      }, 'Perl6::Perldoc::Block::pod' )
+                    ]
+                  }, 'Perl6::Perldoc::Block::table::Cell' )
+                ]
+              }, 'Perl6::Perldoc::Block::table::Row' ),
+              bless( {
+                'cells' => [
+                  bless( {
+                    'content' => [
+                      bless( {
+                        'typename' => 'pod',
+                        'content' => [
+                          bless( {
+                            'typename' => 'para',
+                            'content' => [
+                              'The Shoveller'
+                            ],
+                            'style' => 'implicit'
+                          }, 'Perl6::Perldoc::Block::para' )
+                        ],
+                        'style' => 'implicit'
+                      }, 'Perl6::Perldoc::Block::pod' )
+                    ]
+                  }, 'Perl6::Perldoc::Block::table::Cell' ),
+                  bless( {
+                    'content' => [
+                      bless( {
+                        'typename' => 'pod',
+                        'content' => [
+                          bless( {
+                            'typename' => 'para',
+                            'content' => [
+                              'Eddie Stevens'
+                            ],
+                            'style' => 'implicit'
+                          }, 'Perl6::Perldoc::Block::para' )
+                        ],
+                        'style' => 'implicit'
+                      }, 'Perl6::Perldoc::Block::pod' )
+                    ]
+                  }, 'Perl6::Perldoc::Block::table::Cell' ),
+                  bless( {
+                    'content' => [
+                      bless( {
+                        'typename' => 'pod',
+                        'content' => [
+                          bless( {
+                            'typename' => 'para',
+                            'content' => [
+                              'King Arthur\'s singing shovel'
+                            ],
+                            'style' => 'implicit'
+                          }, 'Perl6::Perldoc::Block::para' )
+                        ],
+                        'style' => 'implicit'
+                      }, 'Perl6::Perldoc::Block::pod' )
+                    ]
+                  }, 'Perl6::Perldoc::Block::table::Cell' )
+                ]
+              }, 'Perl6::Perldoc::Block::table::Row' ),
+              bless( {
+                'cells' => [
+                  bless( {
+                    'content' => [
+                      bless( {
+                        'typename' => 'pod',
+                        'content' => [
+                          bless( {
+                            'typename' => 'para',
+                            'content' => [
+                              'Blue Raja'
+                            ],
+                            'style' => 'implicit'
+                          }, 'Perl6::Perldoc::Block::para' )
+                        ],
+                        'style' => 'implicit'
+                      }, 'Perl6::Perldoc::Block::pod' )
+                    ]
+                  }, 'Perl6::Perldoc::Block::table::Cell' ),
+                  bless( {
+                    'content' => [
+                      bless( {
+                        'typename' => 'pod',
+                        'content' => [
+                          bless( {
+                            'typename' => 'para',
+                            'content' => [
+                              'Geoffrey Smith'
+                            ],
+                            'style' => 'implicit'
+                          }, 'Perl6::Perldoc::Block::para' )
+                        ],
+                        'style' => 'implicit'
+                      }, 'Perl6::Perldoc::Block::pod' )
+                    ]
+                  }, 'Perl6::Perldoc::Block::table::Cell' ),
+                  bless( {
+                    'content' => [
+                      bless( {
+                        'typename' => 'pod',
+                        'content' => [
+                          bless( {
+                            'typename' => 'para',
+                            'content' => [
+                              'Master of cutlery'
+                            ],
+                            'style' => 'implicit'
+                          }, 'Perl6::Perldoc::Block::para' )
+                        ],
+                        'style' => 'implicit'
+                      }, 'Perl6::Perldoc::Block::pod' )
+                    ]
+                  }, 'Perl6::Perldoc::Block::table::Cell' )
+                ]
+              }, 'Perl6::Perldoc::Block::table::Row' )
+            ]
+          }, 'Perl6::Perldoc::Block::table' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

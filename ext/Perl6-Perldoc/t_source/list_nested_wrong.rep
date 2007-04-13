@@ -1,0 +1,67 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [
+    'No =item1 before =item2 at t_source/list_nested_wrong.pod6 line 3'
+  ],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'list',
+            'content' => [
+              bless( {
+                'typename' => 'item1',
+                'content' => [
+                  'The choices are:
+',
+                  bless( {
+                    'typename' => 'list',
+                    'content' => [
+                      bless( {
+                        'typename' => 'list',
+                        'content' => [
+                          bless( {
+                            'typename' => 'item2',
+                            'content' => [
+                              'Liberty  
+'
+                            ],
+                            'style' => 'abbreviated'
+                          }, 'Perl6::Perldoc::Block::item2' ),
+                          bless( {
+                            'typename' => 'item2',
+                            'content' => [
+                              'Death    
+'
+                            ],
+                            'style' => 'abbreviated'
+                          }, 'Perl6::Perldoc::Block::item2' ),
+                          bless( {
+                            'typename' => 'item2',
+                            'content' => [
+                              'Beer     
+'
+                            ],
+                            'style' => 'abbreviated'
+                          }, 'Perl6::Perldoc::Block::item2' )
+                        ],
+                        'style' => 'implicit'
+                      }, 'Perl6::Perldoc::Block::list' )
+                    ],
+                    'style' => 'implicit'
+                  }, 'Perl6::Perldoc::Block::list' )
+                ],
+                'style' => 'delimited'
+              }, 'Perl6::Perldoc::Block::item1' )
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::list' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

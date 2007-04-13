@@ -1,0 +1,4 @@
+=config head1 :formatted<B>
+=config head2  :like<head1> :formatted<I>
+=head1 TOP HEADING
+=head2 Second Heading

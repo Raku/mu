@@ -1,0 +1,39 @@
+$VAR1 = bless( {
+  'warnings' => [
+    'Ignored explicit \'=end END\' (END blocks run to end-of-file) at t_source/end_warning.pod6 line 5'
+  ],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'END',
+            'content' => [
+              bless( {
+                'typename' => 'para',
+                'content' => [
+                  'This is a para
+'
+                ],
+                'style' => 'implicit'
+              }, 'Perl6::Perldoc::Block::para' ),
+              bless( {
+                'typename' => 'para',
+                'content' => [
+                  'This is a para too
+'
+                ],
+                'style' => 'implicit'
+              }, 'Perl6::Perldoc::Block::para' )
+            ],
+            'style' => 'delimited'
+          }, 'Perl6::Perldoc::Block::END' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

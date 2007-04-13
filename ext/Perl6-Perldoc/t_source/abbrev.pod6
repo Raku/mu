@@ -1,0 +1,7 @@
+=table
+    Constants           1
+    Variables           10
+    Subroutines         33
+    Everything else     57
+
+=Name     The applicant's full name

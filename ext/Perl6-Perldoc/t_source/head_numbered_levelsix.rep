@@ -1,0 +1,64 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'head1',
+            'content' => [
+              'Head 1
+'
+            ],
+            'style' => 'abbreviated'
+          }, 'Perl6::Perldoc::Block::head1' ),
+          bless( {
+            'typename' => 'head2',
+            'content' => [
+              'Head 2
+'
+            ],
+            'style' => 'abbreviated'
+          }, 'Perl6::Perldoc::Block::head2' ),
+          bless( {
+            'typename' => 'head3',
+            'content' => [
+              'Head 3
+'
+            ],
+            'style' => 'abbreviated'
+          }, 'Perl6::Perldoc::Block::head3' ),
+          bless( {
+            'typename' => 'head4',
+            'content' => [
+              'Head 4
+'
+            ],
+            'style' => 'abbreviated'
+          }, 'Perl6::Perldoc::Block::head4' ),
+          bless( {
+            'typename' => 'head5',
+            'content' => [
+              'Head 5
+'
+            ],
+            'style' => 'abbreviated'
+          }, 'Perl6::Perldoc::Block::head5' ),
+          bless( {
+            'typename' => 'head6',
+            'number' => '1.1.1.1.1.1',
+            'content' => [
+              'The Rescue of the Kobayashi Maru
+'
+            ],
+            'style' => 'abbreviated'
+          }, 'Perl6::Perldoc::Block::head6' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

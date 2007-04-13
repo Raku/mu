@@ -1,0 +1,55 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'head1',
+            'content' => [
+              'A Top Level Heading
+'
+            ],
+            'style' => 'abbreviated'
+          }, 'Perl6::Perldoc::Block::head1' ),
+          bless( {
+            'typename' => 'head2',
+            'content' => [
+              'A Second Level Heading
+'
+            ],
+            'style' => 'abbreviated'
+          }, 'Perl6::Perldoc::Block::head2' ),
+          bless( {
+            'typename' => 'head3',
+            'content' => [
+              'A third level heading
+'
+            ],
+            'style' => 'abbreviated'
+          }, 'Perl6::Perldoc::Block::head3' ),
+          bless( {
+            'typename' => 'head86',
+            'content' => [
+              'A "Missed it by ',
+              bless( {
+                'typename' => 'I',
+                'content' => [
+                  'that'
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::I' ),
+              ' much!" heading
+'
+            ],
+            'style' => 'abbreviated'
+          }, 'Perl6::Perldoc::Block::head86' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

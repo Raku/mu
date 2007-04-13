@@ -1,0 +1,20 @@
+D<definition
+B<basis
+I<important
+K<keyboard input
+N<note
+R<replaceable
+S<space preserving
+T<terminal output
+U<unusual
+Z<zero width comment
+>
+>
+>
+>
+>
+>
+>
+>
+>
+|synonym>

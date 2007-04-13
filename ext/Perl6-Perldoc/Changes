@@ -7,3 +7,24 @@ Revision history for Perl6-Perldoc
 
 0.0.2  Fri Apr 13 00:04:20 2007
        No changes logged
+
+
+
+0.0.3  Fri Apr 13 20:30:47 2007
+
+    - Fixed test suite
+      (Removed YAML dependency;
+       Instead of line-by-line comparison of serializations, the
+       tests now walk the expected and actual DOM representations in parallel,
+       comparing node values via the objects' accessor methods;
+       This version of the test suite could easily be adapted to any
+       implementation of Pod parsing. Look at the 'make_tests' program and
+       the 't_source' directory to see how the tests are now declaratively
+       specified and auto-generated.
+      )
+
+    - Added missing style() accessor method
+
+    - Fixed handling (and on-the-fly creation) of =headN and =itemN classes
+
+    - Numerous other minor fixes pointed out by new test suite

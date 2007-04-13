@@ -1,0 +1,15 @@
+=input
+find baracus
+=begin output
+    Name:    Baracus, B.A.
+    Rank:    Sgt
+    Serial:  1PTDF007
+
+    Do you want additional personnel details? K<y>
+
+    Height:  180cm/5'11"
+    Weight:  104kg/230lb
+    Age:     49
+
+    Print? K<n>
+=end output

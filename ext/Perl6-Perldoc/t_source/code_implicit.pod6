@@ -1,0 +1,5 @@
+This ordinary paragraph introduces a code block:
+
+    $this = 1 * code('block');
+    $which.is_specified(:by<indenting>);
+    # Code is B<verbatim>

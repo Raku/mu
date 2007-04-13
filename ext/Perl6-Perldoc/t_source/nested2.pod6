@@ -1,0 +1,3 @@
+=begin para :nested(3)
+"We're going deep, deep, I<deep> undercover!"
+=end para

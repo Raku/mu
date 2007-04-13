@@ -1,0 +1,9 @@
+=begin pod
+
+=head1 A heading
+
+This is Pod too. Specifically, this is a simple C<para> block
+
+    $this = pod('also');  # Specifically, a code block
+
+=end pod

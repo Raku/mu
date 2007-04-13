@@ -1,0 +1,11 @@
+=config head1 :numbered
+=config head2 :numbered
+=config head3 :!numbered
+
+=head1 The Problem
+=head1 The Solution
+=head2   Analysis
+=head3     Overview
+=head3     Details
+=head2   Design
+=head1 The Implementation

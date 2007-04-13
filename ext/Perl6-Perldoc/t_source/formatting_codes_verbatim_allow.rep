@@ -1,0 +1,70 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'config',
+            'target' => 'C<>',
+            'content' => [
+              undef
+            ],
+            'style' => 'directive'
+          }, 'Perl6::Perldoc::Directive::config' ),
+          bless( {
+            'typename' => 'config',
+            'target' => 'V<>',
+            'content' => [
+              undef
+            ],
+            'style' => 'directive'
+          }, 'Perl6::Perldoc::Directive::config' ),
+          bless( {
+            'typename' => 'para',
+            'content' => [
+              bless( {
+                'typename' => 'C',
+                'content' => [
+                  'code is N<of course> ',
+                  bless( {
+                    'typename' => 'B',
+                    'content' => [
+                      'verbatim'
+                    ],
+                    'style' => 'formatting'
+                  }, 'Perl6::Perldoc::FormattingCode::B' )
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::C' ),
+              '
+',
+              bless( {
+                'typename' => 'V',
+                'content' => [
+                  'verbatim is ',
+                  bless( {
+                    'typename' => 'N',
+                    'content' => [
+                      'of course'
+                    ],
+                    'style' => 'formatting'
+                  }, 'Perl6::Perldoc::FormattingCode::N' ),
+                  ' B<verbatim>'
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::V' ),
+              '
+'
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::para' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

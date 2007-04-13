@@ -1,0 +1,7 @@
+=begin para :nested
+=begin para   :nested
+=begin para     :nested
+"We're going deep, deep, I<deep> undercover!"
+=end para
+=end para
+=end para

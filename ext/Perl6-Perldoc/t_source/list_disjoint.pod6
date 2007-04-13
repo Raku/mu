@@ -1,0 +1,11 @@
+The options are:
+
+=item1 # Liberty
+=item1 # Death
+=item1 # Beer
+
+The tools are:
+
+=item1 # Revolution
+=item1 # Deep-fried peanut butter sandwich
+=item1 # Keg

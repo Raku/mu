@@ -1,0 +1,4 @@
+=config C<> :allow<B>
+=config V<> :allow<N>
+C<code is N<of course> B<verbatim>>
+V<verbatim is N<of course> B<verbatim>>

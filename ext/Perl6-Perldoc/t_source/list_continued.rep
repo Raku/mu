@@ -1,0 +1,69 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'list',
+            'content' => [
+              bless( {
+                'typename' => 'item1',
+                'number' => '1',
+                'content' => [
+                  'Retreat to remote Himalayan monastery
+'
+                ],
+                'style' => 'paragraph'
+              }, 'Perl6::Perldoc::Block::item1' ),
+              bless( {
+                'typename' => 'item1',
+                'number' => '2',
+                'content' => [
+                  'Learn the hidden mysteries of space and time
+'
+                ],
+                'style' => 'paragraph'
+              }, 'Perl6::Perldoc::Block::item1' )
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::list' ),
+          bless( {
+            'typename' => 'para',
+            'content' => [
+              bless( {
+                'typename' => 'I',
+                'content' => [
+                  '????'
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::I' ),
+              '
+'
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::para' ),
+          bless( {
+            'typename' => 'list',
+            'content' => [
+              bless( {
+                'typename' => 'item1',
+                'number' => '3',
+                'content' => [
+                  'Prophet!
+'
+                ],
+                'style' => 'paragraph'
+              }, 'Perl6::Perldoc::Block::item1' )
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::list' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

@@ -1,0 +1,39 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'para',
+            'content' => [
+              bless( {
+                'typename' => 'C',
+                'content' => [
+                  'code is B<verbatim>'
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::C' ),
+              '
+',
+              bless( {
+                'typename' => 'V',
+                'content' => [
+                  'verbatim is N<of course> B<verbatim>'
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::V' ),
+              '
+'
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::para' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

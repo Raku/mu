@@ -1,0 +1,63 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'list',
+            'content' => [
+              bless( {
+                'typename' => 'item1',
+                'number' => '1',
+                'content' => [
+                  'Visito
+'
+                ],
+                'style' => 'abbreviated'
+              }, 'Perl6::Perldoc::Block::item1' ),
+              bless( {
+                'typename' => 'list',
+                'content' => [
+                  bless( {
+                    'typename' => 'item2',
+                    'number' => '1.1',
+                    'content' => [
+                      'Veni
+'
+                    ],
+                    'style' => 'abbreviated'
+                  }, 'Perl6::Perldoc::Block::item2' ),
+                  bless( {
+                    'typename' => 'item2',
+                    'number' => '1.2',
+                    'content' => [
+                      'Vidi
+'
+                    ],
+                    'style' => 'abbreviated'
+                  }, 'Perl6::Perldoc::Block::item2' ),
+                  bless( {
+                    'typename' => 'item2',
+                    'number' => '1.3',
+                    'content' => [
+                      'Vici
+'
+                    ],
+                    'style' => 'abbreviated'
+                  }, 'Perl6::Perldoc::Block::item2' )
+                ],
+                'style' => 'implicit'
+              }, 'Perl6::Perldoc::Block::list' )
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::list' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

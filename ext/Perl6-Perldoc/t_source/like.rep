@@ -1,0 +1,65 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'config',
+            'target' => 'head1',
+            'content' => [
+              undef
+            ],
+            'style' => 'directive'
+          }, 'Perl6::Perldoc::Directive::config' ),
+          bless( {
+            'typename' => 'config',
+            'target' => 'head2',
+            'content' => [
+              undef
+            ],
+            'style' => 'directive'
+          }, 'Perl6::Perldoc::Directive::config' ),
+          bless( {
+            'typename' => 'head1',
+            'content' => [
+              bless( {
+                'typename' => 'B',
+                'content' => [
+                  'TOP HEADING
+'
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::B' )
+            ],
+            'style' => 'abbreviated'
+          }, 'Perl6::Perldoc::Block::head1' ),
+          bless( {
+            'typename' => 'head2',
+            'content' => [
+              bless( {
+                'typename' => 'B',
+                'content' => [
+                  bless( {
+                    'typename' => 'I',
+                    'content' => [
+                      'Second Heading
+'
+                    ],
+                    'style' => 'formatting'
+                  }, 'Perl6::Perldoc::FormattingCode::I' )
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::B' )
+            ],
+            'style' => 'abbreviated'
+          }, 'Perl6::Perldoc::Block::head2' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

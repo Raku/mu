@@ -1,0 +1,33 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'config',
+            'target' => 'code',
+            'content' => [
+              undef
+            ],
+            'style' => 'directive'
+          }, 'Perl6::Perldoc::Directive::config' ),
+          bless( {
+            'typename' => 'code',
+            'content' => [
+              '
+V<=> in the first column is always a Perldoc directive
+
+'
+            ],
+            'style' => 'delimited'
+          }, 'Perl6::Perldoc::Block::code' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

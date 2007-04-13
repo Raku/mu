@@ -1,0 +1,6 @@
+C<  $foo<bar>   >
+C<< $foo<<bar>> >>
+C«$foo < $bar»
+C<<$foo < $bar>>
+The Perl 5 heredoc syntax was: C« <<END_MARKER »
+The Perl 5 heredoc syntax was: C<<< <<END_MARKER >>>

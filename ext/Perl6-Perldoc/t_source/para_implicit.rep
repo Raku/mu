@@ -1,0 +1,53 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'head1',
+            'content' => [
+              'This is a heading block
+'
+            ],
+            'style' => 'abbreviated'
+          }, 'Perl6::Perldoc::Block::head1' ),
+          bless( {
+            'typename' => 'para',
+            'content' => [
+              'This is an ordinary paragraph.
+Its text  will   be     squeezed     and
+short lines filled. It is terminated by
+the first blank line.
+'
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::para' ),
+          bless( {
+            'typename' => 'para',
+            'content' => [
+              'This is another ordinary paragraph.
+Its     text    will  also be squeezed and
+short lines filled. It is terminated by
+the trailing directive on the next line.
+'
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::para' ),
+          bless( {
+            'typename' => 'head2',
+            'content' => [
+              'This is another heading block
+'
+            ],
+            'style' => 'abbreviated'
+          }, 'Perl6::Perldoc::Block::head2' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

@@ -1,0 +1,76 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'head1',
+            'number' => '1',
+            'content' => [
+              'The Problem
+'
+            ],
+            'style' => 'abbreviated'
+          }, 'Perl6::Perldoc::Block::head1' ),
+          bless( {
+            'typename' => 'head1',
+            'number' => '2',
+            'content' => [
+              'The Solution
+'
+            ],
+            'style' => 'abbreviated'
+          }, 'Perl6::Perldoc::Block::head1' ),
+          bless( {
+            'typename' => 'head2',
+            'number' => '2.1',
+            'content' => [
+              'Analysis
+'
+            ],
+            'style' => 'abbreviated'
+          }, 'Perl6::Perldoc::Block::head2' ),
+          bless( {
+            'typename' => 'head3',
+            'content' => [
+              'Overview
+'
+            ],
+            'style' => 'abbreviated'
+          }, 'Perl6::Perldoc::Block::head3' ),
+          bless( {
+            'typename' => 'head3',
+            'content' => [
+              'Details
+'
+            ],
+            'style' => 'abbreviated'
+          }, 'Perl6::Perldoc::Block::head3' ),
+          bless( {
+            'typename' => 'head2',
+            'number' => '2.2',
+            'content' => [
+              'Design
+'
+            ],
+            'style' => 'abbreviated'
+          }, 'Perl6::Perldoc::Block::head2' ),
+          bless( {
+            'typename' => 'head1',
+            'number' => '3',
+            'content' => [
+              'The Implementation
+'
+            ],
+            'style' => 'abbreviated'
+          }, 'Perl6::Perldoc::Block::head1' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

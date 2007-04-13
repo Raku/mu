@@ -1,0 +1,4 @@
+=begin para :formatted<B I>
+Warning: Do not immerse in water. Do not expose to bright light.
+Do not feed after midnight.
+=end para

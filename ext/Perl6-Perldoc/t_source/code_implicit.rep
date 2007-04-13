@@ -1,0 +1,33 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'para',
+            'content' => [
+              'This ordinary paragraph introduces a code block:
+'
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::para' ),
+          bless( {
+            'typename' => 'code',
+            'content' => [
+              '    $this = 1 * code(\'block\');
+    $which.is_specified(:by<indenting>);
+    # Code is B<verbatim>
+'
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::code' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

@@ -1,0 +1,39 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'para',
+            'content' => [
+              bless( {
+                'typename' => 'B',
+                'content' => [
+                  bless( {
+                    'typename' => 'I',
+                    'content' => [
+                      '
+Warning: Do not immerse in water. Do not expose to bright light.
+Do not feed after midnight.
+'
+                    ],
+                    'style' => 'formatting'
+                  }, 'Perl6::Perldoc::FormattingCode::I' )
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::B' ),
+              '
+'
+            ],
+            'style' => 'delimited'
+          }, 'Perl6::Perldoc::Block::para' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

@@ -1,3 +1,4 @@
+# Testing this Pod specification...
 my $perldoc_data = <<'END_PERLDOC';
 =for item  :term<MAD>
 Affected with a high degree of intellectual independence.
@@ -19,92 +20,181 @@ The one unpardonable sin against one's fellows.
 
 END_PERLDOC
 
-my $expected_structure = <<'END_EXPECTED';
-errors: []
-
-tree: !!perl/hash:Perl6::Perldoc::Document 
-  content: 
-    - !!perl/hash:Perl6::Perldoc::Block::pod 
-      content: 
-        - !!perl/hash:Perl6::Perldoc::Block::list 
-          content: 
-            - !!perl/hash:Perl6::Perldoc::Block::item 
-              content: 
-                - "Affected with a high degree of intellectual independence.\n"
-              options: 
-                term: 
-                  - MAD
-            - !!perl/hash:Perl6::Perldoc::Block::item 
-              content: 
-                - "Uncommon patience in planning a revenge that is worth while.\n"
-              options: 
-                term: 
-                  - MEEKNESS
-            - !!perl/hash:Perl6::Perldoc::Block::item 
-              content: 
-                - "Conforming to a local and mutable standard of right.\n\
-                  Having the quality of general expediency.\n"
-              options: 
-                term: 
-                  - MORAL
-          level: 1
-          typename: list
-        - !!perl/hash:Perl6::Perldoc::Block::para 
-          content: 
-            - "An item that's specified as a term can still be numbered:\n"
-        - !!perl/hash:Perl6::Perldoc::Block::list 
-          content: 
-            - !!perl/hash:Perl6::Perldoc::Block::item 
-              content: 
-                - "Devoid of consideration for the selfishness of others. \n"
-              number: 1
-                numbered: 1
-                term: 
-                  - SELFISH
-            - !!perl/hash:Perl6::Perldoc::Block::item 
-              content: 
-                - "The one unpardonable sin against one's fellows.\n"
-              number: 2
-                numbered: 1
-                term: 
-                  - SUCCESS
-          level: 1
-          typename: list
-      typename: pod
-  typename: (document)
-warnings: []
-
+# Expect it to parse to this ADT...
+my $expected_structure = eval <<'END_EXPECTED';
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'list',
+            'content' => [
+              bless( {
+                'typename' => 'item',
+                'content' => [
+                  'Affected with a high degree of intellectual independence.
+'
+                ],
+                'style' => 'paragraph'
+              }, 'Perl6::Perldoc::Block::item' ),
+              bless( {
+                'typename' => 'item',
+                'content' => [
+                  'Uncommon patience in planning a revenge that is worth while.
+'
+                ],
+                'style' => 'paragraph'
+              }, 'Perl6::Perldoc::Block::item' ),
+              bless( {
+                'typename' => 'item',
+                'content' => [
+                  'Conforming to a local and mutable standard of right.
+Having the quality of general expediency.
+'
+                ],
+                'style' => 'paragraph'
+              }, 'Perl6::Perldoc::Block::item' )
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::list' ),
+          bless( {
+            'typename' => 'para',
+            'content' => [
+              'An item that\'s specified as a term can still be numbered:
+'
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::para' ),
+          bless( {
+            'typename' => 'list',
+            'content' => [
+              bless( {
+                'typename' => 'item',
+                'number' => '1',
+                'content' => [
+                  'Devoid of consideration for the selfishness of others. 
+'
+                ],
+                'style' => 'paragraph'
+              }, 'Perl6::Perldoc::Block::item' ),
+              bless( {
+                'typename' => 'item',
+                'number' => '2',
+                'content' => [
+                  'The one unpardonable sin against one\'s fellows.
+'
+                ],
+                'style' => 'paragraph'
+              }, 'Perl6::Perldoc::Block::item' )
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::list' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );
 
 END_EXPECTED
+
+# Remove filenames from error messages (since two sources differ)...
+for my $msg ( @{ $expected_structure->{warnings} },
+              @{ $expected_structure->{errors} }
+) {
+    $msg =~ s{at \S+ line}{at line};
+}
 
 use Perl6::Perldoc::Parser;
 use Test::More 'no_plan';
 
-sub is_subset {
-    my ($found, $expected) = @_;
-    my @found    = split /\n/, $found;
-    my @expected = split /\n/, $expected;
+# Open input filehandle on Pod daa and parse it...
+open my $fh, '<', \$perldoc_data
+    or die "Could not open file on test data";
+my $representation = Perl6::Perldoc::Parser->parse($fh ,{all_pod=>1});
 
-    while (@found && @expected) {
-        if ($found[0] eq $expected[0]) {
-            is $found[0], $expected[0], $expected[0];
-            shift @found;
-            shift @expected;
-        }
-        else {
-            shift @found;
+# Walk resulting representation and expectation tree in parallel, comparing...
+compare(
+    '  ',                     # Indent
+    'return value',           # Description
+    {%{$representation}},     # What we got
+    {%{$expected_structure}}  # What we expected
+);
+
+
+use Scalar::Util qw< reftype blessed >;
+
+# Only consider valid accessor methods...
+my %is_valid_scalar_method;
+my %is_valid_list_method;
+BEGIN {
+   @is_valid_scalar_method{ qw< typename style number target > } = ();
+   @is_valid_list_method{   qw< content rows cells >           } = ();
+}
+
+# Walk two trees, comparing nodes as we go...
+sub compare {
+    my ($indent, $desc, $rep, $expected) = @_;
+
+    # Verify data at current node is of correct class...
+    my ($rep_class, $expected_class)
+        = map {ref($_) || q{STRING}} $rep, $expected;
+
+    is $rep_class, $expected_class => "$indent$desc is $expected_class";
+
+    # Recurse down trees according to type of node expected...
+    $indent .= q{  };
+    my $expected_type = reftype($expected) || q{STRING};
+
+    # If current node an object -> match keys as method calls...
+    if (blessed $expected) {
+        for my $attr ( keys %{ $expected } ) {
+            # Expected subnode must be retrieved via known accessor...
+            my $is_scalar = exists $is_valid_scalar_method{$attr};
+            my $is_list   = exists $is_valid_list_method{$attr};
+            if (!$is_scalar && !$is_list) {
+                fail "Internal error: unknown method $attr() "
+                   . "expected for $rep_class node";
+            }
+
+            # Known accessor must be available...
+            elsif (! $rep->can($attr) ) {
+                fail "Can't call $attr() on $rep_class node";
+            }
+
+            # If accessor returns a list, recursively compare the lists...
+            elsif ($is_list) {
+                compare($indent,$attr, [$rep->$attr], $expected->{$attr});
+            }
+
+            # If accessor returns a scalar, string-compare the values...
+            else {
+                compare($indent,$attr, scalar($rep->$attr), $expected->{$attr});
+            }
         }
     }
     
-    for my $expected (@expected) {
-        ok 0, "Missing '$expected'";
+    # If current node a hash -> match keys as hash entries...
+    elsif ($expected_type eq 'HASH') {
+        for my $attr ( keys %{ $expected } ) {
+            compare($indent, $attr, $rep->{$attr}, $expected->{$attr});
+        }
     }
-}
 
-open my $fh, '<', \$perldoc_data
-    or die "Could not open file on test data";
+    # If current node an array -> match each element in sequence...
+    elsif ($expected_type eq 'ARRAY') {
+        for my $idx ( 0..$#{$expected} ) {
+            compare($indent,"[$idx]", $rep->[$idx], $expected->[$idx]);
+        }
+    }
 
-my $representation = Perl6::Perldoc::Parser->parse($fh ,{all_pod=>1});
-
-use YAML::Syck 'Dump';
-is_subset Dump($representation), $expected_structure;
+    # Otherwise current node is raw text -> simple string comparison...
+    else {
+        is $rep, $expected  =>  "$indent$desc content was correct";
+    }
+} 

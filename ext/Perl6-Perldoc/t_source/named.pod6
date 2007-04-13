@@ -1,0 +1,7 @@
+=begin Xhtml
+<object type="video/quicktime" data="onion.mov">
+=end Xhtml
+
+or:
+
+=Image http://www.perlfoundation.org/images/perl_logo_32x104.png

@@ -1,0 +1,78 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'list',
+            'content' => [
+              bless( {
+                'typename' => 'item',
+                'content' => [
+                  'Affected with a high degree of intellectual independence.
+'
+                ],
+                'style' => 'paragraph'
+              }, 'Perl6::Perldoc::Block::item' ),
+              bless( {
+                'typename' => 'item',
+                'content' => [
+                  'Uncommon patience in planning a revenge that is worth while.
+'
+                ],
+                'style' => 'paragraph'
+              }, 'Perl6::Perldoc::Block::item' ),
+              bless( {
+                'typename' => 'item',
+                'content' => [
+                  'Conforming to a local and mutable standard of right.
+Having the quality of general expediency.
+'
+                ],
+                'style' => 'paragraph'
+              }, 'Perl6::Perldoc::Block::item' )
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::list' ),
+          bless( {
+            'typename' => 'para',
+            'content' => [
+              'An item that\'s specified as a term can still be numbered:
+'
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::para' ),
+          bless( {
+            'typename' => 'list',
+            'content' => [
+              bless( {
+                'typename' => 'item',
+                'number' => '1',
+                'content' => [
+                  'Devoid of consideration for the selfishness of others. 
+'
+                ],
+                'style' => 'paragraph'
+              }, 'Perl6::Perldoc::Block::item' ),
+              bless( {
+                'typename' => 'item',
+                'number' => '2',
+                'content' => [
+                  'The one unpardonable sin against one\'s fellows.
+'
+                ],
+                'style' => 'paragraph'
+              }, 'Perl6::Perldoc::Block::item' )
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::list' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

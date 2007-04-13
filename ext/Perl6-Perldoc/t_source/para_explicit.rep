@@ -1,0 +1,35 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'para',
+            'content' => [
+              'This is an ordinary paragraph.
+Its text  will   be     squeezed     and
+short lines filled.
+'
+            ],
+            'style' => 'abbreviated'
+          }, 'Perl6::Perldoc::Block::para' ),
+          bless( {
+            'typename' => 'para',
+            'content' => [
+              '    This is an ordinary paragraph.
+    Its text  will   be     squeezed     and
+    short lines filled.
+'
+            ],
+            'style' => 'delimited'
+          }, 'Perl6::Perldoc::Block::para' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

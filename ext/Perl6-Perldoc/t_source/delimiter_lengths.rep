@@ -1,0 +1,75 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'para',
+            'content' => [
+              bless( {
+                'typename' => 'C',
+                'content' => [
+                  '  $foo<bar>   '
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::C' ),
+              '
+',
+              bless( {
+                'typename' => 'C',
+                'content' => [
+                  ' $foo<<bar>> '
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::C' ),
+              '
+',
+              bless( {
+                'typename' => 'C',
+                'content' => [
+                  '$foo < $bar'
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::C' ),
+              '
+',
+              bless( {
+                'typename' => 'C',
+                'content' => [
+                  '$foo < $bar'
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::C' ),
+              '
+The Perl 5 heredoc syntax was: ',
+              bless( {
+                'typename' => 'C',
+                'content' => [
+                  ' <<END_MARKER '
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::C' ),
+              '
+The Perl 5 heredoc syntax was: ',
+              bless( {
+                'typename' => 'C',
+                'content' => [
+                  ' <<END_MARKER '
+                ],
+                'style' => 'formatting'
+              }, 'Perl6::Perldoc::FormattingCode::C' ),
+              '
+'
+            ],
+            'style' => 'implicit'
+          }, 'Perl6::Perldoc::Block::para' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

@@ -1,0 +1,53 @@
+$VAR1 = bless( {
+  'warnings' => [],
+  'errors' => [],
+  'tree' => bless( {
+    'typename' => '(document)',
+    'content' => [
+      bless( {
+        'typename' => 'pod',
+        'content' => [
+          bless( {
+            'typename' => 'pod',
+            'content' => [
+              bless( {
+                'typename' => 'head1',
+                'content' => [
+                  'A heading
+'
+                ],
+                'style' => 'abbreviated'
+              }, 'Perl6::Perldoc::Block::head1' ),
+              bless( {
+                'typename' => 'para',
+                'content' => [
+                  'This is Pod too. Specifically, this is a simple ',
+                  bless( {
+                    'typename' => 'C',
+                    'content' => [
+                      'para'
+                    ],
+                    'style' => 'formatting'
+                  }, 'Perl6::Perldoc::FormattingCode::C' ),
+                  ' block
+'
+                ],
+                'style' => 'implicit'
+              }, 'Perl6::Perldoc::Block::para' ),
+              bless( {
+                'typename' => 'code',
+                'content' => [
+                  '    $this = pod(\'also\');  # Specifically, a code block
+'
+                ],
+                'style' => 'implicit'
+              }, 'Perl6::Perldoc::Block::code' )
+            ],
+            'style' => 'delimited'
+          }, 'Perl6::Perldoc::Block::pod' )
+        ],
+        'style' => 'implicit'
+      }, 'Perl6::Perldoc::Block::pod' )
+    ]
+  }, 'Perl6::Perldoc::Document' )
+}, 'Perl6::Perldoc::Parser::ReturnVal' );

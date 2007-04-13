@@ -1,0 +1,6 @@
+=config code :allow<V>
+=begin code :allow<>
+
+V<=> in the first column is always a Perldoc directive
+
+=end code
