@@ -21,7 +21,7 @@ WriteMakefile(
 
 sub checkVersions { my @rtn; for (@{ $_[0] }){ my ($pkg,$min,$max) = @$_;
   next unless $pkg; (eval ( "require $pkg" ) && defined $max && eval( '$'.$pkg.'::VERSION' ) > $max &&
-    warn "Warning: prerequisite $pkg too new!  Please downgrade to $max or earlier.\n") ) and
+    warn "Warning: prerequisite $pkg too new!  Please downgrade to $max or earlier.\n" ) and
     (defined $min && push @rtn,($pkg => $min)); #Let MakeMaker handle any minima.
   }
   return @rtn;
