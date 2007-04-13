@@ -370,7 +370,7 @@ to make part of the language.
 
 =head2 wantarray()
 
-C<wantarray> is superseeded by C<want.List>. Also available are C<want.Item>
+C<wantarray> is superseeded by C<want.list>. Also available are C<want.item>
 and C<want.count>, the latter gives the number of expected values, if
 applicable.
 
