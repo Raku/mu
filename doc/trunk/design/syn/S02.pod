@@ -2273,7 +2273,7 @@ And so on.
 =item *
 
 Backslash sequences still interpolate, but there's no longer any C<\v>
-to mean I<vertical tab>, whatever that is...  (C<\v> now match vertical
+to mean I<vertical tab>, whatever that is...  (C<\v> now matches vertical
 whitespace in a regex.)  Literal character representations are:
 
     \a          BELL
