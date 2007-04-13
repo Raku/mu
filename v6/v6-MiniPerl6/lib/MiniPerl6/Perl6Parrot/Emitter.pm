@@ -314,7 +314,8 @@ class Apply {
                  ' : ' ~ (@.arguments[2]).emit ~
                   ')' };
         
-        $.code ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
+        # TODO !!!
+        '&' ~ $.code ~ '( 1 ' ~ (@.arguments.>>emit).join(', ') ~ ')';
         # '(' ~ $.code.emit ~ ')->(' ~ @.arguments.>>emit.join(', ') ~ ')';
     }
 }
@@ -437,7 +438,9 @@ class Sub {
         ## my $invocant := $sig.invocant; 
         # say $invocant.emit;
         my $pos := $sig.positional;
-        my $str := 'my $List__ = \@_; ';  # no strict "vars"; ';
+        my $str;
+        # TODO !!!
+        # $str := 'my $List__ = @_; ';  # no strict "vars"; ';
 
         # TODO - follow recursively
         my $pos := $sig.positional;
@@ -449,7 +452,8 @@ class Sub {
             'parameters' => ::Lit::Array( array => $sig.positional ), 
             'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
         );
-        $str := $str ~ $bind.emit ~ '; ';
+        # TODO !!!!
+        # $str := $str ~ $bind.emit ~ '; ';
 
 #        my $i := 0;
 #        for @$pos -> $field { 
@@ -463,7 +467,7 @@ class Sub {
 #            $str := $str ~ $bind.emit ~ '; ';
 #            $i := $i + 1;
 #        };
-        'sub ' ~ $.name ~ ' { ' ~ 
+        'my &' ~ $.name ~ ' = sub ($xxx) ' ~ ' { ' ~ 
           ## 'my ' ~ $invocant.emit ~ ' = $_[0]; ' ~
           $str ~
           (@.block.>>emit).join('; ') ~ 
