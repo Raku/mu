@@ -1,7 +1,7 @@
 use v6-alpha;
 
 use QDRDBMS;
-use QDRDBMS::Engine::Example::PhysType;
+use QDRDBMS::Engine::Example::Operators;
 
 ###########################################################################
 ###########################################################################

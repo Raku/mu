@@ -6,7 +6,6 @@ use QDRDBMS;
 ###########################################################################
 
 module QDRDBMS::Validator-0.0.0 {
-    # Note: This given version applies to all of this file's packages.
 
     use Test;
 

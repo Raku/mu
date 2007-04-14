@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan( 10 );
+plan( 12 );
 
 use QDRDBMS::AST; pass "(dummy instead of broken use_ok)";
 skip( 1, q{is( QDRDBMS::AST.WHO.version, 0.0.0,
@@ -19,6 +19,10 @@ skip( 1, q{is( QDRDBMS::Validator.WHO.version, 0.0.0,
 use QDRDBMS::Engine::Example::PhysType; pass "(dummy instead of broken use_ok)";
 skip( 1, q{is( QDRDBMS::Engine::Example::PhysType.WHO.version, 0.0.0,
     'QDRDBMS::Engine::Example::PhysType is the correct version' );} );
+
+use QDRDBMS::Engine::Example::Operators; pass "(dummy instead of broken use_ok)";
+skip( 1, q{is( QDRDBMS::Engine::Example::Operators.WHO.version, 0.0.0,
+    'QDRDBMS::Engine::Example::Operators is the correct version' );} );
 
 use QDRDBMS::Engine::Example; pass "(dummy instead of broken use_ok)";
 skip( 1, q{is( QDRDBMS::Engine::Example.WHO.version, 0.0.0,

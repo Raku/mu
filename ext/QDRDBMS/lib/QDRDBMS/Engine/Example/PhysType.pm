@@ -16,37 +16,38 @@ module QDRDBMS::Engine::Example::PhysType-0.0.0 {
 
 ###########################################################################
 
-sub Bool of QDRDBMS::Engine::Example::PhysType::Bool
+sub dBool of QDRDBMS::Engine::Example::PhysType::Bool
         (Bool :$v!) is export {
     return QDRDBMS::Engine::Example::PhysType::Bool.new( :v($v) );
 }
 
-sub Text of QDRDBMS::Engine::Example::PhysType::Text (Str :$v!) is export {
+sub dText of QDRDBMS::Engine::Example::PhysType::Text
+        (Str :$v!) is export {
     return QDRDBMS::Engine::Example::PhysType::Text.new( :v($v) );
 }
 
-sub Blob of QDRDBMS::Engine::Example::PhysType::Blob
+sub dBlob of QDRDBMS::Engine::Example::PhysType::Blob
         (Blob :$v!) is export {
     return QDRDBMS::Engine::Example::PhysType::Blob.new( :v($v) );
 }
 
-sub Int of QDRDBMS::Engine::Example::PhysType::Int (Int :$v!) is export {
+sub dInt of QDRDBMS::Engine::Example::PhysType::Int (Int :$v!) is export {
     return QDRDBMS::Engine::Example::PhysType::Int.new( :v($v) );
 }
 
-sub TextKeyedMap of QDRDBMS::Engine::Example::PhysType::TextKeyedMap
+sub dTextKeyedMap of QDRDBMS::Engine::Example::PhysType::TextKeyedMap
         (Hash :$map!) is export {
     return QDRDBMS::Engine::Example::PhysType::TextKeyedMap.new(
         :map($map) );
 }
 
-sub Heading of QDRDBMS::Engine::Example::PhysType::Heading
+sub dHeading of QDRDBMS::Engine::Example::PhysType::Heading
         (Array :$attr_defs_aoa!) is export {
     return QDRDBMS::Engine::Example::PhysType::Heading.new(
         :attr_defs_aoa($attr_defs_aoa) );
 }
 
-sub Tuple of QDRDBMS::Engine::Example::PhysType::Tuple
+sub dTuple of QDRDBMS::Engine::Example::PhysType::Tuple
         (QDRDBMS::Engine::Example::PhysType::Heading :$heading!,
         QDRDBMS::Engine::Example::PhysType::TextKeyedMap :$body!)
         is export {
@@ -54,7 +55,7 @@ sub Tuple of QDRDBMS::Engine::Example::PhysType::Tuple
         :heading($heading), :body($body) );
 }
 
-sub Relation of QDRDBMS::Engine::Example::PhysType::Relation
+sub dRelation of QDRDBMS::Engine::Example::PhysType::Relation
         (:$heading!, :$body!, :$key_defs_aoh!, :$index_defs_aoh!)
         is export {
     return QDRDBMS::Engine::Example::PhysType::Relation.new(
@@ -161,6 +162,12 @@ method which of Str () {
 
 ###########################################################################
 
+sub v of Bool () {
+    return $!v;
+}
+
+###########################################################################
+
 } # class QDRDBMS::Engine::Example::PhysType::Bool
 
 ###########################################################################
@@ -192,6 +199,12 @@ method which of Str () {
         $!which = "13 sys.type.Text {$s.graphs} $s";
     }
     return $!which;
+}
+
+###########################################################################
+
+sub v of Str () {
+    return $!v;
 }
 
 ###########################################################################
@@ -231,6 +244,12 @@ method which of Str () {
 
 ###########################################################################
 
+sub v of Blob () {
+    return $!v;
+}
+
+###########################################################################
+
 } # class QDRDBMS::Engine::Example::PhysType::Blob
 
 ###########################################################################
@@ -262,6 +281,12 @@ method which of Str () {
         $!which = "12 sys.type.Int {$s.graphs} $s";
     }
     return $!which;
+}
+
+###########################################################################
+
+sub v of Int () {
+    return $!v;
 }
 
 ###########################################################################
