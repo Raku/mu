@@ -321,7 +321,7 @@ proto method attr_name_exists of Bool
 ###########################################################################
 
 method size of Int () {
-    return +@.export_attr_names;
+    return @.export_attr_names.elems;
 }
 
 ###########################################################################
@@ -487,7 +487,7 @@ method rename (Mapping(Str) of Str $mapping!) returns Set::Relation {
     die "Some keys of $mapping! do not match this relation's attributes."
         if !(all( $mapping.keys ) === any( $!heading ));
     die "Some values of $mapping! duplicate each other."
-        if +all( $mapping.values ) != +$mapping.values;
+        if all( $mapping.values ).elems != $mapping.values.elems;
     die "Some values of $mapping! duplicate attribute names of this"
             ~ " relation that aren't being renamed."
         if any( $mapping.values )
@@ -763,7 +763,7 @@ multi method product (Set::Relation $other!) returns Set::Relation {
 
 multi method product (Set::Relation *@others) returns Set::Relation {
 
-    if (+@others == 0) {
+    if (@others.elems == 0) {
         return self;
     }
 
@@ -837,7 +837,7 @@ multi method join (Set::Relation *@others) returns Set::Relation {
     # First do some optimizing of the order that source relations are
     # combined, so to try and make the least expensive kinds of combining
     # occur first, and most expensive later.
-    if (+@others == 0) {
+    if (@others.elems == 0) {
         return self;
     }
 

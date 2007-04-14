@@ -330,7 +330,7 @@ my method _assert_arg_ary (Str $meth!, Str $arg!, Str @val!) {
         if !@val.defined;
     self!_die_with_msg( 'LKT_ARG_ARY_NO_ELEMS',
             { 'METH' => $meth, 'ARG' => $arg } )
-        if +@val == 0;
+        if @val.elems == 0;
     for @val -> $val_elem {
         self!_die_with_msg( 'LKT_ARG_ARY_ELEM_UNDEF',
                 { 'METH' => $meth, 'ARG' => $arg } )
