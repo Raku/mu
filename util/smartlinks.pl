@@ -436,7 +436,7 @@ sub process_syn ($$$$) {
         $year += 1900; $mon += 1;
         my $time = sprintf "%04d-%02d-%02d %02d:%02d:%02d GMT",
             $year, $mon, $mday, $hour, $min, $sec;
-        $html =~ s{<!-- start doc -->}{$&
+        $pod6html =~ s{<!-- start doc -->}{$&
             <I>This page was generated at $time.
             (syn <strong>$syn_rev</strong>, pugs <strong>$pugs_rev</strong>)</I>
         };
