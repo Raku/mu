@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 11 Mar 2007
+  Last Modified: 13 Apr 2007
   Number: 12
-  Version: 45
+  Version: 46
 
 =head1 Overview
 
@@ -613,26 +613,15 @@ variable of a known type:
 =head1 Pair query methods
 
 Certain classes such as filehandles allow colon pairs to be used as if they
-were methods.  When you say:
+were methods.  Method names beginning with a colon:
 
     $filehandle.:e
     $filehandle.:!x
 
-it actually calls
-
-    $filehandle.STATUS(:e)
-    $filehandle.STATUS(:!x)
-
-which is expected to return a value that can be used as a boolean.
+are expected to return a value that can be used as a boolean.
 While this is primarily intended for use by file tests, other classes
-may define a C<STATUS> method to provide a similar mechanism for interrogating
-lightweight properties without having to define methods for all of them.
-
-Note, though, that I<all> such queries are answered by the first located
-C<STATUS> method--they are not inherited independently.  The C<STATUS> method
-must explicitly pass the query on to other classes in such cases.  Likewise,
-if conflicting C<STATUS> methods are composed from two different roles, they
-must be disambiguated as any other conflicting method would be.
+may define such methods to provide a similar mechanism for interrogating
+properties.
 
 Depending on the class, the pairs in question may have arguments.
 The C<Hash> class in particular makes use of pair syntax for subscript
@@ -643,7 +632,10 @@ modifiers:
 
 This has the advantage that the pair's argument is actually parsed exactly
 as a subscript would be.  A C<.exists()> method could not easily make
-such a guarantee about its arguments.
+such a guarantee about its arguments.  Plus you can say:
+
+    %hash.:exists<foo>
+    %hash.:delete<foo>
 
 Conjecture, the trailing subscript adverbs could be brought up front as
 well:

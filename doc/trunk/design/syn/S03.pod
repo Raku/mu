@@ -14,7 +14,7 @@ Luke Palmer <luke@luqui.org>
   Date: 8 Mar 2004
   Last Modified: 13 Apr 2007
   Number: 3
-  Version: 112
+  Version: 113
 
 =head1 Overview
 
@@ -2266,7 +2266,7 @@ as a default because the more specific types listed above it didn't match.
     Any       Num       numeric equality        +$_ == X
     Any       Str       string equality         ~$_ eq X
 
-    Any       Pair      test object             .STATUS(X) (Str,IO do filetest)
+    Any       Pair      test object             .:Xkey(Xval) (e.g. filetests)
 
     Set       Set       identical sets          $_ === X
     Hash      Set       hash keys same set      $_.keys === X
