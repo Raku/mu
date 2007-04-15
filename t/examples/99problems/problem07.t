@@ -14,7 +14,7 @@ plan 2;
 # 
 # Hint: Use the predefined functions list and append.
 
-my $flatten = -> $x { $x.isa(Array) ?? ( map $flatten, $x ) !! $x }; 
+my $flatten = -> $x { $x ~~ List ?? ( map $flatten, $x ) !! $x }; 
 my @flattened = map $flatten, ('a', ['b', ['c', 'd', 'e']]);
 is @flattened, <a b c d e>, 'We should be able to flatten lists';
 
