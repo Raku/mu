@@ -50,7 +50,21 @@ lists:
           - email: david.green@telus.net
             name: David Green
         subject: 'Re: request new Mapping|Hash operators'
-        summary: ''
+        summary: |-
+          Earlier, Darren Duncan asked from some convenience
+          operators or functions which could be used with mapping and hash values.  In
+          particular, he wanted the relational data model concept of a tuple.
+          He felt that this could be satisfied with the data types `Mapping` and
+          `Hash` with the addition of some common relational operators such
+          as `join()`, `semijoin()`, `semidifference()`, `rename()`, `project()`,
+          `remove()`, `compose()`, `wrap()`, and `unwrap()`.
+          
+          More recently, John Beppu suggested reading about a relational
+          language extension for Python which was inspired by 'The Third
+          Manifesto'.  Two problems in particular were the impedance mismatch
+          between programming languages and databases, and the weakness and
+          syntactic awkwardness of SQL.  Darren thought John raised some
+          good points.
       - date_from: 1174249504
         date_to: 1176461957
         hidden: ~
