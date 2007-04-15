@@ -37,7 +37,7 @@ lists:
     threads:
       - date_from: 1173304971
         date_to: 1174173687
-        hidden: ~
+        hidden: Completely covered in 03-03 summary
         message_id: 20070307220500.GA5922@stripey.com
         messages:
           - Pine.LNX.4.44.0703160032320.3330-100000@pd3.baremetal.com
@@ -72,13 +72,25 @@ lists:
           - email: avarab@gmail.com
             name: Ævar Arnfjörð Bjarmason
         subject: 'Re: Synopsis 26'
-        summary: ''
+        summary: |-
+          Thom Boyer responded to Damian Conway's post from November which
+          thanked people for offering feedback on the first draft.  Thom said
+          that he had been unable to find the XHTML version of S26 and wondered
+          if it was available.
+          
+          Jerry Gay replied that there wasn't a pod parser available yet.
+          Damian responded with the requested file, and said he still hoped
+          to finish the Pod6 parser but he wasn't sure when he would have time.
+          
+          Ævar Arnfjörð Bjarmason
+          asked if Damian could post the code he currently has, so that others
+          could work on it.
     title: Language
   - name: perl6-internals
     threads:
       - date_from: 1174011261
         date_to: 1174169629
-        hidden: ~
+        hidden: This ticket sort of cancels itself out
         message_id: rt-3.6.HEAD-1687-1174011249-1390.41859-72-0@perl.org
         messages:
           - rt-3.6.HEAD-2051-1174169609-885.41859-14-0@perl.org
@@ -103,7 +115,9 @@ lists:
             name: Will Coleda via RT
         rt_ticket: 'perl #41870'
         subject: '[perl #41870] [TODO] create config file processing library for use in pir '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41870>, Jerry Gay requested a configuration file
+          processing library to use in PIR code.  Will Coleda did this.
       - date_from: 1174097385
         date_to: 1174180378
         hidden: ~
@@ -121,7 +135,12 @@ lists:
             name: Jonathan Worthington
         rt_ticket: 'perl #41871'
         subject: '[perl #41871] [BUG]:  t/pmc/metaclass.t fails on Darwin '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41871>, James Keenan reported a failure he'd encountered
+          with `make test`.  Later he reported that he had heard that this test was
+          supposed to fail, and suggested making it a TODO.   chromatic said that
+          expected failures need to be marked as TODO, because volunteer time is
+          being wasted.  Jonathan Worthington agreed.
       - date_from: 1174157522
         date_to: 1174175157
         hidden: ~
@@ -143,7 +162,16 @@ lists:
             name: jerry gay
         rt_ticket: 'perl #41878'
         subject: '[perl #41878] [TODO] create exporter pmc '
-        summary: ''
+        summary: |-
+          Jerry Gay noted in ticket <rt://perl/41878> that Allison Randal had
+          replaced the `.IMPORT` macro with the `export_to` namespace which
+          was defined in PDD21.  However, the code was lacking safety checks
+          and he suggested creating an Exporter PMC.  
+          
+          Allison elaborated by
+          suggesting an interface.  Patrick R. Michaud added his comments.
+          A discussion on importing followed, with Will Coleda also contributing.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/b21a4eb9f371ac87/a9a4a29a526ff11f?#a9a4a29a526ff11f
       - date_from: 1174162162
         date_to: 1174168290
         hidden: ~
@@ -157,7 +185,10 @@ lists:
             name: Jonathan Worthington
         rt_ticket: 'perl #41881'
         subject: '[perl #41881] [CAGE] Redo CONTEXT(interp->ctx)->foo '
-        summary: ''
+        summary: |-
+          Paul Cochrane created ticket <rt://perl/41881> from the `cage/todo.pod`.
+          Jonathan Worthington was not sure that eliminating the macro there
+          would be the correct thing to do.
       - date_from: 1174166398
         date_to: 1174166398
         hidden: ~
@@ -167,7 +198,14 @@ lists:
             name: Paul Cochrane
         rt_ticket: 'perl #41886'
         subject: '[perl #41886] [CAGE] Use lcov to show code coverage '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41886>, Paul Cochrane noted that the `Icov`
+          tool can be used to produce HTML output of code coverage information.
+          He thought a `make cover` target could be added to the Makefile.
+          
+          Paul Johnson mentioned the option of using  Devel::Cover to generate
+          the reports.  Paul Cochrane also noted that there was a script in
+          `tools/dev/parrot_coverage.pl`.
       - date_from: 1174174065
         date_to: 1174174065
         hidden: ~
@@ -177,7 +215,10 @@ lists:
             name: Will Coleda via RT
         rt_ticket: 'perl #38988'
         subject: '[perl #38988] [PDD] review pdd07_codingstd.pod '
-        summary: ''
+        summary: |-
+          Will Coleda reopened ticket <rt://perl/38988> because PDD07 contained
+          a marker indicating that Chip had edited part of it, and everything below
+          needed review.
       - date_from: 1174174265
         date_to: 1174174265
         hidden: ~
@@ -187,7 +228,10 @@ lists:
             name: Will Coleda via RT
         rt_ticket: 'perl #41505'
         subject: '[perl #41505] [CAGE] Cleanup and reorganise documentation related to svn properties '
-        summary: ''
+        summary: |-
+          Will Coleda created ticket <rt://perl/41505> to suggest that documntation
+          of all svn properties needs to be cleaned up and reorganised.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/e88a441078fbda27/e8b813bcec99d27d?#e8b813bcec99d27d
       - date_from: 1174178071
         date_to: 1174178071
         hidden: ~
@@ -196,7 +240,21 @@ lists:
           - email: steve@silug.org
             name: Steven Pritchard
         subject: rpm package
-        summary: ''
+        summary: |-
+          Steven Pritchard remarked that he had been working on getting a package
+          built for Fedora, and shared his current package.  Allison Randal
+          asked if he had kept track of the things which caused problems, so
+          that the packaging process could be improved.
+          
+          chromatic speculated that installation paths which are not present
+          or are incorrect is a common problem.  Allison agreed, and wondered if
+          some tests could be created to check for installation paths.  Mike
+          Mattle explained some of the difficulties in doing this.
+          Joshua Isom thought that it would not too difficult.
+          
+          Steven made a list of his three major problems: hardcoded 'lib',
+          `LD_LIBRARY_PATH` had to be set to `blib/lib` in the top directory,
+          and the `languages/` files aren't autmatically installed.
     title: Parrot Porters
   - name: perl6-users
     threads: []
@@ -230,10 +288,20 @@ lists:
           - email: bjoern@hoehrmann.de
             name: Bjoern Hoehrmann
         subject: Perl 6 Microgrants. Now accepting proposals.
-        summary: ''
+        summary: |-
+          Jesse Vincent announced the Perl 6 Microgrants program.  Leon Brocard,
+          representing the Perl Foundation's grants committee, will work with
+          Jesse to select proposals for projects.  Grants are for 500 USD.  Proposals
+          should be for projects which can be completed in 4-6 calendar weeks.
+          
+          Tim Bunce suggested that someone could create a tool which could parse
+          that Java files which define the JDBC API and generate Perl 6.   He did
+          not want to submit the proposal himself, but hoped someone would take it
+          up.  There were a few comments on this suggestion.  Phil Crow had some
+          interest in the idea.
       - date_from: 1174578743
         date_to: 1174578743
-        hidden: ~
+        hidden: part of BEAF017A-91AA-4F14-AE05-2595028C99C4@bestpractical.com
         message_id: 200703221551.l2MFpC4I009528@smtp.sunflower.com
         posters:
           - email: philcrow@sunflower.com
