@@ -1,0 +1,15 @@
+The files in this directory (and any sub-directoris) from the website
+http://feather.perl6.nl and are automatically sync'd by the feather
+server. So any updates committed here will be applied in 5 minutes or so.
+
+Please don't create file or subdirectory named 'syn' in this directory,
+or you will break the smartlinks.pl script running on feather.
+
+http://feather.perl6.nl/syn is actually a symbolic link pointing to
+~agentzh/syn on feather. If you do want to debug the synopses
+generation process, please run the following command on feather:
+
+   $ ~agentzh/update
+
+If you have further problems, please ask on #perl6. Thank you.
+
