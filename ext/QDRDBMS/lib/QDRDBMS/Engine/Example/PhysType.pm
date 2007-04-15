@@ -63,6 +63,12 @@ sub dRelation of QDRDBMS::Engine::Example::PhysType::Relation
         :key_defs_aoh($key_defs_aoh), :index_defs_aoh($index_defs_aoh) );
 }
 
+sub dCat_EntityName of QDRDBMS::Engine::Example::PhysType::Cat_EntityName
+        (Str :$text!) is export {
+    return QDRDBMS::Engine::Example::PhysType::Cat_EntityName.new(
+        :v($text) );
+}
+
 ###########################################################################
 
 } # module QDRDBMS::Engine::Example::PhysType
@@ -71,18 +77,19 @@ sub dRelation of QDRDBMS::Engine::Example::PhysType::Relation
 ###########################################################################
 
 role QDRDBMS::Engine::Example::PhysType::Value {
-#    has QDRDBMS::Engine::Example::PhysType::TypeRef $!root_type;
-        # QDRDBMS::Engine::Example::PhysType::TypeRef.
+#    has QDRDBMS::Engine::Example::PhysType::Cat_EntityName $!root_type;
+        # QDRDBMS::Engine::Example::PhysType::Cat_EntityName.
         # This is the fundamental QDRDBMS D data type that this ::Value
         # object's implementation sees it as a generic member of, and which
         # generally determines what operators can be used with it.
         # It is a supertype of the declared type.
-#    has QDRDBMS::Engine::Example::PhysType::TypeRef $!decl_type;
-        # QDRDBMS::Engine::Example::PhysType::TypeRef.
+#    has QDRDBMS::Engine::Example::PhysType::Cat_EntityName $!decl_type;
+        # QDRDBMS::Engine::Example::PhysType::Cat_EntityName.
         # This is the QDRDBMS D data type that the ::Value was declared to
         # be a member of when the ::Value object was created.
-#    has QDRDBMS::Engine::Example::PhysType::TypeRef $!last_known_mst;
-        # QDRDBMS::Engine::Example::PhysType::TypeRef.
+#    has QDRDBMS::Engine::Example::PhysType::Cat_EntityName
+#        $!last_known_mst;
+        # QDRDBMS::Engine::Example::PhysType::Cat_EntityName.
         # This is the QDRDBMS data type that is the most specific type of
         # this ::Value, as it was last determined.
         # It is a subtype of the declared type.
@@ -513,6 +520,48 @@ method which of Str () {
 ###########################################################################
 
 } # class QDRDBMS::Engine::Example::PhysType::Relation
+
+###########################################################################
+###########################################################################
+
+class QDRDBMS::Engine::Example::PhysType::Cat_EntityName {
+    does QDRDBMS::Engine::Example::PhysType::Value;
+
+    has Str $!text;
+        # The Text possrep of this Cat.EntityName.
+
+    has Str $!which;
+
+###########################################################################
+
+submethod BUILD (Str :$v!) {
+    $!text = $text;
+    return;
+}
+
+###########################################################################
+
+method root_type of Str () {
+    return 'sys.type.Cat_EntityName';
+}
+
+method which of Str () {
+    if (!$!which.defined) {
+        my Str $s = $!text;
+        $!which = "23 sys.type.Cat_EntityName {$s.graphs} $s";
+    }
+    return $!which;
+}
+
+###########################################################################
+
+sub text of Str () {
+    return $!text;
+}
+
+###########################################################################
+
+} # class QDRDBMS::Engine::Example::PhysType::Cat_EntityName
 
 ###########################################################################
 ###########################################################################

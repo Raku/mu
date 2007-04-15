@@ -3,13 +3,13 @@ use v6-alpha;
 ###########################################################################
 ###########################################################################
 
-#my Hash of QDRDBMS::AST::TypeRef $LITERAL_TYPE_MAP = {
+#my Hash of QDRDBMS::AST::EntityName $LITERAL_TYPE_MAP = {
 my Hash $LITERAL_TYPE_MAP = {
-#    'Bool' => QDRDBMS::AST::TypeRef.new( :text('sys.type.Bool') ),
-#    'Str'  => QDRDBMS::AST::TypeRef.new( :text('sys.type.Text') ),
-#    'Blob' => QDRDBMS::AST::TypeRef.new( :text('sys.type.Blob') ),
-#    'Int'  => QDRDBMS::AST::TypeRef.new( :text('sys.type.Int') ),
-#    'Num'  => QDRDBMS::AST::TypeRef.new( :text('sys.type.Num.Rat') ),
+#    'Bool' => QDRDBMS::AST::EntityName.new( :text('sys.type.Bool') ),
+#    'Str'  => QDRDBMS::AST::EntityName.new( :text('sys.type.Text') ),
+#    'Blob' => QDRDBMS::AST::EntityName.new( :text('sys.type.Blob') ),
+#    'Int'  => QDRDBMS::AST::EntityName.new( :text('sys.type.Int') ),
+#    'Num'  => QDRDBMS::AST::EntityName.new( :text('sys.type.Num.Rat') ),
 };
 
 ###########################################################################
@@ -20,20 +20,8 @@ module QDRDBMS::AST-0.0.0 {
 
 ###########################################################################
 
-sub TypeRef of QDRDBMS::AST::TypeRef (Str :$text!) is export {
-    return QDRDBMS::AST::TypeRef.new( :text($text) );
-}
-
-sub FuncRef of QDRDBMS::AST::FuncRef (Str :$text!) is export {
-    return QDRDBMS::AST::FuncRef.new( :text($text) );
-}
-
-sub ProcRef of QDRDBMS::AST::ProcRef (Str :$text!) is export {
-    return QDRDBMS::AST::ProcRef.new( :text($text) );
-}
-
-sub VarRef of QDRDBMS::AST::VarRef (Str :$text!) is export {
-    return QDRDBMS::AST::VarRef.new( :text($text) );
+sub EntityName of QDRDBMS::AST::EntityName (Str :$text!) is export {
+    return QDRDBMS::AST::EntityName.new( :text($text) );
 }
 
 sub LitDefExpr of QDRDBMS::AST::LitDefExpr
@@ -41,19 +29,27 @@ sub LitDefExpr of QDRDBMS::AST::LitDefExpr
     return QDRDBMS::AST::LitDefExpr.new( :lit($lit) );
 }
 
-sub VarRefExpr of QDRDBMS::AST::VarRefExpr
-        (QDRDBMS::AST::VarRef :$var!) is export {
-    return QDRDBMS::AST::VarRefExpr.new( :var($var) );
+sub VarNameExpr of QDRDBMS::AST::VarNameExpr
+        (QDRDBMS::AST::EntityName :$var!) is export {
+    return QDRDBMS::AST::VarNameExpr.new( :var($var) );
 }
 
-sub FuncInvExpr of QDRDBMS::AST::FuncInvExpr
-        (QDRDBMS::AST::FuncRef :$func!, Hash :$func_args!) is export {
-    return QDRDBMS::AST::FuncInvExpr.new(
+sub FuncInvoExpr of QDRDBMS::AST::FuncInvoExpr
+        (QDRDBMS::AST::EntityName :$func!, Hash :$func_args!) is export {
+    return QDRDBMS::AST::FuncInvoExpr.new(
         :func($func), :func_args($func_args) );
 }
 
-sub Stmt of QDRDBMS::AST::Stmt () is export {
-    return QDRDBMS::AST::Stmt.new();
+sub ControlStmt of QDRDBMS::AST::ControlStmt () is export {
+    return QDRDBMS::AST::ControlStmt.new();
+}
+
+sub ProcInvoStmt of QDRDBMS::AST::ProcInvoStmt () is export {
+    return QDRDBMS::AST::ProcInvoStmt.new();
+}
+
+sub MultiProcInvoStmt of QDRDBMS::AST::MultiProcInvoStmt () is export {
+    return QDRDBMS::AST::MultiProcInvoStmt.new();
 }
 
 sub Func of QDRDBMS::AST::Func () is export {
@@ -71,7 +67,7 @@ sub Proc of QDRDBMS::AST::Proc () is export {
 ###########################################################################
 ###########################################################################
 
-role QDRDBMS::AST::_EntityRef {
+class QDRDBMS::AST::EntityName {
     has Str $!text_possrep;
 
 ###########################################################################
@@ -95,40 +91,19 @@ method as_text of Str () {
 
 ###########################################################################
 
-} # role QDRDBMS::AST::_EntityRef
+} # class QDRDBMS::AST::EntityName
 
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::AST::TypeRef {
-    does QDRDBMS::AST::_EntityRef;
-} # class QDRDBMS::AST::TypeRef
-
-###########################################################################
-###########################################################################
-
-class QDRDBMS::AST::FuncRef {
-    does QDRDBMS::AST::_EntityRef;
-} # class QDRDBMS::AST::FuncRef
-
-###########################################################################
-###########################################################################
-
-class QDRDBMS::AST::ProcRef {
-    does QDRDBMS::AST::_EntityRef;
-} # class QDRDBMS::AST::ProcRef
-
-###########################################################################
-###########################################################################
-
-class QDRDBMS::AST::VarRef {
-    does QDRDBMS::AST::_EntityRef;
-} # class QDRDBMS::AST::VarRef
+role QDRDBMS::AST::Expr {}
 
 ###########################################################################
 ###########################################################################
 
 class QDRDBMS::AST::LitDefExpr {
+    does QDRDBMS::AST::Expr;
+
 #    has Bool|Str|Blob|Int|Num $!lit_val;
     has Scalar $!lit_val;
     has Type                  $!lit_type;
@@ -161,54 +136,59 @@ submethod BUILD (Bool|Str|Blob|Int|Num :$lit!) {
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::AST::VarRefExpr {
-    has QDRDBMS::AST::VarRef $!var_name;
+class QDRDBMS::AST::VarNameExpr {
+    does QDRDBMS::AST::Expr;
+
+    has QDRDBMS::AST::EntityName $!var_name;
 
 ###########################################################################
 
-#submethod BUILD (QDRDBMS::AST::VarRef :var($var_ref)!) {
-submethod BUILD (QDRDBMS::AST::VarRef :$var!) {
-    my $var_ref = $var;
+#submethod BUILD (QDRDBMS::AST::EntityName :var($var_name)!) {
+submethod BUILD (QDRDBMS::AST::EntityName :$var!) {
+    my $var_name = $var;
 
     die q{new(): Bad :$var arg; it is not a valid object}
-            ~ q{ of a QDRDBMS::AST::VarRef-doing class.}
-        if !$var_ref.defined or !$var_ref.does(QDRDBMS::AST::VarRef);
-    $!var_name = $var_ref;
+            ~ q{ of a QDRDBMS::AST::EntityName-doing class.}
+        if !$var_name.defined or !$var_name.does(QDRDBMS::AST::EntityName);
+    $!var_name = $var_name;
 
     return;
 }
 
 ###########################################################################
 
-} # class QDRDBMS::AST::VarRefExpr
+} # class QDRDBMS::AST::VarNameExpr
 
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::AST::FuncInvExpr {
-    has QDRDBMS::AST::FuncRef      $!func_name;
+class QDRDBMS::AST::FuncInvoExpr {
+    does QDRDBMS::AST::Expr;
+
+    has QDRDBMS::AST::EntityName      $!func_name;
 #    has Hash of QDRDBMS::AST::Expr $!func_args;
     has Hash $!func_args;
 
 ###########################################################################
 
-#submethod BUILD (QDRDBMS::AST::FuncRef :func($func_ref)!,
+#submethod BUILD (QDRDBMS::AST::EntityName :func($func_name)!,
 #        Hash of QDRDBMS::AST::Expr :$func_args!) {
-submethod BUILD (QDRDBMS::AST::FuncRef :$func!,
+submethod BUILD (QDRDBMS::AST::EntityName :$func!,
         Hash :$func_args!) {
-    my $func_ref = $func;
+    my $func_name = $func;
 
     die q{new(): Bad :$func arg; it is not a valid object}
-            ~ q{ of a QDRDBMS::AST::FuncRef-doing class.}
-        if !$func_ref.defined or !$func_ref.does(QDRDBMS::AST::FuncRef);
-    $!func_name = $func_ref;
+            ~ q{ of a QDRDBMS::AST::EntityName-doing class.}
+        if !$func_name.defined
+            or !$func_name.does(QDRDBMS::AST::EntityName);
+    $!func_name = $func_name;
     if (!$func_args.defined) {
         $!func_args = {};
     }
-    elsif (ref $func_args eq 'ARRAY') {
+    elsif ($func_args.does(Array)) {
         # TODO.
     }
-    elsif (ref $func_args eq 'HASH') {
+    elsif ($func_args.does(Hash)) {
         # TODO.
     }
     else {
@@ -220,12 +200,18 @@ submethod BUILD (QDRDBMS::AST::FuncRef :$func!,
 
 ###########################################################################
 
-} # class QDRDBMS::AST::FuncInvExpr
+} # class QDRDBMS::AST::FuncInvoExpr
 
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::AST::Stmt {
+role QDRDBMS::AST::Stmt {}
+
+###########################################################################
+###########################################################################
+
+class QDRDBMS::AST::ControlStmt {
+    does QDRDBMS::AST::Stmt;
 
 
 
@@ -236,7 +222,41 @@ class QDRDBMS::AST::Stmt {
 
 ###########################################################################
 
-} # class QDRDBMS::AST::Stmt
+} # class QDRDBMS::AST::ControlStmt
+
+###########################################################################
+###########################################################################
+
+class QDRDBMS::AST::ProcInvoStmt {
+    does QDRDBMS::AST::Stmt;
+
+
+
+###########################################################################
+
+
+
+
+###########################################################################
+
+} # class QDRDBMS::AST::ProcInvoStmt
+
+###########################################################################
+###########################################################################
+
+class QDRDBMS::AST::MultiProcInvoStmt {
+    does QDRDBMS::AST::Stmt;
+
+
+
+###########################################################################
+
+
+
+
+###########################################################################
+
+} # class QDRDBMS::AST::MultiProcInvoStmt
 
 ###########################################################################
 ###########################################################################
