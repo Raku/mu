@@ -34,15 +34,211 @@ extra:
       uri: http://planetsix.perlfoundation.org/
 lists:
   - name: perl6-language
-    threads: []
+    threads:
+      - date_from: 1173304971
+        date_to: 1174173687
+        hidden: ~
+        message_id: 20070307220500.GA5922@stripey.com
+        messages:
+          - Pine.LNX.4.44.0703160032320.3330-100000@pd3.baremetal.com
+          - 'a06230902c2221562b7c6@[172.27.1.7]'
+        posters:
+          - email: Smylers@stripey.com
+            name: Smylers
+          - email: darren@DarrenDuncan.net
+            name: Darren Duncan
+          - email: david.green@telus.net
+            name: David Green
+        subject: 'Re: request new Mapping|Hash operators'
+        summary: ''
+      - date_from: 1174249504
+        date_to: 1176461957
+        hidden: ~
+        message_id: 45FD9FB0.90101@xmission.com
+        messages:
+          - 45FE889B.2010902@conway.org
+          - bf92fb8e0703191041of05cd1ap42bb58adbd333f1b@mail.gmail.com
+          - 461E3E47.3080402@conway.org
+          - 51dd1af80704120826x73251781ka39c5765dbfd5342@mail.gmail.com
+          - 51dd1af80704120830r7bbca81dw32b86d74c94108c4@mail.gmail.com
+          - 461F6276.2080807@conway.org
+        posters:
+          - email: thom@xmission.com
+            name: Thom Boyer
+          - email: damian@conway.org
+            name: Damian Conway
+          - email: thom.boyer@gmail.com
+            name: Thom Boyer
+          - email: avarab@gmail.com
+            name: Ævar Arnfjörð Bjarmason
+        subject: 'Re: Synopsis 26'
+        summary: ''
     title: Language
   - name: perl6-internals
-    threads: []
+    threads:
+      - date_from: 1174011261
+        date_to: 1174169629
+        hidden: ~
+        message_id: rt-3.6.HEAD-1687-1174011249-1390.41859-72-0@perl.org
+        messages:
+          - rt-3.6.HEAD-2051-1174169609-885.41859-14-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Paul Cochrane
+          - email: bugs-parrot-track@netlabs.develooper.com
+            name: Paul Cochrane via RT
+        rt_ticket: 'perl #41859'
+        subject: '[perl #41859] [TODO] Replace cage/todo.pod files by RT tickets '
+        summary: ''
+      - date_from: 1174091109
+        date_to: 1174171456
+        hidden: ~
+        message_id: rt-3.6.HEAD-2051-1174091088-133.41870-72-0@perl.org
+        messages:
+          - rt-3.6.HEAD-2051-1174171449-220.41870-14-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Jerry Gay
+          - email: bugs-parrot-track@netlabs.develooper.com
+            name: Will Coleda via RT
+        rt_ticket: 'perl #41870'
+        subject: '[perl #41870] [TODO] create config file processing library for use in pir '
+        summary: ''
+      - date_from: 1174097385
+        date_to: 1174180378
+        hidden: ~
+        message_id: rt-3.6.HEAD-2051-1174097373-1586.41871-72-0@perl.org
+        messages:
+          - rt-3.6.HEAD-30201-1174135632-1320.41871-15-0@perl.org
+          - 200703171120.16145.chromatic@wgz.org
+          - 45FC91F1.4090101@jnthn.net
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: James Keenan
+          - email: chromatic@wgz.org
+            name: chromatic
+          - email: jonathan@jnthn.net
+            name: Jonathan Worthington
+        rt_ticket: 'perl #41871'
+        subject: '[perl #41871] [BUG]:  t/pmc/metaclass.t fails on Darwin '
+        summary: ''
+      - date_from: 1174157522
+        date_to: 1174175157
+        hidden: ~
+        message_id: rt-3.6.HEAD-1687-1174158711-1187.41878-15-0@perl.org
+        messages:
+          - 20070317203742.GE20097@host.pmichaud.com
+          - C8A286A6-302E-4848-8550-F707EC03F2A8@coleda.com
+          - 20070317234549.GK20097@host.pmichaud.com
+          - 1d9a3f400703171525r320e62a7pd726bd2de2a34980@mail.gmail.com
+          - rt-3.6.HEAD-1687-1174157513-1069.41878-72-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Allison Randal via RT
+          - email: pmichaud@pobox.com
+            name: Patrick R. Michaud
+          - email: will@coleda.com
+            name: Will Coleda
+          - email: jerry.gay@gmail.com
+            name: jerry gay
+        rt_ticket: 'perl #41878'
+        subject: '[perl #41878] [TODO] create exporter pmc '
+        summary: ''
+      - date_from: 1174162162
+        date_to: 1174168290
+        hidden: ~
+        message_id: rt-3.6.HEAD-2051-1174162154-1729.41881-72-0@perl.org
+        messages:
+          - 45FC62CD.5030103@jnthn.net
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Paul Cochrane
+          - email: jonathan@jnthn.net
+            name: Jonathan Worthington
+        rt_ticket: 'perl #41881'
+        subject: '[perl #41881] [CAGE] Redo CONTEXT(interp->ctx)->foo '
+        summary: ''
+      - date_from: 1174166398
+        date_to: 1174166398
+        hidden: ~
+        message_id: rt-3.6.HEAD-30201-1174166392-720.41886-72-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Paul Cochrane
+        rt_ticket: 'perl #41886'
+        subject: '[perl #41886] [CAGE] Use lcov to show code coverage '
+        summary: ''
+      - date_from: 1174174065
+        date_to: 1174174065
+        hidden: ~
+        message_id: rt-3.6.HEAD-30201-1174174048-396.38988-15-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Will Coleda via RT
+        rt_ticket: 'perl #38988'
+        subject: '[perl #38988] [PDD] review pdd07_codingstd.pod '
+        summary: ''
+      - date_from: 1174174265
+        date_to: 1174174265
+        hidden: ~
+        message_id: rt-3.6.HEAD-2051-1174174258-1157.41505-14-0@perl.org
+        posters:
+          - email: bugs-parrot-track@netlabs.develooper.com
+            name: Will Coleda via RT
+        rt_ticket: 'perl #41505'
+        subject: '[perl #41505] [CAGE] Cleanup and reorganise documentation related to svn properties '
+        summary: ''
+      - date_from: 1174178071
+        date_to: 1174178071
+        hidden: ~
+        message_id: 20070318003415.GA12013@osiris.silug.org
+        posters:
+          - email: steve@silug.org
+            name: Steven Pritchard
+        subject: rpm package
+        summary: ''
     title: Parrot Porters
   - name: perl6-users
     threads: []
     title: Users
   - name: perl6-compiler
-    threads: []
+    threads:
+      - date_from: 1174532688
+        date_to: 1174619029
+        hidden: ~
+        message_id: BEAF017A-91AA-4F14-AE05-2595028C99C4@bestpractical.com
+        messages:
+          - 9bc0d5d20703222003i220c8dabj5097d7800e6961df@mail.gmail.com
+          - 20070322132458.GA27097@timac.local
+          - b762bfda0703221759s21020872tcad8b8e3472a915a@mail.gmail.com
+          - 20070323015339.GB8059@vs1.graystudios.org
+          - 20070323110050.GC1512@abigail.nl
+          - 0nd603lgdm9fl76idlrp7dura6t2p4c8vd@hive.bjoern.hoehrmann.de
+        posters:
+          - email: jesse@bestpractical.com
+            name: Jesse Vincent
+          - email: dongxu.ma@gmail.com
+            name: Dongxu Ma
+          - email: Tim.Bunce@pobox.com
+            name: Tim Bunce
+          - email: perlpilot@gmail.com
+            name: Jonathan Scott Duff
+          - email: kolibrie@graystudios.org
+            name: Nathan Gray
+          - email: abigail@abigail.be
+            name: Abigail
+          - email: bjoern@hoehrmann.de
+            name: Bjoern Hoehrmann
+        subject: Perl 6 Microgrants. Now accepting proposals.
+        summary: ''
+      - date_from: 1174578743
+        date_to: 1174578743
+        hidden: ~
+        message_id: 200703221551.l2MFpC4I009528@smtp.sunflower.com
+        posters:
+          - email: philcrow@sunflower.com
+            name: philcrow
+        subject: 'Re: Re: Perl 6 Microgrants. Now accepting proposals.'
+        summary: ''
     title: Compiler
 title: Weekly Perl 6 mailing list summary
