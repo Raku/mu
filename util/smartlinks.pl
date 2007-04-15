@@ -412,7 +412,7 @@ sub process_syn ($$$$) {
         my $base = basename($infile, '.pod');
         $syn_id = $Spec{$base};
     }
-    if ($syn_id == 26) { #hardcode the only pod6 one for now; detect pod6 later.
+    if ($syn_id == 26) { #hardcode the only Perldoc one for now; detect Perldoc later.
       
       eval { use Perl6::Perldoc::Parser; use Perl6::Perldoc::To::Xhtml; };
       if ($@) {
@@ -420,7 +420,7 @@ sub process_syn ($$$$) {
             return;
         }
 
-      my $pod6html = qq{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+      my $perldochtml = qq{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
            "http://www.w3.org/TR/html4/loose.dtd">
 <html><head><title>S$syn_id</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" >
@@ -436,7 +436,7 @@ sub process_syn ($$$$) {
         $year += 1900; $mon += 1;
         my $time = sprintf "%04d-%02d-%02d %02d:%02d:%02d GMT",
             $year, $mon, $mday, $hour, $min, $sec;
-        $pod6html =~ s{<!-- start doc -->}{$&
+        $perldochtml =~ s{<!-- start doc -->}{$&
             <I>This page was generated at $time.
             (syn <strong>$syn_rev</strong>, pugs <strong>$pugs_rev</strong>)</I>
         };
@@ -444,7 +444,7 @@ sub process_syn ($$$$) {
         warn "info: generating $htmfile...\n";
         open my $out, "> $htmfile" or
             die "Can't open $htmfile for writing: $!\n";
-        print $out $pod6html;
+        print $out $perldochtml;
         close $out;
         return;
     }
