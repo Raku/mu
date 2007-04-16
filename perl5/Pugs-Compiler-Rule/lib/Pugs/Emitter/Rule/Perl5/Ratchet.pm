@@ -317,7 +317,8 @@ sub variable {
     my $value = undef;
     # XXX - eval $name doesn't look up in user lexical pad
     # XXX - what &xxx interpolate to?
-    
+
+    # expand embedded $scalar
     if ( $name =~ /^\$/ ) {
         # $^a, $^b
         if ( $name =~ /^ \$ \^ ([^\s]*) /x ) {
@@ -337,8 +338,23 @@ sub variable {
             $value = eval $name;
         }
     }
-    
-    $value = join('', eval $name) if $name =~ /^\@/;
+
+    # expand embedded @arrays
+    if ( $name =~ /^\@/ ) {
+      my $code = q!
+          join(
+            '|',
+            ! . $name . q!
+          )
+      !;
+    return
+"$_[1] ( eval( '( substr( \$s, \$pos ) =~ m/^(' . $code . ')/ )  
+$_[1]     ? ( \$pos $direction= length( \$1 ) or 1 )
+$_[1]     : 0
+$_[1]    ') )";
+    }
+
+    # expand embedded %hash
     if ( $name =~ /^%/ ) {
         my $id = '$' . id();
         my $preprocess_hash = 'Pugs::Runtime::Regex::preprocess_hash';
