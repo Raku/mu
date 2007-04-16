@@ -81,10 +81,10 @@ lists:
             name: Thom Boyer
           - email: damian@conway.org
             name: Damian Conway
-          - email: thom.boyer@gmail.com
-            name: Thom Boyer
           - email: avarab@gmail.com
             name: Ævar Arnfjörð Bjarmason
+          - email: jerry.gay@gmail.com
+            name: jerry gay
         subject: 'Re: Synopsis 26'
         summary: |-
           Thom Boyer responded to Damian Conway's post from November which
@@ -99,6 +99,63 @@ lists:
           Ævar Arnfjörð Bjarmason
           asked if Damian could post the code he currently has, so that others
           could work on it.
+      - date_from: 1174032495
+        date_to: 1174255489
+        hidden: ~
+        message_id: Pine.LNX.4.44.0703160032320.3330-100000@pd3.baremetal.com
+        messages:
+          - 'a06230902c2221562b7c6@[172.27.1.7]'
+          - 20070318101215.GB6243@aaroncrane.co.uk
+          - x7wt1ez154.fsf@mail.sysarch.com
+          - Pine.LNX.4.44.0703181453170.14818-100000@pd3.baremetal.com
+          - Pine.LNX.4.44.0703181320330.15428-100000@pd3.baremetal.com
+          - 'a0623091dc224850ae3e1@[172.27.1.7]'
+        posters:
+          - email: darren@DarrenDuncan.net
+            name: Darren Duncan
+          - email: david.green@telus.net
+            name: David Green
+          - email: perl@aaroncrane.co.uk
+            name: Aaron Crane
+          - email: uri@stemsystems.com
+            name: Uri Guttman
+        subject: 'Re: request new Mapping|Hash operators'
+        summary: ''
+      - date_from: 1174316084
+        date_to: 1174316084
+        hidden: ~
+        message_id: 45FEA3F4.3070303@conway.org
+        posters:
+          - email: damian@conway.org
+            name: Damian Conway
+        subject: 'Re: Synopsis 26'
+        summary: ''
+      - date_from: 1174343261
+        date_to: 1174343482
+        hidden: ~
+        message_id: ef30550b0703191431t6b02bc8u72fe17b7d9190c65@mail.gmail.com
+        messages:
+          - 7DD2070E-505B-4F99-8390-6300C3D84E85@hexten.net
+        posters:
+          - email: dataweaver@gmail.com
+            name: Jonathan Lang
+          - email: andy@hexten.net
+            name: Andy Armstrong
+        subject: Enhanced enumerations
+        summary: ''
+      - date_from: 1174475077
+        date_to: 1174496335
+        hidden: ~
+        message_id: A0EA8AEE-3AE0-479D-BD11-F88FDECBD559@coleda.com
+        messages:
+          - 46016437.70406@perl.org
+        posters:
+          - email: will@coleda.com
+            name: Will Coleda
+          - email: allison@perl.org
+            name: Allison Randal
+        subject: Parrot 0.4.10 released
+        summary: ''
     title: Language
   - name: perl6-internals
     threads:
@@ -156,7 +213,7 @@ lists:
           expected failures need to be marked as TODO, because volunteer time is
           being wasted.  Jonathan Worthington agreed.
       - date_from: 1174157522
-        date_to: 1174175157
+        date_to: 1174513359
         hidden: ~
         message_id: rt-3.6.HEAD-1687-1174158711-1187.41878-15-0@perl.org
         messages:
@@ -165,6 +222,7 @@ lists:
           - 20070317234549.GK20097@host.pmichaud.com
           - 1d9a3f400703171525r320e62a7pd726bd2de2a34980@mail.gmail.com
           - rt-3.6.HEAD-1687-1174157513-1069.41878-72-0@perl.org
+        out_of_date: 1
         posters:
           - email: parrotbug-followup@parrotcode.org
             name: Allison Randal via RT
@@ -174,6 +232,8 @@ lists:
             name: Will Coleda
           - email: jerry.gay@gmail.com
             name: jerry gay
+          - email: allison@perl.org
+            name: Allison Randal
         rt_ticket: 'perl #41878'
         subject: '[perl #41878] [TODO] create exporter pmc '
         summary: |-
@@ -247,12 +307,39 @@ lists:
           of all svn properties needs to be cleaned up and reorganised.
         thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/e88a441078fbda27/e8b813bcec99d27d?#e8b813bcec99d27d
       - date_from: 1174178071
-        date_to: 1174178071
+        date_to: 1174671341
         hidden: ~
         message_id: 20070318003415.GA12013@osiris.silug.org
+        messages:
+          - 4601AE23.4020907@perl.org
+          - 200703211721.30504.chromatic@wgz.org
+          - 4601DE67.7040300@perl.org
+          - 20070322231440.GB10137@osiris.silug.org
+          - 20070323055105.40efc39f@reforged
+          - 2e47a2c2ba52b5a18ac0e7027fa7de28@gmail.com
+          - 8e8ee0d40703230621t45ff7b40m62f5de5005bb59cd@mail.gmail.com
+          - 200703230815.13037.chromatic@wgz.org
+          - 20070322231349.GA10137@osiris.silug.org
+          - 4601DE67.7040300@perl.org
+          - 20070322231440.GB10137@osiris.silug.org
+          - 20070323055105.40efc39f@reforged
+          - 2e47a2c2ba52b5a18ac0e7027fa7de28@gmail.com
+          - 8e8ee0d40703230621t45ff7b40m62f5de5005bb59cd@mail.gmail.com
+          - 200703230815.13037.chromatic@wgz.org
+        out_of_date: 1
         posters:
           - email: steve@silug.org
             name: Steven Pritchard
+          - email: allison@perl.org
+            name: Allison Randal
+          - email: chromatic@wgz.org
+            name: chromatic
+          - email: codermattie@gmail.com
+            name: Mike Mattie
+          - email: jrisom@gmail.com
+            name: Joshua Isom
+          - email: paultcochrane@gmail.com
+            name: Paul Cochrane
         subject: rpm package
         summary: |-
           Steven Pritchard remarked that he had been working on getting a package
@@ -269,6 +356,868 @@ lists:
           Steven made a list of his three major problems: hardcoded 'lib',
           `LD_LIBRARY_PATH` had to be set to `blib/lib` in the top directory,
           and the `languages/` files aren't autmatically installed.
+      - date_from: 1153067870
+        date_to: 1174349138
+        hidden: ~
+        message_id: 1d9a3f400607160936l6d17e557n1cc0773f5c8b98f7@mail.gmail.com
+        messages:
+          - 1d9a3f400703190938s55b478bft3a8951a0dd71da3f@mail.gmail.com
+          - rt-3.6.HEAD-30201-1174321204-1552.39823-15-0@perl.org
+        posters:
+          - email: jerry.gay@gmail.com
+            name: jerry gay
+          - email: parrotbug-followup@parrotcode.org
+            name: Paul Cochrane via RT
+        subject: 'Re: [perl #39823] [CAGE] tools/dev/run_indent.pl -- this should be a test'
+        summary: ''
+      - date_from: 1168179413
+        date_to: 1174437738
+        hidden: ~
+        message_id: 0C20AF01-5CEB-423D-8D9D-956C66CE7CD5@verizon.net
+        messages:
+          - rt-3.6.HEAD-2051-1174437727-226.41195-15-0@perl.org
+        posters:
+          - email: jkeen@verizon.net
+            name: James Keenan
+          - email: parrotbug-followup@parrotcode.org
+            name: Will Coleda via RT
+        subject: "Re: [perl #41195] [BUG]:  Change to Configure.pl causing 'make' to fail on Darwin"
+        summary: ''
+      - date_from: 1171723303
+        date_to: 1174233496
+        hidden: ~
+        message_id: rt-3.6.HEAD-24617-1171723293-361.41529-72-0@perl.org
+        messages:
+          - 1d9a3f400702170827o8630390m2a81a8d73c912f06@mail.gmail.com
+          - 200702201530.55419.chromatic@wgz.org
+          - rt-3.6.HEAD-2051-1174233487-616.41529-15-0@perl.org
+          - 1d9a3f400702170827o8630390m2a81a8d73c912f06@mail.gmail.com
+          - 200702201530.55419.chromatic@wgz.org
+          - rt-3.6.HEAD-2051-1174233487-616.41529-15-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: James Keenan
+          - email: jerry.gay@gmail.com
+            name: jerry gay
+          - email: chromatic@wgz.org
+            name: chromatic
+        rt_ticket: 'perl #41529'
+        subject: '[perl #41529] [BUG]:  t/perl/Parrot_Distribution.t test failure '
+        summary: ''
+      - date_from: 1172780510
+        date_to: 1174231133
+        hidden: ~
+        message_id: rt-3.6.HEAD-2051-1172780503-566.41658-72-0@perl.org
+        messages:
+          - 4ff0b0d1aa18d785db0b644e1799bc14@gmail.com
+          - rt-3.6.HEAD-2051-1174221096-1561.41658-15-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Joshua Isom
+          - email: jrisom@gmail.com
+            name: Joshua Isom
+        rt_ticket: 'perl #41658'
+        subject: '[perl #41658] [TODO] Move all gc source files into a separate directory '
+        summary: ''
+      - date_from: 1173896231
+        date_to: 1174344809
+        hidden: ~
+        message_id: rt-3.6.HEAD-1687-1173896123-931.39908-15-0@perl.org
+        messages:
+          - 1d9a3f400703150631q2e3f1f54n252edfab7e4028e6@mail.gmail.com
+          - rt-3.6.HEAD-20367-1174169636-1720.39908-15-0@perl.org
+          - rt-3.6.HEAD-2051-1174339956-634.39908-15-0@perl.org
+          - rt-3.6.HEAD-30201-1174344751-636.39908-15-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Nuno Carvalho via RT
+          - email: jerry.gay@gmail.com
+            name: jerry gay
+        rt_ticket: 'perl #39908'
+        subject: '[perl #39908] [BUG] IMCC treats $S as a non-register instead of throwing an error '
+        summary: ''
+      - date_from: 1174143134
+        date_to: 1174230932
+        hidden: ~
+        message_id: 200703171120.16145.chromatic@wgz.org
+        messages:
+          - 45FC91F1.4090101@jnthn.net
+          - 200703171943.45873.chromatic@wgz.org
+          - rt-3.6.HEAD-30201-1174135632-1320.41871-15-0@perl.org
+          - 45FC91F1.4090101@jnthn.net
+          - 200703171943.45873.chromatic@wgz.org
+        posters:
+          - email: chromatic@wgz.org
+            name: chromatic
+          - email: jonathan@jnthn.net
+            name: Jonathan Worthington
+          - email: parrotbug-followup@parrotcode.org
+            name: James Keenan via RT
+        subject: 'Failure Rant (was [BUG]:  t/pmc/metaclass.t fails on Darwin)'
+        summary: ''
+      - date_from: 1174165380
+        date_to: 1174165380
+        hidden: ~
+        message_id: rt-3.6.HEAD-2051-1174165355-1837.41884-72-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Alexandr Ciornii
+        rt_ticket: 'perl #41884'
+        subject: '[perl #41884] [PATCH] gcc/mingw32-make compilation failure under MSWin32 '
+        summary: ''
+      - date_from: 1174165531
+        date_to: 1174235028
+        hidden: ~
+        message_id: rt-3.6.HEAD-1687-1174165523-175.41885-72-0@perl.org
+        messages:
+          - 8e8ee0d40703180923m3244fe52l16499edabfdafcb8@mail.gmail.com
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Joshua Isom
+          - email: paultcochrane@gmail.com
+            name: Paul Cochrane
+        rt_ticket: 'perl #41885'
+        subject: '[perl #41885] [BUG] All the dynoplibs/dynpmcs fail on freebsd '
+        summary: ''
+      - date_from: 1174166398
+        date_to: 1174349149
+        hidden: ~
+        message_id: rt-3.6.HEAD-30201-1174323266-729.41886-14-0@perl.org
+        messages:
+          - rt-3.6.HEAD-30201-1174166392-720.41886-72-0@perl.org
+          - 20070318184450.GM6343@pjcj.net
+          - 8e8ee0d40703181207u64189f55oea4d704153a06015@mail.gmail.com
+        posters:
+          - email: bugs-parrot-track@netlabs.develooper.com
+            name: Paul Cochrane via RT
+          - email: parrotbug-followup@parrotcode.org
+            name: Paul Cochrane
+          - email: paul@pjcj.net
+            name: Paul Johnson
+          - email: paultcochrane@gmail.com
+            name: Paul Cochrane
+        rt_ticket: 'perl #41886'
+        subject: '[perl #41886] [CAGE] Use lcov to show code coverage '
+        summary: ''
+      - date_from: 1174169629
+        date_to: 1174169629
+        hidden: ~
+        message_id: rt-3.6.HEAD-2051-1174169609-885.41859-14-0@perl.org
+        posters:
+          - email: bugs-parrot-track@netlabs.develooper.com
+            name: Paul Cochrane via RT
+        rt_ticket: 'perl #41859'
+        subject: '[perl #41859] [TODO] Replace cage/todo.pod files by RT tickets '
+        summary: ''
+      - date_from: 1174171456
+        date_to: 1174171456
+        hidden: ~
+        message_id: rt-3.6.HEAD-2051-1174171449-220.41870-14-0@perl.org
+        posters:
+          - email: bugs-parrot-track@netlabs.develooper.com
+            name: Will Coleda via RT
+        rt_ticket: 'perl #41870'
+        subject: '[perl #41870] [TODO] create config file processing library for use in pir '
+        summary: ''
+      - date_from: 1174172109
+        date_to: 1174172109
+        hidden: ~
+        message_id: 20070317225451.94D75CBA2F@x12.develooper.com
+        posters:
+          - email: paultcochrane@cvs.perl.org
+            name: paultcochrane
+        subject: '[svn:parrot-pdd] r17581 - trunk/docs/pdds'
+        summary: ''
+      - date_from: 1174174265
+        date_to: 1174232134
+        hidden: ~
+        message_id: rt-3.6.HEAD-30201-1174194585-435.41505-14-0@perl.org
+        messages:
+          - rt-3.6.HEAD-2051-1174174258-1157.41505-14-0@perl.org
+        posters:
+          - email: bugs-parrot-track@netlabs.develooper.com
+            name: Allison Randal via RT
+        rt_ticket: 'perl #41505'
+        subject: '[perl #41505] [CAGE] Cleanup and reorganise documentation related to svn properties '
+        summary: ''
+      - date_from: 1174228142
+        date_to: 1174421670
+        hidden: ~
+        message_id: rt-3.6.HEAD-1687-1174326371-740.41168-14-0@perl.org
+        messages:
+          - rt-3.6.HEAD-2051-1174421656-1009.41168-15-0@perl.org
+          - rt-3.6.HEAD-2051-1174215940-1252.41168-15-0@perl.org
+          - rt-3.6.HEAD-2051-1174223920-1789.41168-15-0@perl.org
+        posters:
+          - email: bugs-parrot-track@netlabs.develooper.com
+            name: Paul Cochrane via RT
+          - email: parrotbug-followup@parrotcode.org
+            name: Paul Cochrane via RT
+        rt_ticket: 'perl #41168'
+        subject: '[perl #41168] graceful "no compiler" error message? '
+        summary: ''
+      - date_from: 1174228196
+        date_to: 1174228196
+        hidden: ~
+        message_id: rt-3.6.HEAD-1687-1174228136-1037.41888-72-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Allison Randal
+        rt_ticket: 'perl #41888'
+        subject: '[perl #41888] Perl 6 FAQ text '
+        summary: ''
+      - date_from: 1174228243
+        date_to: 1174342816
+        hidden: ~
+        message_id: rt-3.6.HEAD-1687-1174228211-1470.41889-72-0@perl.org
+        messages:
+          - 45FD5C32.6000900@jnthn.net
+          - 20070318193034.GR5735@plum.flirble.org
+          - 20070318155934.1dfbfaed@reforged
+          - 1773BE31-B3F6-4C4C-9518-81F846F009C8@gmail.com
+          - 20070319111753.GS5735@plum.flirble.org
+          - 20070319050129.4c67b726@reforged
+          - 0A2F3B93-B49F-4E45-97F0-B99F94307D80@gmail.com
+          - 45FDE30A.2000207@jnthn.net
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Mike Mattie
+          - email: jonathan@jnthn.net
+            name: Jonathan Worthington
+          - email: nick@ccl4.org
+            name: Nicholas Clark
+          - email: codermattie@gmail.com
+            name: Mike Mattie
+          - email: jjuran@gmail.com
+            name: Joshua Juran
+        rt_ticket: 'perl #41889'
+        subject: '[perl #41889] [PATCH] hoist cut and paste duplication into a function in src/library.c, also possible win32 bug found ? '
+        summary: ''
+      - date_from: 1174228878
+        date_to: 1174237937
+        hidden: ~
+        message_id: rt-3.6.HEAD-1687-1174228861-1052.38764-15-0@perl.org
+        messages:
+          - 200703181002.34182.chromatic@wgz.org
+          - 8e8ee0d40703181011w55ea18a9n67648ad8c9fe1158@mail.gmail.com
+          - 200703181002.34182.chromatic@wgz.org
+          - 8e8ee0d40703181011w55ea18a9n67648ad8c9fe1158@mail.gmail.com
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Paul Cochrane via RT
+          - email: chromatic@wgz.org
+            name: chromatic
+          - email: paultcochrane@gmail.com
+            name: Paul Cochrane
+        rt_ticket: 'perl #38764'
+        subject: '[perl #38764] Test results of parrot on Freebsd '
+        summary: ''
+      - date_from: 1174230131
+        date_to: 1174248498
+        hidden: ~
+        message_id: rt-3.6.HEAD-30201-1174226232-1879.41601-15-0@perl.org
+        messages:
+          - rt-3.6.HEAD-30201-1174239494-1525.41601-15-0@perl.org
+          - 20070318174407.GQ5735@plum.flirble.org
+          - 8e8ee0d40703181051x799a73fei5e12ddd5202a9f2a@mail.gmail.com
+          - 20070318180604.GA50430@plum.flirble.org
+          - 20070318182439.GD12067@mongueurs.net
+          - 8e8ee0d40703181210m713c25dbn2867d8e0c821590a@mail.gmail.com
+          - 200703181302.24046.chromatic@wgz.org
+          - rt-3.6.HEAD-30201-1174239494-1525.41601-15-0@perl.org
+          - 20070318174407.GQ5735@plum.flirble.org
+          - 8e8ee0d40703181051x799a73fei5e12ddd5202a9f2a@mail.gmail.com
+          - 20070318180604.GA50430@plum.flirble.org
+          - 20070318182439.GD12067@mongueurs.net
+          - 8e8ee0d40703181210m713c25dbn2867d8e0c821590a@mail.gmail.com
+          - 200703181302.24046.chromatic@wgz.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Paul Cochrane via RT
+          - email: nick@ccl4.org
+            name: Nicholas Clark
+          - email: paultcochrane@gmail.com
+            name: Paul Cochrane
+          - email: jquelin@gmail.com
+            name: Jerome Quelin
+          - email: chromatic@wgz.org
+            name: chromatic
+        rt_ticket: 'perl #41601'
+        subject: '[perl #41601] [BUG] parrotbug b0rken '
+        summary: ''
+      - date_from: 1174230292
+        date_to: 1174230292
+        hidden: ~
+        message_id: 20070318012913.4bc5b9d0@reforged
+        posters:
+          - email: codermattie@gmail.com
+            name: Mike Mattie
+        subject: parrot-0.4.9 ebuild for the gentoo distribution (WIP)
+        summary: ''
+      - date_from: 1174230344
+        date_to: 1174527342
+        hidden: ~
+        message_id: 20070318001808.79f16d30@reforged
+        messages:
+          - 4601DD63.2060404@perl.org
+        posters:
+          - email: codermattie@gmail.com
+            name: Mike Mattie
+          - email: allison@perl.org
+            name: Allison Randal
+        subject: the value of maintaining a working install target to the parrot project
+        summary: ''
+      - date_from: 1174230437
+        date_to: 1174230437
+        hidden: ~
+        message_id: rt-3.6.HEAD-2051-1174230426-381.41892-72-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Erik Johansen
+        rt_ticket: 'perl #41892'
+        subject: '[perl #41892] t/stm/llqueue segement violation on test #2 '
+        summary: ''
+      - date_from: 1174231434
+        date_to: 1174231434
+        hidden: ~
+        message_id: rt-3.6.HEAD-2051-1174231426-1853.41893-72-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Mike Mattie
+        rt_ticket: 'perl #41893'
+        subject: '[perl #41893] [BUG] 0.4.9 leaks various .c files into install image, creates PREFIX/config, PREFIX/compiler '
+        summary: ''
+      - date_from: 1174231471
+        date_to: 1176578024
+        hidden: ~
+        message_id: rt-3.6.HEAD-30557-1176482955-1955.41894-15-0@perl.org
+        messages:
+          - 4620CCB8.5090004@jnthn.net
+          - bcbcc5a4b9f83b8712b0e8083c1825eb@gmail.com
+          - rt-3.6.HEAD-30201-1174231462-1363.41894-72-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Nuno Carvalho via RT
+          - email: jonathan@jnthn.net
+            name: Jonathan Worthington
+          - email: jrisom@gmail.com
+            name: Joshua Isom
+        rt_ticket: 'perl #41894'
+        subject: '[perl #41894] segfault happens when invoking poll op '
+        summary: ''
+      - date_from: 1174233720
+        date_to: 1174233720
+        hidden: ~
+        message_id: rt-3.6.HEAD-1687-1174233712-1811.41895-72-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Paul Cochrane
+        rt_ticket: 'perl #41895'
+        subject: '[perl #41895] [TODO] Use Getopt for argument parsing in perlcritic.t '
+        summary: ''
+      - date_from: 1174236696
+        date_to: 1174236696
+        hidden: ~
+        message_id: 20070318050627.7E762CBA82@x12.develooper.com
+        posters:
+          - email: allison@cvs.perl.org
+            name: allison
+        subject: '[svn:parrot-pdd] r17591 - trunk/docs/pdds'
+        summary: ''
+      - date_from: 1174237587
+        date_to: 1174346182
+        hidden: ~
+        message_id: rt-3.6.HEAD-2051-1174237580-746.41896-72-0@perl.org
+        messages:
+          - 200703181030.42759.chromatic@wgz.org
+          - 1d9a3f400703190901o4f76086dh64f70c0084ade4b0@mail.gmail.com
+          - 1d9a3f400703191615y16e11bb5s22d29e9985cd2d7f@mail.gmail.com
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Jerry Gay
+          - email: chromatic@wgz.org
+            name: chromatic
+          - email: jerry.gay@gmail.com
+            name: jerry gay
+        rt_ticket: 'perl #41896'
+        subject: '[perl #41896] [BUG] p5rx tests consuming infinite resources on win32 '
+        summary: ''
+      - date_from: 1174241313
+        date_to: 1174241313
+        hidden: ~
+        message_id: rt-3.6.HEAD-30201-1174241304-1232.41897-72-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: James Keenan
+        rt_ticket: 'perl #41897'
+        subject: "[perl #41897] [BUG]:  Parrot::Pmc2c::STMRef gets 'subroutine prederef redefined' warning "
+        summary: ''
+      - date_from: 1174245689
+        date_to: 1174245689
+        hidden: ~
+        message_id: rt-3.6.HEAD-2051-1174245678-1970.41898-72-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Paul Cochrane
+        rt_ticket: 'perl #41898'
+        subject: '[perl #41898] Build error with icc '
+        summary: ''
+      - date_from: 1174285315
+        date_to: 1174290040
+        hidden: ~
+        message_id: rt-3.6.HEAD-30201-1174285307-1690.41900-72-0@perl.org
+        messages:
+          - rt-3.6.HEAD-1687-1174290033-552.41900-14-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Mike Mattie
+          - email: bugs-parrot-track@netlabs.develooper.com
+            name: Paul Cochrane via RT
+        rt_ticket: 'perl #41900'
+        subject: '[perl #41900] [PATCH] 2 refactor src/library.c to reduce complexity, eliminate duplicated code '
+        summary: ''
+      - date_from: 1174286960
+        date_to: 1174353124
+        hidden: ~
+        message_id: rt-3.6.HEAD-1687-1174293365-1390.41902-15-0@perl.org
+        messages:
+          - 1d9a3f400703190713i7a30519by6c1ac378b3c24823@mail.gmail.com
+          - 20070319181109.4d98d21e@reforged
+          - rt-3.6.HEAD-30201-1174286952-1893.41902-72-0@perl.org
+          - rt-3.6.HEAD-2051-1174293618-1933.41902-14-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Paul Cochrane via RT
+          - email: jerry.gay@gmail.com
+            name: jerry gay
+          - email: codermattie@gmail.com
+            name: Mike Mattie
+          - email: bugs-parrot-track@netlabs.develooper.com
+            name: Paul Cochrane via RT
+        rt_ticket: 'perl #41902'
+        subject: '[perl #41902] [PATCH] 3 refactor src/library.c to reduce complexity, introducing a few new static scoped path utility functions '
+        summary: ''
+      - date_from: 1174288042
+        date_to: 1174293606
+        hidden: ~
+        message_id: rt-3.6.HEAD-1687-1174293598-1672.41903-14-0@perl.org
+        messages:
+          - rt-3.6.HEAD-1687-1174288031-1042.41903-72-0@perl.org
+        posters:
+          - email: bugs-parrot-track@netlabs.develooper.com
+            name: Paul Cochrane via RT
+          - email: parrotbug-followup@parrotcode.org
+            name: Mike Mattie
+        rt_ticket: 'perl #41903'
+        subject: '[perl #41903] [PATCH] 4 refactor src/library.c '
+        summary: ''
+      - date_from: 1174291286
+        date_to: 1174291286
+        hidden: ~
+        message_id: rt-3.6.HEAD-2051-1174291276-178.41905-72-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Mike Mattie
+        rt_ticket: 'perl #41905'
+        subject: '[perl #41905] [PATCH] 3 & 4 src/library.c refactoring combined and rebased against 17628 '
+        summary: ''
+      - date_from: 1174291682
+        date_to: 1174344325
+        hidden: ~
+        message_id: rt-3.6.HEAD-30201-1174293510-793.41906-15-0@perl.org
+        messages:
+          - rt-3.6.HEAD-1687-1174291674-1411.41906-72-0@perl.org
+          - rt-3.6.HEAD-2051-1174326166-1254.41906-14-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Paul Cochrane via RT
+          - email: bugs-parrot-track@netlabs.develooper.com
+            name: Paul Cochrane via RT
+        rt_ticket: 'perl #41906'
+        subject: '[perl #41906] [PATCH] 3 & 4 src/library.c refactoring combined and rebased against 17628 (with attatchment this time) '
+        summary: ''
+      - date_from: 1174300778
+        date_to: 1174303583
+        hidden: ~
+        message_id: rt-3.6.HEAD-30201-1174300762-187.41908-72-0@perl.org
+        messages:
+          - rt-3.6.HEAD-1687-1174303571-1265.41908-15-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Mike Mattie
+        rt_ticket: 'perl #41908'
+        subject: '[perl #41908] [PATCH] 5 feature enhancement of src/library.c (extension guessing), and solutions for the install target problems '
+        summary: ''
+      - date_from: 1174307745
+        date_to: 1174307745
+        hidden: ~
+        message_id: 20070319053507.508b99de@reforged
+        posters:
+          - email: codermattie@gmail.com
+            name: Mike Mattie
+        subject: '[RFC] solutions for maintaining the install target, will affect developers work-flow'
+        summary: ''
+      - date_from: 1174312845
+        date_to: 1174312845
+        hidden: ~
+        message_id: 20070319140032.318.qmail@x1.develooper.com
+        posters:
+          - email: perlbug-summary@perl.org
+            name: Parrot Bug Summary
+        subject: Parrot Bug Summary
+        summary: ''
+      - date_from: 1174313619
+        date_to: 1174313619
+        hidden: ~
+        message_id: rt-3.6.HEAD-2051-1174313591-1142.41610-14-0@perl.org
+        posters:
+          - email: bugs-parrot-track@netlabs.develooper.com
+            name: Paul Cochrane via RT
+        rt_ticket: 'perl #41610'
+        subject: "[perl #41610] [TODO] Work out why regexp in is_perl_exemption doesn't search subdirs "
+        summary: ''
+      - date_from: 1174316409
+        date_to: 1174316409
+        hidden: ~
+        message_id: 20070319135513.49450.qmail@spout.spiders.net
+        posters:
+          - email: will@coleda.com
+            name: Will Coleda
+        subject: Code Slush before release tomorrow
+        summary: ''
+      - date_from: 1174317839
+        date_to: 1174489317
+        hidden: ~
+        message_id: 200703191106.01839.chromatic@wgz.org
+        messages:
+          - Pine.LNX.4.62.0703191440490.18668@fractal.phys.lafayette.edu
+          - 200703191532.21594.chromatic@wgz.org
+          - Pine.LNX.4.62.0703200918280.22904@fractal.phys.lafayette.edu
+          - Pine.LNX.4.62.0703191518420.18941@fractal.phys.lafayette.edu
+          - 200703191558.39317.chromatic@wgz.org
+          - Pine.LNX.4.62.0703201514240.25824@fractal.phys.lafayette.edu
+          - 200703201435.04808.chromatic@wgz.org
+          - Pine.LNX.4.62.0703210943350.30668@fractal.phys.lafayette.edu
+          - 20070319223056.GT5735@plum.flirble.org
+          - Pine.LNX.4.62.0703191105280.17127@fractal.phys.lafayette.edu
+          - Pine.LNX.4.62.0703191440490.18668@fractal.phys.lafayette.edu
+          - 200703191532.21594.chromatic@wgz.org
+          - Pine.LNX.4.62.0703200918280.22904@fractal.phys.lafayette.edu
+          - Pine.LNX.4.62.0703191518420.18941@fractal.phys.lafayette.edu
+          - 200703191558.39317.chromatic@wgz.org
+          - Pine.LNX.4.62.0703201514240.25824@fractal.phys.lafayette.edu
+          - 200703201435.04808.chromatic@wgz.org
+          - Pine.LNX.4.62.0703210943350.30668@fractal.phys.lafayette.edu
+          - 20070319223056.GT5735@plum.flirble.org
+          - 200703191558.39317.chromatic@wgz.org
+          - Pine.LNX.4.62.0703201514240.25824@fractal.phys.lafayette.edu
+          - 200703201435.04808.chromatic@wgz.org
+          - Pine.LNX.4.62.0703210943350.30668@fractal.phys.lafayette.edu
+          - Pine.LNX.4.62.0703191440490.18668@fractal.phys.lafayette.edu
+          - 200703191532.21594.chromatic@wgz.org
+          - Pine.LNX.4.62.0703200918280.22904@fractal.phys.lafayette.edu
+          - Pine.LNX.4.62.0703191518420.18941@fractal.phys.lafayette.edu
+          - 200703191558.39317.chromatic@wgz.org
+          - Pine.LNX.4.62.0703201514240.25824@fractal.phys.lafayette.edu
+          - 200703201435.04808.chromatic@wgz.org
+          - Pine.LNX.4.62.0703210943350.30668@fractal.phys.lafayette.edu
+          - 20070319223056.GT5735@plum.flirble.org
+          - Pine.LNX.4.62.0703191105280.17127@fractal.phys.lafayette.edu
+          - Pine.LNX.4.62.0703191440490.18668@fractal.phys.lafayette.edu
+          - 200703191532.21594.chromatic@wgz.org
+          - Pine.LNX.4.62.0703200918280.22904@fractal.phys.lafayette.edu
+          - Pine.LNX.4.62.0703191518420.18941@fractal.phys.lafayette.edu
+          - 200703191558.39317.chromatic@wgz.org
+          - Pine.LNX.4.62.0703201514240.25824@fractal.phys.lafayette.edu
+          - 200703201435.04808.chromatic@wgz.org
+          - Pine.LNX.4.62.0703210943350.30668@fractal.phys.lafayette.edu
+          - 20070319223056.GT5735@plum.flirble.org
+        posters:
+          - email: chromatic@wgz.org
+            name: chromatic
+          - email: doughera@lafayette.edu
+            name: Andy Dougherty
+          - email: nick@ccl4.org
+            name: Nicholas Clark
+        subject: 'Re: [PATCH] Quiet a few alignment warnings'
+        summary: ''
+      - date_from: 1174344379
+        date_to: 1174345276
+        hidden: ~
+        message_id: rt-3.6.HEAD-2051-1174321858-1295.38969-15-0@perl.org
+        messages:
+          - 1d9a3f400703191600xf62daa9qf6f9acc8ff15d03a@mail.gmail.com
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Paul Cochrane via RT
+          - email: jerry.gay@gmail.com
+            name: jerry gay
+        rt_ticket: 'perl #38969'
+        subject: '[perl #38969] [CAGE] parrot source does not conform to standards '
+        summary: ''
+      - date_from: 1174344411
+        date_to: 1176163513
+        hidden: ~
+        message_id: rt-3.6.HEAD-1687-1176163489-1051.41912-15-0@perl.org
+        messages:
+          - rt-3.6.HEAD-1687-1174344207-602.41912-72-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: James Keenan via RT
+        rt_ticket: 'perl #41912'
+        subject: '[perl #41912] [CAGE] survey tools/ dir for unused, old, or broken code, and remove or fix as necessary '
+        summary: ''
+      - date_from: 1174344780
+        date_to: 1174377673
+        hidden: ~
+        message_id: rt-3.6.HEAD-2051-1174344692-147.41915-72-0@perl.org
+        messages:
+          - 8e8ee0d40703200100p5d17edaek203583dc836d8c61@mail.gmail.com
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Jerry Gay
+          - email: paultcochrane@gmail.com
+            name: Paul Cochrane
+        rt_ticket: 'perl #41915'
+        subject: '[perl #41915] [TODO] remove unused manifest-generating scripts '
+        summary: ''
+      - date_from: 1174353838
+        date_to: 1174353838
+        hidden: ~
+        message_id: 45FF3783.2070709@verizon.net
+        posters:
+          - email: jkeen@verizon.net
+            name: James E Keenan
+        subject: 'Re: [perl #41201] [TODO] Remove temporary conf hack in Configure.pl'
+        summary: ''
+      - date_from: 1174357357
+        date_to: 1174501569
+        hidden: ~
+        message_id: rt-3.6.HEAD-2051-1174357348-1102.41918-72-0@perl.org
+        messages:
+          - rt-3.6.HEAD-2051-1174501554-1491.41918-14-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Mike Mattie
+          - email: bugs-parrot-track@netlabs.develooper.com
+            name: Allison Randal via RT
+        rt_ticket: 'perl #41918'
+        subject: '[perl #41918] [PATCH] spelling fixes in src/library.c '
+        summary: ''
+      - date_from: 1174421591
+        date_to: 1174421591
+        hidden: ~
+        message_id: rt-3.6.HEAD-1687-1174421547-1951.41926-72-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Jerry Gay
+        rt_ticket: 'perl #41926'
+        subject: '[perl #41926] [PATCH] partial update of NEWS for 0.4.10 '
+        summary: ''
+      - date_from: 1174433774
+        date_to: 1174433976
+        hidden: ~
+        message_id: rt-3.6.HEAD-30201-1174433763-1010.41927-72-0@perl.org
+        messages:
+          - rt-3.6.HEAD-2051-1174433969-1679.41927-14-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Paul Cochrane
+          - email: bugs-parrot-track@netlabs.develooper.com
+            name: Paul Cochrane via RT
+        rt_ticket: 'perl #41927'
+        subject: '[perl #41927] [PATCH] getting gen_manifest_skip() to return correct results quickly '
+        summary: ''
+      - date_from: 1174449424
+        date_to: 1174449424
+        hidden: ~
+        message_id: 2BF6220F-C355-4F65-90D5-E30AAAA3AEAB@coleda.com
+        posters:
+          - email: will@coleda.com
+            name: Will Coleda
+        subject: Parrot 0.4.10 released ...
+        summary: ''
+      - date_from: 1174473830
+        date_to: 1174473830
+        hidden: ~
+        message_id: 20070321034327.2ac9e486@reforged
+        posters:
+          - email: codermattie@gmail.com
+            name: Mike Mattie
+        subject: '[perl #41908] merging extension guessing feature for library.c'
+        summary: ''
+      - date_from: 1174492441
+        date_to: 1174492441
+        hidden: ~
+        message_id: 198c87380703210853v311bd179o494e8264c092de0@mail.gmail.com
+        posters:
+          - email: mddiep@gmail.com
+            name: Matt Diephouse
+        subject: Countdown to 0.4.11
+        summary: ''
+      - date_from: 1174514031
+        date_to: 1174590266
+        hidden: ~
+        message_id: rt-3.6.HEAD-30201-1174514004-1318.41955-72-0@perl.org
+        messages:
+          - ec6693cf0a3402203053b92d0312f809@gmail.com
+          - 46025307.7070604@gmail.com
+          - 46025687.6040602@gmail.com
+          - 4602D31F.4010302@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Klaas-Jan Stol
+          - email: jrisom@gmail.com
+            name: Joshua Isom
+          - email: parrotcode@gmail.com
+            name: Klaas-Jan Stol
+          - email: allison@perl.org
+            name: Allison Randal
+        rt_ticket: 'perl #41955'
+        subject: '[perl #41955] [PATCH] Yet Another PIR -- in C '
+        summary: ''
+      - date_from: 1174524740
+        date_to: 1174695282
+        hidden: ~
+        message_id: rt-3.6.HEAD-30201-1174524730-1002.41956-72-0@perl.org
+        messages:
+          - 46030A96.9090603@tewk.com
+          - 46046D6A.5030300@jnthn.net
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Jonathan Worthington
+          - email: tewk@tewk.com
+            name: tewk
+          - email: jonathan@jnthn.net
+            name: Jonathan Worthington
+        rt_ticket: 'perl #41956'
+        subject: '[perl #41956] [TODO] Rename PMETHOD and PMINVOKE '
+        summary: ''
+      - date_from: 1174559294
+        date_to: 1174559294
+        hidden: ~
+        message_id: 46025A1D.7040800@gmail.com
+        posters:
+          - email: parrotcode@gmail.com
+            name: Klaas-Jan Stol
+        subject: lang/pir tests fail
+        summary: ''
+      - date_from: 1174568118
+        date_to: 1174568118
+        hidden: ~
+        message_id: Pine.LNX.4.62.0703220849070.4343@fractal.phys.lafayette.edu
+        posters:
+          - email: doughera@lafayette.edu
+            name: Andy Dougherty
+        subject: "[PATCH] void functions can't return values."
+        summary: ''
+      - date_from: 1174568621
+        date_to: 1174577123
+        hidden: ~
+        message_id: Pine.LNX.4.62.0703220850430.4343@fractal.phys.lafayette.edu
+        messages:
+          - 198c87380703220818j72dccdc7t3e7b2d86ac29b0c7@mail.gmail.com
+          - 20070322141718.19fcb0ed@pc09
+        posters:
+          - email: doughera@lafayette.edu
+            name: Andy Dougherty
+          - email: mddiep@gmail.com
+            name: Matt Diephouse
+          - email: h.m.brand@xs4all.nl
+            name: H.Merijn Brand
+        subject: '[PATCH]   Avoid //-style comments.'
+        summary: ''
+      - date_from: 1174568781
+        date_to: 1175022632
+        hidden: ~
+        message_id: Pine.LNX.4.62.0703220859090.4343@fractal.phys.lafayette.edu
+        messages:
+          - 460518F9.5060901@verizon.net
+          - 200703240838.26776.chromatic@wgz.org
+          - 12DE361B-1764-4B1A-8506-8A7BBBF16E40@verizon.net
+          - 200703242053.33166.chromatic@wgz.org
+          - 63056FDE-928D-42E8-ABB2-7DB8F8DB8116@verizon.net
+          - 200703271152.43603.chromatic@wgz.org
+          - Pine.LNX.4.62.0703271508130.26142@fractal.phys.lafayette.edu
+          - Pine.LNX.4.62.0703260941230.7017@fractal.phys.lafayette.edu
+          - 200703242053.33166.chromatic@wgz.org
+          - 63056FDE-928D-42E8-ABB2-7DB8F8DB8116@verizon.net
+          - 200703271152.43603.chromatic@wgz.org
+          - Pine.LNX.4.62.0703271508130.26142@fractal.phys.lafayette.edu
+          - 200703240838.26776.chromatic@wgz.org
+          - 12DE361B-1764-4B1A-8506-8A7BBBF16E40@verizon.net
+          - 200703242053.33166.chromatic@wgz.org
+          - 63056FDE-928D-42E8-ABB2-7DB8F8DB8116@verizon.net
+          - 200703271152.43603.chromatic@wgz.org
+          - Pine.LNX.4.62.0703271508130.26142@fractal.phys.lafayette.edu
+          - Pine.LNX.4.62.0703260941230.7017@fractal.phys.lafayette.edu
+        posters:
+          - email: doughera@lafayette.edu
+            name: Andy Dougherty
+          - email: jkeen@verizon.net
+            name: James E Keenan
+          - email: chromatic@wgz.org
+            name: chromatic
+        subject: '[PATCH] Hints must come early in Configure.pl'
+        summary: ''
+      - date_from: 1174568897
+        date_to: 1174568897
+        hidden: ~
+        message_id: Pine.LNX.4.62.0703220901520.4343@fractal.phys.lafayette.edu
+        posters:
+          - email: doughera@lafayette.edu
+            name: Andy Dougherty
+        subject: '[PATCH] Suppress optimization on core_ops_cgp.c'
+        summary: ''
+      - date_from: 1174569323
+        date_to: 1174569323
+        hidden: ~
+        message_id: rt-3.6.HEAD-9459-1174569294-482.41975-72-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Andy Dougherty
+        rt_ticket: 'perl #41975'
+        subject: '[perl #41975] Makefile is missing dependencies on lib/Parrot/Pmc2c/PMETHODs.pm  '
+        summary: ''
+      - date_from: 1174573148
+        date_to: 1174573148
+        hidden: ~
+        message_id: Pine.LNX.4.62.0703220919060.4343@fractal.phys.lafayette.edu
+        posters:
+          - email: doughera@lafayette.edu
+            name: Andy Dougherty
+        subject: make test hangs in t/examples/shootout_1.pir
+        summary: ''
+      - date_from: 1174576401
+        date_to: 1174576401
+        hidden: ~
+        message_id: rt-3.6.HEAD-30201-1174576355-1157.41763-15-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Matt Diephouse via RT
+        rt_ticket: 'perl #41763'
+        subject: '[perl #41763] [PATCH]: fix "clone" method for iterators '
+        summary: ''
+      - date_from: 1174613003
+        date_to: 1174613003
+        hidden: ~
+        message_id: rt-3.6.HEAD-30201-1174612991-52.42001-72-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Jonathan Worthington
+        rt_ticket: 'perl #42001'
+        subject: '[perl #42001] [TODO] Rename preturn to PCCRETURN '
+        summary: ''
+      - date_from: 1174675066
+        date_to: 1174675066
+        hidden: ~
+        message_id: rt-3.6.HEAD-30557-1174675054-674.42040-72-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Kevin Tew
+        rt_ticket: 'perl #42040'
+        subject: "[perl #42040] tools/dev/mk_manifest_and_skip.pl doesn't pick up files that are marked svn deleted but not yet committed  "
+        summary: ''
     title: Parrot Porters
   - name: perl6-users
     threads: []
@@ -323,4 +1272,39 @@ lists:
         subject: 'Re: Re: Perl 6 Microgrants. Now accepting proposals.'
         summary: ''
     title: Compiler
+  - name: cvs-parrot
+    threads:
+      - date_from: 1174238099
+        date_to: 1174348785
+        hidden: ~
+        message_id: 20070318171449.42D2CCBA2F@x12.develooper.com
+        messages:
+          - 200703190144.13912.chromatic@wgz.org
+          - 9BC53501-B3B2-42B3-8D7C-739D2156D69D@gmail.com
+          - 8e8ee0d40703190226l18b0e047vfade53a78e930968@mail.gmail.com
+        posters:
+          - email: paultcochrane@cvs.perl.org
+            name: paultcochrane
+          - email: chromatic@wgz.org
+            name: chromatic
+          - email: jjuran@gmail.com
+            name: Joshua Juran
+          - email: paultcochrane@gmail.com
+            name: Paul Cochrane
+        subject: '[svn:parrot] r17623 - trunk'
+        summary: ''
+      - date_from: 1174560782
+        date_to: 1174576502
+        hidden: ~
+        message_id: 20070322084805.97E38CBA2F@x12.develooper.com
+        messages:
+          - 200703220814.16176.chromatic@wgz.org
+        posters:
+          - email: fperrad@cvs.perl.org
+            name: fperrad
+          - email: chromatic@wgz.org
+            name: chromatic
+        subject: '[svn:parrot] r17688 - in trunk/config/gen: . makefiles'
+        summary: ''
+    title: cvs-parrot
 title: Weekly Perl 6 mailing list summary

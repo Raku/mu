@@ -171,6 +171,77 @@ lists:
             name: John Beppu
         subject: 'Re: relational language extension (was Re: request new Mapping|Hash operators)'
         summary: ''
+      - date_from: 1173649969
+        date_to: 1174951366
+        hidden: ~
+        message_id: 20070311215242.0DA48CBA2A@x12.develooper.com
+        messages:
+          - 'p06240802c22e05e8b4b6@[192.168.1.100]'
+        posters:
+          - email: audreyt@cvs.perl.org
+            name: audreyt
+          - email: darren@DarrenDuncan.net
+            name: Darren Duncan
+        subject: '[svn:perl6-synopsis] r14337 - doc/trunk/design/syn'
+        summary: ''
+      - date_from: 1174249504
+        date_to: 1176461957
+        hidden: ~
+        message_id: 45FD9FB0.90101@xmission.com
+        messages:
+          - 1d9a3f400703181951j4990a52cq84be6faa79c8e646@mail.gmail.com
+          - 45FE889B.2010902@conway.org
+          - bf92fb8e0703191041of05cd1ap42bb58adbd333f1b@mail.gmail.com
+          - 461E3E47.3080402@conway.org
+          - 51dd1af80704120826x73251781ka39c5765dbfd5342@mail.gmail.com
+          - 51dd1af80704120830r7bbca81dw32b86d74c94108c4@mail.gmail.com
+          - 461F6276.2080807@conway.org
+          - 51dd1af80703260439t5089d733p6ab58d4547610cf4@mail.gmail.com
+        posters:
+          - email: thom@xmission.com
+            name: Thom Boyer
+          - email: jerry.gay@gmail.com
+            name: jerry gay
+          - email: damian@conway.org
+            name: Damian Conway
+          - email: thom.boyer@gmail.com
+            name: Thom Boyer
+          - email: avarab@gmail.com
+            name: Ævar Arnfjörð Bjarmason
+        subject: 'Re: Synopsis 26'
+        summary: ''
+      - date_from: 1174702523
+        date_to: 1175227275
+        hidden: ~
+        message_id: 21a10fe00703231915l171d5fd7oda1e9d683c927817@mail.gmail.com
+        messages:
+          - 21a10fe00703292101j18eb6fecqbf66b0c60d97fd64@mail.gmail.com
+          - 'p06240800c22a746b58f8@[192.168.1.100]'
+        posters:
+          - email: john.beppu@gmail.com
+            name: John Beppu
+          - email: darren@DarrenDuncan.net
+            name: Darren Duncan
+        subject: 'Re: request new Mapping|Hash operators'
+        summary: ''
+      - date_from: 1174957148
+        date_to: 1174957148
+        hidden: ~
+        message_id: 20070327005857.54D3BCBA2F@x12.develooper.com
+        posters:
+          - email: larry@cvs.perl.org
+            name: larry
+        subject: '[svn:perl6-synopsis] r14354 - doc/trunk/design/syn'
+        summary: ''
+      - date_from: 1174957876
+        date_to: 1174957876
+        hidden: ~
+        message_id: 20070327011105.32DA6CBA2F@x12.develooper.com
+        posters:
+          - email: larry@cvs.perl.org
+            name: larry
+        subject: '[svn:perl6-synopsis] r14355 - doc/trunk/design/syn'
+        summary: ''
     title: Language
   - name: perl6-internals
     threads:
@@ -364,8 +435,6 @@ lists:
             name: Andrew Dougherty
           - email: nick@ccl4.org
             name: Nicholas Clark
-          - email: steve@fisharerojo.org
-            name: Steve Peters
           - email: lt@toetsch.at
             name: Leopold Toetsch
           - email: chromatic@wgz.org
@@ -390,6 +459,10 @@ lists:
             name: Andy Dougherty
           - email: chromatic@wgz.org
             name: chromatic
+          - email: lt@toetsch.at
+            name: Leopold Toetsch
+          - email: tewk@tewk.com
+            name: Kevin Tew
         rt_ticket: 'perl #42151'
         subject: '[perl #42151] [PATCH] Assorted casting cleanups - part I '
         summary: ''
@@ -486,8 +559,6 @@ lists:
             name: Alek Storm
           - email: jrisom@gmail.com
             name: Joshua Isom
-          - email: parrotbug-followup@parrotcode.org
-            name: Alek Storm
         subject: 'Re: [perl #42155] [PATCH] move members from Parrot_Interp to Parrot_Context'
         summary: ''
       - date_from: 1175103722
@@ -503,8 +574,6 @@ lists:
             name: Steve Peters
           - email: paultcochrane@gmail.com
             name: Paul Cochrane
-          - email: steve@fisharerojo.org
-            name: Steve Peters
           - email: bugs-parrot-track@netlabs.develooper.com
             name: Paul Cochrane via RT
         rt_ticket: 'perl #42156'
@@ -597,7 +666,7 @@ lists:
         rt_ticket: 'perl #42218'
         subject: '[perl #42218] [PATCH][Cygwin] Use bc on Cygwin '
         summary: ''
-      - date_from: 1175287121
+      - date_from: 1174846620
         date_to: 1175362233
         hidden: ~
         message_id: rt-3.6.HEAD-1687-1175287114-1470.42074-14-0@perl.org
@@ -639,6 +708,249 @@ lists:
             name: Nicholas Clark
         rt_ticket: 'perl #42074'
         subject: '[perl #42074] [PATCH] add RECURSION_LIMIT macro '
+        summary: ''
+      - date_from: 1174568781
+        date_to: 1175022632
+        hidden: ~
+        message_id: Pine.LNX.4.62.0703220859090.4343@fractal.phys.lafayette.edu
+        messages:
+          - 460518F9.5060901@verizon.net
+          - 200703240838.26776.chromatic@wgz.org
+          - 12DE361B-1764-4B1A-8506-8A7BBBF16E40@verizon.net
+          - 200703242053.33166.chromatic@wgz.org
+          - 63056FDE-928D-42E8-ABB2-7DB8F8DB8116@verizon.net
+          - 200703271152.43603.chromatic@wgz.org
+          - Pine.LNX.4.62.0703271508130.26142@fractal.phys.lafayette.edu
+          - Pine.LNX.4.62.0703260941230.7017@fractal.phys.lafayette.edu
+          - 200703242053.33166.chromatic@wgz.org
+          - 63056FDE-928D-42E8-ABB2-7DB8F8DB8116@verizon.net
+          - 200703271152.43603.chromatic@wgz.org
+          - Pine.LNX.4.62.0703271508130.26142@fractal.phys.lafayette.edu
+          - 200703240838.26776.chromatic@wgz.org
+          - 12DE361B-1764-4B1A-8506-8A7BBBF16E40@verizon.net
+          - 200703242053.33166.chromatic@wgz.org
+          - 63056FDE-928D-42E8-ABB2-7DB8F8DB8116@verizon.net
+          - 200703271152.43603.chromatic@wgz.org
+          - Pine.LNX.4.62.0703271508130.26142@fractal.phys.lafayette.edu
+          - Pine.LNX.4.62.0703260941230.7017@fractal.phys.lafayette.edu
+        posters:
+          - email: doughera@lafayette.edu
+            name: Andy Dougherty
+          - email: jkeen@verizon.net
+            name: James E Keenan
+          - email: chromatic@wgz.org
+            name: chromatic
+        subject: '[PATCH] Hints must come early in Configure.pl'
+        summary: ''
+      - date_from: 1174749195
+        date_to: 1174949985
+        hidden: ~
+        message_id: 20070324151308.1379BCBA2F@x12.develooper.com
+        messages:
+          - 20070326221307.GU5735@plum.flirble.org
+          - 4608505B.5090207@jnthn.net
+        posters:
+          - email: jonathan@cvs.perl.org
+            name: jonathan
+          - email: nick@ccl4.org
+            name: Nicholas Clark
+          - email: jonathan@jnthn.net
+            name: Jonathan Worthington
+        subject: '[svn:parrot-pdd] r17711 - trunk/docs/pdds/draft'
+        summary: ''
+      - date_from: 1174829816
+        date_to: 1175530439
+        hidden: ~
+        message_id: rt-3.6.HEAD-30557-1174829781-384.42072-72-0@perl.org
+        messages:
+          - rt-3.6.HEAD-1687-1175530427-205.42072-15-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: James Keenan
+        rt_ticket: 'perl #42072'
+        subject: "[perl #42072] [BUG]:  pmc2c.pl:  Does anyone (know how to) use the 'no-body' option? "
+        summary: ''
+      - date_from: 1174842319
+        date_to: 1175130950
+        hidden: ~
+        message_id: rt-3.6.HEAD-1687-1174842311-1682.42073-72-0@perl.org
+        messages:
+          - 4606B400.9000209@gmail.com
+          - 537AFFEC-57AC-4795-B2C5-B4F3A0562677@verizon.net
+          - 46077AB2.3070103@gmail.com
+          - 46077BC7.6060403@gmail.com
+          - rt-3.6.HEAD-30557-1174907379-1644.42073-15-0@perl.org
+          - rt-3.6.HEAD-1687-1174984143-1193.42073-15-0@perl.org
+          - rt-3.6.HEAD-30201-1175130936-1545.42073-14-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: James Keenan
+          - email: parrotcode@gmail.com
+            name: Klaas-Jan Stol
+          - email: jkeen@verizon.net
+            name: James Keenan
+          - email: bugs-parrot-track@netlabs.develooper.com
+            name: James Keenan via RT
+        rt_ticket: 'perl #42073'
+        subject: "[perl #42073] [BUG]:  compilers/pirc/Makefile not cleaned up by 'make realclean' "
+        summary: ''
+      - date_from: 1174844646
+        date_to: 1174844646
+        hidden: ~
+        message_id: 20070325174355.12199CBA2F@x12.develooper.com
+        posters:
+          - email: jonathan@cvs.perl.org
+            name: jonathan
+        subject: '[svn:parrot-pdd] r17738 - trunk/docs/pdds/draft'
+        summary: ''
+      - date_from: 1174917692
+        date_to: 1174917692
+        hidden: ~
+        message_id: 20070326140117.12945.qmail@x1.develooper.com
+        posters:
+          - email: perlbug-summary@perl.org
+            name: Parrot Bug Summary
+        subject: Parrot Bug Summary
+        summary: ''
+      - date_from: 1174928415
+        date_to: 1174928415
+        hidden: ~
+        message_id: 20070326165940.GA26037@bestpractical.com
+        posters:
+          - email: jesse@fsck.com
+            name: jesse
+        subject: 'First Perl 6 Microgrant - Steve Peters on Parrot Portability'
+        summary: ''
+      - date_from: 1174932508
+        date_to: 1174951782
+        hidden: ~
+        message_id: 46080C09.2070305@alfarrabio.di.uminho.pt
+        messages:
+          - 4608575F.6020806@jnthn.net
+        posters:
+          - email: albie@alfarrabio.di.uminho.pt
+            name: Alberto Simões
+          - email: jonathan@jnthn.net
+            name: Jonathan Worthington
+        subject: A challenge... about Parrot
+        summary: ''
+      - date_from: 1174953149
+        date_to: 1174953149
+        hidden: ~
+        message_id: rt-3.6.HEAD-30201-1174953136-1338.42105-72-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Richard Hundt
+        rt_ticket: 'perl #42105'
+        subject: '[perl #42105] memory leak in PCCMETHOD together with Parrot_runops_fromc '
+        summary: ''
+      - date_from: 1174958990
+        date_to: 1174976413
+        hidden: ~
+        message_id: rt-3.6.HEAD-1687-1174958981-1717.42106-72-0@perl.org
+        messages:
+          - 87zm5z9uyf.fsf@offby1.atm01.sea.blarg.net
+          - rt-3.6.HEAD-30201-1174959480-499.42106-15-0@perl.org
+          - rt-3.6.HEAD-1687-1174985701-49.42106-15-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: James Keenan
+          - email: offby1@blarg.net
+            name: Eric Hanchrow
+        rt_ticket: 'perl #42106'
+        subject: '[perl #42106] t/pmc/iterator.t t/src/io.t failed on Linux '
+        summary: ''
+      - date_from: 1174962649
+        date_to: 1175018744
+        hidden: ~
+        message_id: rt-3.6.HEAD-30201-1174962641-609.42107-72-0@perl.org
+        messages:
+          - 200703271105.27997.chromatic@wgz.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Steve Peters
+          - email: chromatic@wgz.org
+            name: chromatic
+        rt_ticket: 'perl #42107'
+        subject: '[perl #42107] [PATCH] Intel C++ is not gcc '
+        summary: ''
+      - date_from: 1174999946
+        date_to: 1175009910
+        hidden: ~
+        message_id: 20070327125201.41679.qmail@spout.spiders.net
+        messages:
+          - 1d9a3f400703270838n15ee84ebk78092f354e72fd47@mail.gmail.com
+        posters:
+          - email: will@coleda.com
+            name: Will Coleda
+          - email: jerry.gay@gmail.com
+            name: jerry gay
+        subject: ParrotCode meeting this week
+        summary: ''
+      - date_from: 1175005179
+        date_to: 1175034469
+        hidden: ~
+        message_id: rt-3.6.HEAD-1687-1175005165-61.42135-72-0@perl.org
+        messages:
+          - 200703280027.37775.lt@toetsch.at
+          - 39376f0e376a2ca02979847aae8120fa@gmail.com
+          - 200703271136.06716.chromatic@wgz.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Andy Dougherty
+          - email: lt@toetsch.at
+            name: Leopold Toetsch
+          - email: jrisom@gmail.com
+            name: Joshua Isom
+          - email: chromatic@wgz.org
+            name: chromatic
+        rt_ticket: 'perl #42135'
+        subject: '[perl #42135] [PATCH] Fix overzealous flag removal in t/examples/shootout.t '
+        summary: ''
+      - date_from: 1175025355
+        date_to: 1175025355
+        hidden: ~
+        message_id: 20070327195548.26689.qmail@lists.develooper.com
+        posters:
+          - email: doughera@lafayette.edu
+            name: doughera@lafayette.edu
+        subject: 'cmsg cancel <Pine.LNX.4.62.0703271530240.26353@fractal.phys.lafayette.edu>'
+        summary: ''
+      - date_from: 1175025664
+        date_to: 1175025664
+        hidden: ~
+        message_id: 20070327200055.29587.qmail@lists.develooper.com
+        posters:
+          - email: doughera@lafayette.edu
+            name: doughera@lafayette.edu
+        subject: 'cmsg cancel <Pine.LNX.4.62.0703271555070.26416@fractal.phys.lafayette.edu>'
+        summary: ''
+      - date_from: 1175037850
+        date_to: 1175037850
+        hidden: ~
+        message_id: 20070327232403.62224CBA2F@x12.develooper.com
+        posters:
+          - email: allison@cvs.perl.org
+            name: allison
+        subject: '[svn:parrot-pdd] r17796 - trunk/docs/pdds/draft'
+        summary: ''
+      - date_from: 1175061817
+        date_to: 1175061817
+        hidden: ~
+        message_id: 20070328060330.34FC7CBA2F@x12.develooper.com
+        posters:
+          - email: allison@cvs.perl.org
+            name: allison
+        subject: '[svn:parrot-pdd] r17805 - trunk/docs/pdds/draft'
+        summary: ''
+      - date_from: 1175080161
+        date_to: 1175080161
+        hidden: ~
+        message_id: 460A4CD5.2050404@gmail.com
+        posters:
+          - email: parrotcode@gmail.com
+            name: Klaas-Jan Stol
+        subject: Testing PIRC
         summary: ''
     title: Parrot Porters
   - name: perl6-users
