@@ -14,7 +14,7 @@ sub angle_quoted {
     my $s = substr( $_[0], $pos );
     my ($extracted,$remainder) = Text::Balanced::extract_bracketed( '<' . $s, '<..>' );
     return $grammar->no_match(@_) unless length($extracted) > 0;
-    $extracted = substr( $extracted, 1, -1 );
+    $extracted =~ s/^\<\s*(.+?)\s*\>$/$1/;
     my @items = split( /\s+/, $extracted );
     my $ast;
     if ( @items > 1 ) {
