@@ -1699,6 +1699,12 @@ sub prefix {
     }
 
     if ($n->{op1} eq '=') { # iterate
+
+        if (exists $n->{exp1}{single_quoted}) {
+            # fish operator =<>
+            return '( my $tmp = <STDIN> )';
+        }
+
         return _emit($n->{exp1}).'->getline';
     }
     
