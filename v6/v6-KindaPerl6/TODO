@@ -145,3 +145,57 @@ For later:
 
 - 6-on-6 design
   - full-ast
+
+
+- Directory structure
+
+  + lib
+  + script
+  + t
+
+
+  * lib
+    * Kp6
+      + Compiler
+      + Runtime (or "Prelude")
+
+  - second level
+
+  * lib
+    * Kp6
+      * Compiler
+        + FrontEnd
+        + Grammar (or "Language")
+        + AST
+        + Emitter (or "Target")
+      * Runtime
+        + Kp6
+        + Parrot
+        + Perl5
+
+  - expanded
+
+  * lib
+    * Kp6
+      * Compiler
+        * FrontEnd
+          * Cache
+        * Grammar
+          * Perl6
+          * Regex
+          * Quote
+          * Macro
+        * AST
+          * Hyper
+          * MetaClass
+        * Emitter
+          * Kp6
+          * Parrot
+          * Perl5
+      * Runtime
+        * Kp6
+          * Match
+          * Pad
+          * Type
+        * Parrot
+        * Perl5
