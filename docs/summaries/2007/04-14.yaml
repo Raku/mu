@@ -56,7 +56,23 @@ lists:
           - email: avarab@gmail.com
             name: Ævar Arnfjörð Bjarmason
         subject: 'Re: Synopsis 26'
-        summary: ''
+        summary: |-
+          Earlier,
+          Thom Boyer responded to Damian Conway's post from November whichthanked people for offering feedback on the first draft.  Thom said
+          that he had been unable to find the XHTML version of S26 and wondered
+          if it was available.
+          
+          Jerry Gay replied that there wasn't a pod parser available yet.
+          Damian responded with the requested file, and said he still hoped
+          to finish the Pod6 parser but he wasn't sure when he would have time.
+          
+          Ævar Arnfjörð Bjarmason
+          asked if Damian could post the code he currently has, so that others could
+          work on it.
+          
+          This week, Damian responded by uploading `Perl6::Perldoc` to CPAN.
+          Ævar
+          and Damian worked to improve the test suite.
       - date_from: 1176316181
         date_to: 1176475973
         hidden: ~
