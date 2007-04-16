@@ -27,7 +27,7 @@ my $env1 = Pad->new( outer => undef, lexicals => [ $node ] );
 
 $env1->eval( q/ $x->STORE( bless \( do{ my $v = 123 } ), 'Type_Constant_Int' ) / );
 $env1->eval( ' print "x= ",$x->FETCH, "\n" ' );   
-$env1->eval( q/ $x->STORE( $x->FETCH + 1 ) / );
+#$env1->eval( q/ $x->STORE( $x->FETCH + 1 ) / );
 print "Var = ", $env1->eval( ' $x->FETCH ' ), "\n";   
 
 print $env1->eval( q/ use Data::Dumper; Dumper( \%_MODIFIED ) / ), "\n";

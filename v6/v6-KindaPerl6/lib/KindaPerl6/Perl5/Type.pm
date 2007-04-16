@@ -96,9 +96,13 @@ package Type_Scalar;
         return $_[0][0]->LOOKUP( $_[1] )
     }
     sub STORE  { 
-        $_[0][0] = $_[1];
+        $_[0][0] = $_[1]->FETCH;
         $_[0][1]{ $_[0][2] }++;
         $_[0];
+    }
+    sub BIND   {
+        # XXX - how about %_MODIFIED ?
+        $_[0] = $_[1];
     }
     sub FETCH  { 
         $_[0][0];
