@@ -1,3 +1,7 @@
+
+- Perl5 emitter: fixed Array inside signature:  method ( $a, [ $b, $c ] ) ...
+- Perl5 emitter: implemented "warn"
+
 0.003  2006-12-12
 - All tests converted to TAP format
 - Parrot backend:

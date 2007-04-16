@@ -285,6 +285,7 @@ class Apply {
 
         if $code eq 'say'        { return 'Main::say('   ~ (@.arguments.>>emit).join(', ') ~ ')' };
         if $code eq 'print'      { return 'Main::print(' ~ (@.arguments.>>emit).join(', ') ~ ')' };
+        if $code eq 'warn'       { return 'warn('        ~ (@.arguments.>>emit).join(', ') ~ ')' };
 
         if $code eq 'array'      { return '@{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };
 
@@ -401,7 +402,12 @@ class Method {
         # TODO - follow recursively
         my $pos := $sig.positional;
         for @$pos -> $field { 
-            $str := $str ~ 'my ' ~ $field.emit ~ '; ';
+            if ( $field.isa('Lit::Array') ) {
+                $str := $str ~ 'my (' ~ (($field.array).>>emit).join(', ') ~ '); ';
+            }
+            else {
+                $str := $str ~ 'my ' ~ $field.emit ~ '; ';
+            };
         };
 
         my $bind := ::Bind( 
@@ -442,7 +448,13 @@ class Sub {
         # TODO - follow recursively
         my $pos := $sig.positional;
         for @$pos -> $field { 
-            $str := $str ~ 'my ' ~ $field.emit ~ '; ';
+            if ( $field.isa('Lit::Array') ) {
+                $str := $str ~ 'my (' ~ (($field.array).>>emit).join(', ') ~ '); ';
+            }
+            else {
+                $str := $str ~ 'my ' ~ $field.emit ~ '; ';
+            };
+            #$str := $str ~ 'my ' ~ $field.emit ~ '; ';
         };
 
         my $bind := ::Bind( 
