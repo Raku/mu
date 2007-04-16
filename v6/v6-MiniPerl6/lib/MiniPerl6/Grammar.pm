@@ -346,10 +346,10 @@ token val_int {
 token exp_stmts {
     | <exp>
         [
-        |   <?opt_ws> \; <?opt_ws> <exp_stmts>
-            <?opt_ws> [ \; <?opt_ws> | <''> ]
+        |   <?opt_ws> [ \; | '' ] <?opt_ws> <exp_stmts>
+            <?opt_ws> [ \; <?opt_ws> | '' ]
             { return [ $$<exp>, @( $$<exp_stmts> ) ] }
-        |   <?opt_ws> [ \; <?opt_ws> | <''> ]
+        |   <?opt_ws> [ \; <?opt_ws> | '' ]
             { return [ $$<exp> ] }
         ]
     | { return [] }
@@ -360,9 +360,9 @@ token exp_seq {
         # { say 'exp_seq: matched <exp>' }
         [
         |   <?opt_ws> \, <?opt_ws> <exp_seq> 
-            <?opt_ws> [ \, <?opt_ws> | <''> ]
+            <?opt_ws> [ \, <?opt_ws> | '' ]
             { return [ $$<exp>, @( $$<exp_seq> ) ] }
-        |   <?opt_ws> [ \, <?opt_ws> | <''> ]
+        |   <?opt_ws> [ \, <?opt_ws> | '' ]
             { return [ $$<exp> ] }
         ]
     | 

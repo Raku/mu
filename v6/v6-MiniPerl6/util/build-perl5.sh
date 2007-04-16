@@ -1,5 +1,6 @@
 # Compile MiniPerl6 to Perl5, using mp6-perl5-boot.pl
 
+rm -rf lib5-new
 mkdir lib5-new
 mkdir lib5-new/MiniPerl6
 mkdir lib5-new/MiniPerl6/Grammar
