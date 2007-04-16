@@ -9,6 +9,13 @@ The kp6 Milestones are:
 - begin blocks
 - containers
 
+Code freeze
+
+- translate perl5 to mp6
+- test suite
+- minimal runtime
+- bootstrap?
+
 The optional features in kp6 are:
 
 - coro 
@@ -185,9 +192,15 @@ For later:
           * Regex
           * Quote
           * Macro
+          * Variable
         * AST
-          * Hyper
-          * MetaClass
+          * Perl6
+            * Hyper
+            * MetaClass
+          * Regex
+          * Quote
+          * Macro
+          * Variable
         * Emitter
           * Kp6
           * Parrot
