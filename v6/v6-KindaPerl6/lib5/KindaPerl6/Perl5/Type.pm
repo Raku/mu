@@ -70,7 +70,6 @@ package Type_Constant_Buf;
     }    
     
 package Type_Scalar;
-    # $x = bless \( do{ my $v } ), 'TypeInt';
     our @ISA = 'Scalar';
     our $AUTOLOAD;
     sub perl { $_[0]->FETCH->perl }
@@ -81,27 +80,28 @@ package Type_Scalar;
         # $scalar->INDEX( 2 ) returns undef
         # $scalar->INDEX( 2 )->STORE(...) autovivifies an Array if the scalar is undef
         #print "INDEX: ",Data::Dump::Streamer::Dump( \@_ );
-        return ${$_[0]}->INDEX( $_[1] )
-            if ${$_[0]}->IS_ARRAY;
+        return $_[0][0]->INDEX( $_[1] )
+            if $_[0][0]->IS_ARRAY;
         return $_[0]
-            if ${$_[1]->FETCH} == 0;
+            if $_[1]->FETCH == 0;
         #print "Return undef on unexisting Array\n";
         return bless [ $_[0], $_[1] ], 'Type_Proxy_Array_Scalar';
     }
     sub LOOKUP {
-        return ${$_[0]}->LOOKUP( $_[1] )
-            if ${$_[0]}->IS_HASH;
+        return $_[0][0]->LOOKUP( $_[1] )
+            if $_[0][0]->IS_HASH;
         warn "not a hash"
             if defined ${$_[0]->FETCH};
         $_[0]->STORE( bless { }, 'Type_Hash' );
-        return ${$_[0]}->LOOKUP( $_[1] )
+        return $_[0][0]->LOOKUP( $_[1] )
     }
     sub STORE  { 
-        ${$_[0]} = $_[1];
+        $_[0][0] = $_[1];
+        $_[0][1]{ $_[0][2] }++;
         $_[0];
     }
     sub FETCH  { 
-        ${$_[0]};
+        $_[0][0];
     }
     sub DESTROY { }
     sub AUTOLOAD {

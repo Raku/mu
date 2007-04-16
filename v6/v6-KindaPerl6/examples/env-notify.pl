@@ -12,8 +12,7 @@ use strict;
 package Decl;
 sub var { $_[0]->{var} }
 sub emit_perl5 { q/ 
-    #$_modified{'$x'} = \( do { my $v } );
-    my $x = bless [ \( do{ my $v } ), \%_modified, '$x' ], "Type_Scalar" 
+    my $x = bless [ \( do{ my $v } ), \%_MODIFIED, '$x' ], "Type_Scalar" 
 / }
 #sub emit_perl5 { q/ my $x = bless \( do{ my $v } ), "Type_Scalar" / }
 package Var;
@@ -26,12 +25,12 @@ my $node = bless { decl => 'my', type => '', var =>
 
 my $env1 = Pad->new( outer => undef, lexicals => [ $node ] );
 
-$env1->eval( q/ $x->STORE( 123 ) / );
+$env1->eval( q/ $x->STORE( bless \( do{ my $v = 123 } ), 'Type_Constant_Int' ) / );
 $env1->eval( ' print "x= ",$x->FETCH, "\n" ' );   
 $env1->eval( q/ $x->STORE( $x->FETCH + 1 ) / );
 print "Var = ", $env1->eval( ' $x->FETCH ' ), "\n";   
 
-print $env1->eval( q/ use Data::Dumper; Dumper( \%_modified ) / ), "\n";
+print $env1->eval( q/ use Data::Dumper; Dumper( \%_MODIFIED ) / ), "\n";
 print $env1->eval( q/ use Data::Dumper; Dumper( \$x ) / ), "\n";
 
 __END__

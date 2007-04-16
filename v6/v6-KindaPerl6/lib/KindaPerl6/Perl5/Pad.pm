@@ -33,8 +33,12 @@ sub new {
            
     #print Dump( @names );
     my $cmd = 'package ' . $namespace . '; '
-            . (scalar @names ? join( '; ', @declarations ) . '; ' : '')
-            . 'sub { ' . (join ',', @names ) . '; eval $_[0] or do{ Carp::carp( $@ ) if $@ }; } ';
+            . 'my %_MODIFIED; '
+            . (scalar @names ? join( '; ', @declarations, '' ) : '')
+            . 'sub { ' 
+            .     (join '; ', '\%_MODIFIED', @names, '' )        # make sure it's compiled as a closure
+            .     'eval $_[0] or do{ Carp::carp( $@ ) if $@ }; ' 
+            . '} ';
     #print "Pad.new $cmd\n";
     bless {
         evaluator      => $parent->eval( $cmd ),
