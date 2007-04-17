@@ -47,6 +47,7 @@ syn keyword p6KeyProperty   float int str true false rw int1 int2 int4 int8
 syn keyword p6KeyProperty   int16 int32 int64 uint1 uint2 uint4 uint8 uint16
 syn keyword p6KeyProperty   uint32 uint64 num16 num32 num64 complex16 complex32
 syn keyword p6KeyProperty   complex64 complex128 buf8 buf16 buf32 buf64
+syn keyword p6KeyProperty   WHAT HOW
 syn keyword p6KeyType       Array Bool Class Code Hash Int IO Num NumRange 
 syn keyword p6KeyType       Str StrRange Sub Role Rule Rat Complex Any
 syn keyword p6KeyType       Scalar List 
