@@ -13,7 +13,7 @@ GetOptions \our %Config, qw(inlinecss|e cssfile|c=s help|h);
 $Config{cssfile} ||= Test::TAP::HTMLMatrix->css_file();
 usage() if $Config{help};
 
-my $yamlfile = shift || 'tests.yml';
+my $yamlfile = shift || 'smoke.yml';
 
 open(my $yamlfh, '<', $yamlfile) or die "Couldn't open $yamlfile for reading: $!";
 binmode $yamlfh, ":utf8" or die "binmode: $!";
@@ -59,7 +59,7 @@ USAGE
     package My::Model;
     use base qw/Test::TAP::Model::Visual/;
     sub file_class { "My::File" }
-    
+
     package My::File;
     use base qw/Test::TAP::Model::File::Visual/;
     sub subtest_class { "My::Subtest" }
@@ -79,3 +79,4 @@ USAGE
         File::Spec->catdir("t_index",$link);
     }
 }
+
