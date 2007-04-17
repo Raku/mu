@@ -208,7 +208,8 @@ useless if you could bind only boolean values as parameters, since
 within the closure you already know whether it evaluated to true
 or false.)  Binding within an C<else> automatically binds the value
 tested by the previous C<if> or C<elsif>, which, while known to be
-false, might nevertheless be an I<interesting> value of false.
+false, might nevertheless be an I<interesting> value of false.  (By similar
+reasoning, an C<unless> allows binding of a false parameter.)
 
 Conditional statement modifiers work as in Perl 5.  So do the
 implicit conditionals implied by short-circuit operators.  Note though that
