@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use Benchmark;
-use Best 0.05 [ [ qw/YAML::Syck YAML/], qw/LoadFile DumpFile/ ];
+use Best 0.05 [ [ qw/YAML YAML::Syck/], qw/LoadFile DumpFile/ ];
 use File::Spec;
 use Getopt::Long;
 use List::Util 'shuffle';

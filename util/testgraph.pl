@@ -3,7 +3,7 @@
 use warnings;
 use strict;
 
-use Best 0.05 [ [qw/YAML::Syck YAML/], qw/Dump Load/ ];
+use Best 0.05 [ [qw/YAML YAML::Syck/], qw/Dump Load/ ];
 use Getopt::Long;
 use Test::TAP::HTMLMatrix;
 use Test::TAP::Model::Visual;
