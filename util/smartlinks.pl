@@ -296,7 +296,26 @@ sub gen_html ($$$) {
     # substitutes the placeholders introduced by `gen_code_snippet`
     # with real code snippets:
     $html =~ s,(?:<p>\s*)?\b_SMART_LINK_(\d+)\b(?:\s*</p>)?,$snippets[$1],sg;
+    add_user_css(\$html);
     $html;
+}
+
+# isn't there a prettier way to do this?
+sub add_user_css {
+    my($html) = @_;
+    my $user_css = << '.';
+<style type="text/css">
+.ok {
+    color: green;
+    font-weight: bold;
+}
+.nok {
+    color: red;
+    font-weight: bold;
+}
+</style>
+.
+    $$html =~ s{(</head>)}{$user_css\n$1};
 }
 
 # Note that this function has been optimized for space rather
@@ -337,10 +356,10 @@ sub gen_code_snippet ($) {
         if (!exists $file_info->{$i}) {
             $mark = '';
         } elsif ($file_info->{$i}) {
-            $mark = qq{<span style="color: green; font-weight: bold"> √ </span>};
+            $mark = qq{<span class="ok"> √ </span>};
             $ok_count++;
         } else {
-            $mark = qq{<span style="color: red; font-weight: bold"> × </span>};
+            $mark = qq{<span class="nok"> × </span>};
             $failed_count++;
         }
         $src .= qq{<tr><td><code>$mark</code></td><td><code>$_</code></td></tr>\n};
