@@ -54,6 +54,7 @@ use Data::Dump::Streamer;
 
 {
     package COMPILER;
+    use Data::Dumper;
 
     # @COMPILER::CHECK  - CHECK blocks
     # @COMPILER::PAD    - Pad structures
@@ -103,14 +104,17 @@ use Data::Dump::Streamer;
 
         for my $pad ( @COMPILER::PAD ) {
           my $side_effects = $pad->eval( '\%_MODIFIED' ); 
-          #use Data::Dumper;
           #print "MODIFIED: ", Dumper( $side_effects );
           # TODO - emit side-effects...
           my @names = keys %$side_effects;
           for my $name ( @names ) {
             my $value = $COMPILER::PAD[0]->eval( "\\$name" );
-            print "# BEGIN SIDE-EFFECT: $name = $$value \n\n";
+            # TODO - convert directly DATA->AST, instead of DATA->PERL->AST
+            print "# BEGIN SIDE-EFFECT: $name = ",${$value}->perl," \n\n";
             # TODO - convert $$value to perl6 AST
+            my $p = KindaPerl6::Grammar->exp( "$name = " . ${$value}->perl , 0);
+            print "AST: ", Dumper($$p);
+            # TODO - check for shared data (BIND)
           }
         }
         # TODO - emit the runtime BEGIN code 
