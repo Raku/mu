@@ -58,6 +58,7 @@ use Data::Dump::Streamer;
 
     # @COMPILER::CHECK  - CHECK blocks
     # @COMPILER::PAD    - Pad structures
+    # @COMPILER::BEGIN_RUNTIME - runtime side-effects of BEGIN blocks
 
     sub env_init {
         @COMPILER::PAD = (Pad->new( 
@@ -133,8 +134,9 @@ use Data::Dump::Streamer;
         }
         # TODO - emit the runtime BEGIN code 
         add_pad;
+        my $initializer_name = 'Main::INIT_' . int(rand(100000));
         my $begin_ast = Sub->new(
-            name  => '',
+            name  => $initializer_name,
             block => Lit::Code->new(
                 sig   => Sig->new(
                                      'named' => {},
@@ -173,6 +175,12 @@ use Data::Dump::Streamer;
         drop_pad;
         #print "FINAL AST: ",Dumper($final_ast); 
         #print "FINAL native: ", join( ";\n", (map { $_->emit( $visitor_emit_perl5  ) } ($final_ast) ));
+
+        # create the runtime initializer
+        # @COMPILER::BEGIN_RUNTIME
+        # TODO
+        push @COMPILER::BEGIN_RUNTIME, $initializer_name;
+
         return $final_ast;
     }
 
@@ -223,7 +231,8 @@ while ( $pos < length( $source ) ) {
     $pos = $p->to;
 }
 # emit CHECK blocks
-for ( @COMPILER::CHECK ) { my ( $ast, $pad ) = @$_;
+for ( @COMPILER::CHECK ) { 
+    my ( $ast, $pad ) = @$_;
     unshift @COMPILER::PAD, $pad;
     my @ast = COMPILER::begin_block( $ast );
 
@@ -233,4 +242,10 @@ for ( @COMPILER::CHECK ) { my ( $ast, $pad ) = @$_;
 
     shift @COMPILER::PAD;
 }
+# TODO: emit from AST
+# emit Runtime initializers
+for ( @COMPILER::BEGIN_RUNTIME ) { 
+    print "$_();\n";
+}
+
 say "1;";
