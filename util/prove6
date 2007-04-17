@@ -21,6 +21,8 @@ my $update_yml = 0;
 # Allow cuddling the paths with the -I
 @ARGV = map { /^(-I)(.+)/ ? ($1,$2) : $_ } @ARGV;
 
+my $pugs_exec = ($^O =~ /(?:MSWin32|mingw|msys|cygwin)/) ? 'pugs' : './pugs';
+
 # Stick any default switches at the beginning, so they can be overridden
 # by the command line switches.
 #unshift @ARGV, split( " ", $ENV{PROVE_SWITCHES} ) if defined $ENV{PROVE_SWITCHES};
@@ -33,11 +35,11 @@ GetOptions(
 
     pir         => \$pir,
     parrot      => \$pir,
-    
+
     perl5       => \$perl5,
     perl        => \$perl5,
     'v6-alpha'  => \$perl5,
-    
+
     help        => \$help,
 
     'I=s'       => \$inc,
@@ -68,7 +70,7 @@ Options:
 
     --pir        Harness with Pugs' PIR backend
     --parrot     ditto
-    
+
     --perl5      Harness with v6.pm (the Perl 5 implementation)
     --perl       ditto
     --v6-alpha   ditto
@@ -122,8 +124,8 @@ if ( $lib ) {
 
 # refresh Test.pm.yml and Prelude.pm.yml.
 if ($update_yml) {
-    warn "pugs -CParse-YAML ext/Test/lib/Test.pm > blib6/lib/Test.pm.yml\n";
-    system('pugs -CParse-YAML ext/Test/lib/Test.pm > blib6/lib/Test.pm.yml');
+    warn "$pugs_exec -CParse-YAML ext/Test/lib/Test.pm > blib6/lib/Test.pm.yml\n";
+    system("$pugs_exec -CParse-YAML ext/Test/lib/Test.pm > blib6/lib/Test.pm.yml");
     system("$^X util/gen_prelude.pl -v -i src/perl6/Prelude.pm -p pugs " .
         "--output blib6/lib/Prelude.pm.yml");
 }
@@ -143,15 +145,15 @@ if ($perl5) {
     # use ExtUtils::MM;
     # my $mm = ExtUtils::MM->new();
     # $mm->maybe_command('pugs')
-    if (!$ENV{HARNESS_PERL} && `pugs --version` =~ m/perl/i) {
-        $ENV{HARNESS_PERL} = 'pugs';
+    if (!$ENV{HARNESS_PERL} && `$pugs_exec --version` =~ m/perl/i) {
+        $ENV{HARNESS_PERL} = $pugs_exec;
     }
     elsif ($ENV{HARNESS_PERL}) {
         # Nothing to do, respect the current setting
     }
     # Guess that it's in the local directory
     elsif (-x './pugs') {
-        $ENV{HARNESS_PERL} = './pugs';
+        $ENV{HARNESS_PERL} = $pugs_exec;
     }
     else {
        die "unable to find pugs binary to test with";
@@ -220,3 +222,4 @@ sub blibdirs {
     warn "$0: Cannot find blib\n";
     return;
 }
+
