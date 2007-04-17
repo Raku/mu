@@ -1,0 +1,438 @@
+=begin pod
+
+=for comment
+    This is a rather 1:1 "translation" from p5 perlintro to p6 - feel free
+    to adopt any changes. Big chunks have been kept literaly.
+
+=head1 TITLE
+
+perlintro -- a brief introduction and overview of Perl
+
+=head1 AUTHOR
+
+Kirrily "Skud" Robert <L<C<skud@cpan.org>|mailto:skud@cpan.org>> (original
+Author) and Moritz Lenz
+<L<C<moritz@fau2ik3.org>|mailto:moritz@faui2k3.org>> ("translation" to perl 6)
+
+=head1 DESCRIPTION
+
+This document is intended to give you a quick overview of the Perl programming
+language as of Version 6, along with pointers to further documentation.  It is
+intended as a "bootstrap" guide for those who are new to the language, and
+provides just enough information for you to be able to read other peoples'
+Perl and understand roughly what it's doing, or write your own simple
+scripts.
+
+This introductory document does not aim to be complete.  It does not
+even aim to be entirely accurate.  In some cases perfection has been
+sacrificed in the goal of getting the general idea across.  You are
+B<strongly> advised to follow this introduction with more information from
+the full Perl manual, the table of contents to which can be found in
+perltoc.
+
+Throughout this document you'll see references to other parts of the
+Perl documentation.  You can read that documentation using the C<p6doc>
+command or whatever method you're using to read this document.
+
+=head2 What is Perl?
+
+Perl is a general-purpose programming language originally developed for
+text manipulation and now used for a wide range of tasks including system
+administration, web development, network programming, GUI development, and
+more.
+
+
+The language is intended to be practical (easy to use, efficient, complete) 
+rather than beautiful (tiny, elegant, minimal).  Its major features are that 
+it's easy to use, supports procedural, object-oriented (OO) and a bit of
+functional programming, has powerful built-in support for text pro cessing,
+and has and impressive collection of third-party modules.
+
+=comment so far, the last sentence is a lie for perl 6 ;-)
+
+=head2 Running Perl Programs
+
+Ommitted so far because I don't know if the perl interpreter will be called
+"perl" as well for perl6
+
+=head2 Basic syntax overview
+
+A Perl script or program consists of one or more statements.  These
+statements are simply written in the script in a straightforward fashion.  
+There is no need to have a "main()" function or anything of that kind.
+
+Perl statements end in a semi-colon:
+
+=begin code
+    say "Hello, world";
+=end code
+
+Comments start with a hash symbol and run to the end of the line
+
+=begin code
+    # This is a comment
+=end code
+
+Whitespace is irrelevant:
+
+=begin code
+    say
+        "Hello, world"
+       ;
+=end code
+
+... except inside quoted strings:
+
+=begin code
+    # this would print with a linebreak in the middle
+    say "Hello
+    world";
+=end code
+
+Double quotes or single quotes may be used around literal strings:
+
+=begin code
+    say "Hello, world";
+    say 'Hello, world';
+=end code
+
+However, only double quotes "interpolate" variables and special characters such as newlines ("\n"):
+
+=begin code
+    print "Hello, $name\n";     # works fine
+    print 'Hello, $name\n';     # prints $name\n literally
+=end code
+
+(Note that C<print> and C<say> do the same thing, only C<say> appends a newline character at the end)
+
+Numbers don't need quotes around them:
+
+=begin code
+    say 42;
+=end code
+
+You can use parentheses for functions' arguments or omit them according
+to your personal taste.  They are only required occasionally to clarify
+issues of precedence.
+
+=begin code
+    say("Hello, world");
+    say "Hello, world";
+=end code
+
+You can call methods in OO-Style notation:
+
+=begin code
+    "Hello, world".say;
+=end code
+
+If you provide addtional arguments to method calls, you should always use
+parentheses.
+
+
+=head2 Perl variable types
+
+Perl has three main variable types: scalars, arrays, and hashes
+
+=head3 Scalars
+
+A scalar represents a single value:
+
+=begin code
+    my $animal = "camel";
+    my $answer = 42;
+=end code
+
+Scalar values can be strings, integers or floating point numbers, and Perl
+will automatically convert between them as required.  There is no need to
+pre-declare your variable types. But if you feel like, you declare their type
+explictly:
+
+=begin code
+    my Str $animal = "camel";
+    my Int $answer = 42;
+    my Num $close_to_pi = 3.141;
+=end code
+
+Scalar values can be used in various ways:
+
+=begin code
+    say $animal;
+    say "The animal is $animal";
+    say "The square of $answer is ", $answer * $answer;
+=end code
+
+There are some "magic" scalars with names that look like punctuation or line
+noise.  These special variables are used for different purposes, all of them
+are documented in L<doc:perlvar>. The only one you need to know about for now
+is C<$_> which is the "default variable".  It's used as the default argument 
+to a number of functions if they start with a period C<.> and it's set 
+implicitly by certain looping constructs.
+
+=begin code
+    .print; # prints contents of $_
+=end code
+
+
+=head3 Arrays
+
+An array represents a list of values:
+
+=begin code
+    my @animals = "camel", "llama", "owl";
+    my @numbers = 23, 42, 69;
+    my @mixed   = "camel", 42, 1.23;
+=end code
+
+Arrays are zero-indexed.  Here's how you get at elements in an array:
+
+=begin code
+    print @animals[0];              # prints "camel"
+    print @animals[1];              # prints "llama"
+=end code
+
+You can get the index of the last element of an arry with C<end>:
+
+=begin code
+    print @mixed[@mixed.end];       # last element, prints 1.23
+=end code
+
+You might be tempted to use C<@array.end + 1> to tell you how many
+items there are in an array. Don't bother.  As it happens, using
+@array where Perl expects to find a scalar value ("in scalar context") 
+will give you the number of elements in the array:
+
+=begin code
+    if @animals < 5 { ... }
+=end code
+
+If you want to get the number of elements explicitly, you can use C<elems>:
+
+=begin code
+    print @animals.elems        # prints "3";
+=end code
+
+To get multiple elements from an you can use a list of indexes in the square
+brackets:
+
+=begin code
+    @animals[0,1];              # gives ("camel", "llama");
+    @animals[0..2];             # gives ("camel", "llama", "owl");
+    @animals[1..@animals.end];  # gives all except the first element
+=end code
+
+This is called an "array slice".
+
+You can do various useful things to lists:
+
+=begin code
+    my @sorted = @animals.sort;  
+    # or: my @sorted =  sort @animals
+    my @backwards = @numbers.reverse;
+=end code
+
+There are some special arrays too, such as C<@*ARGS> (the command line
+arguments to your script). These are document in L<doc:perlvar>.
+
+=comment hopefully they are...
+
+
+=head3 Hashes
+
+A hash represents a set of key/value pairs:
+
+=begin code
+    my %fruit_color = "apple", "red", "banana", "yellow";
+=end code
+
+You can use whitespace and the "=>"  operator to lay them out more nicely:
+
+=begin code
+    my %fruit_color = 
+        "apple"     => "red",
+        "banana"    => "yellow",
+    );
+=end code
+
+To get at hash elements:
+
+=begin code
+    %fruit_color{"apple"};           # gives "red"
+=end code
+
+You can get a list of keys and values with the C<keys> and C<values> methods:
+
+=begin code
+    my @fruits = %fruit_color.keys;
+    my @colors = %fruit_color.values;
+=end code
+
+Hashes have no particular internal order, though you can sort the keys and
+loop through them.
+
+Just like special scalars and arrays, there are also special hashes.  The most
+well known of these is C<%*ENV> which contains environment variables.  Read
+all about it (and other special variables) in L<doc:perlvar>.
+
+=head3 Complex data structures
+
+TODO: when do you need references?
+
+
+=head2 Variable scoping
+
+Throughout the previous section all the examples have used the syntax:
+
+=begin code
+    my $var = "value";
+=end code
+
+C<my> creates lexically scoped variables, that means they are scoped to the
+block (i.e. a bunch of statements surrounded by curly-braces) in which they are
+defined.
+
+=begin code
+    my $a = "foo";
+    if $some_condition {
+        my $b = "bar";
+        print $a;           # prints "foo"
+            print $b;           # prints "bar"
+    }
+    print $a;               # prints "foo"
+    print $b;               # error: $b has fallen out of scope
+=end code
+
+Using C<no strict;> at the top of your Perl scripts allows you to use
+variables without declaring them, but that is strongly discouraged. 
+
+
+=head2 Conditional and looping constructs
+
+Perl has all of the usual conditional and looping constructs.
+
+The conditions can be any Perl expression.  See the list of operators
+in the next section for information on comparison and boolean logic
+operators, which are commonly used in conditional statements.
+
+=head3 if
+
+=begin code 
+    if condition {
+        ...
+    } elsif other condition {
+        ...
+    } else {
+        ...
+    }
+=end code
+
+There's also a negated version of it:
+
+=begin code
+    unless condition {
+        ...
+    }
+=end code
+
+This is provided as a more readable version of C<if !condition>.
+
+Note that the braces are required in Perl, even if you've only got one line in the block.  However, there is a clever way of making your one-line conditional blocks more English like:
+
+=begin code
+    # the traditional way
+    if $zippy {
+        print "Yow!";
+    }
+
+    # the Perlish post-condition way
+    print "Yow!" if $zippy;
+    print "We have no bananas" unless $bananas;
+=end code
+
+=head3 while
+
+=begin code
+    while condition {
+        ...
+    }
+=end code
+
+There's also a negated version, for the same reason we have C<unless>:
+
+    until condition {
+        ...
+    }
+
+You can also use "while" in a post-condition:
+
+    say "LA LA LA" while 1;          # loops forever
+
+If you want the condition to be checked after the loop block, you can use
+Pascal-like C<repeat>:
+	
+    repeat {
+        ...
+    } while condition
+    
+    repeat {
+        ...
+    } until condition
+
+=head3 for and loop
+
+For a C-style for-loop use C<loop>:
+    
+    loop (my $i = 0; $i < $max; $i++){
+        ...
+    }
+
+This kind of loop is rarely needed in Perl since Perl provides
+the more friendly list scanning C<for> loop.
+
+    for @list -> my $i {
+        say "This element is $i";
+    }
+
+    # or you can use thte default $_ variable:
+    for @list {
+        say "This element is $_";
+    }
+
+
+=head2 Builtin operators and functions
+
+Perl comes with a wide selection of builtin functions.  Some of the
+ones we've already seen include C<say>, C<sort> and C<reverse>.  A list
+of them is given at the start of perlfunc and you can easily read about
+any given function by using "p6doc -f functionname".
+
+=comment at least at hope it will be that way ;-)
+
+Here are a few of the most common used operators:
+
+=head3 Arithmetic
+
+=begin table :caption<Arithmetic operators>
+    +       addition
+    -       substraction
+    *       multiplication
+    E<47>   division
+=end table
+
+=head3 Numeric comparison
+
+=begin table :caption<Numeric comparison operators>
+    ==  equality
+    !=  inequality
+    <   less than
+    >   greater than
+    <=  less than or equal
+    >=  greater than or equal
+=end table
+
+
+=head3 TODO: the rest
+
+
+
+=end pod
