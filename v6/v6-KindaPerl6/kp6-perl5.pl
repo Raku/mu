@@ -85,10 +85,12 @@ use Data::Dump::Streamer;
 
     sub begin_block {
         # this routine is called by begin-blocks at compile time, in order to execute the code
-        # Input: $env, Array of AST nodes
+        # Input: '::Lit::Code' AST node
         
-        my $env = shift;
-        my @ast = @{$_[0]};
+        #print "PARAM: ",Dumper(\@_);
+        #my $env = shift;
+        my @ast = ( shift );
+
         #print Dump( @ast );
         #@ast = map { $_->emit( $visitor_lexical_sub )     } @ast;
         @ast = map { $_->emit( $visitor_metamodel )       } @ast;
@@ -98,14 +100,20 @@ use Data::Dump::Streamer;
         #say( join( ";\n", (map { $_->emit( $visitor_dump_ast    ) } @ast )));
         my $native = join( ";\n", (map { $_->emit( $visitor_emit_perl5  ) } @ast ));
     
-        # execute inside the current pad
-        # TODO - check for side-effects
-    
-        print "=pod\n";
-        print "BEGIN ENV: ", Dumper( $env->lexicals ), "\n";
-        print "BEGIN AST: ", Dumper( \@ast );
-        print "BEGIN: Native code: $native\n\n";
+        # execute the native code inside the current pad
+        add_pad;
         my $data = $COMPILER::PAD[0]->eval( $native );  # XXX - want() context
+        drop_pad;
+        die "At BEGIN: " . $@ if $@;
+        #print "RETURN DATA: ", Dumper($data);
+
+        # check for side-effects
+        my @begin_stmts;
+
+        #print "=pod\n";
+        #print "BEGIN ENV: ", Dumper( $env->lexicals ), "\n";
+        #print "BEGIN AST: ", Dumper( \@ast );
+        #print "BEGIN: Native code: $native\n\n";
 
         for my $pad ( @COMPILER::PAD ) {
           my $side_effects = $pad->eval( '\%_MODIFIED' ); 
@@ -115,25 +123,57 @@ use Data::Dump::Streamer;
           for my $name ( @names ) {
             my $value = $COMPILER::PAD[0]->eval( "\\$name" );
             # TODO - convert directly DATA->AST, instead of DATA->PERL->AST
-            print "BEGIN SIDE-EFFECT: $name = ",${$value}->perl," \n\n";
+            #print "BEGIN SIDE-EFFECT: $name = ",${$value}->perl," \n\n";
             # TODO - convert $$value to perl6 AST
             my $p = KindaPerl6::Grammar->exp( "$name = " . ${$value}->perl , 0);
-            print "AST: ", Dumper($$p);
+            #print "AST: ", Dumper($$p);
             # TODO - check for shared data (BIND)
+            push @begin_stmts, $$p;
           }
         }
         # TODO - emit the runtime BEGIN code 
-        print "=cut\n";
+        add_pad;
+        my $begin_ast = Sub->new(
+            name  => '',
+            block => Lit::Code->new(
+                sig   => Sig->new(
+                                     'named' => {},
+                                     'invocant' => undef,
+                                     'positional' => []
+                                 ),
+                body  => \@begin_stmts,
+                pad   => $COMPILER::PAD[0], 
+                state => {},
+            ),
+        );
+        drop_pad;
+        #print "BEGIN AST: ",Dumper($begin_ast);
+        #print "BEGIN native: ", join( ";\n", (map { $_->emit( $visitor_emit_perl5  ) } ($begin_ast) ));
+        
+        #print "\n";
+        #print "=cut\n";
         
         # TODO - XXX - ignore 'CODE' for now
-        return if ref($data) eq 'CODE';
+        #return if ref($data) eq 'CODE';
     
         # - convert the data to ast
         my $source = $data->perl;
-        #print "begin - result data: $source\n";
+        #print "# begin - result data: $source\n";
         my $p = KindaPerl6::Grammar->exp($source, 0);
         #say( Main::perl( $$p ) );
-        return $$p;
+        add_pad;
+        my $final_ast = Do->new(
+                'block' => Lit::Code->new(
+                    pad   => $COMPILER::PAD[0],
+                    state => { },
+                    sig   => Sig->new( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
+                    body  => [ $begin_ast, $$p ],
+                ),
+        );
+        drop_pad;
+        #print "FINAL AST: ",Dumper($final_ast); 
+        #print "FINAL native: ", join( ";\n", (map { $_->emit( $visitor_emit_perl5  ) } ($final_ast) ));
+        return $final_ast;
     }
 
     sub check_block {

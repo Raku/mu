@@ -701,8 +701,17 @@ token begin_block {
     {
         # say ' block: ', ($$<exp_stmts>).perl;
         my $env := @COMPILER::PAD[0];
+        COMPILER::drop_pad();
         #say "BEGIN block";
-        return COMPILER::begin_block( $env, $$<exp_stmts> );
+        return COMPILER::begin_block( 
+            # $env, 
+            ::Lit::Code(
+                pad   => $env,
+                state => { },
+                sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
+                body  => $$<exp_stmts>,
+            ),
+        );
     }
 };
 
