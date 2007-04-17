@@ -1,0 +1,11 @@
+full: 00:00:01 <=> 0
+full: 00:00:01 <=> 1
+Killing 1234 (perl ./full.pl 10)...
+full: 00:00:00
+indeed killed
+===
+half: 00:00:01 <=> 0
+half: 00:00:01 <=> 3
+half: 00:00:00
+Killing 1234 (perl ./half.pl 10)...
+indeed killed
