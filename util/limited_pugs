@@ -4,6 +4,6 @@
 # and then do 'make smoke'.
 
 ulimit -v 800000
-ulimit -t 120
+ulimit -t 300
 nice -n5 ./pugs $*
 
