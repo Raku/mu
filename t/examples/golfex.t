@@ -32,8 +32,10 @@ if $*OS eq "browser" {
 
 diag "Running under $*OS";
 
-my $PUGS  = './pugs';
-$PUGS     = 'pugs' if $*OS eq any(<MSWin32 mingw msys cygwin>);
+my $PUGS  = %*ENV<HARNESS_PUGS> // './pugs';
+
+$PUGS     = %*ENV<HARNESS_PUGS> // 'pugs'
+    if $*OS eq any(<MSWin32 mingw msys cygwin>);
 
 # XXX: this $outtmp/slurp will go away when backticks supported.
 # XXX: should also check to verify that nothing is written to stderr.
