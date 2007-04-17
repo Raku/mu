@@ -44,9 +44,9 @@ if $*OS eq "browser" {
     exit;
 }
 
-my $pugs = "./pugs";
+my $pugs  = %*ENV<HARNESS_PUGS> || './pugs';
 if $*OS eq any(<MSWin32 mingw msys cygwin>) {
-    $pugs = 'pugs.exe';  
+   $pugs = %*ENV<HARNESS_PUGS> || 'pugs';
 };
 
 # The following is ugly and should be rewritten
