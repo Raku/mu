@@ -11,12 +11,14 @@ has Int $.exist;
 has Int $.valid;
 has Int $.canread;
 has Int $.canwrite;
+has Int $.isbin;
 
 has $.fsize;
 
 has Hash $.traversed;
 
 has Array @.content_array;
+has Array @.filetype;
 
 has $.readlimit is rw; # set readlimit to a default of 50 megabytes
 has $.maxdives  is rw; # maximum depth for recursive list_dir calls
@@ -254,8 +256,27 @@ method can_write (Str $filename) {
     return $.canwrite = 1;
 }
 
-# XXX isbin
-method isbin (Str $filename) {}
+method is_bin (Str $filename) {
+    return $.isbin = undef unless $filename ~~ :B;
+    $.isbin = 1;
+}
+
+method file_type (Str $filename) {
+    return undef unless $filename ~~ :e;
+    
+    @.filetype.push('PLAIN')     if $filename ~~ :f;
+    @.filetype.push('TEXT')      if $filename ~~ :T;
+    @.filetype.push('BINARY')    if $filename ~~ :B;
+    @.filetype.push('DIRECTORY') if $filename ~~ :d;
+    @.filetype.push('SYMLINK')   if $filename ~~ :l;
+    @.filetype.push('SOCKET')    if $filename ~~ :S;
+    @.filetype.push('PIPE')      if $filename ~~ :p;
+    @.filetype.push('BLOCK')     if $filename ~~ :b;
+    @.filetype.push('SOCKET')    if $filename ~~ :S;
+    @.filetype.push('CHARACTER') if $filename ~~ :c;
+    @.filetype.push('TTY')       if $filename ~~ :t;
+}
+
 # XXX last_access
 method last_access (Str $filename) {}
 # XXX last_modified
