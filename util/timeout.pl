@@ -1,5 +1,8 @@
 #!/usr/bin/env perl
 
+# This script serves a hacky timeout daemon for auto-smoke
+# Please run util/t/02-timeout.t after updating this file.
+
 use strict;
 use warnings;
 
@@ -27,7 +30,7 @@ Examples:
 _EOC_
 }
 
-my $user = $opts{user} || getuid;
+my $user = $opts{user} || getuid();
 ### $regex
 ## $user
 

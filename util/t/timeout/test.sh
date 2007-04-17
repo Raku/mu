@@ -7,7 +7,7 @@ timeout='perl ../../timeout.pl'
 echo 'full: 00:00:01 <=> 0'
 $timeout -r './full\.pl' -t '00:00:01'
 
-sleep 1
+sleep 2
 echo 'full: 00:00:01 <=> 1'
 $timeout -r './full\.pl' -t '00:00:01'
 
