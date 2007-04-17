@@ -313,6 +313,13 @@ sub add_user_css {
     color: red;
     font-weight: bold;
 }
+.snip { margin-left: 6px; }
+.snipres {
+    margin-left: 6px;
+    border-width: 0;
+    cellspacing: 0;
+    cellpadding: 0;
+}
 </style>
 .
     $$html =~ s{(</head>)}{$user_css\n$1};
@@ -377,10 +384,10 @@ sub gen_code_snippet ($) {
 
     my $snippet;
     if (!$test_result) {
-        $snippet = qq{<pre style="margin-left: 6px">$src</pre>};
+        $snippet = qq{<pre class="snip">$src</pre>};
     } else {
         $snippet = qq{
-            <table style="margin-left: 6px; border-width: 0; cellspacing: 0; cellpadding: 0">
+            <table class="snipres">
                 $src
             </table>
         };
