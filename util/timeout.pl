@@ -31,7 +31,7 @@ my $user = $opts{user} || getuid;
 ### $regex
 ## $user
 
-my @lines = split /\n/, `ps -u agentz -o pid -o cputime -o cmd`;
+my @lines = split /\n/, `ps -u $user -o pid -o cputime -o cmd`;
 ## @lines
 for my $line (@lines) {
     my ($pid, $time, $cmd) = ($line =~ /^\s*(\d+)\s+(\S+)\s+(.+)$/);
