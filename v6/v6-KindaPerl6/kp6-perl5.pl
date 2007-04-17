@@ -101,11 +101,20 @@ use Data::Dump::Streamer;
         #print "BEGIN: Native code: $native\n";
         my $data = $COMPILER::PAD[0]->eval( $native );  # XXX - want() context
 
-        my $side_effects = $COMPILER::PAD[0]->eval( '\%_MODIFIED' ); 
-        #use Data::Dumper;
-        #print "MODIFIED: ", Dumper( $side_effects );
-        # TODO - emit side-effects...
-    
+        for my $pad ( @COMPILER::PAD ) {
+          my $side_effects = $pad->eval( '\%_MODIFIED' ); 
+          #use Data::Dumper;
+          #print "MODIFIED: ", Dumper( $side_effects );
+          # TODO - emit side-effects...
+          my @names = keys %$side_effects;
+          for my $name ( @names ) {
+            my $value = $COMPILER::PAD[0]->eval( "\\$name" );
+            print "# BEGIN SIDE-EFFECT: $name = $$value \n\n";
+            # TODO - convert $$value to perl6 AST
+          }
+        }
+        # TODO - emit the runtime BEGIN code 
+        
         # TODO - XXX - ignore 'CODE' for now
         return if ref($data) eq 'CODE';
     
