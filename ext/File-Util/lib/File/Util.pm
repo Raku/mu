@@ -222,8 +222,7 @@ method size (Str $filename) {
 }
 
 method existent (Str $filename) {
-    return $.exist = undef unless $filename ~~ :e;
-    $.exist = 1;
+    $filename ~~ :e ?? $.exist = 1 !! $.exist = undef;
 }
 
 method valid_filename (Str $filename){
@@ -247,18 +246,15 @@ method created (Str $filename) {}
 method bitmask (Str $filename) {}
 
 method can_read (Str $filename) {
-    return $.canread = undef unless $filename ~~ :r;
-    return $.canread = 1;
+    $filename ~~ :r ?? $.canread = 1 !! $.canread = undef;
 }
 
 method can_write (Str $filename) {
-    return $.canwrite = undef unless $filename ~~ :w;
-    return $.canwrite = 1;
+    $filename ~~ :w ?? $.canwrite = 1 !! $.canwrite = undef;
 }
 
 method is_bin (Str $filename) {
-    return $.isbin = undef unless $filename ~~ :B;
-    $.isbin = 1;
+    $filename ~~ :B ?? $.isbin = 1 !! $.isbin = undef;
 }
 
 method file_type (Str $filename) {
