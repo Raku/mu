@@ -14,5 +14,5 @@ write_file('out2', $content);
 my $out = `diff out2 out.std`;
 is $out, '', 'no diff';
 
-END { unlink('out', 'out2'); }
+#END { unlink('out', 'out2'); }
 
