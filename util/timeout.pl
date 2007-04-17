@@ -42,7 +42,7 @@ for my $line (@lines) {
         ### $cmd
         if ($time ge $threshold) {
             warn "Killing $pid ($cmd)...\n";
-            kill(9, $pid);
+            kill(15, $pid);
         }
    }
 }
