@@ -107,7 +107,8 @@ I<This documentation is pending.>
 
 =head1 INTERFACE
 
-I<This documentation is pending; this section may also be split into several.>
+I<This documentation is pending; this section may also be split into
+several.>
 
 =head1 DIAGNOSTICS
 

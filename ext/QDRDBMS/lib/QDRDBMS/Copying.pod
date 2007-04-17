@@ -152,9 +152,9 @@ can be maintained.  (But you can still reuse your contributed code as you
 see fit in external projects.)
 
 If you refuse the ownership transfer, then Darren will not accept the
-contribution into the QDRDBMS core distribution, or may possibly rewrite the
-contribution instead, in which case the contribution would effectively be
-'advice'.
+contribution into the QDRDBMS core distribution, or may possibly rewrite
+the contribution instead, in which case the contribution would effectively
+be 'advice'.
 
 As an exception to the above, material changes to a core module that are
 distributed independently as a patch will remain yours.

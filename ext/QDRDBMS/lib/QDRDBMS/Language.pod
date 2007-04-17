@@ -490,14 +490,14 @@ parameters.
 A C<procedure> is an explicitly invokable routine with 0..N parameters that
 can see and update global variables, and can invoke any kind of invokable
 routine; it can only be invoked as the root part of a statement in another
-routine.  The C<procedure> and C<gateway> are the only explictly invokable
-routines that can directly reference global containers, whether catalog or
-data.  The vast majority of C<procedure> that exist will be user-defined.
-But some system-defined routines that would otherwise be C<function> or
-C<update_operator> are C<procedure> instead soley because they are
-non-deterministic; an example is an operator that derives a tuple sequence
-from a relation without fully sorting the tuples, because the result is
-fundamentally random and non-repeatable.
+routine.  The C<procedure> and C<host_gate> are the only explictly
+invokable routines that can directly reference global containers, whether
+catalog or data.  The vast majority of C<procedure> that exist will be
+user-defined.  But some system-defined routines that would otherwise be
+C<function> or C<update_operator> are C<procedure> instead soley because
+they are non-deterministic; an example is an operator that derives a tuple
+sequence from a relation without fully sorting the tuples, because the
+result is fundamentally random and non-repeatable.
 
 =item C<type_constraint>
 
@@ -537,19 +537,19 @@ returns a Bool.  The DBMS responds as per a state constraint.  Conceptually
 speaking, a C<transition_constraint> will execute after all other kinds of
 constraints.
 
-=item C<gateway>
+=item C<host_gate>
 
-A C<gateway> is an anonymous procedure that can not be invoked by any other
-routine and exists in the limbo between the DBMS and the application that
-is driving it; the application holds a C<QDRDBMS::Interface::Routine>
-object to reference it by (the result of a QDRDBMS object's "prepare" or
-"compile" method), and it exists only so long as that object doesn't go out
-of scope.  A C<gateway> is mostly like a C<procedure> in every other way.
-Main differences are that the only C<gateway> routines are ones that users
-define, and that they are the only routines allowed to have explicit
-isolated transaction initiation and termination statements (for optional
-use in a parent-most transaction); all other updating routine types have
-self-contained atomic blocks instead.
+A C<host_gate> is an anonymous procedure that can not be invoked by any
+other routine and exists in the limbo between the DBMS and the application
+that is driving it; the application holds a C<QDRDBMS::Interface::Routine>
+object to reference it by (the result of a C<QDRDBMS::Interface::DBMS>
+object's C<prepare()> method), and it exists only so long as that object
+doesn't go out of scope.  A C<host_gate> is mostly like a C<procedure> in
+every other way.  Main differences are that the only C<host_gate> routines
+are ones that users define, and that they are the only routines allowed to
+have explicit isolated transaction initiation and termination statements
+(for optional use in a parent-most transaction); all other updating routine
+types have self-contained atomic blocks instead.
 
 =back
 
@@ -660,7 +660,7 @@ not.  The layering of transactions can involve any combination of explicit
 and implicit transactions (the combination should behave intuitively).
 
 The lifetimes of all transactions in QDRDBMS D (except those declared in
-C<gateway> routines) are bound to specific lexical scopes, such that they
+C<host_gate> routines) are bound to specific lexical scopes, such that they
 begin when that scope is entered and end when that scope is exited; if the
 scope is exited normally, its transaction commits; if the scope terminates
 early due to a thrown exception, its transaction rolls back.
@@ -685,9 +685,10 @@ Explicit atomic statement blocks can also be declared within a routine.
 
 QDRDBMS D also supports the common concept of explicit open-ended
 transaction statements that start or end transactions which are not bound
-to lexical scopes; however, these statements may only be invoked within
-a C<gateway> routine, that an application invokes directly, and not in any
-named routines, nor within atomic statement blocks in C<gateway> routines.
+to lexical scopes; however, these statements may only be invoked within a
+C<host_gate> routine, that an application invokes directly, and not in any
+named routines, nor within atomic statement blocks in C<host_gate>
+routines.
 
 While scope-bound transactions always occur entirely within one invocation
 of the DBMS by an application, the open-ended transactions are intended for
@@ -932,8 +933,8 @@ names specifically.  Its default value is C<lex.type.>.
 =item C<sys.type.Cat.RtnDeclName>
 
 A C<Cat.RtnDeclName> is a proper subtype of C<Cat.EntityDeclName> whose
-C<Text> possrep is of the format C<(sys|nat|lex)\.rtn\..*>; it is for routine
-names specifically.  Its default value is C<lex.rtn.>.
+C<Text> possrep is of the format C<(sys|nat|lex)\.rtn\..*>; it is for
+routine names specifically.  Its default value is C<lex.rtn.>.
 
 =item C<sys.type.Cat.VarDeclName>
 

@@ -4,26 +4,26 @@ use Test;
 
 plan( 12 );
 
-use QDRDBMS::AST; pass "(dummy instead of broken use_ok)";
+use_ok( 'QDRDBMS::AST' );
 skip( 1, q{is( QDRDBMS::AST.WHO.version, 0.0.0,
     'QDRDBMS::AST is the correct version' );} );
 
-use QDRDBMS; pass "(dummy instead of broken use_ok)";
+use_ok( 'QDRDBMS' );
 skip( 1, q{is( QDRDBMS.WHO.version, 0.0.0,
     'QDRDBMS is the correct version' );} );
 
-use QDRDBMS::Validator; pass "(dummy instead of broken use_ok)";
+use_ok( 'QDRDBMS::Validator' );
 skip( 1, q{is( QDRDBMS::Validator.WHO.version, 0.0.0,
     'QDRDBMS::Validator is the correct version' );} );
 
-use QDRDBMS::Engine::Example::PhysType; pass "(dummy instead of broken use_ok)";
+use_ok( 'QDRDBMS::Engine::Example::PhysType' );
 skip( 1, q{is( QDRDBMS::Engine::Example::PhysType.WHO.version, 0.0.0,
     'QDRDBMS::Engine::Example::PhysType is the correct version' );} );
 
-use QDRDBMS::Engine::Example::Operators; pass "(dummy instead of broken use_ok)";
+use_ok( 'QDRDBMS::Engine::Example::Operators' );
 skip( 1, q{is( QDRDBMS::Engine::Example::Operators.WHO.version, 0.0.0,
     'QDRDBMS::Engine::Example::Operators is the correct version' );} );
 
-use QDRDBMS::Engine::Example; pass "(dummy instead of broken use_ok)";
+use_ok( 'QDRDBMS::Engine::Example' );
 skip( 1, q{is( QDRDBMS::Engine::Example.WHO.version, 0.0.0,
     'QDRDBMS::Engine::Example is the correct version' );} );

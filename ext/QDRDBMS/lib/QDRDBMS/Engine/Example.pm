@@ -37,7 +37,7 @@ submethod BUILD (Array :$dbms_config!) {
 
 ###########################################################################
 
-method prepare_routine of QDRDBMS::Engine::Example::Routine
+method prepare of QDRDBMS::Engine::Example::Routine
 #        (QDRDBMS::AST::Proc :routine($rtn_ast)!) {
         (QDRDBMS::AST::Proc :$routine!) {
     my $rtn_ast = $routine;
@@ -45,7 +45,7 @@ method prepare_routine of QDRDBMS::Engine::Example::Routine
         :dbms(self), :routine($rtn_ast) );
 }
 
-method new_variable of QDRDBMS::Engine::Example::Variable () {
+method new_var of QDRDBMS::Engine::Example::Variable () {
     return QDRDBMS::Engine::Example::Variable.new( :dbms(self) );
 }
 
@@ -83,9 +83,9 @@ submethod BUILD (QDRDBMS::Engine::Example::DBMS :$dbms!,
 
 ###########################################################################
 
-#method bind_variables (Array :variables($var_engs)!) {
-method bind_variables (Array :$variables!) {
-    my $var_engs = $variables;
+#method bind_host_params (Array :vars($var_engs)!) {
+method bind_host_params (Array :$vars!) {
+    my $var_engs = $vars;
     $!bound_vars.push( $var_engs.values ); # TODO; overwrite dupl names
     return;
 }
@@ -163,7 +163,8 @@ I<This documentation is pending.>
 
 =head1 INTERFACE
 
-I<This documentation is pending; this section may also be split into several.>
+I<This documentation is pending; this section may also be split into
+several.>
 
 =head1 DIAGNOSTICS
 

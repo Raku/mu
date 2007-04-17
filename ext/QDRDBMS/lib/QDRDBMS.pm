@@ -94,11 +94,11 @@ submethod BUILD (Str :$engine_name!, Array :$dbms_config!) {
     my $dbms_eng_class = $dbms_eng.WHAT;
 
 #    die qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class' does}
-#            ~ q{ not provide the prepare_routine() method.}
-#        if !$dbms_eng.HOW.can( 'prepare_routine' );
+#            ~ q{ not provide the prepare() method.}
+#        if !$dbms_eng.HOW.can( 'prepare' );
 #    die qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class' does}
-#            ~ q{ not provide the new_variable() method.}
-#        if !$dbms_eng.HOW.can( 'new_variable' );
+#            ~ q{ not provide the new_var() method.}
+#        if !$dbms_eng.HOW.can( 'new_var' );
 
     $!dbms_eng = $dbms_eng;
 
@@ -107,7 +107,7 @@ submethod BUILD (Str :$engine_name!, Array :$dbms_config!) {
 
 ###########################################################################
 
-method prepare_routine of QDRDBMS::Interface::Routine
+method prepare of QDRDBMS::Interface::Routine
 #        (QDRDBMS::AST::Proc :routine($rtn_ast)!) {
         (QDRDBMS::AST::Proc :$routine!) {
     my $rtn_ast = $routine;
@@ -115,7 +115,7 @@ method prepare_routine of QDRDBMS::Interface::Routine
         :dbms(self), :routine($rtn_ast) );
 }
 
-method new_variable of QDRDBMS::Interface::Variable () {
+method new_var of QDRDBMS::Interface::Variable () {
     return QDRDBMS::Interface::Variable.new( :dbms(self) );
 }
 
@@ -153,22 +153,21 @@ submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!,
 
     my $rtn_eng = undef;
     try {
-        $rtn_eng = $dbms_eng.prepare_routine( :routine($rtn_ast) );
+        $rtn_eng = $dbms_eng.prepare( :routine($rtn_ast) );
     };
     if (my $err = $!) {
         die qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class'}
-            ~ q{ threw an exception during its prepare_routine()}
-            ~ qq{ execution: $err}
+            ~ qq{ threw an exception during its prepare() execution: $err}
     }
-    die q{new(): The prepare_routine() method of the QDRDBMS}
+    die q{new(): The prepare() method of the QDRDBMS}
             ~ qq{ DBMS class '$dbms_eng_class' did not return an object}
             ~ q{ to serve as a Routine Engine.}
         if !$rtn_eng.defined;
     my $rtn_eng_class = $rtn_eng.WHAT;
 
 #    die qq{new(): The QDRDBMS Routine Engine class '$rtn_eng_class'}
-#            ~ q{ does not provide the bind_variables() method.}
-#        if !$rtn_eng.HOW.can( 'bind_variables' );
+#            ~ q{ does not provide the bind_host_params() method.}
+#        if !$rtn_eng.HOW.can( 'bind_host_params' );
 #    die qq{new(): The QDRDBMS Routine Engine class '$rtn_eng_class'}
 #            ~ q{ does not provide the execute() method.}
 #        if !$rtn_eng.HOW.can( 'execute' );
@@ -182,37 +181,37 @@ submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!,
 
 ###########################################################################
 
-#method bind_variables (Array :variables($var_intfs)!) {
-method bind_variables (Array :$variables!) {
-    my $var_intfs = $variables;
+#method bind_host_params (Array :vars($var_intfs)!) {
+method bind_host_params (Array :$vars!) {
+    my $var_intfs = $vars;
 
-    die q{new(): Bad :$variables arg; it is not an object of a}
+    die q{new(): Bad :$vars arg; it is not an object of a}
             ~ q{ Array-doing class.}
         if !$var_intfs.defined or !$var_intfs.does(Array);
-    my Hash $seen_var_names = {};
+    my Hash $seen_param_names = {};
     my Array $var_engs = [];
     for $var_intfs -> $elem {
-        die q{new(): Bad :$variables arg; it is not an object of a}
+        die q{new(): Bad :$vars arg; it is not an object of a}
                 ~ q{ Array-doing class, or it doesn't have 2 elements.}
             if !$elem.defined or !$elem.does(Array) or $elem.elems != 2;
-        my ($var_name, $var_intf) = $elem.values;
-        die q{new(): Bad :$variables arg elem; its first elem is not}
+        my ($param_name, $var_intf) = $elem.values;
+        die q{new(): Bad :$vars arg elem; its first elem is not}
                 ~ q{ an object of a QDRDBMS::AST::EntityName-doing class.}
-            if !$var_name.defined
-                or !$var_name.does(QDRDBMS::AST::EntityName);
-        my Str $var_name_text = $var_name.text();
-        die q{new(): Bad :$variables arg elem; its first elem is not}
+            if !$param_name.defined
+                or !$param_name.does(QDRDBMS::AST::EntityName);
+        my Str $param_name_text = $param_name.text();
+        die q{new(): Bad :$vars arg elem; its first elem is not}
                 ~ q{ distinct between the arg elems.}
-            if $seen_var_names.exists($var_name_text);
-        $seen_var_names{$var_name_text} = 1;
-        die q{new(): Bad :$variables arg elem; its second elem is not}
-                ~ q{ an object of a QDRDBMS::Interface::Variable-doing class.}
+            if $seen_param_names.exists($param_name_text);
+        $seen_param_names{$param_name_text} = 1;
+        die q{new(): Bad :$vars arg elem; its second elem is not an}
+                ~ q{ object of a QDRDBMS::Interface::Variable-doing class.}
             if !$var_intf.defined
                 or !$var_intf.does(QDRDBMS::Interface::Variable);
-        $var_engs.push( [$var_name, $var_intf!var_eng] );
+        $var_engs.push( [$param_name, $var_intf!var_eng] );
     }
 
-    $!rtn_eng.bind_variables( :variables($var_intfs) );
+    $!rtn_eng.bind_host_params( :vars($var_intfs) );
     return;
 }
 
@@ -251,14 +250,14 @@ submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!) {
 
     my $var_eng = undef;
     try {
-        $var_eng = $dbms_eng.new_variable();
+        $var_eng = $dbms_eng.new_var();
     };
     if (my $err = $!) {
         die qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class'}
-            ~ q{ threw an exception during its new_variable()}
+            ~ q{ threw an exception during its new_var()}
             ~ qq{ execution: $err}
     }
-    die q{new(): The new_variable() method of the QDRDBMS}
+    die q{new(): The new_var() method of the QDRDBMS}
             ~ qq{ DBMS class '$dbms_eng_class' did not return an object}
             ~ q{ to serve as a Variable Engine.}
         if !$var_eng.defined;
