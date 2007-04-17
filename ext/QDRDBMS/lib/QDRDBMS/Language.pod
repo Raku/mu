@@ -177,7 +177,7 @@ includes both N-dimensional matricies plus unordered collections of
 name-value pairs.  Note that a sequence may be used simply to maintain a
 simple list in order, though the actual order of its elements may not
 always be significant.  Sometimes I<sequence> also refers specifically to
-the C<Sequence> data type, which is a certain binary relation.
+the C<Seq> data type, which is a certain binary relation.
 
 =item selector
 
@@ -816,7 +816,7 @@ value is one.
 
 =head2 Core Nonscalar Data Types
 
-These nonscalar data types, C<Tuple|Relation|Database|Set|Sequence|Bag>,
+These nonscalar data types, C<Tuple|Relation|Database|Set|Seq|Bag>,
 permit transparent/user-visible compositions of multiple values into other
 conceptual values.  Unlike with scalar types in general, every
 system-defined selector for nonscalar values will return values that are
@@ -866,14 +866,14 @@ normally used by any system-defined N-ary operators where the order of
 their argument elements or result is not significant, and that duplicate
 values are not significant.  Its default value has zero tuples.
 
-=item C<sys.type.Sequence>
+=item C<sys.type.Seq>
 
-An C<Sequence> is a proper subtype of C<Relation> that has 2 attributes,
+An C<Seq> is a proper subtype of C<Relation> that has 2 attributes,
 and their names are C<index> and C<value>, where C<index> is a unary key
 and its declared type is an C<UInt> subtype (C<value> can be non-unique and
-of any declared type).  A Sequence is considered dense, and all C<index>
+of any declared type).  A Seq is considered dense, and all C<index>
 values in one are numbered consecutively from 0 to 1 less than the count of
-tuples, like array indices in typical programming languages.  A C<Sequence>
+tuples, like array indices in typical programming languages.  A C<Seq>
 subtype is normally used by any system-defined N-ary operators where the
 order of their argument elements or result is significant (and duplicate
 values are significant); specifically, C<index> defines an explicit
@@ -910,7 +910,7 @@ a C<Text>, though often database attribute names, which are its component
 relation names, are multi-part (extra parts being for "schema" name-spaces
 and such); names of data types and operators are typically 3-4 parts, where
 C<sys> is an example of part 1.  C<Cat.EntityName> has multiple possreps;
-one is a C<Sequence(1..N) of Text>; one is a specially encoded C<Text>
+one is a C<Seq(1..N) of Text>; one is a specially encoded C<Text>
 where parts are ordered from greatest to least signficance, and adjacent
 parts are separated with a single "period" character, and any literal
 period or backslash characters in parts are backslash-escaped as C<\[pd]>
@@ -1179,7 +1179,7 @@ Set:
 
   { $v, $v, ... }  # <-- each $v becomes value
 
-Sequence:
+Seq:
 
   [ $v, $v, ... ]  # <-- each $v becomes value; index is generated (0..N)
 

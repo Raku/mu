@@ -11,8 +11,7 @@ module QDRDBMS-0.0.0 {
 ###########################################################################
 
 sub new_dbms of QDRDBMS::Interface::DBMS
-#        (Str :$engine_name!, Hash of Any :$dbms_config!) {
-        (Str :$engine_name!, Hash :$dbms_config!) {
+        (Str :$engine_name!, Array :$dbms_config!) {
     return ::QDRDBMS::Interface::DBMS.new(
         :engine_name($engine_name), :dbms_config($dbms_config) );
 }
@@ -32,16 +31,34 @@ class QDRDBMS::Interface::DBMS {
 
 ###########################################################################
 
-#submethod BUILD (Str :$engine_name!, Hash of Any :$dbms_config!) {
-submethod BUILD (Str :$engine_name!, Hash :$dbms_config!) {
+submethod BUILD (Str :$engine_name!, Array :$dbms_config!) {
 
     die q{new(): Bad :$engine_name arg; it is not an object of a}
             ~ q{ Str-doing class.}
         if !$engine_name.defined or !$engine_name.does(Str);
 
     die q{new(): Bad :$dbms_config arg; it is not an object of a}
-            ~ q{ Hash-doing class.}
-        if !$dbms_config.defined or !$dbms_config.does(Hash);
+            ~ q{ Array-doing class.}
+        if !$dbms_config.defined or !$dbms_config.does(Array);
+    my $seen_config_elem_names = {};
+    for $dbms_config -> $elem {
+        die q{new(): Bad :$dbms_config arg; it is not an object of a}
+                ~ q{ Array-doing class, or it doesn't have 2 elements.}
+            if !$elem.defined or !$elem.does(Array) or $elem.elems != 2;
+        my ($elem_name, $elem_value) = $elem.values;
+        die q{new(): Bad :$dbms_config arg elem; its first elem is not}
+                ~ q{ an object of a QDRDBMS::AST::EntityName-doing class.}
+            if !$elem_name.defined
+                or !$elem_name.does(QDRDBMS::AST::EntityName);
+        my Str $elem_name_text = $elem_name.text();
+        die q{new(): Bad :$dbms_config arg elem; its first elem is not}
+                ~ q{ distinct between the arg elems.}
+            if $seen_config_elem_names.exists($elem_name_text);
+        $seen_config_elem_names{$elem_name_text} = 1;
+        die q{new(): Bad :$dbms_config arg elem;}
+                ~ q{ its second elem is not defined.}
+            if !$elem_value.defined;
+    }
 
     # A module may be loaded due to it being embedded in a non-excl file.
     if (!::($engine_name).does(Module)) {
@@ -165,22 +182,34 @@ submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!,
 
 ###########################################################################
 
-#method bind_variables
-#        (Hash of QDRDBMS::Interface::Variable :variables($var_intfs)!) {
-method bind_variables (Hash :$variables!) {
+#method bind_variables (Array :variables($var_intfs)!) {
+method bind_variables (Array :$variables!) {
     my $var_intfs = $variables;
 
     die q{new(): Bad :$variables arg; it is not an object of a}
-            ~ q{ Hash-doing class.}
-        if !$var_intfs.defined or !$var_intfs.does(Hash);
-
-    my $var_engs = {};
-    for $var_intfs.kv -> $var_name, $var_intf {
-        die q{new(): Bad :$var_value arg elem; it is not an object of a}
-                ~ q{ QDRDBMS::Interface::Variable-doing class.}
+            ~ q{ Array-doing class.}
+        if !$var_intfs.defined or !$var_intfs.does(Array);
+    my Hash $seen_var_names = {};
+    my Array $var_engs = [];
+    for $var_intfs -> $elem {
+        die q{new(): Bad :$variables arg; it is not an object of a}
+                ~ q{ Array-doing class, or it doesn't have 2 elements.}
+            if !$elem.defined or !$elem.does(Array) or $elem.elems != 2;
+        my ($var_name, $var_intf) = $elem.values;
+        die q{new(): Bad :$variables arg elem; its first elem is not}
+                ~ q{ an object of a QDRDBMS::AST::EntityName-doing class.}
+            if !$var_name.defined
+                or !$var_name.does(QDRDBMS::AST::EntityName);
+        my Str $var_name_text = $var_name.text();
+        die q{new(): Bad :$variables arg elem; its first elem is not}
+                ~ q{ distinct between the arg elems.}
+            if $seen_var_names.exists($var_name_text);
+        $seen_var_names{$var_name_text} = 1;
+        die q{new(): Bad :$variables arg elem; its second elem is not}
+                ~ q{ an object of a QDRDBMS::Interface::Variable-doing class.}
             if !$var_intf.defined
                 or !$var_intf.does(QDRDBMS::Interface::Variable);
-        $var_engs.{$var_name} = $var_intf!var_eng;
+        $var_engs.push( [$var_name, $var_intf!var_eng] );
     }
 
     $!rtn_eng.bind_variables( :variables($var_intfs) );
@@ -229,9 +258,9 @@ submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!) {
             ~ q{ threw an exception during its new_variable()}
             ~ qq{ execution: $err}
     }
-    die q{new(): The prepare_routine() method of the QDRDBMS}
+    die q{new(): The new_variable() method of the QDRDBMS}
             ~ qq{ DBMS class '$dbms_eng_class' did not return an object}
-            ~ q{ to serve as a Routine Engine.}
+            ~ q{ to serve as a Variable Engine.}
         if !$var_eng.defined;
     my $var_eng_class = $var_eng.WHAT;
 
@@ -276,7 +305,7 @@ and QDRDBMS::Interface::Variable ("Variable").
     # Instantiate a QDRDBMS DBMS / virtual machine.
     my $dbms = QDRDBMS::new_dbms(
             :engine_name('QDRDBMS::Engine::Example'),
-            :dbms_config({}),
+            :dbms_config([]),
         );
 
     # TODO: Create or connect to a repository and work with it.

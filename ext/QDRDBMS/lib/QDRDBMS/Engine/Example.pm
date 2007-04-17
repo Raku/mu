@@ -11,9 +11,7 @@ module QDRDBMS::Engine::Example-0.0.0 {
 
 ###########################################################################
 
-sub new_dbms of QDRDBMS::Engine::Example::DBMS
-#        (Hash of Any :$dbms_config!) {
-        (Hash :$dbms_config!) {
+sub new_dbms of QDRDBMS::Engine::Example::DBMS (Array :$dbms_config!) {
     return ::QDRDBMS::Engine::Example::DBMS.new(
         :dbms_config($dbms_config) );
 }
@@ -26,13 +24,11 @@ sub new_dbms of QDRDBMS::Engine::Example::DBMS
 ###########################################################################
 
 class QDRDBMS::Engine::Example::DBMS {
-#    has Hash of Any $!dbms_config;
-    has Hash $!dbms_config;
+    has Array $!dbms_config;
 
 ###########################################################################
 
-#submethod BUILD (Hash of Any :$dbms_config!) {
-submethod BUILD (Hash :$dbms_config!) {
+submethod BUILD (Array :$dbms_config!) {
 
     $!dbms_config = $dbms_config;
 
@@ -61,11 +57,10 @@ method new_variable of QDRDBMS::Engine::Example::Variable () {
 ###########################################################################
 
 class QDRDBMS::Engine::Example::Routine {
-    has QDRDBMS::Engine::Example::DBMS             $!dbms_eng;
-    has QDRDBMS::AST::Proc                         $!rtn_ast;
-    has Code                                       $!prep_rtn;
-#    has Hash of QDRDBMS::Engine::Example::Variable $!bound_vars;
-    has Hash $!bound_vars;
+    has QDRDBMS::Engine::Example::DBMS $!dbms_eng;
+    has QDRDBMS::AST::Proc             $!rtn_ast;
+    has Code                           $!prep_rtn;
+    has Array                          $!bound_vars;
 
 ###########################################################################
 
@@ -88,12 +83,10 @@ submethod BUILD (QDRDBMS::Engine::Example::DBMS :$dbms!,
 
 ###########################################################################
 
-#method bind_variables
-#        (Hash of QDRDBMS::Engine::Example::Variable
-#            :variables($var_engs)!) {
-method bind_variables (Hash :$variables!) {
+#method bind_variables (Array :variables($var_engs)!) {
+method bind_variables (Array :$variables!) {
     my $var_engs = $variables;
-    $!bound_vars = {$!bound_vars.kv, $var_engs.kv};
+    $!bound_vars.push( $var_engs.values ); # TODO; overwrite dupl names
     return;
 }
 

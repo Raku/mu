@@ -5,11 +5,10 @@ use v6-alpha;
 
 #my Hash of QDRDBMS::AST::EntityName $LITERAL_TYPE_MAP = {
 my Hash $LITERAL_TYPE_MAP = {
-#    'Bool' => QDRDBMS::AST::EntityName.new( :text('sys.type.Bool') ),
-#    'Str'  => QDRDBMS::AST::EntityName.new( :text('sys.type.Text') ),
-#    'Blob' => QDRDBMS::AST::EntityName.new( :text('sys.type.Blob') ),
-#    'Int'  => QDRDBMS::AST::EntityName.new( :text('sys.type.Int') ),
-#    'Num'  => QDRDBMS::AST::EntityName.new( :text('sys.type.Num.Rat') ),
+    'Bool' => ::QDRDBMS::AST::EntityName.new( :text('sys.type.Bool') ),
+    'Str'  => ::QDRDBMS::AST::EntityName.new( :text('sys.type.Text') ),
+    'Blob' => ::QDRDBMS::AST::EntityName.new( :text('sys.type.Blob') ),
+    'Int'  => ::QDRDBMS::AST::EntityName.new( :text('sys.type.Int') ),
 };
 
 ###########################################################################
@@ -25,7 +24,7 @@ sub EntityName of QDRDBMS::AST::EntityName (Str :$text!) is export {
 }
 
 sub LitDefExpr of QDRDBMS::AST::LitDefExpr
-        (Bool|Str|Blob|Int|Num :$lit!) is export {
+        (Bool|Str|Blob|Int :$lit!) is export {
     return QDRDBMS::AST::LitDefExpr.new( :lit($lit) );
 }
 
@@ -69,6 +68,7 @@ sub Proc of QDRDBMS::AST::Proc () is export {
 
 class QDRDBMS::AST::EntityName {
     has Str $!text_possrep;
+#    has Seq $!seq_possrep;
 
 ###########################################################################
 
@@ -85,8 +85,14 @@ submethod BUILD (Str :$text!) {
 
 ###########################################################################
 
-method as_text of Str () {
+method text of Str () {
     return $!text_possrep;
+}
+
+###########################################################################
+
+method seq of Seq () {
+    die "not implemented";
 }
 
 ###########################################################################
@@ -104,29 +110,42 @@ role QDRDBMS::AST::Expr {}
 class QDRDBMS::AST::LitDefExpr {
     does QDRDBMS::AST::Expr;
 
-#    has Bool|Str|Blob|Int|Num $!lit_val;
+#    has Bool|Str|Blob|Int        $!lit_val;
     has Scalar $!lit_val;
-    has Type                  $!lit_type;
+    has QDRDBMS::AST::EntityName $!lit_type;
 
 ###########################################################################
 
-#submethod BUILD (Bool|Str|Blob|Int|Num :lit($lit_val)!) {
-submethod BUILD (Bool|Str|Blob|Int|Num :$lit!) {
+#submethod BUILD (Bool|Str|Blob|Int :lit($lit_val)!) {
+submethod BUILD (Bool|Str|Blob|Int :$lit!) {
     my $lit_val = $lit;
 
-    my $lit_class = $lit_val.WHAT;
     die q{new(): Bad :$lit arg; it is not an object.}
-        if !$lit_class;
-    if (my $lit_type = $LITERAL_TYPE_MAP.{$lit_class}) {
+        if !$lit_val.defined;
+    my $lit_class = $lit_val.WHAT;
+    if (my $lit_type = $LITERAL_TYPE_MAP{$lit_class}) {
         $!lit_val  = $lit_val;
         $!lit_type = $lit_type;
     }
     else {
         die q{new(): Bad :$lit arg; it is not an object of a}
-            ~ q{ (Bool|Str|Blob|Int|Num) class.};
+            ~ q{ (Bool|Str|Blob|Int) class.};
     }
 
     return;
+}
+
+###########################################################################
+
+#sub lit of Bool|Str|Blob|Int () {
+sub lit of Scalar () {
+    return $!lit_val;
+}
+
+###########################################################################
+
+sub lit_type of QDRDBMS::AST::EntityName () {
+    return $!lit_type;
 }
 
 ###########################################################################
@@ -157,6 +176,12 @@ submethod BUILD (QDRDBMS::AST::EntityName :$var!) {
 
 ###########################################################################
 
+sub var of QDRDBMS::AST::EntityName () {
+    return $!var_name;
+}
+
+###########################################################################
+
 } # class QDRDBMS::AST::VarNameExpr
 
 ###########################################################################
@@ -170,6 +195,7 @@ class QDRDBMS::AST::FuncInvoExpr {
     has Hash $!func_args;
 
 ###########################################################################
+=pod
 
 #submethod BUILD (QDRDBMS::AST::EntityName :func($func_name)!,
 #        Hash of QDRDBMS::AST::Expr :$func_args!) {
@@ -198,6 +224,19 @@ submethod BUILD (QDRDBMS::AST::EntityName :$func!,
     return;
 }
 
+###########################################################################
+
+sub v of Str () {
+    return $!v;
+}
+
+###########################################################################
+
+sub v of Str () {
+    return $!v;
+}
+
+=cut
 ###########################################################################
 
 } # class QDRDBMS::AST::FuncInvoExpr
