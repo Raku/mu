@@ -3,6 +3,7 @@
 # to use this script, run C<export HARNESS_PUGS='util/limited_pugs'>,
 # and then do 'make smoke'.
 
+ulimit -v 800000
 ulimit -t 120
-./pugs $*
+nice -n5 ./pugs $*
 
