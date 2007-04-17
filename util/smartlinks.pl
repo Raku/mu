@@ -14,6 +14,7 @@
 use strict;
 #use warnings;
 
+#use Smart::Comments;
 #use YAML::Syck;
 use Getopt::Long;
 use File::Basename;
@@ -23,7 +24,7 @@ use File::Find qw(find);
 
 my $check;
 my $test_result;
-my ($syn_rev, $pugs_rev);
+my ($syn_rev, $pugs_rev, $smoke_rev);
 my ($link_count, $broken_link_count);
 my (@snippets, $snippet_id);
 
@@ -436,9 +437,12 @@ sub process_syn ($$$$) {
         $year += 1900; $mon += 1;
         my $time = sprintf "%04d-%02d-%02d %02d:%02d:%02d GMT",
             $year, $mon, $mday, $hour, $min, $sec;
+        ## $smoke_rev
+        my $smoke_info = $smoke_rev ? ", pugs-smoke <strong>$smoke_rev</strong>" : '';
+        ## $smoke_info
         $perldochtml =~ s{<!-- start doc -->}{$&
-            <I>This page was generated at $time.
-            (syn <strong>$syn_rev</strong>, pugs <strong>$pugs_rev</strong>)</I>
+            <I>This page was generated at $time.<br/>
+            (syn <strong>$syn_rev</strong>, pugs-tests <strong>$pugs_rev</strong>$smoke_info)</I>
         };
         my $htmfile = "$out_dir/S$syn_id.html";
         warn "info: generating $htmfile...\n";
@@ -535,9 +539,12 @@ sub process_syn ($$$$) {
         $year += 1900; $mon += 1;
         my $time = sprintf "%04d-%02d-%02d %02d:%02d:%02d GMT",
             $year, $mon, $mday, $hour, $min, $sec;
+        ### $smoke_rev
+        my $smoke_info = $smoke_rev ? ", pugs-smoke <strong>$smoke_rev</strong>" : '';
+        ### $smoke_info
         $html =~ s{<!-- start doc -->}{$&
-            <I>This page was generated at $time.
-            (syn <strong>$syn_rev</strong>, pugs <strong>$pugs_rev</strong>)</I>
+            <I>This page was generated at $time.<br/>
+            (syn <strong>$syn_rev</strong>, pugs-tests <strong>$pugs_rev</strong>$smoke_info)</I>
         };
         my $htmfile = "$out_dir/S$syn_id.html";
         warn "info: generating $htmfile...\n";
@@ -570,7 +577,7 @@ Options:
   --test-res <ymlfile>
                   Set .yml file generated from Test::TAP::Model's
                   ``structure''. Usually <ymlfile> should be set
-                  to ``tests.yml''.
+                  to ``smoke.yml''.
   --syn-dir       Specify the directory where the Synopses live,
                   defaults to pugs' docs/Perl6/Spec. Please don't
                   set syn-dir to elsewhere unless you have a good
@@ -642,22 +649,21 @@ sub main () {
     $syn_rev = $syn_rev ? "r$syn_rev" : 'unknown';
     warn "info: synopses are at $syn_rev.\n";
 
-    if (!$yml_file) {
-        my $stdout = `$^X $FindBin::Bin/version_h.pl`;
-        ($pugs_rev) = ($stdout =~ /Current version is (\d+)/);
-        if (!$pugs_rev) {
-            # if we don't have access to others' svk info
-            # (which is the case on feather where i'm using
-            # Audrey's pugs working copy), then parse pugs_version.h
-            # directly:
-            if (open my $in, "$FindBin::Bin/../src/Pugs/pugs_version.h") {
-                warn "reading pugs_version.h...\n";
-                local $/;
-                my $str = <$in>;
-                ($pugs_rev) = ($str =~ /PUGS_SVN_REVISION\s+(\d+)/);
-            }
+    my $stdout = `$^X $FindBin::Bin/version_h.pl`;
+    ($pugs_rev) = ($stdout =~ /Current version is (\d+)/);
+    if (!$pugs_rev) {
+        # if we don't have access to others' svk info
+        # (which is the case on feather where i'm using
+        # Audrey's pugs working copy), then parse pugs_version.h
+        # directly:
+        if (open my $in, "$FindBin::Bin/../src/Pugs/pugs_version.h") {
+            warn "reading pugs_version.h...\n";
+            local $/;
+            my $str = <$in>;
+            ($pugs_rev) = ($str =~ /PUGS_SVN_REVISION\s+(\d+)/);
         }
     }
+    ### $pugs_rev
 
     if ($yml_file) {
         eval {
@@ -687,11 +693,14 @@ sub main () {
             }
         }
         #YAML::Syck::DumpFile('test_result.yml', $test_result);
-        $pugs_rev = $data->{revision};
+        $smoke_rev = $data->{revision};
+        $pugs_rev ||= $smoke_rev;
+        $smoke_rev = $smoke_rev ? "r$smoke_rev" : 'unknown';
+        warn "info: pugs smoke is at $smoke_rev.\n";
     }
 
     $pugs_rev = $pugs_rev ? "r$pugs_rev" : 'unknown';
-    warn "info: pugs is at $pugs_rev.\n";
+    warn "info: pugs test suite is at $pugs_rev.\n";
 
     my @syns = map glob, "$syn_dir/*.pod";
     for my $syn (@syns) {
