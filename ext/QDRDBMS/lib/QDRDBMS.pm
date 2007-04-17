@@ -40,7 +40,8 @@ submethod BUILD (Str :$engine_name!, Array :$dbms_config!) {
     die q{new(): Bad :$dbms_config arg; it is not an object of a}
             ~ q{ Array-doing class.}
         if !$dbms_config.defined or !$dbms_config.does(Array);
-    my $seen_config_elem_names = {};
+    my Hash $seen_config_elem_names = {};
+    my Array $dbms_config_cpy = [];
     for $dbms_config -> $elem {
         die q{new(): Bad :$dbms_config arg; it is not an object of a}
                 ~ q{ Array-doing class, or it doesn't have 2 elements.}
@@ -58,6 +59,7 @@ submethod BUILD (Str :$engine_name!, Array :$dbms_config!) {
         die q{new(): Bad :$dbms_config arg elem;}
                 ~ q{ its second elem is not defined.}
             if !$elem_value.defined;
+        $dbms_config_cpy.push( [$elem_name, $elem_value] );
     }
 
     # A module may be loaded due to it being embedded in a non-excl file.
@@ -81,7 +83,7 @@ submethod BUILD (Str :$engine_name!, Array :$dbms_config!) {
     my $dbms_eng = undef;
     try {
         $dbms_eng = &::($engine_name)::new_dbms(
-            :dbms_config($dbms_config) );
+            :dbms_config($dbms_config_cpy) );
     };
     if (my $err = $!) {
         die qq{new(): The QDRDBMS Engine module '$engine_name' threw}
@@ -108,11 +110,9 @@ submethod BUILD (Str :$engine_name!, Array :$dbms_config!) {
 ###########################################################################
 
 method prepare of QDRDBMS::Interface::Routine
-#        (QDRDBMS::AST::Proc :routine($rtn_ast)!) {
-        (QDRDBMS::AST::Proc :$routine!) {
-    my $rtn_ast = $routine;
+        (QDRDBMS::AST::Proc :$rtn_ast!) {
     return QDRDBMS::Interface::Routine.new(
-        :dbms(self), :routine($rtn_ast) );
+        :dbms(self), :rtn_ast($rtn_ast) );
 }
 
 method new_var of QDRDBMS::Interface::Variable () {
@@ -134,11 +134,9 @@ class QDRDBMS::Interface::Routine {
 ###########################################################################
 
 #submethod BUILD (QDRDBMS::Interface::DBMS :dbms($dbms_intf)!,
-#        QDRDBMS::AST::Proc :routine($rtn_ast)!) {
 submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!,
-        QDRDBMS::AST::Proc :$routine!) {
+        QDRDBMS::AST::Proc :$rtn_ast!) {
     my $dbms_intf = $dbms;
-    my $rtn_ast = $routine;
 
     die q{new(): Bad :$dbms arg; it is not an object of a}
             ~ q{ QDRDBMS::Interface::DBMS-doing class.}
@@ -153,7 +151,7 @@ submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!,
 
     my $rtn_eng = undef;
     try {
-        $rtn_eng = $dbms_eng.prepare( :routine($rtn_ast) );
+        $rtn_eng = $dbms_eng.prepare( :rtn_ast($rtn_ast) );
     };
     if (my $err = $!) {
         die qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class'}
@@ -211,7 +209,8 @@ method bind_host_params (Array :$vars!) {
         $var_engs.push( [$param_name, $var_intf!var_eng] );
     }
 
-    $!rtn_eng.bind_host_params( :vars($var_intfs) );
+    $!rtn_eng.bind_host_params( :vars($var_engs) );
+
     return;
 }
 

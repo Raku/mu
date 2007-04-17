@@ -34,7 +34,7 @@ sub VarNameExpr of QDRDBMS::AST::VarNameExpr
 }
 
 sub FuncInvoExpr of QDRDBMS::AST::FuncInvoExpr
-        (QDRDBMS::AST::EntityName :$func!, Hash :$func_args!) is export {
+        (QDRDBMS::AST::EntityName :$func!, Array :$func_args!) is export {
     return QDRDBMS::AST::FuncInvoExpr.new(
         :func($func), :func_args($func_args) );
 }
@@ -43,8 +43,10 @@ sub ControlStmt of QDRDBMS::AST::ControlStmt () is export {
     return QDRDBMS::AST::ControlStmt.new();
 }
 
-sub ProcInvoStmt of QDRDBMS::AST::ProcInvoStmt () is export {
-    return QDRDBMS::AST::ProcInvoStmt.new();
+sub ProcInvoStmt of QDRDBMS::AST::ProcInvoStmt
+        (QDRDBMS::AST::EntityName :$proc!, Array :$proc_args!) is export {
+    return QDRDBMS::AST::ProcInvoStmt.new(
+        :proc($proc), :proc_args($proc_args) );
 }
 
 sub MultiProcInvoStmt of QDRDBMS::AST::MultiProcInvoStmt () is export {
@@ -190,17 +192,15 @@ sub var of QDRDBMS::AST::EntityName () {
 class QDRDBMS::AST::FuncInvoExpr {
     does QDRDBMS::AST::Expr;
 
-    has QDRDBMS::AST::EntityName      $!func_name;
-#    has Hash of QDRDBMS::AST::Expr $!func_args;
-    has Hash $!func_args;
+    has QDRDBMS::AST::EntityName $!func_name;
+    has Array                    $!func_args_aoa;
+    has Hash                     $!func_args_hoa;
 
 ###########################################################################
-=pod
 
 #submethod BUILD (QDRDBMS::AST::EntityName :func($func_name)!,
-#        Hash of QDRDBMS::AST::Expr :$func_args!) {
-submethod BUILD (QDRDBMS::AST::EntityName :$func!,
-        Hash :$func_args!) {
+#        Array :$func_args!) {
+submethod BUILD (QDRDBMS::AST::EntityName :$func!, Array :$func_args!) {
     my $func_name = $func;
 
     die q{new(): Bad :$func arg; it is not a valid object}
@@ -208,35 +208,53 @@ submethod BUILD (QDRDBMS::AST::EntityName :$func!,
         if !$func_name.defined
             or !$func_name.does(QDRDBMS::AST::EntityName);
     $!func_name = $func_name;
-    if (!$func_args.defined) {
-        $!func_args = {};
+
+    die q{new(): Bad :$func_args arg; it is not an object of a}
+            ~ q{ Array-doing class.}
+        if !$func_args.defined or !$func_args.does(Array);
+    my Array $func_args_aoa = [];
+    my Hash  $func_args_hoa = {};
+    for $func_args -> $elem {
+        die q{new(): Bad :$func_args arg; it is not an object of a}
+                ~ q{ Array-doing class, or it doesn't have 2 elements.}
+            if !$elem.defined or !$elem.does(Array) or $elem.elems != 2;
+        my ($param_name, $expr_ast) = $elem.values;
+        die q{new(): Bad :$func_args arg elem; its first elem is not}
+                ~ q{ an object of a QDRDBMS::AST::EntityName-doing class.}
+            if !$param_name.defined
+                or !$param_name.does(QDRDBMS::AST::EntityName);
+        my Str $param_name_text = $param_name.text();
+        die q{new(): Bad :$func_args arg elem; its first elem is not}
+                ~ q{ distinct between the arg elems.}
+            if $func_args_hoa.exists($param_name_text);
+        die q{new(): Bad :$func_args arg elem; its second elem is not}
+                ~ q{ an object of a QDRDBMS::AST::Expr-doing class.}
+            if !$expr_ast.defined
+                or !$expr_ast.does(QDRDBMS::AST::Expr);
+        my Array $elem_cpy = [$param_name, $expr_ast];
+        $func_args_aoa.push( $elem_cpy );
+        $func_args_hoa{$param_name_text} = $elem_cpy;
     }
-    elsif ($func_args.does(Array)) {
-        # TODO.
-    }
-    elsif ($func_args.does(Hash)) {
-        # TODO.
-    }
-    else {
-        die q{new(): Bad :$func_args arg; its not a Array|Hash.};
-    }
+    $!func_args_aoa = $func_args_aoa;
+    $!func_args_hoa = $func_args_hoa;
 
     return;
 }
 
 ###########################################################################
 
-sub v of Str () {
-    return $!v;
+sub func of QDRDBMS::AST::EntityName () {
+    return $!func_name;
 }
 
-###########################################################################
-
-sub v of Str () {
-    return $!v;
+sub func_args of Str () {
+    return [$!func_args_aoa.map:{ [.values] }];
 }
 
-=cut
+sub func_args_hoa of Str () {
+    return {$!func_args_hoa.pairs.map:{ .key => [.value.values] }};
+}
+
 ###########################################################################
 
 } # class QDRDBMS::AST::FuncInvoExpr
@@ -269,12 +287,68 @@ class QDRDBMS::AST::ControlStmt {
 class QDRDBMS::AST::ProcInvoStmt {
     does QDRDBMS::AST::Stmt;
 
-
+    has QDRDBMS::AST::EntityName $!proc_name;
+    has Array                    $!proc_args_aoa;
+    has Hash                     $!proc_args_hoa;
 
 ###########################################################################
 
+#submethod BUILD (QDRDBMS::AST::EntityName :proc($proc_name)!,
+#        Array :$proc_args!) {
+submethod BUILD (QDRDBMS::AST::EntityName :$proc!, Array :$proc_args!) {
+    my $proc_name = $proc;
 
+    die q{new(): Bad :$proc arg; it is not a valid object}
+            ~ q{ of a QDRDBMS::AST::EntityName-doing class.}
+        if !$proc_name.defined
+            or !$proc_name.does(QDRDBMS::AST::EntityName);
+    $!proc_name = $proc_name;
 
+    die q{new(): Bad :$proc_args arg; it is not an object of a}
+            ~ q{ Array-doing class.}
+        if !$proc_args.defined or !$proc_args.does(Array);
+    my Array $proc_args_aoa = [];
+    my Hash  $proc_args_hoa = {};
+    for $proc_args -> $elem {
+        die q{new(): Bad :$proc_args arg; it is not an object of a}
+                ~ q{ Array-doing class, or it doesn't have 2 elements.}
+            if !$elem.defined or !$elem.does(Array) or $elem.elems != 2;
+        my ($param_name, $expr_ast) = $elem.values;
+        die q{new(): Bad :$proc_args arg elem; its first elem is not}
+                ~ q{ an object of a QDRDBMS::AST::EntityName-doing class.}
+            if !$param_name.defined
+                or !$param_name.does(QDRDBMS::AST::EntityName);
+        my Str $param_name_text = $param_name.text();
+        die q{new(): Bad :$proc_args arg elem; its first elem is not}
+                ~ q{ distinct between the arg elems.}
+            if $proc_args_hoa.exists($param_name_text);
+        die q{new(): Bad :$proc_args arg elem; its second elem is not}
+                ~ q{ an object of a QDRDBMS::AST::Expr-doing class.}
+            if !$expr_ast.defined
+                or !$expr_ast.does(QDRDBMS::AST::Expr);
+        my Array $elem_cpy = [$param_name, $expr_ast];
+        $proc_args_aoa.push( $elem_cpy );
+        $proc_args_hoa{$param_name_text} = $elem_cpy;
+    }
+    $!proc_args_aoa = $proc_args_aoa;
+    $!proc_args_hoa = $proc_args_hoa;
+
+    return;
+}
+
+###########################################################################
+
+sub proc of QDRDBMS::AST::EntityName () {
+    return $!proc_name;
+}
+
+sub proc_args of Str () {
+    return [$!proc_args_aoa.map:{ [.values] }];
+}
+
+sub proc_args_hoa of Str () {
+    return {$!proc_args_hoa.pairs.map:{ .key => [.value.values] }};
+}
 
 ###########################################################################
 

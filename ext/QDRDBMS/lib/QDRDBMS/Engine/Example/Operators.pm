@@ -31,6 +31,11 @@ module QDRDBMS::Engine::Example::Operators-0.0.0 {
     return dBool( :v($v1.v() !=== $v2.v()) );
 },
 
+'sys.rtn.Int.assign' => sub (:$target!, :$v!) {
+    $target.set( $v.get() );
+    return;
+},
+
 'sys.rtn.Int.sum' => sub (:$v1!, :$v2!) {
     return dInt( :v($v1.v() + $v2.v()) );
 },
