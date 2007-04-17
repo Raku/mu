@@ -9,7 +9,7 @@ use warnings;
 #use Smart::Comments;
 use List::Util qw( first );
 use Getopt::Std;
-use POSIX 'getuid';
+use POSIX qw( getuid getpid );
 
 my %opts;
 getopts('r:u:t:h', \%opts) or die help();
@@ -36,6 +36,7 @@ my $user = $opts{user} || getuid();
 
 my @lines = split /\n/, `ps -u $user -o pid -o cputime -o cmd`;
 ## @lines
+my $my_pid = getpid();
 for my $line (@lines) {
     my ($pid, $time, $cmd) = ($line =~ /^\s*(\d+)\s+(\S+)\s+(.+)$/);
     next if !defined $pid;
@@ -44,6 +45,10 @@ for my $line (@lines) {
         ### $time
         ### $cmd
         if ($time ge $threshold) {
+            if ($pid == $my_pid) {
+                warn "Skipping myself...\n";
+                next;
+            }
             warn "Killing $pid ($cmd)...\n";
             kill(15, $pid);
         }

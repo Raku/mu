@@ -35,3 +35,7 @@ $timeout -r './half\.pl' -t '00:00:00'
 echo 'indeed killed'
 $timeout -r './half\.pl' -t '00:00:00'
 
+echo '==='
+echo 'cannot kill itself'
+$timeout -r '^perl \.\./\.\./timeout\.pl' -t '00:00:00'
+

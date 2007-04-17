@@ -9,3 +9,6 @@ half: 00:00:01 <=> 3
 half: 00:00:00
 Killing 1234 (perl ./half.pl 10)...
 indeed killed
+===
+cannot kill itself
+Skipping myself...
