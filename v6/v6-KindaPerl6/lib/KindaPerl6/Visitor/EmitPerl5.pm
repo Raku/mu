@@ -33,10 +33,11 @@ class CompUnit {
     has $.body;
     method emit_perl5 {
           '{ package ' ~ $.name ~ "; " 
-#        ~ ( $.unit_type eq 'module'
+        ~ 'my %_MODIFIED; '
+#       ~ ( $.unit_type eq 'module'
 #            ?? ''
 #            !! 'sub new { shift; bless { @_ }, "' ~ $.name ~ '" }' ~ " " 
-#          )
+#         )
         ~ $.body.emit_perl5
         ~ ' }' ~ Main::newline();
     }
@@ -226,102 +227,15 @@ class Var {
             return $table{$.sigil} ~ 'MATCH' 
         };
         
-        #if $.sigil eq '&' {
-        #    return Main::mangle_name( $.sigil, $.twigil, $.name );
-        #};
-        
         return Main::mangle_name( $.sigil, $.twigil, $.name ); 
     };
-#    method emit_perl5_container {
-#        my $table := {
-#            '$' => '$',
-#            '@' => '$List_',
-#            '%' => '$Hash_',
-#            '&' => '$Code_',
-#        };
-#           ( $.twigil eq '.' )
-#        ?? ( '$self->{' ~ $.name ~ '}' )
-#        !!  (    ( $.name eq '/' )
-#            ??   ( $table{$.sigil} ~ 'MATCH' )
-#            !!   Main::mangle_name( $.sigil, $.twigil, $.name ) 
-#            )
-#    };
 }
 
 class Bind {
     has $.parameters;
     has $.arguments;
     method emit_perl5 {
-        if $.parameters.isa( 'Lit::Array' ) {
-            
-            #  [$a, [$b, $c]] := [1, [2, 3]]
-            
-            my $a := $.parameters.array;
-            #my $b := $.arguments.array;
-            my $str := 'do { ';
-            my $i := 0;
-            for @$a -> $var { 
-                my $bind := ::Bind( 
-                    'parameters' => $var, 
-                    # 'arguments' => ($b[$i]) );
-                    'arguments'  => ::Index(
-                        obj    => $.arguments,
-                        index  => ::Val::Int( int => $i )
-                    )
-                );
-                $str := $str ~ ' ' ~ $bind.emit_perl5 ~ '; ';
-                $i := $i + 1;
-            };
-            return $str ~ $.parameters.emit_perl5 ~ ' }';
-        };
-        if $.parameters.isa( 'Lit::Hash' ) {
-
-            #  {:$a, :$b} := { a => 1, b => [2, 3]}
-
-            my $a := $.parameters.hash;
-            my $b := $.arguments.hash;
-            my $str := 'do { ';
-            my $i := 0;
-            my $arg;
-            for @$a -> $var {
-
-                $arg := ::Val::Undef();
-                for @$b -> $var2 {
-                    #say "COMPARE ", ($var2[0]).buf, ' eq ', ($var[0]).buf;
-                    if ($var2[0]).buf eq ($var[0]).buf {
-                        $arg := $var2[1];
-                    }
-                };
-
-                my $bind := ::Bind( 'parameters' => $var[1], 'arguments' => $arg );
-                $str := $str ~ ' ' ~ $bind.emit_perl5 ~ '; ';
-                $i := $i + 1;
-            };
-            return $str ~ $.parameters.emit_perl5 ~ ' }';
-        };
-
-        if $.parameters.isa( 'Lit::Object' ) {
-
-            #  ::Obj(:$a, :$b) := $obj
-
-            my $class := $.parameters.class;
-            my $a     := $.parameters.fields;
-            my $b     := $.arguments;
-            my $str   := 'do { ';
-            my $i     := 0;
-            my $arg;
-            for @$a -> $var {
-                my $bind := ::Bind( 
-                    'parameters' => $var[1], 
-                    'arguments'  => ::Call( invocant => $b, method => ($var[0]).buf, arguments => [ ], hyper => 0 )
-                );
-                $str := $str ~ ' ' ~ $bind.emit_perl5 ~ '; ';
-                $i := $i + 1;
-            };
-            return $str ~ $.parameters.emit_perl5 ~ ' }';
-        };
-    
-        $.parameters.emit_perl5 ~ ' = ' ~ $.arguments.emit_perl5;
+        $.parameters.emit_perl5 ~ '->BIND(' ~ $.arguments.emit_perl5 ~ ')';
     }
 }
 
@@ -475,7 +389,8 @@ class Decl {
 
             if ($.var).sigil eq '$' {
                 return $s ~ $.var.emit_perl5
-                    ~ ' = bless \\( do{ my $v = $GLOBAL::undef } ), \'Type_Scalar\' ';
+                    # ~ ' = bless \\( do{ my $v = $GLOBAL::undef } ), \'Type_Scalar\' ';
+                    ~ ' = bless [ \( do{ my $v = $GLOBAL::undef } ), \\%_MODIFIED, \'' ~ $.var.emit_perl5 ~ '\' ], "Type_Scalar" ';
             };
             if ($.var).sigil eq '%' {
                 return $s ~ $.var.emit_perl5
@@ -489,7 +404,8 @@ class Decl {
         };
         if ($.var).sigil eq '$' {
             return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_perl5
-                ~ ' = bless \\( do{ my $v = $GLOBAL::undef } ), \'Type_Scalar\'';
+                #~ ' = bless \\( do{ my $v = $GLOBAL::undef }, \'\', \'\' ), \'Type_Scalar\'';
+                ~ ' = bless [ \( do{ my $v = $GLOBAL::undef } ), \\%_MODIFIED, \'' ~ $.var.emit_perl5 ~ '\' ], "Type_Scalar" ';
         };
         if ($.var).sigil eq '%' {
             return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_perl5

@@ -97,11 +97,15 @@ package Type_Scalar;
     }
     sub STORE  { 
         $_[0][0] = $_[1]->FETCH;
-        $_[0][1]{ $_[0][2] }++;
+        # increment the modified-bit
+        ${$_[0][1]{ $_[0][2] }}++;
         $_[0];
     }
     sub BIND   {
-        # XXX - how about %_MODIFIED ?
+        # the modified-bit is now shared
+        # which means, both left and right sides are 'modified' 
+        $_[0][1]{ $_[0][2] } = $_[1][1]{ $_[1][2] }
+            = ${$_[0][1]{ $_[0][2] }}++ + ${$_[1][1]{ $_[1][2] }}++;   # autovivify & increment & sum
         $_[0] = $_[1];
     }
     sub FETCH  { 
@@ -117,7 +121,7 @@ package Type_Scalar;
         my $meth = $AUTOLOAD;
         $meth =~ s/.*:://;   # strip fully-qualified portion
         #print "self $$self, AUTOLOAD: $meth \n";
-        $$self->$meth( @_ );
+        $self->[0]->$meth( @_ );
     }    
 
 package Type_Proxy_Array_Scalar;

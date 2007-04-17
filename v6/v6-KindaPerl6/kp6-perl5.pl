@@ -100,6 +100,11 @@ use Data::Dump::Streamer;
     
         #print "BEGIN: Native code: $native\n";
         my $data = $COMPILER::PAD[0]->eval( $native );  # XXX - want() context
+
+        my $side_effects = $COMPILER::PAD[0]->eval( '\%_MODIFIED' ); 
+        #use Data::Dumper;
+        #print "MODIFIED: ", Dumper( $side_effects );
+        # TODO - emit side-effects...
     
         # TODO - XXX - ignore 'CODE' for now
         return if ref($data) eq 'CODE';
