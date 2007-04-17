@@ -64,6 +64,11 @@ Incomplete features:
 - COMPILING::<$?PARSER>
 - translate the COMPILER package to mp6
     
+BEGIN blocks:
+
+- an anonymous subroutine is generated, but it is not called at runtime
+- logging of array/hash element modifications is not implemented
+
 Bugs:
 
 - missing compile-time methods
