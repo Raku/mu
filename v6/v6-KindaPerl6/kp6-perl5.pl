@@ -85,7 +85,9 @@ use Data::Dump::Streamer;
 
     sub begin_block {
         # this routine is called by begin-blocks at compile time, in order to execute the code
+        # Input: $env, Array of AST nodes
         
+        my $env = shift;
         my @ast = @{$_[0]};
         #print Dump( @ast );
         #@ast = map { $_->emit( $visitor_lexical_sub )     } @ast;
@@ -99,7 +101,10 @@ use Data::Dump::Streamer;
         # execute inside the current pad
         # TODO - check for side-effects
     
-        #print "BEGIN: Native code: $native\n";
+        print "=pod\n";
+        print "BEGIN ENV: ", Dumper( $env->lexicals ), "\n";
+        print "BEGIN AST: ", Dumper( \@ast );
+        print "BEGIN: Native code: $native\n\n";
         my $data = $COMPILER::PAD[0]->eval( $native );  # XXX - want() context
 
         for my $pad ( @COMPILER::PAD ) {
@@ -110,7 +115,7 @@ use Data::Dump::Streamer;
           for my $name ( @names ) {
             my $value = $COMPILER::PAD[0]->eval( "\\$name" );
             # TODO - convert directly DATA->AST, instead of DATA->PERL->AST
-            print "# BEGIN SIDE-EFFECT: $name = ",${$value}->perl," \n\n";
+            print "BEGIN SIDE-EFFECT: $name = ",${$value}->perl," \n\n";
             # TODO - convert $$value to perl6 AST
             my $p = KindaPerl6::Grammar->exp( "$name = " . ${$value}->perl , 0);
             print "AST: ", Dumper($$p);
@@ -118,6 +123,7 @@ use Data::Dump::Streamer;
           }
         }
         # TODO - emit the runtime BEGIN code 
+        print "=cut\n";
         
         # TODO - XXX - ignore 'CODE' for now
         return if ref($data) eq 'CODE';

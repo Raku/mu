@@ -691,11 +691,18 @@ token sub {
 token begin_block {
     BEGIN
     <?opt_ws> \{ <?opt_ws>  
-          <exp_stmts> <?opt_ws> 
-    [   \}     | { say '*** Syntax Error in BEGIN block'; die 'error in Block'; } ]
-    { 
+
+        { 
+            COMPILER::add_pad();
+        }
+        <exp_stmts> 
+        <?opt_ws> 
+    [   \}     | { say '*** Syntax Error in BEGIN near pos=', $/.to; die 'error in Block'; } ]
+    {
+        # say ' block: ', ($$<exp_stmts>).perl;
+        my $env := @COMPILER::PAD[0];
         #say "BEGIN block";
-        return COMPILER::begin_block( $$<exp_stmts> );
+        return COMPILER::begin_block( $env, $$<exp_stmts> );
     }
 };
 
