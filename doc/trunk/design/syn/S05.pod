@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 31 Mar 2007
+   Last Modified: 17 Apr 2007
    Number: 5
-   Version: 56
+   Version: 57
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -1137,7 +1137,7 @@ The C<do> block is unlikely to run unless the string ends with "C<bar>".
 =item *
 
 A leading C<[> or C<+> indicates an enumerated character class.  Ranges
-in enumerated character classes are indicated with C<..>.
+in enumerated character classes are indicated with "C<..>" rather than "C<->".
 
      / <[a..z_]>* /
      / <+[a..z_]>* /
