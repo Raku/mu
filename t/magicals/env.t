@@ -43,11 +43,7 @@ ok !defined(%*ENV<PUGS_ROCKS>), "there's no env variable 'PUGS_ROCKS'";
 diag '%*ENV<PUGS_ROCKS>=' ~ %*ENV<PUGS_ROCKS>;
 ok !defined(%*ENV<PUGS_ROCKS>), "there's still no env variable 'PUGS_ROCKS'";
 
-my ($pugs,$redir,$squo) = ("./pugs", ">", "'");
-
-if $*OS eq any <MSWin32 mingw msys cygwin> {
-    $pugs = 'pugs.exe';
-};
+my ($redir,$squo) = (">", "'");
 
 my $expected = 'Hello from subprocess';
 %*ENV<PUGS_ROCKS> = $expected;
@@ -57,7 +53,7 @@ is %*ENV<PUGS_ROCKS>, $expected,'%*ENV is rw';
 
 my $tempfile = "temp-ex-output." ~ $*PID ~ "." ~ rand 1000;
 
-my $command = qq!$pugs -e "\%*ENV.perl.say" $redir $tempfile!;
+my $command = qq!$*EXECUTABLE_NAME -e "\%*ENV.perl.say" $redir $tempfile!;
 diag $command;
 system $command;
 
@@ -87,7 +83,7 @@ if (! $err) {
 %*ENV.delete('PUGS_ROCKS');
 is(%*ENV<PUGS_ROCKS>,undef,'We can remove keys from %*ENV');
 
-my $command = qq!$pugs -e "\%*ENV.perl.say" $redir $tempfile!;
+my $command = qq!$*EXECUTABLE_NAME -e "\%*ENV.perl.say" $redir $tempfile!;
 diag $command;
 system $command;
 

@@ -29,11 +29,7 @@ if $*OS eq "browser" {
 
 diag "Running under $*OS";
 
-my ($pugs,$redir_in,$redir_out) = ("./pugs", "<", ">");
-
-if $*OS eq any <MSWin32 mingw msys cygwin> {
-  $pugs = 'pugs.exe';
-};
+my ($redir_in, $redir_out) = ("<", ">");
 
 my $str = "
 foo
@@ -47,7 +43,7 @@ $h.print($str);
 $h.close();
 
 for @examples -> $ex {
-  my $command = "$pugs $ex $redir_in $in_fn $redir_out $out_fn";
+  my $command = "$*EXECUTABLE_NAME $ex $redir_in $in_fn $redir_out $out_fn";
   diag $command;
   system $command;
 

@@ -29,17 +29,13 @@ if $*OS eq "browser" {
 diag "Running under $*OS";
 
 # Win9x breakage:
-my ($pugs,$redir) = ("./pugs", "2>&1 >");
-
-if $*OS eq any <MSWin32 mingw msys cygwin> {
-  $pugs = 'pugs.exe';
-};
+my $redir = "2>&1 >";
 
 sub nonce () { return (".$*PID." ~ int rand 1000) }
 
 for @examples -> $ex {
   my $out_fn = "temp-ex-output" ~ nonce;
-  my $command = "$pugs $ex $redir $out_fn";
+  my $command = "$*EXECUTABLE $ex $redir $out_fn";
   diag $command;
   system $command;
 

@@ -40,7 +40,7 @@ if $*OS eq "browser" {
 
 diag "Running under $*OS";
 
-my ($pugs,$redir) = ("./pugs", ">");
+my ($pugs,$redir) = ($*EXECUTABLE_NAME, ">");
 
 if $*OS eq any <MSWin32 mingw msys cygwin> {
   $pugs = 'pugs.exe';

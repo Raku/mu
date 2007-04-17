@@ -19,11 +19,6 @@ skip_rest "must be run manually"; exit;
 # XXX: in file paths, '/' works on Unix and Windows.
 # For greater portability, we will need File::Spec or equivalent.
 
-my $PUGS  = './pugs';
-
-$PUGS     = 'pugs'
-    if $*OS eq any(<MSWin32 mingw msys cygwin>);
-
 # XXX: this $outtmp/slurp will go away when backticks supported.
 # XXX: should also check to verify that nothing is written to stderr.
 sub nonce () { return (".$*PID." ~ int rand 1000) }
@@ -39,7 +34,7 @@ for ($mad_sol, $rg0now_sol) -> $s {
     unlink($outtmp);
     my $exists = $outtmp ~~ :f;
     ok( ! $exists, "file '$outtmp' does not exist" );
-    my $cmd = "$PUGS $tsanta $PUGS $s >$outtmp";
+    my $cmd = "$*EXECUTABLE_NAME $tsanta $*EXECUTABLE_NAME $s >$outtmp";
     ok( system($cmd), "Run '$cmd'" );
     ok( $outtmp ~~ :f, "file '$outtmp' exists" );
     my @lines = slurp($outtmp);

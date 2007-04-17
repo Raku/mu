@@ -22,17 +22,13 @@ if $*OS eq "browser" {
 
 diag "Running under $*OS";
 
-my ($pugs,$redir) = ("./pugs", ">");
-
-if $*OS eq any <MSWin32 mingw msys cygwin> {
-  $pugs = 'pugs.exe';
-};
+my $redir = ">";
 
 sub nonce () { return (".$*PID." ~ int rand 1000) }
 
 for @tests -> $ex {
   my $out_fn = "temp-ex-output" ~ nonce;
-  my $command = "$pugs $ex $redir $out_fn";
+  my $command = "$*EXECUTABLE_NAME $ex $redir $out_fn";
   diag $command;
   system $command;
 

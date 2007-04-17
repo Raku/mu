@@ -13,7 +13,7 @@ if $*OS eq "browser" {
 
 my $pugs = ($*OS eq any(<MSWin32 mingw msys cygwin>))
          ?? 'pugs.exe'
-         !! './pugs';
+         !! $*EXECUTABLE_NAME;
 
 my $res;
 

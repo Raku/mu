@@ -32,9 +32,6 @@ if $*OS eq "browser" {
 
 diag "Running under $*OS";
 
-my $PUGS  = './pugs';
-$PUGS     = 'pugs' if $*OS eq any(<MSWin32 mingw msys cygwin>);
-
 # XXX: this $outtmp/slurp will go away when backticks supported.
 # XXX: should also check to verify that nothing is written to stderr.
 sub nonce () { return (".$*PID." ~ int rand 1000) }
@@ -54,7 +51,7 @@ for @examples -> $ex {
     unlink($outtmp);
     my $exists = $outtmp ~~ :f;
     ok( ! $exists, "file '$outtmp' does not exist" );
-    my $cmd = "$PUGS $tmpprog $origfile >$outtmp";
+    my $cmd = "$*EXECUTABLE_NAME $tmpprog $origfile >$outtmp";
     ok( system($cmd), "Run '$cmd'" );
     ok( $outtmp ~~ :f, "file '$outtmp' exists" );
     my $got = slurp($outtmp);

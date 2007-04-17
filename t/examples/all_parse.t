@@ -44,16 +44,11 @@ if $*OS eq "browser" {
     exit;
 }
 
-my $pugs  = './pugs';
-if $*OS eq any(<MSWin32 mingw msys cygwin>) {
-   $pugs = 'pugs';
-};
-
 # The following is ugly and should be rewritten
 # Specifically, there should be a way to test
 # $! instead of this yucky workaround
 for sort(@files) -> $ex {
-    my $out = `$pugs -c -Iblib6/lib $ex`;
+    my $out = `$*EXECUTABLE_NAME -c -Iblib6/lib $ex`;
 
     if $out ~~ m:P5/syntax OK\s*$/ {
         pass "$ex parsed correctly";

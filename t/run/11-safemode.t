@@ -50,10 +50,9 @@ if $*OS eq "browser" {
 
 diag "Running under $*OS";
 
-my ($pugs,$redir) = ("./pugs", ">");
+my $redir = ">";
 
 if $*OS eq any <MSWin32 mingw msys cygwin> {
-  $pugs = 'pugs.exe';
   $redir = '>';
 };
 
@@ -69,7 +68,7 @@ for @tests -> $code_to_run, $condition {
       close $fh;
   }
 
-  my $command = "$pugs $tmpfile-src $redir $tmpfile-out";
+  my $command = "$*EXECUTABLE_NAME $tmpfile-src $redir $tmpfile-out";
   diag "Code to be run under safemode:\n  $code_to_run";
   diag "Pugs will be started using:\n  $command";
   system $command;

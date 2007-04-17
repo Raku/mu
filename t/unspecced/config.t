@@ -105,11 +105,6 @@ plan @config+2;
 
 diag "Running under $*OS";
 
-my ($pugs,$redir) = ("./pugs", ">");
-if $*OS eq any <MSWin32 mingw msys cygwin> {
-    $pugs = 'pugs.exe';
-};
-
 ok( defined %?CONFIG, '%?CONFIG is defined' );
 ok( %?CONFIG.keys() > 0, '%?CONFIG contains keys and values' );
 for @config -> $entry {

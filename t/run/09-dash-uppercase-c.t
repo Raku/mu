@@ -57,15 +57,12 @@ if $*OS eq "browser" {
 diag "Running under $*OS";
 
 # 2>&1 only works on WinNT upwards (cmd.exe) !
-my ($pugs,$redir, $redir_stderr) = ("./pugs", ">");
-if $*OS eq any(<MSWin32 mingw msys cygwin>) {
-  $pugs = 'pugs.exe';
-};
+my $redir_stderr = ">";
 
 sub nonce () { return (".$*PID." ~ int rand 1000) }
 sub run_pugs ($c) {
   my $tempfile = "temp-ex-output" ~ nonce;
-  my $command = "$pugs $c $redir $tempfile";
+  my $command = "$*EXECUTABLE_NAME $c $redir $tempfile";
   diag $command;
   system $command;
   my $res = $tempfile ~~ :s;

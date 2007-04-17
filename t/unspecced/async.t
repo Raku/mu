@@ -29,20 +29,19 @@ sub spawn_counter () {
   };
 };
 
-my ($pugs,$redir) = ("./pugs", ">");
+my $redir = ">";
 
 ok(0, "async+system known to be erratic _everywhere_, disable for now", :todo<bug>);
 exit;
 
 if $?OS eq any <MSWin32 mingw msys cygwin> {
-  $pugs = 'pugs.exe';
   skip 1, "async known to be problematic on Win32";
   exit;
 };
 
 diag "Spawning counter";
 spawn_counter();
-system( qq!$pugs -e "sleep(5)"!); 
+system( qq!$*EXECUTABLE_NAME -e "sleep(5)"!); 
 
 if (!ok(@events == $event_count, "Our async counter finished while we were running a subprocess")) {
   diag "Got      " ~ +@events ~ " element(s).";

@@ -9,17 +9,13 @@ if $*OS eq "browser" {
 }
 
 # Win9x breakage:
-my ($pugs,$redir) = ("../../pugs", "2>&1 >");
-
-if $*OS eq any <MSWin32 mingw msys cygwin> {
-  $pugs = '..\\..\\pugs.exe';
-};
+my $redir = "2>&1 >";
 
 sub nonce () { return (".$*PID." ~ int rand 1000) }
 
 sub run_test ($args) {
     my $out_fn = "temp-ex-output" ~ nonce;
-    my $command = "$pugs $args $redir $out_fn";
+    my $command = "$*EXECUTABLE_NAME $args $redir $out_fn";
     system $command;
 
     my $expected = "Unrecognized switch: -foo  (-h will show valid options).\n";
