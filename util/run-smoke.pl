@@ -41,7 +41,10 @@ chdir($pugs_sandbox) or die "Could change directory: $!";
 # pugs executable.
 $ENV{PATH} = "." . $Config{path_sep} . $ENV{PATH};
 
-$ENV{HARNESS_PERL}  = "./pugs $optional_args";
+# you can pre-define HARNESS_PUGS to something else, such as util/limited_pugs
+$ENV{HARNESS_PUGS} ||= './pugs';
+
+$ENV{HARNESS_PERL}  = "$ENV{HARNESS_PUGS} $optional_args";
 $ENV{HARNESS_PERL}  = "$^X $FindBin::Bin/../perl5/PIL2JS/pugs-smokejs.pl ./pugs $optional_args"
     if $ENV{PUGS_RUNTIME} and $ENV{PUGS_RUNTIME} eq 'JS';
 # XXX: hack to be identified by smokeserv
