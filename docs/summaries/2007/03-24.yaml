@@ -24,8 +24,8 @@ extra:
       title: Distribution
   header:
     - body: |-
-        As this week contained a number of bug fixes and no pithy quotes,
-        this space has been left blank.
+        This week saw the introduction of the Perl 6 Microgrants.
+        Read more about them in '<msgid:BEAF017A-91AA-4F14-AE05-2595028C99C4@bestpractical.com>'
       title: This week on the Perl 6 mailing lists
   see_also:
     - name: Perl Foundation activities
