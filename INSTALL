@@ -72,6 +72,13 @@ the directory in which you checked out the parrot source tree. For example:
     export PARROT_PATH=${HOME}/src/parrot (bash)
     setenv PARROT_PATH ${HOME}/src/parrot (csh)
 
+The HARNESS_PUGS environment may come to handy once you want to limit
+CPU and RAM usage of your smoking (*NIX only):
+
+    HARNESS_PUGS=util/limited_pugs make smoke
+
+Modify util/limited_pugs in your local copy if it doesn't fit your needs.
+
 MAKE TARGETS
 ------------
 
@@ -83,6 +90,8 @@ be slower to compile, but will run much faster. To disable this, run:
 To run the test suite with a pretty HTML matrix showing test results:
 
     make smoke
+
+(See also the HARNESS_PUGS environment in the previous section.)
 
 To turn on profiling in the GHC compiler:
 
