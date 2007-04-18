@@ -11,7 +11,7 @@ module QDRDBMS-0.0.0 {
 ###########################################################################
 
 sub new_dbms of QDRDBMS::Interface::DBMS
-        (Str :$engine_name!, Array :$dbms_config!) {
+        (Str :$engine_name!, Any :$dbms_config!) {
     return ::QDRDBMS::Interface::DBMS.new(
         :engine_name($engine_name), :dbms_config($dbms_config) );
 }
@@ -31,36 +31,12 @@ class QDRDBMS::Interface::DBMS {
 
 ###########################################################################
 
-submethod BUILD (Str :$engine_name!, Array :$dbms_config!) {
+submethod BUILD (Str :$engine_name!, Any :$dbms_config!) {
 
     die q{new(): Bad :$engine_name arg; it is not an object of a}
-            ~ q{ Str-doing class.}
-        if !$engine_name.defined or !$engine_name.does(Str);
-
-    die q{new(): Bad :$dbms_config arg; it is not an object of a}
-            ~ q{ Array-doing class.}
-        if !$dbms_config.defined or !$dbms_config.does(Array);
-    my Hash $seen_config_elem_names = {};
-    my Array $dbms_config_cpy = [];
-    for $dbms_config -> $elem {
-        die q{new(): Bad :$dbms_config arg; it is not an object of a}
-                ~ q{ Array-doing class, or it doesn't have 2 elements.}
-            if !$elem.defined or !$elem.does(Array) or $elem.elems != 2;
-        my ($elem_name, $elem_value) = $elem.values;
-        die q{new(): Bad :$dbms_config arg elem; its first elem is not}
-                ~ q{ an object of a QDRDBMS::AST::EntityName-doing class.}
-            if !$elem_name.defined
-                or !$elem_name.does(QDRDBMS::AST::EntityName);
-        my Str $elem_name_text = $elem_name.text();
-        die q{new(): Bad :$dbms_config arg elem; its first elem is not}
-                ~ q{ distinct between the arg elems.}
-            if $seen_config_elem_names.exists($elem_name_text);
-        $seen_config_elem_names{$elem_name_text} = 1;
-        die q{new(): Bad :$dbms_config arg elem;}
-                ~ q{ its second elem is not defined.}
-            if !$elem_value.defined;
-        $dbms_config_cpy.push( [$elem_name, $elem_value] );
-    }
+            ~ q{ Str-doing class, or it is the empty string.}
+        if !$engine_name.defined or !$engine_name.does(Str)
+            or $engine_name eq q{};
 
     # A module may be loaded due to it being embedded in a non-excl file.
     if (!::($engine_name).does(Module)) {
@@ -83,7 +59,7 @@ submethod BUILD (Str :$engine_name!, Array :$dbms_config!) {
     my $dbms_eng = undef;
     try {
         $dbms_eng = &::($engine_name)::new_dbms(
-            :dbms_config($dbms_config_cpy) );
+            :dbms_config($dbms_config) );
     };
     if (my $err = $!) {
         die qq{new(): The QDRDBMS Engine module '$engine_name' threw}
@@ -303,7 +279,7 @@ and QDRDBMS::Interface::Variable ("Variable").
     # Instantiate a QDRDBMS DBMS / virtual machine.
     my $dbms = QDRDBMS::new_dbms(
             :engine_name('QDRDBMS::Engine::Example'),
-            :dbms_config([]),
+            :dbms_config({}),
         );
 
     # TODO: Create or connect to a repository and work with it.

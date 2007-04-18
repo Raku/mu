@@ -11,7 +11,7 @@ module QDRDBMS::Validator-0.0.0 {
 
 ###########################################################################
 
-sub main (Str :$engine_name!, Array :$dbms_config!) {
+sub main (Str :$engine_name!, Any :$dbms_config!) {
 
     plan( 1 );
 
@@ -60,7 +60,7 @@ QDRDBMS Engine distribution:
     # Run the test suite.
     QDRDBMS::Validator::main(
             :engine_name('QDRDBMS::Engine::Example'),
-            :dbms_config([]),
+            :dbms_config({}),
         );
 
     1;

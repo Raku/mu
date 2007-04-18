@@ -11,7 +11,7 @@ module QDRDBMS::Engine::Example-0.0.0 {
 
 ###########################################################################
 
-sub new_dbms of QDRDBMS::Engine::Example::DBMS (Array :$dbms_config!) {
+sub new_dbms of QDRDBMS::Engine::Example::DBMS (Any :$dbms_config!) {
     return ::QDRDBMS::Engine::Example::DBMS.new(
         :dbms_config($dbms_config) );
 }
@@ -24,11 +24,11 @@ sub new_dbms of QDRDBMS::Engine::Example::DBMS (Array :$dbms_config!) {
 ###########################################################################
 
 class QDRDBMS::Engine::Example::DBMS {
-    has Array $!dbms_config;
+    has Any $!dbms_config;
 
 ###########################################################################
 
-submethod BUILD (Array :$dbms_config!) {
+submethod BUILD (Any :$dbms_config!) {
 
     $!dbms_config = $dbms_config;
 
