@@ -5,5 +5,5 @@
 
 ulimit -v 800000
 ulimit -t 300
-nice -n5 ./pugs $*
+nice -n5 ./pugs "$@"
 
