@@ -23,7 +23,9 @@ extra:
         * [ONLamp](http://www.oreillynet.com/onlamp/blog/)
       title: Distribution
   header:
-    - body: ~
+    - body: |-
+        As this week contained a number of bug fixes and no pithy quotes,
+        this space has been left blank.
       title: This week on the Perl 6 mailing lists
   see_also:
     - name: Perl Foundation activities
@@ -65,6 +67,7 @@ lists:
           between programming languages and databases, and the weakness and
           syntactic awkwardness of SQL.  Darren thought John raised some
           good points.
+        thread_uri: http://groups.google.com/group/perl.perl6.language/browse_frm/thread/5a67d8e21d086fec/5793e6c021abb198?#5793e6c021abb198
       - date_from: 1174249504
         date_to: 1176461957
         hidden: ~
@@ -101,7 +104,7 @@ lists:
           could work on it.
       - date_from: 1174032495
         date_to: 1174255489
-        hidden: ~
+        hidden: same as 20070307220500.GA5922@stripey.com
         message_id: Pine.LNX.4.44.0703160032320.3330-100000@pd3.baremetal.com
         messages:
           - 'a06230902c2221562b7c6@[172.27.1.7]'
@@ -123,7 +126,7 @@ lists:
         summary: ''
       - date_from: 1174316084
         date_to: 1174316084
-        hidden: ~
+        hidden: part of 45FD9FB0.90101@xmission.com
         message_id: 45FEA3F4.3070303@conway.org
         posters:
           - email: damian@conway.org
@@ -142,7 +145,11 @@ lists:
           - email: andy@hexten.net
             name: Andy Armstrong
         subject: Enhanced enumerations
-        summary: ''
+        summary: |-
+          Jonathan Lang proposed a module which would let you set a cycle for
+          enumerations.  For instance, a 'seasons' enumeration might be defined
+          as 'spring, summer, autumn, winter' and incrementing summer would result
+          in winter.  Andy Armstrong described enumeration as a simple state machine.
       - date_from: 1174475077
         date_to: 1174496335
         hidden: ~
@@ -155,7 +162,10 @@ lists:
           - email: allison@perl.org
             name: Allison Randal
         subject: Parrot 0.4.10 released
-        summary: ''
+        summary: |-
+          Will Coleda announced the release of Parrot 0.4.10 and highlighted some
+          of the improvements made with this version.  This release is named
+          "The Release Formerly Known as "Prince"."
     title: Language
   - name: perl6-internals
     threads:
@@ -212,6 +222,7 @@ lists:
           supposed to fail, and suggested making it a TODO.   chromatic said that
           expected failures need to be marked as TODO, because volunteer time is
           being wasted.  Jonathan Worthington agreed.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/e8c82a2f511429b5/864081355d2ec98a?#864081355d2ec98a
       - date_from: 1174157522
         date_to: 1174513359
         hidden: ~
@@ -222,7 +233,6 @@ lists:
           - 20070317234549.GK20097@host.pmichaud.com
           - 1d9a3f400703171525r320e62a7pd726bd2de2a34980@mail.gmail.com
           - rt-3.6.HEAD-1687-1174157513-1069.41878-72-0@perl.org
-        out_of_date: 1
         posters:
           - email: parrotbug-followup@parrotcode.org
             name: Allison Randal via RT
@@ -301,10 +311,11 @@ lists:
           - email: bugs-parrot-track@netlabs.develooper.com
             name: Will Coleda via RT
         rt_ticket: 'perl #41505'
-        subject: '[perl #41505] [CAGE] Cleanup and reorganise documentation related to svn properties '
+        subject: '[perl #41505] [CAGE] Cleanup and reorganize documentation related to svn properties '
         summary: |-
-          Will Coleda created ticket <rt://perl/41505> to suggest that documntation
-          of all svn properties needs to be cleaned up and reorganised.
+          Will Coleda created ticket <rt://perl/41505> to suggest that documentation
+          of all svn properties needs to be cleaned up and reorganized.  Paul
+          Cochrane attempted to do this with r17591.
         thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/e88a441078fbda27/e8b813bcec99d27d?#e8b813bcec99d27d
       - date_from: 1174178071
         date_to: 1174671341
@@ -326,7 +337,6 @@ lists:
           - 2e47a2c2ba52b5a18ac0e7027fa7de28@gmail.com
           - 8e8ee0d40703230621t45ff7b40m62f5de5005bb59cd@mail.gmail.com
           - 200703230815.13037.chromatic@wgz.org
-        out_of_date: 1
         posters:
           - email: steve@silug.org
             name: Steven Pritchard
@@ -355,7 +365,7 @@ lists:
           
           Steven made a list of his three major problems: hardcoded 'lib',
           `LD_LIBRARY_PATH` had to be set to `blib/lib` in the top directory,
-          and the `languages/` files aren't autmatically installed.
+          and the `languages/` files aren't automatically installed.
       - date_from: 1153067870
         date_to: 1174349138
         hidden: ~
@@ -369,10 +379,18 @@ lists:
           - email: parrotbug-followup@parrotcode.org
             name: Paul Cochrane via RT
         subject: 'Re: [perl #39823] [CAGE] tools/dev/run_indent.pl -- this should be a test'
-        summary: ''
+        summary: |-
+          Jerry Gay felt that there should be a coding standards test to ensure
+          that C source files have the correct indentation.  Some time ago he
+          created ticket <rt://perl/39823> on this subject.
+          
+          Recently, Paul Cochrane asked if `t/codingstd/c_indent.t` met the
+          requirement.  Jerry replied that there were still some further checks
+          which should be implemented as tests.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/3647cd44f72812b9/4d905cdb64e6259e?#4d905cdb64e6259e
       - date_from: 1168179413
         date_to: 1174437738
-        hidden: ~
+        hidden: 03-10 summary covered this
         message_id: 0C20AF01-5CEB-423D-8D9D-956C66CE7CD5@verizon.net
         messages:
           - rt-3.6.HEAD-2051-1174437727-226.41195-15-0@perl.org
@@ -385,7 +403,7 @@ lists:
         summary: ''
       - date_from: 1171723303
         date_to: 1174233496
-        hidden: ~
+        hidden: 02-24 addressed the bulk of this ticket; now it is just being closed
         message_id: rt-3.6.HEAD-24617-1171723293-361.41529-72-0@perl.org
         messages:
           - 1d9a3f400702170827o8630390m2a81a8d73c912f06@mail.gmail.com
@@ -406,7 +424,7 @@ lists:
         summary: ''
       - date_from: 1172780510
         date_to: 1174231133
-        hidden: ~
+        hidden: "covered in 03-03 summary, new message is just 'applied'"
         message_id: rt-3.6.HEAD-2051-1172780503-566.41658-72-0@perl.org
         messages:
           - 4ff0b0d1aa18d785db0b644e1799bc14@gmail.com
@@ -421,7 +439,7 @@ lists:
         summary: ''
       - date_from: 1173896231
         date_to: 1174344809
-        hidden: ~
+        hidden: covered in 03-17
         message_id: rt-3.6.HEAD-1687-1173896123-931.39908-15-0@perl.org
         messages:
           - 1d9a3f400703150631q2e3f1f54n252edfab7e4028e6@mail.gmail.com
@@ -438,7 +456,7 @@ lists:
         summary: ''
       - date_from: 1174143134
         date_to: 1174230932
-        hidden: ~
+        hidden: child of rt-3.6.HEAD-2051-1174097373-1586.41871-72-0@perl.org
         message_id: 200703171120.16145.chromatic@wgz.org
         messages:
           - 45FC91F1.4090101@jnthn.net
@@ -464,7 +482,9 @@ lists:
             name: Alexandr Ciornii
         rt_ticket: 'perl #41884'
         subject: '[perl #41884] [PATCH] gcc/mingw32-make compilation failure under MSWin32 '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41884>, Alexandr Ciornii submitted a patch to fix
+          a compilation error on Win32.
       - date_from: 1174165531
         date_to: 1174235028
         hidden: ~
@@ -478,10 +498,13 @@ lists:
             name: Paul Cochrane
         rt_ticket: 'perl #41885'
         subject: '[perl #41885] [BUG] All the dynoplibs/dynpmcs fail on freebsd '
-        summary: ''
+        summary: |-
+          Joshua Isom created ticket <rt://perl/41885> to report failures for
+          dynpmc and dynoplib tests on FreeBSD 6.0.  Paul Cochrane noted that
+          it also happens on FreeBSD 6.1.
       - date_from: 1174166398
         date_to: 1174349149
-        hidden: ~
+        hidden: part of rt-3.6.HEAD-30201-1174323266-729.41886-14-0@perl.org
         message_id: rt-3.6.HEAD-30201-1174323266-729.41886-14-0@perl.org
         messages:
           - rt-3.6.HEAD-30201-1174166392-720.41886-72-0@perl.org
@@ -501,7 +524,7 @@ lists:
         summary: ''
       - date_from: 1174169629
         date_to: 1174169629
-        hidden: ~
+        hidden: part of rt-3.6.HEAD-1687-1174011249-1390.41859-72-0@perl.org
         message_id: rt-3.6.HEAD-2051-1174169609-885.41859-14-0@perl.org
         posters:
           - email: bugs-parrot-track@netlabs.develooper.com
@@ -511,7 +534,7 @@ lists:
         summary: ''
       - date_from: 1174171456
         date_to: 1174171456
-        hidden: ~
+        hidden: child of rt-3.6.HEAD-2051-1174091088-133.41870-72-0@perl.org
         message_id: rt-3.6.HEAD-2051-1174171449-220.41870-14-0@perl.org
         posters:
           - email: bugs-parrot-track@netlabs.develooper.com
@@ -521,7 +544,7 @@ lists:
         summary: ''
       - date_from: 1174172109
         date_to: 1174172109
-        hidden: ~
+        hidden: part of rt-3.6.HEAD-2051-1174174258-1157.41505-14-0@perl.org
         message_id: 20070317225451.94D75CBA2F@x12.develooper.com
         posters:
           - email: paultcochrane@cvs.perl.org
@@ -530,7 +553,7 @@ lists:
         summary: ''
       - date_from: 1174174265
         date_to: 1174232134
-        hidden: ~
+        hidden: part of rt-3.6.HEAD-2051-1174174258-1157.41505-14-0@perl.org
         message_id: rt-3.6.HEAD-30201-1174194585-435.41505-14-0@perl.org
         messages:
           - rt-3.6.HEAD-2051-1174174258-1157.41505-14-0@perl.org
@@ -555,10 +578,19 @@ lists:
             name: Paul Cochrane via RT
         rt_ticket: 'perl #41168'
         subject: '[perl #41168] graceful "no compiler" error message? '
-        summary: ''
+        summary: |-
+          Earlier,
+          in ticket <rt://perl/41168>, Will Coleda added a request for a 'no
+          compiler found' error message in `configure.pl`.
+          
+          A patch was supplied by chromatic, and applied by Paul Cochrane
+          in r17614.  Paul asked for someone to check if it also worked on
+          Windows, because he had only been able to test it on Linux.  Jerry
+          Gay confirmed that it worked.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/221a851463e690c0/855396337eeb2727?#855396337eeb2727
       - date_from: 1174228196
         date_to: 1174228196
-        hidden: ~
+        hidden: placeholder for Patrick Michaud
         message_id: rt-3.6.HEAD-1687-1174228136-1037.41888-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
@@ -592,7 +624,31 @@ lists:
             name: Joshua Juran
         rt_ticket: 'perl #41889'
         subject: '[perl #41889] [PATCH] hoist cut and paste duplication into a function in src/library.c, also possible win32 bug found ? '
-        summary: ''
+        summary: |-
+          Mike Mattie created ticket <rt://perl/41889>.  He thought he had seen
+          some duplication in `src/library.c` and so he attached a patch which
+          corrected it.  He wasn't able to test it on Win32, however.
+          
+          Jonathan Worthington noted that some of the code Mike thought was broken
+          worked.  He also planned to apply the patch.  Eventually this was done
+          as r17626.
+          
+          Nicholas Clark had some comments on the algorithm involved, and some
+          questions about 2-letter drive names.  There was some further discussion
+          on the temporary solution and the proposed final resolution of the
+          issue.  Joshua Juran was also involved in the discussion.
+          
+          Later, Mike posted another patch to `src/library.c`, meant to be
+          applied after the previous patch.  This was ticket <rt://perl/41900>.
+          It was applied as r17628.
+          
+          After this, Mike supplied a third and a fourth patch in <rt://perl/41902>
+          and <rt://perl/41903>.  These were later replaced with <rt://perl/41905>.
+          Ticket <rt://perl/41906> was also part of this series.  Jerry Gay was able
+          to confirm that it works on Win32 and it was applied as r17630.
+          
+          Finally, ticket <rt://perl/41918> addressed some spelling errors
+          noted by Jerry Gay.  It was applied as r17680.
       - date_from: 1174228878
         date_to: 1174237937
         hidden: ~
@@ -611,10 +667,15 @@ lists:
             name: Paul Cochrane
         rt_ticket: 'perl #38764'
         subject: '[perl #38764] Test results of parrot on Freebsd '
-        summary: ''
+        summary: |-
+          Paul Cochrane submitted the output of `make test` on FreeBSD 6.1.
+          chromatic had also seen a failure with `t/stm/llqueue.t` but considered
+          the other errors unexpected.  He asked if Paul had GDBM installed.
+          Paul answered in the affirmative.  This was covered in ticket
+          <rt://perl/38764>.
       - date_from: 1174230131
         date_to: 1174248498
-        hidden: ~
+        hidden: Covered in 03-03 summary
         message_id: rt-3.6.HEAD-30201-1174226232-1879.41601-15-0@perl.org
         messages:
           - rt-3.6.HEAD-30201-1174239494-1525.41601-15-0@perl.org
@@ -653,7 +714,10 @@ lists:
           - email: codermattie@gmail.com
             name: Mike Mattie
         subject: parrot-0.4.9 ebuild for the gentoo distribution (WIP)
-        summary: ''
+        summary: |-
+          Mike Mattie has been working on a Gentoo ebuild for the 0.4.9 release.
+          He noted that some paths are mistakenly installed by Parrot and that
+          rpm had the same problem.  He included a copy of the build.
       - date_from: 1174230344
         date_to: 1174527342
         hidden: ~
@@ -666,7 +730,16 @@ lists:
           - email: allison@perl.org
             name: Allison Randal
         subject: the value of maintaining a working install target to the parrot project
-        summary: ''
+        summary: |-
+          Mike Mattie described himself as a programmer interested in the Parrot
+          virtual machine.  He found that one of his biggest obstacles to working
+          with Parrot is that it doesn't have a working install target.  He explained
+          his reasoning and needs in depth.
+          
+          Allison Randal replied that it was well-known that the install process
+          needs improvement, and patches and suggestions are welcome.  She addressed
+          many of Mike's points, and welcomed proposals which may come from the
+          careful analysis Mike offered.
       - date_from: 1174230437
         date_to: 1174230437
         hidden: ~
@@ -675,8 +748,10 @@ lists:
           - email: parrotbug-followup@parrotcode.org
             name: Erik Johansen
         rt_ticket: 'perl #41892'
-        subject: '[perl #41892] t/stm/llqueue segement violation on test #2 '
-        summary: ''
+        subject: '[perl #41892] t/stm/llqueue segment violation on test #2 '
+        summary: |-
+          In ticket <rt://perl/41892>, Erik Johansen reported an error on
+          SuSe Linux 10.2.
       - date_from: 1174231434
         date_to: 1174231434
         hidden: ~
@@ -686,7 +761,10 @@ lists:
             name: Mike Mattie
         rt_ticket: 'perl #41893'
         subject: '[perl #41893] [BUG] 0.4.9 leaks various .c files into install image, creates PREFIX/config, PREFIX/compiler '
-        summary: ''
+        summary: |-
+          Mike Mattie reported some files installed by 'reallyinstall' which
+          don't belong in the install image.  He reported this in ticket
+          <rt://perl/41893>.
       - date_from: 1174231471
         date_to: 1176578024
         hidden: ~
@@ -704,7 +782,9 @@ lists:
             name: Joshua Isom
         rt_ticket: 'perl #41894'
         subject: '[perl #41894] segfault happens when invoking poll op '
-        summary: ''
+        summary: |-
+          Jim McKim created ticket <rt://perl/41894> to report a segmentation
+          fault.
       - date_from: 1174233720
         date_to: 1174233720
         hidden: ~
@@ -714,10 +794,13 @@ lists:
             name: Paul Cochrane
         rt_ticket: 'perl #41895'
         subject: '[perl #41895] [TODO] Use Getopt for argument parsing in perlcritic.t '
-        summary: ''
+        summary: |-
+          Paul Cochrane wanted to improve `t/codingstd/perlcritic.t` by using
+          Getopt::Long instead of a non-standard argument parser.  He stated this
+          in ticket <rt://perl/41895>.
       - date_from: 1174236696
         date_to: 1174236696
-        hidden: ~
+        hidden: part of rt-3.6.HEAD-2051-1174174258-1157.41505-14-0@perl.org
         message_id: 20070318050627.7E762CBA82@x12.develooper.com
         posters:
           - email: allison@cvs.perl.org
@@ -741,7 +824,13 @@ lists:
             name: jerry gay
         rt_ticket: 'perl #41896'
         subject: '[perl #41896] [BUG] p5rx tests consuming infinite resources on win32 '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41896>, Jerry Gay reported that in r17619 he
+          cannot run `make test` due to failures in the p5rx tests.  He
+          suspected a string GC problem.  chromatic thought this might
+          explain the STM test failure as well.  Jerry replied that STM
+          tests are disabled on Windows so he cannot see if the problem
+          is related.  He committed a fix in r17649.
       - date_from: 1174241313
         date_to: 1174241313
         hidden: ~
@@ -751,7 +840,10 @@ lists:
             name: James Keenan
         rt_ticket: 'perl #41897'
         subject: "[perl #41897] [BUG]:  Parrot::Pmc2c::STMRef gets 'subroutine prederef redefined' warning "
-        summary: ''
+        summary: |-
+          James Keenan found that Devel::Cover sometimes reveals issues which
+          don't appear with `prove` or `make test`.  He reported a warning
+          which he saw with Devel::Cover in ticket <rt://perl/41897>.
       - date_from: 1174245689
         date_to: 1174245689
         hidden: ~
@@ -761,10 +853,12 @@ lists:
             name: Paul Cochrane
         rt_ticket: 'perl #41898'
         subject: '[perl #41898] Build error with icc '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41898>, Paul Cochrane reported a build error
+          when trying to use icc.
       - date_from: 1174285315
         date_to: 1174290040
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-1687-1174228211-1470.41889-72-0@perl.org
         message_id: rt-3.6.HEAD-30201-1174285307-1690.41900-72-0@perl.org
         messages:
           - rt-3.6.HEAD-1687-1174290033-552.41900-14-0@perl.org
@@ -778,7 +872,7 @@ lists:
         summary: ''
       - date_from: 1174286960
         date_to: 1174353124
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-1687-1174228211-1470.41889-72-0@perl.org
         message_id: rt-3.6.HEAD-1687-1174293365-1390.41902-15-0@perl.org
         messages:
           - 1d9a3f400703190713i7a30519by6c1ac378b3c24823@mail.gmail.com
@@ -799,7 +893,7 @@ lists:
         summary: ''
       - date_from: 1174288042
         date_to: 1174293606
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-1687-1174228211-1470.41889-72-0@perl.org
         message_id: rt-3.6.HEAD-1687-1174293598-1672.41903-14-0@perl.org
         messages:
           - rt-3.6.HEAD-1687-1174288031-1042.41903-72-0@perl.org
@@ -813,7 +907,7 @@ lists:
         summary: ''
       - date_from: 1174291286
         date_to: 1174291286
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-1687-1174228211-1470.41889-72-0@perl.org
         message_id: rt-3.6.HEAD-2051-1174291276-178.41905-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
@@ -823,7 +917,7 @@ lists:
         summary: ''
       - date_from: 1174291682
         date_to: 1174344325
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-1687-1174228211-1470.41889-72-0@perl.org
         message_id: rt-3.6.HEAD-30201-1174293510-793.41906-15-0@perl.org
         messages:
           - rt-3.6.HEAD-1687-1174291674-1411.41906-72-0@perl.org
@@ -847,7 +941,14 @@ lists:
             name: Mike Mattie
         rt_ticket: 'perl #41908'
         subject: '[perl #41908] [PATCH] 5 feature enhancement of src/library.c (extension guessing), and solutions for the install target problems '
-        summary: ''
+        summary: |-
+          Mike Mattie launched ticket <rt://perl/41908> to offer a patch to
+          enhance `Parrot_locate_runtime_str`.  It introduced two new
+          static functions.  Mike went into some detail on his reasons behind
+          the patch.  It was applied as r17632.
+          
+          There was some discussion of it in
+          '<msgid:20070321034327.2ac9e486@reforged>'.
       - date_from: 1174307745
         date_to: 1174307745
         hidden: ~
@@ -856,10 +957,15 @@ lists:
           - email: codermattie@gmail.com
             name: Mike Mattie
         subject: '[RFC] solutions for maintaining the install target, will affect developers work-flow'
-        summary: ''
+        summary: |-
+          Mike Mattie described some of the patches he has been writing
+          (see <msgid:rt-3.6.HEAD-30201-1174300762-187.41908-72-0@perl.org> and
+          <msgid:rt-3.6.HEAD-1687-1174228211-1470.41889-72-0@perl.org>).
+          He asked for feedback before he moves further with the proposals
+          he outlined in ticket <rt://perl/41908>.
       - date_from: 1174312845
         date_to: 1174312845
-        hidden: ~
+        hidden: summary
         message_id: 20070319140032.318.qmail@x1.develooper.com
         posters:
           - email: perlbug-summary@perl.org
@@ -868,7 +974,7 @@ lists:
         summary: ''
       - date_from: 1174313619
         date_to: 1174313619
-        hidden: ~
+        hidden: this is a fixed report
         message_id: rt-3.6.HEAD-2051-1174313591-1142.41610-14-0@perl.org
         posters:
           - email: bugs-parrot-track@netlabs.develooper.com
@@ -878,7 +984,7 @@ lists:
         summary: ''
       - date_from: 1174316409
         date_to: 1174316409
-        hidden: ~
+        hidden: no longer relevant since the release (HEAD-1687-1174228211-1470.41889-72-0)
         message_id: 20070319135513.49450.qmail@spout.spiders.net
         posters:
           - email: will@coleda.com
@@ -940,7 +1046,20 @@ lists:
           - email: nick@ccl4.org
             name: Nicholas Clark
         subject: 'Re: [PATCH] Quiet a few alignment warnings'
-        summary: ''
+        summary: |-
+          Earlier,
+          In ticket <rt://perl/37178>, Will Coleda applied a patch which quieted
+          some alignment warnings.  Andy Dougherty had created it some time ago.
+          He hoped someone else would take up the task of trying to document
+          and check Parrot's alignment assumptions.            
+          Later, the patch had to be removed because it had introduced some
+          problems.  One problem was that it incorrectly assumed that all
+          compilers accept a `-h`, `--help` or `/?` switch.  He and chromatic
+          tried to find a solution but were not successful; chromatic promised
+          to work on a better patch.
+          
+          More recently, Andy Dougherty figured out part of the problem.  Nicholas
+          Clark and chromatic also discussed the issue further.
       - date_from: 1174344379
         date_to: 1174345276
         hidden: ~
@@ -954,7 +1073,11 @@ lists:
             name: jerry gay
         rt_ticket: 'perl #38969'
         subject: '[perl #38969] [CAGE] parrot source does not conform to standards '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/38969>, Paul Cochrane suggested removing
+          `tools/dev/check_source_standards.pl` because the tests which were
+          previously in the file had been moved to `t/codingstd`.  Jerry
+          Gay directed Paul to <rt://perl/39824>.
       - date_from: 1174344411
         date_to: 1176163513
         hidden: ~
@@ -966,7 +1089,11 @@ lists:
             name: James Keenan via RT
         rt_ticket: 'perl #41912'
         subject: '[perl #41912] [CAGE] survey tools/ dir for unused, old, or broken code, and remove or fix as necessary '
-        summary: ''
+        summary: |-
+          Jerry Gay created ticket <rt://perl/41912>.  He proposed that scripts
+          and utilities in `tools/` be checked to see if they are still in use.
+          James Keenan took a stab at this.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/a40245d3b7bc033c/8596b18a9975028a?#8596b18a9975028a
       - date_from: 1174344780
         date_to: 1174377673
         hidden: ~
@@ -980,7 +1107,11 @@ lists:
             name: Paul Cochrane
         rt_ticket: 'perl #41915'
         subject: '[perl #41915] [TODO] remove unused manifest-generating scripts '
-        summary: ''
+        summary: |-
+          Jerry Gay named some broken and possibly unused scripts in `tools/dev`,
+          many related to manifest generation.  He wondered if one script
+          could replace them.  Paul Cochrane linked this ticket (<rt://perl/41915>)
+          to another ticket, <rt://perl/40911>.
       - date_from: 1174353838
         date_to: 1174353838
         hidden: ~
@@ -989,10 +1120,15 @@ lists:
           - email: jkeen@verizon.net
             name: James E Keenan
         subject: 'Re: [perl #41201] [TODO] Remove temporary conf hack in Configure.pl'
-        summary: ''
+        summary: |-
+          Earlier,
+          In ticket <rt://perl/41201>, Paul Cochrane noted that there is a temporary    
+          hack in `Configure.pl` which should be implemented properly.
+          
+          Recently, James Keenan submitted a patch which attempts to address this.
       - date_from: 1174357357
         date_to: 1174501569
-        hidden: ~
+        hidden: part of rt-3.6.HEAD-1687-1174228211-1470.41889-72-0@perl.org
         message_id: rt-3.6.HEAD-2051-1174357348-1102.41918-72-0@perl.org
         messages:
           - rt-3.6.HEAD-2051-1174501554-1491.41918-14-0@perl.org
@@ -1013,7 +1149,9 @@ lists:
             name: Jerry Gay
         rt_ticket: 'perl #41926'
         subject: '[perl #41926] [PATCH] partial update of NEWS for 0.4.10 '
-        summary: ''
+        summary: |-
+          Jerry Gay submitted a partial update for `NEWS` for update 0.4.10 and
+          asked someone to finish it.  This was ticket <rt://perl/41926>.
       - date_from: 1174433774
         date_to: 1174433976
         hidden: ~
@@ -1027,10 +1165,13 @@ lists:
             name: Paul Cochrane via RT
         rt_ticket: 'perl #41927'
         subject: '[perl #41927] [PATCH] getting gen_manifest_skip() to return correct results quickly '
-        summary: ''
+        summary: |-
+          Paul Cochrane submitted a patch in ticket <rt://perl/41927> which
+          he attributed to Jerry Gay, Will Coleda and himself.  It makes
+          `gen_manifest_skip` return a list of the ignore files.
       - date_from: 1174449424
         date_to: 1174449424
-        hidden: ~
+        hidden: part of A0EA8AEE-3AE0-479D-BD11-F88FDECBD559@coleda.com
         message_id: 2BF6220F-C355-4F65-90D5-E30AAAA3AEAB@coleda.com
         posters:
           - email: will@coleda.com
@@ -1039,7 +1180,7 @@ lists:
         summary: ''
       - date_from: 1174473830
         date_to: 1174473830
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-30201-1174300762-187.41908-72-0@perl.org
         message_id: 20070321034327.2ac9e486@reforged
         posters:
           - email: codermattie@gmail.com
@@ -1054,7 +1195,11 @@ lists:
           - email: mddiep@gmail.com
             name: Matt Diephouse
         subject: Countdown to 0.4.11
-        summary: ''
+        summary: |-
+          Matt Diephouse created a list of tickets that he wanted to see
+          resolved for release 0.4.11.  As it just so happens, 0.4.11 was released
+          the day this summary was completed, so this message is not worth
+          summarizing.
       - date_from: 1174514031
         date_to: 1174590266
         hidden: ~
@@ -1075,7 +1220,19 @@ lists:
             name: Allison Randal
         rt_ticket: 'perl #41955'
         subject: '[perl #41955] [PATCH] Yet Another PIR -- in C '
-        summary: ''
+        summary: |-
+          Klaas-Jan Stol submitted a patch of an implementation of PIR in C in
+          ticket <rt://perl/41955>.  His goal was to clean up PIR and to see
+          if a rewrite would reduce the size.
+          
+          Joshua Isom wondered what Klaas-Jan considered 'hackish' and how much
+          more work he thought it would take to get the bytecode working.  Klaas-Jan
+          replied that he referred to the 'TODO', 'FIXME' and other comment
+          scattered throughout the code and that he couldn't make an estimate on
+          the bytecode although it probably wasn't trivial.
+          
+          Allison Randal said that she was happy to see it in `compilers/pir` as
+          an experiment in progress.
       - date_from: 1174524740
         date_to: 1174695282
         hidden: ~
@@ -1092,7 +1249,13 @@ lists:
             name: Jonathan Worthington
         rt_ticket: 'perl #41956'
         subject: '[perl #41956] [TODO] Rename PMETHOD and PMINVOKE '
-        summary: ''
+        summary: |-
+          Jonathan Worthington reported in ticket <rt://perl/41956> that
+          it had been decided (in a discussion with Allison Randal) to rename
+          `PMETHOD` and `PMINVOKE` to `PCCMETHOD` and `PCCINVOKE`.  Kevin Tew
+          wondered if `PRETURN` should become `PCCRETURN`.
+          Jonathan Worthington said he'd already created a ticket for that,
+          <rt://perl/42001>.
       - date_from: 1174559294
         date_to: 1174559294
         hidden: ~
@@ -1101,7 +1264,9 @@ lists:
           - email: parrotcode@gmail.com
             name: Klaas-Jan Stol
         subject: lang/pir tests fail
-        summary: ''
+        summary: |-
+          Klaas-Jan Stol reported this test failure, as well as some in
+          `languages/Pynie`.
       - date_from: 1174568118
         date_to: 1174568118
         hidden: ~
@@ -1110,7 +1275,10 @@ lists:
           - email: doughera@lafayette.edu
             name: Andy Dougherty
         subject: "[PATCH] void functions can't return values."
-        summary: ''
+        summary: |-
+          Andy Dougherty submitted a patch because the documentation for
+          `Parrot_set_attrib_by_num` suggests it returns a PMC pointer, but
+          the source code doesn't actually return anything.
       - date_from: 1174568621
         date_to: 1174577123
         hidden: ~
@@ -1126,7 +1294,15 @@ lists:
           - email: h.m.brand@xs4all.nl
             name: H.Merijn Brand
         subject: '[PATCH]   Avoid //-style comments.'
-        summary: ''
+        summary: |-
+          Andy Dougherty submitted a patch to remove `//` style comments because some
+          compilers don't understand them.  Also, he thought it was a bad idea to
+          comment out sections of code without explaining why they were commented
+          out.  H.Merijn Brand also expressed his distaste for this type of comment.
+          
+          Matt Diephouse applied the patch in r17692.  He said that there was a
+          test for C++ style comments, but that it doesn't appear to check all
+          generated code.
       - date_from: 1174568781
         date_to: 1175022632
         hidden: ~
@@ -1159,7 +1335,17 @@ lists:
           - email: chromatic@wgz.org
             name: chromatic
         subject: '[PATCH] Hints must come early in Configure.pl'
-        summary: ''
+        summary: |-
+          Andy Dougherty explained that hints need to come before inter/progs.  He
+          submitted a patch to correct this.  James E Keenan reported that Will
+          Coleda made the change Andy advised in r17671, which was basically
+          reverting to r16268 from a change made in r16416.  He linked to information
+          about these previous commits.
+          
+          chromatic wondered if there was some way that the problems James
+          referenced (which were on his system) could be fixed in some other
+          way.  James and chromatic tried to resolve the issue.  Andy added
+          his two cents.
       - date_from: 1174568897
         date_to: 1174568897
         hidden: ~
@@ -1168,7 +1354,10 @@ lists:
           - email: doughera@lafayette.edu
             name: Andy Dougherty
         subject: '[PATCH] Suppress optimization on core_ops_cgp.c'
-        summary: ''
+        summary: |-
+          Andy Dougherty reported that `core_ops_cgp.c` overwhelms his system
+          and that he couldn't figure out a better way to solve it other than to
+          turn off optimization.  He supplied a patch for it.
       - date_from: 1174569323
         date_to: 1174569323
         hidden: ~
@@ -1178,7 +1367,10 @@ lists:
             name: Andy Dougherty
         rt_ticket: 'perl #41975'
         subject: '[perl #41975] Makefile is missing dependencies on lib/Parrot/Pmc2c/PMETHODs.pm  '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/41975>, Andy Dougherty reported that he had to fix
+          `lib/Parrot/Pmc2c/PMETHODS.pm` to get Parrot to compile, but that `make`
+          didn't generate the required files after his fix.
       - date_from: 1174573148
         date_to: 1174573148
         hidden: ~
@@ -1187,10 +1379,13 @@ lists:
           - email: doughera@lafayette.edu
             name: Andy Dougherty
         subject: make test hangs in t/examples/shootout_1.pir
-        summary: ''
+        summary: |-
+          Andy Dougherty reported that `t/examples/shootout_1.pir` was hanging
+          when he tried to `make test`.  It ran for 15 hours before he killed
+          it.
       - date_from: 1174576401
         date_to: 1174576401
-        hidden: ~
+        hidden: 'Covered in 03-10, the new message is an applied comment'
         message_id: rt-3.6.HEAD-30201-1174576355-1157.41763-15-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
@@ -1200,7 +1395,7 @@ lists:
         summary: ''
       - date_from: 1174613003
         date_to: 1174613003
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-30201-1174524730-1002.41956-72-0@perl.org
         message_id: rt-3.6.HEAD-30201-1174612991-52.42001-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
@@ -1217,7 +1412,10 @@ lists:
             name: Kevin Tew
         rt_ticket: 'perl #42040'
         subject: "[perl #42040] tools/dev/mk_manifest_and_skip.pl doesn't pick up files that are marked svn deleted but not yet committed  "
-        summary: ''
+        summary: |-
+          Kevin Tew noted that `tools/dev/mk_manifest_and_skip.pl` should remove
+          files from the MANIFEST if they are scheduled for subversion deletion.
+          This was ticket <rt://perl/42040>.
     title: Parrot Porters
   - name: perl6-users
     threads: []
@@ -1292,10 +1490,14 @@ lists:
           - email: paultcochrane@gmail.com
             name: Paul Cochrane
         subject: '[svn:parrot] r17623 - trunk'
-        summary: ''
+        summary: |-
+          Paul Cochrane removed some code for MacOS Classic after few people showed
+          interest in targeting this operating system.  chromatic rightly noted
+          that the code could be taken from subversion if it was needed at some point
+          in the future.
       - date_from: 1174560782
         date_to: 1174576502
-        hidden: ~
+        hidden: Changes to the makefile
         message_id: 20070322084805.97E38CBA2F@x12.develooper.com
         messages:
           - 200703220814.16176.chromatic@wgz.org
