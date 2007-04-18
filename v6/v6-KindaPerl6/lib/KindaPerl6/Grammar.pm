@@ -293,7 +293,7 @@ token term {
         { 
             return ::Do( 
                 'block' => ::Lit::Code(
-                    pad   => { },
+                    pad   => @COMPILER::PAD[0],   # XXX - add_pad/drop_pad
                     state => { },
                     sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
                     body  => $$<exp_stmts>,

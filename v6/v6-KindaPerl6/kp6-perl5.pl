@@ -128,23 +128,40 @@ use Data::Dump::Streamer;
             my @names = keys %$side_effects;
             for my $name ( @names ) {
                 my $value = $COMPILER::PAD[0]->eval( "$name" );
-                #print "$name = ",Dumper( $value );
+                #print "# modified: $name = ",Dumper( $value );
 
                 my $src = '';
                 if ( $name ne $value->[2] ) {
                     # it seems to be a bound variable
-                    $src = $src . "$name := " . $value->[2] . '; ';
+                    if ( $value->[2] ) {
+                        # the binded thing has a name
+                        $src = $src . "$name := " . $value->[2] . '; ';
+                        # optimize repeated assignments
+                        $src = $src . "$name = " . $value->perl;
+                    }
+                    else {
+                        # no name; bind to the value
+                        $src = $src . "$name := " . $value->perl . '; ';
+                    }
+                }
+                else {
+                    # plain assignment
+                    $src = $src . "$name = " . $value->perl;
                 }
 
                 # TODO - convert directly DATA->AST, instead of DATA->PERL->AST
-                #print "# BEGIN SIDE-EFFECT: $name = ",$value->perl," \n\n";
-                my $p = KindaPerl6::Grammar->exp( $src . "$name = " . $value->perl , 0);
+                print "# BEGIN SIDE-EFFECT: $src \n\n";
+                my $p = KindaPerl6::Grammar->exp_stmts( $src, 0);
+                my $pos = $p->to;
+                #print "# parsed to $pos - length = ",length($src)," [$src]\n";
+                if ( $pos != length( $src ) ) {
+                    die "Syntax error serializing BEGIN block, after position $pos in: $src\n";
+                }
                 #print "AST: ", Dumper($$p);
                 # TODO - check for shared data (BIND)
-                push @begin_stmts, $$p;
+                push @begin_stmts, @$$p;
             }
         }
-        # TODO - emit the runtime BEGIN code 
         add_pad;
         my $initializer_name = 'Main::INIT_' . int(rand(100000000));
         my $begin_ast = Sub->new(
