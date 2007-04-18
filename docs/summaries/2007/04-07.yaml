@@ -281,7 +281,31 @@ lists:
           - email: lt@toetsch.at
             name: Leopold Toetsch
         subject: Syntax for Constructing new Objects (and classes?)
-        summary: ''
+        summary: |-
+          This thread began with Klaas-Jan Stol asking about hte syntax for
+          constructing new objects because he thought that it was going to
+          be changed.  Allison Randal replied with examples of the two proposals
+          for the new syntax.  
+          
+          This led Alek Storm to ask if `new()` would be
+          a vtable method or a PCCMETHOD.  Jonathan Worthington confirmed
+          that it is a PCCMETHOD.  Allison elaborated that it is a class method.
+          
+          More recently, Alek replied that he thought that `new` should be kept
+          an opcode, and `new()` should be a vtable method which is called from
+          inside the `new` opcode.  Jonathan Worthington was confused by Alek's
+          proposal.  He suggested making BaseClass implement all the vtable
+          variants of a method, and Class can inherit from it and provide a sane
+          interface.  Alek thought that Jonathan's suggestion was similar to
+          one he had made in <rt://perl/41619> but that Jonathan's explanation
+          was superior.  Allison also added her thoughts to this subthread.
+          
+          In the main thread, Jonathan proposed deprecating the old syntax
+          in the next release and removing support for it in the following release.
+          Allison agreed to marking it as deprecated now.  Joshua Isom wanted
+          the dot syntax to still work so that tests wouldn't need to be rewritten.
+          Allison explained that there were several reasons to remove constants
+          for types and the class registry.
       - date_from: 1175223903
         date_to: 1175411657
         hidden: ~
