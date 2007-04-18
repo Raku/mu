@@ -677,7 +677,7 @@ lists:
         summary: ''
       - date_from: 1176163513
         date_to: 1176163513
-        hidden: ~
+        hidden: Covered in 03-24
         message_id: rt-3.6.HEAD-1687-1176163489-1051.41912-15-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
@@ -963,7 +963,15 @@ lists:
             name: Joshua Isom
         rt_ticket: 'perl #41894'
         subject: '[perl #41894] segfault happens when invoking poll op '
-        summary: ''
+        summary: |-
+          Earlier,
+          Jim McKim created ticket <rt://perl/41894> to report a segmentation
+          fault.
+          
+          Will Coleda offered a patch, which Nuno Carvalho applied.  Jonathan
+          Worthington reported that the patch broke the build for Win32.  He
+          committed a correction in r18187.  Joshua Isom suggested an
+          alternative way of addressing the problem.
     title: Parrot Porters
   - name: perl6-users
     threads: []
