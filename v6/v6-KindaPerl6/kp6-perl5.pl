@@ -150,7 +150,7 @@ use Data::Dump::Streamer;
                 }
 
                 # TODO - convert directly DATA->AST, instead of DATA->PERL->AST
-                print "# BEGIN SIDE-EFFECT: $src \n\n";
+                #print "# BEGIN SIDE-EFFECT: $src \n\n";
                 my $p = KindaPerl6::Grammar->exp_stmts( $src, 0);
                 my $pos = $p->to;
                 #print "# parsed to $pos - length = ",length($src)," [$src]\n";

@@ -183,7 +183,7 @@ token exp {
     | <?opt_ws> <'::='> <?opt_ws> <exp>
         { 
             my $bind := ::Bind( 'parameters' => $$<term_meth>, 'arguments' => $$<exp>);
-            COMPILER::begin_block( [ $bind ] );   # ::=   compile-time
+            COMPILER::begin_block( $bind );   # ::=   compile-time
             return $bind;                         # :=    run-time
         }
     | <?opt_ws> <':='> <?opt_ws> <exp>
@@ -300,17 +300,6 @@ token term {
                 ),
             );
         }   # do { stmt; ... }
-    | <declarator> <?ws> <opt_type> <?opt_ws> <undeclared_var>   # my Int $variable
-        { 
-            if ($$<declarator>) eq 'my' {
-                (@COMPILER::PAD[0]).add_lexicals( [
-                    ::Decl( 'decl' => $$<declarator>, 'type' => $$<opt_type>, 'var' => $$<undeclared_var> ),
-                ] );
-                return $$<undeclared_var>;
-            };
-            # TODO - our, temp, state, has
-            return ::Decl( 'decl' => $$<declarator>, 'type' => $$<opt_type>, 'var' => $$<undeclared_var> );
-        }
     | use <?ws> <full_ident>  [ - <ident> | <''> ]
         { return ::Use( 'mod' => $$<full_ident> ) }
     | <val>     { return $$<val> }     # 'value'
@@ -337,7 +326,7 @@ token term {
                         block => ($$<sub>).block, 
                     ),
                 );
-                COMPILER::begin_block( [ $bind ] );   # ::=   compile-time
+                COMPILER::begin_block( $bind );   # ::=   compile-time
                 return $bind;                         # :=    run-time
             };
             return $$<sub>;
@@ -369,7 +358,7 @@ token term {
                             block => ($$<sub>).block, 
                         ),
                     );
-                    COMPILER::begin_block( [ $bind ] );   # ::=   compile-time
+                    COMPILER::begin_block( $bind );   # ::=   compile-time
                     return $bind;                         # :=    run-time
                 };
                 # our sub x {...}  -->  our &x ::= sub {...}
@@ -388,12 +377,23 @@ token term {
                         block => ($$<sub>).block, 
                     ),
                 );
-                COMPILER::begin_block( [ $bind ] );   # ::=   compile-time
+                COMPILER::begin_block( $bind );   # ::=   compile-time
                 return $bind;                         # :=    run-time
             };
             print "Error: subroutines with declarators should have a name";
             die "Error: subroutines with declarators should have a name";
         }  
+    | <declarator> <?ws> <opt_type> <?opt_ws> <undeclared_var>   # my Int $variable
+        { 
+            if ($$<declarator>) eq 'my' {
+                (@COMPILER::PAD[0]).add_lexicals( [
+                    ::Decl( 'decl' => $$<declarator>, 'type' => $$<opt_type>, 'var' => $$<undeclared_var> ),
+                ] );
+                return $$<undeclared_var>;
+            };
+            # TODO - our, temp, state, has
+            return ::Decl( 'decl' => $$<declarator>, 'type' => $$<opt_type>, 'var' => $$<undeclared_var> );
+        }
     | <begin_block> 
                 { return $$<begin_block> }  # BEGIN { code... }
     | <check_block> 
