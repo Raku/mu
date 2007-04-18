@@ -8,7 +8,8 @@ my Str %TEXT_STRINGS is readonly = (
     # This group of strings is generic and can be used by any package:
 
     'LKT_ARG_UNDEF'
-        => q[<CLASS>.<METH>(): argument <ARG> n'est pas définis (ou est manquant).],
+        => q[<CLASS>.<METH>(): argument <ARG> n'est pas définis (ou est]
+            ~ q[ manquant).],
     'LKT_ARG_NO_ARY'
         => q[<CLASS>.<METH>(): argument <ARG> n'est pas un objet Array',]
            ~ q[ mais contient '<VAL>'.],
@@ -20,19 +21,19 @@ my Str %TEXT_STRINGS is readonly = (
            ~ q[ mais contient '<VAL>'.],
 
     'LKT_ARG_ARY_ELEM_UNDEF'
-        => q[<CLASS>.<METH>(): argument <ARG> est un object Array comme attendu,]
-           ~ q[ mais un de ces éléments est indéfinis.],
+        => q[<CLASS>.<METH>(): argument <ARG> est un object Array comme]
+           ~ q[ attendu, mais un de ces éléments est indéfinis.],
     'LKT_ARG_ARY_ELEM_NO_ARY'
-        => q[<CLASS>.<METH>(): argument <ARG> est un objet Array comme attendu,]
-           ~ q[ mais un de ces éléments n'est pas un objet Array,]
-           ~ q[ mais contient '<VAL>'.],
+        => q[<CLASS>.<METH>(): argument <ARG> est un objet Array comme]
+           ~ q[ attendu, mais un de ces éléments n'est pas un objet ]
+           ~ q[ Array, mais contient '<VAL>'.],
     'LKT_ARG_ARY_ELEM_NO_HASH'
-        => q[<CLASS>.<METH>(): argument <ARG> est un objet Array comme attendu,]
-           ~ q[ mais un de ces éléments n'est pas un objet Hash,]
+        => q[<CLASS>.<METH>(): argument <ARG> est un objet Array comme]
+           ~ q[ attendu,mais un de ces éléments n'est pas un objet Hash,]
            ~ q[ mais contient '<VAL>'.],
     'LKT_ARG_ARY_ELEM_NO_EXP_TYPE'
-        => q[<CLASS>.<METH>(): argument <ARG> est un objet Array comme attendu,]
-           ~ q[ mais un de ces éléments n'est pas <EXP_TYPE>,]
+        => q[<CLASS>.<METH>(): argument <ARG> est un objet Array comme]
+           ~ q[ attendu, mais un de ces éléments n'est pas <EXP_TYPE>,]
            ~ q[ mais contient '<VAL>'.],
 
     'LKT_ARG_HASH_VAL_UNDEF'
@@ -52,8 +53,8 @@ my Str %TEXT_STRINGS is readonly = (
            ~ q[ but rather contains '<VAL>'.],
 
     'LKT_ARG_ARY_NO_ELEMS'
-        => q[<CLASS>.<METH>(): argument <ARG> est un objet Array comme attendu,]
-           ~ q[ mais ne contient aucun élément.],
+        => q[<CLASS>.<METH>(): argument <ARG> est un objet Array comme]
+           ~ q[ attendu, mais ne contient aucun élément.],
     'LKT_ARG_HASH_NO_ELEMS'
         => q[<CLASS>.<METH>(): argument <ARG> est un objet Hash comme attendu,]
            ~ q[ mais ne contient aucun élément.],
@@ -61,8 +62,8 @@ my Str %TEXT_STRINGS is readonly = (
     'LKT_ARG_EMP_STR'
         => q[<CLASS>.<METH>(): argument <ARG> est une chaine vide.],
     'LKT_ARG_ARY_ELEM_EMP_STR'
-        => q[<CLASS>.<METH>(): argument <ARG> est un objet Array comme attendu,]
-           ~ q[ mais un de ces éléments est une chaine vide.],
+        => q[<CLASS>.<METH>(): argument <ARG> est un objet Array comme]
+           ~ q[ attendu, mais un de ces éléments est une chaine vide.],
     'LKT_ARG_HASH_KEY_EMP_STR'
         => q[<CLASS>.<METH>(): argument <ARG> est un objet Hash comme attendu,]
            ~ q[ mais une de ces chaines est une chaine vide.],
@@ -73,8 +74,8 @@ my Str %TEXT_STRINGS is readonly = (
     # This group of strings is specific to Locale::KeyedText itself:
 
     'LKT_T_FAIL_LOAD_TMPL_MOD'
-        => q[<CLASS>.<METH>(): impossible de localiser Locale::KeyedText Template]
-           ~ q[ module '<TMPL_MOD_NAME>': <REASON>],
+        => q[<CLASS>.<METH>(): impossible de localiser Locale::KeyedText]
+           ~ q[ Template, module '<TMPL_MOD_NAME>': <REASON>],
     'LKT_T_FAIL_GET_TMPL_TEXT'
         => q[<CLASS>.<METH>(): impossible d'invoquer get_text_by_key() sur]
            ~ q[ Locale::KeyedText Template module '<TMPL_MOD_NAME>':]
@@ -104,7 +105,7 @@ Localization of Locale::KeyedText for French
 
 =head1 VERSION
 
-This document describes Locale::KeyedText::L::fr version 1.0.1.
+This document describes Locale::KeyedText::L::fr version 1.0.0.
 
 =head1 SYNOPSIS
 
