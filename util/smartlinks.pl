@@ -1029,7 +1029,7 @@ snippet code.
 
 =item *
 
-t/README in the Pugs source tree.
+F<t/README> in the Pugs source tree.
 
 =item *
 
@@ -1038,6 +1038,8 @@ The articles on the Pugs blogs:
 L<http://pugs.blogs.com/pugs/2006/08/integrating_the.html>
 
 L<http://pugs.blogs.com/pugs/2006/09/check_smoke_res.html>
+
+L<http://pugs.blogs.com/pugs/2006/09/the_benefits_of.html>
 
 =item *
 
