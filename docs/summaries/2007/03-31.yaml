@@ -23,7 +23,11 @@ extra:
         * [ONLamp](http://www.oreillynet.com/onlamp/blog/)
       title: Distribution
   header:
-    - body: ~
+    - body: |-
+        "I don't think that it's possible to make this non-conformity a fatal heresy :-( 
+        (gcc --spanish-inquisition)"
+        
+        -- Nicholas Clark in '<msgid:rt-3.6.HEAD-1687-1174967748-1339.42110-72-0@perl.org>'
       title: This week on the Perl 6 mailing lists
   see_also:
     - name: Perl Foundation activities
@@ -37,7 +41,7 @@ lists:
     threads:
       - date_from: 1175111221
         date_to: 1175111221
-        hidden: ~
+        hidden: clarifications
         message_id: 20070328194652.2F5DDCBA2F@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -46,7 +50,7 @@ lists:
         summary: ''
       - date_from: 1175113071
         date_to: 1175117146
-        hidden: ~
+        hidden: tweak
         message_id: 20070328201744.7745FCBA2F@x12.develooper.com
         messages:
           - 20070328212500.GA31277@c4.convolution.nl
@@ -59,7 +63,7 @@ lists:
         summary: ''
       - date_from: 1175118168
         date_to: 1175118168
-        hidden: ~
+        hidden: typo
         message_id: 20070328214241.176C2CBA2F@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -90,10 +94,17 @@ lists:
           - email: rogers-perl6@rgrjr.dyndns.org
             name: Bob Rogers
         subject: '[svn:perl6-synopsis] r14359 - doc/trunk/design/syn'
-        summary: ''
+        summary: |-
+          A commit by Larry Wall introduced user-definable array indexing.
+          Darren Duncan wondered how one could declare an anonymous multidimensional
+          array value which is compatible with the system Larry introduced.
+          Larry explained that the semicolon notation is intended for slicing
+          subscripts, which are two-dimensional, and it is therefore convenient
+          to represent one dimension with a semicolon.  There was further
+          discussion on the syntax.
       - date_from: 1175149316
         date_to: 1175200286
-        hidden: ~
+        hidden: clarification
         message_id: 20070329062149.A0192CBA64@x12.develooper.com
         messages:
           - 460C21A0.1090709@xmission.com
@@ -106,7 +117,7 @@ lists:
         summary: ''
       - date_from: 1175149968
         date_to: 1175149968
-        hidden: ~
+        hidden: clarification
         message_id: 20070329063241.26E3FCBA2F@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -115,7 +126,7 @@ lists:
         summary: ''
       - date_from: 1175154929
         date_to: 1175194608
-        hidden: ~
+        hidden: typo correction
         message_id: 20070329075520.A7CC6CBA2F@x12.develooper.com
         messages:
           - 20070329185640.11305.qmail@lists.develooper.com
@@ -128,7 +139,7 @@ lists:
         summary: ''
       - date_from: 1175177503
         date_to: 1175177503
-        hidden: ~
+        hidden: POD correction
         message_id: 20070329141112.55EC1CBA2F@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -137,7 +148,7 @@ lists:
         summary: ''
       - date_from: 1175195188
         date_to: 1175195188
-        hidden: ~
+        hidden: correction
         message_id: 20070329190616.A807BCBA2F@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -146,7 +157,7 @@ lists:
         summary: ''
       - date_from: 1175196760
         date_to: 1175196760
-        hidden: ~
+        hidden: correction
         message_id: 20070329193229.E8543CBA2F@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -155,7 +166,7 @@ lists:
         summary: ''
       - date_from: 1175210092
         date_to: 1175210092
-        hidden: ~
+        hidden: clarifications
         message_id: 20070329231446.4DA6ACBA2F@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -164,7 +175,7 @@ lists:
         summary: ''
       - date_from: 1175227275
         date_to: 1175227275
-        hidden: ~
+        hidden: Covered in the 03-24 summary
         message_id: 21a10fe00703292101j18eb6fecqbf66b0c60d97fd64@mail.gmail.com
         posters:
           - email: john.beppu@gmail.com
@@ -173,7 +184,7 @@ lists:
         summary: ''
       - date_from: 1173649969
         date_to: 1174951366
-        hidden: ~
+        hidden: seems like a minor change
         message_id: 20070311215242.0DA48CBA2A@x12.develooper.com
         messages:
           - 'p06240802c22e05e8b4b6@[192.168.1.100]'
@@ -186,7 +197,7 @@ lists:
         summary: ''
       - date_from: 1174249504
         date_to: 1176461957
-        hidden: ~
+        hidden: 'Covered in 03-24, and then in 04-14'
         message_id: 45FD9FB0.90101@xmission.com
         messages:
           - 1d9a3f400703181951j4990a52cq84be6faa79c8e646@mail.gmail.com
@@ -212,7 +223,7 @@ lists:
         summary: ''
       - date_from: 1174702523
         date_to: 1175227275
-        hidden: ~
+        hidden: Covered in the 03-24 summary
         message_id: 21a10fe00703231915l171d5fd7oda1e9d683c927817@mail.gmail.com
         messages:
           - 21a10fe00703292101j18eb6fecqbf66b0c60d97fd64@mail.gmail.com
@@ -232,10 +243,10 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r14354 - doc/trunk/design/syn'
-        summary: ''
+        summary: A commit by Larry Wall made all punctuation potentially meta.
       - date_from: 1174957876
         date_to: 1174957876
-        hidden: ~
+        hidden: typo
         message_id: 20070327011105.32DA6CBA2F@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -259,7 +270,9 @@ lists:
             name: chromatic
         rt_ticket: 'perl #41837'
         subject: '[perl #41837] [PATCH] integer overflow in include/parrot/sub.h '
-        summary: ''
+        summary: |-
+          Ticket <rt://perl/41837> contained a patch which was required for
+          32-bit Solaris compilers.  It was applied as r17853.
       - date_from: 1174739793
         date_to: 1175410736
         hidden: ~
@@ -274,7 +287,10 @@ lists:
             name: chromatic
         rt_ticket: 'perl #42045'
         subject: '[perl #42045] [PATCH] add return statement to clone in iterator.pmc '
-        summary: ''
+        summary: |-
+          Ticket <rt://perl/42045> includes a patch from Klaas-Jan Stol which
+          adds a return statement which had been forgotten.  The patch was
+          applied as r17794.
       - date_from: 1174876472
         date_to: 1175358606
         hidden: ~
@@ -293,7 +309,12 @@ lists:
             name: James Keenan via RT
         rt_ticket: 'perl #42082'
         subject: '[perl #42082] [BUG]:  Configure.pl:  Misspecified option; 2 non-valid options documented '
-        summary: ''
+        summary: |-
+          James Keenan explained that refactoring in `Configure.pl` had exposed
+          two bugs in the file.  He submitted a patch in ticket <rt://perl/42082>
+          which corrects the problems in the trunk.  Joshua Isom had some questions
+          about the supposed bugs; James explained why he considered them
+          problems.  Eventually the patch was applied as r17899.
       - date_from: 1174926114
         date_to: 1175373906
         hidden: ~
@@ -358,7 +379,15 @@ lists:
           - email: lt@toetsch.at
             name: Leopold Toetsch
         subject: Syntax for Constructing new Objects (and classes?)
-        summary: ''
+        summary: |-
+          This thread began with Klaas-Jan Stol asking about the syntax for
+          constructing new objects because he thought that it was going to
+          be changed.  Allison Randal replied with examples of the two proposals
+          for the new syntax.  
+          
+          This led Alek Storm to ask if `new()` would be
+          a vtable method or a PCCMETHOD.  Jonathan Worthington confirmed
+          that it is a PCCMETHOD.  Allison elaborated that it is a class method.
       - date_from: 1174939160
         date_to: 1175275135
         hidden: ~
@@ -401,7 +430,23 @@ lists:
           - email: nick.glencross@gmail.com
             name: Nick Glencross
         subject: '[perl #37997] r10604 build failure on Cygwin'
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/37997>, Ron Blaschke reported that `make test`
+          fails on Cygwin for r10604, whereas r17772 builds without a problem.
+          Joshua Gatcomb expressed his surprise, as he had not heard of anyone
+          getting Parrot to work on Cygwin for several months.
+          
+          Eric Hanchrow offered to occasionally do a test build on his Cygwin
+          system.  Bernhard Schmalhofer suggested that Eric use the smoke system
+          as documented in `docs/tests.pod`.  Eric later reported that he
+          could not get r17772 working.  Paul Cochrane seconded Eric's report.
+          Ron suggested using the absolute path for PATH, rather than just
+          `blib/lib`.  Eric got a bit further using this approach, but then he
+          had another failure.
+          
+          Ron also noted that a few of the stm tests hang, which prevents
+          smoking on Cygwin.  chromatic asked if this was `t/pmc/stmlog.t`,
+          but Ron thought it was `t/stm/queue.t` and `t/stm/runtime.t`.
       - date_from: 1174967756
         date_to: 1175210303
         hidden: ~
@@ -441,7 +486,17 @@ lists:
             name: chromatic
         rt_ticket: 'perl #42110'
         subject: '[perl #42110] [PATCH] Returning values from void functions '
-        summary: ''
+        summary: |-
+          Steve Peters reported that a couple of functions are trying to return
+          values from void functions.  He included a patch in ticket <rt://perl/42110>.
+          Andrew Dougherty remarked that he had submitted the same patch the
+          previous week, but not in RT.  The patch was applied as r17793.
+          
+          Steve hoped there was a GCC warning flag which would catch this situation,
+          but Nicholas Clark replied that he didn't think it was possible to look
+          for this.  He wondered if some other compilers could be coaxed into
+          protesting.  There was some discussion between Leopold Toetsch, Nicholas,
+          Steve and chromatic over the value of `-ansi -pedantic`.
       - date_from: 1175013280
         date_to: 1175190705
         hidden: ~
@@ -465,7 +520,12 @@ lists:
             name: Kevin Tew
         rt_ticket: 'perl #42151'
         subject: '[perl #42151] [PATCH] Assorted casting cleanups - part I '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/42151>, Steve Peters submitted a patch to clean
+          up some casting instances.  Kevin had a related request.  Andy
+          Dougherty also had a suggestion.  Steve said that he intended to look
+          at some of these ideas more closely as he worked on the project.
+          chromatic and Leopold Toetsch also joined the thread.
       - date_from: 1175028398
         date_to: 1175270406
         hidden: ~
@@ -510,7 +570,19 @@ lists:
           - email: jkeen_via_google@yahoo.com
             name: James E Keenan
         subject: IRC discussion of smoking and branching
-        summary: ''
+        summary: |-
+          Allison Randal posted a discussion of the draft document
+          'Parallel development requirements,' which was announced in
+          thread '<msgid:20070327125201.41679.qmail@spout.spiders.net>'.
+          
+          There were some suggestions on how to improve the smoking system.
+          For instance, Nicholas Clark noted that the Perl 5 system reports
+          failures to perl5-porters, but the Parrot smoke failures aren't
+          reported in a similar way.  Another discussion involved commits
+          which violate the coding standards.
+          
+          Many people contributed to this thread, and also to the IRC
+          conversation which Allison posted.
       - date_from: 1175044480
         date_to: 1175360936
         hidden: ~
@@ -560,7 +632,20 @@ lists:
           - email: jrisom@gmail.com
             name: Joshua Isom
         subject: 'Re: [perl #42155] [PATCH] move members from Parrot_Interp to Parrot_Context'
-        summary: ''
+        summary: |-
+          Alek Storm created ticket <rt://perl/42155> to offer a patch which moved
+          variables from `Parrot_Interp` to `Parrot_Context`.  He noted that it
+          broke some tests, and anyone who could figure out what the problem is
+          will get a hug.
+          
+          Leopold Toetsch replied that it was deliberate that these variables
+          were not in the Context structure.  Alek replied that some of them
+          already are in `Parrot_Context` and this patch simply moves the rest
+          of them.  Leopold and Alek had some further discussion on the matter.
+          chromatic added his thoughts as well.  Some benchmarking was done
+          in an attempt to calculate the performance of Parrot before and after
+          the patch.  Joshua Isom also tested it.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/8208922a5e002375/6a3d47e788cfdff4?#6a3d47e788cfdff4
       - date_from: 1175103722
         date_to: 1175282490
         hidden: ~
@@ -578,10 +663,16 @@ lists:
             name: Paul Cochrane via RT
         rt_ticket: 'perl #42156'
         subject: '[perl #42156] [PATCH] Make invoke() return opcode_t* '
-        summary: ''
+        summary: |-
+          Ticket <rt://perl/42156> contained a patch by Steve Peters.  This
+          addressed some of the points raised in
+          '<msgid:rt-3.6.HEAD-30201-1175013273-462.42151-72-0@perl.org>'.
+          Paul Cochrane reported that the patch generated a warning for him.
+          Steve made some additional changes to resolve the issue, and the
+          new patch was applied as r17859.
       - date_from: 1175119084
         date_to: 1175119084
-        hidden: ~
+        hidden: clarification
         message_id: 20070328215757.C3DE4CBA2F@x12.develooper.com
         posters:
           - email: jonathan@cvs.perl.org
@@ -597,7 +688,10 @@ lists:
             name: Jerry Gay
         rt_ticket: 'perl #42161'
         subject: "[perl #42161] [BUG] Parrot::Test throws \"Can't spawn\" warning on windows if a system call returns a negative value "
-        summary: ''
+        summary: |-
+          Jerry Gay reported in ticket <rt://perl/42161> that Parrot::Test throws
+          a warning on Windows if a system call returns a negative value.  He
+          planned to commit a patch.
       - date_from: 1175130950
         date_to: 1175130950
         hidden: ~
@@ -607,7 +701,16 @@ lists:
             name: James Keenan via RT
         rt_ticket: 'perl #42073'
         subject: "[perl #42073] [BUG]:  compilers/pirc/Makefile not cleaned up by 'make realclean' "
-        summary: ''
+        summary: |-
+          James Keenan reported in ticket <rt://perl/42073>
+          that he expects `make realclean` to return his Parrot sandbox to
+          its initial checkout status.  He noted that this was not always happening.
+          
+          Klaas-Jan Stol was responsible for the file in question, but could
+          not replicate the problem.  James offered a patch and applied it
+          as r17821.  There were still some issues, which led James to ask if
+          there were any Makefile experts who could help.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/bb9ecdaf748fe4c5/7489e0f4147b5bc9?#7489e0f4147b5bc9
       - date_from: 1175223903
         date_to: 1175411657
         hidden: ~
@@ -625,7 +728,12 @@ lists:
             name: Allison Randal
         rt_ticket: 'perl #42169'
         subject: '[perl #42169] [CAGE] Create a sample subversion/config '
-        summary: ''
+        summary: |-
+          Will Coleda created ticket <rt://perl/42169> in response to a recent
+          IRC discussion.  Paul Cochrane offered a possible patch.  Allison
+          Randal pointed out that this was a global configuration which would
+          affect all subversion repositories, not just Parrot.  It was added
+          to `editor/` in r17916.
       - date_from: 1175225338
         date_to: 1175412760
         hidden: ~
@@ -645,7 +753,12 @@ lists:
             name: Paul Cochrane
         rt_ticket: 'perl #42170'
         subject: '[perl #42170] [PATCH] Report line numbers on trailing_space.t '
-        summary: ''
+        summary: |-
+          Will Coleda created ticket <rt://perl/42170> for a patch which was
+          mentioned on IRC.  He thought it was rather verbose, but didn't object
+          to someone applying it.  Jerry Gay and Eric Hanchrow offered comments.
+          Paul Cochrane reported that the options had been added to
+          `docs/project/cage_cleaners_guide.pod`.
       - date_from: 1175277256
         date_to: 1175277256
         hidden: ~
@@ -655,7 +768,9 @@ lists:
             name: Jerry Gay
         rt_ticket: 'perl #42215'
         subject: '[perl #42215] [WEB]: Exporter PMC (and possibly others) missing from pmc docs page '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/42215>, Jerry Gay reported that the website
+          parrotcode.org was missing some newly created PMCs.
       - date_from: 1175280560
         date_to: 1175280560
         hidden: ~
@@ -665,7 +780,9 @@ lists:
             name: Ron Blaschke
         rt_ticket: 'perl #42218'
         subject: '[perl #42218] [PATCH][Cygwin] Use bc on Cygwin '
-        summary: ''
+        summary: |-
+          Ron Blaschke submitted a patch which enables bc on Cygwin if it is
+          available.  This was in ticket <rt://perl/42218>.
       - date_from: 1174846620
         date_to: 1175362233
         hidden: ~
@@ -708,10 +825,24 @@ lists:
             name: Nicholas Clark
         rt_ticket: 'perl #42074'
         subject: '[perl #42074] [PATCH] add RECURSION_LIMIT macro '
-        summary: ''
+        summary: |-
+          Ticket <rt://perl/42074> contains a patch by Alek Storm which defines
+          a `RECURSION_LIMIT` macro which had been hardcoded.  It was applied
+          in r17863.
+          
+          chromatic noted that it would be easy to make it a gettable/settable
+          interpreter property and wondered if it would be of any use.  Paul
+          Cochrane replied that it already is that type of property, and that
+          it would probably be valuable to be able to set the value at runtime.
+          Leopold Toetsch reported that the interpreter already has it.
+          
+          Alek noted that the ParrotInterpreter PMC doesn't implement `set_pmc_keyed`
+          and wondered if he could implement it.  Allison Randal decided against
+          it.  There was a brief discussion on this.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/2c20dbf13c4a07ed/d2992e2f9662456f?#d2992e2f9662456f
       - date_from: 1174568781
         date_to: 1175022632
-        hidden: ~
+        hidden: Covered in 03-24
         message_id: Pine.LNX.4.62.0703220859090.4343@fractal.phys.lafayette.edu
         messages:
           - 460518F9.5060901@verizon.net
@@ -757,7 +888,9 @@ lists:
           - email: jonathan@jnthn.net
             name: Jonathan Worthington
         subject: '[svn:parrot-pdd] r17711 - trunk/docs/pdds/draft'
-        summary: ''
+        summary: |-
+          Jonathan Worthington made a commit to PDD15 which added a proposal
+          for role conflict resolution.
       - date_from: 1174829816
         date_to: 1175530439
         hidden: ~
@@ -769,10 +902,16 @@ lists:
             name: James Keenan
         rt_ticket: 'perl #42072'
         subject: "[perl #42072] [BUG]:  pmc2c.pl:  Does anyone (know how to) use the 'no-body' option? "
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/42072>, James Keenan reported that he had
+          experienced problems writing a test for the 'no-body' option in
+          November/December, but hadn't gotten around to it.  Because this
+          option is not completely covered by the test suite, it is affecting
+          other code.  Therefore James is trying to figure out how it ought to
+          work and had some questions about the warnings he saw.
       - date_from: 1174842319
         date_to: 1175130950
-        hidden: ~
+        hidden: addressed in rt-3.6.HEAD-30201-1175130936-1545.42073-14-0@perl.org
         message_id: rt-3.6.HEAD-1687-1174842311-1682.42073-72-0@perl.org
         messages:
           - 4606B400.9000209@gmail.com
@@ -796,7 +935,7 @@ lists:
         summary: ''
       - date_from: 1174844646
         date_to: 1174844646
-        hidden: ~
+        hidden: clarification
         message_id: 20070325174355.12199CBA2F@x12.develooper.com
         posters:
           - email: jonathan@cvs.perl.org
@@ -805,7 +944,7 @@ lists:
         summary: ''
       - date_from: 1174917692
         date_to: 1174917692
-        hidden: ~
+        hidden: summary
         message_id: 20070326140117.12945.qmail@x1.develooper.com
         posters:
           - email: perlbug-summary@perl.org
@@ -820,7 +959,15 @@ lists:
           - email: jesse@fsck.com
             name: jesse
         subject: 'First Perl 6 Microgrant - Steve Peters on Parrot Portability'
-        summary: ''
+        summary: |-
+          Jesse Vincent announced that Steve Peters was the first recipient
+          of the Perl 6 microgrant.  Steve will be working on Parrot portability,
+          and has already made several patches this week.  More information
+          about his proposal can be found in the grant application text.
+          
+          Details about
+          [the microgrant application procedure](http://www.nntp.perl.org/group/perl.perl5.porters/2007/03/msg122448.html)
+          are available for those interested in submitting a proposal.
       - date_from: 1174932508
         date_to: 1174951782
         hidden: ~
@@ -833,7 +980,20 @@ lists:
           - email: jonathan@jnthn.net
             name: Jonathan Worthington
         subject: A challenge... about Parrot
-        summary: ''
+        summary: |-
+          Alberto Simões
+          mentioned a conference on languages, compilers and interpreters in
+          Portugal.  He thought it might be a good occasion to make a scientific
+          publication about Parrot.  Alberto felt that bringing Parrot to the
+          attention of the scientific community would be a gain for both
+          universities and Parrot.  He offered to help with accommodation
+          but not with writing the talk.
+          
+          Jonathan Worthington thought it was a good idea although he wouldn't
+          be able to attend the conference.  He noted that he had previously
+          spoken to an academic audience and that it was challenging.  He
+          wanted to see the gap bridged, but noted that his own experience had
+          involved some negative responses from a theory-oriented group.
       - date_from: 1174953149
         date_to: 1174953149
         hidden: ~
@@ -843,7 +1003,9 @@ lists:
             name: Richard Hundt
         rt_ticket: 'perl #42105'
         subject: '[perl #42105] memory leak in PCCMETHOD together with Parrot_runops_fromc '
-        summary: ''
+        summary: |-
+          Richard Hundt reported a memory leak, using ticket <rt://perl/42105>
+          to draw attention to it.
       - date_from: 1174958990
         date_to: 1174976413
         hidden: ~
@@ -859,7 +1021,11 @@ lists:
             name: Eric Hanchrow
         rt_ticket: 'perl #42106'
         subject: '[perl #42106] t/pmc/iterator.t t/src/io.t failed on Linux '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/42106>, James Keenan reported some errors that
+          he had encountered with `make test` on Linux.  Eric Hanchrow replied
+          that he thought it was his code, and that he was looking into the problem.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/9f3d9b0259f935f4/41ed07fa99b43268?#41ed07fa99b43268
       - date_from: 1174962649
         date_to: 1175018744
         hidden: ~
@@ -873,7 +1039,9 @@ lists:
             name: chromatic
         rt_ticket: 'perl #42107'
         subject: '[perl #42107] [PATCH] Intel C++ is not gcc '
-        summary: ''
+        summary: |-
+          Steve Peters submitted a patch to help identify GCC compilers correctly.
+          It was attached to ticket <rt://perl/42107> and applied as r17789.
       - date_from: 1174999946
         date_to: 1175009910
         hidden: ~
@@ -886,7 +1054,11 @@ lists:
           - email: jerry.gay@gmail.com
             name: jerry gay
         subject: ParrotCode meeting this week
-        summary: ''
+        summary: |-
+          Will Coleda wanted to discuss branching and the repository in general
+          at the weekly Parrot meeting.  Jerry Gay started a
+          [wiki page](http://rakudo.org/parrot/index.cgi?parallel_development_requirements)
+          to keep track of ideas.
       - date_from: 1175005179
         date_to: 1175034469
         hidden: ~
@@ -906,10 +1078,16 @@ lists:
             name: chromatic
         rt_ticket: 'perl #42135'
         subject: '[perl #42135] [PATCH] Fix overzealous flag removal in t/examples/shootout.t '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/42135>, Andy Dougherty tried to address the
+          problem of examples in `examples/shootout` specifying flags which
+          aren't described anywhere.  It was applied as r17792.
+          
+          Leopold Toetsch apologized for the lack of documentation and
+          explained what the flags did.
       - date_from: 1175025355
         date_to: 1175025355
-        hidden: ~
+        hidden: no such article
         message_id: 20070327195548.26689.qmail@lists.develooper.com
         posters:
           - email: doughera@lafayette.edu
@@ -918,7 +1096,7 @@ lists:
         summary: ''
       - date_from: 1175025664
         date_to: 1175025664
-        hidden: ~
+        hidden: no such article
         message_id: 20070327200055.29587.qmail@lists.develooper.com
         posters:
           - email: doughera@lafayette.edu
@@ -927,7 +1105,7 @@ lists:
         summary: ''
       - date_from: 1175037850
         date_to: 1175037850
-        hidden: ~
+        hidden: some additions related to a previous commit I did describe
         message_id: 20070327232403.62224CBA2F@x12.develooper.com
         posters:
           - email: allison@cvs.perl.org
@@ -936,7 +1114,7 @@ lists:
         summary: ''
       - date_from: 1175061817
         date_to: 1175061817
-        hidden: ~
+        hidden: consistency fix
         message_id: 20070328060330.34FC7CBA2F@x12.develooper.com
         posters:
           - email: allison@cvs.perl.org
@@ -951,7 +1129,9 @@ lists:
           - email: parrotcode@gmail.com
             name: Klaas-Jan Stol
         subject: Testing PIRC
-        summary: ''
+        summary: |-
+          Klaas-Jan Stol wanted to create a test suite for `compliers/pirc` but
+          wanted suggestions on how he could do this.
     title: Parrot Porters
   - name: perl6-users
     threads: []
@@ -963,7 +1143,7 @@ lists:
     threads:
       - date_from: 1175102547
         date_to: 1175114830
-        hidden: ~
+        hidden: change subversion settings
         message_id: 20070328172202.0C211CBA2F@x12.develooper.com
         messages:
           - 20070328175953.70248.qmail@spout.spiders.net
@@ -1004,6 +1184,22 @@ lists:
           - email: perlpilot@gmail.com
             name: Jonathan Scott Duff
         subject: Working on punie + rindolf (the implementation) Reloaded
-        summary: ''
+        summary: |-
+          Shlomi Fish discussed the idea of writing a Perl 5 front-end which
+          will compile Perl 5 code to Parrot.  He wanted to name it 'rindolf'
+          and wondered if Punie would be a good basis for the effort.  He also
+          wanted to know if he could have commit access to the repository.
+          
+          Allison Randal replied that it was an unusual approach and that she had
+          doubts about the implementation plan, but that she would be interested
+          in knowing what obstacles and successes came out of the effort.
+          She thought that Punie would not be useful to Shlomi, given his plan.
+          Her suggestion with regard to the repository was that he develop
+          outside the tree and distribute it as a separate loadable module.
+          
+          Shlomi argued for being liberal with commit bits, and expressed his
+          concern that the name Punie suggests that it is a toy.  There was some
+          continued discussion on these points, and also on Shlomi's proposal.
+          
     title: perl5-porters
 title: Weekly Perl 6 mailing list summary
