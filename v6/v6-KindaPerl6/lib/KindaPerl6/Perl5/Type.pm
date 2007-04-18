@@ -71,7 +71,9 @@ package Type_Constant_Code;
     our @ISA = ( 'Type_Constant', 'Code' );
     sub perl { '{ ... }' }
     sub APPLY  { 
-        (+shift)[0]->( @_ );
+        my $v = shift;
+        #print "CODE: ",Data::Dumper::Dumper($v->[0]);
+        $v->[0]( @_ );
     }
     
 package Type_Scalar;

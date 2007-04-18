@@ -315,7 +315,7 @@ class Apply {
     has @.arguments;
     method emit_perl5 {
         
-        return '(' ~ $.code.emit_perl5 ~ ')->(' ~ (@.arguments.>>emit_perl5).join(', ') ~ ')';
+        return '(' ~ $.code.emit_perl5 ~ ')->APPLY(' ~ (@.arguments.>>emit_perl5).join(', ') ~ ')';
 
 #        my $code := $.code;
 #

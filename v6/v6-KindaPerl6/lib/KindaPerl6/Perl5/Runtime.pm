@@ -110,11 +110,12 @@ package GLOBAL;
     $GLOBAL::Hash_ENV = bless \%ENV, 'Type_Perl5_Buf_Hash';
     
     ${"GLOBAL::Code_$_"} = \&{"GLOBAL::$_"} for @EXPORT;
-    $GLOBAL::Code_import = \&{"GLOBAL::import"};
+    $GLOBAL::Code_import = bless [ \&{"GLOBAL::import"} ], 'Type_Constant_Code';
     sub import {
-        my ($pkg) = caller;
+        my ($pkg) = caller(1);  # first call frame is the APPLY() method
         #print "IMPORT $pkg\n";
-        ${"${pkg}::Code_$_"} = ${"GLOBAL::Code_$_"} for @EXPORT;
+        ${"${pkg}::Code_$_"} = bless [ ${"GLOBAL::Code_$_"} ], 'Type_Constant_Code' 
+            for @EXPORT;
     }
 
     sub print { print join( '',  map { 

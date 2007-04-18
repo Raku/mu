@@ -67,6 +67,14 @@ package Type_Constant_Buf;
         #print "self $$self, AUTOLOAD: $meth \n";
         $$self->$meth( @_ );
     }    
+package Type_Constant_Code;
+    our @ISA = ( 'Type_Constant', 'Code' );
+    sub perl { '{ ... }' }
+    sub APPLY  { 
+        my $v = shift;
+        #print "CODE: ",Data::Dumper::Dumper($v->[0]);
+        $v->[0]( @_ );
+    }
     
 package Type_Scalar;
     our @ISA = 'Scalar';
