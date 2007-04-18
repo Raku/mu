@@ -37,7 +37,7 @@ lists:
     threads:
       - date_from: 1175135320
         date_to: 1175729914
-        hidden: ~
+        hidden: covered in 03-31
         message_id: 20070329022830.75E04CBA2F@x12.develooper.com
         messages:
           - 460B7B59.5090607@barco.com
@@ -204,7 +204,7 @@ lists:
         summary: ''
       - date_from: 1174739793
         date_to: 1175410736
-        hidden: ~
+        hidden: covered in 03-31
         message_id: rt-3.6.HEAD-1687-1174739777-21.42045-72-0@perl.org
         messages:
           - 200703271207.26267.chromatic@wgz.org
@@ -308,7 +308,7 @@ lists:
           for types and the class registry.
       - date_from: 1175223903
         date_to: 1175411657
-        hidden: ~
+        hidden: covered in 03-31
         message_id: rt-3.6.HEAD-30557-1175223894-270.42169-72-0@perl.org
         messages:
           - 8e8ee0d40703301347j145db863h1b810a98512a8745@mail.gmail.com
@@ -326,7 +326,7 @@ lists:
         summary: ''
       - date_from: 1175225338
         date_to: 1175412760
-        hidden: ~
+        hidden: covered in 03-31
         message_id: rt-3.6.HEAD-1687-1175225332-22.42170-72-0@perl.org
         messages:
           - 1d9a3f400703292214u70845c8cma2c34de1f6220d8e@mail.gmail.com
