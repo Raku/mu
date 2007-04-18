@@ -4,6 +4,6 @@
 #   HARNESS_PUGS=util/limited_pugs make smoke
 
 ulimit -v 800000
-ulimit -t 300
+ulimit -t 600
 nice -n5 ./pugs "$@"
 
