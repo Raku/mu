@@ -8,6 +8,7 @@ sub new {
     #print __PACKAGE__,"->new [",Dump(\@_),"]\n";
     my $class = shift;
     my %data  = @_;  # $.outer, @.lexicals, $.namespace
+        # :add_lexicals -- when called from add_lexicals()
     my $parent = 
             $data{outer}
         ||  bless {
@@ -33,7 +34,7 @@ sub new {
            
     #print Dump( @names );
     my $cmd = 'package ' . $namespace . '; '
-            . 'my %_MODIFIED; '
+            . ($data{add_lexicals} ? '' : 'my %_MODIFIED; ')
             . (scalar @names ? join( '; ', @declarations, '' ) : '')
             . 'sub { ' 
             .     (join '; ', '\%_MODIFIED', @names, '' )        # make sure it's compiled as a closure
@@ -102,11 +103,13 @@ sub add_lexicals {  # [ Decl, Decl, ... ]
         }
         push @new_lexicals, $new;
     }
+    #print "add_lexicals: @new_lexicals\n";
     
     my $inner = Pad->new( 
         outer    => $self, 
         lexicals => \@new_lexicals,
-        # namespace 
+        # namespace ,
+        add_lexicals => 1,
     );
     $self->{evaluator} = $inner->{evaluator};
     $self->{variable_names} = [ 

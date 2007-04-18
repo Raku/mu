@@ -70,6 +70,7 @@ use Data::Dump::Streamer;
     }
     
     sub add_pad {
+        #print "add_pad\n";
         unshift @COMPILER::PAD, Pad->new( 
             outer     => $COMPILER::PAD[0], 
             lexicals  => [ ], 
@@ -78,6 +79,7 @@ use Data::Dump::Streamer;
     }
     
     sub drop_pad {
+        #print "drop_pad\n";
         shift @COMPILER::PAD;
     }
      
@@ -88,6 +90,7 @@ use Data::Dump::Streamer;
         # this routine is called by begin-blocks at compile time, in order to execute the code
         # Input: '::Lit::Code' AST node
         
+        #print "begin_block\n";
         #print "PARAM: ",Dumper(\@_);
         #my $env = shift;
         my @ast = ( shift );
@@ -98,8 +101,9 @@ use Data::Dump::Streamer;
         #@ast = map { $_->emit( $visitor_create_env )      } @ast;
         
         #print Dump( @ast );
-        #say( join( ";\n", (map { $_->emit( $visitor_dump_ast    ) } @ast )));
+        #Main::say( join( ";\n", (map { $_->emit( $visitor_dump_ast    ) } @ast )));
         my $native = join( ";\n", (map { $_->emit( $visitor_emit_perl5  ) } @ast ));
+        #print "Native: $native\n";
     
         # execute the native code inside the current pad
         add_pad;
@@ -112,29 +116,37 @@ use Data::Dump::Streamer;
         my @begin_stmts;
 
         #print "=pod\n";
-        #print "BEGIN ENV: ", Dumper( $env->lexicals ), "\n";
+        #print "# BEGIN ENV: ", Dumper( $COMPILER::PAD[0]->lexicals ), "\n";
         #print "BEGIN AST: ", Dumper( \@ast );
         #print "BEGIN: Native code: $native\n\n";
 
         for my $pad ( @COMPILER::PAD ) {
-          my $side_effects = $pad->eval( '\%_MODIFIED' ); 
-          #print "MODIFIED: ", Dumper( $side_effects );
-          # TODO - emit side-effects...
-          my @names = keys %$side_effects;
-          for my $name ( @names ) {
-            my $value = $COMPILER::PAD[0]->eval( "\\$name" );
-            # TODO - convert directly DATA->AST, instead of DATA->PERL->AST
-            #print "BEGIN SIDE-EFFECT: $name = ",${$value}->perl," \n\n";
-            # TODO - convert $$value to perl6 AST
-            my $p = KindaPerl6::Grammar->exp( "$name = " . ${$value}->perl , 0);
-            #print "AST: ", Dumper($$p);
-            # TODO - check for shared data (BIND)
-            push @begin_stmts, $$p;
-          }
+            #print "# Lexicals here: ", Dumper( $pad->lexicals ), "\n";
+            my $side_effects = $pad->eval( '\%_MODIFIED' ); 
+            #print "MODIFIED: ", Dumper( $side_effects );
+            # TODO - emit side-effects...
+            my @names = keys %$side_effects;
+            for my $name ( @names ) {
+                my $value = $COMPILER::PAD[0]->eval( "$name" );
+                #print "$name = ",Dumper( $value );
+
+                my $src = '';
+                if ( $name ne $value->[2] ) {
+                    # it seems to be a bound variable
+                    $src = $src . "$name := " . $value->[2] . '; ';
+                }
+
+                # TODO - convert directly DATA->AST, instead of DATA->PERL->AST
+                #print "# BEGIN SIDE-EFFECT: $name = ",$value->perl," \n\n";
+                my $p = KindaPerl6::Grammar->exp( $src . "$name = " . $value->perl , 0);
+                #print "AST: ", Dumper($$p);
+                # TODO - check for shared data (BIND)
+                push @begin_stmts, $$p;
+            }
         }
         # TODO - emit the runtime BEGIN code 
         add_pad;
-        my $initializer_name = 'Main::INIT_' . int(rand(100000));
+        my $initializer_name = 'Main::INIT_' . int(rand(100000000));
         my $begin_ast = Sub->new(
             name  => $initializer_name,
             block => Lit::Code->new(
@@ -180,6 +192,7 @@ use Data::Dump::Streamer;
         # @COMPILER::BEGIN_RUNTIME
         # TODO
         push @COMPILER::BEGIN_RUNTIME, $initializer_name;
+        #print "/begin_block\n";
 
         return $final_ast;
     }
@@ -242,10 +255,12 @@ for ( @COMPILER::CHECK ) {
 
     shift @COMPILER::PAD;
 }
-# TODO: emit from AST
 # emit Runtime initializers
+# TODO: emit from AST
+print "BEGIN {\n";
 for ( @COMPILER::BEGIN_RUNTIME ) { 
-    print "$_();\n";
+    print "  $_();\n";
 }
+print "}\n";
 
 say "1;";

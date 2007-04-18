@@ -701,8 +701,10 @@ token begin_block {
     {
         # say ' block: ', ($$<exp_stmts>).perl;
         my $env := @COMPILER::PAD[0];
+        #print "  grammar: dropping pad\n";
         COMPILER::drop_pad();
         #say "BEGIN block";
+        #print "  grammar: entering begin block\n";
         return COMPILER::begin_block( 
             # $env, 
             ::Lit::Code(

@@ -9,12 +9,15 @@ The kp6 Milestones are:
 - begin blocks
 - containers
 
-Code freeze
+Starting Code freeze
 
-- translate perl5 to mp6
+- translate perl5 runtime to mp6?
+- translate the compiler front-end to mp6
 - test suite
+- debugging
 - minimal runtime
 - bootstrap?
+- plan Perl6-in-Perl6
 
 The optional features in kp6 are:
 
@@ -26,9 +29,13 @@ The optional features in kp6 are:
 - signatures with optional, named, slurpy arguments
 - a better parser 
     - $?FILE, $?LINE
-- precompilation, version checking
+    - finer-grained error messages
+- precompilation
+- compiler cache
+- version checking
 - user-clonable closures
     - $closure.clone - creates new pads with copies of lexicals
+- lexically modifieable Grammar
 
 Incomplete features:
 
@@ -39,19 +46,21 @@ Incomplete features:
 + short-circuiting <&&>, <||>, <?? !!> (require macros, or laziness)
 
 - 'let' variables
+- 'our' variables
 - CATCH blocks
 
 - method hyperization is untested
 - binding does no type check
 
-- all variables initialized during compilation should have initializers for run-time
+- (FIXED) all variables initialized during compilation should have initializers for run-time
 - traits
     - is context, rw, readonly
 - containers, but no laziness, no slices
+    - hash and array are under refactoring
 - type system
-- optimization
+- optimization phase
 - for-loop, map, with several arguments
-- begin-blocks with side-effects
+- (FIXED) begin-blocks with side-effects
 - subroutine calls, data, are incompatible with perl 5
 - no 'use v5'
 - declare our/state/temp/constant things    
@@ -63,11 +72,15 @@ Incomplete features:
 - perl6-land 'use'
 - COMPILING::<$?PARSER>
 - translate the COMPILER package to mp6
-    
+- translate Pad.pm and Type.pm to mp6
+
+- create an AST node for INIT/END
+
 BEGIN blocks:
 
-- an anonymous subroutine is generated, but it is not called at runtime
+- (FIXED) an anonymous subroutine is generated, but it is not called at runtime
 - logging of array/hash element modifications is not implemented
+- binding to Value is not emitted
 
 Bugs:
 
@@ -76,7 +89,7 @@ Bugs:
 - compile-time does not import GLOBAL - 'say' doesn't work inside BEGIN blocks
 
 - grammar: 'undefine($v)' is not parsed
-- structure binding/assign is broken, untested
+- structure binding/assign is untested
 
 Bootstrap:
 
@@ -84,11 +97,12 @@ Bootstrap:
 
 Roles:
 
-- possible implementation:
+- (FIXED) possible implementation:
     $Obj->{Role_bool} = sub { 1 };
   at runtime:
     $Obj->{Role_bool} && $Obj->{Role_bool}() || $Obj->bool()
 - problem: objects based on p5-array (Array), p5-code (Code)
+    - p5-land objects will only have Moose-based roles
 
 Optimization:
 
@@ -102,7 +116,7 @@ Problems running the Perl6 test suite:
   
 - kp6 requires a 'compilation unit' declaration
 - '&&', '||' operators don't short circuit
-- 'if', 'sub' require ';'
+- (FIXED) 'if', 'sub' require ';'
 - prefix and postfix:<++> not implemented
 - 'use' doesn't accept parameters: use lib ".";
 - parameter list error in:
@@ -117,7 +131,7 @@ Visitor modules:
     KindaPerl6::Visitor::LexicalSub
     KindaPerl6::Visitor::CreateEnv
 
-- add variable declarations collector -- XXX now obsolete!
+- (FIXED) add variable declarations collector -- XXX now obsolete!
   - move variable declarations to the start of each block
 
 - LexicalSub.pm -- XXX now obsolete!
@@ -134,7 +148,8 @@ Visitor modules:
     package Class::MOP::Class;
     sub meta { Class::MOP::Class->initialize(blessed($_[0]) || $_[0]) }  
     ---
-    
+  - create BUILD, BUILDALL
+
 Other:
 
 - star/GLOBAL namespace -- done!
@@ -144,12 +159,16 @@ Other:
     --> $GLOBAL::foo
     but:
     TimToady> under strict there is no fallback to global unless you explicitly import (you also get a snapshot of GLOBAL imported automatically at the start of compilation)
-    
+  - what are the differences between compiling modules and compile plain-programs
+
 - OUTER namespace
+- ROUTINE
+- tail-calls
 
 For later:
 
 - desugar blocks into real subroutines, in support for the parrot backend
+  - fixed by now, using p6parrot as an intermediate language
 
 - desugar closures into simple subroutines, in support for the C backend
 
@@ -217,3 +236,4 @@ For later:
           * Type
         * Parrot
         * Perl5
+

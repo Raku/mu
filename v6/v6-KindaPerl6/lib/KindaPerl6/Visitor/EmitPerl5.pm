@@ -47,7 +47,7 @@ class Val::Int {
     has $.int;
     method emit_perl5 { 
         # $.int 
-        'bless( \\( do{ my $v = ' ~ $.int ~ ' } ), \'Type_Constant_Int\' )'
+        'bless( [' ~ $.int ~ '], \'Type_Constant_Int\' )'
     }
 }
 
@@ -55,7 +55,7 @@ class Val::Bit {
     has $.bit;
     method emit_perl5 { 
         # $.bit 
-        'bless( \\( do{ my $v = ' ~ $.bit ~ ' } ), \'Type_Constant_Bit\' )'
+        'bless( [' ~ $.bit ~ '], \'Type_Constant_Bit\' )'
     }
 }
 
@@ -63,7 +63,7 @@ class Val::Num {
     has $.num;
     method emit_perl5 { 
         #$.num 
-        'bless( \\( do{ my $v = ' ~ $.num ~ ' } ), \'Type_Constant_Num\' )'
+        'bless( [' ~ $.num ~ '], \'Type_Constant_Num\' )'
     }
 }
 
@@ -71,14 +71,14 @@ class Val::Buf {
     has $.buf;
     method emit_perl5 { 
         # '\'' ~ $.buf ~ '\'' 
-        'bless( \\( do{ my $v = ' ~ '\'' ~ $.buf ~ '\'' ~ ' } ), \'Type_Constant_Buf\' )'
+        'bless( [' ~ '\'' ~ $.buf ~ '\'' ~ '], \'Type_Constant_Buf\' )'
     }
 }
 
 class Val::Undef {
     method emit_perl5 { 
         #'(undef)' 
-        '$GLOBAL::undef'
+        'GLOBAL::undef()'
     }
 }
 
@@ -388,9 +388,9 @@ class Decl {
             $s := 'use vars \'' ~ $.var.emit_perl5 ~ '\'; ';  
 
             if ($.var).sigil eq '$' {
-                return $s ~ $.var.emit_perl5
-                    # ~ ' = bless \\( do{ my $v = $GLOBAL::undef } ), \'Type_Scalar\' ';
-                    ~ ' = bless [ \( do{ my $v = $GLOBAL::undef } ), \\%_MODIFIED, \'' ~ $.var.emit_perl5 ~ '\' ], "Type_Scalar" ';
+                return $s 
+                    ~ $.var.emit_perl5
+                    ~ ' = bless [ GLOBAL::undef(), \\%_MODIFIED, \'' ~ $.var.emit_perl5 ~ '\' ], "Type_Scalar" ';
             };
             if ($.var).sigil eq '%' {
                 return $s ~ $.var.emit_perl5
@@ -403,9 +403,18 @@ class Decl {
             return $s ~ $.var.emit_perl5 ~ ' ';
         };
         if ($.var).sigil eq '$' {
-            return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_perl5
-                #~ ' = bless \\( do{ my $v = $GLOBAL::undef }, \'\', \'\' ), \'Type_Scalar\'';
-                ~ ' = bless [ \( do{ my $v = $GLOBAL::undef } ), \\%_MODIFIED, \'' ~ $.var.emit_perl5 ~ '\' ], "Type_Scalar" ';
+            return 
+                  $.decl ~ ' ' 
+                ~ $.type ~ ' ' 
+                ~ $.var.emit_perl5 ~ '; '
+                ~ $.var.emit_perl5
+                ~ ' = bless [ GLOBAL::undef(), \\%_MODIFIED, \'' ~ $.var.emit_perl5 ~ '\' ], "Type_Scalar" '
+                ~ ' unless defined ' ~ $.var.emit_perl5 ~ '; '
+                ~ 'BEGIN { '
+                ~     $.var.emit_perl5
+                ~     ' = bless [ GLOBAL::undef(), \\%_MODIFIED, \'' ~ $.var.emit_perl5 ~ '\' ], "Type_Scalar" '
+                ~ '}'
+                ;
         };
         if ($.var).sigil eq '%' {
             return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_perl5

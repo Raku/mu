@@ -118,33 +118,38 @@ package GLOBAL;
     }
 
     sub print { print join( '',  map { 
-            my $v = $_; eval { $v = ${$_->FETCH} }; $v 
+            my $v = $_; eval { $v = $_->FETCH->[0] }; $v 
         } @_ ) }
     #sub print { print 'PRINT: ', join( ' : ',  map { ( ${$_->FETCH}, $_->perl ) } @_ ) }
     sub say   { GLOBAL::print( @_, "\n" ) }
 
-    $GLOBAL::undef = bless \( do{ my $v = undef } ), 'Type_Constant_Undef';
-    sub undef    { $GLOBAL::undef }
-    sub undefine { $_[0]->STORE( $GLOBAL::undef ) }
-    sub defined  { bless \( do{ my $v = defined ${$_[0]->FETCH} } ), 'Type_Constant_Bit' } 
-    sub true     { bless \( do{ my $v = ${$_[0]->FETCH} ? 1 : 0 } ), 'Type_Constant_Bit' }  
-    sub not      { bless \( do{ my $v = ${$_[0]->FETCH} ? 0 : 1 } ), 'Type_Constant_Bit' }  
+    sub undef    { bless [ undef ], 'Type_Constant_Undef' }
+    sub undefine { $_[0]->STORE( GLOBAL::undef() ) }
+    sub defined  { bless [ defined $_[0]->FETCH->[0] ], 'Type_Constant_Bit' } 
+    sub true     { bless [ $_[0]->FETCH->[0] ? 1 : 0 ], 'Type_Constant_Bit' }  
+    sub not      { bless [ $_[0]->FETCH->[0] ? 0 : 1 ], 'Type_Constant_Bit' }  
 
     # TODO - macro
-    sub ternary_58__60__63__63__32__33__33__62_ { ${$_[0]->FETCH} ? $_[1] : $_[2] }
+    sub ternary_58__60__63__63__32__33__33__62_ { $_[0]->FETCH->[0] ? $_[1] : $_[2] }
         #  ternary:<?? !!>
     
     # TODO - macro
-    sub infix_58__60__38__38__62_   { ${$_[0]->FETCH} && ${$_[1]->FETCH} && $_[1] }
+    sub infix_58__60__38__38__62_   { $_[0]->FETCH->[0] && $_[1]->FETCH->[0] && $_[1] }
     # TODO - macro
-    sub infix_58__60__124__124__62_ { ${$_[0]->FETCH} && $_[0] || ${$_[1]->FETCH} && $_[1] }
+    sub infix_58__60__124__124__62_ { $_[0]->FETCH->[0] && $_[0] || $_[1]->FETCH->[0] && $_[1] }
 
-    sub infix_58__60_eq_62_         { bless \( do{ my $v = ${$_[0]->FETCH} eq ${$_[1]->FETCH}  } ), 'Type_Constant_Bit' }  # infix:<eq>
-    sub infix_58__60_ne_62_         { bless \( do{ my $v = ${$_[0]->FETCH} ne ${$_[1]->FETCH}  } ), 'Type_Constant_Bit' }  # infix:<ne>
-    sub infix_58__60__61__61__62_   { bless \( do{ my $v = ${$_[0]->FETCH} == ${$_[1]->FETCH}  } ), 'Type_Constant_Bit' }  # infix:<==>
-    sub infix_58__60__33__61__62_   { bless \( do{ my $v = ${$_[0]->FETCH} != ${$_[1]->FETCH}  } ), 'Type_Constant_Bit' }  # infix:<!=>
-    sub infix_58__60__126__62_      { bless \( do{ my $v = ${$_[0]->FETCH} . ${$_[1]->FETCH}  } ), 'Type_Constant_Buf' }  # infix:<~>
-    sub infix_58__60__43__62_       { bless \( do{ my $v = ${$_[0]->FETCH} + ${$_[1]->FETCH}  } ), 'Type_Constant_Num' }  # infix:<+>
+    sub infix_58__60_eq_62_         
+    { bless [ $_[0]->FETCH->[0] eq $_[1]->FETCH->[0] ], 'Type_Constant_Bit' }  # infix:<eq>
+    sub infix_58__60_ne_62_         
+    { bless [ $_[0]->FETCH->[0] ne $_[1]->FETCH->[0] ], 'Type_Constant_Bit' }  # infix:<ne>
+    sub infix_58__60__61__61__62_   
+    { bless [ $_[0]->FETCH->[0] == $_[1]->FETCH->[0] ], 'Type_Constant_Bit' }  # infix:<==>
+    sub infix_58__60__33__61__62_   
+    { bless [ $_[0]->FETCH->[0] != $_[1]->FETCH->[0] ], 'Type_Constant_Bit' }  # infix:<!=>
+    sub infix_58__60__126__62_      
+    { bless [ $_[0]->FETCH->[0] .  $_[1]->FETCH->[0] ], 'Type_Constant_Buf' }  # infix:<~>
+    sub infix_58__60__43__62_       
+    { bless [ $_[0]->FETCH->[0] +  $_[1]->FETCH->[0] ], 'Type_Constant_Num' }  # infix:<+>
 
     # ???
     sub prefix_58__60__64__62_      { @{$_[0]} }        # prefix:<@>
@@ -179,6 +184,8 @@ package Main;
         }
         else {
             Data::Dumper::Dumper($_[0]);
+            #require Data::Dump::Streamer;
+            #Data::Dump::Streamer($_[0]);
         }
     }
     

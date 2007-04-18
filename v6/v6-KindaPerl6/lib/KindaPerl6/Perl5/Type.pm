@@ -22,13 +22,13 @@ package Hash;
 package Undef;
 
 package Type_Constant;
-    # $x = bless \( do{ my $v = 42 } ), 'Type_Constant';
+    # $x = bless [ 42 ], 'Type_Constant';
     sub IS_ARRAY { 0 }
     sub IS_HASH  { 0 }
     sub INDEX  { 
         return $_[0]
             if $_[1] == 0;
-        return $GLOBAL::undef;
+        return GLOBAL::undef();
     }
     sub LOOKUP {
         warn "not a hash";
@@ -45,18 +45,17 @@ package Type_Constant_Undef;
     sub perl { 'undef' }
 package Type_Constant_Int;
     our @ISA = ( 'Type_Constant', 'Int' );
-    sub perl { ${$_[0]} }
+    sub perl { $_[0][0] }
 package Type_Constant_Num;
     our @ISA = ( 'Type_Constant', 'Num' );
-    sub perl { ${$_[0]} }
+    sub perl { $_[0][0] }
 package Type_Constant_Bit;
     our @ISA = ( 'Type_Constant', 'Bit' );
-    sub perl { ${$_[0]} ? 1 : 0 }
+    sub perl { $_[0][0] ? 1 : 0 }
 package Type_Constant_Buf;
-    # $x = bless \( do{ my $v = 'abc' } ), 'Type_Constant_Buf';
     our @ISA = ( 'Type_Constant', 'Buf' );
     our $AUTOLOAD;
-    sub perl { "'${$_[0]}'" }
+    sub perl { "'$_[0][0]'" }
     sub DESTROY { }
     sub AUTOLOAD {
         # allow: 'Dog'.new
@@ -105,7 +104,7 @@ package Type_Scalar;
         # the modified-bit is now shared
         # which means, both left and right sides are 'modified' 
         $_[0][1]{ $_[0][2] } = $_[1][1]{ $_[1][2] }
-            = ${$_[0][1]{ $_[0][2] }}++ + ${$_[1][1]{ $_[1][2] }}++;   # autovivify & increment & sum
+            = \( ${$_[0][1]{ $_[0][2] }}++ + ${$_[1][1]{ $_[1][2] }}++ );   # autovivify & increment & sum
         $_[0] = $_[1];
     }
     sub FETCH  { 
@@ -125,14 +124,13 @@ package Type_Scalar;
     }    
 
 package Type_Proxy_Array_Scalar;
-    # $x = bless \( do{ my $v = 42 } ), 'TypeConstant';
     our @ISA = 'Type_Constant_Undef';
     sub IS_ARRAY { 0 }
     sub IS_HASH  { 0 }
     sub INDEX  { 
         return $_[0][0]->INDEX( $_[0][1] )->INDEX( $_[1] )
             if exists $_[0][2];
-        return $GLOBAL::undef;
+        return GLOBAL::undef();
     }
     sub LOOKUP {
         return $_[0][0]->INDEX( $_[0][1] )->LOOKUP( $_[1] )
@@ -150,7 +148,7 @@ package Type_Proxy_Array_Scalar;
     sub FETCH  { 
         return $_[0][0]->INDEX( $_[0][1] )
             if exists $_[0][2];
-        return $GLOBAL::undef;
+        return GLOBAL::undef();
     }
 package Type_Array;
     # $x = bless [ ], 'TypeIntArray';
@@ -160,8 +158,8 @@ package Type_Array;
     sub INDEX  { 
         # self, index
         # autovivify
-            $_[0][ ${$_[1]->FETCH} ]
-        or  $_[0][ ${$_[1]->FETCH} ] = bless \( do{ my $v } ), 'Type_Scalar' 
+            $_[0][ $_[1]->FETCH->[0] ]
+        or  $_[0][ $_[1]->FETCH->[0] ] = bless [ ], 'Type_Scalar' 
     }
     sub LOOKUP {
         warn "not a hash";
@@ -189,8 +187,8 @@ package Type_List;
     sub INDEX  { 
         # self, index
         # autovivify
-            $_[0][ ${$_[1]->FETCH} ]
-        or  $_[0][ ${$_[1]->FETCH} ] = bless \( do{ my $v } ), 'Type_Scalar' 
+            $_[0][ $_[1]->FETCH->[0] ]
+        or  $_[0][ $_[1]->FETCH->[0] ] = bless [ ], 'Type_Scalar' 
     }
     sub LOOKUP {
         warn "not a hash";
@@ -208,13 +206,13 @@ package Type_Hash;
     sub IS_ARRAY { 0 }
     sub IS_HASH  { 1 }
     sub INDEX  { 
-        return $GLOBAL::undef;
+        return GLOBAL::undef();
     }
     sub LOOKUP {
         # self, index
         # autovivify
-            $_[0]{ ${$_[1]->FETCH} }
-        or  $_[0]{ ${$_[1]->FETCH} } = bless \( do{ my $v } ), 'Type_Scalar' 
+            $_[0]{ $_[1]->FETCH->[0] }
+        or  $_[0]{ $_[1]->FETCH->[0] } = bless [ ], 'Type_Scalar' 
     }
     sub STORE  { 
         if ( $_[1]->IS_HASH ) {
@@ -239,33 +237,7 @@ package Type_Perl5_Buf_Hash;
     our @ISA = 'Type_Hash';
     sub LOOKUP {
         # self, index
-        bless \( $_[0]{ ${$_[1]->FETCH} } ), 'Type_Constant_Buf' 
+        bless [ $_[0]{ $_[1]->FETCH->[0] } ], 'Type_Constant_Buf' 
     }
     
 1;
-__END__
-{
-    my ($x,$y);
-    
-    $x = bless \( do{ my $v } ), 'TypeInt';
-    
-    $y = $x; 
-    $x->STORE( 3 ); 
-    print $$y, " typed x (3)\n"; 
-    print $$x, "\n";
-    $x->STORE( 'a' );
-    
-}
-
-{
-    my ($x,$y);
-
-    $x = bless [ ], 'TypeIntArray';
-
-    $y = $x; 
-    $x->INDEX( 0 )->STORE( 3 ); 
-    
-    print ${$x->INDEX( 0 )}, " typed y (1)\n"; 
-    $y->INDEX( 0 )->STORE( 4 ); 
-    print ${$x->INDEX( 0 )}, "\n";
-}

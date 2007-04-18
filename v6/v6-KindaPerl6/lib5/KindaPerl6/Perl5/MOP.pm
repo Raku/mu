@@ -60,16 +60,16 @@ package KindaPerl6::Class;
         $name;
     }
     sub perl { 
-        bless \( do{ my $v = 
+        bless [ 
             'class { ... }' 
-        } ), 'Type_Constant_Buf' 
+        ], 'Type_Constant_Buf' 
     }
     sub HOW  { $_[0] }
     sub new {
         my ( $self, $name ) = @_;
         # ??? Type_...
-        my $unboxed_name = ${$name->FETCH};
-        $native_name = _mangle( ${$name->FETCH} || 'Class_ANON_' . rand );
+        my $unboxed_name = $name->FETCH->[0];
+        $native_name = _mangle( $name->FETCH->[0] || 'Class_ANON_' . rand );
         #print "Class.create $native_name\n";
 
         # return the prototype object
@@ -85,17 +85,17 @@ package KindaPerl6::Class;
                   roles      => { },  # does Role
               }, __PACKAGE__;
         $class->add_method(
-            bless( \( do{ my $v = 
+            bless( [ 
                     'HOW' 
-                } ), 
+                ], 
                 'Type_Constant_Buf' 
             ),
             sub { $class },
         );
         $class->add_method(
-            bless( \( do{ my $v = 
+            bless( [ 
                     'new' 
-                } ), 
+                ], 
                 'Type_Constant_Buf' 
             ),
             sub { 
@@ -118,7 +118,7 @@ package KindaPerl6::Class;
                 }
                 while ( @_ ) {
                     my ( $key, $value ) = ( shift, shift );
-                    $data{ ${$key->FETCH} } = $value->FETCH;
+                    $data{ $key->FETCH->[0] } = $value->FETCH;
                 }
                 #print "new: ", Data::Dump::Streamer::Dump( X->HOW );
                 my $new = bless \%data, $class; 
@@ -137,8 +137,8 @@ package KindaPerl6::Class;
     }
     sub add_method {
         my ( $class, $name, $code ) = @_;
-        my $unboxed_name = ${$name->FETCH};
-        my $native_name = _mangle( ${$name->FETCH} );
+        my $unboxed_name = $name->FETCH->[0];
+        my $native_name = _mangle( $name->FETCH->[0] );
         #print "Class.add_method $class->{class_native_name} $native_name\n";
         $class->{methods}{$unboxed_name} = {
             method_name => $name,
@@ -152,8 +152,8 @@ package KindaPerl6::Class;
     }
     sub add_attribute {
         my ( $class, $name ) = @_;
-        my $unboxed_name = ${$name->FETCH};
-        my $native_name = _mangle( ${$name->FETCH} );
+        my $unboxed_name = $name->FETCH->[0];
+        my $native_name = _mangle( $name->FETCH->[0] );
         #print "Class.add_attribute $class->{class_native_name} $native_name\n";
         my $code = sub {
             @_ == 1 ? ( $_[0]->{$unboxed_name} ) : ( $_[0]->{$unboxed_name} = $_[1] ) 
@@ -171,8 +171,8 @@ package KindaPerl6::Class;
     sub add_parent {
         # implements '$class is $super'
         my ( $class, $super ) = @_;
-        my $unboxed_name = eval { $super->HOW->{class_name} } || ${$super->FETCH};
-        my $native_name  = eval { $super->HOW->{class_native_name} } || _mangle( ${$super->FETCH} );
+        my $unboxed_name = eval { $super->HOW->{class_name} } || $super->FETCH->[0];
+        my $native_name  = eval { $super->HOW->{class_native_name} } || _mangle( $super->FETCH->[0] );
         my $superclass   = $Classes{ $unboxed_name } || Carp::carp "No class like $unboxed_name\n";
         #print "Class.add_parent $class->{class_native_name} $native_name\n";
         $class->{parents}{$unboxed_name} = $superclass;
@@ -202,8 +202,8 @@ package KindaPerl6::Class;
         #   - the roles do not apply to objects of that class
         #   - the roles do not apply to subclasses
         my ( $class, $role ) = @_;
-        my $unboxed_name = eval { $role->{role_name} } || ${$role->FETCH};
-        #my $native_name  = eval { $role->{role_native_name} } || _mangle( ${$role->FETCH} );
+        my $unboxed_name = eval { $role->{role_name} } || $role->FETCH->[0];
+        #my $native_name  = eval { $role->{role_native_name} } || _mangle( $role->FETCH->[0] );
         $role = $KindaPerl6::Role::Roles{ $unboxed_name } || Carp::carp "No role like $unboxed_name\n";
         #print "Class.add_parent $class->{class_native_name} $native_name\n";
         $class->{roles}{$unboxed_name} = $role;
@@ -220,7 +220,7 @@ package KindaPerl6::Class;
 
     # prototype 'Class' object
     $::Class_KindaPerl6::Class = KindaPerl6::Class->new(
-        bless \( do{ my $v = '' } ), 'Type_Constant_Buf'
+        bless [ '' ], 'Type_Constant_Buf'
     );
     #print "# Created proto \$::Class_KindaPerl6::Class\n"; 
 
@@ -230,9 +230,9 @@ package KindaPerl6::Class;
 package KindaPerl6::Role;
 
     our $class = KindaPerl6::Class->new( 
-                bless( \( do{ my $v = 
+                bless( [ 
                         'KindaPerl6::Role' 
-                    } ), 
+                    ], 
                     'Type_Constant_Buf' 
                 ),
     );
@@ -240,29 +240,29 @@ package KindaPerl6::Role;
     our %Roles;   # XXX Role names are global
     
     $class->HOW->add_method(
-        bless( \( do{ my $v = 
+        bless( [ 
                 'perl' 
-            } ), 
+            ], 
             'Type_Constant_Buf' 
         ),
         sub { 
-           bless \( do{ my $v = 
+           bless [ 
                'role { ... }' 
-           } ), 'Type_Constant_Buf' 
+           ], 'Type_Constant_Buf' 
        },
     );
 
     $class->HOW->add_method(
-        bless( \( do{ my $v = 
+        bless( [ 
                 'new' 
-            } ), 
+            ], 
             'Type_Constant_Buf' 
         ),
         sub { 
             my ( $self, $name ) = @_;
             # ??? Type_...
-            my $unboxed_name = ${$name->FETCH};
-            #$native_name = KindaPerl6::Class::_mangle( ${$name->FETCH} || 'Role_ANON_' . rand );
+            my $unboxed_name = $name->FETCH->[0];
+            #$native_name = KindaPerl6::Class::_mangle( $name->FETCH->[0] || 'Role_ANON_' . rand );
             #print "Role.create $native_name\n";
             # return the prototype role object (a role is a singleton ???)
             return $Roles{ $unboxed_name }
@@ -289,25 +289,25 @@ package KindaPerl6::Role;
     );
     
     $class->HOW->add_method(
-        bless( \( do{ my $v = 
+        bless( [ 
                 'add_method' 
-            } ), 
+            ], 
             'Type_Constant_Buf' 
         ),
         \&KindaPerl6::Class::add_method,
     );
     $class->HOW->add_method(
-        bless( \( do{ my $v = 
+        bless( [ 
                 'add_attribute' 
-            } ), 
+            ], 
             'Type_Constant_Buf' 
         ),
         \&KindaPerl6::Class::add_attribute,
     );
     $class->HOW->add_method(
-        bless( \( do{ my $v = 
+        bless( [ 
                 'add_role_to' 
-            } ), 
+            ], 
             'Type_Constant_Buf' 
         ),
         sub  {
