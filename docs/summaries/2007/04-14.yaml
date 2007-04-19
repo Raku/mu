@@ -23,7 +23,10 @@ extra:
         * [ONLamp](http://www.oreillynet.com/onlamp/blog/)
       title: Distribution
   header:
-    - body: ~
+    - body: |-
+        "The current pugs implementation is just translating to the old form underneath, so it's not surprising it's a bit off.  That's the sort of thing that happens when the language designer gives the language implementor whiplash.  However, I rather suspect the interpersonal metaphorical meaning was lost on the physicist/comic who decided that the 3rd derivative of position should be called 'jerk'.  :)"
+        
+        -- Larry Wall, in '<msgid:120420071352506328%brian.d.foy@gmail.com>'
       title: This week on the Perl 6 mailing lists
   see_also:
     - name: Perl Foundation activities
@@ -58,7 +61,7 @@ lists:
         subject: 'Re: Synopsis 26'
         summary: |-
           Earlier,
-          Thom Boyer responded to Damian Conway's post from November whichthanked people for offering feedback on the first draft.  Thom said
+          Thom Boyer responded to Damian Conway's post from November which thanked people for offering feedback on the first draft.  Thom said
           that he had been unable to find the XHTML version of S26 and wondered
           if it was available.
           
@@ -92,7 +95,16 @@ lists:
           - email: moritz@casella.verplant.org
             name: Moritz Lenz
         subject: Does =$*ARGS work?
-        summary: ''
+        summary: |-
+          brian d foy is working on 'Learning Perl 6' and had some questions about
+          for the I/O chapter.  He saw that `while(<>){...}` became
+          `for=$*ARGS{...}` but noted this didn't work in Pugs.  He wondered if
+          it was a documentation error or an implementation error.
+          
+          Moritz Lenz mused about why it wasn't `=@*ARGS` but couldn't answer
+          brian's question.  brian replied that `$*ARGS` is a filehandle, not
+          a list of files.  David Vergin remarked that there was a typo in S28
+          and corrected it.
       - date_from: 1176366064
         date_to: 1176393209
         hidden: ~
@@ -105,7 +117,11 @@ lists:
           - email: larry@wall.org
             name: Larry Wall
         subject: using <sp> space in character classes
-        summary: ''
+        summary: |-
+          Brad Bowman noted that S05 lists `sp` under named  assertions
+          but doesn't explicitly mention it in the character class section.
+          He wondered if it could be used in that way.  Larry Wall replied that
+          it could be, but it needs to be generalized.
       - date_from: 1176403951
         date_to: 1176501809
         hidden: ~
@@ -144,10 +160,24 @@ lists:
           - email: john@perlwolf.com
             name: John Macdonald
         subject: What should file test operators return?
-        summary: ''
+        summary: |-
+          brian d foy noted that file test operators return false or the
+          filename, when he would have expected a true.  He wanted to update
+          S16 to clarify the situation.  Later Larry Wall said he would attempt
+          to clarify S03.
+          
+          Moritz Lenz and Damian Conway had some suggestions for the syntax
+          in brian's code.  Juerd Waalboer and Larry Wall also joined the
+          conversation on the subject of giving printf a boolean output template.
+          They found it too specific.
+          
+          Brandon S. Allbery noted that Pugs does not implemented the specification
+          as it is documented.  He thought junction types aren't completely ready.
+          
+          John Macdonald and Mark J. Reed also contributed to the thread.
       - date_from: 1176423155
         date_to: 1176423155
-        hidden: ~
+        hidden: summary
         message_id: 20070413001158.A0386CB9B8@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -156,7 +186,7 @@ lists:
         summary: ''
       - date_from: 1176423663
         date_to: 1176423663
-        hidden: ~
+        hidden: typo
         message_id: 20070413002056.B0076CB9B8@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -165,7 +195,7 @@ lists:
         summary: ''
       - date_from: 1176483730
         date_to: 1176483730
-        hidden: ~
+        hidden: clarification
         message_id: 20070413170203.996ABCB9B8@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -264,7 +294,13 @@ lists:
           - email: allison@perl.org
             name: Allison Randal
         subject: remove_method vtable?
-        summary: ''
+        summary: |-
+          Jonathan Worthington noted that PDD 15 describes both add and
+          remove vtable methods for attributes, parents and roles, but only
+          `add_method` exists for methods.  He wondered if `remove_method`
+          should also exist.
+          
+          Allison Randal went ahead and added it, after a bit of internal debate.
       - date_from: 1175916186
         date_to: 1176042419
         hidden: ~
@@ -278,7 +314,9 @@ lists:
             name: James Keenan via RT
         rt_ticket: 'perl #42332'
         subject: '[perl #42332] [TODO]:  Eliminate t/tools/ops2pmutils/testlib/Capture.pm '
-        summary: ''
+        summary: |-
+          Ticket <rt://perl/42332>, by James Keenan, asked for some subroutines
+          to be moved into `lib/Parrot`.  This was fixed in r18040.
       - date_from: 1175970029
         date_to: 1176150746
         hidden: ~
@@ -292,7 +330,12 @@ lists:
             name: Patrick R. Michaud
         rt_ticket: 'perl #42334'
         subject: "[perl #42334] PGE compiler faults out \"set_integer_keyed() not implemented in class 'Undef'\" "
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/42334>, Jim McKim reported a fault when compiling
+          an example grammar.  Patrick R. Michaud replied that there was
+          a problem with the cut operator not being applied to a particular
+          term.  He saw it as a request to improve the error message when
+          a cut token is applied to a null term.
       - date_from: 1175980123
         date_to: 1176171437
         hidden: ~
@@ -305,7 +348,12 @@ lists:
           - email: allison@perl.org
             name: Allison Randal
         subject: inspect and inspect_str from PIR
-        summary: ''
+        summary: |-
+          Jonathan Worthington reported that he had implemented the
+          `inspect_str` and `inspect` vtable methods for the Class PMC.
+          He had a question about the implementation.
+          Allison Randal replied that she had added an opcode `inspect`
+          and a method `inspect` on roles and classes to the PDD.
       - date_from: 1175994009
         date_to: 1175994009
         hidden: ~
@@ -315,7 +363,9 @@ lists:
             name: Jim McKim
         rt_ticket: 'perl #42336'
         subject: "[perl #42336] segfault happens with 'parrot --pre-process-only' "
-        summary: ''
+        summary: |-
+          Jim McKim reported a segmentation fault when Parrot is invoked with `-E`.
+          This was ticket <rt://perl/42336>.
       - date_from: 1175998306
         date_to: 1176338146
         hidden: ~
@@ -330,7 +380,12 @@ lists:
             name: James Keenan via RT
         rt_ticket: 'perl #42337'
         subject: '[perl #42337] [PATCH]:  Configure.pl:  Refactor list of steps into Parrot::Configure::Step::List '
-        summary: ''
+        summary: |-
+          James Keenan created ticket <rt://perl/42337> to paste a patch which
+          moved some of `Configure.pl`'s functionality (listing steps in the
+          configuration process) to a module.  This was applied as r18157 and
+          r18158.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/7cb9bd583ff3f468/40b638d5ca8221f4?#40b638d5ca8221f4
       - date_from: 1176016039
         date_to: 1176066672
         hidden: ~
@@ -345,7 +400,13 @@ lists:
             name: chromatic
         rt_ticket: 'perl #42339'
         subject: '[perl #42339] [CAGE] Test Valid and Invalid Parrot Flags '
-        summary: ''
+        summary: |-
+          chromatic reported that there are no tests for Parrot's response to invalid
+          command-line arguments.  He suggested adding some in ticket
+          <rt://perl/42339>.  James Keenan said that he had recently added a
+          test of this sort.  chromatic clarified: he meant command-line arguments
+          to the Parrot executable, not to `Configure.pl`.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/f3eda4dd701a619a/014e30463efda452?#014e30463efda452
       - date_from: 1176058001
         date_to: 1176058001
         hidden: ~
@@ -355,17 +416,22 @@ lists:
             name: Paul Cochrane
         rt_ticket: 'perl #42349'
         subject: '[perl #42349] [TODO] dotnet - fix various ops for 64 bit architectures '
-        summary: ''
+        summary: |-
+          Paul Cochrane made a note that some ops need to be fixed for 64-bit
+          architectures in ticket <rt://perl/42349>.
       - date_from: 1176058348
         date_to: 1176058348
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-30201-1176110177-1346.42383-72-0@perl.org
         message_id: rt-3.6.HEAD-30557-1176058335-232.42350-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
             name: Paul Cochrane
         rt_ticket: 'perl #42350'
         subject: '[perl #42350] [TODO] fix kludge in find_type op '
-        summary: ''
+        summary: |-
+          Paul Cochrane converted a 'FIXME' note to ticket
+          <rt://perl/42350>.  The task is to move some logic from
+          `find_type()` to `pmc_type_p()` in `src/ops/pmc.ops`.
       - date_from: 1176058526
         date_to: 1176058526
         hidden: ~
@@ -375,47 +441,59 @@ lists:
             name: Paul Cochrane
         rt_ticket: 'perl #42352'
         subject: '[perl #42352] [TODO] fix or remove strange TODO item in hash() op '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/42352>, Paul Cochrane noted that
+          `src/ops/pmc.ops` has a todo item marked 'XXX' which lacks an
+          explanation of what the problem is.
       - date_from: 1176058777
         date_to: 1176058777
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-30201-1176110177-1346.42383-72-0@perl.org
         message_id: rt-3.6.HEAD-1687-1176058771-1321.42353-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
             name: Paul Cochrane
         rt_ticket: 'perl #42353'
         subject: '[perl #42353] [TODO] perform a dynamic lookup if needed in pic_infix__() op '
-        summary: ''
+        summary: |-
+          Ticket <rt://perl/42353> tracks a todo item found in
+          `src/opts/pics.ops`.
       - date_from: 1176058917
         date_to: 1176058917
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-30201-1176110177-1346.42383-72-0@perl.org
         message_id: rt-3.6.HEAD-1687-1176058909-521.42354-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
             name: Paul Cochrane
         rt_ticket: 'perl #42354'
         subject: '[perl #42354] [TODO] preserve type system in pic_inline_sub__() op '
-        summary: ''
+        summary: |-
+          Paul Cochrane created ticket <rt://perl/42354> for a todo item in
+          `src/ops/pic.ops` named "preserve type system".
       - date_from: 1176059084
         date_to: 1176059084
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-30201-1176110177-1346.42383-72-0@perl.org
         message_id: rt-3.6.HEAD-1687-1176059077-441.42355-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
             name: Paul Cochrane
         rt_ticket: 'perl #42355'
         subject: '[perl #42355] [TODO] use ARG_MAX in pic_callr__() op '
-        summary: ''
+        summary: |-
+          Ticket <rt://perl/42355> was created for a todo item in
+          `src/ops/pic.ops` to make `ARG_MAX` a macro instead of a
+          hardcoded number.
       - date_from: 1176059218
         date_to: 1176059218
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-30201-1176110177-1346.42383-72-0@perl.org
         message_id: rt-3.6.HEAD-1687-1176059212-529.42356-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
             name: Paul Cochrane
         rt_ticket: 'perl #42356'
         subject: "[perl #42356] [TODO] verify $1 didn't change in pic_callr__() op "
-        summary: ''
+        summary: |-
+          This was another todo item in `src/ops/pic.ops`.  The item is
+          "verify $1 didn't change."  See ticket <rt://perl/42356>.
       - date_from: 1176073696
         date_to: 1176230738
         hidden: ~
@@ -434,7 +512,12 @@ lists:
             name: jerry gay
         rt_ticket: 'perl #42359'
         subject: '[perl #42359] [PATCH] Assorted cleanups - part III (Intel C++) '
-        summary: ''
+        summary: |-
+          Steve Peters submitted a patch in ticket <rt://perl/42359>.  This cleans
+          up some warnings when compiling Parrot with Intel C++.  chromatic
+          got some warnings when running the patch.  He made some changes to
+          the patch and sent it in.  Steve said he would need to look into
+          it further.
       - date_from: 1176080871
         date_to: 1176080871
         hidden: ~
@@ -444,7 +527,9 @@ lists:
             name: James Keenan
         rt_ticket: 'perl #42360'
         subject: '[perl #42360] [TODO]:  Unit tests for Parrot::Revision '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/42360>, James Keenan reported that
+          `lib/Parrot/Revision.pm` has no unit tests.
       - date_from: 1176085358
         date_to: 1176085358
         hidden: ~
@@ -454,17 +539,22 @@ lists:
             name: James Keenan
         rt_ticket: 'perl #42362'
         subject: '[perl #42362] [TODO]:  Unit tests for modules used during configuration '
-        summary: ''
+        summary: |-
+          James Keenan indicated that there is a considerable amount of
+          code in the `config/` tree which isn't covered by tests.  He
+          requested some unit tests in ticket <rt://perl/42362>.
       - date_from: 1176104902
         date_to: 1176104902
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-30201-1176110177-1346.42383-72-0@perl.org
         message_id: rt-3.6.HEAD-30557-1176104894-935.42369-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
             name: Paul Cochrane
         rt_ticket: 'perl #42369'
         subject: '[perl #42369] [TODO] optimize pointer loading in saveall() '
-        summary: ''
+        summary: |-
+          Ticket <rt://perl/42369> tracks a todo item in
+          `src/ops/stack.ops`.
       - date_from: 1176105883
         date_to: 1176189568
         hidden: ~
@@ -481,97 +571,118 @@ lists:
             name: Allison Randal
         rt_ticket: 'perl #42371'
         subject: '[perl #42371] [TODO] check if object.can(method) in callmethodcc() op '
-        summary: ''
+        summary: |-
+          Paul Cochrane created ticket <rt://perl/42371> for a todo item in
+          `src/ops/objects.ops`.  Jonathan Worthington thought that it was
+          unnecessary and suggested removing the comment.  Allison Randal
+          agreed.
       - date_from: 1176106130
         date_to: 1176106130
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-30201-1176110177-1346.42383-72-0@perl.org
         message_id: rt-3.6.HEAD-30201-1176106123-1686.42372-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
             name: Paul Cochrane
         rt_ticket: 'perl #42372'
         subject: '[perl #42372] [TODO] same opcode names should differ (subclass op) '
-        summary: ''
+        summary: |-
+          Ticket <rt://perl/42372> tracks two 'FIXME' comments in
+          `src/ops/object.ops`.
       - date_from: 1176106524
         date_to: 1176106524
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-30201-1176110177-1346.42383-72-0@perl.org
         message_id: rt-3.6.HEAD-1687-1176106517-1746.42373-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
             name: Paul Cochrane
         rt_ticket: 'perl #42373'
         subject: '[perl #42373] [TODO] handle non-integer file descriptors '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/42373>, Paul Cochrane noted a todo fix found
+          in `src/ops/io.ops`.
       - date_from: 1176106678
         date_to: 1176106678
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-30201-1176110177-1346.42383-72-0@perl.org
         message_id: rt-3.6.HEAD-30557-1176106670-930.42374-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
             name: Paul Cochrane
         rt_ticket: 'perl #42374'
         subject: '[perl #42374] [TODO] free results from string_to_cstring() without ugly warnings '
-        summary: ''
+        summary: |-
+          Ticket <rt://perl/42374> tracks this todo item found in
+          `src/ops/io.ops`.
       - date_from: 1176106829
         date_to: 1176106829
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-30201-1176110177-1346.42383-72-0@perl.org
         message_id: rt-3.6.HEAD-1687-1176106821-436.42375-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
             name: Paul Cochrane
         rt_ticket: 'perl #42375'
         subject: '[perl #42375] [TODO] make pmcinfo op official '
-        summary: ''
+        summary: |-
+          Ticket <rt://perl/42375> marks Paul Cochrane's further efforts to convert
+          todo items to tickets.  This one is for "move/officalize this opcode
+          after next op cleanup."
       - date_from: 1176107012
         date_to: 1176107012
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-30201-1176110177-1346.42383-72-0@perl.org
         message_id: rt-3.6.HEAD-1687-1176107000-1010.42376-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
             name: Paul Cochrane
         rt_ticket: 'perl #42376'
         subject: '[perl #42376] [TODO] handle all ready states in add_io_event opcode '
-        summary: ''
+        summary: Ticket <rt://perl/42376> is for a todo item from `src/ops/experimental.ops`.
       - date_from: 1176107301
         date_to: 1176107301
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-30201-1176110177-1346.42383-72-0@perl.org
         message_id: rt-3.6.HEAD-1687-1176107295-1567.42377-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
             name: Paul Cochrane
         rt_ticket: 'perl #42377'
         subject: '[perl #42377] [TODO] clone interpreter to play into the debugger '
-        summary: ''
+        summary: |-
+          Paul Cochrane created ticket <rt://perl/42377> for a todo item found
+          in `src/ops/debug.ops`.
       - date_from: 1176107400
         date_to: 1176107400
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-30201-1176110177-1346.42383-72-0@perl.org
         message_id: rt-3.6.HEAD-1687-1176107392-1817.42378-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
             name: Paul Cochrane
         rt_ticket: 'perl #42378'
         subject: '[perl #42378] [TODO] explicit exit from debug_break() op is not ok '
-        summary: ''
+        summary: |-
+          With this ticket (<rt://perl/42378>) a todo item from `src/ops/debug.ops`
+          was converted from a code comment to a ticket.
       - date_from: 1176107470
         date_to: 1176107470
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-30201-1176110177-1346.42383-72-0@perl.org
         message_id: rt-3.6.HEAD-30557-1176107464-1065.42379-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
             name: Paul Cochrane
         rt_ticket: 'perl #42379'
         subject: '[perl #42379] [TODO] adjust register layout in debug_print() '
-        summary: ''
+        summary: |-
+          Ticket <rt://perl/42379> was yet another todo item found in the code,
+          this time in `src/ops/debug.ops`.
       - date_from: 1176107602
         date_to: 1176107602
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-30201-1176110177-1346.42383-72-0@perl.org
         message_id: rt-3.6.HEAD-30557-1176107595-1005.42381-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
             name: Paul Cochrane
         rt_ticket: 'perl #42381'
         subject: '[perl #42381] [TODO] search library path for parrot bytecode when loading '
-        summary: ''
+        summary: |-
+          Paul Cochrane noted another todo item from the code source, in
+          `src/ops/core.ops` and created ticket <rt://perl/42381> for it.
       - date_from: 1176109399
         date_to: 1176195799
         hidden: ~
@@ -585,17 +696,19 @@ lists:
           - email: jerry.gay@gmail.com
             name: jerry gay
         subject: JSON won't make test
-        summary: ''
+        summary: |-
+          Klaas-Jan Stol submited a patch which alters `json.in` to make it
+          pass `nmake test`.  It was committed as r18063.
       - date_from: 1176110026
         date_to: 1176110026
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-30201-1176110177-1346.42383-72-0@perl.org
         message_id: rt-3.6.HEAD-30201-1176110006-1484.42382-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
             name: Paul Cochrane
         rt_ticket: 'perl #42382'
         subject: '[perl #42382] [TODO] imcc - delete quotes and emit pbc '
-        summary: ''
+        summary: Ticket <rt://perl/42382> covers a todo item found in `compilers/imcc/imcc.l`.
       - date_from: 1176110185
         date_to: 1176110185
         hidden: ~
@@ -605,10 +718,24 @@ lists:
             name: Paul Cochrane
         rt_ticket: 'perl #42383'
         subject: '[perl #42383] [TODO] imcc - if frame->s.file was allocated free it '
-        summary: ''
+        summary: |-
+          Paul Cochrane created a number of RT tickets based upon 'todo' messages
+          in the code source:
+          
+          * `compilers/imcc/imcc.l` - <rt://perl/42382>, <rt://perl/42383>, <rt://perl/42384>
+          * `compilers/imcc/imcc.y` - <rt://perl/42385>
+          * `languages/regex/lib/Regex/Grammar.y` - <rt://perl/42393>
+          * `src/opts/pics.ops` - <rt://perl/42353>, <rt://perl/42354>, <rt://perl/42355>, <rt://perl/42356>
+          * `src/ops/pmc.ops` - <rt://perl/42350>
+          * `src/ops/stack.ops` - <rt://perl/42369>
+          * `src/ops/object.ops` - <rt://perl/2372>
+          * `src/ops/io.ops` - <rt://perl/42373>, <rt://perl/42374>
+          * `src/ops/experimental.ops` - <rt://perl/42375>, <rt://perl/42376>
+          * `src/ops/debug.ops` - <rt://perl/42377>, <rt://perl/42378>, <rt://perl/42379>
+          * `src/ops/core.ops` - <rt://perl/42381>
       - date_from: 1176110352
         date_to: 1176110352
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-30201-1176110177-1346.42383-72-0@perl.org
         message_id: rt-3.6.HEAD-30201-1176110345-1116.42384-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
@@ -618,7 +745,7 @@ lists:
         summary: ''
       - date_from: 1176110552
         date_to: 1176110552
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-30201-1176110177-1346.42383-72-0@perl.org
         message_id: rt-3.6.HEAD-30201-1176110546-369.42385-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
@@ -638,10 +765,18 @@ lists:
           - email: jerry.gay@gmail.com
             name: jerry gay
         subject: Parrot Bug Summary
-        summary: ''
+        summary: |-
+          Jerry Gay remarked that the Parrot ticket queue is growing every week;
+          there are currently more than 500 tickets, many of them unclassified by
+          type.  He asked for volunteers to help make the queue more manageable.
+          
+          In another thread, which was part of ticket <rt://perl/41858>,
+          Mark Glines said he had taken on the task of making a reasonable set
+          of rules for splint.  He ran into several problems.  Paul Cochrane
+          tried to answer the questions as best as he could.
       - date_from: 1176131805
         date_to: 1176131805
-        hidden: ~
+        hidden: merged with rt-3.6.HEAD-30201-1176110177-1346.42383-72-0@perl.org
         message_id: rt-3.6.HEAD-30557-1176131796-360.42393-72-0@perl.org
         posters:
           - email: parrotbug-followup@parrotcode.org
@@ -661,7 +796,12 @@ lists:
           - email: parrotcode@gmail.com
             name: Klaas-Jan Stol
         subject: The great "class" variable renaming
-        summary: ''
+        summary: |-
+          Steve Peters has had problems with the use of 'class' as a variable
+          name in `struct_vtable`.  This needs to change for his compatibility
+          work to progress further.  He suggested `pmc_class` as an alternative.
+          Klaas-Jan Stol remarked that he thought the word `namespace` should
+          also be used carefully.
       - date_from: 1176161581
         date_to: 1176188890
         hidden: ~
@@ -674,7 +814,10 @@ lists:
           - email: allison@perl.org
             name: Allison Randal
         subject: Class/Role namespace links
-        summary: ''
+        summary: |-
+          Jonathan Worthington began working on the association between
+          classes and namespaces specified in PDD15.  He had some questions,
+          which Allison Randal answered.
       - date_from: 1176163513
         date_to: 1176163513
         hidden: Covered in 03-24
@@ -694,7 +837,10 @@ lists:
             name: Alek Storm
         rt_ticket: 'perl #42406'
         subject: '[perl #42406] [PATCH] improper null testing in Parrot_instantiate_object '
-        summary: ''
+        summary: |-
+          Alek Storm reported in ticket <rt://perl/42406> that he had a patch
+          to fix a bug in which the `init` vtable method override is called instead
+          of `init_pmc`.  After one week he wondered why no action had been taken.
       - date_from: 1176171368
         date_to: 1176171368
         hidden: ~
@@ -703,7 +849,9 @@ lists:
           - email: allison@cvs.perl.org
             name: allison
         subject: '[svn:parrot-pdd] r18096 - trunk/docs/pdds'
-        summary: ''
+        summary: |-
+          A commit by Allison Randal added opcodes and methods for 'inspect'
+          to Objects PDD.
       - date_from: 1176172530
         date_to: 1176172688
         hidden: ~
@@ -715,10 +863,12 @@ lists:
             name: Alek Storm
         rt_ticket: 'perl #42407'
         subject: '[perl #42407] [PATCH] refactor vtable overriding, delegate.c generation '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/42407>, Alek Storm submitted a patch which refactors
+          and optimizes methods involved in vtable overriding.
       - date_from: 1176182455
         date_to: 1176182455
-        hidden: ~
+        hidden: this has already taken place
         message_id: CB35A87F-17D5-46AE-A6A8-79F1ED6CEB2D@coleda.com
         posters:
           - email: will@coleda.com
@@ -727,7 +877,7 @@ lists:
         summary: ''
       - date_from: 1176187072
         date_to: 1176187072
-        hidden: ~
+        hidden: todo note
         message_id: 20070410063744.0086ECB9B8@x12.develooper.com
         posters:
           - email: allison@cvs.perl.org
@@ -736,7 +886,7 @@ lists:
         summary: ''
       - date_from: 1176190141
         date_to: 1176190141
-        hidden: ~
+        hidden: see other threads for the comments this revision incorporates
         message_id: 20070410072853.4F0B4CB9B8@x12.develooper.com
         posters:
           - email: allison@cvs.perl.org
@@ -752,7 +902,10 @@ lists:
             name: Joshua Isom
         rt_ticket: 'perl #42411'
         subject: '[perl #42411] [PARTIALPATCH] Building a 32bit parrot on freebsd under amd64 fails. '
-        summary: ''
+        summary: |-
+          Joshua Isom created ticket <rt://perl/42411> to submit a patch
+          which allows Parrot to be configured for 32-bits on a 64-bit machine.
+          This does not completely fix the problem.
       - date_from: 1176194738
         date_to: 1176194738
         hidden: ~
@@ -762,7 +915,9 @@ lists:
             name: Joshua Isom
         rt_ticket: 'perl #42412'
         subject: '[perl #42412] Configure.pl things =no is true '
-        summary: ''
+        summary: |-
+          Joshua Isom thought that configure should treat `--foo=no` is false instead
+          of true.  He reported this in ticket <rt://perl/42412>.
       - date_from: 1176203955
         date_to: 1176203955
         hidden: ~
@@ -771,7 +926,9 @@ lists:
           - email: chris@dil.univ-mrs.fr
             name: chris
         subject: Severe error
-        summary: ''
+        summary: |-
+          Christian Aperghis-Tramoni reported an error he saw when compiling
+          Parrot on Linux.
       - date_from: 1176234029
         date_to: 1176234029
         hidden: ~
@@ -780,7 +937,10 @@ lists:
           - email: jerry.gay@gmail.com
             name: jerry gay
         subject: 'call for help: pdd15 implementation'
-        summary: ''
+        summary: |-
+          Jerry Gay highlighted the implementation of PDD 15 as a key goal
+          for the 0.4.11 release (which has since taken place).  He suggested
+          that people could help by reviewing docs/code/tests.
       - date_from: 1176243944
         date_to: 1176591961
         hidden: ~
@@ -805,7 +965,15 @@ lists:
           - email: lt@toetsch.at
             name: Leopold Toetsch
         subject: modifying classes after they're instantiated
-        summary: ''
+        summary: |-
+          Allison Randal began by remarking that Jonathan Worthington had
+          raised the question of the strategy for safely changing classes which
+          already have instantiated objects.  She offered a few alternatives.
+          Both Leopold Toetsch and Allison thought her fourth suggestion was
+          the best one.  Alek Storm liked it too, but had another option.
+          
+          There was some further discussion about the best implementation,
+          with Bob Rogers also joining in.
       - date_from: 1176246598
         date_to: 1176246598
         hidden: ~
@@ -815,7 +983,10 @@ lists:
             name: Jerry Gay
         rt_ticket: 'perl #42427'
         subject: '[perl #42427] [CAGE] cleanup perlcritic errors '
-        summary: ''
+        summary: |-
+          Jerry Gay noted that many tests fail in `t/codingstd/perlcritic.t`.
+          In ticket <rt://perl/42427> he expressed his hope that these things
+          could be addressed before the next release.
       - date_from: 1176256226
         date_to: 1176256226
         hidden: ~
@@ -825,7 +996,10 @@ lists:
             name: James Keenan
         rt_ticket: 'perl #42429'
         subject: "[perl #42429] [BUG]:  docs/submission.pod:  Confusing use of term 'test' "
-        summary: ''
+        summary: |-
+          James Keenan reported that he found instances of the word 'test'
+          confusing in `docs/submission.pod`.  He asked for clarification in
+          ticket <rt://perl/42429>.
       - date_from: 1176260177
         date_to: 1176612576
         hidden: ~
@@ -850,7 +1024,12 @@ lists:
             name: chromatic
         rt_ticket: 'perl #42430'
         subject: '[perl #42430] [PATCH] make :vtable imply :method '
-        summary: ''
+        summary: |-
+          Alek Storm created ticket <rt://perl/42430>.  This contained a patch
+          which makes the `:vtable` sub pragma imply the `:method` pragma.
+          What followed was a long discussion on why someone might want to
+          set `:vtable` without setting `:method`.  Alek, chromatic, and
+          Allison Randal contributed to this deeply nested thread.
       - date_from: 1176286247
         date_to: 1176286247
         hidden: ~
@@ -859,7 +1038,9 @@ lists:
           - email: jkeen@verizon.net
             name: James Keenan
         subject: '[ANNOUNCE] Hackathon Toronto, Saturday April 28'
-        summary: ''
+        summary: |-
+          James Keenan announced a spur-of-the moment hackathon in Toronto.
+          It was held on Saturday, April 28th.
       - date_from: 1176368734
         date_to: 1176390234
         hidden: ~
@@ -874,7 +1055,11 @@ lists:
           - email: jerry.gay@gmail.com
             name: jerry gay
         subject: '[Proposed PATCH] Change libparrot Names and Locations'
-        summary: ''
+        summary: |-
+          Ron Blaschke proposed a patch to change the libparrot names and locations
+          for Windows, which he included in his message.  Jerry Gay added his
+          comments, and noted that it is nice if tests are included.  There was
+          some further discussion on how to improve the patch.
       - date_from: 1176377869
         date_to: 1176407017
         hidden: ~
@@ -909,7 +1094,24 @@ lists:
           - email: jhoblitt@ifa.hawaii.edu
             name: Joshua Hoblitt
         subject: Limiting Exported Symbols on GCC
-        summary: ''
+        summary: |-
+          Ron Blaschke kicked off this thread by wondering if there was a feature
+          to limit exported symbols with GCC.  Steve Peters was concerned about
+          adding GCC features to Parrot, as this could break compatibility with
+          other compilers.
+          
+          Nicholas Clark remarked that Perl 5 has been successful with using
+          flag data in `embed.fnc` and generating annotated headers automatically.
+          Jerry Gay agreed with Nicholas and suggested that if a function isn't
+          meant for public consumption, it shouldn't be available.  Joshua Isom
+          suggested that people can use whatever functions they want, but if they
+          aren't documented, they are likely to be broken in future releases.
+          
+          Joshua Isom was concerned that it had been a long time since there
+          had been failure-free smokes, and people were becoming accustomed to
+          test failures.
+          
+          Joshua Hoblitt and nahoo82 also contributed to the thread.
       - date_from: 1176395154
         date_to: 1176448452
         hidden: ~
@@ -923,7 +1125,9 @@ lists:
             name: chromatic
         rt_ticket: 'perl #42474'
         subject: '[perl #42474] [PATCH] Remove dangling enum commas '
-        summary: ''
+        summary: |-
+          Steve Peters submitted a patch in ticket <rt://perl/42474> which
+          removes dangling commas in enum lists.  It was applied as r18175.
       - date_from: 1176396812
         date_to: 1176448467
         hidden: ~
@@ -937,7 +1141,9 @@ lists:
             name: chromatic
         rt_ticket: 'perl #42475'
         subject: '[perl #42475] [PATCH] Change asm() to __asm__() '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/42475>, Steve Peters supplied a patch to help
+          Parrot compile with `-ansi -pedantic`.  It was applied as r18176.
       - date_from: 1176433089
         date_to: 1176433089
         hidden: ~
@@ -946,7 +1152,9 @@ lists:
           - email: mddiep@gmail.com
             name: Matt Diephouse
         subject: 'Bug Day: Saturday, 14 April 2007'
-        summary: ''
+        summary: |-
+          Matt Diephouse announced that Saturday 14 April was a bug day to prepare
+          for the 0.4.11 release.  This release was made on 17 April.
       - date_from: 1176482964
         date_to: 1176578024
         hidden: ~
@@ -986,7 +1194,10 @@ lists:
           - email: darren@DarrenDuncan.net
             name: Darren Duncan
         subject: request for a few Pugs parser updates
-        summary: ''
+        summary: |-
+          Darren Duncan asked for a few features to be added to the Pugs parser.
+          There were three requests in total, which Darren hoped could be easily
+          implemented by the right people.
       - date_from: 1176297004
         date_to: 1176432126
         hidden: ~
@@ -1004,7 +1215,13 @@ lists:
           - email: agentzh@gmail.com
             name: Agent Zhang
         subject: 'pugs: aborting smoke tests'
-        summary: ''
+        summary: |-
+          Moritz Lenz reported being unable to do a `make smoke` for the last few
+          weeks.  Larry Wall thought that the problem looked like a resource
+          exhaustion or lockup, possibly related to embedded/tunneled Perl 5.
+          He asked for more output, which Moritz supplied.
+          Agent Zhang pointed to a post by chromatic which he thought
+          might relate to the solution.
       - date_from: 1176411704
         date_to: 1176411704
         hidden: ~
@@ -1013,7 +1230,9 @@ lists:
           - email: wim.vanderbauwhede@gmail.com
             name: Wim Vanderbauwhede
         subject: interactive pugs fails in safe mode
-        summary: ''
+        summary: |-
+          Wim Vanderbauwhede reported failures with interactive Pugs when
+          `PUGS_SAFEMODE` is true.
     title: Compiler
   - name: perl5-porters
     threads:
@@ -1046,7 +1265,7 @@ lists:
     threads:
       - date_from: 1176482699
         date_to: 1176484462
-        hidden: ~
+        hidden: part of rt-3.6.HEAD-30557-1176482955-1955.41894-15-0@perl.org
         message_id: 20070413164452.24818CB9B8@x12.develooper.com
         messages:
           - 200704131013.09961.chromatic@wgz.org
