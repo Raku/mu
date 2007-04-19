@@ -392,6 +392,11 @@ class Decl {
                     ~ $.var.emit_perl5
                     ~ ' = bless [ GLOBAL::undef(), \\%_MODIFIED, \'' ~ $.var.emit_perl5 ~ '\' ], "Type_Scalar" ';
             };
+            if ($.var).sigil eq '&' {
+                return $s 
+                    ~ $.var.emit_perl5
+                    ~ ' = bless [ GLOBAL::undef(), \\%_MODIFIED, \'' ~ $.var.emit_perl5 ~ '\' ], "Type_Code" ';
+            };
             if ($.var).sigil eq '%' {
                 return $s ~ $.var.emit_perl5
                     ~ ' = bless { }, \'Type_Hash\' ';
@@ -413,6 +418,20 @@ class Decl {
                 ~ 'BEGIN { '
                 ~     $.var.emit_perl5
                 ~     ' = bless [ GLOBAL::undef(), \\%_MODIFIED, \'' ~ $.var.emit_perl5 ~ '\' ], "Type_Scalar" '
+                ~ '}'
+                ;
+        };
+        if ($.var).sigil eq '&' {
+            return 
+                  $.decl ~ ' ' 
+                ~ $.type ~ ' ' 
+                ~ $.var.emit_perl5 ~ '; '
+                ~ $.var.emit_perl5
+                ~ ' = bless [ GLOBAL::undef(), \\%_MODIFIED, \'' ~ $.var.emit_perl5 ~ '\' ], "Type_Code" '
+                ~ ' unless defined ' ~ $.var.emit_perl5 ~ '; '
+                ~ 'BEGIN { '
+                ~     $.var.emit_perl5
+                ~     ' = bless [ GLOBAL::undef(), \\%_MODIFIED, \'' ~ $.var.emit_perl5 ~ '\' ], "Type_Code" '
                 ~ '}'
                 ;
         };
@@ -529,11 +548,22 @@ class Sub {
 #            $str := $str ~ $bind.emit_perl5 ~ '; ';
 #            $i := $i + 1;
 #        };
-        'sub ' ~ $.name ~ ' { ' ~ 
-          ## 'my ' ~ $invocant.emit_perl5 ~ ' = $_[0]; ' ~
-          $str ~
-          $.block.emit_perl5 ~ 
-        ' }'
+        my $code :=
+          'bless( [ '
+        ~   'sub { '  
+            ## 'my ' ~ $invocant.emit_perl5 ~ ' = $_[0]; ' ~
+        ~      $str 
+        ~      $.block.emit_perl5  
+        ~    ' }'
+        ~    ', undef'
+        ~    ', undef'
+        ~    ', q#sub { ' ~ COMPILER::emit_perl6( $.block ) ~ ' }#'
+        ~ ' ], "Type_Constant_Code" )'
+        ;
+        if ( $.name ) {
+            return '$Code_' ~ $.name ~ '->BIND( ' ~ $code ~ ')';
+        }
+        return $code;
     }
 }
 
@@ -541,6 +571,15 @@ class Do {
     has $.block;
     method emit_perl5 {
         'do { ' ~ 
+          $.block.emit_perl5 ~ 
+        ' }'
+    }
+}
+
+class BEGIN {
+    has $.block;
+    method emit_perl5 {
+        'BEGIN { ' ~ 
           $.block.emit_perl5 ~ 
         ' }'
     }

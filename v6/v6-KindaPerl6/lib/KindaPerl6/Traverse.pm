@@ -578,6 +578,22 @@ class Do {
     };
 }
 
+class BEGIN {
+    has @.block;
+    method emit( $visitor ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'BEGIN',
+        );
+    };
+    method attribs {
+            { 
+                block   => @.block,
+            }
+    };
+}
+
 class Use {
     has $.mod;
     method emit( $visitor ) {

@@ -42,20 +42,20 @@ package Type_Constant;
     }
 package Type_Constant_Undef;
     our @ISA = ( 'Type_Constant', 'Undef' );
-    sub perl { 'undef' }
+    sub perl { bless ['undef'], 'Type_Constant_Buf' }
 package Type_Constant_Int;
     our @ISA = ( 'Type_Constant', 'Int' );
-    sub perl { $_[0][0] }
+    sub perl { bless ["$_[0][0]"], 'Type_Constant_Buf' }
 package Type_Constant_Num;
     our @ISA = ( 'Type_Constant', 'Num' );
-    sub perl { $_[0][0] }
+    sub perl { bless["$_[0][0]"], 'Type_Constant_Buf' }
 package Type_Constant_Bit;
     our @ISA = ( 'Type_Constant', 'Bit' );
-    sub perl { $_[0][0] ? 1 : 0 }
+    sub perl { bless [$_[0][0] ? "1" : "0"], 'Type_Constant_Buf' }
 package Type_Constant_Buf;
     our @ISA = ( 'Type_Constant', 'Buf' );
     our $AUTOLOAD;
-    sub perl { "'$_[0][0]'" }
+    sub perl { bless ["'$_[0][0]'"], 'Type_Constant_Buf' }
     sub DESTROY { }
     sub AUTOLOAD {
         # allow: 'Dog'.new
@@ -69,7 +69,10 @@ package Type_Constant_Buf;
     }    
 package Type_Constant_Code;
     our @ISA = ( 'Type_Constant', 'Code' );
-    sub perl { '{ ... }' }
+    sub perl { 
+        #print "CODE: ",$_[0][3],"\n";
+        bless ["$_[0][3]"], 'Type_Constant_Buf' 
+    }
     sub APPLY  { 
         my $v = shift;
         #print "CODE: ",Data::Dumper::Dumper($v->[0]);
@@ -124,6 +127,63 @@ package Type_Scalar;
         # - $x.FETCH.new is better - disable AUTOLOAD ???
         #require Data::Dump::Streamer;
         #print "Scalar AUTOLOAD: $AUTOLOAD - ", Data::Dump::Streamer::Dump( \@_ );
+        my $self = shift;
+        my $meth = $AUTOLOAD;
+        $meth =~ s/.*:://;   # strip fully-qualified portion
+        #print "self $$self, AUTOLOAD: $meth \n";
+        $self->[0]->$meth( @_ );
+    }    
+
+package Type_Code;
+    our @ISA = 'Code';
+    our $AUTOLOAD;
+    sub perl { $_[0]->FETCH->perl }
+    sub IS_ARRAY { 0 }
+    sub IS_HASH  { 0 }
+    sub INDEX  { 
+        # XXX
+        # $scalar->INDEX( 0 ) just works
+        # $scalar->INDEX( 2 ) returns undef
+        # $scalar->INDEX( 2 )->STORE(...) autovivifies an Array if the scalar is undef
+        #print "INDEX: ",Data::Dump::Streamer::Dump( \@_ );
+        return $_[0][0]->INDEX( $_[1] )
+            if $_[0][0]->IS_ARRAY;
+        return $_[0]
+            if $_[1]->FETCH == 0;
+        #print "Return undef on unexisting Array\n";
+        return bless [ $_[0], $_[1] ], 'Type_Proxy_Array_Scalar';
+    }
+    sub LOOKUP {
+        # XXX
+        return $_[0][0]->LOOKUP( $_[1] )
+            if $_[0][0]->IS_HASH;
+        warn "not a hash"
+            if defined ${$_[0]->FETCH};
+        $_[0]->STORE( bless { }, 'Type_Hash' );
+        return $_[0][0]->LOOKUP( $_[1] )
+    }
+    sub STORE  { 
+        # XXX < TimToady> not unless the routine itself returns an object that does STORE
+        die "can't store to a Code variable";
+    }
+    sub BIND   {
+        # the modified-bit is now shared
+        # which means, both left and right sides are 'modified' 
+        #print "BIND Code to: ",Data::Dump::Streamer::Dump( $_[1] );
+        $_[0][1]{ $_[0][2] } = $_[1][1]{ $_[1][2] }
+            = \( ${$_[0][1]{ $_[0][2] }}++ + ${$_[1][1]{ $_[1][2] }}++ );   # autovivify & increment & sum
+        $_[0] = $_[1];
+    }
+    sub FETCH  { 
+        $_[0][0];
+    }
+    sub DESTROY { }
+    sub AUTOLOAD {
+        # XXX
+        # allow: $x.new
+        # - $x.FETCH.new is better - disable AUTOLOAD ???
+        #require Data::Dump::Streamer;
+        #print "Code AUTOLOAD: $AUTOLOAD - ", Data::Dump::Streamer::Dump( \@_ );
         my $self = shift;
         my $meth = $AUTOLOAD;
         $meth =~ s/.*:://;   # strip fully-qualified portion

@@ -289,17 +289,9 @@ token term {
             'obj'   => ::Var( 'sigil' => '$', 'twigil' => '', 'name' => '/' ), 
             'index' => ::Val::Buf( 'buf' => $$<sub_or_method_name> ) 
         ) }   # $<ident>
-    | do <?opt_ws> \{ <?opt_ws> <exp_stmts> <?opt_ws> \}
-        { 
-            return ::Do( 
-                'block' => ::Lit::Code(
-                    pad   => @COMPILER::PAD[0],   # XXX - add_pad/drop_pad
-                    state => { },
-                    sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
-                    body  => $$<exp_stmts>,
-                ),
-            );
-        }   # do { stmt; ... }
+    | do <?opt_ws> <block1>
+        # block1 is defined in the Grammar::Control module
+        { return ::Do( 'block' => $$<block1> ) }
     | use <?ws> <full_ident>  [ - <ident> | <''> ]
         { return ::Use( 'mod' => $$<full_ident> ) }
     | <val>     { return $$<val> }     # 'value'

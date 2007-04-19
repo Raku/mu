@@ -19,6 +19,7 @@ use KindaPerl6::Traverse;
 #use KindaPerl6::Visitor::LexicalSub;
 use KindaPerl6::Visitor::Perl;
 use KindaPerl6::Visitor::EmitPerl5;
+use KindaPerl6::Visitor::EmitPerl6;
 use KindaPerl6::Visitor::MetaClass;
 #use KindaPerl6::Visitor::CreateEnv;
 
@@ -47,6 +48,7 @@ if ($perl5) {
 #my $visitor_lexical_sub = KindaPerl6::Visitor::LexicalSub->new();
 my $visitor_dump_ast    = KindaPerl6::Visitor::Perl->new();
 my $visitor_emit_perl5  = KindaPerl6::Visitor::EmitPerl5->new();
+my $visitor_emit_perl6  = KindaPerl6::Visitor::EmitPerl6->new();
 my $visitor_metamodel   = KindaPerl6::Visitor::MetaClass->new();
 #my $visitor_create_env  = KindaPerl6::Visitor::CreateEnv->new();
 
@@ -58,7 +60,13 @@ use Data::Dump::Streamer;
 
     # @COMPILER::CHECK  - CHECK blocks
     # @COMPILER::PAD    - Pad structures
-    # @COMPILER::BEGIN_RUNTIME - runtime side-effects of BEGIN blocks
+    ## (obsolete) @COMPILER::BEGIN_RUNTIME - runtime side-effects of BEGIN blocks
+
+    sub emit_perl6 {
+        # param = AST
+        my $perl6 = join( ";\n", (map { $_->emit( $visitor_emit_perl6  ) } @_ ));
+        return $perl6;
+    }
 
     sub env_init {
         @COMPILER::PAD = (Pad->new( 
@@ -109,7 +117,7 @@ use Data::Dump::Streamer;
         add_pad;
         my $data = $COMPILER::PAD[0]->eval( $native );  # XXX - want() context
         drop_pad;
-        die "At BEGIN: " . $@ if $@;
+        die "At BEGIN: " . $@ . "\n  Native code: $native"if $@;
         #print "RETURN DATA: ", Dumper($data);
 
         # check for side-effects
@@ -137,20 +145,20 @@ use Data::Dump::Streamer;
                         # the binded thing has a name
                         $src = $src . "$name := " . $value->[2] . '; ';
                         # optimize repeated assignments
-                        $src = $src . "$name = " . $value->perl;
+                        $src = $src . "$name = " . $value->perl->[0];
                     }
                     else {
                         # no name; bind to the value
-                        $src = $src . "$name := " . $value->perl . '; ';
+                        $src = $src . "$name := " . $value->perl->[0] . '; ';
                     }
                 }
                 else {
                     # plain assignment
-                    $src = $src . "$name = " . $value->perl;
+                    $src = $src . "$name = " . $value->perl->[0];
                 }
 
                 # TODO - convert directly DATA->AST, instead of DATA->PERL->AST
-                #print "# BEGIN SIDE-EFFECT: $src \n\n";
+                print "# BEGIN SIDE-EFFECT: $src \n\n";
                 my $p = KindaPerl6::Grammar->exp_stmts( $src, 0);
                 my $pos = $p->to;
                 #print "# parsed to $pos - length = ",length($src)," [$src]\n";
@@ -163,9 +171,9 @@ use Data::Dump::Streamer;
             }
         }
         add_pad;
-        my $initializer_name = 'Main::INIT_' . int(rand(100000000));
-        my $begin_ast = Sub->new(
-            name  => $initializer_name,
+        #my $initializer_name = 'Main::INIT_' . int(rand(100000000));
+        my $begin_ast = BEGIN->new(
+            #name  => $initializer_name,
             block => Lit::Code->new(
                 sig   => Sig->new(
                                      'named' => {},
@@ -188,7 +196,7 @@ use Data::Dump::Streamer;
         #return if ref($data) eq 'CODE';
     
         # - convert the data to ast
-        my $source = $data->perl;
+        my $source = $data->perl->[0];
         #print "# begin - result data: $source\n";
         my $p = KindaPerl6::Grammar->exp($source, 0);
         #say( Main::perl( $$p ) );
@@ -207,8 +215,7 @@ use Data::Dump::Streamer;
 
         # create the runtime initializer
         # @COMPILER::BEGIN_RUNTIME
-        # TODO
-        push @COMPILER::BEGIN_RUNTIME, $initializer_name;
+        ## push @COMPILER::BEGIN_RUNTIME, $initializer_name;
         #print "/begin_block\n";
 
         return $final_ast;
@@ -274,10 +281,10 @@ for ( @COMPILER::CHECK ) {
 }
 # emit Runtime initializers
 # TODO: emit from AST
-print "BEGIN {\n";
-for ( @COMPILER::BEGIN_RUNTIME ) { 
-    print "  $_();\n";
-}
-print "}\n";
+#print "BEGIN {\n";
+#for ( @COMPILER::BEGIN_RUNTIME ) { 
+#    print "  \$Code_$_->APPLY();\n";
+#}
+#print "}\n";
 
 say "1;";
