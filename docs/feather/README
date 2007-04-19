@@ -9,7 +9,7 @@ http://feather.perl6.nl/syn is actually a symbolic link pointing to
 ~agentzh/syn on feather. If you do want to debug the synopses
 generation process, please run the following command on feather:
 
-   $ ~agentzh/update
+   $ ~agentzh/update-syn
 
 If you have further problems, please ask on #perl6. Thank you.
 
