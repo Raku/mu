@@ -25,6 +25,7 @@ package Type_Constant;
     # $x = bless [ 42 ], 'Type_Constant';
     sub IS_ARRAY { 0 }
     sub IS_HASH  { 0 }
+    sub IS_CONTAINER { 0 }
     sub INDEX  { 
         return $_[0]
             if $_[1] == 0;
@@ -35,6 +36,10 @@ package Type_Constant;
     }
     sub STORE  { 
         warn "Can't modify constant item";
+        $_[0];
+    }
+    sub BIND  { 
+        warn "Can't rebind constant item";
         $_[0];
     }
     sub FETCH  { 
@@ -85,6 +90,7 @@ package Type_Scalar;
     sub perl { $_[0]->FETCH->perl }
     sub IS_ARRAY { 0 }
     sub IS_HASH  { 0 }
+    sub IS_CONTAINER { 1 }
     sub INDEX  { 
         # $scalar->INDEX( 0 ) just works
         # $scalar->INDEX( 2 ) returns undef
@@ -114,9 +120,16 @@ package Type_Scalar;
     sub BIND   {
         # the modified-bit is now shared
         # which means, both left and right sides are 'modified' 
-        $_[0][1]{ $_[0][2] } = $_[1][1]{ $_[1][2] }
-            = \( ${$_[0][1]{ $_[0][2] }}++ + ${$_[1][1]{ $_[1][2] }}++ );   # autovivify & increment & sum
-        $_[0] = $_[1];
+        #require Data::Dump::Streamer;
+        #print "binding to", Data::Dump::Streamer::Dump( $_[1] );
+        if ( $_[1]->IS_CONTAINER ) {
+            $_[0][1]{ $_[0][2] } = $_[1][1]{ $_[1][2] }
+                = \( ${$_[0][1]{ $_[0][2] }}++ + ${$_[1][1]{ $_[1][2] }}++ );   # autovivify & increment & sum
+            return $_[0] = $_[1];
+        }
+        # XXX - this doesn't prevent the var from being modified
+        ${$_[0][1]{ $_[0][2] }}++;
+        $_[0][0] = $_[1];
     }
     sub FETCH  { 
         $_[0][0];
@@ -140,6 +153,7 @@ package Type_Code;
     sub perl { $_[0]->FETCH->perl }
     sub IS_ARRAY { 0 }
     sub IS_HASH  { 0 }
+    sub IS_CONTAINER { 1 }
     sub INDEX  { 
         # XXX
         # $scalar->INDEX( 0 ) just works
@@ -195,6 +209,7 @@ package Type_Proxy_Array_Scalar;
     our @ISA = 'Type_Constant_Undef';
     sub IS_ARRAY { 0 }
     sub IS_HASH  { 0 }
+    sub IS_CONTAINER { 1 }
     sub INDEX  { 
         return $_[0][0]->INDEX( $_[0][1] )->INDEX( $_[1] )
             if exists $_[0][2];
@@ -223,6 +238,7 @@ package Type_Array;
     our @ISA = 'Array';
     sub IS_ARRAY { 1 }
     sub IS_HASH  { 0 }
+    sub IS_CONTAINER { 1 }
     sub INDEX  { 
         # self, index
         # autovivify
@@ -252,6 +268,7 @@ package Type_List;
     our @ISA = 'List';
     sub IS_ARRAY { 1 }
     sub IS_HASH  { 0 }
+    sub IS_CONTAINER { 1 }
     sub INDEX  { 
         # self, index
         # autovivify
@@ -273,6 +290,7 @@ package Type_Hash;
     our @ISA = 'Hash';
     sub IS_ARRAY { 0 }
     sub IS_HASH  { 1 }
+    sub IS_CONTAINER { 1 }
     sub INDEX  { 
         return GLOBAL::undef();
     }

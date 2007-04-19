@@ -383,6 +383,14 @@ token term {
                 ] );
                 return $$<undeclared_var>;
             };
+            if ($$<declarator>) eq 'our' {
+                # TODO - bind to namespace
+                #say 'our declaration in namespace: ', (@COMPILER::PAD[0]).namespace;
+                (@COMPILER::PAD[0]).add_lexicals( [
+                    ::Decl( 'decl' => $$<declarator>, 'type' => $$<opt_type>, 'var' => $$<undeclared_var> ),
+                ] );
+                return $$<undeclared_var>;
+            };
             # TODO - our, temp, state, has
             return ::Decl( 'decl' => $$<declarator>, 'type' => $$<opt_type>, 'var' => $$<undeclared_var> );
         }

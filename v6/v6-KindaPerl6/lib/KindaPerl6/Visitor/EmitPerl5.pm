@@ -390,7 +390,13 @@ class Decl {
             if ($.var).sigil eq '$' {
                 return $s 
                     ~ $.var.emit_perl5
-                    ~ ' = bless [ GLOBAL::undef(), \\%_MODIFIED, \'' ~ $.var.emit_perl5 ~ '\' ], "Type_Scalar" ';
+                    ~ ' = bless [ GLOBAL::undef(), \\%_MODIFIED, \'' ~ $.var.emit_perl5 ~ '\' ], "Type_Scalar" '
+                    ~ ' unless defined ' ~ $.var.emit_perl5 ~ '; '
+                    ~ 'BEGIN { '
+                    ~     $.var.emit_perl5
+                    ~     ' = bless [ GLOBAL::undef(), \\%_MODIFIED, \'' ~ $.var.emit_perl5 ~ '\' ], "Type_Scalar" '
+                    ~     ' unless defined ' ~ $.var.emit_perl5 ~ '; '
+                    ~ '}'
             };
             if ($.var).sigil eq '&' {
                 return $s 
