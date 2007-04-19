@@ -10,7 +10,7 @@ L<S04/"Conditional statements">
 
 =cut
 
-plan 20;
+plan 24;
 
 my $x = 'test';
 if ($x eq $x) { pass("if ($x eq $x) {} works"); } else { flunk("if ($x eq $x) {} failed"); }
@@ -113,4 +113,38 @@ is $foo, 1, "die should stop execution immediately.";
 {# .... if condition;
     my $var = 5 if 1;
     is $var, 5, ' <action> if <cond> ;  - works';
+}
+
+# L<S04/"Conditional statements"/The value of the conditional expression may be optionally bound to a closure parameter>
+{
+    my ($got, $a_val, $b_val);
+    my sub testa { $a_val };
+    my sub testb { $b_val };
+
+    $a_val = 'truea';
+    $b_val = 0;
+    if    testa() -> $a { $got = $a }
+    elsif testb() -> $b { $got = $b }
+    else          -> $c { $got = $c }
+    is $got, 'truea', 'if test() -> $a { } binding';
+
+    $a_val = 0;
+    $b_val = 'trueb';
+    if    testa() -> $a { $got = $a }
+    elsif testb() -> $b { $got = $b }
+    else          -> $c { $got = $c }
+    is $got, 'trueb', 'elsif test() -> $b { } binding';
+
+    $a_val = '';
+    $b_val = 0;
+    if    testa() -> $a { $got = $a }
+    elsif testb() -> $b { $got = $b }
+    else          -> $c { $got = $c }
+    is $got, 0, 'else -> $c { } binding previous elsif';
+
+    $a_val = '';
+    $b_val = 0;
+    if    testa() -> $a { $got = $a }
+    else          -> $c { $got = $c }
+    is $got, '', 'else -> $c { } binding previous if';
 }
