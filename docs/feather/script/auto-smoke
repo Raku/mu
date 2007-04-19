@@ -1,6 +1,9 @@
 #!/bin/sh
 
 # This script is used by feather for auto-smoke.
+# http://perlcabal.org/smoke.html is generated
+# by this script, and http://perlcabal.org/syn
+# also needs it.
 
 # virtual mem: 1 GB
 ulimit -v 1000000

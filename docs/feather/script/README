@@ -1,0 +1,7 @@
+Scripts in this directory are specific to the feather server
+and are run by the cron program there.
+
+Please don't use them elsewhere, and think twice before you
+decide to change anything here since they're automatically
+sync'd by feather every few minutes. Thanks you.
+
