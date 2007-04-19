@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# This script is used by feather for auto-smoke.
+
+# virtual mem: 1 GB
+ulimit -v 1000000
+# cup-time: 5 hours
+ulimit -t 18000
+
+cd /home/agentzh/svn-pugs
+svn up
+perl Makefile.PL
+HARNESS_PUGS=util/limited_pugs nice -n5 make smoke
+cp smoke.yml ..
+cp smoke.html ..
+
