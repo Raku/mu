@@ -23,7 +23,10 @@ extra:
         * [ONLamp](http://www.oreillynet.com/onlamp/blog/)
       title: Distribution
   header:
-    - body: ~
+    - body: |-
+        "developers shouldn't live in fear of $^O"
+        
+        -- Jerry Gay, in '<msgid:461461CC.6080905@yahoo.com>'
       title: This week on the Perl 6 mailing lists
   see_also:
     - name: Perl Foundation activities
@@ -62,7 +65,7 @@ lists:
         summary: ''
       - date_from: 1175392771
         date_to: 1175392771
-        hidden: ~
+        hidden: correction
         message_id: 20070401015925.530D3CBA2F@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -71,7 +74,7 @@ lists:
         summary: ''
       - date_from: 1175610014
         date_to: 1175610014
-        hidden: ~
+        hidden: formatting
         message_id: 20070403142001.AC664CBA2F@x12.develooper.com
         posters:
           - email: pmichaud@cvs.perl.org
@@ -86,10 +89,17 @@ lists:
           - email: acme@astray.com
             name: Leon Brocard
         subject: 'Second Perl 6 Microgrant - Phil Crow on Java to Perl 6 declaration converter'
-        summary: ''
+        summary: |-
+          Leon Brocard announced that the second Perl 6 microgrant had been awarded
+          to Phil Crow for his proposal to convert Java declarations to Perl 6.
+          More information about his proposal can be found in the grant application text. 
+          
+          Details about
+          [the microgrant application procedure](http://www.nntp.perl.org/group/perl.perl5.porters/2007/03/msg122448.html)
+          are available for those interested in submitting a proposal.
       - date_from: 1175733803
         date_to: 1175733803
-        hidden: ~
+        hidden: reorganization of text
         message_id: 20070405004315.92870CBA2F@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -104,7 +114,7 @@ lists:
           - email: dataweaver@gmail.com
             name: Jonathan Lang
         subject: '[S03] typo'
-        summary: ''
+        summary: Jonathan Lang submitted a patch which corrects a typo in S03.
       - date_from: 1175836680
         date_to: 1175836680
         hidden: ~
@@ -113,7 +123,10 @@ lists:
           - email: dataweaver@gmail.com
             name: Jonathan Lang
         subject: '[S03] Range Semantics'
-        summary: ''
+        summary: |-
+          Jonathan Lang suggested a change to S03 which was inspired by the new
+          array indexing syntax from S09.  This would make Ranges in an array
+          index a natural outgrowth of the standard Range semantics.
       - date_from: 1175839639
         date_to: 1176508940
         hidden: ~
@@ -126,7 +139,11 @@ lists:
           - email: larry@wall.org
             name: Larry Wall
         subject: '[S03] Negation metaoperator'
-        summary: ''
+        summary: |-
+          Jonathan Lang had a proposal to generalize the negated relational
+          operators to apply to any infix operator which returns a boolean.
+          Larry Wall rejected the suggestion because the relationals Jonathan
+          named are typed to return Any, not Bool.
     title: Language
   - name: perl6-internals
     threads:
@@ -144,10 +161,13 @@ lists:
             name: Kevin Tew
         rt_ticket: 'perl #39934'
         subject: '[perl #39934] [PATCH] Make disassemble useful. '
-        summary: ''
+        summary: |-
+          Kevin Tew created ticket <rt://perl/39934> with a patch and requested
+          feedback...back in July of 2006.  Paul Cochrane applied it as r17922
+          on April 1st.
       - date_from: 1166294482
         date_to: 1175414579
-        hidden: ~
+        hidden: 'Gah, make it go away! Already covered extensively, and the new message just asks if the ticket can be closed.'
         message_id: rt-3.6.HEAD-1834-1166294471-987.40361-15-0@perl.org
         messages:
           - 2FAA558D-66E5-4978-9D48-E3D9D65CA241@chrisdolan.net
@@ -187,7 +207,11 @@ lists:
             name: James Keenan via RT
         rt_ticket: 'perl #41774'
         subject: "[perl #41774] [BUG]: Failures in 5 tests during 'make test'; partially patched "
-        summary: ''
+        summary: |-
+          James Keenan created ticket <rt://perl/41774> to report errors on
+          5 different tests.  Later he closed the ticket because the failing
+          tests were identified as part of ongoing work and the tests were no
+          longer failing.
       - date_from: 1174011886
         date_to: 1175803030
         hidden: ~
@@ -201,7 +225,13 @@ lists:
             name: Paul Cochrane
         rt_ticket: 'perl #41860'
         subject: '[perl #41860] [CAGE] Run Parrot under Coverity Prevent '
-        summary: ''
+        summary: |-
+          Paul Cochrane wanted to get Coverity to run Prevent on Parrot.
+          This was ticket <rt://perl/41860>.
+          
+          More recently, Paul reported that he'd received a reply stating that
+          Parrot could certainly be added, but that no date estimate was available
+          at the moment.
       - date_from: 1174739793
         date_to: 1175410736
         hidden: covered in 03-31
@@ -282,7 +312,7 @@ lists:
             name: Leopold Toetsch
         subject: Syntax for Constructing new Objects (and classes?)
         summary: |-
-          This thread began with Klaas-Jan Stol asking about hte syntax for
+          This thread began with Klaas-Jan Stol asking about the syntax for
           constructing new objects because he thought that it was going to
           be changed.  Allison Randal replied with examples of the two proposals
           for the new syntax.  
@@ -356,7 +386,10 @@ lists:
           - email: allison@perl.org
             name: Allison Randal
         subject: compilers/pirc continued...
-        summary: ''
+        summary: |-
+          Klaas-Jan Stol added a vtable to the parser in `compilers/pirc`.
+          He proposed looking at the bcg project to see if it would fit in
+          with `compilers/pirc`.  Allison Randal thought it was worth exploring.
       - date_from: 1175368168
         date_to: 1175376640
         hidden: ~
@@ -372,7 +405,13 @@ lists:
           - email: allison@perl.org
             name: Allison Randal
         subject: '[svn:parrot-pdd] r17907 - trunk/docs/pdds/draft'
-        summary: ''
+        summary: |-
+          A commit by Allison Randal integrated some questions and comments
+          into the Objects PDD.  Jonathan Worthington had a few comments,
+          such as noting that `resolve` is sugar rather than something new,
+          and that comments about offsets should go away.  Allison noted
+          that `resolve` is the preferred way of dealing with conflict
+          resolution, and removed references to offsets.
       - date_from: 1175385883
         date_to: 1175441864
         hidden: ~
@@ -388,10 +427,16 @@ lists:
             name: Paul Cochrane
         rt_ticket: 'perl #42261'
         subject: '[perl #42261] Extensive failures in t/compilers/imcc/imcpasm/*.t and t/pmc/sub.t '
-        summary: ''
+        summary: |-
+          James Keenan posted some failures in `make test` in ticket
+          <rt://perl/42261>.  Paul Cochrane reported that he was unable to
+          replicate the failures with r17914 and asked James to check his
+          revision.  James looked into it further and concluded that the name
+          of the sandbox was affecting the test results.  He wondered if anyone
+          could explain why that was happening.
       - date_from: 1175393206
         date_to: 1175393206
-        hidden: ~
+        hidden: see 20070331190920.C817BCBA2F@x12.develooper.com
         message_id: 20070401020639.B97A8CBA2F@x12.develooper.com
         posters:
           - email: allison@cvs.perl.org
@@ -400,7 +445,7 @@ lists:
         summary: ''
       - date_from: 1175398924
         date_to: 1175398924
-        hidden: ~
+        hidden: moving stuff around
         message_id: 20070401034155.0FF88CBA2F@x12.develooper.com
         posters:
           - email: allison@cvs.perl.org
@@ -409,7 +454,7 @@ lists:
         summary: ''
       - date_from: 1175410166
         date_to: 1175441560
-        hidden: ~
+        hidden: see 20070331190920.C817BCBA2F@x12.develooper.com
         message_id: 20070401064914.885ACCBA2F@x12.develooper.com
         messages:
           - 460FD090.1090005@jnthn.net
@@ -435,7 +480,12 @@ lists:
           - email: paultcochrane@gmail.com
             name: Paul Cochrane
         subject: '[svn:parrot-pdd] r17921 - trunk/docs/pdds'
-        summary: ''
+        summary: |-
+          A commit by Paul Cochrane noted that Perl code with `__END__`
+          or `__DATA__` blocks should not get an emacs or vim coda.  Shawn M
+          Moore suggested putting the coda at the top of the file, but Paul
+          explained that this had been attempted but proved to be a poor solution
+          for several reasons.
       - date_from: 1175414535
         date_to: 1175414535
         hidden: ~
@@ -445,7 +495,11 @@ lists:
             name: Paul Cochrane
         rt_ticket: 'perl #42267'
         subject: '[perl #42267] [CAGE] Work out how to encourage good editor-independent formatting habits '
-        summary: ''
+        summary: |-
+          Paul Cochrane created ticket <rt://perl/42267> with the mission
+          "Figure out how to encourage good formatting habits, without assuming
+          that everyone uses emacs or vim, and with minimal clutter in our
+          source code.  Also write a coding standards test to codify this."
       - date_from: 1175419912
         date_to: 1175419912
         hidden: ~
@@ -455,7 +509,12 @@ lists:
             name: Paul Cochrane via RT
         rt_ticket: 'perl #39878'
         subject: '[perl #39878] [CAGE] generated files with timezoneless times '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/39878>, Will Coleda wanted tools which insert messages
+          into generated files to include a timezone (which should always be UTC).
+          Paul Cochrane said that generated files are checked for timestamps in
+          `codingstd/gmt_utc.t` and that `config/init/defaults.pm` was updated
+          in r17923 to pass the test.
       - date_from: 1175422037
         date_to: 1175422037
         hidden: ~
@@ -465,7 +524,18 @@ lists:
             name: Paul Cochrane via RT
         rt_ticket: 'perl #40861'
         subject: '[perl #40861] [CAGE] - add a Perl::Critic policy to look for FIXME|TODO|XXX '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/40861>, Paul Cochrane suggested adding a check
+          for 'FIXME'/'TODO'/etc for the Perl source files, as there is currently
+          only a check for the C files.  This was done in r17925.
+          
+          Chris Dolan suggested using an existing Perl::Critic policy.  Will
+          Coleda asked if Andy Lester would accept a patch which would optionally
+          permit 'TODO' comments which included ticket numbers and reject those
+          which don't include ticket numbers?  Andy replied that he didn't want
+          to build exceptions, and proposed that people just write 'RT #12345'
+          instead of 'TODO (#12345)'.  Paul Cochrane agreed with this suggestion.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/ebcbed440dbb2b07/d62a0a75593bd6b9?#d62a0a75593bd6b9
       - date_from: 1175436227
         date_to: 1175436227
         hidden: ~
@@ -474,7 +544,13 @@ lists:
           - email: mailing-lists@rblasch.org
             name: Ron Blaschke
         subject: Link'n'Load on Windows
-        summary: ''
+        summary: |-
+          Ron Blaschke reported that he was looking into errors in linking and
+          loading on Windows.  With linking, there were some symbols which
+          weren't exported.  He planned to provide a patch to export them.
+          
+          To solve the loading issue, he wanted to change several files to
+          include the full path.
       - date_from: 1175436950
         date_to: 1175507857
         hidden: ~
@@ -496,10 +572,25 @@ lists:
           - email: offby1@blarg.net
             name: Eric Hanchrow
         subject: Current State of Building Parrot on Cygwin
-        summary: ''
+        summary: |-
+          Ron Blaschke reminded the list that it is necessary to include the
+          absolute path to `blib/lib` in the PATH environment variable to build
+          on Cygwin.  He also explained that some problems could be due to a
+          file having Windows line endings.
+          
+          Eric Hanchrow wondered if it was possible to make Parrot less fussy about
+          the line endings.  Ron wanted to see that happen, but explained that
+          his suggestions were workarounds until the problem was resolved.
+          Steve Peters said he would be looking at how to improve the process.
+          
+          Ron described his thoughts in more detail in
+          '<msgid:460FBBAA.5060409@rblasch.org>.'  chromatic asked if it
+          was possible to pass flags to the linker to hint at the path, which
+          is how the Linux version works.  Ron thought that was handy, but hadn't
+          seen something similar for Windows.
       - date_from: 1175438682
         date_to: 1175438682
-        hidden: ~
+        hidden: covered in summary 03-31
         message_id: 20070401074402.7ac4dac4@reforged
         posters:
           - email: codermattie@gmail.com
@@ -519,7 +610,11 @@ lists:
             name: James Keenan via RT
         rt_ticket: 'perl #42270'
         subject: '[perl #42270] [PATCH]:  Configure.pl:  refactor options processing functionality '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/42270>, James Keenan posted a patch which removes
+          command-line option processing from `Configure.pl` and puts it in a
+          library.  This was done to make testing easier.  The patch was applied
+          as r17983 and 17984.
       - date_from: 1175464615
         date_to: 1176273446
         hidden: ~
@@ -533,7 +628,11 @@ lists:
             name: chromatic
         rt_ticket: 'perl #42271'
         subject: '[perl #42271] [PATCH] Borland C++ cleanups '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/42271>, Steve Peters submitted a patch which
+          cleans up Parrot for Borland C++ on Windows.  This patch does not
+          completely solve compilation issues because it seems to create new
+          issues on Linux.  chromatic applied it as r18134.
       - date_from: 1175468963
         date_to: 1175628863
         hidden: ~
@@ -554,7 +653,17 @@ lists:
           - email: lt@toetsch.at
             name: Leopold Toetsch
         subject: Hash iteration question
-        summary: ''
+        summary: |-
+          Jonathan Worthington showed two examples of iterating through a hash,
+          and noted that in his first example you will only get the first key
+          in the hash.  He believes that the hash and iterator code are closely
+          tied and isn't thread safe.
+          
+          Allison Randal replied that the significant differences are down to
+          the iterator's `shift_pmc` throwing an exception if the key is -1,
+          while `shift_string` doesn't check.  She agreed that the code was
+          excessively mixed and needed review.  Leopold Toetsch added a further
+          explanation on the implementation.
       - date_from: 1175471206
         date_to: 1175554972
         hidden: ~
@@ -568,10 +677,15 @@ lists:
           - email: allison@perl.org
             name: Allison Randal
         subject: 'PDD15: newclass'
-        summary: ''
+        summary: |-
+          Jonathan Worthington had a comment on PDD 15 and how it described
+          the creation of a new class.  He wondered about the implementation.
+          Allison Randal replied that the `newclass` opcode will be a simple
+          opcode.  Jonathan implemented what Allison described and created
+          a test for it as well.
       - date_from: 1175480078
         date_to: 1175480078
-        hidden: ~
+        hidden: small additions
         message_id: 20070402021431.A95DDCBA2F@x12.develooper.com
         posters:
           - email: allison@cvs.perl.org
@@ -580,7 +694,7 @@ lists:
         summary: ''
       - date_from: 1175482536
         date_to: 1175482536
-        hidden: ~
+        hidden: doesn't seem like a big change
         message_id: 20070402025529.1294BCBA2F@x12.develooper.com
         posters:
           - email: allison@cvs.perl.org
@@ -589,7 +703,7 @@ lists:
         summary: ''
       - date_from: 1175493970
         date_to: 1175493970
-        hidden: ~
+        hidden: consistency modification
         message_id: 20070402060602.E59B5CBA2F@x12.develooper.com
         posters:
           - email: allison@cvs.perl.org
@@ -598,7 +712,7 @@ lists:
         summary: ''
       - date_from: 1175518860
         date_to: 1175518860
-        hidden: ~
+        hidden: summary
         message_id: 20070402130053.12006.qmail@x1.develooper.com
         posters:
           - email: perlbug-summary@perl.org
@@ -614,7 +728,11 @@ lists:
             name: James Keenan via RT
         rt_ticket: 'perl #42072'
         subject: "[perl #42072] [BUG]:  pmc2c.pl:  Does anyone (know how to) use the 'no-body' option? "
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/42072>, James Keenan noted that nobody had spoken
+          up in favor of retaining the `no-body` option.  He said that he would
+          take the ticket and assign the revisions to participants of the Perl
+          Seminar Phalanx Phoneix project in NY.
       - date_from: 1175559420
         date_to: 1175565681
         hidden: ~
@@ -629,7 +747,10 @@ lists:
             name: chromatic
         rt_ticket: 'perl #42279'
         subject: '[perl #42279] [PATCH] Parrot cleanups - part 2 '
-        summary: ''
+        summary: |-
+          Steve Peters submitted a patch in ticket <rt://perl/42279> which
+          had some cleanups to make Parrot work better with different C
+          compilers.  It was applied as r17952.
       - date_from: 1175614096
         date_to: 1175614096
         hidden: ~
@@ -638,7 +759,10 @@ lists:
           - email: parrotcode@gmail.com
             name: Klaas-Jan Stol
         subject: Paper on Software Patterns in Parrot
-        summary: ''
+        summary: |-
+          Klaas-Jan Stol mentioned that he had recently taken a course on
+          software patterns and co-authored a paper on patterns in Parrot,
+          which he put on the [wiki](http://rakudo.org/parrot/index.cgi?publications_on_parrot).
       - date_from: 1175621843
         date_to: 1175621843
         hidden: ~
@@ -648,7 +772,10 @@ lists:
             name: Jerry Gay
         rt_ticket: 'perl #42286'
         subject: '[perl #42286] [CAGE]: Parrot::Pmc2c::PCCMETHOD constants should be autogenerated '
-        summary: ''
+        summary: |-
+          Jerry Gay noted that `lib/Parrot/Pmc2c/PCCMETHOD.pm` contains a number
+          of constants, which should be generated during the configure process
+          and included.  Ticket <rt://perl/42286> discusses this request.
       - date_from: 1175629004
         date_to: 1175629004
         hidden: ~
@@ -658,7 +785,10 @@ lists:
             name: Jonathan Worthington
         rt_ticket: 'perl #42287'
         subject: '[perl #42287] [TODO] MMD needs to be in a PDD '
-        summary: ''
+        summary: |-
+          Jonathan Worthington wanted multi-method dispatch to be documented
+          in one of the PDDs or get its own PDD.  The request was made in ticket
+          <rt://perl/42287>.
       - date_from: 1175636970
         date_to: 1175638005
         hidden: ~
@@ -675,7 +805,10 @@ lists:
             name: jerry gay
         rt_ticket: 'perl #42292'
         subject: '[perl #42292] [TODO] modify PCCMETHOD syntax to more closely match PDD03 '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/42292>, Jerry Gay requested that the PCCMETHOD
+          syntax be modified to put it in line with PDD 03.  chromatic offered
+          a patch.
       - date_from: 1175646864
         date_to: 1175727263
         hidden: ~
@@ -710,7 +843,29 @@ lists:
           - email: chromatic@wgz.org
             name: chromatic
         subject: '[svn ci] NCI methods now name-mangled'
-        summary: ''
+        summary: |-
+          Jonathan Worthington explained that he was starting to move class
+          functionality into vtable methods, but ran into the issue that you
+          cannot have a METHOD or PCCMETHOD with the same name as a vtable method.
+          This is, however, required to implement the interface specified in PDD 15.
+          He made some changes to get Parrot working again, which affected the
+          Complex PMC.
+          
+          François PERRAD
+          reported that this change breaks Lua.
+          Allison Randal observed the same thing, and asked Jonathan to either
+          fix the problem for Lua or revert the change from the trunk.
+          Jonathan apologized for breaking things and said that it was fixed
+          in r17982.
+          
+          Leopold Toetsch suggested that perhaps language maintainers who are
+          using "features" of Parrot could submit core tests for these features,
+          so that this type of problem won't occur in the future.  Joshua
+          Isom thought this could be expanded to anyone using Parrot where a
+          "feature" isn't tested.  He proposed an open repository for tests.
+          chromatic wondered if it was that difficult to mail in patches.
+          Joshua offered some arguments in favor of it.
+          chromatic
       - date_from: 1175660348
         date_to: 1175660348
         hidden: ~
@@ -719,7 +874,13 @@ lists:
           - email: will@coleda.com
             name: Will Coleda
         subject: parrotcode updates.
-        summary: ''
+        summary: |-
+          Will Coleda solicited for suggestions concerning parrotcode.org because
+          the current system requires that he do quite a bit of work every time
+          that directories are moved or files are added.  He proposed having a
+          directory on the site which is a checked in version of the `docs/html`
+          directory after a `make html`.  He also suggested having docs for the
+          latest release as well as for the 'svn head'.
       - date_from: 1175660960
         date_to: 1175885864
         hidden: ~
@@ -745,10 +906,28 @@ lists:
             name: jerry gay
         rt_ticket: 'perl #42293'
         subject: '[perl #42293] t/doc/pod.t vs. tools/doc/pod_errors.pl '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/42293>, Will Coleda suggested removing the script
+          `tools/doc/pod_errors.pl` because the functionality is already replicated
+          in `t/doc/pod.t`.  Also, the script finds errors which the test does
+          not, which requires investigation.
+          
+          Joshua Isom reported that he got a segmentation fault when he tried to
+          run the script.  When he persisted with running it, he found that
+          it appeared to have a stricter POD checker.  Jerry Gay thought that perhaps
+          the script and the test were checking different files.
+          
+          Paul Cochrane found that on Gentoo the `t/codingstd/c_indent.t`
+          test caused Perl to segfault, but with a new Perl compilation it
+          worked.  He was curious because he wondered if the error was due
+          to Gentoo Perl.  Joshua replied that he was using Darwin.
+          
+          Paul also remarked that the script reported where the errors were
+          in the file, which the test didn't do.  Jerry Gay and Nicholas Clark
+          commented on this.
       - date_from: 1175669977
         date_to: 1175669977
-        hidden: ~
+        hidden: adds existing information to the docs
         message_id: 20070404065930.33676CBA2F@x12.develooper.com
         posters:
           - email: allison@cvs.perl.org
@@ -763,7 +942,12 @@ lists:
           - email: jkeen_via_google@yahoo.com
             name: James E Keenan
         subject: '[Fwd: YAPC::Europe Call for Hackathons]'
-        summary: ''
+        summary: |-
+          James E Keenan reposted a call for hackathons which was published
+          for YAPC::Europe 2007.  He felt that the Chicago Hackathon had been
+          good for Parrot, and hoped that someone would lead a related Hackathon
+          at Y::E.  More information about the offer can be found
+          [on the Y::E website](http://vienna.yapceurope.org/ye2007/cfh.html).
       - date_from: 1175691575
         date_to: 1175692566
         hidden: ~
@@ -776,7 +960,9 @@ lists:
           - email: parrotbug-followup@parrotcode.org
             name: Yehoshua Sapir
         subject: 'Re: [perl #42299] AutoReply: $P symbolic register allocation bug'
-        summary: ''
+        summary: |-
+          Yehoshua Sapir remarked that the code in <rt://perl/42299> worked
+          on OS X.
       - date_from: 1175696789
         date_to: 1175696789
         hidden: ~
@@ -786,10 +972,12 @@ lists:
             name: Yehoshua Sapir
         rt_ticket: 'perl #42300'
         subject: '[perl #42300] [PATCH] t/pmc/sub.t: test for creation of lex by clone op '
-        summary: ''
+        summary: |-
+          Yehoshua Sapir submitted ticket <rt://perl/42300> which contains a
+          patch to test the creation of lex by the clone op.
       - date_from: 1175738765
         date_to: 1175738765
-        hidden: ~
+        hidden: reorganization
         message_id: 20070405020555.58AA7CBA2F@x12.develooper.com
         posters:
           - email: allison@cvs.perl.org
@@ -809,7 +997,12 @@ lists:
             name: James Keenan
         rt_ticket: 'perl #42305'
         subject: '[perl #42305] [PATCH]:  Configure.pl:  Move STDOUT messages to Parrot::Configure::Messages '
-        summary: ''
+        summary: |-
+          James Keenan created ticket <rt://perl/42305> to submit a patch
+          which makes `lib/Parrot/Configure/Messages.pm` output messages to
+          STDOUT (previously this was done by `Configure.pl`).  This will
+          make testing easier.  It was applied as r18027.
+        thread_uri: http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/df145be76f0f94a1/1f4ba079f439010a?#1f4ba079f439010a
       - date_from: 1175739366
         date_to: 1175739366
         hidden: ~
@@ -818,7 +1011,9 @@ lists:
           - email: allison@cvs.perl.org
             name: allison
         subject: '[svn:parrot-pdd] r17987 - in trunk: . docs/pdds docs/pdds/draft'
-        summary: ''
+        summary: |-
+          Allison Randal made a commit which moved PDD 15 (objects) out of
+          the draft directory.
       - date_from: 1175740875
         date_to: 1176000840
         hidden: ~
@@ -845,7 +1040,15 @@ lists:
           - email: bugs-parrot-track@netlabs.develooper.com
             name: James Keenan via RT
         subject: Use of English pragma
-        summary: ''
+        summary: |-
+          James E Keenan noted that `Configure.pl` uses one of the English variables,
+          namely `$OUTPUT_AUTOFLUSH`.  He wondered if there was a policy regarding
+          the use of the named variables instead of their short versions.  Jerry
+          Gay felt that it was wrong to use the English variables.
+          
+          James said he would convert the variable while refactoring.  He created
+          ticket <rt://perl/42333> to remind him of this task.  Later this was
+          done and applied as r18033.
       - date_from: 1175783611
         date_to: 1175798382
         hidden: ~
@@ -862,7 +1065,12 @@ lists:
           - email: jrisom@gmail.com
             name: Joshua Isom
         subject: '[svn ci] PMC documentation guidelines draft'
-        summary: ''
+        summary: |-
+          Jerry Gay remarked that he had committed a draft of PMC documentation
+          guidelines in r17998.  The document is meant to explain the style of
+          documentation which should be used for core PMCs.  Klaas-Jan Stol
+          had some additions, borrowed from 'Perl Best Practices'.  Joshua Isom
+          questioned Klaas-Jan on some of the points, and Klaas-Jan elaborated.
       - date_from: 1175784625
         date_to: 1175784625
         hidden: ~
@@ -872,7 +1080,9 @@ lists:
             name: parrotbug-followup
         rt_ticket: 'perl #42312'
         subject: '[perl #42312] src/pmc/os.pmc: bad use of stat(2) and lstat(2) '
-        summary: ''
+        summary: |-
+          In ticket <rt://perl/42312>, the output of `t/pmc/os.t` which fails
+          on Solaris 10 was attached.
       - date_from: 1175786586
         date_to: 1175885783
         hidden: ~
@@ -889,7 +1099,12 @@ lists:
             name: Nicholas Clark
         rt_ticket: 'perl #42313'
         subject: '[perl #42313] improper casting to void * in src/dynext.c '
-        summary: ''
+        summary: |-
+          Ticket <rt://perl/42313> contained a small patch to change
+          `load_func` from a void pointer to NULL.  Leopold Toetsch
+          explained that the cast was being used.  Nicholas Clark answered
+          that the casting isn't allowed under strict ANSI C, but that he
+          preferred assigning a plain 0 rather than a NULL.
       - date_from: 1175817394
         date_to: 1175817394
         hidden: ~
@@ -899,7 +1114,9 @@ lists:
             name: Mehmet Yavuz Selim Soyturk
         rt_ticket: 'perl #42320'
         subject: '[perl #42320] [BUG] Memory leak with String pmc '
-        summary: ''
+        summary: |-
+          Mehmet Yavuz Selim Soyturk reported a memory leak in some example code.
+          This was mentioned in ticket <rt://perl/42320>.
       - date_from: 1175877136
         date_to: 1176186766
         hidden: ~
@@ -918,10 +1135,31 @@ lists:
           - email: allison@perl.org
             name: Allison Randal
         subject: vtable cleanup and questions
-        summary: ''
+        summary: |-
+          Jonathan Worthington reported that he is adding the new vtable
+          entries required for PDD 15.  He wanted to know if `become_parent` could
+          be removed, or if it needed a standard deprecation cycle.  He also
+          noted that the subclass vtable method needed to be removed, but that
+          it was in use by ParrotClass and ParrotObject.
+          
+          Jonathan also noticed `PMC* new_singleton()` and 
+          `PMC* get_anonymous_subclass()`, which don't appear to be used.  He
+          wondered if they should be removed.  Finally, he wanted to know if
+          `get_attr` and `set_attr` should be deprecated.
+          
+          Nicholas Clark confirmed that `become_parent` isn't used anywhere.
+          Will Coleda voted for a standard deprecation cycle.  Allison Randal
+          confirmed this.
+          
+          She also agreed that the subclass vtable method won't be needed in
+          the future, and that `get_attr` and `set_attr` could be
+          deprecated when the full change to PDD 15 is complete.
+          `new_singleton()` and `get_anonymous_subclass()`
+          were described as "a case of being overly prepared for possible
+          future needs."
       - date_from: 1175877863
         date_to: 1175877863
-        hidden: ~
+        hidden: typo
         message_id: 20070406164417.7EB7CCB9B8@x12.develooper.com
         posters:
           - email: kjs@cvs.perl.org
@@ -944,10 +1182,18 @@ lists:
           - email: jrisom@gmail.com
             name: Joshua Isom
         subject: Minor notes/suggestions on PDD15
-        summary: ''
+        summary: |-
+          Klaas-Jan Stol had some suggestions for PDD 15.  He had some suggestions
+          for improving consistency.  Additional comments were on opportunities
+          for syntactic sugar and a proposal that operators such as `find_method`
+          have the option of throwing an exception rather than returning a NULL
+          PMC on failure.  Allison Randal remarked that the exception question
+          was under consideration in I/O as well, and that the consistency
+          issue would be considered when she looked at the Opcodes PDD.
+          Joshua Isom had a few suggestions as well.
       - date_from: 1175879374
         date_to: 1175879374
-        hidden: ~
+        hidden: typo and formatting
         message_id: 20070406170926.BC473CB9B8@x12.develooper.com
         posters:
           - email: kjs@cvs.perl.org
@@ -956,7 +1202,7 @@ lists:
         summary: ''
       - date_from: 1175879895
         date_to: 1175879895
-        hidden: ~
+        hidden: typo
         message_id: 20070406171808.69293CB9B8@x12.develooper.com
         posters:
           - email: kjs@cvs.perl.org
