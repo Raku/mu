@@ -177,7 +177,7 @@ lists:
     threads:
       - date_from: 1175464615
         date_to: 1176273446
-        hidden: ~
+        hidden: covered in 04-07.
         message_id: rt-3.6.HEAD-30201-1175464607-1513.42271-72-0@perl.org
         messages:
           - 200704102337.03911.chromatic@wgz.org
@@ -191,7 +191,7 @@ lists:
         summary: ''
       - date_from: 1175740875
         date_to: 1176000840
-        hidden: ~
+        hidden: covered in 04-07.
         message_id: 461461CC.6080905@yahoo.com
         messages:
           - 1d9a3f400704042235u70d85e53tb22e3653d183a2@mail.gmail.com
@@ -218,7 +218,7 @@ lists:
         summary: ''
       - date_from: 1175877136
         date_to: 1176186766
-        hidden: ~
+        hidden: covered in 04-07.
         message_id: 461675FA.4070709@jnthn.net
         messages:
           - 20070406181424.GZ5735@plum.flirble.org
@@ -237,7 +237,7 @@ lists:
         summary: ''
       - date_from: 1175878918
         date_to: 1176193972
-        hidden: ~
+        hidden: covered in 04-07.
         message_id: 46167CF3.2030404@gmail.com
         messages:
           - 461B3751.2020802@perl.org
@@ -1019,7 +1019,7 @@ lists:
     threads:
       - date_from: 1175279576
         date_to: 1176299002
-        hidden: ~
+        hidden: covered in 03-31.
         message_id: 200703302132.28473.shlomif@iglu.org.il
         messages:
           - 200704110451.21259.shlomif@iglu.org.il
