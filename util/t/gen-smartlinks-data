@@ -6,6 +6,7 @@ cp -rT got expected
 rm -rf got
 cd ..
 
+read a
 tar cvf smartlinks_data.tar smartlinks_data
 gzip --best smartlinks_data.tar
 # upload smartlinks_data.tar.gz to ~agentzh/public_html on feather
