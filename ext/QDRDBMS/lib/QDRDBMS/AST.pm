@@ -36,8 +36,9 @@ sub BagSel of QDRDBMS::AST::BagSel (Array :$v!) is export {
     return QDRDBMS::AST::BagSel.new( :v($v) );
 }
 
-sub EntityName of QDRDBMS::AST::EntityName (Str :$text!) is export {
-    return QDRDBMS::AST::EntityName.new( :text($text) );
+sub EntityName of QDRDBMS::AST::EntityName (QDRDBMS::AST::LitText :$text?,
+        QDRDBMS::AST::SeqSel :$seq?) is export {
+    return QDRDBMS::AST::EntityName.new( :text($text), :seq($seq) );
 }
 
 sub VarNameExpr of QDRDBMS::AST::VarNameExpr
@@ -80,13 +81,13 @@ sub Proc of QDRDBMS::AST::Proc () is export {
 ###########################################################################
 ###########################################################################
 
-role QDRDBMS::AST::Value {}
+role QDRDBMS::AST::Node {}
 
 ###########################################################################
 ###########################################################################
 
 role QDRDBMS::AST::Expr {
-    does QDRDBMS::AST::Value;
+    does QDRDBMS::AST::Node;
 } # role QDRDBMS::AST::Expr
 
 ###########################################################################
@@ -250,32 +251,67 @@ class QDRDBMS::AST::BagSel {
 ###########################################################################
 
 class QDRDBMS::AST::EntityName {
-    has Str $!text_possrep;
-#    has Seq $!seq_possrep;
+    has QDRDBMS::AST::LitText $!text_possrep;
+    has QDRDBMS::AST::SeqSel  $!seq_possrep;
 
 ###########################################################################
 
-submethod BUILD (Str :$text!) {
+submethod BUILD
+        (QDRDBMS::AST::LitText :$text?, QDRDBMS::AST::SeqSel :$seq?) {
 
-    die q{new(): Bad :$text arg; it is not a valid object}
-            ~ q{ of a Str-doing class.}
-        if !$text.defined or !$text.does(Str);
+    die q{new(): Exactly 1 of the args (:$text|:$seq) must be defined.}
+#        if $text.defined !xor $seq.defined;
+        if !($text.defined xor $seq.defined);
 
-    $!text_possrep = $text;
+    if $text.defined {
+        die q{new(): Bad :$text arg; it is not a valid object}
+                ~ q{ of a QDRDBMS::AST::LitText-doing class.}
+            if !$text.does(QDRDBMS::AST::LitText);
+        $!text_possrep = $text;
+        $!seq_possrep = QDRDBMS::AST::SeqSel.new( :v(
+                [$text.v().split( /\./ ).map:{
+                        my $s = $_;
+                        $s ~~ s:g/ \\ \[pd\] /./;
+                        $s ~~ s:g/ \\ \[bh\] /\\/;
+                        QDRDBMS::AST::LitText.new( :v($s) );
+                    }]
+            ) );
+    }
+
+    else { # $seq.defined
+        die q{new(): Bad :$v arg; it is not an object of a}
+                ~ q{ QDRDBMS::AST::SeqSel-doing class.}
+            if !$seq.does(QDRDBMS::AST::SeqSel);
+        my $seq_elems = $seq.v();
+        for $seq_elems -> $seq_e {
+            die q{new(): Bad :$seq arg elem; it is not}
+                    ~ q{ an object of a QDRDBMS::AST::LitText-doing class.}
+                if !$seq_e.does(QDRDBMS::AST::LitText);
+        }
+        $!text_possrep = QDRDBMS::AST::LitText.new( :v(
+                $seq_elems.map:{
+                        my $s = .v();
+                        $s ~~ s:g/ \\ /\\[bh]/;
+                        $s ~~ s:g/ \. /\\[pd]/;
+                        $s;
+                    }.join( q{.} )
+            ) );
+        $!seq_possrep = $seq;
+    }
 
     return;
 }
 
 ###########################################################################
 
-method text of Str () {
+method text of QDRDBMS::AST::LitText () {
     return $!text_possrep;
 }
 
 ###########################################################################
 
-method seq of Seq () {
-    die "not implemented";
+method seq of QDRDBMS::AST::SeqSel () {
+    return $!seq_possrep;
 }
 
 ###########################################################################
