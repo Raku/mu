@@ -18,7 +18,11 @@ use warnings;
 
 #use Smart::Comments;
 use Test::More tests => 20;
+use File::Slurp;
+use POSIX;
 use FindBin qw( $Bin );
+use File::Copy;
+
 BEGIN {
     eval "use LWP::UserAgent;";
     if ($@) { die "LWP::UserAgent is required to run this test script"; }
@@ -27,6 +31,8 @@ BEGIN {
     eval "use Text::Diff;";
     if ($@) { die "Text::Diff is required to run this test script"; }
 };
+
+my $tmpfile = POSIX::tmpnam();
 
 my $data_path = "$Bin/smartlinks_data";
 ### $data_path;
@@ -67,17 +73,39 @@ for my $path (glob "expected/*.html") {
     if ($path =~ m{/([^/]+)$}) {
         $file = $1;
     }
+    fix_randomness("got/$file");
+    fix_randomness("expected/$file");
     my $cmd = "diff got/$file expected/$file";
     my ($file1, $file2) = ("got/$file", "expected/$file");
     warn "$file1 <=> $file2\n";
     my $out = diff $file1, $file2, {STYLE => 'OldStyle'};
-    $out =~ s/70c70\n<[^\n]*\n---\n>[^\n]*\n//;
-    $out =~ s/82c82\n<[^\n]*\n---\n>[^\n]*\n//;
-    $out =~ s/82c83\n(?:<[^\n]*\n){2}---\n(?:>[^\n]*){2}\n//;
-    $out =~ s/9c9\n<[^\n]*\n---\n>[^\n]*\n//;
+    #$out =~ s/70c70\n<[^\n]*\n---\n>[^\n]*\n//;
+    #$out =~ s/82c82\n<[^\n]*\n---\n>[^\n]*\n//;
+    #$out =~ s/82,83c82,83\n(?:<[^\n]*\n){2}---\n(?:>[^\n]*){2}\n//;
+    #$out =~ s/9c9\n<[^\n]*\n---\n>[^\n]*\n//;
     #$out =~ s/(?x) 50,52c50,52 \n (?: < [^\n]* \n){3} --- \n (?: > [^\n]* \n){3}//;
     #$out =~ s/64,65c64,65\n<[^\n]*\n<[^\n]*\n---\n>[^\n]*\n>[^\n]*\n//;
     $out =~ s/^\s+|\s+$//g;
     is $out, '', 'no diff';
+}
+
+sub fix_randomness {
+    my $fname = shift;
+    open my $in, $fname or die "Can't open $fname for reading: $!";
+    open my $out, "> $tmpfile" or die "Can't write to $tmpfile: $!";
+    while (<$in>) {
+        s/\br\d+\b/rXXXX/g;
+        s/\d{4}-\d{2}-\d{2} \d+:\d+:\d+ GMT/XXXX-XX-XX XX:XX:XX GMT/g;
+        s/\bhide_\d+\b/hide_XX/g;
+        s/\bheader_hidden_\d+\b/header_hidden_XX/g;
+        s/\bheader_shown_\d+\b/header_shown_XX/g;
+        s/\bPerl v5\.\d+\b at [^\n<>]+/Perl v5.XXX at XXX./g;
+        print $out $_;
+    }
+    close $out;
+    close $in;
+    #system("sudo cp $tmpfile $fname");
+    copy $tmpfile, $fname;
+    unlink $tmpfile;
 }
 

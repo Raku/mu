@@ -464,11 +464,14 @@ sub process_syn ($$$$) {
         my $time = sprintf "%04d-%02d-%02d %02d:%02d:%02d GMT",
             $year, $mon, $mday, $hour, $min, $sec;
         ## $smoke_rev
-        my $smoke_info = $smoke_rev ? ", pugs-smoke <strong>$smoke_rev</strong>" : '';
+        my $smoke_info = $smoke_rev ?
+            ", <a href=\"http://feather.perl6.nl/smoke.html\">pugs-smoke</a> <strong>$smoke_rev</strong>"
+            :
+            '';
         ## $smoke_info
         $perldochtml =~ s{<!-- start doc -->}{$&
             <I>This page was generated at $time.<br/>
-            (syn <strong>$syn_rev</strong>, pugs-tests <strong>$pugs_rev</strong>$smoke_info)</I>
+            (<a href="http://svn.perl.org/perl6/doc/trunk/design/syn/">syn</a> <strong>$syn_rev</strong>, <a href="http://svn.pugscode.org/pugs/t>pugs-tests</a> <strong>$pugs_rev</strong>$smoke_info)</I>
         };
         my $htmfile = "$out_dir/S$syn_id.html";
         warn "info: generating $htmfile...\n";
@@ -565,12 +568,14 @@ sub process_syn ($$$$) {
         $year += 1900; $mon += 1;
         my $time = sprintf "%04d-%02d-%02d %02d:%02d:%02d GMT",
             $year, $mon, $mday, $hour, $min, $sec;
-        ### $smoke_rev
-        my $smoke_info = $smoke_rev ? ", pugs-smoke <strong>$smoke_rev</strong>" : '';
-        ### $smoke_info
+        my $smoke_info = $smoke_rev ?
+            ", <a href=\"http://feather.perl6.nl/smoke.html\">pugs-smoke</a> <strong>$smoke_rev</strong>"
+            :
+            '';
+        ## $smoke_info
         $html =~ s{<!-- start doc -->}{$&
             <I>This page was generated at $time.<br/>
-            (syn <strong>$syn_rev</strong>, pugs-tests <strong>$pugs_rev</strong>$smoke_info)</I>
+            (<a href="http://svn.perl.org/perl6/doc/trunk/design/syn/">syn</a> <strong>$syn_rev</strong>, <a href="http://svn.pugscode.org/pugs/t>pugs-tests</a> <strong>$pugs_rev</strong>$smoke_info)</I>
         };
         my $htmfile = "$out_dir/S$syn_id.html";
         warn "info: generating $htmfile...\n";
