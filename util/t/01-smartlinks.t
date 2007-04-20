@@ -100,6 +100,7 @@ sub fix_randomness {
         s/\bheader_hidden_\d+\b/header_hidden_XX/g;
         s/\bheader_shown_\d+\b/header_shown_XX/g;
         s/\bPerl v5\.\d+\b at [^\n<>]+/Perl v5.XXX at XXX./g;
+        s/\btog_quote\(\d+\)/tog_quote(XX)/g;
         print $out $_;
     }
     close $out;
