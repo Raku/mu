@@ -1,13 +1,15 @@
 
 use v5;
 
+# my $meth = ::CALL( $::Method, 'new', sub { 'hi' } );
+
+# my $obj = ::CALL( $::Object, 'new', $candidate );
+
 =head Synopsis
 
     # Class
 
     my $class = KindaPerl6::Class.new( ::Val::Buf('MyClass') );   # the name is '' for anon classes
-    # $class       - prototype object
-    # $class.HOW   - metaclass
     $class.HOW.add_method( ::Val::Buf('my_meth'), sub { ... } );
     $class.HOW.add_attribute( ::Val::Buf('my_attr') );
 
@@ -18,8 +20,6 @@ use v5;
     # Role
 
     my $role = KindaPerl6::Role.new( ::Val::Buf('MyRole') );   # the name is '' for anon roles
-    # $role       - prototype object
-    # $role.HOW   - metaclass
     $role.HOW.add_method( ::Val::Buf('my_meth'), sub { ... } );
     $role.HOW.add_attribute( ::Val::Buf('my_attr') );
 
@@ -62,7 +62,6 @@ sub ::CALL {
 }   
 
 
-# my $meth = $::Method->CALL('new', sub { 'hi' } );
 $::Method = bless {
     _methods => {
         new => bless {
@@ -84,7 +83,7 @@ $::Method = bless {
     _value => undef,  # prototype object
     _isa   => [ ],
 }, 'Method';
-$::Method->{_methods}{HOW} = ::CALL( $::Method, 'new', sub { $::Method } );
+$::Method->{_methods}{WHAT} = ::CALL( $::Method, 'new', sub { $::Method } );
 
 $::Object = bless {
     _methods  => {},
@@ -97,7 +96,7 @@ $::Object = bless {
 
 push @{$::Method->{_isa}}, $::Object;
 
-$::Object->{_methods}{HOW} = ::CALL( $::Method, 'new', sub { $::Object } );
+$::Object->{_methods}{WHAT} = ::CALL( $::Method, 'new', sub { $::Object } );
 $::Object->{_methods}{new} = ::CALL( $::Method, 'new', 
         sub { 
             bless { 
@@ -106,6 +105,22 @@ $::Object->{_methods}{new} = ::CALL( $::Method, 'new',
                 _name  => '',
             }, ref($_[0])
         },
+    );
+
+$::Class = bless {
+    _methods  => {},
+    _roles    => {},
+    _modified => {},
+    _name     => '$::Class',
+    _value    => undef,
+    _isa   => [ $::Object ],
+}, 'Class';
+$::Class->{_methods}{WHAT} = ::CALL( $::Method, 'new', sub { $::Class } );
+
+$::Object->{_methods}{HOW} = ::CALL( $::Method, 'new', 
+        sub { 
+            ::CALL( $::Class, 'new', $_[0] ) 
+        } 
     );
 
 1;
