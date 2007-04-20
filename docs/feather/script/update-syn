@@ -1,5 +1,5 @@
 # This script is used by feather's cron to update
-# the Synopesis pages in http://perlcabal.org/syn/
+# the Synopsis pages in http://perlcabal.org/syn/
 
 perl -I~audreyt/pugs/blib/lib ~audreyt/pugs/util/smartlinks.pl --out-dir ~agentzh/syn --dir ~audreyt/pugs/t --test-res ~/smoke.yml
 perl ~audreyt/pugs/util/podhtm.pl --url-prefix http://feather.perl6.nl/syn/ --url-postfix .html --index --charset=UTF-8 --out ~agentzh/syn/Differences.html ~audreyt/pugs/docs/Perl6/Perl5/Differences.pod
