@@ -8,10 +8,6 @@ module QDRDBMS::AST-0.0.0 {
 
 ###########################################################################
 
-sub EntityName of QDRDBMS::AST::EntityName (Str :$text!) is export {
-    return QDRDBMS::AST::EntityName.new( :text($text) );
-}
-
 sub LitBool of QDRDBMS::AST::LitBool (Bool :$v!) is export {
     return QDRDBMS::AST::LitBool.new( :v($v) );
 }
@@ -26,6 +22,22 @@ sub LitBlob of QDRDBMS::AST::LitBlob (Blob :$v!) is export {
 
 sub LitInt of QDRDBMS::AST::LitInt (Int :$v!) is export {
     return QDRDBMS::AST::LitInt.new( :v($v) );
+}
+
+sub SetSel of QDRDBMS::AST::SetSel (Array :$v!) is export {
+    return QDRDBMS::AST::SetSel.new( :v($v) );
+}
+
+sub SeqSel of QDRDBMS::AST::SeqSel (Array :$v!) is export {
+    return QDRDBMS::AST::SeqSel.new( :v($v) );
+}
+
+sub BagSel of QDRDBMS::AST::BagSel (Array :$v!) is export {
+    return QDRDBMS::AST::BagSel.new( :v($v) );
+}
+
+sub EntityName of QDRDBMS::AST::EntityName (Str :$text!) is export {
+    return QDRDBMS::AST::EntityName.new( :text($text) );
 }
 
 sub VarNameExpr of QDRDBMS::AST::VarNameExpr
@@ -68,43 +80,14 @@ sub Proc of QDRDBMS::AST::Proc () is export {
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::AST::EntityName {
-    has Str $!text_possrep;
-#    has Seq $!seq_possrep;
-
-###########################################################################
-
-submethod BUILD (Str :$text!) {
-
-    die q{new(): Bad :$text arg; it is not a valid object}
-            ~ q{ of a Str-doing class.}
-        if !$text.defined or !$text.does(Str);
-
-    $!text_possrep = $text;
-
-    return;
-}
-
-###########################################################################
-
-method text of Str () {
-    return $!text_possrep;
-}
-
-###########################################################################
-
-method seq of Seq () {
-    die "not implemented";
-}
-
-###########################################################################
-
-} # class QDRDBMS::AST::EntityName
+role QDRDBMS::AST::Value {}
 
 ###########################################################################
 ###########################################################################
 
-role QDRDBMS::AST::Expr {}
+role QDRDBMS::AST::Expr {
+    does QDRDBMS::AST::Value;
+} # role QDRDBMS::AST::Expr
 
 ###########################################################################
 ###########################################################################
@@ -205,6 +188,99 @@ class QDRDBMS::AST::LitInt {
     }
 
 } # class QDRDBMS::AST::LitInt
+
+###########################################################################
+###########################################################################
+
+role QDRDBMS::AST::ListSel {
+    does QDRDBMS::AST::Expr;
+
+    has Array $!v;
+
+###########################################################################
+
+submethod BUILD (Array :$v!) {
+
+    die q{new(): Bad :$v arg; it is not an object of a}
+            ~ q{ Array-doing class.}
+        if !$v.defined or !$v.does(Array);
+    for $v -> $ve {
+        die q{new(): Bad :$v arg elem; it is not}
+                ~ q{ an object of a QDRDBMS::AST::Expr-doing class.}
+            if !$ve.defined or !$ve.does(QDRDBMS::AST::Expr);
+    }
+
+    $!v = [$v.values];
+
+    return;
+}
+
+###########################################################################
+
+sub v of Array () {
+    return [$!v.values];
+}
+
+###########################################################################
+
+} # role QDRDBMS::AST::ListSel
+
+###########################################################################
+###########################################################################
+
+class QDRDBMS::AST::SetSel {
+    does QDRDBMS::AST::ListSel;
+} # class QDRDBMS::AST::SetSel
+
+###########################################################################
+###########################################################################
+
+class QDRDBMS::AST::SeqSel {
+    does QDRDBMS::AST::ListSel;
+} # class QDRDBMS::AST::SeqSel
+
+###########################################################################
+###########################################################################
+
+class QDRDBMS::AST::BagSel {
+    does QDRDBMS::AST::ListSel;
+} # class QDRDBMS::AST::BagSel
+
+###########################################################################
+###########################################################################
+
+class QDRDBMS::AST::EntityName {
+    has Str $!text_possrep;
+#    has Seq $!seq_possrep;
+
+###########################################################################
+
+submethod BUILD (Str :$text!) {
+
+    die q{new(): Bad :$text arg; it is not a valid object}
+            ~ q{ of a Str-doing class.}
+        if !$text.defined or !$text.does(Str);
+
+    $!text_possrep = $text;
+
+    return;
+}
+
+###########################################################################
+
+method text of Str () {
+    return $!text_possrep;
+}
+
+###########################################################################
+
+method seq of Seq () {
+    die "not implemented";
+}
+
+###########################################################################
+
+} # class QDRDBMS::AST::EntityName
 
 ###########################################################################
 ###########################################################################
