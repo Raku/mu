@@ -10,7 +10,7 @@ my $source_file = $ARGV[0] || \*STDIN;
 
 print Perl6::Perldoc::Parser->parse( $source_file, {all_pod=>'auto'} )
                             ->report_errors()
-                            ->to_xhtml
+                            ->to_xhtml({ full_doc => 1 })
                             ;
 
 =head1 NAME

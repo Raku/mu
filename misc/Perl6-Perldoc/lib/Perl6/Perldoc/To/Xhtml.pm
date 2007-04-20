@@ -12,15 +12,53 @@ sub to_xhtml {
 
 package Perl6::Perldoc::Parser::ReturnVal;
 
+my %DTD_TYPE = (
+    strict       => '-//W3C//DTD XHTML 1.0 Strict//EN',
+    transitional => '-//W3C//DTD XHTML 1.0 Transitional//EN',
+);
+
+sub _full_doc {
+    my ($tree, $opt_ref, $body) = @_;
+
+    # Find document title (either explicitly specified or filename)...
+    my $title = $opt_ref->{title};
+    if (!defined $title) {
+        $title = $tree->range->{file} || q{};
+        $title =~ s{.*/}{}xms;
+    }
+
+    # Determine DTD type (either explicitly specified or default)...
+    my $requested = $opt_ref->{full_doc};
+    my $type = !defined $requested          ? 'transitional'
+             : exists $DTD_TYPE{$requested} ? $DTD_TYPE{$requested}
+             :                                $requested
+             ;
+
+    # Encapsulate body in appropriate frou-frou...
+    return <<END_STRICT_DOC;
+<!DOCTYPE html PUBLIC "$type">
+<html>
+<head><title>$title</title></head>
+<body>
+$body
+</body>
+</html>
+END_STRICT_DOC
+}
+
 sub to_xhtml {
-    my ($self, $internal_state) = @_;
+    my ($self, $opt_ref) = @_;
 
-    $internal_state ||= {};
+    $opt_ref ||= {};
 
-    my $xhtml_rep = $self->{tree}->to_xhtml($internal_state);
+    my $xhtml_rep = $self->{tree}->to_xhtml($opt_ref);
 
-    if ($internal_state->{notes}) {
-        $xhtml_rep .= "<h1>Notes</h1>\n$internal_state->{notes}";
+    if ($opt_ref->{notes}) {
+        $xhtml_rep .= "<h1>Notes</h1>\n$opt_ref->{notes}";
+    }
+
+    if ($opt_ref->{full_doc}) {
+        $xhtml_rep = _full_doc($self->{tree}, $opt_ref, $xhtml_rep);
     }
 
     return $xhtml_rep;
@@ -28,7 +66,7 @@ sub to_xhtml {
 
 package Perl6::Perldoc::Root;  
 
-sub add_nesting {
+sub add_xhtml_nesting {
     my ($self, $xhtml, $default) = @_;
     my $nested = $self->option('nested');
     if (!defined $nested) {
@@ -40,10 +78,10 @@ sub add_nesting {
     return $xhtml;
 }
 
-sub to_xhtml_internal {
-    my $self = shift;
+sub _list_to_xhtml {
+    my $list_ref = shift;
     my $xhtml = q{};
-    for my $content ( $self->content ) {
+    for my $content ( @{$list_ref} ) {
         next if ! defined $content;
         if (ref $content) {
             $xhtml .= $content->to_xhtml(@_);
@@ -60,7 +98,23 @@ sub to_xhtml_internal {
 
 sub to_xhtml {
     my $self = shift;
-    return $self->add_nesting($self->to_xhtml_internal(@_));
+    my $content = _list_to_xhtml([$self->content],@_);
+    my $name = Perl6::Perldoc::Root::_list_to_xhtml([
+                 Perl6::Perldoc::FormattingCode::L::_flatten([$self->content])
+               ]);
+    
+    # Assign jump targets to headings, semantic blocks, and user-defined...
+    my $is_target 
+        =  $self->isa('Perl6::Perldoc::Block')
+        && $self->typename =~ m{\A head\d+ \z | [[:upper:]] }xms;
+
+    if ($is_target) {
+        $content = qq{<a name="$name"><a name="}
+                 . ($self+0)
+                 . qq{">$content</a></a>};
+    }
+
+    return $self->add_xhtml_nesting($content);
 }
 
 # Representation of file itself...
@@ -102,11 +156,11 @@ sub _min {
 
 sub to_xhtml {
     my $self = shift;
-    my $xhtml = $self->SUPER::to_xhtml_internal(@_);
+    my $xhtml = Perl6::Perldoc::Root::_list_to_xhtml([$self->content], @_);
     my $left_space = _min(map { length } $xhtml =~ m{^ [^\S\n]* (?= \S) }gxms);
     $xhtml =~ s{^ [^\S\n]{$left_space} }{}gxms;
     $xhtml = '<pre>' . $xhtml . '</pre>';
-    return $self->add_nesting($xhtml, 1);
+    return $self->add_xhtml_nesting($xhtml, 1);
 }
 
 
@@ -116,7 +170,7 @@ package Perl6::Perldoc::Block::input;
 sub to_xhtml {
     my $self = shift;
     return '<blockquote><pre><kbd>'
-         . $self->to_xhtml_internal(@_)
+         . Perl6::Perldoc::Root::_list_to_xhtml([$self->content], @_)
          . "</kbd></pre></blockquote>\n";
 }
 
@@ -127,7 +181,7 @@ package Perl6::Perldoc::Block::output;
 sub to_xhtml {
     my $self = shift;
     return '<blockquote><pre><samp>'
-         . $self->to_xhtml_internal(@_)
+         . Perl6::Perldoc::Root::_list_to_xhtml([$self->content], @_)
          . "</samp></pre></blockquote>\n";
 }
 
@@ -144,7 +198,21 @@ package Perl6::Perldoc::Block::table;
 
 sub to_xhtml {
     my $self = shift;
-    my $xhtml = "<table>\n";
+
+    my $caption = $self->option('caption') || q{};
+    if ($caption) {
+        if (ref($caption) eq 'ARRAY') {
+            $caption = "@{$caption}";
+        }
+    }
+    $caption = Perl6::Perldoc::Root::_list_to_xhtml([$caption]);
+
+    my $xhtml = qq{<a name="$caption"><a name="} . ($self+0) . qq{"><table>\n};
+
+    if ($caption) {
+        $xhtml .= qq{<caption>$caption</caption>\n};
+    }
+
     for my $row ( $self->rows() ) {
         $xhtml .= "<tr>\n";
         for my $cell ( $row->cells() ) {
@@ -152,13 +220,13 @@ sub to_xhtml {
             for my $block ( $cell->content ) {
                 $xhtml .= $block->to_xhtml(@_);
             }
-            $xhtml .= "</td>\n";
+            $xhtml .= $cell->is_header ? "</th>\n" : "</td>\n";
         }
         $xhtml .= "</tr>\n";
     }
-    $xhtml .= "</table>\n";
+    $xhtml .= "</table></a></a>\n";
 
-    return $self->add_nesting($xhtml);
+    return $self->add_xhtml_nesting($xhtml);
 }
 
 package Perl6::Perldoc::Block::table::Row;
@@ -177,7 +245,7 @@ sub to_xhtml {
     if (defined $number) {
         $title = "$number. $title";
     }
-    return qq{<h1><a name="$title">$title</a></h1>\n};
+    return qq{<h1>$title</h1>\n};
 }
 
 # Standard =head2 block...
@@ -192,7 +260,7 @@ sub to_xhtml {
     if (defined $number) {
         $title = "$number. $title";
     }
-    return qq{<h2><a name="$title">$title</a></h2>\n};
+    return qq{<h2>$title</h2>\n};
 }
 
 # Standard =head3 block...
@@ -207,7 +275,7 @@ sub to_xhtml {
     if (defined $number) {
         $title = "$number. $title";
     }
-    return qq{<h3><a name="$title">$title</a></h3>\n};
+    return qq{<h3>$title</h3>\n};
 }
 
 # Standard =head4 block...
@@ -222,7 +290,7 @@ sub to_xhtml {
     if (defined $number) {
         $title = "$number. $title";
     }
-    return qq{<h4><a name="$title">$title</a></h4>\n};
+    return qq{<h4>$title</h4>\n};
 }
 
 # Implicit list block...
@@ -262,24 +330,58 @@ sub to_xhtml {
         }
         return "<dt>$term</dt><dd>"
              . $self->SUPER::to_xhtml(@_)
-             . "</dd></di>\n";
+             . "</dd>\n";
     }
     else {
-        $counter =~ s{.*[.]?(\d+)$}{ value=$1}xms;
+        $counter =~ s{.*[.]?(\d+)$}{ value="$1"}xms;
         return "<li$counter>"
              . $self->SUPER::to_xhtml(@_)
              . "</li>\n";
     }
 }
 
-# Handle headN's and itemN's
+# Implicit toclist block...
+package Perl6::Perldoc::Block::toclist;   
+    use base 'Perl6::Perldoc::Root';
+
+sub to_xhtml {
+    my $self = shift;
+    
+    # Convert list items to XHTML, and return in an XHTML list...
+    my $xhtml = join q{}, map {$_->to_xhtml(@_)}  $self->content;
+
+    return '<ul class="toclist">' . $xhtml . '</ul>';
+}
+
+
+# Standard =tocitem block...
+package Perl6::Perldoc::Block::tocitem;   
+
+sub to_xhtml {
+    my $self = shift;
+
+    my $target = $self->target();
+    my $typename = $self->typename();
+
+    my @title = $self->title;
+    return "" if ! @title;
+    
+    my $title = Perl6::Perldoc::Root::_list_to_xhtml(\@title, @_);
+
+    return qq{<a href="$target">\n<li class="$typename">$title</li></a>\n};
+}
+
+# Handle headN's and itemN's and tocitemN's...
 for my $depth (1..100) {
     no strict qw< refs >;
+
     @{'Perl6::Perldoc::Block::item'.$depth.'::ISA'}
         = 'Perl6::Perldoc::Block::item';
-}
-for my $depth (5..100) {
-    no strict qw< refs >;
+
+    @{'Perl6::Perldoc::Block::tocitem'.$depth.'::ISA'}
+        = 'Perl6::Perldoc::Block::tocitem';
+
+    next if $depth < 5;
     @{'Perl6::Perldoc::Block::head'.$depth.'::ISA'}
         = 'Perl6::Perldoc::Block::head4';
 }
@@ -297,6 +399,65 @@ package Perl6::Perldoc::Block::comment;
 
 sub to_xhtml {
     return q{};
+}
+
+# Standard SEMANTIC blocks...
+package Perl6::Perldoc::Block::Semantic;
+BEGIN {
+    my @semantic_blocks = qw(
+        NAME              NAMES
+        VERSION           VERSIONS
+        SYNOPSIS          SYNOPSES
+        DESCRIPTION       DESCRIPTIONS
+        USAGE             USAGES
+        INTERFACE         INTERFACES
+        METHOD            METHODS
+        SUBROUTINE        SUBROUTINES
+        OPTION            OPTIONS
+        DIAGNOSTIC        DIAGNOSTICS
+        ERROR             ERRORS
+        WARNING           WARNINGS
+        DEPENDENCY        DEPENDENCIES
+        BUG               BUGS
+        SEEALSO           SEEALSOS
+        ACKNOWLEDGEMENT   ACKNOWLEDGEMENTS
+        AUTHOR            AUTHORS
+        COPYRIGHT         COPYRIGHTS
+        DISCLAIMER        DISCLAIMERS
+        LICENCE           LICENCES
+        LICENSE           LICENSES
+        TITLE             TITLES
+        FOREWORD          FOREWORDS
+        SUMMARY           SUMMARIES
+        SECTION           SECTIONS
+        CHAPTER           CHAPTERS
+        APPENDIX          APPENDIXES       APPENDICES
+        TOC               TOCS
+        INDEX             INDEXES          INDICES
+    );
+
+    # Reuse content-to-xhtml converter
+    *_list_to_xhtml = *Perl6::Perldoc::Root::_list_to_xhtml;
+
+    # All semantic blocks are self-titling, followed by contents...
+    for my $blockname (@semantic_blocks) {
+        no strict qw< refs >;
+
+        *{ "Perl6::Perldoc::Block::${blockname}::to_xhtml" }
+            = sub {
+                my $self = shift;
+
+                my @title = $self->title();
+                return "" if !@title;
+
+                my $title = _list_to_xhtml(\@title, @_);
+
+                return qq{<a name="$title"><a name="}
+                     . ($self+0)
+                     . qq{"><h1 class="$blockname">$title</h1></a></a>\n}
+                     . _list_to_xhtml([$self->content], @_);
+            };
+    }
 }
 
 
@@ -328,6 +489,7 @@ package Perl6::Perldoc::FormattingCode::D;
 sub to_xhtml {
     my $self = shift;
     my $tag = join q{}, $self->content;
+    $tag = Perl6::Perldoc::Root::_list_to_xhtml([$tag]);
     return qq{<a name="$tag"><dfn>} . $self->SUPER::to_xhtml(@_) . '</dfn></a>';
 }
 
@@ -344,11 +506,11 @@ my %is_break_entity = (
 );
 
 # Convert E<> contents to XHTML named or numeric entity...
-sub _to_entity {
+sub _to_xhtml_entity {
     my ($spec) = @_;
     # Is it a line break?
     if (my $BR_count = $is_break_entity{$spec}) {
-        return '<br>' x $BR_count;
+        return '<br/>' x $BR_count;
     }
     # Is it a named specification?
     if ($spec !~ m{\A \d}xms) {
@@ -375,7 +537,9 @@ sub _to_entity {
 
 sub to_xhtml {
     my $self = shift;
-    return join q{}, map {_to_entity($_)} split /\s*;\s*/, scalar $self->content;
+    return join q{},
+                map {_to_xhtml_entity($_)}
+                    split /\s*;\s*/, scalar $self->content;
 }
 
 # Important formatter...
@@ -448,8 +612,18 @@ package Perl6::Perldoc::FormattingCode::P;
 
 sub to_xhtml {
     my $self = shift;
+
     my $link = $self->SUPER::to_xhtml(@_);
-    return qq{See: <a href="$link">$link</a>};
+
+    # Table-of-contents placement...
+    if ($self->target =~ m{\A \s* toc :}xms) {
+        return $link;
+    }
+
+    # Everything else is just an outwards link (at the moment; should be fixed)
+    else {
+        return qq{See: <a href="$link">$link</a>};
+    }
 }
 
 # Replacable item formatter...
@@ -551,14 +725,64 @@ can be performed in a single statement:
 Loading the module automatically installs the necessary C<to_xhtml()>
 methods in every C<Perl6::Perldoc> subclass.
 
-Each C<to_xhtml()> method takes no arguments and returns a string
-containing an XHTML representation of the object to which the method
-was applied.
+Each C<to_xhtml()> method takes a reference to a hash containing options,
+and returns a string containing an XHTML representation of the object to
+which the method was applied.
+
+The options currently supported are:
+
+=over
+
+=item C<< full_doc => 1 >>
+
+If this option is true, the C<to_xhtml()> method generates a complete
+XHTML document (including a DTD, C<< <head> >>, C<< <title> >>, and C<<
+<body> >> tags), rather than just the body contents.
+
+By default the DTD is C<"XHTML 1.0 Transitional//EN">, but you can make
+it C<"XHTML 1.0 Strict//EN"> instead with:
+
+    $perldoc->to_xhtml({ full_doc => 'strict' });
+
+Alternatively, you can specify the DTD explicitly:
+
+    $perldoc->to_xhtml({ full_doc => '-//W3C//DTD XHTML 1.0 Frameset//EN' });
+
+Note that generating a full XHTML document is not the default behaviour
+because defaulting to generating unencapsuated body contents makes it
+easy to generate XHTML markup from separate Perldoc documents and
+then concatentate them into a single body:
+
+    my @body_parts = map { $_->to_xhtml() } @perldoc_reps;
+
+    print <<"END_XHTML"
+    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN">
+    <html>
+        <head>
+            <title>My compound document</title>
+        </head>
+        <body>
+            @body_parts
+        </body>
+    </html>
+    END_XHTML
+
+
+=item C<< title => $plaintext_title >>
+
+If this option is present (and the C<'full_doc'> option is also
+specifed), the value of this option is used as the C<< <title> >> value
+in the resulting XHTML document.
+
+If this option is not specified, the name of the file from which the Perldoc
+object was generated is used instead.
+
+=back
 
 
 =head1 DIAGNOSTICS
 
-None.
+Adds no new diagnostics to those of Perl6::Perldoc::Parser.
 
 
 =head1 CONFIGURATION AND ENVIRONMENT

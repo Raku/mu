@@ -1,20 +1,26 @@
 # Testing this Pod specification...
 my $perldoc_data = <<'END_PERLDOC';
-=begin item1    
-The choices are:
-=item2 Liberty  
-=item2 Death    
-=item2 Beer     
-=end item1      
+=begin CHAPTER :numbered
+=TITLE The Story Begins
+
+It was a day like any other....
+
+=for VERSION :numbered
+
+This is version 0.0.1
+
+=TOC
+
+P<toc:head1>
+
+=end CHAPTER
 
 END_PERLDOC
 
 # Expect it to parse to this ADT...
 my $expected_structure = eval <<'END_EXPECTED';
 $VAR1 = bless( {
-  'warnings' => [
-    'No =item1 before =item2 at t_source/list_nested_wrong.pod6 line 3'
-  ],
+  'warnings' => [],
   'errors' => [],
   'tree' => bless( {
     'typename' => '(document)',
@@ -23,55 +29,57 @@ $VAR1 = bless( {
         'typename' => 'pod',
         'content' => [
           bless( {
-            'typename' => 'list',
+            'typename' => 'CHAPTER',
+            'number' => '1',
             'content' => [
               bless( {
-                'typename' => 'item1',
+                'typename' => 'TITLE',
                 'content' => [
-                  'The choices are:
-',
-                  bless( {
-                    'typename' => 'list',
-                    'content' => [
-                      bless( {
-                        'typename' => 'list',
-                        'content' => [
-                          bless( {
-                            'typename' => 'item2',
-                            'content' => [
-                              'Liberty  
+                  'The Story Begins
 '
-                            ],
-                            'style' => 'abbreviated'
-                          }, 'Perl6::Perldoc::Block::item2' ),
-                          bless( {
-                            'typename' => 'item2',
-                            'content' => [
-                              'Death    
-'
-                            ],
-                            'style' => 'abbreviated'
-                          }, 'Perl6::Perldoc::Block::item2' ),
-                          bless( {
-                            'typename' => 'item2',
-                            'content' => [
-                              'Beer     
-'
-                            ],
-                            'style' => 'abbreviated'
-                          }, 'Perl6::Perldoc::Block::item2' )
-                        ],
-                        'style' => 'implicit'
-                      }, 'Perl6::Perldoc::Block::list' )
-                    ],
-                    'style' => 'implicit'
-                  }, 'Perl6::Perldoc::Block::list' )
                 ],
-                'style' => 'delimited'
-              }, 'Perl6::Perldoc::Block::item1' )
+                'style' => 'abbreviated'
+              }, 'Perl6::Perldoc::Block::TITLE' ),
+              bless( {
+                'typename' => 'para',
+                'content' => [
+                  'It was a day like any other....
+'
+                ],
+                'style' => 'implicit'
+              }, 'Perl6::Perldoc::Block::para' ),
+              bless( {
+                'typename' => 'VERSION',
+                'number' => '1',
+                'style' => 'paragraph'
+              }, 'Perl6::Perldoc::Block::VERSION' ),
+              bless( {
+                'typename' => 'para',
+                'content' => [
+                  'This is version 0.0.1
+'
+                ],
+                'style' => 'implicit'
+              }, 'Perl6::Perldoc::Block::para' ),
+              bless( {
+                'typename' => 'TOC',
+                'style' => 'abbreviated'
+              }, 'Perl6::Perldoc::Block::TOC' ),
+              bless( {
+                'typename' => 'para',
+                'content' => [
+                  bless( {
+                    'typename' => 'P',
+                    'style' => 'formatting',
+                  }, 'Perl6::Perldoc::FormattingCode::P' ),
+                  '
+'
+                ],
+                'style' => 'implicit'
+              }, 'Perl6::Perldoc::Block::para' )
             ],
-            'style' => 'implicit'
-          }, 'Perl6::Perldoc::Block::list' )
+            'style' => 'delimited'
+          }, 'Perl6::Perldoc::Block::CHAPTER' )
         ],
         'style' => 'implicit'
       }, 'Perl6::Perldoc::Block::pod' )

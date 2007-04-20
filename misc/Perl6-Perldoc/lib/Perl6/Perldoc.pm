@@ -1,6 +1,6 @@
 package Perl6::Perldoc;
 
-use version; $VERSION = qv('0.0.3');
+use version; $VERSION = qv('0.0.4');
 use warnings;
 use strict;
 use re 'eval';
@@ -66,16 +66,24 @@ my $POD_PAT; $POD_PAT = qr{
     )
 }xms;
 
-
 FILTER {
     my @DATA;
 
-    # Extract DATA sections, deleting them but preserving newlines...
+    # Extract DATA sections, deleting them but preserving line numbering...
     s{ ($DATA_PAT) }{
         my ($data_block, $contents) = ($1,$+);
 
+        # Special newline handling required under Windows...
+        if ($^O =~ /MSWin/) {
+            $contents =~ s{ \r\n }{\n}gxms;
+        }
+
+        # Save the data...
         push @DATA, $contents;
+
+        # Delete it from the source code, but leave the newlines...
         $data_block =~ tr[\n\0-\377][\n]d;
+
         $data_block;
     }gxmse;
 
@@ -96,7 +104,8 @@ FILTER {
     *DATA_glob = \$DATA_as_str;
     *DATA_glob = \@DATA;
     open *DATA_glob, '<', \$DATA_as_str
-        or require Carp and Carp::croak "Can't set up *DATA handle ($!)";
+        or require Carp
+        and croak( "Can't set up *DATA handle ($!)" );
 
     # Alias each package's *DATA, @DATA, and $DATA...
     for my $package (keys %packages) {
@@ -114,7 +123,7 @@ Perl6::Perldoc - Use Perl 6 documentation in a Perl 5 program
 
 =head1 VERSION
 
-This document describes Perl6::Perldoc version 0.0.3
+This document describes Perl6::Perldoc version 0.0.4
 
 
 =head1 SYNOPSIS

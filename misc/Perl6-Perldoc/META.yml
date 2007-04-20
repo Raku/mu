@@ -1,10 +1,11 @@
 # http://module-build.sourceforge.net/META-spec.html
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         Perl6-Perldoc
-version:      v0.0.3
+version:      v0.0.4
 version_from: lib/Perl6/Perldoc.pm
 installdirs:  site
 requires:
+    Filter::Simple:                0
     Scalar::Util:                  0
     Test::More:                    0
     version:                       0

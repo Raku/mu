@@ -8,9 +8,10 @@ my $builder = Module::Build->new(
     dist_author         => 'Damian Conway <DCONWAY@CPAN.org>',
     dist_version_from   => 'lib/Perl6/Perldoc.pm',
     requires => {
-        'Test::More'   => 0,
-        'version'      => 0,
-        'Scalar::Util' => 0,
+        'Filter::Simple' => 0,
+        'Test::More'     => 0,
+        'version'        => 0,
+        'Scalar::Util'   => 0,
     },
     add_to_cleanup      => [ 'Perl6-Perldoc-*' ],
 );

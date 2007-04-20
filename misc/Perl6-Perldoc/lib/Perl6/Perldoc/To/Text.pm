@@ -23,11 +23,17 @@ package Perl6::Perldoc::Root;
 
 my $INDENT = 4;
 
-sub add_nesting {
+sub add_text_nesting {
     my ($self, $text, $depth) = @_;
 
+    # Nest according to the specified nestedness of the block...
     if (my $nesting = $self->option('nested')) {
         $depth = $nesting * $INDENT;
+    }
+
+    # Or else default to one indent...
+    elsif (!defined $depth) {
+        $depth = $INDENT;
     }
 
     my $indent = q{ } x $depth;
@@ -35,10 +41,10 @@ sub add_nesting {
     return $text;
 }
 
-sub to_text_internal {
-    my ($self, $state_ref) = @_;
+sub _list_to_text {
+    my ($list_ref, $state_ref) = @_;
     my $text = q{};
-    for my $content ( $self->content ) {
+    for my $content ( @{$list_ref} ) {
         next if ! defined $content;
         if (ref $content) {
             $text .= $content->to_text($state_ref);
@@ -54,7 +60,7 @@ sub to_text_internal {
 
 sub to_text {
     my $self = shift;
-    return $self->add_nesting($self->to_text_internal(@_),0);
+    return $self->add_text_nesting(_list_to_text([$self->content], @_),0);
 }
 
 # Representation of file itself...
@@ -95,10 +101,10 @@ sub min {
 
 sub to_text {
     my $self = shift;
-    my $text = $self->SUPER::to_text_internal(@_);
+    my $text = Perl6::Perldoc::Root::_list_to_text([$self->content],@_);
     my $left_space = min map { length } $text =~ m{^ [^\S\n]* (?= \S) }gxms;
     $text =~ s{^ [^\S\n]{$left_space} }{}gxms;
-    return "\n" . $self->add_nesting($text, $INDENT);
+    return "\n" . $self->add_text_nesting($text, $INDENT);
 }
 
 
@@ -107,8 +113,8 @@ package Perl6::Perldoc::Block::input;
 
 sub to_text {
     my $self = shift;
-    my $text = $self->to_text_internal(@_);
-    return "\n" . $self->add_nesting($text, $INDENT);
+    my $text = Perl6::Perldoc::Root::_list_to_text([$self->content],@_);
+    return "\n" . $self->add_text_nesting($text, $INDENT);
 }
 
 
@@ -117,8 +123,8 @@ package Perl6::Perldoc::Block::output;
 
 sub to_text {
     my $self = shift;
-    my $text = $self->to_text_internal(@_);
-    return "\n" . $self->add_nesting($text, $INDENT);
+    my $text = Perl6::Perldoc::Root::_list_to_text([$self->content],@_);
+    return "\n" . $self->add_text_nesting($text, $INDENT);
 }
 
 # Standard =config block...
@@ -134,7 +140,7 @@ package Perl6::Perldoc::Block::table;
 sub to_text {
     my $self = shift;
     my ($text) = $self->content;
-    return "\n" . $self->add_nesting($text, $INDENT);
+    return "\n" . $self->add_text_nesting($text, $INDENT);
 }
 
 
@@ -204,7 +210,7 @@ package Perl6::Perldoc::Block::list;
 
 sub to_text {
     my $self = shift;
-    return $self->add_nesting($self->SUPER::to_text(@_), $INDENT);
+    return $self->add_text_nesting($self->SUPER::to_text(@_));
 }
 
 
@@ -224,28 +230,65 @@ sub to_text {
         if (length $counter) {
             $term =~ s{\A (\s* <[^>]+>)}{$1$counter. }xms;
         }
-        my $body = $self->add_nesting($body, $INDENT);
+        my $body = $self->add_text_nesting($body);
         $body =~ s{\A \n+}{}xms;
         return "\n$term\n$body";
     }
 
-    $body = $self->add_nesting($body, 1 + length $counter);
+    $body = $self->add_text_nesting($body, 1 + length $counter);
     $body =~ s{\A \n+}{}xms;
     $body =~ s{\A \s*}{$counter }xms;
 
     return "\n$body";
 }
 
+# Implicit toclist block...
+package Perl6::Perldoc::Block::toclist;   
+    use base 'Perl6::Perldoc::Root';
+
+sub to_text {
+    my $self = shift;
+    
+    # Convert list items to text, and return in an text list...
+    my $text = join q{}, map {$_->to_text(@_)}  $self->content;
+
+    return $self->add_text_nesting($text);
+}
+
+
+# Standard =tocitem block...
+package Perl6::Perldoc::Block::tocitem;   
+
+sub to_text {
+    my $self = shift;
+
+    my @title = $self->title;
+    return "" if ! @title;
+    
+    my $title = Perl6::Perldoc::Root::_list_to_text(\@title, @_);
+
+    return "* $title\n";
+}
+
+# Handle headN's and itemN's and tocitemN's...
+for my $depth (1..100) {
+    no strict qw< refs >;
+
+    @{'Perl6::Perldoc::Block::item'.$depth.'::ISA'}
+        = 'Perl6::Perldoc::Block::item';
+
+    @{'Perl6::Perldoc::Block::tocitem'.$depth.'::ISA'}
+        = 'Perl6::Perldoc::Block::tocitem';
+
+    next if $depth < 5;
+    @{'Perl6::Perldoc::Block::head'.$depth.'::ISA'}
+        = 'Perl6::Perldoc::Block::head4';
+}
 # Handle headN's and itemN's
 for my $depth (1..100) {
     no strict qw< refs >;
     @{'Perl6::Perldoc::Block::item'.$depth.'::ISA'}
         = 'Perl6::Perldoc::Block::item';
-}
-for my $depth (5..100) {
-    no strict qw< refs >;
-    @{'Perl6::Perldoc::Block::head'.$depth.'::ISA'}
-        = 'Perl6::Perldoc::Block::head4';
 }
 
 # Standard =nested block...
@@ -257,6 +300,62 @@ package Perl6::Perldoc::Block::comment;
 
 sub to_text {
     return q{};
+}
+
+# Standard SEMANTIC blocks...
+package Perl6::Perldoc::Block::Semantic;
+BEGIN {
+    my @semantic_blocks = qw(
+        NAME              NAMES
+        VERSION           VERSIONS
+        SYNOPSIS          SYNOPSES
+        DESCRIPTION       DESCRIPTIONS
+        USAGE             USAGES
+        INTERFACE         INTERFACES
+        METHOD            METHODS
+        SUBROUTINE        SUBROUTINES
+        OPTION            OPTIONS
+        DIAGNOSTIC        DIAGNOSTICS
+        ERROR             ERRORS
+        WARNING           WARNINGS
+        DEPENDENCY        DEPENDENCIES
+        BUG               BUGS
+        SEEALSO           SEEALSOS
+        ACKNOWLEDGEMENT   ACKNOWLEDGEMENTS
+        AUTHOR            AUTHORS
+        COPYRIGHT         COPYRIGHTS
+        DISCLAIMER        DISCLAIMERS
+        LICENCE           LICENCES
+        LICENSE           LICENSES
+        TITLE             TITLES
+        SECTION           SECTIONS
+        CHAPTER           CHAPTERS
+        APPENDIX          APPENDIXES       APPENDICES
+        TOC               TOCS
+        INDEX             INDEXES          INDICES
+        FOREWORD          FOREWORDS
+        SUMMARY           SUMMARIES
+    );
+
+    # Reuse content-to-text converter
+    *_list_to_text = *Perl6::Perldoc::Root::_list_to_text;
+
+    for my $blockname (@semantic_blocks) {
+        no strict qw< refs >;
+
+        *{ "Perl6::Perldoc::Block::${blockname}::to_text" }
+            = sub {
+                my $self = shift;
+
+                my @title = $self->title();
+
+                return "" if !@title;
+                my $title = _list_to_text(\@title, @_);
+
+                return "\n$title\n\n"
+                     . _list_to_text([$self->content], @_);
+            };
+    }
 }
 
 
@@ -309,8 +408,8 @@ my %is_translatable = (
     ndash => q{--},
 );
 
-# Convert E<> contents to Xtext named or numeric entity...
-sub _to_entity {
+# Convert E<> contents to text named or numeric entity...
+sub _to_text_entity {
     my ($spec) = @_;
     # Is it a line break?
     if (my $BR_count = $is_break_entity{$spec}) {
@@ -339,7 +438,7 @@ sub _to_entity {
 sub to_text {
     my $self = shift;
     my $entities = $self->content;
-    return join q{}, map {_to_entity($_)} split /\s*;\s*/, $entities;
+    return join q{}, map {_to_text_entity($_)} split /\s*;\s*/, $entities;
 }
 
 # Important formatter...
@@ -433,6 +532,11 @@ sub to_text {
     # Link to manpage...
     if ($target =~ s{\A man: }{}xms) {
         return qq{(See the $target manpage)};
+    }
+
+    # TOC insertion...
+    if ($target =~ s{\A toc: }{}xms) {
+        return Perl6::Perldoc::Root::_list_to_text([$self->content],@_);
     }
 
     # Anything else...
@@ -543,7 +647,7 @@ was applied.
 
 =head1 DIAGNOSTICS
 
-None.
+Adds no new diagnostics to those of Perl6::Perldoc::Parser.
 
 
 =head1 CONFIGURATION AND ENVIRONMENT

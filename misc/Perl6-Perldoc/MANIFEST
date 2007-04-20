@@ -167,3 +167,5 @@ t_source/table_header_seps.pod6
 t_source/table_header_seps.rep
 t_source/table_simple.pod6
 t_source/table_simple.rep
+t/diagnostics.t
+t/numbered_semantic.t

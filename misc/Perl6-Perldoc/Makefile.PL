@@ -10,6 +10,7 @@ WriteMakefile(
     EXE_FILES           => ['bin/perldoc2text','bin/perldoc2xhtml'],
     PL_FILES            => {},
     PREREQ_PM => {
+        'Filter::Simple' => 0,
         'Test::More'   => 0,
         'version'      => 0,
         'Scalar::Util' => 0,

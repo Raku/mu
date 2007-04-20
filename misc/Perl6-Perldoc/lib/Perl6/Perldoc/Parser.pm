@@ -33,6 +33,11 @@ my $OPTIONS        = qr{ (?: \s* $OPTION)+ }xms;
 
 my $FORMATTING_CODE = q{[BCDEIKLMNPRSTUVXZ]};
 
+my $PERMITS_IMPLICIT
+    = qr{\A (?: pod | (?! DATA ) [[:upper:]]+ ) \z}xms;
+
+my $PERMITS_IMPLICIT_IF_DELIMITED
+    = qr{ $PERMITS_IMPLICIT | \A (?: item | nested ) \z}xms;
 
 # Error handlers (push error messages to the correct queue: warnings or errors)
 
@@ -323,8 +328,10 @@ sub _create_objects {
     }
     # All upper or all lower case -> reserved block
     else {
-        $is_reserved
-            = !( $typename =~ m{[[:upper:]] | \A (?:head|item) \d+ \z }xms );
+        $tree->{is_semantic} = $typename =~ m{[[:upper:]]}xms;
+#        $is_reserved = !$tree->{is_semantic}
+#                       && $typename !~ m{\A (?:head|item) \d+ \z }xms;
+        $is_reserved = $typename !~ m{\A (?:head|item) \d+ \z }xms;
         $classname .= "Block::$tree->{typename}";
 
         # Any non-existent headN classes inherit last defined headN class...
@@ -353,7 +360,7 @@ sub _create_objects {
     return $classname->new($tree, { errors=>$state_ref->{errors}, })
         if $classname->can('new');
 
-    # If a built-in but nor constructor, must be unknown...
+    # If a built-in but no constructor, must be unknown...
     if ($is_reserved) {
         _err_unknown_reserved_block($tree, $state_ref->{errors});
     }
@@ -418,7 +425,7 @@ sub _extend_config {
 
 sub _adjust_lists {
     my ($stack_ref, $line, $is_item, $is_comment,
-        $item_level, $range_ref, $errors_ref)      = @_;
+        $item_level, $range_ref, $warnings_ref)      = @_;
 
     my $parent_ref = $stack_ref->[-1];
 
@@ -436,7 +443,7 @@ sub _adjust_lists {
 
     # Detect missing items...
     if ($list_level < $item_level-1) {
-        _err_missing_list_level($range_ref, $item_level, $errors_ref);
+        _err_missing_list_level($range_ref, $item_level, $warnings_ref);
     }
 
     # Add required number of additional implicit lists...
@@ -517,7 +524,7 @@ sub _handle_formatted {
                 qq{Unknown formatting code ($fcode) in :formatted option at $location};
             next FCODE;
         }
-        $verbatim ||= $fcode =~ m{[VCM]}xms;
+        $verbatim ||= $fcode =~ m{[VCMP]}xms;
         push @blocks, {
             typename    => $fcode,
             style       => 'formatting',
@@ -564,25 +571,29 @@ sub parse {
         $filename = $filehandle;
         undef $filehandle;
         open $filehandle, '<', $filename
-            or require 'Carp'
-            and Carp::croak "parse() can't open file $filename ($!)";
+            or require Carp
+            and Carp::croak("parse() can't open file $filename ($!)");
 
         if (!exists $opt_ref->{all_pod} || $opt_ref->{all_pod} =~ m{\A auto \z}ixms) {
             $opt_ref->{all_pod} = $filename =~ m{ [.] pod6? }xms;
         }
     }
 
+    # Remember where we found this data...
+    my %range = ( file=>$filename, from => 0 );
+
     # Initialize stack representation of Pod...
     my @stack = {
         typename   => '(document)',
         terminator => $FAIL,
+        range      => {%range},
     };
 
     # Initialize configuration stack to track lexical =config directives
     my @config_stack = {};
 
-    # Remember where we found this data...
-    my %range = ( file=>$filename, from => 0 );
+    # Track P<toc:...> requests...
+    my @toc_placements;
 
     # Add implicit =pod block if caller indicates it's all pod...
     if ($opt_ref->{all_pod}) {
@@ -758,13 +769,13 @@ sub parse {
                     # Insert or close implicit list block if required...
                     $top = _adjust_lists(\@stack,     $line,       $is_item,
                                          $is_comment, $item_level,
-                                         \%range,     \@errors
+                                         \%range,     \@warnings
                                         );
                     my $disjoint_item1
                         =  $is_item && $item_level==1 && !$top->{content};
 
-                    my $permits_implicit_blocks 
-                        = $type =~ m{\A (?: pod | END | item | nested ) \z}xms;
+                    my $permits_implicit_blocks
+                        = $type =~ m{$PERMITS_IMPLICIT_IF_DELIMITED}xms;
 
                     $has_options_pending = 1;
 
@@ -807,8 +818,8 @@ sub parse {
                         _err_trailing_junk($type, \%range, $junk, \@errors);
                     }
 
-                    my $permits_implicit_blocks 
-                        = $type =~ m{\A (?: pod | END ) \z}xms;
+                    my $permits_implicit_blocks
+                        = $type =~ m{$PERMITS_IMPLICIT}xms;
 
                     # Track level of =item blocks...
                     my ($is_item, $item_level) 
@@ -822,7 +833,7 @@ sub parse {
                     # Insert or close implicit list block if required...
                     $top = _adjust_lists(\@stack,     $line,      $is_item,
                                          $is_comment, $item_level,
-                                         \%range,     \@errors
+                                         \%range,     \@warnings
                                         );
 
                     my $disjoint_item1
@@ -867,7 +878,7 @@ sub parse {
                     $has_options_pending = 1;
 
                     # Insert or close implicit list block if required...
-                    $top = _adjust_lists(\@stack, $line, 0, 0, 0, \%range, \@errors);
+                    $top = _adjust_lists(\@stack, $line, 0, 0, 0, \%range, \@warnings);
 
                     # Can use Perl 5 modules...
                     if ($source =~ m{\A (?:perl5:)? $QUAL_IDENT \Z}xms) {
@@ -944,7 +955,7 @@ sub parse {
                     }
 
                     # It also terminates any surrounding list...
-                    $top = _adjust_lists(\@stack, $line, 0, 0, 0, \%range, \@errors);
+                    $top = _adjust_lists(\@stack, $line, 0, 0, 0, \%range, \@warnings);
 
                     # Add it to the stack (not yet in the representation)...
                     push @stack, {
@@ -989,7 +1000,7 @@ sub parse {
                                         );
 
                     # Directive closes any surrounding list...
-                    $top = _adjust_lists(\@stack, $line, 0, 0, 0, \%range, \@errors);
+                    $top = _adjust_lists(\@stack, $line, 0, 0, 0, \%range, \@warnings);
 
                     # Save representation of =config directive...
                     push @stack, {
@@ -1024,14 +1035,14 @@ sub parse {
 
                     # Open or close implicit list if necessary...
                     $top = _adjust_lists(\@stack, $line, $is_item, $is_comment,
-                                         $item_level, \%range, \@errors
+                                         $item_level, \%range, \@warnings
                                         );
 
                     my $disjoint_item1
                         =  $is_item && $item_level==1 && !$top->{content};
 
-                    my $permits_implicit_blocks 
-                        = $type =~ m{\A (?: pod | END ) \z}xms;
+                    my $permits_implicit_blocks
+                        = $type =~ m{$PERMITS_IMPLICIT}xms;
 
                     my $verbatim = $type eq 'code';
 
@@ -1085,7 +1096,7 @@ sub parse {
             # If not directive, must be ambient text, raw para or code block...
 
             # Close implicit item list if necessary...
-            $top = _adjust_lists(\@stack, $line, 0, 0, 0, \%range, \@errors);
+            $top = _adjust_lists(\@stack, $line, 0, 0, 0, \%range, \@warnings);
 
             # Deal with ambient text (i.e. non-Pod) and unprocessed blocks...
             if (@stack == 1) {
@@ -1202,11 +1213,16 @@ sub parse {
                         terminator  => $terminator,
                         left_delim  => $delim,
                         right_delim => $rdelim,
-                        is_verbatim => ($type =~ m{[VCM]}xms ? 1 : 0)
+                        is_verbatim => ($type =~ m{[VCMP]}xms ? 1 : 0)
                                     || $top->{is_verbatim},
                         permits_implicit_blocks
                                     => $top->{permits_implicit_blocks},
                     };
+
+                    # Track placement requests for table-of-contents...
+                    if ($type eq 'P') {
+                        push @toc_placements, $stack[-1];
+                    }
 
                     ### Opened formatting code: $stack[-1]
                     next TOKEN;
@@ -1296,16 +1312,144 @@ sub parse {
     # Convert internal hash-based representation to objects...
     my $tree = _create_objects($root, $state_ref);
 
-    # Return all info...
+    # Build and install any tables-of-content for P<toc:...> codes...
+    TOC:
+    for my $toc_placement_obj (@toc_placements) {
+        next TOC if $toc_placement_obj->{content}[0] !~ m{\A \s* toc:}xms;
+
+        # Replace P<toc:...>'s contents with TOC...
+        $toc_placement_obj->{content}
+            = [ _build_toc($tree, $toc_placement_obj) ];
+
+        # Set flag to ignore this node on subsequent TOC-building passes...
+        $toc_placement_obj->{ignore_toc} = 1;
+    }
+
+    # Aggregrate and return information in an object...
     return bless {
         tree     => $tree,
         errors   => \@errors,
         warnings => \@warnings,
     }, 'Perl6::Perldoc::Parser::ReturnVal';
+
+}
+
+# Build the table of contents for a given P<toc:> request...
+sub _build_toc {
+    my ($data_structure, $placement_obj) = @_;
+
+    # Work out what's in the TOC (including the =item/=item1 alias)...
+    my $requested_types = $placement_obj->{target};
+       $requested_types =~ s{\A \s* toc: \s*}{}xms;
+    my %toc_wants; 
+       @toc_wants{ split m/\s+/, $requested_types } = ();
+    if (exists $toc_wants{item} || exists $toc_wants{item1}) {
+       @toc_wants{qw< item item1 >} = ();
+    }
+
+    # Build flat list of tocitems into nested toclists...
+    my @toc_stack = [];
+    for my $toc_entry ( _walk_toc($data_structure, \%toc_wants) ) {
+        my $level = $toc_entry->{level};
+
+        # Increase nesting for higher numbered items...
+        while ($level > @toc_stack) {
+            push @toc_stack, [];
+        }
+        # Decrease nesting for lower numbered items...
+        while ($level < @toc_stack) {
+            my $content = pop @toc_stack;
+            push @{ $toc_stack[-1] }, Perl6::Perldoc::Block::toclist->new({
+                typename => 'toclist',
+                style    => 'implicit',
+                content  => $content,
+                range    => {},
+            });
+        }
+        # Insert the item into the hierarchy...
+        push @{ $toc_stack[-1] }, $toc_entry;
+    }
+
+    # Nest any unclosed lists...
+    while (@toc_stack > 1) {
+        my $content = pop @toc_stack;
+        push @{ $toc_stack[-1] }, Perl6::Perldoc::Block::toclist->new({
+            typename => 'toclist',
+            style    => 'implicit',
+            content  => $content,
+            range    => {},
+        });
+    }
+
+    # Retrieve a flat list of tocitem blocks representing the TOC...
+    return @{ $toc_stack[-1] };
+}
+
+# Blocks without an inherent nesting level default to this nesting...
+my $DEFAULT_LEVEL = 5;
+
+# Walk DOM tree extracting blocks specified to be part of TOC...
+use Scalar::Util qw< reftype >;
+sub _walk_toc {
+    my ($node, $wanted_ref) = @_;
+
+    my $node_type = reftype($node) || q{};
+
+    # Hashes are nodes: check if this one (and its subnodes) should be included
+    if ($node_type eq 'HASH') {
+        return if $node->{ignore_toc};
+
+        my $node_class = $node->{typename};
+        my @this_node;
+
+        # Is this node part of the TOC?
+        my $wanted = exists $wanted_ref->{$node_class}
+                     || $node->{is_semantic} && exists $wanted_ref->{'head1'};
+        if ($wanted) {
+            my $level
+                = $node->{is_semantic}                  ? 1
+                : $node_class =~ m{\A head (\d+) \z}xms ? $1
+                :                                         $DEFAULT_LEVEL
+                ;
+
+            my $target = $node+0;
+
+            # Create a TOC entry (a list item with a link inside it)...
+            @this_node = bless {
+                typename => "tocitem$level",
+                style    => 'implicit',
+                level    => $level,
+                target   => "#$target",
+                content  => [$node],
+                range    => {},
+            }, "Perl6::Perldoc::Block::tocitem$level";
+
+            # Install the TOC entry's class in the DOM...
+            no strict 'refs';
+            @{"Perl6::Perldoc::Block::tocitem${level}::ISA"}
+                = 'Perl6::Perldoc::Block::tocitem';
+        }
+
+        # Does it have subnodes that are part of the TOC?
+        my @sub_nodes = _walk_toc($node->{content}, $wanted_ref);
+
+        # Return node's TOC entry (if any) and those of its contents...
+        return @this_node, @sub_nodes;
+    }
+
+    # Arrays may contain nodes: check each element...
+    elsif ($node_type eq 'ARRAY') {
+        return map { _walk_toc($_, $wanted_ref) }  @{$node};
+    }
+
+    # Ignore everything else...
+    else {
+        return;
+    }
 }
 
 
-# Standard classes for Perldoc components...
+# Standard classes for Perldoc DOM...
 
 package Perl6::Perldoc::Parser::ReturnVal;
 
@@ -1323,7 +1467,7 @@ sub report_errors {
 
         # Die in context if a fatality message was specified...
         if (@_) {
-            require Carp and Carp::croak @_;
+            require Carp and Carp::croak(@_);
         }
         # Otherwise die silently...
         else {
@@ -1346,69 +1490,79 @@ sub new {
     return bless $data_ref, $classname;
 }
 
-# Standard read-only accessor methods are autogenerated at compile-time...
-BEGIN {
+# Standard read-only accessor methods shared by all DOM components...
+sub typename         { my ($self) = @_; return $self->{typename};           }
+sub style            { my ($self) = @_; return $self->{style};              }
+sub target           { my ($self) = @_; return $self->{target};             }
+sub range            { my ($self) = @_; return $self->{range};              }
+sub config           { my ($self) = @_; return $self->{config};             }
+sub number           { my ($self) = @_; return $self->{number};             }
+sub title            { my ($self) = @_; return '[' . $self->typename . ']'; }
+sub is_semantic      { my ($self) = @_; return $self->{is_semantic};        }
+sub is_numbered      { my ($self) = @_; return exists $self->{number};      }
+sub is_post_numbered { 0 }
 
-    # Scalar-returning accessors...
-    for my $attr (qw<typename style target range config number>) {
-        no strict qw< refs >;
-        *{$attr} = sub {
-            my ($self) = @_;
-            return $self->{$attr};
+sub content {
+    my ($self) = @_;
+    my $vals_ref = $self->{content};
+    if (!wantarray) {
+        if (@{ $vals_ref } > 1) {
+            require Carp and Carp::carp(
+                "Multivalued accessor content() called in scalar context"
+            );
         }
+        return $vals_ref->[0];
     }
-
-    # List-returning accessors...
-    for my $attr (qw<content>) {
-        no strict qw< refs >;
-        *{$attr} = sub {
-            my ($self) = @_;
-            my $vals_ref = $self->{$attr};
-            if (!wantarray) {
-                require Carp and Carp::carp
-                    "Multivalued accessor $attr() called in scalar context"
-                        if @{ $vals_ref } > 1;
-                return $vals_ref->[0];
-            }
-            return @{ $vals_ref };
-        }
-    }
-
-
-    # Asking for an option falls back to the config if necessary...
-    sub option {
-        my ($self, $opt_name) = @_;
-        return $self->{options}{$opt_name}
-            if defined $self->{options}{$opt_name};
-        return $self->{config}{$opt_name}
-            if defined $self->{config}{$opt_name};
-        return;
-    }
-
-    # Return an item's term...
-    sub term {
-        my ($self, $opt_ref) = @_;
-        my $term = $self->option('term');
-
-        # Flatten if term specified as a list...
-        if (ref($term) eq 'ARRAY') {
-            $term = "@{$term}";
-        }
-
-        # Return raw if not requested as an object...
-        return $term if !$opt_ref->{as_objects};
-
-        # Otherwise, convert to Pod object and cache for reuse...
-        if (!$self->{term_objects}) {
-            open my $fh, '<', \$term
-                or die "Internal error: can't parse :term";
-            $self->{term_objects}
-                = Perl6::Perldoc::Parser->parse( $fh, { all_pod => 1 })->{tree};
-        }
-
-        return $self->{term_objects};
-    }
+    return @{ $vals_ref };
 }
+
+# Asking for an option falls back to the config if necessary...
+sub option {
+    my ($self, $opt_name) = @_;
+    return $self->{options}{$opt_name}
+        if defined $self->{options}{$opt_name};
+    return $self->{config}{$opt_name}
+        if defined $self->{config}{$opt_name};
+    return;
+}
+
+# Return an object's term or caption...
+
+sub _flatten_or_convert_option {
+    my ($self, $opt_ref, $option_name) = @_;
+    my $value = $self->option($option_name);
+
+    # Flatten if value specified as a list...
+    if (ref($value) eq 'ARRAY') {
+        $value = "@{$value}";
+    }
+
+    # Return raw if not requested as an object...
+    return $value if !$opt_ref->{as_objects};
+
+    my $cache_slot = "parsed_$option_name";
+    # Otherwise, convert to Pod object and cache for reuse...
+    if (!$self->{$cache_slot}) {
+        open my $fh, '<', \$value
+            or die "Internal error: can't parse :$option_name";
+        $self->{$cache_slot}
+            = Perl6::Perldoc::Parser->parse( $fh, { all_pod => 1 })->{tree};
+    }
+
+    return $self->{$cache_slot};
+}
+
+sub term {
+    my ($self, $opt_ref) = @_;
+    return _flatten_or_convert_option($self, $opt_ref, 'term');
+}
+
+sub caption {
+    my ($self, $opt_ref) = @_;
+    return _flatten_or_convert_option($self, $opt_ref, 'caption');
+}
+
+
 
 # Representation of file itself...
 package Perl6::Perldoc::File;  
@@ -1468,21 +1622,46 @@ package Perl6::Perldoc::Block::input;
 package Perl6::Perldoc::Block::output;   
     use base 'Perl6::Perldoc::Block';
 
+# Base class for =headN classes
+package Perl6::Perldoc::Heading;
+    use base 'Perl6::Perldoc::Block';
+
+# All headings have a title (which is just their contents)...
+sub title {
+    my ($self) = @_;
+
+    my $vals_ref = $self->{content};
+
+    if (exists $self->{number}) {
+        unshift @{$vals_ref}, "$self->{number}. ";
+    }
+
+    if (!wantarray) {
+        if (@{ $vals_ref } > 1) {
+            require Carp and Carp::carp(
+                "Multivalued accessor title() called in scalar context"
+            );
+        }
+        return $vals_ref->[0];
+    }
+    return @{ $vals_ref };
+}
+
 # Standard =head1 block...
 package Perl6::Perldoc::Block::head1;  
-    use base 'Perl6::Perldoc::Block';
+    use base 'Perl6::Perldoc::Heading';
 
 # Standard =head2 block...
 package Perl6::Perldoc::Block::head2;  
-    use base 'Perl6::Perldoc::Block';
+    use base 'Perl6::Perldoc::Heading';
 
 # Standard =head3 block...
 package Perl6::Perldoc::Block::head3;  
-    use base 'Perl6::Perldoc::Block';
+    use base 'Perl6::Perldoc::Heading';
 
 # Standard =head4 block...
 package Perl6::Perldoc::Block::head4;  
-    use base 'Perl6::Perldoc::Block';
+    use base 'Perl6::Perldoc::Heading';
 
 # Standard =item block...
 package Perl6::Perldoc::Block::item;   
@@ -1490,6 +1669,20 @@ package Perl6::Perldoc::Block::item;
 
 # Implicit =list block...
 package Perl6::Perldoc::Block::list;   
+    use base 'Perl6::Perldoc::Block';
+
+# Implicit =tocitem block...
+package Perl6::Perldoc::Block::tocitem;   
+    use base 'Perl6::Perldoc::Block';
+
+sub title {
+    my ($self) = @_;
+    my $content = $self->{content}[0];
+    return $content->title();
+}
+
+# Implicit =toclist block...
+package Perl6::Perldoc::Block::toclist;   
     use base 'Perl6::Perldoc::Block';
 
 # Standard =nested block...
@@ -1511,46 +1704,104 @@ package Perl6::Perldoc::Block::END;
     use base 'Perl6::Perldoc::Block';
 
 # Standard SEMANTIC blocks...
-BEGIN {
-    my @semantic_blocks = qw(
-        NAME              NAMES
-        VERSION           VERSIONS
-        SYNOPSIS          SYNOPSES
-        DESCRIPTION       DESCRIPTIONS
-        USAGE             USAGES
-        INTERFACE         INTERFACES
-        METHOD            METHODS
-        SUBROUTINE        SUBROUTINES
-        OPTION            OPTIONS
-        DIAGNOSTIC        DIAGNOSTICS
-        ERROR             ERRORS
-        WARNING           WARNINGS
-        DEPENDENCY        DEPENDENCIES
-        BUG               BUGS
-        SEEALSO           SEEALSOS
-        ACKNOWLEDGEMENT   ACKNOWLEDGEMENTS
-        AUTHOR            AUTHORS
-        COPYRIGHT         COPYRIGHTS
-        DISCLAIMER        DISCLAIMERS
-        LICENCE           LICENCES
-        LICENSE           LICENSES
-        TITLE             TITLES
-        SECTION           SECTIONS
-        CHAPTER           CHAPTERS
-        APPENDIX          APPENDIXES       APPENDICES
-        TOC               TOCS
-        INDEX             INDEXES          INDICES
-        FOREWORD          FOREWORDS
-        SUMMARY           SUMMARIES
-    );
-
-    for my $blockname (@semantic_blocks) {
-        no strict qw< refs >;
-
-        @{ "Perl6::Perldoc::Block::${blockname}::ISA" }  
-            = 'Perl6::Perldoc::Block';
+package Perl6::Perldoc::Semantic;
+    use base 'Perl6::Perldoc::Block';
+    
+# For most semantic blocks, their title is their name, suitably de-shouted...
+sub title {
+    my ($self) = @_;
+    my $title = ucfirst lc $self->{typename};
+    
+    if (exists $self->{number}) {
+        $title = $self->is_post_numbered  ?  "$title $self->{number}"
+               :                             "$self->{number}. $title"
+               ;
     }
-}
+
+    return $title;
+};
+
+package Perl6::Perldoc::Block::ACKNOWLEDGEMENT;
+                                            use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::ACKNOWLEDGEMENTS;
+                                            use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::APPENDICES;  use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::APPENDIX;    use base 'Perl6::Perldoc::Semantic';
+sub is_post_numbered {1}
+
+package Perl6::Perldoc::Block::APPENDIXES;  use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::AUTHOR;      use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::AUTHORS;     use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::BUG;         use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::BUGS;        use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::CHAPTER;     use base 'Perl6::Perldoc::Semantic';
+sub is_post_numbered {1}
+
+package Perl6::Perldoc::Block::CHAPTERS;    use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::COPYRIGHT;   use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::COPYRIGHTS;  use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::DEPENDENCIES;
+                                            use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::DEPENDENCY;  use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::DESCRIPTION; use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::DESCRIPTIONS;
+                                            use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::DIAGNOSTIC;  use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::DIAGNOSTICS; use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::DISCLAIMER;  use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::DISCLAIMERS; use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::ERROR;       use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::ERRORS;      use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::FOREWORD;    use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::FOREWORDS;   use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::INDEX;       use base 'Perl6::Perldoc::Semantic';
+sub is_post_numbered {1}
+
+package Perl6::Perldoc::Block::INDEXES;     use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::INDICES;     use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::INTERFACE;   use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::INTERFACES;  use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::LICENCE;     use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::LICENCES;    use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::LICENSE;     use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::LICENSES;    use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::METHOD;      use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::METHODS;     use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::NAME;        use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::NAMES;       use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::OPTION;      use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::OPTIONS;     use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::SECTION;     use base 'Perl6::Perldoc::Semantic';
+sub is_post_numbered {1}
+
+package Perl6::Perldoc::Block::SECTIONS;    use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::SUBROUTINE;  use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::SUBROUTINES; use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::SUMMARIES;   use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::SUMMARY;     use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::SYNOPSES;    use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::SYNOPSIS;    use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::TITLE;       use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::TITLES;      use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::USAGE;       use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::USAGES;      use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::VERSION;     use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::VERSIONS;    use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::WARNING;     use base 'Perl6::Perldoc::Semantic';
+package Perl6::Perldoc::Block::WARNINGS;    use base 'Perl6::Perldoc::Semantic';
+
+# A few semantic classes need to translate their titles...
+package Perl6::Perldoc::Block::TOC;         use base 'Perl6::Perldoc::Semantic';
+sub title { return 'Table of Contents'; }
+
+package Perl6::Perldoc::Block::TOCS;        use base 'Perl6::Perldoc::Semantic';
+sub title { return 'Tables of Contents'; }
+
+package Perl6::Perldoc::Block::SEEALSO;     use base 'Perl6::Perldoc::Semantic';
+sub title { return 'See Also'; }
+
+package Perl6::Perldoc::Block::SEEALSOS;    use base 'Perl6::Perldoc::Semantic';
+sub title { return 'See Also'; }
 
 # Base class for formatting codes...
 package Perl6::Perldoc::FormattingCode; 
@@ -1583,9 +1834,11 @@ sub synonyms {
     my ($self) = @_;
     my $vals_ref = $self->{synonyms};
     if (!wantarray) {
-        require Carp and Carp::carp
-            "Multivalued accessor synonyms() called in scalar context"
-                if @{ $vals_ref } > 1;
+        if (@{ $vals_ref } > 1) {
+            require Carp and Carp::carp(
+                "Multivalued accessor synonyms() called in scalar context"
+            );
+        }
         return $vals_ref->[0];
     }
     return @{ $vals_ref };
@@ -1608,13 +1861,39 @@ package Perl6::Perldoc::FormattingCode::K;
 package Perl6::Perldoc::FormattingCode::L;
     use base 'Perl6::Perldoc::FormattingCode';
 
+# Flatten a hierarchical data structure into a suitable link target...
+use Scalar::Util qw< reftype >;
+sub _flatten {
+    my $flat_version = _flatten_recursive(@_);
+    $flat_version =~ s{\n}{ }gxms;
+    $flat_version =~ s{\A \s+ | \s+ \z}{}gxms;
+    return $flat_version;
+}
+
+sub _flatten_recursive {
+    my ($data) = @_;
+    my $class = ref($data) || q{};
+    $class =~ s{.*::}{}xms;
+    my $type = reftype($data) || q{};
+    if ($type eq 'HASH') {
+        return q{} if $data->{ignore_toc};
+        return "$class<" . _flatten_recursive($data->{content}) . '>';
+    }
+    elsif ($type eq 'ARRAY') {
+        return join q{}, map {_flatten_recursive($_)} @{$data};
+    }
+    else {
+        return $data || q{};
+    }
+}
+
 # The content of a link is its default target...
 sub new {
     my ($classname, $data_ref) = @_;
     my $self = $classname->SUPER::new($data_ref);
 
     if (!$self->{target}) {
-        $self->{target} = join q{}, @{$self->{content}};
+        $self->{target} = _flatten($self->{content});
         $self->{has_no_text} = 1;
     }
 
@@ -1713,9 +1992,11 @@ sub entries {
     my ($self) = @_;
     my $vals_ref = $self->{entries};
     if (!wantarray) {
-        require Carp and Carp::carp
-            "Multivalued accessor entries() called in scalar context"
-                if @{ $vals_ref } > 1;
+        if (@{ $vals_ref } > 1) {
+            require Carp and Carp::carp(
+                "Multivalued accessor entries() called in scalar context"
+            );
+        }
         return $vals_ref->[0];
     }
     return @{ $vals_ref };
@@ -1731,14 +2012,25 @@ package Perl6::Perldoc::FormattingCode::Z;
 package Perl6::Perldoc::Block::table;   
     use base 'Perl6::Perldoc::Block';
 
+# A table's caption is its title...
+sub title {
+    my ($self) = @_;
+    if (my $title = $self->caption({ as_objects => 1 })) {
+        return $title;
+    }
+    return;
+}
+
 # Rows accessor...
 sub rows {
     my ($self) = @_;
     my $vals_ref = $self->{rows};
     if (!wantarray) {
-        require Carp and Carp::carp
-            "Multivalued accessor rows() called in scalar context"
-                if @{ $vals_ref } > 1;
+        if (@{ $vals_ref } > 1) {
+            require Carp and Carp::carp(
+                "Multivalued accessor rows() called in scalar context"
+            );
+        }
         return $vals_ref->[0];
     }
     return @{ $vals_ref };
@@ -1943,9 +2235,11 @@ sub cells {
     my ($self) = @_; 
     my $vals_ref = $self->{cells};
     if (!wantarray) {
-        require Carp and Carp::carp
-            "Multivalued accessor cells() called in scalar context"
-                if @{ $vals_ref } > 1;
+        if (@{ $vals_ref } > 1) {
+            require Carp and Carp::carp(
+                "Multivalued accessor cells() called in scalar context"
+            );
+        }
         return $vals_ref->[0];
     }
     return @{ $vals_ref };
@@ -1959,9 +2253,11 @@ sub content {
     my ($self) = @_; 
     my $vals_ref = $self->{content};
     if (!wantarray) {
-        require Carp and Carp::carp
-            "Multivalued accessor content() called in scalar context"
-                if @{ $vals_ref } > 1;
+        if (@{ $vals_ref } > 1) {
+            require Carp and Carp::carp(
+                "Multivalued accessor content() called in scalar context"
+            );
+        }
         return $vals_ref->[0];
     }
     return @{ $vals_ref };
@@ -2130,11 +2426,19 @@ The class hierarchy of the objects returned by C<parse()> is as follows:
             Block::table
             Block::table::Row
             Block::table::Cell
-            Block::NAME
-            Block::VERSION
-            Block::SYNOPSIS
-            Block::DESCRIPTION
-            etc.
+            Block::toclist
+            Block::tocitem
+                Block::tocitem1
+                Block::tocitem2
+                Block::tocitem3
+                Block::tocitem4
+                Block::tocitem5
+            Block::Semantic
+                Block::NAME
+                Block::VERSION
+                Block::SYNOPSIS
+                Block::DESCRIPTION
+                etc.
         FormattingCode
             FormattingCode::B
             FormattingCode::C
@@ -2235,6 +2539,33 @@ Returns the hierarchical number of the block within its block type. Will be
 undefined if the block was not numbered, so typically only meaningful for
 headers and list items.
 
+=item C<is_numbered()>
+
+Returns true if the block has a C<:numbered> option specified (either
+explicitly, or by preconfiguration).
+
+=item C<is_post_numbered()>
+
+Returns true if the block is special in that its number should appear at the
+end of its content, not at the start. Typically this is true for certain types
+of semantic block (for example: C<=CHAPTER>) where a rendering such as:
+
+    Chapter 1
+
+makes more sense than:
+
+    1. Chapter
+
+User-defined block are often defined to have their C<is_post_numbered()>
+methods return true as well. For example:
+
+    for Image :numbered :caption<Our mascot> :source<file:images/camel.jpg>
+
+is better captioned with post-numbering:
+
+    Image 7: Our mascot
+    
+
 =item C<config()>
 
 Returns a reference to a nested hash containing the configuration
@@ -2248,21 +2579,32 @@ Returns the value of the named option for the specific block object. This
 value may be derived from an explicit option on the declaration, or implicitly
 from the configuration for the block.
 
+=item C<term( \%options )>
+
+Returns the value of the "term" option of the block. Typically this will
+be C<undef> unless the block is an C<=item>.
+
+The "term" value is normally returned as a raw string, but you can
+have the method return a fully parsed Pod subtree by specifying an
+option on the call:
+
+    $pod_tree = $item->term({ as_objects => 1 })
+
+
+=item C<caption( \%options )>
+
+Returns the value of the "caption" option of the block. This is most often
+used for C<=table> blocks, but any block may be given a caption.
+
+The "caption" value is normally returned as a raw string, but you can
+have the method return a fully parsed Pod subtree by specifying an
+option on the call:
+
+    $pod_tree = $item->caption({ as_objects => 1 })
+
 =back
 
-Some classes of object offer extra methods, as follows:
-
-=head2 Perl6::Perldoc::FormattingCode::L and Perl6::Perldoc::FormattingCode::P
-
-=over
-
-=item C<target()>
-
-Returns a string containing the target URI of the C<< LZ<><> >> or C<< PZ<><>
->> formatting code represented by the object.
-
-=back
-
+Some DOM classes offer additional methods, as follows:
 
 =head2 Perl6::Perldoc::Directive::config
 
@@ -2272,21 +2614,6 @@ Returns a string containing the target URI of the C<< LZ<><> >> or C<< PZ<><>
 
 Returns the typename of the block type that the corresponding C<=config>
 directive configures.
-
-=back
-
-
-=head2 Perl6::Perldoc::Block::item
-
-=over
-
-=item C<term( \%options )>
-
-Returns the term of the corresponding C<=item> block. Normally this is
-returned as a raw string, but you can have the method return a fully parsed
-Pod subtree by specifying an option on the call:
-
-    $pod_tree = $item->term({ as_objects => 1 })
 
 =back
 
@@ -2353,6 +2680,18 @@ true for an object representing:
 but would return false for an object representing:
 
     L<http://dev.perl.org>
+
+=back
+
+
+=head2 Perl6::Perldoc::FormattingCode::L and Perl6::Perldoc::FormattingCode::P
+
+=over
+
+=item C<target()>
+
+Returns a string containing the target URI of the C<< LZ<><> >> or C<< PZ<><>
+>> formatting code represented by the object.
 
 =back
 
@@ -2513,7 +2852,7 @@ version.pm
 None reported.
 
 
-=head1 BUGS AND LIMITATIONS
+=head1 LIMITATIONS
 
 =over 
 
@@ -2534,11 +2873,22 @@ are supported.
 
 =item * 
 
-The C<=encoding> directive is not respected.
+The C<=encoding> directive is parsed and internally represented, but ignored.
+
 
 =back
 
-No bugs have been reported.
+
+=head1 BUGS
+
+=over 
+
+=item * 
+
+The parser does not assume a default encoding of UTF-8 (as per the
+specification in Synopsis 26).
+
+=back 
 
 Please report any bugs or feature requests to
 C<bug-perldoc-parser@rt.cpan.org>, or through the web interface at

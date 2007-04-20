@@ -1,8 +1,8 @@
 $VAR1 = bless( {
-  'warnings' => [],
-  'errors' => [
+  'warnings' => [
     'No =item1 before =item2 at t_source/list_nested_wrong.pod6 line 3'
   ],
+  'errors' => [],
   'tree' => bless( {
     'typename' => '(document)',
     'content' => [

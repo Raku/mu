@@ -28,3 +28,33 @@ Revision history for Perl6-Perldoc
     - Fixed handling (and on-the-fly creation) of =headN and =itemN classes
 
     - Numerous other minor fixes pointed out by new test suite
+
+
+0.0.4  Fri Apr 20 12:03:05 2007
+
+    - Fixed bleadperl support for on-the-fly carping and croaking (thanks Aevar)
+
+    - Added tests for diagnostics
+
+    - Added filtering kludge for Windows-style newlines (thanks Thom)
+
+    - Changed "missing =itemN" from error to warning
+
+    - Added Filter::Simple dependency (thanks Dave)
+
+    - Added support for P<toc:...> for inserting tables-of-contents
+
+    - Numerous documentation tweaks
+
+    - Vastly improved robustness of XHTML translation of internal links
+
+    - Numerous fixes to XHTML conformance errors:
+        * Removed spurious <di/> from definition item generation
+        * fixed closing of <th> tags
+        * balanced all <a>..</a> tags
+
+    - Made XHTML strict conforming:
+        * Quoted value in <li value=...>
+        * s{<br>}{<br/>}g
+
+    - Added 'full_doc' option to XHTML translator (thanks Nick)
