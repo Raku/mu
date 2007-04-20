@@ -123,17 +123,38 @@ $::Object->{_methods}{HOW} = ::CALL( $::Method, 'new',
         } 
     );
 
+# parent is a prototype object
+$::Class->{_methods}{add_parent} = ::CALL( $::Method, 'new', sub { push @{$_[0]{_isa}}, $_[1] } );
+# method_name is unboxed string, method is a Method object
+$::Class->{_methods}{add_method} = ::CALL( $::Method, 'new', sub { $_[0]{_methods}{$_[1]} = $_[2] } );
+
+
+# Values
+
+$::Str = bless {
+    _methods  => {},
+    _roles    => {},
+    _modified => {},
+    _name     => '$::Str',
+    _value    => undef,
+    _isa   => [ $::Object ],
+}, 'Str';
+
+
+# Containers
+
+$::Scalar = bless {
+    _methods  => {},
+    _roles    => {},
+    _modified => {},
+    _name     => '$::Scalar',
+    _value    => undef,
+    _isa   => [ $::Object ],
+}, 'Scalar';
+
+
 1;
 __END__
-use KindaPerl6::Perl5::Type;
-
-{
-package Class; # virtual
-}
-
-{
-package Role; # virtual
-}
 
 {
 package KindaPerl6::Class;
