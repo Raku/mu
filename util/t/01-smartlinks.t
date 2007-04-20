@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Smart::Comments;
+#use Smart::Comments;
 use Test::More tests => 20;
 use File::Slurp;
 use POSIX;
