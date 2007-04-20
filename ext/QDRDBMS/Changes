@@ -27,7 +27,6 @@
         lib/QDRDBMS/Engine/Example.pm
         lib/QDRDBMS/Engine/Example/Operators.pm
         lib/QDRDBMS/Engine/Example/PhysType.pm
-        lib/QDRDBMS/GSTV.pm
         lib/QDRDBMS/Language.pod
         lib/QDRDBMS/SeeAlso.pod
         lib/QDRDBMS/Validator.pm
@@ -39,5 +38,5 @@
         t/QDR_00_Compile.t
         t/QDR_50_Validate_Example.t
 
-    * Initial code file versions are: QDRDBMS.pm and AST.pm and GSTV.pm and
+    * Initial code file versions are: QDRDBMS.pm and AST.pm and
     Validator.pm and Example.pm and PhysType.pm and Operators.pm 0.0.0.

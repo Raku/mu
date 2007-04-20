@@ -3,17 +3,6 @@ use v6-alpha;
 ###########################################################################
 ###########################################################################
 
-#my Hash of QDRDBMS::AST::EntityName $LITERAL_TYPE_MAP = {
-my Hash $LITERAL_TYPE_MAP = {
-    'Bool' => ::QDRDBMS::AST::EntityName.new( :text('sys.type.Bool') ),
-    'Str'  => ::QDRDBMS::AST::EntityName.new( :text('sys.type.Text') ),
-    'Blob' => ::QDRDBMS::AST::EntityName.new( :text('sys.type.Blob') ),
-    'Int'  => ::QDRDBMS::AST::EntityName.new( :text('sys.type.Int') ),
-};
-
-###########################################################################
-###########################################################################
-
 module QDRDBMS::AST-0.0.0 {
     # Note: This given version applies to all of this file's packages.
 
@@ -23,9 +12,20 @@ sub EntityName of QDRDBMS::AST::EntityName (Str :$text!) is export {
     return QDRDBMS::AST::EntityName.new( :text($text) );
 }
 
-sub LitDefExpr of QDRDBMS::AST::LitDefExpr
-        (Bool|Str|Blob|Int :$lit!) is export {
-    return QDRDBMS::AST::LitDefExpr.new( :lit($lit) );
+sub LitBool of QDRDBMS::AST::LitBool (Bool :$v!) is export {
+    return QDRDBMS::AST::LitBool.new( :v($v) );
+}
+
+sub LitText of QDRDBMS::AST::LitText (Str :$v!) is export {
+    return QDRDBMS::AST::LitText.new( :v($v) );
+}
+
+sub LitBlob of QDRDBMS::AST::LitBlob (Blob :$v!) is export {
+    return QDRDBMS::AST::LitBlob.new( :v($v) );
+}
+
+sub LitInt of QDRDBMS::AST::LitInt (Int :$v!) is export {
+    return QDRDBMS::AST::LitInt.new( :v($v) );
 }
 
 sub VarNameExpr of QDRDBMS::AST::VarNameExpr
@@ -109,50 +109,102 @@ role QDRDBMS::AST::Expr {}
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::AST::LitDefExpr {
+class QDRDBMS::AST::LitBool {
     does QDRDBMS::AST::Expr;
 
-#    has Bool|Str|Blob|Int        $!lit_val;
-    has Scalar $!lit_val;
-    has QDRDBMS::AST::EntityName $!lit_type;
+    has Bool $!v;
 
-###########################################################################
+    submethod BUILD (Bool :$v!) {
 
-#submethod BUILD (Bool|Str|Blob|Int :lit($lit_val)!) {
-submethod BUILD (Bool|Str|Blob|Int :$lit!) {
-    my $lit_val = $lit;
+        die q{new(): Bad :$v arg; it is not an object of a}
+                ~ q{ Bool-doing class.}
+            if !$v.defined or !$v.does(Bool);
 
-    die q{new(): Bad :$lit arg; it is not an object.}
-        if !$lit_val.defined;
-    my $lit_class = $lit_val.WHAT;
-    if (my $lit_type = $LITERAL_TYPE_MAP{$lit_class}) {
-        $!lit_val  = $lit_val;
-        $!lit_type = $lit_type;
-    }
-    else {
-        die q{new(): Bad :$lit arg; it is not an object of a}
-            ~ q{ (Bool|Str|Blob|Int) class.};
+        $!v = $v;
+
+        return;
     }
 
-    return;
-}
+    sub v of Bool () {
+        return $!v;
+    }
+
+} # class QDRDBMS::AST::LitBool
 
 ###########################################################################
-
-#sub lit of Bool|Str|Blob|Int () {
-sub lit of Scalar () {
-    return $!lit_val;
-}
-
 ###########################################################################
 
-sub lit_type of QDRDBMS::AST::EntityName () {
-    return $!lit_type;
-}
+class QDRDBMS::AST::LitText {
+    does QDRDBMS::AST::Expr;
+
+    has Str $!v;
+
+    submethod BUILD (Str :$v!) {
+
+        die q{new(): Bad :$v arg; it is not an object of a}
+                ~ q{ Str-doing class.}
+            if !$v.defined or !$v.does(Str);
+
+        $!v = $v;
+
+        return;
+    }
+
+    sub v of Str () {
+        return $!v;
+    }
+
+} # class QDRDBMS::AST::LitText
 
 ###########################################################################
+###########################################################################
 
-} # class QDRDBMS::AST::LitDefExpr
+class QDRDBMS::AST::LitBlob {
+    does QDRDBMS::AST::Expr;
+
+    has Blob $!v;
+
+    submethod BUILD (Blob :$v!) {
+
+        die q{new(): Bad :$v arg; it is not an object of a}
+                ~ q{ Blob-doing class.}
+            if !$v.defined or !$v.does(Blob);
+
+        $!v = $v;
+
+        return;
+    }
+
+    sub v of Blob () {
+        return $!v;
+    }
+
+} # class QDRDBMS::AST::LitBlob
+
+###########################################################################
+###########################################################################
+
+class QDRDBMS::AST::LitInt {
+    does QDRDBMS::AST::Expr;
+
+    has Int $!v;
+
+    submethod BUILD (Int :$v!) {
+
+        die q{new(): Bad :$v arg; it is not an object of a}
+                ~ q{ Int-doing class.}
+            if !$v.defined or !$v.does(Int);
+
+        $!v = $v;
+
+        return;
+    }
+
+    sub v of Int () {
+        return $!v;
+    }
+
+} # class QDRDBMS::AST::LitInt
 
 ###########################################################################
 ###########################################################################
@@ -422,6 +474,15 @@ This document describes QDRDBMS::AST version 0.0.0 for Perl 6.
 It also describes the same-number versions for Perl 6 of [...].
 
 =head1 SYNOPSIS
+
+I<This documentation is pending.>
+
+    use QDRDBMS::AST <LitBool LitText LitBlob LitInt>;
+
+    my $truth_value = LitBool( :v(2 + 2 == 4) );
+    my $planetoid = LitText( :v('Ceres') );
+    my $package = LitBlob( :v(pack 'H2', 'P') );
+    my $answer = LitInt( :v(42) );
 
 I<This documentation is pending.>
 
