@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-#use Smart::Comments;
+use Smart::Comments;
 use Test::More tests => 20;
 use File::Slurp;
 use POSIX;
@@ -63,9 +63,14 @@ ok -d "$data_path/expected", 'expected/ okay';
 ok -d "$data_path/t", 't/ okay';
 
 chdir $data_path;
+
+my @args = qw(t/*.t t/*/*.t t/*/*/*.t t/*/*/*/*.t);
+my @t_files = sort map glob, @args;
+### @t_files
+
 system("$^X $Bin/../smartlinks.pl --fast " .
     "--syn-dir Spec --out-dir got " .
-    "--dir t");
+    join(" ", @t_files));
 is $? >> 8, 0, "smartlinks.pl returned zero status";
 
 for my $path (glob "expected/*.html") {
