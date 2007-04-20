@@ -251,6 +251,8 @@ class QDRDBMS::AST::BagSel {
 ###########################################################################
 
 class QDRDBMS::AST::EntityName {
+    does QDRDBMS::AST::Node;
+
     has QDRDBMS::AST::LitText $!text_possrep;
     has QDRDBMS::AST::SeqSel  $!seq_possrep;
 
@@ -426,7 +428,9 @@ sub func_args_hoa of Str () {
 ###########################################################################
 ###########################################################################
 
-role QDRDBMS::AST::Stmt {}
+role QDRDBMS::AST::Stmt {
+    does QDRDBMS::AST::Node;
+} # role QDRDBMS::AST::Stmt
 
 ###########################################################################
 ###########################################################################
