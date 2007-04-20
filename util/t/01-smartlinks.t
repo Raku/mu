@@ -73,6 +73,7 @@ for my $path (glob "expected/*.html") {
     my $out = diff $file1, $file2, {STYLE => 'OldStyle'};
     $out =~ s/70c70\n<[^\n]*\n---\n>[^\n]*\n//;
     $out =~ s/82c82\n<[^\n]*\n---\n>[^\n]*\n//;
+    $out =~ s/82c83\n(?:<[^\n]*\n){2}---\n(?:>[^\n]*){2}\n//;
     $out =~ s/9c9\n<[^\n]*\n---\n>[^\n]*\n//;
     #$out =~ s/(?x) 50,52c50,52 \n (?: < [^\n]* \n){3} --- \n (?: > [^\n]* \n){3}//;
     #$out =~ s/64,65c64,65\n<[^\n]*\n<[^\n]*\n---\n>[^\n]*\n>[^\n]*\n//;
