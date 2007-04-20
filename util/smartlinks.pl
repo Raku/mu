@@ -440,7 +440,6 @@ sub process_syn ($$$$) {
         $syn_id = $Spec{$base};
     }
     if ($syn_id == 26) { #hardcode the only Perldoc one for now; detect Perldoc later.
-      
       eval { use Perl6::Perldoc::Parser; use Perl6::Perldoc::To::Xhtml; };
       if ($@) {
             warn "Please install Perl6::Perldoc from the CPAN to parse S26";
@@ -471,7 +470,7 @@ sub process_syn ($$$$) {
         ## $smoke_info
         $perldochtml =~ s{<!-- start doc -->}{$&
             <I>This page was generated at $time.<br/>
-            (<a href="http://svn.perl.org/perl6/doc/trunk/design/syn/">syn</a> <strong>$syn_rev</strong>, <a href="http://svn.pugscode.org/pugs/t>pugs-tests</a> <strong>$pugs_rev</strong>$smoke_info)</I>
+            (<a href="http://svn.perl.org/perl6/doc/trunk/design/syn/">syn</a> <strong>$syn_rev</strong>, <a href="http://svn.pugscode.org/pugs/t/">pugs-tests</a> <strong>$pugs_rev</strong>$smoke_info)</I>
         };
         my $htmfile = "$out_dir/S$syn_id.html";
         warn "info: generating $htmfile...\n";
@@ -575,7 +574,7 @@ sub process_syn ($$$$) {
         ## $smoke_info
         $html =~ s{<!-- start doc -->}{$&
             <I>This page was generated at $time.<br/>
-            (<a href="http://svn.perl.org/perl6/doc/trunk/design/syn/">syn</a> <strong>$syn_rev</strong>, <a href="http://svn.pugscode.org/pugs/t>pugs-tests</a> <strong>$pugs_rev</strong>$smoke_info)</I>
+            (<a href="http://svn.perl.org/perl6/doc/trunk/design/syn/">syn</a> <strong>$syn_rev</strong>, <a href="http://svn.pugscode.org/pugs/t/">pugs-tests</a> <strong>$pugs_rev</strong>$smoke_info)</I>
         };
         my $htmfile = "$out_dir/S$syn_id.html";
         warn "info: generating $htmfile...\n";
