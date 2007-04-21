@@ -5,8 +5,8 @@
 # by this script, and http://perlcabal.org/syn
 # also needs it.
 
-# virtual mem: 1 GB
-ulimit -v 1000000
+# virtual mem: 1.5 GB
+ulimit -v 1500000
 # cup-time: 5 hours
 ulimit -t 18000
 
