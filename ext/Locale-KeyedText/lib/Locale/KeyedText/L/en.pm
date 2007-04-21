@@ -10,64 +10,64 @@ my Str %TEXT_STRINGS is readonly = (
     'LKT_ARG_UNDEF'
         => q[<CLASS>.<METH>(): argument <ARG> is undefined (or missing).],
     'LKT_ARG_NO_ARY'
-        => q[<CLASS>.<METH>(): argument <ARG> is not an Array object,]
+        => q[<CLASS>.<METH>(): argument <ARG> is not an Array,]
            ~ q[ but rather contains '<VAL>'.],
     'LKT_ARG_NO_HASH'
-        => q[<CLASS>.<METH>(): argument <ARG> is not a Hash object,]
+        => q[<CLASS>.<METH>(): argument <ARG> is not a Hash,]
            ~ q[ but rather contains '<VAL>'.],
     'LKT_ARG_NO_EXP_TYPE'
         => q[<CLASS>.<METH>(): argument <ARG> is not a <EXP_TYPE>,]
            ~ q[ but rather contains '<VAL>'.],
 
     'LKT_ARG_ARY_ELEM_UNDEF'
-        => q[<CLASS>.<METH>(): argument <ARG> is an Array object as expected,]
+        => q[<CLASS>.<METH>(): argument <ARG> is an Array as expected,]
            ~ q[ but one of its elements is undefined.],
     'LKT_ARG_ARY_ELEM_NO_ARY'
-        => q[<CLASS>.<METH>(): argument <ARG> is an Array object as expected,]
-           ~ q[ but one of its elements is not an Array object,]
+        => q[<CLASS>.<METH>(): argument <ARG> is an Array as expected,]
+           ~ q[ but one of its elements is not an Array,]
            ~ q[ but rather contains '<VAL>'.],
     'LKT_ARG_ARY_ELEM_NO_HASH'
-        => q[<CLASS>.<METH>(): argument <ARG> is an Array object as expected,]
-           ~ q[ but one of its elements is not a Hash object,]
+        => q[<CLASS>.<METH>(): argument <ARG> is an Array as expected,]
+           ~ q[ but one of its elements is not a Hash,]
            ~ q[ but rather contains '<VAL>'.],
     'LKT_ARG_ARY_ELEM_NO_EXP_TYPE'
-        => q[<CLASS>.<METH>(): argument <ARG> is an Array object as expected,]
+        => q[<CLASS>.<METH>(): argument <ARG> is an Array as expected,]
            ~ q[ but one of its elements is not a <EXP_TYPE>,]
            ~ q[ but rather contains '<VAL>'.],
 
     'LKT_ARG_HASH_VAL_UNDEF'
-        => q[<CLASS>.<METH>(): argument <ARG> is a Hash object as expected,]
+        => q[<CLASS>.<METH>(): argument <ARG> is a Hash as expected,]
            ~ q[ but the value for its '<KEY>' key is undefined.],
     'LKT_ARG_HASH_VAL_NO_ARY'
-        => q[<CLASS>.<METH>(): argument <ARG> is a Hash object as expected,]
-           ~ q[ but the value for its '<KEY>' key is not an Array object,]
+        => q[<CLASS>.<METH>(): argument <ARG> is a Hash as expected,]
+           ~ q[ but the value for its '<KEY>' key is not an Array,]
            ~ q[ but rather contains '<VAL>'.],
     'LKT_ARG_HASH_VAL_NO_HASH'
-        => q[<CLASS>.<METH>(): argument <ARG> is a Hash object as expected,]
-           ~ q[ but the value for its '<KEY>' key is not a Hash object,]
+        => q[<CLASS>.<METH>(): argument <ARG> is a Hash as expected,]
+           ~ q[ but the value for its '<KEY>' key is not a Hash,]
            ~ q[ but rather contains '<VAL>'.],
     'LKT_ARG_HASH_VAL_NO_EXP_TYPE'
-        => q[<CLASS>.<METH>(): argument <ARG> is a Hash object as expected,]
+        => q[<CLASS>.<METH>(): argument <ARG> is a Hash as expected,]
            ~ q[ but the value for its '<KEY>' key is not a <EXP_TYPE>,]
            ~ q[ but rather contains '<VAL>'.],
 
     'LKT_ARG_ARY_NO_ELEMS'
-        => q[<CLASS>.<METH>(): argument <ARG> is an Array object as expected,]
+        => q[<CLASS>.<METH>(): argument <ARG> is an Array as expected,]
            ~ q[ but it has no elements.],
     'LKT_ARG_HASH_NO_ELEMS'
-        => q[<CLASS>.<METH>(): argument <ARG> is a Hash object as expected,]
+        => q[<CLASS>.<METH>(): argument <ARG> is a Hash as expected,]
            ~ q[ but it has no elements.],
 
     'LKT_ARG_EMP_STR'
         => q[<CLASS>.<METH>(): argument <ARG> is an empty string.],
     'LKT_ARG_ARY_ELEM_EMP_STR'
-        => q[<CLASS>.<METH>(): argument <ARG> is an Array object as expected,]
+        => q[<CLASS>.<METH>(): argument <ARG> is an Array as expected,]
            ~ q[ but one of its elements is an empty string.],
     'LKT_ARG_HASH_KEY_EMP_STR'
-        => q[<CLASS>.<METH>(): argument <ARG> is a Hash object as expected,]
+        => q[<CLASS>.<METH>(): argument <ARG> is a Hash as expected,]
            ~ q[ but one of its keys is an empty string.],
     'LKT_ARG_HASH_VAL_EMP_STR'
-        => q[<CLASS>.<METH>(): argument <ARG> is a Hash object as expected,]
+        => q[<CLASS>.<METH>(): argument <ARG> is a Hash as expected,]
            ~ q[ but the value for its '<KEY>' key is an empty string.],
 
     # This group of strings is specific to Locale::KeyedText itself:
@@ -84,7 +84,7 @@ my Str %TEXT_STRINGS is readonly = (
 ###########################################################################
 ###########################################################################
 
-module Locale::KeyedText::L::en-1.0.2 {
+module Locale::KeyedText::L::en-1.0.3 {
     sub get_text_by_key (Str $msg_key!) returns Str {
         return %TEXT_STRINGS{$msg_key};
     }
@@ -104,7 +104,7 @@ Localization of Locale::KeyedText for English
 
 =head1 VERSION
 
-This document describes Locale::KeyedText::L::en version 1.0.2.
+This document describes Locale::KeyedText::L::en version 1.0.3 for Perl 6.
 
 =head1 SYNOPSIS
 
@@ -116,7 +116,8 @@ I<This documentation is pending.>
 
 =head1 INTERFACE
 
-I<This documentation is pending; this section may also be split into several.>
+I<This documentation is pending; this section may also be split into
+several.>
 
 =head1 DIAGNOSTICS
 
@@ -144,13 +145,13 @@ I<This documentation is pending.>
 
 =head1 AUTHOR
 
-Darren R. Duncan (C<perl@DarrenDuncan.net>)
+Darren Duncan (C<perl@DarrenDuncan.net>)
 
 =head1 LICENCE AND COPYRIGHT
 
 This file is part of the Locale::KeyedText library.
 
-Locale::KeyedText is Copyright (c) 2003-2006, Darren R. Duncan.
+Locale::KeyedText is Copyright © 2003-2007, Darren Duncan.
 
 See the LICENCE AND COPYRIGHT of L<Locale::KeyedText> for details.
 

@@ -12,7 +12,7 @@ my Str $EMPTY_STR is readonly = q{};
 ###########################################################################
 ###########################################################################
 
-package Locale::KeyedText-1.73.1 {
+package Locale::KeyedText-1.74.0 {
     # Note: This given version applies to all of this file's packages.
 } # package Locale::KeyedText
 
@@ -378,10 +378,11 @@ Refer to user messages in programs by keys
 
 =head1 VERSION
 
-This document describes Locale::KeyedText version 1.73.1.
+This document describes Locale::KeyedText version 1.74.0 for Perl 6.
 
-It also describes the same-number versions of Locale::KeyedText::Message
-("Message") and Locale::KeyedText::Translator ("Translator").
+It also describes the same-number versions for Perl 6 of
+Locale::KeyedText::Message ("Message") and Locale::KeyedText::Translator
+("Translator").
 
 I<Note that the "Locale::KeyedText" package serves only as the name-sake
 representative for this whole file, which can be referenced as a unit by
@@ -970,32 +971,33 @@ I<This documentation is pending.>
 
 =head1 AUTHOR
 
-Darren R. Duncan (C<perl@DarrenDuncan.net>)
+Darren Duncan (C<perl@DarrenDuncan.net>)
 
 =head1 LICENCE AND COPYRIGHT
 
 This file is part of the Locale::KeyedText library.
 
-Locale::KeyedText is Copyright (c) 2003-2006, Darren R. Duncan.  All rights
-reserved.  Address comments, suggestions, and bug reports to
-C<perl@DarrenDuncan.net>, or visit L<http://www.DarrenDuncan.net/> for more
-information.
+Locale::KeyedText is Copyright © 2003-2007, Darren Duncan.  All rights
+reserved.
+
+Address comments, suggestions, and bug reports to C<perl@DarrenDuncan.net>,
+or visit L<http://www.DarrenDuncan.net/> for more information.
 
 Locale::KeyedText is free software; you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License (LGPL) as
 published by the Free Software Foundation (L<http://www.fsf.org/>); either
 version 2.1 of the License, or (at your option) any later version.  You
 should have received a copy of the LGPL as part of the Locale::KeyedText
-distribution, in the file named "LGPL"; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.
+distribution, in the file named "LGPL"; if not, see
+L<http://www.gnu.org/licenses/> or write to the Free Software Foundation,
+Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 
 Any versions of Locale::KeyedText that you modify and distribute must carry
 prominent notices stating that you changed the files and the date of any
 changes, in addition to preserving this original copyright notice and other
-credits. Locale::KeyedText is distributed in the hope that it will be
+credits.  Locale::KeyedText is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the LGPL for more
-details.
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 While it is by no means required, the copyright holders of
 Locale::KeyedText would appreciate being informed any time you create a
@@ -1018,6 +1020,11 @@ program code, rather than requiring separate files.
 On 2005.03.21, provided feedback towards improving this module's
 documentation, particularly towards using a much shorter and
 non-intimidating SYNOPSIS.
+
+=item Franck Cuny (C<franck.cuny@gmail.com>)
+
+On 2007.04.17, authored the French localization of Locale::KeyedText
+itself, which is Locale::KeyedText::L::fr.
 
 =back
 

@@ -1,19 +1,17 @@
 use v6-alpha;
 
-use lib <t/lib ext/Locale-KeyedText/t/lib>;
-
 use Test;
 
 plan( 6 );
 
-use Locale::KeyedText; pass "(dummy instead of broken use_ok)";
-skip( 1, q{is( Locale::KeyedText.WHO.version, 1.73.1,
+use_ok( 'Locale::KeyedText' );
+skip( 1, q{is( Locale::KeyedText.WHO.version, 1.74.0,
     'Locale::KeyedText is the correct version' );} );
 
-use Locale::KeyedText::L::en; pass "(dummy instead of broken use_ok)";
-skip( 1, q{is( Locale::KeyedText::L::en.WHO.version, 1.0.2,
+use_ok( 'Locale::KeyedText::L::en' );
+skip( 1, q{is( Locale::KeyedText::L::en.WHO.version, 1.0.3,
     'Locale::KeyedText::L::en is the correct version' );} );
 
-use Locale::KeyedText::L::fr; pass "(dummy instead of broken use_ok)";
+use_ok( 'Locale::KeyedText::L::fr' );
 skip( 1, q{is( Locale::KeyedText::L::fr.WHO.version, 1.0.0,
     'Locale::KeyedText::L::fr is the correct version' );} )
