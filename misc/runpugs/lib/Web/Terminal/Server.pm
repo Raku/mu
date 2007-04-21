@@ -141,7 +141,7 @@ sub run {
 
 #-------------------------------------------------------------------------------
 # If you wonder why this is here, read
-# Advanced Perl Programming
+# Advanced Perl Programming 
 sub login_proc {
 	# Unconditionally accept.
 	\&rcvd_msg_from_client;
@@ -311,35 +311,31 @@ sub termhandler {
 					# check for timeout
 					$term->{called} = time;
 
-				#if swap to other app
+				# if swap to other app
 				# swap to other app is like new session except we recycle the id
 				# I guess in this case a disconnect/connect should be ok
 					if ( $app != $term->{'app'} ) {
 						print "*** Swapping from ",$term->{'app'} ," to $app.\n" if $v;
-						&deactivate_session( $term->{'app'}, $id, $ip );
+                        # deactivate is problematic, so we just kill.
+                        # If there are no inactive sessions left one will be
+                        # created
+						#&deactivate_session( $term->{'app'}, $id, $ip );
+						&kill_session( $term->{'app'}, $id, $ip );
 
 				 # then we should check if there is a free session for this $app
-						if ( $n_inactive_sessions[$app] > 0
-							 and scalar @{ $inactive_sessions[$app] } > 0 )
-						{
 
-					 # OK, inactive session available.
-					 # There should be 1 at least because of the disconnect call
-							my $session_number =
-							  &activate_session( $app, $id, $ip );
-							my $term = $sessions[$app]{$session_number};
-							return $term->{output};
-						} else { # if not, create one. but this should not happen as we disconnected
+                        if ( not ($n_inactive_sessions[$app] > 0
+                              and scalar @{ $inactive_sessions[$app] } > 0 ))
+                        { # No inactive session available. Create one.
 							my $session_number = &create_session($app);
-							if ( $session_number != -1 ) {
-								my $session_number =
-								  &activate_session( $app, $id, $ip );
-								my $term = $sessions[$app]{$session_number};
-								return $term->{output};
-							} else {
+							if ( $session_number == -1 ) {
 								return "Failed to create a new terminal.";
 							}
-						}
+                        }
+						my $session_number = &activate_session( $app, $id, $ip );
+						my $term = $sessions[$app]{$session_number};
+						return $term->{output};
+                        
 					}    # end of swap app
 
 					# handle history
@@ -374,14 +370,14 @@ assert($reply eq $cmd);
 					} else {    # it's a quit
 						print "*** Received a QUIT from $id: $cmd\n" if $v;
 						if (
-							 scalar @{ $inactive_sessions[$app] } >
+							 scalar @{ $inactive_sessions[$app] } <=
 							 $n_inactive_min[$app] )
-						{       #Êif there are enough inactive sessions
+						{       # if there are enough inactive sessions
+							print "Not enough inactive sessions, create one
+                            before killing $id: ",scalar @{ $inactive_sessions[$app] },"<>", $n_inactive_sessions[$app],">",$n_inactive_min[$app] ,"?\n" if $v;  
+							&create_session( $app );
+						} 
 							&kill_session( $app, $id, $ip );
-						} else {
-							print "Not enough inactive sessions to kill $id: ",scalar @{ $inactive_sessions[$app] },"<>", $n_inactive_sessions[$app],">",$n_inactive_min[$app] ,"?\n" if $v;  
-							&deactivate_session( $app, $id, $ip );
-						}
 						$n_sessions_ip{$ip}--;
 						$lines=$Web::Terminal::Settings::quit_message;
 					}
@@ -532,6 +528,9 @@ sub activate_session {
 # the reset_command doesn't get through. 
 # So we should check that based on the value of prompt.
 # If it's multi-line we need kill & create
+# In fact, to ensure we have the latest devel version, kill & create is
+# prefered anyway.
+# So this routine is obsolete.
 sub deactivate_session {
 	my $app   = shift;
 	my $id    = shift;
@@ -543,6 +542,10 @@ sub deactivate_session {
     $Web::Terminal::Settings::prompt) {
     my $unfinished_multi_line=1;
     }
+    my $always_kill=1;
+    my $recycle=(1-$always_kill) * $unfinished_multi_line; 
+	my $inactive_session_number = -3;
+    if ($recycle==1) {
 	my $ncmd  = $Web::Terminal::Settings::reset_command;
 	my $lines = $term->write($ncmd);
 	print "Disconnecting $id from session $active_sessions[$app]{$id}\n" if $v;
@@ -555,12 +558,19 @@ sub deactivate_session {
 	#	my $app                     = $term->{app};
 	$term->{app} = -1;
 	$term->{id}  = '';
-	my $inactive_session_number = $active_sessions[$app]{$id};
+	$inactive_session_number = $active_sessions[$app]{$id};
 	delete $active_sessions[$app]{$id};
 	$n_active_sessions[$app]--;
 	push @{ $inactive_sessions[$app] }, $inactive_session_number;
 	$n_inactive_sessions[$app]++;
 	$n_sessions_ip{$ip}--;
+    } else {
+        # kill the session
+        $inactive_session_number=&kill_session($app,$id,$ip);
+        # launch a new session. Or is this too direct?
+        # Should I use a signal to do this async?
+        my $new_session=&create_session($app);
+    }
 	print "<<< Disconnected session $inactive_session_number ($app,$id,$ip): tot:$n_sessions[$app]; active: $n_active_sessions[$app];inactive: $n_inactive_sessions[$app]; per ip: $n_sessions_ip{$ip}\n" if $v;
 	print "<<< Actual occupancy     $inactive_session_number ($app,$id,$ip): tot:",scalar keys %{$sessions[$app]},"; active: ", scalar keys %{$active_sessions[$app]},";inactive: ",scalar @{$inactive_sessions[$app]}," ;free: ",scalar @{$session_numbers_stack[$app]},"\n" if $v;
 	assert($n_sessions[$app]==$n_inactive_sessions[$app]+$n_active_sessions[$app]);
@@ -622,14 +632,14 @@ sub clean_up_timed_out_sessions() {
 					my $app  = $term->{app};
 					$n_sessions_ip{$ip}--;
 					$cleaned_up[$app]++;
-					if ( $n_inactive_sessions[$app] <= $n_inactive_min[$app] ) {	#problem here: if the session was left on an unfinished multi-line command, the reset will fail.
-# So in that case the session must be killed and a new one created
-# i.e. &kill_session &create_session
-# the detection is $tprompt=~/$promt_pattern/ & $tprompt ne $promt 					
-						&deactivate_session( $app, $id, $ip );
-					} else {
+					if ( $n_inactive_sessions[$app] <= $n_inactive_min[$app] ) {	
+						# recycling sessions is problematic
+                        # So we just create a new session (sync, so slow) and then kill the
+                        # old one.
+                        #&deactivate_session( $app, $id, $ip );
+					} #else {
 						&kill_session( $app, $id, $ip );
-					}
+					#}
 					print LOG2 "Cleaned up $ip : $id : $tpid\n";
 					print "Cleaned up $ip : $id : $tpid\n" if $v;
 				}
