@@ -143,10 +143,12 @@ Expanding this one level deeper:
     |   |-- Getopt-Process
     |   |-- Getopt-Std         Simple commandline processing for Perl 6
     |   |-- HTML-Entities      Encode/decode HTML entities
+    |   |-- HTTP               A general purpose HTTP toolkit for Perl 6
     |   |-- HTTP-Server-Simple Base class for simple CGI-capable HTTP servers
     |   |-- Kwid-Event-Parser  Event-based API (like XML SAX) for Kwid
     |   |-- Locale-KeyedText   Refer to user messages in programs by keys
     |   |-- Log-Selective      Selectively choose what to log
+    |   |-- MessageBus         Message Bus with PubSub protocol
     |   |-- MIME-Base64        Base64 encode/decode (not a Perl 5 port)
     |   |-- Module-Pluggable-Fast  Find and load plugin modules
     |   |-- Net-IRC            IRC protocol implementation
@@ -157,8 +159,8 @@ Expanding this one level deeper:
     |   |-- Perl6-Value-List   Perl 6 implementation of Perl 6 lazy lists
     |   |-- Perldoc            Event-based API for Perldoc DOM
     |   |-- Pod-Event-Parser   Event-based API (like XML SAX) for POD
+    |   |-- QDRDBMS            A fully-featured truly relational DBMS in Perl
     |   |-- Recurrence         Recurrence operations
-    |   |-- Rosetta            Rigorous Database Portability
     |   |-- Set                Set calculus operations
     |   |-- Set-Infinite       Infinite set operations
     |   |-- Set-Relation       Relation data type for Perl
@@ -168,6 +170,7 @@ Expanding this one level deeper:
     |   |-- Text-Glob          Translate glob to regex
     |   |-- Tree               Basic n-ary tree data structure
     |   |-- URI                Escape/unescape URI strings
+    |   |-- Web                A general purpose Web toolkit for Perl 6
     |   |-- WTemplate          Widget-based templating engine
     |   |-- fp                 Functional programming operators
     |   |-- lib                Pragma to add paths to @*INC
@@ -286,7 +289,7 @@ your new file:
 
     $ ./util/add-svn-props.sh newfile1 newfile2
 
-Ideally, this is done after you add the file, but before you commit it. 
+Ideally, this is done after you add the file, but before you commit it.
 It can be run later if for some reason it's run initially.
 
 If you're on Win32 and can't run shell scripts, run C<svn> manually:

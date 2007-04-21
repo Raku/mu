@@ -2,11 +2,11 @@
                     Welcome to the Pugs READTHEM file.
 ----------------------------------------------------------------------------
 
-Nothing refreshes the brain after a long day of Pugs hacking like a good 
-book. This file is a list of book recommendations from the Pugs Hackers 
+Nothing refreshes the brain after a long day of Pugs hacking like a good
+book. This file is a list of book recommendations from the Pugs Hackers
 themselves.
 
-Feel free to add your favorite book or periodical to the list; it need not 
+Feel free to add your favorite book or periodical to the list; it need not
 be just programming books, anything goes, really.
 
 ----------------------------------------------------------------------------
@@ -66,14 +66,29 @@ Perl 6 Bible (Perl6::Bible)                                - Various Authors
 MinCaml: A Simple and Efficient Compiler                      - Eijiro Sumii
     http://min-caml.sourceforge.net/paper.pdf
 
+= Databases - Books
+
+Databases, Types, and The Relational Model: The Third Manifesto
+    3rd edition, Addison-Wesley, 2006 (ISBN: 0-321-39942-0)
+    http://www.aw-bc.com/catalog/academic/product/0,1144,0321399420,00.html
+                                        - Christopher J. Date, Hugh Darwen
+Database in Depth: Relational Theory for Practitioners
+    1st edition, Oreilly, 2005 (ISBN: 0-596-10012-4)
+    http://www.oreilly.com/catalog/databaseid/          - Christopher J. Date
+
+= Databases - Online
+
+A Relational Model of Data for Large Shared Data Banks
+    http://www.acm.org/classics/nov95/toc.html              - Edgar F. Codd
+    Reprinted from I<Communications of the ACM>,
+    Vol. 13, No. 6, June 1970, pp. 377-387.
+    Copyright © 1970, Association for Computing Machinery, Inc.
+
 = Non-Haskell books
 
-Database in Depth: Relational Theory for Practitioners       - Chris J. Date
-    http://www.oreilly.com/catalog/databaseid/
-    (shows what the relational data model *really is*; very easy to read)
 Types and Programming Languages                         - Benjamin C. Pierce
 Advanced Topics in Types and Programming Languages      - Benjamin C. Pierce
-Higher Order Perl                                       - Mark Jason Dominus 
+Higher Order Perl                                       - Mark Jason Dominus
 The Art of the MetaObject Protocol                         - Gregor Kiczales
 
 = None of the above

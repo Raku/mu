@@ -55,6 +55,10 @@
 * [ext/Web/] - A general purpose Web toolkit for Perl 6
 
 
+=== [ext/Locale-KeyedText/]
+
+* Added French localization file lib/Locale/KeyedText/L/fr.pm
+
 === [ext/<Foo>]
 
 

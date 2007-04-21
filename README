@@ -32,7 +32,7 @@ Please see the "GPL-2", "Artistic-2.0b5", and "MIT" files under the
 INSTALLATION
 ------------
 
-See the INSTALL file for instructions on building and installing Pugs. 
+See the INSTALL file for instructions on building and installing Pugs.
 
 
 COPYRIGHTED WORKS FROM THIRD-PARTY PROJECTS
@@ -80,14 +80,14 @@ COPYRIGHTED PERL 6 LIBRARY EXTENSIONS
 Except as listed below, all works under the ext/ directory can be
 redistributed and/or modified under the same license as Pugs itself.
 
-The "Locale-KeyedText" library is released by Darren R. Duncan under
-the GNU Lesser General Public License (LGPL), version 2.1 or later.
-See LICENSE/LGPL-2.1.
+The "Locale-KeyedText" library is released by Darren Duncan under the GNU
+Lesser General Public License (LGPL), version 2.1 or later.  See
+LICENSE/LGPL-2.1.
 
-The "Rosetta" library is released by Darren R. Duncan under the GNU General
-Public License (GPL), version 2 or later, but with a special exception that
-gives you permission to link Rosetta with other free software such that the
-other software can retain its original licenses.  See LICENSE/GPL-2.
+The "QDRDBMS" library is released by Darren Duncan under the GNU General
+Public License (GPL), version 2 or later (and intended to be relicensed
+instead under the GPL version 3 or later when version 3 is finalized by
+July of 2007).  See LICENSE/GPL-2.
 
 The "WTemplate" library is released by Andras Barthazi under any
 version of the GNU General Public License (GPL).  See LICENSE/GPL-2.
