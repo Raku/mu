@@ -60,10 +60,15 @@ n_max
 #cut
 
 #Pugs
+my $ulimit='ulimit -m 64000; ulimit -v 64000;';
+my $nice='/usr/bin/nice';
+my $pugs='/usr/bin/pugs';
+my $rel_root='/home/andara/pugs-rel';
+my $dev_root='/home/andara/pugs-dev';
+
 our @commands=(
-#'/usr/bin/nice /home/andara/pugs-rel/pugs -I/home/andara/pugs-rel/blib6/lib',
-'/usr/bin/pugs',
-'/usr/bin/nice /usr/bin/pugs'
+"$ulimit $nice $rel_root/pugs -I$rel_root/blib6/lib",
+"$ulimit $nice $dev_root/pugs -I$dev_root/blib6/lib"
 );
 
 our $test=1;
@@ -80,8 +85,8 @@ our $abort_command=':A'; # To simulate abort in test mode
 
 our $filter=0;
 our $filter_pattern='';
-#my $root='/home/andara/apache';
-my $root='/Users/wim/Builds/pugs/misc/runpugs';
+my $root='/home/andara/apache';
+#my $root='/Users/wim/Builds/pugs/misc/runpugs';
 our $cgi_path="$root/cgi-bin/";
 our $lib_path="$root/lib/";
 our $bin_path="$root/bin/";

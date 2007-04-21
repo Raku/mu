@@ -1,21 +1,17 @@
 package Web::Terminal::Server;
 
-=pod
-The inactive sessions queue starts with n_inactive_max sessions.
-Ideally, once it drops to n_inactive_min, it should gradually create 
-n_inactive_max-n_inactive_min sessions
-To do this reallu asynchronously, we need to let the child handle this
-The problem is that the child can't access the counters of the parent.
-So I'd just have the child create n_inactive_max-n_inactive_min sessions, gradually e.g. one every 5 minutes
-But that might interfere with the cleanup:
-The child sleeps for some time, then cleans up
-So if we use the same time constant (makes sense),
-the we need a counter which is set by the signal, that's all
-
-
-So child gets a SIGUSR
-=> it sets n_new_sessions to max-min if n_new_sessions was 0
-=cut
+#The inactive sessions queue starts with n_inactive_max sessions.
+#Ideally, once it drops to n_inactive_min, it should gradually create 
+#n_inactive_max-n_inactive_min sessions
+#To do this reallu asynchronously, we need to let the child handle this
+#The problem is that the child can't access the counters of the parent.
+#So I'd just have the child create n_inactive_max-n_inactive_min sessions, gradually e.g. one every 5 minutes
+#But that might interfere with the cleanup:
+#The child sleeps for some time, then cleans up
+#So if we use the same time constant (makes sense),
+#the we need a counter which is set by the signal, that's all
+#So child gets a SIGUSR
+#=> it sets n_new_sessions to max-min if n_new_sessions was 0
 
 use vars qw( $VERSION );
 $VERSION = '0.4.0';
@@ -48,8 +44,8 @@ $SIG{CHLD} = 'IGNORE';
 # verbose
 my $v                 = (1 - $Web::Terminal::Settings::daemon)*(1-$Web::Terminal::Settings::test);
 
-#Datastructures per app, so $session{$app}{...}, $inactive[$app][...] or @{$inactive[$app]}
-my @active_sessions             = (); # id => session_number for active sessions
+# Datastructures per app, so $session{$app}{...}, $inactive[$app][...] or @{$inactive[$app]}
+my @active_sessions       = (); # id => session_number for active sessions
 my @sessions              = (); # session_number (from stack) =>  actual session object
 my @session_numbers_stack = ();  # stack for session numbers, i.e. those not active or inactive!
 my @inactive_sessions     = ();  # => stack of session numbers for inactive sessions
@@ -60,11 +56,11 @@ my @n_sessions          = ();    # total number of sessions
 my @n_active_sessions   = ();
 my @n_inactive_sessions = ();
 
-#Êlimit number of session from a single IP.
+# Limit number of session from a single IP.
 # Problem for folks behind a gateway, but otherwise too easy for DoS 
 my %n_sessions_ip = ();    # ip -> nsessions 
 
-# for use by child to know how many new sessions to create
+# For use by child to know how many new sessions to create
 my @n_new_sessions = ();
 
 # Limits
@@ -81,15 +77,18 @@ my $childpid;
 sub run {
 	my $host = $Web::Terminal::Settings::host;
 	my $port = $Web::Terminal::Settings::port;
-	$SIG{USR1} = \&clean_up_timed_out_sessions;
+
+    $SIG{USR1} = \&clean_up_timed_out_sessions;
 	$SIG{USR2} = \&init_create;
-	if ($Web::Terminal::Settings::daemon) {
+	
+    if ($Web::Terminal::Settings::daemon) {
 		Proc::Daemon::Init;
 	}
 
 	# fork/exec by the book:
 	use Errno qw(EAGAIN);
-  FORK: {
+
+    FORK: {
 		if ( $childpid = fork ) {
 
 			#parent here
@@ -119,7 +118,7 @@ sub run {
 				#kill 'USR1', getppid();
 			}
 
-			# normally the child restarts the parent if it dies
+			# The child can restart the parent
 			if ($Web::Terminal::Settings::test==1) {
 			die "No restarting, test phase\n";
 			} elsif ($Web::Terminal::Settings::restart_parent==1) {
@@ -129,12 +128,10 @@ sub run {
 			);
 			}
 		} elsif ( $! == EAGAIN ) {
-
 			# Maybe ulimit might take us here
 			sleep 30;
 			redo FORK;
 		} else {
-
 			# Or ulimit could take us here
 			print "Couldn't fork" if $v;
 			die "Can't fork: $!\n";
@@ -146,7 +143,6 @@ sub run {
 # If you wonder why this is here, read
 # Advanced Perl Programming
 sub login_proc {
-
 	# Unconditionally accept.
 	\&rcvd_msg_from_client;
 }
@@ -530,11 +526,23 @@ sub activate_session {
 }    # end of activate_session()
 
 #-------------------------------------------------------------------------------
+# deactivate_session() was meant to take a running session and recycle it
+# using a reset_command.
+# Unfortunately, if the user leaves the session on an unfinished multi-line,
+# the reset_command doesn't get through. 
+# So we should check that based on the value of prompt.
+# If it's multi-line we need kill & create
 sub deactivate_session {
 	my $app   = shift;
 	my $id    = shift;
 	my $ip    = shift;
 	my $term  = $sessions[$app]{ $active_sessions[$app]{$id} };
+    my $unfinished_multi_line=0;
+    my $tprompt=$term->{prompt};
+    if ($tprompt=~/$Web::Terminal::Settings::prompt_pattern/ and $tprompt ne
+    $Web::Terminal::Settings::prompt) {
+    my $unfinished_multi_line=1;
+    }
 	my $ncmd  = $Web::Terminal::Settings::reset_command;
 	my $lines = $term->write($ncmd);
 	print "Disconnecting $id from session $active_sessions[$app]{$id}\n" if $v;
@@ -648,21 +656,35 @@ sub init_sessions {
 		 @{ $inactive_sessions[$app] }=();
 		  %{ $sessions[$app]}=();
 		  
+if (&sane($app)) {
 		for my $i ( 1 .. $Web::Terminal::Settings::npreloaded_sessions[$app] ) {
-			my $ret = &create_session($app);
+            my $ret = &create_session($app);
 			print $ret>0?'OK: $ret':'NOK',': #sesssions: ', scalar( @{ $inactive_sessions[$app] } ), ' for app ',
 			  $app, "\n"
 			  if $v;
 		}
 	assert(scalar(@{ $inactive_sessions[$app] })==$Web::Terminal::Settings::npreloaded_sessions[$app]);
 	}
-}    # END of init_session()
-
+    }
+}    # END of init_sessions()
+#------------------------------------------------------------------------------
+# check if command is sane (FSDO sane)
+sub sane {
+    my $app=shift;
+    my $cmd=$Web::Terminal::Settings::commands[$app];
+    $cmd=~s/^.*nice\s+//; # de-nice
+    my $reply=`PUGS_SAFEMODE=1 $cmd -e \"print 42\" 2>/dev/null`;
+    if ($reply==42) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
 #-------------------------------------------------------------------------------
-# init_create gets called by SIGUSR2
+# init_create gets called by SIGUSR2, as raised by async_init_create()
 # all it does is set the counter @n_new_sessions (count zero!)
 # if counter is 0, it gets reset to max-min
-#Êthis avoids potential race hazards 
+# this avoids potential race hazards 
 sub init_create {
 
 	for my $app ( 0 .. @Web::Terminal::Settings::commands - 1 ) {

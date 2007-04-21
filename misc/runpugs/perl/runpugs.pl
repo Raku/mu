@@ -63,6 +63,8 @@ if ( $query->param()) {      # an action has been chosen
             $cmdline=~/$Web::Terminal::Settings::prompt_pattern/
             && do {
                 $cmd=$cmdline;
+                # a ';' on a single-line command confuses pugs
+                if($cmd=~/$prompt/) {$cmd=~s/;\s*$//}
                 $cmd=~s/$Web::Terminal::Settings::prompt_pattern//;
                 chomp $cmd;
                 last;
