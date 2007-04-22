@@ -10,8 +10,8 @@ use strict;
 use YAML::Syck;
 use Data::Dumper;
 
-my $fn1 = shift @ARGV || "smoke.yml";
-my $fn2 = shift @ARGV || "smoke.last.yml";
+my $fn1 = shift @ARGV || "smoke.last.yml";
+my $fn2 = shift @ARGV || "smoke.yml";
 
 my $d1 = LoadFile($fn1);
 my $d2 = LoadFile($fn2);
@@ -51,6 +51,6 @@ for (my $i = 0; $i < @f1; $i++){
             }
         }
     } else {
-        print "New test: ", $f1->{file}, "\n";
+        print "New test file: ", $f1->{file}, "\n";
     }
 }
