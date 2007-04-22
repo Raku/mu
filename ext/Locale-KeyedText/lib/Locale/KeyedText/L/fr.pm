@@ -11,64 +11,64 @@ my Str %TEXT_STRINGS is readonly = (
         => q[<CLASS>.<METH>(): l'argument <ARG> n'est pas définis (ou est]
             ~ q[ manquant).],
     'LKT_ARG_NO_ARY'
-        => q[<CLASS>.<METH>(): argument <ARG> n'est pas un Array',]
+        => q[<CLASS>.<METH>(): l'argument <ARG> n'est pas un Array',]
            ~ q[ mais contient '<VAL>'.],
     'LKT_ARG_NO_HASH'
-        => q[<CLASS>.<METH>(): argument <ARG> n'est pas un Hash',]
+        => q[<CLASS>.<METH>(): l'argument <ARG> n'est pas un Hash',]
            ~ q[ mais contient '<VAL>'.],
     'LKT_ARG_NO_EXP_TYPE'
         => q[<CLASS>.<METH>(): l'argument <ARG> n'est pas <EXP_TYPE>,]
            ~ q[ mais contient '<VAL>'.],
 
     'LKT_ARG_ARY_ELEM_UNDEF'
-        => q[<CLASS>.<METH>(): argument <ARG> est un Array comme]
-           ~ q[ attendu, mais un de ces éléments est indéfinis.],
+        => q[<CLASS>.<METH>(): l'argument <ARG> est un Array comme]
+           ~ q[ attendu, mais un de ses éléments est indéfinis.],
     'LKT_ARG_ARY_ELEM_NO_ARY'
-        => q[<CLASS>.<METH>(): argument <ARG> est un Array comme]
-           ~ q[ attendu, mais un de ces éléments n'est pas un ]
+        => q[<CLASS>.<METH>(): l'argument <ARG> est un Array comme]
+           ~ q[ attendu, mais un de ses éléments n'est pas un ]
            ~ q[ Array, mais contient '<VAL>'.],
     'LKT_ARG_ARY_ELEM_NO_HASH'
-        => q[<CLASS>.<METH>(): argument <ARG> est un Array comme]
-           ~ q[ attendu,mais un de ces éléments n'est pas un Hash,]
+        => q[<CLASS>.<METH>(): l'argument <ARG> est un Array comme]
+           ~ q[ attendu,mais un de ses éléments n'est pas un Hash,]
            ~ q[ mais contient '<VAL>'.],
     'LKT_ARG_ARY_ELEM_NO_EXP_TYPE'
-        => q[<CLASS>.<METH>(): argument <ARG> est un Array comme]
-           ~ q[ attendu, mais un de ces éléments n'est pas <EXP_TYPE>,]
+        => q[<CLASS>.<METH>(): l'argument <ARG> est un Array comme]
+           ~ q[ attendu, mais un de ses éléments n'est pas <EXP_TYPE>,]
            ~ q[ mais contient '<VAL>'.],
 
     'LKT_ARG_HASH_VAL_UNDEF'
-        => q[<CLASS>.<METH>(): argument <ARG> est un Hash,]
+        => q[<CLASS>.<METH>(): l'argument <ARG> est un Hash,]
            ~ q[ mais la valeur pour cette clef '<KEY>' est indéfinies.],
     'LKT_ARG_HASH_VAL_NO_ARY'
-        => q[<CLASS>.<METH>(): argument <ARG> est un Hash comme attendu,]
-           ~ q[ mais la valeur pour sa clef '<KEY>' n'est pas un Array,]
+        => q[<CLASS>.<METH>(): l'argument <ARG> est un Hash comme attendu,]
+           ~ q[ mais la valeur pour la clef '<KEY>' n'est pas un Array,]
            ~ q[ mais contient '<VAL>'.],
     'LKT_ARG_HASH_VAL_NO_HASH'
-        => q[<CLASS>.<METH>(): argument <ARG> est un Hash comme attendu,]
-           ~ q[ mais la valeur pour sa clef '<KEY>' n'est pas un Hash,]
+        => q[<CLASS>.<METH>(): l'argument <ARG> est un Hash comme attendu,]
+           ~ q[ mais la valeur pour la clef '<KEY>' n'est pas un Hash,]
            ~ q[ mais contient '<VAL>'.],
     'LKT_ARG_HASH_VAL_NO_EXP_TYPE'
-        => q[<CLASS>.<METH>(): argument <ARG> est un Hash comme attendu,]
-           ~ q[ mais la valeur pour sa clef '<KEY>' n'est pas un]
+        => q[<CLASS>.<METH>(): l'argument <ARG> est un Hash comme attendu,]
+           ~ q[ mais la valeur pour la clef '<KEY>' n'est pas un]
            ~ q[ <EXP_TYPE>, mais contient '<VAL>'.],
 
     'LKT_ARG_ARY_NO_ELEMS'
-        => q[<CLASS>.<METH>(): argument <ARG> est un Array comme]
+        => q[<CLASS>.<METH>(): l'argument <ARG> est un Array comme]
            ~ q[ attendu, mais ne contient aucun élément.],
     'LKT_ARG_HASH_NO_ELEMS'
-        => q[<CLASS>.<METH>(): argument <ARG> est un Hash comme attendu,]
+        => q[<CLASS>.<METH>(): l'argument <ARG> est un Hash comme attendu,]
            ~ q[ mais ne contient aucun élément.],
 
     'LKT_ARG_EMP_STR'
         => q[<CLASS>.<METH>(): l'argument <ARG> est une chaine vide.],
     'LKT_ARG_ARY_ELEM_EMP_STR'
-        => q[<CLASS>.<METH>(): argument <ARG> est un Array comme]
-           ~ q[ attendu, mais un de ces éléments est une chaine vide.],
+        => q[<CLASS>.<METH>(): l'argument <ARG> est un Array comme]
+           ~ q[ attendu, mais un de ses éléments est une chaine vide.],
     'LKT_ARG_HASH_KEY_EMP_STR'
-        => q[<CLASS>.<METH>(): argument <ARG> est un Hash comme attendu,]
-           ~ q[ mais une de ces chaines est une chaine vide.],
+        => q[<CLASS>.<METH>(): l'argument <ARG> est un Hash comme attendu,]
+           ~ q[ mais une de ses chaines est une chaine vide.],
     'LKT_ARG_HASH_VAL_EMP_STR'
-        => q[<CLASS>.<METH>(): argument <ARG> est un Hash comme attendu,]
+        => q[<CLASS>.<METH>(): l'argument <ARG> est un Hash comme attendu,]
            ~ q[ mais la valeur pour la clef '<KEY>' est une chaine vide.],
 
     # This group of strings is specific to Locale::KeyedText itself:
