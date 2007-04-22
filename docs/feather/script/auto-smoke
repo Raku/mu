@@ -12,8 +12,11 @@ ulimit -t 18000
 
 cd /home/agentzh/svn-pugs
 svn up
+
+PATH=/usr/local/bin:$PATH
 perl Makefile.PL
 HARNESS_PUGS=util/limited_pugs nice -n5 make smoke
+
 cp smoke.yml ..
 cp smoke.html ..
 
