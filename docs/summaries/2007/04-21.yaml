@@ -128,6 +128,28 @@ lists:
             name: Matt Diephouse
         subject: Parrot 0.4.11 released
         summary: ''
+      - date_from: 1177035993
+        date_to: 1177035993
+        hidden: ~
+        message_id: 462824C1.5070808@conway.org
+        posters:
+          - email: damian@conway.org
+            name: Damian Conway
+        subject: Perl6::Perldoc v0.0.4 just uploaded to CPAN
+        summary: ''
+      - date_from: 1177072900
+        date_to: 1177073212
+        hidden: ~
+        message_id: F4AAE2E381F0624BB8F513C1E9880FB95EBD06@newman.fwb.internal.srs.com
+        messages:
+          - 20070420124634.GH6068@stripey.com
+        posters:
+          - email: Tom.Browder@fwb.srs.com
+            name: Tom Browder
+          - email: Smylers@stripey.com
+            name: Smylers
+        subject: List Archives Link Broken
+        summary: ''
     title: Language
   - name: perl6-internals
     threads:
@@ -302,8 +324,6 @@ lists:
             name: chromatic
           - email: jrisom@gmail.com
             name: Joshua Isom
-          - email: parrotbug-followup@parrotcode.org
-            name: Alek Storm
         subject: 'Re: [perl #42430] [PATCH] make :vtable imply :method'
         summary: ''
       - date_from: 1176377869
@@ -333,8 +353,6 @@ lists:
             name: Joshua Isom
           - email: jerry.gay@gmail.com
             name: jerry gay
-          - email: ron@rblasch.org
-            name: Ron Blaschke
           - email: nahoo82@gmail.com
             name: nahoo82
           - email: jhoblitt@ifa.hawaii.edu
@@ -356,8 +374,6 @@ lists:
             name: chromatic
           - email: jonathan@jnthn.net
             name: Jonathan Worthington
-          - email: steve@fisharerojo.org
-            name: Steve Peters
         rt_ticket: 'perl #42509'
         subject: '[perl #42509] [PATCH] Quiet some warnings under -ansi -pedantic '
         summary: ''
@@ -369,8 +385,6 @@ lists:
           - 200704141501.40727.chromatic@wgz.org
         posters:
           - email: parrotbug-followup@parrotcode.org
-            name: chromatic
-          - email: chromatic@wgz.org
             name: chromatic
         rt_ticket: 'perl #42510'
         subject: '[perl #42510] Move main() Out of compilers/imcc/main.c '
@@ -671,7 +685,7 @@ lists:
         subject: '[perl #42584] [PATCH] Cleanup C++ keywords in Parrot '
         summary: ''
       - date_from: 1176823625
-        date_to: 1176864822
+        date_to: 1177110332
         hidden: ~
         message_id: rt-3.6.HEAD-30557-1176823617-1427.42585-72-0@perl.org
         messages:
@@ -682,6 +696,8 @@ lists:
             name: Steve Peters
           - email: jkeen_via_google@yahoo.com
             name: James E Keenan
+          - email: bugs-parrot-track@netlabs.develooper.com
+            name: James Keenan via RT
         rt_ticket: 'perl #42585'
         subject: '[perl #42585] [PATCH] t/configure/01-options.t fails when testing in direcotries like ~/parrot/parrot '
         summary: ''
@@ -754,8 +770,6 @@ lists:
             name: chromatic
           - email: mehmet.yavuz.selim@gmail.com
             name: Mehmet Yavuz Selim Soyturk
-          - email: steve@fisharerojo.org
-            name: Steve Peters
         rt_ticket: 'perl #42594'
         subject: '[perl #42594] [PATCH] Probable buffer overflow in compilers/imcc/parser_util.c '
         summary: ''
@@ -815,6 +829,149 @@ lists:
         rt_ticket: 'perl #42609'
         subject: '[perl #42609] [BUG] make html vs. DEVELOPING '
         summary: ''
+      - date_from: 1176168340
+        date_to: 1177112795
+        hidden: ~
+        message_id: 189adbd0704201646w43c6a5c1h1bbcc43614a67a44@mail.gmail.com
+        messages:
+          - rt-3.6.HEAD-1687-1176168332-931.42406-72-0@perl.org
+          - 189adbd0704181335o33014275l736b85cd41aa3a50@mail.gmail.com
+        posters:
+          - email: alek.storm@gmail.com
+            name: Alek Storm
+          - email: parrotbug-followup@parrotcode.org
+            name: Alek Storm
+        subject: 'Re: [perl #42406] [PATCH] improper null testing in Parrot_instantiate_object'
+        summary: ''
+      - date_from: 1177007090
+        date_to: 1177048500
+        hidden: ~
+        message_id: rt-3.6.HEAD-30201-1177007083-1057.42615-72-0@perl.org
+        messages:
+          - 200704192254.36949.chromatic@wgz.org
+          - 20070420021306.GA14909@kirk.peters.homeunix.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Andy Dougherty
+          - email: chromatic@wgz.org
+            name: chromatic
+          - email: steve@fisharerojo.org
+            name: Steve Peters
+        rt_ticket: 'perl #42615'
+        subject: "[perl #42615] [PATCH] C89 doesn't allow non-constant initializers "
+        summary: ''
+      - date_from: 1177007111
+        date_to: 1177024085
+        hidden: ~
+        message_id: rt-3.6.HEAD-1687-1177007087-1186.42616-72-0@perl.org
+        messages:
+          - 200704191607.33182.chromatic@wgz.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Andy Dougherty
+          - email: chromatic@wgz.org
+            name: chromatic
+        rt_ticket: 'perl #42616'
+        subject: "[perl #42616] Parrot won't build with perl-5.6. "
+        summary: ''
+      - date_from: 1177007190
+        date_to: 1177007190
+        hidden: ~
+        message_id: rt-3.6.HEAD-30201-1177007180-1986.42617-72-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Andy Dougherty
+        rt_ticket: 'perl #42617'
+        subject: '[perl #42617] t/pmc/threads_7.pir hangs indefinitely '
+        summary: ''
+      - date_from: 1177007382
+        date_to: 1177110195
+        hidden: ~
+        message_id: rt-3.6.HEAD-1687-1177110188-1547.42618-14-0@perl.org
+        messages:
+          - rt-3.6.HEAD-1687-1177007376-582.42618-72-0@perl.org
+        posters:
+          - email: bugs-parrot-track@netlabs.develooper.com
+            name: James Keenan via RT
+          - email: parrotbug-followup@parrotcode.org
+            name: Andy Dougherty
+        rt_ticket: 'perl #42618'
+        subject: '[perl #42618] t/configure/01-options finds incorrect directory '
+        summary: ''
+      - date_from: 1177007724
+        date_to: 1177084473
+        hidden: ~
+        message_id: rt-3.6.HEAD-30201-1177007717-932.42619-72-0@perl.org
+        messages:
+          - 200704191644.45575.chromatic@wgz.org
+          - Pine.LNX.4.62.0704201118220.29982@fractal.phys.lafayette.edu
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Andy Dougherty
+          - email: chromatic@wgz.org
+            name: chromatic
+          - email: doughera@lafayette.edu
+            name: Andy Dougherty
+        rt_ticket: 'perl #42619'
+        subject: '[perl #42619] t/stm/llqueue_2.pir sometimes hangs '
+        summary: ''
+      - date_from: 1177008483
+        date_to: 1177098909
+        hidden: ~
+        message_id: rt-3.6.HEAD-30201-1177008475-907.42620-72-0@perl.org
+        messages:
+          - 20070420011846.GW9235@host.pmichaud.com
+          - a1efd4af8b6daf46ef7c2c298c301182@gmail.com
+          - Pine.LNX.4.62.0704200752330.29130@fractal.phys.lafayette.edu
+          - 499c768584bf0a94300b435abd5d31a0@gmail.com
+          - Pine.LNX.4.62.0704201527480.31880@fractal.phys.lafayette.edu
+          - 20070420144849.GA28379@host.pmichaud.com
+          - 1d9a3f400704200758v25e48d60j79352cd1a6279a48@mail.gmail.com
+          - Pine.LNX.4.62.0704201057480.29982@fractal.phys.lafayette.edu
+          - Pine.LNX.4.62.0704201021520.29982@fractal.phys.lafayette.edu
+          - 1d9a3f400704200750v4a0839bdwfcc2e41b25434eb6@mail.gmail.com
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Andy Dougherty
+          - email: pmichaud@pobox.com
+            name: Patrick R. Michaud
+          - email: jrisom@gmail.com
+            name: Joshua Isom
+          - email: doughera@lafayette.edu
+            name: Andy Dougherty
+          - email: jerry.gay@gmail.com
+            name: jerry gay
+        rt_ticket: 'perl #42620'
+        subject: "[perl #42620] PGE 'Out of memory' panics. "
+        summary: ''
+      - date_from: 1177008620
+        date_to: 1177008620
+        hidden: ~
+        message_id: Pine.LNX.4.62.0704191445270.25075@fractal.phys.lafayette.edu
+        posters:
+          - email: doughera@lafayette.edu
+            name: Andy Dougherty
+        subject: 'Re: [perl #38957] hash test failures (core dump)'
+        summary: ''
+      - date_from: 1177037148
+        date_to: 1177037148
+        hidden: ~
+        message_id: rt-3.6.HEAD-30557-1177037129-1417.42624-72-0@perl.org
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Ryan Hinton
+        rt_ticket: 'perl #42624'
+        subject: '[perl #42624] Parrot compiles now but still fails tests. '
+        summary: ''
+      - date_from: 1177080010
+        date_to: 1177080010
+        hidden: ~
+        message_id: 20070420163946.33f09c98.pancake@youterm.com
+        posters:
+          - email: pancake@youterm.com
+            name: pancake
+        subject: parrot on pkgsrc
+        summary: ''
     title: Parrot Porters
   - name: perl6-users
     threads:
@@ -868,7 +1025,29 @@ lists:
         summary: ''
     title: Users
   - name: perl6-compiler
-    threads: []
+    threads:
+      - date_from: 1176297004
+        date_to: 1177080584
+        hidden: ~
+        message_id: 461CDE18.30703@casella.verplant.org
+        messages:
+          - 20070411154233.GA25034@wall.org
+          - 461D0DF8.5010501@casella.verplant.org
+          - 461E93A5.9090906@casella.verplant.org
+          - c711ff240704121941m2bff6d7bs73a6e48e4570341d@mail.gmail.com
+          - c711ff240704200445t59bd2fa0k76e8a3057e6e5859@mail.gmail.com
+          - 5C493A13-322F-47AD-AD61-64E1CD82438B@audreyt.org
+        posters:
+          - email: moritz@casella.verplant.org
+            name: Moritz Lenz
+          - email: larry@wall.org
+            name: Larry Wall
+          - email: agentzh@gmail.com
+            name: Agent Zhang
+          - email: audreyt@audreyt.org
+            name: Audrey Tang
+        subject: 'pugs: aborting smoke tests'
+        summary: ''
     title: Compiler
   - name: cvs-parrot
     threads:
