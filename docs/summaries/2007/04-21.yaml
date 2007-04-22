@@ -78,7 +78,7 @@ lists:
         summary: ''
       - date_from: 1176742752
         date_to: 1176742752
-        hidden: ~
+        hidden: clarification
         message_id: 20070416165904.359C8CB9B8@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -109,10 +109,25 @@ lists:
           - email: uri@stemsystems.com
             name: Uri Guttman
         subject: '[svn:perl6-synopsis] r14376 - doc/trunk/design/syn'
-        summary: ''
+        summary: |-
+          A commit by Larry Wall which disallows the use of `else` when using
+          `unless` sparked several comments.  
+          
+          Luke Palmer wasn't sure how he felt
+          about the idea.  He likes to put error conditions at the end of his
+          code, and construct the initial comparision based upon the correct
+          case.  Uri Guttman remarked that he prefers single-line exceptions.
+          
+          John Macdonald was unhappy with the descision because he feels that
+          `if (! ...)` is no less prone to errors than `unless (...)`.
+          
+          Meanwhile, Joe Gottman would have liked it if the result of a test
+          in an if/elsif could be reused by all subsequent statements in the
+          same clause.  Larry Wall explained that this violates the simplified
+          scoping rules of Perl 6.
       - date_from: 1176834371
         date_to: 1176834371
-        hidden: ~
+        hidden: clarification
         message_id: 20070417182604.A3EAFCB9B8@x12.develooper.com
         posters:
           - email: larry@cvs.perl.org
@@ -127,7 +142,7 @@ lists:
           - email: mddiep@gmail.com
             name: Matt Diephouse
         subject: Parrot 0.4.11 released
-        summary: ''
+        summary: 'Matt Diephouse announced the release of Parrot 0.4.11, "Tax Bird."'
       - date_from: 1177035993
         date_to: 1177035993
         hidden: ~
@@ -182,7 +197,7 @@ lists:
         summary: ''
       - date_from: 1176243944
         date_to: 1176591961
-        hidden: ~
+        hidden: covered in 04-14
         message_id: 461C0EEF.1010107@perl.org
         messages:
           - 189adbd0704101702g34d86254t75708dd9035094f2@mail.gmail.com
@@ -328,7 +343,7 @@ lists:
         summary: ''
       - date_from: 1176377869
         date_to: 1176407017
-        hidden: ~
+        hidden: covered in 04-14
         message_id: 461E19F4.1080205@rblasch.org
         messages:
           - 20070412141314.GB18457@kirk.peters.homeunix.org
@@ -405,7 +420,7 @@ lists:
         summary: ''
       - date_from: 1176595220
         date_to: 1176595220
-        hidden: ~
+        hidden: FAQ additions
         message_id: 20070415000012.860DFCB9B8@x12.develooper.com
         posters:
           - email: allison@cvs.perl.org
@@ -414,7 +429,7 @@ lists:
         summary: ''
       - date_from: 1176595602
         date_to: 1176595602
-        hidden: ~
+        hidden: clarification
         message_id: 20070415000636.33718CB9B8@x12.develooper.com
         posters:
           - email: allison@cvs.perl.org
@@ -433,7 +448,7 @@ lists:
         summary: ''
       - date_from: 1176607893
         date_to: 1176607893
-        hidden: ~
+        hidden: seems pretty minor
         message_id: 20070415033125.8B96ACBA7D@x12.develooper.com
         posters:
           - email: chromatic@cvs.perl.org
@@ -534,7 +549,7 @@ lists:
         summary: ''
       - date_from: 1176728435
         date_to: 1176960514
-        hidden: ~
+        hidden: covered in 04-14
         message_id: 20070416130027.17184.qmail@x1.develooper.com
         messages:
           - 20070416065310.505c94f3@chirp
@@ -576,7 +591,7 @@ lists:
         summary: ''
       - date_from: 1176743959
         date_to: 1176743959
-        hidden: ~
+        hidden: 'this release has happened, so this is no longer important'
         message_id: 198c87380704161018w6f4896b0tcf4560d6099ec773@mail.gmail.com
         posters:
           - email: mddiep@gmail.com
@@ -654,7 +669,7 @@ lists:
         summary: ''
       - date_from: 1176791284
         date_to: 1176791284
-        hidden: ~
+        hidden: cleaning
         message_id: 20070417062758.08B6BCBA7D@x12.develooper.com
         posters:
           - email: chromatic@cvs.perl.org
@@ -703,7 +718,7 @@ lists:
         summary: ''
       - date_from: 1176824188
         date_to: 1176824188
-        hidden: ~
+        hidden: the event has taken place
         message_id: 20070417153439.32897.qmail@spout.spiders.net
         posters:
           - email: will@coleda.com
@@ -782,7 +797,9 @@ lists:
             name: Matt Diephouse
         rt_ticket: 'perl #42596'
         subject: '[perl #42596] Parrot - 0.4.12 release '
-        summary: ''
+        summary: |-
+          Matt Diephouse created ticket <rt://perl/42596> as the milestone
+          for the next release (0.4.12).
       - date_from: 1176861224
         date_to: 1176901511
         hidden: ~
@@ -842,7 +859,15 @@ lists:
           - email: parrotbug-followup@parrotcode.org
             name: Alek Storm
         subject: 'Re: [perl #42406] [PATCH] improper null testing in Parrot_instantiate_object'
-        summary: ''
+        summary: |-
+          Earlier,
+          Alek Storm reported in ticket <rt://perl/42406> that he had a patch
+          to fix a bug in which the `init` vtable method override is called instead
+          of `init_pmc`.  After one week he wondered why no action had been taken.
+          
+          Recently, Allison Randal asked for a test case showing where there is
+          a problem.  Alek explained that although the bug was rare, there was no
+          reason not to patch it.  A test case was included.
       - date_from: 1177007090
         date_to: 1177048500
         hidden: ~
@@ -1047,13 +1072,24 @@ lists:
           - email: audreyt@audreyt.org
             name: Audrey Tang
         subject: 'pugs: aborting smoke tests'
-        summary: ''
+        summary: |-
+          Last week,
+          Moritz Lenz reported being unable to do a `make smoke` for the last few       
+          weeks.  Larry Wall thought that the problem looked like a resource
+          exhaustion or lockup, possibly related to embedded/tunneled Perl 5.
+          He asked for more output, which Moritz supplied.
+          Agent Zhang pointed to a post by chromatic which he thought
+          might relate to the solution.
+          
+          This week, Agent Zhang resolved the problem by using YAML.pm instead
+          of YAML::Syck.  Audrey Tang noted that the issue with YAML::Syck had
+          been introduced in 0.84; she fixed it and released 0.85.
     title: Compiler
   - name: cvs-parrot
     threads:
       - date_from: 1176767940
         date_to: 1176768848
-        hidden: ~
+        hidden: refactoring
         message_id: 20070416235854.3068ACB9B8@x12.develooper.com
         messages:
           - 200704161712.50564.chromatic@wgz.org
