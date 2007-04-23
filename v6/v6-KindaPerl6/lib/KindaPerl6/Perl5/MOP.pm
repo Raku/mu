@@ -255,7 +255,7 @@ my $meta_Bit = ::CALL( $::Bit, 'HOW' );
 ::CALL( $meta_Bit, 'add_method', 'perl',           ::CALL( $::Method, 'new', 
     sub { my $v = ::CALL( $::Str, 'new', $_[0]{_value} ) } ) );
 
-::CALL( $::Class, 'new', 'Code' ); #   $::Code, '$::Code',    $meta_Code, '$meta_Code',    'Code');
+::CALL( $::Class, 'new', 'Code' ); 
 my $meta_Code = ::CALL( $::Code, 'HOW' );
 ::CALL( $meta_Code, 'add_parent', $meta_Value );
 ::CALL( $meta_Code, 'add_method', 'perl',           ::CALL( $::Method, 'new', 
@@ -302,9 +302,14 @@ my $meta_Container = ::CALL( $::Container, 'HOW' );
     } 
 ) );
 
-::CALL( $::Class, 'new', 'Scalar' );  #   $::Scalar, '$::Scalar',    $meta_Scalar, '$meta_Scalar',    'Scalar');
+::CALL( $::Class, 'new', 'Scalar' );  
 my $meta_Scalar = ::CALL( $::Scalar, 'HOW' );
 ::CALL( $meta_Scalar, 'add_parent', $meta_Container );
+
+::CALL( $::Class, 'new', 'Routine' );  
+my $meta_Routine = ::CALL( $::Routine, 'HOW' );
+::CALL( $meta_Routine, 'add_parent', $meta_Container );
+::CALL( $meta_Routine, 'add_method', $method_readonly );
 
 #print "Scalar parents:\n";
 #for ( @{ $meta_Scalar->{_value}{isa} } ) {

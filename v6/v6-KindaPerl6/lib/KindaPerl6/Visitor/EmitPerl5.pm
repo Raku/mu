@@ -400,11 +400,11 @@ class Decl {
                 ~ $.type ~ ' ' 
                 ~ $.var.emit_perl5 ~ '; '
                 ~ $.var.emit_perl5
-                ~ ' = bless [ GLOBAL::undef(), \\%_MODIFIED, \'' ~ $.var.emit_perl5 ~ '\' ], "Type_Code" '
+                ~ ' = ::CALL( $::Routine, \'new\' ) '
                 ~ ' unless defined ' ~ $.var.emit_perl5 ~ '; '
                 ~ 'BEGIN { '
                 ~     $.var.emit_perl5
-                ~     ' = bless [ GLOBAL::undef(), \\%_MODIFIED, \'' ~ $.var.emit_perl5 ~ '\' ], "Type_Code" '
+                ~     ' = ::CALL( $::Routine, \'new\' ) '
                 ~ '}'
                 ;
         };

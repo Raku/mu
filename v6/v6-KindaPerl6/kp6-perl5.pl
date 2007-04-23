@@ -192,11 +192,9 @@ use Data::Dump::Streamer;
         #print "\n";
         #print "=cut\n";
         
-        # TODO - XXX - ignore 'CODE' for now
-        #return if ref($data) eq 'CODE';
-    
-        # - convert the data to ast
-        my $source = $data->perl->[0];
+        # - convert the 'result' data to ast
+        #print "data: ", Dumper( $data );
+        my $source = ::CALL( $data, 'perl' )->{_value};
         #print "# begin - result data: $source\n";
         my $p = KindaPerl6::Grammar->exp($source, 0);
         #say( Main::perl( $$p ) );
