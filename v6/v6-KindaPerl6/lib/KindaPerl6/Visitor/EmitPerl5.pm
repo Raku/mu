@@ -509,29 +509,15 @@ class Sub {
             $str := $str ~ $bind.emit_perl5 ~ '; ';
         };
         
-#        my $i := 0;
-#        for @$pos -> $field { 
-#            my $bind := ::Bind( 
-#                'parameters' => $field, 
-#                'arguments'  => ::Index(
-#                        obj    => ::Var( sigil => '@', twigil => '', name => '_' ),
-#                        index  => ::Val::Int( int => $i )
-#                    ),
-#                );
-#            $str := $str ~ $bind.emit_perl5 ~ '; ';
-#            $i := $i + 1;
-#        };
         my $code :=
-          'bless( [ '
-        ~   'sub { '  
+          '::CALL( $::Code, \'new\', { '
+        ~   'code => sub { '  
             ## 'my ' ~ $invocant.emit_perl5 ~ ' = $_[0]; ' ~
         ~      $str 
         ~      $.block.emit_perl5  
         ~    ' }'
-        ~    ', undef'
-        ~    ', undef'
-        ~    ', q#sub { ' ~ COMPILER::emit_perl6( $.block ) ~ ' }#'
-        ~ ' ], "Type_Constant_Code" )'
+        ~    ', src => q#sub { ' ~ COMPILER::emit_perl6( $.block ) ~ ' }#'
+        ~ ' } )'
         ;
         if ( $.name ) {
             return '$Code_' ~ $.name ~ '->BIND( ' ~ $code ~ ')';
