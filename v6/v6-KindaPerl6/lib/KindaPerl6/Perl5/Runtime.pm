@@ -115,8 +115,7 @@ package GLOBAL;
         { code => \&{"GLOBAL::import"}, src => '&GLOBAL::import' } );
     sub import {
         #print "@_\n";
-        my ($pkg) = $_[0];  #caller(1);  # first call frame is the APPLY() method
-        $pkg = $pkg->{_value} if ref($pkg);
+        my $pkg = _str( $_[0] ); 
         #print "IMPORT $pkg\n";
         ${"${pkg}::Code_$_"} = ::CALL( $::Code, 'new', 
             { code => ${"GLOBAL::Code_$_"}, src => '&GLOBAL::'.$_ } ) 

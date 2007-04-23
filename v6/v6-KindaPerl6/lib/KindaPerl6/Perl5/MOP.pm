@@ -229,6 +229,8 @@ my $meta_Int = ::CALL( $::Int, 'HOW' );
 ::CALL( $meta_Int, 'add_parent', $meta_Value );
 ::CALL( $meta_Int, 'add_method', 'perl',           ::CALL( $::Method, 'new', 
     sub { my $v = ::CALL( $::Str, 'new', $_[0]{_value} ) } ) );
+::CALL( $meta_Int, 'add_method', 'str',            ::CALL( $::Method, 'new', 
+    sub { my $v = ::CALL( $::Str, 'new', $_[0]{_value} ) } ) );
 
 ::CALL( $::Class, 'new',  'Bit' ); 
 my $meta_Bit = ::CALL( $::Bit, 'HOW' );
