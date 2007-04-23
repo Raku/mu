@@ -9,3 +9,5 @@ v6.pm is a plain translation of the perl5 v6.pm compiler, such that the modules 
 v6-Compiler is meant as a more advanced compiler, but it is also more difficult to bootstrap because it needs a more complete Perl 6 compiler.
 
 v6-MiniPerl6 is a subset of Perl 6 used to bootstrap the full Perl 6.
+
+v6-Python is a compiler for MiniPerl6 in Python.
