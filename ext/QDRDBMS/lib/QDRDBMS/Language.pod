@@ -911,12 +911,12 @@ a C<Text>, though often database attribute names, which are its component
 relation names, are multi-part (extra parts being for "schema" name-spaces
 and such); names of data types and operators are typically 3-4 parts, where
 C<sys> is an example of part 1.  C<Cat.EntityName> has multiple possreps;
-one is a C<Seq(1..N) of Text>; one is a specially encoded C<Text>
-where parts are ordered from greatest to least signficance, and adjacent
-parts are separated with a single "period" character, and any literal
-period or backslash characters in parts are backslash-escaped as C<\[pd]>
-and C<\[bh]> respectively (no other characters are escaped).  Its default
-value consists of a single part that is the empty string.
+one is a C<Seq(1..N) of Text>; one is a specially encoded C<Text> where
+parts are ordered from greatest to least signficance, and adjacent parts
+are separated with a single "period" character, and any literal period or
+backslash characters in parts are backslash-escaped as C<\p> and C<\b>
+respectively (no other characters are escaped).  Its default value consists
+of a single part that is the empty string.
 
 =item C<sys.type.Cat.EntityDeclName>
 

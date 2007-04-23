@@ -269,13 +269,17 @@ submethod BUILD
         die q{new(): Bad :$text arg; it is not a valid object}
                 ~ q{ of a QDRDBMS::AST::LitText-doing class.}
             if !$text.does(QDRDBMS::AST::LitText);
+        my Str $text_v = $text.v();
+        die q{new(): Bad :$text arg; it contains character sequences that}
+                ~ q{ are invalid within the Text possrep of an EntityName.}
+            if $text_v.match( / \\ $/ ) or $text_v.match( / \\ <-[bp]> / );
         $!text_possrep = $text;
         $!seq_possrep = QDRDBMS::AST::SeqSel.new( :v(
-                [$text.v().split( /\./ ).map:{
-                        my $s = $_;
-                        $s ~~ s:g/ \\ \[pd\] /./;
-                        $s ~~ s:g/ \\ \[bh\] /\\/;
-                        QDRDBMS::AST::LitText.new( :v($s) );
+                [$text_v.split( /\./ ).map:{
+                        QDRDBMS::AST::LitText.new( :v(
+                                .trans( < \\p \\b >
+                                     => < .   \\  > )
+                            ) );
                     }]
             ) );
     }
@@ -292,10 +296,8 @@ submethod BUILD
         }
         $!text_possrep = QDRDBMS::AST::LitText.new( :v(
                 $seq_elems.map:{
-                        my $s = .v();
-                        $s ~~ s:g/ \\ /\\[bh]/;
-                        $s ~~ s:g/ \. /\\[pd]/;
-                        $s;
+                        .v().trans( < \\  .   >
+                                 => < \\b \\p > )
                     }.join( q{.} )
             ) );
         $!seq_possrep = $seq;
