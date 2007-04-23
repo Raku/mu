@@ -27,7 +27,13 @@ sub ::CALL {
         # $method_name is unboxed
         my ($self, $method_name) = (shift, shift);
         #print "lookup $method_name in $self\n";
-        #print Dumper($self);
+
+        unless ( ref($self) eq 'HASH' ) {
+            warn "internal error: wrong object format";
+            print Dumper($self);
+            return ::CALL( $::Str, 'new', 'Error' );
+        }
+
         if ( ! defined $self->{_value} ) {
             # 'self' is a prototype object
             # it stringifies to the class name
@@ -310,6 +316,8 @@ my $meta_Scalar = ::CALL( $::Scalar, 'HOW' );
 my $meta_Routine = ::CALL( $::Routine, 'HOW' );
 ::CALL( $meta_Routine, 'add_parent', $meta_Container );
 ::CALL( $meta_Routine, 'add_method', $method_readonly );
+::CALL( $meta_Routine, 'add_method', 'APPLY',           ::CALL( $::Method, 'new', 
+    sub { my $self = shift; $self->{_value}{cell}{_value}{code}->( @_ ) } ) );
 
 #print "Scalar parents:\n";
 #for ( @{ $meta_Scalar->{_value}{isa} } ) {

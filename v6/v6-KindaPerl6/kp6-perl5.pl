@@ -123,10 +123,10 @@ use Data::Dump::Streamer;
         # check for side-effects
         my @begin_stmts;
 
-        #print "=pod\n";
+        print "=pod\n";
         #print "# BEGIN ENV: ", Dumper( $COMPILER::PAD[0]->lexicals ), "\n";
         #print "BEGIN AST: ", Dumper( \@ast );
-        #print "BEGIN: Native code: $native\n\n";
+        print "BEGIN: Native code: $native\n\n";
 
         for my $pad ( @COMPILER::PAD ) {
             #print "# Lexicals here: ", Dumper( $pad->lexicals ), "\n";
@@ -189,11 +189,11 @@ use Data::Dump::Streamer;
         #print "BEGIN AST: ",Dumper($begin_ast);
         #print "BEGIN native: ", join( ";\n", (map { $_->emit( $visitor_emit_perl5  ) } ($begin_ast) ));
         
+        #print "data: ", Dumper( $data );
         #print "\n";
-        #print "=cut\n";
+        print "=cut\n";
         
         # - convert the 'result' data to ast
-        #print "data: ", Dumper( $data );
         my $source = ::CALL( $data, 'perl' )->{_value};
         #print "# begin - result data: $source\n";
         my $p = KindaPerl6::Grammar->exp($source, 0);

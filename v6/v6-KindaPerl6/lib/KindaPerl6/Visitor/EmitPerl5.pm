@@ -68,14 +68,16 @@ class Val::Object {
     has $.class;
     has %.fields;
     method emit_perl5 {
-        'bless(' ~ %.fields.perl ~ ', ' ~ $.class.perl ~ ')';
+        die 'not implemented';
+        # 'bless(' ~ %.fields.perl ~ ', ' ~ $.class.perl ~ ')';
     }
 }
 
 class Native::Buf {
     has $.buf;
     method emit_perl5 { 
-        '\'' ~ $.buf ~ '\''
+        die 'not implemented';
+        # '\'' ~ $.buf ~ '\''
     }
 }
 
@@ -410,11 +412,11 @@ class Decl {
         };
         if ($.var).sigil eq '%' {
             return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_perl5
-                ~ ' = bless { }, \'Type_Hash\'';
+                ~ ' = ::CALL( $::Hash, \'new\' ) ';
         };
         if ($.var).sigil eq '@' {
             return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_perl5
-                ~ ' = bless [ ], \'Type_Array\'';
+                ~ ' = ::CALL( $::Array, \'new\' ) ';
         };
         return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_perl5;
     }
