@@ -305,6 +305,7 @@ my $meta_Container = ::CALL( $::Container, 'HOW' );
             $_[0]{_methods} = [ $method_readonly ];
             $_[0]{_roles}   = [ ];
         }
+        $_[0];
     } 
 ) );
 

@@ -190,12 +190,10 @@ use Data::Dump::Streamer;
         #print "BEGIN native: ", join( ";\n", (map { $_->emit( $visitor_emit_perl5  ) } ($begin_ast) ));
         
         #print "data: ", Dumper( $data );
-        #print "\n";
-        print "=cut\n";
         
         # - convert the 'result' data to ast
-        my $source = ::CALL( $data, 'perl' )->{_value};
-        #print "# begin - result data: $source\n";
+        my $source = ::CALL( ::CALL( $data, 'FETCH' ), 'perl' )->{_value};
+        print "# begin - result data: $source\n";
         my $p = KindaPerl6::Grammar->exp($source, 0);
         #say( Main::perl( $$p ) );
         add_pad;
@@ -215,6 +213,7 @@ use Data::Dump::Streamer;
         # @COMPILER::BEGIN_RUNTIME
         ## push @COMPILER::BEGIN_RUNTIME, $initializer_name;
         #print "/begin_block\n";
+        print "\n=cut\n";
 
         return $final_ast;
     }
