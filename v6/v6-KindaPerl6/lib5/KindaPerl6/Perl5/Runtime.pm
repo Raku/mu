@@ -4,7 +4,7 @@ use v5;
 use Data::Dumper;
 use KindaPerl6::Perl5::Match;
 use KindaPerl6::Perl5::MOP;
-use KindaPerl6::Perl5::Type;
+#use KindaPerl6::Perl5::Type;
 use KindaPerl6::Perl5::Pad;
 
 package KindaPerl6::Grammar;
@@ -82,6 +82,7 @@ package KindaPerl6::Grammar;
 package GLOBAL;
 
     #require Exporter;
+    use Data::Dumper;
     #@ISA = qw(Exporter);
     our @EXPORT = qw( 
         print 
@@ -110,22 +111,37 @@ package GLOBAL;
     $GLOBAL::Hash_ENV = bless \%ENV, 'Type_Perl5_Buf_Hash';
     
     ${"GLOBAL::Code_$_"} = \&{"GLOBAL::$_"} for @EXPORT;
-    $GLOBAL::Code_import = bless [ \&{"GLOBAL::import"} ], 'Type_Constant_Code';
+    $GLOBAL::Code_import = ::CALL( $::Code, 'new', 
+        { code => \&{"GLOBAL::import"}, src => '&GLOBAL::import' } );
     sub import {
-        my ($pkg) = caller(1);  # first call frame is the APPLY() method
+        #print "@_\n";
+        my ($pkg) = $_[0];  #caller(1);  # first call frame is the APPLY() method
+        $pkg = $pkg->{_value} if ref($pkg);
         #print "IMPORT $pkg\n";
-        ${"${pkg}::Code_$_"} = bless [ ${"GLOBAL::Code_$_"} ], 'Type_Constant_Code' 
+        ${"${pkg}::Code_$_"} = ::CALL( $::Code, 'new', 
+            { code => ${"GLOBAL::Code_$_"}, src => '&GLOBAL::'.$_ } ) 
             for @EXPORT;
     }
 
-    sub print { print join( '',  map { 
-            my $v = $_; eval { $v = $_->FETCH->[0] }; $v 
-        } @_ ) }
-    #sub print { print 'PRINT: ', join( ' : ',  map { ( ${$_->FETCH}, $_->perl ) } @_ ) }
+    sub print { 
+        #print "print: ", Dumper(\@_);
+        print join( '',  map { 
+            my $v = $_; 
+            #print "ISA: ", $v->{_isa}[0]{_value}{class_name}, "\n";
+            #print "value: $v = ", $v->{_value},"\n";
+            #print Dumper( $v );
+            #print "print: ", Dumper( ::CALL( ::CALL( $v, 'FETCH' ), 'str' ) );
+            eval { $v = ::CALL( ::CALL( $v, 'FETCH' ), 'str' )->{_value} } if ref($v); 
+            print $@ if $@;
+            $v 
+        } @_ );
+        #print $@ if $@;
+    }
     sub say   { GLOBAL::print( @_, "\n" ) }
 
-    sub undef    { bless [ undef ], 'Type_Constant_Undef' }
-    sub undefine { $_[0]->STORE( GLOBAL::undef() ) }
+    my $undef = ::CALL( $::Undef, 'new', 0 );
+    sub undef    { $undef }
+    sub undefine { ::CALL( $_[0], 'STORE', $undef ) }
     sub defined  { bless [ defined $_[0]->FETCH->[0] ], 'Type_Constant_Bit' } 
     sub true     { bless [ $_[0]->FETCH->[0] ? 1 : 0 ], 'Type_Constant_Bit' }  
     sub not      { bless [ $_[0]->FETCH->[0] ? 0 : 1 ], 'Type_Constant_Bit' }  
