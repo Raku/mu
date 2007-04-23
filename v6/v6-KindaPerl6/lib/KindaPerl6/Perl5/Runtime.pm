@@ -123,17 +123,17 @@ package GLOBAL;
             for @EXPORT;
     }
 
+    sub _str {
+        my $v = $_[0];
+        eval { $v = ::CALL( ::CALL( $v, 'FETCH' ), 'str' )->{_value} } if ref($v); 
+        print $@ if $@;
+        $v;
+    }
+
     sub print { 
         #print "print: ", Dumper(\@_);
         print join( '',  map { 
-            my $v = $_; 
-            #print "ISA: ", $v->{_isa}[0]{_value}{class_name}, "\n";
-            #print "value: $v = ", $v->{_value},"\n";
-            #print Dumper( $v );
-            #print "print: ", Dumper( ::CALL( ::CALL( $v, 'FETCH' ), 'str' ) );
-            eval { $v = ::CALL( ::CALL( $v, 'FETCH' ), 'str' )->{_value} } if ref($v); 
-            print $@ if $@;
-            $v 
+            _str($_); 
         } @_ );
         #print $@ if $@;
     }
@@ -164,7 +164,7 @@ package GLOBAL;
     sub infix_58__60__33__61__62_   
     { bless [ $_[0]->FETCH->[0] != $_[1]->FETCH->[0] ], 'Type_Constant_Bit' }  # infix:<!=>
     sub infix_58__60__126__62_      
-    { bless [ $_[0]->FETCH->[0] .  $_[1]->FETCH->[0] ], 'Type_Constant_Buf' }  # infix:<~>
+    { ::CALL( $::Str, 'new', _str( $_[0] ) . _str( $_[1] ) ) }  # infix:<~>
     sub infix_58__60__43__62_       
     { bless [ $_[0]->FETCH->[0] +  $_[1]->FETCH->[0] ], 'Type_Constant_Num' }  # infix:<+>
 
