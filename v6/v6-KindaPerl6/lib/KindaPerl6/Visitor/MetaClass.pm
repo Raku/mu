@@ -16,7 +16,9 @@ class KindaPerl6::Visitor::MetaClass {
 
             push @$module, ::Apply(
                 code      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'GLOBAL::import' ),
-                arguments => [ ],
+                arguments => [ 
+                    ::Val::Buf( buf => $node.name ),
+                ],
             );
             
             # role or class/grammar/module ?
@@ -37,7 +39,7 @@ class KindaPerl6::Visitor::MetaClass {
                         ::Val::Buf( buf => $node.name ),  
                     ],
                     'method'   => 'new',
-                    'invocant' => ::Val::Buf( buf => 'KindaPerl6::Class' ),  
+                    'invocant' => ::Val::Buf( buf => 'Class' ),  
                 );
             };
 

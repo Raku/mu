@@ -11,20 +11,6 @@ class KindaPerl6::Visitor::EmitPerl5 {
 
 }
 
-# for MOP emitter:
-
-#class Module {
-#    has $.name;
-#    has $.body;
-#    method emit_perl5 {
-#          '{ package ' ~ $.name ~ ';' ~ Main::newline() 
-#        ~ $.body.emit_perl5 
-#        ~ ' }' ~ Main::newline();
-#    }
-#}
-
-# from mp6 perl5 emitter:
-
 class CompUnit {
     has $.unit_type;
     has $.name;
@@ -34,10 +20,6 @@ class CompUnit {
     method emit_perl5 {
           '{ package ' ~ $.name ~ "; " 
         ~ 'my %_MODIFIED; '
-#       ~ ( $.unit_type eq 'module'
-#            ?? ''
-#            !! 'sub new { shift; bless { @_ }, "' ~ $.name ~ '" }' ~ " " 
-#         )
         ~ $.body.emit_perl5
         ~ ' }' ~ Main::newline();
     }
@@ -47,7 +29,7 @@ class Val::Int {
     has $.int;
     method emit_perl5 { 
         # $.int 
-        'bless( [' ~ $.int ~ '], \'Type_Constant_Int\' )'
+        '::CALL( $::Int, \'new\', ' ~ $.int ~ ' )'
     }
 }
 
@@ -55,7 +37,7 @@ class Val::Bit {
     has $.bit;
     method emit_perl5 { 
         # $.bit 
-        'bless( [' ~ $.bit ~ '], \'Type_Constant_Bit\' )'
+        '::CALL( $::Bit, \'new\', ' ~ $.bit ~ ' )'
     }
 }
 
@@ -63,7 +45,7 @@ class Val::Num {
     has $.num;
     method emit_perl5 { 
         #$.num 
-        'bless( [' ~ $.num ~ '], \'Type_Constant_Num\' )'
+        '::CALL( $::Num, \'new\', ' ~ $.num ~ ' )'
     }
 }
 
@@ -71,14 +53,14 @@ class Val::Buf {
     has $.buf;
     method emit_perl5 { 
         # '\'' ~ $.buf ~ '\'' 
-        'bless( [' ~ '\'' ~ $.buf ~ '\'' ~ '], \'Type_Constant_Buf\' )'
+        '::CALL( $::Str, \'new\', ' ~ '\'' ~ $.buf ~ '\'' ~ ' )'
     }
 }
 
 class Val::Undef {
     method emit_perl5 { 
         #'(undef)' 
-        'GLOBAL::undef()'
+        '$::Undef'
     }
 }
 
@@ -166,7 +148,7 @@ class Lit::Object {
         for @$fields -> $field { 
             $str := $str ~ ($field[0]).emit_perl5 ~ ' => ' ~ ($field[1]).emit_perl5 ~ ',';
         }; 
-        $.class ~ '->new( ' ~ $str ~ ' )';
+        '::CALL( $::' ~ $.class ~ ', \'new\', ' ~ $str ~ ' )';
     }
 }
 
@@ -174,14 +156,7 @@ class Index {
     has $.obj;
     has $.index;
     method emit_perl5 {
-        $.obj.emit_perl5 ~ '->INDEX(' ~ $.index.emit_perl5 ~ ')';
-        # TODO
-        # if ($.obj.isa(Lit::Seq)) {
-        #    $.obj.emit_perl5 ~ '[' ~ $.index.emit_perl5 ~ ']';
-        # }
-        # else {
-        #    $.obj.emit_perl5 ~ '->[' ~ $.index.emit_perl5 ~ ']';
-        # }
+        '::CALL( ' ~ $.obj.emit_perl5 ~ ', \'INDEX\', ' ~ $.index.emit_perl5 ~ ' )';
     }
 }
 
@@ -189,7 +164,7 @@ class Lookup {
     has $.obj;
     has $.index;
     method emit_perl5 {
-        $.obj.emit_perl5 ~ '->LOOKUP(' ~ $.index.emit_perl5 ~ ')';
+        '::CALL( ' ~ $.obj.emit_perl5 ~ ', \'LOOKUP\', ' ~ $.index.emit_perl5 ~ ' )';
     }
 }
 
@@ -198,7 +173,7 @@ class Assign {
     has $.arguments;
     method emit_perl5 {
         # TODO - same as ::Bind
-        $.parameters.emit_perl5 ~ '->STORE(' ~ $.arguments.emit_perl5 ~ ')';
+        '::CALL( ' ~ $.parameters.emit_perl5 ~ ', \'STORE\', ' ~ $.arguments.emit_perl5 ~ ' )';
     }
 }
 
@@ -235,7 +210,7 @@ class Bind {
     has $.parameters;
     has $.arguments;
     method emit_perl5 {
-        $.parameters.emit_perl5 ~ '->BIND(' ~ $.arguments.emit_perl5 ~ ')';
+        '::CALL( ' ~ $.parameters.emit_perl5 ~ ', \'BIND\', ' ~ $.arguments.emit_perl5 ~ ' )';
     }
 }
 
@@ -255,11 +230,11 @@ class Call {
     method emit_perl5 {
         my $invocant;
         if $.invocant.isa( 'Str' ) {
-            $invocant := '$::Class_' ~ $.invocant;
+            $invocant := '$::' ~ $.invocant;
         }
         else {
         if $.invocant.isa( 'Val::Buf' ) {
-            $invocant := '$::Class_' ~ $.invocant.buf;
+            $invocant := '$::' ~ $.invocant.buf;
         }
         else {
             $invocant := $.invocant.emit_perl5;
@@ -296,16 +271,19 @@ class Call {
             '[ map { $_' ~ '->' ~ $meth ~ '(' ~ $call ~ ') } @{ ' ~ $invocant ~ ' } ]';
         }
         else {
-               '('  ~ $invocant ~ '->FETCH->{_role_methods}{' ~ $meth ~ '}'
-            ~ ' ? ' ~ $invocant ~ '->FETCH->{_role_methods}{' ~ $meth ~ '}{code}' 
-                ~ '(' ~ $invocant ~ '->FETCH, ' ~ $call ~ ')'
-            ~ ' : ' ~ $invocant ~ '->FETCH->' ~ $meth ~ '(' ~ $call ~ ')'
-            ~  ')';
+            if ( $meth eq '' ) {
+                # $var.()
+                '::CALL( ::CALL( ' ~ $invocant ~ ', \'FETCH\' ), \'APPLY\', ' ~ $call ~ ' )'
+            }
+            else {
+                  '::CALL( ' 
+                ~ $invocant ~ ', '
+                ~ '\'' ~ $meth ~ '\', '
+                ~ $call
+                ~ ' )'
+            };
         };
         
-#    $x->FETCH->{_role_methods}{my_role}
-#  ? $x->FETCH->{_role_methods}{my_role}{code}()
-#  : $x->FETCH->my_role();
 
     }
 }
@@ -314,19 +292,7 @@ class Apply {
     has $.code;
     has @.arguments;
     method emit_perl5 {
-        
-        return '(' ~ $.code.emit_perl5 ~ ')->APPLY(' ~ (@.arguments.>>emit_perl5).join(', ') ~ ')';
-
-#        my $code := $.code;
-#
-#        if $code.isa( 'Str' ) { }
-#        else {
-#        };
-#
-#        if $code eq 'self'       { return '$self' };
-#        
-#          Main::mangle_name( '&', '', $.code )
-#        ~ '->(' ~ (@.arguments.>>emit_perl5).join(', ') ~ ')';
+        return '::CALL( ' ~ $.code.emit_perl5 ~ ', \'APPLY\', ' ~ (@.arguments.>>emit_perl5).join(', ') ~ ' )';
     }
 }
 
@@ -384,32 +350,33 @@ class Decl {
         };
         if $decl eq 'our' {
             my $s;
-            # use vars --> because compile-time scope is too tricky to use 'our'
-            $s := 'use vars \'' ~ $.var.emit_perl5 ~ '\'; ';  
+            # ??? use vars --> because compile-time scope is too tricky to use 'our'
+            # ??? $s := 'use vars \'' ~ $.var.emit_perl5 ~ '\'; ';  
+            $s := 'our ';
 
             if ($.var).sigil eq '$' {
                 return $s 
                     ~ $.var.emit_perl5
-                    ~ ' = bless [ GLOBAL::undef(), \\%_MODIFIED, \'' ~ $.var.emit_perl5 ~ '\' ], "Type_Scalar" '
+                    ~ ' = ::CALL( $::Scalar, \'new\' ) '
                     ~ ' unless defined ' ~ $.var.emit_perl5 ~ '; '
                     ~ 'BEGIN { '
                     ~     $.var.emit_perl5
-                    ~     ' = bless [ GLOBAL::undef(), \\%_MODIFIED, \'' ~ $.var.emit_perl5 ~ '\' ], "Type_Scalar" '
+                    ~     ' = ::CALL( $::Scalar, \'new\' ) '
                     ~     ' unless defined ' ~ $.var.emit_perl5 ~ '; '
                     ~ '}'
             };
             if ($.var).sigil eq '&' {
                 return $s 
                     ~ $.var.emit_perl5
-                    ~ ' = bless [ GLOBAL::undef(), \\%_MODIFIED, \'' ~ $.var.emit_perl5 ~ '\' ], "Type_Code" ';
+                    ~ ' = ::CALL( $::CodeScalar, \'new\' )';
             };
             if ($.var).sigil eq '%' {
                 return $s ~ $.var.emit_perl5
-                    ~ ' = bless { }, \'Type_Hash\' ';
+                    ~ ' = ::CALL( $::Hash, \'new\' )';
             };
             if ($.var).sigil eq '@' {
                 return $s ~ $.var.emit_perl5
-                    ~ ' = bless [ ], \'Type_Array\' ';
+                    ~ ' = ::CALL( $::Array, \'new\' )';
             };
             return $s ~ $.var.emit_perl5 ~ ' ';
         };
@@ -419,11 +386,11 @@ class Decl {
                 ~ $.type ~ ' ' 
                 ~ $.var.emit_perl5 ~ '; '
                 ~ $.var.emit_perl5
-                ~ ' = bless [ GLOBAL::undef(), \\%_MODIFIED, \'' ~ $.var.emit_perl5 ~ '\' ], "Type_Scalar" '
+                ~ ' = ::CALL( $::Scalar, \'new\' ) '
                 ~ ' unless defined ' ~ $.var.emit_perl5 ~ '; '
                 ~ 'BEGIN { '
                 ~     $.var.emit_perl5
-                ~     ' = bless [ GLOBAL::undef(), \\%_MODIFIED, \'' ~ $.var.emit_perl5 ~ '\' ], "Type_Scalar" '
+                ~     ' = ::CALL( $::Scalar, \'new\' ) '
                 ~ '}'
                 ;
         };

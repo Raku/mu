@@ -1,3 +1,10 @@
+
+# Note: use MOP.pm instead
+
+1;
+
+__END__
+
 # a "Type" is a class
 # it defines:
 # - the storage (array, scalar, hash), also: list

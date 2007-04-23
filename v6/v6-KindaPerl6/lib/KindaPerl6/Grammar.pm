@@ -595,7 +595,7 @@ token apply {
     ]
 };
 
-token opt_name {  <ident> | <''>  };
+token opt_name {  <ident> | ''  };
 
 
 token invocant {
