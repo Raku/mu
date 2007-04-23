@@ -42,8 +42,19 @@ class Regex(object):
 			state = flags
 			flags = grammar
 			grammar = flags['grammar']
-		if not grammar:
-			grammar = self.grammar
+		if not grammar: grammar = self.grammar
+		p = 'p' in flags and flags['p'] or
+			'pos' in flags and flags['pos'] or
+			self.p
+		cont = 'c' in flags and flags['c'] or
+			'cont' in flags and flags['cont'] or
+			'continue' in flags and flags['continue'] or
+			self.cont
+		ignorecase = 'i' in flags and flags['i'] or
+			'ignorecase' in flags and flags['ignorecase'] or
+			self.ignorecase
+		# self.code (rule->{code}) no longer handled.
+		# TODO: continue this
 class Token(Regex):
 	def compile(self, rule_source, param={}):
 		if not 'ratchet' in param:
