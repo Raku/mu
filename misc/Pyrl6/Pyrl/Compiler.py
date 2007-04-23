@@ -1,5 +1,7 @@
+import sys
+
 class Regex(object):
-	def compile(the_class, rule_source, param):
+	def compile(self, rule_source, param):
 		if ('P5' in param) or ('Perl5' in param):
 			return RegexPerl5.compile(rule_source, param)
 		self = dict(source=rule_source,
@@ -12,16 +14,37 @@ class Regex(object):
 		if 'ratchet' in param:
 			self['ratchet'] = param['ratchet']
 			del param['ratchet']
-		# TODO: continue adding from regex.pm
+		if 'c' in param:
+			self['continue'] = param['c']
+			del param['c']
+		if 'continue' in param:
+			self['continue'] = param['continue']
+			del param['continue']
+		if 'i' in param:
+			self['ignorecase'] = param['i']
+			del param['i']
+		if 'ignorecase' in param:
+			self['ignorecase'] = param['ignorecase']
+			del param['ignorecase']
+		if 's' in param:
+			del param['s']
+		for key in param.keys():
+			sys.stderr.write("Error in rule: unknown parameter %s\n" % key)
+		# i left caching out this this time around.
+		# todo: write the rest.
+	def code(self):
+		def foo(grammar, string, flags, state):
+			self.match(string, grammar, flags, state)
+		return foo
 class Token(Regex):
-	def compile(the_class, rule_source, param={}):
+	def compile(self, rule_source, param={}):
 		if not 'ratchet' in param:
 			param['ratchet'] = 1
-		return Regex.compile(the_class, rule_source, param)
+		return Regex.compile(self, rule_source, param)
 class Rule(Regex):
-	def compile(the_class, rule_source, param={}):
+	def compile(self, rule_source, param={}):
 		if not 'ratchet' in param:
 			param['ratchet'] = 1
 		if not ('s' in param) or ('sigspace' in param):
 			param['sigspace'] = 1
-		return Regex.compile(the_class, rule_source, param)
+		return Regex.compile(self, rule_source, param)
