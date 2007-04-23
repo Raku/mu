@@ -7,24 +7,24 @@ class Regex(object):
 		self = dict(source=rule_source,
 			grammar='Pyrl.Grammar.Base',
 			ratchet=0, sigspace=0, ignorecase=0)
-		self['continue'] = 0
+		self.cont = 0
 		if 'grammar' in param:
-			self['grammar'] = param['grammar']
+			self.grammar = param['grammar']
 			del param['grammar']
 		if 'ratchet' in param:
-			self['ratchet'] = param['ratchet']
+			self.ratchet = param['ratchet']
 			del param['ratchet']
 		if 'c' in param:
-			self['continue'] = param['c']
+			self.cont = param['c']
 			del param['c']
 		if 'continue' in param:
-			self['continue'] = param['continue']
+			self.cont = param['continue']
 			del param['continue']
 		if 'i' in param:
-			self['ignorecase'] = param['i']
+			self.ignorecase = param['i']
 			del param['i']
 		if 'ignorecase' in param:
-			self['ignorecase'] = param['ignorecase']
+			self.ignorecase = param['ignorecase']
 			del param['ignorecase']
 		if 's' in param:
 			del param['s']
@@ -36,6 +36,14 @@ class Regex(object):
 		def foo(grammar, string, flags, state):
 			self.match(string, grammar, flags, state)
 		return foo
+	def match(self, string, grammar, flags, state):
+		if not string: return Pyrl.Runtime.Match(dict(bool=0))
+		if type(grammar) == type(dict()):
+			state = flags
+			flags = grammar
+			grammar = flags['grammar']
+		if not grammar:
+			grammar = self.grammar
 class Token(Regex):
 	def compile(self, rule_source, param={}):
 		if not 'ratchet' in param:
