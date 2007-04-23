@@ -206,15 +206,40 @@ my $meta_Str = ::CALL( $::Str, 'HOW' );
 ::CALL( $meta_Str, 'add_method', 'str',            ::CALL( $::Method, 'new',
     sub { $_[0] } ) );
 
+::CALL( $::Class, 'new',  'Int' );  #  $::Int, '$::Int',    $meta_Int, '$meta_Int',    'Int');
+my $meta_Int = ::CALL( $::Int, 'HOW' );
+::CALL( $meta_Int, 'add_parent', $meta_Value );
+::CALL( $meta_Int, 'add_method', 'perl',           ::CALL( $::Method, 'new', 
+    sub { my $v = ::CALL( $::Str, 'new', $_[0]{_value} ) } ) );
+::CALL( $meta_Int, 'add_method', 'str',            ::CALL( $::Method, 'new', 
+    sub { my $v = ::CALL( $::Str, 'new', $_[0]{_value} ) } ) );
+
+
+#--- finish Object
 
 # implement Object.str 
 ::CALL( $meta_Object, 'add_method', 'str',         ::CALL( $::Method, 'new',
     sub { 
         my $v = ::CALL( $::Str, 'new', '::' . $_[0]{_isa}[0]{_value}{class_name} .'(...)' );
     } ) );
+# implement Object.int 
+::CALL( $meta_Object, 'add_method', 'int',         ::CALL( $::Method, 'new',
+    sub { 
+        # XXX
+        my $v = ::CALL( $::Int, 'new', 0 + $_[0]{_value} );
+    } ) );
 # Object.FETCH is a no-op
 ::CALL( $meta_Object, 'add_method', 'FETCH',        ::CALL( $::Method, 'new', sub { $_[0] } ) );
+# Object.STORE is forbidden
+my $method_readonly = ::CALL( $::Method, 'new',
+    sub { 
+        die "attempt to modify a read-only value"; 
+    } 
+);
+::CALL( $meta_Object, 'add_method', 'STORE',     $method_readonly );
 
+
+#--- back to Value
 
 ::CALL( $::Class, 'new', 'Undef' );   #   $::Undef, '$::Undef',    $meta_Undef, '$meta_Undef',    'Undef');
 my $meta_Undef = ::CALL( $::Undef, 'HOW' );
@@ -223,14 +248,6 @@ my $meta_Undef = ::CALL( $::Undef, 'HOW' );
     sub { my $v = ::CALL( $::Str, 'new', 'undef' ) } ) );
 ::CALL( $meta_Undef, 'add_method', 'str',         ::CALL( $::Method, 'new', 
     sub { my $v = ::CALL( $::Str, 'new', '' ) } ) );
-
-::CALL( $::Class, 'new',  'Int' );  #  $::Int, '$::Int',    $meta_Int, '$meta_Int',    'Int');
-my $meta_Int = ::CALL( $::Int, 'HOW' );
-::CALL( $meta_Int, 'add_parent', $meta_Value );
-::CALL( $meta_Int, 'add_method', 'perl',           ::CALL( $::Method, 'new', 
-    sub { my $v = ::CALL( $::Str, 'new', $_[0]{_value} ) } ) );
-::CALL( $meta_Int, 'add_method', 'str',            ::CALL( $::Method, 'new', 
-    sub { my $v = ::CALL( $::Str, 'new', $_[0]{_value} ) } ) );
 
 ::CALL( $::Class, 'new',  'Bit' ); 
 my $meta_Bit = ::CALL( $::Bit, 'HOW' );
@@ -248,22 +265,40 @@ my $meta_Code = ::CALL( $::Code, 'HOW' );
 
 #--- Containers
 
-::CALL( $::Class, 'new', 'Container' ); #   $::Container, '$::Container',    $meta_Container, '$meta_Container',    'Container');
+::CALL( $::Class, 'new', 'Container' );
 my $meta_Container = ::CALL( $::Container, 'HOW' );
 ::CALL( $meta_Container, 'add_method', 'IS_ARRAY',     ::CALL( $::Method, 'new', sub { 0 } ) );
 ::CALL( $meta_Container, 'add_method', 'IS_HASH',      ::CALL( $::Method, 'new', sub { 0 } ) );
 ::CALL( $meta_Container, 'add_method', 'IS_CONTAINER', ::CALL( $::Method, 'new', sub { 1 } ) );
 ::CALL( $meta_Container, 'add_method', 'FETCH',        ::CALL( $::Method, 'new', 
     sub { 
-        #print "Container FETCH: $_[0]{_value}{_isa}[0]{_value}{class_name}\n";
-        #print Dumper( $_[0]{_value} );
-        $_[0]{_value} ? $_[0]{_value} : $GLOBAL::undef; 
+        #print "Container FETCH: $_[0]{_value}{cell}{_isa}[0]{_value}{class_name}\n";
+        #print Dumper( $_[0]{_value}{cell} );
+        $_[0]{_value}{cell} ? $_[0]{_value}{cell} : $GLOBAL::undef; 
     } 
 ) );
 ::CALL( $meta_Container, 'add_method', 'STORE',        ::CALL( $::Method, 'new', 
     sub { 
+        #print "Container STORE: $_[1]{_isa}[0]{_value}{cell}{class_name}\n";
+        $_[0]{_value}{cell} = $_[1]; 
+    } 
+) );
+::CALL( $meta_Container, 'add_method', 'BIND',        ::CALL( $::Method, 'new', 
+    sub { 
         #print "Container STORE: $_[1]{_isa}[0]{_value}{class_name}\n";
-        $_[0]{_value} = $_[1]; 
+        if ( exists $_[1]{_value}{cell} ) {
+            # Container := Container
+            $_[0]{_value}   = $_[1]{_value}; 
+            $_[0]{_methods} = $_[1]{_methods};
+            $_[0]{_roles}   = $_[1]{_roles};
+        }
+        else {
+            # Container := Object
+            # - add the read-only trait
+            $_[0]{_value}{cell} = $_[1]; 
+            $_[0]{_methods} = [ $method_readonly ];
+            $_[0]{_roles}   = [ ];
+        }
     } 
 ) );
 

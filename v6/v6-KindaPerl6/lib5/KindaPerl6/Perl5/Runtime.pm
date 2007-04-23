@@ -128,6 +128,12 @@ package GLOBAL;
         print $@ if $@;
         $v;
     }
+    sub _int {
+        my $v = $_[0];
+        eval { $v = ::CALL( ::CALL( $v, 'FETCH' ), 'int' )->{_value} } if ref($v); 
+        print $@ if $@;
+        $v;
+    }
 
     sub print { 
         #print "print: ", Dumper(\@_);
@@ -165,7 +171,7 @@ package GLOBAL;
     sub infix_58__60__126__62_      
     { ::CALL( $::Str, 'new', _str( $_[0] ) . _str( $_[1] ) ) }  # infix:<~>
     sub infix_58__60__43__62_       
-    { bless [ $_[0]->FETCH->[0] +  $_[1]->FETCH->[0] ], 'Type_Constant_Num' }  # infix:<+>
+    { ::CALL( $::Int, 'new', _int( $_[0] ) + _int( $_[1] ) ) }  # infix:<+>
 
     # ???
     sub prefix_58__60__64__62_      { @{$_[0]} }        # prefix:<@>
