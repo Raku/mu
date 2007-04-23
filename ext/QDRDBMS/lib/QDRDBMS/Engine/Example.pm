@@ -38,7 +38,7 @@ submethod BUILD (Any :$dbms_config!) {
 ###########################################################################
 
 method prepare of QDRDBMS::Engine::Example::Routine
-        (QDRDBMS::AST::Proc :$rtn_ast!) {
+        (QDRDBMS::AST::ProcDecl :$rtn_ast!) {
     return QDRDBMS::Engine::Example::Routine.new(
         :dbms(self), :rtn_ast($rtn_ast) );
 }
@@ -56,7 +56,7 @@ method new_var of QDRDBMS::Engine::Example::Variable () {
 
 class QDRDBMS::Engine::Example::Routine {
     has QDRDBMS::Engine::Example::DBMS $!dbms_eng;
-    has QDRDBMS::AST::Proc             $!rtn_ast;
+    has QDRDBMS::AST::ProcDecl         $!rtn_ast;
     has Code                           $!prep_rtn;
     has Array                          $!bound_vars;
 
@@ -64,7 +64,7 @@ class QDRDBMS::Engine::Example::Routine {
 
 #submethod BUILD (QDRDBMS::Engine::Example::DBMS :dbms($dbms_eng)!,
 submethod BUILD (QDRDBMS::Engine::Example::DBMS :$dbms!,
-        QDRDBMS::AST::Proc :$rtn_ast!) {
+        QDRDBMS::AST::ProcDecl :$rtn_ast!) {
     my $dbms_eng = $dbms;
 
     my $prep_rtn = sub { 1; }; # TODO; the real thing.

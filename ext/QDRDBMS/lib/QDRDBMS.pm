@@ -86,7 +86,7 @@ submethod BUILD (Str :$engine_name!, Any :$dbms_config!) {
 ###########################################################################
 
 method prepare of QDRDBMS::Interface::Routine
-        (QDRDBMS::AST::Proc :$rtn_ast!) {
+        (QDRDBMS::AST::ProcDecl :$rtn_ast!) {
     return QDRDBMS::Interface::Routine.new(
         :dbms(self), :rtn_ast($rtn_ast) );
 }
@@ -104,14 +104,14 @@ method new_var of QDRDBMS::Interface::Variable () {
 
 class QDRDBMS::Interface::Routine {
     has QDRDBMS::Interface::DBMS $!dbms_intf;
-    has QDRDBMS::AST::Proc       $!rtn_ast;
+    has QDRDBMS::AST::ProcDecl   $!rtn_ast;
     has Any                      $!rtn_eng;
 
 ###########################################################################
 
 #submethod BUILD (QDRDBMS::Interface::DBMS :dbms($dbms_intf)!,
 submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!,
-        QDRDBMS::AST::Proc :$rtn_ast!) {
+        QDRDBMS::AST::ProcDecl :$rtn_ast!) {
     my $dbms_intf = $dbms;
 
     die q{new(): Bad :$dbms arg; it is not an object of a}
@@ -122,8 +122,8 @@ submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!,
     my $dbms_eng_class = $dbms_eng.WHAT;
 
     die q{new(): Bad :$dbms arg; it is not an object of a}
-            ~ q{ QDRDBMS::AST::Proc-doing class.}
-        if !$rtn_ast.defined or !$rtn_ast.does(QDRDBMS::AST::Proc);
+            ~ q{ QDRDBMS::AST::ProcDecl-doing class.}
+        if !$rtn_ast.defined or !$rtn_ast.does(QDRDBMS::AST::ProcDecl);
 
     my $rtn_eng = undef;
     try {
