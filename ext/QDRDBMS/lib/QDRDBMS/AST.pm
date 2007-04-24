@@ -45,6 +45,10 @@ sub ExprDict of QDRDBMS::AST::ExprDict (Array :$map!) is export {
     return QDRDBMS::AST::ExprDict.new( :map($map) );
 }
 
+sub TypeDict of QDRDBMS::AST::TypeDict (Array :$map!) is export {
+    return QDRDBMS::AST::TypeDict.new( :map($map) );
+}
+
 sub VarInvo of QDRDBMS::AST::VarInvo
         (QDRDBMS::AST::EntityName :$v!) is export {
     return QDRDBMS::AST::VarInvo.new( :v($v) );
@@ -78,6 +82,13 @@ sub FuncDecl of QDRDBMS::AST::FuncDecl () is export {
 
 sub ProcDecl of QDRDBMS::AST::ProcDecl () is export {
     return QDRDBMS::AST::ProcDecl.new();
+}
+
+sub HostGateRtn of QDRDBMS::AST::HostGateRtn
+        (QDRDBMS::AST::TypeDict :$upd_params!,
+        QDRDBMS::AST::TypeDict :$ro_params!, Array :$stmts!) is export {
+    return QDRDBMS::AST::HostGateRtn.new(
+        :upd_params($upd_params), :ro_params($ro_params), :stmts($stmts) );
 }
 
 ###########################################################################
@@ -399,6 +410,72 @@ sub map_hoa of Hash () {
 ###########################################################################
 ###########################################################################
 
+class QDRDBMS::AST::TypeDict {
+    does QDRDBMS::AST::Node;
+
+    has Array $!map_aoa;
+    has Hash  $!map_hoa;
+
+    # Note: This type may be generalized later to allow ::TypeDict values
+    # and not just EntityName values; also, the latter will probably be
+    # made more strict, to just be type names.
+
+    trusts QDRDBMS::AST::HostGateRtn;
+
+###########################################################################
+
+submethod BUILD (Array :$map!) {
+
+    die q{new(): Bad :$map arg; it is not an object of a}
+            ~ q{ Array-doing class.}
+        if !$map.defined or !$map.does(Array);
+    my Array $map_aoa = [];
+    my Hash  $map_hoa = {};
+    for $map -> $elem {
+        die q{new(): Bad :$map arg; it is not an object of a}
+                ~ q{ Array-doing class, or it doesn't have 2 elements.}
+            if !$elem.defined or !$elem.does(Array) or $elem.elems != 2;
+        my ($entity_name, $type_name) = $elem.values;
+        die q{new(): Bad :$map arg elem; its first elem is not}
+                ~ q{ an object of a QDRDBMS::AST::EntityName-doing class.}
+            if !$entity_name.defined
+                or !$entity_name.does(QDRDBMS::AST::EntityName);
+        my Str $entity_name_text_v = $entity_name.text().v();
+        die q{new(): Bad :$map arg elem; its first elem is not}
+                ~ q{ distinct between the arg elems.}
+            if $map_hoa.exists($entity_name_text_v);
+        die q{new(): Bad :$map arg elem; its second elem is not}
+                ~ q{ an object of a QDRDBMS::AST::EntityName-doing class.}
+            if !$type_name.defined
+                or !$type_name.does(QDRDBMS::AST::EntityName);
+        my Array $elem_cpy = [$entity_name, $type_name];
+        $map_aoa.push( $elem_cpy );
+        $map_hoa{$entity_name_text_v} = $elem_cpy;
+    }
+
+    $!map_aoa = $map_aoa;
+    $!map_hoa = $map_hoa;
+
+    return;
+}
+
+###########################################################################
+
+sub map of Array () {
+    return [$!map_aoa.map:{ [.values] }];
+}
+
+sub map_hoa of Hash () {
+    return {$!map_hoa.pairs.map:{ .key => [.value.values] }};
+}
+
+###########################################################################
+
+} # class QDRDBMS::AST::TypeDict
+
+###########################################################################
+###########################################################################
+
 class QDRDBMS::AST::VarInvo {
     does QDRDBMS::AST::Expr;
 
@@ -579,13 +656,13 @@ class QDRDBMS::AST::ProcReturn {
 ###########################################################################
 
 class QDRDBMS::AST::FuncDecl {
-
-
+    does QDRDBMS::AST::Node;
 
 ###########################################################################
 
-
-
+submethod BUILD () {
+    die q{not implemented};
+}
 
 ###########################################################################
 
@@ -595,17 +672,78 @@ class QDRDBMS::AST::FuncDecl {
 ###########################################################################
 
 class QDRDBMS::AST::ProcDecl {
-
-
+    does QDRDBMS::AST::Node;
 
 ###########################################################################
 
-
-
+submethod BUILD () {
+    die q{not implemented};
+}
 
 ###########################################################################
 
 } # class QDRDBMS::AST::ProcDecl
+
+###########################################################################
+###########################################################################
+
+class QDRDBMS::AST::HostGateRtn {
+    does QDRDBMS::AST::Node;
+
+    has QDRDBMS::AST::TypeDict $!upd_params;
+    has QDRDBMS::AST::TypeDict $!ro_params;
+    has Array                  $!stmts;
+
+###########################################################################
+
+submethod BUILD (QDRDBMS::AST::TypeDict :$upd_params!,
+        QDRDBMS::AST::TypeDict :$ro_params!,
+        QDRDBMS::AST::SeqSel :$stmts!) {
+
+    die q{new(): Bad :$upd_params arg; it is not an object of a}
+            ~ q{ QDRDBMS::AST::TypeDict-doing class.}
+        if !$upd_params.defined
+            or !$upd_params.does(QDRDBMS::AST::TypeDict);
+    die q{new(): Bad :$ro_params arg; it is not an object of a}
+            ~ q{ QDRDBMS::AST::TypeDict-doing class.}
+        if !$ro_params.defined or !$ro_params.does(QDRDBMS::AST::TypeDict);
+    confess q{new(): Bad :$upd_params or :$ro_params arg;}
+            ~ q{ they both reference at least 1 same procedure param.}
+        if any($ro_params!map_hoa.keys) === any($upd_params!map_hoa.keys);
+
+    die q{new(): Bad :$stmts arg; it is not an object of a}
+            ~ q{ Array-doing class.}
+        if !$stmts.defined or !$stmts.does(Array);
+    for $stmts -> $stmt {
+        die q{new(): Bad :$stmts arg elem; it is not}
+                ~ q{ an object of a QDRDBMS::AST::Stmt-doing class.}
+            if !$stmt.defined or !$stmt.does(QDRDBMS::AST::Stmt);
+    }
+
+    $!upd_params = $upd_params;
+    $!ro_params  = $ro_params;
+    $!stmts      = [$stmts.values];
+
+    return;
+}
+
+###########################################################################
+
+sub upd_params of QDRDBMS::AST::TypeDict () {
+    return $!upd_params;
+}
+
+sub ro_params of QDRDBMS::AST::TypeDict () {
+    return $!ro_params;
+}
+
+sub stmts of QDRDBMS::AST::EntityName () {
+    return [$!stmts.values];
+}
+
+###########################################################################
+
+} # class QDRDBMS::AST::HostGateRtn
 
 ###########################################################################
 ###########################################################################
@@ -629,7 +767,9 @@ It also describes the same-number versions for Perl 6 of [...].
 
 I<This documentation is pending.>
 
-    use QDRDBMS::AST <LitBool LitText LitBlob LitInt>;
+    use QDRDBMS::AST <LitBool LitText LitBlob LitInt SetSel SeqSel BagSel
+        EntityName ExprDict TypeDict VarInvo FuncInvo ProcInvo FuncReturn
+        ProcReturn FuncDecl ProcDecl HostGateRtn>;
 
     my $truth_value = LitBool( :v(2 + 2 == 4) );
     my $planetoid = LitText( :v('Ceres') );
