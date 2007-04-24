@@ -6,7 +6,7 @@ by Darren Duncan <perl@DarrenDuncan.net>
 PREFACE
 
 This distribution features the Perl 5 or 6 (depending on which copy of this
-README file you are reading) module named "QDRDBMS" (A fully-featured truly
+README file you are reading) module named "QDRDBMS" (Full-featured truly
 relational DBMS in Perl) and its support structure.
 
 QDRDBMS is the first successor of the now-defunct Rosetta DBMS framework,

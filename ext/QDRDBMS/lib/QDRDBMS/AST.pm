@@ -57,17 +57,15 @@ sub FuncInvo of QDRDBMS::AST::FuncInvo (QDRDBMS::AST::EntityName :$func!,
 }
 
 sub ProcInvo of QDRDBMS::AST::ProcInvo (QDRDBMS::AST::EntityName :$proc!,
+        QDRDBMS::AST::ExprDict :$upd_args!,
         QDRDBMS::AST::ExprDict :$ro_args!) is export {
     return QDRDBMS::AST::ProcInvo.new(
-        :proc($proc), :ro_args($ro_args) );
+        :proc($proc), :upd_args($upd_args), :ro_args($ro_args) );
 }
 
-sub MultiProcInvo of QDRDBMS::AST::MultiProcInvo () is export {
-    return QDRDBMS::AST::MultiProcInvo.new();
-}
-
-sub FuncReturn of QDRDBMS::AST::FuncReturn () is export {
-    return QDRDBMS::AST::FuncReturn.new();
+sub FuncReturn of QDRDBMS::AST::FuncReturn
+        (QDRDBMS::AST::Expr :$v!) is export {
+    return QDRDBMS::AST::FuncReturn.new( :v($v) );
 }
 
 sub ProcReturn of QDRDBMS::AST::ProcReturn () is export {
@@ -206,6 +204,8 @@ role QDRDBMS::AST::ListSel {
 
     has Array $!v;
 
+    trusts QDRDBMS::AST::EntityName;
+
 ###########################################################################
 
 submethod BUILD (Array :$v!) {
@@ -281,6 +281,7 @@ submethod BUILD
         die q{new(): Bad :$text arg; it contains character sequences that}
                 ~ q{ are invalid within the Text possrep of an EntityName.}
             if $text_v.match( / \\ $/ ) or $text_v.match( / \\ <-[bp]> / );
+
         $!text_possrep = $text;
         $!seq_possrep = QDRDBMS::AST::SeqSel.new( :v(
                 [$text_v.split( /\./ ).map:{
@@ -296,12 +297,13 @@ submethod BUILD
         die q{new(): Bad :$v arg; it is not an object of a}
                 ~ q{ QDRDBMS::AST::SeqSel-doing class.}
             if !$seq.does(QDRDBMS::AST::SeqSel);
-        my $seq_elems = $seq.v();
+        my $seq_elems = $seq!v;
         for $seq_elems -> $seq_e {
             die q{new(): Bad :$seq arg elem; it is not}
                     ~ q{ an object of a QDRDBMS::AST::LitText-doing class.}
                 if !$seq_e.does(QDRDBMS::AST::LitText);
         }
+
         $!text_possrep = QDRDBMS::AST::LitText.new( :v(
                 $seq_elems.map:{
                         .v().trans( < \\  .   >
@@ -342,6 +344,8 @@ class QDRDBMS::AST::ExprDict {
     # Note: This type is specific such that values are always some ::Expr,
     # but this type may be later generalized to hold ::Node instead.
 
+    trusts QDRDBMS::AST::ProcInvo;
+
 ###########################################################################
 
 submethod BUILD (Array :$map!) {
@@ -371,6 +375,7 @@ submethod BUILD (Array :$map!) {
         $map_aoa.push( $elem_cpy );
         $map_hoa{$entity_name_text_v} = $elem_cpy;
     }
+
     $!map_aoa = $map_aoa;
     $!map_hoa = $map_hoa;
 
@@ -385,10 +390,6 @@ sub map of Array () {
 
 sub map_hoa of Hash () {
     return {$!map_hoa.pairs.map:{ .key => [.value.values] }};
-}
-
-sub exprs of Array () {
-    return [$!map_aoa.map:{ .[1] }];
 }
 
 ###########################################################################
@@ -410,6 +411,7 @@ submethod BUILD (QDRDBMS::AST::EntityName :$v!) {
     die q{new(): Bad :$v arg; it is not a valid object}
             ~ q{ of a QDRDBMS::AST::EntityName-doing class.}
         if !$v.defined or !$v.does(QDRDBMS::AST::EntityName);
+
     $!v = $v;
 
     return;
@@ -442,11 +444,12 @@ submethod BUILD (QDRDBMS::AST::EntityName :$func!,
     die q{new(): Bad :$func arg; it is not a valid object}
             ~ q{ of a QDRDBMS::AST::EntityName-doing class.}
         if !$func.defined or !$func.does(QDRDBMS::AST::EntityName);
-    $!func = $func;
 
     die q{new(): Bad :$ro_args arg; it is not an object of a}
             ~ q{ QDRDBMS::AST::ExprDict-doing class.}
         if !$ro_args.defined or !$ro_args.does(QDRDBMS::AST::ExprDict);
+
+    $!func    = $func;
     $!ro_args = $ro_args;
 
     return;
@@ -492,22 +495,26 @@ submethod BUILD (QDRDBMS::AST::EntityName :$proc!,
     die q{new(): Bad :$proc arg; it is not a valid object}
             ~ q{ of a QDRDBMS::AST::EntityName-doing class.}
         if !$proc.defined or !$proc.does(QDRDBMS::AST::EntityName);
-    $!proc = $proc;
 
     die q{new(): Bad :$upd_args arg; it is not an object of a}
             ~ q{ QDRDBMS::AST::ExprDict-doing class.}
         if !$upd_args.defined or !$upd_args.does(QDRDBMS::AST::ExprDict);
-    for $upd_args.exprs().values -> $var_names {
-        die q{new(): Bad :$upd_args arg elem expr; it is not}
-                ~ q{ an object of a QDRDBMS::AST::VarInvo-doing class.}
-            if !$var_names.does(QDRDBMS::AST::VarInvo);
-    }
-    $!upd_args = $upd_args;
-
     die q{new(): Bad :$ro_args arg; it is not an object of a}
             ~ q{ QDRDBMS::AST::ExprDict-doing class.}
         if !$ro_args.defined or !$ro_args.does(QDRDBMS::AST::ExprDict);
-    $!ro_args = $ro_args;
+    my Hash $upd_args_map_hoa = $upd_args!map_hoa;
+    for $upd_args_map_hoa.values -> $an_and_vn {
+        die q{new(): Bad :$upd_args arg elem expr; it is not}
+                ~ q{ an object of a QDRDBMS::AST::VarInvo-doing class.}
+            if !$an_and_vn.[1].does(QDRDBMS::AST::VarInvo);
+    }
+    confess q{new(): Bad :$upd_args or :$ro_args arg;}
+            ~ q{ they both reference at least 1 same procedure param.}
+        if any($ro_args!map_hoa.keys) === any($upd_args_map_hoa.keys);
+
+    $!proc     = $proc;
+    $!upd_args = $upd_args;
+    $!ro_args  = $ro_args;
 
     return;
 }
@@ -533,32 +540,29 @@ sub ro_args of QDRDBMS::AST::ExprDict () {
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::AST::MultiProcInvo {
-    does QDRDBMS::AST::Stmt;
-
-
-
-###########################################################################
-
-
-
-
-###########################################################################
-
-} # class QDRDBMS::AST::MultiProcInvo
-
-###########################################################################
-###########################################################################
-
 class QDRDBMS::AST::FuncReturn {
     does QDRDBMS::AST::Stmt;
 
-
+    has QDRDBMS::AST::Expr $!v;
 
 ###########################################################################
 
+submethod BUILD (QDRDBMS::AST::Expr :$v!) {
 
+    die q{new(): Bad :$v arg; it is not a valid object}
+            ~ q{ of a QDRDBMS::AST::Expr-doing class.}
+        if !$v.defined or !$v.does(QDRDBMS::AST::Expr);
 
+    $!v = $v;
+
+    return;
+}
+
+###########################################################################
+
+sub v of QDRDBMS::AST::Expr () {
+    return $!v;
+}
 
 ###########################################################################
 
@@ -569,16 +573,6 @@ class QDRDBMS::AST::FuncReturn {
 
 class QDRDBMS::AST::ProcReturn {
     does QDRDBMS::AST::Stmt;
-
-
-
-###########################################################################
-
-
-
-
-###########################################################################
-
 } # class QDRDBMS::AST::ProcReturn
 
 ###########################################################################
