@@ -29,7 +29,7 @@ class Val::Int {
     has $.int;
     method emit_perl5 { 
         # $.int 
-        '::CALL( $::Int, \'new\', ' ~ $.int ~ ' )'
+        '$::Int->{_dispatch}( $::Int, \'new\', ' ~ $.int ~ ' )'
     }
 }
 
@@ -37,7 +37,7 @@ class Val::Bit {
     has $.bit;
     method emit_perl5 { 
         # $.bit 
-        '::CALL( $::Bit, \'new\', ' ~ $.bit ~ ' )'
+        '$::Bit->{_dispatch}( $::Bit, \'new\', ' ~ $.bit ~ ' )'
     }
 }
 
@@ -45,7 +45,7 @@ class Val::Num {
     has $.num;
     method emit_perl5 { 
         #$.num 
-        '::CALL( $::Num, \'new\', ' ~ $.num ~ ' )'
+        '$::Num->{_dispatch}( $::Num, \'new\', ' ~ $.num ~ ' )'
     }
 }
 
@@ -53,7 +53,7 @@ class Val::Buf {
     has $.buf;
     method emit_perl5 { 
         # '\'' ~ $.buf ~ '\'' 
-        '::CALL( $::Str, \'new\', ' ~ '\'' ~ $.buf ~ '\'' ~ ' )'
+        '$::Str->{_dispatch}( $::Str, \'new\', ' ~ '\'' ~ $.buf ~ '\'' ~ ' )'
     }
 }
 
@@ -150,7 +150,7 @@ class Lit::Object {
         for @$fields -> $field { 
             $str := $str ~ ($field[0]).emit_perl5 ~ ' => ' ~ ($field[1]).emit_perl5 ~ ',';
         }; 
-        '::CALL( $::' ~ $.class ~ ', \'new\', ' ~ $str ~ ' )';
+        '$::' ~ $.class ~ '->{_dispatch}( $::' ~ $.class ~ ', \'new\', ' ~ $str ~ ' )';
     }
 }
 
@@ -158,7 +158,7 @@ class Index {
     has $.obj;
     has $.index;
     method emit_perl5 {
-        '::CALL( ' ~ $.obj.emit_perl5 ~ ', \'INDEX\', ' ~ $.index.emit_perl5 ~ ' )';
+        $.obj.emit_perl5 ~ '->{_dispatch}( ' ~ $.obj.emit_perl5 ~ ', \'INDEX\', ' ~ $.index.emit_perl5 ~ ' )';
     }
 }
 
@@ -166,7 +166,7 @@ class Lookup {
     has $.obj;
     has $.index;
     method emit_perl5 {
-        '::CALL( ' ~ $.obj.emit_perl5 ~ ', \'LOOKUP\', ' ~ $.index.emit_perl5 ~ ' )';
+        $.obj.emit_perl5 ~ '->{_dispatch}( ' ~ $.obj.emit_perl5 ~ ', \'LOOKUP\', ' ~ $.index.emit_perl5 ~ ' )';
     }
 }
 
@@ -275,10 +275,10 @@ class Call {
         else {
             if ( $meth eq '' ) {
                 # $var.()
-                '::CALL( ' ~ $invocant ~ ', \'APPLY\', ' ~ $call ~ ' )'
+                $invocant ~ '->{_dispatch}( ' ~ $invocant ~ ', \'APPLY\', ' ~ $call ~ ' )'
             }
             else {
-                  '::CALL( ' 
+                  $invocant ~ '->{_dispatch}( ' 
                 ~ $invocant ~ ', '
                 ~ '\'' ~ $meth ~ '\', '
                 ~ $call
@@ -294,7 +294,7 @@ class Apply {
     has $.code;
     has @.arguments;
     method emit_perl5 {
-        return '::CALL( ' ~ $.code.emit_perl5 ~ ', \'APPLY\', ' ~ (@.arguments.>>emit_perl5).join(', ') ~ ' )';
+        return $.code.emit_perl5 ~ '->{_dispatch}( ' ~ $.code.emit_perl5 ~ ', \'APPLY\', ' ~ (@.arguments.>>emit_perl5).join(', ') ~ ' )';
     }
 }
 
@@ -360,26 +360,26 @@ class Decl {
             if ($.var).sigil eq '$' {
                 return $s 
                     ~ $.var.emit_perl5
-                    ~ ' = ::CALL( $::Scalar' ~ $create
+                    ~ ' = $::Scalar->{_dispatch}( $::Scalar' ~ $create
                     ~ ' unless defined ' ~ $.var.emit_perl5 ~ '; '
                     ~ 'BEGIN { '
                     ~     $.var.emit_perl5
-                    ~     ' = ::CALL( $::Scalar' ~ $create
+                    ~     ' = $::Scalar->{_dispatch}( $::Scalar' ~ $create
                     ~     ' unless defined ' ~ $.var.emit_perl5 ~ '; '
                     ~ '}'
             };
             if ($.var).sigil eq '&' {
                 return $s 
                     ~ $.var.emit_perl5
-                    ~ ' = ::CALL( $::Routine' ~ $create;
+                    ~ ' = $::Routine->{_dispatch}( $::Routine' ~ $create;
             };
             if ($.var).sigil eq '%' {
                 return $s ~ $.var.emit_perl5
-                    ~ ' = ::CALL( $::Hash' ~ $create;
+                    ~ ' = $::Hash->{_dispatch}( $::Hash' ~ $create;
             };
             if ($.var).sigil eq '@' {
                 return $s ~ $.var.emit_perl5
-                    ~ ' = ::CALL( $::Array' ~ $create;
+                    ~ ' = $::Array->{_dispatch}( $::Array' ~ $create;
             };
             return $s ~ $.var.emit_perl5 ~ ' ';
         };
@@ -389,11 +389,11 @@ class Decl {
                 ~ $.type ~ ' ' 
                 ~ $.var.emit_perl5 ~ '; '
                 ~ $.var.emit_perl5
-                ~ ' = ::CALL( $::Scalar' ~ $create
+                ~ ' = $::Scalar->{_dispatch}( $::Scalar' ~ $create
                 ~ ' unless defined ' ~ $.var.emit_perl5 ~ '; '
                 ~ 'BEGIN { '
                 ~     $.var.emit_perl5
-                ~     ' = ::CALL( $::Scalar' ~ $create
+                ~     ' = $::Scalar->{_dispatch}( $::Scalar' ~ $create
                 ~ '}'
                 ;
         };
@@ -403,21 +403,21 @@ class Decl {
                 ~ $.type ~ ' ' 
                 ~ $.var.emit_perl5 ~ '; '
                 ~ $.var.emit_perl5
-                ~ ' = ::CALL( $::Routine' ~ $create
+                ~ ' = $::Routine->{_dispatch}( $::Routine' ~ $create
                 ~ ' unless defined ' ~ $.var.emit_perl5 ~ '; '
                 ~ 'BEGIN { '
                 ~     $.var.emit_perl5
-                ~     ' = ::CALL( $::Routine' ~ $create
+                ~     ' = $::Routine->{_dispatch}( $::Routine' ~ $create
                 ~ '}'
                 ;
         };
         if ($.var).sigil eq '%' {
             return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_perl5
-                ~ ' = ::CALL( $::Hash' ~ $create;
+                ~ ' = $::Hash->{_dispatch}( $::Hash' ~ $create;
         };
         if ($.var).sigil eq '@' {
             return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_perl5
-                ~ ' = ::CALL( $::Array' ~ $create;
+                ~ ' = $::Array->{_dispatch}( $::Array' ~ $create;
         };
         return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_perl5;
     }
@@ -513,7 +513,7 @@ class Sub {
         };
         
         my $code :=
-          '::CALL( $::Code, \'new\', { '
+          '$::Code->{_dispatch}( $::Code, \'new\', { '
         ~   'code => sub { '  
             ## 'my ' ~ $invocant.emit_perl5 ~ ' = $_[0]; ' ~
         ~      $str 
