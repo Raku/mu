@@ -18,3 +18,9 @@ class StatementListNode:
 		self.second = second
 	def __str__(self):
 		return str(self.first) + str(self.second)
+class AssignmentNode:
+	def __init__(self, target, expr):
+		self.target = target
+		self.expr = expr
+	def __str__(self):
+		return self.target + " = " + str(self.expr) + '\n'

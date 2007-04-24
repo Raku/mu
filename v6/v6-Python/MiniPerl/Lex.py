@@ -8,12 +8,16 @@ tokens = (
 	'WHITESPACE',
 	'CLASS',
 	'SEMICOLON',
+	'SET',
+	'DOLLAR',
 )
 
 t_SQSTR    = r"\'.*?[^\\]\'"
 t_LBRACE   = r'{'
 t_RBRACE   = r'}'
 t_SEMICOLON = r';'
+t_SET      = r':='
+t_DOLLAR   = r'\$'
 
 def t_IDENT(t):
 	r'\w+'

@@ -9,7 +9,8 @@ class CompUnit {
     has @.body;
     method emit {
 		my $rv =  ("\t" x $indent++) ~ "class " ~ $.name ~ ":\n";
-        $rv ~=    (@.body.>>emit).join( "\n" ~ ("\t" x $indent) )
+        $rv ~=    (@.body.>>emit).join( "\n" );
+        return $rv
     }
 }
 
@@ -34,13 +35,14 @@ class Val::Buf {
 }
 
 class Val::Undef {
-    method emit { '(undef)' }
+    method emit { '(None)' }
 }
 
 class Val::Object {
     has $.class;
     has %.fields;
     method emit {
+        # XXX
         'bless(' ~ %.fields.perl ~ ', ' ~ $.class.perl ~ ')';
     }
 }
@@ -48,7 +50,7 @@ class Val::Object {
 class Lit::Seq {
     has @.seq;
     method emit {
-        '(' ~ (@.seq.>>emit).join(', ') ~ ')';
+        '[' ~ (@.seq.>>emit).join(', ') ~ ']';
     }
 }
 
@@ -65,7 +67,7 @@ class Lit::Hash {
         my $fields := @.hash;
         my $str := '';
         for @$fields -> $field { 
-            $str := $str ~ ($field[0]).emit ~ ' => ' ~ ($field[1]).emit ~ ',';
+            $str := $str ~ ($field[0]).emit ~ ': ' ~ ($field[1]).emit ~ ',';
         }; 
         '{ ' ~ $str ~ ' }';
     }
