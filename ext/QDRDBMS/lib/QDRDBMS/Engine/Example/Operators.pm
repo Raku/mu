@@ -32,7 +32,7 @@ module QDRDBMS::Engine::Example::Operators-0.0.0 {
 },
 
 'sys.rtn.Int.assign' => sub (:$target!, :$v!) {
-    $target.set( $v.get() );
+    $target.set( $v );
     return;
 },
 

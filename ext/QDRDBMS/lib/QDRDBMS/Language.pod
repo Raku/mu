@@ -541,15 +541,16 @@ constraints.
 
 A C<host_gate> is an anonymous procedure that can not be invoked by any
 other routine and exists in the limbo between the DBMS and the application
-that is driving it; the application holds a C<QDRDBMS::Interface::Routine>
-object to reference it by (the result of a C<QDRDBMS::Interface::DBMS>
-object's C<prepare()> method), and it exists only so long as that object
-doesn't go out of scope.  A C<host_gate> is mostly like a C<procedure> in
-every other way.  Main differences are that the only C<host_gate> routines
-are ones that users define, and that they are the only routines allowed to
-have explicit isolated transaction initiation and termination statements
-(for optional use in a parent-most transaction); all other updating routine
-types have self-contained atomic blocks instead.
+that is driving it; the application holds a
+C<QDRDBMS::Interface::HostGateRtn> object to reference it by (the result of
+a C<QDRDBMS::Interface::DBMS> object's C<prepare()> method), and it exists
+only so long as that object doesn't go out of scope.  A C<host_gate> is
+mostly like a C<procedure> in every other way.  Main differences are that
+the only C<host_gate> routines are ones that users define, and that they
+are the only routines allowed to have explicit isolated transaction
+initiation and termination statements (for optional use in a parent-most
+transaction); all other updating routine types have self-contained atomic
+blocks instead.
 
 =back
 

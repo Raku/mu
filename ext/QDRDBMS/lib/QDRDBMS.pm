@@ -26,8 +26,8 @@ sub new_dbms of QDRDBMS::Interface::DBMS
 class QDRDBMS::Interface::DBMS {
     has Any $!dbms_eng;
 
-    trusts QDRDBMS::Interface::Routine;
-    trusts QDRDBMS::Interface::Variable;
+    trusts QDRDBMS::Interface::HostGateVar;
+    trusts QDRDBMS::Interface::HostGateRtn;
 
 ###########################################################################
 
@@ -72,11 +72,11 @@ submethod BUILD (Str :$engine_name!, Any :$dbms_config!) {
     my $dbms_eng_class = $dbms_eng.WHAT;
 
 #    die qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class' does}
-#            ~ q{ not provide the prepare() method.}
-#        if !$dbms_eng.HOW.can( 'prepare' );
-#    die qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class' does}
 #            ~ q{ not provide the new_var() method.}
 #        if !$dbms_eng.HOW.can( 'new_var' );
+#    die qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class' does}
+#            ~ q{ not provide the prepare() method.}
+#        if !$dbms_eng.HOW.can( 'prepare' );
 
     $!dbms_eng = $dbms_eng;
 
@@ -85,14 +85,14 @@ submethod BUILD (Str :$engine_name!, Any :$dbms_config!) {
 
 ###########################################################################
 
-method prepare of QDRDBMS::Interface::Routine
-        (QDRDBMS::AST::ProcDecl :$rtn_ast!) {
-    return QDRDBMS::Interface::Routine.new(
-        :dbms(self), :rtn_ast($rtn_ast) );
+method new_var of QDRDBMS::Interface::HostGateVar () {
+    return QDRDBMS::Interface::HostGateVar.new( :dbms(self) );
 }
 
-method new_var of QDRDBMS::Interface::Variable () {
-    return QDRDBMS::Interface::Variable.new( :dbms(self) );
+method prepare of QDRDBMS::Interface::HostGateRtn
+        (QDRDBMS::AST::HostGateRtn :$rtn_ast!) {
+    return QDRDBMS::Interface::HostGateRtn.new(
+        :dbms(self), :rtn_ast($rtn_ast) );
 }
 
 ###########################################################################
@@ -102,16 +102,67 @@ method new_var of QDRDBMS::Interface::Variable () {
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::Interface::Routine {
+class QDRDBMS::Interface::HostGateVar {
     has QDRDBMS::Interface::DBMS $!dbms_intf;
-    has QDRDBMS::AST::ProcDecl   $!rtn_ast;
-    has Any                      $!rtn_eng;
+    has Any                      $!var_eng;
+
+    trusts QDRDBMS::Interface::HostGateRtn;
+
+###########################################################################
+
+#submethod BUILD (QDRDBMS::Interface::DBMS :dbms($dbms_intf)!) {
+submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!) {
+    my $dbms_intf = $dbms;
+
+    die q{new(): Bad :$dbms arg; it is not an object of a}
+            ~ q{ QDRDBMS::Interface::DBMS-doing class.}
+        if !$dbms_intf.defined
+            or !$dbms_intf.does(QDRDBMS::Interface::DBMS);
+    my $dbms_eng = $dbms_intf!dbms_eng;
+    my $dbms_eng_class = $dbms_eng.WHAT;
+
+    my $var_eng = undef;
+    try {
+        $var_eng = $dbms_eng.new_var();
+    };
+    if (my $err = $!) {
+        die qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class'}
+            ~ q{ threw an exception during its new_var()}
+            ~ qq{ execution: $err}
+    }
+    die q{new(): The new_var() method of the QDRDBMS}
+            ~ qq{ DBMS class '$dbms_eng_class' did not return an object}
+            ~ q{ to serve as a HostGateVar Engine.}
+        if !$var_eng.defined;
+    my $var_eng_class = $var_eng.WHAT;
+
+#    die qq{new(): The QDRDBMS HostGateVar Engine class '$var_eng_class'}
+#            ~ q{ does not provide the ...() method.}
+#        if !$var_eng.HOW.can( '...' );
+
+    $!dbms_intf = $dbms_intf;
+    $!var_eng   = $var_eng;
+
+    return;
+}
+
+###########################################################################
+
+} # class QDRDBMS::Interface::HostGateVar
+
+###########################################################################
+###########################################################################
+
+class QDRDBMS::Interface::HostGateRtn {
+    has QDRDBMS::Interface::DBMS  $!dbms_intf;
+    has QDRDBMS::AST::HostGateRtn $!rtn_ast;
+    has Any                       $!rtn_eng;
 
 ###########################################################################
 
 #submethod BUILD (QDRDBMS::Interface::DBMS :dbms($dbms_intf)!,
 submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!,
-        QDRDBMS::AST::ProcDecl :$rtn_ast!) {
+        QDRDBMS::AST::HostGateRtn :$rtn_ast!) {
     my $dbms_intf = $dbms;
 
     die q{new(): Bad :$dbms arg; it is not an object of a}
@@ -122,8 +173,8 @@ submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!,
     my $dbms_eng_class = $dbms_eng.WHAT;
 
     die q{new(): Bad :$dbms arg; it is not an object of a}
-            ~ q{ QDRDBMS::AST::ProcDecl-doing class.}
-        if !$rtn_ast.defined or !$rtn_ast.does(QDRDBMS::AST::ProcDecl);
+            ~ q{ QDRDBMS::AST::HostGateRtn-doing class.}
+        if !$rtn_ast.defined or !$rtn_ast.does(QDRDBMS::AST::HostGateRtn);
 
     my $rtn_eng = undef;
     try {
@@ -135,14 +186,14 @@ submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!,
     }
     die q{new(): The prepare() method of the QDRDBMS}
             ~ qq{ DBMS class '$dbms_eng_class' did not return an object}
-            ~ q{ to serve as a Routine Engine.}
+            ~ q{ to serve as a HostGateRtn Engine.}
         if !$rtn_eng.defined;
     my $rtn_eng_class = $rtn_eng.WHAT;
 
-#    die qq{new(): The QDRDBMS Routine Engine class '$rtn_eng_class'}
+#    die qq{new(): The QDRDBMS HostGateRtn Engine class '$rtn_eng_class'}
 #            ~ q{ does not provide the bind_host_params() method.}
 #        if !$rtn_eng.HOW.can( 'bind_host_params' );
-#    die qq{new(): The QDRDBMS Routine Engine class '$rtn_eng_class'}
+#    die qq{new(): The QDRDBMS HostGateRtn Engine class '$rtn_eng_class'}
 #            ~ q{ does not provide the execute() method.}
 #        if !$rtn_eng.HOW.can( 'execute' );
 
@@ -178,10 +229,10 @@ method bind_host_params (Array :$vars!) {
                 ~ q{ distinct between the arg elems.}
             if $seen_param_names.exists($param_name_text);
         $seen_param_names{$param_name_text} = 1;
-        die q{new(): Bad :$vars arg elem; its second elem is not an}
-                ~ q{ object of a QDRDBMS::Interface::Variable-doing class.}
+        die q{new(): Bad :$vars arg elem; its second elem is not an object}
+                ~ q{ of a QDRDBMS::Interface::HostGateVar-doing class.}
             if !$var_intf.defined
-                or !$var_intf.does(QDRDBMS::Interface::Variable);
+                or !$var_intf.does(QDRDBMS::Interface::HostGateVar);
         $var_engs.push( [$param_name, $var_intf!var_eng] );
     }
 
@@ -199,58 +250,7 @@ method execute () {
 
 ###########################################################################
 
-} # class QDRDBMS::Interface::Routine
-
-###########################################################################
-###########################################################################
-
-class QDRDBMS::Interface::Variable {
-    has QDRDBMS::Interface::DBMS $!dbms_intf;
-    has Any                      $!var_eng;
-
-    trusts QDRDBMS::Interface::Routine;
-
-###########################################################################
-
-#submethod BUILD (QDRDBMS::Interface::DBMS :dbms($dbms_intf)!) {
-submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!) {
-    my $dbms_intf = $dbms;
-
-    die q{new(): Bad :$dbms arg; it is not an object of a}
-            ~ q{ QDRDBMS::Interface::DBMS-doing class.}
-        if !$dbms_intf.defined
-            or !$dbms_intf.does(QDRDBMS::Interface::DBMS);
-    my $dbms_eng = $dbms_intf!dbms_eng;
-    my $dbms_eng_class = $dbms_eng.WHAT;
-
-    my $var_eng = undef;
-    try {
-        $var_eng = $dbms_eng.new_var();
-    };
-    if (my $err = $!) {
-        die qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class'}
-            ~ q{ threw an exception during its new_var()}
-            ~ qq{ execution: $err}
-    }
-    die q{new(): The new_var() method of the QDRDBMS}
-            ~ qq{ DBMS class '$dbms_eng_class' did not return an object}
-            ~ q{ to serve as a Variable Engine.}
-        if !$var_eng.defined;
-    my $var_eng_class = $var_eng.WHAT;
-
-#    die qq{new(): The QDRDBMS Variable Engine class '$var_eng_class'}
-#            ~ q{ does not provide the ...() method.}
-#        if !$var_eng.HOW.can( '...' );
-
-    $!dbms_intf = $dbms_intf;
-    $!var_eng   = $var_eng;
-
-    return;
-}
-
-###########################################################################
-
-} # class QDRDBMS::Interface::Variable
+} # class QDRDBMS::Interface::HostGateRtn
 
 ###########################################################################
 ###########################################################################
@@ -269,8 +269,8 @@ Full-featured truly relational DBMS in Perl
 This document describes QDRDBMS version 0.0.0 for Perl 6.
 
 It also describes the same-number versions for Perl 6 of
-QDRDBMS::Interface::DBMS ("DBMS"), QDRDBMS::Interface::Routine ("Routine"),
-and QDRDBMS::Interface::Variable ("Variable").
+QDRDBMS::Interface::DBMS ("DBMS"), QDRDBMS::Interface::HostGateVar
+("HostGateVar"), and QDRDBMS::Interface::HostGateRtn ("HostGateRtn").
 
 =head1 SYNOPSIS
 
@@ -460,11 +460,11 @@ undefined.
 
 I<This documentation is pending.>
 
-=head2 The QDRDBMS::Interface::Routine Class
+=head2 The QDRDBMS::Interface::HostGateVar Class
 
 I<This documentation is pending.>
 
-=head2 The QDRDBMS::Interface::Variable Class
+=head2 The QDRDBMS::Interface::HostGateRtn Class
 
 I<This documentation is pending.>
 

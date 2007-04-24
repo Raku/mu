@@ -37,14 +37,14 @@ submethod BUILD (Any :$dbms_config!) {
 
 ###########################################################################
 
-method prepare of QDRDBMS::Engine::Example::Routine
-        (QDRDBMS::AST::ProcDecl :$rtn_ast!) {
-    return QDRDBMS::Engine::Example::Routine.new(
-        :dbms(self), :rtn_ast($rtn_ast) );
+method new_var of QDRDBMS::Engine::Example::HostGateVar () {
+    return QDRDBMS::Engine::Example::HostGateVar.new( :dbms(self) );
 }
 
-method new_var of QDRDBMS::Engine::Example::Variable () {
-    return QDRDBMS::Engine::Example::Variable.new( :dbms(self) );
+method prepare of QDRDBMS::Engine::Example::HostGateRtn
+        (QDRDBMS::AST::HostGateRtn :$rtn_ast!) {
+    return QDRDBMS::Engine::Example::HostGateRtn.new(
+        :dbms(self), :rtn_ast($rtn_ast) );
 }
 
 ###########################################################################
@@ -54,9 +54,30 @@ method new_var of QDRDBMS::Engine::Example::Variable () {
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::Engine::Example::Routine {
+class QDRDBMS::Engine::Example::HostGateVar {
     has QDRDBMS::Engine::Example::DBMS $!dbms_eng;
-    has QDRDBMS::AST::ProcDecl         $!rtn_ast;
+
+###########################################################################
+
+#submethod BUILD (QDRDBMS::Engine::Example::DBMS :dbms($dbms_eng)!) {
+submethod BUILD (QDRDBMS::Engine::Example::DBMS :$dbms!) {
+    my $dbms_eng = $dbms;
+
+    $!dbms_eng = $dbms_eng;
+
+    return;
+}
+
+###########################################################################
+
+} # class QDRDBMS::Engine::Example::HostGateVar
+
+###########################################################################
+###########################################################################
+
+class QDRDBMS::Engine::Example::HostGateRtn {
+    has QDRDBMS::Engine::Example::DBMS $!dbms_eng;
+    has QDRDBMS::AST::HostGateRtn      $!rtn_ast;
     has Code                           $!prep_rtn;
     has Array                          $!bound_vars;
 
@@ -64,7 +85,7 @@ class QDRDBMS::Engine::Example::Routine {
 
 #submethod BUILD (QDRDBMS::Engine::Example::DBMS :dbms($dbms_eng)!,
 submethod BUILD (QDRDBMS::Engine::Example::DBMS :$dbms!,
-        QDRDBMS::AST::ProcDecl :$rtn_ast!) {
+        QDRDBMS::AST::HostGateRtn :$rtn_ast!) {
     my $dbms_eng = $dbms;
 
     my $prep_rtn = sub { 1; }; # TODO; the real thing.
@@ -95,28 +116,7 @@ method execute () {
 
 ###########################################################################
 
-} # class QDRDBMS::Engine::Example::Routine
-
-###########################################################################
-###########################################################################
-
-class QDRDBMS::Engine::Example::Variable {
-    has QDRDBMS::Engine::Example::DBMS $!dbms_eng;
-
-###########################################################################
-
-#submethod BUILD (QDRDBMS::Engine::Example::DBMS :dbms($dbms_eng)!) {
-submethod BUILD (QDRDBMS::Engine::Example::DBMS :$dbms!) {
-    my $dbms_eng = $dbms;
-
-    $!dbms_eng = $dbms_eng;
-
-    return;
-}
-
-###########################################################################
-
-} # class QDRDBMS::Engine::Example::Variable
+} # class QDRDBMS::Engine::Example::HostGateRtn
 
 ###########################################################################
 ###########################################################################
