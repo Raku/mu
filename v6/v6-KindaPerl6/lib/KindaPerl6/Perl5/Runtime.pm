@@ -124,13 +124,13 @@ package GLOBAL;
 
     sub _str {
         my $v = $_[0];
-        eval { $v = ::CALL( ::CALL( $v, 'FETCH' ), 'str' )->{_value} } if ref($v); 
+        eval { $v = ::CALL( $v, 'str' )->{_value} } if ref($v); 
         print $@ if $@;
         $v;
     }
     sub _int {
         my $v = $_[0];
-        eval { $v = ::CALL( ::CALL( $v, 'FETCH' ), 'int' )->{_value} } if ref($v); 
+        eval { $v = ::CALL( $v, 'int' )->{_value} } if ref($v); 
         print $@ if $@;
         $v;
     }

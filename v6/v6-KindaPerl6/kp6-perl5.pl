@@ -123,42 +123,43 @@ use Data::Dump::Streamer;
         # check for side-effects
         my @begin_stmts;
 
-        print "=pod\n";
+        #print "=pod\n";
         #print "# BEGIN ENV: ", Dumper( $COMPILER::PAD[0]->lexicals ), "\n";
         #print "BEGIN AST: ", Dumper( \@ast );
-        print "BEGIN: Native code: $native\n\n";
+        #print "BEGIN: Native code: $native\n\n";
 
         for my $pad ( @COMPILER::PAD ) {
             #print "# Lexicals here: ", Dumper( $pad->lexicals ), "\n";
-            my $side_effects = $pad->eval( '\%_MODIFIED' ); 
+            my $side_effects = $pad->eval( '$_MODIFIED' ); 
             #print "MODIFIED: ", Dumper( $side_effects );
             # TODO - emit side-effects...
             my @names = keys %$side_effects;
             for my $name ( @names ) {
                 my $value = $COMPILER::PAD[0]->eval( "$name" );
                 #print "# modified: $name = ",Dumper( $value );
+                #print "# modified: $name = ",$value->{_value}{name},"\n";
 
                 my $src = '';
-                if ( $name ne $value->[2] ) {
+                if ( $name ne $value->{_value}{name} ) {
                     # it seems to be a bound variable
-                    if ( $value->[2] ) {
+                    if ( $value->{_value}{name} ) {
                         # the binded thing has a name
-                        $src = $src . "$name := " . $value->[2] . '; ';
+                        $src = $src . "$name := " . $value->{_value}{name} . '; ';
                         # optimize repeated assignments
-                        $src = $src . "$name = " . $value->perl->[0];
+                        $src = $src . "$name = " . ::CALL( $value, 'perl' )->{_value};
                     }
                     else {
                         # no name; bind to the value
-                        $src = $src . "$name := " . $value->perl->[0] . '; ';
+                        $src = $src . "$name := " . ::CALL( $value, 'perl' )->{_value} . '; ';
                     }
                 }
                 else {
                     # plain assignment
-                    $src = $src . "$name = " . $value->perl->[0];
+                    $src = $src . "$name = " . ::CALL( $value, 'perl' )->{_value};
                 }
 
                 # TODO - convert directly DATA->AST, instead of DATA->PERL->AST
-                print "# BEGIN SIDE-EFFECT: $src \n\n";
+                #print "# BEGIN SIDE-EFFECT: $src \n\n";
                 my $p = KindaPerl6::Grammar->exp_stmts( $src, 0);
                 my $pos = $p->to;
                 #print "# parsed to $pos - length = ",length($src)," [$src]\n";
@@ -192,8 +193,8 @@ use Data::Dump::Streamer;
         #print "data: ", Dumper( $data );
         
         # - convert the 'result' data to ast
-        my $source = ::CALL( ::CALL( $data, 'FETCH' ), 'perl' )->{_value};
-        print "# begin - result data: $source\n";
+        my $source = ::CALL( $data, 'perl' )->{_value};
+        #print "# begin - result data: $source\n";
         my $p = KindaPerl6::Grammar->exp($source, 0);
         #say( Main::perl( $$p ) );
         add_pad;
@@ -213,7 +214,7 @@ use Data::Dump::Streamer;
         # @COMPILER::BEGIN_RUNTIME
         ## push @COMPILER::BEGIN_RUNTIME, $initializer_name;
         #print "/begin_block\n";
-        print "\n=cut\n";
+        #print "\n=cut\n";
 
         return $final_ast;
     }

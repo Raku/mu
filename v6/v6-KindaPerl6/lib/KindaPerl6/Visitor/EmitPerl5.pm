@@ -19,7 +19,7 @@ class CompUnit {
     has $.body;
     method emit_perl5 {
           '{ package ' ~ $.name ~ "; " 
-        ~ 'my %_MODIFIED; '
+        ~ 'my $_MODIFIED; BEGIN { $_MODIFIED = {} } '
         ~ $.body.emit_perl5
         ~ ' }' ~ Main::newline();
     }
@@ -175,7 +175,7 @@ class Assign {
     has $.arguments;
     method emit_perl5 {
         # TODO - same as ::Bind
-        '::CALL( ' ~ $.parameters.emit_perl5 ~ ', \'STORE\', ' ~ $.arguments.emit_perl5 ~ ' )';
+        '::VAR( ' ~ $.parameters.emit_perl5 ~ ', \'STORE\', ' ~ $.arguments.emit_perl5 ~ ' )';
     }
 }
 
@@ -212,7 +212,7 @@ class Bind {
     has $.parameters;
     has $.arguments;
     method emit_perl5 {
-        '::CALL( ' ~ $.parameters.emit_perl5 ~ ', \'BIND\', ' ~ $.arguments.emit_perl5 ~ ' )';
+        '::VAR( ' ~ $.parameters.emit_perl5 ~ ', \'BIND\', ' ~ $.arguments.emit_perl5 ~ ' )';
     }
 }
 
@@ -275,7 +275,7 @@ class Call {
         else {
             if ( $meth eq '' ) {
                 # $var.()
-                '::CALL( ::CALL( ' ~ $invocant ~ ', \'FETCH\' ), \'APPLY\', ' ~ $call ~ ' )'
+                '::CALL( ' ~ $invocant ~ ', \'APPLY\', ' ~ $call ~ ' )'
             }
             else {
                   '::CALL( ' 
@@ -350,6 +350,7 @@ class Decl {
                 ': ( $_[0]->{' ~ $name ~ '} = $_[1] ) ' ~
             '}';
         };
+        my $create := ', \'new\', { modified => $_MODIFIED, name => \'' ~ $.var.emit_perl5 ~ '\' } ) ';
         if $decl eq 'our' {
             my $s;
             # ??? use vars --> because compile-time scope is too tricky to use 'our'
@@ -359,26 +360,26 @@ class Decl {
             if ($.var).sigil eq '$' {
                 return $s 
                     ~ $.var.emit_perl5
-                    ~ ' = ::CALL( $::Scalar, \'new\' ) '
+                    ~ ' = ::CALL( $::Scalar' ~ $create
                     ~ ' unless defined ' ~ $.var.emit_perl5 ~ '; '
                     ~ 'BEGIN { '
                     ~     $.var.emit_perl5
-                    ~     ' = ::CALL( $::Scalar, \'new\' ) '
+                    ~     ' = ::CALL( $::Scalar' ~ $create
                     ~     ' unless defined ' ~ $.var.emit_perl5 ~ '; '
                     ~ '}'
             };
             if ($.var).sigil eq '&' {
                 return $s 
                     ~ $.var.emit_perl5
-                    ~ ' = ::CALL( $::CodeScalar, \'new\' )';
+                    ~ ' = ::CALL( $::Routine' ~ $create;
             };
             if ($.var).sigil eq '%' {
                 return $s ~ $.var.emit_perl5
-                    ~ ' = ::CALL( $::Hash, \'new\' )';
+                    ~ ' = ::CALL( $::Hash' ~ $create;
             };
             if ($.var).sigil eq '@' {
                 return $s ~ $.var.emit_perl5
-                    ~ ' = ::CALL( $::Array, \'new\' )';
+                    ~ ' = ::CALL( $::Array' ~ $create;
             };
             return $s ~ $.var.emit_perl5 ~ ' ';
         };
@@ -388,11 +389,11 @@ class Decl {
                 ~ $.type ~ ' ' 
                 ~ $.var.emit_perl5 ~ '; '
                 ~ $.var.emit_perl5
-                ~ ' = ::CALL( $::Scalar, \'new\' ) '
+                ~ ' = ::CALL( $::Scalar' ~ $create
                 ~ ' unless defined ' ~ $.var.emit_perl5 ~ '; '
                 ~ 'BEGIN { '
                 ~     $.var.emit_perl5
-                ~     ' = ::CALL( $::Scalar, \'new\' ) '
+                ~     ' = ::CALL( $::Scalar' ~ $create
                 ~ '}'
                 ;
         };
@@ -402,21 +403,21 @@ class Decl {
                 ~ $.type ~ ' ' 
                 ~ $.var.emit_perl5 ~ '; '
                 ~ $.var.emit_perl5
-                ~ ' = ::CALL( $::Routine, \'new\' ) '
+                ~ ' = ::CALL( $::Routine' ~ $create
                 ~ ' unless defined ' ~ $.var.emit_perl5 ~ '; '
                 ~ 'BEGIN { '
                 ~     $.var.emit_perl5
-                ~     ' = ::CALL( $::Routine, \'new\' ) '
+                ~     ' = ::CALL( $::Routine' ~ $create
                 ~ '}'
                 ;
         };
         if ($.var).sigil eq '%' {
             return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_perl5
-                ~ ' = ::CALL( $::Hash, \'new\' ) ';
+                ~ ' = ::CALL( $::Hash' ~ $create;
         };
         if ($.var).sigil eq '@' {
             return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_perl5
-                ~ ' = ::CALL( $::Array, \'new\' ) ';
+                ~ ' = ::CALL( $::Array' ~ $create;
         };
         return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_perl5;
     }

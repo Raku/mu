@@ -34,10 +34,10 @@ sub new {
            
     #print Dump( @names );
     my $cmd = 'package ' . $namespace . '; '
-            . ($data{add_lexicals} ? '' : 'my %_MODIFIED; ')
+            . ($data{add_lexicals} ? '' : 'my $_MODIFIED = {}; ')
             . (scalar @names ? join( '; ', @declarations, '' ) : '')
             . 'sub { ' 
-            .     (join '; ', '\%_MODIFIED', @names, '' )        # make sure it's compiled as a closure
+            .     (join '; ', '$_MODIFIED', @names, '' )        # make sure it's compiled as a closure
             .     'eval $_[0] or do{ Carp::carp( $@ ) if $@ }; ' 
             . '} ';
     #print "Pad.new $cmd\n";
