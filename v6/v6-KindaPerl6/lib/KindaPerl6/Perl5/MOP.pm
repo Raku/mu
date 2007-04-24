@@ -36,7 +36,7 @@ my $dispatch = sub {
 
         if ( $self->{_roles}{auto_deref} ) {
             # this object requires FETCH
-            $self = ::VAR( $self, 'FETCH' );
+            $self = $self->{_dispatch_VAR}( $self, 'FETCH' );
         }
 
         if ( ! defined $self->{_value} ) {
@@ -63,7 +63,7 @@ my $dispatch = sub {
 # backwards compatibility - remove !!!
 sub ::CALL { $dispatch->(@_) }
 
-sub ::VAR { 
+my $dispatch_VAR = sub {
         # VAR() is just like CALL(), but it doesn't call FETCH
         # $method_name is unboxed
         my ($self, $method_name) = (shift, shift);
@@ -78,7 +78,7 @@ sub ::VAR {
                 if $m;
         }
         die "no VAR() method: $method_name\n";
-}   
+};
 
 %::PROTO = ( 
     _methods  => undef, # hash
@@ -368,6 +368,7 @@ my $meta_Scalar = ::CALL( $::Scalar, 'HOW' );
             %{$_[0]},
             _value => $_[1],    # { %{$_[1]}, cell => undef },
             _roles => { 'container' => 1, 'auto_deref' => 1 },
+            _dispatch_VAR => $dispatch_VAR,
         } 
     },
 ) );
@@ -384,6 +385,7 @@ my $meta_Routine = ::CALL( $::Routine, 'HOW' );
             %{$_[0]},
             _value => $_[1],    # { cell => undef },
             _roles => { 'container' => 1, 'auto_apply' => 1 },
+            _dispatch_VAR => $dispatch_VAR,
         } 
     },
 ) );

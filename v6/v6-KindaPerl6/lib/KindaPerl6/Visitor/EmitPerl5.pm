@@ -175,7 +175,7 @@ class Assign {
     has $.arguments;
     method emit_perl5 {
         # TODO - same as ::Bind
-        '::VAR( ' ~ $.parameters.emit_perl5 ~ ', \'STORE\', ' ~ $.arguments.emit_perl5 ~ ' )';
+        $.parameters.emit_perl5 ~ '->{_dispatch_VAR}( ' ~ $.parameters.emit_perl5 ~ ', \'STORE\', ' ~ $.arguments.emit_perl5 ~ ' )';
     }
 }
 
@@ -212,7 +212,7 @@ class Bind {
     has $.parameters;
     has $.arguments;
     method emit_perl5 {
-        '::VAR( ' ~ $.parameters.emit_perl5 ~ ', \'BIND\', ' ~ $.arguments.emit_perl5 ~ ' )';
+        $.parameters.emit_perl5 ~ '->{_dispatch_VAR}( ' ~ $.parameters.emit_perl5 ~ ', \'BIND\', ' ~ $.arguments.emit_perl5 ~ ' )';
     }
 }
 
