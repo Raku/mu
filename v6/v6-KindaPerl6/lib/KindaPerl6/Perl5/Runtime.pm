@@ -92,7 +92,9 @@ package GLOBAL;
         defined
         true
         not
-         
+        True
+        False
+
         ternary_58__60__63__63__32__33__33__62_
         
         infix_58__60_eq_62_
@@ -150,6 +152,8 @@ package GLOBAL;
     sub defined  { ::CALL( $_[0], 'defined' ) } 
     sub true     { ::CALL( $_[0], 'true' ) }  
     sub not      { ::CALL( $::Bit, 'new', ! ( ::CALL( $_[0], 'true' )->{_value} ) ) }  
+    sub True     { ::CALL( $::Bit, 1 ) }  
+    sub False    { ::CALL( $::Bit, 0 ) }  
 
     # TODO - macro
     sub ternary_58__60__63__63__32__33__33__62_ { ::CALL( $_[0], 'true' )->{_value} ? $_[1] : $_[2] }
