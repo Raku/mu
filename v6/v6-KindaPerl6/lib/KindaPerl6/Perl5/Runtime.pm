@@ -167,8 +167,8 @@ package GLOBAL;
     sub infix_58__60__61__61__62_   
     { TODO() }   # { bless [ $_[0]->FETCH->[0] == $_[1]->FETCH->[0] ], 'Type_Constant_Bit' }  # infix:<==>
     sub infix_58__60__33__61__62_   
-    { bless [ $_[0]->FETCH->[0] != $_[1]->FETCH->[0] ], 'Type_Constant_Bit' }  # infix:<!=>
-    { TODO() }   # sub infix_58__60__126__62_      
+    { TODO() }   #{ bless [ $_[0]->FETCH->[0] != $_[1]->FETCH->[0] ], 'Type_Constant_Bit' }  # infix:<!=>
+    sub infix_58__60__126__62_      
     { ::CALL( $::Str, 'new', _str( $_[0] ) . _str( $_[1] ) ) }  # infix:<~>
     sub infix_58__60__43__62_       
     { ::CALL( $::Int, 'new', _int( $_[0] ) + _int( $_[1] ) ) }  # infix:<+>

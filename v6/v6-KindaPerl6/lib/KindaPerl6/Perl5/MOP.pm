@@ -56,7 +56,7 @@ sub ::CALL {
             return $m->{_value}->( $self, @_ ) 
                 if $m;
         }
-        # print "Class: ",$self->{_isa}[0]{_value}{class_name},"\n";
+        print "in Class: ",$self->{_isa}[0]{_value}{class_name},"\n";
         die "no method: $method_name\n";
 }   
 
@@ -242,6 +242,8 @@ my $meta_Str = ::CALL( $::Str, 'HOW' );
     sub { my $v = ::CALL( $::Str, 'new', '\'' . $_[0]{_value} . '\'' ) } ) );
 ::CALL( $meta_Str, 'add_method', 'str',            ::CALL( $::Method, 'new',
     sub { $_[0] } ) );
+::CALL( $meta_Str, 'add_method', 'true',           ::CALL( $::Method, 'new',
+    sub { ::CALL( $::Bit, 'new', ( $_[0]{_value} ne '' && $_[0]{_value} ne '0' ) ? 1 : 0 ) } ) );
 
 ::CALL( $::Class, 'new',  'Int' );  #  $::Int, '$::Int',    $meta_Int, '$meta_Int',    'Int');
 my $meta_Int = ::CALL( $::Int, 'HOW' );
@@ -250,6 +252,8 @@ my $meta_Int = ::CALL( $::Int, 'HOW' );
     sub { my $v = ::CALL( $::Str, 'new', $_[0]{_value} ) } ) );
 ::CALL( $meta_Int, 'add_method', 'str',            ::CALL( $::Method, 'new', 
     sub { my $v = ::CALL( $::Str, 'new', $_[0]{_value} ) } ) );
+::CALL( $meta_Int, 'add_method', 'true',           ::CALL( $::Method, 'new',
+    sub { ::CALL( $::Bit, 'new', $_[0]{_value} == 0 ? 0 : 1 ) } ) );
 
 
 #--- finish Object
@@ -290,6 +294,8 @@ my $meta_Undef = ::CALL( $::Undef, 'HOW' );
 my $meta_Bit = ::CALL( $::Bit, 'HOW' );
 ::CALL( $meta_Bit, 'add_parent', $meta_Value );
 ::CALL( $meta_Bit, 'add_method', 'perl',           ::CALL( $::Method, 'new', 
+    sub { my $v = ::CALL( $::Str, 'new', $_[0]{_value} ) } ) );
+::CALL( $meta_Bit, 'add_method', 'str',            ::CALL( $::Method, 'new', 
     sub { my $v = ::CALL( $::Str, 'new', $_[0]{_value} ) } ) );
 
 ::CALL( $::Class, 'new', 'Code' ); 
