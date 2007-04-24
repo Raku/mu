@@ -19,6 +19,9 @@ def t_IDENT(t):
 	r'\w+'
 	if t.value == 'class':
 		t.type = 'CLASS'
+	else:
+		t.type = 'IDENT'
+	return t
 
 def t_WHITESPACE(t):
 	r'\s+'
