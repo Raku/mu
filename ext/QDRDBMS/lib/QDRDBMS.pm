@@ -262,7 +262,7 @@ submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!) {
 =head1 NAME
 
 QDRDBMS -
-A fully-featured truly relational DBMS in Perl
+Full-featured truly relational DBMS in Perl
 
 =head1 VERSION
 

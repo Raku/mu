@@ -6,7 +6,7 @@ use inc::Module::Install prefix => '../../inc';
 
 name       ('QDRDBMS');
 version    ('0.0.0'); # 'VERSION_FROM' => 'lib/QDRDBMS.pm'
-abstract   ('A fully-featured truly relational DBMS in Perl');
+abstract   ('Full-featured truly relational DBMS in Perl');
 author     ('Darren Duncan <perl@DarrenDuncan.net>');
 license    ('gpl');
 
