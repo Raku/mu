@@ -8,4 +8,4 @@ if len(sys.argv) > 1:
 else:
 	data = sys.stdin.read()
 
-print MiniPerl.Parse.yacc.parse(data)
+print parse.yacc.parse(data)
