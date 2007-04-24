@@ -1,11 +1,11 @@
 import re
 
-tokens = (('hello', 'abc'),
-	('goodbye', 'def'))
-
 class Lex(object):
-	def input(self, string):
-		self.input = string
+	def set_input(self, string):
+		self.set_input = string
+		self.toklist = list()
+	def tokadd(self, meaning, token):
+		self.toklist.append((meaning, token))
 	def tokens(self):
 		rv = list()
 		while True:
@@ -14,7 +14,6 @@ class Lex(object):
 			rv.append(tok)
 		return rv
 	def token(self):
-		self.input = self.input.lstrip()
 		for tok in tokens:
 			(meaning, regex) = tok
 			if self.m(regex):
