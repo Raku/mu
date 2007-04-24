@@ -147,34 +147,34 @@ package GLOBAL;
     my $undef = ::CALL( $::Undef, 'new', 0 );
     sub undef    { $undef }
     sub undefine { ::CALL( $_[0], 'STORE', $undef ) }
-    sub defined  { bless [ defined $_[0]->FETCH->[0] ], 'Type_Constant_Bit' } 
-    sub true     { bless [ $_[0]->FETCH->[0] ? 1 : 0 ], 'Type_Constant_Bit' }  
-    sub not      { bless [ $_[0]->FETCH->[0] ? 0 : 1 ], 'Type_Constant_Bit' }  
+    sub defined  { ::CALL( $_[0], 'defined' ) } 
+    sub true     { ::CALL( $_[0], 'true' ) }  
+    sub not      { ::CALL( $::Bit, 'new', ! ( ::CALL( $_[0], 'true' )->{_value} ) ) }  
 
     # TODO - macro
-    sub ternary_58__60__63__63__32__33__33__62_ { $_[0]->FETCH->[0] ? $_[1] : $_[2] }
+    sub ternary_58__60__63__63__32__33__33__62_ { ::CALL( $_[0], 'true' )->{_value} ? $_[1] : $_[2] }
         #  ternary:<?? !!>
     
     # TODO - macro
-    sub infix_58__60__38__38__62_   { $_[0]->FETCH->[0] && $_[1]->FETCH->[0] && $_[1] }
+    sub infix_58__60__38__38__62_   { ::CALL( $_[0], 'true' )->{_value} && ::CALL( $_[1], 'true' )->{_value} && $_[1] }
     # TODO - macro
-    sub infix_58__60__124__124__62_ { $_[0]->FETCH->[0] && $_[0] || $_[1]->FETCH->[0] && $_[1] }
+    sub infix_58__60__124__124__62_ { ::CALL( $_[0], 'true' )->{_value} && $_[0] || ::CALL( $_[1], 'true' )->{_value} && $_[1] }
 
     sub infix_58__60_eq_62_         
-    { bless [ $_[0]->FETCH->[0] eq $_[1]->FETCH->[0] ], 'Type_Constant_Bit' }  # infix:<eq>
+    { ::CALL( $::Bit, 'new', ::CALL( $_[0], 'str' )->{_value} eq ::CALL( $_[0], 'str' )->{_value} ) }  # infix:<eq>
     sub infix_58__60_ne_62_         
-    { bless [ $_[0]->FETCH->[0] ne $_[1]->FETCH->[0] ], 'Type_Constant_Bit' }  # infix:<ne>
+    { ::CALL( $::Bit, 'new', ::CALL( $_[0], 'str' )->{_value} ne ::CALL( $_[0], 'str' )->{_value} ) }  # infix:<ne>
     sub infix_58__60__61__61__62_   
-    { bless [ $_[0]->FETCH->[0] == $_[1]->FETCH->[0] ], 'Type_Constant_Bit' }  # infix:<==>
+    { TODO() }   # { bless [ $_[0]->FETCH->[0] == $_[1]->FETCH->[0] ], 'Type_Constant_Bit' }  # infix:<==>
     sub infix_58__60__33__61__62_   
     { bless [ $_[0]->FETCH->[0] != $_[1]->FETCH->[0] ], 'Type_Constant_Bit' }  # infix:<!=>
-    sub infix_58__60__126__62_      
+    { TODO() }   # sub infix_58__60__126__62_      
     { ::CALL( $::Str, 'new', _str( $_[0] ) . _str( $_[1] ) ) }  # infix:<~>
     sub infix_58__60__43__62_       
     { ::CALL( $::Int, 'new', _int( $_[0] ) + _int( $_[1] ) ) }  # infix:<+>
 
     # ???
-    sub prefix_58__60__64__62_      { @{$_[0]} }        # prefix:<@>
+    sub prefix_58__60__64__62_      { TODO(); @{$_[0]} }        # prefix:<@>
 
 package Main;
     
