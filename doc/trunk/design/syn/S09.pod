@@ -1063,13 +1063,13 @@ If you use an unbound array parameter as a semicolon-list interpolator
 subscripts that must match the same everywhere that parameter is used.
 For example,
 
-    do -> @wild { @b[[;] reverse @wild] = @a[[;] @wild]; };
+    do -> @wild { @b[[;] reverse @wild] = @a[[;] @wild] };
 
 produces an array with the dimensions reversed regardless of the
 dimensionality of C<@a>.  Since the multidimensional C<@@wild> notation
 is more or less equivalent to C<[;]@wild>, you can also write that as:
 
-    do -> @@wild { @b[reverse @@wild] = @a[[;] @@wild]; };
+    do -> @@wild { @b[reverse @@wild] = @a[@@wild] };
 
 The optimizer is, of course, free to optimize away any implicit loops
 that it can figure out how to do more efficiently without changing
