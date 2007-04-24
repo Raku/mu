@@ -1,8 +1,8 @@
 
 use v5;
 
-# my $meth = ::CALL( $::Method, 'new', sub { 'hi' } );
-# my $obj = ::CALL( $::Object, 'new', $candidate );
+# my $meth = $::Method->{_dispatch}( $::Method, 'new', sub { 'hi' } );
+# my $obj =  $::Object->{_dispatch}( $::Object, 'new', $candidate );
 
 use Data::Dumper;
 
@@ -23,7 +23,7 @@ sub get_method_from_metaclass {
 
 my $meta_Object;
 
-sub ::CALL { 
+my $dispatch = sub {
         # $method_name is unboxed
         my ($self, $method_name) = (shift, shift);
         #print "lookup $method_name in $self\n";
@@ -31,7 +31,7 @@ sub ::CALL {
         unless ( ref($self) eq 'HASH' ) {
             warn "internal error: wrong object format";
             print Dumper($self);
-            return ::CALL( $::Str, 'new', 'Error' );
+            return $::Str->{_dispatch}( $::Str, 'new', 'Error' );
         }
 
         if ( $self->{_roles}{auto_deref} ) {
@@ -43,7 +43,7 @@ sub ::CALL {
             # 'self' is a prototype object
             # it stringifies to the class name
             #print "Class.str: ",$self->{_isa}[0]{_value}{class_name},"\n";
-            return ::CALL( $::Str, 'new', $self->{_isa}[0]{_value}{class_name} )
+            return $::Str->{_dispatch}( $::Str, 'new', $self->{_isa}[0]{_value}{class_name} )
                 if $method_name eq 'str'; 
         }
         # lookup local methods
@@ -58,7 +58,10 @@ sub ::CALL {
         }
         print "in Class: ",$self->{_isa}[0]{_value}{class_name},"\n";
         die "no method: $method_name\n";
-}   
+};
+
+# backwards compatibility - remove !!!
+sub ::CALL { $dispatch->(@_) }
 
 sub ::VAR { 
         # VAR() is just like CALL(), but it doesn't call FETCH
@@ -84,6 +87,7 @@ sub ::VAR {
     # _name     => '',
     _value    => undef, # whatever
     _isa      => undef, # array
+    _dispatch => $dispatch,
 );
 
 #--- Method
@@ -116,8 +120,8 @@ $::Method = {
     _isa      => [ $meta_Method ],
 };
 push @{$method_new->{_isa}}, $meta_Method;
-$meta_Method->{_value}{methods}{WHAT}   = ::CALL( $::Method, 'new', sub { $::Method } );
-$meta_Method->{_value}{methods}{HOW}    = ::CALL( $::Method, 'new', sub { $meta_Method } );
+$meta_Method->{_value}{methods}{WHAT}   = $::Method->{_dispatch}( $::Method, 'new', sub { $::Method } );
+$meta_Method->{_value}{methods}{HOW}    = $::Method->{_dispatch}( $::Method, 'new', sub { $meta_Method } );
 
 #--- Object
 
@@ -129,8 +133,8 @@ $meta_Method->{_value}{methods}{HOW}    = ::CALL( $::Method, 'new', sub { $meta_
                 class_name => 'Object',
             },
         };
-        $meta_Object->{_value}{methods}{WHAT}   = ::CALL( $::Method, 'new', sub { $::Object } );
-        $meta_Object->{_value}{methods}{HOW}    = ::CALL( $::Method, 'new', sub { $meta_Object } );
+        $meta_Object->{_value}{methods}{WHAT}   = $::Method->{_dispatch}( $::Method, 'new', sub { $::Object } );
+        $meta_Object->{_value}{methods}{HOW}    = $::Method->{_dispatch}( $::Method, 'new', sub { $meta_Object } );
         $meta_Object->{_value}{methods}{new}    = $method_new;
         $::Object = {
             %::PROTO,
@@ -149,23 +153,23 @@ my $meta_Class = {
     }, 
 };
 push @{$meta_Class->{_isa}}, $meta_Class;
-$meta_Class->{_value}{methods}{add_method} = ::CALL( $::Method, 'new',
+$meta_Class->{_value}{methods}{add_method} = $::Method->{_dispatch}( $::Method, 'new',
     sub {
         warn "redefining method $_[0]{_value}{class_name}.$_[1]"
             if exists $_[0]{_value}{methods}{$_[1]};
         $_[0]{_value}{methods}{$_[1]} = $_[2];
     }
 );
-::CALL( $meta_Class, 'add_method', 'redefine_method', ::CALL( $::Method, 'new', 
+::CALL( $meta_Class, 'add_method', 'redefine_method', $::Method->{_dispatch}( $::Method, 'new', 
     sub {
         $_[0]{_value}{methods}{$_[1]} = $_[2];
     }
 ) );
-::CALL( $meta_Class, 'add_method', 'WHAT', ::CALL( $::Method, 'new', sub { $::Class } ) );
-::CALL( $meta_Class, 'add_method', 'HOW',  ::CALL( $::Method, 'new', sub { $meta_Class } ) );
-::CALL( $meta_Class, 'add_method', 'add_parent',  ::CALL( $::Method, 'new', 
+::CALL( $meta_Class, 'add_method', 'WHAT', $::Method->{_dispatch}( $::Method, 'new', sub { $::Class } ) );
+::CALL( $meta_Class, 'add_method', 'HOW',  $::Method->{_dispatch}( $::Method, 'new', sub { $meta_Class } ) );
+::CALL( $meta_Class, 'add_method', 'add_parent',  $::Method->{_dispatch}( $::Method, 'new', 
     sub { push @{$_[0]{_value}{isa}}, $_[1] } ) );
-::CALL( $meta_Class, 'add_method', 'new',  ::CALL( $::Method, 'new', 
+::CALL( $meta_Class, 'add_method', 'new',  $::Method->{_dispatch}( $::Method, 'new', 
     sub { 
         #print "Calling Class.new from @{[ caller ]} \n";
         # new Class( $prototype_container, $prototype_container_name, $meta_container, $meta_container_name, $class_name )
@@ -193,13 +197,13 @@ $meta_Class->{_value}{methods}{add_method} = ::CALL( $::Method, 'new',
             # _name     => '$self',
             _isa      => [ $self_meta ],
         };
-        $self_meta->{_value}{methods}{WHAT}   = ::CALL( $::Method, 'new', 
+        $self_meta->{_value}{methods}{WHAT}   = $::Method->{_dispatch}( $::Method, 'new', 
             sub { 
                 #print "WHAT: ",Dumper($self->{_value});
                 #print "WHAT: ", $self->{_isa}[0]{_value}{class_name}, "\n";
                 $self;      
             } );
-        $self_meta->{_value}{methods}{HOW}    = ::CALL( $::Method, 'new', sub { $self_meta } );
+        $self_meta->{_value}{methods}{HOW}    = $::Method->{_dispatch}( $::Method, 'new', sub { $self_meta } );
         ${"::$class_name"} = $self 
             if $class_name;
         $self;  # return the prototype
@@ -229,50 +233,50 @@ $meta_Role->{_value}{methods} = { %{ $meta_Class->{_value}{methods} } };
 
 ::CALL( $::Class, 'new', 'Value' );  
 my $meta_Value = ::CALL( $::Value, 'HOW' );
-# ::CALL( $meta_Value, 'add_method', 'IS_ARRAY',     ::CALL( $::Method, 'new', sub { 0 } ) );
-# ::CALL( $meta_Value, 'add_method', 'IS_HASH',      ::CALL( $::Method, 'new', sub { 0 } ) );
-# ::CALL( $meta_Value, 'add_method', 'IS_CONTAINER', ::CALL( $::Method, 'new', sub { 0 } ) );
+# ::CALL( $meta_Value, 'add_method', 'IS_ARRAY',     $::Method->{_dispatch}( $::Method, 'new', sub { 0 } ) );
+# ::CALL( $meta_Value, 'add_method', 'IS_HASH',      $::Method->{_dispatch}( $::Method, 'new', sub { 0 } ) );
+# ::CALL( $meta_Value, 'add_method', 'IS_CONTAINER', $::Method->{_dispatch}( $::Method, 'new', sub { 0 } ) );
 # -- FETCH is implemented in Object
-# ::CALL( $meta_Value, 'add_method', 'FETCH',        ::CALL( $::Method, 'new', sub { $_[0] } ) );
+# ::CALL( $meta_Value, 'add_method', 'FETCH',        $::Method->{_dispatch}( $::Method, 'new', sub { $_[0] } ) );
 
 ::CALL( $::Class, 'new', 'Str' );  #   $::Str, '$::Str',    $meta_Str, '$meta_Str',    'Str');
 my $meta_Str = ::CALL( $::Str, 'HOW' );
 ::CALL( $meta_Str, 'add_parent', $meta_Value );
-::CALL( $meta_Str, 'add_method', 'perl',           ::CALL( $::Method, 'new', 
+::CALL( $meta_Str, 'add_method', 'perl',           $::Method->{_dispatch}( $::Method, 'new', 
     sub { my $v = ::CALL( $::Str, 'new', '\'' . $_[0]{_value} . '\'' ) } ) );
-::CALL( $meta_Str, 'add_method', 'str',            ::CALL( $::Method, 'new',
+::CALL( $meta_Str, 'add_method', 'str',            $::Method->{_dispatch}( $::Method, 'new',
     sub { $_[0] } ) );
-::CALL( $meta_Str, 'add_method', 'true',           ::CALL( $::Method, 'new',
+::CALL( $meta_Str, 'add_method', 'true',           $::Method->{_dispatch}( $::Method, 'new',
     sub { ::CALL( $::Bit, 'new', ( $_[0]{_value} ne '' && $_[0]{_value} ne '0' ) ? 1 : 0 ) } ) );
 
 ::CALL( $::Class, 'new',  'Int' );  #  $::Int, '$::Int',    $meta_Int, '$meta_Int',    'Int');
 my $meta_Int = ::CALL( $::Int, 'HOW' );
 ::CALL( $meta_Int, 'add_parent', $meta_Value );
-::CALL( $meta_Int, 'add_method', 'perl',           ::CALL( $::Method, 'new', 
+::CALL( $meta_Int, 'add_method', 'perl',           $::Method->{_dispatch}( $::Method, 'new', 
     sub { my $v = ::CALL( $::Str, 'new', $_[0]{_value} ? 'True' : 'False' ) } ) );
-::CALL( $meta_Int, 'add_method', 'str',            ::CALL( $::Method, 'new', 
+::CALL( $meta_Int, 'add_method', 'str',            $::Method->{_dispatch}( $::Method, 'new', 
     sub { my $v = ::CALL( $::Str, 'new', $_[0]{_value} ) } ) );
-::CALL( $meta_Int, 'add_method', 'true',           ::CALL( $::Method, 'new',
+::CALL( $meta_Int, 'add_method', 'true',           $::Method->{_dispatch}( $::Method, 'new',
     sub { ::CALL( $::Bit, 'new', $_[0]{_value} == 0 ? 0 : 1 ) } ) );
 
 
 #--- finish Object
 
 # implement Object.str 
-::CALL( $meta_Object, 'add_method', 'str',         ::CALL( $::Method, 'new',
+::CALL( $meta_Object, 'add_method', 'str',         $::Method->{_dispatch}( $::Method, 'new',
     sub { 
         my $v = ::CALL( $::Str, 'new', '::' . $_[0]{_isa}[0]{_value}{class_name} .'(...)' );
     } ) );
 # implement Object.int 
-::CALL( $meta_Object, 'add_method', 'int',         ::CALL( $::Method, 'new',
+::CALL( $meta_Object, 'add_method', 'int',         $::Method->{_dispatch}( $::Method, 'new',
     sub { 
         # XXX
         my $v = ::CALL( $::Int, 'new', 0 + $_[0]{_value} );
     } ) );
 # Object.FETCH is a no-op
-# ::CALL( $meta_Object, 'add_method', 'FETCH',        ::CALL( $::Method, 'new', sub { $_[0] } ) );
+# ::CALL( $meta_Object, 'add_method', 'FETCH',        $::Method->{_dispatch}( $::Method, 'new', sub { $_[0] } ) );
 # Object.STORE is forbidden
-my $method_readonly = ::CALL( $::Method, 'new',
+my $method_readonly = $::Method->{_dispatch}( $::Method, 'new',
     sub { 
         die "attempt to modify a read-only value"; 
     } 
@@ -285,42 +289,42 @@ my $method_readonly = ::CALL( $::Method, 'new',
 ::CALL( $::Class, 'new', 'Undef' );   #   $::Undef, '$::Undef',    $meta_Undef, '$meta_Undef',    'Undef');
 my $meta_Undef = ::CALL( $::Undef, 'HOW' );
 ::CALL( $meta_Undef, 'add_parent', $meta_Value );  
-::CALL( $meta_Undef, 'add_method', 'perl',         ::CALL( $::Method, 'new', 
+::CALL( $meta_Undef, 'add_method', 'perl',         $::Method->{_dispatch}( $::Method, 'new', 
     sub { my $v = ::CALL( $::Str, 'new', 'undef' ) } ) );
-::CALL( $meta_Undef, 'add_method', 'str',         ::CALL( $::Method, 'new', 
+::CALL( $meta_Undef, 'add_method', 'str',         $::Method->{_dispatch}( $::Method, 'new', 
     sub { my $v = ::CALL( $::Str, 'new', '' ) } ) );
 
 ::CALL( $::Class, 'new',  'Bit' ); 
 my $meta_Bit = ::CALL( $::Bit, 'HOW' );
 ::CALL( $meta_Bit, 'add_parent', $meta_Value );
-::CALL( $meta_Bit, 'add_method', 'perl',           ::CALL( $::Method, 'new', 
+::CALL( $meta_Bit, 'add_method', 'perl',           $::Method->{_dispatch}( $::Method, 'new', 
     sub { my $v = ::CALL( $::Str, 'new', $_[0]{_value} ) } ) );
-::CALL( $meta_Bit, 'add_method', 'str',            ::CALL( $::Method, 'new', 
+::CALL( $meta_Bit, 'add_method', 'str',            $::Method->{_dispatch}( $::Method, 'new', 
     sub { my $v = ::CALL( $::Str, 'new', $_[0]{_value} ) } ) );
 
 ::CALL( $::Class, 'new', 'Code' ); 
 my $meta_Code = ::CALL( $::Code, 'HOW' );
 ::CALL( $meta_Code, 'add_parent', $meta_Value );
-::CALL( $meta_Code, 'add_method', 'perl',           ::CALL( $::Method, 'new', 
+::CALL( $meta_Code, 'add_method', 'perl',           $::Method->{_dispatch}( $::Method, 'new', 
     sub { my $v = ::CALL( $::Str, 'new', $_[0]{_value}{src} ) } ) );
-::CALL( $meta_Code, 'add_method', 'APPLY',           ::CALL( $::Method, 'new', 
+::CALL( $meta_Code, 'add_method', 'APPLY',           $::Method->{_dispatch}( $::Method, 'new', 
     sub { my $self = shift; $self->{_value}{code}->( @_ ) } ) );
 
 #--- Containers
 
 ::CALL( $::Class, 'new', 'Container' );
 my $meta_Container = ::CALL( $::Container, 'HOW' );
-# ::CALL( $meta_Container, 'add_method', 'IS_ARRAY',     ::CALL( $::Method, 'new', sub { 0 } ) );
-# ::CALL( $meta_Container, 'add_method', 'IS_HASH',      ::CALL( $::Method, 'new', sub { 0 } ) );
-# ::CALL( $meta_Container, 'add_method', 'IS_CONTAINER', ::CALL( $::Method, 'new', sub { 1 } ) );
-::CALL( $meta_Container, 'add_method', 'FETCH',        ::CALL( $::Method, 'new', 
+# ::CALL( $meta_Container, 'add_method', 'IS_ARRAY',     $::Method->{_dispatch}( $::Method, 'new', sub { 0 } ) );
+# ::CALL( $meta_Container, 'add_method', 'IS_HASH',      $::Method->{_dispatch}( $::Method, 'new', sub { 0 } ) );
+# ::CALL( $meta_Container, 'add_method', 'IS_CONTAINER', $::Method->{_dispatch}( $::Method, 'new', sub { 1 } ) );
+::CALL( $meta_Container, 'add_method', 'FETCH',        $::Method->{_dispatch}( $::Method, 'new', 
     sub { 
         #print "Container FETCH: $_[0]{_value}{cell}{_isa}[0]{_value}{class_name}\n";
         #print Dumper( $_[0]{_value}{cell} );
         $_[0]{_value}{cell} ? $_[0]{_value}{cell} : $GLOBAL::undef; 
     } 
 ) );
-::CALL( $meta_Container, 'add_method', 'STORE',        ::CALL( $::Method, 'new', 
+::CALL( $meta_Container, 'add_method', 'STORE',        $::Method->{_dispatch}( $::Method, 'new', 
     sub { 
         #print "Container STORE: $_[1]{_isa}[0]{_value}{cell}{class_name}\n";
         #print "Container STORE: value = ", Dumper( $_[0]{_value} );
@@ -332,7 +336,7 @@ my $meta_Container = ::CALL( $::Container, 'HOW' );
         $_[0]{_value}{cell} = $_[1]; 
     } 
 ) );
-::CALL( $meta_Container, 'add_method', 'BIND',        ::CALL( $::Method, 'new', 
+::CALL( $meta_Container, 'add_method', 'BIND',        $::Method->{_dispatch}( $::Method, 'new', 
     sub { 
         #print "Container BIND: $_[1]{_isa}[0]{_value}{class_name}\n";
 
@@ -358,7 +362,7 @@ my $meta_Container = ::CALL( $::Container, 'HOW' );
 ::CALL( $::Class, 'new', 'Scalar' );  
 my $meta_Scalar = ::CALL( $::Scalar, 'HOW' );
 ::CALL( $meta_Scalar, 'add_parent', $meta_Container );
-::CALL( $meta_Scalar, 'add_method', 'new',  ::CALL( $::Method, 'new',
+::CALL( $meta_Scalar, 'add_method', 'new',  $::Method->{_dispatch}( $::Method, 'new',
     sub { 
         my $v = { 
             %{$_[0]},
@@ -372,9 +376,9 @@ my $meta_Scalar = ::CALL( $::Scalar, 'HOW' );
 my $meta_Routine = ::CALL( $::Routine, 'HOW' );
 ::CALL( $meta_Routine, 'add_parent', $meta_Container );
 ::CALL( $meta_Routine, 'add_method', 'STORE', $method_readonly );
-::CALL( $meta_Routine, 'add_method', 'APPLY',           ::CALL( $::Method, 'new', 
+::CALL( $meta_Routine, 'add_method', 'APPLY',           $::Method->{_dispatch}( $::Method, 'new', 
     sub { my $self = shift; $self->{_value}{cell}{_value}{code}->( @_ ) } ) );
-::CALL( $meta_Routine, 'add_method', 'new',  ::CALL( $::Method, 'new',
+::CALL( $meta_Routine, 'add_method', 'new',  $::Method->{_dispatch}( $::Method, 'new',
     sub { 
         my $v = { 
             %{$_[0]},
@@ -383,7 +387,7 @@ my $meta_Routine = ::CALL( $::Routine, 'HOW' );
         } 
     },
 ) );
-::CALL( $meta_Routine, 'add_method', 'perl',  ::CALL( $::Method, 'new',
+::CALL( $meta_Routine, 'add_method', 'perl',  $::Method->{_dispatch}( $::Method, 'new',
     sub { 
         ::CALL( $::Str, 'new', $_[0]{_value}{cell}{_value}{src} )
     },
