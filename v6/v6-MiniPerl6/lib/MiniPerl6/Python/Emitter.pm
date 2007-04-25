@@ -243,12 +243,10 @@ class Call {
             || ($.method eq 'isa')
         { 
             if ($.hyper) {
-                return 
-                    '[ map { Main::' ~ $.method ~ '( $_, ' ~ ', ' ~ (@.arguments.>>emit).join(', ') ~ ')' ~ ' } @{ ' ~ $invocant ~ ' } ]';
+            	return "map(lambda: Main." ~ $.method ~ "( self, " ~ (@.arguments.>>emit).join(', ') ~ ') , ' ~ $invocant ~ ")\n";
             }
             else {
-                return
-                    'Main::' ~ $.method ~ '(' ~ $invocant ~ ', ' ~ (@.arguments.>>emit).join(', ') ~ ')';
+                return "Main." ~ $.method ~ '(' ~ $invocant ~ ', ' ~ (@.arguments.>>emit).join(', ') ~ ')';
             }
         };
 
@@ -259,6 +257,7 @@ class Call {
         
         my $call := '->' ~ $meth ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
         if ($.hyper) {
+        #CT
             '[ map { $_' ~ $call ~ ' } @{ ' ~ $invocant ~ ' } ]';
         }
         else {
@@ -324,7 +323,7 @@ class Return {
     method emit {
         return
         #'do { print Main::perl(caller(),' ~ $.result.emit ~ '); return(' ~ $.result.emit ~ ') }';
-        'return(' ~ $.result.emit ~ ')';
+        'return ' ~ $.result.emit ~ "\n";
     }
 }
 
