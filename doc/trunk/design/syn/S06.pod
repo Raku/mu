@@ -2100,7 +2100,15 @@ C<nextsame> and C<nextwith>.  Arguments are passed just as with
 C<callsame> and C<callwith>, but a tail call is explicitly enforced;
 any code following the call will be unreached, as if a return had
 been executed there before calling into the destination routine.
-Within a method C<nextsame> is equivalent to C<next METHOD>.
+
+Within an ordinary method dispatch these functions treat the rest
+of the dispatcher's candidate list as the wrapped function, which
+generally works out to calling the same method in one of our parent
+(or older sibling) classes.  Likewise within a multiple dispatch the
+current routine may defer to candidates further down the candidate
+list.  Although not necessarily related by a class hierarchy, such
+later candidates are considered more generic and hence likelier
+to be able to handle various unforeseen conditions (perhaps).
 
 =head2 The C<&?ROUTINE> object
 
