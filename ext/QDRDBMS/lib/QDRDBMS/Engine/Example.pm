@@ -55,15 +55,13 @@ method prepare of QDRDBMS::Engine::Example::HostGateRtn
 ###########################################################################
 
 class QDRDBMS::Engine::Example::HostGateVar {
-    has QDRDBMS::Engine::Example::DBMS $!dbms_eng;
+    has QDRDBMS::Engine::Example::DBMS $!dbms;
 
 ###########################################################################
 
-#submethod BUILD (QDRDBMS::Engine::Example::DBMS :dbms($dbms_eng)!) {
 submethod BUILD (QDRDBMS::Engine::Example::DBMS :$dbms!) {
-    my $dbms_eng = $dbms;
 
-    $!dbms_eng = $dbms_eng;
+    $!dbms = $dbms;
 
     return;
 }
@@ -76,41 +74,44 @@ submethod BUILD (QDRDBMS::Engine::Example::DBMS :$dbms!) {
 ###########################################################################
 
 class QDRDBMS::Engine::Example::HostGateRtn {
-    has QDRDBMS::Engine::Example::DBMS $!dbms_eng;
+    has QDRDBMS::Engine::Example::DBMS $!dbms;
     has QDRDBMS::AST::HostGateRtn      $!rtn_ast;
     has Code                           $!prep_rtn;
-    has Array                          $!bound_vars;
+    has Hash                           $!bound_upd_args;
+    has Hash                           $!bound_ro_args;
 
 ###########################################################################
 
-#submethod BUILD (QDRDBMS::Engine::Example::DBMS :dbms($dbms_eng)!,
 submethod BUILD (QDRDBMS::Engine::Example::DBMS :$dbms!,
         QDRDBMS::AST::HostGateRtn :$rtn_ast!) {
-    my $dbms_eng = $dbms;
 
     my $prep_rtn = sub { 1; }; # TODO; the real thing.
 
-    $!dbms_eng   = $dbms_eng;
-    $!rtn_ast    = $rtn_ast;
-    $!prep_rtn   = $prep_rtn;
-    $!bound_vars = {};
+    $!dbms           = $dbms;
+    $!rtn_ast        = $rtn_ast;
+    $!prep_rtn       = $prep_rtn;
+    $!bound_upd_args = {};
+    $!bound_ro_args  = {};
 
     return;
 }
 
 ###########################################################################
 
-#method bind_host_params (Array :vars($var_engs)!) {
-method bind_host_params (Array :$vars!) {
-    my $var_engs = $vars;
-    $!bound_vars.push( $var_engs.values ); # TODO; overwrite dupl names
+method bind_host_params (Array :$upd_args!, Array :$ro_args!) {
+    for $upd_args -> $elem {
+        $!bound_upd_args.{$elem.[0].text()} = $elem.[1];
+    }
+    for $ro_args -> $elem {
+        $!bound_ro_args.{$elem.[0].text()} = $elem.[1];
+    }
     return;
 }
 
 ###########################################################################
 
 method execute () {
-    $!prep_rtn.( |%$!bound_vars );
+    $!prep_rtn.( |%$!bound_upd_args, |%$!bound_ro_args );
     return;
 }
 

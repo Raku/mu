@@ -63,7 +63,7 @@ submethod BUILD (Str :$engine_name!, Any :$dbms_config!) {
     };
     if (my $err = $!) {
         die qq{new(): The QDRDBMS Engine module '$engine_name' threw}
-            ~ qq{ an exception during its new_dbms() execution: $err}
+            ~ qq{ an exception during its new_dbms() execution: $err};
     }
     die q{new(): The new_dbms() constructor function of the QDRDBMS}
             ~ qq{ Engine module '$engine_name' did not return an object}
@@ -103,22 +103,19 @@ method prepare of QDRDBMS::Interface::HostGateRtn
 ###########################################################################
 
 class QDRDBMS::Interface::HostGateVar {
-    has QDRDBMS::Interface::DBMS $!dbms_intf;
+    has QDRDBMS::Interface::DBMS $!dbms;
     has Any                      $!var_eng;
 
     trusts QDRDBMS::Interface::HostGateRtn;
 
 ###########################################################################
 
-#submethod BUILD (QDRDBMS::Interface::DBMS :dbms($dbms_intf)!) {
 submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!) {
-    my $dbms_intf = $dbms;
 
     die q{new(): Bad :$dbms arg; it is not an object of a}
             ~ q{ QDRDBMS::Interface::DBMS-doing class.}
-        if !$dbms_intf.defined
-            or !$dbms_intf.does(QDRDBMS::Interface::DBMS);
-    my $dbms_eng = $dbms_intf!dbms_eng;
+        if !$dbms.defined or !$dbms.does(QDRDBMS::Interface::DBMS);
+    my $dbms_eng = $dbms!dbms_eng;
     my $dbms_eng_class = $dbms_eng.WHAT;
 
     my $var_eng = undef;
@@ -128,7 +125,7 @@ submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!) {
     if (my $err = $!) {
         die qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class'}
             ~ q{ threw an exception during its new_var()}
-            ~ qq{ execution: $err}
+            ~ qq{ execution: $err};
     }
     die q{new(): The new_var() method of the QDRDBMS}
             ~ qq{ DBMS class '$dbms_eng_class' did not return an object}
@@ -140,8 +137,8 @@ submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!) {
 #            ~ q{ does not provide the ...() method.}
 #        if !$var_eng.HOW.can( '...' );
 
-    $!dbms_intf = $dbms_intf;
-    $!var_eng   = $var_eng;
+    $!dbms    = $dbms;
+    $!var_eng = $var_eng;
 
     return;
 }
@@ -154,22 +151,19 @@ submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!) {
 ###########################################################################
 
 class QDRDBMS::Interface::HostGateRtn {
-    has QDRDBMS::Interface::DBMS  $!dbms_intf;
+    has QDRDBMS::Interface::DBMS  $!dbms;
     has QDRDBMS::AST::HostGateRtn $!rtn_ast;
     has Any                       $!rtn_eng;
 
 ###########################################################################
 
-#submethod BUILD (QDRDBMS::Interface::DBMS :dbms($dbms_intf)!,
 submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!,
         QDRDBMS::AST::HostGateRtn :$rtn_ast!) {
-    my $dbms_intf = $dbms;
 
     die q{new(): Bad :$dbms arg; it is not an object of a}
             ~ q{ QDRDBMS::Interface::DBMS-doing class.}
-        if !$dbms_intf.defined
-            or !$dbms_intf.does(QDRDBMS::Interface::DBMS);
-    my $dbms_eng = $dbms_intf!dbms_eng;
+        if !$dbms.defined or !$dbms.does(QDRDBMS::Interface::DBMS);
+    my $dbms_eng = $dbms!dbms_eng;
     my $dbms_eng_class = $dbms_eng.WHAT;
 
     die q{new(): Bad :$dbms arg; it is not an object of a}
@@ -182,7 +176,7 @@ submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!,
     };
     if (my $err = $!) {
         die qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class'}
-            ~ qq{ threw an exception during its prepare() execution: $err}
+            ~ qq{ threw an exception during its prepare() execution: $err};
     }
     die q{new(): The prepare() method of the QDRDBMS}
             ~ qq{ DBMS class '$dbms_eng_class' did not return an object}
@@ -197,46 +191,94 @@ submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!,
 #            ~ q{ does not provide the execute() method.}
 #        if !$rtn_eng.HOW.can( 'execute' );
 
-    $!dbms_intf = $dbms_intf;
-    $!rtn_ast   = $rtn_ast;
-    $!rtn_eng   = $rtn_eng;
+    $!dbms    = $dbms;
+    $!rtn_ast = $rtn_ast;
+    $!rtn_eng = $rtn_eng;
 
     return;
 }
 
 ###########################################################################
 
-#method bind_host_params (Array :vars($var_intfs)!) {
-method bind_host_params (Array :$vars!) {
-    my $var_intfs = $vars;
+method bind_host_params (Array :$upd_args!, Array :$ro_args!) {
 
-    die q{new(): Bad :$vars arg; it is not an object of a}
+    my Hash $exp_upd_params_map_hoa = $!rtn_ast!upd_params!map_hoa;
+    my Hash $exp_ro_params_map_hoa = $!rtn_ast!ro_params!map_hoa;
+
+    die q{bind_host_params(): Bad :$upd_args arg; it is not an object of a}
             ~ q{ Array-doing class.}
-        if !$var_intfs.defined or !$var_intfs.does(Array);
-    my Hash $seen_param_names = {};
-    my Array $var_engs = [];
-    for $var_intfs -> $elem {
-        die q{new(): Bad :$vars arg; it is not an object of a}
-                ~ q{ Array-doing class, or it doesn't have 2 elements.}
+        if !$upd_args.defined or !$upd_args.does(Array);
+    my Hash $seen_upd_param_names = {};
+    my Array $upd_arg_engs = [];
+    for $upd_args -> $elem {
+        die q{bind_host_params(): Bad :$upd_args arg; it is not an object}
+                ~ q{ of a Array-doing class, or it doesn't have 2 elems.}
             if !$elem.defined or !$elem.does(Array) or $elem.elems != 2;
         my ($param_name, $var_intf) = $elem.values;
-        die q{new(): Bad :$vars arg elem; its first elem is not}
-                ~ q{ an object of a QDRDBMS::AST::EntityName-doing class.}
+        die q{bind_host_params(): Bad :$upd_args arg elem; its first}
+                ~ q{ element is not an object of a}
+                ~ q{ QDRDBMS::AST::EntityName-doing class.}
             if !$param_name.defined
                 or !$param_name.does(QDRDBMS::AST::EntityName);
         my Str $param_name_text = $param_name.text();
-        die q{new(): Bad :$vars arg elem; its first elem is not}
-                ~ q{ distinct between the arg elems.}
-            if $seen_param_names.exists($param_name_text);
-        $seen_param_names{$param_name_text} = 1;
-        die q{new(): Bad :$vars arg elem; its second elem is not an object}
-                ~ q{ of a QDRDBMS::Interface::HostGateVar-doing class.}
+        die q{bind_host_params(): Bad :$upd_args arg elem; its first}
+                ~ q{ element does not match the name of a}
+                ~ q{ subject-to-update routine param.}
+            if $exp_upd_params_map_hoa.exists($param_name_text);
+        die q{bind_host_params(): Bad :$upd_args arg elem; its first elem}
+                ~ q{ is not distinct between the arg elems.}
+            if $seen_upd_param_names.exists($param_name_text);
+        $seen_upd_param_names{$param_name_text} = 1;
+        die q{bind_host_params(): Bad :$upd_args arg elem; its second}
+                ~ q{ element is not an object of a}
+                ~ q{ QDRDBMS::Interface::HostGateVar-doing class.}
             if !$var_intf.defined
                 or !$var_intf.does(QDRDBMS::Interface::HostGateVar);
-        $var_engs.push( [$param_name, $var_intf!var_eng] );
+        $upd_arg_engs.push( [$param_name, $var_intf!var_eng] );
     }
 
-    $!rtn_eng.bind_host_params( :vars($var_engs) );
+    die q{bind_host_params(): Bad :$ro_args arg; it is not an object of a}
+            ~ q{ Array-doing class.}
+        if !$ro_args.defined or !$ro_args.does(Array);
+    my Hash $seen_ro_param_names = {};
+    my Array $ro_arg_engs = [];
+    for $ro_args -> $elem {
+        die q{bind_host_params(): Bad :$ro_args arg; it is not an object}
+                ~ q{ of a Array-doing class, or it doesn't have 2 elems.}
+            if !$elem.defined or !$elem.does(Array) or $elem.elems != 2;
+        my ($param_name, $var_intf) = $elem.values;
+        die q{bind_host_params(): Bad :$ro_args arg elem; its first}
+                ~ q{ element is not an object of a}
+                ~ q{ QDRDBMS::AST::EntityName-doing class.}
+            if !$param_name.defined
+                or !$param_name.does(QDRDBMS::AST::EntityName);
+        my Str $param_name_text = $param_name.text();
+        die q{bind_host_params(): Bad :$ro_args arg elem; its first}
+                ~ q{ element does not match the name of a}
+                ~ q{ read-only routine param.}
+            if $exp_ro_params_map_hoa.exists($param_name_text);
+        die q{bind_host_params(): Bad :$ro_args arg elem; its first elem}
+                ~ q{ is not distinct between the arg elems.}
+            if $seen_ro_param_names.exists($param_name_text);
+        $seen_ro_param_names{$param_name_text} = 1;
+        die q{bind_host_params(): Bad :$ro_args arg elem; its second}
+                ~ q{ element is not an object of a}
+                ~ q{ QDRDBMS::Interface::HostGateVar-doing class.}
+            if !$var_intf.defined
+                or !$var_intf.does(QDRDBMS::Interface::HostGateVar);
+        $ro_arg_engs.push( [$param_name, $var_intf!var_eng] );
+    }
+
+    try {
+        $!rtn_eng.bind_host_params(
+            :upd_args($upd_arg_engs), :ro_args($ro_arg_engs) );
+    };
+    if (my $err = $!) {
+        my $rtn_eng_class = $!rtn_eng.WHAT;
+        die q{bind_host_params(): The QDRDBMS HostGateRtn Engine}
+            ~ qq{ class '$rtn_eng_class' threw an exception during its}
+            ~ qq{ bind_host_params() execution: $err};
+    }
 
     return;
 }
@@ -244,7 +286,15 @@ method bind_host_params (Array :$vars!) {
 ###########################################################################
 
 method execute () {
-    $!rtn_eng.execute();
+    try {
+        $!rtn_eng.execute();
+    };
+    if (my $err = $!) {
+        my $rtn_eng_class = $!rtn_eng.WHAT;
+        die q{execute(): The QDRDBMS HostGateRtn Engine}
+            ~ qq{ class '$rtn_eng_class' threw an exception during its}
+            ~ qq{ execute() execution: $err};
+    }
     return;
 }
 

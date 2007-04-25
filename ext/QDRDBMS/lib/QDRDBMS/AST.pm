@@ -421,6 +421,7 @@ class QDRDBMS::AST::TypeDict {
     # made more strict, to just be type names.
 
     trusts QDRDBMS::AST::HostGateRtn;
+    trusts QDRDBMS::Interface::HostGateRtn;
 
 ###########################################################################
 
@@ -693,6 +694,8 @@ class QDRDBMS::AST::HostGateRtn {
     has QDRDBMS::AST::TypeDict $!upd_params;
     has QDRDBMS::AST::TypeDict $!ro_params;
     has Array                  $!stmts;
+
+    trusts QDRDBMS::Interface::HostGateRtn;
 
 ###########################################################################
 
