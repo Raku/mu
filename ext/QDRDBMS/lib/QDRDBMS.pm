@@ -85,8 +85,10 @@ submethod BUILD (Str :$engine_name!, Any :$dbms_config!) {
 
 ###########################################################################
 
-method new_var of QDRDBMS::Interface::HostGateVar () {
-    return QDRDBMS::Interface::HostGateVar.new( :dbms(self) );
+method new_var of QDRDBMS::Interface::HostGateVar
+        (QDRDBMS::AST::EntityName :$decl_type!) {
+    return QDRDBMS::Interface::HostGateVar.new(
+        :dbms(self), :decl_type($decl_type) );
 }
 
 method prepare of QDRDBMS::Interface::HostGateRtn
@@ -110,7 +112,8 @@ class QDRDBMS::Interface::HostGateVar {
 
 ###########################################################################
 
-submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!) {
+submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!,
+        QDRDBMS::AST::EntityName :$decl_type!) {
 
     die q{new(): Bad :$dbms arg; it is not an object of a}
             ~ q{ QDRDBMS::Interface::DBMS-doing class.}
@@ -118,9 +121,14 @@ submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!) {
     my $dbms_eng = $dbms!dbms_eng;
     my $dbms_eng_class = $dbms_eng.WHAT;
 
+    die q{new(): Bad :$decl_type arg; it is not an object of a}
+            ~ q{ QDRDBMS::AST::EntityName-doing class.}
+        if !$decl_type.defined
+            or !$decl_type.does(QDRDBMS::AST::EntityName);
+
     my $var_eng = undef;
     try {
-        $var_eng = $dbms_eng.new_var();
+        $var_eng = $dbms_eng.new_var( :decl_type($decl_type) );
     };
     if (my $err = $!) {
         die qq{new(): The QDRDBMS DBMS Engine class '$dbms_eng_class'}
@@ -134,11 +142,53 @@ submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!) {
     my $var_eng_class = $var_eng.WHAT;
 
 #    die qq{new(): The QDRDBMS HostGateVar Engine class '$var_eng_class'}
-#            ~ q{ does not provide the ...() method.}
-#        if !$var_eng.HOW.can( '...' );
+#            ~ q{ does not provide the fetch_ast() method.}
+#        if !$var_eng.HOW.can( 'fetch_ast' );
+#    die qq{new(): The QDRDBMS HostGateVar Engine class '$var_eng_class'}
+#            ~ q{ does not provide the store_ast() method.}
+#        if !$var_eng.HOW.can( 'store_ast' );
 
     $!dbms    = $dbms;
     $!var_eng = $var_eng;
+
+    return;
+}
+
+###########################################################################
+
+method fetch_ast of QDRDBMS::AST::Node () {
+
+    my $val_ast = undef;
+    try {
+        $val_ast = $!var_eng.fetch_ast();
+    };
+    if (my $err = $!) {
+        my $var_eng_class = $!var_eng.WHAT;
+        die q{fetch_ast(): The QDRDBMS HostGateVar Engine}
+            ~ qq{ class '$var_eng_class' threw an exception during its}
+            ~ qq{ fetch_ast() execution: $err};
+    }
+
+    return $val_ast;
+}
+
+###########################################################################
+
+method store_ast (QDRDBMS::AST::Node :$val_ast!) {
+
+    die q{store_ast(): Bad :$val_ast arg; it is not an object of a}
+            ~ q{ QDRDBMS::AST::Node-doing class.}
+        if !$val_ast.defined or !$val_ast.does(QDRDBMS::AST::Node);
+
+    try {
+        $!var_eng.store_ast( :val_ast($val_ast) );
+    };
+    if (my $err = $!) {
+        my $var_eng_class = $!var_eng.WHAT;
+        die q{store_ast(): The QDRDBMS HostGateVar Engine}
+            ~ qq{ class '$var_eng_class' threw an exception during its}
+            ~ qq{ store_ast() execution: $err};
+    }
 
     return;
 }
@@ -166,7 +216,7 @@ submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!,
     my $dbms_eng = $dbms!dbms_eng;
     my $dbms_eng_class = $dbms_eng.WHAT;
 
-    die q{new(): Bad :$dbms arg; it is not an object of a}
+    die q{new(): Bad :$rtn_ast arg; it is not an object of a}
             ~ q{ QDRDBMS::AST::HostGateRtn-doing class.}
         if !$rtn_ast.defined or !$rtn_ast.does(QDRDBMS::AST::HostGateRtn);
 

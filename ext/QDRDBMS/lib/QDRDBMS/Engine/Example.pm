@@ -37,8 +37,10 @@ submethod BUILD (Any :$dbms_config!) {
 
 ###########################################################################
 
-method new_var of QDRDBMS::Engine::Example::HostGateVar () {
-    return QDRDBMS::Engine::Example::HostGateVar.new( :dbms(self) );
+method new_var of QDRDBMS::Engine::Example::HostGateVar
+        (QDRDBMS::AST::EntityName :$decl_type!) {
+    return QDRDBMS::Engine::Example::HostGateVar.new(
+        :dbms(self), :decl_type($decl_type) );
 }
 
 method prepare of QDRDBMS::Engine::Example::HostGateRtn
@@ -56,12 +58,34 @@ method prepare of QDRDBMS::Engine::Example::HostGateRtn
 
 class QDRDBMS::Engine::Example::HostGateVar {
     has QDRDBMS::Engine::Example::DBMS $!dbms;
+    has QDRDBMS::AST::EntityName       $!decl_type;
+    has QDRDBMS::AST::Node             $!val_ast;
+
+    trusts QDRDBMS::Engine::Example::HostGateRtn;
 
 ###########################################################################
 
-submethod BUILD (QDRDBMS::Engine::Example::DBMS :$dbms!) {
+submethod BUILD (QDRDBMS::Engine::Example::DBMS :$dbms!,
+        QDRDBMS::AST::EntityName :$decl_type!) {
 
-    $!dbms = $dbms;
+    $!dbms      = $dbms;
+    $!decl_type = $decl_type;
+    $!val_ast   = undef; # TODO: make default value of $decl_type
+
+    return;
+}
+
+###########################################################################
+
+method fetch_ast of QDRDBMS::AST::Node () {
+    return $!val_ast;
+}
+
+###########################################################################
+
+method store_ast (QDRDBMS::AST::Node :$val_ast!) {
+
+    $!val_ast = $val_ast;
 
     return;
 }
@@ -99,6 +123,8 @@ submethod BUILD (QDRDBMS::Engine::Example::DBMS :$dbms!,
 ###########################################################################
 
 method bind_host_params (Array :$upd_args!, Array :$ro_args!) {
+    # TODO: Compare declared type of each routine param and the variable
+    # we are trying to bind to it, that they are of compatible types.
     for $upd_args -> $elem {
         $!bound_upd_args.{$elem.[0].text()} = $elem.[1];
     }
