@@ -82,6 +82,8 @@ BEGIN blocks:
 - logging of array/hash element modifications is not implemented
 - binding to Value is not emitted
 
+- Method and Class doesn't have '.perl'
+
 Bugs:
 
 - missing compile-time methods

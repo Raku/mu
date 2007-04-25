@@ -245,8 +245,8 @@ class Call {
         if $invocant eq 'self' {
             $invocant := '$self';
         };
-        if     ($.method eq 'perl')
-            || ($.method eq 'yaml')
+        if    # ($.method eq 'perl')
+               ($.method eq 'yaml')
             || ($.method eq 'say' )
             || ($.method eq 'join')
             || ($.method eq 'chars')
