@@ -552,6 +552,22 @@ Go to the L<QDRDBMS::SeeAlso> file for the majority of external references.
 
 =head1 BUGS AND LIMITATIONS
 
+The QDRDBMS framework for Perl 6 is built with a lot of code that should be
+superfluous, since the QDRDBMS authors can not yet assume that a number of
+desired Perl 6 features are actually available in the language
+implementations yet, and so and so QDRDBMS includes its own substituted
+implementations of those features, which have been made as part of QDRDBMS
+for Perl 5 anyway due to Perl 5's relative deficiencies.  The reimplemented
+features include manual type-checks of routine arguments (as if the
+parameters were declared C<Any>), and the use of C<Array> rather than
+C<Seq> or C<Set> or C<Bag>, and the use of Arrays of Arrays rather than
+C<Mapping> or C<Hash> (because non-Str keys may not be supported yet).
+Also, explicit clones are made of any "read only" Array or Hash arguments
+or return values, so to safeguard the QDRDBMS internals against any
+subsequent mutation of them by callers.  Hopefully, QDRDBMS for Perl 6 will
+be able to have its code base slimmed considerably when the Perl 6
+implementations themselves are more mature.
+
 I<This documentation is pending.>
 
 =head1 AUTHOR
