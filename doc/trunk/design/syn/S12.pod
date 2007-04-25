@@ -1144,9 +1144,9 @@ a proto stub in the class being constructed:
 
     proto method shake {...}
 
-(This declaration need not preceed the C<does> clause textually, since
+(This declaration need not precede the C<does> clause textually, since
 roles are not actually composed until the end of the class definition,
-at which point we know how which roles are to be composed together
+at which point we know which roles are to be composed together
 in a single logical operation, as well as how the class intends to
 override the roles.)
 
