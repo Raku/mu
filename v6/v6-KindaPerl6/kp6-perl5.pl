@@ -146,16 +146,16 @@ use Data::Dump::Streamer;
                         # the binded thing has a name
                         $src = $src . "$name := " . $value->{_value}{name} . '; ';
                         # optimize repeated assignments
-                        $src = $src . "$name = " . ::CALL( $value, 'perl' )->{_value};
+                        $src = $src . "$name = " . $value->{_dispatch}( $value, 'perl' )->{_value};
                     }
                     else {
                         # no name; bind to the value
-                        $src = $src . "$name := " . ::CALL( $value, 'perl' )->{_value} . '; ';
+                        $src = $src . "$name := " . $value->{_dispatch}( $value, 'perl' )->{_value} . '; ';
                     }
                 }
                 else {
                     # plain assignment
-                    $src = $src . "$name = " . ::CALL( $value, 'perl' )->{_value};
+                    $src = $src . "$name = " . $value->{_dispatch}( $value, 'perl' )->{_value};
                 }
 
                 # TODO - convert directly DATA->AST, instead of DATA->PERL->AST
@@ -193,7 +193,7 @@ use Data::Dump::Streamer;
         #print "data: ", Dumper( $data );
         
         # - convert the 'result' data to ast
-        my $source = ::CALL( $data, 'perl' )->{_value};
+        my $source = $data->{_dispatch}( $data, 'perl' )->{_value};
         #print "# begin - result data: $source\n";
         my $p = KindaPerl6::Grammar->exp($source, 0);
         #say( Main::perl( $$p ) );

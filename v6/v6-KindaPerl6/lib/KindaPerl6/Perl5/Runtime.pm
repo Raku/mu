@@ -113,26 +113,26 @@ package GLOBAL;
     $GLOBAL::Hash_ENV = bless \%ENV, 'Type_Perl5_Buf_Hash';
     
     ${"GLOBAL::Code_$_"} = \&{"GLOBAL::$_"} for @EXPORT;
-    $GLOBAL::Code_import = ::CALL( $::Code, 'new', 
+    $GLOBAL::Code_import = $::Code->{_dispatch}( $::Code, 'new', 
         { code => \&{"GLOBAL::import"}, src => '&GLOBAL::import' } );
     sub import {
         #print "@_\n";
         my $pkg = _str( $_[0] ); 
         #print "IMPORT $pkg\n";
-        ${"${pkg}::Code_$_"} = ::CALL( $::Code, 'new', 
+        ${"${pkg}::Code_$_"} = $::Code->{_dispatch}( $::Code, 'new', 
             { code => ${"GLOBAL::Code_$_"}, src => '&GLOBAL::'.$_ } ) 
             for @EXPORT;
     }
 
     sub _str {
         my $v = $_[0];
-        eval { $v = ::CALL( $v, 'str' )->{_value} } if ref($v); 
+        eval { $v = $v->{_dispatch}( $v, 'str' )->{_value} } if ref($v); 
         print $@ if $@;
         $v;
     }
     sub _int {
         my $v = $_[0];
-        eval { $v = ::CALL( $v, 'int' )->{_value} } if ref($v); 
+        eval { $v = $v->{_dispatch}( $v, 'int' )->{_value} } if ref($v); 
         print $@ if $@;
         $v;
     }
@@ -146,36 +146,36 @@ package GLOBAL;
     }
     sub say   { GLOBAL::print( @_, "\n" ) }
 
-    my $undef = ::CALL( $::Undef, 'new', 0 );
+    my $undef = $::Undef->{_dispatch}( $::Undef, 'new', 0 );
     sub undef    { $undef }
-    sub undefine { ::CALL( $_[0], 'STORE', $undef ) }
-    sub defined  { ::CALL( $_[0], 'defined' ) } 
-    sub true     { ::CALL( $_[0], 'true' ) }  
-    sub not      { ::CALL( $::Bit, 'new', ! ( ::CALL( $_[0], 'true' )->{_value} ) ) }  
-    sub True     { ::CALL( $::Bit, 1 ) }  
-    sub False    { ::CALL( $::Bit, 0 ) }  
+    sub undefine { $_->{_dispatch}( $_[0], 'STORE', $undef ) }
+    sub defined  { $_->{_dispatch}( $_[0], 'defined' ) } 
+    sub true     { $_->{_dispatch}( $_[0], 'true' ) }  
+    sub not      { $::Bit->{_dispatch}( $::Bit, 'new', ! ( $_->{_dispatch}( $_[0], 'true' )->{_value} ) ) }  
+    sub True     { $::Bit->{_dispatch}( $::Bit, 1 ) }  
+    sub False    { $::Bit->{_dispatch}( $::Bit, 0 ) }  
 
     # TODO - macro
-    sub ternary_58__60__63__63__32__33__33__62_ { ::CALL( $_[0], 'true' )->{_value} ? $_[1] : $_[2] }
+    sub ternary_58__60__63__63__32__33__33__62_ { $_->{_dispatch}( $_[0], 'true' )->{_value} ? $_[1] : $_[2] }
         #  ternary:<?? !!>
     
     # TODO - macro
-    sub infix_58__60__38__38__62_   { ::CALL( $_[0], 'true' )->{_value} && ::CALL( $_[1], 'true' )->{_value} && $_[1] }
+    sub infix_58__60__38__38__62_   { $_->{_dispatch}( $_[0], 'true' )->{_value} && $_->{_dispatch}( $_[1], 'true' )->{_value} && $_[1] }
     # TODO - macro
-    sub infix_58__60__124__124__62_ { ::CALL( $_[0], 'true' )->{_value} && $_[0] || ::CALL( $_[1], 'true' )->{_value} && $_[1] }
+    sub infix_58__60__124__124__62_ { $_->{_dispatch}( $_[0], 'true' )->{_value} && $_[0] || $_->{_dispatch}( $_[1], 'true' )->{_value} && $_[1] }
 
     sub infix_58__60_eq_62_         
-    { ::CALL( $::Bit, 'new', ::CALL( $_[0], 'str' )->{_value} eq ::CALL( $_[0], 'str' )->{_value} ) }  # infix:<eq>
+    { $::Bit->{_dispatch}( $::Bit, 'new', $_->{_dispatch}( $_[0], 'str' )->{_value} eq $_->{_dispatch}( $_[0], 'str' )->{_value} ) }  # infix:<eq>
     sub infix_58__60_ne_62_         
-    { ::CALL( $::Bit, 'new', ::CALL( $_[0], 'str' )->{_value} ne ::CALL( $_[0], 'str' )->{_value} ) }  # infix:<ne>
+    { $::Bit->{_dispatch}( $::Bit, 'new', $_->{_dispatch}( $_[0], 'str' )->{_value} ne $_->{_dispatch}( $_[0], 'str' )->{_value} ) }  # infix:<ne>
     sub infix_58__60__61__61__62_   
     { TODO() }   # { bless [ $_[0]->FETCH->[0] == $_[1]->FETCH->[0] ], 'Type_Constant_Bit' }  # infix:<==>
     sub infix_58__60__33__61__62_   
     { TODO() }   #{ bless [ $_[0]->FETCH->[0] != $_[1]->FETCH->[0] ], 'Type_Constant_Bit' }  # infix:<!=>
     sub infix_58__60__126__62_      
-    { ::CALL( $::Str, 'new', _str( $_[0] ) . _str( $_[1] ) ) }  # infix:<~>
+    { $::Str->{_dispatch}( $::Str, 'new', _str( $_[0] ) . _str( $_[1] ) ) }  # infix:<~>
     sub infix_58__60__43__62_       
-    { ::CALL( $::Int, 'new', _int( $_[0] ) + _int( $_[1] ) ) }  # infix:<+>
+    { $::Int->{_dispatch}( $::Int, 'new', _int( $_[0] ) + _int( $_[1] ) ) }  # infix:<+>
 
     # ???
     sub prefix_58__60__64__62_      { TODO(); @{$_[0]} }        # prefix:<@>
