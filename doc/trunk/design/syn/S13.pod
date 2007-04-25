@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 2 Nov 2004
-  Last Modified: 17 Feb 2007
+  Last Modified: 24 Apr 2007
   Number: 13
-  Version: 7
+  Version: 8
 
 =head1 Overview
 
@@ -156,11 +156,26 @@ Those are a bit unwieldy, so you may also use these short forms:
     method @.[ *@@slices ] {...}
     method %.{ *@@slices } {...}
 
-The actual sigil used doesn't matter as long as it's followed by a dot
-and the bracket pair containing the signature.  (Note that the angle
-bracket subscripting form C<< .<a b c> >> automatically translates
-itself into a call to C< .{'a','b','c'} >, so defining methods for
-angles is basically useless.)
+The sigil-dot sequence in these short forms autogenerates the
+corresponding public operators, in exactly the same way that
+the sigil-dot in:
+
+    has $.action;
+    has @.sequence;
+    has %.mapping;
+
+autogenerates public accessor methods.
+
+And because it uses the same method-autogeneration mechanism, the
+specific sigil used to specify a short-form postcircumfix operator
+doesn't actually matter...as long as it's followed by a dot and the
+bracket pair containing the signature. (Though it's probably kinder
+to future readers of your code to stick with the "natural" sigil
+for each type of bracket.)
+
+Note that the angle bracket subscripting form C<< .<a b c> >>
+automatically translates itself into a call to C< .{'a','b','c'} >,
+so defining methods for angles is basically useless.
 
 The expected semantics of C<&.()> is that of a type coercion which may
 or may not create a new object.  So if you say:
