@@ -99,7 +99,11 @@ sub HostGateRtn of QDRDBMS::AST::HostGateRtn
 ###########################################################################
 ###########################################################################
 
-role QDRDBMS::AST::Node {}
+role QDRDBMS::AST::Node {
+    method as_perl of Str () {
+        die q{not implemented by subclass};
+    }
+} # role QDRDBMS::AST::Node
 
 ###########################################################################
 ###########################################################################
@@ -114,22 +118,42 @@ role QDRDBMS::AST::Expr {
 class QDRDBMS::AST::LitBool {
     does QDRDBMS::AST::Expr;
 
+    my $FALSE = Bool::False;
+    my $TRUE  = Bool::True;
+
     has Bool $!v;
 
-    submethod BUILD (Bool :$v!) {
+    has Str $!as_perl;
 
-        die q{new(): Bad :$v arg; it is not an object of a}
-                ~ q{ Bool-doing class.}
-            if !$v.defined or !$v.does(Bool);
+###########################################################################
 
-        $!v = $v;
+submethod BUILD (Bool :$v!) {
 
-        return;
+    die q{new(): Bad :$v arg; it is not an object of a Bool-doing class.}
+        if !$v.defined or !$v.does(Bool);
+
+    $!v = $v ?? $TRUE !! $FALSE;
+
+    return;
+}
+
+###########################################################################
+
+method as_perl of Str () {
+    if (!$!as_perl.defined) {
+        my Str $s = $!v ?? 'Bool::True' !! 'Bool::False';
+        $!as_perl = "QDRDBMS::AST::LitBool.new( :v($s) )";
     }
+    return $!as_perl;
+}
 
-    sub v of Bool () {
-        return $!v;
-    }
+###########################################################################
+
+sub v of Bool () {
+    return $!v;
+}
+
+###########################################################################
 
 } # class QDRDBMS::AST::LitBool
 
@@ -141,20 +165,37 @@ class QDRDBMS::AST::LitText {
 
     has Str $!v;
 
-    submethod BUILD (Str :$v!) {
+    has Str $!as_perl;
 
-        die q{new(): Bad :$v arg; it is not an object of a}
-                ~ q{ Str-doing class.}
-            if !$v.defined or !$v.does(Str);
+###########################################################################
 
-        $!v = $v;
+submethod BUILD (Str :$v!) {
 
-        return;
+    die q{new(): Bad :$v arg; it is not an object of a Str-doing class.}
+        if !$v.defined or !$v.does(Str);
+
+    $!v = $v;
+
+    return;
+}
+
+###########################################################################
+
+method as_perl of Str () {
+    if (!$!as_perl.defined) {
+        my Str $s = q{'} ~ $!v.trans( q{'} => q{\\'} ) ~ q{'};
+        $!as_perl = "QDRDBMS::AST::LitText.new( :v($s) )";
     }
+    return $!as_perl;
+}
 
-    sub v of Str () {
-        return $!v;
-    }
+###########################################################################
+
+sub v of Str () {
+    return $!v;
+}
+
+###########################################################################
 
 } # class QDRDBMS::AST::LitText
 
@@ -166,20 +207,42 @@ class QDRDBMS::AST::LitBlob {
 
     has Blob $!v;
 
-    submethod BUILD (Blob :$v!) {
+    has Str $!as_perl;
 
-        die q{new(): Bad :$v arg; it is not an object of a}
-                ~ q{ Blob-doing class.}
-            if !$v.defined or !$v.does(Blob);
+###########################################################################
 
-        $!v = $v;
+submethod BUILD (Blob :$v!) {
 
-        return;
+    die q{new(): Bad :$v arg; it is not an object of a Blob-doing class.}
+        if !$v.defined or !$v.does(Blob);
+
+    $!v = $v;
+
+    return;
+}
+
+###########################################################################
+
+method as_perl of Str () {
+    if (!$!as_perl.defined) {
+        # TODO: A proper job of encoding/decoding the bit string payload.
+        # What you see below is more symbolic of what to do than correct.
+        my Str $hex_digit_text = join q{}, map { unpack 'H2', $_ }
+            split q{}, $!v;
+        my Str $s = q[(join q{}, map { pack 'H2', $_ }
+            split q{}, ] ~ $hex_digit_text ~ q[)];
+        $!as_perl = "QDRDBMS::AST::LitBlob.new( :v($s) )";
     }
+    return $!as_perl;
+}
 
-    sub v of Blob () {
-        return $!v;
-    }
+###########################################################################
+
+sub v of Blob () {
+    return $!v;
+}
+
+###########################################################################
 
 } # class QDRDBMS::AST::LitBlob
 
@@ -191,20 +254,37 @@ class QDRDBMS::AST::LitInt {
 
     has Int $!v;
 
-    submethod BUILD (Int :$v!) {
+    has Str $!as_perl;
 
-        die q{new(): Bad :$v arg; it is not an object of a}
-                ~ q{ Int-doing class.}
-            if !$v.defined or !$v.does(Int);
+###########################################################################
 
-        $!v = $v;
+submethod BUILD (Int :$v!) {
 
-        return;
+    die q{new(): Bad :$v arg; it is not an object of a Int-doing class.}
+        if !$v.defined or !$v.does(Int);
+
+    $!v = $v;
+
+    return;
+}
+
+###########################################################################
+
+method as_perl of Str () {
+    if (!$!as_perl.defined) {
+        my Str $s = ~$!v;
+        $!as_perl = "QDRDBMS::AST::LitInt.new( :v($s) )";
     }
+    return $!as_perl;
+}
 
-    sub v of Int () {
-        return $!v;
-    }
+###########################################################################
+
+sub v of Int () {
+    return $!v;
+}
+
+###########################################################################
 
 } # class QDRDBMS::AST::LitInt
 
@@ -215,6 +295,8 @@ role QDRDBMS::AST::ListSel {
     does QDRDBMS::AST::Expr;
 
     has Array $!v;
+
+    has Str $!as_perl;
 
     trusts QDRDBMS::AST::EntityName;
 
@@ -275,6 +357,8 @@ class QDRDBMS::AST::EntityName {
 
     has QDRDBMS::AST::LitText $!text_possrep;
     has QDRDBMS::AST::SeqSel  $!seq_possrep;
+
+    has Str $!as_perl;
 
 ###########################################################################
 
@@ -356,6 +440,8 @@ class QDRDBMS::AST::ExprDict {
     # Note: This type is specific such that values are always some ::Expr,
     # but this type may be later generalized to hold ::Node instead.
 
+    has Str $!as_perl;
+
     trusts QDRDBMS::AST::ProcInvo;
 
 ###########################################################################
@@ -421,6 +507,8 @@ class QDRDBMS::AST::TypeDict {
     # and not just EntityName values; also, the latter will probably be
     # made more strict, to just be type names.
 
+    has Str $!as_perl;
+
     trusts QDRDBMS::AST::HostGateRtn;
     trusts QDRDBMS::Interface::HostGateRtn;
 
@@ -483,6 +571,8 @@ class QDRDBMS::AST::VarInvo {
 
     has QDRDBMS::AST::EntityName $!v;
 
+    has Str $!as_perl;
+
 ###########################################################################
 
 submethod BUILD (QDRDBMS::AST::EntityName :$v!) {
@@ -514,6 +604,8 @@ class QDRDBMS::AST::FuncInvo {
 
     has QDRDBMS::AST::EntityName $!func;
     has QDRDBMS::AST::ExprDict   $!ro_args;
+
+    has Str $!as_perl;
 
 ###########################################################################
 
@@ -564,6 +656,8 @@ class QDRDBMS::AST::ProcInvo {
     has QDRDBMS::AST::EntityName $!proc;
     has QDRDBMS::AST::ExprDict   $!upd_args;
     has QDRDBMS::AST::ExprDict   $!ro_args;
+
+    has Str $!as_perl;
 
 ###########################################################################
 
@@ -623,6 +717,8 @@ class QDRDBMS::AST::FuncReturn {
     does QDRDBMS::AST::Stmt;
 
     has QDRDBMS::AST::Expr $!v;
+
+    has Str $!as_perl;
 
 ###########################################################################
 
@@ -696,6 +792,8 @@ class QDRDBMS::AST::HostGateRtn {
     has QDRDBMS::AST::TypeDict $!ro_params;
     has QDRDBMS::AST::TypeDict $!vars;
     has Array                  $!stmts;
+
+    has Str $!as_perl;
 
     trusts QDRDBMS::Interface::HostGateRtn;
 
