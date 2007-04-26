@@ -20,6 +20,7 @@ use Getopt::Long;
 use File::Basename;
 use FindBin;
 use File::Find qw(find);
+use File::Slurp;
 #use Pod::Simple::HTML;
 
 my $check;
@@ -446,6 +447,9 @@ sub process_syn ($$$$) {
             return;
         }
 
+      my $toc = "=TOC\nP<toc:head1 head2 head3>\n\n";
+      my $pod6 = $toc . read_file($infile);
+
       my $perldochtml = qq{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
            "http://www.w3.org/TR/html4/loose.dtd">
 <html><head><title>S$syn_id</title>
@@ -454,7 +458,7 @@ sub process_syn ($$$$) {
 </head>
 <body class='pod'>
   <!-- start doc -->
-}.    Perl6::Perldoc::Parser->parse( $infile, {all_pod=>'auto'} )->report_errors()->to_xhtml .
+} . Perl6::Perldoc::Parser->parse( \$pod6, {all_pod=>'auto'} )->report_errors()->to_xhtml .
       qq{  <!-- end doc -->
 
 </body></html>};  #Again, hardcode the markup until we have an xhtml wrapper emitter for Perl6::Perldoc::To::Xhtml
