@@ -3,6 +3,7 @@
 use warnings;
 use strict;
 
+#use Smart::Comments;
 use Best 0.05 [ [qw/YAML::Syck YAML/], qw/Dump Load/ ];
 use Getopt::Long;
 use Test::TAP::HTMLMatrix;
@@ -20,6 +21,14 @@ binmode $yamlfh, ":utf8" or die "binmode: $!";
 local $/=undef;
 
 my $data = Load(<$yamlfh>);
+### data keys: keys %$data
+## build info: $data->{build_info}
+my $timing = $data->{timing};
+$timing->{duration} = sprintf("%.2f min", $timing->{duration} / 60);
+$timing->{start} = localtime $timing->{start};
+$timing->{end} = localtime $timing->{end};
+### timing: $data->{timing}
+
 undef $yamlfh;
 
 my $tap = My::Model->new_with_struct(delete $data->{meat});
