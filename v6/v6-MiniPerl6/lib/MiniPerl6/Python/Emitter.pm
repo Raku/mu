@@ -276,7 +276,7 @@ class Apply {
 
         if $code.isa( 'Str' ) { }
         else {
-            return '(' ~ $.code.emit ~ ')->(' ~ (@.arguments.>>emit).join(', ') ~ ')';
+            return '(' ~ $.code.emit ~ ').(' ~ (@.arguments.>>emit).join(', ') ~ ')';
         };
 
         if $code eq 'self'       { return '$self' };

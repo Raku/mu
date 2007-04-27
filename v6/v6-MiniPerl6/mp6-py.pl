@@ -16,7 +16,7 @@ use MiniPerl6::Python::Match;
 
 package Main;
 use MiniPerl6::Grammar;
-use MiniPerl6::Perl5::Emitter;
+use MiniPerl6::Python::Emitter;
 use MiniPerl6::Grammar::Regex;
 use MiniPerl6::Emitter::Token;
 
