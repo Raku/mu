@@ -5,10 +5,10 @@
 # by this script, and http://perlcabal.org/syn
 # also needs it.
 
-# virtual mem: 1.5 GB
-ulimit -v 1500000
+# virtual mem: 1 GB
+ulimit -v $(( 1 * 10 ** 6 ))
 # cup-time: 5 hours
-ulimit -t 18000
+ulimit -t $(( 5 * 3600 ))
 
 cd /home/agentzh/svn-pugs
 svn up

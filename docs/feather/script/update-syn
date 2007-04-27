@@ -3,6 +3,11 @@
 # This script is used by feather's cron to update
 # the Synopsis pages in http://perlcabal.org/syn/
 
+# virtual mem: 1 GB
+ulimit -v $(( 1 * 10 ** 6 ))
+# cup-time: 10 min
+ulimit -t $(( 10 * 60 ))
+
 cd  ~agentzh/svn-pugs
 svn up
 
