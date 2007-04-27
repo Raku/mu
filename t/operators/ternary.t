@@ -8,7 +8,7 @@ Ternary operator ?? !!
 
 =cut
 
-plan 13;
+plan 14;
 #L<S03/Changes to Perl 5 operators/"The ? : conditional operator becomes ?? !!">
 
 my $str1 = "aaa";
@@ -49,4 +49,9 @@ is((4 or 5 ?? 6 !! 7), 4, "operator priority");
 
     $foo = 0 ?? 12 !! 13;
     is($foo, 13, "operator priority");
+}
+
+{
+    my $foo = 1 ?? Bool::True !! Bool::False;
+    pass "a statement with both ??!! and :: in it did compile";
 }
