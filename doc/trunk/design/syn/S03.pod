@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 13 Apr 2007
+  Last Modified: 26 Apr 2007
   Number: 3
-  Version: 113
+  Version: 114
 
 =head1 Overview
 
@@ -2147,6 +2147,9 @@ and replicating it:
 is short for something like:
 
     @array[0..^@array], @array[-1] xx *
+
+An empty Range cannot be iterated; it returns a C<Failure> instead.  An empty
+range still has a defined min and max, but the min is greater than the max.
 
 =item *
 
