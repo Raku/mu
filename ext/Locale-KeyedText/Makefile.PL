@@ -4,7 +4,7 @@ use warnings;
 use lib '../..', '../../inc';
 use inc::Module::Install prefix => '../../inc';
 
-name       ('Locale::KeyedText');
+name       ('Locale-KeyedText');
 version    ('1.74.0'); # 'VERSION_FROM' => 'lib/Locale/KeyedText.pm'
 abstract   ('Refer to user messages in programs by keys');
 author     ('Darren Duncan <perl@DarrenDuncan.net>');
