@@ -113,7 +113,19 @@ sub add_smoke {
   $html =~ /pugs_versnum: ([\d.]+)/ and $smoke{pugs_version}  = $1;
   $html =~ /pugs_revision: (\d+)/   and $smoke{pugs_revision} = $1;
   $html =~ /osname: ([\w\d]+)/      and $smoke{osname}        = $1;
-  $html =~ /duration: (\d+)/        and $smoke{duration}      = $1;
+  $html =~ /duration: ([\d.]+) *(m|h|)/ and do {
+					my $sec;
+					if ($2 eq 'm') {
+					    $sec = 60 * $1;
+					}
+					elsif ($2 eq 'h') {
+					    $sec = 3600 * $1;
+					}
+					else {
+					    $sec = $1;
+					}
+					$smoke{duration}      = $sec;
+  };
   $html =~ /pugs-path: (.+)$/m      and $smoke{runcore}       = pugspath2runcore($1);
   $html =~ /summary="(\d+) test cases: (\d+) ok, (\d+) failed, (\d+) todo, (\d+) skipped and (\d+) unexpectedly succeeded"/    and $smoke{summary}       = {
     total    => $1,
