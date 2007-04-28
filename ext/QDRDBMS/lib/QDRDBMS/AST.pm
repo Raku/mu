@@ -36,9 +36,14 @@ sub BagSel of QDRDBMS::AST::BagSel (Array :$v!) is export {
     return QDRDBMS::AST::BagSel.new( :v($v) );
 }
 
-sub EntityName of QDRDBMS::AST::EntityName (QDRDBMS::AST::LitText :$text?,
-        QDRDBMS::AST::SeqSel :$seq?) is export {
-    return QDRDBMS::AST::EntityName.new( :text($text), :seq($seq) );
+multi sub EntityName of QDRDBMS::AST::EntityName
+        (QDRDBMS::AST::LitText :$text!) is export {
+    return QDRDBMS::AST::EntityName.new( :text($text) );
+}
+
+multi sub EntityName of QDRDBMS::AST::EntityName
+        (QDRDBMS::AST::SeqSel :$seq!) is export {
+    return QDRDBMS::AST::EntityName.new( :seq($seq) );
 }
 
 sub ExprDict of QDRDBMS::AST::ExprDict (Array :$map!) is export {
@@ -362,52 +367,48 @@ class QDRDBMS::AST::EntityName {
 
 ###########################################################################
 
-submethod BUILD
-        (QDRDBMS::AST::LitText :$text?, QDRDBMS::AST::SeqSel :$seq?) {
+multi submethod BUILD (QDRDBMS::AST::LitText :$text!) {
 
-    die q{new(): Exactly 1 of the args (:$text|:$seq) must be defined.}
-#        if $text.defined !xor $seq.defined;
-        if !($text.defined xor $seq.defined);
+    die q{new(): Bad :$text arg; it is not a valid object}
+            ~ q{ of a QDRDBMS::AST::LitText-doing class.}
+        if !$text.defined or !$text.does(QDRDBMS::AST::LitText);
+    my Str $text_v = $text.v();
+    die q{new(): Bad :$text arg; it contains character sequences that}
+            ~ q{ are invalid within the Text possrep of an EntityName.}
+        if $text_v.match( / \\ $/ ) or $text_v.match( / \\ <-[bp]> / );
 
-    if $text.defined {
-        die q{new(): Bad :$text arg; it is not a valid object}
-                ~ q{ of a QDRDBMS::AST::LitText-doing class.}
-            if !$text.does(QDRDBMS::AST::LitText);
-        my Str $text_v = $text.v();
-        die q{new(): Bad :$text arg; it contains character sequences that}
-                ~ q{ are invalid within the Text possrep of an EntityName.}
-            if $text_v.match( / \\ $/ ) or $text_v.match( / \\ <-[bp]> / );
+    $!text_possrep = $text;
+    $!seq_possrep = QDRDBMS::AST::SeqSel.new( :v(
+            [$text_v.split( /\./ ).map:{
+                    QDRDBMS::AST::LitText.new( :v(
+                            .trans( < \\p \\b >
+                                 => < .   \\  > )
+                        ) );
+                }]
+        ) );
 
-        $!text_possrep = $text;
-        $!seq_possrep = QDRDBMS::AST::SeqSel.new( :v(
-                [$text_v.split( /\./ ).map:{
-                        QDRDBMS::AST::LitText.new( :v(
-                                .trans( < \\p \\b >
-                                     => < .   \\  > )
-                            ) );
-                    }]
-            ) );
+    return;
+}
+
+multi submethod BUILD (QDRDBMS::AST::SeqSel :$seq!) {
+
+    die q{new(): Bad :$v arg; it is not an object of a}
+            ~ q{ QDRDBMS::AST::SeqSel-doing class.}
+        if !$seq.defined or !$seq.does(QDRDBMS::AST::SeqSel);
+    my $seq_elems = $seq!v;
+    for $seq_elems -> $seq_e {
+        die q{new(): Bad :$seq arg elem; it is not}
+                ~ q{ an object of a QDRDBMS::AST::LitText-doing class.}
+            if !$seq_e.does(QDRDBMS::AST::LitText);
     }
 
-    else { # $seq.defined
-        die q{new(): Bad :$v arg; it is not an object of a}
-                ~ q{ QDRDBMS::AST::SeqSel-doing class.}
-            if !$seq.does(QDRDBMS::AST::SeqSel);
-        my $seq_elems = $seq!v;
-        for $seq_elems -> $seq_e {
-            die q{new(): Bad :$seq arg elem; it is not}
-                    ~ q{ an object of a QDRDBMS::AST::LitText-doing class.}
-                if !$seq_e.does(QDRDBMS::AST::LitText);
-        }
-
-        $!text_possrep = QDRDBMS::AST::LitText.new( :v(
-                $seq_elems.map:{
-                        .v().trans( < \\  .   >
-                                 => < \\b \\p > )
-                    }.join( q{.} )
-            ) );
-        $!seq_possrep = $seq;
-    }
+    $!text_possrep = QDRDBMS::AST::LitText.new( :v(
+            $seq_elems.map:{
+                    .v().trans( < \\  .   >
+                             => < \\b \\p > )
+                }.join( q{.} )
+        ) );
+    $!seq_possrep = $seq;
 
     return;
 }
