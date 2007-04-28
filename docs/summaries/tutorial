@@ -35,15 +35,16 @@ Further notes:
 #################################################################
 One-time:
 
-* Get an ONLamp account.
+* Get an ONLamp account--use the contact email.
   Then, on the 'Create a new entry on this weblog' page, click 'Customize
   the display of this page', enable 'Text Formatting' and save.
-* Get guest author access to the Pugs Typepad blog.
+* Get guest author access to the Pugs Typepad blog (using the contact email).
   Then, in the 'Create a post' page, click on 'Customize the display of
   this page', enable 'Extended Post' in the Custom 'Post Screen
   Configuration' and save.
-* Create a useperl account, then request admin access.
-* Subscribe to the Perl 6 mailing list.
+* Create a useperl account, then request admin access using the contact
+  email.
+* Subscribe to perl6-announce.
 * Check out the Pugs repository.
   svk co http://svn.pugscode.org/pugs/docs/summaries
 * Get a commit-bit to the Pugs repository (ask on freenode#perl6)
