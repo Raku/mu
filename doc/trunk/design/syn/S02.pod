@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 12 Apr 2007
+  Last Modified: 27 Apr 2007
   Number: 2
-  Version: 101
+  Version: 102
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1456,6 +1456,10 @@ the package name as a hash:
     Foo::Bar::{'&baz'}  # same as &Foo::Bar::baz
     GLOBAL::<$IN>       # Same as $*IN
     Foo::<::Bar><::Baz> # same as Foo::Bar::Baz
+
+The final C<::> is required here, because the C<Foo::Bar{...}> syntax
+is reserved for defining an autovivifiable protoobject along with
+it's initialization closure (see S12).
 
 Unlike C<::()> symbolic references, this does not parse the argument
 for C<::>, nor does it initiate a namespace scan from that initial
