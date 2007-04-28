@@ -1457,8 +1457,8 @@ the package name as a hash:
     GLOBAL::<$IN>       # Same as $*IN
     Foo::<::Bar><::Baz> # same as Foo::Bar::Baz
 
-The final C<::> is required here, because the C<Foo::Bar{...}> syntax
-is reserved for defining an autovivifiable protoobject along with
+The C<::> before the subscript is required here, because the C<Foo::Bar{...}>
+syntax is reserved for defining an autovivifiable protoobject along with
 it's initialization closure (see S12).
 
 Unlike C<::()> symbolic references, this does not parse the argument
