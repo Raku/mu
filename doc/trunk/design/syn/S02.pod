@@ -1459,7 +1459,7 @@ the package name as a hash:
 
 The C<::> before the subscript is required here, because the C<Foo::Bar{...}>
 syntax is reserved for defining an autovivifiable protoobject along with
-it's initialization closure (see S12).
+its initialization closure (see S12).
 
 Unlike C<::()> symbolic references, this does not parse the argument
 for C<::>, nor does it initiate a namespace scan from that initial
