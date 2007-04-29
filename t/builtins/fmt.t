@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 19;
+plan 12;
 
 # L<S02/"Names and Variables"/"formatted representation"
 #   of "any scalar value" ".fmt('%03d')">
