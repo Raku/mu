@@ -23,11 +23,11 @@ module QDRDBMS::Engine::Example::Operators-0.0.0 {
 
 ## sys.type.Int ##
 
-'sys.rtn.Int.eq' => sub (:$v1!, :$v2!) {
+'sys.rtn.Int.equal' => sub (:$v1!, :$v2!) {
     return dBool( :v($v1.v() === $v2.v()) );
 },
 
-'sys.rtn.Int.ne' => sub (:$v1!, :$v2!) {
+'sys.rtn.Int.not_equal' => sub (:$v1!, :$v2!) {
     return dBool( :v($v1.v() !=== $v2.v()) );
 },
 

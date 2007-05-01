@@ -105,9 +105,15 @@ sub HostGateRtn of QDRDBMS::AST::HostGateRtn
 ###########################################################################
 
 role QDRDBMS::AST::Node {
+
     method as_perl of Str () {
         die q{not implemented by subclass};
     }
+
+    method equal_repr of Str () {
+        die q{not implemented by subclass};
+    }
+
 } # role QDRDBMS::AST::Node
 
 ###########################################################################
@@ -975,7 +981,69 @@ primary value attribute, which is any C<QDRDBMS::AST::Node>.  The C<Var>
 objects are bound to C<Rtn> objects, and they are the means by which an
 executed routine obtains input or returns output at C<execute()> time.
 
-I<This documentation is pending.>
+=head2 AST Node Values Versus Representations
+
+In the general case, QDRDBMS AST nodes do not maintain canonical
+representations of all QDRDBMS D values, meaning that it is possible and
+common to have 2 given AST nodes that logically denote the same value, but
+they have different actual compositions.  (Some node types are special
+cases for which the aforementioned isn't true; see below.)
+
+For example, a node whose value is just the number 5 can have any number of
+representations, each of which is an expression that evaluates to the
+number 5 (such as [C<5>, C<2+3>, C<10/2>]).  Another example is a node
+whose value is the set C<{3,5,7}>; it can be represented, for example,
+either by C<Set(5,3,7,7,7)> or C<Union(Set(3,5),Set(5,7))> or
+C<Set(7,5,3)>.  I<These examples aren't actual QDRDBMS AST syntax.>
+
+For various reasons, the QDRDBMS::AST classes themselves do not do any node
+refactoring, and their representations differ little if any from the format
+of their constructor arguments, which can contain extra information that is
+not logically significant in determining the node value.  One reason is
+that this allows a semblence of maintaining the actual syntax that the user
+specified, which is useful for their debugging purposes.  Another reason is
+the desire to keep this library as light-weight as possible, such that it
+just implements the essentials; doing refactoring can require a code size
+and complexity that is orders of magnitude larger than these essentials,
+and that work isn't always helpful.  It should also be noted that any nodes
+having references to externally user-defined entities can't be fully
+refactored as each of those represents a free variable that a static node
+analysis can't decompose; only nodes consisting of just system-defined or
+literal entities (meaning zero free variables) can be fully refactored in a
+static node analysys (though there are a fair number of those in practice,
+particularly as C<Var> values.
+
+A consequence of this is that the QDRDBMS::AST classes in general do not
+include do not include any methods for comparing that 2 nodes denote the
+same value; to reliably do that, you will have to use means not provided by
+this library.  However, each class I<does> provide a C<equal_repr> method,
+which compares that 2 nodes have the same representation.
+
+It should be noted that a serialize/unserialize cycle on a node that is
+done using the C<as_perl> routine to serialize, and having Perl eval that
+to unserialize, is guaranteed to preserve the representation, so
+C<equal_repr> will work as expected in that situation.
+
+As an exception to the general case about nodes, the node classes
+[C<LitBool>, C<LitText>, C<LitBlob>, C<LitInt>, C<EntityName>, C<VarInvo>,
+C<ProcReturn>] are guaranteed to only ever have a single representation per
+value, and so C<equal_repr> is guaranteed to indicate value equality of 2
+nodes of those types.  In fact, to assist the consequence this point, these
+node classes also have the C<equal_value> method which is an alias for
+C<equal_repr>, so you can use C<equal_value> in your use code to make it
+better self documenting; C<equal_repr> is still available for all node
+types to assist automated use code that wants to treat all node types the
+same.  It should also be noted that a C<LitBool> node can only possibly be
+of one of 2 values, and C<ProcReturn> is a singleton.
+
+It is expected that multiple third party utility modules will become
+available over time whose purpose is to refactor a QDRDBMS AST node, either
+as part of a static analysis that considers only the node in isolation (and
+any user-defined entity references have to be treated as free variables and
+not generally be factored out), or as part of an Engine implementation that
+also considers the current virtual machine environment and what
+user-defined entities exist there (and depending on the context,
+user-defined entity references don't have to be free variables).
 
 =head1 INTERFACE
 

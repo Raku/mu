@@ -372,6 +372,10 @@ It also describes the same-number versions for Perl 6 of
 QDRDBMS::Interface::DBMS ("DBMS"), QDRDBMS::Interface::HostGateVar
 ("HostGateVar"), and QDRDBMS::Interface::HostGateRtn ("HostGateRtn").
 
+It also describes the same-number versions for Perl 6 of
+QDRDBMS::Engine::Role, QDRDBMS::Engine::Role::DBMS,
+QDRDBMS::Engine::Role::HostGateVar, and QDRDBMS::Engine::Role::HostGateRtn.
+
 =head1 SYNOPSIS
 
     use QDRDBMS;
@@ -383,6 +387,8 @@ QDRDBMS::Interface::DBMS ("DBMS"), QDRDBMS::Interface::HostGateVar
         );
 
     # TODO: Create or connect to a repository and work with it.
+
+I<This documentation is pending.>
 
 =head1 DESCRIPTION
 
@@ -567,6 +573,33 @@ I<This documentation is pending.>
 =head2 The QDRDBMS::Interface::HostGateRtn Class
 
 I<This documentation is pending.>
+
+=head2 The QDRDBMS::Engine::Role(|::\w+) Roles
+
+This "QDRDBMS" file also defines a few roles that the public interface
+classes of all Engine modules must implement, and explicitly declare that
+they are doing so.
+
+The initial Engine class, which users specify in the C<$engine_name>
+argument to the C<QDRDBMS::Interface::DBMS> constructor, must compose the
+C<QDRDBMS::Engine::Role>, and implement the C<new_dbms> submethod.  The
+DBMS Engine object returned by C<new_dbms> must compose the
+C<QDRDBMS::Engine::Role::DBMS> role, and implement the methods C<new_var>
+and C<prepare>.  The HostGateVar Engine object returned by C<new_var> must
+compose the C<QDRDBMS::Engine::Role::HostGateVar> role, and implement the
+methods C<fetch_ast> and C<store_ast>.  The HostGateRtn Engine object
+returned by C<new_var> must compose the
+C<QDRDBMS::Engine::Role::HostGateRtn> role, and implement the methods
+C<bind_host_params> and C<execute>.
+
+The QDRDBMS Interface classes don't just validate user input on behalf of
+Engines (allowing them to be simpler), but they also validate each
+requested Engine's APIs and results, to some extent, on behalf of users (so
+an application can more gracefully handle a bad Engine); the Engine Role
+roles exist to help with the latter kind of validation, and they mainly
+just declare shims for the required (sub|)methods, which die on invocation
+should the Engine; they don't presently contain any actual functionality
+for Engines to use.
 
 =head1 DIAGNOSTICS
 
