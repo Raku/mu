@@ -24,9 +24,11 @@ my $data = Load(<$yamlfh>);
 ### data keys: keys %$data
 ## build info: $data->{build_info}
 my $timing = $data->{timing};
-$timing->{duration} = sprintf("%.2f min", $timing->{duration} / 60);
-$timing->{start} = localtime $timing->{start};
-$timing->{end} = localtime $timing->{end};
+$timing->{duration} .=
+    " (" . sprintf("%.2f min", $timing->{duration} / 60) . ')';
+$timing->{start} .=
+    " (" . localtime($timing->{start}) . ')';
+$timing->{end} .= " (" . localtime($timing->{end}) . ')';
 ### timing: $data->{timing}
 
 undef $yamlfh;
@@ -43,8 +45,7 @@ else {
     $fh = \*STDOUT;
 }
 binmode $fh, ":utf8" or die "binmode: $!";
-print $fh "$v";
-close $fh;
+print $fh "$v"; close $fh;
 
 sub usage {
   print <<"USAGE";
