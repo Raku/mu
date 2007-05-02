@@ -29,7 +29,7 @@ sub svnversion {
     }
     close SVNINFO;
 
-    my ( $actual_rev ) = $svnin_log =~ /^\s*(\d+)\s*$/msi;
+    my ( $actual_rev ) = $svnin_log =~ /^\s*(\d+(?:\:\d+)?M?)\s*$/msi;
     return ( $actual_rev, $svnin_log );
 }
 
@@ -48,7 +48,7 @@ sub svninfo {
     }
     close SVNINFO;
 
-    my ( $actual_rev ) = $svnin_log =~ /Revision:\s*(\d+)/msi;
+    my ( $actual_rev ) = $svnin_log =~ /Revision:\s*(\d+(?:\:\d+)?M?)\s*/msi;
     return ( $actual_rev, $svnin_log );
 }
 

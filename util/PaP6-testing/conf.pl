@@ -2,7 +2,7 @@ use strict;
 my $make_cmd;
 
 if ( $^O eq 'MSWin32' ) {
-    my $rc = system( "mingw32-make --version" );
+    my $rc = system( "mingw32-make --version > null" );
     if ( $rc == 0 ) {
         $make_cmd = 'mingw32-make';
     } else {
