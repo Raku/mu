@@ -6,13 +6,16 @@
 
 =head1 TITLE
 
-perlintro -- a brief introduction and overview of Perl
+perlintro -- a brief introduction and overview of Perl 6
 
 =head1 AUTHOR
 
 Kirrily "Skud" Robert <L<C<skud@cpan.org>|mailto:skud@cpan.org>> (original
 Author) and Moritz Lenz
 <L<C<moritz@fau2ik3.org>|mailto:moritz@faui2k3.org>> ("translation" to perl 6)
+
+Some fixup by David Koenig
+<L<C<karhu@u.washington.edu>|mailto:karhu@u.washington.edu>>
 
 =head1 DESCRIPTION
 
@@ -41,19 +44,29 @@ text manipulation and now used for a wide range of tasks including system
 administration, web development, network programming, GUI development, and
 more.
 
-
 The language is intended to be practical (easy to use, efficient, complete) 
 rather than beautiful (tiny, elegant, minimal).  Its major features are that 
 it's easy to use, supports procedural, object-oriented (OO) and a bit of
-functional programming, has powerful built-in support for text pro cessing,
-and has and impressive collection of third-party modules.
-
-=comment so far, the last sentence is a lie for perl 6 ;-)
+functional programming, and has powerful built-in support for text processing.
+It can also use the large collection of Perl 5 modules.
 
 =head2 Running Perl Programs
 
-Ommitted so far because I don't know if the perl interpreter will be called
-"perl" as well for perl6
+Currently, the main interpreter is Pugs, available at L<http://pugscode.org>.
+This is the most complete interpreter so far, but is kind of slow.
+
+Assuming your code is in a file named "foo.p6", you can invoke your program as:
+
+=begin code
+	pugs foo.p6
+=end code
+
+You can also write one-liners with the C<-e> option:
+=begin code
+	pugs -e '"Hello World".say'
+=end code
+
+=comment TODO: continue writing
 
 =head2 Basic syntax overview
 
@@ -67,18 +80,24 @@ Perl statements end in a semi-colon:
     say "Hello, world";
 =end code
 
-Comments start with a hash symbol and run to the end of the line
+Comments start with a hash symbol and run to the end of the line. You can
+also have comments that are in the middle of a line by enclosing the comment
+with brackets. You can have no space between the bracket and the hash:
 
 =begin code
     # This is a comment
+	say #(this is a comment too) "Hello World";
 =end code
 
-Whitespace is irrelevant:
+Whitespace is irrelevant, for the most part. However, there are some places
+where space is required or not allowed:
 
 =begin code
     say
         "Hello, world"
-       ;
+       ;    # this works
+	"foo" .say; # this is a syntax error, no space allowed.
+	"foo"\   .say; # this is a "long dot", allowed. backslashed whitespace is ignored.
 =end code
 
 ... except inside quoted strings:
@@ -103,7 +122,7 @@ However, only double quotes "interpolate" variables and special characters such 
     print 'Hello, $name\n';     # prints $name\n literally
 =end code
 
-(Note that C<print> and C<say> do the same thing, only C<say> appends a newline character at the end)
+(Note that C<print> and C<say> do the same thing, only C<say> appends a newline character at the end.)
 
 Numbers don't need quotes around them:
 
@@ -132,7 +151,7 @@ parentheses.
 
 =head2 Perl variable types
 
-Perl has three main variable types: scalars, arrays, and hashes
+Perl has three main variable types: scalars, arrays, and hashes.
 
 =head3 Scalars
 
@@ -234,6 +253,14 @@ You can do various useful things to lists:
 There are some special arrays too, such as C<@*ARGS> (the command line
 arguments to your script). These are document in L<doc:perlvar>.
 
+There are also some shortcuts that make life easy. For example, these two
+lines are the same:
+
+=begin code
+	my @list = <foo bar baz>;
+	my @list = 'foo', 'bar', 'baz';
+=end code
+
 =comment hopefully they are...
 
 
@@ -276,7 +303,7 @@ all about it (and other special variables) in L<doc:perlvar>.
 
 =head3 Complex data structures
 
-TODO: when do you need references?
+TODO: when do you need captures?
 
 
 =head2 Variable scoping
@@ -295,16 +322,15 @@ defined.
     my $a = "foo";
     if $some_condition {
         my $b = "bar";
-        print $a;           # prints "foo"
-            print $b;           # prints "bar"
+        say $a;           # says "foo"
+        say $b;           # says "bar"
     }
-    print $a;               # prints "foo"
-    print $b;               # error: $b has fallen out of scope
+    say $a;               # says "foo"
+    say $b;               # error: $b has fallen out of scope
 =end code
 
 Using C<no strict;> at the top of your Perl scripts allows you to use
 variables without declaring them, but that is strongly discouraged. 
-
 
 =head2 Conditional and looping constructs
 
@@ -315,6 +341,10 @@ in the next section for information on comparison and boolean logic
 operators, which are commonly used in conditional statements.
 
 =head3 if
+
+C<if> blocks test by conditions. Unlike Perl 5, you don't need
+parentheses. However, you need a space between the condition and
+the opening bracket:
 
 =begin code 
     if condition {
@@ -334,9 +364,13 @@ There's also a negated version of it:
     }
 =end code
 
+However, C<unless> blocks can't have C<else> or C<elsif>s attached.
+
 This is provided as a more readable version of C<if !condition>.
 
-Note that the braces are required in Perl, even if you've only got one line in the block.  However, there is a clever way of making your one-line conditional blocks more English like:
+Note that the braces are required in Perl, even if you've only got
+one line in the block.  However, there is a clever way of making your
+one-line conditional blocks more English like:
 
 =begin code
     # the traditional way
@@ -348,6 +382,14 @@ Note that the braces are required in Perl, even if you've only got one line in t
     print "Yow!" if $zippy;
     print "We have no bananas" unless $bananas;
 =end code
+
+Sometimes the condition is more important than the action. You can say:
+
+=begin code
+	$zippy and print "Yow!";
+=end code
+
+and get the same effect.
 
 =head3 while
 
@@ -416,7 +458,7 @@ Here are a few of the most common used operators:
     +       addition
     -       substraction
     *       multiplication
-    E<47>   division
+    /       division
 =end table
 
 =head3 Numeric comparison
@@ -430,9 +472,15 @@ Here are a few of the most common used operators:
     >=  greater than or equal
 =end table
 
+=begin table :caption<String comparison operators>
+	eq	Equality
+	ne	Non-equality
+	lt	Less than
+	gt	Greater than
+	ge	Greater then or equal
+	le	Less than or equal
+=end table
 
-=head3 TODO: the rest
-
-
+=comment TODO: the rest
 
 =end pod
