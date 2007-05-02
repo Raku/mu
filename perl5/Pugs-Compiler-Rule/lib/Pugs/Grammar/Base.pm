@@ -62,10 +62,31 @@ sub no_match {
 
 # specced methods
 
-sub at {
+sub before {
+    #print "Base->before: ", Dumper(\@_);
     my $grammar = shift;
     my $pos = $_[1]{p} || 0;
-    my ( $arg ) = keys %{ $_[1]{args} };  # XXX positional
+    my $arg = $_[1]{positionals}[0];  
+
+    # XXX - token or regex?
+    my $rule = Pugs::Compiler::Regex->compile( $arg );
+    my $match = $rule->match( $_[0], { pos => $pos } );
+    
+    return Pugs::Runtime::Match->new( { 
+        bool    => \( $match ? 1 : 0 ),
+        str     => \$_[0],
+        match   => [],
+        from    => \$pos,
+        to      => \$pos,
+        capture => undef,
+    } );
+}   
+
+sub at {
+    #print "Base->at: ", Dumper(\@_);
+    my $grammar = shift;
+    my $pos = $_[1]{p} || 0;
+    my $arg = $_[1]{positionals}[0];  
     # print "at: ",Dumper( @_ );
     return Pugs::Runtime::Match->new( { 
         bool    => \( $pos == $arg ),

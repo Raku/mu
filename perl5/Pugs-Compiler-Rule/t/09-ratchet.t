@@ -1,5 +1,5 @@
 
-use Test::More tests => 145;
+use Test::More tests => 148;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -994,3 +994,28 @@ TODO:
     is( $$match, "x", 'x & <alpha>' );
     #is( $match->from > 0 , 1, 'xyz>>' );
 }
+{
+    my $rule = Pugs::Compiler::Token->compile( ' y | z ' );
+    my $match = $rule->match( "z" );
+    #print "Ast: ", do{use Data::Dumper; Dumper($rule->{ast})};
+    #print "Source: ", $rule->{perl5};
+    #print "Match: ", $match->perl;
+    is( $$match, "z", 'y | z' );
+}
+{
+    my $rule = Pugs::Compiler::Token->compile( '[xy]*' );
+    my $match = $rule->match( "xyx" );
+    #print "Ast: ", do{use Data::Dumper; Dumper($rule->{ast})};
+    #print "Source: ", $rule->{perl5};
+    #print "Match: ", $match->perl;
+    is( $match->to, 2, 'quantifier-rollback' );
+}
+{
+    my $rule = Pugs::Compiler::Token->compile( 'x || y | z' );
+    my $match = $rule->match( "z" );
+    #print "Ast: ", do{use Data::Dumper; Dumper($rule->{ast})};
+    #print "Source: ", $rule->{perl5};
+    #print "Match: ", $match->perl;
+    is( $$match, "z", 'x || y | z' );
+}
+

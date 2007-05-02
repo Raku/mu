@@ -1,3 +1,11 @@
+- regex grammar: added <rule: string...> and <rule( params, ... ) syntax
+- new ast node 'call'
+- rules can have positional parameters
+- "Whatever" {*}
+- fixed ratchet quantifier - rollback .pos on fail
+- added an initial double-quoted parser
+- allow aliasing to a literal
+
 - new syntax 'xxx' instead of <'xxx'>
 - %($/) is read-write
 

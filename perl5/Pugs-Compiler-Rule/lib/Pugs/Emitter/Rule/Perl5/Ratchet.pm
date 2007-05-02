@@ -18,14 +18,21 @@ our $count = 1000 + int(rand(1000));
 sub id { 'I' . ($count++) }
 
 sub call_subrule {
-    my ( $subrule, $tab, @param ) = @_;
+    my ( $subrule, $tab, $positionals, @param ) = @_;
     $subrule = "\$grammar->" . $subrule 
         unless $subrule =~ / :: | \. | -> /x;
     $subrule =~ s/\./->/;   # XXX - source filter
+
+    $positionals = shift @param if $positionals eq '' && @param == 1;
+
     return 
-"$tab     $subrule( \$s, { p => \$pos, args => {" .
-             join(", ",@param) . 
-         "} }, undef )";
+"$tab     $subrule( \$s, { "
+        . "p => \$pos, "
+        . "positionals => [ $positionals ], "
+        . "args => {" .
+                 join(", ",@param) . 
+             "}, "
+        . "}, undef )";
 }
 
 sub quote_constant {
@@ -147,9 +154,10 @@ sub quant {
     die "greediness control not implemented: $greedy"
         if $greedy;
     #print "QUANT: ",Dumper($_[0]);
+    my $id = id();
     # TODO: fix grammar to not emit empty quantifier
     my $tab = ( $quantifier eq '' ) ? $_[1] : $_[1] . "  ";
-    my $ws = metasyntax( '?ws', $tab );
+    my $ws = metasyntax( { metasyntax => 'ws', modifier => '?' }, $tab );
     my $ws3 = ( $sigspace && $_[0]->{ws3} ne '' ) ? " &&\n$ws" : '';
 
     my $rul;
@@ -158,6 +166,14 @@ sub quant {
         my $cap = $capture_to_array;
         local $capture_to_array = $cap || ( $quantifier ne '' );
         $rul = emit_rule( $term, $tab );
+
+        # rollback on fail
+        $rul = "$_[1]  ( "
+            .  "  ( \$pad{$id} = \$pos or 1 ) && \n"
+            .     $rul
+            .  " ||" 
+            .  "    ( ( \$pos = \$pad{$id} ) && 0 )" 
+            .  " )";
     }
 
     $rul = "$ws &&\n$rul" if $sigspace && $_[0]->{ws1} ne '';
@@ -383,7 +399,7 @@ $_[1]    ') )";
                     #print \"m: \", Dumper( \$::_V6_MATCH_->data )
                     #    if ( \$key eq 'until' );
                     " . #print \"* ".$name."\{'\$key\'} at \$pos \\\n\";
-                    "\$match = $preprocess_hash( $id, \$key )->( \$s, \$grammar, { p => ( \$pos + \$_ ), args => { KEY => \$key } }, undef );
+                    "\$match = $preprocess_hash( $id, \$key )->( \$s, \$grammar, { p => ( \$pos + \$_ ), positionals => [ ], args => { KEY => \$key } }, undef );
                     " . #print \"match: \", Dumper( \$match->data );
                     "last if \$match;
                 }
@@ -589,7 +605,7 @@ sub named_capture {
         #print "aliased subrule\n";
         # $/<name> = $/<subrule>
         
-        my $cmd = $program->{metasyntax};
+        my $cmd = $program->{metasyntax}{metasyntax};
         die "invalid aliased subrule" 
             unless $cmd =~ /^[_[:alnum:]]/;
         
@@ -600,7 +616,7 @@ sub named_capture {
         return "$_[1] do { 
                 my \$prior = \$::_V6_PRIOR_; 
                 my \$match = \n" . 
-                    call_subrule( $subrule, $_[1]."        ", @param ) . ";
+                    call_subrule( $subrule, $_[1]."        ", "", @param ) . ";
                 \$::_V6_PRIOR_ = \$prior; 
                 if ( \$match ) {" .
                     ( $capture_to_array 
@@ -680,6 +696,8 @@ $_[1]     };
 $_[1] }";
 }
 sub before {
+    my $mod = delete $_[0]{modifier} || '';
+    return negate( { before => $_[0] }, $_[1] ) if $mod eq '!';
     my $program = $_[0]{rule};
     $program = emit_rule( $program, $_[1].'        ' )
         if ref( $program );
@@ -696,25 +714,9 @@ $_[1]       \$bool;
 $_[1]     };
 $_[1] }";
 }
-sub not_before {
-    my $program = $_[0]{rule};
-    $program = emit_rule( $program, $_[1].'        ' )
-        if ref( $program );
-    return "$_[1] do{ 
-$_[1]     my \$pos1 = \$pos;
-$_[1]     do {
-$_[1]       my \$pos = \$pos1;
-$_[1]       my \$from = \$pos;
-$_[1]       my \@match;
-$_[1]       my \%named;
-$_[1]       my \$bool = 1;
-$_[1]       \$bool = 0 unless
-" .             $program . ";
-$_[1]       ! \$bool;
-$_[1]     };
-$_[1] }";
-}
 sub after {
+    my $mod = delete $_[0]{modifier};
+    return negate( { after => $_[0] }, $_[1] ) if $mod eq '!';
     local $direction = "-";
     my $program = $_[0]{rule};
     $program = emit_rule( $program, $_[1].'        ' )
@@ -732,10 +734,6 @@ $_[1]       \$bool;
 $_[1]     };
 $_[1] }";
 }
-sub not_after {
-    warn '<!after ...> not implemented';
-    return;
-}
 sub colon {
     my $str = $_[0];
     return "$_[1] 1 # : no-op\n"
@@ -750,9 +748,9 @@ sub colon {
     return "$_[1] ( \$pos == 0 || substr( \$s, 0, \$pos ) =~ /(?:\n\r?|\r\n?)\$/m ) \n" 
         if $str eq '^^';
 
-    return metasyntax( '?_wb_left', $_[1] )
+    return metasyntax( { metasyntax => '_wb_left', modifier => '?' }, $_[1] )
         if $str eq '<<';
-    return metasyntax( '?_wb_right', $_[1] )
+    return metasyntax( { metasyntax => '_wb_right', modifier => '?' }, $_[1] )
         if $str eq '>>';
         
     die "'$str' not implemented";
@@ -770,9 +768,40 @@ sub char_class {
     return call_perl5($cmd, $_[1]);
 }
 
+sub call {
+    #die "not implemented: ", Dumper(\@_);
+    my $param = $_[0]{params};
+    my $name = $_[0]{method};
+        # capturing subrule
+        # <subrule ( param, param ) >
+        my ($param_list) = $param =~ /\{(.*)\}/;
+        $param_list = '' unless defined $param_list;
+        my @param = split( ',', $param_list );
+        #print "param: ", Dumper(\@param);
+
+        # TODO
+
+        if ( $name eq 'at' ) {
+            $param_list ||= 0;   # XXX compile-time only
+            return "$_[1] ( \$pos == $param_list )\n"
+        }
+
+        return named_capture(
+            { 
+                ident => $name, 
+                rule => { metasyntax => { metasyntax => $name } },
+            }, 
+            $_[1],    
+        );
+}
+
 sub metasyntax {
     # <cmd>
-    my $cmd = $_[0];   
+    #print Dumper(\@_);
+    my $cmd = $_[0]{metasyntax};
+    my $modifier = delete $_[0]{modifier} || '';   # ? !
+    return negate( { metasyntax => $_[0] }, $_[1] ) if $modifier eq '!';
+
     my $prefix = substr( $cmd, 0, 1 );
     if ( $prefix eq '@' ) {
         # XXX - wrap @array items - see end of Pugs::Grammar::Rule
@@ -782,7 +811,7 @@ sub metasyntax {
             "$_[1] do {
                 my \$match; 
                 for my \$subrule ( $cmd ) { 
-                    \$match = \$subrule->match( \$s, \$grammar, { p => ( \$pos ), args => {} }, undef );
+                    \$match = \$subrule->match( \$s, \$grammar, { p => ( \$pos ), positionals => [ ], args => {} }, undef );
                     last if \$match; 
                 }
                 if ( \$match ) {" .
@@ -849,8 +878,8 @@ sub metasyntax {
         warn "<\"...\"> not implemented";
         return;
     }
-    if ( $prefix eq '?' ) {   # non_capturing_subrule / code assertion
-        $cmd = substr( $cmd, 1 );
+    if ( $modifier eq '?' ) {   # non_capturing_subrule / code assertion
+        #$cmd = substr( $cmd, 1 );
         if ( $cmd =~ /^{/ ) {
             warn "code assertion not implemented";
             return;
@@ -861,7 +890,7 @@ sub metasyntax {
 "$_[1] do { 
 $_[1]      my \$prior = \$::_V6_PRIOR_; 
 $_[1]      my \$match = \n" . 
-               call_subrule( $subrule, $_[1]."        ", @param ) . ";
+               call_subrule( $subrule, $_[1]."        ", "", @param ) . ";
 $_[1]      \$::_V6_PRIOR_ = \$prior; 
 $_[1]      my \$bool = (!\$match != 1);
 $_[1]      \$pos = \$match->to if \$bool;
@@ -892,7 +921,7 @@ $_[1] }";
         return named_capture(
             { 
                 ident => $subrule, 
-                rule => { metasyntax => $cmd },
+                rule => { metasyntax => { metasyntax => $cmd } },
             }, 
             $_[1],    
         );

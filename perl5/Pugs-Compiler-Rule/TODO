@@ -1,5 +1,9 @@
 TODO for Pugs::Compiler::Rule (PCR)
 
+* 2007-04-30
+
+- <rule( param... )> doesn't always emit the parameter list
+
 * 2007-03-09
 
 - reuse kp6's AST processor
