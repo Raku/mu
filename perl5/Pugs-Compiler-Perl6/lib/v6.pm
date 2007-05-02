@@ -5,9 +5,13 @@ $v6::VERSION = '0.016';
 use 5.006;
 use strict;
 use warnings;
-use Module::Compile-base;
+use Module::CompileV6-base;
 use File::Basename;
 # use Pugs::Runtime::Perl6;
+
+binmode(STDOUT, ":utf8");
+binmode(STDERR, ":utf8");
+binmode(STDIN,  ":utf8");
 
 my $backend_identifier = 'perl5';
 my $grammar_identifier;

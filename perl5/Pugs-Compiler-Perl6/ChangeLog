@@ -1,7 +1,12 @@
+- grammar - added prefix:<|>
+- added: proto token rx { ... }
+- fixed signature parsing
+- added: Module::CompileV6
+- fixed unicode << ... >> parsing
+- allow [ ... ] as regex delimiter
+
 - minor fix in quoted string parser
-- Moose requires that attributes have an 'is ro' declaration; noticed by
-k
-olibrie++
+- Moose requires that attributes have an 'is ro' declaration; noticed by kolibrie++
 - @_ is now aliased to the list of positional arguments
 - bare 'Str' is an object
 - added syntax: 'term.meth: list'

@@ -1,4 +1,5 @@
-﻿package Pugs::Grammar::Term;
+package Pugs::Grammar::Term;
+use utf8;
 use strict;
 use warnings;
 use base qw(Pugs::Grammar::BaseCategory);
@@ -65,6 +66,7 @@ sub substitution {
 
 my %openmatch = ( '/' => '/',
                   '{' => '}',
+                  '[' => ']',
                   '!' => '!',
                   '\'' => '\'');
 
@@ -665,6 +667,10 @@ sub recompile {
             |
                 <Pugs::Grammar::Perl6.sub_decl>
                     { return $_[0]{'Pugs::Grammar::Perl6.sub_decl'}->();
+                    }
+            |
+                <Pugs::Grammar::Perl6.proto_rule_decl>
+                    { return $_[0]{'Pugs::Grammar::Perl6.proto_rule_decl'}->();
                     }
             |
                 <Pugs::Grammar::Perl6.rule_decl>

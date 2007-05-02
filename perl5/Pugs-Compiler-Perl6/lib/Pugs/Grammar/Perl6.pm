@@ -131,10 +131,35 @@ use Data::Dumper;
         ('*'?)
         <signature_term_ident>
         ('?'?)
-        (<?ws>? '=' <Pugs::Grammar::Expression.parse('no_blocks', 1)>)?
         <?ws>? <attribute> 
+        [
+        |   <?ws>? '=' 
+            [
+            |  <?ws>? '<=>'
             { return {
-                default    => $_[0][3] ? $_[0][3][0]{'Pugs::Grammar::Expression.parse'}->() : undef,
+                default    => { double_quoted => '=' },
+                type       => $_[0]{signature_term_type}->(),
+                name       => $_[0]{signature_term_ident}->(),
+                attribute  => $_[0]{attribute}->(),
+                named_only => $_[0][0]->(),
+                is_slurpy  => $_[0][1]->(),
+                optional   => $_[0][2]->(),
+            } }
+            |  <Pugs::Grammar::Expression.parse('no_blocks', 1, 'no_comma', 1)>
+            { return {
+                default    => $_[0]{'Pugs::Grammar::Expression.parse'}->(),
+                type       => $_[0]{signature_term_type}->(),
+                name       => $_[0]{signature_term_ident}->(),
+                attribute  => $_[0]{attribute}->(),
+                named_only => $_[0][0]->(),
+                is_slurpy  => $_[0][1]->(),
+                optional   => $_[0][2]->(),
+            } }
+            ]
+        |   ''
+        ]
+            { return {
+                default    => undef,
                 type       => $_[0]{signature_term_type}->(),
                 name       => $_[0]{signature_term_ident}->(),
                 attribute  => $_[0]{attribute}->(),
@@ -300,6 +325,20 @@ use Data::Dumper;
         # XXX better error messages
         { return { die "invalid rule syntax" } }
     ]
+),
+    { grammar => __PACKAGE__ }
+)->code;
+
+*proto_rule_decl = Pugs::Compiler::Token->compile( q(
+    proto <?ws>
+    ( multi | <null> )        <?ws>?
+    ( rule  | regex | token ) <?ws>?
+    <category_name>  <?ws>?
+    <sub_signature>  <?ws>? 
+    <attribute>      <?ws>?
+    '{'    <?ws>?  [ '...' <?ws>? | '' ]  '}'
+    # TODO
+        { return { int => 0 ,} }
 ),
     { grammar => __PACKAGE__ }
 )->code;

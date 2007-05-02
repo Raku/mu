@@ -1,4 +1,5 @@
-﻿package Pugs::Grammar::Quote;
+package Pugs::Grammar::Quote;
+use utf8;
 use strict;
 use warnings;
 use base qw(Pugs::Grammar::BaseCategory);
@@ -6,6 +7,10 @@ use Pugs::Runtime::Match;
 use Pugs::Compiler::Token;
 use Pugs::Grammar::Term;
 use Text::Balanced;
+use charnames ":full";
+
+use constant LEFT  => "\N{LEFT-POINTING DOUBLE ANGLE QUOTATION MARK}";
+use constant RIGHT => "\N{RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK}";
 
 sub angle_quoted {
     my $grammar = shift;
@@ -122,11 +127,21 @@ sub angle_quoted {
 
 *double_angle_quoted_text = Pugs::Compiler::Token->compile(q(
     (
-        <!before [ '$' | '@' | '%' | '&' | '»' | \>\> ] >
-        [ '\»' | . ]
+        <!before [ '$' | '@' | '%' | '&' | '>>' ] >
+        .
     )+
     { return { double_quoted => $/() ,} }
 ))->code;
+
+*double_angle_quoted_text_uni = Pugs::Compiler::Token->compile(q^
+    (
+        <!before [ '$' | '@' | '%' | '&' | '^ . RIGHT() .q^' ] >
+        [ '\\^ .RIGHT. q^' | . ]
+    )+
+    { 
+        return { double_quoted => $/() ,} 
+    }
+^ )->code;
 
 *double_angle_quoted = Pugs::Compiler::Token->compile(q(
      
@@ -142,6 +157,27 @@ sub angle_quoted {
             'op1' => '~',
         } } 
     |   { return $/{q1}() } 
+    ]
+))->code;
+
+*double_angle_quoted_uni = Pugs::Compiler::Token->compile(q(
+     
+    [  
+    |  $<q1> := <double_quoted_expression>
+    |  $<q1> := <double_angle_quoted_text_uni>
+    ]
+    
+    [
+    |  
+       $<q2> := <double_angle_quoted_uni> 
+        { return { 
+            exp1 => $/{q1}(), 
+            exp2 => $/{q2}(),
+            'fixity' => 'infix',
+            'op1' => '~',
+        } } 
+    |   
+        { return $/{q1}() } 
     ]
 ))->code;
 
@@ -166,10 +202,11 @@ BEGIN {
             { return $/{'Pugs::Grammar::Quote.angle_quoted'}->() }
         ) );
     __PACKAGE__->add_rule(
-        q(«) => q(
-            <Pugs::Grammar::Quote.double_angle_quoted> '»'
+        LEFT() => q(
+            <Pugs::Grammar::Quote.double_angle_quoted_uni> 
+            \»
             { return { 
-                    double_angle_quoted => $/{'Pugs::Grammar::Quote.double_angle_quoted'}->(),
+                    double_angle_quoted => $/{'Pugs::Grammar::Quote.double_angle_quoted_uni'}->(),
                 } 
             }
         ) );

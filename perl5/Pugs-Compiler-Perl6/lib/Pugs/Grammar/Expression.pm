@@ -42,7 +42,7 @@ my $rx_end_no_blocks = qr/
 # this is not thread-safe, but it saves time in Parse::Yapp 
 # XXX - this optimization is no longer needed, as the optimization in Grammar::Operator worked best
 our ( $p, $match, $pos, $rx_end, $allow_modifier, $statement_modifier,
-    $allow_semicolon );
+    $allow_semicolon, $allow_comma );
 # our ( $reentrant, $last_reentrant ) = (0,0);
 
 sub parse {
@@ -63,7 +63,7 @@ sub parse {
 
 sub ast {
     local ( $p, $match, $pos, $rx_end, $allow_modifier, $statement_modifier,
-        $allow_semicolon );
+        $allow_semicolon, $allow_comma );
     #    if $reentrant && $reentrant >= $last_reentrant;
     # $last_reentrant = $reentrant;
     # $reentrant++;
@@ -78,6 +78,7 @@ sub ast {
     my $no_blocks    = exists $param->{args}{no_blocks}       ? 1 : 0;
     $allow_modifier  = exists $param->{args}{allow_modifier}  ? 1 : 0;
     $allow_semicolon = exists $param->{args}{allow_semicolon} ? 1 : 0;
+    $allow_comma     = exists $param->{args}{no_comma}        ? 0 : 1;
     #print "don't parse blocks: $no_blocks ";
     #print "allow modifier: $allow_modifier \n";
     $rx_end = $no_blocks 
@@ -89,6 +90,9 @@ sub ast {
     if  (  substr( $match, $pos ) =~ /$rx_end/ 
         || (  !$allow_semicolon
            && substr( $match, $pos ) =~ /^\s* ; /xs
+           )
+        || (  !$allow_comma
+           && substr( $match, $pos ) =~ /^\s* , /xs
            )
         ) {
         # end of parse
@@ -134,6 +138,9 @@ sub lexer {
         if ( substr( $match, $pos ) =~ /$rx_end/  
            || (  !$allow_semicolon
               && substr( $match, $pos ) =~ /^\s* ; /xs
+              )
+           || (  !$allow_comma
+              && substr( $match, $pos ) =~ /^\s* , /xs
               )
            ) {
             #warn "end of expression at: [",substr($match,0,10),"]";
@@ -201,7 +208,7 @@ sub lexer {
             $m2 = Pugs::Grammar::Quote->parse( $match, { p => $pos } )
                 unless $m2;
         }
-        #print "Lexer: m1 = " . Dumper($m1) . "m2 = " . Dumper($m2);
+        # print "Lexer: m1 = " . Dumper($m1) . "m2 = " . Dumper($m2);
 
         my $pos2;
         while(1) {

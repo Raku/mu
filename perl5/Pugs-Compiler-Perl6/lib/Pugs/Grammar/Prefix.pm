@@ -46,7 +46,7 @@ BEGIN {
         other => 'infix:<*>',
     );
     __PACKAGE__->add_same_precedence_ops( { assoc => 'left'}, 'prefix:<+>', qw(
-        - ? ~ @ % $ & ! * : = \\
+        - ? ~ | @ % $ & ! * : = \\
     ) );
     __PACKAGE__->add_rule( 
         name => '++',

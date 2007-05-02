@@ -21,10 +21,10 @@ sub add_rule {
     );
     $self->SUPER::add_rule( 
         $opt{name}, 
-        '{ return { op => "' . $opt{name} . '" ,} }' );
+        '{ return { op => \'' . $opt{name} . '\' ,} }' );
     $self->SUPER::add_rule( 
         "infix:<" . $opt{name} . ">",
-        '{ return { op => "infix:<' . $opt{name} . '>" ,} }' );
+        '{ return { op => \'infix:<' . $opt{name} . '>\' ,} }' );
 }
 
 sub add_same_precedence_ops {

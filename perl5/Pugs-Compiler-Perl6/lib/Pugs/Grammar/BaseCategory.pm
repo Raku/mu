@@ -7,7 +7,10 @@ use base qw(Pugs::Grammar::Base);
 use Data::Dumper;
 
 Pugs::Compiler::Token->install( 
-    ws => ' <?Pugs::Grammar::Rule.ws> ' 
+    ws => q( 
+        <?Pugs::Grammar::Rule.ws> 
+        [  '{*}' <?Pugs::Grammar::Rule.ws> ]?  # "whatever" hack
+    ) 
 );
 
 sub add_rule {
