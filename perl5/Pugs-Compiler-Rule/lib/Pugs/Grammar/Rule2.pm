@@ -428,7 +428,17 @@ token quantifier {
     <quant>
     $<greedy> := (<[  \? \+  ]>?)
     $<ws3>   := (<?ws>?)
-    { return { 
+    { 
+      if 
+               $$/{'quant'}   eq ''
+            && $$/{'greedy'} eq ''
+            && $$/{'ws1'}    eq ''
+            && $$/{'ws2'}    eq ''
+            && $$/{'ws3'}    eq ''
+      {
+          return $$/{'term'};
+      }
+      return { 
         quant => { 
             term    => $$/{'term'},
             quant   => $$/{'quant'},
