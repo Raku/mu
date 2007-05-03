@@ -6,7 +6,7 @@ my $n = 2;
 my $m = 10000;
 my %s;
 my $o = 0;
-my @w = "\n" xx $n;			# initial sate
+my @w = "\n" xx $n;			# initial state
 
 for $*ARGS.comb {			# read each word of input
 	%s{[;] @w}.push: $_;
