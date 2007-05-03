@@ -9,7 +9,7 @@ plan 7;
 is($/<fleytitala>, '1.0');
 
 '1.E-10' ~~ /<fleytitala>/;
-is($/<fleytitala>, 1.E-10);
+is($/<fleytitala>, '1.E-10');
 
 '12.34' ~~ /<fleytitala>/;
 is($/<fleytitala>, '12.34');

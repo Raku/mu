@@ -4,9 +4,7 @@ token hexstafur {
     <[ 0..9 a..f A..F ]>
 }
 
-token tölustafur {
-    <[ 0 .. 9 ]>
-}
+token tölustafur { <[ 0..9 ]> }
 
 token staffasti {
                 '\''
@@ -19,17 +17,26 @@ token staffasti {
 }
 
 token fjöldatala {
-    ^^ [
-       | \$ $<hextala> := ( <hexstafur>+ )
-       |    $<tala>    := ( <tölustafur>+ )
-       ]
-    $$
+    [
+    | \$ $<hextala> := ( <hexstafur>+ )
+    |    $<tala>    := ( <tölustafur>+ )
+    ]
 }
 
-token heiltala { \-? <fjöldatala> }
+token heiltala {
+    $<sigil> := [ \-? ]
+    <fjöldatala>
+}
 
-token fleytitala {
-    \-? <tölustafur>+ \. <tölustafur>* <[\e\E]> <[\+\-]>? <tölustafur>+
+regex fleytitala {
+    \-?
+    <tölustafur>+
+    \.
+    <tölustafur>*
+    [
+    | <null>
+    | <[eE]> <[+-]>? <tölustafur>+
+    ]
 }
 
 =kwid

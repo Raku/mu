@@ -6,6 +6,7 @@
 #	rm -rf blib
 
 test:
-	for test in t/*.t t/*/*.t;\
-		do ../../../../pugs -I ../../../../ext/Test/lib -I lib $$test;\
+	for test in t/*.t t/*/*.t; do\
+		echo $$test &&\
+		../../../../pugs -I ../../../../ext/Test/lib -I lib $$test;\
 	done
