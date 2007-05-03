@@ -1,0 +1,3 @@
+This is a work in progress project to muck around with rules in Perl 6
+by creating a parser and eventually a compiler for an obscure
+programming language.
