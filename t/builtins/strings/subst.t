@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 7;
+plan 11;
 
 
 my $str = 'hello';
@@ -18,4 +18,13 @@ is $str.subst(rx:g/l/,{$i++}),'he12o', '.. which act like closure and can be cal
 is $str.=subst(/l/,'i'),      'heilo', '.. and with the .= modifier';
 is $str,                      'heilo', '.. it changes the receiver';
 
+# not sure about this. Maybe '$1$0' should work.
+
+is 'a'.subst(/(.)/,"$1$0"), '',       '.. and it can not access captures from strings';
+is 'a'.subst(/(.)/,{$0~$0}),'aa',     '.. you must wrap it in a closure';
+is '12'.subst(/(.)(.)/,{$()*2}),'24', '.. and do nifty things in closures'; 
+
+# XXX: UNSPECCED, but imo it should work with Strings instead of Regexen
+
+dies_ok {'a'.subst('a','b'), 'b'}, '.. it fails with Str as Patterns';
 
