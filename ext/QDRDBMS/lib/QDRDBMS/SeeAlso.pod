@@ -468,7 +468,7 @@ modules such as Tangram or Rose::DB or what have you.  In either case, said
 alternatives can either be bundled with the core distros of those other
 modules, or separately from them, as per their authors' preferences.
 
-=item C<QDRDBMS::Emulator::(DBI|JDBC|OCI|\w+)
+=item C<QDRDBMS::Emulator::(DBI|JDBC|OCI|\w+)>
 
 Emulations of other modules or APIs as wrappers over QDRDBMS.  This is
 potentially the easiest way, short of the other modules themselves being

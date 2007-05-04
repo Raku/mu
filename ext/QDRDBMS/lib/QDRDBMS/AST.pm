@@ -107,11 +107,11 @@ sub HostGateRtn of QDRDBMS::AST::HostGateRtn
 role QDRDBMS::AST::Node {
 
     method as_perl of Str () {
-        die q{not implemented by subclass};
+        die q{not implemented by subclass } ~ self.WHAT;
     }
 
     method equal_repr of Str () {
-        die q{not implemented by subclass};
+        die q{not implemented by subclass } ~ self.WHAT;
     }
 
 } # role QDRDBMS::AST::Node

@@ -117,19 +117,19 @@ role QDRDBMS::Engine::Example::PhysType::Value {
 ###########################################################################
 
 method root_type () {
-    die q{not implemented by subclass};
+    die q{not implemented by subclass } ~ self.WHAT;
 }
 
 method declared_type () {
-    die q{not implemented by subclass};
+    die q{not implemented by subclass } ~ self.WHAT;
 }
 
 method most_specific_type () {
-    die q{not implemented by subclass};
+    die q{not implemented by subclass } ~ self.WHAT;
 }
 
 method which () {
-    die q{not implemented by subclass};
+    die q{not implemented by subclass } ~ self.WHAT;
 }
 
 ###########################################################################
@@ -310,7 +310,7 @@ class QDRDBMS::Engine::Example::PhysType::TextKeyedMap {
     has Hash $!map;
         # A Hash with 0..N elements:
             # Each Hash key is a Str.
-            # Each Hash value is a ::Example::* value of some kind.
+            # Each Hash value is a ::Example::\w+ value of some kind.
 
     has Str $!which;
 

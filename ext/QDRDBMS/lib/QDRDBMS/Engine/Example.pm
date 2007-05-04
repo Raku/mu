@@ -6,24 +6,28 @@ use QDRDBMS::Engine::Example::Operators;
 ###########################################################################
 ###########################################################################
 
-module QDRDBMS::Engine::Example-0.0.0 {
+class QDRDBMS::Engine::Example-0.0.0 {
     # Note: This given version applies to all of this file's packages.
+
+    does QDRDBMS::Engine::Role;
 
 ###########################################################################
 
-sub new_dbms of QDRDBMS::Engine::Example::DBMS (Any :$dbms_config!) {
+submethod new_dbms of QDRDBMS::Engine::Example::DBMS (Any :$dbms_config!) {
     return ::QDRDBMS::Engine::Example::DBMS.new(
         :dbms_config($dbms_config) );
 }
 
 ###########################################################################
 
-} # module QDRDBMS::Engine::Example
+} # class QDRDBMS::Engine::Example
 
 ###########################################################################
 ###########################################################################
 
 class QDRDBMS::Engine::Example::DBMS {
+    does QDRDBMS::Engine::Role::DBMS;
+
     has Any $!dbms_config;
 
 ###########################################################################
@@ -39,13 +43,13 @@ submethod BUILD (Any :$dbms_config!) {
 
 method new_var of QDRDBMS::Engine::Example::HostGateVar
         (QDRDBMS::AST::EntityName :$decl_type!) {
-    return QDRDBMS::Engine::Example::HostGateVar.new(
+    return ::QDRDBMS::Engine::Example::HostGateVar.new(
         :dbms(self), :decl_type($decl_type) );
 }
 
 method prepare of QDRDBMS::Engine::Example::HostGateRtn
         (QDRDBMS::AST::HostGateRtn :$rtn_ast!) {
-    return QDRDBMS::Engine::Example::HostGateRtn.new(
+    return ::QDRDBMS::Engine::Example::HostGateRtn.new(
         :dbms(self), :rtn_ast($rtn_ast) );
 }
 
@@ -57,6 +61,8 @@ method prepare of QDRDBMS::Engine::Example::HostGateRtn
 ###########################################################################
 
 class QDRDBMS::Engine::Example::HostGateVar {
+    does QDRDBMS::Engine::Role::HostGateVar;
+
     has QDRDBMS::Engine::Example::DBMS $!dbms;
     has QDRDBMS::AST::EntityName       $!decl_type;
     has QDRDBMS::AST::Node             $!val_ast;
@@ -98,6 +104,8 @@ method store_ast (QDRDBMS::AST::Node :$val_ast!) {
 ###########################################################################
 
 class QDRDBMS::Engine::Example::HostGateRtn {
+    does QDRDBMS::Engine::Role::HostGateRtn;
+
     has QDRDBMS::Engine::Example::DBMS $!dbms;
     has QDRDBMS::AST::HostGateRtn      $!rtn_ast;
     has Code                           $!prep_rtn;

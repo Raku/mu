@@ -1,7 +1,7 @@
                                   QDRDBMS
 ---------------------------------------------------------------------------
 
-2007-04-xx   Darren Duncan <perl@DarrenDuncan.net>
+2007-05-xx   Darren Duncan <perl@DarrenDuncan.net>
 
     * QDRDBMS version 0.0.0 for Perl 5 is released on CPAN as
     QDRDBMS-v0.0.0.tar.gz.  QDRDBMS version 0.0.0 for Perl 6 is not
@@ -12,7 +12,7 @@
 
     * This is the first release of the Perl 5 QDRDBMS distribution, and the
     first release of any distribution to contain Perl 5 modules named
-    QDRDBMS::*.
+    QDRDBMS::\w+.
 
     * This is the initial file manifest:
 
