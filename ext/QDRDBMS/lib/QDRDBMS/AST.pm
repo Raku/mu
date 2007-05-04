@@ -1047,13 +1047,94 @@ user-defined entity references don't have to be free variables).
 
 =head1 INTERFACE
 
-The interface of QDRDBMS::AST is a combination of functions, objects, and
-overloading.
+The interface of QDRDBMS::AST is fundamentally object-oriented; you use it
+by creating objects from its member classes, usually invoking C<new()> on
+the appropriate class name, and then invoking methods on those objects.
+All of their attributes are private, so you must use accessor methods.
+
+QDRDBMS::AST also provides wrapper subroutines for all member class
+constructors, 1 per each, where each subroutine has identical parameters to
+the constructor it wraps, and the name of each subroutine is equal to the
+trailing part of the class name, specifically the C<Foo> of
+C<QDRDBMS::AST::Foo>.  All of these subroutines are exportable, but are not
+exported by default, and exist soley as syntactic sugar to allow user code
+to have more brevity.  I<TODO:  Reimplement these as lexical aliases or
+compile-time macros instead, to avoid the overhead of extra routine calls.>
 
 The usual way that QDRDBMS::AST indicates a failure is to throw an
 exception; most often this is due to invalid input.  If an invoked routine
 simply returns, you can assume that it has succeeded, even if the return
 value is undefined.
+
+=head2 The QDRDBMS::AST::LitBool Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::LitText Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::LitBlob Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::LitInt Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::SetSel Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::SeqSel Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::BagSel Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::EntityName Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::ExprDict Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::TypeDict Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::VarInvo Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::FuncInvo Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::ProcInvo Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::FuncReturn Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::ProcReturn Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::FuncDecl Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::ProcDecl Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::HostGateRtn Class
 
 I<This documentation is pending.>
 

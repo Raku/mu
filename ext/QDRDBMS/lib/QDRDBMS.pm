@@ -594,11 +594,18 @@ implements this test suite.
 
 =head1 INTERFACE
 
-The interface of QDRDBMS is entirely object-oriented; you use it by
+The interface of QDRDBMS is fundamentally object-oriented; you use it by
 creating objects from its member classes, usually invoking C<new()> on the
 appropriate class name, and then invoking methods on those objects.  All of
-their attributes are private, so you must use accessor methods.  QDRDBMS
-does not declare any subroutines or export such.
+their attributes are private, so you must use accessor methods.
+
+QDRDBMS also provides the not-exportable wrapper subroutine
+C<QDRDBMS::new_dbms> for the C<QDRDBMS::Interface::DBMS> constructor, which
+has identical parameters, and exists soley as syntactic sugar.  Similarly,
+the C<DBMS> methods C<new_var> and C<prepare> exist purely as syntactic
+sugar over the C<HostGateVar> and C<HostGateRtn> constructors.  I<TODO:
+Reimplement these as lexical aliases or compile-time macros instead, to
+avoid the overhead of extra routine calls.>
 
 The usual way that QDRDBMS indicates a failure is to throw an exception;
 most often this is due to invalid input.  If an invoked routine simply
@@ -715,9 +722,15 @@ copy of the GPL as part of the QDRDBMS distribution, in the file named
 Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 02110-1301 USA.
 
-I<Note that the copyright holders expect that QDRDBMS will subsequently be
-relicensed instead under the terms of the GPL version 3.0 or later, as soon
-as that license is finalized, assuming no difficulties arise with it.>
+I<Note that the QDRDBMS license should be interpreted as being, in spirit,
+just the terms of the GPL version 3 or later, rather than version 2 or
+later, but that this can't legally be true in the present, since the newer
+license hasn't been finalized yet (but it should be finalized by early July
+of 2007).  Therefore, the actual legal license of this version of QDRDBMS
+that you hold now is the GPL version 2 or later.  Only versions of QDRDBMS
+released after the GPL v3 is finalized will use GPL version 3 or later as
+its actual legal license, which will be explicitly stated in the previous
+paragraph at that time.  Assuming the planned switch to v3 isn't aborted.>
 
 Linking QDRDBMS statically or dynamically with other components is making a
 combined work based on QDRDBMS.  Thus, the terms and conditions of the GPL
