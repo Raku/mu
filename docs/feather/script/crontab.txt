@@ -1,4 +1,4 @@
 # m h  dom mon dow   command
 01 * * * * /home/agentzh/update-syn
-12 01 * * * /home/agentzh/auto-smoke
+32 22 * * * /home/agentzh/auto-smoke
 
