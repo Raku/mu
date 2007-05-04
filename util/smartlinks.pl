@@ -441,11 +441,11 @@ sub process_syn ($$$$) {
         $syn_id = $Spec{$base};
     }
     if ($syn_id == 26) { #hardcode the only Perldoc one for now; detect Perldoc later.
-      eval { use Perl6::Perldoc::Parser; use Perl6::Perldoc::To::Xhtml; };
+      eval " use Perl6::Perldoc::Parser; use Perl6::Perldoc::To::Xhtml; ";
       if ($@) {
-            warn "Please install Perl6::Perldoc from the CPAN to parse S26";
-            return;
-        }
+          warn "Please install Perl6::Perldoc from the CPAN to parse S26";
+          return;
+      }
 
       my $toc = "=TOC\nP<toc:head1 head2 head3>\n\n";
       my $pod6 = $toc . read_file($infile);
