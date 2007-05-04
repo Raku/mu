@@ -1011,7 +1011,7 @@ refactored as each of those represents a free variable that a static node
 analysis can't decompose; only nodes consisting of just system-defined or
 literal entities (meaning zero free variables) can be fully refactored in a
 static node analysys (though there are a fair number of those in practice,
-particularly as C<Var> values.
+particularly as C<Var> values).
 
 A consequence of this is that the QDRDBMS::AST classes in general do not
 include do not include any methods for comparing that 2 nodes denote the

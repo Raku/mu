@@ -357,6 +357,132 @@ I<This documentation is pending.>
 
 L<QDRDBMS::Engine::Example>.
 
+=head1 PROSPECTIVE QDRDBMS EXTENSIONS
+
+These are some theoretical examples of other Perl modules or documentation
+that could be created to work with QDRDBMS, but if so would most likely be
+distributed independently from it.  The given package names are examples,
+and the examples in question could have other names if approriate.
+
+=over
+
+=item C<QDRDBMS::Cookbook(|::\w+)>
+
+Pod files with a potentially large collection of examples, tutorials, FAQs,
+and so on that help people learn how to employ QDRDBMS for the things they
+need to do.  In particular, there should be a lot of help given for people
+migrating from other systems that use different paradigms than QDRDBMS
+does, for example SQL-using systems.
+
+The Cookbook distro may also be the main repository of executing code that
+would otherwise go in the /examples directory of the QDRDBMS core distro.
+
+=item C<Genezzo> or C<QDRDBMS::Engine::Genezzo> or C<Genezzo::QDRDBMS> etc
+
+A QDRDBMS Engine built around Jeffrey Cohen's Genezzo DBMS, or specifically
+the class that does C<QDRDBMS::Engine::Role>, could conceivably have either
+of the above file or package names, depending on what its author prefers,
+or something else yet.  A strong name influence could be whether QDRDBMS
+forms the sole public interface for Genezzo after its conversion to use it,
+or whether Genezzo would retain alternate public APIs that work without
+QDRDBMS being present on the system.
+
+=item C<QDRDBMS::AST::Refactor(|::\w+)>
+
+Utility modules that take QDRDBMS AST node objects as input and derive
+other nodes as output, such as with the purpose of refactoring them into
+canonical representations (such that users can then perform node value
+equality tests for potentially any type of node), or forms that are more
+efficient for particular uses but are still logically equivalent.
+
+Presumably all of these would work using static analysis methods and not
+actually "execute" anything, so they are independent of any particular
+Engine environment.  This isn't to say that we can't separately have
+modules that help implement a specific Engine and do AST optimization that
+knows the specific needs of that Engine's implementation environment.
+
+Other words that could go in such module names are like C<Optimize> or
+C<Canon>, or whatever authors prefer.
+
+=item C<QDRDBMS::AST::YAML> and C<QDRDBMS::AST::XML> etc
+
+Utility modules that serialize QDRDBMS AST nodes to, or unserialize them
+from, logically equivalent YAML, XML, or other generic data interchange
+formats.  This implementation should be native to the QDRDBMS D language
+itself and not output any Perl-specific details that aren't in non-Perl
+languages, so that it is suitable for interchange, at the very least
+between Perl 5 and Perl 6.
+
+=item C<QDRDBMS::AST::StringRepr>
+
+Utility module that parses the string representation format of QDRDBMS D
+into its AST representation format, and also that generates the former from
+the latter.  The 2 formats should basically have a 1:1 correspondence.
+
+=item C<QDRDBMS::Shell>
+
+Implementation of a command-line user application over the QDRDBMS API that
+takes string-form QDRDBMS D as input, compiles it and runs it, and nicely
+formats output for user display.  This is analagous to L<DBI::Shell>.
+
+=item C<DBD::QDRDBMS>
+
+A wrapper over the QDRDBMS API that makes it work as a L<DBI> driver
+module, should that be useful.  Depending on what DBI itself permits or
+requires, this could take a variety of query definition formats, including
+either or both of AST form or string form (most likely) QDRDBMS D.
+
+=item C<QDRDBMS::AST::Translate(|::\w+)>
+
+Utility modules that translate data (including code and declaratives)
+between representations that are QDRDBMS AST nodes and representations that
+aren't, or between 2 of the latter kind while using the former kind as an
+intermediate representation.  As a common example, translations from or to
+any or all dialects of SQL should be supported.  Also, translations from or
+to other I<D> languages, particularly I<Tutorial D>.  Also important is
+translations to/from native Perl data structures, including native Perl
+routine definitions (L<PPI> would probably be employed in the Perl 5
+version), and including commonly used third party class' objects.
+
+=item C<QDRDBMS::Proxy::(Server|Client|\w+)>
+
+Implementation(s) of a generic proxy server plus client for the QDRDBMS
+API, letting the normal QDRDBMS Engine and the user application reside in
+separate processes.  The client module would do C<QDRDBMS::Engine::Role>
+and the server would be an application or server-extending plugin that sits
+on top of the QDRDBMS API.  Or whatever implementers want to do.  This is
+analagous to proxying modules for DBI or other DBMSs.
+
+=item C<QDRDBMS::Engine::(SQLite|Postgres|Oracle|\w+)>
+
+A default (but not mandatory) namespace for QDRDBMS Engines to go, that do
+C<QDRDBMS::Engine::Role(|::\w+)>.  A lot of these would likely be
+implemented over existing DBMSs, which results in QDRDBMS being an
+alternative API for them.
+
+=item C<DBIx::Class::Storage::QDRDBMS> etc
+
+An alternative plug-in storage engine for DBIx::Class that uses QDRDBMS
+rather than DBI.  Analagous extensions can be added to other DBI wrappers
+modules such as Tangram or Rose::DB or what have you.  In either case, said
+alternatives can either be bundled with the core distros of those other
+modules, or separately from them, as per their authors' preferences.
+
+=item C<QDRDBMS::Emulator::(DBI|JDBC|OCI|\w+)
+
+Emulations of other modules or APIs as wrappers over QDRDBMS.  This is
+potentially the easiest way, short of the other modules themselves being
+appropriately updated, to permit migration for legacy apps to QDRDBMS while
+they have the fewest actual code changes.  The emulators would likely
+employ SQL translator utilities internally.
+
+=item C<QDRDBMSx::\w+>
+
+Unofficial extensions to QDRDBMS could be named in this space, though it
+doesn't have to be used if prior coordination happens between developers.
+
+=back
+
 =head1 PUBLIC SOLUTIONS BUILT OVER QDRDBMS
 
 I<This documentation is pending.>

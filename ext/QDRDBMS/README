@@ -19,9 +19,11 @@ CPAN is version 0.0.0.  But QDRDBMS does still declare copyright of
 2002-present, incorporating the Rosetta development/release time-period.
 
 The QDRDBMS name was intentionally picked to be temporary (it should evoke
-"QDOS"), as the current release is a prototype.  In the future, when
+"QDOS"), since the current release is a prototype.  In the future, when
 QDRDBMS has matured significantly, it is expected that it will be renamed
-again to a permanent long-term name.
+again to a permanent long-term name.  It is specifically guaranteed that
+the rename would happen prior to QDRDBMS reaching version 1.0.0, so all
+versions 1.0.0 and later, plus likely some before, will carry the new name.
 
 The long-term name of this project has not yet been decided, though the
 author has a 6-letter candidate in mind, to be revealed later for feedback.
@@ -32,6 +34,15 @@ entities.  Similarly, suggestions for what to name a business, whose
 primary activity is commercially developing and supporting this project
 plus associated products, is appreciated.  Likewise, the author has a name
 in mind, to be revealed later for feedback.
+
+So you need to keep this in mind if you make any extensions for QDRDBMS, or
+you use it in your code, or you write any articles or documentation
+concerning it.  Any extensions whose names embed the old name should be
+updated to embed the new one instead, to preserve consistency.  Any
+documentation or articles that you write now, which mention QDRDBMS, should
+explicitly state that it is going to be renamed, to help any readers.  And
+of course, any code using QDRDBMS will need to search-n-replace in the new
+name so that it can remain current.
 
 QDRDBMS has 2 co-developed versions, which are written in native Perl 5 and
 Perl 6 respectively, and which are distributed separately from each other,
