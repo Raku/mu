@@ -116,19 +116,19 @@ role QDRDBMS::Engine::Example::PhysType::Value {
 
 ###########################################################################
 
-method root_type () {
+method root_type {
     die q{not implemented by subclass } ~ self.WHAT;
 }
 
-method declared_type () {
+method declared_type {
     die q{not implemented by subclass } ~ self.WHAT;
 }
 
-method most_specific_type () {
+method most_specific_type {
     die q{not implemented by subclass } ~ self.WHAT;
 }
 
-method which () {
+method which {
     die q{not implemented by subclass } ~ self.WHAT;
 }
 

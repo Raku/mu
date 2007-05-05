@@ -3,6 +3,12 @@ use v6-alpha;
 ###########################################################################
 ###########################################################################
 
+my $FALSE = Bool::False;
+my $TRUE  = Bool::True;
+
+###########################################################################
+###########################################################################
+
 module QDRDBMS::AST-0.0.0 {
     # Note: This given version applies to all of this file's packages.
 
@@ -106,11 +112,11 @@ sub HostGateRtn of QDRDBMS::AST::HostGateRtn
 
 role QDRDBMS::AST::Node {
 
-    method as_perl of Str () {
+    method as_perl {
         die q{not implemented by subclass } ~ self.WHAT;
     }
 
-    method equal_repr of Str () {
+    method equal_repr {
         die q{not implemented by subclass } ~ self.WHAT;
     }
 
@@ -128,9 +134,6 @@ role QDRDBMS::AST::Expr {
 
 class QDRDBMS::AST::LitBool {
     does QDRDBMS::AST::Expr;
-
-    my $FALSE = Bool::False;
-    my $TRUE  = Bool::True;
 
     has Bool $!v;
 
@@ -156,6 +159,12 @@ method as_perl of Str () {
         $!as_perl = "QDRDBMS::AST::LitBool.new( :v($s) )";
     }
     return $!as_perl;
+}
+
+###########################################################################
+
+method equal_repr of Bool (::T $self: T :$other!) {
+    return $other!v === $self!v;
 }
 
 ###########################################################################
@@ -198,6 +207,12 @@ method as_perl of Str () {
         $!as_perl = "QDRDBMS::AST::LitText.new( :v($s) )";
     }
     return $!as_perl;
+}
+
+###########################################################################
+
+method equal_repr of Bool (::T $self: T :$other!) {
+    return $other!v === $self!v;
 }
 
 ###########################################################################
@@ -249,6 +264,12 @@ method as_perl of Str () {
 
 ###########################################################################
 
+method equal_repr of Bool (::T $self: T :$other!) {
+    return $other!v === $self!v;
+}
+
+###########################################################################
+
 sub v of Blob () {
     return $!v;
 }
@@ -291,6 +312,12 @@ method as_perl of Str () {
 
 ###########################################################################
 
+method equal_repr of Bool (::T $self: T :$other!) {
+    return $other!v === $self!v;
+}
+
+###########################################################################
+
 sub v of Int () {
     return $!v;
 }
@@ -327,6 +354,30 @@ submethod BUILD (Array :$v!) {
     $!v = [$v.values];
 
     return;
+}
+
+###########################################################################
+
+method as_perl of Str () {
+    if (!$!as_perl.defined) {
+        my Str $s = q{[} ~ $!v.map:{ .as_perl() }.join( q{, } ) ~ q{]};
+        $!as_perl = "{self.WHAT}.new( :v($s) )";
+    }
+    return $!as_perl;
+}
+
+###########################################################################
+
+method equal_repr of Bool (::T $self: T :$other!) {
+    my Array $v1 = $self!v;
+    my Array $v2 = $other!v;
+    return $FALSE
+        if $v2.elems !=== $v1.elems;
+    for 0..^$v1.elems -> $i {
+        return $FALSE
+            if !$v1.[$i].equal_repr( :other($v2.[$i]) );
+    }
+    return $TRUE;
 }
 
 ###########################################################################
@@ -765,7 +816,7 @@ class QDRDBMS::AST::FuncDecl {
 
 ###########################################################################
 
-submethod BUILD () {
+submethod BUILD {
     die q{not implemented};
 }
 
@@ -781,7 +832,7 @@ class QDRDBMS::AST::ProcDecl {
 
 ###########################################################################
 
-submethod BUILD () {
+submethod BUILD {
     die q{not implemented};
 }
 
