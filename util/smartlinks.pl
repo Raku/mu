@@ -457,27 +457,22 @@ sub process_syn ($$$$) {
       my $toc = "=TOC\nP<toc:head1 head2 head3>\n\n";
       my $pod6 = $toc . read_file($infile);
 
-      my $perldochtml = qq{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-           "http://www.w3.org/TR/html4/loose.dtd">
-<html><head><title>S$syn_id</title>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" >
-<link rel="stylesheet" type="text/css" title="pod_stylesheet" href="http://dev.perl.org/css/perl.css">
-</head>
-<body class='pod'>
-  <!-- start doc -->
-} . Perl6::Perldoc::Parser->parse( \$pod6, {all_pod=>'auto'} )->report_errors()->to_xhtml .
-      qq{  <!-- end doc -->
+      my $perldochtml = Perl6::Perldoc::Parser->parse(
+          \$pod6, {all_pod => 1}
+      )->report_errors()->to_xhtml(
+          {full_doc => {title => 'S26'}}
+      );
+      $perldochtml =~ s{</head>}{<link rel="stylesheet" type="text/css" title="pod_stylesheet" href="http://dev.perl.org/css/perl.css">\n$&};
+      my $preamble = gen_preamble();
 
-</body></html>};  #Again, hardcode the markup until we have an xhtml wrapper emitter for Perl6::Perldoc::To::Xhtml
-        my $preamble = gen_preamble();
-        $perldochtml =~ s{<!-- start doc -->}{$&$preamble};
-        my $htmfile = "$out_dir/S$syn_id.html";
-        warn "info: generating $htmfile...\n";
-        open my $out, "> $htmfile" or
-            die "Can't open $htmfile for writing: $!\n";
-        print $out $perldochtml;
-        close $out;
-        return;
+      $perldochtml =~ s{<body>}{$&$preamble};
+      my $htmfile = "$out_dir/S$syn_id.html";
+      warn "info: generating $htmfile...\n";
+      open my $out, "> $htmfile" or
+          die "Can't open $htmfile for writing: $!\n";
+      print $out $perldochtml;
+      close $out;
+      return;
     }
     if (!$syn_id) {
         warn "  warning: $infile skipped.\n";
