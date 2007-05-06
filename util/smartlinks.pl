@@ -2,8 +2,8 @@
 
 # util/smartlinks.pl - The successor to util/catalog_tests.pl.
 
-# This program is no longer under active development.
-# But you're very welcomed to improve it.
+# This program is still under active development,
+# you're very welcomed to improve it.
 # Please read the Pod documentation at the end of file before reading and/or
 # modifying the source.
 # CAUTION: please make sure your changes don't break anything, because
