@@ -736,7 +736,7 @@ sub main () {
         process_syn($syn, $out_dir, $cssfile, $linktree);
     }
 
-    # check for hanging smartlinks:
+    # check for pending smartlinks:
     while (my ($syn, $linktree_sections) = each %$linktree) {
         for my $links (values %$linktree_sections) {
             for my $link (@$links) {
@@ -810,7 +810,7 @@ smartlinks.pl - The successor to catalog_tests.pl.
 
 =item *
 
-This script should have as few module dependencies as possible.
+This script should have as few non-core module dependencies as possible.
 
 =item *
 
@@ -907,7 +907,7 @@ or without quotes:
   L<http://www.nntp.perl.org/group/perl.perl6.language/26071>
 
 Try running 'grep -r "L<" t/' to see some examples, or look at
-t/syntax/comments.t.
+F<t/syntax/comments.t>.
 
 There were also some legacy smartlinks using the following syntax:
 
@@ -926,7 +926,7 @@ We scan over all the specified .t files; collect smartlinks and positional
 info about the test code snippets as we go. When all these work have been finished,
 we obtain a tree structure, which is named C<$linktree> in the source code.
 
-To this tree minimal, we only store the .t file name and line numbers, rather
+To make this tree minimal, we only store the .t file name and line numbers, rather
 than the snippets' source code itself.
 
 The structure of $linktree is like this:
@@ -970,7 +970,7 @@ This step is mostly done by sub C<process_t_file>.
 
 =item 2.
 
-We process the synopses .pod files one by one and generate
+We process the synopsis .pod files one by one and generate
 HTML files integrated with test code snippets using the
 C<$linktree> structure discussed above.
 
@@ -983,7 +983,7 @@ sub steps:
 
 =item *
 
-Then we parse each .pod into a tree, which is known as C<$podtree> in the
+We parse each .pod into a tree, which is known as C<$podtree> in the
 source code. (See sub C<parse_pod>.)
 
 The structure of C<$podtree> looks like this:
@@ -1003,7 +1003,7 @@ The structure of C<$podtree> looks like this:
 
 =item *
 
-We look up every related smartlinks from every C<$podtree>, generate .t code
+We look up every related smartlink from every C<$podtree>, generate .t code
 snippets along the way, and insert placeholders (like "_SMART_LINK_3" into
 the corresponding C<$podtree>. (See subs C<parse_pattern>, C<process_paragrph>,
 and C<gen_code_snippet>.)
@@ -1020,7 +1020,7 @@ using L<Pod::Simple::HTML>. (See sub C<gen_html>.)
 =item *
 
 At last, we replace every snippet placeholders in the HTML source with the real
-snippet code.
+snippet code (also in HTML format).
 
 =back
 
@@ -1046,12 +1046,12 @@ L<http://pugs.blogs.com/pugs/2006/09/the_benefits_of.html>
 
 =item *
 
-Consult util/t/00-smartlinks.t in the Pugs source tree for unit
+Consult F<util/t/00-smartlinks.t> in the Pugs source tree for unit
 tests and usage of the internal API.
 
 =item *
 
-Consult util/t/01-smartlinks.t for a corresponding regression test
+See F<util/t/01-smartlinks.t> for a corresponding regression test
 suite harness.
 
 =item *
@@ -1067,5 +1067,5 @@ implementation, getting help from many others in the Pugs team.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2006 by the Pugs contributors.
+Copyright (c) 2006, 2007 by the Pugs Team.
 
