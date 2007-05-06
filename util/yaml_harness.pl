@@ -26,7 +26,7 @@ sub get_config {
         --include=s@        --dry|n       --help|h
     );
     fix_config();
-    my $Usage = qq{Usage: $0 [OPTIONS] 
+    my $Usage = qq{Usage: $0 [OPTIONS]
         --help, -h              This help message.
         --output-file=FILE, -o  Store results in FILE [default: $Config{"output-file"}]
         --dry, -n               Show which tests would be run but don't run them

@@ -21,8 +21,8 @@ binmode $yamlfh, ":utf8" or die "binmode: $!";
 local $/=undef;
 
 my $data = Load(<$yamlfh>);
-### data keys: keys %$data
-## build info: $data->{build_info}
+## data keys: keys %$data
+### build info: $data->{build_info}
 my $timing = $data->{timing};
 $timing->{duration} .=
     " (" . sprintf("%.2f min", $timing->{duration} / 60) . ')';
@@ -45,7 +45,11 @@ else {
     $fh = \*STDOUT;
 }
 binmode $fh, ":utf8" or die "binmode: $!";
-print $fh "$v"; close $fh;
+my $html = "$v";
+# patch the resulting HTML for the "...\n...\t" stuff
+$html =~ s{(?<=build_info:) \&quot;([^\n]*)\&quot;}
+    { my $s = $1; $s =~ s/\\n/\n/g; $s =~ s/\\t/\t/g; "\n$s" }ems;
+print $fh $html; close $fh;
 
 sub usage {
   print <<"USAGE";
