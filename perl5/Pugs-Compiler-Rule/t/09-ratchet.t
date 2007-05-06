@@ -172,7 +172,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is( "$match", "\n", 'escaped char \\n' );
 }
 
-#TODO: 
+#TODO:
 {
     #local $TODO = "usage of :!p in token is not specified";
     # escaped chars
@@ -183,7 +183,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is( "$match", "1", 'escaped char \\d' );
 }
 
-#TODO: 
+#TODO:
 {
     #local $TODO = "usage of :!p in token is not specified";
     # escaped chars
@@ -226,11 +226,11 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     # 2) the other way, it should be as /[a?[bg]]?/
     my $rule = Pugs::Compiler::Token->compile( 'a?bg?', { ratchet => 1 } );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->perl5)};
-    
+
     my $match = $rule->match("bprw");
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is("$match","b",'"a?bg?" equals "a? b g?".');
-   
+
     # this string will not match, because /a?/ matches before c, and the /b/ fails
     #my $match = $rule->match("cdtbprw");
     #is("$match","b",'"a?bg?" equals "a? b g?".');
@@ -259,7 +259,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
 {
     # capture in empty rule
     my $rule = Pugs::Compiler::Token->compile(
-        ' { return { a => "sometext" ,} } ', 
+        ' { return { a => "sometext" ,} } ',
         { ratchet => 1, p => 0 });
     #print $rule->{perl5};
     my $match = $rule->match("");
@@ -290,7 +290,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
 #TODO:
 {
     #local $TODO = ":p broken in non-ratchet subrule call";
-    
+
     # basic named capture
     my $rule = Pugs::Compiler::Token->compile('a<ws>', { ratchet => 1 } );
     my $match = $rule->match( "a b" );
@@ -402,15 +402,17 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     # TODO: <!after b>
 }
 
+# L<S05/"Quantified subpattern captures">
 {
     # quantified capture ?
     my $rule = Pugs::Compiler::Token->compile('a(b)?c', { ratchet => 1 } );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    
+
     my $match = $rule->match( "ac" );
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    # $match->[0]: $0 in Perl 6
     is( $match->[0][0], undef, 'quantifier ? empty match' );
-    
+
     $match = $rule->match( "abc" );
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match->[0][0]", "b", 'quantifier ? one match' );
@@ -424,11 +426,11 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     # quantified capture *
     my $rule = Pugs::Compiler::Token->compile('a(b)*c', { ratchet => 1 } );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    
+
     my $match = $rule->match( "ac" );
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( $match->[0][0], undef, 'quantifier * empty match' );
-    
+
     $match = $rule->match( "abc" );
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match->[0][0]", "b", 'quantifier * one match' );
@@ -446,11 +448,11 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     # quantified capture +
     my $rule = Pugs::Compiler::Token->compile('a(b)+c', { ratchet => 1 } );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    
+
     my $match = $rule->match( "ac" );
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "", 'quantifier + no match' );
-    
+
     $match = $rule->match( "abc" );
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match->[0][0]", "b", 'quantifier + one match' );
@@ -464,6 +466,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is( "$match", "", 'quantifier + no match' );
 }
 
+# L<S05/"Indirectly quantified subpattern captures">
 {
     # S05 example
     my $rule = Pugs::Compiler::Token->compile(
@@ -472,11 +475,11 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
            ' [ (\w+) \: (\w+ \ *)* \n ]* ',
         { ratchet => 1 } );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    
+
     my $text = "foo:food fool\nbar:bard barb\n";
     my $match = $rule->match( $text );
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
-    
+
     #       [ Match.new(str=>'foo'), Match.new(str=>'bar') ]
     #
     # and $1 contains the equivalent of:
@@ -489,7 +492,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     #print "Match: ", do{use Data::Dumper; Dumper(@a)};
     is( 0+@{$match->[0]}, 2, 'non-capturing with captures inside' );
     is( 0+@{$match->[1]}, 4, 'non-capturing with captures inside - 2' );
-    
+
     my $a = join( ",", @{$match->[0]} );
     my $b = join( ",", @{$match->[1]} );
     #print "Match: ", do{use Data::Dumper; Dumper(@a)};
@@ -497,6 +500,8 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is( $b, 'food ,fool,bard ,barb', 'non-capturing with captures inside - 4' );
 }
 
+# L<S05/"Indirectly quantified subpattern captures"/
+#     "In contrast" "outer quantified structure is a capturing" structure>
 {
     # S05 example
     my $rule = Pugs::Compiler::Token->compile(
@@ -507,11 +512,11 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
        '     ( (\w+) \: (\w+ \ *)* \n )*   ',
         { ratchet => 1 } );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    
+
     my $text = "foo:food fool\nbar:bard barb\n";
     my $match = $rule->match( $text );
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
-    
+
      # Because it's in a quantified capturing block,
      # $0 contains the equivalent of:
      #
@@ -534,24 +539,25 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
      #       ]
      #
      # and there is no $1
-     
+
     #print "Match: ", do{use Data::Dumper; Dumper(@a)};
     is( 0+@{$match->[0]}, 2, 'capturing with captures inside' );
     is( $match->[1], undef, 'capturing with captures inside - 2' );
-    
+
     is( "$match->[0][0]", "foo:food fool\n", 'capturing with captures inside - 3' );
     is( "$match->[0][1]", "bar:bard barb\n", 'capturing with captures inside - 4' );
 }
 
+# XXX
 {
     # sigspace
-    
+
     # XXX - double <ws> doesn't work
     #my $rule = Pugs::Compiler::Rule->compile('a (b) * c', { ratchet => 1, s => 1 } );
-    
+
     my $rule = Pugs::Compiler::Rule->compile('a (b )*c' );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    
+
     my $match = $rule->match( "ac" );
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "", 'sigspace no match' );
@@ -560,7 +566,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "a c", 'sigspace match' );
     is( $match->[0][0], undef, 'sigspace empty match' );
-    
+
     $match = $rule->match( "a b c" );
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match->[0][0]", "b ", 'sigspace one match' );
@@ -581,7 +587,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     ok( $match, 'true match' );
     is( "$match->{z}", "a", 'named capture on parentheses' );
     is( "$match->[0]", "b", 'named capture on parentheses not positioned' );
-    
+
     #print Dumper( $match->[0]->from ), "\n";
     #print Dumper( $match->[0]->to ), "\n";
 }
@@ -605,12 +611,12 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
 
 {
     my $match;
-    #Pugs::Compiler::Rule->install('Test::rule1' => 'xxyy'),  
-    #Pugs::Compiler::Rule->install('Test::rule2' => 'abc'),   
+    #Pugs::Compiler::Rule->install('Test::rule1' => 'xxyy'),
+    #Pugs::Compiler::Rule->install('Test::rule2' => 'abc'),
     @Test::test = (
-        Pugs::Compiler::Token->compile('xxyy'),  
-        Pugs::Compiler::Token->compile('abc'),   
-    );   
+        Pugs::Compiler::Token->compile('xxyy'),
+        Pugs::Compiler::Token->compile('abc'),
+    );
     $rule1 = Pugs::Compiler::Rule->compile('<@Test::test> 123');
     #print $rule1->perl5;
     $match = $rule1->match("abc 123");
@@ -619,12 +625,12 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
 
 {
     my $match;
-    #Pugs::Compiler::Token->install('Test::rule3' => 'xxyy'),  
-    #Pugs::Compiler::Token->install('Test::rule4' => 'abc'),   
+    #Pugs::Compiler::Token->install('Test::rule3' => 'xxyy'),
+    #Pugs::Compiler::Token->install('Test::rule4' => 'abc'),
     @Test::test = (
-        Pugs::Compiler::Token->compile('xxyy'),  
-        Pugs::Compiler::Token->compile('abc'),   
-    );   
+        Pugs::Compiler::Token->compile('xxyy'),
+        Pugs::Compiler::Token->compile('abc'),
+    );
     $rule1 = Pugs::Compiler::Token->compile('<@Test::test> 123');
     #print $rule1->perl5;
     $match = $rule1->match("abc123");
@@ -646,13 +652,13 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     %Test123::test = (
         if =>    2,        # fail (number, not '1')
         iff =>   1,        # match (longer than 'if')
-        until => Pugs::Compiler::Token->compile('(a.a)'),  
+        until => Pugs::Compiler::Token->compile('(a.a)'),
                            # subrule - match "until(aa)"
-        use =>   sub { $v = 1 },   
+        use =>   sub { $v = 1 },
                            # closure - print "use()"
-    );   
+    );
     $rule1 = Pugs::Compiler::Token->compile('%Test123::test 123');
-    
+
     $match = $rule1->match("iff123");
     is($match,'iff123',"Matched hash{iff}");
 
@@ -677,22 +683,22 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
         if =>    2,        # fail (number, not '1')
         iff =>   1,        # match (longer than 'if')
         until => Pugs::Compiler::Token->compile('
-            (a.a) 
-            { 
+            (a.a)
+            {
                 print " # KEY = $::_V6_MATCH_->{KEY} \n";
                 # print " # ", Dumper( $::_V6_MATCH_->data );
                 return 42;
-            } 
-        '),  
+            }
+        '),
                            # subrule - match "until(aa)"
-        use =>   sub { $v = 1 },   
+        use =>   sub { $v = 1 },
                            # closure - print "use()"
-        '' =>    Pugs::Compiler::Token->compile('other'),  
+        '' =>    Pugs::Compiler::Token->compile('other'),
                            # default subrule - match "other"
-    );   
+    );
     $rule1 = Pugs::Compiler::Token->compile('<%Test123::test> 123');
     #print "<<< ", Pugs::Compiler::Token->compile('<%Test123::test> 123')->{perl5}, ">>>";
-    
+
     $match = $rule1->match("iff123");
     is($match,'iff123',"Matched hash{iff}");
     #print Dumper( $match->{test}->data );
@@ -726,9 +732,9 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     #local $TODO = "failing hash rule interpolation inside itself";
     my $match;
     %Test123::test = (
-        rule1 => Pugs::Compiler::Token->compile('xx %Test123::test yy'),  
-        rule2 => Pugs::Compiler::Token->compile('abc'),   
-    );   
+        rule1 => Pugs::Compiler::Token->compile('xx %Test123::test yy'),
+        rule2 => Pugs::Compiler::Token->compile('abc'),
+    );
     $rule1 = Pugs::Compiler::Token->compile('%Test123::test 123');
     #print $rule1->perl5;
     $match = $rule1->match("rule1xxrule2abcyy123");
@@ -737,7 +743,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
 
 {
     my $rule = Pugs::Compiler::Rule->compile( q(
-        '>>' 
+        '>>'
     ) );
     #print $rule->perl;
     #print Dumper( Pugs::Grammar::Rule->rule( " '>>' " )->() );
@@ -747,7 +753,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
 
 {
     my $rule = Pugs::Compiler::Rule->compile( q(
-        '::' 
+        '::'
     ) );
     #print $rule->perl;
     my $match = $rule->match( "abc::zzz" );
@@ -756,7 +762,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
 
 {
     my $rule = Pugs::Compiler::Rule->compile( q(
-        '}' 
+        '}'
     ) );
     #print $rule->perl;
     my $match = $rule->match( "abc}zzz" );
@@ -765,7 +771,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
 
 {
     my $rule = Pugs::Compiler::Rule->compile( q^
-        ')' 
+        ')'
     ^ );
     #print $rule->perl;
     my $match = $rule->match( "abc)zzz" );
@@ -779,7 +785,7 @@ TODO:
     my $rule = Pugs::Compiler::Token->compile( q(
         (a)
         [
-        |  (a) (x) b c 
+        |  (a) (x) b c
         |  (a) x x y
         ]
     ) );
@@ -793,7 +799,7 @@ TODO:
 {
     my $rule = Pugs::Compiler::Token->compile( q(
         [
-        |  <alpha> x b c 
+        |  <alpha> x b c
         |  <alpha> x x y
         ]
     ) );
@@ -811,7 +817,7 @@ TODO:
     my $rule = Pugs::Compiler::Token->compile( q(
         <alpha>
         [
-        |  <alpha> x b c 
+        |  <alpha> x b c
         |  <alpha> x x y
         ]
     ) );
@@ -845,7 +851,7 @@ TODO:
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", $match->perl;
     is( "$match", "x", 'at-line-start' );
-    
+
     $match = $rule->match( "xy\n" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", $match->perl;
@@ -863,7 +869,7 @@ TODO:
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", $match->perl;
     is( "$match", "x", 'at-line-end' );
-    
+
     $match = $rule->match( "\nyx" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", $match->perl;
@@ -926,7 +932,7 @@ TODO:
 
 {
 
-    { 
+    {
         package Test1;
         sub meth { $_[0]{v} eq 'True' }
     }
