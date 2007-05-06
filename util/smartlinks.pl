@@ -469,20 +469,8 @@ sub process_syn ($$$$) {
       qq{  <!-- end doc -->
 
 </body></html>};  #Again, hardcode the markup until we have an xhtml wrapper emitter for Perl6::Perldoc::To::Xhtml
-        my ($sec, $min, $hour, $mday, $mon, $year) = gmtime;  # copy/paste tons of stuff until Zhang wants to help it.
-        $year += 1900; $mon += 1;
-        my $time = sprintf "%04d-%02d-%02d %02d:%02d:%02d GMT",
-            $year, $mon, $mday, $hour, $min, $sec;
-        ## $smoke_rev
-        my $smoke_info = $smoke_rev ?
-            ", <a href=\"http://feather.perl6.nl/smoke.html\">pugs-smoke</a> <strong>$smoke_rev</strong>"
-            :
-            '';
-        ## $smoke_info
-        $perldochtml =~ s{<!-- start doc -->}{$&
-            <I>This page was generated at $time.<br/>
-            (<a href="http://svn.perl.org/perl6/doc/trunk/design/syn/">syn</a> <strong>$syn_rev</strong>, <a href="http://svn.pugscode.org/pugs/t/">pugs-tests</a> <strong>$pugs_rev</strong>$smoke_info)</I>
-        };
+        my $preamble = gen_preamble();
+        $perldochtml =~ s{<!-- start doc -->}{$&$preamble};
         my $htmfile = "$out_dir/S$syn_id.html";
         warn "info: generating $htmfile...\n";
         open my $out, "> $htmfile" or
@@ -574,19 +562,8 @@ sub process_syn ($$$$) {
 
         #write_file("db_S$syn_id.html", $html);
 
-        my ($sec, $min, $hour, $mday, $mon, $year) = gmtime;
-        $year += 1900; $mon += 1;
-        my $time = sprintf "%04d-%02d-%02d %02d:%02d:%02d GMT",
-            $year, $mon, $mday, $hour, $min, $sec;
-        my $smoke_info = $smoke_rev ?
-            ", <a href=\"http://feather.perl6.nl/smoke.html\">pugs-smoke</a> <strong>$smoke_rev</strong>"
-            :
-            '';
-        ## $smoke_info
-        $html =~ s{<!-- start doc -->}{$&
-            <I>This page was generated at $time.<br/>
-            (<a href="http://svn.perl.org/perl6/doc/trunk/design/syn/">syn</a> <strong>$syn_rev</strong>, <a href="http://svn.pugscode.org/pugs/t/">pugs-tests</a> <strong>$pugs_rev</strong>$smoke_info)</I>
-        };
+        my $preamble = gen_preamble();
+        $html =~ s{<!-- start doc -->}{$&$preamble};
         my $htmfile = "$out_dir/S$syn_id.html";
         warn "info: generating $htmfile...\n";
         open my $out, "> $htmfile" or
@@ -596,6 +573,22 @@ sub process_syn ($$$$) {
     }
 
     #warn "$syn_id: $infile\n";
+}
+
+sub gen_preamble {
+     my ($sec, $min, $hour, $mday, $mon, $year) = gmtime;
+     $year += 1900; $mon += 1;
+     my $time = sprintf "%04d-%02d-%02d %02d:%02d:%02d GMT",
+         $year, $mon, $mday, $hour, $min, $sec;
+     my $smoke_info = $smoke_rev ?
+         ", <a href=\"http://feather.perl6.nl/smoke.html\">pugs-smoke</a> <strong>$smoke_rev</strong>"
+         :
+         '';
+     ## $smoke_info
+    return qq{
+            <I>This page was generated at $time.<br/>
+            (<a href="http://svn.perl.org/perl6/doc/trunk/design/syn/">syn</a> <strong>$syn_rev</strong>, <a href="http://svn.pugscode.org/pugs/t/">pugs-tests</a> <strong>$pugs_rev</strong>$smoke_info)</I>
+     };
 }
 
 sub help () {
