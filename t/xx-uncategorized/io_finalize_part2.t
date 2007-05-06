@@ -18,7 +18,7 @@ if $*OS eq "browser" {
 # Part 2 can fail when tests are run concurrently.  This ensures part 2
 # waits until part 1 is done before trying to read the file
 
-sleep 0.1 while !defined eval 'open("io_finalize_sync");';
+sleep 0.1 until 'io_finalize_sync' ~~ :e;
 unlink('io_finalize_sync');
 
 my $filename = 'tempfile';
