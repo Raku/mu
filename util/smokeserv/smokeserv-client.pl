@@ -60,11 +60,11 @@ my %request = (upload => 1, version => VERSION, smokes => []);
   if($yml and open $fh, '<', $yml) {
     $smoke = <$fh>;
 
-    unless(($smoke =~ $config_re) and $1 eq $config) {
+    unless(($smoke =~ $config_re) and expand_meta($1) eq $config) {
       debug "The .yml and .html files don't seem to correspond.  Aborting.\n";
       exit 1;
     }
-    
+
     $request{yml} = $compress->($smoke) || $smoke;
   }
 }
@@ -125,3 +125,11 @@ sub setup_compression {
     $compress = sub { Compress::Zlib::memGzip(shift) };
   debug "Gzip compression off; consider installing Compress::Zlib\n";
 }
+
+sub expand_meta {
+    my ($s) = @_;
+    $s =~ s/\\n/\n/g;
+    $s =~ s/\\t/\t/g;
+    $s;
+}
+
