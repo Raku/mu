@@ -112,13 +112,31 @@ sub HostGateRtn of QDRDBMS::AST::HostGateRtn
 
 role QDRDBMS::AST::Node {
 
-    method as_perl {
-        die q{not implemented by subclass } ~ self.WHAT;
-    }
+###########################################################################
 
-    method equal_repr {
-        die q{not implemented by subclass } ~ self.WHAT;
-    }
+method as_perl {
+    die q{not implemented by subclass } ~ self.WHAT;
+}
+
+###########################################################################
+
+method equal_repr of Bool (QDRDBMS::AST::Node :$other!) {
+
+    die q{equal_repr(): Bad :$other arg; it is not an object of a}
+            ~ q{ QDRDBMS::AST::Node-doing class.}
+        if !$other.defined or !$other.does(QDRDBMS::AST::Node);
+
+    return $FALSE
+        if $other.WHAT !=== self.WHAT;
+
+    return self._equal_repr( $other );
+}
+
+method _equal_repr {
+    die q{not implemented by subclass } ~ self.WHAT;
+}
+
+###########################################################################
 
 } # role QDRDBMS::AST::Node
 
@@ -163,7 +181,7 @@ method as_perl of Str () {
 
 ###########################################################################
 
-method equal_repr of Bool (::T $self: T :$other!) {
+method _equal_repr of Bool (::T $self: T $other!) {
     return $other!v === $self!v;
 }
 
@@ -211,7 +229,7 @@ method as_perl of Str () {
 
 ###########################################################################
 
-method equal_repr of Bool (::T $self: T :$other!) {
+method _equal_repr of Bool (::T $self: T $other!) {
     return $other!v === $self!v;
 }
 
@@ -264,7 +282,7 @@ method as_perl of Str () {
 
 ###########################################################################
 
-method equal_repr of Bool (::T $self: T :$other!) {
+method _equal_repr of Bool (::T $self: T $other!) {
     return $other!v === $self!v;
 }
 
@@ -312,7 +330,7 @@ method as_perl of Str () {
 
 ###########################################################################
 
-method equal_repr of Bool (::T $self: T :$other!) {
+method _equal_repr of Bool (::T $self: T $other!) {
     return $other!v === $self!v;
 }
 
@@ -368,7 +386,7 @@ method as_perl of Str () {
 
 ###########################################################################
 
-method equal_repr of Bool (::T $self: T :$other!) {
+method _equal_repr of Bool (::T $self: T $other!) {
     my Array $v1 = $self!v;
     my Array $v2 = $other!v;
     return $FALSE

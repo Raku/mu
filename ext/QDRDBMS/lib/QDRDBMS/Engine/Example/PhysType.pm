@@ -5,8 +5,8 @@ use v6-alpha;
 
 my $EMPTY_STR = q{};
 
-my $FALSE = (1 == 0);
-my $TRUE  = (1 == 1);
+my $FALSE = Bool::False;
+my $TRUE  = Bool::True;
 
 ###########################################################################
 ###########################################################################
@@ -134,6 +134,18 @@ method which {
 
 ###########################################################################
 
+method as_ast {
+    die q{not implemented by subclass } ~ self.WHAT;
+}
+
+###########################################################################
+
+method equal {
+    die q{not implemented by subclass } ~ self.WHAT;
+}
+
+###########################################################################
+
 } # role QDRDBMS::Engine::Example::PhysType::Value
 
 ###########################################################################
@@ -141,6 +153,8 @@ method which {
 
 class QDRDBMS::Engine::Example::PhysType::Bool {
     does QDRDBMS::Engine::Example::PhysType::Value;
+
+    use QDRDBMS::AST <LitBool>;
 
     has Bool $!v;
 
@@ -169,6 +183,18 @@ method which of Str () {
 
 ###########################################################################
 
+sub as_ast of LitBool () {
+    return LitBool( :v($!v) );
+}
+
+###########################################################################
+
+method equal of Bool (::T $self: T $other!) {
+    return $other!v === $self!v;
+}
+
+###########################################################################
+
 sub v of Bool () {
     return $!v;
 }
@@ -182,6 +208,8 @@ sub v of Bool () {
 
 class QDRDBMS::Engine::Example::PhysType::Text {
     does QDRDBMS::Engine::Example::PhysType::Value;
+
+    use QDRDBMS::AST <LitText>;
 
     has Str $!v;
 
@@ -210,6 +238,18 @@ method which of Str () {
 
 ###########################################################################
 
+sub as_ast of LitText () {
+    return LitText( :v($!v) );
+}
+
+###########################################################################
+
+method equal of Bool (::T $self: T $other!) {
+    return $other!v === $self!v;
+}
+
+###########################################################################
+
 sub v of Str () {
     return $!v;
 }
@@ -223,6 +263,8 @@ sub v of Str () {
 
 class QDRDBMS::Engine::Example::PhysType::Blob {
     does QDRDBMS::Engine::Example::PhysType::Value;
+
+    use QDRDBMS::AST <LitBlob>;
 
     has Blob $!v;
 
@@ -251,6 +293,18 @@ method which of Str () {
 
 ###########################################################################
 
+sub as_ast of LitBlob () {
+    return LitBlob( :v($!v) );
+}
+
+###########################################################################
+
+method equal of Bool (::T $self: T $other!) {
+    return $other!v === $self!v;
+}
+
+###########################################################################
+
 sub v of Blob () {
     return $!v;
 }
@@ -264,6 +318,8 @@ sub v of Blob () {
 
 class QDRDBMS::Engine::Example::PhysType::Int {
     does QDRDBMS::Engine::Example::PhysType::Value;
+
+    use QDRDBMS::AST <LitInt>;
 
     has Int $!v;
 
@@ -288,6 +344,18 @@ method which of Str () {
         $!which = "12 sys.type.Int {$s.graphs} $s";
     }
     return $!which;
+}
+
+###########################################################################
+
+sub as_ast of LitInt () {
+    return LitInt( :v($!v) );
+}
+
+###########################################################################
+
+method equal of Bool (::T $self: T $other!) {
+    return $other!v === $self!v;
 }
 
 ###########################################################################

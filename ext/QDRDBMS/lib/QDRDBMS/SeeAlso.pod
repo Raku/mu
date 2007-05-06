@@ -515,7 +515,8 @@ L<TripleStore>, L<Data::Table>, L<ORM>, L<OOPS>, L<Object::Transaction>,
 L<Relations>, L<DBIx::SimplePerl>, L<DBIx::YAWM>, L<Class::Entity>,
 L<SQL::Statement>, L<SQL::Parser>, L<SQL::Translator>, L<SQL::YASP>,
 L<SQL::Generator>, L<SQL::Schema>, L<SQL::Abstract>, L<SQL::Snippet>,
-L<SQL::Catalog>, L<DBIx::Perlish>, L<Tao::DBI>, L<NTuples>.
+L<SQL::Catalog>, L<DBIx::Perlish>, L<Tao::DBI>, L<NTuples>,
+L<DBIx::CopyRecord>.
 
 =head1 AUTHOR
 

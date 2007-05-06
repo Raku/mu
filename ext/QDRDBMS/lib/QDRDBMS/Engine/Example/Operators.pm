@@ -24,11 +24,11 @@ module QDRDBMS::Engine::Example::Operators-0.0.0 {
 ## sys.type.Int ##
 
 'sys.rtn.Int.equal' => sub (:$v1!, :$v2!) {
-    return dBool( :v($v1.v() === $v2.v()) );
+    return dBool( :v($v1.equal( $v2 )) );
 },
 
 'sys.rtn.Int.not_equal' => sub (:$v1!, :$v2!) {
-    return dBool( :v($v1.v() !=== $v2.v()) );
+    return dBool( :v(!$v1.equal( $v2 )) );
 },
 
 'sys.rtn.Int.assign' => sub (:$target!, :$v!) {
@@ -52,7 +52,7 @@ module QDRDBMS::Engine::Example::Operators-0.0.0 {
     my Int $divisor_v = $divisor.v();
     die q{sys.rtn.Int.quotient(): Arg :$divisor is zero.}
         if $divisor_v === 0;
-#    return Int( :v(floor ($dividend.v() div $divisor_v)) );
+#    return dInt( :v(floor ($dividend.v() div $divisor_v)) );
     return dInt( :v(floor ($dividend.v() / $divisor_v)) );
 },
 
@@ -60,7 +60,7 @@ module QDRDBMS::Engine::Example::Operators-0.0.0 {
     my Int $divisor_v = $divisor.v();
     die q{sys.rtn.Int.remainder(): Arg :$divisor is zero.}
         if $divisor_v === 0;
-#    return Int( :v($dividend.v() mod $divisor_v) );
+#    return dInt( :v($dividend.v() mod $divisor_v) );
     return dInt( :v($dividend.v() % $divisor_v) );
 },
 
