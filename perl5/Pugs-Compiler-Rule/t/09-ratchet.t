@@ -315,6 +315,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
 
 }
 
+# L<S05/"Extensible metasyntax (C<< <...> >>)"/"leading !" "negated meaning">
 {
     # not-before
     my $rule = Pugs::Compiler::Token->compile('a<!before b>', { ratchet => 1 } );
@@ -344,7 +345,6 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
 }
 
 {
-    # $
     my $rule = Pugs::Compiler::Token->compile('a$', { ratchet => 1 } );
     my $match = $rule->match( "ab" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
