@@ -172,9 +172,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is( "$match", "\n", 'escaped char \\n' );
 }
 
-#TODO:
 {
-    #local $TODO = "usage of :!p in token is not specified";
     # escaped chars
     my $rule = Pugs::Compiler::Token->compile( '\d', { ratchet => 1 } );
     my $match = $rule->match( "abc123" );
@@ -183,9 +181,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is( "$match", "1", 'escaped char \\d' );
 }
 
-#TODO:
 {
-    #local $TODO = "usage of :!p in token is not specified";
     # escaped chars
     my $rule = Pugs::Compiler::Token->compile( '\D', { ratchet => 1 } );
     my $match = $rule->match( "123abc" );
@@ -727,9 +723,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
 
 }
 
-#TODO:
 {
-    #local $TODO = "failing hash rule interpolation inside itself";
     my $match;
     %Test123::test = (
         rule1 => Pugs::Compiler::Token->compile('xx %Test123::test yy'),
@@ -921,9 +915,7 @@ TODO:
     is( "$match", "xy2 xxx", 'prior' );
   }
 
-#TODO:
-    {
-    #local $TODO = '<prior> is recursive';
+{
     my $rule = Pugs::Compiler::Token->compile( '<prior> \s <prior>' );
     my $match = eval {
         $rule->match( "\n1xy2 xy3 kkk lll\n" )
