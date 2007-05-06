@@ -20,7 +20,7 @@ use Getopt::Long;
 use File::Basename;
 use FindBin;
 use File::Find qw(find);
-use File::Slurp;
+#use File::Slurp;
 #use Pod::Simple::HTML;
 
 my $check;
@@ -440,10 +440,17 @@ sub process_syn ($$$$) {
         my $base = basename($infile, '.pod');
         $syn_id = $Spec{$base};
     }
-    if ($syn_id == 26) { #hardcode the only Perldoc one for now; detect Perldoc later.
+
+    # S26 is in Pod6, we treat it specifically for now.
+    if ($syn_id == 26) {
       eval "use Perl6::Perldoc 0.000005; use Perl6::Perldoc::Parser; use Perl6::Perldoc::To::Xhtml;";
       if ($@) {
           warn "Please install Perl6::Perldoc v0.0.5 from the CPAN to parse S26";
+          return;
+      }
+      eval "use File::Slurp";
+      if ($@) {
+          warn "Please install File::Slurp from CPAN";
           return;
       }
 
