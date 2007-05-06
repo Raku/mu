@@ -33,17 +33,21 @@ sub get_config {
     }
 
     $config->{perl5_path} = $Config{perlpath};
-
     for ( qw/path_sep privlib archlib siteprefix sitebin sitescript sitearch sitelib 
             installbin installscript installman1dir installman3dir installsitebin
             installsiteman1dir installsiteman3dir
             archname bin exe_ext installarchlib installprivlib
             installsitearch installsitelib pager prefix scriptdir  
             / ) {
-        $config->{$_} ||= $Config{$_}
+        $config->{$_} ||= $_ =~ /(lib|arch)$/
+                ? add_path( $_, $Config{$_} )
+                : $Config{$_};
     }
-    $config->{"installsiteman${_}dir"} ||= $Config{"installman${_}dir"} for 1,3;
-    $config->{sitescript} ||= $Config{$_} for (qw/installsitescript installscript/);
+    $config->{installsiteman1dir} ||= $Config{installman1dir};
+    $config->{installsiteman3dir} ||= $Config{installman3dir};
+    for (qw/installsitescript installscript/) {
+        $config->{sitescript} ||= $Config{$_}
+    }
     $config->{installsitebin} ||= $Config{installsbin};
 
     $config->{pugspath}  =
@@ -57,8 +61,7 @@ sub get_config {
 }
 
 sub add_path {
-    my ($name, $config) = @_;
-    my $path = $Config{$name} || '';
+    my ($name, $path) = @_;
     $path =~ s/([\/\\])[^\/\\]*(perl)[^\/\\]*([\/\\]?)/$1${2}6$3/i
       or $path =~ s/([\/\\])(lib)(?=[\/\\]|$)/$1$2${1}perl6/i
 #      or $path =~ m/\bman\d\b/
@@ -68,13 +71,13 @@ Can't generate the correct Perl6 equivalent for:
     $path
 
 field name: $name
-osname: $config->{osname}
+osname: $Config{osname}
 
 Please notify the maintainer of this code. (Brian Ingerson for now)
 .
 # XXX Not sure about the above heuristic. So die if incorrect.
     $path =~ s/\/\d+\.\d+\.\d+//g;
-    $config->{$name} = $path;
+    $path;
 }
 
 sub write_config_module {
