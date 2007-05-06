@@ -24,3 +24,8 @@ my $filename = 'tempfile';
 my $fh = open($filename, :w);
 isa_ok($fh, IO);
 $fh.say("Hello World");
+
+# Part 2 can fail when tests are run concurrently.  This ensures part 2
+# waits until part 1 is done before trying to read the file
+
+open('io_finalize_sync', :w);
