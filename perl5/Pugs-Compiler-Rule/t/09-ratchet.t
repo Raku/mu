@@ -840,6 +840,8 @@ TODO:
     is( scalar keys %h, 0, 'non-capturing char class' );
 }
 
+# L<S05/"New metacharacters"/
+#   "^^ and $$ match line beginnings and endings">
 {
     my $rule = Pugs::Compiler::Token->compile( '^^x' );
     my $match = $rule->match( "\nyx\n" );
@@ -902,6 +904,8 @@ TODO:
     is( "$match", "xxx", 'anchored at line start/end' );
 }
 
+# L<S05/Nothing is illegal/
+#    "match whatever the prior successful regex matched">
 {
     my $rule = Pugs::Compiler::Token->compile( '<ident>' );
     my $match = $rule->match( "\n1xy2\n" );
@@ -930,6 +934,7 @@ TODO:
   }
 }
 
+# L<S05/Matching against non-strings/"<.can('scratch')>">
 {
 
     {
@@ -967,6 +972,8 @@ TODO:
     is( $$match, "y", 'return capture' );
 }
 
+# L<S05/Extensible metasyntax (C<< <...> >>)/
+#    "<< token indicates a left word boundary">
 {
     my $rule = Pugs::Compiler::Token->compile( '<<xyz' );
     my $match = $rule->match( "axyz xyz" );
@@ -1003,6 +1010,8 @@ TODO:
     is( $$match, "xyz", 'xyz>>' );
     is( $match->from > 0 , 1, 'xyz>>' );
 }
+
+# L<S05/New metacharacters/& "separates conjunctive terms">
 {
     my $rule = Pugs::Compiler::Token->compile( 'x & <alpha>' );
     my $match = $rule->match( "xyza xyz" );
@@ -1012,6 +1021,8 @@ TODO:
     is( $$match, "x", 'x & <alpha>' );
     #is( $match->from > 0 , 1, 'xyz>>' );
 }
+
+# L<S05/Longest-token matching/"|" "represents logical alternation with declarative longest-token semantics">
 {
     my $rule = Pugs::Compiler::Token->compile( ' y | z ' );
     my $match = $rule->match( "z" );
