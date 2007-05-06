@@ -315,7 +315,8 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
 
 }
 
-# L<S05/"Extensible metasyntax (C<< <...> >>)"/"leading !" "negated meaning">
+# L<S05/"Extensible metasyntax (C<< <...> >>)"/
+#   "leading !" "negated meaning">
 {
     # not-before
     my $rule = Pugs::Compiler::Token->compile('a<!before b>', { ratchet => 1 } );
@@ -344,7 +345,10 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is( "$match", "a!", 'negated alpha matches' );
 }
 
+# L<S05/Changed metacharacters/
+#    "^ and $" "always match" "start/end of" string>
 {
+    # $
     my $rule = Pugs::Compiler::Token->compile('a$', { ratchet => 1 } );
     my $match = $rule->match( "ab" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
@@ -357,6 +361,8 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is( "$match", "a", 'end-of-str' );
 }
 
+# L<S05/Changed metacharacters/
+#    dot matches "any character including newline">
 {
     # .
     my $rule = Pugs::Compiler::Token->compile('a..', { ratchet => 1 } );
@@ -376,6 +382,8 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is( "$match", "abc", 'dot overflow' );
 }
 
+# L<S05/"Extensible metasyntax (C<< <...> >>)"/
+#    "<after pattern>" "(?<=pattern)">
 {
     # after
     my $rule1 = Pugs::Compiler::Token->compile('<after xyz>a', { ratchet => 1 } );
@@ -933,6 +941,8 @@ TODO:
     is( ( $match ? 1 : 0 ) , 1, 'object matches' );
 }
 
+# L<S05/"Extensible metasyntax (C<< <...> >>)"/
+#    "match only at a particular StrPos">
 {
     my $rule = Pugs::Compiler::Token->compile( 'x <at(1)>' );
     my $match = $rule->match( "xy" );
@@ -941,6 +951,8 @@ TODO:
     is( "$match", "x", 'at' );
 }
 
+# L<S05/"Extensible metasyntax (C<< <...> >>)"/
+#    "<( token" "the start of a result capture">
 {
     my $rule = Pugs::Compiler::Token->compile( 'x <(y)> z' );
     my $match = $rule->match( "xyz" );
