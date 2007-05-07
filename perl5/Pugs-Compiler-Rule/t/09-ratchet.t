@@ -1,5 +1,5 @@
 
-use Test::More tests => 148;
+use Test::More tests => 151;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -544,7 +544,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is( "$match->[0][1]", "bar:bard barb\n", 'capturing with captures inside - 4' );
 }
 
-# XXX
+# L<S05/Modifiers/":s" "(:sigspace) modifier" "whitespace sequences" "significant">
 {
     # sigspace
 
@@ -563,6 +563,11 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is( "$match", "a c", 'sigspace match' );
     is( $match->[0][0], undef, 'sigspace empty match' );
 
+    $match = $rule->match( "a  \t c" );
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "a  \t c", 'sigspace match' );
+    is( $match->[0][0], undef, 'sigspace empty match (multi-sp)' );
+
     $match = $rule->match( "a b c" );
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match->[0][0]", "b ", 'sigspace one match' );
@@ -570,6 +575,10 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     $match = $rule->match( "a b b b c" );
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match->[0][1]", "b ", 'sigspace many match' );
+
+    $match = $rule->match( "a b b bc" );
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match->[0][1]", "", 'sigspace required' );
 
     $match = $rule->match( "a b b b d" );
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
