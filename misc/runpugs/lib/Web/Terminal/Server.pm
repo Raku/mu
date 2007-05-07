@@ -457,7 +457,7 @@ print "    Session $id ($app,$cmd) is not active:", exists( $active_sessions[$ap
 # Create a new session
 sub create_session {
 	my $app = shift;
-my $session_number=-3;
+	my $session_number=-3;
 	if ( $n_sessions[$app] < $n_max[$app] ) {
 		# Yes, there is room to create a new session
 		$session_number = pop @{ $session_numbers_stack[$app] };
@@ -475,6 +475,10 @@ my $session_number=-3;
 			$n_inactive_sessions[$app]++;
 		} else {
 			# Something went wrong, failed to create a new session
+			print "Something went wrong, failed to create a new session:\n";
+			print $new_session->{'error'};
+			print $new_session->{'output'};
+			
 			# push session number back onto stack
 			push @{ $session_numbers_stack[$app] }, $session_number;
 			$session_number= -1;    # creating session failed
@@ -483,8 +487,8 @@ my $session_number=-3;
 		# Alas, no room for a new session.
 		$session_number= -2;        # max nsessions reached
 	}
-	print "+++ Created session  $session_number ($app): tot:$n_sessions[$app]; active: $n_active_sessions[$app];inactive: $n_inactive_sessions[$app]\n" if $v;
-	print "+++ Actual occupancy $session_number ($app): tot:",scalar keys %{$sessions[$app]},"; active: ", scalar keys %{$active_sessions[$app]},";inactive: ",scalar @{$inactive_sessions[$app]}," ;free: ",scalar @{$session_numbers_stack[$app]},"\n" if $v;
+	print "\n+++ Created session $session_number ($app): tot:$n_sessions[$app]; active: $n_active_sessions[$app];inactive: $n_inactive_sessions[$app]\n" if $v;
+	print "+++ Occupancy for $session_number ($app): tot:",scalar keys %{$sessions[$app]},"; active: ", scalar keys %{$active_sessions[$app]},";inactive: ",scalar @{$inactive_sessions[$app]}," ;free: ",scalar @{$session_numbers_stack[$app]},"\n" if $v;
 	assert($n_sessions[$app]==$n_inactive_sessions[$app]+$n_active_sessions[$app]);
 	assert(scalar(keys %{$sessions[$app]})==scalar( keys %{$active_sessions[$app]})+scalar( @{$inactive_sessions[$app]}));
 	assert(scalar(@{$session_numbers_stack[$app]})+scalar(keys %{$sessions[$app]})==$n_max[$app]);
@@ -659,6 +663,7 @@ sub clean_up_timed_out_sessions() {
 #-------------------------------------------------------------------------------
 sub init_sessions {
 	for my $app ( 0 .. @Web::Terminal::Settings::commands - 1 ) {
+
 		@{ $session_numbers_stack[$app] } = 1 .. $n_max[$app];
 		$n_inactive_sessions[$app] = 0;
 		$n_active_sessions[$app]   = 0;
@@ -667,28 +672,35 @@ sub init_sessions {
 		  %{ $sessions[$app]}=();
 		  
 if (&sane($app)) {
+			print "Creating sessions for $app\n" if $v;
 		for my $i ( 1 .. $Web::Terminal::Settings::npreloaded_sessions[$app] ) {
             my $ret = &create_session($app);
-			print $ret>0?'OK: $ret':'NOK',': #sesssions: ', scalar( @{ $inactive_sessions[$app] } ), ' for app ',
+			print $ret>0?'OK: $ret':"NOK: $ret",': #sesssions: ', scalar( @{ $inactive_sessions[$app] } ), ' for app ',
 			  $app, "\n"
 			  if $v;
 		}
 	assert(scalar(@{ $inactive_sessions[$app] })==$Web::Terminal::Settings::npreloaded_sessions[$app]);
-	}
-    }
+	} else {
+		print "App $app is not sane. Skipped.\n" if $v; 
+}
+}
 }    # END of init_sessions()
 #------------------------------------------------------------------------------
-# check if command is sane (FSDO sane)
+# Check if command is sane (FSDO sane)
+# This should be part of settings. 
 sub sane {
     my $app=shift;
     my $cmd=$Web::Terminal::Settings::commands[$app];
     $cmd=~s/^.*nice\s+//; # de-nice
+    if ($cmd !~/pugs/) {
+    	return 1;
+    } else {
     my $reply=`PUGS_SAFEMODE=1 $cmd -e \"print 42\" 2>/dev/null`;
     if ($reply==42) {
         return 1;
     } else {
         return 0;
-    }
+    }}
 }
 #-------------------------------------------------------------------------------
 # init_create gets called by SIGUSR2, as raised by async_init_create()
@@ -754,7 +766,13 @@ sub call_clean_up {
 			( my $ret, my $p, my $h ) =
 			  Web::Terminal::Dispatcher::send( 0, '127.0.0.1', 1, 1,
 									  'Web::Terminal::Server::Sessions.clean-up' );
-			print "call_clean_up() call returned: cleaned up <$ret> sessions\n" if $v;
+								  if ($v) {
+									  if($ret=~/[a-z]/) {
+			print "call_clean_up() call returned: $ret\n";
+									  } else {
+			print "call_clean_up() call returned: cleaned up <$ret> sessions\n";
+		}
+		}
 			  #( $ret < 1 ) ? "Nothing to clean up" : "OK", "\n" if $v;
 		
 }    # END of call_clean_up()

@@ -5,7 +5,7 @@ use 5.008;             # 5.8 required for stable threading
 use warnings;
 use strict;
 
-use threads;           # pull in threading routines
+#use threads;           # pull in threading routines
 
 use lib '../lib/';
 use Web::Terminal::Settings;
@@ -18,12 +18,26 @@ my @threads=();
 my $n_threads=20;
 our $nclients_serial=500;
 
-for my $i (0..$n_threads-1) {
-	$threads[$i]=threads->create("client_session",$i);
-}
+#for my $i (0..$n_threads-1) {
+#	$threads[$i]=threads->create("client_session",$i);
+#}
 
 # program exits when first thread exits
-$threads[0]->join(); 
+my $pid;
+for my $i (0..$n_threads-1) {
+	if($pid=fork()) {
+		print "Spawned $i\n"; 
+	} elsif (defined $pid) { # Child
+			print "Running $i\n";
+			&client_session($i);
+			exit(0);
+		} else {
+			die "Fork failed!";
+		}
+}
+print "Parent: done creating clients.";
+sleep 3600;
+#$threads[0]->join(); 
 
 
 sub client_session {
@@ -107,7 +121,8 @@ my $reply=&send_cmd($cmd,$id,$ip,$app,);
 if ($cmd ne $reply) {
 print "$i:WARNING2: $cmd<>$reply\n";# if $v;
 #if ($reply eq '0') {
-system("./killall_perl");
+#system("./killall_perl");
+kill 9,getppid();
 exit() ;
 #}
 }
@@ -117,12 +132,12 @@ if($quit) {
 &send_cmd(':q',$id,$ip,$app);
 } elsif ($abort) {
 &send_cmd(':A',$id,$ip,$app);
-} #Êotherwise do nothing, server should time the session out
+} #ï¿½otherwise do nothing, server should time the session out
 my $w_log= rand($w_max_log)+$w_min_log;
 my $wait=int(2**$w_log);
 print "\n$i:Waiting for $wait seconds...\n" if $v;
 sleep $wait; 
-} #Êend of nclients_serial loop
+} #ï¿½end of nclients_serial loop
 
 }
 

@@ -2,8 +2,9 @@ package Web::Terminal::Server::Session;
 
 use vars qw( $VERSION );
 $VERSION='0.3.0';
-use strict;
-use utf8;
+use Moose;
+#use strict;
+#use utf8;
 use lib '.','../../..';
 use Web::Terminal::Settings;
 
@@ -13,46 +14,55 @@ use Web::Terminal::Settings;
 
 $SIG{CHLD}='IGNORE';
 
-my $v=(1-$Web::Terminal::Settings::daemon)*(1-$Web::Terminal::Settings::test);
-## Constructor
-sub new {
-	my $invocant = shift;
-	my $class    = ref($invocant) || $invocant;
-	my $self     = {@_};
+my $v=0*(1-$Web::Terminal::Settings::daemon)*(1-$Web::Terminal::Settings::test);
+
     my $prompt ='/'.$Web::Terminal::Settings::prompt.'/';
-    $self->{'prompt'}=$prompt;
-    $self->{'error'}=0;
-    $self->{'recent'}=[];
-    print "Starting pugs session for ",$self->{'id'},"\n" if $v; 
+    has 'prompt' => (is=>'rw',isa=>'Str', default => $prompt);
+    has 'error' => (is=>'rw',isa=>'Int',default=>0);
+ 	has 'output' => (is=>'rw',isa=>'Str');    
+    has 'recent'=> (is=>'rw',isa=>'ArrayRef',default=>sub {[]});
+    has 'id' => (is=>'ro',isa=>'Str');
+    has 'ip' => (is=>'ro',isa=>'Str');
+    has 'app' => (is=>'ro',isa=>'Int');
+    has 'ia' => (is=>'ro',isa=>'Int');
+    has 'cmds' => (is=>'ro',isa=>'Str');
+   	has 'pugs' => (is=>'rw',isa=>'Str');
+    has 'pty' => (is=>'rw',isa=>'Any');
+    has 'pid' => (is=>'rw',isa=>'Int');
+    
+    sub BUILD {
+    	my $self=shift;
+    print "Starting pugs session for ",$self->id,"\n" if $v; 
 	## Start pugs
-    my $app=$self->{'app'};
+    my $app=$self->app;
     my $command=$Web::Terminal::Settings::commands[$app];
     if (not $Web::Terminal::Settings::test) {
-    if ($self->{'ia'}==0) {
+    if ($self->ia==0) {
         #1. Create a file with the content of $cmd using $id.p6 for name, store in data
-        my $id=$self->{'id'};
-        open(P6,">$Web::Terminal::Settings::tmp_path/$id.p6") or ($self->{'error'}=1);
-        if($self->{'error'}==0) {
-        print P6 $self->{'cmds'};
+        my $id=$self->id;
+        open(P6,">$Web::Terminal::Settings::tmp_path/$id.p6") or $self->error(1);
+        if($self->error==0) {
+        print P6 $self->cmds;
         close P6;
             $command.=" $Web::Terminal::Settings::tmp_path/$id.p6";
         }
     }
 	( $self->{'pty'},$self->{'pid'} ) = &spawn($command);    # spawn() defined below
-    if ( $self->{'pty'}==-1 and  $self->{'pid'}==0) {
+    if ( $self->pty==-1 and  $self->pid==0) {
         print "There was a problem starting pugs. Please try again later.\n"
         if $v;
-        $self->{'output'}= "\nThere was a problem starting pugs. Please try again later.";
-        $self->{'error'}=1;
-        if ($self->{'ia'}==0) {
-            my $id=$self->{'id'};
+        $self->output("\nThere was a problem starting pugs. Please try again later.");
+        $self->error(1);
+        if ($self->ia==0) {
+            my $id=$self->id;
             unlink "$Web::Terminal::Settings::tmp_path/$id.p6";
         }
     } else {
 	## Create a Net::Telnet object to perform I/O on pugs's tty.
+	print "Pugs started successfully. Creating Net::Telnet object as session handler...\n" if $v;
 	use Net::Telnet;
 	$self->{'pugs'} = new Net::Telnet(
-		-fhopen => $self->{'pty'},
+		-fhopen => $self->pty,
 		-timeout => $Web::Terminal::Settings::timeout_call,
 		-prompt => $prompt,
 		-telnetmode      => 0,
@@ -63,7 +73,7 @@ sub new {
     	$self->{'pid'}=42;
     	$self->{'pugs'} ="Test flag is set -- no session started for $command.";
     }
-	bless($self,$class);
+	print "Reading Pugs startup message...\n" if $v;
     my $m=$self->readlines();
       if ($self->{'error'}==1 and not $Web::Terminal::Settings::test) {
           # should close the TTY
@@ -77,18 +87,97 @@ sub new {
           $self->{'pty'}->close() unless ($self->{'pty'}==-1);
           $self->{'pugs'}->close();
         }
-	$self->{'output'}= $m; 
-
+	$self->{'output'}= $m;
+	print "\nStatus is ",($self->{'error'}==1)?'ERROR':'OK',"\n" if $v; 
+print "Returning with output:\n",$m,"\n\n" if $v;
 	return $self;
 } # END of new() constructor method
+
+
+
+### Constructor
+#sub new {
+#	my $invocant = shift;
+#	my $class    = ref($invocant) || $invocant;
+#	my $self     = {@_};
+#    my $prompt ='/'.$Web::Terminal::Settings::prompt.'/';
+#    $self->{'prompt'}=$prompt;
+#    $self->{'error'}=0;
+#    $self->{'recent'}=[];
+#    print "Starting pugs session for ",$self->{'id'},"\n" if $v; 
+#	## Start pugs
+#    my $app=$self->{'app'};
+#    my $command=$Web::Terminal::Settings::commands[$app];
+#    if (not $Web::Terminal::Settings::test) {
+#    if ($self->{'ia'}==0) {
+#        #1. Create a file with the content of $cmd using $id.p6 for name, store in data
+#        my $id=$self->{'id'};
+#        open(P6,">$Web::Terminal::Settings::tmp_path/$id.p6") or ($self->{'error'}=1);
+#        if($self->{'error'}==0) {
+#        print P6 $self->{'cmds'};
+#        close P6;
+#            $command.=" $Web::Terminal::Settings::tmp_path/$id.p6";
+#        }
+#    }
+#	( $self->{'pty'},$self->{'pid'} ) = &spawn($command);    # spawn() defined below
+#    if ( $self->{'pty'}==-1 and  $self->{'pid'}==0) {
+#        print "There was a problem starting pugs. Please try again later.\n"
+#        if $v;
+#        $self->{'output'}= "\nThere was a problem starting pugs. Please try again later.";
+#        $self->{'error'}=1;
+#        if ($self->{'ia'}==0) {
+#            my $id=$self->{'id'};
+#            unlink "$Web::Terminal::Settings::tmp_path/$id.p6";
+#        }
+#    } else {
+#	## Create a Net::Telnet object to perform I/O on pugs's tty.
+#	print "Pugs started successfully. Creating Net::Telnet object as session handler...\n" if $v;
+#	use Net::Telnet;
+#	$self->{'pugs'} = new Net::Telnet(
+#		-fhopen => $self->{'pty'},
+#		-timeout => $Web::Terminal::Settings::timeout_call,
+#		-prompt => $prompt,
+#		-telnetmode      => 0,
+#		-cmd_remove_mode => 0,
+#	);
+#    }
+#    } else {
+#    	$self->{'pid'}=42;
+#    	$self->{'pugs'} ="Test flag is set -- no session started for $command.";
+#    }
+#	bless($self,$class);
+#	print "Reading Pugs startup message...\n" if $v;
+#    my $m=$self->readlines();
+#    #my $m=$self->write('');
+#      if ($self->{'error'}==1 and not $Web::Terminal::Settings::test) {
+#          # should close the TTY
+#          $self->{'pty'}->close() unless ($self->{'pty'}==-1);
+#          $self->{'pugs'}->close();
+#      }
+#        if ($self->{'ia'}==0 and not $Web::Terminal::Settings::test) {
+#        my $id=$self->{'id'};
+#        unlink "$Web::Terminal::Settings::tmp_path/$id.p6";
+#          # should close the TTY
+#          $self->{'pty'}->close() unless ($self->{'pty'}==-1);
+#          $self->{'pugs'}->close();
+#        }
+#	$self->{'output'}= $m;
+#	print "\nStatus is ",($self->{'error'}==1)?'ERROR':'OK',"\n" if $v; 
+#print "Returning with output:\n",$m,"\n\n" if $v;
+#	return $self;
+#} # END of new() constructor method
 #------------------------------------------------------------------------------
 sub DESTROY {
     my $obj = shift;
     if (not $Web::Terminal::Settings::test) {
+    	if (defined $obj->{'pty'}) {
     $obj->{'pty'}->close();
      $obj->{'pty'}->close_slave();
+    	}
+    	if (defined $obj->{'pugs'}) {
       $obj->{'pugs'}->close();
-      if($obj->{'pid'}>10){
+    	}
+      if(defined $obj->{'pid'} and $obj->{'pid'}>10){
           kill 9,$obj->{'pid'};
       }
     }
@@ -113,7 +202,7 @@ if (not $Web::Terminal::Settings::test) {
     my $pugs=$obj->{'pugs'};
     $pugs->errmode(sub {kill 9,$obj->{'pid'};});
 
-	$pugs->print($cmd);
+	$pugs->print($cmd) unless $cmd eq '';
 	while ($i<$Web::Terminal::Settings::nlines) {
 		my $line = $pugs->getline;
         my $msg=$pugs->errmsg;
@@ -155,35 +244,58 @@ if (not $Web::Terminal::Settings::test) {
 } # END of write() method
 #------------------------------------------------------------------------------
 # Could be considered private;
-# TODO: unifiy with write()
+# Only used by the constructor
+# The tacit assumption is that the MOTD is never too long
 sub readlines {
 	my $obj = shift;
 	my $ps = '';
-	my $i     = 1;
+#	my $i     = 1;
 	my $lline = '';
 	if (not $Web::Terminal::Settings::test) {
     my $pugs=$obj->{'pugs'};
     $pugs->errmode(sub {kill 9,$obj->{'pid'}; });
-	while ($i<$Web::Terminal::Settings::nlines) {
-    my $char='';
+#        my $prev=0;
+#	while ($i<$Web::Terminal::Settings::nlines) {
+#    my $char='';
     my $line='';
-    my $j=0;
-    while ($char ne "\n" and ($j<$Web::Terminal::Settings::nchars)) {
-    $char=$pugs->get();
-    $j++;
-    last if $char eq '';
-    $line.=$char;
-    last if $line eq $Web::Terminal::Settings::prompt;
-    }
-        print $line if $v;
-        if ($j>=$Web::Terminal::Settings::nchars-1) {
-        $line.="Generated output is limited to $Web::Terminal::Settings::nchars characters. Aborted.\n";
-       $obj->{pugs}->close();
-        kill 9, $obj->{'pid'};
-        $obj->{'error'}=1;
-        $lline .= $line;
-        last;
-        }
+#    my $j=0;
+
+#    while ($char ne "\n" and ($j<$Web::Terminal::Settings::nchars)) {
+#    #$char=$pugs->get();#
+#    $char=getc $obj->{'pty'};
+#    #if ($prev>0) {
+#    #print ord($char),"\t:char\n" if $v;
+#    #}
+#    #if (ord($char)!=27) {    	    	
+#    $j++;
+#    last if $char eq '';
+#    $line.=$char;
+#   # print "{$line}\n";
+#    last if $line =~/${Web::Terminal::Settings::prompt}$/;
+#    #} else {die;$prev=1;}
+#    }
+  
+	($line, $ps)=$pugs->waitfor(String=>$Web::Terminal::Settings::prompt);
+	  $pugs->buffer_empty(); # maybe redundant, but play safe   
+#	my @chars=split('',$line);
+#	for my $char(@chars) {
+#		print ord($char),"\n";
+#	}
+	  
+	#$line=~s/....$//;
+       #print "L:<",$line,">" if $v;
+        #print "P:<",$ps,">" if $v;
+     #   if ($line=~/Prelude/i){$prev++};
+     #die if (($line=~/${Web::Terminal::Settings::prompt}/) and ($prev>1));
+    
+#        if ($j>=$Web::Terminal::Settings::nchars-1) {
+#        $line.="Generated output is limited to $Web::Terminal::Settings::nchars characters. Aborted.\n";
+#       $obj->{pugs}->close();
+#        kill 9, $obj->{'pid'};
+#        $obj->{'error'}=1;
+#        $lline .= $line;
+#        last;
+#        }
         my $msg=$pugs->errmsg;
 	    if($msg=~/timed/) {
             $msg='';
@@ -199,19 +311,20 @@ sub readlines {
             last;
         }
         $msg='';
-        if ( ($line =~ /$Web::Terminal::Settings::prompt_pattern/ or
-        ($line=~/$Web::Terminal::Settings::quit_pattern/)) and $i > 1 ) { $ps = $1; last }
+#        if ( ($line =~ /$Web::Terminal::Settings::prompt_pattern/ or
+#        ($line=~/$Web::Terminal::Settings::quit_pattern/)) and $i > 1 ) { $ps = $1; last }
 		$lline .= $line unless $line =~
         /$Web::Terminal::Settings::prompt_pattern/;
-		$i++;
+#		$i++;
         last if $line eq '';
-	}
-   if ($i>=$Web::Terminal::Settings::nlines-1) {
-       $obj->{pugs}->close();
-        kill 9, $obj->{'pid'};
-        $lline.="Generated output is limited to $Web::Terminal::Settings::nlines lines. Aborted.\n";
-        $obj->{'error'}=1;
-    }
+#	}
+#   if ($i>=$Web::Terminal::Settings::nlines-1) {
+#       $obj->{pugs}->close();
+#        kill 9, $obj->{'pid'};
+#        $lline.="Generated output is limited to $Web::Terminal::Settings::nlines lines. Aborted.\n";
+#        $obj->{'error'}=1;
+#    }
+    
 	} else {
 		$lline="Test flag is set -- readlines() called.";
 	}
@@ -234,7 +347,7 @@ sub spawn {
           return ( -1, 0 );
       };
       #
-    binmode $pty, ":utf8"; 
+    #binmode $pty, ":utf8"; 
 	## Execute the program in another process.
 	unless ( $pid = fork ) {    # child process
 	#	die "problem spawning program: $!\n" unless defined $pid;
@@ -249,7 +362,7 @@ sub spawn {
 
 		## Associate process with a new controlling terminal.
 		$tty    = $pty->slave;
-        binmode $tty, ":utf8";
+        #binmode $tty, ":utf8";
 		$tty_fd = $tty->fileno;
 		close $pty;
 
@@ -257,9 +370,9 @@ sub spawn {
 		open STDIN,  "<&$tty_fd" or ($error=1);#die $!;
 		open STDOUT, ">&$tty_fd" or ($error=1);#die $!;
 		open STDERR, ">&STDOUT"  or ($error=1);#die $!;
-        binmode STDIN, ":utf8";
-        binmode STDOUT, ":utf8";
-        binmode STDERR, ":utf8";
+        #binmode STDIN, ":utf8";
+        #binmode STDOUT, ":utf8";
+        #binmode STDERR, ":utf8";
 		close $tty;
 
 		## Execute requested program.
@@ -284,7 +397,7 @@ __END__
 
 Web::Terminal::Server::Session -- Session object to encapsulate terminal
 application.
-Requires Net::Telnet.
+Requires Net::Telnet, Moose.
 
 =head1 SYNOPSIS
 
@@ -304,7 +417,7 @@ Requires Net::Telnet.
 
 This module provides a Session object. The object encapsulates the
 actual terminal session. The session is configured via L<Settings.pm>.
-The object's C<new> method takes following arguments:
+The object's constructor takes following arguments:
     id: a string identifying the session
     app: an integer indicating the version of the terminal application to
     be used. The value is the index in the list of C<commands> (see L<Settings.pm>). 
@@ -329,7 +442,7 @@ Wim Vanderbauwhede <wim.vanderbauwhede@gmail.com>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2006. Wim Vanderbauwhede. All rights reserved.
+Copyright (c) 2006,2007 Wim Vanderbauwhede. All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
