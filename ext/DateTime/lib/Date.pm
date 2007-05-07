@@ -25,10 +25,10 @@ my @PreviousMonthDoLY =
 # probably this should be done as "multi submethod BUILD", but that
 # makes pugs barf last I checked
 multi submethod BUILD () returns Date {
-    self.BUILD(time);
+    self.BUILD(epoch => time);
 }
 
-multi submethod BUILD (Int|Num $epoch) returns Date {
+multi submethod BUILD (Int|Num :$epoch) returns Date {
     # waiting for localtime in Pugs
     my $time = localtime(int $epoch);
 
@@ -37,15 +37,17 @@ multi submethod BUILD (Int|Num $epoch) returns Date {
     $!day   = $time.day;
 }
 
-multi submethod BUILD (Str $_) returns Date {
-    when 'now' {
-        self.BUILD();
-    }
-    when 'today' {
-        self.BUILD();
-    }
-    default {
-        fail "Cannot parse $_ in date format";
+multi submethod BUILD (Str :$string) returns Date {
+    given $string {
+        when 'now' {
+            self.BUILD();
+        }
+        when 'today' {
+            self.BUILD();
+        }
+        default {
+            fail "Cannot parse $_ in date format";
+        }
     }
 }
 
@@ -156,7 +158,7 @@ current /local/ date.
 
 Given an epoch time, returns a Date object based on that epoch.
 
-- `new( 'now' | 'today' | 'tomorrow' | 'yesterday' | $date_string )`
+- `new( string => 'now' | 'today' | 'tomorrow' | 'yesterday' | $date_string )`
 
 Given a string, this module attempts to parse it.  The strings "now",
 "today", "tomorrow", and "yesterday" return the appropriate date.
@@ -175,15 +177,15 @@ object returned represents the last day for the specified month.
 - `today()`
 - `now()`
 
-Synonyms for `Date.new('today')`
+Synonyms for `Date.new(string => 'today')`
 
 - `tomorrow()`
 
-Synonym for `Date.new('tomorrow')`
+Synonym for `Date.new(string => 'tomorrow')`
 
 - `yesterday()`
 
-Synonym for `Date.new('yesterday')`
+Synonym for `Date.new(string => 'yesterday')`
 
 = OBJECT METHODS
 
