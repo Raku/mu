@@ -1,5 +1,6 @@
 
-use Test::More tests => 151;
+#use Smart::Comments;
+use Test::More tests => 156;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -585,6 +586,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is( "$match", "", 'sigspace no match' );
 }
 
+# L<S05/Named scalar aliasing to subpatterns>
 {
     my $rule = Pugs::Compiler::Rule->compile( '$<z> := (.)(.)' );
     #print "Rule: ", $rule->{perl5};
@@ -597,6 +599,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     #print Dumper( $match->[0]->to ), "\n";
 }
 
+# L<S05/Named scalar aliases applied to non-capturing brackets>
 {
     my $rule = Pugs::Compiler::Rule->compile( '$<z> := [.](.)' );
     my $match = $rule->match( "abc" );
@@ -605,6 +608,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is( "$match->[0]", "b", 'named capture on square brackets not positioned' );
 }
 
+# L<S05/Named scalar aliasing to subrules>
 {
     my $rule = Pugs::Compiler::Rule->compile( '$<z> := <any>(.)' );
     my $match = $rule->match( "abc" );
@@ -613,9 +617,10 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is( "$match->[0]", "b", 'named capture on subrule not positioned' );
 }
 
-
+# L<S05/Extensible metasyntax (C<< <...> >>)/
+#   "A leading @" "matches like a bare array" except element treated as subrule>
 {
-    my $match;
+        my $match;
     #Pugs::Compiler::Rule->install('Test::rule1' => 'xxyy'),
     #Pugs::Compiler::Rule->install('Test::rule2' => 'abc'),
     @Test::test = (
@@ -642,6 +647,8 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is($match,'abc123',"array of tokens");
 }
 
+# L<S05/Variable (non-)interpolation/
+#   "interpolated hash" inserting "run-time table-driven submatching">
 {
 =for docs - see S05
     *   An interpolated hash matches the longest possible key of the hash as
@@ -681,6 +688,8 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
 
 }
 
+# L<S05/Extensible metasyntax (C<< <...> >>)/
+#    "A leading %" "matches like a bare hash" except string treated as a subrule>
 {
     my $match;
     my $v = 0;
@@ -732,6 +741,8 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
 
 }
 
+# L<S05/Variable (non-)interpolation/
+#   "interpolated hash" inserting "run-time table-driven submatching">
 {
     my $match;
     %Test123::test = (
@@ -744,6 +755,8 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is($match,'rule1xxrule2abcyy123',"Matched hash inside hash");
 }
 
+# L<S05/Simplified lexical parsing/
+#   "single quotes make everything inside them literal">
 {
     my $rule = Pugs::Compiler::Rule->compile( q(
         '>>'
@@ -751,7 +764,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     #print $rule->perl;
     #print Dumper( Pugs::Grammar::Rule->rule( " '>>' " )->() );
     my $match = $rule->match( "abc>>zzz" );
-    is( "$match", ">>", 'literal ">"' );
+    is( "$match", ">>", 'literal ">>"' );
 }
 
 {
@@ -781,10 +794,8 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is( "$match", ")", 'literal ")"' );
 }
 
-TODO:
+# L<S05/Subpattern numbering/"index of capturing parentheses restarts after" "|">
 {
-    local $TODO = "failing array capture rollback";
-
     my $rule = Pugs::Compiler::Token->compile( q(
         (a)
         [
@@ -795,8 +806,14 @@ TODO:
     #print $rule->perl;
     my $match = $rule->match( "aaxxy" );
     #print Dumper( $match );
+    ### $match
     my @a = @{$match};
-    is( scalar @a, 2, 'alternation array rollback' );
+    TODO: {
+        local $TODO = "failing array capture rollback";
+        is( scalar @a, 2, 'alternation array rollback' );
+    }
+    is( $a[0], 'a' );
+    is( $a[1], 'a' );
 }
 
 {
@@ -811,8 +828,10 @@ TODO:
     #print Dumper( $match );
     my %h = %{$match};
     is( scalar keys %h, 1, 'alternation hash rollback' );
+    is( $h{alpha}, 'a' );
 }
 
+# L<S05/Repeated captures of the same subrule>
 TODO:
 {
     local $TODO = "failing <alpha> capture";
@@ -829,8 +848,12 @@ TODO:
     #print Dumper( $match );
     my %h = %{$match};
     is( scalar keys %h, 2, 'alternation hash rollback with multiple captures' );
+    is( $h{alpha}->[0], 'a' );
+    is( $h{alpha}->[1], 'a' );
 }
 
+# L<S05/Extensible metasyntax (C<< <...> >>)/
+#   "A leading ?" "not to capture what it matches">
 {
     my $rule = Pugs::Compiler::Token->compile( q(
         <?alpha>
@@ -1032,6 +1055,8 @@ TODO:
     #print "Match: ", $match->perl;
     is( $$match, "z", 'y | z' );
 }
+
+# L<S05/Unchanged syntactic features/"Repetition quantifiers">
 {
     my $rule = Pugs::Compiler::Token->compile( '[xy]*' );
     my $match = $rule->match( "xyx" );
