@@ -64,6 +64,7 @@ $_[1] )";
 
 sub call_perl5 {
     my $const = $_[0];
+    $_[1] = '  ' unless defined $_[1];
     #print "CONST: $const - $direction \n";
     return
 "$_[1] ( ( substr( \$s, \$pos ) =~ m/^($const)/ )  
@@ -155,7 +156,6 @@ sub quant {
         if $greedy;
     #print "QUANT: ",Dumper($_[0]);
     my $id = id();
-    # TODO: fix grammar to not emit empty quantifier
     my $tab = ( $quantifier eq '' ) ? $_[1] : $_[1] . "  ";
     my $ws = metasyntax( { metasyntax => 'ws', modifier => '?' }, $tab );
     my $ws3 = ( $sigspace && $_[0]->{ws3} ne '' ) ? " &&\n$ws" : '';
@@ -314,6 +314,44 @@ sub concat {
     }
 =cut
 
+    # Try to remove non-greedy quantifiers, by inserting a lookahead;
+    # cheat: / .*? b / 
+    # into:  / [ <!before b> . ]* b /
+    # TODO - make it work for '+' quantifier too
+    for my $i ( 0 .. @{$_[0]} - 1 ) {
+        if (   exists $_[0][$i]{quant}
+            && $_[0][$i]{quant}{quant}  eq '*' 
+            && $_[0][$i]{quant}{greedy} eq '?' 
+        ) {
+            my $tmp = { quant => { %{ $_[0][$i]{quant} }, greedy => '', quant => '', } };
+            $_[0][$i] = {
+                quant => {
+                    greedy => '',
+                    quant  => $_[0][$i]{quant}{quant},
+                    ws1    => '',
+                    ws2    => '',
+                    ws3    => '',
+                    term   => {
+                        concat => [
+                            { 
+                                before => {
+                                    rule     => {
+                                        concat => [ 
+                                            @{ $_[0] }[$i+1 .. $#{ $_[0] } ] 
+                                        ],
+                                    },
+                                    modifier => '!',
+                                } 
+                            },
+                            $tmp,
+                        ],
+                    },
+                },
+            };
+            #print "Quant: ",Dumper($_[0]);
+        }
+    }
+
     for ( @{$_[0]} ) {
         my $tmp = emit_rule( $_, $_[1] );
         push @s, $tmp if $tmp;   
@@ -334,6 +372,7 @@ sub variable {
     # XXX - eval $name doesn't look up in user lexical pad
     # XXX - what &xxx interpolate to?
 
+        print "VAR: $name \n";
     # expand embedded $scalar
     if ( $name =~ /^\$/ ) {
         # $^a, $^b
@@ -350,9 +389,8 @@ sub variable {
             $code =~ s/^/$_[1]/mg;
             return "$code\n";
         }
-        else {
+
             $value = eval $name;
-        }
     }
 
     # expand embedded @arrays
@@ -465,13 +503,13 @@ sub match_variable {
     my $name = $_[0];
     my $num = substr($name,1);
     #print "var name: ", $num, "\n";
-    my $code = 
-    "    ... sub { 
-        my \$m = Pugs::Runtime::Match->new( \$_[2] );
-        return constant( \"\$m->[$num]\" )->(\@_);
-    }";
-    $code =~ s/^/$_[1]/mg;
-    return "$code\n";
+
+    return
+"$_[1] ( eval( '( substr( \$s, \$pos ) =~ m/^(' . \$m->{$num} . ')/ )  
+$_[1]     ? ( \$pos $direction= length( \$1 ) or 1 )
+$_[1]     : 0
+$_[1]    ') )";
+
 }
 sub closure {
     my $code = $_[0]; 

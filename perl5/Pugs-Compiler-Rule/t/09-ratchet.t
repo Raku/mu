@@ -1,6 +1,6 @@
 
 #use Smart::Comments;
-use Test::More tests => 163;
+use Test::More tests => 165;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -1121,4 +1121,22 @@ TODO:
     #print "Match: ", $match->perl;
     is( $$match, "z", 'x || y | z' );
 }
+{
+    my $rule = Pugs::Compiler::Token->compile( 'x .*? z' );
+    my $match = $rule->match( "xabcza" );
+    #print "Ast: ", do{use Data::Dumper; Dumper($rule->{ast})};
+    #print "Source: ", $rule->{perl5};
+    #print "Match: ", $match->perl;
+    is( $$match, "xabcz", 'x .*? z - non-greedy quantifier' );
+}
+{
+    my $rule = Pugs::Compiler::Token->compile( ' $<abc> := <alpha> $<abc> ' );
+    my $match = $rule->match( "xx" );
+    #print "Ast: ", do{use Data::Dumper; Dumper($rule->{ast})};
+    #print "Source: ", $rule->{perl5};
+    #print "Match: ", $match->perl;
+    is( $$match, "xx", 'backreference' );
+}
+
+
 
