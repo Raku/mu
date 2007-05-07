@@ -512,12 +512,12 @@ $_[1]    ') )";
 
 }
 sub closure {
-    print "closure: ",Dumper($_[0]);
+    #print "closure: ",Dumper($_[0]);
     my $code     = $_[0]{closure}; 
     my $modifier = $_[0]{modifier};  # 'plain', '', '?', '!'
     
-    die "closure modifier not implemented '$modifier'"
-        unless $modifier eq 'plain';
+    #die "closure modifier not implemented '$modifier'"
+    #    unless $modifier eq 'plain';
 
     if (   ref( $code ) 
         && defined $Pugs::Compiler::Perl6::VERSION 
@@ -539,23 +539,43 @@ sub closure {
         $code =~ s/ use \s+ v6 \s* ; / # use v6\n/sgx;
     }
     #print "Code: $code\n";
-    return 
-        "$_[1] do {\n" .
-        "$_[1]   local \$::_V6_SUCCEED = 1;\n" .
-        "$_[1]   \$::_V6_MATCH_ = \$m;\n" .
-        "$_[1]   sub $code->( \$m );\n" .
-        "$_[1]   \$::_V6_SUCCEED;\n" .
-        "$_[1] }" 
-        unless $code =~ /return/;
+    # "plain" {...return ...}
+    return
+          "$_[1] do { \n" 
+        . "$_[1]   local \$::_V6_SUCCEED = 1;\n" 
+        . "$_[1]   \$::_V6_MATCH_ = \$m;\n" 
+        . "$_[1]   \$m->data->{capture} = \\( sub $code->( \$m ) ); \n" 
+        . "$_[1]   \$bool = \$::_V6_SUCCEED;\n" 
+        . "$_[1]   \$::_V6_MATCH_ = \$m if \$bool; \n" 
+        . "$_[1]   return \$m if \$bool; \n"
+        . "$_[1] }"
+        if $code =~ /return/;
+
+    # "plain" {...} without return
+    return
+          "$_[1] do { \n" 
+        . "$_[1]   local \$::_V6_SUCCEED = 1;\n" 
+        . "$_[1]   \$::_V6_MATCH_ = \$m;\n" 
+        . "$_[1]   sub $code->( \$m )\n" 
+        . "$_[1]   1;\n"
+        . "$_[1] }"
+        if $modifier eq 'plain';
+    # "?" <?{...}>
     return
         "$_[1] do { \n" .
         "$_[1]   local \$::_V6_SUCCEED = 1;\n" .
         "$_[1]   \$::_V6_MATCH_ = \$m;\n" .
-        "$_[1]   \$m->data->{capture} = \\( sub $code->( \$m ) ); \n" .
-        "$_[1]   \$bool = \$::_V6_SUCCEED;\n" .
-        "$_[1]   \$::_V6_MATCH_ = \$m if \$bool; \n" .
-        "$_[1]   return \$m if \$bool; \n" .
-        "$_[1] }";
+        "$_[1]   \$bool = ( sub $code->( \$m ) ) ? 1 : 0; \n" .
+        "$_[1] }"
+        if $modifier eq '?';
+    # "!" <!{...}>
+    return
+        "$_[1] do { \n" .
+        "$_[1]   local \$::_V6_SUCCEED = 1;\n" .
+        "$_[1]   \$::_V6_MATCH_ = \$m;\n" .
+        "$_[1]   \$bool = ( sub $code->( \$m ) ) ? 0 : 1; \n" .
+        "$_[1] }"
+        if $modifier eq '!';
 
 }
 sub capturing_group {

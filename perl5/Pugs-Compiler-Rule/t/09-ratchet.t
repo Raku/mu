@@ -1,6 +1,6 @@
 
 #use Smart::Comments;
-use Test::More tests => 165;
+use Test::More tests => 167;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -1136,6 +1136,22 @@ TODO:
     #print "Source: ", $rule->{perl5};
     #print "Match: ", $match->perl;
     is( $$match, "xx", 'backreference' );
+}
+{
+    my $rule = Pugs::Compiler::Token->compile( ' a <?{ 1 }> b ' );
+    my $match = $rule->match( "ab" );
+    #print "Ast: ", do{use Data::Dumper; Dumper($rule->{ast})};
+    #print "Source: ", $rule->{perl5};
+    #print "Match: ", $match->perl;
+    is( $$match, "ab", 'boolean closure' );
+}
+{
+    my $rule = Pugs::Compiler::Token->compile( ' a <!{ 1 }> b | a <?{ 1 }> c ' );
+    my $match = $rule->match( "ac" );
+    #print "Ast: ", do{use Data::Dumper; Dumper($rule->{ast})};
+    #print "Source: ", $rule->{perl5};
+    #print "Match: ", $match->perl;
+    is( $$match, "ac", 'negative boolean closure' );
 }
 
 
