@@ -1,6 +1,6 @@
 
 #use Smart::Comments;
-use Test::More tests => 161;
+use Test::More tests => 163;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -74,14 +74,28 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is( $match->[2], "d", "alternative - 4" );
 }
 
+# L<S05/Unchanged syntactic features/
+#   "syntax of" "|" not change "semantics do change slightly">
 {
     my $rule = Pugs::Compiler::Token->compile( 'ab|ac' );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     my $match = $rule->match("ac");
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     ok( $match, "alternation no backtracking" );
+    is $match, 'ac';
 }
 
+TODO: {
+    local $TODO = "'|' is now with longest-token semantics";
+    my $rule = Pugs::Compiler::Token->compile( 'ab|abc' );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    my $match = $rule->match("abc");
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    #ok( $match, "alternation no backtracking" );
+    is $match, 'abc';
+}
+
+# L<S05/Grammars/"subs are the model for rules">
 {
     # named rules are methods
     *test::rule_method = Pugs::Compiler::Token->compile( '((.).)(.)' )->code;
@@ -91,6 +105,8 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is( "$match", "xyz", 'named rules are methods' );
 }
 
+# L<S05/Extensible metasyntax (C<< <...> >>)/
+#   "A leading alphabetic character" means "capturing grammatical assertion">
 {
     # calling named subrules
     *test::rule_method3 = Pugs::Compiler::Token->compile( '.' )->code;
@@ -111,6 +127,8 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is( "$match", "x", 'a named subrule calls a named subrule in other grammar' );
 }
 
+# L<S05/Extensible metasyntax (C<< <...> >>)/
+#   "A leading $" "an indirect subrule">
 {
     # calling unnamed subrules
     $test2::rule2 = Pugs::Compiler::Rule->compile( '.' );
@@ -138,6 +156,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is( "$match", "x", 'a named subrule calls a lexical unnamed subrule' );
 }
 
+### XXX built-in subrule <alpha> not formally specified in S05
 {
     # generated rules
     my $rule = Pugs::Compiler::Token->compile( '<alpha>+', { ratchet => 1 } );
@@ -149,6 +168,9 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     # is( join( ' ', $match->kv ), "alpha xy", 'kv() method' );
 }
 
+# L<S05/Simplified lexical parsing/
+#   "not all non-identifier glyphs are currently meaningful">
+# XXX fix the following test?
 {
     # not-special chars
     my $rule = Pugs::Compiler::Token->compile( ',', { ratchet => 1 } );
@@ -157,6 +179,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is( "$match", ",", 'comma is not a special char' );
 }
 
+# L<S05/Unchanged syntactic features/"Backslash escape" "\">
 {
     # escaped chars
     my $rule = Pugs::Compiler::Token->compile( '\(', { ratchet => 1 } );
@@ -205,6 +228,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is( "$match", "a", 'escaped char \\D' );
 }
 
+# L<S05/Backslash reform/"\N" "negation of \n">
 {
     # escaped chars
     my $rule = Pugs::Compiler::Token->compile( '\N', { ratchet => 1 } );
@@ -214,6 +238,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is( "$match", "x", 'escaped char \\N #2' );
 }
 
+# L<S05/Unchanged syntactic features/"Repetition quantifiers" "?">
 {
     # ambiguous rule /a?bg?/
     # XXX - is this /a? [bg]?/ or /a? b g?/
