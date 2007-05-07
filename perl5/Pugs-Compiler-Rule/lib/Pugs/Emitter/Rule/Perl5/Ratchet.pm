@@ -512,51 +512,33 @@ $_[1]    ') )";
 
 }
 sub closure {
+    print "closure: ",Dumper($_[0]);
     my $code     = $_[0]{closure}; 
     my $modifier = $_[0]{modifier};  # 'plain', '', '?', '!'
     
     die "closure modifier not implemented '$modifier'"
         unless $modifier eq 'plain';
 
-    if ( ref( $code ) ) {
-        if ( defined $Pugs::Compiler::Perl6::VERSION ) {
-            #print " perl6 compiler is loaded \n";
-            my $perl5 = Pugs::Emitter::Perl6::Perl5::emit( 'grammar', $code, 'self' );
-            return 
-                "do { 
-                    \$::_V6_MATCH_ = \$m; 
-                    local \$::_V6_SUCCEED = 1;
-                    \$m->data->{capture} = \\( sub $perl5->() );
-                    \$bool = \$::_V6_SUCCEED;
-                    \$::_V6_MATCH_ = \$m if \$bool; 
-                    return \$m if \$bool;
-                }" if $perl5 =~ /return/;
-            return 
-                "do { 
-                    \$::_V6_MATCH_ = \$m; 
-                    local \$::_V6_SUCCEED = 1;
-                    sub $perl5->();
-                    \$::_V6_SUCCEED;
-                }";
-        }        
+    if (   ref( $code ) 
+        && defined $Pugs::Compiler::Perl6::VERSION 
+    ) {
+        #print " perl6 compiler is loaded \n";
+        $code = Pugs::Emitter::Perl6::Perl5::emit( 'grammar', $code, 'self' );
     }
-
-    #print " perl6 compiler is NOT loaded \n";
-            
-    # XXX XXX XXX - source-filter - temporary hacks to translate p6 to p5
-    # $()<name>
-    $code =~ s/ ([^']) \$ \( \) < (.*?) > /$1\$_[0]->[$2]/sgx;
-    # $<name>
-    $code =~ s/ ([^']) \$ < (.*?) > /$1\$_[0]->{named}->{$2}/sgx;
-    # $()
-    $code =~ s/ ([^']) \$ \( \) /$1\$_[0]->()/sgx;
-    # $/
-    $code =~ s/ ([^']) \$ \/ /$1\$_[0]/sgx;
-    
-    $code =~ s/ use \s+ v6 \s* ; / # use v6\n/sgx;
-
+    else {
+        #print " perl6 compiler is NOT loaded \n";
+        # XXX XXX XXX - source-filter - temporary hacks to translate p6 to p5
+        # $()<name>
+        $code =~ s/ ([^']) \$ \( \) < (.*?) > /$1\$_[0]->[$2]/sgx;
+        # $<name>
+        $code =~ s/ ([^']) \$ < (.*?) > /$1\$_[0]->{named}->{$2}/sgx;
+        # $()
+        $code =~ s/ ([^']) \$ \( \) /$1\$_[0]->()/sgx;
+        # $/
+        $code =~ s/ ([^']) \$ \/ /$1\$_[0]/sgx;
+        $code =~ s/ use \s+ v6 \s* ; / # use v6\n/sgx;
+    }
     #print "Code: $code\n";
-    
     return 
         "$_[1] do {\n" .
         "$_[1]   local \$::_V6_SUCCEED = 1;\n" .
@@ -565,7 +547,6 @@ sub closure {
         "$_[1]   \$::_V6_SUCCEED;\n" .
         "$_[1] }" 
         unless $code =~ /return/;
-        
     return
         "$_[1] do { \n" .
         "$_[1]   local \$::_V6_SUCCEED = 1;\n" .
