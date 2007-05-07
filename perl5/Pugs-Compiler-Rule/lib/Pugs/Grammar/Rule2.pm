@@ -155,6 +155,12 @@ token named_capture_body {
 token parse_metasyntax {
         $<modifier> := [ '!' | '?' | '' ]
     [
+        '{'  <parsed_code>  '}>'
+        { return { closure => {
+            closure  => $$<parsed_code>,
+            modifier => $$<modifier>,
+        } } }
+    |
         <char_class>
         ( <[+-]> <char_class> )+
         \>
@@ -326,7 +332,10 @@ token parse_metasyntax {
     },
     '{' => token { 
         <parsed_code>  \}
-        { return { closure => $$<parsed_code> ,} }
+        { return { closure => {
+            closure => $$<parsed_code>,
+            modifier => 'plain',
+        } } }
     },
     '\\' => token {  
         <special_char>

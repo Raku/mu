@@ -372,7 +372,7 @@ sub variable {
     # XXX - eval $name doesn't look up in user lexical pad
     # XXX - what &xxx interpolate to?
 
-        print "VAR: $name \n";
+    #print "VAR: $name \n";
     # expand embedded $scalar
     if ( $name =~ /^\$/ ) {
         # $^a, $^b
@@ -512,8 +512,12 @@ $_[1]    ') )";
 
 }
 sub closure {
-    my $code = $_[0]; 
+    my $code     = $_[0]{closure}; 
+    my $modifier = $_[0]{modifier};  # 'plain', '', '?', '!'
     
+    die "closure modifier not implemented '$modifier'"
+        unless $modifier eq 'plain';
+
     if ( ref( $code ) ) {
         if ( defined $Pugs::Compiler::Perl6::VERSION ) {
             #print " perl6 compiler is loaded \n";

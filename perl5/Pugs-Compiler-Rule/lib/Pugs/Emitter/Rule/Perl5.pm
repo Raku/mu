@@ -350,7 +350,11 @@ sub match_variable {
     return "$code\n";
 }
 sub closure {
-    my $code = $_[0]; 
+    my $code     = $_[0]{closure};
+    my $modifier = $_[0]{modifier};  # 'plain', '', '?', '!'
+    
+    die "closure modifier not implemented '$modifier'"
+        unless $modifier eq 'plain';
     
     #warn "CODE $code";
     $code = '' if $code eq '{*}';  # "whatever"
