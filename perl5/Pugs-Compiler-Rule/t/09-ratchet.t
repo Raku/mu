@@ -1,6 +1,6 @@
 
 #use Smart::Comments;
-use Test::More tests => 156;
+use Test::More tests => 161;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -215,7 +215,6 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
 }
 
 {
-    #local $TODO = "quantifiers not implemented yet";
     # ambiguous rule /a?bg?/
     # XXX - is this /a? [bg]?/ or /a? b g?/
     # --- It should the same as /a? b g?/
@@ -233,6 +232,8 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     #is("$match","b",'"a?bg?" equals "a? b g?".');
 }
 
+# L<S05/Match objects/"you can override that by calling return inside a regex">
+# L<S05/Match objects/"you normally just want to return a result object instead">
 {
     # capture
     my $rule = Pugs::Compiler::Token->compile('some (text) { return { a => $_[0][0] ,} } ', { ratchet => 1 });
@@ -265,6 +266,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is($capture->{a},'sometext','simple capture');
 }
 
+# L<S05/Unchanged syntactic features/"Alternatives: " "|">
 {
     # alternation
     my $rule = Pugs::Compiler::Token->compile('[a|b](b)', { ratchet => 1 } );
@@ -272,8 +274,10 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "bb", 'alternation' );
+    is( $match->[0], 'b' );
 }
 
+# L<S05/Named scalar aliasing to subpatterns>
 {
     # basic named capture
     my $rule = Pugs::Compiler::Token->compile('$<cap> := (<ws>)', { ratchet => 1 } );
@@ -282,12 +286,29 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", " ", 'named capture' );
     is( $match->{'cap'}, " ", 'named capture - 2' );
+    TODO: {
+        local $TODO = 'subpattern?';
+        is( $match->{'cap'}->{'ws'}, ' ' );
+        #is( $match->()->{'cap'}->{'ws'}, ' ' );
+    }
 }
 
-#TODO:
 {
-    #local $TODO = ":p broken in non-ratchet subrule call";
+    # basic named capture
+    my $rule = Pugs::Compiler::Token->compile('$<cap> := (<alpha>)', { ratchet => 1 } );
+    my $match = $rule->match( "a" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "a", 'named capture' );
+    is( $match->{'cap'}, "a", 'named capture - 2' );
+    TODO: {
+        local $TODO = 'subpattern again?';
+        is( $match->{'cap'}->{'alpha'}, "a" );
+    }
+}
 
+# L<S05/Subrule captures>
+{
     # basic named capture
     my $rule = Pugs::Compiler::Token->compile('a<ws>', { ratchet => 1 } );
     my $match = $rule->match( "a b" );
@@ -297,6 +318,8 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is( $match->{'ws'}, " ", 'named capture - 2' );
 }
 
+# L<S05/"Extensible metasyntax (C<< <...> >>)"/
+#    "<before pattern>" "(?=pattern)">
 {
     # before
     my $rule = Pugs::Compiler::Token->compile('a<before b>', { ratchet => 1 } );
