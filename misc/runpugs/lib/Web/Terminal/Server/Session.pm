@@ -14,7 +14,7 @@ use Web::Terminal::Settings;
 
 $SIG{CHLD}='IGNORE';
 
-my $v=0*(1-$Web::Terminal::Settings::daemon)*(1-$Web::Terminal::Settings::test);
+my $v=(1-$Web::Terminal::Settings::daemon)*(1-$Web::Terminal::Settings::test);
 
     my $prompt ='/'.$Web::Terminal::Settings::prompt.'/';
     has 'prompt' => (is=>'rw',isa=>'Str', default => $prompt);

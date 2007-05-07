@@ -1,5 +1,5 @@
 ==============================================================================
-2007/01/10      Release of version 0.3.0 of runpugs/Web::Terminal
+2007/05/07      Release of version 0.4.0 of runpugs/Web::Terminal
 ==============================================================================
 
 NAME
@@ -40,6 +40,10 @@ COPYRIGHT
 
 
 ==============================================================================
+CHANGES IN VERSION 0.4.0
+    -Better session management
+    -use Moose for Session objects
+    -More generic (Settings.pm)
 
 CHANGES IN VERSION 0.3.0
     -Uses AJAX for persistent interface and mod_perl for speed

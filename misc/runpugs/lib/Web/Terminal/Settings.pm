@@ -68,18 +68,18 @@ my $dev_root='/home/andara/pugs-dev';
 my $rel_lib="-I$rel_root/blib6/lib";
 my $dev_lib="-I$dev_root/blib6/lib";
 
-$ulimit='';
-$nice='';#/bin/nice';
-$pugs='/usr/bin/pugs';
-$rel_root='/usr/bin';
-$dev_root='/usr/bin';
-$rel_lib='';
-$dev_lib='';
+#$ulimit='';
+#$nice='';#/bin/nice';
+#$pugs='/usr/bin/pugs';
+#$rel_root='/usr/bin';
+#$dev_root='/usr/bin';
+#$rel_lib='';
+#$dev_lib='';
 
 our @commands=(
 "$ulimit $nice $rel_root/pugs $rel_lib",
 "$ulimit $nice $dev_root/pugs $dev_lib",
-"perl ./perl_repl.pl"
+#"perl ./perl_repl.pl"
 );
 
 our $test=1;
@@ -113,14 +113,14 @@ our $restart_parent=0; # restart parent server from child if 1
 our $server="$bin_path/termserv.pl"; # used to restart parent server from child
 
 our $nsessions=50; # obsolete
-our @n_max=(20,50,5);
+our @n_max=(20,50);#,5);
 our $nsessions_ip=10; 
-our @npreloaded_sessions=(5,10,2); 
+our @npreloaded_sessions=(5,10);#,2); 
 our @n_inactive_max=@npreloaded_sessions;
-our @n_inactive_min=(2,5,0);
+our @n_inactive_min=(2,5);#,0);
 
 our $timeout_idle=90; # was 600
-our $timeout_call=60; #  was 30
+our $timeout_call=30; #  was 30
 our $check_interval=60; 
 our $create_interval=5; # should be 30 I guess
 our $nlines=250;
