@@ -627,7 +627,7 @@ TODO: {
 
     $match = $rule->match( "a b b bc" );
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
-    is( "$match->[0][1]", "", 'sigspace required' );
+    is( $match->[0][1], undef, 'sigspace required' );
 
     $match = $rule->match( "a b b b d" );
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
