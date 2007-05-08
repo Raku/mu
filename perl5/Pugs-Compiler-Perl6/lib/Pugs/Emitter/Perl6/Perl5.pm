@@ -1403,6 +1403,13 @@ sub infix {
 
             #print "{'='}: set hash ",Dumper($exp2);
             # Note - the AST is changed in-place here
+
+            # %hash = { pair, pair }
+            if ( exists $exp2->{'anon_hash'} ) {
+                $exp2 = $exp2->{'anon_hash'};
+            }
+
+            # %hash = ( pair, pair )
             if ( exists $exp2->{'list'} ) {
                 $exp2->{'list'} = [
                     map {
@@ -1415,6 +1422,7 @@ sub infix {
                     @{ $exp2->{'list'} }
                 ];
             }
+
             return "$exp1 = " . emit_parenthesis( $exp2 );
         }
         if ( exists $n->{exp1}{array} ) {
@@ -1739,6 +1747,14 @@ sub ternary {
 
 sub variable_declarator {
     my $n = $_[0];
+
+    # constant %hash is not supported
+    if ( $n->{'variable_declarator'} eq 'constant' ) {
+        for (qw( hash array )) {
+            $n->{'variable_declarator'} = 'our' if exists $n->{exp1}{$_}
+        }
+    }
+
     if ( $n->{'variable_declarator'} eq 'my' ||
          $n->{'variable_declarator'} eq 'our' ) {
         #die "not implemented 'attribute'",Dumper $n
