@@ -7,7 +7,7 @@ use strict;
 
 #use threads;           # pull in threading routines
 
-use lib '../lib/';
+#use lib '../lib/';
 use Web::Terminal::Settings;
 use Web::Terminal::Dispatcher;
 $Web::Terminal::Settings::port=2059;

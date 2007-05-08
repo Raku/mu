@@ -9,7 +9,6 @@ use warnings;
 use warnings;
 use strict;
 
-use lib '../lib/';
 use Web::Terminal::Server;
 use  Web::Terminal::Settings;
 $Web::Terminal::Settings::port=2059;

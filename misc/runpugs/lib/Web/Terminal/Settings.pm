@@ -82,7 +82,7 @@ our @commands=(
 #"perl ./perl_repl.pl"
 );
 
-our $test=1;
+our $test=0;
 our $appname='runpugs';
 our $prompt='pugs> ';
 #$prompt='perl> ';
@@ -98,14 +98,14 @@ our $abort_command=':A'; # To simulate abort in test mode
 our $filter=0;
 our $filter_pattern='';
 my $root='/home/andara/apache';
-#my $root='/Users/wim/Builds/pugs/misc/runpugs';
+
 our $cgi_path="$root/cgi-bin/";
 our $lib_path="$root/lib/";
 our $bin_path="$root/bin/";
 our $data_path="$root/data/";
 our $tmp_path="$root/data/tmp/";
 our $log_path="$root/data/log";
-our $daemon=0;
+our $daemon=1;
 our $port=2057;
 our $host='localhost';
 

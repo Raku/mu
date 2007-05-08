@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
-use lib '../lib';
+#use lib '../lib','/home/andara/lib/perl/5.8.8';
 use Repl;
 
 my $subref = sub {

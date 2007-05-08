@@ -4,7 +4,7 @@ use strict;
 # 
 # based on testmsg.pl from "Advanced Perl Programming"
 #
-use lib '../lib/';
+#use lib '../lib/';
 use Web::Terminal::Settings;
 use Web::Terminal::Dispatcher;
 #$Web::Terminal::Settings::port=2058;
