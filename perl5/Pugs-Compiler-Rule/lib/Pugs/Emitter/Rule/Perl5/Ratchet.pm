@@ -524,6 +524,7 @@ sub closure {
     ) {
         #print " perl6 compiler is loaded \n";
         $code = Pugs::Emitter::Perl6::Perl5::emit( 'grammar', $code, 'self' );
+        $code = '{ my $_V6_SELF = shift; ' . $code . '}';  # make it a "method"
     }
     else {
         #print " perl6 compiler is NOT loaded \n";

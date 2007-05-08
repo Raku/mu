@@ -101,7 +101,7 @@ use_ok( 'Pugs::Grammar::Base' );
 {
     my $rule = Pugs::Compiler::Regex->compile( '$<z> := (.) { return "bar" } ' );
     #print Dumper( Pugs::Grammar::Rule->rule( 'x' )->() );
-    # print $rule->{perl5};
+    #print $rule->{perl5};
     my $match = $rule->match( "abc" );
     #print "match: ", $match->perl;
     ok( $match, 'true match' );

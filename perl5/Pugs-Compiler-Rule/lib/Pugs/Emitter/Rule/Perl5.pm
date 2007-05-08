@@ -364,6 +364,7 @@ sub closure {
     ) {
         # perl6 compiler is loaded
         $code = Pugs::Emitter::Perl6::Perl5::emit( 'grammar', $code, 'self' );
+        $code = '{ my $_V6_SELF = shift; ' . $code . '}';  # make it a "method"
     }
     else {
         # XXX XXX XXX - source-filter - temporary hacks to translate p6 to p5
@@ -387,7 +388,7 @@ sub closure {
                         to    => \\(\$_[7]{p} || 0),
                         match => [],
                         named => {},
-                        capture => sub { $code },
+                        capture => sub { $code }, 
                         abort => 1,
                     } )
                 }\n"
@@ -404,7 +405,7 @@ sub closure {
                 sub { 
                     \$::_V6_MATCH_ = \$_[0]; 
                     local \$::_V6_SUCCEED = 1;
-                    my \$capture = sub { $code }->();
+                    my \$capture = sub { $code }->( \$_[3] );
                     \$_[3] = Pugs::Runtime::Match->new( { 
                         bool  => $bool, 
                         str   => \\(\$_[0]),
@@ -412,7 +413,7 @@ sub closure {
                         to    => \\(\$_[7]{p} || 0),
                         match => [],
                         named => {},
-                        capture => $cap,
+                        capture => undef,
                     } )
                 }\n";
 
