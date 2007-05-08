@@ -1,5 +1,5 @@
 
-use Test::More tests => 78;
+use Test::More tests => 80;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -480,3 +480,20 @@ no warnings qw( once );
     ok $rule->match( "abc" )->bool, 'internal ignorecase; lower case matches';
     ok $rule->match( "ABC" )->bool, 'internal ignorecase; upper case matches';
 }
+{
+    my $rule = Pugs::Compiler::Regex->compile( ' a <?{ 1 }> b ' );
+    my $match = $rule->match( "ab" );
+    #print "Ast: ", do{use Data::Dumper; Dumper($rule->{ast})};
+    #print "Source: ", $rule->{perl5};
+    #print "Match: ", $match->perl;
+    is( $$match, "ab", 'boolean closure' );
+}
+{
+    my $rule = Pugs::Compiler::Regex->compile( ' a <!{ 1 }> b | a <?{ 1 }> c ' );
+    my $match = $rule->match( "ac" );
+    #print "Ast: ", do{use Data::Dumper; Dumper($rule->{ast})};
+    #print "Source: ", $rule->{perl5};
+    #print "Match: ", $match->perl;
+    is( $$match, "ac", 'negative boolean closure' );
+}
+
