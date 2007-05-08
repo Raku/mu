@@ -786,9 +786,9 @@ sub colon {
     return "$_[1] ( \$pos == 0 ) \n" 
         if $str eq '^';
         
-    return "$_[1] ( \$pos >= length( \$s ) || substr( \$s, \$pos ) =~ /^(?:\n\r?|\r\n?)/m ) \n" 
+    return "$_[1] ( \$pos >= length( \$s ) || substr( \$s, \$pos ) =~ ".'/^(?:\n\r?|\r\n?)/m'." ) \n" 
         if $str eq '$$';
-    return "$_[1] ( \$pos == 0 || substr( \$s, 0, \$pos ) =~ /(?:\n\r?|\r\n?)\$/m ) \n" 
+    return "$_[1] ( \$pos == 0 || substr( \$s, 0, \$pos ) =~ ".'/(?:\n\r?|\r\n?)$/m'." ) \n" 
         if $str eq '^^';
 
     return metasyntax( { metasyntax => '_wb_left', modifier => '?' }, $_[1] )
