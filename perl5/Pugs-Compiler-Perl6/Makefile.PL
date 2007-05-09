@@ -14,7 +14,7 @@ use lib '../..', (@inc ? $inc[-1] : ());
 use inc::Module::Install @inc;
 use File::Spec;
 
-    name('v6-alpha');
+    name('v6');
 all_from('lib/v6.pm');
 
 requires('Pugs::Compiler::Rule' => '0.17');

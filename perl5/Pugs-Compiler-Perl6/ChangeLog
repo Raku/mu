@@ -13,6 +13,14 @@
 - added syntax: 'meth(term: list)'
 - requires Sub::Multi 0.003
 
+0.018  2007-05-09
+
+- renamed distro from 'v6-alpha' to 'v6' for proper CPAN indexing
+
+0.017  2007-05-08
+
+- fixed Makefile.PL
+
 0.016  2006-12-14
 
 - command-line switch -B can be set to alternate backends.
