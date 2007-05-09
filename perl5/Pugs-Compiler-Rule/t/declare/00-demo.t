@@ -1,4 +1,4 @@
-# Demonstrates the usage of t::Regex and also test the tester
+# Demonstrates the usage of t::Regex and also tests the tester
 
 use t::Regex tests => 45;
 
