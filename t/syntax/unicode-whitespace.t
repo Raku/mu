@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 26;
+plan 52;
 
 # L<S02/"Lexical Conventions"/"Unicode horizontal whitespace">
 
@@ -121,3 +121,45 @@ my @x = <a b c>; sub y (@z) { @z[1] }; y(@x)
 is(eval('
 my　@x　=　<a　b　c>;　sub　y　(@z)　{　@z[1]　};　y(@x)
 '), "b", "IDEOGRAPHIC SPACE");
+
+#Long dot whitespace tests
+#These currently get different results than the above
+
+class Str is also {
+    method id($x:) { $x }
+}
+
+#This makes 'foo.id' and 'foo .id' mean different things
+multi foo() { 'a' }
+multi foo($x) { $x }
+
+$_ = 'b';
+
+# L<S02/"Lexical Conventions"/"Unicode horizontal whitespace">
+is(eval('foo\	.id'), 'a', 'long dot with CHARACTER TABULATION');
+is(eval('foo\
+.id'), 'a', 'long dot with LINE FEED (LF)');
+is(eval('foo\.id'), 'a', 'long dot with LINE TABULATION');
+is(eval('foo\.id'), 'a', 'long dot with FORM FEED (FF)');
+is(eval('foo\.id'), 'a', 'long dot with CARRIAGE RETURN (CR)');
+is(eval('foo\ .id'), 'a', 'long dot with SPACE');
+is(eval('foo\.id'), 'a', 'long dot with NEXT LINE (NEL)');
+is(eval('foo\ .id'), 'a', 'long dot with NO-BREAK SPACE');
+is(eval('foo\ .id'), 'a', 'long dot with OGHAM SPACE MARK');
+is(eval('foo\᠎.id'), 'a', 'long dot with MONGOLIAN VOWEL SEPARATOR');
+is(eval('foo\ .id'), 'a', 'long dot with EN QUAD');
+is(eval('foo\ .id'), 'a', 'long dot with EM QUAD');
+is(eval('foo\ .id'), 'a', 'long dot with EN SPACE');
+is(eval('foo\ .id'), 'a', 'long dot with EM SPACE');
+is(eval('foo\ .id'), 'a', 'long dot with THREE-PER-EM SPACE');
+is(eval('foo\ .id'), 'a', 'long dot with FOUR-PER-EM SPACE');
+is(eval('foo\ .id'), 'a', 'long dot with SIX-PER-EM SPACE');
+is(eval('foo\ .id'), 'a', 'long dot with FIGURE SPACE');
+is(eval('foo\ .id'), 'a', 'long dot with PUNCTUATION SPACE');
+is(eval('foo\ .id'), 'a', 'long dot with THIN SPACE');
+is(eval('foo\ .id'), 'a', 'long dot with HAIR SPACE');
+is(eval('foo\ .id'), 'a', 'long dot with LINE SEPARATOR');
+is(eval('foo\ .id'), 'a', 'long dot with PARAGRAPH SEPARATOR');
+is(eval('foo\ .id'), 'a', 'long dot with NARROW NO-BREAK SPACE');
+is(eval('foo\ .id'), 'a', 'long dot with MEDIUM MATHEMATICAL SPACE');
+is(eval('foo\　.id'), 'a', 'long dot with IDEOGRAPHIC SPACE');
