@@ -1,0 +1,50 @@
+NAME
+
+adventure.pl
+
+
+SYNOPSIS
+
+This is a simple adventure written in Perl6. A fun way to learn the
+new features of the language. :-)
+
+
+DESCRIPTION
+
+According to the Wikipedia, interactive fiction (which is another
+name for "adventure") describes software simulating environments
+in which players use text commands to control characters and influence
+the environment. Works in this form can be understood as literary
+narratives and as computer games. In common usage, the word refers
+to text adventures, a type of adventure game with text-based input
+and output.
+
+One of the interesting things of writing an adventures, is that it
+requires some knowledge of the programming language, but is not that
+difficult to write (once you know a few basic concepts); and is a
+fun way to learn a new language.
+
+This work was presented at: 
+
+    * Nordic Perl Workshop (Copenhagen, April 2007)
+    * Oslo.pm techmeeting (Oslo, May 2007)
+
+
+INSTALL
+
+This script was developed using v6.pm, a Perl6 in Perl5 implementation.
+To install v6.pm (as root):
+
+    # cpan v6
+
+Then, run this script using perl:
+
+    $ perl adventure.pl
+
+
+COPYRIGHT & LICENSE
+
+Copyright 2007 Nelson Ferraz, all rights reserved.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
