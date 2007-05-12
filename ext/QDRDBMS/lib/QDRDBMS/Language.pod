@@ -89,21 +89,21 @@ with sub-strings of text will be specified in terms like I<NFC grapheme>.
 
 =item tuple
 
-A I<tuple> is an unordered collection of 0..N elements that are keyed by
-the element's name; each element is a name-value pair, and all names in the
-tuple are distinct.  While I<tuple> legitimately refers to the same thing
-as the QDRDBMS term I<sequence> in other contexts, it does not in this
-documentation.  Terms like I<record> or I<row> are not used in this
+A I<tuple> is an unordered heterogeneous collection of 0..N elements that
+are keyed by the element's name; each element is a name-value pair, and all
+names in the tuple are distinct.  While I<tuple> legitimately refers to the
+same thing as the QDRDBMS term I<sequence> in other contexts, it does not
+in this documentation.  Terms like I<record> or I<row> are not used in this
 documentation, the latter in particular because it implies ordinality.
 
 =item relation, relvar, relcon
 
-A I<relation> is like an unordered set of I<tuple> where all member tuples
-have identical cardinality and name-sets, but that a relation data type
-knows what its allowed names are even if it has no tuples.  Like with
-I<tuple>, the term I<relation> legitimately refers to a set or "ordinal
-tuple" in other contexts, but it does not in this documentation.  Terms
-like I<record set> or I<row set> or I<table> are not used in this
+A I<relation> is like an unordered homogeneous set of I<tuple> where all
+member tuples have identical cardinality and name-sets, but that a relation
+data type knows what its allowed names are even if it has no tuples.  Like
+with I<tuple>, the term I<relation> legitimately refers to a set or
+"ordinal tuple" in other contexts, but it does not in this documentation.
+Terms like I<record set> or I<row set> or I<table> are not used in this
 documentation, the last 2 in particular because they imply a significance
 to the order of tuples, where there is none in a relation.  Moreover, the
 term I<domain> does not mean the same thing as I<relation>, and neither
@@ -368,6 +368,144 @@ defined by its component structure alone, and every nonscalar type must
 have a distinct component structure.  Any two nonscalar types that have
 the same component structure are in fact the same type, by definition,
 regardless of whether they were defined independently of each other or not.
+
+=head2 Scalar Types
+
+Scalar types are the only conceptually encapsulated types in QDRDBMS D, and
+are like other languages' concepts of object classes where all their
+attributes are private, and only accessible indirectly.  The definition of
+a scalar type comprises usually one or more named I<possreps> or I<possible
+representations>, and for each of those, at least one I<selector> operator
+and usually at least one I<accessor> or I<the> operator.
+
+A I<possrep> of a type is an exhaustively complete means for users to
+conceptualize the structure of the type; it is like a "role" or "interface
+definition.  A possrep has the appearance of a complete list of (zero or
+more) named object attributes (of any type, scalar or nonscalar) that the
+type could logically be implemented as, and users can use it as if it
+actually was implemented that way, but without the requirement that the
+type actually is implemented that way.  If a type has multiple possreps,
+said possreps can differ from each other in arbitrarily large ways, but
+every one is individually capable of representing all of the type's values;
+any possrep could be used exclusively by a user when they work with its
+type, without diminishing what they can do.  A single possrep is specific
+to one and only one type, so it is possible to refer to a type by simply
+refering to the name of one of its possreps.
+
+Taking for example an integer data type, one of its possreps could
+represent an integer value as a string of binary digits, while another
+possrep could represent an integer value as a string of decimal digits.  Or
+taking for example a temporal data type, one of its possreps could
+represent a date as an ISO 8601 formatted character string in the Gregorian
+calendar, and another possrep could represent it as a number of seconds
+since the UNIX epoch.  Or taking for example a spacial data type that is a
+rectangle, one possrep could specify the 4 verticies as 4 (or 3) point
+values, and another possrep could specify fewer verticies and also specify
+the rectangle's width and height as numeric values.
+
+A possrep additionally has a defined boolean-valued constraint expression
+(which is simply I<true> in the trivial case), that restricts what values
+the possrep components can have within the context of their fellows.
+Taking for example a "medium polygon" data type, there could be a
+constraint that the area of the polygon is between 5 and 10 units.
+
+Each possrep comprises exactly one selector operator whose named parameter
+list exactly matches that possrep's list of named attributes, and you
+select a value of the type by invoking the selector with a full set of
+values for the possible attributes.  Each possrep also comprises an
+accessor operator for each of its attributes, with which users can extract
+the possible attribute's value.
+
+No data type has any operators built-in to its definition except for the
+aforementioned selectors and accessors.  All other operators that are used
+with a data type are expressly I<not> built-in to the type (even if they
+are system-defined); the other operators do not have any access to the data
+type's internals, and must be defined (directly or indirectly) in terms of
+(that is, layered on top of) the few that are built-in, though the
+built-ins from any or all possreps of the type can be utilized.
+
+With a user-defined scalar type, if the type is to have multiple possreps,
+then just one possrep is defined as the fundamental one, and the other
+possreps are defined in terms of the first, by which means the mappings
+between them is done.  The type-defining user can later come back and
+redefine the type if they wish, using a different possrep as the
+fundamental, but assuming the redefinition has all the same values,
+non-defining users of the type won't know any different.
+
+The QDRDBMS D implementation can choose for itself as to how the scalar
+type is physically represented behind the scenes, either picking between
+any of the user-provided possreps (assuming enough information is present
+to derive all needed inverse functions as applicable) or using yet another
+one or several of its own; the implementation can work how it knows best to
+achieve an efficient system, and this is all hidden away from the users,
+who simply perceive in it what they requested.
+
+In the context of scalar subtype/supertype relationships, the definition of
+a subtype can add additional possreps that are only valid for the subtype,
+such that users of the subtype can use both possreps defined for the
+subtype and the supertype, but users of the supertype can only use the
+possreps for the supertype, and not the subtype.  Taking for example the
+data types of rectangle and square, the latter is a subtype of the former;
+a possrep for a rectangle in general comprises its center point as well as
+its width and its height, which also works for a square; an additional
+possrep that just works for a square rather than a rectangle in general
+comprises a center point plus its length.
+
+As a corollary to this, all union types have none of the possreps defined
+by their subtypes.  So the system-defined C<Scalar> type has no possreps at
+all, and hence has no selectors or accessors defined for it.
+
+=head2 Tuple Types and Relation Types
+
+Tuple types are the fundamental heterogeneous nonencapsulated collection
+types in QDRDBMS D, and are like the Pascal language's concept of a record,
+or the C language's concept of a struct.  The definition of a tuple type
+comprises a list of zero or more named I<attributes> of any type, scalar or
+nonscalar.  This list definition is called the tuple's I<heading>.
+
+Relation types are the fundamental homogeneous nonencapsulated collection
+types in QDRDBMS D, and are like other languages' concepts of sets (or
+arrays where all elements are distinct), but restricted in that all
+elements are tuples.  The definition of a relation type looks exactly like
+the definition of a tuple type (such that a relation has a I<heading> even
+if it has no tuples), but that the definition defines every tuple
+in the relation, and also but that relation types can additionally have
+I<keys> defined which indicate that a subset of its attributes' values are
+distinct between all tuples in the relation.
+
+Generic selector and accessor operators exist that work with all tuple and
+relation types, so they do not need to be defined per such type.
+
+The system-defined types C<Tuple> and C<Relation> (and their system-defined
+subtypes) are technically generic factory types, such that they themselves
+do not define any attribute lists, and are supertypes of all tuple and
+relation types that do.  Beyond this special case, a pair of tuple or
+relation types can only have a subtype/supertype relationship if they have
+compatible headings, which means the attribute lists are of the same
+degree, the attribute names are identical, and the namewise corresponding
+attributes in each heading have a valid subtype/supertype relationship;
+each attribute of a tuple or relation subtype is a subtype of the
+same-named attribute of the tuple or relation supertype.
+
+=head2 Universal Implicit Operators
+
+QDRDBMS D is universally polymorphic to at least a small degree, such that
+every data type without exception has both an C<assign> update operator
+(for assigning a value of that type to a variable of that type) and an
+C<equal> function for testing 2 values of that type for equality (as well
+as C<not_equal>, for inequality).  Moreover, these operators exist
+implicitly, so when one defines the initial possrep of a new type, they get
+those operators for the type at no extra cost.
+
+=head2 Some Limitations of Use
+
+The union types C<Universal>, C<Tuple>, C<Relation> (and the system-defined
+subtypes of the latter 2) can be used as the declared types of such as
+variables and routine parameters, but they can not be used as the declared
+types of scalar possrep or tuple or relation attributes.  The declared type
+of each of the latter must be either a scalar type, or a specific tuple or
+relation subtype (meaning tuple or relation types that have specific
+attribute lists defined for them).
 
 I<This documentation is pending.>
 
