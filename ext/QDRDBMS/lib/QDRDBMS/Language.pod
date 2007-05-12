@@ -330,7 +330,8 @@ types are: C<Bool>, C<Text>, C<Blob>, C<Int>, C<Tuple>, C<Relation>.  All
 user-defined root types are scalar types that are defined not in terms of
 other types except for that any components of their I<possreps> (possible
 representations) have declared types.  I<Perhaps it should be said that all
-root types are defined by this last sentence?>
+root types are defined by this last sentence?>  A I<leaf type> is a data
+type that has no proper subtypes save for C<Empty>.
 
 =head2 Type Identification
 
@@ -486,6 +487,81 @@ degree, the attribute names are identical, and the namewise corresponding
 attributes in each heading have a valid subtype/supertype relationship;
 each attribute of a tuple or relation subtype is a subtype of the
 same-named attribute of the tuple or relation supertype.
+
+=head2 Finite Types and Infinite Types
+
+A I<finite type> is a data type whose cardinality (count of member values)
+is known to be finite, and this cardinality can be deterministically
+computed; moreover, every value of a finite type can be represented somehow
+using a finite amount of memory.  This doesn't exclude the possibility that
+either the cardinality or individual values are larger than present-day
+computing hardware can handle, but even if so, they could be handled by
+sufficiently larger but finite resources.  An I<infinite type> is a data
+type that is not a finite type; its cardinality is either known to be
+infinity, or it is unknown.
+
+Generally speaking, all finite types are defined either as an explicit
+enumeration of values (for example, the boolean type, which has exactly 2
+values), or they are scalar types whose possreps have zero attributes (each
+one is a singleton, having exactly 1 value), or they are the tuple or
+relation type that has zero attributes (which has exactly 1 or 2 values,
+respectively), or their values are all discrete and fall into a closed
+range (for example, a type comprising the range of integers between 1 and
+100, or a type comprising all real numbers in the same range that have a
+granularity of 0.001, or any IEEE floating point number of a specific bit
+length), or their values are length-constrained strings of
+finite-cardinality elements (for example, a character string that is not
+longer than 250 characters), or they are composite scalar or nonscalar
+types whose attributes are all of finite types themselves (for example, a
+type whose attributes are all C<Bool>).
+
+Generally speaking, all infinite types are defined either as being some
+open-ended natural domain (for example, the type having all integers, or
+the type having all prime numbers), or they are some continuous domain,
+whether open-ended or not (for example, the type having all real or complex
+numbers between 1 and 100), or they are non-length-constrained strings (for
+example, the set of all possible text strings), or they are composite
+scalar or nonscalar types which have at least one attribute which is itself
+infinite (for example, a type that has an I<Int> attribute).
+
+The system-defined root type C<Bool> is finite (2 values), as is the
+C<Empty> type (zero values), while all of the other 5 core system-defined
+root types (C<Text>, C<Blob>, C<Int>, C<Tuple>, C<Relation>) are infinite,
+as are the C<Scalar> and C<Universal> types.
+
+All proper subtypes of finite types are themselves finite types.  Proper
+subtypes of infinite types can be either finite or infinite depending on
+how they are defined.  For example, a subtype of C<Int> whose numbers are
+all simply greater than 10 is infinite, but a subtype whose numbers are
+additionally all less than 1000 is finite.  I<The documentation for
+individual system-defined data types, further below, specifies whether each
+of which is finite or infinite, and in the latter case, it states a most
+generic means to specify a finite subtype.>
+
+Note that, while it is not mandated by the language, some QDRDBMS D
+implementations may legitimitely choose to impose restrictions on their
+users such that the declared types of all persisting variables must be of
+finite types only.
+
+For example that all persisting C<Text> types must have a maximum allowed
+length in characters specified, or that all persisting C<Int> types must
+have a least and greatest allowed value specified.  This would typically
+happen if the implementation needs to use fixed-size fields internally,
+such as 32-bit integers, and it is not practical to support the possibility
+that a value could be of any size at all (this is often the case with SQL
+databases implemented in C).
+
+On the other hand, some implementations may natively support unlimited size
+values, such as those written in Perl, and so these can allow persisting
+the plain C<Text> or C<Int> types, which can make things less complicated
+for their users.
+
+Of course, even with implementations that require finite types, this isn't
+to say that the declared type can't be a very large finite type, but then
+the implementation can choose to use, for example, either a machine native
+integer or a string of digits behind the scenes for all values of the type,
+and can do this deterministically, depending what constraint the type
+defining user chose.
 
 =head2 Universal Implicit Operators
 
