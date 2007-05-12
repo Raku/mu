@@ -522,7 +522,7 @@ sub gen_code_snippet ($) {
     my $nlines = $to - $from + 1;
 
     my $html = <<"_EOC_";
-<p>From $file lines $from to $to$stat:</p>
+<p>From $file lines $from ~ $to$stat:</p>
 <div id="smartlink_${snippet_id}" class="smartlink_snippet">
 $snippet
 </div>
