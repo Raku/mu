@@ -138,7 +138,7 @@ function toggle_snippet (e) {
   div.style.display = (div.style.display == 'none') ? '' : 'none';
   
   var text = this.firstChild;
-  text.nodeValue = text.nodeValue.replace(/^- (Show|Hide) snippet/, function (full, p1) { return "- " + ((p1 == 'Show') ? 'Hide' : 'Show') + " snippet" }); // this may be unnecessarily complicated, or it may not.  you get to decide. :-)
+  text.nodeValue = text.nodeValue.replace(/^- (Show|Hide)/, function (full, p1) { return "- " + ((p1 == 'Show') ? 'Hide' : 'Show') }); // this may be unnecessarily complicated, or it may not.  you get to decide. :-)
   
   e.stopPropagation();
   e.preventDefault();
@@ -171,7 +171,7 @@ addEvent(window, 'load', function () {
       while (p.nodeType != 1) { p = p.previousSibling; } // ignore any whitespace-only nodes
       
       var text = p.firstChild;
-      text.nodeValue = text.nodeValue.replace(/^From/, '- Show snippet from');
+      text.nodeValue = text.nodeValue.replace(/^From/, '- Show');
       
       var link = document.createElement('a');
       
