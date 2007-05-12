@@ -44,7 +44,12 @@ my $z;
 my $expected = 'hex-formatted ord of $x is 41';
 is(
    eval(
-      q[$y = "hex-formatted ord of \$x is {$x.ord().fmt('%x')}"; $z = 1]),
+      q[
+         $y = "hex-formatted ord of \$x is {$x.ord().fmt('%x')}";
+         $z = 1; 
+         $y;
+      ]
+   ),
    $expected,
    'evals ok'
 );
