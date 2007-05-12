@@ -180,7 +180,7 @@ addEvent(window, 'load', function () {
         link.appendChild(child);
       }
       
-      link.appendChild(document.createTextNode(' -')); // consistency ;-)
+      link.replaceChild(document.createTextNode(' -'), link.lastChild); // replace ending ":" with " -"
       
       link.href = '#';
       link.id = 'smartlink_toggle' + num;
