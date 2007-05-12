@@ -11,7 +11,6 @@ ulimit -t $(( 10 * 60 ))
 cd  ~agentzh/svn-pugs
 svn up
 
-perl util/smartlinks.pl --out-dir ~agentzh/syn --dir t --test-res ~agentzh/smoke.yml
+perl util/smartlinks.pl --out-dir ~agentzh/syn --dir t --css perl.css --test-res ~agentzh/smoke.yml
 
 perl util/podhtm.pl --url-prefix http://feather.perl6.nl/syn/ --url-postfix .html --index --charset=UTF-8 --out ~agentzh/syn/Differences.html docs/Perl6/Perl5/Differences.pod
-
