@@ -2,13 +2,13 @@
 
 # util/smartlinks.pl - The successor to util/catalog_tests.pl.
 
-# This program is still under active development,
-# you're very welcomed to improve it.
+# This program is still under active development, and
+# you're very welcome to improve it.
 # Please read the Pod documentation at the end of file before reading and/or
 # modifying the source.
 # CAUTION: please make sure your changes don't break anything, because
 # breakage of this script will also break http://perlcabal.org/syn/
-# immediately. Running *.t under util/t/ before committing is
+# immediately. Running *-smartlinks.t under util/t/ before committing is
 # strongly recommended. Thank you for your contribution :)
 
 use strict;
