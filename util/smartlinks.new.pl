@@ -505,7 +505,7 @@ sub gen_code_snippet ($) {
 
     my $snippet;
     if (!$test_result) {
-	warn "No test results for $file $from to $to";
+	#warn "No test results for $file $from to $to";
         $snippet = qq{<pre class="snip">$src</pre>};
     } else {
         $snippet = qq{
