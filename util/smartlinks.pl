@@ -36,46 +36,152 @@ my %Spec = reverse qw(
     17 Concurrency 22 CPAN          26 Documentation 29 Functions
 );
 
-my $javascript = <<'_EOC_';
-<script type="text/javascript">
-var agt = navigator.userAgent.toLowerCase();
+my $javascript = '';
 
-var is_opera = (agt.indexOf("opera") != -1);
-var is_ie = (agt.indexOf("msie") != -1) && document.all && !is_opera;
-var is_ie5 = (agt.indexOf("msie 5") != -1) && document.all;
+# EVENT HANDLING
+$javascript .= <<'_EOC_';
+// http://therealcrisp.xs4all.nl/upload/addEvent_dean.html
+// written by Dean Edwards, 2005
+// with input from Tino Zijdel - crisp@xs4all.nl
+// http://dean.edwards.name/weblog/2005/10/add-event/
+// modified by Aankhen
 
-function tog() {
-  // tog: toggle the visibility of html elements (arguments[1..]) from none to
-  // arguments[0].  Return what should be returned in a javascript onevent().
-  display = arguments[0];
-  for( var i=1; i<arguments.length; i++ ) {
-    var x = document.getElementById(arguments[i]);
-    if (!x) continue;
-    if (x.style.display == "none" || x.style.display == "") {
-      x.style.display = display;
-    } else {
-      x.style.display = "none";
+var addEvent;
+
+if (window.addEventListener) {
+    addEvent = function (element, type, handler) { element.addEventListener(type, handler, (typeof arguments[3] != 'undefined') ? arguments[3] : false); };
+} else {
+  addEvent = function (element, type, handler) {
+    // assign each event handler a unique ID
+    if (!handler.$$guid) handler.$$guid = addEvent.guid++;
+    // create a hash table of event types for the element
+    if (!element.events) element.events = {};
+    // create a hash table of event handlers for each element/event pair
+    var handlers = element.events[type];
+    if (!handlers) {
+      handlers = element.events[type] = {};
+      // store the existing event handler (if there is one)
+      if (element['on' + type]) {
+        handlers[0] = element['on' + type];
+      }
+      // assign a global event handler to do all the work
+      element['on' + type] = handleEvent;
     }
-  }
-
-  var e = is_ie ? window.event : this;
-  if (e) {
-    if (is_ie) {
-      e.cancelBubble = true;
-      e.returnValue = false;
-      return false;
-    } else {
-      return false;
-    }
+    
+    // store the event handler in the hash table
+    handlers[handler.$$guid] = handler;
   }
 }
 
-function tog_quote( idnum ) {
-  return tog( 'block', 'header_shown_' + idnum, 'header_hidden_' + idnum,
-       'hide_' + idnum );
+// a counter used to create unique IDs
+addEvent.guid = 1;
+
+function removeEvent(element, type, handler) {
+  if (element.removeEventListener)
+    element.removeEventListener(type, handler, false);
+  // delete the event handler from the hash table
+  else if (element.events && element.events[type] && handler.$$guid)
+    delete element.events[type][handler.$$guid];
 }
 
-</script>
+function handleEvent(event) {
+  // grab the event object (IE uses a global event object)
+  event = event || fixEvent(window.event);
+  
+  var returnValue = true;
+  
+  // get a reference to the hash table of event handlers
+  var handlers = this.events[event.type];
+
+  // execute each event handler
+  for (var i in handlers) {
+    // don't copy object properties
+    if (!Object.prototype[i]) {
+      this.$$handler = handlers[i];
+      if (this.$$handler(event) === false) {
+        returnValue = false;
+        // in accordance with DOM2-Events, all remaining event handlers on the object will be triggered, hence the absence of a `break`
+      }
+    }
+  }
+
+  // clean up
+  if (this.$$handler) this.$$handler = null;
+
+  return returnValue;
+}
+
+function fixEvent(event) {
+  // add W3C standard event methods
+  event.preventDefault = fixEvent.preventDefault;
+  event.stopPropagation = fixEvent.stopPropagation;
+  return event;
+}
+
+fixEvent.preventDefault = function() {
+  this.returnValue = false;
+};
+
+fixEvent.stopPropagation = function() {
+  this.cancelBubble = true;
+};
+_EOC_
+
+# VISIBILITY TOGGLE
+$javascript .= <<'_EOC_';
+function toggle_snippet (e) {
+  var matches = this.id.match(/smartlink_toggle(\d+)/);
+  var num = matches[1];
+  
+  var id = 'smartlink_' + num;
+  var div = document.getElementById(id);
+  div.style.display = (div.style.display == 'none') ? '' : 'none';
+  
+  var text = this.firstChild;
+  text.nodeValue = text.nodeValue.replace(/^- (Show|Hide) snippet/, function (full, p1) { return "- " + ((p1 == 'Show') ? 'Hide' : 'Show') + " snippet" }); // this may be unnecessarily complicated, or it may not.  you get to decide. :-)
+  
+  e.stopPropagation();
+  e.preventDefault();
+  
+  return false;
+}
+_EOC_
+
+# LINK GENERATION
+# this would be simpler if we used a library like YUI to simplify retrieval and creation of elements, but oh well
+$javascript .= <<'_EOC_';
+function collectionToArray(col) {
+  a = new Array();
+  for (i = 0; i < col.length; i++)
+    a[a.length] = col[i];
+  return a;
+}
+
+addEvent(window, 'load', function () {
+  var divs = collectionToArray(document.getElementsByTagName('div'));
+  
+  for (var i = 0, j = divs.length; i < j; i++) {
+    var curr = divs[i];
+    if (!curr.id) { continue; }
+    if (curr.id.match(/smartlink_(\d+)/)) {
+      var num = RegExp.$1;
+      
+      var p = curr.removeChild(curr.firstChild);
+      p.firstChild.nodeValue.match(/^From (\S+) lines (\d+)\D+(\d+):$/);
+      
+      var link = document.createElement('a');
+      link.appendChild(document.createTextNode("- Show snippet from " + RegExp.$1 + " (lines " + RegExp.$2 + " to " + RegExp.$3 + ") -"));
+      link.href = '#';
+      link.id = 'smartlink_toggle' + num;
+      addEvent(link, 'click', toggle_snippet);
+      
+      var link_div = document.createElement('div');
+      link_div.appendChild(link);
+      curr.parentNode.insertBefore(link_div, curr);
+      curr.style.display = 'none';
+    }
+  }
+});
 _EOC_
 
 =begin private
@@ -286,7 +392,7 @@ sub gen_html ($$$) {
     my $pod2html = new Pod::Simple::HTML;
     $pod2html->index(1);
     $pod2html->html_css($cssfile);
-    $pod2html->html_javascript($javascript);
+    $pod2html->html_javascript(qq{<script type="text/javascript">$javascript</script>});
     $pod2html->force_title('S'.$syn_id);
 
     my $html;
@@ -320,6 +426,10 @@ sub add_user_css {
     border-width: 0;
     cellspacing: 0;
     cellpadding: 0;
+}
+.smartlink_snippet {
+    border: 1px solid;
+    padding: 0.2em;
 }
 </style>
 .
@@ -399,16 +509,9 @@ sub gen_code_snippet ($) {
         '';
 
     my $nlines = $to - $from + 1;
+
     my $html = <<"_EOC_";
-<a href="#" onclick="return tog_quote(${snippet_id});">
-<div ID="header_shown_${snippet_id}" style="display: none;">
-- Hide the snippet from $file (line $from ~ line $to$stat) -
-</div>
-<div ID="header_hidden_${snippet_id}" style="display: block;">
-- Show the snippet from $file (line $from ~ line $to$stat) -
-</div>
-</a>
-<div ID="hide_${snippet_id}" style="display:none; border:1px solid">
+<div id="smartlink_${snippet_id}" class="smartlink_snippet"><p>From $file lines $from to $to:</p>
 $snippet
 </div>
 _EOC_
