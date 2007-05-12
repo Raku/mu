@@ -94,6 +94,12 @@ general/ folder and email perl6-compiler and let us know.
 Warning: please grep the whole test suite to ensure the tests you want to add
 are not already in some file.
 
+- Run the test file with util/prove6 to test your tests.
+
+  util/prove6 t/foo/bar.t
+
+Make sure the outputs are what you *can* expect even if your tests fail.
+
 - If possible, please smart link your tests to the Synopsis
 
 Smart links are explained on the wiki:
