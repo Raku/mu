@@ -377,7 +377,7 @@ does, for example SQL-using systems.
 The Cookbook distro may also be the main repository of executing code that
 would otherwise go in the /examples directory of the QDRDBMS core distro.
 
-=item C<Genezzo> or C<QDRDBMS::Engine::Genezzo> or C<Genezzo::QDRDBMS> etc
+=item C<Genezzo> or C<Genezzo::QDRDBMS> or C<QDRDBMS::Engine::Genezzo> etc
 
 A QDRDBMS Engine built around Jeffrey Cohen's Genezzo DBMS, or specifically
 the class that does C<QDRDBMS::Engine::Role>, could conceivably have either
@@ -432,17 +432,50 @@ module, should that be useful.  Depending on what DBI itself permits or
 requires, this could take a variety of query definition formats, including
 either or both of AST form or string form (most likely) QDRDBMS D.
 
-=item C<QDRDBMS::AST::Translate(|::\w+)>
+=item C<QDRDBMS::AST::Translate::TutorialD> etc
+
+Utility module that parses the Tutorial D language into QDRDBMS AST nodes,
+and also that generates the former from the latter.  Mainly this is just
+by-the-book using the grammar published by Darwin and Date, but it could
+also handle compatible extensions by other D language implementations.  In
+addition, separate utility modules can be made which translate to and from
+other D languages that don't look like Tutorial D.
+
+=item C<QDRDBMS::AST::Translate::SQL::Native>
+
+Utility module that parses a QDRDBMS-native variant of SQL into QDRDBMS AST
+nodes, and also that generates the former from the latter.  This SQL
+variant is essentially a cleaned up subset of the SQL:2003 standard, with
+some misfeatures removed, some missing features added, and some alterations
+common in other SQL DBMSs substituted or added.  Or alternately, it is like
+a subset of QDRDBMS D made to look as much like SQL as possible.  This
+QDRDBMS-native SQL variant always has distinct column names in rowsets,
+requires matching column names for inputs to union/intersect/etc, never
+stores or returns duplicate rows, always uses 2-valued logic (not 3-valued
+logic), and has case-sensitive table/column/etc names and character
+strings.  An application written to use this SQL dialect rather than some
+other dialect should behave more deterministically, and perform faster,
+than ones written to some other SQL dialect, since there is less
+indirection involved between what users query and what actually happens to
+implement it.
+
+=item C<QDRDBMS::AST::Translate::SQL::\w+>
+
+Utility modules that parse other variants of SQL (or subsets thereof) into
+QDRDBMS AST nodes, and also that generate the former from the latter.
+Examples of these variants are the actual SQL:2003 standard, and the native
+dialects of each actual SQL DBMS.
+
+=item C<QDRDBMS::AST::Translate::\w+>
 
 Utility modules that translate data (including code and declaratives)
 between representations that are QDRDBMS AST nodes and representations that
 aren't, or between 2 of the latter kind while using the former kind as an
-intermediate representation.  As a common example, translations from or to
-any or all dialects of SQL should be supported.  Also, translations from or
-to other I<D> languages, particularly I<Tutorial D>.  Also important is
-translations to/from native Perl data structures, including native Perl
-routine definitions (L<PPI> would probably be employed in the Perl 5
-version), and including commonly used third party class' objects.
+intermediate representation.  Besides the aforementioned possibilities that
+deal with I<D> languages or SQL, we can have utilities that translate
+to/from native Perl data structures, including native Perl routine
+definitions (L<PPI> would probably be employed in the Perl 5 version), and
+including commonly used third party class' objects.
 
 =item C<QDRDBMS::Proxy::(Server|Client|\w+)>
 

@@ -183,7 +183,7 @@ method which of Str () {
 
 ###########################################################################
 
-sub as_ast of LitBool () {
+method as_ast of LitBool () {
     return LitBool( :v($!v) );
 }
 
@@ -195,7 +195,7 @@ method equal of Bool (::T $self: T $other!) {
 
 ###########################################################################
 
-sub v of Bool () {
+method v of Bool () {
     return $!v;
 }
 
@@ -238,7 +238,7 @@ method which of Str () {
 
 ###########################################################################
 
-sub as_ast of LitText () {
+method as_ast of LitText () {
     return LitText( :v($!v) );
 }
 
@@ -250,7 +250,7 @@ method equal of Bool (::T $self: T $other!) {
 
 ###########################################################################
 
-sub v of Str () {
+method v of Str () {
     return $!v;
 }
 
@@ -293,7 +293,7 @@ method which of Str () {
 
 ###########################################################################
 
-sub as_ast of LitBlob () {
+method as_ast of LitBlob () {
     return LitBlob( :v($!v) );
 }
 
@@ -305,7 +305,7 @@ method equal of Bool (::T $self: T $other!) {
 
 ###########################################################################
 
-sub v of Blob () {
+method v of Blob () {
     return $!v;
 }
 
@@ -348,7 +348,7 @@ method which of Str () {
 
 ###########################################################################
 
-sub as_ast of LitInt () {
+method as_ast of LitInt () {
     return LitInt( :v($!v) );
 }
 
@@ -360,7 +360,7 @@ method equal of Bool (::T $self: T $other!) {
 
 ###########################################################################
 
-sub v of Int () {
+method v of Int () {
     return $!v;
 }
 
@@ -623,7 +623,7 @@ method which of Str () {
 
 ###########################################################################
 
-sub text of Str () {
+method text of Str () {
     return $!text;
 }
 

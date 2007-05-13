@@ -187,7 +187,7 @@ method _equal_repr of Bool (::T $self: T $other!) {
 
 ###########################################################################
 
-sub v of Bool () {
+method v of Bool () {
     return $!v;
 }
 
@@ -235,7 +235,7 @@ method _equal_repr of Bool (::T $self: T $other!) {
 
 ###########################################################################
 
-sub v of Str () {
+method v of Str () {
     return $!v;
 }
 
@@ -288,7 +288,7 @@ method _equal_repr of Bool (::T $self: T $other!) {
 
 ###########################################################################
 
-sub v of Blob () {
+method v of Blob () {
     return $!v;
 }
 
@@ -336,7 +336,7 @@ method _equal_repr of Bool (::T $self: T $other!) {
 
 ###########################################################################
 
-sub v of Int () {
+method v of Int () {
     return $!v;
 }
 
@@ -400,7 +400,7 @@ method _equal_repr of Bool (::T $self: T $other!) {
 
 ###########################################################################
 
-sub v of Array () {
+method v of Array () {
     return [$!v.values];
 }
 
@@ -490,6 +490,22 @@ multi submethod BUILD (QDRDBMS::AST::SeqSel :$seq!) {
 
 ###########################################################################
 
+method as_perl of Str () {
+    if (!$!as_perl.defined) {
+        my Str $s = $!text_possrep.as_perl();
+        $!as_perl = "QDRDBMS::AST::EntityName.new( :text($s) )";
+    }
+    return $!as_perl;
+}
+
+###########################################################################
+
+method _equal_repr of Bool (::T $self: T $other!) {
+    return $self!text_possrep.equal_repr( :other($other!text_possrep) );
+}
+
+###########################################################################
+
 method text of QDRDBMS::AST::LitText () {
     return $!text_possrep;
 }
@@ -558,11 +574,39 @@ submethod BUILD (Array :$map!) {
 
 ###########################################################################
 
-sub map of Array () {
+method as_perl of Str () {
+    if (!$!as_perl.defined) {
+        my Str $s = q{[} ~ $!map_aoa.map:{
+                q{[} ~ .[0].as_perl() ~ q{, } ~ .[1].as_perl() ~ q{]}
+            }.join( q{, } ) ~ q{]};
+        $!as_perl = "QDRDBMS::AST::ExprDict.new( :map($s) )";
+    }
+    return $!as_perl;
+}
+
+###########################################################################
+
+method _equal_repr of Bool (::T $self: T $other!) {
+    return $FALSE
+        if $other!map_aoa.elems !=== $self!map_aoa.elems;
+    my Hash $v1 = $self!map_hoa;
+    my Hash $v2 = $other!map_hoa;
+    for $v1.pairs -> $e {
+        return $FALSE
+            if !$v2.exists($e.key);
+        return $FALSE
+            if !$e.value.[1].equal_repr( :other($v2.{$e.key}.[1]) );
+    }
+    return $TRUE;
+}
+
+###########################################################################
+
+method map of Array () {
     return [$!map_aoa.map:{ [.values] }];
 }
 
-sub map_hoa of Hash () {
+method map_hoa of Hash () {
     return {$!map_hoa.pairs.map:{ .key => [.value.values] }};
 }
 
@@ -627,11 +671,39 @@ submethod BUILD (Array :$map!) {
 
 ###########################################################################
 
-sub map of Array () {
+method as_perl of Str () {
+    if (!$!as_perl.defined) {
+        my Str $s = q{[} ~ $!map_aoa.map:{
+                q{[} ~ .[0].as_perl() ~ q{, } ~ .[1].as_perl() ~ q{]}
+            }.join( q{, } ) ~ q{]};
+        $!as_perl = "QDRDBMS::AST::TypeDict.new( :map($s) )";
+    }
+    return $!as_perl;
+}
+
+###########################################################################
+
+method _equal_repr of Bool (::T $self: T $other!) {
+    return $FALSE
+        if $other!map_aoa.elems !=== $self!map_aoa.elems;
+    my Hash $v1 = $self!map_hoa;
+    my Hash $v2 = $other!map_hoa;
+    for $v1.pairs -> $e {
+        return $FALSE
+            if !$v2.exists($e.key);
+        return $FALSE
+            if !$e.value.[1].equal_repr( :other($v2.{$e.key}.[1]) );
+    }
+    return $TRUE;
+}
+
+###########################################################################
+
+method map of Array () {
     return [$!map_aoa.map:{ [.values] }];
 }
 
-sub map_hoa of Hash () {
+method map_hoa of Hash () {
     return {$!map_hoa.pairs.map:{ .key => [.value.values] }};
 }
 
@@ -664,7 +736,23 @@ submethod BUILD (QDRDBMS::AST::EntityName :$v!) {
 
 ###########################################################################
 
-sub v of QDRDBMS::AST::EntityName () {
+method as_perl of Str () {
+    if (!$!as_perl.defined) {
+        my Str $s = $!v.as_perl();
+        $!as_perl = "QDRDBMS::AST::VarInvo.new( :v($s) )";
+    }
+    return $!as_perl;
+}
+
+###########################################################################
+
+method _equal_repr of Bool (::T $self: T $other!) {
+    return $self!v.equal_repr( :other($other!v) );
+}
+
+###########################################################################
+
+method v of QDRDBMS::AST::EntityName () {
     return $!v;
 }
 
@@ -704,11 +792,30 @@ submethod BUILD (QDRDBMS::AST::EntityName :$func!,
 
 ###########################################################################
 
-sub func of QDRDBMS::AST::EntityName () {
+method as_perl of Str () {
+    if (!$!as_perl.defined) {
+        my Str $sf = $!func.as_perl();
+        my Str $sra = $!ro_args.as_perl();
+        $!as_perl = "QDRDBMS::AST::FuncInvo.new("
+            ~ " :func($sf), :ro_args($sra) )";
+    }
+    return $!as_perl;
+}
+
+###########################################################################
+
+method _equal_repr of Bool (::T $self: T $other!) {
+    return $self!func.equal_repr( :other($other!func) )
+        and $self!ro_args.equal_repr( :other($other!ro_args) );
+}
+
+###########################################################################
+
+method func of QDRDBMS::AST::EntityName () {
     return $!func;
 }
 
-sub ro_args of QDRDBMS::AST::ExprDict () {
+method ro_args of QDRDBMS::AST::ExprDict () {
     return $!ro_args;
 }
 
@@ -770,15 +877,36 @@ submethod BUILD (QDRDBMS::AST::EntityName :$proc!,
 
 ###########################################################################
 
-sub proc of QDRDBMS::AST::EntityName () {
+method as_perl of Str () {
+    if (!$!as_perl.defined) {
+        my Str $sp = $!proc.as_perl();
+        my Str $sua = $!upd_args.as_perl();
+        my Str $sra = $!ro_args.as_perl();
+        $!as_perl = "QDRDBMS::AST::ProcInvo.new("
+            ~ " :proc($sp), :upd_args($sua), :ro_args($sra) )";
+    }
+    return $!as_perl;
+}
+
+###########################################################################
+
+method _equal_repr of Bool (::T $self: T $other!) {
+    return $self!proc.equal_repr( :other($other!proc) )
+        and $self!upd_args.equal_repr( :other($other!upd_args) )
+        and $self!ro_args.equal_repr( :other($other!ro_args) );
+}
+
+###########################################################################
+
+method proc of QDRDBMS::AST::EntityName () {
     return $!proc;
 }
 
-sub upd_args of QDRDBMS::AST::ExprDict () {
+method upd_args of QDRDBMS::AST::ExprDict () {
     return $!upd_args;
 }
 
-sub ro_args of QDRDBMS::AST::ExprDict () {
+method ro_args of QDRDBMS::AST::ExprDict () {
     return $!ro_args;
 }
 
@@ -811,7 +939,23 @@ submethod BUILD (QDRDBMS::AST::Expr :$v!) {
 
 ###########################################################################
 
-sub v of QDRDBMS::AST::Expr () {
+method as_perl of Str () {
+    if (!$!as_perl.defined) {
+        my Str $s = $!v.as_perl();
+        $!as_perl = "QDRDBMS::AST::FuncReturn.new( :v($s) )";
+    }
+    return $!as_perl;
+}
+
+###########################################################################
+
+method _equal_repr of Bool (::T $self: T $other!) {
+    return $self!v.equal_repr( :other($other!v) );
+}
+
+###########################################################################
+
+method v of QDRDBMS::AST::Expr () {
     return $!v;
 }
 
@@ -824,6 +968,21 @@ sub v of QDRDBMS::AST::Expr () {
 
 class QDRDBMS::AST::ProcReturn {
     does QDRDBMS::AST::Stmt;
+
+###########################################################################
+
+method as_perl of Str () {
+    return 'QDRDBMS::AST::ProcReturn.new()';
+}
+
+###########################################################################
+
+method _equal_repr of Bool (::T $self: T $other!) {
+    return $TRUE;
+}
+
+###########################################################################
+
 } # class QDRDBMS::AST::ProcReturn
 
 ###########################################################################
@@ -913,19 +1072,52 @@ submethod BUILD (QDRDBMS::AST::TypeDict :$upd_params!,
 
 ###########################################################################
 
-sub upd_params of QDRDBMS::AST::TypeDict () {
+method as_perl of Str () {
+    if (!$!as_perl.defined) {
+        my Str $sup = $!upd_params.as_perl();
+        my Str $srp = $!ro_params.as_perl();
+        my Str $sv = $!vars.as_perl();
+        my Str $ss
+            = q{[} ~ $!stmts.map:{ .as_perl() }.join( q{, } ) ~ q{]};
+        $!as_perl = "QDRDBMS::AST::HostGateRtn.new( :upd_params($sup)"
+            ~ ", :ro_params($srp), :vars($sv), :stmts($ss) )";
+    }
+    return $!as_perl;
+}
+
+###########################################################################
+
+method _equal_repr of Bool (::T $self: T $other!) {
+    return $FALSE
+        if !$self!upd_params.equal_repr( :other($other!upd_params) )
+            or !$self!ro_params.equal_repr( :other($other!ro_params) )
+            or !$self!vars.equal_repr( :other($other!vars) );
+    my Array $v1 = $self!stmts;
+    my Array $v2 = $other!stmts;
+    return $FALSE
+        if $v2.elems !=== $v1.elems;
+    for 0..^$v1.elems -> $i {
+        return $FALSE
+            if !$v1.[$i].equal_repr( :other($v2.[$i]) );
+    }
+    return $TRUE;
+}
+
+###########################################################################
+
+method upd_params of QDRDBMS::AST::TypeDict () {
     return $!upd_params;
 }
 
-sub ro_params of QDRDBMS::AST::TypeDict () {
+method ro_params of QDRDBMS::AST::TypeDict () {
     return $!ro_params;
 }
 
-sub vars of QDRDBMS::AST::TypeDict () {
+method vars of QDRDBMS::AST::TypeDict () {
     return $!vars;
 }
 
-sub stmts of QDRDBMS::AST::EntityName () {
+method stmts of QDRDBMS::AST::EntityName () {
     return [$!stmts.values];
 }
 
