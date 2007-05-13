@@ -200,8 +200,7 @@ addEvent(window, 'load', function () {
       curr.style.display = 'none';
 
       // explicitly jump to the page anchor (if any) since the code above messes it up
-      if (location.hash.match(/#/))
-    	  location.hash = location.hash;
+      if (location.hash.match(/#.+/)) location.hash = RegExp.lastMatch;
     }
   }
 });
