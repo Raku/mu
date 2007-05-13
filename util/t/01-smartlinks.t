@@ -68,6 +68,7 @@ my @args = qw(t/*.t t/*/*.t t/*/*/*.t t/*/*/*/*.t);
 my @t_files = sort map glob, @args;
 ### @t_files
 
+# Test synopses w/o smoke results
 system("$^X $Bin/../smartlinks.pl --fast " .
     "--syn-dir Spec --out-dir got " .
     join(" ", @t_files));
@@ -85,12 +86,6 @@ for my $path (glob "expected/*.html") {
     my ($file1, $file2) = ("got/$file", "expected/$file");
     warn "$file1 <=> $file2\n";
     my $out = diff $file1, $file2, {STYLE => 'OldStyle'};
-    #$out =~ s/70c70\n<[^\n]*\n---\n>[^\n]*\n//;
-    #$out =~ s/82c82\n<[^\n]*\n---\n>[^\n]*\n//;
-    #$out =~ s/82,83c82,83\n(?:<[^\n]*\n){2}---\n(?:>[^\n]*){2}\n//;
-    #$out =~ s/9c9\n<[^\n]*\n---\n>[^\n]*\n//;
-    #$out =~ s/(?x) 50,52c50,52 \n (?: < [^\n]* \n){3} --- \n (?: > [^\n]* \n){3}//;
-    #$out =~ s/64,65c64,65\n<[^\n]*\n<[^\n]*\n---\n>[^\n]*\n>[^\n]*\n//;
     $out =~ s/^\s+|\s+$//g;
     is $out, '', 'no diff';
 }
