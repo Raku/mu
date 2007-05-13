@@ -3,6 +3,7 @@
 cd smartlinks_data
 rm -rf expected
 cp -rT got expected
+rm expected/S26.html
 rm -rf got
 cd ..
 
