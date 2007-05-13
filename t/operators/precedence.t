@@ -13,7 +13,7 @@ L<S03/Operator precedence>
 
 =cut
 
-plan 45;
+plan 49;
 
 
 # 1. terms
@@ -172,3 +172,23 @@ is(@c, [1,2,3], "@ = binds looser than ,");
 #   $ perl -we 'print uc("a" eq "A")'
 #   $    (no output)
 ok (uc "a" eq "A"), "uc has the correct precedence in comparision to eq";
+
+# L<S06/Subroutine traits/"relative to an existing">
+
+sub postfix:<!> (Num $x) is tighter(&infix:<**>) {
+    return 3 * $x;
+}
+is !1**2, 9, "'is tighter' works";
+
+sub infix:<mul> ($a, $b) is looser(&infix:<+>) {
+    return $a * $b;
+}
+
+ok 2 mul 3 + 4, 14, "'is looser' works 1";
+ok 4 + 3 mul 2 , 14, "'is looser' works 2";
+
+sub infix:<div> ($a, $b) is equiv(&infix:<*>) {
+    return $a / $b;
+}
+
+ok(4 div 2 * 3, 6, "'is equiv' works");
