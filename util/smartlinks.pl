@@ -25,6 +25,7 @@ use File::Find qw(find);
 
 my $check;
 my $test_result;
+my $line_anchor;
 my ($syn_rev, $pugs_rev, $smoke_rev);
 my ($link_count, $broken_link_count);
 my (@snippets, $snippet_id);
@@ -322,7 +323,11 @@ sub parse_pod ($) {
         } elsif (/^\s*$/) {
             $podtree->{$section} ||= [];
             #push @{ $podtree->{$section} }, "\n";
-            push @{ $podtree->{$section} }, '';
+            my @new = ('');;
+            if ($line_anchor and $podtree->{$section}->[-1] !~ /^=over\b|^=item\b/) {
+                unshift @new, "_LINE_ANCHOR_$.\n";
+            }
+            push @{ $podtree->{$section} }, @new;
         } elsif (/^\s+(.+)/) {
             $podtree->{$section} ||= [''];
             $podtree->{$section}->[-1] .= $_;
@@ -353,6 +358,7 @@ sub emit_pod ($) {
             }
         }
     }
+    $str = "=pod\n\n_LINE_ANCHOR_1\n\n$str" if $line_anchor;
     $str;
 }
 
@@ -420,9 +426,29 @@ sub gen_html ($$$) {
     # substitutes the placeholders introduced by `gen_code_snippet`
     # with real code snippets:
     $html =~ s,(?:<p>\s*)?\b_SMART_LINK_(\d+)\b(?:\s*</p>)?,$snippets[$1],sg;
-    add_user_css(\$html);
+    fix_line_anchors(\$html) if $line_anchor;
     add_footer(\$html);
+    add_user_css(\$html);
     $html
+}
+
+sub fix_line_anchors {
+    my ($html) = @_;
+    my @lineno; # line numbers for each paragraph
+    while ($$html =~ /\b_LINE_ANCHOR_(\d+)\b/gsm) {
+        push @lineno, $1;
+    }
+    $$html =~ s{(?:<p>\s*)?\b_LINE_ANCHOR_(\d+)\b(?:\s*</p>)?}{ gen_line_anchors(\@lineno) }sge;
+}
+
+sub gen_line_anchors {
+    my $list = shift;
+    my $curr = shift @$list;
+    my $html = '';
+    for ($curr .. $list->[0] - 1) {
+        $html .= qq{<a name="_line_$_"></a>\n};
+    }
+    $html;
 }
 
 sub add_footer {
@@ -749,7 +775,8 @@ Options:
   --index         Also generates an index.html page with links to
                   pages.
   --dir <dir>     Name of the directory where to look for .t files
-                  recursively
+                  recursively.
+  --line-anchor   Insert line anchors to the resulting HTML pages.
 _EOC_
     exit(0);
 }
@@ -766,6 +793,7 @@ sub main () {
         'test-res=s'  => \$yml_file,
         'index'       => \$index,
         'dir=s'       => \$dir,
+        'line-anchor' => \$line_anchor,
     );
 
     if ($help || !@ARGV && !$dir) {
