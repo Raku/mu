@@ -557,9 +557,16 @@ sub gen_code_snippet ($) {
         };
     }
 
-    my $stat = $test_result ?
-        " &nbsp;&mdash; &nbsp;<code>$ok_count √, $failed_count ×</code>" :
-        '<code></code>';
+    my $stat;
+    if ($test_result) {
+        if ($ok_count == 0 && $failed_count == 0) {
+            $stat = " &nbsp;&mdash; &nbsp;<code>N/A</code>";
+        } else {
+            $stat = " &nbsp;&mdash; &nbsp;<code>$ok_count √, $failed_count ×</code>";
+        }
+    } else {
+        $stat = '<code></code>';
+    }
 
     my $nlines = $to - $from + 1;
 
