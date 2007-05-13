@@ -120,10 +120,10 @@ USAGE
 sub setup_compression {
   eval { require Compress::Bzip2; debug "Bzip2 compression on\n" } and
     return $compress = sub { Compress::Bzip2::memBzip(shift) };
-  debug "Bzip2 compression off; consider installing Compress::Bzip2\n";
+  debug "Bzip2 compression off; consider installing Compress::Bzip2\n" if $@;
   eval { require Compress::Zlib; debug "Gzip compression on\n" } and
     $compress = sub { Compress::Zlib::memGzip(shift) };
-  debug "Gzip compression off; consider installing Compress::Zlib\n";
+  debug "Gzip compression off; consider installing Compress::Zlib\n" if $@;
 }
 
 sub expand_meta {
