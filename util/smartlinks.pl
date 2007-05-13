@@ -421,7 +421,16 @@ sub gen_html ($$$) {
     # with real code snippets:
     $html =~ s,(?:<p>\s*)?\b_SMART_LINK_(\d+)\b(?:\s*</p>)?,$snippets[$1],sg;
     add_user_css(\$html);
-    $html;
+    add_footer(\$html);
+    $html
+}
+
+sub add_footer {
+    my ($html) = @_;
+    $$html =~ s{</body>}{
+        [ <a href="#___top">Top</a> ] &nbsp;
+        [ <a href="http://perlcabal.org/syn/">Index of Synopses</a> ]
+        </body>};
 }
 
 # isn't there a prettier way to do this?
@@ -699,13 +708,14 @@ sub gen_preamble {
      my $time = sprintf "%04d-%02d-%02d %02d:%02d:%02d GMT",
          $year, $mon, $mday, $hour, $min, $sec;
      my $smoke_info = $smoke_rev ?
-         ", <a href=\"http://feather.perl6.nl/smoke.html\">pugs-smoke</a> <strong>$smoke_rev</strong>"
+         ", <a href=\"http://perlcabal.org/smoke.html\">pugs-smoke</a> <strong>$smoke_rev</strong>"
          :
          '';
      ## $smoke_info
     return qq{
             <I>This page was generated at $time.<br/>
             (<a href="http://svn.perl.org/perl6/doc/trunk/design/syn/">syn</a> <strong>$syn_rev</strong>, <a href="http://svn.pugscode.org/pugs/t/">pugs-tests</a> <strong>$pugs_rev</strong>$smoke_info)</I>
+            &nbsp; [ <a href="http://perlcabal.org/syn/">Index of Synopses</a> ] <br/>
      };
 }
 
