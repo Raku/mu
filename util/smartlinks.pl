@@ -165,7 +165,14 @@ addEvent(window, 'load', function () {
     if (!curr.id) { continue; }
     if (curr.id.match(/smartlink_(\d+)/)) {
       var num = RegExp.$1;
-      
+
+      var toBeRemoved = [ "smartlink_skip_", "smartlink_skipto_" ]; // let it be reusable since this list could conceivably grow :-)
+      for (var k = 0, l = toBeRemoved.length; k < l; k++) {
+        var id = toBeRemoved[k] + num;
+        var elm = document.getElementById(id);
+        elm.parentNode.removeChild(elm);
+      }
+
       var p = curr.previousSibling;
       
       while (p.nodeType != 1) { p = p.previousSibling; } // ignore any whitespace-only nodes
@@ -522,10 +529,11 @@ sub gen_code_snippet ($) {
     my $nlines = $to - $from + 1;
 
     my $html = <<"_EOC_";
-<p>From $file lines $from ~ $to$stat:</p>
+<p>From $file lines $from ~ $to$stat:<span id="smartlink_skip_${snippet_id}"> <a href="#smartlink_skipto_${snippet_id}">(skip)</a></span></p>
 <div id="smartlink_${snippet_id}" class="smartlink_snippet">
 $snippet
 </div>
+<span id="smartlink_skipto_${snippet_id}">&nbsp;</span>
 _EOC_
     $snippets[$snippet_id] = $html;
     "\n\n_SMART_LINK_$snippet_id\n\n";
