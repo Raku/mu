@@ -100,6 +100,7 @@ sub fix_randomness {
     open my $in, $fname or die "Can't open $fname for reading: $!";
     open my $out, "> $tmpfile" or die "Can't write to $tmpfile: $!";
     while (<$in>) {
+        s/\r//g;
         s/\br\d+\b/rXXXX/g;
         s/\d{4}-\d{2}-\d{2} \d+:\d+:\d+ GMT/XXXX-XX-XX XX:XX:XX GMT/g;
         s/\bsmartlink_\d+\b/smartlink_XX/g;
