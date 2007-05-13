@@ -175,7 +175,7 @@ ok (uc "a" eq "A"), "uc has the correct precedence in comparision to eq";
 
 # L<S06/Subroutine traits/"relative to an existing">
 
-sub postfix:<!> (Num $x) is tighter(&infix:<**>) {
+sub prefix:<!> (Num $x) is tighter(&infix:<**>) {
     return 3 * $x;
 }
 is !1**2, 9, "'is tighter' works";
