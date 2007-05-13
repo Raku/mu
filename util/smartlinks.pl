@@ -596,8 +596,9 @@ sub process_syn ($$$$) {
       );
       $perldochtml =~ s{</head>}{<link rel="stylesheet" type="text/css" title="pod_stylesheet" href="http://dev.perl.org/css/perl.css">\n$&};
       my $preamble = gen_preamble();
-
       $perldochtml =~ s{<body>}{$&$preamble};
+      add_footer(\$perldochtml);
+
       my $htmfile = "$out_dir/S$syn_id.html";
       warn "info: generating $htmfile...\n";
       open my $out, "> $htmfile" or
