@@ -136,14 +136,14 @@ function toggle_snippet (e) {
   
   var id = 'smartlink_' + num;
   var div = document.getElementById(id);
-  div.style.display = (div.style.display == 'none') ? '' : 'none';
+  div.style.display = (div.style.display == 'none') ? 'block' : 'none';
   
   var text = this.firstChild;
   text.nodeValue = text.nodeValue.replace(/^- (Show|Hide)/, function (full, p1) { return "- " + ((p1 == 'Show') ? 'Hide' : 'Show') }); // this may be unnecessarily complicated, or it may not.  you get to decide. :-)
   
   e.stopPropagation();
   e.preventDefault();
-  
+
   return false;
 }
 _EOC_
@@ -151,6 +151,7 @@ _EOC_
 # LINK GENERATION
 # this would be simpler if we used a library like YUI to simplify retrieval and creation of elements, but oh well
 $javascript .= <<'_EOC_';
+
 function collectionToArray(col) {
   a = new Array();
   for (i = 0; i < col.length; i++)
@@ -197,6 +198,10 @@ addEvent(window, 'load', function () {
       p.appendChild(link);
       curr.parentNode.insertBefore(p, curr);
       curr.style.display = 'none';
+
+      // explicitly jump to the page anchor (if any) since the code above messes it up
+      if (location.hash.match(/#/))
+    	  location.hash = location.hash;
     }
   }
 });
@@ -446,7 +451,7 @@ sub gen_line_anchors {
     my $curr = shift @$list;
     my $html = '';
     for ($curr .. $list->[0] - 1) {
-        $html .= qq{<a name="_line_$_"></a>\n};
+        $html .= qq{<a name="_line_$_" id="_line_$_"> </a>\n};
     }
     $html;
 }
@@ -476,12 +481,11 @@ sub add_user_css {
 .snipres {
     margin-left: 6px;
     border-width: 0;
-    cellspacing: 0;
-    cellpadding: 0;
 }
 .smartlink_snippet {
     border: 1px solid;
     padding: 0.2em;
+    display: block;
 }
 </style>
 .
