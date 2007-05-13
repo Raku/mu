@@ -428,7 +428,7 @@ sub gen_html ($$$) {
 sub add_footer {
     my ($html) = @_;
     $$html =~ s{</body>}{
-        [ <a href="#___top">Top</a> ] &nbsp;
+        [ <a href="#__top">Top</a> ] &nbsp;
         [ <a href="http://perlcabal.org/syn/">Index of Synopses</a> ]
         </body>};
 }
@@ -717,6 +717,7 @@ sub gen_preamble {
             <I>This page was generated at $time.<br/>
             (<a href="http://svn.perl.org/perl6/doc/trunk/design/syn/">syn</a> <strong>$syn_rev</strong>, <a href="http://svn.pugscode.org/pugs/t/">pugs-tests</a> <strong>$pugs_rev</strong>$smoke_info)</I>
             &nbsp; [ <a href="http://perlcabal.org/syn/">Index of Synopses</a> ] <br/>
+            <a name='__top'></a>
      };
 }
 
