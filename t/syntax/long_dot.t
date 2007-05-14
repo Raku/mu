@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 66;
+plan 74;
 
 # L<S02/"Whitespace and Comments"/"long dot">
 
@@ -164,6 +164,28 @@ comment blah blah blah	#6
 end comment		#5
     .id'), 'a', 'hideous nested pod torture test');
 
+# L<S04/"Statement-ending blocks"/"Because subroutine declarations are expressions">
+#XXX probably shouldn't be in this file...
+
+eval('sub f { 3 } sub g { 3 }');
+is(eval('f'), undef, 'semicolon or newline required between blocks');
+is(eval('g'), undef, 'semicolon or newline required between blocks');
+
+# L<S06/"Blocks"/"unless followed immediately by a comma">
+
+sub baz(Code $x, *@y) { $x.(@y) }
+
+is(eval('baz { @^x }, 1, 2, 3'), (1, 2, 3), 'comma immediately following arg block');
+is(eval('baz { @^x } , 1, 2, 3'), undef, 'comma not immediately following arg block');
+is(eval('baz { @^x }\ , 1, 2, 3'), (1, 2, 3), 'unspace then comma following arg block');
+
+class Code is also {
+    method xyzzy(Code $x: *@y) { $x.(@y) }
+}
+
+is(eval('xyzzy { @^x }: 1, 2, 3'), (1, 2, 3), 'colon immediately following arg block');
+is(eval('xyzzy { @^x } : 1, 2, 3'), undef, 'colon not immediately following arg block');
+is(eval('xyzzy { @^x }\ : 1, 2, 3'), (1, 2, 3), 'unspace then colon following arg block');
 
 # L<S02/"Whitespace and Comments"/"natural conflict between postfix operators and infix operators">
 #This creates syntactic ambuguity between
