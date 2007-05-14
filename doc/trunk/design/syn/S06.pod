@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 28 Mar 2007
+  Last Modified: 14 May 2007
   Number: 6
-  Version: 82
+  Version: 83
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -143,7 +143,7 @@ bare block where an operator is expected is bound to the current
 statement level control syntax.  A bare block where a term is expected
 merely produces a C<Code> object.  If the term bare block occurs in a list,
 it is considered the final element of that list unless followed immediately
-by a comma or comma surrogate.
+by a comma or comma surrogate (intervening C<\h*> or "unspace" is allowed).
 
 =head2 "Pointy blocks"
 

@@ -1316,13 +1316,13 @@ delegates to back to "is":
     }
 
 Other traits are applied with a single word, and we call one of those a
-"trait verb".  For instance, the "C<returns>" trait
+"trait verb".  For instance, the "C<as>" trait
 is defined something like this:
 
-    role returns {
-        has ReturnType $.returns;
-        multi sub trait_verb:returns($container; ReturnType $arg) {
-            $container does returns($arg);
+    role as {
+        has ReturnType $.as;
+        multi sub trait_verb:as($container; ReturnType $arg) {
+            $container does as($arg);
         }
         ...
     }
@@ -1811,7 +1811,7 @@ The C<.HOW.methods> method returns method-descriptors containing:
 
     name                the name of the method
     signature           the parameters of the method
-    returns             the return type of the method
+    as                  the coercion type of the method
     multi               whether duplicate names are allowed
     do                  the method body
 
