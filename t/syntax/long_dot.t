@@ -176,7 +176,7 @@ is(eval('g'), undef, 'semicolon or newline required between blocks');
 sub baz(Code $x, *@y) { $x.(@y) }
 
 is(eval('baz { @^x }, 1, 2, 3'), (1, 2, 3), 'comma immediately following arg block');
-is(eval('baz { @^x } , 1, 2, 3'), undef, 'comma not immediately following arg block');
+is(eval('baz { @^x } , 1, 2, 3'), (1, 2, 3), 'comma not immediately following arg block');
 is(eval('baz { @^x }\ , 1, 2, 3'), (1, 2, 3), 'unspace then comma following arg block');
 
 class Code is also {
@@ -184,7 +184,7 @@ class Code is also {
 }
 
 is(eval('xyzzy { @^x }: 1, 2, 3'), (1, 2, 3), 'colon immediately following arg block');
-is(eval('xyzzy { @^x } : 1, 2, 3'), undef, 'colon not immediately following arg block');
+is(eval('xyzzy { @^x } : 1, 2, 3'), (1, 2, 3), 'colon not immediately following arg block');
 is(eval('xyzzy { @^x }\ : 1, 2, 3'), (1, 2, 3), 'unspace then colon following arg block');
 
 # L<S02/"Whitespace and Comments"/"natural conflict between postfix operators and infix operators">
