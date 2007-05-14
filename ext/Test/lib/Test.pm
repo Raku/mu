@@ -307,10 +307,10 @@ sub test_ends {
     if (!defined($Test::num_of_tests_run)) {   #BBB
     # if (!defined($Test::num_of_tests_run)) returned true when running t/operators/precedence.t
     # even though $Test::num_of_tests_run was defined and equal to 49 at the top of this sub
-    # the circumstances under which the bug did and didn't appear are very hard to understand
+    # the bug only occurs when Test.pm is precompiled
     # for the full story see the IRC conversation beginning at
     # http://moritz.faui2k3.org/irclog/out.pl?channel=perl6;date=2007-05-14#id_l267
-    # and continuing ~3hrs.  r16289 of this file is the one that was being tested.
+    # r16289 of this file is the one that was being tested.
     # my fix was to comment the line marked BBB and uncomment the lines marked AAA
     # -rhr
     # if (!defined($nr)) {                    #AAA
