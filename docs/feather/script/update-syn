@@ -9,8 +9,8 @@ ulimit -v $(( 1 * 10 ** 6 ))
 ulimit -t $(( 10 * 60 ))
 
 cd  ~agentzh/svn-pugs
-nice -n5 svn up
+svn up
 
-nice -n5 perl util/smartlinks.pl --out-dir ~agentzh/syn --dir t --css perl.css --test-res ~agentzh/smoke.yml --line-anchor
+perl util/smartlinks.pl --out-dir ~agentzh/syn --dir t --css perl.css --test-res ~agentzh/smoke.yml --line-anchor
 
-nice -n5 perl util/podhtm.pl --url-prefix http://feather.perl6.nl/syn/ --url-postfix .html --index --charset=UTF-8 --out ~agentzh/syn/Differences.html docs/Perl6/Perl5/Differences.pod
+perl util/podhtm.pl --url-prefix http://feather.perl6.nl/syn/ --url-postfix .html --index --charset=UTF-8 --out ~agentzh/syn/Differences.html docs/Perl6/Perl5/Differences.pod
