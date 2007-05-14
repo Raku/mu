@@ -301,8 +301,10 @@ sub report_failure (Str $todo?, Str $got?, Str $expected?, Bool $negate?) return
 
 
 sub test_ends {
+    #XXX this fixes an extremely strange bug
+    my $nr = $Test::num_of_tests_run;
     return() unless $Test::testing_started;
-    if (!defined($Test::num_of_tests_planned)) {
+    if (!defined($nr)) {
         say("1..$Test::num_of_tests_run");
     }
     elsif ($Test::num_of_tests_planned != $Test::num_of_tests_run) {
