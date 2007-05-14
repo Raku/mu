@@ -11,7 +11,7 @@ ulimit -v $(( 1 * 10 ** 6 ))
 ulimit -t $(( 5 * 3600 ))
 
 cd /home/agentzh/svn-pugs
-svn up
+nice -n5 svn up
 
 PATH=/usr/local/bin:$PATH
 echo "[auto-smoke] * Using GHC at" `which ghc`
@@ -21,4 +21,3 @@ HARNESS_PUGS=util/limited_pugs nice -n5 make smoke
 
 cp smoke.yml ..
 cp smoke.html ..
-

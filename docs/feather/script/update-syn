@@ -9,7 +9,7 @@ ulimit -v $(( 1 * 10 ** 6 ))
 ulimit -t $(( 10 * 60 ))
 
 cd  ~agentzh/svn-pugs
-svn up
+nice -n5 svn up
 
 nice -n5 perl util/smartlinks.pl --out-dir ~agentzh/syn --dir t --css perl.css --test-res ~agentzh/smoke.yml --line-anchor
 
