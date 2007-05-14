@@ -310,7 +310,7 @@ sub test_ends {
     # the circumstances under which the bug did and didn't appear are very hard to understand
     # for the full story see the IRC conversation beginning at
     # http://moritz.faui2k3.org/irclog/out.pl?channel=perl6;date=2007-05-14#id_l267
-    # and continuing ~2hrs
+    # and continuing ~3hrs.  r16289 of this file is the one that was being tested.
     # my fix was to comment the line marked BBB and uncomment the lines marked AAA
     # -rhr
     # if (!defined($nr)) {                    #AAA
