@@ -302,9 +302,18 @@ sub report_failure (Str $todo?, Str $got?, Str $expected?, Bool $negate?) return
 
 sub test_ends {
     #XXX this fixes an extremely strange bug
-    my $nr = $Test::num_of_tests_run;
+    # my $nr = $Test::num_of_tests_run;        #AAA
     return() unless $Test::testing_started;
-    if (!defined($nr)) {
+    if (!defined($Test::num_of_tests_run)) {   #BBB
+    # if (!defined($Test::num_of_tests_run)) returned true when running t/operators/precedence.t
+    # even though $Test::num_of_tests_run was defined and equal to 49 at the top of this sub
+    # the circumstances under which the bug did and didn't appear are very hard to understand
+    # for the full story see the IRC conversation beginning at
+    # http://moritz.faui2k3.org/irclog/out.pl?channel=perl6;date=2007-05-14#id_l267
+    # and continuing ~2hrs
+    # my fix was to comment the line marked BBB and uncomment the lines marked AAA
+    # -rhr
+    # if (!defined($nr)) {                    #AAA
         say("1..$Test::num_of_tests_run");
     }
     elsif ($Test::num_of_tests_planned != $Test::num_of_tests_run) {
