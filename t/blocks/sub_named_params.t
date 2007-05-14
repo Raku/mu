@@ -81,24 +81,22 @@ is(eval('named_array(:x, :!x)'), (1, 0), 'named array taking two named args');
 is(eval('named_array(:x(1), :x(2), :x(3))'), (1, 2, 3), 'named array taking three named args');
 
 # L<S06/Named arguments/Pairs intended as positional arguments>
-sub named_array2(:@x, @y) { (+«@x, 42, +«@y) }
+sub named_array2(@x, :@y) { (+«@x, 42, +«@y) }
 # +«(:x) is (0, 1)
 
 is(eval('named_array2(:!x, :y)'), (0, 42, 1), 'named and unnamed args - two named');
 is(eval('named_array2(:!x, y => 1)'), (0, 42, 1), 'named and unnamed args - two named - fatarrow');
 is(eval('named_array2(:y, :!x)'), (0, 42, 1), 'named and unnamed args - two named - backwards');
-is(eval('named_array2((:y), :x)'), (1, 42, 0, 1), 'named and unnamed args - one named, one pair');
-#XXX WTF should this do?
-is(eval('named_array2(1, 2)'), (42, 1), 'named and unnamed args - two unnamed');
-is(eval('named_array2(:!x, 1)'), (0, 42, 1), 'named and unnamed args - one named, one pos');
-is(eval('named_array2(1, :!x)'), (0, 42, 1), 'named and unnamed args - one named, one pos - backwards');
-is(eval('named_array2(:x, 1, :!x)'), (1, 0, 42, 1), 'named and unnamed args - two named, one pos');
-#XXX I think @y should get (:x) here, not sure
-is(eval('named_array2(:x, :x)'), (1, 42, 0, 1), 'named and unnamed args - two named with same name');
-is(eval('named_array2(:x, (:x))'), (1, 42, 0, 1), 'named and unnamed args - passing parenthesized pair');
-is(eval('named_array2(:x, (:y))'), (1, 42, 0, 1), 'named and unnamed args - passing parenthesized pair of same name');
-is(eval('named_array2(:x, :z)'), (1, 42, 0, 1), 'named and unnamed args - passing pair of unrelated name');
-is(eval('named_array2(:x, "y" => 1)'), (1, 42, 0, 1), 'named and unnamed args - passing pair with quoted fatarrow');
+is(eval('named_array2(:y, (:x))'), (0, 1, 42, 1), 'named and unnamed args - one named, one pair');
+is(eval('named_array2(1, 2)'), (1, 42), 'named and unnamed args - two unnamed');
+is(eval('named_array2(:!y, 1)'), (1, 42, 0), 'named and unnamed args - one named, one pos');
+is(eval('named_array2(1, :!y)'), (1, 42, 0), 'named and unnamed args - one named, one pos - backwards');
+is(eval('named_array2(:y, 1, :!y)'), (1, 42, 1, 0), 'named and unnamed args - two named, one pos');
+is(eval('named_array2(:y, :y)'), undef, 'named and unnamed args - two named with same name');
+is(eval('named_array2(:y, (:x))'), (0, 1, 42, 1), 'named and unnamed args - passing parenthesized pair');
+is(eval('named_array2(:y, (:y))'), (0, 1, 42, 1), 'named and unnamed args - passing parenthesized pair of same name');
+is(eval('named_array2(:y, :z)'), (0, 1, 42, 1), 'named and unnamed args - passing pair of unrelated name');
+is(eval('named_array2(:y, "x" => 1)'), (0, 1, 42, 1), 'named and unnamed args - passing pair with quoted fatarrow');
 
 # L<S06/Named parameters/They are marked by a prefix>
 # L<S06/Required parameters/declared with a trailing>
