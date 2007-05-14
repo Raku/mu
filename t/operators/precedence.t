@@ -143,14 +143,16 @@ is(((not 1,42)[1]), 42, "not is tighter than comma");
 }
 
 {
-    my @b = ((1, 3) Z (2, 4));
+    my @b;
+    eval('@b = ((1, 3) Z (2, 4))');
     is(@b, [1 .. 4], "parens work around this");
 };
 
 # 20. list prefix
 
 {
-    my $c = any 1, 2, Z 3, 4;
+    my $c;
+    eval('$c = any 1, 2, Z 3, 4');
     ok($c == 3, "any is less tight than comma and Z");
 }
 
