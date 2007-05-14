@@ -16,7 +16,7 @@ svn up
 PATH=/usr/local/bin:$PATH
 echo "[auto-smoke] * Using GHC at" `which ghc`
 
-perl Makefile.PL
+nice -n5 perl Makefile.PL
 HARNESS_PUGS=util/limited_pugs nice -n5 make smoke
 
 cp smoke.yml ..
