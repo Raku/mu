@@ -3,3 +3,8 @@ TASKS for the Pugs Test Suite
 * Substitute '$*EXECUTABLE_NAME' for all occurrences of './pugs' and 'pugs' in the tests after pugs supports it. (finished)
 * Implement smart comments for TODO/SKIP tests
 * Update t/closure_traits/*.t to conform with the latest S04.
+* Implement the TODO smart comments proposed by Jerry Gay in the test harness:
+    # todo :pugs<feature>
+    # todo :parrot<bug>
+  The syntax used here is certainly negotiable.
+  See http://svn.perl.org/parrot/trunk/t/compilers/pge/perl6regex/rx_captures for examples in PGE's test suite.
