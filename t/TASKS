@@ -3,5 +3,3 @@ TASKS for the Pugs Test Suite
 * Substitute '$*EXECUTABLE_NAME' for all occurrences of './pugs' and 'pugs' in the tests after pugs supports it. (finished)
 * Implement smart comments for TODO/SKIP tests
 * Update t/closure_traits/*.t to conform with the latest S04.
-* Remove :todo marks from the tests and make them failing (or use the todo functions)
-
