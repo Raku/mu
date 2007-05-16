@@ -10,7 +10,7 @@ my Str @fund_units;
 my Str @fund_unitless;
 
 rule TOP {
-    [ <?fundamental_unit> | <?unit> ]?
+    [ <?fundamental_unit> | <?unit> | <?prefix> ]?
     <?comment>?
 }
 
@@ -85,8 +85,8 @@ token fundamental_unit {
 token prefix {
     ^^ $<name> := [\S+] '-' <number>
     {
-        @prefixes.push: $<prefix>;
-        %unitsdef{$<prefix>}<factor> = $<number><num>;
+        @prefixes.push: $<name>;
+        %unitsdef{$<name>}<factor> = $<number><num>;
     }
 }
 
