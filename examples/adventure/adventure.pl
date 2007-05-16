@@ -208,7 +208,7 @@ while (1) {
     my $response = Adventure.command( $input )<command>;
 
     if $response{'direction'} {
-        walk_to( $response{'direction'}.str );
+        walk_to( ~$response{'direction'} );
     }
     elsif $response{'verb'} {
         my $command  = "main::" ~ $response{'verb'} ~ '("' ~ $response{'object'} ~ '")';
