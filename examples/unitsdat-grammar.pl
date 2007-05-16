@@ -94,7 +94,7 @@ token fundamental_unit {
 }
 
 token prefix {
-    ^^ $<name> := [\S+] '-' <number>
+    ^^ $<name> := [\S+] '-' \h+ <number>
     {
         @prefixes.push: $<name>;
         %unitsdef{$<name>}<factor> = $<number><num>;
@@ -105,7 +105,7 @@ token unitname {
     { $<factor> = 1 }
     [ $<prefix> := [ | @prefixes ]
         { $<factor> *= %unitsdef{$<prefix>}<factor> } ]*
-    $<name> := [\S+] s?
+    $<name> := [ <!before \S+ '-'> \S+ ] s?
 }
 
 token unit {
