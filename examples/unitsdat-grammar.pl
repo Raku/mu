@@ -47,11 +47,10 @@ rule basicnumber {
 }
 
 rule simplenumber_mult {
-    { my Int $n }
     <basicnumber> { $<num> = $<basicnumber><num> }
-    [ <?ws> <simplenumber_mult> { $<num> *= $<simplenumber_mult>[$n++]<num> }
-    | '/'   <simplenumber_mult> { $<num> /= $<simplenumber_mult>[$n++]<num> }
-    ]*
+    [ <?ws> <simplenumber_mult> { $<num> *= $<simplenumber_mult><num> }
+    | '/'   <simplenumber_mult> { $<num> /= $<simplenumber_mult><num> }
+    ]
 }
 
 rule simplenumber {
@@ -63,12 +62,11 @@ rule simplenumber {
 }
 
 rule number_mult {
-    { my Int $n }
     | <simplenumber> { $<num> = $<simplenumber><num> }
     | <number_mult> { $<num> = $<number_mult>[0]<num> }
-        [ <?ws> <number_mult> { $<num> *= $<number_mult>[++$n]<num> }
-        | '/'   <number_mult> { $<num> /= $<number_mult>[++$n]<num> }
-        ]*
+        [ <?ws> <number_mult> { $<num> *= $<number_mult>[1]<num> }
+        | '/'   <number_mult> { $<num> /= $<number_mult>[1]<num> }
+        ]
 }
 
 rule number {
@@ -131,11 +129,10 @@ rule basicunitdef {
 }
 
 rule simpleunitdef_mult {
-    { my Int $n }
     <basicunitdef> { $<def> = $<basicunitdef><def> }
-    [ <?ws> <simpleunitdef_mult>  { $<def> = multdef($<def>, $<simpleunitdef_mult>[$n++]<def>, 1) }
-    | '/'   <simpleunitdef_mult>  { $<def> = multdef($<def>, $<simpleunitdef_mult>[$n++]<def>, -1) }
-    ]*
+    [ <?ws> <simpleunitdef_mult>  { $<def> = multdef($<def>, $<simpleunitdef_mult><def>, 1) }
+    | '/'   <simpleunitdef_mult>  { $<def> = multdef($<def>, $<simpleunitdef_mult><def>, -1) }
+    ]
 }
 
 rule simpleunitdef {
@@ -147,12 +144,11 @@ rule simpleunitdef {
 }
 
 rule unitdef_mult {
-    { my Int $n }
     | <simpleunitdef> { $<def> = $<simpleunitdef><def> }
     | <unitdef_mult>  { $<def> = $<unitdef_mult>[0]<def> }
-        [ <?ws> <unitdef_mult>  { $<def> = multdef($<def>, $<unitdef_mult>[++$n]<def>, 1) }
-        | '/'   <unitdef_mult>  { $<def> = multdef($<def>, $<unitdef_mult>[++$n]<def>, -1) }
-        ]*
+        [ <?ws> <unitdef_mult>  { $<def> = multdef($<def>, $<unitdef_mult>[1]<def>, 1) }
+        | '/'   <unitdef_mult>  { $<def> = multdef($<def>, $<unitdef_mult>[1]<def>, -1) }
+        ]
 }
 
 rule unitdef {
