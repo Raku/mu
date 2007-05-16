@@ -1,7 +1,5 @@
 grammar UnitsDat;
 # This is a grammar for the units(1) units.dat database
-# TODO: prefixes (millimeter etc.)
-# TODO: unit name plurals (meters etc.)
 # TODO: math functions tan() log2() etc.
 # TODO: parse nonlinear unit definitions
 
@@ -12,8 +10,8 @@ my Str @fund_units;
 my Str @fund_unitless;
 
 rule TOP {
-    [ <fundamental_unit> | <unit> ]?
-    <comment>?
+    [ <?fundamental_unit> | <?unit> ]?
+    <?comment>?
 }
 
 # Multiplication is implied by whitespace in units.dat
@@ -38,7 +36,7 @@ rule basicnumber {
 rule simplenumber_mult {
     { my Int $n }
     <basicnumber> { $<num> = $<basicnumber><num> }
-    [ <ws> <simplenumber_mult> { $<num> *= $<simplenumber_mult>[$n++]<num> }
+    [ <?ws> <simplenumber_mult> { $<num> *= $<simplenumber_mult>[$n++]<num> }
     | '/'  <simplenumber_mult> { $<num> /= $<simplenumber_mult>[$n++]<num> }
     ]*
 }
@@ -55,7 +53,7 @@ rule number_mult {
     { my Int $n }
     | <simplenumber> { $<num> = $<simplenumber><num> }
     | <number_mult> { $<num> = $<number_mult>[0]<num> }
-        [ <ws> <number_mult> { $<num> *= $<number_mult>[++$n]<num> }
+        [ <?ws> <number_mult> { $<num> *= $<number_mult>[++$n]<num> }
         | '/'  <number_mult> { $<num> /= $<number_mult>[++$n]<num> }
         ]*
 }
@@ -73,10 +71,10 @@ rule number {
 token comment { '#' \N* }
 
 token fundamental_unit {
-    ^^ $<unit> := [\S+] \h+ '!' [ dimensionless { $<unit><nodim> := True } ]?
+    ^^ $<unit> := [\S+] \h+ '!' [ dimensionless { $<nodim> := True } ]?
     {
         @units.push: $<unit>;
-        if($<unit><nodim>) {
+        if($<nodim>) {
             @fund_unitless.push: $<unit>
         } else {
             @fund_units.push: $<unit>;
@@ -84,12 +82,27 @@ token fundamental_unit {
     }
 }
 
+token prefix {
+    ^^ $<name> := [\S+] '-' <number>
+    {
+        @prefixes.push: $<prefix>;
+        %unitsdef{$<prefix>}<factor> = $<number><num>;
+    }
+}
+
+token unitname {
+    { $<factor> = 1 }
+    [ <prefix> { $<factor> *= %unitsdef{$<prefix><name>}<factor> } ]*
+    $<name> := [\S+] s?
+}
+
 token unit {
-    ^^ $<unit> := [ <!before \S+ '-'> \S+ ] \h+ <unitdef>
-            {
-                @units.push: $<unit>;
-                %unitsdef{$<unit>} = $<unitdef><def>;
-            }
+    ^^ <unitname> \h+ <unitdef>
+    {
+        @units.push: $<unitname><name>;
+        $<unitdef><def><factor> *= $<unitname><factor>;
+        %unitsdef{$<unitname><name>} = $<unitdef><def>;
+    }
 }
 
 rule basicunitdef {
@@ -106,7 +119,7 @@ rule basicunitdef {
 rule simpleunitdef_mult {
     { my Int $n }
     <basicunitdef> { $<def> = $<basicunitdef><def> }
-    [ <ws> <simpleunitdef_mult>  { $<def> = multdef($<def>, $<simpleunitdef_mult>[$n++]<def>, 1) }
+    [ <?ws> <simpleunitdef_mult>  { $<def> = multdef($<def>, $<simpleunitdef_mult>[$n++]<def>, 1) }
     | '/'  <simpleunitdef_mult>  { $<def> = multdef($<def>, $<simpleunitdef_mult>[$n++]<def>, -1) }
     ]*
 }
@@ -123,7 +136,7 @@ rule unitdef_mult {
     { my Int $n }
     | <simpleunitdef> { $<def> = $<simpleunitdef><def> }
     | <unitdef_mult>  { $<def> = $<unitdef_mult>[0]<def> }
-        [ <ws> <unitdef_mult>  { $<def> = multdef($<def>, $<unitdef_mult>[++$n]<def>, 1) }
+        [ <?ws> <unitdef_mult>  { $<def> = multdef($<def>, $<unitdef_mult>[++$n]<def>, 1) }
         | '/'  <unitdef_mult>  { $<def> = multdef($<def>, $<unitdef_mult>[++$n]<def>, -1) }
         ]*
 }
