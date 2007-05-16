@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 27 Apr 2007
+  Last Modified: 16 May 2007
   Number: 2
-  Version: 102
+  Version: 103
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -813,6 +813,7 @@ their "value type" and their "implementation type".  (More generally, any
 container has an implementation type, including subroutines and modules.)
 The value type is stored as its C<of> property, while the implementation
 type of the container is just the object type of the container itself.
+The word C<returns> is allowed as an alias for C<of>.
 
 The value type specifies what kinds of values may be stored in the
 variable. A value type is given as a prefix or with the C<of> keyword:
@@ -833,6 +834,7 @@ type inferencing within the routine but not outside it.  If no C<as> type
 is declared, it is assumed to be the same as the C<of> type, if declared.
 
     sub get_pet() of Animal {...}       # of type, obviously
+    sub get_pet() returns Animal {...}  # of type
     our Animal sub get_pet() {...}      # of type
     sub get_pet() as Animal {...}       # as type
 
@@ -906,10 +908,12 @@ declarations, also known as the C<of> type.  Only the inside of the
 subroutine pays attention to C<as>, and essentially coerces the return
 value to the indicated type, just as if you'd coerced each return expression.
 
-You may also specify the C<of> type as the C<of> trait:
+You may also specify the C<of> type as the C<of> trait (with C<returns>
+allowed as a synonym):
 
     my Hash of Array of Recipe sub get_book ($key) {...}
     my sub get_book ($key) of Hash of Array of Recipe {...}
+    my sub get_book ($key) returns Hash of Array of Recipe {...}
 
 =head2 Polymorphic types
 

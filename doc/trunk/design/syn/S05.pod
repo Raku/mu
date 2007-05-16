@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 27 Apr 2007
+   Last Modified: 16 May 2007
    Number: 5
-   Version: 58
+   Version: 59
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -3426,9 +3426,11 @@ regex. This feature is particularly useful with input streams:
 =item *
 
 Any non-compact array of mixed strings or objects can be matched
-against a regex:
+against a regex as long as you present them as an object with the C<Str>
+interface, which does not preclude the object having other interfaces
+such as C<Array>.  Normally you'd use C<cat> to generate such an object:
 
-    @array ~~ / foo <,> bar <elem>* /;
+    @array.cat ~~ / foo <,> bar <elem>* /;
 
 The special C<< <,> >> subrule matches the boundary between elements.
 The C<< <elem> >> assertion matches any individual array element.
@@ -3437,9 +3439,9 @@ It is the equivalent of the "dot" metacharacter for the whole element.
 If the array elements are strings, they are concatenated virtually into
 a single logical string.  If the array elements are tokens or other
 such objects, the objects must provide appropriate methods for the
-kinds of subrules to match against.  It is an assertion error to match
+kinds of subrules to match against.  It is an assertion failure to match
 a string-matching assertion against an object that doesn't provide
-a string view.  However, pure object lists can be parsed as long as
+a stringified view.  However, pure object lists can be parsed as long as
 the match (including any subrules) restricts itself to assertions like:
 
      <.isa(Dog)>
@@ -3448,7 +3450,9 @@ the match (including any subrules) restricts itself to assertions like:
 
 It is permissible to mix objects and strings in an array as long as they're
 in different elements.  You may not embed objects in strings, however.
-Any object may, of course, pretend to be a string element if it likes.
+Any object may, of course, pretend to be a string element if it likes,
+and so a C<Cat> object may be used as a substring with the same restrictions
+as in the main string.
 
 Please be aware that the warnings on C<.from> and C<.to> returning
 opaque objects goes double for matching against an array, where a
@@ -3456,12 +3460,20 @@ particular position reflects both a position within the array and
 (potentially) a position within a string of that array.  Do not
 expect to do math with such values.  Nor should you expect to be
 able to extract a substr that crosses element boundaries.
+[Conjecture: Or should you?]
 
 =item *
 
-To match against each element of an array, use a hyper operator:
+To match against every element of an array, use a hyper operator:
 
      @array».match($regex);
+
+=item *
+
+To match against any element of the array, it suffices to use ordinary
+smartmatching:
+
+    @array ~~ $regex;
 
 =back
 
