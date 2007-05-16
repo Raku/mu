@@ -14,7 +14,7 @@ grammar Adventure {
 	| <direction>
   }
 
-  token verb      { look|take|drop|inventory|open|score }
+  token verb      { look|take|drop|inventory|open|score|help|quit }
   token object    { sign|coin|key|door|vampire|cross }
   token article   { a|an|the|at|in|on|to }
   token direction { north|south|east|west }
@@ -74,6 +74,17 @@ my %object = (
 
 
 ### ACTIONS ###
+module main;
+
+sub help {
+    say "look, take, drop, inventory, open, score, help, quit";
+    say "north, south, east, west";
+}
+
+sub quit {
+    score();
+    exit;
+}
 
 sub walk_to( $direction ) {
     my $new_place = %map{%player{'place'}}{$direction};
@@ -166,24 +177,19 @@ sub score {
 
 ### AUXILIAR FUNCTIONS ###
 
-sub is_here {
-  my $object = shift;
+sub is_here ($object) {
   return ( %object{$object}{'place'} eq %player{'place'} );
 }
 
-sub i_have {
-  my $object = shift;
+sub i_have ($object) {
   return ( %object{$object}{'place'} eq 'player' );
 }
 
-sub i_see {
-  my $object = shift;
+sub i_see ($object) {
   return ( is_here( $object) or i_have( $object ) );
 }
 
-sub objects_in {
-  my $where = shift;
-
+sub objects_in ($where) {
   my @objects;
   for %object.keys -> $obj {
     push @objects, $obj if %object{$obj}{'place'} eq $where;
@@ -199,7 +205,7 @@ while (1) {
     print "> ";
     my $input = =<>;
 
-    my $response = Adventure.command( $input );
+    my $response = Adventure.command( $input )<command>;
 
     if $response{'direction'} {
         walk_to( $response{'direction'}.str );
