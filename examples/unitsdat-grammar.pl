@@ -92,7 +92,8 @@ token prefix {
 
 token unitname {
     { $<factor> = 1 }
-    [ <prefix> { $<factor> *= %unitsdef{$<prefix><name>}<factor> } ]*
+    [ $<prefix> := [ | @prefixes ]
+        { $<factor> *= %unitsdef{$<prefix>}<factor> } ]*
     $<name> := [\S+] s?
 }
 
