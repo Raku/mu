@@ -1,6 +1,5 @@
 grammar UnitsDat;
 # This is a grammar for the units(1) units.dat database
-# TODO: math functions tan() log2() etc.
 # TODO: parse nonlinear unit definitions
 
 my Str @units;
@@ -28,16 +27,30 @@ rule fraction {
     { $<num> = $<numerator> / $<denominator> }
 }
 
+rule builtin_func {
+    | sin  '(' <number> ')' { $<num> = sin $<number><num> }
+    | cos  '(' <number> ')' { $<num> = cos $<number><num> }
+    | tan  '(' <number> ')' { $<num> = tan $<number><num> }
+    | ln   '(' <number> ')' { $<num> = log $<number><num> }
+    | log  '(' <number> ')' { $<num> = log $<number><num>, 10 }
+    | log2 '(' <number> ')' { $<num> = log $<number><num>, 2 }
+    | exp  '(' <number> ')' { $<num> = exp $<number><num> }
+    | acos '(' <number> ')' { $<num> = acos $<number><num> }
+    | asin '(' <number> ')' { $<num> = asin $<number><num> }
+    | atan '(' <number> ')' { $<num> = atan $<number><num> }
+}
+
 rule basicnumber {
-    | <fraction> { $<num> = $<fraction><num> }
-    | <float> { $<num> = $<float><num> }
+    | <fraction>     { $<num> = $<fraction><num> }
+    | <float>        { $<num> = $<float><num> }
+    | <builtin_func> { $<num> = $<builtin_func><num> }
 }
 
 rule simplenumber_mult {
     { my Int $n }
     <basicnumber> { $<num> = $<basicnumber><num> }
     [ <?ws> <simplenumber_mult> { $<num> *= $<simplenumber_mult>[$n++]<num> }
-    | '/'  <simplenumber_mult> { $<num> /= $<simplenumber_mult>[$n++]<num> }
+    | '/'   <simplenumber_mult> { $<num> /= $<simplenumber_mult>[$n++]<num> }
     ]*
 }
 
@@ -54,7 +67,7 @@ rule number_mult {
     | <simplenumber> { $<num> = $<simplenumber><num> }
     | <number_mult> { $<num> = $<number_mult>[0]<num> }
         [ <?ws> <number_mult> { $<num> *= $<number_mult>[++$n]<num> }
-        | '/'  <number_mult> { $<num> /= $<number_mult>[++$n]<num> }
+        | '/'   <number_mult> { $<num> /= $<number_mult>[++$n]<num> }
         ]*
 }
 
@@ -121,7 +134,7 @@ rule simpleunitdef_mult {
     { my Int $n }
     <basicunitdef> { $<def> = $<basicunitdef><def> }
     [ <?ws> <simpleunitdef_mult>  { $<def> = multdef($<def>, $<simpleunitdef_mult>[$n++]<def>, 1) }
-    | '/'  <simpleunitdef_mult>  { $<def> = multdef($<def>, $<simpleunitdef_mult>[$n++]<def>, -1) }
+    | '/'   <simpleunitdef_mult>  { $<def> = multdef($<def>, $<simpleunitdef_mult>[$n++]<def>, -1) }
     ]*
 }
 
@@ -138,7 +151,7 @@ rule unitdef_mult {
     | <simpleunitdef> { $<def> = $<simpleunitdef><def> }
     | <unitdef_mult>  { $<def> = $<unitdef_mult>[0]<def> }
         [ <?ws> <unitdef_mult>  { $<def> = multdef($<def>, $<unitdef_mult>[++$n]<def>, 1) }
-        | '/'  <unitdef_mult>  { $<def> = multdef($<def>, $<unitdef_mult>[++$n]<def>, -1) }
+        | '/'   <unitdef_mult>  { $<def> = multdef($<def>, $<unitdef_mult>[++$n]<def>, -1) }
         ]*
 }
 
