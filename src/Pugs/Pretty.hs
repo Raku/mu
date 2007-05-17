@@ -189,7 +189,7 @@ instance Pretty Val where
     format (VRef x) = format x
     format (VList x) = format x
     format (VCode x) = (<> braces (format $ subBody x)) .
-        (<+> format (subOuterPads x)) .
+        (<+> braces (format (subOuterPads x))) .
         (<+> format (subInnerPad x)) . (<> format (subParams x)) . text $ case subType x of
         SubMacro        -> "macro "
         SubRoutine      -> "sub "

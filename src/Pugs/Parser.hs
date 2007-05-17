@@ -1302,7 +1302,9 @@ retVerbatimBlock styp formal lvalue block = expRule $ do
             , subCont       = Nothing
             , subTraitBlocks= bi_traits block emptyTraitBlocks
             }
-    return (Syn "sub" [Val $ VCode sub])
+    return $ case styp of
+        SubPrim -> Syn "block" [Val $ VCode sub]
+        _       -> Syn "sub" [Val $ VCode sub]
 
 ruleBlockFormalStandard :: RuleParser (SubType, Maybe [Param], Bool)
 ruleBlockFormalStandard = rule "standard block parameters" $ do

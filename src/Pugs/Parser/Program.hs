@@ -170,7 +170,7 @@ ruleProgram = rule "program" $ do
     modify $ \s -> s{ s_protoPad = topPad }
 
     block   <- ruleBlockBody `finallyM` eof
-    main    <- retVerbatimBlock SubPointy Nothing False $
+    main    <- retVerbatimBlock SubPrim Nothing False $
         block{ bi_body = mergeStmts emptyExp $ bi_body block }
 
     -- S04: CHECK {...}*      at compile time, ALAP
