@@ -241,7 +241,7 @@ nodeCallback badancs parser syckNode = mdo
 
     let makeRegularNode = do
         len     <- syckNodeLength kind syckNode
-        parseNode kind parser syckNode len nodeId
+        parseNode kind parser syckNode len symId
 
     node    <- case kind of
         SyckMap -> do
@@ -263,9 +263,7 @@ nodeCallback badancs parser syckNode = mdo
             -- print ("bad anchor handled", nodeId, ptr)
             Hash.update badancs (ptr `minusPtr` nullPtr) node
 
-    symId   <- syck_add_sym parser nodePtr
-
-    return (fromIntegral symId)
+    symId   <- fmap fromIntegral (syck_add_sym parser nodePtr)
 
     return symId
 
