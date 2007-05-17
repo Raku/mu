@@ -187,15 +187,15 @@ emitNode _ e n | EStr s <- n_elem n = do
 
 emitNode freeze e n | ESeq sq <- n_elem n = do
     withTag n (Ptr "array"##) $ \tag ->
-        syck_emit_seq e tag seqInline
---      syck_emit_seq e tag seqNone
+--      syck_emit_seq e tag seqInline
+        syck_emit_seq e tag seqNone
     mapM_ (syck_emit_item e) =<< mapM freeze sq
     syck_emit_end e
 
 emitNode freeze e n | EMap m <- n_elem n = do
     withTag n (Ptr "map"##) $ \tag ->
-        syck_emit_map e tag mapInline
---      syck_emit_map e tag mapNone
+--      syck_emit_map e tag mapInline
+        syck_emit_map e tag mapNone
     flip mapM_ m (\(k,v) -> do
         syck_emit_item e =<< freeze k
         syck_emit_item e =<< freeze v)
@@ -291,8 +291,10 @@ errorCallback err parser cstr = do
 
 freezeNode :: Hash.HashTable Int (Ptr a) -> YamlNode -> IO (Ptr a)
 freezeNode nodes MkNode{ n_anchor = AReference n } = do
-    Just ptr <- Hash.lookup nodes n
-    return ptr
+    rv <- Hash.lookup nodes n
+    case rv of
+        Just ptr    -> return ptr
+        _           -> fail $ "Failed to resolve reference: " ++ show n
 freezeNode nodes node = do
     ptr     <- newStablePtr node
     case n_anchor node of

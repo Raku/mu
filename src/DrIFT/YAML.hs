@@ -16,7 +16,7 @@ import Data.IORef
 import Data.Bits
 import Data.List	( foldl' )
 import Data.Int		( Int32, Int64 )
-import Pugs.Internals (encodeUTF8, decodeUTF8, addressOf)
+import Pugs.Internals (encodeUTF8, decodeUTF8, addressOf, safeMode)
 import Data.HashTable (HashTable)
 import qualified UTF8 as Buf
 import qualified Data.ByteString as Bytes
@@ -38,16 +38,14 @@ toYamlNode x = do
 showYaml :: YAML a => a -> IO String
 showYaml x = do
     node <- toYamlNode x
-    emitYaml node
+    return (show node)
+    -- emitYaml node
 
 showYamlCompressed :: YAML a => a -> IO String
-showYamlCompressed = showYaml
-{-
-showYamlCompressed x = do
+showYamlCompressed x = if safeMode then showYaml x else do
     node    <- toYamlNode x
     node'   <- compressYamlNode node
     emitYaml node'
--}
 
 type EmitAs = ReaderT SeenCache IO
 
@@ -90,27 +88,27 @@ asYAMLmapBuf c ps = do
         v' <- v
         return (k', v')
 
-fromYAMLseq :: YAML a => YamlNode -> IO [a]
+fromYAMLseq :: forall a. YAML a => YamlNode -> IO [a]
 fromYAMLseq MkNode{n_elem=ESeq m} = mapM fromYAML m
-fromYAMLseq e = fail $ "no parse: " ++ show e
+fromYAMLseq e = fail $ "no parse: " ++ show e ++ ", expecting seq of " ++ show (typeOf (undefined :: a))
 
-fromYAMLmap :: YAML a => YamlNode -> IO [(String, a)]
+fromYAMLmap :: forall a. YAML a => YamlNode -> IO [(String, a)]
 fromYAMLmap MkNode{n_elem=EMap m} = mapM fromYAMLpair m
     where
     fromYAMLpair (MkNode{n_elem=EStr k}, v) = do
         v' <- fromYAML v
         return (unpackBuf k, v')
     fromYAMLpair e = fail $ "no parse: " ++ show e
-fromYAMLmap e = fail $ "no parse: " ++ show e
+fromYAMLmap e = fail $ "no parse: " ++ show e ++ ", expecting map of " ++ show (typeOf (undefined :: a))
 
-fromYAMLmapBuf :: YAML a => YamlNode -> IO [(Buf.ByteString, a)]
+fromYAMLmapBuf :: forall a. YAML a => YamlNode -> IO [(Buf.ByteString, a)]
 fromYAMLmapBuf MkNode{n_elem=EMap m} = mapM fromYAMLpair m
     where
     fromYAMLpair (MkNode{n_elem=EStr k}, v) = do
         v' <- fromYAML v
         return (k, v')
-    fromYAMLpair e = fail $ "no parse: " ++ show e
-fromYAMLmapBuf e = fail $ "no parse: " ++ show e
+    fromYAMLpair e = fail $ "no parse: " ++ show e ++ ", expecting pair of " ++ show (typeOf (undefined :: a))
+fromYAMLmapBuf e = fail $ "no parse: " ++ show e ++ ", expecting mapping of " ++ show (typeOf (undefined :: a))
 
 asYAMLcls :: YAMLClass -> EmitAs YamlNode
 asYAMLcls c = return $ mkTagStrNode (tagHs c) c
@@ -199,14 +197,14 @@ instance (YAML a) => YAML [a] where
         xs' <- mapM asYAML xs
         (return . mkNode . ESeq) xs'
     fromYAMLElem (ESeq s) = mapM fromYAML s
-    fromYAMLElem e = fail $ "no parse: " ++ show e
+    fromYAMLElem e = fail $ "no parse: " ++ show e ++ ", expecting list of " ++ show (typeOf (undefined :: a))
 
 instance (YAML a) => YAML [:a:] where
     asYAML xs = asYAMLanchor xs $ do
         xs' <- mapM asYAML (fromP xs)
         (return . mkNode . ESeq) xs'
     fromYAMLElem (ESeq s) = fmap toP (mapM fromYAML s)
-    fromYAMLElem e = fail $ "no parse: " ++ show e
+    fromYAMLElem e = fail $ "no parse: " ++ show e ++ ", expecting array of " ++ show (typeOf (undefined :: a))
 
 instance (YAML a, YAML b) => YAML (a, b) where
     asYAML (x, y) = do
@@ -217,7 +215,7 @@ instance (YAML a, YAML b) => YAML (a, b) where
         x' <- fromYAML x
         y' <- fromYAML y
         return (x', y')
-    fromYAMLElem e = fail $ "no parse: " ++ show e
+    fromYAMLElem e = fail $ "no parse: " ++ show e ++ ", expecting " ++ show (typeOf (undefined :: (a, b)))
 
 instance (YAML a, YAML b, YAML c) => YAML (a, b, c) where
     asYAML (x, y, z) = do
@@ -230,7 +228,7 @@ instance (YAML a, YAML b, YAML c) => YAML (a, b, c) where
         y' <- fromYAML y
         z' <- fromYAML z
         return (x', y', z')
-    fromYAMLElem e = fail $ "no parse: " ++ show e
+    fromYAMLElem e = fail $ "no parse: " ++ show e ++ ", expecting " ++ show (typeOf (undefined :: (a, b, c)))
 
 {-# NOINLINE seen #-}
 seen :: Hash.HashTable SYMID Any
@@ -257,7 +255,7 @@ asYAMLanchor :: a -> EmitAs YamlNode -> EmitAs YamlNode
 asYAMLanchor x m = do
     cache   <- ask
     seen    <- liftIO $ readIORef cache
-    let ptr = fromEnum (addressOf x)
+    let ptr = 1000 + fromEnum (addressOf x)
     if IntSet.member ptr seen
         then return nilNode{ n_anchor = AReference ptr } 
         else do
@@ -300,6 +298,7 @@ compressYamlNode node = do
     visitNode node'
 
 eqNode :: YamlNode -> YamlNode -> Bool
+eqNode MkNode{ n_id = x } MkNode{ n_id = y } | x > 0, x == y = True
 eqNode x@MkNode{ n_anchor = ASingleton } y@MkNode{ n_anchor = ASingleton } = (n_tag x == n_tag y) && eqElem (n_elem x) (n_elem y)
 eqNode _ _ = False
 
@@ -339,8 +338,21 @@ visitElem (EMap ps)      = fmap EMap (mapM visitPair ps)
 visitElem e             = return e
 
 markNode :: (?seenHash :: SeenHash, ?duplHash :: DuplHash) => YamlNode -> IO YamlNode
--- markNode node@MkNode{ n_anchor = AReference r } = return node
--- markNode node@MkNode{ n_anchor = AAnchor r } = return node
+markNode node@MkNode{ n_anchor = AReference r } = do
+    -- All we need to do is to write this into duplHash.
+    let symid   = fromIntegral r
+        node'   = node{ n_anchor = ASingleton, n_id = symid }
+    Hash.insert ?seenHash symid Nothing
+    return node'
+markNode node@MkNode{ n_anchor = AAnchor r } = do
+    -- All we need to do is to write this into duplHash.
+    -- XXX - But maybe also descend deeper?
+    (_, elem')    <- markElem (n_elem node)
+    let symid   = fromIntegral r
+        node'   = node{ n_anchor = ASingleton, n_id = symid, n_elem = elem' }
+    Hash.insert ?seenHash symid Nothing
+    Hash.insert ?duplHash node' 0
+    return node'
 markNode node = do
     (symid32, elem')    <- markElem (n_elem node)
     let node' = node{ n_id = symid }
@@ -357,13 +369,13 @@ markNode node = do
     return node'{ n_elem = elem' }
 
 markElem :: (?seenHash :: SeenHash, ?duplHash :: DuplHash) => YamlElem -> IO (Int32, YamlElem)
-markElem ENil           = return (0, ENil)
+markElem ENil           = return (10000, ENil)
 markElem n@(EStr buf)   = return (Buf.hash buf, n)
 markElem (ESeq ns)      = do
     ns' <- mapM markNode ns
     return (hashIDs (map n_id ns'), ESeq ns')
 markElem (EMap ps)      = do
-    (symid, ps') <- foldM markPair (0, []) ps
+    (symid, ps') <- foldM markPair (20000, []) ps
     return (symid, EMap ps')
     where
     markPair (symid, ps) (k, v) = do
@@ -372,7 +384,7 @@ markElem (EMap ps)      = do
         return (iterIDs (iterIDs symid (n_id k')) (n_id v'), ((k', v'):ps))
 
 hashIDs :: [SYMID] -> Int32
-hashIDs = foldl' iterIDs 0
+hashIDs = foldl' iterIDs 30000
 
 iterIDs :: Int32 -> SYMID -> Int32
 iterIDs m c = fromIntegral (c + 1) * golden + mulHi m golden
