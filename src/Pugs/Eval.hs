@@ -444,7 +444,6 @@ reduceSyn "block" [exp]
     | Syn "sub" [Val (VCode sub@MkCode{ subType = SubBlock })] <- unwrap exp = do
         unless (isEmptyParams (subParams sub)) $
             fail "Blocks with implicit params cannot occur at statement level"
-        env <- ask
         enterSub sub . reduce $ case unwrap (subBody sub) of
             Syn "block" [exp] -> case unwrap exp of
                 -- Here we have a nested statement-level block: "{ { 3 } }";
@@ -474,19 +473,39 @@ reduceSyn "sub" [exp] = do
     -- error "XXX - clone should operate on sub now"
     -- newBody <- transformExp cloneBodyStates $ subBody sub
     -- add &?BLOCK &?ROUTINE etc here
-    started <- if isCompileTime env then return Nothing else fmap Just (stm $ newTVar False)
-    pad     <- fmap (`mappend` subInnerPad sub) $ mergeLexPads (envLexPads env)
+    started         <- if isCompileTime env then return Nothing else fmap Just (stm $ newTVar False)
+    inner           <- clonePad (subInnerPad sub) 
+    (lpads, outer)  <- cloneLexPads (envLexPads env)
     return $ VCode sub
         { subCont       = cont
-        , subOuterPads  = envLexPads env
-        , subLexical    = pad
+        , subOuterPads  = lpads
+        , subInnerPad   = inner
+        , subLexical    = outer `mappend` inner 
         , subStarted    = started
         }
     where
+    cloneLexPads chain = do
+        pads <- forM chain $ \lpad -> case lpad of
+            PRuntime p      -> do
+                p'  <- snapPad p
+                return (PRuntime p', p')
+            PCompiling p    -> do
+                p'  <- stm $ readTVar p
+                return (lpad, p')
+        let merged  = MkPad $ Map.unionsWith mergePadEntry (map (padEntries . snd) pads)
+            lexpads = map fst pads
+        return (lexpads, merged)
 --    cloneBodyStates (Pad scope pad exp) | scope <= SMy = do
 --        pad' <- clonePad pad
 --        return $ Pad scope pad' exp
     cloneBodyStates x = return x -- XXX!
+    snapPad pad = stm $ do
+        fmap listToPad $ forM (padToList pad) $ \(var, entry) -> do
+            case entry of
+                PELexical{} -> do
+                    store <- newTVar =<< readTVar (pe_store entry)
+                    return (var, entry{ pe_store = store })
+                _   -> return (var, entry)
     clonePad pad = stm $ do
         fmap listToPad $ forM (padToList pad) $ \(var, entry) -> do
             let preserveContent   = readTVar . pe_store
@@ -502,7 +521,6 @@ reduceSyn "sub" [exp] = do
         return x{ pe_store = tvar' }
     clonePadEntry x@PELexical{} f = do
         tvar'   <- newTVar =<< f x
-        fresh'  <- newTVar False
         return x{ pe_store = tvar' }
 
 reduceSyn "but" [obj, block] = do
@@ -1349,22 +1367,34 @@ applyThunk :: SubType -> [ApplyArg] -> VThunk -> Eval Val
 applyThunk _ [] thunk = thunk_force thunk
 applyThunk styp bound@(arg:_) thunk = do
     -- introduce self and $_ as the first invocant.
+    {-
     inv     <- case styp of
         SubPointy               -> aliased [cast "$_"]
-        _ | styp <= SubMethod   -> aliased [cast "&self"] -- , "$_"]
+        _ | styp <= SubMethod   -> aliased [cast "&self"]
         _                       -> return []
-    pad <- formal
-    enterLex (inv ++ pad) $ thunk_force thunk
+    -}
+    let withInv | styp <= SubMethod = (ApplyArg (cast "&self") (argValue arg) False:)
+                | otherwise         = id
+    sequence_ [ bindVar var val
+              | ApplyArg var val _ <- withInv bound
+              -- Don't generate pad entries for siglets such as "$" and "@".
+              , v_name var /= nullID
+              ]
+    thunk_force thunk
+
+bindVar :: Var -> Val -> Eval ()
+bindVar var val
+    | isLexicalVar var  = doBindVar (asks envLexical)
+    | otherwise         = doBindVar askGlobal
     where
-    -- Don't generate pad entries for siglets such as "$" and "@".
-    formal = sequence
-        [ genSym var =<< fromVal val
-        | ApplyArg var val _ <- bound
-        , v_name var /= nullID
-        ]
-    aliased names = do
-        argRef  <- fromVal (argValue arg)
-        mapM (`genSym` argRef) names
+    doBindVar askPad = do
+        pad <- askPad
+        case lookupPad var pad of
+            Just PEConstant{} -> fail $ "Cannot rebind constant: " ++ show var
+            Just c -> do
+                ref <- fromVal val
+                stm $ writeTVar (pe_store c) ref
+            _  -> fail $ "Cannot bind to non-existing variable: " ++ show var
 
 {-|
 Apply a sub (or other code object) to an (optional) invocant, and
@@ -1410,9 +1440,9 @@ doApply sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args = d
                         "Too many slurpy arguments for " ++ cast (subName sub) ++ ": "
                         ++ show ((genericLength (take 1000 extra)) + n) ++ " actual, "
                         ++ show n ++ " expected"
-            (syms, bound) <- doBind [] (subBindings sub)
+            bound <- mapM doBind (subBindings sub)
             -- trace (show bound) $ return ()
-            val <- local fixEnv $ enterLex syms $ do
+            val <- local fixEnv $ do
                 (`juncApply` bound) $ \realBound -> do
                     enterSub sub $ case cont of
                         Just tvar   -> do
@@ -1440,21 +1470,19 @@ doApply sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args = d
     fixEnv :: Env -> Env
     fixEnv | typ >= SubBlock = id
            | otherwise       = envEnterCaller
-    doBind :: [PadMutator] -> [(Param, Exp)] -> Eval ([PadMutator], [ApplyArg])
-    doBind syms [] = return (syms, [])
-    doBind syms ((prm, exp):rest) = do
+    doBind :: (Param, Exp) -> Eval ApplyArg -- ([PadMutator], [ApplyArg])
+    doBind (prm, exp) = do
         -- trace ("<== " ++ (show (prm, exp))) $ return ()
         let var = paramName prm
             cxt = cxtOfSigilVar var
         (val, coll) <- enterContext cxt $ case exp of
             Syn "param-default" [exp, Val (VCode sub)] -> do
-                local (fixSub sub . fixEnv) $ enterLex syms $ expToVal prm exp
+                local (fixSub sub . fixEnv) $ expToVal prm exp
             _  -> expToVal prm exp
         -- trace ("==> " ++ (show val)) $ return ()
-        boundRef <- fromVal val
-        newSym   <- genSym var boundRef
-        (syms', restArgs) <- doBind (newSym:syms) rest
-        return (syms', ApplyArg var val coll:restArgs)
+        -- boundRef <- fromVal val
+        -- newSym   <- genSym var boundRef
+        return $ ApplyArg var val coll
     expToVal :: Param -> Exp -> Eval (Val, Bool)
     expToVal MkOldParam{ isLazy = thunk, isLValue = lv, paramContext = cxt, paramName = var, isWritable = rw } exp = do
         env <- ask -- freeze environment at this point for thunks
@@ -1561,7 +1589,6 @@ fromCodeExp :: Exp -> Eval VCode
 fromCodeExp x = case x of
     Syn "block" [Val VCode{}]   -> fromClosure x
     Syn "block" [_]             -> do
-        env <- ask
         return $ mkCode
             { -- subEnv        = Just env - XXX
               subType       = SubPrim   -- This is a pseudoblock with no scope

@@ -117,7 +117,7 @@ checkForIOLeak exp =
         [ Val $ VCode mkSub { subBody = exp } ]
     
 defaultParamFor :: SubType -> [Param]
-defaultParamFor SubBlock    = [defaultScalarParam]
+defaultParamFor SubBlock    = [] -- defaultScalarParam]
 defaultParamFor SubPointy   = []
 defaultParamFor _           = [defaultArrayParam]
 

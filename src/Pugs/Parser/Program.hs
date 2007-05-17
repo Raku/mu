@@ -164,9 +164,14 @@ showErr err =
 ruleProgram :: RuleParser Env
 ruleProgram = rule "program" $ do
     env     <- getRuleEnv
+
+    topPad  <- genParamEntries SubRoutine [defaultArrayParam]
+    modify $ \s -> s{ s_protoPad = topPad }
+
     block   <- ruleBlockBody
-    main    <- retVerbatimBlock SubRoutine Nothing False $
+    main    <- retVerbatimBlock SubPointy Nothing False $
         block{ bi_body = mergeStmts emptyExp $ bi_body block }
+
     -- error $ show statements
     eof
     -- S04: CHECK {...}*      at compile time, ALAP
@@ -184,7 +189,7 @@ ruleProgram = rule "program" $ do
     possiblyExit rv
     env' <- getRuleEnv
     return $ env'
-        { envBody       = App main Nothing [_Var "@*ARGS"]
+        { envBody       = App main Nothing [] -- _Var "@*ARGS"]
         , envPackage    = envPackage env
         }
 

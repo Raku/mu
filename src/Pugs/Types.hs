@@ -463,6 +463,7 @@ doBufToVar buf = MkVar
     len = Buf.length afterSig
     (twi, (pkg, (cat, afterCat)))
         | len == 0 = (TNil, (emptyPkg, (CNil, afterSig)))
+--      | len <= 1 = (TNil, (emptyPkg, (CNil, afterSig)))
         | len == 1 = case Buf.head afterSig of
             '!' -> (TGlobal, (emptyPkg, (CNil, afterSig)))  -- XXX $! always global - WRONG
             '/' -> (TGlobal, (emptyPkg, (CNil, afterSig)))  -- XXX $/ always global - WRONG

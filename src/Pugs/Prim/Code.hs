@@ -36,7 +36,8 @@ op1CodeBody v = do
     expToEvalVal $ subBody code
 
 op1CodePos :: Val -> Eval Val
-op1CodePos v = die "XXX - code.pos not implemented" v
+op1CodePos v = do -- die "XXX - code.pos not implemented" v
+    return $ castV (show v)
 {-
 do
     code <- fromVal v

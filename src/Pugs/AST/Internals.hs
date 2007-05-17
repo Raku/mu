@@ -1311,7 +1311,7 @@ defaultScalarParam :: Param
 
 defaultArrayParam   = buildParam "" "*" "@_" (Val VUndef)
 defaultHashParam    = buildParam "" "*" "%_" (Val VUndef)
-defaultScalarParam  = buildParam "" "?" "$_" (Var $ cast "$_")
+defaultScalarParam  = buildParam "" "?" "$_" (Var $ cast "$OUTER::_")
 
 type DebugInfo = Maybe (TVar (Map ID String))
 
@@ -1557,14 +1557,18 @@ askGlobal = do
     stm $ readTVar glob
 
 writeVar :: Var -> Val -> Eval ()
-writeVar name val = do
-    glob <- askGlobal
-    case lookupPad name glob of
-        Just PEConstant{} -> fail $ "Cannot rebind constant: " ++ show name
-        Just c -> do
-            ref <- stm $ readTVar (pe_store c)
-            writeRef ref val
-        _  -> fail $ "Cannot bind to non-existing variable: " ++ show name
+writeVar var val
+    | isLexicalVar var  = doWriteVar (asks envLexical)
+    | otherwise         = doWriteVar askGlobal
+    where
+    doWriteVar askPad = do
+        pad <- askPad
+        case lookupPad var pad of
+            Just PEConstant{} -> fail $ "Cannot rebind constant: " ++ show var
+            Just c -> do
+                ref <- stm $ readTVar (pe_store c)
+                writeRef ref val
+            _  -> fail $ "Cannot bind to non-existing variable: " ++ show var
 
 readVar :: Var -> Eval Val
 readVar var

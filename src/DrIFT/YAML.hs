@@ -15,11 +15,11 @@ import Data.IORef
 import Data.Bits
 import Data.List	( foldl' )
 import Data.Int		( Int32, Int64 )
-import Pugs.Internals (encodeUTF8, decodeUTF8)
+import Pugs.Internals (encodeUTF8, decodeUTF8, addressOf)
 import Data.HashTable (HashTable)
 import qualified UTF8 as Buf
 import qualified Data.ByteString as Bytes
-import qualified Data.IntMap as IntMap
+import qualified Data.IntSet as IntSet
 import qualified Data.HashTable as Hash
 
 type Buf = Buf.ByteString
@@ -27,11 +27,11 @@ type Buf = Buf.ByteString
 type YAMLClass = String
 type YAMLKey = String
 type YAMLVal = YamlNode
-type SeenCache = IORef (IntMap.IntMap (Ptr ()))
+type SeenCache = IORef IntSet.IntSet
 
 toYamlNode :: YAML a => a -> IO YamlNode
 toYamlNode x = do
-    cache   <- newIORef IntMap.empty 
+    cache   <- newIORef IntSet.empty 
     runReaderT (asYAML x) cache
 
 showYaml :: YAML a => a -> IO String
@@ -234,19 +234,16 @@ instance (Typeable a, YAML a) => YAML (TVar a) where
     fromYAMLElem = (newTVarIO =<<) . fromYAMLElem
 
 asYAMLanchor :: a -> EmitAs YamlNode -> EmitAs YamlNode
-asYAMLanchor _ m = m
-{-do
+asYAMLanchor x m = do
     cache   <- ask
     seen    <- liftIO $ readIORef cache
-    ref     <- liftIO $ fmap castStablePtrToPtr (newStablePtr x)
-    let ptr = ref `minusPtr` nullPtr
-    if IntMap.member ptr seen
+    let ptr = -(fromEnum (addressOf x))
+    if IntSet.member ptr seen
         then return nilNode{ n_anchor = AReference ptr } 
         else do
-            liftIO $ modifyIORef cache (IntMap.insert ptr ref)
+            liftIO $ modifyIORef cache (IntSet.insert ptr)
             rv  <- m
             return rv{ n_anchor = AAnchor ptr }
--}
 
 asYAMLwith :: (YAML a, YAML b) => (a -> EmitAs b) -> a -> EmitAs YamlNode
 asYAMLwith f x = asYAMLanchor x (asYAML =<< f x)

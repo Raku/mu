@@ -14,6 +14,10 @@ sub f ($x) {
     -- otoh, it's rare enough that we don't actually care.
         -- but our Var is current symbolic.
 
+-- A subroutine when it's fully formed will always have its own pad as static.
+   (copied from envCompPad.)
+-- A subroutine when it's cloned wil use env's outer as outer.
+
 -- envLexPads :: LexPads
 -- subLexPads :: LexPads
 

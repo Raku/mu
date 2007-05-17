@@ -251,8 +251,10 @@ addBlockPad :: Pad -> RuleParser ()
 addBlockPad pad = do
     -- First we check that our pad does not contain shadows OUTER symbols.
     state <- get
-    let myVars  = padKeys pad
-        dupVars = myVars `Set.intersection` Map.keysSet (s_knownVars state)
+    let myVars          = padKeys pad
+        dupVars         = myVars `Set.intersection` Map.keysSet outerKnownVars
+        outerKnownVars  = Map.filter (/= compPad) (s_knownVars state)
+        Just compPad    = envCompPad (s_env state)
 
     unless (Set.null dupVars) $ do
         fail $ "Redeclaration of "
@@ -260,8 +262,7 @@ addBlockPad pad = do
             ++ " conflicts with earlier OUTER references in the same scope"
 
     -- Then we merge the Pad into COMPILING, and add those vars into s_knownVars.
-    Just compPad <- asks envCompPad
-    ()           <- stm $ modifyTVar compPad (`unionPads` pad)
+    ()  <- stm $ modifyTVar compPad (`unionPads` pad)
 
     let myKnownVars = Map.fromDistinctAscList [ (var, compPad) | var <- Set.toAscList myVars ]
     put state{ s_knownVars = s_knownVars state `Map.union` myKnownVars }

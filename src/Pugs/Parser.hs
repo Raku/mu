@@ -25,6 +25,8 @@ module Pugs.Parser (
     ruleArraySubscript, ruleHashSubscript, ruleCodeSubscript,
     ruleInvocationParens, verbatimVarNameString, ruleVerbatimBlock, retVerbatimBlock,
     ruleBlockLiteral, ruleDoBlock, regularVarName, regularVarNameForSigil, ruleNamedMethodCall,
+
+    genParamEntries
 ) where
 import Pugs.Internals
 import Pugs.AST
@@ -387,7 +389,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
 
     -- XXX - Generate init pad for each of our params...
 
-    paramsPad   <- genParamEntries signature
+    paramsPad   <- genParamEntries styp signature
     modify $ \s -> s{ s_protoPad = paramsPad }
     block       <- ruleBlock
 
@@ -409,11 +411,11 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
         sub = VCode (bi_traits block template')
     
     -- Don't add the sub if it's unsafe and we're in safemode.
-    if "unsafe" `elem` traits && safeMode then return emptyExp else do
+    if "unsafe" `elem` traits && safeMode then return (Var var) else do
     (`finallyM` clearDynParsers) $ if not (isLexicalVar var)
-        then do unsafeEvalExp $ mkSym sub nameQualified Noop
+        then do unsafeEvalExp $ mkSym sub nameQualified (Var var)
         else do
-            let doExportCode rv = if not isExported then return emptyExp else do
+            let doExportCode = if not isExported then return (Var var) else do
                     -- we mustn't perform the export immediately upon parse, because
                     -- then only the first consumer of a module will see it. Instead,
                     -- make a note of this symbol being exportable, and defer the
@@ -432,19 +434,20 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
                                 { isMulti   = True
                                 , subParams = multiSig
                                 }
-                    return . seq rv $ Syn "|="
+                    unsafeEvalExp $ Syn "|="
                         [ Syn "{}" [_Var ("%" ++ pkg ++ "::EXPORTS"), Val $ VStr exportedName]
                         , Val exportedSub
                         ]
+                    return (Var var)
             case lookupPad var newPad of
                 Just entry  -> do
-                    Val val@(VCode code) <- unsafeEvalExp (Syn "sub" [Val sub])
+                    Val (VCode code) <- unsafeEvalExp (Syn "sub" [Val sub])
                     let entry'  = entry{ pe_proto = cv' }
                         cv'     = MkRef (ICode code)
                     addBlockPad (adjustPad (const entry') var newPad)
-                    result <- doExportCode val
+                    result <- doExportCode
                     case entry' of
-                        PEConstant{} -> return result
+                        PEConstant{}    -> return result
                         _               -> return $! unsafePerformSTM $! do
                             rv  <- writePadEntry entry' cv'
                             return (rv `seq` result)
@@ -1247,6 +1250,10 @@ ruleBlockLiteral = rule "block construct" $
 ruleBlockVariants :: [RuleParser (SubType, Maybe [Param], Bool)] -> RuleParser Exp
 ruleBlockVariants variants = do
     (styp, formal, lvalue) <- option (SubBlock, Nothing, False) $ choice variants
+
+    paramsPad  <- genParamEntries styp (maybe (defaultParamFor styp) id formal)
+    modify $ \s -> s{ s_protoPad = paramsPad }
+
     block <- ruleBlock
     retBlock styp formal lvalue block
 
@@ -1328,7 +1335,16 @@ paramsToNameTypes params defType = [ (n, t, f, d) | n <- names | t <- types | f 
         | t == anyType, defType /= ""   = mkType defType
         | otherwise                     = t
 
-genParamEntries params = genNameTypeEntries SMy (paramsToNameTypes params "")
+genParamEntries styp params
+    | styp >= SubBlock  = genNameTypeEntries SMy nameTypes
+    | otherwise         = genNameTypeEntries SMy (foldl' withImplicit nameTypes implicitNames)
+    where
+    nameTypes       = paramsToNameTypes params ""
+    names           = Set.fromList $ map (\(n, _, _, _) -> n) nameTypes
+    implicitNames   = ["$_"] -- , "$/", "$!"]
+    withImplicit ntys name
+        | Set.member (cast name) names  = ntys
+        | otherwise                     = (((cast name), anyType, MkEntryFlags True, Noop):ntys)
 
 ruleVarDecl :: RuleParser Exp
 ruleVarDecl = rule "variable declaration" $ do
@@ -1370,7 +1386,8 @@ ruleVarDecl = rule "variable declaration" $ do
         return (False, paramsToNameTypes params defType, accessors)
     makeAccessor prm = do
         -- Generate accessor for class attributes.
-        pkg <- asks envPackage
+        pkg         <- asks envPackage
+        paramsPad   <- genParamEntries SubPrim [selfParam $ cast pkg]
         let sub = mkPrim
                 { isMulti       = False
                 , subName       = _cast (cast accessor)
@@ -1379,6 +1396,7 @@ ruleVarDecl = rule "variable declaration" $ do
                 , subParams     = [selfParam $ cast pkg]
                 , subLValue     = isWritable prm
                 , subType       = SubMethod
+                , subInnerPad   = paramsPad
                 }
             fun = Var var{ v_twigil = TNil }
             var = paramName prm

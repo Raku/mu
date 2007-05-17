@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
-module Pugs.Meta.Str where
+module Pugs.Meta.Str (_StrClass) where
 import Data.Maybe
 import Pugs.Val
 import Pugs.Class

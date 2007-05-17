@@ -275,20 +275,19 @@ enterSub sub action
         | typ >= SubBlock = do
             -- Entering a block.
             blockRec  <- genSym (cast "&?BLOCK") (codeRef (orig sub))
-            pad       <- fmap (`mappend` pad) $ mergeLexPads (subOuterPads sub)
             return $ \e -> e
-                { envLexical = combine [blockRec] pad
+                { envLexical = combine [blockRec] (envLexical env `mappend` pad)
                 , envPackage = subPackage sub
-                , envLexPads = (PRuntime pad:subOuterPads sub)
+                , envLexPads = (PRuntime pad:envLexPads env)
                 }
         | otherwise = do
             subRec    <- genSym (cast "&?ROUTINE") (codeRef (orig sub))
             callerRec <- genSym (cast "&?CALLER_CONTINUATION") (codeRef $ ccSub cc env)
-            pad       <- fmap (`mappend` pad) $ mergeLexPads (subOuterPads sub)
+            pad'      <- fmap (`mappend` pad) $ mergeLexPads (subOuterPads sub)
             return $ \e -> e
-                { envLexical = combine ([subRec, callerRec]) pad
+                { envLexical = combine ([subRec, callerRec]) pad'
                 , envPackage = subPackage sub
-                , envLexPads = (PRuntime pad:subOuterPads sub)
+                , envLexPads = (PRuntime pad':subOuterPads sub)
                 }
     ccSub :: (Val -> Eval Val) -> Env -> VCode
     ccSub cc env = mkPrim
