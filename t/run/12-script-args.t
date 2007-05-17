@@ -24,10 +24,9 @@ sub run_test ($args) {
     return $got;
 }
 
-chdir "t"; chdir "run";
-is run_test("dump_params.pl 1"), ("1",).perl,     " bare arg works";
-is run_test("dump_params.pl --n"), ("--n",).perl, " --n arg works";
+is run_test("t/run/dump_params.pl 1"), ("1",).perl,     " bare arg works";
+is run_test("t/run/dump_params.pl --n"), ("--n",).perl, " --n arg works";
 for (qw/n p c e h V v/) {
-    is run_test("dump_params.pl -$_"), ("-$_",).perl, " -$_ arg works";
+    is run_test("t/run/dump_params.pl -$_"), ("-$_",).perl, " -$_ arg works";
 }
-is run_test("dump_params.pl -a"), ('-a',).perl, " -a arg works";
+is run_test("t/run/dump_params.pl -a"), ('-a',).perl, " -a arg works";
