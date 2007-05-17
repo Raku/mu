@@ -33,6 +33,7 @@ localBlock m = do
             { envLexPads = lexPads  -- enter the scope
             , envCompPad = Just compPad
             }
+        , s_protoPad        = emptyPad
         }
 
     body    <- m

@@ -110,7 +110,18 @@ makeState env = MkState
     , s_closureTraits   = [id]
     , s_freeVars        = Set.empty
     , s_knownVars       = Map.empty
+    , s_protoPad        = emptyPad
     }
+
+-- XXX - Pending clarification about those 3 -- are they routine-implicit or block-implicit?
+{-
+protoPad :: Pad
+protoPad = mkPad
+    [ (cast "$_", PELexical
+    , (cast "$/",
+    , (cast "$!", 
+    ]
+-}
 
 runRule :: Env -> RuleParser Env -> FilePath -> String -> Env
 runRule env p name str =

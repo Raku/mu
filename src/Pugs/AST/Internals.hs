@@ -1429,7 +1429,7 @@ instance Monoid EntryFlags where
     mappend (MkEntryFlags x) (MkEntryFlags y) = MkEntryFlags (x || y)
 
 data PadEntry
-    = PELexical  { pe_type :: !Type, pe_proto :: !VRef, pe_flags :: !EntryFlags, pe_store :: !(TVar VRef), pe_fresh :: !(TVar Bool) }
+    = PELexical  { pe_type :: !Type, pe_proto :: !VRef, pe_flags :: !EntryFlags, pe_store :: !(TVar VRef) } -- pe_fresh :: !(TVar Bool) }
     | PEStatic   { pe_type :: !Type, pe_proto :: !VRef, pe_flags :: !EntryFlags, pe_store :: !(TVar VRef) }
     | PEConstant { pe_type :: !Type, pe_proto :: !VRef, pe_flags :: !EntryFlags }
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
@@ -1453,12 +1453,10 @@ refreshPad :: Pad -> Eval Pad
 refreshPad pad = do
     fmap listToPad $ forM (padToList pad) $ \(name, entry) -> do
         entry' <- case entry of
-            PELexical{ pe_proto = proto, pe_fresh = fresh } -> stm $ do
-                isFresh <- readTVar fresh
-                if isFresh then writeTVar fresh False >> return entry else do
-                    ref     <- cloneRef proto
-                    tvar'   <- newTVar ref
-                    return entry{ pe_store = tvar' }
+            PELexical{ pe_proto = proto } -> stm $ do
+                ref     <- cloneRef proto
+                tvar'   <- newTVar ref
+                return entry{ pe_store = tvar' }
             _ -> return entry
         return (name, entry')
 

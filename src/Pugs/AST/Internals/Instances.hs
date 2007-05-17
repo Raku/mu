@@ -634,8 +634,8 @@ instance YAML InitDat where
 instance YAML PadEntry where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
 	"PELexical" -> do
-	    let ESeq [aa, ab, ac, ad, ae] = e
-	    liftM5 PELexical (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae)
+	    let ESeq [aa, ab, ac, ad] = e
+	    liftM4 PELexical (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad)
 	"PEStatic" -> do
 	    let ESeq [aa, ab, ac, ad] = e
 	    liftM4 PEStatic (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad)
@@ -644,8 +644,8 @@ instance YAML PadEntry where
 	    liftM3 PEConstant (fromYAML aa) (fromYAML ab) (fromYAML ac)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["PELexical","PEStatic","PEConstant"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML (PELexical aa ab ac ad ae) = asYAMLseq "PELexical"
-	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae]
+    asYAML (PELexical aa ab ac ad) = asYAMLseq "PELexical"
+	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad]
     asYAML (PEStatic aa ab ac ad) = asYAMLseq "PEStatic"
 	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad]
     asYAML (PEConstant aa ab ac) = asYAMLseq "PEConstant"

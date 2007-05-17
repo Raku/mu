@@ -201,9 +201,17 @@ enterSub sub action
     | typ >= SubPrim = runAction -- primitives just happen
     | otherwise     = do
         env <- ask
+        pad <- case subStarted sub of
+            Just tvar   -> do
+                started <- stm $ readTVar tvar
+                if started then refreshPad (subInnerPad sub) else do
+                    -- XXX - Fix up all mpads, recursively, here!
+                    stm $ writeTVar tvar True
+                    return (subInnerPad sub)
+            _           -> return (subInnerPad sub)
         rv  <- case typ of
             _ | typ >= SubBlock -> tryT $ do
-                doFix <- fixEnv return env
+                doFix <- fixEnv return env pad
                 local doFix runAction
 
             -- For coroutines, we secretly store a continuation into subCont
@@ -215,11 +223,11 @@ enterSub sub action
             -- work as an undelimiated continuation, which is why callCC here
             -- occurs before resetT.
             SubCoroutine -> tryT . callCC $ \cc -> resetT $ do
-                doFix <- fixEnv cc env
+                doFix <- fixEnv cc env pad
                 local doFix runAction
 
             _ -> tryT . callCC $ \cc -> do
-                doFix <- fixEnv cc env
+                doFix <- fixEnv cc env pad
                 local doFix runAction
         runBlocks (filter (rejectKeepUndo rv . subName) . subLeaveBlocks)
 
@@ -262,25 +270,25 @@ enterSub sub action
     doCC _  _   = internalError "enterSub: doCC list length > 1"
     orig :: VCode -> VCode
     orig sub = sub { subBindings = [], subParams = (map fst (subBindings sub)) }
-    fixEnv :: (Val -> Eval Val) -> Env -> Eval (Env -> Env)
-    fixEnv cc env
+    fixEnv :: (Val -> Eval Val) -> Env -> Pad -> Eval (Env -> Env)
+    fixEnv cc env pad
         | typ >= SubBlock = do
             -- Entering a block.
             blockRec  <- genSym (cast "&?BLOCK") (codeRef (orig sub))
-            pad       <- fmap (`mappend` subInnerPad sub) $ mergeLexPads (subOuterPads sub)
+            pad       <- fmap (`mappend` pad) $ mergeLexPads (subOuterPads sub)
             return $ \e -> e
                 { envLexical = combine [blockRec] pad
                 , envPackage = subPackage sub
-                , envLexPads = (PRuntime (subInnerPad sub):subOuterPads sub)
+                , envLexPads = (PRuntime pad:subOuterPads sub)
                 }
         | otherwise = do
             subRec    <- genSym (cast "&?ROUTINE") (codeRef (orig sub))
             callerRec <- genSym (cast "&?CALLER_CONTINUATION") (codeRef $ ccSub cc env)
-            pad       <- fmap (`mappend` subInnerPad sub) $ mergeLexPads (subOuterPads sub)
+            pad       <- fmap (`mappend` pad) $ mergeLexPads (subOuterPads sub)
             return $ \e -> e
                 { envLexical = combine ([subRec, callerRec]) pad
                 , envPackage = subPackage sub
-                , envLexPads = (PRuntime (subInnerPad sub):subOuterPads sub)
+                , envLexPads = (PRuntime pad:subOuterPads sub)
                 }
     ccSub :: (Val -> Eval Val) -> Env -> VCode
     ccSub cc env = mkPrim

@@ -133,7 +133,7 @@ instance (Typeable a, Compile a) => Compile (TVar a) where
 instance Compile PadEntry where
     compile c@PEConstant{} = return $ Str.pack (show c)
     compile (PEStatic typ ref flags tv) = compWith "PEStatic" [compile typ, compile ref, ret (show flags), compile tv]
-    compile (PELexical typ ref flags tv fresh) = compWith "PELexical" [compile typ, compile ref, ret (show flags), compile tv, compile fresh]
+    compile (PELexical typ ref flags tv) = compWith "PELexical" [compile typ, compile ref, ret (show flags), compile tv]
 
 instance Compile VRef where
     compile (MkRef (ICode cv))

@@ -387,7 +387,9 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
 
     -- XXX - Generate init pad for each of our params...
 
-    block    <- ruleBlock
+    paramsPad   <- genParamEntries signature
+    modify $ \s -> s{ s_protoPad = paramsPad }
+    block       <- ruleBlock
 
     let (fun, names, _) = extractNamedPlaceholders styp formal (bi_body block)
 
@@ -510,6 +512,9 @@ ruleFormalParam opt = rule "formal parameter" $ do
             ('@':_) -> Val (VList [])
             ('%':_) -> Val (VList [])
             _       -> Noop
+
+    -- XXX - RIGHT HERE, add this one to CompPad?
+
     rv <- case opt of
         FormalsSimple   -> option emptyExp $ do
             pseudoAssignment (cxtOfSigilVar var) (Val (VType (if null typ then typeOfSigilVar var else mkType typ)))
@@ -1300,6 +1305,30 @@ ruleBlockFormalPointy = rule "pointy block parameters" $ do
     traits <- ruleTraitsIsOnly
     return $ (SubPointy, params, "rw" `elem` traits)
 
+genNameTypeEntries scope nameTypes = do
+    unsafeEvalLexDiff $ combine (map makeBinding nameTypes) emptyExp
+    where
+    makeBinding (name, typ, flag, def)
+        | SConstant <- scope                                    = mkConstSym
+        | ('$':_) <- name, typ /= anyType, scope /= SConstant   = mkSym . bindSym
+        | otherwise                                             = mkSym
+        where
+        mkSym       = _Sym scope name flag emptyExp
+        mkConstSym  = _Sym scope name flag def
+        bindSym     = Stmts (Syn "=" [_Var name, Val (VType typ)])
+
+paramsToNameTypes params defType = [ (n, t, f, d) | n <- names | t <- types | f <- flags | d <- defs ]
+    where
+    vars  = map paramName params
+    names = map (\v -> cast v{ v_twigil = TNil }) vars
+    types = map (maybeDefaultType . typeOfCxt . paramContext) params
+    flags = map (MkEntryFlags . (== TImplicit) . v_twigil) vars
+    defs  = map paramDefault params
+    maybeDefaultType t
+        | t == anyType, defType /= ""   = mkType defType
+        | otherwise                     = t
+
+genParamEntries params = genNameTypeEntries SMy (paramsToNameTypes params "")
 
 ruleVarDecl :: RuleParser Exp
 ruleVarDecl = rule "variable declaration" $ do
@@ -1310,15 +1339,8 @@ ruleVarDecl = rule "variable declaration" $ do
     --       extra "+" as part of the name when "is context" is seen,
     --       so we can rewrite the declarator to SEnv, but it's Wrong.
     (isOne, nameTypes, accessors) <- try oneDecl <|> manyDecl
-    let makeBinding (name, typ, flag, def)
-            | SConstant <- scope                                    = mkConstSym
-            | ('$':_) <- name, typ /= anyType, scope /= SConstant   = mkSym . bindSym
-            | otherwise                                             = mkSym
-            where
-            mkSym       = _Sym scope name flag emptyExp
-            mkConstSym  = _Sym scope name flag def
-            bindSym     = Stmts (Syn "=" [_Var name, Val (VType typ)])
-    lexDiff <- unsafeEvalLexDiff $ combine (map makeBinding nameTypes) emptyExp
+    lexDiff <- genNameTypeEntries scope nameTypes
+
     -- Now hoist the lexDiff to the current block
     addBlockPad lexDiff
     forM_ accessors makeAccessor
@@ -1344,17 +1366,8 @@ ruleVarDecl = rule "variable declaration" $ do
         optional (char ':')
         params  <- verbatimParens . enterBracketLevel ParensBracket $
             ruleFormalParam FormalsComplex `sepBy1` ruleComma
-        let vars  = map paramName params
-            names = map (\v -> cast v{ v_twigil = TNil }) vars
-            types = map (maybeDefaultType . typeOfCxt . paramContext) params
-            flags = map (MkEntryFlags . (== TImplicit) . v_twigil) vars
-            defs  = map paramDefault params
-            maybeDefaultType t
-                | t == anyType, defType /= ""   = mkType defType
-                | otherwise                     = t
-            nameTypes = [ (n, t, f, d) | n <- names | t <- types | f <- flags | d <- defs ]
-            accessors = filter ((== TAttribute) . v_twigil . paramName) params
-        return (False, nameTypes, accessors)
+        let accessors = filter ((== TAttribute) . v_twigil . paramName) params
+        return (False, paramsToNameTypes params defType, accessors)
     makeAccessor prm = do
         -- Generate accessor for class attributes.
         pkg <- asks envPackage
@@ -1421,7 +1434,7 @@ ruleSignatureVal :: RuleParser Exp
 ruleSignatureVal = rule "signature value" $ do
     between (symbol ":(") (lexeme $ char ')') ruleSignature
 
-data Paramdec = MkParamdec
+data ParamDeclaration = MkParamDeclaration
     { p_param      :: SigParam
     , p_isNamed    :: Bool
     , p_isRequired :: Bool
@@ -1460,10 +1473,10 @@ ruleSignature = rule "signature" $ do
     whiteSpace
     reqPosC <- validateRequired True params
     let reqNms   = Set.fromList
-            [ p_label p | MkParamdec{ p_param = p, p_isNamed = True, p_isRequired = True } <- params]
+            [ p_label p | MkParamDeclaration{ p_param = p, p_isNamed = True, p_isRequired = True } <- params]
         nmSt     = Map.fromList
-            [ (p_label p, p) | MkParamdec{ p_param = p, p_isNamed = True } <- params]
-        posLs    = [ p | MkParamdec{ p_param = p, p_isNamed = False } <- params ]
+            [ (p_label p, p) | MkParamDeclaration{ p_param = p, p_isNamed = True } <- params]
+        posLs    = [ p | MkParamDeclaration{ p_param = p, p_isNamed = False } <- params ]
         slpScLs  = []
         slpArrLs = Nothing
         slpHsh   = Nothing
@@ -1479,7 +1492,7 @@ ruleSignature = rule "signature" $ do
             return $ (fromEnum $ isReqPos x) + next
         isReqPos x = p_isRequired x && (not $ p_isNamed x)
 
-ruleParam :: RuleParser Paramdec
+ruleParam :: RuleParser ParamDeclaration
 ruleParam = rule "parameter" $ do
     staticTypes            <- rStaticTypes
     isSlurpy               <- option False (char '*' >> return True)
@@ -1516,7 +1529,7 @@ ruleParam = rule "parameter" $ do
                     , p_isLazy      = lazy'
                     , p_isContext   = context'
                     }
-    return MkParamdec
+    return MkParamDeclaration
         { p_param       = p
         , p_isRequired  = isRequired
         , p_isSlurpy    = isSlurpy

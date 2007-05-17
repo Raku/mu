@@ -503,7 +503,7 @@ reduceSyn "sub" [exp] = do
     clonePadEntry x@PELexical{} f = do
         tvar'   <- newTVar =<< f x
         fresh'  <- newTVar False
-        return x{ pe_store = tvar', pe_fresh = fresh' }
+        return x{ pe_store = tvar' }
 
 reduceSyn "but" [obj, block] = do
     evalExp $ App (_Var "&Pugs::Internals::but_block") Nothing [obj, block]
