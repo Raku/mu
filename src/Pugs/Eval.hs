@@ -471,10 +471,10 @@ reduceSyn "sub" [exp] = do
     -- add &?BLOCK &?ROUTINE etc here
     started <- if isCompileTime env
         then return Nothing
-        else stm $ newTVar False
+        else fmap Just (stm $ newTVar False)
     return $ VCode sub
         { subLexPads = envLexPads env
-        , subLexical = envLexical
+        , subLexical = envLexical env
         , subCont    = cont
         , subStarted = started
         }
