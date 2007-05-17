@@ -951,24 +951,23 @@ ruleClosureTrait rhs = tryRule "closure trait" $ do
             rv  <- unsafeEvalExp $ 
                 App (_Var "&unshift")
                     (Just (_Var (if pkg == mainPkg then "@Main::END" else "@*END")))
-                    [Val code]
+                    [Val $ VCode code]
             return (rv `seq` emptyExp)
         "BEGIN" -> do
             -- We have to exit if the user has written code like BEGIN { exit }.
-            val <- possiblyExit =<< unsafeEvalExp (checkForIOLeak fun)
+            val <- possiblyExit =<< unsafeEvalExp (checkForIOLeak code)
             -- And install any pragmas they've requested.
             env <- ask
             let idat = unsafePerformSTM . readTVar $ envInitDat env
             install $ initPragmas idat
             clearDynParsers
             return val
-        "CHECK" -> vcode2checkBlock code
-        "INIT"  -> vcode2initBlock code
+        "CHECK" -> vcode2checkBlock $ VCode code
+        "INIT"  -> vcode2initBlock $ VCode code
             -- we need to clone this closure sometimes
-        "START" -> vcode2startBlock code
+        "START" -> vcode2startBlock $ VCode code
         _       -> do 
-            let (VCode code') = code
-            addClosureTrait name code'
+            addClosureTrait name code
             return emptyExp --retBlock SubBlock Nothing False block 
             -- XXX Not the right thing to return
     where
@@ -1048,7 +1047,7 @@ vcode2initBlock code = do
 vcode2checkBlock :: Val -> RuleParser Exp
 vcode2checkBlock code = do
     body    <- vcode2startBlock code
-    let fstcode = Syn "sub" [ Val $ VCode mkSub { subBody = checkForIOLeak body } ]
+    let fstcode = Syn "sub" [ checkForIOLeak mkSub{ subBody = body } ]
     Val res <- unsafeEvalExp $
         App (_Var "&unshift") (Just $ _Var "@*CHECK") [ fstcode ]
     return (res `seq` App fstcode Nothing [])

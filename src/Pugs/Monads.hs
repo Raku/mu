@@ -16,7 +16,7 @@ module Pugs.Monads (
     enterLValue, enterRValue,
     enterLex, enterContext, enterEvalContext, enterPackage, enterCaller,
     enterGiven, enterWhen, enterLoop, enterGather, genSymPrim, genSymCC,
-    enterBlock, enterSub, envEnterCaller,
+    enterBlock, enterSub,
     evalVal, tempVar,
 
     enterFrame, assertFrame, emptyFrames,
@@ -98,6 +98,7 @@ enterPackage pkg = local (\e -> e{ envPackage = cast pkg })
 
 {-|
 Enter a new environment and mark the previous one as 'Caller'.
+Also swap in the new one's lexical environment.
 -}
 enterCaller :: Eval a -> Eval a
 enterCaller = local envEnterCaller

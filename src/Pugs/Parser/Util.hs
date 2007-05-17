@@ -111,10 +111,9 @@ isOperatorName _ = False
     expression returned an IO handle. -}
 -- Please remember to edit Prelude.pm, too, if you rename the name of the
 -- checker function.
-checkForIOLeak :: Exp -> Exp
-checkForIOLeak exp =
-    App (_Var "&Pugs::Internals::check_for_io_leak") Nothing
-        [ Val $ VCode mkSub { subBody = exp } ]
+checkForIOLeak :: VCode -> Exp
+checkForIOLeak code =
+    App (_Var "&Pugs::Internals::check_for_io_leak") Nothing [ Val $ VCode code ]
     
 defaultParamFor :: SubType -> [Param]
 defaultParamFor SubBlock    = [] -- defaultScalarParam]

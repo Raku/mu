@@ -236,7 +236,10 @@ seen :: Hash.HashTable SYMID Any
 seen = unsafePerformIO (Hash.new (==) fromIntegral)
 
 instance (Typeable a, YAML a) => YAML (TVar a) where
-    asYAML = asYAMLwith (lift . atomically . readTVar)
+    asYAML x = do -- asYAMLanchor x $ do
+        -- asYAMLseq "TVar" . (:[]) $ do
+            content <- (lift . atomically . readTVar) x
+            asYAML content
     fromYAML x = do
         -- If this node is seen, then don't bother -- just read from it.
         let nid = n_id x

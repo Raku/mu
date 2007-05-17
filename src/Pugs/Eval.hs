@@ -563,15 +563,15 @@ reduceSyn "for" [list, body] = enterLoop $ do
             _                           -> (IScalar x)
         _                           -> join $ doArray av array_fetchElemAll
     -- This makes "for @x { ... }" into "for @x -> $_ is rw {...}"
-    let arity = max 1 $ length (subParams sub)
+    let arity = length (subParams sub)
         runBody [] _ _ = return undef
         runBody vs sub' isFirst = do
-            let (these, rest) = arity `splitAt` vs
+            let (these, rest) = (max 1 arity) `splitAt` vs
                 realSub
                     = (`afterLeave` if null rest then subLastBlocks else const [])
                     . (`beforeLeave` subNextBlocks)
                     $ if isFirst then sub' `beforeEnter` subFirstBlocks else sub'
-            rv <- apply realSub Nothing $ map (Val . VRef . MkRef) these
+            rv <- apply realSub Nothing $ map (Val . VRef . MkRef) (take arity these)
             case rv of
                 VControl (ControlLoop LoopRedo) -> runBody vs sub' isFirst
                 VControl (ControlLoop LoopLast) -> return undef
@@ -1056,6 +1056,7 @@ specialApp = Map.fromList
         let callerEnv :: Env -> Env
             callerEnv env = let caller = maybe env id (envCaller env) in
                 env{ envCaller  = envCaller caller
+                   , envPackage = envPackage caller
                    , envContext = envContext caller
                    , envLValue  = envLValue caller
                    , envFrames  = envFrames caller
@@ -1070,6 +1071,7 @@ specialApp = Map.fromList
         let callerEnv :: Env -> Env
             callerEnv env = let caller = maybe env id (envCaller env) in
                 env{ envCaller  = envCaller caller
+                   , envPackage = envPackage caller
                    , envContext = envContext caller
                    , envLValue  = envLValue caller
                    , envFrames  = envFrames caller
@@ -1122,7 +1124,7 @@ reduceApp subExp invs args = do
     vsub <- enterEvalContext (cxtItem "Code") subExp
     (`juncApply` [ApplyArg dummyVar vsub False]) $ \[arg] -> do
         sub  <- fromVal $ argValue arg
-        apply sub invs args
+        doApply ApplyDisplaced sub invs args
 
 applyCapture :: VCode -> ValCapt -> Eval Val
 applyCapture sub capt = apply sub inv (fromP argsPos ++ argsNam)
@@ -1297,7 +1299,7 @@ applySub sub invs args
     = applySub sub invs (args' ++ rest)
     -- fix subParams to agree with number of actual arguments
     | MkCode{ subAssoc = A_list, subParams = (p:_) }   <- sub
-    = apply sub{ subParams = length args `replicate` p } invs args
+    = doApply ApplyDisplaced sub{ subParams = length args `replicate` p } invs args
     -- chain-associativity
     | MkCode{ subAssoc = A_chain }      <- sub
     , Nothing                           <- invs
@@ -1306,7 +1308,7 @@ applySub sub invs args
         _                   -> applyChainSub sub args
     -- normal application
     | otherwise
-    = apply sub invs args
+    = doApply ApplyDisplaced sub invs args
     where
     mungeChainSub :: VCode -> [Exp] -> Eval Val
     mungeChainSub sub args = do
@@ -1415,7 +1417,7 @@ apply :: VCode       -- ^ The sub to apply
       -> (Maybe Exp) -- ^ Explicit invocant
       -> [Exp]       -- ^ List of arguments (not including explicit invocant)
       -> Eval Val
-apply = doApply
+apply = doApply ApplyInline
 
 -- XXX not entirely sure how this evaluation should proceed
 reduceNamedArg :: Exp -> Eval Exp
@@ -1426,17 +1428,21 @@ reduceNamedArg other = return other
 
         
 
+data ApplyKind = ApplyInline | ApplyDisplaced
+    deriving (Show)
+
 -- XXX - faking application of lexical contexts
 -- XXX - what about defaulting that depends on a junction?
 {-|
 Apply a sub (or other code object) to an (optional) invocants, and a list of
 arguments, in the specified environment.
 -}
-doApply :: VCode       -- ^ The sub to apply
+doApply :: ApplyKind   -- ^ Whether if it's an inline application
+        -> VCode       -- ^ The sub to apply
         -> (Maybe Exp) -- ^ Explicit invocant
         -> [Exp]       -- ^ List of arguments (not including explicit invocant)
         -> Eval Val
-doApply sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args = do
+doApply appKind sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args = do
     realInvs <- fmapM reduceNamedArg invs
     realArgs <-  mapM reduceNamedArg args  
     case bindParams sub realInvs realArgs of
