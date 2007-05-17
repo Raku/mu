@@ -23,7 +23,7 @@ module Pugs.Monads (
 
     enterFrame, assertFrame, emptyFrames,
 
-    reclosePad, recloseCode,
+    reclosePad, recloseCode, recloseVal,
     
     MaybeT, runMaybeT
 ) where
@@ -198,8 +198,7 @@ expressions.
 -}
 enterBlock :: Eval Val -> Eval Val
 enterBlock action = do
-    pad <- stm $ newTVar emptyPad
-    local (\e -> e{ envLexPads = (pad:envLexPads e) }) action
+    local (\e -> e{ envLexPads = (PRuntime emptyPad:envLexPads e) }) action
 
 recloseLexPad :: LexPad -> STM LexPad
 recloseLexPad (PCompiling tv) = do
@@ -207,20 +206,48 @@ recloseLexPad (PCompiling tv) = do
     return (PRuntime pad)
 recloseLexPad lpad  = return lpad
 
-recloseRef :: VRef -> STM VRef
-recloseRef ref@(MkRef (ICode cv))
-    | Just vcode <- fromTypeable cv
-    , Nothing    <- subStarted vcode
-    , subType vcode /= SubPrim = do
+recloseExp :: Exp -> STM Exp
+recloseExp (Val val) = fmap Val (recloseVal val)
+recloseExp exp       = return exp
+
+recloseVal :: Val -> STM Val
+recloseVal (VRef ref)   = do
+    fmap VRef (recloseRef ref)
+recloseVal (VCode code) = do
+    fmap VCode (recloseCode code)
+recloseVal (VList list) = do
+    fmap VList (mapM recloseVal list)
+recloseVal val          = return val
+
+
+recloseTraitBlocks :: TraitBlocks -> STM TraitBlocks
+recloseTraitBlocks (MkTraitBlocks a b c d e f g h i j k) = do
+    [a', b', c', d', e', f', g', h', i', j', k'] <- mapM (mapM recloseCode) [a, b, c, d, e, f, g, h, i, j, k]
+    return $ MkTraitBlocks a' b' c' d' e' f' g' h' i' j' k'
+
+recloseCode :: VCode -> STM VCode
+recloseCode vcode
+    | Nothing    <- subStarted vcode = do
+--  , subType vcode /= SubPrim = do
         outers'     <- mapM recloseLexPad (subOuterPads vcode)
         inner'      <- reclosePad (subInnerPad vcode)
+        body'       <- transformExp recloseExp (subBody vcode)
         started'    <- newTVar False
-        return . MkRef . ICode $ vcode
-            { subOuterPads = outers'
-            , subInnerPad  = inner'
-            , subStarted   = Just started'
+        traits'     <- recloseTraitBlocks (subTraitBlocks vcode)
+        return $ vcode
+            { subOuterPads   = outers'
+            , subInnerPad    = inner'
+            , subBody        = body'
+            , subStarted     = Just started'
+            , subTraitBlocks = traits'
             }
-    | otherwise = return ref
+recloseCode vcode = return vcode
+
+recloseRef :: VRef -> STM VRef
+recloseRef (MkRef (ICode cv))
+    | Just vcode <- fromTypeable cv = do
+        vcode'   <- recloseCode vcode
+        return . MkRef . ICode $ vcode'
 recloseRef ref = return ref
 
 reclosePad :: Pad -> STM Pad
@@ -246,45 +273,54 @@ reclosePad pad = fmap listToPad . forM (padToList pad) $ \(name, entry) -> do
                     return entry{ pe_proto = proto' }
     return (name, entry')
 
-enterSub :: VCode -> Eval Val -> Eval Val
-enterSub sub action
-    | typ >= SubPrim = runAction -- primitives just happen
-    | otherwise     = do
-        env <- ask
-        pad <- case subStarted sub of
-            Just tvar   -> do
-                started <- stm $ readTVar tvar
-                if started then refreshPad (subInnerPad sub) else do
-                    -- XXX - Fix up all mpads, recursively, here!
-                    stm $ writeTVar tvar True
-                    return (subInnerPad sub)
-            _           -> return (subInnerPad sub)
-        rv  <- case typ of
-            _ | typ >= SubBlock -> tryT $ do
-                doFix <- fixEnv return env pad
-                local doFix runAction
+data ApplyKind = AKInline | AKDisplaced deriving (Show)
 
-            -- For coroutines, we secretly store a continuation into subCont
-            -- whenever "yield" occurs in it.  However, the inner CC must be
-            -- delimited on the subroutine boundary, otherwise the resuming
-            -- continuation will continue into the rest of the program,
-            -- which is now how coroutines are supposed to work.
-            -- On the other hand, the normal &?CALLER_CONTINUATION must still
-            -- work as an undelimiated continuation, which is why callCC here
-            -- occurs before resetT.
-            SubCoroutine -> tryT . callCC $ \cc -> resetT $ do
-                doFix <- fixEnv cc env pad
-                local doFix runAction
+enterSub :: ApplyKind -> VCode -> Eval Val -> Eval Val
+enterSub appKind sub action = do
+    env <- ask
+    pad <- case subStarted sub of
+        Just tvar   -> do
+            started <- stm $ readTVar tvar
+            if started
+                then refreshPad (subInnerPad sub)
+                    -- `finallyM` warn "======= REFRESHED ==========" (subInnerPad sub, sub)
+                else (stm $ do
+                    writeTVar tvar True
+                    reclosePad (subInnerPad sub))
+                    -- `finallyM` warn "======= RECLOSED ==========" (tvar, subInnerPad sub)
+        _           -> do
+            -- warn "==== NOTHING ====" (subInnerPad sub)
+            return (subInnerPad sub)
+    rv  <- case typ of
+        -- For coroutines, we secretly store a continuation into subCont
+        -- whenever "yield" occurs in it.  However, the inner CC must be
+        -- delimited on the subroutine boundary, otherwise the resuming
+        -- continuation will continue into the rest of the program,
+        -- which is now how coroutines are supposed to work.
+        -- On the other hand, the normal &?CALLER_CONTINUATION must still
+        -- work as an undelimiated continuation, which is why callCC here
+        -- occurs before resetT.
+        SubCoroutine -> tryT . callCC $ \cc -> resetT $ do
+            doFix <- fixEnv cc env pad
+            local doFix runAction
 
-            _ -> tryT . callCC $ \cc -> do
-                doFix <- fixEnv cc env pad
-                local doFix runAction
+        _ | typ >= SubBlock -> tryT $ do
+            doFix <- fixEnv return env pad
+            local doFix runAction
+
+        _ -> tryT . callCC $ \cc -> do
+            doFix <- fixEnv cc env pad
+            local doFix runAction
+
+    -- warn "XXX" ()
+    doFix <- fixEnv return env pad
+    local doFix $ do
         runBlocks (filter (rejectKeepUndo rv . subName) . subLeaveBlocks)
-    when (rv == VControl (ControlLoop LoopLast)) $
-        -- We won't have a chance to run the LAST block
-        -- once we exit outside the lexical block, so do it now
-        runBlocks subLastBlocks
-    assertBlocks subPostBlocks "POST"
+        when (rv == VControl (ControlLoop LoopLast)) $
+            -- We won't have a chance to run the LAST block
+            -- once we exit outside the lexical block, so do it now
+            runBlocks subLastBlocks
+        assertBlocks subPostBlocks "POST"
     case rv of
         VControl l@(ControlLeave ftyp depth val) -> do
             let depth' = if ftyp typ then depth - 1 else depth
@@ -323,32 +359,25 @@ enterSub sub action
     orig :: VCode -> VCode
     orig sub = sub { subBindings = [], subParams = (map fst (subBindings sub)) }
 
-    genRecSym = genSym (if typ >= SubBlock then cast "&?BLOCK" else cast "&?ROUTINE") (codeRef (orig sub))
-
     fixEnv :: (Val -> Eval Val) -> Env -> Pad -> Eval (Env -> Env)
     fixEnv cc env pad
-        | AKInline <- appKind = do
-            -- Entering an inline call.
-            subRec    <- genRecSym
+        | SubPrim <- typ = do
             return $ \e -> e
-                { envLexical = subRec (envLexical env `mappend` pad)
-                , envPackage = subPackage sub
+                { envLexical = pad `mappend` envLexical env
                 , envLexPads = (PRuntime pad:envLexPads env)
                 }
         | AKInline <- appKind = do
             -- Entering an inline call.
-            subRec    <- genRecSym
             return $ \e -> e
-                { envLexical = subRec (pad `mappend` envLexical env)
+                { envLexical = pad `mappend` envLexical env
                 , envPackage = subPackage sub
                 , envLexPads = (PRuntime pad:envLexPads env)
                 }
         | otherwise = do
-            subRec    <- genRecSym
-            callerRec <- genSym (cast "&?CALLER_CONTINUATION") (codeRef $ ccSub cc env)
-            pad'      <- fmap (`mappend` pad) $ mergeLexPads (subOuterPads sub)
+            -- callerRec <- genSym (cast "&?CALLER_CONTINUATION") (codeRef $ ccSub cc env)
+            pad'      <- fmap (pad `mappend`) $ mergeLexPads (subOuterPads sub)
             return $ \e -> e
-                { envLexical = combine ([subRec, callerRec]) pad'
+                { envLexical = pad' -- combine ([callerRec]) pad'
                 , envPackage = subPackage sub
                 , envLexPads = (PRuntime pad':subOuterPads sub)
                 }
