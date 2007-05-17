@@ -24,6 +24,7 @@ localBlock m = do
     state   <- get
 
     compPad <- return $! unsafePerformSTM $! newTVar emptyPad
+    -- traceM $ "Gen:" ++ show compPad
     let env     = s_env state
         lexPads = (pad:envLexPads env)
 
@@ -39,8 +40,9 @@ localBlock m = do
     body    <- m
     state'  <- get
 
-    -- Remove from knownVars the bindings belonging to this scope .
+    -- Remove from knownVars the bindings belonging to this scope.
     let outerKnownVars = Map.filter (/= compPad) (s_knownVars state')
+        outerOuterVars = Map.delete compPad (s_outerVars state')
         (traits, outerTraits) = case s_closureTraits state' of
             (t:ts)  -> (t, ts)
             _       -> (id, [])
@@ -59,13 +61,13 @@ localBlock m = do
 
     -- Re-read compile time refs into the new protos at end of scope.
     newPad <- return $! unsafePerformSTM $! do
-        curPad  <- readTVar compPad
+        curPad  <- readMPad compPad
         entries <- forM (padToList curPad) $ \(var, entry) -> do
             proto   <- readPadEntry entry
             let newEntry = entry{ pe_proto = proto }
             return (newEntry `seq` (var, newEntry))
         newPad <- listToPad (length entries `seq` entries)
-        writeTVar compPad newPad
+        writeMPad compPad newPad
         return newPad
     return $ MkBlockInfo{ bi_pad = newPad, bi_body = body, bi_traits = traits }
 

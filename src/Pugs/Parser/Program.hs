@@ -110,6 +110,7 @@ makeState env = MkState
     , s_closureTraits   = [id]
     , s_freeVars        = Set.empty
     , s_knownVars       = Map.empty
+    , s_outerVars       = Map.empty
     , s_protoPad        = emptyPad
     }
 

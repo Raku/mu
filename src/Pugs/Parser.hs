@@ -2060,12 +2060,20 @@ ruleSigiledVar = (<|> ruleSymbolicDeref) $ do
             state <- get
 
             let var         = cast name
-                lexPads     = envLexPads (s_env state)
+                env         = s_env state
+                lexPads     = envLexPads env
+                compPad     = envCompPad env
                 freeVars    = s_freeVars state
+                outerVars   = s_outerVars state
                 knownVars   = s_knownVars state
 
-            when (var `Map.notMember` knownVars) $ do
-                put state{ s_freeVars = Set.insert (var, lexPads) freeVars }
+            case Map.lookup var knownVars of
+                Just mpad   -> unless (Just mpad == compPad) $ do
+                    let outerPads        = takeWhile (/= mpad) [ pc | PCompiling pc <- lexPads ]
+                        markPad vars pad = Map.insertWith' Set.union pad (Set.singleton var) vars
+                    -- traceM $ "Adding: " ++ show (var, outerPads)
+                    put state{ s_outerVars = foldl' markPad outerVars outerPads }
+                _           -> put state{ s_freeVars = Set.insert (var, lexPads) freeVars }
 
             return (makeVar name)
 

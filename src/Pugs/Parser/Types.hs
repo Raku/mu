@@ -252,17 +252,19 @@ addBlockPad pad = do
     -- First we check that our pad does not contain shadows OUTER symbols.
     state <- get
     let myVars          = padKeys pad
-        dupVars         = myVars `Set.intersection` Map.keysSet outerKnownVars
-        outerKnownVars  = Map.filter (/= compPad) (s_knownVars state)
+        dupVars         = case Map.lookup compPad (s_outerVars state) of
+            Just vars   -> myVars `Set.intersection` vars
+            _           -> Set.empty
         Just compPad    = envCompPad (s_env state)
 
+    -- traceM ("Checking: " ++ show (myVars, s_outerVars state))
     unless (Set.null dupVars) $ do
         fail $ "Redeclaration of "
             ++ unwords (map show (Set.elems dupVars))
             ++ " conflicts with earlier OUTER references in the same scope"
 
     -- Then we merge the Pad into COMPILING, and add those vars into s_knownVars.
-    ()  <- stm $ modifyTVar compPad (`unionPads` pad)
+    ()  <- stm $ appendMPad compPad pad
 
     let myKnownVars = Map.fromDistinctAscList [ (var, compPad) | var <- Set.toAscList myVars ]
     put state{ s_knownVars = s_knownVars state `Map.union` myKnownVars }

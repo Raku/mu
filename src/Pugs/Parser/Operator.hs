@@ -168,7 +168,7 @@ currentFunctions :: RuleParser [CurrentFunction]
 currentFunctions = do
     env <- getRuleEnv
     let funs = catMaybes $! inlinePerformSTM $! do
-        glob <- readTVar $ envGlobal env
+        glob <- readMPad $ envGlobal env
         let vars  = padToList (filterPad cur glob)
                     ++ padToList (filterPad cur (envLexical env))
             pkg   = envPackage env
