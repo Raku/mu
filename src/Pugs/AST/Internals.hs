@@ -1131,6 +1131,9 @@ instance Ord VComplex where
 instance Show (TVar a) where
     show = showAddressOf "ref"
 
+instance Show (IORef a) where
+    show = showAddressOf "ref"
+
 {- Expression annotation
 -}
 data Ann
@@ -1327,7 +1330,7 @@ data LexPads
 data LexPads
     = PRuntime      ![Pad]
     | PCompiling    ![MPad]
-    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
+    deriving (Show, Eq, Ord, Typeable)
 
 {-|
 Evaluation environment.
@@ -1883,6 +1886,8 @@ instance Ord (IVar a) where
     compare x y = compare (addressOf x) (addressOf y)
 instance Ord (TVar a) where
     compare x y = compare (addressOf x) (addressOf y)
+instance Ord (IORef a) where
+    compare x y = compare (addressOf x) (addressOf y)
 #endif
 
 scalarRef   :: ScalarClass a=> a -> VRef
@@ -2006,8 +2011,8 @@ instance Typeable1 IVar where
 {-# NOINLINE _FakeEnv #-}
 _FakeEnv :: Env
 _FakeEnv = unsafePerformIO $ stm $ do
-    ref  <- newTVar Map.empty
     glob <- newTVar $ MkPad Map.empty
+    ref  <- newTVar Map.empty
     init <- newTVar $ MkInitDat { initPragmas=[] }
     maxi <- newTVar $ MkObjectId 1
     return $ MkEnv
@@ -2034,6 +2039,11 @@ fakeEval :: MonadIO m => Eval Val -> m Val
 fakeEval = io . runEvalIO _FakeEnv
 
 instance YAML Val.Val
+
+instance YAML LexPads where
+    asYAML _ = return nilNode
+    fromYAML _ = return []
+
 instance YAML ([Val] -> Eval Val) where
     asYAML _ = return nilNode
     fromYAML _ = return (const $ return VUndef)
