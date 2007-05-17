@@ -1709,7 +1709,7 @@ newObject typ = case showType typ of
     "Method"    -> newObject $ mkType "Code"
     "Submethod" -> newObject $ mkType "Code"
     "Code"      -> return $! codeRef $ mkPrim
-        { subAssoc = ANil
+        { subAssoc = AIrrelevantToParsing
         , subBody  = Prim . const $ fail "Cannot use Undef as a Code object"
         }
     "Type"      -> io $ fmap scalarRef $ newTVarIO undef
