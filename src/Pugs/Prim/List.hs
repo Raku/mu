@@ -334,8 +334,8 @@ op2Map sub@(VCode _) list = op2Map list sub
 op2Map list sub = do
     args  <- fromVal list
     arity <- fmap (length . subParams) (fromVal sub)
-    evl  <- asks envEval
-    vals <- mapMn args arity $ \x -> do
+    evl   <- asks envEval
+    vals  <- mapMn args arity $ \x -> do
         rv  <- local (\e -> e{ envContext = cxtSlurpyAny }) $ do
             evl (App (Val sub) Nothing (map Val x))
         fromVal rv
@@ -343,6 +343,7 @@ op2Map list sub = do
     where
     -- Takes a list, an arity, and a function.
     mapMn           :: [Val] -> Int -> ([Val] -> Eval [Val]) -> Eval [Val]
+    mapMn list 0 f   = fmap concat (mapM (const $ f []) list)
     mapMn list n f   = mapMn' (list2LoL n list) f
     -- Takes a LoL and a function and applies the function to the inputlist.
     mapMn'          :: [[Val]] -> ([Val] -> Eval [Val]) -> Eval [Val]
