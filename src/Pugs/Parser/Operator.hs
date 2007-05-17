@@ -92,7 +92,7 @@ staticLevels =
     [ nonSyn   (opWords " but does ")                            -- Traits
       ++ nonOps (opWords " leg cmp <=> .. ^.. ..^ ^..^ ff ^ff ff^ ^ff^ fff ^fff fff^ ^fff^ ")  -- Non-chaining Binary
     , chainOps (opWords " != == < <= > >= eqv eq ne lt le gt ge =:= === ")
-      ++ matchOps (opWords " ~~ ")
+      ++ matchOps (opWords " ~~ =~ ")
     , leftOps  (opWords "&&")                                    -- Tight And
     , leftOps  (opWords " || ^^ // ")                            -- Tight Or
     , [ternOp "??" "!!" "if"]                                   -- Ternary
@@ -387,6 +387,8 @@ makeOp2Assign prec _ con = (`Infix` prec) $ do
 makeOp2Match :: Assoc -> String -> (String -> [Exp] -> Exp) -> String -> RuleOperator Exp
 makeOp2Match prec sigil con name = (`Infix` prec) $ do
     symbol name
+    when (name == "=~") $ do
+        fail "There is no =~ operator in Perl 6 -- did you mean ~~ (match) or ~= (concat-assign)?"
     return $ \x y -> case y of
         Syn syn [Var var, rhs] | var == varTopic ->
             App (_Var "&prefix:?") Nothing [Syn syn [x, rhs]]

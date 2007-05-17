@@ -1425,7 +1425,7 @@ doApply :: ApplyKind   -- ^ Whether if it's an inline application
 doApply appKind sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args = do
     realInvs <- fmapM reduceNamedArg invs
     realArgs <-  mapM reduceNamedArg args  
-    case bindParams sub realInvs realArgs of
+    case bindParams origSub realInvs realArgs of
         Left errMsg -> fail errMsg
         Right sub   -> do
             forM_ (subSlurpLimit sub) $ \limit@(n, _) -> do
@@ -1448,6 +1448,14 @@ doApply appKind sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs 
                 SubMacro    -> applyMacroResult val 
                 _           -> evalVal val
     where
+    tryRecBind :: Var -> Pad -> Pad -> Eval ()
+    tryRecBind var pad pad2 = case lookupPad var pad of
+        Just{} -> case lookupPad var pad2 of
+            Just c  -> do
+                ref <- fromVal (VCode origSub)
+                stm $ writeTVar (pe_store c) ref
+            _  -> return ()
+        _  -> return ()
     applyMacroResult :: Val -> Eval Val
     applyMacroResult (VObject o)
         | objType o == mkType "Code::Exp" = reduce (fromObject o)

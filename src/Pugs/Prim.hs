@@ -290,7 +290,7 @@ op1 "Pugs::Internals::eval_perl5" = \v -> do
         codeSafe | safeMode  = "use ops (':default', 'binmode', 'entereval');"
                  | otherwise = ""
         codeVar | null vars = ""
-                | otherwise = "my (" ++ (concat $ intersperse ", " (map (`showsVar` "") vars)) ++ ") = @_;"
+                | otherwise = "my (" ++ (concat $ intersperse ", " (map cast vars)) ++ ") = @_;"
     vals    <- mapM readVar vars
     rv  <- tryIO (Perl5ErrorString "") $ do
         envSV   <- mkEnv env
