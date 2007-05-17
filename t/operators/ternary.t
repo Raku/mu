@@ -52,6 +52,7 @@ is((4 or 5 ?? 6 !! 7), 4, "operator priority");
 }
 
 {
-    my $foo = 1 ?? Bool::True !! Bool::False;
-    pass "a statement with both ??!! and :: in it did compile";
+    # This parses incorrectly because it's parsed as Bool::True(!! Bool::False).
+    my $foo = eval q[ 1 ?? Bool::True !! Bool::False ];
+    is($foo, Bool::True, "a statement with both ??!! and :: in it did compile"), :todo<bug>;
 }
