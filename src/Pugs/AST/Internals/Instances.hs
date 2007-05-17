@@ -58,7 +58,7 @@ _FakeEnv = unsafePerformIO $ stm $ do
     maxi <- newTVar $ MkObjectId 1
     return $ MkEnv
         { envContext = CxtVoid
-        , envLexical = MkPad Map.empty
+        , envLexical = emptyPad
         , envLexPads = []
         , envCaller  = Nothing
         , envCompPad = Nothing
