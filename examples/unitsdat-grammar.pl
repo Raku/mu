@@ -48,35 +48,34 @@ rule basicnumber {
 
 rule simplenumber_mult {
     <basicnumber> { $<num> = $<basicnumber><num> }
-    [ <?ws> <simplenumber_mult> { $<num> *= $<simplenumber_mult><num> }
-    | '/'   <simplenumber_mult> { $<num> /= $<simplenumber_mult><num> }
-    ]
+    [ <?ws> <simplenumber_mult>  { $<num> *= $<simplenumber_mult><num> }
+    | <?ws> <simplenumber_paren> { $<num> *= $<simplenumber_paren><num> }
+    | '/'   <simplenumber_mult>  { $<num> /= $<simplenumber_mult><num> }
+    | '/'   <simplenumber_paren> { $<num> /= $<simplenumber_paren><num> }
+    ]?
 }
 
 rule simplenumber {
-    { my Int $n }
+    { my Int $m; my Int $p; }
     <simplenumber_mult> { $<num> = $<simplenumber_mult>[0]<num> }
-    [ '+'  <simplenumber_mult> { $<num> += $<simplenumber_mult>[++$n]<num> }
-    | '-'  <simplenumber_mult> { $<num> -= $<simplenumber_mult>[++$n]<num> }
+    [ '+'  <simplenumber_mult>  { $<num> += $<simplenumber_mult>[++$m]<num> }
+    | '+'  <simplenumber_paren> { $<num> += $<simplenumber_paren>[++$p]<num> }
+    | '-'  <simplenumber_mult>  { $<num> -= $<simplenumber_mult>[++$m]<num> }
+    | '-'  <simplenumber_paren> { $<num> -= $<simplenumber_paren>[++$p]<num> }
     ]*
 }
 
-rule number_mult {
-    | <simplenumber> { $<num> = $<simplenumber><num> }
-    | <number_mult> { $<num> = $<number_mult>[0]<num> }
-        [ <?ws> <number_mult> { $<num> *= $<number_mult>[1]<num> }
-        | '/'   <number_mult> { $<num> /= $<number_mult>[1]<num> }
-        ]
+rule simplenumber_paren {
+    '('
+    [  <simplenumber>       { $<num> = $<simplenumber><num> }
+    |  <simplenumber_paren> { $<num> = $<simplenumber_paren><num> }
+    ]
+    ')'
 }
 
 rule number {
-    { my Int $n }
-    | <simplenumber> { $<num> = $<simplenumber><num> }
-    | '(' <number_mult> { $<num> = $<number_mult>[0]<num> }
-        [ '+' <number_mult> { $<num> += $<number_mult>[++$n]<num> }
-        | '-' <number_mult> { $<num> -= $<number_mult>[++$n]<num> }
-        ]*
-        ')'
+    |  <simplenumber>       { $<num> = $<simplenumber><num> }
+    |  <simplenumber_paren> { $<num> = $<simplenumber_paren><num> }
 }
 
 token comment { '#' \N* }
@@ -130,35 +129,34 @@ rule basicunitdef {
 
 rule simpleunitdef_mult {
     <basicunitdef> { $<def> = $<basicunitdef><def> }
-    [ <?ws> <simpleunitdef_mult>  { $<def> = multdef($<def>, $<simpleunitdef_mult><def>, 1) }
-    | '/'   <simpleunitdef_mult>  { $<def> = multdef($<def>, $<simpleunitdef_mult><def>, -1) }
-    ]
+    [ <?ws> <simpleunitdef_mult>   { $<def> = multdef($<def>, $<simpleunitdef_mult><def>, 1) }
+    | <?ws> <simpleunitdef_paren>  { $<def> = multdef($<def>, $<simpleunitdef_paren><def>, 1) }
+    | '/'   <simpleunitdef_mult>   { $<def> = multdef($<def>, $<simpleunitdef_mult><def>, -1) }
+    | '/'   <simpleunitdef_paren>  { $<def> = multdef($<def>, $<simpleunitdef_paren><def>, -1) }
+    ]?
 }
 
 rule simpleunitdef {
-    { my Int $n }
+    { my Int $m; my Int $p; }
     <simpleunitdef_mult> { $<def> = $<simpleunitdef_mult>[0]<def> }
-    [ '+'  <simpleunitdef_mult> { $<def> = adddef($<def>, $<simpleunitdef_mult>[++$n]<def>, 1) }
-    | '-'  <simpleunitdef_mult> { $<def> = adddef($<def>, $<simpleunitdef_mult>[++$n]<def>, -1) }
+    [ '+'  <simpleunitdef_mult>  { $<def> = adddef($<def>, $<simpleunitdef_mult>[++$m]<def>, 1) }
+    | '+'  <simpleunitdef_paren> { $<def> = adddef($<def>, $<simpleunitdef_paren>[++$p]<def>, 1) }
+    | '-'  <simpleunitdef_mult>  { $<def> = adddef($<def>, $<simpleunitdef_mult>[++$m]<def>, -1) }
+    | '-'  <simpleunitdef_paren> { $<def> = adddef($<def>, $<simpleunitdef_paren>[++$p]<def>, -1) }
     ]*
 }
 
-rule unitdef_mult {
-    | <simpleunitdef> { $<def> = $<simpleunitdef><def> }
-    | <unitdef_mult>  { $<def> = $<unitdef_mult>[0]<def> }
-        [ <?ws> <unitdef_mult>  { $<def> = multdef($<def>, $<unitdef_mult>[1]<def>, 1) }
-        | '/'   <unitdef_mult>  { $<def> = multdef($<def>, $<unitdef_mult>[1]<def>, -1) }
-        ]
+rule simpleunitdef_paren {
+    '('
+    [ <simpleunitdef>       { $<def> = $<simpleunitdef><def> }
+    | <simpleunitdef_paren> { $<def> = $<simpleunitdef_paren><def> }
+    ]
+    ')'
 }
 
 rule unitdef {
-    { my Int $n }
-    | <simpleunitdef> { $<def> = defreduce($<simpleunitdef><def>) }
-    | '(' <unitdef_mult>  { $<def> = $<unitdef_mult>[0]<def> }
-        [ '+' <unitdef_mult>  { $<def> = adddef($<def>, $<unitdef_mult>[++$n]<def>, 1) }
-        | '-' <unitdef_mult>  { $<def> = adddef($<def>, $<unitdef_mult>[++$n]<def>, -1) }
-        ]*
-        ')' { $<def> = defreduce($<def>) }
+    | <simpleunitdef>       { $<def> = defreduce($<simpleunitdef><def>) }
+    | <simpleunitdef_paren> { $<def> = defreduce($<simpleunitdef_paren><def>) }
 }
 
 # reduce a unit definition to fundamental units
