@@ -2,7 +2,12 @@ use v6-alpha;
 
 use Test;
 
+# eval "sub foo { my $ret = { return 3 }; $ret() }; foo().say;"
+# ./pugs -e 'sub foo { my $ret = { return 3 }; $ret() }; foo().say;'
+
 plan 2;
+skip_rest 'This test is obsolete - See S04 (If you pass a closure object outside of its official "sub" scope, it is illegal to return from it.)';
+exit;
 
 # See thread "return() in pointy blocks" by Ingo Blechschmidt on p6l
 # L<"http://www.nntp.perl.org/group/perl.perl6.language/21745">
