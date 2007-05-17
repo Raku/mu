@@ -23,10 +23,12 @@ localBlock :: RuleParser Exp -> RuleParser BlockInfo
 localBlock m = do
     state   <- get
 
-    compPad <- return $! unsafePerformSTM $! newTVar emptyPad
+    -- XXX - Perhaps clone the protopad right here, for $_ etc?
+    compPad <- newMPad (s_protoPad state)
+
     -- traceM $ "Gen:" ++ show compPad
     let env     = s_env state
-        lexPads = (pad:envLexPads env)
+        lexPads = (PCompiling compPad:envLexPads env)
 
     put state
         { s_closureTraits   = (id : s_closureTraits state)
@@ -56,7 +58,8 @@ localBlock m = do
             }
         , s_closureTraits = outerTraits
         , s_knownVars     = outerKnownVars
-        , s_outerVars     = Map.filter (/= compPad) (s_outerVars state')
+        , s_outerVars     = outerOuterVars
+        , s_protoPad      = emptyPad
         }
 
     -- Re-read compile time refs into the new protos at end of scope.
@@ -66,7 +69,7 @@ localBlock m = do
             proto   <- readPadEntry entry
             let newEntry = entry{ pe_proto = proto }
             return (newEntry `seq` (var, newEntry))
-        newPad <- listToPad (length entries `seq` entries)
+        let newPad = listToPad (length entries `seq` entries)
         writeMPad compPad newPad
         return newPad
     return $ MkBlockInfo{ bi_pad = newPad, bi_body = body, bi_traits = traits }

@@ -3,7 +3,7 @@
 module Pugs.Parser.Types (
     RuleParser, RuleState(..), CharClass(..),
     DynParsers(..), ParensOption(..), FormalsOption(..), BracketLevel(..), OuterLevel,
-    CodeMutator, BlockInfo(..), emptyBlockInfo,
+    BlockInfo(..), emptyBlockInfo,
 
     RuleOperator, RuleOperatorTable,
     getRuleEnv, modifyRuleEnv, putRuleEnv, insertIntoPosition,
@@ -27,7 +27,7 @@ import qualified Data.Set as Set
 
 data BlockInfo = MkBlockInfo
     { bi_pad    :: !Pad
-    , bi_traits :: !CodeMutator
+    , bi_traits :: !(TraitBlocks -> TraitBlocks)
     , bi_body   :: !Exp
     }
 
@@ -139,23 +139,23 @@ State object that gets passed around during the parsing process.
 data RuleState = MkState
     { s_env           :: Env
     , s_parseProgram  :: (Env -> FilePath -> String -> Env)
-    , s_dynParsers    :: DynParsers     -- ^ Cache for dynamically-generated
-                                        --     parsers
-    , s_bracketLevel  :: !BracketLevel  -- ^ The kind of "bracket" we are in
-                                        --     part and has to suppress {..} literals
---  , s_char          :: Char           -- ^ What the previous character contains
---  , s_name          :: !ID            -- ^ Capture name
---  , s_pos           :: !Int           -- ^ Capture position
-    , s_wsLine        :: !Line          -- ^ Last whitespace position
-    , s_wsColumn      :: !Column        -- ^ Last whitespace position
---  , s_blockPads     :: Map Scope Pad  -- ^ Hoisted pad for this block
-    , s_outerVars     :: Map Var (TVar Pad) -- ^ OUTER symbols we remembers, and the scope it associates with
-                                       
+    , s_dynParsers    :: DynParsers         -- ^ Cache for dynamically-generated
+                                            --     parsers
+    , s_bracketLevel  :: !BracketLevel      -- ^ The kind of "bracket" we are in
+                                            --     part and has to suppress {..} literals
+--  , s_char          :: Char               -- ^ What the previous character contains
+--  , s_name          :: !ID                -- ^ Capture name
+--  , s_pos           :: !Int               -- ^ Capture position
+    , s_wsLine        :: !Line              -- ^ Last whitespace position
+    , s_wsColumn      :: !Column            -- ^ Last whitespace position
+--  , s_blockPads     :: Map Scope Pad      -- ^ Hoisted pad for this block
+    , s_knownVars     :: !(Map Var MPad)        -- ^ Map from variables to its associated scope
+    , s_outerVars     :: !(Map MPad (Set Var))  -- ^ Map from scopes to vars that must not be declared in it
+    , s_freeVars      :: !(Set (Var, LexPads))  -- ^ Set of free vars and the mpadlist to check with
+    , s_protoPad      :: !Pad                   -- ^ Pad that's part of all scopes; used in param init
     , s_closureTraits :: [TraitBlocks -> TraitBlocks]
                                        -- ^ Closure traits: head is this block, tail is all outer blocks
     }
-
-type CodeMutator = VCode -> VCode
 
 data BracketLevel
     = ConditionalBracket    -- if ... {}
@@ -249,7 +249,10 @@ Update the 's_blockPads' in the parser's state by applying a transformation func
 -}
 addBlockPad :: Pad -> RuleParser ()
 addBlockPad pad = do
-    -- First we check that our pad does not contain shadows OUTER symbols.
+    -- To add a Pad to the COMPILING block, we do two things:
+    -- First, we check that our pad does not contain shadowed OUTER symbols.
+    -- XXX TODO: it should be fine for two identical padEntry to shadow each other,
+    --     as is the case with { our multi f () {}; { &f(); our multi f ($x) {} } }.
     state <- get
     let myVars          = padKeys pad
         dupVars         = case Map.lookup compPad (s_outerVars state) of

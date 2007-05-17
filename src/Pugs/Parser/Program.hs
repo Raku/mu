@@ -173,6 +173,12 @@ ruleProgram = rule "program" $ do
     main    <- retVerbatimBlock SubPrim Nothing False $
         block{ bi_body = mergeStmts emptyExp $ bi_body block }
 
+    -- We are still in the compile time.
+    modify $ \s -> s{ s_env = (s_env s){ envCompPad = Just (error "no comp pad") } }
+
+    -- Force a reclose-pad evaluation here by way of unsafeEvalExp.
+    main'@(Val (VCode vc)) <- unsafeEvalExp $ Syn "" [unwrap main]
+
     -- S04: CHECK {...}*      at compile time, ALAP
     --  $_() for @*CHECK
     rv <- unsafeEvalExp $ Syn "for"
@@ -189,12 +195,9 @@ ruleProgram = rule "program" $ do
     -- If there was a exit() in a CHECK block, we have to exit.
     possiblyExit rv
 
-    -- Force a reclose-pad evaluation here by way of unsafeEvalExp.
-    main'@(Val (VCode vc)) <- unsafeEvalExp $ Syn "" [unwrap main]
-
     env' <- getRuleEnv
     return $ env'
-        { envBody       = App (Syn "block" [main']) Nothing (replicate (length $ subParams vc) (_Var "$*_")) -- _Var "@*ARGS"]
+        { envBody       = App (Syn "block" [main']) Nothing (replicate (length $ subParams vc) (_Var "$_")) -- _Var "@*ARGS"]
         , envPackage    = envPackage env
         , envCompPad    = Nothing
         }
