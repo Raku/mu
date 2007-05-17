@@ -118,6 +118,7 @@ sub gen_source {
                 push @{ $Config{precompile} ||= [] }, $pathname;
                 next;
             }
+            last if /^=begin\s+END\s*$/;
             print $ofh $_;
         }
     }
