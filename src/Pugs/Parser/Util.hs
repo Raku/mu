@@ -50,7 +50,8 @@ localBlock m = do
             , envLexical = envLexical env
             , envLexPads = envLexPads env
             }
-        , s_closureTraits = s_closureTraits state'
+        , s_closureTraits = outerTraits
+        , s_knownVars     = outerKnownVars
         , s_outerVars     = Map.filter (/= compPad) (s_outerVars state')
         }
 

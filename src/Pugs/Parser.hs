@@ -1275,13 +1275,6 @@ retVerbatimBlock styp formal lvalue block = expRule $ do
             }
     return (Syn "sub" [Val $ VCode sub])
 
-collectTraits :: VCode -> RuleParser VCode
-collectTraits sub = do
-    (withTraitBlocks:prevLevel) <- gets s_closureTraits
-    modify $ \state -> state{ s_closureTraits = if null prevLevel then [id] else prevLevel }
-    return $ sub{ subTraitBlocks = withTraitBlocks (subTraitBlocks sub) }
-
-
 ruleBlockFormalStandard :: RuleParser (SubType, Maybe [Param], Bool)
 ruleBlockFormalStandard = rule "standard block parameters" $ do
     styp <- choice
@@ -2017,18 +2010,15 @@ ruleSigiledVar = (<|> ruleSymbolicDeref) $ do
             -- Algorithm: Navigate outerward to find the first one defined;
             --            record the 
             state <- get
-            let outerLexPad     = envLexical (fromJust outerEnv)
-                outerVisible    = isJust (lookupPad (cast name) outerLexPad)
-                curPads         = Map.elems (s_blockPads state)
-                curVisible      = any (Map.member (cast name) . padEntries) curPads
-                outerEnv        = envOuter (s_env state)
-                inTopLevel      = case outerEnv of
-                    Just env -> isNothing (envOuter env)
-                    _        -> True
-            -- If it's visible in the outer lexical scope, yet not
-            -- defined in the current scope, we remember that fact.
-            when (not inTopLevel && outerVisible && not curVisible) $
-                addOuterVar (cast name)
+
+            let var         = cast name
+                lexPads     = envLexPads (s_env state)
+                freeVars    = s_freeVars state
+                knownVars   = s_knownVars state
+
+            when (var `Map.notMember` knownVars) $ do
+                put state{ s_freeVars = Set.insert (var, lexPads) freeVars }
+
             return (makeVar name)
 
 ruleVar :: RuleParser Exp
