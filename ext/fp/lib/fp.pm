@@ -1,29 +1,30 @@
 module fp-0.0.1;
 
 # Function composition
-multi *infix:<o> (Code &f, Code &g) { sub($x) { f g $x } }
-multi *infix:<∘> (Code &f, Code &g) { sub($x) { f g $x } }
+multi infix:<o> (Code &f, Code &g) is export { sub($x) { f g $x } }
+multi infix:<∘> (Code &f, Code &g) is export { sub($x) { f g $x } }
 
 # Haskell `...` metaoperator
-multi *infix:<`map`>  (Code &f, *@y) { @y.map(&f) }
-multi *infix:<`grep`> (Code &f, *@y) { @y.grep(&f) }
+multi infix:<`map`>  (Code &f, *@y) is export { @y.map(&f) }
+multi infix:<`grep`> (Code &f, *@y) is export { @y.grep(&f) }
 
 # Pair constructor
-multi *infix:<⇒> ($x, $y) { $x => $y }
+multi infix:<⇒> ($x, $y) is export { $x => $y }
 
 # Comparision ops
-multi *infix:<≥> ($a, $b) { $a >= $b }
-multi *infix:<≤> ($a, $b) { $a <= $b }
-multi *infix:<≠> ($a, $b) { $a != $b }
-multi *infix:<≣> ($a, $b) { $a === $b }
-multi *infix:<≡> ($a, $b) { $a === $b }
+multi infix:<≥> ($a, $b) is export { $a >= $b }
+multi infix:<≤> ($a, $b) is export { $a <= $b }
+multi infix:<≠> ($a, $b) is export { $a != $b }
+multi infix:<≣> ($a, $b) is export { $a === $b }
+multi infix:<≡> ($a, $b) is export { $a === $b }
 
 # Misc. mathematical chars
-multi *prefix:<∑>  ($nums) { [+] |$nums }
-multi *prefix:<∏>  ($nums) { [*] |$nums }
-multi *postfix:<!> ($x) { [*] 1..$x }
-# multi ∞()       { Inf } -- doesn't work
-multi *infix:<÷>   ($a, $b) { $a / $b }
+multi prefix:<∑>  ($nums) is export { [+] |$nums }
+multi prefix:<∏>  ($nums) is export { [*] |$nums }
+multi postfix:<!> ($x) is export { [*] 1..$x }
+multi infix:<÷>   ($a, $b) is export { $a / $b }
+
+sub term:<∞>()       is export { Inf } 
 
 # Standard functions of fp
 sub identity($x)  is export { $x }
