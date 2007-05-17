@@ -934,7 +934,13 @@ ruleClosureTrait rhs = tryRule "closure trait" $ do
     unless (Set.null $ Set.delete varTopic params) $
         fail "Closure traits take no formal parameters"
     env <- ask
-    let code = VCode mkSub{ subName = cast name, subBody = fun, subOuterPads = envLexPads env } 
+    let code = VCode mkSub
+            { subName       = cast name
+            , subType       = SubRoutine -- XXX - This should be SubBlock - See Pugs.Monads.enterSub for "displaced" subs
+            , subBody       = fun
+            , subInnerPad   = (bi_pad block)
+            , subOuterPads  = (PCompiling (fromJust $ envCompPad env):envLexPads env)
+            } 
     case name of
         "END"   -> do
             -- We unshift END blocks to @*END at compile-time.
@@ -1282,6 +1288,7 @@ retVerbatimBlock styp formal lvalue block = expRule $ do
     let sub = bi_traits block $ mkCode
             { isMulti       = False
             , subName       = __"<anon>"
+            , subPackage    = envPackage env
             , subOuterPads  = envLexPads env
             , subInnerPad   = bi_pad block
             , subType       = styp
