@@ -477,7 +477,6 @@ inferExpType (App (Var name) invs args) = do
     return (either (const anyType) subReturns sub)
 inferExpType (Ann (Cxt cxt) _) | typeOfCxt cxt /= (mkType "Any") = return $ typeOfCxt cxt
 inferExpType (Ann _ exp) = inferExpType exp
-inferExpType (Pad _ _ exp) = inferExpType exp
 inferExpType (Sym _ _ _ _ exp) = inferExpType exp
 inferExpType (Stmts _ exp) = inferExpType exp
 inferExpType (Syn "," _)    = return $ mkType "List"

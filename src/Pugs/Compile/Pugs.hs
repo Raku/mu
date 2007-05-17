@@ -57,8 +57,6 @@ instance Compile Exp where
         compWith "Syn" [ret (show syn), compile exps]
     compile (Ann ann exp) = do
         compWith "Ann" [ret (show ann), compile exp]
-    compile (Pad scope pad exp) = do
-        compWith "Pad" [ret (show scope), compile pad, compile exp]
     compile (Stmts exp1 exp2) = do
         compWith "Stmts" [compile exp1, compile exp2]
     compile (Val val) = do

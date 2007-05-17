@@ -1157,7 +1157,7 @@ data Exp
     | Syn !String ![Exp]                -- ^ Syntactic construct that cannot
                                         --     be represented by 'App'.
     | Ann !Ann !Exp                     -- ^ Annotation (see @Ann@)
-    | Pad !Scope !Pad !Exp              -- ^ Lexical pad
+--  | Pad !Scope !Pad !Exp              -- ^ Lexical pad
     | Sym !Scope !Var !EntryFlags !Exp !Exp -- ^ Symbol declaration
     | Stmts !Exp !Exp                   -- ^ Multiple statements
     | Prim !([Val] -> Eval Val)         -- ^ Primitive
@@ -1192,7 +1192,7 @@ transformExp f (App a b cs) = do
     f $ App a' b' cs'
 transformExp f (Syn t es) = f =<< liftM (Syn t) (mapM (transformExp f) es)
 transformExp f (Ann a e) = f =<< liftM (Ann a) (transformExp f e)
-transformExp f (Pad s p e) = f =<< liftM (Pad s p) (transformExp f e)
+-- transformExp f (Pad s p e) = f =<< liftM (Pad s p) (transformExp f e)
 transformExp f (Sym s v c i e) = f =<< liftM (Sym s v c i) (transformExp f e)
 transformExp f (Stmts e1 e2) = do 
     e1' <- transformExp f e1
@@ -1218,7 +1218,7 @@ instance Unwrap [Exp] where
 
 instance Unwrap Exp where
     unwrap (Ann _ exp)      = unwrap exp
-    unwrap (Pad _ _ exp)    = unwrap exp
+    -- unwrap (Pad _ _ exp)    = unwrap exp
     unwrap (Sym _ _ _ _ exp)= unwrap exp
     unwrap x                = x
 
@@ -1271,9 +1271,9 @@ extractPlaceholderVars (Var var) vs
 extractPlaceholderVars (Ann ann ex) vs = ((Ann ann ex'), vs')
     where
     (ex', vs') = extractPlaceholderVars ex vs
-extractPlaceholderVars (Pad scope pad ex) vs = ((Pad scope pad ex'), vs')
-    where
-    (ex', vs') = extractPlaceholderVars ex vs
+-- extractPlaceholderVars (Pad scope pad ex) vs = ((Pad scope pad ex'), vs')
+--     where
+--     (ex', vs') = extractPlaceholderVars ex vs
 extractPlaceholderVars (Sym scope var flags ini ex) vs = ((Sym scope var flags ini ex'), vs')
     where
     (ex', vs') = extractPlaceholderVars ex vs

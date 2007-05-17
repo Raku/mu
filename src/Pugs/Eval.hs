@@ -66,13 +66,13 @@ emptyEnv name genPad = stm $ do
     return $ MkEnv
         { envContext = CxtVoid
         , envLexical = mkPad []
-        , envImplicit= Map.empty
+        , envLexPads = []
+        , envCaller  = Nothing
+        , envCompPad = Nothing
         , envLValue  = False
         , envGlobal  = length (show (padKeys globPad)) `seq` glob -- force eval of all sym names
         , envPackage = cast "Main"
         , envEval    = evaluate
-        , envCaller  = Nothing
-        , envOuter   = Nothing
         , envFrames  = emptyFrames
         , envBody    = Val undef
         , envDebug   = Just ref -- Set to "Nothing" to disable debugging
@@ -242,7 +242,7 @@ reduce (Ann (Cxt cxt) exp) = reduceCxt cxt exp
 
 reduce (Ann _ exp) = reduce exp
 
-reduce (Pad scope lexEnv exp) = reducePad scope lexEnv exp
+-- reduce (Pad scope lexEnv exp) = reducePad scope lexEnv exp
 
 reduce (Sym scope name flags init rest) = reduceSym scope name flags init rest
 
@@ -342,7 +342,9 @@ reducePos pos exp = do
         evalExp exp
 
 reducePad :: Scope -> Pad -> Exp -> Eval Val
-reducePad scope lex exp = do
+reducePad _ _ _ = fail "Hey - how did we get here anyway?"
+{- do
+reducePad scope lex exp = fail 
     -- heuristics: if we are repeating ourselves, generate a new TVar.
     lex' <- case scope of
         SMy -> refreshPad lex
@@ -352,6 +354,7 @@ reducePad scope lex exp = do
         { envLexical    = lex' `unionPads` envLexical e
         , envImplicit   = implicits `Map.union` envImplicit e
         }) $ evalExp exp
+-}
 
 {-
 reducePad STemp lex exp = do
@@ -438,7 +441,7 @@ reduceSyn "block" [exp]
         unless (isEmptyParams (subParams sub)) $
             fail "Blocks with implicit params cannot occur at statement level"
         env <- ask
-        enterSub (sub{ subEnv = Just env }) . reduce $ case unwrap (subBody sub) of
+        enterSub sub . reduce $ case unwrap (subBody sub) of
             Syn "block" [exp] -> case unwrap exp of
                 -- Here we have a nested statement-level block: "{ { 3 } }";
                 -- we actually want to create two OUTER blocks, so reduce normally.
@@ -462,18 +465,19 @@ reduceSyn "sub" [exp] = do
             redo
         writeTVar tvar thunk
         return $ Just tvar
+    error "XXX - clone should operate on sub now"
     newBody <- transformExp cloneBodyStates $ subBody sub
     -- add &?BLOCK &?ROUTINE etc here
     return $ VCode sub
-        { subEnv  = Just env
-        , subCont = cont
+        { -- subEnv  = Just env
+          subCont = cont
         , subBody = newBody
         }
     where
-    cloneBodyStates (Pad scope pad exp) | scope <= SMy = do
-        pad' <- clonePad pad
-        return $ Pad scope pad' exp
-    cloneBodyStates x = return x
+--    cloneBodyStates (Pad scope pad exp) | scope <= SMy = do
+--        pad' <- clonePad pad
+--        return $ Pad scope pad' exp
+    cloneBodyStates x = return x -- XXX!
     clonePad pad = stm $ do
         fmap listToPad $ forM (padToList pad) $ \(var, entry) -> do
             let preserveContent   = readTVar . pe_store
@@ -939,9 +943,8 @@ reduceSyn "CCallDyn" (Val (VStr quant):methExp:invExp:args) = do
     findAccum meth typ = do
         found <- findSub meth (Just (Val (VType typ))) args
         case found of
-            Right sub | Just env <- subEnv sub -> do
-                let thisPkg = envPackage env
-                rest <- findAccum meth (cast thisPkg)
+            Right sub -> do
+                rest <- findAccum meth (cast (subPackage sub))
                 return (sub:rest)
             _         -> return []
 
@@ -1419,9 +1422,9 @@ doApply sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args = d
     applyMacroResult _              = fail "Macro did not return an AST, a Str or a Code!"
     fixSub MkCode{ subType = SubPrim } env = env
     fixSub sub env = env
-        { envLexical = subPad sub
-        , envPackage = maybe (envPackage env) envPackage (subEnv sub)
-        , envOuter   = maybe Nothing envOuter (subEnv sub)
+        { -- envLexical = subPad sub -- XXX - fake in-pad knowledge?
+          envPackage = subPackage sub
+        , envLexPads = subLexPads sub
         }
     fixEnv :: Env -> Env
     fixEnv | typ >= SubBlock = id
@@ -1549,8 +1552,8 @@ fromCodeExp x = case x of
     Syn "block" [_]             -> do
         env <- ask
         return $ mkCode
-            { subEnv        = Just env
-            , subType       = SubPrim   -- This is a pseudoblock with no scope
+            { -- subEnv        = Just env - XXX
+              subType       = SubPrim   -- This is a pseudoblock with no scope
             , subParams     = []
             , subBody       = x
             }

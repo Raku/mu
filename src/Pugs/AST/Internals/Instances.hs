@@ -575,9 +575,6 @@ instance YAML Exp where
 	"Ann" -> do
 	    let ESeq [aa, ab] = e
 	    liftM2 Ann (fromYAML aa) (fromYAML ab)
-	"Pad" -> do
-	    let ESeq [aa, ab, ac] = e
-	    liftM3 Pad (fromYAML aa) (fromYAML ab) (fromYAML ac)
 	"Sym" -> do
 	    let ESeq [aa, ab, ac, ad, ae] = e
 	    liftM5 Sym (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae)
@@ -596,15 +593,13 @@ instance YAML Exp where
 	"NonTerm" -> do
 	    let ESeq [aa] = e
 	    liftM NonTerm (fromYAML aa)
-	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["Noop","App","Syn","Ann","Pad","Sym","Stmts","Prim","Val","Var","NonTerm"] ++ " in node " ++ show e
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["Noop","App","Syn","Ann","Sym","Stmts","Prim","Val","Var","NonTerm"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (Noop) = asYAMLcls "Noop"
     asYAML (App aa ab ac) = asYAMLseq "App"
 	   [asYAML aa, asYAML ab, asYAML ac]
     asYAML (Syn aa ab) = asYAMLseq "Syn" [asYAML aa, asYAML ab]
     asYAML (Ann aa ab) = asYAMLseq "Ann" [asYAML aa, asYAML ab]
-    asYAML (Pad aa ab ac) = asYAMLseq "Pad"
-	   [asYAML aa, asYAML ab, asYAML ac]
     asYAML (Sym aa ab ac ad ae) = asYAMLseq "Sym"
 	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae]
     asYAML (Stmts aa ab) = asYAMLseq "Stmts" [asYAML aa, asYAML ab]

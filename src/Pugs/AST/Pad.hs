@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -fglasgow-exts -fparr #-}
 module Pugs.AST.Pad (
   mkPad, diffPads, unionPads, padKeys, filterPad, adjustPad, mergePadEntry, emptyPad,
-  mergeMPads, readMPad, writeMPad
+  mergeMPads, readMPad, writeMPad, appendMPad
 ) where
 import Pugs.Internals
 import Pugs.AST.SIO
@@ -39,6 +39,8 @@ readMPad = stm . readTVar
 writeMPad :: MonadSTM m => MPad -> Pad -> m ()
 writeMPad mp p = stm $ writeTVar mp p
 
+appendMPad :: MonadSTM m => MPad -> Pad -> m ()
+appendMPad mp p = stm $ modifyTVar mp (`unionPads` p)
 
 
 {-|

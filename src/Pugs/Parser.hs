@@ -988,7 +988,7 @@ possiblyExit (Val (VControl (ControlExit exit))) = do
 possiblyExit x = return x
 
 vcode2startBlock :: Val -> RuleParser Exp
-vcode2startBlock code = do
+vcode2startBlock (VCode code) = do
     -- Ok. Now the tricky thing.
     -- This is the general idea:
     -- START { 42 } is transformed into
@@ -1000,17 +1000,22 @@ vcode2startBlock code = do
     -- }
     -- These are the two state variables we need.
     -- This will soon add our two state vars to our pad
+    let mpad = head (subLexPads code)
+
     lexDiff <- unsafeEvalLexDiff $
-        _Sym SState "$?START_RESULT" mempty emptyExp (_Sym SState "$?START_RUN" mempty emptyExp emptyExp)
-    -- And that's the transformation part.
-    return $ Syn "block"        -- The outer block
-        [ Pad SState lexDiff $  -- state ($?START_RESULT, $?START_RUN);
-            Syn "if"
-                [ App (_Var "&postfix:++") Nothing [_Var "$?START_RUN"]
-                , _Var "$?START_RESULT"
-                , Syn "=" [_Var "$?START_RESULT", App (Syn "sub" [Val code]) Nothing []]
-                ]   --  { $?START_RUN++; $?START_RESULT = { 42 }() };
-        ]
+        (_Sym SState "$?START_RESULT" mempty emptyExp) .
+        (_Sym SState "$?START_RUN" mempty emptyExp) $ emptyExp
+    appendMPad mpad lexDiff
+
+    let code' = code{ subBody = body' }
+        body' = Syn "if"
+                    [ App (_Var "&postfix:++") Nothing [_Var "$?START_RUN"]
+                    , _Var "$?START_RESULT"
+                    , Syn "=" [_Var "$?START_RESULT", subBody code]
+                    ]   --  { $?START_RUN++; $?START_RESULT = 42 };
+
+    return $ App (Syn "sub" [Val (VCode code')]) Nothing []
+vcode2startBlock _ = fail "impossible"
 
 vcode2initBlock :: Val -> RuleParser Exp
 vcode2initBlock code = do
