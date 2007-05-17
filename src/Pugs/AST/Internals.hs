@@ -10,7 +10,7 @@ module Pugs.AST.Internals (
     InitDat(..),
     SubAssoc(..), TraitBlocks(..), emptyTraitBlocks,
 
-    MPad, Pad(..), PadEntry(..), EntryFlags(..), PadMutator, -- uses Var, TVar, VRef
+    MPad(..), LexPad(..), LexPads, Pad(..), PadEntry(..), EntryFlags(..), PadMutator, -- uses Var, TVar, VRef
     Param(..), -- uses Cxt, Exp
     Params, -- uses Param
     Bindings, -- uses Param, Exp
@@ -1035,20 +1035,20 @@ instance Ord MPad where
 
 -- | Represents a sub, method, closure etc. -- basically anything callable.
 data VCode = MkCode
-    { isMulti           :: !Bool        -- ^ Is this a multi sub\/method?
-    , subName           :: !ByteString  -- ^ Name of the closure
-    , subType           :: !SubType     -- ^ Type of the closure
-    , subLexPads        :: !LexPads     -- ^ Lexical pads for thie scope
-    , subLexical        :: !Pad         -- ^ Cached merged pads
-    , subEntered        :: !(TVar Bool) -- ^ Whether this pad has been entered before (for runtime)
-    , subPackage        :: !Pkg         -- ^ Package of the subroutine
-    , subAssoc          :: !SubAssoc    -- ^ Associativity
-    , subParams         :: !Params      -- ^ Parameters list
-    , subBindings       :: !Bindings    -- ^ Currently assumed bindings
-    , subSlurpLimit     :: !SlurpLimit  -- ^ Max. number of slurpy arguments
-    , subReturns        :: !Type        -- ^ Return type
-    , subLValue         :: !Bool        -- ^ Is this a lvalue sub?
-    , subBody           :: !Exp         -- ^ Body of the closure
+    { isMulti           :: !Bool                  -- ^ Is this a multi sub\/method?
+    , subName           :: !ByteString            -- ^ Name of the closure
+    , subType           :: !SubType               -- ^ Type of the closure
+    , subOuterPads      :: !LexPads               -- ^ Lexical pads for this scope
+    , subInnerPad       :: !Pad                   -- ^ Inner lexical pad (immutable)
+--  , subLexical        :: !Pad                   -- ^ Cached merged pads
+    , subPackage        :: !Pkg                   -- ^ Package of the subroutine
+    , subAssoc          :: !SubAssoc              -- ^ Associativity
+    , subParams         :: !Params                -- ^ Parameters list
+    , subBindings       :: !Bindings              -- ^ Currently assumed bindings
+    , subSlurpLimit     :: !SlurpLimit            -- ^ Max. number of slurpy arguments
+    , subReturns        :: !Type                  -- ^ Return type
+    , subLValue         :: !Bool                  -- ^ Is this a lvalue sub?
+    , subBody           :: !Exp                   -- ^ Body of the closure
     , subCont           :: !(Maybe (TVar VThunk)) -- ^ Coroutine re-entry point
     , subStarted        :: !(Maybe (TVar Bool))   -- ^ Whether START was run
     , subTraitBlocks    :: !TraitBlocks
@@ -1080,55 +1080,64 @@ See "Pugs.Prim" for more info.
 -}
 mkPrim :: VCode
 mkPrim = MkCode
-    { isMulti = True
-    , subName = cast "&"
-    , subType = SubPrim
-    , subLexPads = []
-    , subPackage = emptyPkg
-    , subAssoc = ANil
-    , subParams = []
-    , subBindings = []
-    , subSlurpLimit = []
-    , subReturns = anyType
-    , subBody = emptyExp
-    , subLValue = False
-    , subCont = Nothing
+    { isMulti        = True
+    , subName        = cast "&"
+    , subType        = SubPrim
+    , subOuterPads   = []
+    , subInnerPad    = emptyPad
+--  , subLexical     = emptyPad
+    , subPackage     = emptyPkg
+    , subAssoc       = ANil
+    , subParams      = []
+    , subBindings    = []
+    , subSlurpLimit  = []
+    , subReturns     = anyType
+    , subBody        = emptyExp
+    , subLValue      = False
+    , subCont        = Nothing
+    , subStarted     = Nothing
     , subTraitBlocks = emptyTraitBlocks
     }
 
 mkSub :: VCode
 mkSub = MkCode
-    { isMulti = False
-    , subName = cast "&"
-    , subType = SubBlock
-    , subLexPads = []
-    , subPackage = emptyPkg
-    , subAssoc = ANil
-    , subParams = []
-    , subBindings = []
-    , subSlurpLimit = []
-    , subReturns = anyType
-    , subBody = emptyExp
-    , subLValue = False
-    , subCont = Nothing
+    { isMulti        = False
+    , subName        = cast "&"
+    , subType        = SubBlock
+    , subOuterPads   = []
+    , subInnerPad    = emptyPad
+--  , subLexical     = emptyPad
+    , subPackage     = emptyPkg
+    , subAssoc       = ANil
+    , subParams      = []
+    , subBindings    = []
+    , subSlurpLimit  = []
+    , subReturns     = anyType
+    , subBody        = emptyExp
+    , subLValue      = False
+    , subCont        = Nothing
+    , subStarted     = Nothing
     , subTraitBlocks = emptyTraitBlocks
     }
 
 mkCode :: VCode
 mkCode = MkCode
-    { isMulti = False
-    , subName = cast "&"
-    , subType = SubBlock
-    , subLexPads = []
-    , subPackage = emptyPkg
-    , subAssoc = ANil
-    , subParams = []
-    , subBindings = []
-    , subSlurpLimit = []
-    , subReturns = anyType
-    , subBody = emptyExp
-    , subLValue = False
-    , subCont = Nothing
+    { isMulti        = False
+    , subName        = cast "&"
+    , subType        = SubBlock
+    , subOuterPads   = []
+    , subInnerPad    = emptyPad
+--  , subLexical     = emptyPad
+    , subPackage     = emptyPkg
+    , subAssoc       = ANil
+    , subParams      = []
+    , subBindings    = []
+    , subSlurpLimit  = []
+    , subReturns     = anyType
+    , subBody        = emptyExp
+    , subLValue      = False
+    , subCont        = Nothing
+    , subStarted     = Nothing
     , subTraitBlocks = emptyTraitBlocks
     } 
 
@@ -1325,18 +1334,10 @@ defaultScalarParam  = buildParam "" "?" "$_" (Var $ cast "$OUTER::_")
 
 type DebugInfo = Maybe (TVar (Map ID String))
 
-data LexPads
-    = PCompiling { pc_pads :: !([MPad]) }
-    | PRuntime
-        { pr_pads   :: !([Pad])
-        , pr_merged :: !Pad
---      , pr_fresh  :: !(TVar Bool)
-        }
-
-
-data LexPads
-    = PRuntime      ![Pad]
-    | PCompiling    ![MPad]
+type LexPads = [LexPad]
+data LexPad
+    = PRuntime      { pr_pad :: !Pad }
+    | PCompiling    { pc_pad :: !MPad }
     deriving (Show, Eq, Ord, Typeable)
 
 {-|
@@ -1347,24 +1348,24 @@ The current environment is stored in the @Reader@ monad inside the current
 if you just want a single field.
 -}
 data Env = MkEnv
-    { envContext :: !Cxt                 -- ^ Current context
-                                         -- ('CxtVoid', 'CxtItem' or 'CxtSlurpy')
-    , envLValue  :: !Bool                -- ^ Are we in an LValue context?
-    , envLexical :: !Pad                 -- ^ Cached lexical pad for variable lookup
-    , envLexPads :: ![TVar Pad]          -- ^ Current lexical pads; MY is leftmost, OUTER is next, etc
-    , envDynPads :: ![Pad]               -- ^ CONTEXT pads; CALLER is leftmost (CALLER::OUTER is not there)
-    , envCompPad :: !(Maybe (TVar Pad))  -- ^ Current COMPILING pad
-    , envGlobal  :: !(TVar Pad)          -- ^ Global pad for variable lookup
-    , envPackage :: !Pkg                 -- ^ Current package
-    , envEval    :: !(Exp -> Eval Val)   -- ^ Active evaluator
-    , envBody    :: !Exp                 -- ^ Current AST expression
-    , envFrames  :: !(Set Frame)         -- ^ Special-markers in the dynamic path
-    , envDebug   :: !DebugInfo           -- ^ Debug info map
-    , envPos     :: !Pos                 -- ^ Source position range
-    , envPragmas :: ![Pragma]            -- ^ List of pragmas in effect
-    , envInitDat :: !(TVar InitDat)      -- ^ BEGIN result information
-    , envMaxId   :: !(TVar ObjectId)     -- ^ Current max object id
-    , envAtomic  :: !Bool                -- ^ Are we in an atomic transaction?
+    { envContext :: !Cxt                -- ^ Current context
+                                        -- ('CxtVoid', 'CxtItem' or 'CxtSlurpy')
+    , envLValue  :: !Bool               -- ^ Are we in an LValue context?
+    , envLexical :: !Pad                -- ^ Cached lexical pad for variable lookup
+    , envLexPads :: !LexPads            -- ^ Current lexical pads; MY is leftmost, OUTER is next, etc
+    , envCaller  :: !(Maybe Env)        -- ^ CALLER pads
+    , envCompPad :: !(Maybe MPad)       -- ^ Current COMPILING pad
+    , envGlobal  :: !MPad               -- ^ Global pad for variable lookup
+    , envPackage :: !Pkg                -- ^ Current package
+    , envEval    :: !(Exp -> Eval Val)  -- ^ Active evaluator
+    , envBody    :: !Exp                -- ^ Current AST expression
+    , envFrames  :: !(Set Frame)        -- ^ Special-markers in the dynamic path
+    , envDebug   :: !DebugInfo          -- ^ Debug info map
+    , envPos     :: !Pos                -- ^ Source position range
+    , envPragmas :: ![Pragma]           -- ^ List of pragmas in effect
+    , envInitDat :: !(TVar InitDat)     -- ^ BEGIN result information
+    , envMaxId   :: !(TVar ObjectId)    -- ^ Current max object id
+    , envAtomic  :: !Bool               -- ^ Are we in an atomic transaction?
     } 
     deriving (Show, Eq, Ord, Typeable) -- don't derive YAML for now
 
@@ -2025,9 +2026,9 @@ _FakeEnv = unsafePerformIO $ stm $ do
     maxi <- newTVar $ MkObjectId 1
     return $ MkEnv
         { envContext = CxtVoid
-        , envLexical = MkPad Map.empty
+        , envLexical = emptyPad
         , envLexPads = []
-        , envDynPads = []
+        , envCaller  = Nothing
         , envCompPad = Nothing
         , envLValue  = False
         , envGlobal  = MkMPad (addressOf glob) glob
