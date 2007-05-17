@@ -451,11 +451,11 @@ common in other SQL DBMSs substituted or added.  Or alternately, it is like
 a subset of QDRDBMS D made to look as much like SQL as possible.  This
 QDRDBMS-native SQL variant always has distinct column names in rowsets,
 requires matching column names for inputs to union/intersect/etc, never
-stores or returns duplicate rows, always uses 2-valued logic (not 3-valued
-logic), and has case-sensitive table/column/etc names and character
-strings.  An application written to use this SQL dialect rather than some
-other dialect should behave more deterministically, and perform faster,
-than ones written to some other SQL dialect, since there is less
+stores or results in duplicate rows, always uses 2-valued logic (not
+(>=3)-valued logic), and has case-sensitive table/column/etc names and
+character strings.  An application written to use this SQL dialect rather
+than some other dialect should behave more deterministically, and perform
+faster, than ones written to some other SQL dialect, since there is less
 indirection involved between what users query and what actually happens to
 implement it.
 

@@ -36,16 +36,32 @@ module QDRDBMS::Engine::Example::Operators-0.0.0 {
     return;
 },
 
-'sys.rtn.Int.sum' => sub (:$v1!, :$v2!) {
-    return dInt( :v($v1.v() + $v2.v()) );
+'sys.rtn.Int.sum' => sub (:$addend1!, :$addend2!) {
+    return dInt( :v($addend1.v() + $addend2.v()) );
 },
 
-'sys.rtn.Int.difference' => sub (:$start!, :$remove!) {
-    return dInt( :v($start.v() - $remove.v()) );
+'sys.rtn.Int.nary_sum' => sub (:$addends!) {
+    my Int $sum = 0;
+    for $addends -> $addend {
+        $sum += $addend.v();
+    }
+    return dInt( :v($sum) );
 },
 
-'sys.rtn.Int.product' => sub (:$v1!, :$v2!) {
-    return dInt( :v($v1.v() * $v2.v()) );
+'sys.rtn.Int.difference' => sub (:$minuend!, :$subtrahend!) {
+    return dInt( :v($minuend.v() - $subtrahend.v()) );
+},
+
+'sys.rtn.Int.product' => sub (:$factor1!, :$factor2!) {
+    return dInt( :v($factor1.v() * $factor2.v()) );
+},
+
+'sys.rtn.Int.nary_product' => sub (:$factors!) {
+    my Int $product = 1;
+    for $factors -> $factor {
+        $product *= $factor.v();
+    }
+    return dInt( :v($product) );
 },
 
 'sys.rtn.Int.quotient' => sub (:$dividend!, :$divisor!) {

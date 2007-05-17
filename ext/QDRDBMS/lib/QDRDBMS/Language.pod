@@ -99,11 +99,11 @@ documentation, the latter in particular because it implies ordinality.
 =item relation, relvar, relcon
 
 A I<relation> is like an unordered homogeneous set of I<tuple> where all
-member tuples have identical cardinality and name-sets, but that a relation
-data type knows what its allowed names are even if it has no tuples.  Like
-with I<tuple>, the term I<relation> legitimately refers to a set or
-"ordinal tuple" in other contexts, but it does not in this documentation.
-Terms like I<record set> or I<row set> or I<table> are not used in this
+member tuples have identical degree and name-sets, but that a relation data
+type knows what its allowed names are even if it has no tuples.  Like with
+I<tuple>, the term I<relation> legitimately refers to a set or "ordinal
+tuple" in other contexts, but it does not in this documentation.  Terms
+like I<record set> or I<row set> or I<table> are not used in this
 documentation, the last 2 in particular because they imply a significance
 to the order of tuples, where there is none in a relation.  Moreover, the
 term I<domain> does not mean the same thing as I<relation>, and neither
@@ -118,7 +118,7 @@ associated through foreign key constraints.
 
 A I<function> is a routine whose invocation is used as a value expression,
 and it conceptually serves as a map between the domains of its parameters
-and its return value.  A I<function> is not the same as a I<relation>,
+and its result value.  A I<function> is not the same as a I<relation>,
 though both can be used as maps between values.  Besides their conceptual
 difference in QDRDBMS D as a routine vs a value, a selected I<relation>
 value in QDRDBMS D is always finite, and hence so is the cardinality of
@@ -324,7 +324,7 @@ by the same single selector, and which has no proper supertype that is a
 root type.  All root types are mutually disjoint, so every value is a
 member of exactly one root type.  Generally speaking, root types are the
 implementational foundation over which all operators and all other types
-are built, and the declared parameter and return types of most
+are built, and the declared parameter and result types of most
 system-defined operators are root types.  The 6 core system-defined root
 types are: C<Bool>, C<Text>, C<Blob>, C<Int>, C<Tuple>, C<Relation>.  All
 user-defined root types are scalar types that are defined not in terms of
@@ -662,16 +662,17 @@ argument values come by way of a single nonscalar-type parameter.
 =item C<function>
 
 A C<function> is an explicitly invokable read-only operator whose
-invocation both returns and represents a value of a specific data type;
-this invocation can only exist as part of a value-expression of another
-routine.  A C<function> is pure and deterministic in the
-functional-language sense, such that all of its 0..N parameters are
-read-only / not subject to update, and that it can only see or influence
-its own lexical variables, if it has any (no globals), and that it can only
-invoke C<function> and C<update_operator> routines.  The vast majority of
-invokable system-defined routines are C<function>; they include all value
-selectors, and the typical numeric, string, and relational operators,
-such that you would compose a typical database "select" query out of.
+invocation both results in and represents a value of a specific data type
+(that is the function's I<result type> or I<declared type>; this invocation
+can only exist as part of a value-expression of another routine.  A
+C<function> is pure and deterministic in the functional-language sense,
+such that all of its 0..N parameters are read-only / not subject to update,
+and that it can only see or influence its own lexical variables, if it has
+any (no globals), and that it can only invoke C<function> and
+C<update_operator> routines.  The vast majority of invokable system-defined
+routines are C<function>; they include all value selectors, and the typical
+numeric, string, and relational operators, such that you would compose a
+typical database "select" query out of.
 
 =item C<update_operator>
 
@@ -681,7 +682,7 @@ that can only see or influence its own lexical variables (no globals); it
 can only be invoked as the root part of a statement in another routine.  An
 C<update_operator> can only invoke C<function> and C<update_operator>
 routines, and it is much like a C<function>, including being deterministic,
-but that its return value is via a parameter.  Most non C<function>
+but that its result value is via a parameter.  Most non C<function>
 system-defined routines are C<update_operator>; they include all C<assign>
 operators, plus some relational-assignment short-hands such as "insert",
 "update", "delete".
@@ -717,15 +718,15 @@ result is fundamentally random and non-repeatable.
 
 A C<type_constraint> is an implicitly invokable routine that is associated
 with / is part of a data type definition and is invoked automatically when
-a value of that type is being selected; it asserts whether said
-value, which by this time is known to be acceptable to the current data
-type's more generic supertype, is within the data type's own more
-restricted domain.  This routine can only see its own lexical variables (no
-globals).  This routine has 1 read-only parameter, which is the value to
-examine, and it returns a Bool.  The DBMS would then throw a
-type-constraint-violation exception if the constraint returns False, and
-no-op if it returns True.  Conceptually speaking, a C<type_constraint> will
-execute before any other kinds of constraints.
+a value of that type is being selected; it asserts whether said value,
+which by this time is known to be acceptable to the current data type's
+more generic supertype, is within the data type's own more restricted
+domain.  This routine can only see its own lexical variables (no globals).
+This routine has 1 read-only parameter, which is the value to examine, and
+it results in a Bool.  The DBMS would then throw a
+type-constraint-violation exception if the constraint results in False, and
+no-op if it results in True.  Conceptually speaking, a C<type_constraint>
+will execute before any other kinds of constraints.
 
 =item C<state_constraint>
 
@@ -733,8 +734,8 @@ A C<state_constraint> is an implicitly invokable routine that can see
 global variables and is invoked automatically at the end of every statement
 that the DBMS executes, wherein it asserts that all global variables are
 collectively in a valid state; it can see said variables directly, but
-updates none.  This routine has no parameters and returns a Bool.  The DBMS
-responds as per a type constraint; if the constraint fails, then the
+updates none.  This routine has no parameters and results in a Bool.  The
+DBMS responds as per a type constraint; if the constraint fails, then the
 just-executed statement is rolled back, and an exception is thrown.
 Conceptually speaking, a C<state_constraint> will execute after all
 C<type_constraint> and before all C<transition_constraint>.
@@ -747,9 +748,9 @@ that the DBMS executes, wherein it asserts that all global variables have
 collectively transitioned in a valid fashion between their before-update
 state and their after-update state; it can see both versions of said
 variables directly, but updates none.  This routine has no parameters and
-returns a Bool.  The DBMS responds as per a state constraint.  Conceptually
-speaking, a C<transition_constraint> will execute after all other kinds of
-constraints.
+results in a Bool.  The DBMS responds as per a state constraint.
+Conceptually speaking, a C<transition_constraint> will execute after all
+other kinds of constraints.
 
 =item C<host_gate>
 
@@ -1035,7 +1036,7 @@ value is one.
 These nonscalar data types, C<Tuple|Relation|Database|Set|Seq|Bag>,
 permit transparent/user-visible compositions of multiple values into other
 conceptual values.  Unlike with scalar types in general, every
-system-defined selector for nonscalar values will return values that are
+system-defined selector for nonscalar values will result in values that are
 of proper subtypes of the 2 nonscalar root types (the first 2), and none
 whose most specific type is "just" one of those 2.  Moreover, every such
 most-specific type has explicit element types or attribute lists defined;
@@ -1048,26 +1049,27 @@ wholly dependent on the data types they are composed of.
 =item C<sys.type.Tuple>
 
 A C<Tuple> is an unordered heterogeneous collection of 0..N named
-attributes, where all attribute names are mutually distinct, and each
-attribute may be of distinct selectable types; the mapping of a tuple's
-attribute names and their declared data types is called the tuple's
-I<heading>.  Its default value is a zero-attribute tuple.  The cardinality
-of this type is equal to the product of the number of permutations drawable
-from the values of each of its attributes' declared data types; for a
-C<Tuple> subtype to be finite, all of its attribute types must be.
+attributes (the count of attributes being its I<degree>), where all
+attribute names are mutually distinct, and each attribute may be of
+distinct selectable types; the mapping of a tuple's attribute names and
+their declared data types is called the tuple's I<heading>.  Its default
+value is a zero-attribute tuple.  The cardinality of this type is equal to
+the product of the number of permutations drawable from the values of each
+of its attributes' declared data types; for a C<Tuple> subtype to be
+finite, all of its attribute types must be.
 
 =item C<sys.type.Relation>
 
 A C<Relation> is analagous to a set of 0..N tuples where all tuples have
-the same heading (all attribute names and corresponding declared data types
-match), but that a C<Relation> data type still has its own corresponding
-heading (attribute names and declared data types) even when it consists of
-zero tuples.  Its default value is a zero-attribute and zero-tuple
-relation.  Matters of its cardinality are generally the same as for
-C<Tuple>.  A Relation data type can also have (unique) keys each defined
-over a subset of its attributes, which constrain its set of values relative
-to there being no explicit keys, but having the keys won't turn an infinite
-Relation type into a finite one.
+the same heading (the degrees match and all attribute names and
+corresponding declared data types match), but that a C<Relation> data type
+still has its own corresponding heading (attribute names and declared data
+types) even when it consists of zero tuples.  Its default value is a
+zero-attribute and zero-tuple relation.  Matters of its cardinality are
+generally the same as for C<Tuple>.  A Relation data type can also have
+(unique) keys each defined over a subset of its attributes, which constrain
+its set of values relative to there being no explicit keys, but having the
+keys won't turn an infinite Relation type into a finite one.
 
 =item C<sys.type.Database>
 
@@ -1356,31 +1358,31 @@ functions may not be needed for initial selection of them either.
 
 =item C<sys.rtn.Bool.False of Bool ()>
 
-This selector function returns the False boolean value.
+This selector function results in the False boolean value.
 
 =item C<sys.rtn.Bool.True of Bool ()>
 
-This selector function returns the True boolean value.
+This selector function results in the True boolean value.
 
 =item C<sys.rtn.Blob_from_bin_digit_Text of Blob (Text $text)>
 
-This selector function returns the Blob value that its C<Text> argument
+This selector function results in the Blob value that its C<Text> argument
 maps to when each input character is a [0..1] and represents a bit.
 
 =item C<sys.rtn.Blob_from_hex_digit_Text of Blob (Text $text)>
 
-This selector function returns the Blob value that its C<Text> argument
+This selector function results in the Blob value that its C<Text> argument
 maps to when each input character is a [0..F] and represents a hex digit.
 
 =item C<sys.rtn.Int_from_dec_digit_Text of Int (Text $text)>
 
-This selector function returns the Int value that its C<Text> argument maps
-to when the whole character string is evaluated as a base-10 integer.
+This selector function results in the Int value that its C<Text> argument
+maps to when the whole character string is evaluated as a base-10 integer.
 
 =item C<sys.rtn.Int_from_hex_digit_Text of Int (Text $text)>
 
-This selector function returns the Int value that its C<Text> argument maps
-to when the whole character string is evaluated as a base-16 integer.
+This selector function results in the Int value that its C<Text> argument
+maps to when the whole character string is evaluated as a base-16 integer.
 
 =back
 
@@ -1453,7 +1455,7 @@ entities, including data types, operators, and all catalogs.
 
 These are some system-defined constants that hold values commonly useful in
 user-defined routines; providing the constants this way is an alternative
-to defining niladic functions which return them.  Moreover, certain
+to defining niladic functions which result in them.  Moreover, certain
 system-defined functions that do have arguments may also or alternately
 have analagous 2+ degree relcons here for use as lookup tables.
 

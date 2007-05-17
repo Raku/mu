@@ -1240,7 +1240,7 @@ object.  The C<fetch_ast()> and C<store_ast()> methods of a
 C<QDRDBMS::Interface::HostGateVar> object will get or set that object's
 primary value attribute, which is any C<QDRDBMS::AST::Node>.  The C<Var>
 objects are bound to C<Rtn> objects, and they are the means by which an
-executed routine obtains input or returns output at C<execute()> time.
+executed routine accepts input or provides output at C<execute()> time.
 
 =head2 AST Node Values Versus Representations
 
