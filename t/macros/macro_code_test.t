@@ -1,10 +1,8 @@
 use v6-alpha;
 use Test;
 
-plan 1;
-skip_rest "This file was in t_disabled/.  Remove this SKIP of it now works.";
-exit;
 
+plan 3;
 # Avoiding accidental multiple execution 
 # as occurs in C's defines and lisp macros
 # This can also ensure a correct order of evaluation
@@ -30,11 +28,11 @@ my ($x, $y) = (1,2);
 
 my $got = max($x++, $y++);
 
-say qc'$x = {$x} $y = {$y}';
+# say qc'$x = {$x} $y = {$y}';
 
-is($x,   2, '$x incremented once');
-is($y,   3, '$x incremented once');
-is($got, 3, '$got incremented max');
+is($x,   2, '$x incremented once', :todo<unspecced>);
+is($y,   3, '$x incremented once', :todo<unspecced>);
+is($got, 3, '$got incremented max', :todo<unspecced>);
 
 =pod
 
