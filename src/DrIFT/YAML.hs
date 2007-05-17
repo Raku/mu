@@ -8,12 +8,10 @@ import Data.Typeable
 import Data.Char
 import Control.Exception
 import Control.Concurrent.STM
-import Foreign.StablePtr
 import Foreign.Ptr
 import Control.Monad.Reader
 import GHC.PArr
 import Data.IORef
-import Foreign.C.Types
 import Data.Bits
 import Data.List	( foldl' )
 import Data.Int		( Int32, Int64 )
