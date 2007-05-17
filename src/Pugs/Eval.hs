@@ -450,7 +450,7 @@ reduceSyn "block-perl5" args = do
     reduceApp (_Var "&Pugs::Internals::eval_perl5") Nothing args
 
 reduceSyn "sub" [exp] = do
-    (VCode sub) <- enterEvalContext (cxtItem "Code") exp
+    sub  <- fromCodeExp exp
     env  <- ask
     cont <- if subType sub /= SubCoroutine then return Nothing else stm $ do
         tvar <- newTVar (error "empty sub")

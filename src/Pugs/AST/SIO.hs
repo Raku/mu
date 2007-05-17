@@ -53,6 +53,9 @@ instance Functor SIO where
 class (Monad m, Functor m) => MonadSTM m where
     liftSIO :: SIO a -> m a
     liftSIO = fail "liftSIO not detailed for this monad"
+    {-# SPECIALISE liftSTM :: STM a -> STM a #-}
+    {-# SPECIALISE liftSTM :: STM a -> IO a #-}
+    {-# SPECIALISE liftSTM :: STM a -> SIO a #-}
     liftSTM :: STM a -> m a
 
 instance MonadSTM STM where
@@ -70,6 +73,7 @@ instance MonadSTM SIO where
 instance MonadIO SIO where
     liftIO io = MkIO io
 
+{-# INLINE stm #-}
 stm :: (MonadSTM m) => STM a -> m a
 stm = liftSTM
 

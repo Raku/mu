@@ -194,5 +194,6 @@ ruleProgram = rule "program" $ do
     return $ env'
         { envBody       = App (Syn "block" [main']) Nothing (replicate (length $ subParams vc) (_Var "$*_")) -- _Var "@*ARGS"]
         , envPackage    = envPackage env
+        , envCompPad    = Nothing
         }
 

@@ -1037,20 +1037,19 @@ vcode2startBlock (VCode code) = do
 vcode2startBlock _ = fail "impossible"
 
 vcode2initBlock :: Val -> RuleParser Exp
-vcode2initBlock code = do
-    body    <- vcode2startBlock code
-    let fstcode = Syn "sub" [ Val $ VCode mkSub { subBody = body } ]
+vcode2initBlock ~(VCode code) = do
+    code'   <- vcode2memoized code
     Val res <- unsafeEvalExp $
-        App (_Var "&push") (Just $ _Var "@*INIT") [ fstcode ]
-    return (res `seq` App fstcode Nothing [])
+        App (_Var "&push") (Just $ _Var "@*INIT") [ Val (VCode code') ]
+    return (res `seq` App (Val (VCode code')) Nothing [])
 
 vcode2checkBlock :: Val -> RuleParser Exp
 vcode2checkBlock code = do
     body    <- vcode2startBlock code
     let fstcode = Syn "sub" [ checkForIOLeak mkSub{ subBody = body } ]
     Val res <- unsafeEvalExp $
-        App (_Var "&unshift") (Just $ _Var "@*CHECK") [ fstcode ]
-    return (res `seq` App fstcode Nothing [])
+        App (_Var "&unshift") (Just $ _Var "@*CHECK") [ Val (VCode code') ]
+    return (res `seq` App (Val (VCode code')) Nothing [])
 
 -- Constructs ------------------------------------------------
 

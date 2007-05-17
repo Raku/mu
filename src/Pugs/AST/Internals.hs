@@ -41,7 +41,7 @@ module Pugs.AST.Internals (
     VMultiCode(..),
 
     IVar(..), -- uses *Class and V*
-    IArray, IArraySlice, IHash, IScalar, IScalarProxy,
+    IArray(..), IArraySlice, IHash, IScalar, IScalarProxy,
     IScalarLazy, IPairHashSlice, IRule, IHandle, IHashEnv(..),
     IScalarCwd(..),
 
@@ -1462,6 +1462,7 @@ writePadEntry x                 v = stm (writeTVar (pe_store x) v)
 refreshPad :: Pad -> Eval Pad
 refreshPad pad = do
     fmap listToPad $ forM (padToList pad) $ \(name, entry) -> do
+        -- warn "Refreshing pad entry" (name, entry)
         entry' <- case entry of
             PELexical{ pe_proto = proto } -> stm $ do
                 ref     <- cloneRef proto

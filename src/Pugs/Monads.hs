@@ -25,7 +25,7 @@ module Pugs.Monads (
 
     reclosePad, recloseCode,
     
-    MaybeT, runMaybeT,
+    MaybeT, runMaybeT
 ) where
 import Pugs.Internals
 import Pugs.AST
@@ -277,12 +277,10 @@ enterSub sub action
                 doFix <- fixEnv cc env pad
                 local doFix runAction
         runBlocks (filter (rejectKeepUndo rv . subName) . subLeaveBlocks)
-
     when (rv == VControl (ControlLoop LoopLast)) $
         -- We won't have a chance to run the LAST block
         -- once we exit outside the lexical block, so do it now
         runBlocks subLastBlocks
-
     assertBlocks subPostBlocks "POST"
     case rv of
         VControl l@(ControlLeave ftyp depth val) -> do
@@ -310,6 +308,10 @@ enterSub sub action
     assertBlocks f name = forM_ (f (subTraitBlocks sub)) $ \cv -> do
         rv <- fromVal =<< (evalExp . Syn "block" . (:[]) . Syn "sub" . (:[]) . Val . castV $ cv)
         if rv then return () else die (name ++ " assertion failed") (subName sub)
+    runBlocks' f = mapM_ (evalExp . Syn "block'" . (:[]) . Syn "sub" . (:[]) . Val . castV) (f (subTraitBlocks sub))
+    assertBlocks' f name = forM_ (f (subTraitBlocks sub)) $ \cv -> do
+        rv <- fromVal =<< (evalExp . Syn "block'" . (:[]) . Syn "sub" . (:[]) . Val . castV $ cv)
+        if rv then return () else die (name ++ " assertion failed") (subName sub)
     typ = subType sub
     doCC :: (Val -> Eval b) -> [Val] -> Eval b
     doCC cc []  = cc undef
@@ -327,6 +329,14 @@ enterSub sub action
             subRec    <- genRecSym
             return $ \e -> e
                 { envLexical = subRec (envLexical env `mappend` pad)
+                , envPackage = subPackage sub
+                , envLexPads = (PRuntime pad:envLexPads env)
+                }
+        | AKInline <- appKind = do
+            -- Entering an inline call.
+            subRec    <- genRecSym
+            return $ \e -> e
+                { envLexical = subRec (pad `mappend` envLexical env)
                 , envPackage = subPackage sub
                 , envLexPads = (PRuntime pad:envLexPads env)
                 }
