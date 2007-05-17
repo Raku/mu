@@ -144,6 +144,16 @@ instance Pretty VHash where
         , text "}"
         ]
 
+instance Pretty LexPads where
+    format xs = hsep (punctuate comma (map format xs))
+
+instance Pretty LexPad where
+    format (PRuntime p) = format p
+    format (PCompiling p) = format p
+
+instance Pretty MPad where
+    format = text . show
+
 instance Pretty Val where
     format (VJunc j) = parens $ joinList mark items 
         where
@@ -178,7 +188,9 @@ instance Pretty Val where
 -}
     format (VRef x) = format x
     format (VList x) = format x
-    format (VCode x) = (<> braces (format $ subBody x)) . (<+> format (subInnerPad x)) . (<> format (subParams x)) . text $ case subType x of
+    format (VCode x) = (<> braces (format $ subBody x)) .
+        (<+> format (subOuterPads x)) .
+        (<+> format (subInnerPad x)) . (<> format (subParams x)) . text $ case subType x of
         SubMacro        -> "macro "
         SubRoutine      -> "sub "
         SubMethod       -> "method "

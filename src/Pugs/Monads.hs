@@ -312,7 +312,7 @@ enterSub sub action
     fixEnv :: (Val -> Eval Val) -> Env -> Pad -> Eval (Env -> Env)
     fixEnv cc env pad
         | typ >= SubBlock = do
-            -- Entering a block.
+            -- Entering a block. - XXX - If this is a "displaced" block we need to swap in subOuterPads too.
             blockRec  <- genSym (cast "&?BLOCK") (codeRef (orig sub))
             return $ \e -> e
                 { envLexical = combine [blockRec] (envLexical env `mappend` pad)
