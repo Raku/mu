@@ -107,7 +107,7 @@ Mini HowTo: How to port Perl 5 modules to Perl 6
       (?>(\d*))         (\d*):                  # () is still single atom
       (?>...)           [...]:                  # multiple atoms need []
 
-      (?(c)t|f)         [ c :: t | f ]
+      (?(c)t|f)         [ c :: t || f ]
 
       s/foo/bar()/e     -> s/foo/{ bar() }/
       m/^foo$/s         -> m/^foo$/
