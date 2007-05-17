@@ -167,8 +167,7 @@ genPadEntryScoped scope ref flags
         return (PEStatic typ ref flags tvar)
     | otherwise = stm $ do
         tvar    <- newTVar ref
-        fresh   <- newTVar True
-        return (PELexical typ ref flags tvar fresh)
+        return (PELexical typ ref flags tvar)
     where
     typ = refType ref
 
