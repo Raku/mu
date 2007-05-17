@@ -11,6 +11,7 @@ import Control.Concurrent.STM
 import Foreign.Ptr
 import Control.Monad.Reader
 import GHC.PArr
+import System.IO.Unsafe
 import Data.IORef
 import Data.Bits
 import Data.List	( foldl' )
@@ -40,10 +41,13 @@ showYaml x = do
     emitYaml node
 
 showYamlCompressed :: YAML a => a -> IO String
+showYamlCompressed = showYaml
+{-do
 showYamlCompressed x = do
     node    <- toYamlNode x
     node'   <- compressYamlNode node
     emitYaml node'
+    -}
 
 type EmitAs = ReaderT SeenCache IO
 
@@ -228,16 +232,31 @@ instance (YAML a, YAML b, YAML c) => YAML (a, b, c) where
         return (x', y', z')
     fromYAMLElem e = fail $ "no parse: " ++ show e
 
+{-# NOINLINE seen #-}
+seen :: Hash.HashTable SYMID Any
+seen = unsafePerformIO (Hash.new (==) fromIntegral)
+
 instance (Typeable a, YAML a) => YAML (TVar a) where
     asYAML = asYAMLwith (lift . atomically . readTVar)
-    fromYAML = (newTVarIO =<<) . fromYAML
+    fromYAML x = do
+        -- If this node is seen, then don't bother -- just read from it.
+        let nid = n_id x
+        rv  <- Hash.lookup seen nid
+        case rv of
+            Just x  -> return (unsafeCoerce# x)
+            _       -> do
+                tv  <- newTVarIO (error "moose")
+                Hash.insert seen nid (unsafeCoerce# tv)
+                j   <- fromYAML x
+                atomically (writeTVar tv j)
+                return tv
     fromYAMLElem = (newTVarIO =<<) . fromYAMLElem
 
 asYAMLanchor :: a -> EmitAs YamlNode -> EmitAs YamlNode
 asYAMLanchor x m = do
     cache   <- ask
     seen    <- liftIO $ readIORef cache
-    let ptr = -(fromEnum (addressOf x))
+    let ptr = fromEnum (addressOf x)
     if IntSet.member ptr seen
         then return nilNode{ n_anchor = AReference ptr } 
         else do
@@ -280,7 +299,8 @@ compressYamlNode node = do
     visitNode node'
 
 eqNode :: YamlNode -> YamlNode -> Bool
-eqNode x y = (n_tag x == n_tag y) && eqElem (n_elem x) (n_elem y)
+eqNode x@MkNode{ n_anchor = ASingleton } y@MkNode{ n_anchor = ASingleton } = (n_tag x == n_tag y) && eqElem (n_elem x) (n_elem y)
+eqNode _ _ = False
 
 eqElem :: YamlElem -> YamlElem -> Bool
 eqElem ENil         ENil        = True
@@ -318,6 +338,8 @@ visitElem (EMap ps)      = fmap EMap (mapM visitPair ps)
 visitElem e             = return e
 
 markNode :: (?seenHash :: SeenHash, ?duplHash :: DuplHash) => YamlNode -> IO YamlNode
+markNode node@MkNode{ n_anchor = AReference r } = return node{ n_id = toEnum r }
+markNode node@MkNode{ n_anchor = AAnchor r } = return node{ n_id = toEnum r + 1 }
 markNode node = do
     (symid32, elem')    <- markElem (n_elem node)
     let node' = node{ n_id = symid }

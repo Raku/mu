@@ -231,7 +231,13 @@ type BadAnchorTable = Hash.HashTable Int YamlNode
 
 nodeCallback :: BadAnchorTable -> SyckParser -> SyckNode -> IO SYMID
 nodeCallback badancs parser syckNode = mdo
+    nodeId  <- #{peek SyckNode, id} syckNode
     kind    <- syckNodeKind syckNode
+
+    let makeRegularNode = do
+        len     <- syckNodeLength kind syckNode
+        parseNode kind parser syckNode len nodeId
+
     node    <- case kind of
         SyckMap -> do
             rv  <- Hash.lookup badancs (syckNode `minusPtr` nullPtr)
@@ -239,12 +245,11 @@ nodeCallback badancs parser syckNode = mdo
                 Just{}  -> do
                     -- print ("bad anchor wanted", syckNode)
                     unsafeInterleaveIO (fmap fromJust (Hash.lookup badancs (nodePtr `minusPtr` nullPtr)))
-                _       -> makeRegularNode kind
-        _       -> makeRegularNode kind
+                _       -> makeRegularNode
+        _       -> makeRegularNode
     nodePtr <- writeNode node
 
     -- Do something here about circular refs.
-    nodeId  <- #{peek SyckNode, id} syckNode
     case nodeId :: SYMID of
         0   -> return False
         _   -> alloca $ \origPtr -> do
@@ -254,11 +259,8 @@ nodeCallback badancs parser syckNode = mdo
             Hash.update badancs (ptr `minusPtr` nullPtr) node
 
     symId   <- syck_add_sym parser nodePtr
+
     return (fromIntegral symId)
-    where
-    makeRegularNode kind = do
-        len     <- syckNodeLength kind syckNode
-        parseNode kind parser syckNode len
 
 badAnchorHandlerCallback :: BadAnchorTable -> SyckBadAnchorHandler
 badAnchorHandlerCallback badancs parser cstr = do
@@ -340,8 +342,8 @@ syckNodeLength SyckMap = (#{peek struct SyckMap, idx} =<<) . #{peek SyckNode, da
 syckNodeLength SyckSeq = (#{peek struct SyckSeq, idx} =<<) . #{peek SyckNode, data}
 syckNodeLength SyckStr = (#{peek struct SyckStr, len} =<<) . #{peek SyckNode, data}
 
-parseNode :: SyckKind -> SyckParser -> SyckNode -> CLong -> IO YamlNode
-parseNode SyckMap parser syckNode len = do
+parseNode :: SyckKind -> SyckParser -> SyckNode -> CLong -> SYMID -> IO YamlNode
+parseNode SyckMap parser syckNode len nid = do
     tag   <- syckNodeTag syckNode
     pairs <- (`mapM` [0..len-1]) $ \idx -> do
         keyId   <- syck_map_read syckNode 0 idx
@@ -349,20 +351,20 @@ parseNode SyckMap parser syckNode len = do
         valId   <- syck_map_read syckNode 1 idx
         val     <- readNode parser valId
         return (key, val)
-    return $ nilNode{ n_elem = EMap pairs, n_tag = tag}
+    return $ nilNode{ n_elem = EMap pairs, n_tag = tag, n_id = nid }
 
-parseNode SyckSeq parser syckNode len = do
+parseNode SyckSeq parser syckNode len nid = do
     tag   <- syckNodeTag syckNode
     nodes <- (`mapM` [0..len-1]) $ \idx -> do
         symId   <- syck_seq_read syckNode idx
         readNode parser symId
-    return $ nilNode{ n_elem = ESeq nodes, n_tag = tag }
+    return $ nilNode{ n_elem = ESeq nodes, n_tag = tag, n_id = nid }
 
-parseNode SyckStr _ syckNode len = do
+parseNode SyckStr _ syckNode len nid = do
     tag   <- syckNodeTag syckNode
     cstr  <- syck_str_read syckNode
     buf   <- copyCStringLen (cstr, fromEnum len)
-    let node = nilNode{ n_elem = EStr buf, n_tag = tag }
+    let node = nilNode{ n_elem = EStr buf, n_tag = tag, n_id = nid }
     if tag == Nothing && Buf.length buf == 1 && Buf.index buf 0 == '~'
         then do
             style <- syck_str_style syckNode
