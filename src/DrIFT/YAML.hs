@@ -235,24 +235,37 @@ instance (YAML a, YAML b, YAML c) => YAML (a, b, c) where
 seen :: Hash.HashTable SYMID Any
 seen = unsafePerformIO (Hash.new (==) fromIntegral)
 
+cleanSeen :: IO ()
+cleanSeen = do
+    kvs <- Hash.toList seen
+    mapM_ (Hash.delete seen . fst) kvs
+
 instance (Typeable a, YAML a) => YAML (TVar a) where
     asYAML x = do -- asYAMLanchor x $ do
         -- asYAMLseq "TVar" . (:[]) $ do
             content <- (lift . atomically . readTVar) x
             asYAML content
-    fromYAML x = do
+    fromYAML = (newTVarIO =<<) . fromYAML
+    fromYAMLElem = (newTVarIO =<<) . fromYAMLElem
+    {-
+    fromYAML n@MkNode{n_id=nid} = do
         -- If this node is seen, then don't bother -- just read from it.
-        let nid = n_id x
         rv  <- Hash.lookup seen nid
         case rv of
-            Just x  -> return (unsafeCoerce# x)
+            Just x  -> do
+                -- print ("hit", nid)
+                return (unsafeCoerce# x)
             _       -> do
+                -- print ("stored", nid)
                 tv  <- newTVarIO (error $ "value of TV demanded before cycle completes: " ++ show (typeOf (undefined :: a)))
                 Hash.insert seen nid (unsafeCoerce# tv)
-                j   <- fromYAML x
+                j   <- fromYAML n
                 atomically (writeTVar tv j)
                 return tv
-    fromYAMLElem = (newTVarIO =<<) . fromYAMLElem
+    -}
+{-
+    fromYAML node = do
+        fail $ "Want (TVar " ++ show node ++ "|" ++ show (typeOf (undefined :: a)) ++ "), got moose: " ++ show node
 -}
 
 
