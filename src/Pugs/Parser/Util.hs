@@ -188,7 +188,7 @@ selfParam typ = MkOldParam
     , isLValue      = True
     , isWritable    = True
     , isLazy        = False
-    , paramName     = cast "&self"
+    , paramName     = cast "$__SELF__"
     , paramContext  = CxtItem typ
     , paramDefault  = Noop
     }

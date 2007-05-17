@@ -276,8 +276,12 @@ initPreludePC env = do
         -- print "Parsing done!"
         -- print "Loading yaml..."
         --(glob, ast) <- fromYAML yml
+        cleanSeen
         MkCompUnit _ glob ast <- io $ fromYAML yml
         -- print "Loading done!"
+        z   <- stm $ join (findSym (cast "&*__fail") glob)
+        -- j   <- showYaml z
+        -- print j
         stm $ modifyTVar (envGlobal env) (`unionPads` glob)
         runEnv env{ envBody = ast, envDebug = Nothing }
         --     Right Nothing -> fail ""

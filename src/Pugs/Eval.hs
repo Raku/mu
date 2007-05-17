@@ -273,9 +273,9 @@ isStrict = fromVal =<< readVar (cast "$*STRICT")
 reduceVar :: Var -> Eval Val
 reduceVar var@MkVar{ v_sigil = sig, v_twigil = twi, v_name = name, v_package = pkg }
     | TAttribute <- twi
-    = reduceSyn (show sig ++ "{}") [ Syn "{}" [_Var "&self", Val (VStr $ cast name)] ]
+    = reduceSyn (show sig ++ "{}") [ Syn "{}" [_Var "$__SELF__", Val (VStr $ cast name)] ]
     | TPrivate <- twi
-    = reduceSyn (show sig ++ "{}") [ Syn "{}" [_Var "&self", Val (VStr $ cast name)] ]
+    = reduceSyn (show sig ++ "{}") [ Syn "{}" [_Var "$__SELF__", Val (VStr $ cast name)] ]
     | otherwise = do
         v <- findVar var
         case v of
@@ -1460,7 +1460,6 @@ doApply sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args = d
     applyMacroResult code@VCode{}   = reduceApp (Val code) Nothing []
     applyMacroResult VUndef         = retEmpty
     applyMacroResult _              = fail "Macro did not return an AST, a Str or a Code!"
-    fixSub MkCode{ subType = SubPrim } env = env
     fixSub sub env = env
         { -- envLexical = subPad sub -- XXX - fake in-pad knowledge?
           envPackage = subPackage sub

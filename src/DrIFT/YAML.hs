@@ -252,6 +252,7 @@ instance (Typeable a, YAML a) => YAML (TVar a) where
                 return tv
     fromYAMLElem = (newTVarIO =<<) . fromYAMLElem
 
+
 asYAMLanchor :: a -> EmitAs YamlNode -> EmitAs YamlNode
 asYAMLanchor x m = do
     cache   <- ask

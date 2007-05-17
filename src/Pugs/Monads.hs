@@ -231,23 +231,23 @@ enterSub sub action
                 local doFix runAction
         runBlocks (filter (rejectKeepUndo rv . subName) . subLeaveBlocks)
 
-        when (rv == VControl (ControlLoop LoopLast)) $
-            -- We won't have a chance to run the LAST block
-            -- once we exit outside the lexical block, so do it now
-            runBlocks subLastBlocks
+    when (rv == VControl (ControlLoop LoopLast)) $
+        -- We won't have a chance to run the LAST block
+        -- once we exit outside the lexical block, so do it now
+        runBlocks subLastBlocks
 
-        assertBlocks subPostBlocks "POST"
-        case rv of
-            VControl l@(ControlLeave ftyp depth val) -> do
-                let depth' = if ftyp typ then depth - 1 else depth
-                if depth' < 0
-                    then return val
-                    else retControl l{ leaveDepth = depth' }
-            VControl ControlExit{}  -> retShift rv
-            VError{}                -> do
-                -- XXX - Implement CATCH block here
-                retShift rv
-            _ -> return rv
+    assertBlocks subPostBlocks "POST"
+    case rv of
+        VControl l@(ControlLeave ftyp depth val) -> do
+            let depth' = if ftyp typ then depth - 1 else depth
+            if depth' < 0
+                then return val
+                else retControl l{ leaveDepth = depth' }
+        VControl ControlExit{}  -> retShift rv
+        VError{}                -> do
+            -- XXX - Implement CATCH block here
+            retShift rv
+        _ -> return rv
     where
     rejectKeepUndo VUndef     = (/= __"KEEP")
     rejectKeepUndo (VControl (ControlLeave _ _ val)) = \n -> rejectKeepUndo val n && (n /= __"NEXT")

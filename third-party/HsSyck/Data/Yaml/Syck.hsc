@@ -70,8 +70,11 @@ type SyckOutputHandler = SyckEmitter -> CString -> CLong -> IO ()
 data SyckKind = SyckMap | SyckSeq | SyckStr
     deriving (Show, Ord, Eq, Enum)
 
+maxId :: SYMID
+maxId = maxBound
+
 nilNode :: YamlNode
-nilNode = MkNode 0 ENil Nothing ASingleton
+nilNode = MkNode maxId ENil Nothing ASingleton
 
 {-# INLINE unpackBuf #-}
 unpackBuf :: Buf -> String
@@ -86,10 +89,10 @@ tagNode _ MkNode{n_tag=Just x} = error $ "can't add tag: already tagged with" ++
 tagNode tag node               = node{n_tag = tag}
 
 mkNode :: YamlElem -> YamlNode
-mkNode x = MkNode 0 x Nothing ASingleton
+mkNode x = MkNode maxId x Nothing ASingleton
 
 mkTagNode :: String -> YamlElem -> YamlNode
-mkTagNode tag e = MkNode 0 e (Just $! packBuf tag) ASingleton
+mkTagNode tag e = MkNode maxId e (Just $! packBuf tag) ASingleton
 
 mkTagStrNode :: String -> String -> YamlNode
 mkTagStrNode tag str = mkTagNode tag (EStr $! packBuf str)
@@ -184,13 +187,15 @@ emitNode _ e n | EStr s <- n_elem n = do
 
 emitNode freeze e n | ESeq sq <- n_elem n = do
     withTag n (Ptr "array"##) $ \tag ->
-        syck_emit_seq e tag seqInline
+--      syck_emit_seq e tag seqInline
+        syck_emit_seq e tag seqNone
     mapM_ (syck_emit_item e) =<< mapM freeze sq
     syck_emit_end e
 
 emitNode freeze e n | EMap m <- n_elem n = do
     withTag n (Ptr "map"##) $ \tag ->
-        syck_emit_map e tag mapInline
+--      syck_emit_map e tag mapInline
+        syck_emit_map e tag mapNone
     flip mapM_ m (\(k,v) -> do
         syck_emit_item e =<< freeze k
         syck_emit_item e =<< freeze v)
@@ -261,6 +266,8 @@ nodeCallback badancs parser syckNode = mdo
     symId   <- syck_add_sym parser nodePtr
 
     return (fromIntegral symId)
+
+    return symId
 
 badAnchorHandlerCallback :: BadAnchorTable -> SyckBadAnchorHandler
 badAnchorHandlerCallback badancs parser cstr = do

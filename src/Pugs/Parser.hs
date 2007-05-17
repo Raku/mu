@@ -2066,7 +2066,7 @@ ruleVar = do
         Var var | TAttribute <- v_twigil var -> do
             let methName = ('&':cast (v_name var))
             postApp <- ruleInvocationArguments Nothing methName False
-            return $ Syn (shows (v_sigil var) "{}") [postApp (_Var "&self")]
+            return $ Syn (shows (v_sigil var) "{}") [postApp (_Var "$__SELF__")]
         _   -> return exp
 
 ruleSymbolicDeref :: RuleParser Exp

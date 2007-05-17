@@ -87,7 +87,7 @@ op0 "File::Spec::tmpdir" = const $ do
     tmp <- guardIO getTemporaryDirectory
     return $ VStr tmp
 op0 "Pugs::Internals::pi" = const $ return $ VNum pi
-op0 "self"    = const $ expToEvalVal (_Var "&self")
+op0 "self"    = const $ expToEvalVal (_Var "$__SELF__")
 op0 "say"     = const $ op1 "IO::say" (VHandle stdout)
 op0 "print"   = const $ op1 "IO::print" (VHandle stdout)
 op0 "return"  = const $ op1Return (retControl (ControlLeave (<= SubRoutine) 0 undef))
