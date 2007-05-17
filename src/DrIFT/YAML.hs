@@ -274,7 +274,7 @@ failWith e = fail $ "no parse: " ++ show e ++ " as " ++ show typ
     typ = typeOf (undefined :: a)
 
 
-type SeenHash = HashTable SYMID YamlNode
+type SeenHash = HashTable SYMID (Maybe YamlNode)
 type DuplHash = HashTable YamlNode Int
 
 -- Compress a YAML tree by finding common subexpressions.
