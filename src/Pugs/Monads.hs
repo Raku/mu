@@ -206,12 +206,17 @@ recloseLexPad lpad  = return lpad
 
 recloseRef :: VRef -> STM VRef
 recloseRef ref@(MkRef (ICode cv))
-    | Just vcode <- fromTypeable cv = do
-        let outers = subOuterPads vcode
-        outers' <- mapM recloseLexPad (subOuterPads vcode)
-        inner'  <- reclosePad (subInnerPad vcode)
-        started <- newTVar False
-        return (MkRef (ICode vcode{ subOuterPads = outers', subInnerPad = inner', subStarted = Just started }))
+    | Just vcode <- fromTypeable cv
+    , Nothing    <- subStarted vcode
+    , subType vcode /= SubPrim = do
+        outers'     <- mapM recloseLexPad (subOuterPads vcode)
+        inner'      <- reclosePad (subInnerPad vcode)
+        started'    <- newTVar False
+        return . MkRef . ICode $ vcode
+            { subOuterPads = outers'
+            , subInnerPad  = inner'
+            , subStarted   = Just started'
+            }
     | otherwise = return ref
 recloseRef ref = return ref
 
