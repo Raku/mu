@@ -465,13 +465,18 @@ reduceSyn "sub" [exp] = do
             redo
         writeTVar tvar thunk
         return $ Just tvar
-    error "XXX - clone should operate on sub now"
-    newBody <- transformExp cloneBodyStates $ subBody sub
+    -- Close over our lexical scope.
+    -- error "XXX - clone should operate on sub now"
+    -- newBody <- transformExp cloneBodyStates $ subBody sub
     -- add &?BLOCK &?ROUTINE etc here
+    started <- if isCompileTime env
+        then return Nothing
+        else stm $ newTVar False
     return $ VCode sub
-        { -- subEnv  = Just env
-          subCont = cont
-        , subBody = newBody
+        { subLexPads = envLexPads env
+        , subLexical = envLexical
+        , subCont    = cont
+        , subStarted = started
         }
     where
 --    cloneBodyStates (Pad scope pad exp) | scope <= SMy = do

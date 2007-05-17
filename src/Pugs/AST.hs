@@ -15,7 +15,7 @@ module Pugs.AST (
     evalExp, evalExp_, readCodesFromRef,
     genSym, genMultiSym, genSymScoped, genPadEntryScoped, mkPadMutator,
     strRangeInf, strRange, strInc,
-    mergeStmts, isEmptyParams,
+    mergeStmts, isEmptyParams, isCompileTime,
     newPackage, newType, newMetaType, typeMacro, isScalarLValue,
     filterPrim, filterUserDefinedPad, typeOfParam, listVal, isImmediateMatchContext,
     (./),
@@ -488,4 +488,7 @@ readCodesFromRef (MkRef (ICode c))
 readCodesFromRef ref = do
     code <- fromVal =<< readRef ref
     readCodesFromRef (MkRef (ICode (code :: VCode)))
+
+isCompileTime :: Env -> Bool
+isCompileTime = isJust . envCompPad
 
