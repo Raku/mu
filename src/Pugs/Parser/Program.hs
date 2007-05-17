@@ -188,11 +188,11 @@ ruleProgram = rule "program" $ do
     possiblyExit rv
 
     -- Force a reclose-pad evaluation here by way of unsafeEvalExp.
-    unsafeEvalExp $ Syn "" []
+    main' <- unsafeEvalExp $ Syn "" [unwrap main]
 
     env' <- getRuleEnv
     return $ env'
-        { envBody       = App main Nothing [] -- _Var "@*ARGS"]
+        { envBody       = App (Syn "block" [main']) Nothing [] -- _Var "@*ARGS"]
         , envPackage    = envPackage env
         }
 

@@ -412,14 +412,14 @@ enough to make it redundant.
 -}
 reduceSyn :: String -> [Exp] -> Eval Val
 
-reduceSyn "" [] = do 
+reduceSyn "" [Syn "block" [Val (VCode code)]] = do 
     -- Reclose all global pads!
     glob <- asks envGlobal
     stm $ do
         pad     <- readMPad glob
         pad'    <- reclosePad pad
         writeMPad glob pad'
-        return undef
+        fmap VCode (recloseCode code)
 
 reduceSyn "()" [exp] = reduce exp
 
@@ -467,10 +467,10 @@ reduceSyn "sub" [exp] = do
     -- add &?BLOCK &?ROUTINE etc here
     started         <- if isCompileTime env then return Nothing else fmap Just (stm $ newTVar False)
     inner           <- clonePad (subInnerPad sub) 
-    (lpads, outer)  <- cloneLexPads (envLexPads env)
+--  (lpads, outer)  <- cloneLexPads (envLexPads env)
     return $ VCode sub
         { subCont       = cont
-        , subOuterPads  = lpads
+--      , subOuterPads  = lpads
         , subInnerPad   = inner
 --      , subLexical    = outer `mappend` inner 
         , subStarted    = started

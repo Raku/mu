@@ -21,7 +21,7 @@ module Pugs.Monads (
 
     enterFrame, assertFrame, emptyFrames,
 
-    reclosePad,
+    reclosePad, recloseCode,
     
     MaybeT, runMaybeT,
 ) where
