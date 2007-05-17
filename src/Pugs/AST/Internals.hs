@@ -1327,7 +1327,7 @@ data Env = MkEnv
     , envPackage :: !Pkg                 -- ^ Current package
     , envEval    :: !(Exp -> Eval Val)   -- ^ Active evaluator
     , envBody    :: !Exp                 -- ^ Current AST expression
-    , envFrames  :: !(Set Frame)         -- ^ Recursion depth
+    , envFrames  :: !(Set Frame)         -- ^ Special-markers in the dynamic path
     , envDebug   :: !DebugInfo           -- ^ Debug info map
     , envPos     :: !Pos                 -- ^ Source position range
     , envPragmas :: ![Pragma]            -- ^ List of pragmas in effect

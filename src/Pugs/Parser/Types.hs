@@ -6,7 +6,7 @@ module Pugs.Parser.Types (
     RuleOperator, RuleOperatorTable,
     getRuleEnv, modifyRuleEnv, putRuleEnv, insertIntoPosition,
     clearDynParsers, enterBracketLevel, getCurrCharClass, charClassOf,
-    addBlockPad, popClosureTrait, addClosureTrait, addOuterVar,
+    addBlockPad, popClosureTrait, addClosureTrait,
     -- Alternate Char implementations that keeps track of s_charClass
     satisfy, string, oneOf, noneOf, char, hexDigit, octDigit,
     digit, upper, anyChar, expRule, parserWarn, mkPos,
@@ -164,6 +164,9 @@ data ParensOption = ParensMandatory | ParensOptional
 data FormalsOption = FormalsSimple | FormalsComplex
     deriving (Show, Eq)
 
+instance MonadSTM RuleParser where
+    liftSTM x = return $! unsafePerformSTM x
+
 instance MonadReader Env RuleParser where
     ask = getRuleEnv
     local f action = do
@@ -234,12 +237,20 @@ addBlockPad :: Pad -> RuleParser ()
 addBlockPad pad = do
     -- First we check that our pad does not contain shadows OUTER symbols.
     state <- get
-    let dupSyms = padKeys pad `Set.intersection` s_outerVars state
-    unless (Set.null dupSyms) $ do
+    let myVars  = padKeys pad
+        dupVars = myVars `Set.intersection` Map.keysSet (s_knownVars state)
+
+    unless (Set.null dupVars) $ do
         fail $ "Redeclaration of "
-            ++ unwords (map show (Set.elems dupSyms))
+            ++ unwords (map show (Set.elems dupVars))
             ++ " conflicts with earlier OUTER references in the same scope"
-    put state{ s_blockPads = Map.insertWith unionPads scope pad (s_blockPads state) }
+
+    -- Then we merge the Pad into COMPILING, and add those vars into s_knownVars.
+    Just compPad <- asks envCompPad
+    ()           <- stm $ modifyTVar compPad (`unionPads` pad)
+
+    let myKnownVars = Map.fromDistinctAscList [ (var, compPad) | var <- Set.toAscList myVars ]
+    put state{ s_knownVars = s_knownVars state `Map.union` myKnownVars }
 
 popClosureTrait :: RuleParser ()
 popClosureTrait = do
@@ -281,12 +292,6 @@ addClosureTrait name code = do
         "POST"      -> block{ subPostBlocks = trait:subPostBlocks block }
         "FIRST"     -> block{ subFirstBlocks = subFirstBlocks block ++ [trait] }
         _           -> trace ("Wrong closure trait name: "++name) block
-{-|
-Update the 's_outerVars' in the parser's state by applying a transformation function.
--}
-addOuterVar :: Var -> RuleParser ()
-addOuterVar var = modify $ \state ->
-    state{ s_outerVars = Set.insert var (s_outerVars state) }
 
 {-|
 Replace the 'Pugs.AST.Internals.Env' in the parser's state with a new one.
