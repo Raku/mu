@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fglasgow-exts -fparr #-}
 module Pugs.AST.Pad (
-  mkPad, diffPads, unionPads, padKeys, filterPad, adjustPad, mergePadEntry, emptyPad,
+  mkPad, diffPads, unionPads, padKeys, filterPad, adjustPad, mergePadEntry,
   mergeLexPads, readMPad, writeMPad, appendMPad, modifyMPad, newMPad
 ) where
 import Pugs.Internals
@@ -14,13 +14,6 @@ instance Monoid Pad where
     mempty  = emptyPad
     mappend = unionPads
     mconcat = MkPad . Map.unionsWith mergePadEntry . map padEntries
-
-{-|
-An empty Pad with now symbols.
--}
-
-emptyPad :: Pad
-emptyPad = MkPad Map.empty
 
 {-|
 Produce a 'Pad' from a list of bindings. The inverse of 'padToList'.
