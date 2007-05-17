@@ -16,6 +16,8 @@ module Pugs.AST.Internals (
     Bindings, -- uses Param, Exp
     SlurpLimit, -- VInt, Exp
     
+    emptyPad,
+
     VRef(..), -- uses IVar
     VOpaque(..), -- uses Value
     VControl(..), -- uses Env, Eval, Val
@@ -1041,6 +1043,7 @@ data VCode = MkCode
     , subLValue         :: !Bool        -- ^ Is this a lvalue sub?
     , subBody           :: !Exp         -- ^ Body of the closure
     , subCont           :: !(Maybe (TVar VThunk)) -- ^ Coroutine re-entry point
+    , subStarted        :: !(Maybe (TVar Bool))   -- ^ Whether START was run
     , subTraitBlocks    :: !TraitBlocks
     }
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
@@ -1410,6 +1413,13 @@ is stored in the @Reader@-monad component of the current 'Eval' monad.
 
 newtype Pad = MkPad { padEntries :: Map Var PadEntry }
     deriving (Eq, Ord, Typeable)
+
+{-|
+An empty Pad with no symbols.
+-}
+
+emptyPad :: Pad
+emptyPad = MkPad Map.empty
 
 newtype EntryFlags = MkEntryFlags { ef_isContext :: Bool }
     deriving (Show, Eq, Ord, Typeable)

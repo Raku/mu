@@ -1272,6 +1272,7 @@ retVerbatimBlock styp formal lvalue block = expRule $ do
             , subSlurpLimit = []
             , subBody       = fun
             , subCont       = Nothing
+            , subTraitBlocks= bi_traits block emptyTraitBlocks
             }
     return (Syn "sub" [Val $ VCode sub])
 

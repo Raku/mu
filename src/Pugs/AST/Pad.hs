@@ -10,6 +10,11 @@ import Pugs.Types
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 
+instance Monoid Pad where
+    mempty  = emptyPad
+    mappend = unionPads
+    mconcat = MkPad . Map.unionsWith mergePadEntry . map padEntries
+
 {-|
 An empty Pad with now symbols.
 -}
