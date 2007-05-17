@@ -1063,7 +1063,7 @@ specialApp = Map.fromList
                    , envPos     = envPos caller
                    }
         local callerEnv $ do
-            val <- apply sub Nothing args
+            val <- doApply ApplyDisplaced sub Nothing args
             retShift =<< evalVal val
             retEmpty
     , "&callwith"       ... \inv args -> do
@@ -1127,7 +1127,7 @@ reduceApp subExp invs args = do
         doApply ApplyDisplaced sub invs args
 
 applyCapture :: VCode -> ValCapt -> Eval Val
-applyCapture sub capt = apply sub inv (fromP argsPos ++ argsNam)
+applyCapture sub capt = doApply ApplyDisplaced sub inv (fromP argsPos ++ argsNam)
     where
     argsPos = mapP (Val . castV) (f_positionals feed)
     argsNam = [ Syn "named" [Val (VStr (cast k)), Val (castV (vs !: lst))] | (k, vs) <- Map.toList (f_nameds feed), let lst = lengthP vs - 1, lst >= 0 ]
@@ -1331,7 +1331,7 @@ applySub sub invs args
     applyChainSub :: VCode -> [Exp] -> Eval Val
     applyChainSub sub args = tryAnyComprehension [] args
         where
-        vanillaApply = apply sub' Nothing args
+        vanillaApply = doApply ApplyDisplaced sub' Nothing args
         tryAnyComprehension _ [] = vanillaApply
         tryAnyComprehension pre (pivot:post)
             | App (Var var') _ _    <- unwrap pivot
@@ -1344,7 +1344,7 @@ applySub sub invs args
                 items <- fromVal =<< reduce pivot
                 fmap VList . (`filterM` items) $ \item -> do
                     vbool <- enterRValue . enterContext (cxtItem "Bool") $ do
-                        apply sub' Nothing (reverse pre ++ (Val item:post))
+                        doApply ApplyDisplaced sub' Nothing (reverse pre ++ (Val item:post))
                     fromVal vbool
             | otherwise = do
                 -- Accumulate pre and scan to the next.  Note pre must be reversed as above.
