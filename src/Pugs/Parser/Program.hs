@@ -178,12 +178,14 @@ ruleProgram = rule "program" $ do
     rv <- unsafeEvalExp $ Syn "for"
         [ _Var "@*CHECK"
         , Syn "sub"
-            [ Val . VCode $ mkSub
-                { subBody   = App (_Var "$_") Nothing []
-                , subParams = [defaultScalarParam]
+            [ Val . VCode $ mkPrim
+                { subBody       = App (_Var "$_") Nothing []
+                , subParams     = [defaultScalarParam]
+                , subInnerPad   = defaultScalarPad
                 }
             ]
         ]
+
     -- If there was a exit() in a CHECK block, we have to exit.
     possiblyExit rv
 

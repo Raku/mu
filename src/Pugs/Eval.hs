@@ -502,10 +502,7 @@ reduceSyn "sub" [exp] = do
                 _           -> regenerateContent
             return (var, entry')
     clonePadEntry x@PEConstant{} _ = return x
-    clonePadEntry x@PEStatic{} f = do
-        tvar'   <- newTVar =<< f x
-        return x{ pe_store = tvar' }
-    clonePadEntry x@PELexical{} f = do
+    clonePadEntry x f = do
         tvar'   <- newTVar =<< f x
         return x{ pe_store = tvar' }
 

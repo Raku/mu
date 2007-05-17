@@ -18,7 +18,7 @@ module Pugs.AST (
     mergeStmts, isEmptyParams, isCompileTime,
     newPackage, newType, newMetaType, typeMacro, isScalarLValue,
     filterPrim, filterUserDefinedPad, typeOfParam, listVal, isImmediateMatchContext,
-    (./),
+    (./), defaultScalarPad,
 
     module Pugs.AST.Internals,
     module Pugs.AST.Prag,
@@ -490,4 +490,15 @@ readCodesFromRef ref = do
 
 isCompileTime :: Env -> Bool
 isCompileTime = isJust . envCompPad
+
+
+{-# NOINLINE defaultScalarPadStore #-}
+defaultScalarPadStore :: TVar VRef
+defaultScalarPadStore = unsafePerformIO (newTVarIO defaultScalarRef)
+
+defaultScalarRef :: VRef
+defaultScalarRef = scalarRef undef
+
+defaultScalarPad :: Pad
+defaultScalarPad = mkPad [(varTopic, PELexical anyType defaultScalarRef mempty defaultScalarPadStore)]
 
