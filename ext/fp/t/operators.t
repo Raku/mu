@@ -1,7 +1,7 @@
 use v6-alpha;
 use Test;
 
-BEGIN { plan 14 };
+BEGIN { plan 15 };
 
 # We can't use "use_ok" here, as the overloaded operators won't go into our
 # namespace, then (I think.)
@@ -34,3 +34,4 @@ is ∑ [1,2,3], 6, "(∑) works";
 is ∏ [1,2,3], 6, "(∏) works";
 is 3!,        6, "(!) works";
 is 6 ÷ 3,     2, "(÷) works";
+is ∞, Inf, "(∞) works";
