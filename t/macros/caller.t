@@ -11,6 +11,8 @@ right answer is that closure macros should, but AST macros should not.
 
 =cut
 
+plan 4;
+
 sub current_line {
     return $?CALLER::LINE;
 }
