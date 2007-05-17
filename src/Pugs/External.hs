@@ -42,7 +42,7 @@ externRequire lang name = do
     bindings    <- io $ externLoad lang name
     stm $ do
         newSyms     <- mapM gen bindings
-        modifyTVar glob (\pad -> combine newSyms pad)
+        modifyMPad glob (\pad -> combine newSyms pad)
     where
     gen (name, fun) = genSym (cast ('&':name)) . codeRef $ mkPrim
         { subName       = cast name

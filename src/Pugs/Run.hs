@@ -65,8 +65,8 @@ runAST glob ast = do
     args    <- getArgs
     env     <- prepareEnv name args
     globRef <- stm $ do
-        glob' <- readTVar $ envGlobal env
-        newTVar (glob `unionPads` glob')
+        glob' <- readMPad $ envGlobal env
+        newMPad (glob `unionPads` glob')
     runEnv env{ envBody = ast, envGlobal = globRef, envDebug = Nothing }
 
 -- | Run for 'Pugs.Compile.Haskell' backend
@@ -279,9 +279,9 @@ initPreludePC env = do
         cleanSeen
         MkCompUnit _ glob ast <- io $ fromYAML yml
         -- print "Loading done!"
-        z   <- stm $ join (findSym (cast "&*__fail") glob)
+        -- z   <- stm $ join (findSym (cast "&*__fail") glob)
         -- j   <- showYaml z
         -- print j
-        stm $ modifyTVar (envGlobal env) (`unionPads` glob)
+        appendMPad (envGlobal env) glob
         runEnv env{ envBody = ast, envDebug = Nothing }
         --     Right Nothing -> fail ""

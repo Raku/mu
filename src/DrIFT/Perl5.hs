@@ -42,6 +42,9 @@ instance Perl5 () where
 instance Perl5 Int where
     showPerl5 = show
 
+instance Perl5 Word where
+    showPerl5 = show
+
 instance Perl5 Buf.ByteString where
     showPerl5 = showPerl5 . Buf.unpack
 

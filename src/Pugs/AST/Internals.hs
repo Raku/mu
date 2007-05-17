@@ -1024,7 +1024,14 @@ instance Monoid SubAssoc where
     mappend ANil y = y
     mappend x    _ = x
 
-type MPad = TVar Pad
+data MPad = MkMPad { mp_id :: !Word, mp_pad :: !(TVar Pad) }
+    deriving (Show, Typeable, Data) {-!derive: YAML_Pos, JSON, Perl5 !-}
+
+instance Eq MPad where
+    x == y = mp_id x == mp_id y
+
+instance Ord MPad where
+    x `compare` y = mp_id x `compare` mp_id y
 
 -- | Represents a sub, method, closure etc. -- basically anything callable.
 data VCode = MkCode
@@ -1556,7 +1563,7 @@ STM var.
 -}
 askGlobal :: Eval Pad
 askGlobal = do
-    glob <- asks envGlobal
+    glob <- asks (mp_pad . envGlobal)
     stm $ readTVar glob
 
 writeVar :: Var -> Val -> Eval ()
@@ -2022,7 +2029,7 @@ _FakeEnv = unsafePerformIO $ stm $ do
         , envDynPads = []
         , envCompPad = Nothing
         , envLValue  = False
-        , envGlobal  = glob
+        , envGlobal  = MkMPad (addressOf glob) glob
         , envPackage = cast "Main"
         , envEval    = const (return VUndef)
         , envFrames  = Set.empty

@@ -73,7 +73,7 @@ findVarRef var@MkVar{ v_sigil = sig, v_twigil = twi, v_name = name, v_package = 
                     _       -> do
                         pad <- case outer of
                             PRuntime p  -> return p
-                            PCompiling p-> stm $ readTVar p
+                            PCompiling p-> readMPad p
                         return (lookupPad v pad)
             _       -> die "cannot access OUTER:: in top level" name
 
@@ -105,7 +105,7 @@ doFindVarRef var = do
     lexSym  <- fmap (lookupPad var . envLexical) ask
     if isJust lexSym then return lexSym else do
     -- XXX - this is bogus; we should not fallback if it's not in lex scope.
-    glob    <- stm . readTVar . envGlobal =<< ask
+    glob    <- readMPad . envGlobal =<< ask
     var'    <- toQualified var
     let globSym = lookupPad var' glob
     if isJust globSym then return globSym else do

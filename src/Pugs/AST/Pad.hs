@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -fglasgow-exts -fparr #-}
 module Pugs.AST.Pad (
   mkPad, diffPads, unionPads, padKeys, filterPad, adjustPad, mergePadEntry, emptyPad,
-  mergeLexPads, readMPad, writeMPad, appendMPad
+  mergeLexPads, readMPad, writeMPad, appendMPad, modifyMPad, newMPad
 ) where
 import Pugs.Internals
 import Pugs.AST.SIO
@@ -37,18 +37,25 @@ mergeLexPads :: MonadSTM m => LexPads -> m Pad
 mergeLexPads chain = stm $ do
     pads <- forM chain $ \lpad -> case lpad of
         PRuntime p      -> return p
-        PCompiling p    -> readTVar p
+        PCompiling p    -> readMPad p
     return . MkPad $ Map.unionsWith mergePadEntry (map padEntries pads)
 
 readMPad :: MonadSTM m => MPad -> m Pad
-readMPad = stm . readTVar
+readMPad = stm . readTVar . mp_pad
 
 writeMPad :: MonadSTM m => MPad -> Pad -> m ()
-writeMPad mp p = stm $ writeTVar mp p
+writeMPad mp p = stm $ writeTVar (mp_pad mp) p
 
 appendMPad :: MonadSTM m => MPad -> Pad -> m ()
-appendMPad mp p = stm $ modifyTVar mp (`unionPads` p)
+appendMPad mp p = stm $ modifyTVar (mp_pad mp) (`unionPads` p)
 
+modifyMPad :: MonadSTM m => MPad -> (Pad -> Pad) -> m ()
+modifyMPad mp f = stm $ modifyTVar (mp_pad mp) f
+
+newMPad :: MonadSTM m => Pad -> m MPad
+newMPad p = do
+    tvar <- stm $ newTVar p
+    return $ MkMPad (addressOf tvar) tvar
 
 {-|
 Return the difference between two 'Pad's.

@@ -169,7 +169,7 @@ globalFinalize = join $ readIORef _GlobalFinalizer
 
 dumpGlob :: String -> IO ()
 dumpGlob = (doParseWith $ \env _ -> do
-    glob <- stm . readTVar $ envGlobal env
+    glob <- stm . readMPad $ envGlobal env
     print $ filterUserDefinedPad glob) "-"
 
 {-|
@@ -194,8 +194,8 @@ doExternal mod = doParseWith $ \env _ -> do
 doCompile :: String -> FilePath -> String -> IO String
 doCompile backend = doParseWith $ \env _ -> do
     globRef <- stm $ do
-        glob <- readTVar $ envGlobal env
-        newTVar $ filterUserDefinedPad glob
+        glob <- readMPad $ envGlobal env
+        newMPad $ filterUserDefinedPad glob
     codeGen backend env{ envGlobal = globRef }
 
 initCompile :: IO ()

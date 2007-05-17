@@ -397,9 +397,9 @@ typeMacro name exp = Syn "sub" . (:[]) . Val . VCode $ MkCode
 {- utilities for filtering out primitives from an environmet, useful for
  - CodeGen and Pugs::Internals::emit_yaml -}
 
-filterPrim :: (TVar Pad) -> Eval Pad
+filterPrim :: MPad -> Eval Pad
 filterPrim glob = do
-    MkPad pad   <- stm $ readTVar glob
+    MkPad pad   <- readMPad glob
     fmap (MkPad . Map.fromAscList . catMaybes) . mapM checkPrim $ Map.toAscList pad
 
 checkPrim :: (Var, PadEntry) -> Eval (Maybe (Var, PadEntry))

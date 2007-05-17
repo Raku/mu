@@ -201,7 +201,7 @@ enterBlock action = do
 
 recloseLexPad :: LexPad -> STM LexPad
 recloseLexPad (PCompiling tv) = do
-    pad <- readTVar tv
+    pad <- readMPad tv
     return (PRuntime pad)
 recloseLexPad lpad  = return lpad
 

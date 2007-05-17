@@ -63,7 +63,7 @@ _FakeEnv = unsafePerformIO $ stm $ do
         , envCaller  = Nothing
         , envCompPad = Nothing
         , envLValue  = False
-        , envGlobal  = glob
+        , envGlobal  = MkMPad (addressOf glob) glob
         , envPackage = cast "Main"
         , envEval    = const (return VUndef)
         , envFrames  = Set.empty
@@ -245,7 +245,7 @@ instance YAML VSubst where
 	    let ESeq [aa, ab] = e
 	    liftM2 MkTrans (fromYAML aa) (fromYAML ab)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkSubst","MkTrans"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["MkSubst","MkTrans"] ++ " in node " ++ show e
     asYAML (MkSubst aa ab) = asYAMLseq "MkSubst" [asYAML aa, asYAML ab]
     asYAML (MkTrans aa ab) = asYAMLseq "MkTrans" [asYAML aa, asYAML ab]
 
@@ -255,7 +255,7 @@ instance YAML VThunk where
 	    let ESeq [aa, ab] = e
 	    liftM2 MkThunk (fromYAML aa) (fromYAML ab)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkThunk"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["MkThunk"] ++ " in node " ++ show e
     asYAML (MkThunk aa ab) = asYAMLseq "MkThunk" [asYAML aa, asYAML ab]
 
 instance YAML VProcess where
@@ -264,7 +264,7 @@ instance YAML VProcess where
 	    let ESeq [aa] = e
 	    liftM MkProcess (fromYAML aa)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkProcess"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["MkProcess"] ++ " in node " ++ show e
     asYAML (MkProcess aa) = asYAMLseq "MkProcess" [asYAML aa]
 
 instance YAML VRule where
@@ -278,7 +278,7 @@ instance YAML VRule where
 	    let ESeq [aa, ab, ac, ad] = e
 	    liftM4 MkRulePGE (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkRulePCRE","MkRulePGE"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["MkRulePCRE","MkRulePGE"] ++ " in node " ++ show e
     asYAML (MkRulePCRE aa ab ac ad ae af) = asYAMLseq "MkRulePCRE"
 	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae, asYAML af]
     asYAML (MkRulePGE aa ab ac ad) = asYAMLseq "MkRulePGE"
@@ -364,7 +364,7 @@ instance YAML Val where
 	    let ESeq [aa] = e
 	    liftM VV (fromYAML aa)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["VUndef","VBool","VInt","VRat","VNum","VComplex","VStr","VList","VType","VJunc","VError","VControl","VRef","VCode","VBlock","VHandle","VSocket","VThread","VProcess","VRule","VSubst","VMatch","VObject","VOpaque","PerlSV","VV"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["VUndef","VBool","VInt","VRat","VNum","VComplex","VStr","VList","VType","VJunc","VError","VControl","VRef","VCode","VBlock","VHandle","VSocket","VThread","VProcess","VRule","VSubst","VMatch","VObject","VOpaque","PerlSV","VV"] ++ " in node " ++ show e
     asYAML (VUndef) = asYAMLcls "VUndef"
     asYAML (VBool aa) = asYAMLseq "VBool" [asYAML aa]
     asYAML (VInt aa) = asYAMLseq "VInt" [asYAML aa]
@@ -409,7 +409,7 @@ instance YAML SubType where
 	"SubPrim" -> do
 	    return SubPrim
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["SubMethod","SubCoroutine","SubMacro","SubRoutine","SubBlock","SubPointy","SubPrim"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["SubMethod","SubCoroutine","SubMacro","SubRoutine","SubBlock","SubPointy","SubPrim"] ++ " in node " ++ show e
     asYAML (SubMethod) = asYAMLcls "SubMethod"
     asYAML (SubCoroutine) = asYAMLcls "SubCoroutine"
     asYAML (SubMacro) = asYAMLcls "SubMacro"
@@ -444,7 +444,7 @@ instance YAML Param where
 	    let ESeq [aa, ab, ac, ad, ae, af, ag, ah, ai] = e
 	    liftM9 MkOldParam (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae) (fromYAML af) (fromYAML ag) (fromYAML ah) (fromYAML ai)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkOldParam"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["MkOldParam"] ++ " in node " ++ show e
     asYAML (MkOldParam aa ab ac ad ae af ag ah ai) =
 	   asYAMLseq "MkOldParam"
 	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae, asYAML af,
@@ -485,7 +485,7 @@ instance YAML SubAssoc where
 	"A_list" -> do
 	    return A_list
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["ANil","AIrrelevantToParsing","A_left","A_right","A_non","A_chain","A_list"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["ANil","AIrrelevantToParsing","A_left","A_right","A_non","A_chain","A_list"] ++ " in node " ++ show e
     asYAML (ANil) = asYAMLcls "ANil"
     asYAML (AIrrelevantToParsing) = asYAMLcls "AIrrelevantToParsing"
     asYAML (A_left) = asYAMLcls "A_left"
@@ -514,6 +514,23 @@ instance Perl5 SubAssoc where
     showPerl5 (A_chain) = showP5Class "A::chain"
     showPerl5 (A_list) = showP5Class "A::list"
 
+instance YAML MPad where
+    fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
+	"MkMPad" -> do
+	    let ESeq [aa, ab] = e
+	    liftM2 MkMPad (fromYAML aa) (fromYAML ab)
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkMPad"] ++ " in node " ++ show e
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["MkMPad"] ++ " in node " ++ show e
+    asYAML (MkMPad aa ab) = asYAMLseq "MkMPad" [asYAML aa, asYAML ab]
+
+instance JSON MPad where
+    showJSON (MkMPad aa ab) = showJSHashObj "MkMPad"
+	     [("mp_id", showJSON aa), ("mp_pad", showJSON ab)]
+
+instance Perl5 MPad where
+    showPerl5 (MkMPad aa ab) = showP5HashObj "MkMPad"
+	      [("mp_id", showPerl5 aa) , ("mp_pad", showPerl5 ab)]
+
 instance YAML VCode where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
 	"MkCode" -> do
@@ -522,7 +539,7 @@ instance YAML VCode where
 	    let ESeq [aa, ab, ac, ad, ae, af, ag, ah, ai, aj, ak, al, am, an, ao, ap] = e
 	    liftM16 MkCode (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae) (fromYAML af) (fromYAML ag) (fromYAML ah) (fromYAML ai) (fromYAML aj) (fromYAML ak) (fromYAML al) (fromYAML am) (fromYAML an) (fromYAML ao) (fromYAML ap)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkCode"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["MkCode"] ++ " in node " ++ show e
     asYAML (MkCode aa ab ac ad ae af ag ah ai aj ak al am an ao ap) =
 	   asYAMLseq "MkCode"
 	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae, asYAML af,
@@ -537,7 +554,7 @@ instance YAML TraitBlocks where
 	    let ESeq [aa, ab, ac, ad, ae, af, ag, ah, ai, aj, ak] = e
 	    liftM11 MkTraitBlocks (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae) (fromYAML af) (fromYAML ag) (fromYAML ah) (fromYAML ai) (fromYAML aj) (fromYAML ak)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkTraitBlocks"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["MkTraitBlocks"] ++ " in node " ++ show e
     asYAML (MkTraitBlocks aa ab ac ad ae af ag ah ai aj ak) =
 	   asYAMLseq "MkTraitBlocks"
 	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae, asYAML af,
@@ -560,7 +577,7 @@ instance YAML Ann where
 	"Parens" -> do
 	    return Parens
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["Cxt","Pos","Prag","Decl","Parens"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["Cxt","Pos","Prag","Decl","Parens"] ++ " in node " ++ show e
     asYAML (Cxt aa) = asYAMLseq "Cxt" [asYAML aa]
     asYAML (Pos aa) = asYAMLseq "Pos" [asYAML aa]
     asYAML (Prag aa) = asYAMLseq "Prag" [asYAML aa]
@@ -599,7 +616,7 @@ instance YAML Exp where
 	    let ESeq [aa] = e
 	    liftM NonTerm (fromYAML aa)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["Noop","App","Syn","Ann","Sym","Stmts","Prim","Val","Var","NonTerm"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["Noop","App","Syn","Ann","Sym","Stmts","Prim","Val","Var","NonTerm"] ++ " in node " ++ show e
     asYAML (Noop) = asYAMLcls "Noop"
     asYAML (App aa ab ac) = asYAMLseq "App"
 	   [asYAML aa, asYAML ab, asYAML ac]
@@ -619,7 +636,7 @@ instance YAML InitDat where
 	    let ESeq [aa] = e
 	    liftM MkInitDat (fromYAML aa)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkInitDat"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["MkInitDat"] ++ " in node " ++ show e
     asYAML (MkInitDat aa) = asYAMLseq "MkInitDat" [asYAML aa]
 
 instance YAML PadEntry where
@@ -634,7 +651,7 @@ instance YAML PadEntry where
 	    let ESeq [aa, ab, ac] = e
 	    liftM3 PEConstant (fromYAML aa) (fromYAML ab) (fromYAML ac)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["PELexical","PEStatic","PEConstant"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["PELexical","PEStatic","PEConstant"] ++ " in node " ++ show e
     asYAML (PELexical aa ab ac ad) = asYAMLseq "PELexical"
 	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad]
     asYAML (PEStatic aa ab ac ad) = asYAMLseq "PEStatic"
@@ -647,7 +664,7 @@ instance YAML IHashEnv where
 	"MkHashEnv" -> do
 	    return MkHashEnv
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkHashEnv"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["MkHashEnv"] ++ " in node " ++ show e
     asYAML (MkHashEnv) = asYAMLcls "MkHashEnv"
 
 instance YAML IScalarCwd where
@@ -655,7 +672,7 @@ instance YAML IScalarCwd where
 	"MkScalarCwd" -> do
 	    return MkScalarCwd
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkScalarCwd"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["MkScalarCwd"] ++ " in node " ++ show e
     asYAML (MkScalarCwd) = asYAMLcls "MkScalarCwd"
 
 instance YAML ObjectId where
@@ -664,7 +681,7 @@ instance YAML ObjectId where
 	    let ESeq [aa] = e
 	    liftM MkObjectId (fromYAML aa)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkObjectId"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["MkObjectId"] ++ " in node " ++ show e
     asYAML (MkObjectId aa) = asYAMLseq "MkObjectId" [asYAML aa]
 
 instance YAML VObject where
@@ -673,7 +690,7 @@ instance YAML VObject where
 	    let ESeq [aa, ab, ac, ad] = e
 	    liftM4 MkObject (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkObject"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["MkObject"] ++ " in node " ++ show e
     asYAML (MkObject aa ab ac ad) = asYAMLseq "MkObject"
 	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad]
 
@@ -685,7 +702,7 @@ instance YAML VMatch where
 	    let ESeq [aa, ab, ac, ad, ae, af] = e
 	    liftM6 MkMatch (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae) (fromYAML af)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkMatch"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["MkMatch"] ++ " in node " ++ show e
     asYAML (MkMatch aa ab ac ad ae af) = asYAMLseq "MkMatch"
 	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae, asYAML af]
 
@@ -695,7 +712,7 @@ instance YAML CompUnit where
 	    let ESeq [aa, ab, ac] = e
 	    liftM3 MkCompUnit (fromYAML aa) (fromYAML ab) (fromYAML ac)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkCompUnit"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["MkCompUnit"] ++ " in node " ++ show e
     asYAML (MkCompUnit aa ab ac) = asYAMLseq "MkCompUnit"
 	   [asYAML aa, asYAML ab, asYAML ac]
 
@@ -705,7 +722,7 @@ instance YAML VMultiCode where
 	    let ESeq [aa, ab, ac, ad, ae] = e
 	    liftM5 MkMultiCode (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkMultiCode"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["MkMultiCode"] ++ " in node " ++ show e
     asYAML (MkMultiCode aa ab ac ad ae) = asYAMLseq "MkMultiCode"
 	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae]
 
@@ -715,7 +732,7 @@ instance YAML VJunc where
 	    let ESeq [aa, ab, ac] = e
 	    liftM3 MkJunc (fromYAML aa) (fromYAML ab) (fromYAML ac)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkJunc"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["MkJunc"] ++ " in node " ++ show e
     asYAML (MkJunc aa ab ac) = asYAMLseq "MkJunc"
 	   [asYAML aa, asYAML ab, asYAML ac]
 
@@ -730,7 +747,7 @@ instance YAML JuncType where
 	"JOne" -> do
 	    return JOne
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["JAny","JAll","JNone","JOne"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["JAny","JAll","JNone","JOne"] ++ " in node " ++ show e
     asYAML (JAny) = asYAMLcls "JAny"
     asYAML (JAll) = asYAMLcls "JAll"
     asYAML (JNone) = asYAMLcls "JNone"
@@ -749,7 +766,7 @@ instance YAML Scope where
 	"SOur" -> do
 	    return SOur
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["SState","SConstant","SHas","SMy","SOur"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["SState","SConstant","SHas","SMy","SOur"] ++ " in node " ++ show e
     asYAML (SState) = asYAMLcls "SState"
     asYAML (SConstant) = asYAMLcls "SConstant"
     asYAML (SHas) = asYAMLcls "SHas"
@@ -776,7 +793,7 @@ instance YAML Pad where
 	    let ESeq [aa] = e
 	    liftM MkPad (fromYAML aa)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkPad"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["MkPad"] ++ " in node " ++ show e
     asYAML (MkPad aa) = asYAMLseq "MkPad" [asYAML aa]
 
 instance YAML Pos where
@@ -785,7 +802,7 @@ instance YAML Pos where
 	    let ESeq [aa, ab, ac, ad, ae] = e
 	    liftM5 MkPos (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkPos"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["MkPos"] ++ " in node " ++ show e
     asYAML (MkPos aa ab ac ad ae) = asYAMLseq "MkPos"
 	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae]
 
@@ -813,7 +830,7 @@ instance YAML Type where
 	    let ESeq [aa, ab] = e
 	    liftM2 TypeAnd (fromYAML aa) (fromYAML ab)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkType","TypeOr","TypeAnd"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["MkType","TypeOr","TypeAnd"] ++ " in node " ++ show e
     asYAML (MkType aa) = asYAMLseq "MkType" [asYAML aa]
     asYAML (TypeOr aa ab) = asYAMLseq "TypeOr" [asYAML aa, asYAML ab]
     asYAML (TypeAnd aa ab) = asYAMLseq "TypeAnd" [asYAML aa, asYAML ab]
@@ -843,7 +860,7 @@ instance YAML Cxt where
 	    let ESeq [aa] = e
 	    liftM CxtSlurpy (fromYAML aa)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["CxtVoid","CxtItem","CxtSlurpy"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["CxtVoid","CxtItem","CxtSlurpy"] ++ " in node " ++ show e
     asYAML (CxtVoid) = asYAMLcls "CxtVoid"
     asYAML (CxtItem aa) = asYAMLseq "CxtItem" [asYAML aa]
     asYAML (CxtSlurpy aa) = asYAMLseq "CxtSlurpy" [asYAML aa]
@@ -875,7 +892,7 @@ instance YAML Pragma where
 	    let ESeq [aa, ab] = e
 	    liftM2 MkPrag (fromYAML aa) (fromYAML ab)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkPrag"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
+    fromYAML e = fail $ "no tag found: expecting " ++ show ["MkPrag"] ++ " in node " ++ show e
     asYAML (MkPrag aa ab) = asYAMLseq "MkPrag" [asYAML aa, asYAML ab]
 
 instance JSON Pragma where

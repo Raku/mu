@@ -138,8 +138,8 @@ op1EvalP6Y fileName = do
             tryT $ do
                 -- Inject the global bindings
                 stm $ do
-                    glob' <- readTVar globTVar
-                    writeTVar globTVar (glob `unionPads` glob')
+                    glob' <- readMPad globTVar
+                    writeMPad globTVar (glob `unionPads` glob')
                 evl <- asks envEval
                 evl ast
         x -> err x

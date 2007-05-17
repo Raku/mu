@@ -1364,7 +1364,7 @@ mixinRoles name roles = do
     let rolePkgs = map cast roles
         thisPkg  = cast name
 
-    stm . modifyTVar glob $ \(MkPad entries) ->
+    stm . modifyMPad glob $ \(MkPad entries) ->
         MkPad . Map.unionWith mergePadEntry entries . Map.fromList $
             [ (k{ v_package = thisPkg }, v)
             | (k, v) <- Map.assocs entries

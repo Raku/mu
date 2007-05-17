@@ -60,7 +60,7 @@ emptyEnv name genPad = stm $ do
     ref  <- newTVar Map.empty
     syms <- initSyms
     let globPad = combine (pad ++ syms) $ mkPad []
-    glob <- newTVar globPad
+    glob <- newMPad globPad
     init <- newTVar $ MkInitDat { initPragmas=[] }
     maxi <- newTVar $ MkObjectId 1
     return $ MkEnv
@@ -171,9 +171,7 @@ addGlobalSym :: PadMutator -- ^ 'Pad'-transformer that will insert the new
              -> Eval ()
 addGlobalSym newSym = do
     glob <- asks envGlobal
-    stm $ do
-        syms <- readTVar glob
-        writeTVar glob (newSym syms)
+    modifyMPad glob newSym
 
 trapVal :: Val -> Eval a -> Eval a
 trapVal val action = case val of
@@ -345,21 +343,6 @@ reducePos pos exp = do
     local (\e -> e{ envPos = pos }) $ do
         evalExp exp
 
-reducePad :: Scope -> Pad -> Exp -> Eval Val
-reducePad _ _ _ = fail "Hey - how did we get here anyway?"
-{- do
-reducePad scope lex exp = fail 
-    -- heuristics: if we are repeating ourselves, generate a new TVar.
-    lex' <- case scope of
-        SMy -> refreshPad lex
-        _   -> return lex
-    let implicits = Map.map (const ()) . Map.filter (ef_isContext . pe_flags) $ padEntries lex'
-    local (\e -> e
-        { envLexical    = lex' `unionPads` envLexical e
-        , envImplicit   = implicits `Map.union` envImplicit e
-        }) $ evalExp exp
--}
-
 {-
 reducePad STemp lex exp = do
     tmps <- mapM (\(sym, _) -> evalExp $ App (_Var "&TEMP") (Just $ Var sym) []) $ padToList lex
@@ -433,9 +416,9 @@ reduceSyn "" [] = do
     -- Reclose all global pads!
     glob <- asks envGlobal
     stm $ do
-        pad     <- readTVar glob
+        pad     <- readMPad glob
         pad'    <- reclosePad pad
-        writeTVar glob pad'
+        writeMPad glob pad'
         return undef
 
 reduceSyn "()" [exp] = reduce exp
@@ -499,7 +482,7 @@ reduceSyn "sub" [exp] = do
                 p'  <- snapPad p
                 return (PRuntime p', p')
             PCompiling p    -> do
-                p'  <- stm $ readTVar p
+                p'  <- readMPad p
                 return (lpad, p')
         let merged  = MkPad $ Map.unionsWith mergePadEntry (map (padEntries . snd) pads)
             lexpads = map fst pads
@@ -538,7 +521,7 @@ reduceSyn "but" [obj, block] = do
 reduceSyn "maybe" blocks = do
     env     <- ask
     subs    <- mapM fromCodeExp blocks
-    let runInSTM sub = runEvalSTM env (apply sub Nothing [])
+    let runInSTM sub = runEvalSTM env (applyInline sub Nothing [])
     guardSTM $ foldl1 orElse (map runInSTM subs)
 
 reduceSyn "if" [cond, bodyIf, bodyElse] = do
@@ -550,7 +533,7 @@ reduceSyn "cond" [cond, bodyIf, bodyElse] = do
     topic <- enterRValue $ enterEvalContext (cxtItem "Bool") cond
     vb    <- fromVal topic
     sub   <- fromCodeExp $ if vb then bodyIf else bodyElse
-    apply sub Nothing [App (_Var "&VAR") (Just (Val topic)) []]
+    applyInline sub Nothing [App (_Var "&VAR") (Just (Val topic)) []]
 
 reduceSyn "for" [list, body] = enterLoop $ do
     av    <- enterLValue $ enterEvalContext cxtSlurpyAny list
@@ -571,7 +554,7 @@ reduceSyn "for" [list, body] = enterLoop $ do
                     = (`afterLeave` if null rest then subLastBlocks else const [])
                     . (`beforeLeave` subNextBlocks)
                     $ if isFirst then sub' `beforeEnter` subFirstBlocks else sub'
-            rv <- apply realSub Nothing $ map (Val . VRef . MkRef) (take arity these)
+            rv <- applyInline realSub Nothing $ map (Val . VRef . MkRef) (take arity these)
             case rv of
                 VControl (ControlLoop LoopRedo) -> runBody vs sub' isFirst
                 VControl (ControlLoop LoopLast) -> return undef
@@ -581,14 +564,14 @@ reduceSyn "for" [list, body] = enterLoop $ do
 reduceSyn "gather" [exp] = do
     sub     <- fromVal =<< evalExp exp
     globTV  <- asks envGlobal
-    glob    <- stm $ readTVar globTV
+    glob    <- readMPad globTV
     oldAV   <- findSymRef takeVar glob
     oldSym  <- genSym takeVar oldAV
     newAV   <- newObject (mkType "Array")
     newSym  <- genSym takeVar newAV
-    stm $ writeTVar globTV (newSym glob)
-    enterGather $ apply sub Nothing []
-    readRef newAV `finallyM` stm (modifyTVar globTV oldSym)
+    writeMPad globTV (newSym glob)
+    enterGather $ applyInline sub Nothing []
+    readRef newAV `finallyM` stm (modifyMPad globTV oldSym)
     where
     takeVar = cast "$*TAKE"
 
@@ -601,7 +584,7 @@ reduceSyn "loop" exps = enterLoop $ do
     evalExp pre
     vb      <- evalCond
     if not vb then retEmpty else fix $ \runBody -> do
-        valBody <- apply (sub `beforeLeave` subNextBlocks) Nothing []
+        valBody <- applyInline (sub `beforeLeave` subNextBlocks) Nothing []
         let runNext = do
                 valPost <- evalExp post
                 vb      <- evalCond
@@ -614,7 +597,7 @@ reduceSyn "loop" exps = enterLoop $ do
 
 reduceSyn "given" [topic, body] = enterGiven $ do
     sub     <- fromCodeExp body
-    apply sub Nothing [App (_Var "&VAR") (Just topic) []]
+    applyInline sub Nothing [App (_Var "&VAR") (Just topic) []]
 
 reduceSyn "when" [match, body] = do
     result  <- reduce $ case unwrap match of
@@ -624,11 +607,11 @@ reduceSyn "when" [match, body] = do
     rb      <- fromVal result
     if not rb then retEmpty else do
         sub     <- fromCodeExp body
-        enterWhen $ apply sub Nothing []
+        enterWhen $ applyInline sub Nothing []
 
 reduceSyn "default" [body] = do
     sub     <- fromCodeExp body
-    enterWhen $ apply sub Nothing []
+    enterWhen $ applyInline sub Nothing []
 
 reduceSyn name [cond, body]
     | "while" <- name = doWhileUntil id False
@@ -642,7 +625,7 @@ reduceSyn name [cond, body]
         origSub <- fromVal =<< (enterRValue $ enterEvalContext (cxtItem "Code") body)
         let sub = origSub `beforeLeave` subNextBlocks
         rv  <- if not postloop then retEmpty else fix $ \runBody -> do
-            rv <- apply sub Nothing [Val $ castV undef]
+            rv <- applyInline sub Nothing [Val $ castV undef]
             case rv of
                 VControl (ControlLoop LoopRedo) -> runBody
                 _                               -> return rv
@@ -655,7 +638,7 @@ reduceSyn name [cond, body]
                     vb    <- fromVal vbool
                     if f vb
                         then fix $ \runBody -> do
-                            rv <- apply sub Nothing [Val vbool]
+                            rv <- applyInline sub Nothing [Val vbool]
                             case rv of
                                 VControl (ControlLoop LoopRedo) -> runBody
                                 VControl (ControlLoop LoopLast) -> return prev
@@ -1063,7 +1046,7 @@ specialApp = Map.fromList
                    , envPos     = envPos caller
                    }
         local callerEnv $ do
-            val <- doApply ApplyDisplaced sub Nothing args
+            val <- applyDisplaced sub Nothing args
             retShift =<< evalVal val
             retEmpty
     , "&callwith"       ... \inv args -> do
@@ -1124,10 +1107,10 @@ reduceApp subExp invs args = do
     vsub <- enterEvalContext (cxtItem "Code") subExp
     (`juncApply` [ApplyArg dummyVar vsub False]) $ \[arg] -> do
         sub  <- fromVal $ argValue arg
-        doApply ApplyDisplaced sub invs args
+        applyDisplaced sub invs args
 
 applyCapture :: VCode -> ValCapt -> Eval Val
-applyCapture sub capt = doApply ApplyDisplaced sub inv (fromP argsPos ++ argsNam)
+applyCapture sub capt = applyDisplaced sub inv (fromP argsPos ++ argsNam)
     where
     argsPos = mapP (Val . castV) (f_positionals feed)
     argsNam = [ Syn "named" [Val (VStr (cast k)), Val (castV (vs !: lst))] | (k, vs) <- Map.toList (f_nameds feed), let lst = lengthP vs - 1, lst >= 0 ]
@@ -1299,7 +1282,7 @@ applySub sub invs args
     = applySub sub invs (args' ++ rest)
     -- fix subParams to agree with number of actual arguments
     | MkCode{ subAssoc = A_list, subParams = (p:_) }   <- sub
-    = doApply ApplyDisplaced sub{ subParams = length args `replicate` p } invs args
+    = applyDisplaced sub{ subParams = length args `replicate` p } invs args
     -- chain-associativity
     | MkCode{ subAssoc = A_chain }      <- sub
     , Nothing                           <- invs
@@ -1308,7 +1291,7 @@ applySub sub invs args
         _                   -> applyChainSub sub args
     -- normal application
     | otherwise
-    = doApply ApplyDisplaced sub invs args
+    = applyDisplaced sub invs args
     where
     mungeChainSub :: VCode -> [Exp] -> Eval Val
     mungeChainSub sub args = do
@@ -1331,7 +1314,7 @@ applySub sub invs args
     applyChainSub :: VCode -> [Exp] -> Eval Val
     applyChainSub sub args = tryAnyComprehension [] args
         where
-        vanillaApply = doApply ApplyDisplaced sub' Nothing args
+        vanillaApply = applyDisplaced sub' Nothing args
         tryAnyComprehension _ [] = vanillaApply
         tryAnyComprehension pre (pivot:post)
             | App (Var var') _ _    <- unwrap pivot
@@ -1344,7 +1327,7 @@ applySub sub invs args
                 items <- fromVal =<< reduce pivot
                 fmap VList . (`filterM` items) $ \item -> do
                     vbool <- enterRValue . enterContext (cxtItem "Bool") $ do
-                        doApply ApplyDisplaced sub' Nothing (reverse pre ++ (Val item:post))
+                        applyDisplaced sub' Nothing (reverse pre ++ (Val item:post))
                     fromVal vbool
             | otherwise = do
                 -- Accumulate pre and scan to the next.  Note pre must be reversed as above.
@@ -1409,15 +1392,21 @@ bindVar var val
 
 {-|
 Apply a sub (or other code object) to an (optional) invocant, and
-a list of arguments.
-
-Mostly delegates to 'doApply' after explicitly retrieving the local 'Env'.
+a list of arguments.  Does not create a CALLER frame.
 -}
-apply :: VCode       -- ^ The sub to apply
+applyInline :: VCode       -- ^ The sub to apply
       -> (Maybe Exp) -- ^ Explicit invocant
       -> [Exp]       -- ^ List of arguments (not including explicit invocant)
       -> Eval Val
-apply = doApply ApplyInline
+applyInline = doApply ApplyInline
+
+applyDisplaced :: VCode       -- ^ The sub to apply
+      -> (Maybe Exp) -- ^ Explicit invocant
+      -> [Exp]       -- ^ List of arguments (not including explicit invocant)
+      -> Eval Val
+applyDisplaced vcode = case subType vcode of
+    SubPrim -> doApply ApplyInline vcode
+    _       -> doApply ApplyDisplaced vcode
 
 -- XXX not entirely sure how this evaluation should proceed
 reduceNamedArg :: Exp -> Eval Exp

@@ -3,6 +3,7 @@
 module DrIFT.JSON where
 import Data.Ratio
 import Data.List (intersperse)
+import Data.Word (Word)
 import qualified UTF8 as Buf
 
 type JSONClass = String
@@ -38,6 +39,9 @@ instance JSON () where
     showJSON _ = "null"
 
 instance JSON Int where
+    showJSON = show
+
+instance JSON Word where
     showJSON = show
 
 instance JSON Buf.ByteString where
