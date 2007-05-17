@@ -129,9 +129,9 @@ dies_ok -> { "Testing dies_ok" }, :desc('... it dies_ok'), :todo(1);
 
 ## lives_ok
 
-lives_ok -> { return "test" }, '... it lives_ok';
-lives_ok -> { return "test" }, desc => '... it lives_ok';
-lives_ok -> { return "test" }, :desc('... it lives_ok');
+lives_ok -> { "test" }, '... it lives_ok';
+lives_ok -> { "test" }, desc => '... it lives_ok';
+lives_ok -> { "test" }, :desc('... it lives_ok');
 
 lives_ok -> { die "test" }, desc => '... it lives_ok', todo => 1;
 lives_ok -> { die "test" }, :desc('... it lives_ok'), :todo(1);
