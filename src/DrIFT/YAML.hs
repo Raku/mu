@@ -250,6 +250,7 @@ instance (Typeable a, YAML a) => YAML (TVar a) where
                 atomically (writeTVar tv j)
                 return tv
     fromYAMLElem = (newTVarIO =<<) . fromYAMLElem
+-}
 
 
 asYAMLanchor :: a -> EmitAs YamlNode -> EmitAs YamlNode
@@ -299,9 +300,7 @@ compressYamlNode node = do
     visitNode node'
 
 eqNode :: YamlNode -> YamlNode -> Bool
-eqNode MkNode{ n_id = x } MkNode{ n_id = y } | x > 0, x == y = True
-eqNode x@MkNode{ n_anchor = ASingleton } y@MkNode{ n_anchor = ASingleton } = (n_tag x == n_tag y) && eqElem (n_elem x) (n_elem y)
-eqNode _ _ = False
+eqNode x y = (n_tag x == n_tag y) && eqElem (n_elem x) (n_elem y)
 
 eqElem :: YamlElem -> YamlElem -> Bool
 eqElem ENil         ENil        = True
@@ -339,41 +338,19 @@ visitElem (EMap ps)      = fmap EMap (mapM visitPair ps)
 visitElem e             = return e
 
 markNode :: (?seenHash :: SeenHash, ?duplHash :: DuplHash) => YamlNode -> IO YamlNode
-markNode node@MkNode{ n_anchor = AReference r } = {-# SCC "ref" #-} do
-    -- All we need to do is to write this into duplHash.
-    let symid   = fromIntegral r
-        node'   = node{ n_anchor = ASingleton, n_id = symid }
-    rv  <- Hash.lookup ?seenHash symid
-    case rv of
-        Just (Just prevNode)    -> return prevNode
-        _                       -> do
-            Hash.insert ?seenHash symid Nothing
-            return node'
-markNode node@MkNode{ n_anchor = AAnchor r } = {-# SCC "anc" #-} do
-    -- All we need to do is to write this into duplHash.
-    -- XXX - But maybe also descend deeper?
-    (_, elem')    <- markElem (n_elem node)
-    let symid   = fromIntegral r
-        node'   = node{ n_anchor = ASingleton, n_id = symid, n_elem = elem' }
-    Hash.insert ?seenHash symid (Just node')
-    Hash.insert ?duplHash node' 0
-    return node'
-markNode node = {-# SCC "reg" #-} do
+markNode node = do
     (symid32, elem')    <- markElem (n_elem node)
     let node' = node{ n_id = symid }
         symid = fromIntegral (iterI32s tagid symid32)
         tagid = maybe 0 Buf.hash (n_tag node)
     rv  <- Hash.lookup ?seenHash symid
     case rv of
-        Just (Just _)   -> {-# SCC "reg1" #-} do
-            Hash.insert ?duplHash node' 0
---          Hash.update ?duplHash prevNode 0
+        Just (Just prevNode)   -> do
+            Hash.update ?duplHash node' 0
+            Hash.update ?duplHash prevNode 0
             Hash.update ?seenHash symid Nothing
-            return ()
-        Just _  -> return () -- {-# SCC "reg2" #-} Hash.update ?duplHash node' 0
-        _       -> {-# SCC "reg3" #-} do
-            Hash.insert ?seenHash symid (Just undefined)
-            return ()
+        Just _  -> Hash.update ?duplHash node' 0
+        _       -> Hash.update ?seenHash symid (Just node')
     return node'{ n_elem = elem' }
 
 markElem :: (?seenHash :: SeenHash, ?duplHash :: DuplHash) => YamlElem -> IO (Int32, YamlElem)
