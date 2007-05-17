@@ -765,14 +765,15 @@ ruleLoadPerlPackage pkg use lang = do
             ]
 
         Val (VList exportList) <- res `seq` unsafeEvalExp $ case lang of
-            -- map { ~$_, [::Pkg.can($_)] }, @importlist
+            -- map { ~$_, ::Pkg.can($_) }, @importlist
             "perl5" -> App (_Var "&map") Nothing [Syn "sub"
-                [ Val . VCode $ mkSub
-                    { subBody   = Syn ","
+                [ Val . VCode $ mkPrim
+                    { subBody       = Syn ","
                         [ App (_Var "&prefix:<~>") (Just $ Var varTopic) []
-                        , Syn "\\[]" [ App (_Var "&can") (Just $ _Var (':':'*':pkg)) [Var varTopic] ]
+                        , App (_Var "&can") (Just $ _Var (':':'*':pkg)) [Var varTopic]
                         ]
-                    , subParams = [defaultScalarParam]
+                    , subParams     = [defaultScalarParam]
+                    , subInnerPad   = defaultScalarPad
                     }
                 ], imp ]
             -- %Pkg::EXPORTS.kv
@@ -998,9 +999,10 @@ possiblyExit (Val (VControl (ControlExit exit))) = do
     rv <- unsafeEvalExp $ Stmts (Syn "for"
         [ _Var "@Main::END"
         , Syn "sub"
-            [ Val . VCode $ mkSub
-                { subBody   = App (Var varTopic) Nothing []
-                , subParams = [defaultScalarParam]
+            [ Val . VCode $ mkPrim
+                { subBody       = App (Var varTopic) Nothing []
+                , subParams     = [defaultScalarParam]
+                , subInnerPad   = defaultScalarPad
                 }
             ]
         ]) (_Var "@Main::END")
@@ -1650,7 +1652,7 @@ s_postTerm :: RuleParser (Exp -> Exp)
 s_postTerm = verbatimRule "term postfix" $ do
     hasDot <- option Nothing $ choice [try hyperDot, dotChar, try bangChar]
     choice $ case hasDot of
-        Just '.' -> (ruleAssignInvocation:ruleInvocation:postTerms)
+        Just '.' -> (ruleAssignInvocation:ruleMetaInvocation:ruleInvocation:postTerms)
         Just '!' -> (bangKludged ruleInvocation:postTerms)
         Just '>' -> map hyperKludged (ruleAssignInvocation:ruleInvocation:postTerms)
         _        -> postTerms
@@ -1675,6 +1677,10 @@ s_postTerm = verbatimRule "term postfix" $ do
         symbol "="
         f       <- ruleInvocation
         return $ \x -> Syn "=" [x, f x]
+    ruleMetaInvocation = do
+        char '^'
+        f       <- ruleInvocation
+        return $ \x -> f (App (_Var "&HOW") (Just x) [])
     -- XXX - this should happen only in a "trusts" class!
     bangKludged p = do
         f <- p
