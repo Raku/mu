@@ -724,7 +724,7 @@ Hence, the C<leave> function:
 
 is really just short for:
 
-    $?BLOCK.leave(1,2,3)
+    &?BLOCK.leave(1,2,3)
 
 To return from your immediate caller, you can say:
 

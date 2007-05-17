@@ -1674,7 +1674,7 @@ Here are some possibilities:
     @?LABEL     Which nested block labels am I in?
 
 All the nested C<@?> variables are ordered from the innermost to the
-outermost, so C<@?BLOCK[0]> is always the same as C<$?BLOCK>.
+outermost, so C<@?BLOCK[0]> is always the same as C<&?BLOCK>.
 
 Note that some of these things have parallels in the C<*> space at run time:
 

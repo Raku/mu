@@ -1910,7 +1910,7 @@ to your successor" as appropriate.)  The object specifies the scope to exit,
 and the method's arguments specify the return value.  If the object
 is omitted (by use of the function or listop forms), the innermost
 block is exited.  Otherwise you must use something like C<context>
-or C<$?BLOCK> or a contextual variable to specify the scope you
+or C<&?BLOCK> or a contextual variable to specify the scope you
 want to exit.  A label (such as a loop label) previously seen in
 the lexical scope also works as a kind of singleton context object:
 it names a statement that is serving both as an outer lexical scope
