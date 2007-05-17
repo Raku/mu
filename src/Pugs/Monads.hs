@@ -102,8 +102,8 @@ enterCaller = local envEnterCaller
 
 envEnterCaller :: Env -> Env
 envEnterCaller env = env
-    { envDynPads    = (envLexical env:envDynPads env)
-    , envFrames     = FrameRoutine `Set.insert` envFrames env
+    { envCaller = Just env
+    , envFrames = FrameRoutine `Set.insert` envFrames env
     }
 
 {-|
@@ -276,7 +276,7 @@ enterSub sub action
         | otherwise = do
             subRec    <- genSym (cast "&?ROUTINE") (codeRef (orig sub))
             callerRec <- genSym (cast "&?CALLER_CONTINUATION") (codeRef $ ccSub cc env)
-            pad       <- mergeLexPads (subLexPads sub)
+            pad       <- mergeMPads (subLexPads sub)
             return $ \e -> e
                 { envLexical = combine ([subRec, callerRec]) pad
                 , envPackage = subPackage sub

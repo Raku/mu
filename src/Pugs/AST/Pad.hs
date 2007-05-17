@@ -1,6 +1,7 @@
 {-# OPTIONS_GHC -fglasgow-exts -fparr #-}
 module Pugs.AST.Pad (
-  mkPad, diffPads, unionPads, padKeys, filterPad, adjustPad, mergePadEntry, emptyPad, mergeLexPads
+  mkPad, diffPads, unionPads, padKeys, filterPad, adjustPad, mergePadEntry, emptyPad,
+  mergeMPads, readMPad, writeMPad
 ) where
 import Pugs.Internals
 import Pugs.AST.SIO
@@ -25,14 +26,20 @@ mkPad :: [(Var, PadEntry)] -> Pad
 mkPad = listToPad
 
 {-|
-Retrieve a sub's lexical 'Pad'.
-
-If the sub has no associated environment, an empty 'Pad' is returned.
+Merge multiple mutable pads into one.
 -}
-mergeLexPads :: [TVar Pad] -> Eval Pad
-mergeLexPads chain = stm $ do
+mergeMPads :: MonadSTM m => [MPad] -> m Pad
+mergeMPads chain = stm $ do
     pads <- mapM readTVar chain
     return . MkPad $ Map.unionsWith mergePadEntry (map padEntries pads)
+
+readMPad :: MonadSTM m => MPad -> m Pad
+readMPad = stm . readTVar
+
+writeMPad :: MonadSTM m => MPad -> Pad -> m ()
+writeMPad mp p = stm $ writeTVar mp p
+
+
 
 {-|
 Return the difference between two 'Pad's.

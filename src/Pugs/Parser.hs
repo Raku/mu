@@ -21,7 +21,7 @@ module Pugs.Parser (
     parseTerm, parseNoParenArgList, ruleSubName, ruleSigil,
 
     -- Circularity: Used in Pugs.Parser.Literal
-    ruleExpression,
+    ruleExpression, retInterpolatedBlock,
     ruleArraySubscript, ruleHashSubscript, ruleCodeSubscript,
     ruleInvocationParens, verbatimVarNameString, ruleVerbatimBlock,
     ruleBlockLiteral, ruleDoBlock, regularVarName, regularVarNameForSigil, ruleNamedMethodCall,
@@ -46,7 +46,7 @@ import qualified Data.Set as Set
 
 -- Lexical units --------------------------------------------------
 
-ruleBlock :: RuleParser Exp
+ruleBlock :: RuleParser BlockInfo
 ruleBlock = do
     lvl <- gets s_bracketLevel
     case lvl of
@@ -67,21 +67,20 @@ ruleBlock = do
             -- Manually insert a ';' symbol here!
             insertIntoPosition ";" 
             -- Register that this is an eol-block, thus can't be hash composers
-            return (Ann (Prag [MkPrag "eol-block" 0]) rv)
+            retBlockWith (Ann (Prag [MkPrag "eol-block" 0])) rv
 
-ruleVerbatimBlock :: RuleParser Exp
+ruleVerbatimBlock :: RuleParser BlockInfo
 ruleVerbatimBlock = verbatimRule "block" $ do
-    body <- verbatimBraces ruleBlockBody
-    return $ Syn "block" [body]
+    block <- verbatimBraces ruleBlockBody
+    retBlockWith (Syn "block" . (:[])) block
 
 ruleEmptyExp :: RuleParser Exp
 ruleEmptyExp = (<?> "") . expRule $ do
     symbol ";"
     return emptyExp
 
-ruleBlockBody :: RuleParser Exp
-ruleBlockBody =
-  localEnv $ do
+ruleBlockBody :: RuleParser BlockInfo
+ruleBlockBody = localBlock $ do
     whiteSpace
     ver     <- option "6" (try (symbol "use" >> rulePerlVersion))
     case ver of
@@ -251,10 +250,10 @@ rulePackageBlockDeclaration = rule "package block declaration" $ do
         return rv
     case rv of 
         Right (_, kind, pkgVal, env) -> do
-            body <- verbatimBraces ruleBlockBody
-            env' <- ask
+            block   <- verbatimBraces ruleBlockBody
+            env'    <- ask
             putRuleEnv env'{ envPackage = envPackage env }
-            return $ Syn "namespace" [kind, pkgVal, body]
+            retInterpolatedBlock =<< retBlockWith (\body -> Syn "namespace" [kind, pkgVal, body]) block
         Left err -> fail err
 
 rulePackageDeclaration :: RuleParser Exp
@@ -362,10 +361,10 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
 
     -- We have the prototype now; install it immediately!
     --   fill in what we can about the sub before getting the block (below)
-    let template = mkCode
+    let sub@(VCode template) = VCode $ mkCode
             { isMulti       = isMulti /= ImplicitNil
             , subName       = cast nameQualified
-            , subEnv        = Just env
+            , subLexPads    = envLexPads env
             , subParams     = signature
             , subType       = if "primitive" `elem` traits
                 then SubPrim else styp
@@ -378,7 +377,6 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             , subSlurpLimit = []
             , subCont       = Nothing
             }
-    sub <- fmap VCode . collectTraits $ template
 
     -- Don't add the sub if it's unsafe and we're in safemode (XXX repeated below)
     newPad <- if ("unsafe" `elem` traits && safeMode) then return (mkPad []) else do
@@ -386,9 +384,9 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
         unsafeEvalLexDiff (mkSym sub nameQualified Noop)
             `finallyM` clearDynParsers
 
-    body    <- localEnv ruleBlock
+    block    <- ruleBlock
 
-    let (fun, names, _) = doExtract styp formal body
+    let (fun, names, _) = extractNamedPlaceholders styp formal (bi_body block)
 
     -- Check for placeholder vs formal parameters
     when (isJust formal && (not.null) names) $
@@ -397,12 +395,12 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     env <- ask
 
     let template' = template
-                { subBody   = case isMulti of
+                { subBody       = case isMulti of
                     ImplicitProto   -> fun -- XXX - Give Proto the tie-breaker status?
                     _               -> fun
-                , subEnv    = Just env
+                , subLexPads    = envLexPads env
                 }
-    sub <- fmap VCode . collectTraits $ template'
+        sub = VCode (bi_traits block template')
     
     -- Don't add the sub if it's unsafe and we're in safemode.
     if "unsafe" `elem` traits && safeMode then return emptyExp else do
@@ -593,7 +591,6 @@ ruleMemberDeclaration = do
     let sub = mkPrim
             { isMulti       = False
             , subName       = cast name
-            , subEnv        = Nothing
             , subReturns    = if null typ then typeOfSigil (cast sigil) else mkType typ
             , subBody       = fun
             , subParams     = [selfParam $ cast (envPackage env)]
@@ -917,12 +914,12 @@ ruleClosureTrait rhs = tryRule "closure trait" $ do
     popClosureTrait
     when (rhs && not (name `elem` rhsTraits)) $
         fail (name ++ " may only be used at statement level")
-    let (fun, params) = extractPlaceholderVars block Set.empty
+    let (fun, params) = extractPlaceholderVars (bi_body block) Set.empty
     -- Check for placeholder vs formal parameters
     unless (Set.null $ Set.delete varTopic params) $
         fail "Closure traits take no formal parameters"
     env <- ask
-    let code = VCode mkSub { subName = cast name, subBody = fun, subEnv = Just env } 
+    let code = VCode mkSub{ subName = cast name, subBody = fun, subLexPads = envLexPads env } 
     case name of
         "END"   -> do
             -- We unshift END blocks to @*END at compile-time.
@@ -965,10 +962,10 @@ ruleClosureTrait rhs = tryRule "closure trait" $ do
 {-| Match a @q:code { ... }@ quotation -}
 ruleCodeQuotation :: RuleParser Exp
 ruleCodeQuotation = rule "code quotation" $ do
-    -- XXX - This is entirely kluge
+    -- XXX - This is entirely kluge; it drops traits in the body too
     symbol "q:code" >> optional (symbol "(:COMPILING)")
-    body <- verbatimBraces ruleBlockBody
-    return $ Syn "q:code" [ body ]
+    block <- ruleBlockBody
+    return (Syn "q:code" [bi_body block])
     
 -- | If we've executed code like @BEGIN { exit }@, we've to run all @\@*END@
 --   blocks and then exit. Returns the input expression if there's no need to
@@ -1194,7 +1191,7 @@ s_postLoop = rule "postfix loop" $ do
     cond    <- choice $ map symbol ["while", "until"]
     exp     <- ruleExpression
     return $ \body -> do
-        block <- retBlockWithoutDefaultParams SubBlock Nothing False body
+        block <- retBlockWithoutDefaultParams SubBlock Nothing False (emptyBlockInfo{ bi_body = body })
         return $ Syn cond [exp, block]
 
 {-|
@@ -1209,7 +1206,7 @@ s_postIterate = rule "postfix iteration" $ do
     cond <- choice $ map symbol ["for", "given"]
     exp <- ruleExpression
     return $ \body -> do
-        block <- retBlock SubBlock Nothing False body
+        block <- retBlock SubBlock Nothing False (emptyBlockInfo{ bi_body = body })
         return $ Syn cond [exp, block]
 
 ruleBareOrPointyBlockLiteralWithoutDefaultParams :: RuleParser Exp
@@ -1219,14 +1216,10 @@ ruleBareOrPointyBlockLiteralWithoutDefaultParams = rule "bare or pointy block co
     body    <- ruleBlock
     retBlockWithoutDefaultParams styp formal lvalue body
 
-retBlockWithoutDefaultParams :: SubType -> Maybe [Param] -> Bool -> Exp -> RuleParser Exp
-retBlockWithoutDefaultParams styp formal lvalue body = do
-    blk <- retVerbatimBlock styp formal lvalue body
-    return $ runIdentity (transformExp deParam blk)
-    where
-    deParam (Syn "sub" [Val (VCode sub@MkCode{ subParams = prms })]) = do
-        return (Syn "sub" [Val $ VCode sub{ subParams = maybe [] (const $ prms) formal}])
-    deParam x = return x
+retBlockWithoutDefaultParams :: SubType -> Maybe [Param] -> Bool -> BlockInfo -> RuleParser Exp
+retBlockWithoutDefaultParams styp formal lvalue block = do
+    (Syn "sub" [Val (VCode sub@MkCode{ subParams = prms })]) <- retVerbatimBlock styp formal lvalue block
+    return (Syn "sub" [Val $ VCode sub{ subParams = maybe [] (const $ prms) formal}])
 
 ruleBareOrPointyBlockLiteral :: RuleParser Exp
 ruleBareOrPointyBlockLiteral = rule "bare or pointy block construct" $
@@ -1238,31 +1231,33 @@ ruleBlockLiteral = rule "block construct" $
 
 ruleBlockVariants :: [RuleParser (SubType, Maybe [Param], Bool)] -> RuleParser Exp
 ruleBlockVariants variants = do
-    (styp, formal, lvalue) <- option (SubBlock, Nothing, False)
-        $ choice variants
-    body <- ruleBlock
-    retBlock styp formal lvalue body
+    (styp, formal, lvalue) <- option (SubBlock, Nothing, False) $ choice variants
+    block <- ruleBlock
+    retBlock styp formal lvalue block
 
+retBlock :: SubType -> Maybe [Param] -> Bool -> BlockInfo -> RuleParser Exp
+retBlock SubBlock Nothing lvalue block = do
+    isHash  <- hashComposerCheck (bi_body block)
+    if not isHash then retVerbatimBlock SubBlock Nothing lvalue block else do
+        retInterpolatedBlock (block{ bi_body = Syn "\\{}" [bi_body block] })
+retBlock typ formal lvalue block = retVerbatimBlock typ formal lvalue block
 
-retBlock :: SubType -> Maybe [Param] -> Bool -> Exp -> RuleParser Exp
-retBlock SubBlock Nothing lvalue body = do
-    rv  <- extractHash body
-    case rv of
-        Just hashExp    -> return $ Syn "\\{}" [hashExp]
-        _               -> retVerbatimBlock SubBlock Nothing lvalue body
-retBlock typ formal lvalue body = retVerbatimBlock typ formal lvalue body
+retInterpolatedBlock :: BlockInfo -> RuleParser Exp
+retInterpolatedBlock block = do
+    exp <- retVerbatimBlock SubBlock Nothing False block
+    return (App exp Nothing [])
 
-retVerbatimBlock :: SubType -> Maybe [Param] -> Bool -> Exp -> RuleParser Exp
-retVerbatimBlock styp formal lvalue body = expRule $ do
-    let (fun, names, params) = doExtract styp formal body
+retVerbatimBlock :: SubType -> Maybe [Param] -> Bool -> BlockInfo -> RuleParser Exp
+retVerbatimBlock styp formal lvalue block = expRule $ do
+    let (fun, names, params) = extractNamedPlaceholders styp formal (bi_body block)
     -- Check for placeholder vs formal parameters
     when (isJust formal && (not.null) names) $
         fail "Cannot mix placeholder variables with formal parameters"
     env <- ask
-    sub <- collectTraits $ mkCode
+    let sub = bi_traits block $ mkCode
             { isMulti       = False
             , subName       = __"<anon>"
-            , subEnv        = Just env
+            , subLexPads    = envLexPads env
             , subType       = styp
             , subAssoc      = ANil
             , subReturns    = anyType
@@ -1361,7 +1356,6 @@ ruleVarDecl = rule "variable declaration" $ do
         let sub = mkPrim
                 { isMulti       = False
                 , subName       = _cast (cast accessor)
-                , subEnv        = Nothing
                 , subReturns    = typeOfParam prm
                 , subBody       = if isWritable prm then fun else Syn "val" [fun]
                 , subParams     = [selfParam $ cast pkg]

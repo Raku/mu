@@ -13,10 +13,14 @@ import qualified Data.Set as Set
 grammaticalCategories :: [String]
 grammaticalCategories = ["prefix_circumfix_meta_operator:","infix_circumfix_meta_operator:","prefix_postfix_meta_operator:","postfix_prefix_meta_operator:","infix_postfix_meta_operator:","statement_modifier:","statement_control:","scope_declarator:","trait_auxiliary:","trait_verb:","regex_mod_external:","regex_mod_internal:","regex_assertion:","regex_backslash:","regex_metachar:","postcircumfix:","circumfix:","postfix:","infix:","prefix:","quote:","term:"]
 
+
+retBlockWith :: (Exp -> Exp) -> BlockInfo -> RuleParser BlockInfo
+retBlockWith f bi = return bi{ bi_body = f (bi_body bi) }
+
 -- around a block body we save the package and the current lexical pad
 -- at the start, so that they can be restored after parsing the body
-localEnv :: RuleParser Exp -> RuleParser (Pad, Exp)
-localEnv m = do
+localBlock :: RuleParser Exp -> RuleParser BlockInfo
+localBlock m = do
     state   <- get
 
     compPad <- return $! unsafePerformSTM $! newTVar emptyPad
@@ -30,8 +34,16 @@ localEnv m = do
             , envCompPad = Just compPad
             }
         }
-    rv      <- m
+
+    body    <- m
     state'  <- get
+
+    -- Remove from knownVars the bindings belonging to this scope .
+    let outerKnownVars = Map.filter (/= compPad) (s_knownVars state')
+        (traits, outerTraits) = case s_closureTraits state' of
+            (t:ts)  -> (t, ts)
+            _       -> (id, [])
+
     put state
         { s_env = (s_env state')
             { envPackage = envPackage env
@@ -41,9 +53,10 @@ localEnv m = do
         , s_closureTraits = s_closureTraits state'
         , s_outerVars     = Map.filter (/= compPad) (s_outerVars state')
         }
+
     -- Re-read compile time refs into the new protos at end of scope.
     newPad <- return $! unsafePerformSTM $! do
-        curPad <- readTVar compPad
+        curPad  <- readTVar compPad
         entries <- forM (padToList curPad) $ \(var, entry) -> do
             proto   <- readPadEntry entry
             let newEntry = entry{ pe_proto = proto }
@@ -51,7 +64,7 @@ localEnv m = do
         newPad <- listToPad (length entries `seq` entries)
         writeTVar compPad newPad
         return newPad
-    return (newPad, rv)
+    return $ MkBlockInfo{ bi_pad = newPad, bi_body = body, bi_traits = traits }
 
 ruleParamList :: ParensOption -> RuleParser a -> RuleParser (Maybe [[a]])
 ruleParamList wantParens parse = rule "parameter list" $ do
@@ -105,8 +118,8 @@ defaultParamFor SubBlock    = [defaultScalarParam]
 defaultParamFor SubPointy   = []
 defaultParamFor _           = [defaultArrayParam]
 
-doExtract :: SubType -> Maybe [Param] -> Exp -> (Exp, [Var], [Param])
-doExtract SubBlock formal body = (fun, names', params)
+extractNamedPlaceholders :: SubType -> Maybe [Param] -> Exp -> (Exp, [Var], [Param])
+extractNamedPlaceholders SubBlock formal body = (fun, names', params)
     where
     (fun, names) = extractPlaceholderVars body Set.empty
     names' | isJust formal
@@ -114,9 +127,9 @@ doExtract SubBlock formal body = (fun, names', params)
            | otherwise
            = sortNames names
     params = map nameToParam names' ++ (maybe [] id formal)
-doExtract SubPointy formal body = (body, [], maybe [] id formal)
-doExtract SubMethod formal body = (body, [], maybe [] id formal)
-doExtract _ formal body = (body, names', params)
+extractNamedPlaceholders SubPointy formal body = (body, [], maybe [] id formal)
+extractNamedPlaceholders SubMethod formal body = (body, [], maybe [] id formal)
+extractNamedPlaceholders _ formal body = (body, names', params)
     where
     (_, names) = extractPlaceholderVars body Set.empty
     names' | isJust formal
@@ -177,30 +190,30 @@ selfParam typ = MkOldParam
     , paramDefault  = Noop
     }
 
-extractHash :: Exp -> RuleParser (Maybe Exp)
-extractHash exp
-    | Ann (Prag [MkPrag "eol-block" _]) _ <- exp = case result of
-        Just{}  -> fail "Closing hash curly may not terminate a line;\nplease add a comma or a semicolon to disambiguate"
-        _       -> return Nothing
-    | otherwise = return result
+hashComposerCheck :: Exp -> RuleParser Bool
+hashComposerCheck exp
+    | Ann (Prag [MkPrag "eol-block" _]) _ <- exp = do
+        when isHash $
+            fail "Closing hash curly may not terminate a line;\nplease add a comma or a semicolon to disambiguate"
+        return False
+    | otherwise = return isHash
     where
-    result = extractHash' (possiblyUnwrap exp)
+    isHash = doCheck (possiblyUnwrap exp)
 
     possiblyUnwrap (Ann _ exp) = possiblyUnwrap exp
     possiblyUnwrap (Syn "block" [exp]) = unwrap exp
     possiblyUnwrap (App (Val (VCode (MkCode { subType = SubBlock, subBody = fun }))) Nothing []) = unwrap fun
     possiblyUnwrap x = x
     
-    isHashOrPair (Ann _ exp) = isHashOrPair exp
-    isHashOrPair (App (Var var) _ _) = (var == cast "&pair") || (var == cast "&infix:=>") 
-    isHashOrPair (Syn "%{}" _) = True
-    isHashOrPair (Var var) = v_sigil var == SHash
-    isHashOrPair _ = False
+    isHashOrPair (Ann _ exp)            = isHashOrPair exp
+    isHashOrPair (App (Var var) _ _)    = (var == cast "&pair") || (var == cast "&infix:=>") 
+    isHashOrPair (Syn "%{}" _)          = True
+    isHashOrPair (Var var)              = v_sigil var == SHash
+    isHashOrPair _                      = False
     
-    extractHash' exp                      | isHashOrPair exp    = Just exp
-    extractHash' exp@(Syn "," (subexp:_)) | isHashOrPair subexp = Just exp
-    extractHash' exp@Noop = Just exp
-    extractHash' _ = Nothing
+    doCheck Noop                   = True
+    doCheck (Syn "," (subexp:_))   = isHashOrPair subexp
+    doCheck exp                    = isHashOrPair exp
 
 tryLookAhead :: RuleParser a -> RuleParser b -> RuleParser a
 tryLookAhead rule after = try $ do

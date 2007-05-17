@@ -10,7 +10,7 @@ module Pugs.AST.Internals (
     InitDat(..),
     SubAssoc(..), TraitBlocks(..), emptyTraitBlocks,
 
-    Pad(..), PadEntry(..), EntryFlags(..), PadMutator, -- uses Var, TVar, VRef
+    MPad, Pad(..), PadEntry(..), EntryFlags(..), PadMutator, -- uses Var, TVar, VRef
     Param(..), -- uses Cxt, Exp
     Params, -- uses Param
     Bindings, -- uses Param, Exp
@@ -1022,12 +1022,14 @@ instance Monoid SubAssoc where
     mappend ANil y = y
     mappend x    _ = x
 
+type MPad = TVar Pad
+
 -- | Represents a sub, method, closure etc. -- basically anything callable.
 data VCode = MkCode
     { isMulti           :: !Bool        -- ^ Is this a multi sub\/method?
     , subName           :: !ByteString  -- ^ Name of the closure
     , subType           :: !SubType     -- ^ Type of the closure
-    , subLexPads        :: ![TVar Pad]  -- ^ Lexical pad for sub\/method
+    , subLexPads        :: ![MPad]      -- ^ Lexical (mutable) pads for sub\/method
     , subPackage        :: !Pkg         -- ^ Package of the subroutine
     , subAssoc          :: !SubAssoc    -- ^ Associativity
     , subParams         :: !Params      -- ^ Parameters list

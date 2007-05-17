@@ -98,18 +98,18 @@ detectSourceEncoding bytes = case bytes of
 
 makeState :: Env -> RuleState
 makeState env = MkState
-    { s_env           = env
-    , s_parseProgram  = parseProgram
-    , s_dynParsers    = MkDynParsersEmpty
-    , s_bracketLevel  = StatementBracket
---  , s_char          = ' '
---  , s_name          = nullID
---  , s_pos           = 0
-    , s_wsLine        = 0
-    , s_wsColumn      = 0
-    , s_blockPads     = Map.empty
-    , s_closureTraits = [id]
-    , s_outerVars     = Set.empty
+    { s_env             = env
+    , s_parseProgram    = parseProgram
+    , s_dynParsers      = MkDynParsersEmpty
+    , s_bracketLevel    = StatementBracket
+--  , s_char            = ' '
+--  , s_name            = nullID
+--  , s_pos             = 0
+    , s_wsLine          = 0
+    , s_wsColumn        = 0
+    , s_closureTraits   = [id]
+    , s_freeVars        = Set.empty
+    , s_knownVars       = Map.empty
     }
 
 runRule :: Env -> RuleParser Env -> FilePath -> String -> Env
@@ -152,8 +152,8 @@ showErr err =
 
 ruleProgram :: RuleParser Env
 ruleProgram = rule "program" $ do
-    env <- getRuleEnv
-    statements <- ruleBlockBody
+    env         <- getRuleEnv
+    statements  <- retInterpolatedBlock =<< ruleBlockBody
     -- error $ show statements
     eof
     -- S04: CHECK {...}*      at compile time, ALAP

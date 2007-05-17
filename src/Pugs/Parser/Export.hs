@@ -24,8 +24,7 @@ exportSym scope ('&':subname) ref = do
                     mkSym   = _Sym scope name mempty (Val val) Noop
                 doExport scope mkSym
             case scope of
-                SMy -> addBlockPad SState 
-                    (foldl' unionPads (mkPad []) [ pad | Pad SMy pad _ <- exps ])
+                SMy -> addBlockPad (foldl' unionPads (mkPad []) [ pad | Pad SMy pad _ <- exps ])
                 _   -> return () 
         _ -> fail $ "Invalid export list: " ++ show rv
 exportSym scope subname@(sig:_) ref | isWordAlpha sig = do

@@ -3,6 +3,8 @@
 module Pugs.Parser.Types (
     RuleParser, RuleState(..), CharClass(..),
     DynParsers(..), ParensOption(..), FormalsOption(..), BracketLevel(..), OuterLevel,
+    CodeMutator, BlockInfo(..), emptyBlockInfo,
+
     RuleOperator, RuleOperatorTable,
     getRuleEnv, modifyRuleEnv, putRuleEnv, insertIntoPosition,
     clearDynParsers, enterBracketLevel, getCurrCharClass, charClassOf,
@@ -22,6 +24,16 @@ import Text.ParserCombinators.Parsec.Pos
 import Debug.Trace
 import qualified Data.Map as Map
 import qualified Data.Set as Set
+
+data BlockInfo = MkBlockInfo
+    { bi_pad    :: !Pad
+    , bi_traits :: !CodeMutator
+    , bi_body   :: !Exp
+    }
+
+emptyBlockInfo :: BlockInfo
+emptyBlockInfo = MkBlockInfo emptyPad id emptyExp
+
 
 {-# INLINE satisfy #-}
 satisfy :: (Char -> Bool) -> RuleParser Char
@@ -142,6 +154,8 @@ data RuleState = MkState
     , s_closureTraits :: [TraitBlocks -> TraitBlocks]
                                        -- ^ Closure traits: head is this block, tail is all outer blocks
     }
+
+type CodeMutator = VCode -> VCode
 
 data BracketLevel
     = ConditionalBracket    -- if ... {}
