@@ -8,7 +8,9 @@ sub foo() {
   123;
 }
 
+my $ok = 1;
 for foo() -> @foo {
-    die "oops";
+    $ok = 0;
 }
-ok 1, "ok 1\n";
+
+ok $ok, "condition in statement level respects context" :todo<bug>;
