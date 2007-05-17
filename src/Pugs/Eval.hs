@@ -113,6 +113,12 @@ debug ref key fun str a = do
 
 evaluateMain :: Exp -> Eval Val
 evaluateMain exp = do
+    -- First we reclose all global pads.
+    glob <- asks envGlobal
+    stm $ do
+        pad     <- readTVar glob
+        pad'    <- reclosePad pad
+        writeTVar glob pad'
     -- S04: INIT {...}*      at run time, ASAP
     initAV   <- reduceVar $ cast "@*INIT"
     initSubs <- fromVals initAV

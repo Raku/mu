@@ -20,6 +20,8 @@ module Pugs.Monads (
     evalVal, tempVar,
 
     enterFrame, assertFrame, emptyFrames,
+
+    reclosePad,
     
     MaybeT, runMaybeT,
 ) where
@@ -195,6 +197,43 @@ enterBlock :: Eval Val -> Eval Val
 enterBlock action = do
     pad <- stm $ newTVar emptyPad
     local (\e -> e{ envLexPads = (pad:envLexPads e) }) action
+
+recloseLexPad :: LexPad -> STM LexPad
+recloseLexPad (PCompiling tv) = do
+    pad <- readTVar tv
+    return (PRuntime pad)
+recloseLexPad lpad  = return lpad
+
+recloseRef :: VRef -> STM VRef
+recloseRef ref@(MkRef (ICode cv))
+    | Just vcode <- fromTypeable cv = do
+        let outers = subOuterPads vcode
+        outers' <- mapM recloseLexPad (subOuterPads vcode)
+        inner'  <- reclosePad (subInnerPad vcode)
+        started <- newTVar False
+        return (MkRef (ICode vcode{ subOuterPads = outers', subInnerPad = inner', subStarted = Just started }))
+    | otherwise = return ref
+recloseRef ref = return ref
+
+reclosePad :: Pad -> STM Pad
+reclosePad pad = fmap listToPad $ forM (padToList pad) $ \(name, entry) -> do
+    entry' <- case entry of
+        PEStatic{ pe_proto = proto, pe_store = store } -> stm $ do
+            proto'  <- recloseRef proto
+            ref     <- readTVar store
+            ref'    <- recloseRef ref
+            writeTVar store ref'
+            return entry{ pe_proto = proto' }
+        PELexical{ pe_proto = proto, pe_store = store } -> stm $ do
+            proto'  <- recloseRef proto
+            ref     <- readTVar store
+            ref'    <- recloseRef ref
+            writeTVar store ref'
+            return entry{ pe_proto = proto' }
+        PEConstant{ pe_proto = proto } -> stm $ do
+            proto'  <- recloseRef proto
+            return entry{ pe_proto = proto' }
+    return (name, entry')
 
 enterSub :: VCode -> Eval Val -> Eval Val
 enterSub sub action
