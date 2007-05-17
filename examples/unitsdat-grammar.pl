@@ -111,6 +111,13 @@ token prefix {
     }
 }
 
+token defunitname {
+    { $<factor> = 1 }
+    [ $<prefix> := [ | @prefixes ]
+        { $<factor> *= %unitsdef{$<prefix>}<factor> } ]*
+    $<name> := [ | @units ] s?
+}
+
 token unitname {
     { $<factor> = 1 }
     [ $<prefix> := [ | @prefixes ]
@@ -128,11 +135,20 @@ token unit {
 }
 
 rule basicunitdef {
-    { $<factor> = 1 }
-    [ <number> { $<factor> *= $<number><num> }
-    |     $<uf> := [ | @units ] { $<ufp> = 1 } [ '^' <number> { $<ufp> = $<number><num> } ]?
+    [ <number> { $<factor> = $<number><num> }
+    |     <defunitname> {
+                $<uf> = $<defunitname><name>;
+                $<factor> = $<defunitname><factor>;
+                $<ufp> = 1;
+            }
+            [ '^' <number> { $<ufp> = $<number><num> } ]?
             { $<def>{$<uf>} += $<ufp> }
-    | '-' $<uf> := [ | @units ] { $<ufp> = 1 } [ '^' <number> { $<ufp> = $<number><num> } ]?
+    | '-' <defunitname> {
+                $<uf> = $<defunitname><name>;
+                $<factor> = $<defunitname><factor>;
+                $<ufp> = 1;
+            }
+            [ '^' <number> { $<ufp> = $<number><num> } ]?
             { $<def>{$<uf>} -= $<ufp>; $<factor> *= -1; }
     ]
     { $<def><factor> = $<factor> }
