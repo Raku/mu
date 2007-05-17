@@ -15,15 +15,20 @@ grammaticalCategories = ["prefix_circumfix_meta_operator:","infix_circumfix_meta
 
 -- around a block body we save the package and the current lexical pad
 -- at the start, so that they can be restored after parsing the body
-localEnv :: RuleParser Exp -> RuleParser Exp
+localEnv :: RuleParser Exp -> RuleParser (Pad, Exp)
 localEnv m = do
     state   <- get
-    let env = s_env state
+
+    compPad <- return $! unsafePerformSTM $! newTVar emptyPad
+    let env     = s_env state
+        lexPads = (pad:envLexPads env)
+
     put state
-        { s_blockPads = Map.empty
-        , s_closureTraits = (id : s_closureTraits state)
-        , s_outerVars = Set.empty
-        , s_env = env { envOuter = Just env }
+        { s_closureTraits   = (id : s_closureTraits state)
+        , s_env             = env
+            { envLexPads = lexPads  -- enter the scope
+            , envCompPad = Just compPad
+            }
         }
     rv      <- m
     state'  <- get
@@ -31,19 +36,22 @@ localEnv m = do
         { s_env = (s_env state')
             { envPackage = envPackage env
             , envLexical = envLexical env
-            , envOuter   = envOuter env
+            , envLexPads = envLexPads env
             }
         , s_closureTraits = s_closureTraits state'
+        , s_outerVars     = Map.filter (/= compPad) (s_outerVars state')
         }
     -- Re-read compile time refs into the new protos at end of scope.
-    newPads <- return $! unsafePerformSTM $! do
-        forM (Map.toList $ s_blockPads state') $ \(scope, pad) -> do
-            newPad <- forM (padToList pad) $ \(var, entry) -> do
-                proto   <- readPadEntry entry
-                let newEntry = entry{ pe_proto = proto }
-                return (newEntry `seq` (var, newEntry))
-            return (scope, listToPad (length newPad `seq` newPad))
-    return $ Map.foldWithKey Pad rv (length newPads `seq` Map.fromList newPads)
+    newPad <- return $! unsafePerformSTM $! do
+        curPad <- readTVar compPad
+        entries <- forM (padToList curPad) $ \(var, entry) -> do
+            proto   <- readPadEntry entry
+            let newEntry = entry{ pe_proto = proto }
+            return (newEntry `seq` (var, newEntry))
+        newPad <- listToPad (length entries `seq` entries)
+        writeTVar compPad newPad
+        return newPad
+    return (newPad, rv)
 
 ruleParamList :: ParensOption -> RuleParser a -> RuleParser (Maybe [[a]])
 ruleParamList wantParens parse = rule "parameter list" $ do

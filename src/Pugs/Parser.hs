@@ -437,7 +437,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
                     Val val@(VCode code) <- unsafeEvalExp (Syn "sub" [Val sub])
                     let entry'  = entry{ pe_proto = cv' }
                         cv'     = MkRef (ICode code)
-                    addBlockPad scope (adjustPad (const entry') var newPad)
+                    addBlockPad (adjustPad (const entry') var newPad)
                     result <- doExportCode val
                     case entry' of
                         PEConstant{} -> return result
@@ -1320,7 +1320,7 @@ ruleVarDecl = rule "variable declaration" $ do
             bindSym     = Stmts (Syn "=" [_Var name, Val (VType typ)])
     lexDiff <- unsafeEvalLexDiff $ combine (map makeBinding nameTypes) emptyExp
     -- Now hoist the lexDiff to the current block
-    addBlockPad scope lexDiff
+    addBlockPad lexDiff
     forM_ accessors makeAccessor
     initializers <- mapM (makeInitializer scope) nameTypes
     return . Ann (Decl scope) $ case filter (/= Noop) initializers of
@@ -2015,6 +2015,8 @@ ruleSigiledVar = (<|> ruleSymbolicDeref) $ do
         "INC" | "@" <- sigil           -> return (makeVar name)
         _ -> do
             -- Plain and simple variable -- do a lexical check
+            -- Algorithm: Navigate outerward to find the first one defined;
+            --            record the 
             state <- get
             let outerLexPad     = envLexical (fromJust outerEnv)
                 outerVisible    = isJust (lookupPad (cast name) outerLexPad)

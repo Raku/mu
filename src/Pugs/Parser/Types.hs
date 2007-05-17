@@ -2,7 +2,7 @@
 
 module Pugs.Parser.Types (
     RuleParser, RuleState(..), CharClass(..),
-    DynParsers(..), ParensOption(..), FormalsOption(..), BracketLevel(..),
+    DynParsers(..), ParensOption(..), FormalsOption(..), BracketLevel(..), OuterLevel,
     RuleOperator, RuleOperatorTable,
     getRuleEnv, modifyRuleEnv, putRuleEnv, insertIntoPosition,
     clearDynParsers, enterBracketLevel, getCurrCharClass, charClassOf,
@@ -119,6 +119,8 @@ data DynParsers = MkDynParsersEmpty | MkDynParsers
     , dynParsePrePost  :: !(RuleParser String)
     }
 
+type OuterLevel = Int
+
 {-|
 State object that gets passed around during the parsing process.
 -}
@@ -134,8 +136,8 @@ data RuleState = MkState
 --  , s_pos           :: !Int           -- ^ Capture position
     , s_wsLine        :: !Line          -- ^ Last whitespace position
     , s_wsColumn      :: !Column        -- ^ Last whitespace position
-    , s_blockPads     :: Map Scope Pad  -- ^ Hoisted pad for this block
-    , s_outerVars     :: Set Var        -- ^ OUTER symbols we remembers
+--  , s_blockPads     :: Map Scope Pad  -- ^ Hoisted pad for this block
+    , s_outerVars     :: Map Var (TVar Pad) -- ^ OUTER symbols we remembers, and the scope it associates with
                                        
     , s_closureTraits :: [TraitBlocks -> TraitBlocks]
                                        -- ^ Closure traits: head is this block, tail is all outer blocks
@@ -228,8 +230,8 @@ modifyRuleEnv f = modify $ \state -> state{ s_env = f (s_env state) }
 {-|
 Update the 's_blockPads' in the parser's state by applying a transformation function.
 -}
-addBlockPad :: Scope -> Pad -> RuleParser ()
-addBlockPad scope pad = do
+addBlockPad :: Pad -> RuleParser ()
+addBlockPad pad = do
     -- First we check that our pad does not contain shadows OUTER symbols.
     state <- get
     let dupSyms = padKeys pad `Set.intersection` s_outerVars state

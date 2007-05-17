@@ -1320,8 +1320,9 @@ data Env = MkEnv
                                          -- ('CxtVoid', 'CxtItem' or 'CxtSlurpy')
     , envLValue  :: !Bool                -- ^ Are we in an LValue context?
     , envLexical :: !Pad                 -- ^ Cached lexical pad for variable lookup
-    , envLexPads :: ![TVar Pad]          -- ^ Current lexical pads; MY is leftmost
+    , envLexPads :: ![TVar Pad]          -- ^ Current lexical pads; MY is leftmost, OUTER is next, etc
     , envDynPads :: ![Pad]               -- ^ CONTEXT pads; CALLER is leftmost (CALLER::OUTER is not there)
+    , envCompPad :: !(Maybe (TVar Pad))  -- ^ Current COMPILING pad
     , envGlobal  :: !(TVar Pad)          -- ^ Global pad for variable lookup
     , envPackage :: !Pkg                 -- ^ Current package
     , envEval    :: !(Exp -> Eval Val)   -- ^ Active evaluator
@@ -1983,6 +1984,7 @@ _FakeEnv = unsafePerformIO $ stm $ do
         , envLexical = MkPad Map.empty
         , envLexPads = []
         , envDynPads = []
+        , envCompPad = Nothing
         , envLValue  = False
         , envGlobal  = glob
         , envPackage = cast "Main"

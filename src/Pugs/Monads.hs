@@ -26,7 +26,6 @@ module Pugs.Monads (
 import Pugs.Internals
 import Pugs.AST
 import Pugs.Types
-import qualified Data.Map as Map
 import qualified Data.Set as Set
 
 newtype MaybeT m a = MaybeT { runMaybeT :: m (Maybe a) }
@@ -280,10 +279,8 @@ enterSub sub action
             pad       <- mergeLexPads (subLexPads sub)
             return $ \e -> e
                 { envLexical = combine ([subRec, callerRec]) pad
-                , envPackage = maybe (envPackage e) envPackage (subEnv sub)
-                , envOuter   = maybe Nothing envOuter (subEnv sub)
-                , envImplicit= envImplicit e `Map.union` Map.fromList
-                    [ (cast "&?ROUTINE", ()), (cast "&?CALLER_CONTINUATION", ()) ]
+                , envPackage = subPackage sub
+                , envLexPads = subLexPads sub
                 }
     ccSub :: (Val -> Eval Val) -> Env -> VCode
     ccSub cc env = mkPrim

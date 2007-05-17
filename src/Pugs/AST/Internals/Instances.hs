@@ -61,6 +61,7 @@ _FakeEnv = unsafePerformIO $ stm $ do
         , envLexical = MkPad Map.empty
         , envLexPads = []
         , envDynPads = []
+        , envCompPad = Nothing
         , envLValue  = False
         , envGlobal  = glob
         , envPackage = cast "Main"
@@ -620,15 +621,6 @@ instance YAML InitDat where
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkInitDat"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (MkInitDat aa) = asYAMLseq "MkInitDat" [asYAML aa]
-
-instance YAML EntryFlags where
-    fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
-	"MkEntryFlags" -> do
-	    let ESeq [aa] = e
-	    liftM MkEntryFlags (fromYAML aa)
-	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkEntryFlags"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
-    asYAML (MkEntryFlags aa) = asYAMLseq "MkEntryFlags" [asYAML aa]
 
 instance YAML PadEntry where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of

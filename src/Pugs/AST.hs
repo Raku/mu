@@ -378,6 +378,7 @@ typeMacro name exp = Syn "sub" . (:[]) . Val . VCode $ MkCode
     { isMulti       = True
     , subName       = cast name
     , subLexPads    = []
+    , subPackage    = emptyPkg
     , subType       = SubMacro
     , subAssoc      = ANil
     , subReturns    = typ
