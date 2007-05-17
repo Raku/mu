@@ -54,8 +54,7 @@ sub grab (Int $n, Code &f) { (1..$n).map:{ f() } }
 
 # Test that there's still only one instance of each state() variable
 {
-  my @array = grab 5, {
-    coro {
+  my @array = coro {
       state $num;
       yield ++$num;
       yield ++$num;
@@ -67,8 +66,7 @@ sub grab (Int $n, Code &f) { (1..$n).map:{ f() } }
       yield ++$num;
       yield ++$num;
       yield ++$num;
-    };
-  };
+  } xx 2;
 
   is ~grab(5, @array[0]),      "1 2 3 4 5", "state() in coroutines work (1)";
   is ~grab(5, @array[1]),     "6 7 8 9 10", "state() in coroutines work (2)";
