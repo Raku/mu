@@ -173,7 +173,7 @@ ruleProgram = rule "program" $ do
     possiblyExit rv
     env' <- getRuleEnv
     return $ env'
-        { envBody       = App main Nothing []
+        { envBody       = App main Nothing [_Var "@*ARGS"]
         , envPackage    = envPackage env
         }
 

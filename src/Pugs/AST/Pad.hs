@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -fglasgow-exts -fparr #-}
 module Pugs.AST.Pad (
   mkPad, diffPads, unionPads, padKeys, filterPad, adjustPad, mergePadEntry, emptyPad,
-  mergeMPads, readMPad, writeMPad, appendMPad
+  mergeLexPads, readMPad, writeMPad, appendMPad
 ) where
 import Pugs.Internals
 import Pugs.AST.SIO
@@ -31,11 +31,13 @@ mkPad :: [(Var, PadEntry)] -> Pad
 mkPad = listToPad
 
 {-|
-Merge multiple mutable pads into one.
+Merge multiple (possibly mutable) pads into one.
 -}
-mergeMPads :: MonadSTM m => [MPad] -> m Pad
-mergeMPads chain = stm $ do
-    pads <- mapM readTVar chain
+mergeLexPads :: MonadSTM m => LexPads -> m Pad
+mergeLexPads chain = stm $ do
+    pads <- forM chain $ \lpad -> case lpad of
+        PRuntime p      -> return p
+        PCompiling p    -> readTVar p
     return . MkPad $ Map.unionsWith mergePadEntry (map padEntries pads)
 
 readMPad :: MonadSTM m => MPad -> m Pad

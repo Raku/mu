@@ -385,6 +385,8 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
         unsafeEvalLexDiff (mkSym sub nameQualified Noop)
             `finallyM` clearDynParsers
 
+    -- XXX - Generate init pad for each of our params...
+
     block    <- ruleBlock
 
     let (fun, names, _) = extractNamedPlaceholders styp formal (bi_body block)

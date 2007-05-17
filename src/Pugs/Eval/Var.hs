@@ -67,16 +67,14 @@ findVarRef var@MkVar{ v_sigil = sig, v_twigil = twi, v_name = name, v_package = 
     | Just var' <- dropVarPkg (__"OUTER") var = ($ var') . fix $ \outerLevel v -> do
         mpads <- asks envLexPads
         case mpads of
-            PCompiling (_:outers@(outer:_))  -> local (\env -> env{ envLexPads = PCompiling outers }) $ do
+            (_:outers@(outer:_))  -> local (\env -> env{ envLexPads = outers }) $ do
                 case dropVarPkg (__"OUTER") v of
                     Just v' -> outerLevel v'
                     _       -> do
-                        pad <- stm $ readTVar outer
+                        pad <- case outer of
+                            PRuntime p  -> return p
+                            PCompiling p-> stm $ readTVar p
                         return (lookupPad v pad)
-            PRuntime (_:outers@(outer:_))    -> local (\env -> env{ envLexPads = PRuntime outers }) $ do
-                case dropVarPkg (__"OUTER") v of
-                    Just v' -> outerLevel v'
-                    _       -> return (lookupPad v outer)
             _       -> die "cannot access OUTER:: in top level" name
 
     | pkg /= emptyPkg = doFindVarRef var

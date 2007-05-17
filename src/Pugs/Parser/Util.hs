@@ -49,6 +49,7 @@ localBlock m = do
             { envPackage = envPackage env
             , envLexical = envLexical env
             , envLexPads = envLexPads env
+            , envCompPad = envCompPad env
             }
         , s_closureTraits = outerTraits
         , s_knownVars     = outerKnownVars

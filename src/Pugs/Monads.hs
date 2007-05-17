@@ -267,30 +267,20 @@ enterSub sub action
         | typ >= SubBlock = do
             -- Entering a block.
             blockRec  <- genSym (cast "&?BLOCK") (codeRef (orig sub))
-            pad       <- readLexical sub
-            lexpads   <- case subOuterPads sub of
-                PRuntime ps     -> return $ PRuntime (subInnerPad sub : ps)
-                PCompiling ps   -> do
-                    pad'    <- stm $ newTVar (subInnerPad sub) -- XXX
-                    return (PCompiling (pad':ps))
+            pad       <- fmap (`mappend` subInnerPad sub) $ mergeLexPads (subOuterPads sub)
             return $ \e -> e
                 { envLexical = combine [blockRec] pad
                 , envPackage = subPackage sub
-                , envLexPads = lexpads
+                , envLexPads = (PRuntime (subInnerPad sub):subOuterPads sub)
                 }
         | otherwise = do
             subRec    <- genSym (cast "&?ROUTINE") (codeRef (orig sub))
             callerRec <- genSym (cast "&?CALLER_CONTINUATION") (codeRef $ ccSub cc env)
-            pad       <- readLexical sub
-            lexpads   <- case subOuterPads sub of
-                PRuntime ps     -> return $ PRuntime (subInnerPad sub : ps)
-                PCompiling ps   -> do
-                    pad'    <- stm $ newTVar (subInnerPad sub) -- XXX
-                    return (PCompiling (pad':ps))
+            pad       <- fmap (`mappend` subInnerPad sub) $ mergeLexPads (subOuterPads sub)
             return $ \e -> e
                 { envLexical = combine ([subRec, callerRec]) pad
                 , envPackage = subPackage sub
-                , envLexPads = lexpads
+                , envLexPads = (PRuntime (subInnerPad sub):subOuterPads sub)
                 }
     ccSub :: (Val -> Eval Val) -> Env -> VCode
     ccSub cc env = mkPrim
@@ -298,11 +288,6 @@ enterSub sub action
         , subParams = makeParams env
         , subBody = Prim $ doCC cc
         }
-
-readLexical :: MonadSTM m => VCode -> m Pad
-readLexical sub = case subOuterPads sub of
-    PCompiling pads -> fmap (`mappend` subInnerPad sub) $ mergeMPads pads 
-    _               -> return (subLexical sub)
 
 makeParams :: Env -> [Param]
 makeParams MkEnv{ envContext = cxt, envLValue = lv }

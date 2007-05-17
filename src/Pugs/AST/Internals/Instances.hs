@@ -609,7 +609,7 @@ instance YAML Exp where
     asYAML (Var aa) = asYAMLseq "Var" [asYAML aa]
     asYAML (NonTerm aa) = asYAMLseq "NonTerm" [asYAML aa]
 
-instance YAML LexPads where
+instance YAML LexPad where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
 	"PRuntime" -> do
 	    let ESeq [aa] = e

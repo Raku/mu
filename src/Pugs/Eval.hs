@@ -66,7 +66,7 @@ emptyEnv name genPad = stm $ do
     return $ MkEnv
         { envContext = CxtVoid
         , envLexical = emptyPad
-        , envLexPads = PCompiling []
+        , envLexPads = []
         , envCaller  = Nothing
         , envCompPad = Nothing
         , envLValue  = False
@@ -290,9 +290,13 @@ reduceVar var@MkVar{ v_sigil = sig, v_twigil = twi, v_name = name, v_package = p
                     if not lv then retEmpty else evalExp (Sym SOur var mempty Noop (Var var))
                 | otherwise -> do
                     s <- isStrict
-                    if s then do die "Undeclared variable" var
-                         else do lv <- asks envLValue
-                                 if lv then evalExp (Sym SOur var mempty Noop (Var var)) else retEmpty
+                    if s then do 
+                            lex     <- asks envLexical
+                            pads    <- asks envLexPads
+                            die "Undeclared variable" (var, lex, pads)
+                         else do
+                            lv <- asks envLValue
+                            if lv then evalExp (Sym SOur var mempty Noop (Var var)) else retEmpty
 
 _scalarContext :: Cxt
 _scalarContext = CxtItem $ mkType "Scalar"
@@ -471,10 +475,12 @@ reduceSyn "sub" [exp] = do
     -- newBody <- transformExp cloneBodyStates $ subBody sub
     -- add &?BLOCK &?ROUTINE etc here
     started <- if isCompileTime env then return Nothing else fmap Just (stm $ newTVar False)
+    pad     <- fmap (`mappend` subInnerPad sub) $ mergeLexPads (envLexPads env)
     return $ VCode sub
-        { subCont      = cont
-        , subOuterPads = envLexPads env
-        , subStarted   = started
+        { subCont       = cont
+        , subOuterPads  = envLexPads env
+        , subLexical    = pad
+        , subStarted    = started
         }
     where
 --    cloneBodyStates (Pad scope pad exp) | scope <= SMy = do
@@ -1331,6 +1337,7 @@ applyExp styp bound@(invArg:_) body = do
         let name  = dropWhile (not . isAlpha) (cast $ argName arg)
             value = argValue arg
         evalExp $ Syn "=" [Syn "{}" [Val invocant, Val (VStr name)], Val value]
+    -- Otherwise we write back to the bindings.
     applyThunk styp normal $ MkThunk (evalExp body) anyType
     where
     isAttribute arg = case v_twigil (argName arg) of

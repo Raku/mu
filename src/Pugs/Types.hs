@@ -217,7 +217,7 @@ instance ((:>:) ByteString) Pkg where
     cast (MkPkg ns) = Buf.join (__"::") ns
 
 instance Show Var where
-    show var = Buf.unpack (cast var)
+    show var = show (cast var :: ByteString)
 
 varToBuf :: Var -> ByteString
 varToBuf MkVar
