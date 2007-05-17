@@ -274,7 +274,7 @@ failWith e = fail $ "no parse: " ++ show e ++ " as " ++ show typ
     typ = typeOf (undefined :: a)
 
 
-type SeenHash = HashTable SYMID (Maybe YamlNode)
+type SeenHash = HashTable SYMID YamlNode
 type DuplHash = HashTable YamlNode Int
 
 -- Compress a YAML tree by finding common subexpressions.
@@ -339,7 +339,7 @@ visitElem (EMap ps)      = fmap EMap (mapM visitPair ps)
 visitElem e             = return e
 
 markNode :: (?seenHash :: SeenHash, ?duplHash :: DuplHash) => YamlNode -> IO YamlNode
-markNode node@MkNode{ n_anchor = AReference r } = do
+markNode node@MkNode{ n_anchor = AReference r } = {-# SCC "ref" #-} do
     -- All we need to do is to write this into duplHash.
     let symid   = fromIntegral r
         node'   = node{ n_anchor = ASingleton, n_id = symid }
@@ -349,7 +349,7 @@ markNode node@MkNode{ n_anchor = AReference r } = do
         _                       -> do
             Hash.insert ?seenHash symid Nothing
             return node'
-markNode node@MkNode{ n_anchor = AAnchor r } = do
+markNode node@MkNode{ n_anchor = AAnchor r } = {-# SCC "anc" #-} do
     -- All we need to do is to write this into duplHash.
     -- XXX - But maybe also descend deeper?
     (_, elem')    <- markElem (n_elem node)
@@ -358,19 +358,22 @@ markNode node@MkNode{ n_anchor = AAnchor r } = do
     Hash.insert ?seenHash symid (Just node')
     Hash.insert ?duplHash node' 0
     return node'
-markNode node = do
+markNode node = {-# SCC "reg" #-} do
     (symid32, elem')    <- markElem (n_elem node)
     let node' = node{ n_id = symid }
         symid = fromIntegral (iterI32s tagid symid32)
         tagid = maybe 0 Buf.hash (n_tag node)
     rv  <- Hash.lookup ?seenHash symid
     case rv of
-        Just (Just prevNode)   -> do
-            Hash.update ?duplHash node' 0
-            Hash.update ?duplHash prevNode 0
+        Just (Just _)   -> {-# SCC "reg1" #-} do
+            Hash.insert ?duplHash node' 0
+--          Hash.update ?duplHash prevNode 0
             Hash.update ?seenHash symid Nothing
-        Just _  -> Hash.update ?duplHash node' 0
-        _       -> Hash.update ?seenHash symid (Just node')
+            return ()
+        Just _  -> return () -- {-# SCC "reg2" #-} Hash.update ?duplHash node' 0
+        _       -> {-# SCC "reg3" #-} do
+            Hash.insert ?seenHash symid (Just undefined)
+            return ()
     return node'{ n_elem = elem' }
 
 markElem :: (?seenHash :: SeenHash, ?duplHash :: DuplHash) => YamlElem -> IO (Int32, YamlElem)
