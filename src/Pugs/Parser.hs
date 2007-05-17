@@ -369,6 +369,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             , subOuterPads  = envLexPads env
             , subInnerPad   = emptyPad
             , subParams     = signature
+            , subPackage    = envPackage env
             , subType       = if "primitive" `elem` traits
                 then SubPrim else styp
             , subAssoc      = case v_categ var of

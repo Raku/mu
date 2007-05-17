@@ -1470,24 +1470,21 @@ doApply sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args = d
     applyMacroResult VUndef         = retEmpty
     applyMacroResult _              = fail "Macro did not return an AST, a Str or a Code!"
     fixSub sub env = env
-        { -- envLexical = subPad sub -- XXX - fake in-pad knowledge?
-          envPackage = subPackage sub
+        { envPackage = subPackage sub
         , envLexPads = subOuterPads sub
---      , envLexical = subLexical sub
         }
     fixEnv :: Env -> Env
     fixEnv | typ >= SubBlock = id
            | otherwise       = envEnterCaller
     doBind :: (Param, Exp) -> Eval ApplyArg -- ([PadMutator], [ApplyArg])
     doBind (prm, exp) = do
-        -- trace ("<== " ++ (show (prm, exp))) $ return ()
         let var = paramName prm
             cxt = cxtOfSigilVar var
         (val, coll) <- enterContext cxt $ case exp of
             Syn "param-default" [exp, Val (VCode sub)] -> do
-                local fixEnv $ expToVal prm exp
+                local (fixEnv . fixSub sub) $ expToVal prm exp
             _  -> expToVal prm exp
-        -- trace ("==> " ++ (show val)) $ return ()
+        -- traceM ("==> " ++ (show val))
         -- boundRef <- fromVal val
         -- newSym   <- genSym var boundRef
         return $ ApplyArg var val coll
