@@ -366,7 +366,7 @@ expRule rule = do
 
 
 {-|
-Modify the input stream by inserting a single 'Char' as the next thing to parse.
+Modify the input stream by inserting a 'String' as the next thing to parse.
 -}
 insertIntoPosition :: String -> RuleParser ()
 insertIntoPosition str = do
