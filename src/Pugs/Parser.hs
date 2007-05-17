@@ -2073,11 +2073,27 @@ ruleVar :: RuleParser Exp
 ruleVar = do
     exp <- ruleSigiledVar
     case exp of
-        Var var | TAttribute <- v_twigil var -> do
-            let methName = ('&':cast (v_name var))
-            postApp <- ruleInvocationArguments Nothing methName False
-            return $ Syn (shows (v_sigil var) "{}") [postApp (_Var "$__SELF__")]
+        Var var -> case v_twigil var of
+            TAttribute -> do
+                let methName = ('&':cast (v_name var))
+                postApp <- ruleInvocationArguments Nothing methName False
+                return $ Syn (shows (v_sigil var) "{}") [postApp (_Var "$__SELF__")]
+            TImplicit -> do
+                traceM ("Here: " ++ show var)
+                knowns <- gets s_knownVars
+                case Map.lookup var knowns of
+                    Just pad -> do
+                        cpad <- asks envCompPad
+                        when (Just pad /= cpad) $ addImplicitVarToPad var
+                    _   -> addImplicitVarToPad var
+                return exp
+            _   -> return exp
         _   -> return exp
+
+addImplicitVarToPad :: Var -> RuleParser ()
+addImplicitVarToPad v = do
+    genNameTypeEntries SMy [(cast v{ v_twigil = TNil }, typeOfSigilVar v, mempty, Noop)]
+        >>= addBlockPad
 
 ruleSymbolicDeref :: RuleParser Exp
 ruleSymbolicDeref = do
