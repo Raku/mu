@@ -1423,7 +1423,7 @@ ruleVarDecl = rule "variable declaration" $ do
     makeInitializer SConstant (name, _, _, _) = return (_Var name)
     makeInitializer _ (name, _, _, def)
         | def /= Noop, def /= Val (VList []) = do
-        return $ Stmts (Syn "=" [_Var name, def]) (_Var name)
+        return $ Syn "=" [_Var name, def]
     makeInitializer _ (name, _, _, _) = return (_Var name)
 
 parseTerm :: RuleParser Exp
