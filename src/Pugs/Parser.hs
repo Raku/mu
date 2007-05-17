@@ -2079,7 +2079,6 @@ ruleVar = do
                 postApp <- ruleInvocationArguments Nothing methName False
                 return $ Syn (shows (v_sigil var) "{}") [postApp (_Var "$__SELF__")]
             TImplicit -> do
-                traceM ("Here: " ++ show var)
                 knowns <- gets s_knownVars
                 case Map.lookup var knowns of
                     Just pad -> do
