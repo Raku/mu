@@ -3,6 +3,9 @@ use v6-alpha;
 use Test;
 
 # various tests derived from L<S10/Autoloading>
+plan 1;
+skip_rest 'XXX - All of this is outdated - Need a total rewrite based on CANDO - Any takers?';
+exit;
 
 plan 38;
 
