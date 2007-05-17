@@ -1000,7 +1000,7 @@ vcode2startBlock (VCode code) = do
     -- }
     -- These are the two state variables we need.
     -- This will soon add our two state vars to our pad
-    let mpad = head (subLexPads code)
+    let mpad = head (pc_pads $ subLexPads code)
 
     lexDiff <- unsafeEvalLexDiff $
         (_Sym SState "$?START_RESULT" mempty emptyExp) .

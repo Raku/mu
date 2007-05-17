@@ -65,8 +65,8 @@ emptyEnv name genPad = stm $ do
     maxi <- newTVar $ MkObjectId 1
     return $ MkEnv
         { envContext = CxtVoid
-        , envLexical = mkPad []
-        , envLexPads = []
+        , envLexical = emptyPad
+        , envLexPads = PCompiling []
         , envCaller  = Nothing
         , envCompPad = Nothing
         , envLValue  = False

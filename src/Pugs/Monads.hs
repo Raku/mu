@@ -266,17 +266,17 @@ enterSub sub action
     fixEnv cc env
         | typ >= SubBlock = do
             -- Entering a block.
-            blockRec <- genSym (cast "&?BLOCK") (codeRef (orig sub))
-            pad      <- stm $ readTVar (head (subLexPads sub))
+            blockRec    <- genSym (cast "&?BLOCK") (codeRef (orig sub))
+            pad         <- readLexical sub
             return $ \e -> e
-                { envLexPads = subLexPads sub
-                , envLexical = combine [blockRec]
-                    (pad `unionPads` envLexical env)
+                { envLexical = combine [blockRec] pad
+                , envLexPads = subLexPads sub
+                , envPackage = subPackage sub
                 }
         | otherwise = do
             subRec    <- genSym (cast "&?ROUTINE") (codeRef (orig sub))
             callerRec <- genSym (cast "&?CALLER_CONTINUATION") (codeRef $ ccSub cc env)
-            pad       <- mergeMPads (subLexPads sub)
+            pad       <- readLexical sub
             return $ \e -> e
                 { envLexical = combine ([subRec, callerRec]) pad
                 , envPackage = subPackage sub
@@ -288,6 +288,11 @@ enterSub sub action
         , subParams = makeParams env
         , subBody = Prim $ doCC cc
         }
+
+readLexical :: MonadSTM m => VCode -> m Pad
+readLexical sub = case subLexPads sub of
+    PCompiling pads -> mergeMPads pads
+    _               -> return (subLexical sub)
 
 makeParams :: Env -> [Param]
 makeParams MkEnv{ envContext = cxt, envLValue = lv }
