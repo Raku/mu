@@ -152,8 +152,10 @@ showErr err =
 
 ruleProgram :: RuleParser Env
 ruleProgram = rule "program" $ do
-    env         <- getRuleEnv
-    statements  <- retInterpolatedBlock =<< ruleBlockBody
+    env     <- getRuleEnv
+    block   <- ruleBlockBody
+    main    <- retVerbatimBlock SubRoutine Nothing False $
+        block{ bi_body = mergeStmts emptyExp $ bi_body block }
     -- error $ show statements
     eof
     -- S04: CHECK {...}*      at compile time, ALAP
@@ -171,7 +173,7 @@ ruleProgram = rule "program" $ do
     possiblyExit rv
     env' <- getRuleEnv
     return $ env'
-        { envBody       = mergeStmts emptyExp statements
+        { envBody       = App main Nothing []
         , envPackage    = envPackage env
         }
 

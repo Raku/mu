@@ -266,21 +266,31 @@ enterSub sub action
     fixEnv cc env
         | typ >= SubBlock = do
             -- Entering a block.
-            blockRec    <- genSym (cast "&?BLOCK") (codeRef (orig sub))
-            pad         <- readLexical sub
+            blockRec  <- genSym (cast "&?BLOCK") (codeRef (orig sub))
+            pad       <- readLexical sub
+            lexpads   <- case subOuterPads sub of
+                PRuntime ps     -> return $ PRuntime (subInnerPad sub : ps)
+                PCompiling ps   -> do
+                    pad'    <- stm $ newTVar (subInnerPad sub) -- XXX
+                    return (PCompiling (pad':ps))
             return $ \e -> e
                 { envLexical = combine [blockRec] pad
-                , envLexPads = subLexPads sub
                 , envPackage = subPackage sub
+                , envLexPads = lexpads
                 }
         | otherwise = do
             subRec    <- genSym (cast "&?ROUTINE") (codeRef (orig sub))
             callerRec <- genSym (cast "&?CALLER_CONTINUATION") (codeRef $ ccSub cc env)
             pad       <- readLexical sub
+            lexpads   <- case subOuterPads sub of
+                PRuntime ps     -> return $ PRuntime (subInnerPad sub : ps)
+                PCompiling ps   -> do
+                    pad'    <- stm $ newTVar (subInnerPad sub) -- XXX
+                    return (PCompiling (pad':ps))
             return $ \e -> e
                 { envLexical = combine ([subRec, callerRec]) pad
                 , envPackage = subPackage sub
-                , envLexPads = subLexPads sub
+                , envLexPads = lexpads
                 }
     ccSub :: (Val -> Eval Val) -> Env -> VCode
     ccSub cc env = mkPrim
@@ -290,8 +300,8 @@ enterSub sub action
         }
 
 readLexical :: MonadSTM m => VCode -> m Pad
-readLexical sub = case subLexPads sub of
-    PCompiling pads -> mergeMPads pads
+readLexical sub = case subOuterPads sub of
+    PCompiling pads -> fmap (`mappend` subInnerPad sub) $ mergeMPads pads 
     _               -> return (subLexical sub)
 
 makeParams :: Env -> [Param]

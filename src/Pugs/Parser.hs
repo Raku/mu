@@ -23,7 +23,7 @@ module Pugs.Parser (
     -- Circularity: Used in Pugs.Parser.Literal
     ruleExpression, retInterpolatedBlock,
     ruleArraySubscript, ruleHashSubscript, ruleCodeSubscript,
-    ruleInvocationParens, verbatimVarNameString, ruleVerbatimBlock,
+    ruleInvocationParens, verbatimVarNameString, ruleVerbatimBlock, retVerbatimBlock,
     ruleBlockLiteral, ruleDoBlock, regularVarName, regularVarNameForSigil, ruleNamedMethodCall,
 ) where
 import Pugs.Internals
@@ -364,7 +364,8 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     let sub@(VCode template) = VCode $ mkCode
             { isMulti       = isMulti /= ImplicitNil
             , subName       = cast nameQualified
-            , subLexPads    = envLexPads env
+            , subOuterPads  = envLexPads env
+            , subInnerPad   = emptyPad
             , subParams     = signature
             , subType       = if "primitive" `elem` traits
                 then SubPrim else styp
@@ -398,7 +399,8 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
                 { subBody       = case isMulti of
                     ImplicitProto   -> fun -- XXX - Give Proto the tie-breaker status?
                     _               -> fun
-                , subLexPads    = envLexPads env
+                , subOuterPads  = envLexPads env
+                , subInnerPad   = bi_pad block
                 }
         sub = VCode (bi_traits block template')
     
@@ -919,7 +921,7 @@ ruleClosureTrait rhs = tryRule "closure trait" $ do
     unless (Set.null $ Set.delete varTopic params) $
         fail "Closure traits take no formal parameters"
     env <- ask
-    let code = VCode mkSub{ subName = cast name, subBody = fun, subLexPads = envLexPads env } 
+    let code = VCode mkSub{ subName = cast name, subBody = fun, subOuterPads = envLexPads env } 
     case name of
         "END"   -> do
             -- We unshift END blocks to @*END at compile-time.
@@ -1000,14 +1002,12 @@ vcode2startBlock (VCode code) = do
     -- }
     -- These are the two state variables we need.
     -- This will soon add our two state vars to our pad
-    let mpad = head (pc_pads $ subLexPads code)
 
     lexDiff <- unsafeEvalLexDiff $
         (_Sym SState "$?START_RESULT" mempty emptyExp) .
         (_Sym SState "$?START_RUN" mempty emptyExp) $ emptyExp
-    appendMPad mpad lexDiff
 
-    let code' = code{ subBody = body' }
+    let code' = code{ subBody = body', subInnerPad = subInnerPad code `mappend` lexDiff }
         body' = Syn "if"
                     [ App (_Var "&postfix:++") Nothing [_Var "$?START_RUN"]
                     , _Var "$?START_RESULT"
@@ -1223,8 +1223,11 @@ ruleBareOrPointyBlockLiteralWithoutDefaultParams = rule "bare or pointy block co
 
 retBlockWithoutDefaultParams :: SubType -> Maybe [Param] -> Bool -> BlockInfo -> RuleParser Exp
 retBlockWithoutDefaultParams styp formal lvalue block = do
-    (Syn "sub" [Val (VCode sub@MkCode{ subParams = prms })]) <- retVerbatimBlock styp formal lvalue block
-    return (Syn "sub" [Val $ VCode sub{ subParams = maybe [] (const $ prms) formal}])
+    rv <- retVerbatimBlock styp formal lvalue block
+    case unwrap rv of
+        (Syn "sub" [Val (VCode sub@MkCode{ subParams = prms })]) -> do
+            return (Syn "sub" [Val $ VCode sub{ subParams = maybe [] (const $ prms) formal}])
+        _ -> error (show rv)
 
 ruleBareOrPointyBlockLiteral :: RuleParser Exp
 ruleBareOrPointyBlockLiteral = rule "bare or pointy block construct" $
@@ -1262,7 +1265,8 @@ retVerbatimBlock styp formal lvalue block = expRule $ do
     let sub = bi_traits block $ mkCode
             { isMulti       = False
             , subName       = __"<anon>"
-            , subLexPads    = envLexPads env
+            , subOuterPads  = envLexPads env
+            , subInnerPad   = bi_pad block
             , subType       = styp
             , subAssoc      = ANil
             , subReturns    = anyType

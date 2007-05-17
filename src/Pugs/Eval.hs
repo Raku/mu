@@ -465,18 +465,16 @@ reduceSyn "sub" [exp] = do
             redo
         writeTVar tvar thunk
         return $ Just tvar
-    -- Close over our lexical scope.
+
+    -- Close over outer lexical scope.
     -- error "XXX - clone should operate on sub now"
     -- newBody <- transformExp cloneBodyStates $ subBody sub
     -- add &?BLOCK &?ROUTINE etc here
-    started <- if isCompileTime env
-        then return Nothing
-        else fmap Just (stm $ newTVar False)
+    started <- if isCompileTime env then return Nothing else fmap Just (stm $ newTVar False)
     return $ VCode sub
-        { subLexPads = envLexPads env
-        , subLexical = envLexical env
-        , subCont    = cont
-        , subStarted = started
+        { subCont      = cont
+        , subOuterPads = envLexPads env
+        , subStarted   = started
         }
     where
 --    cloneBodyStates (Pad scope pad exp) | scope <= SMy = do
@@ -1429,7 +1427,8 @@ doApply sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args = d
     fixSub sub env = env
         { -- envLexical = subPad sub -- XXX - fake in-pad knowledge?
           envPackage = subPackage sub
-        , envLexPads = subLexPads sub
+        , envLexPads = subOuterPads sub
+        , envLexical = subLexical sub
         }
     fixEnv :: Env -> Env
     fixEnv | typ >= SubBlock = id

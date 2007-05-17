@@ -512,17 +512,18 @@ instance Perl5 SubAssoc where
 instance YAML VCode where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
 	"MkCode" -> do
-	    let liftM16 f m1 m2 m3 m4 m5 m6 m7 m8 m9 m10 m11 m12 m13 m14 m15 m16 = do
-		{x1 <- m1; x2 <- m2; x3 <- m3; x4 <- m4; x5 <- m5; x6 <- m6; x7 <- m7; x8 <- m8; x9 <- m9; x10 <- m10; x11 <- m11; x12 <- m12; x13 <- m13; x14 <- m14; x15 <- m15; x16 <- m16; return (f x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 x16)}
-	    let ESeq [aa, ab, ac, ad, ae, af, ag, ah, ai, aj, ak, al, am, an, ao, ap] = e
-	    liftM16 MkCode (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae) (fromYAML af) (fromYAML ag) (fromYAML ah) (fromYAML ai) (fromYAML aj) (fromYAML ak) (fromYAML al) (fromYAML am) (fromYAML an) (fromYAML ao) (fromYAML ap)
+	    let liftM17 f m1 m2 m3 m4 m5 m6 m7 m8 m9 m10 m11 m12 m13 m14 m15 m16 m17 = do
+		{x1 <- m1; x2 <- m2; x3 <- m3; x4 <- m4; x5 <- m5; x6 <- m6; x7 <- m7; x8 <- m8; x9 <- m9; x10 <- m10; x11 <- m11; x12 <- m12; x13 <- m13; x14 <- m14; x15 <- m15; x16 <- m16; x17 <- m17; return (f x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 x16 x17)}
+	    let ESeq [aa, ab, ac, ad, ae, af, ag, ah, ai, aj, ak, al, am, an, ao, ap, aq] = e
+	    liftM17 MkCode (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae) (fromYAML af) (fromYAML ag) (fromYAML ah) (fromYAML ai) (fromYAML aj) (fromYAML ak) (fromYAML al) (fromYAML am) (fromYAML an) (fromYAML ao) (fromYAML ap) (fromYAML aq)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkCode"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML (MkCode aa ab ac ad ae af ag ah ai aj ak al am an ao ap) =
+    asYAML (MkCode aa ab ac ad ae af ag ah ai aj ak al am an ao ap aq)
+	   =
 	   asYAMLseq "MkCode"
 	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae, asYAML af,
 	    asYAML ag, asYAML ah, asYAML ai, asYAML aj, asYAML ak, asYAML al,
-	    asYAML am, asYAML an, asYAML ao, asYAML ap]
+	    asYAML am, asYAML an, asYAML ao, asYAML ap, asYAML aq]
 
 instance YAML TraitBlocks where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
