@@ -436,7 +436,7 @@ reduceSyn "block" [exp]
     | Syn "sub" [Val (VCode sub@MkCode{ subType = SubBlock })] <- unwrap exp = do
         unless (isEmptyParams (subParams sub)) $
             fail "Blocks with implicit params cannot occur at statement level"
-        enterSub sub . reduce $ case unwrap (subBody sub) of
+        enterSub AKInline sub . reduce $ case unwrap (subBody sub) of
             Syn "block" [exp] -> case unwrap exp of
                 -- Here we have a nested statement-level block: "{ { 3 } }";
                 -- we actually want to create two OUTER blocks, so reduce normally.
@@ -465,28 +465,22 @@ reduceSyn "sub" [exp] = do
     -- error "XXX - clone should operate on sub now"
     -- newBody <- transformExp cloneBodyStates $ subBody sub
     -- add &?BLOCK &?ROUTINE etc here
-    started         <- if isCompileTime env then return Nothing else fmap Just (stm $ newTVar False)
-    inner           <- clonePad (subInnerPad sub) 
---  (lpads, outer)  <- cloneLexPads (envLexPads env)
+    started     <- if isCompileTime env then return Nothing else fmap Just (stm $ newTVar False)
+    inner       <- clonePad (subInnerPad sub) 
+--  lpads       <- cloneLexPads (subOuterPads sub)
+--  warn "mooooose" $ envLexPads env
     return $ VCode sub
         { subCont       = cont
---      , subOuterPads  = lpads
+        , subOuterPads  = if isCompileTime env then subOuterPads sub else envLexPads env
         , subInnerPad   = inner
---      , subLexical    = outer `mappend` inner 
         , subStarted    = started
         }
     where
-    cloneLexPads chain = do
-        pads <- forM chain $ \lpad -> case lpad of
-            PRuntime p      -> do
-                p'  <- snapPad p
-                return (PRuntime p', p')
-            PCompiling p    -> do
-                p'  <- readMPad p
-                return (lpad, p')
-        let merged  = MkPad $ Map.unionsWith mergePadEntry (map (padEntries . snd) pads)
-            lexpads = map fst pads
-        return (lexpads, merged)
+    cloneLexPads chain = forM chain $ \lpad -> case lpad of
+        PRuntime p      -> do
+            p'  <- snapPad p
+            return (PRuntime p')
+        _               -> return lpad
 --    cloneBodyStates (Pad scope pad exp) | scope <= SMy = do
 --        pad' <- clonePad pad
 --        return $ Pad scope pad' exp
@@ -1398,15 +1392,15 @@ applyInline :: VCode       -- ^ The sub to apply
       -> (Maybe Exp) -- ^ Explicit invocant
       -> [Exp]       -- ^ List of arguments (not including explicit invocant)
       -> Eval Val
-applyInline = doApply ApplyInline
+applyInline = doApply AKInline
 
 applyDisplaced :: VCode       -- ^ The sub to apply
       -> (Maybe Exp) -- ^ Explicit invocant
       -> [Exp]       -- ^ List of arguments (not including explicit invocant)
       -> Eval Val
 applyDisplaced vcode = case subType vcode of
-    SubPrim -> doApply ApplyInline vcode
-    _       -> doApply ApplyDisplaced vcode
+    SubPrim -> doApply AKInline vcode
+    _       -> doApply AKDisplaced vcode
 
 -- XXX not entirely sure how this evaluation should proceed
 reduceNamedArg :: Exp -> Eval Exp
@@ -1416,9 +1410,6 @@ reduceNamedArg (Syn "named" [keyExp, val]) = do
 reduceNamedArg other = return other
 
         
-
-data ApplyKind = ApplyInline | ApplyDisplaced
-    deriving (Show)
 
 -- XXX - faking application of lexical contexts
 -- XXX - what about defaulting that depends on a junction?
@@ -1448,7 +1439,7 @@ doApply appKind sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs 
             -- trace (show bound) $ return ()
             val <- local fixEnv $ do
                 (`juncApply` bound) $ \realBound -> do
-                    enterSub sub $ case cont of
+                    enterSub appKind sub $ case cont of
                         Just tvar   -> do
                             thunk <- stm $ readTVar tvar
                             applyThunk (subType sub) realBound thunk

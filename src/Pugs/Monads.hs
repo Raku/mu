@@ -13,6 +13,8 @@
 -}
 
 module Pugs.Monads (
+    ApplyKind(..),
+
     enterLValue, enterRValue,
     enterLex, enterContext, enterEvalContext, enterPackage, enterCaller,
     enterGiven, enterWhen, enterLoop, enterGather, genSymPrim, genSymCC,
@@ -315,18 +317,21 @@ enterSub sub action
     doCC _  _   = internalError "enterSub: doCC list length > 1"
     orig :: VCode -> VCode
     orig sub = sub { subBindings = [], subParams = (map fst (subBindings sub)) }
+
+    genRecSym = genSym (if typ >= SubBlock then cast "&?BLOCK" else cast "&?ROUTINE") (codeRef (orig sub))
+
     fixEnv :: (Val -> Eval Val) -> Env -> Pad -> Eval (Env -> Env)
     fixEnv cc env pad
-        | typ >= SubBlock = do
-            -- Entering a block. - XXX - If this is a "displaced" block we need to swap in subOuterPads too.
-            blockRec  <- genSym (cast "&?BLOCK") (codeRef (orig sub))
+        | AKInline <- appKind = do
+            -- Entering an inline call.
+            subRec    <- genRecSym
             return $ \e -> e
-                { envLexical = combine [blockRec] (envLexical env `mappend` pad)
+                { envLexical = subRec (envLexical env `mappend` pad)
                 , envPackage = subPackage sub
                 , envLexPads = (PRuntime pad:envLexPads env)
                 }
         | otherwise = do
-            subRec    <- genSym (cast "&?ROUTINE") (codeRef (orig sub))
+            subRec    <- genRecSym
             callerRec <- genSym (cast "&?CALLER_CONTINUATION") (codeRef $ ccSub cc env)
             pad'      <- fmap (`mappend` pad) $ mergeLexPads (subOuterPads sub)
             return $ \e -> e
