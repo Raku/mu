@@ -224,23 +224,26 @@ recloseRef ref@(MkRef (ICode cv))
 recloseRef ref = return ref
 
 reclosePad :: Pad -> STM Pad
-reclosePad pad = fmap listToPad $ forM (padToList pad) $ \(name, entry) -> do
-    entry' <- case entry of
-        PEStatic{ pe_proto = proto, pe_store = store } -> stm $ do
-            proto'  <- recloseRef proto
-            ref     <- readTVar store
-            ref'    <- recloseRef ref
-            writeTVar store ref'
-            return entry{ pe_proto = proto' }
-        PELexical{ pe_proto = proto, pe_store = store } -> stm $ do
-            proto'  <- recloseRef proto
-            ref     <- readTVar store
-            ref'    <- recloseRef ref
-            writeTVar store ref'
-            return entry{ pe_proto = proto' }
-        PEConstant{ pe_proto = proto } -> stm $ do
-            proto'  <- recloseRef proto
-            return entry{ pe_proto = proto' }
+reclosePad pad = fmap listToPad . forM (padToList pad) $ \(name, entry) -> do
+    entry' <- case v_twigil name of
+        TMagical    -> return entry -- XXX - Prevent &?ROUTINE recursion
+        _           -> do
+            case entry of
+                PEStatic{ pe_proto = proto, pe_store = store } -> do
+                    proto'  <- recloseRef proto
+                    ref     <- readTVar store
+                    ref'    <- recloseRef ref
+                    writeTVar store ref'
+                    return entry{ pe_proto = proto' }
+                PELexical{ pe_proto = proto, pe_store = store } -> do
+                    proto'  <- recloseRef proto
+                    ref     <- readTVar store
+                    ref'    <- recloseRef ref
+                    writeTVar store ref'
+                    return entry{ pe_proto = proto' }
+                PEConstant{ pe_proto = proto } -> do
+                    proto'  <- recloseRef proto
+                    return entry{ pe_proto = proto' }
     return (name, entry')
 
 enterSub :: VCode -> Eval Val -> Eval Val
