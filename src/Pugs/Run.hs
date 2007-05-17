@@ -276,7 +276,7 @@ initPreludePC env = do
         -- print "Parsing done!"
         -- print "Loading yaml..."
         --(glob, ast) <- fromYAML yml
-        cleanSeen
+        -- cleanSeen
         MkCompUnit _ glob ast <- io $ fromYAML yml
         -- print "Loading done!"
         -- z   <- stm $ join (findSym (cast "&*__fail") glob)

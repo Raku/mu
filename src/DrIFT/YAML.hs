@@ -231,6 +231,7 @@ instance (YAML a, YAML b, YAML c) => YAML (a, b, c) where
         return (x', y', z')
     fromYAMLElem e = fail $ "no parse: " ++ show e ++ ", expecting " ++ show (typeOf (undefined :: (a, b, c)))
 
+{-
 {-# NOINLINE seen #-}
 seen :: Hash.HashTable SYMID Any
 seen = unsafePerformIO (Hash.new (==) fromIntegral)
@@ -239,6 +240,7 @@ cleanSeen :: IO ()
 cleanSeen = do
     kvs <- Hash.toList seen
     mapM_ (Hash.delete seen . fst) kvs
+-}
 
 instance (Typeable a, YAML a) => YAML (TVar a) where
     asYAML x = do -- asYAMLanchor x $ do
