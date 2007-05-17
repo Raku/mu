@@ -3,10 +3,18 @@ module Pugs.AST.Pad (
   mkPad, subPad, diffPads, unionPads, padKeys, filterPad, adjustPad, mergePadEntry
 ) where
 import Pugs.Internals
+import Pugs.AST.SIO
 import Pugs.AST.Internals
 import Pugs.Types
 import qualified Data.Map as Map
 import qualified Data.Set as Set
+
+{-|
+An empty Pad with now symbols.
+-}
+
+emptyPad :: Pad
+emptyPad = MkPad Map.empty
 
 {-|
 Produce a 'Pad' from a list of bindings. The inverse of 'padToList'.
@@ -17,12 +25,14 @@ mkPad :: [(Var, PadEntry)] -> Pad
 mkPad = listToPad
 
 {-|
-Retrieve a sub's lexical 'Pad' from its environment ('Env').
+Retrieve a sub's lexical 'Pad'.
 
 If the sub has no associated environment, an empty 'Pad' is returned.
 -}
-subPad :: VCode -> Pad
-subPad sub = maybe (mkPad []) envLexical (subEnv sub)
+mergeLexPads :: [TVar Pad] -> Eval Pad
+mergeLexPads chain = stm $ do
+    pads <- mapM readTVar chain
+    return . MkPad $ Map.unionsWith mergePadEntry (map padEntries pads)
 
 {-|
 Return the difference between two 'Pad's.

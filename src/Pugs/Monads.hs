@@ -103,14 +103,9 @@ enterCaller = local envEnterCaller
 
 envEnterCaller :: Env -> Env
 envEnterCaller env = env
-    { envCaller = Just env
-        { envLexical = MkPad (lex `Map.intersection` envImplicit env)
-        }
-    , envFrames = FrameRoutine `Set.insert` envFrames env
-    , envImplicit = Map.fromList [(cast "$_", ())]
+    { envDynPads    = (envLexical env:envDynPads env)
+    , envFrames     = FrameRoutine `Set.insert` envFrames env
     }
-    where
-    MkPad lex = envLexical env
 
 {-|
 Register the fact that we are inside a specially marked control block.
@@ -198,7 +193,9 @@ Used by 'Pugs.Eval.reduce' when evaluating @('Syn' \"block\" ... )@
 expressions.
 -}
 enterBlock :: Eval Val -> Eval Val
-enterBlock action = local (\e -> e{ envOuter = Just e }) action
+enterBlock action = do
+    pad <- stm $ newTVar emptyPad
+    local (\e -> e{ envLexPads = (pad:envLexPads e) }) action
 
 enterSub :: VCode -> Eval Val -> Eval Val
 enterSub sub action
@@ -269,20 +266,20 @@ enterSub sub action
     fixEnv :: (Val -> Eval Val) -> Env -> Eval (Env -> Env)
     fixEnv cc env
         | typ >= SubBlock = do
+            -- Entering a block.
             blockRec <- genSym (cast "&?BLOCK") (codeRef (orig sub))
+            pad      <- stm $ readTVar (head (subLexPads sub))
             return $ \e -> e
-                { envOuter = Just env
-                , envPackage = maybe (envPackage e) envPackage (subEnv sub)
+                { envLexPads = subLexPads sub
                 , envLexical = combine [blockRec]
-                    (subPad sub `unionPads` envLexical env)
-                , envImplicit= envImplicit e `Map.union` Map.fromList
-                    [ (cast "&?BLOCK", ()) ]
+                    (pad `unionPads` envLexical env)
                 }
         | otherwise = do
             subRec    <- genSym (cast "&?ROUTINE") (codeRef (orig sub))
             callerRec <- genSym (cast "&?CALLER_CONTINUATION") (codeRef $ ccSub cc env)
+            pad       <- mergeLexPads (subLexPads sub)
             return $ \e -> e
-                { envLexical = combine ([subRec, callerRec]) (subPad sub)
+                { envLexical = combine ([subRec, callerRec]) pad
                 , envPackage = maybe (envPackage e) envPackage (subEnv sub)
                 , envOuter   = maybe Nothing envOuter (subEnv sub)
                 , envImplicit= envImplicit e `Map.union` Map.fromList

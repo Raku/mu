@@ -1027,7 +1027,8 @@ data VCode = MkCode
     { isMulti           :: !Bool        -- ^ Is this a multi sub\/method?
     , subName           :: !ByteString  -- ^ Name of the closure
     , subType           :: !SubType     -- ^ Type of the closure
-    , subEnv            :: !(Maybe Env) -- ^ Lexical pad for sub\/method
+    , subLexPads        :: ![TVar Pad]  -- ^ Lexical pad for sub\/method
+    , subPackage        :: !Pkg         -- ^ Package of the subroutine
     , subAssoc          :: !SubAssoc    -- ^ Associativity
     , subParams         :: !Params      -- ^ Parameters list
     , subBindings       :: !Bindings    -- ^ Currently assumed bindings
@@ -1068,7 +1069,8 @@ mkPrim = MkCode
     { isMulti = True
     , subName = cast "&"
     , subType = SubPrim
-    , subEnv = Nothing
+    , subLexPads = []
+    , subPackage = emptyPkg
     , subAssoc = ANil
     , subParams = []
     , subBindings = []
@@ -1085,7 +1087,8 @@ mkSub = MkCode
     { isMulti = False
     , subName = cast "&"
     , subType = SubBlock
-    , subEnv = Nothing
+    , subLexPads = []
+    , subPackage = emptyPkg
     , subAssoc = ANil
     , subParams = []
     , subBindings = []
@@ -1102,7 +1105,8 @@ mkCode = MkCode
     { isMulti = False
     , subName = cast "&"
     , subType = SubBlock
-    , subEnv = Nothing
+    , subLexPads = []
+    , subPackage = emptyPkg
     , subAssoc = ANil
     , subParams = []
     , subBindings = []
@@ -1315,13 +1319,12 @@ data Env = MkEnv
     { envContext :: !Cxt                 -- ^ Current context
                                          -- ('CxtVoid', 'CxtItem' or 'CxtSlurpy')
     , envLValue  :: !Bool                -- ^ Are we in an LValue context?
-    , envLexical :: !Pad                 -- ^ Lexical pad for variable lookup
-    , envImplicit:: !(Map Var ())        -- ^ Set of implicit variables
+    , envLexical :: !Pad                 -- ^ Cached lexical pad for variable lookup
+    , envLexPads :: ![TVar Pad]          -- ^ Current lexical pads; MY is leftmost
+    , envDynPads :: ![Pad]               -- ^ CONTEXT pads; CALLER is leftmost (CALLER::OUTER is not there)
     , envGlobal  :: !(TVar Pad)          -- ^ Global pad for variable lookup
     , envPackage :: !Pkg                 -- ^ Current package
     , envEval    :: !(Exp -> Eval Val)   -- ^ Active evaluator
-    , envCaller  :: !(Maybe Env)         -- ^ Caller's "env" pad
-    , envOuter   :: !(Maybe Env)         -- ^ Outer block's env
     , envBody    :: !Exp                 -- ^ Current AST expression
     , envFrames  :: !(Set Frame)         -- ^ Recursion depth
     , envDebug   :: !DebugInfo           -- ^ Debug info map
@@ -1978,13 +1981,12 @@ _FakeEnv = unsafePerformIO $ stm $ do
     return $ MkEnv
         { envContext = CxtVoid
         , envLexical = MkPad Map.empty
-        , envImplicit= Map.empty
+        , envLexPads = []
+        , envDynPads = []
         , envLValue  = False
         , envGlobal  = glob
         , envPackage = cast "Main"
         , envEval    = const (return VUndef)
-        , envCaller  = Nothing
-        , envOuter   = Nothing
         , envFrames  = Set.empty
         , envBody    = Val undef
         , envDebug   = Just ref -- Set to "Nothing" to disable debugging

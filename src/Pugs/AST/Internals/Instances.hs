@@ -59,13 +59,12 @@ _FakeEnv = unsafePerformIO $ stm $ do
     return $ MkEnv
         { envContext = CxtVoid
         , envLexical = MkPad Map.empty
-        , envImplicit= Map.empty
+        , envLexPads = []
+        , envDynPads = []
         , envLValue  = False
         , envGlobal  = glob
         , envPackage = cast "Main"
         , envEval    = const (return VUndef)
-        , envCaller  = Nothing
-        , envOuter   = Nothing
         , envFrames  = Set.empty
         , envBody    = Val undef
         , envDebug   = Just ref -- Set to "Nothing" to disable debugging
@@ -621,6 +620,15 @@ instance YAML InitDat where
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkInitDat"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (MkInitDat aa) = asYAMLseq "MkInitDat" [asYAML aa]
+
+instance YAML EntryFlags where
+    fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
+	"MkEntryFlags" -> do
+	    let ESeq [aa] = e
+	    liftM MkEntryFlags (fromYAML aa)
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkEntryFlags"] ++ " in node " ++ show e
+    fromYAML _ = fail "no tag found"
+    asYAML (MkEntryFlags aa) = asYAMLseq "MkEntryFlags" [asYAML aa]
 
 instance YAML PadEntry where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of

@@ -463,6 +463,7 @@ reduceSyn "sub" [exp] = do
         writeTVar tvar thunk
         return $ Just tvar
     newBody <- transformExp cloneBodyStates $ subBody sub
+    -- add &?BLOCK &?ROUTINE etc here
     return $ VCode sub
         { subEnv  = Just env
         , subCont = cont
