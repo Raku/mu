@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fglasgow-exts -fparr #-}
 module Pugs.AST.Pad (
-  mkPad, subPad, diffPads, unionPads, padKeys, filterPad, adjustPad, mergePadEntry
+  mkPad, subPad, diffPads, unionPads, padKeys, filterPad, adjustPad, mergePadEntry, emptyPad, mergeLexPads
 ) where
 import Pugs.Internals
 import Pugs.AST.SIO
