@@ -599,20 +599,23 @@ ruleMemberDeclaration = do
     optional $ do { symbol "handles"; ruleExpression }
     def     <- ruleParamDefault
     env     <- ask
+    let self = selfParam $ cast (envPackage env)
+    paramsPad  <- genParamEntries SubMethod [self]
     -- manufacture an accessor, and register this slot into metaobject
     let sub = mkPrim
             { isMulti       = False
             , subName       = cast name
             , subReturns    = if null typ then typeOfSigil (cast sigil) else mkType typ
             , subBody       = fun
-            , subParams     = [selfParam $ cast (envPackage env)]
+            , subParams     = [self]
+            , subInnerPad   = paramsPad
             , subLValue     = "rw" `elem` traits
             , subType       = SubMethod
             }
         exp = Syn "sub" [Val $ VCode sub]
         name | twigil == '.' = '&':(pkg ++ "::" ++ key)
              | otherwise     = '&':(pkg ++ "::" ++ (twigil:key))
-        fun = Syn (sigil:"{}") [Ann (Cxt (cxtOfSigil $ cast sigil)) (Syn "{}" [_Var "&self", Val (VStr key)])]
+        fun = Syn (sigil:"{}") [Ann (Cxt (cxtOfSigil $ cast sigil)) (Syn "{}" [_Var "$__SELF__", Val (VStr key)])]
         pkg = cast (envPackage env)
         metaObj = _Var (':':'*':pkg)
         attrDef = Syn "{}" [Syn "{}" [metaObj, Val (VStr "attrs")], Val (VStr key)]

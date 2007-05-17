@@ -42,12 +42,12 @@ showYaml x = do
 
 showYamlCompressed :: YAML a => a -> IO String
 showYamlCompressed = showYaml
-{-do
+{-
 showYamlCompressed x = do
     node    <- toYamlNode x
     node'   <- compressYamlNode node
     emitYaml node'
-    -}
+-}
 
 type EmitAs = ReaderT SeenCache IO
 
@@ -339,8 +339,8 @@ visitElem (EMap ps)      = fmap EMap (mapM visitPair ps)
 visitElem e             = return e
 
 markNode :: (?seenHash :: SeenHash, ?duplHash :: DuplHash) => YamlNode -> IO YamlNode
-markNode node@MkNode{ n_anchor = AReference r } = return node{ n_id = toEnum r }
-markNode node@MkNode{ n_anchor = AAnchor r } = return node{ n_id = toEnum r + 1 }
+-- markNode node@MkNode{ n_anchor = AReference r } = return node
+-- markNode node@MkNode{ n_anchor = AAnchor r } = return node
 markNode node = do
     (symid32, elem')    <- markElem (n_elem node)
     let node' = node{ n_id = symid }
