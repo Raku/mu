@@ -113,12 +113,6 @@ debug ref key fun str a = do
 
 evaluateMain :: Exp -> Eval Val
 evaluateMain exp = do
-    -- First we reclose all global pads.
-    glob <- asks envGlobal
-    stm $ do
-        pad     <- readTVar glob
-        pad'    <- reclosePad pad
-        writeTVar glob pad'
     -- S04: INIT {...}*      at run time, ASAP
     initAV   <- reduceVar $ cast "@*INIT"
     initSubs <- fromVals initAV
@@ -435,6 +429,15 @@ enough to make it redundant.
 -}
 reduceSyn :: String -> [Exp] -> Eval Val
 
+reduceSyn "" [] = do 
+    -- Reclose all global pads!
+    glob <- asks envGlobal
+    stm $ do
+        pad     <- readTVar glob
+        pad'    <- reclosePad pad
+        writeTVar glob pad'
+        return undef
+
 reduceSyn "()" [exp] = reduce exp
 
 reduceSyn "named" [keyExp, valExp] = do
@@ -486,7 +489,7 @@ reduceSyn "sub" [exp] = do
         { subCont       = cont
         , subOuterPads  = lpads
         , subInnerPad   = inner
-        , subLexical    = outer `mappend` inner 
+--      , subLexical    = outer `mappend` inner 
         , subStarted    = started
         }
     where
@@ -1470,7 +1473,7 @@ doApply sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args = d
         { -- envLexical = subPad sub -- XXX - fake in-pad knowledge?
           envPackage = subPackage sub
         , envLexPads = subOuterPads sub
-        , envLexical = subLexical sub
+--      , envLexical = subLexical sub
         }
     fixEnv :: Env -> Env
     fixEnv | typ >= SubBlock = id
@@ -1482,7 +1485,7 @@ doApply sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args = d
             cxt = cxtOfSigilVar var
         (val, coll) <- enterContext cxt $ case exp of
             Syn "param-default" [exp, Val (VCode sub)] -> do
-                local (fixSub sub . fixEnv) $ expToVal prm exp
+                local fixEnv $ expToVal prm exp
             _  -> expToVal prm exp
         -- trace ("==> " ++ (show val)) $ return ()
         -- boundRef <- fromVal val

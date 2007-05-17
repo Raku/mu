@@ -168,12 +168,10 @@ ruleProgram = rule "program" $ do
     topPad  <- genParamEntries SubRoutine [defaultArrayParam]
     modify $ \s -> s{ s_protoPad = topPad }
 
-    block   <- ruleBlockBody
+    block   <- ruleBlockBody `finallyM` eof
     main    <- retVerbatimBlock SubPointy Nothing False $
         block{ bi_body = mergeStmts emptyExp $ bi_body block }
 
-    -- error $ show statements
-    eof
     -- S04: CHECK {...}*      at compile time, ALAP
     --  $_() for @*CHECK
     rv <- unsafeEvalExp $ Syn "for"
@@ -187,6 +185,10 @@ ruleProgram = rule "program" $ do
         ]
     -- If there was a exit() in a CHECK block, we have to exit.
     possiblyExit rv
+
+    -- Force a reclose-pad evaluation here by way of unsafeEvalExp.
+    unsafeEvalExp $ Syn "" []
+
     env' <- getRuleEnv
     return $ env'
         { envBody       = App main Nothing [] -- _Var "@*ARGS"]
