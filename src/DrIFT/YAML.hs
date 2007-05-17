@@ -38,8 +38,7 @@ toYamlNode x = do
 showYaml :: YAML a => a -> IO String
 showYaml x = do
     node <- toYamlNode x
-    return (show node)
-    -- emitYaml node
+    emitYaml node
 
 showYamlCompressed :: YAML a => a -> IO String
 showYamlCompressed x = if safeMode then showYaml x else do
@@ -193,14 +192,16 @@ instance (YAML a) => YAML (Maybe a) where
     fromYAMLElem x = return . Just =<< fromYAMLElem x
 
 instance (YAML a) => YAML [a] where
-    asYAML xs = asYAMLanchor xs $ do
+    asYAML xs = do -- asYAMLanchor xs $ do
         xs' <- mapM asYAML xs
         (return . mkNode . ESeq) xs'
+    fromYAML MkNode{n_elem=(ESeq s)} = mapM fromYAML s
+    fromYAML n = fail $ "no parse: " ++ show n ++ ", expecting list of " ++ show (typeOf (undefined :: a))
     fromYAMLElem (ESeq s) = mapM fromYAML s
     fromYAMLElem e = fail $ "no parse: " ++ show e ++ ", expecting list of " ++ show (typeOf (undefined :: a))
 
 instance (YAML a) => YAML [:a:] where
-    asYAML xs = asYAMLanchor xs $ do
+    asYAML xs = do -- asYAMLanchor xs $ do
         xs' <- mapM asYAML (fromP xs)
         (return . mkNode . ESeq) xs'
     fromYAMLElem (ESeq s) = fmap toP (mapM fromYAML s)
@@ -342,15 +343,19 @@ markNode node@MkNode{ n_anchor = AReference r } = do
     -- All we need to do is to write this into duplHash.
     let symid   = fromIntegral r
         node'   = node{ n_anchor = ASingleton, n_id = symid }
-    Hash.insert ?seenHash symid Nothing
-    return node'
+    rv  <- Hash.lookup ?seenHash symid
+    case rv of
+        Just (Just prevNode)    -> return prevNode
+        _                       -> do
+            Hash.insert ?seenHash symid Nothing
+            return node'
 markNode node@MkNode{ n_anchor = AAnchor r } = do
     -- All we need to do is to write this into duplHash.
     -- XXX - But maybe also descend deeper?
     (_, elem')    <- markElem (n_elem node)
     let symid   = fromIntegral r
         node'   = node{ n_anchor = ASingleton, n_id = symid, n_elem = elem' }
-    Hash.insert ?seenHash symid Nothing
+    Hash.insert ?seenHash symid (Just node')
     Hash.insert ?duplHash node' 0
     return node'
 markNode node = do
