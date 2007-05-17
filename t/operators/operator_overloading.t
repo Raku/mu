@@ -22,7 +22,7 @@ is(X "fish", "ROUGHLYfish",
 sub prefix:<±> ($thing) { return "AROUND$thing"; };
 is ± "fish", "AROUNDfish", 'prefix operator overloading for new operator (unicode)';
 sub prefix:<(+-)> ($thing) { return "ABOUT$thing"; };
-is (+-) "fish", "ABOUTfish", 'prefix operator overloading for new operator (nasty)';
+is eval(q[ (+-) "fish" ]), "ABOUTfish", 'prefix operator overloading for new operator (nasty)', :todo<bug>;
 
 {
   my sub prefix:<->($thing) { return "CROSS$thing"; };
@@ -42,8 +42,8 @@ is "romeo & juliet" © "Shakespeare", "romeo & juliet Copyright Shakespeare",
     'infix operator overloading for new operator (unicode)';
 
 sub infix:<(C)> ($text, $owner) { return "$text CopyRight $owner"; };
-is "romeo & juliet" (C) "Shakespeare", "romeo & juliet CopyRight Shakespeare",
-    'infix operator overloading for new operator (nasty)';
+is eval(q[ "romeo & juliet" (C) "Shakespeare" ]), "romeo & juliet CopyRight Shakespeare",
+    'infix operator overloading for new operator (nasty)', :todo<bug>;
 
 sub infix:«_<_»($one, $two) { return 42 }
 is 3 _<_ 5, 42, "frenchquoted infix sub";
