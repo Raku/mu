@@ -135,7 +135,7 @@ sub use_ok (Str $module, :$todo, :$depends) is export {
 ## throws ok
 
 sub throws_ok (Code &code, Any $match, Str $desc?, :$todo, :$depends) returns Bool is export {
-    try { code() };
+    try &code;
     if ($!) {
         &Test::ok.nextwith($! ~~ $match, $desc, :$todo, :$depends);
     }
@@ -147,7 +147,7 @@ sub throws_ok (Code &code, Any $match, Str $desc?, :$todo, :$depends) returns Bo
 ## dies_ok
 
 sub dies_ok (Code &code, Str $desc?, :$todo, :$depends) returns Bool is export {
-    try { code() };
+    try &code;
     if ($!) {
         &Test::ok.nextwith(1, $desc, :$todo);
     }
@@ -159,7 +159,7 @@ sub dies_ok (Code &code, Str $desc?, :$todo, :$depends) returns Bool is export {
 ## lives ok
 
 sub lives_ok (Code &code, Str $desc?, :$todo, :$depends) returns Bool is export {
-    try { code() };
+    try &code;
     if ($!) {
         Test::proclaim(undef, $desc, $todo, "An exception was thrown : $!", :$depends);
     }
