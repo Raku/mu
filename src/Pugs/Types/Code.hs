@@ -10,6 +10,7 @@ class (Typeable a) => CodeClass a where
     code_assoc    :: a -> SubAssoc
     code_params   :: a -> Params
     code_type     :: a -> SubType
+    code_clone    :: a -> STM a
 
 instance CodeClass VMultiCode where
     code_iType      = mc_type
@@ -23,6 +24,7 @@ instance CodeClass VMultiCode where
     code_assoc      = mc_assoc
     code_apply      = error "apply"
     code_type       = mc_subtype
+    code_clone      = return
 
 instance CodeClass VCode where
     -- XXX - subType should really just be a mkType itself
@@ -39,5 +41,5 @@ instance CodeClass VCode where
     code_assoc    = subAssoc
     code_params   = subParams
     code_type     = subType
-
+    code_clone c  = return c
 

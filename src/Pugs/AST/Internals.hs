@@ -1029,7 +1029,9 @@ data VCode = MkCode
     { isMulti           :: !Bool        -- ^ Is this a multi sub\/method?
     , subName           :: !ByteString  -- ^ Name of the closure
     , subType           :: !SubType     -- ^ Type of the closure
-    , subLexPads        :: ![MPad]      -- ^ Lexical (mutable) pads for sub\/method
+    , subLexPads        :: !LexPads     -- ^ Lexical pads for thie scope
+    , subLexical        :: !Pad         -- ^ Cached merged pads
+    , subEntered        :: !(TVar Bool) -- ^ Whether this pad has been entered before (for runtime)
     , subPackage        :: !Pkg         -- ^ Package of the subroutine
     , subAssoc          :: !SubAssoc    -- ^ Associativity
     , subParams         :: !Params      -- ^ Parameters list
@@ -1309,6 +1311,20 @@ defaultHashParam    = buildParam "" "*" "%_" (Val VUndef)
 defaultScalarParam  = buildParam "" "?" "$_" (Var $ cast "$_")
 
 type DebugInfo = Maybe (TVar (Map ID String))
+
+data LexPads
+    = PCompiling { pc_pads :: !([MPad]) }
+    | PRuntime
+        { pr_pads   :: !([Pad])
+        , pr_merged :: !Pad
+--      , pr_fresh  :: !(TVar Bool)
+        }
+
+
+data LexPads
+    = PRuntime      ![Pad]
+    | PCompiling    ![MPad]
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 {-|
 Evaluation environment.
@@ -1805,6 +1821,7 @@ cloneIVar :: IVar v -> STM (IVar v)
 cloneIVar (IScalar x) = fmap IScalar $ scalar_clone x
 cloneIVar (IArray x)  = fmap IArray  $ array_clone x
 cloneIVar (IHash x)   = fmap IHash   $ hash_clone x
+cloneIVar (ICode x)   = fmap ICode   $ code_clone x
 cloneIVar x = return x
 
 writeIVar :: IVar v -> v -> Eval ()
