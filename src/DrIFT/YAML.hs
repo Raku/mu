@@ -244,7 +244,7 @@ instance (Typeable a, YAML a) => YAML (TVar a) where
         case rv of
             Just x  -> return (unsafeCoerce# x)
             _       -> do
-                tv  <- newTVarIO (error "moose")
+                tv  <- newTVarIO (error $ "value of TV demanded before cycle completes: " ++ show (typeOf (undefined :: a)))
                 Hash.insert seen nid (unsafeCoerce# tv)
                 j   <- fromYAML x
                 atomically (writeTVar tv j)
