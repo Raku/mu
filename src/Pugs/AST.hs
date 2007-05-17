@@ -374,7 +374,10 @@ typeMacro :: String -> Exp -> Exp
 typeMacro name exp = Syn "sub" . (:[]) . Val . VCode $ MkCode
     { isMulti       = True
     , subName       = cast name
-    , subLexPads    = []
+    , subOuterPads  = []
+    , subInnerPad   = emptyPad
+--  , subLexical    = emptyPad
+    , subStarted    = Nothing
     , subPackage    = emptyPkg
     , subType       = SubMacro
     , subAssoc      = ANil

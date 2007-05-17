@@ -414,7 +414,7 @@ reduceSyn :: String -> [Exp] -> Eval Val
 
 reduceSyn "" [Syn "block" [Val (VCode code)]] = do 
     -- Reclose all global pads!
-    glob <- asks envGlobal
+    glob    <- asks envGlobal
     stm $ do
         pad     <- readMPad glob
         pad'    <- reclosePad pad
@@ -1358,7 +1358,7 @@ applyThunk styp bound@(arg:_) thunk = do
         _ | styp <= SubMethod   -> aliased [cast "&self"]
         _                       -> return []
     -}
-    let withInv | styp <= SubMethod = (ApplyArg (cast "&self") (argValue arg) False:)
+    let withInv | styp <= SubMethod = (ApplyArg (cast "$__SELF__") (argValue arg) False:)
                 | otherwise         = id
     sequence_ [ bindVar var val
               | ApplyArg var val _ <- withInv bound
@@ -1369,14 +1369,19 @@ applyThunk styp bound@(arg:_) thunk = do
 
 bindVar :: Var -> Val -> Eval ()
 bindVar var val
-    | isLexicalVar var  = doBindVar (asks envLexical)
-    | otherwise         = doBindVar askGlobal
+    | isLexicalVar var  = do
+        -- warn "Binding lexical" var
+        doBindVar (asks envLexical)
+    | otherwise         = do
+        -- warn "Binding global" var
+        doBindVar askGlobal
     where
     doBindVar askPad = do
         pad <- askPad
         case lookupPad var pad of
             Just PEConstant{} -> fail $ "Cannot rebind constant: " ++ show var
             Just c -> do
+                -- warn "Binding lexical on" (var, c)
                 ref <- fromVal val
                 stm $ writeTVar (pe_store c) ref
             _  -> fail $ "Cannot bind to non-existing variable: " ++ show var
@@ -1419,7 +1424,7 @@ doApply :: ApplyKind   -- ^ Whether if it's an inline application
         -> (Maybe Exp) -- ^ Explicit invocant
         -> [Exp]       -- ^ List of arguments (not including explicit invocant)
         -> Eval Val
-doApply appKind sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args = do
+doApply appKind origSub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args = do
     realInvs <- fmapM reduceNamedArg invs
     realArgs <-  mapM reduceNamedArg args  
     case bindParams origSub realInvs realArgs of
@@ -1434,13 +1439,23 @@ doApply appKind sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs 
                         ++ show n ++ " expected"
             bound <- mapM doBind (subBindings sub)
             -- trace (show bound) $ return ()
-            val <- local fixEnv $ do
+            val <- localEnv $ do
                 (`juncApply` bound) $ \realBound -> do
-                    enterSub appKind sub $ case cont of
-                        Just tvar   -> do
-                            thunk <- stm $ readTVar tvar
-                            applyThunk (subType sub) realBound thunk
-                        Nothing     -> applyExp (subType sub) realBound fun
+                    enterSub appKind sub $ do
+                        lex     <- asks envLexical
+                        recRef  <- fromVal (VCode origSub)
+                        let tryRecBind var
+                                | Just{} <- lookupPad var (subInnerPad sub)
+                                , Just c <- lookupPad var lex
+                                = writePadEntry c recRef 
+                                | otherwise = return ()
+                        tryRecBind (cast "&?BLOCK")
+                        tryRecBind (cast "&?ROUTINE")
+                        case cont of
+                            Just tvar   -> do
+                                thunk <- stm $ readTVar tvar
+                                applyThunk (subType sub) realBound thunk
+                            Nothing     -> applyExp (subType sub) realBound fun
             case typ of 
                 SubMacro    -> applyMacroResult val 
                 _           -> evalVal val
@@ -1460,20 +1475,20 @@ doApply appKind sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs 
     applyMacroResult code@VCode{}   = reduceApp (Val code) Nothing []
     applyMacroResult VUndef         = retEmpty
     applyMacroResult _              = fail "Macro did not return an AST, a Str or a Code!"
+    localEnv = case appKind of
+        AKDisplaced  -> enterCaller
+        _            -> id
     fixSub sub env = env
         { envPackage = subPackage sub
         , envLexPads = subOuterPads sub
         }
-    fixEnv :: Env -> Env
-    fixEnv | typ >= SubBlock = id
-           | otherwise       = envEnterCaller
     doBind :: (Param, Exp) -> Eval ApplyArg -- ([PadMutator], [ApplyArg])
     doBind (prm, exp) = do
         let var = paramName prm
             cxt = cxtOfSigilVar var
         (val, coll) <- enterContext cxt $ case exp of
             Syn "param-default" [exp, Val (VCode sub)] -> do
-                local (fixEnv . fixSub sub) $ expToVal prm exp
+                localEnv . local (fixSub sub) $ expToVal prm exp
             _  -> expToVal prm exp
         -- traceM ("==> " ++ (show val))
         -- boundRef <- fromVal val
