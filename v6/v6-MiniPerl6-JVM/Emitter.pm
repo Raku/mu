@@ -6,9 +6,15 @@ class CompUnit {
     has %.methods;
     has @.body;
     method emit {
-        # 'package ' ~ $.name ~ "; " ~ 
-        # 'sub new { shift; bless { @_ }, "' ~ $.name ~ '" }' ~ " " ~
-        (@.body.>>emit).join( "; " )
+
+        if ( $.name eq 'Main' ) {
+            return (@.body.>>emit).join( ';' ~ Main::newline );
+        }
+
+          'class ' ~ $.name ~ " { " ~ Main::newline 
+        # 'sub new { shift; bless { @_ }, "' ~ $.name ~ '" }' ~ " " 
+        ~ (@.body.>>emit).join( ';' ~ Main::newline )
+        ~ ' } '
     }
 }
 
@@ -287,7 +293,7 @@ class Apply {
         if $code eq 'self'       { return '$self' };
 
         if $code eq 'say'        { return 'println('     ~ (@.arguments.>>emit).join(', ') ~ ')' };
-        if $code eq 'print'      { return 'Main::print(' ~ (@.arguments.>>emit).join(', ') ~ ')' };
+        if $code eq 'print'      { return 'print('       ~ (@.arguments.>>emit).join(', ') ~ ')' };
         if $code eq 'warn'       { return 'warn('        ~ (@.arguments.>>emit).join(', ') ~ ')' };
 
         if $code eq 'array'      { return '@{' ~ (@.arguments.>>emit).join(' ')    ~ '}' };

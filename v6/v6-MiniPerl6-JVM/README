@@ -1,9 +1,16 @@
+
+- install Groovy:
+
+  http://groovy.codehaus.org
+
 - compiling from MiniPerl6 to Groovy:
 
   perl mp6-jvm.pl < hello.pl > hello.groovy
   ~/groovy-1.0/bin/groovy hello.groovy
 
-- recompiling Emitter.pm
+- Development:
+
+-- recompiling Emitter.pm
 
   perl mp6.pl < Emitter.pm > Emitter.pmc
 
