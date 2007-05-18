@@ -241,9 +241,7 @@ initPreludePC env = do
                 IOException ioe
                     | isUserError ioe, not . null $ ioeGetErrorString ioe
                     -> hPrint stderr ioe
-                _ -> do
-                    hPrint stderr e
-                    return ()
+                _ -> return ()
             when dispProgress $ do
                 hPutStr stderr "Reloading Prelude from source..."
             evalPrelude
