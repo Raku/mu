@@ -2108,7 +2108,7 @@ ruleSigiledVar = (<|> ruleSymbolicDeref) $ do
                     when (not foundInGlobal) $ do
                         pos <- getPosition
                         when (sourceName pos /= "-e") $ do
-                            fail $ "Variable " ++ show var ++ " requires predeclaraton or explicit package name"
+                            fail $ "Variable " ++ show var ++ " requires predeclaration or explicit package name"
                     return (Var $ toGlobalVar var)
                     -- put state{ s_freeVars = Set.insert (var, lexPads) freeVars }
 
