@@ -362,6 +362,8 @@ doRunSingle menv opts prog = (`catchIO` handler) $ do
                 _           -> fail $ pretty err
         Val err@VError{} -> fail $ pretty err
         _ | runOptSeparately opts -> return exp
+        App (Syn "block" [Val (VCode cv)]) invs args -> return $
+            App (Syn "block" [Val (VCode cv{ subBody = makeDumpEnv (subBody cv) })]) invs args
         _ -> return $ makeDumpEnv exp
     -- XXX Generalize this into structural folding
     makeDumpEnv Noop            = Syn "continuation" []
