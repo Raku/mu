@@ -130,10 +130,10 @@ class Var {
         # %x    => $Hash_x
         # &x    => $Code_x
         my $table := {
-            '$' => '$',
-            '@' => '$List_',
-            '%' => '$Hash_',
-            '&' => '$Code_',
+            '$' => 'scalar_',
+            '@' => 'list_',
+            '%' => 'hash_',
+            '&' => 'code_',
         };
            ( $.twigil eq '.' )
         ?? ( '$self->{' ~ $.name ~ '}' )
@@ -350,7 +350,7 @@ class If {
     has @.body;
     has @.otherwise;
     method emit {
-        'do { if (' ~ $.cond.emit ~ ') { ' ~ (@.body.>>emit).join(';') ~ ' } else { ' ~ (@.otherwise.>>emit).join(';') ~ ' } }';
+        ' if (' ~ $.cond.emit ~ ') { ' ~ (@.body.>>emit).join(';') ~ ' } else { ' ~ (@.otherwise.>>emit).join(';') ~ ' }';
     }
 }
 
@@ -365,7 +365,7 @@ class For {
         {
             $cond := ::Apply( code => 'prefix:<@>', arguments => [ $cond ] );
         };
-        'do { for my ' ~ $.topic.emit ~ ' ( ' ~ $cond.emit ~ ' ) { ' ~ (@.body.>>emit).join(';') ~ ' } }';
+        ' for my ' ~ $.topic.emit ~ ' ( ' ~ $cond.emit ~ ' ) { ' ~ (@.body.>>emit).join(';') ~ ' }';
     }
 }
 
@@ -376,13 +376,17 @@ class Decl {
     method emit {
         my $decl := $.decl;
         my $name := $.var.name;
-           ( $decl eq 'has' )
-        ?? ( 'sub ' ~ $name ~ ' { ' ~
-            '@_ == 1 ' ~
+        if   ( $decl eq 'has' ) {
+            return 'sub ' ~ $name ~ ' { ' ~
+              '@_ == 1 ' ~
                 '? ( $_[0]->{' ~ $name ~ '} ) ' ~
                 ': ( $_[0]->{' ~ $name ~ '} = $_[1] ) ' ~
-            '}' )
-        !! $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit;
+              '}';
+        }
+        if   ( $decl eq 'my' ) {
+            return 'def ' ~ $.type ~ ' ' ~ $.var.emit ;
+        }
+        return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit;
     }
 }
 
@@ -519,15 +523,15 @@ class Use {
 
 =head1 NAME 
 
-MiniPerl6::Perl5::Emit - Code generator for MiniPerl6-in-Perl5
+MiniPerl6::Groovy::Emit - Code generator for MiniPerl6-in-JVM
 
 =head1 SYNOPSIS
 
-    $program.emit  # generated Perl5 code
+    $program.emit  # generated Groovy code
 
 =head1 DESCRIPTION
 
-This module generates Perl5 code for the MiniPerl6 compiler.
+This module generates Groovy code for the MiniPerl6 compiler.
 
 =head1 AUTHORS
 
@@ -537,11 +541,13 @@ The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
 
 The Perl 6 homepage at L<http://dev.perl.org/perl6>.
 
-The Pugs homepage at L<http://pugscode.org/>.
+The Pugs homepage at L<http://pugscode.org>.
+
+The Groovy homepage at L<http://groovy.codehaus.org>.
 
 =head1 COPYRIGHT
 
-Copyright 2006 by Flavio Soibelmann Glock, Audrey Tang and others.
+Copyright 2007 by Flavio Soibelmann Glock.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
