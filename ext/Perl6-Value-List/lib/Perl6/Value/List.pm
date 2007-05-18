@@ -74,7 +74,7 @@ class Perl6::Value::List {
 
     # method is_lazy       ( $self: ) { ... }  --- auto generated
     method flatten       ( $self: ) { 
-        my $ret = $array;
+        my $ret = $self;
 
         # TODO - add tests for this error message
         # fail "can't instantiate an infinite list"
