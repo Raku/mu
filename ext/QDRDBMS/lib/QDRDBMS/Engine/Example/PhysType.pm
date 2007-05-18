@@ -602,7 +602,7 @@ class QDRDBMS::Engine::Example::PhysType::Cat_EntityName {
 
 ###########################################################################
 
-submethod BUILD (Str :$v!) {
+submethod BUILD (Str :$text!) {
     $!text = $text;
     return;
 }
