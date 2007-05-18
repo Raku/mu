@@ -17,6 +17,8 @@ rule TOP {
 # but * can be used also, just treat it as whitespace
 token ws { \h+ | \h* '*' \h* }
 
+token comment { '#' \N* }
+
 token float {
     $<mantissa> := [ '-'? \d+ [ '.' \d+ ]? ]
     [ e $<exp> := [ '-'? \d+ ] ]?
@@ -47,15 +49,34 @@ rule basicnumber {
     | <builtin_func> { $<num> = $<builtin_func><num> }
 }
 
-rule number_mult {
+rule number_paren {
+    '('
+    <number> { $<num> = $<number<num> }
+    ')'
+}
+
+rule number_pow {
     [ <basicnumber>  { $<num> = $<basicnumber>[0]<num> }
     | <number_paren> { $<num> = $<number_paren>[0]<num> }
     ]
+    [ '^' <basicnumber>  { $<num> **= $<basicnumber>[1]<num> }
+    | '^' <number_paren> { $<num> **= $<number_paren>[1]<num> }
+    | '^' <number_pow>   { $<num> **= $<number_pow><num> }
+    ]
+}
+
+rule number_mult {
+    [ <basicnumber>  { $<num> = $<basicnumber>[0]<num> }
+    | <number_paren> { $<num> = $<number_paren>[0]<num> }
+    | <number_pow>   { $<num> = $<number_pow>[0]<num> }
+    ]
     [ <?ws> <basicnumber>  { $<num> *= $<basicnumber>[1]<num> }
     | <?ws> <number_paren> { $<num> *= $<number_paren>[1]<num> }
+    | <?ws> <number_pow>   { $<num> *= $<number_pow>[1]<num> }
     | <?ws> <number_mult>  { $<num> *= $<number_mult><num> }
     | '/'   <basicnumber>  { $<num> /= $<basicnumber>[1]<num> }
     | '/'   <number_paren> { $<num> /= $<number_paren>[1]<num> }
+    | '/'   <number_pow>   { $<num> /= $<number_pow>[1]<num> }
     | '/'   <number_mult>  { $<num> /= $<number_mult><num> }
     ]
 }
@@ -63,33 +84,29 @@ rule number_mult {
 rule number_add {
     [ <basicnumber>  { $<num> = $<basicnumber>[0]<num> }
     | <number_paren> { $<num> = $<number_paren>[0]<num> }
+    | <number_pow>   { $<num> = $<number_pow>[0]<num> }
     | <number_mult>  { $<num> = $<number_mult>[0]<num> }
     ]
     [ '+'  <basicnumber>  { $<num> += $<basicnumber>[1]<num> }
     | '+'  <number_paren> { $<num> += $<number_paren>[1]<num> }
+    | '+'  <number_pow>   { $<num> += $<number_pow>[1]<num> }
     | '+'  <number_mult>  { $<num> += $<number_mult>[1]<num> }
     | '+'  <number_add>   { $<num> += $<number_add><num> }
     | '-'  <basicnumber>  { $<num> -= $<basicnumber>[1]<num> }
     | '-'  <number_paren> { $<num> -= $<number_paren>[1]<num> }
+    | '-'  <number_pow>   { $<num> -= $<number_pow>[1]<num> }
     | '-'  <number_mult>  { $<num> -= $<number_mult>[1]<num> }
     | '-'  <number_add>   { $<num> -= $<number_add><num> }
     ]
 }
 
-rule number_paren {
-    '('
-    <number> { $<num> = $<number<num> }
-    ')'
-}
-
 rule number {
     |  <basicnumber>  { $<num> = $<basicnumber><num> }
     |  <number_paren> { $<num> = $<number_paren><num> }
+    |  <number_pow>   { $<num> = $<number_pow><num> }
     |  <number_mult>  { $<num> = $<number_mult><num> }
     |  <number_add>   { $<num> = $<number_add><num> }
 }
-
-token comment { '#' \N* }
 
 token fundamental_unit {
     ^^ $<unit> := [\S+] \h+ '!' [ dimensionless { $<nodim> := True } ]?
@@ -119,7 +136,7 @@ token unitname {
 }
 
 token unit {
-    ^^ $<name := [ <!before \S+ '-'> \S+ ] \h+ <unitdef>
+    ^^ $<name := [ <+[\S]-[-]>+ ] \h+ <unitdef>
     {
         @units.push: $<name>;
         %unitsdef{$<name>} = $<unitdef><def>;
@@ -210,7 +227,10 @@ method adddef(Num %def1, Num %def2, Int $sign --> Hash of Num) {
     my Int $f1 = %def1c<factor>;
     my Int $f2 = %def2c<factor>;
     %def1c<factor>.:delete; %def2c<factor>.:delete;
-    return undef unless %def1c eqv %def2c;
+    if %def1c !eqv %def2c {
+        warn "Can't add incompatible units: { %def1c } : { %def2c }\n";
+        return undef;
+    }
     my Num %def = %def1c;
     %def<factor> = $f1 + $sign * $f2;
     return %def;
