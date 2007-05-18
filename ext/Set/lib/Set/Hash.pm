@@ -282,7 +282,7 @@ multi sub *infix:<~~> ($member, Set $one) returns Bool {
 multi sub *infix:<+#> (@a, @b) returns Array { set(@a).union(set @b).members }
 multi sub *infix:<-#> (@a, @b) returns Array { set(@a).difference(set @b).members }
 multi sub *infix:<*#> (@a, @b) returns Array { set(@a).intersection(set @b).members }
-multi sub *infix:<%#> (@a, $b) returns Array { set(@a).symmetric_difference(set @b).members }
+multi sub *infix:<%#> (@a, @b) returns Array { set(@a).symmetric_difference(set @b).members }
 
 =head1 NAME
 
