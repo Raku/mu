@@ -159,7 +159,16 @@ sub strip_comments {
 }
 
 sub precomp {
-    print STDERR "Generating precompiled Prelude" if $Config{verbose};
+    my $output = '';
+    if ($Config{output}) {
+        $output = "> $Config{output}";
+    }
+
+    if ($Config{verbose}) {
+        print STDERR "# $Config{pugs} -Iext/Math-Basic/lib -C Parse-YAML $TEMP_PRELUDE $output\n";
+        print STDERR "Generating precompiled Prelude";
+    }
+    
     die "*** Error: $0 needs an already compiled Pugs to precompile the Prelude\n"
         unless $Config{pugs};
     gen_source($TEMP_PRELUDE);
@@ -167,12 +176,6 @@ sub precomp {
 
     close OUT;
 
-    my $output = '';
-    if ($Config{output}) {
-        $output = "> $Config{output}";
-    }
-
-    warn("$Config{pugs} -Iext/Math-Basic/lib -C Parse-YAML $TEMP_PRELUDE $output\n");
     system("$Config{pugs} -Iext/Math-Basic/lib -C Parse-YAML $TEMP_PRELUDE $output");
 
     if ($Config{output}) {
@@ -191,7 +194,7 @@ sub precomp {
     die "Pugs ".(($?&255)?"killed by signal $?"
          :"exited with error code ".($?>>8)) if $?;
 
-    print STDERR "done.\n" if $Config{verbose};
+    print STDERR "done!\n" if $Config{verbose};
 }
 
 sub usage {
