@@ -174,7 +174,7 @@ method list_dir (Str $dirname, %options?){
     return self.throw('no input', meth => 'list_dir')
         if $dirname.chars == 0;
     
-    self.existent($filename);
+    self.existent($dirname);
     return self.throw('no such file', filename => $dirname)
         if $.exist == undef;
         
