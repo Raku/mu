@@ -109,10 +109,17 @@ makeState env = MkState
     , s_wsColumn        = 0
     , s_closureTraits   = [id]
     , s_freeVars        = Set.empty
-    , s_knownVars       = Map.empty
+    , s_knownVars       = Map.map (const topMPad) (padEntries (envLexical env))
     , s_outerVars       = Map.empty
     , s_protoPad        = emptyPad
     }
+
+-- ^ A fake 'top' MPad for s_knownVars above to refer to things outside the eval scope.
+{-# NOINLINE topMPad #-}
+topMPad :: MPad
+topMPad = unsafePerformIO $ do
+    tvar <- newTVarIO emptyPad
+    return $ MkMPad (addressOf tvar) tvar
 
 -- XXX - Pending clarification about those 3 -- are they routine-implicit or block-implicit?
 {-
