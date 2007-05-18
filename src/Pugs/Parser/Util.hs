@@ -29,6 +29,7 @@ localBlock m = do
     -- traceM $ "Gen:" ++ show compPad
     let env     = s_env state
         lexPads = (PCompiling compPad:envLexPads env)
+        protoVars = Map.map (const compPad) (padEntries $ s_protoPad state)
 
     put state
         { s_closureTraits   = (id : s_closureTraits state)
@@ -37,6 +38,7 @@ localBlock m = do
             , envCompPad = Just compPad
             }
         , s_protoPad        = emptyPad
+        , s_knownVars       = s_knownVars state `Map.union` protoVars
         }
 
     body    <- m
