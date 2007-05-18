@@ -365,14 +365,15 @@ doRunSingle menv opts prog = (`catchIO` handler) $ do
         App (Syn "block" [Val (VCode cv)]) invs args -> return $
             App (Syn "block" [Val (VCode cv{ subBody = makeDumpEnv (subBody cv) })]) invs args
         _ -> return $ makeDumpEnv exp
+
     -- XXX Generalize this into structural folding
-    makeDumpEnv Noop            = Syn "continuation" []
-    makeDumpEnv (Stmts x Noop)  = Stmts (Ann (Cxt cxtItemAny) x) (Syn "continuation" [])
-    makeDumpEnv (Stmts x exp)   = Stmts x   $ makeDumpEnv exp
-    makeDumpEnv (Ann ann exp)   = Ann ann   $ makeDumpEnv exp
---  makeDumpEnv (Pad x y exp)   = Pad x y   $ makeDumpEnv exp
+    makeDumpEnv Noop              = Syn "continuation" []
+    makeDumpEnv (Stmts x Noop)    = Stmts (Ann (Cxt cxtItemAny) x) (Syn "continuation" [])
+    makeDumpEnv (Stmts x exp)     = Stmts x   $ makeDumpEnv exp
+    makeDumpEnv (Ann ann exp)     = Ann ann   $ makeDumpEnv exp
     makeDumpEnv (Sym x y z w exp) = Sym x y z w $ makeDumpEnv exp
-    makeDumpEnv exp             = Stmts (Ann (Cxt cxtItemAny) exp) (Syn "continuation" [])
+    makeDumpEnv exp               = Stmts (Ann (Cxt cxtItemAny) exp) (Syn "continuation" [])
+
     handler (IOException ioe) | isUserError ioe = do
         putStrLn "Internal error while running expression:"
         putStrLn $ ioeGetErrorString ioe
