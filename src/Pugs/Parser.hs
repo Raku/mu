@@ -518,6 +518,8 @@ ruleFormalParam opt = rule "formal parameter" $ do
             _       -> Noop
 
     -- XXX - RIGHT HERE, add this one to CompPad?
+    modify $ \state -> state
+        { s_knownVars = Map.insert (cast name) (fromJust . envCompPad $ s_env state) (s_knownVars state) }
 
     rv <- case opt of
         FormalsSimple   -> option emptyExp $ do
