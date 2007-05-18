@@ -2093,14 +2093,24 @@ ruleSigiledVar = (<|> ruleSymbolicDeref) $ do
                 knownVars   = s_knownVars state
 
             case Map.lookup var knownVars of
-                Just mpad   -> unless (Just mpad == compPad) $ do
-                    let outerPads        = takeWhile (/= mpad) [ pc | PCompiling pc <- lexPads ]
-                        markPad vars pad = Map.insertWith' Set.union pad (Set.singleton var) vars
-                    -- traceM $ "Adding: " ++ show (var, outerPads)
-                    put state{ s_outerVars = foldl' markPad outerVars outerPads }
-                _           -> put state{ s_freeVars = Set.insert (var, lexPads) freeVars }
-
-            return (makeVar name)
+                Just mpad   -> do
+                    unless (Just mpad == compPad) $ do
+                        let outerPads        = takeWhile (/= mpad) [ pc | PCompiling pc <- lexPads ]
+                            markPad vars pad = Map.insertWith' Set.union pad (Set.singleton var) vars
+                        -- traceM $ "Adding: " ++ show (var, outerPads)
+                        put state{ s_outerVars = foldl' markPad outerVars outerPads }
+                    return (makeVar name)
+                _           -> do
+                    -- If the variable is already defined as global, resolve it as such here.
+                    foundInGlobal <- return $! unsafePerformSTM $! do
+                        globPad <- readMPad (envGlobal env)
+                        return $ isJust (lookupPad (toGlobalVar var) globPad)
+                    when (not foundInGlobal) $ do
+                        pos <- getPosition
+                        when (sourceName pos /= "-e") $ do
+                            fail $ "Global symbol \"" ++ show var ++ "\" requires explicit package name"
+                    return (Var $ toGlobalVar var)
+                    -- put state{ s_freeVars = Set.insert (var, lexPads) freeVars }
 
 ruleVar :: RuleParser Exp
 ruleVar = do
