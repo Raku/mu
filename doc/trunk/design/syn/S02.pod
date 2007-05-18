@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 16 May 2007
+  Last Modified: 18 May 2007
   Number: 2
-  Version: 103
+  Version: 104
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -738,8 +738,8 @@ C<$x.WHICH> eqv C<$y.WHICH>).
     List        Lazy Perl list (composed of Seq and Range parts)
     Seq         Completely evaluated (hence immutable) sequence
     Range       A pair of Ordered endpoints; gens lazy Seq in list context
-    Set         Unordered Seq that allows no duplicates (does KeyHash, but ro)
-    Bag         Unordered Seq that allows duplicates (does KeyHash, but ro)
+    Set         Unordered Seq that allows no duplicates
+    Bag         Unordered Seq that allows duplicates
     Junction    Sets with additional behaviours
     Pair        Seq of two elements that serves as a one-element Mapping
     Mapping     Pairs with no duplicate keys
