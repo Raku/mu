@@ -340,7 +340,7 @@ class Net::IRC::OO {
     push %!handler{$event}: $callback;
   }
 
-  #method connect() { self.reconnect }
+  multi method connect() { self.reconnect }
   method reconnect() {
     self.disconnect if $.connected;
 
