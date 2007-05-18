@@ -335,21 +335,25 @@ type that has no proper subtypes save for C<Empty>.
 
 =head2 Type Identification
 
-All values in the QDRDBMS type system are broadly categorized into 3
-complementary sets called I<scalar values>, I<tuple values>, and I<relation
-values> (the latter 2 are collectively known as I<nonscalar> values).  The
-type system has the system-defined data types named C<Scalar>, C<Tuple>,
-and C<Relation>, which serve as maximal data types for each category,
-respectively.  The 3 types are all mutually disjoint, and C<Universal> is a
-union type over all of them.
+All values in the QDRDBMS type system are broadly categorized into 5
+complementary sets called I<scalar values>, I<tuple values>, I<relation
+values>, I<quasi-tuple values>, and I<quasi-relation values>; tuple and
+relation values are collectively known as I<nonscalar values>; quasi-tuple
+and quasi-relation values are collectively known as I<quasi-nonscalar
+values>.  The type system has the system-defined data types named
+C<Scalar>, C<Tuple>, C<Relation>, C<QuasiTuple>, and C<QuasiRelation>,
+which serve as maximal data types for each category, respectively.  The 5
+types are all mutually disjoint, and C<Universal> is a union type over all
+of them.
 
 To keep things simpler, every data type (save C<Universal> and C<Empty>)
-must be a proper subtype of exactly 1 of the 3 categories, and can not
+must be a proper subtype of exactly 1 of the 5 categories, and can not
 include values from several of them.  Therefore, every data type is said to
-be either a I<scalar type>, a I<tuple type>, or a I<relation type>,
-depending which category all of its values come from.  In similar fashion,
-a I<nonscalar type> is any type that is not a scalar type, meaning it
-is either a tuple type or a relation type.
+be either a I<scalar type>, a I<tuple type>, a I<relation type>, a
+I<quasi-tuple type>, or a I<quasi-relation type>, depending which category
+all of its values come from.  In similar fashion, a I<nonscalar type> is
+generally any type that is not a scalar type, if we ignored quasi-nonscalar
+types, meaning it is either a tuple type or a relation type.
 
 The identity of every scalar type is defined by its name alone, and every
 scalar type must have a distinct name that is explicitly defined, either by
@@ -362,13 +366,18 @@ definition.  The only way for 2 scalar types to have values in common is if
 one is explicitly defined, directly or indirectly, as a subtype of, or as a
 union type encompasing a subtype of, the other.
 
-Every value of a nonscalar type (either a tuple type I<or> a relation
-type, respectively) is conceptually transparent, and its component
-structure is known to all.  The identity of every nonscalar type is
-defined by its component structure alone, and every nonscalar type must
-have a distinct component structure.  Any two nonscalar types that have
-the same component structure are in fact the same type, by definition,
-regardless of whether they were defined independently of each other or not.
+Every value of a nonscalar type (either a tuple type I<or> a relation type,
+respectively) is conceptually transparent, and its component structure is
+known to all.  The identity of every nonscalar type is defined by its
+component structure alone, and every nonscalar type must have a distinct
+component structure.  Any two nonscalar types that have the same component
+structure are in fact the same type, by definition, regardless of whether
+they were defined independently of each other or not.
+
+A quasi-nonscalar type is the same as a nonscalar type as far as the means
+of identifying it go (by its structure, not by its name), but that certain
+kinds of components are permitted in quasi-nonscalar types that aren't
+permitted in nonscalar types (and aren't permitted in scalar types).
 
 =head2 Scalar Types
 
@@ -382,7 +391,7 @@ and usually at least one I<accessor> or I<the> operator.
 A I<possrep> of a type is an exhaustively complete means for users to
 conceptualize the structure of the type; it is like a "role" or "interface
 definition.  A possrep has the appearance of a complete list of (zero or
-more) named object attributes (of any type, scalar or nonscalar) that the
+more) named object attributes (of any scalar or nonscalar type) that the
 type could logically be implemented as, and users can use it as if it
 actually was implemented that way, but without the requirement that the
 type actually is implemented that way.  If a type has multiple possreps,
@@ -461,8 +470,8 @@ all, and hence has no selectors or accessors defined for it.
 Tuple types are the fundamental heterogeneous nonencapsulated collection
 types in QDRDBMS D, and are like the Pascal language's concept of a record,
 or the C language's concept of a struct.  The definition of a tuple type
-comprises a list of zero or more named I<attributes> of any type, scalar or
-nonscalar.  This list definition is called the tuple's I<heading>.
+comprises a list of zero or more named I<attributes> of any scalar or
+nonscalar type.  This list definition is called the tuple's I<heading>.
 
 Relation types are the fundamental homogeneous nonencapsulated collection
 types in QDRDBMS D, and are like other languages' concepts of sets (or
@@ -488,6 +497,42 @@ attributes in each heading have a valid subtype/supertype relationship;
 each attribute of a tuple or relation subtype is a subtype of the
 same-named attribute of the tuple or relation supertype.
 
+=head2 Quasi-Tuple Types and Quasi-Relation Types
+
+The union types C<Universal>, C<Tuple>, C<Relation> (and the system-defined
+subtypes of the latter 2) can be used as the declared types of such as
+variables and routine parameters, but they can not be used as the declared
+types of scalar possrep or nonscalar (tuple or relation) attributes.  The
+declared type of each of the latter must be either a scalar type, or a
+specific tuple or relation subtype (meaning tuple or relation types that
+have specific attribute lists defined for them).
+
+If all data types were scalar or nonscalar, then it would not be possible
+to define operators with N-ary parameters whose declared types are any of
+the aforementioned 3 union types.  That is, an N-ary parameter is usually
+relation-typed, such that the multiplicity of values that the parameter can
+take are each provided as a tuple of said relation; however, as relation
+attributes can not have said union types as their declared types, it would
+not be possible to implement an N-ary relational join operator, for
+example, since each relation being joined would probably have a different
+heading than the others.
+
+Quasi-tuple types and quasi-relation types exist as a solution to this
+problem, such that the I<quasi-heading> of one is allowed to include
+attributes whose declared types are any type at all, including the union
+types C<Universal>, C<Tuple>, C<Relation>, C<QuasiTuple>, C<QuasiRelation>,
+and subtypes of tuple and relation without specific attribute lists.
+
+This said, the situations in which quasi-nonscalar types may be used are
+limited; only quasi-nonscalar types may have quasi-nonscalar types as
+components; scalar and nonscalar types may not.
+
+Also, quasi-nonscalar types only have defined for them a subset of
+corresponding nonscalar type operators, partly because the former are not
+intended to replace the latter for the majority of use cases, and partly
+because some of them are simply impossible to implement for
+quasi-nonscalars: C<unwrap>, C<ungroup>.
+
 =head2 Finite Types and Infinite Types
 
 A I<finite type> is a data type whose cardinality (count of member values)
@@ -511,9 +556,9 @@ range (for example, a type comprising the range of integers between 1 and
 granularity of 0.001, or any IEEE floating point number of a specific bit
 length), or their values are length-constrained strings of
 finite-cardinality elements (for example, a character string that is not
-longer than 250 characters), or they are composite scalar or nonscalar
-types whose attributes are all of finite types themselves (for example, a
-type whose attributes are all C<Bool>).
+longer than 250 characters), or they are composite scalar or nonscalar or
+quasi-nonscalar types whose attributes are all of finite types themselves
+(for example, a type whose attributes are all C<Bool>).
 
 Generally speaking, all infinite types are defined either as being some
 open-ended natural domain (for example, the type having all integers, or
@@ -521,13 +566,14 @@ the type having all prime numbers), or they are some continuous domain,
 whether open-ended or not (for example, the type having all real or complex
 numbers between 1 and 100), or they are non-length-constrained strings (for
 example, the set of all possible text strings), or they are composite
-scalar or nonscalar types which have at least one attribute which is itself
-infinite (for example, a type that has an I<Int> attribute).
+scalar or nonscalar or quasi-nonscalar types which have at least one
+attribute which is itself infinite (for example, a type that has an I<Int>
+attribute).
 
 The system-defined root type C<Bool> is finite (2 values), as is the
 C<Empty> type (zero values), while all of the other 5 core system-defined
 root types (C<Text>, C<Blob>, C<Int>, C<Tuple>, C<Relation>) are infinite,
-as are the C<Scalar> and C<Universal> types.
+as are the C<Universal>, C<Scalar>, C<QuasiTuple>, C<QuasiRelation> types.
 
 All proper subtypes of finite types are themselves finite types.  Proper
 subtypes of infinite types can be either finite or infinite depending on
@@ -572,16 +618,6 @@ C<equal> function for testing 2 values of that type for equality (as well
 as C<not_equal>, for inequality).  Moreover, these operators exist
 implicitly, so when one defines the initial possrep of a new type, they get
 those operators for the type at no extra cost.
-
-=head2 Some Limitations of Use
-
-The union types C<Universal>, C<Tuple>, C<Relation> (and the system-defined
-subtypes of the latter 2) can be used as the declared types of such as
-variables and routine parameters, but they can not be used as the declared
-types of scalar possrep or tuple or relation attributes.  The declared type
-of each of the latter must be either a scalar type, or a specific tuple or
-relation subtype (meaning tuple or relation types that have specific
-attribute lists defined for them).
 
 I<This documentation is pending.>
 
@@ -655,7 +691,8 @@ There are several kinds of QDRDBMS routines, each of which is intended for,
 and in many cases only permitted to be used for, certain tasks.  Note that
 for all QDRDBMS routines which have parameters, they are all named rather
 than positional parameters; in the case of N-ary routines, the N similar
-argument values come by way of a single nonscalar-type parameter.
+argument values come by way of a single nonscalar (or, if necessary,
+quasi-nonscalar) typed parameter.
 
 =over
 
@@ -1110,6 +1147,45 @@ tuples.
 
 =back
 
+=head2 Core Quasi-Nonscalar Data Types
+
+These quasi-nonscalar data types correspond to their similarly-named
+(differing only by the C<Quasi>) nonscalar data types, and their use is
+intended to be limited to the few situations where the corresponding
+nonscalar data types can't be used.
+
+=over
+
+=item C<sys.type.QuasiTuple>
+
+A C<QuasiTuple> is like a C<Tuple> but that the declared types of its
+attributes can be anything at all.  Its cardinality is infinite.
+
+=item C<sys.type.QuasiRelation>
+
+A C<QuasiRelation> is like a C<Relation> but that the declared types of its
+attributes can be anything at all.  Its cardinality is infinite.
+
+=item C<sys.type.QuasiSet>
+
+A C<QuasiSet> is a proper subtype of C<QuasiRelation> in the corresponding
+manner to C<Set> being a proper subtype of C<Relation>.  Its cardinality is
+infinite.
+
+=item C<sys.type.QuasiSeq>
+
+A C<QuasiSeq> is a proper subtype of C<QuasiRelation> in the corresponding
+manner to C<Seq> being a proper subtype of C<Relation>.  Its cardinality is
+infinite.
+
+=item C<sys.type.QuasiBag>
+
+A C<QuasiBag> is a proper subtype of C<QuasiRelation> in the corresponding
+manner to C<Bag> being a proper subtype of C<Relation>.  Its cardinality is
+infinite.
+
+=back
+
 =head2 Catalog Data Types
 
 These scalar data types are special-purpose in nature, as they are intended
@@ -1356,42 +1432,65 @@ functions may not be needed for initial selection of them either.
 
 =over
 
+=item C<''>
+
+Literal text values in string-form QDRDBMS D are delimited with
+single-quotes, like C<'hello'>.
+
 =item C<sys.rtn.Bool.False of Bool ()>
 
 This selector function results in the False boolean value.
 
+Alternately in text-form QDRDBMS D, the literal token C<Bool:False> can be
+used for the same thing.
+
 =item C<sys.rtn.Bool.True of Bool ()>
 
 This selector function results in the True boolean value.
+
+Alternately in text-form QDRDBMS D, the literal token C<Bool:True> can be
+used for the same thing.
 
 =item C<sys.rtn.Blob_from_bin_digit_Text of Blob (Text $text)>
 
 This selector function results in the Blob value that its C<Text> argument
 maps to when each input character is a [0..1] and represents a bit.
 
+Alternately in text-form QDRDBMS D, you can say C<Blob:2:''>, where the
+C<''> is the literal text token that would have been the argument.
+
 =item C<sys.rtn.Blob_from_hex_digit_Text of Blob (Text $text)>
 
 This selector function results in the Blob value that its C<Text> argument
 maps to when each input character is a [0..F] and represents a hex digit.
+
+Alternately in text-form QDRDBMS D, you can say C<Blob:16:''>, where the
+C<''> is the literal text token that would have been the argument.
 
 =item C<sys.rtn.Int_from_dec_digit_Text of Int (Text $text)>
 
 This selector function results in the Int value that its C<Text> argument
 maps to when the whole character string is evaluated as a base-10 integer.
 
+Alternately in text-form QDRDBMS D, you can say C<Int:10:''>, where the
+C<''> is the literal text token that would have been the argument.
+
 =item C<sys.rtn.Int_from_hex_digit_Text of Int (Text $text)>
 
 This selector function results in the Int value that its C<Text> argument
 maps to when the whole character string is evaluated as a base-16 integer.
 
+Alternately in text-form QDRDBMS D, you can say C<Int:16:''>, where the
+C<''> is the literal text token that would have been the argument.
+
 =back
 
-=head2 Simple Nonscalar Data Type Selectors
+=head2 Simple Nonscalar and Quasi-Nonscalar Data Type Selectors
 
 I<This documentation is pending.>
 
-String-form syntax for declaring collection types, such as when used as
-arguments to N-ary constructors etc:
+String-form syntax for declaring nonscalar collection types, such as when
+used as arguments to most N-ary constructors etc:
 
 Set:
 
@@ -1408,6 +1507,21 @@ Bag:
 
 By contrast, Tuple, Relation, Database built using standard format
 selectors taking Sets as arguments.
+
+The string-form quasi-nonscalar selectors look the same as their
+counterparts but that they are bounded by a pair of C<< <> >>; eg:
+
+QuasiSet:
+
+  <{ $v, $v, ... }>
+
+QuasiSeq:
+
+  <[ $v, $v, ... ]>
+
+QuasiBag:
+
+  <{{ $v, $v, ... }}>
 
 I<This documentation is pending.>
 
