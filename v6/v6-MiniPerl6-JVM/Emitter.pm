@@ -11,10 +11,10 @@ class CompUnit {
             return (@.body.>>emit).join( ';' ~ Main::newline );
         }
 
-          'class ' ~ $.name ~ " { " ~ Main::newline 
+          'class ' ~ $.name ~ " { " ~ Main::newline ~ '  ' 
         # 'sub new { shift; bless { @_ }, "' ~ $.name ~ '" }' ~ " " 
-        ~ (@.body.>>emit).join( ';' ~ Main::newline )
-        ~ ' } '
+        ~ (@.body.>>emit).join( ';' ~ Main::newline ~ '  ' )
+        ~ Main::newline ~ ' } '
     }
 }
 
@@ -46,7 +46,7 @@ class Val::Object {
     has $.class;
     has %.fields;
     method emit {
-        $.class.perl ~ '.new(' ~ %.fields.perl ~ ')';
+        ' new ' ~ $.class.perl ~ '(' ~ %.fields.perl ~ ')';
     }
 }
 
@@ -85,14 +85,14 @@ class Lit::Object {
     has $.class;
     has @.fields;
     method emit {
-        # $.class ~ '->new( ' ~ @.fields.>>emit.join(', ') ~ ' )';
+        # $.class ~ '.new( ' ~ @.fields.>>emit.join(', ') ~ ' )';
         my $fields := @.fields;
         my $str := '';
         # say @fields.map(sub { $_[0].emit ~ ' => ' ~ $_[1].emit}).join(', ') ~ ')';
         for @$fields -> $field { 
-            $str := $str ~ ($field[0]).emit ~ ' => ' ~ ($field[1]).emit ~ ',';
+            $str := $str ~ ($field[0]).emit ~ ':' ~ ($field[1]).emit ~ ',';
         }; 
-        $.class ~ '.new( ' ~ $str ~ ' )';
+        ' new ' ~ $.class ~ '( ' ~ $str ~ ' )';
     }
 }
 
@@ -267,7 +267,7 @@ class Call {
              $meth := '';  
         };
         
-        my $call := '->' ~ $meth ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
+        my $call := '.' ~ $meth ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
         if ($.hyper) {
             '[ map { $_' ~ $call ~ ' } @{ ' ~ $invocant ~ ' } ]';
         }
@@ -377,11 +377,12 @@ class Decl {
         my $decl := $.decl;
         my $name := $.var.name;
         if   ( $decl eq 'has' ) {
-            return 'sub ' ~ $name ~ ' { ' ~
-              '@_ == 1 ' ~
-                '? ( $_[0]->{' ~ $name ~ '} ) ' ~
-                ': ( $_[0]->{' ~ $name ~ '} = $_[1] ) ' ~
-              '}';
+            return 'def ' ~ $name;
+            #'sub ' ~ $name ~ ' { ' ~
+            #  '@_ == 1 ' ~
+            #    '? ( $_[0]->{' ~ $name ~ '} ) ' ~
+            #    ': ( $_[0]->{' ~ $name ~ '} = $_[1] ) ' ~
+            #  '}';
         }
         if   ( $decl eq 'my' ) {
             return 'def ' ~ $.type ~ ' ' ~ $.var.emit ;
