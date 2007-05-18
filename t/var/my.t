@@ -13,14 +13,14 @@ plan 12;
 }
 
 {
-  is(eval('$x; my $x = 42'), undef, 'my() variable not yet visible (2)', :todo<bug>);
+  is(eval('$x; my $x = 42'), undef, 'my() variable not yet visible (2)');
   is(eval('my $x = 42; $x'), 42, 'my() variable is visible now (2)');
 }
 
 {
   my $ret = 42;
-  is(eval('$ret = $x ~ my $x; 1'), undef, 'my() variable not yet visible (1)', :todo<bug>);
-  is $ret, 42,                   'my() variable not yet visible (2)', :todo<bug>;
+  is(eval('$ret = $x ~ my $x; 1'), undef, 'my() variable not yet visible (1)');
+  is $ret, 42,                   'my() variable not yet visible (2)';
 }
 
 {
@@ -47,7 +47,7 @@ ok(eval('my $x = my $y = 0; 1'), '"my $x = my $y = 0" parses');
 {
     my $test = "value should still be set for arg, even if there's a later my";
     sub foo (*%p) {
-        is(%p<a>, 'b', $test, :todo<bug> );
+        is(%p<a>, 'b', $test);
         my %p;
     }
     foo(a => 'b');
