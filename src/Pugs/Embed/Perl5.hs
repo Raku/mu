@@ -98,6 +98,7 @@ data InvokePerl5Result
     = Perl5ReturnValues [PerlSV]
     | Perl5ErrorString String
     | Perl5ErrorObject PerlSV
+    deriving (Show, Typeable)
 
 constFail :: a -> IO b
 constFail = const $ fail "perl5 not embedded"
@@ -310,6 +311,7 @@ data InvokePerl5Result
     = Perl5ReturnValues [PerlSV]
     | Perl5ErrorString String
     | Perl5ErrorObject PerlSV
+    deriving (Show, Typeable)
 
 invokePerl5 :: PerlSV -> PerlSV -> [PerlSV] -> PugsEnv -> CInt -> IO InvokePerl5Result
 invokePerl5 sub inv args env cxt = do
