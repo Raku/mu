@@ -292,7 +292,14 @@ class Apply {
 
         if $code eq 'self'       { return '$self' };
 
-        if $code eq 'say'        { return 'println('     ~ (@.arguments.>>emit).join(', ') ~ ')' };
+        if $code eq 'say'        { 
+            my $s := '';
+            for @(@.arguments.>>emit) -> $arg {
+                $s := $s ~ ' print ' ~ $arg ~ ';';
+            }
+            return $s ~ ' print "\\n"; ' ;
+            #return 'println('     ~ (@.arguments.>>emit).join(', ') ~ ')' 
+        };
         if $code eq 'print'      { return 'print('       ~ (@.arguments.>>emit).join(', ') ~ ')' };
         if $code eq 'warn'       { return 'warn('        ~ (@.arguments.>>emit).join(', ') ~ ')' };
 
