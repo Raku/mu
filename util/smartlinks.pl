@@ -164,8 +164,7 @@ addEvent(window, 'load', function () {
   
   for (var i = 0, j = divs.length; i < j; i++) {
     var curr = divs[i];
-    if (!curr.id) { continue; }
-    if (curr.id.match(/smartlink_(\d+)/)) {
+    if (curr.id && curr.id.match(/smartlink_(\d+)/)) {
       var num = RegExp.$1;
 
       var toBeRemoved = [ "smartlink_skip_", "smartlink_skipto_" ]; // let it be reusable since this list could conceivably grow :-)
@@ -201,10 +200,10 @@ addEvent(window, 'load', function () {
       p.appendChild(link);
       curr.parentNode.insertBefore(p, curr);
       curr.style.display = 'none';
-
-      // explicitly jump to the page anchor (if any) since the code above messes it up
-      if (location.hash.match(/#.+/)) location.hash = RegExp.lastMatch;
     }
+
+    // explicitly jump to the page anchor (if any) since the code above messes it up
+    if (location.hash && location.hash.match(/#.+/)) location.hash = RegExp.lastMatch;
   }
 });
 _EOC_
@@ -453,7 +452,7 @@ sub gen_line_anchors {
     my $curr = shift @$list;
     my $html = '';
     for ($curr .. $list->[0] - 1) {
-        $html .= qq{<a id"_line_$_"></a>\n};
+        $html .= qq{<a id="_line_$_"></a>\n};
     }
     $html;
 }
