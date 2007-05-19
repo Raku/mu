@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 14 May 2007
+  Last Modified: 19 May 2007
   Number: 12
-  Version: 50
+  Version: 51
 
 =head1 Overview
 
@@ -1649,9 +1649,10 @@ in a boolean context.
 
 =head1 Open vs Closed Classes
 
-By default, all classes in Perl are non-final, which means you can derive
-from them.  They are also open, which means you can add more methods
-to them, though you have to be explicit that that is what you're doing:
+By default, all classes in Perl are non-final ("super"), which means
+you can potentially derive from them.  They are also open, which means
+you can add more methods to them, though you have to be explicit that
+that is what you're doing:
 
     class Object is also {
         method wow () { say "Wow, I'm an object." }
@@ -1662,24 +1663,25 @@ replace a definition, use "C<is instead>" instead of "C<is also>"...but
 don't do that.)
 
 For optimization purposes, Perl 6 gives the top-level application the
-right to close and finalize classes.
+right to close and finalize classes by the use of C<oo>, a pragma for
+selecting global semantics of the underlying object-oriented engine:
 
-    use optimize :classes<close finalize>;
+    use oo :closed :final;
 
 This merely changes the application's default to closed and final,
 which means that at the end of the main compilation (C<CHECK> time)
 the optimizer is allowed to look for candidate classes to close or
 finalize.  But anyone (including the main application) can request
-that any class stay open or basal, and the class closer/finalizer
+that any class stay open or super, and the class closer/finalizer
 must honor that.
 
-    use class :open<Mammal Insect> :basal<Str>
+    use class :open<Mammal Insect> :super<Str>
 
 These properties may also be specified on the class definition:
 
     class Mammal is open {...}
     class Insect is open {...}
-    class Str is basal {...}
+    class Str is super {...}
 
 or by lexically scoped pragma around the class definition:
 
@@ -1689,7 +1691,7 @@ or by lexically scoped pragma around the class definition:
         class Insect {...}
     }
     {
-        use class :basal;
+        use class :super;
         class Str {...}
     }
 
