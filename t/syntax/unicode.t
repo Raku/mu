@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 28;
+plan 30;
 
 # L<S02/"Lexical Conventions"/"Perl is written in Unicode">
 
@@ -56,6 +56,9 @@ is(
     2,
     "evaluation"
 );
+
+ok(try { my $पहला = 1; }, "hindi declaration");
+is(try { my $दूसरा = 2; sub टोटल ($x) { $x + 2 }; टोटल($दूसरा) }, 4, "evaluation");
 
 # Unicode subs
 {
