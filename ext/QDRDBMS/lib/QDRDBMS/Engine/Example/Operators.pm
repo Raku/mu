@@ -36,13 +36,9 @@ module QDRDBMS::Engine::Example::Operators-0.0.0 {
     return;
 },
 
-'sys.rtn.Int.sum' => sub (:$addend1!, :$addend2!) {
-    return dInt( :v($addend1.v() + $addend2.v()) );
-},
-
-'sys.rtn.Int.nary_sum' => sub (:$addends!) {
+'sys.rtn.Int.sum' => sub (:$addends!) {
     my Int $sum = 0;
-    for $addends -> $addend {
+    for $addends.array_from_value_attr() -> $addend {
         $sum += $addend.v();
     }
     return dInt( :v($sum) );
@@ -52,13 +48,9 @@ module QDRDBMS::Engine::Example::Operators-0.0.0 {
     return dInt( :v($minuend.v() - $subtrahend.v()) );
 },
 
-'sys.rtn.Int.product' => sub (:$factor1!, :$factor2!) {
-    return dInt( :v($factor1.v() * $factor2.v()) );
-},
-
-'sys.rtn.Int.nary_product' => sub (:$factors!) {
+'sys.rtn.Int.product' => sub (:$factors!) {
     my Int $product = 1;
-    for $factors -> $factor {
+    for $factors.array_from_value_attr() -> $factor {
         $product *= $factor.v();
     }
     return dInt( :v($product) );

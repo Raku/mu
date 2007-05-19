@@ -42,6 +42,18 @@ sub BagSel of QDRDBMS::AST::BagSel (Array :$v!) is export {
     return QDRDBMS::AST::BagSel.new( :v($v) );
 }
 
+sub QuasiSetSel of QDRDBMS::AST::QuasiSetSel (Array :$v!) is export {
+    return QDRDBMS::AST::QuasiSetSel.new( :v($v) );
+}
+
+sub QuasiSeqSel of QDRDBMS::AST::QuasiSeqSel (Array :$v!) is export {
+    return QDRDBMS::AST::QuasiSeqSel.new( :v($v) );
+}
+
+sub QuasiBagSel of QDRDBMS::AST::QuasiBagSel (Array :$v!) is export {
+    return QDRDBMS::AST::QuasiBagSel.new( :v($v) );
+}
+
 multi sub EntityName of QDRDBMS::AST::EntityName
         (QDRDBMS::AST::LitText :$text!) is export {
     return QDRDBMS::AST::EntityName.new( :text($text) );
@@ -406,6 +418,12 @@ method v of Array () {
 
 ###########################################################################
 
+method repr_elem_count of Int () {
+    return $!v.elems;
+}
+
+###########################################################################
+
 } # role QDRDBMS::AST::ListSel
 
 ###########################################################################
@@ -428,6 +446,27 @@ class QDRDBMS::AST::SeqSel {
 class QDRDBMS::AST::BagSel {
     does QDRDBMS::AST::ListSel;
 } # class QDRDBMS::AST::BagSel
+
+###########################################################################
+###########################################################################
+
+class QDRDBMS::AST::QuasiSetSel {
+    does QDRDBMS::AST::ListSel;
+} # class QDRDBMS::AST::QuasiSetSel
+
+###########################################################################
+###########################################################################
+
+class QDRDBMS::AST::QuasiSeqSel {
+    does QDRDBMS::AST::ListSel;
+} # class QDRDBMS::AST::QuasiSeqSel
+
+###########################################################################
+###########################################################################
+
+class QDRDBMS::AST::QuasiBagSel {
+    does QDRDBMS::AST::ListSel;
+} # class QDRDBMS::AST::QuasiBagSel
 
 ###########################################################################
 ###########################################################################
@@ -468,8 +507,9 @@ multi submethod BUILD (QDRDBMS::AST::LitText :$text!) {
 multi submethod BUILD (QDRDBMS::AST::SeqSel :$seq!) {
 
     die q{new(): Bad :$v arg; it is not an object of a}
-            ~ q{ QDRDBMS::AST::SeqSel-doing class.}
-        if !$seq.defined or !$seq.does(QDRDBMS::AST::SeqSel);
+            ~ q{ QDRDBMS::AST::SeqSel-doing class, or it has < 1 elem.}
+        if !$seq.defined or !$seq.does(QDRDBMS::AST::SeqSel)
+            or $seq.repr_elem_count() === 0;
     my $seq_elems = $seq!v;
     for $seq_elems -> $seq_e {
         die q{new(): Bad :$seq arg elem; it is not}
@@ -1148,8 +1188,9 @@ It also describes the same-number versions for Perl 6 of [...].
 I<This documentation is pending.>
 
     use QDRDBMS::AST <LitBool LitText LitBlob LitInt SetSel SeqSel BagSel
-        EntityName ExprDict TypeDict VarInvo FuncInvo ProcInvo FuncReturn
-        ProcReturn FuncDecl ProcDecl HostGateRtn>;
+        QuasiSetSel QuasiSeqSel QuasiBagSel EntityName ExprDict TypeDict
+        VarInvo FuncInvo ProcInvo FuncReturn ProcReturn FuncDecl ProcDecl
+        HostGateRtn>;
 
     my $truth_value = LitBool( :v(2 + 2 == 4) );
     my $planetoid = LitText( :v('Ceres') );
@@ -1195,6 +1236,9 @@ or "isa" hierarchy, children indented under parents:
                 QDRDBMS::AST::SetSel
                 QDRDBMS::AST::SeqSel
                 QDRDBMS::AST::BagSel
+                QDRDBMS::AST::QuasiSetSel
+                QDRDBMS::AST::QuasiSeqSel
+                QDRDBMS::AST::QuasiBagSel
             QDRDBMS::AST::VarInvo
             QDRDBMS::AST::FuncInvo
         QDRDBMS::AST::Stmt (dummy role)
@@ -1352,6 +1396,18 @@ I<This documentation is pending.>
 I<This documentation is pending.>
 
 =head2 The QDRDBMS::AST::BagSel Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::QuasiSetSel Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::QuasiSeqSel Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::QuasiBagSel Class
 
 I<This documentation is pending.>
 
