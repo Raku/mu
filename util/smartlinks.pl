@@ -136,7 +136,7 @@ function toggle_snippet (e) {
   
   var id = 'smartlink_' + num;
   var div = document.getElementById(id);
-  div.style.display = (div.style.display == 'none') ? 'block' : 'none';
+  div.style.display = (div.style.display == 'none') ? '' : 'none';
   
   var text = this.firstChild;
   text.nodeValue = text.nodeValue.replace(/^- (Show|Hide)/, function (full, p1) { return "- " + ((p1 == 'Show') ? 'Hide' : 'Show') }); // this may be unnecessarily complicated, or it may not.  you get to decide. :-)
@@ -189,7 +189,10 @@ addEvent(window, 'load', function () {
         link.appendChild(child);
       }
       
-      link.replaceChild(document.createTextNode(' -'), link.lastChild); // replace ending ":" with " -"
+      var end = link.lastChild;
+      if ((end.nodeType == 3) && (end.nodeValue.search(/:$/) > -1)) {
+        end.nodeValue = end.nodeValue.replace(/:$/, ' -');
+      }
       
       link.href = '#';
       link.id = 'smartlink_toggle' + num;
@@ -484,7 +487,6 @@ sub add_user_css {
 .smartlink_snippet {
     border: 1px solid;
     padding: 0.2em;
-    display: block;
 }
 </style>
 .
@@ -563,18 +565,18 @@ sub gen_code_snippet ($) {
     my $stat;
     if ($test_result) {
         if ($ok_count == 0 && $failed_count == 0) {
-            $stat = " &nbsp;&mdash; &nbsp;<code>N/A</code>";
+            $stat = " (no results)";
         } else {
-            $stat = " &nbsp;&mdash; &nbsp;<code>$ok_count √, $failed_count ×</code>";
+            $stat = " (<code>$ok_count √, $failed_count ×</code>)";
         }
     } else {
-        $stat = '<code></code>';
+        $stat = '';
     }
 
     my $nlines = $to - $from + 1;
 
     my $html = <<"_EOC_";
-<p>From $file lines $from ~ $to$stat:<span id="smartlink_skip_${snippet_id}"> <a href="#smartlink_skipto_${snippet_id}">(skip)</a></span></p>
+<p>From $file lines $from&ndash;$to$stat:<span id="smartlink_skip_${snippet_id}"> <a href="#smartlink_skipto_${snippet_id}">(skip)</a></span></p>
 <div id="smartlink_${snippet_id}" class="smartlink_snippet">
 $snippet
 </div>
