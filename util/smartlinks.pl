@@ -453,7 +453,7 @@ sub gen_line_anchors {
     my $curr = shift @$list;
     my $html = '';
     for ($curr .. $list->[0] - 1) {
-        $html .= qq{<a name="_line_$_" id="_line_$_"> </a>\n};
+        $html .= qq{<a id"_line_$_"></a>\n};
     }
     $html;
 }
@@ -755,7 +755,7 @@ sub gen_preamble {
             <I>This page was generated at $time.<br/>
             (<a href="http://svn.perl.org/perl6/doc/trunk/design/syn/">syn</a> <strong>$syn_rev</strong>, <a href="http://svn.pugscode.org/pugs/t/">pugs-tests</a> <strong>$pugs_rev</strong>$smoke_info)</I>
             &nbsp; [ <a href="http://perlcabal.org/syn/">Index of Synopses</a> ] <br/>
-            <a name='__top'></a>
+            <a id='__top'></a>
      };
 }
 
