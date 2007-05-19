@@ -246,6 +246,7 @@ form:
     class Dog:<1.2.1 cpan:JRANDOM>
 
 The pieces are interpreted as follows:
+
 =over
 
 =item *
