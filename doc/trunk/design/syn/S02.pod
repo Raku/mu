@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 18 May 2007
+  Last Modified: 19 May 2007
   Number: 2
-  Version: 104
+  Version: 105
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1077,6 +1077,20 @@ A declaration nested within must not use the sigil if it wishes to
 refer to the same type, since the inner declaration would rebind
 the type.  (Note that the signature of a pointy block counts as part
 of the inner block, not the outer block.)
+
+=item *
+
+Sigils indicate overall interface, not the exact type of the bound
+object.  Hence, C<@x> may be bound to an object of the C<Array>
+class, but it may also be bound to any object that does the C<Array>
+role, such as a C<List>, C<Seq>, C<Range>, C<Set>, C<Bag>, C<Buf>,
+C<Capture>, and so on.  Likewise, C<%x> may be bound to a C<Pair>,
+C<Mapping>, C<Set>, C<Bag>, C<KeyHash>, C<Capture>, and so on.
+And C<&x> may be bound to any kind of C<Block> or C<Routine>.
+The implicit container type is checked at binding time.  If you wish
+to bind an object that doesn't yet do the appropriate role, you must
+either stick with the generic C<$> sigil, or mix in the appropriate
+role before binding to a more specific sigil.
 
 =item *
 
