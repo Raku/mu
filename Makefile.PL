@@ -1,6 +1,6 @@
-#!/usr/local/bin/perl
 
 =pod
+
 =head1 NAME
 
 Makefile.PL - Configure pugs build
