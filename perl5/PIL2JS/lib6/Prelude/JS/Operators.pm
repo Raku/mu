@@ -3,7 +3,7 @@ my $mapStr = -> Code $f, Str $x {
     (function () \{
       var res = \"\";
       for(var i = 0; i < {$x}.length; i++) \{
-        res += String.fromCharCode($f("{$x}.charCodeAt(i)"));
+        res += String.fromCharCode($f(\"{$x}.charCodeAt(i)\"));
       \}
       return res;
     \})()
@@ -67,7 +67,7 @@ my @subs = (
   "infix:«~&»",   2, "S", "$mapStr2("&", "String(a)", "String(b)")",
   "infix:«~|»",   2, "S", "a = String(a), b = String(b), $mapStr2Fill("|", "a", "b")",
   "infix:«~^»",   2, "S", "a = String(a), b = String(b), $mapStr2Fill("^", "a", "b")",
-  "prefix:«~^»",  1, "S", "$mapStr({ "255 - $^ord" }, "String(a)")",
+#  "prefix:«~^»",  1, "S", "$mapStr({ "255 - $^ord" }, "String(a)")",
   "prefix:«+^»",  1, "N", "~Number(a)",
   "infix:«+^»",   2, "N", "Number(a)  ^ Number(b)",
   "infix:«+<»",   2, "N", "Number(a) << Number(b)",
@@ -108,11 +108,11 @@ for @subs -> $name, $arity, $type, $body {
   my $args  = $arity == 1  ?? '$__a = $CALLER::_' !! '$__a, $__b';
   my $c     = $type eq "S" ?? "~"                 !! "+";
   my $args_ = $arity == 1  ?? "$c\$__a"           !! "$c\$__a, $c\$__b";
-  my $type  = $arity == 1  ?? "method"            !! "sub";
+  my $typ  = $arity == 1  ?? "method"            !! "sub";
   my $colon = $arity == 1  ?? ":"                 !! "";
   my $trait = $arity == 1  ?? ""                  !! "is primitive";
   $eval ~= "
-    $type $name ($args$colon) $trait \{
+    $typ $name ($args$colon) $trait \{
       JS::inline('($jsbody)').($args_);
     \}
   ";
