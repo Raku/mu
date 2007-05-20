@@ -18,32 +18,32 @@ module QDRDBMS::Engine::Example::PhysType-0.0.0 {
 
 sub dBool of QDRDBMS::Engine::Example::PhysType::Bool
         (Bool :$v!) is export {
-    return QDRDBMS::Engine::Example::PhysType::Bool.new( :v($v) );
+    return ::QDRDBMS::Engine::Example::PhysType::Bool.new( :v($v) );
 }
 
 sub dText of QDRDBMS::Engine::Example::PhysType::Text
         (Str :$v!) is export {
-    return QDRDBMS::Engine::Example::PhysType::Text.new( :v($v) );
+    return ::QDRDBMS::Engine::Example::PhysType::Text.new( :v($v) );
 }
 
 sub dBlob of QDRDBMS::Engine::Example::PhysType::Blob
         (Blob :$v!) is export {
-    return QDRDBMS::Engine::Example::PhysType::Blob.new( :v($v) );
+    return ::QDRDBMS::Engine::Example::PhysType::Blob.new( :v($v) );
 }
 
 sub dInt of QDRDBMS::Engine::Example::PhysType::Int (Int :$v!) is export {
-    return QDRDBMS::Engine::Example::PhysType::Int.new( :v($v) );
+    return ::QDRDBMS::Engine::Example::PhysType::Int.new( :v($v) );
 }
 
 sub dTextKeyedMap of QDRDBMS::Engine::Example::PhysType::TextKeyedMap
         (Hash :$map!) is export {
-    return QDRDBMS::Engine::Example::PhysType::TextKeyedMap.new(
+    return ::QDRDBMS::Engine::Example::PhysType::TextKeyedMap.new(
         :map($map) );
 }
 
 sub dHeading of QDRDBMS::Engine::Example::PhysType::Heading
         (Array :$attr_defs_aoa!) is export {
-    return QDRDBMS::Engine::Example::PhysType::Heading.new(
+    return ::QDRDBMS::Engine::Example::PhysType::Heading.new(
         :attr_defs_aoa($attr_defs_aoa) );
 }
 
@@ -51,21 +51,21 @@ sub dTuple of QDRDBMS::Engine::Example::PhysType::Tuple
         (QDRDBMS::Engine::Example::PhysType::Heading :$heading!,
         QDRDBMS::Engine::Example::PhysType::TextKeyedMap :$body!)
         is export {
-    return QDRDBMS::Engine::Example::PhysType::Tuple.new(
+    return ::QDRDBMS::Engine::Example::PhysType::Tuple.new(
         :heading($heading), :body($body) );
 }
 
 sub dRelation of QDRDBMS::Engine::Example::PhysType::Relation
         (:$heading!, :$body!, :$key_defs_aoh!, :$index_defs_aoh!)
         is export {
-    return QDRDBMS::Engine::Example::PhysType::Relation.new(
+    return ::QDRDBMS::Engine::Example::PhysType::Relation.new(
         :heading($heading), :body($body),
         :key_defs_aoh($key_defs_aoh), :index_defs_aoh($index_defs_aoh) );
 }
 
 sub dCat_EntityName of QDRDBMS::Engine::Example::PhysType::Cat_EntityName
         (Str :$text!) is export {
-    return QDRDBMS::Engine::Example::PhysType::Cat_EntityName.new(
+    return ::QDRDBMS::Engine::Example::PhysType::Cat_EntityName.new(
         :v($text) );
 }
 

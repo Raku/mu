@@ -80,13 +80,13 @@ submethod BUILD (Str :$engine_name!, Any :$dbms_config!) {
 
 method new_var of QDRDBMS::Interface::HostGateVar
         (QDRDBMS::AST::EntityName :$decl_type!) {
-    return QDRDBMS::Interface::HostGateVar.new(
+    return ::QDRDBMS::Interface::HostGateVar.new(
         :dbms(self), :decl_type($decl_type) );
 }
 
 method prepare of QDRDBMS::Interface::HostGateRtn
         (QDRDBMS::AST::HostGateRtn :$rtn_ast!) {
-    return QDRDBMS::Interface::HostGateRtn.new(
+    return ::QDRDBMS::Interface::HostGateRtn.new(
         :dbms(self), :rtn_ast($rtn_ast) );
 }
 
