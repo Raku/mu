@@ -62,7 +62,7 @@ sub JS::Root::rx_helper_(%mods0, Str $pat0, Str $qo, Str $qc) is primitive {
   }
 
   if !$p5 { 
-    die "Perl 6 Rules are not supported." if !$perl5;
+    die "Perl 6 Rules are not supported.";
   }
 
   rx_core_(%mods,$pat,$qo,$qc);
