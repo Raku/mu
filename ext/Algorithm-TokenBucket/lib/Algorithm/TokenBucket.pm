@@ -76,7 +76,8 @@ sub new_bucket(Num $rate, Int $burst_size) is export {
   my $last_check_time = time;
   my $tokens          = 0;
 
-  my $self = {
+  my $self;
+  $self = {
     rate       => { $rate },
     burst_size => { $burst_size },
     tokens     => { $self<token_flow>(); $tokens },
