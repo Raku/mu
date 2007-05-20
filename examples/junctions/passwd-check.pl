@@ -17,4 +17,4 @@ while (not verify(read_new_password)) {
   say "Password matches a previous password";
 }
 
-print "New password accepted";
+say "New password accepted";
