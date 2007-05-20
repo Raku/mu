@@ -85,7 +85,7 @@ MAKE TARGETS
 The default make target builds an optimized Pugs. This means that Pugs will
 be slower to compile, but will run much faster. To disable this, run:
 
-    make fast
+    make soon
 
 To run the test suite with a pretty HTML matrix showing test results:
 
