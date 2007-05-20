@@ -15,103 +15,103 @@ module QDRDBMS::AST-0.0.0 {
 ###########################################################################
 
 sub LitBool of QDRDBMS::AST::LitBool (Bool :$v!) is export {
-    return QDRDBMS::AST::LitBool.new( :v($v) );
+    return ::QDRDBMS::AST::LitBool.new( :v($v) );
 }
 
 sub LitText of QDRDBMS::AST::LitText (Str :$v!) is export {
-    return QDRDBMS::AST::LitText.new( :v($v) );
+    return ::QDRDBMS::AST::LitText.new( :v($v) );
 }
 
 sub LitBlob of QDRDBMS::AST::LitBlob (Blob :$v!) is export {
-    return QDRDBMS::AST::LitBlob.new( :v($v) );
+    return ::QDRDBMS::AST::LitBlob.new( :v($v) );
 }
 
 sub LitInt of QDRDBMS::AST::LitInt (Int :$v!) is export {
-    return QDRDBMS::AST::LitInt.new( :v($v) );
+    return ::QDRDBMS::AST::LitInt.new( :v($v) );
 }
 
 sub SetSel of QDRDBMS::AST::SetSel (Array :$v!) is export {
-    return QDRDBMS::AST::SetSel.new( :v($v) );
+    return ::QDRDBMS::AST::SetSel.new( :v($v) );
 }
 
 sub SeqSel of QDRDBMS::AST::SeqSel (Array :$v!) is export {
-    return QDRDBMS::AST::SeqSel.new( :v($v) );
+    return ::QDRDBMS::AST::SeqSel.new( :v($v) );
 }
 
 sub BagSel of QDRDBMS::AST::BagSel (Array :$v!) is export {
-    return QDRDBMS::AST::BagSel.new( :v($v) );
+    return ::QDRDBMS::AST::BagSel.new( :v($v) );
 }
 
 sub QuasiSetSel of QDRDBMS::AST::QuasiSetSel (Array :$v!) is export {
-    return QDRDBMS::AST::QuasiSetSel.new( :v($v) );
+    return ::QDRDBMS::AST::QuasiSetSel.new( :v($v) );
 }
 
 sub QuasiSeqSel of QDRDBMS::AST::QuasiSeqSel (Array :$v!) is export {
-    return QDRDBMS::AST::QuasiSeqSel.new( :v($v) );
+    return ::QDRDBMS::AST::QuasiSeqSel.new( :v($v) );
 }
 
 sub QuasiBagSel of QDRDBMS::AST::QuasiBagSel (Array :$v!) is export {
-    return QDRDBMS::AST::QuasiBagSel.new( :v($v) );
+    return ::QDRDBMS::AST::QuasiBagSel.new( :v($v) );
 }
 
 multi sub EntityName of QDRDBMS::AST::EntityName
         (QDRDBMS::AST::LitText :$text!) is export {
-    return QDRDBMS::AST::EntityName.new( :text($text) );
+    return ::QDRDBMS::AST::EntityName.new( :text($text) );
 }
 
 multi sub EntityName of QDRDBMS::AST::EntityName
         (QDRDBMS::AST::SeqSel :$seq!) is export {
-    return QDRDBMS::AST::EntityName.new( :seq($seq) );
+    return ::QDRDBMS::AST::EntityName.new( :seq($seq) );
 }
 
 sub ExprDict of QDRDBMS::AST::ExprDict (Array :$map!) is export {
-    return QDRDBMS::AST::ExprDict.new( :map($map) );
+    return ::QDRDBMS::AST::ExprDict.new( :map($map) );
 }
 
 sub TypeDict of QDRDBMS::AST::TypeDict (Array :$map!) is export {
-    return QDRDBMS::AST::TypeDict.new( :map($map) );
+    return ::QDRDBMS::AST::TypeDict.new( :map($map) );
 }
 
 sub VarInvo of QDRDBMS::AST::VarInvo
         (QDRDBMS::AST::EntityName :$v!) is export {
-    return QDRDBMS::AST::VarInvo.new( :v($v) );
+    return ::QDRDBMS::AST::VarInvo.new( :v($v) );
 }
 
 sub FuncInvo of QDRDBMS::AST::FuncInvo (QDRDBMS::AST::EntityName :$func!,
         QDRDBMS::AST::ExprDict :$ro_args!) is export {
-    return QDRDBMS::AST::FuncInvo.new(
+    return ::QDRDBMS::AST::FuncInvo.new(
         :func($func), :ro_args($ro_args) );
 }
 
 sub ProcInvo of QDRDBMS::AST::ProcInvo (QDRDBMS::AST::EntityName :$proc!,
         QDRDBMS::AST::ExprDict :$upd_args!,
         QDRDBMS::AST::ExprDict :$ro_args!) is export {
-    return QDRDBMS::AST::ProcInvo.new(
+    return ::QDRDBMS::AST::ProcInvo.new(
         :proc($proc), :upd_args($upd_args), :ro_args($ro_args) );
 }
 
 sub FuncReturn of QDRDBMS::AST::FuncReturn
         (QDRDBMS::AST::Expr :$v!) is export {
-    return QDRDBMS::AST::FuncReturn.new( :v($v) );
+    return ::QDRDBMS::AST::FuncReturn.new( :v($v) );
 }
 
 sub ProcReturn of QDRDBMS::AST::ProcReturn () is export {
-    return QDRDBMS::AST::ProcReturn.new();
+    return ::QDRDBMS::AST::ProcReturn.new();
 }
 
 sub FuncDecl of QDRDBMS::AST::FuncDecl () is export {
-    return QDRDBMS::AST::FuncDecl.new();
+    return ::QDRDBMS::AST::FuncDecl.new();
 }
 
 sub ProcDecl of QDRDBMS::AST::ProcDecl () is export {
-    return QDRDBMS::AST::ProcDecl.new();
+    return ::QDRDBMS::AST::ProcDecl.new();
 }
 
 sub HostGateRtn of QDRDBMS::AST::HostGateRtn
         (QDRDBMS::AST::TypeDict :$upd_params!,
         QDRDBMS::AST::TypeDict :$ro_params!,
         QDRDBMS::AST::TypeDict :$vars!, Array :$stmts!) is export {
-    return QDRDBMS::AST::HostGateRtn.new( :upd_params($upd_params),
+    return ::QDRDBMS::AST::HostGateRtn.new( :upd_params($upd_params),
         :ro_params($ro_params), :vars($vars), :stmts($stmts) );
 }
 

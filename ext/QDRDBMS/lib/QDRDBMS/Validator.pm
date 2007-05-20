@@ -15,14 +15,14 @@ sub main (Str :$engine_name!, Any :$dbms_config!) {
 
     plan( 1 );
 
-    print "#### QDRDBMS::Validator starting test of $engine_name ####\n";
+    say "#### QDRDBMS::Validator starting test of $engine_name ####";
 
     # Instantiate a QDRDBMS DBMS / virtual machine.
     my QDRDBMS::Interface::DBMS $dbms = QDRDBMS::new_dbms(
         :engine_name($engine_name), :dbms_config($dbms_config) );
     isa_ok( $dbms, 'QDRDBMS::Interface::DBMS' );
 
-    print "#### QDRDBMS::Validator finished test of $engine_name ####\n";
+    say "#### QDRDBMS::Validator finished test of $engine_name ####";
 
     return;
 }

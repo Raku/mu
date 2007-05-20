@@ -24,19 +24,17 @@ and any derived works of either".
 
 For the purposes of this document, the I<QDRDBMS framework core> aka the
 I<QDRDBMS framework> aka the I<core> is composed entirely of, and only of,
-all the files included with this QDRDBMS distribution in its C<lib/>
-directory.  This also includes its main test suite, since that is
-implemented using modules in C<lib/> such as C<QDRDBMS::Validator>.  While
-there are a few other files in this distribution, they are of relatively
-little importance as far as copyright issues of the QDRDBMS core go, and
-can be ignored for the purposes of this document.
+all the files included with this QDRDBMS distribution in its C<lib/> and
+C<t/> directories.  While there are a few other files in this distribution,
+they are of relatively little importance as far as copyright issues of the
+QDRDBMS core go, and can be ignored for the purposes of this document.
 
 While this QDRDBMS distribution could potentially have included
 copyright-significant extra files, particularly in a C<examples/>
 directory, which are explicitly not part of the core, and which may be the
 copyright of other parties, such things will instead be distributed
 separately to keep various matters simpler; in the case of C<examples/>,
-such would likely be part of a separate C<QDRDBMS::Cookbook> distribution.
+such would likely be part of a separate L<QDRDBMS::Cookbook> distribution.
 
 =head1 OWNERSHIP
 
