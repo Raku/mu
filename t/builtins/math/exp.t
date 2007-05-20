@@ -16,7 +16,7 @@ sub approx(Num $a, Num $b) {
 }
 
 ok(approx(exp(5), 148.4131591025766), 'got the exponent of 5');
-ok(approx(exp(0), 1), 'exp(0 == 1)');
+ok(approx(exp(0), 1), 'exp(0) == 1');
 
 # exp with complex arguments
 ok(approx(exp(1i*pi), -1), 'exp(i pi) == -1');
