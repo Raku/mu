@@ -41,7 +41,7 @@ my @tests = (
     [ { :a(1) }, { :b(2), :c(3) } ],
 );
 
-plan 7 + 2*@tests;
+plan 10 + 2*@tests;
 force_todo 8, 45..50, 94, 96;
 
 unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
@@ -103,4 +103,18 @@ unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
 {
     # test a bug reported by Chewie[] - apparently this is from S03
     is((("f","oo","bar").keys).perl, "(0, 1, 2)", ".perl on a .keys list");
+}
+
+{
+    # test bug in .perl on result of hyperoperator
+    # first the trivial case without hyperop
+    my @foo = ([-1, -2], -3);
+    is @foo.perl, '[[-1, -2], -3]', ".perl on a nested list";
+
+    my @hyp = -« ([1, 2], 3);
+    # what it currently (r16460) gives
+    isnt @hyp.perl, '[(-1, -2), -3]', "strange inner parens from .perl on result of hyperop", :todo<bug>;
+
+    # what it should give
+    is @hyp.perl, '[[-1, -2], -3]', ".perl on a nested list result of hyper operator", :todo<bug>;
 }

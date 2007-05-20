@@ -4,7 +4,7 @@ use Test;
 
 # L<S02/Names and Variables/To get a Perlish representation of any object>
 
-plan 95;
+plan 98;
 #force_todo 8, 44, 46, 48; # untodo with r10745
 
 unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
@@ -148,4 +148,18 @@ sub desc_ref ($obj) {
 {
     # test a bug reported by Chewie[] - apparently this is from S03
     is((("f","oo","bar").keys).perl, "(0, 1, 2)", ".perl on a .keys list");
+}
+
+{
+    # test bug in .perl on result of hyperoperator
+    # first the trivial case without hyperop
+    my @foo = ([-1, -2], -3);
+    is @foo.perl, '[[-1, -2], -3]', ".perl on a nested list";
+
+    my @hyp = -« ([1, 2], 3);
+    # what it currently (r16460) gives
+    isnt @hyp.perl, '[(-1, -2), -3]', "strange inner parens from .perl on result of hyperop", :todo<bug>;
+
+    # what it should give
+    is @hyp.perl, '[[-1, -2], -3]', ".perl on a nested list result of hyper operator", :todo<bug>;
 }
