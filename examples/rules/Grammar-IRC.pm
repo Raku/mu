@@ -24,7 +24,7 @@ grammar Grammar::IRC::RFC1459 {
     }
     token nick       { <letter> [ <letter> | <number> | <special> ]* }
     token mask       { < # & > <chstring> }
-    token chstring   { <[\x0 .. \xFF] - [\x20 \c[BEL] \x0 \x0D \x0A \,]>+ }
+    token chstring   { <[\x0 .. \xFF] - [\x20 \a \x0 \x0D \x0A \,]>+ }
     
     token user     { <nonwhite>+ }
     token letter   { <[\x41 .. \x5A \x61 .. \x7A]> } # A-Z a-z
