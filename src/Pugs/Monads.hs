@@ -304,13 +304,15 @@ enterSub appKind sub action = do
             doFix <- fixEnv cc env pad
             local doFix runAction
 
-        _ | typ >= SubBlock -> tryT $ do
+--      _ | typ >= SubBlock -> tryT $ do
+        _ -> tryT $ do
             doFix <- fixEnv return env pad
             local doFix runAction
-
+{-
         _ -> tryT . callCC $ \cc -> do
             doFix <- fixEnv cc env pad
             local doFix runAction
+-}
 
     -- warn "XXX" ()
     doFix <- fixEnv return env pad
@@ -328,9 +330,7 @@ enterSub appKind sub action = do
                 then return val
                 else retControl l{ leaveDepth = depth' }
         VControl ControlExit{}  -> retShift rv
-        VError{}                -> do
-            -- XXX - Implement CATCH block here
-            retShift rv
+        VError{}                -> retShift rv -- XXX - Implement CATCH block here
         _ -> return rv
     where
     rejectKeepUndo VUndef     = (/= __"KEEP")
@@ -360,7 +360,7 @@ enterSub appKind sub action = do
     orig sub = sub { subBindings = [], subParams = (map fst (subBindings sub)) }
 
     fixEnv :: (Val -> Eval Val) -> Env -> Pad -> Eval (Env -> Env)
-    fixEnv cc env pad
+    fixEnv _cc env pad
         | SubPrim <- typ = do
             return $ \e -> e
                 { envLexical = pad `mappend` envLexical env

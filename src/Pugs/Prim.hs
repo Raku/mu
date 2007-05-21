@@ -378,9 +378,9 @@ op1 "Pugs::Safe::safe_print" = \v -> do
     guardIO . putStr $ encodeUTF8 str
     return $ VBool True
 op1 "die" = \v -> do
-    pos <- asks envPos
     v'  <- fromVal $! v
-    retShift $! VError (errmsg $! v') [pos]
+    env <- ask
+    retShift $! VError (errmsg $! v') (collectPos (Just env))
     where
     errmsg VUndef      = VStr "Died"
     errmsg VType{}     = VStr "Died"
@@ -388,14 +388,18 @@ op1 "die" = \v -> do
     errmsg (VList [])  = VStr "Died"
     errmsg (VList [x]) = x
     errmsg x           = x
+    collectPos Nothing    = []
+    collectPos (Just env) = (envPos env:collectPos (envCaller env))
 op1 "warn" = \v -> do
     strs <- fromVal v
     errh <- readVar $ cast "$*ERR"
-    pos  <- asks envPos
-    op2 "IO::say" errh $ VList [ VStr $ pretty (VError (errmsg strs) [pos]) ]
+    env  <- ask
+    op2 "IO::say" errh $ VList [ VStr $ pretty (VError (errmsg strs) (collectPos (Just env))) ]
     where
     errmsg "" = VStr "Warning: something's wrong"
     errmsg x  = VStr x
+    collectPos Nothing    = []
+    collectPos (Just env) = (envPos env:collectPos (envCaller env))
 op1 "fail" = op1 "fail_" -- XXX - to be replaced by Prelude later
 op1 "fail_" = \v -> do
     throw <- fromVal =<< readVar (cast "$*FAIL_SHOULD_DIE")
