@@ -435,6 +435,7 @@ method repr_elem_count of Int () {
 
 class QDRDBMS::AST::SetSel {
     does QDRDBMS::AST::ListSel;
+    submethod BUILD {} # otherwise Pugs r16488 invo ListSel.BUILD twice
 } # class QDRDBMS::AST::SetSel
 
 ###########################################################################
@@ -442,6 +443,7 @@ class QDRDBMS::AST::SetSel {
 
 class QDRDBMS::AST::SeqSel {
     does QDRDBMS::AST::ListSel;
+    submethod BUILD {} # otherwise Pugs r16488 invo ListSel.BUILD twice
 } # class QDRDBMS::AST::SeqSel
 
 ###########################################################################
@@ -449,6 +451,7 @@ class QDRDBMS::AST::SeqSel {
 
 class QDRDBMS::AST::BagSel {
     does QDRDBMS::AST::ListSel;
+    submethod BUILD {} # otherwise Pugs r16488 invo ListSel.BUILD twice
 } # class QDRDBMS::AST::BagSel
 
 ###########################################################################
@@ -456,6 +459,7 @@ class QDRDBMS::AST::BagSel {
 
 class QDRDBMS::AST::QuasiSetSel {
     does QDRDBMS::AST::ListSel;
+    submethod BUILD {} # otherwise Pugs r16488 invo ListSel.BUILD twice
 } # class QDRDBMS::AST::QuasiSetSel
 
 ###########################################################################
@@ -463,6 +467,7 @@ class QDRDBMS::AST::QuasiSetSel {
 
 class QDRDBMS::AST::QuasiSeqSel {
     does QDRDBMS::AST::ListSel;
+    submethod BUILD {} # otherwise Pugs r16488 invo ListSel.BUILD twice
 } # class QDRDBMS::AST::QuasiSeqSel
 
 ###########################################################################
@@ -470,6 +475,7 @@ class QDRDBMS::AST::QuasiSeqSel {
 
 class QDRDBMS::AST::QuasiBagSel {
     does QDRDBMS::AST::ListSel;
+    submethod BUILD {} # otherwise Pugs r16488 invo ListSel.BUILD twice
 } # class QDRDBMS::AST::QuasiBagSel
 
 ###########################################################################
