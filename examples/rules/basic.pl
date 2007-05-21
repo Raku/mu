@@ -6,20 +6,20 @@ say "Loading BASIC grammar...";
    rule var       { <ident> \$ }
    rule string    { <-[\"]>+ }
    rule expr      { <var> | \"<string>\" }
-   rule expr_list { [ <expr> \s* ',' \s* ]* <expr> }
+   rule expr_list { [ <expr> ',' ]* <expr> }
    
-   rule f_let    { LET   \s+ <var> \s* '=' \s* <expr>}
-   rule f_print  { PRINT \s+ <expr> }
-   rule f_goto   { GOTO  \s+ (\d+) }
+   rule f_let    { LET   <var> '=' <expr>}
+   rule f_print  { PRINT <expr> }
+   rule f_goto   { GOTO  (\d+) }
   
-   rule command {  
+   rule command {
            <f_let>   | 
            <f_print> |
            <f_goto> 
         }
 
    rule line  { [\s* <command> ';']+ }
-   rule program { [<line> \n+]+ }
+   token program { [<line> \n+]+ }
 #}
 
 
@@ -30,13 +30,13 @@ sub expr_to_string (Match $expr) {
 do {
   my $basic_program;
   my $i = 0;
-  my $line = "123";
+  my $line;
   repeat while $line.chars {
    print "{$i++}: ";
    $line = =$*IN;
 #  exit if $line eq "exit";
    $basic_program ~= $line ~ "\n";
-  }
+  }  
   my $parsed = $basic_program ~~ /<program>/;
   $parsed.perl.say;
   execute($parsed) if $parsed;
