@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 14 May 2007
+  Last Modified: 21 May 2007
   Number: 6
-  Version: 83
+  Version: 84
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -1493,30 +1493,42 @@ C<assoc> is specified.  (Many of these have no need of precedence
 or associativity because they are parsed specially.  Nevertheless,
 C<equiv> may be useful for cloning other traits of these operators.)
 
-    term:<*>
-    quote:<q>
-    prefix:<++>
-    infix:<+>
-    postfix:<++>
+    category:<prefix>
     circumfix:<( )>
-    postcircumfix:<( )>
-    regex_metachar:<.>
-    regex_backslash:<w>
-    regex_assertion:<?>
-    regex_mod_internal:<i>
-    regex_mod_external:<i>
-    trait_verb:<of>
-    trait_auxiliary:<is>
-    scope_declarator:<my>
-    statement_prefix:<do>
-    statement_control:<if>
-    statement_modifier:<if>
-    infix_prefix_meta_operator:<!>
-    infix_postfix_meta_operator:<=>
-    postfix_prefix_meta_operator:{'»'}
-    prefix_postfix_meta_operator:{'«'}
+    dotty:<.>
+    infix:<+>
     infix_circumfix_meta_operator:{'»','«'}
+    infix_postfix_meta_operator:<=>
+    infix_prefix_meta_operator:<!>
+    package_declarator:<class>
+    postcircumfix:<( )>
+    postfix:<++>
+    postfix_prefix_meta_operator:{'»'}
+    prefix:<++>
     prefix_circumfix_meta_operator:{'[',']'} 
+    prefix_postfix_meta_operator:{'«'}
+    q_backslash:<\\>
+    qq_backslash:<n>
+    quote_mod:<c>
+    quote:<q>
+    regex_assertion:<?>
+    regex_backslash:<w>
+    regex_metachar:<.>
+    regex_mod_internal:<i>
+    routine_declarator:<sub>
+    scope_declarator:<my>
+    sigil:<$>
+    special_variable:<$!>
+    statement_control:<if>
+    statement_mod_cond:<if>
+    statement_mod_loop:<while>
+    statement_prefix:<do>
+    term:<*>
+    trait_auxiliary:<is>
+    trait_verb:<of>
+    twigil:<?>
+    type_declarator:<subset>
+    version:<v>
 
 The existing operator may be specified either as a function name
 or as a string slice equivalent to the one that would be used in

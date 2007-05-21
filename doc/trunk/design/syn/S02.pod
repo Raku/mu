@@ -14,7 +14,7 @@ Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
   Last Modified: 21 May 2007
   Number: 2
-  Version: 106
+  Version: 107
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -2954,33 +2954,46 @@ subsequent whitespace, as do list operators.)
 
 Here are the current grammatical categories:
 
-    term:<...>                                  $x = {...}
-    quote:<qX>                                  qX/foo/
-    prefix:<!>                                  !$x (and $x.'!')
-    infix:<+>                                   $x + $y
-    postfix:<++>                                $x++
+    category:<prefix>                           prefix:<+>
     circumfix:<[ ]>                             [ @x ]
-    postcircumfix:<[ ]>                         $x[$y] or $x.[$y]
-    regex_metachar:<,>                          /,/
-    regex_backslash:<w>                         /\w/ and /\W/
-    regex_assertion:<*>                         /<*stuff>/
-    regex_mod_internal:<perl5>                  m:/ ... :perl5 ... /
-    regex_mod_external:<nth>                    m:nth(3)/ ... /
-    trait_verb:<handles>                        has $.tail handles <wag>
-    trait_auxiliary:<shall>                     my $x shall conform<TR123>
-    scope_declarator:<has>                      has $.x;
-    statement_prefix:<gather>                   gather for @foo { .take }
-    statement_control:<if>                      if $condition {...} else {...}
-    statement_mod_cond:<if>                     ... if $condition
-    statement_mod_loop:<for>                    ... for 1..10
-    infix_prefix_meta_operator:<!>              $x !~~ 2;
-    infix_postfix_meta_operator:<=>             $x += 2;
-    postfix_prefix_meta_operator:{'»'}          @array »++
-    prefix_postfix_meta_operator:{'«'}          -« @magnitudes
+    dotty:<.=>                                  $obj.=method
     infix_circumfix_meta_operator:{'»','«'}     @a »+« @b
+    infix_postfix_meta_operator:<=>             $x += 2;
+    infix_prefix_meta_operator:<!>              $x !~~ 2;
+    infix:<+>                                   $x + $y
+    package_declarator:<role>                   role Foo;
+    postcircumfix:<[ ]>                         $x[$y] or $x.[$y]
+    postfix_prefix_meta_operator:{'»'}          @array »++
+    postfix:<++>                                $x++
     prefix_circumfix_meta_operator:{'[',']'}    [*]
+    prefix_postfix_meta_operator:{'«'}          -« @magnitudes
+    prefix:<!>                                  !$x (and $x.'!')
+    q_backslash:<\\>                            '\\'
+    qq_backslash:<n>                            "\n"
+    quote_mod:<x>                               q:x/ ls /
+    quote:<qq>                                  qq/foo/
+    regex_assertion:<!>                         /<!before \h>/
+    regex_backslash:<w>                         /\w/ and /\W/
+    regex_metachar:<.>                          /.*/
+    regex_mod_internal:<P5>                     m:/ ... :P5 ... /
+    routine_declarator:<sub>                    sub foo {...}
+    scope_declarator:<has>                      has $.x;
+    sigil:<%>                                   %hash
+    special_variable:<$!>                       $!
+    statement_control:<if>                      if $condition { 1 } else { 2 }
+    statement_mod_cond:<if>                     .say if $condition
+    statement_mod_loop:<for>                    .say for 1..10
+    statement_prefix:<gather>                   gather for @foo { .take }
+    term:<!!!>                                  $x = { !!! }
+    trait_auxiliary:<does>                      my $x does Freezable
+    trait_verb:<handles>                        has $.tail handles <wag>
+    twigil:<?>                                  $?LINE
+    type_declarator:<subset>                    subset Nybble of Int where ^16
+    version:<v>                                 v4.3.*
 
 Any category containing "circumfix" requires two token arguments, supplied
-in slice notation.
+in slice notation.  Note that many of these names do not represent real
+operators, and you wouldn't be able to call them even though you can name
+them.
 
 =for vim:set expandtab sw=4:
