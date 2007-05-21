@@ -12,14 +12,20 @@ grammar Grammar::IRC::RFC1459 {
     regex to         { <channel> | [ <user> '@' <servername> ] | <nick> | <mask> }
     regex channel    { < # & > <chstring> }
     regex servername { <host> }
-    regex host       { } # see RFC952... gak
+    regex host       { # see RFC952... hmm... okay, I'll give it a shot
+        <[ \x41 .. \x5A \x61 .. \x7A ]>
+        <[ \x41 .. \x5A \x61 .. \x7A \x30 .. \x39 \- \. ]>+
+        <[ \x41 .. \x5A \x61 .. \x7A \x30 .. \x39 ]>
+        
+        { 1 < $0.bytes <= 24 or fail }
+    }
     regex nick       { <letter> [ <letter> | <number> | <special> ]* }
     regex mask       { < # & > <chstring> }
     regex chstring   { <[\x0 .. \xFF] - [\x20 \c[BEL] \x0 \x0D \x0A \,]>+ }
     
     regex user     { <nonwhite>+ }
-    regex letter   { <[\x41 .. \x5A \x61 .. \x7A]> }
-    regex number   { <[\x30 .. \x39]> }
+    regex letter   { <[\x41 .. \x5A \x61 .. \x7A]> } # A-Z a-z
+    regex number   { <[\x30 .. \x39]> } # 0-9
     regex special  { < - [ ] \\ ` ^ { } > }
     regex nonwhite { <[\x0 .. \xFF] - [\x20 \x0 \x0D \x0A]> }
 }
