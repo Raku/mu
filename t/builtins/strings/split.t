@@ -6,7 +6,7 @@ use Test;
 
 # XXX - this needs to be updated when Str.split(Str) works again
 # this test really wants is_deeply()
-plan 121;
+plan 145;
 
 # split on an empty string
 
@@ -127,3 +127,21 @@ split_test  "".split(), (),
 # blessed by $Larry at Message-ID: <20060118191046.GB32562@wall.org>
 split_test  "".split(':'), (""),
            q/"".split(':')/;
+
+# using /.../
+split_test "a.b".split(/\./), <a b>,
+           q{"a.b".split(/\./)};
+
+split_test "abcd".split(/<null>/), <a b c d>,
+           q{"abcd".split(/<null>/)};
+
+{
+  ' ' ~~ /(\s)/;
+  
+  if $0 eq ' ' {
+    split_test "foo bar baz".split(/<prior>/), <foo bar baz>,
+             q{"foo bar baz".split(/<prior>/)};
+  } else {
+    skip q{' ' ~~ /\s/ did not result in ' '};
+  }
+}
