@@ -59,10 +59,12 @@ multi sub newEntityName of QDRDBMS::AST::EntityName
     return ::QDRDBMS::AST::EntityName.new( :text($text) );
 }
 
+=pod
 multi sub newEntityName of QDRDBMS::AST::EntityName
         (QDRDBMS::AST::SeqSel :$seq!) is export {
     return ::QDRDBMS::AST::EntityName.new( :seq($seq) );
 }
+=cut
 
 sub newExprDict of QDRDBMS::AST::ExprDict (Array :$map!) is export {
     return ::QDRDBMS::AST::ExprDict.new( :map($map) );
@@ -288,7 +290,7 @@ method as_perl of Str () {
         my Str $hex_digit_text = join q{}, map { unpack 'H2', $_ }
             split q{}, $!v;
         my Str $s = q[(join q{}, map { pack 'H2', $_ }
-            split q{}, ] ~ $hex_digit_text ~ q[)];
+            split rx/<?null>/, ] ~ $hex_digit_text ~ q[)];
         $!as_perl = "QDRDBMS::AST::LitBlob.new( :v($s) )";
     }
     return $!as_perl;
@@ -491,11 +493,11 @@ multi submethod BUILD (QDRDBMS::AST::LitText :$text!) {
     my Str $text_v = $text.v();
     die q{new(): Bad :$text arg; it contains character sequences that}
             ~ q{ are invalid within the Text possrep of an EntityName.}
-        if $text_v.match( / \\ $/ ) or $text_v.match( / \\ <-[bp]> / );
+        if $text_v.match( rx/ \\ $/ ) or $text_v.match( rx/ \\ <-[bp]> / ); #/
 
     $!text_possrep = $text;
     $!seq_possrep = QDRDBMS::AST::SeqSel.new( :v(
-            [$text_v.split( /\./ ).map:{
+            [$text_v.split( rx/\./ ).map:{ #/
                     QDRDBMS::AST::LitText.new( :v(
                             .trans( < \\p \\b >
                                  => < .   \\  > )
@@ -506,6 +508,7 @@ multi submethod BUILD (QDRDBMS::AST::LitText :$text!) {
     return;
 }
 
+=pod
 multi submethod BUILD (QDRDBMS::AST::SeqSel :$seq!) {
 
     die q{new(): Bad :$seq arg; it is not an object of a}
@@ -529,6 +532,7 @@ multi submethod BUILD (QDRDBMS::AST::SeqSel :$seq!) {
 
     return;
 }
+=cut
 
 ###########################################################################
 
