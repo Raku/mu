@@ -378,9 +378,9 @@ op1 "Pugs::Safe::safe_print" = \v -> do
     guardIO . putStr $ encodeUTF8 str
     return $ VBool True
 op1 "die" = \v -> do
-    v'  <- fromVal $! v
-    env <- ask
-    retShift $! VError (errmsg $! v') (collectPos (Just env))
+    v'      <- fromVal $! v
+    poss    <- asks envPosStack
+    retShift $! VError (errmsg $! v') poss
     where
     errmsg VUndef      = VStr "Died"
     errmsg VType{}     = VStr "Died"
@@ -388,24 +388,20 @@ op1 "die" = \v -> do
     errmsg (VList [])  = VStr "Died"
     errmsg (VList [x]) = x
     errmsg x           = x
-    collectPos Nothing    = []
-    collectPos (Just env) = (envPos env:collectPos (envCaller env))
 op1 "warn" = \v -> do
     strs <- fromVal v
     errh <- readVar $ cast "$*ERR"
-    env  <- ask
-    op2 "IO::say" errh $ VList [ VStr $ pretty (VError (errmsg strs) (collectPos (Just env))) ]
+    poss    <- asks envPosStack
+    op2 "IO::say" errh $ VList [ VStr $ pretty (VError (errmsg strs) poss) ]
     where
     errmsg "" = VStr "Warning: something's wrong"
     errmsg x  = VStr x
-    collectPos Nothing    = []
-    collectPos (Just env) = (envPos env:collectPos (envCaller env))
 op1 "fail" = op1 "fail_" -- XXX - to be replaced by Prelude later
 op1 "fail_" = \v -> do
     throw <- fromVal =<< readVar (cast "$*FAIL_SHOULD_DIE")
     if throw then op1 "die" (errmsg v) else do
-    pos   <- asks envPos
-    let die = retShift $ VError (errmsg v) [pos]
+    poss    <- asks envPosStack
+    let die = retShift $ VError (errmsg v) poss
         dieThunk = VRef . thunkRef $ MkThunk die (mkType "Failure")
     op1Return (retControl (ControlLeave (<= SubRoutine) 0 dieThunk))
     where

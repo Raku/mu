@@ -18,7 +18,7 @@ module Pugs.AST (
     mergeStmts, isEmptyParams, isCompileTime,
     newPackage, newType, newMetaType, typeMacro, isScalarLValue,
     filterPrim, filterUserDefinedPad, typeOfParam, listVal, isImmediateMatchContext,
-    (./), defaultScalarPad,
+    (./), defaultScalarPad, envPosStack,
 
     module Pugs.AST.Internals,
     module Pugs.AST.Prag,
@@ -504,4 +504,7 @@ defaultScalarRef = scalarRef undef
 
 defaultScalarPad :: Pad
 defaultScalarPad = mkPad [(varTopic, PELexical anyType defaultScalarRef mempty defaultScalarPadStore)]
+
+envPosStack :: Env -> [Pos]
+envPosStack env = envPos env : maybe [] envPosStack (envCaller env)
 
