@@ -1,50 +1,56 @@
 grammar Grammar::IRC::RFC1459 {
-    regex message  { [ ':' <prefix> <SPACE> ]? <command> <params> <crlf> }
-    regex prefix   { <servername> | [ <nick> [ '!' <user> ]? [ '@' <host> ]? ] }
-    regex command  { <letter>+ | <number>**{3} }
-    regex params   { <SPACE> [ [ ':' <trailing> ] | [ <middle> <params> ] ]? }
-    regex middle   { <-[\x20 \x0 \x0A \x0D \:]> <-[\x20 \x0 \x0A \x0D]>* }
-    regex trailing { <-[\x0 \x0A \x0D]>* }
-    regex crlf     { \x0D \x0A }
-    regex SPACE    { ' '+ }
+    token message  { [ ':' <prefix> <SPACE> ]? <command> <params> <crlf> }
+    token prefix   { <servername> | [ <nick> [ '!' <user> ]? [ '@' <host> ]? ] }
+    token command  { <letter>+ | <number>**{3} }
+    token params   { <SPACE> [ [ ':' <trailing> ] | [ <middle> <params> ] ]? }
+    token middle   { <-[\x20 \x0 \x0A \x0D \:]> <-[\x20 \x0 \x0A \x0D]>* }
+    token trailing { <-[\x0 \x0A \x0D]>* }
+    token crlf     { \x0D \x0A }
+    token SPACE    { ' '+ }
     
-    regex target     { <to> [ ',' <target> ]? }
-    regex to         { <channel> | [ <user> '@' <servername> ] | <nick> | <mask> }
-    regex channel    { < # & > <chstring> }
-    regex servername { <host> }
-    regex host       { # see RFC952... hmm... okay, I'll give it a shot
+    token target     { <to> [ ',' <target> ]? }
+    token to         {
+        <channel> | [ <user> '@' <servername> ] | <nick> | <mask>
+    }
+    token channel    { < # & > <chstring> }
+    token servername { <host> }
+    token host       { # see RFC952... hmm... okay, I'll give it a shot
         <[ \x41 .. \x5A \x61 .. \x7A ]>
         <[ \x41 .. \x5A \x61 .. \x7A \x30 .. \x39 \- \. ]>+
         <[ \x41 .. \x5A \x61 .. \x7A \x30 .. \x39 ]>
+            # must not end with a dot or a hyphen
         
         { 1 < $0.bytes <= 24 or fail }
     }
-    regex nick       { <letter> [ <letter> | <number> | <special> ]* }
-    regex mask       { < # & > <chstring> }
-    regex chstring   { <[\x0 .. \xFF] - [\x20 \c[BEL] \x0 \x0D \x0A \,]>+ }
+    token nick       { <letter> [ <letter> | <number> | <special> ]* }
+    token mask       { < # & > <chstring> }
+    token chstring   { <[\x0 .. \xFF] - [\x20 \c[BEL] \x0 \x0D \x0A \,]>+ }
     
-    regex user     { <nonwhite>+ }
-    regex letter   { <[\x41 .. \x5A \x61 .. \x7A]> } # A-Z a-z
-    regex number   { <[\x30 .. \x39]> } # 0-9
-    regex special  { < - [ ] \\ ` ^ { } > }
-    regex nonwhite { <[\x0 .. \xFF] - [\x20 \x0 \x0D \x0A]> }
+    token user     { <nonwhite>+ }
+    token letter   { <[\x41 .. \x5A \x61 .. \x7A]> } # A-Z a-z
+    token number   { <[\x30 .. \x39]> } # 0-9
+    token special  { < - [ ] \\ ` ^ { } > }
+    token nonwhite { <[\x0 .. \xFF] - [\x20 \x0 \x0D \x0A]> }
 }
 
 grammar Grammar::IRC::RFC2810 is Grammar::IRC::RFC1459 { } # zero-derive
 
 grammar Grammar::IRC::RFC2811 is Grammar::IRC::RFC2810 {
-    regex channel { < & # + ! > <-[\x20 \x07 \, \:]>**{ 1 .. 49 } } # from section 2.1 Namespace
+    token channel { < & # + ! > <-[\x20 \x07 \, \:]>**{ 1 .. 49 } }
+        # from section 2.1 Namespace
 }
 
 grammar Grammar::IRC::RFC2812 {
-    regex message { [ ':' <prefix> <SPACE> ]? <command> <params>? <crlf> }
-    regex prefix  { <servername> | [ <nickname> [ [ '!' <user> ]? '@' <host> ]? ] }
-    regex command { <letter>**{ 1 .. * } | <digit>**{3} }
-    regex params  {
+    token message { [ ':' <prefix> <SPACE> ]? <command> <params>? <crlf> }
+    token prefix  {
+        <servername> | [ <nickname> [ [ '!' <user> ]? '@' <host> ]? ]
+    }
+    token command { <letter>**{ 1 .. * } | <digit>**{3} }
+    token params  {
         [ [ <SPACE> <middle> ]**{ 0 .. 14 } [ <SPACE> ':' <trailing> ]? ]
       | [ [ <SPACE> <middle> ]**{ 14 } [ <SPACE> ':'? <trailing> ]? ]
     }
-    regex nospcrlfcl {
+    token nospcrlfcl {
         <[
             \x01 .. \x09
             \x0B .. \x0C
@@ -53,52 +59,75 @@ grammar Grammar::IRC::RFC2812 {
             \x3B .. \xFF
         ]>
     }
-    regex middle   { <nospcrlfcl> [ ':' | <nospcrlfcl> ]* }
-    regex trailing { [ ':' | ' ' | <nospcrlfcl> ]* }
-    regex SPACE    { \x20 }
-    regex crlf     { \x0D \x0A }
+    token middle   { <nospcrlfcl> [ ':' | <nospcrlfcl> ]* }
+    token trailing { [ ':' | ' ' | <nospcrlfcl> ]* }
+    token SPACE    { \x20 }
+    token crlf     { \x0D \x0A }
     
-    regex target { <nickname> | <server> }
-    regex msgtarget { <msgto> [ ',' <msgto> ]* }
-    regex msgto {
+    token target { <nickname> | <server> }
+    token msgtarget { <msgto> [ ',' <msgto> ]* }
+    token msgto {
         [ <channel> | [ <user> [ '%' <host> ]? '@' <servername> ] ]
       | [ [ <user> '%' <host> ] | <targetmask> ]
       | [ <nickname> | [ <nickname> '!' <user> '@' <host> ] ]
     }
-    regex channel { [ '#' | '+' | [ '!' <channelid> ] | '&' ] <chanstring> [ ':' <chanstring> ]? }
-    regex servername { <hostname> }
-    regex host { <hostname> | <hostaddr> }
-    regex hostname { <shortname> [ '.' <shortname> ]* { $0.chars <= 63 or fail } }
-    regex shortname { [ <letter> | <digit> ] [ <letter> | <digit> | '-' ]* [ <letter> | <digit> ]* }
-    regex hostaddr { <ip4addr> | <ip6addr> }
-    regex ip4addr { <digit>**{ 1 .. 3 } '.' <digit>**{ 1 .. 3 } '.' <digit>**{ 1 .. 3 } '.' <digit>**{ 1 .. 3 } }
-    regex ip6addr {
+    token channel {
+        [ '#' | '+' | [ '!' <channelid> ] | '&' ]
+        <chanstring>
+        [ ':' <chanstring> ]?
+    }
+    token servername { <hostname> }
+    token host { <hostname> | <hostaddr> }
+    token hostname {
+        <shortname> [ '.' <shortname> ]*
+        { $0.chars <= 63 or fail }
+    }
+    token shortname {
+        [ <letter> | <digit> ] [ <letter> | <digit> | '-' ]*
+        [ <letter> | <digit> ]*
+    }
+    token hostaddr { <ip4addr> | <ip6addr> }
+    token ip4addr {
+        <digit>**{ 1 .. 3 } '.'
+        <digit>**{ 1 .. 3 } '.'
+        <digit>**{ 1 .. 3 } '.'
+        <digit>**{ 1 .. 3 }
+    }
+    token ip6addr {
         [ <hexdigit>**{ 1 .. * } [ ':' <hexdigit>**{ 1 .. * } ]**{7} ]
       | [ '0:0:0:0:0:' [ 0 | 'FFFF' ] ':' <ip4addr> ]
     }
-    regex nickname { [ <letter> | <special> ] [ <letter> | <digit> | <special> | '-' ]**{8} }
-    regex targetmask { [ '$' | '#' ] <mask> }
-    regex chanstring {
+    token nickname {
+        [ <letter> | <special> ] [ <letter> | <digit> | <special> | '-' ]**{8}
+    }
+    token targetmask { [ '$' | '#' ] <mask> }
+    token chanstring {
         [ <[ \x01 .. \x07 \x08 \x09 \x0B \x0C \x0E .. \x1F \x21 .. \x2B ]> ]
       | [ <[ \x2D .. \x39 | \x3B .. \xFF ]> ]
     }
-    regex channelid { [ <[ x41 .. \x5A ]> | <digit> ]**{5} }
+    token channelid { [ <[ x41 .. \x5A ]> | <digit> ]**{5} }
     
-    regex user { <[ \x01 .. \x09 \x0B .. \x0C \x0E .. \x1F \x21 .. \x3F \x41 .. \xFF ]>**{ 1 .. * } }
-    regex key { <[ \x01 .. \x05 \x07 .. \x08 \x0C \x0E .. \x1F \x21 .. \x7F ]>**{ 1 .. 23 } }
-    regex letter { <[ \x41 .. \x5A \x61 .. \x7A ]> }
-    regex digit { <[ \x30 .. \x39 ]> }
-    regex hexdigit { <digit + [ A B C D E F ]> }
-    regex special { <[ \x5B .. \x60 \x7B .. \x7D ]> }
+    token user {
+        <[ \x01 .. \x09 \x0B .. \x0C \x0E .. \x1F \x21 .. \x3F \x41 .. \xFF ]>
+            **{ 1 .. * }
+    }
+    token key {
+        <[ \x01 .. \x05 \x07 .. \x08 \x0C \x0E .. \x1F \x21 .. \x7F ]>
+            **{ 1 .. 23 }
+    }
+    token letter { <[ \x41 .. \x5A \x61 .. \x7A ]> }
+    token digit { <[ \x30 .. \x39 ]> }
+    token hexdigit { <digit + [ A B C D E F ]> }
+    token special { <[ \x5B .. \x60 \x7B .. \x7D ]> }
     
-    regex mask { [ <nowild> | <noesc> <wildone> | <noesc> <wildmany> ]* }
+    token mask { [ <nowild> | <noesc> <wildone> | <noesc> <wildmany> ]* }
         # XXX not sure about the precedence here, and the RFC confuses me
-    regex wildone { '?' }
-    regex wildmany { '*' }
-    regex nowild { <[ \x01 .. \x29 \x2B .. \x3E \x40 .. \xFF ]> }
-    regex noesc { <[ \x01 .. \x5B \x5D .. \xFF ]> }
-    regex matchone { <[ \x01 .. \xFF ]> }
-    regex matchmany { <matchone>* }
+    token wildone { '?' }
+    token wildmany { '*' }
+    token nowild { <[ \x01 .. \x29 \x2B .. \x3E \x40 .. \xFF ]> }
+    token noesc { <[ \x01 .. \x5B \x5D .. \xFF ]> }
+    token matchone { <[ \x01 .. \xFF ]> }
+    token matchmany { <matchone>* }
 }
 
 grammar Grammar::IRC::RFC2813 is Grammar::IRC::RFC2812 { } # zero-derive
