@@ -14,19 +14,20 @@ class Main {
     say 'ok 1 - ', $x;
 
 
-    sub subr2( $a, [ $b, $c ] ) { $a + $b + $c };
-
-    my $x := 0;
-    $x := subr2( 1, [ 2, 4 ] );
-    if $x != 7 {
-        print 'not '
-    };
-    say 'ok 2 - ', $x;
+    say 'ok 2 # skip signature unpacking not implemented in mp6-jvm';
+    # sub subr2( $a, [ $b, $c ] ) { $a + $b + $c };
+    # $x := 0;
+    # $x := subr2( 1, [ 2, 4 ] );
+    # if $x != 7 {
+    #     print 'not '
+    # };
+    # say 'ok 2 - ', $x;
 
 
     sub subr3( @x ) { @x[0] + @x[1] };
 
-    my $x := 0;
+    # my $x := 0;  -- redefinition
+    $x := 0;
     $x := subr3( [3, 4] );
     if $x != 7 {
         print 'not '

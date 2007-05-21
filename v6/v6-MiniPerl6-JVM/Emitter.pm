@@ -70,9 +70,9 @@ class Lit::Hash {
         my $fields := @.hash;
         my $str := '';
         for @$fields -> $field { 
-            $str := $str ~ ($field[0]).emit ~ ': ' ~ ($field[1]).emit ~ ',';
+            $str := $str ~ ($field[0]).emit ~ ':' ~ ($field[1]).emit ~ ', ';
         }; 
-        '{ ' ~ $str ~ ' }';
+        '[ ' ~ $str ~ ' ]';
     }
 }
 
@@ -85,12 +85,10 @@ class Lit::Object {
     has $.class;
     has @.fields;
     method emit {
-        # $.class ~ '.new( ' ~ @.fields.>>emit.join(', ') ~ ' )';
         my $fields := @.fields;
         my $str := '';
-        # say @fields.map(sub { $_[0].emit ~ ' => ' ~ $_[1].emit}).join(', ') ~ ')';
         for @$fields -> $field { 
-            $str := $str ~ ($field[0]).emit ~ ':' ~ ($field[1]).emit ~ ',';
+            $str := $str ~ ($field[0]).emit ~ ':' ~ ($field[1]).emit ~ ', ';
         }; 
         ' new ' ~ $.class ~ '( ' ~ $str ~ ' )';
     }
@@ -100,14 +98,7 @@ class Index {
     has $.obj;
     has $.index;
     method emit {
-        $.obj.emit ~ '.[' ~ $.index.emit ~ ']';
-        # TODO
-        # if ($.obj.isa(Lit::Seq)) {
-        #    $.obj.emit ~ '[' ~ $.index.emit ~ ']';
-        # }
-        # else {
-        #    $.obj.emit ~ '->[' ~ $.index.emit ~ ']';
-        # }
+        $.obj.emit ~ '[' ~ $.index.emit ~ ']';
     }
 }
 
@@ -115,7 +106,7 @@ class Lookup {
     has $.obj;
     has $.index;
     method emit {
-        $.obj.emit ~ '.{' ~ $.index.emit ~ '}';
+        $.obj.emit ~ '[' ~ $.index.emit ~ ']';
     }
 }
 
@@ -156,13 +147,12 @@ class Bind {
             #  [$a, [$b, $c]] := [1, [2, 3]]
             
             my $a := $.parameters.array;
-            #my $b := $.arguments.array;
-            my $str := 'do { ';
+            $Main::labels := $Main::labels + 1;
+            my $str := '{ it' ~ $Main::labels ~ ' -> ';
             my $i := 0;
             for @$a -> $var { 
                 my $bind := ::Bind( 
                     'parameters' => $var, 
-                    # 'arguments' => ($b[$i]) );
                     'arguments'  => ::Index(
                         obj    => $.arguments,
                         index  => ::Val::Int( int => $i )
@@ -171,7 +161,7 @@ class Bind {
                 $str := $str ~ ' ' ~ $bind.emit ~ '; ';
                 $i := $i + 1;
             };
-            return $str ~ $.parameters.emit ~ ' }';
+            return $str ~ $.parameters.emit ~ ' }()';
         };
         if $.parameters.isa( 'Lit::Hash' ) {
 
@@ -179,7 +169,8 @@ class Bind {
 
             my $a := $.parameters.hash;
             my $b := $.arguments.hash;
-            my $str := 'do { ';
+            $Main::labels := $Main::labels + 1;
+            my $str := '{ it' ~ $Main::labels ~ ' -> ';
             my $i := 0;
             my $arg;
             for @$a -> $var {
@@ -196,7 +187,7 @@ class Bind {
                 $str := $str ~ ' ' ~ $bind.emit ~ '; ';
                 $i := $i + 1;
             };
-            return $str ~ $.parameters.emit ~ ' }';
+            return $str ~ $.parameters.emit ~ ' }()';
         };
 
         if $.parameters.isa( 'Lit::Object' ) {
@@ -206,7 +197,8 @@ class Bind {
             my $class := $.parameters.class;
             my $a     := $.parameters.fields;
             my $b     := $.arguments;
-            my $str   := 'do { ';
+            $Main::labels := $Main::labels + 1;
+            my $str := '{ it' ~ $Main::labels ~ ' -> ';
             my $i     := 0;
             my $arg;
             for @$a -> $var {
@@ -217,7 +209,7 @@ class Bind {
                 $str := $str ~ ' ' ~ $bind.emit ~ '; ';
                 $i := $i + 1;
             };
-            return $str ~ $.parameters.emit ~ ' }';
+            return $str ~ $.parameters.emit ~ ' }()';
         };
     
         $.parameters.emit ~ ' = ' ~ $.arguments.emit;
@@ -267,7 +259,14 @@ class Call {
              $meth := '';  
         };
         
-        my $call := '.' ~ $meth ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
+        my $call;
+        if @(@.arguments) {
+            $call := '.' ~ $meth ~ '(' ~ (@.arguments.>>emit).join(', ') ~ ')';
+        }
+        else {
+            $call := '.' ~ $meth;
+        }
+        
         if ($.hyper) {
             '[ map { $_' ~ $call ~ ' } @{ ' ~ $invocant ~ ' } ]';
         }
@@ -378,11 +377,6 @@ class Decl {
         my $name := $.var.name;
         if   ( $decl eq 'has' ) {
             return 'def ' ~ $name;
-            #'sub ' ~ $name ~ ' { ' ~
-            #  '@_ == 1 ' ~
-            #    '? ( $_[0]->{' ~ $name ~ '} ) ' ~
-            #    ': ( $_[0]->{' ~ $name ~ '} = $_[1] ) ' ~
-            #  '}';
         }
         if   ( $decl eq 'my' ) {
             return 'def ' ~ $.type ~ ' ' ~ $.var.emit ;
@@ -411,43 +405,10 @@ class Method {
     has $.sig;
     has @.block;
     method emit {
-        # TODO - signature binding
+        #  'def ' ~ $invocant.emit ~ ' = shift; ' ~
         my $sig := $.sig;
-        # say "Sig: ", $sig.perl;
-        my $invocant := $sig.invocant; 
-        # say $invocant.emit;
-
         my $pos := $sig.positional;
-        my $str := 'my $List__ = \@_; ';   # no strict "vars"; ';
-
-        # TODO - follow recursively
-        my $pos := $sig.positional;
-        for @$pos -> $field { 
-            if ( $field.isa('Lit::Array') ) {
-                $str := $str ~ 'my (' ~ (($field.array).>>emit).join(', ') ~ '); ';
-            }
-            else {
-                $str := $str ~ 'my ' ~ $field.emit ~ '; ';
-            };
-        };
-
-        my $bind := ::Bind( 
-            'parameters' => ::Lit::Array( array => $sig.positional ), 
-            'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
-        );
-        $str := $str ~ $bind.emit ~ '; ';
-
-#        my $pos := $sig.positional;
-#        my $str := '';
-#        my $i := 1;
-#        for @$pos -> $field { 
-#            $str := $str ~ 'my ' ~ $field.emit ~ ' = $_[' ~ $i ~ ']; ';
-#            $i := $i + 1;
-#        };
-
-        'sub ' ~ $.name ~ ' { ' ~ 
-          'my ' ~ $invocant.emit ~ ' = shift; ' ~
-          $str ~
+        'def ' ~ $.name ~ '(' ~ ((@$pos).>>emit).join(', ') ~ ')' ~ ' { ' ~ 
           (@.block.>>emit).join('; ') ~ 
         ' }'
     }
@@ -458,47 +419,9 @@ class Sub {
     has $.sig;
     has @.block;
     method emit {
-        # TODO - signature binding
         my $sig := $.sig;
-        # say "Sig: ", $sig.perl;
-        ## my $invocant := $sig.invocant; 
-        # say $invocant.emit;
         my $pos := $sig.positional;
-        my $str := 'my $List__ = \@_; ';  # no strict "vars"; ';
-
-        # TODO - follow recursively
-        my $pos := $sig.positional;
-        for @$pos -> $field { 
-            if ( $field.isa('Lit::Array') ) {
-                $str := $str ~ 'my (' ~ (($field.array).>>emit).join(', ') ~ '); ';
-            }
-            else {
-                $str := $str ~ 'my ' ~ $field.emit ~ '; ';
-            };
-            #$str := $str ~ 'my ' ~ $field.emit ~ '; ';
-        };
-
-        my $bind := ::Bind( 
-            'parameters' => ::Lit::Array( array => $sig.positional ), 
-            'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
-        );
-        $str := $str ~ $bind.emit ~ '; ';
-
-#        my $i := 0;
-#        for @$pos -> $field { 
-#            my $bind := ::Bind( 
-#                'parameters' => $field, 
-#                'arguments'  => ::Index(
-#                        obj    => ::Var( sigil => '@', twigil => '', name => '_' ),
-#                        index  => ::Val::Int( int => $i )
-#                    ),
-#                );
-#            $str := $str ~ $bind.emit ~ '; ';
-#            $i := $i + 1;
-#        };
-        'sub ' ~ $.name ~ ' { ' ~ 
-          ## 'my ' ~ $invocant.emit ~ ' = $_[0]; ' ~
-          $str ~
+        'def ' ~ $.name ~ '(' ~ ((@$pos).>>emit).join(', ') ~ ')' ~ ' { ' ~ 
           (@.block.>>emit).join('; ') ~ 
         ' }'
     }

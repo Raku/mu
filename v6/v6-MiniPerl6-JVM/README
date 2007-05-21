@@ -1,12 +1,22 @@
 
-- install Groovy:
+- Installation:
+
+-- install Groovy:
 
   http://groovy.codehaus.org
 
-- compiling from MiniPerl6 to Groovy:
+-- make sure the compiled Groovy emitter is newer than the source code:
+
+  touch Emitter.pmc
+
+
+- Usage:
+
+-- compiling from MiniPerl6 to Groovy:
 
   perl mp6-jvm.pl < hello.pl > hello.groovy
   ~/groovy-1.0/bin/groovy hello.groovy
+
 
 - Development:
 

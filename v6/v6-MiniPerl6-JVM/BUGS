@@ -1,0 +1,12 @@
+mp6-jvm bugs
+
+- no variable redeclarations
+
+  my $x; my $x;  # error
+
+- no structure unpacking in signatures
+
+  sub subr2( $a, [ $b, $c ] ) { $a + $b + $c }
+
+- @_ is not implemented
+-
