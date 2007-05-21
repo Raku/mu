@@ -5,8 +5,8 @@ say "Loading BASIC grammar...";
 #grammar Basic {
    rule var       { <ident> \$ }
    rule string    { <-[\"]>+ }
-   rule expr      { [<var> | \"<string>\" }
-   rule expr_list { [<expr> \s* ',' \s* ]* <expr> }
+   rule expr      { <var> | \"<string>\" }
+   rule expr_list { [ <expr> \s* ',' \s* ]* <expr> }
    
    rule f_let    { LET   \s+ <var> \s* '=' \s* <expr>}
    rule f_print  { PRINT \s+ <expr> }
