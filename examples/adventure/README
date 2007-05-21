@@ -46,9 +46,15 @@ Then, run this script using perl:
     $ perl adventure.pl
 
 
-COPYRIGHT & LICENSE
+AUTHOR
 
-Copyright 2007 Nelson Ferraz, all rights reserved.
+Nelson Ferraz < nferraz >
+
+
+CONTRIBUTORS
+
+
+COPYRIGHT & LICENSE
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
