@@ -2,11 +2,7 @@ use v6-alpha;
 
 use Test;
 
-use QDRDBMS::AST <newLitBool newLitText newLitBlob newLitInt
-    newSetSel newSeqSel newBagSel newQuasiSetSel newQuasiSeqSel
-    newQuasiBagSel newEntityName newExprDict newTypeDict newVarInvo
-    newFuncInvo newProcInvo newFuncReturn newProcReturn newFuncDecl
-    newProcDecl newHostGateRtn>;
+use QDRDBMS::AST <newLitBool newLitText newLitBlob newLitInt>;
 
 main();
 
@@ -16,20 +12,23 @@ sub main {
 
     plan( 45 ); # 17 less than Perl 5 version, which has 62
 
-    say "#### Starting test of QDRDBMS::AST ####";
+    say "#### Starting test of QDRDBMS::AST Literals ####";
 
-    simple_literals();
+    test_LitBool();
+    test_LitText();
+    test_LitBlob();
+    test_LitInt();
 
-    say "#### Finished test of QDRDBMS::AST ####";
+    say "#### Finished test of QDRDBMS::AST Literals ####";
+
+    return;
 }
 
 ######################################################################
 
-sub simple_literals {
+sub test_LitBool {
 
     my ($in, $node, $out);
-
-    # LitBool
 
     $in = undef;
     try {
@@ -63,7 +62,14 @@ sub simple_literals {
     };
     ok( $!, q{LitBool rejects invalid payload 42} );
 
-    # LitText
+    return;
+}
+
+######################################################################
+
+sub test_LitText {
+
+    my ($in, $node, $out);
 
     $in = undef;
     try {
@@ -103,7 +109,14 @@ sub simple_literals {
 
     }
 
-    # LitBlob
+    return;
+}
+
+######################################################################
+
+sub test_LitBlob {
+
+    my ($in, $node, $out);
 
     skip( 11, q{all newLitBlob tests; Perl's Blob not implemented yet} );
     if 0 {
@@ -143,7 +156,14 @@ sub simple_literals {
 
     }
 
-    # LitInt
+    return;
+}
+
+######################################################################
+
+sub test_LitInt {
+
+    my ($in, $node, $out);
 
     $in = undef;
     try {
@@ -200,5 +220,3 @@ sub simple_literals {
 }
 
 ######################################################################
-
-1; # Magic true value required at end of a reuseable file's code.
