@@ -4,11 +4,11 @@ say "Loading BASIC grammar...";
 
 #grammar Basic {
    rule var       { <ident> \$ }
-   rule string    { <-["]>+ }
-   rule expr      { [<var> | "<string>" }
-   rule expr_list { [<expr> \s* , \s* ]* <expr> }
+   rule string    { <-[\"]>+ }
+   rule expr      { [<var> | \"<string>\" }
+   rule expr_list { [<expr> \s* ',' \s* ]* <expr> }
    
-   rule f_let   { LET   \s+ <var> \s* = \s* <expr>}
+   rule f_let    { LET   \s+ <var> \s* '=' \s* <expr>}
    rule f_print  { PRINT \s+ <expr> }
    rule f_goto   { GOTO  \s+ (\d+) }
   
@@ -18,8 +18,8 @@ say "Loading BASIC grammar...";
            <f_goto> 
         }
 
-   rule line  { [\s*<command>;]+ }
-   rule program { [<line>\n+]+ }
+   rule line  { [\s* <command> ';']+ }
+   rule program { [<line> \n+]+ }
 #}
 
 
