@@ -154,7 +154,7 @@ method equal {
 class QDRDBMS::Engine::Example::PhysType::Bool {
     does QDRDBMS::Engine::Example::PhysType::Value;
 
-    use QDRDBMS::AST <LitBool>;
+    use QDRDBMS::AST <newLitBool>;
 
     has Bool $!v;
 
@@ -183,8 +183,8 @@ method which of Str () {
 
 ###########################################################################
 
-method as_ast of LitBool () {
-    return LitBool( :v($!v) );
+method as_ast of QDRDBMS::AST::LitBool () {
+    return newLitBool( :v($!v) );
 }
 
 ###########################################################################
@@ -209,7 +209,7 @@ method v of Bool () {
 class QDRDBMS::Engine::Example::PhysType::Text {
     does QDRDBMS::Engine::Example::PhysType::Value;
 
-    use QDRDBMS::AST <LitText>;
+    use QDRDBMS::AST <newLitText>;
 
     has Str $!v;
 
@@ -238,8 +238,8 @@ method which of Str () {
 
 ###########################################################################
 
-method as_ast of LitText () {
-    return LitText( :v($!v) );
+method as_ast of QDRDBMS::AST::LitText () {
+    return newLitText( :v($!v) );
 }
 
 ###########################################################################
@@ -264,7 +264,7 @@ method v of Str () {
 class QDRDBMS::Engine::Example::PhysType::Blob {
     does QDRDBMS::Engine::Example::PhysType::Value;
 
-    use QDRDBMS::AST <LitBlob>;
+    use QDRDBMS::AST <newLitBlob>;
 
     has Blob $!v;
 
@@ -293,8 +293,8 @@ method which of Str () {
 
 ###########################################################################
 
-method as_ast of LitBlob () {
-    return LitBlob( :v($!v) );
+method as_ast of QDRDBMS::AST::LitBlob () {
+    return newLitBlob( :v($!v) );
 }
 
 ###########################################################################
@@ -319,7 +319,7 @@ method v of Blob () {
 class QDRDBMS::Engine::Example::PhysType::Int {
     does QDRDBMS::Engine::Example::PhysType::Value;
 
-    use QDRDBMS::AST <LitInt>;
+    use QDRDBMS::AST <newLitInt>;
 
     has Int $!v;
 
@@ -348,8 +348,8 @@ method which of Str () {
 
 ###########################################################################
 
-method as_ast of LitInt () {
-    return LitInt( :v($!v) );
+method as_ast of QDRDBMS::AST::LitInt () {
+    return newLitInt( :v($!v) );
 }
 
 ###########################################################################

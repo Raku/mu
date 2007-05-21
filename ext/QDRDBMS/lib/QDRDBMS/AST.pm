@@ -14,100 +14,102 @@ module QDRDBMS::AST-0.0.0 {
 
 ###########################################################################
 
-sub LitBool of QDRDBMS::AST::LitBool (Bool :$v!) is export {
+sub newLitBool of QDRDBMS::AST::LitBool (Bool :$v!) is export {
     return ::QDRDBMS::AST::LitBool.new( :v($v) );
 }
 
-sub LitText of QDRDBMS::AST::LitText (Str :$v!) is export {
+sub newLitText of QDRDBMS::AST::LitText (Str :$v!) is export {
     return ::QDRDBMS::AST::LitText.new( :v($v) );
 }
 
-sub LitBlob of QDRDBMS::AST::LitBlob (Blob :$v!) is export {
+sub newLitBlob of QDRDBMS::AST::LitBlob (Blob :$v!) is export {
     return ::QDRDBMS::AST::LitBlob.new( :v($v) );
 }
 
-sub LitInt of QDRDBMS::AST::LitInt (Int :$v!) is export {
+sub newLitInt of QDRDBMS::AST::LitInt (Int :$v!) is export {
     return ::QDRDBMS::AST::LitInt.new( :v($v) );
 }
 
-sub SetSel of QDRDBMS::AST::SetSel (Array :$v!) is export {
+sub newSetSel of QDRDBMS::AST::SetSel (Array :$v!) is export {
     return ::QDRDBMS::AST::SetSel.new( :v($v) );
 }
 
-sub SeqSel of QDRDBMS::AST::SeqSel (Array :$v!) is export {
+sub newSeqSel of QDRDBMS::AST::SeqSel (Array :$v!) is export {
     return ::QDRDBMS::AST::SeqSel.new( :v($v) );
 }
 
-sub BagSel of QDRDBMS::AST::BagSel (Array :$v!) is export {
+sub newBagSel of QDRDBMS::AST::BagSel (Array :$v!) is export {
     return ::QDRDBMS::AST::BagSel.new( :v($v) );
 }
 
-sub QuasiSetSel of QDRDBMS::AST::QuasiSetSel (Array :$v!) is export {
+sub newQuasiSetSel of QDRDBMS::AST::QuasiSetSel (Array :$v!) is export {
     return ::QDRDBMS::AST::QuasiSetSel.new( :v($v) );
 }
 
-sub QuasiSeqSel of QDRDBMS::AST::QuasiSeqSel (Array :$v!) is export {
+sub newQuasiSeqSel of QDRDBMS::AST::QuasiSeqSel (Array :$v!) is export {
     return ::QDRDBMS::AST::QuasiSeqSel.new( :v($v) );
 }
 
-sub QuasiBagSel of QDRDBMS::AST::QuasiBagSel (Array :$v!) is export {
+sub newQuasiBagSel of QDRDBMS::AST::QuasiBagSel (Array :$v!) is export {
     return ::QDRDBMS::AST::QuasiBagSel.new( :v($v) );
 }
 
-multi sub EntityName of QDRDBMS::AST::EntityName
+multi sub newEntityName of QDRDBMS::AST::EntityName
         (QDRDBMS::AST::LitText :$text!) is export {
     return ::QDRDBMS::AST::EntityName.new( :text($text) );
 }
 
-multi sub EntityName of QDRDBMS::AST::EntityName
+multi sub newEntityName of QDRDBMS::AST::EntityName
         (QDRDBMS::AST::SeqSel :$seq!) is export {
     return ::QDRDBMS::AST::EntityName.new( :seq($seq) );
 }
 
-sub ExprDict of QDRDBMS::AST::ExprDict (Array :$map!) is export {
+sub newExprDict of QDRDBMS::AST::ExprDict (Array :$map!) is export {
     return ::QDRDBMS::AST::ExprDict.new( :map($map) );
 }
 
-sub TypeDict of QDRDBMS::AST::TypeDict (Array :$map!) is export {
+sub newTypeDict of QDRDBMS::AST::TypeDict (Array :$map!) is export {
     return ::QDRDBMS::AST::TypeDict.new( :map($map) );
 }
 
-sub VarInvo of QDRDBMS::AST::VarInvo
+sub newVarInvo of QDRDBMS::AST::VarInvo
         (QDRDBMS::AST::EntityName :$v!) is export {
     return ::QDRDBMS::AST::VarInvo.new( :v($v) );
 }
 
-sub FuncInvo of QDRDBMS::AST::FuncInvo (QDRDBMS::AST::EntityName :$func!,
+sub newFuncInvo of QDRDBMS::AST::FuncInvo
+        (QDRDBMS::AST::EntityName :$func!,
         QDRDBMS::AST::ExprDict :$ro_args!) is export {
     return ::QDRDBMS::AST::FuncInvo.new(
         :func($func), :ro_args($ro_args) );
 }
 
-sub ProcInvo of QDRDBMS::AST::ProcInvo (QDRDBMS::AST::EntityName :$proc!,
+sub newProcInvo of QDRDBMS::AST::ProcInvo
+        (QDRDBMS::AST::EntityName :$proc!,
         QDRDBMS::AST::ExprDict :$upd_args!,
         QDRDBMS::AST::ExprDict :$ro_args!) is export {
     return ::QDRDBMS::AST::ProcInvo.new(
         :proc($proc), :upd_args($upd_args), :ro_args($ro_args) );
 }
 
-sub FuncReturn of QDRDBMS::AST::FuncReturn
+sub newFuncReturn of QDRDBMS::AST::FuncReturn
         (QDRDBMS::AST::Expr :$v!) is export {
     return ::QDRDBMS::AST::FuncReturn.new( :v($v) );
 }
 
-sub ProcReturn of QDRDBMS::AST::ProcReturn () is export {
+sub newProcReturn of QDRDBMS::AST::ProcReturn () is export {
     return ::QDRDBMS::AST::ProcReturn.new();
 }
 
-sub FuncDecl of QDRDBMS::AST::FuncDecl () is export {
+sub newFuncDecl of QDRDBMS::AST::FuncDecl () is export {
     return ::QDRDBMS::AST::FuncDecl.new();
 }
 
-sub ProcDecl of QDRDBMS::AST::ProcDecl () is export {
+sub newProcDecl of QDRDBMS::AST::ProcDecl () is export {
     return ::QDRDBMS::AST::ProcDecl.new();
 }
 
-sub HostGateRtn of QDRDBMS::AST::HostGateRtn
+sub newHostGateRtn of QDRDBMS::AST::HostGateRtn
         (QDRDBMS::AST::TypeDict :$upd_params!,
         QDRDBMS::AST::TypeDict :$ro_params!,
         QDRDBMS::AST::TypeDict :$vars!, Array :$stmts!) is export {
@@ -506,7 +508,7 @@ multi submethod BUILD (QDRDBMS::AST::LitText :$text!) {
 
 multi submethod BUILD (QDRDBMS::AST::SeqSel :$seq!) {
 
-    die q{new(): Bad :$v arg; it is not an object of a}
+    die q{new(): Bad :$seq arg; it is not an object of a}
             ~ q{ QDRDBMS::AST::SeqSel-doing class, or it has < 1 elem.}
         if !$seq.defined or !$seq.does(QDRDBMS::AST::SeqSel)
             or $seq.repr_elem_count() === 0;
@@ -1187,15 +1189,16 @@ It also describes the same-number versions for Perl 6 of [...].
 
 I<This documentation is pending.>
 
-    use QDRDBMS::AST <LitBool LitText LitBlob LitInt SetSel SeqSel BagSel
-        QuasiSetSel QuasiSeqSel QuasiBagSel EntityName ExprDict TypeDict
-        VarInvo FuncInvo ProcInvo FuncReturn ProcReturn FuncDecl ProcDecl
-        HostGateRtn>;
+    use QDRDBMS::AST <newLitBool newLitText newLitBlob newLitInt
+        newSetSel newSeqSel newBagSel newQuasiSetSel newQuasiSeqSel
+        newQuasiBagSel newEntityName newExprDict newTypeDict newVarInvo
+        newFuncInvo newProcInvo newFuncReturn newProcReturn newFuncDecl
+        newProcDecl newHostGateRtn>;
 
-    my $truth_value = LitBool( :v(2 + 2 == 4) );
-    my $planetoid = LitText( :v('Ceres') );
-    my $package = LitBlob( :v(pack 'H2', 'P') );
-    my $answer = LitInt( :v(42) );
+    my $truth_value = newLitBool( :v(2 + 2 == 4) );
+    my $planetoid = newLitText( :v('Ceres') );
+    my $package = newLitBlob( :v(pack 'H2', 'P') );
+    my $answer = newLitInt( :v(42) );
 
 I<This documentation is pending.>
 
