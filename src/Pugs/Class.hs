@@ -163,7 +163,7 @@ instance Boxable PureClass where
 
 _PureClass :: PureClass
 _PureClass = mkPureClass "Class"
-    [ "methods"     ... ((map methodName . all_methods) :: PureClass -> [ID])
+    [ "methods"     ... ((filter (/= nullID) . map methodName . all_methods) :: PureClass -> [ID])
     ]
 
 instance ((:>:) Call) String where
