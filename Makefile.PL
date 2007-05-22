@@ -251,14 +251,6 @@ sub set_postamble {
 EOD
     }
 
-    # We probably need to promote this to a config.yml + autodetect
-    # thing, but until it's done, put the condition here at least and
-    # don't hardcode it into the postamble.
-    my $ghci_debugging =
-            (defined $ENV{PUGS_GHCI_DEBUGGING} ? $ENV{PUGS_GHCI_DEBUGGING} : 1)
-        ? '-fdebugging' : '';
-    $ghci_debugging = '' if $ghc_version eq '6.6';
-
     $ghc = $ghc_wrapper;
     $ghc_pkg = $ghc_pkg_wrapper;
 
@@ -311,10 +303,7 @@ EOD
     # map a bunch of .c files to a bunch of expected .o files
     my $o = sub { map { substr($_, 0, -1) . 'o' } @_ };
 
-    my $pcre_c    = "src/pcre/pcre.c";
-    my ($pcre)    = $o->($pcre_c);
-
-    my @prereqs = ($pcre);
+    my @prereqs = ();
     my @derived_srcfiles = qw< src/Pugs/Embed/Parrot.hs src/Pugs/pugs_config.h src/Pugs/pugs_version.h src/Pugs/Config.hs src/Pugs/Prelude.hs src/Pugs/CodeGen/PIR/Prelude.hs >;
 
     my $embed_flags = "";
@@ -660,7 +649,7 @@ EOD
 #        $judyclean = "cd third-party/judy/Judy-1.0.3 \&\& $make clean \&\& perl cleanmore.pl";
 #    }
 
-    my @ghci_flags = qw( -hide-all-packages -package base -package parsec -package template-haskell  -package readline -package unix -package haskell98 -package mtl -package stm -package network -package pugs-HsSyck -package pugs-filepath );
+    my @ghci_flags = qw( -hide-all-packages -package base -package parsec -package template-haskell  -package readline -package unix -package haskell98 -package mtl -package stm -package network -package pugs-HsSyck -package pugs-filepath -package pugs-hsregex );
 
     postamble(fixpaths(<< "."));
 $config_h : lib/Perl6/Pugs.pm util/config_h.pl
@@ -828,7 +817,7 @@ smoke-redsix : $pugs util/run-smoke.pl all
 ghci : @prereqs @derived_srcfiles
 	$ghc @{[ dethread_flags($ghc_flags) ]} $ghc_output -DPUGS_UNDER_GHCI -no-link --make -O0 -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Prereqs.hs @prereqs
 	\@\$(RM_RF) src/Pugs/*/*_stub.*
-	$ghc @{[ dethread_flags($ghc_flags) ]} @ghci_flags $ghc_output -DPUGS_UNDER_GHCI --interactive -fglasgow-exts $ghci_debugging -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
+	$ghc @{[ dethread_flags($ghc_flags) ]} @ghci_flags $ghc_output -DPUGS_UNDER_GHCI --interactive -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
 
 ctags : @prereqs @derived_srcfiles
 	echo ":ctags" | $ghc $ghc_flags @ghci_flags $ghc_output --interactive -osuf moose -hisuf miise -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
@@ -836,11 +825,11 @@ ctags : @prereqs @derived_srcfiles
 etags : @prereqs @derived_srcfiles
 	echo ":etags" | $ghc $ghc_flags @ghci_flags $ghc_output --interactive -osuf moose -hisuf miise -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
 
-pil$Config{_exe} : $config_h $pcre @srcfiles src/PIL/Native/Bootstrap.hs src/PIL/Native/Syntax.hs
-	$ghc $ghc_flags --make -fglasgow-exts -H0 -isrc -Isrc -L. -fno-warn-name-shadowing -o pil$Config{_exe} -main-is PIL.main src/PIL.hs $pcre
+pil$Config{_exe} : $config_h @srcfiles src/PIL/Native/Bootstrap.hs src/PIL/Native/Syntax.hs
+	$ghc $ghc_flags --make -fglasgow-exts -H0 -isrc -Isrc -L. -fno-warn-name-shadowing -o pil$Config{_exe} -main-is PIL.main src/PIL.hs
 
 pili : pil$Config{_exe}
-	$ghc --interactive -fglasgow-exts -isrc -Isrc -L. -static -fno-warn-name-shadowing src/PIL.hs $pcre
+	$ghc --interactive -fglasgow-exts -isrc -Isrc -L. -static -fno-warn-name-shadowing src/PIL.hs
 
 tags : @srcfiles
 	$hasktags -c @{[ grep { !/PIL/ } @srcfiles ]}

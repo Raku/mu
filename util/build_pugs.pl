@@ -193,7 +193,7 @@ sub build {
 
 =cut
 
-    foreach my $module (qw< filepath HsSyck >) {
+    foreach my $module (qw< filepath HsSyck hsregex >) {
         if ( my ($archive_dir) = (
                 glob("third-party/installed/*/$module-*"),
                 glob("third-party/installed/*/pugs-$module-*"),
@@ -463,7 +463,7 @@ sub build_exe {
     #push @o, 'src/UnicodeC.o' if grep /WITH_UNICODEC/, @_;
     #system $ghc, '--make', @_, @o, '-o' => 'pugs', 'src/Main.hs';
 
-    $push_pkgs->(qw(stm network mtl template-haskell base pugs-HsSyck));
+    $push_pkgs->(qw(stm network mtl template-haskell base pugs-HsSyck pugs-hsregex));
     if ($^O =~ /(?:MSWin32|mingw|msys|cygwin)/) {
         $push_pkgs->('Win32') unless $ghc_version =~ /^6.4(?:.0)?$/;
     }
@@ -484,7 +484,7 @@ sub build_exe {
     if ($want_profiling) {
         $out = "pugs-prof$Config{_exe}";
         push @libs, '-prof';
-        push @pkgs, glob('third-party/HsSyck/dist/build/syck/*.o'), qw( dist/build/src/pcre/pcre.o );
+        push @pkgs, glob('third-party/HsSyck/dist/build/syck/*.o'), qw( third-party/hsregex/dist/build/pcre/pcre.o );
     }
     else {
         push @libs, grep /^-threaded/, @_;
@@ -567,6 +567,7 @@ sub write_buildinfo {
         }
         else {
             s/pugs-HsSyck -any, //;
+            s/pugs-hsregex -any, //;
         }
         s/__OPTIONS__/@args/;
         s/__VERSION__/$version/;

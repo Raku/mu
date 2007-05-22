@@ -68,7 +68,7 @@ The "PGE" subsystem is derived from PGE by Patrick Michaud,
 under the same license as Parrot.  See src/pge/README.
 
 The "RRegex" subsystem is derived from hsregex 0.2 by John Meacham,
-under a BSD-style license.  See src/RRegex/LICENSE.
+under a BSD-style license.  See third-party/hsregex/RRegex/LICENSE.
 
 The "UTF8" subsystem is derived from Martin Norbäck's work,
 under a BSD-style license.  See src/UTF8.hs.
