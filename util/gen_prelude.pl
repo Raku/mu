@@ -127,7 +127,10 @@ sub gen_source {
     # we make a guess about what to put in %*INC. it's not perfect.
     # When module return values are specced, we can make this much
     # less hacky :-)
+    my %seen;
     for my $file (@{ $Config{precompile} }) {
+        next if $seen{$file}++; # Do not precompile duplicate entries
+
         my $module; # guess what to put in %*INC
         open my $ifh, $file or die "open: $file: $!";
         
