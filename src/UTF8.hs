@@ -207,8 +207,7 @@ import Data.Word (Word8)
 import Control.Monad (when)
 import Control.Exception (assert)
 import Data.Maybe (listToMaybe)
-import GHC.Base (build, unsafeChr)
-import GHC.Prim (realWorld#)
+import GHC.Base (build, unsafeChr, realWorld#)
 import GHC.IOBase
 
 import qualified Data.List as List
