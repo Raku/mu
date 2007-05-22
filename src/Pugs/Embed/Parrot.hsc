@@ -1,7 +1,5 @@
 {-# OPTIONS_GHC -fglasgow-exts -cpp -fvia-C -fno-full-laziness -fno-cse #-}
 #if !defined(PUGS_HAVE_PARROT)
-##undef PUGS_HAVE_POSIX
-##include "../pugs_config.h"
 
 module Pugs.Embed.Parrot where
 import Data.IORef
@@ -12,7 +10,7 @@ import System.IO
 import System.IO.Unsafe
 import Data.Maybe
 import Control.Monad
-import Pugs.Compat (getEnv)
+import Pugs.Compat (getEnv, _PUGS_HAVE_POSIX)
 import Pugs.Internals (encodeUTF8)
 
 findExecutable' :: String -> IO (Maybe FilePath)
@@ -33,13 +31,10 @@ findExecutable' cmd = do
 
 findExecutableInDirectory :: FilePath -> FilePath -> IO (Maybe FilePath)
 findExecutableInDirectory dir cmd = do
-##ifdef PUGS_HAVE_POSIX
-    let file = dir ++ ('/':cmd)
-##else
-    let file = dir ++ ('\\':cmd) ++ ".exe"
-##endif
-    ok  <- doesFileExist file
-    return $ if ok then Just file else Nothing
+    let file | _PUGS_HAVE_POSIX = dir ++ ('/':cmd)
+             | otherwise        = dir ++ ('\\':cmd) ++ ".exe"
+    ok <- doesFileExist file
+    return $ if ok then (Just file) else Nothing
 
 findParrot :: IO FilePath
 findParrot = do

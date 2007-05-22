@@ -15,6 +15,7 @@
 #include "pugs_config.h"
 
 module Pugs.Compat (
+    _PUGS_HAVE_POSIX,
     createLink,
     createSymbolicLink,
     readSymbolicLink,
@@ -70,6 +71,9 @@ import Foreign.C.Types
 import Foreign.C.String
 import Data.Typeable
 import qualified System.Posix.Signals
+
+_PUGS_HAVE_POSIX :: Bool
+_PUGS_HAVE_POSIX = True
 
 doesExist :: FilePath -> IO Bool
 doesExist = fileExist
@@ -141,6 +145,9 @@ import Data.Ratio
 import Data.Typeable
 import System.Posix.Internals
 import Foreign.C.Error
+
+_PUGS_HAVE_POSIX :: Bool
+_PUGS_HAVE_POSIX = False
 
 failWith :: (Monad m) => String -> m a
 failWith s = fail $ "'" ++ s ++ "' not implemented on this platform."
