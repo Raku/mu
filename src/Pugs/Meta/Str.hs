@@ -20,7 +20,7 @@ _StrClass = mkPureClass "Str"
     , "chars"       ... Str.length   -- UTF8.length, which Does The Right Thing here
     , "bytes"       ... Char8.length -- WRONG! assumes in UTF-8 representation
     , "quotemeta"   ... Str.concatMap (cast . toQuoteMeta)
-    , "_split_str"  ... _split_str []
+    , "split"       ... _split_str []
     ]
 
 -- XXX: this is inefficient, since it scans the string about twice as
