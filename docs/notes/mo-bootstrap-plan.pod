@@ -5,7 +5,7 @@ done in a lockstep fashion:
 
 =head2 Calling Convention
 
-    -- Accomodating for both oldland and newland callconvs:
+    -- Accommodating for both oldland and newland callconvs:
     instance Arguments [Val]
     instance Arguments Capture
 
@@ -47,7 +47,7 @@ introducing another level of explicit API indirection.
 
 Object attributes are truly unbindable; they are initialized as Scalar, Array,
 Hash etc by boxed instances for Real this time.  That is, the Val can be
-NativeInt to allow for truly unassignable (even for class-local methods) slots:
+NativeInt to allow for truly nonassignable (even for class-local methods) slots:
 
     # Essentially a class for value object:
     class C {
@@ -66,7 +66,7 @@ NativeInt to allow for truly unassignable (even for class-local methods) slots:
         }
     }
 
-    # Instances of the D clas maps to a fresh (Scalar of Int) object:
+    # Instances of the D class maps to a fresh (Scalar of Int) object:
     class D {
         has Int $.foo;
         method foo {
@@ -81,7 +81,7 @@ all its current slots.  That seems 1) fun 2) simple.)
 =head2 Primitive Methods
 
 To make Pugs.Prim transition to the new land of methods, we _remove_
-methods from he main package symbol table completely.  That means you
+methods from the main package symbol table completely.  That means you
 can no longer write C<Str::chars($str)> and expect it to work.  On the
 other hand, C<&Str::chars> will still return a method object by the normal
 package lookup protocol.
@@ -122,13 +122,13 @@ into callconv-friendly Eval ones:
 It's unfortunate that we'll have to use fromTypeable on this one, but since
 it's all monotypes (we don't have parametric types until 6.2831 anyway), this
 layout should carry us forward for another couple of milestones.  (And by that
-time we'll have acces to GHC 6.8's type families.)
+time we'll have access to GHC 6.8's type families.)
 
 =head2 Runtime Augmentation
 
 Runtime metaclass augmentation needs one level of indirection.  The Main class
 maintains a runtimeAttributes (etc) field in addition to the compile-time
-attributes, and each instance's layout will then neccessarily contain the
+attributes, and each instance's layout will then necessarily contain the
 HashTable part (see above) to make up for those.
 
 One way to go about this is to make an AugmentableMI structure that is simply
