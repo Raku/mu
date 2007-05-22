@@ -1,0 +1,10 @@
+Name:    pugs-hsregex
+Version: 1.0
+License: BSD3
+Author: John Meacham
+Homepage: http://repetae.net/john/computer/haskell/hsregex/
+Category: Text
+Build-Depends: base, haskell98
+Exposed-modules: RRegex, RRegex.Syntax, RRegex.PCRE
+c-sources: pcre/chartables.c pcre/get.c pcre/pcre.c pcre/pcreposix.c pcre/study.c
+extra-source-files:  pcre/config.h pcre/get.c pcre/internal.h pcre/pcre.h pcre/pcreposix.h pcre/printint.c pcre/ucp.c pcre/ucp.h pcre/ucpinternal.h pcre/ucptable.c pcre/ucptypetable.c

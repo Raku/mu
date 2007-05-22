@@ -13,4 +13,5 @@ ghc-options:         -fglasgow-exts -O2 -optc-w -funbox-strict-fields -fno-warn-
 c-sources:           syck/bytecode.c syck/emitter.c syck/gram.c syck/handler.c
                      syck/implicit.c syck/node.c syck/syck.c syck/syck_st.c syck/token.c
                      syck/yaml2byte.c 
+extra-source-files:  syck/syck.h syck/syck_st.h syck/gram.h syck/yamlbyte.h
 include-dirs:        syck
