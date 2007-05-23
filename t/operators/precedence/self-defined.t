@@ -10,7 +10,7 @@ L<S06/Subroutine traits/"relative to an existing">
 
 =cut
 
-plan 6;
+plan 8;
 
 do {
     sub prefix:<!> (Num $x) is tighter(&infix:<**>) {
@@ -41,11 +41,29 @@ sub infix:<mul> ($a, $b) is looser(&infix:<+>) {
     return $a * $b;
 }
 
-ok 2 mul 3 + 4, 14, "'is looser' infix works 1";
-ok 4 + 3 mul 2 , 14, "'is looser' infix works 2";
+is 2 mul 3 + 4, 14, "'is looser' infix works 1";
+is 4 + 3 mul 2 , 14, "'is looser' infix works 2";
 
 sub infix:<div> ($a, $b) is equiv(&infix:<*>) {
     return $a / $b;
 }
 
-ok(4 div 2 * 3, 6, "'is equiv' works");
+is(4 div 2 * 3, 6, "'is equiv' works");
+
+# prefix/postfix precedence
+
+sub prefix:<'foo1'> (Num $x) {
+    return 2 * $x;
+}
+
+sub postfix:<'bar1'> (Num $x) is looser(&prefix:<'foo1'>){
+    return 1 + $x;
+}
+
+is('foo1'3'bar1', 7, "Postifix declared looser than prefix");
+
+sub postfix:<'bar2'> (Num $x) is tighter(&prefix:<'foo1'>){
+    return 1 + $x;
+}
+
+is('foo1'3'bar2', 8, "Postfix declared tighter than prefix");
