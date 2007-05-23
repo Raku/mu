@@ -18,17 +18,17 @@ Set.pm operators (included for reference):
     ⊃           >           ^k ) C     \supset
     ⊆           <=          ^k ( _     \subseteq
     ⊇           >=          ^k ) _     \supseteq
-    ⊄      !( $a < $b )                \nsubset
-    ⊅      !( $a > $b )                \nsupset
-    ⊈     !( $a <= $b )                \nsubseteq
-    ⊉     !( $a >= $b )                \nsupseteq
-    ⊊           <                      \subsetneq
-    ⊋           >                      \supsetneq
+    ⊄      !( $a < $b )     ^v u 2284  \nsubset
+    ⊅      !( $a > $b )     ^v u 2285  \nsupset
+    ⊈     !( $a <= $b )     ^v u 2288  \nsubseteq
+    ⊉     !( $a >= $b )     ^v u 2289  \nsupseteq
+    ⊊           <           ^v u 228a  \subsetneq
+    ⊋           >           ^v u 228b  \supsetneq
     ∋/∍   $a.includes($b)   ^k ) -     \ni
     ∈/∊   $b.includes($a)   ^k ( -     \in
-    ∌    !$a.includes($b)              C-q 1236051
-    ∉    !$b.includes($a)              \notin
-    ø         set()                    C-x 8 / o
+    ∌    !$a.includes($b)   ^v u 220c  C-q 1236051
+    ∉    !$b.includes($a)   ^v u 2209  \notin
+    ø         set()         ^v u 2205  C-x 8 / o
 
 Other unicode characters used as operators in Perl 6 programs should
 be added here (for review, not necessarily for inclusion in Perl 6),
