@@ -10,9 +10,10 @@ These tests derived from comments in L<http://use.perl.org/~autrijus/journal/233
 
 =cut
 
-plan 33;
+plan 37;
 
 my $world = "World";
+my $number = 1;
 my @list  = (1,2);
 my %hash  = (1=>2);
 sub func { return "func-y town" }
@@ -27,6 +28,11 @@ is("%hash", '%hash', 'hash interpolation does not work if not followed by {}');
 is("Wont you take me to &func()", 'Wont you take me to func-y town', 'closure interpolation');
 is("2 + 2 = { 2+2 }", '2 + 2 = 4', 'double quoted closure interpolation works');
 is("&func() is where I live", 'func-y town is where I live', "make sure function interpolation doesn't eat all trailing whitespace");
+is("$number {$number}", '1 1', 'number inside and outside closure works');
+is("$number {my $number=2}", '1 2', 'local version of number in closure works');
+is("$number {my $number=2} $number", '1 2 1', 'original number still available after local version in closure: works' );
+eval( q[is("$number {my $number=2} {$number}", '1 2 1', 'original number
+still available in closure after local version in closure: works' );] );
 
 # L<S02/Names and Variables/form of each subscript>
 is("&func. () is where I live", '&func. () is where I live', '"&func. ()" should not interpolate');
