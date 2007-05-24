@@ -41,6 +41,7 @@ syn keyword p6ClosureTrait  BEGIN CHECK INIT START FIRST ENTER LEAVE KEEP UNDO N
 syn keyword p6ClosureTrait  PRE POST END rw signature returns of parsed cached 
 syn keyword p6ClosureTrait  readonly ref copy 
 syn keyword p6ClosureTrait  inline tighter looser equiv assoc
+syn keyword p6ClosureTrait  deep
 syn keyword p6KeyException  die fail try CATCH CONTROL warn
 syn keyword p6KeyIO         print open read write readline say seek close slurp
 syn keyword p6KeyIO         opendir readdir
@@ -63,6 +64,7 @@ syn keyword p6KeyFunc       abs exp log log10 rand sign sqrt sin cos tan
 syn keyword p6KeyFunc       floor ceiling round srand roots cis unpolar polar
 syn keyword p6KeyFunc       p5chop chop p5chomp chomp lc lcfirst uc ucfirst
 syn keyword p6KeyFunc       capitalize normalize pack unpack quotemeta comb
+syn keyword p6KeyFunc       nfd nfc nfkd nfkc
 syn keyword p6KeyFunc       printf sprintf caller evalfile run runinstead 
 syn keyword p6KeyFunc       nothing want bless chr ord list item gmtime 
 syn keyword p6KeyFunc       localtime time gethost getpw chroot getlogin kill
