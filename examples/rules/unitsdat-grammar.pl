@@ -127,7 +127,7 @@ token fundamental_unit {
     {
         @units.push: $<unit>;
         if($<nodim>) {
-            @fund_unitless.push: $<unit>
+            @fund_unitless.push: $<unit>;
         } else {
             @fund_units.push: $<unit>;
         }
