@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 2;
+plan 0;
 
 # L<S29/Str/=item chop>
 
@@ -11,11 +11,8 @@ plan 2;
 #   which can be defined by the filehandle that obtains the default string at
 #   the first place. To get destructive behaviour, use the .= form.
 
-{ # chop a string
-    my $str = "foo";
-    is(chop($str), "fo", "o removed");
-    is($str, "foo", "original string unchanged");
-};
+# the tests that are already covered by the specs are now in
+# t/builtins/str/chop.t
 
 =begin more-discussion-needed
 
