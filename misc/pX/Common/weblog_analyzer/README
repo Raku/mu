@@ -1,0 +1,14 @@
+This is intended to an example of how to parse Apache logs in the "combined"
+log format.
+
+However currently it doesn't work at all, that's why it's not yet in
+examples/.
+
+Usage is:
+cat /var/log/apache2/access.log | pugs logan.pl
+
+the current output is:
+
+invalid aliased subrule at /home/moritz/pugs/perl5/Pugs-Compiler-Rule/lib/Pugs/Emitter/Rule/Perl5/Ratchet.pm line 653.
+
+any idea what's wrong?
