@@ -16,11 +16,11 @@ grammar UnitsGeneric {
 
     # Perl and units.dat use different syntax for multiplication and power
     # operators.  Those derived grammars need to supply these tokens.
-    token m  { ... }
-    token p  { ... }
+    token m  { { ... } }
+    token p  { { ... } }
 
     # Units.dat has a special fraction syntax; Perl doesn't.
-    token fraction { ... }
+    token fraction { { ... } }
 
     token float {
         $<mantissa> := [ '-'? \d+ [ '.' \d+ ]? ]
