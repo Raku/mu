@@ -1,3 +1,4 @@
+#!/usr/bin/env perl
 
 =pod
 
@@ -12,7 +13,7 @@ perl Makefile.PL [options]
 Options:
 
     --precompile-prelude        Force prelude to be precompiled
-    --no-precompile-prelude     Force prelude to be precompiled
+    --no-precompile-prelude     Force prelude not to be precompiled
     --help                      Print documentation (build system overview)
 
 =head1 DESCRIPTION
