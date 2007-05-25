@@ -1,6 +1,6 @@
 module Units;
 
-grammar Units{
+grammar UnitsGeneric {
 
     my Str @units;
     my Str @prefixes;
@@ -12,11 +12,6 @@ grammar Units{
         $<mantissa> := [ '-'? \d+ [ '.' \d+ ]? ]
         [ e $<exp> := [ '-'? \d+ ] ]?
         { $<num> = $<mantissa> * 10 ** $<exp> }
-    }
-
-    rule fraction {
-        $<numerator> := [\d+] '|' $<denominator> := [\d+]
-        { $<num> = $<numerator> / $<denominator> }
     }
 
     rule builtin_func {
@@ -231,7 +226,7 @@ grammar Units{
     }
 }
 
-grammar UnitsDat is Units {
+grammar UnitsDat is UnitsGeneric {
     # This is a grammar for the units(1) units.dat database
     # TODO: parse nonlinear unit definitions
 
@@ -249,6 +244,12 @@ grammar UnitsDat is Units {
     token p { '^' }
 
     token comment { '#' \N* }
+
+    # funny 1|2 fraction syntax
+    rule fraction {
+        $<numerator> := [\d+] '|' $<denominator> := [\d+]
+        { $<num> = $<numerator> / $<denominator> }
+    }
 
     token fundamental_unit {
         ^^ $<unit> := [\S+] \h+ '!' [ dimensionless { $<nodim> := True } ]?
@@ -279,7 +280,7 @@ grammar UnitsDat is Units {
     }
 }
 
-grammar UnitsPerl is Units {
+grammar UnitsPerl is UnitsGeneric {
     # This is envisioned as a grammar to parse unit specifications
     # in Perl source code e.g. $foo.:as<m/s**2> (conjectured syntax)
     rule TOP { <unitdef> }
@@ -287,4 +288,7 @@ grammar UnitsPerl is Units {
     # Use normal perl operators for multiply and power
     token m { '*' }
     token p { '**' }
+
+    # Perl doesn't have any special fraction syntax
+    rule fraction { <fail> }
 }
