@@ -923,6 +923,11 @@ op1Chomp str
     | last str == '\n'  = VStr (init str)
     | otherwise         = VStr str
 
+perlReplicate :: VInt -> a -> [a]
+perlReplicate i a = if i < 0 
+    then genericReplicate 0 a 
+    else genericReplicate i a
+
 -- |Implementation of 2-arity primitive operators and functions
 op2 :: String -> Val -> Val -> Eval Val
 op2 "rename" = guardedIO2 rename
@@ -931,8 +936,8 @@ op2 "link" = guardedIO2 createLink
 op2 "*"  = op2Numeric (*)
 op2 "/"  = op2Divide
 op2 "%"  = op2Modulus
-op2 "x"  = op2Cast (\x y -> VStr . concat $ (y :: VInt) `genericReplicate` x)
-op2 "xx" = op2Cast (\x y -> VList . concat $ (y :: VInt) `genericReplicate` x)
+op2 "x"  = op2Cast (\x y -> VStr . concat $ (y :: VInt) `perlReplicate` x)
+op2 "xx" = op2Cast (\x y -> VList . concat $ (y :: VInt) `perlReplicate` x)
 op2 "+&" = op2Int (.&.)
 op2 "+<" = op2Int shiftL
 op2 "+>" = op2Int shiftR
