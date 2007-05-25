@@ -1,0 +1,9 @@
+To install Buildbot on a unix-y system, you should just have to run setup.sh.
+The master.cfg is the configuration file for the master, and extensions.py
+contains the definitions for smoke testing, which is used by master.cfg.
+Currently, there is a buildbot master that is active from ~8AM to ~9PM PDT,
+hosted at:
+http://www.unobe.com:8010/
+It only has one slave system (itself), which is a Mac Mini running OSX PPC,
+and builds Pugs once a day. E-mail unobe@cpan.org if you have any questions
+about that buildbot master.
