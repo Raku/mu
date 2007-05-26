@@ -1,5 +1,31 @@
 module Units;
 
+class Unitdef {
+    has Num %.fund_units;
+    has method &.cv_to_fund(Num --> Num);
+    has method &.cv_from_fund(Num --> Num);
+
+    multi submethod BUILD(Num :%def) {
+        %.fund_units = defreduce(%def);
+        &.cv_to_fund :=   method (Num $x --> Num) { return $x };
+        &.cv_from_fund := method (Num $x --> Num) { return $x };
+    }
+
+    multi submethod BUILD(Num :$num) {
+        %.fund_units = { :factor($num) };
+        &.cv_to_fund :=   method (Num $x --> Num) { return $x };
+        &.cv_from_fund := method (Num $x --> Num) { return $x };
+    }
+
+    multi submethod BUILD(Num :%def,
+        Code :&to_fund:(Num --> Num), Code :&from_fund:(Num --> Num)) {
+
+        %.fund_units = defreduce(%def);
+        &.cv_to_fund :=   method (Num $x --> Num) { return to_fund($x) };
+        &.cv_from_fund := method (Num $x --> Num) { return from_fund($x) };
+    }
+}
+
 grammar UnitsGeneric {
 
     # Expects to have these attributes available:
@@ -12,7 +38,7 @@ grammar UnitsGeneric {
     #
     # Definitions of all derived units (and prefixes)
     # in terms of fundamental units (which do not appear)
-    # Hash of Num %.unitsdef
+    # Hash of Unitdef %.unitsdef
 
     # Perl and units.dat use different syntax for multiplication and power
     # operators.  Those derived grammars need to supply these tokens.
@@ -122,7 +148,7 @@ grammar UnitsGeneric {
     token unitname {
         { $<factor> = 1; my Int $n = 0; }
         [ @<prefix> := [ | @.prefixes ]
-            { $<factor> *= %.unitsdef{@<prefix>[$n++]}<factor> }
+            { $<factor> *= %.unitsdef{@<prefix>[$n++]}.fund_units<factor> }
         ]*
         $<name> := [ | @.units ] s?
     }
@@ -242,7 +268,7 @@ grammar UnitsDat is UnitsGeneric {
         $<name> := [\S+] '-' \h+ <number>
         {
             @.prefixes.push: $<name>;
-            %.unitsdef{$<name>}<factor> = $<number><num>;
+            %.unitsdef{$<name>} = Unitdef.new(num => $<number><num>);
         }
     }
 
@@ -250,7 +276,7 @@ grammar UnitsDat is UnitsGeneric {
         $<name> := [ <+[\S]-[-]>+ ] \h+ <unitdef>
         {
             @.units.push: $<name>;
-            %.unitsdef{$<name>} = $<unitdef><def>;
+            %.unitsdef{$<name>} = Unitdef.new(def => $<unitdef><def>);
         }
     }
 }
@@ -284,7 +310,7 @@ role GenericUnit {
     # Unit definitions
     has Str @.units;
     has Str @.prefixes;
-    has Hash of Num %.unitsdef;
+    has Hash of Unitdef %.unitsdef;
     has Str @.fund_units;
     has Str @.fund_unitless;
 
@@ -297,7 +323,7 @@ role GenericUnit {
     # and a byte is
     # { :bit :factor(8) }
     # Default unit { :factor } is 1
-    has Num %.unit = { :factor };
+    has Num %.unit is rw = { :factor };
 
     # is this object unitless, e.g. can it be used as the arg to cos or exp?
     method is_unitless(--> Bool) {
@@ -306,7 +332,7 @@ role GenericUnit {
 
     method add_prefix(Str $name, Num $value -->) {
         @.prefixes.push: $name;
-        %.unitsdef{$name} = { :factor($value) };
+        %.unitsdef{$name} = Unitdef.new(num => $value);
     }
 
     method add_fund_unit(Str $name -->) {
@@ -321,7 +347,7 @@ role GenericUnit {
 
     multi method add_unit(Str $name, Num %def -->) {
         @.units.push: $name;
-        %.unitsdef{$name} = %def;
+        %.unitsdef{$name} = Unitdef.new(def => %def);
     }
 
     multi method add_unit(Str $name, Str $unitspec -->) {
@@ -329,7 +355,7 @@ role GenericUnit {
             die "Couldn't parse $unitspec\n";
         }
         @.units.push: $name;
-        %.unitsdef{$name} = $<def>;
+        %.unitsdef{$name} = Unitdef.new(def => $<def>);
     }
 
     # reduce a unit definition to fundamental units
@@ -338,8 +364,8 @@ role GenericUnit {
             for %def.kv -> (my Str $u, my Num $p) {
                 next if $u eq any('factor', @.fund_units, @.fund_unitless);
                 %def.:delete{$u};
-                %def<factor> *= %.unitsdef{$u}<factor> ** $p;
-                for %.unitsdef{$u}.kv -> (my Str $cu, my Num $cp) {
+                %def<factor> *= %.unitsdef{$u}.fund_units<factor> ** $p;
+                for %.unitsdef{$u}.fund_units.kv -> (my Str $cu, my Num $cp) {
                     next if $cu eq 'factor';
                     %def{$cu} += $cp * $p;
                 }
@@ -402,7 +428,7 @@ role NumUnit does GenericUnit {
         if ! $unitspec ~~ /<UnitsPerl>/ {
             die "Couldn't parse $unitspec\n";
         }
-        %.unit =$<def>;
+        %.unit = $<def>;
         return self;
     }
 
@@ -434,10 +460,25 @@ role NumUnit does GenericUnit {
         return self;
     }
 
+    #XXX I think NumUnits should numify to include their .unit<factor>
+    #    That would allow things like ^3.:as<-2> # (0, -2. -4)
+    #    That can already be done, but nonlinear units could
+    #    allow e.g. ^3.:as<log10scale> # (1, 10, 100)
+    #    How is Numification specified?
+    multi *prefix<+>(NumUnit $nu --> Num) {
+        my Num $nf = $nu * $nu.unit<factor>;
+        my Num $n = $nf;
+        for $nu.unit.kv -> my Str $u, my Num $p {
+            next if $u eq 'factor';
+            #XXX need to think about whether this is correct
+            $n *= %.unitsdef{$u}.cv_to_fund($nf) ** $p;
+        }
+        return $n;
+    }
+
     multi *infix:<+>(NumUnit $n1, NumUnit $n2) {
         my Num %def = $.adddef($n1.unit, $n2.unit, 1);
-        #XXX how to get the right +?
-        my Num $n = $n1 + $n2;
+        my Num $n = +$n1 + +$n2;
         $n does NumUnit;
         $n.unit = %def;
         return $n;
@@ -445,7 +486,7 @@ role NumUnit does GenericUnit {
 
     multi *infix:<->(NumUnit $n1, NumUnit $n2) {
         my Num %def = $.adddef($n1.unit, $n2.unit, -1);
-        my Num $n = $n1 - $n2;
+        my Num $n = +$n1 - +$n2;
         $n does NumUnit;
         $n.unit = %def;
         return $n;
@@ -453,7 +494,7 @@ role NumUnit does GenericUnit {
 
     multi *infix:<*>(NumUnit $n1, NumUnit $n2) {
         my Num %def = $.multdef($n1.unit, $n2.unit, 1);
-        my Num $n = $n1 * $n2;
+        my Num $n = +$n1 * +$n2;
         $n does NumUnit;
         $n.unit = %def;
         return $n;
@@ -461,7 +502,7 @@ role NumUnit does GenericUnit {
 
     multi *infix:</>(NumUnit $n1, NumUnit $n2) {
         my Num %def = $.multdef($n1.unit, $n2.unit, -1);
-        my Num $n = $n1 / $n2;
+        my Num $n = +$n1 / +$n2;
         $n does NumUnit;
         $n.unit = %def;
         return $n;
@@ -472,19 +513,14 @@ role NumUnit does GenericUnit {
             warn "Non-unitless exponent { $n2.unit }\n";
             return undef;
         }
-        #XXX I think NumUnits should numify to include their .unit<factor>
-        #    That would allow things like ^3.:as<-2> # (0, -2. -4)
-        #    That can already be done, but nonlinear units could
-        #    allow e.g. ^3.:as<log10scale> # (1, 10, 100)
-        #    How is Numification specified?
-        my Num $n = ($n1 * $n1.unit<factor>) ** ($n2 * $n2.unit<factor>);
+        my Num $n = +$n1 ** +$n2;
         $n does NumUnit;
         $n.unit = $n1.unit;
         for $n2.unit.kv -> my Num $u, my Num $p {
             next if $u eq 'factor';
-            $n.unit{$u} += $p * $n2 * $n2.unit<factor>;
+            $n.unit{$u} += $p;
         }
-        $n.unit.v »*=» $n2 * $n2.unit<factor>;
+        $n.unit.v »*=» +$n2;
         $n.unit<factor> = 1;
         return $n;
     }
