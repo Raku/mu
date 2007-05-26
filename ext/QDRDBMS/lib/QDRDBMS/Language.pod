@@ -24,7 +24,7 @@ systems, written by Christopher J. Date and Hugh Darwen; see
 L<http://www.aw-bc.com/catalog/academic/product/0,1144,0321399420,00.html>
 for a publishers link to the book that formally publishes TTM.  See
 L<http://www.thethirdmanifesto.com/> for some references to what TTM is,
-and also copies of some documents I used in writing QDRDBMS D.
+and also copies of some documents that were used in writing QDRDBMS D.
 
 It should be noted that QDRDBMS D, being quite new, may omit some features
 that are mandatory for a "D" language initially, to speed the way to a
@@ -44,7 +44,7 @@ a different person that the Lua language design is very similar, in
 different ways, and from a glance, it certainly seems to be so.>
 
 In any event, the QDRDBMS documentation will be focusing mainly on how
-QDRDBMS itself works, and will not spend much time in providing rationales;
+QDRDBMS itself works, and will spend little time in providing rationales;
 you can read the aforementioned external documentation for much of that.
 
 I<This documentation is pending.>
@@ -188,6 +188,83 @@ immutable, so it does not make sense to say that we are "building" one; we
 are "selecting" one.
 
 =back
+
+I<This documentation is pending.>
+
+=head1 INTERPRETATION OF THE RELATIONAL MODEL
+
+The relational model of data is based on predicate logic and set theory.
+
+The model assumes that all data is represented as mathematical N-ary
+I<relations>, an N-ary relation being a subset of the cartesisn product of
+N I<data types>.  Reasoning about such data is done in two-valued predicate
+logic, meaning there are 2 possible evaluations for each proposition,
+either I<true> or I<false>.
+
+The basic relational building block is the data type, which can consist of
+either scalar values or values of more complex types.  A I<tuple> is an
+unordered set of I<attributes>, each of which has a name and a declared
+data type; an attribute value is a specific valid value for the type of the
+attribute.  An N-relation is defined as an unordered set of N-tuples, and
+the tuples comprise the I<body> of the relation; the relation has a
+I<heading>, which is a set of attribute definitions (their names and
+types); this heading is also the heading of each of its tuples.
+
+A heading represents a predicate, and there is a one-to-one correspondence
+between the free variables of the predicate and the attribute names of the
+heading.  The body of a relation represents the set of true propositions
+that can be formed from the predicate represented by the relation's
+heading.  The body of a tuple with the same heading provides attribute
+values to instantiate the predicate into a proposition by substituting each
+of its free variables.  When a tuple appears in a relation body, the
+proposition it represents is deemed to be true.  Contrariwise, for every
+tuple whose heading is the same as the relation's but does not appear in
+the relation body, its proposition is deemed to be false.  This assumption
+is known as the I<closed world assumption>.
+
+=head2 In Terms of Boolean Expressions
+
+It may sometimes be helpful for practitioners to conceptualize a relation
+as a long boolean expression, consisting of a string of basic
+boolean-valued expressions that are selectively anded or ored together.  A
+basic boolean-valued expression, C<< <attr> >>, takes the form C<<
+attribute <name> is <value> >>.  Each tuple body, C<< <tuple> >>, in the
+relation takes the form of a chained C<and> that connects N C<< <attr> >>,
+one per each attribute in the relation, and each having a distinct C<<
+<name> >>.  The relation body takes the form of a chained C<or> that
+connects N C<< <tuple> >>, one per each tuple in the relation, and each C<<
+<tuple> >> has the same set of C<< <name> >> as the others, but the set of
+C<< <value> >> that each C<< <tuple> >> has is distinct.
+
+Take, for example, a relation having some details about people, where each
+attribute is a type of detail and each tuple has details for one person:
+
+       name is John  and age is 32 and city is Vancouver
+    or name is Andy  and age is 46 and city is Toronto
+    or name is Julia and age is 27 and city is Halifax
+    etc...
+
+Or a multi-relation example involving suppliers, foods, and shipments:
+
+       farm is Hodgesons and country is Canada
+    or farm is Beckers   and country is England
+    or farm is Wickets   and country is Canada
+
+       food is Bananas and colour is yellow
+    or food is Carrots and colour is orange
+    or food is Oranges and colour is orange
+    or food is Kiwis   and colour is green
+    or food is Lemons  and colour is yellow
+
+       farm is Hodgesons and food is Kiwis   and qty is 100
+    or farm is Hodgesons and food is Lemons  and qty is 130
+    or farm is Hodgesons and food is Oranges and qty is 10
+    or farm is Hodgesons and food is Carrots and qty is 50
+    or farm is Beckers   and food is Carrots and qty is 90
+    or farm is Beckers   and food is Bananas and qty is 120
+    or farm is Wickets   and food is Lemons  and qty is 30
+
+=head2 Relational Operations in Those Terms
 
 I<This documentation is pending.>
 

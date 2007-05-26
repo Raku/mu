@@ -11,12 +11,12 @@ External resources that you really ought to look at
 
 This document is a central location within the L<QDRDBMS> distribution
 where any important recommendations of or links to external resources go.
-This includes both resources that helped me when I made QDRDBMS, as well as
-Resources that are or could be related to QDRDBMS.
+This includes both resources that were helpful in making QDRDBMS, as well
+as resources that are or could be related to QDRDBMS.
 
 =head1 INFORMATION SOURCES
 
-During my work on this project, I found the following resources to be
+While making this project, the following resources were found to be
 particularly useful:
 
 =over
@@ -78,13 +78,13 @@ Christopher J. Date - "Database in Depth: Relational Theory for
 Practitioners, 1st edition, Oreilly, 2005 (ISBN: 0-596-10012-4)"; see
 L<http://www.oreilly.com/catalog/databaseid/>.
 
-This is the first printed book that I read fully, which is related to The
-Third Manifesto, and it was my main introduction.  It explains in an easy
-to follow matter just what the relational data model really is, a solid and
-provable logical system, and partially contrasts with SQL's distorted view
-of it.  While being easy to follow, the book is written towards people that
-are already database professionals, and doesn't go into the basics that we
-should already know.
+This is the first printed book that QDRDBMS' author had read fully, which
+is related to The Third Manifesto, and it was their main introduction.  It
+explains in an easy to follow matter just what the relational data model
+really is, a solid and provable logical system, and partially contrasts
+with SQL's distorted view of it.  While being easy to follow, the book is
+written towards people that are already database professionals, and doesn't
+go into the basics that we should already know.
 
 =item L<http://www.acm.org/classics/nov95/toc.html>
 
@@ -385,7 +385,8 @@ of the above file or package names, depending on what its author prefers,
 or something else yet.  A strong name influence could be whether QDRDBMS
 forms the sole public interface for Genezzo after its conversion to use it,
 or whether Genezzo would retain alternate public APIs that work without
-QDRDBMS being present on the system.
+QDRDBMS being present on the system.  If QDRDBMS is Genezzo's sole or
+primary interface, then simply C<Genezzo> is probably best for branding.
 
 =item C<QDRDBMS::AST::Refactor(|::\w+)>
 
@@ -436,7 +437,7 @@ either or both of AST form or string form (most likely) QDRDBMS D.
 
 Utility module that parses the Tutorial D language into QDRDBMS AST nodes,
 and also that generates the former from the latter.  Mainly this is just
-by-the-book using the grammar published by Darwin and Date, but it could
+by-the-book using the grammar published by Darwen and Date, but it could
 also handle compatible extensions by other D language implementations.  In
 addition, separate utility modules can be made which translate to and from
 other D languages that don't look like Tutorial D.

@@ -528,11 +528,11 @@ and reliably, it also performs quite slowly; you should only use Example
 for testing, development, and study; you should not use it in production.
 
 For production use, there should be a wide variety of third party Engine
-modules that become available over time.  One plan which I favor is that
+modules that become available over time.  One plan being favored is that
 the new (under development) enterprise-strength and Perl implemented
 database server named L<Genezzo> (see also L<http://www.genezzo.com/>) will
 evolve to implement the QDRDBMS DBMS natively, and be I<the> back-end which
-I recommend above all others for production use.
+is recommended above all others for production use.
 
 Most of the other (near term) third party Engines will likely just map
 QDRDBMS's rigorously defined API onto a pre-existing quasi-relational
