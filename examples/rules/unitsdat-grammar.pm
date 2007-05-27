@@ -500,6 +500,19 @@ grammar UnitsDat is UnitsGeneric {
 
     token backslash { '\\' \h* <?comment>? \h* "\n" }
 
+    method pwlerp(Num @from, Num @to, Num $x --> Num) {
+        if $x !~~ @from[0] .. @from[*-1] {
+            warn "Arg $x not in domain @from[0] .. @from[*-1]\n";
+            return undef;
+        }
+        loop(my Int $i = 0; $i < @from - 1; $i++) {
+            if @from[$i] <= $x < @from[$i + 1] {
+                return @to[$i] + ($x - @from[$i]) * (@to[$i + 1] - @to[$i]);
+            }
+        }
+        return @to[*-1];
+    }
+
     rule nl_piecewise {
         $<name> := [ <+[\S]-['[]']>+ ]
         '[' <unitdef> ']' <?backslash>?
@@ -519,16 +532,7 @@ grammar UnitsDat is UnitsGeneric {
             die "Domain not monotonic: { @<from> }\n";
                 if ![<] @<from>;
             $<to_closure> := sub (Num $x --> Num) {
-                if $x !~~ @<from>[0] .. @<from>[*-1] {
-                    warn "Arg $x not in domain @<from>[0] .. @<from>[*-1]\n";
-                    return undef;
-                }
-                loop(my Int $i = 0; $i < @<from> - 1; $i++ {
-                    if @<from>[$i] <= $x < @<from>[$i + 1] {
-                        return @<to>[$i] + ($x - @<from>[$i]) * (@<to>[$i + 1] - @<to>[$i]);
-                    }
-                }
-                return @<to>[*-1];
+                pwlerp(@<from>, @<to>, $x);
             }
             if @<to>[0] > @<to>[*-1] {
                 @<from>.=reverse;
@@ -537,16 +541,7 @@ grammar UnitsDat is UnitsGeneric {
             die "Domain not monotonic: { @<to> }\n";
                 if ![<] @<to>;
             $<from_closure> := sub (Num $x --> Num) {
-                if $x !~~ @<to>[0] .. @<to>[*-1] {
-                    warn "Arg $x not in domain @<to>[0] .. @<to>[*-1]\n";
-                    return undef;
-                }
-                loop(my Int $i = 0; $i < @<to> - 1; $i++ {
-                    if @<to>[$i] <= $x < @<to>[$i + 1] {
-                        return @<from>[$i] + ($x - @<to>[$i]) * (@<from>[$i + 1] - @<from>[$i]);
-                    }
-                }
-                return @<from>[*-1];
+                pwlerp(@<to>, @<from>, $x);
             }
             %.unitsdef{$<name>} = Unitdef.new(def => $<def>, input => { :factor },
                 to_fund => $<to_closure>, from_fund => $<from_closure>);
@@ -748,6 +743,13 @@ role NumUnit does GenericUnit {
         $.add_unit: 'codepoint', 'code';
         $.add_fund_unit: 'graph';
         $.add_unit: 'grapheme', 'graph';
+        # Example nonlinear units
+        $.add_nl_unit: 'logscale', { :factor }, { :factor },
+            to_fund => &log, from_fund => &exp;
+        $.add_nl_unit: 'log10scale', { :factor }, { :factor },
+            to_fund => &log.assuming(:base(10)), from_fund => &exp.assuming(:base(10));
+        $.add_nl_unit: 'log2scale', { :factor }, { :factor },
+            to_fund => &log.assuming(:base(2)), from_fund => &exp.assuming(:base(2));
 
     }
 
