@@ -11,7 +11,7 @@ class Unitdef {
     has method &.cv_from_fund(NumUnit --> Num);
 
     multi submethod BUILD(Num :%def) {
-        %.fund_units = defreduce(%def);
+        %.fund_units = $.defreduce(%def);
         $.is_linear = True;
     }
 
@@ -24,14 +24,14 @@ class Unitdef {
         Code :&to_fund:(Num --> Num), Code :&from_fund:(Num --> Num)) {
 
         $.is_linear = False;
-        %.fund_units = defreduce(%def);
-        %.input_units = defreduce(%input);
+        %.fund_units = $.defreduce(%def);
+        %.input_units = $.defreduce(%input);
         &.cv_to_fund :=   method (NumUnit $x --> Num) {
-                My Num $f = checkunit($x.unit);
+                My Num $f = $.checkunit($x.unit);
                 return to_fund($x) * $f;
             };
         &.cv_from_fund := method (NumUnit $x --> Num) {
-                My Num $f = checkunit($x.unit);
+                My Num $f = $.checkunit($x.unit);
                 return from_fund($x) / $f;
             };
     }
@@ -43,6 +43,37 @@ class Unitdef {
         die "Nonlinear conversion from wrong unit: { %def1 } should be: { %def2 }\n"
             if %def1 !eqv %def2;
         return $f1 / $f2;
+    }
+}
+
+class StrUnitdef is Unitdef {
+    has method &.cv_to_fund(Str, NumUnit --> Num);
+    has method &.cv_from_fund(Str, NumUnit --> Num);
+
+    multi submethod BUILD(Num :%def) {
+        %.fund_units = $.defreduce(%def);
+        $.is_linear = True;
+    }
+
+    multi submethod BUILD(Num :$num) {
+        %.fund_units = { :factor($num) };
+        $.is_linear = True;
+    }
+
+    multi submethod BUILD(Num :%def, Num :%input,
+        Code :&to_fund:(Str, Num --> Num), Code :&from_fund:(Str, Num --> Num)) {
+
+        $.is_linear = False;
+        %.fund_units = $.defreduce(%def);
+        %.input_units = $.defreduce(%input);
+        &.cv_to_fund :=   method (Str $s, NumUnit $x --> Num) {
+                My Num $f = $.checkunit($x.unit);
+                return to_fund($s, $x) * $f;
+            };
+        &.cv_from_fund := method (Str $s, NumUnit $x --> Num) {
+                My Num $f = $.checkunit($x.unit);
+                return from_fund($s, $x) / $f;
+            };
     }
 }
 
@@ -260,140 +291,6 @@ grammar UnitsGeneric {
         ]
         { $<def> = $<unitdef><def> }
     }
-}
-
-grammar UnitsDat is UnitsGeneric {
-    # This is a grammar for the units(1) units.dat database
-
-    rule TOP {
-        [ ^^
-            [ <?fundamental_unit> | <?unit> | <?nl_unit> | <?nl_piecewise> | <?prefix> ]?
-            <?comment>?
-        $$ ]*
-    }
-    
-    # Multiplication is implied by whitespace in units.dat
-    # but * can be used also, just treat it as whitespace
-    token ws { \h+ | \h* '*' \h* }
-    token m := &ws;
-
-    # powers are done with ^
-    token p { '^' }
-
-    token comment { '#' \N* }
-
-    # funny 1|2 fraction syntax
-    rule fraction {
-        $<numerator> := [\d+] '|' $<denominator> := [\d+]
-        { $<num> = $<numerator> / $<denominator> }
-    }
-
-    token fundamental_unit {
-        $<unit> := [\S+] \h+ '!' [ dimensionless { $<nodim> := True } ]?
-        {
-            @.units.push: $<unit>;
-            if($<nodim>) {
-                @.fund_unitless.push: $<unit>;
-            } else {
-                @.fund_units.push: $<unit>;
-            }
-        }
-    }
-
-    token prefix {
-        $<name> := [\S+] '-' \h+ <number>
-        {
-            @.prefixes.push: $<name>;
-            %.unitsdef{$<name>} = Unitdef.new(num => $<number><num>);
-        }
-    }
-
-    token unit {
-        $<name> := [ <+[\S]-[-]>+ ] \h+ <unitdef>
-        {
-            @.units.push: $<name>;
-            %.unitsdef{$<name>} = Unitdef.new(def => $<unitdef><def>);
-        }
-    }
-
-    token backslash { '\\' \h* <?comment>? \h* "\n" }
-
-    rule nl_piecewise {
-        $<name> := [ <+[\S]-['[]']>+ ]
-        '[' <unitdef> ']' <?backslash>?
-        { $<def> := $<unitdef><def> }
-        [ @<from> := <number> @<to> := <number>
-            [ <?backslash> | ',' ]
-        ]+
-        {
-            @.units.push: $<name>;
-            @.nl_units.push: $<name>;
-            @<from>».=<num>;
-            @<to>».=<num>;
-            if @<from>[0] > @<from>[*-1] {
-                @<from>.=reverse;
-                @<to>.=reverse;
-            }
-            die "Domain not monotonic: { @<from> }\n";
-                if ![<] @<from>;
-            $<to_closure> := sub (Num $x --> Num) {
-                if $x !~~ @<from>[0] .. @<from>[*-1] {
-                    warn "Arg $x not in domain @<from>[0] .. @<from>[*-1]\n";
-                    return undef;
-                }
-                loop(my Int $i = 0; $i < @<from> - 1; $i++ {
-                    if @<from>[$i] <= $x < @<from>[$i + 1] {
-                        return @<to>[$i] + ($x - @<from>[$i]) * (@<to>[$i + 1] - @<to>[$i]);
-                    }
-                }
-                return @<to>[*-1];
-            }
-            if @<to>[0] > @<to>[*-1] {
-                @<from>.=reverse;
-                @<to>.=reverse;
-            }
-            die "Domain not monotonic: { @<to> }\n";
-                if ![<] @<to>;
-            $<from_closure> := sub (Num $x --> Num) {
-                if $x !~~ @<to>[0] .. @<to>[*-1] {
-                    warn "Arg $x not in domain @<to>[0] .. @<to>[*-1]\n";
-                    return undef;
-                }
-                loop(my Int $i = 0; $i < @<to> - 1; $i++ {
-                    if @<to>[$i] <= $x < @<to>[$i + 1] {
-                        return @<from>[$i] + ($x - @<to>[$i]) * (@<from>[$i + 1] - @<from>[$i]);
-                    }
-                }
-                return @<from>[*-1];
-            }
-            %.unitsdef{$<name>} = Unitdef.new(def => $<out_def>, input => $<in_def>,
-                to_fund => $<to_closure>, from_fund => $<from_closure>);
-        }
-    }
-
-    rule nl_unit {
-        $<name> := [ <+[\S]-[(]>+ ]
-        '(' $<var> := [ <+[\S]-[)]>+ ] ')'
-        [ '[' $<indef> := <unitdef>? ';' $<outdef> := <unitdef>? ']' ]?
-        {
-            $<in_def>  := $<indef><def> // { :factor };
-            $<out_def> := $<outdef><def> // { :factor };
-        }
-        $<todef> := <nl_expr($<var>, $<in_def>)>
-        ';'
-        $<fromdef> := <nl_expr($<name>, $<out_def>)>
-        {
-            die "Nonlinear input unit: { $<todef><def> } should be: { $<in_def> }\n"
-                if !$.defeqv($<todef><def>, $<in_def>);
-            die "Nonlinear output unit: { $<fromdef><def> } should be: { $<out_def> }\n"
-                if !$.defeqv($<fromdef><def>, $<out_def>);
-            @.units.push: $<name>;
-            @.nl_units.push: $<name>;
-            %.unitsdef{$<name>} = Unitdef.new(def => $<out_def>, input => $<in_def>,
-                to_fund => $<todef><closure>, from_fund => $<fromdef><closure>);
-        }
-
-    }
 
     rule nl_paren(Str $var, Num %def) {
         '(' <nl_expr($var, %def)> ')' {
@@ -547,12 +444,154 @@ grammar UnitsDat is UnitsGeneric {
     }
 }
 
+grammar UnitsDat is UnitsGeneric {
+    # This is a grammar for the units(1) units.dat database
+
+    rule TOP {
+        [ ^^
+            [ <?fundamental_unit> | <?unit> | <?nl_unit> | <?nl_piecewise> | <?prefix> ]?
+            <?comment>?
+        $$ ]*
+    }
+    
+    # Multiplication is implied by whitespace in units.dat
+    # but * can be used also, just treat it as whitespace
+    token ws { \h+ | \h* '*' \h* }
+    token m := &ws;
+
+    # powers are done with ^
+    token p { '^' }
+
+    token comment { '#' \N* }
+
+    # funny 1|2 fraction syntax
+    rule fraction {
+        $<numerator> := [\d+] '|' $<denominator> := [\d+]
+        { $<num> = $<numerator> / $<denominator> }
+    }
+
+    token fundamental_unit {
+        $<unit> := [\S+] \h+ '!' [ dimensionless { $<nodim> := True } ]?
+        {
+            @.units.push: $<unit>;
+            if($<nodim>) {
+                @.fund_unitless.push: $<unit>;
+            } else {
+                @.fund_units.push: $<unit>;
+            }
+        }
+    }
+
+    token prefix {
+        $<name> := [\S+] '-' \h+ <number>
+        {
+            @.prefixes.push: $<name>;
+            %.unitsdef{$<name>} = Unitdef.new(num => $<number><num>);
+        }
+    }
+
+    token unit {
+        $<name> := [ <+[\S]-[-]>+ ] \h+ <unitdef>
+        {
+            @.units.push: $<name>;
+            %.unitsdef{$<name>} = Unitdef.new(def => $<unitdef><def>);
+        }
+    }
+
+    token backslash { '\\' \h* <?comment>? \h* "\n" }
+
+    rule nl_piecewise {
+        $<name> := [ <+[\S]-['[]']>+ ]
+        '[' <unitdef> ']' <?backslash>?
+        { $<def> := $<unitdef><def> }
+        [ @<from> := <number> @<to> := <number>
+            [ <?backslash> | ',' ]
+        ]+
+        {
+            @.units.push: $<name>;
+            @.nl_units.push: $<name>;
+            @<from>».=<num>;
+            @<to>».=<num>;
+            if @<from>[0] > @<from>[*-1] {
+                @<from>.=reverse;
+                @<to>.=reverse;
+            }
+            die "Domain not monotonic: { @<from> }\n";
+                if ![<] @<from>;
+            $<to_closure> := sub (Num $x --> Num) {
+                if $x !~~ @<from>[0] .. @<from>[*-1] {
+                    warn "Arg $x not in domain @<from>[0] .. @<from>[*-1]\n";
+                    return undef;
+                }
+                loop(my Int $i = 0; $i < @<from> - 1; $i++ {
+                    if @<from>[$i] <= $x < @<from>[$i + 1] {
+                        return @<to>[$i] + ($x - @<from>[$i]) * (@<to>[$i + 1] - @<to>[$i]);
+                    }
+                }
+                return @<to>[*-1];
+            }
+            if @<to>[0] > @<to>[*-1] {
+                @<from>.=reverse;
+                @<to>.=reverse;
+            }
+            die "Domain not monotonic: { @<to> }\n";
+                if ![<] @<to>;
+            $<from_closure> := sub (Num $x --> Num) {
+                if $x !~~ @<to>[0] .. @<to>[*-1] {
+                    warn "Arg $x not in domain @<to>[0] .. @<to>[*-1]\n";
+                    return undef;
+                }
+                loop(my Int $i = 0; $i < @<to> - 1; $i++ {
+                    if @<to>[$i] <= $x < @<to>[$i + 1] {
+                        return @<from>[$i] + ($x - @<to>[$i]) * (@<from>[$i + 1] - @<from>[$i]);
+                    }
+                }
+                return @<from>[*-1];
+            }
+            %.unitsdef{$<name>} = Unitdef.new(def => $<out_def>, input => $<in_def>,
+                to_fund => $<to_closure>, from_fund => $<from_closure>);
+        }
+    }
+
+    rule nl_unit {
+        $<name> := [ <+[\S]-[(]>+ ]
+        '(' $<var> := [ <+[\S]-[)]>+ ] ')'
+        [ '[' $<indef> := <unitdef>? ';' $<outdef> := <unitdef>? ']' ]?
+        {
+            $<in_def>  := $<indef><def> // { :factor };
+            $<out_def> := $<outdef><def> // { :factor };
+        }
+        $<todef> := <nl_expr($<var>, $<in_def>)>
+        ';'
+        $<fromdef> := <nl_expr($<name>, $<out_def>)>
+        {
+            die "Nonlinear input unit: { $<todef><def> } should be: { $<in_def> }\n"
+                if !$.defeqv($<todef><def>, $<in_def>);
+            die "Nonlinear output unit: { $<fromdef><def> } should be: { $<out_def> }\n"
+                if !$.defeqv($<fromdef><def>, $<out_def>);
+            @.units.push: $<name>;
+            @.nl_units.push: $<name>;
+            %.unitsdef{$<name>} = Unitdef.new(def => $<out_def>, input => $<in_def>,
+                to_fund => $<todef><closure>, from_fund => $<fromdef><closure>);
+        }
+
+    }
+}
+
 grammar UnitsPerl is UnitsGeneric {
     # This is envisioned as a grammar to parse unit specifications
     # in Perl source code e.g. $foo.:as<m/s**2> (conjectured syntax)
-    rule TOP {
+    rule linear {
         <unitdef>
-        { $<def> = $<unitdef><def> }
+        { $<def> := $<unitdef><def> }
+    }
+
+    rule nonlinear {
+        <nl_expr('x', { :factor })>
+        {
+            $<def> := $<nl_expr><def>;
+            $<closure> := $<nl_expr><closure>;
+        }
     }
 
     # Expects to have these attributes available:
@@ -639,6 +678,14 @@ role GenericUnit {
         %.unitsdef{$name} = Unitdef.new(:%def, :%input, :&to_fund, :&from_fund);
     }
 
+    method add_nl_str_unit(Str $name, Num %def, Num %input,
+        Code :&to_fund:(Str, Num --> Num), Code :&from_fund:(Str, Num --> Num)) {
+
+        @.units.push: $name;
+        @.nl_units.push: $name;
+        %.unitsdef{$name} = StrUnitdef.new(:%def, :%input, :&to_fund, :&from_fund);
+    }
+
     # reduce a unit definition to fundamental units
     method defreduce(Num %def is copy --> Hash of Num) {
         until all(%def.k) eq any('factor', @.fund_units, @.fund_unitless) {
@@ -704,6 +751,19 @@ role NumUnit does GenericUnit {
 
     }
 
+    method unit_convert(Num $n, Str $unitspec --> Hash of Num) {
+        if $unitspec ~~ /<UnitsPerl::linear>/ {
+            return $<def>;
+        }
+        if $unitspec ~~ /<UnitsPerl::nonlinear>/ {
+            my Num %def = $<def>;
+            %def<factor> *= $<closure>.($n);
+            return %def;
+        }
+        warn "Couldn't parse $unitspec\n";
+        return undef;
+    }
+
     # Define:
     # $foo.:as<m/s**2>
     # 2.:as<graphs>
@@ -711,10 +771,7 @@ role NumUnit does GenericUnit {
     multi method :as(Num $self: Str $unitspec --> NumUnit) {
         $self does NumUnit;
         $.name = $unitspec;
-        if ! $unitspec ~~ /<UnitsPerl>/ {
-            die "Couldn't parse $unitspec\n";
-        }
-        %.unit = $.defreduce($<def>);
+        %.unit = $.defreduce($.unit_convert($self, $unitspec));
         return self;
     }
 
@@ -723,10 +780,16 @@ role NumUnit does GenericUnit {
     # (4.:as<bits> * 2.5.:as<GHz>).:as<ns/(1500*bytes)>
     #XXX handle nonlinear units
     multi method :as(NumUnit $self: Str $unitspec --> NumUnit) {
-        if ! $unitspec ~~ /<UnitsPerl>/ {
-            die "Couldn't parse $unitspec\n";
+        # can't use unit_convert directly, we have to save
+        # the closure for after we do the base conversion
+        if $unitspec ~~ /<UnitsPerl::linear>/ {
+            my Num %to_unit = $.defreduce($<def>);
         }
-        my Num %to_unit = $.defreduce($<def>);
+        if $unitspec ~~ /<UnitsPerl::nonlinear>/ {
+            my Num %to_unit = $<def>;
+        }
+        die "Couldn't parse $unitspec\n"
+            if !defined %to_unit;
         my Num %from_unit = %.unit;
         my $from_factor = %from_unit.:delete<factor>;
         my $to_factor = %to_unit.:delete<factor>;
@@ -744,23 +807,26 @@ role NumUnit does GenericUnit {
         $.name = $unitspec;
         %.unit = %to_unit;
         %.unit<factor> = $from_factor / $to_factor;
+        if defined $<closure> {
+            %.unit<factor> *= $<closure>.(+$self);
+        }
         return self;
     }
 
     #XXX I think NumUnits should numify to include their .unit<factor>
     #    That would allow things like ^3.:as<-2> # (0, -2. -4)
     #    That can already be done, but nonlinear units could
-    #    allow e.g. ^3.:as<log10scale> # (1, 10, 100)
+    #    allow e.g. ^3.:as<~log10scale(x)> # (1, 10, 100)
     #    How is Numification specified?
-    #XXX handle nonlinear units
     multi *prefix<+>(NumUnit $n --> Num) {
         return $n * $n.unit<factor>;
     }
 
     # Stringify to include unit name
     multi *prefix<~>(NumUnit $n --> Str) {
-        $n.name ~~ /<UnitsPerl>/;
-        my Num $nb = +$n / $<def><factor>;
+        # This should avoid defreduce
+        my Num %def = unit_convert($n, $n.name)
+        my Num $nb = +$n / %def<factor>;
         return "$nb $n.name()";
     }
 
@@ -880,11 +946,29 @@ role StrDispUnit does GenericUnit {
     # on StrPos and StrLen objects in arbitrary Unicode units.
     $.add_fund_unit: 'bit';
     $.add_unit: 'byte', { :bit :factor(8) };
-    $.add_unit: 'code', ...;
+    $.add_nl_str_unit: 'code', { :bit :factor }, { :bit :factor },
+        to_fund => &code_to_bit, from_fund => &bit_to_code;
     $.add_unit: 'codepoint', 'code';
-    $.add_unit: 'graph', ...;
+    $.add_nl_str_unit: 'graph', { :bit :factor }, { :bit :factor },
+        to_fund => &graph_to_bit, from_fund => &bit_to_graph;
     $.add_unit: 'grapheme', 'graph';
     ...
+    }
+
+    method code_to_bit(Str $s, Num $nc -->Num) {
+        return substr($s, 0, $nc.:as<code>).bytes * 8;
+    }
+
+    method graph_to_bit(Str $s, Num $ng -->Num) {
+        return substr($s, 0, $ng.:as<graph>).bytes * 8;
+    }
+
+    method bit_to_code(Str $s, Num $nb -->Num) {
+        return substr($s, 0, ($nb*8).:as<byte>).codes;
+    }
+
+    method bit_to_graph(Str $s, Num $nb -->Num) {
+        return substr($s, 0, ($nb*8).:as<byte>).graphs;
     }
     ...
 }
