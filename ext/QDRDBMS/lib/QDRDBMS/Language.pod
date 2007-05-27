@@ -170,14 +170,13 @@ RDBMS to varying degrees.
 =item sequence
 
 Within ths documentation, a I<sequence> generically refers to an ordered
-collection of 0..N elements that is conceptually one-dimensional, though
-its elements can be arbitrarily complex.  The term I<array> is not used in
-this documentation because that word's actual meaning is more broad, and
-includes both N-dimensional matricies plus unordered collections of
-name-value pairs.  Note that a sequence may be used simply to maintain a
-simple list in order, though the actual order of its elements may not
-always be significant.  Sometimes I<sequence> also refers specifically to
-the C<Seq> data type, which is a certain binary relation.
+collection of 0..N elements.  The term I<array> is not used in this
+documentation because that word's actual meaning is more broad, and
+includes both matricies plus unordered collections of name-value pairs.
+Note that a sequence may be used simply to maintain a simple collection in
+order, though the actual order of its elements may not always be
+significant.  Sometimes I<sequence> also refers specifically to the C<Seq>
+data type, which is a particular binary relation.
 
 =item selector
 
@@ -222,19 +221,34 @@ tuple whose heading is the same as the relation's but does not appear in
 the relation body, its proposition is deemed to be false.  This assumption
 is known as the I<closed world assumption>.
 
-=head2 In Terms of Boolean Expressions
+The relational model specifies that data is operated on by means of a
+relational calculus or a relational algebra.  These 2 are logically
+equivalent; for any expression in the relational calculus, there is an
+equivalent one in the relational algebra, and vice versa.  Relational
+algebra, an offshot of first-order logic, is a set of relations closed
+under operators; each operator takes N relations as arguments and results
+in a relation.  While the relational algebra provides a more procedural way
+for specifying database queries, in contrast the relational calculus
+provides a more declarative way for specifying queries.
 
-It may sometimes be helpful for practitioners to conceptualize a relation
-as a long boolean expression, consisting of a string of basic
-boolean-valued expressions that are selectively anded or ored together.  A
-basic boolean-valued expression, C<< <attr> >>, takes the form C<<
-attribute <name> is <value> >>.  Each tuple body, C<< <tuple> >>, in the
-relation takes the form of a chained C<and> that connects N C<< <attr> >>,
-one per each attribute in the relation, and each having a distinct C<<
-<name> >>.  The relation body takes the form of a chained C<or> that
-connects N C<< <tuple> >>, one per each tuple in the relation, and each C<<
-<tuple> >> has the same set of C<< <name> >> as the others, but the set of
-C<< <value> >> that each C<< <tuple> >> has is distinct.
+=head2 Mechanics of Some Relational Operations
+
+This documentation section takes a very informal (and possibly blatantly
+incorrect) alternate approach to describing the nature of relations,
+tuples, and attributes, within the context of explaining the mechanics of
+how some relational operations work in practice.
+
+Herein, we shall conceptualize a relation as a long boolean expression,
+consisting of a string of basic boolean-valued expressions that are
+selectively anded or ored together.  A basic boolean-valued expression, C<<
+<attr> >>, takes the form C<< attribute <name> is <value> >>.  Each tuple
+body, C<< <tuple> >>, in the relation takes the form of a chained C<and>
+that connects N C<< <attr> >>, one per each attribute in the relation, and
+each having a distinct C<< <name> >>.  The relation body takes the form of
+a chained C<or> that connects N C<< <tuple> >>, one per each tuple in the
+relation, and each C<< <tuple> >> has the same set of C<< <name> >> as the
+others, but the set of C<< <value> >> that each C<< <tuple> >> has is
+distinct.
 
 Take, for example, a relation having some details about people, where each
 attribute is a type of detail and each tuple has details for one person:
@@ -264,9 +278,101 @@ Or a multi-relation example involving suppliers, foods, and shipments:
     or farm is Beckers   and food is Bananas and qty is 120
     or farm is Wickets   and food is Lemons  and qty is 30
 
-=head2 Relational Operations in Those Terms
+Now a very simple pair of relations:
 
-I<This documentation is pending.>
+       x is 4 and y is 7
+    or x is 3 and y is 2
+
+       y is 5 and z is 6
+    or y is 2 and z is 1
+    or y is 2 and z is 4
+
+So now will be briefly introduced a few common fundamental relational
+operations, that are projection, join, union.
+
+A projection of a relation derives a relation that has a subset of the
+original's attributes, and all of its tuples.  Continuing the boolean
+expression analogy, the projected relation contains fewer C<< and <attr> >>
+than the original.  For example, lets take the projection of the C<food>
+column from the shipments relation, to get, initially:
+
+       food is Kiwis
+    or food is Lemons
+    or food is Oranges
+    or food is Carrots
+    or food is Carrots
+    or food is Bananas
+    or food is Lemons
+
+Now, the above expression can be simplified because it now contains
+redundancies, and the simplified version is logically identical:
+
+       food is Kiwis
+    or food is Lemons
+    or food is Oranges
+    or food is Carrots
+    or food is Bananas
+
+So this projected relation has 5 tuples rather than the original 7, and
+saving logical redundancy is why relations never have duplicate tuples.
+
+A join of 2 relations derives a relation that has all of the originals'
+attributes, and its set of tuples is fundamentally the cartesian product of
+those of the originals.  Following our boolean analogy, we start off by
+pairwise connecting instances of every C<< <tuple> >> of the first relation
+with instances of every C<< <tuple> >> of the second one, with the members
+of each pair then being chained together with C<and> to form a single,
+longer chain of C<and>.  Note that join is commutative, so it doesn't
+matter which of the source relations is first or second, the result is the
+same, as much as C<foo and bar> is the same as C<bar and foo>.  For
+example, lets do a join of our 2 simplest relations:
+
+       x is 4 and y is 7 and y is 5 and z is 6
+    or x is 4 and y is 7 and y is 2 and z is 1
+    or x is 4 and y is 7 and y is 2 and z is 4
+    or x is 3 and y is 2 and y is 5 and z is 6
+    or x is 3 and y is 2 and y is 2 and z is 1
+    or x is 3 and y is 2 and y is 2 and z is 4
+
+Now, when multiple relations are connected into one such as with a join,
+the relational model assumes that if either of the sources have attributes
+with the same names as each other, then they are both describing the same
+things.  In this case, the references to attribute C<y> from both relations
+are talking about the same C<y>.  And so, any result tuples that contradict
+themselves, saying that C<y> equals both one value and equals a different
+one, can't ever be true and are eliminated; only the tuples where the C<y>
+value is identical are kept:
+
+       x is 3 and y is 2 and y is 2 and z is 1
+    or x is 3 and y is 2 and y is 2 and z is 4
+
+Moreover, this expression can be simplified by removing the redundant C<y>
+attribute:
+
+       x is 3 and y is 2 and z is 1
+    or x is 3 and y is 2 and z is 4
+
+All attributes in a relation have distinct names.  And if there were any
+identical tuples, the redundant ones would be eliminated.
+
+A join operation has several trivializing scenarios.  If the 2 source
+relations have no attribute names in common, the result is simply the
+cartesian product.  If the 2 sources have all their attribute names in
+common, the result is the common subset or intersection of their existing
+sets of tuples.  If one source has all the attributes of the other, but the
+reverse isn't true, then the result is a subset of tuples from the relation
+that has more attributes; this is a semijoin.
+
+A union of 2 relations, which requires that the 2 relations have the same
+headings, derives another relation with the same heading, and a union of
+the two's set of tuples as its body, with any duplicates eliminated.  In
+terms of our boolean analogy, a union is simply chaining together the
+entirety of each relation's boolean expression with an C<or>, and then
+eliminating redundancies from the result.
+
+A full list of all the relational operators having more formal (but QDRDBMS
+D specific) descriptions occurs further below in this document; that list
+does I<not> use the aforementioned boolean analogies.
 
 =head1 QDRDBMS D
 
@@ -452,9 +558,9 @@ structure are in fact the same type, by definition, regardless of whether
 they were defined independently of each other or not.
 
 A quasi-nonscalar type is the same as a nonscalar type as far as the means
-of identifying it go (by its structure, not by its name), but that certain
-kinds of components are permitted in quasi-nonscalar types that aren't
-permitted in nonscalar types (and aren't permitted in scalar types).
+of identifying it go (by its structure, not by its name), but that
+particular kinds of components are permitted in quasi-nonscalar types that
+aren't permitted in nonscalar types (and aren't permitted in scalar types).
 
 =head2 Scalar Types
 
@@ -467,8 +573,8 @@ and usually at least one I<accessor> or I<the> operator.
 
 A I<possrep> of a type is an exhaustively complete means for users to
 conceptualize the structure of the type; it is like a "role" or "interface
-definition.  A possrep has the appearance of a complete list of (zero or
-more) named object attributes (of any scalar or nonscalar type) that the
+definition.  A possrep has the appearance of a complete collection of (zero
+or more) named object attributes (of any scalar or nonscalar type) that the
 type could logically be implemented as, and users can use it as if it
 actually was implemented that way, but without the requirement that the
 type actually is implemented that way.  If a type has multiple possreps,
@@ -497,7 +603,7 @@ Taking for example a "medium polygon" data type, there could be a
 constraint that the area of the polygon is between 5 and 10 units.
 
 Each possrep comprises exactly one selector operator whose named parameter
-list exactly matches that possrep's list of named attributes, and you
+set exactly matches that possrep's set of named attributes, and you
 select a value of the type by invoking the selector with a full set of
 values for the possible attributes.  Each possrep also comprises an
 accessor operator for each of its attributes, with which users can extract
@@ -544,19 +650,20 @@ all, and hence has no selectors or accessors defined for it.
 
 =head2 Tuple Types and Relation Types
 
-Tuple types are the fundamental heterogeneous nonencapsulated collection
-types in QDRDBMS D, and are like the Pascal language's concept of a record,
-or the C language's concept of a struct.  The definition of a tuple type
-comprises a list of zero or more named I<attributes> of any scalar or
-nonscalar type.  This list definition is called the tuple's I<heading>.
+Tuple types are the fundamental heterogeneous conceptually nonencapsulated
+collection types in QDRDBMS D, and are like the Pascal language's concept
+of a record, or the C language's concept of a struct.  The definition of a
+tuple type comprises a set of zero or more named I<attributes> of any
+scalar or nonscalar type.  This set definition is called the tuple's
+I<heading>.
 
-Relation types are the fundamental homogeneous nonencapsulated collection
-types in QDRDBMS D, and are like other languages' concepts of sets (or
-arrays where all elements are distinct), but restricted in that all
-elements are tuples.  The definition of a relation type looks exactly like
-the definition of a tuple type (such that a relation has a I<heading> even
-if it has no tuples), but that the definition defines every tuple
-in the relation, and also but that relation types can additionally have
+Relation types are the fundamental homogeneous conceptually nonencapsulated
+collection types in QDRDBMS D, and are like other languages' concepts of
+sets (or arrays where all elements are distinct), but restricted in that
+all elements are tuples.  The definition of a relation type looks exactly
+like the definition of a tuple type (such that a relation has a I<heading>
+even if it has no tuples), but that the definition defines every tuple in
+the relation, and also but that relation types can additionally have
 I<keys> defined which indicate that a subset of its attributes' values are
 distinct between all tuples in the relation.
 
@@ -565,10 +672,10 @@ relation types, so they do not need to be defined per such type.
 
 The system-defined types C<Tuple> and C<Relation> (and their system-defined
 subtypes) are technically generic factory types, such that they themselves
-do not define any attribute lists, and are supertypes of all tuple and
+do not define any attribute sets, and are supertypes of all tuple and
 relation types that do.  Beyond this special case, a pair of tuple or
 relation types can only have a subtype/supertype relationship if they have
-compatible headings, which means the attribute lists are of the same
+compatible headings, which means the attribute sets are of the same
 degree, the attribute names are identical, and the namewise corresponding
 attributes in each heading have a valid subtype/supertype relationship;
 each attribute of a tuple or relation subtype is a subtype of the
@@ -582,7 +689,7 @@ variables and routine parameters, but they can not be used as the declared
 types of scalar possrep or nonscalar (tuple or relation) attributes.  The
 declared type of each of the latter must be either a scalar type, or a
 specific tuple or relation subtype (meaning tuple or relation types that
-have specific attribute lists defined for them).
+have specific attribute sets defined for them).
 
 If all data types were scalar or nonscalar, then it would not be possible
 to define operators with N-ary parameters whose declared types are any of
@@ -598,7 +705,7 @@ Quasi-tuple types and quasi-relation types exist as a solution to this
 problem, such that the I<quasi-heading> of one is allowed to include
 attributes whose declared types are any type at all, including the union
 types C<Universal>, C<Tuple>, C<Relation>, C<QuasiTuple>, C<QuasiRelation>,
-and subtypes of tuple and relation without specific attribute lists.
+and subtypes of tuple and relation without specific attribute sets.
 
 This said, the situations in which quasi-nonscalar types may be used are
 limited; only quasi-nonscalar types may have quasi-nonscalar types as
@@ -765,11 +872,11 @@ by "statements" (which are grouped into "routines").
 =head1 ROUTINES
 
 There are several kinds of QDRDBMS routines, each of which is intended for,
-and in many cases only permitted to be used for, certain tasks.  Note that
-for all QDRDBMS routines which have parameters, they are all named rather
-than positional parameters; in the case of N-ary routines, the N similar
-argument values come by way of a single nonscalar (or, if necessary,
-quasi-nonscalar) typed parameter.
+and in many cases only permitted to be used for, particular tasks.  Note
+that for all QDRDBMS routines which have parameters, they are all named
+rather than positional parameters; in the case of N-ary routines, the N
+similar argument values come by way of a single nonscalar (or, if
+necessary, quasi-nonscalar) typed parameter.
 
 =over
 
@@ -1035,9 +1142,9 @@ mount more than one repository at a time under the same virtual machine
 synchronized); by doing one of those two actions, a less capable
 implementation can still be considered reliable and recommendable.>
 
-Certain QDRDBMS D commands can not be executed within the context of a
-parent transaction; in other words, they can only be executed directly by
-an anonymous routine, the main examples being those that mount or unmount a
+Some QDRDBMS D commands can not be executed within the context of a parent
+transaction; in other words, they can only be executed directly by an
+anonymous routine, the main examples being those that mount or unmount a
 persistent repository; this is because such a change in the environment
 mid-transaction would result in an inconsistent state.
 
@@ -1153,8 +1260,8 @@ conceptual values.  Unlike with scalar types in general, every
 system-defined selector for nonscalar values will result in values that are
 of proper subtypes of the 2 nonscalar root types (the first 2), and none
 whose most specific type is "just" one of those 2.  Moreover, every such
-most-specific type has explicit element types or attribute lists defined;
-there are no nonscalar values where the element types or attribute lists
+most-specific type has explicit element types or attribute sets defined;
+there are no nonscalar values where the element types or attribute sets
 are undefined.  For all nonscalar types, their cardinality is mainly or
 wholly dependent on the data types they are composed of.
 
@@ -1646,7 +1753,7 @@ entities, including data types, operators, and all catalogs.
 
 These are some system-defined constants that hold values commonly useful in
 user-defined routines; providing the constants this way is an alternative
-to defining niladic functions which result in them.  Moreover, certain
+to defining niladic functions which result in them.  Moreover, some
 system-defined functions that do have arguments may also or alternately
 have analagous 2+ degree relcons here for use as lookup tables.
 
