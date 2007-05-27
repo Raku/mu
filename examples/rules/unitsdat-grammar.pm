@@ -548,7 +548,7 @@ grammar UnitsDat is UnitsGeneric {
                 }
                 return @<from>[*-1];
             }
-            %.unitsdef{$<name>} = Unitdef.new(def => $<out_def>, input => $<in_def>,
+            %.unitsdef{$<name>} = Unitdef.new(def => $<def>, input => { :factor },
                 to_fund => $<to_closure>, from_fund => $<from_closure>);
         }
     }
@@ -688,15 +688,15 @@ role GenericUnit {
 
     # reduce a unit definition to fundamental units
     method defreduce(Num %def is copy --> Hash of Num) {
-        until all(%def.k) eq any('factor', @.fund_units, @.fund_unitless) {
-            for %def.kv -> my Str $u, my Num $p {
-                next if $u eq any('factor', @.fund_units, @.fund_unitless);
-                %def.:delete{$u};
-                %def<factor> *= %.unitsdef{$u}.fund_units<factor> ** $p;
-                for %.unitsdef{$u}.fund_units.kv -> my Str $cu, my Num $cp {
-                    next if $cu eq 'factor';
-                    %def{$cu} += $cp * $p;
-                }
+        die "defreduce shouldn't get nonlinear units: { %def }\n"
+            if any(%def.k) eq any(@.nl_units);
+        for %def.kv -> my Str $u, my Num $p {
+            next if $u eq any('factor', @.fund_units, @.fund_unitless);
+            %def.:delete{$u};
+            %def<factor> *= %.unitsdef{$u}.fund_units<factor> ** $p;
+            for %.unitsdef{$u}.fund_units.kv -> my Str $cu, my Num $cp {
+                next if $cu eq 'factor';
+                %def{$cu} += $cp * $p;
             }
         }
         return %def;
