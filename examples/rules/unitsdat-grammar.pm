@@ -2,27 +2,47 @@ module Units;
 
 class Unitdef {
     has Num %.fund_units;
-    has method &.cv_to_fund(Num --> Num);
-    has method &.cv_from_fund(Num --> Num);
+    has Bool $.is_linear;
+    # For nonlinear units only
+    has Num %.input_units
+    #XXX should this just be (Num --> Num), and typechecking done
+    #    in the grammar with defeqv instead of here with checkunit?
+    has method &.cv_to_fund(NumUnit --> Num);
+    has method &.cv_from_fund(NumUnit --> Num);
 
     multi submethod BUILD(Num :%def) {
         %.fund_units = defreduce(%def);
-        &.cv_to_fund :=   method (Num $x --> Num) { return $x };
-        &.cv_from_fund := method (Num $x --> Num) { return $x };
+        $.is_linear = True;
     }
 
     multi submethod BUILD(Num :$num) {
         %.fund_units = { :factor($num) };
-        &.cv_to_fund :=   method (Num $x --> Num) { return $x };
-        &.cv_from_fund := method (Num $x --> Num) { return $x };
+        $.is_linear = True;
     }
 
-    multi submethod BUILD(Num :%def,
+    multi submethod BUILD(Num :%def, Num :%input,
         Code :&to_fund:(Num --> Num), Code :&from_fund:(Num --> Num)) {
 
+        $.is_linear = False;
         %.fund_units = defreduce(%def);
-        &.cv_to_fund :=   method (Num $x --> Num) { return to_fund($x) };
-        &.cv_from_fund := method (Num $x --> Num) { return from_fund($x) };
+        %.input_units = defreduce(%input);
+        &.cv_to_fund :=   method (NumUnit $x --> Num) {
+                My Num $f = checkunit($x.unit);
+                return to_fund($x) * $f;
+            };
+        &.cv_from_fund := method (NumUnit $x --> Num) {
+                My Num $f = checkunit($x.unit);
+                return from_fund($x) / $f;
+            };
+    }
+
+    method checkunit(Num %def1 is copy) {
+        my Num %def2 = %.input_units;
+        my Num $f1 = %def1.:delete<factor>;
+        my Num $f2 = %def2.:delete<factor>;
+        die "Nonlinear conversion from wrong unit: { %def1 } should be: { %def2 }\n"
+            if %def1 !eqv %def2;
+        return $f1 / $f2;
     }
 }
 
@@ -35,6 +55,9 @@ grammar UnitsGeneric {
     #
     # A list of all unit prefixes (defined in %.unitsdef)
     # Str @.prefixes
+    #
+    # A list of all nonlinear units
+    # Str @.nl_units
     #
     # Definitions of all derived units (and prefixes)
     # in terms of fundamental units (which do not appear)
@@ -227,11 +250,10 @@ grammar UnitsGeneric {
 
 grammar UnitsDat is UnitsGeneric {
     # This is a grammar for the units(1) units.dat database
-    # TODO: parse nonlinear unit definitions
 
     rule TOP {
         [ ^^
-            [ <?fundamental_unit> | <?unit> | <?prefix> ]?
+            [ <?fundamental_unit> | <?unit> | <?nl_unit> | <?prefix> ]?
             <?comment>?
         $$ ]*
     }
@@ -279,6 +301,181 @@ grammar UnitsDat is UnitsGeneric {
             %.unitsdef{$<name>} = Unitdef.new(def => $<unitdef><def>);
         }
     }
+
+    rule nl_unit {
+        $<name> := [ <+[\S]-[(]>+ ]
+        '(' $<var> := [ <+[\S]-[)]>+ ] ')'
+        [ '[' $<indef> := <unitdef>? ';' $<outdef> := <unitdef>? ']' ]?
+        {
+            $<in_def>  := $<indef><def> // { :factor };
+            $<out_def> := $<outdef><def> // { :factor };
+        }
+        $<todef> := <nl_varunitdef($<var>, $<in_def>)>
+        ';'
+        $<fromdef> := <nl_varunitdef($<name>, $<out_def>)>
+        {
+            die "Nonlinear input unit: { $<todef><def> } should be: { $<in_def> }\n"
+                if !$.defeqv($<todef><def>, $<in_def>);
+            die "Nonlinear output unit: { $<fromdef><def> } should be: { $<out_def> }\n"
+                if !$.defeqv($<fromdef><def>, $<out_def>);
+            @.units.push: $<name>;
+            @.nl_units.push: $<name>;
+            %.unitsdef{$<name>} = Unitdef.new(def => $<out_def>, input => $<in_def>,
+                to_fund => $<todef><closure>, from_fund => $<fromdef><closure>);
+        }
+
+    }
+
+    rule nl_paren(Str $var, Num %def) {
+        '(' <nl_varunitdef($var, %def)> ')' {
+            $<closure> := $<nl_varunitdef><closure>;
+            $<def> := $<nl_varunitdef><def>;
+        }
+    }
+
+    rule nl_pow(Str $var, Num %def) {
+        [ $<lhs> := <nl_atom($var, %def)>
+        | $<lhs> := <nl_paren($var, %def)>
+        ]
+        <?p>
+        [ $<rhs> := <nl_atom($var, %def)>
+        | $<rhs> := <nl_paren($var, %def)>
+        | $<rhs> := <nl_pow($var, %def)>
+        ] {
+            die "Non-unitless exponent { $<rhs><def> }\n"
+                unless all($<rhs><def>.k) eq any('factor', @.fund_unitless);
+            $<def> = $<lhs><def>;
+            for $<rhs><def>.kv -> my Str $u, my Num $p {
+                next if $u eq 'factor';
+                $<def>.{$u} += $p;
+            }
+            $<def>.v »*=» $<rhs><def><factor>;
+            $<closure> := sub (Num $x --> Num) {
+                $<lhs><closure>.($x) ** $<rhs><closure>.($x);
+            }
+        }
+    }
+
+    rule nl_mult(Str $var, Num %def) {
+        [ $<lhs> := <nl_atom($var, %def)>
+        | $<lhs> := <nl_paren($var, %def)>
+        | $<lhs> := <nl_pow($var, %def)>
+        ]
+        [ <?m>  [ $<rhs> := <nl_atom($var, %def)>
+                | $<rhs> := <nl_paren($var, %def)>
+                | $<rhs> := <nl_pow($var, %def)>
+                | $<rhs> := <nl_mult($var, %def)>
+                ] {
+                    $<def> := $.multdef($<lhs><def>, $<rhs><def>, 1);
+                    $<closure> := sub (Num $x --> Num) {
+                        $<lhs><closure>.($x) * $<rhs><closure>.($x);
+                    }
+                }
+        | '/'   [ $<rhs> := <nl_atom($var, %def)>
+                | $<rhs> := <nl_paren($var, %def)>
+                | $<rhs> := <nl_pow($var, %def)>
+                | $<rhs> := <nl_mult($var, %def)>
+                ] {
+                    $<def> := $.multdef($<lhs><def>, $<rhs><def>, -1);
+                    $<closure> := sub (Num $x --> Num) {
+                        $<lhs><closure>.($x) / $<rhs><closure>.($x);
+                    }
+                }
+        ]
+    }
+
+    rule nl_add(Str $var, Num %def) {
+        [ $<lhs> := <nl_atom($var, %def)>
+        | $<lhs> := <nl_paren($var, %def)>
+        | $<lhs> := <nl_pow($var, %def)>
+        | $<lhs> := <nl_mult($var, %def)>
+        ]
+        [ '+'   [ $<rhs> := <nl_atom($var, %def)>
+                | $<rhs> := <nl_paren($var, %def)>
+                | $<rhs> := <nl_pow($var, %def)>
+                | $<rhs> := <nl_mult($var, %def)>
+                | $<rhs> := <nl_add($var, %def)>
+                ] {
+                    $<def> := $.adddef($<lhs><def>, $<rhs><def>, 1);
+                    $<closure> := sub (Num $x --> Num) {
+                        $<lhs><closure>.($x) + $<rhs><closure>.($x);
+                    }
+                }
+        | '-'   [ $<rhs> := <nl_atom($var, %def)>
+                | $<rhs> := <nl_paren($var, %def)>
+                | $<rhs> := <nl_pow($var, %def)>
+                | $<rhs> := <nl_mult($var, %def)>
+                | $<rhs> := <nl_add($var, %def)>
+                ] {
+                    $<def> := $.adddef($<lhs><def>, $<rhs><def>, -1);
+                    $<closure> := sub (Num $x --> Num) {
+                        $<lhs><closure>.($x) - $<rhs><closure>.($x);
+                    }
+                }
+        ]
+    }
+
+    rule nl_varunitdef(Str $var, Num %def) {
+        [ $<nl> := <nl_atom($var, %def)>
+        | $<nl> := <nl_paren($var, %def)>
+        | $<nl> := <nl_pow($var, %def)>
+        | $<nl> := <nl_mult($var, %def)>
+        | $<nl> := <nl_add($var, %def)>
+        ] {
+            $<closure> := $<nl><closure>;
+            $<def> := $<nl><def>;
+        }
+    }
+
+    rule nl_func(Str $var, Num %def) {
+        | $<name> := [ | @.nl_units ]
+            $<inner> := <nl_paren($var, %def)>
+            {
+                My Unitdef $u := %.unitsdef{$<name>};
+                die "Nonlinear input unit: { $<inner><def> } should be: { $u.input_units }\n"
+                    if !$.defeqv($<inner><def>, $u.input_units);
+                $<closure> := sub (Num $x --> Num) {
+                    $u.cv_to_fund($<inner><closure>.($x));
+                }
+                $<def> := $u.fund_units;
+            }
+        # ~nlfunc(...) means the inverse conversion function
+        | '~' $<name> := [ | @.nl_units ]
+            $<inner> := <nl_paren($var, %def)>
+            {
+                My Unitdef $u := %.unitsdef{$<name>};
+                die "Nonlinear input unit: { $<inner><def> } should be: { $u.fund_units }\n"
+                    if !$.defeqv($<inner><def>, $u.fund_units);
+                $<closure> := sub (Num $x --> Num) {
+                    $u.cv_from_fund($<inner><closure>.($x));
+                }
+                $<def> := $u.input_units;
+            }
+    }
+
+    token nl_atom(Str $var, Num %def) {
+        [ $<nl> := <nl_unitdef>
+        | $<nl> := <var($var, %def)>
+        | $<nl> := <nl_func($var, %def)>
+        ] {
+            $<closure> := $<nl><closure>;
+            $<def> := $<nl><def>;
+        }
+    }
+
+    token nl_unitdef {
+        <unitdef> {
+            $<closure> := sub (Num $x --> Num) { 1 };
+            $<def> := $<unitdef><def>;
+        }
+    }
+
+    token var(Str $var,  Num %def) {
+        <$var> {
+            $<closure> := sub (Num $x --> Num) { $x };
+            $<def> = %def;
+        }
+    }
 }
 
 grammar UnitsPerl is UnitsGeneric {
@@ -309,6 +506,7 @@ role GenericUnit {
 
     # Unit definitions
     has Str @.units;
+    has Str @.nl_units;
     has Str @.prefixes;
     has Hash of Unitdef %.unitsdef;
     has Str @.fund_units;
@@ -328,6 +526,12 @@ role GenericUnit {
     # is this object unitless, e.g. can it be used as the arg to cos or exp?
     method is_unitless(--> Bool) {
         return !defined %.unit || all(%.unit.k) eq any('factor', @.fund_unitless);
+    }
+
+    method defeqv(Num %def1 is copy, Num %def2 is copy --> Bool) {
+        %def1.:delete<factor>;
+        %def2.:delete<factor>;
+        return %def1 eqv %def2;
     }
 
     method add_prefix(Str $name, Num $value -->) {
@@ -358,6 +562,14 @@ role GenericUnit {
         %.unitsdef{$name} = Unitdef.new(def => $<def>);
     }
 
+    method add_nl_unit(Str $name, Num %def, Num %input,
+        Code :&to_fund:(Num --> Num), Code :&from_fund:(Num --> Num)) {
+
+        @.units.push: $name;
+        @.nl_units.push: $name;
+        %.unitsdef{$name} = Unitdef.new(:%def, :%input, :&to_fund, :&from_fund);
+    }
+
     # reduce a unit definition to fundamental units
     method defreduce(Num %def is copy --> Hash of Num) {
         until all(%def.k) eq any('factor', @.fund_units, @.fund_unitless) {
@@ -377,8 +589,8 @@ role GenericUnit {
     method adddef(Num %def1, Num %def2, Int $sign --> Hash of Num) {
         my Num %def1c = $.defreduce(%def1);
         my Num %def2c = $.defreduce(%def2);
-        my Int $f1 = %def1c.:delete<factor>;
-        my Int $f2 = %def2c.:delete<factor>;
+        my Num $f1 = %def1c.:delete<factor>;
+        my Num $f2 = %def2c.:delete<factor>;
         if %def1c !eqv %def2c {
             warn "Can't add incompatible units: { %def1c } : { %def2c }\n";
             return undef;
@@ -423,6 +635,7 @@ role NumUnit does GenericUnit {
     # Define:
     # $foo.:as<m/s**2>
     # 2.:as<graphs>
+    #XXX handle nonlinear units
     multi method :as(Num $self: Str $unitspec --> NumUnit) {
         $self does NumUnit;
         if ! $unitspec ~~ /<UnitsPerl>/ {
@@ -435,6 +648,7 @@ role NumUnit does GenericUnit {
     # Convert:
     # ($six_feet - $two_mm).:as<furlongs>
     # (4.:as<bits> * 2.5.:as<GHz>).:as<ns/(1500*bytes)>
+    #XXX handle nonlinear units
     multi method :as(NumUnit $self: Str $unitspec --> NumUnit) {
         if ! $unitspec ~~ /<UnitsPerl>/ {
             die "Couldn't parse $unitspec\n";
@@ -465,15 +679,9 @@ role NumUnit does GenericUnit {
     #    That can already be done, but nonlinear units could
     #    allow e.g. ^3.:as<log10scale> # (1, 10, 100)
     #    How is Numification specified?
-    multi *prefix<+>(NumUnit $nu --> Num) {
-        my Num $nf = $nu * $nu.unit<factor>;
-        my Num $n = $nf;
-        for $nu.unit.kv -> my Str $u, my Num $p {
-            next if $u eq 'factor';
-            #XXX need to think about whether this is correct
-            $n *= %.unitsdef{$u}.cv_to_fund($nf) ** $p;
-        }
-        return $n;
+    #XXX handle nonlinear units
+    multi *prefix<+>(NumUnit $n --> Num) {
+        return $n * $n.unit<factor>;
     }
 
     multi *infix:<+>(NumUnit $n1, NumUnit $n2) {
@@ -516,7 +724,7 @@ role NumUnit does GenericUnit {
         my Num $n = +$n1 ** +$n2;
         $n does NumUnit;
         $n.unit = $n1.unit;
-        for $n2.unit.kv -> my Num $u, my Num $p {
+        for $n2.unit.kv -> my Str $u, my Num $p {
             next if $u eq 'factor';
             $n.unit{$u} += $p;
         }
