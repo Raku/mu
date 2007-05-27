@@ -41,7 +41,7 @@ syn keyword p6ClosureTrait  BEGIN CHECK INIT START FIRST ENTER LEAVE KEEP UNDO N
 syn keyword p6ClosureTrait  PRE POST END rw signature returns of parsed cached 
 syn keyword p6ClosureTrait  readonly ref copy 
 syn keyword p6ClosureTrait  inline tighter looser equiv assoc
-syn keyword p6ClosureTrait  deep
+syn keyword p6ClosureTrait  deep also
 syn keyword p6KeyException  die fail try CATCH CONTROL warn
 syn keyword p6KeyIO         print open read write readline say seek close slurp
 syn keyword p6KeyIO         opendir readdir
