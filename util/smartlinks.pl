@@ -452,7 +452,7 @@ sub gen_line_anchors {
     my $curr = shift @$list;
     my $html = '';
     for ($curr .. $list->[0] - 1) {
-        $html .= qq{<a id="_line_$_"></a>\n};
+        $html .= qq{<a id="line_$_"></a>\n};
     }
     $html;
 }
