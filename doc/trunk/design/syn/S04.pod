@@ -227,7 +227,7 @@ function, so both these methods use the same invocant:
 
 where each call to the block would bind a new invocant for the
 C<.waste> method, each of which is likely different from the original
-invocant to the C<.hast> method.)
+invocant to the C<.haste> method.)
 
 Conditional statement modifiers work as in Perl 5.  So do the
 implicit conditionals implied by short-circuit operators.  Note though that
