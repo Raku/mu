@@ -95,8 +95,22 @@ multi sub newEntityName of QDRDBMS::AST::EntityName
 }
 =cut
 
-sub newTypeDict of QDRDBMS::AST::TypeDict (Array :$map!) is export {
-    return ::QDRDBMS::AST::TypeDict.new( :map($map) );
+sub newTypeInvoNQ of QDRDBMS::AST::TypeInvoNQ
+        (Str :$kind!, Any :$spec!) is export {
+    return ::QDRDBMS::AST::TypeInvoNQ.new( :kind($kind), :spec($spec) );
+}
+
+sub newTypeInvoAQ of QDRDBMS::AST::TypeInvoAQ
+        (Str :$kind!, Any :$spec!) is export {
+    return ::QDRDBMS::AST::TypeInvoAQ.new( :kind($kind), :spec($spec) );
+}
+
+sub newTypeDictNQ of QDRDBMS::AST::TypeDictNQ (Array :$map!) is export {
+    return ::QDRDBMS::AST::TypeDictNQ.new( :map($map) );
+}
+
+sub newTypeDictAQ of QDRDBMS::AST::TypeDictAQ (Array :$map!) is export {
+    return ::QDRDBMS::AST::TypeDictAQ.new( :map($map) );
 }
 
 sub newExprDict of QDRDBMS::AST::ExprDict (Array :$map!) is export {
@@ -166,8 +180,15 @@ role QDRDBMS::AST::Expr {
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::AST::LitBool {
+role QDRDBMS::AST::Lit {
     does QDRDBMS::AST::Expr;
+} # role QDRDBMS::AST::Lit
+
+###########################################################################
+###########################################################################
+
+class QDRDBMS::AST::LitBool {
+    does QDRDBMS::AST::Lit;
 
     has Bool $!v;
 
@@ -215,7 +236,7 @@ method v of Bool () {
 ###########################################################################
 
 class QDRDBMS::AST::LitText {
-    does QDRDBMS::AST::Expr;
+    does QDRDBMS::AST::Lit;
 
     has Str $!v;
 
@@ -263,7 +284,7 @@ method v of Str () {
 ###########################################################################
 
 class QDRDBMS::AST::LitBlob {
-    does QDRDBMS::AST::Expr;
+    does QDRDBMS::AST::Lit;
 
     has Blob $!v;
 
@@ -316,7 +337,7 @@ method v of Blob () {
 ###########################################################################
 
 class QDRDBMS::AST::LitInt {
-    does QDRDBMS::AST::Expr;
+    does QDRDBMS::AST::Lit;
 
     has Int $!v;
 
@@ -849,15 +870,127 @@ method seq of QDRDBMS::AST::SeqSel () {
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::AST::TypeDict {
+role QDRDBMS::AST::TypeInvo {
+    does QDRDBMS::AST::Node;
+
+    has Str $!kind;
+    has Any $!spec;
+
+    has Str $!as_perl;
+
+###########################################################################
+
+submethod BUILD (Str :$kind!, Any :$spec!) {
+
+    die q{new(): Bad :$kind arg; it is not an object of a Str-doing class.}
+        if !$kind.defined or !$kind.does(Str);
+
+    if $kind === 'S' {
+        die q{new(): Bad :$spec arg; it needs to be a valid object}
+                ~ q{ of a QDRDBMS::AST::EntityName-doing class}
+                ~ q{ when the :$kind arg is 'S'.}
+            if !$spec.defined or !$spec.does(QDRDBMS::AST::EntityName);
+    }
+
+    elsif $kind === 'T'|'R' {
+        die q{new(): Bad :$spec arg; it needs to be a valid object}
+                ~ q{ of a QDRDBMS::AST::TypeDictNQ-doing class}
+                ~ q{ when the :$kind arg is 'T'|'R'.}
+            if !$spec.defined or !$spec.does(QDRDBMS::AST::TypeDictNQ);
+    }
+
+    elsif (!self._allows_quasi()) {
+        die q{new(): Bad :$kind arg; it needs to be 'S'|'T'|'R'.};
+    }
+
+    elsif $kind === 'QT'|'QR' {
+        die q{new(): Bad :$spec arg; it needs to be a valid object}
+                ~ q{ of a QDRDBMS::AST::TypeDictAQ-doing class}
+                ~ q{ when the :$kind arg is 'QT'|'QR'.}
+            if !$spec.defined or !$spec.does(QDRDBMS::AST::TypeDictAQ);
+    }
+
+    elsif $kind === 'A' {
+        die q{new(): Bad :$spec arg; it needs to be one of}
+                ~ q{ 'T'|'R'|'QT'|'QR'|'U' when the :$kind arg is 'A'.}
+            if !$spec.defined or !$spec.does(Str)
+                or $spec === none(<T R QT QR U>);
+    }
+
+    else {
+        die q{new(): Bad :$kind arg; it needs to be}
+            ~ q{ 'S'|'T'|'R'|'QT'|'QR'|'A'.};
+    }
+
+    $!kind = $kind;
+    $!spec = $spec;
+
+    return;
+}
+
+###########################################################################
+
+method as_perl of Str () {
+    if (!$!as_perl.defined) {
+        my Str $sk = q{'} ~ $!kind ~ q{'};
+        my Str $ss
+            = $!kind === 'A' ?? q{'} ~ $!spec ~ q{'} !! $!spec.as_perl();
+        $!as_perl = "{self.WHAT}.new( :kind($sk), :spec($ss) )";
+    }
+    return $!as_perl;
+}
+
+###########################################################################
+
+method _equal_repr of Bool (::T $self: T $other!) {
+    return $FALSE
+        if $other!kind !=== $self!kind;
+    return $self!kind === 'A' ?? $other!spec === $self!spec
+        !! $self!spec.equal_repr( :other($other!spec) );
+}
+
+###########################################################################
+
+method kind of Str () {
+    return $!kind;
+}
+
+###########################################################################
+
+method spec of Any () {
+    return $!spec;
+}
+
+###########################################################################
+
+} # role QDRDBMS::AST::TypeInvo
+
+###########################################################################
+###########################################################################
+
+class QDRDBMS::AST::TypeInvoNQ {
+    does QDRDBMS::AST::TypeInvo;
+    submethod BUILD {} # otherwise Pugs r16488 invo TypeInvo.BUILD twice
+    method _allows_quasi of Bool () { return $FALSE; }
+} # class QDRDBMS::AST::TypeInvoNQ
+
+###########################################################################
+###########################################################################
+
+class QDRDBMS::AST::TypeInvoAQ {
+    does QDRDBMS::AST::TypeInvo;
+    submethod BUILD {} # otherwise Pugs r16488 invo TypeInvo.BUILD twice
+    method _allows_quasi of Bool () { return $TRUE; }
+} # class QDRDBMS::AST::TypeInvoAQ
+
+###########################################################################
+###########################################################################
+
+role QDRDBMS::AST::TypeDict {
     does QDRDBMS::AST::Node;
 
     has Array $!map_aoa;
     has Hash  $!map_hoa;
-
-    # Note: This type may be generalized later to allow ::TypeDict values
-    # and not just EntityName values; also, the latter will probably be
-    # made more strict, to just be type names.
 
     has Str $!as_perl;
 
@@ -868,6 +1001,8 @@ class QDRDBMS::AST::TypeDict {
 
 submethod BUILD (Array :$map!) {
 
+    my Bool $allows_quasi = self._allows_quasi();
+
     die q{new(): Bad :$map arg; it is not an object of a}
             ~ q{ Array-doing class.}
         if !$map.defined or !$map.does(Array);
@@ -877,7 +1012,7 @@ submethod BUILD (Array :$map!) {
         die q{new(): Bad :$map arg; it is not an object of a}
                 ~ q{ Array-doing class, or it doesn't have 2 elements.}
             if !$elem.defined or !$elem.does(Array) or $elem.elems != 2;
-        my ($entity_name, $type_name) = $elem.values;
+        my ($entity_name, $type_invo) = $elem.values;
         die q{new(): Bad :$map arg elem; its first elem is not}
                 ~ q{ an object of a QDRDBMS::AST::EntityName-doing class.}
             if !$entity_name.defined
@@ -886,11 +1021,19 @@ submethod BUILD (Array :$map!) {
         die q{new(): Bad :$map arg elem; its first elem is not}
                 ~ q{ distinct between the arg elems.}
             if $map_hoa.exists($entity_name_text_v);
-        die q{new(): Bad :$map arg elem; its second elem is not}
-                ~ q{ an object of a QDRDBMS::AST::EntityName-doing class.}
-            if !$type_name.defined
-                or !$type_name.does(QDRDBMS::AST::EntityName);
-        my Array $elem_cpy = [$entity_name, $type_name];
+        if $allows_quasi {
+            die q{new(): Bad :$map arg elem; its second elem is not an}
+                    ~ q{ object of a QDRDBMS::AST::TypeInvoAQ-doing class.}
+                if !$type_invo.defined
+                    or !$type_invo.does(QDRDBMS::AST::TypeInvoAQ);
+        }
+        else {
+            die q{new(): Bad :$map arg elem; its second elem is not an}
+                    ~ q{ object of a QDRDBMS::AST::TypeInvoNQ-doing class.}
+                if !$type_invo.defined
+                    or !$type_invo.does(QDRDBMS::AST::TypeInvoNQ);
+        }
+        my Array $elem_cpy = [$entity_name, $type_invo];
         $map_aoa.push( $elem_cpy );
         $map_hoa{$entity_name_text_v} = $elem_cpy;
     }
@@ -941,7 +1084,25 @@ method map_hoa of Hash () {
 
 ###########################################################################
 
-} # class QDRDBMS::AST::TypeDict
+} # role QDRDBMS::AST::TypeDict
+
+###########################################################################
+###########################################################################
+
+class QDRDBMS::AST::TypeDictNQ {
+    does QDRDBMS::AST::TypeDict;
+    submethod BUILD {} # otherwise Pugs r16488 invo TypeDict.BUILD twice
+    method _allows_quasi of Bool () { return $FALSE; }
+} # class QDRDBMS::AST::TypeDictNQ
+
+###########################################################################
+###########################################################################
+
+class QDRDBMS::AST::TypeDictAQ {
+    does QDRDBMS::AST::TypeDict;
+    submethod BUILD {} # otherwise Pugs r16488 invo TypeDict.BUILD twice
+    method _allows_quasi of Bool () { return $TRUE; }
+} # class QDRDBMS::AST::TypeDictAQ
 
 ###########################################################################
 ###########################################################################
@@ -1202,8 +1363,9 @@ I<This documentation is pending.>
     use QDRDBMS::AST <newLitBool newLitText newLitBlob newLitInt
         newSetSel newSeqSel newBagSel newQuasiSetSel newQuasiSeqSel
         newQuasiBagSel newVarInvo newFuncInvo newProcInvo newFuncReturn
-        newProcReturn newEntityName newTypeDict newExprDict newFuncDecl
-        newProcDecl newHostGateRtn>;
+        newProcReturn newEntityName newTypeInvoNQ newTypeInvoAQ
+        newTypeDictNQ newTypeDictAQ newExprDict newFuncDecl newProcDecl
+        newHostGateRtn>;
 
     my $truth_value = newLitBool( :v(2 + 2 == 4) );
     my $planetoid = newLitText( :v('Ceres') );
@@ -1238,10 +1400,11 @@ or "isa" hierarchy, children indented under parents:
 
     QDRDBMS::AST::Node (dummy role)
         QDRDBMS::AST::Expr (dummy role)
-            QDRDBMS::AST::LitBool
-            QDRDBMS::AST::LitText
-            QDRDBMS::AST::LitBlob
-            QDRDBMS::AST::LitInt
+            QDRDBMS::AST::Lit (dummy role)
+                QDRDBMS::AST::LitBool
+                QDRDBMS::AST::LitText
+                QDRDBMS::AST::LitBlob
+                QDRDBMS::AST::LitInt
             QDRDBMS::AST::ListSel (implementing role)
                 QDRDBMS::AST::SetSel
                 QDRDBMS::AST::SeqSel
@@ -1257,7 +1420,12 @@ or "isa" hierarchy, children indented under parents:
             QDRDBMS::AST::ProcReturn
             # more control-flow statement types would go here
         QDRDBMS::AST::EntityName
-        QDRDBMS::AST::TypeDict
+        QDRDBMS::AST::TypeInvo (implementing role)
+            QDRDBMS::AST::TypeInvoNQ
+            QDRDBMS::AST::TypeInvoAQ
+        QDRDBMS::AST::TypeDict (implementing role)
+            QDRDBMS::AST::TypeDictNQ
+            QDRDBMS::AST::TypeDictAQ
         QDRDBMS::AST::ExprDict
         QDRDBMS::AST::FuncDecl
         QDRDBMS::AST::ProcDecl
@@ -1448,7 +1616,19 @@ I<This documentation is pending.>
 
 I<This documentation is pending.>
 
-=head2 The QDRDBMS::AST::TypeDict Class
+=head2 The QDRDBMS::AST::TypeInvoNQ Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::TypeInvoAQ Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::TypeDictNQ Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::TypeDictAQ Class
 
 I<This documentation is pending.>
 
