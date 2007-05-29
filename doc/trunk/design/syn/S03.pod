@@ -1606,7 +1606,7 @@ The C<? :> conditional operator becomes C<?? !!>.
 
 =item *
 
-C<qw{ ... }> gets a synonym: C< < ... > >, and an interpolating
+C<qw{ ... }> gets a synonym: C<< < ... > >>, and an interpolating
 variant, C<«...»>.
 For those still living without the blessings of Unicode, that can also be
 written: C<<< << ... >> >>>.
@@ -1614,7 +1614,7 @@ written: C<<< << ... >> >>>.
 =item *
 
 In item context comma C<,> now constructs a C<List> object from its
-operands.  You have to use a C<[-1]> subscript to get the last one.
+operands.  You have to use a C<[*-1]> subscript to get the last one.
 
 =item *
 
@@ -2146,7 +2146,7 @@ and replicating it:
 
 is short for something like:
 
-    @array[0..^@array], @array[-1] xx *
+    @array[0..^@array], @array[*-1] xx *
 
 An empty Range cannot be iterated; it returns a C<Failure> instead.  An empty
 range still has a defined min and max, but the min is greater than the max.
@@ -3050,8 +3050,8 @@ dwimmery, and hence only scalar assignments are supported.  Therefore
 
 are equivalent to
 
-    $x = @y[0] = @y[1] = @y[2] ... @y[-1] = $z = 0
-    $x += @y[0] += @y[1] += @y[2] ... @y[-1] += $z += 1
+    $x = @y[0] = @y[1] = @y[2] ... @y[*-1] = $z = 0
+    $x += @y[0] += @y[1] += @y[2] ... @y[*-1] += $z += 1
 
 rather than
 

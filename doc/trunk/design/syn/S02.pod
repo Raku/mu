@@ -1379,7 +1379,7 @@ are aliases into the C<$/> object.
 
 =item *
 
-The C<$#foo> notation is dead.  Use C<@foo.end> or C<@foo[-1]> instead.
+The C<$#foo> notation is dead.  Use C<@foo.end> or C<@foo[*-1]> instead.
 (Or C<@foo.shape[$dimension]> for multidimensional arrays.)
 
 =back
