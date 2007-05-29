@@ -84,13 +84,13 @@ sub newProcReturn of QDRDBMS::AST::ProcReturn () is export {
 }
 
 multi sub newEntityName of QDRDBMS::AST::EntityName
-        (QDRDBMS::AST::LitText :$text!) is export {
+        (Str :$text!) is export {
     return ::QDRDBMS::AST::EntityName.new( :text($text) );
 }
 
 =pod
 multi sub newEntityName of QDRDBMS::AST::EntityName
-        (QDRDBMS::AST::SeqSel :$seq!) is export {
+        (Array :$seq!) is export {
     return ::QDRDBMS::AST::EntityName.new( :seq($seq) );
 }
 =cut
@@ -384,14 +384,12 @@ method v of Int () {
 ###########################################################################
 ###########################################################################
 
-role QDRDBMS::AST::ListSel {
+role QDRDBMS::AST::_FlatColl {
     does QDRDBMS::AST::Expr;
 
     has Array $!v;
 
     has Str $!as_perl;
-
-    trusts QDRDBMS::AST::EntityName;
 
 ###########################################################################
 
@@ -449,54 +447,54 @@ method repr_elem_count of Int () {
 
 ###########################################################################
 
-} # role QDRDBMS::AST::ListSel
+} # role QDRDBMS::AST::_FlatColl
 
 ###########################################################################
 ###########################################################################
 
 class QDRDBMS::AST::SetSel {
-    does QDRDBMS::AST::ListSel;
-    submethod BUILD {} # otherwise Pugs r16488 invo ListSel.BUILD twice
+    does QDRDBMS::AST::_FlatColl;
+    submethod BUILD {} # otherwise Pugs r16488 invo _FlatColl.BUILD twice
 } # class QDRDBMS::AST::SetSel
 
 ###########################################################################
 ###########################################################################
 
 class QDRDBMS::AST::SeqSel {
-    does QDRDBMS::AST::ListSel;
-    submethod BUILD {} # otherwise Pugs r16488 invo ListSel.BUILD twice
+    does QDRDBMS::AST::_FlatColl;
+    submethod BUILD {} # otherwise Pugs r16488 invo _FlatColl.BUILD twice
 } # class QDRDBMS::AST::SeqSel
 
 ###########################################################################
 ###########################################################################
 
 class QDRDBMS::AST::BagSel {
-    does QDRDBMS::AST::ListSel;
-    submethod BUILD {} # otherwise Pugs r16488 invo ListSel.BUILD twice
+    does QDRDBMS::AST::_FlatColl;
+    submethod BUILD {} # otherwise Pugs r16488 invo _FlatColl.BUILD twice
 } # class QDRDBMS::AST::BagSel
 
 ###########################################################################
 ###########################################################################
 
 class QDRDBMS::AST::QuasiSetSel {
-    does QDRDBMS::AST::ListSel;
-    submethod BUILD {} # otherwise Pugs r16488 invo ListSel.BUILD twice
+    does QDRDBMS::AST::_FlatColl;
+    submethod BUILD {} # otherwise Pugs r16488 invo _FlatColl.BUILD twice
 } # class QDRDBMS::AST::QuasiSetSel
 
 ###########################################################################
 ###########################################################################
 
 class QDRDBMS::AST::QuasiSeqSel {
-    does QDRDBMS::AST::ListSel;
-    submethod BUILD {} # otherwise Pugs r16488 invo ListSel.BUILD twice
+    does QDRDBMS::AST::_FlatColl;
+    submethod BUILD {} # otherwise Pugs r16488 invo _FlatColl.BUILD twice
 } # class QDRDBMS::AST::QuasiSeqSel
 
 ###########################################################################
 ###########################################################################
 
 class QDRDBMS::AST::QuasiBagSel {
-    does QDRDBMS::AST::ListSel;
-    submethod BUILD {} # otherwise Pugs r16488 invo ListSel.BUILD twice
+    does QDRDBMS::AST::_FlatColl;
+    submethod BUILD {} # otherwise Pugs r16488 invo _FlatColl.BUILD twice
 } # class QDRDBMS::AST::QuasiBagSel
 
 ###########################################################################
@@ -779,57 +777,47 @@ method _equal_repr of Bool (::T $self: T $other!) {
 class QDRDBMS::AST::EntityName {
     does QDRDBMS::AST::Node;
 
-    has QDRDBMS::AST::LitText $!text_possrep;
-    has QDRDBMS::AST::SeqSel  $!seq_possrep;
+    has Str   $!text_possrep;
+    has Array $!seq_possrep;
 
     has Str $!as_perl;
 
 ###########################################################################
 
-multi submethod BUILD (QDRDBMS::AST::LitText :$text!) {
+multi submethod BUILD (Str :$text!) {
 
-    die q{new(): Bad :$text arg; it is not a valid object}
-            ~ q{ of a QDRDBMS::AST::LitText-doing class.}
-        if !$text.defined or !$text.does(QDRDBMS::AST::LitText);
-    my Str $text_v = $text.v();
+    die q{new(): Bad :$text arg; it is not an object of a Str-doing class.}
+        if !$text.defined or !$text.does(Str);
     die q{new(): Bad :$text arg; it contains character sequences that}
             ~ q{ are invalid within the Text possrep of an EntityName.}
-        if $text_v.match( rx/ \\ $/ ) or $text_v.match( rx/ \\ <-[bp]> / ); #/
+        if $text.match( rx/ \\ $/ ) or $text.match( rx/ \\ <-[bp]> / ); #/
 
     $!text_possrep = $text;
-    $!seq_possrep = QDRDBMS::AST::SeqSel.new( :v(
-            [$text_v.split( rx/\./ ).map:{ #/
-                    QDRDBMS::AST::LitText.new( :v(
-                            .trans( < \\p \\b >
-                                 => < .   \\  > )
-                        ) );
-                }]
-        ) );
+    $!seq_possrep = [$text.split( rx/\./ ).map:{ #/
+            .trans( < \\p \\b >
+                 => < .   \\  > )
+        }];
 
     return;
 }
 
 =pod
-multi submethod BUILD (QDRDBMS::AST::SeqSel :$seq!) {
+multi submethod BUILD (Array :$seq!) {
 
     die q{new(): Bad :$seq arg; it is not an object of a}
-            ~ q{ QDRDBMS::AST::SeqSel-doing class, or it has < 1 elem.}
-        if !$seq.defined or !$seq.does(QDRDBMS::AST::SeqSel)
-            or $seq.repr_elem_count() === 0;
-    my $seq_elems = $seq!v;
-    for $seq_elems -> $seq_e {
-        die q{new(): Bad :$seq arg elem; it is not}
-                ~ q{ an object of a QDRDBMS::AST::LitText-doing class.}
-            if !$seq_e.does(QDRDBMS::AST::LitText);
+            ~ q{ Array-doing class, or it has < 1 elem.}
+        if !$seq.defined or !$seq.does(Array) or $seq.elems === 0;
+    for $seq -> $seq_e {
+        die q{new(): Bad :$seq arg elem;}
+                ~ q{ it is not an object of a Str-doing class.}
+            if !$seq_e.defined or !$seq_e.does(Str);
     }
 
-    $!text_possrep = QDRDBMS::AST::LitText.new( :v(
-            $seq_elems.map:{
-                    .v().trans( < \\  .   >
-                             => < \\b \\p > )
-                }.join( q{.} )
-        ) );
-    $!seq_possrep = $seq;
+    $!text_possrep = $seq.map:{
+            .trans( < \\  .   >
+                 => < \\b \\p > )
+        }.join( q{.} );
+    $!seq_possrep = [$seq.values];
 
     return;
 }
@@ -839,7 +827,7 @@ multi submethod BUILD (QDRDBMS::AST::SeqSel :$seq!) {
 
 method as_perl of Str () {
     if (!$!as_perl.defined) {
-        my Str $s = $!text_possrep.as_perl();
+        my Str $s = q{'} ~ $!text_possrep.trans( q{'} => q{\\'} ) ~ q{'};
         $!as_perl = "QDRDBMS::AST::EntityName.new( :text($s) )";
     }
     return $!as_perl;
@@ -848,19 +836,19 @@ method as_perl of Str () {
 ###########################################################################
 
 method _equal_repr of Bool (::T $self: T $other!) {
-    return $self!text_possrep.equal_repr( :other($other!text_possrep) );
+    return $other!text_possrep === $self!text_possrep;
 }
 
 ###########################################################################
 
-method text of QDRDBMS::AST::LitText () {
+method text of Str () {
     return $!text_possrep;
 }
 
 ###########################################################################
 
-method seq of QDRDBMS::AST::SeqSel () {
-    return $!seq_possrep;
+method seq of Array () {
+    return [$!seq_possrep.values];
 }
 
 ###########################################################################
@@ -885,41 +873,60 @@ submethod BUILD (Str :$kind!, Any :$spec!) {
     die q{new(): Bad :$kind arg; it is not an object of a Str-doing class.}
         if !$kind.defined or !$kind.does(Str);
 
-    if $kind === 'S' {
+    if $kind === 'Scalar' {
         die q{new(): Bad :$spec arg; it needs to be a valid object}
                 ~ q{ of a QDRDBMS::AST::EntityName-doing class}
-                ~ q{ when the :$kind arg is 'S'.}
+                ~ q{ when the :$kind arg is 'Scalar'.}
             if !$spec.defined or !$spec.does(QDRDBMS::AST::EntityName);
     }
 
-    elsif $kind === 'T'|'R' {
+    elsif $kind === 'Tuple'|'Relation' {
         die q{new(): Bad :$spec arg; it needs to be a valid object}
                 ~ q{ of a QDRDBMS::AST::TypeDictNQ-doing class}
-                ~ q{ when the :$kind arg is 'T'|'R'.}
+                ~ q{ when the :$kind arg is 'Tuple'|'Relation'.}
             if !$spec.defined or !$spec.does(QDRDBMS::AST::TypeDictNQ);
     }
 
-    elsif (!self._allows_quasi()) {
-        die q{new(): Bad :$kind arg; it needs to be 'S'|'T'|'R'.};
+    elsif $kind === 'Set'|'Seq'|'Bag' {
+        die q{new(): Bad :$spec arg; it needs to be a valid object}
+                ~ q{ of a QDRDBMS::AST::TypeInvoNQ-doing class}
+                ~ q{ when the :$kind arg is 'Set'|'Seq'|'Bag'.}
+            if !$spec.defined or !$spec.does(QDRDBMS::AST::TypeInvoNQ);
     }
 
-    elsif $kind === 'QT'|'QR' {
+    elsif (!self._allows_quasi()) {
+        die q{new(): Bad :$kind arg; it needs to be one of}
+            ~ q{ 'Scalar'|'Tuple'|'Relation'|'Set'|'Seq'|'Bag'.};
+    }
+
+    elsif $kind === 'QTuple'|'QRelation' {
         die q{new(): Bad :$spec arg; it needs to be a valid object}
                 ~ q{ of a QDRDBMS::AST::TypeDictAQ-doing class}
-                ~ q{ when the :$kind arg is 'QT'|'QR'.}
+                ~ q{ when the :$kind arg is 'QTuple'|'QRelation'.}
             if !$spec.defined or !$spec.does(QDRDBMS::AST::TypeDictAQ);
     }
 
-    elsif $kind === 'A' {
+    elsif $kind === 'QSet'|'QSeq'|'QBag' {
+        die q{new(): Bad :$spec arg; it needs to be a valid object}
+                ~ q{ of a QDRDBMS::AST::TypeInvoAQ-doing class}
+                ~ q{ when the :$kind arg is 'QSet'|'QSeq'|'QBag'.}
+            if !$spec.defined or !$spec.does(QDRDBMS::AST::TypeInvoAQ);
+    }
+
+    elsif $kind === 'Any' {
         die q{new(): Bad :$spec arg; it needs to be one of}
-                ~ q{ 'T'|'R'|'QT'|'QR'|'U' when the :$kind arg is 'A'.}
+                ~ q{ 'Tuple'|'Relation'|'Set'|'Seq'|'Bag'}
+                ~ q{|'QTuple'|'QRelation'|'QSet'|'QSeq'|'QBag'|'Universal'}
+                ~ q{ when the :$kind arg is 'Any'.}
             if !$spec.defined or !$spec.does(Str)
-                or $spec === none(<T R QT QR U>);
+                or $spec === none(<Tuple Relation Set Seq Bag
+                    QTuple QRelation QSet QSeq QBag Universal>);
     }
 
     else {
         die q{new(): Bad :$kind arg; it needs to be}
-            ~ q{ 'S'|'T'|'R'|'QT'|'QR'|'A'.};
+            ~ q{ 'Scalar'|'Tuple'|'Relation'|'Set'|'Seq'|'Bag'}
+            ~ q{|'QTuple'|'QRelation'|'QSet'|'QSeq'|'QBag'|'Any'.};
     }
 
     $!kind = $kind;
@@ -934,7 +941,7 @@ method as_perl of Str () {
     if (!$!as_perl.defined) {
         my Str $sk = q{'} ~ $!kind ~ q{'};
         my Str $ss
-            = $!kind === 'A' ?? q{'} ~ $!spec ~ q{'} !! $!spec.as_perl();
+            = $!kind === 'Any' ?? q{'} ~ $!spec ~ q{'} !! $!spec.as_perl();
         $!as_perl = "{self.WHAT}.new( :kind($sk), :spec($ss) )";
     }
     return $!as_perl;
@@ -945,7 +952,7 @@ method as_perl of Str () {
 method _equal_repr of Bool (::T $self: T $other!) {
     return $FALSE
         if $other!kind !=== $self!kind;
-    return $self!kind === 'A' ?? $other!spec === $self!spec
+    return $self!kind === 'Any' ?? $other!spec === $self!spec
         !! $self!spec.equal_repr( :other($other!spec) );
 }
 
@@ -1405,7 +1412,7 @@ or "isa" hierarchy, children indented under parents:
                 QDRDBMS::AST::LitText
                 QDRDBMS::AST::LitBlob
                 QDRDBMS::AST::LitInt
-            QDRDBMS::AST::ListSel (implementing role)
+            QDRDBMS::AST::_FlatColl (implementing role)
                 QDRDBMS::AST::SetSel
                 QDRDBMS::AST::SeqSel
                 QDRDBMS::AST::BagSel

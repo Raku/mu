@@ -79,7 +79,7 @@ submethod BUILD (Str :$engine_name!, Any :$dbms_config!) {
 ###########################################################################
 
 method new_var of QDRDBMS::Interface::HostGateVar
-        (QDRDBMS::AST::EntityName :$decl_type!) {
+        (QDRDBMS::AST::TypeInvo :$decl_type!) {
     return ::QDRDBMS::Interface::HostGateVar.new(
         :dbms(self), :decl_type($decl_type) );
 }
@@ -106,7 +106,7 @@ class QDRDBMS::Interface::HostGateVar {
 ###########################################################################
 
 submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!,
-        QDRDBMS::AST::EntityName :$decl_type!) {
+        QDRDBMS::AST::TypeInvo :$decl_type!) {
 
     die q{new(): Bad :$dbms arg; it is not an object of a}
             ~ q{ QDRDBMS::Interface::DBMS-doing class.}
@@ -115,9 +115,9 @@ submethod BUILD (QDRDBMS::Interface::DBMS :$dbms!,
     my $dbms_eng_class = $dbms_eng.WHAT;
 
     die q{new(): Bad :$decl_type arg; it is not an object of a}
-            ~ q{ QDRDBMS::AST::EntityName-doing class.}
+            ~ q{ QDRDBMS::AST::TypeInvo-doing class.}
         if !$decl_type.defined
-            or !$decl_type.does(QDRDBMS::AST::EntityName);
+            or !$decl_type.does(QDRDBMS::AST::TypeInvo);
 
     my $var_eng = undef;
     try {

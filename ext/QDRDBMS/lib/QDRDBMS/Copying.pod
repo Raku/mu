@@ -77,9 +77,9 @@ under the GPL version 3.0 or later instead, assuming no difficulties arise
 with the final version of that license (which is currently still in the
 draft stage; the final version should be released in early July of 2007).
 
-I<TODO:  Change the terminology of the QDRDBMS to say "convey" rather than
-"distribute" as per the GPL v3, after the latter is released final, if
-doing so is reasonable.>
+I<TODO:  Consider changing the terminology of the QDRDBMS to say "convey"
+rather than "distribute" as per the GPL v3, after the latter is released
+final, if doing so is reasonable.>
 
 Therefore, any third party component that links to QDRDBMS is required to
 be distributed under the GPL unless at least one of the following
@@ -96,11 +96,20 @@ apply to you.
 2.  The copyright holder has sold them a proprietary license allowing it.
 
 3.  The copyright holder generally re-releases QDRDBMS with additional
-permissions concerning linking.  (Should that be a necessary pre-condition
-for significant other free software projects, that use different licenses,
-to choose to link with QDRDBMS.)  Conjecture:  Additional permissions would
-have the narrowest scope possible, such as to only exempt FLOS software,
-and only apply to the 2 files C<lib/QDRDBMS/AST.pm> and C<lib/QDRDBMS.pm>.
+permissions concerning linking.
+
+I<Conjecture:  To anyone wanting to distribute a combined work of just
+QDRDBMS and other FLOSS, there is probably no advantage for the QDRDBMS
+license including a FLOSS exception.  The vast majority, if not the
+entirety, of FLOSS written in Perl probably has a GPL-compatible license,
+meaning that a FLOSS exception for them is not necessary to permit
+distributing a combined work at all, which is the main purpose of FLOSS
+exceptions.  If that assumption proves to be false, the idea of providing a
+FLOSS exception can be revisited.  As for desires of the creators of the
+other FLOSS, that the recipients of the combination can use the creators'
+own components under their original licenses, that should be easy enough to
+do since the other components are likely to be easily separatable from the
+QDRDBMS components, as they are likely in separate files.>
 
 These licensing terms are being applied to QDRDBMS mainly because the
 copyright holder agrees with, and wants to support, the principles of user

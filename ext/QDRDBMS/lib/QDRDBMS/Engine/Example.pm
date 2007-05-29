@@ -42,7 +42,7 @@ submethod BUILD (Any :$dbms_config!) {
 ###########################################################################
 
 method new_var of QDRDBMS::Engine::Example::HostGateVar
-        (QDRDBMS::AST::EntityName :$decl_type!) {
+        (QDRDBMS::AST::TypeInvo :$decl_type!) {
     return ::QDRDBMS::Engine::Example::HostGateVar.new(
         :dbms(self), :decl_type($decl_type) );
 }
@@ -64,7 +64,7 @@ class QDRDBMS::Engine::Example::HostGateVar {
     does QDRDBMS::Engine::Role::HostGateVar;
 
     has QDRDBMS::Engine::Example::DBMS $!dbms;
-    has QDRDBMS::AST::EntityName       $!decl_type;
+    has QDRDBMS::AST::TypeInvo         $!decl_type;
     has QDRDBMS::AST::Node             $!val_ast;
 
     trusts QDRDBMS::Engine::Example::HostGateRtn;
@@ -72,7 +72,7 @@ class QDRDBMS::Engine::Example::HostGateVar {
 ###########################################################################
 
 submethod BUILD (QDRDBMS::Engine::Example::DBMS :$dbms!,
-        QDRDBMS::AST::EntityName :$decl_type!) {
+        QDRDBMS::AST::TypeInvo :$decl_type!) {
 
     $!dbms      = $dbms;
     $!decl_type = $decl_type;
