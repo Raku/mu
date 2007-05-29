@@ -13,12 +13,13 @@ Phase I - bootstrap (MiniPerl6)
 -- compile to a language supported by the JVM
 -- compile to a standalone language, such as C, C++, D, Lisp
 -- bootstrap in other language than Perl 5
+-- have Perl6-in-parrot reuse parts of the MiniPerl6 architecture
 
 Phase II - improved compiler architecture (KindaPerl6)
 
 - Architecture
 
--- pluggable AST transformations
+-- pluggable AST processors
 
 - Semantics
 
@@ -38,6 +39,10 @@ Phase II - improved compiler architecture (KindaPerl6)
 
 Phase III - ** under planning **
 
+** no particular order, yet
+
+- reorganize directories
+
 - translate perl5 runtime to mp6?
 - translate the compiler front-end to mp6
 - test suite
@@ -45,3 +50,19 @@ Phase III - ** under planning **
 - minimal runtime
 - bootstrap?
 - plan Perl6-in-Perl6
+
+- Bonus milestones
+
+-- parse Perl6-STD
+-- use Perl6-STD as the compiler grammar
+
+Related Work
+
+- Perl6-in-Parrot 
+-- TGE and PGE
+- Perl6-in-Haskell (Pugs)
+-- Javascript and Perl5 backends
+- v6.pm (Perl5 module)
+-- "lrep" bootstrapping compiler
+- Perl6-STD (official Perl 6 grammar)
+
