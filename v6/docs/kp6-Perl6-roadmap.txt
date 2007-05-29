@@ -1,1 +1,22 @@
 KindaPerl6 --> full 6-in-6 Roadmap
+
+(extracted from TODO list for KindaPerl6)
+
+The kp6 Milestones are:
+
+- lexical subs 
+- metamodel interface
+  - bootstrap == kp6-2
+- lexical classes
+- begin blocks
+- containers
+
+Starting Code freeze
+
+- translate perl5 runtime to mp6?
+- translate the compiler front-end to mp6
+- test suite
+- debugging
+- minimal runtime
+- bootstrap?
+- plan Perl6-in-Perl6
