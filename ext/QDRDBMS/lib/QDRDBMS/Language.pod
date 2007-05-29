@@ -1254,7 +1254,7 @@ value is one.
 
 =head2 Core Nonscalar Data Types
 
-These nonscalar data types, C<Tuple|Relation|Database|Set|Seq|Bag>,
+These nonscalar data types, C<Tuple|Relation|Database|Set|Seq|Bag|Maybe>,
 permit transparent/user-visible compositions of multiple values into other
 conceptual values.  Unlike with scalar types in general, every
 system-defined selector for nonscalar values will result in values that are
@@ -1329,6 +1329,16 @@ duplicate values are significant; specifically, C<count> defines an
 explicit count of occurrances for C<values>.  Its default value has zero
 tuples.
 
+=item C<sys.type.Maybe>
+
+A C<Maybe> is a proper subtype of C<Set> that may have at most one element;
+that is, it is a unary C<Relation> with a nullary key.  Operators that work
+specifically with C<Maybe> subtypes can provide a syntactic shorthand for
+working with sparse data; so QDRDBMS D has something which is conceptually
+close to SQL's nullable types without actually having 3-valued logic; it
+would probably be convenient for code that round-trips SQL by way of
+QDRDBMS D to use the C<Maybe> type.  Its default value has zero tuples.
+
 =back
 
 =head2 Core Quasi-Nonscalar Data Types
@@ -1367,6 +1377,12 @@ infinite.
 A C<QuasiBag> is a proper subtype of C<QuasiRelation> in the corresponding
 manner to C<Bag> being a proper subtype of C<Relation>.  Its cardinality is
 infinite.
+
+=item C<sys.type.QuasiMaybe>
+
+A C<QuasiMaybe> is a proper subtype of C<QuasiRelation> in the
+corresponding manner to C<Maybe> being a proper subtype of C<Relation>.
+Its cardinality is infinite.
 
 =back
 

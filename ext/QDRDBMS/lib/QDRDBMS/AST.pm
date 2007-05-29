@@ -887,16 +887,16 @@ submethod BUILD (Str :$kind!, Any :$spec!) {
             if !$spec.defined or !$spec.does(QDRDBMS::AST::TypeDictNQ);
     }
 
-    elsif $kind === 'Set'|'Seq'|'Bag' {
+    elsif $kind === 'Set'|'Seq'|'Bag'|'Maybe' {
         die q{new(): Bad :$spec arg; it needs to be a valid object}
                 ~ q{ of a QDRDBMS::AST::TypeInvoNQ-doing class}
-                ~ q{ when the :$kind arg is 'Set'|'Seq'|'Bag'.}
+                ~ q{ when the :$kind arg is 'Set'|'Seq'|'Bag'|'Maybe'.}
             if !$spec.defined or !$spec.does(QDRDBMS::AST::TypeInvoNQ);
     }
 
     elsif (!self._allows_quasi()) {
         die q{new(): Bad :$kind arg; it needs to be one of}
-            ~ q{ 'Scalar'|'Tuple'|'Relation'|'Set'|'Seq'|'Bag'.};
+            ~ q{ 'Scalar'|'Tuple'|'Relation'|'Set'|'Seq'|'Bag'|'Maybe'.};
     }
 
     elsif $kind === 'QTuple'|'QRelation' {
@@ -906,27 +906,28 @@ submethod BUILD (Str :$kind!, Any :$spec!) {
             if !$spec.defined or !$spec.does(QDRDBMS::AST::TypeDictAQ);
     }
 
-    elsif $kind === 'QSet'|'QSeq'|'QBag' {
+    elsif $kind === 'QSet'|'QSeq'|'QBag'|'QMaybe' {
         die q{new(): Bad :$spec arg; it needs to be a valid object}
                 ~ q{ of a QDRDBMS::AST::TypeInvoAQ-doing class}
-                ~ q{ when the :$kind arg is 'QSet'|'QSeq'|'QBag'.}
+                ~ q{ when the :$kind arg is 'QSet'|'QSeq'|'QBag'|'QMaybe'.}
             if !$spec.defined or !$spec.does(QDRDBMS::AST::TypeInvoAQ);
     }
 
     elsif $kind === 'Any' {
         die q{new(): Bad :$spec arg; it needs to be one of}
-                ~ q{ 'Tuple'|'Relation'|'Set'|'Seq'|'Bag'}
-                ~ q{|'QTuple'|'QRelation'|'QSet'|'QSeq'|'QBag'|'Universal'}
-                ~ q{ when the :$kind arg is 'Any'.}
+                ~ q{ 'Tuple'|'Relation'|'Set'|'Seq'|'Bag'|'Maybe'}
+                ~ q{|'QTuple'|'QRelation'|'QSet'|'QSeq'|'QBag'|'QMaybe'}
+                ~ q{|'Universal' when the :$kind arg is 'Any'.}
             if !$spec.defined or !$spec.does(Str)
-                or $spec === none(<Tuple Relation Set Seq Bag
-                    QTuple QRelation QSet QSeq QBag Universal>);
+                or $spec === none(<Tuple Relation Set Seq Bag Maybe
+                    QTuple QRelation QSet QSeq QBag QMaybe Universal>);
     }
 
     else {
         die q{new(): Bad :$kind arg; it needs to be}
-            ~ q{ 'Scalar'|'Tuple'|'Relation'|'Set'|'Seq'|'Bag'}
-            ~ q{|'QTuple'|'QRelation'|'QSet'|'QSeq'|'QBag'|'Any'.};
+            ~ q{ 'Scalar'|'Tuple'|'Relation'|'Set'|'Seq'|'Bag'|'Maybe'}
+            ~ q{|'QTuple'|'QRelation'|'QSet'|'QSeq'|'QBag'|'QMaybe'}
+            ~ q{|'Any'.};
     }
 
     $!kind = $kind;
