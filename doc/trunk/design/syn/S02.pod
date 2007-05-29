@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 21 May 2007
+  Last Modified: 29 May 2007
   Number: 2
-  Version: 107
+  Version: 108
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -772,8 +772,9 @@ because they can be wrapped in place.)
     Module      Perl 6 standard namespace
     Class       Perl 6 standard class namespace
     Role        Perl 6 standard generic interface/implementation
-    Object      Perl 6 object
     Grammar     Perl 6 pattern matching namespace
+    Any         Perl 6 object (default parameter type, excludes Junction)
+    Object      Perl 6 object (either Any or Junction)
 
 A C<KeyHash> differs from a normal C<Hash> in how it handles default
 values.  If the value of a C<KeyHash> element is set to the default
