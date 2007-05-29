@@ -500,7 +500,8 @@ grammar UnitsDat is UnitsGeneric {
         }
         loop(my Int $i = 0; $i < @from - 1; $i++) {
             if @from[$i] <= $x < @from[$i + 1] {
-                return @to[$i] + ($x - @from[$i]) * (@to[$i + 1] - @to[$i]);
+                return @to[$i] + (@to[$i + 1] - @to[$i])
+                               * ($x - @from[$i]) / (@from[$i + 1] - @from[$i]);
             }
         }
         return @to[*-1];
