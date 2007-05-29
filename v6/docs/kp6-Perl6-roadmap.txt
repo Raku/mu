@@ -1,17 +1,42 @@
-KindaPerl6 --> full 6-in-6 Roadmap
+"KindaPerl6" --> "full 6-in-6" Roadmap
 
-(extracted from TODO list for KindaPerl6)
+Phase I - bootstrap (MiniPerl6)
 
-The kp6 Milestones are:
+- definition of the minimal language for bootstrapping
+- v6.pm improved/fixed in order to host the compiler
+- compiler implemented 
+- compiler self-hosted; we have one image that runs in Perl 5
 
-- lexical subs 
-- metamodel interface
-  - bootstrap == kp6-2
-- lexical classes
-- begin blocks
-- containers
+- Bonus milestones
 
-Starting Code freeze
+-- compile to a language supported by the Parrot VM
+-- compile to a language supported by the JVM
+-- compile to a standalone language, such as C, C++, D, Lisp
+-- bootstrap in other language than Perl 5
+
+Phase II - improved compiler architecture (KindaPerl6)
+
+- Architecture
+
+-- pluggable AST transformations
+
+- Semantics
+
+-- lexical subs 
+-- object metamodel
+-- lexical classes
+-- begin blocks
+-- containers
+
+- Bonus milestones
+
+-- test suite
+-- bootstrapped kp6
+-- lazy containers
+-- runtime written in Perl 6
+-- improved usability; packaged for CPAN 
+
+Phase III - ** under planning **
 
 - translate perl5 runtime to mp6?
 - translate the compiler front-end to mp6
