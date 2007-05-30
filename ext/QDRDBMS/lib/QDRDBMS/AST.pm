@@ -56,54 +56,6 @@ sub newQuasiRelationSel of QDRDBMS::AST::QuasiRelationSel
         :heading($heading), :body($body) );
 }
 
-sub newSetSel of QDRDBMS::AST::SetSel
-        (QDRDBMS::AST::TypeInvoNQ :$heading!, Array :$body!) is export {
-    return ::QDRDBMS::AST::SetSel.new(
-        :heading($heading), :body($body) );
-}
-
-sub newQuasiSetSel of QDRDBMS::AST::QuasiSetSel
-        (QDRDBMS::AST::TypeInvoAQ :$heading!, Array :$body!) is export {
-    return ::QDRDBMS::AST::QuasiSetSel.new(
-        :heading($heading), :body($body) );
-}
-
-sub newSeqSel of QDRDBMS::AST::SeqSel
-        (QDRDBMS::AST::TypeInvoNQ :$heading!, Array :$body!) is export {
-    return ::QDRDBMS::AST::SeqSel.new(
-        :heading($heading), :body($body) );
-}
-
-sub newQuasiSeqSel of QDRDBMS::AST::QuasiSeqSel
-        (QDRDBMS::AST::TypeInvoAQ :$heading!, Array :$body!) is export {
-    return ::QDRDBMS::AST::QuasiSeqSel.new(
-        :heading($heading), :body($body) );
-}
-
-sub newBagSel of QDRDBMS::AST::BagSel
-        (QDRDBMS::AST::TypeInvoNQ :$heading!, Array :$body!) is export {
-    return ::QDRDBMS::AST::BagSel.new(
-        :heading($heading), :body($body) );
-}
-
-sub newQuasiBagSel of QDRDBMS::AST::QuasiBagSel
-        (QDRDBMS::AST::TypeInvoAQ :$heading!, Array :$body!) is export {
-    return ::QDRDBMS::AST::QuasiBagSel.new(
-        :heading($heading), :body($body) );
-}
-
-sub newMaybeSel of QDRDBMS::AST::MaybeSel
-        (QDRDBMS::AST::TypeInvoNQ :$heading!, Array :$body!) is export {
-    return ::QDRDBMS::AST::MaybeSel.new(
-        :heading($heading), :body($body) );
-}
-
-sub newQuasiMaybeSel of QDRDBMS::AST::QuasiMaybeSel
-        (QDRDBMS::AST::TypeInvoAQ :$heading!, Array :$body!) is export {
-    return ::QDRDBMS::AST::QuasiMaybeSel.new(
-        :heading($heading), :body($body) );
-}
-
 sub newVarInvo of QDRDBMS::AST::VarInvo
         (QDRDBMS::AST::EntityName :$v!) is export {
     return ::QDRDBMS::AST::VarInvo.new( :v($v) );
@@ -641,178 +593,6 @@ class QDRDBMS::AST::QuasiRelationSel {
 ###########################################################################
 ###########################################################################
 
-role QDRDBMS::AST::_FlatColl {
-    does QDRDBMS::AST::Expr;
-
-    has QDRDBMS::AST::TypeInvo $!heading;
-    has Array                  $!body;
-
-    has Str $!as_perl;
-
-###########################################################################
-
-submethod BUILD (QDRDBMS::AST::TypeInvo :$heading!, Array :$body!) {
-
-    if self._allows_quasi() {
-        die q{new(): Bad :$heading arg; it is not an object of a}
-                ~ q{ QDRDBMS::AST::TypeInvoAQ-doing class.}
-            if !$heading.defined
-                or !$heading.does(QDRDBMS::AST::TypeInvoAQ);
-    }
-    else {
-        die q{new(): Bad :$heading arg; it is not an object of a}
-                ~ q{ QDRDBMS::AST::TypeInvoNQ-doing class.}
-            if !$heading.defined
-                or !$heading.does(QDRDBMS::AST::TypeInvoNQ);
-    }
-
-    die q{new(): Bad :$body arg; it is not an object of a}
-            ~ q{ Array-doing class.}
-        if !$body.defined or !$body.does(Array);
-    if (self._max_one_elem()) {
-        die q{new(): Bad :$body arg; a Maybe may only have 0..1 elems.}
-            if $body.elems > 1;
-    }
-    for $body -> $tupb {
-        die q{new(): Bad :$body arg elem; it is not an object of a}
-                ~ q{ QDRDBMS::AST::Expr-doing class.}
-            if !$tupb.defined or !$tupb.does(QDRDBMS::AST::Expr);
-    }
-
-    $!heading = $heading;
-    $!body    = [$body.values];
-
-    return;
-}
-
-method _max_one_elem of Bool () { return $FALSE; } # defa unless overridden
-
-###########################################################################
-
-method as_perl of Str () {
-    if (!$!as_perl.defined) {
-        my Str $sh = $!heading.as_perl();
-        my Str $sb = q{[} ~ $!body.map:{ .as_perl() }.join( q{, } ) ~ q{]};
-        $!as_perl = "{self.WHAT}.new( :heading($sh), :body($sb) )";
-    }
-    return $!as_perl;
-}
-
-###########################################################################
-
-method _equal_repr of Bool (::T $self: T $other!) {
-    return $FALSE
-        if !$self!heading.equal_repr( :other($other!heading) );
-    my Array $v1 = $self!body;
-    my Array $v2 = $other!body;
-    return $FALSE
-        if $v2.elems !=== $v1.elems;
-    for 0..^$v1.elems -> $i {
-        return $FALSE
-            if !$v1.[$i].equal_repr( :other($v2.[$i]) );
-    }
-    return $TRUE;
-}
-
-###########################################################################
-
-method heading of QDRDBMS::AST::TypeInvo () {
-    return $!heading;
-}
-
-###########################################################################
-
-method body of Array () {
-    return [$!body.values];
-}
-
-###########################################################################
-
-method repr_elem_count of Int () {
-    return $!body.elems;
-}
-
-###########################################################################
-
-} # role QDRDBMS::AST::_FlatColl
-
-###########################################################################
-###########################################################################
-
-class QDRDBMS::AST::SetSel {
-    does QDRDBMS::AST::_FlatColl;
-    submethod BUILD {} # otherwise Pugs r16488 invo _FlatColl.BUILD twice
-    method _allows_quasi of Bool () { return $FALSE; }
-} # class QDRDBMS::AST::SetSel
-
-###########################################################################
-###########################################################################
-
-class QDRDBMS::AST::QuasiSetSel {
-    does QDRDBMS::AST::_FlatColl;
-    submethod BUILD {} # otherwise Pugs r16488 invo _FlatColl.BUILD twice
-    method _allows_quasi of Bool () { return $TRUE; }
-} # class QDRDBMS::AST::QuasiSetSel
-
-###########################################################################
-###########################################################################
-
-class QDRDBMS::AST::SeqSel {
-    does QDRDBMS::AST::_FlatColl;
-    submethod BUILD {} # otherwise Pugs r16488 invo _FlatColl.BUILD twice
-    method _allows_quasi of Bool () { return $FALSE; }
-} # class QDRDBMS::AST::SeqSel
-
-###########################################################################
-###########################################################################
-
-class QDRDBMS::AST::QuasiSeqSel {
-    does QDRDBMS::AST::_FlatColl;
-    submethod BUILD {} # otherwise Pugs r16488 invo _FlatColl.BUILD twice
-    method _allows_quasi of Bool () { return $TRUE; }
-} # class QDRDBMS::AST::QuasiSeqSel
-
-###########################################################################
-###########################################################################
-
-class QDRDBMS::AST::BagSel {
-    does QDRDBMS::AST::_FlatColl;
-    submethod BUILD {} # otherwise Pugs r16488 invo _FlatColl.BUILD twice
-    method _allows_quasi of Bool () { return $FALSE; }
-} # class QDRDBMS::AST::BagSel
-
-###########################################################################
-###########################################################################
-
-class QDRDBMS::AST::QuasiBagSel {
-    does QDRDBMS::AST::_FlatColl;
-    submethod BUILD {} # otherwise Pugs r16488 invo _FlatColl.BUILD twice
-    method _allows_quasi of Bool () { return $TRUE; }
-} # class QDRDBMS::AST::QuasiBagSel
-
-###########################################################################
-###########################################################################
-
-class QDRDBMS::AST::MaybeSel {
-    does QDRDBMS::AST::_FlatColl;
-    submethod BUILD {} # otherwise Pugs r16488 invo _FlatColl.BUILD twice
-    method _allows_quasi of Bool () { return $FALSE; }
-    method _max_one_elem of Bool () { return $TRUE; }
-} # class QDRDBMS::AST::MaybeSel
-
-###########################################################################
-###########################################################################
-
-class QDRDBMS::AST::QuasiMaybeSel {
-    does QDRDBMS::AST::_FlatColl;
-    submethod BUILD {} # otherwise Pugs r16488 invo _FlatColl.BUILD twice
-    method _allows_quasi of Bool () { return $TRUE; }
-    method _max_one_elem of Bool () { return $TRUE; }
-} # class QDRDBMS::AST::QuasiMaybeSel
-
-###########################################################################
-###########################################################################
-
 class QDRDBMS::AST::VarInvo {
     does QDRDBMS::AST::Expr;
 
@@ -1200,16 +980,9 @@ submethod BUILD (Str :$kind!, Any :$spec!) {
             if !$spec.defined or !$spec.does(QDRDBMS::AST::TypeDictNQ);
     }
 
-    elsif $kind === 'Set'|'Seq'|'Bag'|'Maybe' {
-        die q{new(): Bad :$spec arg; it needs to be a valid object}
-                ~ q{ of a QDRDBMS::AST::TypeInvoNQ-doing class}
-                ~ q{ when the :$kind arg is 'Set'|'Seq'|'Bag'|'Maybe'.}
-            if !$spec.defined or !$spec.does(QDRDBMS::AST::TypeInvoNQ);
-    }
-
     elsif (!self._allows_quasi()) {
         die q{new(): Bad :$kind arg; it needs to be one of}
-            ~ q{ 'Scalar'|'Tuple'|'Relation'|'Set'|'Seq'|'Bag'|'Maybe'.};
+            ~ q{ 'Scalar'|'Tuple'|'Relation'.};
     }
 
     elsif $kind === 'QTuple'|'QRelation' {
@@ -1219,28 +992,18 @@ submethod BUILD (Str :$kind!, Any :$spec!) {
             if !$spec.defined or !$spec.does(QDRDBMS::AST::TypeDictAQ);
     }
 
-    elsif $kind === 'QSet'|'QSeq'|'QBag'|'QMaybe' {
-        die q{new(): Bad :$spec arg; it needs to be a valid object}
-                ~ q{ of a QDRDBMS::AST::TypeInvoAQ-doing class}
-                ~ q{ when the :$kind arg is 'QSet'|'QSeq'|'QBag'|'QMaybe'.}
-            if !$spec.defined or !$spec.does(QDRDBMS::AST::TypeInvoAQ);
-    }
-
     elsif $kind === 'Any' {
         die q{new(): Bad :$spec arg; it needs to be one of}
-                ~ q{ 'Tuple'|'Relation'|'Set'|'Seq'|'Bag'|'Maybe'}
-                ~ q{|'QTuple'|'QRelation'|'QSet'|'QSeq'|'QBag'|'QMaybe'}
-                ~ q{|'Universal' when the :$kind arg is 'Any'.}
+                ~ q{ 'Tuple'|'Relation'|'QTuple'|'QRelation'|'Universal'}
+                ~ q{ when the :$kind arg is 'Any'.}
             if !$spec.defined or !$spec.does(Str)
-                or $spec === none(<Tuple Relation Set Seq Bag Maybe
-                    QTuple QRelation QSet QSeq QBag QMaybe Universal>);
+                or $spec === none(<Tuple Relation
+                    QTuple QRelation Universal>);
     }
 
     else {
         die q{new(): Bad :$kind arg; it needs to be}
-            ~ q{ 'Scalar'|'Tuple'|'Relation'|'Set'|'Seq'|'Bag'|'Maybe'}
-            ~ q{|'QTuple'|'QRelation'|'QSet'|'QSeq'|'QBag'|'QMaybe'}
-            ~ q{|'Any'.};
+            ~ q{ 'Scalar'|'Tuple'|'Relation'|'QTuple'|'QRelation'|'Any'.};
     }
 
     $!kind = $kind;
@@ -1687,11 +1450,9 @@ I<This documentation is pending.>
 
     use QDRDBMS::AST <newLitBool newLitText newLitBlob newLitInt
         newTupleSel newQuasiTupleSel newRelationSel newQuasiRelationSel
-        newSetSel newQuasiSetSel newSeqSel newQuasiSeqSel newBagSel
-        newQuasiBagSel newMaybeSel newQuasiMaybeSel newVarInvo newFuncInvo
-        newProcInvo newFuncReturn newProcReturn newEntityName newTypeInvoNQ
-        newTypeInvoAQ newTypeDictNQ newTypeDictAQ newExprDict newFuncDecl
-        newProcDecl newHostGateRtn>;
+        newVarInvo newFuncInvo newProcInvo newFuncReturn newProcReturn
+        newEntityName newTypeInvoNQ newTypeInvoAQ newTypeDictNQ
+        newTypeDictAQ newExprDict newFuncDecl newProcDecl newHostGateRtn>;
 
     my $truth_value = newLitBool( :v(2 + 2 == 4) );
     my $planetoid = newLitText( :v('Ceres') );
@@ -1737,15 +1498,6 @@ or "isa" hierarchy, children indented under parents:
             QDRDBMS::AST::_Relation (implementing role)
                 QDRDBMS::AST::RelationSel
                 QDRDBMS::AST::QuasiRelationSel
-            QDRDBMS::AST::_FlatColl (implementing role)
-                QDRDBMS::AST::SetSel
-                QDRDBMS::AST::QuasiSetSel
-                QDRDBMS::AST::SeqSel
-                QDRDBMS::AST::QuasiSeqSel
-                QDRDBMS::AST::BagSel
-                QDRDBMS::AST::QuasiBagSel
-                QDRDBMS::AST::MaybeSel
-                QDRDBMS::AST::QuasiMaybeSel
             QDRDBMS::AST::VarInvo
             QDRDBMS::AST::FuncInvo
         QDRDBMS::AST::Stmt (dummy role)
@@ -1915,38 +1667,6 @@ I<This documentation is pending.>
 I<This documentation is pending.>
 
 =head2 The QDRDBMS::AST::QuasiRelationSel Class
-
-I<This documentation is pending.>
-
-=head2 The QDRDBMS::AST::SetSel Class
-
-I<This documentation is pending.>
-
-=head2 The QDRDBMS::AST::QuasiSetSel Class
-
-I<This documentation is pending.>
-
-=head2 The QDRDBMS::AST::SeqSel Class
-
-I<This documentation is pending.>
-
-=head2 The QDRDBMS::AST::QuasiSeqSel Class
-
-I<This documentation is pending.>
-
-=head2 The QDRDBMS::AST::BagSel Class
-
-I<This documentation is pending.>
-
-=head2 The QDRDBMS::AST::QuasiBagSel Class
-
-I<This documentation is pending.>
-
-=head2 The QDRDBMS::AST::MaybeSel Class
-
-I<This documentation is pending.>
-
-=head2 The QDRDBMS::AST::QuasiMaybeSel Class
 
 I<This documentation is pending.>
 
