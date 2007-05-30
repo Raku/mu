@@ -55,7 +55,7 @@ L<S06/"Lvalue subroutines">
   my $var = 42;
 
   # S6 says that lvalue subroutines are marked out by 'is rw'
-  sub notlvalue { return $val1; } # without rw
+  sub notlvalue { return $var; } # without rw
 
   dies_ok { notlvalue() = 5 },
     "assigning to non-rw subs should die";
@@ -63,7 +63,7 @@ L<S06/"Lvalue subroutines">
     "assigning to non-rw subs shouldn't modify the original variable";
 }
 
-sub check ($passwd) { return $password eq "fish"; };
+sub check ($passwd) { return $passwd eq "fish"; };
 
 eval 'sub checklastval ($passwd) is rw {
     my $proxy is Proxy(
