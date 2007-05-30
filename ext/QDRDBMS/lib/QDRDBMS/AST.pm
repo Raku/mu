@@ -30,6 +30,32 @@ sub newLitInt of QDRDBMS::AST::LitInt (Int :$v!) is export {
     return ::QDRDBMS::AST::LitInt.new( :v($v) );
 }
 
+sub newTupleSel of QDRDBMS::AST::TupleSel
+        (QDRDBMS::AST::TypeDict :$heading!,
+        QDRDBMS::AST::ExprDict :$body!) is export {
+    return ::QDRDBMS::AST::TupleSel.new(
+        :heading($heading), :body($body) );
+}
+
+sub newQuasiTupleSel of QDRDBMS::AST::QuasiTupleSel
+        (QDRDBMS::AST::TypeDict :$heading!,
+        QDRDBMS::AST::ExprDict :$body!) is export {
+    return ::QDRDBMS::AST::QuasiTupleSel.new(
+        :heading($heading), :body($body) );
+}
+
+sub newRelationSel of QDRDBMS::AST::RelationSel
+        (QDRDBMS::AST::TypeDict :$heading!, Array :$body!) is export {
+    return ::QDRDBMS::AST::RelationSel.new(
+        :heading($heading), :body($body) );
+}
+
+sub newQuasiRelationSel of QDRDBMS::AST::QuasiRelationSel
+        (QDRDBMS::AST::TypeDict :$heading!, Array :$body!) is export {
+    return ::QDRDBMS::AST::QuasiRelationSel.new(
+        :heading($heading), :body($body) );
+}
+
 sub newSetSel of QDRDBMS::AST::SetSel (Array :$v!) is export {
     return ::QDRDBMS::AST::SetSel.new( :v($v) );
 }
@@ -380,6 +406,213 @@ method v of Int () {
 ###########################################################################
 
 } # class QDRDBMS::AST::LitInt
+
+###########################################################################
+###########################################################################
+
+role QDRDBMS::AST::_Tuple {
+    does QDRDBMS::AST::Expr;
+
+    has QDRDBMS::AST::TypeDict $!heading;
+    has QDRDBMS::AST::ExprDict $!body;
+
+    has Str $!as_perl;
+
+###########################################################################
+
+submethod BUILD (QDRDBMS::AST::TypeDict :$heading!,
+        QDRDBMS::AST::ExprDict :$body!) {
+
+    if self._allows_quasi() {
+        die q{new(): Bad :$heading arg; it is not an object of a}
+                ~ q{ QDRDBMS::AST::TypeDictAQ-doing class.}
+            if !$heading.defined
+                or !$heading.does(QDRDBMS::AST::TypeDictAQ);
+    }
+    else {
+        die q{new(): Bad :$heading arg; it is not an object of a}
+                ~ q{ QDRDBMS::AST::TypeDictNQ-doing class.}
+            if !$heading.defined
+                or !$heading.does(QDRDBMS::AST::TypeDictNQ);
+    }
+    my Hash $heading_attrs_map_hoa = $heading!map_hoa;
+
+    die q{new(): Bad :$body arg; it is not an object of a}
+            ~ q{ QDRDBMS::AST::ExprDict-doing class.}
+        if !$body.defined or !$body.does(QDRDBMS::AST::ExprDict);
+    for $body!map_hoa -> $attr_name_text {
+        die q{new(): Bad :$body arg; at least one its attrs}
+                ~ q{ does not have a corresponding attr in :$heading.}
+            if !$heading_attrs_map_hoa.exists{$attr_name_text};
+    }
+
+    $!heading = $heading;
+    $!body    = $body;
+
+    return;
+}
+
+###########################################################################
+
+method as_perl of Str () {
+    if (!$!as_perl.defined) {
+        my Str $sh = $!heading.as_perl();
+        my Str $sb = $!body.as_perl();
+        $!as_perl = "{self.WHAT}.new( :heading($sh), :body($sb) )";
+    }
+    return $!as_perl;
+}
+
+###########################################################################
+
+method _equal_repr of Bool (::T $self: T $other!) {
+    return ($self!heading.equal_repr( :other($other!heading) )
+        and $self!body.equal_repr( :other($other!body) ));
+}
+
+###########################################################################
+
+method heading of QDRDBMS::AST::TypeDict () {
+    return $!heading;
+}
+
+###########################################################################
+
+method body of QDRDBMS::AST::ExprDict () {
+    return $!body;
+}
+
+###########################################################################
+
+} # role QDRDBMS::AST::_Tuple
+
+###########################################################################
+###########################################################################
+
+class QDRDBMS::AST::TupleSel {
+    does QDRDBMS::AST::_Tuple;
+    submethod BUILD {} # otherwise Pugs r16488 invo _Tuple.BUILD twice
+    method _allows_quasi of Bool () { return $FALSE; }
+} # class QDRDBMS::AST::TupleSel
+
+###########################################################################
+###########################################################################
+
+class QDRDBMS::AST::QuasiTupleSel {
+    does QDRDBMS::AST::_Tuple;
+    submethod BUILD {} # otherwise Pugs r16488 invo _Tuple.BUILD twice
+    method _allows_quasi of Bool () { return $TRUE; }
+} # class QDRDBMS::AST::QuasiTupleSel
+
+###########################################################################
+###########################################################################
+
+role QDRDBMS::AST::_Relation {
+    does QDRDBMS::AST::Expr;
+
+    has QDRDBMS::AST::TypeDict $!heading;
+    has Array                  $!body;
+
+    has Str $!as_perl;
+
+###########################################################################
+
+submethod BUILD (QDRDBMS::AST::TypeDict :$heading!, Array :$body!) {
+
+    if self._allows_quasi() {
+        die q{new(): Bad :$heading arg; it is not an object of a}
+                ~ q{ QDRDBMS::AST::TypeDictAQ-doing class.}
+            if !$heading.defined
+                or !$heading.does(QDRDBMS::AST::TypeDictAQ);
+    }
+    else {
+        die q{new(): Bad :$heading arg; it is not an object of a}
+                ~ q{ QDRDBMS::AST::TypeDictNQ-doing class.}
+            if !$heading.defined
+                or !$heading.does(QDRDBMS::AST::TypeDictNQ);
+    }
+    my Hash $heading_attrs_map_hoa = $heading!map_hoa;
+
+    die q{new(): Bad :$body arg; it is not an object of a}
+            ~ q{ Array-doing class.}
+        if !$body.defined or !$body.does(Array);
+    for $body -> $tupb {
+        die q{new(): Bad :$body arg elem; it is not an object of a}
+                ~ q{ QDRDBMS::AST::ExprDict-doing class.}
+            if !$tupb.defined or !$tupb.does(QDRDBMS::AST::ExprDict);
+        for $body!map_hoa -> $attr_name_text {
+            die q{new(): Bad :$body arg elem; at least one its attrs}
+                    ~ q{ does not have a corresponding attr in :$heading.}
+                if !$heading_attrs_map_hoa.exists{$attr_name_text};
+        }
+    }
+
+    $!heading = $heading;
+    $!body    = [$body.values];
+
+    return;
+}
+
+###########################################################################
+
+method as_perl of Str () {
+    if (!$!as_perl.defined) {
+        my Str $sh = $!heading.as_perl();
+        my Str $sb = q{[} ~ $!body.map:{ .as_perl() }.join( q{, } ) ~ q{]};
+        $!as_perl = "{self.WHAT}.new( :heading($sh), :body($sb) )";
+    }
+    return $!as_perl;
+}
+
+###########################################################################
+
+method _equal_repr of Bool (::T $self: T $other!) {
+    return $FALSE
+        if !$self!heading.equal_repr( :other($other!heading) );
+    my Array $v1 = $self!body;
+    my Array $v2 = $other!body;
+    return $FALSE
+        if $v2.elems !=== $v1.elems;
+    for 0..^$v1.elems -> $i {
+        return $FALSE
+            if !$v1.[$i].equal_repr( :other($v2.[$i]) );
+    }
+    return $TRUE;
+}
+
+###########################################################################
+
+method heading of QDRDBMS::AST::TypeDict () {
+    return $!heading;
+}
+
+###########################################################################
+
+method body of Array () {
+    return [$!body.values];
+}
+
+###########################################################################
+
+} # role QDRDBMS::AST::_Relation
+
+###########################################################################
+###########################################################################
+
+class QDRDBMS::AST::RelationSel {
+    does QDRDBMS::AST::_Relation;
+    submethod BUILD {} # otherwise Pugs r16488 invo _Relation.BUILD twice
+    method _allows_quasi of Bool () { return $FALSE; }
+} # class QDRDBMS::AST::RelationSel
+
+###########################################################################
+###########################################################################
+
+class QDRDBMS::AST::QuasiRelationSel {
+    does QDRDBMS::AST::_Relation;
+    submethod BUILD {} # otherwise Pugs r16488 invo _Relation.BUILD twice
+    method _allows_quasi of Bool () { return $TRUE; }
+} # class QDRDBMS::AST::QuasiRelationSel
 
 ###########################################################################
 ###########################################################################
@@ -1002,6 +1235,8 @@ role QDRDBMS::AST::TypeDict {
 
     has Str $!as_perl;
 
+    trusts QDRDBMS::AST::_Tuple;
+    trusts QDRDBMS::AST::_Relation;
     trusts QDRDBMS::AST::HostGateRtn;
     trusts QDRDBMS::Interface::HostGateRtn;
 
@@ -1126,6 +1361,8 @@ class QDRDBMS::AST::ExprDict {
 
     has Str $!as_perl;
 
+    trusts QDRDBMS::AST::_Tuple;
+    trusts QDRDBMS::AST::_Relation;
     trusts QDRDBMS::AST::ProcInvo;
 
 ###########################################################################
@@ -1369,6 +1606,7 @@ It also describes the same-number versions for Perl 6 of [...].
 I<This documentation is pending.>
 
     use QDRDBMS::AST <newLitBool newLitText newLitBlob newLitInt
+        newTupleSel newQuasiTupleSel newRelationSel newQuasiRelationSel
         newSetSel newSeqSel newBagSel newQuasiSetSel newQuasiSeqSel
         newQuasiBagSel newVarInvo newFuncInvo newProcInvo newFuncReturn
         newProcReturn newEntityName newTypeInvoNQ newTypeInvoAQ
@@ -1413,6 +1651,12 @@ or "isa" hierarchy, children indented under parents:
                 QDRDBMS::AST::LitText
                 QDRDBMS::AST::LitBlob
                 QDRDBMS::AST::LitInt
+            QDRDBMS::AST::_Tuple (implementing role)
+                QDRDBMS::AST::TupleSel
+                QDRDBMS::AST::QuasiTupleSel
+            QDRDBMS::AST::_Relation (implementing role)
+                QDRDBMS::AST::RelationSel
+                QDRDBMS::AST::QuasiRelationSel
             QDRDBMS::AST::_FlatColl (implementing role)
                 QDRDBMS::AST::SetSel
                 QDRDBMS::AST::SeqSel
@@ -1573,6 +1817,22 @@ I<This documentation is pending.>
 I<This documentation is pending.>
 
 =head2 The QDRDBMS::AST::LitInt Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::TupleSel Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::QuasiTupleSel Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::RelationSel Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::QuasiRelationSel Class
 
 I<This documentation is pending.>
 

@@ -253,7 +253,7 @@ method bind_host_params (Array :$upd_args!, Array :$ro_args!) {
         die q{bind_host_params(): Bad :$upd_args arg elem; its first}
                 ~ q{ element does not match the name of a}
                 ~ q{ subject-to-update routine param.}
-            if $exp_upd_params_map_hoa.exists($param_name_text);
+            if !$exp_upd_params_map_hoa.exists($param_name_text);
         die q{bind_host_params(): Bad :$upd_args arg elem; its first elem}
                 ~ q{ is not distinct between the arg elems.}
             if $seen_upd_param_names.exists($param_name_text);
@@ -285,7 +285,7 @@ method bind_host_params (Array :$upd_args!, Array :$ro_args!) {
         die q{bind_host_params(): Bad :$ro_args arg elem; its first}
                 ~ q{ element does not match the name of a}
                 ~ q{ read-only routine param.}
-            if $exp_ro_params_map_hoa.exists($param_name_text);
+            if !$exp_ro_params_map_hoa.exists($param_name_text);
         die q{bind_host_params(): Bad :$ro_args arg elem; its first elem}
                 ~ q{ is not distinct between the arg elems.}
             if $seen_ro_param_names.exists($param_name_text);
