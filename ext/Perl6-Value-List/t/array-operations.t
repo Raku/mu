@@ -81,7 +81,8 @@ use Perl6::Value::List;
   is( try {$a1.shift}, 5, 'zip' );
   is( try {$a1.shift}, 2, 'zip' );
   is( try {$a1.shift}, undef, 'zip' );
-  is( try {$a1.shift}, 3, 'zip' );
+  # is( try {$a1.shift}, 3, 'zip' );    # list exhausted == end of zip
+  is( try {$a1.shift}, undef, 'zip' );
   is( try {$a1.shift}, undef, 'zip' );
 }
 

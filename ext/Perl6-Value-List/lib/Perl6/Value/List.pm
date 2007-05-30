@@ -265,16 +265,17 @@ class Perl6::Value::List {
                         # TODO - rewrite this checking 'elems()'
                         # XXX - the list would normally stop after the first 'undef'
                         for @lists -> $xx {
+                            return if $xx.elems == 0;  # any list was exhausted
                             &*push(@x, [$xx.shift]);
                         }
-                        if defined any(@x) {
+                        #if defined( all(@x) ) {
                             for @lists -> $xx {
                                 yield &*shift(@x);
                             }
-                        }
-                        else {
-                            yield;
-                        }
+                        #}
+                        #else {
+                        #    yield;
+                        #}
                 }
         )
     }
