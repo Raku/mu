@@ -31,53 +31,65 @@ sub newLitInt of QDRDBMS::AST::LitInt (Int :$v!) is export {
 }
 
 sub newTupleSel of QDRDBMS::AST::TupleSel
-        (QDRDBMS::AST::TypeDict :$heading!,
+        (QDRDBMS::AST::TypeDictNQ :$heading!,
         QDRDBMS::AST::ExprDict :$body!) is export {
     return ::QDRDBMS::AST::TupleSel.new(
         :heading($heading), :body($body) );
 }
 
 sub newQuasiTupleSel of QDRDBMS::AST::QuasiTupleSel
-        (QDRDBMS::AST::TypeDict :$heading!,
+        (QDRDBMS::AST::TypeDictAQ :$heading!,
         QDRDBMS::AST::ExprDict :$body!) is export {
     return ::QDRDBMS::AST::QuasiTupleSel.new(
         :heading($heading), :body($body) );
 }
 
 sub newRelationSel of QDRDBMS::AST::RelationSel
-        (QDRDBMS::AST::TypeDict :$heading!, Array :$body!) is export {
+        (QDRDBMS::AST::TypeDictNQ :$heading!, Array :$body!) is export {
     return ::QDRDBMS::AST::RelationSel.new(
         :heading($heading), :body($body) );
 }
 
 sub newQuasiRelationSel of QDRDBMS::AST::QuasiRelationSel
-        (QDRDBMS::AST::TypeDict :$heading!, Array :$body!) is export {
+        (QDRDBMS::AST::TypeDictAQ :$heading!, Array :$body!) is export {
     return ::QDRDBMS::AST::QuasiRelationSel.new(
         :heading($heading), :body($body) );
 }
 
-sub newSetSel of QDRDBMS::AST::SetSel (Array :$v!) is export {
-    return ::QDRDBMS::AST::SetSel.new( :v($v) );
+sub newSetSel of QDRDBMS::AST::SetSel
+        (QDRDBMS::AST::TypeInvoNQ :$heading!, Array :$body!) is export {
+    return ::QDRDBMS::AST::SetSel.new(
+        :heading($heading), :body($body) );
 }
 
-sub newSeqSel of QDRDBMS::AST::SeqSel (Array :$v!) is export {
-    return ::QDRDBMS::AST::SeqSel.new( :v($v) );
+sub newQuasiSetSel of QDRDBMS::AST::QuasiSetSel
+        (QDRDBMS::AST::TypeInvoAQ :$heading!, Array :$body!) is export {
+    return ::QDRDBMS::AST::QuasiSetSel.new(
+        :heading($heading), :body($body) );
 }
 
-sub newBagSel of QDRDBMS::AST::BagSel (Array :$v!) is export {
-    return ::QDRDBMS::AST::BagSel.new( :v($v) );
+sub newSeqSel of QDRDBMS::AST::SeqSel
+        (QDRDBMS::AST::TypeInvoNQ :$heading!, Array :$body!) is export {
+    return ::QDRDBMS::AST::SeqSel.new(
+        :heading($heading), :body($body) );
 }
 
-sub newQuasiSetSel of QDRDBMS::AST::QuasiSetSel (Array :$v!) is export {
-    return ::QDRDBMS::AST::QuasiSetSel.new( :v($v) );
+sub newQuasiSeqSel of QDRDBMS::AST::QuasiSeqSel
+        (QDRDBMS::AST::TypeInvoAQ :$heading!, Array :$body!) is export {
+    return ::QDRDBMS::AST::QuasiSeqSel.new(
+        :heading($heading), :body($body) );
 }
 
-sub newQuasiSeqSel of QDRDBMS::AST::QuasiSeqSel (Array :$v!) is export {
-    return ::QDRDBMS::AST::QuasiSeqSel.new( :v($v) );
+sub newBagSel of QDRDBMS::AST::BagSel
+        (QDRDBMS::AST::TypeInvoNQ :$heading!, Array :$body!) is export {
+    return ::QDRDBMS::AST::BagSel.new(
+        :heading($heading), :body($body) );
 }
 
-sub newQuasiBagSel of QDRDBMS::AST::QuasiBagSel (Array :$v!) is export {
-    return ::QDRDBMS::AST::QuasiBagSel.new( :v($v) );
+sub newQuasiBagSel of QDRDBMS::AST::QuasiBagSel
+        (QDRDBMS::AST::TypeInvoAQ :$heading!, Array :$body!) is export {
+    return ::QDRDBMS::AST::QuasiBagSel.new(
+        :heading($heading), :body($body) );
 }
 
 sub newVarInvo of QDRDBMS::AST::VarInvo
@@ -620,24 +632,39 @@ class QDRDBMS::AST::QuasiRelationSel {
 role QDRDBMS::AST::_FlatColl {
     does QDRDBMS::AST::Expr;
 
-    has Array $!v;
+    has QDRDBMS::AST::TypeInvo $!heading;
+    has Array                  $!body;
 
     has Str $!as_perl;
 
 ###########################################################################
 
-submethod BUILD (Array :$v!) {
+submethod BUILD (QDRDBMS::AST::TypeInvo :$heading!, Array :$body!) {
 
-    die q{new(): Bad :$v arg; it is not an object of a}
-            ~ q{ Array-doing class.}
-        if !$v.defined or !$v.does(Array);
-    for $v -> $ve {
-        die q{new(): Bad :$v arg elem; it is not}
-                ~ q{ an object of a QDRDBMS::AST::Expr-doing class.}
-            if !$ve.defined or !$ve.does(QDRDBMS::AST::Expr);
+    if self._allows_quasi() {
+        die q{new(): Bad :$heading arg; it is not an object of a}
+                ~ q{ QDRDBMS::AST::TypeInvoAQ-doing class.}
+            if !$heading.defined
+                or !$heading.does(QDRDBMS::AST::TypeInvoAQ);
+    }
+    else {
+        die q{new(): Bad :$heading arg; it is not an object of a}
+                ~ q{ QDRDBMS::AST::TypeInvoNQ-doing class.}
+            if !$heading.defined
+                or !$heading.does(QDRDBMS::AST::TypeInvoNQ);
     }
 
-    $!v = [$v.values];
+    die q{new(): Bad :$body arg; it is not an object of a}
+            ~ q{ Array-doing class.}
+        if !$body.defined or !$body.does(Array);
+    for $body -> $tupb {
+        die q{new(): Bad :$body arg elem; it is not an object of a}
+                ~ q{ QDRDBMS::AST::Expr-doing class.}
+            if !$tupb.defined or !$tupb.does(QDRDBMS::AST::Expr);
+    }
+
+    $!heading = $heading;
+    $!body    = [$body.values];
 
     return;
 }
@@ -646,8 +673,9 @@ submethod BUILD (Array :$v!) {
 
 method as_perl of Str () {
     if (!$!as_perl.defined) {
-        my Str $s = q{[} ~ $!v.map:{ .as_perl() }.join( q{, } ) ~ q{]};
-        $!as_perl = "{self.WHAT}.new( :v($s) )";
+        my Str $sh = $!heading.as_perl();
+        my Str $sb = q{[} ~ $!body.map:{ .as_perl() }.join( q{, } ) ~ q{]};
+        $!as_perl = "{self.WHAT}.new( :heading($sh), :body($sb) )";
     }
     return $!as_perl;
 }
@@ -655,8 +683,10 @@ method as_perl of Str () {
 ###########################################################################
 
 method _equal_repr of Bool (::T $self: T $other!) {
-    my Array $v1 = $self!v;
-    my Array $v2 = $other!v;
+    return $FALSE
+        if !$self!heading.equal_repr( :other($other!heading) );
+    my Array $v1 = $self!body;
+    my Array $v2 = $other!body;
     return $FALSE
         if $v2.elems !=== $v1.elems;
     for 0..^$v1.elems -> $i {
@@ -668,14 +698,20 @@ method _equal_repr of Bool (::T $self: T $other!) {
 
 ###########################################################################
 
-method v of Array () {
-    return [$!v.values];
+method heading of QDRDBMS::AST::TypeInvo () {
+    return $!heading;
+}
+
+###########################################################################
+
+method body of Array () {
+    return [$!body.values];
 }
 
 ###########################################################################
 
 method repr_elem_count of Int () {
-    return $!v.elems;
+    return $!body.elems;
 }
 
 ###########################################################################
@@ -688,23 +724,8 @@ method repr_elem_count of Int () {
 class QDRDBMS::AST::SetSel {
     does QDRDBMS::AST::_FlatColl;
     submethod BUILD {} # otherwise Pugs r16488 invo _FlatColl.BUILD twice
+    method _allows_quasi of Bool () { return $FALSE; }
 } # class QDRDBMS::AST::SetSel
-
-###########################################################################
-###########################################################################
-
-class QDRDBMS::AST::SeqSel {
-    does QDRDBMS::AST::_FlatColl;
-    submethod BUILD {} # otherwise Pugs r16488 invo _FlatColl.BUILD twice
-} # class QDRDBMS::AST::SeqSel
-
-###########################################################################
-###########################################################################
-
-class QDRDBMS::AST::BagSel {
-    does QDRDBMS::AST::_FlatColl;
-    submethod BUILD {} # otherwise Pugs r16488 invo _FlatColl.BUILD twice
-} # class QDRDBMS::AST::BagSel
 
 ###########################################################################
 ###########################################################################
@@ -712,7 +733,17 @@ class QDRDBMS::AST::BagSel {
 class QDRDBMS::AST::QuasiSetSel {
     does QDRDBMS::AST::_FlatColl;
     submethod BUILD {} # otherwise Pugs r16488 invo _FlatColl.BUILD twice
+    method _allows_quasi of Bool () { return $TRUE; }
 } # class QDRDBMS::AST::QuasiSetSel
+
+###########################################################################
+###########################################################################
+
+class QDRDBMS::AST::SeqSel {
+    does QDRDBMS::AST::_FlatColl;
+    submethod BUILD {} # otherwise Pugs r16488 invo _FlatColl.BUILD twice
+    method _allows_quasi of Bool () { return $FALSE; }
+} # class QDRDBMS::AST::SeqSel
 
 ###########################################################################
 ###########################################################################
@@ -720,7 +751,17 @@ class QDRDBMS::AST::QuasiSetSel {
 class QDRDBMS::AST::QuasiSeqSel {
     does QDRDBMS::AST::_FlatColl;
     submethod BUILD {} # otherwise Pugs r16488 invo _FlatColl.BUILD twice
+    method _allows_quasi of Bool () { return $TRUE; }
 } # class QDRDBMS::AST::QuasiSeqSel
+
+###########################################################################
+###########################################################################
+
+class QDRDBMS::AST::BagSel {
+    does QDRDBMS::AST::_FlatColl;
+    submethod BUILD {} # otherwise Pugs r16488 invo _FlatColl.BUILD twice
+    method _allows_quasi of Bool () { return $FALSE; }
+} # class QDRDBMS::AST::BagSel
 
 ###########################################################################
 ###########################################################################
@@ -728,6 +769,7 @@ class QDRDBMS::AST::QuasiSeqSel {
 class QDRDBMS::AST::QuasiBagSel {
     does QDRDBMS::AST::_FlatColl;
     submethod BUILD {} # otherwise Pugs r16488 invo _FlatColl.BUILD twice
+    method _allows_quasi of Bool () { return $TRUE; }
 } # class QDRDBMS::AST::QuasiBagSel
 
 ###########################################################################
@@ -1607,7 +1649,7 @@ I<This documentation is pending.>
 
     use QDRDBMS::AST <newLitBool newLitText newLitBlob newLitInt
         newTupleSel newQuasiTupleSel newRelationSel newQuasiRelationSel
-        newSetSel newSeqSel newBagSel newQuasiSetSel newQuasiSeqSel
+        newSetSel newQuasiSetSel newSeqSel newQuasiSeqSel newBagSel
         newQuasiBagSel newVarInvo newFuncInvo newProcInvo newFuncReturn
         newProcReturn newEntityName newTypeInvoNQ newTypeInvoAQ
         newTypeDictNQ newTypeDictAQ newExprDict newFuncDecl newProcDecl
@@ -1659,10 +1701,10 @@ or "isa" hierarchy, children indented under parents:
                 QDRDBMS::AST::QuasiRelationSel
             QDRDBMS::AST::_FlatColl (implementing role)
                 QDRDBMS::AST::SetSel
-                QDRDBMS::AST::SeqSel
-                QDRDBMS::AST::BagSel
                 QDRDBMS::AST::QuasiSetSel
+                QDRDBMS::AST::SeqSel
                 QDRDBMS::AST::QuasiSeqSel
+                QDRDBMS::AST::BagSel
                 QDRDBMS::AST::QuasiBagSel
             QDRDBMS::AST::VarInvo
             QDRDBMS::AST::FuncInvo
@@ -1840,19 +1882,19 @@ I<This documentation is pending.>
 
 I<This documentation is pending.>
 
-=head2 The QDRDBMS::AST::SeqSel Class
-
-I<This documentation is pending.>
-
-=head2 The QDRDBMS::AST::BagSel Class
-
-I<This documentation is pending.>
-
 =head2 The QDRDBMS::AST::QuasiSetSel Class
 
 I<This documentation is pending.>
 
+=head2 The QDRDBMS::AST::SeqSel Class
+
+I<This documentation is pending.>
+
 =head2 The QDRDBMS::AST::QuasiSeqSel Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::BagSel Class
 
 I<This documentation is pending.>
 
