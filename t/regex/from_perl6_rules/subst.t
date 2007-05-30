@@ -20,7 +20,7 @@ if !eval('("a" ~~ /a/)') {
 
 my $s = "ZBC"; my @a = ("A", 'ZBC');
 
-my $_ = q{Now I know my abc's};
+$_ = q{Now I know my abc's};
 
 s:global/Now/Wow/;
 is($_, q{Wow I know my abc's}, 'Constant substitution');
