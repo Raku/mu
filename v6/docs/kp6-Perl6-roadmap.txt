@@ -47,7 +47,7 @@ Phase II - improved compiler architecture (KindaPerl6)
 -- runtime written in Perl 6
 -- improved usability; packaged for CPAN 
 
-Phase III - migrate the MP6 regex compiler to KP6 style
+Phase III - refactor the MP6 regex compiler to KP6 style
 
 -- regex compiler merged into the main Perl 6 compiler
 
@@ -55,7 +55,16 @@ Phase III - migrate the MP6 regex compiler to KP6 style
 
 -- string interpolation
 
-Phase IV - improved grammar
+Phase IV - multis
+
+-- multis
+--- "Code", "Signature"
+
+- Bonus milestones
+
+-- Type system
+
+Phase V - improved grammar
 
 - Architecture
 
@@ -72,10 +81,7 @@ Phase IV - improved grammar
 --- precedence parser from Perl6-STD
 
 -- lexically modifieable Grammar
--- multis
---- "Code", "Signature"
 -- "use"
--- Type system
 
 - Bonus milestones
 
@@ -96,7 +102,7 @@ Phase IV - improved grammar
 -- junctions
 -- type checking on binding
 
-Phase V - optimizer
+Phase VI - optimizer
 
 - Implementation
 
@@ -110,7 +116,7 @@ Phase V - optimizer
 -- 'eval' Perl 5
 -- 'use' Perl 5
 
-Phase VI - aggressive optimizer
+Phase VII - aggressive optimizer
 
 
 Related Work
@@ -232,14 +238,6 @@ Visitor modules:
     KindaPerl6::Visitor::LexicalSub
     KindaPerl6::Visitor::CreateEnv
 
-- (FIXED) add variable declarations collector -- XXX now obsolete!
-  - move variable declarations to the start of each block
-
-- LexicalSub.pm -- XXX now obsolete!
-  - add 'our' subs to the namespace, if there is one
-  - verify the interface with native p5 subs, such as 'Main::say'
-  - only create a "lexical sub" call if the sub is in scope
-
 - MetaClass.pm
   - add class variables
   - test bootstrap
@@ -250,17 +248,6 @@ Visitor modules:
     sub meta { Class::MOP::Class->initialize(blessed($_[0]) || $_[0]) }  
     ---
   - create BUILD, BUILDALL
-
-Other:
-
-- star/GLOBAL namespace -- done!
-    zzz()
-    --> ($_SUB_zzz || $GLOBAL::_SUB_zzz)->(@args)
-    $*foo
-    --> $GLOBAL::foo
-    but:
-    TimToady> under strict there is no fallback to global unless you explicitly import (you also get a snapshot of GLOBAL imported automatically at the start of compilation)
-  - what are the differences between compiling modules and compile plain-programs
 
 - OUTER namespace
 - ROUTINE
@@ -274,6 +261,8 @@ For later:
 - desugar closures into simple subroutines, in support for the C backend
 
 - temp/state desugaring, for perl5
+
+- circular prelude
 
 - 6-on-6 design
   - full-ast
