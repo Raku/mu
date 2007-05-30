@@ -12,6 +12,7 @@ Phase I - bootstrap (MiniPerl6)
 -- compile to a language supported by the Parrot VM
 -- compile to a language supported by the JVM
 -- compile to a standalone language, such as C, C++, D, Lisp
+-- compile to Javascript
 -- bootstrap in other language than Perl 5
 -- have Perl6-in-parrot reuse parts of the MiniPerl6 architecture
 
@@ -20,13 +21,15 @@ Phase II - improved compiler architecture (KindaPerl6)
 - Architecture
 
 -- pluggable AST processors
+-- precompilation
 
 - Semantics
 
 -- lexical subs 
 -- object metamodel
 -- lexical classes
--- begin blocks
+-- BEGIN blocks
+--- compile-time state is restored at runtime
 -- containers
 
 - Bonus milestones
@@ -37,24 +40,61 @@ Phase II - improved compiler architecture (KindaPerl6)
 -- runtime written in Perl 6
 -- improved usability; packaged for CPAN 
 
-Phase III - ** under planning **
+Phase III - improved grammar
 
-** no particular order, yet
+- Architecture
 
-- reorganize directories
+-- reorganized directories
+-- regex compiler merged into the main Perl 6 compiler
+-- regex backtracking
+--- which backtracking model?
 
-- translate perl5 runtime to mp6?
-- translate the compiler front-end to mp6
-- test suite
-- debugging
-- minimal runtime
-- bootstrap?
-- plan Perl6-in-Perl6
+- Grammar
+
+-- COMPILING::<$?PARSER>
+-- $?FILE, $?LINE
+-- finer-grained error messages
+-- grammar merged from Perl6-STD
+--- precedence parser from Perl6-STD
+
+- Semantics
+
+-- lexically modifieable Grammar
+-- multis
+--- "Code", "Signature"
+-- "use"
+-- Type system
 
 - Bonus milestones
 
+-- subroutine prototypes
+-- clearly separate the backend code from the main compiler code
+-- compiler front-end written in Perl 6
+-- usable as a "v6.pm" plugin
+-- optionally compile to "MiniPerl6" level (faster, smaller, but less features)
 -- parse Perl6-STD
+-- use ext/Test.pm
+-- integrated into the smoke system
+-- debugger
+-- interactive mode
+-- extended runtime; syntax sugar
+-- threads and parallelism
+-- coroutines
+-- macros
+-- junctions
+-- type checking on binding
+
+Phase IV - optimizer
+
+-- optimizer plugins
 -- use Perl6-STD as the compiler grammar
+-- compiler cache
+
+- Bonus milestones
+
+-- 'use' specific versions
+-- 'eval' Perl 5
+-- 'use' Perl 5
 
 Related Work
 
@@ -66,3 +106,157 @@ Related Work
 -- "lrep" bootstrapping compiler
 - Perl6-STD (official Perl 6 grammar)
 
+- possible backends:
+-- Perl 5
+-- Parrot (Perl6-Parrot, PIR)
+-- Perl6-Haskell (Pugs)
+-- JVM (Groovy, Java, bytecode) 
+-- Javascript (plain javascript, PIL2JS)
+-- pypy (RPython)
+-- C, C++ (gcc with GOMP and Boehm GC)
+
+__END__
+------------------------------------------------
+
+
+
+** no particular order, yet - cut and pasted from the TODO
+
+- private method/sub/accessor
+- signatures with optional, named, slurpy arguments
+- user-clonable closures
+    - $closure.clone - creates new pads with copies of lexicals
+
++ try(), eval()
++ 'Code' closure objects
++ 'Capture' objects
++ classes, methods, at compile-time
++ short-circuiting <&&>, <||>, <?? !!> (require macros, or laziness)
+
+- 'let' variables
+- 'our' variables
+- CATCH blocks
+
+- method hyperization is untested
+
+- immutables - Set, Seq, Bag
+
+- traits
+    - is context, rw, readonly
+- containers, but no laziness, no slices
+    - hash and array are under refactoring
+    - P6opaque
+    - GLOBAL importation should be lexical
+    - method not found falls back to sub call
+    - lvalue methods (rw)
+    - call context
+- type system
+- for-loop, map, with several arguments
+- (FIXED) begin-blocks with side-effects
+- subroutine calls, data, are incompatible with perl 5
+- no 'use v5'
+- declare our/state/temp/constant things    
+
+- missing GLOBAL::import() at compile-time
+- 'our $x' should compile to 'my $x ::= $Pkgname::x'
+- 'use GLOBAL $x' should compile to 'my $x ::= $GLOBAL::x'
+
+- perl6-land 'use'
+- translate the COMPILER package to mp6
+- translate Pad.pm and Type.pm to mp6
+
+- create an AST node for INIT/END
+
+BEGIN blocks:
+
+- logging of array/hash element modifications is not implemented
+- binding to Value is not emitted
+
+- Method and Class doesn't have '.perl'
+
+Bugs:
+
+- missing compile-time methods
+
+- compile-time does not import GLOBAL - 'say' doesn't work inside BEGIN blocks
+
+- grammar: 'undefine($v)' is not parsed
+- structure binding/assign is untested
+
+Roles:
+
+- (FIXED) possible implementation:
+    $Obj->{Role_bool} = sub { 1 };
+  at runtime:
+    $Obj->{Role_bool} && $Obj->{Role_bool}() || $Obj->bool()
+- problem: objects based on p5-array (Array), p5-code (Code)
+    - p5-land objects will only have Moose-based roles
+
+Perl5 compatibility:
+
+- mark closure blocks as p5 or p6 (kp6/mp6)
+  
+Problems running the Perl6 test suite:
+  
+- kp6 requires a 'compilation unit' declaration
+- '&&', '||' operators don't short circuit
+- (FIXED) 'if', 'sub' require ';'
+- prefix and postfix:<++> not implemented
+- 'use' doesn't accept parameters: use lib ".";
+- parameter list error in:
+    if defined $var { ...
+  requires:
+    if defined($var) { ...
+- no END blocks
+
+Visitor modules:
+
+- deprecated modules:
+    KindaPerl6::Visitor::LexicalSub
+    KindaPerl6::Visitor::CreateEnv
+
+- (FIXED) add variable declarations collector -- XXX now obsolete!
+  - move variable declarations to the start of each block
+
+- LexicalSub.pm -- XXX now obsolete!
+  - add 'our' subs to the namespace, if there is one
+  - verify the interface with native p5 subs, such as 'Main::say'
+  - only create a "lexical sub" call if the sub is in scope
+
+- MetaClass.pm
+  - add class variables
+  - test bootstrap
+  - roles
+  - alias Class::MOP's 'meta' to 'HOW'
+    ---
+    package Class::MOP::Class;
+    sub meta { Class::MOP::Class->initialize(blessed($_[0]) || $_[0]) }  
+    ---
+  - create BUILD, BUILDALL
+
+Other:
+
+- star/GLOBAL namespace -- done!
+    zzz()
+    --> ($_SUB_zzz || $GLOBAL::_SUB_zzz)->(@args)
+    $*foo
+    --> $GLOBAL::foo
+    but:
+    TimToady> under strict there is no fallback to global unless you explicitly import (you also get a snapshot of GLOBAL imported automatically at the start of compilation)
+  - what are the differences between compiling modules and compile plain-programs
+
+- OUTER namespace
+- ROUTINE
+- tail-calls
+
+For later:
+
+- desugar blocks into real subroutines, in support for the parrot backend
+  - fixed by now, using p6parrot as an intermediate language
+
+- desugar closures into simple subroutines, in support for the C backend
+
+- temp/state desugaring, for perl5
+
+- 6-on-6 design
+  - full-ast
