@@ -2,10 +2,17 @@
 
 Phase I - bootstrap (MiniPerl6)
 
-- definition of the minimal language for bootstrapping
-- v6.pm improved/fixed in order to host the compiler
-- compiler implemented 
-- compiler self-hosted; we have one image that runs in Perl 5
+- Architecture
+
+-- definition of the minimal language for bootstrapping
+-- regex engine implemented in MiniPerl6
+-- AST specification
+
+- Implementation
+
+-- v6.pm improved/fixed in order to host the compiler
+-- compiler implemented 
+-- compiler self-hosted; we have one image that runs in Perl 5
 
 - Bonus milestones
 
@@ -23,7 +30,7 @@ Phase II - improved compiler architecture (KindaPerl6)
 -- pluggable AST processors
 -- precompilation
 
-- Semantics
+- Implementation
 
 -- lexical subs 
 -- object metamodel
@@ -40,24 +47,29 @@ Phase II - improved compiler architecture (KindaPerl6)
 -- runtime written in Perl 6
 -- improved usability; packaged for CPAN 
 
-Phase III - improved grammar
+Phase III - migrate the MP6 regex compiler to KP6 style
+
+-- regex compiler merged into the main Perl 6 compiler
+
+- Bonus milestones
+
+-- string interpolation
+
+Phase IV - improved grammar
 
 - Architecture
 
 -- reorganized directories
--- regex compiler merged into the main Perl 6 compiler
 -- regex backtracking
 --- which backtracking model?
 
-- Grammar
+- Implementation
 
 -- COMPILING::<$?PARSER>
 -- $?FILE, $?LINE
 -- finer-grained error messages
 -- grammar merged from Perl6-STD
 --- precedence parser from Perl6-STD
-
-- Semantics
 
 -- lexically modifieable Grammar
 -- multis
@@ -84,7 +96,9 @@ Phase III - improved grammar
 -- junctions
 -- type checking on binding
 
-Phase IV - optimizer
+Phase V - optimizer
+
+- Implementation
 
 -- optimizer plugins
 -- use Perl6-STD as the compiler grammar
@@ -95,6 +109,9 @@ Phase IV - optimizer
 -- 'use' specific versions
 -- 'eval' Perl 5
 -- 'use' Perl 5
+
+Phase VI - aggressive optimizer
+
 
 Related Work
 
