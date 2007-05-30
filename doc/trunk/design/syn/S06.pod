@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 21 May 2007
+  Last Modified: 29 May 2007
   Number: 6
-  Version: 84
+  Version: 85
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -1472,12 +1472,32 @@ to within the subrule as C<< $<KEY> >>.
 
 =item C<is cached>
 
-Marks a subroutine as being memoized.
+Marks a subroutine as being memoized, or at least memoizable.  The
+compiler is free to choose any kind of caching algorithm (including
+non-expiring, random, lru, pseudo-lru, or adaptive algoritms, or
+even no caching algorithm at all).  The run-time system is free to
+choose any kind of maximum cache size depending on the availability
+of memory and trends in usage patterns.  You may suggest a particular
+cache size by passing a numeric argument, and some of the possible
+algorithms may pay attention to it.  You may also pass C<*> for the
+size to request a non-expiring cache (complete memoization).  The
+compiler is free to ignore this too.
+
+The intent of this pragma is to specify performance hints without
+mandating any exact behavior.  Use of this pragma should not change
+semantics of the program, and this pragma will not be extended to
+reinvent other existing ways of achieving the same effect.  To gain
+more control, write your own trait handler to allow the use of a more
+specific trait, such as "C<is lru(42)>".  Alternately, just
+use a state hash keyed on the sub's argument capture to write
+your own memoization with complete control from within the subroutine
+itself.
 
 =item C<is inline>
 
 I<Suggests> to the compiler that the subroutine is a candidate for
-optimization via inlining.
+optimization via inlining.  Basically promises that nobody is going
+to try to wrap this subroutine (or that if they do, you don't care).
 
 =item C<is tighter>/C<is looser>/C<is equiv>
 
