@@ -41,6 +41,8 @@ I/O Redirection to scalar tests
 
 skip_rest("needs speccing"); exit;
 
+my $scalar;
+
 # XXX: gaal: dunno how this should be, but this isn't it.
 ok(try { open $*OUT,">",\$scalar },'Direct STDOUT to a scalar', :todo);
 ok(try { open $*ERR,">",\$scalar },'Direct STDERR to a scalar', :todo);
