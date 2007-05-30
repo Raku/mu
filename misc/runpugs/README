@@ -7,10 +7,28 @@ NAME
     Web::Terminal: library for building a web terminal for interactive shells
 
 INSTALLATION
+    
     * To install, copy all folders to your web root
     (e.g. ~/apache on feather, or /var/www elsewhere)
     Rename html folder if required (e.g. htdocs -> html or public_html)
-    * Start the terminal server script (bin/termserv3.pl) 
+
+    * make sure that you installed the following CPAN modules:
+    	Carp::Assert 
+    	YAML::Syck 
+    	Proc::Daemon 
+    	Moose 
+    	Net::Telnet 
+    	IO::Pty
+
+    * make sure that you change the following settings in lib/Web/Terminal/Settings.pm
+    	$rel_root	(Release pugs)
+    	$dev_root	(Development pugs)
+    	$root		(web root)
+    	$port		(usually should be 2059)
+    	$server		(bin/termserv4.pl)
+    	
+    * Start the terminal server script (bin/termserv4.pl) 
+    
     * To run, simply point your browser to /runpugs/ 
 
 DESCRIPTION
