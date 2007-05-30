@@ -156,7 +156,7 @@ method equal_repr of Bool (QDRDBMS::AST::Node :$other!) {
 
     die q{equal_repr(): Bad :$other arg; it is not an object of a}
             ~ q{ QDRDBMS::AST::Node-doing class.}
-        if !$other.defined or !$other.does(QDRDBMS::AST::Node);
+        if !$other.defined or !$other.does(::QDRDBMS::AST::Node);
 
     return $FALSE
         if $other.WHAT !=== self.WHAT;
@@ -403,23 +403,23 @@ submethod BUILD (QDRDBMS::AST::TypeDict :$heading!,
         die q{new(): Bad :$heading arg; it is not an object of a}
                 ~ q{ QDRDBMS::AST::TypeDictAQ-doing class.}
             if !$heading.defined
-                or !$heading.does(QDRDBMS::AST::TypeDictAQ);
+                or !$heading.does(::QDRDBMS::AST::TypeDictAQ);
     }
     else {
         die q{new(): Bad :$heading arg; it is not an object of a}
                 ~ q{ QDRDBMS::AST::TypeDictNQ-doing class.}
             if !$heading.defined
-                or !$heading.does(QDRDBMS::AST::TypeDictNQ);
+                or !$heading.does(::QDRDBMS::AST::TypeDictNQ);
     }
     my Hash $heading_attrs_map_hoa = $heading!map_hoa;
 
     die q{new(): Bad :$body arg; it is not an object of a}
             ~ q{ QDRDBMS::AST::ExprDict-doing class.}
-        if !$body.defined or !$body.does(QDRDBMS::AST::ExprDict);
-    for $body!map_hoa -> $attr_name_text {
+        if !$body.defined or !$body.does(::QDRDBMS::AST::ExprDict);
+    for $body!map_hoa.keys -> $attr_name_text {
         die q{new(): Bad :$body arg; at least one its attrs}
                 ~ q{ does not have a corresponding attr in :$heading.}
-            if !$heading_attrs_map_hoa.exists{$attr_name_text};
+            if !$heading_attrs_map_hoa.exists($attr_name_text);
     }
 
     $!heading = $heading;
@@ -499,13 +499,13 @@ submethod BUILD (QDRDBMS::AST::TypeDict :$heading!, Array :$body!) {
         die q{new(): Bad :$heading arg; it is not an object of a}
                 ~ q{ QDRDBMS::AST::TypeDictAQ-doing class.}
             if !$heading.defined
-                or !$heading.does(QDRDBMS::AST::TypeDictAQ);
+                or !$heading.does(::QDRDBMS::AST::TypeDictAQ);
     }
     else {
         die q{new(): Bad :$heading arg; it is not an object of a}
                 ~ q{ QDRDBMS::AST::TypeDictNQ-doing class.}
             if !$heading.defined
-                or !$heading.does(QDRDBMS::AST::TypeDictNQ);
+                or !$heading.does(::QDRDBMS::AST::TypeDictNQ);
     }
     my Hash $heading_attrs_map_hoa = $heading!map_hoa;
 
@@ -515,11 +515,11 @@ submethod BUILD (QDRDBMS::AST::TypeDict :$heading!, Array :$body!) {
     for $body -> $tupb {
         die q{new(): Bad :$body arg elem; it is not an object of a}
                 ~ q{ QDRDBMS::AST::ExprDict-doing class.}
-            if !$tupb.defined or !$tupb.does(QDRDBMS::AST::ExprDict);
-        for $body!map_hoa -> $attr_name_text {
+            if !$tupb.defined or !$tupb.does(::QDRDBMS::AST::ExprDict);
+        for $tupb!map_hoa.keys -> $attr_name_text {
             die q{new(): Bad :$body arg elem; at least one its attrs}
                     ~ q{ does not have a corresponding attr in :$heading.}
-                if !$heading_attrs_map_hoa.exists{$attr_name_text};
+                if !$heading_attrs_map_hoa.exists($attr_name_text);
         }
     }
 
@@ -606,7 +606,7 @@ submethod BUILD (QDRDBMS::AST::EntityName :$v!) {
 
     die q{new(): Bad :$v arg; it is not a valid object}
             ~ q{ of a QDRDBMS::AST::EntityName-doing class.}
-        if !$v.defined or !$v.does(QDRDBMS::AST::EntityName);
+        if !$v.defined or !$v.does(::QDRDBMS::AST::EntityName);
 
     $!v = $v;
 
@@ -657,11 +657,11 @@ submethod BUILD (QDRDBMS::AST::EntityName :$func!,
 
     die q{new(): Bad :$func arg; it is not a valid object}
             ~ q{ of a QDRDBMS::AST::EntityName-doing class.}
-        if !$func.defined or !$func.does(QDRDBMS::AST::EntityName);
+        if !$func.defined or !$func.does(::QDRDBMS::AST::EntityName);
 
     die q{new(): Bad :$ro_args arg; it is not an object of a}
             ~ q{ QDRDBMS::AST::ExprDict-doing class.}
-        if !$ro_args.defined or !$ro_args.does(QDRDBMS::AST::ExprDict);
+        if !$ro_args.defined or !$ro_args.does(::QDRDBMS::AST::ExprDict);
 
     $!func    = $func;
     $!ro_args = $ro_args;
@@ -729,19 +729,19 @@ submethod BUILD (QDRDBMS::AST::EntityName :$proc!,
 
     die q{new(): Bad :$proc arg; it is not a valid object}
             ~ q{ of a QDRDBMS::AST::EntityName-doing class.}
-        if !$proc.defined or !$proc.does(QDRDBMS::AST::EntityName);
+        if !$proc.defined or !$proc.does(::QDRDBMS::AST::EntityName);
 
     die q{new(): Bad :$upd_args arg; it is not an object of a}
             ~ q{ QDRDBMS::AST::ExprDict-doing class.}
-        if !$upd_args.defined or !$upd_args.does(QDRDBMS::AST::ExprDict);
+        if !$upd_args.defined or !$upd_args.does(::QDRDBMS::AST::ExprDict);
     die q{new(): Bad :$ro_args arg; it is not an object of a}
             ~ q{ QDRDBMS::AST::ExprDict-doing class.}
-        if !$ro_args.defined or !$ro_args.does(QDRDBMS::AST::ExprDict);
+        if !$ro_args.defined or !$ro_args.does(::QDRDBMS::AST::ExprDict);
     my Hash $upd_args_map_hoa = $upd_args!map_hoa;
     for $upd_args_map_hoa.values -> $an_and_vn {
         die q{new(): Bad :$upd_args arg elem expr; it is not}
                 ~ q{ an object of a QDRDBMS::AST::VarInvo-doing class.}
-            if !$an_and_vn.[1].does(QDRDBMS::AST::VarInvo);
+            if !$an_and_vn.[1].does(::QDRDBMS::AST::VarInvo);
     }
     confess q{new(): Bad :$upd_args or :$ro_args arg;}
             ~ q{ they both reference at least 1 same procedure param.}
@@ -809,7 +809,7 @@ submethod BUILD (QDRDBMS::AST::Expr :$v!) {
 
     die q{new(): Bad :$v arg; it is not a valid object}
             ~ q{ of a QDRDBMS::AST::Expr-doing class.}
-        if !$v.defined or !$v.does(QDRDBMS::AST::Expr);
+        if !$v.defined or !$v.does(::QDRDBMS::AST::Expr);
 
     $!v = $v;
 
@@ -970,14 +970,14 @@ submethod BUILD (Str :$kind!, Any :$spec!) {
         die q{new(): Bad :$spec arg; it needs to be a valid object}
                 ~ q{ of a QDRDBMS::AST::EntityName-doing class}
                 ~ q{ when the :$kind arg is 'Scalar'.}
-            if !$spec.defined or !$spec.does(QDRDBMS::AST::EntityName);
+            if !$spec.defined or !$spec.does(::QDRDBMS::AST::EntityName);
     }
 
     elsif $kind === 'Tuple'|'Relation' {
         die q{new(): Bad :$spec arg; it needs to be a valid object}
                 ~ q{ of a QDRDBMS::AST::TypeDictNQ-doing class}
                 ~ q{ when the :$kind arg is 'Tuple'|'Relation'.}
-            if !$spec.defined or !$spec.does(QDRDBMS::AST::TypeDictNQ);
+            if !$spec.defined or !$spec.does(::QDRDBMS::AST::TypeDictNQ);
     }
 
     elsif (!self._allows_quasi()) {
@@ -989,7 +989,7 @@ submethod BUILD (Str :$kind!, Any :$spec!) {
         die q{new(): Bad :$spec arg; it needs to be a valid object}
                 ~ q{ of a QDRDBMS::AST::TypeDictAQ-doing class}
                 ~ q{ when the :$kind arg is 'QTuple'|'QRelation'.}
-            if !$spec.defined or !$spec.does(QDRDBMS::AST::TypeDictAQ);
+            if !$spec.defined or !$spec.does(::QDRDBMS::AST::TypeDictAQ);
     }
 
     elsif $kind === 'Any' {
@@ -1102,26 +1102,26 @@ submethod BUILD (Array :$map!) {
         die q{new(): Bad :$map arg elem; its first elem is not}
                 ~ q{ an object of a QDRDBMS::AST::EntityName-doing class.}
             if !$entity_name.defined
-                or !$entity_name.does(QDRDBMS::AST::EntityName);
-        my Str $entity_name_text_v = $entity_name.text().v();
+                or !$entity_name.does(::QDRDBMS::AST::EntityName);
+        my Str $entity_name_text = $entity_name.text();
         die q{new(): Bad :$map arg elem; its first elem is not}
                 ~ q{ distinct between the arg elems.}
-            if $map_hoa.exists($entity_name_text_v);
+            if $map_hoa.exists($entity_name_text);
         if $allows_quasi {
             die q{new(): Bad :$map arg elem; its second elem is not an}
                     ~ q{ object of a QDRDBMS::AST::TypeInvoAQ-doing class.}
                 if !$type_invo.defined
-                    or !$type_invo.does(QDRDBMS::AST::TypeInvoAQ);
+                    or !$type_invo.does(::QDRDBMS::AST::TypeInvoAQ);
         }
         else {
             die q{new(): Bad :$map arg elem; its second elem is not an}
                     ~ q{ object of a QDRDBMS::AST::TypeInvoNQ-doing class.}
                 if !$type_invo.defined
-                    or !$type_invo.does(QDRDBMS::AST::TypeInvoNQ);
+                    or !$type_invo.does(::QDRDBMS::AST::TypeInvoNQ);
         }
         my Array $elem_cpy = [$entity_name, $type_invo];
         $map_aoa.push( $elem_cpy );
-        $map_hoa{$entity_name_text_v} = $elem_cpy;
+        $map_hoa{$entity_name_text} = $elem_cpy;
     }
 
     $!map_aoa = $map_aoa;
@@ -1225,17 +1225,17 @@ submethod BUILD (Array :$map!) {
         die q{new(): Bad :$map arg elem; its first elem is not}
                 ~ q{ an object of a QDRDBMS::AST::EntityName-doing class.}
             if !$entity_name.defined
-                or !$entity_name.does(QDRDBMS::AST::EntityName);
-        my Str $entity_name_text_v = $entity_name.text().v();
+                or !$entity_name.does(::QDRDBMS::AST::EntityName);
+        my Str $entity_name_text = $entity_name.text();
         die q{new(): Bad :$map arg elem; its first elem is not}
                 ~ q{ distinct between the arg elems.}
-            if $map_hoa.exists($entity_name_text_v);
+            if $map_hoa.exists($entity_name_text);
         die q{new(): Bad :$map arg elem; its second elem is not}
                 ~ q{ an object of a QDRDBMS::AST::Expr-doing class.}
-            if !$expr.defined or !$expr.does(QDRDBMS::AST::Expr);
+            if !$expr.defined or !$expr.does(::QDRDBMS::AST::Expr);
         my Array $elem_cpy = [$entity_name, $expr];
         $map_aoa.push( $elem_cpy );
-        $map_hoa{$entity_name_text_v} = $elem_cpy;
+        $map_hoa{$entity_name_text} = $elem_cpy;
     }
 
     $!map_aoa = $map_aoa;
@@ -1342,17 +1342,18 @@ submethod BUILD (QDRDBMS::AST::TypeDict :$upd_params!,
     die q{new(): Bad :$upd_params arg; it is not an object of a}
             ~ q{ QDRDBMS::AST::TypeDict-doing class.}
         if !$upd_params.defined
-            or !$upd_params.does(QDRDBMS::AST::TypeDict);
+            or !$upd_params.does(::QDRDBMS::AST::TypeDict);
     die q{new(): Bad :$ro_params arg; it is not an object of a}
             ~ q{ QDRDBMS::AST::TypeDict-doing class.}
-        if !$ro_params.defined or !$ro_params.does(QDRDBMS::AST::TypeDict);
+        if !$ro_params.defined
+            or !$ro_params.does(::QDRDBMS::AST::TypeDict);
     die q{new(): Bad :$upd_params or :$ro_params arg;}
             ~ q{ they both reference at least 1 same procedure param.}
         if any($ro_params!map_hoa.keys) === any($upd_params!map_hoa.keys);
 
     die q{new(): Bad :$vars arg; it is not an object of a}
             ~ q{ QDRDBMS::AST::TypeDict-doing class.}
-        if !$vars.defined or !$vars.does(QDRDBMS::AST::TypeDict);
+        if !$vars.defined or !$vars.does(::QDRDBMS::AST::TypeDict);
 
     die q{new(): Bad :$stmts arg; it is not an object of a}
             ~ q{ Array-doing class.}
@@ -1360,7 +1361,7 @@ submethod BUILD (QDRDBMS::AST::TypeDict :$upd_params!,
     for $stmts -> $stmt {
         die q{new(): Bad :$stmts arg elem; it is not}
                 ~ q{ an object of a QDRDBMS::AST::Stmt-doing class.}
-            if !$stmt.defined or !$stmt.does(QDRDBMS::AST::Stmt);
+            if !$stmt.defined or !$stmt.does(::QDRDBMS::AST::Stmt);
     }
 
     $!upd_params = $upd_params;

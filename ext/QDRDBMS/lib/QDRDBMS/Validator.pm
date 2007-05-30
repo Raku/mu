@@ -9,11 +9,17 @@ module QDRDBMS::Validator-0.0.0 {
 
     use Test;
 
+    use QDRDBMS::AST <newLitBool newLitText newLitBlob newLitInt
+        newTupleSel newQuasiTupleSel newRelationSel newQuasiRelationSel
+        newVarInvo newFuncInvo newProcInvo newFuncReturn newProcReturn
+        newEntityName newTypeInvoNQ newTypeInvoAQ newTypeDictNQ
+        newTypeDictAQ newExprDict newFuncDecl newProcDecl newHostGateRtn>;
+
 ###########################################################################
 
 sub main (Str :$engine_name!, Any :$dbms_config!) {
 
-    plan( 1 );
+    plan( 7 );
 
     say "#### QDRDBMS::Validator starting test of $engine_name ####";
 
@@ -22,7 +28,159 @@ sub main (Str :$engine_name!, Any :$dbms_config!) {
         :engine_name($engine_name), :dbms_config($dbms_config) );
     isa_ok( $dbms, 'QDRDBMS::Interface::DBMS' );
 
+    _scenario_foods_suppliers_shipments( $dbms );
+
     say "#### QDRDBMS::Validator finished test of $engine_name ####";
+
+    return;
+}
+
+###########################################################################
+
+sub _scenario_foods_suppliers_shipments (QDRDBMS::Interface::DBMS $dbms!) {
+
+    # Declare our example executable code as QDRDBMS ASTs.
+
+    my $tynm_Text = newEntityName( :text('sys.type.Text') );
+    my $tynm_Int  = newEntityName( :text('sys.type.Int') );
+
+    my $atnm_colour  = newEntityName( :text('colour') );
+    my $atnm_country = newEntityName( :text('country') );
+    my $atnm_farm    = newEntityName( :text('farm') );
+    my $atnm_food    = newEntityName( :text('food') );
+    my $atnm_qty     = newEntityName( :text('qty') );
+
+    my $rel_type_suppliers = newTypeDictNQ( :map([
+        [$atnm_farm,    newTypeInvoNQ(
+            :kind('Scalar'), :spec($tynm_Text) )],
+        [$atnm_country, newTypeInvoNQ(
+            :kind('Scalar'), :spec($tynm_Text) )],
+    ]) );
+
+    my $rel_type_foods = newTypeDictNQ( :map([
+        [$atnm_food,   newTypeInvoNQ(
+            :kind('Scalar'), :spec($tynm_Text) )],
+        [$atnm_colour, newTypeInvoNQ(
+            :kind('Scalar'), :spec($tynm_Text) )],
+    ]) );
+
+    my $rel_type_shipments = newTypeDictNQ( :map([
+        [$atnm_farm, newTypeInvoNQ( :kind('Scalar'), :spec($tynm_Text) )],
+        [$atnm_food, newTypeInvoNQ( :kind('Scalar'), :spec($tynm_Text) )],
+        [$atnm_qty,  newTypeInvoNQ( :kind('Scalar'), :spec($tynm_Int) )],
+    ]) );
+
+    # Load our example executable code into the virtual machine.
+
+    my $var_suppliers = $dbms.new_var( :decl_type(newTypeInvoNQ(
+        :kind('Relation'), :spec($rel_type_suppliers) )) );
+    isa_ok( $var_suppliers, 'QDRDBMS::Interface::HostGateVar' );
+
+    my $var_foods = $dbms.new_var( :decl_type(newTypeInvoNQ(
+        :kind('Relation'), :spec($rel_type_foods) )) );
+    isa_ok( $var_foods, 'QDRDBMS::Interface::HostGateVar' );
+
+    my $var_shipments = $dbms.new_var( :decl_type(newTypeInvoNQ(
+        :kind('Relation'), :spec($rel_type_shipments) )) );
+    isa_ok( $var_shipments, 'QDRDBMS::Interface::HostGateVar' );
+
+    # Declare our example literal data sets as QDRDBMS ASTs.
+
+    my $rel_def_suppliers = newRelationSel(
+        :heading($rel_type_suppliers),
+        :body([
+            newExprDict( :map([
+                [$atnm_farm,    newLitText( :v('Hodgesons') )],
+                [$atnm_country, newLitText( :v('Canada') )],
+            ]) ),
+            newExprDict( :map([
+                [$atnm_farm,    newLitText( :v('Beckers') )],
+                [$atnm_country, newLitText( :v('England') )],
+            ]) ),
+            newExprDict( :map([
+                [$atnm_farm,    newLitText( :v('Wickets') )],
+                [$atnm_country, newLitText( :v('Canada') )],
+            ]) ),
+        ]),
+    );
+
+    my $rel_def_foods = newRelationSel(
+        :heading($rel_type_foods),
+        :body([
+            newExprDict( :map([
+                [$atnm_food,   newLitText( :v('Bananas') )],
+                [$atnm_colour, newLitText( :v('yellow') )],
+            ]) ),
+            newExprDict( :map([
+                [$atnm_food,   newLitText( :v('Carrots') )],
+                [$atnm_colour, newLitText( :v('orange') )],
+            ]) ),
+            newExprDict( :map([
+                [$atnm_food,   newLitText( :v('Oranges') )],
+                [$atnm_colour, newLitText( :v('orange') )],
+            ]) ),
+            newExprDict( :map([
+                [$atnm_food,   newLitText( :v('Kiwis') )],
+                [$atnm_colour, newLitText( :v('green') )],
+            ]) ),
+            newExprDict( :map([
+                [$atnm_food,   newLitText( :v('Lemons') )],
+                [$atnm_colour, newLitText( :v('yellow') )],
+            ]) ),
+        ]),
+    );
+
+    my $rel_def_shipments = newRelationSel(
+        :heading($rel_type_shipments),
+        :body([
+            newExprDict( :map([
+                [$atnm_farm, newLitText( :v('Hodgesons') )],
+                [$atnm_food, newLitText( :v('Kiwis') )],
+                [$atnm_qty,  newLitInt( :v(100) )],
+            ]) ),
+            newExprDict( :map([
+                [$atnm_farm, newLitText( :v('Hodgesons') )],
+                [$atnm_food, newLitText( :v('Lemons') )],
+                [$atnm_qty,  newLitInt( :v(130) )],
+            ]) ),
+            newExprDict( :map([
+                [$atnm_farm, newLitText( :v('Hodgesons') )],
+                [$atnm_food, newLitText( :v('Oranges') )],
+                [$atnm_qty,  newLitInt( :v(10) )],
+            ]) ),
+            newExprDict( :map([
+                [$atnm_farm, newLitText( :v('Hodgesons') )],
+                [$atnm_food, newLitText( :v('Carrots') )],
+                [$atnm_qty,  newLitInt( :v(50) )],
+            ]) ),
+            newExprDict( :map([
+                [$atnm_farm, newLitText( :v('Beckers') )],
+                [$atnm_food, newLitText( :v('Carrots') )],
+                [$atnm_qty,  newLitInt( :v(90) )],
+            ]) ),
+            newExprDict( :map([
+                [$atnm_farm, newLitText( :v('Beckers') )],
+                [$atnm_food, newLitText( :v('Bananas') )],
+                [$atnm_qty,  newLitInt( :v(120) )],
+            ]) ),
+            newExprDict( :map([
+                [$atnm_farm, newLitText( :v('Wickets') )],
+                [$atnm_food, newLitText( :v('Lemons') )],
+                [$atnm_qty,  newLitInt( :v(30) )],
+            ]) ),
+        ]),
+    );
+
+    # Load our example literal data sets into the virtual machine.
+
+    $var_suppliers.store_ast( :val_ast($rel_def_suppliers) );
+    pass( 'no death from loading example suppliers data into VM' );
+
+    $var_foods.store_ast( :val_ast($rel_def_foods) );
+    pass( 'no death from loading example foods data into VM' );
+
+    $var_shipments.store_ast( :val_ast($rel_def_shipments) );
+    pass( 'no death from loading example shipments data into VM' );
 
     return;
 }
