@@ -92,6 +92,18 @@ sub newQuasiBagSel of QDRDBMS::AST::QuasiBagSel
         :heading($heading), :body($body) );
 }
 
+sub newMaybeSel of QDRDBMS::AST::MaybeSel
+        (QDRDBMS::AST::TypeInvoNQ :$heading!, Array :$body!) is export {
+    return ::QDRDBMS::AST::MaybeSel.new(
+        :heading($heading), :body($body) );
+}
+
+sub newQuasiMaybeSel of QDRDBMS::AST::QuasiMaybeSel
+        (QDRDBMS::AST::TypeInvoAQ :$heading!, Array :$body!) is export {
+    return ::QDRDBMS::AST::QuasiMaybeSel.new(
+        :heading($heading), :body($body) );
+}
+
 sub newVarInvo of QDRDBMS::AST::VarInvo
         (QDRDBMS::AST::EntityName :$v!) is export {
     return ::QDRDBMS::AST::VarInvo.new( :v($v) );
@@ -657,6 +669,10 @@ submethod BUILD (QDRDBMS::AST::TypeInvo :$heading!, Array :$body!) {
     die q{new(): Bad :$body arg; it is not an object of a}
             ~ q{ Array-doing class.}
         if !$body.defined or !$body.does(Array);
+    if (self._max_one_elem()) {
+        die q{new(): Bad :$body arg; a Maybe may only have 0..1 elems.}
+            if $body.elems > 1;
+    }
     for $body -> $tupb {
         die q{new(): Bad :$body arg elem; it is not an object of a}
                 ~ q{ QDRDBMS::AST::Expr-doing class.}
@@ -668,6 +684,8 @@ submethod BUILD (QDRDBMS::AST::TypeInvo :$heading!, Array :$body!) {
 
     return;
 }
+
+method _max_one_elem of Bool () { return $FALSE; } # defa unless overridden
 
 ###########################################################################
 
@@ -771,6 +789,26 @@ class QDRDBMS::AST::QuasiBagSel {
     submethod BUILD {} # otherwise Pugs r16488 invo _FlatColl.BUILD twice
     method _allows_quasi of Bool () { return $TRUE; }
 } # class QDRDBMS::AST::QuasiBagSel
+
+###########################################################################
+###########################################################################
+
+class QDRDBMS::AST::MaybeSel {
+    does QDRDBMS::AST::_FlatColl;
+    submethod BUILD {} # otherwise Pugs r16488 invo _FlatColl.BUILD twice
+    method _allows_quasi of Bool () { return $FALSE; }
+    method _max_one_elem of Bool () { return $TRUE; }
+} # class QDRDBMS::AST::MaybeSel
+
+###########################################################################
+###########################################################################
+
+class QDRDBMS::AST::QuasiMaybeSel {
+    does QDRDBMS::AST::_FlatColl;
+    submethod BUILD {} # otherwise Pugs r16488 invo _FlatColl.BUILD twice
+    method _allows_quasi of Bool () { return $TRUE; }
+    method _max_one_elem of Bool () { return $TRUE; }
+} # class QDRDBMS::AST::QuasiMaybeSel
 
 ###########################################################################
 ###########################################################################
@@ -1650,10 +1688,10 @@ I<This documentation is pending.>
     use QDRDBMS::AST <newLitBool newLitText newLitBlob newLitInt
         newTupleSel newQuasiTupleSel newRelationSel newQuasiRelationSel
         newSetSel newQuasiSetSel newSeqSel newQuasiSeqSel newBagSel
-        newQuasiBagSel newVarInvo newFuncInvo newProcInvo newFuncReturn
-        newProcReturn newEntityName newTypeInvoNQ newTypeInvoAQ
-        newTypeDictNQ newTypeDictAQ newExprDict newFuncDecl newProcDecl
-        newHostGateRtn>;
+        newQuasiBagSel newMaybeSel newQuasiMaybeSel newVarInvo newFuncInvo
+        newProcInvo newFuncReturn newProcReturn newEntityName newTypeInvoNQ
+        newTypeInvoAQ newTypeDictNQ newTypeDictAQ newExprDict newFuncDecl
+        newProcDecl newHostGateRtn>;
 
     my $truth_value = newLitBool( :v(2 + 2 == 4) );
     my $planetoid = newLitText( :v('Ceres') );
@@ -1706,6 +1744,8 @@ or "isa" hierarchy, children indented under parents:
                 QDRDBMS::AST::QuasiSeqSel
                 QDRDBMS::AST::BagSel
                 QDRDBMS::AST::QuasiBagSel
+                QDRDBMS::AST::MaybeSel
+                QDRDBMS::AST::QuasiMaybeSel
             QDRDBMS::AST::VarInvo
             QDRDBMS::AST::FuncInvo
         QDRDBMS::AST::Stmt (dummy role)
@@ -1899,6 +1939,14 @@ I<This documentation is pending.>
 I<This documentation is pending.>
 
 =head2 The QDRDBMS::AST::QuasiBagSel Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::MaybeSel Class
+
+I<This documentation is pending.>
+
+=head2 The QDRDBMS::AST::QuasiMaybeSel Class
 
 I<This documentation is pending.>
 
