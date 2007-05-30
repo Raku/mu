@@ -31,6 +31,7 @@ op0RoundRobin = fmap (VList . fst . partition defined . concat . op0Zip') . mapM
 
 op0Zip' :: [[Val]] -> [[Val]]
 op0Zip' lists | any null lists = []
+op0Zip' []    = []
 op0Zip' lists = (map zipFirst lists):(op0Zip' (map zipRest lists))
     where
     zipFirst []     = undef
