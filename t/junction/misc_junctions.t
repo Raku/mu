@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 73;
+plan 76;
 
 =pod
 
@@ -22,8 +22,8 @@ L<S03/Junctive operators>
     my $c = '';
     
     # make sure they all match to an empty string
-    ok('' eq ($a & $b & $c), 'junction of ($a & $b & $c) matches and empty string');
-    ok('' eq all($a, $b, $c), 'junction of all($a, $b, $c) matches and empty string');   
+    ok('' eq ($a & $b & $c), 'junction of ($a & $b & $c) matches an empty string');
+    ok('' eq all($a, $b, $c), 'junction of all($a, $b, $c) matches an empty string');   
     
     # give $a a value
     $a = 'a';  
@@ -56,6 +56,10 @@ L<S03/Junctive operators>
     ok('a' eq ($b | $c | $a), 'junction of ($b | $c | $a) matches at least one "a"');
     ok('b' eq ($a | $b | $c), 'junction of ($a | $b | $c) matches at least one "b"');
     ok('c' eq ($c | $a | $b), 'junction of ($c | $a | $b) matches at least one "c"'); 
+
+    ok(not(('a' eq ($b | $c | $a)) === Bool::False), 'junctional comparison doesn't mistakenly return both true and false');
+    ok(not(('b' eq ($a | $b | $c)) === Bool::False), 'junctional comparison doesn't mistakenly return both true and false');
+    ok(not(('c' eq ($c | $a | $b)) === Bool::False), 'junctional comparison doesn't mistakenly return both true and false'); 
     
     # test junction to junction
     
