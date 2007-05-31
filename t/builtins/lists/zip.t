@@ -60,10 +60,10 @@ plan 9;
 {
     my @a = (0, 2);
     my @b = (1, 3, 5);
-    my @e = (0, 1, 2, 3, undef, 5);
+    my @e = (0, 1, 2, 3);
 
     my @z = (@a Z @b);
-    is(@z, @e, "zip uses length of longest");
+    is(@z, @e, "zip uses length of shortest");
 }
 
 {
