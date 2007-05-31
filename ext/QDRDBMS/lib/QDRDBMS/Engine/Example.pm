@@ -63,6 +63,8 @@ method prepare of QDRDBMS::Engine::Example::HostGateRtn
 class QDRDBMS::Engine::Example::HostGateVar {
     does QDRDBMS::Engine::Role::HostGateVar;
 
+    use QDRDBMS::AST <newLitBool>;
+
     has QDRDBMS::Engine::Example::DBMS $!dbms;
     has QDRDBMS::AST::TypeInvo         $!decl_type;
     has QDRDBMS::AST::Node             $!val_ast;
@@ -76,7 +78,8 @@ submethod BUILD (QDRDBMS::Engine::Example::DBMS :$dbms!,
 
     $!dbms      = $dbms;
     $!decl_type = $decl_type;
-    $!val_ast   = undef; # TODO: make default value of $decl_type
+    $!val_ast   = newLitBool( :v(Bool::False) );
+        # TODO: make default value of $decl_type
 
     return;
 }
@@ -133,19 +136,21 @@ submethod BUILD (QDRDBMS::Engine::Example::DBMS :$dbms!,
 method bind_host_params (Array :$upd_args!, Array :$ro_args!) {
     # TODO: Compare declared type of each routine param and the variable
     # we are trying to bind to it, that they are of compatible types.
-    for $upd_args -> $elem {
-        $!bound_upd_args.{$elem.[0].text()} = $elem.[1];
-    }
-    for $ro_args -> $elem {
-        $!bound_ro_args.{$elem.[0].text()} = $elem.[1];
-    }
+    # TODO: Fix this!
+#    for $upd_args -> $elem {
+#        $!bound_upd_args.{$elem.[0].text()} = $elem.[1];
+#    }
+#    for $ro_args -> $elem {
+#        $!bound_ro_args.{$elem.[0].text()} = $elem.[1];
+#    }
     return;
 }
 
 ###########################################################################
 
 method execute () {
-    $!prep_rtn.( |%$!bound_upd_args, |%$!bound_ro_args );
+    # TODO: Fix this!
+#    $!prep_rtn.( |%$!bound_upd_args, |%$!bound_ro_args );
     return;
 }
 

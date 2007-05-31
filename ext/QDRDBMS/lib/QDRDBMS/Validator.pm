@@ -19,7 +19,7 @@ module QDRDBMS::Validator-0.0.0 {
 
 sub main (Str :$engine_name!, Any :$dbms_config!) {
 
-    plan( 7 );
+    plan( 13 );
 
     say "#### QDRDBMS::Validator starting test of $engine_name ####";
 
@@ -41,53 +41,165 @@ sub _scenario_foods_suppliers_shipments (QDRDBMS::Interface::DBMS $dbms!) {
 
     # Declare our example executable code as QDRDBMS ASTs.
 
-    my $tynm_Text = newEntityName( :text('sys.type.Text') );
-    my $tynm_Int  = newEntityName( :text('sys.type.Int') );
+    my $tynm_Text     = newEntityName( :text('sys.type.Text') );
+    my $tynm_Int      = newEntityName( :text('sys.type.Int') );
 
     my $atnm_colour  = newEntityName( :text('colour') );
     my $atnm_country = newEntityName( :text('country') );
     my $atnm_farm    = newEntityName( :text('farm') );
     my $atnm_food    = newEntityName( :text('food') );
     my $atnm_qty     = newEntityName( :text('qty') );
+    my $atnm_value   = newEntityName( :text('value') );
 
-    my $rel_type_suppliers = newTypeDictNQ( :map([
-        [$atnm_farm,    newTypeInvoNQ(
-            :kind('Scalar'), :spec($tynm_Text) )],
-        [$atnm_country, newTypeInvoNQ(
-            :kind('Scalar'), :spec($tynm_Text) )],
+    my $sca_type_Text
+        = newTypeInvoNQ( :kind('Scalar'), :spec($tynm_Text) );
+    my $sca_type_Int = newTypeInvoNQ( :kind('Scalar'), :spec($tynm_Int) );
+
+    my $qrel_type_Relation
+        = newTypeInvoAQ( :kind('Any'), :spec('Relation') );
+
+    my $heading_suppliers = newTypeDictNQ( :map([
+        [$atnm_farm,    $sca_type_Text],
+        [$atnm_country, $sca_type_Text],
+    ]) );
+    my $heading_foods = newTypeDictNQ( :map([
+        [$atnm_food,   $sca_type_Text],
+        [$atnm_colour, $sca_type_Text],
+    ]) );
+    my $heading_shipments = newTypeDictNQ( :map([
+        [$atnm_farm, $sca_type_Text],
+        [$atnm_food, $sca_type_Text],
+        [$atnm_qty,  $sca_type_Int],
+    ]) );
+    my $heading_colours = newTypeDictNQ( :map([
+        [$atnm_colour, $sca_type_Text],
     ]) );
 
-    my $rel_type_foods = newTypeDictNQ( :map([
-        [$atnm_food,   newTypeInvoNQ(
-            :kind('Scalar'), :spec($tynm_Text) )],
-        [$atnm_colour, newTypeInvoNQ(
-            :kind('Scalar'), :spec($tynm_Text) )],
+    my $qheading_set_of_ar = newTypeDictAQ( :map([
+        [$atnm_value, $qrel_type_Relation],
     ]) );
 
-    my $rel_type_shipments = newTypeDictNQ( :map([
-        [$atnm_farm, newTypeInvoNQ( :kind('Scalar'), :spec($tynm_Text) )],
-        [$atnm_food, newTypeInvoNQ( :kind('Scalar'), :spec($tynm_Text) )],
-        [$atnm_qty,  newTypeInvoNQ( :kind('Scalar'), :spec($tynm_Int) )],
-    ]) );
+    my $rel_type_suppliers = newTypeInvoNQ(
+        :kind('Relation'), :spec($heading_suppliers) );
+    my $rel_type_foods = newTypeInvoNQ(
+        :kind('Relation'), :spec($heading_foods) );
+    my $rel_type_shipments = newTypeInvoNQ(
+        :kind('Relation'), :spec($heading_shipments) );
+
+    my $pnm_matched_suppl = newEntityName( :text('matched_supp') );
+    my $pnm_desi_colour   = newEntityName( :text('desi_colour') );
+    my $pnm_src_suppl     = newEntityName( :text('src_suppl') );
+    my $pnm_src_foods     = newEntityName( :text('src_foods') );
+    my $pnm_src_shipm     = newEntityName( :text('src_shipm') );
+
+    my $opnm_rel_asn = newEntityName( :text('sys.rtn.Relation.assign') );
+    my $opnm_rel_jn  = newEntityName( :text('sys.rtn.Relation.join') );
+    my $opnm_rel_sjn = newEntityName( :text('sys.rtn.Relation.semijoin') );
+
+    my $anm_filter  = newEntityName( :text('filter') );
+    my $anm_source  = newEntityName( :text('source') );
+    my $anm_sources = newEntityName( :text('source') );
+    my $anm_target  = newEntityName( :text('target') );
+    my $anm_v       = newEntityName( :text('v') );
+
+    my $expr_3jn_ssp_sfd_scl = newFuncInvo(
+        :func($opnm_rel_jn),
+        :ro_args(newExprDict( :map([
+            [$anm_sources, newQuasiRelationSel(
+                :heading($qheading_set_of_ar),
+                :body([
+                    newExprDict( :map([
+                        [$atnm_value, newVarInvo(
+                            :v($pnm_src_shipm) )],
+                    ]) ),
+                    newExprDict( :map([
+                        [$atnm_value, newVarInvo(
+                            :v($pnm_src_foods) )],
+                    ]) ),
+                    newExprDict( :map([
+                        [$atnm_value, newRelationSel(
+                            :heading($heading_colours),
+                            :body([
+                                newExprDict( :map([
+                                    [$atnm_colour, newVarInvo(
+                                        :v($pnm_desi_colour) )],
+                                ]) ),
+                            ]),
+                        )]
+                    ]) ),
+                ]),
+            )],
+        ]) )),
+    );
+
+    my $query_suppl_of_foods_of_clr = newHostGateRtn(
+        :upd_params(newTypeDictNQ( :map([
+            [$pnm_matched_suppl, $rel_type_suppliers],
+        ]) )),
+        :ro_params(newTypeDictNQ( :map([
+            [$pnm_desi_colour, $sca_type_Text],
+            [$pnm_src_suppl,   $rel_type_suppliers],
+            [$pnm_src_foods,   $rel_type_foods],
+            [$pnm_src_shipm,   $rel_type_shipments],
+        ]) )),
+        :vars(newTypeDictNQ( :map([]) )),
+        :stmts([
+            newProcInvo(
+                :proc($opnm_rel_asn),
+                :upd_args(newExprDict( :map([
+                    [$anm_target, newVarInvo( :v($pnm_matched_suppl) )],
+                ]) )),
+                :ro_args(newExprDict( :map([
+                    [$anm_v, newFuncInvo(
+                        :func($opnm_rel_sjn),
+                        :ro_args(newExprDict( :map([
+                            [$anm_source, $expr_3jn_ssp_sfd_scl],
+                            [$anm_filter, newVarInvo(
+                                :v($pnm_src_suppl) )],
+                        ]) )),
+                    )],
+                ]) )),
+            ),
+            newProcReturn(),
+        ]),
+    );
 
     # Load our example executable code into the virtual machine.
 
-    my $var_suppliers = $dbms.new_var( :decl_type(newTypeInvoNQ(
-        :kind('Relation'), :spec($rel_type_suppliers) )) );
-    isa_ok( $var_suppliers, 'QDRDBMS::Interface::HostGateVar' );
+    my $prep_rtn_suppl_of_foods_of_clr = $dbms.prepare(
+        :rtn_ast($query_suppl_of_foods_of_clr) );
+    isa_ok( $prep_rtn_suppl_of_foods_of_clr,
+        'QDRDBMS::Interface::HostGateRtn' );
 
-    my $var_foods = $dbms.new_var( :decl_type(newTypeInvoNQ(
-        :kind('Relation'), :spec($rel_type_foods) )) );
-    isa_ok( $var_foods, 'QDRDBMS::Interface::HostGateVar' );
+    my $src_suppliers = $dbms.new_var( :decl_type($rel_type_suppliers) );
+    isa_ok( $src_suppliers, 'QDRDBMS::Interface::HostGateVar' );
+    my $src_foods = $dbms.new_var( :decl_type($rel_type_foods) );
+    isa_ok( $src_foods, 'QDRDBMS::Interface::HostGateVar' );
+    my $src_shipments = $dbms.new_var( :decl_type($rel_type_shipments) );
+    isa_ok( $src_shipments, 'QDRDBMS::Interface::HostGateVar' );
 
-    my $var_shipments = $dbms.new_var( :decl_type(newTypeInvoNQ(
-        :kind('Relation'), :spec($rel_type_shipments) )) );
-    isa_ok( $var_shipments, 'QDRDBMS::Interface::HostGateVar' );
+    my $desi_colour = $dbms.new_var( :decl_type($sca_type_Text) );
+    isa_ok( $desi_colour, 'QDRDBMS::Interface::HostGateVar' );
 
-    # Declare our example literal data sets as QDRDBMS ASTs.
+    my $matched_suppl = $dbms.new_var( :decl_type($rel_type_suppliers) );
+    isa_ok( $matched_suppl, 'QDRDBMS::Interface::HostGateVar' );
+
+    $prep_rtn_suppl_of_foods_of_clr.bind_host_params(
+        :upd_args([
+            [$pnm_matched_suppl, $matched_suppl],
+        ]),
+        :ro_args([
+            [$pnm_desi_colour, $desi_colour],
+            [$pnm_src_suppl,   $src_suppliers],
+            [$pnm_src_foods,   $src_foods],
+            [$pnm_src_shipm,   $src_shipments],
+        ]),
+    );
+
+    # Declare our example literal source data sets as QDRDBMS ASTs.
 
     my $rel_def_suppliers = newRelationSel(
-        :heading($rel_type_suppliers),
+        :heading($heading_suppliers),
         :body([
             newExprDict( :map([
                 [$atnm_farm,    newLitText( :v('Hodgesons') )],
@@ -105,7 +217,7 @@ sub _scenario_foods_suppliers_shipments (QDRDBMS::Interface::DBMS $dbms!) {
     );
 
     my $rel_def_foods = newRelationSel(
-        :heading($rel_type_foods),
+        :heading($heading_foods),
         :body([
             newExprDict( :map([
                 [$atnm_food,   newLitText( :v('Bananas') )],
@@ -131,7 +243,7 @@ sub _scenario_foods_suppliers_shipments (QDRDBMS::Interface::DBMS $dbms!) {
     );
 
     my $rel_def_shipments = newRelationSel(
-        :heading($rel_type_shipments),
+        :heading($heading_shipments),
         :body([
             newExprDict( :map([
                 [$atnm_farm, newLitText( :v('Hodgesons') )],
@@ -171,16 +283,36 @@ sub _scenario_foods_suppliers_shipments (QDRDBMS::Interface::DBMS $dbms!) {
         ]),
     );
 
-    # Load our example literal data sets into the virtual machine.
+    # Load our example literal source data sets into the virtual machine.
 
-    $var_suppliers.store_ast( :val_ast($rel_def_suppliers) );
+    $src_suppliers.store_ast( :val_ast($rel_def_suppliers) );
     pass( 'no death from loading example suppliers data into VM' );
-
-    $var_foods.store_ast( :val_ast($rel_def_foods) );
+    $src_foods.store_ast( :val_ast($rel_def_foods) );
     pass( 'no death from loading example foods data into VM' );
-
-    $var_shipments.store_ast( :val_ast($rel_def_shipments) );
+    $src_shipments.store_ast( :val_ast($rel_def_shipments) );
     pass( 'no death from loading example shipments data into VM' );
+
+    # Execute a query against the virtual machine, to look at our sample
+    # data and see what suppliers there are for foods coloured 'orange'.
+
+    $desi_colour.store_ast( :val_ast(newLitText( :v('orange') )) );
+    pass( 'no death from loading desired colour into VM' );
+
+    $prep_rtn_suppl_of_foods_of_clr.execute();
+    pass( 'no death from executing prepared search routine' );
+
+    my $rel_def_matched_suppl = $matched_suppl.fetch_ast();
+    pass( 'no death from fetching search results from VM' );
+
+    # Finally, use the result somehow (not done here).
+    # The result should be:
+    #    Relation(
+    #        { farm<'Hodgesons'>, country<'Canada'> },
+    #        { farm<'Beckers'>,   country<'England'> },
+    #    );
+
+    say "# debug: orange food suppliers found:";
+    say "# " ~ $rel_def_matched_suppl.as_perl();
 
     return;
 }
