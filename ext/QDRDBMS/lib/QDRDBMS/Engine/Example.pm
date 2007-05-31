@@ -63,7 +63,7 @@ method prepare of QDRDBMS::Engine::Example::HostGateRtn
 class QDRDBMS::Engine::Example::HostGateVar {
     does QDRDBMS::Engine::Role::HostGateVar;
 
-    use QDRDBMS::AST <newLitBool>;
+    use QDRDBMS::AST <newBoolLit>;
 
     has QDRDBMS::Engine::Example::DBMS $!dbms;
     has QDRDBMS::AST::TypeInvo         $!decl_type;
@@ -78,7 +78,7 @@ submethod BUILD (QDRDBMS::Engine::Example::DBMS :$dbms!,
 
     $!dbms      = $dbms;
     $!decl_type = $decl_type;
-    $!val_ast   = newLitBool( :v(Bool::False) );
+    $!val_ast   = newBoolLit( :v(Bool::False) );
         # TODO: make default value of $decl_type
 
     return;

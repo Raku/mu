@@ -724,13 +724,14 @@ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 
 I<Note that the QDRDBMS license should be interpreted as being, in spirit,
 just the terms of the GPL version 3 or later, rather than version 2 or
-later, but that this can't legally be true in the present, since the newer
-license hasn't been finalized yet (but it should be finalized by early July
-of 2007).  Therefore, the actual legal license of this version of QDRDBMS
-that you hold now is the GPL version 2 or later.  Only versions of QDRDBMS
-released after the GPL v3 is finalized will use GPL version 3 or later as
-its actual legal license, which will be explicitly stated in the previous
-paragraph at that time.  Assuming the planned switch to v3 isn't aborted.>
+later, but that this can't legally be true in the present, since the
+finalized version of the newer license hasn't been released yet (but it
+should be released on Friday, June 29, 2007).  Therefore, the actual legal
+license of this version of QDRDBMS that you hold now is the GPL version 2
+or later.  Only versions of QDRDBMS released after the GPL v3 is finalized
+will use GPL version 3 or later as its actual legal license, which will be
+explicitly stated in the previous paragraph at that time.  Assuming the
+planned switch to v3 isn't aborted.>
 
 Linking QDRDBMS statically or dynamically with other components is making a
 combined work based on QDRDBMS.  Thus, the terms and conditions of the GPL

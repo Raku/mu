@@ -9,7 +9,7 @@ module QDRDBMS::Validator-0.0.0 {
 
     use Test;
 
-    use QDRDBMS::AST <newLitBool newLitText newLitBlob newLitInt
+    use QDRDBMS::AST <newBoolLit newTextLit newBlobLit newIntLit
         newTupleSel newQuasiTupleSel newRelationSel newQuasiRelationSel
         newVarInvo newFuncInvo newProcInvo newFuncReturn newProcReturn
         newEntityName newTypeInvoNQ newTypeInvoAQ newTypeDictNQ
@@ -98,7 +98,7 @@ sub _scenario_foods_suppliers_shipments (QDRDBMS::Interface::DBMS $dbms!) {
 
     my $anm_filter  = newEntityName( :text('filter') );
     my $anm_source  = newEntityName( :text('source') );
-    my $anm_sources = newEntityName( :text('source') );
+    my $anm_sources = newEntityName( :text('sources') );
     my $anm_target  = newEntityName( :text('target') );
     my $anm_v       = newEntityName( :text('v') );
 
@@ -153,9 +153,9 @@ sub _scenario_foods_suppliers_shipments (QDRDBMS::Interface::DBMS $dbms!) {
                     [$anm_v, newFuncInvo(
                         :func($opnm_rel_sjn),
                         :ro_args(newExprDict( :map([
-                            [$anm_source, $expr_3jn_ssp_sfd_scl],
-                            [$anm_filter, newVarInvo(
+                            [$anm_source, newVarInvo(
                                 :v($pnm_src_suppl) )],
+                            [$anm_filter, $expr_3jn_ssp_sfd_scl],
                         ]) )),
                     )],
                 ]) )),
@@ -202,16 +202,16 @@ sub _scenario_foods_suppliers_shipments (QDRDBMS::Interface::DBMS $dbms!) {
         :heading($heading_suppliers),
         :body([
             newExprDict( :map([
-                [$atnm_farm,    newLitText( :v('Hodgesons') )],
-                [$atnm_country, newLitText( :v('Canada') )],
+                [$atnm_farm,    newTextLit( :v('Hodgesons') )],
+                [$atnm_country, newTextLit( :v('Canada') )],
             ]) ),
             newExprDict( :map([
-                [$atnm_farm,    newLitText( :v('Beckers') )],
-                [$atnm_country, newLitText( :v('England') )],
+                [$atnm_farm,    newTextLit( :v('Beckers') )],
+                [$atnm_country, newTextLit( :v('England') )],
             ]) ),
             newExprDict( :map([
-                [$atnm_farm,    newLitText( :v('Wickets') )],
-                [$atnm_country, newLitText( :v('Canada') )],
+                [$atnm_farm,    newTextLit( :v('Wickets') )],
+                [$atnm_country, newTextLit( :v('Canada') )],
             ]) ),
         ]),
     );
@@ -220,24 +220,24 @@ sub _scenario_foods_suppliers_shipments (QDRDBMS::Interface::DBMS $dbms!) {
         :heading($heading_foods),
         :body([
             newExprDict( :map([
-                [$atnm_food,   newLitText( :v('Bananas') )],
-                [$atnm_colour, newLitText( :v('yellow') )],
+                [$atnm_food,   newTextLit( :v('Bananas') )],
+                [$atnm_colour, newTextLit( :v('yellow') )],
             ]) ),
             newExprDict( :map([
-                [$atnm_food,   newLitText( :v('Carrots') )],
-                [$atnm_colour, newLitText( :v('orange') )],
+                [$atnm_food,   newTextLit( :v('Carrots') )],
+                [$atnm_colour, newTextLit( :v('orange') )],
             ]) ),
             newExprDict( :map([
-                [$atnm_food,   newLitText( :v('Oranges') )],
-                [$atnm_colour, newLitText( :v('orange') )],
+                [$atnm_food,   newTextLit( :v('Oranges') )],
+                [$atnm_colour, newTextLit( :v('orange') )],
             ]) ),
             newExprDict( :map([
-                [$atnm_food,   newLitText( :v('Kiwis') )],
-                [$atnm_colour, newLitText( :v('green') )],
+                [$atnm_food,   newTextLit( :v('Kiwis') )],
+                [$atnm_colour, newTextLit( :v('green') )],
             ]) ),
             newExprDict( :map([
-                [$atnm_food,   newLitText( :v('Lemons') )],
-                [$atnm_colour, newLitText( :v('yellow') )],
+                [$atnm_food,   newTextLit( :v('Lemons') )],
+                [$atnm_colour, newTextLit( :v('yellow') )],
             ]) ),
         ]),
     );
@@ -246,39 +246,39 @@ sub _scenario_foods_suppliers_shipments (QDRDBMS::Interface::DBMS $dbms!) {
         :heading($heading_shipments),
         :body([
             newExprDict( :map([
-                [$atnm_farm, newLitText( :v('Hodgesons') )],
-                [$atnm_food, newLitText( :v('Kiwis') )],
-                [$atnm_qty,  newLitInt( :v(100) )],
+                [$atnm_farm, newTextLit( :v('Hodgesons') )],
+                [$atnm_food, newTextLit( :v('Kiwis') )],
+                [$atnm_qty,  newIntLit( :v(100) )],
             ]) ),
             newExprDict( :map([
-                [$atnm_farm, newLitText( :v('Hodgesons') )],
-                [$atnm_food, newLitText( :v('Lemons') )],
-                [$atnm_qty,  newLitInt( :v(130) )],
+                [$atnm_farm, newTextLit( :v('Hodgesons') )],
+                [$atnm_food, newTextLit( :v('Lemons') )],
+                [$atnm_qty,  newIntLit( :v(130) )],
             ]) ),
             newExprDict( :map([
-                [$atnm_farm, newLitText( :v('Hodgesons') )],
-                [$atnm_food, newLitText( :v('Oranges') )],
-                [$atnm_qty,  newLitInt( :v(10) )],
+                [$atnm_farm, newTextLit( :v('Hodgesons') )],
+                [$atnm_food, newTextLit( :v('Oranges') )],
+                [$atnm_qty,  newIntLit( :v(10) )],
             ]) ),
             newExprDict( :map([
-                [$atnm_farm, newLitText( :v('Hodgesons') )],
-                [$atnm_food, newLitText( :v('Carrots') )],
-                [$atnm_qty,  newLitInt( :v(50) )],
+                [$atnm_farm, newTextLit( :v('Hodgesons') )],
+                [$atnm_food, newTextLit( :v('Carrots') )],
+                [$atnm_qty,  newIntLit( :v(50) )],
             ]) ),
             newExprDict( :map([
-                [$atnm_farm, newLitText( :v('Beckers') )],
-                [$atnm_food, newLitText( :v('Carrots') )],
-                [$atnm_qty,  newLitInt( :v(90) )],
+                [$atnm_farm, newTextLit( :v('Beckers') )],
+                [$atnm_food, newTextLit( :v('Carrots') )],
+                [$atnm_qty,  newIntLit( :v(90) )],
             ]) ),
             newExprDict( :map([
-                [$atnm_farm, newLitText( :v('Beckers') )],
-                [$atnm_food, newLitText( :v('Bananas') )],
-                [$atnm_qty,  newLitInt( :v(120) )],
+                [$atnm_farm, newTextLit( :v('Beckers') )],
+                [$atnm_food, newTextLit( :v('Bananas') )],
+                [$atnm_qty,  newIntLit( :v(120) )],
             ]) ),
             newExprDict( :map([
-                [$atnm_farm, newLitText( :v('Wickets') )],
-                [$atnm_food, newLitText( :v('Lemons') )],
-                [$atnm_qty,  newLitInt( :v(30) )],
+                [$atnm_farm, newTextLit( :v('Wickets') )],
+                [$atnm_food, newTextLit( :v('Lemons') )],
+                [$atnm_qty,  newIntLit( :v(30) )],
             ]) ),
         ]),
     );
@@ -295,7 +295,7 @@ sub _scenario_foods_suppliers_shipments (QDRDBMS::Interface::DBMS $dbms!) {
     # Execute a query against the virtual machine, to look at our sample
     # data and see what suppliers there are for foods coloured 'orange'.
 
-    $desi_colour.store_ast( :val_ast(newLitText( :v('orange') )) );
+    $desi_colour.store_ast( :val_ast(newTextLit( :v('orange') )) );
     pass( 'no death from loading desired colour into VM' );
 
     $prep_rtn_suppl_of_foods_of_clr.execute();

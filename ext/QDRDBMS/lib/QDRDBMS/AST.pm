@@ -14,20 +14,20 @@ module QDRDBMS::AST-0.0.0 {
 
 ###########################################################################
 
-sub newLitBool of QDRDBMS::AST::LitBool (Bool :$v!) is export {
-    return ::QDRDBMS::AST::LitBool.new( :v($v) );
+sub newBoolLit of QDRDBMS::AST::BoolLit (Bool :$v!) is export {
+    return ::QDRDBMS::AST::BoolLit.new( :v($v) );
 }
 
-sub newLitText of QDRDBMS::AST::LitText (Str :$v!) is export {
-    return ::QDRDBMS::AST::LitText.new( :v($v) );
+sub newTextLit of QDRDBMS::AST::TextLit (Str :$v!) is export {
+    return ::QDRDBMS::AST::TextLit.new( :v($v) );
 }
 
-sub newLitBlob of QDRDBMS::AST::LitBlob (Blob :$v!) is export {
-    return ::QDRDBMS::AST::LitBlob.new( :v($v) );
+sub newBlobLit of QDRDBMS::AST::BlobLit (Blob :$v!) is export {
+    return ::QDRDBMS::AST::BlobLit.new( :v($v) );
 }
 
-sub newLitInt of QDRDBMS::AST::LitInt (Int :$v!) is export {
-    return ::QDRDBMS::AST::LitInt.new( :v($v) );
+sub newIntLit of QDRDBMS::AST::IntLit (Int :$v!) is export {
+    return ::QDRDBMS::AST::IntLit.new( :v($v) );
 }
 
 sub newTupleSel of QDRDBMS::AST::TupleSel
@@ -189,7 +189,7 @@ role QDRDBMS::AST::Lit {
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::AST::LitBool {
+class QDRDBMS::AST::BoolLit {
     does QDRDBMS::AST::Lit;
 
     has Bool $!v;
@@ -213,7 +213,7 @@ submethod BUILD (Bool :$v!) {
 method as_perl of Str () {
     if (!$!as_perl.defined) {
         my Str $s = $!v ?? 'Bool::True' !! 'Bool::False';
-        $!as_perl = "QDRDBMS::AST::LitBool.new( :v($s) )";
+        $!as_perl = "QDRDBMS::AST::BoolLit.new( :v($s) )";
     }
     return $!as_perl;
 }
@@ -232,12 +232,12 @@ method v of Bool () {
 
 ###########################################################################
 
-} # class QDRDBMS::AST::LitBool
+} # class QDRDBMS::AST::BoolLit
 
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::AST::LitText {
+class QDRDBMS::AST::TextLit {
     does QDRDBMS::AST::Lit;
 
     has Str $!v;
@@ -261,7 +261,7 @@ submethod BUILD (Str :$v!) {
 method as_perl of Str () {
     if (!$!as_perl.defined) {
         my Str $s = q{'} ~ $!v.trans( q{'} => q{\\'} ) ~ q{'};
-        $!as_perl = "QDRDBMS::AST::LitText.new( :v($s) )";
+        $!as_perl = "QDRDBMS::AST::TextLit.new( :v($s) )";
     }
     return $!as_perl;
 }
@@ -280,12 +280,12 @@ method v of Str () {
 
 ###########################################################################
 
-} # class QDRDBMS::AST::LitText
+} # class QDRDBMS::AST::TextLit
 
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::AST::LitBlob {
+class QDRDBMS::AST::BlobLit {
     does QDRDBMS::AST::Lit;
 
     has Blob $!v;
@@ -314,7 +314,7 @@ method as_perl of Str () {
             split q{}, $!v;
         my Str $s = q[(join q{}, map { pack 'H2', $_ }
             split rx/<?null>/, ] ~ $hex_digit_text ~ q[)];
-        $!as_perl = "QDRDBMS::AST::LitBlob.new( :v($s) )";
+        $!as_perl = "QDRDBMS::AST::BlobLit.new( :v($s) )";
     }
     return $!as_perl;
 }
@@ -333,12 +333,12 @@ method v of Blob () {
 
 ###########################################################################
 
-} # class QDRDBMS::AST::LitBlob
+} # class QDRDBMS::AST::BlobLit
 
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::AST::LitInt {
+class QDRDBMS::AST::IntLit {
     does QDRDBMS::AST::Lit;
 
     has Int $!v;
@@ -362,7 +362,7 @@ submethod BUILD (Int :$v!) {
 method as_perl of Str () {
     if (!$!as_perl.defined) {
         my Str $s = ~$!v;
-        $!as_perl = "QDRDBMS::AST::LitInt.new( :v($s) )";
+        $!as_perl = "QDRDBMS::AST::IntLit.new( :v($s) )";
     }
     return $!as_perl;
 }
@@ -381,7 +381,7 @@ method v of Int () {
 
 ###########################################################################
 
-} # class QDRDBMS::AST::LitInt
+} # class QDRDBMS::AST::IntLit
 
 ###########################################################################
 ###########################################################################
@@ -1449,16 +1449,16 @@ It also describes the same-number versions for Perl 6 of [...].
 
 I<This documentation is pending.>
 
-    use QDRDBMS::AST <newLitBool newLitText newLitBlob newLitInt
+    use QDRDBMS::AST <newBoolLit newTextLit newBlobLit newIntLit
         newTupleSel newQuasiTupleSel newRelationSel newQuasiRelationSel
         newVarInvo newFuncInvo newProcInvo newFuncReturn newProcReturn
         newEntityName newTypeInvoNQ newTypeInvoAQ newTypeDictNQ
         newTypeDictAQ newExprDict newFuncDecl newProcDecl newHostGateRtn>;
 
-    my $truth_value = newLitBool( :v(2 + 2 == 4) );
-    my $planetoid = newLitText( :v('Ceres') );
-    my $package = newLitBlob( :v(pack 'H2', 'P') );
-    my $answer = newLitInt( :v(42) );
+    my $truth_value = newBoolLit( :v(2 + 2 == 4) );
+    my $planetoid = newTextLit( :v('Ceres') );
+    my $package = newBlobLit( :v(pack 'H2', 'P') );
+    my $answer = newIntLit( :v(42) );
 
 I<This documentation is pending.>
 
@@ -1489,10 +1489,10 @@ or "isa" hierarchy, children indented under parents:
     QDRDBMS::AST::Node (dummy role)
         QDRDBMS::AST::Expr (dummy role)
             QDRDBMS::AST::Lit (dummy role)
-                QDRDBMS::AST::LitBool
-                QDRDBMS::AST::LitText
-                QDRDBMS::AST::LitBlob
-                QDRDBMS::AST::LitInt
+                QDRDBMS::AST::BoolLit
+                QDRDBMS::AST::TextLit
+                QDRDBMS::AST::BlobLit
+                QDRDBMS::AST::IntLit
             QDRDBMS::AST::_Tuple (implementing role)
                 QDRDBMS::AST::TupleSel
                 QDRDBMS::AST::QuasiTupleSel
@@ -1598,7 +1598,7 @@ to unserialize, is guaranteed to preserve the representation, so
 C<equal_repr> will work as expected in that situation.
 
 As an exception to the general case about nodes, the node classes
-[C<LitBool>, C<LitText>, C<LitBlob>, C<LitInt>, C<EntityName>, C<VarInvo>,
+[C<BoolLit>, C<TextLit>, C<BlobLit>, C<IntLit>, C<EntityName>, C<VarInvo>,
 C<ProcReturn>] are guaranteed to only ever have a single representation per
 value, and so C<equal_repr> is guaranteed to indicate value equality of 2
 nodes of those types.  In fact, to assist the consequence this point, these
@@ -1606,7 +1606,7 @@ node classes also have the C<equal_value> method which is an alias for
 C<equal_repr>, so you can use C<equal_value> in your use code to make it
 better self documenting; C<equal_repr> is still available for all node
 types to assist automated use code that wants to treat all node types the
-same.  It should also be noted that a C<LitBool> node can only possibly be
+same.  It should also be noted that a C<BoolLit> node can only possibly be
 of one of 2 values, and C<ProcReturn> is a singleton.
 
 It is expected that multiple third party utility modules will become
@@ -1639,19 +1639,19 @@ exception; most often this is due to invalid input.  If an invoked routine
 simply returns, you can assume that it has succeeded, even if the return
 value is undefined.
 
-=head2 The QDRDBMS::AST::LitBool Class
+=head2 The QDRDBMS::AST::BoolLit Class
 
 I<This documentation is pending.>
 
-=head2 The QDRDBMS::AST::LitText Class
+=head2 The QDRDBMS::AST::TextLit Class
 
 I<This documentation is pending.>
 
-=head2 The QDRDBMS::AST::LitBlob Class
+=head2 The QDRDBMS::AST::BlobLit Class
 
 I<This documentation is pending.>
 
-=head2 The QDRDBMS::AST::LitInt Class
+=head2 The QDRDBMS::AST::IntLit Class
 
 I<This documentation is pending.>
 
