@@ -4,7 +4,7 @@ plan 36;
 
 use Date;
 
-{
+do {
     # somewhat arbitrary number where month & day are not == 1
     my $epoch = 86400 * 40;
     my $t = localtime($epoch);
@@ -12,7 +12,7 @@ use Date;
     my Date $date = Date.new( epoch => $epoch );
     isa_ok( $date, 'Date' );
 
-    is( $t.year, $date.year, "year matches localtime()");
+    is( eval('$t.year'), eval('$date.year'), "year matches localtime()");
     is( $t.month, $date.month, "month matches localtime()");
     is( $t.day, $date.day, "day matches localtime()");
 }
