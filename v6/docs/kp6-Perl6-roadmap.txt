@@ -1,20 +1,107 @@
-"KindaPerl6" --> "full 6-in-6" Roadmap
+"Perl 6 over Perl 6" Roadmap
+
+
+Introduction
+
+"Long-term Projects" are 1 year or more long. 
+Long-term projects have several Phases or Versions.
+
+"Short-term Projects" are at most 3 months long. 
+Short-term Projects may keep being maintained, or may be obsoleted.
+
+Each "Phase" should describe a major project. Ideally, it should be 2-3 months of work with a clear end product and a clear goal.
+
+Each "Milestone" should describe a 4-6 week project that results in a major new feature or functionality. 
+The goal of phases and milestones here is really just to break the project down into bite-sized pieces that regular hackers can get their heads around.
+
+Inside each milestone, we should have an ordered list of tasks that should each take no more than 2-3 days of effort. (Sometimes this is impossible, but if it can get done for the next/current Phase, we'll give hackers a good place to start)
+
+
+Long-term Projects 
+
+  Parrot "perl6" (Perl 6 over Parrot)
+
+  Pugs "pugs" (Perl 6 over Haskell, Perl 5, and C)
+
+  Perl 6 over Perl 6
+
+While Parrot and Pugs are more or less "monolithical", 6-in-6 on the other hand is being built of many small projects.
+
+
+Short-term Project examples
+
+  Perl6::Rules
+
+  PGE
+
+  TGE
+
+  lrep
+
+  Pugs::Compiler::Rule
+
+  v6.pm
+
+  MiniPerl6
+
+  KindaPerl6
+
+  Perl-6.0.0-STD
+
+
+Perl 6 over Perl 6
+
+Current state of the technology
+
+  "Perl-6.0.0-STD" 
+    provides a grammar and parser routines written in "full Perl 6";
+      Perl 6 over Perl 6 should be able to use this grammar.
+
+  "pugs" can parse a "cheated" Perl-6.0.0-STD grammar.
+
+  "v6.pm" can parse most of "Perl-6.0.0-STD".
+
+  "KindaPerl6" provides a working bootstrapped compiler. The grammar, the parser engine, and most of the runtime are written in Perl 6.
+
+
+
+__END__
 
 Phase I - bootstrap (MiniPerl6)
 
-- Architecture
 
--- definition of the minimal language for bootstrapping
--- regex engine implemented in MiniPerl6
--- AST specification
+Milestone 1: Architecture
 
-- Implementation
+  Define the minimal bootstrapping language
+  Implement Regex engine in MiniPerl6
+  Spec the AST for MiniPerl6
 
--- v6.pm improved/fixed in order to host the compiler
--- compiler implemented 
--- compiler self-hosted; we have one image that runs in Perl 5
+Milestone 2: v6.pm bootstrap for compiler.
 
-- Bonus milestones
+  Improve v6.pm to host the compiler...
+    Be specific. What does it need?
+
+
+Milestone 3: Regex engine in MiniPerl6
+
+
+Milestone 3: Implement compiler
+
+    Break this down into 5-6 tasks
+
+
+
+
+Milestone 4: Self-hosting compiler
+
+
+    Break this down into 5-6 tasks
+
+
+
+---
+
+Bonus projects: (Not requireed to complete Phase 1)
 
 -- compile to a language supported by the Parrot VM
 -- compile to a language supported by the JVM
@@ -23,23 +110,35 @@ Phase I - bootstrap (MiniPerl6)
 -- bootstrap in other language than Perl 5
 -- have Perl6-in-parrot reuse parts of the MiniPerl6 architecture
 
+
+
 Phase II - improved compiler architecture (KindaPerl6)
 
-- Architecture
 
--- pluggable AST processors
--- precompilation
+Milestone 5: Architecture
+    Implement pluggable AST processors
+    Implement AST processor for ________
+    Implement AST processor for ________ (name all)
 
-- Implementation
 
--- lexical subs 
--- object metamodel
--- lexical classes
--- BEGIN blocks
---- compile-time state is restored at runtime
--- containers
+    Implement precompilation phase
 
-- Bonus milestones
+        Please describe
+
+
+
+Milestone 6: KindaPerl6  Implementation
+
+   lexical subs 
+   object metamodel
+   lexical classes
+   BEGIN blocks
+   compile-time state is restored at runtime
+   containers
+
+
+
+Bonus projects for KindaPerl6: (Not required to complete Phase 2)
 
 -- test suite
 -- bootstrapped kp6
@@ -49,22 +148,17 @@ Phase II - improved compiler architecture (KindaPerl6)
 
 Phase III - refactor the MP6 regex compiler to KP6 style
 
--- regex compiler merged into the main Perl 6 compiler
 
-- Bonus milestones
+Milestone 7: Regex compiler mergedown
+
+
+  Merge the regex compiler into KindaPerl6
+
+- Bonus projects (not required to complete Phase 3)
 
 -- string interpolation
 
-Phase IV - multis
-
--- multis
---- "Code", "Signature"
-
-- Bonus milestones
-
--- Type system
-
-Phase V - improved grammar
+Phase IV - improved grammar
 
 - Architecture
 
@@ -81,7 +175,10 @@ Phase V - improved grammar
 --- precedence parser from Perl6-STD
 
 -- lexically modifieable Grammar
+-- multis
+--- "Code", "Signature"
 -- "use"
+-- Type system
 
 - Bonus milestones
 
@@ -102,7 +199,7 @@ Phase V - improved grammar
 -- junctions
 -- type checking on binding
 
-Phase VI - optimizer
+Phase V - optimizer
 
 - Implementation
 
@@ -116,7 +213,7 @@ Phase VI - optimizer
 -- 'eval' Perl 5
 -- 'use' Perl 5
 
-Phase VII - aggressive optimizer
+Phase VI - aggressive optimizer
 
 
 Related Work
