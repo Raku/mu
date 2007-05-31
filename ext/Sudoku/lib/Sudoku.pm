@@ -115,13 +115,7 @@ method get(Int $x, Int $y){
 }
 
 method out returns Str {
-    my $res = "";
-    for ^$!length -> $y {
-        for ^$!length -> $x {
-            $res ~= @.field[$x][$y];
-        }
-    }
-    return $res;
+    return (map {$_.join("")}, [Z] @.field).join("");
 }
 
 
