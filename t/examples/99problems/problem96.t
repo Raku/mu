@@ -1,6 +1,6 @@
 use v6-alpha;
 use Test;
-plan 1;
+plan 4;
 
 # P96 (**) Syntax checker (alternative solution with difference lists)
 # 
@@ -12,9 +12,14 @@ plan 1;
 # 
 # % identifier(Str) :- Str is a legal identifier
 
-if 1 {
-    skip 1, "Test(s) not yet written: (**) Syntax checker (alternative solution with difference lists)";
+# having regexes, we have a much simpler way:
+
+sub identifier(Str $x){
+    return ? ( $x ~~ m/^<?letter> [ '_'? [<?letter> | <?digit> ]]*$/);
 }
-else {
-    ok 1, '(**) Syntax checker (alternative solution with difference lists)';
-}
+
+ok(identifier("abc_3f_3"), "Syntax Checker recognized valid string");
+ok(!identifier('_abc'), "leading underscore rejected");
+ok(!identifier('a__b'), "two adjacent underscores rejected");
+ok(!identifier('abc_'), "trailing underscore rejected");
+
