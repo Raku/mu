@@ -804,7 +804,7 @@ regexes for the same category, differentiated only by the symbol they
 match.  The symbol is specified as part of the "long name".  It may also
 be matched within the rule using C<< <sym> >>, like this:
 
-    proto token sigil;
+    proto token sigil { }
     multi token sigil:sym<$>  { <sym> }
     multi token sigil:sym<@>  { <sym> }
     multi token sigil:sym<@@> { <sym> }
