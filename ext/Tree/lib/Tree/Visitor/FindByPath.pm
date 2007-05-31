@@ -8,12 +8,12 @@ class Tree::Visitor::FindByPath-0.0.1 is Tree::Visitor;
 has @!search_path;
 has $!success;
 
-sub set_search_path ($self: @path) {
+method set_search_path ($self: @path) {
     (@path) || die "Insufficient Arguments : You must specify a path";
     @!search_path = @path;
 }
 
-sub visit ($self: $tree) {
+method visit ($self: $tree) {
 
     # reset our success flag
     $!success = 0;
@@ -86,7 +86,7 @@ sub visit ($self: $tree) {
     $self.set_results(@results);
 }
 
-sub get_result ($self:) {
+method get_result ($self:) {
     # if we did not succeed, then 
     # we return undef, ...
     return undef unless $!success;
