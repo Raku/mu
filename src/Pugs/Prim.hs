@@ -924,9 +924,7 @@ op1Chomp str
     | otherwise         = VStr str
 
 perlReplicate :: VInt -> a -> [a]
-perlReplicate i a = if i < 0 
-    then genericReplicate 0 a 
-    else genericReplicate i a
+perlReplicate = genericReplicate . max 0
 
 -- |Implementation of 2-arity primitive operators and functions
 op2 :: String -> Val -> Val -> Eval Val
