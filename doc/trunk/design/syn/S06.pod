@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 30 May 2007
+  Last Modified: 1 Jun 2007
   Number: 6
-  Version: 86
+  Version: 87
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -1467,14 +1467,17 @@ Marks a subroutine as returning an lvalue.
 =item C<is parsed>
 
 Specifies the subrule by which a macro call is parsed.  The parse
-always starts after the macro's initial token.
+always starts after the macro's initial token.  If the operator has
+two parts (circumfix or postcircumfix), the final token is also automatically
+matched, and should not be matched by the supplied regex.
 
 =item C<is reparsed>
 
 Also specifies the subrule by which a macro call is parsed, but restarts
 the parse before the macro's initial token, usually because you want
 to parse using an existing rule that expects to traverse the initial
-token.
+token.  If the operator has two parts (circumfix or postcircumfix), the
+final token must also be explicitly matched by the supplied regex.
 
 =item C<is cached>
 
