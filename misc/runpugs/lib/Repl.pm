@@ -17,8 +17,8 @@ sub run {
 	while (<STDIN>) {		
 		/\:q(uit)*$/i && exit();
 		chomp $_;
-		my $res=$s->subref->($_);
-		print $res,"\n",$s->prompt;
+		(my $res,my $prompt)=$s->subref->($_);
+		print $res,"\n",$prompt;
 	}
 }
 

@@ -12,7 +12,7 @@ $id='testsession'.$id;
 
 my $session=create_session($app);
 
-my $subref = sub {my $cmd=shift;my $res=$session->write($cmd);chomp $res; return $res;};
+my $subref = sub {my $cmd=shift;my $res=$session->write($cmd);chomp $res; return ($res,$session->{'prompt'});};
 
 my $prompt =$session->prompt;
 my $motd =$session->output;

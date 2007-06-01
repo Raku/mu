@@ -1,0 +1,61 @@
+#Pugs
+#ulimit="ulimit -m 640000; ulimit -v 64000;"
+#nice="/usr/bin/nice"
+#pugs="/usr/bin/pugs"
+#rel_root="/home/andara/pugs-rel"
+#dev_root="/home/andara/pugs-dev"
+#rel_lib="-I$rel_root/blib6/lib"
+#dev_lib="-I$dev_root/blib6/lib"
+
+ulimit=""
+nice=""
+pugs=pugs
+rel_root="/usr/bin"
+dev_root="$rel_root"
+rel_lib="" 
+dev_lib=""
+#test: 0,1 or 2
+test=2
+appname=runpugs
+prompt="pugs> "
+prompt_pattern="(^(pugs|\.\.\.\.)>\s+)"
+quit_pattern="^Leaving\ pugs\."
+quit_message="Leaving pugs."
+
+init_pattern="(\>\s+)"
+quit_command=":q"
+reset_command=":r"
+abort_command=":A"
+
+filter=0
+filter_pattern=""
+root=$HOME/runpugs
+
+cgi_path="$root/cgi-bin/"
+lib_path="$root/lib/"
+bin_path="$root/bin/"
+data_path="$root/data/"
+tmp_path="$root/data/tmp/"
+log_path="$root/data/log"
+daemon=0
+port=2057
+host=localhost
+
+restart_parent=0
+server="$bin_path/termserv.pl"
+
+nsessions=20
+nsessions_ip=10
+
+n_max=(20,20)
+npreloaded_sessions=(5,5)
+n_inactive_min=(2,2)
+
+timeout_idle=90
+timeout_call=30
+check_interval=60
+create_interval=5
+nlines=250
+nchars=250
+nrecent=10
+perl=/usr/bin/perl

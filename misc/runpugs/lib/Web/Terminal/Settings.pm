@@ -4,8 +4,10 @@ package Web::Terminal::Settings;
 
 use vars qw( $VERSION );
 $VERSION = '0.4.0';
-use utf8;
+#use utf8
 use strict;
+
+use Config::General;
 
 use Exporter;
 
@@ -50,83 +52,42 @@ n_inactive_max
 n_max
 );
 
-#ghci
-##GHCi
-#our $command='/usr/local/bin/ghci';
-#our $prompt='Prelude> ';
-#our $prompt_pattern='(^(Prelude)>\s+)';
-#our $quit_pattern='^Leaving\ GHCi\.';
-#our $quit_message='Leaving GHCi.';
-#cut
+#my %config = Config::General::ParseConfig("./wtrc");
+ my $conf = new Config::General(
+         -ConfigFile => $ENV{'HOME'}.'/.webtermrc',
+         -InterPolateVars=>1,
+         -InterPolateEnv=>1
+ 		);
+my %config=$conf->getall();
 
-#Pugs
-my $ulimit='ulimit -m 64000; ulimit -v 64000;';
-my $nice='/usr/bin/nice';
-my $pugs='/usr/bin/pugs';
-my $rel_root='/home/andara/pugs-rel';
-my $dev_root='/home/andara/pugs-dev';
-my $rel_lib="-I$rel_root/blib6/lib";
-my $dev_lib="-I$dev_root/blib6/lib";
+no strict 'refs';
 
-#$ulimit='';
-#$nice='';#/bin/nice';
-#$pugs='/usr/bin/pugs';
-#$rel_root='/usr/bin';
-#$dev_root='/usr/bin';
-#$rel_lib='';
-#$dev_lib='';
+for my $key (keys %config) {
+	my $fkey="Web::Terminal::Settings::$key";
+	if ($config{$key}=~/^\(\d+(,\d+)*\)/) {
+		my $vals=$config{$key};
+		$vals=~s/[\(\)]//g;
+		@{$fkey}=split(/,/,$vals);
+	} else {
+		${$fkey}=$config{$key};
+	}
+}
 
 our @commands=(
-"$ulimit $nice $rel_root/pugs $rel_lib",
-"$ulimit $nice $dev_root/pugs $dev_lib",
-#"perl ./perl_repl.pl"
+"$Web::Terminal::Settings::ulimit $Web::Terminal::Settings::nice $Web::Terminal::Settings::rel_root/pugs $Web::Terminal::Settings::rel_lib",
+"$Web::Terminal::Settings::ulimit $Web::Terminal::Settings::nice $Web::Terminal::Settings::dev_root/pugs $Web::Terminal::Settings::dev_lib",
 );
 
-our $test=0;
-our $appname='runpugs';
-our $prompt='pugs> ';
-#$prompt='perl> ';
-our $prompt_pattern='(^(pugs|\.\.\.\.)>\s+)';
-our $quit_pattern='^Leaving\ pugs\.';
-our $quit_message='Leaving pugs.';
+if ($Web::Terminal::Settings::test==2) {
+	push @commands,"perl ./perl_repl.pl";
+	push @Web::Terminal::Settings::n_max,1;
+	push @Web::Terminal::Settings::npreloaded_sessions,1;
+	push @Web::Terminal::Settings::n_inactive_min,1;
+}
 
-our $init_pattern='(\>\s+)';
-our $quit_command=':q';
-our $reset_command=':r';
-our $abort_command=':A'; # To simulate abort in test mode
+our @n_inactive_max=@Web::Terminal::Settings::npreloaded_sessions;
 
-our $filter=0;
-our $filter_pattern='';
-my $root='/home/andara/apache';
-
-our $cgi_path="$root/cgi-bin/";
-our $lib_path="$root/lib/";
-our $bin_path="$root/bin/";
-our $data_path="$root/data/";
-our $tmp_path="$root/data/tmp/";
-our $log_path="$root/data/log";
-our $daemon=1;
-our $port=2057;
-our $host='localhost';
-
-our $restart_parent=0; # restart parent server from child if 1
-our $server="$bin_path/termserv.pl"; # used to restart parent server from child
-
-our $nsessions=50; # obsolete
-our @n_max=(20,50);#,5);
-our $nsessions_ip=10; 
-our @npreloaded_sessions=(5,10);#,2); 
-our @n_inactive_max=@npreloaded_sessions;
-our @n_inactive_min=(2,5);#,0);
-
-our $timeout_idle=90; # was 600
-our $timeout_call=30; #  was 30
-our $check_interval=60; 
-our $create_interval=5; # should be 30 I guess
-our $nlines=250;
-our $nchars=250;
-our $nrecent=10;
-our $perl='/usr/bin/perl';
+1;
 
 __END__
 

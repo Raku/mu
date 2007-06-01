@@ -14,7 +14,7 @@ use Web::Terminal::Settings;
 
 $SIG{CHLD}='IGNORE';
 
-my $v=(1-$Web::Terminal::Settings::daemon)*(1-$Web::Terminal::Settings::test);
+my $v=1;#(1-$Web::Terminal::Settings::daemon)*(1-$Web::Terminal::Settings::test);
 
     my $prompt ='/'.$Web::Terminal::Settings::prompt.'/';
     has 'prompt' => (is=>'rw',isa=>'Str', default => $prompt);
@@ -29,6 +29,7 @@ my $v=(1-$Web::Terminal::Settings::daemon)*(1-$Web::Terminal::Settings::test);
    	has 'pugs' => (is=>'rw',isa=>'Str');
     has 'pty' => (is=>'rw',isa=>'Any');
     has 'pid' => (is=>'rw',isa=>'Int');
+    has 'motd' => (is=>'rw',isa=>'Str');
     
     sub BUILD {
     	my $self=shift;
@@ -36,7 +37,7 @@ my $v=(1-$Web::Terminal::Settings::daemon)*(1-$Web::Terminal::Settings::test);
 	## Start pugs
     my $app=$self->app;
     my $command=$Web::Terminal::Settings::commands[$app];
-    if (not $Web::Terminal::Settings::test) {
+    if ($Web::Terminal::Settings::test!=1) {
     if ($self->ia==0) {
         #1. Create a file with the content of $cmd using $id.p6 for name, store in data
         my $id=$self->id;
@@ -67,6 +68,7 @@ my $v=(1-$Web::Terminal::Settings::daemon)*(1-$Web::Terminal::Settings::test);
 		-prompt => $prompt,
 		-telnetmode      => 0,
 		-cmd_remove_mode => 0,
+		-input_record_separator => "\n",
 	);
     }
     } else {
@@ -75,6 +77,7 @@ my $v=(1-$Web::Terminal::Settings::daemon)*(1-$Web::Terminal::Settings::test);
     }
 	print "Reading Pugs startup message...\n" if $v;
     my $m=$self->readlines();
+    $self->{'motd'}=$m;
       if ($self->{'error'}==1 and not $Web::Terminal::Settings::test) {
           # should close the TTY
           $self->{'pty'}->close() unless ($self->{'pty'}==-1);
@@ -169,7 +172,7 @@ print "Returning with output:\n",$m,"\n\n" if $v;
 #------------------------------------------------------------------------------
 sub DESTROY {
     my $obj = shift;
-    if (not $Web::Terminal::Settings::test) {
+    if ( $Web::Terminal::Settings::test!=1) {
     	if (defined $obj->{'pty'}) {
     $obj->{'pty'}->close();
      $obj->{'pty'}->close_slave();
@@ -192,7 +195,7 @@ sub write {
 	my $ps = '';
 		my $i     = 1;
 	my $lline = '';
-if (not $Web::Terminal::Settings::test) {
+if ( $Web::Terminal::Settings::test!=1) {
 	if ( $cmd eq $Web::Terminal::Settings::quit_command ) {
         $obj->{pugs}->close();
 		kill 9, $obj->{'pid'};		
@@ -205,22 +208,35 @@ if (not $Web::Terminal::Settings::test) {
 	$pugs->print($cmd) unless $cmd eq '';
 	while ($i<$Web::Terminal::Settings::nlines) {
 		my $line = $pugs->getline;
-        my $msg=$pugs->errmsg;
-	    print "L:",$line,":",$msg if $v;
-	    if($msg=~/timed/) {
-            $msg='';
-            $pugs->errmsg([]);
-            $lline="${Web::Terminal::Settings::prompt} Sorry, that took too long! Aborted.\n";
-            $pugs->close();
-            $ps=$Web::Terminal::Settings::prompt;
-            $obj->{'error'}=1;
-            last;
-        }
-        $msg='';
-        if ( ($line =~ /$Web::Terminal::Settings::prompt_pattern/ or
-        ($line=~/$Web::Terminal::Settings::quit_pattern/)) and $i > 1 ) { $ps = $1; last }
+	        my $msg=$pugs->errmsg;
+		    print "L:{",$line,"}\n",$msg if $v;
+		    if($msg=~/timed/) {
+		            $msg='';
+		            $pugs->errmsg([]);
+		            $lline="${Web::Terminal::Settings::prompt} Sorry, that took too long! Aborted.\n";
+		            $pugs->close();
+		            $ps=$Web::Terminal::Settings::prompt;
+		            $obj->{'error'}=1;
+		            last;
+		        }
+	        $msg='';
+# print "\nTEST",$Web::Terminal::Settings::prompt_pattern,"\n"; 
+#print ('(^(pugs|\.\.\.\.)>\s+)' eq $Web::Terminal::Settings::prompt_pattern);
+#if ($line=~/pugs/) {
+#print "OK!\n";
+#}
+        	if ( ($line =~ /$Web::Terminal::Settings::prompt_pattern/ or
+	        ($line=~/$Web::Terminal::Settings::quit_pattern/)) and $i > 1 ) { 
+			$ps = $1;
+		       my $ps1=$ps;	
+			my $charnum=ord(chop $ps1);
+			if ($charnum<32) {
+				$ps=$ps1;
+			}
+			last;
+	       	}
 		$lline .= $line unless $line =~
-        /$Web::Terminal::Settings::prompt_pattern/;
+        	/$Web::Terminal::Settings::prompt_pattern/;
 		$i++;
 	}
 
@@ -251,7 +267,7 @@ sub readlines {
 	my $ps = '';
 #	my $i     = 1;
 	my $lline = '';
-	if (not $Web::Terminal::Settings::test) {
+	if ( $Web::Terminal::Settings::test!=1) {
     my $pugs=$obj->{'pugs'};
     $pugs->errmode(sub {kill 9,$obj->{'pid'}; });
 #        my $prev=0;
@@ -274,7 +290,7 @@ sub readlines {
 #    last if $line =~/${Web::Terminal::Settings::prompt}$/;
 #    #} else {die;$prev=1;}
 #    }
-  
+# print "TEST",$Web::Terminal::Settings::prompt,"\n"; 
 	($line, $ps)=$pugs->waitfor(String=>$Web::Terminal::Settings::prompt);
 	  $pugs->buffer_empty(); # maybe redundant, but play safe   
 #	my @chars=split('',$line);

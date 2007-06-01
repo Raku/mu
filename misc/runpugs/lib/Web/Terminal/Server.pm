@@ -42,7 +42,7 @@ $SIG{CHLD} = 'IGNORE';
 # with the session id as first line.
 
 # verbose
-my $v                 = (1 - $Web::Terminal::Settings::daemon)*(1-$Web::Terminal::Settings::test);
+my $v                 = 1;#(1 - $Web::Terminal::Settings::daemon)*(1-$Web::Terminal::Settings::test);
 
 # Datastructures per app, so $session{$app}{...}, $inactive[$app][...] or @{$inactive[$app]}
 my @active_sessions       = (); # id => session_number for active sessions
@@ -386,7 +386,7 @@ assert($reply eq $cmd);
 					return $Web::Terminal::Settings::prompt;
 				}
 			} else {
-print "    Session $id ($app,$cmd) is not active:", exists( $active_sessions[$app]{$id}),"\n" if $v;
+print "    Session $id ($app,$cmd) is not active:", (defined $active_sessions[$app])?exists( $active_sessions[$app]{$id}):'(empty)',"\n" if $v;
 				# new session
 			   assert($n_inactive_sessions[$app]==scalar( @{ $inactive_sessions[$app] }));
 				if ( $n_inactive_sessions[$app] > 0
@@ -420,7 +420,9 @@ print "    Session $id ($app,$cmd) is not active:", exists( $active_sessions[$ap
 							print "Then activated a session $sessnum\n" if $v;
 						# asynchronously create new sessions
 						&async_init_create();
-						return $ret;
+						my $term = $sessions[$app]{$ret};
+						my $motd=$term->{'motd'};
+						return $motd;
 					} else {
 						print
 "Sorry, I can't run any more sessions.\nPlease try again later.\n"
@@ -695,6 +697,7 @@ sub sane {
     if ($cmd !~/pugs/) {
     	return 1;
     } else {
+    	print "PUGS_SAFEMODE=1 $cmd -e \"print 42\" 2>/dev/null\n";
     my $reply=`PUGS_SAFEMODE=1 $cmd -e \"print 42\" 2>/dev/null`;
     if ($reply==42) {
         return 1;

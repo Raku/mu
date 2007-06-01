@@ -1,9 +1,9 @@
 ==============================================================================
-2007/05/07      Release of version 0.4.0 of runpugs/Web::Terminal
+2007/06/01      Release of version 0.4.0 of runpugs/Web::Terminal
 ==============================================================================
 
 NAME
-    runpugs: a web teminal for interactive pugs 
+    runpugs: a web terminal for interactive pugs 
     Web::Terminal: library for building a web terminal for interactive shells
 
 INSTALLATION
@@ -19,29 +19,31 @@ INSTALLATION
     	Moose 
     	Net::Telnet 
     	IO::Pty
+	Config::General
 
-    * make sure that you change the following settings in lib/Web/Terminal/Settings.pm
-    	$rel_root	(Release pugs)
-    	$dev_root	(Development pugs)
-    	$root		(web root)
-    	$port		(usually should be 2059)
-    	$server		(bin/termserv4.pl)
+    * create a $HOME/.webtermrc configuration file (start from the webtermrc file in the repository)
+    * make sure that you change the following settings
+    	rel_root	(Release pugs)
+    	dev_root	(Development pugs)
+    	root		(web root)
+    	port		(default 2059; any free TCP port is OK)
+    	server		(bin/termserv.pl)
     	
-    * Start the terminal server script (bin/termserv4.pl) 
+    * Start the terminal server script (bin/termserv.pl) 
     
     * To run, simply point your browser to /runpugs/ 
 
 DESCRIPTION
     runpugs has two main components: 
-    -a mod_perl script (/perl/runpugs3.pl) which uses an html template
-    (/data/runpugs_async3.html). The latter calls the runpugs.css stylesheet from
+    -a mod_perl script (/perl/runpugs.pl) which uses an html template
+    (/data/runpugs_async.html). The latter calls the runpugs.css stylesheet from
     /htdocs/runpugs.css. The script is called from /htdocs/runpugs/index.html
-    -a server (/bin/termserv3.pl) which handles the interactive pugs sessions and communicates with
+    -a server (/bin/termserv.pl) which handles the interactive pugs sessions and communicates with
     the mod_perl script. The pugs sessions stay alive for some time (currently 10') if
     left inactive.
 
     This version has some AJAX goodness and runs under mod_perl.
-    The entrypoint is /htdocs/runpugs/index.html, which calls /perl/runpugs3.pl
+    The entrypoint is /htdocs/runpugs/index.html, which calls /perl/runpugs.pl
 
    The underlying library, Web/Terminal, can in principle be used for any
    interactive shell, not just pugs. So we could have runpython :-)
@@ -61,7 +63,7 @@ COPYRIGHT
 CHANGES IN VERSION 0.4.0
     -Better session management
     -use Moose for Session objects
-    -More generic (Settings.pm)
+    -More generic (Settings.pm uses Config::General) 
 
 CHANGES IN VERSION 0.3.0
     -Uses AJAX for persistent interface and mod_perl for speed

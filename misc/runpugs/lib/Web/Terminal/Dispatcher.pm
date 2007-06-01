@@ -20,7 +20,7 @@ our %EXPORT_TAGS = (
 					 ALL     => [qw( send )],
 					 DEFAULT => [],
 );
-my $v = (1 - $Web::Terminal::Settings::daemon)*(1-$Web::Terminal::Settings::test);
+my $v = 1;#(1 - $Web::Terminal::Settings::daemon)*(1-$Web::Terminal::Settings::test);
 
 sub send {
 	my $id          = shift;
