@@ -1,5 +1,6 @@
 use v6-alpha;
 use Test;
+use Sudoku;
 plan 1;
 
 # P97 (**) Sudoku
@@ -34,9 +35,30 @@ plan 1;
 # a way that every number between 1 and 9 appears exactly once in each row, in
 # each column, and in each square.
 
-if 1 {
-    skip 1, "Test(s) not yet written: (**) Sudoku";
-}
-else {
-    ok 1, '(**) Sudoku';
-}
+my $problem  = "004800017"
+             ~ "670900000"
+             ~ "508030004"
+             ~ "300740100"
+             ~ "069000780"
+             ~ "001069005"
+             ~ "100080306"
+             ~ "000006091"
+             ~ "240001500";
+
+my $solution = "934825617"
+             ~ "672914853"
+             ~ "518637924"
+             ~ "325748169"
+             ~ "469153782"
+             ~ "781269435"
+             ~ "197582346"
+             ~ "853476291"
+             ~ "246391578";
+
+my $sudoku = Sudoku.new;
+$sudoku.init(3, 3);
+$sudoku.from_string($problem);
+
+# If you want to see the real solving code, just look into the module
+$sudoku.solve();
+is $sudoku.out, $solution, "Sudoku solved";
