@@ -272,14 +272,12 @@ doExecuteHelper helper args = do
         | fileExists $ file' x = Just $ file' x
         | otherwise            = findHelper xs
     -}
-    findHelper (x:xs) = do -- not lazy, but that's not really important here
-        filex  <- fileExists (file  x)
-        filex' <- fileExists (file' x)
-        case () of
-            _
-                | filex     -> return $ Just $ file  x
-                | filex'    -> return $ Just $ file' x
-                | otherwise -> findHelper xs
+    findHelper (x:xs) = do
+        filex  <- fileExists (file x)
+        if filex then return (Just $ file x) else do
+            filex' <- fileExists (file' x)
+            if filex' then return (Just $ file' x) else do
+                findHelper xs
     file  x = foldl1 joinFileName (x ++ [helper])
     file' x = (file x) ++ (getConfig "exe_ext")
     fileExists path = do
