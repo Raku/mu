@@ -72,14 +72,7 @@ This is a summary of their licensing terms, usually taking the core as an
 example, but what is written in the components themselves takes precedence.
 
 This QDRDBMS core distribution is currently licensed under the GPL version
-2.0 or later.  In the near future, it is expected to be relicensed instead
-under the GPL version 3.0 or later instead, assuming no difficulties arise
-with the final version of that license (which is currently in the draft
-stage; the final version should be released on Friday, June 29, 2007).
-
-I<TODO:  Consider changing the terminology of the QDRDBMS to say "convey"
-rather than "distribute" as per the GPL v3, after the latter is released
-final, if doing so is reasonable.>
+3.0 or later.
 
 Therefore, any third party component that links to QDRDBMS is required to
 be distributed under the GPL unless at least one of the following

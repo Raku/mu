@@ -715,23 +715,27 @@ QDRDBMS is Copyright © 2002-2007, Darren Duncan.  All rights reserved.
 
 QDRDBMS is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License (GPL) as published by the Free
-Software Foundation (L<http://www.fsf.org/>); either version 2 of the
+Software Foundation (L<http://www.fsf.org/>); either version 3 of the
 License, or (at your option) any later version.  You should have received a
 copy of the GPL as part of the QDRDBMS distribution, in the file named
-"GPL"; if not, see L<http://www.gnu.org/licenses/> or write to the Free
-Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+"GPL"; if not, see L<http://www.gnu.org/licenses> or write to the Free
+Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 02110-1301 USA.
 
-I<Note that the QDRDBMS license should be interpreted as being, in spirit,
-just the terms of the GPL version 3 or later, rather than version 2 or
-later, but that this can't legally be true in the present, since the
-finalized version of the newer license hasn't been released yet (but it
-should be released on Friday, June 29, 2007).  Therefore, the actual legal
-license of this version of QDRDBMS that you hold now is the GPL version 2
-or later.  Only versions of QDRDBMS released after the GPL v3 is finalized
-will use GPL version 3 or later as its actual legal license, which will be
-explicitly stated in the previous paragraph at that time.  Assuming the
-planned switch to v3 isn't aborted.>
+I<WARNING:  The GPL version 3 is still being drafted; the publication of
+its final version is expected on Friday, June 29, 2007; until then, that
+license can not actually be used.  So the previous paragraph just
+represents what the license of QDRDBMS is anticipated to be following an
+explicit post June 29th re-distribution of it by the copyright holder.  If
+you are seeing QDRDBMS prior to that re-distribution, for any reason or in
+any place, then you should consider it as not being licensed at all, and
+vanilla copyright law applies.  That said, QDRDBMS is hereby licensed to
+you under the following proprietary terms:  You may copy, examine, modify,
+and execute QDRDBMS, for the purpose of study or evaluation, during only
+the time period prior to July 1st of 2007, after which time all privileges
+granted to you under this proprietary license expire.  You should then be
+able to acquire a subsequent QDRDBMS release that is licenced with the
+GPL version 3.>
 
 Linking QDRDBMS statically or dynamically with other components is making a
 combined work based on QDRDBMS.  Thus, the terms and conditions of the GPL
