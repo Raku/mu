@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 29 May 2007
+  Last Modified: 31 May 2007
   Number: 12
-  Version: 53
+  Version: 54
 
 =head1 Overview
 
@@ -218,15 +218,30 @@ Dot notation can omit the invocant if it's in C<$_>:
 
     .doit(1,2,3)
 
-It can use a simple scalar variable for the method name:
+There are several forms of indirection for the method name.  You can
+replace the identifier with a quoted string, and it will be evaluated
+as a quote and then the result of that is used as the method name.
 
-    $obj.$methodname(1,2,3)
+    $obj."$methodname"(1,2,3)   # use contents of $methodname as method name
+    $obj.'$methodname'(1,2,3)   # no interpolation; call method with $ in name!
 
-The variable may contain either the name of a method or a closure
-object.  In the latter case the closure is called with the object
-as its first argument, so that a closure may be used to abstract a
+For situations where you already have a method located, you
+can use a simple scalar variable in place of method name:
+
+    $methodobj = $foo ?? &bar !! &baz;
+    $obj.$methodobj(1,2,3)
+
+or more succinctly but less readably:
+
+    $obj.$($foo ?? &bar !! &baz)(1,2,3)
+
+The variable must contain a Code object, that is, a closure of some
+sort.  Regardless of whether the closure was defined as a method or
+a sub or a block, the closure is called as a method, with the object
+as its first argument, and the rest of the arguments second, third,
+and so on.   For instance, such a closure may be used to abstract a
 "navigational" path through a data structure without specifying the
-root of the path till later.
+root of the path till later:
 
     $locator = -> $root, $x, $y { $root.<foo>[$x]<bar>{$y}[3] }
     $obj.$locator(42,"baz")  # $obj<foo>[42]<bar><baz>[3]
@@ -234,30 +249,61 @@ root of the path till later.
     $locator = { .<here> }
     $obj.$locator            # $obj<here>
 
-The method name may also be quoted with either single or double quotes:
+As a convenient form of documentation, such a closure may also be written
+in the form of an anonymous method:
 
-    $obj."$methodname"(1,2,3)   # same as previous
-    $obj.'$methodname'(1,2,3)   # call method with $ in name!
+    $locator = method ($root: $x, $y) { $root.<foo>[$x]<bar>{$y}[3] }
+    $obj.$locator(42,"baz")  # $obj<foo>[42]<bar><baz>[3]
 
-The latter is especially useful for postfix forms that might be confusing
-to the lexer or to the human reader:
+    $locator = method { self.<here> }
+    $obj.$locator            # $obj<here>
 
-    $filename.'+'      # same as +$filename.
-    .'+'               # same as +$_
+Note however that, like any anonymous closure, an anonymous method
+can only be dispatched to directly, like a sub.  You may, of course,
+bind an anonymous method to the name of a method in a class's public
+interface, in which case it is no longer anonymous, and may be
+dispatched to normally via the class.  (And in fact, when the normal
+method dispatcher is calling individual candidates in its candidate
+list, it calls each candidate as a sub, not as a method, or you'd
+end up with recursive dispatchers.)  But fundamentally, there's
+no such thing as a method closure.  The C<method> declarator on an
+anonymous method has the primary effect of making the declaration
+of the invocant optional.  (It also makes it an official C<Routine>
+that can be returned from, just as if you'd used C<sub> to declare it.)
 
-And in fact, if there is a choice between a unary prefix and a postfix
-operator, the quoted forms will choose the prefix operator.  See S03.
-Likewise, presuming that C<$op> does not name an ordinary method on
-C<$left>, this calls any arbitrary infix operator:
+Instead of a scalar variable, an array variable may also be used:
 
-    $left.$op($right)
+    $obj.@candidates(1,2,3)
 
-Of course you can force that with:
+As with the scalar variant, each array element must be a Code object,
+but the list is treated as a list of candidates to call.
 
-    $left.infix:{$op}($right)
+Another form of indirection relies on the fact that operators are named
+using a variant on hash subscript notation, which gives you these forms:
 
-The C<q> forms of quoting are not allowed for method indirection,
-since they'd be taken as ordinary method names.
+    $x.infix:{$op}($y)
+    $x.prefix:{$op}
+    $x.postfix:{$op}
+
+Generally you see these with the literal angle bracket form of subscript:
+
+    $a.infix:<*>($b)      # equivalent to $a * $b
+    $a.prefix:<++>        # equivalent to ++$a
+    $a.postfix:<++>       # equivalent to $a++
+
+If you omit the syntactic category, the call will be dispatched according
+to the number of arguments either as "prefix" or as "infix":
+
+    $a.:<+>($b)           # equivalent to $a + $b
+    $a.:<++>              # equivalent to ++$a
+    $a.:<!>               # equivalent to !$a
+    @a.:<[*]>             # equivalent to [*] @a
+
+But it's probably better to spell out the syntactic category when
+the actual operator is not obvious:
+
+    $x.infix:{$op}($y)
+    $x.prefix:{$op}
 
 You must use a special syntax to call a private method:
 
@@ -651,7 +697,8 @@ were methods.  Method names beginning with a colon:
 are expected to return a value that can be used as a boolean.
 While this is primarily intended for use by file tests, other classes
 may define such methods to provide a similar mechanism for interrogating
-properties.
+properties.  (Also note that syntactic category names are reserved for
+calling operators as if they were methods.)
 
 Depending on the class, the pairs in question may have arguments.
 The C<Hash> class in particular makes use of pair syntax for subscript
@@ -691,12 +738,15 @@ The method name may be quoted when disambiguation is needed:
     $object."+meth"(@args)
     $object.'VAR'(@args)
 
-The order and selection of the candidates may be
-specified by arguments to a pseudo-class known as C<WALK>:
+As with ordinary calls, the identifier supplying the literal method
+name may be replaced with an interpolated quote to specify the method
+name indirectly.  It may also be replaced with an array to specify
+the exact list of candidates to be considered:
 
-    $object.*WALK[:breadth:omit($?CLASS)]::meth(@args);
+    my @candidates := $object.WALK(:name<foo>, :breadth, :omit($?CLASS));
+    $object.*@candidates(@args);
 
-The C<WALK> pseudo-class takes these arguments:
+The C<WALK> method takes these arguments:
 
     :canonical      # canonical dispatch order
     :ascendant      # most-derived first, like destruction order
@@ -705,7 +755,7 @@ The C<WALK> pseudo-class takes these arguments:
     :breadth        # like multi dispatch
 
     :super              # only immediate parent classes
-    :method<name>       # only classes containing method declaration
+    :name<name>         # only classes containing named method declaration
     :omit(Selector)     # only classes that don't match selector
     :include(Selector)  # only classes that match selector
 
@@ -769,6 +819,9 @@ To hyperoperate over the values of a junction you have to explicitly
 pull out the values:
 
     $junction.values».meth(@args);
+
+As with other forms of method call, the "meth" above may be replaced
+with a quoted string or variable to do various forms of indirection.
 
 =head1 Multisubs and Multimethods
 
