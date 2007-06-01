@@ -42,12 +42,18 @@ instance (Monad m) => Monad (MaybeT m) where
 instance MonadTrans MaybeT where
     lift mon = MaybeT (mon >>= return . Just)
 
+instance (MonadIO m) => MonadIO (MaybeT m) where
+    liftIO ma = MaybeT $ do
+        a <- liftIO ma
+        return (Just a)
+
 instance (Monad m) => MonadPlus (MaybeT m) where
     mzero                       = MaybeT (return Nothing)
     mplus (MaybeT a) (MaybeT b) = MaybeT $ do
         ma <- a
-        mb <- b
-        return $ ma `mplus` mb
+        case ma of
+            Nothing -> b
+            _       -> return ma 
 
 {-|
 Perform the given evaluation in an /LValue/ context.
