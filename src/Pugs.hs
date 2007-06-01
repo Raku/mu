@@ -266,23 +266,19 @@ doExecuteHelper helper args = do
         ]
     perl5 = getConfig "perl5path"
     findHelper :: [[FilePath]] -> MaybeT IO FilePath
+    findHelper []     = fail "Can't find anything"
     findHelper (x:xs) = maybeFindFile file
                 `mplus` maybeFindFile (file ++ getConfig "exe_ext")
                 `mplus` findHelper xs
         where 
         file = foldl1 joinFileName (x ++ [helper])
-    findHelper _      = fail "Can't find anything"
     maybeFindFile :: FilePath -> MaybeT IO FilePath
-    maybeFindFile file = do
-        ok  <- liftIO $ fileExists file
-        guard ok
-        return file
-    fileExists path = do
-        let (p,f) = splitFileName path
-        dir <- (fmap Just $ getDirectoryContents p) `catchIO` (const $ return Nothing)
-        case dir of
-            Just dir' -> return $ f `elem` dir'
-            _         -> return False
+    maybeFindFile pathname = do
+        dir <- liftIO $ getDirectoryContents path `catchIO` (const $ return [])
+        guard (filename `elem` dir)
+        return pathname
+        where
+        (path, filename) = splitFileName pathname
 
 doParseWith :: (Env -> FilePath -> IO a) -> FilePath -> String -> IO a
 doParseWith f name prog = do
