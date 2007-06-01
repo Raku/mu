@@ -19,14 +19,15 @@ Inside each milestone, we should have an ordered list of tasks that should each 
 
 Long-term Projects 
 
-  Parrot "perl6" (Perl 6 over Parrot)
+  Parrot "perl6" 
+    Perl 6 over Parrot.
 
-  Pugs "pugs" (Perl 6 over Haskell, Perl 5, and C)
+  Pugs "pugs" 
+    Perl 6 over Haskell, Perl 5, and C.
 
   Perl 6 over Perl 6
-
-While Parrot and Pugs are more or less "monolithical", 6-in-6 on the other hand is being built of many small projects.
-
+    The "6 on 6" project is built out of a number of small projects, almost all of them in Perl.
+    We're thrilled to invite Perl 5 hackers and Perl 6 hackers to contribute implementations of any of the projects for the next milestone.
 
 Short-term Project examples
 
@@ -69,7 +70,9 @@ Current state of the technology
 
 Development Tracks
 
-  Piecewise Migrating 6-in-6 technologies into other compilers
+  New short-term projects 
+
+  Piecewise Migrating technologies between 6-in-6 and other Perl 6 compilers
 
   Runnable Perl-6.0.0-STD
 
@@ -77,13 +80,24 @@ Development Tracks
     
 
 
-Piecewise Migrating 6-in-6 technologies into other compilers
+New short-term projects 
 
-    Perl6-in-Parrot
+  Regex engine experiments
 
-    Pugs
 
-    v6.pm
+Piecewise Migrating technologies between 6-in-6 and other Perl 6 compilers
+
+  Perl6-in-Parrot
+    Adding actions to the grammar
+
+  Pugs
+    Possibly reusing the grammar parser to generate Haskell code
+
+  v6.pm
+    New OO AST
+    Upgrade to Perl-6.0.0-STD Grammar 
+    Visitor-plugin architecture
+    Allow the 'v6.pm' module to use different implementations 
 
 
 Runnable Perl-6.0.0-STD
@@ -97,24 +111,33 @@ Extending KindaPerl6
 
   Architecture
 
-    migrate Perl 5 runtime to MiniPerl6, for reusability
-      object metamodel
+    Migrate Perl 5 runtime to MiniPerl6, for reusability
+      move the object metamodel to perl 6 land
 
-    merge the regex parser into the main compiler
+    Merge the regex parser into the main compiler
 
   Backends
 
--- Perl 5
--- Parrot (Perl6-Parrot, PIR)
--- Perl6-Haskell (Pugs)
--- JVM (Groovy, Java, bytecode) 
--- Javascript (plain javascript, PIL2JS)
--- pypy (RPython)
--- C, C++ (gcc with GOMP and Boehm GC)
+    Perl 5
+    Parrot (Perl6-Parrot, PIR)
+    Perl6-Haskell (Pugs)
+    JVM (Groovy, Java, bytecode) 
+    Javascript (plain javascript, PIL2JS)
+    pypy (RPython)
+    C, C++ (gcc with GOMP and Boehm GC)
 
   Semantics
 
+    Implement Capture and Signature
+
+    Migrate 'Code' to perl 6 land
+
+    Implement Multis
+
   Syntax
+
+    Upgrade to Perl-6.0.0-STD Grammar 
+
 
 
 __END__
