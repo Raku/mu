@@ -127,7 +127,7 @@ all QDRDBMS D implementations must have, which is the selectors for and
 general purpose functions and update operators for these data types: Bool,
 Text, Blob, Int, Tuple, Relation, and the Cat.* types.
 
-By contast, the operators specific to the optional data types are
+By contrast, the operators specific to the optional data types are
 implemented by other files: L<QDRDBMS::Engine::Example::Operators::Num>,
 L<QDRDBMS::Engine::Example::Operators::Temporal>,
 L<QDRDBMS::Engine::Example::Operators::Spatial>.

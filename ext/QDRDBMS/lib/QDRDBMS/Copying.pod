@@ -44,13 +44,13 @@ co-owners to consult.
 
 Presently, all of the QDRDBMS framework core files have been created and
 maintained entirely by Darren, both code and documentation, save for small
-amounts of casual assistence by other people.  This consists mainly of
+amounts of casual assistance by other people.  This consists mainly of
 providing advice in discussions that went to improve QDRDBMS, or in
 correcting minor code details or typos.  Any exceptions are specifically
 mentioned.
 
 In accordance with common sense, it is maintained that none of the
-assistence received to date, save any specifically mentioned, is enough to
+assistance received to date, save any specifically mentioned, is enough to
 warrant partial ownership of affected portions of QDRDBMS to the other
 people, and so they remain entirely Darren's.
 
@@ -101,7 +101,7 @@ exceptions.  If that assumption proves to be false, the idea of providing a
 FLOSS exception can be revisited.  As for desires of the creators of the
 other FLOSS, that the recipients of the combination can use the creators'
 own components under their original licenses, that should be easy enough to
-do since the other components are likely to be easily separatable from the
+do since the other components are likely to be easily separable from the
 QDRDBMS components, as they are likely in separate files.>
 
 These licensing terms are being applied to QDRDBMS mainly because the
@@ -114,8 +114,8 @@ alternatives would have a limited scope).
 
 The copyright holder has little intention of broadly releasing QDRDBMS
 itself under any free or open source license but the GPL, such as the Perl
-or Artistic or BSD licenses.  Doing so would be irrevokably granting the
-legal means for anyone to make non-free derivitives, due to other licenses
+or Artistic or BSD licenses.  Doing so would be irrevocably granting the
+legal means for anyone to make non-free derivatives, due to other licenses
 having weaker or nonexistent copyleft protections; also, there would be
 less incentive to pay for a dual-license by those that wouldn't want to
 accept the GPL's terms.  However, workable and limited scope arrangements

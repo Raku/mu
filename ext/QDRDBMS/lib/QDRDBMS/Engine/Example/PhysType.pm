@@ -665,7 +665,7 @@ Specifically, this file represents the core system-defined data types that
 all QDRDBMS D implementations must have, namely: Bool, Text, Blob, Int,
 Tuple, Relation, and the Cat.* types.
 
-By contast, the optional data types are given physical representations by
+By contrast, the optional data types are given physical representations by
 other files: L<QDRDBMS::Engine::Example::PhysType::Num>,
 L<QDRDBMS::Engine::Example::PhysType::Temporal>,
 L<QDRDBMS::Engine::Example::PhysType::Spatial>.

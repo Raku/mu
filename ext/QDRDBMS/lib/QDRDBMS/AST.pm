@@ -1573,7 +1573,7 @@ For various reasons, the QDRDBMS::AST classes themselves do not do any node
 refactoring, and their representations differ little if any from the format
 of their constructor arguments, which can contain extra information that is
 not logically significant in determining the node value.  One reason is
-that this allows a semblence of maintaining the actual syntax that the user
+that this allows a semblance of maintaining the actual syntax that the user
 specified, which is useful for their debugging purposes.  Another reason is
 the desire to keep this library as light-weight as possible, such that it
 just implements the essentials; doing refactoring can require a code size
@@ -1583,7 +1583,7 @@ having references to externally user-defined entities can't be fully
 refactored as each of those represents a free variable that a static node
 analysis can't decompose; only nodes consisting of just system-defined or
 literal entities (meaning zero free variables) can be fully refactored in a
-static node analysys (though there are a fair number of those in practice,
+static node analysis (though there are a fair number of those in practice,
 particularly as C<Var> values).
 
 A consequence of this is that the QDRDBMS::AST classes in general do not
@@ -1629,10 +1629,12 @@ QDRDBMS::AST also provides wrapper subroutines for all member class
 constructors, 1 per each, where each subroutine has identical parameters to
 the constructor it wraps, and the name of each subroutine is equal to the
 trailing part of the class name, specifically the C<Foo> of
-C<QDRDBMS::AST::Foo>.  All of these subroutines are exportable, but are not
-exported by default, and exist soley as syntactic sugar to allow user code
-to have more brevity.  I<TODO:  Reimplement these as lexical aliases or
-compile-time macros instead, to avoid the overhead of extra routine calls.>
+C<QDRDBMS::AST::Foo>, but with a C<new> prefix (so that Perl doesn't
+confuse a fully-qualified sub name with a class name).  All of these
+subroutines are exportable, but are not exported by default, and exist
+solely as syntactic sugar to allow user code to have more brevity.  I<TODO:
+ Reimplement these as lexical aliases or compile-time macros instead, to
+avoid the overhead of extra routine calls.>
 
 The usual way that QDRDBMS::AST indicates a failure is to throw an
 exception; most often this is due to invalid input.  If an invoked routine

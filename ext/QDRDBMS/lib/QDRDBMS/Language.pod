@@ -34,7 +34,7 @@ QDRDBMS D is technically a "D plus extra"; examples of this are constructs
 for creating the databases themselves and managing connections to them.
 
 QDRDBMS D also incorporates design aspects and constructs that are taken
-from or influenced by Perl 6, other general-purpose langugaes (particularly
+from or influenced by Perl 6, other general-purpose languages (particularly
 functional ones like Haskell), Tutorial D, various D implementations, and
 various SQL implementations (see the L<QDRDBMS::SeeAlso> file).  I<It has
 also been suggested that some of the QDRDBMS D design is like that of the
@@ -44,7 +44,7 @@ a different person that the Lua language design is very similar, in
 different ways, and from a glance, it certainly seems to be so.>
 
 In any event, the QDRDBMS documentation will be focusing mainly on how
-QDRDBMS itself works, and will spend little time in providing rationales;
+QDRDBMS itself works, and will spend little time in providing rationale;
 you can read the aforementioned external documentation for much of that.
 
 I<This documentation is pending.>
@@ -169,10 +169,10 @@ RDBMS to varying degrees.
 
 =item sequence
 
-Within ths documentation, a I<sequence> generically refers to an ordered
+Within this documentation, a I<sequence> generically refers to an ordered
 collection of 0..N elements.  The term I<array> is not used in this
 documentation because that word's actual meaning is more broad, and
-includes both matricies plus unordered collections of name-value pairs.
+includes both matrices plus unordered collections of name-value pairs.
 Note that a sequence may be used simply to maintain a simple collection in
 order, though the actual order of its elements may not always be
 significant.  Sometimes I<sequence> also refers specifically to the C<Seq>
@@ -195,7 +195,7 @@ I<This documentation is pending.>
 The relational model of data is based on predicate logic and set theory.
 
 The model assumes that all data is represented as mathematical N-ary
-I<relations>, an N-ary relation being a subset of the cartesisn product of
+I<relations>, an N-ary relation being a subset of the cartesian product of
 N I<data types>.  Reasoning about such data is done in two-valued predicate
 logic, meaning there are 2 possible evaluations for each proposition,
 either I<true> or I<false>.
@@ -225,7 +225,7 @@ The relational model specifies that data is operated on by means of a
 relational calculus or a relational algebra.  These 2 are logically
 equivalent; for any expression in the relational calculus, there is an
 equivalent one in the relational algebra, and vice versa.  Relational
-algebra, an offshot of first-order logic, is a set of relations closed
+algebra, an offshoot of first-order logic, is a set of relations closed
 under operators; each operator takes N relations as arguments and results
 in a relation.  While the relational algebra provides a more procedural way
 for specifying database queries, in contrast the relational calculus
@@ -411,7 +411,7 @@ of this.  Generally speaking, users can do absolutely everything in the
 DBMS with just data querying and updating operations.
 
 The design and various features of QDRDBMS D go a long way to help both its
-users and implementers alike.  A lot of flexability is afforded to
+users and implementers alike.  A lot of flexibility is afforded to
 implementers of the language to be adaptive to changing constraints of
 their environment and deliver efficient solutions.  This also makes things
 a lot easier for users of the language because they can focus on the
@@ -448,7 +448,7 @@ actually testing whether 2 value appearances are in fact the same value.
 Given that all data values in QDRDBMS D are fundamentally immutable, the
 term "selector" is used to describe a routine that captures an appearance
 of a value into a variable (or for use in a value expression); this is
-analagous to the task that a "constructor" routine does in a typical
+analogous to the task that a "constructor" routine does in a typical
 object-oriented language, but that the former is conceptually "selecting"
 an eternally existing value rather than conceptually "creating" a new one.
 
@@ -476,7 +476,7 @@ system-defined C<Empty> type is a proper subtype of all other types.  Now,
 if no data type, I<T3> exists which is both a proper subtype of I<T1> and a
 proper supertype of I<T2>, then I<T1> is an I<immediate supertype> of
 I<T2>, and I<T2> is an I<immediate subtype> of I<T1>.  Note that the
-QDRDBMS type system supports multiple inheritence, so types can form a
+QDRDBMS type system supports multiple inheritance, so types can form a
 lattice rather than a tree.
 
 Every value has at most a single I<most specific type> (or I<MST>), which
@@ -547,7 +547,7 @@ are user-defined structured types), two independently defined scalar types
 are completely disjoint even if their components look the same, by
 definition.  The only way for 2 scalar types to have values in common is if
 one is explicitly defined, directly or indirectly, as a subtype of, or as a
-union type encompasing a subtype of, the other.
+union type encompassing a subtype of, the other.
 
 Every value of a nonscalar type (either a tuple type I<or> a relation type,
 respectively) is conceptually transparent, and its component structure is
@@ -583,7 +583,7 @@ every one is individually capable of representing all of the type's values;
 any possrep could be used exclusively by a user when they work with its
 type, without diminishing what they can do.  A single possrep is specific
 to one and only one type, so it is possible to refer to a type by simply
-refering to the name of one of its possreps.
+referring to the name of one of its possreps.
 
 Taking for example an integer data type, one of its possreps could
 represent an integer value as a string of binary digits, while another
@@ -592,8 +592,8 @@ taking for example a temporal data type, one of its possreps could
 represent a date as an ISO 8601 formatted character string in the Gregorian
 calendar, and another possrep could represent it as a number of seconds
 since the UNIX epoch.  Or taking for example a spacial data type that is a
-rectangle, one possrep could specify the 4 verticies as 4 (or 3) point
-values, and another possrep could specify fewer verticies and also specify
+rectangle, one possrep could specify the 4 vertices as 4 (or 3) point
+values, and another possrep could specify fewer vertices and also specify
 the rectangle's width and height as numeric values.
 
 A possrep additionally has a defined boolean-valued constraint expression
@@ -650,22 +650,22 @@ all, and hence has no selectors or accessors defined for it.
 
 =head2 Tuple Types and Relation Types
 
-Tuple types are the fundamental heterogeneous conceptually nonencapsulated
+Tuple types are the fundamental heterogeneous conceptually non-encapsulated
 collection types in QDRDBMS D, and are like the Pascal language's concept
 of a record, or the C language's concept of a struct.  The definition of a
 tuple type comprises a set of zero or more named I<attributes> of any
 scalar or nonscalar type.  This set definition is called the tuple's
 I<heading>.
 
-Relation types are the fundamental homogeneous conceptually nonencapsulated
-collection types in QDRDBMS D, and are like other languages' concepts of
-sets (or arrays where all elements are distinct), but restricted in that
-all elements are tuples.  The definition of a relation type looks exactly
-like the definition of a tuple type (such that a relation has a I<heading>
-even if it has no tuples), but that the definition defines every tuple in
-the relation, and also but that relation types can additionally have
-I<keys> defined which indicate that a subset of its attributes' values are
-distinct between all tuples in the relation.
+Relation types are the fundamental homogeneous conceptually
+non-encapsulated collection types in QDRDBMS D, and are like other
+languages' concepts of sets (or arrays where all elements are distinct),
+but restricted in that all elements are tuples.  The definition of a
+relation type looks exactly like the definition of a tuple type (such that
+a relation has a I<heading> even if it has no tuples), but that the
+definition defines every tuple in the relation, and also but that relation
+types can additionally have I<keys> defined which indicate that a subset of
+its attributes' values are distinct between all tuples in the relation.
 
 Generic selector and accessor operators exist that work with all tuple and
 relation types, so they do not need to be defined per such type.
@@ -676,7 +676,7 @@ do not define any attribute sets, and are supertypes of all tuple and
 relation types that do.  Beyond this special case, a pair of tuple or
 relation types can only have a subtype/supertype relationship if they have
 compatible headings, which means the attribute sets are of the same
-degree, the attribute names are identical, and the namewise corresponding
+degree, the attribute names are identical, and the name-wise corresponding
 attributes in each heading have a valid subtype/supertype relationship;
 each attribute of a tuple or relation subtype is a subtype of the
 same-named attribute of the tuple or relation supertype.
@@ -769,7 +769,7 @@ of which is finite or infinite, and in the latter case, it states a most
 generic means to specify a finite subtype.>
 
 Note that, while it is not mandated by the language, some QDRDBMS D
-implementations may legitimitely choose to impose restrictions on their
+implementations may legitimately choose to impose restrictions on their
 users such that the declared types of all persisting variables must be of
 finite types only.
 
@@ -809,7 +809,7 @@ I<This documentation is pending.>
 
 The QDRDBMS DBMS / virtual machine, which by definition is the environment
 in which QDRDBMS D executes, conceptually resembles a hardware PC, having a
-command processor (CPU), standard user input and output channel, persistant
+command processor (CPU), standard user input and output channel, persistent
 read-only memory (ROM), volatile read-write memory (RAM), and persistent
 read-write disk or network storage.
 
@@ -826,7 +826,7 @@ state where the CPU is ready to accept user-input commands to process, and
 there is a built-in (to the ROM) set of system-defined entities (data
 types, operators, variables, etc) which are ready to be used to define or
 be invoked by said user-input commands; the RAM starts out effectively
-empty and the persistant disk or network storage is ignored.
+empty and the persistent disk or network storage is ignored.
 
 Following this activation, the virtual machine is mostly idle except when
 executing QDRDBMS D commands that it receives via the standard input (done
@@ -837,7 +837,7 @@ command provide a context for the next command.
 
 At some point in time, as the result of appropriate commands, data
 repositories, or "depots" (either newly created or previously existing)
-that live in the persistant disk or network storage will be mounted within
+that live in the persistent disk or network storage will be mounted within
 the virtual machine, at which point subsequent commands can read or update
 them, then later unmount them when done.  Speaking in the terms of a
 typical database access solution like the Perl DBI, this mounting and
@@ -852,7 +852,7 @@ collectively are the database that the QDRDBMS DBMS is managing.  Most
 commands against the DBMS would typically involve reading and updating the
 data variables, which in typical database terms is performing queries and
 data manipulation.  Much less frequently, you would also see "data
-definition" changes, namely what user-defined variables, types, etcetera
+definition" changes, namely what user-defined variables, types, etceteras
 exist, done fundamentally by data-updating special system-defined "catalog"
 variables.  Any updates to a persistent depot will usually last
 between multiple activations of the virtual machine, while any updates to
@@ -863,7 +863,7 @@ system-defined and user-defined constraints (also known as business rules),
 which are always active over the period that they are defined.  The
 constraints restrict what state the database can be in, and any commands
 which would cause the constraints to be violated will fail; this mechanism
-is a large part of what makes the QDRDBMS DBMS a reliable modeller of
+is a large part of what makes the QDRDBMS DBMS a reliable modeler of
 anything in reality, since it only stores values that are reasonable.
 
 Note that in practice, the aforementioned concept of "commands" is realized
@@ -926,11 +926,11 @@ parameters.
 A C<procedure> is an explicitly invokable routine with 0..N parameters that
 can see and update global variables, and can invoke any kind of invokable
 routine; it can only be invoked as the root part of a statement in another
-routine.  The C<procedure> and C<host_gate> are the only explictly
+routine.  The C<procedure> and C<host_gate> are the only explicitly
 invokable routines that can directly reference global containers, whether
 catalog or data.  The vast majority of C<procedure> that exist will be
 user-defined.  But some system-defined routines that would otherwise be
-C<function> or C<update_operator> are C<procedure> instead soley because
+C<function> or C<update_operator> are C<procedure> instead solely because
 they are non-deterministic; an example is an operator that derives a tuple
 sequence from a relation without fully sorting the tuples, because the
 result is fundamentally random and non-repeatable.
@@ -1020,7 +1020,7 @@ integrity.
 The privilege system mainly controls, per user, what individual repository
 contents they are allowed to see / read from, what they are allowed to
 update, and what routines they are allowed to execute; it also controls
-other aspects of their possible activity.  The concerns here are analagous
+other aspects of their possible activity.  The concerns here are analogous
 to privileges on a computer's file system, or a typical SQL database.
 
 I<This documentation is pending.>
@@ -1066,7 +1066,7 @@ the final values of all the expressions to be assigned are determined prior
 to any target variables being updated.  Moreover, as all functions may not
 have side-effects, and we don't support the concept of "trigger" routines
 that can perform updates, we avoid complicating the issue due to
-environment updates occuring during their invoker statement's first phase.
+environment updates occurring during their invoker statement's first phase.
 
 In account to situations where external processes are concurrently using
 the same persistent (and externally visible) repository as a QDRDBMS DBMS
@@ -1134,7 +1134,7 @@ transactions which last over multiple DBMS invocations of an application.
 All currently mounted repositories (persistent and temporary both) are
 joined at the hip with respect to transactions; a commit or rollback is
 performed on all of them simultaneously, and a commit either succeeds for
-all or fails for all (a repository suddenly becoming inaccessable counts as
+all or fails for all (a repository suddenly becoming inaccessible counts as
 a failure).  I<Note that if a QDRDBMS DBMS implementation can not guarantee
 such synchronization between multiple repositories, then it must refuse to
 mount more than one repository at a time under the same virtual machine
@@ -1281,7 +1281,7 @@ finite, all of its attribute types must be.
 
 =item C<sys.type.Relation>
 
-A C<Relation> is analagous to a set of 0..N tuples where all tuples have
+A C<Relation> is analogous to a set of 0..N tuples where all tuples have
 the same heading (the degrees match and all attribute names and
 corresponding declared data types match), but that a C<Relation> data type
 still has its own corresponding heading (attribute names and declared data
@@ -1326,7 +1326,7 @@ can have any declared type) and C<count> is a C<PInt> subtype.  A C<Bag>
 subtype is normally used by any system-defined N-ary operators where the
 order of their argument elements or result is not significant, but that
 duplicate values are significant; specifically, C<count> defines an
-explicit count of occurrances for C<values>.  Its default value has zero
+explicit count of occurrences for C<values>.  Its default value has zero
 tuples.
 
 =item C<sys.type.Maybe>
@@ -1405,7 +1405,7 @@ relation names, are multi-part (extra parts being for "schema" name-spaces
 and such); names of data types and operators are typically 3-4 parts, where
 C<sys> is an example of part 1.  C<Cat.EntityName> has multiple possreps;
 one is a C<Seq(1..N) of Text>; one is a specially encoded C<Text> where
-parts are ordered from greatest to least signficance, and adjacent parts
+parts are ordered from greatest to least significance, and adjacent parts
 are separated with a single "period" character, and any literal period or
 backslash characters in parts are backslash-escaped as C<\p> and C<\b>
 respectively (no other characters are escaped).  Its default value consists
@@ -1445,7 +1445,7 @@ partially qualified, perhaps.
 
 =item C<sys.type.Cat.(Type|Rtn|Var)InvoName>
 
-These are subtypes of C<Cat.EntityInvoName> whose formats are analagous to
+These are subtypes of C<Cat.EntityInvoName> whose formats are analogous to
 the similarly named subtypes of C<Cat.EntityDeclName>.
 
 =back
@@ -1709,17 +1709,17 @@ or actually stores all of its transient and persistent data in.
 
 =item C<lex.*>
 
-Under here are all lexical entities whose invokability or life exists soley
-within the scope of an executing routine; the definitions of those entities
-are part of the C<*.cat> that defines the routines themselves.  The
-C<lex.*> namespace is further subdivided the same way as C<nat.*> is, into
-C<type|rtn|cat|data>, with behaviour being the same but that the effects
-are lexically scoped.  Most of the time, only C<lex.data.*> are actually
-used, but the others permit one to generate new variables and operators etc
-at runtime, which only exist in a temporary lexical scope.  I<Note that, it
-may turn out later that lexically scoped data types are a bad idea, in
-which case we may make them just global (though temporary) ... or maybe
-this won't be a problem at all ... still needs thinking.>
+Under here are all lexical entities whose invokability or life exists
+solely within the scope of an executing routine; the definitions of those
+entities are part of the C<*.cat> that defines the routines themselves.
+The C<lex.*> namespace is further subdivided the same way as C<nat.*> is,
+into C<type|rtn|cat|data>, with behaviour being the same but that the
+effects are lexically scoped.  Most of the time, only C<lex.data.*> are
+actually used, but the others permit one to generate new variables and
+operators etc at runtime, which only exist in a temporary lexical scope.
+I<Note that, it may turn out later that lexically scoped data types are a
+bad idea, in which case we may make them just global (though temporary) ...
+or maybe this won't be a problem at all ... still needs thinking.>
 
 =item C<mnt>
 
@@ -1833,7 +1833,7 @@ I<This documentation is pending.>
 
 This section describes the structure of all C<< cont.cat.app.<unq_name> >>
 and C<< cont.cat.db.<depot>.<unq_name> >> general catalog relvars, the set
-of C<< <unq_name> >> for each of which is identical, that relect and
+of C<< <unq_name> >> for each of which is identical, that reflect and
 control user-defined entities, including data types, routines, non-lexical
 variables (which are all relvars, real or virtual), state constraints, etc.
 Users update these to create or drop their relvars, data types, routines,

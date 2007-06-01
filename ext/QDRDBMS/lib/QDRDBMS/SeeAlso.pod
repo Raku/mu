@@ -38,7 +38,7 @@ the capabilities of the relational model.  The main objective of The Third
 Manifesto, besides being theoretically sound and avoiding arbitrary
 restrictions and pragmatic debasement of the relational model, is to make a
 simple, restricted and precise definition of the role of object orientation
-in database management systems emphasising the few valid ideas from object
+in database management systems emphasizing the few valid ideas from object
 modeling that are orthogonal to relational modeling.
 
 QDRDBMS has officially incorporated this blueprint into its own design, and
@@ -60,10 +60,10 @@ of both the relational model and a theory of types, a reference section
 with the Manifesto proper and a grammar for a teaching language based on
 its principles called Tutorial D, a larger section which explains and
 rationalizes the parts of the Manifesto, and sections that do likewise for
-type inheritence what the earlier sections do with the Manifesto proper.
+type inheritance what the earlier sections do with the Manifesto proper.
 
 Note that the web site for The Third Manifesto, mentioned above, has
-reproduced several chapters and appendicies from this book.  Chapter 4
+reproduced several chapters and appendices from this book.  Chapter 4
 (L<http://web.onetel.com/~hughdarwen/TheThirdManifesto/CHAP04.pdf>) is the
 15-page heart of the book and has the actual TTM definition, upon which the
 rest of the book expands on, rationalizes, and gives examples of.  Chapter
@@ -362,7 +362,7 @@ L<QDRDBMS::Engine::Example>.
 These are some theoretical examples of other Perl modules or documentation
 that could be created to work with QDRDBMS, but if so would most likely be
 distributed independently from it.  The given package names are examples,
-and the examples in question could have other names if approriate.
+and the examples in question could have other names if appropriate.
 
 =over
 
@@ -424,7 +424,7 @@ the latter.  The 2 formats should basically have a 1:1 correspondence.
 
 Implementation of a command-line user application over the QDRDBMS API that
 takes string-form QDRDBMS D as input, compiles it and runs it, and nicely
-formats output for user display.  This is analagous to L<DBI::Shell>.
+formats output for user display.  This is analogous to L<DBI::Shell>.
 
 =item C<DBD::QDRDBMS>
 
@@ -485,7 +485,7 @@ API, letting the normal QDRDBMS Engine and the user application reside in
 separate processes.  The client module would do C<QDRDBMS::Engine::Role>
 and the server would be an application or server-extending plugin that sits
 on top of the QDRDBMS API.  Or whatever implementers want to do.  This is
-analagous to proxying modules for DBI or other DBMSs.
+analogous to proxying modules for DBI or other DBMSs.
 
 =item C<QDRDBMS::Engine::(SQLite|Postgres|Oracle|\w+)>
 
@@ -497,7 +497,7 @@ alternative API for them.
 =item C<DBIx::Class::Storage::QDRDBMS> etc
 
 An alternative plug-in storage engine for DBIx::Class that uses QDRDBMS
-rather than DBI.  Analagous extensions can be added to other DBI wrappers
+rather than DBI.  Analogous extensions can be added to other DBI wrappers
 modules such as Tangram or Rose::DB or what have you.  In either case, said
 alternatives can either be bundled with the core distros of those other
 modules, or separately from them, as per their authors' preferences.

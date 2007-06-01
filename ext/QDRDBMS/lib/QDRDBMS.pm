@@ -457,7 +457,7 @@ several books and papers and taught classes on the subject over the last
 35+ years, along with Codd himself (some are listed in the
 L<QDRDBMS::SeeAlso> documentation file).  Note that the QDRDBMS
 documentation will be focusing mainly on how QDRDBMS itself works, and will
-not spend much time in providing rationales; you can read TTM itself and
+not spend much time in providing rationale; you can read TTM itself and
 various other external documentation for much of that.
 
 The QDRDBMS Native Interface is defined mainly in terms of a new high-level
@@ -475,7 +475,7 @@ application in their other language(s) of choice.  Assuming the main
 application is written in Perl, it is this "QDRDBMS" file which provides
 the glue between your Perl code and your QDRDBMS D code; "QDRDBMS"
 implements a virtual machine that is embedded in your Perl application and
-in which the QDRDBMS D code runs (it is analagous to the Perl interpreter
+in which the QDRDBMS D code runs (it is analogous to the Perl interpreter
 itself, which provides a virtual machine in which Perl code runs).
 
 The classes and methods of this "QDRDBMS" file, together with those of
@@ -493,7 +493,7 @@ Interface, if at all.  To account for situations where multiple DBMS
 objects want to use the same external resources, such as a repository file
 on disk, it is expected that the Engines will employ appropriate measures
 such as system-managed locks so that resource corruption or application
-failure is prevented.  I<Also, QDRDBMS should be thread safe and/or saavy
+failure is prevented.  I<Also, QDRDBMS should be thread safe and/or savvy
 in the future, but for now it officially is not and you should not share
 QDRDBMS objects between multiple threads, nor have objects in separate
 threads try to access the same external resources.>
@@ -501,7 +501,7 @@ threads try to access the same external resources.>
 QDRDBMS does not use any dialect of SQL in its native API (unlike many
 other DBMS products) because SQL is more ambiguous and error-prone to use,
 and it is less expressive.  While QDRDBMS D is very different from SQL, it
-is fully capable of modelling anything in the real world accurately, and it
+is fully capable of modeling anything in the real world accurately, and it
 can support a complete SQL emulation layer on top of it, so that your
 legacy applications can be migrated to use the QDRDBMS DBMS with little
 trouble.  Likewise, emulation layers for any other programming language can
@@ -538,7 +538,7 @@ Most of the other (near term) third party Engines will likely just map
 QDRDBMS's rigorously defined API onto a pre-existing quasi-relational
 database manager (such as SQLite, PostgreSQL, MySQL, Firebird, Teradata,
 Oracle, Sybase, SQL Server, Informix, DB2, OpenBase, FrontBase, etc).
-Given this fact, QDRDBMS's most prominant feature is that it provides a
+Given this fact, QDRDBMS's most prominent feature is that it provides a
 common API for access to those databases, each of which takes a different
 SQL or quasi-SQL dialect.  An application written to it should easily port
 to alternative relational database engines with minimal effort.
@@ -601,7 +601,7 @@ their attributes are private, so you must use accessor methods.
 
 QDRDBMS also provides the not-exportable wrapper subroutine
 C<QDRDBMS::new_dbms> for the C<QDRDBMS::Interface::DBMS> constructor, which
-has identical parameters, and exists soley as syntactic sugar.  Similarly,
+has identical parameters, and exists solely as syntactic sugar.  Similarly,
 the C<DBMS> methods C<new_var> and C<prepare> exist purely as syntactic
 sugar over the C<HostGateVar> and C<HostGateRtn> constructors.  I<TODO:
 Reimplement these as lexical aliases or compile-time macros instead, to
@@ -648,8 +648,8 @@ requested Engine's APIs and results, to some extent, on behalf of users (so
 an application can more gracefully handle a bad Engine); the Engine Role
 roles exist to help with the latter kind of validation, and they mainly
 just declare shims for the required (sub|)methods, which die on invocation
-should the Engine; they don't presently contain any actual functionality
-for Engines to use.
+if the Engine didn't declare its own versions; they don't presently contain
+any actual functionality for Engines to use.
 
 =head1 DIAGNOSTICS
 
@@ -734,7 +734,7 @@ you under the following proprietary terms:  You may copy, examine, modify,
 and execute QDRDBMS, for the purpose of study or evaluation, during only
 the time period prior to July 1st of 2007, after which time all privileges
 granted to you under this proprietary license expire.  You should then be
-able to acquire a subsequent QDRDBMS release that is licenced with the
+able to acquire a subsequent QDRDBMS release that is licensed with the
 GPL version 3.>
 
 Linking QDRDBMS statically or dynamically with other components is making a
