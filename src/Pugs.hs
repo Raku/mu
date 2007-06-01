@@ -264,7 +264,7 @@ doExecuteHelper helper args = do
         , ["perl5", "lib"]                   -- pugslibdir/perl5/lib/jspugs.pl
         , ["misc", "pX", "Common", "redsix"] -- sourcedir/misc/pX/Common/redsix/redsix
         ]
-    perl5 = getConfig "perl5path"
+    perl5 = getConfig "perl5_path"
     findHelper :: [[FilePath]] -> MaybeT IO FilePath
     findHelper []     = fail "Can't find anything"
     findHelper (x:xs) = maybeFindFile file
