@@ -22,21 +22,22 @@ module Pugs (
     pretty,
     printInteractiveHelp,
 ) where
-import Pugs.Internals
-import Pugs.Config
-import Pugs.Run
 import Pugs.AST
-import Pugs.Types
+import Pugs.CodeGen
+import Pugs.Config
+import Pugs.Embed
 import Pugs.Eval
 import Pugs.External
-import Pugs.Shell
-import Pugs.Parser.Program
 import Pugs.Help
+import Pugs.Internals
+import Pugs.Monads
+import Pugs.Parser.Program
 import Pugs.Pretty
-import Pugs.CodeGen
-import Pugs.Embed
-import qualified Data.Map as Map
+import Pugs.Run
+import Pugs.Shell
+import Pugs.Types
 import Data.IORef
+import qualified Data.Map as Map
 import System.FilePath (joinFileName, splitFileName)
 
 {-|
@@ -250,7 +251,7 @@ doHelperRun backend args =
 doExecuteHelper :: FilePath -> [String] -> IO ()
 doExecuteHelper helper args = do
     let searchPaths = concatMap (\x -> map (x++) suffixes) [["."], ["..", ".."], [getConfig "sourcedir"], [getConfig "sourcedir", "blib6", "pugs"], [getConfig "privlib", "auto", "pugs"], [getConfig "sitelib", "auto", "pugs"]]
-    mbin <- findHelper searchPaths
+    mbin <- runMaybeT (findHelper searchPaths)
     case mbin of
         Just binary -> do
             let (p, _) = splitFileName binary
@@ -264,22 +265,18 @@ doExecuteHelper helper args = do
         , ["misc", "pX", "Common", "redsix"] -- sourcedir/misc/pX/Common/redsix/redsix
         ]
     perl5 = getConfig "perl5path"
-    findHelper :: [[FilePath]] -> IO (Maybe FilePath)
-    findHelper []     = return Nothing
-    {- interesting riddle: how to do the following monadically?
-    findHelper (x:xs)
-        | fileExists $ file  x = Just $ file  x
-        | fileExists $ file' x = Just $ file' x
-        | otherwise            = findHelper xs
-    -}
-    findHelper (x:xs) = do
-        filex  <- fileExists (file x)
-        if filex then return (Just $ file x) else do
-            filex' <- fileExists (file' x)
-            if filex' then return (Just $ file' x) else do
-                findHelper xs
-    file  x = foldl1 joinFileName (x ++ [helper])
-    file' x = (file x) ++ (getConfig "exe_ext")
+    findHelper :: [[FilePath]] -> MaybeT IO FilePath
+    findHelper (x:xs) = maybeFindFile file
+                `mplus` maybeFindFile (file ++ getConfig "exe_ext")
+                `mplus` findHelper xs
+        where 
+        file = foldl1 joinFileName (x ++ [helper])
+    findHelper _      = fail "Can't find anything"
+    maybeFindFile :: FilePath -> MaybeT IO FilePath
+    maybeFindFile file = do
+        ok  <- liftIO $ fileExists file
+        guard ok
+        return file
     fileExists path = do
         let (p,f) = splitFileName path
         dir <- (fmap Just $ getDirectoryContents p) `catchIO` (const $ return Nothing)
