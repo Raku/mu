@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -fno-full-laziness -fno-cse -fno-warn-deprecations -fallow-undecidable-instances -fallow-overlapping-instances -funbox-strict-fields -fparr #-}
+{-# OPTIONS_GHC -fno-warn-orphans -fallow-undecidable-instances -fallow-overlapping-instances -fparr #-}
 
 {-|
     Internal utilities and library imports.
@@ -13,139 +13,66 @@
 >   nor bid the Stars farewell.
 -}
 
-module Pugs.Internals (
-    module Pugs.Internals.Cast,
-    module Pugs.Internals.ID,
-    module Pugs.Internals.String,
-    module Pugs.Internals.Monads,
-    module Pugs.Internals.Global,
+module Pugs.Internals ( module X ) where
 
-    module Control.Concurrent,
-    module Control.Concurrent.STM,
-    module Control.Exception,
-    module Control.Monad,
-    module Control.Monad.Error,
-    module Control.Monad.Writer,
-    module Control.Monad.Reader,
-    module Control.Monad.State,
-    module Control.Monad.Trans,
-    module Control.Monad.Fix,
-    module Control.Monad.Identity,
-    module Data.Array,
-    module Data.Bits,
-    module Data.Char,
-    module Data.Complex,
-    module Data.ByteString,
-    module Data.Dynamic,
-    module Data.Generics,
-    module Data.Either,
-    module Data.IntMap,
-    module Data.IORef,
-    module Data.List,
-    module Data.Map,
-    module Data.Maybe,
-    module Data.Monoid,
-    module Data.Ratio,
-    module Data.Set,
-    module Data.Sequence,
-    module Data.Tree,
-    module Data.Unique,
-    module Data.Word,
-    module Debug.Trace,
-    module GHC.Conc,
-    module GHC.Exts,
-    module GHC.PArr,
-    module Network,
-    module Numeric,
-    module Pugs.Compat,
-    module RRegex,
-    module RRegex.Syntax,
-    module System.Cmd,
-    module System.Directory,
-    module System.Environment,
-    module System.Exit,
-    module System.IO,
-    module System.IO.Error,
-    module System.IO.Unsafe,
-    module System.Mem,
-    module System.Mem.Weak,
-    module System.Process,
-    module System.Random,
-    module System.Time
-) where
+import Pugs.Internals.Cast    as X 
+import Pugs.Internals.Global  as X 
+import Pugs.Internals.ID      as X 
+import Pugs.Internals.Monads  as X 
+import Pugs.Internals.String  as X 
+import Pugs.Compat            as X 
 
-import Pugs.Internals.Cast
-import Pugs.Internals.ID
-import Pugs.Internals.String
-import Pugs.Internals.Monads
-import Pugs.Internals.Global
-
-import Pugs.Compat
-import RRegex
-import RRegex.Syntax
-import Data.Char
-import Data.IORef
-import Data.Dynamic hiding (cast)
-import Data.Generics (Data)
-import Data.Array (elems)
-import Network
-import Numeric (showHex)
-import System.Environment (getArgs, withArgs, getProgName)
-import System.Random hiding (split)
-import System.Exit
-import System.Time
-import System.Cmd
-import System.Process
-import System.IO (
-    Handle, stdin, stdout, hClose, hGetLine, hGetChar, hGetContents,
-    openFile, hSetBinaryMode, hPutStr, hPutStrLn, IOMode(..), stderr, SeekMode(..),
-    hSetBuffering, BufferMode(..), hIsTerminalDevice, hFlush, hPrint, isEOF,
-    hSeek, hTell, hIsOpen, hIsClosed, hIsReadable, hIsWritable, hIsSeekable,
-    )
-import System.IO.Unsafe
-import System.IO.Error (ioeGetErrorString, isUserError)
-import System.Mem
-import System.Mem.Weak
-import System.Directory (Permissions(..), getPermissions, getTemporaryDirectory, createDirectory, removeDirectory, removeFile, getDirectoryContents, getModificationTime)
-import Control.Exception (catchJust, errorCalls, Exception(..))
-import Control.Monad (replicateM, forM, forM_, MonadPlus(..), msum, liftM2, liftM3, guard, foldM, unless, liftM, filterM, join, when)
-import Control.Monad.Identity (Identity(..))
-import Control.Monad.State (MonadState(..), gets, modify)
-import Control.Monad.Writer (MonadWriter(..), WriterT(..), censor)
-import Control.Monad.Reader (MonadReader(..), ReaderT(..), asks)
-import Control.Monad.Error (MonadError(..), ErrorT(..), Error(..))
-import Control.Monad.Trans (MonadIO(..), MonadTrans(..))
-import Control.Monad.Fix (fix)
-import Control.Concurrent
-import Control.Concurrent.STM
-import Data.Bits hiding (shift)
-import Data.Maybe
-import Data.Monoid
-import Data.Either
-import Data.List (
-    (\\), find, genericLength, insert, sortBy, intersperse,
-    partition, group, sort, genericReplicate, isPrefixOf, isSuffixOf,
-    genericTake, genericDrop, unfoldr, nub, nubBy, transpose, delete, foldl'
-    )
-import Data.Unique
-import Data.Ratio
-import Data.Word hiding (Word)
-import Data.Complex
-import Data.ByteString (ByteString)
-import Data.Tree
-import qualified Data.Typeable as Typeable
-import Data.Set (Set)
-import Data.Map (Map)
-import Data.Sequence (Seq, singleton)
-import Data.IntMap (IntMap)
-import Debug.Trace
-import GHC.PArr
-import GHC.Conc (unsafeIOToSTM)
-import GHC.Exts (unsafeCoerce#, Word(W#), Word#)
-import qualified Data.Sequence as Seq
-
-import qualified UTF8
-import qualified Foreign as Foreign
+import Control.Concurrent     as X 
+import Control.Concurrent.STM as X 
+import Control.Exception      as X (catchJust, errorCalls, Exception(..))
+import Control.Monad          as X (replicateM, forM, forM_, MonadPlus(..), msum, liftM2, liftM3, guard, foldM, unless, liftM, filterM, join, when)
+import Control.Monad.Error    as X (MonadError(..), ErrorT(..), Error(..))
+import Control.Monad.Fix      as X (fix)
+import Control.Monad.Identity as X (Identity(..))
+import Control.Monad.Reader   as X (MonadReader(..), ReaderT(..), asks)
+import Control.Monad.State    as X (MonadState(..), gets, modify)
+import Control.Monad.Trans    as X (MonadIO(..), MonadTrans(..))
+import Control.Monad.Writer   as X (MonadWriter(..), WriterT(..), censor)
+import Data.Array             as X (elems)
+import Data.Bits              as X hiding (shift)
+import Data.ByteString        as X (ByteString)
+import Data.Char              as X 
+import Data.Complex           as X 
+import Data.Dynamic           as X hiding (cast)
+import Data.Either            as X 
+import Data.Generics          as X (Data)
+import Data.IORef             as X 
+import Data.IntMap            as X (IntMap)
+import Data.List              as X ( (\\), find, genericLength, insert, sortBy, intersperse, partition, group, sort, genericReplicate, isPrefixOf, isSuffixOf, genericTake, genericDrop, unfoldr, nub, nubBy, transpose, delete, foldl')
+import Data.Map               as X (Map)
+import Data.Maybe             as X 
+import Data.Monoid            as X 
+import Data.Ratio             as X 
+import Data.Sequence          as X (Seq, singleton)
+import Data.Set               as X (Set)
+import Data.Tree              as X 
+import Data.Unique            as X 
+import Data.Word              as X hiding (Word)
+import Debug.Trace            as X 
+import GHC.Conc               as X (unsafeIOToSTM)
+import GHC.Exts               as X (unsafeCoerce#, Word(W#), Word#)
+import GHC.PArr               as X 
+import Network                as X 
+import Numeric                as X (showHex)
+import RRegex                 as X 
+import RRegex.Syntax          as X 
+import System.Cmd             as X 
+import System.Directory       as X (Permissions(..), getPermissions, getTemporaryDirectory, createDirectory, removeDirectory, removeFile, getDirectoryContents, getModificationTime)
+import System.Environment     as X (getArgs, withArgs, getProgName)
+import System.Exit            as X 
+import System.IO              as X ( Handle, stdin, stdout, hClose, hGetLine, hGetChar, hGetContents, openFile, hSetBinaryMode, hPutStr, hPutStrLn, IOMode(..), stderr, SeekMode(..), hSetBuffering, BufferMode(..), hIsTerminalDevice, hFlush, hPrint, isEOF, hSeek, hTell, hIsOpen, hIsClosed, hIsReadable, hIsWritable, hIsSeekable)
+import System.IO.Error        as X (ioeGetErrorString, isUserError)
+import System.IO.Unsafe       as X 
+import System.Mem             as X 
+import System.Mem.Weak        as X 
+import System.Process         as X 
+import System.Random          as X hiding (split)
+import System.Time            as X 
 
 -- Instances.
 instance Show Unique where
