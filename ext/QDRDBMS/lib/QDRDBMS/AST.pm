@@ -203,7 +203,7 @@ submethod BUILD (Bool :$v!) {
     die q{new(): Bad :$v arg; it is not an object of a Bool-doing class.}
         if !$v.defined or !$v.does(Bool);
 
-    $!v = $v ?? $TRUE !! $FALSE;
+    $!v = ?$v;
 
     return;
 }
@@ -251,7 +251,7 @@ submethod BUILD (Str :$v!) {
     die q{new(): Bad :$v arg; it is not an object of a Str-doing class.}
         if !$v.defined or !$v.does(Str);
 
-    $!v = $v;
+    $!v = ~$v;
 
     return;
 }
@@ -352,7 +352,7 @@ submethod BUILD (Int :$v!) {
     die q{new(): Bad :$v arg; it is not an object of a Int-doing class.}
         if !$v.defined or !$v.does(Int);
 
-    $!v = $v;
+    $!v = +$v;
 
     return;
 }
@@ -885,8 +885,8 @@ multi submethod BUILD (Str :$text!) {
             ~ q{ are invalid within the Text possrep of an EntityName.}
         if $text.match( rx/ \\ $/ ) or $text.match( rx/ \\ <-[bp]> / ); #/
 
-    $!text_possrep = $text;
-    $!seq_possrep = [$text.split( rx/\./ ).map:{ #/
+    $!text_possrep = ~$text;
+    $!seq_possrep = [(~$text).split( rx/\./ ).map:{ #/
             .trans( < \\p \\b >
                  => < .   \\  > )
         }];
@@ -907,7 +907,7 @@ multi submethod BUILD (Array :$seq!) {
     }
 
     $!text_possrep = $seq.map:{
-            .trans( < \\  .   >
+            (~$_).trans( < \\  .   >
                  => < \\b \\p > )
         }.join( q{.} );
     $!seq_possrep = [$seq.values];

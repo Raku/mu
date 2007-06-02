@@ -124,7 +124,7 @@ the same ways that the GPL permits everyone else to, such as by selling
 GPL-licensed copies for a fee, and support services, and warranties, and
 sponsored improvements, and by using QDRDBMS as a platform to build other
 works on; a unique selling proposition of the copyright holder for this is
-that, being, the creator, they know the product best.
+that, being the creator, they know and can support the product best.
 
 The main reason that proprietary licenses are also offered for QDRDBMS is
 that, for some potential users, various pragmatic or legal or business
