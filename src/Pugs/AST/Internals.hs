@@ -88,7 +88,7 @@ module Pugs.AST.Internals (
 
     anyToVal, vvToVal, anyFromVal, -- for circularity
 
-    DebugInfo, _Sym, _Var -- String -> ByteString constructors
+    DebugInfo, newDebugInfo, _Sym, _Var -- String -> ByteString constructors
 ) where
 
 import Pugs.Internals
@@ -1333,6 +1333,9 @@ defaultHashParam    = buildParam "" "*" "%_" (Val VUndef)
 defaultScalarParam  = buildParam "" "?" "$_" (Var $ cast "$OUTER::_")
 
 type DebugInfo = Maybe (TVar (Map ID String))
+
+newDebugInfo :: IO DebugInfo
+newDebugInfo = fmap Just (io $ newTVarIO Map.empty)
 
 type LexPads = [LexPad]
 data LexPad

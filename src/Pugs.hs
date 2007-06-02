@@ -62,7 +62,7 @@ run xs = let ?debugInfo = Nothing in run' xs
 -- see also Run/Args.hs
 run' :: (?debugInfo :: DebugInfo) => [String] -> IO ()
 run' ("-d":rest)                 = do
-    info <- fmap Just (io $ newTVarIO Map.empty)
+    info <- newDebugInfo
     let ?debugInfo = info
     run' rest
 run' ("-l":rest)                 = run' rest
@@ -331,7 +331,7 @@ doRunSingle menv opts prog = (`catchIO` handler) $ do
                 then (io . newTVarIO) =<< tabulaRasa defaultProgramName
                 else return menv
         debug <- if runOptDebug opts
-                then fmap Just (io $ newTVarIO Map.empty)
+                then newDebugInfo
                 else return Nothing
         stm $ modifyTVar ref $ \e -> e{ envDebug = debug }
         return ref
