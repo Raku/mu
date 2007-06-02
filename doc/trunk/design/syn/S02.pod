@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 29 May 2007
+  Last Modified: 2 Jun 2007
   Number: 2
-  Version: 108
+  Version: 109
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -446,8 +446,11 @@ It merely assigns an undefined C<Dog> prototype object to C<$spot>:
     $spot.defined;          # False
     say $spot;              # "Dog"
 
-Any class name used as a value by itself is an undefined instance of that
-class's prototype.  See S12 for more on that.
+Any class name used as a value by itself is an undefined instance of
+that class's prototype, or I<protoobject>.  See S12 for more on that.
+(Any type name in rvalue context is parsed as a list operator
+indicating a typecast, but an argumentless one of these degenerates
+to a typecast of undef, producing the protoobject.)
 
 To get a real C<Dog> object, call a constructor method such as C<new>:
 
@@ -1059,7 +1062,7 @@ structural type of a variable:
     %   unordered hash (associative array)
     &   code/rule/token/regex
     ::  package/module/class/role/subset/enum/type/grammar
-    @@  multislice view of @
+    @@  slice view of @
 
 Within a declaration, the C<&> sigil also declares the visibility of the
 subroutine name without the sigil within the scope of the declaration:
@@ -1324,9 +1327,9 @@ applied by using the C<.assuming> method:
 
 =item *
 
-Slicing syntax is covered in S09.  Multidimensional
-slices will be done with semicolons between individual slice subscripts.
-Each such slice is evaluated lazily.
+Slicing syntax is covered in S09.  A multidimensional
+slice will be done with semicolons between individual slice sublists.
+Each such slice sublist is evaluated lazily.
 
 =item *
 
@@ -1422,9 +1425,17 @@ whitespace), it will be taken to be a sigil without a name rather
 than a punctuational variable.  This allows you to use sigils as coercion
 operators:
 
-    print $( foo() )
+    print $( foo() )    # foo called in item context
+    print @@( foo() )   # foo called in slice context
 
-It also allows the use of bare sigils as placeholders for anonymous variables:
+The bare sigil is parsed as a list operator in rvalue context, so
+these mean the same thing:
+
+    print $ foo()       # foo called in item context
+    print @@ foo()      # foo called in slice context
+
+In declarative contexts bare sigils may be used as placeholders for
+anonymous variables:
 
     my ($a, $, $c) = 1..3;
     print unless (state $)++;

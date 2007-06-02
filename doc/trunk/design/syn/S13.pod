@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 2 Nov 2004
-  Last Modified: 24 Apr 2007
+  Last Modified: 2 Jun 2007
   Number: 13
-  Version: 8
+  Version: 9
 
 =head1 Overview
 
@@ -147,14 +147,14 @@ A class may define methods that allow it to respond as if it were a
 routine, array, or hash.  The long forms are as follows:
 
     method postcircumfix:<( )> (|$capture) {...}
-    method postcircumfix:<[ ]> (*@@slices) {...}
-    method postcircumfix:<{ }> (*@@slices) {...}
+    method postcircumfix:<[ ]> (*@@slice) {...}
+    method postcircumfix:<{ }> (*@@slice) {...}
 
 Those are a bit unwieldy, so you may also use these short forms:
 
     method &.( |$capture ) {...}
-    method @.[ *@@slices ] {...}
-    method %.{ *@@slices } {...}
+    method @.[ *@@slice ] {...}
+    method %.{ *@@slice } {...}
 
 The sigil-dot sequence in these short forms autogenerates the
 corresponding public operators, in exactly the same way that

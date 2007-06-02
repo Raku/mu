@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 1 Jun 2007
+  Last Modified: 2 Jun 2007
   Number: 6
-  Version: 87
+  Version: 88
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -294,7 +294,7 @@ operator.
     sub circumfix:{'LEFTDELIM','RIGHTDELIM'} ($contents) {...}
 
 Contrary to Apocalypse 6, there is no longer any rule about splitting an even
-number of characters.  You must use a two element slice.  Such names
+number of characters.  You must use a two-element slice.  Such names
 are canonicalized to a single form within the symbol table, so you
 must use the canonical name if you wish to subscript the symbol table
 directly (as in C<< PKG::{'infix:<+>'} >>).  Otherwise any form will
@@ -323,7 +323,7 @@ including Unicode characters. For example:
     <!-- This is now a comment -->
 
 Whitespace may never be part of the name (except as separator
-within a C<< <...> >> or C<«...»> slice, as in the example above).
+within a C<< <...> >> or C<«...»> slice subscript, as in the example above).
 
 A null operator name does not define a null or whitespace operator, but
 a default matching subrule for that syntactic category, which is useful when
@@ -807,18 +807,18 @@ operator:
 Some functions take more than one list of positional and/or named arguments,
 that they wish not to be flattened into one list.  For instance, C<zip()> wants
 to iterate several lists in parallel, while array and hash subscripts want to
-process multidimensional slices.  The set of underlying argument lists may be
+process a multidimensional slice.  The set of underlying argument lists may be
 bound to a single array parameter declared with a double C<@@> sigil:
 
-    sub foo (*@@slices) { ... }
+    sub foo (*@@slice) { ... }
 
 Note that this is different from
 
-    sub foo (\$slices) { ... }
+    sub foo (\$slice) { ... }
 
-insofar as C<\$slices> is bound to a single argument-list object that
+insofar as C<\$slice> is bound to a single argument-list object that
 makes no commitment to processing its structure (and maybe doesn't
-even know its own structure yet), while C<*@@slices> has to create
+even know its own structure yet), while C<*@@slice> has to create
 an array that binds the incoming dimensional lists to the array's
 dimensions, and make that commitment visible to the rest of the scope
 via the sigil so that constructs expecting multidimensional lists
@@ -826,15 +826,15 @@ know that multidimensionality is the intention.
 
 It is allowed to specify a return type:
 
-    sub foo (*@@slices --> Num) { ... }
+    sub foo (*@@slice --> Num) { ... }
 
 The invocant does not participate in multi-dimensional argument lists,
-so C<self> is not present in the C<@@slices> below:
+so C<self> is not present in the C<@@slice> below:
 
-    method foo (*@@slices) { ... }
+    method foo (*@@slice) { ... }
 
-The C<@@> sigil is just a variant of the C<@> sigil, so C<@@slices>
-and C<@slices> are really the same array.  In particular, C<@@_> is
+The C<@@> sigil is just a variant of the C<@> sigil, so C<@@slice>
+and C<@slice> are really the same array.  In particular, C<@@_> is
 really the good old C<@_> array viewed as multidimensional.
 
 =head2 Zero-dimensional argument list
@@ -843,9 +843,9 @@ If you call a function without parens and supply no arguments, the
 argument list becomes a zero-dimensional slice.  It differs from
 C<\()> in several ways:
 
-    sub foo (*@@slices) {...}
-    foo;        # +@@slices == 0
-    foo();      # +@@slices == 1
+    sub foo (*@@slice) {...}
+    foo;        # +@@slice == 0
+    foo();      # +@@slice == 1
 
     sub bar (\$args = \(1,2,3)) {...}
     bar;        # $args === \(1,2,3)
@@ -1016,8 +1016,8 @@ is a list of 6 elements.  This is the default behavior.  However,
 sometimes you want to capture the outputs as a list of two iterators,
 namely the two iterators that represent the two input feeds.  You can
 get at those two iterators by using the name C<@@foo> instead, where
-the "multislice" twigil marks a multidimensional array, that is, an
-array of slices.
+the "slice" sigil marks a multidimensional array, that is, an
+array of lists, each of which may be treated independently.
 
     0..*       ==>  @@foo;
     'a'..*     ==>> @@foo;
@@ -1583,9 +1583,9 @@ C<equiv> may be useful for cloning other traits of these operators.)
     type_declarator:<subset>
     version:<v>
 
-The existing operator may be specified either as a function name
-or as a string slice equivalent to the one that would be used in
-the complete function name.  In string slice form the syntactic
+The existing operator may be specified either as a function object
+or as a string argument equivalent to the one that would be used in
+the complete function name.  In string form the syntactic
 category will be assumed to be the same as the new declaration.
 Therefore these all have the same effect:
 
