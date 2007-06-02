@@ -6,13 +6,12 @@ use Test;
 
 These tests are derived from the "Item assignment precedence" section of Synopsis 3
 
-L<S03/Item assignment precedence>
+# L<S03/Item assignment precedence/replaces the container itself  For instance>
 
 =cut
 
 plan 28;
 
-# L<S03/Item assignment precedence/replaces the container itself  For instance>
 # Basic scalar binding tests
 {
   my $x = 'Just Another';
