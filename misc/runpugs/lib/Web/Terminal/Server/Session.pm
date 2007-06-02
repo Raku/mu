@@ -14,7 +14,7 @@ use Web::Terminal::Settings;
 
 $SIG{CHLD}='IGNORE';
 
-my $v=1;#(1-$Web::Terminal::Settings::daemon)*(1-$Web::Terminal::Settings::test);
+my $v=0;#(1-$Web::Terminal::Settings::daemon)*(1-$Web::Terminal::Settings::test);
 
     my $prompt ='/'.$Web::Terminal::Settings::prompt.'/';
     has 'prompt' => (is=>'rw',isa=>'Str', default => $prompt);
@@ -256,6 +256,7 @@ if ( $Web::Terminal::Settings::test!=1) {
 	}
     chomp $ps; # a hack!
 	$obj->{prompt}=$ps;
+   $lline.="\n" unless $lline=~/^\s*$/;
 	return $lline;
 } # END of write() method
 #------------------------------------------------------------------------------

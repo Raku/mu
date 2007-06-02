@@ -13,12 +13,13 @@ has 'motd' => (is => 'ro', isa => 'Str', default => '');
 
 sub run {
 	my $s=shift;
+    my $nl=shift || "";
 	print $s->motd,"\n",$s->prompt;
 	while (<STDIN>) {		
 		/\:q(uit)*$/i && exit();
 		chomp $_;
 		(my $res,my $prompt)=$s->subref->($_);
-		print $res,"\n",$prompt;
+		print $res,$nl,$prompt;
 	}
 }
 
