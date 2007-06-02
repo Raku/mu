@@ -212,6 +212,7 @@ sub try_package {
      "sudo aptitude install libghc6-$ghcpkg-dev"
 EOD
     }
+}
 
 
 sub set_postamble {
