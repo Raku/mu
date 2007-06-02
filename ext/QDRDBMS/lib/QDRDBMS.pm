@@ -707,7 +707,7 @@ I<This documentation is pending.>
 
 Darren Duncan (C<perl@DarrenDuncan.net>)
 
-=head1 LICENCE AND COPYRIGHT
+=head1 LICENSE AND COPYRIGHT
 
 This file is part of the QDRDBMS framework.
 
@@ -739,9 +739,13 @@ GPL version 3.>
 
 Linking QDRDBMS statically or dynamically with other components is making a
 combined work based on QDRDBMS.  Thus, the terms and conditions of the GPL
-cover the whole combination.  However, for an additional fee, the copyright
-holders of QDRDBMS can sell you an alternate license, with a limited scope,
-that allows you to link QDRDBMS with non-free software components.
+cover the whole combination.  However, if it is not feasible for your
+combined work to be distributed subject to the GPL, then the copyright
+holders of QDRDBMS can sell you an appropriate proprietary license, so that
+it is still possible for you to employ QDRDBMS to meet your needs.
+
+For more information on matters such as licensing, including rationale, see
+also the L<QDRDBMS::Copying> file that comes with QDRDBMS.
 
 Any versions of QDRDBMS that you modify and distribute must carry prominent
 notices stating that you changed the files and the date of any changes, in

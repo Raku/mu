@@ -148,12 +148,12 @@ have to validate, then the Example Engine could have inelegant failures.
 
 Darren Duncan (C<perl@DarrenDuncan.net>)
 
-=head1 LICENCE AND COPYRIGHT
+=head1 LICENSE AND COPYRIGHT
 
 This file is part of the QDRDBMS framework.
 
 QDRDBMS is Copyright © 2002-2007, Darren Duncan.
 
-See the LICENCE AND COPYRIGHT of L<QDRDBMS> for details.
+See the LICENSE AND COPYRIGHT of L<QDRDBMS> for details.
 
 =cut

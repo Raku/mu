@@ -69,7 +69,9 @@ modified versions.  The specific license terms may differ for each
 component, and are specified in that component's documentation.
 
 This is a summary of their licensing terms, usually taking the core as an
-example, but what is written in the components themselves takes precedence.
+example, but what is written in the components themselves takes precedence;
+regarding the core, see the LICENSE AND COPYRIGHT documentation in the
+L<QDRDBMS> file.
 
 This QDRDBMS core distribution is currently licensed under the GPL version
 3.0 or later.
@@ -104,22 +106,37 @@ own components under their original licenses, that should be easy enough to
 do since the other components are likely to be easily separable from the
 QDRDBMS components, as they are likely in separate files.>
 
-These licensing terms are being applied to QDRDBMS mainly because the
-copyright holder agrees with, and wants to support, the principles of user
-freedom provided by use of the GPL.  In addition, this provides a better
-foundation on which the copyright holder can have the option to
-dual-license QDRDBMS, for a fee, to third parties that want to distribute
-it in ways that the GPL doesn't allow (although any proprietary
-alternatives would have a limited scope).
+These licensing terms are being applied to QDRDBMS because the copyright
+holder agrees with, and wants to support, the principles of user freedom
+provided by use of the GPL, which users should hopefully appreciate.
 
 The copyright holder has little intention of broadly releasing QDRDBMS
 itself under any free or open source license but the GPL, such as the Perl
 or Artistic or BSD licenses.  Doing so would be irrevocably granting the
 legal means for anyone to make non-free derivatives, due to other licenses
-having weaker or nonexistent copyleft protections; also, there would be
-less incentive to pay for a dual-license by those that wouldn't want to
-accept the GPL's terms.  However, workable and limited scope arrangements
-can be made on a case by case basis if someone has different needs.
+having weaker or nonexistent copyleft protections.
+
+The copyright holder would prefer that it be possible for everyone to
+employ QDRDBMS according to the GPL.  The GPL/proprietary dual-license is
+not intended as a developer-extortion measure to build a business with;
+rather, the copyright holder intends to build a business with QDRDBMS in
+the same ways that the GPL permits everyone else to, such as by selling
+GPL-licensed copies for a fee, and support services, and warranties, and
+sponsored improvements, and by using QDRDBMS as a platform to build other
+works on; a unique selling proposition of the copyright holder for this is
+that, being, the creator, they know the product best.
+
+The main reason that proprietary licenses are also offered for QDRDBMS is
+that, for some potential users, various pragmatic or legal or business
+concerns create an environment where it is not feasible for them to employ
+GPL-licensed works, and so proprietary licenses should address these
+concerns so that it is still possible for them to employ QDRDBMS to meet
+their needs.  The copyright holder values having more users rather than
+fewer, however the reasonable means for this to come about.
+
+There should not be any rationale for rejecting QDRDBMS as a solution due
+to its license(s); but if that assumption proves to be false, then workable
+arrangements should still be possible on a case by case basis.
 
 All extensions to the QDRDBMS framework, that Darren creates, whose sole
 purpose is to enable other free software modules or applications on top of
@@ -161,7 +178,7 @@ of ownership for your contribution (which can be done, eg, with an informal
 statement by email), as a precondition for merging that into the official
 releases of the core modules.  This is done so that sole ownership of said
 core modules can be maintained, and Darren can then still unilaterally
-relicense QDRDBMS in the future, should that become necessary.  (But you
+re-license QDRDBMS in the future, should that become necessary.  (But you
 can still reuse your contributed code as you see fit in external projects.)
 
 If you refuse the ownership transfer, then Darren will not accept the
@@ -195,13 +212,13 @@ L<QDRDBMS::SeeAlso> for the majority of distribution-external references.
 
 Darren Duncan (C<perl@DarrenDuncan.net>)
 
-=head1 LICENCE AND COPYRIGHT
+=head1 LICENSE AND COPYRIGHT
 
 This file is part of the QDRDBMS framework.
 
 QDRDBMS is Copyright © 2002-2007, Darren Duncan.
 
-See the LICENCE AND COPYRIGHT of L<QDRDBMS> for details.
+See the LICENSE AND COPYRIGHT of L<QDRDBMS> for details.
 
 =head1 ACKNOWLEDGEMENTS
 
