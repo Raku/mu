@@ -213,7 +213,6 @@ sub try_package {
 EOD
     }
 
-}
 
 sub set_postamble {
     my @srcfiles = map { glob("$_/*.*hs") } @srcdirs;
@@ -257,8 +256,6 @@ sub set_postamble {
     # Add GHC to PATH
     local $ENV{PATH} = dirname($ghc) . $Config{path_sep} . $ENV{PATH};
 
-    # XXX I believe we can remove the code from this, 
-    # since we just check compilation. Temporarily kept for total ignorance.
 
     try_package($ghc,
                 'mtl',
@@ -631,7 +628,7 @@ EOD
 
         # NB.  We're exploiting for's aliasing of variables.
         foreach my $path ($ghc_pkg, $hsc2hs, $ghc) {
-                        $path = `cygpath -m $path`; chomp $path;
+			$path = `cygpath -m $path`; chomp $path;
         }
     }
 
@@ -673,68 +670,68 @@ EOD
 
     postamble(fixpaths(<< "."));
 $config_h : lib/Perl6/Pugs.pm util/config_h.pl
-        \$(PERL) util/config_h.pl "$ghc $ghc_flags"
+	\$(PERL) util/config_h.pl "$ghc $ghc_flags"
 
 $version_h :
-        \$(PERL) util/version_h.pl $version_h
+	\$(PERL) util/version_h.pl $version_h
 
 @{[join("\n", map {$emit->($_)} grep { /\.o$/ } @prereqs)]}
 
 src/Pugs/Config.hs : util/PugsConfig.pm current.build.yml
-        \$(PERL) -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Pugs/Config.hs
+	\$(PERL) -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Pugs/Config.hs
 
 src/gen_prelude$Config{_exe} : src/gen_prelude.hs
-        $ghc -O0 --make -o src/gen_prelude$Config{_exe} src/gen_prelude.hs
+	$ghc -O0 --make -o src/gen_prelude$Config{_exe} src/gen_prelude.hs
 
 src/Pugs/CodeGen/PIR/Prelude.hs : src/gen_prelude$Config{_exe} src/perl6/Prelude/PIR.pm
-        \@\$(PERL) -e "mkdir q-src/Pugs/CodeGen/PIR-"
-        src/gen_prelude$Config{_exe} Pugs.CodeGen.PIR.Prelude < src/perl6/Prelude/PIR.pm > src/Pugs/CodeGen/PIR/Prelude.hs
+	\@\$(PERL) -e "mkdir q-src/Pugs/CodeGen/PIR-"
+	src/gen_prelude$Config{_exe} Pugs.CodeGen.PIR.Prelude < src/perl6/Prelude/PIR.pm > src/Pugs/CodeGen/PIR/Prelude.hs
 
 src/Pugs/Prelude.hs : src/perl6/Prelude.pm util/gen_prelude.pl
-        \$(PERL) util/gen_prelude.pl -v --touch --inline -i src/perl6/Prelude.pm --output src/Pugs/Prelude.hs
+	\$(PERL) util/gen_prelude.pl -v --touch --inline -i src/perl6/Prelude.pm --output src/Pugs/Prelude.hs
 
 ${() = '%.hpp : %.hs @prereqs $version_h
-        $ghc $threaded $ghc_flags -DHADDOCK -E \$< -o \$@
-        \$(PERL) util/munge_haddock.pl \$@'; \''}
+	$ghc $threaded $ghc_flags -DHADDOCK -E \$< -o \$@
+	\$(PERL) util/munge_haddock.pl \$@'; \''}
 
 .SUFFIXES: .hs .hpp
 
 .hs.hpp :
-        $ghc $threaded $ghc_flags -DHADDOCK -E \$< -o \$@
-        \$(PERL) util/munge_haddock.pl \$@
+	$ghc $threaded $ghc_flags -DHADDOCK -E \$< -o \$@
+	\$(PERL) util/munge_haddock.pl \$@
 
 .SUFFIXES: .hsc .hs
 
 .hsc.hs :
-        \$(PERL) -MFile::Spec -e "sub p () { File::Spec->splitpath(ARGV->[0]) }; chdir((p)[1]); system(q($hsc2hs), qw($hsc2hs_flags), (p)[2]);" \$<
+	\$(PERL) -MFile::Spec -e "sub p () { File::Spec->splitpath(ARGV->[0]) }; chdir((p)[1]); system(q($hsc2hs), qw($hsc2hs_flags), (p)[2]);" \$<
 
 .SUFFIXES: .grammar .hs
 
 .grammar.hs :
-        \$(PERL) util/file_to_hs.pl \$< \$@
+	\$(PERL) util/file_to_hs.pl \$< \$@
 
 .SUFFIXES: .pil .hs
 
 .pil.hs :
-        \$(PERL) util/file_to_hs.pl \$< \$@
+	\$(PERL) util/file_to_hs.pl \$< \$@
 
 util/drift.pl:
 
 @{[ mk_drift_rules( qw(src/Emit/PIR src/Pugs/AST/Internals src/Pugs/PIL1 src/Pugs/PIL2) ) ]}
 
 haddock : $version_h $config_h @hppfiles dist/doc/html
-        haddock -t Pugs-$version -h -o dist/doc/html/ @hppfiles
-        \@\$(RM_F) @{[map "$_.pre", @hppfiles]} @hppfiles
-        \@\$(PERL) -le "print and print q-*** API Documentation generated in @{[File::Spec->catfile('dist', 'doc', 'html', 'index.html')]}-"
+	haddock -t Pugs-$version -h -o dist/doc/html/ @hppfiles
+	\@\$(RM_F) @{[map "$_.pre", @hppfiles]} @hppfiles
+	\@\$(PERL) -le "print and print q-*** API Documentation generated in @{[File::Spec->catfile('dist', 'doc', 'html', 'index.html')]}-"
 
 # make haddock one file at a time to get partial, unlinked output
 haddock-broken : $version_h $config_h @hppfiles dist/doc/html
 @{[join("\n", map {"\thaddock -t Pugs-$version -h -o dist/doc/html/ $_"} @hppfiles)]}
-        \@\$(RM_F) @{[map "$_.pre", @hppfiles]} @hppfiles
-        \@\$(PERL) -le "print and print q-*** Unlinked API Documentation generated in @{[File::Spec->catfile('dist', 'doc', 'html', 'index.html')]}-"
+	\@\$(RM_F) @{[map "$_.pre", @hppfiles]} @hppfiles
+	\@\$(PERL) -le "print and print q-*** Unlinked API Documentation generated in @{[File::Spec->catfile('dist', 'doc', 'html', 'index.html')]}-"
 
 dist/doc/html :
-        \@\$(PERL) -MFile::Path -e "mkpath q-dist/doc/html-"
+	\@\$(PERL) -MFile::Path -e "mkpath q-dist/doc/html-"
 
 pugs_requirements : instances src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h $config_h config.yml src/perl6/Prelude.pm src/Pugs/Prelude.hs
 
@@ -745,28 +742,28 @@ soonprof :: unoptimised-profiled
 unoptimized-profiled :: unoptimised-profiled
 
 unoptimised-profiled :: pugs_requirements
-        \$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_pkg $ghc_version $setup --make -O0 -auto-all -prof $threaded $profiled_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE $precompile_prelude --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_pkg $ghc_version $setup --make -O0 -auto-all -prof $threaded $profiled_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE $precompile_prelude --pugs $thispugs
 
 profiled :: pugs_requirements
-        \$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_pkg $ghc_version $setup --make -O -auto-all -prof $threaded $profiled_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE $precompile_prelude --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_pkg $ghc_version $setup --make -O -auto-all -prof $threaded $profiled_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE $precompile_prelude --pugs $thispugs
 
 pugs.prof :: profiled
-        find t -type f | grep -v D | grep -v R | grep -v pugsrun | ./pugs +RTS -p -RTS -e 'my sub exit {}; for =\$\$*IN -> \$\$t is copy { \$\$t .= chomp; require \$\$t }'
+	find t -type f | grep -v D | grep -v R | grep -v pugsrun | ./pugs +RTS -p -RTS -e 'my sub exit {}; for =\$\$*IN -> \$\$t is copy { \$\$t .= chomp; require \$\$t }'
 
 optimised :: optimized
 
 optimized :: pugs_requirements
-        \$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_pkg $ghc_version $setup --make -O $threaded $ghc_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE $precompile_prelude --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_pkg $ghc_version $setup --make -O $threaded $ghc_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE $precompile_prelude --pugs $thispugs
 
 soon :: unoptimized
 
 unoptimised :: unoptimized
 
 unoptimized :: pugs_requirements
-        \$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_pkg $ghc_version $setup --make -O0 $threaded $ghc_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE $precompile_prelude --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_pkg $ghc_version $setup --make -O0 $threaded $ghc_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE $precompile_prelude --pugs $thispugs
 
 $pugs : pugs_requirements
-        \$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_pkg $ghc_version $setup --make __optimization__ $threaded $ghc_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE $precompile_prelude --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_pkg $ghc_version $setup --make __optimization__ $threaded $ghc_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE $precompile_prelude --pugs $thispugs
 
 
 pirtest : test-pir
@@ -784,77 +781,77 @@ pure_all :: blib6/lib/Test.pm.yml
 test-all : test test-js test-pir test-perl5
 
 test-pir : 
-        \$(PERL) -e "ENV->{HARNESS_PERL_SWITCHES}=q+-B PIR+; system qq+$Config{make}+, q+test+"
+	\$(PERL) -e "ENV->{HARNESS_PERL_SWITCHES}=q+-B PIR+; system qq+$Config{make}+, q+test+"
 
 test-js :
-        \$(PERL) -e "ENV->{HARNESS_PERL_SWITCHES}=q+-B JS+; system qq+$Config{make}+, q+test+"
+	\$(PERL) -e "ENV->{HARNESS_PERL_SWITCHES}=q+-B JS+; system qq+$Config{make}+, q+test+"
 
 test-perl5 :
-        \$(PERL) -e "ENV->{HARNESS_PERL_SWITCHES}=q+-B PERL5+; system qq+$Config{make}+, q+test+"
+	\$(PERL) -e "ENV->{HARNESS_PERL_SWITCHES}=q+-B PERL5+; system qq+$Config{make}+, q+test+"
 
 test-redsix :
-        \$(PERL) -e "ENV->{HARNESS_PERL_SWITCHES}=q+-B REDSIX+; system qq+$Config{make}+, q+test+"
+	\$(PERL) -e "ENV->{HARNESS_PERL_SWITCHES}=q+-B REDSIX+; system qq+$Config{make}+, q+test+"
 
 blib6/lib/Test.pm.yml :: ext/Test/lib/Test.pm
-        \$(NOECHO) \$(ECHO) "Precompiling Test.pm..."
-        $thispugs -CParse-YAML ext/Test/lib/Test.pm > blib6/lib/Test.pm.yml 
+	\$(NOECHO) \$(ECHO) "Precompiling Test.pm..."
+	$thispugs -CParse-YAML ext/Test/lib/Test.pm > blib6/lib/Test.pm.yml 
 
 blib6/lib/Prelude.pm.yml :
-        \$(NOECHO) \$(ECHO) "Precompiling Prelude.pm..."
-        util/gen_prelude.pl -v -i src/perl6/Prelude.pm -p $thispugs --output blib6/lib/Prelude.pm.yml
+	\$(NOECHO) \$(ECHO) "Precompiling Prelude.pm..."
+	util/gen_prelude.pl -v -i src/perl6/Prelude.pm -p $thispugs --output blib6/lib/Prelude.pm.yml
 
 upload-smoke : smoke.yml
-        \$(PERL) util/smokeserv/smokeserv-client.pl smoke.html smoke.yml
+	\$(PERL) util/smokeserv/smokeserv-client.pl smoke.html smoke.yml
 
 smoke-upload : upload-smoke
 
 smoke.yml :
-        \$(PERL) util/run-smoke.pl . smoke.html
+	\$(PERL) util/run-smoke.pl . smoke.html
 
 smoke : smoke-pugs
 
 smoke-all : smoke-pugs smoke-js smoke-pir smoke-perl5
 
 smoke-pugs : $pugs util/run-smoke.pl all blib6/lib/Test.pm.yml
-        \$(PERL) util/run-smoke.pl . smoke.html
+	\$(PERL) util/run-smoke.pl . smoke.html
 
 smoke-pir : $pugs util/run-smoke.pl all
-        \$(PERL) util/run-smoke.pl . smoke-pir.html -BPIR
+	\$(PERL) util/run-smoke.pl . smoke-pir.html -BPIR
 
 smoke-jsperl5 : $pugs util/run-smoke.pl all
-        \$(PERL) -e "ENV->{PUGS_RUNTIME}=q+JSPERL5+; exec qw+$^X util/run-smoke.pl . smoke-jsperl5.html+"
+	\$(PERL) -e "ENV->{PUGS_RUNTIME}=q+JSPERL5+; exec qw+$^X util/run-smoke.pl . smoke-jsperl5.html+"
 
 smoke-js : $pugs util/run-smoke.pl all
-        \$(PERL) -e "ENV->{PUGS_RUNTIME}=q+JS+; exec qw+$^X util/run-smoke.pl . smoke-js.html+"
+	\$(PERL) -e "ENV->{PUGS_RUNTIME}=q+JS+; exec qw+$^X util/run-smoke.pl . smoke-js.html+"
 
 smoke-perl5 : $pugs util/run-smoke.pl all
-        \$(PERL) -e "ENV->{PUGS_RUNTIME}=q+PERL5+; exec qw+$^X util/run-smoke.pl . smoke-perl5.html -BPERL5+"
+	\$(PERL) -e "ENV->{PUGS_RUNTIME}=q+PERL5+; exec qw+$^X util/run-smoke.pl . smoke-perl5.html -BPERL5+"
 
 smoke-redsix : $pugs util/run-smoke.pl all
-        \$(PERL) -e "ENV->{PUGS_RUNTIME}=q+REDSIX+; exec qw+$^X util/run-smoke.pl . smoke-redsix.html -BREDSIX+"
+	\$(PERL) -e "ENV->{PUGS_RUNTIME}=q+REDSIX+; exec qw+$^X util/run-smoke.pl . smoke-redsix.html -BREDSIX+"
 
 
 ghci : @prereqs @derived_srcfiles
-        $ghc @{[ dethread_flags($ghc_flags) ]} $ghc_output -DPUGS_UNDER_GHCI -no-link --make -O0 -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Prereqs.hs @prereqs
-        \@\$(RM_RF) src/Pugs/*/*_stub.*
-        $ghc @{[ dethread_flags($ghc_flags) ]} @ghci_flags $ghc_output -DPUGS_UNDER_GHCI --interactive -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
+	$ghc @{[ dethread_flags($ghc_flags) ]} $ghc_output -DPUGS_UNDER_GHCI -no-link --make -O0 -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Prereqs.hs @prereqs
+	\@\$(RM_RF) src/Pugs/*/*_stub.*
+	$ghc @{[ dethread_flags($ghc_flags) ]} @ghci_flags $ghc_output -DPUGS_UNDER_GHCI --interactive -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
 
 ctags : @prereqs @derived_srcfiles
-        echo ":ctags" | $ghc $ghc_flags @ghci_flags $ghc_output --interactive -osuf moose -hisuf miise -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
+	echo ":ctags" | $ghc $ghc_flags @ghci_flags $ghc_output --interactive -osuf moose -hisuf miise -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
         
 etags : @prereqs @derived_srcfiles
-        echo ":etags" | $ghc $ghc_flags @ghci_flags $ghc_output --interactive -osuf moose -hisuf miise -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
+	echo ":etags" | $ghc $ghc_flags @ghci_flags $ghc_output --interactive -osuf moose -hisuf miise -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
 
 pil$Config{_exe} : $config_h @srcfiles src/PIL/Native/Bootstrap.hs src/PIL/Native/Syntax.hs
-        $ghc $ghc_flags --make -fglasgow-exts -H0 -isrc -Isrc -L. -fno-warn-name-shadowing -o pil$Config{_exe} -main-is PIL.main src/PIL.hs
+	$ghc $ghc_flags --make -fglasgow-exts -H0 -isrc -Isrc -L. -fno-warn-name-shadowing -o pil$Config{_exe} -main-is PIL.main src/PIL.hs
 
 pili : pil$Config{_exe}
-        $ghc --interactive -fglasgow-exts -isrc -Isrc -L. -static -fno-warn-name-shadowing src/PIL.hs
+	$ghc --interactive -fglasgow-exts -isrc -Isrc -L. -static -fno-warn-name-shadowing src/PIL.hs
 
 tags : @srcfiles
-        $hasktags -c @{[ grep { !/PIL/ } @srcfiles ]}
-        sort tags > tags.tmp
-        mv tags.tmp tags
+	$hasktags -c @{[ grep { !/PIL/ } @srcfiles ]}
+	sort tags > tags.tmp
+	mv tags.tmp tags
 
 config.yml:
 
@@ -870,50 +867,50 @@ INSTPUGS_LIB = blib6/pugs
 
 build_perl5 ::
 @{[for_perl5("
-        cd __DIR__ && perl Makefile.PL && \$(MAKE)
+	cd __DIR__ && perl Makefile.PL && \$(MAKE)
 ")]}
 
 clean ::
-        \@\$(RM_RF) third-party/installed
+	\@\$(RM_RF) third-party/installed
 @{[for_perl5("
-        -cd __DIR__ && \$(TEST_F) \$(FIRST_MAKEFILE) && \$(MAKE) clean
+	-cd __DIR__ && \$(TEST_F) \$(FIRST_MAKEFILE) && \$(MAKE) clean
 ")]}
 
 realclean ::
-        \@\$(RM_RF) third-party/installed
+	\@\$(RM_RF) third-party/installed
 
 @{[for_perl5("
-        -cd __DIR__ && \$(TEST_F) \$(FIRST_MAKEFILE) && \$(MAKE) realclean
+	-cd __DIR__ && \$(TEST_F) \$(FIRST_MAKEFILE) && \$(MAKE) realclean
 ")]}
 
 pure_all :: build_perl5
-        \$(PERLRUN) util/src_to_blib.pl
+	\$(PERLRUN) util/src_to_blib.pl
 
 register ::
-        \$(PERLRUN) util/ghc_setup.pl copy --copy-prefix=\$(DESTDIR)
-        \$(PERLRUN) util/ghc_setup.pl register --prefix=\$(DESTDIR)
+	\$(PERLRUN) util/ghc_setup.pl copy --copy-prefix=\$(DESTDIR)
+	\$(PERLRUN) util/ghc_setup.pl register --prefix=\$(DESTDIR)
 
 pure_site_install ::
-        \$(NOECHO) \$(MOD_INSTALL) \\
-                \$(INST6_LIB) \$(DESTDIR)$config->{sitelib} \\
-                \$(INST6_ARCHLIB) \$(DESTDIR)$config->{sitearch} \\
-                \$(INST6_BIN) \$(DESTDIR)$config->{sitebin} \\
-                \$(INST6_SCRIPT) \$(DESTDIR)$config->{sitescript} \\
-                \$(INST6_MAN1DIR) \$(DESTDIR)$config->{installsiteman1dir} \\
-                \$(INST6_MAN3DIR) \$(DESTDIR)$config->{installsiteman3dir} \\
-                \$(INSTPUGS_LIB) \$(DESTDIR)$config->{sitelib}/auto/pugs
-#       \$(PERLRUN) util/ghc_setup.pl copy --copy-prefix=\$(DESTDIR)
+	\$(NOECHO) \$(MOD_INSTALL) \\
+		\$(INST6_LIB) \$(DESTDIR)$config->{sitelib} \\
+		\$(INST6_ARCHLIB) \$(DESTDIR)$config->{sitearch} \\
+		\$(INST6_BIN) \$(DESTDIR)$config->{sitebin} \\
+		\$(INST6_SCRIPT) \$(DESTDIR)$config->{sitescript} \\
+		\$(INST6_MAN1DIR) \$(DESTDIR)$config->{installsiteman1dir} \\
+		\$(INST6_MAN3DIR) \$(DESTDIR)$config->{installsiteman3dir} \\
+		\$(INSTPUGS_LIB) \$(DESTDIR)$config->{sitelib}/auto/pugs
+#	\$(PERLRUN) util/ghc_setup.pl copy --copy-prefix=\$(DESTDIR)
 
 pure_vendor_install ::
-        \$(NOECHO) \$(MOD_INSTALL) \\
-                \$(INST6_LIB) \$(DESTDIR)$config->{privlib} \\
-                \$(INST6_ARCHLIB) \$(DESTDIR)$config->{archlib} \\
-                \$(INST6_BIN) \$(DESTDIR)$config->{installbin} \\
-                \$(INST6_SCRIPT) \$(DESTDIR)$config->{installscript} \\
-                \$(INST6_MAN1DIR) \$(DESTDIR)$config->{installman1dir} \\
-                \$(INST6_MAN3DIR) \$(DESTDIR)$config->{installman3dir} \\
-                \$(INSTPUGS_LIB) \$(DESTDIR)$config->{privlib}/auto/pugs
-#       \$(PERLRUN) util/ghc_setup.pl copy --copy-prefix=\$(DESTDIR)
+	\$(NOECHO) \$(MOD_INSTALL) \\
+		\$(INST6_LIB) \$(DESTDIR)$config->{privlib} \\
+		\$(INST6_ARCHLIB) \$(DESTDIR)$config->{archlib} \\
+		\$(INST6_BIN) \$(DESTDIR)$config->{installbin} \\
+		\$(INST6_SCRIPT) \$(DESTDIR)$config->{installscript} \\
+		\$(INST6_MAN1DIR) \$(DESTDIR)$config->{installman1dir} \\
+		\$(INST6_MAN3DIR) \$(DESTDIR)$config->{installman3dir} \\
+		\$(INSTPUGS_LIB) \$(DESTDIR)$config->{privlib}/auto/pugs
+#	\$(PERLRUN) util/ghc_setup.pl copy --copy-prefix=\$(DESTDIR)
 .
 }
 
@@ -1009,9 +1006,9 @@ sub preprocess {
     open OUT, '>', $outfile or die "failed to open $outfile ($!)";
 
     if ($Config{osname} eq 'cygwin') {
-                for my $path (values %substitutions){
-                        $path = `cygpath -m $path`; chomp $path;
-                }
+		for my $path (values %substitutions){
+			$path = `cygpath -m $path`; chomp $path;
+		}
     }
 
     while (<IN>) {
