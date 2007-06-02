@@ -57,9 +57,9 @@ L<S03/Junctive operators>
     ok('b' eq ($a | $b | $c), 'junction of ($a | $b | $c) matches at least one "b"');
     ok('c' eq ($c | $a | $b), 'junction of ($c | $a | $b) matches at least one "c"'); 
 
-    ok(not(('a' eq ($b | $c | $a)) === Bool::False), 'junctional comparison doesn't mistakenly return both true and false');
-    ok(not(('b' eq ($a | $b | $c)) === Bool::False), 'junctional comparison doesn't mistakenly return both true and false');
-    ok(not(('c' eq ($c | $a | $b)) === Bool::False), 'junctional comparison doesn't mistakenly return both true and false'); 
+    ok(not(('a' eq ($b | $c | $a)) === Bool::False), 'junctional comparison doesn not mistakenly return both true and false');
+    ok(not(('b' eq ($a | $b | $c)) === Bool::False), 'junctional comparison doesn not mistakenly return both true and false');
+    ok(not(('c' eq ($c | $a | $b)) === Bool::False), 'junctional comparison doesn not mistakenly return both true and false'); 
     
     # test junction to junction
     
