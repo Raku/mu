@@ -452,10 +452,29 @@ method heading of QDRDBMS::AST::TypeDict () {
     return $!heading;
 }
 
-###########################################################################
-
 method body of QDRDBMS::AST::ExprDict () {
     return $!body;
+}
+
+###########################################################################
+
+method attr_count of Int () {
+    return $!heading.elem_count();
+}
+
+method attr_exists of QDRDBMS::AST::TypeInvo
+        (QDRDBMS::AST::EntityName :$attr_name!) {
+    return $!heading.elem_exists($attr_name);
+}
+
+method attr_type of QDRDBMS::AST::TypeInvo
+        (QDRDBMS::AST::EntityName :$attr_name!) {
+    return $!heading.elem_value($attr_name);
+}
+
+method attr_value of QDRDBMS::AST::TypeInvo
+        (QDRDBMS::AST::EntityName :$attr_name!) {
+    return $!body.elem_value($attr_name);
 }
 
 ###########################################################################
@@ -562,10 +581,29 @@ method heading of QDRDBMS::AST::TypeDict () {
     return $!heading;
 }
 
-###########################################################################
-
 method body of Array () {
     return [$!body.values];
+}
+
+###########################################################################
+
+method attr_count of Int () {
+    return $!heading.elem_count();
+}
+
+method attr_exists of QDRDBMS::AST::TypeInvo
+        (QDRDBMS::AST::EntityName :$attr_name!) {
+    return $!heading.elem_exists($attr_name);
+}
+
+method attr_type of QDRDBMS::AST::TypeInvo
+        (QDRDBMS::AST::EntityName :$attr_name!) {
+    return $!heading.elem_value($attr_name);
+}
+
+method attr_values of QDRDBMS::AST::TypeInvo
+        (QDRDBMS::AST::EntityName :$attr_name!) {
+    return [$!body.map:{ .elem_value($attr_name) }];
 }
 
 ###########################################################################
@@ -938,8 +976,6 @@ method text of Str () {
     return $!text_possrep;
 }
 
-###########################################################################
-
 method seq of Array () {
     return [$!seq_possrep.values];
 }
@@ -1039,8 +1075,6 @@ method kind of Str () {
     return $!kind;
 }
 
-###########################################################################
-
 method spec of Any () {
     return $!spec;
 }
@@ -1095,7 +1129,7 @@ submethod BUILD (Array :$map!) {
     my Array $map_aoa = [];
     my Hash  $map_hoa = {};
     for $map -> $elem {
-        die q{new(): Bad :$map arg; it is not an object of a}
+        die q{new(): Bad :$map arg elem; it is not an object of a}
                 ~ q{ Array-doing class, or it doesn't have 2 elements.}
             if !$elem.defined or !$elem.does(Array) or $elem.elems != 2;
         my ($entity_name, $type_invo) = $elem.values;
@@ -1170,6 +1204,34 @@ method map_hoa of Hash () {
 
 ###########################################################################
 
+method elem_count of Int () {
+    return $!map_aoa.elems;
+}
+
+method elem_exists of QDRDBMS::AST::TypeInvo
+        (QDRDBMS::AST::EntityName :$elem_name!) {
+
+    die q{elem_exists(): Bad :$elem_name arg; it is not an object of a}
+            ~ q{ QDRDBMS::AST::EntityName-doing class.}
+        if !$elem_name.defined
+            or !$elem_name.does(::QDRDBMS::AST::EntityName);
+
+    return $!map_hoa.exists($elem_name.text());
+}
+
+method elem_value of QDRDBMS::AST::TypeInvo
+        (QDRDBMS::AST::EntityName :$elem_name!) {
+
+    die q{elem_value(): Bad :$elem_name arg; it is not an object of a}
+            ~ q{ QDRDBMS::AST::EntityName-doing class.}
+        if !$elem_name.defined
+            or !$elem_name.does(::QDRDBMS::AST::EntityName);
+
+    return $!map_hoa{$elem_name.text()};
+}
+
+###########################################################################
+
 } # role QDRDBMS::AST::TypeDict
 
 ###########################################################################
@@ -1218,7 +1280,7 @@ submethod BUILD (Array :$map!) {
     my Array $map_aoa = [];
     my Hash  $map_hoa = {};
     for $map -> $elem {
-        die q{new(): Bad :$map arg; it is not an object of a}
+        die q{new(): Bad :$map arg elem; it is not an object of a}
                 ~ q{ Array-doing class, or it doesn't have 2 elements.}
             if !$elem.defined or !$elem.does(Array) or $elem.elems != 2;
         my ($entity_name, $expr) = $elem.values;
@@ -1280,6 +1342,34 @@ method map of Array () {
 
 method map_hoa of Hash () {
     return {$!map_hoa.pairs.map:{ .key => [.value.values] }};
+}
+
+###########################################################################
+
+method elem_count of Int () {
+    return $!map_aoa.elems;
+}
+
+method elem_exists of QDRDBMS::AST::TypeInvo
+        (QDRDBMS::AST::EntityName :$elem_name!) {
+
+    die q{elem_exists(): Bad :$elem_name arg; it is not an object of a}
+            ~ q{ QDRDBMS::AST::EntityName-doing class.}
+        if !$elem_name.defined
+            or !$elem_name.does(::QDRDBMS::AST::EntityName);
+
+    return $!map_hoa.exists($elem_name.text());
+}
+
+method elem_value of QDRDBMS::AST::TypeInvo
+        (QDRDBMS::AST::EntityName :$elem_name!) {
+
+    die q{elem_value(): Bad :$elem_name arg; it is not an object of a}
+            ~ q{ QDRDBMS::AST::EntityName-doing class.}
+        if !$elem_name.defined
+            or !$elem_name.does(::QDRDBMS::AST::EntityName);
+
+    return $!map_hoa{$elem_name.text()};
 }
 
 ###########################################################################
