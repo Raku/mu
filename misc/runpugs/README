@@ -20,6 +20,7 @@ INSTALLATION
     	Net::Telnet 
     	IO::Pty
 	Config::General
+	Perl6::Say
 
     * create a $HOME/.webtermrc configuration file (start from the webtermrc file in the repository)
     * make sure that you change the following settings
