@@ -302,7 +302,8 @@ op1 "Pugs::Internals::eval_perl5" = \v -> do
         Perl5ReturnValues xs    -> io $ fmap VList (mapM svToVal xs)
         Perl5ErrorString str    -> fail str
         Perl5ErrorObject err    -> throwError (PerlSV err)
-op1 "Pugs::Internals::eval_p6y" = op1EvalP6Y
+op1 "Pugs::Internals::evalfile_p6y" = op1EvalFileP6Y
+op1 "Pugs::Internals::eval_p6y"     = op1EvalP6Y
 op1 "Pugs::Internals::eval_haskell" = op1EvalHaskell
 op1 "Pugs::Internals::eval_yaml" = evalYaml
 op1 "contend" = \v -> do
@@ -1943,6 +1944,7 @@ initSyms = seq (length syms) $ do
 \\n   Any       pre     Pugs::Internals::eval_perl5   safe (Str)\
 \\n   Any       pre     Pugs::Internals::eval_haskell unsafe (Str)\
 \\n   Any       pre     Pugs::Internals::eval_p6y unsafe (Str)\
+\\n   Any       pre     Pugs::Internals::evalfile_p6y unsafe (Str)\
 \\n   Any       pre     Pugs::Internals::eval_yaml    safe   (Str)\
 \\n   Any       pre     Pugs::Internals::emit_yaml    unsafe   (rw!Any)\
 \\n   Str       pre     yaml    safe   (rw!Any|Junction)\

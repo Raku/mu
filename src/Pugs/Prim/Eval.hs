@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances #-}
 module Pugs.Prim.Eval (
     -- used by Pugs.Prim
-    op1EvalHaskell, op1EvalP6Y,
+    op1EvalHaskell, op1EvalP6Y, op1EvalFileP6Y,
     opEval, opEvalFile,
     opRequire, requireInc,
     EvalError(..), EvalResult(..), EvalStyle(..),
@@ -19,6 +19,9 @@ import Pugs.Prim.Keyed
 import Pugs.Types
 import DrIFT.YAML
 import Data.Yaml.Syck
+import qualified Data.ByteString.Char8 as Bytes
+
+type Bytes        = Bytes.ByteString
 
 data EvalError = EvalErrorFatal
                | EvalErrorUndef
@@ -122,16 +125,28 @@ op1EvalHaskell cv = do
     style = MkEvalStyle{ evalError=EvalErrorUndef
                        , evalResult=EvalResultLastValue}
 
-op1EvalP6Y :: Val -> Eval Val
-op1EvalP6Y fileName = do
+
+op1EvalP6Y, op1EvalFileP6Y :: Val -> Eval Val
+
+op1EvalFileP6Y fileName = do
     fileName' <- fromVal fileName
+    file      <- io $ Bytes.readFile fileName'
+    op1EvalP6Y' file
+
+op1EvalP6Y bytecode = do
+    bytecode' <- fromVal bytecode
+    op1EvalP6Y' $ Bytes.pack bytecode' -- XXX: is this the right pack function?
+
+op1EvalP6Y' :: Bytes -> Eval Val
+op1EvalP6Y' bytecode = do
     yml  <- io $ (`catchIO` (return . Left . show)) $
-        fmap Right (parseYamlFile fileName')
+        fmap Right (parseYamlBytes bytecode)
     case yml of
         Right MkNode{ n_elem=ESeq (v:_) }
             | MkNode{ n_elem=EStr vnum } <- v
             , vnum /= (packBuf $ show compUnitVersion) -> do
-                err "incompatible version number for compilation unit"
+                err $ "incompatible version number for compilation unit: found " ++
+                    unpackBuf vnum ++ ", expecting " ++ (show compUnitVersion)
         Right yml' -> do
             globTVar    <- asks envGlobal
             MkCompUnit _ glob ast <- io $ fromYAML yml'
