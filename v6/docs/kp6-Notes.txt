@@ -1,4 +1,69 @@
-"Perl 6 over Perl 6" Roadmap
+=head1 NAME
+
+"KindaPerl6" Roadmap
+
+
+
+=head1 DESCRIPTIONThis document describes the current status of the "KindaPerl6" development project.
+
+
+
+=head1 OBJECTIVE
+
+KindaPerl6 aims for a "Perl 6 in Perl 6" design and implementation.
+
+
+
+=head2 KindaPerl6 Project overview
+
+Phase I - bootstrap 
+
+  This phase is finished
+
+Phase II - improved compiler architecture 
+
+  This phase is finished
+
+Phase III - refactor the regex compiler to the KindaPerl6 architecture
+
+  This is the current phase
+
+Phase IV - improved grammar
+
+  Upgrade to Perl-6.0.0-STD Grammar
+
+Phase V - optimizer
+
+  Target speed is 1/200x Perl 5
+
+Phase VI - aggressive optimizer
+
+  Target speed is 1/20x Perl 5
+
+
+
+
+=head1 KindaPerl6 Phase III - refactor the regex compiler
+
+The goal for this phase is to refactor the regex compiler, to take advantage of the KindaPerl6 compiler architecture.
+
+
+
+=head2 Milestone 1 - Regex AST refactoring  
+The regex AST will be refactored from HoH to Object-oriented.
+=head3 StatusNot started.=head3 Dependencies=over=item KindaPerl6 compiler architecture code-reviewWe need someone to review the previous phase results, in order to consider the "compiler architecture" phase finished.
+This is a non-blocking task.
+=item KindaPerl6 syntax reviewWe need confirm that the KindaPerl6 grammar is a valid subset of Perl 6.
+This is a non-blocking task.
+=back=head3 Tasks=over=item Create the regex AST node classes=item Rewrite the hash constructors in the regex grammar to OO style
+
+=back=head3 Test Plan
+The resulting code will be tested by bootstrapping the compiler, and by running the existing test suite.
+
+
+
+__END__
+
 
 
 Introduction
@@ -16,6 +81,9 @@ The goal of phases and milestones here is really just to break the project down 
 
 Inside each milestone, we should have an ordered list of tasks that should each take no more than 1-3 days of effort. (Sometimes this is impossible, but if it can get done for the next/current Phase, we'll give hackers a good place to start)
 
+Having tests to know when we finish a milestone might be a really cool way to make things move forward fast.
+
+
 
 Long-term Projects 
 
@@ -25,42 +93,66 @@ Long-term Projects
   Pugs "pugs" 
     Perl 6 over Haskell, Perl 5, and C.
 
-  Perl 6 over Perl 6
-    The "6 on 6" project is built out of a number of small projects, almost all of them in Perl.
+  Perl 6 in Perl 6
+    The "6-in-6" project is built out of a number of small projects, almost all of them in Perl.
     We're thrilled to invite Perl 5 hackers and Perl 6 hackers to contribute implementations of any of the projects for the next milestone.
+
+
 
 Short-term Project examples
 
   Perl6::Rules
 
+    Perl 6 regex compiler.
+    This is no longer maintained.
+
   PGE
+
+    Perl 6 regex compiler in Parrot.
 
   TGE
 
+    Tree Grammar Engine in Parrot.
+
   lrep
+
+    A bootstrapped compiler for a subset of Perl 6.
+    This is no longer maintained.
 
   Moose
 
+    Perl 6 OO in Perl 5
+
   Pugs::Compiler::Rule
+
+    Perl 6 regex compiler
 
   v6.pm
 
+    Perl6-in-Perl5
+
   MiniPerl6
 
+    A bootstrapped compiler for a subset of Perl 6.
+
   KindaPerl6
+    
+    Incremental development of a bootstrapped Perl 6 compiler.
 
   Perl-6.0.0-STD
 
+    Provide a runnable "standard" Perl 6 grammar.
 
-Perl 6 over Perl 6
 
-Current state of the technology
+
+Current state of "Perl 6 in Perl 6"
 
   "Perl-6.0.0-STD" 
     provides a grammar and parser routines written in "full Perl 6";
       Perl 6 over Perl 6 should be able to use this grammar.
 
   "pugs" can parse a "cheated" Perl-6.0.0-STD grammar.
+  Pugs "Prelude.pm" implements Perl 6 runtime in Perl 6.
 
   "v6.pm" can parse most of "Perl-6.0.0-STD". 
     v6.pm and pugs share the same regex engine (Pugs::Compiler::Rule).
@@ -68,46 +160,33 @@ Current state of the technology
   "KindaPerl6" provides a working bootstrapped compiler. The grammar, the parser engine, and most of the runtime are written in Perl 6.
 
 
-Development Tracks
-
-  New short-term projects 
-
-  Piecewise Migrating technologies between 6-in-6 and other Perl 6 compilers
-
-  Runnable Perl-6.0.0-STD
-
-  Extending KindaPerl6
-    
 
 
-New short-term projects 
+
+
+Short-term, single milestone "6-in-6" projects 
 
   Regex engine experiments
 
+  Piecewise Migrating technologies between 6-in-6 and other Perl 6 compilers
 
-Piecewise Migrating technologies between 6-in-6 and other Perl 6 compilers
+  Perl6-in-Parrot - Adding actions to the grammar
 
-  Perl6-in-Parrot
-    Adding actions to the grammar
+  Pugs - reuse the grammar parser and generate Haskell code
 
-  Pugs
-    Possibly reusing the grammar parser to generate Haskell code
+  v6.pm new OO AST
 
-  v6.pm
-    New OO AST
-    Upgrade to Perl-6.0.0-STD Grammar 
-    Visitor-plugin architecture
-    Allow the 'v6.pm' module to use different implementations 
+  v6.pm upgrade to Perl-6.0.0-STD Grammar 
 
+  v6.pm visitor-plugin architecture
+  
+  Allow the 'v6.pm' module to use different implementations 
 
-Runnable Perl-6.0.0-STD
-
-    top down, using "cheat" scripts
-
-    bottom up, extending existing compilers 
+  Perl-6.0.0-STD "cheat" scripts
 
 
-Extending KindaPerl6
+
+KindaPerl6 "small projects" overview
 
   Architecture
 
@@ -116,9 +195,22 @@ Extending KindaPerl6
 
     Merge the regex parser into the main compiler
 
+    Implement $?PARSER
+
+    Optimizer
+
+  Quality control
+
+    Running Test.pm
+
+    Test coverage tools
+
+    Debugger
+
   Backends
 
     Perl 5
+      Publish to CPAN
     Parrot (Perl6-Parrot, PIR)
     Perl6-Haskell (Pugs)
     JVM (Groovy, Java, bytecode) 
@@ -136,11 +228,15 @@ Extending KindaPerl6
 
   Syntax
 
+    Fix the grammar to current specification
     Upgrade to Perl-6.0.0-STD Grammar 
 
 
 
-__END__
+
+
+first task -- add tests
+
 
 Phase I - bootstrap (MiniPerl6)
 
