@@ -1,0 +1,92 @@
+
+=head1 NAME
+
+kp6-roadmap - The "KindaPerl6" Project Roadmap
+
+=head1 DESCRIPTION
+
+This document describes the current status of the "KindaPerl6" development project.
+
+
+
+=head1 OBJECTIVE
+
+KindaPerl6 aims for a "Perl 6 in Perl 6" design and implementation.
+
+
+
+=head2 KindaPerl6 Project overview
+
+Phase I - bootstrap 
+
+  This phase is finished
+
+Phase II - improved compiler architecture 
+
+  This phase is finished
+
+Phase III - refactor the regex compiler to the KindaPerl6 architecture
+
+  This is the current phase
+
+Phase IV - improved grammar
+
+  Upgrade to Perl-6.0.0-STD Grammar
+
+Phase V - optimizer
+
+  Target speed is 1/200x Perl 5
+
+Phase VI - aggressive optimizer
+
+  Target speed is 1/20x Perl 5
+
+
+
+
+=head1 Phase III - refactor the regex compiler
+
+The goal for this phase is to refactor the regex compiler, to take advantage of the KindaPerl6 compiler architecture.
+
+
+
+=head2 Milestone 1 - Regex AST refactoring  
+
+The regex AST will be refactored from HoH to Object-oriented.
+
+=head3 Status
+
+Not started.
+
+=head3 Dependencies
+
+=over
+
+=item KindaPerl6 compiler architecture code-review
+
+We need someone to review the previous phase results, in order to consider the "compiler architecture" phase finished.
+This is a non-blocking task.
+
+=item KindaPerl6 syntax review
+
+We need to verify that the KindaPerl6 grammar is a valid subset of Perl 6.
+This is a non-blocking task.
+
+=back
+
+=head3 Tasks
+
+=over
+
+=item Create the regex AST node classes
+
+=item Rewrite the hash constructors in the regex grammar to OO style
+
+=back
+
+
+=head3 Test Plan
+
+The resulting code will be tested by bootstrapping the compiler, and by running the existing test suite.
+
+
