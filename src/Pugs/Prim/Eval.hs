@@ -83,7 +83,7 @@ opRequire dumpEnv v = do
             _                               -> opEval style pathName ""
         
         
-    fastEval = op1EvalP6Y . VStr
+    fastEval = op1EvalFileP6Y . VStr
     slowEval pathName = do 
         str      <- io $ readFile pathName
         opEval style pathName str
