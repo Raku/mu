@@ -2749,7 +2749,7 @@ sub _expand_withenv {
 }
 sub filter_string {
   my($s)=@_;
-  $s =~ s/\bWITHENV{(.*?)}WITHENV\b/_expand_withenv($1)/eg;
+  $s =~ s/\bWITHENV{(.*?)}WITHENV\b/_expand_withenv($1)/seg;
   $s;
 }
 use Filter::Simple sub {
@@ -2793,7 +2793,7 @@ sub filter_string {
   my $re = qr/(
     ^[ ]* (regex|rule|token) (?>\s+(\w*)\s*) ([^\n\{]*) \{
     (?: ([^\n]+) \};? \s*(?:\#(?!\()[^\n]*)? $
-      | ((?s:.)+? \n ) \2 \} )
+      | ((?s:.)+? \n ) \} )
   )/x;
   $s =~ s/$re/expand_regex($2,$3,$4,(defined($5)?$5:$6),$1)/meg;
 #  my $re2 = qr{\brx((?::\w+)*)\s*(?:$RE{delimited}{-delim=>'/'}{-keep}|$RE{balanced}{-parens=>'{}'}{-keep})};
