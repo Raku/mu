@@ -6,8 +6,8 @@ import Pugs.PIL1.Instances ()
 import Pugs.PIL1
 import Pugs.Compile
 
-genPIL1 :: Eval Val
-genPIL1 = do
+genPIL1 :: FilePath -> Eval Val
+genPIL1 _ = do
     penv <- compile ()
     return . VStr . unlines $
         [ "PIL_Environment"

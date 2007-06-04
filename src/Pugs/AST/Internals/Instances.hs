@@ -709,12 +709,12 @@ instance YAML VMatch where
 instance YAML CompUnit where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
 	"MkCompUnit" -> do
-	    let ESeq [aa, ab, ac] = e
-	    liftM3 MkCompUnit (fromYAML aa) (fromYAML ab) (fromYAML ac)
+	    let ESeq [aa, ab, ac, ad] = e
+	    liftM4 MkCompUnit (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkCompUnit"] ++ " in node " ++ show e
     fromYAML e = fail $ "no tag found: expecting " ++ show ["MkCompUnit"] ++ " in node " ++ show e
-    asYAML (MkCompUnit aa ab ac) = asYAMLseq "MkCompUnit"
-	   [asYAML aa, asYAML ab, asYAML ac]
+    asYAML (MkCompUnit aa ab ac ad) = asYAMLseq "MkCompUnit"
+	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad]
 
 instance YAML VMultiCode where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of

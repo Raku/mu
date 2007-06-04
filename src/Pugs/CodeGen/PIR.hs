@@ -369,17 +369,19 @@ varInit ('%':_) = PerlHash
 varInit ('&':_) = PerlScalar
 varInit x       = internalError $ "Invalid name: " ++ x
 
-genPIR_YAML :: Eval Val
-genPIR_YAML = genPIRWith $ \globPIR mainPIR _ -> do
+-- XXX: do something useful with the filename arg
+genPIR_YAML :: FilePath -> Eval Val
+genPIR_YAML _ = genPIRWith $ \globPIR mainPIR _ -> do
     yaml <- io (showYaml (mainPIR, globPIR))
     return (VStr yaml)
 
 {-| Compiles the current environment to PIR code. -}
-genPIR :: Eval Val
-genPIR = genPIRWith $ \globPIR mainPIR penv -> do
+genPIR :: FilePath -> Eval Val
+genPIR file = genPIRWith $ \globPIR mainPIR penv -> do
     libs        <- io $ getLibs
     return . VStr . unlines $
         [ "#!/usr/bin/env parrot"
+        , "# " ++ file
         , renderStyle (Style PageMode 0 0) $ preludePIR $+$ vcat
         -- Namespaces have bugs in both pugs and parrot.
         [ emit $ DeclNS "Main"

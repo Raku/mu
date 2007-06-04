@@ -197,8 +197,8 @@ instance Compile VCode where
             ]
     -}
 
-genPugs :: Eval Val
-genPugs = do
+genPugs :: FilePath -> Eval Val
+genPugs file = do
     exp             <- asks envBody
     glob            <- askGlobal
     (globC, globT)  <- runWriterT $ compile glob
@@ -212,6 +212,8 @@ genPugs = do
         , "import Pugs.Internals"
         , "import qualified Data.Map as Map"
         , "import qualified Data.Set as Set"
+        , ""
+        , "-- compiled from " ++ file ++ " with -CPugs"
         , ""
         , "main = do"
         , "    glob <- globC"

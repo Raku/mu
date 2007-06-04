@@ -24,7 +24,7 @@ import Pugs.Compile.Pugs (genPugs)
 -- import Pugs.CodeGen.XML (genXML)
 import qualified Data.Map as Map
 
-type Generator = Eval Val
+type Generator = FilePath -> Eval Val
 
 generators :: Map String Generator
 generators = Map.fromList $
@@ -42,7 +42,7 @@ generators = Map.fromList $
     , ("Pugs",        genPugs)
     , ("Parse-YAML",  genParseYAML)
     , ("Parse-HsYAML",genParseHsYAML)
-    , ("Parse-Pretty",fmap (VStr . (++"\n") . pretty) (asks envBody))
+    , ("Parse-Pretty",const $ fmap (VStr . (++"\n") . pretty) (asks envBody))
 --  , ("XML",         genXML)
     ]
 
@@ -84,11 +84,11 @@ doLookup s = do
             Map.lookup key generators
         key -> Map.lookup key generators
 
-codeGen :: String -> Env -> IO String
-codeGen s env = do
+codeGen :: String -> FilePath -> Env -> IO String
+codeGen s file env = do
     gen <- catchIO (doLookup s) . const $ do
-        fail $ "Cannot generate code for " ++ s
-    rv <- runEvalIO env gen
+        fail $ "Cannot generate code for " ++ s ++ ": " ++ file
+    rv <- runEvalIO env (gen file)
     case rv of
         VStr str    -> return str
         _           -> fail (show rv)

@@ -7,7 +7,8 @@ import Pugs.PIL1.Instances ()
 import Pugs.PIL1
 import DrIFT.JSON
 
-genJSON :: Eval Val
-genJSON = do
+-- XXX: do something useful with the filename arg
+genJSON :: FilePath -> Eval Val
+genJSON _ = do
     penv <- compile () :: Eval PIL_Environment
     return . VStr . unlines $ [showJSON penv]

@@ -1546,18 +1546,18 @@ Serializable compilation unit
 See: docs/notes/precompilation_cache.pod
 -}
 data CompUnit = MkCompUnit
-    { ver  :: Int        -- a version number, currently 1
-    --, desc :: String     -- e.g., the name of the contained module
+    { ver  :: Int        -- a version number, see compUnitVersion
+    , desc :: String     -- e.g., the name of the contained module
     , pad  :: Pad        -- pad for unit Env
     , ast  :: Exp        -- AST of unit
     } deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos !-}
 
 mkCompUnit :: String -> Pad -> Exp -> CompUnit
-mkCompUnit _ pad ast = MkCompUnit compUnitVersion pad ast
+mkCompUnit = MkCompUnit compUnitVersion
 
 {-# NOINLINE compUnitVersion #-}
 compUnitVersion :: Int
-compUnitVersion = 17
+compUnitVersion = 18
 
 {-|
 Retrieve the global 'Pad' from the current evaluation environment.

@@ -7,7 +7,8 @@ import Pugs.PIL1.Instances ()
 import Pugs.PIL1
 import DrIFT.Perl5
 
-genPerl5 :: Eval Val
-genPerl5 = do
+-- XXX: do something useful with the filename arg
+genPerl5 :: FilePath -> Eval Val
+genPerl5 _ = do
     penv <- compile () :: Eval PIL_Environment
     return . VStr . unlines $ [showPerl5 penv]

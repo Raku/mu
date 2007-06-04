@@ -193,11 +193,11 @@ doExternal mod = doParseWith $ \env _ -> do
     putStrLn str
 
 doCompile :: String -> FilePath -> String -> IO String
-doCompile backend = doParseWith $ \env _ -> do
+doCompile backend = doParseWith $ \env file -> do
     globRef <- stm $ do
         glob <- readMPad $ envGlobal env
         newMPad $ filterUserDefinedPad glob
-    codeGen backend env{ envGlobal = globRef }
+    codeGen backend file env{ envGlobal = globRef }
 
 initCompile :: IO ()
 initCompile = do

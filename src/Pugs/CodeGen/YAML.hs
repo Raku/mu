@@ -8,19 +8,20 @@ import Pugs.PIL1.Instances ()
 import Pugs.PIL1
 import DrIFT.YAML
 
-genParseHsYAML, genParseYAML :: Eval Val
-genParseHsYAML = doGenParseYAML (fmap show . toYamlNode)
-genParseYAML   = doGenParseYAML showYamlCompressed
+genParseHsYAML, genParseYAML :: FilePath -> Eval Val
+genParseHsYAML file = doGenParseYAML file (fmap show . toYamlNode)
+genParseYAML   file = doGenParseYAML file showYamlCompressed
 
-doGenParseYAML :: (CompUnit -> IO String) -> Eval Val
-doGenParseYAML f = do
+doGenParseYAML :: FilePath -> (CompUnit -> IO String) -> Eval Val
+doGenParseYAML file f = do
     pad  <- filterPrim =<< asks envGlobal
     main <- asks envBody
-    yaml <- io $ f $ mkCompUnit "<unused>" pad main
+    yaml <- io $ f $ mkCompUnit file pad main
     return $ VStr yaml
 
-genYAML :: Eval Val
-genYAML = do
+-- XXX: do something useful with the filename arg
+genYAML :: FilePath -> Eval Val
+genYAML _ = do
     penv <- compile () :: Eval PIL_Environment
     yaml <- io (showYamlCompressed penv)
     return $ VStr yaml

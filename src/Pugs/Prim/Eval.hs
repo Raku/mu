@@ -149,7 +149,7 @@ op1EvalP6Y' bytecode = do
                     unpackBuf vnum ++ ", expecting " ++ (show compUnitVersion)
         Right yml' -> do
             globTVar    <- asks envGlobal
-            MkCompUnit _ glob ast <- io $ fromYAML yml'
+            MkCompUnit _ _ glob ast <- io $ fromYAML yml'
             tryT $ do
                 -- Inject the global bindings
                 stm $ do
