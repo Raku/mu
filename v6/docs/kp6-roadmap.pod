@@ -56,7 +56,7 @@ The goal for this phase is to refactor the regex compiler, to take advantage of 
 
 =head2 Milestone 1 - Regex AST refactoring  
 
-The regex AST will be refactored from HoH to Object-oriented.
+The regex AST will be refactored from hash-of-hashes to Object-oriented.
 
 =head3 Status
 
