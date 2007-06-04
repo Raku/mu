@@ -25,26 +25,30 @@ Phase II - improved compiler architecture
 
   This phase is finished
 
-Phase III - refactor the regex compiler to the KindaPerl6 architecture
+Phase III - regex compiler refactoring 
 
   This is the current phase
 
-Phase IV - improved grammar
+Phase IV - improved runtime
+
+  The runtime libraries needed by the Perl-6.0.0-STD parser will be specified and implemented
+
+Phase V - improved grammar
 
   Upgrade to Perl-6.0.0-STD Grammar
 
-Phase V - optimizer
+Phase VI - optimizer
 
   Target speed is 1/200x Perl 5
 
-Phase VI - aggressive optimizer
+Phase VII - aggressive optimizer
 
   Target speed is 1/20x Perl 5
 
 
 
 
-=head1 Phase III - refactor the regex compiler
+=head1 Phase III - regex compiler refactoring
 
 The goal for this phase is to refactor the regex compiler, to take advantage of the KindaPerl6 compiler architecture.
 
@@ -62,12 +66,12 @@ Not started.
 
 =over
 
-=item KindaPerl6 compiler architecture code-review
+=item * KindaPerl6 compiler architecture code-review
 
 We need someone to review the previous phase results, in order to consider the "compiler architecture" phase finished.
 This is a non-blocking task.
 
-=item KindaPerl6 syntax review
+=item * KindaPerl6 syntax review
 
 We need to verify that the KindaPerl6 grammar is a valid subset of Perl 6.
 This is a non-blocking task.
@@ -78,9 +82,9 @@ This is a non-blocking task.
 
 =over
 
-=item Create the regex AST node classes
+=item * Create the regex AST node classes
 
-=item Rewrite the hash constructors in the regex grammar to OO style
+=item * Rewrite the hash constructors in the regex grammar to OO style
 
 =back
 
@@ -90,3 +94,105 @@ This is a non-blocking task.
 The resulting code will be tested by bootstrapping the compiler, and by running the existing test suite.
 
 
+=head2 Milestone 2 - Regex AST processor  
+
+The regex compiler will use the AST processor engine.
+
+=head3 Status
+
+Not started.
+
+=head3 Dependencies
+
+=over
+
+=item * OO regex AST
+
+The regex AST created in Milestone 1 must be fully implemented and tested.
+
+=back
+
+=head3 Tasks
+
+=over
+
+=item * Create an AST ".perl" dumper
+
+This will be used for debugging
+
+=item * Create an AST-to-Perl6 dumper
+
+This will finish replacing the current kp6 code
+
+=back
+
+
+=head3 Test Plan
+
+The resulting code will be tested by bootstrapping the compiler, and by running the existing test suite.
+
+
+=head2 Milestone 3 - Additional Regex AST processors
+
+The regex compiler will use the AST processor engine to implement additional semantics.
+
+=head3 Status
+
+Not started.
+
+=head3 Dependencies
+
+=over
+
+=item * OO regex AST
+
+The regex AST created in Milestone 1 must be fully implemented and tested.
+
+=back
+
+=head3 Tasks
+
+=over
+
+=item * Identify which regex features are needed for parsing Perl-6.0.0-STD
+
+=item * Identify which regex AST transformations are needed in order to implement the Perl-6.0.0-STD parser
+
+=item * Create regex tests for the new features
+
+=item * Implement the AST transformations
+
+This task may require implementing additional regex runtime.
+
+=back
+
+
+=head3 Test Plan
+
+The resulting code will be tested by bootstrapping the compiler, and by running the improved test suite.
+
+
+
+=head2 Bonus Tasks  
+
+These tasks are not required for the successful completion of this phase.
+
+=head3 Tasks
+
+=over
+
+=item * Regex backtracking
+
+Choose one or more backtracking models, and implement them.
+
+=item * Special variables
+
+Create C<COMPILING::<$?PARSER>>, C<$?FILE>, C<$?LINE>
+
+=item * Finer-grained error messages
+
+=item * Grammar and precedence parser merged from Perl6-STD
+
+=item * Lexically modifieable Grammar
+
+=back
