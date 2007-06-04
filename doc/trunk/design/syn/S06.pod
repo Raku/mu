@@ -1060,16 +1060,16 @@ clear where the feed's destination is supposed to be:
 
 Various contexts may or may not be expecting multi-dimensional slices
 or feeds.  By default, ordinary arrays are flattened, that is, they
-have "cat" semantics.  If you say
+have "list" semantics.  If you say
 
     (0..2; 'a'..'c') ==> my @tmp;
     for @tmp { .say }
 
 then you get 0,1,2,'a','b','c'.  If you have a multidim array, you
-can ask for cat semantics explicitly with cat():
+can ask for list semantics explicitly with list():
 
     (0..2; 'a'..'c') ==> my @@tmp;
-    for @@tmp.cat { .say }
+    for @@tmp.list { .say }
 
 As we saw earlier, "zip" produces an interleaved result by taking one element
 from each list in turn, so
