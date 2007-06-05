@@ -1,5 +1,42 @@
 #!/usr/bin/pugs
 use v6;
+
+=begin pod
+
+=head1 NAME
+
+Sudoku - a simple Sudoku solver
+
+=head1 SYNOPSIS
+
+    my Sudoku $s = Sudoku.new;
+    # initialize with a 3x2 block size, overall size will be 6x6
+    $s.init(3, 2);
+
+    # it's easiest to initialize by a string:
+    my $start = "041300"
+              ~ "005106"
+              ~ "000502"
+              ~ "300460"
+              ~ "020003"
+              ~ "060050";
+    $s.from_string($start);
+
+    # solve that Sudoku:
+    $s.solve;
+
+    # simple ASCII-Art output
+    $s.pretty_print;
+
+    # and in one line:
+    say $s.out;
+
+=head1 DESCRIPTION
+
+=head1 METHODS
+
+=end pod
+
 class Sudoku;
 
 has @.field;
@@ -20,6 +57,17 @@ has @!allowed;
 has @!constraint;
 
 has $!delimiter;
+
+=begin pod
+
+=head3 method C<init($self: Int $width, Int $height);>
+
+sets the dimensions of a Sudoku block to C<$width> x C<$height>, the 
+overall length will be the product of these two values.
+
+You have to call this method before you cann add any clues.
+
+=end pod
 
 method init($self: Int $width, Int $height){
 
@@ -62,11 +110,22 @@ method init($self: Int $width, Int $height){
 
 }
 
+=begin pod
+
+=head3 C<method from_string(Str $s);>
+    
+initialize the Sudoku from a string C<$s>, with a 0 denoting an empty cell
+and a number between 1 and 9 a clue.
+
+Note that there is currently no way to use this function for sizes bigger 
+than 9x9 overall length.
+
+=end pod
+
 # works only for @!size <= 9
 method from_string(Str $s){
 #    PRE {
-#        $s.elems == $!length*$!length;
-#        @!size <= 9
+#        $s.chars == $!length*$!length;
 #    }
     for (0 .. $!length*$!length-1) -> my $i {
         if +$s.substr($i, 1) {
@@ -75,7 +134,18 @@ method from_string(Str $s){
     }
 }
 
-method set_item(Int $elem, Int $x, Int $y){
+=begin pod
+
+=head3 C<method set_item(Int $elem, Int $x, Int $y);>
+
+add a clue with value C<$elem> at the coordinates (C<$x>, C<$y>).
+
+It will possibly raise an error if it violates a Sudoku rule to that
+clue.
+
+=end pod
+
+method set_item($self: Int $elem, Int $x, Int $y){
 #    PRE {
 #        0 < $elem <= $!length and
 #        0 <= $x < $!length and
@@ -83,6 +153,7 @@ method set_item(Int $elem, Int $x, Int $y){
 #        0 == @.field[$x][$y] and
 #        1 == @!allowed[$x][$y][$elem - 1]
 #    }
+    die "Not allowed\n" unless $self.is_allowed($elem, $x, $y);
     @.field[$x][$y] = $elem;
 
     # constraint propagation
@@ -110,16 +181,42 @@ method set_item(Int $elem, Int $x, Int $y){
 
 }
 
+=begin pod
+
+=head3 method get(Int $x, Int $y);
+
+returns the number at the given positions or C<0> if there is none yet.
+
+=end pod
+
 method get(Int $x, Int $y){
     return @.field[$x][$y];
 }
 
+=begin pod
+
+=head3 method out returns Str;
+
+returns a String representation of the Sudoku like the one accepted by 
+C<from_string>
+
+=end pod
+
 method out returns Str {
+    # [Z] transposes the matrix in @.field
     return (map {$_.join("")}, [Z] @.field).join("");
 }
 
+=begin pod 
 
-method pretty ($self:)  {
+=head3 method pretty ($self:) returns Str;
+
+Returns an ASCII art representation of the Sudoku
+
+=end pod
+
+
+method pretty ($self:) returns Str {
     my Str $res = "";
     loop (my $i = 0; $i < @.field.elems; $i++){
         if $i % $.height == 0 {
@@ -138,16 +235,24 @@ method pretty ($self:)  {
     $res ~= $!delimiter;
 }
 
+=begin pod 
+
+=head3 method pretty_print($self:)
+
+prints an ASCII art representation of the Sudoku to standard output
+
+=end pod
+
 method pretty_print($self:) {
     print $self.pretty()
 }
 
 method is_allowed(Int $elem, Int $x, Int $y){
-    PRE {
-        0 < $elem <= $!length and
-        0 <= $x < $!length and
-        0 <= $y < $!length 
-    }
+#    PRE {
+#        0 < $elem <= $!length and
+#        0 <= $x < $!length and
+#        0 <= $y < $!length 
+#    }
 
     return @!allowed[$x][$y][$elem - 1];
 }
@@ -161,11 +266,22 @@ method solve ($self:){
     return $self.backtrack();
 }
 
-=head2 simple_solve1
+method cross {
+#   @!constraint.push:  slice ^$!length Z ^$!length ;
+#   @!constraint.push:  slice (^$!length).reverse Z ^$!length ;
+    my @r;
+    my @l;
+    for ^$!length {
+        @l.push: [$_, $_];
+        @r.push: [$_, $!length - $_ - 1];
+    }
+    @!constraint.push: \@l, \@r;
+#    for @!constraint -> $c {
+#        say $c.perl;
+#    }
+}
 
-Scans the whole puzzle for cells where only one possiblity is left
-
-=cut
+# Scans the whole puzzle for cells where only one possiblity is left
 
 method simple_solve1($self:) {
     my $success = 0;
@@ -191,11 +307,9 @@ method simple_solve1($self:) {
 
 }
 
-=head2 simple_solve2 
 
-Scans a row, column and block for a position where a number can appear in only one place
+#Scans a row, column and block for a position where a number can appear in only one place
 
-=cut
 
 method simple_solve2($self:) {
 
@@ -225,11 +339,7 @@ method simple_solve2($self:) {
 
 }
 
-=head2 is_solved
-
-returns a true value if the Sudoku is fully solved
-
-=cut
+#returns a true value if the Sudoku is fully solved
 
 method is_solved {
     for (0 .. $!length - 1) -> my $x {
@@ -273,3 +383,5 @@ method backtrack($self:) {
     #obviously there was nothing to do
     return 1;
 }
+
+# vim:syn=perl6:sw=4:ts=4:expandtab
