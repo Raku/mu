@@ -868,7 +868,7 @@ INSTPUGS_LIB = blib6/pugs
 
 build_perl5 ::
 @{[for_perl5("
-	cd __DIR__ && perl Makefile.PL && \$(MAKE)
+	cd __DIR__ && $^X Makefile.PL && \$(MAKE)
 ")]}
 
 clean ::
