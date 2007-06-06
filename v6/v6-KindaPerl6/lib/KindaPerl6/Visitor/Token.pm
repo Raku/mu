@@ -1,5 +1,15 @@
 use v6-alpha;
 
+class KindaPerl6::Visitor::Token {
+
+    # This visitor is a perl6 'token' emitter
+    
+    method visit ( $node ) {
+        $node.emit_token;
+    };
+
+}
+
 # no <after .. > - so it doesn't need to match backwards
 # no backtracking on quantifiers
 # <%hash> must be a hash-of-token
@@ -43,32 +53,32 @@ class Rul::Quantifier {
     has $.ws1;
     has $.ws2;
     has $.ws3;
-    method emit {
+    method emit_token {
         # TODO
-        $.term.emit;
+        $.term.emit_token;
     }
 }
 
 class Rul::Or {
     has @.or;
-    method emit {
+    method emit_token {
         'do { ' ~
             'my $pos1 := $MATCH.to(); do{ ' ~ 
-            (@.or.>>emit).join('} || do { $MATCH.to( $pos1 ); ') ~
+            (@.or.>>emit_token).join('} || do { $MATCH.to( $pos1 ); ') ~
         '} }';
     }
 }
 
 class Rul::Concat {
     has @.concat;
-    method emit {
-        '(' ~ (@.concat.>>emit).join(' && ') ~ ')';
+    method emit_token {
+        '(' ~ (@.concat.>>emit_token).join(' && ') ~ ')';
     }
 }
 
 class Rul::Subrule {
     has $.metasyntax;
-    method emit {
+    method emit_token {
         my $meth := ( 1 + index( $.metasyntax, '.' ) )
             ?? $.metasyntax 
             !! ( '$grammar.' ~ $.metasyntax );
@@ -82,7 +92,7 @@ class Rul::Subrule {
 
 class Rul::SubruleNoCapture {
     has $.metasyntax;
-    method emit {
+    method emit_token {
         my $meth := ( 1 + index( $.metasyntax, '.' ) )
             ?? $.metasyntax 
             !! ( '$grammar.' ~ $.metasyntax );
@@ -97,7 +107,7 @@ class Rul::Var {
     has $.sigil;
     has $.twigil;
     has $.name;
-    method emit {
+    method emit_token {
         # Normalize the sigil here into $
         # $x    => $x
         # @x    => $List_x
@@ -115,14 +125,14 @@ class Rul::Var {
 
 class Rul::Constant {
     has $.constant;
-    method emit {
+    method emit_token {
         my $str := $.constant; 
         Rul::constant( $str );
     }
 }
 
 class Rul::Dot {
-    method emit {
+    method emit_token {
         '( (\'\' ne substr( $str, $MATCH.to, 1 )) ' ~
         '  ?? (1 + $MATCH.to( 1 + $MATCH.to ))' ~
         '  !! (0) ' ~
@@ -132,30 +142,30 @@ class Rul::Dot {
 
 class Rul::SpecialChar {
     has $.char;
-    method emit {
+    method emit_token {
         my $char := $.char;
         #say 'CHAR ',$char;
         if $char eq 'n' {
             my $rul := ::Rul::SubruleNoCapture( 'metasyntax' => 'newline' );
-            $rul := $rul.emit;
+            $rul := $rul.emit_token;
             #say 'NEWLINE ', $rul;
             return $rul;
             # Rul::perl5( '(?:\n\r?|\r\n?)' )
         };
         if $char eq 'N' {
             my $rul := ::Rul::SubruleNoCapture( 'metasyntax' => 'not_newline' );
-            $rul := $rul.emit;
+            $rul := $rul.emit_token;
             return $rul;
             # Rul::perl5( '(?!\n\r?|\r\n?).' )
         };
         if $char eq 'd' {
             my $rul := ::Rul::SubruleNoCapture( 'metasyntax' => 'digit' );
-            $rul := $rul.emit;
+            $rul := $rul.emit_token;
             return $rul;
         };
         if $char eq 's' {
             my $rul := ::Rul::SubruleNoCapture( 'metasyntax' => 'space' );
-            $rul := $rul.emit;
+            $rul := $rul.emit_token;
             return $rul;
         };
         # TODO
@@ -178,7 +188,7 @@ class Rul::SpecialChar {
 
 class Rul::Block {
     has $.closure;
-    method emit {
+    method emit_token {
         #return 'do ' ~ $.closure;
         'do { ' ~ 
              'my $ret := ( sub {' ~
@@ -199,15 +209,15 @@ class Rul::Block {
 # TODO
 class Rul::InterpolateVar {
     has $.var;
-    method emit {
-        say '# TODO: interpolate var ' ~ $.var.emit ~ '';
+    method emit_token {
+        say '# TODO: interpolate var ' ~ $.var.emit_token ~ '';
         die();
     };
 #        my $var = $.var;
 #        # if $var.sigil eq '%'    # bug - Moose? no method 'sigil'
 #        {
 #            my $hash := $var;
-#            $hash := $hash.emit;
+#            $hash := $hash.emit_token;
 #           'do {
 #                state @sizes := do {
 #                    # Here we use .chr to avoid sorting with {$^a<=>$^b} since
@@ -237,20 +247,20 @@ class Rul::InterpolateVar {
 class Rul::NamedCapture {
     has $.rule;
     has $.ident;
-    method emit {
-        say '# TODO: named capture ' ~ $.ident ~ ' := ' ~ $.rule.emit ~ '';
+    method emit_token {
+        say '# TODO: named capture ' ~ $.ident ~ ' := ' ~ $.rule.emit_token ~ '';
         die();
     }
 }
 
 class Rul::Before {
     has $.rule;
-    method emit {
+    method emit_token {
         'do { ' ~
             'my $tmp := $MATCH; ' ~
             '$MATCH := ::KindaPerl6::Perl5::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' ~
             '$MATCH.bool( ' ~
-                $.rule.emit ~
+                $.rule.emit_token ~
             '); ' ~
             '$tmp.bool( ?$MATCH ); ' ~
             '$MATCH := $tmp; ' ~
@@ -261,12 +271,12 @@ class Rul::Before {
 
 class Rul::NotBefore {
     has $.rule;
-    method emit {
+    method emit_token {
         'do { ' ~
             'my $tmp := $MATCH; ' ~
             '$MATCH := ::KindaPerl6::Perl5::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' ~
             '$MATCH.bool( ' ~
-                $.rule.emit ~
+                $.rule.emit_token ~
             '); ' ~
             '$tmp.bool( !$MATCH ); ' ~
             '$MATCH := $tmp; ' ~
@@ -278,7 +288,7 @@ class Rul::NotBefore {
 class Rul::NegateCharClass {
     has $.chars;
     # unused
-    method emit {
+    method emit_token {
         say "TODO NegateCharClass";
         die();
     #    'do { ' ~
@@ -291,7 +301,7 @@ class Rul::NegateCharClass {
 class Rul::CharClass {
     has $.chars;
     # unused
-    method emit {
+    method emit_token {
         say "TODO CharClass";
         die();
     #    'do { ' ~
@@ -304,7 +314,7 @@ class Rul::CharClass {
 class Rul::Capture {
     has $.rule;
     # unused
-    method emit {
+    method emit_token {
         say "TODO RulCapture";
         die();
     }
@@ -314,12 +324,12 @@ class Rul::Capture {
 
 =head1 NAME 
 
-KindaPerl6::Emitter::Token - Code generator for KindaPerl6 Regex
+KindaPerl6::Visitor::Token - Code generator for KindaPerl6 Regex
 
 =head1 SYNOPSIS
 
     my $match := $source.rule;
-    ($$match).emit;    # generated KindaPerl6 source code
+    ($$match).emit_token;    # generated KindaPerl6 source code
 
 =head1 DESCRIPTION
 

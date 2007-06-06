@@ -6,6 +6,17 @@ use v5;
 
 use Data::Dumper;
 
+{
+    package P6opaque;
+
+    my $methods = {};
+    my $dispatch = sub {
+        # $self, $method
+        
+    };
+    $methods->{new} = sub { my $v = { _dispatch => $dispatch, $_[0]{_value} } };
+}
+
 sub get_method_from_metaclass {
         my ($self, $method_name) = (shift, shift);
         #print "looking in $self\n", Dumper($self);

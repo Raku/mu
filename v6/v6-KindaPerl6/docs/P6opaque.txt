@@ -1,0 +1,17 @@
+
+# creates an undefined P6opaque
+
+my $p = P6opaque.new;  
+
+# set some slots
+
+$p.dispatch( 'set', 'value', 123 );
+$p.dispatch( 'set', 'metaclass', ^Int );
+ 
+# $p still is a P6opaque
+
+# replace the method dispatcher
+$p.dispatch( 'set', 'dispatch', &dispatch );
+
+# $p is now an Int
+

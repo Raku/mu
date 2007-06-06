@@ -3,7 +3,7 @@ use v6-alpha;
 class KindaPerl6::Traverse {
 
     sub visit ( $visitor, $node, $node_name ) {
-        #say "visit " ~ $node;
+        # say "visit " ~ $node;
         
         if $node.isa('Array') {
             my $result := [ ];
@@ -609,6 +609,313 @@ class Use {
             }
     };
 }
+
+
+# ------------- REGEX AST ----------
+
+
+class Rul {
+    method emit( $visitor ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'Rul',
+        );
+    };
+    method attribs {
+            { 
+            }
+    };
+}
+
+class Rul::Quantifier {
+    has $.term;
+    has $.quant;
+    has $.greedy;
+    has $.ws1;
+    has $.ws2;
+    has $.ws3;
+    method emit( $visitor ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'Rul::Quantifier',
+        );
+    };
+    method attribs {
+            { 
+                term   => $.term,
+                quant  => $.quant,
+                greedy => $.greedy,
+                ws1    => $.ws1,
+                ws2    => $.ws2,
+                ws3    => $.ws3,
+            }
+    };
+}
+
+class Rul::Or {
+    has @.or;
+    method emit( $visitor ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'Rul::Or',
+        );
+    };
+    method attribs {
+            { 
+                or   => $.or,
+            }
+    };
+}
+
+class Rul::Concat {
+    has @.concat;
+    method emit( $visitor ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'Rul::Concat',
+        );
+    };
+    method attribs {
+            { 
+                concat => $.concat,
+            }
+    };
+}
+
+class Rul::Subrule {
+    has $.metasyntax;
+    method emit( $visitor ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'Rul::Subrule',
+        );
+    };
+    method attribs {
+            { 
+                metasyntax   => $.metasyntax,
+            }
+    };
+}
+
+class Rul::SubruleNoCapture {
+    has $.metasyntax;
+    method emit( $visitor ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'Rul::SubruleNoCapture',
+        );
+    };
+    method attribs {
+            { 
+                metasyntax   => $.metasyntax,
+            }
+    };
+}
+
+class Rul::Var {
+    has $.sigil;
+    has $.twigil;
+    has $.name;
+    method emit( $visitor ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'Rul::Var',
+        );
+    };
+    method attribs {
+            { 
+                sigil   => $.sigil,
+                twigil  => $.twigil,
+                name    => $.name,
+            }
+    };
+}
+
+class Rul::Constant {
+    has $.constant;
+    method emit( $visitor ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'Rul::Constant',
+        );
+    };
+    method attribs {
+            { 
+                constant   => $.constant,
+            }
+    };
+}
+
+class Rul::Dot {
+    method emit( $visitor ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'Rul::Dot',
+        );
+    };
+    method attribs {
+            { 
+            }
+    };
+}
+
+class Rul::SpecialChar {
+    has $.char;
+    method emit( $visitor ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'Rul::SpecialChar',
+        );
+    };
+    method attribs {
+            { 
+                char   => $.char,
+            }
+    };
+}
+
+class Rul::Block {
+    has $.closure;
+    method emit( $visitor ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'Rul::Block',
+        );
+    };
+    method attribs {
+            { 
+                closure   => $.closure,
+            }
+    };
+}
+
+class Rul::InterpolateVar {
+    has $.var;
+    method emit( $visitor ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'Rul::InterpolateVar',
+        );
+    };
+    method attribs {
+            { 
+                var   => $.var,
+            }
+    };
+}
+
+class Rul::NamedCapture {
+    has $.rule;
+    has $.ident;
+    method emit( $visitor ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'Rul::NamedCapture',
+        );
+    };
+    method attribs {
+            { 
+                rule   => $.rule,
+                ident  => $.ident,
+            }
+    };
+}
+
+class Rul::Before {
+    has $.rule;
+    method emit( $visitor ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'Rul::Before',
+        );
+    };
+    method attribs {
+            { 
+                rule   => $.rule,
+            }
+    };
+}
+
+class Rul::NotBefore {
+    has $.rule;
+    method emit( $visitor ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'Rul::NotBefore',
+        );
+    };
+    method attribs {
+            { 
+                rule   => $.rule,
+            }
+    };
+}
+
+class Rul::NegateCharClass {
+    has $.chars;
+    method emit( $visitor ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'Rul::NegateCharClass',
+        );
+    };
+    method attribs {
+            { 
+                chars   => $.chars,
+            }
+    };
+}
+
+class Rul::CharClass {
+    has $.chars;
+    method emit( $visitor ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'Rul::CharClass',
+        );
+    };
+    method attribs {
+            { 
+                chars   => $.chars,
+            }
+    };
+}
+
+class Rul::Capture {
+    has $.rule;
+    method emit( $visitor ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'Rul::Capture',
+        );
+    };
+    method attribs {
+            { 
+                rule   => $.rule,
+            }
+    };
+}
+
+
+
 
 =begin
 

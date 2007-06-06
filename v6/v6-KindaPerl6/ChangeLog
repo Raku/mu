@@ -1,5 +1,13 @@
 ChangeLog for KindaPerl6
 
+2007-06-05
+- started "phase III" - completed milestones 1 and 2
+- started milestone 3
+- refactored Emitter::Token.pm to Visitor::Token.pm 
+- refactored Regex AST nodes
+
+2007-06-05
+"end of Phase II"
 The kp6 Milestones are:
 
 - finish kp6-spec

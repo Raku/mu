@@ -735,16 +735,43 @@ token token {
         <KindaPerl6::Grammar::Regex.rule>
     \}
     {
-        #say 'Token was compiled into: ', ($$<KindaPerl6::Grammar::Regex.rule>).perl;
-        my $source := 'method ' ~ $<opt_name> ~ ' ( $grammar: $str, $pos ) { ' ~
-            'my $MATCH; $MATCH := ::KindaPerl6::Perl5::Match( \'str\' => $str, \'from\' => $pos, \'to\' => $pos, \'bool\' => 1 ); ' ~ 
-            '$MATCH.bool( ' ~
-                ($$<KindaPerl6::Grammar::Regex.rule>).emit ~
-            '); ' ~
-            'return $MATCH }';
+        my $regex_ast := $$<KindaPerl6::Grammar::Regex.rule>;
+        # say 'Token was compiled into: ', $regex_ast.perl;
+
+        # Process the Regex-AST 
+
+            # Debug
+            # my $visitor_perl := KindaPerl6::Visitor::Perl.new();
+            # #say 'Processed ast: ', KindaPerl6::Traverse::visit( $visitor_perl, $regex_ast, '' );
+            # say 'Processed ast: ', $regex_ast.emit( $visitor_perl );
+        
+            my $visitor_token := KindaPerl6::Visitor::Token.new();
+            
+            # TODO - do some further processing ...
+            
+            my $perl6_source := $regex_ast.emit( $visitor_token );
+            
+        # Emitted Perl 6 "method" code
+
+        my $source := 'method ' ~ $<opt_name> ~ ' ( $grammar: $str, $pos ) { ' 
+            ~ 'my $MATCH; $MATCH := ::KindaPerl6::Perl5::Match( \'str\' => $str, \'from\' => $pos, \'to\' => $pos, \'bool\' => 1 ); ' 
+            ~ '$MATCH.bool( ' ~ $perl6_source ~ '); ' 
+            ~ 'return $MATCH }';
         #say 'Intermediate code: ', $source;
+
+        # Compile the new Perl 6 code
+
         my $ast := KindaPerl6::Grammar.term( $source );
         # say 'Intermediate ast: ', $$ast.emit;
+        
+        # The AST processor could be called here,
+        #   but it will be called later anyway
+        
+        #    my $visitor_dump_ast := KindaPerl6::Visitor::Perl.new();
+        #    say 'Intermediate ast: ', ($$ast).emit( $visitor_dump_ast );
+
+        # Return Perl 6 AST
+
         return $$ast;
     }
 };

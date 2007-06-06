@@ -57,6 +57,11 @@ Incomplete features:
     - is context, rw, readonly
 - containers, but no laziness, no slices
     - hash and array are under refactoring
+    - P6opaque
+    - GLOBAL importation should be lexical
+    - method not found falls back to sub call
+    - lvalue methods (rw)
+    - call context
 - type system
 - optimization phase
 - for-loop, map, with several arguments

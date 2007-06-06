@@ -22,9 +22,9 @@ use KindaPerl6::Visitor::EmitPerl5;
 use KindaPerl6::Visitor::EmitPerl6;
 use KindaPerl6::Visitor::MetaClass;
 #use KindaPerl6::Visitor::CreateEnv;
+use KindaPerl6::Visitor::Token;
 
 use KindaPerl6::Grammar::Regex;
-use KindaPerl6::Emitter::Token;
 
 use Getopt::Long;
 my ($dumpast, $perl5);
