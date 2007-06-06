@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-use QDRDBMS::AST <newBoolLit newTextLit newBlobLit newIntLit>;
+use Muldis::DB::AST <newBoolLit newTextLit newBlobLit newIntLit>;
 
 main();
 
@@ -12,14 +12,14 @@ sub main {
 
     plan( 45 ); # 17 less than Perl 5 version, which has 62
 
-    say "#### Starting test of QDRDBMS::AST Literals ####";
+    say "#### Starting test of Muldis::DB::AST Literals ####";
 
     test_BoolLit();
     test_TextLit();
     test_BlobLit();
     test_IntLit();
 
-    say "#### Finished test of QDRDBMS::AST Literals ####";
+    say "#### Finished test of Muldis::DB::AST Literals ####";
 
     return;
 }
@@ -39,14 +39,14 @@ sub test_BoolLit {
     $in = Bool::False;
     $node = newBoolLit( :v($in) );
     pass( q{BoolLit accepts valid payload Bool:False} );
-    isa_ok( $node, 'QDRDBMS::AST::BoolLit' );
+    isa_ok( $node, 'Muldis::DB::AST::BoolLit' );
     $out = $node.v();
     is( $out, $in, q{BoolLit preserves valid payload} );
 
     $in = Bool::True;
     $node = newBoolLit( :v($in) );
     pass( q{BoolLit accepts valid payload Bool:True} );
-    isa_ok( $node, 'QDRDBMS::AST::BoolLit' );
+    isa_ok( $node, 'Muldis::DB::AST::BoolLit' );
     $out = $node.v();
     is( $out, $in, q{BoolLit preserves valid payload} );
 
@@ -80,21 +80,21 @@ sub test_TextLit {
     $in = '';
     $node = newTextLit( :v($in) );
     pass( q{TextLit accepts valid payload ''} );
-    isa_ok( $node, 'QDRDBMS::AST::TextLit' );
+    isa_ok( $node, 'Muldis::DB::AST::TextLit' );
     $out = $node.v();
     is( $out, $in, q{TextLit preserves valid payload} );
 
     $in = 'Ceres';
     $node = newTextLit( :v($in) );
     pass( q{TextLit accepts valid payload ASCII 'Ceres'} );
-    isa_ok( $node, 'QDRDBMS::AST::TextLit' );
+    isa_ok( $node, 'Muldis::DB::AST::TextLit' );
     $out = $node.v();
     is( $out, $in, q{TextLit preserves valid payload} );
 
     $in = 'サンプル';
     $node = newTextLit( :v($in) );
     pass( q{TextLit accepts valid payload Unicode 'サンプル'} );
-    isa_ok( $node, 'QDRDBMS::AST::TextLit' );
+    isa_ok( $node, 'Muldis::DB::AST::TextLit' );
     $out = $node.v();
     is( $out, $in, q{TextLit preserves valid payload} );
 
@@ -130,14 +130,14 @@ sub test_BlobLit {
     $in = '';
     $node = newBlobLit( :v($in) );
     pass( q{BlobLit accepts valid payload ''} );
-    isa_ok( $node, 'QDRDBMS::AST::BlobLit' );
+    isa_ok( $node, 'Muldis::DB::AST::BlobLit' );
     $out = $node.v();
     is( $out, $in, q{BlobLit preserves valid payload} );
 
     $in = 'Ceres';
     $node = newBlobLit( :v($in) );
     pass( q{BlobLit accepts valid payload ASCII 'Ceres'} );
-    isa_ok( $node, 'QDRDBMS::AST::BlobLit' );
+    isa_ok( $node, 'Muldis::DB::AST::BlobLit' );
     $out = $node.v();
     is( $out, $in, q{BlobLit preserves valid payload} );
 
@@ -150,7 +150,7 @@ sub test_BlobLit {
     $in = pack 'H2', '\xCC';
     $node = newBlobLit( :v($in) );
     pass( q{BlobLit accepts valid payload pack 'H2', '\xCC'} );
-    isa_ok( $node, 'QDRDBMS::AST::BlobLit' );
+    isa_ok( $node, 'Muldis::DB::AST::BlobLit' );
     $out = $node.v();
     is( $out, $in, q{BlobLit preserves valid payload} );
 
@@ -180,7 +180,7 @@ sub test_IntLit {
     $in = 0;
     $node = newIntLit( :v($in) );
     pass( q{IntLit accepts valid payload 0} );
-    isa_ok( $node, 'QDRDBMS::AST::IntLit' );
+    isa_ok( $node, 'Muldis::DB::AST::IntLit' );
     $out = $node.v();
     is( $out, $in, q{IntLit preserves valid payload} );
 
@@ -193,7 +193,7 @@ sub test_IntLit {
     $in = 42;
     $node = newIntLit( :v($in) );
     pass( q{IntLit accepts valid payload 42} );
-    isa_ok( $node, 'QDRDBMS::AST::IntLit' );
+    isa_ok( $node, 'Muldis::DB::AST::IntLit' );
     $out = $node.v();
     is( $out, $in, q{IntLit preserves valid payload} );
 
@@ -206,7 +206,7 @@ sub test_IntLit {
     $in = -42;
     $node = newIntLit( :v($in) );
     pass( q{IntLit accepts valid payload -42} );
-    isa_ok( $node, 'QDRDBMS::AST::IntLit' );
+    isa_ok( $node, 'Muldis::DB::AST::IntLit' );
     $out = $node.v();
     is( $out, $in, q{IntLit preserves valid payload} );
 

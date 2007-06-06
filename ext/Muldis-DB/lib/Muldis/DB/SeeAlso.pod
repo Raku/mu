@@ -4,15 +4,15 @@
 
 =head1 NAME
 
-QDRDBMS::SeeAlso -
+Muldis::DB::SeeAlso -
 External resources that you really ought to look at
 
 =head1 DESCRIPTION
 
-This document is a central location within the L<QDRDBMS> distribution
+This document is a central location within the L<Muldis::DB> distribution
 where any important recommendations of or links to external resources go.
-This includes both resources that were helpful in making QDRDBMS, as well
-as resources that are or could be related to QDRDBMS.
+This includes both resources that were helpful in making Muldis::DB, as
+well as resources that are or could be related to Muldis::DB.
 
 =head1 INFORMATION SOURCES
 
@@ -41,10 +41,11 @@ simple, restricted and precise definition of the role of object orientation
 in database management systems emphasizing the few valid ideas from object
 modeling that are orthogonal to relational modeling.
 
-QDRDBMS has officially incorporated this blueprint into its own design, and
-implements its principles without compromise, and so its API is a concrete
-language that qualifies as a D.  The TTM web site contains various useful
-documents and links on the subject, some being specified further below.
+Muldis::DB has officially incorporated this blueprint into its own design,
+and implements its principles without compromise, and so its API is a
+concrete language that qualifies as a D.  The TTM web site contains various
+useful documents and links on the subject, some being specified further
+below.
 
 =item B<Databases, Types, and The Relational Model: The Third Manifesto>
 
@@ -78,13 +79,13 @@ Christopher J. Date - "Database in Depth: Relational Theory for
 Practitioners, 1st edition, Oreilly, 2005 (ISBN: 0-596-10012-4)"; see
 L<http://www.oreilly.com/catalog/databaseid/>.
 
-This is the first printed book that QDRDBMS' author had read fully, which
-is related to The Third Manifesto, and it was their main introduction.  It
-explains in an easy to follow matter just what the relational data model
-really is, a solid and provable logical system, and partially contrasts
-with SQL's distorted view of it.  While being easy to follow, the book is
-written towards people that are already database professionals, and doesn't
-go into the basics that we should already know.
+This is the first printed book that Muldis::DB' author had read fully,
+which is related to The Third Manifesto, and it was their main
+introduction.  It explains in an easy to follow matter just what the
+relational data model really is, a solid and provable logical system, and
+partially contrasts with SQL's distorted view of it.  While being easy to
+follow, the book is written towards people that are already database
+professionals, and doesn't go into the basics that we should already know.
 
 =item L<http://www.acm.org/classics/nov95/toc.html>
 
@@ -125,7 +126,7 @@ such as MySQL and SQLite were regularly consulted, and various other sites.
 
 =head1 SOME FULLY TTM/D RELATED DBMS PROJECTS
 
-Besides the QDRDBMS framework, other projects exist which attempt to
+Besides the Muldis::DB framework, other projects exist which attempt to
 implement The Third Manifesto fully and without compromise (that lack
 anti-TTM features), though their current implementations may be incomplete
 and/or in development.  None of these use 'SQL' as their native language.
@@ -133,8 +134,9 @@ and/or in development.  None of these use 'SQL' as their native language.
 =head2 Free and Open Source Software
 
 These software projects are released under a free and open source license,
-as QDRDBMS is, so you have the freedom to use the software for any purpose,
-to examine the project source code, change it, and redistribute it:
+as Muldis::DB is, so you have the freedom to use the software for any
+purpose, to examine the project source code, change it, and redistribute
+it:
 
 =over
 
@@ -234,7 +236,7 @@ construction.  It is written in a hybrid of C and Perl 5, and runs on any
 operating system.  It is licensed under the GNU GPL.
 
 I<Note: Genezzo sans its SQL interface is currently a front-line candidate
-for implementing a production / industrial strength QDRDBMS Engine.>
+for implementing a production / industrial strength Muldis::DB Engine.>
 
 =back
 
@@ -351,46 +353,50 @@ relative few are listed here.
 
 =back
 
-=head1 LIST OF PUBLIC QDRDBMS ENGINES
+=head1 LIST OF PUBLIC Muldis::DB ENGINES
 
 I<This documentation is pending.>
 
-L<QDRDBMS::Engine::Example>.
+L<Muldis::DB::Engine::Example>.
 
-=head1 PROSPECTIVE QDRDBMS EXTENSIONS
+=head1 PROSPECTIVE Muldis::DB EXTENSIONS
 
 These are some theoretical examples of other Perl modules or documentation
-that could be created to work with QDRDBMS, but if so would most likely be
-distributed independently from it.  The given package names are examples,
-and the examples in question could have other names if appropriate.
+that could be created to work with Muldis::DB, but if so would most likely
+be distributed independently from it.  The given package names are
+examples, and the examples in question could have other names if
+appropriate.
 
 =over
 
-=item C<QDRDBMS::Cookbook(|::\w+)>
+=item C<Muldis::DB::Cookbook(|::\w+)>
 
 Pod files with a potentially large collection of examples, tutorials, FAQs,
-and so on that help people learn how to employ QDRDBMS for the things they
-need to do.  In particular, there should be a lot of help given for people
-migrating from other systems that use different paradigms than QDRDBMS
-does, for example SQL-using systems.
+and so on that help people learn how to employ Muldis::DB for the things
+they need to do.  In particular, there should be a lot of help given for
+people migrating from other systems that use different paradigms than
+Muldis::DB does, for example SQL-using systems.
 
 The Cookbook distro may also be the main repository of executing code that
-would otherwise go in the /examples directory of the QDRDBMS core distro.
+would otherwise go in the /examples directory of the Muldis::DB core
+distro.
 
-=item C<Genezzo> or C<Genezzo::QDRDBMS> or C<QDRDBMS::Engine::Genezzo> etc
+=item C<Genezzo> or C<Genezzo::Muldis::DB> or
+C<Muldis::DB::Engine::Genezzo> etc
 
-A QDRDBMS Engine built around Jeffrey Cohen's Genezzo DBMS, or specifically
-the class that does C<QDRDBMS::Engine::Role>, could conceivably have either
-of the above file or package names, depending on what its author prefers,
-or something else yet.  A strong name influence could be whether QDRDBMS
-forms the sole public interface for Genezzo after its conversion to use it,
-or whether Genezzo would retain alternate public APIs that work without
-QDRDBMS being present on the system.  If QDRDBMS is Genezzo's sole or
-primary interface, then simply C<Genezzo> is probably best for branding.
+A Muldis::DB Engine built around Jeffrey Cohen's Genezzo DBMS, or
+specifically the class that does C<Muldis::DB::Engine::Role>, could
+conceivably have either of the above file or package names, depending on
+what its author prefers, or something else yet.  A strong name influence
+could be whether Muldis::DB forms the sole public interface for Genezzo
+after its conversion to use it, or whether Genezzo would retain alternate
+public APIs that work without Muldis::DB being present on the system.  If
+Muldis::DB is Genezzo's sole or primary interface, then simply C<Genezzo>
+is probably best for branding.
 
-=item C<QDRDBMS::AST::Refactor(|::\w+)>
+=item C<Muldis::DB::AST::Refactor(|::\w+)>
 
-Utility modules that take QDRDBMS AST node objects as input and derive
+Utility modules that take Muldis::DB AST node objects as input and derive
 other nodes as output, such as with the purpose of refactoring them into
 canonical representations (such that users can then perform node value
 equality tests for potentially any type of node), or forms that are more
@@ -405,124 +411,126 @@ knows the specific needs of that Engine's implementation environment.
 Other words that could go in such module names are like C<Optimize> or
 C<Canon>, or whatever authors prefer.
 
-=item C<QDRDBMS::AST::YAML> and C<QDRDBMS::AST::XML> etc
+=item C<Muldis::DB::AST::YAML> and C<Muldis::DB::AST::XML> etc
 
-Utility modules that serialize QDRDBMS AST nodes to, or unserialize them
+Utility modules that serialize Muldis::DB AST nodes to, or unserialize them
 from, logically equivalent YAML, XML, or other generic data interchange
-formats.  This implementation should be native to the QDRDBMS D language
+formats.  This implementation should be native to the Muldis D language
 itself and not output any Perl-specific details that aren't in non-Perl
 languages, so that it is suitable for interchange, at the very least
 between Perl 5 and Perl 6.
 
-=item C<QDRDBMS::AST::StringRepr>
+=item C<Muldis::DB::AST::StringRepr>
 
-Utility module that parses the string representation format of QDRDBMS D
+Utility module that parses the string representation format of Muldis D
 into its AST representation format, and also that generates the former from
 the latter.  The 2 formats should basically have a 1:1 correspondence.
 
-=item C<QDRDBMS::Shell>
+=item C<Muldis::DB::Shell>
 
-Implementation of a command-line user application over the QDRDBMS API that
-takes string-form QDRDBMS D as input, compiles it and runs it, and nicely
-formats output for user display.  This is analogous to L<DBI::Shell>.
+Implementation of a command-line user application over the Muldis::DB API
+that takes string-form Muldis D as input, compiles it and runs it, and
+nicely formats output for user display.  This is analogous to
+L<DBI::Shell>.
 
-=item C<DBD::QDRDBMS>
+=item C<DBD::Muldis::DB>
 
-A wrapper over the QDRDBMS API that makes it work as a L<DBI> driver
+A wrapper over the Muldis::DB API that makes it work as a L<DBI> driver
 module, should that be useful.  Depending on what DBI itself permits or
 requires, this could take a variety of query definition formats, including
-either or both of AST form or string form (most likely) QDRDBMS D.
+either or both of AST form or string form (most likely) Muldis D.
 
-=item C<QDRDBMS::AST::Translate::TutorialD> etc
+=item C<Muldis::DB::AST::Translate::TutorialD> etc
 
-Utility module that parses the Tutorial D language into QDRDBMS AST nodes,
-and also that generates the former from the latter.  Mainly this is just
-by-the-book using the grammar published by Darwen and Date, but it could
-also handle compatible extensions by other D language implementations.  In
-addition, separate utility modules can be made which translate to and from
-other D languages that don't look like Tutorial D.
+Utility module that parses the Tutorial D language into Muldis::DB AST
+nodes, and also that generates the former from the latter.  Mainly this is
+just by-the-book using the grammar published by Darwen and Date, but it
+could also handle compatible extensions by other D language
+implementations.  In addition, separate utility modules can be made which
+translate to and from other D languages that don't look like Tutorial D.
 
-=item C<QDRDBMS::AST::Translate::SQL::Native>
+=item C<Muldis::DB::AST::Translate::SQL::Native>
 
-Utility module that parses a QDRDBMS-native variant of SQL into QDRDBMS AST
-nodes, and also that generates the former from the latter.  This SQL
-variant is essentially a cleaned up subset of the SQL:2003 standard, with
-some misfeatures removed, some missing features added, and some alterations
-common in other SQL DBMSs substituted or added.  Or alternately, it is like
-a subset of QDRDBMS D made to look as much like SQL as possible.  This
-QDRDBMS-native SQL variant always has distinct column names in rowsets,
-requires matching column names for inputs to union/intersect/etc, never
-stores or results in duplicate rows, always uses 2-valued logic (not
-(>=3)-valued logic), and has case-sensitive table/column/etc names and
-character strings.  An application written to use this SQL dialect rather
-than some other dialect should behave more deterministically, and perform
-faster, than ones written to some other SQL dialect, since there is less
-indirection involved between what users query and what actually happens to
-implement it.
+Utility module that parses a Muldis::DB-native variant of SQL into
+Muldis::DB AST nodes, and also that generates the former from the latter.
+This SQL variant is essentially a cleaned up subset of the SQL:2003
+standard, with some misfeatures removed, some missing features added, and
+some alterations common in other SQL DBMSs substituted or added.  Or
+alternately, it is like a subset of Muldis D made to look as much like SQL
+as possible.  This Muldis::DB-native SQL variant always has distinct column
+names in rowsets, requires matching column names for inputs to
+union/intersect/etc, never stores or results in duplicate rows, always uses
+2-valued logic (not (>=3)-valued logic), and has case-sensitive
+table/column/etc names and character strings.  An application written to
+use this SQL dialect rather than some other dialect should behave more
+deterministically, and perform faster, than ones written to some other SQL
+dialect, since there is less indirection involved between what users query
+and what actually happens to implement it.
 
-=item C<QDRDBMS::AST::Translate::SQL::\w+>
+=item C<Muldis::DB::AST::Translate::SQL::\w+>
 
 Utility modules that parse other variants of SQL (or subsets thereof) into
-QDRDBMS AST nodes, and also that generate the former from the latter.
+Muldis::DB AST nodes, and also that generate the former from the latter.
 Examples of these variants are the actual SQL:2003 standard, and the native
 dialects of each actual SQL DBMS.
 
-=item C<QDRDBMS::AST::Translate::\w+>
+=item C<Muldis::DB::AST::Translate::\w+>
 
 Utility modules that translate data (including code and declaratives)
-between representations that are QDRDBMS AST nodes and representations that
-aren't, or between 2 of the latter kind while using the former kind as an
-intermediate representation.  Besides the aforementioned possibilities that
-deal with I<D> languages or SQL, we can have utilities that translate
+between representations that are Muldis::DB AST nodes and representations
+that aren't, or between 2 of the latter kind while using the former kind as
+an intermediate representation.  Besides the aforementioned possibilities
+that deal with I<D> languages or SQL, we can have utilities that translate
 to/from native Perl data structures, including native Perl routine
 definitions (L<PPI> would probably be employed in the Perl 5 version), and
 including commonly used third party class' objects.
 
-=item C<QDRDBMS::Proxy::(Server|Client|\w+)>
+=item C<Muldis::DB::Proxy::(Server|Client|\w+)>
 
-Implementation(s) of a generic proxy server plus client for the QDRDBMS
-API, letting the normal QDRDBMS Engine and the user application reside in
-separate processes.  The client module would do C<QDRDBMS::Engine::Role>
-and the server would be an application or server-extending plugin that sits
-on top of the QDRDBMS API.  Or whatever implementers want to do.  This is
-analogous to proxying modules for DBI or other DBMSs.
+Implementation(s) of a generic proxy server plus client for the Muldis::DB
+API, letting the normal Muldis::DB Engine and the user application reside
+in separate processes.  The client module would do
+C<Muldis::DB::Engine::Role> and the server would be an application or
+server-extending plugin that sits on top of the Muldis::DB API.  Or
+whatever implementers want to do.  This is analogous to proxying modules
+for DBI or other DBMSs.
 
-=item C<QDRDBMS::Engine::(SQLite|Postgres|Oracle|\w+)>
+=item C<Muldis::DB::Engine::(SQLite|Postgres|Oracle|\w+)>
 
-A default (but not mandatory) namespace for QDRDBMS Engines to go, that do
-C<QDRDBMS::Engine::Role(|::\w+)>.  A lot of these would likely be
-implemented over existing DBMSs, which results in QDRDBMS being an
+A default (but not mandatory) namespace for Muldis::DB Engines to go, that
+do C<Muldis::DB::Engine::Role(|::\w+)>.  A lot of these would likely be
+implemented over existing DBMSs, which results in Muldis::DB being an
 alternative API for them.
 
-=item C<DBIx::Class::Storage::QDRDBMS> etc
+=item C<DBIx::Class::Storage::Muldis::DB> etc
 
-An alternative plug-in storage engine for DBIx::Class that uses QDRDBMS
+An alternative plug-in storage engine for DBIx::Class that uses Muldis::DB
 rather than DBI.  Analogous extensions can be added to other DBI wrappers
 modules such as Tangram or Rose::DB or what have you.  In either case, said
 alternatives can either be bundled with the core distros of those other
 modules, or separately from them, as per their authors' preferences.
 
-=item C<QDRDBMS::Emulator::(DBI|JDBC|OCI|\w+)>
+=item C<Muldis::DB::Emulator::(DBI|JDBC|OCI|\w+)>
 
-Emulations of other modules or APIs as wrappers over QDRDBMS.  This is
+Emulations of other modules or APIs as wrappers over Muldis::DB.  This is
 potentially the easiest way, short of the other modules themselves being
-appropriately updated, to permit migration for legacy apps to QDRDBMS while
-they have the fewest actual code changes.  The emulators would likely
+appropriately updated, to permit migration for legacy apps to Muldis::DB
+while they have the fewest actual code changes.  The emulators would likely
 employ SQL translator utilities internally.
 
-=item C<QDRDBMSx::\w+>
+=item C<Muldis::DBx::\w+>
 
-Unofficial extensions to QDRDBMS could be named in this space, though it
+Unofficial extensions to Muldis::DB could be named in this space, though it
 doesn't have to be used if prior coordination happens between developers.
 
 =back
 
-=head1 PUBLIC SOLUTIONS BUILT OVER QDRDBMS
+=head1 PUBLIC SOLUTIONS BUILT OVER Muldis::DB
 
 I<This documentation is pending.>
 
 These Perl 5 applications and frameworks are, perhaps, at the front of the
-line to get QDRDBMS bindings: L<Jifty>, L<Catalyst>, L<Maypole>,
+line to get Muldis::DB bindings: L<Jifty>, L<Catalyst>, L<Maypole>,
 L<Bricolage>, L<RT>.  Generally speaking, the more active the development
 or the more popular the project, the higher the priority to support it.
 
@@ -558,14 +566,14 @@ Darren Duncan (C<perl@DarrenDuncan.net>)
 
 =head1 LICENSE AND COPYRIGHT
 
-This file is part of the QDRDBMS framework.
+This file is part of the Muldis::DB framework.
 
-QDRDBMS is Copyright © 2002-2007, Darren Duncan.
+Muldis::DB is Copyright © 2002-2007, Darren Duncan.
 
-See the LICENSE AND COPYRIGHT of L<QDRDBMS> for details.
+See the LICENSE AND COPYRIGHT of L<Muldis::DB> for details.
 
 =head1 ACKNOWLEDGEMENTS
 
-The ACKNOWLEDGEMENTS in L<QDRDBMS> apply to this file too.
+The ACKNOWLEDGEMENTS in L<Muldis::DB> apply to this file too.
 
 =cut

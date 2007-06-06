@@ -1,15 +1,15 @@
 use v6-alpha;
 
-use QDRDBMS;
+use Muldis::DB;
 
 ###########################################################################
 ###########################################################################
 
-module QDRDBMS::Validator-0.0.0 {
+module Muldis::DB::Validator-0.0.0 {
 
     use Test;
 
-    use QDRDBMS::AST <newBoolLit newTextLit newBlobLit newIntLit
+    use Muldis::DB::AST <newBoolLit newTextLit newBlobLit newIntLit
         newTupleSel newQuasiTupleSel newRelationSel newQuasiRelationSel
         newVarInvo newFuncInvo newProcInvo newFuncReturn newProcReturn
         newEntityName newTypeInvoNQ newTypeInvoAQ newTypeDictNQ
@@ -21,25 +21,26 @@ sub main (Str :$engine_name!, Any :$dbms_config!) {
 
     plan( 13 );
 
-    say "#### QDRDBMS::Validator starting test of $engine_name ####";
+    say "#### Muldis::DB::Validator starting test of $engine_name ####";
 
-    # Instantiate a QDRDBMS DBMS / virtual machine.
-    my QDRDBMS::Interface::DBMS $dbms = QDRDBMS::new_dbms(
+    # Instantiate a Muldis::DB DBMS / virtual machine.
+    my Muldis::DB::Interface::DBMS $dbms = Muldis::DB::new_dbms(
         :engine_name($engine_name), :dbms_config($dbms_config) );
-    isa_ok( $dbms, 'QDRDBMS::Interface::DBMS' );
+    isa_ok( $dbms, 'Muldis::DB::Interface::DBMS' );
 
     _scenario_foods_suppliers_shipments( $dbms );
 
-    say "#### QDRDBMS::Validator finished test of $engine_name ####";
+    say "#### Muldis::DB::Validator finished test of $engine_name ####";
 
     return;
 }
 
 ###########################################################################
 
-sub _scenario_foods_suppliers_shipments (QDRDBMS::Interface::DBMS $dbms!) {
+sub _scenario_foods_suppliers_shipments
+        (Muldis::DB::Interface::DBMS $dbms!) {
 
-    # Declare our example executable code as QDRDBMS ASTs.
+    # Declare our example executable code as Muldis::DB ASTs.
 
     my $tynm_Text     = newEntityName( :text('sys.type.Text') );
     my $tynm_Int      = newEntityName( :text('sys.type.Int') );
@@ -169,20 +170,20 @@ sub _scenario_foods_suppliers_shipments (QDRDBMS::Interface::DBMS $dbms!) {
     my $prep_rtn_suppl_of_foods_of_clr = $dbms.prepare(
         :rtn_ast($query_suppl_of_foods_of_clr) );
     isa_ok( $prep_rtn_suppl_of_foods_of_clr,
-        'QDRDBMS::Interface::HostGateRtn' );
+        'Muldis::DB::Interface::HostGateRtn' );
 
     my $src_suppliers = $dbms.new_var( :decl_type($rel_type_suppliers) );
-    isa_ok( $src_suppliers, 'QDRDBMS::Interface::HostGateVar' );
+    isa_ok( $src_suppliers, 'Muldis::DB::Interface::HostGateVar' );
     my $src_foods = $dbms.new_var( :decl_type($rel_type_foods) );
-    isa_ok( $src_foods, 'QDRDBMS::Interface::HostGateVar' );
+    isa_ok( $src_foods, 'Muldis::DB::Interface::HostGateVar' );
     my $src_shipments = $dbms.new_var( :decl_type($rel_type_shipments) );
-    isa_ok( $src_shipments, 'QDRDBMS::Interface::HostGateVar' );
+    isa_ok( $src_shipments, 'Muldis::DB::Interface::HostGateVar' );
 
     my $desi_colour = $dbms.new_var( :decl_type($sca_type_Text) );
-    isa_ok( $desi_colour, 'QDRDBMS::Interface::HostGateVar' );
+    isa_ok( $desi_colour, 'Muldis::DB::Interface::HostGateVar' );
 
     my $matched_suppl = $dbms.new_var( :decl_type($rel_type_suppliers) );
-    isa_ok( $matched_suppl, 'QDRDBMS::Interface::HostGateVar' );
+    isa_ok( $matched_suppl, 'Muldis::DB::Interface::HostGateVar' );
 
     $prep_rtn_suppl_of_foods_of_clr.bind_host_params(
         :upd_args([
@@ -196,7 +197,7 @@ sub _scenario_foods_suppliers_shipments (QDRDBMS::Interface::DBMS $dbms!) {
         ]),
     );
 
-    # Declare our example literal source data sets as QDRDBMS ASTs.
+    # Declare our example literal source data sets as Muldis::DB ASTs.
 
     my $rel_def_suppliers = newRelationSel(
         :heading($heading_suppliers),
@@ -319,7 +320,7 @@ sub _scenario_foods_suppliers_shipments (QDRDBMS::Interface::DBMS $dbms!) {
 
 ###########################################################################
 
-} # module QDRDBMS::Validator
+} # module Muldis::DB::Validator
 
 ###########################################################################
 ###########################################################################
@@ -330,32 +331,32 @@ sub _scenario_foods_suppliers_shipments (QDRDBMS::Interface::DBMS $dbms!) {
 
 =head1 NAME
 
-QDRDBMS::Validator -
+Muldis::DB::Validator -
 A common comprehensive test suite to run against all Engines
 
 =head1 VERSION
 
-This document describes QDRDBMS::Validator version 0.0.0 for Perl 6.
+This document describes Muldis::DB::Validator version 0.0.0 for Perl 6.
 
 =head1 SYNOPSIS
 
 This can be the complete content of the main C<t/*.t> file for an example
-QDRDBMS Engine distribution:
+Muldis::DB Engine distribution:
 
     use v6-alpha;
 
     # Load the test suite.
-    use QDRDBMS::Validator;
+    use Muldis::DB::Validator;
 
     # Run the test suite.
-    QDRDBMS::Validator::main(
-            :engine_name('QDRDBMS::Engine::Example'),
+    Muldis::DB::Validator::main(
+            :engine_name('Muldis::DB::Engine::Example'),
             :dbms_config({}),
         );
 
     1;
 
-The current release of QDRDBMS::Validator uses L<Test> internally, and
+The current release of Muldis::DB::Validator uses L<Test> internally, and
 C<main()> will invoke it to output what the standard Perl test harness
 expects.  I<It is expected that this will change in the future so that
 Validator does not use Test internally, and rather will simply return test
@@ -364,29 +365,30 @@ pass the components to Test itself.>
 
 =head1 DESCRIPTION
 
-The QDRDBMS::Validator Perl 6 module is a common comprehensive test suite
-to run against all QDRDBMS Engines.  You run it against a QDRDBMS Engine
-module to ensure that the Engine and/or the database behind it implements
-the parts of the QDRDBMS API that your application needs, and that the API
-is implemented correctly.  QDRDBMS::Validator is intended to guarantee a
-measure of quality assurance (QA) for QDRDBMS, so your application can use
-the database access framework with confidence of safety.
+The Muldis::DB::Validator Perl 6 module is a common comprehensive test
+suite to run against all Muldis::DB Engines.  You run it against a
+Muldis::DB Engine module to ensure that the Engine and/or the database
+behind it implements the parts of the Muldis::DB API that your application
+needs, and that the API is implemented correctly.  Muldis::DB::Validator is
+intended to guarantee a measure of quality assurance (QA) for Muldis::DB,
+so your application can use the database access framework with confidence
+of safety.
 
-Alternately, if you are writing a QDRDBMS Engine module yourself,
-QDRDBMS::Validator saves you the work of having to write your own test
+Alternately, if you are writing a Muldis::DB Engine module yourself,
+Muldis::DB::Validator saves you the work of having to write your own test
 suite for it.  You can also be assured that if your module passes
-QDRDBMS::Validator's approval, then your module can be easily swapped in
+Muldis::DB::Validator's approval, then your module can be easily swapped in
 for other Engine modules by your users, and that any changes you make
 between releases haven't broken something important.
 
-QDRDBMS::Validator would be used similarly to how Sun has an official
+Muldis::DB::Validator would be used similarly to how Sun has an official
 validation suite for Java Virtual Machines to make sure they implement the
 official Java specification.
 
 For reference and context, please see the FEATURE SUPPORT VALIDATION
-documentation section in the core L<QDRDBMS> module.
+documentation section in the core L<Muldis::DB> module.
 
-Note that, as is the nature of test suites, QDRDBMS::Validator will be
+Note that, as is the nature of test suites, Muldis::DB::Validator will be
 getting regular updates and additions, so that it anticipates all of the
 different ways that people want to use their databases.  This task is
 unlikely to ever be finished, given the seemingly infinite size of the
@@ -413,7 +415,7 @@ I<This documentation is pending.>
 This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
 It also requires these Perl 6 classes that are in the current distribution:
-L<QDRDBMS::AST-(0.0.0)|QDRDBMS::AST>, L<QDRDBMS-0.0.0|QDRDBMS>.
+L<Muldis::DB::AST-(0.0.0)|Muldis::DB::AST>, L<Muldis::DB-0.0.0|Muldis::DB>.
 
 =head1 INCOMPATIBILITIES
 
@@ -421,8 +423,9 @@ None reported.
 
 =head1 SEE ALSO
 
-Go to L<QDRDBMS> for the majority of distribution-internal references, and
-L<QDRDBMS::SeeAlso> for the majority of distribution-external references.
+Go to L<Muldis::DB> for the majority of distribution-internal references,
+and L<Muldis::DB::SeeAlso> for the majority of distribution-external
+references.
 
 =head1 BUGS AND LIMITATIONS
 
@@ -434,14 +437,14 @@ Darren Duncan (C<perl@DarrenDuncan.net>)
 
 =head1 LICENSE AND COPYRIGHT
 
-This file is part of the QDRDBMS framework.
+This file is part of the Muldis::DB framework.
 
-QDRDBMS is Copyright © 2002-2007, Darren Duncan.
+Muldis::DB is Copyright © 2002-2007, Darren Duncan.
 
-See the LICENSE AND COPYRIGHT of L<QDRDBMS> for details.
+See the LICENSE AND COPYRIGHT of L<Muldis::DB> for details.
 
 =head1 ACKNOWLEDGEMENTS
 
-The ACKNOWLEDGEMENTS in L<QDRDBMS> apply to this file too.
+The ACKNOWLEDGEMENTS in L<Muldis::DB> apply to this file too.
 
 =cut

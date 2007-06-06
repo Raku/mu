@@ -1,8 +1,8 @@
 use v6-alpha;
 
-use QDRDBMS::Validator;
+use Muldis::DB::Validator;
 
-QDRDBMS::Validator::main(
-        :engine_name('QDRDBMS::Engine::Example'),
+Muldis::DB::Validator::main(
+        :engine_name('Muldis::DB::Engine::Example'),
         :dbms_config({}),
     );

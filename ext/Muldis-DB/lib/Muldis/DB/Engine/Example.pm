@@ -1,32 +1,33 @@
 use v6-alpha;
 
-use QDRDBMS;
-use QDRDBMS::Engine::Example::Operators;
+use Muldis::DB;
+use Muldis::DB::Engine::Example::Operators;
 
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::Engine::Example-0.0.0 {
+class Muldis::DB::Engine::Example-0.0.0 {
     # Note: This given version applies to all of this file's packages.
 
-    does QDRDBMS::Engine::Role;
+    does Muldis::DB::Engine::Role;
 
 ###########################################################################
 
-submethod new_dbms of QDRDBMS::Engine::Example::DBMS (Any :$dbms_config!) {
-    return ::QDRDBMS::Engine::Example::DBMS.new(
+submethod new_dbms of Muldis::DB::Engine::Example::DBMS
+        (Any :$dbms_config!) {
+    return ::Muldis::DB::Engine::Example::DBMS.new(
         :dbms_config($dbms_config) );
 }
 
 ###########################################################################
 
-} # class QDRDBMS::Engine::Example
+} # class Muldis::DB::Engine::Example
 
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::Engine::Example::DBMS {
-    does QDRDBMS::Engine::Role::DBMS;
+class Muldis::DB::Engine::Example::DBMS {
+    does Muldis::DB::Engine::Role::DBMS;
 
     has Any $!dbms_config;
 
@@ -41,40 +42,40 @@ submethod BUILD (Any :$dbms_config!) {
 
 ###########################################################################
 
-method new_var of QDRDBMS::Engine::Example::HostGateVar
-        (QDRDBMS::AST::TypeInvo :$decl_type!) {
-    return ::QDRDBMS::Engine::Example::HostGateVar.new(
+method new_var of Muldis::DB::Engine::Example::HostGateVar
+        (Muldis::DB::AST::TypeInvo :$decl_type!) {
+    return ::Muldis::DB::Engine::Example::HostGateVar.new(
         :dbms(self), :decl_type($decl_type) );
 }
 
-method prepare of QDRDBMS::Engine::Example::HostGateRtn
-        (QDRDBMS::AST::HostGateRtn :$rtn_ast!) {
-    return ::QDRDBMS::Engine::Example::HostGateRtn.new(
+method prepare of Muldis::DB::Engine::Example::HostGateRtn
+        (Muldis::DB::AST::HostGateRtn :$rtn_ast!) {
+    return ::Muldis::DB::Engine::Example::HostGateRtn.new(
         :dbms(self), :rtn_ast($rtn_ast) );
 }
 
 ###########################################################################
 
-} # class QDRDBMS::Engine::Example::DBMS
+} # class Muldis::DB::Engine::Example::DBMS
 
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::Engine::Example::HostGateVar {
-    does QDRDBMS::Engine::Role::HostGateVar;
+class Muldis::DB::Engine::Example::HostGateVar {
+    does Muldis::DB::Engine::Role::HostGateVar;
 
-    use QDRDBMS::AST <newBoolLit>;
+    use Muldis::DB::AST <newBoolLit>;
 
-    has QDRDBMS::Engine::Example::DBMS $!dbms;
-    has QDRDBMS::AST::TypeInvo         $!decl_type;
-    has QDRDBMS::AST::Node             $!val_ast;
+    has Muldis::DB::Engine::Example::DBMS $!dbms;
+    has Muldis::DB::AST::TypeInvo         $!decl_type;
+    has Muldis::DB::AST::Node             $!val_ast;
 
-    trusts QDRDBMS::Engine::Example::HostGateRtn;
+    trusts Muldis::DB::Engine::Example::HostGateRtn;
 
 ###########################################################################
 
-submethod BUILD (QDRDBMS::Engine::Example::DBMS :$dbms!,
-        QDRDBMS::AST::TypeInvo :$decl_type!) {
+submethod BUILD (Muldis::DB::Engine::Example::DBMS :$dbms!,
+        Muldis::DB::AST::TypeInvo :$decl_type!) {
 
     $!dbms      = $dbms;
     $!decl_type = $decl_type;
@@ -86,13 +87,13 @@ submethod BUILD (QDRDBMS::Engine::Example::DBMS :$dbms!,
 
 ###########################################################################
 
-method fetch_ast of QDRDBMS::AST::Node () {
+method fetch_ast of Muldis::DB::AST::Node () {
     return $!val_ast;
 }
 
 ###########################################################################
 
-method store_ast (QDRDBMS::AST::Node :$val_ast!) {
+method store_ast (Muldis::DB::AST::Node :$val_ast!) {
 
     $!val_ast = $val_ast;
 
@@ -101,24 +102,24 @@ method store_ast (QDRDBMS::AST::Node :$val_ast!) {
 
 ###########################################################################
 
-} # class QDRDBMS::Engine::Example::HostGateVar
+} # class Muldis::DB::Engine::Example::HostGateVar
 
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::Engine::Example::HostGateRtn {
-    does QDRDBMS::Engine::Role::HostGateRtn;
+class Muldis::DB::Engine::Example::HostGateRtn {
+    does Muldis::DB::Engine::Role::HostGateRtn;
 
-    has QDRDBMS::Engine::Example::DBMS $!dbms;
-    has QDRDBMS::AST::HostGateRtn      $!rtn_ast;
+    has Muldis::DB::Engine::Example::DBMS $!dbms;
+    has Muldis::DB::AST::HostGateRtn      $!rtn_ast;
     has Code                           $!prep_rtn;
     has Hash                           $!bound_upd_args;
     has Hash                           $!bound_ro_args;
 
 ###########################################################################
 
-submethod BUILD (QDRDBMS::Engine::Example::DBMS :$dbms!,
-        QDRDBMS::AST::HostGateRtn :$rtn_ast!) {
+submethod BUILD (Muldis::DB::Engine::Example::DBMS :$dbms!,
+        Muldis::DB::AST::HostGateRtn :$rtn_ast!) {
 
     my $prep_rtn = sub { 1; }; # TODO; the real thing.
 
@@ -156,22 +157,22 @@ method execute () {
 
 ###########################################################################
 
-} # class QDRDBMS::Engine::Example::HostGateRtn
+} # class Muldis::DB::Engine::Example::HostGateRtn
 
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::Engine::Example::Value {
-
-
-
-###########################################################################
+class Muldis::DB::Engine::Example::Value {
 
 
 
 ###########################################################################
 
-} # class QDRDBMS::Engine::Example::Value
+
+
+###########################################################################
+
+} # class Muldis::DB::Engine::Example::Value
 
 ###########################################################################
 ###########################################################################
@@ -182,12 +183,13 @@ class QDRDBMS::Engine::Example::Value {
 
 =head1 NAME
 
-QDRDBMS::Engine::Example -
-Self-contained reference implementation of a QDRDBMS Engine
+Muldis::DB::Engine::Example -
+Self-contained reference implementation of a Muldis::DB Engine
 
 =head1 VERSION
 
-This document describes QDRDBMS::Engine::Example version 0.0.0 for Perl 6.
+This document describes Muldis::DB::Engine::Example version 0.0.0 for Perl
+6.
 
 =head1 SYNOPSIS
 
@@ -215,7 +217,7 @@ I<This documentation is pending.>
 This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
 It also requires these Perl 6 classes that are in the current distribution:
-L<QDRDBMS-0.0.0|QDRDBMS>.
+L<Muldis::DB-0.0.0|Muldis::DB>.
 
 =head1 INCOMPATIBILITIES
 
@@ -223,8 +225,9 @@ None reported.
 
 =head1 SEE ALSO
 
-Go to L<QDRDBMS> for the majority of distribution-internal references, and
-L<QDRDBMS::SeeAlso> for the majority of distribution-external references.
+Go to L<Muldis::DB> for the majority of distribution-internal references,
+and L<Muldis::DB::SeeAlso> for the majority of distribution-external
+references.
 
 =head1 BUGS AND LIMITATIONS
 
@@ -236,14 +239,14 @@ Darren Duncan (C<perl@DarrenDuncan.net>)
 
 =head1 LICENSE AND COPYRIGHT
 
-This file is part of the QDRDBMS framework.
+This file is part of the Muldis::DB framework.
 
-QDRDBMS is Copyright © 2002-2007, Darren Duncan.
+Muldis::DB is Copyright © 2002-2007, Darren Duncan.
 
-See the LICENSE AND COPYRIGHT of L<QDRDBMS> for details.
+See the LICENSE AND COPYRIGHT of L<Muldis::DB> for details.
 
 =head1 ACKNOWLEDGEMENTS
 
-The ACKNOWLEDGEMENTS in L<QDRDBMS> apply to this file too.
+The ACKNOWLEDGEMENTS in L<Muldis::DB> apply to this file too.
 
 =cut

@@ -4,26 +4,26 @@ use Test;
 
 plan( 12 );
 
-use_ok( 'QDRDBMS::AST' );
-skip( 1, q{is( QDRDBMS::AST.WHO.version, 0.0.0,
-    'QDRDBMS::AST is the correct version' );} );
+use_ok( 'Muldis::DB::AST' );
+skip( 1, q{is( Muldis::DB::AST.WHO.version, 0.0.0,
+    'Muldis::DB::AST is the correct version' );} );
 
-use_ok( 'QDRDBMS' );
-skip( 1, q{is( QDRDBMS.WHO.version, 0.0.0,
-    'QDRDBMS is the correct version' );} );
+use_ok( 'Muldis::DB' );
+skip( 1, q{is( Muldis::DB.WHO.version, 0.0.0,
+    'Muldis::DB is the correct version' );} );
 
-use_ok( 'QDRDBMS::Validator' );
-skip( 1, q{is( QDRDBMS::Validator.WHO.version, 0.0.0,
-    'QDRDBMS::Validator is the correct version' );} );
+use_ok( 'Muldis::DB::Validator' );
+skip( 1, q{is( Muldis::DB::Validator.WHO.version, 0.0.0,
+    'Muldis::DB::Validator is the correct version' );} );
 
-use_ok( 'QDRDBMS::Engine::Example::PhysType' );
-skip( 1, q{is( QDRDBMS::Engine::Example::PhysType.WHO.version, 0.0.0,
-    'QDRDBMS::Engine::Example::PhysType is the correct version' );} );
+use_ok( 'Muldis::DB::Engine::Example::PhysType' );
+skip( 1, q{is( Muldis::DB::Engine::Example::PhysType.WHO.version, 0.0.0,
+    'Muldis::DB::Engine::Example::PhysType is the correct version' );} );
 
-use_ok( 'QDRDBMS::Engine::Example::Operators' );
-skip( 1, q{is( QDRDBMS::Engine::Example::Operators.WHO.version, 0.0.0,
-    'QDRDBMS::Engine::Example::Operators is the correct version' );} );
+use_ok( 'Muldis::DB::Engine::Example::Operators' );
+skip( 1, q{is( Muldis::DB::Engine::Example::Operators.WHO.version, 0.0.0,
+    'Muldis::DB::Engine::Example::Operators is the correct version' );} );
 
-use_ok( 'QDRDBMS::Engine::Example' );
-skip( 1, q{is( QDRDBMS::Engine::Example.WHO.version, 0.0.0,
-    'QDRDBMS::Engine::Example is the correct version' );} );
+use_ok( 'Muldis::DB::Engine::Example' );
+skip( 1, q{is( Muldis::DB::Engine::Example.WHO.version, 0.0.0,
+    'Muldis::DB::Engine::Example is the correct version' );} );

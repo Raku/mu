@@ -3,9 +3,9 @@ use v6-alpha;
 ###########################################################################
 ###########################################################################
 
-module QDRDBMS::Engine::Example::Operators-0.0.0 {
+module Muldis::DB::Engine::Example::Operators-0.0.0 {
 
-    use QDRDBMS::Engine::Example::PhysType
+    use Muldis::DB::Engine::Example::PhysType
         <dBool dText dBlob dInt dTextKeyedMap dHeading dTuple dRelation>;
 
     my Hash $OPS = {
@@ -94,7 +94,7 @@ module QDRDBMS::Engine::Example::Operators-0.0.0 {
         return $OPS;
     }
 
-} # QDRDBMS::Engine::Example::Operators
+} # Muldis::DB::Engine::Example::Operators
 
 ###########################################################################
 ###########################################################################
@@ -105,37 +105,37 @@ module QDRDBMS::Engine::Example::Operators-0.0.0 {
 
 =head1 NAME
 
-QDRDBMS::Engine::Example::Operators -
-Implementations of all core QDRDBMS D system-defined operators
+Muldis::DB::Engine::Example::Operators -
+Implementations of all core Muldis D system-defined operators
 
 =head1 VERSION
 
-This document describes QDRDBMS::Engine::Example::Operators version 0.0.0
-for Perl 6.
+This document describes Muldis::DB::Engine::Example::Operators version
+0.0.0 for Perl 6.
 
 =head1 DESCRIPTION
 
-This file is used internally by L<QDRDBMS::Engine::Example>; it is not
+This file is used internally by L<Muldis::DB::Engine::Example>; it is not
 intended to be used directly in user code.
 
-It provides implementations of all core QDRDBMS D system-defined operators,
+It provides implementations of all core Muldis D system-defined operators,
 and their API is designed to exactly match the operator definitions in
-L<QDRDBMS::Language>.
+L<Muldis::DB::Language>.
 
 Specifically, this file implements the core system-defined operators that
-all QDRDBMS D implementations must have, which is the selectors for and
+all Muldis D implementations must have, which is the selectors for and
 general purpose functions and update operators for these data types: Bool,
 Text, Blob, Int, Tuple, Relation, and the Cat.* types.
 
 By contrast, the operators specific to the optional data types are
-implemented by other files: L<QDRDBMS::Engine::Example::Operators::Num>,
-L<QDRDBMS::Engine::Example::Operators::Temporal>,
-L<QDRDBMS::Engine::Example::Operators::Spatial>.
+implemented by other files: L<Muldis::DB::Engine::Example::Operators::Num>,
+L<Muldis::DB::Engine::Example::Operators::Temporal>,
+L<Muldis::DB::Engine::Example::Operators::Spatial>.
 
 =head1 BUGS AND LIMITATIONS
 
-The operators declared in this file assume that any user-defined QDRDBMS D
-code which could be invoking them has already been validated by the QDRDBMS
+The operators declared in this file assume that any user-defined Muldis D
+code which could be invoking them has already been validated by the Muldis
 D compiler, in so far as compile time validation can be done, and so the
 operators in this file only test for invalid input such that couldn't be
 expected to be caught at compile time.  For example, it is usually expected
@@ -150,10 +150,10 @@ Darren Duncan (C<perl@DarrenDuncan.net>)
 
 =head1 LICENSE AND COPYRIGHT
 
-This file is part of the QDRDBMS framework.
+This file is part of the Muldis::DB framework.
 
-QDRDBMS is Copyright © 2002-2007, Darren Duncan.
+Muldis::DB is Copyright © 2002-2007, Darren Duncan.
 
-See the LICENSE AND COPYRIGHT of L<QDRDBMS> for details.
+See the LICENSE AND COPYRIGHT of L<Muldis::DB> for details.
 
 =cut

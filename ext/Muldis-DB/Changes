@@ -1,18 +1,18 @@
-                                  QDRDBMS
+                                Muldis::DB
 ---------------------------------------------------------------------------
 
-2007-05-xx   Darren Duncan <perl@DarrenDuncan.net>
+2007-06-xx   Darren Duncan <perl@DarrenDuncan.net>
 
-    * QDRDBMS version 0.0.0 for Perl 5 is released on CPAN as
-    QDRDBMS-v0.0.0.tar.gz.  QDRDBMS version 0.0.0 for Perl 6 is not
+    * Muldis::DB version 0.0.0 for Perl 5 is released on CPAN as
+    Muldis-DB-0.0.0.tar.gz.  Muldis::DB version 0.0.0 for Perl 6 is not
     released at this time, if ever, since it is currently released only as
-    part of the Perl6-Pugs project (in its ext/QDRDBMS/ subdirectory),
+    part of the Perl6-Pugs project (in its ext/Muldis-DB/ subdirectory),
     which sets its own less frequent release schedule.  The rest of this
     Changes entry refers only to the Perl 5 version.
 
-    * This is the first release of the Perl 5 QDRDBMS distribution, and the
-    first release of any distribution to contain Perl 5 modules named
-    QDRDBMS::\w+.
+    * This is the first release of the Perl 5 Muldis-DB distribution, and
+    the first release of any distribution to contain Perl 5 modules named
+    Muldis::DB::\w+.
 
     * This is the initial file manifest:
 
@@ -21,23 +21,23 @@
         Changes
         GPL
         INSTALL
-        lib/QDRDBMS.pm
-        lib/QDRDBMS/AST.pm
-        lib/QDRDBMS/Copying.pod
-        lib/QDRDBMS/Engine/Example.pm
-        lib/QDRDBMS/Engine/Example/Operators.pm
-        lib/QDRDBMS/Engine/Example/PhysType.pm
-        lib/QDRDBMS/Language.pod
-        lib/QDRDBMS/SeeAlso.pod
-        lib/QDRDBMS/Validator.pm
+        lib/Muldis/DB.pm
+        lib/Muldis/DB/AST.pm
+        lib/Muldis/DB/Copying.pod
+        lib/Muldis/DB/Engine/Example.pm
+        lib/Muldis/DB/Engine/Example/Operators.pm
+        lib/Muldis/DB/Engine/Example/PhysType.pm
+        lib/Muldis/DB/Language.pod
+        lib/Muldis/DB/SeeAlso.pod
+        lib/Muldis/DB/Validator.pm
         Makefile.PL
         MANIFEST			This list of files
         MANIFEST.SKIP
         META.yml
         README
-        t/QDR_00_Compile.t
-        t/QDR_10_AST_Literals.t
-        t/QDR_50_Validate_Example.t
+        t/MDB_00_Compile.t
+        t/MDB_10_AST_Literals.t
+        t/MDB_50_Validate_Example.t
 
-    * Initial code file versions are: QDRDBMS.pm and AST.pm and
-    Validator.pm and Example.pm and PhysType.pm and Operators.pm 0.0.0.
+    * Initial code file versions are: DB.pm and AST.pm and Validator.pm and
+    Example.pm and PhysType.pm and Operators.pm 0.0.0.

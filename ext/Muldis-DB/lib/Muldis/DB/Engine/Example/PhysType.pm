@@ -11,87 +11,89 @@ my $TRUE  = Bool::True;
 ###########################################################################
 ###########################################################################
 
-module QDRDBMS::Engine::Example::PhysType-0.0.0 {
+module Muldis::DB::Engine::Example::PhysType-0.0.0 {
     # Note: This given version applies to all of this file's packages.
 
 ###########################################################################
 
-sub dBool of QDRDBMS::Engine::Example::PhysType::Bool
+sub dBool of Muldis::DB::Engine::Example::PhysType::Bool
         (Bool :$v!) is export {
-    return ::QDRDBMS::Engine::Example::PhysType::Bool.new( :v($v) );
+    return ::Muldis::DB::Engine::Example::PhysType::Bool.new( :v($v) );
 }
 
-sub dText of QDRDBMS::Engine::Example::PhysType::Text
+sub dText of Muldis::DB::Engine::Example::PhysType::Text
         (Str :$v!) is export {
-    return ::QDRDBMS::Engine::Example::PhysType::Text.new( :v($v) );
+    return ::Muldis::DB::Engine::Example::PhysType::Text.new( :v($v) );
 }
 
-sub dBlob of QDRDBMS::Engine::Example::PhysType::Blob
+sub dBlob of Muldis::DB::Engine::Example::PhysType::Blob
         (Blob :$v!) is export {
-    return ::QDRDBMS::Engine::Example::PhysType::Blob.new( :v($v) );
+    return ::Muldis::DB::Engine::Example::PhysType::Blob.new( :v($v) );
 }
 
-sub dInt of QDRDBMS::Engine::Example::PhysType::Int (Int :$v!) is export {
-    return ::QDRDBMS::Engine::Example::PhysType::Int.new( :v($v) );
+sub dInt of Muldis::DB::Engine::Example::PhysType::Int
+        (Int :$v!) is export {
+    return ::Muldis::DB::Engine::Example::PhysType::Int.new( :v($v) );
 }
 
-sub dTextKeyedMap of QDRDBMS::Engine::Example::PhysType::TextKeyedMap
+sub dTextKeyedMap of Muldis::DB::Engine::Example::PhysType::TextKeyedMap
         (Hash :$map!) is export {
-    return ::QDRDBMS::Engine::Example::PhysType::TextKeyedMap.new(
+    return ::Muldis::DB::Engine::Example::PhysType::TextKeyedMap.new(
         :map($map) );
 }
 
-sub dHeading of QDRDBMS::Engine::Example::PhysType::Heading
+sub dHeading of Muldis::DB::Engine::Example::PhysType::Heading
         (Array :$attr_defs_aoa!) is export {
-    return ::QDRDBMS::Engine::Example::PhysType::Heading.new(
+    return ::Muldis::DB::Engine::Example::PhysType::Heading.new(
         :attr_defs_aoa($attr_defs_aoa) );
 }
 
-sub dTuple of QDRDBMS::Engine::Example::PhysType::Tuple
-        (QDRDBMS::Engine::Example::PhysType::Heading :$heading!,
-        QDRDBMS::Engine::Example::PhysType::TextKeyedMap :$body!)
+sub dTuple of Muldis::DB::Engine::Example::PhysType::Tuple
+        (Muldis::DB::Engine::Example::PhysType::Heading :$heading!,
+        Muldis::DB::Engine::Example::PhysType::TextKeyedMap :$body!)
         is export {
-    return ::QDRDBMS::Engine::Example::PhysType::Tuple.new(
+    return ::Muldis::DB::Engine::Example::PhysType::Tuple.new(
         :heading($heading), :body($body) );
 }
 
-sub dRelation of QDRDBMS::Engine::Example::PhysType::Relation
+sub dRelation of Muldis::DB::Engine::Example::PhysType::Relation
         (:$heading!, :$body!, :$key_defs_aoh!, :$index_defs_aoh!)
         is export {
-    return ::QDRDBMS::Engine::Example::PhysType::Relation.new(
+    return ::Muldis::DB::Engine::Example::PhysType::Relation.new(
         :heading($heading), :body($body),
         :key_defs_aoh($key_defs_aoh), :index_defs_aoh($index_defs_aoh) );
 }
 
-sub dCat_EntityName of QDRDBMS::Engine::Example::PhysType::Cat_EntityName
+sub dCat_EntityName
+        of Muldis::DB::Engine::Example::PhysType::Cat_EntityName
         (Str :$text!) is export {
-    return ::QDRDBMS::Engine::Example::PhysType::Cat_EntityName.new(
+    return ::Muldis::DB::Engine::Example::PhysType::Cat_EntityName.new(
         :v($text) );
 }
 
 ###########################################################################
 
-} # module QDRDBMS::Engine::Example::PhysType
+} # module Muldis::DB::Engine::Example::PhysType
 
 ###########################################################################
 ###########################################################################
 
-role QDRDBMS::Engine::Example::PhysType::Value {
-#    has QDRDBMS::Engine::Example::PhysType::Cat_EntityName $!root_type;
-        # QDRDBMS::Engine::Example::PhysType::Cat_EntityName.
-        # This is the fundamental QDRDBMS D data type that this ::Value
+role Muldis::DB::Engine::Example::PhysType::Value {
+#    has Muldis::DB::Engine::Example::PhysType::Cat_EntityName $!root_type;
+        # Muldis::DB::Engine::Example::PhysType::Cat_EntityName.
+        # This is the fundamental Muldis D data type that this ::Value
         # object's implementation sees it as a generic member of, and which
         # generally determines what operators can be used with it.
         # It is a supertype of the declared type.
-#    has QDRDBMS::Engine::Example::PhysType::Cat_EntityName $!decl_type;
-        # QDRDBMS::Engine::Example::PhysType::Cat_EntityName.
-        # This is the QDRDBMS D data type that the ::Value was declared to
+#    has Muldis::DB::Engine::Example::PhysType::Cat_EntityName $!decl_type;
+        # Muldis::DB::Engine::Example::PhysType::Cat_EntityName.
+        # This is the Muldis D data type that the ::Value was declared to
         # be a member of when the ::Value object was created.
-#    has QDRDBMS::Engine::Example::PhysType::Cat_EntityName
+#    has Muldis::DB::Engine::Example::PhysType::Cat_EntityName
 #        $!last_known_mst;
-        # QDRDBMS::Engine::Example::PhysType::Cat_EntityName.
-        # This is the QDRDBMS data type that is the most specific type of
-        # this ::Value, as it was last determined.
+        # Muldis::DB::Engine::Example::PhysType::Cat_EntityName.
+        # This is the Muldis::DB data type that is the most specific type
+        # of this ::Value, as it was last determined.
         # It is a subtype of the declared type.
         # Since calculating a value's mst may be expensive, this object
         # attribute may either be unset or be out of date with respect to
@@ -146,15 +148,15 @@ method equal {
 
 ###########################################################################
 
-} # role QDRDBMS::Engine::Example::PhysType::Value
+} # role Muldis::DB::Engine::Example::PhysType::Value
 
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::Engine::Example::PhysType::Bool {
-    does QDRDBMS::Engine::Example::PhysType::Value;
+class Muldis::DB::Engine::Example::PhysType::Bool {
+    does Muldis::DB::Engine::Example::PhysType::Value;
 
-    use QDRDBMS::AST <newBoolLit>;
+    use Muldis::DB::AST <newBoolLit>;
 
     has Bool $!v;
 
@@ -183,7 +185,7 @@ method which of Str () {
 
 ###########################################################################
 
-method as_ast of QDRDBMS::AST::BoolLit () {
+method as_ast of Muldis::DB::AST::BoolLit () {
     return newBoolLit( :v($!v) );
 }
 
@@ -201,15 +203,15 @@ method v of Bool () {
 
 ###########################################################################
 
-} # class QDRDBMS::Engine::Example::PhysType::Bool
+} # class Muldis::DB::Engine::Example::PhysType::Bool
 
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::Engine::Example::PhysType::Text {
-    does QDRDBMS::Engine::Example::PhysType::Value;
+class Muldis::DB::Engine::Example::PhysType::Text {
+    does Muldis::DB::Engine::Example::PhysType::Value;
 
-    use QDRDBMS::AST <newTextLit>;
+    use Muldis::DB::AST <newTextLit>;
 
     has Str $!v;
 
@@ -238,7 +240,7 @@ method which of Str () {
 
 ###########################################################################
 
-method as_ast of QDRDBMS::AST::TextLit () {
+method as_ast of Muldis::DB::AST::TextLit () {
     return newTextLit( :v($!v) );
 }
 
@@ -256,15 +258,15 @@ method v of Str () {
 
 ###########################################################################
 
-} # class QDRDBMS::Engine::Example::PhysType::Text
+} # class Muldis::DB::Engine::Example::PhysType::Text
 
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::Engine::Example::PhysType::Blob {
-    does QDRDBMS::Engine::Example::PhysType::Value;
+class Muldis::DB::Engine::Example::PhysType::Blob {
+    does Muldis::DB::Engine::Example::PhysType::Value;
 
-    use QDRDBMS::AST <newBlobLit>;
+    use Muldis::DB::AST <newBlobLit>;
 
     has Blob $!v;
 
@@ -293,7 +295,7 @@ method which of Str () {
 
 ###########################################################################
 
-method as_ast of QDRDBMS::AST::BlobLit () {
+method as_ast of Muldis::DB::AST::BlobLit () {
     return newBlobLit( :v($!v) );
 }
 
@@ -311,15 +313,15 @@ method v of Blob () {
 
 ###########################################################################
 
-} # class QDRDBMS::Engine::Example::PhysType::Blob
+} # class Muldis::DB::Engine::Example::PhysType::Blob
 
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::Engine::Example::PhysType::Int {
-    does QDRDBMS::Engine::Example::PhysType::Value;
+class Muldis::DB::Engine::Example::PhysType::Int {
+    does Muldis::DB::Engine::Example::PhysType::Value;
 
-    use QDRDBMS::AST <newIntLit>;
+    use Muldis::DB::AST <newIntLit>;
 
     has Int $!v;
 
@@ -348,7 +350,7 @@ method which of Str () {
 
 ###########################################################################
 
-method as_ast of QDRDBMS::AST::IntLit () {
+method as_ast of Muldis::DB::AST::IntLit () {
     return newIntLit( :v($!v) );
 }
 
@@ -366,13 +368,13 @@ method v of Int () {
 
 ###########################################################################
 
-} # class QDRDBMS::Engine::Example::PhysType::Int
+} # class Muldis::DB::Engine::Example::PhysType::Int
 
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::Engine::Example::PhysType::TextKeyedMap {
-    does QDRDBMS::Engine::Example::PhysType::Value;
+class Muldis::DB::Engine::Example::PhysType::TextKeyedMap {
+    does Muldis::DB::Engine::Example::PhysType::Value;
 
 #    has Hash(Str) of Any $!map;
     has Hash $!map;
@@ -419,13 +421,13 @@ method pairs of Array () {
 
 ###########################################################################
 
-} # class QDRDBMS::Engine::Example::PhysType::TextKeyedMap
+} # class Muldis::DB::Engine::Example::PhysType::TextKeyedMap
 
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::Engine::Example::PhysType::Heading {
-    does QDRDBMS::Engine::Example::PhysType::Value;
+class Muldis::DB::Engine::Example::PhysType::Heading {
+    does Muldis::DB::Engine::Example::PhysType::Value;
 
 #    has Hash of Array $!attr_defs_by_name;
     has Hash $!attr_defs_by_name;
@@ -480,17 +482,17 @@ method get_attr_attr_defs_ordered of Array () {
 
 ###########################################################################
 
-} # class QDRDBMS::Engine::Example::PhysType::Heading
+} # class Muldis::DB::Engine::Example::PhysType::Heading
 
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::Engine::Example::PhysType::Tuple {
-    does QDRDBMS::Engine::Example::PhysType::Value;
+class Muldis::DB::Engine::Example::PhysType::Tuple {
+    does Muldis::DB::Engine::Example::PhysType::Value;
 
-    has QDRDBMS::Engine::Example::PhysType::Heading $!heading;
+    has Muldis::DB::Engine::Example::PhysType::Heading $!heading;
         # A Heading.
-    has QDRDBMS::Engine::Example::PhysType::TextKeyedMap $!body;
+    has Muldis::DB::Engine::Example::PhysType::TextKeyedMap $!body;
         # A TextKeyedMap whose keys match the attribute names in $!heading,
         # and whose values are of the types specified in $!heading.
 
@@ -498,8 +500,8 @@ class QDRDBMS::Engine::Example::PhysType::Tuple {
 
 ###########################################################################
 
-submethod BUILD (QDRDBMS::Engine::Example::PhysType::Heading :$heading!,
-        QDRDBMS::Engine::Example::PhysType::TextKeyedMap :$body!) {
+submethod BUILD (Muldis::DB::Engine::Example::PhysType::Heading :$heading!,
+        Muldis::DB::Engine::Example::PhysType::TextKeyedMap :$body!) {
     $!heading = $heading;
     $!body    = $body;
     return;
@@ -521,13 +523,13 @@ method which of Str () {
 
 ###########################################################################
 
-} # class QDRDBMS::Engine::Example::PhysType::Tuple
+} # class Muldis::DB::Engine::Example::PhysType::Tuple
 
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::Engine::Example::PhysType::Relation {
-    does QDRDBMS::Engine::Example::PhysType::Value;
+class Muldis::DB::Engine::Example::PhysType::Relation {
+    does Muldis::DB::Engine::Example::PhysType::Value;
 
     has $!heading;
         # A Heading.
@@ -587,13 +589,13 @@ method which of Str () {
 
 ###########################################################################
 
-} # class QDRDBMS::Engine::Example::PhysType::Relation
+} # class Muldis::DB::Engine::Example::PhysType::Relation
 
 ###########################################################################
 ###########################################################################
 
-class QDRDBMS::Engine::Example::PhysType::Cat_EntityName {
-    does QDRDBMS::Engine::Example::PhysType::Value;
+class Muldis::DB::Engine::Example::PhysType::Cat_EntityName {
+    does Muldis::DB::Engine::Example::PhysType::Value;
 
     has Str $!text;
         # The Text possrep of this Cat.EntityName.
@@ -629,7 +631,7 @@ method text of Str () {
 
 ###########################################################################
 
-} # class QDRDBMS::Engine::Example::PhysType::Cat_EntityName
+} # class Muldis::DB::Engine::Example::PhysType::Cat_EntityName
 
 ###########################################################################
 ###########################################################################
@@ -640,12 +642,12 @@ method text of Str () {
 
 =head1 NAME
 
-QDRDBMS::Engine::Example::PhysType -
+Muldis::DB::Engine::Example::PhysType -
 Physical representations of all core data types
 
 =head1 VERSION
 
-This document describes QDRDBMS::Engine::Example::PhysType version 0.0.0
+This document describes Muldis::DB::Engine::Example::PhysType version 0.0.0
 for Perl 6.
 
 It also describes the same-number versions for Perl 6 of ::Bool, ::Text,
@@ -653,22 +655,22 @@ It also describes the same-number versions for Perl 6 of ::Bool, ::Text,
 
 =head1 DESCRIPTION
 
-This file is used internally by L<QDRDBMS::Engine::Example>; it is not
+This file is used internally by L<Muldis::DB::Engine::Example>; it is not
 intended to be used directly in user code.
 
 It provides physical representations of data types that this Example Engine
-uses to implement QDRDBMS D.  The API of these is expressly not intended to
+uses to implement Muldis D.  The API of these is expressly not intended to
 match the API that the language itself specifies as possible
 representations for system-defined data types.
 
 Specifically, this file represents the core system-defined data types that
-all QDRDBMS D implementations must have, namely: Bool, Text, Blob, Int,
+all Muldis D implementations must have, namely: Bool, Text, Blob, Int,
 Tuple, Relation, and the Cat.* types.
 
 By contrast, the optional data types are given physical representations by
-other files: L<QDRDBMS::Engine::Example::PhysType::Num>,
-L<QDRDBMS::Engine::Example::PhysType::Temporal>,
-L<QDRDBMS::Engine::Example::PhysType::Spatial>.
+other files: L<Muldis::DB::Engine::Example::PhysType::Num>,
+L<Muldis::DB::Engine::Example::PhysType::Temporal>,
+L<Muldis::DB::Engine::Example::PhysType::Spatial>.
 
 =head1 BUGS AND LIMITATIONS
 
@@ -687,10 +689,10 @@ Darren Duncan (C<perl@DarrenDuncan.net>)
 
 =head1 LICENSE AND COPYRIGHT
 
-This file is part of the QDRDBMS framework.
+This file is part of the Muldis::DB framework.
 
-QDRDBMS is Copyright © 2002-2007, Darren Duncan.
+Muldis::DB is Copyright © 2002-2007, Darren Duncan.
 
-See the LICENSE AND COPYRIGHT of L<QDRDBMS> for details.
+See the LICENSE AND COPYRIGHT of L<Muldis::DB> for details.
 
 =cut

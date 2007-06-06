@@ -4,54 +4,54 @@
 
 =head1 NAME
 
-QDRDBMS::Language -
-Design document of the QDRDBMS D language
+Muldis::DB::Language -
+Design document of the Muldis D language
 
 =head1 DESCRIPTION
 
-The native command language of a L<QDRDBMS> DBMS (database management
-system) / virtual machine is called B<QDRDBMS D>; this document,
-QDRDBMS::Language ("Language"), is the human readable authoritative design
-document for that language, and for the QDRDBMS virtual machine in which it
-executes.  If there's a conflict between any other document and this one,
-then either the other document is in error, or the developers were
-negligent in updating it before Language, so you can yell at them.
+The native command language of a L<Muldis::DB> DBMS (database management
+system) / virtual machine is called B<Muldis D>; this document,
+Muldis::DB::Language ("Language"), is the human readable authoritative
+design document for that language, and for the Muldis::DB virtual machine
+in which it executes.  If there's a conflict between any other document and
+this one, then either the other document is in error, or the developers
+were negligent in updating it before Language, so you can yell at them.
 
-QDRDBMS D is intended to qualify as a "D" language as defined by
-"Databases, Types, and The Relational Model: The Third Manifesto" (TTM), a
-formal proposal for a solid foundation for data and database management
-systems, written by Christopher J. Date and Hugh Darwen; see
+Muldis D is intended to qualify as a "D" language as defined by "Databases,
+Types, and The Relational Model: The Third Manifesto" (TTM), a formal
+proposal for a solid foundation for data and database management systems,
+written by Christopher J. Date and Hugh Darwen; see
 L<http://www.aw-bc.com/catalog/academic/product/0,1144,0321399420,00.html>
 for a publishers link to the book that formally publishes TTM.  See
 L<http://www.thethirdmanifesto.com/> for some references to what TTM is,
-and also copies of some documents that were used in writing QDRDBMS D.
+and also copies of some documents that were used in writing Muldis D.
 
-It should be noted that QDRDBMS D, being quite new, may omit some features
+It should be noted that Muldis D, being quite new, may omit some features
 that are mandatory for a "D" language initially, to speed the way to a
 useable partial solution, but any omissions will be corrected later.  Also,
 it contains some features that go beyond the scope of a "D" language, so
-QDRDBMS D is technically a "D plus extra"; examples of this are constructs
+Muldis D is technically a "D plus extra"; examples of this are constructs
 for creating the databases themselves and managing connections to them.
 
-QDRDBMS D also incorporates design aspects and constructs that are taken
+Muldis D also incorporates design aspects and constructs that are taken
 from or influenced by Perl 6, other general-purpose languages (particularly
 functional ones like Haskell), Tutorial D, various D implementations, and
-various SQL implementations (see the L<QDRDBMS::SeeAlso> file).  I<It has
-also been suggested that some of the QDRDBMS D design is like that of the
-Ada language, which I didn't really know anything about before writing it;
-this bears further investigation.  Moreover, it has also been suggested by
-a different person that the Lua language design is very similar, in
+various SQL implementations (see the L<Muldis::DB::SeeAlso> file).  I<It
+has also been suggested that some of the Muldis D design is like that of
+the Ada language, which I didn't really know anything about before writing
+it; this bears further investigation.  Moreover, it has also been suggested
+by a different person that the Lua language design is very similar, in
 different ways, and from a glance, it certainly seems to be so.>
 
-In any event, the QDRDBMS documentation will be focusing mainly on how
-QDRDBMS itself works, and will spend little time in providing rationale;
+In any event, the Muldis::DB documentation will be focusing mainly on how
+Muldis::DB itself works, and will spend little time in providing rationale;
 you can read the aforementioned external documentation for much of that.
 
 I<This documentation is pending.>
 
 =head1 NOTES ON TERMINOLOGY
 
-There are a few terms that the QDRDBMS documentation uses which may have
+There are a few terms that the Muldis::DB documentation uses which may have
 different meanings than what you may be used to, so here are a few notes to
 clarify what they mean in this document.  Similarly, there are some terms
 used in the industry that are expressly not used here so to help avoid
@@ -73,7 +73,7 @@ A I<value> is unique, eternal, immutable, and is not fixed in time or space
 have an address); it holds an appearance of a value; it is neither unique
 nor eternal nor immutable in the general case.  A I<constant> is a variable
 which is defined to not mutate after initially being set.  Terms like
-I<object> are not used in this documentation for any aspects of QDRDBMS D
+I<object> are not used in this documentation for any aspects of Muldis D
 since their meaning in practice is both ambiguous and wide-reaching, and
 could refer to both values and variables depending on usage context.
 
@@ -83,7 +83,7 @@ A I<text> is a string composed of Unicode characters, where a I<character>
 is an abstract concept that usually is a I<grapheme> or
 I<language-independent grapheme>, but could potentially be a I<codepoint>
 or I<language-specific grapheme>.  This documentation only uses the term
-I<character> in an abstract sense, and no part of the QDRDBMS API is
+I<character> in an abstract sense, and no part of the Muldis::DB API is
 defined using that term.  Rather, any operators or constraints that work
 with sub-strings of text will be specified in terms like I<NFC grapheme>.
 
@@ -92,9 +92,9 @@ with sub-strings of text will be specified in terms like I<NFC grapheme>.
 A I<tuple> is an unordered heterogeneous collection of 0..N elements that
 are keyed by the element's name; each element is a name-value pair, and all
 names in the tuple are distinct.  While I<tuple> legitimately refers to the
-same thing as the QDRDBMS term I<sequence> in other contexts, it does not
-in this documentation.  Terms like I<record> or I<row> are not used in this
-documentation, the latter in particular because it implies ordinality.
+same thing as the Muldis::DB term I<sequence> in other contexts, it does
+not in this documentation.  Terms like I<record> or I<row> are not used in
+this documentation, the latter in particular because it implies ordinality.
 
 =item relation, relvar, relcon
 
@@ -120,8 +120,8 @@ A I<function> is a routine whose invocation is used as a value expression,
 and it conceptually serves as a map between the domains of its parameters
 and its result value.  A I<function> is not the same as a I<relation>,
 though both can be used as maps between values.  Besides their conceptual
-difference in QDRDBMS D as a routine vs a value, a selected I<relation>
-value in QDRDBMS D is always finite, and hence so is the cardinality of
+difference in Muldis D as a routine vs a value, a selected I<relation>
+value in Muldis D is always finite, and hence so is the cardinality of
 the map it can provide; whereas, a function can have an infinite map size.
 
 =item database / relational database, dbvar, dbcon
@@ -160,7 +160,7 @@ Within this documentation, the actually more generic term I<DBMS> will be
 used to refer exclusively to a I<RDBMS> (Relational Database Management
 System), so you should read the former as if it were the latter.  A
 I<RDBMS> is a computer program that manages relational database variables,
-associated catalogs, and depots in general.  QDRDBMS aspires to be or is
+associated catalogs, and depots in general.  Muldis::DB aspires to be or is
 one, and likewise are various other TTM-inspired programs like Rel and
 Duro; most other DBMS-like programs are technically non-relational,
 including all SQL DBMSs such as Oracle, PostgreSQL and SQLite, though they
@@ -182,7 +182,7 @@ data type, which is a particular binary relation.
 
 A I<selector> is a routine that captures an appearance of a value for use
 in a variable or expression.  The term I<constructor> is not used in this
-documentation because all values in QDRDBMS are conceptually eternal and
+documentation because all values in Muldis::DB are conceptually eternal and
 immutable, so it does not make sense to say that we are "building" one; we
 are "selecting" one.
 
@@ -370,47 +370,47 @@ terms of our boolean analogy, a union is simply chaining together the
 entirety of each relation's boolean expression with an C<or>, and then
 eliminating redundancies from the result.
 
-A full list of all the relational operators having more formal (but QDRDBMS
+A full list of all the relational operators having more formal (but Muldis
 D specific) descriptions occurs further below in this document; that list
 does I<not> use the aforementioned boolean analogies.
 
-=head1 QDRDBMS D
+=head1 Muldis D
 
-QDRDBMS D is a computationally / Turing complete (and industrial strength)
+Muldis D is a computationally / Turing complete (and industrial strength)
 high-level programming language with fully integrated database
 functionality; you can use it to define, query, and update relational
 databases.  The language's paradigm is a mixture of declarative,
 imperative, functional, and object-oriented.  It is primarily focused on
 providing reliability, consistency, portability, and ease of use and
-extension.  (Logically, speed of execution can not be declared as a QDRDBMS
+extension.  (Logically, speed of execution can not be declared as a Muldis
 D quality because such a quality belongs to an implementation alone;
 however, the language should lend itself to making fast ones.)
 
 The language is rigorously defined and requires users to be explicit, which
 leaves little room for ambiguity and related bugs.  When something is
-specified in QDRDBMS D, its semantics should be well known and fully
+specified in Muldis D, its semantics should be well known and fully
 portable (not implementation dependent).  If a conforming implementation
-(usually a QDRDBMS Engine class) can't provide a specified behaviour, code
-using it will refuse to run at all, rather than silently changing its
-semantics; this also helps users to avoid bugs.  Moreover, QDRDBMS D
+(usually a Muldis::DB Engine class) can't provide a specified behaviour,
+code using it will refuse to run at all, rather than silently changing its
+semantics; this also helps users to avoid bugs.  Moreover, Muldis D
 generally disallows any details of an implementation's "physical
 representation" or other internals to leak through into the language; eg,
 there is no "varchar" vs "char", simply "text".  Users should not have to
 know about this level of detail, and implementers should be free to
 adaptively pick optimum ways to satisfy user requests, and change later.
 
-QDRDBMS D, being first and foremost a data processing language, provides a
+Muldis D, being first and foremost a data processing language, provides a
 thorough means to both introspect and define all DBMS entities using just
 data processing operators, which is called the DBMS "catalog".  The catalog
 is a set of system-defined relvars (relation-typed variables) which reflect
 the definitions of DBMS entities; users can generally update these to
 create, alter, or drop DBMS entities.  In fact, updating the catalog
-relvars is the fundamental way to do data-definition tasks in QDRDBMS D,
+relvars is the fundamental way to do data-definition tasks in Muldis D,
 and any other provisions for data-definition are conceptually abstractions
 of this.  Generally speaking, users can do absolutely everything in the
 DBMS with just data querying and updating operations.
 
-The design and various features of QDRDBMS D go a long way to help both its
+The design and various features of Muldis D go a long way to help both its
 users and implementers alike.  A lot of flexibility is afforded to
 implementers of the language to be adaptive to changing constraints of
 their environment and deliver efficient solutions.  This also makes things
@@ -420,12 +420,12 @@ users can focus on defining what needs to be accomplished rather than how
 to accomplish that, which relieves burdens on their creativity, and saves
 them time.  In short, this system improves everyone's lives.
 
-What users fundamentally write are QDRDBMS D "routines", each consisting of
+What users fundamentally write are Muldis D "routines", each consisting of
 one or more "statements", and in executing these, all work is done.
 
 =head1 TYPE SYSTEM
 
-The QDRDBMS D type system is a formal type system, at least in intent, and
+The Muldis D type system is a formal type system, at least in intent, and
 works conceptually in the following manner.
 
 There is a single universal value set/domain, named C<Universal>, whose
@@ -434,7 +434,7 @@ maximal data type of the entire type system.  Also there is a single
 nullary value set/domain, named C<Empty>, which has zero members; C<Empty>
 is the minimal data type.
 
-All QDRDBMS D data values as individuals are eternal and immutable.  All
+All Muldis D data values as individuals are eternal and immutable.  All
 values are logically distinct, and each value occurs exactly once, and is
 not fixed within time or space (so doesn't have an "address").  It does not
 make sense to say that you are creating or destroying or copying or
@@ -445,14 +445,14 @@ destroyed, mutated, and multiple variables can hold appearances of the same
 value.  So when one appears to be testing 2 values for equality, they are
 actually testing whether 2 value appearances are in fact the same value.
 
-Given that all data values in QDRDBMS D are fundamentally immutable, the
+Given that all data values in Muldis D are fundamentally immutable, the
 term "selector" is used to describe a routine that captures an appearance
 of a value into a variable (or for use in a value expression); this is
 analogous to the task that a "constructor" routine does in a typical
 object-oriented language, but that the former is conceptually "selecting"
 an eternally existing value rather than conceptually "creating" a new one.
 
-In the QDRDBMS type system, a I<data type> is a set of values, and as with
+In the Muldis D type system, a I<data type> is a set of values, and as with
 individual values, a data type is eternal and immutable.  Every data type
 is distinct from all other data types, and no 2 data types may encompass
 exactly the same set of values.  Every data type other than C<Universal>
@@ -476,7 +476,7 @@ system-defined C<Empty> type is a proper subtype of all other types.  Now,
 if no data type, I<T3> exists which is both a proper subtype of I<T1> and a
 proper supertype of I<T2>, then I<T1> is an I<immediate supertype> of
 I<T2>, and I<T2> is an I<immediate subtype> of I<T1>.  Note that the
-QDRDBMS type system supports multiple inheritance, so types can form a
+Muldis::DB type system supports multiple inheritance, so types can form a
 lattice rather than a tree.
 
 Every value has at most a single I<most specific type> (or I<MST>), which
@@ -484,7 +484,7 @@ is cited as the general answer to the question "what is this value's type".
 The MST of a value is the data type containing that value which has no
 proper subtypes that also contain that value.  Moreover, to enforce the "at
 most a single" requirement, which keeps answering the question a simple
-affair, it is mandatory in QDRDBMS D that when any 2 data types have values
+affair, it is mandatory in Muldis D that when any 2 data types have values
 in common, there must exist a data type which contains only the values that
 they have in common, and hence is a subtype of both.  Note that a value
 will always implicitly assume the most specific type that exists which
@@ -518,7 +518,7 @@ type that has no proper subtypes save for C<Empty>.
 
 =head2 Type Identification
 
-All values in the QDRDBMS type system are broadly categorized into 5
+All values in the Muldis::DB type system are broadly categorized into 5
 complementary sets called I<scalar values>, I<tuple values>, I<relation
 values>, I<quasi-tuple values>, and I<quasi-relation values>; tuple and
 relation values are collectively known as I<nonscalar values>; quasi-tuple
@@ -564,7 +564,7 @@ aren't permitted in nonscalar types (and aren't permitted in scalar types).
 
 =head2 Scalar Types
 
-Scalar types are the only conceptually encapsulated types in QDRDBMS D, and
+Scalar types are the only conceptually encapsulated types in Muldis D, and
 are like other languages' concepts of object classes where all their
 attributes are private, and only accessible indirectly.  The definition of
 a scalar type comprises usually one or more named I<possreps> or I<possible
@@ -625,7 +625,7 @@ redefine the type if they wish, using a different possrep as the
 fundamental, but assuming the redefinition has all the same values,
 non-defining users of the type won't know any different.
 
-The QDRDBMS D implementation can choose for itself as to how the scalar
+The Muldis D implementation can choose for itself as to how the scalar
 type is physically represented behind the scenes, either picking between
 any of the user-provided possreps (assuming enough information is present
 to derive all needed inverse functions as applicable) or using yet another
@@ -651,14 +651,14 @@ all, and hence has no selectors or accessors defined for it.
 =head2 Tuple Types and Relation Types
 
 Tuple types are the fundamental heterogeneous conceptually non-encapsulated
-collection types in QDRDBMS D, and are like the Pascal language's concept
+collection types in Muldis D, and are like the Pascal language's concept
 of a record, or the C language's concept of a struct.  The definition of a
 tuple type comprises a set of zero or more named I<attributes> of any
 scalar or nonscalar type.  This set definition is called the tuple's
 I<heading>.
 
 Relation types are the fundamental homogeneous conceptually
-non-encapsulated collection types in QDRDBMS D, and are like other
+non-encapsulated collection types in Muldis D, and are like other
 languages' concepts of sets (or arrays where all elements are distinct),
 but restricted in that all elements are tuples.  The definition of a
 relation type looks exactly like the definition of a tuple type (such that
@@ -768,7 +768,7 @@ individual system-defined data types, further below, specifies whether each
 of which is finite or infinite, and in the latter case, it states a most
 generic means to specify a finite subtype.>
 
-Note that, while it is not mandated by the language, some QDRDBMS D
+Note that, while it is not mandated by the language, some Muldis D
 implementations may legitimately choose to impose restrictions on their
 users such that the declared types of all persisting variables must be of
 finite types only.
@@ -795,7 +795,7 @@ defining user chose.
 
 =head2 Universal Implicit Operators
 
-QDRDBMS D is universally polymorphic to at least a small degree, such that
+Muldis D is universally polymorphic to at least a small degree, such that
 every data type without exception has both an C<assign> update operator
 (for assigning a value of that type to a variable of that type) and an
 C<equal> function for testing 2 values of that type for equality (as well
@@ -807,17 +807,17 @@ I<This documentation is pending.>
 
 =head1 ENVIRONMENT
 
-The QDRDBMS DBMS / virtual machine, which by definition is the environment
-in which QDRDBMS D executes, conceptually resembles a hardware PC, having a
-command processor (CPU), standard user input and output channel, persistent
-read-only memory (ROM), volatile read-write memory (RAM), and persistent
-read-write disk or network storage.
+The Muldis::DB DBMS / virtual machine, which by definition is the
+environment in which Muldis D executes, conceptually resembles a hardware
+PC, having a command processor (CPU), standard user input and output
+channel, persistent read-only memory (ROM), volatile read-write memory
+(RAM), and persistent read-write disk or network storage.
 
 Within this analogy, the role of the PC's user, that feeds it through
 standard input and accepts its standard output, is fulfilled by the
-application that is driving the QDRDBMS DBMS; similarly, the application
+application that is driving the Muldis::DB DBMS; similarly, the application
 itself will activate the virtual machine when wanting to use it (done in
-this distribution by instantiating a new C<QDRDBMS::Interface::DBMS>
+this distribution by instantiating a new C<Muldis::DB::Interface::DBMS>
 object), and deactivate the virtual machine when done (letting that object
 expire).
 
@@ -829,7 +829,7 @@ be invoked by said user-input commands; the RAM starts out effectively
 empty and the persistent disk or network storage is ignored.
 
 Following this activation, the virtual machine is mostly idle except when
-executing QDRDBMS D commands that it receives via the standard input (done
+executing Muldis D commands that it receives via the standard input (done
 in this distribution by invoking methods on the DBMS object).  The virtual
 machine effectively handles just one command at a time, and executes each
 separately and in the order received; any results or side-effects of each
@@ -848,7 +848,7 @@ file system, this is mounting or unmounting a logical volume.
 Any mounted persistent depot, as well as the temporary "application" depot
 which is most of the conceptual PC's RAM, is home to all user-defined data
 variables, data types, operators, constraints, packages, and routines; they
-collectively are the database that the QDRDBMS DBMS is managing.  Most
+collectively are the database that the Muldis::DB DBMS is managing.  Most
 commands against the DBMS would typically involve reading and updating the
 data variables, which in typical database terms is performing queries and
 data manipulation.  Much less frequently, you would also see "data
@@ -863,7 +863,7 @@ system-defined and user-defined constraints (also known as business rules),
 which are always active over the period that they are defined.  The
 constraints restrict what state the database can be in, and any commands
 which would cause the constraints to be violated will fail; this mechanism
-is a large part of what makes the QDRDBMS DBMS a reliable modeler of
+is a large part of what makes the Muldis::DB DBMS a reliable modeler of
 anything in reality, since it only stores values that are reasonable.
 
 Note that in practice, the aforementioned concept of "commands" is realized
@@ -871,11 +871,11 @@ by "statements" (which are grouped into "routines").
 
 =head1 ROUTINES
 
-There are several kinds of QDRDBMS routines, each of which is intended for,
-and in many cases only permitted to be used for, particular tasks.  Note
-that for all QDRDBMS routines which have parameters, they are all named
-rather than positional parameters; in the case of N-ary routines, the N
-similar argument values come by way of a single nonscalar (or, if
+There are several kinds of Muldis::DB routines, each of which is intended
+for, and in many cases only permitted to be used for, particular tasks.
+Note that for all Muldis::DB routines which have parameters, they are all
+named rather than positional parameters; in the case of N-ary routines, the
+N similar argument values come by way of a single nonscalar (or, if
 necessary, quasi-nonscalar) typed parameter.
 
 =over
@@ -916,7 +916,7 @@ environment in order to do non-deterministic things (besides working with
 depots), such as to initiate I/O of various kinds, or fetch the current
 date and time, or generate a random number.  Given the nature of this
 beast, users can not define their own C<system_service> functions but by
-updating the QDRDBMS source code itself.  Invoking a C<system_service>
+updating the Muldis::DB source code itself.  Invoking a C<system_service>
 function can have side-effects outside of the DBMS, but it will not alter
 anything inside the DBMS aside from any of its subject-to-update
 parameters.
@@ -978,19 +978,19 @@ other kinds of constraints.
 A C<host_gate> is an anonymous procedure that can not be invoked by any
 other routine and exists in the limbo between the DBMS and the application
 that is driving it; the application holds a
-C<QDRDBMS::Interface::HostGateRtn> object to reference it by (the result of
-a C<QDRDBMS::Interface::DBMS> object's C<prepare()> method), and it exists
-only so long as that object doesn't go out of scope.  A C<host_gate> is
-mostly like a C<procedure> in every other way.  Main differences are that
-the only C<host_gate> routines are ones that users define, and that they
-are the only routines allowed to have explicit isolated transaction
+C<Muldis::DB::Interface::HostGateRtn> object to reference it by (the result
+of a C<Muldis::DB::Interface::DBMS> object's C<prepare()> method), and it
+exists only so long as that object doesn't go out of scope.  A C<host_gate>
+is mostly like a C<procedure> in every other way.  Main differences are
+that the only C<host_gate> routines are ones that users define, and that
+they are the only routines allowed to have explicit isolated transaction
 initiation and termination statements (for optional use in a parent-most
 transaction); all other updating routine types have self-contained atomic
 blocks instead.
 
 =back
 
-Note that QDRDBMS currently has no direct support for the concept of a
+Note that Muldis::DB currently has no direct support for the concept of a
 trigger-routine that can update a database; updating virtual relvars or
 invoking C<procedure> are recommended instead.  As for non-updating
 trigger-routines, the state/transition constraint routines already perform
@@ -1000,14 +1000,14 @@ I<This documentation is pending.>
 
 =head1 USERS AND PRIVILEGES
 
-The QDRDBMS DBMS / virtual machine itself does not have its own set of
+The Muldis::DB DBMS / virtual machine itself does not have its own set of
 named users where one must authenticate to use it.  Rather, any concept of
 such users is associated with individual persistent repositories, such that
 you may have to authenticate in order to mount them within the virtual
 machine; moreover, there may be user-specific privileges for that
 repository that restrict what users can do in regards to its contents.
 
-The QDRDBMS privilege system is orthogonal to the standard QDRDBMS
+The Muldis::DB privilege system is orthogonal to the standard Muldis::DB
 constraint system, though both have the same effect of conditionally
 allowing or barring a command from executing.  The constraint system is
 strictly charged with maintaining the logical integrity of the database,
@@ -1027,21 +1027,22 @@ I<This documentation is pending.>
 
 =head1 TRANSACTIONS AND CONCURRENCY
 
-This official specification of the QDRDBMS DBMS includes full ACID
+This official specification of the Muldis::DB DBMS includes full ACID
 compliance as part of the core feature set; moreover, all types of changes
 within a repository are subject to transactions and can be rolled back,
 including both data manipulation and schema manipulation; moreover, an
 interrupted session with a repository must result in an automatic rollback,
 not an automatic commit.
 
-I<It is important to point out that any attempt to implement the QDRDBMS
-DBMS (a QDRDBMS Engine) which does not include full ACID compliance, with
-all aspects described above, is not a true QDRDBMS DBMS implementation, but
-rather is at best a partial implementation, and should be treated with
-suspicion concerning reliability.  Of course, such partial implementations
-will likely be made and used, such as ones implemented over existing
-DBMS products that are themselves not ACID compliant, but you should
-see them for what they are and weigh the corruption risks of using them.>
+I<It is important to point out that any attempt to implement the Muldis::DB
+DBMS (a Muldis::DB Engine) which does not include full ACID compliance,
+with all aspects described above, is not a true Muldis::DB DBMS
+implementation, but rather is at best a partial implementation, and should
+be treated with suspicion concerning reliability.  Of course, such partial
+implementations will likely be made and used, such as ones implemented over
+existing DBMS products that are themselves not ACID compliant, but you
+should see them for what they are and weigh the corruption risks of using
+them.>
 
 I<Note that the best way for an Engine to behave, if for some reason it is
 built in such a way and/or over an existing DBMS product that does implicit
@@ -1049,12 +1050,12 @@ commits after, say, data-definition statements, is for it to throw an
 exception if data-definition is attempted within an explicit /
 multi-statement transaction, such that a user of that Engine can only do
 data-definition outside of an explicit transaction; in this way, the Engine
-is still following all the QDRDBMS safety rules, and hence should be
-relatively safe to use, even if it lacks QDRDBMS features.>
+is still following all the Muldis::DB safety rules, and hence should be
+relatively safe to use, even if it lacks Muldis::DB features.>
 
-Each individual instance of the QDRDBMS DBMS is a single process virtual
+Each individual instance of the Muldis::DB DBMS is a single process virtual
 machine, and conceptually only one thing is happening in it at a time; each
-individual QDRDBMS D statement executes in sequence, following the
+individual Muldis D statement executes in sequence, following the
 completion or failure of its predecessor.  During the life of a statement's
 execution, the state of the virtual machine is constant, except for any
 updates (and side-effects of such) that the statement makes.  Breaking this
@@ -1069,17 +1070,17 @@ that can perform updates, we avoid complicating the issue due to
 environment updates occurring during their invoker statement's first phase.
 
 In account to situations where external processes are concurrently using
-the same persistent (and externally visible) repository as a QDRDBMS DBMS
-instance, the QDRDBMS DBMS will maintain a lock on the whole repository (or
-appropriate subset thereof) during any active read-only and/or for-update
-transaction, to ensure that the transaction sees a consistent environment
-during its life.  The lock is a shared lock if the transaction only does
-reading, and it is an exclusive lock if the transaction also does writing.
-Speaking in terms of SQL, the QDRDBMS DBMS supports only the serializable
-transaction isolation level.
+the same persistent (and externally visible) repository as a Muldis::DB
+DBMS instance, the Muldis::DB DBMS will maintain a lock on the whole
+repository (or appropriate subset thereof) during any active read-only
+and/or for-update transaction, to ensure that the transaction sees a
+consistent environment during its life.  The lock is a shared lock if the
+transaction only does reading, and it is an exclusive lock if the
+transaction also does writing. Speaking in terms of SQL, the Muldis::DB
+DBMS supports only the serializable transaction isolation level.
 
-I<Note that there is currently no official support for using QDRDBMS in a
-multi-threaded application, where its structures are shared between
+I<Note that there is currently no official support for using Muldis::DB in
+a multi-threaded application, where its structures are shared between
 threads, or where multiple thread-specific structures want to use the same
 repositories.  But such support is expected in the future.>
 
@@ -1096,13 +1097,13 @@ all of its committed children actually have a final committed effect or
 not.  The layering of transactions can involve any combination of explicit
 and implicit transactions (the combination should behave intuitively).
 
-The lifetimes of all transactions in QDRDBMS D (except those declared in
+The lifetimes of all transactions in Muldis D (except those declared in
 C<host_gate> routines) are bound to specific lexical scopes, such that they
 begin when that scope is entered and end when that scope is exited; if the
 scope is exited normally, its transaction commits; if the scope terminates
 early due to a thrown exception, its transaction rolls back.
 
-Each QDRDBMS D explicitly invokable routine as a whole (being a lexical
+Each Muldis D explicitly invokable routine as a whole (being a lexical
 scope), whether system-defined or user-defined, is implicitly atomic, so
 invoking one will either succeed or have no side-effect, and the
 environment will remain frozen during its execution, save for the routine's
@@ -1112,15 +1113,15 @@ for-update depending on what it wants to do.  Each try-block is also
 implicitly atomic, committing if it exits normally or rolling back if it
 traps an exception.
 
-Every QDRDBMS D statement (including multi-update statements) is atomic;
-all parts of that statement and its child expressions will see the same
-static view of the environment; if the statement is an update, either all
-parts of that update will succeed and commit, or none of it will
-(accompanied by a thrown exception) and no changes are left.
+Every Muldis D statement (including multi-update statements) is atomic; all
+parts of that statement and its child expressions will see the same static
+view of the environment; if the statement is an update, either all parts of
+that update will succeed and commit, or none of it will (accompanied by a
+thrown exception) and no changes are left.
 
 Explicit atomic statement blocks can also be declared within a routine.
 
-QDRDBMS D also supports the common concept of explicit open-ended
+Muldis D also supports the common concept of explicit open-ended
 transaction statements that start or end transactions which are not bound
 to lexical scopes; however, these statements may only be invoked within a
 C<host_gate> routine, that an application invokes directly, and not in any
@@ -1135,20 +1136,20 @@ All currently mounted repositories (persistent and temporary both) are
 joined at the hip with respect to transactions; a commit or rollback is
 performed on all of them simultaneously, and a commit either succeeds for
 all or fails for all (a repository suddenly becoming inaccessible counts as
-a failure).  I<Note that if a QDRDBMS DBMS implementation can not guarantee
-such synchronization between multiple repositories, then it must refuse to
-mount more than one repository at a time under the same virtual machine
-(users can still employ multiple virtual machines, that are not
+a failure).  I<Note that if a Muldis::DB DBMS implementation can not
+guarantee such synchronization between multiple repositories, then it must
+refuse to mount more than one repository at a time under the same virtual
+machine (users can still employ multiple virtual machines, that are not
 synchronized); by doing one of those two actions, a less capable
 implementation can still be considered reliable and recommendable.>
 
-Some QDRDBMS D commands can not be executed within the context of a parent
+Some Muldis D commands can not be executed within the context of a parent
 transaction; in other words, they can only be executed directly by an
 anonymous routine, the main examples being those that mount or unmount a
 persistent repository; this is because such a change in the environment
 mid-transaction would result in an inconsistent state.
 
-I<QDRDBMS D lets you explicitly place locks on resources that you don't
+I<Muldis D lets you explicitly place locks on resources that you don't
 want external processes to change out from under you, and these locks do
 not automatically expire when transactions end; or maybe they do; this
 feature has to be thought out more.>
@@ -1157,14 +1158,14 @@ I<This documentation is pending.>
 
 =head1 SYSTEM-DEFINED DATA TYPES
 
-These data types are built-in to QDRDBMS D and should be available under
+These data types are built-in to Muldis D and should be available under
 all of its implementations.  They are available for the entire time that a
 DBMS is active and can be used by both persistent and temporary
 user-defined entities.
 
 =head2 Maximal and Minimal Data Types
 
-QDRDBMS D provides 2 special data types named C<Universal> and C<Empty>,
+Muldis D provides 2 special data types named C<Universal> and C<Empty>,
 which contain all values in the universe and no values at all,
 respectively; they are implicit supertypes and subtypes of all other data
 types, respectively.
@@ -1179,7 +1180,7 @@ The default value of C<Universal> is the C<Bool> False value.
 
 By contrast, C<Empty> is very limited in its use.  It doesn't make sense
 for an attribute or container to have a declared type of C<Empty> because
-no value could be held by it, and all containers in QDRDBMS D must be
+no value could be held by it, and all containers in Muldis D must be
 holding a value.  However, it is valid to declare a C<Relation> type whose
 attribute types are C<Empty>, meaning that type is a proper subtype of all
 other C<Relation> with the same attribute names.
@@ -1334,10 +1335,10 @@ tuples.
 A C<Maybe> is a proper subtype of C<Set> that may have at most one element;
 that is, it is a unary C<Relation> with a nullary key.  Operators that work
 specifically with C<Maybe> subtypes can provide a syntactic shorthand for
-working with sparse data; so QDRDBMS D has something which is conceptually
+working with sparse data; so Muldis D has something which is conceptually
 close to SQL's nullable types without actually having 3-valued logic; it
 would probably be convenient for code that round-trips SQL by way of
-QDRDBMS D to use the C<Maybe> type.  Its default value has zero tuples.
+Muldis D to use the C<Maybe> type.  Its default value has zero tuples.
 
 =back
 
@@ -1456,9 +1457,9 @@ I<This documentation is pending.>
 
 These non-fundamental scalar data types describe common kinds of numbers
 that are not specifically limited to having integer values.  While integers
-are part of the QDRDBMS D core, other kinds of numbers are not, for various
+are part of the Muldis D core, other kinds of numbers are not, for various
 reasons, and are represented under this "Numeric" type group instead.  As
-is usual with the QDRDBMS type system, the types mentioned below are all
+is usual with the Muldis::DB type system, the types mentioned below are all
 mutually exclusive aside from explicit subtype relationships.  I<Of course,
 dealing with these types in general isn't a perfect science; they stand to
 be revised or rewritten.>
@@ -1612,7 +1613,7 @@ I<This documentation is pending.>
 
 =head1 SYSTEM-DEFINED ROUTINES
 
-These routines are built-in to QDRDBMS D and should be available under all
+These routines are built-in to Muldis D and should be available under all
 of its implementations.  They are available for the entire time that a DBMS
 is active and can be used by both persistent and temporary user-defined
 entities.
@@ -1628,7 +1629,7 @@ or more catalog relvars; its interface and/or implementation can be
 observed and possibly updated therein.
 
 Note that the following namespaces assume that a program that is written in
-QDRDBMS D executes possibly either standalone or a peer-to-peer process
+Muldis D executes possibly either standalone or a peer-to-peer process
 that can have its global variables made visible to other processes, or have
 others' made visible to it.  Or in other words, the program can both manage
 its own database and be a DBMS client, and the program can either just use
@@ -1725,7 +1726,8 @@ or maybe this won't be a problem at all ... still needs thinking.>
 
 This is a special user-updateable catalog which controls the mounting and
 unmounting of depots; it is minimalist and does little else besides that;
-most meta-data seen/updated here is specific to the QDRDBMS Engine in use.
+most meta-data seen/updated here is specific to the Muldis::DB Engine in
+use.
 
 =item C<foreign.*>
 
@@ -1742,16 +1744,16 @@ subsequently update its C<nat.*> catalog to match, but doing so is strictly
 optional, and typically done just by generic DBMS utility programs, rather
 than programs that do a specific job like payroll or genealogy.  There is a
 distinct foreign.<depot>.* name-space for each connection to the other
-program, or for each disk file, which are considered by QDRDBMS as a
+program, or for each disk file, which are considered by Muldis::DB as a
 I<depot>.  Note that there is no C<< foreign.<depot>.type.* >> and C<<
 foreign.<depot>.rtn.* >> and C<< foreign.<depot>.data.* >>, as the current
 program may not invoke those under those names, though their descriptions
 are available under C<< foreign.<depot>.cat >>; they are only invokable via
 nat.* perceptions of them.  Note that, while cleaned up, a number of
 implementation-specific details may leak through here, possibly defined in
-a non-QDRDBMS D language, if the peer program is not implemented itself by
-QDRDBMS and some of its concepts won't automatically express in QDRDBMS
-native terms, without user interpretation.
+a non-Muldis D language, if the peer program is not implemented itself by
+Muldis::DB and some of its concepts won't automatically express in
+Muldis::DB native terms, without user interpretation.
 
 =item C<< foreign.<depot>.cat >>
 
@@ -1761,9 +1763,9 @@ user-updateable as much as that makes sense.
 
 =item C<interp.*>
 
-Under here are QDRDBMS Engine specific mapping details that bridge between
-corresponding C<nat.cat.*> and C<< foreign.<depot>.cat >> entities,
-sometimes using non-QDRDBMS D but Engine-specific language.  These details
+Under here are Muldis::DB Engine specific mapping details that bridge
+between corresponding C<nat.cat.*> and C<< foreign.<depot>.cat >> entities,
+sometimes using non-Muldis D but Engine-specific language.  These details
 interpret between the foreign entities and their native perceptions.
 
 =item C<< interp.<depot>.cat >>
@@ -1778,26 +1780,26 @@ I<This documentation is pending.>
 
 =head1 CATALOGS
 
-The QDRDBMS catalog relcons and relvars collectively reflect and/or control
-all entities in a DBMS.  Given that the catalog provides complete
+The Muldis::DB catalog relcons and relvars collectively reflect and/or
+control all entities in a DBMS.  Given that the catalog provides complete
 descriptions of both the interface and implementation of each DBMS entity,
 for user-defined entities, and just the interface for system-defined
 entities, understanding these is akin to understanding the native grammar
-of QDRDBMS D.  This grammar is extremely simple by intention, but at a cost
+of Muldis D.  This grammar is extremely simple by intention, but at a cost
 of being a little more verbose.
 
-QDRDBMS D has closely corresponding representations between its 3 main
+Muldis D has closely corresponding representations between its 3 main
 variants, which are catalog relations (what routines inside the DBMS see),
 hierarchical AST nodes (what the application driving the DBMS typically
-sees, ala L<QDRDBMS::AST>), and string-form QDRDBMS D code that users
-interacting with QDRDBMS via a shell interface would use.  The string-form
-would be parsed into the AST, and the AST be flattened into the relations;
-similarly, the relations can be unflattened into the AST, and string-form
-code be generated from the AST if desired.
+sees, ala L<Muldis::DB::AST>), and string-form Muldis D code that users
+interacting with Muldis::DB via a shell interface would use.  The
+string-form would be parsed into the AST, and the AST be flattened into the
+relations; similarly, the relations can be unflattened into the AST, and
+string-form code be generated from the AST if desired.
 
-Third-party wrappers over QDRDBMS can provide additional interfaces for
+Third-party wrappers over Muldis::DB can provide additional interfaces for
 their users, such as a SQL DBMS emulator, and they take care of parsing or
-remapping that to QDRDBMS D, most commonly its AST variant.
+remapping that to Muldis D, most commonly its AST variant.
 
 =head2 Catalog Relcons For System-Defined Entities
 
@@ -1820,7 +1822,7 @@ side-effects in making the entities belonging to a depot, named C<*.db.*>,
 appear in or disappear from view.  Details stored here include analogies to
 DSNs, database file names, DBMS server names and addresses, authentication
 details like login names and passwords.  What details are stored per depot
-can vary significantly depending on which QDRDBMS Engine implements the
+can vary significantly depending on which Muldis::DB Engine implements the
 DBMS, but this variance is limited to just C<cont.mnt.depot_detail>.  Note
 that it is forbidden to update any C<mnt> relvars while a multi-statement
 transaction is active, because a transaction subjugates all entities
@@ -1845,8 +1847,9 @@ I<This documentation is pending.>
 
 =head1 SEE ALSO
 
-Go to L<QDRDBMS> for the majority of distribution-internal references, and
-L<QDRDBMS::SeeAlso> for the majority of distribution-external references.
+Go to L<Muldis::DB> for the majority of distribution-internal references,
+and L<Muldis::DB::SeeAlso> for the majority of distribution-external
+references.
 
 =head1 AUTHOR
 
@@ -1854,14 +1857,14 @@ Darren Duncan (C<perl@DarrenDuncan.net>)
 
 =head1 LICENSE AND COPYRIGHT
 
-This file is part of the QDRDBMS framework.
+This file is part of the Muldis::DB framework.
 
-QDRDBMS is Copyright © 2002-2007, Darren Duncan.
+Muldis::DB is Copyright © 2002-2007, Darren Duncan.
 
-See the LICENSE AND COPYRIGHT of L<QDRDBMS> for details.
+See the LICENSE AND COPYRIGHT of L<Muldis::DB> for details.
 
 =head1 ACKNOWLEDGEMENTS
 
-The ACKNOWLEDGEMENTS in L<QDRDBMS> apply to this file too.
+The ACKNOWLEDGEMENTS in L<Muldis::DB> apply to this file too.
 
 =cut
