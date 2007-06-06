@@ -962,8 +962,8 @@ None reported.
 =head1 SEE ALSO
 
 These Perl 6 packages may some day be dependents of Locale::KeyedText:
-L<QDRDBMS::AST>, L<QDRDBMS>, L<QDRDBMS::Validator>,
-L<QDRDBMS::Engine::Example>, L<QDRDBMS::Shell>.
+L<Muldis::DB::AST>, L<Muldis::DB>, L<Muldis::DB::Validator>,
+L<Muldis::DB::Engine::Example>, L<Muldis::DB::Shell>.
 
 =head1 BUGS AND LIMITATIONS
 

@@ -1027,10 +1027,11 @@ others to make more robust implementations that stay true to the principles
 it demonstrates, and in particular, that the standard Perl 6 grammar or
 language will include one.
 
-I<Note that the separately released L<QDRDBMS> DBMS framework is one such
-more robust implementation in principle, though QDRDBMS is intentionally
-less integrated with the Perl language itself than Set::Relation is, for
-the ease of providing storage implementation portability.>
+I<Note that the separately released L<Muldis::DB> DBMS framework is one
+such more robust implementation in principle, though Muldis::DB is
+intentionally less integrated with the Perl language itself than
+Set::Relation is, for the ease of providing storage implementation
+portability.>
 
 I<TODO: REWRITE THE FOLLOWING.>
 
@@ -1538,7 +1539,8 @@ None reported.
 =head1 SEE ALSO
 
 These other Perl 6 packages also work in the problem domain of managing
-data or data definitions or connections to databases: L<Set>, L<QDRDBMS>.
+data or data definitions or connections to databases: L<Set>,
+L<Muldis::DB>.
 
 =head1 BUGS AND LIMITATIONS
 

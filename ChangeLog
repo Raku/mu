@@ -48,9 +48,9 @@
 
 * [ext/HTTP/] - A general purpose HTTP toolkit for Perl 6
 * [ext/MessageBus/] - Message Bus with PubSub protocol
-* [ext/QDRDBMS/] - A fully-featured truly relational DBMS in Perl
+* [ext/Muldis-DB/] - Full-featured truly relational DBMS in Perl
 ** This is a rewrite of ext/Rosetta/, which is now deleted
-** Note that any further release changes for QDRDBMS will be detailed in
+** Note that any further release changes for Muldis-DB will be detailed in
    its own Changes file rather than the general Pugs ChangeLog file
 * [ext/Web/] - A general purpose Web toolkit for Perl 6
 
