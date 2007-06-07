@@ -1,7 +1,7 @@
 use v6-alpha;
 
 use Test;
-plan 47;
+plan 49;
 #L<S02/Literals/"Characters indexed by hex numbers">
 my %unicode = (
 	'a'  => "\x61",
@@ -27,6 +27,8 @@ ok $u does utf8, 'can specify Str is utf8';
 is $u.bytes, 3, 'combining À is three bytes as utf8';
 is $u.codes, 2, 'combining À is two codes';
 is $u.graphs, 1, 'combining À is one graph';
+is "foo\r\nbar".codes, 8, 'CRLF is 2 codes';
+is "foo\r\nbar".graphs, 7, 'CRLF is 1 graph';
 # Speculation, .chars is unspecced, also use Bytes etc.
 is $u.chars, 1, '.chars defaults to .graphs';
 use_ok 'Bytes', 'use bytes works', :todo;
