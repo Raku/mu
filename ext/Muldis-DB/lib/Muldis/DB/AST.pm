@@ -6,6 +6,20 @@ use v6-alpha;
 my $FALSE = Bool::False;
 my $TRUE  = Bool::True;
 
+my $TYNM_UINT
+    = ::Muldis::DB::AST::EntityName.new( :text('sys.type.UInt') );
+my $TYNM_PINT
+    = ::Muldis::DB::AST::EntityName.new( :text('sys.type.PInt') );
+
+my $ATNM_VALUE = ::Muldis::DB::AST::EntityName.new( :text('value') );
+my $ATNM_INDEX = ::Muldis::DB::AST::EntityName.new( :text('index') );
+my $ATNM_COUNT = ::Muldis::DB::AST::EntityName.new( :text('count') );
+
+my $SCA_TYPE_UINT = ::Muldis::DB::AST::TypeInvoNQ.new(
+    :kind('Scalar'), :spec($TYNM_UINT) );
+my $SCA_TYPE_PINT = ::Muldis::DB::AST::TypeInvoNQ.new(
+    :kind('Scalar'), :spec($TYNM_PINT) );
+
 ###########################################################################
 ###########################################################################
 
@@ -133,6 +147,179 @@ sub newHostGateRtn of Muldis::DB::AST::HostGateRtn
         Muldis::DB::AST::TypeDict :$vars!, Array :$stmts!) is export {
     return ::Muldis::DB::AST::HostGateRtn.new( :upd_params($upd_params),
         :ro_params($ro_params), :vars($vars), :stmts($stmts) );
+}
+
+###########################################################################
+
+sub newSetSel of Muldis::DB::AST::RelationSel
+        (Muldis::DB::AST::TypeInvoNQ :$heading!, Array :$body!) is export {
+
+    die q{new(): Bad :$body arg; it is not an object of a}
+            ~ q{ Array-doing class.}
+        if !$body.defined or !$body.does(Array);
+
+    return ::Muldis::DB::AST::RelationSel.new(
+        :heading(::Muldis::DB::AST::TypeDictNQ.new( :map([
+            [$ATNM_VALUE, $heading],
+        ]) )),
+        :body([$body.map:{
+            ::Muldis::DB::AST::ExprDict.new( :map([
+                [$ATNM_VALUE, $_],
+            ]) ),
+        }]),
+    );
+}
+
+sub newQuasiSetSel of Muldis::DB::AST::QuasiRelationSel
+        (Muldis::DB::AST::TypeInvoAQ :$heading!, Array :$body!) is export {
+
+    die q{new(): Bad :$body arg; it is not an object of a}
+            ~ q{ Array-doing class.}
+        if !$body.defined or !$body.does(Array);
+
+    return ::Muldis::DB::AST::QuasiRelationSel.new(
+        :heading(::Muldis::DB::AST::TypeDictAQ.new( :map([
+            [$ATNM_VALUE, $heading],
+        ]) )),
+        :body([$body.map:{
+            ::Muldis::DB::AST::ExprDict.new( :map([
+                [$ATNM_VALUE, $_],
+            ]) ),
+        }]),
+    );
+}
+
+sub newSeqSel of Muldis::DB::AST::RelationSel
+        (Muldis::DB::AST::TypeInvoNQ :$heading!, Array :$body!) is export {
+
+    die q{new(): Bad :$body arg; it is not an object of a}
+            ~ q{ Array-doing class.}
+        if !$body.defined or !$body.does(Array);
+    for $body -> $tbody {
+        die q{new(): Bad :$body arg elem; it is not an object of a}
+                ~ q{ Array-doing class, or it doesn't have 2 elements.}
+            if !$tbody.defined or !$tbody.does(Array) or $tbody.elems != 2;
+    }
+
+    return ::Muldis::DB::AST::RelationSel.new(
+        :heading(::Muldis::DB::AST::TypeDictNQ.new( :map([
+            [$ATNM_INDEX, $SCA_TYPE_UINT],
+            [$ATNM_VALUE, $heading],
+        ]) )),
+        :body([$body.map:{
+            ::Muldis::DB::AST::ExprDict.new( :map([
+                [$ATNM_INDEX, .[0]],
+                [$ATNM_VALUE, .[1]],
+            ]) ),
+        }]),
+    );
+}
+
+sub newQuasiSeqSel of Muldis::DB::AST::QuasiRelationSel
+        (Muldis::DB::AST::TypeInvoAQ :$heading!, Array :$body!) is export {
+
+    die q{new(): Bad :$body arg; it is not an object of a}
+            ~ q{ Array-doing class.}
+        if !$body.defined or !$body.does(Array);
+    for $body -> $tbody {
+        die q{new(): Bad :$body arg elem; it is not an object of a}
+                ~ q{ Array-doing class, or it doesn't have 2 elements.}
+            if !$tbody.defined or !$tbody.does(Array) or $tbody.elems != 2;
+    }
+
+    return ::Muldis::DB::AST::QuasiRelationSel.new(
+        :heading(::Muldis::DB::AST::TypeDictAQ.new( :map([
+            [$ATNM_INDEX, $SCA_TYPE_UINT],
+            [$ATNM_VALUE, $heading],
+        ]) )),
+        :body([$body.map:{
+            ::Muldis::DB::AST::ExprDict.new( :map([
+                [$ATNM_INDEX, .[0]],
+                [$ATNM_VALUE, .[1]],
+            ]) ),
+        }]),
+    );
+}
+
+sub newBagSel of Muldis::DB::AST::RelationSel
+        (Muldis::DB::AST::TypeInvoNQ :$heading!, Array :$body!) is export {
+
+    die q{new(): Bad :$body arg; it is not an object of a}
+            ~ q{ Array-doing class.}
+        if !$body.defined or !$body.does(Array);
+    for $body -> $tbody {
+        die q{new(): Bad :$body arg elem; it is not an object of a}
+                ~ q{ Array-doing class, or it doesn't have 2 elements.}
+            if !$tbody.defined or !$tbody.does(Array) or $tbody.elems != 2;
+    }
+
+    return ::Muldis::DB::AST::RelationSel.new(
+        :heading(::Muldis::DB::AST::TypeDictNQ.new( :map([
+            [$ATNM_VALUE, $heading],
+            [$ATNM_COUNT, $SCA_TYPE_PINT],
+        ]) )),
+        :body([$body.map:{
+            ::Muldis::DB::AST::ExprDict.new( :map([
+                [$ATNM_VALUE, .[0]],
+                [$ATNM_COUNT, .[1]],
+            ]) ),
+        }]),
+    );
+}
+
+sub newQuasiBagSel of Muldis::DB::AST::RelationSel
+        (Muldis::DB::AST::TypeInvoAQ :$heading!, Array :$body!) is export {
+
+    die q{new(): Bad :$body arg; it is not an object of a}
+            ~ q{ Array-doing class.}
+        if !$body.defined or !$body.does(Array);
+    for $body -> $tbody {
+        die q{new(): Bad :$body arg elem; it is not an object of a}
+                ~ q{ Array-doing class, or it doesn't have 2 elements.}
+            if !$tbody.defined or !$tbody.does(Array) or $tbody.elems != 2;
+    }
+
+    return ::Muldis::DB::AST::QuasiRelationSel.new(
+        :heading(::Muldis::DB::AST::TypeDictAQ.new( :map([
+            [$ATNM_VALUE, $heading],
+            [$ATNM_COUNT, $SCA_TYPE_PINT],
+        ]) )),
+        :body([$body.map:{
+            ::Muldis::DB::AST::ExprDict.new( :map([
+                [$ATNM_VALUE, .[0]],
+                [$ATNM_COUNT, .[1]],
+            ]) ),
+        }]),
+    );
+}
+
+sub newMaybeSel of Muldis::DB::AST::RelationSel
+        (Muldis::DB::AST::TypeInvoNQ :$heading!, Array :$body!) is export {
+    return ::Muldis::DB::AST::RelationSel.new(
+        :heading(::Muldis::DB::AST::TypeDictNQ.new( :map([
+            [$ATNM_VALUE, $heading],
+        ]) )),
+        :body([
+            ::Muldis::DB::AST::ExprDict.new( :map([
+                [$ATNM_VALUE, $body],
+            ]) ),
+        ]),
+    );
+}
+
+sub newQuasiMaybeSel of Muldis::DB::AST::QuasiRelationSel
+        (Muldis::DB::AST::TypeInvoAQ :$heading!,
+        Muldis::DB::AST::Expr :$body!) is export {
+    return ::Muldis::DB::AST::QuasiRelationSel.new(
+        :heading(::Muldis::DB::AST::TypeDictAQ.new( :map([
+            [$ATNM_VALUE, $heading],
+        ]) )),
+        :body([
+            ::Muldis::DB::AST::ExprDict.new( :map([
+                [$ATNM_VALUE, $body],
+            ]) ),
+        ]),
+    );
 }
 
 ###########################################################################
@@ -506,7 +693,7 @@ role Muldis::DB::AST::_Relation {
     does Muldis::DB::AST::Expr;
 
     has Muldis::DB::AST::TypeDict $!heading;
-    has Array                  $!body;
+    has Array                     $!body;
 
     has Str $!as_perl;
 
@@ -1425,7 +1612,7 @@ class Muldis::DB::AST::HostGateRtn {
     has Muldis::DB::AST::TypeDict $!upd_params;
     has Muldis::DB::AST::TypeDict $!ro_params;
     has Muldis::DB::AST::TypeDict $!vars;
-    has Array                  $!stmts;
+    has Array                     $!stmts;
 
     has Str $!as_perl;
 
@@ -1551,7 +1738,9 @@ I<This documentation is pending.>
         newTupleSel newQuasiTupleSel newRelationSel newQuasiRelationSel
         newVarInvo newFuncInvo newProcInvo newFuncReturn newProcReturn
         newEntityName newTypeInvoNQ newTypeInvoAQ newTypeDictNQ
-        newTypeDictAQ newExprDict newFuncDecl newProcDecl newHostGateRtn>;
+        newTypeDictAQ newExprDict newFuncDecl newProcDecl newHostGateRtn
+        newSetSel newQuasiSetSel newSeqSel newQuasiSeqSel newBagSel
+        newQuasiBagSel newMaybeSel newQuasiMaybeSel>;
 
     my $truth_value = newBoolLit( :v(2 + 2 == 4) );
     my $planetoid = newTextLit( :v('Ceres') );

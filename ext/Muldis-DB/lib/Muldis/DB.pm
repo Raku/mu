@@ -99,7 +99,7 @@ method prepare of Muldis::DB::Interface::HostGateRtn
 
 class Muldis::DB::Interface::HostGateVar {
     has Muldis::DB::Interface::DBMS $!dbms;
-    has Any                      $!var_eng;
+    has Any                         $!var_eng;
 
     trusts Muldis::DB::Interface::HostGateRtn;
 
@@ -189,7 +189,7 @@ method store_ast (Muldis::DB::AST::Node :$val_ast!) {
 class Muldis::DB::Interface::HostGateRtn {
     has Muldis::DB::Interface::DBMS  $!dbms;
     has Muldis::DB::AST::HostGateRtn $!rtn_ast;
-    has Any                       $!rtn_eng;
+    has Any                          $!rtn_eng;
 
 ###########################################################################
 

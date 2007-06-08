@@ -13,7 +13,9 @@ module Muldis::DB::Validator-0.0.0 {
         newTupleSel newQuasiTupleSel newRelationSel newQuasiRelationSel
         newVarInvo newFuncInvo newProcInvo newFuncReturn newProcReturn
         newEntityName newTypeInvoNQ newTypeInvoAQ newTypeDictNQ
-        newTypeDictAQ newExprDict newFuncDecl newProcDecl newHostGateRtn>;
+        newTypeDictAQ newExprDict newFuncDecl newProcDecl newHostGateRtn
+        newSetSel newQuasiSetSel newSeqSel newQuasiSeqSel newBagSel
+        newQuasiBagSel newMaybeSel newQuasiMaybeSel>;
 
 ###########################################################################
 
@@ -43,18 +45,18 @@ sub _scenario_foods_suppliers_shipments
     # Declare our example executable code as Muldis::DB ASTs.
 
     my $tynm_Text     = newEntityName( :text('sys.type.Text') );
-    my $tynm_Int      = newEntityName( :text('sys.type.Int') );
+    my $tynm_UInt     = newEntityName( :text('sys.type.UInt') );
 
     my $atnm_colour  = newEntityName( :text('colour') );
     my $atnm_country = newEntityName( :text('country') );
     my $atnm_farm    = newEntityName( :text('farm') );
     my $atnm_food    = newEntityName( :text('food') );
     my $atnm_qty     = newEntityName( :text('qty') );
-    my $atnm_value   = newEntityName( :text('value') );
 
     my $sca_type_Text
         = newTypeInvoNQ( :kind('Scalar'), :spec($tynm_Text) );
-    my $sca_type_Int = newTypeInvoNQ( :kind('Scalar'), :spec($tynm_Int) );
+    my $sca_type_UInt
+        = newTypeInvoNQ( :kind('Scalar'), :spec($tynm_UInt) );
 
     my $qrel_type_Relation
         = newTypeInvoAQ( :kind('Any'), :spec('Relation') );
@@ -70,14 +72,10 @@ sub _scenario_foods_suppliers_shipments
     my $heading_shipments = newTypeDictNQ( :map([
         [$atnm_farm, $sca_type_Text],
         [$atnm_food, $sca_type_Text],
-        [$atnm_qty,  $sca_type_Int],
+        [$atnm_qty,  $sca_type_UInt],
     ]) );
     my $heading_colours = newTypeDictNQ( :map([
         [$atnm_colour, $sca_type_Text],
-    ]) );
-
-    my $qheading_set_of_ar = newTypeDictAQ( :map([
-        [$atnm_value, $qrel_type_Relation],
     ]) );
 
     my $rel_type_suppliers = newTypeInvoNQ(
@@ -106,28 +104,20 @@ sub _scenario_foods_suppliers_shipments
     my $expr_3jn_ssp_sfd_scl = newFuncInvo(
         :func($opnm_rel_jn),
         :ro_args(newExprDict( :map([
-            [$anm_sources, newQuasiRelationSel(
-                :heading($qheading_set_of_ar),
+            [$anm_sources, newQuasiSetSel(
+                :heading($qrel_type_Relation),
                 :body([
-                    newExprDict( :map([
-                        [$atnm_value, newVarInvo(
-                            :v($pnm_src_shipm) )],
-                    ]) ),
-                    newExprDict( :map([
-                        [$atnm_value, newVarInvo(
-                            :v($pnm_src_foods) )],
-                    ]) ),
-                    newExprDict( :map([
-                        [$atnm_value, newRelationSel(
-                            :heading($heading_colours),
-                            :body([
-                                newExprDict( :map([
-                                    [$atnm_colour, newVarInvo(
-                                        :v($pnm_desi_colour) )],
-                                ]) ),
-                            ]),
-                        )]
-                    ]) ),
+                    newVarInvo( :v($pnm_src_shipm) ),
+                    newVarInvo( :v($pnm_src_foods) ),
+                    newRelationSel(
+                        :heading($heading_colours),
+                        :body([
+                            newExprDict( :map([
+                                [$atnm_colour, newVarInvo(
+                                    :v($pnm_desi_colour) )],
+                            ]) ),
+                        ]),
+                    ),
                 ]),
             )],
         ]) )),

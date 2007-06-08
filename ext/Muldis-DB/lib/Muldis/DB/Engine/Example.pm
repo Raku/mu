@@ -112,9 +112,9 @@ class Muldis::DB::Engine::Example::HostGateRtn {
 
     has Muldis::DB::Engine::Example::DBMS $!dbms;
     has Muldis::DB::AST::HostGateRtn      $!rtn_ast;
-    has Code                           $!prep_rtn;
-    has Hash                           $!bound_upd_args;
-    has Hash                           $!bound_ro_args;
+    has Code                              $!prep_rtn;
+    has Hash                              $!bound_upd_args;
+    has Hash                              $!bound_ro_args;
 
 ###########################################################################
 
