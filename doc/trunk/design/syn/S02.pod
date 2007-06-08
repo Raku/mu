@@ -1676,8 +1676,8 @@ variable is "wild carded" into every package.
 =item *
 
 For an ordinary Perl program running by itself, the C<GLOBAL> and
-C<PROCESS> namespaces are considered synonymous.  However, it certain
-situations (such as shared hosting under a webserver), the actually
+C<PROCESS> namespaces are considered synonymous.  However, in certain
+situations (such as shared hosting under a webserver), the actual
 process may contain multiple virtual processes, each running its own
 "main" code.  In this case, the C<GLOBAL> namespace holds variables
 that properly belong to the individual virtual process, while the
@@ -1689,11 +1689,11 @@ However, the process as a whole may place restrictions on the
 mutability of process variables as seen by the individual subprocesses.
 Also, individual subprocesses may not create new process variables.
 If the process wishes to grant subprocesses the ability to communicate
-via the C<process> namespace, it must supply a writeable hash or some
-such to all the subprocesses granted that privilege.
+via the C<PROCESS> namespace, it must supply a writeable variable
+to all the subprocesses granted that privilege.
 
-When these namespaces are distinguished, the C<*> shortcut always refers
-to C<GLOBAL>.  There is no twigil shortcut for C<PROCESS::>.
+When these namespaces are so distinguished, the C<*> shortcut always refers
+to C<GLOBAL>.  There is no twigil shortcut for C<PROCESS>.
 
 =item *
 
