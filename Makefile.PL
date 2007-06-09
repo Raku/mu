@@ -269,6 +269,14 @@ sub set_postamble {
                 . "main = let x = defaultProtocol in return x\n"  
                 );
 
+    # We probably need to promote this to a config.yml + autodetect
+    # thing, but until it's done, put the condition here at least and
+    # don't hardcode it into the postamble.
+    my $ghci_debugging =
+            (defined $ENV{PUGS_GHCI_DEBUGGING} ? $ENV{PUGS_GHCI_DEBUGGING} : 1)
+        ? '-fdebugging' : '';
+    $ghci_debugging = '' if $ghc_version eq '6.6';
+
     $ghc = $ghc_wrapper;
     $ghc_pkg = $ghc_pkg_wrapper;
 
@@ -835,7 +843,7 @@ smoke-redsix : $pugs util/run-smoke.pl all
 ghci : @prereqs @derived_srcfiles
 	$ghc @{[ dethread_flags($ghc_flags) ]} $ghc_output -DPUGS_UNDER_GHCI -no-link --make -O0 -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Prereqs.hs @prereqs
 	\@\$(RM_RF) src/Pugs/*/*_stub.*
-	$ghc @{[ dethread_flags($ghc_flags) ]} @ghci_flags $ghc_output -DPUGS_UNDER_GHCI --interactive -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
+	$ghc @{[ dethread_flags($ghc_flags) ]} @ghci_flags $ghc_output -DPUGS_UNDER_GHCI --interactive -fglasgow-exts $ghci_debugging -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
 
 ctags : @prereqs @derived_srcfiles
 	echo ":ctags" | $ghc $ghc_flags @ghci_flags $ghc_output --interactive -osuf moose -hisuf miise -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
