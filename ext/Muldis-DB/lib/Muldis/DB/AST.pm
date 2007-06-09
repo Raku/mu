@@ -267,7 +267,7 @@ sub newBagSel of Muldis::DB::AST::RelationSel
     );
 }
 
-sub newQuasiBagSel of Muldis::DB::AST::RelationSel
+sub newQuasiBagSel of Muldis::DB::AST::QuasiRelationSel
         (Muldis::DB::AST::TypeInvoAQ :$heading!, Array :$body!) is export {
 
     die q{new(): Bad :$body arg; it is not an object of a}
@@ -295,30 +295,39 @@ sub newQuasiBagSel of Muldis::DB::AST::RelationSel
 
 sub newMaybeSel of Muldis::DB::AST::RelationSel
         (Muldis::DB::AST::TypeInvoNQ :$heading!, Array :$body!) is export {
+
+    die q{new(): Bad :$body arg; it is not an object of a}
+            ~ q{ Array-doing class, or it doesn't have 0..1 elements.}
+        if !$body.defined or !$body.does(Array) or $body.elems > 1;
+
     return ::Muldis::DB::AST::RelationSel.new(
         :heading(::Muldis::DB::AST::TypeDictNQ.new( :map([
             [$ATNM_VALUE, $heading],
         ]) )),
-        :body([
+        :body([$body.map:{
             ::Muldis::DB::AST::ExprDict.new( :map([
-                [$ATNM_VALUE, $body],
+                [$ATNM_VALUE, $_],
             ]) ),
-        ]),
+        }]),
     );
 }
 
 sub newQuasiMaybeSel of Muldis::DB::AST::QuasiRelationSel
-        (Muldis::DB::AST::TypeInvoAQ :$heading!,
-        Muldis::DB::AST::Expr :$body!) is export {
+        (Muldis::DB::AST::TypeInvoNQ :$heading!, Array :$body!) is export {
+
+    die q{new(): Bad :$body arg; it is not an object of a}
+            ~ q{ Array-doing class, or it doesn't have 0..1 elements.}
+        if !$body.defined or !$body.does(Array) or $body.elems > 1;
+
     return ::Muldis::DB::AST::QuasiRelationSel.new(
         :heading(::Muldis::DB::AST::TypeDictAQ.new( :map([
             [$ATNM_VALUE, $heading],
         ]) )),
-        :body([
+        :body([$body.map:{
             ::Muldis::DB::AST::ExprDict.new( :map([
-                [$ATNM_VALUE, $body],
+                [$ATNM_VALUE, $_],
             ]) ),
-        ]),
+        }]),
     );
 }
 
@@ -649,19 +658,18 @@ method attr_count of Int () {
     return $!heading.elem_count();
 }
 
-method attr_exists of Muldis::DB::AST::TypeInvo
-        (Muldis::DB::AST::EntityName :$attr_name!) {
-    return $!heading.elem_exists($attr_name);
+method attr_exists of Bool (Muldis::DB::AST::EntityName :$attr_name!) {
+    return $!heading.elem_exists( :elem_name($attr_name) );
 }
 
 method attr_type of Muldis::DB::AST::TypeInvo
         (Muldis::DB::AST::EntityName :$attr_name!) {
-    return $!heading.elem_value($attr_name);
+    return $!heading.elem_value( :elem_name($attr_name) );
 }
 
-method attr_value of Muldis::DB::AST::TypeInvo
+method attr_value of Muldis::DB::AST::Expr
         (Muldis::DB::AST::EntityName :$attr_name!) {
-    return $!body.elem_value($attr_name);
+    return $!body.elem_value( :elem_name($attr_name) );
 }
 
 ###########################################################################
@@ -774,23 +782,55 @@ method body of Array () {
 
 ###########################################################################
 
+method body_repr_elem_count of Int () {
+    return $!body.elems;
+}
+
+###########################################################################
+
 method attr_count of Int () {
     return $!heading.elem_count();
 }
 
-method attr_exists of Muldis::DB::AST::TypeInvo
-        (Muldis::DB::AST::EntityName :$attr_name!) {
-    return $!heading.elem_exists($attr_name);
+method attr_exists of Bool (Muldis::DB::AST::EntityName :$attr_name!) {
+    return $!heading.elem_exists( :elem_name($attr_name) );
 }
 
 method attr_type of Muldis::DB::AST::TypeInvo
         (Muldis::DB::AST::EntityName :$attr_name!) {
-    return $!heading.elem_value($attr_name);
+    return $!heading.elem_value( :elem_name($attr_name) );
 }
 
-method attr_values of Muldis::DB::AST::TypeInvo
-        (Muldis::DB::AST::EntityName :$attr_name!) {
-    return [$!body.map:{ .elem_value($attr_name) }];
+method attr_values of Array (Muldis::DB::AST::EntityName :$attr_name!) {
+    return [$!body.map:{ .elem_value( :elem_name($attr_name) ) }];
+}
+
+###########################################################################
+
+method heading_of_SSBM of Muldis::DB::AST::TypeInvo () {
+    return $!heading.elem_value( :elem_name($ATNM_VALUE) );
+}
+
+method body_of_Set of Array () {
+    return [$!body.map:{ .elem_value( :elem_name($ATNM_VALUE) ) }];
+}
+
+method body_of_Seq of Array () {
+    return [$!body.map:{ [
+            .elem_value( :elem_name($ATNM_INDEX) ),
+            .elem_value( :elem_name($ATNM_VALUE) ),
+        ] }];
+}
+
+method body_of_Bag of Array () {
+    return [$!body.map:{ [
+            .elem_value( :elem_name($ATNM_VALUE) ),
+            .elem_value( :elem_name($ATNM_COUNT) ),
+        ] }];
+}
+
+method body_of_Maybe of Array () {
+    return [$!body.map:{ .elem_value( :elem_name($ATNM_VALUE) ) }];
 }
 
 ###########################################################################
@@ -1403,8 +1443,7 @@ method elem_count of Int () {
     return $!map_aoa.elems;
 }
 
-method elem_exists of Muldis::DB::AST::TypeInvo
-        (Muldis::DB::AST::EntityName :$elem_name!) {
+method elem_exists of Bool (Muldis::DB::AST::EntityName :$elem_name!) {
 
     die q{elem_exists(): Bad :$elem_name arg; it is not an object of a}
             ~ q{ Muldis::DB::AST::EntityName-doing class.}
@@ -1421,8 +1460,12 @@ method elem_value of Muldis::DB::AST::TypeInvo
             ~ q{ Muldis::DB::AST::EntityName-doing class.}
         if !$elem_name.defined
             or !$elem_name.does(::Muldis::DB::AST::EntityName);
+    my Str $elem_name_text = $elem_name.text();
 
-    return $!map_hoa{$elem_name.text()};
+    die q{elem_value(): Bad :$elem_name arg; it matches no dict elem.}
+        if !$!map_hoa.exists($elem_name_text);
+
+    return $!map_hoa{elem_name_text};
 }
 
 ###########################################################################
@@ -1545,8 +1588,7 @@ method elem_count of Int () {
     return $!map_aoa.elems;
 }
 
-method elem_exists of Muldis::DB::AST::TypeInvo
-        (Muldis::DB::AST::EntityName :$elem_name!) {
+method elem_exists of Bool (Muldis::DB::AST::EntityName :$elem_name!) {
 
     die q{elem_exists(): Bad :$elem_name arg; it is not an object of a}
             ~ q{ Muldis::DB::AST::EntityName-doing class.}
@@ -1556,15 +1598,19 @@ method elem_exists of Muldis::DB::AST::TypeInvo
     return $!map_hoa.exists($elem_name.text());
 }
 
-method elem_value of Muldis::DB::AST::TypeInvo
+method elem_value of Muldis::DB::AST::Expr
         (Muldis::DB::AST::EntityName :$elem_name!) {
 
     die q{elem_value(): Bad :$elem_name arg; it is not an object of a}
             ~ q{ Muldis::DB::AST::EntityName-doing class.}
         if !$elem_name.defined
             or !$elem_name.does(::Muldis::DB::AST::EntityName);
+    my Str $elem_name_text = $elem_name.text();
 
-    return $!map_hoa{$elem_name.text()};
+    die q{elem_value(): Bad :$elem_name arg; it matches no dict elem.}
+        if !$!map_hoa.exists($elem_name_text);
+
+    return $!map_hoa{elem_name_text};
 }
 
 ###########################################################################
