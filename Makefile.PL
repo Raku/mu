@@ -269,13 +269,20 @@ sub set_postamble {
                 . "main = let x = defaultProtocol in return x\n"  
                 );
 
+    #
     # We probably need to promote this to a config.yml + autodetect
     # thing, but until it's done, put the condition here at least and
     # don't hardcode it into the postamble.
+    #
+    # Note that the -fdebugging flag only existed in GHC trunk builds
+    # around May 2007, and would not be present either before or afterwards.
+    # (In the newer builds it's enabled by default and supports a much more
+    # comprehensive feature set, including single-stepping and tracing.)
+    #
     my $ghci_debugging =
             (defined $ENV{PUGS_GHCI_DEBUGGING} ? $ENV{PUGS_GHCI_DEBUGGING} : 1)
         ? '-fdebugging' : '';
-    $ghci_debugging = '' if $ghc_version eq '6.6';
+    $ghci_debugging = '' if $ghc_version <= 6.6 or $ghc_version >= 6.8;
 
     $ghc = $ghc_wrapper;
     $ghc_pkg = $ghc_pkg_wrapper;
