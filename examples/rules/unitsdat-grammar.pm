@@ -24,10 +24,10 @@ class Unitdef {
         $.is_linear = False;
         %.fund_units = $.defreduce(%def);
         %.input_units = $.defreduce(%input);
-        &.cv_to_fund :=   method (Num$x --> Num) {
+        &.cv_to_fund :=   method (Num $x --> Num) {
                 to_fund($x);
             };
-        &.cv_from_fund := method (Num$x --> Num) {
+        &.cv_from_fund := method (Num $x --> Num) {
                 from_fund($x);
             };
     }
@@ -133,7 +133,7 @@ grammar UnitsGeneric {
     }
 
     rule number_mult(Bool :$flip = False) {
-        { my Int $sign = $flip ?? -1 !! 1 } !0;#XXX !! confuses perl6.vim
+        { my Int $sign = $flip ?? -1 !! 1 } <!{0}>#XXX !! confuses perl6.vim
         [ $<lhs> := <basicnumber>
         | $<lhs> := <number_paren>
         | $<lhs> := <number_pow>
@@ -144,19 +144,19 @@ grammar UnitsGeneric {
                # really left assoc
                | $<rhs> := <number_mult>
                ]
-            { $<num> = $<lhs><num> * $<rhs><num> ** $sign }
+           { $<num> = $<lhs><num> * $<rhs><num> ** $sign }
         | '/'  [ $<rhs> := <basicnumber>
                | $<rhs> := <number_paren>
                | $<rhs> := <number_pow>
                # really left assoc - flip the next one to fix
                | $<rhs> := <number_mult(:flip)>
                ]
-               { $<num> = $<lhs><num> / $<rhs><num> ** $sign }
+           { $<num> = $<lhs><num> / $<rhs><num> ** $sign }
         ]
     }
 
     rule number_add(Bool :$flip = False) {
-        { my Int $sign = $flip ?? -1 !! 1 } !0;#XXX !! confuses perl6.vim
+        { my Int $sign = $flip ?? -1 !! 1 } <!{0}>#XXX !! confuses perl6.vim
         [ $<lhs> := <basicnumber>
         | $<lhs> := <number_paren>
         | $<lhs> := <number_pow>
@@ -220,7 +220,7 @@ grammar UnitsGeneric {
     }
 
     rule unitdef_mult(Bool :$flip = False) {
-        { my Int $sign = $flip ?? -1 !! 1 } !0;#XXX !! confuses perl6.vim
+        { my Int $sign = $flip ?? -1 !! 1 } <!{0}>#XXX !! confuses perl6.vim
         [ $<lhs> := <basicunitdef>
         | $<lhs> := <unitdef_paren>
         ]
@@ -240,7 +240,7 @@ grammar UnitsGeneric {
     }
 
     rule unitdef_add(Bool :$flip = False) {
-        { my Int $sign = $flip ?? -1 !! 1 } !0;#XXX !! confuses perl6.vim
+        { my Int $sign = $flip ?? -1 !! 1 } <!{0}>#XXX !! confuses perl6.vim
         [ $<lhs> := <basicunitdef>
         | $<lhs> := <unitdef_paren>
         | $<lhs> := <unitdef_mult>
@@ -322,7 +322,7 @@ grammar UnitsGeneric {
     }
 
     rule nl_mult(Str $var, Num %def, Bool :$flip = False) {
-        { my Int $sign = $flip ?? -1 !! 1 } !0;#XXX !! confuses perl6.vim
+        { my Int $sign = $flip ?? -1 !! 1 } <!{0}>#XXX !! confuses perl6.vim
         [ $<lhs> := <nl_atom($var, %def)>
         | $<lhs> := <nl_paren($var, %def)>
         | $<lhs> := <nl_pow($var, %def)>
@@ -353,7 +353,7 @@ grammar UnitsGeneric {
     }
 
     rule nl_add(Str $var, Num %def, Bool :$flip = False) {
-        { my Int $sign = $flip ?? -1 !! 1 } !0;#XXX !! confuses perl6.vim
+        { my Int $sign = $flip ?? -1 !! 1 } <!{0}>#XXX !! confuses perl6.vim
         [ $<lhs> := <nl_atom($var, %def)>
         | $<lhs> := <nl_paren($var, %def)>
         | $<lhs> := <nl_pow($var, %def)>
