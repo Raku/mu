@@ -5,8 +5,9 @@ use v6-alpha;
 
 module Muldis::DB::Engine::Example::Operators-0.0.0 {
 
-    use Muldis::DB::Engine::Example::PhysType
-        <dBool dText dBlob dInt dTextKeyedMap dHeading dTuple dRelation>;
+    use Muldis::DB::Engine::Example::PhysType <ptBool ptText ptBlob ptInt
+        ptTuple ptQuasiTuple ptRelation ptQuasiRelation ptTypeInvoNQ
+        ptTypeInvoAQ ptTypeDictNQ ptTypeDictAQ ptValueDictNQ ptTypeDictAQ>;
 
     my Hash $OPS = {
 
@@ -24,11 +25,11 @@ module Muldis::DB::Engine::Example::Operators-0.0.0 {
 ## sys.type.Int ##
 
 'sys.rtn.Int.equal' => sub (:$v1!, :$v2!) {
-    return dBool( :v($v1.equal( $v2 )) );
+    return ptBool( :v($v1.equal( $v2 )) );
 },
 
 'sys.rtn.Int.not_equal' => sub (:$v1!, :$v2!) {
-    return dBool( :v(!$v1.equal( $v2 )) );
+    return ptBool( :v(!$v1.equal( $v2 )) );
 },
 
 'sys.rtn.Int.assign' => sub (:$target!, :$v!) {
@@ -41,11 +42,11 @@ module Muldis::DB::Engine::Example::Operators-0.0.0 {
     for $addends.array_from_value_attr() -> $addend {
         $sum += $addend.v();
     }
-    return dInt( :v($sum) );
+    return ptInt( :v($sum) );
 },
 
 'sys.rtn.Int.difference' => sub (:$minuend!, :$subtrahend!) {
-    return dInt( :v($minuend.v() - $subtrahend.v()) );
+    return ptInt( :v($minuend.v() - $subtrahend.v()) );
 },
 
 'sys.rtn.Int.product' => sub (:$factors!) {
@@ -53,31 +54,31 @@ module Muldis::DB::Engine::Example::Operators-0.0.0 {
     for $factors.array_from_value_attr() -> $factor {
         $product *= $factor.v();
     }
-    return dInt( :v($product) );
+    return ptInt( :v($product) );
 },
 
 'sys.rtn.Int.quotient' => sub (:$dividend!, :$divisor!) {
     my Int $divisor_v = $divisor.v();
     die q{sys.rtn.Int.quotient(): Arg :$divisor is zero.}
         if $divisor_v === 0;
-#    return dInt( :v(floor ($dividend.v() div $divisor_v)) );
-    return dInt( :v(floor ($dividend.v() / $divisor_v)) );
+#    return ptInt( :v(floor ($dividend.v() div $divisor_v)) );
+    return ptInt( :v(floor ($dividend.v() / $divisor_v)) );
 },
 
 'sys.rtn.Int.remainder' => sub (:$dividend!, :$divisor!) {
     my Int $divisor_v = $divisor.v();
     die q{sys.rtn.Int.remainder(): Arg :$divisor is zero.}
         if $divisor_v === 0;
-#    return dInt( :v($dividend.v() mod $divisor_v) );
-    return dInt( :v($dividend.v() % $divisor_v) );
+#    return ptInt( :v($dividend.v() mod $divisor_v) );
+    return ptInt( :v($dividend.v() % $divisor_v) );
 },
 
 'sys.rtn.Int.abs' => sub (:$v!) {
-    return dInt( :v(abs $v.v()) );
+    return ptInt( :v(abs $v.v()) );
 },
 
 'sys.rtn.Int.power' => sub (:$radix!, :$exponent!) {
-    return dInt( :v($radix.v() ** $exponent.v()) );
+    return ptInt( :v($radix.v() ** $exponent.v()) );
 },
 
 ## sys.type.Tuple ##

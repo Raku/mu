@@ -1465,7 +1465,7 @@ method elem_value of Muldis::DB::AST::TypeInvo
     die q{elem_value(): Bad :$elem_name arg; it matches no dict elem.}
         if !$!map_hoa.exists($elem_name_text);
 
-    return $!map_hoa{elem_name_text};
+    return $!map_hoa{$elem_name_text};
 }
 
 ###########################################################################
@@ -1610,7 +1610,7 @@ method elem_value of Muldis::DB::AST::Expr
     die q{elem_value(): Bad :$elem_name arg; it matches no dict elem.}
         if !$!map_hoa.exists($elem_name_text);
 
-    return $!map_hoa{elem_name_text};
+    return $!map_hoa{$elem_name_text};
 }
 
 ###########################################################################
