@@ -119,7 +119,7 @@ counts as whitespace equivalent to a newline.
 Except when quoted, a C<#> character always introduces a comment in
 Perl 6.  There are three forms of comment based on C<#>.  Embedded
 comments and block comments require the C<#> to be followed by one
-or more opening bracketing character.
+or more opening bracketing characters.
 
 All other uses of C<#> are interpreted as single-line comments that
 work just as in Perl 5, starting with a C<#> character and
