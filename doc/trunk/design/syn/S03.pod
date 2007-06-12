@@ -605,7 +605,7 @@ Dispatches to the infix:<mod> multi most appropriate to the operand types.
 
 =item *
 
-infix:<x>, string replication
+infix:<x>, string/buffer replication
 
     $string x $count
 
@@ -647,34 +647,34 @@ Converts both arguments to C<Int> and does a bitwise numeric AND.
 
 infix:{'+<'}, numeric shift left
 
-    +<
+    $integer +< $bits
 
 =item *
 
 infix:{'+>'}, numeric shift right
 
-    +>
+    $integer +> $bits
 
 By default, signed types do sign extension, while unsigned types do not, but
 this may be enabled or disabled with a C<:signed> or C<:!signed> adverb.
 
 =item *
 
-infix:<~&>, string bitwise and
+infix:<~&>, buffer bitwise and
 
-    ~&
+    $x ~& $y
 
 =item *
 
 infix:{'~<'}, buffer bitwise shift left
 
-    ~<
+    $buf ~< $bits
 
 =item *
 
 infix:{'~>'}, buffer bitwise shift right
 
-    ~>
+    $buf ~> $bits
 
 Sign extension is not done by default but may be enabled with a C<:signed>
 adverb.
@@ -683,7 +683,7 @@ adverb.
 
 infix:<?&>, boolean bitwise and
 
-    ?&
+    $x ?& $y
 
 =back
 
@@ -699,55 +699,55 @@ sign extension is meaningless, and you may not specify a C<:signed> adverb.
 
 infix:<+>, numeric addition
 
-    +
+    $x + $y
 
 =item *
 
 infix:<->, numeric subtraction
 
-    -
+    $x - $y
 
 =item *
 
-infix:<~>, string concatenation
+infix:<~>, string/buffer concatenation
 
-    ~
+    $x ~ $y
 
 =item *
 
 infix:<+|>, numeric bitwise inclusive or
 
-    +|
+    $x +| $y
 
 =item *
 
 infix:<+^> numeric bitwise exclusive or
 
-    +^
+    $x +^ $y
 
 =item *
 
-infix:<~|>, string bitwise inclusive or
+infix:<~|>, buffer bitwise inclusive or
 
-    ~|
+    $x ~| $y
 
 =item *
 
-infix:<~^> string bitwise exclusive or
+infix:<~^> buffer bitwise exclusive or
 
-    ~^
+    $x ~^ $y
 
 =item *
 
 infix:<?|>, boolean bitwise inclusive or
 
-    ?|
+    $x ?| $y
 
 =item *
 
 infix:<?^> boolean bitwise exclusive or
 
-    ?^
+    $x ?^ $y
 
 =back
 
@@ -759,7 +759,7 @@ infix:<?^> boolean bitwise exclusive or
 
 infix:<&>, all() operator
 
-    &
+    $x & $y
 
 =back
 
@@ -771,13 +771,13 @@ infix:<&>, all() operator
 
 infix:<|>, any() operator
 
-    |
+    $x | $y
 
 =item *
 
 infix:<^>, one() operator
 
-    ^
+    $x ^ $y
 
 =back
 
@@ -804,13 +804,13 @@ to C<$_> in Perl 6.
 
 infix:<but>
 
-    but
+    $value but Mixin
 
 =item *
 
 infix:<does>
 
-    does
+    $object does Mixin
 
 =item *
 
@@ -891,7 +891,7 @@ Generic ordering
 
 Smart match
 
-    ~~
+    $obj ~~ $pattern
 
 Perl 5's C<=~> becomes the "smart match" operator C<~~>, with an
 extended set of semantics.  See L</Smart matching> for details.
@@ -958,7 +958,7 @@ See L</Negated relational operators>.
 
 infix:<&&>, short-circuit and
 
-    &&
+    $condition && $whentrue
 
 Returns the left argument if the left argument is false, otherwise
 evaluates and returns the right argument.  In list context forces
@@ -975,7 +975,7 @@ version.
 
 infix:<||>, short-circuiting inclusive-or
 
-    ||
+    $condition || $whenfalse
 
 Returns the left argument if it's true, otherwise evaluates and returns
 the right argument.  It is specifically allowed to use a list or array
@@ -990,7 +990,7 @@ See C<or> below for low-precedence version.
 
 infix:<^^>, exclusive-or
 
-    ^^
+    $x ^^ $y
 
 Returns the true argument if there is one (and only one).  Returns
 C<Bool::False> if both arguments are false or both arguments are true.
@@ -1001,7 +1001,7 @@ See C<xor> below for low-precedence version.
 
 infix:<//>, defined-or
 
-    //
+    $value // $default
 
 Returns the left argument if it's defined, otherwise evaluates and
 returns the right argument.  In list context forces a false return
@@ -1026,7 +1026,7 @@ minmax listop.
 
 =item *
 
-?? !!
+Conditional operator
 
     say "My answer is: ", $maybe ?? "yes" !! "no";
 
@@ -1092,7 +1092,7 @@ With simple lvalues, C<=> has this precedence, which is tighter than comma.
 
 infix:<:=>, run-time binding
 
-    :=
+    $signature := $capture
 
 A new form of assignment is present in Perl 6, called I<binding>, used in
 place of typeglob assignment.  It is performed with the C<:=> operator.
@@ -1127,7 +1127,7 @@ specially as the equivalent of binding to a typeless variable.
 
 infix:<::=>, compile-time binding
 
-    ::=
+    $signature ::= $capture
 
 This does the same as C<:=> except it does it at compile time.  (This implies
 that the expression on the right is also evaluated at compile time; it does
@@ -1250,9 +1250,9 @@ This becomes a flat list in C<@> context and a list of arrays in C<@@> context:
 
 Cross hyperoperators
 
-    X~X
-    X*X
-    XeqvX
+    @files X~X '.' X~X @extensions
+    1..10 X*X 1..10
+    @x XeqvX @y
     etc.
 
 See L</Cross operators>.
@@ -1437,7 +1437,7 @@ C<%()>.
 
 infix:<and>, short-circuit and
 
-    and
+    $condition and $whentrue
 
 Returns the left argument if the left argument is false, otherwise
 evaluates and returns the right argument.  In list context forces
@@ -1454,7 +1454,7 @@ version.
 
 infix:<or>, short-circuit inclusive or
 
-    or
+    $condition or $whenfalse
 
 Returns the left argument if it's true, otherwise evaluates and
 returns the right argument.  In list context forces a false return
@@ -1464,7 +1464,7 @@ to mean C<()>.  See C<||> above for high-precedence version.
 
 infix:<xor>, exclusive or
 
-    xor
+    $x xor $y
 
 Returns the true argument if there is one (and only one).  Returns
 C<Bool::False> if both arguments are false or both arguments are true.
@@ -1475,7 +1475,7 @@ See C<^^> above for high-precedence version.
 
 infix:<err>, short-circuit defined-or
 
-    err
+    $value err $default
 
 Returns the left argument if it's defined, otherwise evaluates and
 returns the right argument.  In list context forces a false return

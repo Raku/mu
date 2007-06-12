@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 8 Jun 2007
+  Last Modified: 12 Jun 2007
   Number: 2
-  Version: 110
+  Version: 111
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -97,19 +97,14 @@ mappings introduced in the future.
 
 =item *
 
-Single-line comments work as in Perl 5, starting with a C<#> character
-and ending at the subsequent newline.  They count as whitespace
-equivalent to newline for purposes of separation.  Unlike in Perl 5,
-C<#> may not be used as the delimiter in quoting constructs.
-
-=item *
-
-Multiline comments are provided by extending the syntax of POD
-to nest C<=begin comment>/C<=end comment> correctly without the need
-for C<=cut>.  The format name does not have to be C<comment> -- any
-unrecognized format name will do to make it a comment.  (However,
-bare C<=begin> and C<=end> probably aren't good enough, because all
-comments in them will show up in the formatted output.)
+POD sections may be used reliably as multiline comments in Perl 6.
+Unlike in Perl 5, POD syntax now requires that C<=begin comment>
+and C<=end comment> delimit a POD block correctly without the need
+for C<=cut>.  (In fact, C<=cut> is now gone.)  The format name does
+not have to be C<comment> -- any unrecognized format name will do
+to make it a comment.  (However, bare C<=begin> and C<=end> probably
+aren't good enough, because all comments in them will show up in the
+formatted output.)
 
 We have single paragraph comments with C<=for comment> as well.
 That lets C<=for> keep its meaning as the equivalent of a C<=begin>
@@ -118,6 +113,19 @@ in code reverts to code afterwards.
 
 Since there is a newline before the first C<=>, the POD form of comment
 counts as whitespace equivalent to a newline.
+
+=item *
+
+Except when quoted, a C<#> character always introduces a comment in
+Perl 6.  There are three forms of comment based on C<#>.  Embedded
+comments and block comments require the C<#> to be followed by one
+or more opening bracketing character.
+
+All other uses of C<#> are interpreted as single-line comments that
+work just as in Perl 5, starting with a C<#> character and
+ending at the subsequent newline.  They count as whitespace equivalent
+to newline for purposes of separation.  Unlike in Perl 5, C<#>
+may not be used as the delimiter in quoting constructs.
 
 =item *
 
@@ -139,12 +147,47 @@ There must be no space between the C<#> and the opening bracket character.
 (There may be the I<visual appearance> of space for some double-wide
 characters, however, such as the corner quotes above.)
 
+An embedded comment is not allowed as the first thing on the line since it
+would instead be parsed as a block comment, as described next.
+
 =item *
 
-As a special case to facilitate commenting out sections of code with
-C<s/^/#/>, C<#> on the beginning of line is always considered a line-end
-comment rather than an embedded comment, even if followed by a bracketing
-character.
+Unlike embedded comments, which are character-oriented, block comments
+are line-oriented.  To facilitate the common practice of commenting out
+sections of code by prefixing each line with C<#>, if the initial C<#>
+on the line is immediately followed by one or more opening brackets,
+it is treated as a line-oriented form of bracket quoting, and may
+be terminated I<only> by a line matching the corresponding close
+bracket, which (unlike embedded comments) must also be prefixed with
+an initial C<#>.  For example, a opening line matching
+
+    /^^ '#{' \s /
+
+it may be terminated I<only> by a line matching
+
+    /^^ '#}' \s /
+
+The entire final line counts as part of the comment.  It does
+not matter whether the intervening lines start with C<#> or not.
+Block comments may be nested within other block comments (with
+the same or differing brackets) but will ignore any other comment
+mechanism including POD, so this mechanism may be used to hide POD
+even from the pod parser, along with any associated code.  The parser
+must report mismatched openers or closers to prevent, for example,
+unwitting use of bare C<}> as a closer for an opening C<#{>.
+
+In addition to supporting the practice of commenting out code with
+line comments, an additional motivation for this is to promote human
+recognition of the end of the comment when the opener could be quite
+far away, without requiring that all intervening lines use C</^'#'/> comments.
+Also, using the ordinary embedded comment mechanism tends to be fragile
+in the face of strings containing bracket characters, and the probability
+of such bracket skew increases with the length of the commented code.
+
+The POD parser must also recognize these comments in order to ignore
+them.  For instance, it could treat C<#[[> and C<#]]> as a shorthand for
+C<=begin comment_2square> and C<=end comment_2square>.  (The C<2> indicates
+degree of repetition, as described below.)
 
 =item *
 
