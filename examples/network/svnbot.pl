@@ -34,6 +34,10 @@ my $cur_entry;
 my $cur_svnrev = 0;
 svn_headrev();
 
+sub on_invite($event) {...}
+sub on_privmsg($event) {...}
+sub svn_check($event) {...}
+
 # Create new bot "object"
 my $bot = new_bot(nick => $nick, host => $host, port => $port, debug_raw => 0);
 $bot<add_handler>("INVITE",  &on_invite);  # We want to invite our bot
