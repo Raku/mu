@@ -14,7 +14,7 @@ Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
   Last Modified: 13 Jun 2007
   Number: 2
-  Version: 111
+  Version: 112
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -169,10 +169,11 @@ it may be terminated I<only> by a line matching
 
 The entire final line counts as part of the comment.  It does
 not matter whether the intervening lines start with C<#> or not.
-Block comments may be nested within other block comments (with
-the same or differing brackets) but will ignore any other comment
-mechanism including POD, so this mechanism may be used to hide POD
-even from the pod parser, along with any associated code.  The parser
+Block comments may be nested within other block comments (with the
+same or differing brackets).  POD comments may also be nested within
+block comments.  (These are still visible to the POD parser; if you
+wish to comment out a block of mixed POD and Perl 6 code, either use a
+POD comment around it all, or prefix every line with C<#>.)  The parser
 must report mismatched openers or closers to prevent, for example,
 unwitting use of bare C<}> as a closer for an opening C<#{>.
 
@@ -191,11 +192,6 @@ far away, without requiring that all intervening lines use C</^'#'/> comments.
 Also, using the ordinary embedded comment mechanism tends to be fragile
 in the face of strings containing bracket characters, and the probability
 of such bracket skew increases with the length of the commented code.
-
-The POD parser must also recognize these comments in order to ignore
-them.  For instance, it could treat C<#[[> and C<#]]> as a shorthand for
-C<=begin comment_2square> and C<=end comment_2square>.  (The C<2> indicates
-degree of repetition, as described below.)
 
 =item *
 
