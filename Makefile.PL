@@ -282,6 +282,7 @@ sub set_postamble {
     my $ghci_debugging =
             (defined $ENV{PUGS_GHCI_DEBUGGING} ? $ENV{PUGS_GHCI_DEBUGGING} : 1)
         ? '-fdebugging' : '';
+    $ghc_version =~ s/^(\d+\.\d+).+/$1/; # work around versions like 6.6.1
     $ghci_debugging = '' if $ghc_version <= 6.6 or $ghc_version >= 6.8;
 
     $ghc = $ghc_wrapper;
