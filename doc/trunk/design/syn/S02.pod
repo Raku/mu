@@ -12,7 +12,7 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 12 Jun 2007
+  Last Modified: 13 Jun 2007
   Number: 2
   Version: 111
 
@@ -175,6 +175,14 @@ mechanism including POD, so this mechanism may be used to hide POD
 even from the pod parser, along with any associated code.  The parser
 must report mismatched openers or closers to prevent, for example,
 unwitting use of bare C<}> as a closer for an opening C<#{>.
+
+However, an unexpected closer is treated as a line-end comment, on the
+assumption that the opening bracket was at the end of its comment line
+in the K&R style:
+
+    #for @foo {
+    # ...
+    #}
 
 In addition to supporting the practice of commenting out code with
 line comments, an additional motivation for this is to promote human
