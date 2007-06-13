@@ -44,22 +44,19 @@ sub _scenario_foods_suppliers_shipments
 
     # Declare our example executable code as Muldis::DB ASTs.
 
-    my $tynm_Text     = newEntityName( :text('sys.type.Text') );
-    my $tynm_UInt     = newEntityName( :text('sys.type.UInt') );
+    my $tynm_Text = newEntityName( :text<sys.type.Text> );
+    my $tynm_UInt = newEntityName( :text<sys.type.UInt> );
 
-    my $atnm_colour  = newEntityName( :text('colour') );
-    my $atnm_country = newEntityName( :text('country') );
-    my $atnm_farm    = newEntityName( :text('farm') );
-    my $atnm_food    = newEntityName( :text('food') );
-    my $atnm_qty     = newEntityName( :text('qty') );
+    my $atnm_colour  = newEntityName( :text<colour> );
+    my $atnm_country = newEntityName( :text<country> );
+    my $atnm_farm    = newEntityName( :text<farm> );
+    my $atnm_food    = newEntityName( :text<food> );
+    my $atnm_qty     = newEntityName( :text<qty> );
 
-    my $sca_type_Text
-        = newTypeInvoNQ( :kind('Scalar'), :spec($tynm_Text) );
-    my $sca_type_UInt
-        = newTypeInvoNQ( :kind('Scalar'), :spec($tynm_UInt) );
+    my $sca_type_Text = newTypeInvoNQ( :kind<Scalar>, :spec($tynm_Text) );
+    my $sca_type_UInt = newTypeInvoNQ( :kind<Scalar>, :spec($tynm_UInt) );
 
-    my $qrel_type_Relation
-        = newTypeInvoAQ( :kind('Any'), :spec('Relation') );
+    my $qrel_type_Relation = newTypeInvoAQ( :kind<Any>, :spec<Relation> );
 
     my $heading_suppliers = newTypeDictNQ( :map([
         [$atnm_farm,    $sca_type_Text],
@@ -79,27 +76,27 @@ sub _scenario_foods_suppliers_shipments
     ]) );
 
     my $rel_type_suppliers = newTypeInvoNQ(
-        :kind('Relation'), :spec($heading_suppliers) );
+        :kind<Relation>, :spec($heading_suppliers) );
     my $rel_type_foods = newTypeInvoNQ(
-        :kind('Relation'), :spec($heading_foods) );
+        :kind<Relation>, :spec($heading_foods) );
     my $rel_type_shipments = newTypeInvoNQ(
-        :kind('Relation'), :spec($heading_shipments) );
+        :kind<Relation>, :spec($heading_shipments) );
 
-    my $pnm_matched_suppl = newEntityName( :text('matched_supp') );
-    my $pnm_desi_colour   = newEntityName( :text('desi_colour') );
-    my $pnm_src_suppl     = newEntityName( :text('src_suppl') );
-    my $pnm_src_foods     = newEntityName( :text('src_foods') );
-    my $pnm_src_shipm     = newEntityName( :text('src_shipm') );
+    my $pnm_matched_suppl = newEntityName( :text<matched_supp> );
+    my $pnm_desi_colour   = newEntityName( :text<desi_colour> );
+    my $pnm_src_suppl     = newEntityName( :text<src_suppl> );
+    my $pnm_src_foods     = newEntityName( :text<src_foods> );
+    my $pnm_src_shipm     = newEntityName( :text<src_shipm> );
 
-    my $opnm_rel_asn = newEntityName( :text('sys.rtn.Relation.assign') );
-    my $opnm_rel_jn  = newEntityName( :text('sys.rtn.Relation.join') );
-    my $opnm_rel_sjn = newEntityName( :text('sys.rtn.Relation.semijoin') );
+    my $opnm_rel_asn = newEntityName( :text<sys.rtn.Relation.assign> );
+    my $opnm_rel_jn  = newEntityName( :text<sys.rtn.Relation.join> );
+    my $opnm_rel_sjn = newEntityName( :text<sys.rtn.Relation.semijoin> );
 
-    my $anm_filter  = newEntityName( :text('filter') );
-    my $anm_source  = newEntityName( :text('source') );
-    my $anm_sources = newEntityName( :text('sources') );
-    my $anm_target  = newEntityName( :text('target') );
-    my $anm_v       = newEntityName( :text('v') );
+    my $anm_filter  = newEntityName( :text<filter> );
+    my $anm_source  = newEntityName( :text<source> );
+    my $anm_sources = newEntityName( :text<sources> );
+    my $anm_target  = newEntityName( :text<target> );
+    my $anm_v       = newEntityName( :text<v> );
 
     my $expr_3jn_ssp_sfd_scl = newFuncInvo(
         :func($opnm_rel_jn),
@@ -193,16 +190,16 @@ sub _scenario_foods_suppliers_shipments
         :heading($heading_suppliers),
         :body([
             newExprDict( :map([
-                [$atnm_farm,    newTextLit( :v('Hodgesons') )],
-                [$atnm_country, newTextLit( :v('Canada') )],
+                [$atnm_farm,    newTextLit( :v<Hodgesons> )],
+                [$atnm_country, newTextLit( :v<Canada> )],
             ]) ),
             newExprDict( :map([
-                [$atnm_farm,    newTextLit( :v('Beckers') )],
-                [$atnm_country, newTextLit( :v('England') )],
+                [$atnm_farm,    newTextLit( :v<Beckers> )],
+                [$atnm_country, newTextLit( :v<England> )],
             ]) ),
             newExprDict( :map([
-                [$atnm_farm,    newTextLit( :v('Wickets') )],
-                [$atnm_country, newTextLit( :v('Canada') )],
+                [$atnm_farm,    newTextLit( :v<Wickets> )],
+                [$atnm_country, newTextLit( :v<Canada> )],
             ]) ),
         ]),
     );
@@ -211,24 +208,24 @@ sub _scenario_foods_suppliers_shipments
         :heading($heading_foods),
         :body([
             newExprDict( :map([
-                [$atnm_food,   newTextLit( :v('Bananas') )],
-                [$atnm_colour, newTextLit( :v('yellow') )],
+                [$atnm_food,   newTextLit( :v<Bananas> )],
+                [$atnm_colour, newTextLit( :v<yellow> )],
             ]) ),
             newExprDict( :map([
-                [$atnm_food,   newTextLit( :v('Carrots') )],
-                [$atnm_colour, newTextLit( :v('orange') )],
+                [$atnm_food,   newTextLit( :v<Carrots> )],
+                [$atnm_colour, newTextLit( :v<orange> )],
             ]) ),
             newExprDict( :map([
-                [$atnm_food,   newTextLit( :v('Oranges') )],
-                [$atnm_colour, newTextLit( :v('orange') )],
+                [$atnm_food,   newTextLit( :v<Oranges> )],
+                [$atnm_colour, newTextLit( :v<orange> )],
             ]) ),
             newExprDict( :map([
-                [$atnm_food,   newTextLit( :v('Kiwis') )],
-                [$atnm_colour, newTextLit( :v('green') )],
+                [$atnm_food,   newTextLit( :v<Kiwis> )],
+                [$atnm_colour, newTextLit( :v<green> )],
             ]) ),
             newExprDict( :map([
-                [$atnm_food,   newTextLit( :v('Lemons') )],
-                [$atnm_colour, newTextLit( :v('yellow') )],
+                [$atnm_food,   newTextLit( :v<Lemons> )],
+                [$atnm_colour, newTextLit( :v<yellow> )],
             ]) ),
         ]),
     );
@@ -237,38 +234,38 @@ sub _scenario_foods_suppliers_shipments
         :heading($heading_shipments),
         :body([
             newExprDict( :map([
-                [$atnm_farm, newTextLit( :v('Hodgesons') )],
-                [$atnm_food, newTextLit( :v('Kiwis') )],
+                [$atnm_farm, newTextLit( :v<Hodgesons> )],
+                [$atnm_food, newTextLit( :v<Kiwis> )],
                 [$atnm_qty,  newIntLit( :v(100) )],
             ]) ),
             newExprDict( :map([
-                [$atnm_farm, newTextLit( :v('Hodgesons') )],
-                [$atnm_food, newTextLit( :v('Lemons') )],
+                [$atnm_farm, newTextLit( :v<Hodgesons> )],
+                [$atnm_food, newTextLit( :v<Lemons> )],
                 [$atnm_qty,  newIntLit( :v(130) )],
             ]) ),
             newExprDict( :map([
-                [$atnm_farm, newTextLit( :v('Hodgesons') )],
-                [$atnm_food, newTextLit( :v('Oranges') )],
+                [$atnm_farm, newTextLit( :v<Hodgesons> )],
+                [$atnm_food, newTextLit( :v<Oranges> )],
                 [$atnm_qty,  newIntLit( :v(10) )],
             ]) ),
             newExprDict( :map([
-                [$atnm_farm, newTextLit( :v('Hodgesons') )],
-                [$atnm_food, newTextLit( :v('Carrots') )],
+                [$atnm_farm, newTextLit( :v<Hodgesons> )],
+                [$atnm_food, newTextLit( :v<Carrots> )],
                 [$atnm_qty,  newIntLit( :v(50) )],
             ]) ),
             newExprDict( :map([
-                [$atnm_farm, newTextLit( :v('Beckers') )],
-                [$atnm_food, newTextLit( :v('Carrots') )],
+                [$atnm_farm, newTextLit( :v<Beckers> )],
+                [$atnm_food, newTextLit( :v<Carrots> )],
                 [$atnm_qty,  newIntLit( :v(90) )],
             ]) ),
             newExprDict( :map([
-                [$atnm_farm, newTextLit( :v('Beckers') )],
-                [$atnm_food, newTextLit( :v('Bananas') )],
+                [$atnm_farm, newTextLit( :v<Beckers> )],
+                [$atnm_food, newTextLit( :v<Bananas> )],
                 [$atnm_qty,  newIntLit( :v(120) )],
             ]) ),
             newExprDict( :map([
-                [$atnm_farm, newTextLit( :v('Wickets') )],
-                [$atnm_food, newTextLit( :v('Lemons') )],
+                [$atnm_farm, newTextLit( :v<Wickets> )],
+                [$atnm_food, newTextLit( :v<Lemons> )],
                 [$atnm_qty,  newIntLit( :v(30) )],
             ]) ),
         ]),
@@ -286,7 +283,7 @@ sub _scenario_foods_suppliers_shipments
     # Execute a query against the virtual machine, to look at our sample
     # data and see what suppliers there are for foods coloured 'orange'.
 
-    $desi_colour.store_ast( :val_ast(newTextLit( :v('orange') )) );
+    $desi_colour.store_ast( :val_ast(newTextLit( :v<orange> )) );
     pass( 'no death from loading desired colour into VM' );
 
     $prep_rtn_suppl_of_foods_of_clr.execute();

@@ -6,19 +6,17 @@ use v6-alpha;
 my $FALSE = Bool::False;
 my $TRUE  = Bool::True;
 
-my $TYNM_UINT
-    = ::Muldis::DB::AST::EntityName.new( :text('sys.type.UInt') );
-my $TYNM_PINT
-    = ::Muldis::DB::AST::EntityName.new( :text('sys.type.PInt') );
+my $TYNM_UINT = ::Muldis::DB::AST::EntityName.new( :text<sys.type.UInt> );
+my $TYNM_PINT = ::Muldis::DB::AST::EntityName.new( :text<sys.type.PInt> );
 
-my $ATNM_VALUE = ::Muldis::DB::AST::EntityName.new( :text('value') );
-my $ATNM_INDEX = ::Muldis::DB::AST::EntityName.new( :text('index') );
-my $ATNM_COUNT = ::Muldis::DB::AST::EntityName.new( :text('count') );
+my $ATNM_VALUE = ::Muldis::DB::AST::EntityName.new( :text<value> );
+my $ATNM_INDEX = ::Muldis::DB::AST::EntityName.new( :text<index> );
+my $ATNM_COUNT = ::Muldis::DB::AST::EntityName.new( :text<count> );
 
 my $SCA_TYPE_UINT = ::Muldis::DB::AST::TypeInvoNQ.new(
-    :kind('Scalar'), :spec($TYNM_UINT) );
+    :kind<Scalar>, :spec($TYNM_UINT) );
 my $SCA_TYPE_PINT = ::Muldis::DB::AST::TypeInvoNQ.new(
-    :kind('Scalar'), :spec($TYNM_PINT) );
+    :kind<Scalar>, :spec($TYNM_PINT) );
 
 ###########################################################################
 ###########################################################################
@@ -1789,7 +1787,7 @@ I<This documentation is pending.>
         newQuasiBagSel newMaybeSel newQuasiMaybeSel>;
 
     my $truth_value = newBoolLit( :v(2 + 2 == 4) );
-    my $planetoid = newTextLit( :v('Ceres') );
+    my $planetoid = newTextLit( :v<Ceres> );
     my $package = newBlobLit( :v(pack 'H2', 'P') );
     my $answer = newIntLit( :v(42) );
 

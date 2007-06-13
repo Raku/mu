@@ -24,20 +24,25 @@ module Muldis::DB::Engine::Example::Operators-0.0.0 {
 
 ## sys.type.Int ##
 
-'sys.rtn.Int.equal' => sub (:$v1!, :$v2!) {
+'sys.rtn.Int.equal' => sub (Hash $ro_args!) {
+    my ($v1, $v2) = $ro_args<v1 v2>;
     return ptBool( :v($v1.equal( $v2 )) );
 },
 
-'sys.rtn.Int.not_equal' => sub (:$v1!, :$v2!) {
+'sys.rtn.Int.not_equal' => sub (Hash $ro_args!) {
+    my ($v1, $v2) = $ro_args<v1 v2>;
     return ptBool( :v(!$v1.equal( $v2 )) );
 },
 
-'sys.rtn.Int.assign' => sub (:$target!, :$v!) {
+'sys.rtn.Int.assign' => sub (Hash $upd_args!, Hash $ro_args!) {
+    my ($target) = $upd_args<target>;
+    my ($v) = $ro_args<v>;
     $target.set( $v );
     return;
 },
 
-'sys.rtn.Int.sum' => sub (:$addends!) {
+'sys.rtn.Int.sum' => sub (Hash $ro_args!) {
+    my ($addends) = $ro_args<addends>;
     my Int $sum = 0;
     for $addends.array_from_value_attr() -> $addend {
         $sum += $addend.v();
@@ -45,11 +50,13 @@ module Muldis::DB::Engine::Example::Operators-0.0.0 {
     return ptInt( :v($sum) );
 },
 
-'sys.rtn.Int.difference' => sub (:$minuend!, :$subtrahend!) {
+'sys.rtn.Int.difference' => sub (Hash $ro_args!) {
+    my ($minuend, $subtrahend) = $ro_args<minuend subtrahend>;
     return ptInt( :v($minuend.v() - $subtrahend.v()) );
 },
 
-'sys.rtn.Int.product' => sub (:$factors!) {
+'sys.rtn.Int.product' => sub (Hash $ro_args!) {
+    my ($factors) = $ro_args<factors>;
     my Int $product = 1;
     for $factors.array_from_value_attr() -> $factor {
         $product *= $factor.v();
@@ -57,7 +64,8 @@ module Muldis::DB::Engine::Example::Operators-0.0.0 {
     return ptInt( :v($product) );
 },
 
-'sys.rtn.Int.quotient' => sub (:$dividend!, :$divisor!) {
+'sys.rtn.Int.quotient' => sub (Hash $ro_args!) {
+    my ($dividend, $divisor) = $ro_args<dividend divisor>;
     my Int $divisor_v = $divisor.v();
     die q{sys.rtn.Int.quotient(): Arg :$divisor is zero.}
         if $divisor_v === 0;
@@ -65,7 +73,8 @@ module Muldis::DB::Engine::Example::Operators-0.0.0 {
     return ptInt( :v(floor ($dividend.v() / $divisor_v)) );
 },
 
-'sys.rtn.Int.remainder' => sub (:$dividend!, :$divisor!) {
+'sys.rtn.Int.remainder' => sub (Hash $ro_args!) {
+    my ($dividend, $divisor) = $ro_args<dividend divisor>;
     my Int $divisor_v = $divisor.v();
     die q{sys.rtn.Int.remainder(): Arg :$divisor is zero.}
         if $divisor_v === 0;
@@ -73,11 +82,13 @@ module Muldis::DB::Engine::Example::Operators-0.0.0 {
     return ptInt( :v($dividend.v() % $divisor_v) );
 },
 
-'sys.rtn.Int.abs' => sub (:$v!) {
+'sys.rtn.Int.abs' => sub (Hash $ro_args!) {
+    my ($v) = $ro_args<v>;
     return ptInt( :v(abs $v.v()) );
 },
 
-'sys.rtn.Int.power' => sub (:$radix!, :$exponent!) {
+'sys.rtn.Int.power' => sub (Hash $ro_args!) {
+    my ($radix, $exponent) = $ro_args<radix exponent>;
     return ptInt( :v($radix.v() ** $exponent.v()) );
 },
 
