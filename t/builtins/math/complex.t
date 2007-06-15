@@ -29,7 +29,7 @@ ok(approx(cis(3*$pi / 2),1i),           "cis(3pi/2) == i");
 #
 # Test that 1.unpor == cis
  
-for 1..20 -> my $i {
+for 1..20 -> $i {
     my $angle = 2 * $pi * $i / 20;
     ok(approx(cis($i), 1.unpolar($i)), "cis(x) == 1.unpolar(x) No $i");
 }
@@ -40,8 +40,8 @@ for 1..20 -> my $i {
 # Test that unpolar() doesn't change the absolute value
 
 my $counter = 1;
-for 1..10 -> my $abs {
-    for 1..10 -> my $a {
+for 1..10 -> $abs {
+    for 1..10 -> $a {
         my $angle = 2 * $pi * $i / 10;
         ok(approx(abs($abs.unpolar($angle)), $abs ), 
                 "unpolar doesn't change the absolute value (No $counter)");

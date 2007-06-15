@@ -70,8 +70,8 @@ sub table($param) {
     $expr ~~ s:P5:g/([nx]?or|n?and|impl|equ)/_$0/;     #:
 
     my @table;
-    for (True, False) -> my $A {
-        for (True, False) -> my $B {
+    for (True, False) -> $A {
+        for (True, False) -> $B {
             push @table, (
                 join ' ', (
                     stringify $A,
