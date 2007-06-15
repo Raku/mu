@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 31 May 2007
+  Last Modified: 15 May 2007
   Number: 12
-  Version: 54
+  Version: 55
 
 =head1 Overview
 
@@ -224,6 +224,16 @@ as a quote and then the result of that is used as the method name.
 
     $obj."$methodname"(1,2,3)   # use contents of $methodname as method name
     $obj.'$methodname'(1,2,3)   # no interpolation; call method with $ in name!
+
+[Note: to help catch the mistaken use of C<< infix:<.> >> as a string
+concatenation operator, Perl 6 will warn you about "useless use of
+quotes" at compile time if the string inside quotes is an identifier.
+(It does not warn about non-identifier strings, but such strings are
+likely to produce missing method errors at run time in any case.)
+Also, if there is whitespace around an intended C<.> concatenation,
+it cannot be parsed as a method call at all; instead if fails at
+compile time because standard Perl 6 has no C<< infix:<.> >> operator
+unless the user happens to have defined one (bad idea).]
 
 For situations where you already have a method located, you
 can use a simple scalar variable in place of method name:

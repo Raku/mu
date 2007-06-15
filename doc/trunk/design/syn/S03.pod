@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 2 Jun 2007
+  Last Modified: 15 Jun 2007
   Number: 3
-  Version: 116
+  Version: 117
 
 =head1 Overview
 
@@ -220,6 +220,10 @@ Method call with implicit invocant
     .meth       # call on $_
     .=meth      # modify $_
 
+Note that this may occur only where a term is expected.  Where a
+postfix is expected, it is a postfix.  If only an infix is expected
+(that is, after a term with intervening whitespace), it is a syntax error.
+
 =item *
 
 Listop (leftward)
@@ -312,6 +316,16 @@ Dotted postfix form of any other prefix operator
 
     $x.:<++>       # prefix:<++>($x)
 
+=item *
+
+There is specifically no C<< infix:<.> >> operator, so
+
+    $foo . $bar
+
+will always result in a compile-time error indicating the user should
+use C<< infix:<~> >> instead.  This is to catch an error likely to
+be made by Perl 5 programmers learning Perl 6.
+
 =back
 
 =head2 Autoincrement precedence
@@ -377,14 +391,14 @@ from the C<KeySet>.
 
 =item *
 
-Autoincrement prefix:<++> or postfix:<++> operator
+Autoincrement C<< prefix:<++> >> or C<< postfix:<++> >> operator
 
     $x++
     ++$x;
 
 =item *
 
-Autodecrement prefix:<--> or postfix:<--> operator
+Autodecrement C<< prefix:<--> >> or C<< postfix:<--> >> operator
 
     $x--
     --$x
@@ -397,7 +411,7 @@ Autodecrement prefix:<--> or postfix:<--> operator
 
 =item *
 
-infix:<**> exponentiation operator
+C<< infix:<**> >> exponentiation operator
 
     $x ** 2
 
@@ -418,7 +432,7 @@ no requirement to recognize an integer to give it special treatment.
 
 =item *
 
-prefix:<?>, boolean context
+C<< prefix:<?> >>, boolean context
 
     ?$x
 
@@ -428,7 +442,7 @@ See "true" below for a low-precedence alternative.
 
 =item *
 
-prefix:<!>, boolean negation
+C<< prefix:<!> >>, boolean negation
 
     !$x
 
@@ -437,7 +451,7 @@ See "not" below for a low-precedence alternative.
 
 =item *
 
-prefix:<+>, numeric context
+C<< prefix:<+> >>, numeric context
 
     +$x
 
@@ -450,7 +464,7 @@ and radix notations are recognized.
 
 =item *
 
-prefix:<->, numeric negation
+C<< prefix:<-> >>, numeric negation
 
     -$x
 
@@ -458,7 +472,7 @@ Coerces to numeric and returns the negation of the resulting number.
 
 =item *
 
-prefix:<~>, string context
+C<< prefix:<~> >>, string context
 
     ~$x
 
@@ -467,7 +481,7 @@ original variable.)
 
 =item *
 
-prefix:<|>, flatten object into arglist
+C<< prefix:<|> >>, flatten object into arglist
 
     | $capture
 
@@ -476,7 +490,7 @@ into the current argument list as if they had been specified literally.
 
 =item *
 
-prefix:<+^>, numeric bitwise negation
+C<< prefix:<+^> >>, numeric bitwise negation
 
     +^$x
 
@@ -484,14 +498,14 @@ Coerces to numeric and then does bitwise negation on the number.
 
 =item *
 
-prefix:<~^>, string bitwise negation
+C<< prefix:<~^> >>, string bitwise negation
 
     ~^$x
 Coerces to string buffer and then does bitwise negation on each element.
 
 =item *
 
-prefix:<?^>, boolean bitwise negation
+C<< prefix:<?^> >>, boolean bitwise negation
 
     ?^$x
 
@@ -499,7 +513,7 @@ Coerces to boolean and then flips the bit.  (Same as C<!>.)
 
 =item *
 
-prefix:<\>, Capture constructor
+C<< prefix:<\> >>, Capture constructor
 
     \$x
     \@x
@@ -511,7 +525,7 @@ bound into some other context.
 
 =item *
 
-prefix:<^>, upto operator
+C<< prefix:<^> >>, upto operator
 
     ^$limit
 
@@ -520,7 +534,7 @@ for C<$limit.HOW>.  See L</Range semantics>.
 
 =item *
 
-prefix:<=>, iterate iterator
+C<< prefix:<=> >>, iterate iterator
 
     =$iterator
 
@@ -543,7 +557,7 @@ depending on what controls that list context.
 
 =item *
 
-infix:<*>
+C<< infix:<*> >>
 
     $x*$y
 
@@ -551,7 +565,7 @@ Multiplication, resulting in wider type of the two.
 
 =item *
 
-infix:</>
+C<< infix:</> >>
 
     $numerator / $denominator
 
@@ -571,7 +585,7 @@ to C<Rat> directly no division ever need be done.
 
 =item *
 
-infix:<div>, generic division
+C<< infix:<div> >>, generic division
 
     $numerator div $denominator
 
@@ -589,7 +603,7 @@ Integerizing a rat involves truncating its tail.
 
 =item *
 
-infix:<%>, modulus
+C<< infix:<%> >>, modulus
 
     $x % $mod
 
@@ -597,15 +611,15 @@ Always floor semantics using C<Num> or C<Int>.
 
 =item *
 
-infix:<mod>, generic modulus
+C<< infix:<mod> >>, generic modulus
 
     $x mod $mod
 
-Dispatches to the infix:<mod> multi most appropriate to the operand types.
+Dispatches to the C<< infix:<mod> >> multi most appropriate to the operand types.
 
 =item *
 
-infix:<x>, string/buffer replication
+C<< infix:<x> >>, string/buffer replication
 
     $string x $count
 
@@ -620,7 +634,7 @@ infinite string may be emulated with C<cat($string xx *)>.
 
 =item *
 
-infix:<xx>, list replication
+C<< infix:<xx> >>, list replication
 
     @list xx $count
 
@@ -637,7 +651,7 @@ are lazy by default).
 
 =item *
 
-infix:{'+&'}, numeric bitwise and
+C<< infix:{'+&'} >>, numeric bitwise and
 
     $x +& $y
 
@@ -645,13 +659,13 @@ Converts both arguments to C<Int> and does a bitwise numeric AND.
 
 =item *
 
-infix:{'+<'}, numeric shift left
+C<< infix:{'+<'} >>, numeric shift left
 
     $integer +< $bits
 
 =item *
 
-infix:{'+>'}, numeric shift right
+C<< infix:{'+>'} >>, numeric shift right
 
     $integer +> $bits
 
@@ -660,19 +674,19 @@ this may be enabled or disabled with a C<:signed> or C<:!signed> adverb.
 
 =item *
 
-infix:<~&>, buffer bitwise and
+C<< infix:<~&> >>, buffer bitwise and
 
     $x ~& $y
 
 =item *
 
-infix:{'~<'}, buffer bitwise shift left
+C<< infix:{'~<'} >>, buffer bitwise shift left
 
     $buf ~< $bits
 
 =item *
 
-infix:{'~>'}, buffer bitwise shift right
+C<< infix:{'~>'} >>, buffer bitwise shift right
 
     $buf ~> $bits
 
@@ -681,7 +695,7 @@ adverb.
 
 =item *
 
-infix:<?&>, boolean bitwise and
+C<< infix:<?&> >>, boolean bitwise and
 
     $x ?& $y
 
@@ -697,55 +711,55 @@ sign extension is meaningless, and you may not specify a C<:signed> adverb.
 
 =item *
 
-infix:<+>, numeric addition
+C<< infix:<+> >>, numeric addition
 
     $x + $y
 
 =item *
 
-infix:<->, numeric subtraction
+C<< infix:<-> >>, numeric subtraction
 
     $x - $y
 
 =item *
 
-infix:<~>, string/buffer concatenation
+C<< infix:<~> >>, string/buffer concatenation
 
     $x ~ $y
 
 =item *
 
-infix:<+|>, numeric bitwise inclusive or
+C<< infix:<+|> >>, numeric bitwise inclusive or
 
     $x +| $y
 
 =item *
 
-infix:<+^> numeric bitwise exclusive or
+C<< infix:<+^> >> numeric bitwise exclusive or
 
     $x +^ $y
 
 =item *
 
-infix:<~|>, buffer bitwise inclusive or
+C<< infix:<~|> >>, buffer bitwise inclusive or
 
     $x ~| $y
 
 =item *
 
-infix:<~^> buffer bitwise exclusive or
+C<< infix:<~^> >> buffer bitwise exclusive or
 
     $x ~^ $y
 
 =item *
 
-infix:<?|>, boolean bitwise inclusive or
+C<< infix:<?|> >>, boolean bitwise inclusive or
 
     $x ?| $y
 
 =item *
 
-infix:<?^> boolean bitwise exclusive or
+C<< infix:<?^> >> boolean bitwise exclusive or
 
     $x ?^ $y
 
@@ -757,7 +771,7 @@ infix:<?^> boolean bitwise exclusive or
 
 =item *
 
-infix:<&>, all() operator
+C<< infix:<&> >>, all() operator
 
     $x & $y
 
@@ -769,13 +783,13 @@ infix:<&>, all() operator
 
 =item *
 
-infix:<|>, any() operator
+C<< infix:<|> >>, any() operator
 
     $x | $y
 
 =item *
 
-infix:<^>, one() operator
+C<< infix:<^> >>, one() operator
 
     $x ^ $y
 
@@ -802,13 +816,13 @@ to C<$_> in Perl 6.
 
 =item *
 
-infix:<but>
+C<< infix:<but> >>
 
     $value but Mixin
 
 =item *
 
-infix:<does>
+C<< infix:<does> >>
 
     $object does Mixin
 
@@ -866,7 +880,7 @@ L</Chained comparisons>.
 
 =item *
 
-infix:<==> etc.
+C<< infix:<==> >> etc.
 
     == != < <= > >=
 
@@ -874,7 +888,7 @@ As in Perl 5, converts to C<Num> before comparison.  C<!=> is short for C<!==>.
 
 =item *
 
-infix:<eq> etc.
+C<< infix:<eq> >> etc.
 
     eq ne lt le gt ge
 
@@ -956,7 +970,7 @@ See L</Negated relational operators>.
 
 =item *
 
-infix:<&&>, short-circuit and
+C<< infix:<&&> >>, short-circuit and
 
     $condition && $whentrue
 
@@ -973,7 +987,7 @@ version.
 
 =item *
 
-infix:<||>, short-circuiting inclusive-or
+C<< infix:<||> >>, short-circuiting inclusive-or
 
     $condition || $whenfalse
 
@@ -988,7 +1002,7 @@ See C<or> below for low-precedence version.
 
 =item *
 
-infix:<^^>, exclusive-or
+C<< infix:<^^> >>, exclusive-or
 
     $x ^^ $y
 
@@ -999,7 +1013,7 @@ See C<xor> below for low-precedence version.
 
 =item *
 
-infix:<//>, defined-or
+C<< infix:<//> >>, defined-or
 
     $value // $default
 
@@ -1073,6 +1087,14 @@ The best don't-repeat-yourself solution is simply:
 
     my $x = hmm() ?? 1 !! 2;          # much better
 
+=item *
+
+C<< infix:<?> >>
+
+To catch likely errors by people familiar with C-derived languages
+(including Perl 5), a bare question mark in infix position will
+produce an error suggesting that the user use C<?? !!> instead.
+
 =back
 
 =head2 Item assignment precedence
@@ -1081,7 +1103,7 @@ The best don't-repeat-yourself solution is simply:
 
 =item *
 
-infix:<=>
+C<< infix:<=> >>
 
     $x = 1, $y = 2;
 
@@ -1090,7 +1112,7 @@ With simple lvalues, C<=> has this precedence, which is tighter than comma.
 
 =item *
 
-infix:<:=>, run-time binding
+C<< infix:<:=> >>, run-time binding
 
     $signature := $capture
 
@@ -1125,7 +1147,7 @@ specially as the equivalent of binding to a typeless variable.
 
 =item *
 
-infix:<::=>, compile-time binding
+C<< infix:<::=> >>, compile-time binding
 
     $signature ::= $capture
 
@@ -1135,7 +1157,7 @@ not bind a lazy thunk.)
 
 =item *
 
-infix:{'=>'}, Pair constructor
+C<< infix:{'=>'} >>, Pair constructor
 
     foo => 1, bar => "baz"
 
@@ -1163,13 +1185,13 @@ See L</Assignment operators>.
 
 =item *
 
-prefix:<true>
+C<< prefix:<true> >>
 
     true any(@args) eq '-v' | '-V'
 
 =item *
 
-prefix:<not>
+C<< prefix:<not> >>
 
     not any(@args) eq '-v' | '-V'
 
@@ -1181,7 +1203,7 @@ prefix:<not>
 
 =item *
 
-infix:<,>, the argument separator
+C<< infix:<,> >>, the argument separator
 
     1, 2, 3, @many
 
@@ -1201,13 +1223,13 @@ and must be parenthesized for clarity.
 
 =item *
 
-infix:<Z>, the zip operator
+C<< infix:<Z> >>, the zip operator
 
     1,2 Z 3,4   # (1,3),(2,4)
 
 =item *
 
-infix:<minmax>, the minmax operator
+C<< infix:<minmax> >>, the minmax operator
 
     $min0, $max0 minmax $min1, $max1    # ($min0 min $min1, $max0 max $max1)
 
@@ -1226,7 +1248,7 @@ from the same side.  The two calculations are bundled but independent.
 
 =item *
 
-infix:<X>, the cross operator
+C<< infix:<X> >>, the cross operator
 
     1,2 X 3,4          # (1,3), (1,4), (2,3), (2,4)
 
@@ -1269,7 +1291,7 @@ default is to flatten, but see the contextualizers below.
 
 =item *
 
-infix:<=>, list assignment
+C<< infix:<=> >>, list assignment
 
     @array = 1,2,3;
 
@@ -1291,7 +1313,7 @@ is a list or a scalar destination.
 
 =item *
 
-infix:<:>, the invocant marker
+C<< infix:<:> >>, the invocant marker
 
     say $*OUT: "howdy, world"
 
@@ -1435,7 +1457,7 @@ C<%()>.
 
 =item *
 
-infix:<and>, short-circuit and
+C<< infix:<and> >>, short-circuit and
 
     $condition and $whentrue
 
@@ -1452,7 +1474,7 @@ version.
 
 =item *
 
-infix:<or>, short-circuit inclusive or
+C<< infix:<or> >>, short-circuit inclusive or
 
     $condition or $whenfalse
 
@@ -1462,7 +1484,7 @@ to mean C<()>.  See C<||> above for high-precedence version.
 
 =item *
 
-infix:<xor>, exclusive or
+C<< infix:<xor> >>, exclusive or
 
     $x xor $y
 
@@ -1473,7 +1495,7 @@ See C<^^> above for high-precedence version.
 
 =item *
 
-infix:<err>, short-circuit defined-or
+C<< infix:<err> >>, short-circuit defined-or
 
     $value err $default
 
@@ -1579,10 +1601,17 @@ Huffman-code the language, while others have changed precedence.
 Perl 5's C<${...}>, C<@{...}>, C<%{...}>, etc. dereferencing
 forms are now C<$(...)>, C<@(...)>, C<%(...)>, etc. instead.
 Listop-like forms use the bare sigil following by whitespace.
+Use of the Perl 5 curly forms will result in an error message
+pointing the user to the new forms.
 
 =item *
 
-C<< -> >> becomes C<.>, like the rest of the world uses.
+C<< -> >> becomes C<.>, like the rest of the world uses.  There is
+a pseudo C<< postfix:{'->'} >> operator that produces a compile-time
+error reminding Perl 5 users to use dot instead.  (The "pointy block"
+use of C<< -> >> in Perl 5 requires preceding whitespace when the arrow
+could be confused with a postfix, that is when an infix is expected.
+Preceding whitespace is not required in term position.)
 
 =item *
 
@@ -1652,6 +1681,10 @@ C<.file> attempts to return C<.io.file>.
 Note that C<:s> still returns the filesize, but C<:!s> is true
 only if the file is of size 0.
 
+(Inadvertent use of the Perl 5 forms will normally result in treatment
+as a negated postdeclared subroutine, which is likely to produce an
+error message at the end of compilation.)
+
 =item *
 
 All postfix operators that do not start with a dot also have
@@ -1717,7 +1750,8 @@ instead.)
 
 =item *
 
-The C<? :> conditional operator becomes C<?? !!>.
+The C<? :> conditional operator becomes C<?? !!>.  A pseudo operator,
+C<< infix:<?> >>, catches migratory brainos at compile time.
 
 =item *
 
@@ -1730,6 +1764,9 @@ written: C<<< << ... >> >>>.
 
 In item context comma C<,> now constructs a C<List> object from its
 operands.  You have to use a C<[*-1]> subscript to get the last one.
+(Note the C<*>.  Negative subscripts no longer implicitly count from
+the end; in fact, the compiler may complain if you use C<[-1]> on an
+object known at compile time not to have negative subscripts.)
 
 =item *
 
@@ -3099,6 +3136,8 @@ Builtin reduce operators return the following identity values:
     [^]()       # one()
     [!==]()     # Bool::False   (also for 1 arg)
     [==]()      # Bool::True    (also for 1 arg)
+    [before]()  # Bool::True    (also for 1 arg)
+    [after]()   # Bool::True    (also for 1 arg)
     [<]()       # Bool::True    (also for 1 arg)
     [<=]()      # Bool::True    (also for 1 arg)
     [>]()       # Bool::True    (also for 1 arg)
