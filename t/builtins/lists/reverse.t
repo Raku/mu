@@ -45,7 +45,7 @@ is(@a[1], "foo", 'the list was reversed properly');
 		}
 		method bar () {
 			push @cxt_log, want();
-			return @.n = do {
+			return @!n = do {
 				push @cxt_log, want();
 				reverse self.foo;
 			}
