@@ -222,7 +222,11 @@ Method call with implicit invocant
 
 Note that this may occur only where a term is expected.  Where a
 postfix is expected, it is a postfix.  If only an infix is expected
-(that is, after a term with intervening whitespace), it is a syntax error.
+(that is, after a term with intervening whitespace), C<.meth> is a
+syntax error.  (The C<.=meth> form is allowed there only because there
+is a special C<.=> infix assignment operator that is equivalent in
+semantics to the method call form but that allows whitespace between
+the C<=> and the method name.)
 
 =item *
 
