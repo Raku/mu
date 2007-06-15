@@ -68,6 +68,16 @@ sub newQuasiRelationSel of Muldis::DB::AST::QuasiRelationSel
         :heading($heading), :body($body) );
 }
 
+sub newDefault of Muldis::DB::AST::Default
+        (Muldis::DB::AST::TypeInvo :$of!) is export {
+    return ::Muldis::DB::AST::Default.new( :of($of) );
+}
+
+sub newTreat of Muldis::DB::AST::Treat (Muldis::DB::AST::TypeInvo :$as!,
+        Muldis::DB::AST::Expr :$v!) is export {
+    return ::Muldis::DB::AST::Treat.new( :as($as), :v($v) );
+}
+
 sub newVarInvo of Muldis::DB::AST::VarInvo
         (Muldis::DB::AST::EntityName :$v!) is export {
     return ::Muldis::DB::AST::VarInvo.new( :v($v) );
@@ -605,11 +615,15 @@ submethod BUILD (Muldis::DB::AST::TypeDict :$heading!,
             if !$heading.defined
                 or !$heading.does(::Muldis::DB::AST::TypeDictNQ);
     }
+    my Int $heading_attrs_count = $heading.elem_count();
     my Hash $heading_attrs_map_hoa = $heading!map_hoa;
 
     die q{new(): Bad :$body arg; it is not an object of a}
             ~ q{ Muldis::DB::AST::ExprDict-doing class.}
         if !$body.defined or !$body.does(::Muldis::DB::AST::ExprDict);
+    die q{new(): new(): Bad :$body arg; it does not have the}
+            ~ q{ same attr count as :$heading.}
+        if $body.elem_count() !=== $heading_attrs_count;
     for $body!map_hoa.keys -> $attr_name_text {
         die q{new(): Bad :$body arg; at least one its attrs}
                 ~ q{ does not have a corresponding attr in :$heading.}
@@ -719,6 +733,7 @@ submethod BUILD (Muldis::DB::AST::TypeDict :$heading!, Array :$body!) {
             if !$heading.defined
                 or !$heading.does(::Muldis::DB::AST::TypeDictNQ);
     }
+    my Int $heading_attrs_count = $heading.elem_count();
     my Hash $heading_attrs_map_hoa = $heading!map_hoa;
 
     die q{new(): Bad :$body arg; it is not an object of a}
@@ -728,6 +743,9 @@ submethod BUILD (Muldis::DB::AST::TypeDict :$heading!, Array :$body!) {
         die q{new(): Bad :$body arg elem; it is not an object of a}
                 ~ q{ Muldis::DB::AST::ExprDict-doing class.}
             if !$tupb.defined or !$tupb.does(::Muldis::DB::AST::ExprDict);
+        die q{new(): new(): Bad :$body arg elem; it does not have the}
+                ~ q{ same attr count as :$heading.}
+            if $tupb.elem_count() !=== $heading_attrs_count;
         for $tupb!map_hoa.keys -> $attr_name_text {
             die q{new(): Bad :$body arg elem; at least one its attrs}
                     ~ q{ does not have a corresponding attr in :$heading.}
@@ -852,6 +870,117 @@ class Muldis::DB::AST::QuasiRelationSel {
     submethod BUILD {} # otherwise Pugs r16488 invo _Relation.BUILD twice
     method _allows_quasi of Bool () { return $TRUE; }
 } # class Muldis::DB::AST::QuasiRelationSel
+
+###########################################################################
+###########################################################################
+
+class Muldis::DB::AST::Default {
+    does Muldis::DB::AST::Expr;
+
+    has Muldis::DB::AST::TypeInvo $!of;
+
+    has Str $!as_perl;
+
+###########################################################################
+
+submethod BUILD (Muldis::DB::AST::TypeInvo :$of!) {
+
+    die q{new(): Bad :$of arg; it is not an object of a}
+            ~ q{ Muldis::DB::AST::TypeInvo-doing class.}
+        if !$of.defined or !$of.does(::Muldis::DB::AST::TypeInvo);
+
+    $!of = $of;
+
+    return;
+}
+
+###########################################################################
+
+method as_perl of Str () {
+    if (!$!as_perl.defined) {
+        my Str $so = $!of.as_perl();
+        $!as_perl = "Muldis::DB::AST::Default.new( :of($so) )";
+    }
+    return $!as_perl;
+}
+
+###########################################################################
+
+method _equal_repr of Bool (::T $self: T $other!) {
+    return $self!of.equal_repr( :other($other!of) );
+}
+
+###########################################################################
+
+method of () of Muldis::DB::AST::TypeInvo {
+    return $!of;
+}
+
+###########################################################################
+
+} # class Muldis::DB::AST::Default
+
+###########################################################################
+###########################################################################
+
+class Muldis::DB::AST::Treat {
+    does Muldis::DB::AST::Expr;
+
+    has Muldis::DB::AST::TypeInvo $!as;
+    has Muldis::DB::AST::Expr     $!v;
+
+    has Str $!as_perl;
+
+###########################################################################
+
+submethod BUILD (Muldis::DB::AST::TypeInvo :$as!,
+        Muldis::DB::AST::Expr :$v!) {
+
+    die q{new(): Bad :$as arg; it is not an object of a}
+            ~ q{ Muldis::DB::AST::TypeInvo-doing class.}
+        if !$as.defined or !$as.does(::Muldis::DB::AST::TypeInvo);
+
+    die q{new(): Bad :$v arg; it is not an object of a}
+            ~ q{ Muldis::DB::AST::Expr-doing class.}
+        if !$v.defined or !$v.does(::Muldis::DB::AST::Expr);
+
+    $!as = $as;
+    $!v    = $v;
+
+    return;
+}
+
+###########################################################################
+
+method as_perl of Str () {
+    if (!$!as_perl.defined) {
+        my Str $sa = $!as.as_perl();
+        my Str $sv = $!v.as_perl();
+        $!as_perl = "Muldis::DB::AST::Treat.new( :as($sa), :v($sv) )";
+    }
+    return $!as_perl;
+}
+
+###########################################################################
+
+method _equal_repr of Bool (::T $self: T $other!) {
+    return ($self!as.equal_repr( :other($other!as) )
+        and $self!v.equal_repr( :other($other!v) ));
+}
+
+###########################################################################
+
+method as () of Muldis::DB::AST::TypeInvo {
+    return $!as;
+}
+
+method v of Muldis::DB::AST::Expr () {
+    return $!v;
+}
+
+###########################################################################
+
+} # class Muldis::DB::AST::Treat
 
 ###########################################################################
 ###########################################################################
@@ -1780,11 +1909,12 @@ I<This documentation is pending.>
 
     use Muldis::DB::AST <newBoolLit newTextLit newBlobLit newIntLit
         newTupleSel newQuasiTupleSel newRelationSel newQuasiRelationSel
-        newVarInvo newFuncInvo newProcInvo newFuncReturn newProcReturn
-        newEntityName newTypeInvoNQ newTypeInvoAQ newTypeDictNQ
-        newTypeDictAQ newExprDict newFuncDecl newProcDecl newHostGateRtn
-        newSetSel newQuasiSetSel newSeqSel newQuasiSeqSel newBagSel
-        newQuasiBagSel newMaybeSel newQuasiMaybeSel>;
+        newDefault newTreat newVarInvo newFuncInvo newProcInvo
+        newFuncReturn newProcReturn newEntityName newTypeInvoNQ
+        newTypeInvoAQ newTypeDictNQ newTypeDictAQ newExprDict newFuncDecl
+        newProcDecl newHostGateRtn newSetSel newQuasiSetSel newSeqSel
+        newQuasiSeqSel newBagSel newQuasiBagSel newMaybeSel
+        newQuasiMaybeSel>;
 
     my $truth_value = newBoolLit( :v(2 + 2 == 4) );
     my $planetoid = newTextLit( :v<Ceres> );
@@ -1831,6 +1961,8 @@ will be added in the future), which are visually arranged here in their
             Muldis::DB::AST::_Relation (implementing role)
                 Muldis::DB::AST::RelationSel
                 Muldis::DB::AST::QuasiRelationSel
+            Muldis::DB::AST::Default
+            Muldis::DB::AST::Treat
             Muldis::DB::AST::VarInvo
             Muldis::DB::AST::FuncInvo
         Muldis::DB::AST::Stmt (dummy role)
@@ -2002,6 +2134,14 @@ I<This documentation is pending.>
 I<This documentation is pending.>
 
 =head2 The Muldis::DB::AST::QuasiRelationSel Class
+
+I<This documentation is pending.>
+
+=head2 The Muldis::DB::AST::Default Class
+
+I<This documentation is pending.>
+
+=head2 The Muldis::DB::AST::Treat Class
 
 I<This documentation is pending.>
 

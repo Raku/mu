@@ -37,7 +37,7 @@ module Muldis::DB::Engine::Example::Operators-0.0.0 {
 'sys.rtn.Int.assign' => sub (Hash $upd_args!, Hash $ro_args!) {
     my ($target) = $upd_args<target>;
     my ($v) = $ro_args<v>;
-    $target.set( $v );
+    $target.store( $v );
     return;
 },
 

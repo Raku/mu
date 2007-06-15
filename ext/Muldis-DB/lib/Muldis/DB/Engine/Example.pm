@@ -162,17 +162,40 @@ method execute () {
 ###########################################################################
 ###########################################################################
 
-class Muldis::DB::Engine::Example::Value {
+class Muldis::DB::Engine::Example::Var {
 
-
-
-###########################################################################
-
-
+    has Muldis::DB::AST::TypeInvo                    $!decl_type;
+    has Muldis::DB::Engine::Example::PhysType::Value $!payload;
 
 ###########################################################################
 
-} # class Muldis::DB::Engine::Example::Value
+submethod BUILD (Muldis::DB::AST::TypeInvo :$decl_type!) {
+
+    my $payload = newBoolLit( :v(Bool::False) );
+        # TODO: make default value of $decl_type
+
+    $!decl_type = $decl_type;
+    $!payload   = $payload;
+
+    return;
+}
+
+###########################################################################
+
+method fetch of Muldis::DB::Engine::Example::PhysType::Value () {
+    return $!payload;
+}
+
+###########################################################################
+
+method store (Muldis::DB::Engine::Example::PhysType::Value $payload!) {
+    $!payload = $payload;
+    return;
+}
+
+###########################################################################
+
+} # class Muldis::DB::Engine::Example::Var
 
 ###########################################################################
 ###########################################################################
