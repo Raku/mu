@@ -60,7 +60,7 @@ The regex AST will be refactored from hash-of-hashes to Object-oriented.
 
 =head3 Status
 
-Not started.
+Finished.
 
 =head3 Dependencies
 
@@ -68,10 +68,14 @@ Not started.
 
 =item * KindaPerl6 compiler architecture code-review
 
+* TODO
+
 We need someone to review the previous phase results, in order to consider the "compiler architecture" phase finished.
 This is a non-blocking task.
 
 =item * KindaPerl6 syntax review
+
+* TODO
 
 We need to verify that the KindaPerl6 grammar is a valid subset of Perl 6.
 This is a non-blocking task.
@@ -100,7 +104,7 @@ The regex compiler will use the AST processor engine.
 
 =head3 Status
 
-Not started.
+Finished.
 
 =head3 Dependencies
 
