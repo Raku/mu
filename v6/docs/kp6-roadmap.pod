@@ -104,7 +104,7 @@ The regex compiler will use the AST processor engine.
 
 =head3 Status
 
-Finished.
+Some tasks finished.
 
 =head3 Dependencies
 
@@ -127,6 +127,16 @@ This will be used for debugging
 =item * Create an AST-to-Perl6 dumper
 
 This will finish replacing the current kp6 code
+
+=item * Merge the regex AST processor with the main AST processor
+
+* TODO
+
+Currently, the grammar for "regex" returns Perl 6 procedural AST. 
+This is because the regex AST processor is being called too early.
+
+In this phase, the grammar will be refactored to return plain regex AST.
+This AST will be processed to procedural code later, by applying an optional plugin module.
 
 =back
 
