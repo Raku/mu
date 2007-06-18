@@ -3,8 +3,8 @@ use v6-alpha;
 ###########################################################################
 ###########################################################################
 
-my $FALSE = Bool::False;
-my $TRUE  = Bool::True;
+my Bool $FALSE = Bool::False;
+my Bool $TRUE  = Bool::True;
 
 my $TYNM_UINT = ::Muldis::DB::AST::EntityName.new( :text<sys.type.UInt> );
 my $TYNM_PINT = ::Muldis::DB::AST::EntityName.new( :text<sys.type.PInt> );

@@ -85,11 +85,14 @@ Lesser General Public License (LGPL), version 2.1 or later.  See
 LICENSE/LGPL-2.1.
 
 The "Muldis-DB" library is released by Darren Duncan under a general
-temporal disjunction of 2 licenses; following the publication of its final
-version on 2007 June 29th, Muldis-DB will be released under the GNU General
-Public License (GPL), version 3 or later; prior to that date, Muldis-DB is
-released under a proprietary license whose privileges expire on 2007 July
-1st.  See LICENSE/GPL-3, after June 29th.
+temporal disjunction of 3 licenses; for the month of 2007 June only,
+Muldis-DB is released under an expiring proprietary license; starting after
+2007 June 29th, Muldis-DB will be re-released under the GNU General Public
+License (GPL), version 3 or later (which will be published then); either on
+the latter date or afterwards, Muldis-DB will be licensed under the
+disjunction of the GPL v3+ and the Affero GPL v3+ (whenever the latter is
+published), so in the longer term, users can choose from the latter two
+licenses.  See LICENSE/GPL-3 and/or LICENSE/AGPL-3, after June 29th.
 
 The "WTemplate" library is released by Andras Barthazi under any
 version of the GNU General Public License (GPL).  See LICENSE/GPL-2.

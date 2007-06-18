@@ -711,35 +711,46 @@ This file is part of the Muldis::DB framework.
 Muldis::DB is Copyright © 2002-2007, Darren Duncan.  All rights reserved.
 
 Muldis::DB is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License (GPL) as published by the Free
-Software Foundation (L<http://www.fsf.org/>); either version 3 of the
-License, or (at your option) any later version.  You should have received a
-copy of the GPL as part of the Muldis::DB distribution, in the file named
-"GPL"; if not, see L<http://www.gnu.org/licenses> or write to the Free
-Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-02110-1301 USA.
+the terms of either:
 
-I<WARNING:  The GPL version 3 is still being drafted; the publication of
-its final version is expected on Friday, June 29, 2007; until then, that
-license can not actually be used.  So the previous paragraph just
-represents what the license of Muldis::DB is anticipated to be following an
-explicit post June 29th re-distribution of it by the copyright holder.  If
-you are seeing Muldis::DB prior to that re-distribution, for any reason or
-in any place, then you should consider it as not being licensed at all, and
-vanilla copyright law applies.  That said, Muldis::DB is hereby licensed to
-you under the following proprietary terms:  You may copy, examine, modify,
-and execute Muldis::DB, for the purpose of study or evaluation, during only
-the time period prior to July 1st of 2007, after which time all privileges
+a) the GNU General Public License (GPL) as published by the Free Software
+Foundation (L<http://www.fsf.org/>); either version 3 of the License, or
+(at your option) any later version, or
+
+b) the GNU Affero General Public License (AGPL) as published by the Free
+Software Foundation; either version 3 of the License, or (at your option)
+any later version.
+
+You should have received copies of the GPL and AGPL as part of the
+Muldis::DB distribution, in the files named "GPL" and "AGPL" respectively;
+if not, see L<http://www.gnu.org/licenses> or write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
+USA.
+
+I<WARNING:  The GPL version 3 and AGPL version 3 are still being drafted;
+the publication of final version of the GPL is expected on Friday, June 29,
+2007; the final publication of the AGPL is currently unknown but should be
+close to the same date; until then, those licenses can not actually be
+used.  So the previous paragraphs just represent what the license of
+Muldis::DB is anticipated to be following an explicit post June 29th
+re-distribution of it by the copyright holder.  If you are seeing
+Muldis::DB prior to that re-distribution, for any reason or in any place,
+then you should consider it as not being licensed at all, and vanilla
+copyright law applies.  That said, Muldis::DB is hereby licensed to you
+under the following proprietary terms:  You may copy, examine, modify, and
+execute Muldis::DB, for the purpose of study or evaluation, during only the
+time period prior to July 1st of 2007, after which time all privileges
 granted to you under this proprietary license expire.  You should then be
 able to acquire a subsequent Muldis::DB release that is licensed with the
-GPL version 3.>
+GPL version 3 and/or that disjoint with the AGPL version 3.>
 
 Linking Muldis::DB statically or dynamically with other components is
 making a combined work based on Muldis::DB.  Thus, the terms and conditions
-of the GPL cover the whole combination.  However, if it is not feasible for
-your combined work to be distributed subject to the GPL, then the copyright
-holders of Muldis::DB can sell you an appropriate proprietary license, so
-that it is still possible for you to employ Muldis::DB to meet your needs.
+of the GPL or AGPL cover the whole combination.  However, if it is not
+feasible for your combined work to be distributed subject to the GPL or
+AGPL, then the copyright holders of Muldis::DB can sell you an appropriate
+proprietary license, so that it is still possible for you to employ
+Muldis::DB to meet your needs.
 
 For more information on matters such as licensing, including rationale, see
 also the L<Muldis::DB::Copying> file that comes with Muldis::DB.
@@ -747,7 +758,7 @@ also the L<Muldis::DB::Copying> file that comes with Muldis::DB.
 Any versions of Muldis::DB that you modify and distribute must carry
 prominent notices stating that you changed the files and the date of any
 changes, in addition to preserving this original copyright notice and other
-credits. Muldis::DB is distributed in the hope that it will be useful, but
+credits.  Muldis::DB is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 or FITNESS FOR A PARTICULAR PURPOSE.  However, for an additional fee, the
 copyright holders of Muldis::DB can sell you a warranty for it.

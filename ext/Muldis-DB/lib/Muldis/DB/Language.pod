@@ -1217,8 +1217,8 @@ eg, in NFC graphemes) that the subtype's strings are.
 =item C<sys.type.NEText>
 
 A C<NEText> (non-empty text) is a proper subtype of C<Text> where its
-length in characters must be at least 1; it can be any C<Text> except for
-the empty string.  Its default value is a single "space" character.
+length in characters must be more than zero; it can be any C<Text> except
+for the empty string.  Its default value is a single "space" character.
 
 =item C<sys.type.Blob>
 
