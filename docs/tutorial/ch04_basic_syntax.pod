@@ -81,7 +81,7 @@ Individual values are retrieved from the array by numeric index. The
 C<0> index holds the first value. The C<@> sigil is part of the name
 of the variable and stays the same no matter how the variable is used:
 
-  @crew = ( "Zaphod", "Ford", "Trillian" );
+  @crew = "Zaphod", "Ford", "Trillian";
   
   $second_member = @crew[1]; # Ford
 
@@ -124,15 +124,15 @@ Hashes are unordered collections of scalar values, stored and
 retrieved by a key index. The simplest way to build a hash is by
 passing it a list of anonymous pair objects. For example:
 
-  %hash = ( "Zaphod" => 362, "Ford" => 1574, "Trillian" => 28 );
+  %hash = "Zaphod" => 362, "Ford" => 1574, "Trillian" => 28;
 
 The key for each value may be a string or an object, though there are
 some restrictions on object keys. Hashes that use object keys must be
 declared as such, for the sake of efficiency. Any object used as a
-hash key must have a C<.id> method that returns a unique value for
+hash key must have a C<.WHICH> method that returns a unique value for
 each unique object to avoid hashing collisions. This method is
 provided by default in the universal base class, so you only have to
-worry about uniqueness when you define your own C<.id> methods.
+worry about uniqueness when you define your own C<.WHICH> methods.
 
   $age = %hash{"Zaphod"}; # string
   $age = %hash{$name};    # string variable
@@ -147,8 +147,7 @@ string key.
 If you really don't want to type the quotes, substitute auto-quoting
 brackets for the ordinary curly braces around the key:
 
-  $age = %hashE<laquo>ZaphodE<raquo>; # string
-  $age = %hash<<Zaphod>>;             # ASCII equivalent
+  $age = %hash<Zaphod>;
 
 In list context, a hash returns a list of key/value pair objects. The
 C<.kv> method returns a flattened list of keys and values from a hash.
@@ -178,62 +177,70 @@ values:
   @keys = %hash.keys;
   @values = %hash.values;
 
-=head2 References
+=head2 Objects
 
 Z<CHP-4-SECT-1.5>
 
 X<references>
-References are largely transparent in Perl 6. There is a distinction
-between references and ordinary variables, but it's minimized as much
-as possible in actual use, with automatic referencing and
-dereferencing where appropriate. Creating a reference to an array or
-hash requires no special syntax. You simply assign it to a scalar
-variable:
+Because nearly all entities in Perl 6 are considered first-class
+objects, references are largely transparent.  Instead of treating
+references as a real data type, we speak directly of various kinds of
+objects with the assumption that all objects are really represented
+by references internally.  There is a distinction between ordinary
+objects and containers, but this is minimized as much as possible
+in actual use, with automatic referencing and dereferencing where
+appropriate. Creating a reference to an array or hash requires no
+special syntax, since the array or hash already serves as its own
+reference. You simply assign the array or hash to a scalar variable:
 X<references;to arrays>
 X<references;to hashes>
-X<arrayrefs;creating>
-X<hashrefs;creating>
 
-  $arrayref = @array;
-  $hashref = %hash;
+  $array = @array;
+  $hash = %hash;
 
-X<arrayrefs;dereferencing>
-X<hashrefs;dereferencing>
-References are implicitly dereferenced in many contexts, so array
+X<objects;dereferencing>
+Objects in scalar containers are implicitly dereferenced, so array
 indexes and hash keys access individual elements directly from
-hashrefs and arrayrefs, just like they do with hashes and arrays:
+hash and array objects, just like they do with explicit hashes and arrays:
 
-  $arrayref[1]
-  $hashref{"Zaphod"}
+  $array = @array;
+  $array[1]		# same as original @array[1]
 
-X<arrayrefs>
-X<hashrefs>
-Methods are called on arrayrefs and hashrefs just like they are on
-arrays and hashes. The referent--the underlying data type or
-object--determines which methods can be used with a particular
-reference, what those methods do, and whether the reference can support
-indexed access.
+  $hash = %hash;
+  $hash{"Zaphod"}	# same as original %hash{"Zaphod"}
 
-  $arrayref.elems
-  $hashref.keys
+Likewise scalar containers pass method calls on to the contained
+object.  The referent--the underlying data type or object--determines
+which methods can be used with a particular reference, what those
+methods do, and whether the reference can support indexed access.
+
+  $array.elems
+  $hash.keys
 
 X<references;to subroutines>
-References to subroutines can be executed simply by passing the
-reference an argument list. The list can be empty, but the parentheses
-are required.
 
-  $subref($arg);
+Subroutines may be named as first-class objects by prefixing the name
+with the C<&> sigil.  A subroutine object can be executed simply by
+passing the object an argument list. The list can be empty, but the
+parentheses are required when dereferencing a variable containing a subroutine.
 
-Arrayrefs and hashrefs have special syntax (C<@{...}> and C<%{...}>)
-for dereferencing them in contexts that normally wouldn't.
+  $sub = &mysub;
+  $sub($arg);
 
-  @array = @{$arrayref};
+When it is not clear whether an object should be treated as a single
+item or as a collection of items, you may use the various sigils to
+explicitly coerce the value:
+
+  @array = @($array);
   # or
-  @array = @$arrayref;
+  @array = @$array;
 
-Ordinarily, an array reference assigned to an array would produce an
-array with a single arrayref element. To copy the individual elements of
-C<$arrayref> to C<@array> you need to dereference it first.
+Ordinarily, a scalar container is always treated as a single item within
+a large list, so a scalar assigned to an array would produce an array
+with a single scalar element, even if that scalar element happens
+to contain an array. To copy the individual elements of C<$array>
+to C<@array> you need to put it into C<@> context to interpolate its
+elements into the newly constructed list.
 
 =head2 Variables and Context
 
@@ -247,54 +254,53 @@ X<variables;$ sigil>
 X<$ (dollar sign);$ sigil and context>
 One of the main differences between variables with the C<$>, C<@>, or
 C<%> sigils is that they each impose a different context. The C<$>
-sigil imposes a scalar context, C<@> imposes list context, and C<%>
+sigil imposes an item context, C<@> imposes list context, and C<%>
 imposes hashlist context.N<These three are not the only contexts in
 Perl 6. A complete discussion of Perl 6 contexts appears in
 A<CHP-4-SECT-2.7>"Context Forcing Operators" later in this chapter.>
 
-=head3 Scalar context
+=head3 Item context
 
 Z<CHP-4-SECT-1.6.1>
 
-X<scalar context> 
-Scalar context expects a single value. Any array or list evaluated in
-scalar context returns an arrayref. This means that assigning an
-array:
+X<item context> Item context expects a single value. Any array or
+list evaluated in item context returns a single object representing
+the composite. This means that assigning an array:
 
-  @array = ( "Zaphod", "Ford", "Trillian" );
-  $arrayref = @array;
+  @array = "Zaphod", "Ford", "Trillian";
+  $array = @array;
 
 a list:
 
-  $arrayref = ( "Zaphod", "Ford", "Trillian" );
+  $array = "Zaphod", "Ford", "Trillian";
 
-or an explicit anonymous arrayref:
+or an explicit anonymous array object:
 
-  $arrayref = [ "Zaphod", "Ford", "Trillian" ];
+  $array = [ "Zaphod", "Ford", "Trillian" ];
 
 to a scalar variable all produce exactly the same structure: a
-reference to an array with three elements.
+scalar array container with three elements.
 
-The comma is the list constructor, even in scalar context. Parentheses
-only group. When a single element in parentheses is assigned in scalar
+The comma is the list constructor, even in item context. Parentheses
+only group. When a single element in parentheses is assigned in item
 context, it stays a simple scalar value:
 
   $value = (20);
 
-If you want to create an arrayref of one element in scalar context,
+If you want to create an array of one element in item context,
 use square brackets (C<[...]>) to explicitly construct an anonymous
-array reference:
+array object:
 
-  $arrayref = [20];
+  $array = [20];
 
-A hash-like list assigned to a scalar variable creates a reference to an
-ordered array of pairs, following the rule that a list in scalar context
+A hash-like list assigned to a scalar variable creates an
+ordered array of pairs, following the rule that a list in item context
 is an arrayref.
 
   $pair_list = ( "Zaphod" => 362, "Ford" => 1574, "Trillian" => 28 );
 
 You have to use curly braces (C<{...}>) to explicitly construct a hash
-reference in scalar context:
+object in item context:
 
   $hashref = { "Zaphod" => 362, "Ford" => 1574, "Trillian" => 28 };
 
