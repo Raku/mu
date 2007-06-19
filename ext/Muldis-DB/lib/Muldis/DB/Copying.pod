@@ -117,7 +117,8 @@ law does not when you follow the GPL's or AGPL's terms; if you distribute
 Muldis::DB, which vanilla copyright law says you can't do by default, then
 the terms of the GPL or AGPL would apply to you.
 
-2.  The copyright holder has sold them a proprietary license allowing it.
+2.  The copyright holder has provided the third party a proprietary license
+that allows it.
 
 3.  The copyright holder generally re-releases Muldis::DB with additional
 permissions concerning linking.
@@ -148,11 +149,13 @@ other licenses having weaker or non-existent copyleft protections.
 The copyright holder would prefer that it be possible for everyone to
 employ Muldis::DB according to the GPL or AGPL.  The GPL|AGPL/proprietary
 dual-license is not intended as a developer-extortion measure to build a
-business with; rather, the copyright holder intends to build a business
-with Muldis::DB in the same ways that the GPL permits everyone else to,
-such as by selling GPL|AGPL-licensed copies for a fee, and support
-services, and warranties, and sponsored improvements, and by using
-Muldis::DB as a platform to build other works on; a unique selling
+business with; in fact, it would often be the case that the proprietary
+licenses would be provided at no cost, meaning the copyright holder makes
+no financial gain at all from them; rather, the copyright holder intends to
+build a business with Muldis::DB in the same ways that the GPL permits
+everyone else to, such as by selling GPL|AGPL-licensed copies for a fee,
+and support services, and warranties, and sponsored improvements, and by
+using Muldis::DB as a platform to build other works on; a unique selling
 proposition of the copyright holder for this is that, being the creator,
 they know and can support the product best.
 

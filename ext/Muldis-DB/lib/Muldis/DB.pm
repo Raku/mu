@@ -748,9 +748,9 @@ Linking Muldis::DB statically or dynamically with other components is
 making a combined work based on Muldis::DB.  Thus, the terms and conditions
 of the GPL or AGPL cover the whole combination.  However, if it is not
 feasible for your combined work to be distributed subject to the GPL or
-AGPL, then the copyright holders of Muldis::DB can sell you an appropriate
-proprietary license, so that it is still possible for you to employ
-Muldis::DB to meet your needs.
+AGPL, then the copyright holders of Muldis::DB can provide you a customized
+proprietary license, often at no cost, so that it is still possible for you
+to employ Muldis::DB to meet your needs.
 
 For more information on matters such as licensing, including rationale, see
 also the L<Muldis::DB::Copying> file that comes with Muldis::DB.
