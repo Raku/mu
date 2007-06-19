@@ -153,7 +153,7 @@ more details). Sometimes you'll want to specify that certain
 parameters will be passed only by name, never by position. Named
 parameters are marked with a C<+> before the parameter name:
 
-  sub namedparams ($first, +$second, +$third) {
+  sub namedparams ($first, :$second, :$third) {
       ...
   }
 
@@ -321,6 +321,8 @@ keyword.
   sub get_value (Int $incoming) returns Int {...}
   # same as
   Int sub get_value (Int $incoming) {...}
+  # same as
+  sub get_value (Int $incoming --> Int) {...}
 
 Either syntax has exactly the same effect, but using the C<returns>
 keyword is usually clearer when the sub has multiple return values:
