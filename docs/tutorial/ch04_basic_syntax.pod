@@ -1823,7 +1823,7 @@ constructs that default to C<$_>, like C<print> and C<when>, can
 default to the loop variable:
 
   for @useful_things {
-      print; # prints $_, the current loop variable
+      .print; # prints $_, the current loop variable 
       print " You're one hoopy frood." when 'towel';
   }
 
