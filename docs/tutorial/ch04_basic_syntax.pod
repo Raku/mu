@@ -1008,14 +1008,14 @@ C<~|=>, and C<~^=>.
 
 Z<CHP-4-SECT-2.9>
 
-X<? (question mark);??:: (conditional) operator> 
-X<: (colon);in ??:: (conditional) operator> 
-The ternary C<??::> operator evaluates either its second or third
+X<? (question mark);??!! (conditional) operator> 
+X<: (colon);in ??!! (conditional) operator> 
+The ternary C<??!!> operator evaluates either its second or third
 operand, depending on whether the first operand evaluates as true or
 false. It's basically an if-then-else statement acting as an
 expression:
 
-  $form = ($heads == 2) ?? "Zaphod" :: "ape-descended lifeform";
+  $form = ($heads == 2) ?? "Zaphod" !! "ape-descended lifeform";
 
 =head2 Hyper Operators
 
