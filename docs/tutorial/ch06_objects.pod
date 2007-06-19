@@ -560,25 +560,25 @@ By default, all methods and attribute accessors are I<public> methods,
 so they can be called anywhere. You can also declare I<private>
 methods or accessors, which can be called only within the class where
 they're defined, or from certain trusted classes. A private method is
-declared with a colon at the start of the name:
+declared with the C<my> keyword at the start of the declaration.
 
-  method :inaccessible ($self: $value) {...}
+  my method inaccessible ($self: $value) {...}
 
-A private attribute is declared with a colon in place of the dot
+A private attribute is declared with an exclamation markin place of the dot
 (C<.>) in the name:
 
-  has $:hidden;
+  has $!hidden;
 
-You call a private method or accessor with a colon in the call:
+You call a private method or accessor with an exclamation mark in the call:
 
-  $object.:hidden(42);
+  $object.!hidden(42);
 
-The attribute variable (C<$:name> or C<$.name>) is never accessible
+The attribute variable (C<$!name> or C<$.name>) is never accessible
 outside the class, whether the attribute is public or private.
 
 At first glance this might look like nothing more than the
 "encapsulation by convention" of Perl 5. It's actually much more than
-that. The colon implicitly sets a C<private>X<private trait> trait on
+that. The exclamation mark implicitly sets a C<private>X<private trait> trait on
 the method or attribute. The encapsulation is enforced by the
 interpreter. An external call to a private method will fail as if the
 method simply didn't exist. External queries to the package symbol
