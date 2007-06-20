@@ -151,7 +151,7 @@ arguments, or by name with an unordered list of pairs (see
 A<CHP-5-SECT-3.1>"Named Argument Passing" later in this chapter for
 more details). Sometimes you'll want to specify that certain
 parameters will be passed only by name, never by position. Named
-parameters are marked with a C<+> before the parameter name:
+parameters are marked with a C<:> before the parameter name:
 
   sub namedparams ($first, :$second, :$third) {
       ...
