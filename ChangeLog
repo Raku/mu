@@ -1,5 +1,13 @@
 = Changes for 6.28.0 (rXXXXX) - June XX, 2007
 
+== Licensing Changes
+
+* The license for Pugs in general (not third-party components) is now
+simplified to be just the final Artistic 2.0, rather than the disjunction
+of the Artistic 2.0 beta 5 and the GPL.  Such a disjunction has no benefit
+since the Artistic 2.0 is GPL compatible on its own.  This said, the
+Artistic/MIT disjunction still exists where it did before.
+
 == Build System
 
 

@@ -65,10 +65,8 @@ between Pugs and the new version will be considered bugs in Pugs.
 
 == Is Pugs free software?
 
-Yes. It is available under both 
-[GPL version 2|http://svn.pugscode.org/pugs/LICENSE/GPL-2] and 
-[Artistic License version 2.0b5|http://svn.pugscode.org/pugs/LICENSE/Artistic-2] 
-Once the final version of Artistic 2.0 is released, Pugs will adopt it.
+Yes. It is available under the 
+[Artistic License version 2.0|http://svn.pugscode.org/pugs/LICENSE/Artistic-2].
 
 == Is Pugs funded by the Perl Foundation?
 

@@ -15,18 +15,17 @@ Pugs is Copyright 2005-2007, The Pugs Contributors.
 
 Pugs is a joint work of authorship by the Pugs Contributors.
 
-Pugs is free software; you can redistribute it and/or modify it under
-the terms of either:
-
-    a) the GNU General Public License, version 2, or
-    b) the Artistic License, version 2.0beta5.
+Pugs is free software; you can redistribute it and/or modify it under the
+terms of the Artistic License 2.0.  (Note that, unlike the Artistic License
+1.0, version 2.0 is GPL compatible by itself, hence there is no benefit to
+having an Artistic 2.0 / GPL disjunction.)
 
 In addition, you can redistribute and/or modify contributions under the
 src/ directory, as well as the "pugs" executable program produced by
 compilation, under the terms of the MIT license.
 
-Please see the "GPL-2", "Artistic-2.0b5", and "MIT" files under the
-"LICENSE" directory for the full license text.
+Please see the "Artistic-2" and "MIT" files under the "LICENSE" directory
+for the full license text.
 
 
 INSTALLATION
