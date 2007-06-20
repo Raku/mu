@@ -653,7 +653,7 @@ class Muldis::DB::Engine::Example::PhysType::QuasiRelation {
 role Muldis::DB::Engine::Example::PhysType::TypeInvo {
     does Muldis::DB::Engine::Example::PhysType::Value;
 
-    use Muldis::DB::AST <newTypeInvoNQ newTypeInvoAQ>;
+    use Muldis::DB::AST <newEntityName newTypeInvoNQ newTypeInvoAQ>;
 
     has Str $!kind;
     has Any $!spec;
@@ -679,7 +679,7 @@ method which of Str () {
         my Str $tpwl = '20 sys.type._TypeInvo'
             ~ (self._allows_quasi() ?? 'AQ' !! 'NQ');
         my Str $sk = $!kind.graphs ~ q{ } ~ $!kind;
-        my Str $ss = $!kind === 'Any'
+        my Str $ss = $!kind === 'Any'|'Scalar'
             ?? $!spec.graphs ~ q{ } ~ $!spec !! $!spec.which();
         my Str $s = "KIND $sk SPEC $ss";
         $!which = "$tpwl {$s.graphs} $s";
@@ -691,7 +691,9 @@ method which of Str () {
 
 method as_ast of Muldis::DB::AST::TypeInvo () {
     my $call_args = \( :kind($!kind),
-        :spec($!kind === 'Any' ?? $!spec !! $!spec.as_ast()) );
+        :spec($!kind === 'Any' ?? $!spec
+            !! $!kind === 'Scalar' ?? newEntityName( :text($!spec) )
+            !! $!spec.as_ast()) );
     return self._allows_quasi()
         ?? &newTypeInvoAQ.callwith( |$call_args )
         !! &newTypeInvoNQ.callwith( |$call_args );
@@ -702,7 +704,7 @@ method as_ast of Muldis::DB::AST::TypeInvo () {
 method _equal of Bool (::T $self: T $other!) {
     return $FALSE
         if $other!kind !=== $self!kind;
-    return $self!kind === 'Any' ?? $other!spec === $self!spec
+    return $self!kind === 'Any'|'Scalar' ?? $other!spec === $self!spec
         !! $self!spec.equal( :other($other!spec) );
 }
 

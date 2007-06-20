@@ -464,7 +464,8 @@ submethod BUILD (Str :$v!) {
 
 method as_perl of Str () {
     if (!$!as_perl.defined) {
-        my Str $s = q{'} ~ $!v.trans( q{'} => q{\\'} ) ~ q{'};
+        my Str $s
+            = q{'} ~ $!v.trans( q{\\} => q{\\\\}, q{'} => q{\\'} ) ~ q{'};
         $!as_perl = "Muldis::DB::AST::TextLit.new( :v($s) )";
     }
     return $!as_perl;
@@ -1315,7 +1316,8 @@ multi submethod BUILD (Array :$seq!) {
 
 method as_perl of Str () {
     if (!$!as_perl.defined) {
-        my Str $s = q{'} ~ $!text_possrep.trans( q{'} => q{\\'} ) ~ q{'};
+        my Str $s
+            = q{'} ~ $!v.trans( q{\\} => q{\\\\}, q{'} => q{\\'} ) ~ q{'};
         $!as_perl = "Muldis::DB::AST::EntityName.new( :text($s) )";
     }
     return $!as_perl;
