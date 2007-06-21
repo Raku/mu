@@ -66,7 +66,7 @@ use Data::Dump::Streamer;
 
     sub emit_perl6 {
         # param = AST
-        my $perl6 = join( ";\n", (map { $_->emit( $visitor_emit_perl6  ) } @_ ));
+        my $perl6 = $_[0]->emit( $visitor_emit_perl6  );
         return $perl6;
     }
 
@@ -103,16 +103,16 @@ use Data::Dump::Streamer;
         #print "begin_block\n";
         #print "PARAM: ",Dumper(\@_);
         #my $env = shift;
-        my @ast = ( shift );
+        my $ast = shift;
 
-        #print Dump( @ast );
-        #@ast = map { $_->emit( $visitor_lexical_sub )     } @ast;
-        @ast = map { $_->emit( $visitor_metamodel )       } @ast;
-        #@ast = map { $_->emit( $visitor_create_env )      } @ast;
+        #print Dump( $ast );
+        #$ast = $ast->emit( $visitor_lexical_sub );
+        $ast = $ast->emit( $visitor_metamodel );
+        #$ast = $ast->emit( $visitor_create_env );
         
-        #print Dump( @ast );
-        #Main::say( join( ";\n", (map { $_->emit( $visitor_dump_ast    ) } @ast )));
-        my $native = join( ";\n", (map { $_->emit( $visitor_emit_perl5  ) } @ast ));
+        #print Dump( $ast );
+        #Main::say( $ast->emit( $visitor_dump_ast    ));
+        my $native = $ast->emit( $visitor_emit_perl5  );
         #print "Native: $native\n";
     
         # execute the native code inside the current pad
@@ -127,7 +127,7 @@ use Data::Dump::Streamer;
 
         #print "=pod\n";
         #print "# BEGIN ENV: ", Dumper( $COMPILER::PAD[0]->lexicals ), "\n";
-        #print "BEGIN AST: ", Dumper( \@ast );
+        #print "BEGIN AST: ", Dumper( \$ast );
         #print "BEGIN: Native code: $native\n\n";
 
         for my $pad ( @COMPILER::PAD ) {
@@ -190,7 +190,7 @@ use Data::Dump::Streamer;
         );
         drop_pad;
         #print "BEGIN AST: ",Dumper($begin_ast);
-        #print "BEGIN native: ", join( ";\n", (map { $_->emit( $visitor_emit_perl5  ) } ($begin_ast) ));
+        #print "BEGIN native: ", $begin_ast->emit( $visitor_emit_perl5  ) );
         
         #print "data: ", Dumper( $data );
         
@@ -210,7 +210,7 @@ use Data::Dump::Streamer;
         );
         drop_pad;
         #print "FINAL AST: ",Dumper($final_ast); 
-        #print "FINAL native: ", join( ";\n", (map { $_->emit( $visitor_emit_perl5  ) } ($final_ast) ));
+        #print "FINAL native: ", $final_ast->emit( $visitor_emit_perl5  );
 
         # create the runtime initializer
         # @COMPILER::BEGIN_RUNTIME
@@ -250,22 +250,22 @@ while ( $pos < length( $source ) ) {
     #say( "Source code:", $source );
     my $p = KindaPerl6::Grammar->comp_unit($source, $pos);
     #say( Main::perl( $$p ) );
-    my @ast = $$p;
+    my $ast = $$p;
     
-    #print Dump( @ast );
-    unless (ref $ast[0] && $ast[0]->isa("CompUnit")) {
+    #print Dump( $ast );
+    unless (ref $ast && $ast->isa("CompUnit")) {
         die 'Syntax Error';
     }
-    #@ast = map { $_->emit( $visitor_lexical_sub )     } @ast;
-    @ast = map { $_->emit( $visitor_metamodel )       } @ast;
-    #@ast = map { $_->emit( $visitor_create_env )      } @ast;
+    #$ast = $ast->emit( $visitor_lexical_sub );
+    $ast = $ast->emit( $visitor_metamodel );
+    #$ast = $ast->emit( $visitor_create_env );
     
     if ($dumpast) {
-        say( join( ";\n", (map { $_->emit( $visitor_dump_ast    ) } @ast )));
+        say( $ast->emit( $visitor_dump_ast    ));
     } elsif ($perl6) {
-        say( join( ";\n", (map { $_->emit( $visitor_emit_perl6  ) } @ast )));
+        say( $ast->emit( $visitor_emit_perl6  ));
     } elsif ($perl5) {
-        say( join( ";\n", (map { $_->emit( $visitor_emit_perl5  ) } @ast )));
+        say( $ast->emit( $visitor_emit_perl5  ));
     }
 
     #say( $p->to, " -- ", length($source) );
@@ -276,20 +276,12 @@ while ( $pos < length( $source ) ) {
 for ( @COMPILER::CHECK ) { 
     my ( $ast, $pad ) = @$_;
     unshift @COMPILER::PAD, $pad;
-    my @ast = COMPILER::begin_block( $ast );
+    my $ast = COMPILER::begin_block( $ast );
 
-    @ast = map { $_->emit( $visitor_metamodel )       } @ast;
-    say( join( ";\n", (map { $_->emit( $visitor_emit_perl5  ) } @ast )));
+    $ast = $ast->emit( $visitor_metamodel );
+    say( $ast->emit( $visitor_emit_perl5  ));
     say( ";" );
 
     shift @COMPILER::PAD;
 }
-# emit Runtime initializers
-# TODO: emit from AST
-#print "BEGIN {\n";
-#for ( @COMPILER::BEGIN_RUNTIME ) { 
-#    print "  \$Code_$_->APPLY();\n";
-#}
-#print "}\n";
-
 say "1;";
