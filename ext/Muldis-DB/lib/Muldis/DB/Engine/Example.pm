@@ -34,9 +34,7 @@ class Muldis::DB::Engine::Example::DBMS {
 ###########################################################################
 
 submethod BUILD (Any :$dbms_config!) {
-
     $!dbms_config = $dbms_config;
-
     return;
 }
 
@@ -94,9 +92,7 @@ method fetch_ast of Muldis::DB::AST::Node () {
 ###########################################################################
 
 method store_ast (Muldis::DB::AST::Node :$val_ast!) {
-
     $!val_ast = $val_ast;
-
     return;
 }
 
@@ -158,44 +154,6 @@ method execute () {
 ###########################################################################
 
 } # class Muldis::DB::Engine::Example::HostGateRtn
-
-###########################################################################
-###########################################################################
-
-class Muldis::DB::Engine::Example::Var {
-
-    has Muldis::DB::AST::TypeInvo                    $!decl_type;
-    has Muldis::DB::Engine::Example::PhysType::Value $!payload;
-
-###########################################################################
-
-submethod BUILD (Muldis::DB::AST::TypeInvo :$decl_type!) {
-
-    my $payload = newBoolLit( :v(Bool::False) );
-        # TODO: make default value of $decl_type
-
-    $!decl_type = $decl_type;
-    $!payload   = $payload;
-
-    return;
-}
-
-###########################################################################
-
-method fetch of Muldis::DB::Engine::Example::PhysType::Value () {
-    return $!payload;
-}
-
-###########################################################################
-
-method store (Muldis::DB::Engine::Example::PhysType::Value $payload!) {
-    $!payload = $payload;
-    return;
-}
-
-###########################################################################
-
-} # class Muldis::DB::Engine::Example::Var
 
 ###########################################################################
 ###########################################################################

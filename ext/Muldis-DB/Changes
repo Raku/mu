@@ -1,7 +1,7 @@
                                 Muldis::DB
 ---------------------------------------------------------------------------
 
-2007-06-xx   Darren Duncan <perl@DarrenDuncan.net>
+2007-06-20   Darren Duncan <perl@DarrenDuncan.net>
 
     * Muldis::DB version 0.0.0 for Perl 5 is released on CPAN as
     Muldis-DB-0.0.0.tar.gz.  Muldis::DB version 0.0.0 for Perl 6 is not
@@ -19,7 +19,6 @@
         archives/OSCON2005LightningTalk.txt
         archives/OSCON2006SessionProposal.txt
         Changes
-        GPL
         INSTALL
         lib/Muldis/DB.pm
         lib/Muldis/DB/AST.pm
@@ -42,3 +41,14 @@
 
     * Initial code file versions are: DB.pm and AST.pm and Validator.pm and
     Example.pm and PhysType.pm and Operators.pm 0.0.0.
+
+    * As of this release, Muldis-DB is officially in pre-alpha development
+    status.  A lot of documentation and functionality is present, but a lot
+    isn't.  What is mostly done is the higher level documentation plus an
+    alpha-quality but fundamentally stable public API implementation.  What
+    is mostly undone is the reference engine implementation, the test
+    suite, and documentation of the API details.  What is already present
+    should be sufficient to begin study of Muldis-DB such that it can
+    actually be put to use within the next few weeks or months as Muldis-DB
+    is fleshed out.  Also, it should be possible now to start writing code
+    that uses or extends it.

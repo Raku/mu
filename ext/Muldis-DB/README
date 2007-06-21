@@ -62,6 +62,11 @@ an organized and searchable fashion.  Their main search site is at
 "http://search.cpan.org", and my own DUNCAND author page is at
 "http://search.cpan.org/search?author=DUNCAND".
 
+The main CPAN search site url for Muldis-DB for Perl 5 is
+"http://search.cpan.org/dist/Muldis-DB/"; that is the url you should link
+to presently if you want something to consider the "home page" of
+Muldis-DB; it is best to refer people there by default.
+
 You can download my oldest tarred and gzipped distributions from BACKPAN,
 at "http://history.perl.org/backpan/authors/id/D/DU/DUNCAND/", or from my
 web server, at "http://www.DarrenDuncan.net/d/perl/archives/", right back
