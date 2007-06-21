@@ -250,11 +250,14 @@ while ( $pos < length( $source ) ) {
     #say( Main::perl( $$p ) );
     my @ast = $$p;
     
+    #print Dump( @ast );
+    unless (ref $ast[0] && $ast[0]->isa("CompUnit")) {
+        die 'Syntax Error';
+    }
     #@ast = map { $_->emit( $visitor_lexical_sub )     } @ast;
     @ast = map { $_->emit( $visitor_metamodel )       } @ast;
     #@ast = map { $_->emit( $visitor_create_env )      } @ast;
     
-    #print Dump( @ast );
     if ($dumpast) {
         say( join( ";\n", (map { $_->emit( $visitor_dump_ast    ) } @ast )));
     } elsif ($perl5) {
