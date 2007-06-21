@@ -261,9 +261,9 @@ class Call {
         }
         else {
                '('  ~ $invocant ~ '->FETCH->{_role_methods}{' ~ $meth ~ '}'
-            ~ ' ? ' ~ $invocant ~ '->FETCH->{_role_methods}{' ~ $meth ~ '}{code}' 
+            ~ ' ?? ' ~ $invocant ~ '->FETCH->{_role_methods}{' ~ $meth ~ '}{code}' 
                 ~ '(' ~ $invocant ~ '->FETCH, ' ~ $call ~ ')'
-            ~ ' : ' ~ $invocant ~ '->FETCH->' ~ $meth ~ '(' ~ $call ~ ')'
+            ~ ' !! ' ~ $invocant ~ '->FETCH->' ~ $meth ~ '(' ~ $call ~ ')'
             ~  ')';
         };
         
