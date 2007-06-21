@@ -27,12 +27,14 @@ use KindaPerl6::Visitor::Token;
 use KindaPerl6::Grammar::Regex;
 
 use Getopt::Long;
-my ($dumpast, $perl5);
+my ($dumpast, $perl5, $perl6);
 GetOptions(
     'ast'	=> \$dumpast,
     'perl5'	=> \$perl5,
+    'perl6'	=> \$perl6,
     );
 $perl5 = 1 unless $dumpast;
+$perl5 = 0 if $perl6;
 
 my $source = join('', <> );
 my $pos = 0;
@@ -260,6 +262,8 @@ while ( $pos < length( $source ) ) {
     
     if ($dumpast) {
         say( join( ";\n", (map { $_->emit( $visitor_dump_ast    ) } @ast )));
+    } elsif ($perl6) {
+        say( join( ";\n", (map { $_->emit( $visitor_emit_perl6  ) } @ast )));
     } elsif ($perl5) {
         say( join( ";\n", (map { $_->emit( $visitor_emit_perl5  ) } @ast )));
     }
