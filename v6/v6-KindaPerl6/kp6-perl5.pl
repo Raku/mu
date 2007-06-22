@@ -53,6 +53,7 @@ my $visitor_emit_perl5  = KindaPerl6::Visitor::EmitPerl5->new();
 my $visitor_emit_perl6  = KindaPerl6::Visitor::EmitPerl6->new();
 my $visitor_metamodel   = KindaPerl6::Visitor::MetaClass->new();
 #my $visitor_create_env  = KindaPerl6::Visitor::CreateEnv->new();
+my $visitor_token       = KindaPerl6::Visitor::Token->new();
 
 use Data::Dump::Streamer;
 
@@ -106,6 +107,7 @@ use Data::Dump::Streamer;
         my $ast = shift;
 
         #print Dump( $ast );
+        $ast = $ast->emit( $visitor_token );
         #$ast = $ast->emit( $visitor_lexical_sub );
         $ast = $ast->emit( $visitor_metamodel );
         #$ast = $ast->emit( $visitor_create_env );
@@ -256,15 +258,16 @@ while ( $pos < length( $source ) ) {
     unless (ref $ast && $ast->isa("CompUnit")) {
         die 'Syntax Error';
     }
-    #$ast = $ast->emit( $visitor_lexical_sub );
-    $ast = $ast->emit( $visitor_metamodel );
-    #$ast = $ast->emit( $visitor_create_env );
     
     if ($dumpast) {
         say( $ast->emit( $visitor_dump_ast    ));
     } elsif ($perl6) {
         say( $ast->emit( $visitor_emit_perl6  ));
     } elsif ($perl5) {
+        $ast = $ast->emit( $visitor_token );
+        #$ast = $ast->emit( $visitor_lexical_sub );
+        $ast = $ast->emit( $visitor_metamodel );
+        #$ast = $ast->emit( $visitor_create_env );
         say( $ast->emit( $visitor_emit_perl5  ));
     }
 
@@ -278,10 +281,20 @@ for ( @COMPILER::CHECK ) {
     unshift @COMPILER::PAD, $pad;
     my $ast = COMPILER::begin_block( $ast );
 
-    $ast = $ast->emit( $visitor_metamodel );
-    say( $ast->emit( $visitor_emit_perl5  ));
+    if ($dumpast) {
+        say( $ast->emit( $visitor_dump_ast    ));
+    } elsif ($perl6) {
+        say( $ast->emit( $visitor_emit_perl6  ));
+    } elsif ($perl5) {
+        $ast = $ast->emit( $visitor_token );
+        #$ast = $ast->emit( $visitor_lexical_sub );
+        $ast = $ast->emit( $visitor_metamodel );
+        #$ast = $ast->emit( $visitor_create_env );
+        say( $ast->emit( $visitor_emit_perl5  ));
+    }
+
     say( ";" );
 
     shift @COMPILER::PAD;
 }
-say "1;";
+say "1;" if $perl5;

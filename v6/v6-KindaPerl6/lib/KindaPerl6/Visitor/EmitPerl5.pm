@@ -12,11 +12,6 @@ class KindaPerl6::Visitor::EmitPerl5 {
 }
 
 class CompUnit {
-    has $.unit_type;
-    has $.name;
-    has %.attributes;
-    has %.methods;
-    has $.body;
     method emit_perl5 {
           '{ package ' ~ $.name ~ "; " 
         ~ 'my $_MODIFIED; BEGIN { $_MODIFIED = {} } '
@@ -26,7 +21,6 @@ class CompUnit {
 }
 
 class Val::Int {
-    has $.int;
     method emit_perl5 { 
         # $.int 
         '$::Int->{_dispatch}( $::Int, \'new\', ' ~ $.int ~ ' )'
@@ -34,7 +28,6 @@ class Val::Int {
 }
 
 class Val::Bit {
-    has $.bit;
     method emit_perl5 { 
         # $.bit 
         '$::Bit->{_dispatch}( $::Bit, \'new\', ' ~ $.bit ~ ' )'
@@ -42,7 +35,6 @@ class Val::Bit {
 }
 
 class Val::Num {
-    has $.num;
     method emit_perl5 { 
         #$.num 
         '$::Num->{_dispatch}( $::Num, \'new\', ' ~ $.num ~ ' )'
@@ -50,7 +42,6 @@ class Val::Num {
 }
 
 class Val::Buf {
-    has $.buf;
     method emit_perl5 { 
         # '\'' ~ $.buf ~ '\'' 
         '$::Str->{_dispatch}( $::Str, \'new\', ' ~ '\'' ~ $.buf ~ '\'' ~ ' )'
@@ -65,8 +56,6 @@ class Val::Undef {
 }
 
 class Val::Object {
-    has $.class;
-    has %.fields;
     method emit_perl5 {
         die 'not implemented';
         # 'bless(' ~ %.fields.perl ~ ', ' ~ $.class.perl ~ ')';
@@ -74,7 +63,6 @@ class Val::Object {
 }
 
 class Native::Buf {
-    has $.buf;
     method emit_perl5 { 
         die 'not implemented';
         # '\'' ~ $.buf ~ '\''
@@ -82,21 +70,18 @@ class Native::Buf {
 }
 
 class Lit::Seq {
-    has @.seq;
     method emit_perl5 {
         '(' ~ (@.seq.>>emit_perl5).join(', ') ~ ')';
     }
 }
 
 class Lit::Array {
-    has @.array;
     method emit_perl5 {
         '[' ~ (@.array.>>emit_perl5).join(', ') ~ ']';
     }
 }
 
 class Lit::Hash {
-    has @.hash;
     method emit_perl5 {
         my $fields := @.hash;
         my $str := '';
@@ -108,10 +93,6 @@ class Lit::Hash {
 }
 
 class Lit::Code {
-    has $.pad;   # see Pad.pm
-    has $.state;
-    has $.sig;
-    has @.body;
     method emit_perl5 {
         my $s;
         for @($.pad.variable_names) -> $name {
@@ -140,8 +121,6 @@ class Lit::Code {
 }
 
 class Lit::Object {
-    has $.class;
-    has @.fields;
     method emit_perl5 {
         # $.class ~ '->new( ' ~ @.fields.>>emit_perl5.join(', ') ~ ' )';
         my $fields := @.fields;
@@ -155,24 +134,18 @@ class Lit::Object {
 }
 
 class Index {
-    has $.obj;
-    has $.index;
     method emit_perl5 {
         $.obj.emit_perl5 ~ '->{_dispatch}( ' ~ $.obj.emit_perl5 ~ ', \'INDEX\', ' ~ $.index.emit_perl5 ~ ' )';
     }
 }
 
 class Lookup {
-    has $.obj;
-    has $.index;
     method emit_perl5 {
         $.obj.emit_perl5 ~ '->{_dispatch}( ' ~ $.obj.emit_perl5 ~ ', \'LOOKUP\', ' ~ $.index.emit_perl5 ~ ' )';
     }
 }
 
 class Assign {
-    has $.parameters;
-    has $.arguments;
     method emit_perl5 {
         # TODO - same as ::Bind
         $.parameters.emit_perl5 ~ '->{_dispatch_VAR}( ' ~ $.parameters.emit_perl5 ~ ', \'STORE\', ' ~ $.arguments.emit_perl5 ~ ' )';
@@ -180,9 +153,6 @@ class Assign {
 }
 
 class Var {
-    has $.sigil;
-    has $.twigil;
-    has $.name;
     method emit_perl5 {
         # Normalize the sigil here into $
         # $x    => $x
@@ -209,26 +179,18 @@ class Var {
 }
 
 class Bind {
-    has $.parameters;
-    has $.arguments;
     method emit_perl5 {
         $.parameters.emit_perl5 ~ '->{_dispatch_VAR}( ' ~ $.parameters.emit_perl5 ~ ', \'BIND\', ' ~ $.arguments.emit_perl5 ~ ' )';
     }
 }
 
 class Proto {
-    has $.name;
     method emit_perl5 {
         ~$.name        
     }
 }
 
 class Call {
-    has $.invocant;
-    has $.hyper;
-    has $.method;
-    has @.arguments;
-    #has $.hyper;
     method emit_perl5 {
         my $invocant;
         if $.invocant.isa( 'Str' ) {
@@ -291,15 +253,12 @@ class Call {
 }
 
 class Apply {
-    has $.code;
-    has @.arguments;
     method emit_perl5 {
         return $.code.emit_perl5 ~ '->{_dispatch}( ' ~ $.code.emit_perl5 ~ ', \'APPLY\', ' ~ (@.arguments.>>emit_perl5).join(', ') ~ ' )';
     }
 }
 
 class Return {
-    has $.result;
     method emit_perl5 {
         return
         #'do { print Main::perl(caller(),' ~ $.result.emit_perl5 ~ '); return(' ~ $.result.emit_perl5 ~ ') }';
@@ -308,9 +267,6 @@ class Return {
 }
 
 class If {
-    has $.cond;
-    has $.body;
-    has $.otherwise;
     method emit_perl5 {
         'do { if ( ${' ~ $.cond.emit_perl5 ~ '->FETCH} ) { ' ~ $.body.emit_perl5 ~ ' } '
         ~ ( $.otherwise 
@@ -322,9 +278,6 @@ class If {
 }
 
 class For {
-    has $.cond;
-    has $.body;
-    has @.topic;
     method emit_perl5 {
         my $cond := $.cond;
         if   $cond.isa( 'Var' ) 
@@ -337,9 +290,6 @@ class For {
 }
 
 class Decl {
-    has $.decl;
-    has $.type;
-    has $.var;
     method emit_perl5 {
         my $decl := $.decl;
         my $name := $.var.name;
@@ -424,24 +374,12 @@ class Decl {
 }
 
 class Sig {
-    has $.invocant;
-    has $.positional;
-    has $.named;
     method emit_perl5 {
         ' print \'Signature - TODO\'; die \'Signature - TODO\'; '
     };
-    method invocant {
-        $.invocant
-    };
-    method positional {
-        $.positional
-    }
 }
 
 class Method {
-    has $.name;
-    #has $.sig;
-    has $.block;
     method emit_perl5 {
         # TODO - signature binding
         my $sig := $.block.sig;
@@ -481,9 +419,6 @@ class Method {
 }
 
 class Sub {
-    has $.name;
-    #has $.sig;
-    has $.block;
     method emit_perl5 {
         # TODO - signature binding
         my $sig := $.block.sig;
@@ -530,7 +465,6 @@ class Sub {
 }
 
 class Do {
-    has $.block;
     method emit_perl5 {
         'do { ' ~ 
           $.block.emit_perl5 ~ 
@@ -539,7 +473,6 @@ class Do {
 }
 
 class BEGIN {
-    has $.block;
     method emit_perl5 {
         'BEGIN { ' ~ 
           $.block.emit_perl5 ~ 
@@ -548,7 +481,6 @@ class BEGIN {
 }
 
 class Use {
-    has $.mod;
     method emit_perl5 {
         'use ' ~ $.mod
     }

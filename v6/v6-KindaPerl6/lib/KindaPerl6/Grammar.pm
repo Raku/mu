@@ -6,9 +6,6 @@ use KindaPerl6::Grammar::Regex;
 use KindaPerl6::Grammar::Mapping;
 use KindaPerl6::Grammar::Control;
 
-# XXX - move to v6.pm emitter
-#sub array($data)    { use v5; @$data; use v6; };
- 
 my $Class_name;  # for diagnostic messages
 sub get_class_name { $Class_name }; 
 
@@ -735,44 +732,10 @@ token token {
         <KindaPerl6::Grammar::Regex.rule>
     \}
     {
-        my $regex_ast := $$<KindaPerl6::Grammar::Regex.rule>;
-        # say 'Token was compiled into: ', $regex_ast.perl;
-
-        # Process the Regex-AST 
-
-            # Debug
-            # my $visitor_perl := KindaPerl6::Visitor::Perl.new();
-            # #say 'Processed ast: ', KindaPerl6::Traverse::visit( $visitor_perl, $regex_ast, '' );
-            # say 'Processed ast: ', $regex_ast.emit( $visitor_perl );
-        
-            my $visitor_token := KindaPerl6::Visitor::Token.new();
-            
-            # TODO - do some further processing ...
-            
-            my $perl6_source := $regex_ast.emit( $visitor_token );
-            
-        # Emitted Perl 6 "method" code
-
-        my $source := 'method ' ~ $<opt_name> ~ ' ( $grammar: $str, $pos ) { ' 
-            ~ 'my $MATCH; $MATCH := ::KindaPerl6::Perl5::Match( \'str\' => $str, \'from\' => $pos, \'to\' => $pos, \'bool\' => 1 ); ' 
-            ~ '$MATCH.bool( ' ~ $perl6_source ~ '); ' 
-            ~ 'return $MATCH }';
-        #say 'Intermediate code: ', $source;
-
-        # Compile the new Perl 6 code
-
-        my $ast := KindaPerl6::Grammar.term( $source );
-        # say 'Intermediate ast: ', $$ast.emit;
-        
-        # The AST processor could be called here,
-        #   but it will be called later anyway
-        
-        #    my $visitor_dump_ast := KindaPerl6::Visitor::Perl.new();
-        #    say 'Intermediate ast: ', ($$ast).emit( $visitor_dump_ast );
-
-        # Return Perl 6 AST
-
-        return $$ast;
+        return ::Token(
+            name  => ~$<opt_name>,
+            regex => $$<KindaPerl6::Grammar::Regex.rule>,
+        );
     }
 };
 
@@ -805,7 +768,7 @@ The Pugs homepage at L<http://pugscode.org/>.
 
 =head1 COPYRIGHT
 
-Copyright 2006 by Flavio Soibelmann Glock, Audrey Tang and others.
+Copyright 2006, 2007 by Flavio Soibelmann Glock, Audrey Tang and others.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

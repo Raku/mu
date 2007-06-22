@@ -12,11 +12,6 @@ class KindaPerl6::Visitor::EmitPerl6 {
 }
 
 class CompUnit {
-    has $.unit_type;
-    has $.name;
-    has %.attributes;
-    has %.methods;
-    has $.body;
     method emit_perl6 {
           '{ module ' ~ $.name ~ "; " 
         ~ $.body.emit_perl6
@@ -25,28 +20,24 @@ class CompUnit {
 }
 
 class Val::Int {
-    has $.int;
     method emit_perl6 { 
         $.int 
     }
 }
 
 class Val::Bit {
-    has $.bit;
     method emit_perl6 { 
         $.bit 
     }
 }
 
 class Val::Num {
-    has $.num;
     method emit_perl6 { 
         $.num 
     }
 }
 
 class Val::Buf {
-    has $.buf;
     method emit_perl6 { 
         '\'' ~ $.buf ~ '\'' 
     }
@@ -60,36 +51,30 @@ class Val::Undef {
 }
 
 class Val::Object {
-    has $.class;
-    has %.fields;
     method emit_perl6 {
         '::' ~ $.class.perl ~ '(' ~ %.fields.perl ~ ')';
     }
 }
 
 class Native::Buf {
-    has $.buf;
     method emit_perl6 { 
         '\'' ~ $.buf ~ '\''
     }
 }
 
 class Lit::Seq {
-    has @.seq;
     method emit_perl6 {
         '(' ~ (@.seq.>>emit_perl6).join(', ') ~ ')';
     }
 }
 
 class Lit::Array {
-    has @.array;
     method emit_perl6 {
         '[' ~ (@.array.>>emit_perl6).join(', ') ~ ']';
     }
 }
 
 class Lit::Hash {
-    has @.hash;
     method emit_perl6 {
         my $fields := @.hash;
         my $str := '';
@@ -101,10 +86,6 @@ class Lit::Hash {
 }
 
 class Lit::Code {
-    has $.pad;   # see Pad.pm
-    has $.state;
-    has $.sig;
-    has @.body;
     method emit_perl6 {
         my $s;
         for @($.pad.variable_names) -> $name {
@@ -127,8 +108,6 @@ class Lit::Code {
 }
 
 class Lit::Object {
-    has $.class;
-    has @.fields;
     method emit_perl6 {
         # $.class ~ '->new( ' ~ @.fields.>>emit_perl6.join(', ') ~ ' )';
         my $fields := @.fields;
@@ -142,24 +121,18 @@ class Lit::Object {
 }
 
 class Index {
-    has $.obj;
-    has $.index;
     method emit_perl6 {
         $.obj.emit_perl6 ~ '[' ~ $.index.emit_perl6 ~ ']';
     }
 }
 
 class Lookup {
-    has $.obj;
-    has $.index;
     method emit_perl6 {
         $.obj.emit_perl6 ~ '{' ~ $.index.emit_perl6 ~ '}';
     }
 }
 
 class Assign {
-    has $.parameters;
-    has $.arguments;
     method emit_perl6 {
         # TODO - same as ::Bind
         $.parameters.emit_perl6 ~ ' = ' ~ $.arguments.emit_perl6 ~ '';
@@ -167,9 +140,6 @@ class Assign {
 }
 
 class Var {
-    has $.sigil;
-    has $.twigil;
-    has $.name;
     method emit_perl6 {
         # Normalize the sigil here into $
         # $x    => $x
@@ -196,26 +166,18 @@ class Var {
 }
 
 class Bind {
-    has $.parameters;
-    has $.arguments;
     method emit_perl6 {
         $.parameters.emit_perl6 ~ ' := ' ~ $.arguments.emit_perl6 ~ '';
     }
 }
 
 class Proto {
-    has $.name;
     method emit_perl6 {
         ~$.name        
     }
 }
 
 class Call {
-    has $.invocant;
-    has $.hyper;
-    has $.method;
-    has @.arguments;
-    #has $.hyper;
     method emit_perl6 {
         my $invocant;
         if $.invocant.isa( 'Str' ) {
@@ -271,15 +233,12 @@ class Call {
 }
 
 class Apply {
-    has $.code;
-    has @.arguments;
     method emit_perl6 {
         return '(' ~ $.code.emit_perl6 ~ ')(' ~ (@.arguments.>>emit_perl6).join(', ') ~ ')';
     }
 }
 
 class Return {
-    has $.result;
     method emit_perl6 {
         return
         'return(' ~ $.result.emit_perl6 ~ ')';
@@ -287,9 +246,6 @@ class Return {
 }
 
 class If {
-    has $.cond;
-    has $.body;
-    has $.otherwise;
     method emit_perl6 {
         'do { if ( ${' ~ $.cond.emit_perl6 ~ '->FETCH} ) { ' ~ $.body.emit_perl6 ~ ' } '
         ~ ( $.otherwise 
@@ -301,9 +257,6 @@ class If {
 }
 
 class For {
-    has $.cond;
-    has $.body;
-    has @.topic;
     method emit_perl6 {
         my $cond := $.cond;
         if   $cond.isa( 'Var' ) 
@@ -316,33 +269,18 @@ class For {
 }
 
 class Decl {
-    has $.decl;
-    has $.type;
-    has $.var;
     method emit_perl6 {
         return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_perl6;
     }
 }
 
 class Sig {
-    has $.invocant;
-    has $.positional;
-    has $.named;
     method emit_perl6 {
         ' print \'Signature - TODO\'; die \'Signature - TODO\'; '
     };
-    method invocant {
-        $.invocant
-    };
-    method positional {
-        $.positional
-    }
 }
 
 class Method {
-    has $.name;
-    #has $.sig;
-    has $.block;
     method emit_perl6 {
         # TODO - signature binding
         my $sig := $.block.sig;
@@ -374,8 +312,6 @@ class Method {
 }
 
 class Sub {
-    has $.name;
-    has $.block;
     method emit_perl6 {
         # TODO - signature binding
         my $sig := $.block.sig;
@@ -410,7 +346,6 @@ class Sub {
 }
 
 class Do {
-    has $.block;
     method emit_perl6 {
         'do { ' ~ 
           $.block.emit_perl6 ~ 
@@ -419,7 +354,6 @@ class Do {
 }
 
 class BEGIN {
-    has $.block;
     method emit_perl6 {
         'BEGIN { ' ~ 
           $.block.emit_perl6 ~ 
@@ -428,7 +362,6 @@ class BEGIN {
 }
 
 class Use {
-    has $.mod;
     method emit_perl6 {
         'use ' ~ $.mod
     }

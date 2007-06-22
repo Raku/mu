@@ -3,12 +3,12 @@ use v6-alpha;
 class KindaPerl6::Traverse {
 
     sub visit ( $visitor, $node, $node_name ) {
-        # say "visit " ~ $node;
+        #say "visit " ~ $node ~ ' name ' ~ $node_name;
         
         if $node.isa('Array') {
             my $result := [ ];
             for @($node) -> $subitem {
-                push @$result, visit( $visitor, $subitem, $node_name );
+                push @$result, visit_subnode( $visitor, $subitem ); 
             };
             return $result;
         };
@@ -16,7 +16,7 @@ class KindaPerl6::Traverse {
         if $node.isa('Hash') {
             my $result := { };
             for keys %($node) -> $subitem {
-                $result{ $subitem } := visit( $visitor, $node{$subitem}, $node_name );
+                $result{ $subitem } := visit_subnode( $visitor, $node{$subitem} ); 
             };
             return $result;
         };
@@ -36,15 +36,25 @@ class KindaPerl6::Traverse {
         
         my $result := { };
         my $data := $node.attribs;
-        for keys %($data) -> $item {            
-            $result{$item} := visit( 
-                $visitor, 
-                $data{$item}
-            );
+        for keys %($data) -> $item {
+            $result{$item} := visit_subnode( $visitor, $data{$item} );         
         };
         return $node.new(%$result);
         
-    };
+    }
+
+    sub visit_subnode ( $visitor, $subnode ) {
+        if     $subnode.isa('Array') 
+            || $subnode.isa('Hash') 
+            || $subnode.isa('Str') 
+            || $subnode.isa('Pad') 
+        {
+            return visit( $visitor, $subnode );
+        }
+        else {
+            return $subnode.emit( $visitor );
+        }
+    }
 
 }
 
@@ -558,6 +568,26 @@ class Sub {
                 name    => $.name,
                 #sig     => $.sig,
                 block   => $.block,
+            }
+    };
+}
+
+class Token {
+    has $.name;
+    #has $.sig;
+    has $.regex;
+    method emit( $visitor ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'Token',
+        );
+    };
+    method attribs {
+            { 
+                name    => $.name,
+                #sig     => $.sig,
+                regex   => $.regex,
             }
     };
 }
