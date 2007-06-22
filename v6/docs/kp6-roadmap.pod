@@ -11,50 +11,53 @@ This document describes the current status of the "KindaPerl6" development proje
 
 =head1 OBJECTIVE
 
-KindaPerl6 aims for a "Perl 6 in Perl 6" design and implementation.
+KindaPerl6 ("kp6") aims for a "Perl 6 in Perl 6" design and implementation.
 
 
 
 =head2 KindaPerl6 Project overview
 
-Phase I - bootstrap 
+Phase 1 - bootstrap 
 
   This phase is finished
 
-Phase II - improved compiler architecture 
+Phase 2 - improved compiler architecture 
 
   This phase is finished
 
-Phase III - regex compiler refactoring 
+Phase 3 - regex compiler refactoring 
 
   This is the current phase
 
-Phase IV - improved runtime
+Phase 4 - improved runtime
 
   The runtime libraries needed by the Perl-6.0.0-STD parser will be specified and implemented
 
-Phase V - improved grammar
+Phase 5 - improved grammar
 
   Upgrade to Perl-6.0.0-STD Grammar
 
-Phase VI - optimizer
+Phase 6 - optimizer
 
   Target speed is 1/200x Perl 5
 
-Phase VII - aggressive optimizer
+Phase 7 - aggressive optimizer
 
   Target speed is 1/20x Perl 5
 
 
 
 
-=head1 Phase III - regex compiler refactoring
+=head1 Phase 3 - regex compiler refactoring
 
 The goal for this phase is to refactor the regex compiler, to take advantage of the KindaPerl6 compiler architecture.
 
+As a side effect, kp6 will also be able to use a native regex engine, if available.
+For example, PGE in the Parrot backend, and Pugs::Compiler::Rule in the Perl 5 backend.
+The kp6-regex engine will still be supported, for benefit of perl6-in-jvm and other backends.
 
 
-=head2 Milestone 1 - Regex AST refactoring  
+=head2 Milestone 3.1 - Regex AST refactoring  
 
 The regex AST will be refactored from hash-of-hashes to Object-oriented.
 
@@ -68,7 +71,7 @@ Finished.
 
 =item * KindaPerl6 compiler architecture code-review
 
-* TODO
+* under way
 
 We need someone to review the previous phase results, in order to consider the "compiler architecture" phase finished.
 This is a non-blocking task.
@@ -88,17 +91,21 @@ This is a non-blocking task.
 
 =item * Create the regex AST node classes
 
+* finished
+
 =item * Rewrite the hash constructors in the regex grammar to OO style
+
+* finished
 
 =back
 
 
 =head3 Test Plan
 
-The resulting code will be tested by bootstrapping the compiler, and by running the existing test suite.
+The resulting code will be tested by running the existing test suite.
 
 
-=head2 Milestone 2 - Regex AST processor  
+=head2 Milestone 3.2 - Regex AST processor  
 
 The regex compiler will use the AST processor engine.
 
@@ -122,15 +129,19 @@ The regex AST created in Milestone 1 must be fully implemented and tested.
 
 =item * Create an AST ".perl" dumper
 
+* finished
+
 This will be used for debugging
 
 =item * Create an AST-to-Perl6 dumper
+
+* finished
 
 This will finish replacing the current kp6 code
 
 =item * Merge the regex AST processor with the main AST processor
 
-* TODO
+* finished
 
 Currently, the grammar for "regex" returns Perl 6 procedural AST. 
 This is because the regex AST processor is being called too early.
@@ -143,10 +154,10 @@ This AST will be processed to procedural code later, by applying an optional plu
 
 =head3 Test Plan
 
-The resulting code will be tested by bootstrapping the compiler, and by running the existing test suite.
+The resulting code will be tested by running the existing test suite.
 
 
-=head2 Milestone 3 - Additional Regex AST processors
+=head2 Milestone 3.3 - Additional Regex AST processors
 
 The regex compiler will use the AST processor engine to implement additional semantics.
 
@@ -194,6 +205,10 @@ These tasks are not required for the successful completion of this phase.
 =head3 Tasks
 
 =over
+
+=item * Add support for optionally use Pugs::Compiler::Rule in the Perl 5 backend
+
+=item * Add support for optionally use Parrot Grammar Engine in the Parrot backend
 
 =item * Regex backtracking
 
