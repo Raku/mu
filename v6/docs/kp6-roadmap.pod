@@ -206,9 +206,9 @@ These tasks are not required for the successful completion of this phase.
 
 =over
 
-=item * Add support for optionally use Pugs::Compiler::Rule in the Perl 5 backend
+=item * Add support for optionally using Pugs::Compiler::Rule in the Perl 5 backend
 
-=item * Add support for optionally use Parrot Grammar Engine in the Parrot backend
+=item * Add support for optionally using Parrot Grammar Engine in the Parrot backend
 
 =item * Regex backtracking
 
