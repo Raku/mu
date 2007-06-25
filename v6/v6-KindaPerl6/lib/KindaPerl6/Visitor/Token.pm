@@ -40,7 +40,7 @@ class KindaPerl6::Visitor::Token {
 # no backtracking on quantifiers
 # <%hash> must be a hash-of-token
 
-class Rul {
+class Rule {
 #    sub perl5 ( $rx ) {
 #        return
 #            '( perl5rx( substr( $str, $MATCH.to ), \'^(' ~ $rx ~ ')\' ) ' ~ 
@@ -72,14 +72,14 @@ class Rul {
     }
 }
 
-class Rul::Quantifier {
+class Rule::Quantifier {
     method emit_token {
         # TODO
         $.term.emit_token;
     }
 }
 
-class Rul::Or {
+class Rule::Or {
     method emit_token {
         'do { ' ~
             'my $pos1 := $MATCH.to(); do{ ' ~ 
@@ -88,13 +88,13 @@ class Rul::Or {
     }
 }
 
-class Rul::Concat {
+class Rule::Concat {
     method emit_token {
         '(' ~ (@.concat.>>emit_token).join(' && ') ~ ')';
     }
 }
 
-class Rul::Subrule {
+class Rule::Subrule {
     method emit_token {
         my $meth := ( 1 + index( $.metasyntax, '.' ) )
             ?? $.metasyntax 
@@ -107,7 +107,7 @@ class Rul::Subrule {
     }
 }
 
-class Rul::SubruleNoCapture {
+class Rule::SubruleNoCapture {
     method emit_token {
         my $meth := ( 1 + index( $.metasyntax, '.' ) )
             ?? $.metasyntax 
@@ -119,7 +119,7 @@ class Rul::SubruleNoCapture {
     }
 }
 
-class Rul::Var {
+class Rule::Var {
     method emit_token {
         # Normalize the sigil here into $
         # $x    => $x
@@ -136,14 +136,14 @@ class Rul::Var {
     }
 }
 
-class Rul::Constant {
+class Rule::Constant {
     method emit_token {
         my $str := $.constant; 
-        Rul::constant( $str );
+        Rule::constant( $str );
     }
 }
 
-class Rul::Dot {
+class Rule::Dot {
     method emit_token {
         '( (\'\' ne substr( $str, $MATCH.to, 1 )) ' ~
         '  ?? (1 + $MATCH.to( 1 + $MATCH.to ))' ~
@@ -152,52 +152,52 @@ class Rul::Dot {
     }
 }
 
-class Rul::SpecialChar {
+class Rule::SpecialChar {
     method emit_token {
         my $char := $.char;
         #say 'CHAR ',$char;
         if $char eq 'n' {
-            my $rul := ::Rul::SubruleNoCapture( 'metasyntax' => 'newline' );
+            my $rul := ::Rule::SubruleNoCapture( 'metasyntax' => 'newline' );
             $rul := $rul.emit_token;
             #say 'NEWLINE ', $rul;
             return $rul;
-            # Rul::perl5( '(?:\n\r?|\r\n?)' )
+            # Rule::perl5( '(?:\n\r?|\r\n?)' )
         };
         if $char eq 'N' {
-            my $rul := ::Rul::SubruleNoCapture( 'metasyntax' => 'not_newline' );
+            my $rul := ::Rule::SubruleNoCapture( 'metasyntax' => 'not_newline' );
             $rul := $rul.emit_token;
             return $rul;
-            # Rul::perl5( '(?!\n\r?|\r\n?).' )
+            # Rule::perl5( '(?!\n\r?|\r\n?).' )
         };
         if $char eq 'd' {
-            my $rul := ::Rul::SubruleNoCapture( 'metasyntax' => 'digit' );
+            my $rul := ::Rule::SubruleNoCapture( 'metasyntax' => 'digit' );
             $rul := $rul.emit_token;
             return $rul;
         };
         if $char eq 's' {
-            my $rul := ::Rul::SubruleNoCapture( 'metasyntax' => 'space' );
+            my $rul := ::Rule::SubruleNoCapture( 'metasyntax' => 'space' );
             $rul := $rul.emit_token;
             return $rul;
         };
         # TODO
         #for ['r','n','t','e','f','w','d','s'] {
         #  if $char eq $_ {
-        #      return Rul::perl5(   '\\$_'  );
+        #      return Rule::perl5(   '\\$_'  );
         #  }
         #};
         #for ['R','N','T','E','F','W','D','S'] {
         #  if $char eq $_ {
-        #      return Rul::perl5( '[^\\$_]' );
+        #      return Rule::perl5( '[^\\$_]' );
         #  }
         #};
         #if $char eq '\\' {
         #  $char := '\\\\' 
         #};
-        return Rul::constant( $char );
+        return Rule::constant( $char );
     }
 }
 
-class Rul::Block {
+class Rule::Block {
     method emit_token {
         #return 'do ' ~ $.closure;
         'do { ' ~ 
@@ -217,7 +217,7 @@ class Rul::Block {
 }
 
 # TODO
-class Rul::InterpolateVar {
+class Rule::InterpolateVar {
     method emit_token {
         say '# TODO: interpolate var ' ~ $.var.emit_token ~ '';
         die();
@@ -253,14 +253,14 @@ class Rul::InterpolateVar {
 #    }
 }
 
-class Rul::NamedCapture {
+class Rule::NamedCapture {
     method emit_token {
         say '# TODO: named capture ' ~ $.ident ~ ' := ' ~ $.rule.emit_token ~ '';
         die();
     }
 }
 
-class Rul::Before {
+class Rule::Before {
     method emit_token {
         'do { ' ~
             'my $tmp := $MATCH; ' ~
@@ -275,7 +275,7 @@ class Rul::Before {
     }
 }
 
-class Rul::NotBefore {
+class Rule::NotBefore {
     method emit_token {
         'do { ' ~
             'my $tmp := $MATCH; ' ~
@@ -290,7 +290,7 @@ class Rul::NotBefore {
     }
 }
 
-class Rul::NegateCharClass {
+class Rule::NegateCharClass {
     # unused
     method emit_token {
         say "TODO NegateCharClass";
@@ -302,7 +302,7 @@ class Rul::NegateCharClass {
     }
 }
 
-class Rul::CharClass {
+class Rule::CharClass {
     # unused
     method emit_token {
         say "TODO CharClass";
@@ -314,10 +314,10 @@ class Rul::CharClass {
     }
 }
 
-class Rul::Capture {
+class Rule::Capture {
     # unused
     method emit_token {
-        say "TODO RulCapture";
+        say "TODO RuleCapture";
         die();
     }
 }

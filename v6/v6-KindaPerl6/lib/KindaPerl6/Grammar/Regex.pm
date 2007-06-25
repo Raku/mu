@@ -64,7 +64,7 @@ token named_capture_body {
     | \(  <rule>        \)  { return { 'capturing_group' => $$<rule> ,} } 
     | \[  <rule>        \]  { return $$<rule> } 
     | \<  <metasyntax>  \>  
-            { return ::Rul::Subrule( 'metasyntax' => $$<metasyntax> ) }
+            { return ::Rule::Subrule( 'metasyntax' => $$<metasyntax> ) }
     | { die 'invalid alias syntax' }
 };
 
@@ -83,7 +83,7 @@ token variables {
         <KindaPerl6::Grammar.twigil> 
         <KindaPerl6::Grammar.full_ident> 
         {
-            return ::Rul::Var( 
+            return ::Rule::Var( 
                     'sigil'  => ~$<KindaPerl6::Grammar.sigil>,
                     'twigil' => ~$<KindaPerl6::Grammar.twigil>,
                     'name'   => ~$<KindaPerl6::Grammar.full_ident>
@@ -94,19 +94,19 @@ token variables {
 token rule_terms {
     |   '('
         <rule> \)
-        { return ::Rul::Capture( 'rule' => $$<rule> ) }
+        { return ::Rule::Capture( 'rule' => $$<rule> ) }
     |   '<('
         <rule>  ')>'
-        { return ::Rul::CaptureResult( 'rule' => $$<rule> ) }
+        { return ::Rule::CaptureResult( 'rule' => $$<rule> ) }
     |   '<after'
         <?ws> <rule> \> 
-        { return ::Rul::After( 'rule' => $$<rule> ) }
+        { return ::Rule::After( 'rule' => $$<rule> ) }
     |   '<before'
         <?ws> <rule> \> 
-        { return ::Rul::Before( 'rule' => $$<rule> ) }
+        { return ::Rule::Before( 'rule' => $$<rule> ) }
     |   '<!before'
         <?ws> <rule> \> 
-        { return ::Rul::NotBefore( 'rule' => $$<rule> ) }
+        { return ::Rule::NotBefore( 'rule' => $$<rule> ) }
     |   '<!'
         # TODO
         <metasyntax> \> 
@@ -114,53 +114,53 @@ token rule_terms {
     |   '<+'
         # TODO
         <char_class>  \> 
-        { return ::Rul::CharClass( 'chars' => ~$<char_class> ) }
+        { return ::Rule::CharClass( 'chars' => ~$<char_class> ) }
     |   '<-'
         # TODO
         <char_class> \>
-        { return ::Rul::NegateCharClass( 'chars' => ~$<char_class> ) }
+        { return ::Rule::NegateCharClass( 'chars' => ~$<char_class> ) }
     |   \'
         <literal> \' 
-        { return ::Rul::Constant( 'constant' => $$<literal> ) }
+        { return ::Rule::Constant( 'constant' => $$<literal> ) }
     |   \< 
         [  
             <variables>   \>
             # { say 'matching < variables ...' }
             {
                 # say 'found < hash-variable >';
-                return ::Rul::InterpolateVar( 'var' => $$<variables> )
+                return ::Rule::InterpolateVar( 'var' => $$<variables> )
             }
         |
             \?
             # TODO 
             <metasyntax>  \>
-            { return ::Rul::SubruleNoCapture( 'metasyntax' => $$<metasyntax> ) }
+            { return ::Rule::SubruleNoCapture( 'metasyntax' => $$<metasyntax> ) }
         |
             # TODO
             <metasyntax>  \>
-            { return ::Rul::Subrule( 'metasyntax' => $$<metasyntax> ) }
+            { return ::Rule::Subrule( 'metasyntax' => $$<metasyntax> ) }
         ]
     |   \{ 
         <parsed_code>  \}
-        { return ::Rul::Block( 'closure' => $$<parsed_code> ) }
+        { return ::Rule::Block( 'closure' => $$<parsed_code> ) }
     |   <KindaPerl6::Grammar.backslash>  
         [
 # TODO
 #        | [ x | X ] <[ 0..9 a..f A..F ]]>+
 #          #  \x0021    \X0021
-#          { return ::Rul::SpecialChar( char => '\\' ~ $/ ) }
+#          { return ::Rule::SpecialChar( char => '\\' ~ $/ ) }
 #        | [ o | O ] <[ 0..7 ]>+
 #          #  \x0021    \X0021
-#          { return ::Rul::SpecialChar( char => '\\' ~ $/ ) }
+#          { return ::Rule::SpecialChar( char => '\\' ~ $/ ) }
 #        | ( x | X | o | O ) \[ (<-[ \] ]>*) \]
 #          #  \x[0021]  \X[0021]
-#          { return ::Rul::SpecialChar( char => '\\' ~ $0 ~ $1 ) }
+#          { return ::Rule::SpecialChar( char => '\\' ~ $0 ~ $1 ) }
         | <any>
           #  \e  \E
-          { return ::Rul::SpecialChar( 'char' => $$<any> ) }
+          { return ::Rule::SpecialChar( 'char' => $$<any> ) }
         ]
     |   \. 
-        { return ::Rul::Dot( 'dot' => 1 ) }
+        { return ::Rule::Dot( 'dot' => 1 ) }
     |   '[' 
         <rule> ']' 
         { return $$<rule> }
@@ -224,7 +224,7 @@ token term {
        <variables>
        [  <?ws>? ':=' <?ws>? <named_capture_body>
           { 
-            return ::Rul::NamedCapture(
+            return ::Rule::NamedCapture(
                 'rule' =>  $$<named_capture_body>,
                 'ident' => $$<variables>
             ); 
@@ -242,7 +242,7 @@ token term {
             return $$<rule_terms> 
         }
     |  <!before \] | \} | \) | \> | \: | \? | \+ | \* | \| | \& | \/ > <any>   # TODO - <...>* - optimize!
-        { return ::Rul::Constant( 'constant' => $$<any> ) }
+        { return ::Rule::Constant( 'constant' => $$<any> ) }
 };
 
 token quant {
@@ -264,7 +264,7 @@ token quantifier {
         [
             <quant> <greedy>
             <?KindaPerl6::Grammar.opt_ws3>
-            { return ::Rul::Quantifier(
+            { return ::Rule::Quantifier(
                     'term'    => $$<term>,
                     'quant'   => $$<quant>,
                     'greedy'  => $$<greedy>,
@@ -292,7 +292,7 @@ token concat_list {
 
 token concat {
     <concat_list>
-    { return ::Rul::Concat( 'concat' => $$<concat_list> ) }
+    { return ::Rule::Concat( 'concat' => $$<concat_list> ) }
 };
 
 token or_list {
@@ -314,7 +314,7 @@ token rule {
     <or_list>
     { 
         # say 'found Rule';
-        return ::Rul::Or( 'or' => $$<or_list> ) 
+        return ::Rule::Or( 'or' => $$<or_list> ) 
     }
 };
 

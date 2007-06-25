@@ -644,12 +644,12 @@ class Use {
 # ------------- REGEX AST ----------
 
 
-class Rul {
+class Rule {
     method emit( $visitor ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
-            'Rul',
+            'Rule',
         );
     };
     method attribs {
@@ -658,7 +658,7 @@ class Rul {
     };
 }
 
-class Rul::Quantifier {
+class Rule::Quantifier {
     has $.term;
     has $.quant;
     has $.greedy;
@@ -669,7 +669,7 @@ class Rul::Quantifier {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
-            'Rul::Quantifier',
+            'Rule::Quantifier',
         );
     };
     method attribs {
@@ -684,13 +684,13 @@ class Rul::Quantifier {
     };
 }
 
-class Rul::Or {
+class Rule::Or {
     has @.or;
     method emit( $visitor ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
-            'Rul::Or',
+            'Rule::Or',
         );
     };
     method attribs {
@@ -700,13 +700,13 @@ class Rul::Or {
     };
 }
 
-class Rul::Concat {
+class Rule::Concat {
     has @.concat;
     method emit( $visitor ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
-            'Rul::Concat',
+            'Rule::Concat',
         );
     };
     method attribs {
@@ -716,13 +716,13 @@ class Rul::Concat {
     };
 }
 
-class Rul::Subrule {
+class Rule::Subrule {
     has $.metasyntax;
     method emit( $visitor ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
-            'Rul::Subrule',
+            'Rule::Subrule',
         );
     };
     method attribs {
@@ -732,13 +732,13 @@ class Rul::Subrule {
     };
 }
 
-class Rul::SubruleNoCapture {
+class Rule::SubruleNoCapture {
     has $.metasyntax;
     method emit( $visitor ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
-            'Rul::SubruleNoCapture',
+            'Rule::SubruleNoCapture',
         );
     };
     method attribs {
@@ -748,7 +748,7 @@ class Rul::SubruleNoCapture {
     };
 }
 
-class Rul::Var {
+class Rule::Var {
     has $.sigil;
     has $.twigil;
     has $.name;
@@ -756,7 +756,7 @@ class Rul::Var {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
-            'Rul::Var',
+            'Rule::Var',
         );
     };
     method attribs {
@@ -768,13 +768,13 @@ class Rul::Var {
     };
 }
 
-class Rul::Constant {
+class Rule::Constant {
     has $.constant;
     method emit( $visitor ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
-            'Rul::Constant',
+            'Rule::Constant',
         );
     };
     method attribs {
@@ -784,12 +784,12 @@ class Rul::Constant {
     };
 }
 
-class Rul::Dot {
+class Rule::Dot {
     method emit( $visitor ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
-            'Rul::Dot',
+            'Rule::Dot',
         );
     };
     method attribs {
@@ -798,13 +798,13 @@ class Rul::Dot {
     };
 }
 
-class Rul::SpecialChar {
+class Rule::SpecialChar {
     has $.char;
     method emit( $visitor ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
-            'Rul::SpecialChar',
+            'Rule::SpecialChar',
         );
     };
     method attribs {
@@ -814,13 +814,13 @@ class Rul::SpecialChar {
     };
 }
 
-class Rul::Block {
+class Rule::Block {
     has $.closure;
     method emit( $visitor ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
-            'Rul::Block',
+            'Rule::Block',
         );
     };
     method attribs {
@@ -830,13 +830,13 @@ class Rul::Block {
     };
 }
 
-class Rul::InterpolateVar {
+class Rule::InterpolateVar {
     has $.var;
     method emit( $visitor ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
-            'Rul::InterpolateVar',
+            'Rule::InterpolateVar',
         );
     };
     method attribs {
@@ -846,14 +846,14 @@ class Rul::InterpolateVar {
     };
 }
 
-class Rul::NamedCapture {
+class Rule::NamedCapture {
     has $.rule;
     has $.ident;
     method emit( $visitor ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
-            'Rul::NamedCapture',
+            'Rule::NamedCapture',
         );
     };
     method attribs {
@@ -864,13 +864,13 @@ class Rul::NamedCapture {
     };
 }
 
-class Rul::Before {
+class Rule::Before {
     has $.rule;
     method emit( $visitor ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
-            'Rul::Before',
+            'Rule::Before',
         );
     };
     method attribs {
@@ -880,13 +880,13 @@ class Rul::Before {
     };
 }
 
-class Rul::NotBefore {
+class Rule::NotBefore {
     has $.rule;
     method emit( $visitor ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
-            'Rul::NotBefore',
+            'Rule::NotBefore',
         );
     };
     method attribs {
@@ -896,13 +896,13 @@ class Rul::NotBefore {
     };
 }
 
-class Rul::NegateCharClass {
+class Rule::NegateCharClass {
     has $.chars;
     method emit( $visitor ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
-            'Rul::NegateCharClass',
+            'Rule::NegateCharClass',
         );
     };
     method attribs {
@@ -912,13 +912,13 @@ class Rul::NegateCharClass {
     };
 }
 
-class Rul::CharClass {
+class Rule::CharClass {
     has $.chars;
     method emit( $visitor ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
-            'Rul::CharClass',
+            'Rule::CharClass',
         );
     };
     method attribs {
@@ -928,13 +928,13 @@ class Rul::CharClass {
     };
 }
 
-class Rul::Capture {
+class Rule::Capture {
     has $.rule;
     method emit( $visitor ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
-            'Rul::Capture',
+            'Rule::Capture',
         );
     };
     method attribs {
