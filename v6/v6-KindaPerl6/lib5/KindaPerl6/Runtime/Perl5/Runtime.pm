@@ -2,10 +2,10 @@
 use v5;
 
 use Data::Dumper;
-use KindaPerl6::Perl5::Match;
-use KindaPerl6::Perl5::MOP;
-#use KindaPerl6::Perl5::Type;
-use KindaPerl6::Perl5::Pad;
+use KindaPerl6::Runtime::Perl5::Match;
+use KindaPerl6::Runtime::Perl5::MOP;
+#use KindaPerl6::Runtime::Perl5::Type;
+use KindaPerl6::Runtime::Perl5::Pad;
 
 package KindaPerl6::Grammar;
     sub space { 

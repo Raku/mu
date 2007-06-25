@@ -1,5 +1,21 @@
 TODO list for KindaPerl6
 
+
+* Phase 3 "regex compiler refactoring"
+
+- (DONE) add command-line selection of plugins 
+- add support for Perl5-PCR
+- add support for Parrot-PGE
+- improve kp6-regex
+- compile as MiniPerl6-in-Perl5 (redo bootstrap)
+- FIX - regexes should operate on $_
+- separate runtimes/emitters: Perl5 (mp6), Perl5MO (kp6 phase 2), and Perl5Moose (v6.pm)
+- FIX - $List_COMPILER::PAD ("@COMPILER::PAD") should be $COMPILER::List_PAD instead
+
+
+
+* Phase 2 "improved compiler architecture"
+
 The kp6 Milestones are:
 
 - lexical subs 
