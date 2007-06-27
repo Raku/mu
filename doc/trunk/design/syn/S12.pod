@@ -834,8 +834,9 @@ As with other forms of method call, the "meth" above may be replaced
 with a quoted string or variable to do various forms of indirection.
 
 Note that, as with any hyper operator, the methods may be evaluated
-in any order.  Use an explicit loop if you want to do something with
-ordered side effects, such as I/O.
+in any order (although the method results are always returned in the
+same order as the list of invocants).  Use an explicit loop if you
+want to do something with ordered side effects, such as I/O.
 
 =head1 Multisubs and Multimethods
 
