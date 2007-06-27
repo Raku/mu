@@ -22,6 +22,8 @@ use Data::Dumper;
 use Symbol 'qualify_to_ref';
 use Digest::MD5 'md5_hex';
 
+our $NoCache = 0;
+
 my $cache;
 eval {
     require Cache::FileCache;
@@ -73,7 +75,7 @@ sub compile {
     my $digest = md5_hex(Dumper($self));
     my $cached;
 
-    if ($cache && ($cached = $cache->get($digest))) {
+    if (!$NoCache && $cache && ($cached = $cache->get($digest))) {
         #warn "USING CACHED RULE\n";
         $self->{perl5} = $cached;
     }
