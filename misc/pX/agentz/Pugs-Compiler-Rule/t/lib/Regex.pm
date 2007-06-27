@@ -1,4 +1,4 @@
-package t::Regex;
+package t::lib::Regex;
 
 #use Smart::Comments;
 use Test::Base -Base;
