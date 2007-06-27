@@ -83,6 +83,14 @@ This is a non-blocking task.
 We need to verify that the KindaPerl6 grammar is a valid subset of Perl 6.
 This is a non-blocking task.
 
+  * POD cannot contain #-comments in Pugs (bug)
+    - workaround: move comments outside the pod (example: Grammar::Regex)
+  * POD should finish in '=end', not '=cut'
+  * ::Obj( val => 1 )  should be   Obj.new( val => 1 )
+  * $obj.val(1)  should be  $obj.val := 1
+    - the accessor declaration is "has $.val is rw"
+  * s/<'...'>/'...'/g in several places in the grammar
+
 =back
 
 =head3 Tasks
