@@ -3,327 +3,334 @@
 Practical Extraction
 with Perl 6
  
-{{#q|Nathan Gray}}
-----
-Practical Extraction
-with Perl 5
  
 {{#q|Nathan Gray}}
+----
+Perl
 ----
  s:g/5/6/;
 ----
-Practical Extraction
-with Perl {{#c|6}}
- 
-{{#q|Nathan Gray}}
+URL
 ----
-http://pghpw.org/schedule.html
+http://conferences.mongueurs.net/yn2007/schedule
+----
+HTML
+----
+ &lt;a href="/yn2007/user/154"&gt;José Castro (cog)&lt;/a&gt; -
+ &lt;a href="/yn2007/talk/589"&gt;
+  &lt;b&gt;How to get the most out of a YAPC (keynote)&lt;/b&gt;
+ &lt;/a&gt; (20&amp;nbsp;min)
+ 
+ &lt;a href="/yn2007/user/1446"&gt;Richard Dice&lt;/a&gt; -
+ &lt;a href="/yn2007/talk/575"&gt;
+  &lt;b&gt;Finding Perl's place in the world&lt;/b&gt;
+ &lt;/a&gt; (50&amp;nbsp;min)
+----
+YAML
 ----
  -talk: 
-   presenter: brian d foy
-   title: Making Perl Work for You
+   presenter: José Castro (cog)
+   title: "How to get the most out of a YAPC (keynote)"
  -talk:
-   presenter: Beth Skwarecki
-   title: Make your database work for you
+   presenter: Richard Dice 
+   title: "Finding Perl's place in the world"
 ----
- &lt;tr&gt;
-      &lt;td class="time"&gt;9:45 AM&lt;/td&gt;
-      &lt;td class="beginner" rowspan="2"&gt;
-        &lt;span class="talk"&gt;&lt;a href="schedule/making_perl_work_for_you.html"&gt;Making Perl Work for You&lt;/a&gt;&lt;/span&gt;
-        &lt;span class="speaker"&gt;&lt;tt&gt;brian d foy&lt;/tt&gt;&lt;/span&gt;
-      &lt;/td&gt;
-      &lt;td class="advanced"&gt;
-        &lt;span class="talk"&gt;&lt;a href="schedule/make_your_database_work_for_you.html"&gt;Make your database work for you&lt;/a&gt;&lt;/span&gt;
-        &lt;span class="speaker"&gt;Beth Skwarecki&lt;/span&gt;
-      &lt;/td&gt;
- &lt;/tr&gt;
+Extract
 ----
- &lt;tr&gt;
-      &lt;td class="time"&gt;9:45 AM&lt;/td&gt;
-      &lt;td class="beginner" rowspan="2"&gt;
-        &lt;span class="talk"&gt;&lt;a href="schedule/making_perl_work_for_you.html"&gt;Making Perl Work for You&lt;/a&gt;&lt;/span&gt;
-        &lt;span class="speaker"&gt;{{#c|&lt;tt&gt;brian d foy&lt;/tt&gt;}}&lt;/span&gt;
-      &lt;/td&gt;
-      &lt;td class="advanced"&gt;
-        &lt;span class="talk"&gt;&lt;a href="schedule/make_your_database_work_for_you.html"&gt;Make your database work for you&lt;/a&gt;&lt;/span&gt;
-        &lt;span class="speaker"&gt;{{#c|Beth Skwarecki}}&lt;/span&gt;
-      &lt;/td&gt;
- &lt;/tr&gt;
-----
- package main;
+ &lt;a href="/yn2007/user/154"&gt;{{#c|José Castro (cog)}}&lt;/a&gt; -
+ &lt;a href="/yn2007/talk/589"&gt;
+  &lt;b&gt;{{#c|How to get the most out of a YAPC (keynote)}}&lt;/b&gt;
+ &lt;/a&gt; (20&amp;nbsp;min)
  
- my $content = slurp @*ARGS[0];
- while (my $match = $content ~~ m:c /&lt;talk&gt;/) {
-     say $match;
- }
+ &lt;a href="/yn2007/user/1446"&gt;{{#c|Richard Dice}}&lt;/a&gt; -
+ &lt;a href="/yn2007/talk/575"&gt;
+  &lt;b&gt;{{#c|Finding Perl's place in the world}}&lt;/b&gt;
+ &lt;/a&gt; (50&amp;nbsp;min)
 ----
- package main;
- 
- my $content = slurp @*ARGS[0];
- {{#c|for $content ~~ m:g /&lt;talk&gt;/ -> $match}} {
-     say $match;
- }
+Presenter
 ----
- package main;
+ {{#c|&lt;a href="/yn2007/user/154"&gt;José Castro (cog)&lt;/a&gt;}} -
+ &lt;a href="/yn2007/talk/589"&gt;
+  &lt;b&gt;How to get the most out of a YAPC (keynote)&lt;/b&gt;
+ &lt;/a&gt; (20&amp;nbsp;min)
  
- my $content = slurp @*ARGS[0];
- for $content ~~ m:g /{{#c|&lt;talk&gt;}}/ -> $match {
-     say $match;
- }
+ &lt;a href="/yn2007/user/1446"&gt;Richard Dice&lt;/a&gt; -
+ &lt;a href="/yn2007/talk/575"&gt;
+  &lt;b&gt;Finding Perl's place in the world&lt;/b&gt;
+ &lt;/a&gt; (50&amp;nbsp;min)
 ----
- use v6-alpha;
- 
- grammar workshop;
- 
- token {{#c|talk}} { &lt;presenter&gt; }
  token presenter {
-     &lt;'&lt;span class="speaker"&gt;'&gt; .+? &lt;'&lt;/span&gt;'&gt;
+    '&lt;a' &lt;ws&gt;
+    href '="' ( '/yn2007/user/' \d+ ) '"&gt;'
+    &lt;( &lt;?html_embedded_text&gt; )&gt;
+    '&lt;/a&gt;'
  }
+ # &lt;a href="/yn2007/user/154"&gt;José Castro (cog)&lt;/a&gt;
 ----
- use v6-alpha;
- 
- grammar workshop;
- 
- token talk { &lt;presenter&gt; }
+Breakdown
+----
  token presenter {
-     &lt;'&lt;span class="speaker"&gt;'&gt; {{#c|.+?}} &lt;'&lt;/span&gt;'&gt;
+    {{#c|'&lt;a'}} &lt;ws&gt;
+    href '="' ( '/yn2007/user/' \d+ ) '"&gt;'
+    &lt;( &lt;?html_embedded_text&gt; )&gt;
+    '&lt;/a&gt;'
  }
+ # {{#c|&lt;a}} href="/yn2007/user/154"&gt;José Castro (cog)&lt;/a&gt;
 ----
- &lt;span class="speaker"&gt;&lt;tt&gt;brian d foy&lt;/tt&gt;&lt;/span&gt;
-
- &lt;span class="speaker"&gt;Beth Skwarecki&lt;/span&gt;
-----
- &lt;span class="speaker"&gt;{{#c|&lt;tt&gt;brian d foy&lt;/tt&gt;}}&lt;/span&gt;
-
- &lt;span class="speaker"&gt;{{#c|Beth Skwarecki}}&lt;/span&gt;
-----
- use v6-alpha;
- 
- grammar workshop;
- 
- token talk { &lt;presenter&gt; }
  token presenter {
-     &lt;'&lt;span class="speaker"&gt;'&gt; {{#c|&lt;( .+? )&gt;}} &lt;'&lt;/span&gt;'&gt;
+    '&lt;a' {{#c|&lt;ws&gt;}}
+    href '="' ( '/yn2007/user/' \d+ ) '"&gt;'
+    &lt;( &lt;?html_embedded_text&gt; )&gt;
+    '&lt;/a&gt;'
  }
+ # &lt;a href="/yn2007/user/154"&gt;José Castro (cog)&lt;/a&gt;
 ----
- &lt;tt&gt;brian d foy&lt;/tt&gt;
-
- Beth Skwarecki
-----
- {{#c|&lt;tt&gt;}}brian d foy{{#c|&lt;/tt&gt;}}
-
- Beth Skwarecki
-----
- use v6-alpha;
- 
- grammar workshop;
- 
- token talk { &lt;presenter&gt; }
  token presenter {
-     &lt;'&lt;span class="speaker"&gt;'&gt; &lt;( .+? )&gt; &lt;'&lt;/span&gt;'&gt;
-     {{#c|{ return strip_html($$/) } }}
+    '&lt;a' &lt;ws&gt;
+    {{#c|href}} '="' ( '/yn2007/user/' \d+ ) '"&gt;'
+    &lt;( &lt;?html_embedded_text&gt; )&gt;
+    '&lt;/a&gt;'
  }
+ # &lt;a {{#c|href}}="/yn2007/user/154"&gt;José Castro (cog)&lt;/a&gt;
 ----
- brian d foy
-
- Beth Skwarecki
-----
-<!-- want to show how to turn $match into a yml structure -->
- use v6-alpha;
- 
- grammar workshop;
- 
- token talk { 
-     &lt;presenter&gt; 
-     {{#c|{ return { talk => $$&lt;presenter&gt; } } }}
- }
  token presenter {
-     &lt;'&lt;span class="speaker"&gt;'&gt; &lt;( .+? )&gt; &lt;'&lt;/span&gt;'&gt;
-     {{#c|{ return { presenter => strip_html($$/) } } }}
+    '&lt;a' &lt;ws&gt;
+    href {{#c|'="'}} ( '/yn2007/user/' \d+ ) '"&gt;'
+    &lt;( &lt;?html_embedded_text&gt; )&gt;
+    '&lt;/a&gt;'
  }
+ # &lt;a href{{#c|="}}/yn2007/user/154"&gt;José Castro (cog)&lt;/a&gt;
 ----
- package main;
- 
- my $content = slurp @*ARGS[0];
- for $content ~~ m:g /&lt;talk&gt;/ -> $match {
-     say {{#c|$$match.yaml}};
- }
-----
- -talk:
-   presenter: brian d foy
- -talk:
-   presenter: Beth Skwarecki
-----
- &lt;tr&gt;
-      &lt;td class="time"&gt;9:45 AM&lt;/td&gt;
-      &lt;td class="beginner" rowspan="2"&gt;
-        &lt;span class="talk"&gt;&lt;a href="schedule/making_perl_work_for_you.html"&gt;{{#c|Making Perl Work for You}}&lt;/a&gt;&lt;/span&gt;
-        &lt;span class="speaker"&gt;&lt;tt&gt;brian d foy&lt;/tt&gt;&lt;/span&gt;
-      &lt;/td&gt;
-      &lt;td class="advanced"&gt;
-        &lt;span class="talk"&gt;&lt;a href="schedule/make_your_database_work_for_you.html"&gt;{{#c|Make your database work for you}}&lt;/a&gt;&lt;/span&gt;
-        &lt;span class="speaker"&gt;Beth Skwarecki&lt;/span&gt;
-      &lt;/td&gt;
- &lt;/tr&gt;
-----
- use v6-alpha;
- 
- grammar workshop;
- 
- token talk { 
-     &lt;presenter&gt; 
-     { return { talk => $$&lt;presenter&gt; } }
- }
  token presenter {
-     &lt;'&lt;span class="speaker"&gt;'&gt; &lt;( .+? )&gt; &lt;'&lt;/span&gt;'&gt;
-     { return { presenter => strip_html($$/) } }
+    '&lt;a' &lt;ws&gt;
+    href '="' ( {{#c|'/yn2007/user/'}} \d+ ) '"&gt;'
+    &lt;( &lt;?html_embedded_text&gt; )&gt;
+    '&lt;/a&gt;'
  }
- {{#c|token link { }}
- {{#c|    &lt;'&lt;a href="'&gt; $&lt;url&gt; := (.+?) &lt;'"&gt;'&gt; $&lt;label&gt; := (.+?) &lt;'&lt;/a&gt;'&gt; }}
- {{#c|} }}
+ # &lt;a href="{{#c|/yn2007/user/}}154"&gt;José Castro (cog)&lt;/a&gt;
 ----
- use v6-alpha;
- 
- grammar workshop;
- 
- token talk { 
-     &lt;title&gt; &lt;ws&gt; &lt;presenter&gt; 
-     { return { 
-         talk => { $$&lt;presenter&gt;, $$&lt;title&gt; }
-     } }
- }
  token presenter {
-     &lt;'&lt;span class="speaker"&gt;'&gt; &lt;( .+? )&gt; &lt;'&lt;/span&gt;'&gt;
-     { return { presenter => strip_html($$/) } }
+    '&lt;a' &lt;ws&gt;
+    href '="' ( '/yn2007/user/' {{#c|\d+}} ) '"&gt;'
+    &lt;( &lt;?html_embedded_text&gt; )&gt;
+    '&lt;/a&gt;'
  }
- {{#c|token title { }}
- {{#c|    &lt;'&lt;span class="talk"&gt;'&gt; &lt;link&gt; &lt;'&lt;/span&gt;'&gt; }}
- {{#c|    { return { title =&gt; $&lt;link&gt;&lt;label&gt; } } }}
- {{#c|} }}
- token link {
-     &lt;'&lt;a href="'&gt; $&lt;url&gt; := (.+?) &lt;'"&gt;'&gt; $&lt;label&gt; := (.+?) &lt;'&lt;/a&gt;'&gt;
+ # &lt;a href="/yn2007/user/{{#c|154}}"&gt;José Castro (cog)&lt;/a&gt;
+----
+ token presenter {
+    '&lt;a' &lt;ws&gt;
+    href '="' ( '/yn2007/user/' \d+ ) {{#c|'"&gt;'}}
+    &lt;( &lt;?html_embedded_text&gt; )&gt;
+    '&lt;/a&gt;'
+ }
+ # &lt;a href="/yn2007/user/154{{#c|"&gt;}}José Castro (cog)&lt;/a&gt;
+----
+ token presenter {
+    '&lt;a' &lt;ws&gt;
+    href '="' ( '/yn2007/user/' \d+ ) '"&gt;'
+    ( {{#c|&lt;html_embedded_text&gt;}} )
+    '&lt;/a&gt;'
+ }
+ # &lt;a href="/yn2007/user/154"&gt;{{#c|José Castro (cog)}}&lt;/a&gt;
+----
+ token presenter {
+    '&lt;a' &lt;ws&gt;
+    href '="' ( '/yn2007/user/' \d+ ) '"&gt;'
+    &lt;( &lt;?html_embedded_text&gt; )&gt;
+    {{#c|'&lt;/a&gt;'}}
+ }
+ # &lt;a href="/yn2007/user/154"&gt;José Castro (cog){{#c|&lt;/a&gt;}}
+----
+html_embedded_text
+----
+ token html_embedded_text {
+     | &lt;!before \&lt; &gt; . &lt;~~&gt;
+     | ''
  }
 ----
- use v6-alpha;
+Lookahead
+----
+ token html_embedded_text {
+     | {{#c|&lt;!before \&lt; &gt;}} . &lt;~~&gt;
+     | ''
+ }
+ # the current position
+ # of the parser is
+ # not before a '&lt;'
+ # character
+----
+ token html_embedded_text {
+     | &lt;!before \&lt; &gt; {{#c|.}} &lt;~~&gt;
+     | ''
+ }
+ # parse the next
+ # character (which
+ # we know is not
+ # a '&lt;')
+----
+Recursion
+----
+ token html_embedded_text {
+     | &lt;!before \&lt; &gt; {{#c|.}} &lt;~~&gt;
+     | ''
+ }
+ # parse the next
+ # character (which
+ # we know is not
+ # a '&lt;')
+----
+ token html_embedded_text {
+     | &lt;!before \&lt; &gt; . {{#c|&lt;~~&gt;}}
+     | ''
+ }
+ # parse any text
+ # matching the
+ # &lt;html_embedded_text&gt;
+ # regex
+----
+ token html_embedded_text {
+     | &lt;!before \&lt; &gt; . &lt;~~&gt;
+     {{#c|| ''}}
+ }
+ # or if that expression
+ # does not match
+ # match the empty
+ # string
+----
+Success!
+----
+ &lt;a href="/yn2007/user/154"&gt;José Castro (cog)&lt;/a&gt;
+----
+Title
+----
+ &lt;a href="/yn2007/user/154"&gt;José Castro (cog)&lt;/a&gt; -
+ {{#c|&lt;a href="/yn2007/talk/589"&gt;}}
+  {{#c|&lt;b&gt;How to get the most out of a YAPC (keynote)&lt;/b&gt;}}
+ {{#c|&lt;/a&gt;}} (20&amp;nbsp;min)
  
- grammar workshop;
- 
- token talk { 
-     {{#c|&lt;title&gt; &lt;ws&gt;}} &lt;presenter&gt; 
-     { return { 
-         talk => {{#c|{ $$&lt;presenter&gt;, $$&lt;title&gt; } }}
-     } }
- }
- token presenter {
-     &lt;'&lt;span class="speaker"&gt;'&gt; &lt;( .+? )&gt; &lt;'&lt;/span&gt;'&gt;
-     { return { presenter => strip_html($$/) } }
- }
- token title {
-     &lt;'&lt;span class="talk"&gt;'&gt; &lt;link&gt; &lt;'&lt;/span&gt;'&gt;
-     { return { title =&gt; $&lt;link&gt;&lt;label&gt; } }
- }
- token link {
-     &lt;'&lt;a href="'&gt; $&lt;url&gt; := (.+?) &lt;'"&gt;'&gt; $&lt;label&gt; := (.+?) &lt;'&lt;/a&gt;'&gt;
- }
+ &lt;a href="/yn2007/user/1446"&gt;Richard Dice&lt;/a&gt; -
+ &lt;a href="/yn2007/talk/575"&gt;
+  &lt;b&gt;Finding Perl's place in the world&lt;/b&gt;
+ &lt;/a&gt; (50&amp;nbsp;min)
 ----
  token title {
-     &lt;'&lt;span class="talk"&gt;'&gt; &lt;link&gt; &lt;'&lt;/span&gt;'&gt;
-     { return { title =&gt; $&lt;link&gt;&lt;label&gt; } }
+     '&lt;a' &lt;ws&gt;
+     href '="' ( '/yn2007/talk/' \d+ ) '"&gt;'&lt;ws&gt;
+     '&lt;b&gt;'
+     &lt;( &lt;?html_embedded_text&gt; )&gt;
+     '&lt;/b&gt;&lt;/a&gt;'
  }
+ # &lt;a href="/yn2007/talk/589"&gt;
+ #  &lt;b&gt;How to get the most out of a YAPC (keynote)&lt;/b&gt;
+ # &lt;/a&gt;
 ----
-$&lt;link&gt;&lt;label&gt;
-=
-$&lt;link&gt;{'label'}
+Another Breakdown
 ----
- -talk: 
-   presenter: brian d foy
-   title: Making Perl Work for You
- -talk:
-   presenter: Beth Skwarecki
-   title: Make your database work for you
+Not!
 ----
- token talk { 
-     &lt;title&gt; &lt;ws&gt; &lt;presenter&gt; 
-     { return { 
-         talk => { $$&lt;presenter&gt;, $$&lt;title&gt; }
-     } }
- }
+Success!
 ----
- {{#c|rule}} talk { 
-     &lt;title&gt; &lt;presenter&gt; 
-     { return { 
-         talk => { $$&lt;presenter&gt;, $$&lt;title&gt; }
-     } }
- }
+ &lt;a href="/yn2007/talk/589"&gt;
+  &lt;b&gt;How to get the most out of a YAPC (keynote)&lt;/b&gt;
+ &lt;/a&gt;
 ----
-regex { ... }
+Talk
 ----
-regex :ratchet { ... }
-=
-token { ... }
-----
-token :sigspace { ... }
-=
-rule { ... }
-----
- rule talk { 
-     &lt;title&gt; &lt;presenter&gt; 
-     { return { 
-         talk => { 
-             $$&lt;presenter&gt;, 
-             $$&lt;title&gt;
-         }
-     } }
- }
-----
- rule talk { 
-     &lt;title&gt; &lt;presenter&gt; 
-     { return { 
-         talk => { 
-             :$&lt;presenter&gt;, 
-             :$&lt;title&gt;
-         }
-     } }
- }
-----
- token presenter {
-     &lt;'&lt;span class="speaker"&gt;'&gt; &lt;( .+? )&gt; &lt;'&lt;/span&gt;'&gt;
-     { return { presenter => strip_html($$/) } }
- }
-----
- token presenter {
-     &lt;'&lt;span class="speaker"&gt;'&gt; &lt;( .+? )&gt; &lt;'&lt;/span&gt;'&gt;
-     { return strip_html($$/) }
- }
-----
- rule talk { 
-     &lt;title&gt; &lt;presenter&gt; 
- }
-----
- package main;
+ {{#c|&lt;a href="/yn2007/user/154"&gt;José Castro (cog)&lt;/a&gt; -}}
+ {{#c|&lt;a href="/yn2007/talk/589"&gt;}}
+  {{#c|&lt;b&gt;How to get the most out of a YAPC (keynote)&lt;/b&gt;}}
+ {{#c|&lt;/a&gt;}} (20&amp;nbsp;min)
  
- my $content = slurp @*ARGS[0];
- for $content ~~ m:g /&lt;talk&gt;/ -> $match {
-     say $$match.yaml;
+ &lt;a href="/yn2007/user/1446"&gt;Richard Dice&lt;/a&gt; -
+ &lt;a href="/yn2007/talk/575"&gt;
+  &lt;b&gt;Finding Perl's place in the world&lt;/b&gt;
+ &lt;/a&gt; (50&amp;nbsp;min)
+----
+ rule talk {
+     &lt;presenter&gt; &lt;dash&gt; &lt;title&gt;
+ }
+ # &lt;a href="/yn2007/user/154"&gt;José Castro (cog)&lt;/a&gt; -
+ # &lt;a href="/yn2007/talk/589"&gt;
+ #  &lt;b&gt;How to get the most out of a YAPC (keynote)&lt;/b&gt;
+ # &lt;/a&gt;
+----
+YAB
+----
+ rule talk {
+     {{#c|&lt;presenter&gt;}} &lt;dash&gt; &lt;title&gt;
+ }
+ # {{#c|&lt;a href="/yn2007/user/154"&gt;José Castro (cog)&lt;/a&gt;}} -
+ # &lt;a href="/yn2007/talk/589"&gt;
+ #  &lt;b&gt;How to get the most out of a YAPC (keynote)&lt;/b&gt;
+ # &lt;/a&gt;
+----
+ rule talk {
+     &lt;presenter&gt; {{#c|&lt;dash&gt;}} &lt;title&gt;
+ }
+ # &lt;a href="/yn2007/user/154"&gt;José Castro (cog)&lt;/a&gt; {{#c|-}}
+ # &lt;a href="/yn2007/talk/589"&gt;
+ #  &lt;b&gt;How to get the most out of a YAPC (keynote)&lt;/b&gt;
+ # &lt;/a&gt;
+----
+ rule talk {
+     &lt;presenter&gt; &lt;dash&gt; {{#c|&lt;title&gt;}}
+ }
+ # &lt;a href="/yn2007/user/154"&gt;José Castro (cog)&lt;/a&gt; -
+ # {{#c|&lt;a href="/yn2007/talk/589"&gt;}}
+ #  {{#c|&lt;b&gt;How to get the most out of a YAPC (keynote)&lt;/b&gt;}}
+ # {{#c|&lt;/a&gt;}}
+----
+Dash
+----
+ token dash { '-' }
+----
+Success!
+----
+ &lt;a href="/yn2007/user/154"&gt;José Castro (cog)&lt;/a&gt; -
+ &lt;a href="/yn2007/talk/589"&gt;
+  &lt;b&gt;How to get the most out of a YAPC (keynote)&lt;/b&gt;
+ &lt;/a&gt;
+----
+v6
+----
+ use v6-alpha;
+ my $content = slurp(@*ARGS[0]);
+ for $content ~~ m:c/&lt;talk&gt;/ {
+     say qq:to/END/;
+     talk:
+       presenter: $&lt;talk&gt;&lt;presenter&gt;
+       title:     $&lt;talk&gt;&lt;title&gt;
+     END
  }
 ----
- package main;
- 
- my $content = slurp @*ARGS[0];
- for $content ~~ m:g /&lt;talk&gt;/ -> $match {
-     say hash($match.kv.map( -> $k, $v { $k => ~$v } )).yaml;
+Emit
+----
+ use v6-alpha;
+ my $content = slurp(@*ARGS[0]);
+ for $content ~~ m:c/&lt;talk&gt;/ {{#c|-> $match}} {
+     say {{#c|$match&lt;talk&gt;.emit}};
  }
 ----
-magic hand waving
+return
 ----
- -talk: 
-   presenter: brian d foy
-   time: 9:45 AM
-   title: Making Perl Work for You
- -talk:
-   presenter: Beth Skwarecki
-   time: 9:45 AM
-   title: Make your database work for you
+ rule talk {
+     &lt;presenter&gt; &lt;dash&gt; &lt;title&gt;
+     {{#c|{ return Talk.new(:$&lt;presenter&gt;, :$&lt;title&gt;) } }}
+ }
+----
+class
+----
+ class Talk;
+ has $.presenter;
+ has $.title;
+ method emit {
+     qq:to/END/;
+     talk:
+       presenter: $.presenter
+       title:     $.title
+       url:       $.title[0]
+     END
+ }
 ----
 {{#q|Thank you!}}
 {{#c|☺}}
@@ -332,13 +339,14 @@ Credits
  
  
  Larry Wall:        creating the syntax and finding my typos
- Audrey Tang:       making my insane &lt;ws&gt; a reality and
-                    syntax improvements
+ Audrey Tang:       helping me make extraction a reality
  Patrick Michaud:   writing PGE - my initial testing ground
  Gaal Yahas:        helping me realize I had to speak
  Jerry Gay:         syntax improvements
  Flavio S. Glock:   writing Pugs::Compiler::Rule and
                     implementing missing features in v6.pm
+ #perl6             proofreading by Alias++, Aankhen++,
+                    Juerd++, moritz++, agentzh++, wolverian++
  Capitol Advantage: employing Perl programmers (like me)
 </html:textarea>
 
