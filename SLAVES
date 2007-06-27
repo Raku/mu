@@ -8,8 +8,10 @@ The name "SLAVES" for this file was suggested by avar++.
 service                                 nick and email of maintainer
 --------------------------------------------------------------------
 autosmoke on feather                    agentzh
-evalbot                                 audreyt (?)
+evalbot                                 diakopter
 irc logs                                moritz, <moritz at faui2k3 dot org>
 run.pugscode.org                        andara
-smartlinks                                
-svnbot6                                    
+smartlinks                              agentzh
+svnbot6                                 diakopter
+devbot6                                 diakopter
+specbot6                                diakopter
