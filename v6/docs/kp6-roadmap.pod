@@ -90,6 +90,7 @@ This is a non-blocking task.
   * $obj.val(1)  should be  $obj.val := 1
     - the accessor declaration is "has $.val is rw"
   * s/<'...'>/'...'/g in several places in the grammar
+  * '@.body.>>emit' is wrong, because it would emit the statements in any order
 
 =back
 
