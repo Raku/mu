@@ -1,21 +1,26 @@
+=head1 NAME
+
 MiniPer6 specification
 
+=head1 SYNOPSIS
 
-sub foo (Int $x) {...}
-##################
-use v6-alpha;
-my $x = (1,2,3);
+    sub foo (Int $x) {...}
+    ##################
+    use v6-alpha;
+    my $x = (1,2,3);
+    
+    sub foo (@x) {...}
+    foo($x);
+    
+    ## update: 'use v5' is no longer supported
+    use v5;
+    
+    my $x = SomeInternalFunctionToMakeLockedArrayRef([1,2,3]);
+    sub foo { my ($at_x) = @_; ... }
+    foo($x);
+    ##################
 
-sub foo (@x) {...}
-foo($x);
-
-## update: 'use v5' is no longer supported
-use v5;
-
-my $x = SomeInternalFunctionToMakeLockedArrayRef([1,2,3]);
-sub foo { my ($at_x) = @_; ... }
-foo($x);
-##################
+=head1 DESCRIPTION
 
 # The Difference between MP6 and P6 is thus:
     - Only allow one feed of positional arguments
