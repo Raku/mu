@@ -11,7 +11,7 @@ my $show_branch = (@*ARGS[0] eq "true") ?? @*ARGS.shift !! 0;
 my $sep_header  = (@*ARGS[0] eq "true") ?? @*ARGS.shift !! 0;
 my ($host, $port) = split ":", $server;
 $port //= 6667;
- 
+
 debug "svnbot started. Summary of configuration:";
 debug "  Will connect as...                  $nick";
 debug "  to...                               $host:$port";
