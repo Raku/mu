@@ -210,7 +210,7 @@ sub svn_commits() {
            }
        }
     }
-    $commits ~= "diff: $svndiffurl$cur_entry\n" if $svndiffurl;
+    $commits ~= "diff: $svndiffurl$cur_entry\n" if $svndiffurl && $commits;
 
     return $commits;
 }
