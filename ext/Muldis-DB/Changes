@@ -52,3 +52,20 @@
     actually be put to use within the next few weeks or months as Muldis-DB
     is fleshed out.  Also, it should be possible now to start writing code
     that uses or extends it.
+
+2007-06-04   Darren Duncan <perl@DarrenDuncan.net>
+
+    The next version of the Module List will list the following module:
+
+      modid:       Muldis::DB
+      DSLIP:       cmpOg
+      description: Full-featured truly relational DBMS in Perl
+      userid:      DUNCAND (Darren Duncan)
+      chapterid:   7 (Database_Interfaces)
+      enteredby:   ADAMK (Adam Kennedy)
+      enteredon:   Tue Jun  5 01:20:11 2007 GMT
+
+    The resulting entry will be:
+
+    Muldis::
+    ::DB         cmpOg Full-featured truly relational DBMS in Perl  DUNCAND

@@ -44,7 +44,7 @@ but simple reference implementation of a Muldis DB Engine
 help prove if any Engine implements Muldis D properly
 (L<Muldis::DB::Validator>); 6. A test suite for parts of the aforementioned
 in isolation, particularly #s 2 and 4.  It is not expected that the core
-Muldis D distribution would ever have any other substantial functionality,
+Muldis DB distribution would ever have any other substantial functionality,
 and that such would be distributed separately instead.
 
 While this Muldis::DB distribution could potentially have included
@@ -121,7 +121,7 @@ the terms of the GPL or AGPL would apply to you.
 that allows it.
 
 3.  The copyright holder generally re-releases Muldis::DB with additional
-permissions concerning linking.
+permissions concerning linking, such as by using the LGPL rather than GPL.
 
 I<Conjecture:  To anyone wanting to distribute a combined work of just
 Muldis::DB and other FLOSS, there is probably no advantage for the
@@ -140,11 +140,16 @@ These licensing terms are being applied to Muldis::DB because the copyright
 holder agrees with, and wants to support, the principles of user freedom
 provided by use of the GPL|AGPL, which users should hopefully appreciate.
 
-The copyright holder has little intention of broadly releasing Muldis::DB
-itself under any free or open source license but the GPL or AGPL, such as
-the Perl or Artistic or BSD licenses.  Doing so would be irrevocably
-granting the legal means for anyone to make non-free derivatives, due to
-other licenses having weaker or non-existent copyleft protections.
+The copyright holder has no intention of broadly releasing Muldis::DB
+itself under any license that is not compatible with the GPL, and has
+little intention of broadly releasing Muldis::DB under a non-copyleft
+license.  A broad release under a license like BSD or Artistic would be
+irrevocably granting the legal means for anyone to make non-free
+derivatives, due to other licenses having weaker protections for indirect
+recipients of covered works.  The copyright holder currently believes that
+a broad release under the GPL or AGPL licenses would be best, but is
+willing to consider switching to an LGPL licensed broad release instead, as
+a compromise on ideals, to help increase adoption.
 
 The copyright holder would prefer that it be possible for everyone to
 employ Muldis::DB according to the GPL or AGPL.  The GPL|AGPL/proprietary
@@ -165,8 +170,7 @@ compatibility concerns create an environment where it is not feasible for
 them to employ GPL|AGPL-licensed works, and so customized proprietary
 licenses should address these concerns so that it is still possible for
 them to employ Muldis::DB to meet their needs.  The copyright holder values
-having more users rather than fewer, however the reasonable means for this
-to come about.
+any reasonable means by which the most people possible can use Muldis::DB.
 
 There should not be any rationale for rejecting Muldis::DB as a solution
 due to its license(s); but if that assumption proves to be false, then

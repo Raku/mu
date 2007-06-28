@@ -744,13 +744,19 @@ granted to you under this proprietary license expire.  You should then be
 able to acquire a subsequent Muldis::DB release that is licensed with the
 GPL version 3 and/or that disjoint with the AGPL version 3.>
 
-Linking Muldis::DB statically or dynamically with other components is
-making a combined work based on Muldis::DB.  Thus, the terms and conditions
-of the GPL or AGPL cover the whole combination.  However, if it is not
-feasible for your combined work to be distributed subject to the GPL or
-AGPL, then the copyright holders of Muldis::DB can provide you a customized
-proprietary license, often at no cost, so that it is still possible for you
-to employ Muldis::DB to meet your needs.
+If it is not feasible for you to employ Muldis::DB subject to the terms of
+the GPL or AGPL, then the copyright holder of Muldis::DB can provide you a
+customized proprietary license, often at no cost, so that it is still
+possible for you to employ Muldis::DB to meet your needs.
+
+I<Note that the copyright holder of Muldis::DB is open to being convinced
+to generally release the work under the GNU Lesser General Public License
+(LGPL), version 3 or later, instead of under the GPL (or alternately, of
+being convinced not to change).  But any argument for or against that
+change should be centred on how the free software community in general, and
+in particular the subset that work with or on Perl or Muldis::DB itself,
+would be benefited more by the change versus staying with the GPL; that is,
+such a change should have strategic value for the community.>
 
 For more information on matters such as licensing, including rationale, see
 also the L<Muldis::DB::Copying> file that comes with Muldis::DB.
@@ -763,7 +769,7 @@ WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 or FITNESS FOR A PARTICULAR PURPOSE.  However, for an additional fee, the
 copyright holders of Muldis::DB can sell you a warranty for it.
 
-While it is by no means required, the copyright holders of Muldis::DB would
+While it is by no means required, the copyright holder of Muldis::DB would
 appreciate being informed any time you create a modified version of
 Muldis::DB that you are willing to distribute, because that is a practical
 way of suggesting improvements to the standard version.

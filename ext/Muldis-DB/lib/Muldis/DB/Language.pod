@@ -374,7 +374,7 @@ A full list of all the relational operators having more formal (but Muldis
 D specific) descriptions occurs further below in this document; that list
 does I<not> use the aforementioned boolean analogies.
 
-=head1 Muldis D
+=head1 MULDIS D
 
 Muldis D is a computationally / Turing complete (and industrial strength)
 high-level programming language with fully integrated database
