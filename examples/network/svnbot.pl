@@ -6,6 +6,7 @@ my $nick        = @*ARGS.shift // "blechbot";
 my $server      = @*ARGS.shift // "localhost";
 my $interval    = @*ARGS.shift // 300;
 my $repository  = @*ARGS.shift // ".";
+my $svndiffurl  = (@*ARGS[0] ~~ /http/) ?? @*ARGS.shift !! 0;
 my $show_branch = (@*ARGS[0] eq "true") ?? @*ARGS.shift !! 0;
 my $sep_header  = (@*ARGS[0] eq "true") ?? @*ARGS.shift !! 0;
 my ($host, $port) = split ":", $server;
@@ -27,6 +28,8 @@ debug "        show_branch...   specifies whether branch information should";
 debug "                         be shown (true|false), and";
 debug "        sep_header...    specifies whether a separate header line";
 debug "                         should be outputted (true|false).";
+debug "        svndiffurl...    specifies the base url for svn diff";
+debug "                         requests.  revision# is appended.";
 
 # Initialize $cur_svnrev. $cur_svnrev contains the last revision seen, and is
 # set by svn_headrev() and svn_commits().
@@ -171,6 +174,7 @@ sub svn_commits() {
     my $fh = open $tempfile;
     my $branch;
     my $subst = "XXX-HACK-SVNBOT-SUBST-{rand}"; # XXX!
+    my $revnum;
 
     for =$fh -> $_ {
         state $cur_entry;
@@ -206,6 +210,7 @@ sub svn_commits() {
            }
        }
     }
+    $commits ~= "diff: $svndiffurl$cur_entry\n" if $svndiffurl;
 
     return $commits;
 }
