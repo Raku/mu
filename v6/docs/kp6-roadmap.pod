@@ -76,21 +76,51 @@ Finished.
 We need someone to review the previous phase results, in order to consider the "compiler architecture" phase finished.
 This is a non-blocking task.
 
+From irc discussions:
+
+    > - One of my basic design principles was to implement AST
+    > transformations as "pluggable" modules, using a visitor pattern.
+    > Do you see potential problems with this approach?
+
+    No problems with the visitor pattern, but the way that "aspects" are
+    implemented in the AST-plugins might cause hard-to-detect errors.
+    For example, if the AST is changed in one place and the AST-plugin is
+    not updated, no error will be reported (pmurias++).
+
+    * this has been refactored; it's now more difficult to have an undetected bug
+
+    > - BEGIN block side-effects are recorded in a hash. This adds an
+    > overhead to all assignment operations. Do you see a better way to
+    > check for side-effects?
+
+    This will probably be discussed in an irc meeting scheduled for next week.
+
+    Yesterday, we discussed the way the compiling environment is
+    represented internally. It's complex, but it works. We don't have a
+    simpler solution yet.
+
+
 =item * KindaPerl6 syntax review
 
-* TODO
+* under way
 
 We need to verify that the KindaPerl6 grammar is a valid subset of Perl 6.
 This is a non-blocking task.
 
   * POD cannot contain #-comments in Pugs (bug)
     - workaround: move comments outside the pod (example: Grammar::Regex)
+    
   * POD should finish in '=end', not '=cut'
+  
   * ::Obj( val => 1 )  should be   Obj.new( val => 1 )
+  
   * $obj.val(1)  should be  $obj.val := 1
     - the accessor declaration is "has $.val is rw"
+    
   * s/<'...'>/'...'/g in several places in the grammar
-  * '@.body.>>emit' is wrong, because it would emit the statements in any order
+  
+  * (this one is no longer necessary; the spec now says the statements are returned in the right order) 
+    XXX '@.body.>>emit' is wrong, because it would emit the statements in any order
 
 =back
 
