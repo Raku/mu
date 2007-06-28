@@ -24,13 +24,14 @@ particularly useful:
 =item L<http://www.thethirdmanifesto.com/>
 
 This is the Hugh Darwen's and Christopher J. Date's home on the web for
-"The Third Manifesto" (TTM), their formal proposal for a solid foundation
-for data and database management systems (DBMSs); like Edgar F. Codd's
-original papers, TTM can be seen as an abstract blueprint for the design of
-a DBMS and the language interface to such a DBMS.  It consists in essence
-of a rigorous set of principles, stated in the form of a series of
+"I<The Third Manifesto>" (I<TTM>), their formal proposal for a solid
+foundation for data and database management systems (DBMSs); like Edgar F.
+Codd's original papers, I<TTM> can be seen as an abstract blueprint for the
+design of a DBMS and the language interface to such a DBMS.  It consists in
+essence of a rigorous set of principles, stated in the form of a series of
 prescriptions and proscriptions, that the authors require adherence to on
-the part of a hypothetical database programming language that they call D.
+the part of a hypothetical database programming language that they call
+B<D>.
 
 The proposal would avoid 'Object-Relational Impedance Mismatch' between
 object-oriented programming languages and RDBMSs by fully supporting all
@@ -43,33 +44,35 @@ modeling that are orthogonal to relational modeling.
 
 Muldis::DB has officially incorporated this blueprint into its own design,
 and implements its principles without compromise, and so its API is a
-concrete language that qualifies as a D.  The TTM web site contains various
-useful documents and links on the subject, some being specified further
-below.
+concrete language that qualifies as a B<D>.  The I<TTM> web site contains
+various useful documents and links on the subject, some being specified
+further below.
 
 =item B<Databases, Types, and The Relational Model: The Third Manifesto>
 
-Christopher J. Date, Hugh Darwen - "Databases, Types, and The Relational
-Model: The Third Manifesto, 3rd edition, Addison-Wesley, 2006 (ISBN:
+Christopher J. Date, Hugh Darwen - "I<Databases, Types, and The Relational
+Model: The Third Manifesto>, 3rd edition, Addison-Wesley, 2006 (ISBN:
 0-321-39942-0)"; see
 L<http://www.aw-bc.com/catalog/academic/product/0,1144,0321399420,00.html>.
 
-This is the thicker, college level textbook about The Third Manifesto, and
-it is the most central of the authors' publications, able to stand alone
-and present nearly everything important.  It includes an informal overview
-of both the relational model and a theory of types, a reference section
-with the Manifesto proper and a grammar for a teaching language based on
-its principles called Tutorial D, a larger section which explains and
-rationalizes the parts of the Manifesto, and sections that do likewise for
-type inheritance what the earlier sections do with the Manifesto proper.
+This is the thicker, college level textbook about I<The Third Manifesto>,
+and it is the most central of the authors' publications, able to stand
+alone and present nearly everything important.  It includes an informal
+overview of both the relational model and a theory of types, a reference
+section with the Manifesto proper and a grammar for a teaching language
+based on its principles called B<Tutorial D>, a larger section which
+explains and rationalizes the parts of the Manifesto, and sections that do
+likewise for type inheritance what the earlier sections do with the
+Manifesto proper.
 
-Note that the web site for The Third Manifesto, mentioned above, has
+Note that the web site for I<The Third Manifesto>, mentioned above, has
 reproduced several chapters and appendices from this book.  Chapter 4
 (L<http://web.onetel.com/~hughdarwen/TheThirdManifesto/CHAP04.pdf>) is the
-15-page heart of the book and has the actual TTM definition, upon which the
-rest of the book expands on, rationalizes, and gives examples of.  Chapter
-5 (L<http://web.onetel.com/~hughdarwen/TheThirdManifesto/CHAP05.pdf>) gives
-the the complete grammar of "Tutorial D", which is a computationally
+15-page heart of the book and has the actual I<TTM> definition, upon which
+the rest of the book expands on, rationalizes, and gives examples of.
+Chapter 5
+(L<http://web.onetel.com/~hughdarwen/TheThirdManifesto/CHAP05.pdf>) gives
+the the complete grammar of "B<Tutorial D>", which is a computationally
 complete programming language with fully integrated database functionality,
 whose principal purpose is to serve as a teaching vehicle.
 
@@ -80,7 +83,7 @@ Practitioners, 1st edition, Oreilly, 2005 (ISBN: 0-596-10012-4)"; see
 L<http://www.oreilly.com/catalog/databaseid/>.
 
 This is the first printed book that Muldis::DB' author had read fully,
-which is related to The Third Manifesto, and it was their main
+which is related to I<The Third Manifesto>, and it was their main
 introduction.  It explains in an easy to follow matter just what the
 relational data model really is, a solid and provable logical system, and
 partially contrasts with SQL's distorted view of it.  While being easy to
@@ -127,9 +130,10 @@ such as MySQL and SQLite were regularly consulted, and various other sites.
 =head1 SOME FULLY TTM/D RELATED DBMS PROJECTS
 
 Besides the Muldis::DB framework, other projects exist which attempt to
-implement The Third Manifesto fully and without compromise (that lack
-anti-TTM features), though their current implementations may be incomplete
-and/or in development.  None of these use 'SQL' as their native language.
+implement I<The Third Manifesto> fully and without compromise (that lack
+anti-I<TTM> features), though their current implementations may be
+incomplete and/or in development.  None of these use 'SQL' as their native
+language.
 
 =head2 Free and Open Source Software
 
@@ -143,9 +147,9 @@ it:
 =item B<Rel> - L<http://dbappbuilder.sourceforge.net/Rel.html>
 
 Rel is a relational database server, written by Dave Voorhis
-(C<d.voorhis@derby.ac.uk>), that implements Date and Darwen's "Tutorial D"
-language mainly "by the book".  It is written in Java (version 1.5) and is
-operating-system independent.  It is licensed under the GNU GPL.
+(C<d.voorhis@derby.ac.uk>), that implements Date and Darwen's "B<Tutorial
+D>" language mainly "by the book".  It is written in Java (version 1.5) and
+is operating-system independent.  It is licensed under the GNU GPL.
 
 =item B<Duro> - L<http://duro.sourceforge.net/>
 
@@ -157,8 +161,8 @@ licensed under the GNU GPL.
 
 =item B<Dee> - L<http://www.quicksort.co.uk/>
 
-Dee is an implementation of D (built on the relational algebra operators)
-as an extension to Python, written by Greg Gaughan
+Dee is an implementation of B<D> (built on the relational algebra
+operators) as an extension to Python, written by Greg Gaughan
 (C<gjgaughan@users.sourceforge.net>).  It is written in Python and is
 operating-system independent.  It is licensed under the GNU GPL.
 
@@ -181,10 +185,10 @@ relational algebra, FlipDB uses a simple but powerful query technique that
 simulates relation-valued attributes and obviates the need for outer join
 (or any explicit join).  The author is using Date's and Darwen's work as a
 guide, and his intention is to not violate any of the principles set forth
-in TTM, if not to implement all of Tutorial D.  It is written in Dyalog
-APL, in a functional style with no loops or control structures, and runs
-only on 32-bit Windows operating systems.  It is available under a shared
-source agreement for personal use and study.
+in I<TTM>, if not to implement all of B<Tutorial D>.  It is written in
+Dyalog APL, in a functional style with no loops or control structures, and
+runs only on 32-bit Windows operating systems.  It is available under a
+shared source agreement for personal use and study.
 
 =back
 
@@ -220,9 +224,9 @@ This is a final year project by UMIST student Peter Nicol.
 
 =head1 SOME PARTIALLY TTM/D RELATED DBMS PROJECTS
 
-Some DBMS exist which desire to support TTM principles but still justify
-themselves to provide features that are anti-TTM.  They may or may not use
-a SQL dialect as their command language.
+Some DBMS exist which desire to support I<TTM> principles but still justify
+themselves to provide features that are anti-I<TTM>.  They may or may not
+use a SQL dialect as their command language.
 
 =head2 Free and Open Source Software
 
@@ -246,12 +250,12 @@ for implementing a production / industrial strength Muldis::DB Engine.>
 
 =item B<Dataphor> - L<http://www.alphora.com/>
 
-Dataphor is a TTM-inspired commercial database application development tool
-set, owned by Alphora (a division of Softwise, Inc.), that implements its
-own "D4" language.  While TTM conformant in many other respects, Alphora
-found it necessary to support SQL-style nulls.  It is written to the .Net
-platform and only runs on Windows.  It is implemented using a federated
-server that employs various other database engines for storage.
+Dataphor is a I<TTM>-inspired commercial database application development
+tool set, owned by Alphora (a division of Softwise, Inc.), that implements
+its own "D4" language.  While I<TTM> conformant in many other respects,
+Alphora found it necessary to support SQL-style nulls.  It is written to
+the .Net platform and only runs on Windows.  It is implemented using a
+federated server that employs various other database engines for storage.
 
 =item B<Teradata> - L<http://www.teradata.com/>
 
@@ -265,8 +269,8 @@ Perl 5.
 
 =head1 SOME SQL-BASED DBMS PROJECTS
 
-Many DBMS exist which do not expressly support TTM principles and/or
-actively embrace anti-TTM features.  Many of those use a SQL dialect as
+Many DBMS exist which do not expressly support I<TTM> principles and/or
+actively embrace anti-I<TTM> features.  Many of those use a SQL dialect as
 their primary or only interface; a relative few are listed here.
 
 =head2 Free and Open Source Software
@@ -332,8 +336,8 @@ languages exist, including for Perl 5.
 
 =head1 SOME OTHER DBMS PROJECTS
 
-Many DBMS exist that are neither TTM/D-based nor primarily SQL based; a
-relative few are listed here.
+Many DBMS exist that are neither I<TTM>/B<D>-based nor primarily SQL based;
+a relative few are listed here.
 
 =head2 Free and Open Source Software
 
@@ -442,12 +446,13 @@ either or both of AST form or string form (most likely) Muldis D.
 
 =item C<Muldis::DB::AST::Translate::TutorialD> etc
 
-Utility module that parses the Tutorial D language into Muldis::DB AST
+Utility module that parses the B<Tutorial D> language into Muldis::DB AST
 nodes, and also that generates the former from the latter.  Mainly this is
 just by-the-book using the grammar published by Darwen and Date, but it
-could also handle compatible extensions by other D language
+could also handle compatible extensions by other B<D> language
 implementations.  In addition, separate utility modules can be made which
-translate to and from other D languages that don't look like Tutorial D.
+translate to and from other B<D> languages that don't look like B<Tutorial
+D>.
 
 =item C<Muldis::DB::AST::Translate::SQL::Native>
 
@@ -480,7 +485,7 @@ Utility modules that translate data (including code and declaratives)
 between representations that are Muldis::DB AST nodes and representations
 that aren't, or between 2 of the latter kind while using the former kind as
 an intermediate representation.  Besides the aforementioned possibilities
-that deal with I<D> languages or SQL, we can have utilities that translate
+that deal with B<D> languages or SQL, we can have utilities that translate
 to/from native Perl data structures, including native Perl routine
 definitions (L<PPI> would probably be employed in the Perl 5 version), and
 including commonly used third party class' objects.

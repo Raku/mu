@@ -17,31 +17,33 @@ in which it executes.  If there's a conflict between any other document and
 this one, then either the other document is in error, or the developers
 were negligent in updating it before Language, so you can yell at them.
 
-Muldis D is intended to qualify as a "D" language as defined by "Databases,
-Types, and The Relational Model: The Third Manifesto" (TTM), a formal
-proposal for a solid foundation for data and database management systems,
-written by Christopher J. Date and Hugh Darwen; see
+Muldis D is intended to qualify as a "B<D>" language as defined by
+"I<Databases, Types, and The Relational Model: The Third Manifesto>"
+(I<TTM>), a formal proposal for a solid foundation for data and database
+management systems, written by Christopher J. Date and Hugh Darwen; see
 L<http://www.aw-bc.com/catalog/academic/product/0,1144,0321399420,00.html>
-for a publishers link to the book that formally publishes TTM.  See
-L<http://www.thethirdmanifesto.com/> for some references to what TTM is,
+for a publishers link to the book that formally publishes I<TTM>.  See
+L<http://www.thethirdmanifesto.com/> for some references to what I<TTM> is,
 and also copies of some documents that were used in writing Muldis D.
 
 It should be noted that Muldis D, being quite new, may omit some features
-that are mandatory for a "D" language initially, to speed the way to a
+that are mandatory for a "B<D>" language initially, to speed the way to a
 useable partial solution, but any omissions will be corrected later.  Also,
-it contains some features that go beyond the scope of a "D" language, so
-Muldis D is technically a "D plus extra"; examples of this are constructs
-for creating the databases themselves and managing connections to them.
+it contains some features that go beyond the scope of a "B<D>" language, so
+Muldis D is technically a "B<D> plus extra"; examples of this are
+constructs for creating the databases themselves and managing connections
+to them.
 
 Muldis D also incorporates design aspects and constructs that are taken
 from or influenced by Perl 6, other general-purpose languages (particularly
-functional ones like Haskell), Tutorial D, various D implementations, and
-various SQL implementations (see the L<Muldis::DB::SeeAlso> file).  I<It
-has also been suggested that some of the Muldis D design is like that of
-the Ada language, which I didn't really know anything about before writing
-it; this bears further investigation.  Moreover, it has also been suggested
-by a different person that the Lua language design is very similar, in
-different ways, and from a glance, it certainly seems to be so.>
+functional ones like Haskell), B<Tutorial D>, various B<D> implementations,
+and various SQL implementations (see the L<Muldis::DB::SeeAlso> file).
+I<It has also been suggested that some of the Muldis D design is like that
+of the Ada language, which I didn't really know anything about before
+writing it; this bears further investigation.  Moreover, it has also been
+suggested by a different person that the Lua language design is very
+similar, in different ways, and from a glance, it certainly seems to be
+so.>
 
 In any event, the Muldis::DB documentation will be focusing mainly on how
 Muldis::DB itself works, and will spend little time in providing rationale;
@@ -161,7 +163,7 @@ used to refer exclusively to a I<RDBMS> (Relational Database Management
 System), so you should read the former as if it were the latter.  A
 I<RDBMS> is a computer program that manages relational database variables,
 associated catalogs, and depots in general.  Muldis::DB aspires to be or is
-one, and likewise are various other TTM-inspired programs like Rel and
+one, and likewise are various other I<TTM>-inspired programs like Rel and
 Duro; most other DBMS-like programs are technically non-relational,
 including all SQL DBMSs such as Oracle, PostgreSQL and SQLite, though they
 usually give lip-service to the relational data model and approximate a

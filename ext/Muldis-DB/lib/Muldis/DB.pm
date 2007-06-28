@@ -441,25 +441,25 @@ implement it, and so an application written to it should behave identically
 no matter which conforming "Engine" is in use.
 
 Muldis::DB incorporates a complete and uncompromising implementation of
-"The Third Manifesto" (TTM), a formal proposal by Christopher J. Date and
-Hugh Darwen for a solid foundation for data and database management systems
-(DBMSs); like Edgar F. Codd's original papers, TTM can be seen as an
-abstract blueprint for the design of a DBMS and the language interface to
-such a DBMS.  The main web site for TTM is
+"I<The Third Manifesto>" (I<TTM>), a formal proposal by Christopher J. Date
+and Hugh Darwen for a solid foundation for data and database management
+systems (DBMSs); like Edgar F. Codd's original papers, I<TTM> can be seen
+as an abstract blueprint for the design of a DBMS and the language
+interface to such a DBMS.  The main web site for I<TTM> is
 L<http://www.thethirdmanifesto.com/>, and its authors have also written
 several books and papers and taught classes on the subject over the last
 35+ years, along with Codd himself (some are listed in the
 L<Muldis::DB::SeeAlso> documentation file).  Note that the Muldis::DB
 documentation will be focusing mainly on how Muldis::DB itself works, and
-will not spend much time in providing rationale; you can read TTM itself
+will not spend much time in providing rationale; you can read I<TTM> itself
 and various other external documentation for much of that.
 
 The Muldis::DB Native Interface is defined mainly in terms of a new
 high-level programming language named "Muldis D", which is computationally
 complete (and industrial strength) and has fully integrated database
-functionality; this language, which satisfies TTM's definition of a "D"
-language, is described fully in the L<Muldis::DB::Language> documentation
-file that comes with this "Muldis::DB" distribution.
+functionality; this language, which satisfies I<TTM>'s definition of a
+"B<D>" language, is described fully in the L<Muldis::DB::Language>
+documentation file that comes with this "Muldis::DB" distribution.
 
 While it is possible that one could write a self-contained application in
 Muldis D and compile that into its own executable, in practice one would
@@ -499,7 +499,7 @@ is fully capable of modeling anything in the real world accurately, and it
 can support a complete SQL emulation layer on top of it, so that your
 legacy applications can be migrated to use the Muldis::DB DBMS with little
 trouble.  Likewise, emulation layers for any other programming language can
-be supported, such as Tutorial D or XQuery or FoxPro or dBase.
+be supported, such as B<Tutorial D> or XQuery or FoxPro or dBase.
 
 One distinctive feature of a Muldis::DB DBMS (compared to a typical other
 vendor's DBMS) is that data definition statements are structured as
