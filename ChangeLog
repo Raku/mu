@@ -6,7 +6,16 @@
 simplified to be just the final Artistic 2.0, rather than the disjunction
 of the Artistic 2.0 beta 5 and the GPL.  Such a disjunction has no benefit
 since the Artistic 2.0 is GPL compatible on its own.  This said, the
-Artistic/MIT disjunction still exists where it did before.
+Artistic/MIT disjunction still exists where it did before.  So LICENSE/ now
+contains the text of the Artistic version 2.0 final rather than the text of
+the Artistic version 2.0 beta 5.
+
+* LICENSE/ now contains the texts of the GPL version 3.0 and LGPL version
+3.0 (which were published on 2007 June 29th), rather than the GPL version 2
+and LGPL version 2.1.  All projects outside of third-party/ (which have
+their own copies of their licenses) which were licensed under some member
+of the GPL family allow the use of the newest versions, so there is no
+reason to also retain copies of older versions in LICENSE/.
 
 == Build System
 
