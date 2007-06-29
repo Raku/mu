@@ -313,6 +313,9 @@ $meta_Bit->{_dispatch}( $meta_Bit, 'add_method', 'perl',           $::Method->{_
 $meta_Bit->{_dispatch}( $meta_Bit, 'add_method', 'str',            $::Method->{_dispatch}( $::Method, 'new', 
     sub { my $v = $::Str->{_dispatch}( $::Str, 'new', $_[0]{_value} ) } ) );
 
+$meta_Bit->{_dispatch}( $meta_Bit, 'add_method', 'true',           $::Method->{_dispatch}( $::Method, 'new',
+    sub { $::Bit->{_dispatch}( $::Bit, 'new', $_[0]{_value}) } ) );
+
 $::Class->{_dispatch}( $::Class, 'new', 'Code' ); 
 my $meta_Code = $::Code->{_dispatch}( $::Code, 'HOW' );
 $meta_Code->{_dispatch}( $meta_Code, 'add_parent', $meta_Value );

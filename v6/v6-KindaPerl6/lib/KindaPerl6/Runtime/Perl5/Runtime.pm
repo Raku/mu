@@ -1,5 +1,6 @@
 
 use v5;
+use strict 'vars';
 
 use Data::Dumper;
 use KindaPerl6::Runtime::Perl5::Match;
@@ -83,6 +84,7 @@ package GLOBAL;
 
     #require Exporter;
     use Data::Dumper;
+    use Carp 'croak';
     #@ISA = qw(Exporter);
     our @EXPORT = qw( 
         print 
@@ -145,30 +147,31 @@ package GLOBAL;
         } @_ );
         #print $@ if $@;
     }
-    sub say   { GLOBAL::print( @_, "\n" ) }
 
     my $undef = $::Undef->{_dispatch}( $::Undef, 'new', 0 );
     sub undef    { $undef }
-    sub undefine { $_->{_dispatch}( $_[0], 'STORE', $undef ) }
-    sub defined  { $_->{_dispatch}( $_[0], 'defined' ) } 
-    sub true     { $_->{_dispatch}( $_[0], 'true' ) }  
-    sub not      { $::Bit->{_dispatch}( $::Bit, 'new', ! ( $_->{_dispatch}( $_[0], 'true' )->{_value} ) ) }  
-    sub True     { $::Bit->{_dispatch}( $::Bit, 1 ) }  
-    sub False    { $::Bit->{_dispatch}( $::Bit, 0 ) }  
+    sub undefine { $_[0]->{_dispatch}( $_[0], 'STORE', $undef ) }
+    sub defined  { $_[0]->{_dispatch}( $_[0], 'defined' ) } 
+    sub true     { $_[0]->{_dispatch}( $_[0], 'true' ) }  
+    sub not      { $::Bit->{_dispatch}( $::Bit, 'new', ! ( $_[0]->{_dispatch}( $_[0], 'true' )->{_value} ) ) }  
+    sub True     { $::Bit->{_dispatch}( $::Bit, 'new',1 ) }  
+    sub say   { GLOBAL::print( @_, "\n" );return True;}
+    sub False    { $::Bit->{_dispatch}( $::Bit, 'new',0 ) }  
+    sub TODO {croak "TODO";}
 
     # TODO - macro
-    sub ternary_58__60__63__63__32__33__33__62_ { $_->{_dispatch}( $_[0], 'true' )->{_value} ? $_[1] : $_[2] }
+    sub ternary_58__60__63__63__32__33__33__62_ { $_[0]->{_dispatch}( $_[0], 'true' )->{_value} ? $_[1] : $_[2] }
         #  ternary:<?? !!>
     
     # TODO - macro
-    sub infix_58__60__38__38__62_   { $_->{_dispatch}( $_[0], 'true' )->{_value} && $_->{_dispatch}( $_[1], 'true' )->{_value} && $_[1] }
+    sub infix_58__60__38__38__62_   { true($_[0]) && true($_[1]) && $_[1] }
     # TODO - macro
-    sub infix_58__60__124__124__62_ { $_->{_dispatch}( $_[0], 'true' )->{_value} && $_[0] || $_->{_dispatch}( $_[1], 'true' )->{_value} && $_[1] }
+    sub infix_58__60__124__124__62_ { $_[0]->{_dispatch}( $_[0], 'true' )->{_value} && $_[0] || $_[1]->{_dispatch}( $_[1], 'true' )->{_value} && $_[1] }
 
     sub infix_58__60_eq_62_         
-    { $::Bit->{_dispatch}( $::Bit, 'new', $_->{_dispatch}( $_[0], 'str' )->{_value} eq $_->{_dispatch}( $_[0], 'str' )->{_value} ) }  # infix:<eq>
+    { $::Bit->{_dispatch}( $::Bit, 'new', _str($_[0]) eq _str($_[1])) }  # infix:<eq>
     sub infix_58__60_ne_62_         
-    { $::Bit->{_dispatch}( $::Bit, 'new', $_->{_dispatch}( $_[0], 'str' )->{_value} ne $_->{_dispatch}( $_[0], 'str' )->{_value} ) }  # infix:<ne>
+    { $::Bit->{_dispatch}( $::Bit, 'new', _str($_[0]) ne _str($_[1])) }  # infix:<ne>
     sub infix_58__60__61__61__62_   
     { TODO() }   # { bless [ $_[0]->FETCH->[0] == $_[1]->FETCH->[0] ], 'Type_Constant_Bit' }  # infix:<==>
     sub infix_58__60__33__61__62_   
@@ -181,7 +184,7 @@ package GLOBAL;
     # ???
     sub prefix_58__60__64__62_      { TODO(); @{$_[0]} }        # prefix:<@>
 
-    # infix:<++>
+    # prefix:<++>
     sub prefix_58__60__43__43__62_ {
         my $counter = $_[0];
         $counter->{_dispatch_VAR}(
@@ -271,7 +274,6 @@ package Main;
         require Data::Dump::Streamer;
         Data::Dump::Streamer::Dump( @_ );
     }
-    
 1;
 
 __END__
