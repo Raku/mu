@@ -36,6 +36,29 @@ production environments, as the user demand requires.
 
 Read below for how to get support or keep up to date.
 
+DOCUMENTATION READING ORDER
+
+If you want to read all the Muldis::DB documentation that exists now in
+this distribution, I recommend doing so in this order:
+
+   1.       README
+   2. (opt) Changes
+   3.       lib/Muldis/DB.pm
+   4. (opt) lib/Muldis/DB/Copying.pod
+   5.       lib/Muldis/DB/AST.pm
+   6.       lib/Muldis/DB/Language.pod
+   7. (opt) lib/Muldis/DB/Validator.pm
+   8. (opt) lib/Muldis/DB/Engine/Example.pm
+   9.       lib/Muldis/DB/SeeAlso.pod
+  10. (opt) TODO
+
+Then you can carry on with anything else.
+
+You may prefer the nicely HTML-formatted versions of the above, which are
+available at "http://search.cpan.org/dist/Muldis-DB/".
+
+I also suggest the Muldis-DB-Cookbook distribution, when that is available.
+
 KEEPING UP TO DATE
 
 My module set is constantly under development.  The canonical copies are

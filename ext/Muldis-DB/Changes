@@ -1,14 +1,39 @@
                                 Muldis::DB
 ---------------------------------------------------------------------------
 
-2007-06-20   Darren Duncan <perl@DarrenDuncan.net>
+2007-06-29   Darren Duncan <perl@DarrenDuncan.net>
 
-    * Muldis::DB version 0.0.0 for Perl 5 is released on CPAN as
-    Muldis-DB-0.0.0.tar.gz.  Muldis::DB version 0.0.0 for Perl 6 is not
+    * Muldis::DB version 0.0.1 for Perl 5 is released on CPAN as
+    Muldis-DB-0.0.1.tar.gz.  Muldis::DB version 0.0.1 for Perl 6 is not
     released at this time, if ever, since it is currently released only as
     part of the Perl6-Pugs project (in its ext/Muldis-DB/ subdirectory),
     which sets its own less frequent release schedule.  The rest of this
     Changes entry refers only to the Perl 5 version.
+
+    * New code file versions are: DB.pm and AST.pm and Validator.pm and
+    Example.pm 0.0.1.
+
+    * The primary purpose of this release is to re-license Muldis::DB under
+    actual free software licenses, specifically version 3 of the GPL family
+    of licenses, which the Free Software Foundation formally published on
+    2007 June 29th.  By contrast, the previous Muldis::DB releases were
+    under an expiring proprietary license, with just the promise of a free
+    re-license to come.  TODO: STATE ADDITION OF LICENSE FILES TO DISTRO.
+
+    * This release also includes a collection of small documentation
+    updates and fixes, such as the following:  We now use the official
+    typography for the names 'TTM' and 'D' and such.  Added a DOCUMENTATION
+    READING ORDER section to the README file.  Added the 2007 June 4th
+    Muldis::DB namespace registration (to the official CPAN module list)
+    notice to the Changes file.  Updated parts of DB.pm and Copying.pod
+    concerning licensing matters.  This release has no code changes.
+
+2007-06-20   Darren Duncan <perl@DarrenDuncan.net>
+
+    * Muldis::DB version 0.0.0 for Perl 5 is released on CPAN as
+    Muldis-DB-0.0.0.tar.gz.  Muldis::DB version 0.0.0 for Perl 6 is not
+    released at all.  The rest of this Changes entry refers only to the
+    Perl 5 version.
 
     * This is the first release of the Perl 5 Muldis-DB distribution, and
     the first release of any distribution to contain Perl 5 modules named

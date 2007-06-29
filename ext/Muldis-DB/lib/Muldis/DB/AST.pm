@@ -21,7 +21,7 @@ my $SCA_TYPE_PINT = ::Muldis::DB::AST::TypeInvoNQ.new(
 ###########################################################################
 ###########################################################################
 
-module Muldis::DB::AST-0.0.0 {
+module Muldis::DB::AST-0.0.1 {
     # Note: This given version applies to all of this file's packages.
 
 ###########################################################################
@@ -1901,7 +1901,7 @@ Abstract syntax tree for the Muldis D language
 
 =head1 VERSION
 
-This document describes Muldis::DB::AST version 0.0.0 for Perl 6.
+This document describes Muldis::DB::AST version 0.0.1 for Perl 6.
 
 It also describes the same-number versions for Perl 6 of [...].
 

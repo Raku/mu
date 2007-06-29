@@ -5,7 +5,7 @@ use Muldis::DB::AST;
 ###########################################################################
 ###########################################################################
 
-module Muldis::DB-0.0.0 {
+module Muldis::DB-0.0.1 {
     # Note: This given version applies to all of this file's packages.
 
 ###########################################################################
@@ -402,7 +402,7 @@ Full-featured truly relational DBMS in Perl
 
 =head1 VERSION
 
-This document describes Muldis::DB version 0.0.0 for Perl 6.
+This document describes Muldis::DB version 0.0.1 for Perl 6.
 
 It also describes the same-number versions for Perl 6 of
 Muldis::DB::Interface::DBMS ("DBMS"), Muldis::DB::Interface::HostGateVar
@@ -659,7 +659,7 @@ I<This documentation is pending.>
 This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
 It also requires these Perl 6 classes that are in the current distribution:
-L<Muldis::DB::AST-(0.0.0)|Muldis::DB::AST>.
+L<Muldis::DB::AST-(0.0.1)|Muldis::DB::AST>.
 
 =head1 INCOMPATIBILITIES
 
