@@ -722,27 +722,17 @@ Software Foundation; either version 3 of the License, or (at your option)
 any later version.
 
 You should have received copies of the GPL and AGPL as part of the
-Muldis::DB distribution, in the files named "GPL" and "AGPL" respectively;
-if not, see L<http://www.gnu.org/licenses> or write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-USA.
+Muldis::DB distribution, in the files named "LICENSE/GPL" and
+"LICENSE/AGPL" respectively; if not, see L<http://www.gnu.org/licenses> or
+write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth
+Floor, Boston, MA 02110-1301 USA.
 
-I<WARNING:  The GPL version 3 and AGPL version 3 are still being drafted;
-the publication of final version of the GPL is expected on Friday, June 29,
-2007; the final publication of the AGPL is currently unknown but should be
-close to the same date; until then, those licenses can not actually be
-used.  So the previous paragraphs just represent what the license of
-Muldis::DB is anticipated to be following an explicit post June 29th
-re-distribution of it by the copyright holder.  If you are seeing
-Muldis::DB prior to that re-distribution, for any reason or in any place,
-then you should consider it as not being licensed at all, and vanilla
-copyright law applies.  That said, Muldis::DB is hereby licensed to you
-under the following proprietary terms:  You may copy, examine, modify, and
-execute Muldis::DB, for the purpose of study or evaluation, during only the
-time period prior to July 1st of 2007, after which time all privileges
-granted to you under this proprietary license expire.  You should then be
-able to acquire a subsequent Muldis::DB release that is licensed with the
-GPL version 3 and/or that disjoint with the AGPL version 3.>
+I<WARNING:  The AGPL version 3 are still being drafted, and its date of
+final publication is unknown, but is presumed to be soon; until then, the
+AGPL can not actually be used.  So the previous paragraphs just represent
+what the license of Muldis::DB is anticipated to be following the AGPL's
+release.  That said, Muldis::DB is for now simply licensed to you under the
+GPL version 3, which is the first choice in the above disjunction.>
 
 If it is not feasible for you to employ Muldis::DB subject to the terms of
 the GPL or AGPL, then the copyright holder of Muldis::DB can provide you a

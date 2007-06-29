@@ -18,7 +18,8 @@
     of licenses, which the Free Software Foundation formally published on
     2007 June 29th.  By contrast, the previous Muldis::DB releases were
     under an expiring proprietary license, with just the promise of a free
-    re-license to come.  TODO: STATE ADDITION OF LICENSE FILES TO DISTRO.
+    re-license to come.  Accordingly, the file LICENSE/GPL was added to
+    this distro, which contains the text of the GPL version 3.0.
 
     * This release also includes a collection of small documentation
     updates and fixes, such as the following:  We now use the official
