@@ -201,6 +201,56 @@ use strict;
         };
 }
 
+# This Grammar inherits the base Grammar, and redefine a recursive subrule
+      
+{
+    package MyGrammar4;
+    use base 'MyGrammar';
+      
+    our $rule0_qr = qr/
+          (?{ 
+            local $GLOBAL::_M = Match->new(); 
+            $GLOBAL::MATCH = $GLOBAL::_M;
+            $GLOBAL::_M->from = pos;
+            $GLOBAL::_M->match_str = \$_;
+            #print "looking for 'b'\n";
+          })         
+
+          (?:
+              (?:
+                # 'b' and recurse
+                b
+
+                (?{ 
+                    $GLOBAL::MATCH = $GLOBAL::_M;
+                })
+                
+                (??{ eval '$'.$GLOBAL::_Class.'::rule0_qr' })
+                
+                (?{
+                    local $GLOBAL::_M = $GLOBAL::_M->clone();  
+                    push @{ $GLOBAL::_M->array }, $GLOBAL::MATCH;
+                    #print " ",$GLOBAL::_M->perl(),"\n";
+                })
+              )
+          |
+              # or nothing
+          )
+
+          (?{ 
+            $GLOBAL::_M->bool = 1;
+            $GLOBAL::_M->to = pos;
+            $GLOBAL::MATCH = $GLOBAL::_M;
+          })   
+        /x;
+
+    #our $rule0_sub = sub {
+    sub rule0_sub {
+            local $GLOBAL::_Class = shift;
+            /$rule0_qr/;
+        };
+}
+
 # Tests
 
 use Test::More qw(no_plan);
@@ -225,3 +275,11 @@ use Test::More qw(no_plan);
     print " result3 ", $GLOBAL::MATCH->perl, "\n";
     is( $GLOBAL::MATCH->str, '123aaaa', 'subrule is Perl code' );
 }
+
+{
+    local $_ = '    aabbaaaaaaa    ';
+    MyGrammar4->rule1_sub();
+    print " result4 ", $GLOBAL::MATCH->perl, "\n";
+    is( $GLOBAL::MATCH->str, 'bbaaaa', 'recursive subrule' );
+}
+
