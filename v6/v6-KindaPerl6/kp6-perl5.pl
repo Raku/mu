@@ -84,7 +84,7 @@ while ( $pos < length( $source ) ) {
     my $ast = $$p;
     #print Dump( $ast );
     unless (ref $ast && $ast->isa("CompUnit")) {
-        die 'Syntax Error';
+        die "Syntax Error\n";
     }
     $ast = $ast->emit( $_ ) for @visitors;
     say $ast;

@@ -107,6 +107,7 @@ package GLOBAL;
         infix_58__60__43__62_
         
         prefix_58__60__64__62_        
+        prefix_58__60__43__43__62_
     );
     
     # %*ENV
@@ -179,6 +180,14 @@ package GLOBAL;
 
     # ???
     sub prefix_58__60__64__62_      { TODO(); @{$_[0]} }        # prefix:<@>
+
+    # infix:<++>
+    sub prefix_58__60__43__43__62_ {
+        my $counter = $_[0];
+        $counter->{_dispatch_VAR}(
+            $counter, 'STORE', $::Int->{_dispatch}( $::Int, 'new', _int($counter) + 1)
+        );
+    }
 
 package Main;
     
