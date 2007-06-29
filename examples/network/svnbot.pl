@@ -210,8 +210,8 @@ sub svn_commits() {
        }
     }
     if $svndiffurl && $commits {
-        $commits ~= "diff: $svndiffurl$cur_entry\n";
-        system "wget $svndiffurl$cur_entry -O -";
+        $commits ~= "diff: $svndiffurl$cur_svnrev\n";
+        system "wget $svndiffurl$cur_svnrev -O -";
     }
 
     return $commits;
