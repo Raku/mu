@@ -174,7 +174,6 @@ sub svn_commits() {
     my $fh = open $tempfile;
     my $branch;
     my $subst = "XXX-HACK-SVNBOT-SUBST-{rand}"; # XXX!
-    my $revnum;
 
     for =$fh -> $_ {
         state $cur_entry;
@@ -210,7 +209,10 @@ sub svn_commits() {
            }
        }
     }
-    $commits ~= "diff: $svndiffurl$cur_entry\n" if $svndiffurl && $commits;
+    if $svndiffurl && $commits {
+        $commits ~= "diff: $svndiffurl$cur_entry\n";
+        system "wget $svndiffurl$cur_entry -O -";
+    }
 
     return $commits;
 }
