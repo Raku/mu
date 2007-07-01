@@ -67,3 +67,9 @@ sub postfix:<'bar2'> (Num $x) is tighter(&prefix:<'foo1'>){
 }
 
 is('foo1'3'bar2', 8, "Postfix declared tighter than prefix");
+
+sub postfix:<!> ($n) {
+    return [*] 1..$n;
+}
+
+is( -1!, -1 , "Should be parsed as '-(1!)'");
