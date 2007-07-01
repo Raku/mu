@@ -10,7 +10,7 @@ L<S06/Subroutine traits/"relative to an existing">
 
 =cut
 
-plan 8;
+plan 10;
 
 do {
     sub prefix:<!> (Num $x) is tighter(&infix:<**>) {
@@ -73,3 +73,5 @@ sub postfix:<!> ($n) {
 }
 
 is( -1!, -1 , "Should be parsed as '-(1!)'");
+
+ok(not defined eval '4 !',  "Whitespace not allowed before user-defined postfix");
