@@ -1,0 +1,348 @@
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+Muldis::DB::Language::Core -
+Muldis D core data types and operators
+
+=head1 PREFACE
+
+This document is part of the Muldis D language specification, whose root
+document is L<Muldis::DB::Language>; you should read that root document
+before you read this one, which provides subservient details.
+
+=head1 DESCRIPTION
+
+I<This documentation is pending.>
+
+=head1 SYSTEM-DEFINED DATA TYPES
+
+These data types are built-in to Muldis D and should be available under
+all of its implementations.  They are available for the entire time that a
+DBMS is active and can be used by both persistent and temporary
+user-defined entities.
+
+=head2 Maximal and Minimal Data Types
+
+Muldis D provides 2 special data types named C<Universal> and C<Empty>,
+which contain all values in the universe and no values at all,
+respectively; they are implicit supertypes and subtypes of all other data
+types, respectively.
+
+Given the nature of C<Universal>, it is impossible to reference/select a
+value whose most specific type is that.  But it is valid for the
+I<declared type> of any data type attribute or container to be
+C<Universal>, as this says that the attribute or container is allowed to
+hold a value of any data type.  Now it stands to reason that
+the default values for C<Universal> must be of its selectable subtypes.
+The default value of C<Universal> is the C<Bool> False value.
+
+By contrast, C<Empty> is very limited in its use.  It doesn't make sense
+for an attribute or container to have a declared type of C<Empty> because
+no value could be held by it, and all containers in Muldis D must be
+holding a value.  However, it is valid to declare a C<Relation> type whose
+attribute types are C<Empty>, meaning that type is a proper subtype of all
+other C<Relation> with the same attribute names.
+
+The cardinality of the C<Universal|Empty> types is infinity|zero
+respectively; regarding the first one, it is impossible to define a
+most-generalized finite subtype.
+
+Note that the full names of these types for referential purposes are
+C<sys.type.Universal> and C<sys.type.Empty>.
+
+=head2 Core Scalar Data Types
+
+These scalar data types provide the fundamentals over which anything more
+complicated can be implemented, and most user-defined data types are
+specified in terms of them; they are all non-structured.
+
+=over
+
+=item C<sys.type.Bool>
+
+A C<Bool> is a truth value, and can be either False or True.  Its default
+value is False.  The cardinality of this type is 2.
+
+=item C<sys.type.Text>
+
+A C<Text> is a string of characters.  Its default value is the empty
+string.  Note that there is only one system-defined character repertoire
+for C<Text> types, which is the newest Unicode repertoire (5.0.0).  The
+cardinality of this type is infinity; to define a most-generalized finite
+C<Text> subtype, you must specify a maximum length in characters (that is,
+eg, in NFC graphemes) that the subtype's strings are.
+
+=item C<sys.type.NEText>
+
+A C<NEText> (non-empty text) is a proper subtype of C<Text> where its
+length in characters must be more than zero; it can be any C<Text> except
+for the empty string.  Its default value is a single "space" character.
+
+=item C<sys.type.Blob>
+
+A C<Blob> is an undifferentiated string of bits.  Its default value is the
+empty string.  The cardinality of this type is infinity; to define a
+most-generalized finite C<Blob> subtype, you must specify a maximum length
+in characters that the subtype's strings are.
+
+=item C<sys.type.NEBlob>
+
+A C<NEBlob> (non-empty blob) is a proper subtype of C<Blob> where its
+length in bits must be at least 1; it can be any C<Blob> except for the
+empty string.  Its default value is a single zero bit.
+
+=item C<sys.type.Int>
+
+An C<Int> is a single integral number of any magnitude.  Its default value
+is zero.  The cardinality of this type is infinity; to define a
+most-generalized finite C<Int> subtype, you must specify the 2 integer
+end-points of the inclusive range that all its values are in.
+
+=item C<sys.type.UInt>
+
+A C<UInt> (unsigned integer) is a proper subtype of C<Int> where all member
+values are non-negative / greater than or equal to zero.
+
+=item C<sys.type.PInt>
+
+A C<PInt> (positive integer) is a proper subtype of C<UInt> where all
+member values are positive / greater than or equal to one.  Its default
+value is one.
+
+=back
+
+=head2 Core Nonscalar Data Types
+
+These nonscalar data types, C<Tuple|Relation|Database|Set|Seq|Bag|Maybe>,
+permit transparent/user-visible compositions of multiple values into other
+conceptual values.  Unlike with scalar types in general, every
+system-defined selector for nonscalar values will result in values that are
+of proper subtypes of the 2 nonscalar root types (the first 2), and none
+whose most specific type is "just" one of those 2.  Moreover, every such
+most-specific type has explicit element types or attribute sets defined;
+there are no nonscalar values where the element types or attribute sets
+are undefined.  For all nonscalar types, their cardinality is mainly or
+wholly dependent on the data types they are composed of.
+
+=over
+
+=item C<sys.type.Tuple>
+
+A C<Tuple> is an unordered heterogeneous collection of 0..N named
+attributes (the count of attributes being its I<degree>), where all
+attribute names are mutually distinct, and each attribute may be of
+distinct selectable types; the mapping of a tuple's attribute names and
+their declared data types is called the tuple's I<heading>.  Its default
+value is a zero-attribute tuple.  The cardinality of this type is equal to
+the product of the number of permutations drawable from the values of each
+of its attributes' declared data types; for a C<Tuple> subtype to be
+finite, all of its attribute types must be.
+
+=item C<sys.type.Relation>
+
+A C<Relation> is analogous to a set of 0..N tuples where all tuples have
+the same heading (the degrees match and all attribute names and
+corresponding declared data types match), but that a C<Relation> data type
+still has its own corresponding heading (attribute names and declared data
+types) even when it consists of zero tuples.  Its default value is a
+zero-attribute and zero-tuple relation.  Matters of its cardinality are
+generally the same as for C<Tuple>.  A Relation data type can also have
+(unique) keys each defined over a subset of its attributes, which constrain
+its set of values relative to there being no explicit keys, but having the
+keys won't turn an infinite Relation type into a finite one.
+
+=item C<sys.type.Database>
+
+A C<Database> is a proper subtype of C<Tuple> where all of its attributes
+are Relation-typed; it is otherwise the same.
+
+=item C<sys.type.Set>
+
+A C<Set> is a proper subtype of C<Relation> that has 1 attribute, and its
+name is C<value>; it can be of any declared type.  A C<Set> subtype is
+normally used by any system-defined N-ary operators where the order of
+their argument elements or result is not significant, and that duplicate
+values are not significant.  Its default value has zero tuples.
+
+=item C<sys.type.Seq>
+
+An C<Seq> is a proper subtype of C<Relation> that has 2 attributes,
+and their names are C<index> and C<value>, where C<index> is a unary key
+and its declared type is an C<UInt> subtype (C<value> can be non-unique and
+of any declared type).  A Seq is considered dense, and all C<index>
+values in one are numbered consecutively from 0 to 1 less than the count of
+tuples, like array indices in typical programming languages.  A C<Seq>
+subtype is normally used by any system-defined N-ary operators where the
+order of their argument elements or result is significant (and duplicate
+values are significant); specifically, C<index> defines an explicit
+ordering for C<values>.  Its default value has zero tuples.
+
+=item C<sys.type.Bag>
+
+A C<Bag> is a proper subtype of C<Relation> that has 2 attributes, and
+their names are C<value> and C<count>, where C<value> is a unary key (that
+can have any declared type) and C<count> is a C<PInt> subtype.  A C<Bag>
+subtype is normally used by any system-defined N-ary operators where the
+order of their argument elements or result is not significant, but that
+duplicate values are significant; specifically, C<count> defines an
+explicit count of occurrences for C<values>.  Its default value has zero
+tuples.
+
+=item C<sys.type.Maybe>
+
+A C<Maybe> is a proper subtype of C<Set> that may have at most one element;
+that is, it is a unary C<Relation> with a nullary key.  Operators that work
+specifically with C<Maybe> subtypes can provide a syntactic shorthand for
+working with sparse data; so Muldis D has something which is conceptually
+close to SQL's nullable types without actually having 3-valued logic; it
+would probably be convenient for code that round-trips SQL by way of
+Muldis D to use the C<Maybe> type.  Its default value has zero tuples.
+
+=back
+
+=head2 Core Quasi-Nonscalar Data Types
+
+These quasi-nonscalar data types correspond to their similarly-named
+(differing only by the C<Quasi>) nonscalar data types, and their use is
+intended to be limited to the few situations where the corresponding
+nonscalar data types can't be used.
+
+=over
+
+=item C<sys.type.QuasiTuple>
+
+A C<QuasiTuple> is like a C<Tuple> but that the declared types of its
+attributes can be anything at all.  Its cardinality is infinite.
+
+=item C<sys.type.QuasiRelation>
+
+A C<QuasiRelation> is like a C<Relation> but that the declared types of its
+attributes can be anything at all.  Its cardinality is infinite.
+
+=item C<sys.type.QuasiSet>
+
+A C<QuasiSet> is a proper subtype of C<QuasiRelation> in the corresponding
+manner to C<Set> being a proper subtype of C<Relation>.  Its cardinality is
+infinite.
+
+=item C<sys.type.QuasiSeq>
+
+A C<QuasiSeq> is a proper subtype of C<QuasiRelation> in the corresponding
+manner to C<Seq> being a proper subtype of C<Relation>.  Its cardinality is
+infinite.
+
+=item C<sys.type.QuasiBag>
+
+A C<QuasiBag> is a proper subtype of C<QuasiRelation> in the corresponding
+manner to C<Bag> being a proper subtype of C<Relation>.  Its cardinality is
+infinite.
+
+=item C<sys.type.QuasiMaybe>
+
+A C<QuasiMaybe> is a proper subtype of C<QuasiRelation> in the
+corresponding manner to C<Maybe> being a proper subtype of C<Relation>.
+Its cardinality is infinite.
+
+=back
+
+=head2 Catalog Data Types
+
+These scalar data types are special-purpose in nature, as they are intended
+for use in defining or working with catalog types, and all catalog
+variables are system-defined.
+
+=over
+
+=item C<sys.type.Cat.EntityName>
+
+A C<Cat.EntityName> is a canonical name of a DBMS entity or attribute
+thereof.  This name is conceptually multi-part, with the parts forming a
+sequence of 1..N C<Text>, ordered from greatest to least significance;
+names of attributes typically have just 1 part and so are conceptually just
+a C<Text>, though often database attribute names, which are its component
+relation names, are multi-part (extra parts being for "schema" name-spaces
+and such); names of data types and operators are typically 3-4 parts, where
+C<sys> is an example of part 1.  C<Cat.EntityName> has multiple possreps;
+one is a C<Seq(1..N) of Text>; one is a specially encoded C<Text> where
+parts are ordered from greatest to least significance, and adjacent parts
+are separated with a single "period" character, and any literal period or
+backslash characters in parts are backslash-escaped as C<\p> and C<\b>
+respectively (no other characters are escaped).  Its default value consists
+of a single part that is the empty string.
+
+=item C<sys.type.Cat.EntityDeclName>
+
+A C<Cat.EntityDeclName> is a proper subtype of C<Cat.EntityName>.  It is a
+declared name of a DBMS entity, or the declared name of an attribute
+thereof, that either is defined with.
+
+=item C<sys.type.Cat.TypeDeclName>
+
+A C<Cat.TypeDeclName> is a proper subtype of C<Cat.EntityDeclName> whose
+C<Text> possrep is of the format C<(sys|nat|lex)\.type\..*>; it is for type
+names specifically.  Its default value is C<lex.type.>.
+
+=item C<sys.type.Cat.RtnDeclName>
+
+A C<Cat.RtnDeclName> is a proper subtype of C<Cat.EntityDeclName> whose
+C<Text> possrep is of the format C<(sys|nat|lex)\.rtn\..*>; it is for
+routine names specifically.  Its default value is C<lex.rtn.>.
+
+=item C<sys.type.Cat.VarDeclName>
+
+A C<Cat.VarDeclName> is a proper subtype of C<Cat.EntityDeclName> whose
+C<Text> possrep is of the format C<(sys|nat|lex)\.(cat|data)\..*>; it is
+for variable and constant names specifically.  Its default value is
+C<lex.data.>.
+
+=item C<sys.type.Cat.EntityInvoName>
+
+A C<Cat.EntityInvoName> is a proper subtype of C<Cat.EntityName>.  It is a
+name by which some routine invokes or references a DBMS entity.  Unlike a
+C<Cat.DeclTypeName>, a C<Cat.EntityInvoName> is more likely to be
+partially qualified, perhaps.
+
+=item C<sys.type.Cat.(Type|Rtn|Var)InvoName>
+
+These are subtypes of C<Cat.EntityInvoName> whose formats are analogous to
+the similarly named subtypes of C<Cat.EntityDeclName>.
+
+=back
+
+I<This documentation is pending.>
+
+=head1 SYSTEM-DEFINED ROUTINES
+
+These routines are built-in to Muldis D and should be available under all
+of its implementations.  They are available for the entire time that a DBMS
+is active and can be used by both persistent and temporary user-defined
+entities.
+
+I<This documentation is pending.>
+
+=head1 SEE ALSO
+
+Go to L<Muldis::DB> for the majority of distribution-internal references,
+and L<Muldis::DB::SeeAlso> for the majority of distribution-external
+references.
+
+=head1 AUTHOR
+
+Darren Duncan (C<perl@DarrenDuncan.net>)
+
+=head1 LICENSE AND COPYRIGHT
+
+This file is part of the Muldis::DB framework.
+
+Muldis::DB is Copyright © 2002-2007, Darren Duncan.
+
+See the LICENSE AND COPYRIGHT of L<Muldis::DB> for details.
+
+=head1 ACKNOWLEDGEMENTS
+
+The ACKNOWLEDGEMENTS in L<Muldis::DB> apply to this file too.
+
+=cut

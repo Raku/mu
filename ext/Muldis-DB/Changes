@@ -1,6 +1,20 @@
                                 Muldis::DB
 ---------------------------------------------------------------------------
 
+2007-07-xx   Darren Duncan <perl@DarrenDuncan.net>
+
+    * Muldis::DB version 0.1.0 for Perl 5 is released on CPAN as
+    Muldis-DB-0.1.0.tar.gz.
+
+    * New code file versions are: DB.pm and AST.pm and Validator.pm and
+    Example.pm 0.1.0.
+
+    * Split up Language.pod 7 ways, into itself and
+    Language/(Core|Catalog|Grammar).pod and
+    Language/Ext/(Num|Temporal|Spatial).pod; about 75% of the previous
+    Language.pod remained in that file, with the other files comprising
+    about 25%; the other files then showed most of the subsequent growth.
+
 2007-06-29   Darren Duncan <perl@DarrenDuncan.net>
 
     * Muldis::DB version 0.0.1 for Perl 5 is released on CPAN as

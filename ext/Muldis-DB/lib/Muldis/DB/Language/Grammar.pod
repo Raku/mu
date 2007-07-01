@@ -1,0 +1,42 @@
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+Muldis::DB::Language::Grammar -
+The string representation format of Muldis D
+
+=head1 PREFACE
+
+This document is part of the Muldis D language specification, whose root
+document is L<Muldis::DB::Language>; you should read that root document
+before you read this one, which provides subservient details.
+
+=head1 DESCRIPTION
+
+I<This documentation is pending.>
+
+=head1 SEE ALSO
+
+Go to L<Muldis::DB> for the majority of distribution-internal references,
+and L<Muldis::DB::SeeAlso> for the majority of distribution-external
+references.
+
+=head1 AUTHOR
+
+Darren Duncan (C<perl@DarrenDuncan.net>)
+
+=head1 LICENSE AND COPYRIGHT
+
+This file is part of the Muldis::DB framework.
+
+Muldis::DB is Copyright © 2002-2007, Darren Duncan.
+
+See the LICENSE AND COPYRIGHT of L<Muldis::DB> for details.
+
+=head1 ACKNOWLEDGEMENTS
+
+The ACKNOWLEDGEMENTS in L<Muldis::DB> apply to this file too.
+
+=cut
