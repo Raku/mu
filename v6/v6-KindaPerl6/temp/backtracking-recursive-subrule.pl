@@ -13,6 +13,7 @@ Tested with perl 5.8.8
 
 TODO:
 
+- convert the intermediate data structure to a Match
 - 'return' blocks
 - regex parameters
 
