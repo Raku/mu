@@ -69,6 +69,43 @@ use strict;
     sub perl {
         Dumper( $_[0] );
     }
+
+    our @Matches;
+    sub from_global_data {
+        unless ( defined $_[0] ) {
+            # no match
+            push @Matches, Match->new();
+            return;
+        }
+
+        my ( $previous, $action, @data ) = @{+shift};
+        if ( defined $previous ) {
+            from_global_data( $previous );
+        }
+        
+        # XXX - use a dispatch table
+        if ( $action eq 'create' ) {
+            push @Matches, Match->new();
+            $Matches[-1]->bool = 1;
+            $Matches[-1]->from = $data[0];
+            $Matches[-1]->match_str = $data[1];
+        }
+        elsif ( $action eq 'to' ) {
+            $Matches[-1]->to = $data[0];
+        }
+        elsif ( $action eq 'capture' ) {
+            # XXX - named captures, pre-numbered captures
+            my $match = pop @Matches;
+            push @{ $Matches[-1]->array }, $match;
+        }
+        else {
+            die "no action like '$action'"
+        }
+        
+        # print "action: $action [ @data ]\n";
+
+    }
+
 }
 
 # This is the base Grammar for tests
@@ -78,7 +115,7 @@ use strict;
       
     our $rule0_qr = qr/
           (?{ 
-            local $GLOBAL::_M = [ $GLOBAL::_M, 'from', pos() ];
+            local $GLOBAL::_M = [ $GLOBAL::_M, 'create', pos(), \$_ ];
             $GLOBAL::_M2 = $GLOBAL::_M;
           })         
 
@@ -98,7 +135,7 @@ use strict;
 
     our $rule1_qr = qr/
           (?{ 
-            local $GLOBAL::_M = [ $GLOBAL::_M, 'from', pos() ];
+            local $GLOBAL::_M = [ $GLOBAL::_M, 'create', pos(), \$_ ];
             $GLOBAL::_M2 = $GLOBAL::_M;
           })                   
           
@@ -136,7 +173,7 @@ use strict;
       
     our $rule0_qr = qr/
           (?{ 
-            local $GLOBAL::_M = [ $GLOBAL::_M, 'from', pos() ];
+            local $GLOBAL::_M = [ $GLOBAL::_M, 'create', pos(), \$_ ];
             $GLOBAL::_M2 = $GLOBAL::_M;
           })         
 
@@ -163,7 +200,7 @@ use strict;
       
     our $rule0_qr = qr/
           (?{ 
-            local $GLOBAL::_M = [ $GLOBAL::_M, 'from', pos() ];
+            local $GLOBAL::_M = [ $GLOBAL::_M, 'create', pos(), \$_ ];
             $GLOBAL::_M2 = $GLOBAL::_M;
           })         
           (?{ 
@@ -208,7 +245,7 @@ use strict;
       
     our $rule0_qr = qr/
           (?{ 
-            local $GLOBAL::_M = [ $GLOBAL::_M, 'from', pos() ];
+            local $GLOBAL::_M = [ $GLOBAL::_M, 'create', pos(), \$_ ];
             $GLOBAL::_M2 = $GLOBAL::_M;
           })         
 
@@ -248,35 +285,60 @@ use Test::More qw(no_plan);
 use Data::Dumper;
 
 {
-    local $_ = '    aaaaaaaaaa    ';
-    local @GLOBAL::_M2;
+    local $_ = '    aaazzzz    ';
+    local $GLOBAL::_M2;
     MyGrammar->rule1_sub();
-    print " global: ", Dumper( $GLOBAL::_M2 );
-    #print " result1 ", $GLOBAL::MATCH->perl, "\n";
-    #is( $GLOBAL::MATCH->str, 'aaaaaaaaaa', 'backtracks into subrule' );
+    #print " global: ", Dumper( $GLOBAL::_M2 );
+    Match::from_global_data( $GLOBAL::_M2 );
+    $GLOBAL::MATCH = shift @Match::Matches;
+    #print Dumper( \@Match::Matches );
+    print " result1 ", $GLOBAL::MATCH->perl, "\n";
+    is( $GLOBAL::MATCH->str, undef, 'no match' );
+}
+
+{
+    local $_ = '    aaaaaaaaaa    ';
+    local $GLOBAL::_M2;
+    MyGrammar->rule1_sub();
+    #print " global: ", Dumper( $GLOBAL::_M2 );
+    Match::from_global_data( $GLOBAL::_M2 );
+    $GLOBAL::MATCH = shift @Match::Matches;
+    #print Dumper( \@Match::Matches );
+    print " result1 ", $GLOBAL::MATCH->perl, "\n";
+    is( $GLOBAL::MATCH->str, 'aaaaaaaaaa', 'backtracks into subrule' );
 }
 
 {
     local $_ = '    aabbaaaaaaa    ';
+    local $GLOBAL::_M2;
     MyGrammar2->rule1_sub();
-    print " global: ", Dumper( $GLOBAL::_M2 );
-    #print " result2 ", $GLOBAL::MATCH->perl, "\n";
-    #is( $GLOBAL::MATCH->str, 'bbaaaa', 'redefined subrule' );
+    #print " global: ", Dumper( $GLOBAL::_M2 );
+    Match::from_global_data( $GLOBAL::_M2 );
+    $GLOBAL::MATCH = shift @Match::Matches;
+    #print Dumper( \@Match::Matches );
+    print " result2 ", $GLOBAL::MATCH->perl, "\n";
+    is( $GLOBAL::MATCH->str, 'bbaaaa', 'redefined subrule' );
 }
 
 {
     local $_ = '    a123aaaaaaa    ';
     MyGrammar3->rule1_sub();
-    print " global: ", Dumper( $GLOBAL::_M2 );
-    #print " result3 ", $GLOBAL::MATCH->perl, "\n";
-    #is( $GLOBAL::MATCH->str, '123aaaa', 'subrule is Perl code' );
+    #print " global: ", Dumper( $GLOBAL::_M2 );
+    Match::from_global_data( $GLOBAL::_M2 );
+    $GLOBAL::MATCH = shift @Match::Matches;
+    #print Dumper( \@Match::Matches );
+    print " result3 ", $GLOBAL::MATCH->perl, "\n";
+    is( $GLOBAL::MATCH->str, '123aaaa', 'subrule is Perl code' );
 }
 
 {
     local $_ = '    aabbaaaaaaa    ';
     MyGrammar4->rule1_sub();
-    print " global: ", Dumper( $GLOBAL::_M2 );
-    #print " result4 ", $GLOBAL::MATCH->perl, "\n";
-    #is( $GLOBAL::MATCH->str, 'bbaaaa', 'recursive subrule' );
+    #print " global: ", Dumper( $GLOBAL::_M2 );
+    Match::from_global_data( $GLOBAL::_M2 );
+    $GLOBAL::MATCH = shift @Match::Matches;
+    #print Dumper( \@Match::Matches );
+    print " result4 ", $GLOBAL::MATCH->perl, "\n";
+    is( $GLOBAL::MATCH->str, 'bbaaaa', 'recursive subrule' );
 }
 
