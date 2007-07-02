@@ -1,17 +1,35 @@
 use v6-alpha;
 
-class KindaPerl6::Visitor::Token {
+# This visitor is a plugin for the perl5 emitter.
+# It emits p6-regex as p5-regex.
+
+# See: temp/backtracking-recursive-subrule.pl
+    
+class KindaPerl6::Visitor::EmitPerl5Regex {
+
+    # 'EmitPerl5' predefines all nodes, except 'token'
+    use KindaPerl6::Visitor::EmitPerl5;
+
+    method visit ( $node ) {
+        $node.emit_perl5;
+    };
+
+}
+
+class Token {
+
+    # XXX - TODO
 
     # This visitor is a Regex-AST to Perl6-AST converter
     # It only generates "ratchet" regex code
     
-    method visit ( $node, $node_name ) {
+    method emit_perl5 ( $node, $node_name ) {
 
         if ( $node_name eq 'Token' ) {
             
             # say 'Processing Token';
             
-            my $perl6_source := ($node.regex).emit_token;
+            my $perl6_source := ($node.regex).emit_perl5;
             
             # Emitted Perl 6 "method" code
 
@@ -41,13 +59,8 @@ class KindaPerl6::Visitor::Token {
 # <%hash> must be a hash-of-token
 
 class Rule {
-#    sub perl5 ( $rx ) {
-#        return
-#            '( perl5rx( substr( $str, $MATCH.to ), \'^(' ~ $rx ~ ')\' ) ' ~ 
-#            ' ?? ( 1 + $MATCH.to( $0.chars + $MATCH.to )) ' ~
-#            ' !! (0) ' ~
-#            ')'
-#    };
+
+    # XXX - where is this class used?
     
     sub constant ( $str ) {
             #my $str1;
@@ -73,29 +86,29 @@ class Rule {
 }
 
 class Rule::Quantifier {
-    method emit_token {
+    method emit_perl5 {
         # TODO
-        $.term.emit_token;
+        $.term.emit_perl5;
     }
 }
 
 class Rule::Or {
-    method emit_token {
+    method emit_perl5 {
         'do { ' ~
             'my $pos1 := $MATCH.to(); do{ ' ~ 
-            (@.or.>>emit_token).join('} || do { $MATCH.to( $pos1 ); ') ~
+            (@.or.>>emit_perl5).join('} || do { $MATCH.to( $pos1 ); ') ~
         '} }';
     }
 }
 
 class Rule::Concat {
-    method emit_token {
-        '(' ~ (@.concat.>>emit_token).join(' && ') ~ ')';
+    method emit_perl5 {
+        '(' ~ (@.concat.>>emit_perl5).join(' && ') ~ ')';
     }
 }
 
 class Rule::Subrule {
-    method emit_token {
+    method emit_perl5 {
         my $meth := ( 1 + index( $.metasyntax, '.' ) )
             ?? $.metasyntax 
             !! ( '$grammar.' ~ $.metasyntax );
@@ -108,7 +121,7 @@ class Rule::Subrule {
 }
 
 class Rule::SubruleNoCapture {
-    method emit_token {
+    method emit_perl5 {
         my $meth := ( 1 + index( $.metasyntax, '.' ) )
             ?? $.metasyntax 
             !! ( '$grammar.' ~ $.metasyntax );
@@ -120,7 +133,7 @@ class Rule::SubruleNoCapture {
 }
 
 class Rule::Var {
-    method emit_token {
+    method emit_perl5 {
         # Normalize the sigil here into $
         # $x    => $x
         # @x    => $List_x
@@ -137,14 +150,14 @@ class Rule::Var {
 }
 
 class Rule::Constant {
-    method emit_token {
+    method emit_perl5 {
         my $str := $.constant; 
         Rule::constant( $str );
     }
 }
 
 class Rule::Dot {
-    method emit_token {
+    method emit_perl5 {
         '( (\'\' ne substr( $str, $MATCH.to, 1 )) ' ~
         '  ?? (1 + $MATCH.to( 1 + $MATCH.to ))' ~
         '  !! (0) ' ~
@@ -153,30 +166,30 @@ class Rule::Dot {
 }
 
 class Rule::SpecialChar {
-    method emit_token {
+    method emit_perl5 {
         my $char := $.char;
         #say 'CHAR ',$char;
         if $char eq 'n' {
             my $rul := ::Rule::SubruleNoCapture( 'metasyntax' => 'newline' );
-            $rul := $rul.emit_token;
+            $rul := $rul.emit_perl5;
             #say 'NEWLINE ', $rul;
             return $rul;
             # Rule::perl5( '(?:\n\r?|\r\n?)' )
         };
         if $char eq 'N' {
             my $rul := ::Rule::SubruleNoCapture( 'metasyntax' => 'not_newline' );
-            $rul := $rul.emit_token;
+            $rul := $rul.emit_perl5;
             return $rul;
             # Rule::perl5( '(?!\n\r?|\r\n?).' )
         };
         if $char eq 'd' {
             my $rul := ::Rule::SubruleNoCapture( 'metasyntax' => 'digit' );
-            $rul := $rul.emit_token;
+            $rul := $rul.emit_perl5;
             return $rul;
         };
         if $char eq 's' {
             my $rul := ::Rule::SubruleNoCapture( 'metasyntax' => 'space' );
-            $rul := $rul.emit_token;
+            $rul := $rul.emit_perl5;
             return $rul;
         };
         # TODO
@@ -198,7 +211,7 @@ class Rule::SpecialChar {
 }
 
 class Rule::Block {
-    method emit_token {
+    method emit_perl5 {
         #return 'do ' ~ $.closure;
         'do { ' ~ 
              'my $ret := ( sub {' ~
@@ -218,15 +231,15 @@ class Rule::Block {
 
 # TODO
 class Rule::InterpolateVar {
-    method emit_token {
-        say '# TODO: interpolate var ' ~ $.var.emit_token ~ '';
+    method emit_perl5 {
+        say '# TODO: interpolate var ' ~ $.var.emit_perl5 ~ '';
         die();
     };
 #        my $var = $.var;
 #        # if $var.sigil eq '%'    # bug - Moose? no method 'sigil'
 #        {
 #            my $hash := $var;
-#            $hash := $hash.emit_token;
+#            $hash := $hash.emit_perl5;
 #           'do {
 #                state @sizes := do {
 #                    # Here we use .chr to avoid sorting with {$^a<=>$^b} since
@@ -254,19 +267,19 @@ class Rule::InterpolateVar {
 }
 
 class Rule::NamedCapture {
-    method emit_token {
-        say '# TODO: named capture ' ~ $.ident ~ ' := ' ~ $.rule.emit_token ~ '';
+    method emit_perl5 {
+        say '# TODO: named capture ' ~ $.ident ~ ' := ' ~ $.rule.emit_perl5 ~ '';
         die();
     }
 }
 
 class Rule::Before {
-    method emit_token {
+    method emit_perl5 {
         'do { ' ~
             'my $tmp := $MATCH; ' ~
             '$MATCH := ::KindaPerl6::Perl5::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' ~
             '$MATCH.bool( ' ~
-                $.rule.emit_token ~
+                $.rule.emit_perl5 ~
             '); ' ~
             '$tmp.bool( ?$MATCH ); ' ~
             '$MATCH := $tmp; ' ~
@@ -276,12 +289,12 @@ class Rule::Before {
 }
 
 class Rule::NotBefore {
-    method emit_token {
+    method emit_perl5 {
         'do { ' ~
             'my $tmp := $MATCH; ' ~
             '$MATCH := ::KindaPerl6::Perl5::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' ~
             '$MATCH.bool( ' ~
-                $.rule.emit_token ~
+                $.rule.emit_perl5 ~
             '); ' ~
             '$tmp.bool( !$MATCH ); ' ~
             '$MATCH := $tmp; ' ~
@@ -292,7 +305,7 @@ class Rule::NotBefore {
 
 class Rule::NegateCharClass {
     # unused
-    method emit_token {
+    method emit_perl5 {
         say "TODO NegateCharClass";
         die();
     #    'do { ' ~
@@ -304,7 +317,7 @@ class Rule::NegateCharClass {
 
 class Rule::CharClass {
     # unused
-    method emit_token {
+    method emit_perl5 {
         say "TODO CharClass";
         die();
     #    'do { ' ~
@@ -316,7 +329,7 @@ class Rule::CharClass {
 
 class Rule::Capture {
     # unused
-    method emit_token {
+    method emit_perl5 {
         say "TODO RuleCapture";
         die();
     }
@@ -326,16 +339,16 @@ class Rule::Capture {
 
 =head1 NAME 
 
-KindaPerl6::Visitor::Token - AST processor for Regex emulation
+KindaPerl6::Visitor::Token - AST processor for P6-Regex to P5-Regex transformation
 
 =head1 SYNOPSIS
 
-    my $visitor_token := KindaPerl6::Visitor::Token.new();
+    my $visitor_token := KindaPerl6::Visitor::EmitPerl5Regex.new();
     $ast = $ast.emit( $visitor_token );
 
 =head1 DESCRIPTION
 
-This module transforms regex AST into plain-perl AST.
+This module transforms regex AST into plain-perl5-regex code.
 
 =head1 AUTHORS
 
