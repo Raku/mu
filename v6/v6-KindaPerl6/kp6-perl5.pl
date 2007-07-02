@@ -66,7 +66,7 @@ my @visitors;
     for ( @visitor_sequence ) {
         my $module_name = 'KindaPerl6::Visitor::' . $_;
         eval "require $module_name";
-        die "Can't load $_ plugin" if $@;
+        die "Can't load $_ plugin: $@" if $@;
         push @visitors, $module_name->new();
     }
 } 

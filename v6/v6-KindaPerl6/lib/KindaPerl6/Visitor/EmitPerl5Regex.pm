@@ -18,49 +18,30 @@ class KindaPerl6::Visitor::EmitPerl5Regex {
 
 class Token {
 
-    # XXX - TODO
+    # XXX - TODO: convert to Perl 5 code
 
     # This visitor is a Regex-AST to Perl6-AST converter
     # It only generates "ratchet" regex code
     
-    method emit_perl5 ( $node, $node_name ) {
+    method emit_perl5 {
+        # say 'Processing Token';            
+        my $perl6_source := ($.regex).emit_perl5;
+        
+        my $source := 'method ' ~ ($.name) ~ ' ( $grammar: $str, $pos ) { ' 
+            ~ 'my $MATCH; $MATCH := ::KindaPerl6::Perl5::Match( \'str\' => $str, \'from\' => $pos, \'to\' => $pos, \'bool\' => 1 ); ' 
+            ~ '$MATCH.bool( ' ~ $perl6_source ~ '); ' 
+            ~ 'return $MATCH }';
+        # say 'Intermediate code: ', $source;
 
-        if ( $node_name eq 'Token' ) {
-            
-            # say 'Processing Token';
-            
-            my $perl6_source := ($node.regex).emit_perl5;
-            
-            # Emitted Perl 6 "method" code
-
-            my $source := 'method ' ~ $node.name ~ ' ( $grammar: $str, $pos ) { ' 
-                ~ 'my $MATCH; $MATCH := ::KindaPerl6::Perl5::Match( \'str\' => $str, \'from\' => $pos, \'to\' => $pos, \'bool\' => 1 ); ' 
-                ~ '$MATCH.bool( ' ~ $perl6_source ~ '); ' 
-                ~ 'return $MATCH }';
-            # say 'Intermediate code: ', $source;
-
-            # Compile the new Perl 6 code
-
-            my $ast := KindaPerl6::Grammar.term( $source );
-            
-            #    my $visitor_dump_ast := KindaPerl6::Visitor::Perl.new();
-            #    say 'Intermediate ast: ', ($$ast).emit( $visitor_dump_ast );
-
-            # Return Perl 6 AST
-
-            return $$ast;
-        }
+        return $source;
     }
 
 }
 
-# no <after .. > - so it doesn't need to match backwards
-# no backtracking on quantifiers
-# <%hash> must be a hash-of-token
-
 class Rule {
 
-    # XXX - where is this class used?
+    # general-use subroutines
+    # XXX - cleanup if possible
     
     sub constant ( $str ) {
             #my $str1;
