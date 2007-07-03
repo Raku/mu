@@ -3,6 +3,8 @@ use v6-alpha;
 # This visitor is a plugin for the perl5 emitter.
 # It emits p6-regex as p5-regex.
 
+# XXX - It only generates "ratchet" regex code
+
 # See: temp/backtracking-recursive-subrule.pl
     
 class KindaPerl6::Visitor::EmitPerl5Regex {
@@ -16,26 +18,32 @@ class KindaPerl6::Visitor::EmitPerl5Regex {
 
 }
 
-class Token {
-
-    # XXX - TODO: convert to Perl 5 code
-
-    # This visitor is a Regex-AST to Perl6-AST converter
-    # It only generates "ratchet" regex code
-    
+class Token {    
     method emit_perl5 {
-        # say 'Processing Token';            
-        my $perl6_source := ($.regex).emit_perl5;
-        
-        my $source := 'method ' ~ ($.name) ~ ' ( $grammar: $str, $pos ) { ' 
-            ~ 'my $MATCH; $MATCH := ::KindaPerl6::Perl5::Match( \'str\' => $str, \'from\' => $pos, \'to\' => $pos, \'bool\' => 1 ); ' 
-            ~ '$MATCH.bool( ' ~ $perl6_source ~ '); ' 
-            ~ 'return $MATCH }';
-        # say 'Intermediate code: ', $source;
+        my $regex_source := ($.regex).emit_perl5;
+        my $source := 
+              'use vars qw($_rule_' ~ $.name ~ '); ' 
+            ~ '$_rule_' ~ $.name ~ ' = qr/' 
+            
+            ~ '(?{ '
+            ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
+            ~   '$GLOBAL::_M2 = $GLOBAL::_M; '
+            ~ '})'
 
+            ~ $regex_source 
+            
+            ~ '(?{ '
+            ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
+            ~   '$GLOBAL::_M2 = $GLOBAL::_M; '
+            ~ '})'
+
+            ~ '/x; ' 
+            ~ 'sub ' ~ $.name ~ ' { '
+            ~    'local $GLOBAL::_Class = shift; '
+            ~    '/$_rule_' ~ $.name ~ '/; '
+            ~ '}; '
         return $source;
     }
-
 }
 
 class Rule {
@@ -44,25 +52,13 @@ class Rule {
     # XXX - cleanup if possible
     
     sub constant ( $str ) {
-            #my $str1;
-            # { use v5; $str1 = $str; $str1 =~  s/\\(.)/$1/g; use v6; }
-        
-            my $len := $str.chars;
             if $str eq '\\' {
-                $str := '\\\\';
+                return '\\\\';
             };
             if $str eq '\'' {
-                $str := '\\\'';
+                return '\\\'';
             };
-            if ( $len ) {
-                '( ( \'' ~ $str ~ '\' eq substr( $str, $MATCH.to, ' ~ $len ~ ')) ' ~
-                '  ?? (1 + $MATCH.to( ' ~ $len ~ ' + $MATCH.to ))' ~
-                '  !! (0) ' ~
-                ')';
-            }
-            else {
-                return '1'
-            }        
+            $str;
     }
 }
 
@@ -75,41 +71,35 @@ class Rule::Quantifier {
 
 class Rule::Or {
     method emit_perl5 {
-        'do { ' ~
-            'my $pos1 := $MATCH.to(); do{ ' ~ 
-            (@.or.>>emit_perl5).join('} || do { $MATCH.to( $pos1 ); ') ~
-        '} }';
+          '(?:' ~ (@.or.>>emit_perl5).join('|') ~ ')';
     }
 }
 
 class Rule::Concat {
     method emit_perl5 {
-        '(' ~ (@.concat.>>emit_perl5).join(' && ') ~ ')';
+        '(?:' ~ (@.concat.>>emit_perl5).join('') ~ ')';
     }
 }
 
 class Rule::Subrule {
     method emit_perl5 {
         my $meth := ( 1 + index( $.metasyntax, '.' ) )
-            ?? $.metasyntax 
-            !! ( '$grammar.' ~ $.metasyntax );
-        'do { ' ~
-          'my $m2 := ' ~ $meth ~ '($str, $MATCH.to); ' ~
-          ## 'my $m2 := ' ~ $meth ~ '($str, { 'pos' => $MATCH.to, 'KEY' => $key }); ' ~
-          'if $m2 { $MATCH.to( $m2.to ); $MATCH{\'' ~ $.metasyntax ~ '\'} := $m2; 1 } else { 0 } ' ~
-        '}'
+            ?? $.metasyntax ~ ' ... TODO '
+            !! ( '\'$\'.$GLOBAL::_Class.\'::_regex_' ~ $.metasyntax ~ '\'' );
+        # XXX - named capture; param passing
+          '(??{ eval ' ~ $meth ~ ' })'
+        ~ '(?{ '
+        ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'capture\' ]; '
+        ~ '})'
     }
 }
 
 class Rule::SubruleNoCapture {
     method emit_perl5 {
         my $meth := ( 1 + index( $.metasyntax, '.' ) )
-            ?? $.metasyntax 
-            !! ( '$grammar.' ~ $.metasyntax );
-        'do { ' ~
-          'my $m2 := ' ~ $meth ~ '($str, $MATCH.to); ' ~
-          'if $m2 { $MATCH.to( $m2.to ); 1 } else { 0 } ' ~
-        '}'
+            ?? $.metasyntax ~ ' ... TODO '
+            !! ( '\'$\'.$GLOBAL::_Class.\'::_regex_' ~ $.metasyntax ~ '\'' );
+        '(??{ eval ' ~ $meth ~ ' })'
     }
 }
 
@@ -139,10 +129,7 @@ class Rule::Constant {
 
 class Rule::Dot {
     method emit_perl5 {
-        '( (\'\' ne substr( $str, $MATCH.to, 1 )) ' ~
-        '  ?? (1 + $MATCH.to( 1 + $MATCH.to ))' ~
-        '  !! (0) ' ~
-        ')';
+        '(?:\n\r?|\r\n?|\X)';
     }
 }
 
@@ -193,9 +180,9 @@ class Rule::SpecialChar {
 
 class Rule::Block {
     method emit_perl5 {
-        #return 'do ' ~ $.closure;
-        'do { ' ~ 
-             'my $ret := ( sub {' ~
+        # XXX - change to new Match style
+        '(?{ ' ~ 
+             'my $ret = ( sub {' ~
                 'do {' ~ 
                    $.closure ~
                 '}; ' ~
@@ -206,7 +193,7 @@ class Rule::Block {
                 'return $MATCH;' ~
              '};' ~
              '1' ~
-        '}'
+        ' })'
     }
 }
 
@@ -256,31 +243,13 @@ class Rule::NamedCapture {
 
 class Rule::Before {
     method emit_perl5 {
-        'do { ' ~
-            'my $tmp := $MATCH; ' ~
-            '$MATCH := ::KindaPerl6::Perl5::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' ~
-            '$MATCH.bool( ' ~
-                $.rule.emit_perl5 ~
-            '); ' ~
-            '$tmp.bool( ?$MATCH ); ' ~
-            '$MATCH := $tmp; ' ~
-            '?$MATCH; ' ~
-        '}'
+        '(?=' ~ $.rule.emit_perl5 ~ ')'
     }
 }
 
 class Rule::NotBefore {
     method emit_perl5 {
-        'do { ' ~
-            'my $tmp := $MATCH; ' ~
-            '$MATCH := ::KindaPerl6::Perl5::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' ~
-            '$MATCH.bool( ' ~
-                $.rule.emit_perl5 ~
-            '); ' ~
-            '$tmp.bool( !$MATCH ); ' ~
-            '$MATCH := $tmp; ' ~
-            '?$MATCH; ' ~
-        '}'
+        '(?!' ~ $.rule.emit_perl5 ~ ')'
     }
 }
 

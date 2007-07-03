@@ -5,37 +5,37 @@ use MiniPerl6::Perl5::Runtime;
 use MiniPerl6::Perl5::Match;
 package KindaPerl6::Visitor::EmitPerl5Regex; sub new { shift; bless { @_ }, "KindaPerl6::Visitor::EmitPerl5Regex" } use KindaPerl6::Visitor::EmitPerl5; sub visit { my $self = shift; my $List__ = \@_; my $node; do {  $node = $List__->[0]; [$node] }; $node->emit_perl5() }
 ;
-package Token; sub new { shift; bless { @_ }, "Token" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $perl6_source = $self->{regex}->emit_perl5(); my  $source = ('method ' . ($self->{name} . (' ( $grammar: $str, $pos ) { ' . ('my $MATCH; $MATCH := ::KindaPerl6::Perl5::Match( \'str\' => $str, \'from\' => $pos, \'to\' => $pos, \'bool\' => 1 ); ' . ('$MATCH.bool( ' . ($perl6_source . ('); ' . 'return $MATCH }'))))))); return($source) }
+package Token; sub new { shift; bless { @_ }, "Token" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $regex_source = $self->{regex}->emit_perl5(); my  $source = ('use vars qw($_rule_' . ($self->{name} . ('); ' . ('$_rule_' . ($self->{name} . (' = qr/' . ('(?{ ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; ' . ('$GLOBAL::_M2 = $GLOBAL::_M; ' . ('})' . ($regex_source . ('(?{ ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; ' . ('$GLOBAL::_M2 = $GLOBAL::_M; ' . ('})' . ('/x; ' . ('sub ' . ($self->{name} . (' { ' . ('local $GLOBAL::_Class = shift; ' . ('/$_rule_' . ($self->{name} . ('/; ' . '}; '))))))))))))))))))))))); return($source) }
 ;
-package Rule; sub new { shift; bless { @_ }, "Rule" } sub constant { my $List__ = \@_; my $str; do {  $str = $List__->[0]; [$str] }; my  $len = Main::chars($str, ); do { if (($str eq '\\')) { $str = '\\\\' } else {  } }; do { if (($str eq '\'')) { $str = '\\\'' } else {  } }; do { if ($len) { ('( ( \'' . ($str . ('\' eq substr( $str, $MATCH.to, ' . ($len . (')) ' . ('  ?? (1 + $MATCH.to( ' . ($len . (' + $MATCH.to ))' . ('  !! (0) ' . ')'))))))))) } else { return('1') } } }
+package Rule; sub new { shift; bless { @_ }, "Rule" } sub constant { my $List__ = \@_; my $str; do {  $str = $List__->[0]; [$str] }; do { if (($str eq '\\')) { return('\\\\') } else {  } }; do { if (($str eq '\'')) { return('\\\'') } else {  } }; $str }
 ;
 package Rule::Quantifier; sub new { shift; bless { @_ }, "Rule::Quantifier" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; $self->{term}->emit_perl5() }
 ;
-package Rule::Or; sub new { shift; bless { @_ }, "Rule::Or" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('do { ' . ('my $pos1 := $MATCH.to(); do{ ' . (Main::join([ map { $_->emit_perl5() } @{ $self->{or} } ], '} || do { $MATCH.to( $pos1 ); ') . '} }'))) }
+package Rule::Or; sub new { shift; bless { @_ }, "Rule::Or" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('(?:' . (Main::join([ map { $_->emit_perl5() } @{ $self->{or} } ], '|') . ')')) }
 ;
-package Rule::Concat; sub new { shift; bless { @_ }, "Rule::Concat" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('(' . (Main::join([ map { $_->emit_perl5() } @{ $self->{concat} } ], ' && ') . ')')) }
+package Rule::Concat; sub new { shift; bless { @_ }, "Rule::Concat" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('(?:' . (Main::join([ map { $_->emit_perl5() } @{ $self->{concat} } ], '') . ')')) }
 ;
-package Rule::Subrule; sub new { shift; bless { @_ }, "Rule::Subrule" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $meth = ((1 + index($self->{metasyntax}, '.')) ? $self->{metasyntax} : ('$grammar.' . $self->{metasyntax})); ('do { ' . ('my $m2 := ' . ($meth . ('($str, $MATCH.to); ' . ('if $m2 { $MATCH.to( $m2.to ); $MATCH{\'' . ($self->{metasyntax} . ('\'} := $m2; 1 } else { 0 } ' . '}'))))))) }
+package Rule::Subrule; sub new { shift; bless { @_ }, "Rule::Subrule" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $meth = ((1 + index($self->{metasyntax}, '.')) ? $self->{metasyntax} : ('$grammar.' . $self->{metasyntax})); ('do { ' . ('my $m2 := ' . ($meth . (' ... TODO ' . (' ' . ($self->{metasyntax} . (' ... ' . '}'))))))) }
 ;
-package Rule::SubruleNoCapture; sub new { shift; bless { @_ }, "Rule::SubruleNoCapture" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $meth = ((1 + index($self->{metasyntax}, '.')) ? $self->{metasyntax} : ('$grammar.' . $self->{metasyntax})); ('do { ' . ('my $m2 := ' . ($meth . ('($str, $MATCH.to); ' . ('if $m2 { $MATCH.to( $m2.to ); 1 } else { 0 } ' . '}'))))) }
+package Rule::SubruleNoCapture; sub new { shift; bless { @_ }, "Rule::SubruleNoCapture" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $meth = ((1 + index($self->{metasyntax}, '.')) ? ($self->{metasyntax} . ' ... TODO ') : ('\'$\'.$GLOBAL::_Class.\'::_regex_' . ($self->{metasyntax} . '\''))); ('(??{ eval ' . ($meth . ' })')) }
 ;
 package Rule::Var; sub new { shift; bless { @_ }, "Rule::Var" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $table = { '$' => '$','@' => '$List_','%' => '$Hash_','&' => '$Code_', }; ($table->{$self->{sigil}} . $self->{name}) }
 ;
 package Rule::Constant; sub new { shift; bless { @_ }, "Rule::Constant" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $str = $self->{constant}; Rule::constant($str) }
 ;
-package Rule::Dot; sub new { shift; bless { @_ }, "Rule::Dot" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('( (\'\' ne substr( $str, $MATCH.to, 1 )) ' . ('  ?? (1 + $MATCH.to( 1 + $MATCH.to ))' . ('  !! (0) ' . ')'))) }
+package Rule::Dot; sub new { shift; bless { @_ }, "Rule::Dot" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; '(?:\n\r?|\r\n?|\X)' }
 ;
 package Rule::SpecialChar; sub new { shift; bless { @_ }, "Rule::SpecialChar" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $char = $self->{char}; do { if (($char eq 'n')) { my  $rul = Rule::SubruleNoCapture->new( 'metasyntax' => 'newline', );$rul = $rul->emit_perl5();return($rul) } else {  } }; do { if (($char eq 'N')) { my  $rul = Rule::SubruleNoCapture->new( 'metasyntax' => 'not_newline', );$rul = $rul->emit_perl5();return($rul) } else {  } }; do { if (($char eq 'd')) { my  $rul = Rule::SubruleNoCapture->new( 'metasyntax' => 'digit', );$rul = $rul->emit_perl5();return($rul) } else {  } }; do { if (($char eq 's')) { my  $rul = Rule::SubruleNoCapture->new( 'metasyntax' => 'space', );$rul = $rul->emit_perl5();return($rul) } else {  } }; return(Rule::constant($char)) }
 ;
-package Rule::Block; sub new { shift; bless { @_ }, "Rule::Block" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('do { ' . ('my $ret := ( sub {' . ('do {' . ($self->{closure} . ('}; ' . ('\'974^213\' } ).();' . ('if $ret ne \'974^213\' {' . ('$MATCH.capture( $ret ); ' . ('return $MATCH;' . ('};' . ('1' . '}'))))))))))) }
+package Rule::Block; sub new { shift; bless { @_ }, "Rule::Block" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('(?{ ' . ('my $ret = ( sub {' . ('do {' . ($self->{closure} . ('}; ' . ('\'974^213\' } ).();' . ('if $ret ne \'974^213\' {' . ('$MATCH.capture( $ret ); ' . ('return $MATCH;' . ('};' . ('1' . ' })'))))))))))) }
 ;
 package Rule::InterpolateVar; sub new { shift; bless { @_ }, "Rule::InterpolateVar" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; Main::say(('# TODO: interpolate var ' . ($self->{var}->emit_perl5() . ''))); die() }
 ;
 package Rule::NamedCapture; sub new { shift; bless { @_ }, "Rule::NamedCapture" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; Main::say(('# TODO: named capture ' . ($self->{ident} . (' := ' . ($self->{rule}->emit_perl5() . ''))))); die() }
 ;
-package Rule::Before; sub new { shift; bless { @_ }, "Rule::Before" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('do { ' . ('my $tmp := $MATCH; ' . ('$MATCH := ::KindaPerl6::Perl5::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' . ('$MATCH.bool( ' . ($self->{rule}->emit_perl5() . ('); ' . ('$tmp.bool( ?$MATCH ); ' . ('$MATCH := $tmp; ' . ('?$MATCH; ' . '}'))))))))) }
+package Rule::Before; sub new { shift; bless { @_ }, "Rule::Before" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('(?=' . ($self->{rule}->emit_perl5() . ')')) }
 ;
-package Rule::NotBefore; sub new { shift; bless { @_ }, "Rule::NotBefore" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('do { ' . ('my $tmp := $MATCH; ' . ('$MATCH := ::KindaPerl6::Perl5::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' . ('$MATCH.bool( ' . ($self->{rule}->emit_perl5() . ('); ' . ('$tmp.bool( !$MATCH ); ' . ('$MATCH := $tmp; ' . ('?$MATCH; ' . '}'))))))))) }
+package Rule::NotBefore; sub new { shift; bless { @_ }, "Rule::NotBefore" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('(?!' . ($self->{rule}->emit_perl5() . ')')) }
 ;
 package Rule::NegateCharClass; sub new { shift; bless { @_ }, "Rule::NegateCharClass" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; Main::say('TODO NegateCharClass'); die() }
 ;
