@@ -24,7 +24,7 @@ use Data::Dumper;
 use Symbol 'qualify_to_ref';
 use Digest::MD5 'md5_hex';
 
-our $NoCache = 0;
+our $NoCache = 0; # Depresses any caching if set to true
 
 my $cache;
 eval {
@@ -309,6 +309,59 @@ be assumed.
 
 Return a string holding the Perl 5 code for reconstructing
 the current L<Pugs::Compiler::Regex> object.
+
+=item C<< $regex->code() >>
+
+Returns a closure (or an anonymous sub) which does the actual
+matching task. For example:
+
+  $regex = Pugs::Compiler::Regex->compile('a|b', { ratchet => 1 });
+  my $sub = $regex->code();
+  my $match = $sub->('MyGrammar', 'aaa');
+
+Or inserts the sub into the current package:
+
+  package Foo;
+  $regex = Pugs::Compiler::Regex->compile('a*');
+  *match = $regex->code();
+  my $match = __PACKAGE__->match('aaa');
+
+=item C<< $regex->install($name, @args_for_compile) >>
+
+Installs the subroutine returned from the C<code> method as
+a named subroutine using the name specified by C<$name>;
+
+If C<$name> is fully qualified, then the corresponding
+package is used, otherwise the current package is assumed.
+
+C<@args_for_compile> are those arguments fed into the C<compile>
+method.
+
+It will croak if there's already a sub with the same name
+exists. If that's not what you want, use the C<reinstall>
+method instead.
+
+Here are some examples:
+
+  package Bar;
+  Pugs::Compiler::Regex->install('match', 'a*', {ratchet => 1});
+  $match = Bar->match('aaa');
+
+  # The following line dies with the message
+  # "Can't install regex 'match' as 'Bar::match' which already
+  # exists":
+  Pugs::Compiler::Regex->install('match', 'b*');
+
+=item C<< $regex->reinstall($name, @args_for_compile) >>
+
+Like the C<install> method but it can replaces the named sub
+if it already exists:
+
+  package Bar;
+  Pugs::Compiler::Regex->install('match', 'a*', {ratchet => 1});
+  Pugs::Compiler::Regex->reinstall('match', 'b*');
+  };
+  $match = Bar->match('bbb'); # matched here
 
 =back
 
