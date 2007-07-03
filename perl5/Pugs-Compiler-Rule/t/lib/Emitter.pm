@@ -70,7 +70,9 @@ sub run_tests () {
 
 END {
     (my $script = $0) =~ s{.*[/\\]}{}g;
-    open my $out, "> $script" or die $!;
+    $script = "t/${script}_";
+    open my $out, "> $script" or
+        die "Can't open $script for writing: $!";
     print $out <<"_EOC_";
 use t::lib::Emitter;
 

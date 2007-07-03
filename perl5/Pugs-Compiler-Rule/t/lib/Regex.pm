@@ -73,29 +73,7 @@ sub run_test ($) {
             # $unmatch =:= $unmatch1
             $unmatch = $m if $i == 1;
 
-            ok $m ? 0 : 1, "$t::BloackName - unmatchsub parse_str_list ($) {
-    local $_ = shift;
-    my @token;
-    while (1) {
-        /\G \s+ /gcmsx;
-        if (/\G ' ( \\. | [^\\'] )*? ' /gcmsx) {
-            push @token, eval $&;
-            if ($@) { die "ERROR: $BlockName - invalid single-quotes: $&\n"; }
-        }
-        elsif (/\G " ( \\. | [^\\'] )*? " /gcmsx) {
-            push @token, eval $&;
-            if ($@) { die "ERROR: $BlockName - invalid double-quotes: $&\n"; }
-        }
-        elsif (/\G\S+/gcms) {
-            push @token, $&;
-        } else {
-            last;
-        }
-    }
-    wantarray ? @token : $token[0];
-}
-
- - $pattern <=> $str";
+            ok $m ? 0 : 1, "$t::BloackName - unmatch - $pattern <=> $str";
         } continue {
             $i++;
         }
