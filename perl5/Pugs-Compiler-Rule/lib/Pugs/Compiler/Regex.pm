@@ -5,6 +5,7 @@ package Pugs::Compiler::Regex;
 use 5.006;
 use strict;
 use warnings;
+use Carp qw(croak);
 
 use Pugs::Grammar::Rule;
 use Pugs::Compiler::RegexPerl5;
@@ -54,23 +55,31 @@ sub compile {
                         'Pugs::Grammar::Base';
     $self->{ratchet}  = delete $param->{ratchet}  ||
                         0;
+
     $self->{p}        = delete $param->{pos}      ||
                         delete $param->{p};
                         # default = undef;
     delete $param->{p};
+
     $self->{sigspace} = delete $param->{sigspace} ||
                         delete $param->{s}        ||
                         0;
+    delete $param->{s};
+
     $self->{continue} = delete $param->{continue} ||
                         delete $param->{c}        ||
                         0;
-    $self->{ignorecase} = delete $param->{ignorecase} ||
-                        delete $param->{i}        ||
-                        0;
-    delete $param->{s};
+    delete $param->{c};
 
-    warn "Error in rule: unknown parameter '$_'"
+    $self->{ignorecase} = delete $param->{ignorecase} ||
+                          delete $param->{i}        ||
+                          0;
+    delete $param->{i};
+
+    my $error;
+    $error .= "Error in rule: unknown parameter '$_'"
         for keys %$param;
+    croak $error if %$param;
 
     my $digest = md5_hex(Dumper($self));
     my $cached;
