@@ -70,7 +70,7 @@ sub run_tests () {
 
 END {
     (my $script = $0) =~ s{.*[/\\]}{}g;
-    $script = "t/${script}_";
+    $script = "t/emitter/${script}_";
     open my $out, "> $script" or
         die "Can't open $script for writing: $!";
     print $out <<"_EOC_";
