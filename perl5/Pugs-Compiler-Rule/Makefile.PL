@@ -28,7 +28,17 @@ requires('PadWalker' => '1.0');
 requires('Cache::Cache' => '1.05');
 recommends('YAML::Syck' => '0.60');
 
-use_test_base();
+eval "use_test_base();";
+if ($@) {
+    my $error = $@;
+    eval 'use Test::Base 0.53;';
+    if ($@) {
+        die "Test::Base 0.53 is required on the developer side: $error";
+    } else {
+        die $error;
+    }
+}
+
 tests('t/*.t t/*/*.t');
 
 WriteAll();
