@@ -1,11 +1,12 @@
 package Pugs::Compiler::Regex;
 
+#use Smart::Comments;
+
 # Version in Pugs::Compiler::Rule
 # Documentation in the __END__
 use 5.006;
 use strict;
 use warnings;
-use Carp qw(croak);
 
 use Pugs::Grammar::Rule;
 use Pugs::Compiler::RegexPerl5;
@@ -85,16 +86,17 @@ sub compile {
     my $cached;
 
     if (!$NoCache && $cache && ($cached = $cache->get($digest))) {
-        #warn "USING CACHED RULE\n";
+        ### using cached rule...
         $self->{perl5} = $cached;
     }
     else {
-        #warn "COMPILING RULE\n";
+        ### compiling rule...
 
         #print 'rule source: ', $self->{source}, "\n";
         #print "match: ", Dumper( Pugs::Grammar::Rule->rule( $self->{source} ) );
         my $ast = Pugs::Grammar::Rule->rule(
             $self->{source} )->();
+        ### rule AST: $ast
 
         # save the ast for debugging
         $self->{ast} = $ast;
@@ -238,7 +240,7 @@ sub install {
   my $rule = index($name, '::') > -1 ? $name : scalar(caller)."::$name";
   my $slot = qualify_to_ref($rule);
 
-  croak "Can't install regex '$name' as '$rule' already exists"
+  croak "Can't install regex '$name' as '$rule' which already exists"
     if *$slot{CODE};
 
   *$slot = $class->compile(@etc)->code;
@@ -278,6 +280,49 @@ Pugs::Compiler::Regex - Compiler for Perl 6 Regex
 
 This module provides an implementation for Perl 6 Regex.
 See L<Pugs::Compiler::Rule> for documentation.
+
+=head1 METHODS
+
+=over
+
+=item C<< $regex = Pugs::Compiler::Regex->compile($str, $params); >>
+
+This method acts like a constructor, which returns a
+L<Pugs::Compiler::Regex> object from the p6 regex
+specified in C<$str>.
+
+C<$params> is an optional argument which specifies the
+following p6 regex modifiers:
+
+ ratchet
+ pos (or p)
+ sigspace (or s)
+ continue (or c)
+ grammar
+
+if C<grammar> is not specified, then C<"Pugs::Grammar::Base"> will
+be assumed.
+
+=item C<< $regex->perl5() >>
+
+=item C<< $regex->perl() >>
+
+Return a string holding the Perl 5 code for reconstructing
+the current L<Pugs::Compiler::Regex> object.
+
+=back
+
+=head PACKAGE VARIABLES
+
+=over
+
+=item C<< $Pugs::Compiler::Regex::NoCache >>
+
+By default, the C<compile> method will cache the compiled
+form (p5 source) of the p6 regex. The C<NoCache> variable
+prevents any caching.
+
+=back
 
 =head1 AUTHORS
 
