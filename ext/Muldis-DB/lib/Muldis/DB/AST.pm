@@ -1932,19 +1932,10 @@ system) / virtual machine is called B<Muldis D>; see
 L<Muldis::DB::Language> for the language's human readable authoritative
 design document.
 
-Muldis D has 3 closely corresponding main representation formats, which are
-catalog relations (what routines inside the DBMS see), hierarchical AST
-(abstract syntax tree) nodes (what the application driving the DBMS
-typically sees), and string-form Muldis D code that users interacting with
-Muldis::DB via a shell interface would use.  The string-form would be
-parsed into the AST, and the AST be flattened into the relations;
-similarly, the relations can be unflattened into the AST, and string-form
-code be generated from the AST if desired.
-
 This library, Muldis::DB::AST ("AST"), provides a few dozen container
-classes which collectively implement the AST representation format of
-Muldis D; each class is called an I<AST node type> or I<node type>, and an
-object of one of these classes is called an I<AST node> or I<node>.
+classes which collectively implement the I<Abstract> representation format
+of Muldis D; each class is called an I<AST node type> or I<node type>, and
+an object of one of these classes is called an I<AST node> or I<node>.
 
 These are all of the roles and classes that Muldis::DB::AST defines (more
 will be added in the future), which are visually arranged here in their

@@ -383,8 +383,8 @@ entirety of each relation's boolean expression with an C<or>, and then
 eliminating redundancies from the result.
 
 A full list of all the relational operators having more formal (but Muldis
-D specific) descriptions occurs further below in this document; that list
-does I<not> use the aforementioned boolean analogies.
+D specific) descriptions occurs in the L<Muldis::DB::Language::Core>
+document; that list does I<not> use the aforementioned boolean analogies.
 
 =head1 MULDIS D
 
@@ -434,6 +434,45 @@ them time.  In short, this system improves everyone's lives.
 
 What users fundamentally write are Muldis D "routines", each consisting of
 one or more "statements", and in executing these, all work is done.
+
+=head2 Representation
+
+Muldis D has 2 closely corresponding main representation formats, which are
+called I<Concrete Muldis D> and I<Abstract Muldis D>; these are analogous
+to the natural code strings of a typical programming language, and the
+abstract syntax trees that they naturally parse into, respectively.
+
+Concrete Muldis D is the natural form that one would code in if they were
+writing a self-contained application (or component) in Muldis D which was
+compiled using a separate process into its own executable (or library),
+which includes situations where Muldis D is its own
+L<Parrot|http://www.parrotcode.org/>-hosted language (a prospect which is
+desired to be implemented in the near future).  Concrete Muldis D would
+also be used by an interactive shell interface over Muldis::DB, when users
+submit commands at runtime, or in any other situation where it makes sense
+to take input in that form.
+
+Abstract Muldis D is the natural form that one would code in if they were
+primarily writing their application in a separate host language, such as
+Perl, and any Muldis D code was being specified in terms of host language
+code, such as Perl objects of Muldis::AST classes.  Abstract Muldis D code
+consists of quasi-hierarchical but actually relational collection values,
+typically catalog tuples.  Abstract Muldis D is the only representation
+format used by the API of L<Muldis::DB> itself, and is what any Perl code
+typically should be using.  When generating Muldis D code from arbitrary
+Perl data structures (which includes the work of, eg, SQL DBMS emulators),
+the Abstract form is the easiest to use and the least error prone since no
+values have to be escaped or stitched together as strings, which prevents
+many injection security holes.  Abstract Muldis D is also what is used when
+Muldis D code is defined to generate/prepare and execute other Muldis D
+code at runtime (by reading or updating the meta-model / system catalog),
+which is "data definition".
+
+See L<Muldis::DB::Language::Catalog> first for details of the Muldis D
+meta-model, which is also the grammar of Abstract Muldis D; see
+L<Muldis::DB::Language::Grammar> for the grammar of Concrete Muldis D; the
+latter document says how to parse Concrete Muldis D into Abstract Muldis D;
+the former document explains the meaning of both in terms of the Abstract.
 
 =head1 TYPE SYSTEM
 
@@ -1168,17 +1207,6 @@ feature has to be thought out more.>
 
 I<This documentation is pending.>
 
-=head1 SYSTEM-DEFINED DATA TYPES AND ROUTINES
-
-These data types and routines are built-in to Muldis D and should be
-available under all of its implementations.  They are available for the
-entire time that a DBMS is active and can be used by both persistent and
-temporary user-defined entities.
-
-Details are in these other documents: L<Muldis::DB::Language::Core>,
-L<Muldis::DB::Language::Ext::Num>, L<Muldis::DB::Language::Ext::Temporal>,
-L<Muldis::DB::Language::Ext::Spatial>.
-
 =head1 ENTITY NAMES
 
 All entities that exist at some given time within a DBMS environment can be
@@ -1336,13 +1364,6 @@ single C<nat.cat.*> and C<< foreign.<depot>.cat >> pair.
 =back
 
 I<This documentation is pending.>
-
-=head1 CATALOGS
-
-The Muldis::DB catalog relcons and relvars collectively reflect and/or
-control all entities in a DBMS.
-
-Details are in these other documents: L<Muldis::DB::Language::Catalog>.
 
 =head1 SEE ALSO
 
