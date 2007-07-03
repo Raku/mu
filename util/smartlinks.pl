@@ -68,7 +68,7 @@ if (window.addEventListener) {
       // assign a global event handler to do all the work
       element['on' + type] = handleEvent;
     }
-    
+
     // store the event handler in the hash table
     handlers[handler.$$guid] = handler;
   }
@@ -88,9 +88,9 @@ function removeEvent(element, type, handler) {
 function handleEvent(event) {
   // grab the event object (IE uses a global event object)
   event = event || fixEvent(window.event);
-  
+
   var returnValue = true;
-  
+
   // get a reference to the hash table of event handlers
   var handlers = this.events[event.type];
 
@@ -133,14 +133,14 @@ $javascript .= <<'_EOC_';
 function toggle_snippet (e) {
   var matches = this.id.match(/smartlink_toggle(\d+)/);
   var num = matches[1];
-  
+
   var id = 'smartlink_' + num;
   var div = document.getElementById(id);
   div.style.display = (div.style.display == 'none') ? '' : 'none';
-  
+
   var text = this.firstChild;
   text.nodeValue = text.nodeValue.replace(/^- (Show|Hide)/, function (full, p1) { return "- " + ((p1 == 'Show') ? 'Hide' : 'Show') }); // this may be unnecessarily complicated, or it may not.  you get to decide. :-)
-  
+
   e.stopPropagation();
   e.preventDefault();
 
@@ -161,7 +161,7 @@ function collectionToArray(col) {
 
 addEvent(window, 'load', function () {
   var divs = collectionToArray(document.getElementsByTagName('div'));
-  
+
   for (var i = 0, j = divs.length; i < j; i++) {
     var curr = divs[i];
     if (curr.id && curr.id.match(/smartlink_(\d+)/)) {
@@ -175,28 +175,28 @@ addEvent(window, 'load', function () {
       }
 
       var p = curr.previousSibling;
-      
+
       while (p.nodeType != 1) { p = p.previousSibling; } // ignore any whitespace-only nodes
-      
+
       var text = p.firstChild;
       text.nodeValue = text.nodeValue.replace(/^From/, '- Show');
-      
+
       var link = document.createElement('a');
-      
+
       var child;
       while (child = p.firstChild) {
         link.appendChild(child);
       }
-      
+
       var end = link.lastChild;
       if ((end.nodeType == 3) && (end.nodeValue.search(/:$/) > -1)) {
         end.nodeValue = end.nodeValue.replace(/:$/, ' -');
       }
-      
+
       link.href = '#';
       link.id = 'smartlink_toggle' + num;
       addEvent(link, 'click', toggle_snippet);
-      
+
       p.appendChild(link);
       curr.parentNode.insertBefore(p, curr);
       curr.style.display = 'none';
@@ -612,6 +612,7 @@ sub process_syn ($$$$) {
 
     # S26 is in Pod6, we treat it specifically for now.
     if ($syn_id == 26) {
+      return if $check;
       eval "use Perl6::Perldoc 0.000005; use Perl6::Perldoc::Parser; use Perl6::Perldoc::To::Xhtml;";
       if ($@) {
           warn "Please install Perl6::Perldoc v0.0.5 from the CPAN to parse S26";
