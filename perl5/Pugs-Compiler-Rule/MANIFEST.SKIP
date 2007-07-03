@@ -30,3 +30,4 @@ t/zz.*
 test\.[co]
 benchmarks/.*
 \.svn
+\.t_$
