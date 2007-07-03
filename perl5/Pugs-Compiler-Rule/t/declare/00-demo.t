@@ -1,6 +1,6 @@
 # Demonstrates the usage of t::Regex and also tests the tester
 
-use t::Regex tests => 45;
+use t::lib::Regex tests => 45;
 
 run_tests();
 

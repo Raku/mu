@@ -1,14 +1,14 @@
-package t::Regex;
+package t::lib::Regex;
 
 #use Smart::Comments;
 use Test::Base -Base;
+use t::lib::Util;
+
 use Pugs::Compiler::Regex;
 use Pugs::Compiler::Token;
 use Pugs::Grammar::Base;
 
 our @EXPORT = qw( run_test run_tests );
-
-my $BlockName;
 
 sub parse_str_list ($);
 sub parse_res_section ($);
@@ -16,7 +16,7 @@ sub parse_p6_var ($);
 
 sub run_test ($) {
     my $block = shift;
-    $BlockName = $block->name;
+    $t::BloackName = $block->name;
     my ($pattern, $rule);
     if (defined $block->regex) {
         my $regex = $pattern = parse_str_list($block->regex);
@@ -27,7 +27,7 @@ sub run_test ($) {
         my $token = $pattern = parse_str_list($block->token);
         $rule = Pugs::Compiler::Token->compile($token);
     } else {
-        die "ERROR: $BlockName: neither --- regex nor --- token specified.\n";
+        die "ERROR: $t::BloackName: neither --- regex nor --- token specified.\n";
     }
     if (defined $block->match) {
         my $match;
@@ -42,7 +42,7 @@ sub run_test ($) {
             # $match =:= $match1
             my $match = $m if $i == 1;
 
-            ok $m ? 1 : 0, "$BlockName - match $i - $pattern <=> '$str'";
+            ok $m ? 1 : 0, "$t::BloackName - match $i - $pattern <=> '$str'";
 
             my $meth = "res".$i;
             ### $meth
@@ -55,7 +55,7 @@ sub run_test ($) {
                     my $p5_var = $res->[0];
                     ### $p5_var
                     my $got = eval $p5_var;
-                    is $got, $res->[1], "$BlockName - match $i - res $res->[2]";
+                    is $got, $res->[1], "$t::BloackName - match $i - res $res->[2]";
                 }
             }
         } continue {
@@ -73,20 +73,7 @@ sub run_test ($) {
             # $unmatch =:= $unmatch1
             $unmatch = $m if $i == 1;
 
-            ok $m ? 0 : 1, "$BlockName - unmatch - $pattern <=> $str";
-        } continue {
-            $i++;
-        }
-    }
-}
-
-sub run_tests () {
-    for my $block (blocks()) {
-        run_test($block);
-    }
-}
-
-sub parse_str_list ($) {
+            ok $m ? 0 : 1, "$t::BloackName - unmatchsub parse_str_list ($) {
     local $_ = shift;
     my @token;
     while (1) {
@@ -108,6 +95,19 @@ sub parse_str_list ($) {
     wantarray ? @token : $token[0];
 }
 
+ - $pattern <=> $str";
+        } continue {
+            $i++;
+        }
+    }
+}
+
+sub run_tests () {
+    for my $block (blocks()) {
+        run_test($block);
+    }
+}
+
 sub parse_res_section ($) {
     my $str = shift;
     open my $in, '<', \$str or
@@ -122,7 +122,7 @@ sub parse_res_section ($) {
             $value = parse_str_list($value);
             push @res, [$var => $value => $_];
         } else {
-            die "ERROR: $BlockName: syntax error in '--- res': $_";
+            die "ERROR: $t::BloackName: syntax error in '--- res': $_";
         }
     }
     close $in;
@@ -151,7 +151,7 @@ sub parse_p6_var ($) {
         push @token, "\$m->{$1}";
     }
     if (!@token) {
-        die "ERROR: $BlockName - invalid p6 var name: $var (near the beginning)\n";
+        die "ERROR: $t::BloackName - invalid p6 var name: $var (near the beginning)\n";
     }
     while (1) {
         if (/ \G \.? ( \[ \s* \d+ \s* \] ) /gcx) { # .[i]
@@ -167,7 +167,7 @@ sub parse_p6_var ($) {
             push @token, $1;
         }
         elsif (/ \G\S+/gc) {
-            die "ERROR: $BlockName - res - invalid p6 var name: $var (near $&)\n";
+            die "ERROR: $t::BloackName - res - invalid p6 var name: $var (near $&)\n";
         }
         else {
             last;
