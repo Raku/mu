@@ -149,7 +149,7 @@ token named_capture_body {
     | \<  <parse_metasyntax>  { return $$<parse_metasyntax> } 
     | \'  <?literal>    \'
         { return { metasyntax => { metasyntax => ~ $$/ ,} } }
-    | { die "invalid alias syntax" }
+    | { die "invalid alias syntax"; return undef; }
 }
 
 token parse_metasyntax {
