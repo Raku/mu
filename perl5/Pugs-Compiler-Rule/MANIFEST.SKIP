@@ -8,10 +8,14 @@ compile_p6grammar.pl
 grammar.pl
 benchmark.pl
 t6/iterator_engine.pl
+lib/pcr.txt
+lib/print.sh
+tmp.txt
 
 ^blib/
 ^Makefile$
 ^Makefile\.[a-z]+$
+\.swp$
 ^pm_to_blib$
 CVS/.*
 ,v$

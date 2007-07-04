@@ -1,4 +1,5 @@
 00-ratche.t
+\
 ChangeLog
 inc/Module/Install.pm
 inc/Module/Install/Base.pm
@@ -46,6 +47,7 @@ README
 t/01-iterator_engine.t
 t/02-grammar.t
 t/03-match.t
+t/04-compiler-regex.t
 t/04-rule.t
 t/05-var.t
 t/06-subrule.t
@@ -58,8 +60,10 @@ t/12-plain_regex.t
 t/13-char_classes.t
 t/14-mini_perl6.t
 t/15-STD.t
+t/16-misc.t
 t/declare/00-demo.t
 t/emitter/00-ratche.t
+t/emitter/00-ratchet.t
 t/lib/Emitter.pm
 t/lib/Regex.pm
 t/lib/Util.pm
