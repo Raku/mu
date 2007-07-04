@@ -1,0 +1,30 @@
+#!/bin/sh
+
+# Update lib/Pugs/Grammar/Rule.pmc using lib/Pugs/Grammar/Rule2.pm
+
+mkdir -p tmp
+
+echo "Generating lib/Pug/Grammar/Rule2.pmc..."
+rm lib/Pugs/Grammar/Rule2.pmc
+perl lib/Pugs/Grammar/Rule2.pm
+
+echo "Generating tmp/Rule.pmc..."
+perl util/gen-rule-pmc.pl lib/Pugs/Grammar/Rule2.pmc > tmp/Rule.pmc
+
+echo "Validating tmp/Rule.pmc..."
+perl -Ilib tmp/Rule.pmc
+
+sed s/$pad{I[0-9][0-9]*}/$pad{Ixxxx}/ tmp/Rule.pmc > tmp/tmp
+sed s/$I[0-9][0-9]*/$Ixxxx/ tmp/tmp > tmp/new
+
+sed s/$pad{I[0-9][0-9]*}/$pad{Ixxxx}/ lib/Pugs/Grammar/Rule.pmc > tmp/tmp
+sed s/$I[0-9][0-9]*/$Ixxxx/ tmp/tmp > tmp/old
+
+rm tmp/tmp
+
+echo "Diff is in tmp/pmc.diff"
+diff -uTb tmp/old tmp/new > tmp/pmc.diff
+
+echo "# cp tmp/Rule.pmc lib/Pugs/Grammar/Rule.pmc"
+
+
