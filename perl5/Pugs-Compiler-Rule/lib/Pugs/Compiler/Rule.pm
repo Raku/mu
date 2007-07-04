@@ -125,6 +125,10 @@ subclass of L<Pugs::Compiler::Regex> and thus owns
 all the methods of its base class. See
 L<Pugs::Compiler::Regex> for the detailed docs.
 
+=over
+
+=item C<< $rule = Pugs::Compiler::Rule->compile($p6_regex, $params) >>
+
 Specifically, this class overrides the C<compile>
 method of L<Pugs::Compiler::Regex> which resets
 the following options' default values:
@@ -152,6 +156,8 @@ Here is an example:
     my $match = $rule->match('a     b');
     ok $match->bool, 'sigspace works';
     is $match->(), 'a     b', 'sigspace works (2)';
+
+=back
 
 =back
 

@@ -2,7 +2,7 @@ use strict;
 use warnings;
 
 #use Smart::Comments;
-use Test::More tests => 28;
+use Test::More 'no_plan';
 
 use Pugs::Compiler::Regex;
 
@@ -164,6 +164,19 @@ TODO: {
     #}
     package main;
     is join(':', @match), '5:6';
+}
+
+# Test match:
+{
+    my $regex = Pugs::Compiler::Regex->compile(
+        'a*\w',
+    );
+    my $match = $regex->match('aaa');
+    ok $match->bool, 'backtracking works';
+    is $match->(), 'aaa';
+    is "$match", 'aaa';
+    is $match->from, 0;
+    is $match->to, 3;
 }
 
 # Test the :pos modifier

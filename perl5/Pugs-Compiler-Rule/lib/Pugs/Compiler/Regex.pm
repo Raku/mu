@@ -381,7 +381,13 @@ a thin wrapper around the p5 code compiled from the p6
 regex with run-time modifier handling via the C<$params>
 argument.
 
- XXX examples
+Here is an example:
+
+    $regex = Pugs::Compiler::regex->compile('a*\w');
+    my $match = $regex->match('aaa');
+    print "Capture: $match";
+    print "From: ", $match->from;
+    print "To: ", $match->to;
 
 =item C<< $regex->code() >>
 

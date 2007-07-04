@@ -42,6 +42,7 @@ MANIFEST
 MANIFEST.SKIP
 META.yml
 README
+t/00-pod-coverage.t
 t/00-pod.t
 t/01-iterator_engine.t
 t/02-grammar.t
