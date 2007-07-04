@@ -275,10 +275,38 @@ __END__
 
 Pugs::Compiler::Regex - Compiler for Perl 6 Regex
 
+=head1 SYNOPSIS
+
+    use Pugs::Compiler::Regex;
+    use Pugs::Runtime::Match;
+
+    $regex = Pugs::Compiler::Regex->compile('a*b');
+    $match = $regex->match('aaab');
+    print $match->(), "\n";
+    print $match->from, "\n";
+    print $match->to, "\n";
+
+    package MyGrammar;
+    $regex = Pugs::Compiler::Regex->compile(
+        'a*', { ratchet => 1, continue => 1, sigspace => 1 }
+    );
+    *my_match = $regex->code();
+    $match = MyGrammar->my_match('aaaa');
+    print "$match\n";
+
+    package MyGrammar2;
+    $regex = Pugs::Compiler::Regex->install(
+        my_match => 'a*',
+        { ratchet => 1, continue => 1, sigspace => 1 }
+    );
+    $match = MyGrammar->my_match('aaaa');
+    print "$match\n";
+
 =head1 DESCRIPTION
 
-This module provides an implementation for Perl 6 Regex.
-See L<Pugs::Compiler::Rule> for documentation.
+This class provides an implementation for Perl 6 regexes.
+It serves as a base class for L<Pugs::Compiler::Rule> and
+L<Pugs::Compiler::Token>.
 
 =head1 METHODS
 
