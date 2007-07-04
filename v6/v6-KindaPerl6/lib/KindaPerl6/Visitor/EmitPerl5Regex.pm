@@ -46,22 +46,6 @@ class Token {
     }
 }
 
-class Rule {
-
-    # general-use subroutines
-    # XXX - cleanup if possible
-    
-    sub constant ( $str ) {
-            if $str eq '\\' {
-                return '\\\\';
-            };
-            if $str eq '\'' {
-                return '\\\'';
-            };
-            $str;
-    }
-}
-
 class Rule::Quantifier {
     method emit_perl5 {
         # TODO
@@ -123,7 +107,13 @@ class Rule::Var {
 class Rule::Constant {
     method emit_perl5 {
         my $str := $.constant; 
-        Rule::constant( $str );
+        if $str eq '\\' {
+            return '\\\\';
+        };
+        if $str eq '\'' {
+            return '\\\'';
+        };
+        $str;
     }
 }
 
@@ -138,43 +128,18 @@ class Rule::SpecialChar {
         my $char := $.char;
         #say 'CHAR ',$char;
         if $char eq 'n' {
-            my $rul := ::Rule::SubruleNoCapture( 'metasyntax' => 'newline' );
-            $rul := $rul.emit_perl5;
-            #say 'NEWLINE ', $rul;
-            return $rul;
-            # Rule::perl5( '(?:\n\r?|\r\n?)' )
+            return '(?:\n\r?|\r\n?)';
         };
         if $char eq 'N' {
-            my $rul := ::Rule::SubruleNoCapture( 'metasyntax' => 'not_newline' );
-            $rul := $rul.emit_perl5;
-            return $rul;
-            # Rule::perl5( '(?!\n\r?|\r\n?).' )
+            return '(?:(?!\n\r?|\r\n?)\X)';
         };
-        if $char eq 'd' {
-            my $rul := ::Rule::SubruleNoCapture( 'metasyntax' => 'digit' );
-            $rul := $rul.emit_perl5;
-            return $rul;
+        if $char eq '\\' {
+            return '\\\\';
         };
-        if $char eq 's' {
-            my $rul := ::Rule::SubruleNoCapture( 'metasyntax' => 'space' );
-            $rul := $rul.emit_perl5;
-            return $rul;
+        if $char eq '\'' {
+            return '\\\'';
         };
-        # TODO
-        #for ['r','n','t','e','f','w','d','s'] {
-        #  if $char eq $_ {
-        #      return Rule::perl5(   '\\$_'  );
-        #  }
-        #};
-        #for ['R','N','T','E','F','W','D','S'] {
-        #  if $char eq $_ {
-        #      return Rule::perl5( '[^\\$_]' );
-        #  }
-        #};
-        #if $char eq '\\' {
-        #  $char := '\\\\' 
-        #};
-        return Rule::constant( $char );
+        return '\\' ~ $char;  # ???
     }
 }
 
@@ -203,35 +168,6 @@ class Rule::InterpolateVar {
         say '# TODO: interpolate var ' ~ $.var.emit_perl5 ~ '';
         die();
     };
-#        my $var = $.var;
-#        # if $var.sigil eq '%'    # bug - Moose? no method 'sigil'
-#        {
-#            my $hash := $var;
-#            $hash := $hash.emit_perl5;
-#           'do {
-#                state @sizes := do {
-#                    # Here we use .chr to avoid sorting with {$^a<=>$^b} since
-#                    # sort is by default lexographical.
-#                    my %sizes := '~$hash~'.keys.map:{ chr(chars($_)) => 1 };
-#                    [ %sizes.keys.sort.reverse ];
-#                };
-#                my $match := 0;
-#                my $key;
-#                for @sizes {
-#                    $key := ( $MATCH.to <= chars( $s ) ?? substr( $s, $MATCH.to, $_ ) !! \'\' );
-#                    if ( '~$hash~'.exists( $key ) ) {
-#                        $match = $grammar.'~$hash~'{$key}.( $str, { pos => ( $_ + $MATCH.to ), KEY => $key });
-#                        last if $match;
-#                    }
-#                }
-#                if ( $match ) {
-#                    $MATCH.to: $match.to;
-#                    $match.bool: 1;
-#                }; 
-#                $match;
-#            }';
-#        }
-#    }
 }
 
 class Rule::NamedCapture {
@@ -258,10 +194,6 @@ class Rule::NegateCharClass {
     method emit_perl5 {
         say "TODO NegateCharClass";
         die();
-    #    'do { ' ~
-    #      'my $m2 := $grammar.negated_char_class($str, $MATCH.to, \'' ~ $.chars ~ '\'); ' ~
-    #      'if $m2 { 1 + $MATCH.to( $m2.to ) } else { 0 } ' ~
-    #    '}'
     }
 }
 
@@ -270,10 +202,6 @@ class Rule::CharClass {
     method emit_perl5 {
         say "TODO CharClass";
         die();
-    #    'do { ' ~
-    #      'my $m2 := $grammar.char_class($str, $MATCH.to, \'' ~ $.chars ~ '\'); ' ~
-    #      'if $m2 { 1 + $MATCH.to( $m2.to ) } else { 0 } ' ~
-    #    '}'
     }
 }
 
