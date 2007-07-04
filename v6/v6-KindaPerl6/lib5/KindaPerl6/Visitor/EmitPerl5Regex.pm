@@ -7,7 +7,7 @@ package KindaPerl6::Visitor::EmitPerl5Regex; sub new { shift; bless { @_ }, "Kin
 ;
 package Token; sub new { shift; bless { @_ }, "Token" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $regex_source = $self->{regex}->emit_perl5(); my  $source = ('use vars qw($_rule_' . ($self->{name} . ('); ' . ('$_rule_' . ($self->{name} . (' = qr/' . ('(?{ ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; ' . ('$GLOBAL::_M2 = $GLOBAL::_M; ' . ('})' . ($regex_source . ('(?{ ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; ' . ('$GLOBAL::_M2 = $GLOBAL::_M; ' . ('})' . ('/x; ' . ('sub ' . ($self->{name} . (' { ' . ('local $GLOBAL::_Class = shift; ' . ('/$_rule_' . ($self->{name} . ('/; ' . '}; '))))))))))))))))))))))); return($source) }
 ;
-package Rule::Quantifier; sub new { shift; bless { @_ }, "Rule::Quantifier" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; $self->{term}->emit_perl5() }
+package Rule::Quantifier; sub new { shift; bless { @_ }, "Rule::Quantifier" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ($self->{term}->emit_perl5() . ($self->{quant} . $self->{greedy})) }
 ;
 package Rule::Or; sub new { shift; bless { @_ }, "Rule::Or" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('(?:' . (Main::join([ map { $_->emit_perl5() } @{ $self->{or} } ], '|') . ')')) }
 ;

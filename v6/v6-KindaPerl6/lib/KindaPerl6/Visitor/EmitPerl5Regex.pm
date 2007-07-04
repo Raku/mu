@@ -9,7 +9,7 @@ use v6-alpha;
     
 class KindaPerl6::Visitor::EmitPerl5Regex {
 
-    # 'EmitPerl5' predefines all nodes, except 'token'
+    # 'EmitPerl5' predefines all nodes, except 'Token'
     use KindaPerl6::Visitor::EmitPerl5;
 
     method visit ( $node ) {
@@ -49,7 +49,7 @@ class Token {
 class Rule::Quantifier {
     method emit_perl5 {
         # TODO
-        $.term.emit_perl5;
+        $.term.emit_perl5 ~ $.quant ~ $.greedy;
     }
 }
 
