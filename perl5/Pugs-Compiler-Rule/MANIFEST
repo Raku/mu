@@ -42,10 +42,12 @@ MANIFEST
 MANIFEST.SKIP
 META.yml
 README
+t/00-pod.t
 t/01-iterator_engine.t
 t/02-grammar.t
 t/03-match.t
 t/04-compiler-regex.t
+t/04-compiler-rule.t
 t/04-rule.t
 t/05-var.t
 t/06-subrule.t

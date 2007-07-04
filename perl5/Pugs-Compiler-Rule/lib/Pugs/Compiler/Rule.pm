@@ -13,10 +13,10 @@ sub compile {
     my ( $class, $rule_source, $param ) = @_;
     $param = ref $param ? { %$param } : {};
     $param->{ratchet} = 1
-        unless defined $param->{ratchet};
+        unless exists $param->{ratchet};
     $param->{sigspace} = 1
-        unless defined $param->{sigspace} ||
-               defined $param->{s};
+        unless exists $param->{sigspace} ||
+               exists $param->{s};
     $class->SUPER::compile( $rule_source, $param );
 }
 
