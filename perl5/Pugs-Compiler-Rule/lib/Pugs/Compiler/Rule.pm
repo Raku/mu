@@ -133,7 +133,25 @@ the following options' default values:
 
 =item C<< ratchet => 1 >>
 
+Here is an example:
+
+    $rule = Pugs::Compiler::Rule->compile(
+        'a*\w',
+    );
+    my $match = $rule->match('aaa');
+    # $match->bool is false since no backtracking
+    # happened
+
 =item C<< sigspace => 1 >>
+
+Here is an example:
+
+    my $rule = Pugs::Compiler::Rule->compile(
+        'a b',
+    );
+    my $match = $rule->match('a     b');
+    ok $match->bool, 'sigspace works';
+    is $match->(), 'a     b', 'sigspace works (2)';
 
 =back
 
