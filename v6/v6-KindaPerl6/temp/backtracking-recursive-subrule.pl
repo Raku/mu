@@ -113,6 +113,7 @@ use strict;
 {
     package MyGrammar;
       
+    #  Perl 6:  regex rule0 { a* }
     our $rule0_qr = qr/
           (?{ 
             local $GLOBAL::_M = [ $GLOBAL::_M, 'create', pos(), \$_ ];
@@ -133,6 +134,7 @@ use strict;
             /$rule0_qr/;
         };
 
+    #  Perl 6:  regex rule1 { <rule0> aaaa }
     our $rule1_qr = qr/
           (?{ 
             local $GLOBAL::_M = [ $GLOBAL::_M, 'create', pos(), \$_ ];
@@ -171,6 +173,7 @@ use strict;
     package MyGrammar2;
     use base 'MyGrammar';
       
+    #  Perl 6:  regex rule0 { b* }
     our $rule0_qr = qr/
           (?{ 
             local $GLOBAL::_M = [ $GLOBAL::_M, 'create', pos(), \$_ ];
@@ -198,6 +201,15 @@ use strict;
     package MyGrammar3;
     use base 'MyGrammar';
       
+    #  Perl 6: 
+    # 
+    #  method rule0 { 
+    #        $/.from = pos();
+    #        $/.to = pos() + 3;
+    #        $/.bool = 1;
+    #        $/.match_str := $_;
+    #  }
+    #
     our $rule0_qr = qr/
           (?{ 
             local $GLOBAL::_M = [ $GLOBAL::_M, 'create', pos(), \$_ ];
@@ -243,6 +255,7 @@ use strict;
     package MyGrammar4;
     use base 'MyGrammar';
       
+    #  Perl 6:  regex rule0 { b <rule0> | <null> }
     our $rule0_qr = qr/
           (?{ 
             local $GLOBAL::_M = [ $GLOBAL::_M, 'create', pos(), \$_ ];
