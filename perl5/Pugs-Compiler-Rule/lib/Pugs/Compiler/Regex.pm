@@ -196,9 +196,12 @@ sub match {
         # XXX BUG! - $rule->{code} disappeared - in t/08-hash.t ???
         unless ( defined $rule->{code} ) {
             local $@;
+            if (!defined $rule->{perl5}) {
+                croak "Error in evaluation: \$rule->{perl5} is missing";
+            }
             $rule->{code} = eval
                 $rule->{perl5};
-            die "Error in evaluation: $@\nSource:\n$rule->{perl5}\n" if $@;
+            croak "Error in evaluation: $@\nSource:\n$rule->{perl5}" if $@;
         }
 
         my %args;
