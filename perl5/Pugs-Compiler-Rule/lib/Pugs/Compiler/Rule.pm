@@ -1,11 +1,9 @@
+use strict;
+use warnings;
+
 package Pugs::Compiler::Rule;
 
 our $VERSION = '0.23';
-
-# Documentation in the __END__
-use 5.006;
-use strict;
-use warnings;
 
 use base 'Pugs::Compiler::Regex';
 
@@ -21,7 +19,6 @@ sub compile {
 }
 
 1;
-
 __END__
 
 =head1 NAME
@@ -62,10 +59,14 @@ Rules may have parameters:
             <subrule: param1, param2>
     });
 
+where C<$grammar> is normally a Perl 5 package.
+
 =head1 DESCRIPTION
 
-This module provides an implementation for Perl 6 Rules.  It is a front-end
-to several other modules:
+This module provides an pure Perl 5 implementation for Perl 6 regexes,
+which does not depend on the Haskell Pugs.
+
+It is a front-end to several other modules:
 
 Front-end Modules
 
@@ -163,15 +164,15 @@ Here is an example:
 
 =head1 CAVEATS
 
-This is an experimental development version.  The API is still in flux.
+This is an experimental development version. The API is still in flux.
 
-The set of implemented features depends on the C<ratchet> switch.
+The set of implemented features depend on the C<ratchet> switch.
 
 =head1 AUTHORS
 
 The Pugs Team C<< <perl6-compiler@perl.org> >>.
 
-Please join us on irc.freenode.net #perl6 if you'd like to participate.
+Please join us on irc.freenode.net C<#perl6> if you'd like to participate.
 
 =head1 SEE ALSO
 
@@ -189,7 +190,7 @@ The Perl 6 Rules Spec: L<http://dev.perl.org/perl6/doc/design/syn/S05.html>
 
 =head1 COPYRIGHT
 
-Copyright 2006 by Flavio Soibelmann Glock and others.
+Copyright 2006, 2007 by Flavio Soibelmann Glock and others.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
@@ -197,3 +198,4 @@ under the same terms as Perl itself.
 See L<http://www.perl.com/perl/misc/Artistic.html>
 
 =cut
+

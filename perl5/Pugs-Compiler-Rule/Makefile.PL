@@ -22,11 +22,12 @@ my $mtime = time;
 utime $mtime, $mtime, $pmc;
 
 name('Pugs-Compiler-Rule');
-all_from('lib/Pugs/Compiler/Rule.pm');
-requires('Parse::Yapp' => '0');
-requires('PadWalker' => '1.0');
-requires('Cache::Cache' => '1.05');
-recommends('YAML::Syck' => '0.60');
+perl_version        ('5.006001');
+all_from            ('lib/Pugs/Compiler/Rule.pm');
+requires            ('Parse::Yapp' => '0');
+requires            ('PadWalker' => '1.0');
+requires            ('Cache::Cache' => '1.05');
+recommends          ('YAML::Syck' => '0.60');
 
 eval "use_test_base();";
 if ($@) {
