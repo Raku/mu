@@ -150,7 +150,7 @@ The regex compiler will use the AST processor engine.
 
 =head3 Status
 
-Some tasks finished.
+* Some tasks finished.
 
 =head3 Dependencies
 
@@ -202,7 +202,7 @@ The regex compiler will use the AST processor engine to implement additional sem
 
 =head3 Status
 
-Not started.
+* Not started.
 
 =head3 Dependencies
 
@@ -245,6 +245,11 @@ These tasks are not required for the successful completion of this phase.
 
 =over
 
+=item * Add support for optionally using Perl6regex-on-Perl5regex, 
+as described in v6/v6-KindaPerl6/temp/backtracking-recursive-subrule.pl
+
+* under way; implemented as Visitor::EmitPerl5Regex
+
 =item * Add support for optionally using Pugs::Compiler::Rule in the Perl 5 backend
 
 =item * Add support for optionally using Parrot Grammar Engine in the Parrot backend
@@ -252,6 +257,7 @@ These tasks are not required for the successful completion of this phase.
 =item * Regex backtracking
 
 Choose one or more backtracking models, and implement them.
+This is specially important for Perl6regex-in-Perl6 (as implemented in Visitor::Token)
 
 =item * Special variables
 
