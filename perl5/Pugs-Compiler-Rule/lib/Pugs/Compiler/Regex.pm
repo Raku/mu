@@ -144,7 +144,6 @@ sub compile {
 sub code {
     my $rule = shift;
     sub {
-        # XXX - inconsistent parameter order - could just use @_, or use named params
         $rule->match( $_[1], $_[0], $_[2], $_[3] );
     }
 }
@@ -222,30 +221,28 @@ sub match {
 }
 
 sub reinstall {
-  my($class, $name, @etc) = @_;
+    _install(0, scalar(caller), @_);
+}
 
-  ## XXX - code duplication with "install" below
-  ## If we have a fully qualified name, use that, otherwise extrapolate.
-  my $rule = index($name, '::') > -1 ? $name : scalar(caller)."::$name";
+sub install {
+    _install(1, scalar(caller), @_);
+}
+
+sub _install {
+  my($check, $caller, $class, $name, @etc) = @_;
+
+  # If we have a fully qualified name, use that, otherwise extrapolate.
+  my $rule = index($name, '::') > -1 ? $name : $caller."::$name";
   my $slot = qualify_to_ref($rule);
+
+  croak "Can't install regex '$name' as '$rule' which already exists"
+    if $check && *$slot{CODE};
 
   eval {
       no warnings 'redefine';
       *$slot = $class->compile(@etc)->code;
-  }; warn $@ if $@;
-}
-
-sub install {
-  my($class, $name, @etc) = @_;
-
-  ## If we have a fully qualified name, use that, otherwise extrapolate.
-  my $rule = index($name, '::') > -1 ? $name : scalar(caller)."::$name";
-  my $slot = qualify_to_ref($rule);
-
-  croak "Can't install regex '$name' as '$rule' which already exists"
-    if *$slot{CODE};
-
-  *$slot = $class->compile(@etc)->code;
+  };
+  warn $@ if $@;
 }
 
 sub _str { defined $_[0] ? $_[0] : 'undef' }
