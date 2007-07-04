@@ -9,6 +9,7 @@ no warnings qw(recursion);
 #use Smart::Comments; #for debugging, look also at Filtered-Comments.pm
 use Data::Dumper;
 use Pugs::Runtime::Match;
+use Carp qw(croak);
 
 # note: alternation is first match (not longest). 
 # note: the list in @$nodes can be modified at runtime
@@ -712,7 +713,7 @@ sub get_variable {
         return ${ $pad->{$name} } if $name =~ /^\$/;
         return $pad->{$name};  # arrayref/hashref
     }
-    die "Couldn't find '$name' in surrounding lexical scope.";
+    croak "Couldn't find '$name' in surrounding lexical scope.";
 }
 
 
