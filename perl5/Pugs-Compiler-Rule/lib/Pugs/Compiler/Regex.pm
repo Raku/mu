@@ -291,36 +291,73 @@ See L<Pugs::Compiler::Rule> for documentation.
 
 This method acts like a constructor, which returns a
 L<Pugs::Compiler::Regex> object from the p6 regex
-specified in C<$str>.
+specified in C<$str>, or throws an exception on
+invalid rule syntax.
 
 C<$params> is an optional argument which specifies the
 following p6 regex modifiers:
 
-options:
-
 =over
 
-=item C<< grammar => $class >>
+=item C<< grammar => 'Pugs::Grammar::Base' >>
 
 Specify which namespace (Grammar) the rule belongs to.
 if C<grammar> is not specified, then C<"Pugs::Grammar::Base"> will
 be assumed.
 
-=item C<< ratchet => 1 >>
+=item C<< continue => 0 >>
 
-Disable backtracking. Match faster. Defaults to 1 in Rules and Tokens.
+=item C<< c => 0 >>
 
-=item C<< pos => $pos >>
+These modifiers cause the pattern to continue
+scanning from the string's current C<pos>:
 
-Specify a string position to match. Starts in zero. Defaults to C<undef>, which matches anywhere in the string.
+Note that in Perl 6 form
 
-=item C<< sigspace => 1 >>
+    m:c/pattern/
 
-Whitespace is significant. Defaults to 1 in Rules.
+is roughlh equivalent to
 
-=item C<< ignorecase => 1 >>
+    m:p/ .*? pattern /
 
-Ignore character case. The default is significant case.
+Here is an example:
+
+    package Foo;
+    Pugs::Compiler::Regex->install(
+        word => '\w+',
+        { ratchet => 1, continue => 1 }
+    );
+    $s = 'hello world';
+    $match = Foo->word($s); # got 'hello'
+    $match = Foo->word($s); # got 'world'
+
+XXX Note that C<continue> or C<c> currently are
+not supported in non-ratchet mode.
+
+=item C<< ratchet => 0 >>
+
+Disable backtracking. Much faster. Defaults to 0.
+(L<Pugs::Compiler::Rule> and
+L<Pugs::Compiler::Token> have the default
+value of 1).
+
+=item C<< pos => undef >>
+
+=item C<< p => undef >>
+
+Specify a string position to match. Starts from zero.
+Defaults to C<undef>, which matches anywhere in the string.
+
+=item C<< sigspace => 0 >>
+
+Whitespace is significant. Defaults to 0 for
+L<Pugs::Compiler::Regex> while 1 for
+L<Pugs::Compiler::Rule>.
+
+=item C<< ignorecase => 0 >>
+
+Ignore character case. Defaults to 0 for
+L<Pugs::Compiler::Regex>.
 
 =back
 
@@ -330,6 +367,15 @@ Ignore character case. The default is significant case.
 
 Return a string holding the Perl 5 code for reconstructing
 the current L<Pugs::Compiler::Regex> object.
+
+=item C<< $regex->match($str, $grammar, $params) >>
+
+Performs matching action on C<$str>. Note that it's
+a thin wrapper around the p5 code compiled from the p6
+regex with run-time modifier handling via the C<$params>
+argument.
+
+ XXX examples
 
 =item C<< $regex->code() >>
 
@@ -346,6 +392,8 @@ Or inserts the sub into the current package:
   $regex = Pugs::Compiler::Regex->compile('a*');
   *match = $regex->code();
   my $match = __PACKAGE__->match('aaa');
+
+Technically it's a thin wrapper around the C<match> method.
 
 =item C<< $regex->install($name, @args_for_compile) >>
 

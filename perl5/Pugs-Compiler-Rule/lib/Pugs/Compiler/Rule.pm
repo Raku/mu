@@ -1,5 +1,6 @@
 package Pugs::Compiler::Rule;
-$Pugs::Compiler::Rule::VERSION = '0.23';
+
+our $VERSION = '0.23';
 
 # Documentation in the __END__
 use 5.006;
@@ -10,20 +11,20 @@ use base 'Pugs::Compiler::Regex';
 
 sub compile {
     my ( $class, $rule_source, $param ) = @_;
-    $param = ref $param ? { %$param } : {}; 
-    $param->{ratchet} = 1 
+    $param = ref $param ? { %$param } : {};
+    $param->{ratchet} = 1
         unless defined $param->{ratchet};
-    $param->{sigspace} = 1 
+    $param->{sigspace} = 1
         unless defined $param->{sigspace} ||
                defined $param->{s};
-    $class->SUPER::compile( $rule_source, $param );   
+    $class->SUPER::compile( $rule_source, $param );
 }
 
 1;
 
 __END__
 
-=head1 NAME 
+=head1 NAME
 
 Pugs::Compiler::Rule - Compiler for Perl 6 Rules
 
@@ -112,59 +113,27 @@ Code Emitters
 
 =back
 
+=head1 INHERITANCE
+
+  Pugs::Compiler::Rule
+     isa Pugs::Compiler::Regex
+
 =head1 METHODS
 
+This class (i.e. L<Pugs::Compiler::Rule>) is a
+subclass of L<Pugs::Compiler::Regex> and thus owns
+all the methods of its base class. See
+L<Pugs::Compiler::Regex> for the detailed docs.
+
+Specifically, this class overrides the C<compile>
+method of L<Pugs::Compiler::Regex> which resets
+the following options' default values:
+
 =over
 
-=item compile (Str $rule_source, \%options)
+=item C<< ratchet => 1 >>
 
-Class method.  Returns a compiled rule object, or throws an exception on
-invalid rule syntax.
-
-options:
-
-=over
-
-=item * grammar => $class
-
-Specify which namespace (Grammar) the rule belongs to.
-
-=item * ratchet => 1
-
-Disable backtracking. Match faster. Defaults to 1 in Rules and Tokens.
-
-=item * pos => $pos
-
-Specify a string position to match. Starts in zero. Defaults to C<undef>, which matches anywhere in the string.
-
-=item * sigspace => 1
-
-Whitespace is significant. Defaults to 1 in Rules.
-
-=item * ignorecase => 1
-
-Ignore character case. The default is significant case.
-
-=item * Perl5 => 1
-
-Use Perl 5 grammar and semantics for Regex.
-
-=back
-
-=item match (Str $match_against)
-
-Instance method.  Returns a L<Pugs::Runtime::Match> object.
-
-=item install (Str $name, Str $rule_source, \%options)
-
-Install a rule into the method C<$name>. If C<$name> is fully qualified
-then it will be installed into that path e.g C<MyGrammar::rulename>,
-otherwise it will install it into the current package.
-
-=item perl
-
-Instance method.  Returns a string that can be eval'ed into a
-rule/token/regex object.
+=item C<< sigspace => 1 >>
 
 =back
 
@@ -182,7 +151,17 @@ Please join us on irc.freenode.net #perl6 if you'd like to participate.
 
 =head1 SEE ALSO
 
+=over
+
+=item *
+
+L<Pugs::Compiler::Regex>
+
+=item *
+
 The Perl 6 Rules Spec: L<http://dev.perl.org/perl6/doc/design/syn/S05.html>
+
+=back
 
 =head1 COPYRIGHT
 

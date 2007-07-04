@@ -2,11 +2,25 @@ use strict;
 use warnings;
 
 #use Smart::Comments;
-use Test::More 'no_plan';
+use Test::More tests => 28;
 
 use Pugs::Compiler::Regex;
 
 $Pugs::Compiler::Regex::NoCache = 1;
+
+# Test the compile method:
+
+# default values for the options
+{
+    my $regex = Pugs::Compiler::Regex->compile('a');
+    is $regex->{grammar}, 'Pugs::Grammar::Base',
+        "grammar => 'Pugs::Grammar::Base'";
+    is $regex->{continue}, 0, "continue => 0";
+    is $regex->{p}, undef, 'pos => undef';
+    is $regex->{ratchet}, 0, 'ratchet => 0';
+    is $regex->{ignorecase}, 0, 'ignorecase => 0';
+    is $regex->{sigspace}, 0, 'sigspace => 0';
+}
 
 # test param handling
 my $regex;
@@ -20,6 +34,13 @@ eval {
 };
 is $@, '', 'params okay (1)';
 ok $regex, 'regex ok (1)';
+is $regex->{grammar}, 'abc',
+    "grammar => 'abc'";
+is $regex->{continue}, 1, "continue => 1";
+is $regex->{p}, 1, 'pos => 1';
+is $regex->{ratchet}, 1, 'ratchet => 1';
+is $regex->{ignorecase}, 1, 'ignorecase => 1';
+is $regex->{sigspace}, 1, 'sigspace => 1';
 
 eval {
     $regex = Pugs::Compiler::Regex->compile(
@@ -123,4 +144,29 @@ ok $regex, 'regex ok (null)';
     #}
     ::is join(':', @match), '5:6';
 }
+
+TODO: {
+    local $TODO = ":c modifier doesn't work in non-ratchet mode";
+    package Bar;
+    Pugs::Compiler::Regex->reinstall(
+        digit => '\d', { ratchet => 0, c => 1 }
+    );
+    my $s = '56';
+    my @match;
+    my $match = Bar->digit($s);
+    push @match, $match->() if $match;
+    $match = Bar->digit($s);
+    push @match, $match->() if $match;
+    $match = Bar->digit($s);
+    push @match, $match->() if $match;
+    #while (my $match = Bar->digit($s)) {
+    #    push @match, $match->();
+    #}
+    package main;
+    is join(':', @match), '5:6';
+}
+
+# Test the :pos modifier
+#{
+#}
 
