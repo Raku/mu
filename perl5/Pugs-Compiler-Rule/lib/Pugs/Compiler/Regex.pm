@@ -344,13 +344,13 @@ method instead.
 Here are some examples:
 
   package Bar;
-  Pugs::Compiler::Regex->install('match', 'a*', {ratchet => 1});
+  Pugs::Compiler::Regex->install(match => 'a*', {ratchet => 1});
   $match = Bar->match('aaa');
 
   # The following line dies with the message
   # "Can't install regex 'match' as 'Bar::match' which already
   # exists":
-  Pugs::Compiler::Regex->install('match', 'b*');
+  Pugs::Compiler::Regex->install(match => 'b*');
 
 =item C<< $regex->reinstall($name, @args_for_compile) >>
 

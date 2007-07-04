@@ -85,3 +85,19 @@ ok $regex, 'regex ok (null)';
   ::is $match->(), 'bbb', 'reinstall works';
 }
 
+{
+    package Foo;
+    Pugs::Compiler::Regex->install(
+        word => '\w+', { continue => 1 }
+    );
+    my $s = 'hello, world';
+    my @match;
+    push @match, Foo->word($s);
+    push @match, Foo->word($s);
+    push @match, Foo->word($s);
+    #while (my $match = Foo->word($s)) {
+    #    push @match, $match->();
+    #}
+    ::is join(':', @match), 'hello:world';
+}
+

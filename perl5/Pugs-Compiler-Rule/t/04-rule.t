@@ -85,7 +85,7 @@ no warnings qw( once );
     package test;
     local $@;
     eval { Pugs::Compiler::Regex->install( installed_rule => '' ) };
-    ::like $@, qr/Can't install regex 'installed_rule' as 'test::installed_rule' already exists/,
+    ::like $@, qr/Can't install regex 'installed_rule' as 'test::installed_rule' which already exists/,
            'Died as expected when installing an existing unqualified rule';
 }
 
@@ -93,7 +93,7 @@ no warnings qw( once );
     # Attempt to install an existing rule with a fully qualified name.
     local $@;
     eval { Pugs::Compiler::Regex->install( 'test::installed_rule' => '' ) };
-    like $@, qr/Can't install regex 'test::installed_rule' as 'test::installed_rule' already exists/,
+    like $@, qr/Can't install regex 'test::installed_rule' as 'test::installed_rule' which already exists/,
            'Died as expected when installing an existing qualified rule';
 }
 
