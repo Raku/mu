@@ -6,7 +6,7 @@ mkdir -p tmp
 
 echo "Generating lib/Pug/Grammar/Rule2.pmc..."
 rm lib/Pugs/Grammar/Rule2.pmc
-perl lib/Pugs/Grammar/Rule2.pm
+perl -Ilib lib/Pugs/Grammar/Rule2.pm
 
 echo "Generating tmp/Rule.pmc..."
 perl util/gen-rule-pmc.pl lib/Pugs/Grammar/Rule2.pmc > tmp/Rule.pmc
