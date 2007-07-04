@@ -3,7 +3,6 @@
 use strict;
 use warnings;
 
-use inc::Module::Install;
 use Cwd qw< abs_path cwd >;
 
 my @inc;
@@ -15,6 +14,7 @@ BEGIN {
         : ()
 }
 use lib '../..', '../../../..', (@inc ? $inc[-1] : ());
+use inc::Module::Install @inc;
 
 my $pmc  = abs_path('lib/Pugs/Grammar/Rule.pmc');
 
