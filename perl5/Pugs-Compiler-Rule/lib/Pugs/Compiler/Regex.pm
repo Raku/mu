@@ -296,14 +296,33 @@ specified in C<$str>.
 C<$params> is an optional argument which specifies the
 following p6 regex modifiers:
 
- ratchet
- pos (or p)
- sigspace (or s)
- continue (or c)
- grammar
+options:
 
+=over
+
+=item C<< grammar => $class >>
+
+Specify which namespace (Grammar) the rule belongs to.
 if C<grammar> is not specified, then C<"Pugs::Grammar::Base"> will
 be assumed.
+
+=item C<< ratchet => 1 >>
+
+Disable backtracking. Match faster. Defaults to 1 in Rules and Tokens.
+
+=item C<< pos => $pos >>
+
+Specify a string position to match. Starts in zero. Defaults to C<undef>, which matches anywhere in the string.
+
+=item C<< sigspace => 1 >>
+
+Whitespace is significant. Defaults to 1 in Rules.
+
+=item C<< ignorecase => 1 >>
+
+Ignore character case. The default is significant case.
+
+=back
 
 =item C<< $regex->perl5() >>
 
@@ -367,7 +386,7 @@ if it already exists:
 
 =back
 
-=head PACKAGE VARIABLES
+=head1 PACKAGE VARIABLES
 
 =over
 

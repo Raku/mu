@@ -85,6 +85,7 @@ ok $regex, 'regex ok (null)';
   ::is $match->(), 'bbb', 'reinstall works';
 }
 
+# Test the continue option in ratchet mode
 {
     package Foo;
     Pugs::Compiler::Regex->install(
@@ -102,5 +103,24 @@ ok $regex, 'regex ok (null)';
     #    push @match, $match->();
     #}
     ::is join(':', @match), 'hello:world';
+}
+
+{
+    package Bar;
+    Pugs::Compiler::Regex->install(
+        digit => '\d', { ratchet => 1, c => 1 }
+    );
+    my $s = '56';
+    my @match;
+    my $match = Bar->digit($s);
+    push @match, $match->() if $match;
+    $match = Bar->digit($s);
+    push @match, $match->() if $match;
+    $match = Bar->digit($s);
+    push @match, $match->() if $match;
+    #while (my $match = Bar->digit($s)) {
+    #    push @match, $match->();
+    #}
+    ::is join(':', @match), '5:6';
 }
 

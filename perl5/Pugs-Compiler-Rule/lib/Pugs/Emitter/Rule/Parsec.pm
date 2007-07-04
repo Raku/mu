@@ -269,7 +269,6 @@ sub metasyntax {
     if ( $prefix eq '@' ) {
         # XXX - wrap @array items - see end of Pugs::Grammar::Rule
         # TODO - param list
-=cut
         return 
             "$_[1] do {\n" . 
             "$_[1]    my \$match;\n" . 
@@ -282,10 +281,8 @@ sub metasyntax {
             "$_[1]    \$pos = \$match->to if \$bool;\n" . 
             "$_[1]    \$bool;\n" . 
             "$_[1] }";
-=cut
     }
     if ( $prefix eq '$' ) {
-=cut
         if ( $cmd =~ /::/ ) {
             # call method in fully qualified $package::var
             # ...->match( $rule, $str, $grammar, $flags, $state )  
@@ -308,7 +305,6 @@ sub metasyntax {
                 "$_[1]           \$pos = \$match[-1]->to;\n" .
                 "$_[1]           !\$match[-1] != 1;\n" .
                 "$_[1]         }"
-=cut
     }
     if ( $prefix eq q(') ) {   # single quoted literal ' 
         $cmd = substr( $cmd, 1, -1 );
