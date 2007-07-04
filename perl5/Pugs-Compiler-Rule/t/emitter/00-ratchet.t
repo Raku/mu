@@ -22,7 +22,7 @@ do { my $rule; $rule = sub {
   my $m;
   for my $pos ( defined $_[3]{p} && ! $_[3]{continue}
         ? $_[3]{p}
-        : ( ( $_[3]{p} || 0 ) .. length( $s ) ) ) {
+        : ( ( $_[3]{p} || pos($_[1]) || 0 ) .. length( $s ) ) ) {
     my %index;
     my @match;
     my %named;
@@ -45,6 +45,8 @@ do { my $rule; $rule = sub {
         local $main::_V6_PRIOR_ = $prior;
         $rule->(@_);
       };
+      #warn "pos2 = ", $pos, "\n";
+      pos($_[1]) = $pos if $_[3]{continue};
       last;
     }
   } # /for
@@ -58,17 +60,17 @@ do { my $rule; $rule = sub {
 --- token: 'a | b'
 --- alt
        (
-           ( $pad{I1656} = $pos or 1 )
+           ( $pad{I1109} = $pos or 1 )
            && (
-            (   ( $pad{I1657} = $pos or 1 ) && 
+            (   ( $pad{I1110} = $pos or 1 ) && 
              ## <constant />
- ||    ( ( $pos = $pad{I1657} ) && 0 ) )
+ ||    ( ( $pos = $pad{I1110} ) && 0 ) )
            )
          || (
-           ( ( $bool = 1 ) && ( $pos = $pad{I1656} ) or 1 )
-           &&             (   ( $pad{I1658} = $pos or 1 ) && 
+           ( ( $bool = 1 ) && ( $pos = $pad{I1109} ) or 1 )
+           &&             (   ( $pad{I1111} = $pos or 1 ) && 
              ## <constant />
- ||    ( ( $pos = $pad{I1658} ) && 0 ) )
+ ||    ( ( $pos = $pad{I1111} ) && 0 ) )
          )
        )
 --- constant

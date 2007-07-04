@@ -145,8 +145,7 @@ sub code {
     my $rule = shift;
     sub {
         # XXX - inconsistent parameter order - could just use @_, or use named params
-        my ( $grammar, $str, $flags, $state ) = @_;
-        $rule->match( $str, $grammar, $flags, $state );
+        $rule->match( $_[1], $_[0], $_[2], $_[3] );
     }
 }
 
@@ -211,7 +210,7 @@ sub match {
         #print "calling code with ",Dumper([ $grammar,$str, $state,\%args ] );
         my $match = $rule->{code}(
             $grammar,
-            $str,
+            $_[1], # pass $str itself instead of a copy so as to make pos work
             $state,
             \%args,
         );

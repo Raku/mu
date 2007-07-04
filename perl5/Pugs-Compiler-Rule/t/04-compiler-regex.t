@@ -88,13 +88,16 @@ ok $regex, 'regex ok (null)';
 {
     package Foo;
     Pugs::Compiler::Regex->install(
-        word => '\w+', { continue => 1 }
+        word => '\w+', { ratchet => 1, continue => 1 }
     );
-    my $s = 'hello, world';
+    my $s = 'hello world';
     my @match;
-    push @match, Foo->word($s);
-    push @match, Foo->word($s);
-    push @match, Foo->word($s);
+    my $match = Foo->word($s);
+    push @match, $match if $match;
+    $match = Foo->word($s);
+    push @match, $match if $match;
+    $match = Foo->word($s);
+    push @match, $match if $match;
     #while (my $match = Foo->word($s)) {
     #    push @match, $match->();
     #}

@@ -86,7 +86,8 @@ sub emit {
     local $capture_to_array = 0;
     #print "rule: ", Dumper( $ast );
     return
-        "## <global>\ndo { my \$rule; \$rule = sub {
+        "## <global>
+do { my \$rule; \$rule = sub {
   my \$grammar = \$_[0];
   my \$s = \$_[1];
   no warnings 'substr', 'uninitialized', 'syntax';
@@ -95,11 +96,11 @@ sub emit {
         #"  print \"match arg_list = \$_[1]\n\";\n" .
         #"  print 'match ', Dumper(\\\@_);\n" .
         #"  print \"match arg_list = \@{[\%{\$_[1]} ]}\n\" if defined \$_[1];\n" .
-        #"  print \"match pos = \$pos\n\";\n" .
+        #"  warn \"match pos = \", pos(\$_[1]), \"\\n\";\n" .
 "  my \$m;
   for my \$pos ( defined \$_[3]{p} && ! \$_[3]{continue}
         ? \$_[3]{p}
-        : ( ( \$_[3]{p} || 0 ) .. length( \$s ) ) ) {
+        : ( ( \$_[3]{p} || pos(\$_[1]) || 0 ) .. length( \$s ) ) ) {
     my \%index;
     my \@match;
     my \%named;
@@ -123,6 +124,8 @@ sub emit {
         local \$main::_V6_PRIOR_ = \$prior;
         \$rule->(\@_);
       };
+      #warn \"pos2 = \", \$pos, \"\\n\";
+      pos(\$_[1]) = \$pos if \$_[3]{continue};
       last;
     }
   } # /for
