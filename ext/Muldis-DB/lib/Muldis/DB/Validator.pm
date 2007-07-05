@@ -9,14 +9,14 @@ module Muldis::DB::Validator-0.0.1 {
 
     use Test;
 
-    use Muldis::DB::AST <newBoolLit newTextLit newBlobLit newIntLit
-        newTupleSel newQuasiTupleSel newRelationSel newQuasiRelationSel
-        newDefault newTreat newVarInvo newFuncInvo newProcInvo
-        newFuncReturn newProcReturn newEntityName newTypeInvoNQ
+    use Muldis::DB::AST <newBoolLit newOrderLit newIntLit newBlobLit
+        newTextLit newTupleSel newQuasiTupleSel newRelationSel
+        newQuasiRelationSel newDefault newTreat newVarInvo newFuncInvo
+        newProcInvo newFuncReturn newProcReturn newEntityName newTypeInvoNQ
         newTypeInvoAQ newTypeDictNQ newTypeDictAQ newExprDict newFuncDecl
-        newProcDecl newHostGateRtn newSetSel newQuasiSetSel newSeqSel
-        newQuasiSeqSel newBagSel newQuasiBagSel newMaybeSel
-        newQuasiMaybeSel>;
+        newProcDecl newHostGateRtn newSetSel newQuasiSetSel newMaybeSel
+        newQuasiMaybeSel newSeqSel newQuasiSeqSel newBagSel
+        newQuasiBagSel>;
 
 ###########################################################################
 

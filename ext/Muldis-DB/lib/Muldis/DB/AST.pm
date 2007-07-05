@@ -3,8 +3,12 @@ use v6-alpha;
 ###########################################################################
 ###########################################################################
 
-my Bool $FALSE = Bool::False;
-my Bool $TRUE  = Bool::True;
+my Bool $BOOL_FALSE = Bool::False;
+my Bool $BOOL_TRUE  = Bool::True;
+
+my Order $ORDER_INCREASE = (1 <=> 2);
+my Order $ORDER_SAME     = (1 <=> 1);
+my Order $ORDER_DECREASE = (2 <=> 1);
 
 my $TYNM_UINT = ::Muldis::DB::AST::EntityName.new( :text<sys.type.UInt> );
 my $TYNM_PINT = ::Muldis::DB::AST::EntityName.new( :text<sys.type.PInt> );
@@ -30,16 +34,20 @@ sub newBoolLit of Muldis::DB::AST::BoolLit (Bool :$v!) is export {
     return ::Muldis::DB::AST::BoolLit.new( :v($v) );
 }
 
-sub newTextLit of Muldis::DB::AST::TextLit (Str :$v!) is export {
-    return ::Muldis::DB::AST::TextLit.new( :v($v) );
+sub newOrderLit of Muldis::DB::AST::OrderLit (Order :$v!) is export {
+    return ::Muldis::DB::AST::OrderLit.new( :v($v) );
+}
+
+sub newIntLit of Muldis::DB::AST::IntLit (Int :$v!) is export {
+    return ::Muldis::DB::AST::IntLit.new( :v($v) );
 }
 
 sub newBlobLit of Muldis::DB::AST::BlobLit (Blob :$v!) is export {
     return ::Muldis::DB::AST::BlobLit.new( :v($v) );
 }
 
-sub newIntLit of Muldis::DB::AST::IntLit (Int :$v!) is export {
-    return ::Muldis::DB::AST::IntLit.new( :v($v) );
+sub newTextLit of Muldis::DB::AST::TextLit (Str :$v!) is export {
+    return ::Muldis::DB::AST::TextLit.new( :v($v) );
 }
 
 sub newTupleSel of Muldis::DB::AST::TupleSel
@@ -197,6 +205,44 @@ sub newQuasiSetSel of Muldis::DB::AST::QuasiRelationSel
     );
 }
 
+sub newMaybeSel of Muldis::DB::AST::RelationSel
+        (Muldis::DB::AST::TypeInvoNQ :$heading!, Array :$body!) is export {
+
+    die q{new(): Bad :$body arg; it is not an object of a}
+            ~ q{ Array-doing class, or it doesn't have 0..1 elements.}
+        if !$body.defined or !$body.does(Array) or $body.elems > 1;
+
+    return ::Muldis::DB::AST::RelationSel.new(
+        :heading(::Muldis::DB::AST::TypeDictNQ.new( :map([
+            [$ATNM_VALUE, $heading],
+        ]) )),
+        :body([$body.map:{
+            ::Muldis::DB::AST::ExprDict.new( :map([
+                [$ATNM_VALUE, $_],
+            ]) ),
+        }]),
+    );
+}
+
+sub newQuasiMaybeSel of Muldis::DB::AST::QuasiRelationSel
+        (Muldis::DB::AST::TypeInvoNQ :$heading!, Array :$body!) is export {
+
+    die q{new(): Bad :$body arg; it is not an object of a}
+            ~ q{ Array-doing class, or it doesn't have 0..1 elements.}
+        if !$body.defined or !$body.does(Array) or $body.elems > 1;
+
+    return ::Muldis::DB::AST::QuasiRelationSel.new(
+        :heading(::Muldis::DB::AST::TypeDictAQ.new( :map([
+            [$ATNM_VALUE, $heading],
+        ]) )),
+        :body([$body.map:{
+            ::Muldis::DB::AST::ExprDict.new( :map([
+                [$ATNM_VALUE, $_],
+            ]) ),
+        }]),
+    );
+}
+
 sub newSeqSel of Muldis::DB::AST::RelationSel
         (Muldis::DB::AST::TypeInvoNQ :$heading!, Array :$body!) is export {
 
@@ -301,44 +347,6 @@ sub newQuasiBagSel of Muldis::DB::AST::QuasiRelationSel
     );
 }
 
-sub newMaybeSel of Muldis::DB::AST::RelationSel
-        (Muldis::DB::AST::TypeInvoNQ :$heading!, Array :$body!) is export {
-
-    die q{new(): Bad :$body arg; it is not an object of a}
-            ~ q{ Array-doing class, or it doesn't have 0..1 elements.}
-        if !$body.defined or !$body.does(Array) or $body.elems > 1;
-
-    return ::Muldis::DB::AST::RelationSel.new(
-        :heading(::Muldis::DB::AST::TypeDictNQ.new( :map([
-            [$ATNM_VALUE, $heading],
-        ]) )),
-        :body([$body.map:{
-            ::Muldis::DB::AST::ExprDict.new( :map([
-                [$ATNM_VALUE, $_],
-            ]) ),
-        }]),
-    );
-}
-
-sub newQuasiMaybeSel of Muldis::DB::AST::QuasiRelationSel
-        (Muldis::DB::AST::TypeInvoNQ :$heading!, Array :$body!) is export {
-
-    die q{new(): Bad :$body arg; it is not an object of a}
-            ~ q{ Array-doing class, or it doesn't have 0..1 elements.}
-        if !$body.defined or !$body.does(Array) or $body.elems > 1;
-
-    return ::Muldis::DB::AST::QuasiRelationSel.new(
-        :heading(::Muldis::DB::AST::TypeDictAQ.new( :map([
-            [$ATNM_VALUE, $heading],
-        ]) )),
-        :body([$body.map:{
-            ::Muldis::DB::AST::ExprDict.new( :map([
-                [$ATNM_VALUE, $_],
-            ]) ),
-        }]),
-    );
-}
-
 ###########################################################################
 
 } # module Muldis::DB::AST
@@ -362,7 +370,7 @@ method equal_repr of Bool (Muldis::DB::AST::Node :$other!) {
             ~ q{ Muldis::DB::AST::Node-doing class.}
         if !$other.defined or !$other.does(::Muldis::DB::AST::Node);
 
-    return $FALSE
+    return $BOOL_FALSE
         if $other.WHAT !=== self.WHAT;
 
     return self._equal_repr( $other );
@@ -441,21 +449,21 @@ method v of Bool () {
 ###########################################################################
 ###########################################################################
 
-class Muldis::DB::AST::TextLit {
+class Muldis::DB::AST::OrderLit {
     does Muldis::DB::AST::Lit;
 
-    has Str $!v;
+    has Order $!v;
 
     has Str $!as_perl;
 
 ###########################################################################
 
-submethod BUILD (Str :$v!) {
+submethod BUILD (Order :$v!) {
 
-    die q{new(): Bad :$v arg; it is not an object of a Str-doing class.}
-        if !$v.defined or !$v.does(Str);
+    die q{new(): Bad :$v arg; it is not an object of a Order-doing class.}
+        if !$v.defined or !$v.does(Order);
 
-    $!v = ~$v;
+    $!v = $v;
 
     return;
 }
@@ -464,9 +472,57 @@ submethod BUILD (Str :$v!) {
 
 method as_perl of Str () {
     if (!$!as_perl.defined) {
-        my Str $s
-            = q{'} ~ $!v.trans( q{\\} => q{\\\\}, q{'} => q{\\'} ) ~ q{'};
-        $!as_perl = "Muldis::DB::AST::TextLit.new( :v($s) )";
+        my Str $s = $!v === $ORDER_INCREASE ?? '(1 <=> 2)'
+            !! $!v === $ORDER_SAME ?? '(1 <=> 1)' !! '(2 <=> 1)';
+        $!as_perl = "Muldis::DB::AST::OrderLit.new( :v($s) )";
+    }
+    return $!as_perl;
+}
+
+###########################################################################
+
+method _equal_repr of Order (::T $self: T $other!) {
+    return $other!v === $self!v;
+}
+
+###########################################################################
+
+method v of Order () {
+    return $!v;
+}
+
+###########################################################################
+
+} # class Muldis::DB::AST::OrderLit
+
+###########################################################################
+###########################################################################
+
+class Muldis::DB::AST::IntLit {
+    does Muldis::DB::AST::Lit;
+
+    has Int $!v;
+
+    has Str $!as_perl;
+
+###########################################################################
+
+submethod BUILD (Int :$v!) {
+
+    die q{new(): Bad :$v arg; it is not an object of a Int-doing class.}
+        if !$v.defined or !$v.does(Int);
+
+    $!v = +$v;
+
+    return;
+}
+
+###########################################################################
+
+method as_perl of Str () {
+    if (!$!as_perl.defined) {
+        my Str $s = ~$!v;
+        $!as_perl = "Muldis::DB::AST::IntLit.new( :v($s) )";
     }
     return $!as_perl;
 }
@@ -479,13 +535,13 @@ method _equal_repr of Bool (::T $self: T $other!) {
 
 ###########################################################################
 
-method v of Str () {
+method v of Int () {
     return $!v;
 }
 
 ###########################################################################
 
-} # class Muldis::DB::AST::TextLit
+} # class Muldis::DB::AST::IntLit
 
 ###########################################################################
 ###########################################################################
@@ -543,21 +599,21 @@ method v of Blob () {
 ###########################################################################
 ###########################################################################
 
-class Muldis::DB::AST::IntLit {
+class Muldis::DB::AST::TextLit {
     does Muldis::DB::AST::Lit;
 
-    has Int $!v;
+    has Str $!v;
 
     has Str $!as_perl;
 
 ###########################################################################
 
-submethod BUILD (Int :$v!) {
+submethod BUILD (Str :$v!) {
 
-    die q{new(): Bad :$v arg; it is not an object of a Int-doing class.}
-        if !$v.defined or !$v.does(Int);
+    die q{new(): Bad :$v arg; it is not an object of a Str-doing class.}
+        if !$v.defined or !$v.does(Str);
 
-    $!v = +$v;
+    $!v = ~$v;
 
     return;
 }
@@ -566,8 +622,9 @@ submethod BUILD (Int :$v!) {
 
 method as_perl of Str () {
     if (!$!as_perl.defined) {
-        my Str $s = ~$!v;
-        $!as_perl = "Muldis::DB::AST::IntLit.new( :v($s) )";
+        my Str $s
+            = q{'} ~ $!v.trans( q{\\} => q{\\\\}, q{'} => q{\\'} ) ~ q{'};
+        $!as_perl = "Muldis::DB::AST::TextLit.new( :v($s) )";
     }
     return $!as_perl;
 }
@@ -580,13 +637,13 @@ method _equal_repr of Bool (::T $self: T $other!) {
 
 ###########################################################################
 
-method v of Int () {
+method v of Str () {
     return $!v;
 }
 
 ###########################################################################
 
-} # class Muldis::DB::AST::IntLit
+} # class Muldis::DB::AST::TextLit
 
 ###########################################################################
 ###########################################################################
@@ -695,7 +752,7 @@ method attr_value of Muldis::DB::AST::Expr
 class Muldis::DB::AST::TupleSel {
     does Muldis::DB::AST::_Tuple;
     submethod BUILD {} # otherwise Pugs r16488 invo _Tuple.BUILD twice
-    method _allows_quasi of Bool () { return $FALSE; }
+    method _allows_quasi of Bool () { return $BOOL_FALSE; }
 } # class Muldis::DB::AST::TupleSel
 
 ###########################################################################
@@ -704,7 +761,7 @@ class Muldis::DB::AST::TupleSel {
 class Muldis::DB::AST::QuasiTupleSel {
     does Muldis::DB::AST::_Tuple;
     submethod BUILD {} # otherwise Pugs r16488 invo _Tuple.BUILD twice
-    method _allows_quasi of Bool () { return $TRUE; }
+    method _allows_quasi of Bool () { return $BOOL_TRUE; }
 } # class Muldis::DB::AST::QuasiTupleSel
 
 ###########################################################################
@@ -774,17 +831,17 @@ method as_perl of Str () {
 ###########################################################################
 
 method _equal_repr of Bool (::T $self: T $other!) {
-    return $FALSE
+    return $BOOL_FALSE
         if !$self!heading.equal_repr( :other($other!heading) );
     my Array $v1 = $self!body;
     my Array $v2 = $other!body;
-    return $FALSE
+    return $BOOL_FALSE
         if $v2.elems !=== $v1.elems;
     for 0..^$v1.elems -> $i {
-        return $FALSE
+        return $BOOL_FALSE
             if !$v1.[$i].equal_repr( :other($v2.[$i]) );
     }
-    return $TRUE;
+    return $BOOL_TRUE;
 }
 
 ###########################################################################
@@ -860,7 +917,7 @@ method body_of_Maybe of Array () {
 class Muldis::DB::AST::RelationSel {
     does Muldis::DB::AST::_Relation;
     submethod BUILD {} # otherwise Pugs r16488 invo _Relation.BUILD twice
-    method _allows_quasi of Bool () { return $FALSE; }
+    method _allows_quasi of Bool () { return $BOOL_FALSE; }
 } # class Muldis::DB::AST::RelationSel
 
 ###########################################################################
@@ -869,7 +926,7 @@ class Muldis::DB::AST::RelationSel {
 class Muldis::DB::AST::QuasiRelationSel {
     does Muldis::DB::AST::_Relation;
     submethod BUILD {} # otherwise Pugs r16488 invo _Relation.BUILD twice
-    method _allows_quasi of Bool () { return $TRUE; }
+    method _allows_quasi of Bool () { return $BOOL_TRUE; }
 } # class Muldis::DB::AST::QuasiRelationSel
 
 ###########################################################################
@@ -1253,7 +1310,7 @@ method as_perl of Str () {
 ###########################################################################
 
 method _equal_repr of Bool (::T $self: T $other!) {
-    return $TRUE;
+    return $BOOL_TRUE;
 }
 
 ###########################################################################
@@ -1425,7 +1482,7 @@ method as_perl of Str () {
 ###########################################################################
 
 method _equal_repr of Bool (::T $self: T $other!) {
-    return $FALSE
+    return $BOOL_FALSE
         if $other!kind !=== $self!kind;
     return $self!kind === 'Any' ?? $other!spec === $self!spec
         !! $self!spec.equal_repr( :other($other!spec) );
@@ -1451,7 +1508,7 @@ method spec of Any () {
 class Muldis::DB::AST::TypeInvoNQ {
     does Muldis::DB::AST::TypeInvo;
     submethod BUILD {} # otherwise Pugs r16488 invo TypeInvo.BUILD twice
-    method _allows_quasi of Bool () { return $FALSE; }
+    method _allows_quasi of Bool () { return $BOOL_FALSE; }
 } # class Muldis::DB::AST::TypeInvoNQ
 
 ###########################################################################
@@ -1460,7 +1517,7 @@ class Muldis::DB::AST::TypeInvoNQ {
 class Muldis::DB::AST::TypeInvoAQ {
     does Muldis::DB::AST::TypeInvo;
     submethod BUILD {} # otherwise Pugs r16488 invo TypeInvo.BUILD twice
-    method _allows_quasi of Bool () { return $TRUE; }
+    method _allows_quasi of Bool () { return $BOOL_TRUE; }
 } # class Muldis::DB::AST::TypeInvoAQ
 
 ###########################################################################
@@ -1543,17 +1600,17 @@ method as_perl of Str () {
 ###########################################################################
 
 method _equal_repr of Bool (::T $self: T $other!) {
-    return $FALSE
+    return $BOOL_FALSE
         if $other!map_aoa.elems !=== $self!map_aoa.elems;
     my Hash $v1 = $self!map_hoa;
     my Hash $v2 = $other!map_hoa;
     for $v1.pairs -> $e {
-        return $FALSE
+        return $BOOL_FALSE
             if !$v2.exists($e.key);
-        return $FALSE
+        return $BOOL_FALSE
             if !$e.value.[1].equal_repr( :other($v2.{$e.key}.[1]) );
     }
-    return $TRUE;
+    return $BOOL_TRUE;
 }
 
 ###########################################################################
@@ -1607,7 +1664,7 @@ method elem_value of Muldis::DB::AST::TypeInvo
 class Muldis::DB::AST::TypeDictNQ {
     does Muldis::DB::AST::TypeDict;
     submethod BUILD {} # otherwise Pugs r16488 invo TypeDict.BUILD twice
-    method _allows_quasi of Bool () { return $FALSE; }
+    method _allows_quasi of Bool () { return $BOOL_FALSE; }
 } # class Muldis::DB::AST::TypeDictNQ
 
 ###########################################################################
@@ -1616,7 +1673,7 @@ class Muldis::DB::AST::TypeDictNQ {
 class Muldis::DB::AST::TypeDictAQ {
     does Muldis::DB::AST::TypeDict;
     submethod BUILD {} # otherwise Pugs r16488 invo TypeDict.BUILD twice
-    method _allows_quasi of Bool () { return $TRUE; }
+    method _allows_quasi of Bool () { return $BOOL_TRUE; }
 } # class Muldis::DB::AST::TypeDictAQ
 
 ###########################################################################
@@ -1688,17 +1745,17 @@ method as_perl of Str () {
 ###########################################################################
 
 method _equal_repr of Bool (::T $self: T $other!) {
-    return $FALSE
+    return $BOOL_FALSE
         if $other!map_aoa.elems !=== $self!map_aoa.elems;
     my Hash $v1 = $self!map_hoa;
     my Hash $v2 = $other!map_hoa;
     for $v1.pairs -> $e {
-        return $FALSE
+        return $BOOL_FALSE
             if !$v2.exists($e.key);
-        return $FALSE
+        return $BOOL_FALSE
             if !$e.value.[1].equal_repr( :other($v2.{$e.key}.[1]) );
     }
-    return $TRUE;
+    return $BOOL_TRUE;
 }
 
 ###########################################################################
@@ -1850,19 +1907,19 @@ method as_perl of Str () {
 ###########################################################################
 
 method _equal_repr of Bool (::T $self: T $other!) {
-    return $FALSE
+    return $BOOL_FALSE
         if !$self!upd_params.equal_repr( :other($other!upd_params) )
             or !$self!ro_params.equal_repr( :other($other!ro_params) )
             or !$self!vars.equal_repr( :other($other!vars) );
     my Array $v1 = $self!stmts;
     my Array $v2 = $other!stmts;
-    return $FALSE
+    return $BOOL_FALSE
         if $v2.elems !=== $v1.elems;
     for 0..^$v1.elems -> $i {
-        return $FALSE
+        return $BOOL_FALSE
             if !$v1.[$i].equal_repr( :other($v2.[$i]) );
     }
-    return $TRUE;
+    return $BOOL_TRUE;
 }
 
 ###########################################################################
@@ -1909,19 +1966,20 @@ It also describes the same-number versions for Perl 6 of [...].
 
 I<This documentation is pending.>
 
-    use Muldis::DB::AST <newBoolLit newTextLit newBlobLit newIntLit
-        newTupleSel newQuasiTupleSel newRelationSel newQuasiRelationSel
-        newDefault newTreat newVarInvo newFuncInvo newProcInvo
-        newFuncReturn newProcReturn newEntityName newTypeInvoNQ
+    use Muldis::DB::AST <newBoolLit newOrderLit newIntLit newBlobLit
+        newTextLit newTupleSel newQuasiTupleSel newRelationSel
+        newQuasiRelationSel newDefault newTreat newVarInvo newFuncInvo
+        newProcInvo newFuncReturn newProcReturn newEntityName newTypeInvoNQ
         newTypeInvoAQ newTypeDictNQ newTypeDictAQ newExprDict newFuncDecl
-        newProcDecl newHostGateRtn newSetSel newQuasiSetSel newSeqSel
-        newQuasiSeqSel newBagSel newQuasiBagSel newMaybeSel
-        newQuasiMaybeSel>;
+        newProcDecl newHostGateRtn newSetSel newQuasiSetSel newMaybeSel
+        newQuasiMaybeSel newSeqSel newQuasiSeqSel newBagSel
+        newQuasiBagSel>;
 
     my $truth_value = newBoolLit( :v(2 + 2 == 4) );
-    my $planetoid = newTextLit( :v<Ceres> );
-    my $package = newBlobLit( :v(pack 'H2', 'P') );
+    my $direction = newOrderLit( :v(5 <=> 7) );
     my $answer = newIntLit( :v(42) );
+    my $package = newBlobLit( :v(pack 'H2', 'P') );
+    my $planetoid = newTextLit( :v<Ceres> );
 
 I<This documentation is pending.>
 
@@ -1945,9 +2003,10 @@ will be added in the future), which are visually arranged here in their
         Muldis::DB::AST::Expr (dummy role)
             Muldis::DB::AST::Lit (dummy role)
                 Muldis::DB::AST::BoolLit
-                Muldis::DB::AST::TextLit
-                Muldis::DB::AST::BlobLit
+                Muldis::DB::AST::OrderLit
                 Muldis::DB::AST::IntLit
+                Muldis::DB::AST::BlobLit
+                Muldis::DB::AST::TextLit
             Muldis::DB::AST::_Tuple (implementing role)
                 Muldis::DB::AST::TupleSel
                 Muldis::DB::AST::QuasiTupleSel
@@ -2102,7 +2161,11 @@ value is undefined.
 
 I<This documentation is pending.>
 
-=head2 The Muldis::DB::AST::TextLit Class
+=head2 The Muldis::DB::AST::OrderLit Class
+
+I<This documentation is pending.>
+
+=head2 The Muldis::DB::AST::IntLit Class
 
 I<This documentation is pending.>
 
@@ -2110,7 +2173,7 @@ I<This documentation is pending.>
 
 I<This documentation is pending.>
 
-=head2 The Muldis::DB::AST::IntLit Class
+=head2 The Muldis::DB::AST::TextLit Class
 
 I<This documentation is pending.>
 

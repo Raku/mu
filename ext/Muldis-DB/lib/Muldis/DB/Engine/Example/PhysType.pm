@@ -3,10 +3,14 @@ use v6-alpha;
 ###########################################################################
 ###########################################################################
 
-my Str $EMPTY_STR = q{};
+my Bool $BOOL_FALSE = Bool::False;
+my Bool $BOOL_TRUE  = Bool::True;
 
-my Bool $FALSE = Bool::False;
-my Bool $TRUE  = Bool::True;
+my Order $ORDER_INCREASE = (1 <=> 2);
+my Order $ORDER_SAME     = (1 <=> 1);
+my Order $ORDER_DECREASE = (2 <=> 1);
+
+my Str $EMPTY_STR = q{};
 
 ###########################################################################
 ###########################################################################
@@ -21,9 +25,14 @@ sub ptBool of Muldis::DB::Engine::Example::PhysType::Bool
     return ::Muldis::DB::Engine::Example::PhysType::Bool.new( :v($v) );
 }
 
-sub ptText of Muldis::DB::Engine::Example::PhysType::Text
-        (Str :$v!) is export {
-    return ::Muldis::DB::Engine::Example::PhysType::Text.new( :v($v) );
+sub ptOrder of Muldis::DB::Engine::Example::PhysType::Order
+        (Order :$v!) is export {
+    return ::Muldis::DB::Engine::Example::PhysType::Order.new( :v($v) );
+}
+
+sub ptInt of Muldis::DB::Engine::Example::PhysType::Int
+        (Int :$v!) is export {
+    return ::Muldis::DB::Engine::Example::PhysType::Int.new( :v($v) );
 }
 
 sub ptBlob of Muldis::DB::Engine::Example::PhysType::Blob
@@ -31,9 +40,9 @@ sub ptBlob of Muldis::DB::Engine::Example::PhysType::Blob
     return ::Muldis::DB::Engine::Example::PhysType::Blob.new( :v($v) );
 }
 
-sub ptInt of Muldis::DB::Engine::Example::PhysType::Int
-        (Int :$v!) is export {
-    return ::Muldis::DB::Engine::Example::PhysType::Int.new( :v($v) );
+sub ptText of Muldis::DB::Engine::Example::PhysType::Text
+        (Str :$v!) is export {
+    return ::Muldis::DB::Engine::Example::PhysType::Text.new( :v($v) );
 }
 
 sub ptTuple of Muldis::DB::Engine::Example::PhysType::Tuple
@@ -174,7 +183,7 @@ method as_ast {
 ###########################################################################
 
 method equal of Bool (:$other!) {
-    return $FALSE
+    return $BOOL_FALSE
         if $other.WHAT !=== self.WHAT;
     return self._equal( $other );
 }
@@ -245,18 +254,18 @@ method v of Bool () {
 ###########################################################################
 ###########################################################################
 
-class Muldis::DB::Engine::Example::PhysType::Text {
+class Muldis::DB::Engine::Example::PhysType::Order {
     does Muldis::DB::Engine::Example::PhysType::Value;
 
-    use Muldis::DB::AST <newTextLit>;
+    use Muldis::DB::AST <newOrderLit>;
 
-    has Str $!v;
+    has Order $!v;
 
     has Str $!which;
 
 ###########################################################################
 
-submethod BUILD (Str :$v!) {
+submethod BUILD (Order :$v!) {
     $!v = $v;
     return;
 }
@@ -264,21 +273,76 @@ submethod BUILD (Str :$v!) {
 ###########################################################################
 
 method root_type of Str () {
-    return 'sys.type.Text';
+    return 'sys.type.Order';
 }
 
 method which of Str () {
     if (!$!which.defined) {
-        my Str $s = $!v;
-        $!which = "13 sys.type.Text {$s.graphs} $s";
+        my Str $s = ~$!v;
+        $!which = "14 sys.type.Order {$s.graphs} $s";
     }
     return $!which;
 }
 
 ###########################################################################
 
-method as_ast of Muldis::DB::AST::TextLit () {
-    return newTextLit( :v($!v) );
+method as_ast of Muldis::DB::AST::OrderLit () {
+    return newOrderLit( :v($!v) );
+}
+
+###########################################################################
+
+method _equal of Order (::T $self: T $other!) {
+    return $other!v === $self!v;
+}
+
+###########################################################################
+
+method v of Order () {
+    return $!v;
+}
+
+###########################################################################
+
+} # class Muldis::DB::Engine::Example::PhysType::Order
+
+###########################################################################
+###########################################################################
+
+class Muldis::DB::Engine::Example::PhysType::Int {
+    does Muldis::DB::Engine::Example::PhysType::Value;
+
+    use Muldis::DB::AST <newIntLit>;
+
+    has Int $!v;
+
+    has Str $!which;
+
+###########################################################################
+
+submethod BUILD (Int :$v!) {
+    $!v = $v;
+    return;
+}
+
+###########################################################################
+
+method root_type of Str () {
+    return 'sys.type.Int';
+}
+
+method which of Str () {
+    if (!$!which.defined) {
+        my Str $s = ~$!v;
+        $!which = "12 sys.type.Int {$s.graphs} $s";
+    }
+    return $!which;
+}
+
+###########################################################################
+
+method as_ast of Muldis::DB::AST::IntLit () {
+    return newIntLit( :v($!v) );
 }
 
 ###########################################################################
@@ -289,13 +353,13 @@ method _equal of Bool (::T $self: T $other!) {
 
 ###########################################################################
 
-method v of Str () {
+method v of Int () {
     return $!v;
 }
 
 ###########################################################################
 
-} # class Muldis::DB::Engine::Example::PhysType::Text
+} # class Muldis::DB::Engine::Example::PhysType::Int
 
 ###########################################################################
 ###########################################################################
@@ -355,18 +419,18 @@ method v of Blob () {
 ###########################################################################
 ###########################################################################
 
-class Muldis::DB::Engine::Example::PhysType::Int {
+class Muldis::DB::Engine::Example::PhysType::Text {
     does Muldis::DB::Engine::Example::PhysType::Value;
 
-    use Muldis::DB::AST <newIntLit>;
+    use Muldis::DB::AST <newTextLit>;
 
-    has Int $!v;
+    has Str $!v;
 
     has Str $!which;
 
 ###########################################################################
 
-submethod BUILD (Int :$v!) {
+submethod BUILD (Str :$v!) {
     $!v = $v;
     return;
 }
@@ -374,21 +438,21 @@ submethod BUILD (Int :$v!) {
 ###########################################################################
 
 method root_type of Str () {
-    return 'sys.type.Int';
+    return 'sys.type.Text';
 }
 
 method which of Str () {
     if (!$!which.defined) {
-        my Str $s = ~$!v;
-        $!which = "12 sys.type.Int {$s.graphs} $s";
+        my Str $s = $!v;
+        $!which = "13 sys.type.Text {$s.graphs} $s";
     }
     return $!which;
 }
 
 ###########################################################################
 
-method as_ast of Muldis::DB::AST::IntLit () {
-    return newIntLit( :v($!v) );
+method as_ast of Muldis::DB::AST::TextLit () {
+    return newTextLit( :v($!v) );
 }
 
 ###########################################################################
@@ -399,13 +463,13 @@ method _equal of Bool (::T $self: T $other!) {
 
 ###########################################################################
 
-method v of Int () {
+method v of Str () {
     return $!v;
 }
 
 ###########################################################################
 
-} # class Muldis::DB::Engine::Example::PhysType::Int
+} # class Muldis::DB::Engine::Example::PhysType::Text
 
 ###########################################################################
 ###########################################################################
@@ -504,7 +568,7 @@ method attr_value of Muldis::DB::Engine::Example::PhysType::Value
 class Muldis::DB::Engine::Example::PhysType::Tuple {
     does Muldis::DB::Engine::Example::PhysType::_Tuple;
     submethod BUILD {} # otherwise Pugs r16488 invo _Tuple.BUILD twice
-    method _allows_quasi of Bool () { return $FALSE; }
+    method _allows_quasi of Bool () { return $BOOL_FALSE; }
 } # class Muldis::DB::Engine::Example::PhysType::Tuple
 
 ###########################################################################
@@ -513,7 +577,7 @@ class Muldis::DB::Engine::Example::PhysType::Tuple {
 class Muldis::DB::Engine::Example::PhysType::QuasiTuple {
     does Muldis::DB::Engine::Example::PhysType::_Tuple;
     submethod BUILD {} # otherwise Pugs r16488 invo _Tuple.BUILD twice
-    method _allows_quasi of Bool () { return $TRUE; }
+    method _allows_quasi of Bool () { return $BOOL_TRUE; }
 } # class Muldis::DB::Engine::Example::PhysType::QuasiTuple
 
 ###########################################################################
@@ -577,17 +641,17 @@ method as_ast of Muldis::DB::AST::_Relation () {
 ###########################################################################
 
 method _equal of Bool (::T $self: T $other!) {
-    return $FALSE
+    return $BOOL_FALSE
         if !$self!heading.equal( :other($other!heading) );
-    return $FALSE
+    return $BOOL_FALSE
         if $other!body.elems !=== $self!body.elems;
     my Hash $v1 = $self!key_over_all;
     my Hash $v2 = $other!key_over_all;
     for $v1.keys -> $ek {
-        return $FALSE
+        return $BOOL_FALSE
             if !$v2.exists($ek);
     }
-    return $TRUE;
+    return $BOOL_TRUE;
 }
 
 ###########################################################################
@@ -635,7 +699,7 @@ method attr_values of Array (Str :$attr_name!) {
 class Muldis::DB::Engine::Example::PhysType::Relation {
     does Muldis::DB::Engine::Example::PhysType::_Relation;
     submethod BUILD {} # otherwise Pugs r16488 invo _Relation.BUILD twice
-    method _allows_quasi of Bool () { return $FALSE; }
+    method _allows_quasi of Bool () { return $BOOL_FALSE; }
 } # class Muldis::DB::Engine::Example::PhysType::Relation
 
 ###########################################################################
@@ -644,7 +708,7 @@ class Muldis::DB::Engine::Example::PhysType::Relation {
 class Muldis::DB::Engine::Example::PhysType::QuasiRelation {
     does Muldis::DB::Engine::Example::PhysType::_Relation;
     submethod BUILD {} # otherwise Pugs r16488 invo _Relation.BUILD twice
-    method _allows_quasi of Bool () { return $TRUE; }
+    method _allows_quasi of Bool () { return $BOOL_TRUE; }
 } # class Muldis::DB::Engine::Example::PhysType::QuasiRelation
 
 ###########################################################################
@@ -702,7 +766,7 @@ method as_ast of Muldis::DB::AST::TypeInvo () {
 ###########################################################################
 
 method _equal of Bool (::T $self: T $other!) {
-    return $FALSE
+    return $BOOL_FALSE
         if $other!kind !=== $self!kind;
     return $self!kind === 'Any'|'Scalar' ?? $other!spec === $self!spec
         !! $self!spec.equal( :other($other!spec) );
@@ -728,7 +792,7 @@ method spec of Any () {
 class Muldis::DB::Engine::Example::PhysType::TypeInvoNQ {
     does Muldis::DB::Engine::Example::PhysType::TypeInvo;
     submethod BUILD {} # otherwise Pugs r16488 invo TypeInvo.BUILD twice
-    method _allows_quasi of Bool () { return $FALSE; }
+    method _allows_quasi of Bool () { return $BOOL_FALSE; }
 } # class Muldis::DB::Engine::Example::PhysType::TypeInvoNQ
 
 ###########################################################################
@@ -737,7 +801,7 @@ class Muldis::DB::Engine::Example::PhysType::TypeInvoNQ {
 class Muldis::DB::Engine::Example::PhysType::TypeInvoAQ {
     does Muldis::DB::Engine::Example::PhysType::TypeInvo;
     submethod BUILD {} # otherwise Pugs r16488 invo TypeInvo.BUILD twice
-    method _allows_quasi of Bool () { return $TRUE; }
+    method _allows_quasi of Bool () { return $BOOL_TRUE; }
 } # class Muldis::DB::Engine::Example::PhysType::TypeInvoAQ
 
 ###########################################################################
@@ -794,17 +858,17 @@ method as_ast of Muldis::DB::AST::TypeDict () {
 ###########################################################################
 
 method _equal of Bool (::T $self: T $other!) {
-    return $FALSE
+    return $BOOL_FALSE
         if $other!map.elems !=== $self!map.elems;
     my Hash $v1 = $self!map;
     my Hash $v2 = $other!map;
     for $v1.pairs -> $e {
-        return $FALSE
+        return $BOOL_FALSE
             if !$v2.exists($e.key);
-        return $FALSE
+        return $BOOL_FALSE
             if !$e.value.equal( :other($v2.{$e.key}) );
     }
-    return $TRUE;
+    return $BOOL_TRUE;
 }
 
 ###########################################################################
@@ -838,7 +902,7 @@ method elem_value of Muldis::DB::Engine::Example::PhysType::TypeInvo
 class Muldis::DB::Engine::Example::PhysType::TypeDictNQ {
     does Muldis::DB::Engine::Example::PhysType::TypeDict;
     submethod BUILD {} # otherwise Pugs r16488 invo TypeDict.BUILD twice
-    method _allows_quasi of Bool () { return $FALSE; }
+    method _allows_quasi of Bool () { return $BOOL_FALSE; }
 } # class Muldis::DB::Engine::Example::PhysType::TypeDictNQ
 
 ###########################################################################
@@ -847,7 +911,7 @@ class Muldis::DB::Engine::Example::PhysType::TypeDictNQ {
 class Muldis::DB::Engine::Example::PhysType::TypeDictAQ {
     does Muldis::DB::Engine::Example::PhysType::TypeDict;
     submethod BUILD {} # otherwise Pugs r16488 invo TypeDict.BUILD twice
-    method _allows_quasi of Bool () { return $TRUE; }
+    method _allows_quasi of Bool () { return $BOOL_TRUE; }
 } # class Muldis::DB::Engine::Example::PhysType::TypeDictAQ
 
 ###########################################################################
@@ -898,17 +962,17 @@ method as_ast of Muldis::DB::AST::ExprDict () {
 ###########################################################################
 
 method _equal of Bool (::T $self: T $other!) {
-    return $FALSE
+    return $BOOL_FALSE
         if $other!map.elems !=== $self!map.elems;
     my Hash $v1 = $self!map;
     my Hash $v2 = $other!map;
     for $v1.pairs -> $e {
-        return $FALSE
+        return $BOOL_FALSE
             if !$v2.exists($e.key);
-        return $FALSE
+        return $BOOL_FALSE
             if !$e.value.equal( :other($v2.{$e.key}) );
     }
-    return $TRUE;
+    return $BOOL_TRUE;
 }
 
 ###########################################################################
@@ -942,7 +1006,7 @@ method elem_value of Muldis::DB::Engine::Example::PhysType::TypeInvo
 class Muldis::DB::Engine::Example::PhysType::ValueDictNQ {
     does Muldis::DB::Engine::Example::PhysType::ValueDict;
     submethod BUILD {} # otherwise Pugs r16488 invo ValueDict.BUILD twice
-    method _allows_quasi of Bool () { return $FALSE; }
+    method _allows_quasi of Bool () { return $BOOL_FALSE; }
 } # class Muldis::DB::Engine::Example::PhysType::ValueDictNQ
 
 ###########################################################################
@@ -951,7 +1015,7 @@ class Muldis::DB::Engine::Example::PhysType::ValueDictNQ {
 class Muldis::DB::Engine::Example::PhysType::ValueDictAQ {
     does Muldis::DB::Engine::Example::PhysType::ValueDict;
     submethod BUILD {} # otherwise Pugs r16488 invo ValueDict.BUILD twice
-    method _allows_quasi of Bool () { return $TRUE; }
+    method _allows_quasi of Bool () { return $BOOL_TRUE; }
 } # class Muldis::DB::Engine::Example::PhysType::ValueDictAQ
 
 ###########################################################################

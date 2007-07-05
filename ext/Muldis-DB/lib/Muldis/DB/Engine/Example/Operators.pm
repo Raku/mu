@@ -5,9 +5,10 @@ use v6-alpha;
 
 module Muldis::DB::Engine::Example::Operators-0.0.0 {
 
-    use Muldis::DB::Engine::Example::PhysType <ptBool ptText ptBlob ptInt
-        ptTuple ptQuasiTuple ptRelation ptQuasiRelation ptTypeInvoNQ
-        ptTypeInvoAQ ptTypeDictNQ ptTypeDictAQ ptValueDictNQ ptTypeDictAQ>;
+    use Muldis::DB::Engine::Example::PhysType <ptBool ptOrder ptInt
+        ptBlob ptText ptTuple ptQuasiTuple ptRelation ptQuasiRelation
+        ptTypeInvoNQ ptTypeInvoAQ ptTypeDictNQ ptTypeDictAQ ptValueDictNQ
+        ptTypeDictAQ>;
 
     my Hash $OPS = {
 
@@ -16,10 +17,7 @@ module Muldis::DB::Engine::Example::Operators-0.0.0 {
 ## sys.type.Bool ##
 
 
-## sys.type.Text ##
-
-
-## sys.type.Blob ##
+## sys.type.Order ##
 
 
 ## sys.type.Int ##
@@ -91,6 +89,12 @@ module Muldis::DB::Engine::Example::Operators-0.0.0 {
     my ($radix, $exponent) = $ro_args<radix exponent>;
     return ptInt( :v($radix.v() ** $exponent.v()) );
 },
+
+## sys.type.Blob ##
+
+
+## sys.type.Text ##
+
 
 ## sys.type.Tuple ##
 
