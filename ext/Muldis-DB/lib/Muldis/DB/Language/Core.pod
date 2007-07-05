@@ -15,18 +15,90 @@ before you read this one, which provides subservient details.
 
 =head1 DESCRIPTION
 
-I<This documentation is pending.>
+Muldis D has a mandatory core set of system-defined (eternally available)
+entities, which is referred to as the I<Muldis D core> or the I<core>; they
+are the minimal entities that all Muldis D implementations need to provide;
+they are mutually self-describing and are used to bootstrap the language;
+any entities outside the core, called I<Muldis D extensions>, are
+non-mandatory and are defined in terms of the core or each other, but the
+reverse isn't true.
 
-=head1 SYSTEM-DEFINED DATA TYPES AND ROUTINES
+A significant subset of the Muldis D core entities are specific to being or
+implementing the Muldis D system catalog / meta-model, and aren't used
+elsewhere by the system; these are documented in the
+L<Muldis::DB::Language::Catalog> document; all the other core entities are
+described in the current C<Core> document.
 
-These data types and routines are built-in to Muldis D and should be
-available under all of its implementations.  They are available for the
-entire time that a DBMS is active and can be used by both persistent and
-temporary user-defined entities.
+This current C<Core> document features the boolean, order, integer, bit
+string, and character string types and operators, plus the tuple and
+relation type constructors (and quasi- variants) and operators, plus the
+type system minimal and maximal types, and the polymorphic operators that
+all types, or some types including core types, have defined over them.
 
 Extensions are in these other documents: L<Muldis::DB::Language::Ext::Num>,
 L<Muldis::DB::Language::Ext::Temporal>,
 L<Muldis::DB::Language::Ext::Spatial>.
+
+I<This documentation is pending.>
+
+=head1 TYPE SUMMARY
+
+Following are all the data types and data type factories described in this
+document, arranged in a type graph according to their proper sub|supertype
+relationships:
+
+    sys.type.Universal
+
+        sys.type.Empty
+
+        sys.type.Scalar
+            sys.type.Ordinal
+
+                # The following are all regular ordinal scalar types.
+
+                sys.type.Bool
+                    sys.type.Bool.False
+                    sys.type.Bool.True
+                sys.type.Order
+                    sys.type.Order.Increase
+                    sys.type.Order.Same
+                    sys.type.Order.Decrease
+                sys.type.Int
+                    sys.type.UInt
+                        sys.type.PInt
+                sys.type.Blob
+                    sys.type.NEBlob
+                sys.type.Text
+                    sys.type.NEText
+
+        # The following are all nonscalar type factories.
+
+        sys.type.Tuple
+            sys.type.Database
+
+        sys.type.Relation
+            sys.type.Set
+                sys.type.Maybe
+            sys.type.Seq
+            sys.type.Bag
+
+        # The following are all quasi-nonscalar type factories.
+
+        sys.type.QuasiTuple
+
+        sys.type.QuasiRelation
+            sys.type.QuasiSet
+                sys.type.QuasiMaybe
+            sys.type.QuasiSeq
+            sys.type.QuasiBag
+
+Note that C<sys.type.Empty> is a proper subtype of all of the other types
+in this graph, but every other type has only one immediate supertype shown,
+and hence the graph of them is a simple hierarchy.
+
+I<This documentation is pending.>
+
+=head1 SYSTEM-DEFINED DATA TYPES AND ROUTINES
 
 =head2 Maximal and Minimal Data Types
 
@@ -67,36 +139,18 @@ specified in terms of them; they are all non-structured.
 
 =item C<sys.type.Bool>
 
-A C<Bool> is a truth value, and can be either False or True.  Its default
-value is False.  The cardinality of this type is 2.
+A C<Bool> is an enumeration consisting of the 2 values C<Bool.False> and
+C<Bool.True>.  It represents a truth value, and is the result type of any
+C<equal> or C<not_equal> routine; it is the only essential scalar data type
+of a B<D> language.  Its default value is C<Bool.False>.  The cardinality
+of this type is 2.
 
-=item C<sys.type.Text>
+=item C<sys.type.Order>
 
-A C<Text> is a string of characters.  Its default value is the empty
-string.  Note that there is only one system-defined character repertoire
-for C<Text> types, which is the newest Unicode repertoire (5.0.0).  The
-cardinality of this type is infinity; to define a most-generalized finite
-C<Text> subtype, you must specify a maximum length in characters (that is,
-eg, in NFC graphemes) that the subtype's strings are.
-
-=item C<sys.type.NEText>
-
-A C<NEText> (non-empty text) is a proper subtype of C<Text> where its
-length in characters must be more than zero; it can be any C<Text> except
-for the empty string.  Its default value is a single "space" character.
-
-=item C<sys.type.Blob>
-
-A C<Blob> is an undifferentiated string of bits.  Its default value is the
-empty string.  The cardinality of this type is infinity; to define a
-most-generalized finite C<Blob> subtype, you must specify a maximum length
-in characters that the subtype's strings are.
-
-=item C<sys.type.NEBlob>
-
-A C<NEBlob> (non-empty blob) is a proper subtype of C<Blob> where its
-length in bits must be at least 1; it can be any C<Blob> except for the
-empty string.  Its default value is a single zero bit.
+A C<Order> is an enumeration consisting of the 3 values C<Order.Increase>,
+C<Order.Same>, C<Order.Decrease>.  It is the result type of any C<compare>
+routine that is used on 2 values of a C<sys.type.Ordinal> subtype.  Its
+default value is C<Order.Same>.  The cardinality of this type is 3.
 
 =item C<sys.type.Int>
 
@@ -115,6 +169,34 @@ values are non-negative / greater than or equal to zero.
 A C<PInt> (positive integer) is a proper subtype of C<UInt> where all
 member values are positive / greater than or equal to one.  Its default
 value is one.
+
+=item C<sys.type.Blob>
+
+A C<Blob> is an undifferentiated string of bits.  Its default value is the
+empty string.  The cardinality of this type is infinity; to define a
+most-generalized finite C<Blob> subtype, you must specify a maximum length
+in characters that the subtype's strings are.
+
+=item C<sys.type.NEBlob>
+
+A C<NEBlob> (non-empty blob) is a proper subtype of C<Blob> where its
+length in bits must be at least 1; it can be any C<Blob> except for the
+empty string.  Its default value is a single zero bit.
+
+=item C<sys.type.Text>
+
+A C<Text> is a string of characters.  Its default value is the empty
+string.  Note that there is only one system-defined character repertoire
+for C<Text> types, which is the newest Unicode repertoire (5.0.0).  The
+cardinality of this type is infinity; to define a most-generalized finite
+C<Text> subtype, you must specify a maximum length in characters (that is,
+eg, in NFC graphemes) that the subtype's strings are.
+
+=item C<sys.type.NEText>
+
+A C<NEText> (non-empty text) is a proper subtype of C<Text> where its
+length in characters must be more than zero; it can be any C<Text> except
+for the empty string.  Its default value is a single "space" character.
 
 =back
 
@@ -145,6 +227,11 @@ the product of the number of permutations drawable from the values of each
 of its attributes' declared data types; for a C<Tuple> subtype to be
 finite, all of its attribute types must be.
 
+=item C<sys.type.Database>
+
+A C<Database> is a proper subtype of C<Tuple> where all of its attributes
+are Relation-typed; it is otherwise the same.
+
 =item C<sys.type.Relation>
 
 A C<Relation> is analogous to a set of 0..N tuples where all tuples have
@@ -158,11 +245,6 @@ generally the same as for C<Tuple>.  A Relation data type can also have
 its set of values relative to there being no explicit keys, but having the
 keys won't turn an infinite Relation type into a finite one.
 
-=item C<sys.type.Database>
-
-A C<Database> is a proper subtype of C<Tuple> where all of its attributes
-are Relation-typed; it is otherwise the same.
-
 =item C<sys.type.Set>
 
 A C<Set> is a proper subtype of C<Relation> that has 1 attribute, and its
@@ -170,6 +252,16 @@ name is C<value>; it can be of any declared type.  A C<Set> subtype is
 normally used by any system-defined N-ary operators where the order of
 their argument elements or result is not significant, and that duplicate
 values are not significant.  Its default value has zero tuples.
+
+=item C<sys.type.Maybe>
+
+A C<Maybe> is a proper subtype of C<Set> that may have at most one element;
+that is, it is a unary C<Relation> with a nullary key.  Operators that work
+specifically with C<Maybe> subtypes can provide a syntactic shorthand for
+working with sparse data; so Muldis D has something which is conceptually
+close to SQL's nullable types without actually having 3-valued logic; it
+would probably be convenient for code that round-trips SQL by way of
+Muldis D to use the C<Maybe> type.  Its default value has zero tuples.
 
 =item C<sys.type.Seq>
 
@@ -194,16 +286,6 @@ order of their argument elements or result is not significant, but that
 duplicate values are significant; specifically, C<count> defines an
 explicit count of occurrences for C<values>.  Its default value has zero
 tuples.
-
-=item C<sys.type.Maybe>
-
-A C<Maybe> is a proper subtype of C<Set> that may have at most one element;
-that is, it is a unary C<Relation> with a nullary key.  Operators that work
-specifically with C<Maybe> subtypes can provide a syntactic shorthand for
-working with sparse data; so Muldis D has something which is conceptually
-close to SQL's nullable types without actually having 3-valued logic; it
-would probably be convenient for code that round-trips SQL by way of
-Muldis D to use the C<Maybe> type.  Its default value has zero tuples.
 
 =back
 
@@ -232,6 +314,12 @@ A C<QuasiSet> is a proper subtype of C<QuasiRelation> in the corresponding
 manner to C<Set> being a proper subtype of C<Relation>.  Its cardinality is
 infinite.
 
+=item C<sys.type.QuasiMaybe>
+
+A C<QuasiMaybe> is a proper subtype of C<QuasiRelation> in the
+corresponding manner to C<Maybe> being a proper subtype of C<Relation>.
+Its cardinality is infinite.
+
 =item C<sys.type.QuasiSeq>
 
 A C<QuasiSeq> is a proper subtype of C<QuasiRelation> in the corresponding
@@ -243,12 +331,6 @@ infinite.
 A C<QuasiBag> is a proper subtype of C<QuasiRelation> in the corresponding
 manner to C<Bag> being a proper subtype of C<Relation>.  Its cardinality is
 infinite.
-
-=item C<sys.type.QuasiMaybe>
-
-A C<QuasiMaybe> is a proper subtype of C<QuasiRelation> in the
-corresponding manner to C<Maybe> being a proper subtype of C<Relation>.
-Its cardinality is infinite.
 
 =back
 

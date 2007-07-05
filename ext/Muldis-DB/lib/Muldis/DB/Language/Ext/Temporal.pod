@@ -15,7 +15,52 @@ before you read this one, which provides subservient details.
 
 =head1 DESCRIPTION
 
+Muldis D has a mandatory core set of system-defined (eternally available)
+entities, which is referred to as the I<Muldis D core> or the I<core>; they
+are the minimal entities that all Muldis D implementations need to provide;
+they are mutually self-describing and are used to bootstrap the language;
+any entities outside the core, called I<Muldis D extensions>, are
+non-mandatory and are defined in terms of the core or each other, but the
+reverse isn't true.
+
+This current C<Temporal> document describes the system-defined I<Muldis D
+Temporal Extension>, which consists of temporal data types and operators,
+particularly durations and dates or times.
+
+This current document does not describe the polymorphic operators that all
+types, or some types including core types, have defined over them; said
+operators are defined once for all types in L<Muldis::DB::Language::Core>.
+
 I<This documentation is pending.>
+
+=head1 TYPE SUMMARY
+
+Following are all the data types described in this document, arranged in a
+type graph according to their proper sub|supertype relationships (but that
+the first 4 just reappear from the core set to provide a similar context,
+and aren't re-described here):
+
+    sys.type.Universal
+
+        sys.type.Empty
+
+        sys.type.Scalar
+            sys.type.Ordinal
+
+                # The following are all regular ordinal scalar types.
+
+                sys.type.Temporal.Duration
+                sys.type.Temporal.DurationOfDays
+                sys.type.Temporal.DateTime
+                sys.type.Temporal.DateTimeNoTZ
+                sys.type.Temporal.Date
+                sys.type.Temporal.DateNoTZ
+                sys.type.Temporal.Time
+                sys.type.Temporal.TimeNoTZ
+
+I<This documentation is pending.>
+
+=head1 SYSTEM-DEFINED DATA TYPES AND ROUTINES
 
 =head2 Temporal Data Types
 
