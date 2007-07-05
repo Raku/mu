@@ -1,157 +1,89 @@
 
 # Match class for kp6-on-Perl5Regex 
 
-package KindaPerl6::Perl5::Match;
 # Documentation in the __END__
 
-use 5.006;
 use strict;
-use warnings;
-no warnings 'recursion';
-use Data::Dumper;
-#use Class::InsideOut qw( public register id );
-use Scalar::Util qw( refaddr blessed );
 
-my %_data;
+package Match;
 
-use overload (
-    '@{}'    => \&array,
-    '%{}'    => \&hash,
-    'bool'   => sub { $_data{refaddr $_[0]}{bool} },
-    '&{}'    => \&code,
-    '${}'    => \&scalar,
-    '""'     => \&flat,
-    '0+'     => \&flat,
-    fallback => 1,
-);
-
-# class method
-# ::fail can be called from inside closures
-# sub ::fail { $::_V6_SUCCEED = 0 }
-
-sub new {
-    my $class = shift;
-    my $obj = bless \$class, $class;
-    #print "Match->new( @_ ) ",(refaddr $obj),"\n";
-    $_data{ refaddr $obj } = { @_ };
-    return $obj;
-}
-
-sub DESTROY {  
-    delete $_data{ refaddr $_[0] };
-}
-
-sub data  {    $_data{refaddr $_[0]}           }
-
-#sub from  {    $_data{refaddr $_[0]}->{from}   }
-#sub to    {    $_data{refaddr $_[0]}->{to}     }
-#sub bool  {    $_data{refaddr $_[0]}->{bool}   }
-
-sub from { @_ == 1 ? ( $_data{refaddr $_[0]}{from} ) : ( $_data{refaddr $_[0]}{from} = $_[1] ) };
-sub to   { @_ == 1 ? ( $_data{refaddr $_[0]}{to}   ) : ( $_data{refaddr $_[0]}{to}   = $_[1] ) };
-sub bool { @_ == 1 ? ( $_data{refaddr $_[0]}{bool} ) : ( $_data{refaddr $_[0]}{bool} = $_[1] ) };
-sub capture
-         { @_ == 1 ? ( $_data{refaddr $_[0]}{capture} ) : ( $_data{refaddr $_[0]}{capture} = $_[1] ) };
-
-sub array {    
-         $_data{refaddr $_[0]}->{match} 
-    || ( $_data{refaddr $_[0]}->{match} = [] )
-}
-
-sub hash  {   
-         $_data{refaddr $_[0]}->{named} 
-    || ( $_data{refaddr $_[0]}->{named} = {} )
-
-# XXX - doesn't work as lvalue
-#    my $array = 
-#             $_data{refaddr $_[0]}->{match} 
-#        || ( $_data{refaddr $_[0]}->{match} = [] );
-#    return {
-#        %{ $_data{refaddr $_[0]}->{named} || {} },
-#        (
-#        map { ( $_, $array->[$_] ) } 
-#            0 .. $#$array
-#        ),
-#    }
-}
-
-sub keys   { 
-    CORE::keys   %{$_data{refaddr $_[0]}->{named}},
-    0 .. $#{ $_[0]->array }
-}
-sub values { 
-    CORE::values %{$_data{refaddr $_[0]}->{named}},
-    @{ $_[0]->array }
-}
-sub kv {
-    map { ( $_, $_[0]->{$_} ) } 
-        $_[0]->keys 
-}
-sub elems  { 
-    scalar $_[0]->keys
-}
-
-sub chars  { CORE::length $_[0]->str }
-
-sub flat {
-    my $obj = $_data{refaddr $_[0]};
-    my $cap = $obj->{capture};
-    #print ref $cap;
-    return $cap
-        if defined $cap;
-    return '' unless $obj->{bool};
+    use Data::Dumper;
+    sub new {
+        bless { 
+            array  => [], 
+            hash   => {}, 
+            bool   => 0, 
+            result => undef,
+            from   => undef, 
+            to     => undef, 
+            match_str => undef,
+        }, $_[0];
+    }
+    sub clone {
+        bless { 
+            array  => [ @{$_[0]->{array}} ], 
+            hash   => { %{$_[0]->{hash}} }, 
+            bool   => $_[0]->{bool}, 
+            result => $_[0]->{result},
+            from   => $_[0]->{from}, 
+            to     => $_[0]->{to}, 
+            match_str => $_[0]->{match_str}, 
+        }, ref $_[0];
+    }
+    sub array  :lvalue { $_[0]->{array} }
+    sub hash   :lvalue { $_[0]->{hash} }
+    sub bool   :lvalue { $_[0]->{bool} }
+    sub result :lvalue { $_[0]->{result} }
+    sub from   :lvalue { $_[0]->{from} }
+    sub to     :lvalue { $_[0]->{to} }
+    sub match_str :lvalue { $_[0]->{match_str} }
     
-    return '' if $_[0]->from > length( $obj->{str} );
-    
-    return substr( $obj->{str}, $_[0]->from, $_[0]->to - $_[0]->from );
-}
+    sub str {
+          $_[0]->bool 
+        ? substr( ${$_[0]->match_str}, $_[0]->from, $_[0]->to - $_[0]->from )
+        : undef;
+    }
+    sub perl {
+        Dumper( $_[0] );
+    }
 
-sub str {
-    "" . $_[0]->flat;
-}
+    our @Matches;
+    sub from_global_data {
+        unless ( defined $_[0] ) {
+            # no match
+            push @Matches, Match->new();
+            return;
+        }
 
-sub perl {
-    local $Data::Dumper::Terse    = 1;
-    local $Data::Dumper::Sortkeys = 1;
-    local $Data::Dumper::Pad = '  ';
-    return __PACKAGE__ . "->new( " . Dumper( $_[0]->data ) . ")\n";
-}
+        my ( $previous, $action, @data ) = @{+shift};
+        if ( defined $previous ) {
+            from_global_data( $previous );
+        }
+        
+        # XXX - use a dispatch table
+        if ( $action eq 'create' ) {
+            push @Matches, Match->new();
+            $Matches[-1]->bool = 1;
+            $Matches[-1]->from = $data[0];
+            $Matches[-1]->match_str = $data[1];
+        }
+        elsif ( $action eq 'to' ) {
+            $Matches[-1]->to = $data[0];
+        }
+        elsif ( $action eq 'capture' ) {
+            # XXX - named captures, pre-numbered captures
+            my $match = pop @Matches;
+            push @{ $Matches[-1]->array }, $match;
+        }
+        else {
+            die "no action like '$action'"
+        }
+        
+        # print "action: $action [ @data ]\n";
 
-sub yaml {
-    require YAML::Syck;
-    # interoperability with other YAML/Syck bindings:
-    $YAML::Syck::ImplicitTyping = 1;
-    YAML::Syck::Dump( $_[0] );
-}
-
-# return the capture
-sub scalar {
-    return \( $_[0]->flat );
-}
+    }
 
 1;
-
-__END__
-
-# tail() for backwards compatibility
-# - doesn't work on failed matches
-sub tail {
-    return substr( ${$_data{refaddr $_[0]}->{str}}, $_[0]->to );
-}
-
-# state() is used for multiple matches and backtracking control
-sub state {
-    return $_data{refaddr $_[0]}->{state};
-}
-
-# return the capture
-sub code {
-    my $c = $_[0];
-    return sub { $c->flat };
-}
-
-1;
-
 __END__
 
 =head1 NAME 
