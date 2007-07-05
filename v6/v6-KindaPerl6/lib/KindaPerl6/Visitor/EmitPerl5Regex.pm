@@ -38,10 +38,24 @@ class Token {
             ~ '})'
 
             ~ '/x; ' 
-            ~ 'sub ' ~ $.name ~ ' { '
-            ~    'local $GLOBAL::_Class = shift; '
-            ~    '/$_rule_' ~ $.name ~ '/; '
-            ~ '}; '
+
+            # create the method, using the OO metamodel
+            
+            ~ '$::X->{_dispatch}( $::X, "HOW", )->{_dispatch}( '
+            ~   '$::X->{_dispatch}( $::X, "HOW", ), '
+                ~ '"add_method", '
+                ~ '$::Str->{_dispatch}( $::Str, "new", "' ~ $.name ~ '" ), '
+
+                ~ 'sub { '
+                ~    'local $GLOBAL::_Class = shift; '
+                ~    'undef $GLOBAL::_M2; '
+                ~    '/$_rule_' ~ $.name ~ '/; '
+                ~    'Match::from_global_data( $GLOBAL::_M2 ); '
+                ~    '$GLOBAL::MATCH = shift @Match::Matches; '
+                ~ '} '
+
+            ~ '); '
+                        
         return $source;
     }
 }
