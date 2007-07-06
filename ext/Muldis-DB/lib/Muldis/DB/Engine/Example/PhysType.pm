@@ -15,7 +15,7 @@ my Str $EMPTY_STR = q{};
 ###########################################################################
 ###########################################################################
 
-module Muldis::DB::Engine::Example::PhysType-0.0.0 {
+module Muldis::DB::Engine::Example::PhysType-0.1.0 {
     # Note: This given version applies to all of this file's packages.
 
 ###########################################################################
@@ -1032,7 +1032,7 @@ Physical representations of all core data types
 
 =head1 VERSION
 
-This document describes Muldis::DB::Engine::Example::PhysType version 0.0.0
+This document describes Muldis::DB::Engine::Example::PhysType version 0.1.0
 for Perl 6.
 
 It also describes the same-number versions for Perl 6 of [...].

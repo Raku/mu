@@ -7,6 +7,10 @@
 Muldis::DB::Language::Ext::Temporal -
 Muldis D extension for temporal data types and operators
 
+=head1 VERSION
+
+This document is Muldis::DB::Language::Ext::Temporal version 0.1.0.
+
 =head1 PREFACE
 
 This document is part of the Muldis D language specification, whose root

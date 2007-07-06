@@ -7,6 +7,10 @@
 Muldis::DB::SeeAlso -
 External resources that you really ought to look at
 
+=head1 VERSION
+
+This document is Muldis::DB::SeeAlso version 0.1.0.
+
 =head1 DESCRIPTION
 
 This document is a central location within the L<Muldis::DB> distribution

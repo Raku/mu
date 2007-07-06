@@ -4,10 +4,39 @@
 2007-07-xx   Darren Duncan <perl@DarrenDuncan.net>
 
     * Muldis::DB version 0.1.0 for Perl 5 is released on CPAN as
-    Muldis-DB-0.1.0.tar.gz.
+    Muldis-DB-0.1.0.tar.gz.  Muldis::DB version 0.1.0 for Perl 6 is not
+    released at this time, if ever, since it is currently released only as
+    part of the Perl6-Pugs project (in its ext/Muldis-DB/ subdirectory),
+    which sets its own less frequent release schedule.  The rest of this
+    Changes entry refers only to the Perl 5 version.
+
+    * This is a major release that focuses on overhauling or defining most
+    of the Muldis D meta-model / system catalog, which is essential for
+    supporting any user-defined DBMS entities, that is, for doing anything
+    remotely useful.  CONJECTURE: THIS RELEASE MAINLY JUST UPDATES THE
+    LANGUAGE SPECS AND THE PUBLIC API, BUT DOES NOT SUBSTANTIALLY UPDATE
+    THE EXAMPLE ENGINE, WHICH WILL WAIT FOR THE NEXT RELEASE.
 
     * New code file versions are: DB.pm and AST.pm and Validator.pm and
     Example.pm 0.1.0.
+
+    * As of this release, all pod-only files now also have version numbers,
+    shown in the VERSION docs by NAME, like code-containing modules do; the
+    initial version numbers are all 0.1.0.  Moreover, from now on, the
+    version number of Language.pod will expressly be kept equal to that of
+    DB.pm, just as AST.pm and Validator.pm and Example.pm are.
+
+    * Muldis D now has 2 representation formats (Concrete, Abstract) rather
+    than 3 (relations, ASTs, strings).
+
+    * Muldis D now has a new scalar data type, "Order", which is an
+    enumeration (like "Bool" is) of 3 values: [Increase, Same, Decrease];
+    it is the result type of any binary comparison operator that underlies
+    the likes of less|greater-than or min|max or sorting operations.
+
+    * Rearranged any relevant docs and code so that the simple core scalar
+    types are now in the order [Bool, Order, Int, Blob, Text] and the
+    relation type factory Maybe now appears after Set.
 
     * Split up Language.pod 7 ways, into itself and
     Language/(Core|Catalog|Grammar).pod and
@@ -15,17 +44,12 @@
     Language.pod remained in that file, with the other files comprising
     about 25%; the other files then showed most of the subsequent growth.
 
-    * Muldis D now has 2 representation formats (Concrete, Abstract) rather
-    than 3 (relations, ASTs, strings).
-
 2007-06-29   Darren Duncan <perl@DarrenDuncan.net>
 
     * Muldis::DB version 0.0.1 for Perl 5 is released on CPAN as
     Muldis-DB-0.0.1.tar.gz.  Muldis::DB version 0.0.1 for Perl 6 is not
-    released at this time, if ever, since it is currently released only as
-    part of the Perl6-Pugs project (in its ext/Muldis-DB/ subdirectory),
-    which sets its own less frequent release schedule.  The rest of this
-    Changes entry refers only to the Perl 5 version.
+    released at all.  The rest of this Changes entry refers only to the
+    Perl 5 version.
 
     * New code file versions are: DB.pm and AST.pm and Validator.pm and
     Example.pm 0.0.1.

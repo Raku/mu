@@ -7,6 +7,10 @@
 Muldis::DB::Language -
 Design document of the Muldis D language
 
+=head1 VERSION
+
+This document is Muldis::DB::Language version 0.1.0.
+
 =head1 PREFACE
 
 This is the root document of the Muldis D language specification; the
