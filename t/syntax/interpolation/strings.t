@@ -10,7 +10,7 @@ These tests derived from comments in L<http://use.perl.org/~autrijus/journal/233
 
 =cut
 
-plan 37;
+plan 39;
 
 my $world = "World";
 my $number = 1;
@@ -33,6 +33,8 @@ is("$number {my $number=2}", '1 2', 'local version of number in closure works');
 is("$number {my $number=2} $number", '1 2 1', 'original number still available after local version in closure: works' );
 eval( q[is("$number {my $number=2} {$number}", '1 2 1', 'original number
 still available in closure after local version in closure: works' );] );
+is("$(my $x = 2) $x", '2 2', 'Variable should interpolate and still be available in the outer scope.');
+is("$(my $x = 2)" ~ $x, '22', 'Variable should interpolate and still be available in the outer scope.')
 
 # L<S02/Names and Variables/form of each subscript>
 is("&func. () is where I live", '&func. () is where I live', '"&func. ()" should not interpolate');

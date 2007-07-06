@@ -70,7 +70,7 @@ my @oldval  = (5, 8, 12);
 my @newval1 = (17, 15, 14); # all greater
 my @newval2 = (15, 7,  20); # some less some greater
 my @newval3 = (3, 1, 4);    # all less
-my @newval4 = (1,2,40);     
+my @newval4 = (1,2,40);
 
 ok( any(@newval4) > any(@oldval), "any test array against any array" );
 ok( any(@newval4) > all(@oldval), "any test array against all array" );
