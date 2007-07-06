@@ -723,9 +723,7 @@ any later version.
 
 You should have received copies of the GPL and AGPL as part of the
 Muldis::DB distribution, in the files named "LICENSE/GPL" and
-"LICENSE/AGPL" respectively; if not, see L<http://www.gnu.org/licenses> or
-write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth
-Floor, Boston, MA 02110-1301 USA.
+"LICENSE/AGPL" respectively; if not, see L<http://www.gnu.org/licenses/>.
 
 I<WARNING:  The AGPL version 3 are still being drafted, and its date of
 final publication is unknown, but is presumed to be soon; until then, the
