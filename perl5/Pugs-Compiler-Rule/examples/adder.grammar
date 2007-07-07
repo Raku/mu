@@ -1,0 +1,10 @@
+# Usage:
+#   util/compile_p6grammar.pl examples/adder.grammar > Adder.pm
+#   perl -MAdder -e 'print Adder->add("3 + 23")->(), "\n"'
+
+grammar Adder;
+
+token add {
+    (\d+) <?ws>? '+' <?ws>? (\d+) { return $/[0] + $/[1] }
+}
+

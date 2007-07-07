@@ -1,9 +1,4 @@
 #!/usr/bin/env perl
-# The .pm file is in Perl 6 syntax
-# The .pmc file is in Perl 5 Pugs::Compiler::Rule syntax
-
-# TODO - in order to Grammar.pm to self-compile:
-#    unshift @rule_terms, 'dot';
 
 use lib 'lib';
 use File::Slurp 'slurp';
@@ -24,10 +19,15 @@ compile_p6grammar.pl - Compile Perl6 Grammars to Perl5 Modules
 
 =head1 SYNOPSIS
 
-  # The .pm file is in Perl 6 syntax
-  # The .pmc file is in Perl 5 Pugs::Compiler::Rule syntax
+    $ util/compile_p6grammar.pl examples/adder.grammar > Adder.pm
+    $ perl -MAdder -e 'print Adder->add("3 + 23")->(), "\n"'
+    $ cat examples/adder.grammar
+      grammar Adder;
 
-  perl compile_p6grammar.pl foo.grammar > Foo.pm
+      token add {
+          (\d+) <?ws>? '+' <?ws>? (\d+) { return $/[0] + $/[1] }
+      }
+    $
 
 =head1 DESCRIPTION
 
@@ -43,12 +43,16 @@ The Perl 6 Rules Spec: L<http://dev.perl.org/perl6/doc/design/syn/S05.html>
 
 =head1 COPYRIGHT
 
-Copyright 2006 by Nathan Gray and Agent Zhang.
+Copyright 2006, 2007 by Nathan Gray and Agent Zhang.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
 
 See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=head1 SEE ALSO
+
+L<Pugs::Compiler::Grammar>, L<Pugs::Compiler::Rule>.
 
 =cut
 
