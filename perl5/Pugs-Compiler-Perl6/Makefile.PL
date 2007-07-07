@@ -2,6 +2,7 @@
 
 use strict;
 use warnings;
+
 my @inc;
 BEGIN {
     @inc = (-e '../../inc' and -e '../../VICTUALS')
@@ -11,7 +12,7 @@ BEGIN {
         : ()
 }
 use lib '../..', (@inc ? $inc[-1] : ());
-use inc::Module::Install @inc;
+use inc::Module::Install (@inc, '.');
 use File::Spec;
 
     name('v6');
