@@ -1,12 +1,29 @@
-#!/bin/sh
+#!/bin/bash
 
 # Update lib/Pugs/Grammar/Rule.pmc using lib/Pugs/Grammar/Rule2.pm
+# util/update-rule-pmc
+# util/update-rule-pmc install
+# util/update-rule-pmc revert
+# util/udpate-rule-pmc update
+
+
+if [ "$1" == "install" ]; then
+    echo "cp tmp/Rule.pmc lib/Pugs/Grammar/Rule.pmc"
+    cp tmp/Rule.pmc lib/Pugs/Grammar/Rule.pmc
+    exit
+elif [ "$1" == "revert" ]; then
+    svn revert lib/Pugs/Grammar/Rule.pmc
+    exit
+elif [ "$1" != "update" ] && [ -n "$1" ]; then
+    echo "Unknown operation $1 (only 'install', 'revert', and 'update' are supported)"
+    exit 1
+fi
 
 mkdir -p tmp
 
 echo "Generating lib/Pug/Grammar/Rule2.pmc..."
 rm lib/Pugs/Grammar/Rule2.pmc
-perl -Ilib lib/Pugs/Grammar/Rule2.pm
+perl -I../Pugs-Compiler-Perl6/lib -Ilib lib/Pugs/Grammar/Rule2.pm 2>&1 | grep -v "redefined at"
 
 echo "Generating tmp/Rule.pmc..."
 perl util/patch-rule-pmc.pl lib/Pugs/Grammar/Rule2.pmc > tmp/Rule.pmc
@@ -25,6 +42,13 @@ rm tmp/tmp
 echo "Diff is in tmp/pmc.diff"
 diff -uTb tmp/old tmp/new > tmp/pmc.diff
 
-echo "cp tmp/Rule.pmc lib/Pugs/Grammar/Rule.pmc"
-cp tmp/Rule.pmc lib/Pugs/Grammar/Rule.pmc
+if [ "$1" == "update" ]; then
+    echo 'cp tmp/Rule.pmc lib/Pugs/Grammar/Rule.pmc'
+    cp tmp/Rule.pmc lib/Pugs/Grammar/Rule.pmc
+else
+    echo '# cp tmp/Rule.pmc lib/Pugs/Grammar/Rule.pmc'
+    # cp tmp/Rule.pmc lib/Pugs/Grammar/Rule.pmc
+    echo "Hint: use '$0 install' to do the cp for real"
+    echo "Hint: use '$0 revert' to revert an install"
+fi
 
