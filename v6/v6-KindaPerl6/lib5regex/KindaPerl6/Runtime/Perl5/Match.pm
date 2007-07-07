@@ -3,6 +3,9 @@
 
 # Documentation in the __END__
 
+
+# XXX TODO - create {_dispatch} key for P6-MOP bridge
+
 use strict;
 
 package Match;

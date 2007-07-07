@@ -92,11 +92,14 @@ class KindaPerl6::Visitor::MetaClass {
                 # METHOD
                 if   $item.isa( 'Method' )
                 {
-                    # Bar->HOW->add_method('bar' => sub { 789 });
+                    # Bar->HOW->add_method('bar' => Method->new( 'method' => sub { 789 } ) );
                     push @$module, ::Call(
                         'hyper'     => '',
                         'arguments' => [
                             ::Val::Buf( buf => $item.name ), 
+                            
+                            # XXX TODO - create method
+                            
                             ::Method(
                                 name  => '',
                                 block => $item.block,

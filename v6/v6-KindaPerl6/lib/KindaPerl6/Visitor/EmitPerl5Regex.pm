@@ -40,6 +40,8 @@ class Token {
             ~ '/x; ' 
 
             # create the method, using the OO metamodel
+            # OUTER::<$_> := string to match
+            # OUTER::<$/> := match result
             
             ~ '$::X->{_dispatch}( $::X, "HOW", )->{_dispatch}( '
             ~   '$::X->{_dispatch}( $::X, "HOW", ), '
@@ -53,6 +55,7 @@ class Token {
                     ~    '( ref($_) ? $_->{_dispatch}( $_, "str" )->{_value} : $_ ) =~ '
                     ~      '/$_rule_' ~ $.name ~ '/; '
                     ~    'Match::from_global_data( $GLOBAL::_M2 ); '
+                    # XXX TODO - modify outer $/
                     ~    '$GLOBAL::MATCH = shift @Match::Matches; '
                     ~ '} '
                 ~ '), '
