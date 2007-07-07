@@ -7,7 +7,7 @@ use utf8;
 
 =for compiling
 
-    The util/gen-rule-pmc.pl script is used to
+    The util/update-rule-pmc script is used to
     generate lib/Pugs/Grammar/Rule.pmc from
     this file.
 
@@ -23,6 +23,8 @@ use utf8;
         no strict 'refs';
         use Pugs::Runtime::Match;
         use Pugs::Runtime::Regex;
+    The post-processing thing is done
+    by the Perl 5 script util/patch-rule-pmc.pl
 
 =cut
 
