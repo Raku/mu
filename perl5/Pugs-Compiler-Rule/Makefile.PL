@@ -28,6 +28,8 @@ requires            ('Parse::Yapp' => '0');
 requires            ('PadWalker' => '1.0');
 requires            ('Cache::Cache' => '1.05');
 recommends          ('YAML::Syck' => '0.60');
+requires            ('File::Slurp');
+
 install_script      ('util/compile_p6grammar.pl');
 
 eval "use_test_base();";
