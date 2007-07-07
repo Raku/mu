@@ -11,6 +11,10 @@ t6/iterator_engine.pl
 lib/pcr.txt
 lib/print.sh
 tmp.txt
+lib/Pugs/Grammar/Rule2.pmc
+a.pmc
+update-pmc
+tmp
 
 ^blib/
 ^Makefile$

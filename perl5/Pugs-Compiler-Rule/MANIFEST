@@ -67,3 +67,5 @@ t/lib/Emitter.pm
 t/lib/Regex.pm
 t/lib/Util.pm
 TODO
+util/patch-rule-pmc.pl
+util/update-rule-pmc

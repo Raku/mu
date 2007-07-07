@@ -9,7 +9,7 @@ rm lib/Pugs/Grammar/Rule2.pmc
 perl -Ilib lib/Pugs/Grammar/Rule2.pm
 
 echo "Generating tmp/Rule.pmc..."
-perl util/gen-rule-pmc.pl lib/Pugs/Grammar/Rule2.pmc > tmp/Rule.pmc
+perl util/patch-rule-pmc.pl lib/Pugs/Grammar/Rule2.pmc > tmp/Rule.pmc
 
 echo "Validating tmp/Rule.pmc..."
 perl -Ilib tmp/Rule.pmc
@@ -25,6 +25,6 @@ rm tmp/tmp
 echo "Diff is in tmp/pmc.diff"
 diff -uTb tmp/old tmp/new > tmp/pmc.diff
 
-echo "# cp tmp/Rule.pmc lib/Pugs/Grammar/Rule.pmc"
-
+echo "cp tmp/Rule.pmc lib/Pugs/Grammar/Rule.pmc"
+cp tmp/Rule.pmc lib/Pugs/Grammar/Rule.pmc
 

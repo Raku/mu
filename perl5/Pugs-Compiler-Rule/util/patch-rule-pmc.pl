@@ -21,6 +21,8 @@ no strict 'refs';
 use Pugs::Runtime::Match;
 use Pugs::Runtime::Regex;
 
+no warnings 'redefine';
+
 _EOC_
         print;
         next;
