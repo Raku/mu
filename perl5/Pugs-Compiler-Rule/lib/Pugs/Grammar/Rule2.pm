@@ -569,7 +569,7 @@ token named_regex {
 }
 
 token grammar {
-    'grammar' <?ws> <ident> <?ws>? ';'
+    <?ws>? 'grammar' <?ws> <ident> <?ws>? ';'
     <?ws>?
     [ <named_regex> <?ws>? ]*
     { return { $$<ident> => $<named_regex> } }
