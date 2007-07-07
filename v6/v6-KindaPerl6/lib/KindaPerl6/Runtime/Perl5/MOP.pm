@@ -63,7 +63,7 @@ my $dispatch = sub {
         # lookup method in the metaclass
         for my $parent ( @{$self->{_isa}}, $meta_Object ) {
             my $m = get_method_from_metaclass( $parent, $method_name );
-            #print "found\n" if $m;
+            #print $m ? "found\n" : "not found\n";
             return $m->{_value}->( $self, @_ ) 
                 if $m;
         }
@@ -195,6 +195,7 @@ $meta_Class->{_dispatch}( $meta_Class, 'add_method', 'new',  $::Method->{_dispat
         #print Dumper(\@_);
         my $self_meta;
         my $self;
+        my $class_prototype;
 
         $self_meta = {
             %::PROTO,
@@ -217,9 +218,14 @@ $meta_Class->{_dispatch}( $meta_Class, 'add_method', 'new',  $::Method->{_dispat
                 $self;      
             } );
         $self_meta->{_value}{methods}{HOW}    = $::Method->{_dispatch}( $::Method, 'new', sub { $self_meta } );
-        ${"::$class_name"} = $self 
+
+        # ???
+        # create the "prototype", which is an 'empty' instance 
+        $class_prototype = $self->{_dispatch}( $self, 'new', () ); 
+        
+        ${"::$class_name"} = $class_prototype
             if $class_name;
-        $self;  # return the prototype
+        $class_prototype;  # return the prototype
     } ) );
 $::Class = {
     %::PROTO,
