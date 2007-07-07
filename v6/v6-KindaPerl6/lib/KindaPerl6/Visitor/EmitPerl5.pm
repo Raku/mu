@@ -20,6 +20,12 @@ class CompUnit {
         ~ 'no strict \'vars\'; '
         ~ 'use KindaPerl6::Runtime::Perl5::Runtime; '
         ~ 'my $_MODIFIED; BEGIN { $_MODIFIED = {} } '
+
+        # XXX - not sure about $_ scope
+        ~ 'BEGIN { '
+        ~   '$_ = $::Scalar->{_dispatch}( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); '
+        ~ '} '
+
         ~ $.body.emit_perl5
         ~ '; 1 }' ~ Main::newline();
     }
