@@ -55,7 +55,10 @@ class Token {
                     ~    '( ref($_) ? $_->{_dispatch}( $_, "str" )->{_value} : $_ ) =~ '
                     ~      '/$_rule_' ~ $.name ~ '/; '
                     ~    'Match::from_global_data( $GLOBAL::_M2 ); '
+                    
                     # XXX TODO - modify outer $/
+                    ~    '$MATCH = '
+                    
                     ~    '$GLOBAL::MATCH = shift @Match::Matches; '
                     ~ '} '
                 ~ '), '

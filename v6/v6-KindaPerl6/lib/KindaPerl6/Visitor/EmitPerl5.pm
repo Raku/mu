@@ -444,11 +444,6 @@ class Sub {
         my $pos := $sig.positional;
         my $str := 'my $List__ = \@_; ';  # no strict "vars"; ;
 
-        # This is used by MOP.add_method
-        # if $invocant {
-        #    $str := $str ~ 'my ' ~ $invocant.emit_perl5 ~ ' = shift; ';
-        # }
-
         # TODO - follow recursively
         my $pos := $sig.positional;
         if @$pos {

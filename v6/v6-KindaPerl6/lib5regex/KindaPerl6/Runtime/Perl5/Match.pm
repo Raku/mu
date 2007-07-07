@@ -20,6 +20,10 @@ package Match;
             from   => undef, 
             to     => undef, 
             match_str => undef,
+            _dispatch => sub { 
+                my ($self, $method, @param) = @_;
+                $self->$method( @param );
+            },
         }, $_[0];
     }
     sub clone {
@@ -31,6 +35,7 @@ package Match;
             from   => $_[0]->{from}, 
             to     => $_[0]->{to}, 
             match_str => $_[0]->{match_str}, 
+            _dispatch => $_[0]->{_dispatch}, 
         }, ref $_[0];
     }
     sub array  :lvalue { $_[0]->{array} }

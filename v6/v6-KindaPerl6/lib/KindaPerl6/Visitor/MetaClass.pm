@@ -98,12 +98,21 @@ class KindaPerl6::Visitor::MetaClass {
                         'arguments' => [
                             ::Val::Buf( buf => $item.name ), 
                             
-                            # XXX TODO - create method
-                            
-                            ::Method(
-                                name  => '',
-                                block => $item.block,
+                            # create Method
+                            ::Call(
+                                'hyper'     => '',
+                                'arguments' => [
+                                    ::Method(
+                                        name  => '',
+                                        block => $item.block,
+                                    ),
+                                ],
+                                'method'    => 'new',
+                                'invocant'  => ::Val::Buf(
+                                    buf => 'Method',
+                                ),
                             ),
+
                         ],
                         'method'    => 'add_method',
                         'invocant'  => ::Call(
