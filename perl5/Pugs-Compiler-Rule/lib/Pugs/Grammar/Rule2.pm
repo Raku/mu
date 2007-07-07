@@ -568,15 +568,34 @@ token named_regex {
     }
 }
 
+# This is hacky, will do better later
+token block {
+    '{'  ( <?string_code> | '' )  '}'
+    { return {
+            type => 'block',
+            value => $$0
+        };
+    }
+}
+
+token statement {
+    | <block>       { return $$<block>; }
+    | <named_regex> { return $$<named_regex>; }
+}
+
 token grammar {
     <?ws>? 'grammar' <?ws> <ident> <?ws>? ';'
     <?ws>?
-    [ <named_regex> <?ws>? ]*
-    { return { $$<ident> => $<named_regex> } }
+    [ <statement> <?ws>? ]*
+    { return { $$<ident> => $<statement> } }
 }
 
-token grammars {
+token spec {
+    <block>?
     <grammar>*
-    { return $<grammar>; }
+    { return {
+            block => $<block>,
+            'grammar' => $<grammar> }
+    }
 }
 

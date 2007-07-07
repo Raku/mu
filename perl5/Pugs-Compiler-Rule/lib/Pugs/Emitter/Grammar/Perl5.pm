@@ -8,14 +8,22 @@ use Pugs::Emitter::Rule::Perl5::Ratchet;
 sub emit {
     my $ast = shift;
     ## $ast
-    my ($name, $regexes) = each %$ast;
+    my ($name, $stmts) = each %$ast;
     my $p5_methods;
     ### $name
-    ## $regexes
-    for my $regex (@$regexes) {
-        $regex = $regex->();
+    for my $stmt (@$stmts) {
+        ## $regex
+        my $regex = $stmt->();
+        if ($regex->{type} eq 'block') {
+            $p5_methods .= <<"_EOC_";
+# Code block from grammar spec
+$regex->{value}
+
+_EOC_
+            next;
+        }
         ### struct: $regex->{name}
-        ### regex AST: $regex->{ast}
+        ## regex AST: $regex->{ast}
         my $body = Pugs::Emitter::Rule::Perl5::Ratchet::emit('Pugs::Grammar::Rule', $regex->{ast});
         $body =~ s/^/    /gm;
         $p5_methods .= <<_EOC_;

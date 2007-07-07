@@ -10,8 +10,13 @@ use Carp qw(carp croak);
 
 sub compile {
     my ($class, $src) = @_;
-    my $ast = Pugs::Grammar::Rule->grammars($src)->();
-    if ($ast) {
+    my $match = Pugs::Grammar::Rule->spec($src);
+    if ($match->bool) {
+        ## $match
+        my $capture = $match->();
+        my $leading_block = $capture->{block};
+        ### leading block: $leading_block
+        my $ast = $capture->{grammar};
         ## $ast
         my $perl5;
         for my $g (@$ast) {

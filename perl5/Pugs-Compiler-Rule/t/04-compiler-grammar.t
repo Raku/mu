@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 19;
+use Test::More 'no_plan';
 use Pugs::Compiler::Grammar;
 
 my $obj = Pugs::Compiler::Grammar->compile(<<'_EOC_');
@@ -78,5 +78,29 @@ is $match->{var_list}->{ident}->[0], 'd';
     is $match->{var_list}, 'foo', "MyC's var_list okay\n";
     $match = MyVB->def("Dim foo, bar;");
     is $match->{'MyC.var_list'}, 'foo, bar', "MyVB's var_list okay\n";
+}
+
+{
+    $Blah::Count = 0;
+    my $grammar = q{
+
+        grammar Blah;
+
+        { our $Count = 27; }
+
+        token add {
+            (\d+) { return $Blah::Count += $/[0] }
+        }
+
+    };
+    my $obj = Pugs::Compiler::Grammar->compile($grammar);
+    #warn $obj->perl5;
+    eval $obj->perl5;
+    is $@, '', 'eval ok';
+    #warn "HERE!";
+    my $match = Blah->add('53');
+    ok $match->bool, 'matched';
+    is $Blah::Count, 80;
+    is $match->(), 80, 'closure works';
 }
 
