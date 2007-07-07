@@ -166,14 +166,16 @@ my $meta_Class = {
 push @{$meta_Class->{_isa}}, $meta_Class;
 $meta_Class->{_value}{methods}{add_method} = $::Method->{_dispatch}( $::Method, 'new',
     sub {
-        warn "redefining method $_[0]{_value}{class_name}.$_[1]"
-            if exists $_[0]{_value}{methods}{$_[1]};
-        $_[0]{_value}{methods}{$_[1]} = $_[2];
+        my $meth_name = ref($_[1]) ? $_[1]{_value} : $_[1];
+        warn "redefining method $_[0]{_value}{class_name}.$meth_name"
+            if exists $_[0]{_value}{methods}{$meth_name};
+        $_[0]{_value}{methods}{$meth_name} = $_[2];
     }
 );
 $meta_Class->{_dispatch}( $meta_Class, 'add_method', 'redefine_method', $::Method->{_dispatch}( $::Method, 'new', 
     sub {
-        $_[0]{_value}{methods}{$_[1]} = $_[2];
+        my $meth_name = ref($_[1]) ? $_[1]{_value} : $_[1];
+        $_[0]{_value}{methods}{$meth_name} = $_[2];
     }
 ) );
 $meta_Class->{_dispatch}( $meta_Class, 'add_method', 'WHAT', $::Method->{_dispatch}( $::Method, 'new', sub { $::Class } ) );
