@@ -64,6 +64,7 @@ my $dispatch = sub {
         for my $parent ( @{$self->{_isa}}, $meta_Object ) {
             my $m = get_method_from_metaclass( $parent, $method_name );
             #print $m ? "found\n" : "not found\n";
+            #print "Method: ",Dumper($m);
             return $m->{_value}->( $self, @_ ) 
                 if $m;
         }

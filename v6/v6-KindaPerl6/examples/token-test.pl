@@ -12,5 +12,5 @@ class X {
 
   $_ := '42';
   X.x();
-  say $/;
+  say 'result: ', $/.perl;
 }
