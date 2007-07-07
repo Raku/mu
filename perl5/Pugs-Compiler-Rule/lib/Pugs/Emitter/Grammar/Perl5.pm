@@ -62,6 +62,7 @@ Pugs::Emitter::Grammar::Perl5 - Perl 5 emitter for grammar ASTs
 
     })->();
     my $perl5 = Pugs::Emitter::Grammar::Perl5::emit($ast);
+    print $perl5;
 
 =head1 FUNCTIONS
 
@@ -86,4 +87,8 @@ This program is free software; you can redistribute it
 and/or modify it under the same terms as Perl itself.
 
 See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=head1 SEE ALSO
+
+L<Pugs::Compiler::Grammar>, L<compile_p6grammar>
 

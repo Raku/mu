@@ -103,3 +103,10 @@ and/or modify it under the same terms as Perl itself.
 
 See L<http://www.perl.com/perl/misc/Artistic.html>
 
+=head1 SEE ALSO
+
+L<compile_p6grammar>,
+L<Pugs::Compiler::Regex>,
+L<Pugs::Grammar::Rule>,
+L<Pugs::Emitter::Grammar::Perl5>.
+

@@ -73,13 +73,15 @@ Front-end Modules
 
 =over 4
 
-=item * L<Pugs::Compiler::Rule> compiles Perl 6 Rules to Perl 5.
+=item * L<Pugs::Compiler::Grammar> compiles Perl 6 grammars to Perl 5.
 
-=item * L<Pugs::Compiler::Token> compiles Perl 6 Tokens to Perl 5.
+=item * L<Pugs::Compiler::Rule> compiles Perl 6 rules to Perl 5.
 
-=item * L<Pugs::Compiler::Regex> compiles Perl 6 Regexes to Perl 5.
+=item * L<Pugs::Compiler::Token> compiles Perl 6 tokens to Perl 5.
 
-=item * L<Pugs::Compiler::RegexPerl5> wraps Perl 5 Regexes to return a B<Match> object.
+=item * L<Pugs::Compiler::Regex> compiles Perl 6 regexes to Perl 5.
+
+=item * L<Pugs::Compiler::RegexPerl5> wraps Perl 5 regexes to return a B<Match> object.
 
 =back
 
@@ -112,6 +114,8 @@ Code Emitters
 =item * L<Pugs::Emitter::Rule::Perl5> converts parsed Rules to Perl 5 code.
 
 =item * L<Pugs::Emitter::Rule::Perl5::Ratchet> converts parsed :ratchet Rules to Perl 5 code.
+
+=item * L<Pugs::Emitter::Grammar::Perl5> converts parsed grammars to Perl 5 code.
 
 =back
 
