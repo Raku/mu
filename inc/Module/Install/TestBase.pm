@@ -6,6 +6,7 @@ use warnings;
 use Module::Install::Base;
 
 use vars qw($VERSION @ISA);
+no warnings 'redefine';
 BEGIN {
     $VERSION = '0.11';
     @ISA     = 'Module::Install::Base';
