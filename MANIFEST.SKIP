@@ -36,6 +36,7 @@ Makefile.old$
 ^perl5/re-override/
 ^perl5/Sub-Multi/
 ^pugs
+^smoker.yml$
 ^tags
 ^third-party/HsJudy
 ^third-party/TextRegexLazy
