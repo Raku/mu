@@ -19,7 +19,9 @@ reason to also retain copies of older versions in LICENSE/.
 
 == Build System
 
-
+* The config file that you must make in order to receive credit for smokes
+is now named "smoker.yml" rather than ".smoker.yml"; this hand-made file
+is now not hidden, which is consistent with Pugs' "config.yml" nature.
 
 == Feature Changes
 

@@ -24,8 +24,8 @@ Pugs::Doc::Hack - How to hack on Pugs
 
     # do the following only once
     $ sudo cpan Task::Smoke
-    $ cp util/smoker-example.yml ~/.smoker.yml
-    $ $EDITOR ~/.smoker.yml
+    $ cp util/smoker-example.yml ~/smoker.yml
+    $ $EDITOR ~/smoker.yml
 
     $ make smoke                  # generates smoke.html, smoke.yml
     # Optionally, submit your smoke report to the public smokeserver:

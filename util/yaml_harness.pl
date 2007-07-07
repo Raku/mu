@@ -12,7 +12,7 @@ use Test::TAP::Model;
 
 # Package and global declarations
 our @ISA = qw(Test::TAP::Model);
-our $SMOKERFILE = ".smoker.yml";
+our $SMOKERFILE = "smoker.yml";
 our %Config;
 $ENV{TEST_ALWAYS_CALLER} = 1;
 $Test::Harness::Verbose  = 1;
@@ -35,7 +35,7 @@ sub get_config {
         --recurse, -r           Recurse into directories on test include list
         --incude=I1,[I2,...]    Include files
         --exclude=E1,[E2,...]   Exclude files
-        --anonymous, -a         Do not include ~/.smoker.yml data in report
+        --anonymous, -a         Do not include ~/smoker.yml data in report
     } . "\n";
     die $Usage if $Config{help};
 }

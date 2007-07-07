@@ -31,7 +31,7 @@ my $smoker_copy_sub = sub {
         print "src_add dir '$cn->{src_add_dn}' not found!\n" if $ver > 1;
         return 0;
     }
-    my $fn = '.smoker.yml';
+    my $fn = 'smoker.yml';
     unless ( copy( $cn->{src_add_dn} . '/' . $fn, $cn->{temp_dn} ) ) {
         unlink( $cn->{temp_dn} . '/' . $fn ) if -e $cn->{temp_dn} . '/' . $fn;
         print "Cant't copy '$fn' $!\n" if $ver > 1;
