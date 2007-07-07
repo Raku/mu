@@ -3,6 +3,7 @@ package Pugs::Emitter::Rule::Perl5::Ratchet;
 # p6-rule perl5 emitter for ":ratchet" (non-backtracking)
 # see: RuleInline.pl, RuleInline-more.pl for a program prototype
 
+#use Smart::Comments;
 use strict;
 use warnings;
 use Pugs::Emitter::Rule::Perl5::CharClass;
@@ -82,6 +83,7 @@ sub emit {
     # runtime parameters: $grammar, $string, $state, $arg_list
     # rule parameters: see Runtime::Rule.pm
     local $sigspace = $param->{sigspace};   # XXX - $sigspace should be lexical
+    ### ratchet emit sigspace: $sigspace
     local $capture_count = -1;
     local $capture_to_array = 0;
     #print "rule: ", Dumper( $ast );
@@ -566,7 +568,7 @@ sub closure {
           "$_[1] do { \n"
         . "$_[1]   local \$::_V6_SUCCEED = 1;\n"
         . "$_[1]   \$::_V6_MATCH_ = \$m;\n"
-        . "$_[1]   sub $code->( \$m )\n"
+        . "$_[1]   sub $code->( \$m );\n"
         . "$_[1]   1;\n"
         . "$_[1] }"
         if $modifier eq 'plain';
@@ -916,13 +918,15 @@ $_[1] ## </metasyntax>\n";
         # call method in lexical $var
         # TODO - send $pos to subrule
         return
+                "$_[1]         ## <metasyntax>\n" .
                 "$_[1]         do {\n" .
                 "$_[1]           my \$r = Pugs::Runtime::Regex::get_variable( '$cmd' );\n" .
                 "$_[1]           push \@match,\n" .
                 "$_[1]             \$r->match( \$s, \$grammar, {p => \$pos}, undef );\n" .
                 "$_[1]           \$pos = \$match[-1]->to;\n" .
                 "$_[1]           !\$match[-1] != 1;\n" .
-                "$_[1]         }"
+                "$_[1]         }\n" .
+                "$_[1]         ## <metasyntax>\n";
     }
     if ( $prefix eq q(') ) {   # single quoted literal '
         $cmd = substr( $cmd, 1, -1 );
@@ -942,7 +946,9 @@ $_[1] ## </metasyntax>\n";
         my @param; # TODO
         my $subrule = $cmd;
         return
-"$_[1] do {
+"
+$_[1] ## <metasyntax>
+$_[1] do {
 $_[1]      my \$prior = \$::_V6_PRIOR_;
 $_[1]      my \$match = \n" .
                call_subrule( $subrule, $_[1]."        ", "", @param ) . ";
@@ -950,7 +956,8 @@ $_[1]      \$::_V6_PRIOR_ = \$prior;
 $_[1]      my \$bool = (!\$match != 1);
 $_[1]      \$pos = \$match->to if \$bool;
 $_[1]      \$match;
-$_[1] }";
+$_[1] }
+$_[1] ## </metasyntax>\n";
     }
     if ( $prefix =~ /[_[:alnum:]]/ ) {
         if ( $cmd eq 'cut' ) {

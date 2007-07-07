@@ -15,10 +15,12 @@ inc/Test/Base/Filter.pm
 inc/Test/Builder.pm
 inc/Test/Builder/Module.pm
 inc/Test/More.pm
+lib/Pugs/Compiler/Grammar.pm
 lib/Pugs/Compiler/Regex.pm
 lib/Pugs/Compiler/RegexPerl5.pm
 lib/Pugs/Compiler/Rule.pm
 lib/Pugs/Compiler/Token.pm
+lib/Pugs/Emitter/Grammar/Perl5.pm
 lib/Pugs/Emitter/Rule/Parsec.pm
 lib/Pugs/Emitter/Rule/Perl5.pm
 lib/Pugs/Emitter/Rule/Perl5/CharClass.pm
@@ -47,6 +49,7 @@ t/00-pod.t
 t/01-iterator_engine.t
 t/02-grammar.t
 t/03-match.t
+t/04-compiler-grammar.t
 t/04-compiler-regex.t
 t/04-compiler-rule.t
 t/04-rule.t
@@ -62,6 +65,7 @@ t/13-char_classes.t
 t/14-mini_perl6.t
 t/15-STD.t
 t/declare/00-demo.t
+t/declare/01-sigspace.t
 t/emitter/00-ratchet.t
 t/lib/Emitter.pm
 t/lib/Regex.pm

@@ -13,7 +13,7 @@ sub parse_str_list ($) {
             push @token, eval $&;
             if ($@) { die "ERROR: $t::BloackName - invalid single-quotes: $&\n"; }
         }
-        elsif (/\G " ( \\. | [^\\'] )*? " /gcmsx) {
+        elsif (/\G " ( \\. | [^\\"] )*? " /gcmsx) {
             push @token, eval $&;
             if ($@) { die "ERROR: $t::BloackName - invalid double-quotes: $&\n"; }
         }

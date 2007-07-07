@@ -6,9 +6,12 @@ use t::lib::Util;
 
 use Pugs::Compiler::Regex;
 use Pugs::Compiler::Token;
+use Pugs::Compiler::Rule;
 use Pugs::Grammar::Base;
 
 our @EXPORT = qw( run_test run_tests );
+
+$Pugs::Compiler::Regex::NoCache = 1;
 
 sub parse_str_list ($);
 sub parse_res_section ($);
@@ -26,8 +29,11 @@ sub run_test ($) {
     } elsif (defined $block->token) {
         my $token = $pattern = parse_str_list($block->token);
         $rule = Pugs::Compiler::Token->compile($token);
+    } elsif (defined $block->rule) {
+        my $token = $pattern = parse_str_list($block->rule);
+        $rule = Pugs::Compiler::Rule->compile($token);
     } else {
-        die "ERROR: $t::BloackName: neither --- regex nor --- token specified.\n";
+        die "ERROR: $t::BloackName: no 'regex', 'token', or 'rule' specified.\n";
     }
     if (defined $block->match) {
         my $match;

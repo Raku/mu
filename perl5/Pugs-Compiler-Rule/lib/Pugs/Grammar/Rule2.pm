@@ -66,6 +66,14 @@ token ident {
     [ <?alnum> | _ | '::' ]+
 }
 
+token alnum {
+    <[0-9a-zA-Z]>
+}
+
+token alpha {
+    <[a-zA-Z]>
+}
+
 # after '\\'
 token special_char {
         | ( c | C ) \[ ( [<alnum>|\s| ';' | '(' | ')' | '-' ]+) \]
@@ -156,7 +164,7 @@ token named_capture_body {
     | \<  <parse_metasyntax>  { return $$<parse_metasyntax> }
     | \'  <?literal>    \'
         { return { metasyntax => { metasyntax => ~ $$/ ,} } }
-    | { die "invalid alias syntax"; return undef; }
+    | { die "invalid alias syntax"; }
 }
 
 token parse_metasyntax {
@@ -544,3 +552,31 @@ token rule {
       use v6;
     }
 }
+
+token named_regex {
+    ( 'token' | 'regex' | 'rule' )
+    <?ws> <ident> <?ws>? '{'
+        <?ws>?
+        <rule>
+    '}' ';'?
+
+    { return {
+            type => $$0,
+            name => $$<ident>,
+            ast => $$<rule>
+        };
+    }
+}
+
+token grammar {
+    'grammar' <?ws> <ident> <?ws>? ';'
+    <?ws>?
+    [ <named_regex> <?ws>? ]*
+    { return { $$<ident> => $<named_regex> } }
+}
+
+token grammars {
+    <grammar>*
+    { return $<grammar>; }
+}
+
