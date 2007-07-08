@@ -37,6 +37,6 @@ package Rule::NegateCharClass; sub new { shift; bless { @_ }, "Rule::NegateCharC
 ;
 package Rule::CharClass; sub new { shift; bless { @_ }, "Rule::CharClass" } sub capture_count { my $self = shift; my $List__ = \@_; my $count; my $quantified; my $seen; do {  $count = $List__->[0];  $quantified = $List__->[1];  $seen = $List__->[2]; [$count, $quantified, $seen] }; Main::say('TODO CharClass'); die() }
 ;
-package Rule::Capture; sub new { shift; bless { @_ }, "Rule::Capture" } sub capture_count { my $self = shift; my $List__ = \@_; my $count; my $quantified; my $seen; do {  $count = $List__->[0];  $quantified = $List__->[1];  $seen = $List__->[2]; [$count, $quantified, $seen] }; $self->{position} = $count; ($count + 1) }
+package Rule::Capture; sub new { shift; bless { @_ }, "Rule::Capture" } sub capture_count { my $self = shift; my $List__ = \@_; my $count; my $quantified; my $seen; do {  $count = $List__->[0];  $quantified = $List__->[1];  $seen = $List__->[2]; [$count, $quantified, $seen] }; $self->{position} = $count; $self->{capture_to_array} = $quantified; ($count + 1) }
 ;
 1;

@@ -8,7 +8,7 @@ class X {
   my $zzz;
   
   method y { 42 };  # just testing
-  token x { 4(2)(3) };   # a simple regex
+  token x { 4(2)(3)+ };   # a simple regex
 
   $_ := '423';
   X.x();

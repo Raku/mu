@@ -79,9 +79,14 @@ package Match;
             $Matches[-1]->to = $data[0];
         }
         elsif ( $action eq 'positional-capture' ) {
-            # XXX - named captures, pre-numbered captures
             my $match = pop @Matches;
-            push @{ $Matches[-1]->array }, $match;
+            ${ $Matches[-1]->array }[ $data[0] ] = $match;
+        }
+        elsif ( $action eq 'positional-capture-to-array' ) {
+            my $match = pop @Matches;
+            push @{ 
+                    ${ $Matches[-1]->array }[ $data[0] ] 
+                }, $match;
         }
         else {
             die "no action like '$action'"

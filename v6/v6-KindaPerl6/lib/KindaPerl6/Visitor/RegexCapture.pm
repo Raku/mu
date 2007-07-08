@@ -157,7 +157,8 @@ class Rule::CharClass {
 
 class Rule::Capture {
     method capture_count( $count, $quantified, $seen ) {
-        $.position := $count;
+        $.position         := $count;
+        $.capture_to_array := $quantified;
         $count + 1;
     }
 }
