@@ -1,6 +1,6 @@
 package Pugs::Compiler::Token;
 
-our $VERSION = '0.24';
+our $VERSION = '0.25';
 
 use 5.006;
 use strict;

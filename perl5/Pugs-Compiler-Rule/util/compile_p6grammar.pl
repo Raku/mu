@@ -15,7 +15,7 @@ __END__
 
 =head1 NAME
 
-compile_p6grammar.pl - Compile Perl6 Grammars to Perl5 Modules
+compile_p6grammar.pl - Compile Perl 6 Grammars to Perl 5 Modules
 
 =head1 SYNOPSIS
 
@@ -52,7 +52,9 @@ See L<http://www.perl.com/perl/misc/Artistic.html>
 
 =head1 SEE ALSO
 
-L<Pugs::Compiler::Grammar>, L<Pugs::Compiler::Rule>.
+L<Pugs::Compiler::Grammar>, L<Pugs::Compiler::Rule>,
+L<Pugs::Compiler::Regex>,
+L<http://perlcabal.org/syn/S05.html>.
 
 =cut
 

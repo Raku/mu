@@ -2,9 +2,8 @@ package Pugs::Compiler::Regex;
 
 #use Smart::Comments;
 
-our $VERSION = '0.24';
+our $VERSION = '0.25';
 # Documentation in the __END__
-use 5.006;
 use strict;
 use warnings;
 

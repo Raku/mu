@@ -1,3 +1,9 @@
+0.25  2007-07-08
+- added examples/langs.grammar (this file contains two grammars and
+  the latter calls the subrules of the former and it works!)
+- compile_p6grammar.pl: prepends 'use strict; use warnings'
+  to the .pm file generated.
+
 0.24  2007-07-08
 - added the bash script util/update-rule-pmc to automate the process
   of compiling Pugs/Grammar/Rule2.pm (in p6) down to Pugs/Grammar/Rule.pmc

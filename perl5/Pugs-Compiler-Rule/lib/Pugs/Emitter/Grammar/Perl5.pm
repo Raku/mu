@@ -1,5 +1,7 @@
 package Pugs::Emitter::Grammar::Perl5;
 
+our $VERSION = '0.25';
+
 #use Smart::Comments;
 use strict;
 use warnings;
@@ -91,7 +93,7 @@ The Pugs contributors E<lt>perl6-compiler@perl.orgE<gt>.
 
 =head1 COPYRIGHT
 
-Copyright 2007 by Agent Zhang and others.
+Copyright (c) 2007 by Agent Zhang and others.
 
 This program is free software; you can redistribute it
 and/or modify it under the same terms as Perl itself.
@@ -100,5 +102,5 @@ See L<http://www.perl.com/perl/misc/Artistic.html>
 
 =head1 SEE ALSO
 
-L<Pugs::Compiler::Grammar>, L<compile_p6grammar>
+L<Pugs::Compiler::Grammar>, L<compile_p6grammar.pl>.
 
