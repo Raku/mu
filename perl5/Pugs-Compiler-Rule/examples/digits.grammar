@@ -1,6 +1,7 @@
 # Usage:
 # util/compile_p6grammar.pl examples/digits.grammar > Digits.pm
 # perl -MDigits -e 'print Digits->count("7c3d54")->(), "\n"'
+# XXX Currently it's looping...sigh...
 
 grammar Digits;
 

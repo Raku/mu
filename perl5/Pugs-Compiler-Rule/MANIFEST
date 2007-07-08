@@ -1,5 +1,6 @@
 ChangeLog
 examples/adder.grammar
+examples/digits.grammar
 inc/Module/Install.pm
 inc/Module/Install/Base.pm
 inc/Module/Install/Can.pm
@@ -65,6 +66,7 @@ t/12-plain_regex.t
 t/13-char_classes.t
 t/14-mini_perl6.t
 t/15-STD.t
+t/16-examples.t
 t/declare/00-demo.t
 t/declare/01-sigspace.t
 t/emitter/00-ratchet.t
