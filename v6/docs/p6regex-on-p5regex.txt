@@ -1,0 +1,57 @@
+Perl6regex on Perl5regex
+
+### Note: This Document is a Draft
+
+"Perl6regex-on-Perl5regex" is a "Perl 6 regex engine" that uses Perl 5 regexes to implement the matching, and Perl 5 code to implement the OO "Match" structure.
+
+The implementation so far is compatible with Perl 5.8.8.
+
+The compilation is implemented as follows:
+
+- a regex Grammar is run on the regex source code, and returns an AST
+- ...
+
+The mini-language is implemented like this:
+
+op-list
+...
+
+Safe-backtracking is implemented with 'local' inside Perl 5 regex (docs: perlre)
+...
+
+------------------
+*** previous discussion: http://www.justatheory.com/computers/programming/perl/regex_named_captures.html
+
+Aristotle Pagaltzis wrote:
+
+    It’s easy, if verbose, to overcome the limitation: if you use local to assign values, they will disappear on backtracking. But then they also disappear at the end of the match. So what you do is combine the two: while you try to match, you put things into dynamically scoped storage; once the match has succeed but before it is finished, you save them for posterity.
+
+    my %found;
+    {
+        my %pad;
+        $string =~ /
+            (?: (quick|slow) \s+    (?{ local $pad{speed}  = $^N  }) )
+            (?: (brown|blue) \s+    (?{ local $pad{color}  = $^N  }) )?
+            (?: (brown\s+fox)       (?{ local $pad{animal} = $^N  }) )
+            (?{ %found = %pad })
+        /xms;
+    }
+
+    That should work. Pretty? Not exactly.
+
+-----------
+
+  our $x = 0;
+  my $result;
+  "aaaaa" =~ m/^
+    (?:
+      .
+      (?{ local $x = $x + 1 })
+    )*
+    aa
+    (?{ $result = $x })
+  $/x;
+  print $result;  # 3
+
+
+

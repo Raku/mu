@@ -229,28 +229,31 @@ class Rule::CharClass {
 }
 
 class Rule::Capture {
-    # unused
     method emit_perl5 {
     
         if $.capture_to_array {
-              '(?{ '
-            ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
-            ~ '})'
-            ~ $.rule.emit_perl5 
-            ~ '(?{ '
-            ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
-            ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "positional-capture-to-array", ' ~ $.position ~ ' ]; '
-            ~ '})'
+              '(?:'
+                ~  '(?{ '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
+                ~ '})'
+                ~ $.rule.emit_perl5 
+                ~ '(?{ '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "positional-capture-to-array", ' ~ $.position ~ ' ]; '
+                ~ '})'
+            ~ ')'
         }
         else {    
-              '(?{ '
-            ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
-            ~ '})'
-            ~ $.rule.emit_perl5 
-            ~ '(?{ '
-            ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
-            ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "positional-capture", ' ~ $.position ~ ' ]; '
-            ~ '})'
+              '(?:'
+                ~  '(?{ '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
+                ~ '})'
+                ~ $.rule.emit_perl5 
+                ~ '(?{ '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "positional-capture", ' ~ $.position ~ ' ]; '
+                ~ '})'
+            ~ ')'
         }
     }
 }

@@ -10,7 +10,7 @@ class X {
   method y { 42 };  # just testing
   token x { 4(2)(3)+ };   # a simple regex
 
-  $_ := '423';
+  $_ := '4233';
   X.x();
   say 'result: ', $/.perl;
 }

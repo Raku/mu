@@ -43,6 +43,7 @@ class Rule::Quantifier {
 class Rule::Or {
     method capture_count( $count, $quantified, $seen ) {
         my $max := $count;
+        # TODO - localize $seen for each term, but keep a global $seen ???
         for @.or -> $regex {
             #say "Or";
             my $last := $regex.capture_count( $count, $quantified, $seen );
@@ -142,16 +143,14 @@ class Rule::NotBefore {
 class Rule::NegateCharClass {
     # unused
     method capture_count( $count, $quantified, $seen ) {
-        say "TODO NegateCharClass";
-        die();
+        $count;
     }
 }
 
 class Rule::CharClass {
     # unused
     method capture_count( $count, $quantified, $seen ) {
-        say "TODO CharClass";
-        die();
+        $count;
     }
 }
 
@@ -159,6 +158,8 @@ class Rule::Capture {
     method capture_count( $count, $quantified, $seen ) {
         $.position         := $count;
         $.capture_to_array := $quantified;
+        # inside the capture, the count is restarted
+        $.rule.capture_count( 0, 0, {} );
         $count + 1;
     }
 }
