@@ -31,7 +31,7 @@ A significant subset of the Muldis D core entities are specific to being or
 implementing the Muldis D system catalog / meta-model, and aren't used
 elsewhere by the system; these are documented in the current C<Catalog>
 document; all the other core entities are described in the
-L<Muldis::DB::Language::Core> document.
+L<Muldis::DB::Language::Core> document.  TODO: EDIT THIS PARAGRAPH.
 
 This current C<Catalog> document features ...
 

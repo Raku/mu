@@ -31,7 +31,7 @@ A significant subset of the Muldis D core entities are specific to being or
 implementing the Muldis D system catalog / meta-model, and aren't used
 elsewhere by the system; these are documented in the
 L<Muldis::DB::Language::Catalog> document; all the other core entities are
-described in the current C<Core> document.
+described in the current C<Core> document.  TODO: EDIT THIS PARAGRAPH.
 
 This current C<Core> document features the boolean, order, integer, bit
 string, and character string types and operators, plus the tuple and
@@ -74,6 +74,8 @@ relationships:
                     sys.type.NEBlob
                 sys.type.Text
                     sys.type.NEText
+                sys.type.AttrName
+                sys.type.AttrNameChain
 
         # The following are all nonscalar type factories.
 
@@ -102,42 +104,46 @@ and hence the graph of them is a simple hierarchy.
 
 I<This documentation is pending.>
 
-=head1 SYSTEM-DEFINED DATA TYPES AND ROUTINES
+=head1 SYSTEM-DEFINED MAXIMAL AND MINIMAL DATA TYPES
 
-=head2 Maximal and Minimal Data Types
+These data types are special and are the only Muldis D types that are
+neither scalar nor nonscalar nor quasi-nonscalar types.  They are all
+system-defined and it is impossible for users to define more types of this
+nature.
 
-Muldis D provides 2 special data types named C<Universal> and C<Empty>,
-which contain all values in the universe and no values at all,
-respectively; they are implicit supertypes and subtypes of all other data
-types, respectively.
+=over
 
-Given the nature of C<Universal>, it is impossible to reference/select a
-value whose most specific type is that.  But it is valid for the
-I<declared type> of any data type attribute or container to be
-C<Universal>, as this says that the attribute or container is allowed to
-hold a value of any data type.  Now it stands to reason that
-the default values for C<Universal> must be of its selectable subtypes.
-The default value of C<Universal> is the C<Bool> False value.
+=item C<sys.type.Universal>
 
-By contrast, C<Empty> is very limited in its use.  It doesn't make sense
-for an attribute or container to have a declared type of C<Empty> because
-no value could be held by it, and all containers in Muldis D must be
-holding a value.  However, it is valid to declare a C<Relation> type whose
-attribute types are C<Empty>, meaning that type is a proper subtype of all
-other C<Relation> with the same attribute names.
+The C<Universal> type is the maximal type of the entire Muldis D type
+system, and contains every value that can possibly exist.  Every other type
+is implicitly a proper subtype of C<Universal>, and C<Universal> is
+implicitly a union type over all other types.  Its default value is
+C<Bool.False>.  The cardinality of this type is infinity.
 
-The cardinality of the C<Universal|Empty> types is infinity|zero
-respectively; regarding the first one, it is impossible to define a
-most-generalized finite subtype.
+=item C<sys.type.Empty>
 
-Note that the full names of these types for referential purposes are
-C<sys.type.Universal> and C<sys.type.Empty>.
+The C<Empty> type is the minimal type of the entire Muldis D type system,
+and is the only type that contains exactly zero values.  Every other type
+is implicitly a proper supertype of C<Empty> and C<Empty> is implicitly an
+intersection type over all other types.  It has no default value.  The
+cardinality of this type is zero.
 
-=head2 Core Scalar Data Types
+=back
 
-These scalar data types provide the fundamentals over which anything more
-complicated can be implemented, and most user-defined data types are
-specified in terms of them; they are all non-structured.
+=head1 SYSTEM-DEFINED CORE SCALAR DATA TYPES
+
+These scalar data types are the most fundamental Muldis D types.  Each one
+has zero possreps, and hence has no named components that can be
+referenced.  Concrete Muldis D provides a specific syntax per type to
+select a value of one of these types, which does not look like a routine
+invocation, but rather like a scalar literal in a typical programming
+language; details of that syntax are not given here, but in
+L<Muldis::DB::Language::Grammar>.  Abstract Muldis D as hosted in another
+language will essentially use literals of corresponding host language
+types, whatever they use for eg booleans and integers and character
+strings, but tagged with extra meta-data if the host language is more
+weakly typed or lacks one-to-one type correspondence.
 
 =over
 
@@ -201,6 +207,11 @@ eg, in NFC graphemes) that the subtype's strings are.
 A C<NEText> (non-empty text) is a proper subtype of C<Text> where its
 length in characters must be more than zero; it can be any C<Text> except
 for the empty string.  Its default value is a single "space" character.
+
+
+
+
+
 
 =back
 

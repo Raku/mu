@@ -563,13 +563,13 @@ root type.  All root types are mutually disjoint, so every value is a
 member of exactly one root type.  Generally speaking, root types are the
 implementational foundation over which all operators and all other types
 are built, and the declared parameter and result types of most
-system-defined operators are root types.  The 6 core system-defined root
-types are: C<Bool>, C<Text>, C<Blob>, C<Int>, C<Tuple>, C<Relation>.  All
-user-defined root types are scalar types that are defined not in terms of
-other types except for that any components of their I<possreps> (possible
-representations) have declared types.  I<Perhaps it should be said that all
-root types are defined by this last sentence?>  A I<leaf type> is a data
-type that has no proper subtypes save for C<Empty>.
+system-defined operators are root types.  The 6 most important
+system-defined root types are: C<Bool>, C<Int>, C<Blob>, C<Text>, C<Tuple>,
+C<Relation>.  All user-defined root types are scalar types that are defined
+not in terms of other types except for that any components of their
+I<possreps> (possible representations) have declared types.  I<Perhaps it
+should be said that all root types are defined by this last sentence?>  A
+I<leaf type> is a data type that has no proper subtypes save for C<Empty>.
 
 =head2 Type Identification
 
@@ -810,9 +810,10 @@ attribute which is itself infinite (for example, a type that has an I<Int>
 attribute).
 
 The system-defined root type C<Bool> is finite (2 values), as is the
-C<Empty> type (zero values), while all of the other 5 core system-defined
-root types (C<Text>, C<Blob>, C<Int>, C<Tuple>, C<Relation>) are infinite,
-as are the C<Universal>, C<Scalar>, C<QuasiTuple>, C<QuasiRelation> types.
+C<Empty> type (zero values), while all of the other 5 most important
+system-defined root types (C<Int>, C<Blob>, C<Text>, C<Tuple>, C<Relation>)
+are infinite, as are the C<Universal>, C<Scalar>, C<QuasiTuple>,
+C<QuasiRelation> types.
 
 All proper subtypes of finite types are themselves finite types.  Proper
 subtypes of infinite types can be either finite or infinite depending on

@@ -19,6 +19,115 @@ before you read this one, which provides subservient details.
 
 =head1 DESCRIPTION
 
+This document outlines the grammer of I<Concrete Muldis D>.  This grammar
+is extremely simple such that any program or routine is simply a tuple
+literal, which is composed of relation and tuple and scalar literals.
+Whether or not these literals are valid is up to the I<Abstract Muldis D>
+compiler, whose input is the AST resulting from parsing I<Concrete Muldis
+D>.
+
+I<This documentation is pending.>
+
+=head1 GRAMMAR OF CONCRETE MULDIS D
+
+Note that the following is just illustrative and isn't meant to conform to
+any common grammar specifying formats.  It should become formalized later.
+
+    start
+        = literal
+        ;
+
+    literal
+        = bool
+        | order
+        | int
+        | blob
+        | text
+        | short_name
+        | long_name
+        | tuple
+        | relation
+        ;
+
+    bool
+        = q(Bool:Default)
+        | q(Bool:False)
+        | q(Bool:True)
+        ;
+
+    order
+        = q(Order:Default)
+        | q(Order:Increase)
+        | q(Order:Same)
+        | q(Order:Decrease)
+        ;
+
+    int
+        = q(Int:Default)
+        | q(Int:2:') /(0|-?1[0-1]*)/ q(')
+        | q(Int:8:') /(0|-?[1-7][0-7]*)/ q(')
+        | q(Int:10:') /(0|-?[1-9][0-9]*)/ q(')
+        | q(Int:16:') /(0|-?[1-9A-F][0-9A-F]*)/ q(')
+        ;
+
+    blob
+        = q(Blob:Default)
+        | q(Blob:2:') /[0-1]*/ q(')
+        | q(Blob:16:') /[0-9A-F]*/ q(')
+        ;
+
+    text
+        = q(Text:Default)
+        | q(Text:') text_data q(')
+        ;
+
+    text_data
+        = /(\\b\\s\\d|[^\\'"])*/
+        ;
+
+    short_name
+        = q(ShortName:Default)
+        | /[\w_]+/
+        | q(") text_data q(")
+        ;
+
+    long_name
+        = q(LongName:Default)
+        | short_name
+        | long_name q(.) short_name
+        ;
+
+    tuple
+        = q(Tuple:Default)
+        | q(Tuple:A0)
+        | q(Tuple:{) ws heading ws q(})
+        | q(Tuple:{) ws heading list_sep tuple_body ws q(})
+        ;
+
+    relation
+        = q(Relation:Default)
+        | q(Relation:A0T0)
+        | q(Relation:A0T1)
+        | q(Relation:{) ws heading list_sep relation_body ws q(})
+        ;
+
+    ws
+        = /\S+/
+        ;
+
+    list_sep
+        = q(,) ws
+        ;
+
+    heading
+        = ...
+
+    tuple_body
+        = ...
+
+    relation_body
+        = ...
+
 I<This documentation is pending.>
 
 =head1 SEE ALSO
