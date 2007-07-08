@@ -88,6 +88,10 @@ package Match;
                     ${ $Matches[-1]->array }[ $data[0] ] 
                 }, $match;
         }
+        elsif ( $action eq 'named-capture' ) {
+            my $match = pop @Matches;
+            ${ $Matches[-1]->hash }{ $data[0] } = $match;
+        }
         else {
             die "no action like '$action'"
         }

@@ -121,8 +121,11 @@ class Rule::InterpolateVar {
 
 class Rule::NamedCapture {
     method capture_count( $count, $quantified, $seen ) {
-        say '# TODO: named capture ' ~ $.ident ~ ' := ' ~ $.rule.capture_count ~ '';
-        die();
+        $.rule.capture_count( 0, 0, {} );
+        $count + 1;
+        
+        # TODO - $seen{ $.ident } = ...
+        
     }
 }
 

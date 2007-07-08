@@ -29,7 +29,7 @@ package Rule::Block; sub new { shift; bless { @_ }, "Rule::Block" } sub emit_per
 ;
 package Rule::InterpolateVar; sub new { shift; bless { @_ }, "Rule::InterpolateVar" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; Main::say(('# TODO: interpolate var ' . ($self->{var}->emit_perl5() . ''))); die() }
 ;
-package Rule::NamedCapture; sub new { shift; bless { @_ }, "Rule::NamedCapture" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; Main::say(('# TODO: named capture ' . ($self->{ident} . (' := ' . ($self->{rule}->emit_perl5() . ''))))); die() }
+package Rule::NamedCapture; sub new { shift; bless { @_ }, "Rule::NamedCapture" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; do { if ($self->{capture_to_array}) { ('(?:' . ('(?{ ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; ' . ('})' . ($self->{rule}->emit_perl5() . ('(?{ ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, "named-capture-to-array", ' . ($self->{position} . (', "' . ($self->{ident} . ('" ]; ' . ('})' . ')'))))))))))))) } else { ('(?:' . ('(?{ ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; ' . ('})' . ($self->{rule}->emit_perl5() . ('(?{ ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, "named-capture", ' . ($self->{position} . (', "' . ($self->{ident} . ('" ]; ' . ('})' . ')'))))))))))))) } } }
 ;
 package Rule::Before; sub new { shift; bless { @_ }, "Rule::Before" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('(?=' . ($self->{rule}->emit_perl5() . ')')) }
 ;

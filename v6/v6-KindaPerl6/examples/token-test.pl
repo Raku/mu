@@ -8,9 +8,14 @@ class X {
   my $zzz;
   
   method y { 42 };  # just testing
-  token x { 4(2)(3)+ };   # a simple regex
+  token x { 
+    4
+    (2)
+    [(3)(4)]+ 
+    $<xyz> := (.)
+  };   
 
-  $_ := '4233';
+  $_ := '423434X';
   X.x();
   say 'result: ', $/.perl;
 }

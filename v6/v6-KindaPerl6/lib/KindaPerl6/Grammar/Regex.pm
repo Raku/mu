@@ -61,7 +61,7 @@ token parsed_code {
 };
 
 token named_capture_body {
-    | \(  <rule>        \)  { return { 'capturing_group' => $$<rule> ,} } 
+    | \(  <rule>        \)  { return ::Rule::Capture( 'rule' => $$<rule> ) }
     | \[  <rule>        \]  { return $$<rule> } 
     | \<  <metasyntax>  \>  
             { return ::Rule::Subrule( 'metasyntax' => $$<metasyntax> ) }
@@ -220,6 +220,15 @@ token rule_terms {
 
 token term {
     |  
+       # XXX special case for $<xxx> := (...) 
+       '$<' <ident> '>' <?ws>? ':=' <?ws>? '(' <rule> ')'
+          { 
+            return ::Rule::NamedCapture(
+                'rule' =>  $$<rule>,
+                'ident' => $$<ident>
+            ); 
+          }
+    | 
        # { say 'matching variables' } 
        <variables>
        [  <?ws>? ':=' <?ws>? <named_capture_body>

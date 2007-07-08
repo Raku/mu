@@ -195,8 +195,35 @@ class Rule::InterpolateVar {
 
 class Rule::NamedCapture {
     method emit_perl5 {
-        say '# TODO: named capture ' ~ $.ident ~ ' := ' ~ $.rule.emit_perl5 ~ '';
-        die();
+
+        if $.capture_to_array {
+              '(?:'
+                ~ '(?{ '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
+                ~ '})'
+                ~ $.rule.emit_perl5 
+                ~ '(?{ '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named-capture-to-array", ' 
+                    ~ $.position ~ ', "' 
+                    ~ $.ident ~ '" ]; '
+                ~ '})'
+            ~ ')'
+        }
+        else {    
+              '(?:'
+                ~ '(?{ '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
+                ~ '})'
+                ~ $.rule.emit_perl5 
+                ~ '(?{ '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named-capture", ' 
+                    ~ $.position ~ ', "' 
+                    ~ $.ident ~ '" ]; '
+                ~ '})'
+            ~ ')'
+        }
     }
 }
 
@@ -233,7 +260,7 @@ class Rule::Capture {
     
         if $.capture_to_array {
               '(?:'
-                ~  '(?{ '
+                ~ '(?{ '
                 ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
                 ~ '})'
                 ~ $.rule.emit_perl5 
@@ -245,7 +272,7 @@ class Rule::Capture {
         }
         else {    
               '(?:'
-                ~  '(?{ '
+                ~ '(?{ '
                 ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
                 ~ '})'
                 ~ $.rule.emit_perl5 
