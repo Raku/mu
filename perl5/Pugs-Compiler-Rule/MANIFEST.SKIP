@@ -1,3 +1,4 @@
+^\w+\.pm
 ^temp/
 ^lrep/
 precedence.pl

@@ -41,6 +41,8 @@ use Pugs::Runtime::Match;
 use Pugs::Runtime::Regex;
 
 $p5_methods
+
+1;
 _EOC_
 }
 

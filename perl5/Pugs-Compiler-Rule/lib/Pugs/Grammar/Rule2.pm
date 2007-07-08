@@ -74,6 +74,10 @@ token alpha {
     <[a-zA-Z]>
 }
 
+token digit {
+    <[0-9]>
+}
+
 # after '\\'
 token special_char {
         | ( c | C ) \[ ( [<alnum>|\s| ';' | '(' | ')' | '-' ]+) \]
