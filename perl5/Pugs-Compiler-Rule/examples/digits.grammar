@@ -1,0 +1,17 @@
+# Usage:
+# util/compile_p6grammar.pl examples/digits.grammar > Digits.pm
+# perl -MDigits -e 'print Digits->count("7c3d54")->(), "\n"'
+
+grammar Digits;
+
+{ our $Count = 0; }
+
+token count {
+    <char>*  { warn $Count; return $Count }
+}
+
+token char {
+    | \d { warn "$Count: $/ $pos"; $Count++; }
+    | \D
+}
+
