@@ -107,3 +107,49 @@ is $match->{var_list}->{ident}->[0], 'd';
     is $match->(), 80, 'closure works';
 }
 
+{
+    my $grammar = q{
+        grammar Foo;
+
+        regex block {
+            '{' (<any>+) '}'
+        }
+    };
+    my $obj = Pugs::Compiler::Grammar->compile($grammar);
+    ok $obj->perl5, 'perl 5 generated';
+    #warn $obj->perl5;
+    eval $obj->perl5;
+    is $@, '', 'eval ok';
+    my $match = Foo->block("{ say 'hello, world!' }");
+    ok $match->bool, 'matched';
+    is $match->[0], " say 'hello, world!' ", 'capture ok';
+}
+
+{
+    my $grammar = q{
+        grammar Foo;
+
+        rule assignment {
+            <ident> ':=' <expr> ';'
+        }
+
+        rule expr {
+            <digit>+ '-' <digit>+
+        }
+    };
+    my $obj = Pugs::Compiler::Grammar->compile($grammar);
+    ok $obj->perl5, 'perl 5 generated';
+    #warn $obj->perl5;
+    eval $obj->perl5;
+    is $@, '', 'eval ok';
+    my $match = Foo->assignment("var :=  3 - 5;");
+    ok $match->bool, 'matched';
+    is $match->{ident}, "var", 'capture <ident> ok';
+    is $match->{expr}, '3 - 5', 'capture <expr> ok';
+
+    $match = Foo->assignment("var:=32-156 ;");
+    ok $match->bool, 'matched';
+    is $match->{ident}, "var", 'capture <ident> ok';
+    is $match->{expr}, '32-156 ', 'capture <expr> ok';
+}
+

@@ -15,8 +15,9 @@ sub emit {
     ### $name
     for my $stmt (@$stmts) {
         my $regex = $stmt->();
+        my $type = $regex->{type};
         ## $regex
-        if ($regex->{type} eq 'block') {
+        if ($type eq 'block') {
             $p5_methods .= <<"_EOC_";
 # Code block from grammar spec
 $regex->{value}
@@ -26,7 +27,23 @@ _EOC_
         }
         ### struct: $regex->{name}
         ## regex AST: $regex->{ast}
-        my $body = Pugs::Emitter::Rule::Perl5::Ratchet::emit('Pugs::Grammar::Rule', $regex->{ast});
+        my $params = {};
+        if ($type eq 'rule') {
+            $params->{sigspace} = 1;
+        }
+        my $body;
+        if ($type eq 'regex') {
+            $body = Pugs::Emitter::Rule::Perl5::emit(
+                'Pugs::Grammar::Rule',
+                $regex->{ast},
+            )
+        } else {
+            $body = Pugs::Emitter::Rule::Perl5::Ratchet::emit(
+                'Pugs::Grammar::Rule',
+                $regex->{ast},
+                $params,
+            );
+        }
         $body =~ s/^/    /gm;
         $p5_methods .= <<_EOC_;
 # $regex->{type} $regex->{name}

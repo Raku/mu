@@ -82,13 +82,15 @@ sub emit {
     my ($grammar, $ast, $param) = @_;
     # runtime parameters: $grammar, $string, $state, $arg_list
     # rule parameters: see Runtime::Rule.pm
-    local $sigspace = $param->{sigspace};   # XXX - $sigspace should be lexical
+    local $sigspace = $param->{sigspace} ? 1 : 0;   # XXX - $sigspace should be lexical
     ### ratchet emit sigspace: $sigspace
     local $capture_count = -1;
     local $capture_to_array = 0;
     #print "rule: ", Dumper( $ast );
     return
         "## <global>
+## sigspace: $sigspace
+## ratchet: 1
 do { my \$rule; \$rule = sub {
   my \$grammar = \$_[0];
   my \$s = \$_[1];
@@ -508,6 +510,7 @@ sub special_char {
         return call_perl5( "[^\\$_]", $_[1] ) if $char eq uc($_);
     }
     $char = '\\\\' if $char eq '\\';
+    ### special char: $char
     return call_constant( $char, $_[1] );
 }
 sub match_variable {
