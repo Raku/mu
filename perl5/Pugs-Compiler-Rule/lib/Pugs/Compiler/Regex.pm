@@ -2,7 +2,7 @@ package Pugs::Compiler::Regex;
 
 #use Smart::Comments;
 
-# Version in Pugs::Compiler::Rule
+our $VERSION = '0.24';
 # Documentation in the __END__
 use 5.006;
 use strict;

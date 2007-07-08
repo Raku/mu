@@ -5,6 +5,16 @@ use warnings;
 
 use Cwd qw< abs_path cwd >;
 
+BEGIN {
+    my $releng = @ARGV && $ARGV[0] eq 'releng' ? shift : undef;
+    if (!$releng && -e '../../inc') {
+        eval "use lib '../..'; use inc::Module::Install prefix => '../../inc';";
+        die $@ if $@;
+    } else {
+        warn "In releng mode...\n";
+        eval 'use inc::Module::Install;';
+    }
+}
 my @inc;
 BEGIN {
     @inc = (-e '../../inc' and -e '../../VICTUALS')
@@ -14,14 +24,13 @@ BEGIN {
         : ()
 }
 use lib '../..', '../../../..', (@inc ? $inc[-1] : ());
-use inc::Module::Install @inc;
 
 my $pmc  = abs_path('lib/Pugs/Grammar/Rule.pmc');
 
 my $mtime = time;
 utime $mtime, $mtime, $pmc;
 
-name('Pugs-Compiler-Rule');
+name                ('Pugs-Compiler-Rule');
 perl_version        ('5.006001');
 all_from            ('lib/Pugs/Compiler/Rule.pm');
 requires            ('Parse::Yapp' => '0');
@@ -54,6 +63,10 @@ sub MY::postamble {
 config ::
 \t-\$(NOECHO) \$(CHMOD) 644 $pmc
 \t-\$(NOECHO) \$(TOUCH) $pmc
+
+clean ::
+	-\$(RM_RF) tmp
+	-\$(RM_F) *.pm
 .
 }
 

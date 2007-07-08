@@ -34,99 +34,94 @@ SYNOPSIS
                 <subrule: param1, param2>
         });
 
+    where $grammar is normally a Perl 5 package.
+
 DESCRIPTION
-    This module provides an implementation for Perl 6 Rules. It is a
-    front-end to several other modules:
+    This module provides an pure Perl 5 implementation for Perl 6 regexes,
+    which does not depend on the Haskell Pugs.
+
+    It is a front-end to several other modules:
 
     Front-end Modules
 
-    *   Pugs::Compiler::Rule compiles Perl 6 Rules to Perl 5.
-
-    *   Pugs::Compiler::Token compiles Perl 6 Tokens to Perl 5.
-
-    *   Pugs::Compiler::Regex compiles Perl 6 Regexes to Perl 5.
-
-    *   Pugs::Compiler::RegexPerl5 wraps Perl 5 Regexes to return a Match
-        object.
+    * Pugs::Compiler::Grammar compiles Perl 6 grammars to Perl 5.
+    * Pugs::Compiler::Rule compiles Perl 6 rules to Perl 5.
+    * Pugs::Compiler::Token compiles Perl 6 tokens to Perl 5.
+    * Pugs::Compiler::Regex compiles Perl 6 regexes to Perl 5.
+    * Pugs::Compiler::RegexPerl5 wraps Perl 5 regexes to return a Match
+    object.
 
     Runtime Classes
 
-    *   Pugs::Runtime::Rule provides the runtime engine for Rules.
-
-    *   Pugs::Runtime::Match represents a Match object.
-
-    *   Pugs::Runtime::Grammar represents a Grammar class / object.
+    * Pugs::Runtime::Rule provides the runtime engine for Rules.
+    * Pugs::Runtime::Match represents a Match object.
+    * Pugs::Runtime::Grammar represents a Grammar class / object.
 
     Grammars
 
-    *   Pugs::Grammar::Rule parses the Rules syntax.
-
-    *   Pugs::Grammar::Base is the base Grammar: <ws>, <space>.
+    * Pugs::Grammar::Rule parses the Rules syntax.
+    * Pugs::Grammar::Base is the base Grammar: <ws>, <space>.
 
     Code Emitters
 
-    *   Pugs::Emitter::Rule::Perl5 converts parsed Rules to Perl 5 code.
+    * Pugs::Emitter::Rule::Perl5 converts parsed Rules to Perl 5 code.
+    * Pugs::Emitter::Rule::Perl5::Ratchet converts parsed :ratchet Rules to
+    Perl 5 code.
+    * Pugs::Emitter::Grammar::Perl5 converts parsed grammars to Perl 5 code.
 
-    *   Pugs::Emitter::Rule::Perl5::Ratchet converts parsed :ratchet Rules
-        to Perl 5 code.
+INHERITANCE
+      Pugs::Compiler::Rule
+         isa Pugs::Compiler::Regex
 
 METHODS
-    compile (Str $rule_source, \%options)
-        Class method. Returns a compiled rule object, or throws an exception
-        on invalid rule syntax.
+    This class (i.e. Pugs::Compiler::Rule) is a subclass of
+    Pugs::Compiler::Regex and thus owns all the methods of its base class.
+    See Pugs::Compiler::Regex for the detailed docs.
 
-        options:
+    "$rule = Pugs::Compiler::Rule->compile($p6_regex, $params)"
+        Specifically, this class overrides the "compile" method of
+        Pugs::Compiler::Regex which resets the following options' default
+        values:
 
-        *   grammar => $class
+        "ratchet => 1"
+            Here is an example:
 
-            Specify which namespace (Grammar) the rule belongs to.
+                $rule = Pugs::Compiler::Rule->compile(
+                    'a*\w',
+                );
+                my $match = $rule->match('aaa');
+                # $match->bool is false since no backtracking
+                # happened
 
-        *   ratchet => 1
+        "sigspace => 1"
+            Here is an example:
 
-            Disable backtracking. Match faster. Defaults to 1 in Rules and
-            Tokens.
-
-        *   pos => $pos
-
-            Specify a string position to match. Starts in zero. Defaults to
-            "undef", which matches anywhere in the string.
-
-        *   sigspace => 1
-
-            Whitespace is significant. Defaults to 1 in Rules.
-
-        *   Perl5 => 1
-
-            Use Perl 5 grammar and semantics for Regex.
-
-    match (Str $match_against)
-        Instance method. Returns a Pugs::Runtime::Match object.
-
-    install (Str $name, Str $rule_source, \%options)
-        Install a rule into the method $name. If $name is fully qualified
-        then it will be installed into that path e.g "MyGrammar::rulename",
-        otherwise it will install it into the current package.
-
-    perl
-        Instance method. Returns a string that can be eval'ed into a
-        rule/token/regex object.
+                my $rule = Pugs::Compiler::Rule->compile(
+                    'a b',
+                );
+                my $match = $rule->match('a     b');
+                ok $match->bool, 'sigspace works';
+                is $match->(), 'a     b', 'sigspace works (2)';
 
 CAVEATS
     This is an experimental development version. The API is still in flux.
 
-    The set of implemented features depends on the "ratchet" switch.
+    The set of implemented features depend on the "ratchet" switch.
 
 AUTHORS
     The Pugs Team "<perl6-compiler@perl.org>".
 
-    Please join us on irc.freenode.net #perl6 if you'd like to participate.
+    Please join us on irc.freenode.net "#perl6" if you'd like to
+    participate.
 
 SEE ALSO
-    The Perl 6 Rules Spec:
-    <http://dev.perl.org/perl6/doc/design/syn/S05.html>
+    *   Pugs::Compiler::Regex
+
+    *   The Perl 6 Rules Spec:
+        <http://dev.perl.org/perl6/doc/design/syn/S05.html>
 
 COPYRIGHT
-    Copyright 2006 by Flavio Soibelmann Glock and others.
+    Copyright 2006, 2007 by Flavio Soibelmann Glock and others.
 
     This program is free software; you can redistribute it and/or modify it
     under the same terms as Perl itself.

@@ -3,7 +3,6 @@
 ^lrep/
 precedence.pl
 RuleInline-more.pl
-lib/Pugs/AST/
 benchmark.pl
 t6/iterator_engine.pl
 lib/pcr.txt
@@ -15,6 +14,8 @@ tmp
 ^Makefile$
 ^Makefile\.[a-z]+$
 \.swp$
+examples/Grammar.grammar
+Pugs-Compiler-Rule-\d+
 ^pm_to_blib$
 CVS/.*
 ,v$

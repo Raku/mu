@@ -1,7 +1,7 @@
 package Pugs::Compiler::Token;
 
-# Version in Pugs::Compiler::Rule
-# Documentation in the __END__
+our $VERSION = '0.24';
+
 use 5.006;
 use strict;
 use warnings;
