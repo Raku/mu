@@ -26,6 +26,11 @@ __END__
 
 Pugs::Compiler::Rule - Compiler for Perl 6 Rules
 
+=head1 VERSION
+
+This document describes Pugs::Compiler::Rule 0.24 released
+on 8 July, 2007.
+
 =head1 SYNOPSIS
 
 Un-named rules are objects:
