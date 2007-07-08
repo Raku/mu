@@ -94,6 +94,7 @@ sub emit {
 do { my \$rule; \$rule = sub {
   my \$grammar = \$_[0];
   my \$s = \$_[1];
+  \$_[3] = \$_[2] unless defined \$_[3]; # backwards compat
   no warnings 'substr', 'uninitialized', 'syntax';
   my \%pad;\n" .
         #"  my \$pos;\n" .
