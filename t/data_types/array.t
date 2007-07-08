@@ -8,7 +8,7 @@ Arrays
 
 =cut
 
-plan 67;
+plan 70;
 
 #L<S02/Mutable types/Array>
 
@@ -171,4 +171,11 @@ is ~@b,
   ok !(try { @arr[*-2] }), "readonly accessing [*-2] of an one-elem array is ok (2)";
   dies_ok { @arr[*-2] = 42 },      "assigning to [*-2] of an one-elem array is fatal";
   dies_ok { @arr[*-2] := 42 },     "binding [*-2] of an empty array is fatal";
+}
+
+{
+  my @arr = <a normal array with nothing funny>;
+  dies_ok { @arr[-1] }, "readonly accessing [-1] of normal array is fatal";
+  dies_ok { @arr[-1] = 42 }, "assigning to [-1] of a normal array is fatal";
+  dies_ok { @arr[-1] := 42 }, "binding [-1] of a normal array is fatal";
 }
