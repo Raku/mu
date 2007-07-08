@@ -573,8 +573,8 @@ token named_regex {
 }
 
 # This is hacky, will do better later
-token block {
-    '{'  ( <?string_code> | '' )  '}'
+token verbatim {
+    '%{' ( [ <!before '%}'> . ]* ) '%}'
     { return {
             type => 'block',
             value => $$0
@@ -582,23 +582,23 @@ token block {
     }
 }
 
-token statement {
-    | <block>       { return $$<block>; }
+token item {
+    | <verbatim>       { return $$<verbatim>; }
     | <named_regex> { return $$<named_regex>; }
 }
 
 token grammar {
     <?ws>? 'grammar' <?ws> <ident> <?ws>? ';'
     <?ws>?
-    [ <statement> <?ws>? ]*
-    { return { $$<ident> => $<statement> } }
+    [ <item> <?ws>? ]*
+    { return { $$<ident> => $<item> } }
 }
 
 token spec {
-    <block>?
+    <verbatim>?
     <grammar>*
     { return {
-            block => $<block>,
+            block => $<verbatim>,
             'grammar' => $<grammar> }
     }
 }

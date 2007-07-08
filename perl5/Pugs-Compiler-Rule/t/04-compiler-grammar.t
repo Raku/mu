@@ -16,10 +16,11 @@ _EOC_
 ok $obj, 'obj ok';
 isa_ok $obj, 'Pugs::Compiler::Grammar';
 ok $obj->{perl5}, 'p5 code okay';
+#die $obj->{perl5};
 eval $obj->{perl5};
 is $@, '', "no error while eval";
 my $match = Perl->foo('aaba');
-ok $match, 'matched';
+ok $match->bool, 'matched';
 is $match, 'aa', 'capture okay';
 
 $match = C->bar('hello');
@@ -51,7 +52,7 @@ is $match->{var_list}->{ident}->[0], 'd';
 # mult-grammars
 {
     my $grammar = q{
-        grammar MyC;
+        grammar My::C;
 
         token def {
             <type> <?ws> <var_list> <?ws>? ';'
@@ -63,21 +64,23 @@ is $match->{var_list}->{ident}->[0], 'd';
             <ident>**{1} <?ws>? [ ',' <?ws>? <ident> ]*
         }
 
-        grammar MyVB;
+        grammar My::VB;
 
         token def {
-            'Dim' <?ws> <MyC.var_list>
-            [ <?ws> 'As' <?ws> <MyC.type> ]? <?ws>? ';'
+            'Dim' <?ws> <My::C.var_list>
+            [ <?ws> 'As' <?ws> <My::C.type> ]? <?ws>? ';'
         }
     };
     my $obj = Pugs::Compiler::Grammar->compile($grammar);
     my $perl5 = $obj->perl5;
+    #warn $perl5;
     eval $perl5; die $@ if $@;
-    my $match = MyC->def("float foo;");
-    is $match->{type}, 'float', "MyC's type okay";
-    is $match->{var_list}, 'foo', "MyC's var_list okay\n";
-    $match = MyVB->def("Dim foo, bar;");
-    is $match->{'MyC.var_list'}, 'foo, bar', "MyVB's var_list okay\n";
+    my $match = My::C->def("float foo;");
+    is $match->{type}, 'float', "My::C's type okay";
+    is $match->{var_list}, 'foo', "My::C's var_list okay\n";
+    $match = My::VB->def("Dim foo, bar;");
+    #die;
+    is $match->{'My::C.var_list'}, 'foo, bar', "My::VB's var_list okay\n";
 }
 
 {
@@ -86,7 +89,7 @@ is $match->{var_list}->{ident}->[0], 'd';
 
         grammar Blah;
 
-        { our $Count = 27; }
+        %{ our $Count = 27; %}
 
         token add {
             (\d+) { return $Blah::Count += $/[0] }

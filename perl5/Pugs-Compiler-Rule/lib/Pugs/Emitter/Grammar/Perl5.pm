@@ -9,11 +9,11 @@ sub emit {
     my $ast = shift;
     ## $ast
     my ($name, $stmts) = each %$ast;
-    my $p5_methods;
+    my $p5_methods = '';
     ### $name
     for my $stmt (@$stmts) {
-        ## $regex
         my $regex = $stmt->();
+        ## $regex
         if ($regex->{type} eq 'block') {
             $p5_methods .= <<"_EOC_";
 # Code block from grammar spec
