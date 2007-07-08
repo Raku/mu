@@ -21,10 +21,7 @@ sub test {
 test('adder', 'print Adder->add("3 + 23")->(), "\n"', 26);
 test('adder', 'print Adder->add("532+49")->(), "\n"', 581);
 
-SKIP: {
-    skip "digits.grammar loops", 2;
-    test('digits', 'print Digits->count("49a3")->(), "\n"', 3);
-};
+test('digits', 'print Digits->count("49a3")->(), "\n"', 3);
 
 test('langs', 'print My::VB->def("Dim a, b As double")->{"My::C.var_list"}, "\n"', 'a, b');
 

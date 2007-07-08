@@ -19,6 +19,7 @@ __DATA__
 do { my $rule; $rule = sub {
   my $grammar = $_[0];
   my $s = $_[1];
+  $_[3] = $_[2] unless defined $_[3]; # backwards compat
   no warnings 'substr', 'uninitialized', 'syntax';
   my %pad;
   my $m;
@@ -62,17 +63,17 @@ do { my $rule; $rule = sub {
 --- token: 'a | b'
 --- alt
        (
-           ( $pad{I1295} = $pos or 1 )
+           ( $pad{I1193} = $pos or 1 )
            && (
-            (   ( $pad{I1296} = $pos or 1 ) && 
+            (   ( $pad{I1194} = $pos or 1 ) && 
              ## <constant />
- ||    ( ( $pos = $pad{I1296} ) && 0 ) )
+ ||    ( ( $pos = $pad{I1194} ) && 0 ) )
            )
          || (
-           ( ( $bool = 1 ) && ( $pos = $pad{I1295} ) or 1 )
-           &&             (   ( $pad{I1297} = $pos or 1 ) && 
+           ( ( $bool = 1 ) && ( $pos = $pad{I1193} ) or 1 )
+           &&             (   ( $pad{I1195} = $pos or 1 ) && 
              ## <constant />
- ||    ( ( $pos = $pad{I1297} ) && 0 ) )
+ ||    ( ( $pos = $pad{I1195} ) && 0 ) )
          )
        )
 --- constant
