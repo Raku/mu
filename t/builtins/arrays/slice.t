@@ -62,8 +62,10 @@ plan 24;
     $bar = "CC";
     is ~@array, "a BB CC d", "binding array slices works (3-2)", :todo<feature>;
 
-    @array[1] = "BBB";
-    @array[2] = "CCC";
+    try {
+        @array[1] = "BBB";
+        @array[2] = "CCC";
+    };
     is ~@array, "a BBB CCC d", "binding array slices works (3-3)";
     is $foo,    "BBB",         "binding array slices works (3-4)", :todo<feature>;
     is $bar,    "CCC",         "binding array slices works (3-5)", :todo<feature>;

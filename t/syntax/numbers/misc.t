@@ -49,12 +49,12 @@ is  +'00123', 123, "Leading zeroes stringify correctly";
 is :16("ff"), 255, "Adverbial function form of hex number works";
 is :10("99"), 99, "Adverbial function form of dec number works";
 is :8("77"), 63, "Adverbial function form of oct number works";
-is :2("11"), 3, "Adverbial function form of dec number works";
+is :2("11"), 3, "Adverbial function form of bin number works";
 
 is :16<ff>, 255, "Adverbial string form of hex number works";
 is :10<99>, 99, "Adverbial string form of dec number works";
 is :8<77>, 63, "Adverbial string form of oct number works";
-is :2<11>, 3, "Adverbial string form of dec number works";
+is :2<11>, 3, "Adverbial string form of bin number works";
 is :2<1_0.1>, 2.5, "Adverbial string form can include . and _";
 
 is :10<99*10**2>, 99e2, "Adverbial form of exponentiation works", :todo<feature>;
