@@ -120,33 +120,33 @@ my Int @array;
 lives_ok { @array[0] = 23 },                   "stuffing Ints in an Int array works";
 dies_ok  { @array[1] = $*ERR }, "stuffing IO in an Int array does not work", :todo<feature>;
 
-# negative index
+# indexing from the end
 my @array12 = ('a', 'b', 'c', 'e'); 
-is @array12[-1],'e', "negative index [-1]";
+is @array12[*-1],'e', "indexing from the end [-1]";
 
-# negative index range
-is ~@array12[-4 .. -2], 'a b c', "negative index [-4 .. -2]";
+# end index range
+is ~@array12[*-4 .. *-2], 'a b c', "end indices [*-4 .. *-2]";
 
-# negative index as lvalue
-@array12[-1]   = 'd';
-is @array12[-1], 'd', "assigns to the correct negative slice index"; 
-is ~@array12,'a b c d', "assignment to neg index correctly alters the array";
+# end index as lvalue
+@array12[*-1]   = 'd';
+is @array12[*-1], 'd', "assigns to the correct end slice index"; 
+is ~@array12,'a b c d', "assignment to end index correctly alters the array";
 
 my @array13 = ('a', 'b', 'c', 'd'); 
-# negative index range as lvalue
-@array13[-4 .. -1]   = ('d', 'c', 'b', 'a'); # ('a'..'d').reverse
-is ~@array13, 'd c b a', "negative range as lvalue"; 
+# end index range as lvalue
+@array13[*-4 .. *-1]   = ('d', 'c', 'b', 'a'); # ('a'..'d').reverse
+is ~@array13, 'd c b a', "end range as lvalue"; 
 
 #hat trick
 my @array14 = ('a', 'b', 'c', 'd');
 my @b = 0..3;
-((@b[-3,-2,-1,-4] = @array14)= @array14[-1,-2,-3,-4]);
+((@b[*-3,*-2,*-1,*-4] = @array14)= @array14[*-1,*-2,*-3,*-4]);
 
 is ~@b, 
     'a d c b', 
     "hat trick:
-    assign to a negatively indexed slice array from array  
-    lvalue in assignment is then lvalue to negatively indexed slice as rvalue"; 
+    assign to a end-indexed slice array from array  
+    lvalue in assignment is then lvalue to end-indexed slice as rvalue"; 
 #
 
 # This test may seem overly simplistic, but it was actually a bug in PIL2JS, so
@@ -159,16 +159,16 @@ is ~@b,
 
 {
   my @arr;
-  lives_ok { @arr[-1] },  "readonly accessing [-1] of an empty array is ok (1)";
-  ok !(try { @arr[-1] }), "readonly accessing [-1] of an empty array is ok (2)";
-  dies_ok { @arr[-1] = 42 },      "assigning to [-1] of an empty array is fatal";
-  dies_ok { @arr[-1] := 42 },     "binding [-1] of an empty array is fatal";
+  lives_ok { @arr[*-1] },  "readonly accessing [*-1] of an empty array is ok (1)";
+  ok !(try { @arr[*-1] }), "readonly accessing [*-1] of an empty array is ok (2)";
+  dies_ok { @arr[*-1] = 42 },      "assigning to [*-1] of an empty array is fatal";
+  dies_ok { @arr[*-1] := 42 },     "binding [*-1] of an empty array is fatal";
 }
 
 {
   my @arr = (23);
-  lives_ok { @arr[-2] },  "readonly accessing [-2] of an one-elem array is ok (1)";
-  ok !(try { @arr[-2] }), "readonly accessing [-2] of an one-elem array is ok (2)";
-  dies_ok { @arr[-2] = 42 },      "assigning to [-2] of an one-elem array is fatal";
-  dies_ok { @arr[-2] := 42 },     "binding [-2] of an empty array is fatal";
+  lives_ok { @arr[*-2] },  "readonly accessing [*-2] of an one-elem array is ok (1)";
+  ok !(try { @arr[*-2] }), "readonly accessing [*-2] of an one-elem array is ok (2)";
+  dies_ok { @arr[*-2] = 42 },      "assigning to [*-2] of an one-elem array is fatal";
+  dies_ok { @arr[*-2] := 42 },     "binding [*-2] of an empty array is fatal";
 }
