@@ -14,6 +14,8 @@ __DATA__
            : 0
        )
 --- global
+## sigspace: 0
+## ratchet: 1
 do { my $rule; $rule = sub {
   my $grammar = $_[0];
   my $s = $_[1];
@@ -60,17 +62,17 @@ do { my $rule; $rule = sub {
 --- token: 'a | b'
 --- alt
        (
-           ( $pad{I1109} = $pos or 1 )
+           ( $pad{I1295} = $pos or 1 )
            && (
-            (   ( $pad{I1110} = $pos or 1 ) && 
+            (   ( $pad{I1296} = $pos or 1 ) && 
              ## <constant />
- ||    ( ( $pos = $pad{I1110} ) && 0 ) )
+ ||    ( ( $pos = $pad{I1296} ) && 0 ) )
            )
          || (
-           ( ( $bool = 1 ) && ( $pos = $pad{I1109} ) or 1 )
-           &&             (   ( $pad{I1111} = $pos or 1 ) && 
+           ( ( $bool = 1 ) && ( $pos = $pad{I1295} ) or 1 )
+           &&             (   ( $pad{I1297} = $pos or 1 ) && 
              ## <constant />
- ||    ( ( $pos = $pad{I1111} ) && 0 ) )
+ ||    ( ( $pos = $pad{I1297} ) && 0 ) )
          )
        )
 --- constant

@@ -92,7 +92,7 @@ _EOC_
         }
         print $out "\n\n\n";
     }
-    warn "$script generated.\n";
+    warn " $script generated.\n";
     close $out;
 }
 

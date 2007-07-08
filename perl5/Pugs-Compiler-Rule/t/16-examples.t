@@ -28,3 +28,5 @@ SKIP: {
 
 test('langs', 'print My::VB->def("Dim a, b As double")->{"My::C.var_list"}, "\n"', 'a, b');
 
+test('langs2', 'print My::VB->def("Dim a, b As double")->{"My::C.var_list"}, "\n"', 'a, b ');
+
