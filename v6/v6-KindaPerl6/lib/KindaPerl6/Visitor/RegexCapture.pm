@@ -5,13 +5,24 @@ use v6-alpha;
 
 This visitor preprocess the Regex capture counts.
 
+* capture_count( 0, 0, {} )
+
+Positional parameters:
+    - $count: the current positional-capture number
+        /(.)(.)/
+              ^--- count := 2
+            ^----- count := 1
+         ^-------- count := 0
+    - $quantified: whether this node is inside a quantifier
+    - %seen: which named-captures were already seen
+
 =end
 
 class KindaPerl6::Visitor::RegexCapture {
     method visit ( $node, $node_name ) {
         if ( $node_name eq 'Token' )
         {
-            say "RegexCapture: Token";
+            #say "RegexCapture: Token";
             ($node.regex).capture_count( 0, 0, {} );
             return $node;
         };
@@ -19,6 +30,8 @@ class KindaPerl6::Visitor::RegexCapture {
     };
 }
 
+
+# node "aspects"
 
 class Rule::Quantifier {
     method capture_count( $count, $quantified, $seen ) {
@@ -31,7 +44,7 @@ class Rule::Or {
     method capture_count( $count, $quantified, $seen ) {
         my $max := $count;
         for @.or -> $regex {
-            say "Or";
+            #say "Or";
             my $last := $regex.capture_count( $count, $quantified, $seen );
             if $last > $max {
                 $max := $last;
@@ -45,7 +58,7 @@ class Rule::Or {
 class Rule::Concat {
     method capture_count( $count, $quantified, $seen ) {
         for @.concat -> $regex {
-            say "Concat";
+            #say "Concat";
             $count := $regex.capture_count( $count, $quantified, $seen );
         }
         $count;
@@ -143,9 +156,8 @@ class Rule::CharClass {
 }
 
 class Rule::Capture {
-    # unused
     method capture_count( $count, $quantified, $seen ) {
-        say "TODO RuleCapture";
-        die();
+        $.position := $count;
+        $count + 1;
     }
 }

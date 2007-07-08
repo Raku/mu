@@ -3,13 +3,13 @@ use v5;
 use strict;
 use MiniPerl6::Perl5::Runtime;
 use MiniPerl6::Perl5::Match;
-package KindaPerl6::Visitor::RegexCapture; sub new { shift; bless { @_ }, "KindaPerl6::Visitor::RegexCapture" } sub visit { my $self = shift; my $List__ = \@_; my $node; my $node_name; do {  $node = $List__->[0];  $node_name = $List__->[1]; [$node, $node_name] }; do { if (($node_name eq 'Token')) { Main::say('RegexCapture: Token');$node->regex()->capture_count(0, 0, {  });return($node) } else {  } }; return((undef)) }
+package KindaPerl6::Visitor::RegexCapture; sub new { shift; bless { @_ }, "KindaPerl6::Visitor::RegexCapture" } sub visit { my $self = shift; my $List__ = \@_; my $node; my $node_name; do {  $node = $List__->[0];  $node_name = $List__->[1]; [$node, $node_name] }; do { if (($node_name eq 'Token')) { $node->regex()->capture_count(0, 0, {  });return($node) } else {  } }; return((undef)) }
 ;
 package Rule::Quantifier; sub new { shift; bless { @_ }, "Rule::Quantifier" } sub capture_count { my $self = shift; my $List__ = \@_; my $count; my $quantified; my $seen; do {  $count = $List__->[0];  $quantified = $List__->[1];  $seen = $List__->[2]; [$count, $quantified, $seen] }; $self->{term}->capture_count($count, 1, $seen); $count }
 ;
-package Rule::Or; sub new { shift; bless { @_ }, "Rule::Or" } sub capture_count { my $self = shift; my $List__ = \@_; my $count; my $quantified; my $seen; do {  $count = $List__->[0];  $quantified = $List__->[1];  $seen = $List__->[2]; [$count, $quantified, $seen] }; my  $max = $count; do { for my $regex ( @{$self->{or}} ) { Main::say('Or');my  $last = $regex->capture_count($count, $quantified, $seen);do { if (($last > $max)) { $max = $last } else {  } } } }; $max }
+package Rule::Or; sub new { shift; bless { @_ }, "Rule::Or" } sub capture_count { my $self = shift; my $List__ = \@_; my $count; my $quantified; my $seen; do {  $count = $List__->[0];  $quantified = $List__->[1];  $seen = $List__->[2]; [$count, $quantified, $seen] }; my  $max = $count; do { for my $regex ( @{$self->{or}} ) { my  $last = $regex->capture_count($count, $quantified, $seen);do { if (($last > $max)) { $max = $last } else {  } } } }; $max }
 ;
-package Rule::Concat; sub new { shift; bless { @_ }, "Rule::Concat" } sub capture_count { my $self = shift; my $List__ = \@_; my $count; my $quantified; my $seen; do {  $count = $List__->[0];  $quantified = $List__->[1];  $seen = $List__->[2]; [$count, $quantified, $seen] }; Main::say('Concat1'); do { for my $regex ( @{$self->{concat}} ) { Main::say('Concat2');$count = $regex->capture_count($count, $quantified, $seen) } }; $count }
+package Rule::Concat; sub new { shift; bless { @_ }, "Rule::Concat" } sub capture_count { my $self = shift; my $List__ = \@_; my $count; my $quantified; my $seen; do {  $count = $List__->[0];  $quantified = $List__->[1];  $seen = $List__->[2]; [$count, $quantified, $seen] }; do { for my $regex ( @{$self->{concat}} ) { $count = $regex->capture_count($count, $quantified, $seen) } }; $count }
 ;
 package Rule::Subrule; sub new { shift; bless { @_ }, "Rule::Subrule" } sub capture_count { my $self = shift; my $List__ = \@_; my $count; my $quantified; my $seen; do {  $count = $List__->[0];  $quantified = $List__->[1];  $seen = $List__->[2]; [$count, $quantified, $seen] }; my  $meth = ((1 + index($self->{metasyntax}, '.')) ? ($self->{metasyntax} . ' ... TODO ') : ('\'$\'.$GLOBAL::_Class.\'::_regex_' . ($self->{metasyntax} . '\''))); $seen->{$meth} = ($seen->{$meth} + 1); $count }
 ;
@@ -37,6 +37,6 @@ package Rule::NegateCharClass; sub new { shift; bless { @_ }, "Rule::NegateCharC
 ;
 package Rule::CharClass; sub new { shift; bless { @_ }, "Rule::CharClass" } sub capture_count { my $self = shift; my $List__ = \@_; my $count; my $quantified; my $seen; do {  $count = $List__->[0];  $quantified = $List__->[1];  $seen = $List__->[2]; [$count, $quantified, $seen] }; Main::say('TODO CharClass'); die() }
 ;
-package Rule::Capture; sub new { shift; bless { @_ }, "Rule::Capture" } sub capture_count { my $self = shift; my $List__ = \@_; my $count; my $quantified; my $seen; do {  $count = $List__->[0];  $quantified = $List__->[1];  $seen = $List__->[2]; [$count, $quantified, $seen] }; Main::say('TODO RuleCapture'); die() }
+package Rule::Capture; sub new { shift; bless { @_ }, "Rule::Capture" } sub capture_count { my $self = shift; my $List__ = \@_; my $count; my $quantified; my $seen; do {  $count = $List__->[0];  $quantified = $List__->[1];  $seen = $List__->[2]; [$count, $quantified, $seen] }; $self->{position} = $count; ($count + 1) }
 ;
 1;

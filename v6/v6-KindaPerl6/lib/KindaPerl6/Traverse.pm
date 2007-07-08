@@ -930,6 +930,7 @@ class Rule::CharClass {
 
 class Rule::Capture {
     has $.rule;
+    has $.position;
     method emit( $visitor ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
@@ -940,6 +941,7 @@ class Rule::Capture {
     method attribs {
             { 
                 rule   => $.rule,
+                position => $.position,
             }
     };
 }

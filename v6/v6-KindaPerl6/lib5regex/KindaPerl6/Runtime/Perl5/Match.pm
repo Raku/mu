@@ -78,7 +78,7 @@ package Match;
         elsif ( $action eq 'to' ) {
             $Matches[-1]->to = $data[0];
         }
-        elsif ( $action eq 'capture' ) {
+        elsif ( $action eq 'positional-capture' ) {
             # XXX - named captures, pre-numbered captures
             my $match = pop @Matches;
             push @{ $Matches[-1]->array }, $match;
