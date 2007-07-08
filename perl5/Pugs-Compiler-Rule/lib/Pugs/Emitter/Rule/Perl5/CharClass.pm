@@ -5,7 +5,7 @@ use Data::Dumper;
 
 use vars qw( %char_class );
 BEGIN {
-    %char_class = map { $_ => 1 } qw( 
+    %char_class = map { $_ => 1 } qw(
         alpha alnum ascii blank
         cntrl digit graph lower
         print punct space upper
@@ -29,13 +29,13 @@ sub emit {
     #print Dumper( @c );
     my $out = '';
     #my $last_cmd = '';
-    for ( @c ) { 
+    for ( @c ) {
         my ( $op, $cmd ) = /(.)(.*)/;
-        
+
         $cmd =~ s/\s//g;
 
         #if ( $last_cmd eq '-'
-        #    && substr($cmd,0,1) eq '+' 
+        #    && substr($cmd,0,1) eq '+'
         #    )
         #{
         #    $out .= '|';
@@ -43,7 +43,7 @@ sub emit {
         #$last_cmd = substr($cmd,0,1);
 
         $cmd =~ s/\.\./-/g;  # ranges
-        
+
         # TODO - \o \O
 
         if    ( $cmd =~ /^ \[ \\ c \[ (.*) \] \] /x ) {
@@ -55,7 +55,7 @@ sub emit {
             $cmd = "[^\\N{" . join( "}\\N{", split( /\s*;\s*/, $1 ) ) . "}]";
         }
 
-        
+
         elsif ( $cmd =~ /^ \[ \\ x \[ (.*) \] \] /x ) {
             $cmd = "(?:\\x{$1})";
         }
@@ -63,8 +63,8 @@ sub emit {
             $cmd = "(?!\\x{$1})\\X";
             #$cmd = "[^\\x{$1}]";
         }
-        
-        
+
+
         elsif ( $cmd =~ /^ \s* \[ (.*) /x ) {
            $cmd = '[' . $1;
 	    }
@@ -73,10 +73,10 @@ sub emit {
            $cmd = ( exists $char_class{$name} )
                 ? "[[:$name:]]"
                 : "\\p{$name}";
-        } 
-        
+        }
+
         if ( $op eq '+' ) {
-            $out .= 
+            $out .=
                 ( $out eq '' )
                 ? '(?=' . $cmd . ')'
                 : '|(?=' . $cmd . ')';
