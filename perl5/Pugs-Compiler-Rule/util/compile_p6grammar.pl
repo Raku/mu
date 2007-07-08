@@ -9,7 +9,7 @@ my $infile = shift or
 my $grammar = slurp($infile);
 my $compiler = Pugs::Compiler::Grammar->compile($grammar) or
     die;
-print $compiler->perl5 if $compiler;
+print "use strict;\nuse warnings;\n\n" . $compiler->perl5 if $compiler;
 
 __END__
 
