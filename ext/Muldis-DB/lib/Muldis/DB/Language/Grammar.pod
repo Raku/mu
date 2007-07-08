@@ -82,7 +82,7 @@ any common grammar specifying formats.  It should become formalized later.
         ;
 
     text_data
-        = /(\\b\\s\\d|[^\\'"])*/
+        = /(\\b|\\s|\\d|[^\\'"])*/
         ;
 
     short_name
