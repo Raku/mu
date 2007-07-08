@@ -119,18 +119,6 @@ class Rule::InterpolateVar {
     }
 }
 
-class Rule::NamedCapture {
-    method capture_count( $count, $quantified, $seen ) {
-        $.capture_to_array := $quantified;
-        $.rule.capture_count( 0, 0, {} );
-
-        # TODO - if seen, go back to previous and mark as capture-to-array
-        $seen{ $.ident } := $seen{ $.ident } + 1;
-
-        $count;
-    }
-}
-
 class Rule::Before {
     method capture_count( $count, $quantified, $seen ) {
         say "TODO Before";
@@ -159,10 +147,34 @@ class Rule::CharClass {
     }
 }
 
+class Rule::NamedCapture {
+    method capture_count( $count, $quantified, $seen ) {
+        $.capture_to_array := ( $quantified || ( $seen{ $.ident } && 1 ) );
+        $.rule.capture_count( 0, 0, {} );
+
+        # if seen, go back to previous and mark as capture-to-array
+        if $seen{ $.ident } {
+            # ($seen{ $.ident }).capture_to_array := 1;
+            ($seen{ $.ident }).capture_to_array( 1 );  # XXX fix mp6 accessor
+        }
+        $seen{ $.ident } := self;
+
+        $count;
+    }
+}
+
 class Rule::Capture {
     method capture_count( $count, $quantified, $seen ) {
         $.position         := $count;
-        $.capture_to_array := $quantified;
+        $.capture_to_array := ( $quantified || ( $seen{ $.ident } && 1 ) );
+
+        # if seen, go back to previous and mark as capture-to-array
+        if $seen{ $.ident } {
+            # ($seen{ $.ident }).capture_to_array := 1;
+            ($seen{ $.ident }).capture_to_array( 1 );  # XXX fix mp6 accessor
+        }
+        $seen{ $count } := self;
+
         # inside the capture, the count is restarted
         $.rule.capture_count( 0, 0, {} );
         $count + 1;

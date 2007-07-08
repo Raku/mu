@@ -27,8 +27,6 @@ package Rule::Block; sub new { shift; bless { @_ }, "Rule::Block" } sub capture_
 ;
 package Rule::InterpolateVar; sub new { shift; bless { @_ }, "Rule::InterpolateVar" } sub capture_count { my $self = shift; my $List__ = \@_; my $count; my $quantified; my $seen; do {  $count = $List__->[0];  $quantified = $List__->[1];  $seen = $List__->[2]; [$count, $quantified, $seen] }; $count }
 ;
-package Rule::NamedCapture; sub new { shift; bless { @_ }, "Rule::NamedCapture" } sub capture_count { my $self = shift; my $List__ = \@_; my $count; my $quantified; my $seen; do {  $count = $List__->[0];  $quantified = $List__->[1];  $seen = $List__->[2]; [$count, $quantified, $seen] }; $self->{capture_to_array} = $quantified; $self->{rule}->capture_count(0, 0, {  }); $seen->{$self->{ident}} = ($seen->{$self->{ident}} + 1); $count }
-;
 package Rule::Before; sub new { shift; bless { @_ }, "Rule::Before" } sub capture_count { my $self = shift; my $List__ = \@_; my $count; my $quantified; my $seen; do {  $count = $List__->[0];  $quantified = $List__->[1];  $seen = $List__->[2]; [$count, $quantified, $seen] }; Main::say('TODO Before'); die() }
 ;
 package Rule::NotBefore; sub new { shift; bless { @_ }, "Rule::NotBefore" } sub capture_count { my $self = shift; my $List__ = \@_; my $count; my $quantified; my $seen; do {  $count = $List__->[0];  $quantified = $List__->[1];  $seen = $List__->[2]; [$count, $quantified, $seen] }; Main::say('TODO NotBefore'); die() }
@@ -37,6 +35,8 @@ package Rule::NegateCharClass; sub new { shift; bless { @_ }, "Rule::NegateCharC
 ;
 package Rule::CharClass; sub new { shift; bless { @_ }, "Rule::CharClass" } sub capture_count { my $self = shift; my $List__ = \@_; my $count; my $quantified; my $seen; do {  $count = $List__->[0];  $quantified = $List__->[1];  $seen = $List__->[2]; [$count, $quantified, $seen] }; $count }
 ;
-package Rule::Capture; sub new { shift; bless { @_ }, "Rule::Capture" } sub capture_count { my $self = shift; my $List__ = \@_; my $count; my $quantified; my $seen; do {  $count = $List__->[0];  $quantified = $List__->[1];  $seen = $List__->[2]; [$count, $quantified, $seen] }; $self->{position} = $count; $self->{capture_to_array} = $quantified; $self->{rule}->capture_count(0, 0, {  }); ($count + 1) }
+package Rule::NamedCapture; sub new { shift; bless { @_ }, "Rule::NamedCapture" } sub capture_count { my $self = shift; my $List__ = \@_; my $count; my $quantified; my $seen; do {  $count = $List__->[0];  $quantified = $List__->[1];  $seen = $List__->[2]; [$count, $quantified, $seen] }; $self->{capture_to_array} = ($quantified || ($seen->{$self->{ident}} && 1)); $self->{rule}->capture_count(0, 0, {  }); do { if ($seen->{$self->{ident}}) { $seen->{$self->{ident}}->capture_to_array(1) } else {  } }; $seen->{$self->{ident}} = $self; $count }
+;
+package Rule::Capture; sub new { shift; bless { @_ }, "Rule::Capture" } sub capture_count { my $self = shift; my $List__ = \@_; my $count; my $quantified; my $seen; do {  $count = $List__->[0];  $quantified = $List__->[1];  $seen = $List__->[2]; [$count, $quantified, $seen] }; $self->{position} = $count; $self->{capture_to_array} = ($quantified || ($seen->{$self->{ident}} && 1)); do { if ($seen->{$self->{ident}}) { $seen->{$self->{ident}}->capture_to_array(1) } else {  } }; $seen->{$count} = $self; $self->{rule}->capture_count(0, 0, {  }); ($count + 1) }
 ;
 1;

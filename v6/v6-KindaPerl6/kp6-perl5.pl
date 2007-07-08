@@ -30,7 +30,7 @@ Example:
 =cut
 
 my @visitor_sequence;
-my ($dumpast, $perl5, $perl6);
+my ($dumpast, $perl5, $perl6, $perl5rx);
 my @visitors;
 
 {
@@ -38,6 +38,7 @@ my @visitors;
     GetOptions(
         'ast'	    => \$dumpast,
         'perl5'	    => \$perl5,
+        'perl5rx'   => \$perl5rx,
         'perl6'	    => \$perl6,
         'do:s{1,}'  => \@visitor_sequence,
     );
@@ -53,6 +54,10 @@ my @visitors;
     elsif ( $perl5 ) {
         push @visitor_sequence, qw( EmitPerl5 )
             unless @visitor_sequence && $visitor_sequence[-1] eq 'EmitPerl5';
+    }
+    elsif ( $perl5rx ) {
+        push @visitor_sequence, qw( RegexCapture MetaClass EmitPerl5Regex )
+            unless @visitor_sequence && $visitor_sequence[-1] eq 'EmitPerl5Regex';
     }
     elsif ( ! @visitor_sequence ) {
         # this is the default sequence
