@@ -1,0 +1,23 @@
+# Usage:
+#   util/compile_p6grammar.pl examples/langs.grammar > Langs.pm
+#   perl -MLangs -e 'print My::VB->def("Dim a, b As double")->{"My::C.var_list"}, "\n"'
+
+grammar My::C;
+
+token def {
+    <type> <?ws> <var_list> <?ws>? ';'
+}
+
+token type { int | float | double | char }
+
+token var_list {
+    <ident>**{1} <?ws>? [ ',' <?ws>? <ident> ]*
+}
+
+grammar My::VB;
+
+token def {
+    'Dim' <?ws> <My::C.var_list>
+    [ <?ws> 'As' <?ws> <My::C.type> ]?
+}
+

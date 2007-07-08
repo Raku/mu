@@ -1,6 +1,7 @@
 Changes
 examples/adder.grammar
 examples/digits.grammar
+examples/langs.grammar
 inc/Module/Install.pm
 inc/Module/Install/Base.pm
 inc/Module/Install/Can.pm

@@ -26,3 +26,5 @@ SKIP: {
     test('digits', 'print Digits->count("49a3")->(), "\n"', 3);
 };
 
+test('langs', 'print My::VB->def("Dim a, b As double")->{"My::C.var_list"}, "\n"', 'a, b');
+
