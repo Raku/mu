@@ -121,11 +121,13 @@ class Rule::InterpolateVar {
 
 class Rule::NamedCapture {
     method capture_count( $count, $quantified, $seen ) {
+        $.capture_to_array := $quantified;
         $.rule.capture_count( 0, 0, {} );
-        $count + 1;
-        
-        # TODO - $seen{ $.ident } = ...
-        
+
+        # TODO - if seen, go back to previous and mark as capture-to-array
+        $seen{ $.ident } := $seen{ $.ident } + 1;
+
+        $count;
     }
 }
 

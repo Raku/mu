@@ -849,6 +849,7 @@ class Rule::InterpolateVar {
 class Rule::NamedCapture {
     has $.rule;
     has $.ident;
+    has $.capture_to_array;
     method emit( $visitor ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
@@ -860,6 +861,7 @@ class Rule::NamedCapture {
             { 
                 rule   => $.rule,
                 ident  => $.ident,
+                capture_to_array => $.capture_to_array,
             }
     };
 }
