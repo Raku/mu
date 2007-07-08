@@ -8,7 +8,7 @@ Arrays
 
 =cut
 
-plan 70;
+plan 71;
 
 #L<S02/Mutable types/Array>
 
@@ -175,7 +175,8 @@ is ~@b,
 
 {
   my @arr = <a normal array with nothing funny>;
-  dies_ok { @arr[-1] }, "readonly accessing [-1] of normal array is fatal";
+  lives_ok { @arr[-1] }, "readonly accessing [-1] of normal array is ok";
+  dies_ok { @arr[-1] + 0 }, "using a value from [-1] of normal array is fatal";
   dies_ok { @arr[-1] = 42 }, "assigning to [-1] of a normal array is fatal";
   dies_ok { @arr[-1] := 42 }, "binding [-1] of a normal array is fatal";
 }
