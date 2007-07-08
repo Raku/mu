@@ -22,7 +22,7 @@ fi
 mkdir -p tmp
 
 echo "Generating lib/Pug/Grammar/Rule2.pmc..."
-rm lib/Pugs/Grammar/Rule2.pmc
+rm lib/Pugs/Grammar/Rule2.pmc > /dev/null 2>&1
 perl -I../Pugs-Compiler-Perl6/lib -Ilib lib/Pugs/Grammar/Rule2.pm 2>&1 | grep -v "redefined at"
 
 echo "Generating tmp/Rule.pmc..."

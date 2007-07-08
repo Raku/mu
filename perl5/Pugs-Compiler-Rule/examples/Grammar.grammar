@@ -1,0 +1,711 @@
+# Grammar.grammar is used to generate
+# lib/Pugs/Grammar/Rule.pmc using util/compile_p6grammar.pl
+# This file makes lib/Pugs/Grammar/Rule2.pm obsolete.
+# Please regen Rule.pmc and rerun the whole test suite
+# of Pugs::Compiler::Rule and v6.pm to ensure you didn't
+# break things :)
+
+grammar Pugs::Grammar::Rule;
+
+%{
+
+use utf8;
+no strict 'refs';
+no warnings 'redefine';
+no warnings 'once';
+
+#use Pugs::Runtime::Match;
+
+our %rule_terms;
+our %variables;
+
+%}
+
+token pod_begin {
+    |   \n =end \N*
+    |   . \N* <?pod_begin>
+}
+
+token pod_other {
+    |   \n =cut \N*
+    |   . \N* <?pod_other>
+}
+
+token ws {
+    [
+    |    \# \N*
+    |    \n [ = [
+            |  begin <?ws> END \N* .*
+            |  begin  <?pod_begin>
+            |  kwid   <?pod_other>
+            |  pod    <?pod_other>
+            |  for    <?pod_other>
+            |  head1  <?pod_other>
+            ]?
+            ]?
+    |    \s
+    ]+
+}
+
+# regex ident can start with a number
+token ident {
+    [ <?alnum> | _ | '::' ]+
+}
+
+token alnum {
+    <[0-9a-zA-Z]>
+}
+
+token alpha {
+    <[a-zA-Z]>
+}
+
+token digit {
+    <[0-9]>
+}
+
+# after '\\'
+token special_char {
+        | ( c | C ) \[ ( [<alnum>|\s| ';' | '(' | ')' | '-' ]+) \]
+          #  \c[LATIN LETTER A]
+          { return { special_char => '\\' . $0 . $1 }; }
+
+        | [ x | X ] <xdigit>+
+          #  \x0021    \X0021
+          { return { special_char => '\\' . $/ }; }
+        | ( x | X ) \[ (<xdigit>+) \]
+          #  \x[0021]  \X[0021]
+          { return { special_char => '\\' . $0 . $1 }; }
+
+        | [ o | O ] \d+
+          #  \o0021    \O0021
+          { return { special_char => '\\' . $/ }; }
+        | ( o | O ) \[ (\d+) \]
+          #  \o[0021]  \O[0021]
+          { return { special_char => '\\' . $0 . $1 }; }
+
+        | .
+          #  \e  \E
+          { return { special_char => '\\' . $/ }; }
+}
+
+token literal {
+    [
+    |  \\ <special_char>
+    |  <-[ \' ]>
+    ]*
+}
+
+token double_quoted {
+    [
+    |  \\ <special_char>
+    |  <%Pugs::Grammar::Rule::variables>
+    |  <-[ \" ]>
+    ]*
+}
+
+token metasyntax {
+    [
+    |  \\ <special_char>
+    |  \'  <?literal>     \'
+    |  \"  <?double_quoted>   \"
+    |  \{  <?string_code>        \}
+    |  \<  <?metasyntax>  \>
+    |  <-[ \> ]>
+    ]+
+}
+
+token char_range {
+    [
+    |  \\ <special_char>
+    |  <-[ \] ]>
+    ]+
+}
+
+token char_class {
+    |  <?alpha>+
+    |  \[  <?char_range>  \]
+}
+
+token string_code {
+    # bootstrap "code"
+    [
+    |  \\ <special_char>
+    |  \'  <?literal>     \'
+    |  \"  <?double_quoted>   \"
+    |  \{  [ <?string_code> | '' ]  \}
+    |  \(  [ <?string_code> | '' ]  \)
+    |  \<  [ <?string_code> | '' ]  \>
+    |  [ <?ws> | \> | \= | \- ] \>
+    |  <?ws>
+    |  <-[ \} \) \> ]>
+    ]+
+}
+
+token parsed_code {
+    # this subrule is overridden inside the perl6 compiler
+    <?string_code>
+    { return '{' . $/ . '}'; }
+}
+
+token named_capture_body {
+    | \(  <rule>        \)  { return { capturing_group => $$<rule> }; }
+    | \[  <rule>        \]  { return $$<rule> }
+    | \<  <parse_metasyntax>  { return $$<parse_metasyntax> }
+    | \'  <?literal>    \'
+        { return { metasyntax => { metasyntax => "${$/}" } }; }
+    | { die "invalid alias syntax"; }
+}
+
+token parse_metasyntax {
+        $<modifier> := [ '!' | '?' | '' ]
+    [
+        '{'  <parsed_code>  '}>'
+        { return { closure => {
+            closure  => $$<parsed_code>,
+            modifier => $$<modifier>,
+        } } }
+    |
+        <char_class>
+        ( <[+-]> <char_class> )+
+        \>
+        {
+            if ( $$<modifier> eq '!' ) {
+              return {
+                negate => {
+                  char_class => [
+                    '+' . $<char_class>,
+                    @{$/[0]},   # TODO - stringify
+              ] } }
+            }
+            return {
+              char_class => [
+                '+' . $<char_class>,
+                @{$/[0]},   # TODO - stringify
+            ] }
+        }
+    |
+        <ident>
+        [
+          <?ws> <rule> \>
+          {
+            if  ( $$<ident> eq 'before'
+               || $$<ident> eq 'after'
+                ) {
+                return { $$<ident> => { rule => $$<rule>, modifier => $$<modifier> } }
+            }
+            return { metasyntax => {
+                metasyntax => $$<ident>,
+                rule       => $$<rule>,
+                modifier   => $$<modifier>,
+            } }
+          }
+        |
+          ':' <?ws>?
+          $<str> := [
+            [
+            |  \\ <special_char>
+            |  <%Pugs::Grammar::Rule::variables>
+            |  <-[ \> ]>
+            ]*
+          ]
+          \>
+          {
+            if  ( $$<ident> eq 'before'
+               || $$<ident> eq 'after'
+                ) {
+                return { $$<ident> => {
+                    rule     => { metasyntax => {
+                        metasyntax => '\'' . $$<str> . '\''
+                    } },
+                    modifier => $$<modifier>,
+                } }
+            }
+            return { metasyntax => {
+                metasyntax => $$<ident>,
+                string   => $$<str>,
+                modifier => $$<modifier>,
+            } }
+          }
+        |
+          \(  <parsed_code>  \) \>
+          { return { call => {
+              method   => $$<ident>,
+              params   => $$<parsed_code>,
+              modifier => $$<modifier>,
+          } } }
+        ]
+    |
+        <metasyntax>  \>
+        { return { metasyntax => {
+              metasyntax => "$$<metasyntax>",
+              modifier   => $$<modifier>,
+        } } }
+    ]
+}
+
+token var1 {
+        <ident> \>
+        { return { match_variable => '$' . $/{ident} }; }
+}
+
+#################################
+# set %variables
+#################################
+
+%{ $variables{'$<'} = sub { var1($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token var2 {
+        <?digit>+
+        { return { match_variable => '$' . $/ }; }
+    |
+        \^?
+        [ <?alnum> | _ | \: \: ]+
+        { return { variable => '$' . $/ }; }
+}
+
+%{ $variables{'$'} = sub { var2($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token var3 {
+        <?digit>+
+        { return { match_variable => '@' . $/ } }
+    |
+        \^?
+        [ <?alnum> | _ | \: \: ]+
+        { return { variable => '@' . $/ } }
+}
+
+%{ $variables{'@'} = sub { var3($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token var4 {
+        <?digit>+
+        { return { match_variable => '%' . $/ } }
+    |
+        \^?
+        [ <?alnum> | _ | \: \: ]+
+        { return { variable => '%' . $/ } }
+}
+
+%{ $variables{'%'} = sub { var4($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+#################################
+# set %rule_terms
+#################################
+
+token term1 {
+        # placeholder
+        { return { metasyntax => { metasyntax => 'null' } } }
+}
+
+%{ $rule_terms{'{*}'} = sub { term1($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term2 {
+        <?literal>     \'
+        { return {
+                metasyntax => {
+                    metasyntax => '\'' . ${$/}
+                }
+            };
+        }
+}
+
+%{ $rule_terms{'\''} = sub { term2($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term3 {
+        <rule> \)
+        { return { capturing_group => $$<rule> }; }
+}
+
+%{ $rule_terms{'('} = sub { term3($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term4 {
+        <rule>  ')>'
+        { return { capture_as_result => $$<rule> } }
+}
+
+%{ $rule_terms{'<('} = sub { term4($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term5 {
+        <char_class>
+        ( <[+-]> <char_class> )*
+        \>
+        { return {
+            char_class => [
+                '+' . $<char_class>,
+                @{$/[0]},   # TODO - stringify
+            ] }
+        }
+}
+
+%{ $rule_terms{'<+'} = sub { term5($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term6 {
+        <char_class>
+        ( <[+-]> <char_class> )*
+        \>
+        { return {
+            char_class => [
+                '-' . $<char_class>,
+                @{$/[0]},   # TODO - stringify
+            ] }
+        }
+}
+
+%{ $rule_terms{'<-'} = sub { term6($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term7 {
+        <char_range>  \]
+        ( <[+-]> <char_class> )*
+        \>
+        { return {
+            char_class => [
+                '+[' . $<char_range> . ']',
+                @{$/[0]},   # TODO - stringify
+            ] }
+        }
+}
+
+%{ $rule_terms{'<['} = sub { term7($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term8 {
+        <parse_metasyntax>
+        { return $$<parse_metasyntax> }
+}
+
+%{ $rule_terms{'<'} = sub { term8($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term9 {
+        <parsed_code>  \}
+        { return { closure => {
+            closure => $$<parsed_code>,
+            modifier => 'plain',
+        } } }
+}
+
+%{ $rule_terms{'{'} = sub { term9($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term10 {
+        <special_char>
+        { return $$<special_char> }
+}
+
+%{ $rule_terms{'\\'} = sub { term10($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term11 {
+        { return { 'dot' => 1 } }
+}
+
+%{ $rule_terms{'.'} = sub { term11($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term12 {
+        <rule> \]
+        { return $$<rule> }
+}
+
+%{ $rule_terms{'['} = sub { term12($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term13 { { return { colon => ':::' } } }
+
+%{ $rule_terms{':::'} = sub { term13($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term14 { { return { colon => ':?' } } }
+
+%{ $rule_terms{':?'} = sub { term14($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term15 { { return { colon => ':+' } } }
+
+%{ $rule_terms{':+'} = sub { term15($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term16 { { return { colon => '::' } } }
+
+%{ $rule_terms{'::'} = sub { term16($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term17 { { return { colon => ':'  } } }
+
+%{ $rule_terms{':'} = sub { term17($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term18 { { return { colon => '$$' } } }
+
+%{ $rule_terms{'$$'} = sub { term18($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term19 { { return { colon => '$'  } } }
+
+%{ $rule_terms{'$'} = sub { term19($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term20 { { return { colon => '^^' } } }
+
+%{ $rule_terms{'^^'} = sub { term20($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term21 { { return { colon => '^'  } } }
+
+%{ $rule_terms{'^'} = sub { term21($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term22 { { return { colon => '>>' } } }
+
+%{ $rule_terms{'>>'} = sub { term22($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+# token term23 { { return { colon => '>>' } } }
+
+%{ $rule_terms{'»'} = sub { term22($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term24 { { return { colon => '<<' } } }
+
+%{ $rule_terms{'<<'} = sub { term24($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+# token term25 { { return { colon => '<<' } } }
+
+%{ $rule_terms{'«'} = sub { term24($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term26 {
+        <?ws> <rule>
+        { return {
+            modifier => {
+                modifier => 'ignorecase',
+                rule => $$<rule>
+                }
+            }
+        }
+}
+
+%{ $rule_terms{':i'} = sub { term26($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+# token term27 {
+#        <?ws> <rule>
+#        { return { modifier => { modifier => 'ignorecase', :$$<rule> } } }
+# }
+
+%{ $rule_terms{':ignorecase'} = sub { term26($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term28 {
+        <?ws> <rule>
+        { return { modifier => 'sigspace', rule => $$<rule> } }
+}
+
+%{ $rule_terms{':s'} = sub { term28($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+# token term29 {
+#        <?ws> <rule>
+#        { return { modifier => 'sigspace',   :$$<rule> } }
+# }
+
+%{ $rule_terms{':sigspace'} = sub { term28($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term30 {
+        <?ws> <rule>
+        { return { modifier => 'Perl5', rule => $$<rule> } }
+}
+
+%{ $rule_terms{':P5'} = sub { term30($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+# token term31 {
+#        <?ws> <rule>
+#        { return { modifier => 'Perl5',  :$$<rule> } }
+# }
+
+%{ $rule_terms{':Perl5'} = sub { term30($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term32 {
+        <?ws> <rule>
+        { return { modifier => 'bytes', rule => $$<rule> } }
+}
+
+%{ $rule_terms{':bytes'} = sub { term32($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term33 {
+        <?ws> <rule>
+        { return { modifier => 'codes', rule => $$<rule> } }
+}
+
+%{ $rule_terms{':codes'} = sub { term33($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term34 {
+        <?ws> <rule>
+        { return { modifier => 'graphs', rule => $$<rule> } }
+}
+
+%{ $rule_terms{':graphs'} = sub { term34($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term35 {
+        <?ws> <rule>
+        { return { modifier => 'langs',  rule => $$<rule> } }
+}
+
+%{ $rule_terms{':langs'} = sub { term35($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
+
+token term {
+    |  <%Pugs::Grammar::Rule::variables>
+       [  <?ws>? ':=' <?ws>? <named_capture_body>
+          {
+            return { named_capture => {
+                rule =>  $$<named_capture_body>,
+                ident => $$<Pugs::Grammar::Rule::variables>,
+            }, };
+          }
+       |
+          {
+            return $$<Pugs::Grammar::Rule::variables>
+          }
+       ]
+    |  <%Pugs::Grammar::Rule::rule_terms>
+        {
+            #print "term: ", Dumper( $_[0]->data );
+            return $$<Pugs::Grammar::Rule::rule_terms>
+        }
+    |  <-[ \] \} \) \> \: \? \+ \* \| \& ]>
+        {
+            #print "constant: ", Dumper( $_[0]->data );
+            return { 'constant' => ${$/} }
+        }
+}
+
+token quant {
+    |   '**' <?ws>? \{  <parsed_code>  \}
+        { return { closure => $$<parsed_code> } }
+    |   <[  \? \* \+  ]>?
+}
+
+token quantifier {
+    $<ws1>   := (<?ws>?)
+    <!before  <[   \} \] \)   ]> >
+    <term>
+    $<ws2>   := (<?ws>?)
+    <quant>
+    $<greedy> := (<[  \? \+  ]>?)
+    $<ws3>   := (<?ws>?)
+    {
+      if (
+               ${$/{'quant'}}  eq ''
+            && ${$/{'greedy'}} eq ''
+            && ${$/{'ws1'}}    eq ''
+            && ${$/{'ws2'}}    eq ''
+            && ${$/{'ws3'}}    eq ''
+      ) {
+          return ${$/{'term'}};
+      }
+      return {
+        quant => {
+            term    => ${$/{'term'}},
+            quant   => ${$/{'quant'}},
+            greedy  => ${$/{'greedy'}},
+            ws1     => ${$/{'ws1'}},
+            ws2     => ${$/{'ws2'}},
+            ws3     => ${$/{'ws3'}},
+        } }
+    }
+}
+
+token concat {
+    <quantifier>+
+    {
+        my @a = map {  $_->()  }  @{ $::_V6_MATCH_->{'quantifier'} };
+        return { concat => \@a }  if scalar @a > 1;
+        return $a[0];
+    }
+}
+
+token conjunctive1 {
+    [ <?ws>? \& <!before \& > ]?
+
+    <concat>**{1}
+    [
+        \& <!before \& >  <concat>
+    ]*
+
+    {
+        my @a = map {  $$_  }  @{ $::_V6_MATCH_->{'concat'} };
+        return { conjunctive1 => \@a }  if scalar @a > 1;
+        return $a[0];
+    }
+}
+
+token disjunctive1 {
+    [ <?ws>? \| <!before \| > ]?
+
+    <conjunctive1>**{1}
+    [
+        \| <!before \| > <conjunctive1>
+    ]*
+
+    {
+        my @a = map {  $$_  }  @{ $::_V6_MATCH_->{'conjunctive1'} };
+        return { alt1 => \@a }  if scalar @a > 1;
+        return $a[0];
+    }
+}
+
+token conjunctive {
+    [ <?ws>? \& \& ]?
+
+    <disjunctive1>**{1}
+    [
+        \& \& <disjunctive1>
+    ]*
+
+    {
+        my @a = map {  $$_  }  @{ $::_V6_MATCH_->{'disjunctive1'} };
+        return { conjunctive => \@a }  if scalar @a > 1;
+        return $a[0];
+    }
+}
+
+token rule {
+    [ <?ws>? \| \| ]?
+
+    <conjunctive>**{1}
+    [
+        \| \| <conjunctive>
+    ]*
+
+    {
+        my @a = map {  $$_  }  @{ $::_V6_MATCH_->{'conjunctive'} };
+        return { alt => \@a }  if scalar @a > 1;
+        return $a[0];
+    }
+}
+
+token named_regex {
+    ( 'token' | 'regex' | 'rule' )
+    <?ws> <ident> <?ws>? '{'
+        <?ws>?
+        <rule>
+    '}' ';'?
+
+    { return {
+            type => $$0,
+            name => $$<ident>,
+            ast => $$<rule>
+        };
+    }
+}
+
+# This is hacky, will do better later
+token verbatim {
+    '%{' ( [ <!before '%}'> . ]* ) '%}'
+    { return {
+            type => 'block',
+            value => $$0
+        };
+    }
+}
+
+token item {
+    | <verbatim>       { return $$<verbatim>; }
+    | <named_regex> { return $$<named_regex>; }
+}
+
+token grammar {
+    <?ws>? 'grammar' <?ws> <ident> <?ws>? ';'
+    <?ws>?
+    [ <item> <?ws>? ]*
+    { return { $$<ident> => $<item> } }
+}
+
+token spec {
+    <verbatim>?
+    <grammar>*
+    { return {
+            block => $<verbatim>,
+            'grammar' => $<grammar> }
+    }
+}
+

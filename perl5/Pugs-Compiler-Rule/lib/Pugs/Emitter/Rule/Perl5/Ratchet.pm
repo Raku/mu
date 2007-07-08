@@ -181,7 +181,7 @@ sub quant {
 
         # rollback on fail
         $rul = "$_[1]  ( "
-            .  "  ( \$pad{$id} = \$pos or 1 ) && \n"
+            .  "  ( \$pad{$id} = \$pos or 1 ) &&\n"
             .     $rul
             .  " ||"
             .  "    ( ( \$pos = \$pad{$id} ) && 0 )"
@@ -426,7 +426,8 @@ $_[1]    ') )";
     if ( $name =~ /^%/ ) {
         my $id = '$' . id();
         my $preprocess_hash = 'Pugs::Runtime::Regex::preprocess_hash';
-        my $code = "
+        my $code =
+"          ## <variable>
           do {
             our $id;
             our ${id}_sizes;
@@ -462,7 +463,9 @@ $_[1]    ') )";
                 \$bool = 1;
             }; # else { \$bool = 0 }
             \$match;
-          }";
+          }
+          ## </variable>
+";
         #print $code;
         return $code;
     }
@@ -545,14 +548,18 @@ sub closure {
         #print " perl6 compiler is NOT loaded \n";
         # XXX XXX XXX - source-filter - temporary hacks to translate p6 to p5
         # $()<name>
-        $code =~ s/ ([^']) \$ \( \) < (.*?) > /$1\$_[0]->[$2]/sgx;
+        $code =~ s/ ([^']) \$ \$ (\d+) /$1\${ \$_[0]->[$2] }/sgx;
+        $code =~ s/ ([^']) \$ (\d+) /$1\$_[0]->[$2]/sgx;
+        $code =~ s/ ([^']) \$ \( \) < (.*?) > /$1\$_[0]->{$2}/sgx;
         # $<name>
-        $code =~ s/ ([^']) \$ < (.*?) > /$1\$_[0]->{named}->{$2}/sgx;
+        $code =~ s/ ([^']) \$ \$ < (.*?) > /$1\${ \$_[0]->{qw($2)} }/sgx;
+        $code =~ s/ ([^']) \$ < (.*?) > /$1\$_[0]->{qw($2)}/sgx;
         # $()
         $code =~ s/ ([^']) \$ \( \) /$1\$_[0]->()/sgx;
         # $/
+        $code =~ s/ ([^']) \$ \/ ([\{\[]) /$1\$_[0]->$2/sgx;
         $code =~ s/ ([^']) \$ \/ /$1\$_[0]/sgx;
-        $code =~ s/ use \s+ v6 \s* ; / # use v6\n/sgx;
+        #$code =~ s/ use \s+ v6 \s* ; / # use v6\n/sgx;
     }
     #print "Code: $code\n";
     # "plain" {...return ...}
@@ -674,7 +681,7 @@ sub named_capture {
         my @param = split( ',', $param_list );
         return "$_[1] do {
                 my \$prior = \$::_V6_PRIOR_;
-                my \$match = \n" .
+                my \$match =\n" .
                     call_subrule( $subrule, $_[1]."        ", "", @param ) . ";
                 \$::_V6_PRIOR_ = \$prior;
                 if ( \$match ) {" .
@@ -797,14 +804,14 @@ sub colon {
     my $str = $_[0];
     return "$_[1] 1 # : no-op\n"
         if $str eq ':';
-    return "$_[1] ( \$pos >= length( \$s ) ) \n"
+    return "$_[1] ( \$pos >= length( \$s ) )\n"
         if $str eq '$';
-    return "$_[1] ( \$pos == 0 ) \n"
+    return "$_[1] ( \$pos == 0 )\n"
         if $str eq '^';
 
-    return "$_[1] ( \$pos >= length( \$s ) || substr( \$s, \$pos ) =~ ".'/^(?:\n\r?|\r\n?)/m'." ) \n"
+    return "$_[1] ( \$pos >= length( \$s ) || substr( \$s, \$pos ) =~ ".'/^(?:\n\r?|\r\n?)/m'." )\n"
         if $str eq '$$';
-    return "$_[1] ( \$pos == 0 || substr( \$s, 0, \$pos ) =~ ".'/(?:\n\r?|\r\n?)$/m'." ) \n"
+    return "$_[1] ( \$pos == 0 || substr( \$s, 0, \$pos ) =~ ".'/(?:\n\r?|\r\n?)$/m'." )\n"
         if $str eq '^^';
 
     return metasyntax( { metasyntax => '_wb_left', modifier => '?' }, $_[1] )
@@ -950,11 +957,10 @@ $_[1] ## </metasyntax>\n";
         my @param; # TODO
         my $subrule = $cmd;
         return
-"
-$_[1] ## <metasyntax>
+"$_[1] ## <metasyntax>
 $_[1] do {
 $_[1]      my \$prior = \$::_V6_PRIOR_;
-$_[1]      my \$match = \n" .
+$_[1]      my \$match =\n" .
                call_subrule( $subrule, $_[1]."        ", "", @param ) . ";
 $_[1]      \$::_V6_PRIOR_ = \$prior;
 $_[1]      my \$bool = (!\$match != 1);

@@ -63,17 +63,17 @@ do { my $rule; $rule = sub {
 --- token: 'a | b'
 --- alt
        (
-           ( $pad{I1193} = $pos or 1 )
+           ( $pad{I1759} = $pos or 1 )
            && (
-            (   ( $pad{I1194} = $pos or 1 ) && 
+            (   ( $pad{I1760} = $pos or 1 ) &&
              ## <constant />
- ||    ( ( $pos = $pad{I1194} ) && 0 ) )
+ ||    ( ( $pos = $pad{I1760} ) && 0 ) )
            )
          || (
-           ( ( $bool = 1 ) && ( $pos = $pad{I1193} ) or 1 )
-           &&             (   ( $pad{I1195} = $pos or 1 ) && 
+           ( ( $bool = 1 ) && ( $pos = $pad{I1759} ) or 1 )
+           &&             (   ( $pad{I1761} = $pos or 1 ) &&
              ## <constant />
- ||    ( ( $pos = $pad{I1195} ) && 0 ) )
+ ||    ( ( $pos = $pad{I1761} ) && 0 ) )
          )
        )
 --- constant

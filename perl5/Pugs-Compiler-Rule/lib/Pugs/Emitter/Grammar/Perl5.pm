@@ -52,10 +52,14 @@ $body;
 
 _EOC_
     }
+    # bootstrap the regex parser itself:
+    my $prefix = $name eq 'Pugs::Grammar::Rule' ?
+        "#" : '';
     return <<"_EOC_";
 package $name;
 
-use base 'Pugs::Grammar::Base';
+${prefix}use base 'Pugs::Grammar::Base';
+
 use Pugs::Runtime::Match;
 use Pugs::Runtime::Regex;
 

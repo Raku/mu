@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# Update lib/Pugs/Grammar/Rule.pmc using lib/Pugs/Grammar/Rule2.pm
+# util/update-rule-pmc
+# util/update-rule-pmc install
+# util/update-rule-pmc revert
+# util/udpate-rule-pmc update
+
+
+if [ "$1" == "install" ]; then
+    echo "cp tmp/Grammar.pm lib/Pugs/Grammar/Rule.pmc"
+    cp tmp/Grammar.pmc lib/Pugs/Grammar/Rule.pmc
+    exit
+elif [ "$1" == "revert" ]; then
+    svn revert lib/Pugs/Grammar/Rule.pmc
+    exit
+elif [ "$1" != "update" ] && [ -n "$1" ]; then
+    echo "Unknown operation $1 (only 'install', 'revert', and 'update' are supported)"
+    exit 1
+fi
+
+mkdir -p tmp
+
+echo "Generating tmp/Grammar.pm..."
+# rm lib/Pugs/Grammar/Rule2.pmc
+perl -Ilib util/compile_p6grammar.pl examples/Grammar.grammar > tmp/Grammar.pm
+
+echo "Validating tmp/Grammar.pm..."
+perl -Ilib tmp/Grammar.pm
+
+sed s/\$pad{I[0-9][0-9]*}/\$pad{Ixxxx}/ tmp/Grammar.pm > tmp/tmp
+sed s/\$I[0-9][0-9]*/\$Ixxxx/ tmp/tmp > tmp/new
+
+sed s/\$pad{I[0-9][0-9]*}/\$pad{Ixxxx}/ lib/Pugs/Grammar/Rule.pmc > tmp/tmp
+sed s/\$I[0-9][0-9]*/\$Ixxxx/ tmp/tmp > tmp/old
+
+rm tmp/tmp
+
+echo "Diff is in tmp/pmc.diff"
+diff -uTb tmp/old tmp/new > tmp/pmc.diff
+
+if [ "$1" == "update" ]; then
+    echo 'cp tmp/Grammar.pm lib/Pugs/Grammar/Rule.pmc'
+    cp tmp/Grammar.pm lib/Pugs/Grammar/Rule.pmc
+else
+    echo '# cp tmp/Grammar.pm lib/Pugs/Grammar/Rule.pmc'
+    # cp tmp/Grammar.pm lib/Pugs/Grammar/Rule.pmc
+    echo "Hint: use '$0 install' to do the cp for real"
+    echo "Hint: use '$0 revert' to revert an install"
+fi
+
