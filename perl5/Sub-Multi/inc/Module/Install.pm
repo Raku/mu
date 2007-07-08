@@ -28,7 +28,7 @@ BEGIN {
     # This is not enforced yet, but will be some time in the next few
     # releases once we can make sure it won't clash with custom
     # Module::Install extensions.
-    $VERSION = '0.63';
+    $VERSION = '0.67';
 }
 
 # Whether or not inc::Module::Install is actually loaded, the
@@ -86,7 +86,7 @@ sub autoload {
             # delegate back to parent dirs
             goto &$code unless $cwd eq $pwd;
         }
-        $$sym =~ /([^:]+)$/ or die "Cannot autoload $who - $sym";
+        $$sym =~ /([^:]+)$/ or Carp::confess "Cannot autoload $who - $sym";
         unshift @_, ($self, $1);
         goto &{$self->can('call')} unless uc($1) eq $1;
     };

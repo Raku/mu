@@ -8,4 +8,4 @@ requires    'Data::Bind' => '0.26';
 requires    'Test::Exception';
 requires    'Class::Multimethods::Pure' => '0.11';
 
-sign; WriteAll;
+sign; WriteAll(meta => 1);
