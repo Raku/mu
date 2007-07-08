@@ -204,7 +204,7 @@ class Rule::NamedCapture {
                 ~ $.rule.emit_perl5 
                 ~ '(?{ '
                 ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named-capture-to-array", ' 
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", ' 
                     ~ $.position ~ ', "' 
                     ~ $.ident ~ '" ]; '
                 ~ '})'
@@ -218,7 +218,7 @@ class Rule::NamedCapture {
                 ~ $.rule.emit_perl5 
                 ~ '(?{ '
                 ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named-capture", ' 
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", ' 
                     ~ $.position ~ ', "' 
                     ~ $.ident ~ '" ]; '
                 ~ '})'
@@ -266,7 +266,7 @@ class Rule::Capture {
                 ~ $.rule.emit_perl5 
                 ~ '(?{ '
                 ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "positional-capture-to-array", ' ~ $.position ~ ' ]; '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "positional_capture_to_array", ' ~ $.position ~ ' ]; '
                 ~ '})'
             ~ ')'
         }
@@ -278,7 +278,7 @@ class Rule::Capture {
                 ~ $.rule.emit_perl5 
                 ~ '(?{ '
                 ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "positional-capture", ' ~ $.position ~ ' ]; '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "positional_capture", ' ~ $.position ~ ' ]; '
                 ~ '})'
             ~ ')'
         }

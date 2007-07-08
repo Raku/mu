@@ -56,48 +56,52 @@ package Match;
     }
 
     our @Matches;
+    my %actions = (
+        create => sub {
+            push @Matches, Match->new();
+            $Matches[-1]->bool = 1;
+            $Matches[-1]->from = $_[0];
+            $Matches[-1]->match_str = $_[1];
+        },
+        to => sub {
+            $Matches[-1]->to = $_[0];
+        },
+        positional_capture => sub {
+            my $match = pop @Matches;
+            ${ $Matches[-1]->array }[ $_[0] ] = $match;
+        },
+        positional_capture_to_array => sub {
+            my $match = pop @Matches;
+            push @{ 
+                    ${ $Matches[-1]->array }[ $_[0] ] 
+                }, $match;
+        },
+        named_capture => sub {
+            my $match = pop @Matches;
+            ${ $Matches[-1]->hash }{ $_[0] } = $match;
+        },
+        named_capture_to_array => sub {
+            my $match = pop @Matches;
+            push @{ 
+                    ${ $Matches[-1]->hash }{ $_[0] } 
+                }, $match;
+        },
+    );
     sub from_global_data {
         unless ( defined $_[0] ) {
             # no match
             push @Matches, Match->new();
             return;
         }
-
         my ( $previous, $action, @data ) = @{+shift};
         if ( defined $previous ) {
             from_global_data( $previous );
         }
-        
-        # XXX - use a dispatch table
-        if ( $action eq 'create' ) {
-            push @Matches, Match->new();
-            $Matches[-1]->bool = 1;
-            $Matches[-1]->from = $data[0];
-            $Matches[-1]->match_str = $data[1];
-        }
-        elsif ( $action eq 'to' ) {
-            $Matches[-1]->to = $data[0];
-        }
-        elsif ( $action eq 'positional-capture' ) {
-            my $match = pop @Matches;
-            ${ $Matches[-1]->array }[ $data[0] ] = $match;
-        }
-        elsif ( $action eq 'positional-capture-to-array' ) {
-            my $match = pop @Matches;
-            push @{ 
-                    ${ $Matches[-1]->array }[ $data[0] ] 
-                }, $match;
-        }
-        elsif ( $action eq 'named-capture' ) {
-            my $match = pop @Matches;
-            ${ $Matches[-1]->hash }{ $data[0] } = $match;
-        }
-        else {
-            die "no action like '$action'"
-        }
-        
-        # print "action: $action [ @data ]\n";
-
+        local $@;
+        eval {
+            $actions{ $action }->( @data );
+        };
+        die "Error in action $action( @data ) - $@" if $@;
     }
 
 1;
