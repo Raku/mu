@@ -609,6 +609,7 @@ token quantifier {
             ws1     => ${$/{'ws1'}},
             ws2     => ${$/{'ws2'}},
             ws3     => ${$/{'ws3'}},
+            _pos    => [$/->from, $/->to],
         } }
     }
 }
