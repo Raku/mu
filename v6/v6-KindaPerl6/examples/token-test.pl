@@ -1,5 +1,5 @@
 # compile with:
-# perl kp6-perl5.pl -do MetaClass EmitPerl5Regex < examples/token-test.pl | perltidy 
+# perl kp6-perl5.pl --perl5rx < examples/token-test.pl | perltidy 
 
 # run with:
 # perl -I lib5regex -I lib 
