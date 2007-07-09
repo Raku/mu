@@ -15,7 +15,7 @@ sub run_tests () {
     }
 }
 
-# $Data::Dumper::Sortkeys = 1;
+$Data::Dumper::Sortkeys = 1;
 
 sub run_test ($) {
     my $block = shift;

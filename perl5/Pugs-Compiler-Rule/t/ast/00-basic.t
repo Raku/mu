@@ -56,15 +56,12 @@ $VAR1 = {
 --- ast
 $VAR1 = {
           'quant' => {
-                     'ws2' => ' ',
                      '_pos' => [
                                0,
                                6
                              ],
                      'greedy' => '',
                      'quant' => '',
-                     'ws1' => ' ',
-                     'ws3' => '',
                      'term' => {
                                'metasyntax' => {
                                                '_pos' => [
@@ -74,7 +71,10 @@ $VAR1 = {
                                                'metasyntax' => '$a',
                                                'modifier' => ''
                                              }
-                             }
+                             },
+                     'ws1' => ' ',
+                     'ws2' => ' ',
+                     'ws3' => ''
                    }
         };
 
@@ -86,15 +86,12 @@ $VAR1 = {
 --- ast
 $VAR1 = {
           'quant' => {
-                     'ws2' => ' ',
                      '_pos' => [
                                0,
                                8
                              ],
                      'greedy' => '',
                      'quant' => '',
-                     'ws1' => ' ',
-                     'ws3' => '',
                      'term' => {
                                'metasyntax' => {
                                                '_pos' => [
@@ -104,7 +101,10 @@ $VAR1 = {
                                                'metasyntax' => '@foo',
                                                'modifier' => ''
                                              }
-                             }
+                             },
+                     'ws1' => ' ',
+                     'ws2' => ' ',
+                     'ws3' => ''
                    }
         };
 
@@ -116,15 +116,12 @@ $VAR1 = {
 --- ast
 $VAR1 = {
           'quant' => {
-                     'ws2' => ' ',
                      '_pos' => [
                                0,
                                7
                              ],
                      'greedy' => '',
                      'quant' => '',
-                     'ws1' => ' ',
-                     'ws3' => '',
                      'term' => {
                                'metasyntax' => {
                                                '_pos' => [
@@ -134,7 +131,10 @@ $VAR1 = {
                                                'metasyntax' => '%hi',
                                                'modifier' => ''
                                              }
-                             }
+                             },
+                     'ws1' => ' ',
+                     'ws2' => ' ',
+                     'ws3' => ''
                    }
         };
 
@@ -146,15 +146,12 @@ $VAR1 = {
 --- ast
 $VAR1 = {
           'quant' => {
-                     'ws2' => ' ',
                      '_pos' => [
                                0,
                                22
                              ],
                      'greedy' => '',
                      'quant' => '',
-                     'ws1' => ' ',
-                     'ws3' => '',
                      'term' => {
                                'closure' => {
                                             '_pos' => [
@@ -164,7 +161,10 @@ $VAR1 = {
                                             'closure' => '{ return $0.sqrt }',
                                             'modifier' => ''
                                           }
-                             }
+                             },
+                     'ws1' => ' ',
+                     'ws2' => ' ',
+                     'ws3' => ''
                    }
         };
 
@@ -176,15 +176,12 @@ $VAR1 = {
 --- ast
 $VAR1 = {
           'quant' => {
-                     'ws2' => ' ',
                      '_pos' => [
                                0,
                                10
                              ],
                      'greedy' => '',
                      'quant' => '',
-                     'ws1' => ' ',
-                     'ws3' => '',
                      'term' => {
                                'metasyntax' => {
                                                '_pos' => [
@@ -194,7 +191,10 @@ $VAR1 = {
                                                'metasyntax' => '&foo()',
                                                'modifier' => ''
                                              }
-                             }
+                             },
+                     'ws1' => ' ',
+                     'ws2' => ' ',
+                     'ws3' => ''
                    }
         };
 
@@ -241,22 +241,22 @@ $VAR1 = {
           'concat' => [
                       {
                         'quant' => {
-                                   'ws2' => ' ',
                                    '_pos' => [
                                              0,
                                              3
                                            ],
                                    'greedy' => '',
                                    'quant' => '',
-                                   'ws1' => '',
-                                   'ws3' => '',
                                    'term' => {
                                              '_pos' => [
                                                        0,
                                                        2
                                                      ],
                                              'special_char' => '\\d'
-                                           }
+                                           },
+                                   'ws1' => '',
+                                   'ws2' => ' ',
+                                   'ws3' => ''
                                  }
                       },
                       {
@@ -283,35 +283,32 @@ $VAR1 = {
           'concat' => [
                       {
                         'quant' => {
-                                   'ws2' => ' ',
                                    '_pos' => [
                                              0,
                                              3
                                            ],
                                    'greedy' => '',
                                    'quant' => '',
-                                   'ws1' => ' ',
-                                   'ws3' => '',
                                    'term' => {
                                              '_pos' => [
                                                        1,
                                                        2
                                                      ],
                                              'constant' => 'a'
-                                           }
+                                           },
+                                   'ws1' => ' ',
+                                   'ws2' => ' ',
+                                   'ws3' => ''
                                  }
                       },
                       {
                         'quant' => {
-                                   'ws2' => ' ',
                                    '_pos' => [
                                              3,
                                              16
                                            ],
                                    'greedy' => '',
                                    'quant' => '',
-                                   'ws1' => '',
-                                   'ws3' => '',
                                    'term' => {
                                              'closure' => {
                                                           '_pos' => [
@@ -321,7 +318,10 @@ $VAR1 = {
                                                           'closure' => '{ say \'hi\' }',
                                                           'modifier' => 'plain'
                                                         }
-                                           }
+                                           },
+                                   'ws1' => '',
+                                   'ws2' => ' ',
+                                   'ws3' => ''
                                  }
                       }
                     ]
