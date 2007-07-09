@@ -10,6 +10,10 @@ __DATA__
 --- regex: ab
 --- ast
 $VAR1 = {
+          '_pos' => [
+                    0,
+                    2
+                  ],
           'concat' => [
                       {
                         '_pos' => [
@@ -90,6 +94,84 @@ $VAR1 = {
                                                          7
                                                        ],
                                                'metasyntax' => '@foo',
+                                               'modifier' => ''
+                                             }
+                             }
+                   }
+        };
+
+
+
+
+=== TEST 5: metasyntax <%...>
+--- regex: ' <%hi> '
+--- ast
+$VAR1 = {
+          'quant' => {
+                     'ws2' => ' ',
+                     'greedy' => '',
+                     'quant' => '',
+                     'ws1' => ' ',
+                     'ws3' => '',
+                     'term' => {
+                               'metasyntax' => {
+                                               '_pos' => [
+                                                         1,
+                                                         6
+                                                       ],
+                                               'metasyntax' => '%hi',
+                                               'modifier' => ''
+                                             }
+                             }
+                   }
+        };
+
+
+
+
+=== TEST 6: metasyntax
+--- regex: ' <{ return $0.sqrt }> '
+--- ast
+$VAR1 = {
+          'quant' => {
+                     'ws2' => ' ',
+                     'greedy' => '',
+                     'quant' => '',
+                     'ws1' => ' ',
+                     'ws3' => '',
+                     'term' => {
+                               'closure' => {
+                                            '_pos' => [
+                                                      1,
+                                                      21
+                                                    ],
+                                            'closure' => '{ return $0.sqrt }',
+                                            'modifier' => ''
+                                          }
+                             }
+                   }
+        };
+
+
+
+
+=== TEST 7: metasyntax
+--- regex: ' <&foo()> '
+--- ast
+$VAR1 = {
+          'quant' => {
+                     'ws2' => ' ',
+                     'greedy' => '',
+                     'quant' => '',
+                     'ws1' => ' ',
+                     'ws3' => '',
+                     'term' => {
+                               'metasyntax' => {
+                                               '_pos' => [
+                                                         1,
+                                                         9
+                                                       ],
+                                               'metasyntax' => '&foo()',
                                                'modifier' => ''
                                              }
                              }

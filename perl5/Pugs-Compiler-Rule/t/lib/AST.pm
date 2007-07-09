@@ -19,9 +19,10 @@ sub run_test ($) {
     my $block = shift;
     my $name = $block->name;
     my $regex = parse_str_list($block->regex);
+    my $len = length($regex);
     my $ast = Pugs::Grammar::Rule->rule($regex)->();
     my $got = Dumper($ast);
-    is $block->ast, $got, "$name - " . $block->regex . " - AST okay";
+    is $block->ast, $got, "$name - " . $block->regex . " - AST okay (len: $len)";
     push @saved_blocks, {
         name => $name,
         regex => $block->regex,
