@@ -26,8 +26,12 @@
     version number of Language.pod will expressly be kept equal to that of
     DB.pm, just as AST.pm and Validator.pm and Example.pm are.
 
-    * Muldis D now has 2 representation formats (Concrete, Abstract) rather
-    than 3 (relations, ASTs, strings).
+    * Muldis D now has 2 representation formats (Concrete Muldis D,
+    Abstract Muldis D) rather than 3 (relations, ASTs, strings).
+
+    * Updated SeeAlso.pod to remove the proposal for a separately
+    distributed Muldis::DB::AST::StringRepr module; instead,
+    Muldis::DB::AST will parse and generate Concrete Muldis D by itself.
 
     * Muldis D now has a new scalar data type, "Order", which is an
     enumeration (like "Bool" is) of 3 values: [Increase, Same, Decrease];

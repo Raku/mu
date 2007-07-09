@@ -428,12 +428,6 @@ itself and not output any Perl-specific details that aren't in non-Perl
 languages, so that it is suitable for interchange, at the very least
 between Perl 5 and Perl 6.
 
-=item C<Muldis::DB::AST::StringRepr>
-
-Utility module that parses the string representation format of Muldis D
-into its AST representation format, and also that generates the former from
-the latter.  The 2 formats should basically have a 1:1 correspondence.
-
 =item C<Muldis::DB::Shell>
 
 Implementation of a command-line user application over the Muldis::DB API
