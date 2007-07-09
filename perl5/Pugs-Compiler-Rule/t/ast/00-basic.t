@@ -201,3 +201,132 @@ $VAR1 = {
 
 
 
+=== TEST 8: alt
+--- regex: 'a|b'
+--- ast
+$VAR1 = {
+          '_pos' => [
+                    0,
+                    3
+                  ],
+          'alt1' => [
+                    {
+                      '_pos' => [
+                                0,
+                                1
+                              ],
+                      'constant' => 'a'
+                    },
+                    {
+                      '_pos' => [
+                                2,
+                                3
+                              ],
+                      'constant' => 'b'
+                    }
+                  ]
+        };
+
+
+
+
+=== TEST 9: special chars
+--- regex: "\\d \\s"
+--- ast
+$VAR1 = {
+          '_pos' => [
+                    0,
+                    5
+                  ],
+          'concat' => [
+                      {
+                        'quant' => {
+                                   'ws2' => ' ',
+                                   '_pos' => [
+                                             0,
+                                             3
+                                           ],
+                                   'greedy' => '',
+                                   'quant' => '',
+                                   'ws1' => '',
+                                   'ws3' => '',
+                                   'term' => {
+                                             '_pos' => [
+                                                       0,
+                                                       2
+                                                     ],
+                                             'special_char' => '\\d'
+                                           }
+                                 }
+                      },
+                      {
+                        '_pos' => [
+                                  3,
+                                  5
+                                ],
+                        'special_char' => '\\s'
+                      }
+                    ]
+        };
+
+
+
+
+=== TEST 10: closures
+--- regex: " a { say 'hi' } "
+--- ast
+$VAR1 = {
+          '_pos' => [
+                    0,
+                    16
+                  ],
+          'concat' => [
+                      {
+                        'quant' => {
+                                   'ws2' => ' ',
+                                   '_pos' => [
+                                             0,
+                                             3
+                                           ],
+                                   'greedy' => '',
+                                   'quant' => '',
+                                   'ws1' => ' ',
+                                   'ws3' => '',
+                                   'term' => {
+                                             '_pos' => [
+                                                       1,
+                                                       2
+                                                     ],
+                                             'constant' => 'a'
+                                           }
+                                 }
+                      },
+                      {
+                        'quant' => {
+                                   'ws2' => ' ',
+                                   '_pos' => [
+                                             3,
+                                             16
+                                           ],
+                                   'greedy' => '',
+                                   'quant' => '',
+                                   'ws1' => '',
+                                   'ws3' => '',
+                                   'term' => {
+                                             'closure' => {
+                                                          '_pos' => [
+                                                                    3,
+                                                                    15
+                                                                  ],
+                                                          'closure' => '{ say \'hi\' }',
+                                                          'modifier' => 'plain'
+                                                        }
+                                           }
+                                 }
+                      }
+                    ]
+        };
+
+
+
+

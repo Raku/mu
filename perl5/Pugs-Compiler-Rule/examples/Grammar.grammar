@@ -73,25 +73,25 @@ token digit {
 token special_char {
         | ( c | C ) \[ ( [<alnum>|\s| ';' | '(' | ')' | '-' ]+) \]
           #  \c[LATIN LETTER A]
-          { return { special_char => '\\' . $0 . $1 }; }
+          { return { special_char => '\\' . $0 . $1, _pos => [$/->from - 1, $/->to] }; }
 
         | [ x | X ] <xdigit>+
           #  \x0021    \X0021
-          { return { special_char => '\\' . $/ }; }
+          { return { special_char => '\\' . $/, _pos => [$/->from - 1, $/->to] }; }
         | ( x | X ) \[ (<xdigit>+) \]
           #  \x[0021]  \X[0021]
-          { return { special_char => '\\' . $0 . $1 }; }
+          { return { special_char => '\\' . $0 . $1, _pos => [$/->from - 1, $/->to] }; }
 
         | [ o | O ] \d+
           #  \o0021    \O0021
-          { return { special_char => '\\' . $/ }; }
+          { return { special_char => '\\' . $/, _pos => [$/->from - 1, $/->to] }; }
         | ( o | O ) \[ (\d+) \]
           #  \o[0021]  \O[0021]
-          { return { special_char => '\\' . $0 . $1 }; }
+          { return { special_char => '\\' . $0 . $1, _pos => [$/->from - 1, $/->to] }; }
 
         | .
           #  \e  \E
-          { return { special_char => '\\' . $/ }; }
+          { return { special_char => '\\' . $/, _pos => [$/->from - 1, $/->to] }; }
 }
 
 token literal {
@@ -398,6 +398,7 @@ token term9 {
         { return { closure => {
             closure => $$<parsed_code>,
             modifier => 'plain',
+            _pos => [$/->from - 1, $/->to],
         } } }
 }
 
@@ -649,7 +650,7 @@ token disjunctive1 {
 
     {
         my @a = map {  $$_  }  @{ $::_V6_MATCH_->{'conjunctive1'} };
-        return { alt1 => \@a }  if scalar @a > 1;
+        return { alt1 => \@a, _pos => [$/->from, $/->to] }  if scalar @a > 1;
         return $a[0];
     }
 }
