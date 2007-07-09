@@ -262,31 +262,32 @@ class Rule::NamedCapture {
 
 class Rule::Before {
     method emit_token {
-        'do { ' ~
-            'my $tmp := $MATCH; ' ~
-            '$MATCH := ::KindaPerl6::Perl5::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' ~
-            '$MATCH.bool( ' ~
-                $.rule.emit_token ~
-            '); ' ~
-            '$tmp.bool( ?$MATCH ); ' ~
-            '$MATCH := $tmp; ' ~
-            '?$MATCH; ' ~
-        '}'
-    }
-}
-
-class Rule::NotBefore {
-    method emit_token {
-        'do { ' ~
-            'my $tmp := $MATCH; ' ~
-            '$MATCH := ::KindaPerl6::Perl5::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' ~
-            '$MATCH.bool( ' ~
-                $.rule.emit_token ~
-            '); ' ~
-            '$tmp.bool( !$MATCH ); ' ~
-            '$MATCH := $tmp; ' ~
-            '?$MATCH; ' ~
-        '}'
+        if $.assertion_modifier eq '!' {
+            return
+                'do { ' ~
+                    'my $tmp := $MATCH; ' ~
+                    '$MATCH := ::KindaPerl6::Perl5::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' ~
+                    '$MATCH.bool( ' ~
+                        $.rule.emit_token ~
+                    '); ' ~
+                    '$tmp.bool( !$MATCH ); ' ~
+                    '$MATCH := $tmp; ' ~
+                    '?$MATCH; ' ~
+                '}'
+        }
+        else {
+            return
+                'do { ' ~
+                    'my $tmp := $MATCH; ' ~
+                    '$MATCH := ::KindaPerl6::Perl5::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' ~
+                    '$MATCH.bool( ' ~
+                        $.rule.emit_token ~
+                    '); ' ~
+                    '$tmp.bool( ?$MATCH ); ' ~
+                    '$MATCH := $tmp; ' ~
+                    '?$MATCH; ' ~
+                '}'
+        }
     }
 }
 

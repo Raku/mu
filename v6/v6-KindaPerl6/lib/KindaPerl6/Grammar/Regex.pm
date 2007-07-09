@@ -91,6 +91,8 @@ token variables {
         }
 };
 
+token assertion_modifier { '!' | '?' | '' };
+
 token rule_terms {
     |   '('
         <rule> \)
@@ -98,15 +100,15 @@ token rule_terms {
     |   '<('
         <rule>  ')>'
         { return ::Rule::CaptureResult( 'rule' => $$<rule> ) }
-    |   '<after'
+    |   '<' <assertion_modifier> 'after'
         <?ws> <rule> \> 
-        { return ::Rule::After( 'rule' => $$<rule> ) }
-    |   '<before'
+        { return ::Rule::After( 'rule' => $$<rule>, 'assertion_modifier' => $$<assertion_modifier> ) }
+    |   '<' <assertion_modifier> 'before'
         <?ws> <rule> \> 
-        { return ::Rule::Before( 'rule' => $$<rule> ) }
-    |   '<!before'
-        <?ws> <rule> \> 
-        { return ::Rule::NotBefore( 'rule' => $$<rule> ) }
+        { return ::Rule::Before( 'rule' => $$<rule>, 'assertion_modifier' => $$<assertion_modifier> ) }
+    # |   '<!before'
+    #    <?ws> <rule> \> 
+    #    { return ::Rule::NotBefore( 'rule' => $$<rule> ) }
     |   '<!'
         # TODO
         <metasyntax> \> 

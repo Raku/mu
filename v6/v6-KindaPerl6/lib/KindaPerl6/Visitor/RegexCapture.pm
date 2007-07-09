@@ -110,6 +110,11 @@ class Rule::InterpolateVar {
 
 class Rule::Before {
     method capture_count( $count, $quantified, $seen ) {
+    
+        if ( $.assertion_modifier ne '' ) {
+            return $count;
+        }
+    
         $.capture_to_array := ( $quantified || ( $seen{ 'before' } && 1 ) );
 
         # if seen, go back to previous and mark as capture-to-array
@@ -126,8 +131,25 @@ class Rule::Before {
     }
 }
 
-class Rule::NotBefore {
+class Rule::After {
     method capture_count( $count, $quantified, $seen ) {
+    
+        if ( $.assertion_modifier ne '' ) {
+            return $count;
+        }
+    
+        $.capture_to_array := ( $quantified || ( $seen{ 'after' } && 1 ) );
+
+        # if seen, go back to previous and mark as capture-to-array
+        if $seen{ 'after' } {
+            # ($seen{ 'after' }).capture_to_array := 1;
+            ($seen{ 'after' }).capture_to_array( 1 );  # XXX fix mp6 accessor
+        }
+        $seen{ 'after' } := self;
+
+        # inside the capture, the count is restarted
+        $.rule.capture_count( 0, 0, {} );
+
         $count;
     }
 }

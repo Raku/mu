@@ -872,6 +872,7 @@ class Rule::NamedCapture {
 
 class Rule::Before {
     has $.rule;
+    has $.assertion_modifier;
     has $.capture_to_array;
     method emit( $visitor ) {
         KindaPerl6::Traverse::visit( 
@@ -883,23 +884,28 @@ class Rule::Before {
     method attribs {
             { 
                 rule   => $.rule,
-                capture_to_array => $.capture_to_array,
+                capture_to_array   => $.capture_to_array,
+                assertion_modifier => $.assertion_modifier,
             }
     };
 }
 
-class Rule::NotBefore {
+class Rule::After {
     has $.rule;
+    has $.assertion_modifier;
+    has $.capture_to_array;
     method emit( $visitor ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
-            'Rule::NotBefore',
+            'Rule::After',
         );
     };
     method attribs {
             { 
                 rule   => $.rule,
+                capture_to_array   => $.capture_to_array,
+                assertion_modifier => $.assertion_modifier,
             }
     };
 }

@@ -171,10 +171,25 @@ class Rule::InterpolateVar {
     };
 }
 
+# TODO
+class Rule::After {
+    method emit_perl5 {
+        say '# TODO: <after> ';
+        die();
+    };
+}
+
 class Rule::Before {
     method emit_perl5 {
-    
-        # TODO - <?before>
+
+        if $.assertion_modifier eq '!' {
+            # XXX - create a new lexical context and discard captures ?
+            return '(?!' ~ $.rule.emit_perl5 ~ ')';
+        }
+        if $.assertion_modifier eq '?' {
+            # XXX - create a new lexical context and discard captures ?
+            return '(?=' ~ $.rule.emit_perl5 ~ ')';
+        }
     
         if $.capture_to_array {
               '(?='
@@ -200,12 +215,6 @@ class Rule::Before {
                 ~ '})'
             ~ ')'
         }
-    }
-}
-
-class Rule::NotBefore {
-    method emit_perl5 {
-        '(?!' ~ $.rule.emit_perl5 ~ ')'
     }
 }
 
