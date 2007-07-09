@@ -202,7 +202,7 @@ The regex compiler will use the AST processor engine to implement additional sem
 
 =head3 Status
 
-* Not started.
+* started.
 
 =head3 Dependencies
 
@@ -228,6 +228,9 @@ The regex AST created in Milestone 1 must be fully implemented and tested.
 
 This task may require implementing additional regex runtime.
 
+* Status: the 'RegexCapture' processor implements AST annotation for positional capture numbering, 
+and for "capture to array" flags.
+
 =back
 
 
@@ -248,7 +251,9 @@ These tasks are not required for the successful completion of this phase.
 =item * Add support for optionally using Perl6regex-on-Perl5regex, 
 as described in v6/v6-KindaPerl6/temp/backtracking-recursive-subrule.pl
 
-* under way; implemented as Visitor::EmitPerl5Regex
+* Status: under way; 
+implemented as Visitor::EmitPerl5Regex; 
+added a '-perl5rx' backend to kp6, that performs the p6rx-on-p5rx compilation.
 
 =item * Add support for optionally using Pugs::Compiler::Rule in the Perl 5 backend
 
@@ -258,6 +263,8 @@ as described in v6/v6-KindaPerl6/temp/backtracking-recursive-subrule.pl
 
 Choose one or more backtracking models, and implement them.
 This is specially important for Perl6regex-in-Perl6 (as implemented in Visitor::Token)
+
+* Status: the '-perl5rx' kp6 backend implements backtracking by using the Perl5.8 regex engine.
 
 =item * Special variables
 

@@ -41,11 +41,13 @@ op-list
 ------------------
 TODO list:
 
-* subrule caturing/non-capturing; subrule parameters
 * backtracking controls; token/rule/regex
-* Matcher method; $_ and $/ scopes (implement OUTER::<...>)
 * $<xxx> inside closures in regex; read-write
+* Matcher method; $_ and $/ scopes (implement OUTER::<...>)
+* subrule capturing-to-array; subrule parameters; calling subrules from other grammars
+* begin/after capturing; at()
 * infix:<~~>
+* variable interpolation 
 
 ------------------
 Blogs:
