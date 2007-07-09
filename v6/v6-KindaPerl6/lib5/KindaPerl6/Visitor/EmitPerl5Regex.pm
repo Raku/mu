@@ -13,10 +13,6 @@ package Rule::Or; sub new { shift; bless { @_ }, "Rule::Or" } sub emit_perl5 { m
 ;
 package Rule::Concat; sub new { shift; bless { @_ }, "Rule::Concat" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('(?:' . (Main::join([ map { $_->emit_perl5() } @{ $self->{concat} } ], '') . ')')) }
 ;
-package Rule::Subrule; sub new { shift; bless { @_ }, "Rule::Subrule" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $meth = ((1 + index($self->{metasyntax}, '.')) ? ($self->{metasyntax} . ' ... TODO ') : ('\'$\'.$GLOBAL::_Class.\'::_regex_' . ($self->{metasyntax} . '\''))); ('(??{ eval ' . ($meth . (' })' . ('(?{ ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, \'capture\' ]; ' . '})'))))) }
-;
-package Rule::SubruleNoCapture; sub new { shift; bless { @_ }, "Rule::SubruleNoCapture" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $meth = ((1 + index($self->{metasyntax}, '.')) ? ($self->{metasyntax} . ' ... TODO ') : ('\'$\'.$GLOBAL::_Class.\'::_regex_' . ($self->{metasyntax} . '\''))); ('(??{ eval ' . ($meth . ' })')) }
-;
 package Rule::Var; sub new { shift; bless { @_ }, "Rule::Var" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $table = { '$' => '$','@' => '$List_','%' => '$Hash_','&' => '$Code_', }; ($table->{$self->{sigil}} . $self->{name}) }
 ;
 package Rule::Constant; sub new { shift; bless { @_ }, "Rule::Constant" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $str = $self->{constant}; do { if (($str eq '\\')) { return('\\\\') } else {  } }; do { if (($str eq '\'')) { return('\\\'') } else {  } }; $str }
@@ -29,8 +25,6 @@ package Rule::Block; sub new { shift; bless { @_ }, "Rule::Block" } sub emit_per
 ;
 package Rule::InterpolateVar; sub new { shift; bless { @_ }, "Rule::InterpolateVar" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; Main::say(('# TODO: interpolate var ' . ($self->{var}->emit_perl5() . ''))); die() }
 ;
-package Rule::NamedCapture; sub new { shift; bless { @_ }, "Rule::NamedCapture" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; do { if ($self->{capture_to_array}) { ('(?:' . ('(?{ ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; ' . ('})' . ($self->{rule}->emit_perl5() . ('(?{ ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", ' . ($self->{position} . (', "' . ($self->{ident} . ('" ]; ' . ('})' . ')'))))))))))))) } else { ('(?:' . ('(?{ ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; ' . ('})' . ($self->{rule}->emit_perl5() . ('(?{ ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", ' . ($self->{position} . (', "' . ($self->{ident} . ('" ]; ' . ('})' . ')'))))))))))))) } } }
-;
 package Rule::Before; sub new { shift; bless { @_ }, "Rule::Before" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('(?=' . ($self->{rule}->emit_perl5() . ')')) }
 ;
 package Rule::NotBefore; sub new { shift; bless { @_ }, "Rule::NotBefore" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('(?!' . ($self->{rule}->emit_perl5() . ')')) }
@@ -38,6 +32,12 @@ package Rule::NotBefore; sub new { shift; bless { @_ }, "Rule::NotBefore" } sub 
 package Rule::NegateCharClass; sub new { shift; bless { @_ }, "Rule::NegateCharClass" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; Main::say('TODO NegateCharClass'); die() }
 ;
 package Rule::CharClass; sub new { shift; bless { @_ }, "Rule::CharClass" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; Main::say('TODO CharClass'); die() }
+;
+package Rule::SubruleNoCapture; sub new { shift; bless { @_ }, "Rule::SubruleNoCapture" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $meth = ((1 + index($self->{metasyntax}, '.')) ? ($self->{metasyntax} . ' ... TODO ') : ('\'$\'.$GLOBAL::_Class.\'::_rule_' . ($self->{metasyntax} . '\''))); ('(??{ eval ' . ($meth . ' })')) }
+;
+package Rule::Subrule; sub new { shift; bless { @_ }, "Rule::Subrule" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $meth = ('\'$_rule_' . ($self->{metasyntax} . '\'')); ('(?:' . ('(??{ eval ' . ($meth . (' })' . ('(?{ ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "' . ($self->{ident} . ('" ]; ' . ('})' . ')'))))))))) }
+;
+package Rule::NamedCapture; sub new { shift; bless { @_ }, "Rule::NamedCapture" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; do { if ($self->{capture_to_array}) { ('(?:' . ('(?{ ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; ' . ('})' . ($self->{rule}->emit_perl5() . ('(?{ ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", "' . ($self->{ident} . ('" ]; ' . ('})' . ')'))))))))))) } else { ('(?:' . ('(?{ ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; ' . ('})' . ($self->{rule}->emit_perl5() . ('(?{ ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "' . ($self->{ident} . ('" ]; ' . ('})' . ')'))))))))))) } } }
 ;
 package Rule::Capture; sub new { shift; bless { @_ }, "Rule::Capture" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; do { if ($self->{capture_to_array}) { ('(?:' . ('(?{ ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; ' . ('})' . ($self->{rule}->emit_perl5() . ('(?{ ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, "positional_capture_to_array", ' . ($self->{position} . (' ]; ' . ('})' . ')'))))))))))) } else { ('(?:' . ('(?{ ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; ' . ('})' . ($self->{rule}->emit_perl5() . ('(?{ ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, "positional_capture", ' . ($self->{position} . (' ]; ' . ('})' . ')'))))))))))) } } }
 ;

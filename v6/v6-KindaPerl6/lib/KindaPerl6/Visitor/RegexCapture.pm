@@ -66,17 +66,6 @@ class Rule::Concat {
     }
 }
 
-class Rule::Subrule {
-    method capture_count( $count, $quantified, $seen ) {
-        my $meth := ( 1 + index( $.metasyntax, '.' ) )
-            ?? $.metasyntax ~ ' ... TODO '
-            !! ( '\'$\'.$GLOBAL::_Class.\'::_regex_' ~ $.metasyntax ~ '\'' );
-        # TODO - if seen, go back to previous and mark as capture-to-array
-        $seen{ $meth } := $seen{ $meth } + 1;
-        $count;
-    }
-}
-
 class Rule::SubruleNoCapture {
     method capture_count( $count, $quantified, $seen ) {
         $count;
@@ -143,6 +132,28 @@ class Rule::NegateCharClass {
 class Rule::CharClass {
     # unused
     method capture_count( $count, $quantified, $seen ) {
+        $count;
+    }
+}
+
+class Rule::Subrule {
+    method capture_count( $count, $quantified, $seen ) {
+        my $meth := ( 1 + index( $.metasyntax, '.' ) )
+            ?? $.metasyntax ~ ' ... TODO '
+            !! ( '\'$\'.$GLOBAL::_Class.\'::_regex_' ~ $.metasyntax ~ '\'' );
+
+        # TODO - XXX - parse the metasyntax
+        $.ident := $.metasyntax;
+
+        $.capture_to_array := ( $quantified || ( $seen{ $.ident } && 1 ) );
+
+        # if seen, go back to previous and mark as capture-to-array
+        if $seen{ $.ident } {
+            # ($seen{ $.ident }).capture_to_array := 1;
+            ($seen{ $.ident }).capture_to_array( 1 );  # XXX fix mp6 accessor
+        }
+        $seen{ $.ident } := self;
+
         $count;
     }
 }

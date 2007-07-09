@@ -88,28 +88,6 @@ class Rule::Concat {
     }
 }
 
-class Rule::Subrule {
-    method emit_perl5 {
-        my $meth := ( 1 + index( $.metasyntax, '.' ) )
-            ?? $.metasyntax ~ ' ... TODO '
-            !! ( '\'$\'.$GLOBAL::_Class.\'::_regex_' ~ $.metasyntax ~ '\'' );
-        # XXX - named capture; param passing
-          '(??{ eval ' ~ $meth ~ ' })'
-        ~ '(?{ '
-        ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'capture\' ]; '
-        ~ '})'
-    }
-}
-
-class Rule::SubruleNoCapture {
-    method emit_perl5 {
-        my $meth := ( 1 + index( $.metasyntax, '.' ) )
-            ?? $.metasyntax ~ ' ... TODO '
-            !! ( '\'$\'.$GLOBAL::_Class.\'::_regex_' ~ $.metasyntax ~ '\'' );
-        '(??{ eval ' ~ $meth ~ ' })'
-    }
-}
-
 class Rule::Var {
     method emit_perl5 {
         # Normalize the sigil here into $
@@ -193,40 +171,6 @@ class Rule::InterpolateVar {
     };
 }
 
-class Rule::NamedCapture {
-    method emit_perl5 {
-
-        if $.capture_to_array {
-              '(?:'
-                ~ '(?{ '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
-                ~ '})'
-                ~ $.rule.emit_perl5 
-                ~ '(?{ '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", ' 
-                    ~ $.position ~ ', "' 
-                    ~ $.ident ~ '" ]; '
-                ~ '})'
-            ~ ')'
-        }
-        else {    
-              '(?:'
-                ~ '(?{ '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
-                ~ '})'
-                ~ $.rule.emit_perl5 
-                ~ '(?{ '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
-                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", ' 
-                    ~ $.position ~ ', "' 
-                    ~ $.ident ~ '" ]; '
-                ~ '})'
-            ~ ')'
-        }
-    }
-}
-
 class Rule::Before {
     method emit_perl5 {
         '(?=' ~ $.rule.emit_perl5 ~ ')'
@@ -252,6 +196,69 @@ class Rule::CharClass {
     method emit_perl5 {
         say "TODO CharClass";
         die();
+    }
+}
+
+class Rule::SubruleNoCapture {
+    method emit_perl5 {
+        my $meth := ( 1 + index( $.metasyntax, '.' ) )
+            ?? $.metasyntax ~ ' ... TODO '
+            !! ( '\'$\'.$GLOBAL::_Class.\'::_rule_' ~ $.metasyntax ~ '\'' );
+        # TODO - XXX - discard captures
+        '(??{ eval ' ~ $meth ~ ' })'
+    }
+}
+
+class Rule::Subrule {
+    method emit_perl5 {
+        # TODO
+        #my $meth := ( 1 + index( $.metasyntax, '.' ) )
+        #    ?? $.metasyntax ~ ' ... TODO '
+        #    !! ( '\'$\'.$GLOBAL::_Class.\'::_rule_' ~ $.metasyntax ~ '\'' );
+        
+        # XXX - Temporary hack
+        my $meth := '\'$_rule_' ~ $.metasyntax ~ '\'';
+
+        # XXX - named capture; param passing
+        
+        # TODO - capture-to-array
+        
+          '(?:'
+            ~ '(??{ eval ' ~ $meth ~ ' })'
+            ~ '(?{ '
+            ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "' ~ $.ident ~ '" ]; '
+            ~ '})'
+        ~ ')'
+    }
+}
+
+class Rule::NamedCapture {
+    method emit_perl5 {
+
+        if $.capture_to_array {
+              '(?:'
+                ~ '(?{ '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
+                ~ '})'
+                ~ $.rule.emit_perl5 
+                ~ '(?{ '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", "' ~ $.ident ~ '" ]; '
+                ~ '})'
+            ~ ')'
+        }
+        else {    
+              '(?:'
+                ~ '(?{ '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
+                ~ '})'
+                ~ $.rule.emit_perl5 
+                ~ '(?{ '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "' ~ $.ident ~ '" ]; '
+                ~ '})'
+            ~ ')'
+        }
     }
 }
 

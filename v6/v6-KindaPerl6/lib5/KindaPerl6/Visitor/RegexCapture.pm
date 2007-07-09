@@ -11,8 +11,6 @@ package Rule::Or; sub new { shift; bless { @_ }, "Rule::Or" } sub capture_count 
 ;
 package Rule::Concat; sub new { shift; bless { @_ }, "Rule::Concat" } sub capture_count { my $self = shift; my $List__ = \@_; my $count; my $quantified; my $seen; do {  $count = $List__->[0];  $quantified = $List__->[1];  $seen = $List__->[2]; [$count, $quantified, $seen] }; do { for my $regex ( @{$self->{concat}} ) { $count = $regex->capture_count($count, $quantified, $seen) } }; $count }
 ;
-package Rule::Subrule; sub new { shift; bless { @_ }, "Rule::Subrule" } sub capture_count { my $self = shift; my $List__ = \@_; my $count; my $quantified; my $seen; do {  $count = $List__->[0];  $quantified = $List__->[1];  $seen = $List__->[2]; [$count, $quantified, $seen] }; my  $meth = ((1 + index($self->{metasyntax}, '.')) ? ($self->{metasyntax} . ' ... TODO ') : ('\'$\'.$GLOBAL::_Class.\'::_regex_' . ($self->{metasyntax} . '\''))); $seen->{$meth} = ($seen->{$meth} + 1); $count }
-;
 package Rule::SubruleNoCapture; sub new { shift; bless { @_ }, "Rule::SubruleNoCapture" } sub capture_count { my $self = shift; my $List__ = \@_; my $count; my $quantified; my $seen; do {  $count = $List__->[0];  $quantified = $List__->[1];  $seen = $List__->[2]; [$count, $quantified, $seen] }; $count }
 ;
 package Rule::Var; sub new { shift; bless { @_ }, "Rule::Var" } sub capture_count { my $self = shift; my $List__ = \@_; my $count; my $quantified; my $seen; do {  $count = $List__->[0];  $quantified = $List__->[1];  $seen = $List__->[2]; [$count, $quantified, $seen] }; $count }
@@ -34,6 +32,8 @@ package Rule::NotBefore; sub new { shift; bless { @_ }, "Rule::NotBefore" } sub 
 package Rule::NegateCharClass; sub new { shift; bless { @_ }, "Rule::NegateCharClass" } sub capture_count { my $self = shift; my $List__ = \@_; my $count; my $quantified; my $seen; do {  $count = $List__->[0];  $quantified = $List__->[1];  $seen = $List__->[2]; [$count, $quantified, $seen] }; $count }
 ;
 package Rule::CharClass; sub new { shift; bless { @_ }, "Rule::CharClass" } sub capture_count { my $self = shift; my $List__ = \@_; my $count; my $quantified; my $seen; do {  $count = $List__->[0];  $quantified = $List__->[1];  $seen = $List__->[2]; [$count, $quantified, $seen] }; $count }
+;
+package Rule::Subrule; sub new { shift; bless { @_ }, "Rule::Subrule" } sub capture_count { my $self = shift; my $List__ = \@_; my $count; my $quantified; my $seen; do {  $count = $List__->[0];  $quantified = $List__->[1];  $seen = $List__->[2]; [$count, $quantified, $seen] }; my  $meth = ((1 + index($self->{metasyntax}, '.')) ? ($self->{metasyntax} . ' ... TODO ') : ('\'$\'.$GLOBAL::_Class.\'::_regex_' . ($self->{metasyntax} . '\''))); $self->{ident} = $self->{metasyntax}; $self->{capture_to_array} = ($quantified || ($seen->{$self->{ident}} && 1)); do { if ($seen->{$self->{ident}}) { $seen->{$self->{ident}}->capture_to_array(1) } else {  } }; $seen->{$self->{ident}} = $self; $count }
 ;
 package Rule::NamedCapture; sub new { shift; bless { @_ }, "Rule::NamedCapture" } sub capture_count { my $self = shift; my $List__ = \@_; my $count; my $quantified; my $seen; do {  $count = $List__->[0];  $quantified = $List__->[1];  $seen = $List__->[2]; [$count, $quantified, $seen] }; $self->{capture_to_array} = ($quantified || ($seen->{$self->{ident}} && 1)); $self->{rule}->capture_count(0, 0, {  }); do { if ($seen->{$self->{ident}}) { $seen->{$self->{ident}}->capture_to_array(1) } else {  } }; $seen->{$self->{ident}} = $self; $count }
 ;

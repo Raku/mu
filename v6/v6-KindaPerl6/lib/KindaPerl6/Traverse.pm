@@ -718,6 +718,8 @@ class Rule::Concat {
 
 class Rule::Subrule {
     has $.metasyntax;
+    has $.ident;
+    has $.capture_to_array;
     method emit( $visitor ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
@@ -728,6 +730,8 @@ class Rule::Subrule {
     method attribs {
             { 
                 metasyntax   => $.metasyntax,
+                ident        => $.ident,
+                capture_to_array => $.capture_to_array,
             }
     };
 }

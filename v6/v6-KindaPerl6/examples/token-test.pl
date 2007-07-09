@@ -8,6 +8,9 @@ class X {
   my $zzz;
   
   method y { 42 };  # just testing
+
+  token ws { \s+ };
+
   token x { 
     4
     (2)
@@ -17,10 +20,11 @@ class X {
 
     $<rep> := (.)
     $<rep> := (.)
+    
+    <ws>
+  };
 
-  };   
-
-  $_ := '423434XabRR';
+  $_ := '423434XabRR  ';
   X.x();
   say 'result: ', $/.perl;
 }
