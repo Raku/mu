@@ -1,8 +1,26 @@
-0.25  2007-07-08
+0.25  2007-07-09
+- Pugs::Emitter::Grammar::Perl5 : set sigspace for "rule XXX {...}"
+  and calls the backtracking rule emitter for "regex XXX {...}".
+- the ratchet rule emitter now saves the emitter params as special
+  comments in the generated code to help debugging.
+- fixed a bug in the parameter ordering of the ratchet emitter,
+  now examples/digits.grammar no longer loops.
 - added examples/langs.grammar (this file contains two grammars and
   the latter calls the subrules of the former and it works!)
-- compile_p6grammar.pl: prepends 'use strict; use warnings'
-  to the .pm file generated.
+- added examples/langs2.grammar to demonstrate the use of
+  the "rule foo { ... }" syntax.
+- added examples/Grammar.grammar which is the grammar spec
+  for Perl 6 regexes themselves.
+  this grammar file can be compiled by util/compile_p6grammar.pl
+  down to a .pm file and replaces lib/Pugs/Grammar/Rule.pmc.
+- added util/update-rule-pmc-new to automate this process.
+- updated Rule.pmc using this new approach. It's about 4 times
+  faster than the traditional v6.pm approach!
+- compile_p6grammar.pl: prepends 'use strict; use warnings' and
+  header comments to the .pm file generated.
+- Pugs::Compiler::Regex now honors environment PCR_NO_CACHE,
+  which can be used to disable the caching mechanism of PCR
+  (recommended for PCR developers only).
 
 0.24  2007-07-08
 - added the bash script util/update-rule-pmc to automate the process

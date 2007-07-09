@@ -29,7 +29,7 @@ Pugs::Compiler::Rule - Compiler for Perl 6 regexes
 =head1 VERSION
 
 This document describes Pugs::Compiler::Rule 0.25 released
-on 8 July, 2007.
+on 9 July, 2007.
 
 =head1 SYNOPSIS
 
