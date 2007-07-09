@@ -44,8 +44,11 @@ TODO list:
 * backtracking controls; token/rule/regex
 * $<xxx> inside closures in regex; read-write
 * Matcher method; $_ and $/ scopes (implement OUTER::<...>)
-* subrule capturing-to-array; subrule parameters; calling subrules from other grammars
-* begin/after capturing; at()
+* rule/subrule parameters; 
+* calling subrules in other grammars
+* <?before>
+* <?after> <after>
+* <at()>
 * infix:<~~>
 * variable interpolation 
 
