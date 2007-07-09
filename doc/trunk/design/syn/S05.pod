@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 16 May 2007
+   Last Modified: 9 Jul 2007
    Number: 5
-   Version: 59
+   Version: 60
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -97,7 +97,8 @@ be also quoted as follows.
 
 Sequences of one or more glyphs of either type (i.e. any glyphs at all)
 may be made literal by placing them inside single quotes.  (Double
-quotes are also allowed, with the usual interpolative semantics.)
+quotes are also allowed, with the same interpolative semantics as
+the current language in which the regex is lexically embedded.)
 Quotes create a quantifiable atom, so while
 
     moose*
