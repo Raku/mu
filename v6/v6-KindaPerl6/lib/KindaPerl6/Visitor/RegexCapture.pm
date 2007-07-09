@@ -110,15 +110,25 @@ class Rule::InterpolateVar {
 
 class Rule::Before {
     method capture_count( $count, $quantified, $seen ) {
-        say "TODO Before";
-        die();
+        $.capture_to_array := ( $quantified || ( $seen{ 'before' } && 1 ) );
+
+        # if seen, go back to previous and mark as capture-to-array
+        if $seen{ 'before' } {
+            # ($seen{ 'before' }).capture_to_array := 1;
+            ($seen{ 'before' }).capture_to_array( 1 );  # XXX fix mp6 accessor
+        }
+        $seen{ 'before' } := self;
+
+        # inside the capture, the count is restarted
+        $.rule.capture_count( 0, 0, {} );
+
+        $count;
     }
 }
 
 class Rule::NotBefore {
     method capture_count( $count, $quantified, $seen ) {
-        say "TODO NotBefore";
-        die();
+        $count;
     }
 }
 

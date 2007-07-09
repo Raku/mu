@@ -872,6 +872,7 @@ class Rule::NamedCapture {
 
 class Rule::Before {
     has $.rule;
+    has $.capture_to_array;
     method emit( $visitor ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
@@ -882,6 +883,7 @@ class Rule::Before {
     method attribs {
             { 
                 rule   => $.rule,
+                capture_to_array => $.capture_to_array,
             }
     };
 }

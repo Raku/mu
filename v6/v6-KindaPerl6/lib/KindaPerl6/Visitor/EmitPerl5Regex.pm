@@ -3,7 +3,7 @@ use v6-alpha;
 # This visitor is a plugin for the perl5 emitter.
 # It emits p6-regex as p5-regex.
 
-# XXX - It only generates "ratchet" regex code
+# XXX - It only specify "token" code
 
 # See: temp/backtracking-recursive-subrule.pl
     
@@ -173,7 +173,33 @@ class Rule::InterpolateVar {
 
 class Rule::Before {
     method emit_perl5 {
-        '(?=' ~ $.rule.emit_perl5 ~ ')'
+    
+        # TODO - <?before>
+    
+        if $.capture_to_array {
+              '(?='
+                ~ '(?{ '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
+                ~ '})'
+                ~ $.rule.emit_perl5 
+                ~ '(?{ '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", "before" ]; '
+                ~ '})'
+            ~ ')'
+        }
+        else {    
+              '(?='
+                ~ '(?{ '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
+                ~ '})'
+                ~ $.rule.emit_perl5 
+                ~ '(?{ '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "before" ]; '
+                ~ '})'
+            ~ ')'
+        }
     }
 }
 
@@ -232,14 +258,22 @@ class Rule::Subrule {
 
         # XXX - named capture; param passing
         
-        # TODO - capture-to-array
-        
-          '(?:'
-            ~ '(??{ eval ' ~ $meth ~ ' })'
-            ~ '(?{ '
-            ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "' ~ $.ident ~ '" ]; '
-            ~ '})'
-        ~ ')'
+        if $.capture_to_array {
+              '(?:'
+                ~ '(??{ eval ' ~ $meth ~ ' })'
+                ~ '(?{ '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", "' ~ $.ident ~ '" ]; '
+                ~ '})'
+            ~ ')'
+        }
+        else {    
+              '(?:'
+                ~ '(??{ eval ' ~ $meth ~ ' })'
+                ~ '(?{ '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "' ~ $.ident ~ '" ]; '
+                ~ '})'
+            ~ ')'
+        }
     }
 }
 

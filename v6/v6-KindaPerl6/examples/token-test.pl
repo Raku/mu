@@ -24,6 +24,7 @@ class X {
     $<rep> := (.)
     
     <?ws>
+    <before . >
     <word>
   };
 
