@@ -69,6 +69,7 @@ sub run_tests () {
 }
 
 END {
+    return if $0 =~ /t_$/;
     (my $script = $0) =~ s{.*[/\\]}{}g;
     $script = "t/emitter/${script}_";
     open my $out, "> $script" or

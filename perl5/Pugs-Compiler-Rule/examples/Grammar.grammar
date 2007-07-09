@@ -158,7 +158,12 @@ token named_capture_body {
     | \[  <rule>        \]  { return $$<rule> }
     | \<  <parse_metasyntax>  { return $$<parse_metasyntax> }
     | \'  <?literal>    \'
-        { return { metasyntax => { metasyntax => "${$/}" } }; }
+        { return { metasyntax => {
+                        metasyntax => "${$/}",
+                        _pos => [ $/->from, $/->to ],
+                    }
+                };
+        }
     | { die "invalid alias syntax"; }
 }
 
@@ -203,6 +208,7 @@ token parse_metasyntax {
                 metasyntax => $$<ident>,
                 rule       => $$<rule>,
                 modifier   => $$<modifier>,
+                _pos => [ $/->from, $/->to ],
             } }
           }
         |
@@ -221,7 +227,8 @@ token parse_metasyntax {
                 ) {
                 return { $$<ident> => {
                     rule     => { metasyntax => {
-                        metasyntax => '\'' . $$<str> . '\''
+                        metasyntax => '\'' . $$<str> . '\'',
+                        _pos => [ $/->from, $/->to ],
                     } },
                     modifier => $$<modifier>,
                 } }
@@ -230,6 +237,7 @@ token parse_metasyntax {
                 metasyntax => $$<ident>,
                 string   => $$<str>,
                 modifier => $$<modifier>,
+                _pos => [ $/->from, $/->to ],
             } }
           }
         |
@@ -245,6 +253,7 @@ token parse_metasyntax {
         { return { metasyntax => {
               metasyntax => "$$<metasyntax>",
               modifier   => $$<modifier>,
+              _pos => [ $/->from, $/->to ],
         } } }
     ]
 }
@@ -299,7 +308,10 @@ token var4 {
 
 token term1 {
         # placeholder
-        { return { metasyntax => { metasyntax => 'null' } } }
+        { return { metasyntax => {
+                        metasyntax => 'null',
+                        _pos => [ $/->from, $/->to ],
+        } } }
 }
 
 %{ $rule_terms{'{*}'} = sub { term1($_[1] || __PACKAGE__, $_[0] || '', $_[2], $_[3]) }; %}
@@ -308,7 +320,8 @@ token term2 {
         <?literal>     \'
         { return {
                 metasyntax => {
-                    metasyntax => '\'' . ${$/}
+                    metasyntax => '\'' . ${$/},
+                    _pos => [ $/->from - 1, $/->to ],
                 }
             };
         }

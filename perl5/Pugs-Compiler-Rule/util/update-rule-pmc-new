@@ -9,7 +9,7 @@
 
 if [ "$1" == "install" ]; then
     echo "cp tmp/Grammar.pm lib/Pugs/Grammar/Rule.pmc"
-    cp tmp/Grammar.pmc lib/Pugs/Grammar/Rule.pmc
+    cp tmp/Grammar.pm lib/Pugs/Grammar/Rule.pmc
     exit
 elif [ "$1" == "revert" ]; then
     svn revert lib/Pugs/Grammar/Rule.pmc
