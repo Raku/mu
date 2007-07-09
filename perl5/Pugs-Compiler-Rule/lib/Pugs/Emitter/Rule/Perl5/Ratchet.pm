@@ -146,7 +146,9 @@ sub emit_rule {
     die "unknown node: ", Dumper( $n )
         unless ref( $n ) eq 'HASH';
     #print "NODE ", Dumper($n);
-    my ($k) = keys %$n;
+    my @keys = grep { substr($_, 0, 1) ne '_' } keys %$n;
+    ### Node keys: @keys
+    my ($k) = @keys;
     my $v = $$n{$k};
     # XXX - use real references
     no strict 'refs';

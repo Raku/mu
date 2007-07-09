@@ -558,8 +558,8 @@ token term {
         }
     |  <-[ \] \} \) \> \: \? \+ \* \| \& ]>
         {
-            #print "constant: ", Dumper( $_[0]->data );
-            return { 'constant' => ${$/} }
+            return { 'constant' => ${$/},
+                     _pos => [ $/->from, $/->to ] }
         }
 }
 
