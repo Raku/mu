@@ -57,8 +57,7 @@ and aren't re-described here):
 
                 # The following are all regular ordinal scalar types.
 
-                sys.type.Cat.EntityName
-                    sys.type.Cat(...)
+                # TODO
 
             # The following are all regular non-ordinal scalar types.
 
@@ -85,64 +84,6 @@ I<This documentation is pending.>
 These scalar data types are special-purpose in nature, as they are intended
 for use in defining or working with catalog types, and all catalog
 variables are system-defined.
-
-=over
-
-=item C<sys.type.Cat.EntityName>
-
-A C<Cat.EntityName> is a canonical name of a DBMS entity or attribute
-thereof.  This name is conceptually multi-part, with the parts forming a
-sequence of 1..N C<Text>, ordered from greatest to least significance;
-names of attributes typically have just 1 part and so are conceptually just
-a C<Text>, though often database attribute names, which are its component
-relation names, are multi-part (extra parts being for "schema" name-spaces
-and such); names of data types and operators are typically 3-4 parts, where
-C<sys> is an example of part 1.  C<Cat.EntityName> has multiple possreps;
-one is a C<Seq(1..N) of Text>; one is a specially encoded C<Text> where
-parts are ordered from greatest to least significance, and adjacent parts
-are separated with a single "period" character, and any literal period or
-backslash characters in parts are backslash-escaped as C<\p> and C<\b>
-respectively (no other characters are escaped).  Its default value consists
-of a single part that is the empty string.
-
-=item C<sys.type.Cat.EntityDeclName>
-
-A C<Cat.EntityDeclName> is a proper subtype of C<Cat.EntityName>.  It is a
-declared name of a DBMS entity, or the declared name of an attribute
-thereof, that either is defined with.
-
-=item C<sys.type.Cat.TypeDeclName>
-
-A C<Cat.TypeDeclName> is a proper subtype of C<Cat.EntityDeclName> whose
-C<Text> possrep is of the format C<(sys|nat|lex)\.type\..*>; it is for type
-names specifically.  Its default value is C<lex.type.>.
-
-=item C<sys.type.Cat.RtnDeclName>
-
-A C<Cat.RtnDeclName> is a proper subtype of C<Cat.EntityDeclName> whose
-C<Text> possrep is of the format C<(sys|nat|lex)\.rtn\..*>; it is for
-routine names specifically.  Its default value is C<lex.rtn.>.
-
-=item C<sys.type.Cat.VarDeclName>
-
-A C<Cat.VarDeclName> is a proper subtype of C<Cat.EntityDeclName> whose
-C<Text> possrep is of the format C<(sys|nat|lex)\.(cat|data)\..*>; it is
-for variable and constant names specifically.  Its default value is
-C<lex.data.>.
-
-=item C<sys.type.Cat.EntityInvoName>
-
-A C<Cat.EntityInvoName> is a proper subtype of C<Cat.EntityName>.  It is a
-name by which some routine invokes or references a DBMS entity.  Unlike a
-C<Cat.DeclTypeName>, a C<Cat.EntityInvoName> is more likely to be
-partially qualified, perhaps.
-
-=item C<sys.type.Cat.(Type|Rtn|Var)InvoName>
-
-These are subtypes of C<Cat.EntityInvoName> whose formats are analogous to
-the similarly named subtypes of C<Cat.EntityDeclName>.
-
-=back
 
 I<This documentation is pending.>
 

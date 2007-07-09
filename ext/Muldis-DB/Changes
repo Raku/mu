@@ -33,20 +33,27 @@
     distributed Muldis::DB::AST::StringRepr module; instead,
     Muldis::DB::AST will parse and generate Concrete Muldis D by itself.
 
+    * Rearranged any relevant docs and code so that the most important core
+    scalar types are now in the order [Bool, Int, Blob, Text] and the
+    relation type factory Maybe now appears after Set.
+
     * Muldis D now has a new scalar data type, "Order", which is an
     enumeration (like "Bool" is) of 3 values: [Increase, Same, Decrease];
     it is the result type of any binary comparison operator that underlies
     the likes of less|greater-than or min|max or sorting operations.
 
-    * Rearranged any relevant docs and code so that the simple core scalar
-    types are now in the order [Bool, Order, Int, Blob, Text] and the
-    relation type factory Maybe now appears after Set.
+    * Muldis D now has the new scalar types "ShortName" and "LongName",
+    which replace the also removed "Cat.EntityName" and friends.
 
     * Split up Language.pod 7 ways, into itself and
     Language/(Core|Catalog|Grammar).pod and
     Language/Ext/(Num|Temporal|Spatial).pod; about 75% of the previous
     Language.pod remained in that file, with the other files comprising
     about 25%; the other files then showed most of the subsequent growth.
+    TODO: SAY WHAT HAPPENED TO THE FILES AFTERWARDS.
+
+    * TODO: RENAME AST.PM TO LITERAL.PM, SPLIT DB.PM INTO DB.POD AND
+    INTERFACE.PM, AND MAYBE ENGINE.PM OR ROLE.PM.
 
 2007-06-29   Darren Duncan <perl@DarrenDuncan.net>
 

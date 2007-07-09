@@ -47,6 +47,10 @@ any common grammar specifying formats.  It should become formalized later.
         | long_name
         | tuple
         | relation
+        | set
+        | maybe
+        | seq
+        | bag
         ;
 
     bool
@@ -82,7 +86,7 @@ any common grammar specifying formats.  It should become formalized later.
         ;
 
     text_data
-        = /(\\b|\\s|\\d|[^\\'"])*/
+        = /(\\b|\\p|\\s|\\d|[^\\.'"])*/
         ;
 
     short_name
@@ -93,8 +97,18 @@ any common grammar specifying formats.  It should become formalized later.
 
     long_name
         = q(LongName:Default)
-        | short_name
-        | long_name q(.) short_name
+        | /[\w_]+/ long_name_e1
+        | q(") text_data long_name_e2 q(")
+        ;
+
+    long_name_e1
+        = q(.) /[\w_]+/
+        | q(.) /[\w_]+/ long_name_e1
+        ;
+
+    long_name_e2
+        = q(.) text_data
+        | q(.) text_data long_name_e2
         ;
 
     tuple
@@ -111,6 +125,26 @@ any common grammar specifying formats.  It should become formalized later.
         | q(Relation:{) ws heading list_sep relation_body ws q(})
         ;
 
+    set
+        = q(Set:Default)
+        | q(Set:{) ws type_invo list_sep set_body ws q(})
+        ;
+
+    maybe
+        = q(Maybe:Default)
+        | q(Maybe:{) ws type_invo list_sep maybe_body ws q(})
+        ;
+
+    seq
+        = q(Seq:Default)
+        | q(Seq:{) ws type_invo list_sep seq_body ws q(})
+        ;
+
+    bag
+        = q(Bag:Default)
+        | q(Bag:{) ws type_invo list_sep bag_body ws q(})
+        ;
+
     ws
         = /\S+/
         ;
@@ -120,6 +154,9 @@ any common grammar specifying formats.  It should become formalized later.
         ;
 
     heading
+        = ...
+
+    type_invo
         = ...
 
     tuple_body

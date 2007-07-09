@@ -74,8 +74,8 @@ relationships:
                     sys.type.NEBlob
                 sys.type.Text
                     sys.type.NEText
-                sys.type.AttrName
-                sys.type.AttrNameChain
+                sys.type.ShortName
+                sys.type.LongName
 
         # The following are all nonscalar type factories.
 
@@ -147,6 +147,24 @@ weakly typed or lacks one-to-one type correspondence.
 
 =over
 
+=item C<sys.type.Scalar>
+
+The C<Scalar> type is the maximal type of all Muldis D scalar types, and
+contains every scalar value that can possibly exist.  Every other scalar
+type is implicitly a proper subtype of C<Scalar>, and C<Scalar> is
+implicitly a union type over all other scalar types.  Its default value is
+C<Bool.False>.  The cardinality of this type is infinity.
+
+=item C<sys.type.Ordinal>
+
+The C<Ordinal> type is a proper subtype of C<Scalar> that is a proper
+supertype of all scalar types that are considered ordinal.  Any scalar
+types which consider themselves ordinal, which happens to include every
+system-defined core scalar root type, will explicitly declare themselves as
+subtypes of C<Ordinal> in their type definitions; the definition of
+C<Ordinal> does not specify what other types it is a union over.  Its
+default value is C<Bool.False>.  The cardinality of this type is infinity.
+
 =item C<sys.type.Bool>
 
 A C<Bool> is an enumeration consisting of the 2 values C<Bool.False> and
@@ -208,12 +226,27 @@ A C<NEText> (non-empty text) is a proper subtype of C<Text> where its
 length in characters must be more than zero; it can be any C<Text> except
 for the empty string.  Its default value is a single "space" character.
 
+=item C<sys.type.ShortName>
 
+A C<ShortName> is a canonical name for some DBMS entities (others use
+C<LongName>), such as the declared names of attributes of scalar possreps
+or collection types, and for the declared names of routine parameters, and
+for the invocation names of the same.  It is the same as C<Text> in all
+ways but that it is specifically intended for use in naming DBMS entities
+rather than being normal data.
 
+=item C<sys.type.LongName>
 
-
+A C<LongName> is a canonical name for some DBMS entities (others use
+C<ShortName>), such as the invocation names of types, routines, and
+variables, and it is typically used for the declared names of the same.  A
+C<LongName> consists of a sequence (1..N) of C<ShortName>, the elements
+being ordered from greatest to least significance.  Its default value is a
+single element that is the default value of C<ShortName>, the empty string.
 
 =back
+
+
 
 =head2 Core Nonscalar Data Types
 
