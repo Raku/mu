@@ -2,29 +2,41 @@ Perl6regex on Perl5regex
 
 ### Note: This Document is a Draft
 
+------------------
+Introduction:
+
 "Perl6regex-on-Perl5regex" is a "Perl 6 regex engine" that uses Perl 5 regexes to implement the matching, and Perl 5 code to implement the OO "Match" structure.
 
 The implementation so far is compatible with Perl 5.8.8.
 
+
+------------------
 The compilation is implemented as follows:
 
 - a regex Grammar is run on the Perl 6 regex source code, and returns an AST
-- the AST is annotated for positional capture numbering, and "capture to array" flags
-- the Perl 5 regex and regex wrappers are emitted
 
+- the AST is annotated for positional capture numbering, and for "capture to array" flags
+
+- the Perl 5 regexes and the Perl 5 methods are emitted
+
+
+------------------
 At runtime:
 
-- while matching, the regex generates a linked list of operations
-- the list is rolled-back on backtracking
-- after the match finishes, the operations are interpreted and construct a Match object
+- while the regex is matching, it generates a linked list of operations
 
+- the operation list is rolled-back on backtracking.
+"Safe-backtracking" is implemented with "local" redeclarations inside the Perl 5 regex (see [1], [2]).
+
+- after the match finishes, the operations are interpreted, and the result is a Match object.
+The interpreter is implemented on a subroutine in the Match class.
+
+
+------------------
 The operations mini-language is implemented like this:
 
 op-list
-...
-
-Safe-backtracking is implemented with 'local' inside Perl 5 regex (docs: perlre)
-...
+... TODO ...
 
 ------------------
 TODO list:
@@ -36,37 +48,13 @@ TODO list:
 * infix:<~~>
 
 ------------------
-*** previous discussion: http://www.justatheory.com/computers/programming/perl/regex_named_captures.html
+Blogs:
 
-Aristotle Pagaltzis wrote:
+http://pugs.blogs.com/pugs/2007/07/perl6-regex-on-.html
 
-    It’s easy, if verbose, to overcome the limitation: if you use local to assign values, they will disappear on backtracking. But then they also disappear at the end of the match. So what you do is combine the two: while you try to match, you put things into dynamically scoped storage; once the match has succeed but before it is finished, you save them for posterity.
+------------------
+References:
 
-    my %found;
-    {
-        my %pad;
-        $string =~ /
-            (?: (quick|slow) \s+    (?{ local $pad{speed}  = $^N  }) )
-            (?: (brown|blue) \s+    (?{ local $pad{color}  = $^N  }) )?
-            (?: (brown\s+fox)       (?{ local $pad{animal} = $^N  }) )
-            (?{ %found = %pad })
-        /xms;
-    }
+[1] http://www.justatheory.com/computers/programming/perl/regex_named_captures.html
 
-    That should work. Pretty? Not exactly.
-
------------
-
-  our $x = 0;
-  my $result;
-  "aaaaa" =~ m/^
-    (?:
-      .
-      (?{ local $x = $x + 1 })
-    )*
-    aa
-    (?{ $result = $x })
-  $/x;
-  print $result;  # 3
-
------------
+[2] perldoc perlre
