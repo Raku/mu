@@ -46,7 +46,6 @@ TODO list:
 * Matcher method; $_ and $/ scopes (implement OUTER::<...>)
 * rule/subrule parameters; 
 * calling subrules in other grammars
-* <after>
 * <at()>
 * infix:<~~>
 * variable interpolation 

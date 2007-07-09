@@ -171,12 +171,45 @@ class Rule::InterpolateVar {
     };
 }
 
-# TODO
 class Rule::After {
     method emit_perl5 {
-        say '# TODO: <after> ';
-        die();
-    };
+
+        # XXX - p5 "after" only works with fixed-width matches
+        
+        if $.assertion_modifier eq '!' {
+            # XXX - create a new lexical context and discard captures ?
+            return '(?<!' ~ $.rule.emit_perl5 ~ ')';
+        }
+        if $.assertion_modifier eq '?' {
+            # XXX - create a new lexical context and discard captures ?
+            return '(?<=' ~ $.rule.emit_perl5 ~ ')';
+        }
+    
+        if $.capture_to_array {
+              '(?<='
+                ~ '(?{ '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
+                ~ '})'
+                ~ $.rule.emit_perl5 
+                ~ '(?{ '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture_to_array", "after" ]; '
+                ~ '})'
+            ~ ')'
+        }
+        else {    
+              '(?<='
+                ~ '(?{ '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'create\', pos(), \\$_ ]; '
+                ~ '})'
+                ~ $.rule.emit_perl5 
+                ~ '(?{ '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, \'to\', pos() ]; '
+                ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "after" ]; '
+                ~ '})'
+            ~ ')'
+        }
+    }
 }
 
 class Rule::Before {
