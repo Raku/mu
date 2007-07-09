@@ -47,3 +47,55 @@ $VAR1 = {
 
 
 
+=== TEST 3: metasyntax <$...>
+--- regex: ' <$a> '
+--- ast
+$VAR1 = {
+          'quant' => {
+                     'ws2' => ' ',
+                     'greedy' => '',
+                     'quant' => '',
+                     'ws1' => ' ',
+                     'ws3' => '',
+                     'term' => {
+                               'metasyntax' => {
+                                               '_pos' => [
+                                                         1,
+                                                         5
+                                                       ],
+                                               'metasyntax' => '$a',
+                                               'modifier' => ''
+                                             }
+                             }
+                   }
+        };
+
+
+
+
+=== TEST 4: metasyntax <@...>
+--- regex: ' <@foo> '
+--- ast
+$VAR1 = {
+          'quant' => {
+                     'ws2' => ' ',
+                     'greedy' => '',
+                     'quant' => '',
+                     'ws1' => ' ',
+                     'ws3' => '',
+                     'term' => {
+                               'metasyntax' => {
+                                               '_pos' => [
+                                                         1,
+                                                         7
+                                                       ],
+                                               'metasyntax' => '@foo',
+                                               'modifier' => ''
+                                             }
+                             }
+                   }
+        };
+
+
+
+

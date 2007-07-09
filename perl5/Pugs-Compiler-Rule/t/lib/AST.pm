@@ -21,7 +21,7 @@ sub run_test ($) {
     my $regex = parse_str_list($block->regex);
     my $ast = Pugs::Grammar::Rule->rule($regex)->();
     my $got = Dumper($ast);
-    is $block->ast, $got, "$name - AST okay";
+    is $block->ast, $got, "$name - " . $block->regex . " - AST okay";
     push @saved_blocks, {
         name => $name,
         regex => $block->regex,
