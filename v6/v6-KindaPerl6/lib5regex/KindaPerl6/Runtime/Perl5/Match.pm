@@ -86,6 +86,9 @@ package Match;
                     ${ $Matches[-1]->hash }{ $_[0] } 
                 }, $match;
         },
+        discard_capture => sub {
+            pop @Matches;
+        },
     );
     sub from_global_data {
         unless ( defined $_[0] ) {

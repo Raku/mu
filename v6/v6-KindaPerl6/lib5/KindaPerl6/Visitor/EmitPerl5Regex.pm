@@ -33,7 +33,7 @@ package Rule::NegateCharClass; sub new { shift; bless { @_ }, "Rule::NegateCharC
 ;
 package Rule::CharClass; sub new { shift; bless { @_ }, "Rule::CharClass" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; Main::say('TODO CharClass'); die() }
 ;
-package Rule::SubruleNoCapture; sub new { shift; bless { @_ }, "Rule::SubruleNoCapture" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $meth = ((1 + index($self->{metasyntax}, '.')) ? ($self->{metasyntax} . ' ... TODO ') : ('\'$\'.$GLOBAL::_Class.\'::_rule_' . ($self->{metasyntax} . '\''))); ('(??{ eval ' . ($meth . ' })')) }
+package Rule::SubruleNoCapture; sub new { shift; bless { @_ }, "Rule::SubruleNoCapture" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $meth = ('\'$_rule_' . ($self->{metasyntax} . '\'')); ('(?:' . ('(??{ eval ' . ($meth . (' })' . ('(?{ ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; ' . ('})' . ')'))))))) }
 ;
 package Rule::Subrule; sub new { shift; bless { @_ }, "Rule::Subrule" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $meth = ('\'$_rule_' . ($self->{metasyntax} . '\'')); ('(?:' . ('(??{ eval ' . ($meth . (' })' . ('(?{ ' . ('local $GLOBAL::_M = [ $GLOBAL::_M, "named_capture", "' . ($self->{ident} . ('" ]; ' . ('})' . ')'))))))))) }
 ;

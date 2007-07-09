@@ -201,11 +201,22 @@ class Rule::CharClass {
 
 class Rule::SubruleNoCapture {
     method emit_perl5 {
-        my $meth := ( 1 + index( $.metasyntax, '.' ) )
-            ?? $.metasyntax ~ ' ... TODO '
-            !! ( '\'$\'.$GLOBAL::_Class.\'::_rule_' ~ $.metasyntax ~ '\'' );
-        # TODO - XXX - discard captures
-        '(??{ eval ' ~ $meth ~ ' })'
+        # TODO
+        #my $meth := ( 1 + index( $.metasyntax, '.' ) )
+        #    ?? $.metasyntax ~ ' ... TODO '
+        #    !! ( '\'$\'.$GLOBAL::_Class.\'::_rule_' ~ $.metasyntax ~ '\'' );
+        
+        # XXX - Temporary hack
+        my $meth := '\'$_rule_' ~ $.metasyntax ~ '\'';
+
+        # XXX - param passing
+        
+          '(?:'
+            ~ '(??{ eval ' ~ $meth ~ ' })'
+            ~ '(?{ '
+            ~   'local $GLOBAL::_M = [ $GLOBAL::_M, "discard_capture" ]; '
+            ~ '})'
+        ~ ')'
     }
 }
 

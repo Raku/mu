@@ -11,6 +11,8 @@ class X {
 
   token ws { \s+ };
 
+  token word { \w+ };
+
   token x { 
     4
     (2)
@@ -21,10 +23,11 @@ class X {
     $<rep> := (.)
     $<rep> := (.)
     
-    <ws>
+    <?ws>
+    <word>
   };
 
-  $_ := '423434XabRR  ';
+  $_ := '423434XabRR  xyz';
   X.x();
   say 'result: ', $/.perl;
 }
