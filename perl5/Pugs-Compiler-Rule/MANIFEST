@@ -79,8 +79,6 @@ t/lib/Emitter.pm
 t/lib/Regex.pm
 t/lib/Util.pm
 TODO
-trans.pl
-trans2.pl
 util/compile_p6grammar.pl
 util/patch-rule-pmc.pl
 util/update-rule-pmc

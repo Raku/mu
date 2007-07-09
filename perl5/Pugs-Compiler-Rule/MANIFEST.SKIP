@@ -9,6 +9,8 @@ lib/pcr.txt
 lib/print.sh
 tmp.txt
 lib/Pugs/Grammar/Rule2.pmc
+trans.pl
+trans2.pl
 tmp
 ^blib/
 ^Makefile$

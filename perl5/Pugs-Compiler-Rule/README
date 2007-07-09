@@ -1,8 +1,8 @@
 NAME
-    Pugs::Compiler::Rule - Compiler for Perl 6 Rules
+    Pugs::Compiler::Rule - Compiler for Perl 6 regexes
 
 VERSION
-    This document describes Pugs::Compiler::Rule 0.24 released on 8 July,
+    This document describes Pugs::Compiler::Rule 0.25 released on 8 July,
     2007.
 
 SYNOPSIS
@@ -121,8 +121,11 @@ AUTHORS
 SEE ALSO
     *   Pugs::Compiler::Regex
 
-    *   The Perl 6 Rules Spec:
-        <http://dev.perl.org/perl6/doc/design/syn/S05.html>
+    *   Pugs::Compiler::Grammar
+
+    *   compile_p6grammar.pl
+
+    *   The Perl 6 Rules Spec: <http://perlcabal.org/syn/S05.html>
 
 COPYRIGHT
     Copyright 2006, 2007 by Flavio Soibelmann Glock and others.

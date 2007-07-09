@@ -4,6 +4,11 @@
 # Please regen Rule.pmc and rerun the whole test suite
 # of Pugs::Compiler::Rule and v6.pm to ensure you didn't
 # break things :)
+#
+# Usage:
+#   util/compile_p6grammar.pl examples/Grammar.grammar > Grammar.pm
+#   perl -MGrammar -e 'print Pugs::Grammar::Rule->rule("a b")->to, "\n"'
+#
 
 grammar Pugs::Grammar::Rule;
 

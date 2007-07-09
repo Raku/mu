@@ -23,7 +23,7 @@ use Data::Dumper;
 use Symbol 'qualify_to_ref';
 use Digest::MD5 'md5_hex';
 
-our $NoCache = 1; # Depresses any caching if set to true
+our $NoCache = $ENV{PCR_NO_CACHE}; # Depresses any caching if set to true
 
 my $cache;
 eval {
