@@ -8,16 +8,32 @@ The implementation so far is compatible with Perl 5.8.8.
 
 The compilation is implemented as follows:
 
-- a regex Grammar is run on the regex source code, and returns an AST
-- ...
+- a regex Grammar is run on the Perl 6 regex source code, and returns an AST
+- the AST is annotated for positional capture numbering, and "capture to array" flags
+- the Perl 5 regex and regex wrappers are emitted
 
-The mini-language is implemented like this:
+At runtime:
+
+- while matching, the regex generates a linked list of operations
+- the list is rolled-back on backtracking
+- after the match finishes, the operations are interpreted and construct a Match object
+
+The operations mini-language is implemented like this:
 
 op-list
 ...
 
 Safe-backtracking is implemented with 'local' inside Perl 5 regex (docs: perlre)
 ...
+
+------------------
+TODO list:
+
+* subrule caturing/non-capturing; subrule parameters
+* backtracking controls; token/rule/regex
+* Matcher method; $_ and $/ scopes (implement OUTER::<...>)
+* $<xxx> inside closures in regex; read-write
+* infix:<~~>
 
 ------------------
 *** previous discussion: http://www.justatheory.com/computers/programming/perl/regex_named_captures.html
@@ -53,5 +69,4 @@ Aristotle Pagaltzis wrote:
   $/x;
   print $result;  # 3
 
-
-
+-----------
