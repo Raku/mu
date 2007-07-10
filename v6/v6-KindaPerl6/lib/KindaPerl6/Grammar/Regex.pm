@@ -21,7 +21,7 @@ token metasyntax {
     [ 
     |  \\ .
     |  \'  <?literal>     \'
-    |  \{  <?string_code> \}
+    |  \{  <?parsed_code>     
     |  \<  <?metasyntax>  \>
     |  <!before \> > . 
     ]
@@ -41,23 +41,24 @@ token char_class {
     |  \[  <?char_range>  \]
 };
 
-# XXX - not needed
-token string_code {
-    # bootstrap 'code'
-    [ 
-    |  \\ .
-    |  \'  <?literal>     \'
-    |  \{  <?string_code> \}
-    |  <!before \} > . 
-    ]
-    [ <string_code> | '' ]
-};
-
 token parsed_code {
-    # this subrule is overridden inside the perl6 compiler
-    # XXX - call KindaPerl6 'Statement List'
-    <?string_code>
-    { return ~$/ }
+    <?KindaPerl6::Grammar.opt_ws>
+    { 
+        COMPILER::add_pad( $KindaPerl6::Grammar::Class_name );
+    }
+    <KindaPerl6::Grammar.exp_stmts>
+    <?KindaPerl6::Grammar.opt_ws>
+    '}'
+    {
+        my $env := @COMPILER::PAD[0];
+        COMPILER::drop_pad();
+        return ::Lit::Code(
+                    pad   => $env,
+                    state => { },
+                    sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
+                    body  => $$<KindaPerl6::Grammar.exp_stmts>,
+                );
+    }
 };
 
 token named_capture_body {
@@ -143,7 +144,7 @@ token rule_terms {
             { return ::Rule::Subrule( 'metasyntax' => $$<metasyntax> ) }
         ]
     |   \{ 
-        <parsed_code>  \}
+        <parsed_code>  
         { return ::Rule::Block( 'closure' => $$<parsed_code> ) }
     |   <KindaPerl6::Grammar.backslash>  
         [
@@ -257,7 +258,7 @@ token term {
 };
 
 token quant {
-    |   '**' <?KindaPerl6::Grammar.opt_ws> \{  <parsed_code>  \}
+    |   '**' <?KindaPerl6::Grammar.opt_ws> \{  <parsed_code>  
         { return { 'closure' => $$<parsed_code> } }
     |   [  \? | \* | \+  ]
 };

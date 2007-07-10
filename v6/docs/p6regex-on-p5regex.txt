@@ -39,8 +39,23 @@ op-list
 ... TODO ...
 
 ------------------
+Differences from the Perl 6 specification
+
+* <after> only matches fixed-width patterns,
+because that's how Perl 5 "(?<=pattern)" works.
+There is no fix for this problem yet.
+
+* <?after> and <?before> do not create a lexical scope:
+this means that <?before (.) > wrongly does a positional capture.
+This is fixable, by adding a discard_capture operation.
+
+* return() in blocks don't cause the regex to succeed, and don't terminate the regex.
+The Perl 5.10 version should use (*ACCEPT).
+
+------------------
 TODO list:
 
+* longest-token and multi-regex
 * backtracking controls; token/rule/regex
 * $<xxx> inside closures in regex; read-write
 * Matcher method; $_ and $/ scopes (implement OUTER::<...>)

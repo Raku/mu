@@ -149,7 +149,7 @@ class Rule::Block {
         '(?{ ' 
             ~ 'local $GLOBAL::_M = $GLOBAL::_M; '  # shallow copy
             ~ 'my $ret = ( sub {' 
-                   ~ $.closure          # TODO - compile and .emit_perl5
+                   ~ $.closure.emit_perl5
                    ~  '; "974^213" '
             ~ '} )->();' 
             ~ 'if ( $ret ne "974^213" ) {' 

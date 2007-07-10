@@ -33,5 +33,6 @@ class X {
 
   $_ := '423434XabRR  xyz';
   X.x();
-  say 'result: ', $/.perl;
+  say 'match: ', $/.perl;
+  say 'result: ', $/.result;
 }
