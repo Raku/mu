@@ -146,20 +146,17 @@ class Rule::SpecialChar {
 
 class Rule::Block {
     method emit_perl5 {
-        # XXX - change to new Match style
-        '(?{ ' ~ 
-             'my $ret = ( sub {' ~
-                'do {' ~ 
-                   $.closure ~
-                '}; ' ~
-                '\'974^213\' } ).();' ~
-             'if $ret ne \'974^213\' {' ~
-                '$MATCH.capture( $ret ); ' ~
-                # '$MATCH.bool( 1 ); ' ~
-                'return $MATCH;' ~
-             '};' ~
-             '1' ~
-        ' })'
+        '(?{ ' 
+            ~ 'local $GLOBAL::_M = $GLOBAL::_M; '  # shallow copy
+            ~ 'my $ret = ( sub {' 
+                   ~ $.closure          # TODO - compile and .emit_perl5
+                   ~  '; "974^213" '
+            ~ '} )->();' 
+            ~ 'if ( $ret ne "974^213" ) {' 
+                ~   '$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $ret ]; '
+                # TODO - (*ACCEPT) and exit
+            ~ '};' 
+        ~ ' })'
     }
 }
 

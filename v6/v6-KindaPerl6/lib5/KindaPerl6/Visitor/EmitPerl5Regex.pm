@@ -21,7 +21,7 @@ package Rule::Dot; sub new { shift; bless { @_ }, "Rule::Dot" } sub emit_perl5 {
 ;
 package Rule::SpecialChar; sub new { shift; bless { @_ }, "Rule::SpecialChar" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $char = $self->{char}; do { if (($char eq 'n')) { return('(?:\n\r?|\r\n?)') } else {  } }; do { if (($char eq 'N')) { return('(?:(?!\n\r?|\r\n?)\X)') } else {  } }; do { if (($char eq '\\')) { return('\\\\') } else {  } }; do { if (($char eq '\'')) { return('\\\'') } else {  } }; return(('\\' . $char)) }
 ;
-package Rule::Block; sub new { shift; bless { @_ }, "Rule::Block" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('(?{ ' . ('my $ret = ( sub {' . ('do {' . ($self->{closure} . ('}; ' . ('\'974^213\' } ).();' . ('if $ret ne \'974^213\' {' . ('$MATCH.capture( $ret ); ' . ('return $MATCH;' . ('};' . ('1' . ' })'))))))))))) }
+package Rule::Block; sub new { shift; bless { @_ }, "Rule::Block" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('(?{ ' . ('local $GLOBAL::_M = $GLOBAL::_M; ' . ('my $ret = ( sub {' . ($self->{closure} . ('; "974^213" ' . ('} )->();' . ('if ( $ret ne "974^213" ) {' . ('$GLOBAL::_M = [ [ @$GLOBAL::_M ], "result", $ret ]; ' . ('};' . ' })'))))))))) }
 ;
 package Rule::InterpolateVar; sub new { shift; bless { @_ }, "Rule::InterpolateVar" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; Main::say(('# TODO: interpolate var ' . ($self->{var}->emit_perl5() . ''))); die() }
 ;

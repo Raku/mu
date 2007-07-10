@@ -66,6 +66,9 @@ package Match;
         to => sub {
             $Matches[-1]->to = $_[0];
         },
+        result => sub {
+            $Matches[-1]->result = $_[0];
+        },
         positional_capture => sub {
             my $match = pop @Matches;
             ${ $Matches[-1]->array }[ $_[0] ] = $match;

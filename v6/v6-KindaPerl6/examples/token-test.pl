@@ -27,6 +27,8 @@ class X {
     <before . >
     <word>
     <after \w >
+    { 42 }
+    { return 123 }
   };
 
   $_ := '423434XabRR  xyz';
