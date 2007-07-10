@@ -1,0 +1,58 @@
+# The file format should be self-explanatory, if not, read README.
+
+# Numerical Operators
+
+key:  +
+syn:  $expr1 + $expr2
+name: binary plus
+desc: Adds two numbers
+ex:   my $a = 2 + 3; # Result: 5
+con:  numeric
+
+key:  +
+syn:  +$expr1
+name: unary plus
+desc: enforces numerical context onto its operand
+ex:   +"23";   # returns the number 23
+      +42;    
+con:  numeric
+
+key:  -
+syn:  $expr1 - $expr2
+name: binary minus
+desc: substracts two numbers
+ex:   42 - 23; # returns 19
+con:  numeric
+
+key:  -
+syn:  -$expr
+name: unary minus
+desc: returns the negative of a number, forces numerical context.
+ex:   -2;
+con:  numeric
+
+key:  *
+syn:  $num1 * $num2
+name: multiplication
+desc: returns the product of two numbers
+con:  numeric
+
+key:  /
+syn:  $num1 / $num2
+name: division
+desc: divides two numbers
+ex:   6 / 2;  # result: 3
+con:  numeric
+
+key:  %
+syn:  $num1 % $num2
+name: remainder of division
+desc: remainder of division
+ex:   10 % 3;  # result: 1, since 10 == 3*3 + 1
+
+key:  **
+syn:  $expr1 ** $expr2
+name: power operator
+desc: returns $expr1 to the power of $expr2
+ex:   2**4 # same as 2*2*2*2
+con:  numeric
