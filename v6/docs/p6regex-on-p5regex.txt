@@ -55,6 +55,10 @@ This is fixable, by adding a discard_capture operation.
 * return() in blocks don't cause the regex to succeed, and don't terminate the regex.
 The Perl 5.10 version should use (*ACCEPT).
 
+* The $/ inside regex closures is a copy of the matching $/.
+This means that modifying $/ inside a closure does not modify the match.
+This can be fixed with some magic in the Match class.
+
 ------------------
 TODO list:
 
@@ -64,8 +68,6 @@ TODO list:
 ** hash, array, from, to should be Perl 6 objects; autoboxing can fix that
 
 * backtracking controls; token/rule/regex
-
-* allow $<xxx> inside closures in regex; read-write
 
 * in order to support Matcher methods, the $_ and $/ scopes need to be fixed (implement OUTER::<...>)
 

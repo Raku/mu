@@ -59,7 +59,8 @@ class Token {
                     # XXX TODO - modify outer $/
                     ~    '$MATCH = '
                     
-                    ~    '$GLOBAL::MATCH = shift @Match::Matches; '
+                    ~    '$GLOBAL::MATCH = pop @Match::Matches; '
+                    ~    '@Match::Matches = (); '   # discard outer matches, if any
                     ~ '} '
                 ~ '), '
 
@@ -148,6 +149,14 @@ class Rule::Block {
     method emit_perl5 {
         '(?{ ' 
             ~ 'local $GLOBAL::_M = $GLOBAL::_M; '  # shallow copy
+
+            # construct a $/ view from what we already have
+            ~    'Match::from_global_data( $GLOBAL::_M ); '
+            ~    '$MATCH = '   # ???                    
+            ~    '$GLOBAL::MATCH = pop @Match::Matches; '
+            ~    '@Match::Matches = (); '   # discard outer matches, if any
+            # ~ ' use Data::Dumper; print "Rule::Block current match: ",Dumper($MATCH),"\n"; '
+
             ~ 'my $ret = ( sub {' 
                    ~ $.closure.emit_perl5
                    ~  '; "974^213" '
