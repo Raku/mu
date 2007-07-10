@@ -1,0 +1,54 @@
+/**
+ * Repos Style (c) 2007 www.reposstyle.com
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#return {
+	background-image: url(../commands/16x16/parent.png);
+}
+.logentry > div {
+	padding-top: 1px;
+	padding-bottom: 1px;
+}
+.message {
+	background-image: url(16x16/message.png);
+	padding-left: 30px;
+	margin-left: 10px;
+	background-position: left top;
+	background-repeat: no-repeat;
+}
+.row {
+	padding-left: 30px;
+	margin-left: 10px;
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+.revision {
+	margin-left: 10px;
+	margin-right: 10px;
+}
+.log-A {
+	background-image: url(16x16/a.png);
+}
+.log-M {
+	background-image: url(16x16/m.png);
+}
+.log-D {
+	background-image: url(16x16/d.png);
+}
+.copied {
+	padding-left: 20px;
+	background-position: left;
+	background-repeat: no-repeat;	
+	background-image: url(16x16/copiedfrom.png);
+}
