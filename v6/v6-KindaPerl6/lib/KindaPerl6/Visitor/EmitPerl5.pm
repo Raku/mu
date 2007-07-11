@@ -493,7 +493,11 @@ class BEGIN {
 
 class Use {
     method emit_perl5 {
-        'use ' ~ $.mod
+        if ( $.perl5 ) {
+            return 'use ' ~ $.mod ~ ';$::' ~ $.mod ~ '= use5(\'' ~ $.mod ~ '\')';
+        } else {
+            return 'use ' ~ $.mod;
+        }
     }
 }
 
