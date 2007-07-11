@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 9 Jul 2007
+   Last Modified: 10 Jul 2007
    Number: 5
-   Version: 60
+   Version: 61
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -676,28 +676,60 @@ of a longest-token pattern.)
 
 =item *
 
-The repetition specifier is now C<**{...}> for maximal matching,
-with a corresponding C<**{...}?> for minimal matching.  Space is
-allowed on either side of the asterisks.  The curlies are taken to
-be a closure returning an Int or a Range object.
+The general repetition specifier is now C<**> for maximal matching,
+with a corresponding C<**?> for minimal matching.  Space is
+allowed on either side.  The next token will determine what kind of
+repetition is desired:
 
-     / value was (\d ** {1..6}?) with ([\w]**{$m..$n}) /
+If the next thing is an integer, then it is parsed as either as an exact
+count or a range:
+
+    . ** 42                  # match exactly 42 times
+    <item> ** 3..*           # match 3 or more times
+
+This form is considered declarational.
+
+If you supply a closure, it should return either an C<Int> or a C<Range> object.
+
+    'x' ** {$m}              # exact count returned from closure
+    <foo> ** {$m..$n}        # range returned from closure
+
+    / value was (\d **? {1..6}) with ([ <alpha>\w* ]**{$m..$n}) /
 
 It is illegal to return a list, so this easy mistake fails:
 
-     / [foo]**{1,3} /
+    / [foo] ** {1,3} /
 
-(At least, it fails in the absence of C<use rx :listquantifier>,
-which is likely to be unimplemented in Perl 6.0.0 anyway.)
+The closure form is always considered procedural, so the item it is
+modifying is never considered part of the longest token.
 
-The optimizer will likely optimize away things like C<**{1..*}>
-so that the closure is never actually run in that case.  But it's
-a closure that must be run in the general case, so you can use
-it to generate a range on the fly based on the earlier matching.
-(Of course, bear in mind the closure must be run I<before> attempting to
-match whatever it quantifies.)  A closure that must be run is considered
-procedural, but a closure that recognizably returns the same thing every
-time is considered declarative.
+If you supply any other atom (which may not be quantified), it is
+interpreted as a separator (such as an infix operator), and the
+initial item is quantified by the number of times the separator is
+seen between items:
+
+    <alt> ** '|'            # repetition controlled by presence of separator
+    <addend> ** <addop>     # repetition controlled by presence of separator
+    <item> ** [ \!?'==' ]   # repetition controlled by presence of separator
+
+A successful match of such a quantifier always ends "in the middle",
+that is, after the initial item but before the next separator.
+(The separator never matches independently of the next item; if the
+separator matches but the next item fails, it backtracks all the way
+back through the separator.)  Therefore
+
+    / <ident> ** ',' /
+
+can match
+
+    foo
+    foo,bar
+    foo,bar,baz
+
+but never
+
+    foo,
+    foo,bar,
 
 =item *
 
