@@ -677,9 +677,10 @@ of a longest-token pattern.)
 =item *
 
 The general repetition specifier is now C<**> for maximal matching,
-with a corresponding C<**?> for minimal matching.  Space is
-allowed on either side.  The next token will determine what kind of
-repetition is desired:
+with a corresponding C<**?> for minimal matching.  (All such quantifier
+modifiers now go directly after the C<**>.)  Space is allowed on either
+side of the complete quantifier.  The next token will determine what
+kind of repetition is desired:
 
 If the next thing is an integer, then it is parsed as either as an exact
 count or a range:
