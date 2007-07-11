@@ -19,6 +19,15 @@ key2: multiple lines for a value
       possible if the all of the following 
       lines start with at least one whitespace.
 
+# in the previous example the the newlines are included in the output,
+# if you want to prevent that, you have to continue the lines with a 
+# backslash:
+
+some_key: here is a long \
+          line that is \
+          just one line \
+          in the output
+
 # comments start with a '#'.
 # empty lines are allowed, but terminate the previous value.
 
