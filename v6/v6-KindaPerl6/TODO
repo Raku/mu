@@ -140,7 +140,7 @@ Problems running the Perl6 test suite:
 - kp6 requires a 'compilation unit' declaration
 - '&&', '||' operators don't short circuit
 - (FIXED) 'if', 'sub' require ';'
-- prefix and postfix:<++> not implemented
+- postfix:<++> not implemented
 - 'use' doesn't accept parameters: use lib ".";
 - parameter list error in:
     if defined $var { ...

@@ -65,7 +65,7 @@ package Do; sub new { shift; bless { @_ }, "Do" } sub block { @_ == 1 ? ( $_[0]-
 ;
 package BEGIN; sub new { shift; bless { @_ }, "BEGIN" } sub block { @_ == 1 ? ( $_[0]->{block} ) : ( $_[0]->{block} = $_[1] ) }; sub emit { my $self = shift; my $List__ = \@_; my $visitor; do {  $visitor = $List__->[0]; [$visitor] }; KindaPerl6::Traverse::visit($visitor, $self, 'BEGIN') }; sub attribs { my $self = shift; my $List__ = \@_; do { [] }; { 'block' => $self->{block}, } }
 ;
-package Use; sub new { shift; bless { @_ }, "Use" } sub mod { @_ == 1 ? ( $_[0]->{mod} ) : ( $_[0]->{mod} = $_[1] ) }; sub emit { my $self = shift; my $List__ = \@_; my $visitor; do {  $visitor = $List__->[0]; [$visitor] }; KindaPerl6::Traverse::visit($visitor, $self, 'Use') }; sub attribs { my $self = shift; my $List__ = \@_; do { [] }; { 'mod' => $self->{mod}, } }
+package Use; sub new { shift; bless { @_ }, "Use" } sub mod { @_ == 1 ? ( $_[0]->{mod} ) : ( $_[0]->{mod} = $_[1] ) }; sub perl5 { @_ == 1 ? ( $_[0]->{perl5} ) : ( $_[0]->{perl5} = $_[1] ) }; sub emit { my $self = shift; my $List__ = \@_; my $visitor; do {  $visitor = $List__->[0]; [$visitor] }; KindaPerl6::Traverse::visit($visitor, $self, 'Use') }; sub attribs { my $self = shift; my $List__ = \@_; do { [] }; { 'mod' => $self->{mod},'perl5' => $self->{perl5}, } }
 ;
 package Rule; sub new { shift; bless { @_ }, "Rule" } sub emit { my $self = shift; my $List__ = \@_; my $visitor; do {  $visitor = $List__->[0]; [$visitor] }; KindaPerl6::Traverse::visit($visitor, $self, 'Rule') }; sub attribs { my $self = shift; my $List__ = \@_; do { [] }; {  } }
 ;

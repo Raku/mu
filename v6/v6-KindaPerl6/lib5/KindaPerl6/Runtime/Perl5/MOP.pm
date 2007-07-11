@@ -268,6 +268,7 @@ $meta_Str->{_dispatch}( $meta_Str, 'add_method', 'str',            $::Method->{_
     sub { $_[0] } ) );
 $meta_Str->{_dispatch}( $meta_Str, 'add_method', 'true',           $::Method->{_dispatch}( $::Method, 'new',
     sub { $::Bit->{_dispatch}( $::Bit, 'new', ( $_[0]{_value} ne '' && $_[0]{_value} ne '0' ) ? 1 : 0 ) } ) );
+$meta_Str->{_dispatch}( $meta_Str, 'add_method', 'native', $::Method->{_dispatch}( $::Method, 'new',sub {$_[0]{_value}}));
 
 $::Class->{_dispatch}( $::Class, 'new',  'Int' );  
 my $meta_Int = $::Int->{_dispatch}( $::Int, 'HOW' );

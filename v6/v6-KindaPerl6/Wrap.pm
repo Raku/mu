@@ -5,7 +5,7 @@ use Exporter 'import';
 our @EXPORT=qw(use5);
 sub to5 {
     my $what = shift;
-    return $what->{_dispatch}($what,'native');
+    return $what->{_dispatch}($what,'p5landish');
 }
 sub use5 {
     my ($name,) = @_;

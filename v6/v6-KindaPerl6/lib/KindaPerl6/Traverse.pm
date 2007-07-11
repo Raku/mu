@@ -626,6 +626,7 @@ class BEGIN {
 
 class Use {
     has $.mod;
+    has $.perl5;
     method emit( $visitor ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
@@ -636,6 +637,7 @@ class Use {
     method attribs {
             { 
                 mod    => $.mod,
+                perl5  => $.perl5,
             }
     };
 }
