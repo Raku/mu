@@ -47,7 +47,9 @@ my $dispatch = sub {
 
         if ( $self->{_roles}{auto_deref} ) {
             # this object requires FETCH
-            $self = $self->{_dispatch_VAR}( $self, 'FETCH' );
+            my $value = $self->{_dispatch_VAR}( $self, 'FETCH' );
+            return $value->{_dispatch}($value,$method_name,@_);
+
         }
 
         if ( ! defined $self->{_value} ) {
