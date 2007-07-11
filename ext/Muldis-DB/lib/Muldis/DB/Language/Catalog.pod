@@ -57,7 +57,8 @@ and aren't re-described here):
 
                 # The following are all regular ordinal scalar types.
 
-                # TODO
+                sys.type.Cat.ShortName
+                sys.type.Cat.LongName
 
             # The following are all regular non-ordinal scalar types.
 
@@ -77,13 +78,41 @@ and aren't re-described here):
 
 I<This documentation is pending.>
 
-=head1 SYSTEM-DEFINED DATA TYPES AND ROUTINES
+=head1 SYSTEM-DEFINED CORE CATALOG SCALAR DATA TYPES
 
-=head2 Catalog Data Types
+This subset of the core scalar data types (see
+L<Muldis::DB::Language::Core>) are more special-purpose in nature and are
+intended for use in defining or working with the system catalog, which is
+mainly composed of nonscalar types built using these.
 
-These scalar data types are special-purpose in nature, as they are intended
-for use in defining or working with catalog types, and all catalog
-variables are system-defined.
+=over
+
+=item C<sys.type.Cat.ShortName>
+
+A C<Cat.ShortName> is a canonical name for some DBMS entities (others use
+C<Cat.LongName>), such as the declared names of attributes of scalar
+possreps or collection types, and for the declared names of routine
+parameters, and for the invocation names of the same.  It is the same as
+C<Text> in all ways but that it is specifically intended for use in naming
+DBMS entities rather than being normal data.
+
+=item C<sys.type.Cat.LongName>
+
+A C<Cat.LongName> is a canonical name for some DBMS entities (others use
+C<Cat.ShortName>), such as the invocation names of types, routines, and
+variables, and it is typically used for the declared names of the same.  A
+C<Cat.LongName> consists of a sequence (1..N) of C<Cat.ShortName>, the
+elements being ordered from greatest to least significance.  Its default
+value is a single element that is the default value of C<Cat.ShortName>,
+the empty string.
+
+=back
+
+=head1 SYSTEM-DEFINED CORE CATALOG NONSCALAR DATA TYPES
+
+These nonscalar data types, essentially all of the system-defined nonscalar
+types are special-purpose in nature and are intended for use in defining or
+working with the system catalog.
 
 I<This documentation is pending.>
 

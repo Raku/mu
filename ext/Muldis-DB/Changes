@@ -42,8 +42,9 @@
     it is the result type of any binary comparison operator that underlies
     the likes of less|greater-than or min|max or sorting operations.
 
-    * Muldis D now has the new scalar types "ShortName" and "LongName",
-    which replace the also removed "Cat.EntityName" and friends.
+    * Muldis D now has the new scalar types "Cat.ShortName" and
+    "Cat.LongName", which replace the also removed "Cat.EntityName" and its
+    (as yet unused) system-defined subtypes.
 
     * Split up Language.pod 7 ways, into itself and
     Language/(Core|Catalog|Grammar).pod and

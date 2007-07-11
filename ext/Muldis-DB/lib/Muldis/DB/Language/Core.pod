@@ -43,8 +43,6 @@ Extensions are in these other documents: L<Muldis::DB::Language::Ext::Num>,
 L<Muldis::DB::Language::Ext::Temporal>,
 L<Muldis::DB::Language::Ext::Spatial>.
 
-I<This documentation is pending.>
-
 =head1 TYPE SUMMARY
 
 Following are all the data types and data type factories described in this
@@ -74,8 +72,6 @@ relationships:
                     sys.type.NEBlob
                 sys.type.Text
                     sys.type.NEText
-                sys.type.ShortName
-                sys.type.LongName
 
         # The following are all nonscalar type factories.
 
@@ -102,11 +98,9 @@ Note that C<sys.type.Empty> is a proper subtype of all of the other types
 in this graph, but every other type has only one immediate supertype shown,
 and hence the graph of them is a simple hierarchy.
 
-I<This documentation is pending.>
+=head1 SYSTEM-DEFINED CORE MAXIMAL AND MINIMAL DATA TYPES
 
-=head1 SYSTEM-DEFINED MAXIMAL AND MINIMAL DATA TYPES
-
-These data types are special and are the only Muldis D types that are
+These core data types are special and are the only Muldis D types that are
 neither scalar nor nonscalar nor quasi-nonscalar types.  They are all
 system-defined and it is impossible for users to define more types of this
 nature.
@@ -131,10 +125,15 @@ cardinality of this type is zero.
 
 =back
 
+Note that there also exists a pseudo-type named C<sys.type.Any> which
+represents a generic context that isn't the same as a context that would be
+defined using C<sys.type.Universal>; an example is definitions of some
+polymorphic operators.
+
 =head1 SYSTEM-DEFINED CORE SCALAR DATA TYPES
 
-These scalar data types are the most fundamental Muldis D types.  Each one
-has zero possreps, and hence has no named components that can be
+These core scalar data types are the most fundamental Muldis D types.  Each
+one has zero possreps, and hence has no named components that can be
 referenced.  Concrete Muldis D provides a specific syntax per type to
 select a value of one of these types, which does not look like a routine
 invocation, but rather like a scalar literal in a typical programming
@@ -226,72 +225,63 @@ A C<NEText> (non-empty text) is a proper subtype of C<Text> where its
 length in characters must be more than zero; it can be any C<Text> except
 for the empty string.  Its default value is a single "space" character.
 
-=item C<sys.type.ShortName>
-
-A C<ShortName> is a canonical name for some DBMS entities (others use
-C<LongName>), such as the declared names of attributes of scalar possreps
-or collection types, and for the declared names of routine parameters, and
-for the invocation names of the same.  It is the same as C<Text> in all
-ways but that it is specifically intended for use in naming DBMS entities
-rather than being normal data.
-
-=item C<sys.type.LongName>
-
-A C<LongName> is a canonical name for some DBMS entities (others use
-C<ShortName>), such as the invocation names of types, routines, and
-variables, and it is typically used for the declared names of the same.  A
-C<LongName> consists of a sequence (1..N) of C<ShortName>, the elements
-being ordered from greatest to least significance.  Its default value is a
-single element that is the default value of C<ShortName>, the empty string.
-
 =back
 
+=head1 SYSTEM-DEFINED CORE NONSCALAR PARAMETERIZED DATA TYPES
 
+These are only called nonscalar data types in a loose sense, because by
+themselves they are incomplete type definitions.  Actual nonscalar data
+type definitions are derived from these by supplying the balance of the
+type definitions, such as what their attributes are and/or what their
+attribute types are.  Associated with these incomplete type definitions are
+a set of system-defined routines that can be applied to values of any
+actual nonscalar types derived from them; such are called I<generic
+nonscalar operators>.  In the Muldis D type system, these incomplete
+nonscalar types are defined as union types over all actual types derived
+from them, and are proper supertypes of said.
 
-=head2 Core Nonscalar Data Types
-
-These nonscalar data types, C<Tuple|Relation|Database|Set|Seq|Bag|Maybe>,
-permit transparent/user-visible compositions of multiple values into other
-conceptual values.  Unlike with scalar types in general, every
-system-defined selector for nonscalar values will result in values that are
-of proper subtypes of the 2 nonscalar root types (the first 2), and none
-whose most specific type is "just" one of those 2.  Moreover, every such
-most-specific type has explicit element types or attribute sets defined;
-there are no nonscalar values where the element types or attribute sets
-are undefined.  For all nonscalar types, their cardinality is mainly or
-wholly dependent on the data types they are composed of.
+Some actual nonscalar data types are system-defined, for use in defining
+the Muldis D system catalog / meta-model (see
+L<Muldis::DB::Language::Catalog> for more details), but all other actual
+nonscalar data types are user-defined.  Users can also define their own
+incomplete nonscalar data types that are tuple or relation types.
 
 =over
 
 =item C<sys.type.Tuple>
 
-A C<Tuple> is an unordered heterogeneous collection of 0..N named
-attributes (the count of attributes being its I<degree>), where all
-attribute names are mutually distinct, and each attribute may be of
-distinct selectable types; the mapping of a tuple's attribute names and
-their declared data types is called the tuple's I<heading>.  Its default
-value is a zero-attribute tuple.  The cardinality of this type is equal to
-the product of the number of permutations drawable from the values of each
-of its attributes' declared data types; for a C<Tuple> subtype to be
-finite, all of its attribute types must be.
+The C<Tuple> type is the maximal type of all Muldis D tuple (nonscalar)
+types, and contains every tuple value that could possibly exist.  A
+C<Tuple> is an unordered heterogeneous collection of 0..N named attributes
+(the count of attributes being its I<degree>), where all attribute names
+are mutually distinct, and each attribute may be of distinct types; the
+mapping of a tuple's attribute names and their declared data types is
+called the tuple's I<heading>.  Its default value is the sole value of the
+sole tuple data type that has zero attributes.  The cardinality of this
+type is equal to the product of the number of permutations drawable from
+the values of each of its attributes' declared data types; for a C<Tuple>
+subtype to be finite, all of its attribute types must be.
 
 =item C<sys.type.Database>
 
 A C<Database> is a proper subtype of C<Tuple> where all of its attributes
-are Relation-typed; it is otherwise the same.
+are of relation types; it is otherwise the same.
 
 =item C<sys.type.Relation>
 
-A C<Relation> is analogous to a set of 0..N tuples where all tuples have
-the same heading (the degrees match and all attribute names and
+The C<Relation> type is the maximal type of all Muldis D relation
+(nonscalar) types, and contains every relation value that could possibly
+exist.  A C<Relation> is analogous to a set of 0..N tuples where all tuples
+have the same heading (the degrees match and all attribute names and
 corresponding declared data types match), but that a C<Relation> data type
 still has its own corresponding heading (attribute names and declared data
-types) even when it consists of zero tuples.  Its default value is a
-zero-attribute and zero-tuple relation.  Matters of its cardinality are
-generally the same as for C<Tuple>.  A Relation data type can also have
-(unique) keys each defined over a subset of its attributes, which constrain
-its set of values relative to there being no explicit keys, but having the
-keys won't turn an infinite Relation type into a finite one.
+types) even when it consists of zero tuples.  Its default value is the
+zero-tuple value of the sole relation data type that has zero attributes.
+Matters of its cardinality are generally the same as for C<Tuple>.  A
+relation data type can also have (unique) keys each defined over a subset
+of its attributes, which constrain its set of values relative to there
+being no explicit keys, but having the keys won't turn an infinite relation
+type into a finite one.
 
 =item C<sys.type.Set>
 
@@ -337,12 +327,15 @@ tuples.
 
 =back
 
-=head2 Core Quasi-Nonscalar Data Types
+=head1 SYSTEM-DEFINED CORE QUASI-NONSCALAR PARAMETERIZED DATA TYPES
 
-These quasi-nonscalar data types correspond to their similarly-named
-(differing only by the C<Quasi>) nonscalar data types, and their use is
-intended to be limited to the few situations where the corresponding
-nonscalar data types can't be used.
+These quasi-nonscalar incomplete data type definitions correspond to their
+similarly-named (differing only by the C<Quasi>) nonscalar data types, and
+their use is intended to be limited to the few situations where the
+corresponding nonscalar data types can't be used.  It should be noted in
+particular that there is no "QuasiDatabase" type, since all normal data or
+catalog databases should be composed of normal relations only; but all of
+the other nonscalar incomplete types have counterparts here.
 
 =over
 
@@ -381,6 +374,293 @@ manner to C<Bag> being a proper subtype of C<Relation>.  Its cardinality is
 infinite.
 
 =back
+
+=head1 SYSTEM-DEFINED GENERIC UNIVERSAL FUNCTIONS
+
+These functions are applicable to values of any data type at all.
+
+=over
+
+=item C<sys.rtn.Any.equal (RO: Any $v1, Any $v2)>
+
+This function results in C<Bool.True> iff its 2 arguments are exactly the
+same value, and C<Bool.False> otherwise.  This function's arguments must be
+of compatible declared types; in this case, 2 declared types are compatible
+iff at least one of the following is true: 1. they are both subtypes of a
+common scalar root type; 2. they are both subtypes of a common
+non-incomplete tuple or relation type, that is they essentially have the
+same headings; 3. at least one type is a generic (eg-C<Universal>) or
+incomplete (eg-C<Seq>) type, and it is a supertype of the other.  This
+function is commutative.
+
+=item C<sys.rtn.Any.not_equal (RO: Any $v1, Any $v2)>
+
+This function is exactly the same as C<sys.rtn.equal> except that it
+results in the opposite boolean value when given the same arguments.
+
+=back
+
+=head1 SYSTEM-DEFINED GENERIC UNIVERSAL UPDATE OPERATORS
+
+These update operators are applicable to values of any data type at all.
+
+=over
+
+=item C<sys.rtn.Any.assign (UPD: Any $target ; RO: Any $v)>
+
+This update operator will update the variable supplied as its C<$target>
+argument so that it holds the value supplied as its C<$v> argument.  This
+update operator's arguments must be of compatible declared types; in this
+case, C<$v> must be a subtype of C<$target>.
+
+=back
+
+=head1 SYSTEM-DEFINED CORE SCALAR FUNCTIONS
+
+These functions are applicable to just one or more specific system-defined
+core scalar data type.
+
+=head2 Functions for sys.rtn.Bool
+
+These functions select values of the C<Bool> enumeration.
+
+=over
+
+=item C<sys.rtn.Bool.False of Bool ()>
+
+This selector function results in the C<Bool.False> value.
+
+=item C<sys.rtn.Bool.True of Bool ()>
+
+This selector function results in the C<Bool.True> value.
+
+=back
+
+These functions implement commonly used boolean operations.
+
+=over
+
+=item C<sys.rtn.Bool.not of Bool (RO: Bool $v)>
+
+This function results in the logical I<not> of its argument.
+
+=item C<sys.rtn.Bool.and of Bool (RO: Set{Bool} $v)>
+
+This function is a reduction operator that recursively takes each pair of
+its N input element values and does a logical I<and> (which is both
+commutative and associative) on them until just one is left, which is the
+function's result.  If C<$v> has zero values, then C<and> returns
+C<Bool.True>, which is the identity value for logical I<and>.
+
+=item C<sys.rtn.Bool.or of Bool (RO: Set{Bool} $v)>
+
+This function is a reduction operator that recursively takes each pair of
+its N input element values and does a logical inclusive-or (which is both
+commutative and associative) on them until just one is left, which is the
+function's result.  If C<$v> has zero values, then C<and> returns
+C<Bool.False>, which is the identity value for logical inclusive-or.
+
+=item C<sys.rtn.Bool.xor (RO: Bool $v1, Bool $v2)>
+
+This function results in the logical exclusive-or of its 2 arguments.  This
+function is commutative.
+
+=back
+
+=head2 Functions for sys.rtn.Order
+
+These functions select values of the C<Order> enumeration.
+
+=over
+
+=item C<sys.rtn.Order.Increase of Order ()>
+
+This selector function results in the C<Order.Increase> value.
+
+=item C<sys.rtn.Order.Same of Order ()>
+
+This selector function results in the C<Order.Same> value.
+
+=item C<sys.rtn.Order.Decrease of Order ()>
+
+This selector function results in the C<Order.Decrease> value.
+
+=back
+
+=head2 Functions for sys.rtn.Int
+
+These functions implement commonly used integer operations.
+
+=over
+
+=item C<sys.rtn.Int.sum of Int (RO: Bag{Int} $addends)>
+
+This function results in the sum of the N element values of its argument;
+it is a reduction operator that recursively takes each pair of input values
+and adds (which is both commutative and associative) them together until
+just one is left, which is the result.  If C<$addends> has zero values,
+then C<sum> returns the integer zero, which is the identity value for
+addition.
+
+=item C<sys.rtn.Int.difference of Int (RO: Int $minuend, Int $subtrahend)>
+
+This function results in the difference when its C<$subtrahend> argument is
+subtracted from its C<$minuend> argument.
+
+=item C<sys.rtn.Int.product of Int (RO: Bag{Int} $factors)>
+
+This function results in the product of the N element values of its
+argument; it is a reduction operator that recursively takes each pair of
+input values and multiplies (which is both commutative and associative)
+them together until just one is left, which is the result.  If C<$factors>
+has zero values, then C<product> returns the integer 1, which is the
+identity value for multiplication.
+
+=item C<sys.rtn.Int.quotient of Int (RO: Int $dividend, Int $divisor)>
+
+This function results in the quotient when its C<$dividend> argument is
+divided by its C<$divisor> argument using integer division.  This function
+throws an exception if C<$divisor> is zero.
+
+=item C<sys.rtn.Int.remainder of Int (RO: Int $dividend, Int $divisor)>
+
+This function results in the remainder when its C<$dividend> argument is
+divided by its C<$divisor> argument using integer division.  This function
+throws an exception if C<$divisor> is zero.
+
+=item C<sys.rtn.Int.abs of Int (RO: Int $v)>
+
+This function results in the absolute value of its argument.
+
+=item C<sys.rtn.Int.power of Int (RO: Int $radix, PInt $exponent)>
+
+This function results in its C<$radix> argument taken to the power of its
+(positive integer) C<$exponent> argument.
+
+=back
+
+These functions convert between C<Int> values and canonically formatted
+representations of integers as character strings.
+
+=over
+
+=item C<sys.rtn.Int.Int_from_Text.2 of Int (RO: Text $text)>
+
+This selector function results in the C<Int> value that its argument maps
+to when the whole character string is evaluated as a base-2 integer.
+
+=item C<sys.rtn.Int.Text_from_Int.2 of Text (RO: Int $int)>
+
+This selector function results in the C<Text> value where its argument is
+formatted as a base-2 integer.
+
+=item C<sys.rtn.Int.Int_from_Text.8 of Int (RO: Text $text)>
+
+Same as C<Int.Int_from_Text.2> but for base-8.
+
+=item C<sys.rtn.Int.Text_from_Int.8 of Text (RO: Int $int)>
+
+Same as C<Int.Text_from_Int.2> but for base-8.
+
+=item C<sys.rtn.Int.Int_from_Text.10 of Int (RO: Text $text)>
+
+Same as C<Int.Int_from_Text.2> but for base-10.
+
+=item C<sys.rtn.Int.Text_from_Int.10 of Text (RO: Int $int)>
+
+Same as C<Int.Text_from_Int.2> but for base-10.
+
+=item C<sys.rtn.Int.Int_from_Text.16 of Int (RO: Text $text)>
+
+Same as C<Int.Int_from_Text.2> but for base-16.
+
+=item C<sys.rtn.Int.Text_from_Int.16 of Text (RO: Int $int)>
+
+Same as C<Int.Text_from_Int.2> but for base-16.
+
+=back
+
+=head2 Functions for sys.rtn.Blob
+
+These functions implement commonly used binary string operations.
+
+=over
+
+=back
+
+These functions convert between C<Blob> values and canonically formatted
+representations of binary strings as character strings.
+
+=over
+
+=item C<sys.rtn.Blob.Blob_from_Text.2 of Blob (RO: Text $text)>
+
+This selector function results in the C<Blob> value that its argument maps
+to when each input character is a [0-1] and represents a bit.
+
+=item C<sys.rtn.Blob.Text_from_Blob.2 of Text (RO: Blob $blob)>
+
+This selector function results in the C<Text> value where its argument is
+encoded using a [0-1] character for each bit.
+
+=item C<sys.rtn.Blob.Blob_from_Text.16 of Blob (RO: Text $text)>
+
+This selector function results in the C<Blob> value that its argument maps
+to when each input character is a [0-9A-Fa-f] and represents a hex digit.
+
+=item C<sys.rtn.Blob.Text_from_Blob.16uc of Text (RO: Blob $blob)>
+
+This selector function results in the C<Text> value where its argument is
+encoded using a [0-9A-F] character for each bit.
+
+=item C<sys.rtn.Blob.Text_from_Blob.16lc of Text (RO: Blob $blob)>
+
+This selector function results in the C<Text> value where its argument is
+encoded using a [0-9a-f] character for each bit.
+
+=back
+
+=head2 Functions for sys.rtn.Text
+
+These functions implement commonly used character string operations.
+
+=over
+
+=back
+
+=head1 SYSTEM-DEFINED CORE SCALAR UPDATE OPERATORS
+
+These update operators are applicable to just one or more specific
+system-defined core scalar data type.
+
+I<This documentation is pending.>
+
+=head1 SYSTEM-DEFINED CORE SCALAR SYSTEM SERVICES
+
+These system services are applicable to just one or more specific
+system-defined core scalar data type.
+
+I<This documentation is pending.>
+
+=head1 SYSTEM-DEFINED CORE GENERIC NONSCALAR FUNCTIONS
+
+These functions are applicable to mainly nonscalar types, but are generic
+in that they typically work with any nonscalar types.
+
+I<This documentation is pending.>
+
+=head1 SYSTEM-DEFINED CORE GENERIC NONSCALAR UPDATE OPERATORS
+
+These update operators are applicable to mainly nonscalar types, but are
+generic in that they typically work with any nonscalar types.
+
+=head1 SYSTEM-DEFINED CORE GENERIC QUASI-NONSCALAR FUNCTIONS
+
+I<This documentation is pending.>
+
+=head1 SYSTEM-DEFINED CORE GENERIC QUASI-NONSCALAR UPDATE OPERATORS
+
+I<This documentation is pending.>
 
 =head1 SEE ALSO
 
