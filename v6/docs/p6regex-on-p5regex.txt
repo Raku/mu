@@ -62,6 +62,11 @@ This can be fixed with some magic in the Match class.
 ------------------
 TODO list:
 
+* the way inheritance works right now is by eval'ing the regex variable in the grammar's namespace; 
+this is supposed to be refined later
+
+* regexes inside code blocks may have side-effects inside a regex; this needs further testing
+
 * longest-token and multi-regex
 
 * the Match class needs some tweaks to follow the MOP calling convention better
