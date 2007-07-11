@@ -279,6 +279,7 @@ $meta_Int->{_dispatch}( $meta_Int, 'add_method', 'str',            $::Method->{_
     sub { my $v = $::Str->{_dispatch}( $::Str, 'new', $_[0]{_value} ) } ) );
 $meta_Int->{_dispatch}( $meta_Int, 'add_method', 'true',           $::Method->{_dispatch}( $::Method, 'new',
     sub { $::Bit->{_dispatch}( $::Bit, 'new', $_[0]{_value} == 0 ? 0 : 1 ) } ) );
+$meta_Int->{_dispatch}( $meta_Int, 'add_method', 'p5landish', $::Method->{_dispatch}( $::Method, 'new',sub {$_[0]{_value}}));
 
 
 #--- finish Object
