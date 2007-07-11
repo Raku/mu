@@ -1,0 +1,10 @@
+# comments are ignored
+
+key:  foo
+name: bar
+ex:   something \
+      continued on the next line
+
+key:  blubb
+ex:   something
+      with two lines, containing a newline

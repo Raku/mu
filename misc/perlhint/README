@@ -5,6 +5,10 @@ For a more detailed discussion of the project goals, please read
 http://www.nntp.perl.org/group/perl.perl6.users/2007/07/msg621.html and the
 follow-ups.
 
+To get an idea for how the output might look like, execute 
+./perlhint5.pl + 
+(maybe you want to pipe the output through a pager like `less').
+
 A good project name is still missing, if you have a good suggestion, please
 let me know.
 

@@ -2,6 +2,8 @@ package Perlhint::Parse;
 
 use Carp;
 use Storable qw(dclone);
+use strict; 
+use warnings;
 
 sub new {
     my ($class, $conf_ref) = @_;
@@ -17,7 +19,7 @@ sub new {
 sub _parse {
     my $self = $_[0];
     my $fn = $self->{filename};
-    open (my $fh, '<', $fn) or die "Can't open file '$fn' for reading: $!";
+    open (my $fh, '<:utf8', $fn) or die "Can't open file '$fn' for reading: $!";
     my @records;
     my $previous_key = qq{};
     my %current_record;
@@ -65,11 +67,18 @@ sub _parse {
                         chomp $current_record{$_};
                     }
                     push @records, dclone(\%current_record);
+                    %current_record = ();
                 }
             }
             $current_record{$key} = $value;
             $previous_key = $key;
         }
+    }
+    if (%current_record){
+        for (keys %current_record){
+            chomp $current_record{$_};
+        }
+        push @records, \%current_record;
     }
     close $fh;
 
