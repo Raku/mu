@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 13 Sep 2004
-  Last Modified: 2 Jun 2007
+  Last Modified: 10 Jul 2007
   Number: 9
-  Version: 21
+  Version: 22
 
 =head1 Overview
 
@@ -548,6 +548,21 @@ of index is explicitly requested:
     @arr{1,3,5}:p[]       # 0=>'one', 1=>'two', 2=>'three'
     @arr{1,3,5}:p{}       # 1=>'one', 3=>'two', 5=>'three' 
 
+The C<.keys> method also returns the keys of all existing elements.
+For a multidimensional array each key is a list containing one value for
+each dimension.
+
+The C<.shape> method also works on such an array; it returns a
+slice of the valid keys for each dimension.  The component list
+representing an infinite dimension is necessarily represented lazily.
+(Note that the C<.shape> method returns the possible keys, but the
+cartesian product of the key slice dimensions is not guaranteed to
+index existing elements in every case.  That is, this is not intended
+to reflect current combinations of keys in use (use C<:k> for that).
+Note that you have to distingish these two forms:
+
+    @array[].shape      # the integer indices
+    @array{}.shape      # the user-defined indices
 
 =head1 Inclusive subscripts
 
