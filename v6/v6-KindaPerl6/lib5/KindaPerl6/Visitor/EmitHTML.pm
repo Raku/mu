@@ -3,7 +3,7 @@ use v5;
 use strict;
 use MiniPerl6::Perl5::Runtime;
 use MiniPerl6::Perl5::Match;
-package KindaPerl6::Visitor::EmitHTML; sub new { shift; bless { @_ }, "KindaPerl6::Visitor::EmitHTML" } sub visit { my $self = shift; my $List__ = \@_; my $node; do {  $node = $List__->[0]; [$node] }; $node->emit_html() }; sub css { my $self = shift; my $List__ = \@_; do { [] }; my  $nl = Main::newline(); return(('<style type="text/css">' . ($nl . ('.keyword { text-weight: bold; color: red; }' . ($nl . ('.builtin { color: red; }' . ($nl . ('.buffer { color: blue; }' . ($nl . ('.comp_unit { color: #555500; }' . $nl)))))))))) }
+package KindaPerl6::Visitor::EmitHTML; sub new { shift; bless { @_ }, "KindaPerl6::Visitor::EmitHTML" } sub visit { my $self = shift; my $List__ = \@_; my $node; do {  $node = $List__->[0]; [$node] }; (html_header() . ($node->emit_html() . '</body></html>')) }; sub css { my $self = shift; my $List__ = \@_; do { [] }; my  $nl = Main::newline(); return(('<style type="text/css">' . ($nl . ('.keyword { text-weight: bold; color: red; }' . ($nl . ('.builtin { color: red; }' . ($nl . ('.buffer { color: blue; }' . ($nl . ('.comp_unit { color: #555500; }' . ($nl . ('</style>' . $nl)))))))))))) }; sub html_header { my $self = shift; my $List__ = \@_; do { [] }; my  $nl = Main::newline(); return(('<html>' . ($nl . ('<head>' . ($nl . ('<title>Auto-Generated P6 Code</title>' . ($nl . (css() . ('</head>' . ($nl . ('<body>' . $nl))))))))))) }
 ;
 package CompUnit; sub new { shift; bless { @_ }, "CompUnit" } sub emit_html { my $self = shift; my $List__ = \@_; do { [] }; ('{ <span class="keyword">module</span> ' . ($self->{name} . (';<br />' . (Main::newline() . ($self->{body}->emit_html() . ' }</span><br />'))))) }
 ;

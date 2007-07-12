@@ -6,7 +6,7 @@ class KindaPerl6::Visitor::EmitHTML {
     # This visitor is a perl6 emitter
     
     method visit ( $node ) {
-        $node.emit_html;
+        html_header() ~ $node.emit_html ~ '</body></html>';
     };
 
     method css {
@@ -15,8 +15,20 @@ class KindaPerl6::Visitor::EmitHTML {
             ~ '.keyword { text-weight: bold; color: red; }' ~ $nl
             ~ '.builtin { color: red; }' ~ $nl
             ~ '.buffer { color: blue; }'~ $nl
-            ~ '.comp_unit { color: #555500; }' ~ $nl;
+            ~ '.comp_unit { color: #555500; }' ~ $nl
+            ~ '</style>' ~ $nl;
     };
+
+    method html_header {
+        my $nl := Main::newline();
+        return '<html>' ~ $nl
+            ~ '<head>' ~ $nl
+            ~ '<title>Auto-Generated P6 Code</title>' ~ $nl
+            ~ css()
+            ~ '</head>' ~ $nl
+            ~ '<body>' ~ $nl;
+    }
+
 
 }
 
