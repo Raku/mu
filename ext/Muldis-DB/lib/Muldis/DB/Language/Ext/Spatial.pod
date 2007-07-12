@@ -56,11 +56,9 @@ and aren't re-described here):
 
 I<This documentation is pending.>
 
-=head1 SYSTEM-DEFINED DATA TYPES AND ROUTINES
+=head1 SYSTEM-DEFINED SPATIAL SCALAR DATA TYPES
 
-=head2 Spatial Data Types
-
-These non-fundamental scalar data types describe common kinds of spatial or
+These non-core scalar data types describe common kinds of spatial or
 geometric figures.  I<Of course, dealing with these types in general isn't
 a perfect science; they stand to be revised or rewritten.>
 

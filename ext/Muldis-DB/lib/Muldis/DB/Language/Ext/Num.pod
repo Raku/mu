@@ -62,13 +62,11 @@ and aren't re-described here):
 
 I<This documentation is pending.>
 
-=head1 SYSTEM-DEFINED DATA TYPES AND ROUTINES
+=head1 SYSTEM-DEFINED NUMERIC SCALAR DATA TYPES
 
-=head2 Numeric Data Types
-
-These non-fundamental scalar data types describe common kinds of numbers
-that are not specifically limited to having integer values.  While integers
-are part of the Muldis D core, other kinds of numbers are not, for various
+These non-core scalar data types describe common kinds of numbers that are
+not specifically limited to having integer values.  While integers are part
+of the Muldis D core, other kinds of simple numbers are not, for various
 reasons, and are represented under this "Numeric" type group instead.  As
 is usual with the Muldis::DB type system, the types mentioned below are all
 mutually exclusive aside from explicit subtype relationships.  I<Of course,

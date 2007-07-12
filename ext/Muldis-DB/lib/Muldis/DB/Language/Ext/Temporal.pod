@@ -64,11 +64,9 @@ and aren't re-described here):
 
 I<This documentation is pending.>
 
-=head1 SYSTEM-DEFINED DATA TYPES AND ROUTINES
+=head1 SYSTEM-DEFINED TEMPORAL SCALAR DATA TYPES
 
-=head2 Temporal Data Types
-
-These non-fundamental scalar data types describe common kinds of temporal
+These non-core scalar data types describe common kinds of temporal
 artifacts according to modern calendars.  They come in a variety of
 precisions and epochs so that users can pick one that most accurately
 represents what they actually know about their data.  I<Of course, dealing
