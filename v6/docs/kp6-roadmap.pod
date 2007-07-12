@@ -300,7 +300,7 @@ The kp6-MO-on-mp6 engine (still mostly unwritten) will still be supported, for b
 =head2 Milestone 4.1 - Add support for multis
 
 
-The Sub and Method classes will be refactored from ...
+The Sub and Method classes will be able to do multi-dispatch.
 
 =head3 Status
 
@@ -310,8 +310,51 @@ under planning.
 
 =over
 
-=item * this requires a working type system; finishing the Code, Signature, Capture classes and also Array and Hash, which are barely started
+=item * The specification for multi dispatching; see S12:905.
+
+=item * A working type system; finishing the Code, Signature, Capture classes and also Array and Hash
     
+=item * There is sample code for "Code" in lib/KindaPerl6/Runtime/Perl5/Code.pm
+
+=item * Grammar and AST support for signatures and captures
+
+=back
+
+=head3 Tasks
+
+=over
+
+=item * Signature and Capture
+
+=item * dispatching algorithm 
+
+=item * Method and Sub refactoring
+
+=item * ...
+
+=back
+
+
+=head3 Test Plan
+
+The resulting code will be tested by running the existing test suite and implementation-specific tests.
+
+
+
+=head2 Milestone 4.2 - Add support for ...
+
+
+The ... will be able to do ...
+
+=head3 Status
+
+under planning.
+
+=head3 Dependencies
+
+=over
+
+=item * ...
 
 =back
 
@@ -326,7 +369,7 @@ under planning.
 
 =head3 Test Plan
 
-The resulting code will be tested by running the existing test suite.
+The resulting code will be tested by running the existing test suite and implementation-specific tests.
 
 
 
@@ -338,9 +381,11 @@ These tasks are not required for the successful completion of this phase.
 
 =over
 
-=item * Add support for ... 
+=item * dispatcher cache/memoization
 
-* Status: ...
+=item * Junction dispatching
+
+* Status: not started
 
 =back
 
