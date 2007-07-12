@@ -7,7 +7,11 @@ kp6-roadmap - The "KindaPerl6" Project Roadmap
 
 This document describes the current status of the "KindaPerl6" development project.
 
+The document "POD" source can be found at:
+L<http://svn.pugscode.org/pugs/v6/docs/kp6-roadmap.pod>
 
+The html version is at:
+L<http://moritz.faui2k3.org/pugs/v6/docs/kp6-roadmap.pod.html>
 
 =head1 OBJECTIVE
 
