@@ -9,21 +9,31 @@ class KindaPerl6::Visitor::EmitHTML {
         $node.emit_html;
     };
 
+    method css {
+        my $nl := Main::newline();
+        return '<style type="text/css">' ~ $nl
+            ~ '.keyword { text-weight: bold; color: red; }' ~ $nl
+            ~ '.builtin { color: red; }' ~ $nl
+            ~ '.buffer { color: blue; }'~ $nl
+            ~ '.comp_unit { color: #555500; }' ~ $nl;
+    };
+
 }
 
 class CompUnit {
     method emit_html {
-          '<font color=blue>{ module ' ~ $.name ~ "; " 
+          '{ <span class="keyword">module</span> ' ~ $.name ~ ';<br />' 
+        ~ Main::newline()
         ~ $.body.emit_html
-        ~ ' }</font><br>';
+        ~ ' }</span><br />';
     }
 }
 
 class Val::Int {
     method emit_html { 
-        '<font color=red>' 
+        '<span class="integer">' 
         ~ $.int 
-        ~ '</font>'
+        ~ '</span>'
     }
 }
 
@@ -41,15 +51,15 @@ class Val::Num {
 
 class Val::Buf {
     method emit_html { 
-        '<font color=green>' 
+        '<span class="buffer">' 
         ~ '\'' ~ $.buf ~ '\'' 
-        ~ '</font>'
+        ~ '</span>'
     }
 }
 
 class Val::Undef {
     method emit_html { 
-        '(undef)' 
+        '<span class="keyword">undef</span>'
         #'GLOBAL::undef()'
     }
 }
@@ -83,7 +93,9 @@ class Lit::Hash {
         my $fields := @.hash;
         my $str := '';
         for @$fields -> $field { 
-            $str := $str ~ ($field[0]).emit_html ~ ' => ' ~ ($field[1]).emit_html ~ ',';
+            $str := $str ~ ($field[0]).emit_html 
+                ~ ' <span class="operator>=&gt;</span> ' 
+                ~ ($field[1]).emit_html ~ ',';
         }; 
         '{ ' ~ $str ~ ' }';
     }
@@ -139,7 +151,7 @@ class Lookup {
 class Assign {
     method emit_html {
         # TODO - same as ::Bind
-        $.parameters.emit_html ~ ' = ' ~ $.arguments.emit_html ~ '';
+        $.parameters.emit_html ~ ' <span class="op">=</span> ' ~ $.arguments.emit_html ~ '';
     }
 }
 
@@ -171,7 +183,7 @@ class Var {
 
 class Bind {
     method emit_html {
-        $.parameters.emit_html ~ ' := ' ~ $.arguments.emit_html ~ '';
+        $.parameters.emit_html ~ ' <span class="operator>:=</span> ' ~ $.arguments.emit_html ~ '';
     }
 }
 
@@ -207,7 +219,7 @@ class Call {
         { 
             if ($.hyper) {
                 return 
-                    '[ map { Main::' ~ $.method ~ '( $_, ' ~ ', ' ~ (@.arguments.>>emit_html).join(', ') ~ ')' ~ ' } @{ ' ~ $invocant ~ ' } ]';
+                    '[ <span class="keyword">map</span> { Main::' ~ $.method ~ '( $_, ' ~ ', ' ~ (@.arguments.>>emit_html).join(', ') ~ ')' ~ ' } @{ ' ~ $invocant ~ ' } ]';
             }
             else {
                 return
@@ -223,7 +235,7 @@ class Call {
         my $call := (@.arguments.>>emit_html).join(', ');
         if ($.hyper) {
             # TODO - hyper + role
-            '[ map { $_' ~ '->' ~ $meth ~ '(' ~ $call ~ ') } @{ ' ~ $invocant ~ ' } ]';
+            '[ <span class="map">map</span> { $_' ~ '->' ~ $meth ~ '(' ~ $call ~ ') } @{ ' ~ $invocant ~ ' } ]';
         }
         else {
                '('  ~ $invocant ~ '->FETCH->{_role_methods}{' ~ $meth ~ '}'
@@ -245,13 +257,16 @@ class Apply {
 class Return {
     method emit_html {
         return
-        'return(' ~ $.result.emit_html ~ ')';
+            '<span class="keyword">return (' 
+            ~ $.result.emit_html 
+            ~ ")<br />"
+            ~ Main::newline() ;
     }
 }
 
 class If {
     method emit_html {
-        'do { if ( ${' ~ $.cond.emit_html ~ '->FETCH} ) { ' ~ $.body.emit_html ~ ' } '
+        '<span class="keyword">do</span> { <span class="keyword">if</span> ( ${' ~ $.cond.emit_html ~ '->FETCH} ) { ' ~ $.body.emit_html ~ ' } '
         ~ ( $.otherwise 
             ?? ' else { ' ~ $.otherwise.emit_html ~ ' }' 
             !! '' 
@@ -268,7 +283,8 @@ class For {
         {
             $cond := ::Apply( code => 'prefix:<@>', arguments => [ $cond ] );
         };
-        'do { for my ' ~ $.topic.emit_html ~ ' ( ' ~ $cond.emit_html ~ ' ) { ' ~ $.body.emit_html ~ ' } }';
+        '<span class="keyword">do</span> { <span class="keyword">for my</span> ' 
+            ~ $.topic.emit_html ~ ' ( ' ~ $cond.emit_html ~ ' ) { ' ~ $.body.emit_html ~ ' } }';
     }
 }
 
@@ -307,11 +323,13 @@ class Method {
         );
         $str := $str ~ $bind.emit_html ~ '; ';
 
-        'sub ' ~ $.name ~ ' { ' ~ 
-          'my ' ~ $invocant.emit_html ~ ' = shift; ' ~
-          $str ~
-          $.block.emit_html ~ 
-        ' }'
+        '<span class="keyword">sub</span> ' ~ $.name ~ ' { ' 
+            ~ '<span class="keyword">my</span> ' 
+            ~ $invocant.emit_html ~ ' = <span class="builtin">shift</span>; ' 
+            ~ '<br />' ~ Main::newline() 
+            ~ $str 
+            ~ $.block.emit_html 
+            ~ ' }'
     }
 }
 
@@ -351,9 +369,9 @@ class Sub {
 
 class Do {
     method emit_html {
-        'do { ' ~ 
-          $.block.emit_html ~ 
-        ' }'
+        '<span class="keyword">do</span> { <br />' ~ Main::newline() 
+          ~ $.block.emit_html
+          ~  "}<br />" ~ Main::newline();
     }
 }
 

@@ -170,56 +170,6 @@ token rule_terms {
 
 };
 
-=for later
-    |   ':::' { return { 'colon' => ':::' ,} }
-    |   ':?' { return { 'colon' => ':?' ,} }
-    |   ':+' { return { 'colon' => ':+' ,} }
-    |   '::' { return { 'colon' => '::' ,} }
-    |   ':' { return { 'colon' => ':'  ,} }
-    |   '$$' { return { 'colon' => '$$' ,} }
-    |   '$' { return { 'colon' => '$'  ,} }
-
-
-# TODO - parser error ???
-#    |   '^^' { return { 'colon' => '^^' ,} }
-#    |   '^' { return { 'colon' => '^'  ,} } }
-#    |   '»' { return { 'colon' => '>>' ,} } }
-#    |   '«' { return { 'colon' => '<<' ,} } }
-
-    |   '<<' { return { 'colon' => '<<' ,} }     
-    |   '>>' { return { 'colon' => '>>' ,} }     
-    |   ':i' 
-        <?ws> <rule> 
-        { return { 'modifier' => 'ignorecase', 'rule' => $$<rule>, } }     
-    |   ':ignorecase' 
-        <?ws> <rule> 
-        { return { 'modifier' => 'ignorecase', 'rule' => $$<rule>, } }     
-    |   ':s' 
-        <?ws> <rule> 
-        { return { 'modifier' => 'sigspace',   'rule' => $$<rule>, } }     
-    |   ':sigspace' 
-        <?ws> <rule> 
-        { return { 'modifier' => 'sigspace',   'rule' => $$<rule>, } }     
-    |   ':P5' 
-        <?ws> <rule> 
-        { return { 'modifier' => 'Perl5',  'rule' => $$<rule>, } }     
-    |   ':Perl5' 
-        <?ws> <rule> 
-        { return { 'modifier' => 'Perl5',  'rule' => $$<rule>, } }     
-    |   ':bytes' 
-        <?ws> <rule> 
-        { return { 'modifier' => 'bytes',  'rule' => $$<rule>, } }     
-    |   ':codes' 
-        <?ws> <rule> 
-        { return { 'modifier' => 'codes',  'rule' => $$<rule>, } }     
-    |   ':graphs' 
-        <?ws> <rule> 
-        { return { 'modifier' => 'graphs', 'rule' => $$<rule>, } }     
-    |   ':langs' 
-        <?ws> <rule> 
-        { return { 'modifier' => 'langs',  'rule' => $$<rule>, } } }
-};
-=cut
 
 token term {
     |  
