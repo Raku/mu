@@ -62,21 +62,25 @@ This can be fixed with some magic in the Match class.
 ------------------
 TODO list:
 
-* the way inheritance works right now is by eval'ing the regex variable in the grammar's namespace; 
-this is supposed to be refined later
+* longest-token and multi-regex
+
+* identify possible perl5.8 bugs, that could justify requiring perl5.10
 
 * regexes inside code blocks may have side-effects inside a regex; this needs further testing
-
-* longest-token and multi-regex
 
 * the Match class needs some tweaks to follow the MOP calling convention better
 ** hash, array, from, to should be Perl 6 objects; autoboxing can fix that
 
 * backtracking controls; token/rule/regex
 
-* in order to support Matcher methods, the $_ and $/ scopes need to be fixed (implement OUTER::<...>)
+* the $_ and $/ scopes need to be fixed 
+
+* in order to support Matcher methods, OUTER::<$/> needs to be implemented
 
 * rule/subrule parameters; 
+
+* the way inheritance works right now is by eval'ing the regex variable in the grammar's namespace; 
+this is supposed to be refined later
 
 * calling subrules in other grammars
 ** there should probably be a method that returns the regex, because directly accessing the $_regex_name variable doesn't work with inheritance.

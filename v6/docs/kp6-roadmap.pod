@@ -277,3 +277,66 @@ Create C<COMPILING::<$?PARSER>>, C<$?FILE>, C<$?LINE>
 =item * Lexically modifieable Grammar
 
 =back
+
+
+
+
+
+
+=head1 Phase 4 - improved runtime
+
+
+The goal for this phase is to specify and implement the runtime libraries needed by the Perl-6.0.0-STD parser.
+
+As a side effect, kp6 will also be able to use native OO models, if available.
+For example, PGE in the Parrot backend, and Moose in the Perl 5 backend, and native-perl5 in the MiniPerl6-on-Perl5 backend.
+The kp6-MO-on-mp6 engine (still mostly unwritten) will still be supported, for benefit of other backends.
+
+
+=head2 Milestone 4.1 - Add support for multis
+
+
+The Sub and Method classes will be refactored from ...
+
+=head3 Status
+
+under planning.
+
+=head3 Dependencies
+
+=over
+
+=item * this requires a working type system; finishing the Code, Signature, Capture classes and also Array and Hash, which are barely started
+    
+
+=back
+
+=head3 Tasks
+
+=over
+
+=item * ...
+
+=back
+
+
+=head3 Test Plan
+
+The resulting code will be tested by running the existing test suite.
+
+
+
+=head2 Bonus Tasks  
+
+These tasks are not required for the successful completion of this phase.
+
+=head3 Tasks
+
+=over
+
+=item * Add support for ... 
+
+* Status: ...
+
+=back
+
