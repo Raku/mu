@@ -177,8 +177,11 @@ package GLOBAL;
     { $::Bit->{_dispatch}( $::Bit, 'new', _str($_[0]) ne _str($_[1])) }  # infix:<ne>
     sub infix_58__60__61__61__62_   
     { TODO() }   # { bless [ $_[0]->FETCH->[0] == $_[1]->FETCH->[0] ], 'Type_Constant_Bit' }  # infix:<==>
-    sub infix_58__60__33__61__62_   
-    { TODO() }   #{ bless [ $_[0]->FETCH->[0] != $_[1]->FETCH->[0] ], 'Type_Constant_Bit' }  # infix:<!=>
+
+    sub infix_58__60__33__61__62_ {  # infix:<!=>
+        $::Bit->new(_int($_[0]) != _int($_[1]));
+    }
+
     sub infix_58__60__126__62_      
     { $::Str->{_dispatch}( $::Str, 'new', _str( $_[0] ) . _str( $_[1] ) ) }  # infix:<~>
     sub infix_58__60__43__62_       
