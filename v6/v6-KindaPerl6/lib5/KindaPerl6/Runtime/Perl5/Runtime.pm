@@ -85,7 +85,7 @@ package GLOBAL;
 
     #require Exporter;
     use Data::Dumper;
-    use Carp 'croak';
+    use Carp 'confess';
     #@ISA = qw(Exporter);
     our @EXPORT = qw( 
         print 
@@ -160,7 +160,7 @@ package GLOBAL;
     sub say   { GLOBAL::print( @_, "\n" );return True;}
     sub sleep { CORE::sleep(_int($_[0]));return True;}
     sub False    { $::Bit->{_dispatch}( $::Bit, 'new',0 ) }  
-    sub TODO {croak "TODO";}
+    sub TODO {confess("TODO");}
 
     # TODO - macro
     sub ternary_58__60__63__63__32__33__33__62_ { $_[0]->{_dispatch}( $_[0], 'true' )->{_value} ? $_[1] : $_[2] }

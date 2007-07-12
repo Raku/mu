@@ -4,6 +4,8 @@ use v5;
 # my $meth = $::Method->{_dispatch}( $::Method, 'new', sub { 'hi' } );
 # my $obj =  $::Object->{_dispatch}( $::Object, 'new', $candidate );
 
+package KindaPerl6::Runtime::Perl5::MOP;
+use KindaPerl6::Runtime::Perl5::DispatchSugar;
 use Data::Dumper;
 
 {
@@ -39,7 +41,7 @@ my $dispatch = sub {
         my ($self, $method_name) = (shift, shift);
         #print "lookup $method_name in $self\n";
 
-        unless ( ref($self) eq 'HASH' ) {
+        unless ( ref($self) eq 'HASH' or ref($self) eq 'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch') {
             warn "internal error: wrong object format";
             print Dumper($self);
             return $::Str->{_dispatch}( $::Str, 'new', 'Error' );
@@ -128,7 +130,7 @@ my $meta_Method = {
         class_name => 'Method',
     },
 };
-$::Method = {
+$::Method = sugar {
     %::PROTO,
     # _name     => '$::Method',
     _isa      => [ $meta_Method ],
@@ -158,7 +160,7 @@ $meta_Method->{_value}{methods}{HOW}    = $::Method->{_dispatch}( $::Method, 'ne
 
 #--- Class
 
-my $meta_Class = {
+my $meta_Class = sugar {
     %::PROTO,
     # _name     => '$meta_Class',
     _value    => {
@@ -200,7 +202,7 @@ $meta_Class->{_dispatch}( $meta_Class, 'add_method', 'new',  $::Method->{_dispat
         my $self;
         my $class_prototype;
 
-        $self_meta = {
+        $self_meta = sugar {
             %::PROTO,
             # _name     => '$self_meta',
             _value    => {
@@ -209,7 +211,7 @@ $meta_Class->{_dispatch}( $meta_Class, 'add_method', 'new',  $::Method->{_dispat
             },
             _isa      => [ $meta_Class ],
         };
-        $self = {
+        $self = sugar {
             %::PROTO,
             # _name     => '$self',
             _isa      => [ $self_meta ],
@@ -230,7 +232,7 @@ $meta_Class->{_dispatch}( $meta_Class, 'add_method', 'new',  $::Method->{_dispat
             if $class_name;
         $class_prototype;  # return the prototype
     } ) );
-$::Class = {
+$::Class = sugar {
     %::PROTO,
     # _name     => '$::Class',
     _isa      => [ $meta_Class ],

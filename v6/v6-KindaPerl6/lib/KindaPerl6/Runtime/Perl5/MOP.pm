@@ -4,6 +4,8 @@ use v5;
 # my $meth = $::Method->{_dispatch}( $::Method, 'new', sub { 'hi' } );
 # my $obj =  $::Object->{_dispatch}( $::Object, 'new', $candidate );
 
+package KindaPerl6::Runtime::Perl5::MOP;
+use KindaPerl6::Runtime::Perl5::DispatchSugar;
 use Data::Dumper;
 
 {
@@ -39,7 +41,7 @@ my $dispatch = sub {
         my ($self, $method_name) = (shift, shift);
         #print "lookup $method_name in $self\n";
 
-        unless ( ref($self) eq 'HASH' ) {
+        unless ( ref($self) eq 'HASH' or ref($self) eq 'KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch') {
             warn "internal error: wrong object format";
             print Dumper($self);
             return $::Str->{_dispatch}( $::Str, 'new', 'Error' );
