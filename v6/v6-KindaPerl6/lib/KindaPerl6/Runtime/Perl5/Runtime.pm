@@ -272,6 +272,11 @@ package Main;
         }
         return '$' . join( '::', @name );   # XXX - no twigil
     }
+    sub mangle_ident {
+        my ($name) = @_;
+        $name =~ s/ ([^a-zA-Z0-9_]) / '_'.ord($1).'_' /xge;
+        return $name;
+    }
     
     sub Dump {
         require Data::Dump::Streamer;

@@ -10,7 +10,7 @@ class KindaPerl6::Visitor::EmitAstHTML {
         #my $item;
         #my $subitem;
         
-        $result := $result ~ '<span class="' ~ $node_name ~ '">';
+        $result := $result ~ '<span class="' ~ Main::mangle_ident( $node_name ) ~ '">';
         
         $result := $result ~ "::" ~ $node_name ~ "( ";
         my $data := $node.attribs;
