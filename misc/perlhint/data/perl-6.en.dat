@@ -7,57 +7,57 @@
 
 key:  +
 syn:  $expr1 + $expr2
-name: binary plus
+name: Binary Plus
 desc: Adds two numbers
 ex:   my $a = 2 + 3; # Result: 5
 con:  numeric
 
 key:  +
 syn:  +$expr1
-name: unary plus
-desc: enforces numerical context onto its operand
+name: Unary Plus
+desc: Enforces numerical context onto its operand
 ex:   +"23";   # returns the number 23
       +42;
 con:  numeric
 
 key:  -
 syn:  $expr1 - $expr2
-name: binary minus
-desc: substracts two numbers
+name: Binary Minus
+desc: Substracts two numbers
 ex:   42 - 23; # returns 19
 con:  numeric
 
 key:  -
 syn:  -$expr
-name: unary minus
-desc: returns the negative of a number, forces numerical context.
+name: Unary Minus
+desc: Returns the negative of a number, forces numerical context.
 ex:   -2;
 con:  numeric
 
 key:  *
 syn:  $num1 * $num2
-name: multiplication
-desc: returns the product of two numbers
+name: Multiplication
+desc: Returns the product of two numbers
 con:  numeric
 
 key:  /
 syn:  $num1 / $num2
-name: division
+name: Division
 desc: divides two numbers
 ex:   6 / 2;  # result: 3
 con:  numeric
 
 key:  %
 syn:  $num1 % $num2
-name: remainder of division
-desc: remainder of division
+name: Remainder of division
+desc: Remainder of division
 ex:   10 % 3;  # result: 1, since 10 == 3*3 + 1
 con:  numeric
 
 key:  **
 syn:  $expr1 ** $expr2
-name: power operator
-desc: returns $expr1 to the power of $expr2
+name: Power Operator
+desc: Returns $expr1 to the power of $expr2
 ex:   2**4 # same as 2*2*2*2
 con:  numeric
 
@@ -66,7 +66,7 @@ con:  numeric
 
 key:  ~
 syn:  $str1 ~ $str2
-name: string concatenation
+name: String concatenation
 desc: concatenate two strings
 ex:   "hello" ~ " world";  # result: "hello world"
 con:  string
@@ -76,13 +76,13 @@ con:  string
 
 key:  =
 syn:  $lvalue = $expr
-name: assignment
-desc: assingns an expression to an lvalue
+name: Assignment
+desc: Assingns an expression to an lvalue
 ex:   my $a = 4; # $a now contains the value 4
 
 key:  :=
 syn:  $var1 := $var2
-name: binding
+name: Binding
 desc: binds a variable to another variable
 ex:   my $a = 5;
       my $b := $a;
@@ -90,8 +90,8 @@ ex:   my $a = 5;
 
 key:  ::=
 syn:  $var1 ::= $var2
-name: compile time binding
-desc: binds a variable to another at compile to, so that the two variables \
+name: Compile time binding
+desc: Binds a variable to another at compile to, so that the two variables \
       are synomys to each other.
 
 
@@ -99,7 +99,7 @@ desc: binds a variable to another at compile to, so that the two variables \
 
 key:  ==
 syn:  $num1 == $num2
-name: numeric equality
+name: Numeric equality
 desc: compares two (or more) expressions for numerical equality
 ex:   1 == 2     # false
       2 == 2     # true
@@ -110,7 +110,7 @@ con: numeric
 
 key:  <=
 syn:  $num1 <= $num2
-name: numeric lesser or equality
+name: Numeric lesser or equality
 desc: compares if $num1 is numerically less or equal to $num2
 ex:   1 <= 2         # true
       2 <= 2         # true
@@ -121,7 +121,7 @@ con: numeric
 
 key:  <
 syn:  $num1 < $num2
-name: numeric lesser
+name: Numeric lesser
 desc: compares if $num1 is numerically smaller than $num2
 ex:   1 < 2        # true
       2 < 2        # false
@@ -131,7 +131,7 @@ con: numeric
 
 key:  >=
 syn:  $num1 >= $num2
-name: numeric bigger or equality
+name: Numeric bigger or equality
 desc: compares if $num1 is numerically bigger or equal to $num2
 ex:   1 >= 2         # false
       2 >= 2         # true
@@ -142,7 +142,7 @@ con: numeric
 
 key:  >
 syn:  $num1 > $num2
-name: numeric bigger
+name: Numeric bigger
 desc: compares if $num1 is numerically smaller than $num2
 ex:   2 > 1        # true
       2 > 2        # false
@@ -152,7 +152,7 @@ con: numeric
 
 key:  <=>
 syn:  $num1 <=> $num2
-name: numeric three way comparison
+name: Numeric three way comparison
 desc: compares two numbers and returns -1, 0, +1 for smaller, equal, bigger
 ex:   1 <=> 2     # -1
       2 <=> 2     # 0
