@@ -1,14 +1,31 @@
                                 Muldis::DB
 ---------------------------------------------------------------------------
 
-2007-07-11   Darren Duncan <perl@DarrenDuncan.net>
+2007-07-xx   Darren Duncan <perl@DarrenDuncan.net>
 
-    * Muldis::DB version 0.1.0 for Perl 5 is released on CPAN as
-    Muldis-DB-0.1.0.tar.gz.  Muldis::DB version 0.1.0 for Perl 6 is not
+    * Muldis::DB version 0.2.0 for Perl 5 is released on CPAN as
+    Muldis-DB-0.2.0.tar.gz.  Muldis::DB version 0.2.0 for Perl 6 is not
     released at this time, if ever, since it is currently released only as
     part of the Perl6-Pugs project (in its ext/Muldis-DB/ subdirectory),
     which sets its own less frequent release schedule.  The rest of this
     Changes entry refers only to the Perl 5 version.
+
+    * New file versions are: DB.pm and AST.pm and Language.pod and
+    Validator.pm and Example.pm 0.2.0.
+
+    * Updated Core.pod to replace the pseudo-type 'Any' with the
+    pseudo-type 'Some.Universal', and added 'Some.Ordinal'.
+
+    * Updated Core.pod to add definitions for the generic operators common
+    to all ordinal types: compare, reverse_compare, is_inc, is_dec, min,
+    max.  Added 'reverse' operator for the Order type.
+
+2007-07-11   Darren Duncan <perl@DarrenDuncan.net>
+
+    * Muldis::DB version 0.1.0 for Perl 5 is released on CPAN as
+    Muldis-DB-0.1.0.tar.gz.  Muldis::DB version 0.1.0 for Perl 6 is not
+    released at all.  The rest of this Changes entry refers only to the
+    Perl 5 version.
 
     * This is a major release that focuses on overhauling or defining part
     of the Muldis D meta-model / system catalog, which is essential for

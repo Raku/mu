@@ -450,7 +450,7 @@ Concrete Muldis D is the natural form that one would code in if they were
 writing a self-contained application (or component) in Muldis D which was
 compiled using a separate process into its own executable (or library),
 which includes situations where Muldis D is its own
-L<Parrot|http://www.parrotcode.org/>-hosted language (a prospect which is
+Parrot (L<http://www.parrotcode.org/>) hosted language (a prospect which is
 desired to be implemented in the near future).  Concrete Muldis D would
 also be used by an interactive shell interface over Muldis::DB, when users
 submit commands at runtime, or in any other situation where it makes sense

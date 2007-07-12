@@ -125,10 +125,30 @@ cardinality of this type is zero.
 
 =back
 
-Note that there also exists a pseudo-type named C<sys.type.Any> which
-represents a generic context that isn't the same as a context that would be
-defined using C<sys.type.Universal>; an example is definitions of some
-polymorphic operators.
+=head1 SYSTEM-DEFINED CORE PSEUDO-TYPES
+
+These are pseudo-types (that is, they aren't types at all) which represent
+generic contexts that could accept a multiplicity of types, but are not the
+same as contexts named after some actual types.  For example, they are used
+as the declared parameter types of some dyadic polymorphic operators to
+refer to, per instance, 2 given types that need to be compatible, but the
+compatibility isn't simply defined by a "are any 2 subtypes of" such as is
+true with most operators.  They are all system-defined and it is impossible
+for users to define more types of this nature.
+
+=over
+
+=item C<sys.type.Some.Universal>
+
+Contexts defined by the C<Some.Universal> pseudo-type accept values of
+potentially any type of C<Universal>.
+
+=item C<sys.type.Some.Ordinal>
+
+Contexts defined by the C<Some.Ordinal> pseudo-type accept values of
+potentially any type of C<Ordinal>.
+
+=back
 
 =head1 SYSTEM-DEFINED CORE SCALAR DATA TYPES
 
@@ -381,7 +401,8 @@ These functions are applicable to values of any data type at all.
 
 =over
 
-=item C<sys.rtn.Any.equal (RO: Any $v1, Any $v2)>
+=item C<sys.rtn.Universal.equal (RO: Some.Universal $v1, Some.Universal
+$v2)>
 
 This function results in C<Bool.True> iff its 2 arguments are exactly the
 same value, and C<Bool.False> otherwise.  This function's arguments must be
@@ -393,10 +414,11 @@ same headings; 3. at least one type is a generic (eg-C<Universal>) or
 incomplete (eg-C<Seq>) type, and it is a supertype of the other.  This
 function is commutative.
 
-=item C<sys.rtn.Any.not_equal (RO: Any $v1, Any $v2)>
+=item C<sys.rtn.Universal.not_equal (RO: Some.Universal $v1, Some.Universal
+$v2)>
 
-This function is exactly the same as C<sys.rtn.equal> except that it
-results in the opposite boolean value when given the same arguments.
+This function is exactly the same as C<sys.rtn.Universal.equal> except that
+it results in the opposite boolean value when given the same arguments.
 
 =back
 
@@ -406,12 +428,83 @@ These update operators are applicable to values of any data type at all.
 
 =over
 
-=item C<sys.rtn.Any.assign (UPD: Any $target ; RO: Any $v)>
+=item C<sys.rtn.Universal.assign (UPD: Some.Universal $target ; RO:
+Some.Universal $v)>
 
 This update operator will update the variable supplied as its C<$target>
 argument so that it holds the value supplied as its C<$v> argument.  This
 update operator's arguments must be of compatible declared types; in this
 case, C<$v> must be a subtype of C<$target>.
+
+=back
+
+=head1 SYSTEM-DEFINED GENERIC ORDINAL FUNCTIONS
+
+These functions are applicable to values of any data type which is a
+subtype of C<Ordinal>.  They provide a common syntax for sort-related
+functionality, though technically every type having these functions is
+re-implementing its own version.  If values of an ordinal data type can
+conceivably be sorted using multiple criteria (such as different text
+collations), then these functions just represent the default criteria; any
+additional criteria are represented by additional functions declared for
+just the types they apply to.
+
+=over
+
+=item C<sys.rtn.Ordinal.compare of Order (RO: Some.Ordinal $v1,
+Some.Ordinal $v2)>
+
+This function results in C<Order.Same> iff its 2 arguments are exactly the
+same value, and otherwise it results in C<Order.Increase> if the value of
+the C<$v2> argument is considered to be an increase (as defined by the
+type) over the value of the C<$v1> argument, and otherwise it results in
+C<Order.Decrease> as the reverse of the last condition would be true.  This
+function's arguments must be of compatible declared types; in this case, 2
+declared types are compatible iff they are both subtypes of a common scalar
+type that declares itself an C<Ordinal> subtype.  Note that C<compare> is
+considered the only fundamental ordinal-specific operator, and all others
+are defined over it.
+
+=item C<sys.rtn.Ordinal.reverse_compare of Order (RO: Some.Ordinal $v1,
+Some.Ordinal $v2)>
+
+This function is exactly the same as C<sys.rtn.Ordinal.compare> except that
+it results in the reverse value when given the same arguments.  It is a
+short-hand for applying C<sys.rtn.Order.reverse> to the result of
+C<sys.rtn.Ordinal.compare> with the same arguments.
+
+=item C<sys.rtn.Ordinal.is_inc of Bool (RO: Some.Ordinal $v1, Some.Ordinal
+$v2)>
+
+This function results in C<Bool.True> iff C<sys.rtn.Ordinal.compare> would
+result in C<Order.Increase> when given the same arguments, and
+C<Bool.False> otherwise.
+
+=item C<sys.rtn.Ordinal.is_dec of Bool (RO: Some.Ordinal $v1, Some.Ordinal
+$v2)>
+
+This function results in C<Bool.True> iff C<sys.rtn.Ordinal.compare> would
+result in C<Order.Decrease> when given the same arguments, and
+C<Bool.False> otherwise.
+
+=item C<sys.rtn.Ordinal.min of Maybe{Some.Ordinal} (RO: Set{Some.Ordinal}
+$v)>
+
+This function is a reduction operator that recursively takes each pair of
+its N input element values and picks the minimum of the 2 (a process which
+is both commutative and associative) until just one is left, a C<Maybe>
+whose single element is which is the function's result.  If C<$v> has zero
+values, then C<min> returns a same-typed C<Maybe> with zero elements.  Note
+that, while C<min> could conceivably have been defined instead to not
+return a C<Maybe>, but rather to return the appropriate ordinal type's
+concept of negative infinity, this option is avoided for now citing
+practical concerns in the face of infinite (especially non-numeric) types.
+
+=item C<sys.rtn.Ordinal.max of Maybe{Some.Ordinal} (RO: Set{Some.Ordinal}
+$v)>
+
+This function is exactly the same as C<sys.rtn.Ordinal.max> except that it
+results in the maximum input element value rather than the minimum one.
 
 =back
 
@@ -484,6 +577,18 @@ This selector function results in the C<Order.Same> value.
 =item C<sys.rtn.Order.Decrease of Order ()>
 
 This selector function results in the C<Order.Decrease> value.
+
+=back
+
+These functions implement commonly used order-enumeration operations.
+
+=over
+
+=item C<sys.rtn.Order.reverse of Order (RO: Order $v)>
+
+This function results in the reverse value of its argument; an
+C<Order.Increase> or C<Order.Decrease> argument results in the other one of
+the two; an C<Order.Same> argument results in C<Order.Same>.
 
 =back
 
