@@ -7,6 +7,7 @@ use KindaPerl6::Runtime::Perl5::Match;
 use KindaPerl6::Runtime::Perl5::MOP;
 #use KindaPerl6::Runtime::Perl5::Type;
 use KindaPerl6::Runtime::Perl5::Pad;
+use KindaPerl6::Runtime::Perl5::Wrap;
 
 package KindaPerl6::Grammar;
     sub space { 
@@ -94,6 +95,7 @@ package GLOBAL;
         defined
         true
         not
+        sleep
         True
         False
 
@@ -156,6 +158,7 @@ package GLOBAL;
     sub not      { $::Bit->{_dispatch}( $::Bit, 'new', ! ( $_[0]->{_dispatch}( $_[0], 'true' )->{_value} ) ) }  
     sub True     { $::Bit->{_dispatch}( $::Bit, 'new',1 ) }  
     sub say   { GLOBAL::print( @_, "\n" );return True;}
+    sub sleep { GLOBAL::warn(_int($_[0]));return True;}
     sub False    { $::Bit->{_dispatch}( $::Bit, 'new',0 ) }  
     sub TODO {croak "TODO";}
 
