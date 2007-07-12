@@ -128,7 +128,7 @@ my $meta_Method = {
         class_name => 'Method',
     },
 };
-$::Method = {
+$::Method = sugar {
     %::PROTO,
     # _name     => '$::Method',
     _isa      => [ $meta_Method ],
@@ -158,7 +158,7 @@ $meta_Method->{_value}{methods}{HOW}    = $::Method->{_dispatch}( $::Method, 'ne
 
 #--- Class
 
-my $meta_Class = {
+my $meta_Class = sugar {
     %::PROTO,
     # _name     => '$meta_Class',
     _value    => {
@@ -200,7 +200,7 @@ $meta_Class->{_dispatch}( $meta_Class, 'add_method', 'new',  $::Method->{_dispat
         my $self;
         my $class_prototype;
 
-        $self_meta = {
+        $self_meta = sugar {
             %::PROTO,
             # _name     => '$self_meta',
             _value    => {
@@ -209,7 +209,7 @@ $meta_Class->{_dispatch}( $meta_Class, 'add_method', 'new',  $::Method->{_dispat
             },
             _isa      => [ $meta_Class ],
         };
-        $self = {
+        $self = sugar {
             %::PROTO,
             # _name     => '$self',
             _isa      => [ $self_meta ],
@@ -230,7 +230,7 @@ $meta_Class->{_dispatch}( $meta_Class, 'add_method', 'new',  $::Method->{_dispat
             if $class_name;
         $class_prototype;  # return the prototype
     } ) );
-$::Class = {
+$::Class = sugar {
     %::PROTO,
     # _name     => '$::Class',
     _isa      => [ $meta_Class ],
