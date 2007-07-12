@@ -126,12 +126,12 @@ class Lit::Code {
                     name => $name,
                 ),
             );
-            $s := $s ~ $name.emit_html ~ '; ';
+            $s := $s ~ $name.emit_html ~ '; <br />' ~ Main::newline();
             #$s := $s ~ 'my ' ~ $name ~ '; ';
         };
         return 
             $s
-            ~ (@.body.>>emit_html).join('; ');
+            ~ (@.body.>>emit_html).join('; <br />' ~ Main::newline());
     }
 }
 
@@ -389,15 +389,15 @@ class Do {
 
 class BEGIN {
     method emit_html {
-        'BEGIN { ' ~ 
+        '<span class="comp_unit">BEGIN</span> { <br />' ~ Main::newline() ~ 
           $.block.emit_html ~ 
-        ' }'
+        ' }<br />' ~ Main::newline();
     }
 }
 
 class Use {
     method emit_html {
-        'use ' ~ $.mod
+        '<span class="comp_unit">use</span> ' ~ $.mod
     }
 }
 

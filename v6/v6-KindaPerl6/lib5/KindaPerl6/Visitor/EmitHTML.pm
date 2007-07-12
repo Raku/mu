@@ -27,7 +27,7 @@ package Lit::Array; sub new { shift; bless { @_ }, "Lit::Array" } sub emit_html 
 ;
 package Lit::Hash; sub new { shift; bless { @_ }, "Lit::Hash" } sub emit_html { my $self = shift; my $List__ = \@_; do { [] }; my  $fields = $self->{hash}; my  $str = ''; do { for my $field ( @{$fields} ) { $str = ($str . ($field->[0]->emit_html() . (' <span class="operator>=&gt;</span> ' . ($field->[1]->emit_html() . ',')))) } }; ('{ ' . ($str . ' }')) }
 ;
-package Lit::Code; sub new { shift; bless { @_ }, "Lit::Code" } sub emit_html { my $self = shift; my $List__ = \@_; do { [] }; my  $s; do { for my $name ( @{$self->{pad}->variable_names()} ) { my  $decl = Decl->new( 'decl' => 'my','type' => '','var' => Var->new( 'sigil' => '','twigil' => '','name' => $name, ), );$s = ($s . ($name->emit_html() . '; ')) } }; return(($s . Main::join([ map { $_->emit_html() } @{ $self->{body} } ], '; '))) }
+package Lit::Code; sub new { shift; bless { @_ }, "Lit::Code" } sub emit_html { my $self = shift; my $List__ = \@_; do { [] }; my  $s; do { for my $name ( @{$self->{pad}->variable_names()} ) { my  $decl = Decl->new( 'decl' => 'my','type' => '','var' => Var->new( 'sigil' => '','twigil' => '','name' => $name, ), );$s = ($s . ($name->emit_html() . ('; <br />' . Main::newline()))) } }; return(($s . Main::join([ map { $_->emit_html() } @{ $self->{body} } ], ('; <br />' . Main::newline())))) }
 ;
 package Lit::Object; sub new { shift; bless { @_ }, "Lit::Object" } sub emit_html { my $self = shift; my $List__ = \@_; do { [] }; my  $fields = $self->{fields}; my  $str = ''; do { for my $field ( @{$fields} ) { $str = ($str . ($field->[0]->emit_html() . (' => ' . ($field->[1]->emit_html() . ',')))) } }; ($self->{class} . ('.new( ' . ($str . ' )'))) }
 ;
@@ -63,8 +63,8 @@ package Sub; sub new { shift; bless { @_ }, "Sub" } sub emit_html { my $self = s
 ;
 package Do; sub new { shift; bless { @_ }, "Do" } sub emit_html { my $self = shift; my $List__ = \@_; do { [] }; ('<span class="keyword">do</span> { <br />' . (Main::newline() . ($self->{block}->emit_html() . ('}<br />' . Main::newline())))) }
 ;
-package BEGIN; sub new { shift; bless { @_ }, "BEGIN" } sub emit_html { my $self = shift; my $List__ = \@_; do { [] }; ('BEGIN { ' . ($self->{block}->emit_html() . ' }')) }
+package BEGIN; sub new { shift; bless { @_ }, "BEGIN" } sub emit_html { my $self = shift; my $List__ = \@_; do { [] }; ('<span class="comp_unit">BEGIN</span> { <br />' . (Main::newline() . ($self->{block}->emit_html() . (' }<br />' . Main::newline())))) }
 ;
-package Use; sub new { shift; bless { @_ }, "Use" } sub emit_html { my $self = shift; my $List__ = \@_; do { [] }; ('use ' . $self->{mod}) }
+package Use; sub new { shift; bless { @_ }, "Use" } sub emit_html { my $self = shift; my $List__ = \@_; do { [] }; ('<span class="comp_unit">use</span> ' . $self->{mod}) }
 ;
 1;
