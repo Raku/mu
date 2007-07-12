@@ -2,11 +2,11 @@ use strict;
 use warnings;
 use Test::More tests => 6;
 
-use Perlhint::Parse;
-use Perlhint::Lookup;
+use Perlhints::Parse;
+use Perlhints::Lookup;
 
-my $parser = Perlhint::Parse->new({filename => 't5/sanity.dat'});
-ok(ref $parser, "Perlhint::Parse->new returns a reference");
+my $parser = Perlhints::Parse->new({filename => 't5/sanity.dat'});
+ok(ref $parser, "Perlhints::Parse->new returns a reference");
 my $r = $parser->records;
 is(ref $r, 'ARRAY', "records() returns an array ref");
 

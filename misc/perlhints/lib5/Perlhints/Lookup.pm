@@ -1,4 +1,4 @@
-package Perlhint::Lookup;
+package Perlhints::Lookup;
 
 use Carp;
 use strict;

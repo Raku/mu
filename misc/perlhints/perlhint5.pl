@@ -6,14 +6,14 @@ BEGIN {
         use lib 'lib5';
     }
 }
-use Perlhint::Parse;
-use Perlhint::Lookup;
+use Perlhints::Parse;
+use Perlhints::Lookup;
 use Data::Dumper;
 
 my $query = shift @ARGV || die "Usage: $0 <character>\n";
 print "Looking up '$query'...\n";
-my $parser = Perlhint::Parse->new({filename => 'data/perl-6.en.dat'});
-my $l = Perlhint::Lookup->new($parser->records);
+my $parser = Perlhints::Parse->new({filename => 'data/perl-6.en.dat'});
+my $l = Perlhints::Lookup->new($parser->records);
 
 my @out = $l->lookup($query);
 

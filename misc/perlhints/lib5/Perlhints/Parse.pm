@@ -1,4 +1,4 @@
-package Perlhint::Parse;
+package Perlhints::Parse;
 
 use Carp;
 use Storable qw(dclone);
