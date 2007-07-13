@@ -34,7 +34,6 @@ $VAR1 = {
 
 
 
-
 === TEST 2: metasyntax '...'
 --- regex: "'a'"
 --- ast
@@ -47,7 +46,6 @@ $VAR1 = {
                           'metasyntax' => '\'a\''
                         }
         };
-
 
 
 
@@ -80,7 +78,6 @@ $VAR1 = {
 
 
 
-
 === TEST 4: metasyntax <@...>
 --- regex: ' <@foo> '
 --- ast
@@ -107,7 +104,6 @@ $VAR1 = {
                      'ws3' => ''
                    }
         };
-
 
 
 
@@ -140,7 +136,6 @@ $VAR1 = {
 
 
 
-
 === TEST 6: metasyntax
 --- regex: ' <{ return $0.sqrt }> '
 --- ast
@@ -167,7 +162,6 @@ $VAR1 = {
                      'ws3' => ''
                    }
         };
-
 
 
 
@@ -200,7 +194,6 @@ $VAR1 = {
 
 
 
-
 === TEST 8: alt
 --- regex: 'a|b'
 --- ast
@@ -226,7 +219,6 @@ $VAR1 = {
                     }
                   ]
         };
-
 
 
 
@@ -268,7 +260,6 @@ $VAR1 = {
                       }
                     ]
         };
-
 
 
 
@@ -329,4 +320,13 @@ $VAR1 = {
 
 
 
+=== TEST 11: closure quantifier
+--- regex:  " a**{1..2} "
+--- ast
+
+
+
+=== TEST 12: quantifiers
+--- regex: " a+ b? "
+--- ast
 

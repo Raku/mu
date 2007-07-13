@@ -23,7 +23,7 @@ mkdir -p tmp
 
 echo "Generating tmp/Grammar.pm..."
 # rm lib/Pugs/Grammar/Rule2.pmc
-perl -Ilib util/compile_p6grammar.pl examples/Grammar.grammar > tmp/Grammar.pm
+perl -Ilib util/compile_p6grammar.pl -s 0 examples/Grammar.grammar > tmp/Grammar.pm
 
 echo "Validating tmp/Grammar.pm..."
 perl -Ilib tmp/Grammar.pm

@@ -2,10 +2,16 @@
 
 use lib 'lib';
 use File::Slurp 'slurp';
+use Getopt::Std;
 use Pugs::Compiler::Grammar;
 
-my $infile = shift or
-    die "Usage: $0 foo.grammar > Foo.pm\n";
+my %opts;
+getopts("s:", \%opts) or help();
+if (defined $opts{s}) {
+    $::PCR_SEED = $opts{s};
+}
+
+my $infile = shift or help();
 my $grammar = slurp($infile);
 my $compiler = Pugs::Compiler::Grammar->compile($grammar) or
     die;
@@ -22,6 +28,10 @@ use warnings;
 
 EOC
     print $perl5;
+}
+
+sub help {
+    die "Usage: $0 [-s seed] foo.grammar > Foo.pm\n";
 }
 
 __END__

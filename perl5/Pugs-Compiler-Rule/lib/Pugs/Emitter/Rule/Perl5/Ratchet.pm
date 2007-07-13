@@ -15,6 +15,9 @@ our $sigspace = 0;
 our $capture_count;
 our $capture_to_array;
 
+if (defined $::PCR_SEED) {
+    srand($::PCR_SEED);
+}
 our $count = 1000 + int(rand(1000));
 sub id { 'I' . ($count++) }
 
