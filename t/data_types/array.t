@@ -124,6 +124,8 @@ dies_ok  { @array[1] = $*ERR }, "stuffing IO in an Int array does not work", :to
 my @array12 = ('a', 'b', 'c', 'e'); 
 is @array12[*-1],'e', "indexing from the end [-1]";
 
+skip_rest "* not yet implemented"; exit;
+
 # end index range
 is ~@array12[*-4 .. *-2], 'a b c', "end indices [*-4 .. *-2]";
 
