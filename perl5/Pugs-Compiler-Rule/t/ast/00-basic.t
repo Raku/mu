@@ -504,3 +504,126 @@ $VAR1 = {
 
 
 
+=== TEST 16: capure (...)
+--- regex: " (a) "
+--- ast
+$VAR1 = {
+          'quant' => {
+                     '_pos' => [
+                               0,
+                               5
+                             ],
+                     'greedy' => '',
+                     'quant' => '',
+                     'term' => {
+                               '_pos' => [
+                                         1,
+                                         4
+                                       ],
+                               'capturing_group' => {
+                                                    '_pos' => [
+                                                              2,
+                                                              3
+                                                            ],
+                                                    'constant' => 'a'
+                                                  }
+                             },
+                     'ws1' => ' ',
+                     'ws2' => ' ',
+                     'ws3' => ''
+                   }
+        };
+
+
+
+
+=== TEST 17: capure ( ... )
+--- regex: " ( a ) "
+--- ast
+$VAR1 = {
+          'quant' => {
+                     '_pos' => [
+                               0,
+                               7
+                             ],
+                     'greedy' => '',
+                     'quant' => '',
+                     'term' => {
+                               '_pos' => [
+                                         1,
+                                         6
+                                       ],
+                               'capturing_group' => {
+                                                    'quant' => {
+                                                               '_pos' => [
+                                                                         2,
+                                                                         5
+                                                                       ],
+                                                               'greedy' => '',
+                                                               'quant' => '',
+                                                               'term' => {
+                                                                         '_pos' => [
+                                                                                   3,
+                                                                                   4
+                                                                                 ],
+                                                                         'constant' => 'a'
+                                                                       },
+                                                               'ws1' => ' ',
+                                                               'ws2' => ' ',
+                                                               'ws3' => ''
+                                                             }
+                                                  }
+                             },
+                     'ws1' => ' ',
+                     'ws2' => ' ',
+                     'ws3' => ''
+                   }
+        };
+
+
+
+
+=== TEST 18: named capure ( ... )
+--- regex: ' $abc := (a) '
+--- ast
+$VAR1 = {
+          'quant' => {
+                     '_pos' => [
+                               0,
+                               13
+                             ],
+                     'greedy' => '',
+                     'quant' => '',
+                     'term' => {
+                               '_pos' => [
+                                         1,
+                                         12
+                                       ],
+                               'named_capture' => {
+                                                  'ident' => {
+                                                             'variable' => '$abc'
+                                                           },
+                                                  'rule' => {
+                                                            '_pos' => [
+                                                                      9,
+                                                                      12
+                                                                    ],
+                                                            'capturing_group' => {
+                                                                                 '_pos' => [
+                                                                                           10,
+                                                                                           11
+                                                                                         ],
+                                                                                 'constant' => 'a'
+                                                                               }
+                                                          }
+                                                }
+                             },
+                     'ws1' => ' ',
+                     'ws2' => ' ',
+                     'ws3' => ''
+                   }
+        };
+
+
+
+

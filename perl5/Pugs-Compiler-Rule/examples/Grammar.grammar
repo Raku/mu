@@ -154,7 +154,8 @@ token parsed_code {
 }
 
 token named_capture_body {
-    | \(  <rule>        \)  { return { capturing_group => $$<rule> }; }
+    | \(  <rule>        \)  { return { capturing_group => $$<rule>,
+                              _pos => [ $/->from, $/->to ], }; }
     | \[  <rule>        \]  { return $$<rule> }
     | \<  <parse_metasyntax>  { return $$<parse_metasyntax> }
     | \'  <?literal>    \'
@@ -332,14 +333,16 @@ token term2 {
 
 token term3 {
         <rule> \)
-        { return { capturing_group => $$<rule> }; }
+        { return { capturing_group => $$<rule>,
+                   _pos => [ $/->from - 1, $/->to ], }; }
 }
 
 %{ $rule_terms{'('} = sub { term3($_[1], $_[0], $_[2], $_[3]) }; %}
 
 token term4 {
         <rule>  ')>'
-        { return { capture_as_result => $$<rule> } }
+        { return { capture_as_result => $$<rule>,
+                   _pos => [ $/->from - 2, $/->to ], }; }
 }
 
 %{ $rule_terms{'<('} = sub { term4($_[1], $_[0], $_[2], $_[3]) }; %}
@@ -557,9 +560,10 @@ token term {
        [  <?ws>? ':=' <?ws>? <named_capture_body>
           {
             return { named_capture => {
-                rule =>  $$<named_capture_body>,
-                ident => $$<Pugs::Grammar::Rule::variables>,
-            }, };
+                        rule =>  $$<named_capture_body>,
+                        ident => $$<Pugs::Grammar::Rule::variables>,
+                        },
+                     _pos => [ $/->from, $/->to ], };
           }
        |
           {
