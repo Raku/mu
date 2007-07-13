@@ -1,14 +1,15 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-BEGIN {
-    if (-d 'lib5'){
-        use lib 'lib5';
-    }
-}
+use Cwd qw/cwd chdir abs_path/;
+use File::Basename qw/dirname/;
+
+use lib abs_path(dirname($0)) . '/lib5' ;
 use Perlhints::Parse;
 use Perlhints::Lookup;
 use Data::Dumper;
+
+chdir dirname($0) ;
 
 my $query = shift @ARGV || die "Usage: $0 <character>\n";
 print "Looking up '$query'...\n";
