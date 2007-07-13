@@ -595,11 +595,11 @@ $VAR1 = {
                      'greedy' => '',
                      'quant' => '',
                      'term' => {
-                               '_pos' => [
-                                         1,
-                                         12
-                                       ],
                                'named_capture' => {
+                                                  '_pos' => [
+                                                            1,
+                                                            12
+                                                          ],
                                                   'ident' => {
                                                              'variable' => '$abc'
                                                            },
@@ -615,6 +615,84 @@ $VAR1 = {
                                                                                          ],
                                                                                  'constant' => 'a'
                                                                                }
+                                                          }
+                                                }
+                             },
+                     'ws1' => ' ',
+                     'ws2' => ' ',
+                     'ws3' => ''
+                   }
+        };
+
+
+
+
+=== TEST 19: non-capture groups
+--- regex: ' [ a ] '
+--- ast
+$VAR1 = {
+          'quant' => {
+                     '_pos' => [
+                               0,
+                               7
+                             ],
+                     'greedy' => '',
+                     'quant' => '',
+                     'term' => {
+                               'quant' => {
+                                          '_pos' => [
+                                                    2,
+                                                    5
+                                                  ],
+                                          'greedy' => '',
+                                          'quant' => '',
+                                          'term' => {
+                                                    '_pos' => [
+                                                              3,
+                                                              4
+                                                            ],
+                                                    'constant' => 'a'
+                                                  },
+                                          'ws1' => ' ',
+                                          'ws2' => ' ',
+                                          'ws3' => ''
+                                        }
+                             },
+                     'ws1' => ' ',
+                     'ws2' => ' ',
+                     'ws3' => ''
+                   }
+        };
+
+
+
+
+=== TEST 20: named capture + [ ... ]
+--- regex: ' $a := [a] '
+--- ast
+$VAR1 = {
+          'quant' => {
+                     '_pos' => [
+                               0,
+                               11
+                             ],
+                     'greedy' => '',
+                     'quant' => '',
+                     'term' => {
+                               'named_capture' => {
+                                                  '_pos' => [
+                                                            1,
+                                                            10
+                                                          ],
+                                                  'ident' => {
+                                                             'variable' => '$a'
+                                                           },
+                                                  'rule' => {
+                                                            '_pos' => [
+                                                                      8,
+                                                                      9
+                                                                    ],
+                                                            'constant' => 'a'
                                                           }
                                                 }
                              },

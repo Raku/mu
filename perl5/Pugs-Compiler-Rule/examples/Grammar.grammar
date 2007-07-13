@@ -562,8 +562,8 @@ token term {
             return { named_capture => {
                         rule =>  $$<named_capture_body>,
                         ident => $$<Pugs::Grammar::Rule::variables>,
-                        },
-                     _pos => [ $/->from, $/->to ], };
+                        _pos => [ $/->from, $/->to ],
+                     }, };
           }
        |
           {
