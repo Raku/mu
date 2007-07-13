@@ -15,6 +15,7 @@ class KindaPerl6::Visitor::EmitHTML {
             ~ '.keyword { text-weight: bold; color: red; }' ~ $nl
             ~ '.builtin { color: red; }' ~ $nl
             ~ '.buffer { color: blue; }'~ $nl
+            ~ '.variable { color: green; }'~ $nl
             ~ '.comp_unit { color: #555500; }' ~ $nl
             ~ '</style>' ~ $nl;
     };
@@ -182,14 +183,17 @@ class Var {
         };
         
         if $.twigil eq '.' {
-            return '$self->{' ~ $.name ~ '}' 
+            # XXX is the arrow in $self->{...} right?
+            return '<span class="variable">$self->{' ~ $.name ~ '}</span>' 
         };
         
         if $.name eq '/' {
             return $table{$.sigil} ~ 'MATCH' 
         };
         
-        return Main::mangle_name( $.sigil, $.twigil, $.name ); 
+        return '<span class="variable">'
+               ~ Main::mangle_name( $.sigil, $.twigil, $.name )
+               ~ '</span>'; 
     };
 }
 
