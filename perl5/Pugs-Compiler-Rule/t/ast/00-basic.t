@@ -414,3 +414,93 @@ $VAR1 = {
 
 
 
+=== TEST 13: subrule (<foo>)
+--- regex: " <foo> "
+--- ast
+$VAR1 = {
+          'quant' => {
+                     '_pos' => [
+                               0,
+                               7
+                             ],
+                     'greedy' => '',
+                     'quant' => '',
+                     'term' => {
+                               'metasyntax' => {
+                                               '_pos' => [
+                                                         1,
+                                                         6
+                                                       ],
+                                               'metasyntax' => 'foo',
+                                               'modifier' => ''
+                                             }
+                             },
+                     'ws1' => ' ',
+                     'ws2' => ' ',
+                     'ws3' => ''
+                   }
+        };
+
+
+
+
+=== TEST 14: subrule (<?foo>)
+--- regex: " <?foo> "
+--- ast
+$VAR1 = {
+          'quant' => {
+                     '_pos' => [
+                               0,
+                               8
+                             ],
+                     'greedy' => '',
+                     'quant' => '',
+                     'term' => {
+                               'metasyntax' => {
+                                               '_pos' => [
+                                                         1,
+                                                         7
+                                                       ],
+                                               'metasyntax' => 'foo',
+                                               'modifier' => '?'
+                                             }
+                             },
+                     'ws1' => ' ',
+                     'ws2' => ' ',
+                     'ws3' => ''
+                   }
+        };
+
+
+
+
+=== TEST 15: subrule (quanlified)
+--- regex: " <Bar.foo> "
+--- ast
+$VAR1 = {
+          'quant' => {
+                     '_pos' => [
+                               0,
+                               11
+                             ],
+                     'greedy' => '',
+                     'quant' => '',
+                     'term' => {
+                               'metasyntax' => {
+                                               '_pos' => [
+                                                         1,
+                                                         10
+                                                       ],
+                                               'metasyntax' => 'Bar.foo',
+                                               'modifier' => ''
+                                             }
+                             },
+                     'ws1' => ' ',
+                     'ws2' => ' ',
+                     'ws3' => ''
+                   }
+        };
+
+
+
+
