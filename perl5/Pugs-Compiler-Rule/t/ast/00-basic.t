@@ -34,6 +34,7 @@ $VAR1 = {
 
 
 
+
 === TEST 2: metasyntax '...'
 --- regex: "'a'"
 --- ast
@@ -46,6 +47,7 @@ $VAR1 = {
                           'metasyntax' => '\'a\''
                         }
         };
+
 
 
 
@@ -78,6 +80,7 @@ $VAR1 = {
 
 
 
+
 === TEST 4: metasyntax <@...>
 --- regex: ' <@foo> '
 --- ast
@@ -104,6 +107,7 @@ $VAR1 = {
                      'ws3' => ''
                    }
         };
+
 
 
 
@@ -136,6 +140,7 @@ $VAR1 = {
 
 
 
+
 === TEST 6: metasyntax
 --- regex: ' <{ return $0.sqrt }> '
 --- ast
@@ -162,6 +167,7 @@ $VAR1 = {
                      'ws3' => ''
                    }
         };
+
 
 
 
@@ -194,6 +200,7 @@ $VAR1 = {
 
 
 
+
 === TEST 8: alt
 --- regex: 'a|b'
 --- ast
@@ -219,6 +226,7 @@ $VAR1 = {
                     }
                   ]
         };
+
 
 
 
@@ -260,6 +268,7 @@ $VAR1 = {
                       }
                     ]
         };
+
 
 
 
@@ -320,13 +329,88 @@ $VAR1 = {
 
 
 
+
 === TEST 11: closure quantifier
---- regex:  " a**{1..2} "
+--- regex: " a**{1..2} "
 --- ast
+$VAR1 = {
+          'quant' => {
+                     '_pos' => [
+                               0,
+                               11
+                             ],
+                     'greedy' => '',
+                     'quant' => {
+                                'closure' => '{1..2}'
+                              },
+                     'term' => {
+                               '_pos' => [
+                                         1,
+                                         2
+                                       ],
+                               'constant' => 'a'
+                             },
+                     'ws1' => ' ',
+                     'ws2' => '',
+                     'ws3' => ' '
+                   }
+        };
+
 
 
 
 === TEST 12: quantifiers
 --- regex: " a+ b? "
 --- ast
+$VAR1 = {
+          '_pos' => [
+                    0,
+                    7
+                  ],
+          'concat' => [
+                      {
+                        'quant' => {
+                                   '_pos' => [
+                                             0,
+                                             4
+                                           ],
+                                   'greedy' => '',
+                                   'quant' => '+',
+                                   'term' => {
+                                             '_pos' => [
+                                                       1,
+                                                       2
+                                                     ],
+                                             'constant' => 'a'
+                                           },
+                                   'ws1' => ' ',
+                                   'ws2' => '',
+                                   'ws3' => ' '
+                                 }
+                      },
+                      {
+                        'quant' => {
+                                   '_pos' => [
+                                             4,
+                                             7
+                                           ],
+                                   'greedy' => '',
+                                   'quant' => '?',
+                                   'term' => {
+                                             '_pos' => [
+                                                       4,
+                                                       5
+                                                     ],
+                                             'constant' => 'b'
+                                           },
+                                   'ws1' => '',
+                                   'ws2' => '',
+                                   'ws3' => ' '
+                                 }
+                      }
+                    ]
+        };
+
+
+
 

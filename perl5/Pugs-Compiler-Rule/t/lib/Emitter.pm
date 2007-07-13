@@ -10,6 +10,7 @@ use Pugs::Grammar::Base;
 
 our @EXPORT = qw( run_test run_tests );
 $Pugs::Compiler::Regex::NoCache = 1;
+$::PCR_SEED = 0;
 
 my @updated_tests;
 my $count = 0;

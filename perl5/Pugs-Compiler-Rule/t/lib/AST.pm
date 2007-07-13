@@ -16,6 +16,7 @@ sub run_tests () {
 }
 
 $Data::Dumper::Sortkeys = 1;
+$::PCR_SEED = 0;
 
 sub run_test ($) {
     my $block = shift;
@@ -60,7 +61,7 @@ $block->{ast}
 _EOC_
     }
     close $out;
-    $outfile =~ s/.*?([^\\\/]+)$/$1/;
+    #$outfile =~ s/.*?([^\\\/]+)$/$1/;
     warn " $outfile generated.\n";
 }
 
