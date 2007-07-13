@@ -284,7 +284,7 @@ class Return {
 
 class If {
     method emit_perl5 {
-        'do { if ( ${' ~ $.cond.emit_perl5 ~ '->FETCH} ) { ' ~ $.body.emit_perl5 ~ ' } '
+        'do { if ( ' ~ $.cond.emit_perl5 ~ '->true->p5landish ) { ' ~ $.body.emit_perl5 ~ ' } '
         ~ ( $.otherwise 
             ?? ' else { ' ~ $.otherwise.emit_perl5 ~ ' }' 
             !! '' 
@@ -470,7 +470,7 @@ class Sub {
         ;
         if ( $.name ) {
             return '$Code_' ~ $.name ~ '->BIND( ' ~ $code ~ ')';
-        }
+        };
         return $code;
     }
 }
