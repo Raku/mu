@@ -94,7 +94,7 @@ sub emit {
     
     my @d;
     for my $decl ( @{$self->lexicals} ) {
-        print 'decl: ', $decl,"\n";
+        #print 'decl: ', $decl,"\n";
         push @d, $decl->emit( $visitor ); 
     }    
     $s = $s . 'lexicals => [' . join( ', ', @d ) . '], ';
