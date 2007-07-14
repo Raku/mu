@@ -215,8 +215,9 @@ sub build {
             find $wanted, "third-party/$module";
 
             if ($newest_hs_file and $oldest_a_file and $newest_hs_file >= $oldest_a_file) {
-                # We are safe - no rebuild needed
+                # We are safe - no rebuild needed, but expose anyway
                 print "*** Skipping building the '$module' dependency.\n\n";
+                system($hc_pkg, expose => "pugs-$module");
                 next;
             }
         }
