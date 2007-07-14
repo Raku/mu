@@ -86,7 +86,23 @@ sub namespace { $_[0]{namespace} }
 
 sub outer { $_[0]{parent} }
 
-sub emit { return '...' }  # XXX in 'Visitor::Perl.pm'
+sub emit { 
+    # XXX in 'Visitor::Perl.pm'
+    my $self  = shift;
+    my $visitor  = shift;
+    my $s = '::Pad( ';
+    
+    my @d;
+    for my $decl ( @{$self->lexicals} ) {
+        print 'decl: ', $decl,"\n";
+        push @d, $decl->emit( $visitor ); 
+    }    
+    $s = $s . 'lexicals => [' . join( ', ', @d ) . '], ';
+    $s = $s . 'namespace => "' . $self->namespace . '", ';
+    $s = $s . 'parent => ::Pad(...), ';
+    $s = $s . 'evaluator => ::Sub(...),';
+    return $s . ')';
+}
 
 sub add_lexicals {  # [ Decl, Decl, ... ]
     my $self  = shift;
