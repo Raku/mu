@@ -68,6 +68,7 @@ relationships:
                 sys.type.Int
                     sys.type.UInt
                         sys.type.PInt
+                            sys.type.PInt2_36
                 sys.type.Blob
                     sys.type.NEBlob
                 sys.type.Text
@@ -216,6 +217,12 @@ values are non-negative / greater than or equal to zero.
 A C<PInt> (positive integer) is a proper subtype of C<UInt> where all
 member values are positive / greater than or equal to one.  Its default
 value is one.
+
+=item C<sys.type.PInt2_36>
+
+A C<PInt2_36> is a proper subtype of C<PInt> where all member values are
+between 2 and 36.  (The significance of the number 36 is 10 digits plus 26
+letters.)  The cardinality of this type is 35.
 
 =item C<sys.type.Blob>
 
@@ -494,11 +501,11 @@ This function is a reduction operator that recursively takes each pair of
 its N input element values and picks the minimum of the 2 (a process which
 is both commutative and associative) until just one is left, a C<Maybe>
 whose single element is which is the function's result.  If C<$v> has zero
-values, then C<min> returns a same-typed C<Maybe> with zero elements.  Note
-that, while C<min> could conceivably have been defined instead to not
-return a C<Maybe>, but rather to return the appropriate ordinal type's
-concept of negative infinity, this option is avoided for now citing
-practical concerns in the face of infinite (especially non-numeric) types.
+values, then C<min> results in a same-typed C<Maybe> with zero elements.
+I<Note that, while C<min> could conceivably have been defined instead to
+not result in a C<Maybe>, but rather to result in the appropriate ordinal
+type's concept of negative infinity, this option is avoided for now citing
+practical concerns in the face of infinite (especially non-numeric) types.>
 
 =item C<sys.rtn.Ordinal.max of Maybe{Some.Ordinal} (RO: Set{Some.Ordinal}
 $v)>
@@ -513,7 +520,7 @@ results in the maximum input element value rather than the minimum one.
 These functions are applicable to just one or more specific system-defined
 core scalar data type.
 
-=head2 Functions for sys.rtn.Bool
+=head2 Functions for sys.type.Bool
 
 These functions select values of the C<Bool> enumeration.
 
@@ -542,7 +549,7 @@ This function results in the logical I<not> of its argument.
 This function is a reduction operator that recursively takes each pair of
 its N input element values and does a logical I<and> (which is both
 commutative and associative) on them until just one is left, which is the
-function's result.  If C<$v> has zero values, then C<and> returns
+function's result.  If C<$v> has zero values, then C<and> results in
 C<Bool.True>, which is the identity value for logical I<and>.
 
 =item C<sys.rtn.Bool.or of Bool (RO: Set{Bool} $v)>
@@ -550,17 +557,20 @@ C<Bool.True>, which is the identity value for logical I<and>.
 This function is a reduction operator that recursively takes each pair of
 its N input element values and does a logical inclusive-or (which is both
 commutative and associative) on them until just one is left, which is the
-function's result.  If C<$v> has zero values, then C<and> returns
+function's result.  If C<$v> has zero values, then C<or> results in
 C<Bool.False>, which is the identity value for logical inclusive-or.
 
-=item C<sys.rtn.Bool.xor (RO: Bool $v1, Bool $v2)>
+=item C<sys.rtn.Bool.xor of Bool (RO: Bag{Bool} $v)>
 
-This function results in the logical exclusive-or of its 2 arguments.  This
-function is commutative.
+This function is a reduction operator that recursively takes each pair of
+its N input element values and does a logical exclusive-or (which is both
+commutative and associative) on them until just one is left, which is the
+function's result.  If C<$v> has zero values, then C<xor> results in
+C<Bool.False>, which is the identity value for logical exclusive-or.
 
 =back
 
-=head2 Functions for sys.rtn.Order
+=head2 Functions for sys.type.Order
 
 These functions select values of the C<Order> enumeration.
 
@@ -592,7 +602,7 @@ the two; an C<Order.Same> argument results in C<Order.Same>.
 
 =back
 
-=head2 Functions for sys.rtn.Int
+=head2 Functions for sys.type.Int
 
 These functions implement commonly used integer operations.
 
@@ -604,7 +614,7 @@ This function results in the sum of the N element values of its argument;
 it is a reduction operator that recursively takes each pair of input values
 and adds (which is both commutative and associative) them together until
 just one is left, which is the result.  If C<$addends> has zero values,
-then C<sum> returns the integer zero, which is the identity value for
+then C<sum> results in the integer zero, which is the identity value for
 addition.
 
 =item C<sys.rtn.Int.difference of Int (RO: Int $minuend, Int $subtrahend)>
@@ -618,7 +628,7 @@ This function results in the product of the N element values of its
 argument; it is a reduction operator that recursively takes each pair of
 input values and multiplies (which is both commutative and associative)
 them together until just one is left, which is the result.  If C<$factors>
-has zero values, then C<product> returns the integer 1, which is the
+has zero values, then C<product> results in the integer 1, which is the
 identity value for multiplication.
 
 =item C<sys.rtn.Int.quotient of Int (RO: Int $dividend, Int $divisor)>
@@ -627,13 +637,13 @@ This function results in the quotient when its C<$dividend> argument is
 divided by its C<$divisor> argument using integer division.  This function
 throws an exception if C<$divisor> is zero.
 
-=item C<sys.rtn.Int.remainder of Int (RO: Int $dividend, Int $divisor)>
+=item C<sys.rtn.Int.remainder of UInt (RO: Int $dividend, Int $divisor)>
 
 This function results in the remainder when its C<$dividend> argument is
 divided by its C<$divisor> argument using integer division.  This function
 throws an exception if C<$divisor> is zero.
 
-=item C<sys.rtn.Int.abs of Int (RO: Int $v)>
+=item C<sys.rtn.Int.abs of UInt (RO: Int $v)>
 
 This function results in the absolute value of its argument.
 
@@ -649,47 +659,132 @@ representations of integers as character strings.
 
 =over
 
-=item C<sys.rtn.Int.Int_from_Text.2 of Int (RO: Text $text)>
+=item C<sys.rtn.Int.Int_from_Text of Int (RO: NEText $text, PInt2_36
+$radix)>
 
-This selector function results in the C<Int> value that its argument maps
-to when the whole character string is evaluated as a base-2 integer.
+This selector function results in the C<Int> value that its C<$text>
+argument maps to when the whole character string is evaluated as a
+base-C<$radix> integer.  Extending the typical formats of [base-2, base-8,
+base-10, base-16], this function supports base-2 through base-36; to get
+the latter, the characters 0-9 and A-Z represent values in 0-35.  This
+function throws an exception if C<$text> can't be mapped as specified.
 
-=item C<sys.rtn.Int.Text_from_Int.2 of Text (RO: Int $int)>
+=item C<sys.rtn.Int.Text_from_Int of NEText (RO: Int $int, PInt2_36
+$radix)>
 
-This selector function results in the C<Text> value where its argument is
-formatted as a base-2 integer.
-
-=item C<sys.rtn.Int.Int_from_Text.8 of Int (RO: Text $text)>
-
-Same as C<Int.Int_from_Text.2> but for base-8.
-
-=item C<sys.rtn.Int.Text_from_Int.8 of Text (RO: Int $int)>
-
-Same as C<Int.Text_from_Int.2> but for base-8.
-
-=item C<sys.rtn.Int.Int_from_Text.10 of Int (RO: Text $text)>
-
-Same as C<Int.Int_from_Text.2> but for base-10.
-
-=item C<sys.rtn.Int.Text_from_Int.10 of Text (RO: Int $int)>
-
-Same as C<Int.Text_from_Int.2> but for base-10.
-
-=item C<sys.rtn.Int.Int_from_Text.16 of Int (RO: Text $text)>
-
-Same as C<Int.Int_from_Text.2> but for base-16.
-
-=item C<sys.rtn.Int.Text_from_Int.16 of Text (RO: Int $int)>
-
-Same as C<Int.Text_from_Int.2> but for base-16.
+This selector function results in the C<Text> value where its C<$int>
+argument is formatted as a base-C<$radix> integer.
 
 =back
 
-=head2 Functions for sys.rtn.Blob
+These functions convert between C<Int> values and canonically formatted
+representations of integers as binary strings.  I<Conjecture: These may not
+actually be useful, and perhaps only operators that take an argument
+specifying a fixed-length field size, with big and little endian versions,
+would be appropriate instead.  Or maybe both kinds are necessary.>
+
+=over
+
+=item C<sys.rtn.Int.Int_from_Blob_S_VBE of Int (RO: NEBlob $blob)>
+
+This selector function results in the C<Int> value that its C<$blob>
+argument maps to when the whole bit string is treated literally as a
+variable-length binary (two's complement) signed integer of 1 or more bits
+in length.  The first bit is taken as the sign bit, and any other bits
+provide greater precision than the -1 thru 0 range.  The bit string is
+assumed to be big-endian, since it may not be possible to use little-endian
+in situations where the bit length isn't a multiple of 8.
+
+=item C<sys.rtn.Int.Blob_S_VBE_from_Int of NEBlob (RO: Int $int)>
+
+This selector function results in the C<Blob> value where its C<$int>
+argument is formatted as a variable-length binary (two's complement) signed
+integer of 1 or more bits in length; the smallest number of bits necessary
+to store C<$int> is used.
+
+=item C<sys.rtn.Int.Int_from_Blob_U_VBE of UInt (RO: NEBlob $blob)>
+
+This function is the same as C<sys.rtn.Int.Int_from_Blob_S_VBE> but that it
+does unsigned integers.
+
+=item C<sys.rtn.Int.Blob_U_VBE_from_Int of UInt (RO: NEBlob $blob)>
+
+This function is the same as C<sys.rtn.Int.Blob_S_VBE_from_Int> but that it
+does unsigned integers.
+
+=back
+
+=head2 Functions for sys.type.Blob
 
 These functions implement commonly used binary string operations.
 
 =over
+
+=item C<sys.rtn.Blob.catenate of Blob (RO: Seq{Blob} $v)>
+
+This function results in the catenation of the N element values of its
+argument; it is a reduction operator that recursively takes each
+consecutive pair of input values and catenates (which is associative) them
+together until just one is left, which is the result.  If C<$v> has zero
+values, then C<catenate> results in the empty string value, which is the
+identity value for catenate.
+
+=item C<sys.rtn.Blob.repeat of Blob (RO: Blob $v, UInt $count)>
+
+This function results in the catenation of C<$count> instances of C<$v>.
+
+=item C<sys.rtn.Blob.length_in_bits of UInt (RO: Blob $v)>
+
+This function results in the length of its argument in bits.
+
+=item C<sys.rtn.Blob.contains of Bool (RO: Blob $look_in, Blob $look_for,
+Bool $fixed_start, Bool $fixed_end)>
+
+This function results in C<Bool.True> iff its C<$look_for> argument is a
+substring of its C<$look_in> argument as per the optional C<$fixed_start>
+and C<$fixed_end> constraints, and C<Bool.False> otherwise.  If
+C<$fixed_start> or C<$fixed_end> are C<Bool.True>, then C<$look_for> must
+occur right at the start or end, respectively, of C<$look_in> in order for
+C<contains> to results in C<Bool.True>; if either flag is C<Bool.False>, its
+additional constraint doesn't apply.
+
+=item C<sys.rtn.Blob.not of Blob (RO: Blob $v)>
+
+This function results in the bitwise I<not> of its argument.
+
+=item C<sys.rtn.Blob.and of Maybe{Blob} (RO: Set{Blob} $v)>
+
+This function is a reduction operator that recursively takes each pair of
+its N input element values and does a bitwise I<and> (which is both
+commutative and associative) on them until just one is left, a C<Maybe>
+whose single element is which is the function's result.  This function
+throws an exception if not all input values are of the same length in bits.
+If C<$v> has zero values, then C<and> results in a same-typed C<Maybe> with
+zero elements.  I<Note that, while C<and> could conceivably have been
+defined instead to not result in a C<Maybe>, but rather to result in the
+appropriate string of identity-valued bits, this option is avoided for now
+citing practical concerns in the face of infinite blob types; also, a
+default empty string result is being avoided.>
+
+=item C<sys.rtn.Blob.or of Maybe{Blob} (RO: Set{Blob} $v)>
+
+This function is a reduction operator that recursively takes each pair of
+its N input element values and does a bitwise inclusive-or (which is both
+commutative and associative) on them until just one is left, a C<Maybe>
+whose single element is which is the function's result.  This function
+throws an exception if not all input values are of the same length in bits.
+If C<$v> has zero values, then C<or> results in a same-typed C<Maybe> with
+zero elements.  I<The note for C<and> applies to C<or> too.>
+
+=item C<sys.rtn.Blob.xor of Maybe{Blob} (RO: Bag{Blob} $v)>
+
+This function is a reduction operator that recursively takes each pair of
+its N input element values and does a bitwise exclusive-or (which is both
+commutative and associative) on them until just one is left, a C<Maybe>
+whose single element is which is the function's result.  This function
+throws an exception if not all input values are of the same length in bits.
+If C<$v> has zero values, then C<xor> results in a same-typed C<Maybe> with
+zero elements.  I<The note for C<and> applies to C<xor> too.>
 
 =back
 
@@ -698,38 +793,92 @@ representations of binary strings as character strings.
 
 =over
 
-=item C<sys.rtn.Blob.Blob_from_Text.2 of Blob (RO: Text $text)>
+=item C<sys.rtn.Blob.Blob_from_Text_2 of Blob (RO: Text $text)>
 
 This selector function results in the C<Blob> value that its argument maps
 to when each input character is a [0-1] and represents a bit.
 
-=item C<sys.rtn.Blob.Text_from_Blob.2 of Text (RO: Blob $blob)>
+=item C<sys.rtn.Blob.Text_from_Blob_2 of Text (RO: Blob $blob)>
 
 This selector function results in the C<Text> value where its argument is
 encoded using a [0-1] character for each bit.
 
-=item C<sys.rtn.Blob.Blob_from_Text.16 of Blob (RO: Text $text)>
+=item C<sys.rtn.Blob.Blob_from_Text_16 of Blob (RO: Text $text)>
 
 This selector function results in the C<Blob> value that its argument maps
-to when each input character is a [0-9A-Fa-f] and represents a hex digit.
+to when each input character is a [0-9A-F] and represents a hex digit.
 
-=item C<sys.rtn.Blob.Text_from_Blob.16uc of Text (RO: Blob $blob)>
+=item C<sys.rtn.Blob.Text_from_Blob_16 of Text (RO: Blob $blob)>
 
 This selector function results in the C<Text> value where its argument is
 encoded using a [0-9A-F] character for each bit.
 
-=item C<sys.rtn.Blob.Text_from_Blob.16lc of Text (RO: Blob $blob)>
-
-This selector function results in the C<Text> value where its argument is
-encoded using a [0-9a-f] character for each bit.
-
 =back
 
-=head2 Functions for sys.rtn.Text
+=head2 Functions for sys.type.Text
 
 These functions implement commonly used character string operations.
 
 =over
+
+=item C<sys.rtn.Text.catenate of Text (RO: Seq{Text} $v)>
+
+This function results in the catenation of the N element values of its
+argument; it is a reduction operator that recursively takes each
+consecutive pair of input values and catenates (which is associative) them
+together until just one is left, which is the result.  If C<$v> has zero
+values, then C<catenate> results in the empty string value, which is the
+identity value for catenate.
+
+=item C<sys.rtn.Text.repeat of Text (RO: Text $v, UInt $count)>
+
+This function results in the catenation of C<$count> instances of C<$v>.
+
+=item C<sys.rtn.Text.length_in_nfd_graphs of UInt (RO: Text $v)>
+
+This function results in the length of its argument in Unicode
+Normalization Form D graphemes.
+
+=item C<sys.rtn.Text.length_in_nfc_graphs of UInt (RO: Text $v)>
+
+This function results in the length of its argument in Unicode
+Normalization Form C graphemes.
+
+=item C<sys.rtn.Text.length_in_nfd_codes of UInt (RO: Text $v)>
+
+This function results in the length of its argument in Unicode
+Normalization Form D code points.
+
+=item C<sys.rtn.Text.length_in_nfc_codes of UInt (RO: Text $v)>
+
+This function results in the length of its argument in Unicode
+Normalization Form C code points.
+
+=item C<sys.rtn.Text.contains of Bool (RO: Text $look_in, Text $look_for,
+Bool $fixed_start, Bool $fixed_end)>
+
+This function results in C<Bool.True> iff its C<$look_for> argument is a
+substring of its C<$look_in> argument as per the optional C<$fixed_start>
+and C<$fixed_end> constraints, and C<Bool.False> otherwise.  If
+C<$fixed_start> or C<$fixed_end> are C<Bool.True>, then C<$look_for> must
+occur right at the start or end, respectively, of C<$look_in> in order for
+C<contains> to result in C<Bool.True>; if either flag is C<Bool.False>, its
+additional constraint doesn't apply.
+
+=item C<sys.rtn.Text.fold_case_to_upper (RO: Text $v)>
+
+This function results in the transformation of its argument where any Latin
+letters are folded to (capital) uppercase.
+
+=item C<sys.rtn.Text.fold_case_to_lower (RO: Text $v)>
+
+This function results in the transformation of its argument where any Latin
+letters are folded to (small) lowercase.
+
+=item C<sys.rtn.Text.trim_whitespace (RO: Text $v)>
+
+This function results in the value of its argument but that any leading or
+trailing whitespace characters are trimmed.
 
 =back
 

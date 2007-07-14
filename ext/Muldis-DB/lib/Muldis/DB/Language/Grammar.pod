@@ -68,10 +68,7 @@ any common grammar specifying formats.  It should become formalized later.
 
     int
         = q(Int:Default)
-        | q(Int:2:') /(0|-?1[0-1]*)/ q(')
-        | q(Int:8:') /(0|-?[1-7][0-7]*)/ q(')
-        | q(Int:10:') /(0|-?[1-9][0-9]*)/ q(')
-        | q(Int:16:') /(0|-?[1-9A-F][0-9A-F]*)/ q(')
+        | q(Int:) (q(2)..q(36)) q(:') /(0|-?[1-9A-Z][0-9A-Z]*)/ q(')
         ;
 
     blob

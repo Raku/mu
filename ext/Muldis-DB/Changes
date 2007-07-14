@@ -13,12 +13,17 @@
     * New file versions are: DB.pm and AST.pm and Language.pod and
     Validator.pm and Example.pm 0.2.0.
 
-    * Updated Core.pod to replace the pseudo-type 'Any' with the
-    pseudo-type 'Some.Universal', and added 'Some.Ordinal'.
+    * Updated Core.pod to add the scalar type 'PInt2_36', and to replace
+    the pseudo-type 'Any' with the pseudo-type 'Some.Universal', and added
+    'Some.Ordinal'.
+
+    * Updated Grammar.pod concerning integer literals; they can be
+    represented with any of base-2 thru base-36 now.
 
     * Updated Core.pod to add definitions for the generic operators common
     to all ordinal types: compare, reverse_compare, is_inc, is_dec, min,
-    max.  Added 'reverse' operator for the Order type.
+    max.  Added 'reverse' operator for the Order type.  Added or replaced
+    a bunch of operators for the Int|Blob|Text types.  Other small changes.
 
 2007-07-11   Darren Duncan <perl@DarrenDuncan.net>
 
