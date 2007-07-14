@@ -12,9 +12,9 @@
 module Pugs.Lexer (
     wordAlpha, wordAny, isWordAlpha, isWordAny,
     maybeParens, parens, whiteSpace, mandatoryWhiteSpace, lexeme, identifier, identLetter,
-    braces, brackets, angles, balanced, balancedDelim, decimal,
+    braces, brackets, angles, balancedDelim, decimal,
 
-    ruleVerbatimIdentifier, ruleDelimitedIdentifier, ruleQualifiedIdentifier, ruleWhiteSpaceLine,
+    ruleVerbatimIdentifier, ruleDelimitedIdentifier, ruleQualifiedIdentifier,
 
     symbol, interpolatingStringLiteral, escapeCode,
 
@@ -130,6 +130,7 @@ balancedDelim c = case c of
     '\xFF5F' -> '\xFF60'; '\xFF62' -> '\xFF63'; other    -> other
 #endif
 
+{-
 -- balanced: parses an open/close delimited expression of any non-alphanumeric character
 balanced :: RuleParser String
 balanced = do
@@ -139,7 +140,6 @@ balanced = do
     char $ balancedDelim opendelim
     return contents
 
-{-
 -- The \b rule.
 _ruleWordBoundary :: RuleParser ()
 _ruleWordBoundary = do
@@ -189,6 +189,7 @@ ruleVerbatimIdentifier = verbatimRule "identifier" $ do
     cs <- many identLetter
     return (c:cs)
 
+{-
 {-|
 Match any amount of whitespace (not including newlines), followed by a newline
 (as matched by 'ruleEndOfLine').
@@ -204,6 +205,7 @@ line anyway).
 -}
 ruleEndOfLine :: RuleParser ()
 ruleEndOfLine = choice [ do { char '\n'; return () }, eof ]
+-}
 
 symbol :: String -> RuleParser String
 symbol s = try $ do

@@ -1,8 +1,7 @@
 {-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -fno-full-laziness -fno-cse -fno-warn-deprecations -fallow-undecidable-instances -fallow-overlapping-instances -funbox-strict-fields -cpp #-}
 
 module Pugs.Internals.ID (
-    ID(..), bufToID,
-    hashNew, hashList,
+    ID(..), bufToID, hashNew,
     __, (+++), nullID, 
 ) where
 
@@ -74,10 +73,6 @@ __ = UTF8.pack
 {-# INLINE hashNew #-}
 hashNew :: IO (H.HashTable ByteString a)
 hashNew = H.new (==) (UTF8.hash)
-
-{-# INLINE hashList #-}
-hashList :: [(ByteString, a)] -> IO (H.HashTable ByteString a)
-hashList = H.fromList (UTF8.hash)
 
 {-# NOINLINE _BufToID #-}
 _BufToID :: H.HashTable ByteString ID

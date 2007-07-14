@@ -22,7 +22,7 @@ nameToCode name = inlinePerformIO $ do
 #else
 
 import qualified Data.HashTable as H
-import UTF8 (unsafePackAddress)
+import UTF8 (unsafePackAddress, hash)
 
 -- If we don't have Perl 5, support for names in the 0x00 - 0xFF range only.
 
@@ -289,4 +289,8 @@ _NameToCode = unsafePerformIO $! hashList
     , (unsafePackAddress 24 "LATIN SMALL LETTER THORN"#, 0x00FE)
     , (unsafePackAddress 35 "LATIN SMALL LETTER Y WITH DIAERESIS"#, 0x00FF)
     ]
+    where
+    hashList :: [(ByteString, a)] -> IO (H.HashTable ByteString a)
+    hashList = H.fromList hash
+
 #endif

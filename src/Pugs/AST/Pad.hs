@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fglasgow-exts -fparr #-}
 module Pugs.AST.Pad (
-  mkPad, diffPads, unionPads, padKeys, filterPad, adjustPad, mergePadEntry,
+  mkPad, unionPads, padKeys, filterPad, adjustPad, mergePadEntry,
   mergeLexPads, readMPad, writeMPad, appendMPad, modifyMPad, newMPad
 ) where
 import Pugs.Internals
@@ -50,6 +50,7 @@ newMPad p = do
     tvar <- stm $ newTVar p
     return $ MkMPad (addressOf tvar) tvar
 
+{-
 {-|
 Return the difference between two 'Pad's.
 
@@ -61,6 +62,7 @@ diffPads (MkPad map1) (MkPad map2) = MkPad $ Map.differenceWith diffPadEntry map
     where
     diffPadEntry x y | x == y    = Nothing
                      | otherwise = Just x
+-}
 
 {-|
 Return the key-wise union of two 'Pad's.

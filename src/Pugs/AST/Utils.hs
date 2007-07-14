@@ -33,23 +33,6 @@ getIndex idx def doList ext = do
             Nothing    -> errIndex def idx
         (a:_) -> return a
 
-getMapIndex :: Int -> Maybe a -> Eval (IntMap a) -> Maybe (Eval b) -> Eval a
-getMapIndex idx def doList _ | idx < 0 = do
-    -- first, check if the list is at least abs(idx) long.
-    list <- doList
-    if IntMap.member (abs (idx+1)) list
-        then return . fromJust
-            $ IntMap.lookup (idx `mod` (IntMap.size list)) list
-        else errIndex def idx
--- now we are all positive; either extend or return
-getMapIndex idx def doList ext = do
-    list <- doList
-    case IntMap.lookup idx list of
-        Just a  -> return a
-        Nothing -> case ext of
-            Just doExt -> do { doExt ; getMapIndex idx def doList Nothing }
-            Nothing    -> errIndex def idx
-
 {-|
 If we are in list context (i.e. 'CxtSlurpy'), then perform the first
 evaluation; otherwise perform the second.
