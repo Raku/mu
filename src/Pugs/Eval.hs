@@ -296,9 +296,6 @@ reduceVar var@MkVar{ v_sigil = sig, v_twigil = twi, v_name = name, v_package = p
                             lv <- asks envLValue
                             if lv then evalExp (Sym SOur var mempty Noop (Var var)) else retEmpty
 
-_scalarContext :: Cxt
-_scalarContext = CxtItem $ mkType "Scalar"
-
 reduceStmts :: Exp -> Exp -> Eval Val
 reduceStmts Noop rest           = reduce rest
 reduceStmts (Ann _ Noop) rest   = reduce rest
@@ -421,8 +418,6 @@ reduceSyn "" [Syn "block" [Val (VCode code)]] = do
         writeMPad glob pad'
         fmap VCode (recloseCode code)
 
-reduceSyn "()" [exp] = reduce exp
-
 reduceSyn "named" [keyExp, valExp] = do
     key <- enterEvalContext cxtItemAny keyExp
     val <- enterEvalContext cxtItemAny valExp
@@ -462,13 +457,9 @@ reduceSyn "sub" [exp] = do
         return $ Just tvar
 
     -- Close over outer lexical scope.
-    -- error "XXX - clone should operate on sub now"
-    -- newBody <- transformExp cloneBodyStates $ subBody sub
     -- add &?BLOCK &?ROUTINE etc here
     started     <- if isCompileTime env then return Nothing else fmap Just (stm $ newTVar False)
     inner       <- clonePad (subInnerPad sub) 
---  lpads       <- cloneLexPads (subOuterPads sub)
---  warn "mooooose" $ envLexPads env
     return $ VCode sub
         { subCont       = cont
         , subOuterPads  = if isCompileTime env then subOuterPads sub else envLexPads env
@@ -476,22 +467,6 @@ reduceSyn "sub" [exp] = do
         , subStarted    = started
         }
     where
-    cloneLexPads chain = forM chain $ \lpad -> case lpad of
-        PRuntime p      -> do
-            p'  <- snapPad p
-            return (PRuntime p')
-        _               -> return lpad
---    cloneBodyStates (Pad scope pad exp) | scope <= SMy = do
---        pad' <- clonePad pad
---        return $ Pad scope pad' exp
-    cloneBodyStates x = return x -- XXX!
-    snapPad pad = stm $ do
-        fmap listToPad $ forM (padToList pad) $ \(var, entry) -> do
-            case entry of
-                PELexical{} -> do
-                    store <- newTVar =<< readTVar (pe_store entry)
-                    return (var, entry{ pe_store = store })
-                _   -> return (var, entry)
     clonePad pad = stm $ do
         fmap listToPad $ forM (padToList pad) $ \(var, entry) -> do
             let preserveContent   = readTVar . pe_store
@@ -653,8 +628,6 @@ reduceSyn "=" [lhs, rhs] = do
             if cxt == cxtSlurpyAny
                 then evalVal refVal
                 else readRef ref
-
-reduceSyn "::=" exps = reduce (Syn ":=" exps)
 
 reduceSyn ":=" exps
     | [Syn "," vars, Syn "," vexps] <- unwrap exps = do
@@ -879,10 +852,6 @@ reduceSyn "trans" (fromExp:toExp:_) = do
     from <- fromVal =<< reduce fromExp
     to   <- fromVal =<< reduce toExp
     return $ VSubst (MkTrans from to)
-
--- XXX - Runtime mixin
-reduceSyn "is" (lhs:_) = reduce lhs
-reduceSyn "does" (lhs:_) = reduce lhs
 
 reduceSyn "package" [kind, exp] = reduceSyn "namespace" [kind, exp, emptyExp]
 
@@ -1460,14 +1429,6 @@ doApply appKind origSub@MkCode{ subCont = cont, subBody = fun, subType = typ } i
                 SubMacro    -> applyMacroResult val 
                 _           -> evalVal val
     where
-    tryRecBind :: Var -> Pad -> Pad -> Eval ()
-    tryRecBind var pad pad2 = case lookupPad var pad of
-        Just{} -> case lookupPad var pad2 of
-            Just c  -> do
-                ref <- fromVal (VCode origSub)
-                stm $ writeTVar (pe_store c) ref
-            _  -> return ()
-        _  -> return ()
     applyMacroResult :: Val -> Eval Val
     applyMacroResult (VObject o)
         | objType o == mkType "Code::Exp" = reduce (fromObject o)
