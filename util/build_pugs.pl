@@ -193,7 +193,7 @@ sub build {
 
 =cut
 
-    foreach my $module (qw< filepath HsSyck hsregex >) {
+    foreach my $module (qw< HsSyck hsregex >) {
         if ( my ($archive_dir) = (
                 glob("third-party/installed/*/$module-*"),
                 glob("third-party/installed/*/pugs-$module-*"),

@@ -228,13 +228,18 @@ sub assert_ghc {
 
     $ghc_version or die << '.';
 *** Cannot find a runnable 'ghc' from path.
-*** Please install GHC (6.6 or above) from http://haskell.org/ghc/.
+*** Please install GHC (6.6.1 or above) from http://haskell.org/ghc/.
 .
 
-    my $ghc_lt_660 = !($ghc_version =~ /^(\d)\.(\d+)/ and $1 >= 6 and $2 >= 6);
-    if ($ghc_lt_660) {
+    my $ghc_ge_661 = (
+        ($ghc_version =~ /^(\d)\.(\d+)/ and $1 >= 6 and $2 >= 6)
+            and
+        $ghc_version ne '6.6'
+    );
+
+    unless ($ghc_ge_661) {
         die << ".";
-*** Cannot find GHC 6.6 or above from path (we have $ghc_version).
+*** Cannot find GHC 6.6.1 or above from path (we have $ghc_version).
 *** Please install a newer version from http://haskell.org/ghc/.
 .
     }

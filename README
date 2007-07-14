@@ -44,9 +44,6 @@ be moved to the third-party/ directory.
 The "ByteString" subsystem is derived from Don Stewart et al's work,
 under a BSD-style license.  See third-party/fps/LICENSE.
 
-The "FilePath" subsystem is derived from Neil Mitchell's work,
-under a BSD-style license.  See third-party/filepath/System/FilePath.hs.
-
 The "HsJudy" subsystem is derived from Caio Marcelo de Oliveira Filho's
 work, under a BSD-style license.  See third-party/HsJudy/HsJudy.cabal.
 

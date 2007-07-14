@@ -685,7 +685,7 @@ EOD
 #        $judyclean = "cd third-party/judy/Judy-1.0.3 \&\& $make clean \&\& perl cleanmore.pl";
 #    }
 
-    my @ghci_flags = qw( -hide-all-packages -package base -package parsec -package template-haskell  -package readline -package unix -package haskell98 -package mtl -package stm -package network -package pugs-HsSyck -package pugs-filepath -package pugs-hsregex );
+    my @ghci_flags = qw( -hide-all-packages -package base -package filepath -package parsec -package template-haskell -package readline -package unix -package haskell98 -package mtl -package stm -package network -package pugs-HsSyck -package pugs-hsregex );
 
     postamble(fixpaths(<< "."));
 $config_h : lib/Perl6/Pugs.pm util/config_h.pl

@@ -4,7 +4,7 @@ license: GPL
 license-file: LICENSE
 copyright: 2005-2007, The Pugs Contributors
 maintainer: Audrey Tang <audreyt@audreyt.org>
-build-depends: pugs-hsregex -any, pugs-HsSyck -any, pugs-filepath -any, base -any, mtl -any, stm -any, parsec -any, network -any, haskell98 -any, template-haskell -any, time -any__DEPENDS__
+build-depends: pugs-hsregex -any, pugs-HsSyck -any, filepath -any, base -any, mtl -any, stm -any, parsec -any, network -any, haskell98 -any, template-haskell -any, time -any__DEPENDS__
 stability: experimental
 homepage: http://pugscode.org/
 synopsis: A Perl 6 Implementation
