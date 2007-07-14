@@ -572,7 +572,15 @@ sub write_buildinfo {
         }
         s/__OPTIONS__/@args/;
         s/__VERSION__/$version/;
-        s/__DEPENDS__/$depends/;
+
+        if (s/__DEPENDS__/$depends/ and /^build-depends:\s+(.+)/) {
+            # Explicitly add those packages into GHC_OPTIONS.
+            foreach my $pkg (split(/\s*,\s*/, $1)) {
+                $pkg =~ /(\S+)/ or next;
+                push @args, -package => $1;
+            }
+        }
+
         s/__PERL5_C__/$perl5_c/;
         s/__PARROT_C__/$parrot_c/;
         s/__INCLUDE_DIRS__/@include_dirs/;
