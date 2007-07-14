@@ -60,11 +60,11 @@ fileTestViaPerl5 testOp v = do
 
 fileTime :: (FilePath -> IO Integer) -> Val -> Eval Val
 fileTime test f = do
-    t <- fileTestIO (fileTestDo test) f
+    t   <- fileTestIO (fileTestDo test) f
     if (t == undef) then return VUndef else do
-    t' <- fromVal t
-    b <- (readVar $ cast "$*BASETIME") >>= fromVal
-    return $ VRat $ (b - (pugsTimeSpec $ TOD t' 0)) / 86400
+    t'  <- fromVal t :: Eval Integer
+    b   <- fromVal =<< readVar (cast "$*BASETIME")
+    return $ VRat $ (b - (pugsTimeSpec . posixSecondsToUTCTime $ fromIntegral t')) / 86400
 
 fileTestIO :: (Value n) => (n -> IO Val) -> Val -> Eval Val
 fileTestIO f v = do

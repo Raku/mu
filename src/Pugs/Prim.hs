@@ -55,6 +55,9 @@ import DrIFT.YAML
 import GHC.Exts (unsafeCoerce#)
 import GHC.Unicode
 import qualified Data.HashTable as H
+import Data.Time.LocalTime
+import Data.Time.Calendar.OrdinalDate
+import Data.Time.Calendar.MonthDay
 
 constMacro :: Exp -> [Val] -> Eval Val
 constMacro = const . expToEvalVal
@@ -71,7 +74,7 @@ op0 "Bool::False" = const . return $ VBool False
 op0 "True"  = constMacro . Val $ VBool True
 op0 "False" = constMacro . Val $ VBool False
 op0 "time"  = const $ do
-    clkt <- guardIO getClockTime
+    clkt <- guardIO getCurrentTime
     return $ VRat $ pugsTimeSpec clkt
 op0 "times"  = const $ do
     ProcessTimes _ u s cu cs <- guardIO getProcessTimes
@@ -419,12 +422,10 @@ op1 "readlink" = \v -> do
 op1 "sleep" = \v -> do
     x <- fromVal v :: Eval VNum
     guardIO $ do
-        TOD t0s t0ps <- getClockTime
+        start   <- getCurrentTime
         threadDelay (round $ x * clocksPerSecond)
-        TOD t1s t1ps <- getClockTime
-        return $ VRat ((fromInteger $ t1ps - t0ps)
-                      / (clocksPerSecond * clocksPerSecond) -- 10^12
-                      + (fromInteger $ t1s - t0s))
+        finish  <- getCurrentTime
+        return $ VRat (toRational $ diffUTCTime start finish)
 op1 "mkdir" = guardedIO createDirectory
 op1 "rmdir" = guardedIO removeDirectory
 op1 "chdir" = guardedIO setCurrentDirectory
@@ -698,6 +699,35 @@ op1 "Class::traits" = \v -> do
 op1 "vv" = op1Cast VV
 op1 "stat" = \x -> opPerl5 "require File::stat; File::stat::stat" [x]
 op1 "lstat" = \x -> opPerl5 "require File::stat; File::stat::lstat" [x]
+op1 "Pugs::Internals::localtime"  = \x -> do
+    tz  <- io getCurrentTimeZone
+    tm  <- fromVal x    -- seconds since Perl's epoch
+    let utc   = posixSecondsToUTCTime (fromInteger tm + offset)
+        local = utcToLocalTime tz utc
+        day   = localDay local
+        tod   = localTimeOfDay local
+        (year, month, dayOfMonth)   = toGregorian day 
+        (sec, pico)                 = properFraction $ todSec tod
+        (_, dayOfWeek)              = sundayStartWeek day
+    -- if wantString then return . VStr $ formatTime "%c" (ZonedTime local tz) else
+    retSeq [ vI    $ year
+           , vI    $ month
+           , vI    $ dayOfMonth
+           , vI    $ todHour tod
+           , vI    $ todMin tod
+           , VInt  $ sec
+           , vI    $ fromEnum (pico * 1000000000000)
+           , vI    $ dayOfWeek + 1
+           , vI    $ (monthAndDayToDayOfYear (isLeapYear year) month dayOfMonth) - 1
+           , VStr  $ timeZoneName tz
+           , vI    $ timeZoneMinutes tz * 60
+           , VBool $ timeZoneSummerOnly tz
+           ]
+    where
+    offset :: NominalDiffTime
+    offset = 946684800 -- diff between Haskell and Perl epochs (seconds)
+    vI :: Integral a => a -> Val
+    vI = VInt . toInteger
 
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 
@@ -1323,28 +1353,6 @@ op3 "Object::clone" = \t n _ -> do
     writeIVar (IHash attrs') (named `Map.union` attrs)
     return $ VObject o{ objAttrs = attrs', objId = uniq }
 
-op3 "Pugs::Internals::localtime"  = \x y z -> do
-    wantString <- fromVal x
-    sec <- fromVal y
-    pico <- fromVal z
-    c <- guardIO $ toCalendarTime $ TOD (offset + sec) pico
-    if wantString then return $ VStr $ calendarTimeToString c else
-        retSeq $ [ vI $ ctYear c
-                 , vI $ (1+) $ fromEnum $ ctMonth c
-                 , vI $ ctDay c
-                 , vI $ ctHour c
-                 , vI $ ctMin c
-                 , vI $ ctSec c
-                 , VInt $ ctPicosec c
-                 , vI $ (1+) $ fromEnum $ ctWDay c
-                 , vI $ ctYDay c
-                 , VStr $ ctTZName c
-                 , vI $ ctTZ c
-                 , VBool $ ctIsDST c
-                 ]
-    where
-       offset = 946684800 :: Integer -- diff between Haskell and Perl epochs (seconds)
-       vI = VInt . toInteger
 op3 "Pugs::Internals::hSeek" = \x y z -> do
     handle <- fromVal x
     pos <- fromVal y
@@ -1970,7 +1978,7 @@ initSyms = seq (length syms) $ do
 \\n   Str       pre     does    safe   (rw!Any|Junction, Str)\
 \\n   Num       pre     time    safe   ()\
 \\n   List      pre     times   safe   ()\
-\\n   List      pre     Pugs::Internals::localtime   safe   (Bool, Int, Int)\
+\\n   List      pre     Pugs::Internals::localtime   safe   (Num)\
 \\n   Str       pre     want    safe   ()\
 \\n   Str       pre     File::Spec::cwd     unsafe ()\
 \\n   Str       pre     File::Spec::tmpdir  unsafe ()\

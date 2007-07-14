@@ -50,6 +50,8 @@ import Data.Monoid            as X
 import Data.Ratio             as X 
 import Data.Sequence          as X (Seq, singleton)
 import Data.Set               as X (Set)
+import Data.Time              as X 
+import Data.Time.Clock.POSIX  as X 
 import Data.Tree              as X 
 import Data.Unique            as X 
 import Data.Word              as X hiding (Word)
@@ -72,7 +74,6 @@ import System.Mem             as X
 import System.Mem.Weak        as X 
 import System.Process         as X 
 import System.Random          as X hiding (split)
-import System.Time            as X 
 
 -- Instances.
 instance Show Unique where
