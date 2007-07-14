@@ -6,12 +6,14 @@ use KindaPerl6::Visitor::EmitPerl5;
 use KindaPerl6::Visitor::EmitPerl6;
 use KindaPerl6::Visitor::MetaClass;
 use KindaPerl6::Visitor::Token;
+use KindaPerl6::Visitor::Global;
 
 my $visitor_dump_ast    = KindaPerl6::Visitor::Perl->new();
 my $visitor_emit_perl5  = KindaPerl6::Visitor::EmitPerl5->new();
 my $visitor_emit_perl6  = KindaPerl6::Visitor::EmitPerl6->new();
 my $visitor_metamodel   = KindaPerl6::Visitor::MetaClass->new();
 my $visitor_token       = KindaPerl6::Visitor::Token->new();
+my $visitor_global      = KindaPerl6::Visitor::Global->new();
 
 # @COMPILER::CHECK  - CHECK blocks
 # @COMPILER::PAD    - Pad structures
@@ -62,6 +64,11 @@ sub begin_block {
     #$ast = $ast->emit( $visitor_lexical_sub );
     $ast = $ast->emit( $visitor_metamodel );
     #$ast = $ast->emit( $visitor_create_env );
+    
+    # XXX - initialization belongs to $visitor_global
+    $visitor_global->pad( [ $COMPILER::PAD[0] ] );
+    $ast = $ast->emit( $visitor_global );
+    shift @{ $visitor_global->pad };
     
     #print Dump( $ast );
     #Main::say( $ast->emit( $visitor_dump_ast    ));
@@ -127,9 +134,7 @@ sub begin_block {
         }
     }
     add_pad;
-    #my $initializer_name = 'Main::INIT_' . int(rand(100000000));
     my $begin_ast = BEGIN->new(
-        #name  => $initializer_name,
         block => Lit::Code->new(
             sig   => Sig->new(
                                  'named' => {},
@@ -144,7 +149,6 @@ sub begin_block {
     drop_pad;
     #print "BEGIN AST: ",Dumper($begin_ast);
     #print "BEGIN native: ", $begin_ast->emit( $visitor_emit_perl5  ) );
-    
     #print "data: ", Dumper( $data );
     
     # - convert the 'result' data to ast

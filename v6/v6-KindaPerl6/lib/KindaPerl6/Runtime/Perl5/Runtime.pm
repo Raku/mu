@@ -120,6 +120,15 @@ package GLOBAL;
     ${"GLOBAL::Code_$_"} = \&{"GLOBAL::$_"} for @EXPORT;
     $GLOBAL::Code_import = $::Code->{_dispatch}( $::Code, 'new', 
         { code => \&{"GLOBAL::import"}, src => '&GLOBAL::import' } );
+
+    sub init_global {
+        # print "Init GLOBAL\n";
+        ${"GLOBAL::Code_$_"} = $::Code->{_dispatch}( $::Code, 'new', 
+            { code => ${"GLOBAL::Code_$_"}, src => '&GLOBAL::'.$_ } ) 
+            for @EXPORT;
+    }
+
+    # XXX - obsolete - GLOBAL is looked up at compile-time
     sub import {
         #print "@_\n";
         my $pkg = _str( $_[0] ); 
@@ -285,6 +294,12 @@ package Main;
         require Data::Dump::Streamer;
         Data::Dump::Streamer::Dump( @_ );
     }
+
+
+{
+    GLOBAL::init_global;
+}
+
 1;
 
 __END__

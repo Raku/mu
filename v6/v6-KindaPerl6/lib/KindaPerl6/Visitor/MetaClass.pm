@@ -14,12 +14,13 @@ class KindaPerl6::Visitor::MetaClass {
         {
             my $module := [ ];
 
-            push @$module, ::Apply(
-                code      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'GLOBAL::import' ),
-                arguments => [ 
-                    ::Val::Buf( buf => $node.name ),
-                ],
-            );
+            # calls GLOBAL::import
+            #push @$module, ::Apply(
+            #    code      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'import' ),
+            #    arguments => [ 
+            #        ::Val::Buf( buf => $node.name ),
+            #    ],
+            #);
             
             # role or class/grammar/module ?
             if $node.unit_type eq 'role' {
