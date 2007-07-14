@@ -11,7 +11,6 @@ import Pugs.Parser
 import Pugs.Rule
 import Text.ParserCombinators.Parsec.Error (showErrorMessages, errorMessages)
 import qualified Data.Map as Map
-import qualified Data.Set as Set
 
 parseProgram :: Env -> FilePath -> String -> Env
 parseProgram env path str = runRule env ruleProgram path progWithEOL
@@ -108,7 +107,7 @@ makeState env = MkState
     , s_wsLine          = 0
     , s_wsColumn        = 0
     , s_closureTraits   = [id]
-    , s_freeVars        = Set.empty
+--  , s_freeVars        = Set.empty
     , s_knownVars       = Map.map (const topMPad) (padEntries (envLexical env))
     , s_outerVars       = Map.empty
     , s_protoPad        = emptyPad
