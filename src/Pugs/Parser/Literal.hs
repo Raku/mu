@@ -201,12 +201,6 @@ qInterpolateDelimiter protectedChar = do
     c <- oneOf (protectedChar:"\\")
     return (Val $ VStr [c])
 
-qInterpolateDelimiterMinimal :: Char -> RuleParser Exp
-qInterpolateDelimiterMinimal protectedChar = do
-    char '\\'
-    c <- oneOf (protectedChar:"\\")
-    return (Val $ VStr ['\\',c])
-
 qInterpolateDelimiterBalanced :: Char -> RuleParser Exp
 qInterpolateDelimiterBalanced protectedChar = do
     char '\\'
@@ -255,7 +249,6 @@ qInterpolator flags = choice [
                <|> (try $ qInterpolateDelimiter $ qfProtectedChar flags)
             QB_Single -> try qInterpolateQuoteConstruct
                <|> (try $ qInterpolateDelimiter $ qfProtectedChar flags)
-            QB_Minimal -> try $ qInterpolateDelimiterMinimal $ qfProtectedChar flags
             QB_Balanced -> try $ qInterpolateDelimiterBalanced $ qfProtectedChar flags
             QB_No -> mzero
         variable = try $ do
@@ -437,9 +430,9 @@ angleBracketLiteral = try $
 -- Quoting delimitor and flags
 -- qfProtectedChar is the character to be
 --   protected by backslashes, if
---   qfInterpolateBackslash is Minimal or Single or All
+--   qfInterpolateBackslash is Single or All
 data QS_Flag = QS_No | QS_Yes | QS_Protect deriving (Show, Eq, Ord, Typeable)
-data QB_Flag = QB_No | QB_Minimal | QB_Balanced | QB_Single | QB_All deriving (Show, Eq, Ord, Typeable)
+data QB_Flag = QB_No | QB_Balanced | QB_Single | QB_All deriving (Show, Eq, Ord, Typeable)
 
 data QFlags = MkQFlags
     { qfSplitWords              :: !QS_Flag -- No, Yes, Protect
@@ -448,7 +441,7 @@ data QFlags = MkQFlags
     , qfInterpolateHash         :: !Bool
     , qfInterpolateFunction     :: !Bool
     , qfInterpolateClosure      :: !Bool
-    , qfInterpolateBackslash    :: !QB_Flag -- No, Minimal, Single, All
+    , qfInterpolateBackslash    :: !QB_Flag -- No, Single, All
     , qfProtectedChar           :: !Char
     , qfP5RegularExpression     :: !Bool
     , qfHereDoc                 :: !Bool

@@ -309,12 +309,10 @@ matchSlurpy MkCurrentFunction
             = sig == SArray || sig == SArrayMulti
 matchSlurpy _ = False
 
-circumOps, rightSyn, chainOps, matchOps, nonSyn, listSyn, preSyn, optPreSyn, preOps, preSymOps, optSymOps, postOps, optOps, leftOps, rightOps, nonOps, listOps :: Set OpName -> [RuleOperator Exp]
+circumOps, rightSyn, chainOps, matchOps, nonSyn, listSyn, preSyn, preOps, preSymOps, postOps, optOps, leftOps, rightOps, nonOps, listOps :: Set OpName -> [RuleOperator Exp]
 preSyn      = ops  $ makeOp1 Prefix "" Syn
-optPreSyn   = ops  $ makeOp1 OptionalPrefix "" Syn
 preOps      = (ops $ makeOp1 Prefix "&prefix:" doApp) . addHyperPrefix
 preSymOps   = (ops $ makeOp1 Prefix "&prefix:" doAppSym) . addHyperPrefix
-optSymOps   = (ops $ makeOp1 OptionalPrefix "&prefix:" doAppSym) . addHyperPrefix
 postOps     = (ops $ makeOp1 Postfix "&postfix:" doApp) . addHyperPostfix
 optOps      = (ops $ makeOp1 OptionalPrefix "&prefix:" doApp) . addHyperPrefix
 leftOps     = (ops $ makeOp2 AssocLeft "&infix:" doApp) . addHyperInfix
@@ -395,9 +393,6 @@ makeOp2Match prec sigil con name = (`Infix` prec) $ do
         App app (Just (Var var)) args | var == varTopic ->
             App (_Var "&prefix:?") Nothing [App app (Just x) args]
         _ -> con (sigil ++ name) [x,y]
-
-_STATE_START_RUN :: Var
-_STATE_START_RUN = cast "$?STATE_START_RUN"
 
 -- Just for the ".=" rewriting
 makeOp2DotAssign :: Assoc -> String -> (String -> [Exp] -> Exp) -> RuleOperator Exp

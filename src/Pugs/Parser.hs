@@ -1490,22 +1490,6 @@ data ParamDeclaration = MkParamDeclaration
     }
     deriving (Show)
 
--- XXX - Unused?
-_dummyParam :: SigParam
-_dummyParam = MkParam
-    { p_variable    = varNullScalar
-    , p_types       = []
-    , p_constraints = []
-    , p_unpacking   = Nothing
-    , p_default     = MkParamDefault Nothing
-    , p_label       = nullID
-    , p_slots       = Map.empty
-    , p_hasAccess   = AccessRO
-    , p_isRef       = False
-    , p_isContext   = False
-    , p_isLazy      = False
-    }
-
 ruleSignature :: RuleParser Exp
 ruleSignature = rule "signature" $ do
     -- Note that :(:$x) is naturally one named parameter here.
@@ -2078,19 +2062,13 @@ ruleSigiledVar = (<|> ruleSymbolicDeref) $ do
         -- XXX - Required by Test::Harness which uses @INC instead @*INC
         "INC" | "@" <- sigil           -> return (makeVar name)
         _ -> do
-            -- Plain and simple variable -- do a lexical check
-            -- First check if it's "known".
-            --   If it is, then simply makeVar.
-            --   If it is not, then it's "free"; add it to the list of freeVars
-            --   for the final check.
-
+            -- Plain and simple variable -- do a lexical check.
             state <- get
 
             let var         = cast name
                 env         = s_env state
                 lexPads     = envLexPads env
                 compPad     = envCompPad env
-                freeVars    = s_freeVars state
                 outerVars   = s_outerVars state
                 knownVars   = s_knownVars state
 
@@ -2112,7 +2090,6 @@ ruleSigiledVar = (<|> ruleSymbolicDeref) $ do
                         when (sourceName pos /= "-e") $ do
                             fail $ "Variable " ++ show var ++ " requires predeclaration or explicit package name"
                     return (Var $ toGlobalVar var)
-                    -- put state{ s_freeVars = Set.insert (var, lexPads) freeVars }
 
 ruleVar :: RuleParser Exp
 ruleVar = do

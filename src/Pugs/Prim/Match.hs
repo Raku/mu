@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -fallow-overlapping-instances #-}
 
 module Pugs.Prim.Match (
-    op2Match, rxSplit, rxSplit_n, matchFromMR, pkgParents, pkgParentClasses
+    op2Match, rxSplit, rxSplit_n, pkgParents, pkgParentClasses
 ) where
 import Pugs.Internals
 import Pugs.Embed
@@ -89,12 +89,6 @@ doMatch csChars MkRulePCRE{ rxRegex = re } = do
     return $ mkMatchOk fromChars (fromChars + lenChars) (substr csChars fromChars lenChars) subsMatch Map.empty
     where
     csBytes = encodeUTF8 csChars
-
-matchFromMR :: MatchResult Char -> Val
-matchFromMR mr = VMatch $ mkMatchOk 0 0 (decodeUTF8 all) subsMatch Map.empty
-    where
-    (all:subs) = elems $ mrSubs mr
-    subsMatch = [ VMatch $ mkMatchOk 0 0 (decodeUTF8 sub) [] Map.empty | sub <- subs ]
 
 -- Used in op2Match
 not_VRule :: Val -> Bool

@@ -13,7 +13,7 @@ module Pugs.Types
 {-
 (
     Type(..), mkType, anyType, showType, isaType, isaType', deltaType,
-    ClassTree, initTree, addNode,
+    ClassTree, initTree,
 
     Cxt(..), 
     cxtItem, cxtSlurpy, cxtVoid, cxtItemAny, cxtSlurpyAny,
@@ -852,14 +852,6 @@ Pretty-print the initial class tree, using @Tree@'s @drawTree@.
 prettyTypes :: String
 prettyTypes = drawTree $ fmap show initTree
 -}
-
-{-|
-Add a new \'top-level\' type to the class tree, under @Object@.
--}
-addNode :: ClassTree -> Type -> ClassTree
-addNode (MkClassTree (Node obj [Node any (Node item ns:rest), junc])) typ =
-    MkClassTree (Node obj [Node any (Node item ((Node typ []):ns):rest), junc])
-addNode _ _ = error "malformed tree"
 
 {-|
 Default class tree, containing all built-in types.

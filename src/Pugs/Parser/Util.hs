@@ -105,14 +105,6 @@ maybeParensBool p = choice
     ]
 
 
-isOperatorName :: String -> Bool
-isOperatorName ('&':name) = any hasOperatorPrefix [name, tail name]
-    where
-    hasOperatorPrefix :: String -> Bool
-    hasOperatorPrefix name = any (`isPrefixOf` name) grammaticalCategories
-isOperatorName _ = False
-
-
 {-| Wraps a call to @&Pugs::Internals::check_for_io_leak@ around the input
     expression. @&Pugs::Internals::check_for_io_leak@ should @die()@ if the
     expression returned an IO handle. -}

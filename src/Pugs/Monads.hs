@@ -19,7 +19,7 @@ module Pugs.Monads (
     enterLex, enterContext, enterEvalContext, enterPackage, enterCaller,
     enterGiven, enterWhen, enterLoop, enterGather, genSymPrim, genSymCC,
     enterBlock, enterSub,
-    evalVal, tempVar,
+    evalVal,
 
     enterFrame, assertFrame, emptyFrames,
 
@@ -428,12 +428,3 @@ evalVal val@(VRef ref) = do
                     then evalVal =<< readRef ref
                     else return val
 evalVal val = return val
-
-tempVar :: Var -> Val -> Eval a -> Eval a
-tempVar var val action = do
-    old <- readVar var
-    writeVar var val
-    rv  <- action
-    writeVar var old
-    return rv
-

@@ -7,7 +7,7 @@ module Pugs.Parser.Types (
 
     RuleOperator, RuleOperatorTable,
     getRuleEnv, modifyRuleEnv, putRuleEnv, insertIntoPosition,
-    clearDynParsers, enterBracketLevel, getCurrCharClass, charClassOf,
+    clearDynParsers, enterBracketLevel, charClassOf,
     addBlockPad, popClosureTrait, addClosureTrait,
     -- Alternate Char implementations that keeps track of s_charClass
     satisfy, string, oneOf, noneOf, char, hexDigit, octDigit,
@@ -72,10 +72,11 @@ charClassOf c   | isAlphaNum c  = WordClass
                 | '_' <- c      = WordClass
                 | otherwise     = SymClass
 
+{-
+
 getCurrCharClass :: RuleParser CharClass
 getCurrCharClass = fmap charClassOf (lookAhead anyToken) <|> return SpaceClass
 
-{-
 getPrevCharClass :: RuleParser CharClass
 getPrevCharClass = do
     p   <- gets s_wsPos
@@ -151,7 +152,7 @@ data RuleState = MkState
 --  , s_blockPads     :: Map Scope Pad      -- ^ Hoisted pad for this block
     , s_knownVars     :: !(Map Var MPad)        -- ^ Map from variables to its associated scope
     , s_outerVars     :: !(Map MPad (Set Var))  -- ^ Map from scopes to vars that must not be declared in it
-    , s_freeVars      :: !(Set (Var, LexPads))  -- ^ Set of free vars and the mpadlist to check with
+--  , s_freeVars      :: !(Set (Var, LexPads))  -- ^ Set of free vars and the mpadlist to check with
     , s_protoPad      :: !Pad                   -- ^ Pad that's part of all scopes; used in param init
     , s_closureTraits :: [TraitBlocks -> TraitBlocks]
                                        -- ^ Closure traits: head is this block, tail is all outer blocks
