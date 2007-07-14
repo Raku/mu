@@ -464,9 +464,9 @@ sub build_exe {
     #push @o, 'src/UnicodeC.o' if grep /WITH_UNICODEC/, @_;
     #system $ghc, '--make', @_, @o, '-o' => 'pugs', 'src/Main.hs';
 
-    $push_pkgs->(qw(stm network mtl template-haskell base pugs-HsSyck pugs-hsregex));
+    $push_pkgs->(qw(stm network mtl template-haskell filepath base pugs-HsSyck pugs-hsregex));
     if ($^O =~ /(?:MSWin32|mingw|msys|cygwin)/) {
-        $push_pkgs->('Win32') unless $ghc_version =~ /^6.4(?:.0)?$/;
+        $push_pkgs->('Win32');
     }
     else {
         $push_pkgs->('unix');
