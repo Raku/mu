@@ -38,7 +38,7 @@ import Pugs.Shell
 import Pugs.Types
 import Data.IORef
 import qualified Data.Map as Map
-import System.FilePath (joinFileName, splitFileName)
+import qualified System.FilePath as FilePath (combine, splitFileName)
 
 {-|
 The entry point of Pugs. Uses 'Pugs.Run.runWithArgs' to normalise the command-line
@@ -254,9 +254,9 @@ doExecuteHelper helper args = do
     mbin <- runMaybeT (findHelper searchPaths)
     case mbin of
         Just binary -> do
-            let (p, _) = splitFileName binary
+            let (p, _) = FilePath.splitFileName binary
             exitWith =<< executeFile' perl5 True (("-I" ++ p):binary:args) Nothing
-        _ -> fail ("Couldn't find helper program " ++ helper ++ " (searched in " ++ show (map (foldl1 joinFileName) searchPaths) ++ ")")
+        _ -> fail ("Couldn't find helper program " ++ helper ++ " (searched in " ++ show (map (foldl1 FilePath.combine) searchPaths) ++ ")")
     where
     suffixes =
         [ []
@@ -271,14 +271,14 @@ doExecuteHelper helper args = do
                 `mplus` maybeFindFile (file ++ getConfig "exe_ext")
                 `mplus` findHelper xs
         where 
-        file = foldl1 joinFileName (x ++ [helper])
+        file = foldl1 FilePath.combine (x ++ [helper])
     maybeFindFile :: FilePath -> MaybeT IO FilePath
     maybeFindFile pathname = do
         dir <- liftIO $ getDirectoryContents path `catchIO` (const $ return [])
         guard (filename `elem` dir)
         return pathname
         where
-        (path, filename) = splitFileName pathname
+        (path, filename) = FilePath.splitFileName pathname
 
 doParseWith :: (Env -> FilePath -> IO a) -> FilePath -> String -> IO a
 doParseWith f name prog = do

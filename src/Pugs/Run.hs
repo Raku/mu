@@ -34,7 +34,7 @@ import DrIFT.YAML
 import Data.Yaml.Syck
 --import Data.Generics.Schemes
 import System.IO
-import System.FilePath (joinFileName)
+import qualified System.FilePath as FilePath (combine)
 
 
 {-|
@@ -218,8 +218,8 @@ getLibs = do
                  , getConfig "privlib"
                  , getConfig "sitearch"
                  , getConfig "sitelib"
-                 , foldl1 joinFileName [getConfig "privlib", "auto", "pugs", "perl6", "lib"]
-                 , foldl1 joinFileName [getConfig "sitelib", "auto", "pugs", "perl6", "lib"]
+                 , foldl1 FilePath.combine [getConfig "privlib", "auto", "pugs", "perl6", "lib"]
+                 , foldl1 FilePath.combine [getConfig "sitelib", "auto", "pugs", "perl6", "lib"]
                  ]
               ++ [ "." ]
 
