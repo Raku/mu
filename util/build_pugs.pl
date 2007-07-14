@@ -79,21 +79,14 @@ sub build {
             return $retval;
         };
 
-        #unshift @args, '-optc-ID:\ghc\ghc-6.4.2\include\mingw', '-optc-ID:\ghc\ghc-6.4.2\gcc-lib\include', '-optc-I/usr/include', '-optc-I/usr/include/cygwin', '-D__CYGWIN__',
         unshift @args, '-I/usr/lib/perl5/5.8/cygwin/CORE',
-            '-optc-ID:\ghc\ghc-6.4.2\include\mingw',
+            "-optc-IC:\\ghc\\ghc-$ghc_version\\include\\mingw",
+            "-optc-ID:\\ghc\\ghc-$ghc_version\\include\\mingw",
             '-optc-I/usr/include',
             '-optl-I/usr/include/cygwin';
         for my $arg (@args) {
             $arg =~ s{(-optc-[IL]|-optl|-optl-L|-I|-L)(/\S+)}{$1 . $cygpath->($2)}eg;
-            #if ($arg =~ m{D:/cygwin/usr/include}i) {
-            #    $arg = '-optc-ID:\ghc\ghc-6.4.2\include\mingw';
-            #}
         }
-
-        #push @args, '-optc-I$cywin_path/lib/perl5/5.8/cygwin/CORE',
-        #    '-optl-L$cygwin_path/lib/perl5/5.8/cygwin/CORE';
-        #warn "\n\n [248] !!!\n\n @args \n\n !!!!\n\n";
     }
 
     write_buildinfo($version, $ghc, $ghc_pkg, $ghc_version, @args);
@@ -525,7 +518,7 @@ sub write_buildinfo {
     };
 
     if ($^O =~ /(?:MSWin32|mingw|msys|cygwin)/) {
-        $add_dep->('Win32 -any') unless $ghc_version =~ /^6.4(?:.0)?$/;
+        $add_dep->('Win32 -any');
     }
     else {
         $add_dep->('unix -any');
