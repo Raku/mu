@@ -21,8 +21,9 @@ instructions.
 
 Debian etch's (stable as of 2007) version of GHC is too old to compile pugs,
 see the section below on compiling the version from testing.  GHC 6.6.1 debs
-for etch are available at http://airen.bcm.umontreal.ca/ghc-pugs-etch/
-(not apt-gettable, amd64 only at present but other archs may be added).
+for etch are available (not apt-gettable):
+i386 http://feather.perl6.nl/~diakopter/
+amd64 http://airen.bcm.umontreal.ca/ghc-pugs-etch/
 
 For dynamic loading/inlining of Haskell modules, you should install the
 hs-plugin library, available here:
