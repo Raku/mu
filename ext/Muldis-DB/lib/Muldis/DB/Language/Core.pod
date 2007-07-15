@@ -480,15 +480,15 @@ it results in the reverse value when given the same arguments.  It is a
 short-hand for applying C<sys.rtn.Order.reverse> to the result of
 C<sys.rtn.Ordinal.compare> with the same arguments.
 
-=item C<sys.rtn.Ordinal.is_inc of Bool (RO: Some.Ordinal $v1, Some.Ordinal
-$v2)>
+=item C<sys.rtn.Ordinal.is_increase of Bool (RO: Some.Ordinal $v1,
+Some.Ordinal $v2)>
 
 This function results in C<Bool.True> iff C<sys.rtn.Ordinal.compare> would
 result in C<Order.Increase> when given the same arguments, and
 C<Bool.False> otherwise.
 
-=item C<sys.rtn.Ordinal.is_dec of Bool (RO: Some.Ordinal $v1, Some.Ordinal
-$v2)>
+=item C<sys.rtn.Ordinal.is_decrease of Bool (RO: Some.Ordinal $v1,
+Some.Ordinal $v2)>
 
 This function results in C<Bool.True> iff C<sys.rtn.Ordinal.compare> would
 result in C<Order.Decrease> when given the same arguments, and
@@ -635,13 +635,13 @@ identity value for multiplication.
 
 This function results in the quotient when its C<$dividend> argument is
 divided by its C<$divisor> argument using integer division.  This function
-throws an exception if C<$divisor> is zero.
+will fail if C<$divisor> is zero.
 
 =item C<sys.rtn.Int.remainder of UInt (RO: Int $dividend, Int $divisor)>
 
 This function results in the remainder when its C<$dividend> argument is
 divided by its C<$divisor> argument using integer division.  This function
-throws an exception if C<$divisor> is zero.
+will fail if C<$divisor> is zero.
 
 =item C<sys.rtn.Int.abs of UInt (RO: Int $v)>
 
@@ -667,7 +667,7 @@ argument maps to when the whole character string is evaluated as a
 base-C<$radix> integer.  Extending the typical formats of [base-2, base-8,
 base-10, base-16], this function supports base-2 through base-36; to get
 the latter, the characters 0-9 and A-Z represent values in 0-35.  This
-function throws an exception if C<$text> can't be mapped as specified.
+function will fail if C<$text> can't be mapped as specified.
 
 =item C<sys.rtn.Int.Text_from_Int of NEText (RO: Int $int, PInt2_36
 $radix)>
@@ -757,11 +757,11 @@ This function results in the bitwise I<not> of its argument.
 This function is a reduction operator that recursively takes each pair of
 its N input element values and does a bitwise I<and> (which is both
 commutative and associative) on them until just one is left, a C<Maybe>
-whose single element is which is the function's result.  This function
-throws an exception if not all input values are of the same length in bits.
-If C<$v> has zero values, then C<and> results in a same-typed C<Maybe> with
-zero elements.  I<Note that, while C<and> could conceivably have been
-defined instead to not result in a C<Maybe>, but rather to result in the
+whose single element is which is the function's result.  This function will
+fail if not all input values are of the same length in bits.  If C<$v> has
+zero values, then C<and> results in a same-typed C<Maybe> with zero
+elements.  I<Note that, while C<and> could conceivably have been defined
+instead to not result in a C<Maybe>, but rather to result in the
 appropriate string of identity-valued bits, this option is avoided for now
 citing practical concerns in the face of infinite blob types; also, a
 default empty string result is being avoided.>
@@ -771,20 +771,20 @@ default empty string result is being avoided.>
 This function is a reduction operator that recursively takes each pair of
 its N input element values and does a bitwise inclusive-or (which is both
 commutative and associative) on them until just one is left, a C<Maybe>
-whose single element is which is the function's result.  This function
-throws an exception if not all input values are of the same length in bits.
-If C<$v> has zero values, then C<or> results in a same-typed C<Maybe> with
-zero elements.  I<The note for C<and> applies to C<or> too.>
+whose single element is which is the function's result.  This function will
+fail if not all input values are of the same length in bits.  If C<$v> has
+zero values, then C<or> results in a same-typed C<Maybe> with zero
+elements.  I<The note for C<and> applies to C<or> too.>
 
 =item C<sys.rtn.Blob.xor of Maybe{Blob} (RO: Bag{Blob} $v)>
 
 This function is a reduction operator that recursively takes each pair of
 its N input element values and does a bitwise exclusive-or (which is both
 commutative and associative) on them until just one is left, a C<Maybe>
-whose single element is which is the function's result.  This function
-throws an exception if not all input values are of the same length in bits.
-If C<$v> has zero values, then C<xor> results in a same-typed C<Maybe> with
-zero elements.  I<The note for C<and> applies to C<xor> too.>
+whose single element is which is the function's result.  This function will
+fail if not all input values are of the same length in bits.  If C<$v> has
+zero values, then C<xor> results in a same-typed C<Maybe> with zero
+elements.  I<The note for C<and> applies to C<xor> too.>
 
 =back
 
@@ -901,7 +901,348 @@ I<This documentation is pending.>
 These functions are applicable to mainly nonscalar types, but are generic
 in that they typically work with any nonscalar types.
 
-I<This documentation is pending.>
+=head2 Functions for sys.type.Tuple
+
+These functions implement commonly used relational operations that take a
+single tuple as input.
+
+=over
+
+=item C<sys.rtn.Tuple.degree of UInt (RO: Tuple $v)>
+
+This function results in the degree of its argument (that is, the count of
+attributes it has).
+
+=item C<sys.rtn.Tuple.rename of Tuple (RO: Tuple $v, Cat.AttrRenameMap
+$map)>
+
+This function results in a C<Tuple> value that is the same as its C<$v>
+argument but that some of its attributes have different names.  Each tuple
+of the argument C<$map> specifies how to rename one C<$v> attribute, with
+the C<before> and C<after> attributes of a C<$map> tuple representing the
+old and new names of a C<$v> attribute, respectively.  As a trivial case,
+this function's result is C<$v> if C<$map> has no tuples.  This function
+supports renaming attributes to each others' names.  This function will
+fail if C<$map> specifies any old names that C<$v> doesn't have, or any new
+names that are the same as C<$v> attributes that aren't being renamed.
+
+=item C<sys.rtn.Tuple.project of Tuple (RO: Tuple $v, Cat.ShortNameSet
+$attrs)>
+
+This function results in the projection of its C<$v> argument that has just
+the subset of attributes of C<$v> which are named in its C<$attrs>
+argument.  As a trivial case, this function's result is C<$v> if C<$attrs>
+lists all attributes of C<$v>; or, it is the nullary tuple if C<$attrs> is
+empty.  This function will fail if C<$attrs> specifies any attribute names
+that C<$v> doesn't have.
+
+=item C<sys.rtn.Tuple.remove of Tuple (RO: Tuple $v, Cat.ShortNameSet
+$attrs)>
+
+This function is the same as C<project> but that it results in the
+complementary subset of attributes of C<$v> when given the same arguments.
+
+=item C<sys.rtn.Tuple.wrap of Tuple (RO: Tuple $v, Cat.ShortNameSet $inner,
+Cat.ShortName $outer)>
+
+This function results in a C<Tuple> value that is the same as its C<$v>
+argument but that some of its attributes have been wrapped up into a new
+C<Tuple>-typed attribute, which exists in place of the original attributes.
+The C<$inner> argument specifies which C<$v> attributes are to be removed
+and wrapped up, and the C<$outer> argument specifies the name of their
+replacement attribute.  As a trivial case, if C<$inner> is empty, then the
+result has all the same attributes as before plus a new nullary tuple
+attribute; or, if C<$inner> lists all attributes of C<$v>, then the result
+has a single attribute whose value is the same as C<$v>.  This function
+supports the new attribute having the same name as an old one being wrapped
+into it.  This function will fail if C<$inner> specifies any attribute
+names that C<$v> doesn't have, or if C<$outer> is the same as C<$v>
+attributes that aren't being wrapped.
+
+=item C<sys.rtn.Tuple.unwrap of Tuple (RO: Tuple $v, Cat.ShortName $outer)>
+
+This function is the inverse of C<sys.rtn.Tuple.wrap>, such that it will
+unwrap a C<Tuple>-type attribute into its member attributes.  This function
+will fail if C<$outer> specifies any attribute name that C<$v> doesn't
+have, or if an attribute of C<$v{$outer}> is the same as a C<$v> attribute.
+
+=item C<sys.rtn.Tuple.extend>
+
+I<TODO.>
+
+=back
+
+=head2 Functions for sys.type.Relation
+
+These functions implement commonly used relational operations that take a
+single relation as input.
+
+=over
+
+=item C<sys.rtn.Relation.degree of UInt (RO: Relation $v)>
+
+This function results in the degree of its argument (that is, the count of
+attributes it has).
+
+=item C<sys.rtn.Relation.cardinality of UInt (RO: Relation $v)>
+
+This function results in the cardinality of its argument (that is, the
+count of tuples its body has).
+
+=item C<sys.rtn.Relation.empty of Bool (RO: Relation $v)>
+
+This function results in C<Bool.True> iff its argument has zero tuples, and
+C<Bool.False> otherwise.  Note that if you are using a C<Maybe> to
+represent a sparse data item, analagously to a SQL nullable context, then
+testing the C<Maybe> with C<empty> is analagous to testing a SQL nullable
+with C<is null>.
+
+=item C<sys.rtn.Relation.not_empty of Bool (RO: Relation $v)>
+
+This function is exactly the same as C<sys.rtn.Relation.empty> except that
+it results in the opposite boolean value when given the same argument.  And
+following the analogy with C<empty>, C<not_empty> is analagous to SQL's
+C<is not null>.
+
+=item C<sys.rtn.Relation.exists of Bool (RO: Relation $r, Tuple $t)>
+
+This function results in C<Bool.True> iff its C<$t> argument matches a
+tuple of its C<$r> argument, and C<Bool.False> otherwise.  This function is
+like C<sys.rtn.Relation.contains> except that the tuple being looked for
+doesn't have to be wrapped in a relation.  This function will fail if the 2
+arguments don't have the same heading.
+
+=item C<sys.rtn.Relation.Tuple_from_Relation of Tuple (RO: Relation $v)>
+
+This function results in the C<Tuple> that is the sole member tuple of its
+argument.  This function will fail if its argument does not have exactly
+one tuple.
+
+=item C<sys.rtn.Relation.Relation_from_Tuple of Relation (RO: Tuple $v)>
+
+This function results in the C<Relation> value those body has just the one
+C<Tuple> that is its argument.
+
+=item C<sys.rtn.Relation.insert of Relation (RO: Relation $r, Tuple $t)>
+
+This function results in a C<Relation> that is the relational union of
+C<$r> and a relation whose sole tuple is C<$t>; that is, conceptually the
+result is C<$t> inserted into C<$r>.  As a trivial case, if C<$t> already
+exists in C<$r>, then the result is just C<$r>.
+
+=item C<sys.rtn.Relation.delete of Relation (RO: Relation $r, Tuple $t)>
+
+This function results in a C<Relation> that is the relational difference of
+a relation whose sole tuple is C<$t> and C<$r>; that is, conceptually the
+result is C<$t> deleted from C<$r>.  As a trivial case, if C<$t> already
+doesn't exist in C<$r>, then the result is just C<$r>.
+
+=item C<sys.rtn.Relation.evacuate of Relation (RO: Relation $v)>
+
+This function results in a C<Relation> that has the same heading as its
+argument, but with an empty body.
+
+=item C<sys.rtn.Relation.rename of Relation (RO: Relation $v,
+Cat.AttrRenameMap $map)>
+
+This function is the same as C<sys.rtn.Tuple.rename> but that it operates
+on and results in a C<Relation> rather than a C<Tuple>.
+
+=item C<sys.rtn.Relation.project of Relation (RO: Relation $v,
+Cat.ShortNameSet $attrs)>
+
+This function is the same as C<sys.rtn.Tuple.project> but that it operates
+on and results in a C<Relation> rather than a C<Tuple>.  But note that the
+result relation will have fewer tuples than C<$v> if any C<$v> tuples were
+non-distinct for just the projected attributes.
+
+=item C<sys.rtn.Relation.remove of Relation (RO: Relation $v,
+Cat.ShortNameSet $attrs)>
+
+This function is the same as C<sys.rtn.Tuple.remove> but that it operates
+on and results in a C<Relation> rather than a C<Tuple>.
+
+=item C<sys.rtn.Relation.wrap of Relation (RO: Relation $v,
+Cat.ShortNameSet $inner, Cat.ShortName $outer)>
+
+This function is the same as C<sys.rtn.Tuple.wrap> but that it operates on
+and results in a C<Relation> rather than a C<Tuple>, where each of its
+member tuples was transformed as per C<sys.rtn.Tuple.wrap>.
+
+=item C<sys.rtn.Relation.unwrap of Relation (RO: Relation $v, Cat.ShortName
+$outer)>
+
+This function is the inverse of C<sys.rtn.Relation.wrap> as
+C<sys.rtn.Tuple.unwrap> is to C<sys.rtn.Tuple.wrap>.
+
+=item C<sys.rtn.Relation.group of Relation (RO: Relation $v,
+Cat.ShortNameSet $inner, Cat.ShortName $outer)>
+
+I<TODO.>
+
+=item C<sys.rtn.Relation.ungroup of Relation (RO: Relation $v,
+Cat.ShortName $outer)>
+
+I<TODO.>
+
+=item C<sys.rtn.Relation.tclose of Relation (RO: Relation $v)>
+
+This function results in the transitive closure of its argument.  The
+argument is a binary relation whose attributes are both of the same
+declared type, and the result is a relation having the same heading and a
+body which is a superset of the argument's tuples.  Assuming that the
+argument represents all of the node pairs in a directed graph that have an
+arc between them, and so each argument tuple represents an arc, C<tclose>
+will determine all of the node pairs in that graph which have a path
+between them (a recursive operation), so each tuple of the result
+represents a path.  The result is a superset since all arcs are also
+complete paths.  The C<tclose> function is intended to support recursive
+queries, such as in connection with the "part explosion problem" (the
+problem of finding all components, at all levels, of some specified part).
+
+=item C<sys.rtn.Relation.restrict>
+
+I<TODO.>
+
+=item C<sys.rtn.Relation.extend>
+
+I<TODO.>
+
+=item C<sys.rtn.Relation.summarize>
+
+I<TODO.>
+
+=item C<sys.rtn.Relation.substitute>
+
+I<TODO.>
+
+=back
+
+These functions implement commonly used relational operations that take a
+multiple relations as input.
+
+=over
+
+=item C<sys.rtn.Relation.contains of Bool (RO: Relation $look_in, Relation
+$look_for)>
+
+This function results in C<Bool.True> iff the set of tuples comprising
+C<$look_for> is a subset of the set of tuples comprising C<$look_in>, and
+C<Bool.False> otherwise.  This function will fail if the 2 arguments don't
+have the same heading.
+
+=item C<sys.rtn.Relation.union of Relation (RO: Set{Relation} $v)>
+
+This function results in the relational union/inclusive-or of the N element
+values of its argument; it is a reduction operator that recursively takes
+each pair of input values and relationally unions (which is both
+commutative and associative) them together until just one is left, which is
+the result.  The result relation has the same heading as all of its inputs,
+and its body contains every tuple that is in any of the input relations.
+If C<$v> has zero values, then C<union> results in the empty relation with
+the same heading, which is the per-distinct-heading identity value for
+relational union.
+
+=item C<sys.rtn.Relation.exclusion of Relation (RO: Bag{Relation} $v)>
+
+This function results in the relational exclusion/exclusive-or of the N
+element values of its argument; it is a reduction operator that recursively
+takes each pair of input values and relationally excludes (which is both
+commutative and associative) them together until just one is left, which is
+the result.  The result relation has the same heading as all of its inputs,
+and its body contains every tuple that is in just an odd number of the
+input relations.  If C<$v> has zero values, then C<exclusion> results in
+the empty relation with the same heading, which is the per-distinct-heading
+identity value for relational exclusion.  Note that this operation is also
+legitimately known as I<symmetric difference>, or I<disjoint union>.
+
+=item C<sys.rtn.Relation.intersection of Relation (RO: Set{Relation} $v)>
+
+This function results in the relational intersection/and of the N element
+values of its argument; it is a reduction operator that recursively takes
+each pair of input values and relationally intersects (which is both
+commutative and associative) them together until just one is left, which is
+the result.  The result relation has the same heading as all of its inputs,
+and its body contains only the tuples that are in every one of the input
+relations.  If C<$v> has zero values, then C<union> results in the empty
+relation with the same heading, which is the per-distinct-heading identity
+value for relational intersection.  Note that this I<intersection> operator
+is conceptually a special case of C<join>, applicable when the headings of
+the inputs are the same, and the other will produce the same result as this
+when given the same inputs, but with the exception that I<intersection> has
+a different identity value when given zero inputs.
+
+=item C<sys.rtn.Relation.difference of Relation (RO: Relation $source,
+Relation $filter)>
+
+This function results in the relational difference when its C<$filter>
+argument is subtracted from its C<$source> argument.  The result relation
+has the same heading as both of its arguments, and its body contains only
+the tuples that are in C<$source> and are not in C<$filter>.  This function
+will fail if its 2 arguments do not have the same heading.  Note that this
+I<difference> operator is conceptually a special case of I<semidifference>,
+applicable when the headings of the inputs are the same.
+
+=item C<sys.rtn.Relation.semidifference of Relation (RO: Relation $source,
+Relation $filter)>
+
+This function is the same as C<semijoin> but that it results in the
+complementary subset of tuples of C<$source> when given the same arguments.
+
+=item C<sys.rtn.Relation.semijoin of Relation (RO: Relation $source,
+Relation $filter)>
+
+This function results in the relational semijoin of its C<$source> and
+C<$filter> arguments.  The result relation has the same heading as
+C<$source>, and its body contains the subset of C<$source> tuples that
+match those of C<$filter> as per C<join>.  Note that relational semijoin is
+conceptually a short-hand for first doing an ordinary relational join
+between its 2 arguments, and then performing a relational projection on all
+of the attributes that just C<$source> has.  This function will fail any
+time that C<join> would fail on the same 2 input relations.
+
+=item C<sys.rtn.Relation.join of Relation (RO: QuasiSet{Relation} $v)>
+
+This function results in the relational join of the N element values of its
+argument; it is a reduction operator that recursively takes each pair of
+input values and relationally joins (which is both commutative and
+associative) them together until just one is left, which is the result. The
+result relation has a heading that is a union of all of the headings of its
+inputs, and its body is the result of first pairwise-matching every tuple
+of each input relation with every tuple of each other input relation, then
+where each member of a tuple pair has attribute names in common,
+eliminating pairs where the values of those attributes differ and unioning
+the remaining said tuple pairs, then eliminating any result tuples that
+duplicate others.  If C<$v> has zero values, then C<join> results in the
+nullary relation with one tuple, which is the identity value for relational
+join.  As a trivial case, if any input relation has zero tuples, then the
+function's result will too; or, if any input is the nullary relation with
+one tuple, that input can be ignored (see identity value); or, if any 2
+inputs have no attribute names in common, then the join of just those 2 is
+a cartesian product; or, if any 2 inputs have all attribute names in
+common, then the join of just those 2 is an intersection; or, if for 2
+inputs, one's set of attribute names is a proper subset of another's, then
+the join of just those to is a semijoin with the former filtering the
+latter.  This function will fail if any input relations have attributes
+with common names but different/incompatible declared types.  Note that
+this operation is also legitimately known as I<natural inner join>.
+
+=item C<sys.rtn.Relation.compose of Relation (RO: Relation $v1, Relation
+$v2)>
+
+This function results in the relational composition of its 2 arguments.  It
+is conceptually a short-hand for first doing an ordinary relational join
+between its 2 arguments, and then performing a relational projection on all
+of the attributes that only one of the arguments has; that is, the result
+has all of and just the attributes that were not involved in matching the
+tuples of the 2 arguments.  This function will fail any time that C<join>
+would fail on the same 2 input relations.
+
+=item C<sys.rtn.Relation.divide>
+
+I<TODO.>
+
+=back
 
 =head1 SYSTEM-DEFINED CORE GENERIC NONSCALAR UPDATE OPERATORS
 

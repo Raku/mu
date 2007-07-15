@@ -45,8 +45,8 @@ I<This documentation is pending.>
 
 Following are all the data types described in this document, arranged in a
 type graph according to their proper sub|supertype relationships (but that
-6 just reappear from the non-catalog core set to provide a similar context,
-and aren't re-described here):
+some just reappear from the non-catalog core set to provide a similar
+context, and aren't re-described here):
 
     sys.type.Universal
 
@@ -71,10 +71,15 @@ and aren't re-described here):
             # TODO
 
         sys.type.Relation
+            sys.type.Set
+
+                # The following are all regular set types.
+
+                sys.type.Cat.ShortNameSet
 
             # The following are all regular relation types.
 
-            # TODO
+            sys.type.Cat.AttrRenameMap
 
 I<This documentation is pending.>
 
@@ -114,7 +119,21 @@ These nonscalar data types, essentially all of the system-defined nonscalar
 types are special-purpose in nature and are intended for use in defining or
 working with the system catalog.
 
-I<This documentation is pending.>
+=over
+
+=item C<sys.type.Cat.ShortNameSet>
+
+A C<Cat.ShortNameSet> is a C<Set> of C<Cat.ShortName>.
+
+=item C<sys.type.Cat.AttrRenameMap>
+
+A C<Cat.AttrRenameMap> is a specification for how to rename attributes of a
+relation.  It is a binary C<Relation> whose 2 attributes are named
+C<before> and C<after>, and both attributes have declared types of
+C<Cat.ShortName> and each attribute is a unary key.  Its default value has
+zero tuples.
+
+=back
 
 =head1 CATALOGS
 

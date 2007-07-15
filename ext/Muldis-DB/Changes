@@ -21,9 +21,18 @@
     represented with any of base-2 thru base-36 now.
 
     * Updated Core.pod to add definitions for the generic operators common
-    to all ordinal types: compare, reverse_compare, is_inc, is_dec, min,
-    max.  Added 'reverse' operator for the Order type.  Added or replaced
-    a bunch of operators for the Int|Blob|Text types.  Other small changes.
+    to all ordinal types: compare, reverse_compare, is_increase,
+    is_decrease, min, max.  Added 'reverse' operator for the Order type.
+    Added or replaced a bunch of operators for the Int|Blob|Text types.
+    Other small changes.
+
+    * Updated Core.pod to add an initial complement of common tuple and
+    relation operators (such as project, join, union), perhaps most of
+    them.  These are a large part of what makes Muldis D a relational
+    language at all.
+
+    * Updated Catalog.pod to add new core data types: Cat.ShortNameSet,
+    Cat.AttrRenameMap.
 
 2007-07-11   Darren Duncan <perl@DarrenDuncan.net>
 

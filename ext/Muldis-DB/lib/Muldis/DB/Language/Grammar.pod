@@ -110,15 +110,15 @@ any common grammar specifying formats.  It should become formalized later.
 
     tuple
         = q(Tuple:Default)
-        | q(Tuple:A0)
+        | q(Tuple:D0)
         | q(Tuple:{) ws heading ws q(})
         | q(Tuple:{) ws heading list_sep tuple_body ws q(})
         ;
 
     relation
         = q(Relation:Default)
-        | q(Relation:A0T0)
-        | q(Relation:A0T1)
+        | q(Relation:D0C0)
+        | q(Relation:D0C1)
         | q(Relation:{) ws heading list_sep relation_body ws q(})
         ;
 
