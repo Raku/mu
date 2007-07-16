@@ -107,7 +107,7 @@ sub svn_check($event) {
 
     $last_check = 0 if $event eq "now";
 
-    # We don't want to flood our porr svn repository.
+    # We don't want to flood our poor svn repository.
     if time() - $last_check >= $interval {
         $last_check = time;
         debug "Checking for new commits (ignore error messages)... ";
@@ -148,22 +148,25 @@ sub svn_commits() {
         if '.svn' ~~ :d {
             # must be in repo 
             system "svn st -N -q -u . > $tempfile";
-            my $latest = 0;
-            for =$tempfile {
-                when rx:P5/revision:\s+(\d+)/ {
-                    $latest = $0;
-                    last;
-                }
+        }
+        else {
+	        system "svn info $repository -r HEAD > $tempfile";
+        }
+        my $latest = 0;
+        for =$tempfile {
+            when rx:P5/evision:\s+(\d+)/ {
+                $latest = $0;
+                last;
             }
-            if ($latest == $cur_svnrev) {
-                return undef;
-            }
+        }
+        if ($latest == $cur_svnrev) {
+            return undef;
         }
         # ...only query for new commits since we last checked.
         my $from = $cur_svnrev + 1;
         # Hack to prevent "-3:HEAD", resulting in a syntax error, resulting in
         # svn not outputting the log, resulting in svnbot not saying anything.
-        $from    = "HEAD" if $from <= 0; 
+        $from    = "HEAD" if $from <= 0;
         system "svn log -vr $from:HEAD $repository > $tempfile";
     } else {
         # Else query only for the newest commit.
