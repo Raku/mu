@@ -9,6 +9,35 @@
 class Match {
     has $.from;
     has $.to;
-    
+    has $.result;
+    has $.bool;
+    has $.match_str;
+    has $.array;
+    has $.hash;
+}
+
+class Signature {
+    has $.scalar;
+    has $.array;
+    has $.hash;
+}
+
+class Capture {
+    has $.scalar;
+    has $.array;
+    has $.hash;
+}
+
+# XXX "does Container" ???
+class Scalar does Container {
+    has $.value;
+}
+
+class Array does Container {
+    has $.value;
+}
+
+class Hash does Container {
+    has $.value;
 }
 
