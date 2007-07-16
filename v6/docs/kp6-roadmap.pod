@@ -330,7 +330,7 @@ under planning.
 
 =item * Method and Sub refactoring
 
-=item * ...
+=item * Multi Regex
 
 =back
 
@@ -384,6 +384,8 @@ These tasks are not required for the successful completion of this phase.
 =item * dispatcher cache/memoization
 
 =item * Junction dispatching
+
+=item * default (Main) namespace, nested namespaces
 
 * Status: not started
 
