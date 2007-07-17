@@ -1,4 +1,4 @@
-																				OBJ=$(shell echo lib5/KindaPerl6/Grammar.pm lib5/KindaPerl6/Grammar/Regex.pm lib5/KindaPerl6/Traverse.pm lib5/KindaPerl6/Visitor/{CreateEnv,EmitAstHTML,EmitHTML,EmitPerl5,EmitPerl5Regex,EmitPerl6,Global,Hyper,LexicalSub,MetaClass,Perl,RegexCapture,Token}.pm lib5/KindaPerl6/Runtime/Perl5/{Code,DispatchSugar,Match,Runtime,Wrap,Compiler,MOP,Pad,Type}.pm)
+																				OBJ=$(shell echo lib5/KindaPerl6/Grammar.pm lib5/KindaPerl6/Grammar/{Control,Mapping,Regex}.pm lib5/KindaPerl6/Traverse.pm lib5/KindaPerl6/Visitor/{CreateEnv,EmitAstHTML,EmitHTML,EmitPerl5,EmitPerl5Regex,EmitPerl6,Global,Hyper,LexicalSub,MetaClass,Perl,RegexCapture,Token}.pm lib5/KindaPerl6/Runtime/Perl5/{Code,DispatchSugar,Match,Runtime,Wrap,Compiler,MOP,Pad,Type}.pm)
 
 all: $(OBJ)
 
