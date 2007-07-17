@@ -49,7 +49,7 @@ package Apply; sub new { shift; bless { @_ }, "Apply" } sub emit_perl5 { my $sel
 ;
 package Return; sub new { shift; bless { @_ }, "Return" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; return(('return(' . ($self->{result}->emit_perl5() . ')'))) }
 ;
-package If; sub new { shift; bless { @_ }, "If" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('do { if ( ' . ($self->{cond}->emit_perl5() . ('->true->p5landish ) { ' . ($self->{body}->emit_perl5() . (' } ' . (($self->{otherwise} ? (' else { ' . ($self->{otherwise}->emit_perl5() . ' }')) : '') . ' }')))))) }
+package If; sub new { shift; bless { @_ }, "If" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('do { if ( ' . ($self->{cond}->emit_perl5() . ('->true->p5landish ) ' . (($self->{body} ? ('{ ' . ($self->{body}->emit_perl5() . ' } ')) : '{ } ') . (($self->{otherwise} ? (' else { ' . ($self->{otherwise}->emit_perl5() . ' }')) : '') . ' }'))))) }
 ;
 package For; sub new { shift; bless { @_ }, "For" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $cond = $self->{cond}; do { if ((Main::isa($cond, 'Var') && ($cond->sigil() eq '@'))) { $cond = Apply->new( 'code' => 'prefix:<@>','arguments' => [$cond], ) } else {  } }; ('do { for my ' . ($self->{topic}->emit_perl5() . (' ( ' . ($cond->emit_perl5() . (' ) { ' . ($self->{body}->emit_perl5() . ' } }')))))) }
 ;
