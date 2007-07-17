@@ -295,6 +295,7 @@ $meta_Role->{_value}{methods} = { %{ $meta_Class->{_value}{methods} } };
 
 $::Class->new('Value');
 my $meta_Value = $::Value->{_dispatch}( $::Value, 'HOW' );
+$meta_Value->add_method( 'p5landish', $::Method->new( sub { $_[0]{_value} } ) );
 
 # $meta_Value->add_method( 'IS_ARRAY',     $::Method->new( sub { 0 } ) );
 # $meta_Value->add_method( 'IS_HASH',      $::Method->new( sub { 0 } ) );
@@ -322,7 +323,7 @@ $meta_Str->add_method(
         }
     )
 );
-$meta_Str->add_method( 'p5landish', $::Method->new( sub { $_[0]{_value} } ) );
+# $meta_Str->add_method( 'p5landish', $::Method->new( sub { $_[0]{_value} } ) );
 
 $::Class->new('Int');
 my $meta_Int = $::Int->{_dispatch}( $::Int, 'HOW' );
@@ -333,7 +334,7 @@ $meta_Int->add_method( 'str',
     $::Method->new( sub { my $v = $::Str->new( $_[0]{_value} ) } ) );
 $meta_Int->add_method( 'true',
     $::Method->new( sub { $::Bit->new( $_[0]{_value} == 0 ? 0 : 1 ) } ) );
-$meta_Int->add_method( 'p5landish', $::Method->new( sub { $_[0]{_value} } ) );
+# $meta_Int->add_method( 'p5landish', $::Method->new( sub { $_[0]{_value} } ) );
 
 #--- finish Object
 
@@ -396,7 +397,7 @@ $meta_Bit->add_method( 'str',
 
 $meta_Bit->add_method( 'true',
     $::Method->new( sub { $::Bit->new( $_[0]{_value} ) } ) );
-$meta_Bit->add_method( 'p5landish', $::Method->new( sub { $_[0]{_value} } ) );
+# $meta_Bit->add_method( 'p5landish', $::Method->new( sub { $_[0]{_value} } ) );
 
 $::Class->new('Code');
 my $meta_Code = $::Code->{_dispatch}( $::Code, 'HOW' );
