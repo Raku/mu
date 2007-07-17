@@ -191,7 +191,17 @@ class Var {
 
 class Bind {
     method emit_perl5 {
-        $.parameters.emit_perl5 ~ '->{_dispatch_VAR}( ' ~ $.parameters.emit_perl5 ~ ', \'BIND\', ' ~ $.arguments.emit_perl5 ~ ' )';
+        if   $.parameters.isa( 'Var' ) 
+          || ( $.parameters.isa( 'Array' ) && @($.parameters.array) ) {    
+              $.parameters.emit_perl5 ~ '->{_dispatch_VAR}( ' 
+            ~ $.parameters.emit_perl5 
+            ~ ', \'BIND\', ' 
+            ~ $.arguments.emit_perl5 ~ ' )';
+        }
+        else {
+            ''
+        }
+        
     }
 }
 

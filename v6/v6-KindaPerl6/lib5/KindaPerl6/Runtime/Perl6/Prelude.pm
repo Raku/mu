@@ -45,6 +45,38 @@
         $::Match->{_dispatch}( $::Match, 'HOW', ),
         'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'hash' )
     );
+    $::Match->{_dispatch}( $::Match, 'HOW', )->{_dispatch}(
+        $::Match->{_dispatch}( $::Match, 'HOW', ),
+        'add_method',
+        $::Str->{_dispatch}( $::Str, 'new', 'str' ),
+        $::Method->{_dispatch}(
+            $::Method,
+            'new',
+            sub {
+                my $self   = shift;
+                my $List__ = \@_;
+                $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_
+                  ->{_dispatch}(
+                    $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
+                    'APPLY',
+                    $::self->{_dispatch}( $::self, 'bool', ),
+                    $GLOBAL::Code_substr->{_dispatch}(
+                        $GLOBAL::Code_substr,
+                        'APPLY',
+                        $::self->{_dispatch}( $::self, 'match_str', ),
+                        $::self->{_dispatch}( $::self, 'from', ),
+                        $GLOBAL::Code_infix_58__60__45__62_->{_dispatch}(
+                            $GLOBAL::Code_infix_58__60__45__62_,
+                            'APPLY',
+                            $::self->{_dispatch}( $::self, 'to', ),
+                            $::self->{_dispatch}( $::self, 'from', )
+                        )
+                    ),
+                    $::Undef
+                  );
+            }
+        )
+    );
     1
 }
 

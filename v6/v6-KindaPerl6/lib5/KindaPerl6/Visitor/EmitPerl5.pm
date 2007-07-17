@@ -39,7 +39,7 @@ package Assign; sub new { shift; bless { @_ }, "Assign" } sub emit_perl5 { my $s
 ;
 package Var; sub new { shift; bless { @_ }, "Var" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $table = { '$' => '$','@' => '$List_','%' => '$Hash_','&' => '$Code_', }; do { if (($self->{twigil} eq '.')) { return(('$self->{' . ($self->{name} . '}'))) } else {  } }; do { if (($self->{name} eq '/')) { return(($table->{$self->{sigil}} . 'MATCH')) } else {  } }; return(Main::mangle_name($self->{sigil}, $self->{twigil}, $self->{name})) }
 ;
-package Bind; sub new { shift; bless { @_ }, "Bind" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ($self->{parameters}->emit_perl5() . ('->{_dispatch_VAR}( ' . ($self->{parameters}->emit_perl5() . (', \'BIND\', ' . ($self->{arguments}->emit_perl5() . ' )'))))) }
+package Bind; sub new { shift; bless { @_ }, "Bind" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; do { if ((Main::isa($self->{parameters}, 'Var') || (Main::isa($self->{parameters}, 'Array') && @{$self->{parameters}->array()}))) { ($self->{parameters}->emit_perl5() . ('->{_dispatch_VAR}( ' . ($self->{parameters}->emit_perl5() . (', \'BIND\', ' . ($self->{arguments}->emit_perl5() . ' )'))))) } else { '' } } }
 ;
 package Proto; sub new { shift; bless { @_ }, "Proto" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ("" . $self->{name}) }
 ;

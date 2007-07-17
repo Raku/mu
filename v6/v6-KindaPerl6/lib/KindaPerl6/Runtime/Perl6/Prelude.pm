@@ -14,6 +14,12 @@ class Match {
     has $.match_str;
     has $.array;
     has $.hash;
+    
+    method str {
+           self.bool 
+        ?? substr( self.match_str, self.from, self.to - self.from )
+        !! undef;
+    }
 }
 
 class Signature {
