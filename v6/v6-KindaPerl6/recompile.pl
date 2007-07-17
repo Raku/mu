@@ -1,6 +1,9 @@
 for (qw(
     
     KindaPerl6/Grammar.pm
+    KindaPerl6/Grammar/Control.pm
+    KindaPerl6/Grammar/Mapping.pm
+    KindaPerl6/Grammar/Regex.pm
     KindaPerl6/Traverse.pm
     
     KindaPerl6/Visitor/Hyper.pm
