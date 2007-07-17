@@ -101,15 +101,19 @@
         $::Str->{_dispatch}( $::Str, 'new', 'Signature' ) );
     $::Signature->{_dispatch}( $::Signature, 'HOW', )->{_dispatch}(
         $::Signature->{_dispatch}( $::Signature, 'HOW', ),
-        'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'scalar' )
+        'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'invocant' )
     );
     $::Signature->{_dispatch}( $::Signature, 'HOW', )->{_dispatch}(
         $::Signature->{_dispatch}( $::Signature, 'HOW', ),
-        'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'array' )
+        'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'positional' )
     );
     $::Signature->{_dispatch}( $::Signature, 'HOW', )->{_dispatch}(
         $::Signature->{_dispatch}( $::Signature, 'HOW', ),
-        'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'hash' )
+        'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'named' )
+    );
+    $::Signature->{_dispatch}( $::Signature, 'HOW', )->{_dispatch}(
+        $::Signature->{_dispatch}( $::Signature, 'HOW', ),
+        'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'return' )
     );
     1
 }
@@ -135,15 +139,15 @@
         $::Str->{_dispatch}( $::Str, 'new', 'Capture' ) );
     $::Capture->{_dispatch}( $::Capture, 'HOW', )->{_dispatch}(
         $::Capture->{_dispatch}( $::Capture, 'HOW', ),
-        'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'scalar' )
+        'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'invocant' )
     );
     $::Capture->{_dispatch}( $::Capture, 'HOW', )->{_dispatch}(
         $::Capture->{_dispatch}( $::Capture, 'HOW', ),
-        'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'array' )
+        'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'positional' )
     );
     $::Capture->{_dispatch}( $::Capture, 'HOW', )->{_dispatch}(
         $::Capture->{_dispatch}( $::Capture, 'HOW', ),
-        'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'hash' )
+        'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'named' )
     );
     1
 }

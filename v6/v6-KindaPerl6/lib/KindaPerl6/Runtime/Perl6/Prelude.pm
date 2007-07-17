@@ -22,16 +22,18 @@ class Match {
     }
 }
 
+# XXX how about long names and double-semicolon
 class Signature {
-    has $.scalar;
-    has $.array;
-    has $.hash;
+    has $.invocant;
+    has $.positional;
+    has $.named;
+    has $.return;
 }
 
 class Capture {
-    has $.scalar;
-    has $.array;
-    has $.hash;
+    has $.invocant;
+    has $.positional;
+    has $.named;
 }
 
 # XXX "does Container" ???
