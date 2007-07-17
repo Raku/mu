@@ -13,5 +13,5 @@ for (qw(
     )) 
 {
     print "Compiling $_\n";
-    print `perl mp6.pl < lib/$_ > lib5/$_`;
+    print `$^X mp6.pl < lib/$_ > lib5/$_`;
 }
