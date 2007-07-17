@@ -8,6 +8,7 @@ token control {
     | <ctrl_return> { return $$<ctrl_return> }   # return 123;
     | <ctrl_leave>  { return $$<ctrl_leave>  }   # last; break;
     | <if>     { return $$<if>     }   # 1 ?? 2 !! 3
+    | <unless> { return $$<unless> }   # !1 ?? 2 !! 3
     | <when>   { return $$<when>   }   # when 3 { ... }
     | <for>    { return $$<for>    }   # $x.map(-> $i {...})
     | <while>  { return $$<while>  }   # while ... { ... }
@@ -61,6 +62,31 @@ token if {
                 'body' => $$<block1>, 
                 'otherwise' => undef,
              ) 
+        }
+    ]
+};
+
+token unless {
+    unless <?ws>  <exp>  <?opt_ws>
+    <block1>
+    [
+        <?opt_ws>
+        else <?opt_ws> 
+        <block2>
+        { 
+            return ::If( 
+                'cond'      => $$<exp>, 
+                'body'      => $$<block2>,
+                'otherwise' => $$<block1>,
+            );
+        }
+    |
+        { 
+            return ::If(
+                'cond' => $$<exp>,
+                'body' => undef,
+                'otherwise' => $$<block1>,
+             )
         }
     ]
 };
