@@ -396,6 +396,7 @@ $meta_Bit->add_method( 'str',
 
 $meta_Bit->add_method( 'true',
     $::Method->new( sub { $::Bit->new( $_[0]{_value} ) } ) );
+$meta_Bit->add_method( 'p5landish', $::Method->new( sub { $_[0]{_value} } ) );
 
 $::Class->new('Code');
 my $meta_Code = $::Code->{_dispatch}( $::Code, 'HOW' );
