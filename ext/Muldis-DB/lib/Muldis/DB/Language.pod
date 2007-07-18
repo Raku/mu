@@ -202,6 +202,16 @@ documentation because all values in Muldis::DB are conceptually eternal and
 immutable, so it does not make sense to say that we are "building" one; we
 are "selecting" one.
 
+=item fail
+
+Within this documentation, if a routine is said to I<fail> under some
+circumstance, such as with certain arguments, that can mean either or both
+of the routine throwing an exception at runtime, or failing to compile in
+the first place (which is a thrown exception at compile time); the latter
+is more likely to happen if the compiler can detect that certain arguments
+will always be unacceptable, and the former usually happens just if a
+problem can likely not be caught at compile time.
+
 =back
 
 I<This documentation is pending.>
@@ -1032,17 +1042,17 @@ other kinds of constraints.
 =item C<host_gate>
 
 A C<host_gate> is an anonymous procedure that can not be invoked by any
-other routine and exists in the limbo between the DBMS and the application
-that is driving it; the application holds a
-C<Muldis::DB::Interface::HostGateRtn> object to reference it by (the result
-of a C<Muldis::DB::Interface::DBMS> object's C<prepare()> method), and it
-exists only so long as that object doesn't go out of scope.  A C<host_gate>
-is mostly like a C<procedure> in every other way.  Main differences are
-that the only C<host_gate> routines are ones that users define, and that
-they are the only routines allowed to have explicit isolated transaction
-initiation and termination statements (for optional use in a parent-most
-transaction); all other updating routine types have self-contained atomic
-blocks instead.
+other routine, and that can not live in any depot.  In a pure Muldis D
+application, this is the type of the single "main" routine; assuming it is
+Concrete Muldis D, said routine is actually the only content of the program
+file, and its body defines any other routines or causes them to be loaded
+from depots, for subsequent invocation.  In a mixed-language application,
+where Muldis D code is invoked by another host language, a C<host_gate> is
+defined and injected into the DBMS by the host language, and only the host
+language can invoke it; moreover, a C<host_gate> is the I<only> kind of
+routine that a host language may directly invoke, hence its name.  Aside
+from not being invokable by any other Muldis D routine, a C<host_gate> is
+the same as a C<procedure>.
 
 =back
 
@@ -1088,17 +1098,18 @@ compliance as part of the core feature set; moreover, all types of changes
 within a repository are subject to transactions and can be rolled back,
 including both data manipulation and schema manipulation; moreover, an
 interrupted session with a repository must result in an automatic rollback,
-not an automatic commit.
+not an automatic commit.  (But changes that occur outside the DBMS
+environment, such as by a C<system_service>, or by a host language routine,
+are generally not affected by transactions at all.)
 
-I<It is important to point out that any attempt to implement the Muldis::DB
-DBMS (a Muldis::DB Engine) which does not include full ACID compliance,
-with all aspects described above, is not a true Muldis::DB DBMS
-implementation, but rather is at best a partial implementation, and should
-be treated with suspicion concerning reliability.  Of course, such partial
-implementations will likely be made and used, such as ones implemented over
-existing DBMS products that are themselves not ACID compliant, but you
-should see them for what they are and weigh the corruption risks of using
-them.>
+I<It is important to point out that any attempt to implement Muldis D (what
+a Muldis::DB Engine does) which does not include full ACID compliance, with
+all aspects described above, is not a true Muldis D implementation, but
+rather is at best a partial implementation, and should be treated with
+suspicion concerning reliability.  Of course, such partial implementations
+will likely be made and used, such as ones implemented over existing DBMS
+products that are themselves not ACID compliant, but you should see them
+for what they are and weigh the corruption risks of using them.>
 
 I<Note that the best way for an Engine to behave, if for some reason it is
 built in such a way and/or over an existing DBMS product that does implicit
@@ -1106,8 +1117,8 @@ commits after, say, data-definition statements, is for it to throw an
 exception if data-definition is attempted within an explicit /
 multi-statement transaction, such that a user of that Engine can only do
 data-definition outside of an explicit transaction; in this way, the Engine
-is still following all the Muldis::DB safety rules, and hence should be
-relatively safe to use, even if it lacks Muldis::DB features.>
+is still following all the Muldis D safety rules, and hence should be
+relatively safe to use, even if it lacks Muldis D features.>
 
 Each individual instance of the Muldis::DB DBMS is a single process virtual
 machine, and conceptually only one thing is happening in it at a time; each
@@ -1132,7 +1143,7 @@ repository (or appropriate subset thereof) during any active read-only
 and/or for-update transaction, to ensure that the transaction sees a
 consistent environment during its life.  The lock is a shared lock if the
 transaction only does reading, and it is an exclusive lock if the
-transaction also does writing. Speaking in terms of SQL, the Muldis::DB
+transaction also does writing.  Speaking in terms of SQL, the Muldis::DB
 DBMS supports only the serializable transaction isolation level.
 
 I<Note that there is currently no official support for using Muldis::DB in
@@ -1150,52 +1161,71 @@ can still be wrapped in an explicit transaction for atomicity.
 Transactions can be nested, by starting a new one before concluding a
 previous one, and the parent-most transaction has the final say on whether
 all of its committed children actually have a final committed effect or
-not.  The layering of transactions can involve any combination of explicit
-and implicit transactions (the combination should behave intuitively).
+not.  There are no "autonomous transactions" within the DBMS.
 
-The lifetimes of all transactions in Muldis D (except those declared in
-C<host_gate> routines) are bound to specific lexical scopes, such that they
-begin when that scope is entered and end when that scope is exited; if the
-scope is exited normally, its transaction commits; if the scope terminates
-early due to a thrown exception, its transaction rolls back.
+Transactions in Muldis D come in both implicit and explicit varieties, but
+the implicit transactions only exist (that is, only have an effect) when
+there are no explicit transaction active.
 
-Each Muldis D explicitly invokable routine as a whole (being a lexical
-scope), whether system-defined or user-defined, is implicitly atomic, so
-invoking one will either succeed or have no side-effect, and the
-environment will remain frozen during its execution, save for the routine's
-own changes.  The implicit transaction of a function is always read-only,
-and the implicit transaction of a procedure is either read-only or
-for-update depending on what it wants to do.  Each try-block is also
-implicitly atomic, committing if it exits normally or rolling back if it
-traps an exception.
+The normal way to specify an explicit transaction is to define a I<try>
+block, since a I<try> block doubles as a transaction whose lifetime is
+bound to the lexical scope of that block.  The transaction will begin when
+that scope is entered and end when that scope is exited; if the scope is
+exited normally, its transaction commits; if the scope terminates early due
+to a thrown exception, its transaction rolls back.  Moreover, in a pure
+Muldis D application, a I<try> block is the I<only> kind of explicit
+transaction.
 
-Every Muldis D statement (including multi-update statements) is atomic; all
-parts of that statement and its child expressions will see the same static
-view of the environment; if the statement is an update, either all parts of
-that update will succeed and commit, or none of it will (accompanied by a
-thrown exception) and no changes are left.
+In a mixed-language application, when Muldis D routines are invoked by a
+host language, the host language is allowed to specify further parent-most
+explicit transactions within the DBMS that are not bound to the lexical
+scope of a block, using distinct transaction initiation and termination
+statements.  Such open-ended transactions are intended for transactions
+which last over multiple DBMS invocations of an application (whereas Muldis
+D scope-bound transactions always occur entirely within one invocation of
+the DBMS by a host language).  But it is a recommended best practice that
+host language code will associate the invocation of said statements with
+its own lexical scopes, such as its own I<try-catch> constructs.
 
-Explicit atomic statement blocks can also be declared within a routine.
+An implicit transaction is associated with the lexical scope of every
+Muldis D C<update_operator> and C<system_service>, and by extension, every
+Muldis D statement that is an invocation of said.  Or more accurately, an
+update operation (including a multi-update operation) is implicitly atomic,
+and will either succeed and commit as a whole, or fail and rollback as a
+whole. This is as if every update operator invocation was surrounded by its
+own I<try> block, except that any thrown exceptions are not caught.
+Similarly, every C<function> and C<\w+_constraint> has an implicit
+transaction, though since these never update anything, all that really
+means is that they see a consistent view of their environment.
 
-Muldis D also supports the common concept of explicit open-ended
-transaction statements that start or end transactions which are not bound
-to lexical scopes; however, these statements may only be invoked within a
-C<host_gate> routine, that an application invokes directly, and not in any
-named routines, nor within atomic statement blocks in C<host_gate>
-routines.
+By contrast, every C<procedure> and C<host_gate> is neither implicitly a
+transaction nor atomic (except for portions wherein that have explicit
+I<try> blocks), so you can use a procedure to define an operation where you
+want to keep partial results of a failure.
 
-While scope-bound transactions always occur entirely within one invocation
-of the DBMS by an application, the open-ended transactions are intended for
-transactions which last over multiple DBMS invocations of an application.
+Since failures are always accompanied by thrown exceptions, a failure will
+unwind the call stack and rollback any active transactions one nesting
+layer at a time until either a I<try> block is exited, which halts the
+unwinding, or the application exits, rolling back all remaining active
+transactions.
+
+If no explicit transactions are active at all when a failure occurs, then
+each non-procedure-invoking statement in a procedure is the parent-most
+transaction, and so a failure part-way through said procedure will result
+in the prior-completed statements to be fully committed, and only the
+failed statement to have left no state change.  At this point, a pure
+Muldis D application will have exited, and a mixed-language application
+will have either exited or caught an exception in a host-language I<try>
+block.
 
 All currently mounted repositories (persistent and temporary both) are
 joined at the hip with respect to transactions; a commit or rollback is
 performed on all of them simultaneously, and a commit either succeeds for
 all or fails for all (a repository suddenly becoming inaccessible counts as
-a failure).  I<Note that if a Muldis::DB DBMS implementation can not
-guarantee such synchronization between multiple repositories, then it must
-refuse to mount more than one repository at a time under the same virtual
-machine (users can still employ multiple virtual machines, that are not
+a failure).  I<Note that if a Muldis D implementation can not guarantee
+such synchronization between multiple repositories, then it must refuse to
+mount more than one repository at a time under the same virtual machine
+(users can still employ multiple virtual machines, that are not
 synchronized); by doing one of those two actions, a less capable
 implementation can still be considered reliable and recommendable.>
 

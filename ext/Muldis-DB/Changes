@@ -13,6 +13,13 @@
     * New file versions are: DB.pm and AST.pm and Language.pod and
     Validator.pm and Example.pm 0.2.0.
 
+    * Updated the TRANSACTIONS AND CONCURRENCY section of Language.pod in
+    regards to how the scope of explicit transactions is specified, and
+    where implicit transactions occur.  Also, Muldis D now no longer has
+    language for non-scope-attached transactions, and any concept of
+    distinct transaction initiation or termination statements will be
+    hoisted to the host language (presumably as methods of ::DBMS objects).
+
     * Updated Core.pod to add the scalar type 'PInt2_36', and to replace
     the pseudo-type 'Any' with the pseudo-type 'Some.Universal', and added
     'Some.Ordinal'.
