@@ -4,7 +4,7 @@ use Test;
 # Tests for auto-increment and auto-decrement operators
 # again, from Perl 5
 
-plan 37;
+plan 43;
 
 #L<S03/Autoincrement precedence>
 
@@ -75,4 +75,24 @@ is(++$foo, 'zj');
 
 $foo = 'zr';
 is(++$foo, 'zs');
+
+# test magical autodecrement
+
+$foo = '100';
+is(--$foo, '99');
+
+$foo = 'a1';
+is(--$foo, 'a0');
+
+$foo = 'Ba';
+is(--$foo, 'Az');
+
+$foo = 'aaa';
+is(--$foo, 'zz');
+
+$foo = 'B00';
+is(--$foo, 'A99');
+
+$foo = 'A00';
+dies_ok( { --$foo }, 'autodecrementing A00 fails' );
 
