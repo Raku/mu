@@ -8,7 +8,7 @@ lib5/KindaPerl6/Runtime/Perl5/%.pm: lib/KindaPerl6/Runtime/Perl5/%.pm
 lib5/%.pm: lib/%.pm
 	perl mp6.pl < $< > $@
 test:
-	sh run_tests.sh
+	perl run_tests.pl
 
 clean: 
 	rm -f $(OBJ)
