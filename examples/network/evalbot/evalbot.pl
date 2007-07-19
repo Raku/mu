@@ -33,6 +33,11 @@ debug "  $*PROGRAM_NAME nick host[:port] reconnect_delay";
 
 # Create new bot "object"
 my $bot = new_bot(nick => $nick(), host => $host, port => $port, debug_raw => 0);
+
+# prototypes are required now before you can reference the subs
+sub on_invite($event) {...};
+sub on_privmsg($event) {...};
+
 $bot<add_handler>("INVITE",   &on_invite);
 $bot<add_handler>("PRIVMSG",  &on_privmsg);
 
