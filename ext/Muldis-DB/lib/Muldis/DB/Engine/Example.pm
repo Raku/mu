@@ -41,13 +41,13 @@ submethod BUILD (Any :$dbms_config!) {
 ###########################################################################
 
 method new_var of Muldis::DB::Engine::Example::HostGateVar
-        (Muldis::DB::AST::TypeInvo :$decl_type!) {
+        (Muldis::DB::Literal::TypeInvo :$decl_type!) {
     return ::Muldis::DB::Engine::Example::HostGateVar.new(
         :dbms(self), :decl_type($decl_type) );
 }
 
 method prepare of Muldis::DB::Engine::Example::HostGateRtn
-        (Muldis::DB::AST::HostGateRtn :$rtn_ast!) {
+        (Muldis::DB::Literal::HostGateRtn :$rtn_ast!) {
     return ::Muldis::DB::Engine::Example::HostGateRtn.new(
         :dbms(self), :rtn_ast($rtn_ast) );
 }
@@ -63,19 +63,19 @@ class Muldis::DB::Engine::Example::HostGateVar {
     does Muldis::DB::Engine::Role::HostGateVar;
 
     has Muldis::DB::Engine::Example::DBMS $!dbms;
-    has Muldis::DB::AST::TypeInvo         $!decl_type;
-    has Muldis::DB::AST::Node             $!val_ast;
+    has Muldis::DB::Literal::TypeInvo         $!decl_type;
+    has Muldis::DB::Literal::Node             $!val_ast;
 
     trusts Muldis::DB::Engine::Example::HostGateRtn;
 
 ###########################################################################
 
 submethod BUILD (Muldis::DB::Engine::Example::DBMS :$dbms!,
-        Muldis::DB::AST::TypeInvo :$decl_type!) {
+        Muldis::DB::Literal::TypeInvo :$decl_type!) {
 
     $!dbms      = $dbms;
     $!decl_type = $decl_type;
-    $!val_ast   = ::Muldis::DB::AST::BoolLit.new( :v(Bool::False) );
+    $!val_ast   = ::Muldis::DB::Literal::Bool.new( :v(Bool::False) );
         # TODO: make default value of $decl_type
 
     return;
@@ -83,13 +83,13 @@ submethod BUILD (Muldis::DB::Engine::Example::DBMS :$dbms!,
 
 ###########################################################################
 
-method fetch_ast of Muldis::DB::AST::Node () {
+method fetch_ast of Muldis::DB::Literal::Node () {
     return $!val_ast;
 }
 
 ###########################################################################
 
-method store_ast (Muldis::DB::AST::Node :$val_ast!) {
+method store_ast (Muldis::DB::Literal::Node :$val_ast!) {
     $!val_ast = $val_ast;
     return;
 }
@@ -105,7 +105,7 @@ class Muldis::DB::Engine::Example::HostGateRtn {
     does Muldis::DB::Engine::Role::HostGateRtn;
 
     has Muldis::DB::Engine::Example::DBMS $!dbms;
-    has Muldis::DB::AST::HostGateRtn      $!rtn_ast;
+    has Muldis::DB::Literal::HostGateRtn      $!rtn_ast;
     has Code                              $!prep_rtn;
     has Hash                              $!bound_upd_args;
     has Hash                              $!bound_ro_args;
@@ -113,7 +113,7 @@ class Muldis::DB::Engine::Example::HostGateRtn {
 ###########################################################################
 
 submethod BUILD (Muldis::DB::Engine::Example::DBMS :$dbms!,
-        Muldis::DB::AST::HostGateRtn :$rtn_ast!) {
+        Muldis::DB::Literal::HostGateRtn :$rtn_ast!) {
 
     my $prep_rtn = sub { 1; }; # TODO; the real thing.
 

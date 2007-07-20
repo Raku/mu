@@ -43,14 +43,15 @@ this distribution, I recommend doing so in this order:
 
    1.       README
    2. (opt) Changes
-   3.       lib/Muldis/DB.pm
+   3.       lib/Muldis/DB.pod
    4. (opt) lib/Muldis/DB/Copying.pod
-   5.       lib/Muldis/DB/AST.pm
-   6.       lib/Muldis/DB/Language.pod
-   7. (opt) lib/Muldis/DB/Validator.pm
-   8. (opt) lib/Muldis/DB/Engine/Example.pm
-   9.       lib/Muldis/DB/SeeAlso.pod
-  10. (opt) TODO
+   5.       lib/Muldis/DB/Interface.pm
+   6.       lib/Muldis/DB/Literal.pm
+   7.       lib/Muldis/DB/Language.pod
+   8. (opt) lib/Muldis/DB/Validator.pm
+   9. (opt) lib/Muldis/DB/Engine/Example.pm
+  10.       lib/Muldis/DB/SeeAlso.pod
+  11. (opt) TODO
 
 Then you can carry on with anything else.
 

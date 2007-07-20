@@ -459,28 +459,28 @@ abstract syntax trees that they naturally parse into, respectively.
 Concrete Muldis D is the natural form that one would code in if they were
 writing a self-contained application (or component) in Muldis D which was
 compiled using a separate process into its own executable (or library),
-which includes situations where Muldis D is its own
-Parrot (L<http://www.parrotcode.org/>) hosted language (a prospect which is
+which includes situations where Muldis D is its own Parrot
+(L<http://www.parrotcode.org/>) hosted language (a prospect which is
 desired to be implemented in the near future).  Concrete Muldis D would
-also be used by an interactive shell interface over Muldis::DB, when users
-submit commands at runtime, or in any other situation where it makes sense
-to take input in that form.
+also be used by an interactive shell interface over Muldis::DB::Interface,
+when users submit commands at runtime, or in any other situation where it
+makes sense to take input in that form.
 
 Abstract Muldis D is the natural form that one would code in if they were
 primarily writing their application in a separate host language, such as
 Perl, and any Muldis D code was being specified in terms of host language
-code, such as Perl objects of Muldis::AST classes.  Abstract Muldis D code
-consists of quasi-hierarchical but actually relational collection values,
-typically catalog tuples.  Abstract Muldis D is the only representation
-format used by the API of L<Muldis::DB> itself, and is what any Perl code
-typically should be using.  When generating Muldis D code from arbitrary
-Perl data structures (which includes the work of, eg, SQL DBMS emulators),
-the Abstract form is the easiest to use and the least error prone since no
-values have to be escaped or stitched together as strings, which prevents
-many injection security holes.  Abstract Muldis D is also what is used when
-Muldis D code is defined to generate/prepare and execute other Muldis D
-code at runtime (by reading or updating the meta-model / system catalog),
-which is "data definition".
+code, such as Perl objects of Muldis::DB::Literal classes.  Abstract Muldis
+D code consists of quasi-hierarchical but actually relational collection
+values, typically catalog tuples.  Abstract Muldis D is the only
+representation format used by the API of L<Muldis::DB::Interface> itself,
+and is what any Perl code typically should be using.  When generating
+Muldis D code from arbitrary Perl data structures (which includes the work
+of, eg, SQL DBMS emulators), the Abstract form is the easiest to use and
+the least error prone since no values have to be escaped or stitched
+together as strings, which prevents many injection security holes. 
+Abstract Muldis D is also what is used when Muldis D code is defined to
+generate/prepare and execute other Muldis D code at runtime (by reading or
+updating the meta-model / system catalog), which is "data definition".
 
 See L<Muldis::DB::Language::Catalog> first for details of the Muldis D
 meta-model, which is also the grammar of Abstract Muldis D; see

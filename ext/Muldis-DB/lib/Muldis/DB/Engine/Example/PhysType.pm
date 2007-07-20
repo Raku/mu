@@ -229,8 +229,8 @@ method which of Str () {
 
 ###########################################################################
 
-method as_ast of Muldis::DB::AST::BoolLit () {
-    return ::Muldis::DB::AST::BoolLit.new( :v($!v) );
+method as_ast of Muldis::DB::Literal::Bool () {
+    return ::Muldis::DB::Literal::Bool.new( :v($!v) );
 }
 
 ###########################################################################
@@ -282,8 +282,8 @@ method which of Str () {
 
 ###########################################################################
 
-method as_ast of Muldis::DB::AST::OrderLit () {
-    return ::Muldis::DB::AST::OrderLit.new( :v($!v) );
+method as_ast of Muldis::DB::Literal::Order () {
+    return ::Muldis::DB::Literal::Order.new( :v($!v) );
 }
 
 ###########################################################################
@@ -335,8 +335,8 @@ method which of Str () {
 
 ###########################################################################
 
-method as_ast of Muldis::DB::AST::IntLit () {
-    return ::Muldis::DB::AST::IntLit.new( :v($!v) );
+method as_ast of Muldis::DB::Literal::Int () {
+    return ::Muldis::DB::Literal::Int.new( :v($!v) );
 }
 
 ###########################################################################
@@ -388,8 +388,8 @@ method which of Str () {
 
 ###########################################################################
 
-method as_ast of Muldis::DB::AST::BlobLit () {
-    return ::Muldis::DB::AST::BlobLit.new( :v($!v) );
+method as_ast of Muldis::DB::Literal::Blob () {
+    return ::Muldis::DB::Literal::Blob.new( :v($!v) );
 }
 
 ###########################################################################
@@ -441,8 +441,8 @@ method which of Str () {
 
 ###########################################################################
 
-method as_ast of Muldis::DB::AST::TextLit () {
-    return ::Muldis::DB::AST::TextLit.new( :v($!v) );
+method as_ast of Muldis::DB::Literal::Text () {
+    return ::Muldis::DB::Literal::Text.new( :v($!v) );
 }
 
 ###########################################################################
@@ -501,12 +501,12 @@ method which of Str () {
 
 ###########################################################################
 
-method as_ast of Muldis::DB::AST::_Tuple () {
+method as_ast of Muldis::DB::Literal::_Tuple () {
     my $call_args = \( :heading($!heading.as_ast()),
         :body($!body.as_ast()) );
     return self._allows_quasi()
-        ?? ::Muldis::DB::AST::QuasiTupleSel.new.callwith( |$call_args )
-        !! ::Muldis::DB::AST::TupleSel.new.callwith( |$call_args );
+        ?? ::Muldis::DB::Literal::QuasiTupleSel.new.callwith( |$call_args )
+        !! ::Muldis::DB::Literal::TupleSel.new.callwith( |$call_args );
 }
 
 ###########################################################################
@@ -616,12 +616,12 @@ method which of Str () {
 
 ###########################################################################
 
-method as_ast of Muldis::DB::AST::_Relation () {
+method as_ast of Muldis::DB::Literal::_Relation () {
     my $call_args = \( :heading($!heading.as_ast()),
         :body([$!body.map:{ .as_ast() }]) );
     return self._allows_quasi()
-        ?? ::Muldis::DB::AST::QuasiRelationSel.new.callwith( |$call_args )
-        !! ::Muldis::DB::AST::RelationSel.new.callwith( |$call_args );
+        ?? ::Muldis::DB::Literal::QuasiRelationSel.new.callwith( |$call_args )
+        !! ::Muldis::DB::Literal::RelationSel.new.callwith( |$call_args );
 }
 
 ###########################################################################
@@ -737,14 +737,14 @@ method which of Str () {
 
 ###########################################################################
 
-method as_ast of Muldis::DB::AST::TypeInvo () {
+method as_ast of Muldis::DB::Literal::TypeInvo () {
     my $call_args = \( :kind($!kind),
         :spec($!kind === 'Any' ?? $!spec
-            !! $!kind === 'Scalar' ?? ::Muldis::DB::AST::EntityName.new( :text($!spec) )
+            !! $!kind === 'Scalar' ?? ::Muldis::DB::Literal::EntityName.new( :text($!spec) )
             !! $!spec.as_ast()) );
     return self._allows_quasi()
-        ?? ::Muldis::DB::AST::TypeInvoAQ.new.callwith( |$call_args )
-        !! ::Muldis::DB::AST::TypeInvoNQ.new.callwith( |$call_args );
+        ?? ::Muldis::DB::Literal::TypeInvoAQ.new.callwith( |$call_args )
+        !! ::Muldis::DB::Literal::TypeInvoNQ.new.callwith( |$call_args );
 }
 
 ###########################################################################
@@ -828,13 +828,13 @@ method which of Str () {
 
 ###########################################################################
 
-method as_ast of Muldis::DB::AST::TypeDict () {
+method as_ast of Muldis::DB::Literal::TypeDict () {
     my $call_args = \( :map([ $!map.pairs.map:{
-            [::Muldis::DB::AST::EntityName.new( :text(.key) ), .value.as_ast()],
+            [::Muldis::DB::Literal::EntityName.new( :text(.key) ), .value.as_ast()],
         } ]) );
     return self._allows_quasi()
-        ?? ::Muldis::DB::AST::TypeDictAQ.new.callwith( |$call_args )
-        !! ::Muldis::DB::AST::TypeDictNQ.new.callwith( |$call_args );
+        ?? ::Muldis::DB::Literal::TypeDictAQ.new.callwith( |$call_args )
+        !! ::Muldis::DB::Literal::TypeDictNQ.new.callwith( |$call_args );
 }
 
 ###########################################################################
@@ -933,9 +933,9 @@ method which of Str () {
 
 ###########################################################################
 
-method as_ast of Muldis::DB::AST::ExprDict () {
-    return ::Muldis::DB::AST::ExprDict.new( :map([ $!map.pairs.map:{
-            [::Muldis::DB::AST::EntityName.new( :text(.key) ), .value.as_ast()],
+method as_ast of Muldis::DB::Literal::ExprDict () {
+    return ::Muldis::DB::Literal::ExprDict.new( :map([ $!map.pairs.map:{
+            [::Muldis::DB::Literal::EntityName.new( :text(.key) ), .value.as_ast()],
         } ]) );
 }
 

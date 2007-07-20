@@ -402,7 +402,7 @@ public APIs that work without Muldis::DB being present on the system.  If
 Muldis::DB is Genezzo's sole or primary interface, then simply C<Genezzo>
 is probably best for branding.
 
-=item C<Muldis::DB::AST::Refactor(|::\w+)>
+=item C<Muldis::DB::Literal::Refactor(|::\w+)>
 
 Utility modules that take Muldis::DB AST node objects as input and derive
 other nodes as output, such as with the purpose of refactoring them into
@@ -419,7 +419,7 @@ knows the specific needs of that Engine's implementation environment.
 Other words that could go in such module names are like C<Optimize> or
 C<Canon>, or whatever authors prefer.
 
-=item C<Muldis::DB::AST::YAML> and C<Muldis::DB::AST::XML> etc
+=item C<Muldis::DB::Literal::YAML> and C<Muldis::DB::Literal::XML> etc
 
 Utility modules that serialize Muldis::DB AST nodes to, or unserialize them
 from, logically equivalent YAML, XML, or other generic data interchange
@@ -442,7 +442,7 @@ module, should that be useful.  Depending on what DBI itself permits or
 requires, this could take a variety of query definition formats, including
 either or both of AST form or string form (most likely) Muldis D.
 
-=item C<Muldis::DB::AST::Translate::TutorialD> etc
+=item C<Muldis::DB::Literal::Translate::TutorialD> etc
 
 Utility module that parses the B<Tutorial D> language into Muldis::DB AST
 nodes, and also that generates the former from the latter.  Mainly this is
@@ -452,7 +452,7 @@ implementations.  In addition, separate utility modules can be made which
 translate to and from other B<D> languages that don't look like B<Tutorial
 D>.
 
-=item C<Muldis::DB::AST::Translate::SQL::Native>
+=item C<Muldis::DB::Literal::Translate::SQL::Native>
 
 Utility module that parses a Muldis::DB-native variant of SQL into
 Muldis::DB AST nodes, and also that generates the former from the latter.
@@ -470,14 +470,14 @@ deterministically, and perform faster, than ones written to some other SQL
 dialect, since there is less indirection involved between what users query
 and what actually happens to implement it.
 
-=item C<Muldis::DB::AST::Translate::SQL::\w+>
+=item C<Muldis::DB::Literal::Translate::SQL::\w+>
 
 Utility modules that parse other variants of SQL (or subsets thereof) into
 Muldis::DB AST nodes, and also that generate the former from the latter.
 Examples of these variants are the actual SQL:2003 standard, and the native
 dialects of each actual SQL DBMS.
 
-=item C<Muldis::DB::AST::Translate::\w+>
+=item C<Muldis::DB::Literal::Translate::\w+>
 
 Utility modules that translate data (including code and declaratives)
 between representations that are Muldis::DB AST nodes and representations

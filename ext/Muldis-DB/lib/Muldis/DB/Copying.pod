@@ -41,12 +41,12 @@ time, it is expected that its functionality will be generally limited to
 the following: 1. Providing a human-readable document that authoritatively
 defines the Muldis D language (L<Muldis::DB::Language>); 2. Providing a
 complete set of container data types to represent Perl-hosted Abstract
-Muldis D (L<Muldis::DB::AST>); 3. Providing a parser and generator of
-Concrete Muldis D (also L<Muldis::DB::AST>); 4. Providing a complete public
-API for the Muldis DB virtual machine (L<Muldis::DB>); 5. Providing a
-complete but simple reference implementation of a Muldis DB Engine
-(L<Muldis::DB::Example>); 6. Providing a complete reusable test suite to
-help prove if any Engine implements Muldis D properly
+Muldis D (L<Muldis::DB::Literal>); 3. Providing a parser and generator of
+Concrete Muldis D (also L<Muldis::DB::Literal>); 4. Providing a complete
+public API for the Muldis DB virtual machine (L<Muldis::DB::Interface>); 5.
+Providing a complete but simple reference implementation of a Muldis DB
+Engine (L<Muldis::DB::Example>); 6. Providing a complete reusable test
+suite to help prove if any Engine implements Muldis D properly
 (L<Muldis::DB::Validator>); 7. A test suite for parts of the aforementioned
 in isolation, particularly #s 2 and 4.  It is not expected that the core
 Muldis DB distribution would ever have any other substantial functionality,

@@ -4,9 +4,9 @@ use Test;
 
 plan( 12 );
 
-use_ok( 'Muldis::DB::AST' );
-skip( 1, q{is( Muldis::DB::AST.WHO.version, 0.1.0,
-    'Muldis::DB::AST is the correct version' );} );
+use_ok( 'Muldis::DB::Literal' );
+skip( 1, q{is( Muldis::DB::Literal.WHO.version, 0.1.0,
+    'Muldis::DB::Literal is the correct version' );} );
 
 use_ok( 'Muldis::DB' );
 skip( 1, q{is( Muldis::DB.WHO.version, 0.1.0,
