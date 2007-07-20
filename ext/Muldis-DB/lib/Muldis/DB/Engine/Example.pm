@@ -62,8 +62,6 @@ method prepare of Muldis::DB::Engine::Example::HostGateRtn
 class Muldis::DB::Engine::Example::HostGateVar {
     does Muldis::DB::Engine::Role::HostGateVar;
 
-    use Muldis::DB::AST <newBoolLit>;
-
     has Muldis::DB::Engine::Example::DBMS $!dbms;
     has Muldis::DB::AST::TypeInvo         $!decl_type;
     has Muldis::DB::AST::Node             $!val_ast;
@@ -77,7 +75,7 @@ submethod BUILD (Muldis::DB::Engine::Example::DBMS :$dbms!,
 
     $!dbms      = $dbms;
     $!decl_type = $decl_type;
-    $!val_ast   = newBoolLit( :v(Bool::False) );
+    $!val_ast   = ::Muldis::DB::AST::BoolLit.new( :v(Bool::False) );
         # TODO: make default value of $decl_type
 
     return;

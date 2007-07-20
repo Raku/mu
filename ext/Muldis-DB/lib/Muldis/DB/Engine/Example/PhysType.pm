@@ -202,8 +202,6 @@ method _equal {
 class Muldis::DB::Engine::Example::PhysType::Bool {
     does Muldis::DB::Engine::Example::PhysType::Value;
 
-    use Muldis::DB::AST <newBoolLit>;
-
     has Bool $!v;
 
     has Str $!which;
@@ -232,7 +230,7 @@ method which of Str () {
 ###########################################################################
 
 method as_ast of Muldis::DB::AST::BoolLit () {
-    return newBoolLit( :v($!v) );
+    return ::Muldis::DB::AST::BoolLit.new( :v($!v) );
 }
 
 ###########################################################################
@@ -256,8 +254,6 @@ method v of Bool () {
 
 class Muldis::DB::Engine::Example::PhysType::Order {
     does Muldis::DB::Engine::Example::PhysType::Value;
-
-    use Muldis::DB::AST <newOrderLit>;
 
     has Order $!v;
 
@@ -287,7 +283,7 @@ method which of Str () {
 ###########################################################################
 
 method as_ast of Muldis::DB::AST::OrderLit () {
-    return newOrderLit( :v($!v) );
+    return ::Muldis::DB::AST::OrderLit.new( :v($!v) );
 }
 
 ###########################################################################
@@ -311,8 +307,6 @@ method v of Order () {
 
 class Muldis::DB::Engine::Example::PhysType::Int {
     does Muldis::DB::Engine::Example::PhysType::Value;
-
-    use Muldis::DB::AST <newIntLit>;
 
     has Int $!v;
 
@@ -342,7 +336,7 @@ method which of Str () {
 ###########################################################################
 
 method as_ast of Muldis::DB::AST::IntLit () {
-    return newIntLit( :v($!v) );
+    return ::Muldis::DB::AST::IntLit.new( :v($!v) );
 }
 
 ###########################################################################
@@ -366,8 +360,6 @@ method v of Int () {
 
 class Muldis::DB::Engine::Example::PhysType::Blob {
     does Muldis::DB::Engine::Example::PhysType::Value;
-
-    use Muldis::DB::AST <newBlobLit>;
 
     has Blob $!v;
 
@@ -397,7 +389,7 @@ method which of Str () {
 ###########################################################################
 
 method as_ast of Muldis::DB::AST::BlobLit () {
-    return newBlobLit( :v($!v) );
+    return ::Muldis::DB::AST::BlobLit.new( :v($!v) );
 }
 
 ###########################################################################
@@ -421,8 +413,6 @@ method v of Blob () {
 
 class Muldis::DB::Engine::Example::PhysType::Text {
     does Muldis::DB::Engine::Example::PhysType::Value;
-
-    use Muldis::DB::AST <newTextLit>;
 
     has Str $!v;
 
@@ -452,7 +442,7 @@ method which of Str () {
 ###########################################################################
 
 method as_ast of Muldis::DB::AST::TextLit () {
-    return newTextLit( :v($!v) );
+    return ::Muldis::DB::AST::TextLit.new( :v($!v) );
 }
 
 ###########################################################################
@@ -476,8 +466,6 @@ method v of Str () {
 
 role Muldis::DB::Engine::Example::PhysType::_Tuple {
     does Muldis::DB::Engine::Example::PhysType::Value;
-
-    use Muldis::DB::AST <newTupleSel newQuasiTupleSel>;
 
     has Muldis::DB::Engine::Example::PhysType::TypeDict  $!heading;
     has Muldis::DB::Engine::Example::PhysType::ValueDict $!body;
@@ -517,8 +505,8 @@ method as_ast of Muldis::DB::AST::_Tuple () {
     my $call_args = \( :heading($!heading.as_ast()),
         :body($!body.as_ast()) );
     return self._allows_quasi()
-        ?? &newQuasiTupleSel.callwith( |$call_args )
-        !! &newTupleSel.callwith( |$call_args );
+        ?? ::Muldis::DB::AST::QuasiTupleSel.new.callwith( |$call_args )
+        !! ::Muldis::DB::AST::TupleSel.new.callwith( |$call_args );
 }
 
 ###########################################################################
@@ -586,8 +574,6 @@ class Muldis::DB::Engine::Example::PhysType::QuasiTuple {
 role Muldis::DB::Engine::Example::PhysType::_Relation {
     does Muldis::DB::Engine::Example::PhysType::Value;
 
-    use Muldis::DB::AST <newRelationSel newQuasiRelationSel>;
-
     has Muldis::DB::Engine::Example::PhysType::TypeDict $!heading;
     has Array                                           $!body;
     has Hash                                            $!key_over_all;
@@ -634,8 +620,8 @@ method as_ast of Muldis::DB::AST::_Relation () {
     my $call_args = \( :heading($!heading.as_ast()),
         :body([$!body.map:{ .as_ast() }]) );
     return self._allows_quasi()
-        ?? &newQuasiRelationSel.callwith( |$call_args )
-        !! &newRelationSel.callwith( |$call_args );
+        ?? ::Muldis::DB::AST::QuasiRelationSel.new.callwith( |$call_args )
+        !! ::Muldis::DB::AST::RelationSel.new.callwith( |$call_args );
 }
 
 ###########################################################################
@@ -717,8 +703,6 @@ class Muldis::DB::Engine::Example::PhysType::QuasiRelation {
 role Muldis::DB::Engine::Example::PhysType::TypeInvo {
     does Muldis::DB::Engine::Example::PhysType::Value;
 
-    use Muldis::DB::AST <newEntityName newTypeInvoNQ newTypeInvoAQ>;
-
     has Str $!kind;
     has Any $!spec;
 
@@ -756,11 +740,11 @@ method which of Str () {
 method as_ast of Muldis::DB::AST::TypeInvo () {
     my $call_args = \( :kind($!kind),
         :spec($!kind === 'Any' ?? $!spec
-            !! $!kind === 'Scalar' ?? newEntityName( :text($!spec) )
+            !! $!kind === 'Scalar' ?? ::Muldis::DB::AST::EntityName.new( :text($!spec) )
             !! $!spec.as_ast()) );
     return self._allows_quasi()
-        ?? &newTypeInvoAQ.callwith( |$call_args )
-        !! &newTypeInvoNQ.callwith( |$call_args );
+        ?? ::Muldis::DB::AST::TypeInvoAQ.new.callwith( |$call_args )
+        !! ::Muldis::DB::AST::TypeInvoNQ.new.callwith( |$call_args );
 }
 
 ###########################################################################
@@ -810,8 +794,6 @@ class Muldis::DB::Engine::Example::PhysType::TypeInvoAQ {
 role Muldis::DB::Engine::Example::PhysType::TypeDict {
     does Muldis::DB::Engine::Example::PhysType::Value;
 
-    use Muldis::DB::AST <newEntityName newTypeDictNQ newTypeDictAQ>;
-
     has Hash $!map;
         # A p6 Hash with 0..N elements:
             # Each Hash key is a Str; an attr name.
@@ -848,11 +830,11 @@ method which of Str () {
 
 method as_ast of Muldis::DB::AST::TypeDict () {
     my $call_args = \( :map([ $!map.pairs.map:{
-            [newEntityName( :text(.key) ), .value.as_ast()],
+            [::Muldis::DB::AST::EntityName.new( :text(.key) ), .value.as_ast()],
         } ]) );
     return self._allows_quasi()
-        ?? &newTypeDictAQ.callwith( |$call_args )
-        !! &newTypeDictNQ.callwith( |$call_args );
+        ?? ::Muldis::DB::AST::TypeDictAQ.new.callwith( |$call_args )
+        !! ::Muldis::DB::AST::TypeDictNQ.new.callwith( |$call_args );
 }
 
 ###########################################################################
@@ -920,8 +902,6 @@ class Muldis::DB::Engine::Example::PhysType::TypeDictAQ {
 role Muldis::DB::Engine::Example::PhysType::ValueDict {
     does Muldis::DB::Engine::Example::PhysType::Value;
 
-    use Muldis::DB::AST <newEntityName newExprDict>;
-
     has Hash $!map;
 
     has Str $!which;
@@ -954,8 +934,8 @@ method which of Str () {
 ###########################################################################
 
 method as_ast of Muldis::DB::AST::ExprDict () {
-    return newExprDict( :map([ $!map.pairs.map:{
-            [newEntityName( :text(.key) ), .value.as_ast()],
+    return ::Muldis::DB::AST::ExprDict.new( :map([ $!map.pairs.map:{
+            [::Muldis::DB::AST::EntityName.new( :text(.key) ), .value.as_ast()],
         } ]) );
 }
 

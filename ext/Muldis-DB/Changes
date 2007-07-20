@@ -46,6 +46,10 @@
     * Updated Catalog.pod to add new core data types: Cat.ShortNameSet,
     Cat.AttrRenameMap.
 
+    * Updated AST.pm to remove all exported functions that trivially wrap
+    an object constructor, updated any uses in other files to call
+    constructors directly.
+
 2007-07-11   Darren Duncan <perl@DarrenDuncan.net>
 
     * Muldis::DB version 0.1.0 for Perl 5 is released on CPAN as

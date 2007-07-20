@@ -9,14 +9,7 @@ module Muldis::DB::Validator-0.1.0 {
 
     use Test;
 
-    use Muldis::DB::AST <newBoolLit newOrderLit newIntLit newBlobLit
-        newTextLit newTupleSel newQuasiTupleSel newRelationSel
-        newQuasiRelationSel newDefault newTreat newVarInvo newFuncInvo
-        newProcInvo newFuncReturn newProcReturn newEntityName newTypeInvoNQ
-        newTypeInvoAQ newTypeDictNQ newTypeDictAQ newExprDict newFuncDecl
-        newProcDecl newHostGateRtn newSetSel newQuasiSetSel newMaybeSel
-        newQuasiMaybeSel newSeqSel newQuasiSeqSel newBagSel
-        newQuasiBagSel>;
+    use Muldis::DB::AST <newQuasiSetSel>;
 
 ###########################################################################
 
@@ -45,73 +38,73 @@ sub _scenario_foods_suppliers_shipments
 
     # Declare our example executable code as Muldis::DB ASTs.
 
-    my $tynm_Text = newEntityName( :text<sys.type.Text> );
-    my $tynm_UInt = newEntityName( :text<sys.type.UInt> );
+    my $tynm_Text = ::Muldis::DB::AST::EntityName.new( :text<sys.type.Text> );
+    my $tynm_UInt = ::Muldis::DB::AST::EntityName.new( :text<sys.type.UInt> );
 
-    my $atnm_colour  = newEntityName( :text<colour> );
-    my $atnm_country = newEntityName( :text<country> );
-    my $atnm_farm    = newEntityName( :text<farm> );
-    my $atnm_food    = newEntityName( :text<food> );
-    my $atnm_qty     = newEntityName( :text<qty> );
+    my $atnm_colour  = ::Muldis::DB::AST::EntityName.new( :text<colour> );
+    my $atnm_country = ::Muldis::DB::AST::EntityName.new( :text<country> );
+    my $atnm_farm    = ::Muldis::DB::AST::EntityName.new( :text<farm> );
+    my $atnm_food    = ::Muldis::DB::AST::EntityName.new( :text<food> );
+    my $atnm_qty     = ::Muldis::DB::AST::EntityName.new( :text<qty> );
 
-    my $sca_type_Text = newTypeInvoNQ( :kind<Scalar>, :spec($tynm_Text) );
-    my $sca_type_UInt = newTypeInvoNQ( :kind<Scalar>, :spec($tynm_UInt) );
+    my $sca_type_Text = ::Muldis::DB::AST::TypeInvoNQ.new( :kind<Scalar>, :spec($tynm_Text) );
+    my $sca_type_UInt = ::Muldis::DB::AST::TypeInvoNQ.new( :kind<Scalar>, :spec($tynm_UInt) );
 
-    my $qrel_type_Relation = newTypeInvoAQ( :kind<Any>, :spec<Relation> );
+    my $qrel_type_Relation = ::Muldis::DB::AST::TypeInvoAQ.new( :kind<Any>, :spec<Relation> );
 
-    my $heading_suppliers = newTypeDictNQ( :map([
+    my $heading_suppliers = ::Muldis::DB::AST::TypeDictNQ.new( :map([
         [$atnm_farm,    $sca_type_Text],
         [$atnm_country, $sca_type_Text],
     ]) );
-    my $heading_foods = newTypeDictNQ( :map([
+    my $heading_foods = ::Muldis::DB::AST::TypeDictNQ.new( :map([
         [$atnm_food,   $sca_type_Text],
         [$atnm_colour, $sca_type_Text],
     ]) );
-    my $heading_shipments = newTypeDictNQ( :map([
+    my $heading_shipments = ::Muldis::DB::AST::TypeDictNQ.new( :map([
         [$atnm_farm, $sca_type_Text],
         [$atnm_food, $sca_type_Text],
         [$atnm_qty,  $sca_type_UInt],
     ]) );
-    my $heading_colours = newTypeDictNQ( :map([
+    my $heading_colours = ::Muldis::DB::AST::TypeDictNQ.new( :map([
         [$atnm_colour, $sca_type_Text],
     ]) );
 
-    my $rel_type_suppliers = newTypeInvoNQ(
+    my $rel_type_suppliers = ::Muldis::DB::AST::TypeInvoNQ.new(
         :kind<Relation>, :spec($heading_suppliers) );
-    my $rel_type_foods = newTypeInvoNQ(
+    my $rel_type_foods = ::Muldis::DB::AST::TypeInvoNQ.new(
         :kind<Relation>, :spec($heading_foods) );
-    my $rel_type_shipments = newTypeInvoNQ(
+    my $rel_type_shipments = ::Muldis::DB::AST::TypeInvoNQ.new(
         :kind<Relation>, :spec($heading_shipments) );
 
-    my $pnm_matched_suppl = newEntityName( :text<matched_supp> );
-    my $pnm_desi_colour   = newEntityName( :text<desi_colour> );
-    my $pnm_src_suppl     = newEntityName( :text<src_suppl> );
-    my $pnm_src_foods     = newEntityName( :text<src_foods> );
-    my $pnm_src_shipm     = newEntityName( :text<src_shipm> );
+    my $pnm_matched_suppl = ::Muldis::DB::AST::EntityName.new( :text<matched_supp> );
+    my $pnm_desi_colour   = ::Muldis::DB::AST::EntityName.new( :text<desi_colour> );
+    my $pnm_src_suppl     = ::Muldis::DB::AST::EntityName.new( :text<src_suppl> );
+    my $pnm_src_foods     = ::Muldis::DB::AST::EntityName.new( :text<src_foods> );
+    my $pnm_src_shipm     = ::Muldis::DB::AST::EntityName.new( :text<src_shipm> );
 
-    my $opnm_rel_asn = newEntityName( :text<sys.rtn.Relation.assign> );
-    my $opnm_rel_jn  = newEntityName( :text<sys.rtn.Relation.join> );
-    my $opnm_rel_sjn = newEntityName( :text<sys.rtn.Relation.semijoin> );
+    my $opnm_rel_asn = ::Muldis::DB::AST::EntityName.new( :text<sys.rtn.Relation.assign> );
+    my $opnm_rel_jn  = ::Muldis::DB::AST::EntityName.new( :text<sys.rtn.Relation.join> );
+    my $opnm_rel_sjn = ::Muldis::DB::AST::EntityName.new( :text<sys.rtn.Relation.semijoin> );
 
-    my $anm_filter  = newEntityName( :text<filter> );
-    my $anm_source  = newEntityName( :text<source> );
-    my $anm_sources = newEntityName( :text<sources> );
-    my $anm_target  = newEntityName( :text<target> );
-    my $anm_v       = newEntityName( :text<v> );
+    my $anm_filter  = ::Muldis::DB::AST::EntityName.new( :text<filter> );
+    my $anm_source  = ::Muldis::DB::AST::EntityName.new( :text<source> );
+    my $anm_sources = ::Muldis::DB::AST::EntityName.new( :text<sources> );
+    my $anm_target  = ::Muldis::DB::AST::EntityName.new( :text<target> );
+    my $anm_v       = ::Muldis::DB::AST::EntityName.new( :text<v> );
 
-    my $expr_3jn_ssp_sfd_scl = newFuncInvo(
+    my $expr_3jn_ssp_sfd_scl = ::Muldis::DB::AST::FuncInvo.new(
         :func($opnm_rel_jn),
-        :ro_args(newExprDict( :map([
+        :ro_args(::Muldis::DB::AST::ExprDict.new( :map([
             [$anm_sources, newQuasiSetSel(
                 :heading($qrel_type_Relation),
                 :body([
-                    newVarInvo( :v($pnm_src_shipm) ),
-                    newVarInvo( :v($pnm_src_foods) ),
-                    newRelationSel(
+                    ::Muldis::DB::AST::VarInvo.new( :v($pnm_src_shipm) ),
+                    ::Muldis::DB::AST::VarInvo.new( :v($pnm_src_foods) ),
+                    ::Muldis::DB::AST::RelationSel.new(
                         :heading($heading_colours),
                         :body([
-                            newExprDict( :map([
-                                [$atnm_colour, newVarInvo(
+                            ::Muldis::DB::AST::ExprDict.new( :map([
+                                [$atnm_colour, ::Muldis::DB::AST::VarInvo.new(
                                     :v($pnm_desi_colour) )],
                             ]) ),
                         ]),
@@ -121,35 +114,35 @@ sub _scenario_foods_suppliers_shipments
         ]) )),
     );
 
-    my $query_suppl_of_foods_of_clr = newHostGateRtn(
-        :upd_params(newTypeDictNQ( :map([
+    my $query_suppl_of_foods_of_clr = ::Muldis::DB::AST::HostGateRtn.new(
+        :upd_params(::Muldis::DB::AST::TypeDictNQ.new( :map([
             [$pnm_matched_suppl, $rel_type_suppliers],
         ]) )),
-        :ro_params(newTypeDictNQ( :map([
+        :ro_params(::Muldis::DB::AST::TypeDictNQ.new( :map([
             [$pnm_desi_colour, $sca_type_Text],
             [$pnm_src_suppl,   $rel_type_suppliers],
             [$pnm_src_foods,   $rel_type_foods],
             [$pnm_src_shipm,   $rel_type_shipments],
         ]) )),
-        :vars(newTypeDictNQ( :map([]) )),
+        :vars(::Muldis::DB::AST::TypeDictNQ.new( :map([]) )),
         :stmts([
-            newProcInvo(
+            ::Muldis::DB::AST::ProcInvo.new(
                 :proc($opnm_rel_asn),
-                :upd_args(newExprDict( :map([
-                    [$anm_target, newVarInvo( :v($pnm_matched_suppl) )],
+                :upd_args(::Muldis::DB::AST::ExprDict.new( :map([
+                    [$anm_target, ::Muldis::DB::AST::VarInvo.new( :v($pnm_matched_suppl) )],
                 ]) )),
-                :ro_args(newExprDict( :map([
-                    [$anm_v, newFuncInvo(
+                :ro_args(::Muldis::DB::AST::ExprDict.new( :map([
+                    [$anm_v, ::Muldis::DB::AST::FuncInvo.new(
                         :func($opnm_rel_sjn),
-                        :ro_args(newExprDict( :map([
-                            [$anm_source, newVarInvo(
+                        :ro_args(::Muldis::DB::AST::ExprDict.new( :map([
+                            [$anm_source, ::Muldis::DB::AST::VarInvo.new(
                                 :v($pnm_src_suppl) )],
                             [$anm_filter, $expr_3jn_ssp_sfd_scl],
                         ]) )),
                     )],
                 ]) )),
             ),
-            newProcReturn(),
+            ::Muldis::DB::AST::ProcReturn.new(),
         ]),
     );
 
@@ -187,87 +180,87 @@ sub _scenario_foods_suppliers_shipments
 
     # Declare our example literal source data sets as Muldis::DB ASTs.
 
-    my $rel_def_suppliers = newRelationSel(
+    my $rel_def_suppliers = ::Muldis::DB::AST::RelationSel.new(
         :heading($heading_suppliers),
         :body([
-            newExprDict( :map([
-                [$atnm_farm,    newTextLit( :v<Hodgesons> )],
-                [$atnm_country, newTextLit( :v<Canada> )],
+            ::Muldis::DB::AST::ExprDict.new( :map([
+                [$atnm_farm,    ::Muldis::DB::AST::TextLit.new( :v<Hodgesons> )],
+                [$atnm_country, ::Muldis::DB::AST::TextLit.new( :v<Canada> )],
             ]) ),
-            newExprDict( :map([
-                [$atnm_farm,    newTextLit( :v<Beckers> )],
-                [$atnm_country, newTextLit( :v<England> )],
+            ::Muldis::DB::AST::ExprDict.new( :map([
+                [$atnm_farm,    ::Muldis::DB::AST::TextLit.new( :v<Beckers> )],
+                [$atnm_country, ::Muldis::DB::AST::TextLit.new( :v<England> )],
             ]) ),
-            newExprDict( :map([
-                [$atnm_farm,    newTextLit( :v<Wickets> )],
-                [$atnm_country, newTextLit( :v<Canada> )],
+            ::Muldis::DB::AST::ExprDict.new( :map([
+                [$atnm_farm,    ::Muldis::DB::AST::TextLit.new( :v<Wickets> )],
+                [$atnm_country, ::Muldis::DB::AST::TextLit.new( :v<Canada> )],
             ]) ),
         ]),
     );
 
-    my $rel_def_foods = newRelationSel(
+    my $rel_def_foods = ::Muldis::DB::AST::RelationSel.new(
         :heading($heading_foods),
         :body([
-            newExprDict( :map([
-                [$atnm_food,   newTextLit( :v<Bananas> )],
-                [$atnm_colour, newTextLit( :v<yellow> )],
+            ::Muldis::DB::AST::ExprDict.new( :map([
+                [$atnm_food,   ::Muldis::DB::AST::TextLit.new( :v<Bananas> )],
+                [$atnm_colour, ::Muldis::DB::AST::TextLit.new( :v<yellow> )],
             ]) ),
-            newExprDict( :map([
-                [$atnm_food,   newTextLit( :v<Carrots> )],
-                [$atnm_colour, newTextLit( :v<orange> )],
+            ::Muldis::DB::AST::ExprDict.new( :map([
+                [$atnm_food,   ::Muldis::DB::AST::TextLit.new( :v<Carrots> )],
+                [$atnm_colour, ::Muldis::DB::AST::TextLit.new( :v<orange> )],
             ]) ),
-            newExprDict( :map([
-                [$atnm_food,   newTextLit( :v<Oranges> )],
-                [$atnm_colour, newTextLit( :v<orange> )],
+            ::Muldis::DB::AST::ExprDict.new( :map([
+                [$atnm_food,   ::Muldis::DB::AST::TextLit.new( :v<Oranges> )],
+                [$atnm_colour, ::Muldis::DB::AST::TextLit.new( :v<orange> )],
             ]) ),
-            newExprDict( :map([
-                [$atnm_food,   newTextLit( :v<Kiwis> )],
-                [$atnm_colour, newTextLit( :v<green> )],
+            ::Muldis::DB::AST::ExprDict.new( :map([
+                [$atnm_food,   ::Muldis::DB::AST::TextLit.new( :v<Kiwis> )],
+                [$atnm_colour, ::Muldis::DB::AST::TextLit.new( :v<green> )],
             ]) ),
-            newExprDict( :map([
-                [$atnm_food,   newTextLit( :v<Lemons> )],
-                [$atnm_colour, newTextLit( :v<yellow> )],
+            ::Muldis::DB::AST::ExprDict.new( :map([
+                [$atnm_food,   ::Muldis::DB::AST::TextLit.new( :v<Lemons> )],
+                [$atnm_colour, ::Muldis::DB::AST::TextLit.new( :v<yellow> )],
             ]) ),
         ]),
     );
 
-    my $rel_def_shipments = newRelationSel(
+    my $rel_def_shipments = ::Muldis::DB::AST::RelationSel.new(
         :heading($heading_shipments),
         :body([
-            newExprDict( :map([
-                [$atnm_farm, newTextLit( :v<Hodgesons> )],
-                [$atnm_food, newTextLit( :v<Kiwis> )],
-                [$atnm_qty,  newIntLit( :v(100) )],
+            ::Muldis::DB::AST::ExprDict.new( :map([
+                [$atnm_farm, ::Muldis::DB::AST::TextLit.new( :v<Hodgesons> )],
+                [$atnm_food, ::Muldis::DB::AST::TextLit.new( :v<Kiwis> )],
+                [$atnm_qty,  ::Muldis::DB::AST::IntLit.new( :v(100) )],
             ]) ),
-            newExprDict( :map([
-                [$atnm_farm, newTextLit( :v<Hodgesons> )],
-                [$atnm_food, newTextLit( :v<Lemons> )],
-                [$atnm_qty,  newIntLit( :v(130) )],
+            ::Muldis::DB::AST::ExprDict.new( :map([
+                [$atnm_farm, ::Muldis::DB::AST::TextLit.new( :v<Hodgesons> )],
+                [$atnm_food, ::Muldis::DB::AST::TextLit.new( :v<Lemons> )],
+                [$atnm_qty,  ::Muldis::DB::AST::IntLit.new( :v(130) )],
             ]) ),
-            newExprDict( :map([
-                [$atnm_farm, newTextLit( :v<Hodgesons> )],
-                [$atnm_food, newTextLit( :v<Oranges> )],
-                [$atnm_qty,  newIntLit( :v(10) )],
+            ::Muldis::DB::AST::ExprDict.new( :map([
+                [$atnm_farm, ::Muldis::DB::AST::TextLit.new( :v<Hodgesons> )],
+                [$atnm_food, ::Muldis::DB::AST::TextLit.new( :v<Oranges> )],
+                [$atnm_qty,  ::Muldis::DB::AST::IntLit.new( :v(10) )],
             ]) ),
-            newExprDict( :map([
-                [$atnm_farm, newTextLit( :v<Hodgesons> )],
-                [$atnm_food, newTextLit( :v<Carrots> )],
-                [$atnm_qty,  newIntLit( :v(50) )],
+            ::Muldis::DB::AST::ExprDict.new( :map([
+                [$atnm_farm, ::Muldis::DB::AST::TextLit.new( :v<Hodgesons> )],
+                [$atnm_food, ::Muldis::DB::AST::TextLit.new( :v<Carrots> )],
+                [$atnm_qty,  ::Muldis::DB::AST::IntLit.new( :v(50) )],
             ]) ),
-            newExprDict( :map([
-                [$atnm_farm, newTextLit( :v<Beckers> )],
-                [$atnm_food, newTextLit( :v<Carrots> )],
-                [$atnm_qty,  newIntLit( :v(90) )],
+            ::Muldis::DB::AST::ExprDict.new( :map([
+                [$atnm_farm, ::Muldis::DB::AST::TextLit.new( :v<Beckers> )],
+                [$atnm_food, ::Muldis::DB::AST::TextLit.new( :v<Carrots> )],
+                [$atnm_qty,  ::Muldis::DB::AST::IntLit.new( :v(90) )],
             ]) ),
-            newExprDict( :map([
-                [$atnm_farm, newTextLit( :v<Beckers> )],
-                [$atnm_food, newTextLit( :v<Bananas> )],
-                [$atnm_qty,  newIntLit( :v(120) )],
+            ::Muldis::DB::AST::ExprDict.new( :map([
+                [$atnm_farm, ::Muldis::DB::AST::TextLit.new( :v<Beckers> )],
+                [$atnm_food, ::Muldis::DB::AST::TextLit.new( :v<Bananas> )],
+                [$atnm_qty,  ::Muldis::DB::AST::IntLit.new( :v(120) )],
             ]) ),
-            newExprDict( :map([
-                [$atnm_farm, newTextLit( :v<Wickets> )],
-                [$atnm_food, newTextLit( :v<Lemons> )],
-                [$atnm_qty,  newIntLit( :v(30) )],
+            ::Muldis::DB::AST::ExprDict.new( :map([
+                [$atnm_farm, ::Muldis::DB::AST::TextLit.new( :v<Wickets> )],
+                [$atnm_food, ::Muldis::DB::AST::TextLit.new( :v<Lemons> )],
+                [$atnm_qty,  ::Muldis::DB::AST::IntLit.new( :v(30) )],
             ]) ),
         ]),
     );
@@ -284,7 +277,7 @@ sub _scenario_foods_suppliers_shipments
     # Execute a query against the virtual machine, to look at our sample
     # data and see what suppliers there are for foods coloured 'orange'.
 
-    $desi_colour.store_ast( :val_ast(newTextLit( :v<orange> )) );
+    $desi_colour.store_ast( :val_ast(::Muldis::DB::AST::TextLit.new( :v<orange> )) );
     pass( 'no death from loading desired colour into VM' );
 
     $prep_rtn_suppl_of_foods_of_clr.execute();

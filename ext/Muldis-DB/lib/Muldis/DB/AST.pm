@@ -30,143 +30,6 @@ module Muldis::DB::AST-0.1.0 {
 
 ###########################################################################
 
-sub newBoolLit of Muldis::DB::AST::BoolLit (Bool :$v!) is export {
-    return ::Muldis::DB::AST::BoolLit.new( :v($v) );
-}
-
-sub newOrderLit of Muldis::DB::AST::OrderLit (Order :$v!) is export {
-    return ::Muldis::DB::AST::OrderLit.new( :v($v) );
-}
-
-sub newIntLit of Muldis::DB::AST::IntLit (Int :$v!) is export {
-    return ::Muldis::DB::AST::IntLit.new( :v($v) );
-}
-
-sub newBlobLit of Muldis::DB::AST::BlobLit (Blob :$v!) is export {
-    return ::Muldis::DB::AST::BlobLit.new( :v($v) );
-}
-
-sub newTextLit of Muldis::DB::AST::TextLit (Str :$v!) is export {
-    return ::Muldis::DB::AST::TextLit.new( :v($v) );
-}
-
-sub newTupleSel of Muldis::DB::AST::TupleSel
-        (Muldis::DB::AST::TypeDictNQ :$heading!,
-        Muldis::DB::AST::ExprDict :$body!) is export {
-    return ::Muldis::DB::AST::TupleSel.new(
-        :heading($heading), :body($body) );
-}
-
-sub newQuasiTupleSel of Muldis::DB::AST::QuasiTupleSel
-        (Muldis::DB::AST::TypeDictAQ :$heading!,
-        Muldis::DB::AST::ExprDict :$body!) is export {
-    return ::Muldis::DB::AST::QuasiTupleSel.new(
-        :heading($heading), :body($body) );
-}
-
-sub newRelationSel of Muldis::DB::AST::RelationSel
-        (Muldis::DB::AST::TypeDictNQ :$heading!, Array :$body!) is export {
-    return ::Muldis::DB::AST::RelationSel.new(
-        :heading($heading), :body($body) );
-}
-
-sub newQuasiRelationSel of Muldis::DB::AST::QuasiRelationSel
-        (Muldis::DB::AST::TypeDictAQ :$heading!, Array :$body!) is export {
-    return ::Muldis::DB::AST::QuasiRelationSel.new(
-        :heading($heading), :body($body) );
-}
-
-sub newDefault of Muldis::DB::AST::Default
-        (Muldis::DB::AST::TypeInvo :$of!) is export {
-    return ::Muldis::DB::AST::Default.new( :of($of) );
-}
-
-sub newTreat of Muldis::DB::AST::Treat (Muldis::DB::AST::TypeInvo :$as!,
-        Muldis::DB::AST::Expr :$v!) is export {
-    return ::Muldis::DB::AST::Treat.new( :as($as), :v($v) );
-}
-
-sub newVarInvo of Muldis::DB::AST::VarInvo
-        (Muldis::DB::AST::EntityName :$v!) is export {
-    return ::Muldis::DB::AST::VarInvo.new( :v($v) );
-}
-
-sub newFuncInvo of Muldis::DB::AST::FuncInvo
-        (Muldis::DB::AST::EntityName :$func!,
-        Muldis::DB::AST::ExprDict :$ro_args!) is export {
-    return ::Muldis::DB::AST::FuncInvo.new(
-        :func($func), :ro_args($ro_args) );
-}
-
-sub newProcInvo of Muldis::DB::AST::ProcInvo
-        (Muldis::DB::AST::EntityName :$proc!,
-        Muldis::DB::AST::ExprDict :$upd_args!,
-        Muldis::DB::AST::ExprDict :$ro_args!) is export {
-    return ::Muldis::DB::AST::ProcInvo.new(
-        :proc($proc), :upd_args($upd_args), :ro_args($ro_args) );
-}
-
-sub newFuncReturn of Muldis::DB::AST::FuncReturn
-        (Muldis::DB::AST::Expr :$v!) is export {
-    return ::Muldis::DB::AST::FuncReturn.new( :v($v) );
-}
-
-sub newProcReturn of Muldis::DB::AST::ProcReturn () is export {
-    return ::Muldis::DB::AST::ProcReturn.new();
-}
-
-multi sub newEntityName of Muldis::DB::AST::EntityName
-        (Str :$text!) is export {
-    return ::Muldis::DB::AST::EntityName.new( :text($text) );
-}
-
-=pod
-multi sub newEntityName of Muldis::DB::AST::EntityName
-        (Array :$seq!) is export {
-    return ::Muldis::DB::AST::EntityName.new( :seq($seq) );
-}
-=cut
-
-sub newTypeInvoNQ of Muldis::DB::AST::TypeInvoNQ
-        (Str :$kind!, Any :$spec!) is export {
-    return ::Muldis::DB::AST::TypeInvoNQ.new( :kind($kind), :spec($spec) );
-}
-
-sub newTypeInvoAQ of Muldis::DB::AST::TypeInvoAQ
-        (Str :$kind!, Any :$spec!) is export {
-    return ::Muldis::DB::AST::TypeInvoAQ.new( :kind($kind), :spec($spec) );
-}
-
-sub newTypeDictNQ of Muldis::DB::AST::TypeDictNQ (Array :$map!) is export {
-    return ::Muldis::DB::AST::TypeDictNQ.new( :map($map) );
-}
-
-sub newTypeDictAQ of Muldis::DB::AST::TypeDictAQ (Array :$map!) is export {
-    return ::Muldis::DB::AST::TypeDictAQ.new( :map($map) );
-}
-
-sub newExprDict of Muldis::DB::AST::ExprDict (Array :$map!) is export {
-    return ::Muldis::DB::AST::ExprDict.new( :map($map) );
-}
-
-sub newFuncDecl of Muldis::DB::AST::FuncDecl () is export {
-    return ::Muldis::DB::AST::FuncDecl.new();
-}
-
-sub newProcDecl of Muldis::DB::AST::ProcDecl () is export {
-    return ::Muldis::DB::AST::ProcDecl.new();
-}
-
-sub newHostGateRtn of Muldis::DB::AST::HostGateRtn
-        (Muldis::DB::AST::TypeDict :$upd_params!,
-        Muldis::DB::AST::TypeDict :$ro_params!,
-        Muldis::DB::AST::TypeDict :$vars!, Array :$stmts!) is export {
-    return ::Muldis::DB::AST::HostGateRtn.new( :upd_params($upd_params),
-        :ro_params($ro_params), :vars($vars), :stmts($stmts) );
-}
-
-###########################################################################
-
 sub newSetSel of Muldis::DB::AST::RelationSel
         (Muldis::DB::AST::TypeInvoNQ :$heading!, Array :$body!) is export {
 
@@ -1966,20 +1829,13 @@ It also describes the same-number versions for Perl 6 of [...].
 
 I<This documentation is pending.>
 
-    use Muldis::DB::AST <newBoolLit newOrderLit newIntLit newBlobLit
-        newTextLit newTupleSel newQuasiTupleSel newRelationSel
-        newQuasiRelationSel newDefault newTreat newVarInvo newFuncInvo
-        newProcInvo newFuncReturn newProcReturn newEntityName newTypeInvoNQ
-        newTypeInvoAQ newTypeDictNQ newTypeDictAQ newExprDict newFuncDecl
-        newProcDecl newHostGateRtn newSetSel newQuasiSetSel newMaybeSel
-        newQuasiMaybeSel newSeqSel newQuasiSeqSel newBagSel
-        newQuasiBagSel>;
+    use Muldis::DB::AST;
 
-    my $truth_value = newBoolLit( :v(2 + 2 == 4) );
-    my $direction = newOrderLit( :v(5 <=> 7) );
-    my $answer = newIntLit( :v(42) );
-    my $package = newBlobLit( :v(pack 'H2', 'P') );
-    my $planetoid = newTextLit( :v<Ceres> );
+    my $truth_value = ::Muldis::DB::AST::BoolLit.new( :v(2 + 2 == 4) );
+    my $direction = ::Muldis::DB::AST::OrderLit.new( :v(5 <=> 7) );
+    my $answer = ::Muldis::DB::AST::IntLit.new( :v(42) );
+    my $package = ::Muldis::DB::AST::BlobLit.new( :v(pack 'H2', 'P') );
+    my $planetoid = ::Muldis::DB::AST::TextLit.new( :v<Ceres> );
 
 I<This documentation is pending.>
 
