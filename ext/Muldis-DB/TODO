@@ -23,7 +23,7 @@ graceful failures rather than ungraceful ones.
 * Flesh out the various parts of the test suite.  There are currently 3
 main parts envisioned:  1.  Several t/*.t files that test Literal.pm in
 isolation.  2.  Several t/*.t files that test support libraries of
-Example.pm in isolation.  3.  The Emulator(|*).pm files which test
+Example.pm in isolation.  3.  The Validator(|*).pm files which test
 Interface.pm and the Example Engine as a whole, as well as being reused for
 other Engine distributions.  Note that the core test suite should execute
 in the above given order, so consider renaming the Validate Example test to

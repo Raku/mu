@@ -1,11 +1,11 @@
 use v6-alpha;
 
-use Muldis::DB::AST;
+use Muldis::DB::Literal;
 
 ###########################################################################
 ###########################################################################
 
-module Muldis::DB-0.1.0 {
+module Muldis::DB::Interface-0.1.0 {
     # Note: This given version applies to all of this file's packages.
 
 ###########################################################################
@@ -18,7 +18,7 @@ sub new_dbms of Muldis::DB::Interface::DBMS
 
 ###########################################################################
 
-} # module Muldis::DB
+} # module Muldis::DB::Interface
 
 ###########################################################################
 ###########################################################################
@@ -79,13 +79,13 @@ submethod BUILD (Str :$engine_name!, Any :$dbms_config!) {
 ###########################################################################
 
 method new_var of Muldis::DB::Interface::HostGateVar
-        (Muldis::DB::AST::TypeInvo :$decl_type!) {
+        (Muldis::DB::Literal::TypeInvo :$decl_type!) {
     return ::Muldis::DB::Interface::HostGateVar.new(
         :dbms(self), :decl_type($decl_type) );
 }
 
 method prepare of Muldis::DB::Interface::HostGateRtn
-        (Muldis::DB::AST::HostGateRtn :$rtn_ast!) {
+        (Muldis::DB::Literal::HostGateRtn :$rtn_ast!) {
     return ::Muldis::DB::Interface::HostGateRtn.new(
         :dbms(self), :rtn_ast($rtn_ast) );
 }
@@ -106,7 +106,7 @@ class Muldis::DB::Interface::HostGateVar {
 ###########################################################################
 
 submethod BUILD (Muldis::DB::Interface::DBMS :$dbms!,
-        Muldis::DB::AST::TypeInvo :$decl_type!) {
+        Muldis::DB::Literal::TypeInvo :$decl_type!) {
 
     die q{new(): Bad :$dbms arg; it is not an object of a}
             ~ q{ Muldis::DB::Interface::DBMS-doing class.}
@@ -115,9 +115,9 @@ submethod BUILD (Muldis::DB::Interface::DBMS :$dbms!,
     my $dbms_eng_class = $dbms_eng.WHAT;
 
     die q{new(): Bad :$decl_type arg; it is not an object of a}
-            ~ q{ Muldis::DB::AST::TypeInvo-doing class.}
+            ~ q{ Muldis::DB::Literal::TypeInvo-doing class.}
         if !$decl_type.defined
-            or !$decl_type.does(Muldis::DB::AST::TypeInvo);
+            or !$decl_type.does(Muldis::DB::Literal::TypeInvo);
 
     my $var_eng = undef;
     try {
@@ -142,7 +142,7 @@ submethod BUILD (Muldis::DB::Interface::DBMS :$dbms!,
 
 ###########################################################################
 
-method fetch_ast of Muldis::DB::AST::Node () {
+method fetch_ast of Muldis::DB::Literal::Node () {
 
     my $val_ast = undef;
     try {
@@ -160,11 +160,11 @@ method fetch_ast of Muldis::DB::AST::Node () {
 
 ###########################################################################
 
-method store_ast (Muldis::DB::AST::Node :$val_ast!) {
+method store_ast (Muldis::DB::Literal::Node :$val_ast!) {
 
     die q{store_ast(): Bad :$val_ast arg; it is not an object of a}
-            ~ q{ Muldis::DB::AST::Node-doing class.}
-        if !$val_ast.defined or !$val_ast.does(Muldis::DB::AST::Node);
+            ~ q{ Muldis::DB::Literal::Node-doing class.}
+        if !$val_ast.defined or !$val_ast.does(Muldis::DB::Literal::Node);
 
     try {
         $!var_eng.store_ast( :val_ast($val_ast) );
@@ -188,13 +188,13 @@ method store_ast (Muldis::DB::AST::Node :$val_ast!) {
 
 class Muldis::DB::Interface::HostGateRtn {
     has Muldis::DB::Interface::DBMS  $!dbms;
-    has Muldis::DB::AST::HostGateRtn $!rtn_ast;
+    has Muldis::DB::Literal::HostGateRtn $!rtn_ast;
     has Any                          $!rtn_eng;
 
 ###########################################################################
 
 submethod BUILD (Muldis::DB::Interface::DBMS :$dbms!,
-        Muldis::DB::AST::HostGateRtn :$rtn_ast!) {
+        Muldis::DB::Literal::HostGateRtn :$rtn_ast!) {
 
     die q{new(): Bad :$dbms arg; it is not an object of a}
             ~ q{ Muldis::DB::Interface::DBMS-doing class.}
@@ -203,9 +203,9 @@ submethod BUILD (Muldis::DB::Interface::DBMS :$dbms!,
     my $dbms_eng_class = $dbms_eng.WHAT;
 
     die q{new(): Bad :$rtn_ast arg; it is not an object of a}
-            ~ q{ Muldis::DB::AST::HostGateRtn-doing class.}
+            ~ q{ Muldis::DB::Literal::HostGateRtn-doing class.}
         if !$rtn_ast.defined
-            or !$rtn_ast.does(Muldis::DB::AST::HostGateRtn);
+            or !$rtn_ast.does(Muldis::DB::Literal::HostGateRtn);
 
     my $rtn_eng = undef;
     try {
@@ -247,9 +247,9 @@ method bind_host_params (Array :$upd_args!, Array :$ro_args!) {
         my ($param_name, $var_intf) = $elem.values;
         die q{bind_host_params(): Bad :$upd_args arg elem; its first}
                 ~ q{ element is not an object of a}
-                ~ q{ Muldis::DB::AST::EntityName-doing class.}
+                ~ q{ Muldis::DB::Literal::EntityName-doing class.}
             if !$param_name.defined
-                or !$param_name.does(Muldis::DB::AST::EntityName);
+                or !$param_name.does(Muldis::DB::Literal::EntityName);
         my Str $param_name_text = $param_name.text();
         die q{bind_host_params(): Bad :$upd_args arg elem; its first}
                 ~ q{ element does not match the name of a}
@@ -279,9 +279,9 @@ method bind_host_params (Array :$upd_args!, Array :$ro_args!) {
         my ($param_name, $var_intf) = $elem.values;
         die q{bind_host_params(): Bad :$ro_args arg elem; its first}
                 ~ q{ element is not an object of a}
-                ~ q{ Muldis::DB::AST::EntityName-doing class.}
+                ~ q{ Muldis::DB::Literal::EntityName-doing class.}
             if !$param_name.defined
-                or !$param_name.does(Muldis::DB::AST::EntityName);
+                or !$param_name.does(Muldis::DB::Literal::EntityName);
         my Str $param_name_text = $param_name.text();
         die q{bind_host_params(): Bad :$ro_args arg elem; its first}
                 ~ q{ element does not match the name of a}
@@ -397,12 +397,12 @@ role Muldis::DB::Engine::Role::HostGateRtn {
 
 =head1 NAME
 
-Muldis::DB -
-Full-featured truly relational DBMS in Perl
+Muldis::DB::Interface -
+Common public API for Muldis::DB Engines
 
 =head1 VERSION
 
-This document describes Muldis::DB version 0.1.0 for Perl 6.
+This document describes Muldis::DB::Interface version 0.1.0 for Perl 6.
 
 It also describes the same-number versions for Perl 6 of
 Muldis::DB::Interface::DBMS ("DBMS"), Muldis::DB::Interface::HostGateVar
@@ -415,10 +415,10 @@ Muldis::DB::Engine::Role::HostGateRtn.
 
 =head1 SYNOPSIS
 
-    use Muldis::DB;
+    use Muldis::DB::Interface;
 
     # Instantiate a Muldis::DB DBMS / virtual machine.
-    my $dbms = Muldis::DB::new_dbms(
+    my $dbms = Muldis::DB::Interface::new_dbms(
             :engine_name('Muldis::DB::Engine::Example'),
             :dbms_config({}),
         );
@@ -429,183 +429,28 @@ I<This documentation is pending.>
 
 =head1 DESCRIPTION
 
-The "Muldis::DB" DBMS framework is a powerful but elegant system, which
-makes it easy to create and use relational databases in a very reliable,
-portable, and efficient way.  This "Muldis::DB" file is the core of the
-Muldis::DB framework and defines a truly relational common programmatic
-interface (API), called the Muldis::DB Native Interface, which applications
-invoke and which multiple interchangeable "Engine" back-ends (usually
-provided by third parties) implement.  This interface is rigorously
-defined, such that there should be no ambiguity when trying to invoke or
-implement it, and so an application written to it should behave identically
-no matter which conforming "Engine" is in use.
-
-Muldis::DB incorporates a complete and uncompromising implementation of
-"I<The Third Manifesto>" (I<TTM>), a formal proposal by Christopher J. Date
-and Hugh Darwen for a solid foundation for data and database management
-systems (DBMSs); like Edgar F. Codd's original papers, I<TTM> can be seen
-as an abstract blueprint for the design of a DBMS and the language
-interface to such a DBMS.  The main web site for I<TTM> is
-L<http://www.thethirdmanifesto.com/>, and its authors have also written
-several books and papers and taught classes on the subject over the last
-35+ years, along with Codd himself (some are listed in the
-L<Muldis::DB::SeeAlso> documentation file).  Note that the Muldis::DB
-documentation will be focusing mainly on how Muldis::DB itself works, and
-will not spend much time in providing rationale; you can read I<TTM> itself
-and various other external documentation for much of that.
-
-The Muldis::DB Native Interface is defined mainly in terms of a new
-high-level programming language named "Muldis D", which is computationally
-complete (and industrial strength) and has fully integrated database
-functionality; this language, which satisfies I<TTM>'s definition of a
-"B<D>" language, is described fully in the L<Muldis::DB::Language>
-documentation file that comes with this "Muldis::DB" distribution.
-
-While it is possible that one could write a self-contained application in
-Muldis D and compile that into its own executable, in practice one would
-normally just write some components of their application in Muldis D (as
-either named modules or anonymous routines) and write the rest of the
-application in their other language(s) of choice.  Assuming the main
-application is written in Perl, it is this "Muldis::DB" file which provides
-the glue between your Perl code and your Muldis D code; "Muldis::DB"
-implements a virtual machine that is embedded in your Perl application and
-in which the Muldis D code runs (it is analogous to the Perl interpreter
-itself, which provides a virtual machine in which Perl code runs).
-
-The classes and methods of this "Muldis::DB" file, together with those of
-L<Muldis::DB::AST>, define the balance of the Muldis::DB Native Interface.
-A Muldis::DB::Interface::DBMS object represents a single active Muldis::DB
-virtual machine; it has a spartan DBI-inspired set of methods which you use
-to compile/prepare and/or invoke/execute Muldis D statements and routines
-within the virtual machine, input data to it, and output data from it.
-
-You can create more than one DBMS object at a time, and they are
-essentially all isolated from each other, even if more than one uses the
-same Engine class to implement it; that is, multiple DBMS objects will not
-have references to each other at a level visible in the Muldis::DB Native
-Interface, if at all.  To account for situations where multiple DBMS
-objects want to use the same external resources, such as a repository file
-on disk, it is expected that the Engines will employ appropriate measures
-such as system-managed locks so that resource corruption or application
-failure is prevented.  I<Also, Muldis::DB should be thread safe and/or
-savvy in the future, but for now it officially is not and you should not
-share Muldis::DB objects between multiple threads, nor have objects in
-separate threads try to access the same external resources.>
-
-Muldis::DB does not use any dialect of SQL in its native API (unlike many
-other DBMS products) because SQL is more ambiguous and error-prone to use,
-and it is less expressive.  While Muldis D is very different from SQL, it
-is fully capable of modeling anything in the real world accurately, and it
-can support a complete SQL emulation layer on top of it, so that your
-legacy applications can be migrated to use the Muldis::DB DBMS with little
-trouble.  Likewise, emulation layers for any other programming language can
-be supported, such as B<Tutorial D> or XQuery or FoxPro or dBase.
-
-One distinctive feature of a Muldis::DB DBMS (compared to a typical other
-vendor's DBMS) is that data definition statements are structured as
-standard data manipulation statements but that the target relation
-variables are system catalog relation variables rather than user-defined
-relation variables.  In SQL terms, you create or alter tables by adding or
-updating their "information schema" records, which in SQL are read-only,
-not by using special 'create' or 'alter' statements.
-
-Each Muldis::DB Engine has the complete freedom to implement the Muldis::DB
-DBMS and Muldis D however it likes; all Muldis::DB cares about is that the
-user interface and behaviour conform to its preconceptions.
-
-L<Muldis::DB::Engine::Example> is the self-contained and pure-Perl
-reference implementation of an Engine and is included in the "Muldis::DB"
-core distribution to allow the core to be completely testable on its own.
-It is coded intentionally in a simple fashion so that it is easy to
-maintain and and easy for developers to study.  As a result, while it
-performs correctly and reliably, it also performs quite slowly; you should
-only use Example for testing, development, and study; you should not use it
-in production.
-
-For production use, there should be a wide variety of third party Engine
-modules that become available over time.  One plan being favored is that
-the new (under development) enterprise-strength and Perl implemented
-database server named L<Genezzo> (see also L<http://www.genezzo.com/>) will
-evolve to implement the Muldis::DB DBMS natively, and be I<the> back-end
-which is recommended above all others for production use.
-
-Most of the other (near term) third party Engines will likely just map
-Muldis::DB's rigorously defined API onto a pre-existing quasi-relational
-database manager (such as SQLite, PostgreSQL, MySQL, Firebird, Teradata,
-Oracle, Sybase, SQL Server, Informix, DB2, OpenBase, FrontBase, etc). Given
-this fact, Muldis::DB's most prominent feature is that it provides a common
-API for access to those databases, each of which takes a different SQL or
-quasi-SQL dialect.  An application written to it should easily port to
-alternative relational database engines with minimal effort.
-
-This might seem strange to somebody who has not tried to port between
-databases before, especially given that the Perl DBI purports to provide
-"Database Independence".  However, the level of DBI's provided independence
-is I<Database Driver Independence>, and not I<Database Language
-Independence>.  To further demonstrate the difference, it is useful to
-compare the DBI and Muldis::DB.  I<Such documentation is currently absent.>
-
-=head1 FEATURE SUPPORT VALIDATION
-
-The Muldis::DB Native Interface declares accessors for a large number of
-actual or possible database features, any of which your application can
-invoke, and all of which each Muldis::DB Engine would ideally implement or
-interface to.
-
-In reality, however, all Engines or underlying databases probably don't
-support some features, and if your application tries to invoke any of the
-same features that an Engine you are using doesn't support, then you will
-have problems ranging from immediate crashes/exceptions to subtle data
-corruption over time.
-
-As an official quality assurance (QA) measure, Muldis::DB provides a means
-for each Engine to programmatically declare which features it does and does
-not support, so that code using that Engine will know so in advance of
-trying to use said features.  Feature support declarations are typically
-coarse grained and lump closely similar things together, for simplicity;
-they will be just as fine grained as necessary and no finer (this can be
-changed over time).  See the C<features()> method, which is how you read
-the declarations.
-
-One benefit of this QA feature is that, after you have written your
-application and it is working with one Engine/database, and you want to
-move it to a different Engine/database, you can determine at a glance which
-alternatives also support the features you are using.  Note that, generally
-speaking, you would have to be using very proprietary features to begin
-with in order for the majority of Muldis::DB Engines/databases to not
-support the application outright.
-
-Another benefit of this QA feature is that there can be made a common
-comprehensive test suite to run against all Engines in order to tell that
-they are implementing the Muldis::DB interface properly or not; said test
-suite will be smart enough to only test each Engine's compliance for those
-features that the Engine claims to support, and not fail it for non-working
-features that it explicitly says it doesn't support.  This common test
-suite will save each Engine maker from having to write their own module
-tests.  It would be used similarly to how Sun has an official validation
-suite for Java Virtual Machines to make sure they implement the official
-Java specification.  Please see the L<Muldis::DB::Validator> module(s),
-which implements this test suite.
+I<This documentation is pending.>
 
 =head1 INTERFACE
 
-The interface of Muldis::DB is fundamentally object-oriented; you use it by
-creating objects from its member classes, usually invoking C<new()> on the
-appropriate class name, and then invoking methods on those objects.  All of
-their attributes are private, so you must use accessor methods.
+The interface of Muldis::DB::Interface is fundamentally object-oriented;
+you use it by creating objects from its member classes, usually invoking
+C<new()> on the appropriate class name, and then invoking methods on those
+objects.  All of their attributes are private, so you must use accessor
+methods.
 
-Muldis::DB also provides the not-exportable wrapper subroutine
+Muldis::DB::Interface also provides the not-exportable wrapper subroutine
 C<Muldis::DB::new_dbms> for the C<Muldis::DB::Interface::DBMS> constructor,
-which has identical parameters, and exists solely as syntactic sugar.
+which has identical parameters, and exists solely as syntactic sugar. 
 Similarly, the C<DBMS> methods C<new_var> and C<prepare> exist purely as
 syntactic sugar over the C<HostGateVar> and C<HostGateRtn> constructors.
 I<TODO: Reimplement these as lexical aliases or compile-time macros
 instead, to avoid the overhead of extra routine calls.>
 
-The usual way that Muldis::DB indicates a failure is to throw an exception;
-most often this is due to invalid input.  If an invoked routine simply
-returns, you can assume that it has succeeded, even if the return value is
-undefined.
+The usual way that Muldis::DB::Interface indicates a failure is to throw an
+exception; most often this is due to invalid input.  If an invoked routine
+simply returns, you can assume that it has succeeded, even if the return
+value is undefined.
 
 =head2 The Muldis::DB::Interface::DBMS Class
 
@@ -659,7 +504,7 @@ I<This documentation is pending.>
 This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
 It also requires these Perl 6 classes that are in the current distribution:
-L<Muldis::DB::AST-(0.1.0)|Muldis::DB::AST>.
+L<Muldis::DB::Literal-(0.1.0)|Muldis::DB::Literal>.
 
 =head1 INCOMPATIBILITIES
 
@@ -667,17 +512,8 @@ None reported.
 
 =head1 SEE ALSO
 
-These documentation files are included in the Muldis::DB distribution:
-L<Muldis::DB::Language>.
-
-The Perl 6 module L<Muldis::DB::Validator> is bundled with Muldis::DB and
-can be used to test Muldis::DB Engines.
-
-The Perl 6 module L<Muldis::DB::Engine::Example> is bundled with Muldis::DB
-and implements a self-contained reference implementation of a Muldis::DB
-Engine.
-
-Go to the L<Muldis::DB::SeeAlso> file for the majority of external
+Go to L<Muldis::DB> for the majority of distribution-internal references,
+and L<Muldis::DB::SeeAlso> for the majority of distribution-external
 references.
 
 =head1 BUGS AND LIMITATIONS
@@ -708,101 +544,12 @@ Darren Duncan (C<perl@DarrenDuncan.net>)
 
 This file is part of the Muldis::DB framework.
 
-Muldis::DB is Copyright © 2002-2007, Darren Duncan.  All rights reserved.
+Muldis::DB is Copyright © 2002-2007, Darren Duncan.
 
-Muldis::DB is free software; you can redistribute it and/or modify it under
-the terms of either:
-
-a) the GNU General Public License (GPL) as published by the Free Software
-Foundation (L<http://www.fsf.org/>); either version 3 of the License, or
-(at your option) any later version, or
-
-b) the GNU Affero General Public License (AGPL) as published by the Free
-Software Foundation; either version 3 of the License, or (at your option)
-any later version.
-
-You should have received copies of the GPL and AGPL as part of the
-Muldis::DB distribution, in the files named "LICENSE/GPL" and
-"LICENSE/AGPL" respectively; if not, see L<http://www.gnu.org/licenses/>.
-
-I<WARNING:  The AGPL version 3 are still being drafted, and its date of
-final publication is unknown, but is presumed to be soon; until then, the
-AGPL can not actually be used.  So the previous paragraphs just represent
-what the license of Muldis::DB is anticipated to be following the AGPL's
-release.  That said, Muldis::DB is for now simply licensed to you under the
-GPL version 3, which is the first choice in the above disjunction.>
-
-If it is not feasible for you to employ Muldis::DB subject to the terms of
-the GPL or AGPL, then the copyright holder of Muldis::DB can provide you a
-customized proprietary license, often at no cost, so that it is still
-possible for you to employ Muldis::DB to meet your needs.
-
-I<Note that the copyright holder of Muldis::DB is open to being convinced
-to generally release the work under the GNU Lesser General Public License
-(LGPL), version 3 or later, instead of under the GPL (or alternately, of
-being convinced not to change).  But any argument for or against that
-change should be centred on how the free software community in general, and
-in particular the subset that work with or on Perl or Muldis::DB itself,
-would be benefited more by the change versus staying with the GPL; that is,
-such a change should have strategic value for the community.>
-
-For more information on matters such as licensing, including rationale, see
-also the L<Muldis::DB::Copying> file that comes with Muldis::DB.
-
-Any versions of Muldis::DB that you modify and distribute must carry
-prominent notices stating that you changed the files and the date of any
-changes, in addition to preserving this original copyright notice and other
-credits.  Muldis::DB is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE.  However, for an additional fee, the
-copyright holders of Muldis::DB can sell you a warranty for it.
-
-While it is by no means required, the copyright holder of Muldis::DB would
-appreciate being informed any time you create a modified version of
-Muldis::DB that you are willing to distribute, because that is a practical
-way of suggesting improvements to the standard version.
+See the LICENSE AND COPYRIGHT of L<Muldis::DB> for details.
 
 =head1 ACKNOWLEDGEMENTS
 
-None yet.
-
-=head1 FORUMS
-
-Several public email-based forums for Muldis::DB now exist, all of which
-you can reach via L<http://mm.DarrenDuncan.net/mailman/listinfo>; go there
-to manage your subscriptions to, or view the archives of, the following:
-
-=over
-
-=item C<muldis-db-announce@mm.DarrenDuncan.net>
-
-This low-volume list is mainly for official announcements from the
-Muldis::DB developers, though developers of Muldis::DB extensions can also
-post their announcements here.  This is not a discussion list.
-
-=item C<muldis-db-users@mm.DarrenDuncan.net>
-
-This list is for general discussion among people who are using Muldis::DB,
-which is not concerned with the implementation of Muldis::DB itself.  This
-is the best place to ask for basic help in getting Muldis::DB installed on
-your machine or to make it do what you want.  You could also submit feature
-requests or report perceived bugs here, if you don't want to use CPAN's RT
-system.
-
-=item C<muldis-db-devel@mm.DarrenDuncan.net>
-
-This list is for discussion among people who are designing or implementing
-the Muldis::DB core API (including Muldis D language design), or who are
-implementing Muldis::DB Engines, or who are writing core documentation,
-tests, or examples.  It is not the place for non-implementers to get help
-in using said.
-
-=back
-
-An official IRC channel for Muldis::DB is also intended, but not yet
-started.
-
-Alternately, you can purchase more advanced commercial support for
-Muldis::DB from its author; contact C<perl@DarrenDuncan.net> for details.
+The ACKNOWLEDGEMENTS in L<Muldis::DB> apply to this file too.
 
 =cut

@@ -8,9 +8,9 @@ use_ok( 'Muldis::DB::Literal' );
 skip( 1, q{is( Muldis::DB::Literal.WHO.version, 0.1.0,
     'Muldis::DB::Literal is the correct version' );} );
 
-use_ok( 'Muldis::DB' );
-skip( 1, q{is( Muldis::DB.WHO.version, 0.1.0,
-    'Muldis::DB is the correct version' );} );
+use_ok( 'Muldis::DB::Interface' );
+skip( 1, q{is( Muldis::DB::Interface.WHO.version, 0.1.0,
+    'Muldis::DB::Interface is the correct version' );} );
 
 use_ok( 'Muldis::DB::Validator' );
 skip( 1, q{is( Muldis::DB::Validator.WHO.version, 0.1.0,

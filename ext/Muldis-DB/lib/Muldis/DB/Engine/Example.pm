@@ -1,6 +1,6 @@
 use v6-alpha;
 
-use Muldis::DB;
+use Muldis::DB::Interface;
 use Muldis::DB::Engine::Example::Operators;
 
 ###########################################################################

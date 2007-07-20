@@ -1,6 +1,6 @@
 use v6-alpha;
 
-use Muldis::DB;
+use Muldis::DB::Interface;
 
 ###########################################################################
 ###########################################################################
@@ -20,7 +20,7 @@ sub main (Str :$engine_name!, Any :$dbms_config!) {
     say "#### Muldis::DB::Validator starting test of $engine_name ####";
 
     # Instantiate a Muldis::DB DBMS / virtual machine.
-    my Muldis::DB::Interface::DBMS $dbms = Muldis::DB::new_dbms(
+    my Muldis::DB::Interface::DBMS $dbms = Muldis::DB::Interface::new_dbms(
         :engine_name($engine_name), :dbms_config($dbms_config) );
     isa_ok( $dbms, 'Muldis::DB::Interface::DBMS' );
 
