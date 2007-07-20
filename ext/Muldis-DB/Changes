@@ -27,6 +27,11 @@
     * Updated Grammar.pod concerning integer literals; they can be
     represented with any of base-2 thru base-36 now.
 
+    * Updated Grammar.pod and Core.pod concerning enumerated types, such as
+    Bool and Order; individual values are now specified using eg
+    [Bool:true] rather than [Bool.True], which then makes them more like
+    literals of other simple types, and less like data type names.
+
     * Updated Core.pod to add definitions for the generic operators common
     to all ordinal types: compare, reverse_compare, is_increase,
     is_decrease, min, max.  Added 'reverse' operator for the Order type.

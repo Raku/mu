@@ -59,12 +59,7 @@ relationships:
                 # The following are all regular ordinal scalar types.
 
                 sys.type.Bool
-                    sys.type.Bool.False
-                    sys.type.Bool.True
                 sys.type.Order
-                    sys.type.Order.Increase
-                    sys.type.Order.Same
-                    sys.type.Order.Decrease
                 sys.type.Int
                     sys.type.UInt
                         sys.type.PInt
@@ -114,7 +109,7 @@ The C<Universal> type is the maximal type of the entire Muldis D type
 system, and contains every value that can possibly exist.  Every other type
 is implicitly a proper subtype of C<Universal>, and C<Universal> is
 implicitly a union type over all other types.  Its default value is
-C<Bool.False>.  The cardinality of this type is infinity.
+C<Bool:false>.  The cardinality of this type is infinity.
 
 =item C<sys.type.Empty>
 
@@ -173,7 +168,7 @@ The C<Scalar> type is the maximal type of all Muldis D scalar types, and
 contains every scalar value that can possibly exist.  Every other scalar
 type is implicitly a proper subtype of C<Scalar>, and C<Scalar> is
 implicitly a union type over all other scalar types.  Its default value is
-C<Bool.False>.  The cardinality of this type is infinity.
+C<Bool:false>.  The cardinality of this type is infinity.
 
 =item C<sys.type.Ordinal>
 
@@ -183,22 +178,22 @@ types which consider themselves ordinal, which happens to include every
 system-defined core scalar root type, will explicitly declare themselves as
 subtypes of C<Ordinal> in their type definitions; the definition of
 C<Ordinal> does not specify what other types it is a union over.  Its
-default value is C<Bool.False>.  The cardinality of this type is infinity.
+default value is C<Bool:false>.  The cardinality of this type is infinity.
 
 =item C<sys.type.Bool>
 
-A C<Bool> is an enumeration consisting of the 2 values C<Bool.False> and
-C<Bool.True>.  It represents a truth value, and is the result type of any
+A C<Bool> is an enumeration consisting of the 2 values C<Bool:false> and
+C<Bool:true>.  It represents a truth value, and is the result type of any
 C<equal> or C<not_equal> routine; it is the only essential scalar data type
-of a B<D> language.  Its default value is C<Bool.False>.  The cardinality
+of a B<D> language.  Its default value is C<Bool:false>.  The cardinality
 of this type is 2.
 
 =item C<sys.type.Order>
 
-A C<Order> is an enumeration consisting of the 3 values C<Order.Increase>,
-C<Order.Same>, C<Order.Decrease>.  It is the result type of any C<compare>
+A C<Order> is an enumeration consisting of the 3 values C<Order:increase>,
+C<Order:same>, C<Order:decrease>.  It is the result type of any C<compare>
 routine that is used on 2 values of a C<sys.type.Ordinal> subtype.  Its
-default value is C<Order.Same>.  The cardinality of this type is 3.
+default value is C<Order:same>.  The cardinality of this type is 3.
 
 =item C<sys.type.Int>
 
@@ -411,8 +406,8 @@ These functions are applicable to values of any data type at all.
 =item C<sys.rtn.Universal.equal (RO: Some.Universal $v1, Some.Universal
 $v2)>
 
-This function results in C<Bool.True> iff its 2 arguments are exactly the
-same value, and C<Bool.False> otherwise.  This function's arguments must be
+This function results in C<Bool:true> iff its 2 arguments are exactly the
+same value, and C<Bool:false> otherwise.  This function's arguments must be
 of compatible declared types; in this case, 2 declared types are compatible
 iff at least one of the following is true: 1. they are both subtypes of a
 common scalar root type; 2. they are both subtypes of a common
@@ -461,11 +456,11 @@ just the types they apply to.
 =item C<sys.rtn.Ordinal.compare of Order (RO: Some.Ordinal $v1,
 Some.Ordinal $v2)>
 
-This function results in C<Order.Same> iff its 2 arguments are exactly the
-same value, and otherwise it results in C<Order.Increase> if the value of
+This function results in C<Order:same> iff its 2 arguments are exactly the
+same value, and otherwise it results in C<Order:increase> if the value of
 the C<$v2> argument is considered to be an increase (as defined by the
 type) over the value of the C<$v1> argument, and otherwise it results in
-C<Order.Decrease> as the reverse of the last condition would be true.  This
+C<Order:decrease> as the reverse of the last condition would be true.  This
 function's arguments must be of compatible declared types; in this case, 2
 declared types are compatible iff they are both subtypes of a common scalar
 type that declares itself an C<Ordinal> subtype.  Note that C<compare> is
@@ -483,16 +478,16 @@ C<sys.rtn.Ordinal.compare> with the same arguments.
 =item C<sys.rtn.Ordinal.is_increase of Bool (RO: Some.Ordinal $v1,
 Some.Ordinal $v2)>
 
-This function results in C<Bool.True> iff C<sys.rtn.Ordinal.compare> would
-result in C<Order.Increase> when given the same arguments, and
-C<Bool.False> otherwise.
+This function results in C<Bool:true> iff C<sys.rtn.Ordinal.compare> would
+result in C<Order:increase> when given the same arguments, and
+C<Bool:false> otherwise.
 
 =item C<sys.rtn.Ordinal.is_decrease of Bool (RO: Some.Ordinal $v1,
 Some.Ordinal $v2)>
 
-This function results in C<Bool.True> iff C<sys.rtn.Ordinal.compare> would
-result in C<Order.Decrease> when given the same arguments, and
-C<Bool.False> otherwise.
+This function results in C<Bool:true> iff C<sys.rtn.Ordinal.compare> would
+result in C<Order:decrease> when given the same arguments, and
+C<Bool:false> otherwise.
 
 =item C<sys.rtn.Ordinal.min of Maybe{Some.Ordinal} (RO: Set{Some.Ordinal}
 $v)>
@@ -526,13 +521,13 @@ These functions select values of the C<Bool> enumeration.
 
 =over
 
-=item C<sys.rtn.Bool.False of Bool ()>
+=item C<sys.rtn.Bool.false of Bool ()>
 
-This selector function results in the C<Bool.False> value.
+This selector function results in the C<Bool:false> value.
 
-=item C<sys.rtn.Bool.True of Bool ()>
+=item C<sys.rtn.Bool.true of Bool ()>
 
-This selector function results in the C<Bool.True> value.
+This selector function results in the C<Bool:true> value.
 
 =back
 
@@ -550,7 +545,7 @@ This function is a reduction operator that recursively takes each pair of
 its N input element values and does a logical I<and> (which is both
 commutative and associative) on them until just one is left, which is the
 function's result.  If C<$v> has zero values, then C<and> results in
-C<Bool.True>, which is the identity value for logical I<and>.
+C<Bool:true>, which is the identity value for logical I<and>.
 
 =item C<sys.rtn.Bool.or of Bool (RO: Set{Bool} $v)>
 
@@ -558,7 +553,7 @@ This function is a reduction operator that recursively takes each pair of
 its N input element values and does a logical inclusive-or (which is both
 commutative and associative) on them until just one is left, which is the
 function's result.  If C<$v> has zero values, then C<or> results in
-C<Bool.False>, which is the identity value for logical inclusive-or.
+C<Bool:false>, which is the identity value for logical inclusive-or.
 
 =item C<sys.rtn.Bool.xor of Bool (RO: Bag{Bool} $v)>
 
@@ -566,7 +561,7 @@ This function is a reduction operator that recursively takes each pair of
 its N input element values and does a logical exclusive-or (which is both
 commutative and associative) on them until just one is left, which is the
 function's result.  If C<$v> has zero values, then C<xor> results in
-C<Bool.False>, which is the identity value for logical exclusive-or.
+C<Bool:false>, which is the identity value for logical exclusive-or.
 
 =back
 
@@ -576,17 +571,17 @@ These functions select values of the C<Order> enumeration.
 
 =over
 
-=item C<sys.rtn.Order.Increase of Order ()>
+=item C<sys.rtn.Order.increase of Order ()>
 
-This selector function results in the C<Order.Increase> value.
+This selector function results in the C<Order:increase> value.
 
-=item C<sys.rtn.Order.Same of Order ()>
+=item C<sys.rtn.Order.same of Order ()>
 
-This selector function results in the C<Order.Same> value.
+This selector function results in the C<Order:same> value.
 
-=item C<sys.rtn.Order.Decrease of Order ()>
+=item C<sys.rtn.Order.decrease of Order ()>
 
-This selector function results in the C<Order.Decrease> value.
+This selector function results in the C<Order:decrease> value.
 
 =back
 
@@ -597,8 +592,8 @@ These functions implement commonly used order-enumeration operations.
 =item C<sys.rtn.Order.reverse of Order (RO: Order $v)>
 
 This function results in the reverse value of its argument; an
-C<Order.Increase> or C<Order.Decrease> argument results in the other one of
-the two; an C<Order.Same> argument results in C<Order.Same>.
+C<Order:increase> or C<Order:decrease> argument results in the other one of
+the two; an C<Order:same> argument results in C<Order:same>.
 
 =back
 
@@ -740,13 +735,13 @@ This function results in the length of its argument in bits.
 =item C<sys.rtn.Blob.contains of Bool (RO: Blob $look_in, Blob $look_for,
 Bool $fixed_start, Bool $fixed_end)>
 
-This function results in C<Bool.True> iff its C<$look_for> argument is a
+This function results in C<Bool:true> iff its C<$look_for> argument is a
 substring of its C<$look_in> argument as per the optional C<$fixed_start>
-and C<$fixed_end> constraints, and C<Bool.False> otherwise.  If
-C<$fixed_start> or C<$fixed_end> are C<Bool.True>, then C<$look_for> must
+and C<$fixed_end> constraints, and C<Bool:false> otherwise.  If
+C<$fixed_start> or C<$fixed_end> are C<Bool:true>, then C<$look_for> must
 occur right at the start or end, respectively, of C<$look_in> in order for
-C<contains> to results in C<Bool.True>; if either flag is C<Bool.False>, its
-additional constraint doesn't apply.
+C<contains> to results in C<Bool:true>; if either flag is C<Bool:false>,
+its additional constraint doesn't apply.
 
 =item C<sys.rtn.Blob.not of Blob (RO: Blob $v)>
 
@@ -857,12 +852,12 @@ Normalization Form C code points.
 =item C<sys.rtn.Text.contains of Bool (RO: Text $look_in, Text $look_for,
 Bool $fixed_start, Bool $fixed_end)>
 
-This function results in C<Bool.True> iff its C<$look_for> argument is a
+This function results in C<Bool:true> iff its C<$look_for> argument is a
 substring of its C<$look_in> argument as per the optional C<$fixed_start>
-and C<$fixed_end> constraints, and C<Bool.False> otherwise.  If
-C<$fixed_start> or C<$fixed_end> are C<Bool.True>, then C<$look_for> must
+and C<$fixed_end> constraints, and C<Bool:false> otherwise.  If
+C<$fixed_start> or C<$fixed_end> are C<Bool:true>, then C<$look_for> must
 occur right at the start or end, respectively, of C<$look_in> in order for
-C<contains> to result in C<Bool.True>; if either flag is C<Bool.False>, its
+C<contains> to result in C<Bool:true>; if either flag is C<Bool:false>, its
 additional constraint doesn't apply.
 
 =item C<sys.rtn.Text.fold_case_to_upper (RO: Text $v)>
@@ -991,8 +986,8 @@ count of tuples its body has).
 
 =item C<sys.rtn.Relation.empty of Bool (RO: Relation $v)>
 
-This function results in C<Bool.True> iff its argument has zero tuples, and
-C<Bool.False> otherwise.  Note that if you are using a C<Maybe> to
+This function results in C<Bool:true> iff its argument has zero tuples, and
+C<Bool:false> otherwise.  Note that if you are using a C<Maybe> to
 represent a sparse data item, analagously to a SQL nullable context, then
 testing the C<Maybe> with C<empty> is analagous to testing a SQL nullable
 with C<is null>.
@@ -1006,8 +1001,8 @@ C<is not null>.
 
 =item C<sys.rtn.Relation.exists of Bool (RO: Relation $r, Tuple $t)>
 
-This function results in C<Bool.True> iff its C<$t> argument matches a
-tuple of its C<$r> argument, and C<Bool.False> otherwise.  This function is
+This function results in C<Bool:true> iff its C<$t> argument matches a
+tuple of its C<$r> argument, and C<Bool:false> otherwise.  This function is
 like C<sys.rtn.Relation.contains> except that the tuple being looked for
 doesn't have to be wrapped in a relation.  This function will fail if the 2
 arguments don't have the same heading.
@@ -1126,9 +1121,9 @@ multiple relations as input.
 =item C<sys.rtn.Relation.contains of Bool (RO: Relation $look_in, Relation
 $look_for)>
 
-This function results in C<Bool.True> iff the set of tuples comprising
+This function results in C<Bool:true> iff the set of tuples comprising
 C<$look_for> is a subset of the set of tuples comprising C<$look_in>, and
-C<Bool.False> otherwise.  This function will fail if the 2 arguments don't
+C<Bool:false> otherwise.  This function will fail if the 2 arguments don't
 have the same heading.
 
 =item C<sys.rtn.Relation.union of Relation (RO: Set{Relation} $v)>

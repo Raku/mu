@@ -54,31 +54,31 @@ any common grammar specifying formats.  It should become formalized later.
         ;
 
     bool
-        = q(Bool:Default)
-        | q(Bool:False)
-        | q(Bool:True)
+        = q(Bool:default)
+        | q(Bool:false)
+        | q(Bool:true)
         ;
 
     order
-        = q(Order:Default)
-        | q(Order:Increase)
-        | q(Order:Same)
-        | q(Order:Decrease)
+        = q(Order:default)
+        | q(Order:increase)
+        | q(Order:same)
+        | q(Order:decrease)
         ;
 
     int
-        = q(Int:Default)
+        = q(Int:default)
         | q(Int:) (q(2)..q(36)) q(:') /(0|-?[1-9A-Z][0-9A-Z]*)/ q(')
         ;
 
     blob
-        = q(Blob:Default)
+        = q(Blob:default)
         | q(Blob:2:') /[0-1]*/ q(')
         | q(Blob:16:') /[0-9A-F]*/ q(')
         ;
 
     text
-        = q(Text:Default)
+        = q(Text:default)
         | q(Text:') text_data q(')
         ;
 
@@ -87,13 +87,13 @@ any common grammar specifying formats.  It should become formalized later.
         ;
 
     short_name
-        = q(ShortName:Default)
+        = q(ShortName:default)
         | /[\w_]+/
         | q(") text_data q(")
         ;
 
     long_name
-        = q(LongName:Default)
+        = q(LongName:default)
         | /[\w_]+/ long_name_e1
         | q(") text_data long_name_e2 q(")
         ;
@@ -109,36 +109,36 @@ any common grammar specifying formats.  It should become formalized later.
         ;
 
     tuple
-        = q(Tuple:Default)
-        | q(Tuple:D0)
+        = q(Tuple:default)
+        | q(Tuple:d0)
         | q(Tuple:{) ws heading ws q(})
         | q(Tuple:{) ws heading list_sep tuple_body ws q(})
         ;
 
     relation
-        = q(Relation:Default)
-        | q(Relation:D0C0)
-        | q(Relation:D0C1)
+        = q(Relation:default)
+        | q(Relation:d0c0)
+        | q(Relation:d0c1)
         | q(Relation:{) ws heading list_sep relation_body ws q(})
         ;
 
     set
-        = q(Set:Default)
+        = q(Set:default)
         | q(Set:{) ws type_invo list_sep set_body ws q(})
         ;
 
     maybe
-        = q(Maybe:Default)
+        = q(Maybe:default)
         | q(Maybe:{) ws type_invo list_sep maybe_body ws q(})
         ;
 
     seq
-        = q(Seq:Default)
+        = q(Seq:default)
         | q(Seq:{) ws type_invo list_sep seq_body ws q(})
         ;
 
     bag
-        = q(Bag:Default)
+        = q(Bag:default)
         | q(Bag:{) ws type_invo list_sep bag_body ws q(})
         ;
 
