@@ -7,8 +7,8 @@ module Muldis::DB::Engine::Example::Operators-0.1.0 {
 
     use Muldis::DB::Engine::Example::PhysType <ptBool ptOrder ptInt
         ptBlob ptText ptTuple ptQuasiTuple ptRelation ptQuasiRelation
-        ptTypeInvoNQ ptTypeInvoAQ ptTypeDictNQ ptTypeDictAQ ptValueDictNQ
-        ptTypeDictAQ>;
+        ptTypeInvo ptQuasiTypeInvo ptTypeDict ptQuasiTypeDict ptValueDict
+        ptQuasiTypeDict>;
 
     my Hash $OPS = {
 

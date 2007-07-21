@@ -41,7 +41,7 @@ submethod BUILD (Any :$dbms_config!) {
 ###########################################################################
 
 method new_var of Muldis::DB::Engine::Example::HostGateVar
-        (Muldis::DB::Literal::TypeInvo :$decl_type!) {
+        (Muldis::DB::Literal::_TypeInvo :$decl_type!) {
     return ::Muldis::DB::Engine::Example::HostGateVar.new(
         :dbms(self), :decl_type($decl_type) );
 }
@@ -63,7 +63,7 @@ class Muldis::DB::Engine::Example::HostGateVar {
     does Muldis::DB::Engine::Role::HostGateVar;
 
     has Muldis::DB::Engine::Example::DBMS $!dbms;
-    has Muldis::DB::Literal::TypeInvo         $!decl_type;
+    has Muldis::DB::Literal::_TypeInvo         $!decl_type;
     has Muldis::DB::Literal::Node             $!val_ast;
 
     trusts Muldis::DB::Engine::Example::HostGateRtn;
@@ -71,7 +71,7 @@ class Muldis::DB::Engine::Example::HostGateVar {
 ###########################################################################
 
 submethod BUILD (Muldis::DB::Engine::Example::DBMS :$dbms!,
-        Muldis::DB::Literal::TypeInvo :$decl_type!) {
+        Muldis::DB::Literal::_TypeInvo :$decl_type!) {
 
     $!dbms      = $dbms;
     $!decl_type = $decl_type;

@@ -17,9 +17,9 @@ my $ATNM_VALUE = ::Muldis::DB::Literal::EntityName.new( :text<value> );
 my $ATNM_INDEX = ::Muldis::DB::Literal::EntityName.new( :text<index> );
 my $ATNM_COUNT = ::Muldis::DB::Literal::EntityName.new( :text<count> );
 
-my $SCA_TYPE_UINT = ::Muldis::DB::Literal::TypeInvoNQ.new(
+my $SCA_TYPE_UINT = ::Muldis::DB::Literal::TypeInvo.new(
     :kind<Scalar>, :spec($TYNM_UINT) );
-my $SCA_TYPE_PINT = ::Muldis::DB::Literal::TypeInvoNQ.new(
+my $SCA_TYPE_PINT = ::Muldis::DB::Literal::TypeInvo.new(
     :kind<Scalar>, :spec($TYNM_PINT) );
 
 ###########################################################################
@@ -30,84 +30,84 @@ module Muldis::DB::Literal-0.1.0 {
 
 ###########################################################################
 
-sub newSetSel of Muldis::DB::Literal::RelationSel
-        (Muldis::DB::Literal::TypeInvoNQ :$heading!, Array :$body!) is export {
+sub newSet of Muldis::DB::Literal::Relation
+        (Muldis::DB::Literal::TypeInvo :$heading!, Array :$body!) is export {
 
     die q{new(): Bad :$body arg; it is not an object of a}
             ~ q{ Array-doing class.}
         if !$body.defined or !$body.does(Array);
 
-    return ::Muldis::DB::Literal::RelationSel.new(
-        :heading(::Muldis::DB::Literal::TypeDictNQ.new( :map([
+    return ::Muldis::DB::Literal::Relation.new(
+        :heading(::Muldis::DB::Literal::TypeDict.new( :map([
             [$ATNM_VALUE, $heading],
         ]) )),
         :body([$body.map:{
-            ::Muldis::DB::Literal::ExprDict.new( :map([
+            ::Muldis::DB::Literal::_ExprDict.new( :map([
                 [$ATNM_VALUE, $_],
             ]) ),
         }]),
     );
 }
 
-sub newQuasiSetSel of Muldis::DB::Literal::QuasiRelationSel
-        (Muldis::DB::Literal::TypeInvoAQ :$heading!, Array :$body!) is export {
+sub newQuasiSet of Muldis::DB::Literal::QuasiRelation
+        (Muldis::DB::Literal::QuasiTypeInvo :$heading!, Array :$body!) is export {
 
     die q{new(): Bad :$body arg; it is not an object of a}
             ~ q{ Array-doing class.}
         if !$body.defined or !$body.does(Array);
 
-    return ::Muldis::DB::Literal::QuasiRelationSel.new(
-        :heading(::Muldis::DB::Literal::TypeDictAQ.new( :map([
+    return ::Muldis::DB::Literal::QuasiRelation.new(
+        :heading(::Muldis::DB::Literal::QuasiTypeDict.new( :map([
             [$ATNM_VALUE, $heading],
         ]) )),
         :body([$body.map:{
-            ::Muldis::DB::Literal::ExprDict.new( :map([
+            ::Muldis::DB::Literal::_ExprDict.new( :map([
                 [$ATNM_VALUE, $_],
             ]) ),
         }]),
     );
 }
 
-sub newMaybeSel of Muldis::DB::Literal::RelationSel
-        (Muldis::DB::Literal::TypeInvoNQ :$heading!, Array :$body!) is export {
+sub newMaybe of Muldis::DB::Literal::Relation
+        (Muldis::DB::Literal::TypeInvo :$heading!, Array :$body!) is export {
 
     die q{new(): Bad :$body arg; it is not an object of a}
             ~ q{ Array-doing class, or it doesn't have 0..1 elements.}
         if !$body.defined or !$body.does(Array) or $body.elems > 1;
 
-    return ::Muldis::DB::Literal::RelationSel.new(
-        :heading(::Muldis::DB::Literal::TypeDictNQ.new( :map([
+    return ::Muldis::DB::Literal::Relation.new(
+        :heading(::Muldis::DB::Literal::TypeDict.new( :map([
             [$ATNM_VALUE, $heading],
         ]) )),
         :body([$body.map:{
-            ::Muldis::DB::Literal::ExprDict.new( :map([
+            ::Muldis::DB::Literal::_ExprDict.new( :map([
                 [$ATNM_VALUE, $_],
             ]) ),
         }]),
     );
 }
 
-sub newQuasiMaybeSel of Muldis::DB::Literal::QuasiRelationSel
-        (Muldis::DB::Literal::TypeInvoNQ :$heading!, Array :$body!) is export {
+sub newQuasiMaybe of Muldis::DB::Literal::QuasiRelation
+        (Muldis::DB::Literal::TypeInvo :$heading!, Array :$body!) is export {
 
     die q{new(): Bad :$body arg; it is not an object of a}
             ~ q{ Array-doing class, or it doesn't have 0..1 elements.}
         if !$body.defined or !$body.does(Array) or $body.elems > 1;
 
-    return ::Muldis::DB::Literal::QuasiRelationSel.new(
-        :heading(::Muldis::DB::Literal::TypeDictAQ.new( :map([
+    return ::Muldis::DB::Literal::QuasiRelation.new(
+        :heading(::Muldis::DB::Literal::QuasiTypeDict.new( :map([
             [$ATNM_VALUE, $heading],
         ]) )),
         :body([$body.map:{
-            ::Muldis::DB::Literal::ExprDict.new( :map([
+            ::Muldis::DB::Literal::_ExprDict.new( :map([
                 [$ATNM_VALUE, $_],
             ]) ),
         }]),
     );
 }
 
-sub newSeqSel of Muldis::DB::Literal::RelationSel
-        (Muldis::DB::Literal::TypeInvoNQ :$heading!, Array :$body!) is export {
+sub newSeq of Muldis::DB::Literal::Relation
+        (Muldis::DB::Literal::TypeInvo :$heading!, Array :$body!) is export {
 
     die q{new(): Bad :$body arg; it is not an object of a}
             ~ q{ Array-doing class.}
@@ -118,13 +118,13 @@ sub newSeqSel of Muldis::DB::Literal::RelationSel
             if !$tbody.defined or !$tbody.does(Array) or $tbody.elems != 2;
     }
 
-    return ::Muldis::DB::Literal::RelationSel.new(
-        :heading(::Muldis::DB::Literal::TypeDictNQ.new( :map([
+    return ::Muldis::DB::Literal::Relation.new(
+        :heading(::Muldis::DB::Literal::TypeDict.new( :map([
             [$ATNM_INDEX, $SCA_TYPE_UINT],
             [$ATNM_VALUE, $heading],
         ]) )),
         :body([$body.map:{
-            ::Muldis::DB::Literal::ExprDict.new( :map([
+            ::Muldis::DB::Literal::_ExprDict.new( :map([
                 [$ATNM_INDEX, .[0]],
                 [$ATNM_VALUE, .[1]],
             ]) ),
@@ -132,8 +132,8 @@ sub newSeqSel of Muldis::DB::Literal::RelationSel
     );
 }
 
-sub newQuasiSeqSel of Muldis::DB::Literal::QuasiRelationSel
-        (Muldis::DB::Literal::TypeInvoAQ :$heading!, Array :$body!) is export {
+sub newQuasiSeq of Muldis::DB::Literal::QuasiRelation
+        (Muldis::DB::Literal::QuasiTypeInvo :$heading!, Array :$body!) is export {
 
     die q{new(): Bad :$body arg; it is not an object of a}
             ~ q{ Array-doing class.}
@@ -144,13 +144,13 @@ sub newQuasiSeqSel of Muldis::DB::Literal::QuasiRelationSel
             if !$tbody.defined or !$tbody.does(Array) or $tbody.elems != 2;
     }
 
-    return ::Muldis::DB::Literal::QuasiRelationSel.new(
-        :heading(::Muldis::DB::Literal::TypeDictAQ.new( :map([
+    return ::Muldis::DB::Literal::QuasiRelation.new(
+        :heading(::Muldis::DB::Literal::QuasiTypeDict.new( :map([
             [$ATNM_INDEX, $SCA_TYPE_UINT],
             [$ATNM_VALUE, $heading],
         ]) )),
         :body([$body.map:{
-            ::Muldis::DB::Literal::ExprDict.new( :map([
+            ::Muldis::DB::Literal::_ExprDict.new( :map([
                 [$ATNM_INDEX, .[0]],
                 [$ATNM_VALUE, .[1]],
             ]) ),
@@ -158,8 +158,8 @@ sub newQuasiSeqSel of Muldis::DB::Literal::QuasiRelationSel
     );
 }
 
-sub newBagSel of Muldis::DB::Literal::RelationSel
-        (Muldis::DB::Literal::TypeInvoNQ :$heading!, Array :$body!) is export {
+sub newBag of Muldis::DB::Literal::Relation
+        (Muldis::DB::Literal::TypeInvo :$heading!, Array :$body!) is export {
 
     die q{new(): Bad :$body arg; it is not an object of a}
             ~ q{ Array-doing class.}
@@ -170,13 +170,13 @@ sub newBagSel of Muldis::DB::Literal::RelationSel
             if !$tbody.defined or !$tbody.does(Array) or $tbody.elems != 2;
     }
 
-    return ::Muldis::DB::Literal::RelationSel.new(
-        :heading(::Muldis::DB::Literal::TypeDictNQ.new( :map([
+    return ::Muldis::DB::Literal::Relation.new(
+        :heading(::Muldis::DB::Literal::TypeDict.new( :map([
             [$ATNM_VALUE, $heading],
             [$ATNM_COUNT, $SCA_TYPE_PINT],
         ]) )),
         :body([$body.map:{
-            ::Muldis::DB::Literal::ExprDict.new( :map([
+            ::Muldis::DB::Literal::_ExprDict.new( :map([
                 [$ATNM_VALUE, .[0]],
                 [$ATNM_COUNT, .[1]],
             ]) ),
@@ -184,8 +184,8 @@ sub newBagSel of Muldis::DB::Literal::RelationSel
     );
 }
 
-sub newQuasiBagSel of Muldis::DB::Literal::QuasiRelationSel
-        (Muldis::DB::Literal::TypeInvoAQ :$heading!, Array :$body!) is export {
+sub newQuasiBag of Muldis::DB::Literal::QuasiRelation
+        (Muldis::DB::Literal::QuasiTypeInvo :$heading!, Array :$body!) is export {
 
     die q{new(): Bad :$body arg; it is not an object of a}
             ~ q{ Array-doing class.}
@@ -196,13 +196,13 @@ sub newQuasiBagSel of Muldis::DB::Literal::QuasiRelationSel
             if !$tbody.defined or !$tbody.does(Array) or $tbody.elems != 2;
     }
 
-    return ::Muldis::DB::Literal::QuasiRelationSel.new(
-        :heading(::Muldis::DB::Literal::TypeDictAQ.new( :map([
+    return ::Muldis::DB::Literal::QuasiRelation.new(
+        :heading(::Muldis::DB::Literal::QuasiTypeDict.new( :map([
             [$ATNM_VALUE, $heading],
             [$ATNM_COUNT, $SCA_TYPE_PINT],
         ]) )),
         :body([$body.map:{
-            ::Muldis::DB::Literal::ExprDict.new( :map([
+            ::Muldis::DB::Literal::_ExprDict.new( :map([
                 [$ATNM_VALUE, .[0]],
                 [$ATNM_COUNT, .[1]],
             ]) ),
@@ -514,34 +514,34 @@ method v of Str () {
 role Muldis::DB::Literal::_Tuple {
     does Muldis::DB::Literal::Expr;
 
-    has Muldis::DB::Literal::TypeDict $!heading;
-    has Muldis::DB::Literal::ExprDict $!body;
+    has Muldis::DB::Literal::_TypeDict $!heading;
+    has Muldis::DB::Literal::_ExprDict $!body;
 
     has Str $!as_perl;
 
 ###########################################################################
 
-submethod BUILD (Muldis::DB::Literal::TypeDict :$heading!,
-        Muldis::DB::Literal::ExprDict :$body!) {
+submethod BUILD (Muldis::DB::Literal::_TypeDict :$heading!,
+        Muldis::DB::Literal::_ExprDict :$body!) {
 
     if self._allows_quasi() {
         die q{new(): Bad :$heading arg; it is not an object of a}
-                ~ q{ Muldis::DB::Literal::TypeDictAQ-doing class.}
+                ~ q{ Muldis::DB::Literal::QuasiTypeDict-doing class.}
             if !$heading.defined
-                or !$heading.does(::Muldis::DB::Literal::TypeDictAQ);
+                or !$heading.does(::Muldis::DB::Literal::QuasiTypeDict);
     }
     else {
         die q{new(): Bad :$heading arg; it is not an object of a}
-                ~ q{ Muldis::DB::Literal::TypeDictNQ-doing class.}
+                ~ q{ Muldis::DB::Literal::TypeDict-doing class.}
             if !$heading.defined
-                or !$heading.does(::Muldis::DB::Literal::TypeDictNQ);
+                or !$heading.does(::Muldis::DB::Literal::TypeDict);
     }
     my Int $heading_attrs_count = $heading.elem_count();
     my Hash $heading_attrs_map_hoa = $heading!map_hoa;
 
     die q{new(): Bad :$body arg; it is not an object of a}
-            ~ q{ Muldis::DB::Literal::ExprDict-doing class.}
-        if !$body.defined or !$body.does(::Muldis::DB::Literal::ExprDict);
+            ~ q{ Muldis::DB::Literal::_ExprDict-doing class.}
+        if !$body.defined or !$body.does(::Muldis::DB::Literal::_ExprDict);
     die q{new(): new(): Bad :$body arg; it does not have the}
             ~ q{ same attr count as :$heading.}
         if $body.elem_count() !=== $heading_attrs_count;
@@ -577,11 +577,11 @@ method _equal_repr of Bool (::T $self: T $other!) {
 
 ###########################################################################
 
-method heading of Muldis::DB::Literal::TypeDict () {
+method heading of Muldis::DB::Literal::_TypeDict () {
     return $!heading;
 }
 
-method body of Muldis::DB::Literal::ExprDict () {
+method body of Muldis::DB::Literal::_ExprDict () {
     return $!body;
 }
 
@@ -595,7 +595,7 @@ method attr_exists of Bool (Muldis::DB::Literal::EntityName :$attr_name!) {
     return $!heading.elem_exists( :elem_name($attr_name) );
 }
 
-method attr_type of Muldis::DB::Literal::TypeInvo
+method attr_type of Muldis::DB::Literal::_TypeInvo
         (Muldis::DB::Literal::EntityName :$attr_name!) {
     return $!heading.elem_value( :elem_name($attr_name) );
 }
@@ -612,20 +612,20 @@ method attr_value of Muldis::DB::Literal::Expr
 ###########################################################################
 ###########################################################################
 
-class Muldis::DB::Literal::TupleSel {
+class Muldis::DB::Literal::Tuple {
     does Muldis::DB::Literal::_Tuple;
     submethod BUILD {} # otherwise Pugs r16488 invo _Tuple.BUILD twice
     method _allows_quasi of Bool () { return $BOOL_FALSE; }
-} # class Muldis::DB::Literal::TupleSel
+} # class Muldis::DB::Literal::Tuple
 
 ###########################################################################
 ###########################################################################
 
-class Muldis::DB::Literal::QuasiTupleSel {
+class Muldis::DB::Literal::QuasiTuple {
     does Muldis::DB::Literal::_Tuple;
     submethod BUILD {} # otherwise Pugs r16488 invo _Tuple.BUILD twice
     method _allows_quasi of Bool () { return $BOOL_TRUE; }
-} # class Muldis::DB::Literal::QuasiTupleSel
+} # class Muldis::DB::Literal::QuasiTuple
 
 ###########################################################################
 ###########################################################################
@@ -633,26 +633,26 @@ class Muldis::DB::Literal::QuasiTupleSel {
 role Muldis::DB::Literal::_Relation {
     does Muldis::DB::Literal::Expr;
 
-    has Muldis::DB::Literal::TypeDict $!heading;
+    has Muldis::DB::Literal::_TypeDict $!heading;
     has Array                     $!body;
 
     has Str $!as_perl;
 
 ###########################################################################
 
-submethod BUILD (Muldis::DB::Literal::TypeDict :$heading!, Array :$body!) {
+submethod BUILD (Muldis::DB::Literal::_TypeDict :$heading!, Array :$body!) {
 
     if self._allows_quasi() {
         die q{new(): Bad :$heading arg; it is not an object of a}
-                ~ q{ Muldis::DB::Literal::TypeDictAQ-doing class.}
+                ~ q{ Muldis::DB::Literal::QuasiTypeDict-doing class.}
             if !$heading.defined
-                or !$heading.does(::Muldis::DB::Literal::TypeDictAQ);
+                or !$heading.does(::Muldis::DB::Literal::QuasiTypeDict);
     }
     else {
         die q{new(): Bad :$heading arg; it is not an object of a}
-                ~ q{ Muldis::DB::Literal::TypeDictNQ-doing class.}
+                ~ q{ Muldis::DB::Literal::TypeDict-doing class.}
             if !$heading.defined
-                or !$heading.does(::Muldis::DB::Literal::TypeDictNQ);
+                or !$heading.does(::Muldis::DB::Literal::TypeDict);
     }
     my Int $heading_attrs_count = $heading.elem_count();
     my Hash $heading_attrs_map_hoa = $heading!map_hoa;
@@ -662,8 +662,8 @@ submethod BUILD (Muldis::DB::Literal::TypeDict :$heading!, Array :$body!) {
         if !$body.defined or !$body.does(Array);
     for $body -> $tupb {
         die q{new(): Bad :$body arg elem; it is not an object of a}
-                ~ q{ Muldis::DB::Literal::ExprDict-doing class.}
-            if !$tupb.defined or !$tupb.does(::Muldis::DB::Literal::ExprDict);
+                ~ q{ Muldis::DB::Literal::_ExprDict-doing class.}
+            if !$tupb.defined or !$tupb.does(::Muldis::DB::Literal::_ExprDict);
         die q{new(): new(): Bad :$body arg elem; it does not have the}
                 ~ q{ same attr count as :$heading.}
             if $tupb.elem_count() !=== $heading_attrs_count;
@@ -709,7 +709,7 @@ method _equal_repr of Bool (::T $self: T $other!) {
 
 ###########################################################################
 
-method heading of Muldis::DB::Literal::TypeDict () {
+method heading of Muldis::DB::Literal::_TypeDict () {
     return $!heading;
 }
 
@@ -733,7 +733,7 @@ method attr_exists of Bool (Muldis::DB::Literal::EntityName :$attr_name!) {
     return $!heading.elem_exists( :elem_name($attr_name) );
 }
 
-method attr_type of Muldis::DB::Literal::TypeInvo
+method attr_type of Muldis::DB::Literal::_TypeInvo
         (Muldis::DB::Literal::EntityName :$attr_name!) {
     return $!heading.elem_value( :elem_name($attr_name) );
 }
@@ -744,7 +744,7 @@ method attr_values of Array (Muldis::DB::Literal::EntityName :$attr_name!) {
 
 ###########################################################################
 
-method heading_of_SSBM of Muldis::DB::Literal::TypeInvo () {
+method heading_of_SSBM of Muldis::DB::Literal::_TypeInvo () {
     return $!heading.elem_value( :elem_name($ATNM_VALUE) );
 }
 
@@ -777,20 +777,20 @@ method body_of_Maybe of Array () {
 ###########################################################################
 ###########################################################################
 
-class Muldis::DB::Literal::RelationSel {
+class Muldis::DB::Literal::Relation {
     does Muldis::DB::Literal::_Relation;
     submethod BUILD {} # otherwise Pugs r16488 invo _Relation.BUILD twice
     method _allows_quasi of Bool () { return $BOOL_FALSE; }
-} # class Muldis::DB::Literal::RelationSel
+} # class Muldis::DB::Literal::Relation
 
 ###########################################################################
 ###########################################################################
 
-class Muldis::DB::Literal::QuasiRelationSel {
+class Muldis::DB::Literal::QuasiRelation {
     does Muldis::DB::Literal::_Relation;
     submethod BUILD {} # otherwise Pugs r16488 invo _Relation.BUILD twice
     method _allows_quasi of Bool () { return $BOOL_TRUE; }
-} # class Muldis::DB::Literal::QuasiRelationSel
+} # class Muldis::DB::Literal::QuasiRelation
 
 ###########################################################################
 ###########################################################################
@@ -798,17 +798,17 @@ class Muldis::DB::Literal::QuasiRelationSel {
 class Muldis::DB::Literal::Default {
     does Muldis::DB::Literal::Expr;
 
-    has Muldis::DB::Literal::TypeInvo $!of;
+    has Muldis::DB::Literal::_TypeInvo $!of;
 
     has Str $!as_perl;
 
 ###########################################################################
 
-submethod BUILD (Muldis::DB::Literal::TypeInvo :$of!) {
+submethod BUILD (Muldis::DB::Literal::_TypeInvo :$of!) {
 
     die q{new(): Bad :$of arg; it is not an object of a}
-            ~ q{ Muldis::DB::Literal::TypeInvo-doing class.}
-        if !$of.defined or !$of.does(::Muldis::DB::Literal::TypeInvo);
+            ~ q{ Muldis::DB::Literal::_TypeInvo-doing class.}
+        if !$of.defined or !$of.does(::Muldis::DB::Literal::_TypeInvo);
 
     $!of = $of;
 
@@ -833,7 +833,7 @@ method _equal_repr of Bool (::T $self: T $other!) {
 
 ###########################################################################
 
-method of () of Muldis::DB::Literal::TypeInvo {
+method of () of Muldis::DB::Literal::_TypeInvo {
     return $!of;
 }
 
@@ -847,19 +847,19 @@ method of () of Muldis::DB::Literal::TypeInvo {
 class Muldis::DB::Literal::Treat {
     does Muldis::DB::Literal::Expr;
 
-    has Muldis::DB::Literal::TypeInvo $!as;
+    has Muldis::DB::Literal::_TypeInvo $!as;
     has Muldis::DB::Literal::Expr     $!v;
 
     has Str $!as_perl;
 
 ###########################################################################
 
-submethod BUILD (Muldis::DB::Literal::TypeInvo :$as!,
+submethod BUILD (Muldis::DB::Literal::_TypeInvo :$as!,
         Muldis::DB::Literal::Expr :$v!) {
 
     die q{new(): Bad :$as arg; it is not an object of a}
-            ~ q{ Muldis::DB::Literal::TypeInvo-doing class.}
-        if !$as.defined or !$as.does(::Muldis::DB::Literal::TypeInvo);
+            ~ q{ Muldis::DB::Literal::_TypeInvo-doing class.}
+        if !$as.defined or !$as.does(::Muldis::DB::Literal::_TypeInvo);
 
     die q{new(): Bad :$v arg; it is not an object of a}
             ~ q{ Muldis::DB::Literal::Expr-doing class.}
@@ -891,7 +891,7 @@ method _equal_repr of Bool (::T $self: T $other!) {
 
 ###########################################################################
 
-method as () of Muldis::DB::Literal::TypeInvo {
+method as () of Muldis::DB::Literal::_TypeInvo {
     return $!as;
 }
 
@@ -959,23 +959,23 @@ class Muldis::DB::Literal::FuncInvo {
     does Muldis::DB::Literal::Expr;
 
     has Muldis::DB::Literal::EntityName $!func;
-    has Muldis::DB::Literal::ExprDict   $!ro_args;
+    has Muldis::DB::Literal::_ExprDict   $!ro_args;
 
     has Str $!as_perl;
 
 ###########################################################################
 
 submethod BUILD (Muldis::DB::Literal::EntityName :$func!,
-        Muldis::DB::Literal::ExprDict :$ro_args!) {
+        Muldis::DB::Literal::_ExprDict :$ro_args!) {
 
     die q{new(): Bad :$func arg; it is not a valid object}
             ~ q{ of a Muldis::DB::Literal::EntityName-doing class.}
         if !$func.defined or !$func.does(::Muldis::DB::Literal::EntityName);
 
     die q{new(): Bad :$ro_args arg; it is not an object of a}
-            ~ q{ Muldis::DB::Literal::ExprDict-doing class.}
+            ~ q{ Muldis::DB::Literal::_ExprDict-doing class.}
         if !$ro_args.defined
-            or !$ro_args.does(::Muldis::DB::Literal::ExprDict);
+            or !$ro_args.does(::Muldis::DB::Literal::_ExprDict);
 
     $!func    = $func;
     $!ro_args = $ro_args;
@@ -1008,7 +1008,7 @@ method func of Muldis::DB::Literal::EntityName () {
     return $!func;
 }
 
-method ro_args of Muldis::DB::Literal::ExprDict () {
+method ro_args of Muldis::DB::Literal::_ExprDict () {
     return $!ro_args;
 }
 
@@ -1030,29 +1030,29 @@ class Muldis::DB::Literal::ProcInvo {
     does Muldis::DB::Literal::Stmt;
 
     has Muldis::DB::Literal::EntityName $!proc;
-    has Muldis::DB::Literal::ExprDict   $!upd_args;
-    has Muldis::DB::Literal::ExprDict   $!ro_args;
+    has Muldis::DB::Literal::_ExprDict   $!upd_args;
+    has Muldis::DB::Literal::_ExprDict   $!ro_args;
 
     has Str $!as_perl;
 
 ###########################################################################
 
 submethod BUILD (Muldis::DB::Literal::EntityName :$proc!,
-        Muldis::DB::Literal::ExprDict :$upd_args!,
-        Muldis::DB::Literal::ExprDict :$ro_args!) {
+        Muldis::DB::Literal::_ExprDict :$upd_args!,
+        Muldis::DB::Literal::_ExprDict :$ro_args!) {
 
     die q{new(): Bad :$proc arg; it is not a valid object}
             ~ q{ of a Muldis::DB::Literal::EntityName-doing class.}
         if !$proc.defined or !$proc.does(::Muldis::DB::Literal::EntityName);
 
     die q{new(): Bad :$upd_args arg; it is not an object of a}
-            ~ q{ Muldis::DB::Literal::ExprDict-doing class.}
+            ~ q{ Muldis::DB::Literal::_ExprDict-doing class.}
         if !$upd_args.defined
-            or !$upd_args.does(::Muldis::DB::Literal::ExprDict);
+            or !$upd_args.does(::Muldis::DB::Literal::_ExprDict);
     die q{new(): Bad :$ro_args arg; it is not an object of a}
-            ~ q{ Muldis::DB::Literal::ExprDict-doing class.}
+            ~ q{ Muldis::DB::Literal::_ExprDict-doing class.}
         if !$ro_args.defined
-            or !$ro_args.does(::Muldis::DB::Literal::ExprDict);
+            or !$ro_args.does(::Muldis::DB::Literal::_ExprDict);
     my Hash $upd_args_map_hoa = $upd_args!map_hoa;
     for $upd_args_map_hoa.values -> $an_and_vn {
         die q{new(): Bad :$upd_args arg elem expr; it is not}
@@ -1097,11 +1097,11 @@ method proc of Muldis::DB::Literal::EntityName () {
     return $!proc;
 }
 
-method upd_args of Muldis::DB::Literal::ExprDict () {
+method upd_args of Muldis::DB::Literal::_ExprDict () {
     return $!upd_args;
 }
 
-method ro_args of Muldis::DB::Literal::ExprDict () {
+method ro_args of Muldis::DB::Literal::_ExprDict () {
     return $!ro_args;
 }
 
@@ -1266,7 +1266,7 @@ method seq of Array () {
 ###########################################################################
 ###########################################################################
 
-role Muldis::DB::Literal::TypeInvo {
+role Muldis::DB::Literal::_TypeInvo {
     does Muldis::DB::Literal::Node;
 
     has Str $!kind;
@@ -1291,10 +1291,10 @@ submethod BUILD (Str :$kind!, Any :$spec!) {
 
     elsif $kind === 'Tuple'|'Relation' {
         die q{new(): Bad :$spec arg; it needs to be a valid object}
-                ~ q{ of a Muldis::DB::Literal::TypeDictNQ-doing class}
+                ~ q{ of a Muldis::DB::Literal::TypeDict-doing class}
                 ~ q{ when the :$kind arg is 'Tuple'|'Relation'.}
             if !$spec.defined
-                or !$spec.does(::Muldis::DB::Literal::TypeDictNQ);
+                or !$spec.does(::Muldis::DB::Literal::TypeDict);
     }
 
     elsif (!self._allows_quasi()) {
@@ -1304,10 +1304,10 @@ submethod BUILD (Str :$kind!, Any :$spec!) {
 
     elsif $kind === 'QTuple'|'QRelation' {
         die q{new(): Bad :$spec arg; it needs to be a valid object}
-                ~ q{ of a Muldis::DB::Literal::TypeDictAQ-doing class}
+                ~ q{ of a Muldis::DB::Literal::QuasiTypeDict-doing class}
                 ~ q{ when the :$kind arg is 'QTuple'|'QRelation'.}
             if !$spec.defined
-                or !$spec.does(::Muldis::DB::Literal::TypeDictAQ);
+                or !$spec.does(::Muldis::DB::Literal::QuasiTypeDict);
     }
 
     elsif $kind === 'Any' {
@@ -1363,30 +1363,30 @@ method spec of Any () {
 
 ###########################################################################
 
-} # role Muldis::DB::Literal::TypeInvo
+} # role Muldis::DB::Literal::_TypeInvo
 
 ###########################################################################
 ###########################################################################
 
-class Muldis::DB::Literal::TypeInvoNQ {
-    does Muldis::DB::Literal::TypeInvo;
+class Muldis::DB::Literal::TypeInvo {
+    does Muldis::DB::Literal::_TypeInvo;
     submethod BUILD {} # otherwise Pugs r16488 invo TypeInvo.BUILD twice
     method _allows_quasi of Bool () { return $BOOL_FALSE; }
-} # class Muldis::DB::Literal::TypeInvoNQ
+} # class Muldis::DB::Literal::TypeInvo
 
 ###########################################################################
 ###########################################################################
 
-class Muldis::DB::Literal::TypeInvoAQ {
-    does Muldis::DB::Literal::TypeInvo;
+class Muldis::DB::Literal::QuasiTypeInvo {
+    does Muldis::DB::Literal::_TypeInvo;
     submethod BUILD {} # otherwise Pugs r16488 invo TypeInvo.BUILD twice
     method _allows_quasi of Bool () { return $BOOL_TRUE; }
-} # class Muldis::DB::Literal::TypeInvoAQ
+} # class Muldis::DB::Literal::QuasiTypeInvo
 
 ###########################################################################
 ###########################################################################
 
-role Muldis::DB::Literal::TypeDict {
+role Muldis::DB::Literal::_TypeDict {
     does Muldis::DB::Literal::Node;
 
     has Array $!map_aoa;
@@ -1425,17 +1425,17 @@ submethod BUILD (Array :$map!) {
             if $map_hoa.exists($entity_name_text);
         if $allows_quasi {
             die q{new(): Bad :$map arg elem; its second elem is not an}
-                    ~ q{ object of a Muldis::DB::Literal::TypeInvoAQ-doing}
+                    ~ q{ object of a Muldis::DB::Literal::QuasiTypeInvo-doing}
                     ~ q{ class.}
                 if !$type_invo.defined
-                    or !$type_invo.does(::Muldis::DB::Literal::TypeInvoAQ);
+                    or !$type_invo.does(::Muldis::DB::Literal::QuasiTypeInvo);
         }
         else {
             die q{new(): Bad :$map arg elem; its second elem is not an}
-                    ~ q{ object of a Muldis::DB::Literal::TypeInvoNQ-doing}
+                    ~ q{ object of a Muldis::DB::Literal::TypeInvo-doing}
                     ~ q{ class.}
                 if !$type_invo.defined
-                    or !$type_invo.does(::Muldis::DB::Literal::TypeInvoNQ);
+                    or !$type_invo.does(::Muldis::DB::Literal::TypeInvo);
         }
         my Array $elem_cpy = [$entity_name, $type_invo];
         $map_aoa.push( $elem_cpy );
@@ -1455,7 +1455,7 @@ method as_perl of Str () {
         my Str $s = q{[} ~ $!map_aoa.map:{
                 q{[} ~ .[0].as_perl() ~ q{, } ~ .[1].as_perl() ~ q{]}
             }.join( q{, } ) ~ q{]};
-        $!as_perl = "Muldis::DB::Literal::TypeDict.new( :map($s) )";
+        $!as_perl = "Muldis::DB::Literal::_TypeDict.new( :map($s) )";
     }
     return $!as_perl;
 }
@@ -1502,7 +1502,7 @@ method elem_exists of Bool (Muldis::DB::Literal::EntityName :$elem_name!) {
     return $!map_hoa.exists($elem_name.text());
 }
 
-method elem_value of Muldis::DB::Literal::TypeInvo
+method elem_value of Muldis::DB::Literal::_TypeInvo
         (Muldis::DB::Literal::EntityName :$elem_name!) {
 
     die q{elem_value(): Bad :$elem_name arg; it is not an object of a}
@@ -1519,30 +1519,30 @@ method elem_value of Muldis::DB::Literal::TypeInvo
 
 ###########################################################################
 
-} # role Muldis::DB::Literal::TypeDict
+} # role Muldis::DB::Literal::_TypeDict
 
 ###########################################################################
 ###########################################################################
 
-class Muldis::DB::Literal::TypeDictNQ {
-    does Muldis::DB::Literal::TypeDict;
+class Muldis::DB::Literal::TypeDict {
+    does Muldis::DB::Literal::_TypeDict;
     submethod BUILD {} # otherwise Pugs r16488 invo TypeDict.BUILD twice
     method _allows_quasi of Bool () { return $BOOL_FALSE; }
-} # class Muldis::DB::Literal::TypeDictNQ
+} # class Muldis::DB::Literal::TypeDict
 
 ###########################################################################
 ###########################################################################
 
-class Muldis::DB::Literal::TypeDictAQ {
-    does Muldis::DB::Literal::TypeDict;
+class Muldis::DB::Literal::QuasiTypeDict {
+    does Muldis::DB::Literal::_TypeDict;
     submethod BUILD {} # otherwise Pugs r16488 invo TypeDict.BUILD twice
     method _allows_quasi of Bool () { return $BOOL_TRUE; }
-} # class Muldis::DB::Literal::TypeDictAQ
+} # class Muldis::DB::Literal::QuasiTypeDict
 
 ###########################################################################
 ###########################################################################
 
-class Muldis::DB::Literal::ExprDict {
+class Muldis::DB::Literal::_ExprDict {
     does Muldis::DB::Literal::Node;
 
     has Array $!map_aoa;
@@ -1600,7 +1600,7 @@ method as_perl of Str () {
         my Str $s = q{[} ~ $!map_aoa.map:{
                 q{[} ~ .[0].as_perl() ~ q{, } ~ .[1].as_perl() ~ q{]}
             }.join( q{, } ) ~ q{]};
-        $!as_perl = "Muldis::DB::Literal::ExprDict.new( :map($s) )";
+        $!as_perl = "Muldis::DB::Literal::_ExprDict.new( :map($s) )";
     }
     return $!as_perl;
 }
@@ -1664,7 +1664,7 @@ method elem_value of Muldis::DB::Literal::Expr
 
 ###########################################################################
 
-} # class Muldis::DB::Literal::ExprDict
+} # class Muldis::DB::Literal::_ExprDict
 
 ###########################################################################
 ###########################################################################
@@ -1704,9 +1704,9 @@ submethod BUILD {
 class Muldis::DB::Literal::HostGateRtn {
     does Muldis::DB::Literal::Node;
 
-    has Muldis::DB::Literal::TypeDict $!upd_params;
-    has Muldis::DB::Literal::TypeDict $!ro_params;
-    has Muldis::DB::Literal::TypeDict $!vars;
+    has Muldis::DB::Literal::_TypeDict $!upd_params;
+    has Muldis::DB::Literal::_TypeDict $!ro_params;
+    has Muldis::DB::Literal::_TypeDict $!vars;
     has Array                     $!stmts;
 
     has Str $!as_perl;
@@ -1715,25 +1715,25 @@ class Muldis::DB::Literal::HostGateRtn {
 
 ###########################################################################
 
-submethod BUILD (Muldis::DB::Literal::TypeDict :$upd_params!,
-        Muldis::DB::Literal::TypeDict :$ro_params!,
-        Muldis::DB::Literal::TypeDict :$vars!, Array :$stmts!) {
+submethod BUILD (Muldis::DB::Literal::_TypeDict :$upd_params!,
+        Muldis::DB::Literal::_TypeDict :$ro_params!,
+        Muldis::DB::Literal::_TypeDict :$vars!, Array :$stmts!) {
 
     die q{new(): Bad :$upd_params arg; it is not an object of a}
-            ~ q{ Muldis::DB::Literal::TypeDict-doing class.}
+            ~ q{ Muldis::DB::Literal::_TypeDict-doing class.}
         if !$upd_params.defined
-            or !$upd_params.does(::Muldis::DB::Literal::TypeDict);
+            or !$upd_params.does(::Muldis::DB::Literal::_TypeDict);
     die q{new(): Bad :$ro_params arg; it is not an object of a}
-            ~ q{ Muldis::DB::Literal::TypeDict-doing class.}
+            ~ q{ Muldis::DB::Literal::_TypeDict-doing class.}
         if !$ro_params.defined
-            or !$ro_params.does(::Muldis::DB::Literal::TypeDict);
+            or !$ro_params.does(::Muldis::DB::Literal::_TypeDict);
     die q{new(): Bad :$upd_params or :$ro_params arg;}
             ~ q{ they both reference at least 1 same procedure param.}
         if any($ro_params!map_hoa.keys) === any($upd_params!map_hoa.keys);
 
     die q{new(): Bad :$vars arg; it is not an object of a}
-            ~ q{ Muldis::DB::Literal::TypeDict-doing class.}
-        if !$vars.defined or !$vars.does(::Muldis::DB::Literal::TypeDict);
+            ~ q{ Muldis::DB::Literal::_TypeDict-doing class.}
+        if !$vars.defined or !$vars.does(::Muldis::DB::Literal::_TypeDict);
 
     die q{new(): Bad :$stmts arg; it is not an object of a}
             ~ q{ Array-doing class.}
@@ -1787,15 +1787,15 @@ method _equal_repr of Bool (::T $self: T $other!) {
 
 ###########################################################################
 
-method upd_params of Muldis::DB::Literal::TypeDict () {
+method upd_params of Muldis::DB::Literal::_TypeDict () {
     return $!upd_params;
 }
 
-method ro_params of Muldis::DB::Literal::TypeDict () {
+method ro_params of Muldis::DB::Literal::_TypeDict () {
     return $!ro_params;
 }
 
-method vars of Muldis::DB::Literal::TypeDict () {
+method vars of Muldis::DB::Literal::_TypeDict () {
     return $!vars;
 }
 
@@ -1864,11 +1864,11 @@ will be added in the future), which are visually arranged here in their
                 Muldis::DB::Literal::Blob
                 Muldis::DB::Literal::Text
             Muldis::DB::Literal::_Tuple (implementing role)
-                Muldis::DB::Literal::TupleSel
-                Muldis::DB::Literal::QuasiTupleSel
+                Muldis::DB::Literal::Tuple
+                Muldis::DB::Literal::QuasiTuple
             Muldis::DB::Literal::_Relation (implementing role)
-                Muldis::DB::Literal::RelationSel
-                Muldis::DB::Literal::QuasiRelationSel
+                Muldis::DB::Literal::Relation
+                Muldis::DB::Literal::QuasiRelation
             Muldis::DB::Literal::Default
             Muldis::DB::Literal::Treat
             Muldis::DB::Literal::VarInvo
@@ -1879,13 +1879,13 @@ will be added in the future), which are visually arranged here in their
             Muldis::DB::Literal::ProcReturn
             # more control-flow statement types would go here
         Muldis::DB::Literal::EntityName
-        Muldis::DB::Literal::TypeInvo (implementing role)
-            Muldis::DB::Literal::TypeInvoNQ
-            Muldis::DB::Literal::TypeInvoAQ
-        Muldis::DB::Literal::TypeDict (implementing role)
-            Muldis::DB::Literal::TypeDictNQ
-            Muldis::DB::Literal::TypeDictAQ
-        Muldis::DB::Literal::ExprDict
+        Muldis::DB::Literal::_TypeInvo (implementing role)
+            Muldis::DB::Literal::TypeInvo
+            Muldis::DB::Literal::QuasiTypeInvo
+        Muldis::DB::Literal::_TypeDict (implementing role)
+            Muldis::DB::Literal::TypeDict
+            Muldis::DB::Literal::QuasiTypeDict
+        Muldis::DB::Literal::_ExprDict
         Muldis::DB::Literal::FuncDecl
         Muldis::DB::Literal::ProcDecl
         # more routine declaration types would go here
@@ -2033,19 +2033,19 @@ I<This documentation is pending.>
 
 I<This documentation is pending.>
 
-=head2 The Muldis::DB::Literal::TupleSel Class
+=head2 The Muldis::DB::Literal::Tuple Class
 
 I<This documentation is pending.>
 
-=head2 The Muldis::DB::Literal::QuasiTupleSel Class
+=head2 The Muldis::DB::Literal::QuasiTuple Class
 
 I<This documentation is pending.>
 
-=head2 The Muldis::DB::Literal::RelationSel Class
+=head2 The Muldis::DB::Literal::Relation Class
 
 I<This documentation is pending.>
 
-=head2 The Muldis::DB::Literal::QuasiRelationSel Class
+=head2 The Muldis::DB::Literal::QuasiRelation Class
 
 I<This documentation is pending.>
 
@@ -2081,23 +2081,23 @@ I<This documentation is pending.>
 
 I<This documentation is pending.>
 
-=head2 The Muldis::DB::Literal::TypeInvoNQ Class
+=head2 The Muldis::DB::Literal::TypeInvo Class
 
 I<This documentation is pending.>
 
-=head2 The Muldis::DB::Literal::TypeInvoAQ Class
+=head2 The Muldis::DB::Literal::QuasiTypeInvo Class
 
 I<This documentation is pending.>
 
-=head2 The Muldis::DB::Literal::TypeDictNQ Class
+=head2 The Muldis::DB::Literal::TypeDict Class
 
 I<This documentation is pending.>
 
-=head2 The Muldis::DB::Literal::TypeDictAQ Class
+=head2 The Muldis::DB::Literal::QuasiTypeDict Class
 
 I<This documentation is pending.>
 
-=head2 The Muldis::DB::Literal::ExprDict Class
+=head2 The Muldis::DB::Literal::_ExprDict Class
 
 I<This documentation is pending.>
 

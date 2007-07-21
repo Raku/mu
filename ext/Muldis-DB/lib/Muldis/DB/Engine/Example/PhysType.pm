@@ -46,68 +46,68 @@ sub ptText of Muldis::DB::Engine::Example::PhysType::Text
 }
 
 sub ptTuple of Muldis::DB::Engine::Example::PhysType::Tuple
-        (Muldis::DB::Engine::Example::PhysType::TypeDictNQ :$heading!,
-        Muldis::DB::Engine::Example::PhysType::ValueDictNQ :$body!)
+        (Muldis::DB::Engine::Example::PhysType::TypeDict :$heading!,
+        Muldis::DB::Engine::Example::PhysType::ValueDict :$body!)
         is export {
     return ::Muldis::DB::Engine::Example::PhysType::Tuple.new(
         :heading($heading), :body($body) );
 }
 
 sub ptQuasiTuple of Muldis::DB::Engine::Example::PhysType::QuasiTuple
-        (Muldis::DB::Engine::Example::PhysType::TypeDictAQ :$heading!,
-        Muldis::DB::Engine::Example::PhysType::ValueDictAQ :$body!)
+        (Muldis::DB::Engine::Example::PhysType::QuasiTypeDict :$heading!,
+        Muldis::DB::Engine::Example::PhysType::QuasiValueDict :$body!)
         is export {
     return ::Muldis::DB::Engine::Example::PhysType::QuasiTuple.new(
         :heading($heading), :body($body) );
 }
 
 sub ptRelation of Muldis::DB::Engine::Example::PhysType::Relation
-        (Muldis::DB::Engine::Example::PhysType::TypeDictNQ :$heading!,
+        (Muldis::DB::Engine::Example::PhysType::TypeDict :$heading!,
         Array :$body!) is export {
     return ::Muldis::DB::Engine::Example::PhysType::Relation.new(
         :heading($heading), :body($body) );
 }
 
 sub ptQuasiRelation of Muldis::DB::Engine::Example::PhysType::QuasiRelation
-        (Muldis::DB::Engine::Example::PhysType::TypeDictAQ :$heading!,
+        (Muldis::DB::Engine::Example::PhysType::QuasiTypeDict :$heading!,
         Array :$body!) is export {
     return ::Muldis::DB::Engine::Example::PhysType::QuasiRelation.new(
         :heading($heading), :body($body) );
 }
 
-sub ptTypeInvoNQ of Muldis::DB::Engine::Example::PhysType::TypeInvoNQ
+sub ptTypeInvo of Muldis::DB::Engine::Example::PhysType::TypeInvo
         (Str :$kind!, Any :$spec!) is export {
-    return ::Muldis::DB::Engine::Example::PhysType::TypeInvoNQ.new(
+    return ::Muldis::DB::Engine::Example::PhysType::TypeInvo.new(
         :kind($kind), :spec($spec) );
 }
 
-sub ptTypeInvoAQ of Muldis::DB::Engine::Example::PhysType::TypeInvoAQ
+sub ptQuasiTypeInvo of Muldis::DB::Engine::Example::PhysType::QuasiTypeInvo
         (Str :$kind!, Any :$spec!) is export {
-    return ::Muldis::DB::Engine::Example::PhysType::TypeInvoAQ.new(
+    return ::Muldis::DB::Engine::Example::PhysType::QuasiTypeInvo.new(
         :kind($kind), :spec($spec) );
 }
 
-sub ptTypeDictNQ of Muldis::DB::Engine::Example::PhysType::TypeDictNQ
+sub ptTypeDict of Muldis::DB::Engine::Example::PhysType::TypeDict
         (Hash :$map!) is export {
-    return ::Muldis::DB::Engine::Example::PhysType::TypeDictNQ.new(
+    return ::Muldis::DB::Engine::Example::PhysType::TypeDict.new(
         :map($map) );
 }
 
-sub ptTypeDictAQ of Muldis::DB::Engine::Example::PhysType::TypeDictAQ
+sub ptQuasiTypeDict of Muldis::DB::Engine::Example::PhysType::QuasiTypeDict
         (Hash :$map!) is export {
-    return ::Muldis::DB::Engine::Example::PhysType::TypeDictAQ.new(
+    return ::Muldis::DB::Engine::Example::PhysType::QuasiTypeDict.new(
         :map($map) );
 }
 
-sub ptValueDictNQ of Muldis::DB::Engine::Example::PhysType::ValueDictNQ
+sub ptValueDict of Muldis::DB::Engine::Example::PhysType::ValueDict
         (Hash :$map!) is export {
-    return ::Muldis::DB::Engine::Example::PhysType::ValueDictNQ.new(
+    return ::Muldis::DB::Engine::Example::PhysType::ValueDict.new(
         :map($map) );
 }
 
-sub ptValueDictAQ of Muldis::DB::Engine::Example::PhysType::ValueDictAQ
+sub ptQuasiValueDict of Muldis::DB::Engine::Example::PhysType::QuasiValueDict
         (Hash :$map!) is export {
-    return ::Muldis::DB::Engine::Example::PhysType::ValueDictAQ.new(
+    return ::Muldis::DB::Engine::Example::PhysType::QuasiValueDict.new(
         :map($map) );
 }
 
@@ -467,16 +467,16 @@ method v of Str () {
 role Muldis::DB::Engine::Example::PhysType::_Tuple {
     does Muldis::DB::Engine::Example::PhysType::Value;
 
-    has Muldis::DB::Engine::Example::PhysType::TypeDict  $!heading;
-    has Muldis::DB::Engine::Example::PhysType::ValueDict $!body;
+    has Muldis::DB::Engine::Example::PhysType::_TypeDict  $!heading;
+    has Muldis::DB::Engine::Example::PhysType::_ValueDict $!body;
 
     has Str $!which;
 
 ###########################################################################
 
 submethod BUILD
-        (Muldis::DB::Engine::Example::PhysType::TypeDict :$heading!,
-        Muldis::DB::Engine::Example::PhysType::ValueDict :$body!) {
+        (Muldis::DB::Engine::Example::PhysType::_TypeDict :$heading!,
+        Muldis::DB::Engine::Example::PhysType::_ValueDict :$body!) {
     $!heading = $heading;
     $!body    = $body;
     return;
@@ -505,8 +505,8 @@ method as_ast of Muldis::DB::Literal::_Tuple () {
     my $call_args = \( :heading($!heading.as_ast()),
         :body($!body.as_ast()) );
     return self._allows_quasi()
-        ?? ::Muldis::DB::Literal::QuasiTupleSel.new.callwith( |$call_args )
-        !! ::Muldis::DB::Literal::TupleSel.new.callwith( |$call_args );
+        ?? ::Muldis::DB::Literal::QuasiTuple.new.callwith( |$call_args )
+        !! ::Muldis::DB::Literal::Tuple.new.callwith( |$call_args );
 }
 
 ###########################################################################
@@ -518,11 +518,11 @@ method _equal of Bool (::T $self: T $other!) {
 
 ###########################################################################
 
-method heading of Muldis::DB::Engine::Example::PhysType::TypeDict () {
+method heading of Muldis::DB::Engine::Example::PhysType::_TypeDict () {
     return $!heading;
 }
 
-method body of Muldis::DB::Engine::Example::PhysType::ValueDict () {
+method body of Muldis::DB::Engine::Example::PhysType::_ValueDict () {
     return $!body;
 }
 
@@ -536,7 +536,7 @@ method attr_exists of Bool (Str :$attr_name!) {
     return $!heading.elem_exists( :elem_name($attr_name) );
 }
 
-method attr_type of Muldis::DB::Engine::Example::PhysType::TypeInvo
+method attr_type of Muldis::DB::Engine::Example::PhysType::_TypeInvo
         (Str :$attr_name!) {
     return $!heading.elem_value( :elem_name($attr_name) );
 }
@@ -574,7 +574,7 @@ class Muldis::DB::Engine::Example::PhysType::QuasiTuple {
 role Muldis::DB::Engine::Example::PhysType::_Relation {
     does Muldis::DB::Engine::Example::PhysType::Value;
 
-    has Muldis::DB::Engine::Example::PhysType::TypeDict $!heading;
+    has Muldis::DB::Engine::Example::PhysType::_TypeDict $!heading;
     has Array                                           $!body;
     has Hash                                            $!key_over_all;
 
@@ -583,7 +583,7 @@ role Muldis::DB::Engine::Example::PhysType::_Relation {
 ###########################################################################
 
 submethod BUILD
-        (Muldis::DB::Engine::Example::PhysType::TypeDict :$heading!,
+        (Muldis::DB::Engine::Example::PhysType::_TypeDict :$heading!,
         Array :$body!) {
 
     my $key_over_all = {$body.map:{ .which() => $_ }}; # elim dup tpl
@@ -620,8 +620,8 @@ method as_ast of Muldis::DB::Literal::_Relation () {
     my $call_args = \( :heading($!heading.as_ast()),
         :body([$!body.map:{ .as_ast() }]) );
     return self._allows_quasi()
-        ?? ::Muldis::DB::Literal::QuasiRelationSel.new.callwith( |$call_args )
-        !! ::Muldis::DB::Literal::RelationSel.new.callwith( |$call_args );
+        ?? ::Muldis::DB::Literal::QuasiRelation.new.callwith( |$call_args )
+        !! ::Muldis::DB::Literal::Relation.new.callwith( |$call_args );
 }
 
 ###########################################################################
@@ -642,7 +642,7 @@ method _equal of Bool (::T $self: T $other!) {
 
 ###########################################################################
 
-method heading of Muldis::DB::Engine::Example::PhysType::TypeDict () {
+method heading of Muldis::DB::Engine::Example::PhysType::_TypeDict () {
     return $!heading;
 }
 
@@ -666,7 +666,7 @@ method attr_exists of Bool (Str :$attr_name!) {
     return $!heading.elem_exists( :elem_name($attr_name) );
 }
 
-method attr_type of Muldis::DB::Engine::Example::PhysType::TypeInvo
+method attr_type of Muldis::DB::Engine::Example::PhysType::_TypeInvo
         (Str :$attr_name!) {
     return $!heading.elem_value( :elem_name($attr_name) );
 }
@@ -700,7 +700,7 @@ class Muldis::DB::Engine::Example::PhysType::QuasiRelation {
 ###########################################################################
 ###########################################################################
 
-role Muldis::DB::Engine::Example::PhysType::TypeInvo {
+role Muldis::DB::Engine::Example::PhysType::_TypeInvo {
     does Muldis::DB::Engine::Example::PhysType::Value;
 
     has Str $!kind;
@@ -737,14 +737,14 @@ method which of Str () {
 
 ###########################################################################
 
-method as_ast of Muldis::DB::Literal::TypeInvo () {
+method as_ast of Muldis::DB::Literal::_TypeInvo () {
     my $call_args = \( :kind($!kind),
         :spec($!kind === 'Any' ?? $!spec
             !! $!kind === 'Scalar' ?? ::Muldis::DB::Literal::EntityName.new( :text($!spec) )
             !! $!spec.as_ast()) );
     return self._allows_quasi()
-        ?? ::Muldis::DB::Literal::TypeInvoAQ.new.callwith( |$call_args )
-        !! ::Muldis::DB::Literal::TypeInvoNQ.new.callwith( |$call_args );
+        ?? ::Muldis::DB::Literal::QuasiTypeInvo.new.callwith( |$call_args )
+        !! ::Muldis::DB::Literal::TypeInvo.new.callwith( |$call_args );
 }
 
 ###########################################################################
@@ -768,30 +768,30 @@ method spec of Any () {
 
 ###########################################################################
 
-} # role Muldis::DB::Engine::Example::PhysType::TypeInvo
+} # role Muldis::DB::Engine::Example::PhysType::_TypeInvo
 
 ###########################################################################
 ###########################################################################
 
-class Muldis::DB::Engine::Example::PhysType::TypeInvoNQ {
-    does Muldis::DB::Engine::Example::PhysType::TypeInvo;
+class Muldis::DB::Engine::Example::PhysType::TypeInvo {
+    does Muldis::DB::Engine::Example::PhysType::_TypeInvo;
     submethod BUILD {} # otherwise Pugs r16488 invo TypeInvo.BUILD twice
     method _allows_quasi of Bool () { return $BOOL_FALSE; }
-} # class Muldis::DB::Engine::Example::PhysType::TypeInvoNQ
+} # class Muldis::DB::Engine::Example::PhysType::TypeInvo
 
 ###########################################################################
 ###########################################################################
 
-class Muldis::DB::Engine::Example::PhysType::TypeInvoAQ {
-    does Muldis::DB::Engine::Example::PhysType::TypeInvo;
+class Muldis::DB::Engine::Example::PhysType::QuasiTypeInvo {
+    does Muldis::DB::Engine::Example::PhysType::_TypeInvo;
     submethod BUILD {} # otherwise Pugs r16488 invo TypeInvo.BUILD twice
     method _allows_quasi of Bool () { return $BOOL_TRUE; }
-} # class Muldis::DB::Engine::Example::PhysType::TypeInvoAQ
+} # class Muldis::DB::Engine::Example::PhysType::QuasiTypeInvo
 
 ###########################################################################
 ###########################################################################
 
-role Muldis::DB::Engine::Example::PhysType::TypeDict {
+role Muldis::DB::Engine::Example::PhysType::_TypeDict {
     does Muldis::DB::Engine::Example::PhysType::Value;
 
     has Hash $!map;
@@ -828,13 +828,13 @@ method which of Str () {
 
 ###########################################################################
 
-method as_ast of Muldis::DB::Literal::TypeDict () {
+method as_ast of Muldis::DB::Literal::_TypeDict () {
     my $call_args = \( :map([ $!map.pairs.map:{
             [::Muldis::DB::Literal::EntityName.new( :text(.key) ), .value.as_ast()],
         } ]) );
     return self._allows_quasi()
-        ?? ::Muldis::DB::Literal::TypeDictAQ.new.callwith( |$call_args )
-        !! ::Muldis::DB::Literal::TypeDictNQ.new.callwith( |$call_args );
+        ?? ::Muldis::DB::Literal::QuasiTypeDict.new.callwith( |$call_args )
+        !! ::Muldis::DB::Literal::TypeDict.new.callwith( |$call_args );
 }
 
 ###########################################################################
@@ -869,37 +869,37 @@ method elem_exists of Bool (Str :$elem_name!) {
     return $!map.exists($elem_name);
 }
 
-method elem_value of Muldis::DB::Engine::Example::PhysType::TypeInvo
+method elem_value of Muldis::DB::Engine::Example::PhysType::_TypeInvo
         (Str :$elem_name!) {
     return $!map{$elem_name};
 }
 
 ###########################################################################
 
-} # role Muldis::DB::Engine::Example::PhysType::TypeDict
+} # role Muldis::DB::Engine::Example::PhysType::_TypeDict
 
 ###########################################################################
 ###########################################################################
 
-class Muldis::DB::Engine::Example::PhysType::TypeDictNQ {
-    does Muldis::DB::Engine::Example::PhysType::TypeDict;
+class Muldis::DB::Engine::Example::PhysType::TypeDict {
+    does Muldis::DB::Engine::Example::PhysType::_TypeDict;
     submethod BUILD {} # otherwise Pugs r16488 invo TypeDict.BUILD twice
     method _allows_quasi of Bool () { return $BOOL_FALSE; }
-} # class Muldis::DB::Engine::Example::PhysType::TypeDictNQ
+} # class Muldis::DB::Engine::Example::PhysType::TypeDict
 
 ###########################################################################
 ###########################################################################
 
-class Muldis::DB::Engine::Example::PhysType::TypeDictAQ {
-    does Muldis::DB::Engine::Example::PhysType::TypeDict;
+class Muldis::DB::Engine::Example::PhysType::QuasiTypeDict {
+    does Muldis::DB::Engine::Example::PhysType::_TypeDict;
     submethod BUILD {} # otherwise Pugs r16488 invo TypeDict.BUILD twice
     method _allows_quasi of Bool () { return $BOOL_TRUE; }
-} # class Muldis::DB::Engine::Example::PhysType::TypeDictAQ
+} # class Muldis::DB::Engine::Example::PhysType::QuasiTypeDict
 
 ###########################################################################
 ###########################################################################
 
-role Muldis::DB::Engine::Example::PhysType::ValueDict {
+role Muldis::DB::Engine::Example::PhysType::_ValueDict {
     does Muldis::DB::Engine::Example::PhysType::Value;
 
     has Hash $!map;
@@ -933,8 +933,8 @@ method which of Str () {
 
 ###########################################################################
 
-method as_ast of Muldis::DB::Literal::ExprDict () {
-    return ::Muldis::DB::Literal::ExprDict.new( :map([ $!map.pairs.map:{
+method as_ast of Muldis::DB::Literal::_ExprDict () {
+    return ::Muldis::DB::Literal::_ExprDict.new( :map([ $!map.pairs.map:{
             [::Muldis::DB::Literal::EntityName.new( :text(.key) ), .value.as_ast()],
         } ]) );
 }
@@ -971,32 +971,32 @@ method elem_exists of Bool (Str :$elem_name!) {
     return $!map.exists($elem_name);
 }
 
-method elem_value of Muldis::DB::Engine::Example::PhysType::TypeInvo
+method elem_value of Muldis::DB::Engine::Example::PhysType::_TypeInvo
         (Str :$elem_name!) {
     return $!map{$elem_name};
 }
 
 ###########################################################################
 
-} # role Muldis::DB::Engine::Example::PhysType::ValueDict
+} # role Muldis::DB::Engine::Example::PhysType::_ValueDict
 
 ###########################################################################
 ###########################################################################
 
-class Muldis::DB::Engine::Example::PhysType::ValueDictNQ {
-    does Muldis::DB::Engine::Example::PhysType::ValueDict;
+class Muldis::DB::Engine::Example::PhysType::ValueDict {
+    does Muldis::DB::Engine::Example::PhysType::_ValueDict;
     submethod BUILD {} # otherwise Pugs r16488 invo ValueDict.BUILD twice
     method _allows_quasi of Bool () { return $BOOL_FALSE; }
-} # class Muldis::DB::Engine::Example::PhysType::ValueDictNQ
+} # class Muldis::DB::Engine::Example::PhysType::ValueDict
 
 ###########################################################################
 ###########################################################################
 
-class Muldis::DB::Engine::Example::PhysType::ValueDictAQ {
-    does Muldis::DB::Engine::Example::PhysType::ValueDict;
+class Muldis::DB::Engine::Example::PhysType::QuasiValueDict {
+    does Muldis::DB::Engine::Example::PhysType::_ValueDict;
     submethod BUILD {} # otherwise Pugs r16488 invo ValueDict.BUILD twice
     method _allows_quasi of Bool () { return $BOOL_TRUE; }
-} # class Muldis::DB::Engine::Example::PhysType::ValueDictAQ
+} # class Muldis::DB::Engine::Example::PhysType::QuasiValueDict
 
 ###########################################################################
 ###########################################################################

@@ -10,6 +10,10 @@ The following list is loosely ordered by priority, but list items may
 actually be addressed in a different order.  There is no specific time
 table for these items; they are simply to be done "as soon as possible".
 
+* Generally speaking, make a new release to CPAN once every week, assuming
+the progress is non-trivial, so there are regular public snapshots with
+nicely rendered documentation.
+
 * Flesh out the specs for (in Language.pod), and implement (in the Example
 Engine), the Muldis D metamodel, that is, the catalog.  This is the main
 prerequisite for doing anything moderately more complex than what has

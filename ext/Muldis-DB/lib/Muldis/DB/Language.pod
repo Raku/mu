@@ -477,7 +477,7 @@ and is what any Perl code typically should be using.  When generating
 Muldis D code from arbitrary Perl data structures (which includes the work
 of, eg, SQL DBMS emulators), the Abstract form is the easiest to use and
 the least error prone since no values have to be escaped or stitched
-together as strings, which prevents many injection security holes. 
+together as strings, which prevents many injection security holes.
 Abstract Muldis D is also what is used when Muldis D code is defined to
 generate/prepare and execute other Muldis D code at runtime (by reading or
 updating the meta-model / system catalog), which is "data definition".

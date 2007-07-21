@@ -10,8 +10,15 @@
     which sets its own less frequent release schedule.  The rest of this
     Changes entry refers only to the Perl 5 version.
 
-    * New file versions are: DB.pm and AST.pm and Language.pod and
-    Validator.pm and Example.pm 0.2.0.
+    * Renamed AST.pm to Literal.pm, and split up DB.pm into DB.pod and
+    Interface.pm.  Any code that used to be spelled Muldis::DB::AST or
+    Muldis::DB is now spelled Muldis::DB::Literal and
+    Muldis::DB::Interface.  Following these changes, lib/Muldis/DB.pod is
+    still the "main" file for documentation purposes, but for code
+    purposes, both Literal.pm and Interface.pm are now used directly.
+
+    * New file versions are: DB.pod and Literal.pm and Interface.pm and
+    Language.pod and Validator.pm and Example.pm 0.2.0.
 
     * Updated the TRANSACTIONS AND CONCURRENCY section of Language.pod in
     regards to how the scope of explicit transactions is specified, and
@@ -46,9 +53,15 @@
     * Updated Catalog.pod to add new core data types: Cat.ShortNameSet,
     Cat.AttrRenameMap.
 
-    * Updated AST.pm to remove all exported functions that trivially wrap
-    an object constructor, updated any uses in other files to call
-    constructors directly.
+    * Updated Literal.pm to remove all exported functions that trivially
+    wrap an object constructor, updated any uses in other files to call
+    constructors directly.  Also renamed ::(Bool|Order|Int|Blob|Text)Lit to
+    remove the "Lit", and ::(|Quasi)(Tuple|Relation)Sel to remove the
+    "Sel", and likewise updated any refs to said.
+
+    * In both Literal.pm and PhysType.pm, renamed any classes named
+    (TypeInvo|TypeDict|ExprDict|ValueDict)(|NQ|AQ) to (_\1|\1|Quasi\1)
+    respectively, and refs to said.
 
 2007-07-11   Darren Duncan <perl@DarrenDuncan.net>
 

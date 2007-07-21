@@ -79,7 +79,7 @@ submethod BUILD (Str :$engine_name!, Any :$dbms_config!) {
 ###########################################################################
 
 method new_var of Muldis::DB::Interface::HostGateVar
-        (Muldis::DB::Literal::TypeInvo :$decl_type!) {
+        (Muldis::DB::Literal::_TypeInvo :$decl_type!) {
     return ::Muldis::DB::Interface::HostGateVar.new(
         :dbms(self), :decl_type($decl_type) );
 }
@@ -106,7 +106,7 @@ class Muldis::DB::Interface::HostGateVar {
 ###########################################################################
 
 submethod BUILD (Muldis::DB::Interface::DBMS :$dbms!,
-        Muldis::DB::Literal::TypeInvo :$decl_type!) {
+        Muldis::DB::Literal::_TypeInvo :$decl_type!) {
 
     die q{new(): Bad :$dbms arg; it is not an object of a}
             ~ q{ Muldis::DB::Interface::DBMS-doing class.}
@@ -115,9 +115,9 @@ submethod BUILD (Muldis::DB::Interface::DBMS :$dbms!,
     my $dbms_eng_class = $dbms_eng.WHAT;
 
     die q{new(): Bad :$decl_type arg; it is not an object of a}
-            ~ q{ Muldis::DB::Literal::TypeInvo-doing class.}
+            ~ q{ Muldis::DB::Literal::_TypeInvo-doing class.}
         if !$decl_type.defined
-            or !$decl_type.does(Muldis::DB::Literal::TypeInvo);
+            or !$decl_type.does(Muldis::DB::Literal::_TypeInvo);
 
     my $var_eng = undef;
     try {
@@ -441,7 +441,7 @@ methods.
 
 Muldis::DB::Interface also provides the not-exportable wrapper subroutine
 C<Muldis::DB::new_dbms> for the C<Muldis::DB::Interface::DBMS> constructor,
-which has identical parameters, and exists solely as syntactic sugar. 
+which has identical parameters, and exists solely as syntactic sugar.
 Similarly, the C<DBMS> methods C<new_var> and C<prepare> exist purely as
 syntactic sugar over the C<HostGateVar> and C<HostGateRtn> constructors.
 I<TODO: Reimplement these as lexical aliases or compile-time macros
