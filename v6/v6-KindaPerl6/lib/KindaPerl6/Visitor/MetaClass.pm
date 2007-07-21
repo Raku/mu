@@ -40,13 +40,16 @@ class KindaPerl6::Visitor::MetaClass {
                         $metaclass := $trait[1];
                     }
                 };
-                push @$module, ::Call(
-                    'hyper'     => '',
-                    'arguments' => [
-                        ::Val::Buf( buf => $node.name ),  
-                    ],
-                    'method'   => 'new',
-                    'invocant' => ::Val::Buf( buf => $metaclass ),  
+                push @$module, ::Bind(
+                    'parameters' => ::Proto( 'name' => '$::' ~ $node.name ),  
+                    'arguments'  => ::Call(
+                        'hyper'     => '',
+                        'arguments' => [
+                            ::Val::Buf( buf => $node.name ),  
+                        ],
+                        'method'   => 'new',
+                        'invocant' => ::Val::Buf( buf => $metaclass ),  
+                    ),
                 );
             };
 

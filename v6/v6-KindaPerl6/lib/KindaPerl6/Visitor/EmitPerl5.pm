@@ -190,18 +190,17 @@ class Var {
 }
 
 class Bind {
+    #|| ( $.parameters.isa( 'Array' ) && @($.parameters.array) ) {    
     method emit_perl5 {
-        if   $.parameters.isa( 'Var' ) 
-          || ( $.parameters.isa( 'Array' ) && @($.parameters.array) ) {    
-              $.parameters.emit_perl5 ~ '->{_dispatch_VAR}( ' 
+        if $.parameters.isa( 'Var' ) {
+            return $.parameters.emit_perl5 ~ '->{_dispatch_VAR}( ' 
             ~ $.parameters.emit_perl5 
             ~ ', \'BIND\', ' 
             ~ $.arguments.emit_perl5 ~ ' )';
+        };
+        if $.parameters.isa( 'Proto' ) {
+            return $.parameters.emit_perl5 ~ ' = ' ~ $.arguments.emit_perl5;
         }
-        else {
-            ''
-        }
-        
     }
 }
 
