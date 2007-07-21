@@ -45,8 +45,8 @@ Muldis D (L<Muldis::DB::Literal>); 3. Providing a parser and generator of
 Concrete Muldis D (also L<Muldis::DB::Literal>); 4. Providing a complete
 public API for the Muldis DB virtual machine (L<Muldis::DB::Interface>); 5.
 Providing a complete but simple reference implementation of a Muldis DB
-Engine (L<Muldis::DB::Example>); 6. Providing a complete reusable test
-suite to help prove if any Engine implements Muldis D properly
+Engine (L<Muldis::DB::Engine::Example>); 6. Providing a complete reusable
+test suite to help prove if any Engine implements Muldis D properly
 (L<Muldis::DB::Validator>); 7. A test suite for parts of the aforementioned
 in isolation, particularly #s 2 and 4.  It is not expected that the core
 Muldis DB distribution would ever have any other substantial functionality,

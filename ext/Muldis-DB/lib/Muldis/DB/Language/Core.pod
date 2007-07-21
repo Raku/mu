@@ -211,20 +211,20 @@ values are non-negative / greater than or equal to zero.
 
 A C<PInt> (positive integer) is a proper subtype of C<UInt> where all
 member values are positive / greater than or equal to one.  Its default
-value is one.
+value is 1.
 
 =item C<sys.type.PInt2_36>
 
 A C<PInt2_36> is a proper subtype of C<PInt> where all member values are
 between 2 and 36.  (The significance of the number 36 is 10 digits plus 26
-letters.)  The cardinality of this type is 35.
+letters.)  Its default value is 2.  The cardinality of this type is 35.
 
 =item C<sys.type.Blob>
 
 A C<Blob> is an undifferentiated string of bits.  Its default value is the
 empty string.  The cardinality of this type is infinity; to define a
 most-generalized finite C<Blob> subtype, you must specify a maximum length
-in characters that the subtype's strings are.
+in bits that the subtype's strings are.
 
 =item C<sys.type.NEBlob>
 
@@ -403,8 +403,8 @@ These functions are applicable to values of any data type at all.
 
 =over
 
-=item C<sys.rtn.Universal.equal (RO: Some.Universal $v1, Some.Universal
-$v2)>
+=item C<sys.rtn.Universal.equal of Bool (RO: Some.Universal $v1,
+Some.Universal $v2)>
 
 This function results in C<Bool:true> iff its 2 arguments are exactly the
 same value, and C<Bool:false> otherwise.  This function's arguments must be
@@ -416,8 +416,8 @@ same headings; 3. at least one type is a generic (eg-C<Universal>) or
 incomplete (eg-C<Seq>) type, and it is a supertype of the other.  This
 function is commutative.
 
-=item C<sys.rtn.Universal.not_equal (RO: Some.Universal $v1, Some.Universal
-$v2)>
+=item C<sys.rtn.Universal.not_equal of Bool (RO: Some.Universal $v1,
+Some.Universal $v2)>
 
 This function is exactly the same as C<sys.rtn.Universal.equal> except that
 it results in the opposite boolean value when given the same arguments.
