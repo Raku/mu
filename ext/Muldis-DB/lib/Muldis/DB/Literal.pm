@@ -25,7 +25,7 @@ my $SCA_TYPE_PINT = ::Muldis::DB::Literal::TypeInvo.new(
 ###########################################################################
 ###########################################################################
 
-module Muldis::DB::Literal-0.1.0 {
+module Muldis::DB::Literal-0.2.0 {
     # Note: This given version applies to all of this file's packages.
 
 ###########################################################################
@@ -1821,7 +1821,7 @@ Abstract syntax tree for the Muldis D language
 
 =head1 VERSION
 
-This document describes Muldis::DB::Literal version 0.1.0 for Perl 6.
+This document describes Muldis::DB::Literal version 0.2.0 for Perl 6.
 
 It also describes the same-number versions for Perl 6 of [...].
 

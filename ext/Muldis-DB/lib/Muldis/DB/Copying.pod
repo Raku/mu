@@ -9,7 +9,7 @@ Matters of ownership, licensing, contributions
 
 =head1 VERSION
 
-This document is Muldis::DB::Copying version 0.1.0.
+This document is Muldis::DB::Copying version 0.2.0.
 
 =head1 DESCRIPTION
 

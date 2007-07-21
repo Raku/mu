@@ -9,7 +9,7 @@ External resources that you really ought to look at
 
 =head1 VERSION
 
-This document is Muldis::DB::SeeAlso version 0.1.0.
+This document is Muldis::DB::SeeAlso version 0.2.0.
 
 =head1 DESCRIPTION
 

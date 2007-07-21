@@ -9,7 +9,7 @@ Full-featured truly relational DBMS in Perl
 
 =head1 VERSION
 
-This document is Muldis::DB version 0.1.0.
+This document is Muldis::DB version 0.2.0.
 
 =head1 PREFACE
 

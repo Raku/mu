@@ -6,7 +6,7 @@ use Muldis::DB::Engine::Example::Operators;
 ###########################################################################
 ###########################################################################
 
-class Muldis::DB::Engine::Example-0.1.0 {
+class Muldis::DB::Engine::Example-0.2.0 {
     # Note: This given version applies to all of this file's packages.
 
     does Muldis::DB::Engine::Role;
@@ -167,7 +167,7 @@ Self-contained reference implementation of a Muldis::DB Engine
 
 =head1 VERSION
 
-This document describes Muldis::DB::Engine::Example version 0.1.0 for Perl
+This document describes Muldis::DB::Engine::Example version 0.2.0 for Perl
 6.
 
 =head1 SYNOPSIS
@@ -196,7 +196,7 @@ I<This documentation is pending.>
 This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
 It also requires these Perl 6 classes that are in the current distribution:
-L<Muldis::DB-0.1.0|Muldis::DB>.
+L<Muldis::DB::Interface-0.2.0|Muldis::DB::Interface>.
 
 =head1 INCOMPATIBILITIES
 

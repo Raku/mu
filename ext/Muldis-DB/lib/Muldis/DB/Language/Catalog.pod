@@ -9,7 +9,7 @@ The system catalog or meta-model of Muldis D
 
 =head1 VERSION
 
-This document is Muldis::DB::Language::Catalog version 0.1.0.
+This document is Muldis::DB::Language::Catalog version 0.2.0.
 
 =head1 PREFACE
 

@@ -9,7 +9,7 @@ Muldis D core data types and operators
 
 =head1 VERSION
 
-This document is Muldis::DB::Language::Core version 0.1.0.
+This document is Muldis::DB::Language::Core version 0.2.0.
 
 =head1 PREFACE
 
