@@ -34,13 +34,19 @@ class KindaPerl6::Visitor::MetaClass {
                 );
             }
             else {
+                my $metaclass := 'Class'
+                for @($node.traits) -> $trait {
+                    if $trait[0] eq 'meta' {
+                        $metaclass := $trait[1];
+                    }
+                };
                 push @$module, ::Call(
                     'hyper'     => '',
                     'arguments' => [
                         ::Val::Buf( buf => $node.name ),  
                     ],
                     'method'   => 'new',
-                    'invocant' => ::Val::Buf( buf => 'Class' ),  
+                    'invocant' => ::Val::Buf( buf => $metaclass ),  
                 );
             };
 
@@ -83,7 +89,11 @@ class KindaPerl6::Visitor::MetaClass {
                     ); 
                 }
                 else {
-                    die "unknown class trait: ", $trait[0];
+                    if $trait[0] eq 'meta' {
+                        # handled above
+                    } else {
+                        die "unknown class trait: ", $trait[0];
+                    }
                 };
                 };
             };

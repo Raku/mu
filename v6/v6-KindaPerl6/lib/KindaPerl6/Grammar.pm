@@ -76,7 +76,7 @@ token unit_type {
 };
 
 token trait_auxiliary {
-    is | does
+    is | does | meta
 };
 
 token class_trait {
