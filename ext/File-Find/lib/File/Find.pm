@@ -1,6 +1,6 @@
 use v6-alpha;
 
-module File::Find-6.0.0;
+class File::Find-6.0.0;
 
 use File::Spec;
 
