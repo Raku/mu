@@ -1,14 +1,29 @@
                                 Muldis::DB
 ---------------------------------------------------------------------------
 
-2007-07-20   Darren Duncan <perl@DarrenDuncan.net>
+2007-07-xx   Darren Duncan <perl@DarrenDuncan.net>
 
-    * Muldis::DB version 0.2.0 for Perl 5 is released on CPAN as
-    Muldis-DB-0.2.0.tar.gz.  Muldis::DB version 0.2.0 for Perl 6 is not
+    * Muldis::DB version 0.3.0 for Perl 5 is released on CPAN as
+    Muldis-DB-0.3.0.tar.gz.  Muldis::DB version 0.3.0 for Perl 6 is not
     released at this time, if ever, since it is currently released only as
     part of the Perl6-Pugs project (in its ext/Muldis-DB/ subdirectory),
     which sets its own less frequent release schedule.  The rest of this
     Changes entry refers only to the Perl 5 version.
+
+    * Updated Grammar.pod concerning '(Int|Blob):x:y' so that the 'x' is
+    now a single character in the same base as the 'y', rather than being a
+    possibly multi-character integer in base-10; moreover, the 'x' is now
+    equal to the highest value that a character may represent, which in the
+    base in question is 1 less than the base number.  So eg, base-2 is now
+    specified with an 'x' value of '1', base-10 is a '9', base-16 an 'F',
+    etc.  Also, the 'y' part for Int|Blob is no longer quote-delimited.
+
+2007-07-20   Darren Duncan <perl@DarrenDuncan.net>
+
+    * Muldis::DB version 0.2.0 for Perl 5 is released on CPAN as
+    Muldis-DB-0.2.0.tar.gz.  Muldis::DB version 0.2.0 for Perl 6 is not
+    released at all.  The rest of this Changes entry refers only to the
+    Perl 5 version.
 
     * Renamed AST.pm to Literal.pm, and split up DB.pm into DB.pod and
     Interface.pm.  Any code that used to be spelled Muldis::DB::AST or
