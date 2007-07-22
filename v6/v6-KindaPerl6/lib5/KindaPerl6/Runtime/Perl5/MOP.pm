@@ -303,8 +303,7 @@ $meta_Value->add_method( 'p5landish', $::Method->new( sub { $_[0]{_value} } ) );
 # -- FETCH is implemented in Object
 # $meta_Value->add_method( 'FETCH',        $::Method->new( sub { $_[0] } ) );
 
-$::Class->new('Str')
-  ;    #   $::Str, '$::Str',    $meta_Str, '$meta_Str',    'Str');
+$::Class->new('Str');
 my $meta_Str = $::Str->{_dispatch}( $::Str, 'HOW' );
 $meta_Str->add_parent($meta_Value);
 $meta_Str->add_method(
