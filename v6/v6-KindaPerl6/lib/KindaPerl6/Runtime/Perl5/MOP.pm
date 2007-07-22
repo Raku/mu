@@ -252,11 +252,7 @@ $meta_Class->add_method(
                 }
             });
 
-            $class_prototype = $self_meta->PROTOTYPE();
-
-            ${"::$class_name"} = $class_prototype
-              if $class_name;
-            $class_prototype;    # return the prototype
+            $self_meta;
         }
     )
 );
@@ -276,16 +272,16 @@ push @{ $meta_Object->{_isa} }, $meta_Class;
 
 #--- Roles
 
-$::Class->new('Role');
-my $meta_Role = $::Role->{_dispatch}( $::Role, 'HOW' );
+my $meta_Role = $::Class->new("Role");
+$::Role = $meta_Role->PROTOTYPE();
 
 # copy Class methods
 $meta_Role->{_value}{methods} = { %{ $meta_Class->{_value}{methods} } };
 
 #--- Values
 
-$::Class->new('Value');
-my $meta_Value = $::Value->{_dispatch}( $::Value, 'HOW' );
+my $meta_Value = $::Class->new("Value");
+$::Value = $meta_Value->PROTOTYPE();
 $meta_Value->add_method( 'p5landish', $::Method->new( sub { $_[0]{_value} } ) );
 
 # $meta_Value->add_method( 'IS_ARRAY',     $::Method->new( sub { 0 } ) );
@@ -294,8 +290,8 @@ $meta_Value->add_method( 'p5landish', $::Method->new( sub { $_[0]{_value} } ) );
 # -- FETCH is implemented in Object
 # $meta_Value->add_method( 'FETCH',        $::Method->new( sub { $_[0] } ) );
 
-$::Class->new('Str');
-my $meta_Str = $::Str->{_dispatch}( $::Str, 'HOW' );
+my $meta_Str = $::Class->new("Str");
+$::Str = $meta_Str->PROTOTYPE();
 $meta_Str->add_parent($meta_Value);
 $meta_Str->add_method(
     'perl',
@@ -315,8 +311,8 @@ $meta_Str->add_method(
 );
 # $meta_Str->add_method( 'p5landish', $::Method->new( sub { $_[0]{_value} } ) );
 
-$::Class->new('Int');
-my $meta_Int = $::Int->{_dispatch}( $::Int, 'HOW' );
+my $meta_Int = $::Class->new("Int");
+$::Int = $meta_Int->PROTOTYPE();
 $meta_Int->add_parent($meta_Value);
 $meta_Int->add_method( 'perl',
     $::Method->new( sub { my $v = $::Str->new( $_[0]{_value} ) } ) );
@@ -363,17 +359,17 @@ $meta_Object->add_method( 'STORE', $method_readonly );
 
 #--- back to Value
 
-$::Class->new('Undef');
-my $meta_Undef = $::Undef->{_dispatch}( $::Undef, 'HOW' );
+my $meta_Undef = $::Class->new("Undef");
+$::Undef = $meta_Undef->PROTOTYPE();
 $meta_Undef->add_parent($meta_Value);
 $meta_Undef->add_method( 'perl',
     $::Method->new( sub { my $v = $::Str->new('undef') } ) );
 $meta_Undef->add_method( 'str',
     $::Method->new( sub { my $v = $::Str->new('') } ) );
 
-$::Class->new('Bit');
+my $meta_Bit = $::Class->new("Bit");
 
-my $meta_Bit = $::Bit->{_dispatch}( $::Bit, 'HOW' );
+$::Bit = $meta_Bit->PROTOTYPE();
 $meta_Bit->add_parent($meta_Value);
 $meta_Bit->add_method(
     'perl',
@@ -388,8 +384,8 @@ $meta_Bit->add_method( 'true',
     $::Method->new( sub { $::Bit->new( $_[0]{_value} ) } ) );
 # $meta_Bit->add_method( 'p5landish', $::Method->new( sub { $_[0]{_value} } ) );
 
-$::Class->new('Code');
-my $meta_Code = $::Code->{_dispatch}( $::Code, 'HOW' );
+my $meta_Code = $::Class->new("Code");
+$::Code = $meta_Code->PROTOTYPE();
 $meta_Code->add_parent($meta_Value);
 $meta_Code->add_method( 'perl',
     $::Method->new( sub { my $v = $::Str->new( $_[0]{_value}{src} ) } ) );
@@ -398,8 +394,8 @@ $meta_Code->add_method( 'APPLY',
 
 #--- Containers
 
-$::Class->new('Container');
-my $meta_Container = $::Container->{_dispatch}( $::Container, 'HOW' );
+my $meta_Container = $::Class->new("Container");
+$::Container = $meta_Container->PROTOTYPE();
 
 # $meta_Container->add_method( 'IS_ARRAY',     $::Method->new( sub { 0 } ) );
 # $meta_Container->add_method( 'IS_HASH',      $::Method->new( sub { 0 } ) );
@@ -460,8 +456,8 @@ $meta_Container->add_method(
     )
 );
 
-$::Class->new('Scalar');
-my $meta_Scalar = $::Scalar->{_dispatch}( $::Scalar, 'HOW' );
+my $meta_Scalar = $::Class->new("Scalar");
+$::Scalar = $meta_Scalar->PROTOTYPE();
 $meta_Scalar->add_parent($meta_Container);
 $meta_Scalar->add_method(
     'new',
@@ -477,8 +473,8 @@ $meta_Scalar->add_method(
     )
 );
 
-$::Class->new('Routine');
-my $meta_Routine = $::Routine->{_dispatch}( $::Routine, 'HOW' );
+my $meta_Routine = $::Class->new("Routine");
+$::Routine = $meta_Routine->PROTOTYPE();
 $meta_Routine->add_parent($meta_Container);
 $meta_Routine->add_method( 'STORE', $method_readonly );
 $meta_Routine->add_method(
