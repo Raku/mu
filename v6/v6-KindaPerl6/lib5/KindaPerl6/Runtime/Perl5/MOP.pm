@@ -225,43 +225,34 @@ $meta_Class->add_method(
 
             my $class_name = ref( $_[1] ) ? $_[1]{_value} : $_[1];
 
-            #print "Creating Class: $class_name\n";
-            #print Dumper(\@_);
-            my $self_meta;
-            my $self;
-            my $class_prototype;
 
-            $self_meta = sugar {
+            my $self_meta = sugar {
                 %::PROTO,
 
-                  # _name     => '$self_meta',
                   _value => {
 
-                    #isa => [ $meta_Object ],
                     class_name => $class_name,
                   },
                   _isa => [$meta_Class],
             };
-            $self = sugar {
-                %::PROTO,
-
-                  # _name     => '$self',
-                  _isa => [$self_meta],
-            };
             $self_meta->{_value}{methods}{WHAT} = $::Method->new(
                 sub {
 
-                    #print "WHAT: ",Dumper($self->{_value});
-                    #print "WHAT: ", $self->{_isa}[0]{_value}{class_name}, "\n";
                     $self;
                 }
             );
             $self_meta->{_value}{methods}{HOW} =
               $::Method->new( sub { $self_meta } );
 
-            # ???
-            # create the "prototype", which is an 'empty' instance
-            $class_prototype = $self->new( () );
+            $self_meta->{_methods}{PROTOTYPE} =
+              $::Method->new( sub {  
+                $self = sugar {
+                  %::PROTO,
+                  _isa => [$self_meta],
+                }
+            });
+
+            $class_prototype = $self_meta->PROTOTYPE();
 
             ${"::$class_name"} = $class_prototype
               if $class_name;
@@ -372,8 +363,7 @@ $meta_Object->add_method( 'STORE', $method_readonly );
 
 #--- back to Value
 
-$::Class->new('Undef')
-  ;    #   $::Undef, '$::Undef',    $meta_Undef, '$meta_Undef',    'Undef');
+$::Class->new('Undef');
 my $meta_Undef = $::Undef->{_dispatch}( $::Undef, 'HOW' );
 $meta_Undef->add_parent($meta_Value);
 $meta_Undef->add_method( 'perl',
