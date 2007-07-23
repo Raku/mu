@@ -11,4 +11,6 @@ module Main {
     my $foo = Foo.new();
     $foo.thing = 1;
     $foo.ok1();
+    $foo.thing = $foo.thing + 1;
+    $foo.ok1();
 }

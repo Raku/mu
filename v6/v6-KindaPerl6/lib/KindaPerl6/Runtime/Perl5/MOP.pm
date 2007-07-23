@@ -229,7 +229,25 @@ $meta_Class->add_method(
             my $meth_name = ref( $_[1] ) ? $_[1]{_value} : $_[1];
             $_[0]{_value}{attributes}{$meth_name} = sub { 1 };  # TODO ???
             #$_[0]{_value}{methods}{$meth_name} = sub : lvalue { $_[0]{_value}{$meth_name} };
-            $_[0]->add_method( $meth_name, $::Method->new( sub : lvalue { $_[0]{_value}{$meth_name} } ) );
+            $_[0]->add_method( 
+                $meth_name, 
+                $::Method->new( 
+                    sub : lvalue { 
+                        #print "accessing attribute $meth_name\n";
+                        
+                        # XXX - when is the right time to initialize attributes?
+                        $_[0]{_value}{$meth_name} = 
+                          $::Scalar->{_dispatch}( $::Scalar, 'new',
+                            { 
+                                modified => $_MODIFIED, 
+                                name => '...',    # XXX name??? - get name from 'self'
+                            } )
+                          unless defined $_[0]{_value}{$meth_name};
+                        
+                        $_[0]{_value}{$meth_name};
+                    } 
+                ) 
+            );
         }
     )
 );
