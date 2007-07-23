@@ -98,6 +98,7 @@ package GLOBAL;
         sleep
         True
         False
+        substr
 
         ternary_58__60__63__63__32__33__33__62_
         
@@ -109,6 +110,7 @@ package GLOBAL;
         infix_58__60__124__124__62_
         infix_58__60__126__62_
         infix_58__60__43__62_
+        infix_58__60__45__62_
         
         prefix_58__60__64__62_        
         prefix_58__60__43__43__62_
@@ -123,9 +125,11 @@ package GLOBAL;
 
     sub init_global {
         # print "Init GLOBAL\n";
-        ${"GLOBAL::Code_$_"} = $::Code->{_dispatch}( $::Code, 'new', 
-            { code => ${"GLOBAL::Code_$_"}, src => '&GLOBAL::'.$_ } ) 
-            for @EXPORT;
+        for ( @EXPORT ) {
+            #print "Init \$GLOBAL::Code_$_ \n";
+            ${"GLOBAL::Code_$_"} = $::Code->{_dispatch}( $::Code, 'new', 
+                { code => ${"GLOBAL::Code_$_"}, src => '&GLOBAL::'.$_ } ); 
+        }
     }
 
     # XXX - obsolete - GLOBAL is looked up at compile-time
@@ -172,8 +176,12 @@ package GLOBAL;
     sub TODO {confess("TODO");}
 
     # TODO - macro
-    sub ternary_58__60__63__63__32__33__33__62_ { $_[0]->{_dispatch}( $_[0], 'true' )->{_value} ? $_[1] : $_[2] }
-        #  ternary:<?? !!>
+    #  ternary:<?? !!>
+    sub ternary_58__60__63__63__32__33__33__62_ { 
+        #print "ternary: ",caller(2), " $#_ $_[0], $_[1]\n";
+        #print $_[0]->{_dispatch}( $_[0], 'true' );
+        $_[0]->{_dispatch}( $_[0], 'true' )->{_value} ? $_[1] : $_[2] 
+    }
     
     # TODO - macro
     sub infix_58__60__38__38__62_   { true($_[0]) && true($_[1]) && $_[1] }
@@ -195,6 +203,16 @@ package GLOBAL;
     { $::Str->{_dispatch}( $::Str, 'new', _str( $_[0] ) . _str( $_[1] ) ) }  # infix:<~>
     sub infix_58__60__43__62_       
     { $::Int->{_dispatch}( $::Int, 'new', _int( $_[0] ) + _int( $_[1] ) ) }  # infix:<+>
+    sub infix_58__60__45__62_       
+    { $::Int->{_dispatch}( $::Int, 'new', _int( $_[0] ) - _int( $_[1] ) ) }  # infix:<->
+
+    sub substr      
+    { $::Str->{_dispatch}( $::Str, 'new', 
+            substr( 
+                _str( $_[0] ), _int( $_[1] ), _int( $_[2] ), _str( $_[3] ) 
+            )
+        ) 
+    }  
 
     # ???
     sub prefix_58__60__64__62_      { TODO(); @{$_[0]} }        # prefix:<@>
