@@ -178,8 +178,8 @@ package GLOBAL;
     # TODO - macro
     #  ternary:<?? !!>
     sub ternary_58__60__63__63__32__33__33__62_ { 
-        print "ternary: ",caller(2), " $#_ $_[0], $_[1]\n";
-        print $_[0]->{_dispatch}( $_[0], 'true' );
+        #print "ternary: ",caller(2), " $#_ $_[0], $_[1]\n";
+        #print $_[0]->{_dispatch}( $_[0], 'true' );
         $_[0]->{_dispatch}( $_[0], 'true' )->{_value} ? $_[1] : $_[2] 
     }
     
@@ -207,11 +207,29 @@ package GLOBAL;
     { $::Int->{_dispatch}( $::Int, 'new', _int( $_[0] ) - _int( $_[1] ) ) }  # infix:<->
 
     sub substr      
-    { $::Str->{_dispatch}( $::Str, 'new', 
-            substr( 
-                _str( $_[0] ), _int( $_[1] ), _int( $_[2] ), _str( $_[3] ) 
-            )
-        ) 
+    { 
+        if ( $#_ == 1 ) {
+            return $::Str->{_dispatch}( $::Str, 'new', 
+                substr( 
+                    _str( $_[0] ), _int( $_[1] ) 
+                )
+            ) 
+        }
+        if ( $#_ == 2 ) {
+            return $::Str->{_dispatch}( $::Str, 'new', 
+                substr( 
+                    _str( $_[0] ), _int( $_[1] ), _int( $_[2] ) 
+                )
+            ) 
+        }
+        if ( $#_ == 3 ) {
+            return $::Str->{_dispatch}( $::Str, 'new', 
+                substr( 
+                    _str( $_[0] ), _int( $_[1] ), _int( $_[2] ), _str( $_[3] ) 
+                )
+            ) 
+        }
+        die "Not enough arguments for substr";
     }  
 
     # ???

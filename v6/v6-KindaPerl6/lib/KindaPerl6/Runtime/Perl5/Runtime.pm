@@ -207,11 +207,29 @@ package GLOBAL;
     { $::Int->{_dispatch}( $::Int, 'new', _int( $_[0] ) - _int( $_[1] ) ) }  # infix:<->
 
     sub substr      
-    { $::Str->{_dispatch}( $::Str, 'new', 
-            substr( 
-                _str( $_[0] ), _int( $_[1] ), _int( $_[2] ), _str( $_[3] ) 
-            )
-        ) 
+    { 
+        if ( $#_ == 1 ) {
+            return $::Str->{_dispatch}( $::Str, 'new', 
+                substr( 
+                    _str( $_[0] ), _int( $_[1] ) 
+                )
+            ) 
+        }
+        if ( $#_ == 2 ) {
+            return $::Str->{_dispatch}( $::Str, 'new', 
+                substr( 
+                    _str( $_[0] ), _int( $_[1] ), _int( $_[2] ) 
+                )
+            ) 
+        }
+        if ( $#_ == 3 ) {
+            return $::Str->{_dispatch}( $::Str, 'new', 
+                substr( 
+                    _str( $_[0] ), _int( $_[1] ), _int( $_[2] ), _str( $_[3] ) 
+                )
+            ) 
+        }
+        die "Not enough arguments for substr";
     }  
 
     # ???
