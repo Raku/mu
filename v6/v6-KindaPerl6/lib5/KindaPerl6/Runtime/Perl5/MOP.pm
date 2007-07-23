@@ -77,6 +77,7 @@ my $dispatch = sub {
       if exists $self->{_methods}{$method_name};
 
     # lookup method in the metaclass
+    #print "# lookup '$method_name' in Class '", $self->{_isa}[0]{_value}{class_name}, "'\n";
     for my $parent ( @{ $self->{_isa} }, $meta_Object ) {
         my $m = get_method_from_metaclass( $parent, $method_name );
 
@@ -85,8 +86,7 @@ my $dispatch = sub {
         return $m->{_value}->( $self, @_ )
           if $m;
     }
-    print "in Class: ", $self->{_isa}[0]{_value}{class_name}, "\n";
-    die "no method: $method_name\n";
+    die "no method '$method_name' in Class '", $self->{_isa}[0]{_value}{class_name}, "'\n";
 };
 
 # backwards compatibility - remove !!!
@@ -119,7 +119,7 @@ my $dispatch_VAR = sub {
 
     # _modified => undef,
     # _name     => '',
-    _value    => undef,       # whatever
+    _value    => undef,       # whatever | %attributes
     _isa      => undef,       # array
     _dispatch => $dispatch,
 );
@@ -205,6 +205,31 @@ $meta_Class->add_method(
         sub {
             my $meth_name = ref( $_[1] ) ? $_[1]{_value} : $_[1];
             $_[0]{_value}{methods}{$meth_name} = $_[2];
+        }
+    )
+);
+
+$meta_Class->add_method(
+    'add_role',
+    $::Method->new(
+        sub {
+            my $meth_name = ref( $_[1] ) ? $_[1]{_value} : $_[1];
+            warn "redefining role $_[0]{_value}{class_name}.$meth_name"
+              if exists $_[0]{_value}{roles}{$meth_name};
+            $_[0]{_value}{roles}{$meth_name} = $_[2];
+        }
+    )
+);
+
+# TODO - "get attributes" ???
+$meta_Class->add_method(
+    'add_attribute',
+    $::Method->new(
+        sub {
+            my $meth_name = ref( $_[1] ) ? $_[1]{_value} : $_[1];
+            $_[0]{_value}{attributes}{$meth_name} = sub { 1 };  # TODO ???
+            #$_[0]{_value}{methods}{$meth_name} = sub : lvalue { $_[0]{_value}{$meth_name} };
+            $_[0]->add_method( $meth_name, $::Method->new( sub : lvalue { $_[0]{_value}{$meth_name} } ) );
         }
     )
 );
