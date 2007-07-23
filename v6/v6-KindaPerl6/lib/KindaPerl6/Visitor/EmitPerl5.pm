@@ -222,7 +222,14 @@ class Call {
         }
         else {
         if $.invocant.isa( 'Proto' ) {
-            $invocant := '$::' ~ $.invocant.emit_perl5;
+
+            if $.invocant.name eq 'self' {
+                $invocant := '$self';
+            }
+            else {
+                $invocant := '$::' ~ $.invocant.emit_perl5;
+            }
+            
         }
         else {
             $invocant := $.invocant.emit_perl5;
