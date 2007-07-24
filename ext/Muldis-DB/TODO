@@ -14,8 +14,7 @@ table for these items; they are simply to be done "as soon as possible".
 the progress is non-trivial, so there are regular public snapshots with
 nicely rendered documentation.
 
-* Flesh out the specs for (in Language.pod), and implement (in the Example
-Engine), the Muldis D metamodel, that is, the catalog.  This is the main
+* Implement the Muldis D metamodel, that is, the catalog.  This is the main
 prerequisite for doing anything moderately more complex than what has
 already been done, including the support for user-defined data types,
 stored routines, constraints, virtual variables, and persisting databases.
@@ -33,9 +32,6 @@ other Engine distributions.  Note that the core test suite should execute
 in the above given order, so consider renaming the Validate Example test to
 a higher number than 50 to make more room for others, such as to 80 or 90
 or 99.
-
-* Update Language.pod to flesh out the list of system-defined operators,
-including type selectors, that Muldis D includes.
 
 * Update Literal.pm and Interface.pm to flesh out the descriptions of the
 classes and class methods that they provide.

@@ -47,11 +47,10 @@ this distribution, I recommend doing so in this order:
    4. (opt) lib/Muldis/DB/Copying.pod
    5.       lib/Muldis/DB/Interface.pm
    6.       lib/Muldis/DB/Literal.pm
-   7.       lib/Muldis/DB/Language.pod
-   8. (opt) lib/Muldis/DB/Validator.pm
-   9. (opt) lib/Muldis/DB/Engine/Example.pm
-  10.       lib/Muldis/DB/SeeAlso.pod
-  11. (opt) TODO
+   7. (opt) lib/Muldis/DB/Validator.pm
+   8. (opt) lib/Muldis/DB/Engine/Example.pm
+   9.       lib/Muldis/DB/SeeAlso.pod
+  10. (opt) TODO
 
 Then you can carry on with anything else.
 
