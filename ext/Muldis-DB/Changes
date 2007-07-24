@@ -1,7 +1,7 @@
                                 Muldis::DB
 ---------------------------------------------------------------------------
 
-2007-07-xx   Darren Duncan <perl@DarrenDuncan.net>
+2007-07-24   Darren Duncan <perl@DarrenDuncan.net>
 
     * Muldis::DB version 0.3.0 for Perl 5 is released on CPAN as
     Muldis-DB-0.3.0.tar.gz.  Muldis::DB version 0.3.0 for Perl 6 is not
@@ -52,8 +52,8 @@
     * Muldis::DB version 0.2.0 for Perl 5 is released on CPAN as
     Muldis-DB-0.2.0.tar.gz.  Muldis::DB version 0.2.0 for Perl 6 is not
     released at all.  The rest of this Changes entry refers only to the
-    portion of the Perl 5 version that remained in this distribution
-    following the split-off of Language-MuldisD following release 0.2.0.
+    Perl 5 version, specifically the portions that were not split-off into
+    Language-MuldisD following release 0.2.0.
 
     * Renamed AST.pm to Literal.pm, and split up DB.pm into DB.pod and
     Interface.pm.  Any code that used to be spelled Muldis::DB::AST or
@@ -80,8 +80,8 @@
     * Muldis::DB version 0.1.0 for Perl 5 is released on CPAN as
     Muldis-DB-0.1.0.tar.gz.  Muldis::DB version 0.1.0 for Perl 6 is not
     released at all.  The rest of this Changes entry refers only to the
-    portion of the Perl 5 version that remained in this distribution
-    following the split-off of Language-MuldisD following release 0.2.0.
+    Perl 5 version, specifically the portions that were not split-off into
+    Language-MuldisD following release 0.2.0.
 
     * This is a major release that focuses on overhauling or defining part
     of the Muldis D meta-model / system catalog, which is essential for
@@ -119,8 +119,8 @@
     * Muldis::DB version 0.0.1 for Perl 5 is released on CPAN as
     Muldis-DB-0.0.1.tar.gz.  Muldis::DB version 0.0.1 for Perl 6 is not
     released at all.  The rest of this Changes entry refers only to the
-    portion of the Perl 5 version that remained in this distribution
-    following the split-off of Language-MuldisD following release 0.2.0.
+    Perl 5 version, specifically the portions that were not split-off into
+    Language-MuldisD following release 0.2.0.
 
     * New code file versions are: DB.pm and AST.pm and Validator.pm and
     Example.pm 0.0.1.
@@ -146,8 +146,8 @@
     * Muldis::DB version 0.0.0 for Perl 5 is released on CPAN as
     Muldis-DB-0.0.0.tar.gz.  Muldis::DB version 0.0.0 for Perl 6 is not
     released at all.  The rest of this Changes entry refers only to the
-    portion of the Perl 5 version that remained in this distribution
-    following the split-off of Language-MuldisD following release 0.2.0.
+    Perl 5 version, specifically the portions that were not split-off into
+    Language-MuldisD following release 0.2.0.
 
     * This is the first release of the Perl 5 Muldis-DB distribution, and
     the first release of any distribution to contain Perl 5 modules named
