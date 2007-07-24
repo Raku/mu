@@ -3,7 +3,7 @@ use v6-alpha;
 ###########################################################################
 ###########################################################################
 
-module Muldis::DB::Engine::Example::Operators-0.2.0 {
+module Muldis::DB::Engine::Example::Operators-0.3.0 {
 
     use Muldis::DB::Engine::Example::PhysType <ptBool ptOrder ptInt
         ptBlob ptText ptTuple ptQuasiTuple ptRelation ptQuasiRelation
@@ -127,7 +127,7 @@ Implementations of all core Muldis D system-defined operators
 =head1 VERSION
 
 This document describes Muldis::DB::Engine::Example::Operators version
-0.2.0 for Perl 6.
+0.3.0 for Perl 6.
 
 =head1 DESCRIPTION
 
@@ -136,7 +136,7 @@ intended to be used directly in user code.
 
 It provides implementations of all core Muldis D system-defined operators,
 and their API is designed to exactly match the operator definitions in
-L<Muldis::DB::Language>.
+L<Language::MuldisD>.
 
 Specifically, this file implements the core system-defined operators that
 all Muldis D implementations must have, which is the selectors for and

@@ -9,7 +9,7 @@ Full-featured truly relational DBMS in Perl
 
 =head1 VERSION
 
-This document is Muldis::DB version 0.2.0.
+This document is Muldis::DB version 0.3.0.
 
 =head1 PREFACE
 
@@ -36,29 +36,31 @@ as an abstract blueprint for the design of a DBMS and the language
 interface to such a DBMS.  The main web site for I<TTM> is
 L<http://www.thethirdmanifesto.com/>, and its authors have also written
 several books and papers and taught classes on the subject over the last
-35+ years, along with Codd himself (some are listed in the
-L<Muldis::DB::SeeAlso> documentation file).  Note that the Muldis::DB
-documentation will be focusing mainly on how Muldis::DB itself works, and
-will not spend much time in providing rationale; you can read I<TTM> itself
-and various other external documentation for much of that.
+35+ years, along with Codd himself (some are listed in the separately
+distributed L<Language::MuldisD::SeeAlso> documentation file).  Note that
+the Muldis::DB documentation will be focusing mainly on how Muldis::DB
+itself works, and will not spend much time in providing rationale; you can
+read I<TTM> itself and various other external documentation for much of
+that.
 
 The Muldis::DB Native Interface is defined mainly in terms of a new
 high-level programming language named "Muldis D", which is computationally
 complete (and industrial strength) and has fully integrated database
 functionality; this language, which satisfies I<TTM>'s definition of a
-"B<D>" language, is described fully in the L<Muldis::DB::Language>
-documentation file that comes with this "Muldis::DB" distribution.
+"B<D>" language, is described fully in the L<Language::MuldisD>
+documentation file that is distributed separately.
 
 While it is possible that one could write a self-contained application in
 Muldis D and compile that into its own executable, in practice one would
 normally just write some components of their application in Muldis D (as
 either named modules or anonymous routines) and write the rest of the
 application in their other language(s) of choice.  Assuming the main
-application is written in Perl, it is this "Muldis::DB" file which provides
-the glue between your Perl code and your Muldis D code; "Muldis::DB"
-implements a virtual machine that is embedded in your Perl application and
-in which the Muldis D code runs (it is analogous to the Perl interpreter
-itself, which provides a virtual machine in which Perl code runs).
+application is written in Perl, it is the L<Muldis::DB::Interface> file
+which provides the glue between your Perl code and your Muldis D code;
+"Muldis::DB::Interface" implements a virtual machine that is embedded in
+your Perl application and in which the Muldis D code runs (it is analogous
+to the Perl interpreter itself, which provides a virtual machine in which
+Perl code runs).
 
 The classes and methods of L<Muldis::DB::Interface>, together with those of
 L<Muldis::DB::Literal>, define the balance of the Muldis::DB Native
@@ -178,8 +180,8 @@ which implements this test suite.
 
 =head1 SEE ALSO
 
-These documentation files are included in the Muldis::DB distribution:
-L<Muldis::DB::Language>.
+The separate all-documentation distribution L<Language::MuldisD> is the
+formal definition of the Muldis D language which Muldis::DB is based on.
 
 The Perl module L<Muldis::DB::Validator> is bundled with Muldis::DB and can
 be used to test Muldis::DB Engines.
@@ -259,9 +261,11 @@ None yet.
 
 =head1 FORUMS
 
-Several public email-based forums for Muldis::DB now exist, all of which
-you can reach via L<http://mm.DarrenDuncan.net/mailman/listinfo>; go there
-to manage your subscriptions to, or view the archives of, the following:
+Several public email-based forums exist whose main topic is all
+implementations of the Muldis D language, especially the L<Muldis::DB>
+project, which they are named for.  All of these you can reach via
+L<http://mm.DarrenDuncan.net/mailman/listinfo>; go there to manage your
+subscriptions to, or view the archives of, the following:
 
 =over
 
@@ -293,7 +297,8 @@ in using said.
 An official IRC channel for Muldis::DB is also intended, but not yet
 started.
 
-Alternately, you can purchase more advanced commercial support for
-Muldis::DB from its author; contact C<perl@DarrenDuncan.net> for details.
+Alternately, you can purchase more advanced commercial support for various
+Muldis D implementations, particularly Muldis::DB, from its author; contact
+C<perl@DarrenDuncan.net> for details.
 
 =cut
