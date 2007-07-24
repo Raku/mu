@@ -15,8 +15,13 @@
           $::Scalar->{_dispatch}( $::Scalar, "new",
             { modified => $_MODIFIED, name => "$_" } );
     }
-    $::Class->{_dispatch}( $::Class, 'new',
-        $::Str->{_dispatch}( $::Str, 'new', 'Match' ) );
+    $::Match =
+      $::Class->{_dispatch}( $::Class, 'new',
+        $::Str->{_dispatch}( $::Str, 'new', 'Match' ) )->{_dispatch}(
+        $::Class->{_dispatch}( $::Class, 'new',
+            $::Str->{_dispatch}( $::Str, 'new', 'Match' ) ),
+        'PROTOTYPE',
+        );
     $::Match->{_dispatch}( $::Match, 'HOW', )->{_dispatch}(
         $::Match->{_dispatch}( $::Match, 'HOW', ),
         'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'from' )
@@ -59,17 +64,17 @@
                   ->{_dispatch}(
                     $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
                     'APPLY',
-                    $::self->{_dispatch}( $::self, 'bool', ),
+                    $self->{_dispatch}( $self, 'bool', ),
                     $GLOBAL::Code_substr->{_dispatch}(
                         $GLOBAL::Code_substr,
                         'APPLY',
-                        $::self->{_dispatch}( $::self, 'match_str', ),
-                        $::self->{_dispatch}( $::self, 'from', ),
+                        $self->{_dispatch}( $self, 'match_str', ),
+                        $self->{_dispatch}( $self, 'from', ),
                         $GLOBAL::Code_infix_58__60__45__62_->{_dispatch}(
                             $GLOBAL::Code_infix_58__60__45__62_,
                             'APPLY',
-                            $::self->{_dispatch}( $::self, 'to', ),
-                            $::self->{_dispatch}( $::self, 'from', )
+                            $self->{_dispatch}( $self, 'to', ),
+                            $self->{_dispatch}( $self, 'from', )
                         )
                     ),
                     $::Undef
@@ -97,8 +102,15 @@
           $::Scalar->{_dispatch}( $::Scalar, "new",
             { modified => $_MODIFIED, name => "$_" } );
     }
-    $::Class->{_dispatch}( $::Class, 'new',
-        $::Str->{_dispatch}( $::Str, 'new', 'Signature' ) );
+    $::Signature =
+      $::Class->{_dispatch}( $::Class, 'new',
+        $::Str->{_dispatch}( $::Str, 'new', 'Signature' ) )->{_dispatch}(
+        $::Class->{_dispatch}(
+            $::Class, 'new',
+            $::Str->{_dispatch}( $::Str, 'new', 'Signature' )
+        ),
+        'PROTOTYPE',
+        );
     $::Signature->{_dispatch}( $::Signature, 'HOW', )->{_dispatch}(
         $::Signature->{_dispatch}( $::Signature, 'HOW', ),
         'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'invocant' )
@@ -135,8 +147,13 @@
           $::Scalar->{_dispatch}( $::Scalar, "new",
             { modified => $_MODIFIED, name => "$_" } );
     }
-    $::Class->{_dispatch}( $::Class, 'new',
-        $::Str->{_dispatch}( $::Str, 'new', 'Capture' ) );
+    $::Capture =
+      $::Class->{_dispatch}( $::Class, 'new',
+        $::Str->{_dispatch}( $::Str, 'new', 'Capture' ) )->{_dispatch}(
+        $::Class->{_dispatch}( $::Class, 'new',
+            $::Str->{_dispatch}( $::Str, 'new', 'Capture' ) ),
+        'PROTOTYPE',
+        );
     $::Capture->{_dispatch}( $::Capture, 'HOW', )->{_dispatch}(
         $::Capture->{_dispatch}( $::Capture, 'HOW', ),
         'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'invocant' )
@@ -169,8 +186,13 @@
           $::Scalar->{_dispatch}( $::Scalar, "new",
             { modified => $_MODIFIED, name => "$_" } );
     }
-    $::Class->{_dispatch}( $::Class, 'new',
-        $::Str->{_dispatch}( $::Str, 'new', 'Scalar' ) );
+    $::Scalar =
+      $::Class->{_dispatch}( $::Class, 'new',
+        $::Str->{_dispatch}( $::Str, 'new', 'Scalar' ) )->{_dispatch}(
+        $::Class->{_dispatch}( $::Class, 'new',
+            $::Str->{_dispatch}( $::Str, 'new', 'Scalar' ) ),
+        'PROTOTYPE',
+        );
     $::Scalar->{_dispatch}( $::Scalar, 'HOW', )->{_dispatch}(
         $::Scalar->{_dispatch}( $::Scalar, 'HOW', ),
         'add_role', $::Str->{_dispatch}( $::Str, 'new', 'Container' )
@@ -199,8 +221,13 @@
           $::Scalar->{_dispatch}( $::Scalar, "new",
             { modified => $_MODIFIED, name => "$_" } );
     }
-    $::Class->{_dispatch}( $::Class, 'new',
-        $::Str->{_dispatch}( $::Str, 'new', 'Array' ) );
+    $::Array =
+      $::Class->{_dispatch}( $::Class, 'new',
+        $::Str->{_dispatch}( $::Str, 'new', 'Array' ) )->{_dispatch}(
+        $::Class->{_dispatch}( $::Class, 'new',
+            $::Str->{_dispatch}( $::Str, 'new', 'Array' ) ),
+        'PROTOTYPE',
+        );
     $::Array->{_dispatch}( $::Array, 'HOW', )->{_dispatch}(
         $::Array->{_dispatch}( $::Array, 'HOW', ),
         'add_role', $::Str->{_dispatch}( $::Str, 'new', 'Container' )
@@ -229,8 +256,13 @@
           $::Scalar->{_dispatch}( $::Scalar, "new",
             { modified => $_MODIFIED, name => "$_" } );
     }
-    $::Class->{_dispatch}( $::Class, 'new',
-        $::Str->{_dispatch}( $::Str, 'new', 'Hash' ) );
+    $::Hash =
+      $::Class->{_dispatch}( $::Class, 'new',
+        $::Str->{_dispatch}( $::Str, 'new', 'Hash' ) )->{_dispatch}(
+        $::Class->{_dispatch}( $::Class, 'new',
+            $::Str->{_dispatch}( $::Str, 'new', 'Hash' ) ),
+        'PROTOTYPE',
+        );
     $::Hash->{_dispatch}( $::Hash, 'HOW', )->{_dispatch}(
         $::Hash->{_dispatch}( $::Hash, 'HOW', ),
         'add_role', $::Str->{_dispatch}( $::Str, 'new', 'Container' )

@@ -233,6 +233,8 @@ $meta_Class->add_method(
                 $meth_name, 
                 $::Method->new( 
                     sub : lvalue { 
+                        # lvalue is not needed, because we use .STORE() instead
+                        
                         #print "accessing attribute $meth_name\n";
                         
                         # XXX - when is the right time to initialize attributes?
