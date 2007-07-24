@@ -10,7 +10,7 @@ think about.
 
 Unfortunately, this doesn't put literal newlines in the output. There's a
 bug in any(The Haskell Report, sec. 2.6; GHC; my understanding) regarding
-strings with gaps, when beteween the gaps there is an empty line. Fixes
+strings with gaps, when between the gaps there is an empty line. Fixes
 welcome :-)
 
 -}
