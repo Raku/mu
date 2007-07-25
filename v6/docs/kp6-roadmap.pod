@@ -304,7 +304,7 @@ The Sub and Method classes will be able to do multi-dispatch.
 
 =head3 Status
 
-under planning.
+under implementation.
 
 =head3 Dependencies
 
