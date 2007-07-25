@@ -11,7 +11,6 @@ use SVN::Core;
 use SVN::Client;
 use SVN::Ra;
 use YAML ();
-use Template;
 use File::Spec;
 
 my %repos = ();
@@ -41,6 +40,29 @@ sub before_configure {
     my ($self,$confname) = @_;
 	%repos = ();
 	%repos_open = ();
+}
+
+sub interpolate_template {
+    my ($self,$templateVars,$templateFileName) = @_;
+    open TEMPLATE_FILE, '<'.$templateFileName or
+        die "Unable to open $templateFileName for reading: $!\n";
+    my @templateLines = <>;
+    chomp @templateLines;
+    close TEMPLATE_FILE;
+    my @processedTemplateLines = ();
+    TEMPLATE_LINE: foreach my $line (@templateLines) {
+        if ($line =~ /\$message/) {
+            my @messageLines = split /\n/, $tempateVars->{message};
+            foreach $messageLine (@messageLines) {
+                my $newLine = $line;
+                $newLine =~ s/\$message/$messageLine/;
+                push @processedTemplateLines, $newLine;
+            }
+            next TEMPLATE_LINE;
+        }
+        $line =~ s/\$(username|revision|rootdir)/$templateVars->{$1}/eg;
+        push @processedTemplateLines, $line;
+    }
 }
 
 sub check_repo {
