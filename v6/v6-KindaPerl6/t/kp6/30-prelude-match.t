@@ -34,6 +34,9 @@ module Main {
     say "ok ", $m.from, " - accessor";
 
     $m.from = 2;
+    $m.to   = 4;
+    $m.bool = 1;
+    $m.match_str = 'abcdef';
 
     if $m.from == 2 {
         say "ok 2 - accessor";
