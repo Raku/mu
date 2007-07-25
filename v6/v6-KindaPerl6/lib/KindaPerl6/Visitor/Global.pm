@@ -48,9 +48,17 @@ class KindaPerl6::Visitor::Global {
             
                 # TODO - lookup into the GLOBAL namespace; die if undeclared there
             
-                # warn "undeclared variable: ", $node.sigil, $node.twigil, $node.name;
+                #warn "undeclared variable: [", $node.sigil, ':', $node.twigil, ':', $node.name, ']';
                 
-                $node.name( 'GLOBAL::' ~ $node.name );
+                if     ($node.name eq '/')
+                    || ($node.name eq '_')
+                {
+                    # don't modify special vars (yet?)
+                    #warn "special variable: ", $node.sigil, ':', $node.twigil, ':', $node.name;
+                }
+                else {                  
+                    $node.name( 'GLOBAL::' ~ $node.name );
+                }
             }
             return $node;                    
         };
