@@ -18,7 +18,7 @@ class Match {
 module Main {
 
     # XXX - Prelude loading should be automatic
-    #use KindaPerl6::Runtime::Perl6::Prelude;
+    use KindaPerl6::Runtime::Perl6::Prelude;
 
     say '1..2';
 

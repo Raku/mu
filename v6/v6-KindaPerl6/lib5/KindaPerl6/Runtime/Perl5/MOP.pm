@@ -8,6 +8,8 @@ package KindaPerl6::Runtime::Perl5::MOP;
 use KindaPerl6::Runtime::Perl5::DispatchSugar;
 use Data::Dumper;
 
+#print "# Initializing MOP.pm\n";
+
 {
 
     package P6opaque;

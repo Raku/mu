@@ -6,6 +6,8 @@
 # $ perl kp6-perl5.pl < lib/KindaPerl6/Runtime/Perl6/Prelude.pm | perltidy > lib5/KindaPerl6/Runtime/Perl6/Prelude.pm
 #
 
+#class Main { say "# Initializing Perl6::Prelude.pm" }
+
 class Match {
     has $.from;
     has $.to;
@@ -37,15 +39,15 @@ class Capture {
 }
 
 # XXX "does Container" ???
-class Scalar does Container {
-    has $.value;
-}
+#class Scalar does Container {
+#    has $.value;
+#}
 
-class Array does Container {
-    has $.value;
-}
+#class Array does Container {
+#    has $.value;
+#}
 
-class Hash does Container {
-    has $.value;
-}
+#class Hash does Container {
+#    has $.value;
+#}
 
