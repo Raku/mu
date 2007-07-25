@@ -1,7 +1,3 @@
-# Please include this text with any bug reports
-# $Id: flood.pm 1884 2005-09-23 13:32:23Z brain $
-# =============================================
-
 package modules::p6bot::svnbot;
 
 use strict;
@@ -99,7 +95,8 @@ sub on_configure {
         }
         $t = $1;
         $repos{"$net_context,lc($chan_context),$1"}{$2} = $3;
-    } elsif ($configline =~ /^\s+svnrepo(\d+)\s+(name|url|template|socket)\s+(.+?)$/i) {
+    }
+    elsif ($configline =~ /^\s+svnrepo(\d+)\s+(name|url|template|socket)\s+(.+?)$/i) {
         if ($chan_context eq "") {
             main::lprint("svnrepo command outside of channel context on $configfile:$linenumber");
             return 0;
@@ -112,7 +109,7 @@ sub on_configure {
 	    $t,
 	    $repos{"$net_context,lc($chan_context),$t"}{'name'},
 	    $repos{"$net_context,lc($chan_context),$t"}{'url'},
-	    $repos{"$net_context,lc($chan_context),$t"}{'interval'},
+	    $repos{"$net_context,lc($chan_context),$t"}{'template'},
 	    (
 	        $repos{"$net_context,lc($chan_context),$t"}{'interval'} || 
 	        $repos{"$net_context,lc($chan_context),$t"}{'socket'} ||
@@ -123,6 +120,7 @@ sub on_configure {
 	    $t && 
 	    $repos{"$net_context,lc($chan_context),$t"}{'name'} &&
 	    $repos{"$net_context,lc($chan_context),$t"}{'url'} &&
+	    $repos{"$net_context,lc($chan_context),$t"}{'template'} &&
 	    (
 	        $repos{"$net_context,lc($chan_context),$t"}{'interval'} || 
 	        $repos{"$net_context,lc($chan_context),$t"}{'socket'} ||
