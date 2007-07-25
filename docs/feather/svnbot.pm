@@ -15,6 +15,7 @@ use File::Spec;
 
 my %repos = ();
 my %repos_open = ();
+my %readTemplateCache = ();
 
 my $timedate_format = '%Y/%m/%d %H:%M:%S';
 
@@ -43,17 +44,24 @@ sub before_configure {
 }
 
 sub interpolate_template {
-    my ($self,$templateVars,$templateFileName) = @_;
-    open TEMPLATE_FILE, '<'.$templateFileName or
-        die "Unable to open $templateFileName for reading: $!\n";
-    my @templateLines = <>;
-    chomp @templateLines;
-    close TEMPLATE_FILE;
+    my ($self, $templateVars, $templateFileName) = @_;
+    my @templateLines;
+    if (!exists $readTemplateCache{$templateFileName}) {
+        open TEMPLATE_FILE, '<'.$templateFileName or
+            die "Unable to open $templateFileName for reading: $!\n";
+        @templateLines = <>;
+        chomp @templateLines;
+        close TEMPLATE_FILE;
+        @{ $readTemplateCache{$templateFileName} } = @templateLines;
+    }
+    else {
+       @templateLines = @{ $readTemplateCache{$templateFileName} };
+    }
     my @processedTemplateLines = ();
     TEMPLATE_LINE: foreach my $line (@templateLines) {
         if ($line =~ /\$message/) {
-            my @messageLines = split /\n/, $tempateVars->{message};
-            foreach $messageLine (@messageLines) {
+            my @messageLines = split /\n/, $templateVars->{message};
+            foreach my $messageLine (@messageLines) {
                 my $newLine = $line;
                 $newLine =~ s/\$message/$messageLine/;
                 push @processedTemplateLines, $newLine;
@@ -63,6 +71,7 @@ sub interpolate_template {
         $line =~ s/\$(username|revision|rootdir)/$templateVars->{$1}/eg;
         push @processedTemplateLines, $line;
     }
+    return \@processedTemplateLines;
 }
 
 sub check_repo {
