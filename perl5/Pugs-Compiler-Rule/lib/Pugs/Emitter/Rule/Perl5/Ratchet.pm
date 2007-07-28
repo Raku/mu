@@ -15,11 +15,17 @@ our $sigspace = 0;
 our $capture_count;
 our $capture_to_array;
 
-if (defined $::PCR_SEED) {
-    srand($::PCR_SEED);
+our $count;
+sub id {
+    if (!defined $count) {
+        if (defined $::PCR_SEED) {
+            #warn "SET SEED!!!";
+            srand($::PCR_SEED);
+        }
+        $count = 1000 + int(rand(1000));
+    }
+    'I' . ($count++)
 }
-our $count = 1000 + int(rand(1000));
-sub id { 'I' . ($count++) }
 
 sub call_subrule {
     my ( $subrule, $tab, $positionals, @param ) = @_;
@@ -270,7 +276,7 @@ $_[1]     && ",
     ) . "
 $_[1]   )
 $_[1] )
-## </alt>\n";
+$_[1] ## </alt>\n";
 }
 sub alt1 { &alt }
 sub conjunctive {
@@ -290,7 +296,8 @@ sub conjunctive {
     $capture_count = $max;
     # print " max = $capture_count\n";
     return
-        "$_[1] (
+        "$_[1] ## <conjunctive>
+$_[1] (
 $_[1]     ( \$pad{$id} = \$pos or 1 )
 $_[1]     && (
 " . join( "
@@ -301,7 +308,8 @@ $_[1]     && ",
           @s
     ) . "
 $_[1]   )
-$_[1] )";
+$_[1] )
+$_[1] ## </conjunctive>\n";
 }
 sub conjunctive1 { &conjunctive }
 sub concat {
@@ -376,7 +384,7 @@ sub concat {
         push @s, $tmp if $tmp;
     }
     @s = reverse @s if $direction eq '-';
-    return "$_[1] (\n" . join( "\n$_[1] &&\n", @s ) . "\n$_[1] )";
+    return "$_[1]## <concat>\n$_[1] (\n" . join( "\n$_[1] &&\n", @s ) . "\n$_[1] )\n$_[1]## </concat>\n";
 }
 sub code {
     return "$_[1] $_[0]\n";
@@ -421,10 +429,12 @@ sub variable {
           )
       !;
     return
-"$_[1] ( eval( '( substr( \$s, \$pos ) =~ m/^(' . $code . ')/ )
+"$_[1] ## <variable>
+$_[1] ( eval( '( substr( \$s, \$pos ) =~ m/^(' . $code . ')/ )
 $_[1]     ? ( \$pos $direction= length( \$1 ) or 1 )
 $_[1]     : 0
-$_[1]    ') )";
+$_[1]    ') )
+$_[1] ## </variable>\n";
     }
 
     # expand embedded %hash
@@ -432,7 +442,8 @@ $_[1]    ') )";
         my $id = '$' . id();
         my $preprocess_hash = 'Pugs::Runtime::Regex::preprocess_hash';
         my $code =
-"          ## <variable>
+"
+          ## <variable>
           do {
             our $id;
             our ${id}_sizes;
@@ -569,40 +580,48 @@ sub closure {
     #print "Code: $code\n";
     # "plain" {...return ...}
     return
-          "$_[1] do { \n"
+          "$_[1] ## <closure>\n"
+        . "$_[1] do { \n"
         . "$_[1]   local \$::_V6_SUCCEED = 1;\n"
         . "$_[1]   \$::_V6_MATCH_ = \$m;\n"
         . "$_[1]   \$m->data->{capture} = \\( sub $code->( \$m ) ); \n"
         . "$_[1]   \$bool = \$::_V6_SUCCEED;\n"
         . "$_[1]   \$::_V6_MATCH_ = \$m if \$bool; \n"
         . "$_[1]   return \$m if \$bool; \n"
-        . "$_[1] }"
+        . "$_[1] }\n"
+        . "$_[1] ## </closure>\n"
         if $code =~ /return/;
 
     # "plain" {...} without return
     return
-          "$_[1] do { \n"
+          "$_[1] ## <closure>\n"
+        . "$_[1] do { \n"
         . "$_[1]   local \$::_V6_SUCCEED = 1;\n"
         . "$_[1]   \$::_V6_MATCH_ = \$m;\n"
         . "$_[1]   sub $code->( \$m );\n"
         . "$_[1]   1;\n"
-        . "$_[1] }"
+        . "$_[1] }\n"
+        . "$_[1] ## </closure>\n"
         if $modifier eq 'plain';
     # "?" <?{...}>
     return
+        "$_[1] ## <closure>\n" .
         "$_[1] do { \n" .
         "$_[1]   local \$::_V6_SUCCEED = 1;\n" .
         "$_[1]   \$::_V6_MATCH_ = \$m;\n" .
         "$_[1]   \$bool = ( sub $code->( \$m ) ) ? 1 : 0; \n" .
-        "$_[1] }"
+        "$_[1] }" .
+        "$_[1] ## </closure>\n"
         if $modifier eq '?';
     # "!" <!{...}>
     return
+        "$_[1] ## <closure>\n" .
         "$_[1] do { \n" .
         "$_[1]   local \$::_V6_SUCCEED = 1;\n" .
         "$_[1]   \$::_V6_MATCH_ = \$m;\n" .
         "$_[1]   \$bool = ( sub $code->( \$m ) ) ? 0 : 1; \n" .
-        "$_[1] }"
+        "$_[1] }" .
+        "$_[1] ## </closure>\n"
         if $modifier eq '!';
 
 }
@@ -895,7 +914,7 @@ $_[1] do {
                     1
                 }
                 else { 0 }
-            }\n
+            }
 $_[1] ## </metasyntax>\n";
     }
 
@@ -904,7 +923,7 @@ $_[1] ## </metasyntax>\n";
         my $name = substr( $cmd, 1 );
         # print "<$cmd>\n";
         # return variable( $cmd );
-        return "$_[1] do{
+        return "$_[1]## <metasyntax>\n$_[1] do{
                 my \$match = " . variable( $cmd, $_[1] ) . ";
                 if ( \$match ) {" .
                     ( $capture_to_array
@@ -915,7 +934,7 @@ $_[1] ## </metasyntax>\n";
                     1
                 }
                 else { 0 }
-            }";
+            }\n$_[1]## </metasyntax>\n";
     }
 
     if ( $prefix eq '$' ) {
@@ -924,12 +943,14 @@ $_[1] ## </metasyntax>\n";
             # ...->match( $rule, $str, $grammar, $flags, $state )
             # TODO - send $pos to subrule
             return
+                "$_[1]         ## <metasyntax>\n" .
                 "$_[1]         do {\n" .
                 "$_[1]           push \@match,\n" .
                 "$_[1]             $cmd->match( \$s, \$grammar, {p => \$pos}, undef );\n" .
                 "$_[1]           \$pos = \$match[-1]->to;\n" .
                 "$_[1]           !\$match[-1] != 1;\n" .
-                "$_[1]         }"
+                "$_[1]         }\n" .
+                "$_[1]         ## </metasyntax>\n";
         }
         # call method in lexical $var
         # TODO - send $pos to subrule
@@ -942,7 +963,7 @@ $_[1] ## </metasyntax>\n";
                 "$_[1]           \$pos = \$match[-1]->to;\n" .
                 "$_[1]           !\$match[-1] != 1;\n" .
                 "$_[1]         }\n" .
-                "$_[1]         ## <metasyntax>\n";
+                "$_[1]         ## </metasyntax>\n";
     }
     if ( $prefix eq q(') ) {   # single quoted literal '
         $cmd = substr( $cmd, 1, -1 );

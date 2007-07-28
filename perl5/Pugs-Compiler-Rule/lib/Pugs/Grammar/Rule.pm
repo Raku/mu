@@ -1,3 +1,3 @@
-# placeholder file - see Rule2.pm for Rule.pmc source 
+# placeholder file - see examples/Grammar.grammar for Rule.pmc's source 
 
 1;

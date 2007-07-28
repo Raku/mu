@@ -6,7 +6,7 @@ run_tests();
 
 __DATA__
 
-=== TEST 1: constant
+=== TEST 1: concat and constant
 --- regex: ab
 --- ast
 $VAR1 = {

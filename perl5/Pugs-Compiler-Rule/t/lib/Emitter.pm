@@ -4,16 +4,20 @@ use Test::Base -Base;
 use t::lib::Util;
 
 #use Smart::Comments;
-use Pugs::Compiler::Regex;
-use Pugs::Compiler::Token;
+use Pugs::Grammar::Rule;
+use Pugs::Emitter::Rule::Perl5;
+use Pugs::Emitter::Rule::Perl5::Ratchet;
+use Pugs::Runtime::Regex;
 use Pugs::Grammar::Base;
+
+push @Pugs::Grammar::Rule::ISA, 'Pugs::Grammar::Base';
 
 our @EXPORT = qw( run_test run_tests );
 $Pugs::Compiler::Regex::NoCache = 1;
-$::PCR_SEED = 0;
 
 my @updated_tests;
 my $count = 0;
+$::PCR_SEED = 0;
 
 sub extract_snippet ($$) {
     my ($perl5, $type) = @_;
@@ -32,13 +36,15 @@ sub run_test ($) {
     my $updated_test = {
         name => $block->name,
     };
-    my $rule;
+    my $perl5;
     if (defined $block->token) {
         $updated_test->{token} = $block->token;
         my $token = parse_str_list($block->token);
-        $rule = Pugs::Compiler::Token->compile($token);
+        ### $token
+        my $ast = Pugs::Grammar::Rule->rule($token)->();
+        ### $ast
+        $perl5 = Pugs::Emitter::Rule::Perl5::Ratchet::emit('Pugs::Grammar::Base', $ast);
     }
-    my $perl5 = $rule->{perl5};
     ### $perl5;
     my @node_types;
     my $nhits = 0;
