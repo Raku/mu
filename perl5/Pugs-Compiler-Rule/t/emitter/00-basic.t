@@ -1,6 +1,6 @@
 use t::lib::Emitter;
 
-plan tests => 49;
+plan tests => 51;
 
 run_tests;
 
@@ -70,8 +70,12 @@ do { my $rule; $rule = sub {
 --- Layout
 <global>
        <alt>
+           <group>
              <constant />
+           </group>
+           <group>
              <constant />
+           </group>
        </alt>
 </global>
 
@@ -79,17 +83,15 @@ do { my $rule; $rule = sub {
        (
            ( $pad{I1170} = $pos or 1 )
            && (
-            (   ( $pad{I1171} = $pos or 1 ) &&
 
-             ## <constant />
- ||    ( ( $pos = $pad{I1171} ) && 0 ) )
+           ## <group />
+
            )
          || (
            ( ( $bool = 1 ) && ( $pos = $pad{I1170} ) or 1 )
-           &&             (   ( $pad{I1172} = $pos or 1 ) &&
+           && 
+           ## <group />
 
-             ## <constant />
- ||    ( ( $pos = $pad{I1172} ) && 0 ) )
          )
        )
 --- constant
@@ -142,7 +144,9 @@ do { my $rule; $rule = sub {
 --- token: ' <$a> '
 --- Layout
 <global>
+       <group>
                  <metasyntax />
+       </group>
 </global>
 
 --- metasyntax
@@ -160,7 +164,9 @@ do { my $rule; $rule = sub {
 --- token: ' <@::foo> '
 --- Layout
 <global>
+       <group>
          <metasyntax />
+       </group>
 </global>
 
 --- metasyntax
@@ -183,9 +189,11 @@ do { my $rule; $rule = sub {
 --- token: ' <%hi> '
 --- Layout
 <global>
+       <group>
         <metasyntax>
           <variable />
         </metasyntax>
+       </group>
 </global>
 
 --- metasyntax
@@ -238,7 +246,9 @@ do { my $rule; $rule = sub {
 --- token: ' <{ return $0.sqrt }> '
 --- Layout
 <global>
+       <group>
          <closure />
+       </group>
 </global>
 
 --- closure
@@ -286,16 +296,18 @@ do { my $rule; $rule = sub {
 --- Layout
 <global>
       <concat>
+         <group>
            <perl5 />
+         </group>
          <perl5 />
       </concat>
 </global>
 
 --- concat
        (
-          (   ( $pad{I1179} = $pos or 1 ) &&
-           ## <perl5 />
- ||    ( ( $pos = $pad{I1179} ) && 0 ) )
+
+         ## <group />
+
        &&
          ## <perl5 />
 
@@ -313,8 +325,12 @@ do { my $rule; $rule = sub {
 --- Layout
 <global>
       <concat>
+         <group>
            <constant />
+         </group>
+         <group>
            <closure />
+         </group>
       </concat>
 </global>
 
@@ -400,7 +416,9 @@ do { my $rule; $rule = sub {
 --- token: " <foo> "
 --- Layout
 <global>
+       <group>
          <named_capture />
+       </group>
 </global>
 
 --- named_capture
@@ -422,7 +440,9 @@ do { my $rule; $rule = sub {
 --- token: " <?foo> "
 --- Layout
 <global>
+       <group>
          <metasyntax />
+       </group>
 </global>
 
 --- metasyntax
@@ -442,7 +462,9 @@ do { my $rule; $rule = sub {
 --- token: " <Bar.foo> "
 --- Layout
 <global>
+       <group>
          <named_capture />
+       </group>
 </global>
 
 --- named_capture
@@ -464,9 +486,11 @@ do { my $rule; $rule = sub {
 --- token: " (a) "
 --- Layout
 <global>
+       <group>
          <capture>
                  <constant />
          </capture>
+       </group>
 </global>
 
 --- capture
@@ -493,11 +517,13 @@ do { my $rule; $rule = sub {
 --- token: ' $abc := (a) '
 --- Layout
 <global>
+       <group>
          <named_capture>
                  <capture>
                          <constant />
                  </capture>
          </named_capture>
+       </group>
 </global>
 
 --- capture
@@ -542,7 +568,11 @@ do { my $rule; $rule = sub {
 --- token: ' [ a ] '
 --- Layout
 <global>
+       <group>
+         <group>
            <constant />
+         </group>
+       </group>
 </global>
 
 --- constant
@@ -553,13 +583,32 @@ do { my $rule; $rule = sub {
 
 
 
+=== TEST 20: non-capture groups
+--- token: '[ a ]'
+--- Layout
+<global>
+       <group>
+         <constant />
+       </group>
+</global>
+
+--- constant
+         ( ( substr( $s, $pos, 1 ) eq 'a' )
+             ? ( $pos += 1 or 1 )
+             : 0
+         )
+
+
+
 === TEST 21: named capture + [ ... ]
 --- token: ' $a := [a] '
 --- Layout
 <global>
+       <group>
          <named_capture>
                  <constant />
          </named_capture>
+       </group>
 </global>
 
 --- named_capture

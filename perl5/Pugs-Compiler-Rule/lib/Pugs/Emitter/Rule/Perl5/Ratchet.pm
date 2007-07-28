@@ -203,7 +203,7 @@ sub quant {
     $rul = "$ws &&\n$rul" if $sigspace && $_[0]->{ws1} ne '';
     $rul = "$rul &&\n$ws" if $sigspace && $_[0]->{ws2} ne '';
     #print $rul;
-    return $rul
+    return "\n$_[1] ## <group>\n" . $rul . "\n$_[1] ## </group>\n"
         if $quantifier eq '';
     # *  +  ?
     # TODO: *? +? ??
