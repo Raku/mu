@@ -63,8 +63,8 @@ sub run_test ($) {
             $count++;
         }
     }
-    if ($nhits == 0) {
-        warn "$t::BlockName - no node type matched. perl5 source only contains the following node types: ", join(', ', @node_types), "\n";
+    if ($nhits == 0 && @node_types > 0) {
+        ok 0, "$t::BlockName - no node type matched. perl5 source only contains the following node types: ".join(', ', @node_types)."\n";
     }
     if (defined $block->Layout) {
         my $layout;

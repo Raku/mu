@@ -1,6 +1,6 @@
 use t::lib::Emitter;
 
-plan tests => 47;
+plan tests => 49;
 
 run_tests;
 
@@ -545,10 +545,23 @@ do { my $rule; $rule = sub {
            <constant />
 </global>
 
+--- constant
+           ( ( substr( $s, $pos, 1 ) eq 'a' )
+               ? ( $pos += 1 or 1 )
+               : 0
+           )
+
 
 
 === TEST 21: named capture + [ ... ]
 --- token: ' $a := [a] '
+--- Layout
+<global>
+         <named_capture>
+                 <constant />
+         </named_capture>
+</global>
+
 --- named_capture
          do{
                 my $from = $pos;

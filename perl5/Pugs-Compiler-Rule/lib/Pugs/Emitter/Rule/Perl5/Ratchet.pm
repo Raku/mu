@@ -788,7 +788,7 @@ $_[1] do{
                 ) . "
                 \$bool
             }
-## </named_capture>\n";
+$_[1] ## </named_capture>\n";
     }
 }
 sub negate {
