@@ -23,5 +23,5 @@ ok(approx(pi      , $PI),   "pi, as a bareword");
 ok(approx(pi()    , $PI),   "pi, as a sub");
 ok(approx(3 + pi(), $PI+3), "3+pi(), as a sub");
 ok(approx(pi() + 3, $PI+3), "pi()+3, as a sub");
-ok(approx(3 + pi,   $PI+3), "3+pi, as a barword");
-ok(approx(pi + 3,   $PI+3), "pi+3, as a barword");
+ok(approx(3 + pi,   $PI+3), "3+pi, as a bareword");
+ok(approx(pi + 3,   $PI+3), "pi+3, as a bareword");
