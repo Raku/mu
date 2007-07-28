@@ -66,17 +66,15 @@ do { my $rule; $rule = sub {
        (
            ( $pad{I1170} = $pos or 1 )
            && (
-            (   ( $pad{I1171} = $pos or 1 ) &&
 
-             ## <constant />
- ||    ( ( $pos = $pad{I1171} ) && 0 ) )
+           ## <group />
+
            )
          || (
            ( ( $bool = 1 ) && ( $pos = $pad{I1170} ) or 1 )
-           &&             (   ( $pad{I1172} = $pos or 1 ) &&
+           && 
+           ## <group />
 
-             ## <constant />
- ||    ( ( $pos = $pad{I1172} ) && 0 ) )
          )
        )
 --- constant

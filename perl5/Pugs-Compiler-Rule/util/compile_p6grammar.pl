@@ -3,14 +3,12 @@
 use lib 'lib';
 use File::Slurp 'slurp';
 use Getopt::Std;
+use Pugs::Compiler::Grammar;
 
-BEGIN {
-    my %opts;
-    getopts("s:", \%opts) or help();
-    if (defined $opts{s}) {
-        $::PCR_SEED = $opts{s};
-    }
-    require Pugs::Compiler::Grammar;
+my %opts;
+getopts("s:", \%opts) or help();
+if (defined $opts{s}) {
+    $::PCR_SEED = $opts{s};
 }
 
 my $infile = shift or help();
