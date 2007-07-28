@@ -66,7 +66,8 @@ sub call_constant {
     my $len = length( eval $const );
     #print "Const: [$_[0]] $const $len \n";
     return
-"$_[1] ## <constant>
+"
+$_[1] ## <constant>
 $_[1] ( ( substr( \$s, \$pos, $len ) eq $const )
 $_[1]     ? ( \$pos $direction= $len or 1 )
 $_[1]     : 0
@@ -226,23 +227,31 @@ sub quant {
             || $count[0] == 0;
 
         return
-            "$_[1] (\n " .
+            "$_[1] ## <quant>\n" .
+            "$_[1] (\n" .
             join( ' && ', ($rul) x $count[0] ) .
             "\n" .
-            "$_[1] ) $ws3";
+            "$_[1] )$ws3\n" .
+            "$_[1] ## </quant>\n";
     }
     return
+        "$_[1] ## <quant>\n" .
         "$_[1] (\n$rul\n" .
         "$_[1] || ( \$bool = 1 )\n" .
-        "$_[1] ) $ws3"
+        "$_[1] )$ws3\n" .
+        "$_[1] ## </quant>\n"
         if $quantifier eq '?';
     return
-        "$_[1] do { while (\n$rul) {}; \$bool = 1 }$ws3"
+        "$_[1] ## <quant>\n" .
+        "$_[1] do { while (\n$rul) {}; \$bool = 1 }$ws3\n" .
+        "$_[1] ## </quant>\n"
         if $quantifier eq '*';
     return
+        "$_[1] ## <quant>\n" .
         "$_[1] (\n$rul\n" .
         "$_[1] && do { while (\n$rul) {}; \$bool = 1 }\n" .
-        "$_[1] ) $ws3"
+        "$_[1] )$ws3\n" .
+        "$_[1] ## </quant>\n"
         if $quantifier eq '+';
     die "quantifier not implemented: $quantifier";
 }
@@ -581,7 +590,7 @@ sub closure {
     # "plain" {...return ...}
     return
           "$_[1] ## <closure>\n"
-        . "$_[1] do { \n"
+        . "$_[1] do {\n"
         . "$_[1]   local \$::_V6_SUCCEED = 1;\n"
         . "$_[1]   \$::_V6_MATCH_ = \$m;\n"
         . "$_[1]   \$m->data->{capture} = \\( sub $code->( \$m ) ); \n"
@@ -636,7 +645,9 @@ sub capturing_group {
             if ref( $program );
     }
 
-    return "$_[1] do{
+    return "
+$_[1] ## <capture>
+$_[1] do{
 $_[1]     my \$hash = do {
 $_[1]       my \$bool = 1;
 $_[1]       my \$from = \$pos;
@@ -656,7 +667,8 @@ $_[1]     }"
 $_[1]     \$match[ $capture_count ] = Pugs::Runtime::Match->new( \$hash );"
         ) . "
 $_[1]     \$bool;
-$_[1] }";
+$_[1] }
+$_[1] ## </capture>\n";
 }
 
 sub capture_as_result {
@@ -669,7 +681,8 @@ sub capture_as_result {
         $program = emit_rule( $program, $_[1].'      ' )
             if ref( $program );
     }
-    return "$_[1] do{
+    return "$_[1] ## <capture>
+$_[1] do{
 $_[1]     my \$hash = do {
 $_[1]       my \$bool = 1;
 $_[1]       my \$from = \$pos;
@@ -682,14 +695,18 @@ $_[1]     };
 $_[1]     my \$bool = \${\$hash->{'bool'}};
 $_[1]     \$m->data->{capture} = \\( \"\" . Pugs::Runtime::Match->new( \$hash ) );
 $_[1]     \$bool;
-$_[1] }";
+$_[1] }
+$_[1] ## </capture>\n";
 }
 sub named_capture {
     my $name    = $_[0]{ident};
-    $name = $name->{match_variable} if ref($name) eq 'HASH';
+    ### $name
+    if (ref($name) eq 'HASH') {
+        $name = $name->{match_variable} || $name->{variable};
+    }
     $name =~ s/^[\$\@\%]//;  # TODO - change semantics as needed
     my $program = $_[0]{rule};
-    #print "name [$name]\n";
+    #warn "name [$name]\n";
 
     if ( exists $program->{metasyntax} ) {
         #print "aliased subrule\n";
@@ -703,7 +720,8 @@ sub named_capture {
         my ( $subrule, $param_list ) = split( /[\(\)]/, $cmd );
         $param_list = '' unless defined $param_list;
         my @param = split( ',', $param_list );
-        return "$_[1] do {
+        return "$_[1] ## <named_capture>
+$_[1] do {
                 my \$prior = \$::_V6_PRIOR_;
                 my \$match =\n" .
                     call_subrule( $subrule, $_[1]."        ", "", @param ) . ";
@@ -717,7 +735,8 @@ sub named_capture {
                     1
                 }
                 else { 0 }
-            }";
+            }
+$_[1] ## </named_capture>\n";
     }
     elsif ( exists $program->{capturing_group} ) {
         #print "aliased capturing_group\n";
@@ -728,7 +747,8 @@ sub named_capture {
             $program = emit_rule( $program, $_[1].'      ' )
                 if ref( $program );
         }
-        return "$_[1] do{
+        return "$_[1] ## <named_capture>
+$_[1] do{
                 my \$match = Pugs::Runtime::Match->new( do {
                     my \$bool = 1;
                     my \$from = \$pos;
@@ -747,14 +767,16 @@ sub named_capture {
                     1
                 }
                 else { 0 }
-            }";
+            }
+$_[1] ## </named_capture>\n";
     }
     else {
         #print "aliased non_capturing_group\n";
         # $/<name> = "$/"
         #print Dumper( $_[0] );
         $program = emit_rule( $program, $_[1].'      ' );
-        return "$_[1] do{
+        return "$_[1] ## <named_capture>
+$_[1] do{
                 my \$from = \$pos;
                 my \$bool = $program;
                 my \$match = Pugs::Runtime::Match->new(
@@ -765,7 +787,8 @@ sub named_capture {
                 : " \$named{'$name'} = \$match;"
                 ) . "
                 \$bool
-            }";
+            }
+## </named_capture>\n";
     }
 }
 sub negate {
@@ -791,7 +814,8 @@ sub before {
     my $program = $_[0]{rule};
     $program = emit_rule( $program, $_[1].'        ' )
         if ref( $program );
-    return "$_[1] do{
+    return "$_[1] ## <before>
+$_[1] do{
 $_[1]     my \$pos1 = \$pos;
 $_[1]     do {
 $_[1]       my \$pos = \$pos1;
@@ -802,7 +826,8 @@ $_[1]       \$bool = 0 unless
 " .             $program . ";
 $_[1]       \$bool;
 $_[1]     };
-$_[1] }";
+$_[1] }
+$_[1] ## </before>\n";
 }
 sub after {
     my $mod = delete $_[0]{modifier};
@@ -811,7 +836,8 @@ sub after {
     my $program = $_[0]{rule};
     $program = emit_rule( $program, $_[1].'        ' )
         if ref( $program );
-    return "$_[1] do{
+    return "$_[1] ## <after>
+$_[1] do{
 $_[1]     my \$pos1 = \$pos;
 $_[1]     do {
 $_[1]       my \$pos = \$pos1 - 1;
@@ -822,7 +848,8 @@ $_[1]       \$bool = 0 unless
 " .             $program . ";
 $_[1]       \$bool;
 $_[1]     };
-$_[1] }";
+$_[1] }
+$_[1] ## </after>\n";
 }
 sub colon {
     my $str = $_[0];

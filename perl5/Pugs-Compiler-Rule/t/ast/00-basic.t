@@ -704,4 +704,8 @@ $VAR1 = {
 
 
 
+=== TEST 3: after
+--- regex: ' <after a> '
+--- ast
+--- SKIP
 

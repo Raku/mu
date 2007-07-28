@@ -56,15 +56,25 @@ sub run_test ($) {
             my $got = extract_snippet($perl5, $node_type);
             $updated_test->{$node_type} = $got;
             $got =~ s/\n+$//g;
-            $got =~ s/\$pad\{I\d+\}/\$pad{Ixxxx}/g;
+            #$got =~ s/\$pad\{I\d+\}/\$pad{Ixxxx}/g;
             $expected =~ s/\n+$//g;
-            $expected =~ s/\$pad\{I\d+\}/\$pad{Ixxxx}/g;
+            #$expected =~ s/\$pad\{I\d+\}/\$pad{Ixxxx}/g;
             is $got, $expected, "$t::BlockName - $node_type ok";
             $count++;
         }
     }
     if ($nhits == 0) {
         warn "$t::BlockName - no node type matched. perl5 source only contains the following node types: ", join(', ', @node_types), "\n";
+    }
+    if (defined $block->Layout) {
+        my $layout;
+        while ($perl5 =~ m{^( *)## (</?\w+>\n)}mg) {
+            $layout .= $1 . $2;
+        }
+        $layout =~ s{<(\w+)>\s*</\1>}{<$1 />}gs;
+        is $layout, $block->Layout, "$t::BlockName - layout ok";
+        $updated_test->{Layout} = $layout;
+        $count++;
     }
     push @updated_tests, $updated_test;
 }
