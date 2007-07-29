@@ -683,7 +683,7 @@ token conjunctive {
 
     {
         my @a = map {  $$_  }  @{ $::_V6_MATCH_->{'disjunctive1'} };
-        return { conjunctive => \@a }  if scalar @a > 1;
+        return { conjunctive => \@a, _pos => [$/->from, $/->to] }  if scalar @a > 1;
         return $a[0];
     }
 }

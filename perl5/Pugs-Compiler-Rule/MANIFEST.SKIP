@@ -1,4 +1,5 @@
 ^\w+\.pm
+^t.sh$
 ^temp/
 ^lrep/
 precedence.pl
