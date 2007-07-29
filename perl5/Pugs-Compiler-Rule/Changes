@@ -1,3 +1,16 @@
+0.26  2007-07-29
+- added pos info (via '_pos => [ from, to ]' to regex AST's nodes
+  and taught the two emitters not to dispatch on it. no failing tests.
+- added t::lib::AST for AST regression tests.
+- updated P::G::Rule.pmc accordingly.
+- added t/ast/00-basic.t to test detailed AST structures using Data::Dumper.
+- introduced $::PCR_SEED to provide a way to avoid randomness
+  in the generated code
+- added a corrosponding -s option to util/compile_p6grammar.pl.
+- made util/update-rule-pmc-new to specify a fixed value for -s.
+- added more tests to t/emitter/00-basic.t for the ratchet emitter.
+- added the very useful "--- Layout" support to t::lib::Emitter.
+
 0.25  2007-07-09
 - Pugs::Emitter::Grammar::Perl5 : set sigspace for "rule XXX {...}"
   and calls the backtracking rule emitter for "regex XXX {...}".
