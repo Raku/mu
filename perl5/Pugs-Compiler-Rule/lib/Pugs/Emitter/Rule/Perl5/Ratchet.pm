@@ -810,6 +810,7 @@ $_[1]     };
 $_[1] }
 $_[1] ## </negate>\n";
 }
+
 sub before {
     my $mod = delete $_[0]{modifier} || '';
     return negate( { before => $_[0] }, $_[1] ) if $mod eq '!';
@@ -831,6 +832,7 @@ $_[1]     };
 $_[1] }
 $_[1] ## </before>\n";
 }
+
 sub after {
     my $mod = delete $_[0]{modifier};
     return negate( { after => $_[0] }, $_[1] ) if $mod eq '!';
@@ -853,6 +855,7 @@ $_[1]     };
 $_[1] }
 $_[1] ## </after>\n";
 }
+
 sub colon {
     my $str = $_[0];
     return "$_[1] 1 # : no-op\n"

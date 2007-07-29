@@ -161,8 +161,8 @@ token named_capture_body {
     | \'  <?literal>    \'
         { return { metasyntax => {
                         metasyntax => "${$/}",
-                        _pos => [ $/->from, $/->to ],
-                    }
+                        },
+                   _pos => [ $/->from, $/->to ],
                 };
         }
     | { die "invalid alias syntax"; }
@@ -175,8 +175,9 @@ token parse_metasyntax {
         { return { closure => {
             closure  => $$<parsed_code>,
             modifier => $$<modifier>,
+        },
             _pos => [ $/->from - 1, $/->to ],
-        } } }
+        } }
     |
         <char_class>
         ( <[+-]> <char_class> )+
@@ -206,14 +207,15 @@ token parse_metasyntax {
                 ) {
                 return { $$<ident> => {
                     rule => $$<rule>, modifier => $$<modifier>,
-                    _pos => [ $/->from - 1, $/->to ], } }
+                     }, _pos => [ $/->from - 1, $/->to ], }
             }
             return { metasyntax => {
-                metasyntax => $$<ident>,
-                rule       => $$<rule>,
-                modifier   => $$<modifier>,
-                _pos => [ $/->from - 1, $/->to ],
-            } }
+                        metasyntax => $$<ident>,
+                        rule       => $$<rule>,
+                        modifier   => $$<modifier>,
+                    },
+                    _pos => [ $/->from - 1, $/->to ],
+                }
           }
         |
           ':' <?ws>?
@@ -231,9 +233,10 @@ token parse_metasyntax {
                 ) {
                 return { $$<ident> => {
                     rule     => { metasyntax => {
-                        metasyntax => '\'' . $$<str> . '\'',
+                                metasyntax => '\'' . $$<str> . '\'',
+                            },
                         _pos => [ $/->from - 1, $/->to ],
-                    } },
+                    },
                     modifier => $$<modifier>,
                 } }
             }
@@ -241,8 +244,9 @@ token parse_metasyntax {
                 metasyntax => $$<ident>,
                 string   => $$<str>,
                 modifier => $$<modifier>,
+            },
                 _pos => [ $/->from - 1, $/->to ],
-            } }
+            }
           }
         |
           \(  <parsed_code>  \) \>
@@ -257,8 +261,9 @@ token parse_metasyntax {
         { return { metasyntax => {
               metasyntax => "$$<metasyntax>",
               modifier   => $$<modifier>,
+        },
               _pos => [ $/->from - 1, $/->to ],
-        } } }
+        } }
     ]
 }
 
@@ -314,8 +319,9 @@ token term1 {
         # placeholder
         { return { metasyntax => {
                         metasyntax => 'null',
+        },
                         _pos => [ $/->from, $/->to ],
-        } } }
+        } }
 }
 
 %{ $rule_terms{'{*}'} = sub { term1($_[1], $_[0], $_[2], $_[3]) }; %}
@@ -325,8 +331,8 @@ token term2 {
         { return {
                 metasyntax => {
                     metasyntax => '\'' . ${$/},
+                },
                     _pos => [ $/->from - 1, $/->to ],
-                }
             };
         }
 }
@@ -354,6 +360,7 @@ token term5 {
         ( <[+-]> <char_class> )*
         \>
         { return {
+            _pos => [ $/->from - 2, $/->to ],
             char_class => [
                 '+' . $<char_class>,
                 @{$/[0]},   # TODO - stringify
@@ -368,6 +375,7 @@ token term6 {
         ( <[+-]> <char_class> )*
         \>
         { return {
+            _pos => [ $/->from - 2, $/->to ],
             char_class => [
                 '-' . $<char_class>,
                 @{$/[0]},   # TODO - stringify
@@ -382,6 +390,7 @@ token term7 {
         ( <[+-]> <char_class> )*
         \>
         { return {
+            _pos => [ $/->from - 2, $/->to ],
             char_class => [
                 '+[' . $<char_range> . ']',
                 @{$/[0]},   # TODO - stringify
@@ -403,8 +412,9 @@ token term9 {
         { return { closure => {
             closure => $$<parsed_code>,
             modifier => 'plain',
+        },
             _pos => [$/->from - 1, $/->to],
-        } } }
+        } }
 }
 
 %{ $rule_terms{'{'} = sub { term9($_[1], $_[0], $_[2], $_[3]) }; %}
@@ -564,8 +574,9 @@ token term {
             return { named_capture => {
                         rule =>  $$<named_capture_body>,
                         ident => $$<Pugs::Grammar::Rule::variables>,
+                     },
                         _pos => [ $/->from, $/->to ],
-                     }, };
+                     };
           }
        |
           {
@@ -610,14 +621,15 @@ token quantifier {
       }
       return {
         quant => {
-            term    => ${$/{'term'}},
-            quant   => ${$/{'quant'}},
-            greedy  => ${$/{'greedy'}},
-            ws1     => ${$/{'ws1'}},
-            ws2     => ${$/{'ws2'}},
-            ws3     => ${$/{'ws3'}},
-            _pos    => [$/->from, $/->to],
-        } }
+                term    => ${$/{'term'}},
+                quant   => ${$/{'quant'}},
+                greedy  => ${$/{'greedy'}},
+                ws1     => ${$/{'ws1'}},
+                ws2     => ${$/{'ws2'}},
+                ws3     => ${$/{'ws3'}},
+            },
+        _pos => [$/->from, $/->to],
+      }
     }
 }
 

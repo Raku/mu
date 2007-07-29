@@ -39,11 +39,11 @@ $VAR1 = {
 --- regex: "'a'"
 --- ast
 $VAR1 = {
+          '_pos' => [
+                    0,
+                    3
+                  ],
           'metasyntax' => {
-                          '_pos' => [
-                                    0,
-                                    3
-                                  ],
                           'metasyntax' => '\'a\''
                         }
         };
@@ -55,19 +55,19 @@ $VAR1 = {
 --- regex: ' <$a> '
 --- ast
 $VAR1 = {
+          '_pos' => [
+                    0,
+                    6
+                  ],
           'quant' => {
-                     '_pos' => [
-                               0,
-                               6
-                             ],
                      'greedy' => '',
                      'quant' => '',
                      'term' => {
+                               '_pos' => [
+                                         1,
+                                         5
+                                       ],
                                'metasyntax' => {
-                                               '_pos' => [
-                                                         1,
-                                                         5
-                                                       ],
                                                'metasyntax' => '$a',
                                                'modifier' => ''
                                              }
@@ -85,19 +85,19 @@ $VAR1 = {
 --- regex: ' <@foo> '
 --- ast
 $VAR1 = {
+          '_pos' => [
+                    0,
+                    8
+                  ],
           'quant' => {
-                     '_pos' => [
-                               0,
-                               8
-                             ],
                      'greedy' => '',
                      'quant' => '',
                      'term' => {
+                               '_pos' => [
+                                         1,
+                                         7
+                                       ],
                                'metasyntax' => {
-                                               '_pos' => [
-                                                         1,
-                                                         7
-                                                       ],
                                                'metasyntax' => '@foo',
                                                'modifier' => ''
                                              }
@@ -115,19 +115,19 @@ $VAR1 = {
 --- regex: ' <%hi> '
 --- ast
 $VAR1 = {
+          '_pos' => [
+                    0,
+                    7
+                  ],
           'quant' => {
-                     '_pos' => [
-                               0,
-                               7
-                             ],
                      'greedy' => '',
                      'quant' => '',
                      'term' => {
+                               '_pos' => [
+                                         1,
+                                         6
+                                       ],
                                'metasyntax' => {
-                                               '_pos' => [
-                                                         1,
-                                                         6
-                                                       ],
                                                'metasyntax' => '%hi',
                                                'modifier' => ''
                                              }
@@ -145,19 +145,19 @@ $VAR1 = {
 --- regex: ' <{ return $0.sqrt }> '
 --- ast
 $VAR1 = {
+          '_pos' => [
+                    0,
+                    22
+                  ],
           'quant' => {
-                     '_pos' => [
-                               0,
-                               22
-                             ],
                      'greedy' => '',
                      'quant' => '',
                      'term' => {
+                               '_pos' => [
+                                         1,
+                                         21
+                                       ],
                                'closure' => {
-                                            '_pos' => [
-                                                      1,
-                                                      21
-                                                    ],
                                             'closure' => '{ return $0.sqrt }',
                                             'modifier' => ''
                                           }
@@ -175,19 +175,19 @@ $VAR1 = {
 --- regex: ' <&foo()> '
 --- ast
 $VAR1 = {
+          '_pos' => [
+                    0,
+                    10
+                  ],
           'quant' => {
-                     '_pos' => [
-                               0,
-                               10
-                             ],
                      'greedy' => '',
                      'quant' => '',
                      'term' => {
+                               '_pos' => [
+                                         1,
+                                         9
+                                       ],
                                'metasyntax' => {
-                                               '_pos' => [
-                                                         1,
-                                                         9
-                                                       ],
                                                'metasyntax' => '&foo()',
                                                'modifier' => ''
                                              }
@@ -240,11 +240,11 @@ $VAR1 = {
                   ],
           'concat' => [
                       {
+                        '_pos' => [
+                                  0,
+                                  3
+                                ],
                         'quant' => {
-                                   '_pos' => [
-                                             0,
-                                             3
-                                           ],
                                    'greedy' => '',
                                    'quant' => '',
                                    'term' => {
@@ -282,11 +282,11 @@ $VAR1 = {
                   ],
           'concat' => [
                       {
+                        '_pos' => [
+                                  0,
+                                  3
+                                ],
                         'quant' => {
-                                   '_pos' => [
-                                             0,
-                                             3
-                                           ],
                                    'greedy' => '',
                                    'quant' => '',
                                    'term' => {
@@ -302,19 +302,19 @@ $VAR1 = {
                                  }
                       },
                       {
+                        '_pos' => [
+                                  3,
+                                  16
+                                ],
                         'quant' => {
-                                   '_pos' => [
-                                             3,
-                                             16
-                                           ],
                                    'greedy' => '',
                                    'quant' => '',
                                    'term' => {
+                                             '_pos' => [
+                                                       3,
+                                                       15
+                                                     ],
                                              'closure' => {
-                                                          '_pos' => [
-                                                                    3,
-                                                                    15
-                                                                  ],
                                                           'closure' => '{ say \'hi\' }',
                                                           'modifier' => 'plain'
                                                         }
@@ -334,11 +334,11 @@ $VAR1 = {
 --- regex: " a**{1..2} "
 --- ast
 $VAR1 = {
+          '_pos' => [
+                    0,
+                    11
+                  ],
           'quant' => {
-                     '_pos' => [
-                               0,
-                               11
-                             ],
                      'greedy' => '',
                      'quant' => {
                                 'closure' => '{1..2}'
@@ -369,11 +369,11 @@ $VAR1 = {
                   ],
           'concat' => [
                       {
+                        '_pos' => [
+                                  0,
+                                  4
+                                ],
                         'quant' => {
-                                   '_pos' => [
-                                             0,
-                                             4
-                                           ],
                                    'greedy' => '',
                                    'quant' => '+',
                                    'term' => {
@@ -389,11 +389,11 @@ $VAR1 = {
                                  }
                       },
                       {
+                        '_pos' => [
+                                  4,
+                                  7
+                                ],
                         'quant' => {
-                                   '_pos' => [
-                                             4,
-                                             7
-                                           ],
                                    'greedy' => '',
                                    'quant' => '?',
                                    'term' => {
@@ -418,19 +418,19 @@ $VAR1 = {
 --- regex: " <foo> "
 --- ast
 $VAR1 = {
+          '_pos' => [
+                    0,
+                    7
+                  ],
           'quant' => {
-                     '_pos' => [
-                               0,
-                               7
-                             ],
                      'greedy' => '',
                      'quant' => '',
                      'term' => {
+                               '_pos' => [
+                                         1,
+                                         6
+                                       ],
                                'metasyntax' => {
-                                               '_pos' => [
-                                                         1,
-                                                         6
-                                                       ],
                                                'metasyntax' => 'foo',
                                                'modifier' => ''
                                              }
@@ -448,19 +448,19 @@ $VAR1 = {
 --- regex: " <?foo> "
 --- ast
 $VAR1 = {
+          '_pos' => [
+                    0,
+                    8
+                  ],
           'quant' => {
-                     '_pos' => [
-                               0,
-                               8
-                             ],
                      'greedy' => '',
                      'quant' => '',
                      'term' => {
+                               '_pos' => [
+                                         1,
+                                         7
+                                       ],
                                'metasyntax' => {
-                                               '_pos' => [
-                                                         1,
-                                                         7
-                                                       ],
                                                'metasyntax' => 'foo',
                                                'modifier' => '?'
                                              }
@@ -478,19 +478,19 @@ $VAR1 = {
 --- regex: " <Bar.foo> "
 --- ast
 $VAR1 = {
+          '_pos' => [
+                    0,
+                    11
+                  ],
           'quant' => {
-                     '_pos' => [
-                               0,
-                               11
-                             ],
                      'greedy' => '',
                      'quant' => '',
                      'term' => {
+                               '_pos' => [
+                                         1,
+                                         10
+                                       ],
                                'metasyntax' => {
-                                               '_pos' => [
-                                                         1,
-                                                         10
-                                                       ],
                                                'metasyntax' => 'Bar.foo',
                                                'modifier' => ''
                                              }
@@ -508,11 +508,11 @@ $VAR1 = {
 --- regex: " (a) "
 --- ast
 $VAR1 = {
+          '_pos' => [
+                    0,
+                    5
+                  ],
           'quant' => {
-                     '_pos' => [
-                               0,
-                               5
-                             ],
                      'greedy' => '',
                      'quant' => '',
                      'term' => {
@@ -541,11 +541,11 @@ $VAR1 = {
 --- regex: " ( a ) "
 --- ast
 $VAR1 = {
+          '_pos' => [
+                    0,
+                    7
+                  ],
           'quant' => {
-                     '_pos' => [
-                               0,
-                               7
-                             ],
                      'greedy' => '',
                      'quant' => '',
                      'term' => {
@@ -554,11 +554,11 @@ $VAR1 = {
                                          6
                                        ],
                                'capturing_group' => {
+                                                    '_pos' => [
+                                                              2,
+                                                              5
+                                                            ],
                                                     'quant' => {
-                                                               '_pos' => [
-                                                                         2,
-                                                                         5
-                                                                       ],
                                                                'greedy' => '',
                                                                'quant' => '',
                                                                'term' => {
@@ -587,19 +587,19 @@ $VAR1 = {
 --- regex: ' $abc := (a) '
 --- ast
 $VAR1 = {
+          '_pos' => [
+                    0,
+                    13
+                  ],
           'quant' => {
-                     '_pos' => [
-                               0,
-                               13
-                             ],
                      'greedy' => '',
                      'quant' => '',
                      'term' => {
+                               '_pos' => [
+                                         1,
+                                         12
+                                       ],
                                'named_capture' => {
-                                                  '_pos' => [
-                                                            1,
-                                                            12
-                                                          ],
                                                   'ident' => {
                                                              'variable' => '$abc'
                                                            },
@@ -631,19 +631,19 @@ $VAR1 = {
 --- regex: ' [ a ] '
 --- ast
 $VAR1 = {
+          '_pos' => [
+                    0,
+                    7
+                  ],
           'quant' => {
-                     '_pos' => [
-                               0,
-                               7
-                             ],
                      'greedy' => '',
                      'quant' => '',
                      'term' => {
+                               '_pos' => [
+                                         2,
+                                         5
+                                       ],
                                'quant' => {
-                                          '_pos' => [
-                                                    2,
-                                                    5
-                                                  ],
                                           'greedy' => '',
                                           'quant' => '',
                                           'term' => {
@@ -671,19 +671,19 @@ $VAR1 = {
 --- regex: ' $a := [a] '
 --- ast
 $VAR1 = {
+          '_pos' => [
+                    0,
+                    11
+                  ],
           'quant' => {
-                     '_pos' => [
-                               0,
-                               11
-                             ],
                      'greedy' => '',
                      'quant' => '',
                      'term' => {
+                               '_pos' => [
+                                         1,
+                                         10
+                                       ],
                                'named_capture' => {
-                                                  '_pos' => [
-                                                            1,
-                                                            10
-                                                          ],
                                                   'ident' => {
                                                              'variable' => '$a'
                                                            },
@@ -709,19 +709,19 @@ $VAR1 = {
 --- regex: ' <after a> '
 --- ast
 $VAR1 = {
+          '_pos' => [
+                    0,
+                    11
+                  ],
           'quant' => {
-                     '_pos' => [
-                               0,
-                               11
-                             ],
                      'greedy' => '',
                      'quant' => '',
                      'term' => {
+                               '_pos' => [
+                                         1,
+                                         10
+                                       ],
                                'after' => {
-                                            '_pos' => [
-                                                      1,
-                                                      10
-                                                    ],
                                             'modifier' => '',
                                             'rule' => {
                                                       '_pos' => [
@@ -745,19 +745,19 @@ $VAR1 = {
 --- regex: ' <before a> '
 --- ast
 $VAR1 = {
+          '_pos' => [
+                    0,
+                    12
+                  ],
           'quant' => {
-                     '_pos' => [
-                               0,
-                               12
-                             ],
                      'greedy' => '',
                      'quant' => '',
                      'term' => {
+                               '_pos' => [
+                                         1,
+                                         11
+                                       ],
                                'before' => {
-                                             '_pos' => [
-                                                       1,
-                                                       11
-                                                     ],
                                              'modifier' => '',
                                              'rule' => {
                                                        '_pos' => [
@@ -781,19 +781,19 @@ $VAR1 = {
 --- regex: ' <!after a> '
 --- ast
 $VAR1 = {
+          '_pos' => [
+                    0,
+                    12
+                  ],
           'quant' => {
-                     '_pos' => [
-                               0,
-                               12
-                             ],
                      'greedy' => '',
                      'quant' => '',
                      'term' => {
+                               '_pos' => [
+                                         1,
+                                         11
+                                       ],
                                'after' => {
-                                            '_pos' => [
-                                                      1,
-                                                      11
-                                                    ],
                                             'modifier' => '!',
                                             'rule' => {
                                                       '_pos' => [
@@ -817,19 +817,19 @@ $VAR1 = {
 --- regex: ' <!before a> '
 --- ast
 $VAR1 = {
+          '_pos' => [
+                    0,
+                    13
+                  ],
           'quant' => {
-                     '_pos' => [
-                               0,
-                               13
-                             ],
                      'greedy' => '',
                      'quant' => '',
                      'term' => {
+                               '_pos' => [
+                                         1,
+                                         12
+                                       ],
                                'before' => {
-                                             '_pos' => [
-                                                       1,
-                                                       12
-                                                     ],
                                              'modifier' => '!',
                                              'rule' => {
                                                        '_pos' => [
@@ -839,6 +839,83 @@ $VAR1 = {
                                                        'constant' => 'a'
                                                      }
                                            }
+                             },
+                     'ws1' => ' ',
+                     'ws2' => ' ',
+                     'ws3' => ''
+                   }
+        };
+
+
+
+
+=== TEST 25: charset
+--- regex: ' <[abcd]> '
+--- ast
+$VAR1 = {
+          '_pos' => [
+                    0,
+                    10
+                  ],
+          'quant' => {
+                     'greedy' => '',
+                     'quant' => '',
+                     'term' => {
+                               '_pos' => [
+                                         1,
+                                         9
+                                       ],
+                               'char_class' => [
+                                               '+[abcd]'
+                                             ]
+                             },
+                     'ws1' => ' ',
+                     'ws2' => ' ',
+                     'ws3' => ''
+                   }
+        };
+
+
+
+
+=== TEST 26: charset
+--- regex: ' <[ab]-[a]> '
+--- ast
+$VAR1 = {
+          '_pos' => [
+                    0,
+                    12
+                  ],
+          'quant' => {
+                     'greedy' => '',
+                     'quant' => '',
+                     'term' => {
+                               '_pos' => [
+                                         1,
+                                         11
+                                       ],
+                               'char_class' => [
+                                               '+[ab]',
+                                               bless( do{\(my $o = {
+                                                          'bool' => \1,
+                                                          'capture' => undef,
+                                                          'from' => \6,
+                                                          'match' => [],
+                                                          'named' => {
+                                                                     'char_class' => bless( do{\(my $o = {
+                                                                                                'bool' => \1,
+                                                                                                'capture' => undef,
+                                                                                                'from' => \7,
+                                                                                                'match' => [],
+                                                                                                'named' => {},
+                                                                                                'str' => \' <[ab]-[a]> ',
+                                                                                                'to' => \10
+                                                                                              })}, 'Pugs::Runtime::Match' )
+                                                                   },
+                                                          'str' => \' <[ab]-[a]> ',
+                                                          'to' => \10
+                                                        })}, 'Pugs::Runtime::Match' )
+                                             ]
                              },
                      'ws1' => ' ',
                      'ws2' => ' ',
