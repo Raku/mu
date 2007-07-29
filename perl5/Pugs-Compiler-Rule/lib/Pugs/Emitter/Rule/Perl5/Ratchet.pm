@@ -113,13 +113,21 @@ do { my \$rule; \$rule = sub {
         #"  print \"match arg_list = \@{[\%{\$_[1]} ]}\n\" if defined \$_[1];\n" .
         #"  warn \"match pos = \", pos(\$_[1]), \"\\n\";\n" .
 "  my \$m;
-  for my \$pos ( defined \$_[3]{p} && ! \$_[3]{continue}
-        ? \$_[3]{p}
-        : ( ( \$_[3]{p} || pos(\$_[1]) || 0 ) .. length( \$s ) ) ) {
+  my \$bool;
+  my \@pos;
+  # XXX :pos(X) takes the precedence over :continue ?
+  if (defined \$_[3]{p}) {
+    push \@pos, \$_[3]{p} || 0;
+  } elsif (\$_[3]{continue}) {
+    push \@pos, (pos(\$_[1]) || 0) .. length(\$s);
+  } else {
+    push \@pos, 0..length(\$s);
+  }
+  for my \$pos ( \@pos ) {
     my \%index;
     my \@match;
     my \%named;
-    my \$bool = 1;
+    \$bool = 1;
     \$named{KEY} = \$_[3]{KEY} if exists \$_[3]{KEY};
     \$m = Pugs::Runtime::Match->new( {
       str => \\\$s, from => \\(0+\$pos), to => \\(\$pos),
