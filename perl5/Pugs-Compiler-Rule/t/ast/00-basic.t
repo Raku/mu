@@ -704,8 +704,148 @@ $VAR1 = {
 
 
 
-=== TEST 3: after
+
+=== TEST 21: after
 --- regex: ' <after a> '
 --- ast
---- SKIP
+$VAR1 = {
+          'quant' => {
+                     '_pos' => [
+                               0,
+                               11
+                             ],
+                     'greedy' => '',
+                     'quant' => '',
+                     'term' => {
+                               'after' => {
+                                            '_pos' => [
+                                                      1,
+                                                      10
+                                                    ],
+                                            'modifier' => '',
+                                            'rule' => {
+                                                      '_pos' => [
+                                                                8,
+                                                                9
+                                                              ],
+                                                      'constant' => 'a'
+                                                    }
+                                          }
+                             },
+                     'ws1' => ' ',
+                     'ws2' => ' ',
+                     'ws3' => ''
+                   }
+        };
+
+
+
+
+=== TEST 22: before
+--- regex: ' <before a> '
+--- ast
+$VAR1 = {
+          'quant' => {
+                     '_pos' => [
+                               0,
+                               12
+                             ],
+                     'greedy' => '',
+                     'quant' => '',
+                     'term' => {
+                               'before' => {
+                                             '_pos' => [
+                                                       1,
+                                                       11
+                                                     ],
+                                             'modifier' => '',
+                                             'rule' => {
+                                                       '_pos' => [
+                                                                 9,
+                                                                 10
+                                                               ],
+                                                       'constant' => 'a'
+                                                     }
+                                           }
+                             },
+                     'ws1' => ' ',
+                     'ws2' => ' ',
+                     'ws3' => ''
+                   }
+        };
+
+
+
+
+=== TEST 23: ! after
+--- regex: ' <!after a> '
+--- ast
+$VAR1 = {
+          'quant' => {
+                     '_pos' => [
+                               0,
+                               12
+                             ],
+                     'greedy' => '',
+                     'quant' => '',
+                     'term' => {
+                               'after' => {
+                                            '_pos' => [
+                                                      1,
+                                                      11
+                                                    ],
+                                            'modifier' => '!',
+                                            'rule' => {
+                                                      '_pos' => [
+                                                                9,
+                                                                10
+                                                              ],
+                                                      'constant' => 'a'
+                                                    }
+                                          }
+                             },
+                     'ws1' => ' ',
+                     'ws2' => ' ',
+                     'ws3' => ''
+                   }
+        };
+
+
+
+
+=== TEST 24: ! before
+--- regex: ' <!before a> '
+--- ast
+$VAR1 = {
+          'quant' => {
+                     '_pos' => [
+                               0,
+                               13
+                             ],
+                     'greedy' => '',
+                     'quant' => '',
+                     'term' => {
+                               'before' => {
+                                             '_pos' => [
+                                                       1,
+                                                       12
+                                                     ],
+                                             'modifier' => '!',
+                                             'rule' => {
+                                                       '_pos' => [
+                                                                 10,
+                                                                 11
+                                                               ],
+                                                       'constant' => 'a'
+                                                     }
+                                           }
+                             },
+                     'ws1' => ' ',
+                     'ws2' => ' ',
+                     'ws3' => ''
+                   }
+        };
+
+
+
 

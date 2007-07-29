@@ -796,7 +796,8 @@ sub negate {
     #print "Negate: ", Dumper($_[0]);
     $program = emit_rule( $program, $_[1].'        ' )
         if ref( $program );
-    return "$_[1] do{
+    return "$_[1] ## <negate>
+$_[1] do{
 $_[1]     my \$pos1 = \$pos;
 $_[1]     do {
 $_[1]       my \$pos = \$pos1;
@@ -806,7 +807,8 @@ $_[1]       my \%named;
 $_[1]       \$bool = " . $program . " ? 0 : 1;
 $_[1]       \$bool;
 $_[1]     };
-$_[1] }";
+$_[1] }
+$_[1] ## </negate>\n";
 }
 sub before {
     my $mod = delete $_[0]{modifier} || '';

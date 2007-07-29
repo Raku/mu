@@ -204,7 +204,9 @@ token parse_metasyntax {
             if  ( $$<ident> eq 'before'
                || $$<ident> eq 'after'
                 ) {
-                return { $$<ident> => { rule => $$<rule>, modifier => $$<modifier> } }
+                return { $$<ident> => {
+                    rule => $$<rule>, modifier => $$<modifier>,
+                    _pos => [ $/->from - 1, $/->to ], } }
             }
             return { metasyntax => {
                 metasyntax => $$<ident>,
