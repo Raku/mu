@@ -18,7 +18,7 @@ unless (`$svn info` =~ /\/pugs$/m) {
 
 chomp(my $PUGSHOME = `pwd`);
 
-$nick_base ||= "evalbot";
+$nick_base ||= "./pugs";
 @channels = ('#perl6') unless @channels;
 
 my $pid = 0;
@@ -116,7 +116,7 @@ sub start_pugs {
     }
     else {
         exec "./pugs examples/network/evalbot/evalbot.pl " .
-             "'=$pipe' chat.freenode.net 900 " . join(' ', map { "'$_'" } @channels)
+             "'=$pipe' chat.freenode.net 900" . map { " '$_'" } @channels
                 or exit;
     }
 }
