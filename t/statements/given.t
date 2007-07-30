@@ -22,7 +22,8 @@ Tests the given block, as defined in L<S04/"Switch statements">
 };
 
 {
-    # simple case, with fall through L<S04/"Switch statements" /If the smart match fails, control passes to the next statement normally/>
+    # simple case, with fall through
+    # L<S04/Switch statements/If the smart match fails, control passes to the next statement>
     my ($two, $five, $int, $unreached);
 
     given 5 {

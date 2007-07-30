@@ -12,6 +12,7 @@ See L<S06/"Macros">.
 
 plan 5;
 
+# L<S06/Macros>
 macro four () { q:code { 2+2 } } 
 
 is(four, 4, "macro returning q:code");

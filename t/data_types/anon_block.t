@@ -16,7 +16,8 @@ L<S04/"The Relationship of Blocks and Declarations">
 
 plan 32;
 
-# anon blocks L<S06/"Standard Subroutines">
+# L<S06/"Anonymous subroutines">
+# anon blocks
 my $anon_sub = sub { 1 };
 isa_ok($anon_sub, 'Sub');
 is($anon_sub(), 1, 'sub { } works');
@@ -25,12 +26,14 @@ my $anon_sub_w_arg = sub ($arg) { 1 + $arg };
 isa_ok($anon_sub_w_arg, 'Sub');
 is($anon_sub_w_arg(3), 4, 'sub ($arg) {} works');
 
-# anon blocks L<S06/"Blocks">
+# L<S06/"Blocks">
+# anon blocks
 my $anon_block = { 1 };
 isa_ok($anon_block, 'Block');
 is($anon_block(), 1, '{} <anon block> works');
 
-# pointy subs L<S06/"Pointy subs">
+# L<S06/""Pointy blocks"">
+# pointy subs
 my $pointy_block = -> { 1 };
 isa_ok($pointy_block, 'Block');
 is($pointy_block(), 1, '-> {} <"pointy" block> works');
@@ -48,7 +51,8 @@ isa_ok($pointy_block_nested, Block);
 isa_ok($pointy_block_nested(5), Block);
 is $pointy_block_nested(5)(6), 11, '-> $a { -> $b { $a+$b }} nested <"pointy" block> works';
 
-# bare blocks L<S06/"Blocks">
+# L<S06/"Blocks">
+# bare blocks
 
 my $foo;
 {$foo = "blah"};

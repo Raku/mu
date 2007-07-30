@@ -10,6 +10,7 @@ use Test;
 
 plan 56;
 
+# L<S03/Hyper operators>
 { # binary infix
         my @r;
         @r = (1, 2, 3) »+« (2, 4, 6);

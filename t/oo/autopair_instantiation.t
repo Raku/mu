@@ -11,7 +11,8 @@ L<S02/"Literals"/"There is now a generalized adverbial form">
 
 =cut
 
-{ # L<S02/"Literals"/"There is now a generalized adverbial form">
+# L<S02/"Literals"/"There is now a generalized adverbial form">
+{
     ok(eval('my $a; class b { has $.a }; my b $c .= new(:$a)'),
             'class instantiation with autopair, no spaces');
     ok(eval('my $a; class b { has $.a }; my b $c .= new(:$a )'),

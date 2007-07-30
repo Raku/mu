@@ -9,7 +9,8 @@ plan 63;
 
 = DESCRIPITION
 
-These tests test named parmaeters. L<S06/Named parameters>
+L<S06/Named parameters>
+These tests test named parmaeters.
 # 23:48 <autrijus> sub foo (+$x) { $x }  foo( x => 4 )
 # 23:48 <autrijus> is the canonical example
 # 23:48 <autrijus> +$x makes it addressable only by name
@@ -115,7 +116,7 @@ is(mandatory_by_trait(param => 5) , 5, "named mandatory parameter is returned");
 is(try { mandatory_by_trait() }, undef, "not specifying a mandatory parameter fails");
 
 
-# From L<S06/Named parameters/sub formalize>
+# L<S06/Named parameters/sub formalize>
 sub formalize($text, :$case, :$justify)  returns List {
    return($text,$case,$justify); 
 }

@@ -10,7 +10,8 @@ plan 22;
 
 # numerics
 
-{ # L<S02/Changes to Perl 5 operators/Bitwise operators get a data type prefix>
+# L<S03/Changes to Perl 5 operators/Bitwise operators get a data type prefix>
+{
 
   # numeric
   is( 0xdead +& 0xbeef,   0x9ead,    'numeric bitwise +& of hexadecimal' );

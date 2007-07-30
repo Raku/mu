@@ -4,7 +4,8 @@ plan 6;
 
 # Prototype modifier
 
-{ #L<S06/"Routine modifiers"/Prototypes>
+#L<S06/"Routine modifiers"/Prototypes>
+{
 
     eval q[ proto sub       f1 {...} ];
     eval q[ proto method    f2 {...} ];

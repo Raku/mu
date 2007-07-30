@@ -13,7 +13,8 @@ L<S03/"Junctive operators">
 
 =cut
 
-{ # L<S09/"Junctions">
+# L<S09/"Junctions">
+{
 
     is('1 2 3', ~((1|2)|3).values, "Left-associative any, | operator");
     is('1 2 3', ~(1|(2|3)).values, "Right-associative any, | operator");

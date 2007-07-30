@@ -4,7 +4,8 @@ use Test;
 
 plan 1;
 
-{ # L<S04/"The goto statement"/"the implicit default binding">
+# L<S04/"The goto statement"/"the implicit default binding">
+{
 
     my $dollar_underscore;
     { 
