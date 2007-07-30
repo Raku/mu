@@ -4,6 +4,7 @@ module Pugs.Prim.Code (
 ) where
 import Pugs.AST
 import Pugs.Internals
+import qualified Data.ByteString.Char8 as Char8
 -- import Pugs.Pretty
 
 {- On Code -}
@@ -23,7 +24,10 @@ op1CodeAssoc v = do
 op1CodeName :: Val -> Eval Val
 op1CodeName v = do
     code <- fromVal v
-    return . VStr $ "&" ++ cast (subPackage code) ++ "::" ++ tail (cast (subName code))
+    return . VStr $ case Char8.unpack(subName code) of
+        "<anon>"  -> cast $ subName code
+        _         -> "&" ++ cast (subPackage code) ++
+                     "::" ++ tail (cast (subName code))
 
 op1CodeArity :: Val -> Eval Val
 op1CodeArity v = do
