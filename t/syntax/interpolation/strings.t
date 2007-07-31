@@ -32,9 +32,9 @@ is("$number {$number}", '1 1', 'number inside and outside closure works');
 is("$number {my $number=2}", '1 2', 'local version of number in closure works');
 is("$number {my $number=2} $number", '1 2 1', 'original number still available after local version in closure: works' );
 eval( q[is("$number {my $number=2} {$number}", '1 2 1', 'original number
-still available in closure after local version in closure: works' );] );
-eval( q[is("$(my $x = 2) $x", '2 2', 'Variable should interpolate and still be available in the outer scope.');] );
-eval( q[is("$(my $x = 2)" ~ $x, '22', 'Variable should interpolate and still be available in the outer scope.');] );
+still available in closure after local version in closure: works' );] ) or ok('');
+eval( q[is("$(my $x = 2) $x", '2 2', 'Variable should interpolate and still be available in the outer scope.');] ) // ok('', 'Syntax should be recognized for $(my $x = 2)');
+eval( q[is("$(my $x = 2)" ~ $x, '22', 'Variable should interpolate and still be available in the outer scope.');] ) // ok('', 'Syntax should be recognized for $(my $x = 2)');
 
 # L<S02/Names and Variables/form of each subscript>
 is("&func. () is where I live", '&func. () is where I live', '"&func. ()" should not interpolate');
