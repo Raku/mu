@@ -1,3 +1,4 @@
+^t\.sh$
 ^\w+\.pm
 ^t.sh$
 ^temp/
