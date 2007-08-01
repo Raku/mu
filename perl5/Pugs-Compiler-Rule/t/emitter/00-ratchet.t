@@ -14,6 +14,7 @@ __DATA__
 </global>
 
 --- constant
+       ## pos: 0 1
        ( ( substr( $s, $pos, 1 ) eq 'a' )
            ? ( $pos += 1 or 1 )
            : 0
@@ -92,18 +93,19 @@ do { my $rule; $rule = sub {
        (
            ( $pad{I1170} = $pos or 1 )
            && (
-
+  
            ## <group />
 
            )
          || (
            ( ( $bool = 1 ) && ( $pos = $pad{I1170} ) or 1 )
-           && 
+           &&   
            ## <group />
 
          )
        )
 --- constant
+             ## pos: 0 1
              ( ( substr( $s, $pos, 1 ) eq 'a' )
                  ? ( $pos += 1 or 1 )
                  : 0
@@ -143,6 +145,7 @@ do { my $rule; $rule = sub {
 </global>
 
 --- constant
+       ## pos: 0 3
        ( ( substr( $s, $pos, 1 ) eq 'a' )
            ? ( $pos += 1 or 1 )
            : 0
@@ -160,6 +163,7 @@ do { my $rule; $rule = sub {
 </global>
 
 --- metasyntax
+                 ## pos: 1 5
                  do {
                    my $r = Pugs::Runtime::Regex::get_variable( '$a' );
                    push @match,
@@ -180,6 +184,7 @@ do { my $rule; $rule = sub {
 </global>
 
 --- metasyntax
+         ## pos: 1 9
          do {
                 my $match;
                 for my $subrule ( @::foo ) {
@@ -207,6 +212,7 @@ do { my $rule; $rule = sub {
 </global>
 
 --- metasyntax
+         ## pos: 1 6
          do{
                 my $match = 
           ## <variable />
@@ -218,6 +224,7 @@ do { my $rule; $rule = sub {
                 else { 0 }
             }
 --- variable
+          ## pos: 1 6
           do {
             our $I1176;
             our $I1176_sizes;
@@ -262,6 +269,7 @@ do { my $rule; $rule = sub {
 </global>
 
 --- closure
+         ## pos: 1 21
          do {
            local $::_V6_SUCCEED = 1;
            $::_V6_MATCH_ = $m;
@@ -317,7 +325,7 @@ do { my $rule; $rule = sub {
 --- concat
        ## pos: 0 5
        (
-
+  
          ## <group />
 
        &&
@@ -347,6 +355,7 @@ do { my $rule; $rule = sub {
 </global>
 
 --- closure
+           ## pos: 3 15
            do { 
              local $::_V6_SUCCEED = 1;
              $::_V6_MATCH_ = $m;
@@ -437,6 +446,7 @@ do { my $rule; $rule = sub {
 </global>
 
 --- named_capture
+         ## pos: 1 6
          do {
                 my $prior = $::_V6_PRIOR_;
                 my $match =
@@ -461,6 +471,7 @@ do { my $rule; $rule = sub {
 </global>
 
 --- metasyntax
+         ## pos: 1 7
          do {
               my $prior = $::_V6_PRIOR_;
               my $match =
@@ -483,6 +494,7 @@ do { my $rule; $rule = sub {
 </global>
 
 --- named_capture
+         ## pos: 1 10
          do {
                 my $prior = $::_V6_PRIOR_;
                 my $match =
@@ -559,6 +571,7 @@ do { my $rule; $rule = sub {
                      $bool;
                  }
 --- named_capture
+         ## pos: 1 12
          do{
                 my $match = Pugs::Runtime::Match->new( do {
                     my $bool = 1;
@@ -591,6 +604,7 @@ do { my $rule; $rule = sub {
 </global>
 
 --- constant
+           ## pos: 3 4
            ( ( substr( $s, $pos, 1 ) eq 'a' )
                ? ( $pos += 1 or 1 )
                : 0
@@ -608,6 +622,7 @@ do { my $rule; $rule = sub {
 </global>
 
 --- constant
+         ## pos: 2 3
          ( ( substr( $s, $pos, 1 ) eq 'a' )
              ? ( $pos += 1 or 1 )
              : 0
@@ -627,6 +642,7 @@ do { my $rule; $rule = sub {
 </global>
 
 --- named_capture
+         ## pos: 1 10
          do{
                 my $from = $pos;
                 my $bool = 
@@ -668,6 +684,7 @@ do { my $rule; $rule = sub {
 </global>
 
 --- negate
+               ## pos: 0 5
                do{
                    my $pos1 = $pos;
                    do {

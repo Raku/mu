@@ -69,6 +69,7 @@ sub call_constant {
     return
 "
 $_[1] ## <constant>
+$_[1] ## pos: @$RegexPos
 $_[1] ( ( substr( \$s, \$pos, $len ) eq $const )
 $_[1]     ? ( \$pos $direction= $len or 1 )
 $_[1]     : 0
@@ -171,10 +172,11 @@ sub emit_rule {
     my $v = $n->{$k};
     local $RegexPos = $n->{_pos};
     ### $RegexPos
-    #if (!defined $RegexPos) {
+    if (!defined $RegexPos) {
     #    warn "WARNING: No _pos slot found for AST node '$k'.\n";
     #    warn Dumper($n);
-    #}
+        $RegexPos = [];
+    }
     # XXX - use real references
     no strict 'refs';
     #print "NODE ", Dumper($k), ", ", Dumper($v);
@@ -218,7 +220,11 @@ sub quant {
     $rul = "$ws &&\n$rul" if $sigspace && $_[0]->{ws1} ne '';
     $rul = "$rul &&\n$ws" if $sigspace && $_[0]->{ws2} ne '';
     #print $rul;
-    return "\n$_[1] ## <group>\n" . $rul . "\n$_[1] ## </group>\n"
+    return "  
+$_[1] ## <group>
+$_[1] ## pos: @$RegexPos
+" . $rul . "
+$_[1] ## </group>\n"
         if $quantifier eq '';
     # *  +  ?
     # TODO: *? +? ??
@@ -481,6 +487,7 @@ sub variable {
       !;
     return
 "$_[1] ## <variable>
+$_[1] ## pos: @$RegexPos
 $_[1] ( eval( '( substr( \$s, \$pos ) =~ m/^(' . $code . ')/ )
 $_[1]     ? ( \$pos $direction= length( \$1 ) or 1 )
 $_[1]     : 0
@@ -495,6 +502,7 @@ $_[1] ## </variable>\n";
         my $code =
 "
           ## <variable>
+          ## pos: @$RegexPos
           do {
             our $id;
             our ${id}_sizes;
@@ -584,17 +592,22 @@ sub special_char {
     ### special char: $char
     return call_constant( $char, $_[1] );
 }
+
 sub match_variable {
     my $name = $_[0];
     my $num = substr($name,1);
     #print "var name: ", $num, "\n";
 
     return
-"$_[1] ( eval( '( substr( \$s, \$pos ) =~ m/^(' . \$m->{$num} . ')/ )
+"
+$_[1] ## <match_variable>
+$_[1] ## pos: @$RegexPos
+$_[1] ( eval( '( substr( \$s, \$pos ) =~ m/^(' . \$m->{$num} . ')/ )
 $_[1]     ? ( \$pos $direction= length( \$1 ) or 1 )
 $_[1]     : 0
-$_[1]    ') )";
-
+$_[1]    ') )
+$_[1] ## </match_varaible>
+";
 }
 
 sub closure {
@@ -633,6 +646,7 @@ sub closure {
     # "plain" {...return ...}
     return
           "$_[1] ## <closure>\n"
+        . "$_[1] ## pos: @$RegexPos\n"
         . "$_[1] do {\n"
         . "$_[1]   local \$::_V6_SUCCEED = 1;\n"
         . "$_[1]   \$::_V6_MATCH_ = \$m;\n"
@@ -647,6 +661,7 @@ sub closure {
     # "plain" {...} without return
     return
           "$_[1] ## <closure>\n"
+        . "$_[1] ## pos: @$RegexPos\n"
         . "$_[1] do { \n"
         . "$_[1]   local \$::_V6_SUCCEED = 1;\n"
         . "$_[1]   \$::_V6_MATCH_ = \$m;\n"
@@ -658,6 +673,7 @@ sub closure {
     # "?" <?{...}>
     return
         "$_[1] ## <closure>\n" .
+        "$_[1] ## pos: @$RegexPos\n" .
         "$_[1] do { \n" .
         "$_[1]   local \$::_V6_SUCCEED = 1;\n" .
         "$_[1]   \$::_V6_MATCH_ = \$m;\n" .
@@ -668,6 +684,7 @@ sub closure {
     # "!" <!{...}>
     return
         "$_[1] ## <closure>\n" .
+        "$_[1] ## pos: @$RegexPos\n" .
         "$_[1] do { \n" .
         "$_[1]   local \$::_V6_SUCCEED = 1;\n" .
         "$_[1]   \$::_V6_MATCH_ = \$m;\n" .
@@ -725,6 +742,7 @@ sub capture_as_result {
             if ref( $program );
     }
     return "$_[1] ## <capture>
+$_[1] ## pos: @$RegexPos
 $_[1] do{
 $_[1]     my \$hash = do {
 $_[1]       my \$bool = 1;
@@ -764,6 +782,7 @@ sub named_capture {
         $param_list = '' unless defined $param_list;
         my @param = split( ',', $param_list );
         return "$_[1] ## <named_capture>
+$_[1] ## pos: @$RegexPos
 $_[1] do {
                 my \$prior = \$::_V6_PRIOR_;
                 my \$match =\n" .
@@ -791,6 +810,7 @@ $_[1] ## </named_capture>\n";
                 if ref( $program );
         }
         return "$_[1] ## <named_capture>
+$_[1] ## pos: @$RegexPos
 $_[1] do{
                 my \$match = Pugs::Runtime::Match->new( do {
                     my \$bool = 1;
@@ -819,6 +839,7 @@ $_[1] ## </named_capture>\n";
         #print Dumper( $_[0] );
         $program = emit_rule( $program, $_[1].'      ' );
         return "$_[1] ## <named_capture>
+$_[1] ## pos: @$RegexPos
 $_[1] do{
                 my \$from = \$pos;
                 my \$bool = $program;
@@ -840,6 +861,7 @@ sub negate {
     $program = emit_rule( $program, $_[1].'        ' )
         if ref( $program );
     return "$_[1] ## <negate>
+$_[1] ## pos: @$RegexPos
 $_[1] do{
 $_[1]     my \$pos1 = \$pos;
 $_[1]     do {
@@ -863,6 +885,7 @@ sub before {
         if ref( $program );
     return "
 $_[1] ## <before>
+$_[1] ## pos: @$RegexPos
 $_[1] do{
 $_[1]     my \$pos1 = \$pos;
 $_[1]     do {
@@ -886,6 +909,7 @@ sub after {
     $program = emit_rule( $program, $_[1].'        ' )
         if ref( $program );
     return "$_[1] ## <after>
+$_[1] ## pos: @$RegexPos
 $_[1] do{
 $_[1]     my \$pos1 = \$pos;
 $_[1]     do {
@@ -976,6 +1000,7 @@ sub metasyntax {
         my $name = substr( $cmd, 1 );
         return
             "$_[1] ## <metasyntax>
+$_[1] ## pos: @$RegexPos
 $_[1] do {
                 my \$match;
                 for my \$subrule ( $cmd ) {
@@ -1000,7 +1025,9 @@ $_[1] ## </metasyntax>\n";
         my $name = substr( $cmd, 1 );
         # print "<$cmd>\n";
         # return variable( $cmd );
-        return "$_[1]## <metasyntax>\n$_[1] do{
+        return "$_[1]## <metasyntax>
+$_[1] ## pos: @$RegexPos
+$_[1] do{
                 my \$match = " . variable( $cmd, $_[1] ) . ";
                 if ( \$match ) {" .
                     ( $capture_to_array
@@ -1021,6 +1048,7 @@ $_[1] ## </metasyntax>\n";
             # TODO - send $pos to subrule
             return
                 "$_[1]         ## <metasyntax>\n" .
+                "$_[1]         ## pos: @$RegexPos\n" .
                 "$_[1]         do {\n" .
                 "$_[1]           push \@match,\n" .
                 "$_[1]             $cmd->match( \$s, \$grammar, {p => \$pos}, undef );\n" .
@@ -1033,6 +1061,7 @@ $_[1] ## </metasyntax>\n";
         # TODO - send $pos to subrule
         return
                 "$_[1]         ## <metasyntax>\n" .
+                "$_[1]         ## pos: @$RegexPos\n" .
                 "$_[1]         do {\n" .
                 "$_[1]           my \$r = Pugs::Runtime::Regex::get_variable( '$cmd' );\n" .
                 "$_[1]           push \@match,\n" .
@@ -1061,6 +1090,7 @@ $_[1] ## </metasyntax>\n";
         my $subrule = $cmd;
         return
 "$_[1] ## <metasyntax>
+$_[1] ## pos: @$RegexPos
 $_[1] do {
 $_[1]      my \$prior = \$::_V6_PRIOR_;
 $_[1]      my \$match =\n" .
