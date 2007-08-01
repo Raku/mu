@@ -88,6 +88,7 @@ do { my $rule; $rule = sub {
 </global>
 
 --- alt
+       ## pos: 0 5
        (
            ( $pad{I1170} = $pos or 1 )
            && (
@@ -114,13 +115,14 @@ do { my $rule; $rule = sub {
 --- token: ab
 --- Layout
 <global>
-      <concat>
+       <concat>
          <constant />
          <constant />
-      </concat>
+       </concat>
 </global>
 
 --- concat
+       ## pos: 0 2
        (
 
          ## <constant />
@@ -282,6 +284,7 @@ do { my $rule; $rule = sub {
 </global>
 
 --- alt
+       ## pos: 0 3
        (
            ( $pad{I1178} = $pos or 1 )
            && (
@@ -303,15 +306,16 @@ do { my $rule; $rule = sub {
 --- token: "\\d \\s"
 --- Layout
 <global>
-      <concat>
+       <concat>
          <group>
            <perl5 />
          </group>
          <perl5 />
-      </concat>
+       </concat>
 </global>
 
 --- concat
+       ## pos: 0 5
        (
 
          ## <group />
@@ -332,14 +336,14 @@ do { my $rule; $rule = sub {
 --- token: " a { say 'hi' } "
 --- Layout
 <global>
-      <concat>
+       <concat>
          <group>
            <constant />
          </group>
          <group>
            <closure />
          </group>
-      </concat>
+       </concat>
 </global>
 
 --- closure
@@ -363,6 +367,7 @@ do { my $rule; $rule = sub {
 </global>
 
 --- quant
+       ## pos: 0 8
        (
         (   ( $pad{I1182} = $pos or 1 ) &&
 
@@ -386,6 +391,7 @@ do { my $rule; $rule = sub {
 </global>
 
 --- quant
+       ## pos: 0 4
        (
         (   ( $pad{I1183} = $pos or 1 ) &&
 
@@ -410,6 +416,7 @@ do { my $rule; $rule = sub {
 </global>
 
 --- quant
+       ## pos: 0 4
        (
         (   ( $pad{I1184} = $pos or 1 ) &&
 
@@ -637,25 +644,27 @@ do { my $rule; $rule = sub {
 --- token: ' .*? a '
 --- Layout
 <global>
-      <concat>
+       <concat>
          <quant>
-            <concat>
+             <concat>
                <negate>
                          <before>
-                                  <concat>
+                                   <concat>
                                      <group>
                                        <constant />
                                      </group>
-                                  </concat>
+                                   </concat>
                          </before>
                </negate>
-               <group />
-            </concat>
+               <group>
+                 <dot />
+               </group>
+             </concat>
          </quant>
          <group>
            <constant />
          </group>
-      </concat>
+       </concat>
 </global>
 
 --- negate
@@ -672,5 +681,6 @@ do { my $rule; $rule = sub {
                      $bool;
                    };
                }
+
 
 

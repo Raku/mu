@@ -243,6 +243,7 @@ sub quant {
 
         return
             "$_[1] ## <quant>\n" .
+            "$_[1] ## pos: @$RegexPos\n" .
             "$_[1] (\n" .
             join( ' && ', ($rul) x $count[0] ) .
             "\n" .
@@ -251,6 +252,7 @@ sub quant {
     }
     return
         "$_[1] ## <quant>\n" .
+	"$_[1] ## pos: @$RegexPos\n" .
         "$_[1] (\n$rul\n" .
         "$_[1] || ( \$bool = 1 )\n" .
         "$_[1] )$ws3\n" .
@@ -258,11 +260,13 @@ sub quant {
         if $quantifier eq '?';
     return
         "$_[1] ## <quant>\n" .
+        "$_[1] ## pos: @$RegexPos\n" .
         "$_[1] do { while (\n$rul) {}; \$bool = 1 }$ws3\n" .
         "$_[1] ## </quant>\n"
         if $quantifier eq '*';
     return
         "$_[1] ## <quant>\n" .
+        "$_[1] ## pos: @$RegexPos\n" .
         "$_[1] (\n$rul\n" .
         "$_[1] && do { while (\n$rul) {}; \$bool = 1 }\n" .
         "$_[1] )$ws3\n" .
@@ -289,6 +293,7 @@ sub alt {
     # print " max = $capture_count\n";
     return
         "$_[1] ## <alt>
+$_[1] ## pos: @$RegexPos
 $_[1] (
 $_[1]     ( \$pad{$id} = \$pos or 1 )
 $_[1]     && (
@@ -322,6 +327,7 @@ sub conjunctive {
     # print " max = $capture_count\n";
     return
         "$_[1] ## <conjunctive>
+$_[1] ## pos: @$RegexPos
 $_[1] (
 $_[1]     ( \$pad{$id} = \$pos or 1 )
 $_[1]     && (
@@ -418,13 +424,24 @@ sub concat {
         push @s, $tmp if $tmp;
     }
     @s = reverse @s if $direction eq '-';
-    return "$_[1]## <concat>\n$_[1] (\n" . join( "\n$_[1] &&\n", @s ) . "\n$_[1] )\n$_[1]## </concat>\n";
+    return
+"$_[1] ## <concat>
+$_[1] ## pos: @$RegexPos
+$_[1] (\n" . join( "\n$_[1] &&\n", @s ) . "
+$_[1] )
+$_[1] ## </concat>\n";
 }
+
 sub code {
     return "$_[1] $_[0]\n";
 }
+
 sub dot {
-    "$_[1] ( substr( \$s, \$pos$direction$direction, 1 ) ne '' )"
+    "
+$_[1] ## <dot>
+$_[1] ## pos: @$RegexPos
+$_[1] ( substr( \$s, \$pos$direction$direction, 1 ) ne '' )
+$_[1] ## </dot>\n"
 }
 
 sub variable {
@@ -579,6 +596,7 @@ $_[1]     : 0
 $_[1]    ') )";
 
 }
+
 sub closure {
     #print "closure: ",Dumper($_[0]);
     my $code     = $_[0]{closure};
