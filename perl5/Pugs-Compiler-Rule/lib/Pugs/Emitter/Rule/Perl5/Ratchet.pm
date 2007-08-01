@@ -3,7 +3,7 @@ package Pugs::Emitter::Rule::Perl5::Ratchet;
 # p6-rule perl5 emitter for ":ratchet" (non-backtracking)
 # see: RuleInline.pl, RuleInline-more.pl for a program prototype
 
-#use Smart::Comments;
+#use Smart::Comments '####';
 use strict;
 use warnings;
 use Pugs::Emitter::Rule::Perl5::CharClass;
@@ -14,6 +14,7 @@ our $direction = "+";  # XXX make lexical
 our $sigspace = 0;
 our $capture_count;
 our $capture_to_array;
+our $RegexPos;
 
 our $count;
 sub id {
@@ -168,6 +169,12 @@ sub emit_rule {
     ### Node keys: @keys
     my ($k) = @keys;
     my $v = $n->{$k};
+    local $RegexPos = $n->{_pos};
+    ### $RegexPos
+    #if (!defined $RegexPos) {
+    #    warn "WARNING: No _pos slot found for AST node '$k'.\n";
+    #    warn Dumper($n);
+    #}
     # XXX - use real references
     no strict 'refs';
     #print "NODE ", Dumper($k), ", ", Dumper($v);
@@ -263,6 +270,7 @@ sub quant {
         if $quantifier eq '+';
     die "quantifier not implemented: $quantifier";
 }
+
 sub alt {
     my @s;
     # print 'Alt: ';
@@ -367,8 +375,14 @@ sub concat {
             && $_[0][$i]{quant}{quant}  eq '*'
             && $_[0][$i]{quant}{greedy} eq '?'
         ) {
-            my $tmp = { quant => { %{ $_[0][$i]{quant} }, greedy => '', quant => '', } };
+            my $tmp = { quant => {
+                    %{ $_[0][$i]{quant} },
+                    greedy => '', quant => ''
+                },
+                _pos => $_[0][$i]{_pos}
+            };
             $_[0][$i] = {
+                _pos => $_[0][$i]{_pos},
                 quant => {
                     greedy => '',
                     quant  => $_[0][$i]{quant}{quant},
@@ -376,10 +390,13 @@ sub concat {
                     ws2    => '',
                     ws3    => '',
                     term   => {
+                        _pos => $_[0][$i]{_pos},
                         concat => [
                             {
+                                _pos => $_[0][$i]{_pos},
                                 before => {
                                     rule     => {
+                                        _pos => $_[0][$i]{_pos},
                                         concat => [
                                             @{ $_[0] }[$i+1 .. $#{ $_[0] } ]
                                         ],
@@ -392,7 +409,7 @@ sub concat {
                     },
                 },
             };
-            #print "Quant: ",Dumper($_[0]);
+            #warn "Quant: ",Dumper($_[0]);
         }
     }
 
@@ -821,11 +838,13 @@ $_[1] ## </negate>\n";
 
 sub before {
     my $mod = delete $_[0]{modifier} || '';
-    return negate( { before => $_[0] }, $_[1] ) if $mod eq '!';
+    #### before atom: $_[0]
+    return negate( { before => $_[0], _pos => $_[0]{rule}{_pos}, }, $_[1] ) if $mod eq '!';
     my $program = $_[0]{rule};
     $program = emit_rule( $program, $_[1].'        ' )
         if ref( $program );
-    return "$_[1] ## <before>
+    return "
+$_[1] ## <before>
 $_[1] do{
 $_[1]     my \$pos1 = \$pos;
 $_[1]     do {
@@ -919,7 +938,7 @@ sub call {
         return named_capture(
             {
                 ident => $name,
-                rule => { metasyntax => { metasyntax => $name } },
+                rule => { metasyntax => { metasyntax => $name }, _pos => $_[0]{_pos}, },
             },
             $_[1],
         );
@@ -930,7 +949,7 @@ sub metasyntax {
     #print Dumper(\@_);
     my $cmd = $_[0]{metasyntax};
     my $modifier = delete $_[0]{modifier} || '';   # ? !
-    return negate( { metasyntax => $_[0] }, $_[1] ) if $modifier eq '!';
+    return negate( { metasyntax => $_[0], _pos => $_[0]{_pos} }, $_[1] ) if $modifier eq '!';
 
     my $prefix = substr( $cmd, 0, 1 );
     if ( $prefix eq '@' ) {
@@ -1059,7 +1078,7 @@ $_[1] ## </metasyntax>\n";
         return named_capture(
             {
                 ident => $subrule,
-                rule => { metasyntax => { metasyntax => $cmd } },
+                rule => { metasyntax => { metasyntax => $cmd }, _pos => $_[0]->{_pos} },
             },
             $_[1],
         );

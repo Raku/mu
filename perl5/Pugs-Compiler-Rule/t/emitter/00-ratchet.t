@@ -1,6 +1,6 @@
 use t::lib::Emitter;
 
-plan tests => 51;
+plan tests => 53;
 
 run_tests;
 
@@ -631,5 +631,46 @@ do { my $rule; $rule = sub {
                 $bool
             }
 
+
+
+=== TEST 22:
+--- token: ' .*? a '
+--- Layout
+<global>
+      <concat>
+         <quant>
+            <concat>
+               <negate>
+                         <before>
+                                  <concat>
+                                     <group>
+                                       <constant />
+                                     </group>
+                                  </concat>
+                         </before>
+               </negate>
+               <group />
+            </concat>
+         </quant>
+         <group>
+           <constant />
+         </group>
+      </concat>
+</global>
+
+--- negate
+               do{
+                   my $pos1 = $pos;
+                   do {
+                     my $pos = $pos1;
+                     my $from = $pos;
+                     my @match;
+                     my %named;
+                     $bool = 
+                         ## <before />
+ ? 0 : 1;
+                     $bool;
+                   };
+               }
 
 

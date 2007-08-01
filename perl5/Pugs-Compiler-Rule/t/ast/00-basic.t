@@ -601,6 +601,10 @@ $VAR1 = {
                                        ],
                                'named_capture' => {
                                                   'ident' => {
+                                                             '_pos' => [
+                                                                       1,
+                                                                       5
+                                                                     ],
                                                              'variable' => '$abc'
                                                            },
                                                   'rule' => {
@@ -685,6 +689,10 @@ $VAR1 = {
                                        ],
                                'named_capture' => {
                                                   'ident' => {
+                                                             '_pos' => [
+                                                                       1,
+                                                                       3
+                                                                     ],
                                                              'variable' => '$a'
                                                            },
                                                   'rule' => {
@@ -920,6 +928,60 @@ $VAR1 = {
                      'ws1' => ' ',
                      'ws2' => ' ',
                      'ws3' => ''
+                   }
+        };
+
+
+
+
+=== TEST 27: dot
+--- regex: ' . '
+--- ast
+$VAR1 = {
+          '_pos' => [
+                    0,
+                    3
+                  ],
+          'quant' => {
+                     'greedy' => '',
+                     'quant' => '',
+                     'term' => {
+                               '_pos' => [
+                                         1,
+                                         2
+                                       ],
+                               'dot' => 1
+                             },
+                     'ws1' => ' ',
+                     'ws2' => ' ',
+                     'ws3' => ''
+                   }
+        };
+
+
+
+
+=== TEST 28: non-greedy closures
+--- regex: ' a*? '
+--- ast
+$VAR1 = {
+          '_pos' => [
+                    0,
+                    5
+                  ],
+          'quant' => {
+                     'greedy' => '?',
+                     'quant' => '*',
+                     'term' => {
+                               '_pos' => [
+                                         1,
+                                         2
+                                       ],
+                               'constant' => 'a'
+                             },
+                     'ws1' => ' ',
+                     'ws2' => '',
+                     'ws3' => ' '
                    }
         };
 

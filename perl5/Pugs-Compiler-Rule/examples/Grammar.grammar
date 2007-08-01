@@ -235,9 +235,9 @@ token parse_metasyntax {
                     rule     => { metasyntax => {
                                 metasyntax => '\'' . $$<str> . '\'',
                             },
-                        _pos => [ $/->from - 1, $/->to ],
-                    },
+                        _pos => [ $<str>->from, $<str>->to ],                   },
                     modifier => $$<modifier>,
+                    _pos => [ $/->from - 1, $/->to ],
                 } }
             }
             return { metasyntax => {
@@ -254,7 +254,8 @@ token parse_metasyntax {
               method   => $$<ident>,
               params   => $$<parsed_code>,
               modifier => $$<modifier>,
-          } } }
+          },
+              _pos => [$/->from - 1, $/->to], } }
         ]
     |
         <metasyntax>  \>
@@ -267,46 +268,46 @@ token parse_metasyntax {
     ]
 }
 
-token var1 {
-        <ident> \>
-        { return { match_variable => '$' . $/{ident} }; }
-}
-
 #################################
 # set %variables
 #################################
+
+token var1 {
+        <ident> \>
+        { return { match_variable => '$' . $/{ident}, _pos => [$/->from - 2, $/->to], }; }
+}
 
 %{ $variables{'$<'} = sub { var1($_[1], $_[0], $_[2], $_[3]) }; %}
 
 token var2 {
         <?digit>+
-        { return { match_variable => '$' . $/ }; }
+        { return { match_variable => '$' . $/, _pos => [$/->from - 1, $/->to], }; }
     |
         \^?
         [ <?alnum> | _ | \: \: ]+
-        { return { variable => '$' . $/ }; }
+        { return { variable => '$' . $/, _pos => [$/->from - 1, $/->to], }; }
 }
 
 %{ $variables{'$'} = sub { var2($_[1], $_[0], $_[2], $_[3]) }; %}
 
 token var3 {
         <?digit>+
-        { return { match_variable => '@' . $/ } }
+        { return { match_variable => '@' . $/, _pos => [$/->from - 1, $/->to], } }
     |
         \^?
         [ <?alnum> | _ | \: \: ]+
-        { return { variable => '@' . $/ } }
+        { return { variable => '@' . $/, _pos => [$/->from - 1, $/->to], } }
 }
 
 %{ $variables{'@'} = sub { var3($_[1], $_[0], $_[2], $_[3]) }; %}
 
 token var4 {
         <?digit>+
-        { return { match_variable => '%' . $/ } }
+        { return { match_variable => '%' . $/, _pos => [$/->from - 1, $/->to] } }
     |
         \^?
         [ <?alnum> | _ | \: \: ]+
-        { return { variable => '%' . $/ } }
+        { return { variable => '%' . $/, _pos => [$/->from - 1, $/->to] } }
 }
 
 %{ $variables{'%'} = sub { var4($_[1], $_[0], $_[2], $_[3]) }; %}
@@ -427,7 +428,7 @@ token term10 {
 %{ $rule_terms{'\\'} = sub { term10($_[1], $_[0], $_[2], $_[3]) }; %}
 
 token term11 {
-        { return { 'dot' => 1 } }
+        { return { 'dot' => 1, _pos => [$/->from - 1, $/->to], } }
 }
 
 %{ $rule_terms{'.'} = sub { term11($_[1], $_[0], $_[2], $_[3]) }; %}
@@ -439,55 +440,55 @@ token term12 {
 
 %{ $rule_terms{'['} = sub { term12($_[1], $_[0], $_[2], $_[3]) }; %}
 
-token term13 { { return { colon => ':::' } } }
+token term13 { { return { colon => ':::', _pos => [$/->from - 3, $/->to], } } }
 
 %{ $rule_terms{':::'} = sub { term13($_[1], $_[0], $_[2], $_[3]) }; %}
 
-token term14 { { return { colon => ':?' } } }
+token term14 { { return { colon => ':?', _pos => [$/->from - 2, $/->to], } } }
 
 %{ $rule_terms{':?'} = sub { term14($_[1], $_[0], $_[2], $_[3]) }; %}
 
-token term15 { { return { colon => ':+' } } }
+token term15 { { return { colon => ':+', _pos => [$/->from - 2, $/->to], } } }
 
 %{ $rule_terms{':+'} = sub { term15($_[1], $_[0], $_[2], $_[3]) }; %}
 
-token term16 { { return { colon => '::' } } }
+token term16 { { return { colon => '::', _pos => [$/->from - 2, $/->to], } } }
 
 %{ $rule_terms{'::'} = sub { term16($_[1], $_[0], $_[2], $_[3]) }; %}
 
-token term17 { { return { colon => ':'  } } }
+token term17 { { return { colon => ':', _pos => [$/->from - 2, $/->to], } } }
 
 %{ $rule_terms{':'} = sub { term17($_[1], $_[0], $_[2], $_[3]) }; %}
 
-token term18 { { return { colon => '$$' } } }
+token term18 { { return { colon => '$$', _pos => [$/->from - 2, $/->to], } } }
 
 %{ $rule_terms{'$$'} = sub { term18($_[1], $_[0], $_[2], $_[3]) }; %}
 
-token term19 { { return { colon => '$'  } } }
+token term19 { { return { colon => '$', _pos => [$/->from - 1, $/->to],  } } }
 
 %{ $rule_terms{'$'} = sub { term19($_[1], $_[0], $_[2], $_[3]) }; %}
 
-token term20 { { return { colon => '^^' } } }
+token term20 { { return { colon => '^^', _pos => [$/->from - 2, $/->to], } } }
 
 %{ $rule_terms{'^^'} = sub { term20($_[1], $_[0], $_[2], $_[3]) }; %}
 
-token term21 { { return { colon => '^'  } } }
+token term21 { { return { colon => '^', _pos => [$/->from - 1, $/->to], } } }
 
 %{ $rule_terms{'^'} = sub { term21($_[1], $_[0], $_[2], $_[3]) }; %}
 
-token term22 { { return { colon => '>>' } } }
+token term22 { { return { colon => '>>', _pos => [$/->from - 2, $/->to], } } }
 
 %{ $rule_terms{'>>'} = sub { term22($_[1], $_[0], $_[2], $_[3]) }; %}
 
-# token term23 { { return { colon => '>>' } } }
+# token term23 { { return { colon => '>>', _pos => [$/->from - 2, $/->to], } } }
 
 %{ $rule_terms{'»'} = sub { term22($_[1], $_[0], $_[2], $_[3]) }; %}
 
-token term24 { { return { colon => '<<' } } }
+token term24 { { return { colon => '<<', _pos => [$/->from - 2, $/->to], } } }
 
 %{ $rule_terms{'<<'} = sub { term24($_[1], $_[0], $_[2], $_[3]) }; %}
 
-# token term25 { { return { colon => '<<' } } }
+# token term25 { { return { colon => '<<', _pos => [$/->from - 2, $/->to], } } }
 
 %{ $rule_terms{'«'} = sub { term24($_[1], $_[0], $_[2], $_[3]) }; %}
 
@@ -498,13 +499,12 @@ token term26 {
                 modifier => 'ignorecase',
                 rule => $$<rule>,
                 }
-            }
+            },
         }
 }
 
 %{ $rule_terms{':i'} = sub { term26($_[1], $_[0], $_[2], $_[3]) }; %}
 
-# token term27 {
 #        <?ws> <rule>
 #        { return { modifier => { modifier => 'ignorecase', :$$<rule> } } }
 # }
@@ -653,7 +653,7 @@ token conjunctive1 {
 
     {
         my @a = map {  $$_  }  @{ $::_V6_MATCH_->{'concat'} };
-        return { conjunctive1 => \@a }  if scalar @a > 1;
+        return { conjunctive1 => \@a, _pos => [$/->from, $/->to] }  if scalar @a > 1;
         return $a[0];
     }
 }
@@ -698,7 +698,7 @@ token rule {
 
     {
         my @a = map {  $$_  }  @{ $::_V6_MATCH_->{'conjunctive'} };
-        return { alt => \@a }  if scalar @a > 1;
+        return { alt => \@a, _pos => [$/->from, $/->to], }  if scalar @a > 1;
         return $a[0];
     }
 }
