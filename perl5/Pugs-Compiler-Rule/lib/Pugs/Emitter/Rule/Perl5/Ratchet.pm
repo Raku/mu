@@ -167,11 +167,11 @@ sub emit_rule {
     my @keys = grep { substr($_, 0, 1) ne '_' } keys %$n;
     ### Node keys: @keys
     my ($k) = @keys;
-    my $v = $$n{$k};
+    my $v = $n->{$k};
     # XXX - use real references
     no strict 'refs';
     #print "NODE ", Dumper($k), ", ", Dumper($v);
-    my $code = &$k( $v, $tab );
+    my $code = $k->( $v, $tab );
     return $code;
 }
 
