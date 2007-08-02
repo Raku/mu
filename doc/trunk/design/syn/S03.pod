@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 15 Jun 2007
+  Last Modified: 2 Aug 2007
   Number: 3
-  Version: 117
+  Version: 118
 
 =head1 Overview
 
@@ -28,11 +28,11 @@ levels. (Perl 5 has 23!)  Here we list the levels from "tightest" to
 
     Level               Examples
     =====               ========
-    Terms               42 3.14 "eek" qq["foo"] $x :!verbose
+    Terms               42 3.14 "eek" qq["foo"] $x :!verbose @$array
     Method postfix      .meth .+ .? .* .() .[] .{} .<> .«» .:: .= .^ .:
     Autoincrement       ++ --
     Exponentiation      **
-    Symbolic unary      ! + - ~ ? $ @ % & | +^ ~^ ?^ \ ^ =
+    Symbolic unary      ! + - ~ ? | +^ ~^ ?^ \ ^ =
     Multiplicative      * / % x xx +& +< +> ~& ~< ~> ?& div mod
     Additive            + - ~ +| +^ ~| ~^ ?| ?^
     Junctive and (all)  &
@@ -47,7 +47,7 @@ levels. (Perl 5 has 23!)  Here we list the levels from "tightest" to
     Loose unary         true not
     Comma operator      ,
     List infix          Z minmax X X~X X*X XeqvX
-    List prefix         = : print push say die map substr ... [+] [*] any all
+    List prefix         = : print push say die map substr ... [+] [*] any $ @
     Loose and           and
     Loose or            or xor err
     Terminator          ; <==, ==>, <<==, ==>>, {...}, modifiers, extra ), ], }
@@ -355,10 +355,19 @@ support the common idiom:
     say $x unless %seen{$x}++;
 
 Increment of a C<Str> (in a suitable container) works similarly to
-Perl 5 except that the final alphanumeric sequence in the string is
-incremented regardless of what comes before it.  For its typical use
-of incrementing a filename, you don't have to worry about the path name, but
-you do still have to worry about the extension, so you probably want to say
+Perl 5, but is generalized slightly.  First, the string is examined
+to see if it could be the string representation of a number in
+any common representation, including floating point and radix
+notation. (Surrounding whitespace is also allowed around such a
+number.)  If it appears to be a number, it is converted to a number
+and incremented as a number.  Otherwise, a scan is made for the
+final alphanumeric sequence in the string.  Unlike in Perl 5, this
+alphanumeric sequence need not be anchored to the beginning of the
+string, nor does it need to begin with an alphabetic character; the
+final sequence in the string matching C<\w+> is incremented regardless
+of what comes before it.  For its typical use of incrementing a
+filename, you don't have to worry about the path name, but you do
+still have to worry about the extension, so you probably want to say
 
     my $fh = open $filename++ ~ '.jpg';
 
@@ -366,7 +375,7 @@ Alternately, you can increment a submatch:
 
     $filename ~~ s[ <( <<\w+>> )> \.\w+$] = $().succ;
 
-Perl 6 also supports C<Str> decrement.
+Perl 6 also supports C<Str> decrement with similar semantics.
 
 Increment and decrement are defined in terms of the C<.succ> and
 C<.pred> methods on the type of object in the C<Scalar> container.

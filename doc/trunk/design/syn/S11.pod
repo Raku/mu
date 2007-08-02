@@ -314,7 +314,7 @@ put a range operator as a selector in parens:
 When specifying the version of your own module, C<1.2> is equivalent
 to C<1.2.0>, C<1.2.0.0>, and so on.  However C<use> searches for
 modules matching a version prefix, so the subversions are wildcarded,
-and in this context C<< :vers<1.2> >> really means C<< :vers<1.2.*> >>.
+and in this context C<< :ver<1.2> >> really means C<< :ver<1.2.*> >>.
 If you say:
 
     use v6;
@@ -376,7 +376,7 @@ addition to (or instead of) an authority, so that you can use modules
 from other languages.  The C<from> adverb also parses any additional
 parts as short-form arguments.  For instance:
 
-    use Whiteness:from<perl5>:name<Acme::Bleach>ver<1.12>:auth<cpan:DCONWAY>;
+    use Whiteness:from<perl5>:name<Acme::Bleach>:ver<1.12>:auth<cpan:DCONWAY>;
     use Whiteness:from<perl5 Acme::Bleach 1.12 cpan:DCONWAY>;  # same thing
 
 The string form of a version recognizes the C<*> wildcard in place of any

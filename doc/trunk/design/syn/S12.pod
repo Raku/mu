@@ -180,6 +180,22 @@ This is true also for multi methods:
 
     multi method doit ($x: $a; $b; $c) { ... }
 
+If you declare an explicit invocant for an Array type using an array variable,
+you may use that directly in list context to produce its elements
+
+    method push3 (@x: $a, $b, $c) { ... any(@x) ... }
+
+Note that the C<self> function is not context sensitive and thus always
+returns the current object as a single item even in list context.
+Hence if your current object happens to be an array but you did not
+declare it with an explicit array variable. you need to explicitly
+access the elements of the array somehow:
+
+    any(self)     # WRONG
+    any(self[])   # okay
+    any(@(self))  # okay
+    any(@self)    # WRONG unless you declared @self yourself
+
 Private methods are declared using C<my>:
 
     my method think (Brain $self: $thought)
