@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 10 Jul 2007
+   Last Modified: 3 Jul 2007
    Number: 5
-   Version: 61
+   Version: 62
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -1000,7 +1000,8 @@ whitespace) is passed as a string, so the previous may also be written as:
 
     <foo: bar>
 
-To pass a string with leading whitespace you must use the parenthesized form.
+To pass a string with leading whitespace, or to interpolate any values
+into the string, you must use the parenthesized form.
 
 If the first character is a plus or minus, the initial identifier
 is taken as a character class, so the first character after the
