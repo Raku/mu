@@ -14,7 +14,7 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 3 Jul 2007
+   Last Modified: 3 Aug 2007
    Number: 5
    Version: 62
 
