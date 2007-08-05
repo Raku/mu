@@ -18,7 +18,7 @@ unless (`$svn info` =~ /\/pugs$/m) {
 
 chomp(my $PUGSHOME = `pwd`);
 
-$nick_base ||= "./pugs";
+$nick_base ||= "pugsbot";
 @channels = ('#perl6') unless @channels;
 
 my $pid = 0;
@@ -30,13 +30,15 @@ my $pipe = "evalbot_nick";
 
 sub update_pugs {
     print STDERR "*** Updating repository...\n";
-    system "$svn update";
+#    system "$svn update";
     my $revision;
     if ($svn eq 'svn') {
+        system "$svn update";
         my $info = `$svn info`;
         ($revision) = $info =~ /^Revision: (\d+)/m;
     }
     else { # SVK here
+        system "$svn update -s";
         my @info = qx/svk info/;
         if (my ($line) = grep /(?:file|svn|https?)\b/, @info) {
             ($revision) = $line =~ / (\d+)$/;
@@ -63,7 +65,8 @@ sub build_pugs {
     print STDERR "*** Rebuilding pugs\n";
     if ($have_refresh && -f $refresh_file) {
         unlink $refresh_file;
-        unlink $_ for glob "$ENV{PERL6LIB}/*yml"; # XXX: should probably clean more..
+    system "make clean";
+    #    unlink $_ for glob "$ENV{PERL6LIB}/*yml"; # XXX: should probably clean more..
     }
     unlink 'src/Pugs/pugs_version.h';
 	
@@ -79,7 +82,7 @@ sub build_pugs {
 		$failed = 1;
 	}
 	else {
-		open my $fh, 'make 2>&1 |';
+		open my $fh, 'make soon 2>&1 |';
 		while (<$fh>) {
 			print;
 			$report .= $_;
@@ -116,8 +119,8 @@ sub start_pugs {
     }
     else {
         exec "./pugs examples/network/evalbot/evalbot.pl " .
-             "'=$pipe' chat.freenode.net 900" . map { " '$_'" } @channels
-                or exit;
+             "'=$pipe' chat.freenode.net 900 " . join(' ', map { "'$_'" } @channels)
+	     or exit;
     }
 }
 

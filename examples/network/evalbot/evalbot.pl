@@ -23,6 +23,8 @@ $port //= 6667;
 my $reconn_delay = @*ARGS[2] // 60 * 15;
 my @chans = @*ARGS[3...];
 
+my $reconnect = 1;
+
 debug "Summary of configuration:";
 debug "  Will connect as...                  $nick()";
 debug "  to...                               $host:$port";
@@ -35,32 +37,9 @@ debug "  $*PROGRAM_NAME nick host[:port] reconnect_delay";
 my $bot = new_bot(nick => $nick(), host => $host, port => $port, debug_raw => 0);
 
 # prototypes are required now before you can reference the subs
-sub on_invite($event) {...};
-sub on_privmsg($event) {...};
+# sub on_invite($event) {...};
+# sub on_privmsg($event) {...};
 
-$bot<add_handler>("INVITE",   &on_invite);
-$bot<add_handler>("PRIVMSG",  &on_privmsg);
-
-# Rejoin chans after a reconnect
-$bot<add_handler>("loggedin", -> $event {
-  $bot<join>($_) for @chans;
-});
-
-my $reconnect = 1;
-while 1 {
-  $bot<connect>();
-  $bot<login>();
-  $bot<run>();
-  if $reconnect { 
-    # Reconnect, but not immediately to 1. not suck up all CPU, 2. to not suck
-    # up all connections, 3. to not get klined by the IRC server, 4. to not
-    # annoy the people on the channels.
-    sleep $reconn_delay;
-  } else {
-    # Else somebody issued a ?quit, so really exit.
-    exit;
-  }
-}
 
 # Join on invite
 sub on_invite($event) {
@@ -162,3 +141,27 @@ sub evalhelper(Str $code) {
   unlink $tmpfile;
   return bytes($result) ?? $result !! "(no output)";
 }
+
+$bot<add_handler>("INVITE",   &on_invite);
+$bot<add_handler>("PRIVMSG",  &on_privmsg);
+
+# Rejoin chans after a reconnect
+$bot<add_handler>("loggedin", -> $event {
+  $bot<join>($_) for @chans;
+});
+
+while 1 {
+  $bot<connect>();
+  $bot<login>();
+  $bot<run>();
+  if $reconnect {
+    # Reconnect, but not immediately to 1. not suck up all CPU, 2. to not suck
+    # up all connections, 3. to not get klined by the IRC server, 4. to not
+    # annoy the people on the channels.
+    sleep $reconn_delay;
+  } else {
+    # Else somebody issued a ?quit, so really exit.
+    exit;
+  }
+}
+
