@@ -8,7 +8,11 @@ use KindaPerl6::Runtime::Perl5::MOP;
 #use KindaPerl6::Runtime::Perl5::Type;
 use KindaPerl6::Runtime::Perl5::Pad;
 use KindaPerl6::Runtime::Perl5::Wrap;
-
+package KindaPerl6::Runtime::Perl5::Runtime;
+    sub import {
+        my ($package,) = caller();
+        *{$package.'::dispatch'} = \&KindaPerl6::Runtime::Perl5::MOP::dispatch;
+    }
 package KindaPerl6::Grammar;
     sub space { 
         my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 

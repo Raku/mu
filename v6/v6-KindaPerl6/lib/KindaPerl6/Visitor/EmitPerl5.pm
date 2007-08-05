@@ -23,7 +23,7 @@ class CompUnit {
 
         # XXX - not sure about $_ scope
         ~ 'BEGIN { '
-        ~   '$_ = $::Scalar->{_dispatch}( $::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); '
+        ~   '$_ = dispatch($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); '
         ~ '} '
 
         ~ $.body.emit_perl5

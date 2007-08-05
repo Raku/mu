@@ -23,6 +23,10 @@ use Data::Dumper;
     $methods->{new} = sub { my $v = sugar { _dispatch => $dispatch, $_[0]{_value} } };
 }
 
+sub dispatch {
+    my $invocant = shift;
+    $invocant->{_dispatch}($invocant,@_);
+}
 sub get_method_from_metaclass {
     my ( $self, $method_name ) = ( shift, shift );
 
