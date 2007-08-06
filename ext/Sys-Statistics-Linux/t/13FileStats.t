@@ -1,7 +1,5 @@
-#!/usr/bin/pugs
 use v6-alpha;
 use Test;
-use lib ('/home/bloonix/pugs/ext/Sys-Statistics-Linux/lib');
 use Sys::Statistics::Linux::FileStats;
 
 plan 10;
