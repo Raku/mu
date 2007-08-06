@@ -50,7 +50,7 @@ Call C<init()> to initialize the statistics.
 
 Call C<get()> to get the statistics. C<get()> returns the statistics as a hash.
 
-   my $stats = $lxs.get;
+   my %stats = $lxs.get;
 
 =head1 EXAMPLE
 
@@ -197,10 +197,10 @@ my method load () {
     my $statfh = open($file, :r) or croak("unable to open $file: $!");
     my (%stats, $iowait, $irq, $softirq);
 
-    while my $line = $statfh.readline {
+    for =$statfh -> $line {
         next unless $line ~~ /^(cpu\d*?)\s+(.*)/;
         my %cpu := %stats{$0};
-        (%cpu<user nice system idle iowait irq softirq>) = (~$1).split(rx/\s+/);
+        %cpu<user nice system idle iowait irq softirq> = (~$1).comb;
         %cpu<iowait>  = 0 unless %cpu<iowait>.defined;
         %cpu<irq>     = 0 unless %cpu<irq>.defined;
         %cpu<softirq> = 0 unless %cpu<softirq>.defined;

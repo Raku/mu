@@ -9,7 +9,7 @@ Sys::Statistics::Linux::DiskUsage - Collect linux disk usage.
    use Sys::Statistics::Linux::DiskUsage;
 
    my $lxs   = Sys::Statistics::Linux::DiskUsage.new;
-   my $stats = $lxs.get;
+   my %stats = $lxs.get;
 
 =head1 DESCRIPTION
 
@@ -46,7 +46,7 @@ Call C<get()> to get the statistics. C<get()> returns the statistics as a hash.
     my $lxs = Sys::Statistics::Linux::DiskUsage.new;
     my $header = 0;
 
-    while ( 1 ) {
+     while ( 1 ) {
         sleep(1);
         my %stats = $lxs.get;
         my $time  = localtime();
@@ -156,10 +156,10 @@ method get () {
     # filter the header
     {$diskfh.readline};
 
-    while my $line = $diskfh.readline {
+    for =$diskfh -> $line {
         next unless $line ~~ /(.+?)\s+(.+)$/;
         my %d := %disk_usage{$0};
-        %d<total usage free usageper mountpoint> = ((~$1).split(rx/\s+/));
+        %d<total usage free usageper mountpoint> = (~$1).comb;
         %d<usageper> ~~ s/%//;
     }
 

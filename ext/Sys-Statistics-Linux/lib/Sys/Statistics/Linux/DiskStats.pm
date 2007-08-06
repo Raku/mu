@@ -289,7 +289,7 @@ my method load () {
     # --------------------------------------------------------
 
     if $dfh = open($dfile, :r) {
-        while my $line = $dfh.readline {
+        for =$dfh -> $line {
             if $line ~~ /^\s+(\d+)\s+(\d+)\s+(.+?)\s+(\d+)\s+\d+\s+(\d+)\s+\d+\s+(\d+)\s+\d+\s+(\d+)\s+\d+\s+\d+\s+\d+\s+\d+$/ {
                 my %x := %stats{$2};
                 %x<major>   = $0;
@@ -330,7 +330,7 @@ my method load () {
         $dfh.close;
 
     } elsif $dfh = open($pfile, :r) {
-        while my $line = $dfh.readline {
+        for =$dfh -> $line {
             next unless $line ~~ /^\s+(\d+)\s+(\d+)\s+\d+\s+(.+?)\s+(\d+)\s+\d+\s+(\d+)\s+\d+\s+(\d+)\s+\d+\s+(\d+)\s+\d+\s+\d+\s+\d+\s+\d+$/;
             my %x := %stats{$2};
             %x<major>   = $0;
@@ -390,8 +390,8 @@ my method load () {
 #}
 
 my method deltas () {
-    my %inits   = self.inits;
-    my %stats   = self.stats;
+    my %inits  := self.inits;
+    my %stats  := self.stats;
     my $uptime  = self.uptime();
     my $delta   = sprintf('%.2f', $uptime - self.<uptime>);
     self.uptime = $uptime;
@@ -410,7 +410,7 @@ my method deltas () {
                 croak("init key '$k' doesn't exists");
             }
             if $v == %idisk{$k} {
-                %sdisk{$k} = sprintf('%.2f', 0);
+                %sdisk{$k} = 0.00;
             } elsif $delta > 0 {
                 %sdisk{$k} = sprintf('%.2f', ($v - %idisk{$k}) / $delta);
             } else {
@@ -419,8 +419,6 @@ my method deltas () {
             %idisk{$k} = $v;
         }
     }
-
-    return %stats;
 }
 
 #sub _uptime {
@@ -436,7 +434,7 @@ my method deltas () {
 my method uptime () {
     my $file = self.files<uptime>;
     my $upfh = open($file, :r) or croak("unable to open $file: $!");
-    my ($up, $idle) = $upfh.readline.split(rx/\s+/);
+    my ($up, $idle) = $upfh.readline.comb;
     $upfh.close;
     return $up;
 }
