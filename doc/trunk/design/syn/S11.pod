@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 24 Apr 2007
+  Last Modified: 6 Aug 2007
   Number: 11
-  Version: 19
+  Version: 20
 
 =head1 Overview
 
@@ -210,6 +210,22 @@ Modules posted to CPAN or entered into any standard Perl 6 library
 are required to declare their full name so that installations can know
 where to keep them, such that multiple versions by different authors
 can coexist, all of them available to any installed version of Perl.
+(When we say "modules" here we don't mean only modules declared with
+the C<module> declarator, but also classes, roles, grammars, etc.)
+
+Such modules are also required to specify exactly which version (or
+versions) of Perl they are expecting to run under, so that future
+versions of Perl can emulate older versions of Perl (or give a cogent
+explanation of why they cannot).  This will allow the language to
+evolve without breaking existing widely used modules.  (Perl 5 library
+policy is notably lacking here; it would induce massive breakage even
+to change Perl 5 to make strictness the default.)  If a CPAN module
+breaks because it declares that it supports future versions of Perl
+when it doesn't, then it must be construed to be the module's fault,
+not Perl's.  If Perl evolves in a way that does not support emulation
+of an older version (at least, back to 6.0.0), then it's Perl's fault
+(unless the change is required for security, in which case it's the
+fault of the insensitive clod who broke security :).
 
 The internal API for package names is always case-sensitive, even if
 the library system is hosted on a system that is not case-sensitive.
