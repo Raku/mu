@@ -8,8 +8,7 @@ plan 31;
 {
   my $a = 42;
   {
-    temp $a = 23;
-    is $a, 23, "temp() changed the variable (1)";
+    is(eval('temp $a = 23; $a'), 23, "temp() changed the variable (1)");
   }
   is $a, 42, "temp() restored the variable (1)";
 }
@@ -20,8 +19,7 @@ plan 31;
   my $a     = 42;
   my $get_a = { $a };
   {
-    temp $a = 23;
-    is $a,       23, "temp() changed the variable (2-1)";
+    is(eval('temp $a = 23; $a'),       23, "temp() changed the variable (2-1)");
     is $get_a(), 23, "temp() changed the variable (2-2)";
   }
   is $a, 42, "temp() restored the variable (2)";
@@ -32,16 +30,14 @@ plan 31;
   my $a     = 42;
   my $get_a = { $a };
   {
-    temp $a = 23;
-    ok $a =:= $get_a(), "temp() shouldn't change the variable containers";
+    ok(eval('temp $a = 23; $a =:= $get_a()'), "temp() shouldn't change the variable containers");
   }
 }
 
 {
   our $pkgvar = 42;
   {
-    temp $pkgvar = 'not 42';
-    is $pkgvar, 'not 42', "temp() changed the package variable (3-1)";
+    is(eval(q/temp $pkgvar = 'not 42'; $pkgvar/), 'not 42', "temp() changed the package variable (3-1)");
   }
   is $pkgvar, 42, "temp() restored the package variable (3-2)";
 }
@@ -51,8 +47,7 @@ plan 31;
 {
   my $a = 42;
   try {
-    temp $a = 23;
-    is $a, 23, "temp() changed the variable in a try block";
+    is(eval('temp $a = 23; $a'), 23, "temp() changed the variable in a try block");
     die 57;
   };
   is $a, 42, "temp() restored the variable, the block was exited using an exception";
@@ -62,10 +57,10 @@ eval('
 {
   my @array = (0, 1, 2);
   {
-    temp @array[1] = 42;
+    temp @array[1] = 42; 
     is @array[1], 42, "temp() changed our array element";
   }
-  is @array[1], 1, "temp() restored our array element";
+    is @array[1], 1, "temp() restored our array element";
 }
 "1 - delete this line when the parsefail eval() is removed";
 ') or skip(2, "parsefail: temp \@array[1]");
@@ -164,8 +159,7 @@ eval('
   is $was_in_own_temp_handler, 0, ".TEMP method wasn't yet executed";
 
   {
-    temp $a;
-    is $was_in_own_temp_handler, 1, ".TEMP method was executed on temporization";
+    is(eval('temp $a; $was_in_own_temp_handler'), 1, ".TEMP method was executed on temporization");
   }
   is $was_in_own_temp_handler, 2, ".TEMP method was executed on restoration";
 }
