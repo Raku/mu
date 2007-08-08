@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 2 Jun 2007
+  Last Modified: 7 Aug 2007
   Number: 4
-  Version: 59
+  Version: 60
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -172,6 +172,17 @@ But these two are valid:
 
     sub f { 3 }; sub g { 3 };
     sub f { 3 }; sub g { 3 }    # the trailing semicolon is optional
+
+Though certain control statements could conceivably be parsed in a
+self-contained way, for visual consistency all statement-terminating
+blocks that end in the middle of a line I<must> be terminated by
+semicolon unless they are naturally terminated by some other statement
+terminator:
+
+    while yin() { yang() }  say "done";      # ILLEGAL
+    while yin() { yang() }; say "done";      # okay, explicit semicolon
+    @yy := [ while yin() { yang() } ];       # okay within outer [...]
+    while yin() { yang() } ==> sort          # okay, ==> separates statements
 
 =head1 Conditional statements
 
