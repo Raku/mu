@@ -147,6 +147,18 @@
           $::Scalar->{_dispatch}( $::Scalar, "new",
             { modified => $_MODIFIED, name => "$_" } );
     }
+    my $Code_match_type;
+    $Code_match_type = $::Routine->{_dispatch}(
+        $::Routine, 'new',
+        { modified => $_MODIFIED, name => '$Code_match_type' }
+    ) unless defined $Code_match_type;
+
+    BEGIN {
+        $Code_match_type = $::Routine->{_dispatch}(
+            $::Routine, 'new',
+            { modified => $_MODIFIED, name => '$Code_match_type' }
+        );
+    }
     $::Capture =
       $::Class->{_dispatch}( $::Class, 'new',
         $::Str->{_dispatch}( $::Str, 'new', 'Capture' ) )->{_dispatch}(
@@ -165,6 +177,22 @@
     $::Capture->{_dispatch}( $::Capture, 'HOW', )->{_dispatch}(
         $::Capture->{_dispatch}( $::Capture, 'HOW', ),
         'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'named' )
+    );
+    $Code_match_type->{_dispatch_VAR}(
+        $Code_match_type,
+        'BIND',
+        $::Code->{_dispatch}(
+            $::Code, 'new',
+            {
+                code => sub {
+                    my $List__ = \@_;
+                    my $spec;
+                    my $thing;
+                    $::Int->{_dispatch}( $::Int, 'new', 1 );
+                },
+                src => q#sub { 1 }#
+            }
+        )
     );
     1
 }
