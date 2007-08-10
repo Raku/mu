@@ -4,7 +4,7 @@ peek.spork: "A Peek into Pugs Internals" (English):
 
 Anatomie_eines_Compilers_am_Beispiel_von_Pugs.latex (German):
   Talk by Ingo Blechschmidt
-  PDF version: http://m19s28.vlinux.de/iblech/klasse11/Sonstiges/1337/LUGA/Anatomie_eines_Compilers_am_Beispiel_von_Pugs.latex.pdf
+  PDF version: http://m19s28.dyndns.org/iblech/klasse11/Sonstiges/1337/LUGA/Anatomie_eines_Compilers_am_Beispiel_von_Pugs.latex.pdf
 
 Apocalypse_Now.spork: "Apocalypse Now" (English):
   Talk by Audrey Tang for YAPC::NA 2005
@@ -26,16 +26,16 @@ Perl6_genau_jetzt.latex: "Perl 6, genau jetzt!" (German):
   Talk by Ingo Blechschmidt
   - Original version (held 2005-05-04)
     - PDF version:
-      http://m19s28.vlinux.de/iblech/klasse11/Sonstiges/1337/LUGA/Perl6.latex.pdf
+      http://m19s28.dyndns.org/iblech/klasse11/Sonstiges/1337/LUGA/Perl6.latex.pdf
     - LaTeX sources: ./Perl6_genau_jetzt.latex
   - Updated version for the 6. Augsburger Linux-Infotag 2006 (2006-03-25),
     http://www.luga.de/Aktionen/LIT-2006/:
     - PDF version:
-      http://m19s28.vlinux.de/iblech/klasse12/Sonstiges/LUGA/Perl6.takahashi-latex.pdf
+      http://m19s28.dyndns.org/iblech/klasse12/Sonstiges/LUGA/Perl6.takahashi-latex.pdf
     - LaTeX sources:
-      http://m19s28.vlinux.de/iblech/klasse12/Sonstiges/LUGA/Perl6.takahashi-latex
+      http://m19s28.dyndns.org/iblech/klasse12/Sonstiges/LUGA/Perl6.takahashi-latex
       Preprocess with:
-      http://m19s28.vlinux.de/iblech/stuff/latex-takahashi/takahashi2latex-with-inlined-images.pl
+      http://m19s28.dyndns.org/iblech/stuff/latex-takahashi/takahashi2latex-with-inlined-images.pl
 
 Perl6_the_Ultimate.spork: "Perl 6 The Ultimate" (Chinese):
   Talk by Audrey Tang for YAPC::Taipei 2005

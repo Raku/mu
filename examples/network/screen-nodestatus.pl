@@ -22,7 +22,7 @@
 # on the status of your computers! :)
 # Note: You might need to change &ping (at the end of this file).
 # See a screenshot of screen-nodestatus.pl in action at
-# http://m19s28.vlinux.de/iblech/screen-nodestatus.png (look at the bottom
+# http://m19s28.dyndns.org/iblech/screen-nodestatus.png (look at the bottom
 # right corner).
 
 use v6-alpha;
@@ -119,7 +119,7 @@ A complete command line might look like:
   $*EXECUTABLE_NAME $*PROGRAM_NAME router:R:30 printer:P:60 box:B:10
 
 Look at the source of $*PROGRAM_NAME for more information
-or see a screenshot at http://m19s28.vlinux.de/iblech/screen-nodestatus.png
+or see a screenshot at http://m19s28.dyndns.org/iblech/screen-nodestatus.png
 (look at the bottom right corner).\n";
 }
 

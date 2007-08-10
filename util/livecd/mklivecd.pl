@@ -47,8 +47,8 @@ sub step {
   }
 }
 
-my $kernel_uri   = "http://m19s28.vlinux.de/iblech/pugs/livecd-kernel.bin";
-my $grub_uri     = "http://m19s28.vlinux.de/iblech/pugs/grub.tar.bz2";
+my $kernel_uri   = "http://m19s28.dyndns.org/iblech/pugs/livecd-kernel.bin";
+my $grub_uri     = "http://m19s28.dyndns.org/iblech/pugs/grub.tar.bz2";
 my $kernel_local = "vmlinuz";
 my $grub_local   = "grub.tar.bz2";
 my $pugs         = "../../pugs";
@@ -88,11 +88,11 @@ Note: I only tested this program on Linux, but it should work on other *nix
       Linux, you may want to change that.
 
 Note: A precompiled (but most of the time outdated) image is available at
-      http://m19s28.vlinux.de/iblech/pugs/livecd.iso.
+      http://m19s28.dyndns.org/iblech/pugs/livecd.iso.
 
 Note: If you want to modify the kernel used, you may want to use the
       configuration at
-      http://m19s28.vlinux.de/iblech/pugs/livecd-kernel.config.
+      http://m19s28.dyndns.org/iblech/pugs/livecd-kernel.config.
 
 Available options and defaults:
   --kernel-uri=$kernel_uri
