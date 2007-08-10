@@ -21,7 +21,7 @@ GetOptions(
 
 debug "smokeserv-client v" . VERSION . " started.\n";
 
-my @default_smokeserv = ("http://m19s28.vlinux.de/cgi-bin/pugs-smokeserv.pl");
+my @default_smokeserv = ("http://m19s28.dyndns.org/cgi-bin/pugs-smokeserv.pl");
 my @smokeserv = $smokeserver ? ($smokeserver) : @default_smokeserv;
 
 setup_compression() if $compression_wanted;
@@ -86,6 +86,7 @@ foreach my $smokeserv (@smokeserv) {
     }
   } else {
     debug "error: " . $resp->status_line . "\n";
+	debug "msg: " . $resp->content . "\n";
     exit 1;
   }
 }
