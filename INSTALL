@@ -13,7 +13,6 @@ build by yourself. (Several hours)
 Additionally, Pugs uses the Cabal framework (http://haskell.org/cabal/),
 which is usually bundled with GHC itself. (The 6.6 source code contains it.)
 
-
 http://jnthn.net/perl6/ has binary builds for Win32.  For Mac OS X (PowerPC),
 http://www.unobe.com/packages/ has binary builds too. If you'd like to build
 Pugs by hand, http://wiki.kn.vutbr.cz/mj/?Perl%206%20and%20Parrot has some
@@ -24,6 +23,11 @@ see the section below on compiling the version from testing.  GHC 6.6.1 debs
 for etch are available (not apt-gettable):
 i386 http://feather.perl6.nl/~diakopter/
 amd64 http://airen.bcm.umontreal.ca/ghc-pugs-etch/
+
+Do not use ActivePerl on OS X to run Makefile.PL.  ActivePerl is built as a
+Universal binary, and the pugs build system will try to use build
+information from ActivePerl and cause the build to fail.  The Perl from
+MacPorts (http://www.macports.org/) seems to work well.
 
 For dynamic loading/inlining of Haskell modules, you should install the
 hs-plugin library, available here:
