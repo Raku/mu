@@ -126,8 +126,9 @@ my $dispatch_VAR = sub {
 };
 
 %::PROTO = (
-    _methods => undef,    # hash
-    _roles   => undef,
+    _methods  => undef,    # hash
+    _roles    => undef,    # hash
+    _subtypes => undef,    # array
 
     # _modified => undef,
     # _name     => '',
@@ -229,6 +230,16 @@ $meta_Class->add_method(
             warn "redefining role $_[0]{_value}{class_name}.$meth_name"
               if exists $_[0]{_value}{roles}{$meth_name};
             $_[0]{_value}{roles}{$meth_name} = $_[2];
+        }
+    )
+);
+
+$meta_Class->add_method(
+    'add_subtype',
+    ::DISPATCH( $::Method, 'new', 
+        sub {
+            my $subtype = $_[1];
+            push @{ $_[0]{_value}{subtypes} }, $subtype;
         }
     )
 );
