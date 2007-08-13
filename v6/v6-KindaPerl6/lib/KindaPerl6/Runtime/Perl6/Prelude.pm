@@ -38,14 +38,21 @@ class Capture {
     has $.named;
     
     my sub match_type( $spec, $thing ) {
-        1;
+
+        if $m.from == 2 {
+            say "ok 2 - accessor";
+        }
+        else {
+            say "not ok - got ", $m.from;
+        };
+
         #if $thing.HOW == $spec.HOW {
         #    return true;
         #}
         #else {
         #    return false;
         #}
-    }
+    };
 }
 
 # XXX "does Container" ???
