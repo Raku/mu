@@ -9,10 +9,10 @@ use KindaPerl6::Runtime::Perl5::MOP;
 use KindaPerl6::Runtime::Perl5::Pad;
 use KindaPerl6::Runtime::Perl5::Wrap;
 package KindaPerl6::Runtime::Perl5::Runtime;
-    sub import {
-        my ($package,) = caller();
-        *{$package.'::dispatch'} = \&KindaPerl6::Runtime::Perl5::MOP::dispatch;
-    }
+    #sub import {
+    #    my ($package,) = caller();
+    #    *{$package.'::dispatch'} = \&KindaPerl6::Runtime::Perl5::MOP::dispatch;
+    #}
 package KindaPerl6::Grammar;
     sub space { 
         my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
@@ -124,14 +124,14 @@ package GLOBAL;
     $GLOBAL::Hash_ENV = bless \%ENV, 'Type_Perl5_Buf_Hash';
     
     ${"GLOBAL::Code_$_"} = \&{"GLOBAL::$_"} for @EXPORT;
-    $GLOBAL::Code_import = $::Code->{_dispatch}( $::Code, 'new', 
+    $GLOBAL::Code_import = ::DISPATCH( $::Code, 'new', 
         { code => \&{"GLOBAL::import"}, src => '&GLOBAL::import' } );
 
     sub init_global {
         # print "Init GLOBAL\n";
         for ( @EXPORT ) {
             #print "Init \$GLOBAL::Code_$_ \n";
-            ${"GLOBAL::Code_$_"} = $::Code->{_dispatch}( $::Code, 'new', 
+            ${"GLOBAL::Code_$_"} = ::DISPATCH( $::Code, 'new', 
                 { code => ${"GLOBAL::Code_$_"}, src => '&GLOBAL::'.$_ } ); 
         }
     }
@@ -141,20 +141,20 @@ package GLOBAL;
         #print "@_\n";
         my $pkg = _str( $_[0] ); 
         #print "IMPORT $pkg\n";
-        ${"${pkg}::Code_$_"} = $::Code->{_dispatch}( $::Code, 'new', 
+        ${"${pkg}::Code_$_"} = ::DISPATCH( $::Code, 'new', 
             { code => ${"GLOBAL::Code_$_"}, src => '&GLOBAL::'.$_ } ) 
             for @EXPORT;
     }
 
     sub _str {
         my $v = $_[0];
-        eval { $v = $v->{_dispatch}( $v, 'str' )->{_value} } if ref($v); 
+        eval { $v = ::DISPATCH( $v, 'str' )->{_value} } if ref($v); 
         print $@ if $@;
         $v;
     }
     sub _int {
         my $v = $_[0];
-        eval { $v = $v->{_dispatch}( $v, 'int' )->{_value} } if ref($v); 
+        eval { $v = ::DISPATCH( $v, 'int' )->{_value} } if ref($v); 
         print $@ if $@;
         $v;
     }
@@ -167,48 +167,48 @@ package GLOBAL;
         #print $@ if $@;
     }
 
-    my $undef = $::Undef->{_dispatch}( $::Undef, 'new', 0 );
+    my $undef = ::DISPATCH( $::Undef, 'new', 0 );
     sub undef    { $undef }
-    sub undefine { $_[0]->{_dispatch}( $_[0], 'STORE', $undef ) }
-    sub defined  { $_[0]->{_dispatch}( $_[0], 'defined' ) } 
-    sub true     { $_[0]->{_dispatch}( $_[0], 'true' ) }  
-    sub not      { $::Bit->{_dispatch}( $::Bit, 'new', ! ( $_[0]->{_dispatch}( $_[0], 'true' )->{_value} ) ) }  
-    sub True     { $::Bit->{_dispatch}( $::Bit, 'new',1 ) }  
+    sub undefine { ::DISPATCH( $_[0], 'STORE', $undef ) }
+    sub defined  { ::DISPATCH( $_[0], 'defined' ) } 
+    sub true     { ::DISPATCH( $_[0], 'true' ) }  
+    sub not      { ::DISPATCH( $::Bit, 'new', ! ( ::DISPATCH( $_[0], 'true' )->{_value} ) ) }  
+    sub True     { ::DISPATCH( $::Bit, 'new',1 ) }  
     sub say   { GLOBAL::print( @_, "\n" );return True;}
     sub sleep { CORE::sleep(_int($_[0]));return True;}
-    sub False    { $::Bit->{_dispatch}( $::Bit, 'new',0 ) }  
+    sub False    { ::DISPATCH( $::Bit, 'new',0 ) }  
     sub TODO {confess("TODO");}
 
     # TODO - macro
     #  ternary:<?? !!>
     sub ternary_58__60__63__63__32__33__33__62_ { 
         #print "ternary: ",caller(2), " $#_ $_[0], $_[1]\n";
-        #print $_[0]->{_dispatch}( $_[0], 'true' );
-        $_[0]->{_dispatch}( $_[0], 'true' )->{_value} ? $_[1] : $_[2] 
+        #print ::DISPATCH( $_[0], 'true' );
+        ::DISPATCH( $_[0], 'true' )->{_value} ? $_[1] : $_[2] 
     }
     
     # TODO - macro
     sub infix_58__60__38__38__62_   { true($_[0]) && true($_[1]) && $_[1] }
     # TODO - macro
-    sub infix_58__60__124__124__62_ { $_[0]->{_dispatch}( $_[0], 'true' )->{_value} && $_[0] || $_[1]->{_dispatch}( $_[1], 'true' )->{_value} && $_[1] }
+    sub infix_58__60__124__124__62_ { ::DISPATCH( $_[0], 'true' )->{_value} && $_[0] || ::DISPATCH( $_[1], 'true' )->{_value} && $_[1] }
 
     sub infix_58__60_eq_62_         
-    { $::Bit->{_dispatch}( $::Bit, 'new', _str($_[0]) eq _str($_[1])) }  # infix:<eq>
+    { ::DISPATCH( $::Bit, 'new', _str($_[0]) eq _str($_[1])) }  # infix:<eq>
     sub infix_58__60_ne_62_         
-    { $::Bit->{_dispatch}( $::Bit, 'new', _str($_[0]) ne _str($_[1])) }  # infix:<ne>
+    { ::DISPATCH( $::Bit, 'new', _str($_[0]) ne _str($_[1])) }  # infix:<ne>
     sub infix_58__60__61__61__62_   
-    { $::Bit->{_dispatch}( $::Bit, 'new', _int($_[0]) == _int($_[1])) }  # infix:<==>
+    { ::DISPATCH( $::Bit, 'new', _int($_[0]) == _int($_[1])) }  # infix:<==>
 
     sub infix_58__60__33__61__62_ {  # infix:<!=>
         $::Bit->new(_int($_[0]) != _int($_[1]));
     }
 
     sub infix_58__60__126__62_      
-    { $::Str->{_dispatch}( $::Str, 'new', _str( $_[0] ) . _str( $_[1] ) ) }  # infix:<~>
+    { ::DISPATCH( $::Str, 'new', _str( $_[0] ) . _str( $_[1] ) ) }  # infix:<~>
     sub infix_58__60__43__62_       
-    { $::Int->{_dispatch}( $::Int, 'new', _int( $_[0] ) + _int( $_[1] ) ) }  # infix:<+>
+    { ::DISPATCH( $::Int, 'new', _int( $_[0] ) + _int( $_[1] ) ) }  # infix:<+>
     sub infix_58__60__45__62_       
-    { $::Int->{_dispatch}( $::Int, 'new', _int( $_[0] ) - _int( $_[1] ) ) }  # infix:<->
+    { ::DISPATCH( $::Int, 'new', _int( $_[0] ) - _int( $_[1] ) ) }  # infix:<->
 
     sub substr      
     { 
@@ -218,21 +218,21 @@ package GLOBAL;
         #    )
         #;
         if ( $#_ == 1 ) {
-            return $::Str->{_dispatch}( $::Str, 'new', 
+            return ::DISPATCH( $::Str, 'new', 
                 substr( 
                     _str( $_[0] ), _int( $_[1] ) 
                 )
             ) 
         }
         if ( $#_ == 2 ) {
-            return $::Str->{_dispatch}( $::Str, 'new', 
+            return ::DISPATCH( $::Str, 'new', 
                 substr( 
                     _str( $_[0] ), _int( $_[1] ), _int( $_[2] ) 
                 )
             ) 
         }
         if ( $#_ == 3 ) {
-            return $::Str->{_dispatch}( $::Str, 'new', 
+            return ::DISPATCH( $::Str, 'new', 
                 substr( 
                     _str( $_[0] ), _int( $_[1] ), _int( $_[2] ), _str( $_[3] ) 
                 )
@@ -248,7 +248,7 @@ package GLOBAL;
     sub prefix_58__60__43__43__62_ {
         my $counter = $_[0];
         $counter->{_dispatch_VAR}(
-            $counter, 'STORE', $::Int->{_dispatch}( $::Int, 'new', _int($counter) + 1)
+            $counter, 'STORE', ::DISPATCH( $::Int, 'new', _int($counter) + 1)
         );
     }
 

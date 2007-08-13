@@ -23,7 +23,7 @@ class CompUnit {
 
         # XXX - not sure about $_ scope
         ~ 'BEGIN { '
-        ~   '$_ = dispatch($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); '
+        ~   '$_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); '
         ~ '} '
 
         ~ $.body.emit_perl5
@@ -34,28 +34,28 @@ class CompUnit {
 class Val::Int {
     method emit_perl5 { 
         # $.int 
-        'dispatch( $::Int, \'new\', ' ~ $.int ~ ' )'
+        '::DISPATCH( $::Int, \'new\', ' ~ $.int ~ ' )'
     }
 }
 
 class Val::Bit {
     method emit_perl5 { 
         # $.bit 
-        'dispatch( $::Bit, \'new\', ' ~ $.bit ~ ' )'
+        '::DISPATCH( $::Bit, \'new\', ' ~ $.bit ~ ' )'
     }
 }
 
 class Val::Num {
     method emit_perl5 { 
         #$.num 
-        'dispatch( $::Num, \'new\', ' ~ $.num ~ ' )'
+        '::DISPATCH( $::Num, \'new\', ' ~ $.num ~ ' )'
     }
 }
 
 class Val::Buf {
     method emit_perl5 { 
         # '\'' ~ $.buf ~ '\'' 
-        'dispatch( $::Str, \'new\', ' ~ '\'' ~ $.buf ~ '\'' ~ ' )'
+        '::DISPATCH( $::Str, \'new\', ' ~ '\'' ~ $.buf ~ '\'' ~ ' )'
     }
 }
 
@@ -140,26 +140,26 @@ class Lit::Object {
         for @$fields -> $field { 
             $str := $str ~ ($field[0]).emit_perl5 ~ ' => ' ~ ($field[1]).emit_perl5 ~ ',';
         }; 
-        'dispatch( $::' ~ $.class ~ ', \'new\', ' ~ $str ~ ' )';
+        '::DISPATCH( $::' ~ $.class ~ ', \'new\', ' ~ $str ~ ' )';
     }
 }
 
 class Index {
     method emit_perl5 {
-        'dispatch( ' ~ $.obj.emit_perl5 ~ ', \'INDEX\', ' ~ $.index.emit_perl5 ~ ' )';
+        '::DISPATCH( ' ~ $.obj.emit_perl5 ~ ', \'INDEX\', ' ~ $.index.emit_perl5 ~ ' )';
     }
 }
 
 class Lookup {
     method emit_perl5 {
-        'dispatch( ' ~ $.obj.emit_perl5 ~ ', \'LOOKUP\', ' ~ $.index.emit_perl5 ~ ' )';
+        '::DISPATCH( ' ~ $.obj.emit_perl5 ~ ', \'LOOKUP\', ' ~ $.index.emit_perl5 ~ ' )';
     }
 }
 
 class Assign {
     method emit_perl5 {
         # TODO - same as ::Bind
-        $.parameters.emit_perl5 ~ '->{_dispatch_VAR}( ' ~ $.parameters.emit_perl5 ~ ', \'STORE\', ' ~ $.arguments.emit_perl5 ~ ' )';
+        '::DISPATCH_VAR( ' ~ $.parameters.emit_perl5 ~ ', \'STORE\', ' ~ $.arguments.emit_perl5 ~ ' )';
     }
 }
 
@@ -193,7 +193,7 @@ class Bind {
     #|| ( $.parameters.isa( 'Array' ) && @($.parameters.array) ) {    
     method emit_perl5 {
         if $.parameters.isa( 'Var' ) {
-            return $.parameters.emit_perl5 ~ '->{_dispatch_VAR}( ' 
+            return '::DISPATCH_VAR( '  
             ~ $.parameters.emit_perl5 
             ~ ', \'BIND\', ' 
             ~ $.arguments.emit_perl5 ~ ' )';
@@ -269,10 +269,10 @@ class Call {
         else {
             if ( $meth eq '' ) {
                 # $var.()
-                'dispatch( ' ~ $invocant ~ ', \'APPLY\', ' ~ $call ~ ' )'
+                '::DISPATCH( ' ~ $invocant ~ ', \'APPLY\', ' ~ $call ~ ' )'
             }
             else {
-                  'dispatch( ' 
+                  '::DISPATCH( ' 
                 ~ $invocant ~ ', '
                 ~ '\'' ~ $meth ~ '\', '
                 ~ $call
@@ -286,7 +286,7 @@ class Call {
 
 class Apply {
     method emit_perl5 {
-        return  'dispatch( ' ~ $.code.emit_perl5 ~ ', \'APPLY\', ' ~ (@.arguments.>>emit_perl5).join(', ') ~ ' )';
+        return  '::DISPATCH( ' ~ $.code.emit_perl5 ~ ', \'APPLY\', ' ~ (@.arguments.>>emit_perl5).join(', ') ~ ' )';
     }
 }
 
@@ -346,26 +346,26 @@ class Decl {
             if ($.var).sigil eq '$' {
                 return $s 
                     ~ $.var.emit_perl5
-                    ~ ' = dispatch( $::Scalar' ~ $create
+                    ~ ' = ::DISPATCH( $::Scalar' ~ $create
                     ~ ' unless defined ' ~ $.var.emit_perl5 ~ '; '
                     ~ 'BEGIN { '
                     ~     $.var.emit_perl5
-                    ~     ' = dispatch( $::Scalar' ~ $create
+                    ~     ' = ::DISPATCH( $::Scalar' ~ $create
                     ~     ' unless defined ' ~ $.var.emit_perl5 ~ '; '
                     ~ '}'
             };
             if ($.var).sigil eq '&' {
                 return $s 
                     ~ $.var.emit_perl5
-                    ~ ' = dispatch( $::Routine' ~ $create;
+                    ~ ' = ::DISPATCH( $::Routine' ~ $create;
             };
             if ($.var).sigil eq '%' {
                 return $s ~ $.var.emit_perl5
-                    ~ ' = dispatch( $::Hash' ~ $create;
+                    ~ ' = ::DISPATCH( $::Hash' ~ $create;
             };
             if ($.var).sigil eq '@' {
                 return $s ~ $.var.emit_perl5
-                    ~ ' = dispatch( $::Array' ~ $create;
+                    ~ ' = ::DISPATCH( $::Array' ~ $create;
             };
             return $s ~ $.var.emit_perl5 ~ ' ';
         };
@@ -375,11 +375,11 @@ class Decl {
                 ~ $.type ~ ' ' 
                 ~ $.var.emit_perl5 ~ '; '
                 ~ $.var.emit_perl5
-                ~ ' = dispatch( $::Scalar' ~ $create
+                ~ ' = ::DISPATCH( $::Scalar' ~ $create
                 ~ ' unless defined ' ~ $.var.emit_perl5 ~ '; '
                 ~ 'BEGIN { '
                 ~     $.var.emit_perl5
-                ~     ' = dispatch( $::Scalar' ~ $create
+                ~     ' = ::DISPATCH( $::Scalar' ~ $create
                 ~ '}'
                 ;
         };
@@ -389,21 +389,21 @@ class Decl {
                 ~ $.type ~ ' ' 
                 ~ $.var.emit_perl5 ~ '; '
                 ~ $.var.emit_perl5
-                ~ ' = dispatch( $::Routine' ~ $create
+                ~ ' = ::DISPATCH( $::Routine' ~ $create
                 ~ ' unless defined ' ~ $.var.emit_perl5 ~ '; '
                 ~ 'BEGIN { '
                 ~     $.var.emit_perl5
-                ~     ' = dispatch( $::Routine' ~ $create
+                ~     ' = ::DISPATCH( $::Routine' ~ $create
                 ~ '}'
                 ;
         };
         if ($.var).sigil eq '%' {
             return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_perl5
-                ~ ' = dispatch( $::Hash' ~ $create;
+                ~ ' = ::DISPATCH( $::Hash' ~ $create;
         };
         if ($.var).sigil eq '@' {
             return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_perl5
-                ~ ' = dispatch( $::Array' ~ $create;
+                ~ ' = ::DISPATCH( $::Array' ~ $create;
         };
         return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_perl5;
     }
@@ -479,7 +479,7 @@ class Sub {
         };
         
         my $code :=
-          'dispatch( $::Code, \'new\', { '
+          '::DISPATCH( $::Code, \'new\', { '
         ~   'code => sub { '  
             ## 'my ' ~ $invocant.emit_perl5 ~ ' = $_[0]; ' ~
         ~      $str 

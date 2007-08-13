@@ -1,8 +1,8 @@
 
 use v5;
 
-# my $meth = dispatch( $::Method, 'new', sub { 'hi' } );
-# my $obj =  dispatch( $::Object, 'new', $candidate );
+# my $meth = ::DISPATCH( $::Method, 'new', sub { 'hi' } );
+# my $obj =  ::DISPATCH( $::Object, 'new', $candidate );
 
 package KindaPerl6::Runtime::Perl5::MOP;
 use KindaPerl6::Runtime::Perl5::DispatchSugar;
@@ -23,12 +23,12 @@ use Data::Dumper;
     $methods->{new} = sub { my $v = sugar { _dispatch => $dispatch, $_[0]{_value} } };
 }
 
-sub dispatch {
+sub ::DISPATCH {
     my $invocant = shift;
     $invocant->{_dispatch}($invocant,@_);
 }
 
-sub dispatch_VAR {
+sub ::DISPATCH_VAR {
     my $invocant = shift;
     $invocant->{_dispatch_VAR}($invocant,@_);
 }
@@ -64,14 +64,14 @@ my $dispatch = sub {
     {
         warn "internal error: wrong object format";
         print Dumper($self);
-        return dispatch( $::Str, 'new', 'Error');
+        return ::DISPATCH( $::Str, 'new', 'Error');
     }
 
     if ( $self->{_roles}{auto_deref} ) {
 
         # this object requires FETCH
-        my $value = dispatch_VAR( $self, 'FETCH' );
-        return dispatch( $value, $method_name, @_ );
+        my $value = ::DISPATCH_VAR( $self, 'FETCH' );
+        return ::DISPATCH( $value, $method_name, @_ );
 
     }
 
@@ -80,7 +80,7 @@ my $dispatch = sub {
         # 'self' is a prototype object
         # it stringifies to the class name
         #print "Class.str: ",$self->{_isa}[0]{_value}{class_name},"\n";
-        return dispatch( $::Str, 'new',  $self->{_isa}[0]{_value}{class_name} )
+        return ::DISPATCH( $::Str, 'new',  $self->{_isa}[0]{_value}{class_name} )
           if $method_name eq 'str';
     }
 
@@ -169,8 +169,8 @@ $::Method = sugar {
       _isa => [$meta_Method],
 };
 push @{ $method_new->{_isa} }, $meta_Method;
-$meta_Method->{_value}{methods}{WHAT} = dispatch( $::Method, 'new',  sub { $::Method } );
-$meta_Method->{_value}{methods}{HOW}  = dispatch( $::Method, 'new',  sub { $meta_Method } );
+$meta_Method->{_value}{methods}{WHAT} = ::DISPATCH( $::Method, 'new',  sub { $::Method } );
+$meta_Method->{_value}{methods}{HOW}  = ::DISPATCH( $::Method, 'new',  sub { $meta_Method } );
 
 #--- Object
 
@@ -181,8 +181,8 @@ $meta_Object = sugar {
     # _name     => $_[3],
     _value => { class_name => 'Object', },
 };
-$meta_Object->{_value}{methods}{WHAT} = dispatch( $::Method, 'new',  sub { $::Object } );
-$meta_Object->{_value}{methods}{HOW}  = dispatch( $::Method, 'new',  sub { $meta_Object } );
+$meta_Object->{_value}{methods}{WHAT} = ::DISPATCH( $::Method, 'new',  sub { $::Object } );
+$meta_Object->{_value}{methods}{HOW}  = ::DISPATCH( $::Method, 'new',  sub { $meta_Object } );
 $meta_Object->{_value}{methods}{new}  = $method_new;
 $::Object                             = sugar {
     %::PROTO,
@@ -203,7 +203,7 @@ my $meta_Class = sugar {
       },
 };
 push @{ $meta_Class->{_isa} }, $meta_Class;
-$meta_Class->{_value}{methods}{add_method} = dispatch( $::Method, 'new', 
+$meta_Class->{_value}{methods}{add_method} = ::DISPATCH( $::Method, 'new', 
     sub {
         my $meth_name = ref( $_[1] ) ? $_[1]{_value} : $_[1];
         warn "redefining method $_[0]{_value}{class_name}.$meth_name"
@@ -213,7 +213,7 @@ $meta_Class->{_value}{methods}{add_method} = dispatch( $::Method, 'new',
 );
 $meta_Class->add_method(
     'redefine_method',
-    dispatch( $::Method, 'new', 
+    ::DISPATCH( $::Method, 'new', 
         sub {
             my $meth_name = ref( $_[1] ) ? $_[1]{_value} : $_[1];
             $_[0]{_value}{methods}{$meth_name} = $_[2];
@@ -223,7 +223,7 @@ $meta_Class->add_method(
 
 $meta_Class->add_method(
     'add_role',
-    dispatch( $::Method, 'new', 
+    ::DISPATCH( $::Method, 'new', 
         sub {
             my $meth_name = ref( $_[1] ) ? $_[1]{_value} : $_[1];
             warn "redefining role $_[0]{_value}{class_name}.$meth_name"
@@ -236,14 +236,14 @@ $meta_Class->add_method(
 # TODO - "get attributes" ???
 $meta_Class->add_method(
     'add_attribute',
-    dispatch( $::Method, 'new', 
+    ::DISPATCH( $::Method, 'new', 
         sub {
             my $meth_name = ref( $_[1] ) ? $_[1]{_value} : $_[1];
             $_[0]{_value}{attributes}{$meth_name} = sub { 1 };  # TODO ???
             #$_[0]{_value}{methods}{$meth_name} = sub : lvalue { $_[0]{_value}{$meth_name} };
             $_[0]->add_method( 
                 $meth_name, 
-                dispatch( $::Method, 'new',  
+                ::DISPATCH( $::Method, 'new',  
                     sub : lvalue { 
                         # lvalue is not needed, because we use .STORE() instead
                         
@@ -265,14 +265,14 @@ $meta_Class->add_method(
         }
     )
 );
-$meta_Class->add_method( 'WHAT', dispatch( $::Method, 'new',  sub { $::Class } ) );
-$meta_Class->add_method( 'HOW',  dispatch( $::Method, 'new',  sub { $meta_Class } ) );
+$meta_Class->add_method( 'WHAT', ::DISPATCH( $::Method, 'new',  sub { $::Class } ) );
+$meta_Class->add_method( 'HOW',  ::DISPATCH( $::Method, 'new',  sub { $meta_Class } ) );
 $meta_Class->add_method( 'add_parent',
-    dispatch( $::Method, 'new',  sub { push @{ $_[0]{_value}{isa} }, $_[1] } ) );
+    ::DISPATCH( $::Method, 'new',  sub { push @{ $_[0]{_value}{isa} }, $_[1] } ) );
 
 $meta_Class->add_method(
     'new',
-    dispatch( $::Method, 'new', 
+    ::DISPATCH( $::Method, 'new', 
         sub {
 
 #print "Calling Class.new from @{[ caller ]} \n";
@@ -292,17 +292,17 @@ $meta_Class->add_method(
                   },
                   _isa => [$meta_Class],
             };
-            $self_meta->{_value}{methods}{WHAT} = dispatch( $::Method, 'new', 
+            $self_meta->{_value}{methods}{WHAT} = ::DISPATCH( $::Method, 'new', 
                 sub {
 
                     $self;
                 }
             );
             $self_meta->{_value}{methods}{HOW} =
-              dispatch( $::Method, 'new',  sub { $self_meta } );
+              ::DISPATCH( $::Method, 'new',  sub { $self_meta } );
 
             $self_meta->{_methods}{PROTOTYPE} =
-              dispatch( $::Method, 'new',  sub {  
+              ::DISPATCH( $::Method, 'new',  sub {  
                 $self = sugar {
                   %::PROTO,
                   _isa => [$self_meta],
@@ -329,7 +329,7 @@ push @{ $meta_Object->{_isa} }, $meta_Class;
 
 #--- Roles
 
-my $meta_Role = dispatch( $::Class, 'new', "Role");
+my $meta_Role = ::DISPATCH( $::Class, 'new', "Role");
 $::Role = $meta_Role->PROTOTYPE();
 
 # copy Class methods
@@ -337,56 +337,56 @@ $meta_Role->{_value}{methods} = { %{ $meta_Class->{_value}{methods} } };
 
 #--- Values
 
-my $meta_Value = dispatch( $::Class, 'new', "Value");
+my $meta_Value = ::DISPATCH( $::Class, 'new', "Value");
 $::Value = $meta_Value->PROTOTYPE();
-$meta_Value->add_method( 'p5landish', dispatch( $::Method, 'new',  sub { $_[0]{_value} } ) );
+$meta_Value->add_method( 'p5landish', ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value} } ) );
 
-# $meta_Value->add_method( 'IS_ARRAY',     dispatch( $::Method, 'new',  sub { 0 } ) );
-# $meta_Value->add_method( 'IS_HASH',      dispatch( $::Method, 'new',  sub { 0 } ) );
-# $meta_Value->add_method( 'IS_CONTAINER', dispatch( $::Method, 'new',  sub { 0 } ) );
+# $meta_Value->add_method( 'IS_ARRAY',     ::DISPATCH( $::Method, 'new',  sub { 0 } ) );
+# $meta_Value->add_method( 'IS_HASH',      ::DISPATCH( $::Method, 'new',  sub { 0 } ) );
+# $meta_Value->add_method( 'IS_CONTAINER', ::DISPATCH( $::Method, 'new',  sub { 0 } ) );
 # -- FETCH is implemented in Object
-# $meta_Value->add_method( 'FETCH',        dispatch( $::Method, 'new',  sub { $_[0] } ) );
+# $meta_Value->add_method( 'FETCH',        ::DISPATCH( $::Method, 'new',  sub { $_[0] } ) );
 
-my $meta_Str = dispatch( $::Class, 'new', "Str");
+my $meta_Str = ::DISPATCH( $::Class, 'new', "Str");
 $::Str = $meta_Str->PROTOTYPE();
 $meta_Str->add_parent($meta_Value);
 $meta_Str->add_method(
     'perl',
-    dispatch( $::Method, 'new', 
-        sub { my $v = dispatch( $::Str, 'new',  '\'' . $_[0]{_value} . '\'' ) }
+    ::DISPATCH( $::Method, 'new', 
+        sub { my $v = ::DISPATCH( $::Str, 'new',  '\'' . $_[0]{_value} . '\'' ) }
     )
 );
-$meta_Str->add_method( 'str', dispatch( $::Method, 'new',  sub { $_[0] } ) );
+$meta_Str->add_method( 'str', ::DISPATCH( $::Method, 'new',  sub { $_[0] } ) );
 $meta_Str->add_method(
     'true',
-    dispatch( $::Method, 'new', 
+    ::DISPATCH( $::Method, 'new', 
         sub {
-            dispatch( $::Bit, 'new', 
+            ::DISPATCH( $::Bit, 'new', 
                 ( $_[0]{_value} ne '' && $_[0]{_value} ne '0' ) ? 1 : 0 );
         }
     )
 );
-# $meta_Str->add_method( 'p5landish', dispatch( $::Method, 'new',  sub { $_[0]{_value} } ) );
+# $meta_Str->add_method( 'p5landish', ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value} } ) );
 
-my $meta_Int = dispatch( $::Class, 'new', "Int");
+my $meta_Int = ::DISPATCH( $::Class, 'new', "Int");
 $::Int = $meta_Int->PROTOTYPE();
 $meta_Int->add_parent($meta_Value);
 $meta_Int->add_method( 'perl',
-    dispatch( $::Method, 'new',  sub { my $v = $::Str->new( $_[0]{_value} ) } ) );
+    ::DISPATCH( $::Method, 'new',  sub { my $v = $::Str->new( $_[0]{_value} ) } ) );
 $meta_Int->add_method( 'str',
-    dispatch( $::Method, 'new',  sub { my $v = $::Str->new( $_[0]{_value} ) } ) );
+    ::DISPATCH( $::Method, 'new',  sub { my $v = $::Str->new( $_[0]{_value} ) } ) );
 $meta_Int->add_method( 'true',
-    dispatch( $::Method, 'new',  sub { $::Bit->new( $_[0]{_value} == 0 ? 0 : 1 ) } ) );
-# $meta_Int->add_method( 'p5landish', dispatch( $::Method, 'new',  sub { $_[0]{_value} } ) );
+    ::DISPATCH( $::Method, 'new',  sub { $::Bit->new( $_[0]{_value} == 0 ? 0 : 1 ) } ) );
+# $meta_Int->add_method( 'p5landish', ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value} } ) );
 
 #--- finish Object
 
 # implement Object.str
 $meta_Object->add_method(
     'str',
-    dispatch( $::Method, 'new', 
+    ::DISPATCH( $::Method, 'new', 
         sub {
-            my $v = dispatch( $::Str, 'new', 
+            my $v = ::DISPATCH( $::Str, 'new', 
                 '::' . $_[0]{_isa}[0]{_value}{class_name} . '(...)' );
         }
     )
@@ -395,19 +395,19 @@ $meta_Object->add_method(
 # implement Object.int
 $meta_Object->add_method(
     'int',
-    dispatch( $::Method, 'new', 
+    ::DISPATCH( $::Method, 'new', 
         sub {
 
             # XXX
-            my $v = dispatch( $::Int, 'new',  0 + $_[0]{_value} );
+            my $v = ::DISPATCH( $::Int, 'new',  0 + $_[0]{_value} );
         }
     )
 );
 
 # Object.FETCH is a no-op
-# $meta_Object->add_method( 'FETCH',        dispatch( $::Method, 'new',  sub { $_[0] } ) );
+# $meta_Object->add_method( 'FETCH',        ::DISPATCH( $::Method, 'new',  sub { $_[0] } ) );
 # Object.STORE is forbidden
-my $method_readonly = dispatch( $::Method, 'new', 
+my $method_readonly = ::DISPATCH( $::Method, 'new', 
     sub {
         die "attempt to modify a read-only value";
     }
@@ -416,50 +416,50 @@ $meta_Object->add_method( 'STORE', $method_readonly );
 
 #--- back to Value
 
-my $meta_Undef = dispatch( $::Class, 'new', "Undef");
+my $meta_Undef = ::DISPATCH( $::Class, 'new', "Undef");
 $::Undef = $meta_Undef->PROTOTYPE();
 $meta_Undef->add_parent($meta_Value);
 $meta_Undef->add_method( 'perl',
-    dispatch( $::Method, 'new',  sub { my $v = $::Str->new('undef') } ) );
+    ::DISPATCH( $::Method, 'new',  sub { my $v = $::Str->new('undef') } ) );
 $meta_Undef->add_method( 'str',
-    dispatch( $::Method, 'new',  sub { my $v = $::Str->new('') } ) );
+    ::DISPATCH( $::Method, 'new',  sub { my $v = $::Str->new('') } ) );
 
-my $meta_Bit = dispatch( $::Class, 'new', "Bit");
+my $meta_Bit = ::DISPATCH( $::Class, 'new', "Bit");
 
 $::Bit = $meta_Bit->PROTOTYPE();
 $meta_Bit->add_parent($meta_Value);
 $meta_Bit->add_method(
     'perl',
-    dispatch( $::Method, 'new', 
-        sub { my $v = dispatch( $::Str, 'new',  $_[0]{_value} ? 'True' : 'False' ) }
+    ::DISPATCH( $::Method, 'new', 
+        sub { my $v = ::DISPATCH( $::Str, 'new',  $_[0]{_value} ? 'True' : 'False' ) }
     )
 );
 $meta_Bit->add_method( 'str',
-    dispatch( $::Method, 'new',  sub { my $v = $::Str->new( $_[0]{_value} ) } ) );
+    ::DISPATCH( $::Method, 'new',  sub { my $v = $::Str->new( $_[0]{_value} ) } ) );
 
 $meta_Bit->add_method( 'true',
-    dispatch( $::Method, 'new',  sub { $::Bit->new( $_[0]{_value} ) } ) );
-# $meta_Bit->add_method( 'p5landish', dispatch( $::Method, 'new',  sub { $_[0]{_value} } ) );
+    ::DISPATCH( $::Method, 'new',  sub { $::Bit->new( $_[0]{_value} ) } ) );
+# $meta_Bit->add_method( 'p5landish', ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value} } ) );
 
-my $meta_Code = dispatch( $::Class, 'new', "Code");
+my $meta_Code = ::DISPATCH( $::Class, 'new', "Code");
 $::Code = $meta_Code->PROTOTYPE();
 $meta_Code->add_parent($meta_Value);
 $meta_Code->add_method( 'perl',
-    dispatch( $::Method, 'new',  sub { my $v = $::Str->new( $_[0]{_value}{src} ) } ) );
+    ::DISPATCH( $::Method, 'new',  sub { my $v = $::Str->new( $_[0]{_value}{src} ) } ) );
 $meta_Code->add_method( 'APPLY',
-    dispatch( $::Method, 'new',  sub { my $self = shift; $self->{_value}{code}->(@_) } ) );
+    ::DISPATCH( $::Method, 'new',  sub { my $self = shift; $self->{_value}{code}->(@_) } ) );
 
 #--- Containers
 
-my $meta_Container = dispatch( $::Class, 'new', "Container");
+my $meta_Container = ::DISPATCH( $::Class, 'new', "Container");
 $::Container = $meta_Container->PROTOTYPE();
 
-# $meta_Container->add_method( 'IS_ARRAY',     dispatch( $::Method, 'new',  sub { 0 } ) );
-# $meta_Container->add_method( 'IS_HASH',      dispatch( $::Method, 'new',  sub { 0 } ) );
-# $meta_Container->add_method( 'IS_CONTAINER', dispatch( $::Method, 'new',  sub { 1 } ) );
+# $meta_Container->add_method( 'IS_ARRAY',     ::DISPATCH( $::Method, 'new',  sub { 0 } ) );
+# $meta_Container->add_method( 'IS_HASH',      ::DISPATCH( $::Method, 'new',  sub { 0 } ) );
+# $meta_Container->add_method( 'IS_CONTAINER', ::DISPATCH( $::Method, 'new',  sub { 1 } ) );
 $meta_Container->add_method(
     'FETCH',
-    dispatch( $::Method, 'new', 
+    ::DISPATCH( $::Method, 'new', 
         sub {
 
    #print "Container FETCH: $_[0]{_value}{cell}{_isa}[0]{_value}{class_name}\n";
@@ -470,7 +470,7 @@ $meta_Container->add_method(
 );
 $meta_Container->add_method(
     'STORE',
-    dispatch( $::Method, 'new', 
+    ::DISPATCH( $::Method, 'new', 
         sub {
 
            #print "Container STORE: $_[1]{_isa}[0]{_value}{cell}{class_name}\n";
@@ -486,7 +486,7 @@ $meta_Container->add_method(
 );
 $meta_Container->add_method(
     'BIND',
-    dispatch( $::Method, 'new', 
+    ::DISPATCH( $::Method, 'new', 
         sub {
 
             #print "Container BIND: $_[1]{_isa}[0]{_value}{class_name}\n";
@@ -513,12 +513,12 @@ $meta_Container->add_method(
     )
 );
 
-my $meta_Scalar = dispatch( $::Class, 'new', "Scalar");
+my $meta_Scalar = ::DISPATCH( $::Class, 'new', "Scalar");
 $::Scalar = $meta_Scalar->PROTOTYPE();
 $meta_Scalar->add_parent($meta_Container);
 $meta_Scalar->add_method(
     'new',
-    dispatch( $::Method, 'new', 
+    ::DISPATCH( $::Method, 'new', 
         sub {
             my $v = {
                 %{ $_[0] },
@@ -530,19 +530,19 @@ $meta_Scalar->add_method(
     )
 );
 
-my $meta_Routine = dispatch( $::Class, 'new', "Routine");
+my $meta_Routine = ::DISPATCH( $::Class, 'new', "Routine");
 $::Routine = $meta_Routine->PROTOTYPE();
 $meta_Routine->add_parent($meta_Container);
 $meta_Routine->add_method( 'STORE', $method_readonly );
 $meta_Routine->add_method(
     'APPLY',
-    dispatch( $::Method, 'new', 
+    ::DISPATCH( $::Method, 'new', 
         sub { my $self = shift; $self->{_value}{cell}{_value}{code}->(@_) }
     )
 );
 $meta_Routine->add_method(
     'new',
-    dispatch( $::Method, 'new', 
+    ::DISPATCH( $::Method, 'new', 
         sub {
             my $v = sugar {
                 %{ $_[0] },
@@ -555,9 +555,9 @@ $meta_Routine->add_method(
 );
 $meta_Routine->add_method(
     'perl',
-    dispatch( $::Method, 'new', 
+    ::DISPATCH( $::Method, 'new', 
         sub {
-            dispatch( $::Str, 'new',  $_[0]{_value}{cell}{_value}{src} );
+            ::DISPATCH( $::Str, 'new',  $_[0]{_value}{cell}{_value}{src} );
         },
     )
 );
