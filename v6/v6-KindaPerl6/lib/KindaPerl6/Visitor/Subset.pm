@@ -26,15 +26,16 @@ class KindaPerl6::Visitor::Subset {
            && ( $node.name ne '' )   # only named subsets ???
         {
             return ::Bind(  
-                parameters => ::Decl(  
-                    decl  => 'our',  
-                    var   => ::Var(  
+                parameters => #::Decl(  
+                    #decl  => 'our',  
+                    #var   => 
+                    ::Var(  
                         name   => $node.name,  
                         twigil => '',  
                         sigil  => '$', 
                     ),  
-                    type  => '', 
-                ),  
+                    #type  => '', 
+                #),  
                 arguments => ::Call( 
                     'hyper'     => '',
                     'arguments' => [
@@ -42,7 +43,7 @@ class KindaPerl6::Visitor::Subset {
                     ],
                     'method'   => 'new',
                     'invocant' => ::Var(  
-                        name   => '::Subset',  
+                        name   => 'Subset',  
                         twigil => '',  
                         sigil  => '$', 
                     ),  
