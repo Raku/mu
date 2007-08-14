@@ -128,7 +128,6 @@ my $dispatch_VAR = sub {
 %::PROTO = (
     _methods  => undef,    # hash
     _roles    => undef,    # hash
-    _subtypes => undef,    # array
 
     # _modified => undef,
     # _name     => '',
@@ -200,6 +199,7 @@ my $meta_Class = sugar {
       # _name     => '$meta_Class',
       _value => {
         methods    => {},
+        roles      => {},
         class_name => 'Class',
       },
 };
@@ -230,16 +230,6 @@ $meta_Class->add_method(
             warn "redefining role $_[0]{_value}{class_name}.$meth_name"
               if exists $_[0]{_value}{roles}{$meth_name};
             $_[0]{_value}{roles}{$meth_name} = $_[2];
-        }
-    )
-);
-
-$meta_Class->add_method(
-    'add_subtype',
-    ::DISPATCH( $::Method, 'new', 
-        sub {
-            my $subtype = $_[1];
-            push @{ $_[0]{_value}{subtypes} }, $subtype;
         }
     )
 );
@@ -459,6 +449,26 @@ $meta_Code->add_method( 'perl',
     ::DISPATCH( $::Method, 'new',  sub { my $v = $::Str->new( $_[0]{_value}{src} ) } ) );
 $meta_Code->add_method( 'APPLY',
     ::DISPATCH( $::Method, 'new',  sub { my $self = shift; $self->{_value}{code}->(@_) } ) );
+
+
+#--- Subset isa Code ???
+# TODO - .add_constraint ???
+# TODO - hierarchical constraints - Array of Foo
+#    - use a linked list of Subsets ???
+my $meta_Subset = ::DISPATCH( $::Class, 'new', "Subset");
+$::Subset = $meta_Subset->PROTOTYPE();
+$meta_Subset->add_parent($meta_Code);   # .perl, .APPLY
+
+#$meta_Subset->add_method(
+#    'add_subtype',
+#    ::DISPATCH( $::Method, 'new', 
+#        sub {
+#            my $subtype = $_[1];
+#            push @{ $_[0]{_value}{subtypes} }, $subtype;
+#        }
+#    )
+#);
+
 
 #--- Containers
 
