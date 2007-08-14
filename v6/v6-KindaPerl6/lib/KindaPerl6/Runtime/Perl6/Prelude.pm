@@ -39,12 +39,14 @@ class Capture {
     
     my sub match_type( $spec, $thing ) {
 
-        if $m.from == 2 {
-            say "ok 2 - accessor";
-        }
-        else {
-            say "not ok - got ", $m.from;
-        };
+        42
+
+        #if $m.from == 2 {
+        #    say "ok 2 - accessor";
+        #}
+        #else {
+        #    say "not ok - got ", $m.from;
+        #};
 
         #if $thing.HOW == $spec.HOW {
         #    return true;

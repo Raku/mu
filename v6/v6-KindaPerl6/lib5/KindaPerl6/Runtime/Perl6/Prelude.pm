@@ -12,73 +12,76 @@
 
     BEGIN {
         $_ =
-          $::Scalar->{_dispatch}( $::Scalar, "new",
+          ::DISPATCH( $::Scalar, "new",
             { modified => $_MODIFIED, name => "$_" } );
     }
     $::Match =
-      $::Class->{_dispatch}( $::Class, 'new',
-        $::Str->{_dispatch}( $::Str, 'new', 'Match' ) )->{_dispatch}(
-        $::Class->{_dispatch}( $::Class, 'new',
-            $::Str->{_dispatch}( $::Str, 'new', 'Match' ) ),
-        'PROTOTYPE',
-        );
-    $::Match->{_dispatch}( $::Match, 'HOW', )->{_dispatch}(
-        $::Match->{_dispatch}( $::Match, 'HOW', ),
-        'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'from' )
+      ::DISPATCH(
+        ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Match' ) ),
+        'PROTOTYPE', );
+    ::DISPATCH(
+        ::DISPATCH( $::Match, 'HOW', ),
+        'add_attribute',
+        ::DISPATCH( $::Str, 'new', 'from' )
     );
-    $::Match->{_dispatch}( $::Match, 'HOW', )->{_dispatch}(
-        $::Match->{_dispatch}( $::Match, 'HOW', ),
-        'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'to' )
+    ::DISPATCH(
+        ::DISPATCH( $::Match, 'HOW', ),
+        'add_attribute',
+        ::DISPATCH( $::Str, 'new', 'to' )
     );
-    $::Match->{_dispatch}( $::Match, 'HOW', )->{_dispatch}(
-        $::Match->{_dispatch}( $::Match, 'HOW', ),
-        'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'result' )
+    ::DISPATCH(
+        ::DISPATCH( $::Match, 'HOW', ),
+        'add_attribute',
+        ::DISPATCH( $::Str, 'new', 'result' )
     );
-    $::Match->{_dispatch}( $::Match, 'HOW', )->{_dispatch}(
-        $::Match->{_dispatch}( $::Match, 'HOW', ),
-        'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'bool' )
+    ::DISPATCH(
+        ::DISPATCH( $::Match, 'HOW', ),
+        'add_attribute',
+        ::DISPATCH( $::Str, 'new', 'bool' )
     );
-    $::Match->{_dispatch}( $::Match, 'HOW', )->{_dispatch}(
-        $::Match->{_dispatch}( $::Match, 'HOW', ),
-        'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'match_str' )
+    ::DISPATCH(
+        ::DISPATCH( $::Match, 'HOW', ),
+        'add_attribute',
+        ::DISPATCH( $::Str, 'new', 'match_str' )
     );
-    $::Match->{_dispatch}( $::Match, 'HOW', )->{_dispatch}(
-        $::Match->{_dispatch}( $::Match, 'HOW', ),
-        'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'array' )
+    ::DISPATCH(
+        ::DISPATCH( $::Match, 'HOW', ),
+        'add_attribute',
+        ::DISPATCH( $::Str, 'new', 'array' )
     );
-    $::Match->{_dispatch}( $::Match, 'HOW', )->{_dispatch}(
-        $::Match->{_dispatch}( $::Match, 'HOW', ),
-        'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'hash' )
+    ::DISPATCH(
+        ::DISPATCH( $::Match, 'HOW', ),
+        'add_attribute',
+        ::DISPATCH( $::Str, 'new', 'hash' )
     );
-    $::Match->{_dispatch}( $::Match, 'HOW', )->{_dispatch}(
-        $::Match->{_dispatch}( $::Match, 'HOW', ),
+    ::DISPATCH(
+        ::DISPATCH( $::Match, 'HOW', ),
         'add_method',
-        $::Str->{_dispatch}( $::Str, 'new', 'str' ),
-        $::Method->{_dispatch}(
+        ::DISPATCH( $::Str, 'new', 'str' ),
+        ::DISPATCH(
             $::Method,
             'new',
             sub {
                 my $self   = shift;
                 my $List__ = \@_;
-                $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_
-                  ->{_dispatch}(
+                ::DISPATCH(
                     $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
                     'APPLY',
-                    $self->{_dispatch}( $self, 'bool', ),
-                    $GLOBAL::Code_substr->{_dispatch}(
+                    ::DISPATCH( $self, 'bool', ),
+                    ::DISPATCH(
                         $GLOBAL::Code_substr,
                         'APPLY',
-                        $self->{_dispatch}( $self, 'match_str', ),
-                        $self->{_dispatch}( $self, 'from', ),
-                        $GLOBAL::Code_infix_58__60__45__62_->{_dispatch}(
+                        ::DISPATCH( $self, 'match_str', ),
+                        ::DISPATCH( $self, 'from', ),
+                        ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__45__62_,
                             'APPLY',
-                            $self->{_dispatch}( $self, 'to', ),
-                            $self->{_dispatch}( $self, 'from', )
+                            ::DISPATCH( $self, 'to', ),
+                            ::DISPATCH( $self, 'from', )
                         )
                     ),
                     $::Undef
-                  );
+                );
             }
         )
     );
@@ -99,35 +102,99 @@
 
     BEGIN {
         $_ =
-          $::Scalar->{_dispatch}( $::Scalar, "new",
+          ::DISPATCH( $::Scalar, "new",
             { modified => $_MODIFIED, name => "$_" } );
     }
-    $::Signature =
-      $::Class->{_dispatch}( $::Class, 'new',
-        $::Str->{_dispatch}( $::Str, 'new', 'Signature' ) )->{_dispatch}(
-        $::Class->{_dispatch}(
-            $::Class, 'new',
-            $::Str->{_dispatch}( $::Str, 'new', 'Signature' )
-        ),
+    $::Signature = ::DISPATCH(
+        ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Signature' ) ),
         'PROTOTYPE',
-        );
-    $::Signature->{_dispatch}( $::Signature, 'HOW', )->{_dispatch}(
-        $::Signature->{_dispatch}( $::Signature, 'HOW', ),
-        'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'invocant' )
     );
-    $::Signature->{_dispatch}( $::Signature, 'HOW', )->{_dispatch}(
-        $::Signature->{_dispatch}( $::Signature, 'HOW', ),
-        'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'positional' )
+    ::DISPATCH(
+        ::DISPATCH( $::Signature, 'HOW', ),
+        'add_attribute',
+        ::DISPATCH( $::Str, 'new', 'invocant' )
     );
-    $::Signature->{_dispatch}( $::Signature, 'HOW', )->{_dispatch}(
-        $::Signature->{_dispatch}( $::Signature, 'HOW', ),
-        'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'named' )
+    ::DISPATCH(
+        ::DISPATCH( $::Signature, 'HOW', ),
+        'add_attribute',
+        ::DISPATCH( $::Str, 'new', 'positional' )
     );
-    $::Signature->{_dispatch}( $::Signature, 'HOW', )->{_dispatch}(
-        $::Signature->{_dispatch}( $::Signature, 'HOW', ),
-        'add_attribute', $::Str->{_dispatch}( $::Str, 'new', 'return' )
+    ::DISPATCH(
+        ::DISPATCH( $::Signature, 'HOW', ),
+        'add_attribute',
+        ::DISPATCH( $::Str, 'new', 'named' )
+    );
+    ::DISPATCH(
+        ::DISPATCH( $::Signature, 'HOW', ),
+        'add_attribute',
+        ::DISPATCH( $::Str, 'new', 'return' )
     );
     1
 }
 
-** * Syntax Error in sub ''
+{
+
+    package Capture;
+
+    # Do not edit this file - Perl 5 generated by KindaPerl6
+    use v5;
+    use strict;
+    no strict 'vars';
+    use KindaPerl6::Runtime::Perl5::Runtime;
+    my $_MODIFIED;
+    BEGIN { $_MODIFIED = {} }
+
+    BEGIN {
+        $_ =
+          ::DISPATCH( $::Scalar, "new",
+            { modified => $_MODIFIED, name => "$_" } );
+    }
+    my $Code_match_type;
+    $Code_match_type =
+      ::DISPATCH( $::Routine, 'new',
+        { modified => $_MODIFIED, name => '$Code_match_type' } )
+      unless defined $Code_match_type;
+
+    BEGIN {
+        $Code_match_type =
+          ::DISPATCH( $::Routine, 'new',
+            { modified => $_MODIFIED, name => '$Code_match_type' } );
+    }
+    $::Capture =
+      ::DISPATCH(
+        ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Capture' ) ),
+        'PROTOTYPE', );
+    ::DISPATCH(
+        ::DISPATCH( $::Capture, 'HOW', ),
+        'add_attribute',
+        ::DISPATCH( $::Str, 'new', 'invocant' )
+    );
+    ::DISPATCH(
+        ::DISPATCH( $::Capture, 'HOW', ),
+        'add_attribute',
+        ::DISPATCH( $::Str, 'new', 'positional' )
+    );
+    ::DISPATCH(
+        ::DISPATCH( $::Capture, 'HOW', ),
+        'add_attribute',
+        ::DISPATCH( $::Str, 'new', 'named' )
+    );
+    ::DISPATCH_VAR(
+        $Code_match_type,
+        'BIND',
+        ::DISPATCH(
+            $::Code, 'new',
+            {
+                code => sub {
+                    my $List__ = \@_;
+                    my $spec;
+                    my $thing;
+                    ::DISPATCH( $::Int, 'new', 42 );
+                },
+                src => q#sub { 42 }#
+            }
+        )
+    );
+    1
+}
+
