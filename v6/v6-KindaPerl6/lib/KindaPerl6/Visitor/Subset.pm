@@ -19,9 +19,9 @@ class KindaPerl6::Visitor::Subset {
 
     method visit ( $node ) {
 
-        # TODO - add 'our' subs to the namespace
+        # TODO - add 'our' subsets to the namespace
         
-        # sub x {...}  -->  our &x := sub {...}
+        # subset x {...}  -->  our $x := Subset.new( ... )
         if    ( $node.isa( 'Subset' ) )
            && ( $node.name ne '' )   # only named subsets ???
         {
@@ -31,16 +31,27 @@ class KindaPerl6::Visitor::Subset {
                     var   => ::Var(  
                         name   => $node.name,  
                         twigil => '',  
-                        sigil  => '&', 
+                        sigil  => '$', 
                     ),  
                     type  => '', 
                 ),  
-                arguments => ::Sub( 
-                    name  => '',  
-                    block => $node.block, 
+                arguments => ::Call( 
+                    'hyper'     => '',
+                    'arguments' => [
+                        # ::Val::Buf( buf => $node.name ),  
+                    ],
+                    'method'   => 'new',
+                    'invocant' => ::Var(  
+                        name   => '::Subset',  
+                        twigil => '',  
+                        sigil  => '$', 
+                    ),  
+                    # block => $node.block, 
                  ),
              );
         };
+
+        # TODO !!!!
 
         # my sub x {...}  -->  my &x := sub {...}
         if    ( $node.isa( 'Apply' ) )
@@ -48,7 +59,7 @@ class KindaPerl6::Visitor::Subset {
            && (  ( $node.code eq 'my' )
               || ( $node.code eq 'our' )
               )
-           && ( (($node.arguments)[0]).isa( 'Sub' ) )
+           && ( (($node.arguments)[0]).isa( 'Subset' ) )
         {
             # my sub xxx 
             #  is parsed as:
@@ -67,21 +78,6 @@ class KindaPerl6::Visitor::Subset {
                     name  => '',  
                     block => (($node.arguments)[0]).block, 
                  ),
-             );
-        };
-
-
-        # x(...)  -->  &x(...)
-        if    ( $node.isa( 'Apply' ) )
-           && ( $node.code ).isa( 'Str' )
-        {
-            return ::Apply(  
-                arguments => $node.arguments,
-                code => ::Var(  
-                        name   => $node.code,  
-                        twigil => '',  
-                        sigil  => '&', 
-                    ),   
              );
         };
 

@@ -54,7 +54,7 @@ class Capture {
         #else {
         #    return false;
         #}
-    };
+    }
 }
 
 # XXX "does Container" ???
