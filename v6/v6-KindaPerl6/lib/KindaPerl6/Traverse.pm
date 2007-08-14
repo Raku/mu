@@ -532,6 +532,26 @@ class Sig {
     };
 }
 
+class Subset {
+    has $.name;
+    has $.base_class;
+    has $.block;
+    method emit( $visitor ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'Subset',
+        );
+    };
+    method attribs {
+            { 
+                name       => $.name,
+                base_class => $.base_class,
+                block      => $.block,
+            }
+    };
+}
+
 class Method {
     has $.name;
     #has $.sig;

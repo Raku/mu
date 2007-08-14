@@ -299,6 +299,7 @@ token term {
 #   | <bind>    { return $$<bind>   }  # $lhs := $rhs
     | <token>   { return $$<token>  }  # token  { regex... }
     | <method>  { return $$<method> }  # method { code... }
+    | <subset>  { return $$<subset> }  # subset x of y where { code... }
     | <sub>                            # sub    { code... }
         { 
             if ($$<sub>).name ne '' {
@@ -631,6 +632,40 @@ token method_sig {
             'positional' => [ ], 
             'named' => { } ) }
 };
+
+token base_class { <full_ident> }
+
+token subset {
+    # example:  subset Not_x of Str where { $_ ne 'x' }
+    subset  <?ws> 
+    <full_ident> <?ws> 
+    of      <?ws>
+    <base_class> <?ws> 
+    where   
+    <?opt_ws> \{ <?opt_ws>  
+        # { say ' parsing statement list ' }
+        { 
+            COMPILER::add_pad();
+        }
+        <exp_stmts> 
+        <?opt_ws> 
+    [   \}     | { say '*** Syntax Error in subset \'', get_class_name(), '.', $$<name>, '\' near pos=', $/.to; die 'error in Block'; } ]
+    {
+        # say ' block: ', ($$<exp_stmts>).perl;
+        my $env := @COMPILER::PAD[0];
+        COMPILER::drop_pad();
+        return ::Subset( 
+            'name'  => $$<full_ident>, 
+            'base_class'  => $$<base_class>, 
+            'block' => ::Lit::Code(
+                pad   => $env,
+                state => { },
+                sig   => undef,
+                body  => $$<exp_stmts>,
+            ),
+        );
+    }
+}
 
 token method {
     method
