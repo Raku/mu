@@ -455,9 +455,22 @@ $meta_Code->add_method( 'APPLY',
 # TODO - .add_constraint ???
 # TODO - hierarchical constraints - Array of Foo
 #    - use a linked list of Subsets ???
+# -> you can't subclass a subset
 my $meta_Subset = ::DISPATCH( $::Class, 'new', "Subset");
 $::Subset = $meta_Subset->PROTOTYPE();
 $meta_Subset->add_parent($meta_Code);   # .perl, .APPLY
+
+# -> if you instantiate a subset type you get an object of its base type
+$meta_Subset->add_method(
+    'new',
+    ::DISPATCH( $::Method, 'new', 
+        sub {
+            my $self = shift;
+            my $base_type = $self->{_value}{base_type};
+            ::DISPATCH( $base_type, 'new', @_ );
+        }
+    )
+);
 
 #$meta_Subset->add_method(
 #    'add_subtype',
