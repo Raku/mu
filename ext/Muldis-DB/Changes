@@ -1,14 +1,28 @@
                                 Muldis::DB
 ---------------------------------------------------------------------------
 
-2007-07-24   Darren Duncan <perl@DarrenDuncan.net>
+2007-08-xx   Darren Duncan <perl@DarrenDuncan.net>
 
-    * Muldis::DB version 0.3.0 for Perl 5 is released on CPAN as
-    Muldis-DB-0.3.0.tar.gz.  Muldis::DB version 0.3.0 for Perl 6 is not
+    * Muldis::DB version 0.4.0 for Perl 5 is released on CPAN as
+    Muldis-DB-0.4.0.tar.gz.  Muldis::DB version 0.4.0 for Perl 6 is not
     released at this time, if ever, since it is currently released only as
     part of the Perl6-Pugs project (in its ext/Muldis-DB/ subdirectory),
     which sets its own less frequent release schedule.  The rest of this
     Changes entry refers only to the Perl 5 version.
+
+    * (DB.pod, Copying.pod)  The license of Muldis::DB has been simplified
+    to no longer be the duality of the GPL and Affero GPL, as the Affero
+    GPL option is dropped; this is because the Affero option didn't seem to
+    provide any clear benefit, and the GPL is regardless compatible with
+    the Affero GPL with respect to combining works into larger works, which
+    is all that is truly important.
+
+2007-07-24   Darren Duncan <perl@DarrenDuncan.net>
+
+    * Muldis::DB version 0.3.0 for Perl 5 is released on CPAN as
+    Muldis-DB-0.3.0.tar.gz.  Muldis::DB version 0.3.0 for Perl 6 is not
+    released at all.  The rest of this Changes entry refers only to the
+    Perl 5 version.
 
     * What was Muldis-DB at version 0.2.0 and earlier, has been split in 2,
     with the parts to be Language-MuldisD and Muldis-DB, each at version

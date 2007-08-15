@@ -97,16 +97,22 @@ example, but what is written in the components themselves takes precedence;
 regarding the core, see the LICENSE AND COPYRIGHT documentation in the
 L<Muldis::DB> file.
 
-This Muldis::DB core distribution is currently licensed under the
-disjunction of the GNU General Public License (GPL), version 3.0 or later,
-and the GNU Affero General Public License (AGPL), version 3.0 or later.
-
-I<Or that is the future intention; meanwhile, read "AGPL" as simply "GPL",
-since that is the only choice which currently is legally useable.>
+This Muldis::DB core distribution is currently licensed under the GNU
+General Public License (GPL), version 3.0 or later.
 
 These licensing terms are being applied to Muldis::DB because the copyright
 holder agrees with, and wants to support, the principles of user freedom
-provided by use of the GPL|AGPL, which users should hopefully appreciate.
+provided by use of the GPL, which users should hopefully appreciate.
+
+I<For the record, the copyright holder would actually prefer to license
+works instead under the GNU Affero General Public License (AGPL) version 3
+or later, which offers stronger protection of freedoms than the vanilla GPL
+to those who interact with the works over a network, and the AGPL will be
+the license of choice for the works that are applications.  However, for
+the Muldis DB framework core, which is conceptually more of a library, the
+vanilla GPL is being used instead as a strategic choice to help encourage
+wider adoption among developers of derived works.  But since the AGPL is
+GPL compatible, larger works encompassing Muldis DB can still be AGPL.>
 
 The copyright holder has no intention of broadly releasing Muldis::DB
 itself under any license that is not compatible with the GPL, and has
@@ -115,31 +121,31 @@ license.  A broad release under a license like BSD or MIT would be
 irrevocably granting the legal means for anyone to make non-free
 derivatives, due to other licenses having weaker protections for indirect
 recipients of covered works.  The copyright holder currently believes that
-a broad release under the GPL or AGPL licenses would be best, but is
-willing to consider switching to an LGPL licensed broad release instead, if
-doing so would have strategic value to benefit the free software community,
-and would increase the adoption of Muldis DB.
+a broad release under the GPL license would be best, but is willing to
+consider switching to an LGPL licensed broad release instead, if doing so
+would have strategic value to benefit the free software community, and
+would increase the adoption of Muldis DB.
 
 The copyright holder would prefer that it be possible for everyone to
-employ Muldis::DB according to the GPL or AGPL.  The GPL|AGPL/proprietary
-dual-license is not intended as a developer-extortion measure to build a
-business with; in fact, it would often be the case that the proprietary
-licenses would be provided at no cost, meaning the copyright holder makes
-no financial gain at all from them; rather, the copyright holder intends to
-build a business with Muldis::DB in the same ways that the GPL permits
-everyone else to, such as by selling GPL|AGPL-licensed copies for a fee,
-and support services, and warranties, and sponsored improvements, and by
-using Muldis::DB as a platform to build other works on; a unique selling
-proposition of the copyright holder for this is that, being the creator,
-they know and can support the product best.
+employ Muldis::DB according to the GPL.  The GPL/proprietary dual-license
+is not intended as a developer-extortion measure to build a business with;
+in fact, it would often be the case that the proprietary licenses would be
+provided at no cost, meaning the copyright holder makes no financial gain
+at all from them; rather, the copyright holder intends to build a business
+with Muldis::DB in the same ways that the GPL permits everyone else to,
+such as by selling GPL-licensed copies for a fee, and support services, and
+warranties, and sponsored improvements, and by using Muldis::DB as a
+platform to build other works on; a unique selling proposition of the
+copyright holder for this is that, being the creator, they know and can
+support the product best.
 
 The main reason that proprietary licenses are also offered for Muldis::DB
 is that, for some potential users, various legal or business or
 compatibility concerns create an environment where it is not feasible for
-them to employ GPL|AGPL-licensed works, and so customized proprietary
-licenses should address these concerns so that it is still possible for
-them to employ Muldis::DB to meet their needs.  The copyright holder values
-any reasonable means by which the most people possible can use Muldis::DB.
+them to employ GPL-licensed works, and so customized proprietary licenses
+should address these concerns so that it is still possible for them to
+employ Muldis::DB to meet their needs.  The copyright holder values any
+reasonable means by which the most people possible can use Muldis::DB.
 
 There should not be any rationale for rejecting Muldis::DB as a solution
 due to its license(s); but if that assumption proves to be false, then
