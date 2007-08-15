@@ -2,13 +2,17 @@ use v6-alpha;
 
 class KindaPerl6::Traverse {
 
-    sub visit ( $visitor, $node, $node_name ) {
+    sub visit ( $visitor, $node, $node_name, $path ) {
         #say "visit " ~ $node ~ ' name ' ~ $node_name;
+        
+        if !(defined( $path )) {
+            $path := [ ];
+        }
         
         if $node.isa('Array') {
             my $result := [ ];
             for @($node) -> $subitem {
-                push @$result, visit_subnode( $visitor, $subitem ); 
+                push @$result, visit_subnode( $visitor, $subitem, $path ); 
             };
             return $result;
         };
@@ -16,7 +20,7 @@ class KindaPerl6::Traverse {
         if $node.isa('Hash') {
             my $result := { };
             for keys %($node) -> $subitem {
-                $result{ $subitem } := visit_subnode( $visitor, $node{$subitem} ); 
+                $result{ $subitem } := visit_subnode( $visitor, $node{$subitem}, $path ); 
             };
             return $result;
         };
@@ -29,7 +33,11 @@ class KindaPerl6::Traverse {
             return $node;
         };
 
-        my $result := $visitor.visit( $node, $node_name );
+        # do not include (arrays, pads, str) in the path
+        $path := [ $node, @($path) ];        
+        #say "Path: ",$path.perl;
+
+        my $result := $visitor.visit( $node, $node_name, $path );
         if ( $result ) {
             return $result;
         };
@@ -37,22 +45,22 @@ class KindaPerl6::Traverse {
         my $result := { };
         my $data := $node.attribs;
         for keys %($data) -> $item {
-            $result{$item} := visit_subnode( $visitor, $data{$item} );         
+            $result{$item} := visit_subnode( $visitor, $data{$item}, $path );         
         };
         return $node.new(%$result);
         
     }
 
-    sub visit_subnode ( $visitor, $subnode ) {
+    sub visit_subnode ( $visitor, $subnode, $path ) {
         if     $subnode.isa('Array') 
             || $subnode.isa('Hash') 
             || $subnode.isa('Str') 
             || $subnode.isa('Pad') 
         {
-            return visit( $visitor, $subnode );
+            return visit( $visitor, $subnode, undef, $path );
         }
         else {
-            return $subnode.emit( $visitor );
+            return $subnode.emit( $visitor, $path );
         }
     }
 
@@ -61,7 +69,7 @@ class KindaPerl6::Traverse {
 #class Module {
 #    has $.name;
 #    has @.body;
-#    method emit( $visitor ) {
+#    method emit( $visitor, $path ) {
 #        KindaPerl6::Traverse::visit( 
 #            $visitor, 
 #            self,
@@ -83,11 +91,12 @@ class CompUnit {
     has %.attributes;
     has %.methods;
     has @.body;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'CompUnit',
+            $path,
         );
     };
     method attribs {
@@ -104,11 +113,12 @@ class CompUnit {
 
 class Val::Int {
     has $.int;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Val::Int',
+            $path,
         );
     };
     method attribs {
@@ -120,11 +130,12 @@ class Val::Int {
 
 class Val::Bit {
     has $.bit;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Val::Bit',
+            $path,
         );
     };
     method attribs {
@@ -136,11 +147,12 @@ class Val::Bit {
 
 class Val::Num {
     has $.num;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Val::Num',
+            $path,
         );
     };
     method attribs {
@@ -152,11 +164,12 @@ class Val::Num {
 
 class Val::Buf {
     has $.buf;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Val::Buf',
+            $path,
         );
     };
     method attribs {
@@ -167,11 +180,12 @@ class Val::Buf {
 }
 
 class Val::Undef {
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Val::Undef',
+            $path,
         );
     };
     method attribs {
@@ -183,11 +197,12 @@ class Val::Undef {
 class Val::Object {
     has $.class;
     has %.fields;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Val::Object',
+            $path,
         );
     };
     method attribs {
@@ -200,11 +215,12 @@ class Val::Object {
 
 class Lit::Seq {
     has @.seq;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Lit::Seq',
+            $path,
         );
     };
     method attribs {
@@ -216,11 +232,12 @@ class Lit::Seq {
 
 class Lit::Array {
     has @.array;    
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Lit::Array',
+            $path,
         );
     };
     method attribs {
@@ -232,11 +249,12 @@ class Lit::Array {
 
 class Lit::Hash {
     has @.hash;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Lit::Hash',
+            $path,
         );
     };
     method attribs {
@@ -252,11 +270,12 @@ class Lit::Code {
     has $.sig;         #  is Sig              # Signature
     has @.body;        #  is Seq of Exp;      # Code body 
     #has @.parameters;  #  is Seq of Exp;      # Signature
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Lit::Code',
+            $path,
         );
     };
     method attribs {
@@ -272,11 +291,12 @@ class Lit::Code {
 class Lit::Object {
     has $.class;
     has @.fields;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Lit::Object',
+            $path,
         );
     };
     method attribs {
@@ -290,11 +310,12 @@ class Lit::Object {
 class Index {
     has $.obj;
     has $.index;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Index',
+            $path,
         );
     };
     method attribs {
@@ -308,11 +329,12 @@ class Index {
 class Lookup {
     has $.obj;
     has $.index;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Lookup',
+            $path,
         );
     };
     method attribs {
@@ -327,11 +349,12 @@ class Var {
     has $.sigil;
     has $.twigil;
     has $.name;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Var',
+            $path,
         );
     };
     method attribs {
@@ -346,11 +369,12 @@ class Var {
 class Bind {
     has $.parameters;
     has $.arguments;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Bind',
+            $path,
         );
     };
     method attribs {
@@ -364,11 +388,12 @@ class Bind {
 class Assign {
     has $.parameters;
     has $.arguments;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Assign',
+            $path,
         );
     };
     method attribs {
@@ -381,11 +406,12 @@ class Assign {
 
 class Proto {
     has $.name;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Proto',
+            $path,
         );
     };
     method attribs {
@@ -401,11 +427,12 @@ class Call {
     has $.method;
     has @.arguments;
     #has $.hyper;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Call',
+            $path,
         );
     };
     method attribs {
@@ -421,11 +448,12 @@ class Call {
 class Apply {
     has $.code;
     has @.arguments;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Apply',
+            $path,
         );
     };
     method attribs {
@@ -438,11 +466,12 @@ class Apply {
 
 class Return {
     has $.result;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Return',
+            $path,
         );
     };
     method attribs {
@@ -456,11 +485,12 @@ class If {
     has $.cond;
     has @.body;
     has @.otherwise;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'If',
+            $path,
         );
     };
     method attribs {
@@ -476,11 +506,12 @@ class For {
     has $.cond;
     has @.body;
     has @.topic;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'For',
+            $path,
         );
     };
     method attribs {
@@ -496,11 +527,12 @@ class Decl {
     has $.decl;
     has $.type;
     has $.var;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Decl',
+            $path,
         );
     };
     method attribs {
@@ -516,11 +548,12 @@ class Sig {
     has $.invocant;
     has $.positional;
     has $.named;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Sig',
+            $path,
         );
     };
     method attribs {
@@ -536,11 +569,12 @@ class Subset {
     has $.name;
     has $.base_class;
     has $.block;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Subset',
+            $path,
         );
     };
     method attribs {
@@ -556,11 +590,12 @@ class Method {
     has $.name;
     #has $.sig;
     has $.block;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Method',
+            $path,
         );
     };
     method attribs {
@@ -576,11 +611,12 @@ class Sub {
     has $.name;
     #has $.sig;
     has @.block;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Sub',
+            $path,
         );
     };
     method attribs {
@@ -596,11 +632,12 @@ class Token {
     has $.name;
     #has $.sig;
     has $.regex;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Token',
+            $path,
         );
     };
     method attribs {
@@ -614,11 +651,12 @@ class Token {
 
 class Do {
     has @.block;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Do',
+            $path,
         );
     };
     method attribs {
@@ -630,11 +668,12 @@ class Do {
 
 class BEGIN {
     has @.block;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'BEGIN',
+            $path,
         );
     };
     method attribs {
@@ -647,11 +686,12 @@ class BEGIN {
 class Use {
     has $.mod;
     has $.perl5;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Use',
+            $path,
         );
     };
     method attribs {
@@ -667,11 +707,12 @@ class Use {
 
 
 class Rule {
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Rule',
+            $path,
         );
     };
     method attribs {
@@ -687,11 +728,12 @@ class Rule::Quantifier {
     has $.ws1;
     has $.ws2;
     has $.ws3;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Rule::Quantifier',
+            $path,
         );
     };
     method attribs {
@@ -708,11 +750,12 @@ class Rule::Quantifier {
 
 class Rule::Or {
     has @.or;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Rule::Or',
+            $path,
         );
     };
     method attribs {
@@ -724,11 +767,12 @@ class Rule::Or {
 
 class Rule::Concat {
     has @.concat;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Rule::Concat',
+            $path,
         );
     };
     method attribs {
@@ -742,11 +786,12 @@ class Rule::Subrule {
     has $.metasyntax;
     has $.ident;
     has $.capture_to_array;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Rule::Subrule',
+            $path,
         );
     };
     method attribs {
@@ -760,11 +805,12 @@ class Rule::Subrule {
 
 class Rule::SubruleNoCapture {
     has $.metasyntax;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Rule::SubruleNoCapture',
+            $path,
         );
     };
     method attribs {
@@ -778,11 +824,12 @@ class Rule::Var {
     has $.sigil;
     has $.twigil;
     has $.name;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Rule::Var',
+            $path,
         );
     };
     method attribs {
@@ -796,11 +843,12 @@ class Rule::Var {
 
 class Rule::Constant {
     has $.constant;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Rule::Constant',
+            $path,
         );
     };
     method attribs {
@@ -811,11 +859,12 @@ class Rule::Constant {
 }
 
 class Rule::Dot {
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Rule::Dot',
+            $path,
         );
     };
     method attribs {
@@ -826,11 +875,12 @@ class Rule::Dot {
 
 class Rule::SpecialChar {
     has $.char;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Rule::SpecialChar',
+            $path,
         );
     };
     method attribs {
@@ -842,11 +892,12 @@ class Rule::SpecialChar {
 
 class Rule::Block {
     has $.closure;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Rule::Block',
+            $path,
         );
     };
     method attribs {
@@ -858,11 +909,12 @@ class Rule::Block {
 
 class Rule::InterpolateVar {
     has $.var;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Rule::InterpolateVar',
+            $path,
         );
     };
     method attribs {
@@ -876,11 +928,12 @@ class Rule::NamedCapture {
     has $.rule;
     has $.ident;
     has $.capture_to_array;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Rule::NamedCapture',
+            $path,
         );
     };
     method attribs {
@@ -896,11 +949,12 @@ class Rule::Before {
     has $.rule;
     has $.assertion_modifier;
     has $.capture_to_array;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Rule::Before',
+            $path,
         );
     };
     method attribs {
@@ -916,11 +970,12 @@ class Rule::After {
     has $.rule;
     has $.assertion_modifier;
     has $.capture_to_array;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Rule::After',
+            $path,
         );
     };
     method attribs {
@@ -934,11 +989,12 @@ class Rule::After {
 
 class Rule::NegateCharClass {
     has $.chars;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Rule::NegateCharClass',
+            $path,
         );
     };
     method attribs {
@@ -950,11 +1006,12 @@ class Rule::NegateCharClass {
 
 class Rule::CharClass {
     has $.chars;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Rule::CharClass',
+            $path,
         );
     };
     method attribs {
@@ -968,11 +1025,12 @@ class Rule::Capture {
     has $.rule;
     has $.position;
     has $.capture_to_array;
-    method emit( $visitor ) {
+    method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
             self,
             'Rule::Capture',
+            $path,
         );
     };
     method attribs {

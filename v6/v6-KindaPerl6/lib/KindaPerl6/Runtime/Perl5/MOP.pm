@@ -460,6 +460,8 @@ my $meta_Subset = ::DISPATCH( $::Class, 'new', "Subset");
 $::Subset = $meta_Subset->PROTOTYPE();
 $meta_Subset->add_parent($meta_Code);   # .perl, .APPLY
 
+$meta_Subset->add_attribute( 'base_class' );
+
 # -> if you instantiate a subset type you get an object of its base type
 $meta_Subset->add_method(
     'new',
