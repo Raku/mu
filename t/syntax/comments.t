@@ -157,8 +157,7 @@ plan 37;
     is $a, undef, "``#'' can't be used as quote delimiters";
 }
 
-# L<S02/"Whitespace and Comments"/"Multiline comments" extending POD
-#   without =cut>
+# L<S02/"Whitespace and Comments"/POD sections may be>
 {
     my $a = eval q{
         my $var = 1;
