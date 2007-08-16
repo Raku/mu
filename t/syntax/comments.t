@@ -125,8 +125,7 @@ plan 37;
     }} 'cat', 'embedded comments with nested/unmatched bracket chars';
 }
 
-# L<S02/"Whitespace and Comments"/
-#   "#" on "beginning of line" always "line-end comment">
+# L<S02/"Literals"/"# at beginning of line is always a line-end comment">
 {
     is 31,
 #<this is special cased
