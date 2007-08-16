@@ -84,7 +84,7 @@ my $quux = (quux => "xyzzy");
 is($quux.key, 'quux', "lhs quotes" );
 
 {
-    # L<S02/Immutable types/Pair "one-element Mapping">
+    # L<S02/Immutable types/A single key-to-value association>
     my $pair = :when<now>;
     is ~(%$pair), "when\tnow";
     # hold back this one according to audreyt
