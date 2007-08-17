@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 3 Aug 2007
+   Last Modified: 17 Aug 2007
    Number: 5
-   Version: 62
+   Version: 63
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -662,6 +662,11 @@ for side-effects:
         \s+  { print "but does contain whitespace\n" }
      /
 
+Within a closure, the instantaneous position within the search is
+denoted by the special variable C<$¢>.  As with all string positions,
+you must not treat it as a number unless you are very careful about
+which units you are dealing with.
+
 =item *
 
 It can affect the match if it calls C<fail>:
@@ -1255,8 +1260,8 @@ to re-use, and if provided must resolve to a single subpattern.
 If omitted, the entire pattern is called recursively:
 
     <~~>       # call myself recursively
-    <~~$0>     # match according to $0's pattern
-    <~~$<foo>> # match according to $<foo>'s rule
+    <~~0>      # match according to $0's pattern
+    <~~foo>    # match according to $<foo>'s rule
 
 Note that this rematches the pattern associated with the name, not
 the string matched.  So
@@ -1265,7 +1270,7 @@ the string matched.  So
 
     / ( foo | bar ) d $0 /      # fails; doesn't match "foo" literally
     / ( foo | bar ) d <$0> /    # fails; doesn't match /foo/ as subrule
-    / ( foo | bar ) d <~~$0> /  # matches using rule associated with $0
+    / ( foo | bar ) d <~~0> /   # matches using rule associated with $0
 
 The last is equivalent to
 
