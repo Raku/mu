@@ -1996,7 +1996,7 @@ ruleParamName = literalRule "parameter name" $ do
         then ruleSubNamePossiblyWithTwigil
         else do twigil <- ruleTwigil
                 name   <- case twigil of
-                    ""  -> many1 wordAny <|> string "/"
+                    ""  -> many1 wordAny <|> string "/" <|> string "¢"
                     "!" -> many wordAny
                     _   -> many1 wordAny
                 return $ sigil ++ twigil ++ name
@@ -2008,10 +2008,12 @@ ruleVarName = lexeme verbatimVarNameString
 verbatimVarNameString :: RuleParser String
 verbatimVarNameString = verbatimRule "variable name" $ tryChoice
     [ string "$/"   -- match object
+    , string "$µ"   -- proposed match object
     , ruleMatchPos
     , ruleMatchNamed
     , regularVarName
     , string "$!"   -- error variable
+    , string "$¢"   -- match "continuation" variable
     ]
 
 ruleSigil :: RuleParser VarSigil
