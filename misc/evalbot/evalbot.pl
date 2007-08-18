@@ -55,11 +55,14 @@ package Evalbot;
         my $e = shift;
         my $message = $e->{body};
         if ($message =~ m/\A$regex\s+(.*)\z/){
-#            return "Stub: eval'ing <$2> with $1";
             my ($e, $str) = ($executer{$1}, $2);
             warn "Eval: $str\n";
-#            warn "Executer: $e\n";
-            return EvalbotExecuter::run($str, $e);
+            if ($1 eq 'kp6') {
+                my $rev_string = 'r' . get_revision() . ': ';
+                return $rev_string . EvalbotExecuter::run($str, $e);
+            } else {
+                return EvalbotExecuter::run($str, $e);
+            }
         }
         return undef;
     }
@@ -96,6 +99,16 @@ package Evalbot;
         return;
     }
 
+    sub get_revision {
+        my $info = qx/svn info/;
+        if ($info =~ m/^Revision:\s+(\d+)$/smx){
+            return $1;
+        } else {
+            return "_unknown";
+        }
+    }
+
+
 }
 
 package main;
@@ -117,6 +130,5 @@ my $bot = Evalbot->new(
         charset   => "utf-8",
         );
 $bot->run();
-
 
 # vim: ts=4 sw=4 expandtab
