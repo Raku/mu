@@ -1,10 +1,39 @@
 #!/usr/bin/perl
+
+=head1 NAME
+
+evalbot.pl - a pluggable p5 evalbot
+
+=head1 SYNOPSIS
+
+perl -Ilib evalbot.pl <configfile>
+
+=head1 DESCRIPTION
+
+evalbot.pl is a perl5 based evalbot, intended for the different Perl 6
+implementations.
+
+Take a look at the example config file that is hopefully is the same 
+directory.
+
+=head1 AUTHOR
+
+Written by Moritz Lenz.
+
+Copyright (C) 2007 by Moritz Lenz and the pugs authors.
+
+This file may be distributed under the same terms as perl or pugs itself.
+
+=cut
+
 use warnings;
 use strict;
 
-use Config::File;
 use Bot::BasicBot;
+use Config::File;
 use EvalbotExecuter;
+use Carp qw(confess);
+use Data::Dumper;
 
 
 package Evalbot;
@@ -30,7 +59,7 @@ package Evalbot;
             warn "String: $str\n";
 #            warn "Executer: $e\n";
             return EvalbotExecuter::run($str, $e);
-        } 
+        }
         return undef;
     }
 
@@ -49,7 +78,7 @@ package Evalbot;
 
     sub exec_kp6 {
         my ($program, $fh, $filename) = @_;
-        chdir('../../v6/v6-KindaPerl6/') 
+        chdir('../../v6/v6-KindaPerl6/')
             or confess("Can't chdir to kp6 dir: $!");
         my ($tmp_fh, $name) = tempfile();
         print $tmp_fh $program;
@@ -58,25 +87,27 @@ package Evalbot;
         close $fh;
         unlink $name;
         return;
-#        system 'perl', 'kp6-perl5.pl', 
     }
 
 }
 
 package main;
 
+my $config_file = shift @ARGV 
+    or confess("Usage: $0 <config_file>");
+my %conf = %{ Config::File::read_config_file($config_file) };
+
+#warn Dumper(\%conf);
+
 my $bot = Evalbot->new(
-        server => 'irc.freenode.org',
-#        server => 'irc.perl.org',
-        port   => 6667,
-#        channels => ['#perl6', '#perl6de'],
-#        channels => ['#perl6de'],
-        channels  => ['#perl6'],
-        nick      => 'exp_evalbot',
-        alt_nicks => ["comb_evalbot", "evalbot_"],
+        server => $conf{server},
+        port   => $conf{port} || 6667,
+        channels  => [ map { "#$_" } split m/\s+/, $conf{channels} ],
+        nick      => $conf{nick},
+        alt_nicks => [ split m/\s+/, $conf{alt_nicks} ],
         username  => "evalbot",
         name      => "combined, experimental evalbot",
-        charset   => "utf-8", 
+        charset   => "utf-8",
         );
 $bot->run();
 

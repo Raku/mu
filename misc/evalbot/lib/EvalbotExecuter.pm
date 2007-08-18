@@ -1,5 +1,69 @@
 package EvalbotExecuter;
 
+=head1 NAME
+
+EvalbotExecuter - Execution of external programs for evalbot
+
+=head1 SYNOPSIS
+
+	use EvalbotExecuter;
+
+	sub my_evalbot_executer {
+		my ($program, $fh, $filename) = @_;
+
+		# execute $program, and write the result to 
+		# $fh, which is a filehandle opened for reading. 
+		# $filename is the name of that file.
+		
+		# we make a very stupid 'eval': remove all 
+		# vowels, and write it:
+
+		$program =~ s/[aeiou]//g;
+		print $fh $program;
+		close $fh;
+
+		# the return value doesn't really matter
+		return;
+	}
+
+	# somewhere else in the program, run it:
+	EvalbotExecuter::run('say "foo"', \&my_evalbot_executer);
+	
+=head1 DESCRIPTION
+
+EvalbotExecuter is basically a wrapper around a function that executes an
+external program.
+
+Currently it does the following:
+
+=over
+
+=item *
+
+Set up a temporary file that should capture the output
+
+=item *
+
+Fork a child process
+
+=item *
+
+Set resource limits in the child process
+
+=item *
+
+call an external function that starts an external process
+
+=item * 
+
+collects the contents of the temporary file, postprocess it, and unlink 
+the temp file.
+
+=back
+
+=cut
+
+
 use strict;
 use warnings;
 use utf8;
