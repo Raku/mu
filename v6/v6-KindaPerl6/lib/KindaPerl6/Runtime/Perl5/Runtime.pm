@@ -113,6 +113,7 @@ package GLOBAL;
         infix_58__60__38__38__62_
         infix_58__60__124__124__62_
         infix_58__60__126__62_
+        infix_58__60__42__62_
         infix_58__60__43__62_
         infix_58__60__45__62_
         
@@ -205,6 +206,8 @@ package GLOBAL;
 
     sub infix_58__60__126__62_      
     { ::DISPATCH( $::Str, 'new', _str( $_[0] ) . _str( $_[1] ) ) }  # infix:<~>
+    sub infix_58__60__42__62_       
+    { ::DISPATCH( $::Int, 'new', _int( $_[0] ) * _int( $_[1] ) ) }  # infix:<*>
     sub infix_58__60__43__62_       
     { ::DISPATCH( $::Int, 'new', _int( $_[0] ) + _int( $_[1] ) ) }  # infix:<+>
     sub infix_58__60__45__62_       
