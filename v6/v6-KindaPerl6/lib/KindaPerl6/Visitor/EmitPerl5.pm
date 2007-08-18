@@ -213,14 +213,14 @@ class Proto {
 class Call {
     method emit_perl5 {
         my $invocant;
-        if $.invocant.isa( 'Str' ) {
-            $invocant := '$::' ~ $.invocant;
-        }
-        else {
-        if $.invocant.isa( 'Val::Buf' ) {
-            $invocant := '$::' ~ $.invocant.buf;
-        }
-        else {
+        #if $.invocant.isa( 'Str' ) {
+        #    $invocant := '$::' ~ $.invocant;
+        #}
+        #else {
+        #if $.invocant.isa( 'Val::Buf' ) {
+        #    $invocant := '$::' ~ $.invocant.buf;
+        #}
+        #else {
         if $.invocant.isa( 'Proto' ) {
 
             if $.invocant.name eq 'self' {
@@ -234,14 +234,14 @@ class Call {
         else {
             $invocant := $.invocant.emit_perl5;
         };
-        };
-        };
+        #};
+        #};
         if $invocant eq 'self' {
             $invocant := '$self';
         };
         if    # ($.method eq 'perl')
                ($.method eq 'yaml')
-            || ($.method eq 'say' )
+            #|| ($.method eq 'say' )
             || ($.method eq 'join')
             || ($.method eq 'chars')
             || ($.method eq 'isa')

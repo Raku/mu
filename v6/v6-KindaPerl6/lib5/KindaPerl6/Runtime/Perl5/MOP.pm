@@ -367,6 +367,12 @@ $meta_Str->add_method(
         }
     )
 );
+$meta_Str->add_method(
+    'say',
+    ::DISPATCH( $::Method, 'new', 
+        sub { Main::say( $_[0]{_value} ) }
+    )
+);
 # $meta_Str->add_method( 'p5landish', ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value} } ) );
 
 my $meta_Int = ::DISPATCH( $::Class, 'new', "Int");
