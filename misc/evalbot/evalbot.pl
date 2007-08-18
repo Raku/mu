@@ -90,7 +90,7 @@ package Evalbot;
         my ($tmp_fh, $name) = tempfile();
         print $tmp_fh $program;
         close $tmp_fh;
-        system "PUGS_SAFEMODE=true pugs $name > $filename 2>&1";
+        system "PUGS_SAFEMODE=true ./pugs $name > $filename 2>&1";
         close $fh;
         unlink $name;
         return;
