@@ -45,6 +45,7 @@ package Evalbot;
     my %executer = (
             echo    => \&exec_echo,
             kp6     => \&exec_kp6,
+            pugs    => \&exec_pugs,
             );
     my $regex = $prefix . '(' . join('|',  keys %executer) . ')';
 #    warn "Regex: ", $regex, "\n";
@@ -56,18 +57,11 @@ package Evalbot;
         if ($message =~ m/\A$regex\s+(.*)\z/){
 #            return "Stub: eval'ing <$2> with $1";
             my ($e, $str) = ($executer{$1}, $2);
-            warn "String: $str\n";
+            warn "Eval: $str\n";
 #            warn "Executer: $e\n";
             return EvalbotExecuter::run($str, $e);
         }
         return undef;
-    }
-
-    sub emoted {
-        my $self = shift;
-        my $e = shift;
-        return undef;
-
     }
 
     sub exec_echo {
@@ -84,6 +78,19 @@ package Evalbot;
         print $tmp_fh $program;
         close $tmp_fh;
         system "perl kp6-perl5.pl < $name | perl -Ilib > $filename 2>&1";
+        close $fh;
+        unlink $name;
+        return;
+    }
+
+    sub exec_pugs {
+        my ($program, $fh, $filename) = @_;
+        chdir('../../')
+            or confess("Can't chdir to pugs base dir: $!");
+        my ($tmp_fh, $name) = tempfile();
+        print $tmp_fh $program;
+        close $tmp_fh;
+        system "PUGS_SAFEMODE=true pugs $name > $filename 2>&1";
         close $fh;
         unlink $name;
         return;
