@@ -337,6 +337,11 @@ package Main;
         $name =~ s/ ([^a-zA-Z0-9_]) / '_'.ord($1).'_' /xge;
         return $name;
     }
+    sub mangle_string {
+        my $s = shift;
+        $s =~ s/\'/\\\'/g;
+        $s;
+    }
     
     sub Dump {
         require Data::Dump::Streamer;

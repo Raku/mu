@@ -13,7 +13,7 @@ package Val::Bit; sub new { shift; bless { @_ }, "Val::Bit" } sub emit_perl5 { m
 ;
 package Val::Num; sub new { shift; bless { @_ }, "Val::Num" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Num, \'new\', ' . ($self->{num} . ' )')) }
 ;
-package Val::Buf; sub new { shift; bless { @_ }, "Val::Buf" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Str, \'new\', ' . ('\'' . ($self->{buf} . ('\'' . ' )')))) }
+package Val::Buf; sub new { shift; bless { @_ }, "Val::Buf" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Str, \'new\', ' . ('\'' . (Main::mangle_string($self->{buf}) . ('\'' . ' )')))) }
 ;
 package Val::Undef; sub new { shift; bless { @_ }, "Val::Undef" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; '$::Undef' }
 ;
