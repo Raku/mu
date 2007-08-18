@@ -217,9 +217,9 @@ class Call {
         #    $invocant := '$::' ~ $.invocant;
         #}
         #else {
-        if $.invocant.isa( 'Val::Buf' ) {
-            $invocant := '$::' ~ $.invocant.buf;
-        } else {
+        #if $.invocant.isa( 'Val::Buf' ) {
+        #    $invocant := '$::' ~ $.invocant.buf;
+        #} else {
         if $.invocant.isa( 'Proto' ) {
 
             if $.invocant.name eq 'self' {
@@ -233,7 +233,7 @@ class Call {
         else {
             $invocant := $.invocant.emit_perl5;
         };
-        };
+        #};
         #};
         if $invocant eq 'self' {
             $invocant := '$self';
