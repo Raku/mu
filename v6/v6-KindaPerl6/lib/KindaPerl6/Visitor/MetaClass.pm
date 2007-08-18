@@ -30,7 +30,7 @@ class KindaPerl6::Visitor::MetaClass {
                         ::Val::Buf( buf => $node.name ),  
                     ],
                     'method'   => 'new',
-                    'invocant' => ::Val::Buf( buf => 'KindaPerl6::Role' ),  
+                    'invocant' => ::Proto( name => 'KindaPerl6::Role' ),  
                 );
             }
             else {
@@ -46,10 +46,10 @@ class KindaPerl6::Visitor::MetaClass {
                         ::Val::Buf( buf => $node.name ),  
                     ],
                     'method'   => 'new',
-                    'invocant' => ::Val::Buf( buf => $metaclass ),  
+                    'invocant' => ::Proto( name => $metaclass ),  
                 );
                 push @$module, ::Bind(
-                    'parameters' => ::Proto( 'name' => '$::' ~ $node.name ),  
+                    'parameters' => ::Proto( name => '$::' ~ $node.name ),  
                     'arguments'  => ::Call(
                         'invocant' => $metaobject,
                         'method'   => 'PROTOTYPE',
@@ -71,8 +71,8 @@ class KindaPerl6::Visitor::MetaClass {
                             'hyper'     => '',
                             'arguments' => [ ],
                             'method'    => 'HOW',
-                            'invocant'  => ::Val::Buf(
-                                    buf => $node.name
+                            'invocant'  => ::Proto(
+                                    name => $node.name
                                 )
                         ),
                     ); 
@@ -90,8 +90,8 @@ class KindaPerl6::Visitor::MetaClass {
                             'hyper'     => '',
                             'arguments' => [ ],
                             'method'    => 'HOW',
-                            'invocant'  => ::Val::Buf(
-                                    buf => $node.name
+                            'invocant'  => ::Proto(
+                                   name => $node.name
                                 )
                         ),
                     ); 
@@ -127,8 +127,8 @@ class KindaPerl6::Visitor::MetaClass {
                                     ),
                                 ],
                                 'method'    => 'new',
-                                'invocant'  => ::Val::Buf(
-                                    buf => 'Method',
+                                'invocant'  => ::Proto(
+                                    name => 'Method',
                                 ),
                             ),
 
@@ -138,8 +138,8 @@ class KindaPerl6::Visitor::MetaClass {
                             'hyper'     => '',
                             'arguments' => [ ],
                             'method'    => 'HOW',
-                            'invocant'  => ::Val::Buf(
-                                    buf => $node.name
+                            'invocant'  => ::Proto(
+                                    name => $node.name
                                 )
                         ),
                     ); 
@@ -165,8 +165,8 @@ class KindaPerl6::Visitor::MetaClass {
 #                                    )
 #                                ],
 #                                'method'    => 'new',
-#                                'invocant'  => ::Val::Buf(
-#                                    buf => 'Class::MOP::Attribute'
+#                                'invocant'  => ::Proto(
+#                                    name => 'Class::MOP::Attribute'
 #                                ),
 #                            )
 
@@ -176,8 +176,8 @@ class KindaPerl6::Visitor::MetaClass {
                             'hyper'     => '',
                             'arguments' => [ ],
                             'method'    => 'HOW',
-                            'invocant'  => ::Val::Buf(
-                                    buf => $node.name
+                            'invocant'  => ::Proto(
+                                    name => $node.name
                                 )
                         ),
                     ); 

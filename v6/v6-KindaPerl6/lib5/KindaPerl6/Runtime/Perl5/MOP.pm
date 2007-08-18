@@ -7,6 +7,7 @@ use v5;
 package KindaPerl6::Runtime::Perl5::MOP;
 use KindaPerl6::Runtime::Perl5::DispatchSugar;
 use Data::Dumper;
+use Carp qw(confess);
 
 #print "# Initializing MOP.pm\n";
 
@@ -25,6 +26,7 @@ use Data::Dumper;
 
 sub ::DISPATCH {
     my $invocant = shift;
+    confess "calling @invocant on invalid object:",Dumper($invocant),"\n" unless $invocant->{_dispatch};
     $invocant->{_dispatch}($invocant,@_);
 }
 
