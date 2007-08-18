@@ -77,7 +77,7 @@ package Evalbot;
         my ($tmp_fh, $name) = tempfile();
         print $tmp_fh $program;
         close $tmp_fh;
-        system "perl kp6-perl5.pl < $name | perl -Ilib > $filename 2>&1";
+        system "perl kp6-perl5.pl < $name 2>$filename| perl -Ilib >> $filename 2>&1";
         close $fh;
         unlink $name;
         return;

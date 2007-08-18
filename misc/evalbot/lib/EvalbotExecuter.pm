@@ -82,7 +82,11 @@ sub run {
 		$response = substr $response, 0, $max_output_len - 3;
 		$response .= '...';
 	}
-	return "OUTPUT[$response]";
+	if (length $response){
+		return "OUTPUT[$response]";
+	} else {
+		return "No output";
+	}
 }
 
 sub _fork_and_eval {
