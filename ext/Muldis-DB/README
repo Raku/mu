@@ -43,7 +43,7 @@ this distribution, I recommend doing so in this order:
 
    1.       README
    2. (opt) Changes
-   3.       lib/Muldis/DB.pod
+   3.       lib/Muldis/DB.pm
    4. (opt) lib/Muldis/DB/Copying.pod
    5.       lib/Muldis/DB/Interface.pm
    6.       lib/Muldis/DB/Literal.pm
