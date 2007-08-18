@@ -98,6 +98,7 @@ token comp_unit {
     <?opt_ws> [\; <?opt_ws> | <''> ]
     [ <'use'> <?ws> <'v6-'> <ident> <?opt_ws> \; <?ws>  |  <''> ]
     
+    [
     <unit_type> <?opt_ws> <full_ident> <?opt_ws>
     <class_traits> <?opt_ws>
     <'{'>
@@ -127,6 +128,30 @@ token comp_unit {
             ),
         )
     }
+    ] | [
+    <exp_stmts2>
+    {
+        $Class_name := 'Main';
+        COMPILER::add_pad( $Class_name );
+    }
+    {
+        my $env := @COMPILER::PAD[0];
+        COMPILER::drop_pad();
+        return ::CompUnit(
+            'unit_type'   => 'module',
+            'name'        => 'Main',
+            'traits'      => [],
+            'attributes'  => { },
+            'methods'     => { },
+            'body'        => ::Lit::Code(
+                pad   => $env,
+                state => { },
+                sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
+                body  => $$<exp_stmts2>,
+            ),
+        )
+    }
+    ]
 };
 
 token infix_op {
