@@ -419,20 +419,25 @@ $meta_Object->add_method(
     ::DISPATCH( $::Method, 'new', 
         sub {
             my $self = shift;
-            my $obj  = shift;
+            my $obj  = shift;   # Proto, Subset, Str  ???
             $obj = $obj->{_value};  # XXX
 
             # lookup roles
             return ::DISPATCH( $::Bit, 'new', 1 )
                 if exists( $self->{_roles}{$obj} );
 
-            # lookup meta and parents
-            for my $parent ( @{ $self->{_isa} }, $meta_Object ) {
-                my $m = get_method_from_metaclass( $parent, $method_name );  # XXX
+            # lookup meta 
+            my $meta = ::DISPATCH( $self, 'HOW' );
+            return ::DISPATCH( $::Bit, 'new', 1 )
+                if $meta->{_value}{class_name} eq $obj;
+
+            # lookup parent classes
+            # XXX - this should be recursive
+            for my $parent ( @{ $meta->{_value}{isa} } ) {
                 return ::DISPATCH( $::Bit, 'new', 1 )
-                  if $m; 
+                    if $meta->{_value}{class_name} eq $parent->{_value}{class_name};
             }
-            
+
             # test for subtype match if $obj is a subtype
             # TODO
             my $base_type  = $obj->{_value}{base_type};
