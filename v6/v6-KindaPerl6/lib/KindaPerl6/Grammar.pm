@@ -299,7 +299,31 @@ token term {
 #   | <bind>    { return $$<bind>   }  # $lhs := $rhs
     | <token>   { return $$<token>  }  # token  { regex... }
     | <method>  { return $$<method> }  # method { code... }
-    | <subset>  { return $$<subset> }  # subset x of y where { code... }
+    | <subset>                         # subset x of y where { code... }
+        { 
+            if ($$<subset>).name ne '' {
+                # subset x ...  -->  our &x ::= subset ...
+                my $bind := ::Bind(  
+                    parameters => ::Decl(  
+                        decl  => 'our',  
+                        var   => ::Var(  
+                            name   => ($$<subset>).name,  
+                            twigil => '',  
+                            sigil  => '::', # ??? Type sigil
+                        ),  
+                        type  => '', 
+                    ),  
+                    arguments => ::Subset( 
+                        name       => '',  
+                        base_class => ($$<subset>).base_class,
+                        block      => ($$<subset>).block, 
+                    ),
+                );
+                COMPILER::begin_block( $bind );   # ::=   compile-time
+                return $bind;                         # :=    run-time
+            };
+            return $$<subset>;
+        }  
     | <sub>                            # sub    { code... }
         { 
             if ($$<sub>).name ne '' {

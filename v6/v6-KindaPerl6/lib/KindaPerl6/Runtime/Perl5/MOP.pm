@@ -460,7 +460,8 @@ my $meta_Subset = ::DISPATCH( $::Class, 'new', "Subset");
 $::Subset = $meta_Subset->PROTOTYPE();
 $meta_Subset->add_parent($meta_Code);   # .perl, .APPLY
 
-$meta_Subset->add_attribute( 'base_class' );
+$meta_Subset->add_attribute( 'base_class' );  # Class
+$meta_Subset->add_attribute( 'constraint' );  # Code
 
 # -> if you instantiate a subset type you get an object of its base type
 $meta_Subset->add_method(
@@ -474,15 +475,22 @@ $meta_Subset->add_method(
     )
 );
 
-#$meta_Subset->add_method(
-#    'add_subtype',
-#    ::DISPATCH( $::Method, 'new', 
-#        sub {
-#            my $subtype = $_[1];
-#            push @{ $_[0]{_value}{subtypes} }, $subtype;
-#        }
-#    )
-#);
+$meta_Subset->add_method(
+    'matches',
+    ::DISPATCH( $::Method, 'new', 
+        sub {
+            my $self = shift;
+            my $obj  = shift;
+            my $base_type  = $self->{_value}{base_type};
+            my $constraint = $self->{_value}{constraint};
+            # ??? what if $base_type is a Subset
+            my $isa = ::DISPATCH( $obj, 'does', $base_type );
+            # ... TODO
+            my $matches = ::DISPATCH( $constraint, 'APPLY', $obj );
+            # ... TODO
+        }
+    )
+);
 
 
 #--- Containers
