@@ -11,8 +11,6 @@ package Muldis::DB-0.3.1 {
 ###########################################################################
 ###########################################################################
 
-__END__
-
 =pod
 
 =encoding utf8
@@ -218,26 +216,31 @@ This file is part of the Muldis DB framework.
 
 Muldis DB is Copyright © 2002-2007, Darren Duncan.  All rights reserved.
 
-Muldis DB is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License (GPL) as published by the Free
-Software Foundation (L<http://www.fsf.org/>); either version 3 of the
-License, or (at your option) any later version.  You should have received
-copies of the GPL as part of the Muldis DB distribution, in the file named
-"LICENSE/GPL"; if not, see L<http://www.gnu.org/licenses/>.
+Muldis DB is free software.  With respect to just the component file
+"lib/Muldis/DB.pm", you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License (LGPL) as published by the
+Free Software Foundation (L<http://www.fsf.org/>); either version 3 of the
+License, or (at your option) any later version.  With respect to all other
+component files, you can redistribute it and/or modify it under the terms
+of the GNU General Public License (GPL) as published by the Free Software
+Foundation; either version 3 of the License, or any later version.  You
+should have received copies of the LGPL and GPL as part of the Muldis DB
+distribution, in the files named "LICENSE/LGPL" and "LICENSE/GPL"; if not,
+see L<http://www.gnu.org/licenses/>.
+
+I<Note that the distribution files Literal.pm and Interface.pm will be
+going away soon, some of their functionality being moved into DB.pm and or
+Example.pm.  Therefore, the above license terms mean that the LGPL will
+soon cover just the tiny part of this distribution that is mandatory to use
+the Muldis DB framework at all (because it defines the role/interface that
+every Engine does).  Furthermore, the majority part of this distribution
+that is covered by the GPL will soon not be mandatory, but optional, when
+using the framework.>
 
 If it is not feasible for you to employ Muldis DB subject to the terms of
-the GPL, then the copyright holder of Muldis DB can provide you a
+the LGPL+GPL, then the copyright holder of Muldis DB can provide you a
 customized proprietary license, often at no cost, so that it is still
 possible for you to employ Muldis DB to meet your needs.
-
-I<Note that the copyright holder of Muldis DB is open to being convinced to
-generally release the work under the GNU Lesser General Public License
-(LGPL), version 3 or later, instead of under the GPL (or alternately, of
-being convinced not to change).  But any argument for or against that
-change should be centred on how the free software community in general, and
-in particular the subset that work with or on Perl or Muldis DB itself,
-would be benefited more by the change versus staying with the GPL; that is,
-such a change should have strategic value for the community.>
 
 For more information on matters such as licensing, including rationale, see
 also the L<Muldis::DB::Copying> file that comes with Muldis DB.

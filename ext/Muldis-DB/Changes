@@ -3,8 +3,8 @@
 
 2007-08-xx   Darren Duncan <perl@DarrenDuncan.net>
 
-    * Muldis::DB version 0.3.1 for Perl 5 is released on CPAN as
-    Muldis-DB-0.3.1.tar.gz.  Muldis::DB version 0.3.1 for Perl 6 is not
+    * Muldis DB version 0.3.1 for Perl 5 is released on CPAN as
+    Muldis-DB-0.3.1.tar.gz.  Muldis DB version 0.3.1 for Perl 6 is not
     released at this time, if ever, since it is currently released only as
     part of the Perl6-Pugs project (in its ext/Muldis-DB/ subdirectory),
     which sets its own less frequent release schedule.  The rest of this
@@ -19,12 +19,20 @@
 
     * New file versions are: DB.pm and Copying.pod 0.3.1.
 
-    * (DB.pm, Copying.pod)  The license of Muldis::DB has been simplified
+    * (DB.pm, Copying.pod)  The license of Muldis DB has been simplified
     to no longer be the duality of the GPL and Affero GPL, as the Affero
     GPL option is dropped; this is because the Affero option didn't seem to
     provide any clear benefit, and the GPL is regardless compatible with
     the Affero GPL with respect to combining works into larger works, which
     is all that is truly important.
+
+    * (DB.pm, Copying.pod)  The file DB.pm has been re-licensed under the
+    Lesser GPL, while the rest of this distribution remains under the GPL.
+    While not immediately the case (due to technicalities), in the near
+    future, that will mean that the LGPL will cover all mandatory
+    components (a minority), and the GPL all or most optional components of
+    the Muldis DB framework.  Accordingly, the file LICENSE/LGPL was added
+    to this distro, which contains the text of the LGPL version 3.0.
 
 2007-07-24   Darren Duncan <perl@DarrenDuncan.net>
 
