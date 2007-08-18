@@ -344,6 +344,19 @@ my $meta_Value = ::DISPATCH( $::Class, 'new', "Value");
 $::Value = $meta_Value->PROTOTYPE();
 $meta_Value->add_method( 'p5landish', ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value} } ) );
 
+$meta_Value->add_method(
+    'say',
+    ::DISPATCH( $::Method, 'new', 
+        sub { print $_[0]{_value}, "\n" }
+    )
+);
+$meta_Value->add_method(
+    'print',
+    ::DISPATCH( $::Method, 'new', 
+        sub { print $_[0]{_value} }
+    )
+);
+
 # $meta_Value->add_method( 'IS_ARRAY',     ::DISPATCH( $::Method, 'new',  sub { 0 } ) );
 # $meta_Value->add_method( 'IS_HASH',      ::DISPATCH( $::Method, 'new',  sub { 0 } ) );
 # $meta_Value->add_method( 'IS_CONTAINER', ::DISPATCH( $::Method, 'new',  sub { 0 } ) );
@@ -367,12 +380,6 @@ $meta_Str->add_method(
             ::DISPATCH( $::Bit, 'new', 
                 ( $_[0]{_value} ne '' && $_[0]{_value} ne '0' ) ? 1 : 0 );
         }
-    )
-);
-$meta_Str->add_method(
-    'say',
-    ::DISPATCH( $::Method, 'new', 
-        sub { print $_[0]{_value}, "\n" }
     )
 );
 # $meta_Str->add_method( 'p5landish', ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value} } ) );

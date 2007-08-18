@@ -16,7 +16,7 @@ token ident_digit {
 };
 
 token ident {
-    [ <?word> | _ ] <?ident_digit>
+    [ <!before \d> <?word> | _ ] <?ident_digit>
 };
 
 token full_ident {
