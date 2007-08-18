@@ -395,7 +395,58 @@ $meta_Int->add_method( 'true',
     ::DISPATCH( $::Method, 'new',  sub { $::Bit->new( $_[0]{_value} == 0 ? 0 : 1 ) } ) );
 # $meta_Int->add_method( 'p5landish', ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value} } ) );
 
+my $meta_Bit = ::DISPATCH( $::Class, 'new', "Bit");
+
+$::Bit = $meta_Bit->PROTOTYPE();
+$meta_Bit->add_parent($meta_Value);
+$meta_Bit->add_method(
+    'perl',
+    ::DISPATCH( $::Method, 'new', 
+        sub { my $v = ::DISPATCH( $::Str, 'new',  $_[0]{_value} ? 'True' : 'False' ) }
+    )
+);
+$meta_Bit->add_method( 'str',
+    ::DISPATCH( $::Method, 'new',  sub { my $v = $::Str->new( $_[0]{_value} ) } ) );
+
+$meta_Bit->add_method( 'true',
+    ::DISPATCH( $::Method, 'new',  sub { $::Bit->new( $_[0]{_value} ) } ) );
+# $meta_Bit->add_method( 'p5landish', ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value} } ) );
+
 #--- finish Object
+
+$meta_Object->add_method(
+    'does',
+    ::DISPATCH( $::Method, 'new', 
+        sub {
+            my $self = shift;
+            my $obj  = shift;
+            $obj = $obj->{_value};  # XXX
+
+            # lookup roles
+            return ::DISPATCH( $::Bit, 'new', 1 )
+                if exists( $self->{_roles}{$obj} );
+
+            # lookup meta and parents
+            for my $parent ( @{ $self->{_isa} }, $meta_Object ) {
+                my $m = get_method_from_metaclass( $parent, $method_name );  # XXX
+                return ::DISPATCH( $::Bit, 'new', 1 )
+                  if $m; 
+            }
+            
+            # test for subtype match if $obj is a subtype
+            # TODO
+            my $base_type  = $obj->{_value}{base_type};
+            my $constraint = $obj->{_value}{constraint};
+            # ??? what if $base_type is a Subset
+            my $isa = ::DISPATCH( $self, 'does', $base_type );
+            # ... TODO
+            my $matches = ::DISPATCH( $constraint, 'APPLY', $self );
+            # ... TODO
+                     
+            return ::DISPATCH( $::Bit, 'new', 0 );
+        }
+    )
+);
 
 # implement Object.str
 $meta_Object->add_method(
@@ -440,23 +491,6 @@ $meta_Undef->add_method( 'perl',
 $meta_Undef->add_method( 'str',
     ::DISPATCH( $::Method, 'new',  sub { my $v = $::Str->new('') } ) );
 
-my $meta_Bit = ::DISPATCH( $::Class, 'new', "Bit");
-
-$::Bit = $meta_Bit->PROTOTYPE();
-$meta_Bit->add_parent($meta_Value);
-$meta_Bit->add_method(
-    'perl',
-    ::DISPATCH( $::Method, 'new', 
-        sub { my $v = ::DISPATCH( $::Str, 'new',  $_[0]{_value} ? 'True' : 'False' ) }
-    )
-);
-$meta_Bit->add_method( 'str',
-    ::DISPATCH( $::Method, 'new',  sub { my $v = $::Str->new( $_[0]{_value} ) } ) );
-
-$meta_Bit->add_method( 'true',
-    ::DISPATCH( $::Method, 'new',  sub { $::Bit->new( $_[0]{_value} ) } ) );
-# $meta_Bit->add_method( 'p5landish', ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value} } ) );
-
 my $meta_Code = ::DISPATCH( $::Class, 'new', "Code");
 $::Code = $meta_Code->PROTOTYPE();
 $meta_Code->add_parent($meta_Value);
@@ -486,23 +520,6 @@ $meta_Subset->add_method(
             my $self = shift;
             my $base_type = $self->{_value}{base_type};
             ::DISPATCH( $base_type, 'new', @_ );
-        }
-    )
-);
-
-$meta_Subset->add_method(
-    'matches',
-    ::DISPATCH( $::Method, 'new', 
-        sub {
-            my $self = shift;
-            my $obj  = shift;
-            my $base_type  = $self->{_value}{base_type};
-            my $constraint = $self->{_value}{constraint};
-            # ??? what if $base_type is a Subset
-            my $isa = ::DISPATCH( $obj, 'does', $base_type );
-            # ... TODO
-            my $matches = ::DISPATCH( $constraint, 'APPLY', $obj );
-            # ... TODO
         }
     )
 );
