@@ -46,6 +46,7 @@ package Evalbot;
             echo    => \&exec_echo,
             kp6     => \&exec_kp6,
             pugs    => \&exec_pugs,
+            eval    => \&exec_eval,
             );
     my $regex = $prefix . '(' . join('|',  keys %executer) . ')';
 #    warn "Regex: ", $regex, "\n";
@@ -70,7 +71,6 @@ package Evalbot;
     sub exec_echo {
         my ($program, $fh, $filename) = @_;
         print $fh $program;
-        close $fh;
     }
 
     sub exec_kp6 {
@@ -81,7 +81,6 @@ package Evalbot;
         print $tmp_fh $program;
         close $tmp_fh;
         system "perl kp6-perl5.pl < $name 2>$filename| perl -Ilib >> $filename 2>&1";
-        close $fh;
         unlink $name;
         return;
     }
@@ -94,8 +93,17 @@ package Evalbot;
         print $tmp_fh $program;
         close $tmp_fh;
         system "PUGS_SAFEMODE=true ./pugs $name > $filename 2>&1";
-        close $fh;
         unlink $name;
+        return;
+    }
+
+    sub exec_eval {
+        my ($program, $fh, $filename) = @_;
+        print $fh "pugs:[";
+        exec_pugs(@_);
+        print $fh "] kp6:[";
+        exec_kp6(@_);
+        print $fh "]";
         return;
     }
 

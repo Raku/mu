@@ -101,6 +101,7 @@ sub _fork_and_eval {
 	} elsif ($fork_val == 0) {
 		_set_resource_limits();
 		&$executer($program, $fh, $filename);
+		close $fh;
 		exit;
 	} else {
 		# server
