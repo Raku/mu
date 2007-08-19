@@ -414,41 +414,57 @@ $meta_Bit->add_method( 'true',
 
 #--- finish Object
 
+sub meta_isa {
+    my $meta = shift;
+    my $obj  = shift;
+    return 1
+        if $meta->{_value}{class_name} eq $obj->{_value};
+    for my $parent ( @{ $meta->{_value}{isa} } ) {
+        return 1
+            if meta_isa( $parent, $obj );    
+    }
+    return 0;
+}
+
+$meta_Object->add_method(
+    'isa',
+    ::DISPATCH( $::Method, 'new', 
+        sub {
+            my $self = shift;
+            my $obj  = shift;   # Proto, Subset, Str  ???
+            $obj = ::DISPATCH( $obj, 'str' );
+            my $meta = ::DISPATCH( $self, 'HOW' );
+            return ::DISPATCH( $::Bit, 'new', 
+                   meta_isa( $meta, $obj ) 
+                || $obj->{_value} eq 'Object'   # XXX
+            );
+        }
+    )
+);
+
 $meta_Object->add_method(
     'does',
     ::DISPATCH( $::Method, 'new', 
         sub {
             my $self = shift;
-            my $obj  = shift;   # Proto, Subset, Str  ???
-            $obj = $obj->{_value};  # XXX
-
-            # lookup roles
-            return ::DISPATCH( $::Bit, 'new', 1 )
-                if exists( $self->{_roles}{$obj} );
-
-            # lookup meta 
-            my $meta = ::DISPATCH( $self, 'HOW' );
-            return ::DISPATCH( $::Bit, 'new', 1 )
-                if $meta->{_value}{class_name} eq $obj;
-
-            # lookup parent classes
-            # XXX - this should be recursive
-            for my $parent ( @{ $meta->{_value}{isa} } ) {
-                return ::DISPATCH( $::Bit, 'new', 1 )
-                    if $meta->{_value}{class_name} eq $parent->{_value}{class_name};
+            my $obj  = shift;             
+            if ( ::DISPATCH( $obj, 'isa', 
+                    ::DISPATCH( $::Str, 'new', 'Subset' ) 
+            ) ) {
+                # Subset
+                my $base_type  = $obj->{_value}{base_type};
+                my $constraint = $obj->{_value}{constraint};
+                my $does = ::DISPATCH( $self, 'does', $base_type );
+                return $does 
+                    unless $does->{_value};
+                return ::DISPATCH( $::Bit, 'new', 
+                    ::DISPATCH( $constraint, 'APPLY', $self )
+                );
             }
-
-            # test for subtype match if $obj is a subtype
-            # TODO
-            my $base_type  = $obj->{_value}{base_type};
-            my $constraint = $obj->{_value}{constraint};
-            # ??? what if $base_type is a Subset
-            my $isa = ::DISPATCH( $self, 'does', $base_type );
-            # ... TODO
-            my $matches = ::DISPATCH( $constraint, 'APPLY', $self );
-            # ... TODO
-                     
-            return ::DISPATCH( $::Bit, 'new', 0 );
+            $obj = ::DISPATCH( $obj, 'str' );   # Proto or Str
+            return ::DISPATCH( $::Bit, 'new', 1 )
+                if exists( $self->{_roles}{ $obj->{_value} } );
+            return ::DISPATCH( $self, 'isa', $obj );
         }
     )
 );

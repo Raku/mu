@@ -232,7 +232,7 @@ class Call {
         if     ($.method eq 'yaml')
             || ($.method eq 'join')
             || ($.method eq 'chars')
-            || ($.method eq 'isa')
+            # || ($.method eq 'isa')
         { 
             if ($.hyper) {
                 return 
