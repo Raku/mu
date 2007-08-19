@@ -34,6 +34,7 @@ use Config::File;
 use EvalbotExecuter;
 use Carp qw(confess);
 use Data::Dumper;
+use FindBin;
 
 
 package Evalbot;
@@ -57,11 +58,16 @@ package Evalbot;
         my $e = shift;
         my $message = $e->{body};
         if ($message =~ m/\A$regex\s+(.*)\z/){
-            my ($e, $str) = ($executer{$1}, $2);
+            my ($eval_name, $str) = ($1, $2);
+            my $e = $executer{$eval_name};
             warn "Eval: $str\n";
-            if ($1 eq 'kp6') {
+            if ($eval_name eq 'kp6') {
                 my $rev_string = 'r' . get_revision() . ': ';
                 return $rev_string . EvalbotExecuter::run($str, $e);
+            } elsif ($eval_name eq 'eval'){
+                my $pugs_out = EvalbotExecuter::run($str, $executer{pugs});
+                my $kp6_out  = EvalbotExecuter::run($str, $executer{kp6});
+                return "kp6: $kp6_out\npugs: $pugs_out";
             } else {
                 return EvalbotExecuter::run($str, $e);
             }
@@ -83,6 +89,7 @@ package Evalbot;
         close $tmp_fh;
         system "perl kp6-perl5.pl < $name 2>$filename| perl -Ilib >> $filename 2>&1";
         unlink $name;
+        chdir $FindBin::Bin;
         return;
     }
 
@@ -93,8 +100,9 @@ package Evalbot;
         my ($tmp_fh, $name) = tempfile();
         print $tmp_fh $program;
         close $tmp_fh;
-        system "PUGS_SAFEMODE=true ./pugs $name > $filename 2>&1";
+        system "PUGS_SAFEMODE=true ./pugs $name >> $filename 2>&1";
         unlink $name;
+        chdir $FindBin::Bin;
         return;
     }
 
