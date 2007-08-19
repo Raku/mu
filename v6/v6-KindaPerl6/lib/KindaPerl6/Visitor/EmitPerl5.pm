@@ -206,7 +206,7 @@ class Bind {
 
 class Proto {
     method emit_perl5 {
-        ~$.name        
+        return '$::'~$.name;
     }
 }
 
@@ -219,7 +219,7 @@ class Call {
                 $invocant := '$self';
             }
             else {
-                $invocant := '$::' ~ $.invocant.emit_perl5;
+                $invocant := $.invocant.emit_perl5;
             }
             
         }

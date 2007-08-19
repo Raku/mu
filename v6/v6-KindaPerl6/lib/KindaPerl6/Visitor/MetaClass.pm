@@ -49,7 +49,7 @@ class KindaPerl6::Visitor::MetaClass {
                     'invocant' => ::Proto( name => $metaclass ),  
                 );
                 push @$module, ::Bind(
-                    'parameters' => ::Proto( name => '$::' ~ $node.name ),  
+                    'parameters' => ::Proto( name => $node.name ),  
                     'arguments'  => ::Call(
                         'invocant' => $metaobject,
                         'method'   => 'PROTOTYPE',
