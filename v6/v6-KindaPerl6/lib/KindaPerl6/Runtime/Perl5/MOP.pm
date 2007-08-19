@@ -521,29 +521,32 @@ $meta_Code->add_method( 'APPLY',
     ::DISPATCH( $::Method, 'new',  sub { my $self = shift; $self->{_value}{code}->(@_) } ) );
 
 
-#--- Subset isa Code ???
-# TODO - .add_constraint ???
+#--- Subset 
 # TODO - hierarchical constraints - Array of Foo
 #    - use a linked list of Subsets ???
 # -> you can't subclass a subset
 my $meta_Subset = ::DISPATCH( $::Class, 'new', "Subset");
 $::Subset = $meta_Subset->PROTOTYPE();
-$meta_Subset->add_parent($meta_Code);   # .perl, .APPLY
+$meta_Subset->add_parent($meta_Value);
 
 $meta_Subset->add_attribute( 'base_class' );  # Class
 $meta_Subset->add_attribute( 'constraint' );  # Code
 
 # -> if you instantiate a subset type you get an object of its base type
-$meta_Subset->add_method(
-    'new',
-    ::DISPATCH( $::Method, 'new', 
-        sub {
-            my $self = shift;
-            my $base_type = $self->{_value}{base_type};
-            ::DISPATCH( $base_type, 'new', @_ );
-        }
-    )
-);
+#    ??? how to implement this?
+#    $subset->new() creates a Subset, for now
+#$meta_Subset->add_method(
+#    'new',
+#    ::DISPATCH( $::Method, 'new', 
+#        sub {
+#            my $self = shift;
+#            my $base_type = $self->{_value}{base_type};
+#            ::DISPATCH( $base_type, 'new', @_ );
+#        }
+#    )
+#);
+$meta_Subset->add_method( 'perl',
+    ::DISPATCH( $::Method, 'new',  sub { $::Str->new( '::Subset( base_class => "...", constraint => "..." )' ) } ) );
 
 
 #--- Containers
