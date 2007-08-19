@@ -40,6 +40,7 @@ package Evalbot;
 {
     use base 'Bot::BasicBot';
     use File::Temp qw(tempfile);
+    use Carp qw(confess);
     my $prefix = '\#';
 
     my %executer = (
