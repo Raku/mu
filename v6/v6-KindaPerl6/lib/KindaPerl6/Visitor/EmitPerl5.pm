@@ -407,7 +407,9 @@ class Subset {
     method emit_perl5 {
           '::DISPATCH( $::Subset, "new", { ' 
         ~ 'base_class => ' ~ $.base_class.emit_perl5 
-        ~ ', block => '    ~ $.block.emit_perl5 
+        ~ ', '
+        ~ 'block => '    
+        ~       'sub { local $_ = shift; ' ~ ($.block.block).emit_perl5 ~ ' } '    # XXX
         ~ ' } )'
     }
 }

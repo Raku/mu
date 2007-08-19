@@ -435,8 +435,10 @@ $meta_Object->add_method(
             $obj = ::DISPATCH( $obj, 'str' );
             my $meta = ::DISPATCH( $self, 'HOW' );
             return ::DISPATCH( $::Bit, 'new', 
-                   meta_isa( $meta, $obj ) 
+                (  meta_isa( $meta, $obj ) 
                 || $obj->{_value} eq 'Object'   # XXX
+                ? 1 : 0 
+                )
             );
         }
     )
@@ -448,20 +450,46 @@ $meta_Object->add_method(
         sub {
             my $self = shift;
             my $obj  = shift;             
+
+            if ( ::DISPATCH( $obj, 'isa', 
+                    ::DISPATCH( $::Str, 'new', 'Str' ) 
+                 )->{_value} 
+            ) {
+                # Str
+                #print "Now testing object: $obj->{_value}\n";
+                # $obj = eval '$::' . $obj->{_value};
+                # print ::DISPATCH( $obj, "str" )->{_value},"\n";
+                
+                # the call to .str is needed in order to stringify the ::Str prototype
+                $obj = eval '$::' . ::DISPATCH( $obj, "str" )->{_value};
+            }
+
             if ( ::DISPATCH( $obj, 'isa', 
                     ::DISPATCH( $::Str, 'new', 'Subset' ) 
-            ) ) {
+                 )->{_value} 
+            ) {
                 # Subset
-                my $base_type  = $obj->{_value}{base_type};
-                my $constraint = $obj->{_value}{constraint};
-                my $does = ::DISPATCH( $self, 'does', $base_type );
+                #print "Testing Subset\n";
+                #print "type: @{[ %{$obj->{_value}} ]} \n";
+                my $base_class = $obj->{_value}{base_class};
+                my $block      = $obj->{_value}{block};
+                my $does = ::DISPATCH( $self, 'does', $base_class );
+                #print "does == ", $does->{_value},"\n";
                 return $does 
                     unless $does->{_value};
+
+                # XXX TODO - Subset.block should be a ::Code
                 return ::DISPATCH( $::Bit, 'new', 
-                    ::DISPATCH( $constraint, 'APPLY', $self )
+                    ( $block->( $self )->{_value} ? 1 : 0 )
                 );
+
+                #return ::DISPATCH( $::Bit, 'new', 
+                #    ::DISPATCH( $block, 'APPLY', $self )
+                #);
             }
-            $obj = ::DISPATCH( $obj, 'str' );   # Proto or Str
+            #print "Testing not-Subset\n";
+            $obj = ::DISPATCH( $obj, 'str' );   # Proto or Str  XXX
+            #print "Class == ", $obj->{_value},"\n";
             return ::DISPATCH( $::Bit, 'new', 1 )
                 if exists( $self->{_roles}{ $obj->{_value} } );
             return ::DISPATCH( $self, 'isa', $obj );

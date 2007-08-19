@@ -57,7 +57,7 @@ package Decl; sub new { shift; bless { @_ }, "Decl" } sub emit_perl5 { my $self 
 ;
 package Sig; sub new { shift; bless { @_ }, "Sig" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ' print \'Signature - TODO\'; die \'Signature - TODO\'; ' }
 ;
-package Subset; sub new { shift; bless { @_ }, "Subset" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Subset, "new", { ' . ('base_class => ' . ($self->{base_class}->emit_perl5() . (', block => ' . ($self->{block}->emit_perl5() . ' } )'))))) }
+package Subset; sub new { shift; bless { @_ }, "Subset" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Subset, "new", { ' . ('base_class => ' . ($self->{base_class}->emit_perl5() . (', ' . ('block => ' . ('sub { local $_ = shift; ' . ($self->{block}->block()->emit_perl5() . (' } ' . ' } )')))))))) }
 ;
 package Method; sub new { shift; bless { @_ }, "Method" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $sig = $self->{block}->sig(); my  $invocant = $sig->invocant(); my  $pos = $sig->positional(); my  $str = 'my $List__ = \@_; '; my  $pos = $sig->positional(); do { for my $field ( @{$pos} ) { $str = ($str . ('my ' . ($field->emit_perl5() . '; '))) } }; my  $bind = Bind->new( 'parameters' => Lit::Array->new( 'array' => $sig->positional(), ),'arguments' => Var->new( 'sigil' => '@','twigil' => '','name' => '_', ), ); $str = ($str . ($bind->emit_perl5() . '; ')); ('sub ' . ($self->{name} . (' { ' . ('my ' . ($invocant->emit_perl5() . (' = shift; ' . ($str . ($self->{block}->emit_perl5() . ' }')))))))) }
 ;
