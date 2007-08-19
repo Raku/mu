@@ -328,14 +328,8 @@ token term {
             if ($$<subset>).name ne '' {
                 # subset x ...  -->  our &x ::= subset ...
                 my $bind := ::Bind(  
-                    parameters => ::Decl(  
-                        decl  => 'our',  
-                        var   => ::Var(  
-                            name   => ($$<subset>).name,  
-                            twigil => '',  
-                            sigil  => '::', # ??? Type sigil
-                        ),  
-                        type  => '', 
+                    parameters => ::Proto(  
+                        name   => ($$<subset>).name,  
                     ),  
                     arguments => ::Subset( 
                         name       => '',  
@@ -714,12 +708,17 @@ token subset {
         COMPILER::drop_pad();
         return ::Subset( 
             'name'  => $$<full_ident>, 
-            'base_class'  => $$<base_class>, 
-            'block' => ::Lit::Code(
-                pad   => $env,
-                state => { },
-                sig   => undef,
-                body  => $$<exp_stmts>,
+            'base_class' => 
+                ::Proto( name => $$<base_class> ), 
+            'block' => 
+                ::Sub( 
+                    'name'  => undef, 
+                    'block' => ::Lit::Code(
+                        pad   => $env,
+                        state => { },
+                        sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
+                        body  => $$<exp_stmts>,
+                ),
             ),
         );
     }

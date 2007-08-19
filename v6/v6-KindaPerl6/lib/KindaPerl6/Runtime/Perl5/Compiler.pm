@@ -4,7 +4,7 @@ use Data::Dumper;
 use KindaPerl6::Visitor::Perl;
 use KindaPerl6::Visitor::EmitPerl5;
 use KindaPerl6::Visitor::EmitPerl6;
-use KindaPerl6::Visitor::Subset;
+#use KindaPerl6::Visitor::Subset;
 use KindaPerl6::Visitor::MetaClass;
 use KindaPerl6::Visitor::Token;
 use KindaPerl6::Visitor::Global;
@@ -12,7 +12,7 @@ use KindaPerl6::Visitor::Global;
 my $visitor_dump_ast    = KindaPerl6::Visitor::Perl->new();
 my $visitor_emit_perl5  = KindaPerl6::Visitor::EmitPerl5->new();
 my $visitor_emit_perl6  = KindaPerl6::Visitor::EmitPerl6->new();
-my $visitor_subset      = KindaPerl6::Visitor::Subset->new();
+#my $visitor_subset      = KindaPerl6::Visitor::Subset->new();
 my $visitor_metamodel   = KindaPerl6::Visitor::MetaClass->new();
 my $visitor_token       = KindaPerl6::Visitor::Token->new();
 my $visitor_global      = KindaPerl6::Visitor::Global->new();
@@ -64,7 +64,7 @@ sub begin_block {
     #print Dump( $ast );
     $ast = $ast->emit( $visitor_token );
     #$ast = $ast->emit( $visitor_lexical_sub );
-    $ast = $ast->emit( $visitor_subset );
+    #$ast = $ast->emit( $visitor_subset );
     $ast = $ast->emit( $visitor_metamodel );
     #$ast = $ast->emit( $visitor_create_env );
     

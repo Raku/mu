@@ -21,6 +21,8 @@ class KindaPerl6::Visitor::Subset {
 
         # TODO - add 'our' subsets to the namespace
         
+        say "Subset: ",$node.perl;
+        
         # subset x {...}  -->  our $x := Subset.new( ... )
         if    ( $node.isa( 'Subset' ) )
            && ( $node.name ne '' )   # only named subsets ???

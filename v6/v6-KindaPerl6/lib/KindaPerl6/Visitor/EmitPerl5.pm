@@ -403,6 +403,15 @@ class Sig {
     };
 }
 
+class Subset {
+    method emit_perl5 {
+          '::DISPATCH( $::Subset, "new", { ' 
+        ~ 'base_class => ' ~ $.base_class.emit_perl5 
+        ~ ', block => '    ~ $.block.emit_perl5 
+        ~ ' } )'
+    }
+}
+
 class Method {
     method emit_perl5 {
         # TODO - signature binding

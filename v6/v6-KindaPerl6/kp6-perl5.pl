@@ -56,12 +56,12 @@ my @visitors;
             unless @visitor_sequence && $visitor_sequence[-1] eq 'EmitPerl5';
     }
     elsif ( $perl5rx ) {
-        push @visitor_sequence, qw( RegexCapture Subset MetaClass Global EmitPerl5Regex )
+        push @visitor_sequence, qw( RegexCapture MetaClass Global EmitPerl5Regex )
             unless @visitor_sequence && $visitor_sequence[-1] eq 'EmitPerl5Regex';
     }
     elsif ( ! @visitor_sequence ) {
         # this is the default sequence
-        push @visitor_sequence, qw( Token Subset MetaClass Global EmitPerl5 )
+        push @visitor_sequence, qw( Token MetaClass Global EmitPerl5 )
     }
 
     push @visitor_sequence, 'Perl' 
@@ -74,6 +74,8 @@ my @visitors;
         die "Can't load $_ plugin: $@" if $@;
         push @visitors, $module_name->new();
     }
+
+    #print "# Visitors: @visitors \n";
 } 
 # --- /command line options
 
