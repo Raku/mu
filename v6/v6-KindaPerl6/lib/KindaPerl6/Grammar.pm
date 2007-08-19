@@ -129,6 +129,7 @@ token comp_unit {
         )
     }
     ] | [
+    <?opt_ws>
     <exp_stmts2>
     {
         $Class_name := 'Main';

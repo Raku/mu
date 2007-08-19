@@ -510,6 +510,9 @@ class BEGIN {
 
 class Use {
     method emit_perl5 {
+        if ($.mod eq 'v6') {
+            return Main::newline() ~ '#use v6' ~ Main::newline();
+        }
         if ( $.perl5 ) {
             return 'use ' ~ $.mod ~ ';$::' ~ $.mod ~ '= KindaPerl6::Runtime::Perl5::Wrap::use5(\'' ~ $.mod ~ '\')';
         } else {

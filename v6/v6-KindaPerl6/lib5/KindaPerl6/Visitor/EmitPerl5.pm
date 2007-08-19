@@ -67,6 +67,6 @@ package Do; sub new { shift; bless { @_ }, "Do" } sub emit_perl5 { my $self = sh
 ;
 package BEGIN; sub new { shift; bless { @_ }, "BEGIN" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('BEGIN { ' . ($self->{block}->emit_perl5() . ' }')) }
 ;
-package Use; sub new { shift; bless { @_ }, "Use" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; do { if ($self->{perl5}) { return(('use ' . ($self->{mod} . (';$::' . ($self->{mod} . ('= KindaPerl6::Runtime::Perl5::Wrap::use5(\'' . ($self->{mod} . '\')'))))))) } else { return(('use ' . $self->{mod})) } } }
+package Use; sub new { shift; bless { @_ }, "Use" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; do { if (($self->{mod} eq 'v6')) { return((Main::newline() . ('#use v6' . Main::newline()))) } else {  } }; do { if ($self->{perl5}) { return(('use ' . ($self->{mod} . (';$::' . ($self->{mod} . ('= KindaPerl6::Runtime::Perl5::Wrap::use5(\'' . ($self->{mod} . '\')'))))))) } else { return(('use ' . $self->{mod})) } } }
 ;
 1;
