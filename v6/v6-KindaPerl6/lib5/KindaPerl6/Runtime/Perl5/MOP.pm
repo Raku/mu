@@ -534,6 +534,7 @@ $meta_Subset->add_attribute( 'constraint' );  # Code
 
 # -> if you instantiate a subset type you get an object of its base type
 #    ??? how to implement this?
+#    $subset->new() creates a Subset, for now
 #$meta_Subset->add_method(
 #    'new',
 #    ::DISPATCH( $::Method, 'new', 
