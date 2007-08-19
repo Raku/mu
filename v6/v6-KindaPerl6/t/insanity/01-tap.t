@@ -1,11 +1,3 @@
-
-# L<S01/"Random Thoughts"/specifically tell it you're running Perl 6>
-use v6-alpha;
-
-module Main {
-
-# Checking that testing is sane: TAP output
-
 say '1..10';
 
 say 'ok 1';
@@ -22,4 +14,3 @@ say 'ok 8 # skip bar';
 say 'not ok 9 # TODO';
 say 'not ok 10 # TODO baz';
 
-}

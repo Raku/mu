@@ -172,7 +172,6 @@ token declarator {
 };
 
 token exp2 { <exp> { return $$<exp> } };
-token exp_stmts2 { <exp_stmts> { return $$<exp_stmts> } };
 
 
 
@@ -554,6 +553,16 @@ token exp_stmts {
             { return [ $$<exp> ] }
         ]
     | { return [] }
+};
+token exp_stmts2 {
+    <exp>
+        [
+        |   <?opt_ws> \; <?opt_ws> <exp_stmts>
+            <?opt_ws> [ \; <?opt_ws> | <''> ]
+            { return [ $$<exp>, @( $$<exp_stmts> ) ] }
+        |   <?opt_ws> [ \; <?opt_ws> | <''> ]
+            { return [ $$<exp> ] }
+        ]
 };
 
 token exp_seq {
