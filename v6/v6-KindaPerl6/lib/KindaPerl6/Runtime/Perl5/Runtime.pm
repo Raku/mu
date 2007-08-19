@@ -194,11 +194,11 @@ package GLOBAL;
     sub infix_58__60__124__124__62_ { ::DISPATCH( $_[0], 'true' )->{_value} && $_[0] || ::DISPATCH( $_[1], 'true' )->{_value} && $_[1] }
 
     sub infix_58__60_eq_62_         
-    { ::DISPATCH( $::Bit, 'new', _str($_[0]) eq _str($_[1])) }  # infix:<eq>
+    { ::DISPATCH( $::Bit, 'new', (_str($_[0]) eq _str($_[1])) ? 1 : 0) }  # infix:<eq>
     sub infix_58__60_ne_62_         
-    { ::DISPATCH( $::Bit, 'new', _str($_[0]) ne _str($_[1])) }  # infix:<ne>
+    { ::DISPATCH( $::Bit, 'new', (_str($_[0]) ne _str($_[1])) ? 1 : 0) }  # infix:<ne>
     sub infix_58__60__61__61__62_   
-    { ::DISPATCH( $::Bit, 'new', _int($_[0]) == _int($_[1])) }  # infix:<==>
+    { ::DISPATCH( $::Bit, 'new', (_int($_[0]) == _int($_[1])) ? 1 : 0) }  # infix:<==>
 
     sub infix_58__60__33__61__62_ {  # infix:<!=>
         $::Bit->new(_int($_[0]) != _int($_[1]));
