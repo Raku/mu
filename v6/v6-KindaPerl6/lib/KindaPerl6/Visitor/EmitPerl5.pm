@@ -360,7 +360,7 @@ class Decl {
         if ($.var).sigil eq '$' {
             return 
                   $.decl ~ ' ' 
-                ~ $.type ~ ' ' 
+                # ~ $.type ~ ' ' 
                 ~ $.var.emit_perl5 ~ '; '
                 ~ $.var.emit_perl5
                 ~ ' = ::DISPATCH( $::Scalar' ~ $create
@@ -374,7 +374,7 @@ class Decl {
         if ($.var).sigil eq '&' {
             return 
                   $.decl ~ ' ' 
-                ~ $.type ~ ' ' 
+                # ~ $.type ~ ' ' 
                 ~ $.var.emit_perl5 ~ '; '
                 ~ $.var.emit_perl5
                 ~ ' = ::DISPATCH( $::Routine' ~ $create
@@ -386,14 +386,20 @@ class Decl {
                 ;
         };
         if ($.var).sigil eq '%' {
-            return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_perl5
+            return $.decl ~ ' ' 
+                # ~ $.type 
+                ~ ' ' ~ $.var.emit_perl5
                 ~ ' = ::DISPATCH( $::Hash' ~ $create;
         };
         if ($.var).sigil eq '@' {
-            return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_perl5
+            return $.decl ~ ' ' 
+                # ~ $.type 
+                ~ ' ' ~ $.var.emit_perl5
                 ~ ' = ::DISPATCH( $::Array' ~ $create;
         };
-        return $.decl ~ ' ' ~ $.type ~ ' ' ~ $.var.emit_perl5;
+        return $.decl ~ ' ' 
+            # ~ $.type ~ ' ' 
+            ~ $.var.emit_perl5;
     }
 }
 

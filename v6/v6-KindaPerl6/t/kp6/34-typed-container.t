@@ -1,6 +1,6 @@
 use v6-alpha;
 module Main {
-    say '1..4';
+    say '1..1';
 
     subset StrOk of Str where { $_ eq 'ok' };
 
@@ -9,9 +9,9 @@ module Main {
     $ok = "ok";
 
     if $ok.does( 'StrOk' ) {
-        say "ok 4"
+        say "ok 1"
     }
     else {
-        say "not ok 4"
+        say "not ok 1"
     };
 }
