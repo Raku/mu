@@ -26,13 +26,13 @@ use Carp qw(confess);
 
 sub ::DISPATCH {
     my $invocant = shift;
-    #confess "DISPATCH: calling @_ on invalid object:",Dumper($invocant),"\n" unless $invocant->{_dispatch};
+    confess "DISPATCH: calling @_ on invalid object:",Dumper($invocant),"\n" unless $invocant->{_dispatch};
     $invocant->{_dispatch}($invocant,@_);
 }
 
 sub ::DISPATCH_VAR {
     my $invocant = shift;
-    #confess "DISPATCH_VAR:calling @_ on invalid object:",Dumper($invocant),"\n" unless $invocant->{_dispatch_VAR};
+    confess "DISPATCH_VAR:calling @_ on invalid object:",Dumper($invocant),"\n" unless $invocant->{_dispatch_VAR};
     $invocant->{_dispatch_VAR}($invocant,@_);
 }
 
@@ -729,15 +729,36 @@ sub make_class {
     while (my ($method_name,$sub) = each %methods) {
         ::DISPATCH($meta,"add_method",$method_name,::DISPATCH( $::Method, 'new', $sub));
     }
+    for my $attribute_name (@{$args{attributes}}) {
+        ::DISPATCH($meta,"add_attribute",$attribute_name);
+    }
+    for my $parent (@{$args{parents}}) {
+        ::DISPATCH($meta,"add_parent",$parent);
+    }
     return ::DISPATCH($meta,"PROTOTYPE");
 }
 
-$::Hash = make_class(name=>"Hash",methods=>{
-     new=>sub {
-            sugar {
+my $Hash_Cell = make_class(name=>"HashCell",parent=>[$meta_Container],methods=>{
+        new=>sub {
+            my $v = {
                 %{ $_[0] },
-                _value => {},
+                _value => $_[1],
+                _roles        => { 'container' => 1, 'auto_deref' => 1 },
+                _dispatch_VAR => $dispatch_VAR,
             };
+        },
+        STORE=>sub {
+           $_[0]{_value}{hash}{_value}{_hash}{$_[0]{_value}{key}} = $_[1];
+        },
+        FETCH=>sub {
+            use Data::Dump::Streamer;
+            return $_[0]{_value}{hash}{_value}{_hash}{$_[0]{_value}{key}};
+        },
+});
+$::Hash = make_class(name=>"Hash",parent=>[$meta_Value],methods=>{
+     LOOKUP=>sub {
+         $_[0]{_value}{_hash} ||= {};
+         return ::DISPATCH($Hash_Cell,"new",{hash=>$_[0],key=>::DISPATCH(::DISPATCH($_[1],"str"),"p5landish")});
      }
 });
 1;
