@@ -103,6 +103,15 @@ class Lit::Hash {
     }
 }
 
+class Lit::Pair {
+    method emit_perl5 {
+        '::DISPATCH( $::Pair, \'new\', ' 
+        ~ '{ key => '   ~ $.key.emit_perl5
+        ~ ', value => ' ~ $.value.emit_perl5
+        ~ ' } )'
+    }
+}
+
 class Lit::Code {
     method emit_perl5 {
         my $s;

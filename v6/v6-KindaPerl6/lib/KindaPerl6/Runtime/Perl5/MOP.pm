@@ -413,6 +413,24 @@ $meta_Bit->add_method( 'true',
     ::DISPATCH( $::Method, 'new',  sub { $::Bit->new( $_[0]{_value} ) } ) );
 # $meta_Bit->add_method( 'p5landish', ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value} } ) );
 
+my $meta_Pair = ::DISPATCH( $::Class, 'new', "Pair");
+
+$::Pair = $meta_Pair->PROTOTYPE();
+$meta_Pair->add_parent($meta_Value);
+$meta_Pair->add_attribute( 'key' ); 
+$meta_Pair->add_attribute( 'value' );  
+$meta_Pair->add_method(
+    'perl',
+    ::DISPATCH( $::Method, 'new', 
+        sub { my $v = ::DISPATCH( $::Str, 'new',  '::Pair(...)' ) }
+    )
+);
+$meta_Pair->add_method( 'str',
+    ::DISPATCH( $::Method, 'new',  sub { '(... => ...)' } ) );
+
+$meta_Pair->add_method( 'true',
+    ::DISPATCH( $::Method, 'new',  sub { $::Bit->new( 1 ) } ) );
+
 #--- finish Object
 
 sub meta_isa {
@@ -559,7 +577,7 @@ $::Subset = $meta_Subset->PROTOTYPE();
 $meta_Subset->add_parent($meta_Value);
 
 $meta_Subset->add_attribute( 'base_class' );  # Class
-$meta_Subset->add_attribute( 'constraint' );  # Code
+$meta_Subset->add_attribute( 'block' );       # Code
 
 # -> if you instantiate a subset type you get an object of its base type
 #    ??? how to implement this?
@@ -575,7 +593,7 @@ $meta_Subset->add_attribute( 'constraint' );  # Code
 #    )
 #);
 $meta_Subset->add_method( 'perl',
-    ::DISPATCH( $::Method, 'new',  sub { $::Str->new( '::Subset( base_class => "...", constraint => "..." )' ) } ) );
+    ::DISPATCH( $::Method, 'new',  sub { $::Str->new( '::Subset( base_class => "...", block => "..." )' ) } ) );
 
 
 #--- Containers

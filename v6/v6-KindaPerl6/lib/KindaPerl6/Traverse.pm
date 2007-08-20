@@ -264,6 +264,25 @@ class Lit::Hash {
     };
 }
 
+class Lit::Pair {
+    has $.key;
+    has $.value;
+    method emit( $visitor, $path ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'Lit::Pair',
+            $path,
+        );
+    };
+    method attribs {
+            { 
+                key   => $.key,
+                value => $.value,
+            }
+    };
+}
+
 class Lit::Code {
     has %.pad;         #  is Mapping of Type; # All my/state/parameter variables
     has %.state;       #  is Mapping of Exp;  # State initializers, run upon first entry 
