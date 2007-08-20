@@ -422,11 +422,19 @@ $meta_Pair->add_attribute( 'value' );
 $meta_Pair->add_method(
     'perl',
     ::DISPATCH( $::Method, 'new', 
-        sub { my $v = ::DISPATCH( $::Str, 'new',  '::Pair(...)' ) }
+        sub { ::DISPATCH( $_[0], 'str' ) }
     )
 );
 $meta_Pair->add_method( 'str',
-    ::DISPATCH( $::Method, 'new',  sub { '(... => ...)' } ) );
+    ::DISPATCH( $::Method, 'new',  sub { 
+        ::DISPATCH( $::Str, 'new', 
+            '( ' 
+            . ::DISPATCH( ::DISPATCH( $_[0], 'key' ), 'str' )
+            . ' => ' 
+            . ::DISPATCH( ::DISPATCH( $_[0], 'value' ), 'str' )
+            . ' )' 
+        )
+    } ) );
 
 $meta_Pair->add_method( 'true',
     ::DISPATCH( $::Method, 'new',  sub { $::Bit->new( 1 ) } ) );
