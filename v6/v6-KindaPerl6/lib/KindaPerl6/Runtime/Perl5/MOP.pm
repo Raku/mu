@@ -429,9 +429,9 @@ $meta_Pair->add_method( 'str',
     ::DISPATCH( $::Method, 'new',  sub { 
         ::DISPATCH( $::Str, 'new', 
             '( ' 
-            . ::DISPATCH( ::DISPATCH( $_[0], 'key' ), 'str' )
+            . ::DISPATCH( ::DISPATCH( $_[0], 'key' ), 'str' )->{_value}
             . ' => ' 
-            . ::DISPATCH( ::DISPATCH( $_[0], 'value' ), 'str' )
+            . ::DISPATCH( ::DISPATCH( $_[0], 'value' ), 'str' )->{_value}
             . ' )' 
         )
     } ) );
