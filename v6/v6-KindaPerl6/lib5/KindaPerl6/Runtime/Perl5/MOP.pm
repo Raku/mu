@@ -26,12 +26,13 @@ use Carp qw(confess);
 
 sub ::DISPATCH {
     my $invocant = shift;
-    confess "calling @invocant on invalid object:",Dumper($invocant),"\n" unless $invocant->{_dispatch};
+    #confess "DISPATCH: calling @_ on invalid object:",Dumper($invocant),"\n" unless $invocant->{_dispatch};
     $invocant->{_dispatch}($invocant,@_);
 }
 
 sub ::DISPATCH_VAR {
     my $invocant = shift;
+    #confess "DISPATCH_VAR:calling @_ on invalid object:",Dumper($invocant),"\n" unless $invocant->{_dispatch_VAR};
     $invocant->{_dispatch_VAR}($invocant,@_);
 }
 
@@ -695,5 +696,23 @@ $meta_Routine->add_method(
 #    print " ",$_->{_value}{class_name},"\n";
 #}
 
+sub make_class {
+    my %args = @_;
+    my $meta = ::DISPATCH( $::Class, 'new', $args{name});
+    my %methods = %{$args{methods}};
+    while (my ($method_name,$sub) = each %methods) {
+        ::DISPATCH($meta,"add_method",$method_name,::DISPATCH( $::Method, 'new', $sub));
+    }
+    return ::DISPATCH($meta,"PROTOTYPE");
+}
+
+$::Hash = make_class(name=>"Hash",methods=>{
+     new=>sub {
+            sugar {
+                %{ $_[0] },
+                _value => {},
+            };
+     }
+});
 1;
 
