@@ -73,12 +73,12 @@
     ::DISPATCH(
         ::DISPATCH( $::Capture, 'HOW', ),
         'add_attribute',
-        ::DISPATCH( $::Str, 'new', 'positional' )
+        ::DISPATCH( $::Str, 'new', 'array' )
     );
     ::DISPATCH(
         ::DISPATCH( $::Capture, 'HOW', ),
         'add_attribute',
-        ::DISPATCH( $::Str, 'new', 'named' )
+        ::DISPATCH( $::Str, 'new', 'hash' )
     );
     ::DISPATCH(
         ::DISPATCH( $::Capture, 'HOW', ),
@@ -93,59 +93,57 @@
                   ::DISPATCH( $::Array, 'new',
                     { modified => $_MODIFIED, name => '$List__' } );
                 $List__->{_value}{_array} = \@_;
-                my $v;
-                $v =
-                  ::DISPATCH( $::Scalar, 'new',
-                    { modified => $_MODIFIED, name => '$v' } )
-                  unless defined $v;
-
-                BEGIN {
-                    $v =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$v' } );
-                }
-                my $s;
-                $s =
-                  ::DISPATCH( $::Scalar, 'new',
-                    { modified => $_MODIFIED, name => '$s' } )
-                  unless defined $s;
-
-                BEGIN {
-                    $s =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$s' } );
-                }
-                $v;
-                ::DISPATCH_VAR( $s, 'STORE',
-                    ::DISPATCH( $::Str, 'new', '[ ' ) );
-                do {
-                    for my $v (
+                ::DISPATCH(
+                    $GLOBAL::Code_infix_58__60__126__62_,
+                    'APPLY',
+                    ::DISPATCH( $::Str, 'new', '\\( ' ),
+                    ::DISPATCH(
+                        $GLOBAL::Code_infix_58__60__126__62_,
+                        'APPLY',
+                        ::DISPATCH( ::DISPATCH( $self, "invocant" ), 'perl', ),
                         ::DISPATCH(
-                            $GLOBAL::Code_prefix_58__60__64__62_,
+                            $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $GLOBAL::Code_self, 'APPLY', )
-                        )
-                      )
-                    {
-                        ::DISPATCH_VAR(
-                            $s, 'STORE',
+                            ::DISPATCH( $::Str, 'new', ': ' ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
-                                'APPLY', $s,
+                                'APPLY',
+                                ::DISPATCH(
+                                    $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
+                                    'APPLY',
+                                    ::DISPATCH(
+                                        ::DISPATCH( $self, "array" ), 'elems',
+                                    ),
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                        'APPLY',
+                                        ::DISPATCH(
+                                            ::DISPATCH( $self, "array" ),
+                                            'perl',
+                                        ),
+                                        ::DISPATCH( $::Str, 'new', ', ' )
+                                    ),
+                                    ::DISPATCH( $::Str, 'new', '' )
+                                ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH( $v, 'perl', ),
-                                    ::DISPATCH( $::Str, 'new', ', ' )
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
+                                        'APPLY',
+                                        ::DISPATCH(
+                                            ::DISPATCH( $self, "hash" ),
+                                            'elems',
+                                        ),
+                                        ::DISPATCH(
+                                            ::DISPATCH( $self, "hash" ), 'perl',
+                                        ),
+                                        ::DISPATCH( $::Str, 'new', '' )
+                                    ),
+                                    ::DISPATCH( $::Str, 'new', ' )' )
                                 )
                             )
-                        );
-                    }
-                };
-                return (
-                    ::DISPATCH(
-                        $GLOBAL::Code_infix_58__60__126__62_,
-                        'APPLY', $s, ::DISPATCH( $::Str, 'new', ' ]' )
+                        )
                     )
                 );
             }
@@ -164,46 +162,7 @@
                   ::DISPATCH( $::Array, 'new',
                     { modified => $_MODIFIED, name => '$List__' } );
                 $List__->{_value}{_array} = \@_;
-                ::DISPATCH( $self, 'join', ::DISPATCH( $::Str, 'new', ' ' ) );
-            }
-        )
-    );
-    ::DISPATCH(
-        ::DISPATCH( $::Capture, 'HOW', ),
-        'add_method',
-        ::DISPATCH( $::Str, 'new', 'true' ),
-        ::DISPATCH(
-            $::Method,
-            'new',
-            sub {
-                my $self   = shift;
-                my $List__ =
-                  ::DISPATCH( $::Array, 'new',
-                    { modified => $_MODIFIED, name => '$List__' } );
-                $List__->{_value}{_array} = \@_;
-                ::DISPATCH(
-                    $GLOBAL::Code_infix_58__60__33__61__62_,
-                    'APPLY',
-                    ::DISPATCH( $self, 'elems', ),
-                    ::DISPATCH( $::Int, 'new', 0 )
-                );
-            }
-        )
-    );
-    ::DISPATCH(
-        ::DISPATCH( $::Capture, 'HOW', ),
-        'add_method',
-        ::DISPATCH( $::Str, 'new', 'int' ),
-        ::DISPATCH(
-            $::Method,
-            'new',
-            sub {
-                my $self   = shift;
-                my $List__ =
-                  ::DISPATCH( $::Array, 'new',
-                    { modified => $_MODIFIED, name => '$List__' } );
-                $List__->{_value}{_array} = \@_;
-                ::DISPATCH( $self, 'elems', );
+                ::DISPATCH( $self, 'perl', );
             }
         )
     );

@@ -1,24 +1,30 @@
 use v6-alpha;
 class Capture is Value {
     has $.invocant;
-    has $.positional;
-    has $.named;
+    has $.array;
+    has $.hash;
 
     # TODO ...
     method perl {
-        my $v;   # XXX kp6 ast processor bug
-        my $s = '[ ';
-        for @(self) -> $v { 
-            $s = $s ~ $v.perl ~ ', ';
-        };
-        return $s ~ ' ]' 
+              '\\( ' 
+            ~ $.invocant.perl ~ ': ' 
+            ~ ( $.array.elems 
+                ?? $.array.perl ~ ', ' 
+                !! '' 
+              )
+            ~ ( $.hash.elems
+                ?? $.hash.perl
+                !! ''
+              )
+            ~ ' )' 
     };
     method str {
-        self.join( ' ' );
+        self.perl;
     };
-    method true { self.elems != 0 };
-    method int  { self.elems };
+    #method true { self.elems != 0 };
+    #method int  { self.elems };
 
+    # TODO ...
     my sub match_type( $spec, $thing ) {
 
         42
