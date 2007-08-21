@@ -72,7 +72,7 @@ package Evalbot;
                 return EvalbotExecuter::run($str, $e);
             }
         }
-        return undef;
+        return;
     }
 
     sub exec_echo {
@@ -87,7 +87,7 @@ package Evalbot;
         my ($tmp_fh, $name) = tempfile();
         print $tmp_fh $program;
         close $tmp_fh;
-        system "perl kp6-perl5.pl < $name 2>$filename| perl -Ilib >> $filename 2>&1";
+        system "perl kp6-perl5.pl < $name 2>$filename| perl -Ilib5 >> $filename 2>&1";
         unlink $name;
         chdir $FindBin::Bin;
         return;
