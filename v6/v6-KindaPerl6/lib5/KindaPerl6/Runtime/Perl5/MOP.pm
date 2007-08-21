@@ -789,6 +789,11 @@ my $meta_Hash = ::DISPATCH( $::Hash, 'HOW', );
 ));
 
 $::Array = make_class(name=>"Array",parent=>[$meta_Value],methods=>{
+        INDEX=>sub {
+             $_[0]{_value}{_array} ||= [];
+             my $key = ::DISPATCH(::DISPATCH($_[1],"int"),"p5landish");
+             return ::DISPATCH($Hash_Cell,"new",{cell=>\$_[0]{_value}{_array}[$key]});
+        }
 });
 
 1;
