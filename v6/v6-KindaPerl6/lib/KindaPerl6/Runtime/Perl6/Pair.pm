@@ -1,5 +1,5 @@
 use v6-alpha;
-class Pair {
+class Pair is Value {
     has $.key;
     has $.value;
     method perl {

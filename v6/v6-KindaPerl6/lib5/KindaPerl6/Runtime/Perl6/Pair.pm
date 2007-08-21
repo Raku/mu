@@ -21,6 +21,11 @@
         'PROTOTYPE', );
     ::DISPATCH(
         ::DISPATCH( $::Pair, 'HOW', ),
+        'add_parent',
+        ::DISPATCH( $::Str, 'new', 'Value' )
+    );
+    ::DISPATCH(
+        ::DISPATCH( $::Pair, 'HOW', ),
         'add_attribute',
         ::DISPATCH( $::Str, 'new', 'key' )
     );
