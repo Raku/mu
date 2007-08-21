@@ -1,6 +1,6 @@
 use v6-alpha;
 module Main {
-    say "1..3";
+    say "1..4";
     my @array;
     @array[0] = 1;
     @array[1] = 2;

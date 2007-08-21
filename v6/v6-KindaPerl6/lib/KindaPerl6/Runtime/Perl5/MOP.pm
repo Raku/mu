@@ -750,18 +750,14 @@ $::Hash = make_class(name=>"Hash",parent=>[$meta_Value],methods=>{
             };
         },
     LOOKUP=>sub {
-            #$_[0]{_value}{_hash} ||= {};
             my $key = ::DISPATCH(::DISPATCH($_[1],"str"),"p5landish");
             return ::DISPATCH($Hash_Cell,"new",{cell=>\$_[0]{_value}{_hash}{$key}});
         },
     elems => sub {
-             #$_[0]{_value}{_hash} ||= {};
-             return ::DISPATCH($::Int,"new",scalar(keys(%{$_[0]{_value}{_hash}})));
+            ::DISPATCH($::Int,"new",scalar(keys(%{$_[0]{_value}{_hash}})));
         },
     pairs => sub {
-             #$_[0]{_value}{_hash} ||= {};
-             return 
-                ::DISPATCH( $::Array, 'new', 
+            ::DISPATCH( $::Array, 'new', 
                     { _array => [
                           map {
                                 ::DISPATCH( $::Pair, 'new', {
@@ -776,9 +772,7 @@ $::Hash = make_class(name=>"Hash",parent=>[$meta_Value],methods=>{
                 );
         },
     keys => sub {
-             #$_[0]{_value}{_hash} ||= {};
-             return 
-                ::DISPATCH( $::Array, 'new', 
+            ::DISPATCH( $::Array, 'new', 
                     { _array => [
                           map {
                                 # XXX str keys only
@@ -790,9 +784,7 @@ $::Hash = make_class(name=>"Hash",parent=>[$meta_Value],methods=>{
                 );
         },
     values => sub {
-             $_[0]{_value}{_hash} ||= {};
-             return 
-                ::DISPATCH( $::Array, 'new', 
+            ::DISPATCH( $::Array, 'new', 
                     { _array => [
                           map {
                                 $_[0]{_value}{_hash}{$_}
@@ -814,17 +806,14 @@ $::Array = make_class(name=>"Array",parent=>[$meta_Value],methods=>{
             };
         },
     INDEX=>sub {
-             #$_[0]{_value}{_array} ||= [];
-             my $key = ::DISPATCH(::DISPATCH($_[1],"int"),"p5landish");
-             return ::DISPATCH($Hash_Cell,"new",{cell=>\$_[0]{_value}{_array}[$key]});
+            my $key = ::DISPATCH(::DISPATCH($_[1],"int"),"p5landish");
+            return ::DISPATCH($Hash_Cell,"new",{cell=>\$_[0]{_value}{_array}[$key]});
         },
     elems =>sub {
-             #$_[0]{_value}{_array} ||= [];
-             return ::DISPATCH($::Int, "new", scalar @{ $_[0]{_value}{_array} } );
+            ::DISPATCH($::Int, "new", scalar @{ $_[0]{_value}{_array} } );
         },
     join =>sub {
-            #$_[0]{_value}{_array} ||= [];
-            return ::DISPATCH($::Str, "new", join( 
+            ::DISPATCH($::Str, "new", join( 
                 ::DISPATCH(::DISPATCH($_[1],"str"),"p5landish"), 
                 map {
                         ::DISPATCH(::DISPATCH($_,"str"),"p5landish")
@@ -833,9 +822,7 @@ $::Array = make_class(name=>"Array",parent=>[$meta_Value],methods=>{
             ) );
         },
     map =>sub {
-            #$_[0]{_value}{_array} ||= [];
-            return 
-                ::DISPATCH( $::Array, 'new', 
+            ::DISPATCH( $::Array, 'new', 
                     { _array => [
                             map {
                                 ::DISPATCH($_[1],"APPLY",$_)
