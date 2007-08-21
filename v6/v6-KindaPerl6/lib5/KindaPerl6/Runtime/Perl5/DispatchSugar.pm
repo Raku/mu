@@ -13,6 +13,8 @@ sub sugar_off {
 }
 package KindaPerl6::Runtime::Perl5::DispatchSugar::Dispatch;
 sub AUTOLOAD {
+    my ($package,) = caller();
+    #warn(join ("|",caller(),"\n")) if $package ne 'KindaPerl6::Runtime::Perl5::MOP';
     our $AUTOLOAD;
     $AUTOLOAD =~ s/.*:://;
     my ($self,@args) = @_;

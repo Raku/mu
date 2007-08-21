@@ -248,8 +248,8 @@ $meta_Class->add_method(
             $_[0]->add_method( 
                 $meth_name, 
                 ::DISPATCH( $::Method, 'new',  
-                    sub : lvalue { 
-                        # lvalue is not needed, because we use .STORE() instead
+                    sub { 
+                        # : lvalue is not needed, because we use .STORE() instead
                         
                         #print "accessing attribute $meth_name\n";
                         
@@ -412,32 +412,6 @@ $meta_Bit->add_method( 'str',
 $meta_Bit->add_method( 'true',
     ::DISPATCH( $::Method, 'new',  sub { $::Bit->new( $_[0]{_value} ) } ) );
 # $meta_Bit->add_method( 'p5landish', ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value} } ) );
-
-my $meta_Pair = ::DISPATCH( $::Class, 'new', "Pair");
-
-$::Pair = $meta_Pair->PROTOTYPE();
-$meta_Pair->add_parent($meta_Value);
-$meta_Pair->add_attribute( 'key' ); 
-$meta_Pair->add_attribute( 'value' );  
-$meta_Pair->add_method(
-    'perl',
-    ::DISPATCH( $::Method, 'new', 
-        sub { ::DISPATCH( $_[0], 'str' ) }
-    )
-);
-$meta_Pair->add_method( 'str',
-    ::DISPATCH( $::Method, 'new',  sub { 
-        ::DISPATCH( $::Str, 'new', 
-            '( ' 
-            . ::DISPATCH( ::DISPATCH( $_[0], 'key' ), 'str' )->{_value}
-            . ' => ' 
-            . ::DISPATCH( ::DISPATCH( $_[0], 'value' ), 'str' )->{_value}
-            . ' )' 
-        )
-    } ) );
-
-$meta_Pair->add_method( 'true',
-    ::DISPATCH( $::Method, 'new',  sub { $::Bit->new( 1 ) } ) );
 
 #--- finish Object
 
@@ -721,6 +695,19 @@ $meta_Routine->add_method(
 #for ( @{ $meta_Scalar->{_value}{isa} } ) {
 #    print " ",$_->{_value}{class_name},"\n";
 #}
+
+require KindaPerl6::Runtime::Perl6::Pair;
+
+=for 'Pair' bootstrap - do not delete until the image gets more stable!
+    my $meta_Pair = ::DISPATCH( $::Class, 'new', "Pair");
+    $::Pair = $meta_Pair->PROTOTYPE();
+    $meta_Pair->add_parent($meta_Value);
+    $meta_Pair->add_attribute( 'key' ); 
+    $meta_Pair->add_attribute( 'value' );  
+    $meta_Pair->add_method( 'true',
+        ::DISPATCH( $::Method, 'new',  sub { $::Bit->new( 1 ) } ) );
+=end
+
 
 sub make_class {
     my %args = @_;

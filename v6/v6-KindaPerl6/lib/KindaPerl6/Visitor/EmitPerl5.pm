@@ -187,7 +187,7 @@ class Var {
         };
         
         if $.twigil eq '.' {
-            return '$self->{' ~ $.name ~ '}' 
+            return '::DISPATCH( $self, "' ~ $.name ~ '" )' 
         };
         
         if $.name eq '/' {

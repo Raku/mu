@@ -39,7 +39,7 @@ package Lookup; sub new { shift; bless { @_ }, "Lookup" } sub emit_perl5 { my $s
 ;
 package Assign; sub new { shift; bless { @_ }, "Assign" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH_VAR( ' . ($self->{parameters}->emit_perl5() . (', \'STORE\', ' . ($self->{arguments}->emit_perl5() . ' )')))) }
 ;
-package Var; sub new { shift; bless { @_ }, "Var" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $table = { '$' => '$','@' => '$List_','%' => '$Hash_','&' => '$Code_', }; do { if (($self->{twigil} eq '.')) { return(('$self->{' . ($self->{name} . '}'))) } else {  } }; do { if (($self->{name} eq '/')) { return(($table->{$self->{sigil}} . 'MATCH')) } else {  } }; return(Main::mangle_name($self->{sigil}, $self->{twigil}, $self->{name})) }
+package Var; sub new { shift; bless { @_ }, "Var" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $table = { '$' => '$','@' => '$List_','%' => '$Hash_','&' => '$Code_', }; do { if (($self->{twigil} eq '.')) { return(('::DISPATCH( $self, "' . ($self->{name} . '" )'))) } else {  } }; do { if (($self->{name} eq '/')) { return(($table->{$self->{sigil}} . 'MATCH')) } else {  } }; return(Main::mangle_name($self->{sigil}, $self->{twigil}, $self->{name})) }
 ;
 package Bind; sub new { shift; bless { @_ }, "Bind" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; do { if (Main::isa($self->{parameters}, 'Var')) { return(('::DISPATCH_VAR( ' . ($self->{parameters}->emit_perl5() . (', \'BIND\', ' . ($self->{arguments}->emit_perl5() . ' )'))))) } else {  } }; do { if (Main::isa($self->{parameters}, 'Proto')) { return(($self->{parameters}->emit_perl5() . (' = ' . $self->{arguments}->emit_perl5()))) } else {  } } }
 ;
