@@ -355,15 +355,15 @@ class Decl {
             if ($.var).sigil eq '&' {
                 return $s 
                     ~ $.var.emit_perl5
-                    ~ ' = ::DISPATCH( $::Routine' ~ $create;
+                    ~ ' = ::DISPATCH( $::Routine' ~ $create ~ ';';
             };
             if ($.var).sigil eq '%' {
                 return $s ~ $.var.emit_perl5
-                    ~ ' = ::DISPATCH( $::Hash' ~ $create;
+                    ~ ' = ::DISPATCH( $::Hash' ~ $create ~ ';';
             };
             if ($.var).sigil eq '@' {
                 return $s ~ $.var.emit_perl5
-                    ~ ' = ::DISPATCH( $::Array' ~ $create;
+                    ~ ' = ::DISPATCH( $::Array' ~ $create ~ '; ';
             };
             return $s ~ $.var.emit_perl5 ~ ' ';
         };
@@ -399,13 +399,13 @@ class Decl {
             return $.decl ~ ' ' 
                 # ~ $.type 
                 ~ ' ' ~ $.var.emit_perl5
-                ~ ' = ::DISPATCH( $::Hash' ~ $create;
+                ~ ' = ::DISPATCH( $::Hash' ~ $create ~ '; ';
         };
         if ($.var).sigil eq '@' {
             return $.decl ~ ' ' 
                 # ~ $.type 
                 ~ ' ' ~ $.var.emit_perl5
-                ~ ' = ::DISPATCH( $::Array' ~ $create;
+                ~ ' = ::DISPATCH( $::Array' ~ $create ~ '; ';
         };
         return $.decl ~ ' ' 
             # ~ $.type ~ ' ' 
@@ -432,26 +432,26 @@ class Subset {
 
 class Method {
     method emit_perl5 {
-        # TODO - signature binding
         my $sig := $.block.sig;
-        # say "Sig: ", $sig.perl;
+
         my $invocant := $sig.invocant; 
-        # say $invocant.emit_perl5;
-
         my $pos := $sig.positional;
-        my $str := 'my $List__ = \@_; ';   # no strict "vars"; ';
 
-        # TODO - follow recursively
+        my $decl_ := ::Decl(var=>::Var( sigil => '@', twigil => '', name => '_' ),decl=>'my',type=>'');
+        my $str := $decl_.emit_perl5;   # no strict "vars"; ';
+        $str := $str ~ '$List__->{_value}{_array} = \@_;';
+
         my $pos := $sig.positional;
         for @$pos -> $field { 
-            $str := $str ~ 'my ' ~ $field.emit_perl5 ~ '; ';
+            my $decl := ::Decl(var=>$field,type=>'',decl=>'my');
+            $str := $str ~ $decl.emit_perl5;
         };
 
-        my $bind := ::Bind( 
-            'parameters' => ::Lit::Array( array => $sig.positional ), 
-            'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
-        );
-        $str := $str ~ $bind.emit_perl5 ~ '; ';
+        #my $bind := ::Bind( 
+        #    'parameters' => ::Lit::Array( array => $sig.positional ), 
+        #    'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
+        #);
+        #$str := $str ~ $bind.emit_perl5 ~ '; ';
 
 #        my $pos := $sig.positional;
 #        my $str := '';

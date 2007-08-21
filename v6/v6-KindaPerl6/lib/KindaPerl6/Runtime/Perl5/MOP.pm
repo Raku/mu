@@ -737,8 +737,8 @@ my $Hash_Cell = make_class(name=>"HashCell",parent=>[$meta_Container],methods=>{
            ${$_[0]{_value}{cell}} = $_[1];
         },
         FETCH=>sub {
-            use Data::Dump::Streamer;
-            return ${$_[0]{_value}{cell}};
+           return ::DISPATCH($::Undef,"new") unless ${$_[0]{_value}{cell}}; 
+           return ${$_[0]{_value}{cell}};
         },
 });
 

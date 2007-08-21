@@ -5,11 +5,16 @@ class Foo {
     };
     method ok2() {
         say "ok 2";
+    };
+    method ok() {
+        say "ok "~@_[0];
     }
 }
 module Main {
-    say '1..2';
+    say '1..4';
     my $foo = Foo.new();
     $foo.ok1();
     $foo.ok2();
+    $foo.ok(3);
+    $foo.ok(4);
 }
