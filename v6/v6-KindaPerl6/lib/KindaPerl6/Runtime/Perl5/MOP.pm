@@ -590,17 +590,10 @@ $meta_Subset->add_method( 'perl',
 
 my $meta_Container = ::DISPATCH( $::Class, 'new', "Container");
 $::Container = $meta_Container->PROTOTYPE();
-
-# $meta_Container->add_method( 'IS_ARRAY',     ::DISPATCH( $::Method, 'new',  sub { 0 } ) );
-# $meta_Container->add_method( 'IS_HASH',      ::DISPATCH( $::Method, 'new',  sub { 0 } ) );
-# $meta_Container->add_method( 'IS_CONTAINER', ::DISPATCH( $::Method, 'new',  sub { 1 } ) );
 $meta_Container->add_method(
     'FETCH',
     ::DISPATCH( $::Method, 'new', 
         sub {
-
-   #print "Container FETCH: $_[0]{_value}{cell}{_isa}[0]{_value}{class_name}\n";
-   #print Dumper( $_[0]{_value}{cell} );
             $_[0]{_value}{cell} ? $_[0]{_value}{cell} : $GLOBAL::undef;
         }
     )
@@ -609,13 +602,8 @@ $meta_Container->add_method(
     'STORE',
     ::DISPATCH( $::Method, 'new', 
         sub {
-
-           #print "Container STORE: $_[1]{_isa}[0]{_value}{cell}{class_name}\n";
-           #print "Container STORE: value = ", Dumper( $_[0]{_value} );
-
             die "attempt to modify a read-only value"
               if $_[0]{_roles}{readonly};
-
             $_[0]{_value}{modified}{ $_[0]{_value}{name} } = 1;
             $_[0]{_value}{cell} = $_[1];
         }
@@ -625,21 +613,15 @@ $meta_Container->add_method(
     'BIND',
     ::DISPATCH( $::Method, 'new', 
         sub {
-
-            #print "Container BIND: $_[1]{_isa}[0]{_value}{class_name}\n";
-
             # XXX - see old 'Type.pm'
             $_[0]{_value}{modified}{ $_[0]{_value}{name} } = 1;
             $_[1]{_value}{modified}{ $_[1]{_value}{name} } = 1;
-
             if ( $_[1]{_roles}{container} ) {
-
                 # Container := Container
                 $_[0]{_value} = $_[1]{_value};
                 $_[0]{_roles}{readonly} = $_[1]{_roles}{readonly};
             }
             else {
-
                 # Container := Object
                 # - add the read-only trait
                 $_[0]{_value}{cell}     = $_[1];
@@ -698,11 +680,6 @@ $meta_Routine->add_method(
         },
     )
 );
-
-#print "Scalar parents:\n";
-#for ( @{ $meta_Scalar->{_value}{isa} } ) {
-#    print " ",$_->{_value}{class_name},"\n";
-#}
 
 
 # XXX define() is redefined in the Runtime, but we need it earlier
