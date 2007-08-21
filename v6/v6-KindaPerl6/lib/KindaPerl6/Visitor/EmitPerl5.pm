@@ -89,7 +89,7 @@ class Lit::Seq {
 
 class Lit::Array {
     method emit_perl5 {
-        '[' ~ (@.array.>>emit_perl5).join(', ') ~ ']';
+        '::DISPATCH( $::Array, "new", { _array => [' ~ (@.array.>>emit_perl5).join(', ') ~ '] } )';
     }
 }
 

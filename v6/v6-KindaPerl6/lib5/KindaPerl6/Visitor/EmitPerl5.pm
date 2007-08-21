@@ -23,7 +23,7 @@ package Native::Buf; sub new { shift; bless { @_ }, "Native::Buf" } sub emit_per
 ;
 package Lit::Seq; sub new { shift; bless { @_ }, "Lit::Seq" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('(' . (Main::join([ map { $_->emit_perl5() } @{ $self->{seq} } ], ', ') . ')')) }
 ;
-package Lit::Array; sub new { shift; bless { @_ }, "Lit::Array" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('[' . (Main::join([ map { $_->emit_perl5() } @{ $self->{array} } ], ', ') . ']')) }
+package Lit::Array; sub new { shift; bless { @_ }, "Lit::Array" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Array, "new", { _array => [' . (Main::join([ map { $_->emit_perl5() } @{ $self->{array} } ], ', ') . '] } )')) }
 ;
 package Lit::Hash; sub new { shift; bless { @_ }, "Lit::Hash" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $fields = $self->{hash}; my  $str = ''; do { for my $field ( @{$fields} ) { $str = ($str . ($field->[0]->emit_perl5() . (' => ' . ($field->[1]->emit_perl5() . ',')))) } }; ('{ ' . ($str . ' }')) }
 ;
