@@ -38,7 +38,8 @@
 
     <div id="results">
     <TMPL_LOOP NAME=RESULTS>
-        <h3>Revision <TMPL_VAR NAME=revision> by <TMPL_VAR NAME=author></h3>
+        <h3>Revision <a href="http://dev.pugscode.org/changeset/<TMPL_VAR
+        NAME=revision>"><TMPL_VAR NAME=revision></a> by <TMPL_VAR NAME=author></h3>
         <pre><TMPL_VAR NAME=message></pre>
         <p>Modified files:</p>
         <ul>
