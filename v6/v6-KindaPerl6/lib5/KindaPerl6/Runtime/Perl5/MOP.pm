@@ -756,18 +756,18 @@ $::Hash = make_class(name=>"Hash",parent=>[$meta_Value],methods=>{
         },
     pairs => sub {
              $_[0]{_value}{_hash} ||= {};
-             # TODO - return Array
              return 
                 ::DISPATCH( $::Array, 'new', 
-                    { _array =>
-                      map {
-                            ::DISPATCH( $::Pair, 'new', {
-                                    key   => $_,
-                                    value => $_[0]{_value}{_hash}{$_},
-                                } 
-                            )
-                        } 
-                        keys %{ $_[0]{_value}{_hash} }
+                    { _array => [
+                          map {
+                                ::DISPATCH( $::Pair, 'new', {
+                                        key   => $_,
+                                        value => $_[0]{_value}{_hash}{$_},
+                                    } 
+                                )
+                            } 
+                            keys %{ $_[0]{_value}{_hash} }
+                        ],
                     }
                 );
         },
