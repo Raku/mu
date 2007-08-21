@@ -771,6 +771,21 @@ my $meta_Hash = ::DISPATCH( $::Hash, 'HOW', );
              return ::DISPATCH($::Int,"new",scalar(keys(%{$_[0]{_value}{_hash}})));
             }
 ));
+::DISPATCH( $meta_Hash, "add_method", 
+    'pairs', ::DISPATCH( $::Method, 'new', 
+        sub {
+             $_[0]{_value}{_hash} ||= {};
+            # TODO - return Array
+             return 
+                map {
+                        ::DISPATCH( $::Pair, 'new', {
+                                key   => $_,
+                                value => $_[0]{_value}{_hash}{$_},
+                            } 
+                        )
+                    } keys %{ $_[0]{_value}{_hash} }
+            }
+));
 
 1;
 
