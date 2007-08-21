@@ -776,7 +776,7 @@ my $meta_Hash = ::DISPATCH( $::Hash, 'HOW', );
     'pairs', ::DISPATCH( $::Method, 'new', 
         sub {
              $_[0]{_value}{_hash} ||= {};
-            # TODO - return Array
+             # TODO - return Array
              return 
                 map {
                         ::DISPATCH( $::Pair, 'new', {

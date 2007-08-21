@@ -13,7 +13,7 @@ class Hash is Container {
         my $s = '';
         for self.pairs -> $pair { 
             # XXX no tabs or newlines yet
-            $s = $s ~ $pair.key ~ '  ' ~ $pair.value ~ Main.newline;
+            $s = $s ~ $pair.key ~ '  ' ~ $pair.value ~ ', ';
         };
         return $s 
     };
