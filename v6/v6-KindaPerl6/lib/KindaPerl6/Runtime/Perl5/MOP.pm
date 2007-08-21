@@ -704,6 +704,21 @@ $meta_Routine->add_method(
 #    print " ",$_->{_value}{class_name},"\n";
 #}
 
+
+# XXX define() is redefined in the Runtime, but we need it earlier
+$GLOBAL::Code_defined = ::DISPATCH( $::Code, 'new', 
+    { 
+        code =>  sub {
+            #print "(MOP)DEFINED? \n";
+            return ::DISPATCH( $::Bit, 'new',0 )
+                unless defined $_[0];
+            ::DISPATCH( $_[0], 'defined' ) 
+        }, 
+        src => '&GLOBAL::defined'
+    } 
+);
+
+
 require KindaPerl6::Runtime::Perl6::Pair;
 
 =for 'Pair' bootstrap - do not delete until the image gets more stable!

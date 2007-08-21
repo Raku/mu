@@ -48,14 +48,33 @@ class KindaPerl6::Visitor::MetaClass {
                     'method'   => 'new',
                     'invocant' => ::Proto( name => $metaclass ),  
                 );
-                push @$module, ::Bind(
-                    'parameters' => ::Proto( name => $node.name ),  
-                    'arguments'  => ::Call(
-                        'invocant' => $metaobject,
-                        'method'   => 'PROTOTYPE',
-                        'hyper'    => '',
-                    ),
-                );
+                # 'If' == avoid redefining the prototype object
+                push @$module, 
+                    ::If(
+                        cond      => 
+                           ::Apply(
+                                arguments => [ ::Proto( name => $node.name ) ],
+                                code => ::Var( name => 'defined', twigil => '', sigil => '&', ),
+                            ),
+                        body      => '',
+                        otherwise => 
+                            ::Lit::Code(
+                                body => [ 
+                                    ::Bind(
+                                        'parameters' => ::Proto( name => $node.name ),  
+                                        'arguments'  => ::Call(
+                                            'invocant' => $metaobject,
+                                            'method'   => 'PROTOTYPE',
+                                            'hyper'    => '',
+                                        ),
+                                    )
+                                ],
+                                sig   =>
+                                  ::Sig( named => {}, invocant => '', positional => [], ),
+                                pad   => ($node.body).pad,
+                                state => { },
+                            ),
+                    );
             };
 
             for @($node.traits) -> $trait {

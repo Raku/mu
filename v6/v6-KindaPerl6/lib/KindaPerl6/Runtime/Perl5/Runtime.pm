@@ -129,7 +129,7 @@ package GLOBAL;
         { code => \&{"GLOBAL::import"}, src => '&GLOBAL::import' } );
 
     sub init_global {
-        # print "Init GLOBAL\n";
+        #print "Init GLOBAL\n";
         for ( @EXPORT ) {
             #print "Init \$GLOBAL::Code_$_ \n";
             ${"GLOBAL::Code_$_"} = ::DISPATCH( $::Code, 'new', 
@@ -171,7 +171,12 @@ package GLOBAL;
     my $undef = ::DISPATCH( $::Undef, 'new', 0 );
     sub undef    { $undef }
     sub undefine { ::DISPATCH( $_[0], 'STORE', $undef ) }
-    sub defined  { ::DISPATCH( $_[0], 'defined' ) } 
+    sub defined  { 
+        #print "DEFINED? \n";
+        return ::DISPATCH( $::Bit, 'new',0 )
+            unless defined $_[0];
+        ::DISPATCH( $_[0], 'defined' ) 
+    } 
     sub true     { ::DISPATCH( $_[0], 'true' ) }  
     sub not      { ::DISPATCH( $::Bit, 'new', ! ( ::DISPATCH( $_[0], 'true' )->{_value} ) ) }  
     sub True     { ::DISPATCH( $::Bit, 'new',1 ) }  

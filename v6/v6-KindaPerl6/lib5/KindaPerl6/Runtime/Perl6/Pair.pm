@@ -15,10 +15,27 @@
           ::DISPATCH( $::Scalar, "new",
             { modified => $_MODIFIED, name => "$_" } );
     }
-    $::Pair =
-      ::DISPATCH(
-        ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Pair' ) ),
-        'PROTOTYPE', );
+    do {
+        if (
+            ::DISPATCH(
+                ::DISPATCH(
+                    ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', $::Pair ),
+                    "true"
+                ),
+                "p5landish"
+            )
+          )
+        {
+        }
+        else {
+            $::Pair = ::DISPATCH(
+                ::DISPATCH(
+                    $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Pair' )
+                ),
+                'PROTOTYPE',
+            );
+        }
+    };
     ::DISPATCH(
         ::DISPATCH( $::Pair, 'HOW', ),
         'add_parent',

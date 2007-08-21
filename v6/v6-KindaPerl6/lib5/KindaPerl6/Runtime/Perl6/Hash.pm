@@ -15,10 +15,27 @@
           ::DISPATCH( $::Scalar, "new",
             { modified => $_MODIFIED, name => "$_" } );
     }
-    $::Hash =
-      ::DISPATCH(
-        ::DISPATCH( $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Hash' ) ),
-        'PROTOTYPE', );
+    do {
+        if (
+            ::DISPATCH(
+                ::DISPATCH(
+                    ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', $::Hash ),
+                    "true"
+                ),
+                "p5landish"
+            )
+          )
+        {
+        }
+        else {
+            $::Hash = ::DISPATCH(
+                ::DISPATCH(
+                    $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Hash' )
+                ),
+                'PROTOTYPE',
+            );
+        }
+    };
     ::DISPATCH(
         ::DISPATCH( $::Hash, 'HOW', ),
         'add_parent',
