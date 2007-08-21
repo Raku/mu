@@ -32,31 +32,6 @@ class Signature {
     has $.return;
 }
 
-class Capture {
-    has $.invocant;
-    has $.positional;
-    has $.named;
-    
-    my sub match_type( $spec, $thing ) {
-
-        42
-
-        #if $m.from == 2 {
-        #    say "ok 2 - accessor";
-        #}
-        #else {
-        #    say "not ok - got ", $m.from;
-        #};
-
-        #if $thing.HOW == $spec.HOW {
-        #    return true;
-        #}
-        #else {
-        #    return false;
-        #}
-    }
-}
-
 # XXX "does Container" ???
 #class Scalar does Container {
 #    has $.value;
