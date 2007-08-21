@@ -68,7 +68,7 @@
                     ::DISPATCH(
                         $GLOBAL::Code_infix_58__60__126__62_,
                         'APPLY',
-                        ::DISPATCH( $self, "key" ),
+                        ::DISPATCH( ::DISPATCH( $self, "key" ), 'perl', ),
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
@@ -76,7 +76,9 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( $self, "value" ),
+                                ::DISPATCH(
+                                    ::DISPATCH( $self, "value" ), 'perl',
+                                ),
                                 ::DISPATCH( $::Str, 'new', ' )' )
                             )
                         )

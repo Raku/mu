@@ -3,7 +3,7 @@ class Pair is Value {
     has $.key;
     has $.value;
     method perl {
-        '( ' ~ $.key ~ ' => ' ~ $.value ~ ' )' 
+        '( ' ~ $.key.perl ~ ' => ' ~ $.value.perl ~ ' )' 
     };
     method str {
         $.key ~ '   ' ~ $.value 

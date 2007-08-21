@@ -749,37 +749,42 @@ $::Hash = make_class(name=>"Hash",parent=>[$meta_Value],methods=>{
             $_[0]{_value}{_hash} ||= {};
             my $key = ::DISPATCH(::DISPATCH($_[1],"str"),"p5landish");
             return ::DISPATCH($Hash_Cell,"new",{cell=>\$_[0]{_value}{_hash}{$key}});
-    },
+        },
     elems => sub {
              $_[0]{_value}{_hash} ||= {};
              return ::DISPATCH($::Int,"new",scalar(keys(%{$_[0]{_value}{_hash}})));
-            },
+        },
     pairs => sub {
              $_[0]{_value}{_hash} ||= {};
              # TODO - return Array
              return 
-                map {
-                        ::DISPATCH( $::Pair, 'new', {
-                                key   => $_,
-                                value => $_[0]{_value}{_hash}{$_},
-                            } 
-                        )
-                    } keys %{ $_[0]{_value}{_hash} }
-            },
+                ::DISPATCH( $::Array, 'new', 
+                    { _array =>
+                      map {
+                            ::DISPATCH( $::Pair, 'new', {
+                                    key   => $_,
+                                    value => $_[0]{_value}{_hash}{$_},
+                                } 
+                            )
+                        } 
+                        keys %{ $_[0]{_value}{_hash} }
+                    }
+                );
+        },
 });
 
 require KindaPerl6::Runtime::Perl6::Hash;
 
 $::Array = make_class(name=>"Array",parent=>[$meta_Value],methods=>{
-        INDEX=>sub {
+    INDEX=>sub {
              $_[0]{_value}{_array} ||= [];
              my $key = ::DISPATCH(::DISPATCH($_[1],"int"),"p5landish");
              return ::DISPATCH($Hash_Cell,"new",{cell=>\$_[0]{_value}{_array}[$key]});
         },
-        elems =>sub {
+    elems =>sub {
              $_[0]{_value}{_array} ||= [];
              return ::DISPATCH($::Int, "new", scalar @{ $_[0]{_value}{_array} } );
-        }
+        },
 });
 
 require KindaPerl6::Runtime::Perl6::Array;
