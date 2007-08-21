@@ -71,7 +71,7 @@ use BSD::Resource;
 use Carp qw(confess);
 use File::Temp qw(tempfile);
 
-my $max_output_len = 150;
+my $max_output_len = 350;
 
 sub run {
 	my ($program, $executer) = @_;
