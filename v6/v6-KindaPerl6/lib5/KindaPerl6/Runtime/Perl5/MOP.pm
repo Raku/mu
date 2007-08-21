@@ -274,6 +274,19 @@ $meta_Class->add_method( 'HOW',  ::DISPATCH( $::Method, 'new',  sub { $meta_Clas
 $meta_Class->add_method( 'add_parent',
     ::DISPATCH( $::Method, 'new',  sub { push @{ $_[0]{_value}{isa} }, $_[1] } ) );
 
+$meta_Class->add_method( 'methods',
+    ::DISPATCH( $::Method, 'new', 
+        sub {
+            # TODO - show inherited methods
+            # ??? - should this return the Methods and they stringify to method name ???
+            ::DISPATCH( $::Array, 'new', 
+                    { _array => [ 
+                            map { ::DISPATCH( $::Str, 'new', $_ ) } 
+                                keys %{ $_[0]{_value}{methods} } 
+                        ] }  
+            );
+        } )
+);
 $meta_Class->add_method(
     'new',
     ::DISPATCH( $::Method, 'new', 
