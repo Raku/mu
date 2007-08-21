@@ -754,13 +754,14 @@ $::Hash = make_class(name=>"Hash",parent=>[$meta_Value],methods=>{
 });
 =cut
 
+my $meta_Hash = ::DISPATCH( $::Hash, 'HOW', );
 ::DISPATCH(
-    ::DISPATCH( $::Hash, 'HOW', ),
-    "add_method",'LOOKUP',::DISPATCH( $::Method, 'new', 
-    sub {
+    $meta_Hash, "add_method", 'LOOKUP',
+    ::DISPATCH( $::Method, 'new', 
+        sub {
              $_[0]{_value}{_hash} ||= {};
              return ::DISPATCH($Hash_Cell,"new",{hash=>$_[0],key=>::DISPATCH(::DISPATCH($_[1],"str"),"p5landish")});
-         }
+            }
 ));
 
 1;
