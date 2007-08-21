@@ -54,7 +54,7 @@ class KindaPerl6::Visitor::MetaClass {
                         cond      => 
                            ::Apply(
                                 arguments => [ ::Proto( name => $node.name ) ],
-                                code => ::Var( name => 'defined', twigil => '', sigil => '&', ),
+                                code => ::Var( name => 'VAR_defined', twigil => '', sigil => '&', ),
                             ),
                         body      => '',
                         otherwise => 

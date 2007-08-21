@@ -682,16 +682,17 @@ $meta_Routine->add_method(
 );
 
 
-# XXX define() is redefined in the Runtime, but we need it earlier
-$GLOBAL::Code_defined = ::DISPATCH( $::Code, 'new', 
+# tests is a variable was initialized at all
+# we need this because defined() always return false with prototype objects
+$GLOBAL::Code_VAR_defined = ::DISPATCH( $::Code, 'new', 
     { 
         code =>  sub {
             #print "(MOP)DEFINED? \n";
-            return ::DISPATCH( $::Bit, 'new',0 )
-                unless defined $_[0];
-            ::DISPATCH( $_[0], 'defined' ) 
+            return ::DISPATCH( $::Bit, 'new',
+                ( defined $_[0] ? 1 : 0 )
+            );
         }, 
-        src => '&GLOBAL::defined'
+        src => '&GLOBAL::VAR_defined'
     } 
 );
 
@@ -776,7 +777,7 @@ my $meta_Hash = ::DISPATCH( $::Hash, 'HOW', );
     'pairs', ::DISPATCH( $::Method, 'new', 
         sub {
              $_[0]{_value}{_hash} ||= {};
-            # TODO - return Array
+             # TODO - return Array
              return 
                 map {
                         ::DISPATCH( $::Pair, 'new', {
@@ -795,6 +796,9 @@ $::Array = make_class(name=>"Array",parent=>[$meta_Value],methods=>{
              return ::DISPATCH($Hash_Cell,"new",{cell=>\$_[0]{_value}{_array}[$key]});
         }
 });
+
+require KindaPerl6::Runtime::Perl6::Array;
+
 
 1;
 

@@ -19,7 +19,7 @@
         if (
             ::DISPATCH(
                 ::DISPATCH(
-                    ::DISPATCH( $GLOBAL::Code_defined, 'APPLY', $::Array ),
+                    ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Array ),
                     "true"
                 ),
                 "p5landish"
