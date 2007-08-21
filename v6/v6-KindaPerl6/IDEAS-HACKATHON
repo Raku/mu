@@ -1,6 +1,9 @@
 feel free to add here ideas for the YAPC::Europe hackathon - pmurias
 
-* from kp6 roadmap: types -> signatures -> multis
+* from kp6 roadmap: 
+  - Hash, Array
+  - types -> signatures, captures -> multis
+  - Improve the roadmap
 
 * running the nqp (Parrot's mini-Perl6) test suite
 
@@ -9,3 +12,4 @@ feel free to add here ideas for the YAPC::Europe hackathon - pmurias
 * remove KindaPerl6/Runtime/Perl5/DispatchSugar.pm
 
 * "tree transformation language" - ruoso
+
