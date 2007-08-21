@@ -822,6 +822,18 @@ $::Array = make_class(name=>"Array",parent=>[$meta_Value],methods=>{
                     @{ $_[0]{_value}{_array} } 
             ) );
         },
+    map =>sub {
+            $_[0]{_value}{_array} ||= [];
+            return 
+                ::DISPATCH( $::Array, 'new', 
+                    { _array => [
+                            map {
+                                ::DISPATCH($_[1],"APPLY",$_)
+                            } @{$_[0]{_value}{_array}}
+                        ],
+                    }
+            );
+        },
 });
 
 require KindaPerl6::Runtime::Perl6::Array;
