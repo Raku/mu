@@ -1,4 +1,11 @@
 feel free to add here ideas for the YAPC::Europe hackathon - pmurias
-* running the npq test suit
+
+* from kp6 roadmap: types -> signatures -> multis
+
+* running the npq test suite
+
 * initial javascript backend
+
 * remove KindaPerl6/Runtime/Perl5/DispatchSugar.pm
+
+* "tree transformation language" - ruoso
