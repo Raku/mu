@@ -742,11 +742,24 @@ my $Hash_Cell = make_class(name=>"HashCell",parent=>[$meta_Container],methods=>{
             return $_[0]{_value}{hash}{_value}{_hash}{$_[0]{_value}{key}};
         },
 });
+
+require KindaPerl6::Runtime::Perl6::Hash;
+
+=for 'Hash' bootstrap - do not delete until the image gets more stable!
 $::Hash = make_class(name=>"Hash",parent=>[$meta_Value],methods=>{
      LOOKUP=>sub {
          $_[0]{_value}{_hash} ||= {};
          return ::DISPATCH($Hash_Cell,"new",{hash=>$_[0],key=>::DISPATCH(::DISPATCH($_[1],"str"),"p5landish")});
      }
 });
+=end
+
+::DISPATCH($::Hash,"add_method",'LOOKUP',::DISPATCH( $::Method, 'new', 
+    sub {
+             $_[0]{_value}{_hash} ||= {};
+             return ::DISPATCH($Hash_Cell,"new",{hash=>$_[0],key=>::DISPATCH(::DISPATCH($_[1],"str"),"p5landish")});
+         }
+));
+
 1;
 
