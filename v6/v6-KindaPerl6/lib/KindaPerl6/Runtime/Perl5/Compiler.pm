@@ -1,7 +1,7 @@
 package COMPILER;
 use Data::Dumper;
 
-use KindaPerl6::Runtime::Perl6::Hash;   # Hash is 'required' too late in Runtime.pm ???
+#use KindaPerl6::Runtime::Perl6::Hash;   # Hash is 'required' too late in Runtime.pm ???
 
 use KindaPerl6::Visitor::Perl;
 use KindaPerl6::Visitor::EmitPerl5;

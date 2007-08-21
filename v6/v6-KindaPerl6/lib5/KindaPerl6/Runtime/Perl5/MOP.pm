@@ -706,7 +706,7 @@ require KindaPerl6::Runtime::Perl6::Pair;
     $meta_Pair->add_attribute( 'value' );  
     $meta_Pair->add_method( 'true',
         ::DISPATCH( $::Method, 'new',  sub { $::Bit->new( 1 ) } ) );
-=end
+=cut
 
 
 sub make_class {
@@ -752,9 +752,11 @@ $::Hash = make_class(name=>"Hash",parent=>[$meta_Value],methods=>{
          return ::DISPATCH($Hash_Cell,"new",{hash=>$_[0],key=>::DISPATCH(::DISPATCH($_[1],"str"),"p5landish")});
      }
 });
-=end
+=cut
 
-::DISPATCH($::Hash,"add_method",'LOOKUP',::DISPATCH( $::Method, 'new', 
+::DISPATCH(
+    ::DISPATCH( $::Hash, 'HOW', ),
+    "add_method",'LOOKUP',::DISPATCH( $::Method, 'new', 
     sub {
              $_[0]{_value}{_hash} ||= {};
              return ::DISPATCH($Hash_Cell,"new",{hash=>$_[0],key=>::DISPATCH(::DISPATCH($_[1],"str"),"p5landish")});
