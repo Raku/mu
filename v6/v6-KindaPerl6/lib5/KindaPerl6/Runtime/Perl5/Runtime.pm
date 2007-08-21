@@ -253,8 +253,10 @@ package GLOBAL;
         die "Not enough arguments for substr";
     }  
 
-    # ???
-    sub prefix_58__60__64__62_      { TODO(); @{$_[0]} }        # prefix:<@>
+    # prefix:<@>
+    sub prefix_58__60__64__62_      { 
+        ::DISPATCH( $_[0], 'array' )
+    }       
 
     # prefix:<++>
     sub prefix_58__60__43__43__62_ {

@@ -4,7 +4,7 @@ class Hash is Container {
         my $pair;   # XXX kp6 ast processor bug
         my $s = '{ ';
         for self.pairs -> $pair { 
-            $s = $s ~ $pair.key ~ ' => ' ~ $pair.value ~ ', ';
+            $s = $s ~ ($pair.key).perl ~ ' => ' ~ ($pair.value).perl ~ ', ';
         };
         return $s ~ ' }' 
     };
@@ -19,4 +19,5 @@ class Hash is Container {
     };
     method true { self.elems != 0 };
     method int  { self.elems };
+    method hash { self };
 }

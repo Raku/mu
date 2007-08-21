@@ -98,7 +98,7 @@ class Lit::Hash {
         my $fields := @.hash;
         my $str := '';
         for @$fields -> $field { 
-            $str := $str ~ ($field[0]).emit_perl5 ~ ' => ' ~ ($field[1]).emit_perl5 ~ ',';
+            $str := $str ~ ($field[0]).emit_perl5 ~ '->{_value} => ' ~ ($field[1]).emit_perl5 ~ ',';
         }; 
         '::DISPATCH( $::Hash, "new", { _hash => { ' ~ $str ~ ' } } )';
     }
@@ -282,6 +282,11 @@ class Call {
 
 class Apply {
     method emit_perl5 {
+        if     ( $.code.name eq 'self' )
+            # && ( @.arguments.elems == 0 )
+        {
+            return '$self';
+        }
         return  '::DISPATCH( ' ~ $.code.emit_perl5 ~ ', \'APPLY\', ' ~ (@.arguments.>>emit_perl5).join(', ') ~ ' )';
     }
 }
@@ -317,7 +322,12 @@ class For {
         {
             $cond := ::Apply( code => 'prefix:<@>', arguments => [ $cond ] );
         };
-        'do { for my ' ~ $.topic.emit_perl5 ~ ' ( ' ~ $cond.emit_perl5 ~ ' ) { ' ~ $.body.emit_perl5 ~ ' } }';
+        'do { for my ' ~ $.topic.emit_perl5 
+            ~ ' ( @{ ' ~ $cond.emit_perl5 ~ '->{_value}{_array} } )'
+            ~ ' { ' 
+            ~     $.body.emit_perl5 
+            ~ ' } '
+        ~ '}';
     }
 }
 

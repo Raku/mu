@@ -50,7 +50,10 @@
             'new',
             sub {
                 my $self   = shift;
-                my $List__ = \@_;
+                my $List__ =
+                  ::DISPATCH( $::Array, 'new',
+                    { modified => $_MODIFIED, name => '$List__' } );
+                $List__->{_value}{_array} = \@_;
                 my $pair;
                 $pair =
                   ::DISPATCH( $::Scalar, 'new',
@@ -77,7 +80,9 @@
                 ::DISPATCH_VAR( $s, 'STORE',
                     ::DISPATCH( $::Str, 'new', '{ ' ) );
                 do {
-                    for my $pair ( ::DISPATCH( $self, 'pairs', ) ) {
+                    for my $pair (
+                        @{ ::DISPATCH( $self, 'pairs', )->{_value}{_array} } )
+                    {
                         ::DISPATCH_VAR(
                             $s, 'STORE',
                             ::DISPATCH(
@@ -86,7 +91,9 @@
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH( $pair, 'key', ),
+                                    ::DISPATCH(
+                                        ::DISPATCH( $pair, 'key', ), 'perl',
+                                    ),
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
@@ -94,7 +101,10 @@
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
-                                            ::DISPATCH( $pair, 'value', ),
+                                            ::DISPATCH(
+                                                ::DISPATCH( $pair, 'value', ),
+                                                'perl',
+                                            ),
                                             ::DISPATCH( $::Str, 'new', ', ' )
                                         )
                                     )
@@ -121,7 +131,10 @@
             'new',
             sub {
                 my $self   = shift;
-                my $List__ = \@_;
+                my $List__ =
+                  ::DISPATCH( $::Array, 'new',
+                    { modified => $_MODIFIED, name => '$List__' } );
+                $List__->{_value}{_array} = \@_;
                 my $pair;
                 $pair =
                   ::DISPATCH( $::Scalar, 'new',
@@ -147,7 +160,9 @@
                 $pair;
                 ::DISPATCH_VAR( $s, 'STORE', ::DISPATCH( $::Str, 'new', '' ) );
                 do {
-                    for my $pair ( ::DISPATCH( $self, 'pairs', ) ) {
+                    for my $pair (
+                        @{ ::DISPATCH( $self, 'pairs', )->{_value}{_array} } )
+                    {
                         ::DISPATCH_VAR(
                             $s, 'STORE',
                             ::DISPATCH(
@@ -186,7 +201,10 @@
             'new',
             sub {
                 my $self   = shift;
-                my $List__ = \@_;
+                my $List__ =
+                  ::DISPATCH( $::Array, 'new',
+                    { modified => $_MODIFIED, name => '$List__' } );
+                $List__->{_value}{_array} = \@_;
                 ::DISPATCH(
                     $GLOBAL::Code_infix_58__60__33__61__62_,
                     'APPLY',
@@ -205,8 +223,28 @@
             'new',
             sub {
                 my $self   = shift;
-                my $List__ = \@_;
+                my $List__ =
+                  ::DISPATCH( $::Array, 'new',
+                    { modified => $_MODIFIED, name => '$List__' } );
+                $List__->{_value}{_array} = \@_;
                 ::DISPATCH( $self, 'elems', );
+            }
+        )
+    );
+    ::DISPATCH(
+        ::DISPATCH( $::Hash, 'HOW', ),
+        'add_method',
+        ::DISPATCH( $::Str, 'new', 'hash' ),
+        ::DISPATCH(
+            $::Method,
+            'new',
+            sub {
+                my $self   = shift;
+                my $List__ =
+                  ::DISPATCH( $::Array, 'new',
+                    { modified => $_MODIFIED, name => '$List__' } );
+                $List__->{_value}{_array} = \@_;
+                $self;
             }
         )
     );

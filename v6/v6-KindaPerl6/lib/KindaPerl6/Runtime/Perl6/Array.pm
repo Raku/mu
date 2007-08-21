@@ -13,4 +13,5 @@ class Array is Container {
     };
     method true { self.elems != 0 };
     method int  { self.elems };
+    method array { self };
 }

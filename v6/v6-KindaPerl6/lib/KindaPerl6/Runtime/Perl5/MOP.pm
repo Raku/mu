@@ -774,7 +774,7 @@ $::Hash = make_class(name=>"Hash",parent=>[$meta_Value],methods=>{
                     { _array => [
                           map {
                                 ::DISPATCH( $::Pair, 'new', {
-                                        key   => $_,
+                                        key   => ::DISPATCH( $::Str, 'new', $_ ),
                                         value => $_[0]{_value}{_hash}{$_},
                                     } 
                                 )

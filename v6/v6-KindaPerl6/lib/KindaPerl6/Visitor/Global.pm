@@ -53,6 +53,7 @@ class KindaPerl6::Visitor::Global {
                 if     ($node.name eq '/')
                     || ($node.name eq '_')
                     || ($node.twigil eq '.')
+                    || ( ( $node.sigil eq '&') && ( $node.name eq 'self' ) )
                 {
                     # don't modify special vars (yet?)
                     #warn "special variable: ", $node.sigil, ':', $node.twigil, ':', $node.name;
