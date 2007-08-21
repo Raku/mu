@@ -735,11 +735,11 @@ my $Hash_Cell = make_class(name=>"HashCell",parent=>[$meta_Container],methods=>{
             };
         },
         STORE=>sub {
-           $_[0]{_value}{hash}{_value}{_hash}{$_[0]{_value}{key}} = $_[1];
+           ${$_[0]{_value}{cell}} = $_[1];
         },
         FETCH=>sub {
             use Data::Dump::Streamer;
-            return $_[0]{_value}{hash}{_value}{_hash}{$_[0]{_value}{key}};
+            return ${$_[0]{_value}{cell}};
         },
 });
 
@@ -760,7 +760,8 @@ my $meta_Hash = ::DISPATCH( $::Hash, 'HOW', );
     ::DISPATCH( $::Method, 'new', 
         sub {
              $_[0]{_value}{_hash} ||= {};
-             return ::DISPATCH($Hash_Cell,"new",{hash=>$_[0],key=>::DISPATCH(::DISPATCH($_[1],"str"),"p5landish")});
+             my $key = ::DISPATCH(::DISPATCH($_[1],"str"),"p5landish");
+             return ::DISPATCH($Hash_Cell,"new",{cell=>\$_[0]{_value}{_hash}{$key}});
             }
 ));
 ::DISPATCH(
@@ -786,6 +787,9 @@ my $meta_Hash = ::DISPATCH( $::Hash, 'HOW', );
                     } keys %{ $_[0]{_value}{_hash} }
             }
 ));
+
+$::Array = make_class(name=>"Array",parent=>[$meta_Value],methods=>{
+});
 
 1;
 
