@@ -202,15 +202,13 @@ class Var {
 class Bind {
     #|| ( $.parameters.isa( 'Array' ) && @($.parameters.array) ) {    
     method emit_perl5 {
-        if $.parameters.isa( 'Var' ) {
-            return '::DISPATCH_VAR( '  
-            ~ $.parameters.emit_perl5 
-            ~ ', \'BIND\', ' 
-            ~ $.arguments.emit_perl5 ~ ' )';
-        };
         if $.parameters.isa( 'Proto' ) {
             return $.parameters.emit_perl5 ~ ' = ' ~ $.arguments.emit_perl5;
         }
+        return '::DISPATCH_VAR( '  
+        ~ $.parameters.emit_perl5 
+        ~ ', \'BIND\', ' 
+        ~ $.arguments.emit_perl5 ~ ' )';
     }
 }
 
@@ -437,29 +435,20 @@ class Method {
         my $invocant := $sig.invocant; 
         my $pos := $sig.positional;
 
-        my $decl_ := ::Decl(var=>::Var( sigil => '@', twigil => '', name => '_' ),decl=>'my',type=>'');
+        my $array_ := ::Var( sigil => '@', twigil => '', name => '_' );
+        my $decl_ := ::Decl(var=>$array_,decl=>'my',type=>'');
+
         my $str := $decl_.emit_perl5;   # no strict "vars"; ';
         $str := $str ~ '$List__->{_value}{_array} = \@_;';
 
-        my $pos := $sig.positional;
+        my $i := 0;
         for @$pos -> $field { 
             my $decl := ::Decl(var=>$field,type=>'',decl=>'my');
             $str := $str ~ $decl.emit_perl5;
+            my $bind := ::Bind(parameters=>$field,arguments=>::Index(obj=> $array_ , 'index'=>::Val::Int(int=>$i)) );
+            $str := $str ~ $bind.emit_perl5 ~ ';';
+            $i := $i + 1;
         };
-
-        #my $bind := ::Bind( 
-        #    'parameters' => ::Lit::Array( array => $sig.positional ), 
-        #    'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
-        #);
-        #$str := $str ~ $bind.emit_perl5 ~ '; ';
-
-#        my $pos := $sig.positional;
-#        my $str := '';
-#        my $i := 1;
-#        for @$pos -> $field { 
-#            $str := $str ~ 'my ' ~ $field.emit_perl5 ~ ' = $_[' ~ $i ~ ']; ';
-#            $i := $i + 1;
-#        };
 
         'sub ' ~ $.name ~ ' { ' ~ 
           'my ' ~ $invocant.emit_perl5 ~ ' = shift; ' ~

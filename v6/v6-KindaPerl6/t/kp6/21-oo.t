@@ -8,13 +8,20 @@ class Foo {
     };
     method ok() {
         say "ok "~@_[0];
+    };
+    method twice_ok($first,$second) {
+        say "ok "~@_[0];
+        say "ok "~@_[1];
+        #say "ok "~$first;
+        #say "ok "~$second;
     }
 }
 module Main {
-    say '1..4';
+    say '1..6';
     my $foo = Foo.new();
     $foo.ok1();
     $foo.ok2();
     $foo.ok(3);
     $foo.ok(4);
+    $foo.twice_ok(5,6);
 }
