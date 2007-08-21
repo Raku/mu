@@ -514,9 +514,17 @@ $meta_Object->add_method(
     'int',
     ::DISPATCH( $::Method, 'new', 
         sub {
+            my $v = ::DISPATCH( $::Int, 'new',  0 + $_[0]{_value} );  # ???
+        }
+    )
+);
 
-            # XXX
-            my $v = ::DISPATCH( $::Int, 'new',  0 + $_[0]{_value} );
+# implement Object.defined
+$meta_Object->add_method(
+    'defined',
+    ::DISPATCH( $::Method, 'new', 
+        sub {
+            my $v = ::DISPATCH( $::Bit, 'new', ( defined $_[0]{_value} ? 1 : 0 ) );
         }
     )
 );
