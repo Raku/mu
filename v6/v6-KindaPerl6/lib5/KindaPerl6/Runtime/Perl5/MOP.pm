@@ -744,38 +744,17 @@ my $Hash_Cell = make_class(name=>"HashCell",parent=>[$meta_Container],methods=>{
         },
 });
 
-require KindaPerl6::Runtime::Perl6::Hash;
-
-=for 'Hash' bootstrap - do not delete until the image gets more stable!
 $::Hash = make_class(name=>"Hash",parent=>[$meta_Value],methods=>{
-     LOOKUP=>sub {
-         $_[0]{_value}{_hash} ||= {};
-         return ::DISPATCH($Hash_Cell,"new",{hash=>$_[0],key=>::DISPATCH(::DISPATCH($_[1],"str"),"p5landish")});
-     }
-});
-=cut
-
-my $meta_Hash = ::DISPATCH( $::Hash, 'HOW', );
-::DISPATCH(
-    $meta_Hash, "add_method", 'LOOKUP',
-    ::DISPATCH( $::Method, 'new', 
-        sub {
-             $_[0]{_value}{_hash} ||= {};
-             my $key = ::DISPATCH(::DISPATCH($_[1],"str"),"p5landish");
-             return ::DISPATCH($Hash_Cell,"new",{cell=>\$_[0]{_value}{_hash}{$key}});
-            }
-));
-::DISPATCH(
-    $meta_Hash, "add_method", 'elems',
-    ::DISPATCH( $::Method, 'new', 
-        sub {
+    LOOKUP=>sub {
+            $_[0]{_value}{_hash} ||= {};
+            my $key = ::DISPATCH(::DISPATCH($_[1],"str"),"p5landish");
+            return ::DISPATCH($Hash_Cell,"new",{cell=>\$_[0]{_value}{_hash}{$key}});
+    },
+    elems => sub {
              $_[0]{_value}{_hash} ||= {};
              return ::DISPATCH($::Int,"new",scalar(keys(%{$_[0]{_value}{_hash}})));
-            }
-));
-::DISPATCH( $meta_Hash, "add_method", 
-    'pairs', ::DISPATCH( $::Method, 'new', 
-        sub {
+            },
+    pairs => sub {
              $_[0]{_value}{_hash} ||= {};
              # TODO - return Array
              return 
@@ -786,8 +765,10 @@ my $meta_Hash = ::DISPATCH( $::Hash, 'HOW', );
                             } 
                         )
                     } keys %{ $_[0]{_value}{_hash} }
-            }
-));
+            },
+});
+
+require KindaPerl6::Runtime::Perl6::Hash;
 
 $::Array = make_class(name=>"Array",parent=>[$meta_Value],methods=>{
         INDEX=>sub {
