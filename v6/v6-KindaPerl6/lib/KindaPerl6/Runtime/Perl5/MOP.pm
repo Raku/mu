@@ -763,6 +763,14 @@ my $meta_Hash = ::DISPATCH( $::Hash, 'HOW', );
              return ::DISPATCH($Hash_Cell,"new",{hash=>$_[0],key=>::DISPATCH(::DISPATCH($_[1],"str"),"p5landish")});
             }
 ));
+::DISPATCH(
+    $meta_Hash, "add_method", 'elems',
+    ::DISPATCH( $::Method, 'new', 
+        sub {
+             $_[0]{_value}{_hash} ||= {};
+             return ::DISPATCH($::Int,"new",scalar(keys(%{$_[0]{_value}{_hash}})));
+            }
+));
 
 1;
 
