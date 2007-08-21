@@ -19,6 +19,7 @@ class CompUnit {
         ~ 'use strict; '
         ~ 'no strict \'vars\'; '
         ~ 'use KindaPerl6::Runtime::Perl5::Runtime; '
+        ~ 'use KindaPerl6::Runtime::Perl6::Hash; '
         ~ 'my $_MODIFIED; BEGIN { $_MODIFIED = {} } '
 
         # XXX - not sure about $_ scope
