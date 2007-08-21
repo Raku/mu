@@ -25,7 +25,7 @@ package Lit::Seq; sub new { shift; bless { @_ }, "Lit::Seq" } sub emit_perl5 { m
 ;
 package Lit::Array; sub new { shift; bless { @_ }, "Lit::Array" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Array, "new", { _array => [' . (Main::join([ map { $_->emit_perl5() } @{ $self->{array} } ], ', ') . '] } )')) }
 ;
-package Lit::Hash; sub new { shift; bless { @_ }, "Lit::Hash" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $fields = $self->{hash}; my  $str = ''; do { for my $field ( @{$fields} ) { $str = ($str . ($field->[0]->emit_perl5() . (' => ' . ($field->[1]->emit_perl5() . ',')))) } }; ('{ ' . ($str . ' }')) }
+package Lit::Hash; sub new { shift; bless { @_ }, "Lit::Hash" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $fields = $self->{hash}; my  $str = ''; do { for my $field ( @{$fields} ) { $str = ($str . ($field->[0]->emit_perl5() . (' => ' . ($field->[1]->emit_perl5() . ',')))) } }; ('::DISPATCH( $::Hash, "new", { _hash => { ' . ($str . ' } } )')) }
 ;
 package Lit::Pair; sub new { shift; bless { @_ }, "Lit::Pair" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Pair, \'new\', ' . ('{ key => ' . ($self->{key}->emit_perl5() . (', value => ' . ($self->{value}->emit_perl5() . ' } )'))))) }
 ;

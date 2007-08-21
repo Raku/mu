@@ -100,7 +100,7 @@ class Lit::Hash {
         for @$fields -> $field { 
             $str := $str ~ ($field[0]).emit_perl5 ~ ' => ' ~ ($field[1]).emit_perl5 ~ ',';
         }; 
-        '{ ' ~ $str ~ ' }';
+        '::DISPATCH( $::Hash, "new", { _hash => { ' ~ $str ~ ' } } )';
     }
 }
 
