@@ -794,6 +794,10 @@ $::Array = make_class(name=>"Array",parent=>[$meta_Value],methods=>{
              $_[0]{_value}{_array} ||= [];
              my $key = ::DISPATCH(::DISPATCH($_[1],"int"),"p5landish");
              return ::DISPATCH($Hash_Cell,"new",{cell=>\$_[0]{_value}{_array}[$key]});
+        },
+        elems =>sub {
+             $_[0]{_value}{_array} ||= [];
+             return ::DISPATCH($::Int, "new", scalar @{ $_[0]{_value}{_array} } );
         }
 });
 
