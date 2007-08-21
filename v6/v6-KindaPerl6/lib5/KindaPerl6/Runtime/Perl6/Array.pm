@@ -93,7 +93,7 @@
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    $v,
+                                    ::DISPATCH( $v, 'perl', ),
                                     ::DISPATCH( $::Str, 'new', ', ' )
                                 )
                             )
@@ -119,55 +119,7 @@
             sub {
                 my $self   = shift;
                 my $List__ = \@_;
-                my $v;
-                $v =
-                  ::DISPATCH( $::Scalar, 'new',
-                    { modified => $_MODIFIED, name => '$v' } )
-                  unless defined $v;
-
-                BEGIN {
-                    $v =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$v' } );
-                }
-                my $s;
-                $s =
-                  ::DISPATCH( $::Scalar, 'new',
-                    { modified => $_MODIFIED, name => '$s' } )
-                  unless defined $s;
-
-                BEGIN {
-                    $s =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$s' } );
-                }
-                $v;
-                ::DISPATCH_VAR( $s, 'STORE', ::DISPATCH( $::Str, 'new', '' ) );
-                do {
-                    for my $v (
-                        ::DISPATCH(
-                            $GLOBAL::Code_prefix_58__60__64__62_,
-                            'APPLY',
-                            ::DISPATCH( $GLOBAL::Code_self, 'APPLY', )
-                        )
-                      )
-                    {
-                        ::DISPATCH_VAR(
-                            $s, 'STORE',
-                            ::DISPATCH(
-                                $GLOBAL::Code_infix_58__60__126__62_,
-                                'APPLY', $s,
-                                ::DISPATCH(
-                                    $GLOBAL::Code_infix_58__60__126__62_,
-                                    'APPLY',
-                                    $v,
-                                    ::DISPATCH( $::Str, 'new', ', ' )
-                                )
-                            )
-                        );
-                    }
-                };
-                return ($s);
+                ::DISPATCH( $self, 'join', ::DISPATCH( $::Str, 'new', ' ' ) );
             }
         )
     );

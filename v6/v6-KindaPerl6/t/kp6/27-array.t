@@ -7,4 +7,5 @@ module Main {
     say "ok "~@array[0];
     say "ok "~@array[1];
     say "ok " ~ ( 1 + @array.elems );
+    say "# ", @array.join( ',' );
 }

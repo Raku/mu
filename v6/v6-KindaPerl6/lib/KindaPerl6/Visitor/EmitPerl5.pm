@@ -240,7 +240,7 @@ class Call {
             $invocant := '$self';
         };
         if     ($.method eq 'yaml')
-            || ($.method eq 'join')
+            # || ($.method eq 'join')
             || ($.method eq 'chars')
             # || ($.method eq 'isa')
         { 

@@ -785,6 +785,16 @@ $::Array = make_class(name=>"Array",parent=>[$meta_Value],methods=>{
              $_[0]{_value}{_array} ||= [];
              return ::DISPATCH($::Int, "new", scalar @{ $_[0]{_value}{_array} } );
         },
+    join =>sub {
+            $_[0]{_value}{_array} ||= [];
+            return ::DISPATCH($::Str, "new", join( 
+                ::DISPATCH(::DISPATCH($_[1],"str"),"p5landish"), 
+                map {
+                    ::DISPATCH(::DISPATCH($_,"str"),"p5landish")
+                    }
+                    @{ $_[0]{_value}{_array} } 
+            ) );
+        },
 });
 
 require KindaPerl6::Runtime::Perl6::Array;
