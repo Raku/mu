@@ -2,7 +2,7 @@ feel free to add here ideas for the YAPC::Europe hackathon - pmurias
 
 * from kp6 roadmap: types -> signatures -> multis
 
-* running the npq test suite
+* running the nqp (Parrot's mini-Perl6) test suite
 
 * initial javascript backend
 
