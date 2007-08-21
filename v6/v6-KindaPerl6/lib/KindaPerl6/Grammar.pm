@@ -130,11 +130,11 @@ token comp_unit {
     }
     ] | [
     <?opt_ws>
-    <exp_stmts2>
     {
         $Class_name := 'Main';
         COMPILER::add_pad( $Class_name );
     }
+    <exp_stmts2>
     {
         my $env := @COMPILER::PAD[0];
         COMPILER::drop_pad();
