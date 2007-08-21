@@ -771,6 +771,33 @@ $::Hash = make_class(name=>"Hash",parent=>[$meta_Value],methods=>{
                     }
                 );
         },
+    keys => sub {
+             $_[0]{_value}{_hash} ||= {};
+             return 
+                ::DISPATCH( $::Array, 'new', 
+                    { _array => [
+                          map {
+                                # XXX str keys only
+                                ::DISPATCH( $::Str, 'new', $_ )
+                            } 
+                            keys %{ $_[0]{_value}{_hash} }
+                        ],
+                    }
+                );
+        },
+    values => sub {
+             $_[0]{_value}{_hash} ||= {};
+             return 
+                ::DISPATCH( $::Array, 'new', 
+                    { _array => [
+                          map {
+                                $_[0]{_value}{_hash}{$_}
+                            } 
+                            keys %{ $_[0]{_value}{_hash} }
+                        ],
+                    }
+                );
+        },
 });
 
 require KindaPerl6::Runtime::Perl6::Hash;
