@@ -427,6 +427,33 @@ class Sig {
     };
 }
 
+class Capture {
+    method emit_perl5 {
+        my $s := '::DISPATCH( $::Capture, "new", { ';
+        if defined $.invocant {
+           $s := $s ~ 'invocant => ' ~ $.invocant.emit_perl5 ~ ', ';
+        }
+        else {
+            $s := $s ~ 'invocant => $::Undef, '
+        };
+        if defined $.array {
+           $s := $s ~ 'array => ::DISPATCH( $::Array, "new", { _array => [ ';
+           for @.array -> $item { 
+                $s := $s ~ $item.emit_perl5 ~ ', ';
+            }
+            $s := $s ~ ' ] } ),';
+        };
+        if defined $.hash {
+           $s := $s ~ 'hash => ::DISPATCH( $::Hash, "new", { _hash => { ';
+           for @.hash -> $item { 
+                $s := $s ~ ($item[0]).emit_perl5 ~ '->{_value} => ' ~ ($item[1]).emit_perl5 ~ ', ';
+            }
+            $s := $s ~ ' } } ),';
+        };
+        return $s ~ ' } )';
+    };
+}
+
 class Subset {
     method emit_perl5 {
           '::DISPATCH( $::Subset, "new", { ' 

@@ -311,7 +311,16 @@ token term {
     | \{ <?opt_ws> <exp_mapping> <?opt_ws> \}
         { return ::Lit::Hash( 'hash' => $$<exp_mapping> ) }   # { exp => exp, ... }
     | \[ <?opt_ws> <exp_seq> <?opt_ws> \]
-        { return ::Lit::Array( 'array' => $$<exp_seq> ) }   # [ exp, ... ]
+        { return ::Lit::Array( 'array' => $$<exp_seq> ) }     # [ exp, ... ]
+
+    # Capture
+    | \\ \( <?opt_ws> <capture> <?opt_ws> \)
+        { return $$<capture> }                                # \( exp, ... )
+    | \\ \( <?opt_ws> <exp_seq> <?opt_ws> \)
+        { return ::Capture( 'invocant' => undef, 'array' => $$<exp_seq>, 'hash' => [ ] ); }
+    | \\ <var>
+        { return ::Capture( 'invocant' => undef, 'array' => [ $$<var> ], 'hash' => [ ] ); }
+
     | \$ \< <sub_or_method_name> \>
         { return ::Lookup( 
             'obj'   => ::Var( 'sigil' => '$', 'twigil' => '', 'name' => '/' ), 
@@ -663,6 +672,18 @@ token invocant {
             'name'   => 'self',
          ) 
        }
+};
+
+token capture {
+    # TODO - exp_seq / exp_mapping == positional / named 
+    |  <exp>\:  <?opt_ws> <exp_seq> 
+        { return ::Capture( 'invocant' => $$<exp>, 'array' => $$<exp_seq>, 'hash' => [ ] ); }
+    |  <exp_mapping> 
+        { return ::Capture( 'invocant' => undef, 'array' => [ ], 'hash' => $$<exp_mapping> ); }
+        
+    # ??? doesn't work here
+    #|  <exp_seq>
+    #    { return ::Capture( 'invocant' => undef, 'array' => $$<exp_seq>, 'hash' => [ ] ); }
 };
 
 token sig {

@@ -584,6 +584,27 @@ class Sig {
     };
 }
 
+class Capture {
+    has $.invocant;
+    has $.array;
+    has $.hash;
+    method emit( $visitor, $path ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'Capture',
+            $path,
+        );
+    };
+    method attribs {
+            { 
+                invocant   => $.invocant,
+                array      => @.array,
+                hash       => @.hash,
+            }
+    };
+}
+
 class Subset {
     has $.name;
     has $.base_class;
