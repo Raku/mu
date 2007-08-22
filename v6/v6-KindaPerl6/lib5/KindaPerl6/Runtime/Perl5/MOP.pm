@@ -1,5 +1,6 @@
 
 use v5;
+use strict 'vars';
 
 # my $meth = ::DISPATCH( $::Method, 'new', sub { 'hi' } );
 # my $obj =  ::DISPATCH( $::Object, 'new', $candidate );
@@ -51,6 +52,21 @@ sub get_method_from_metaclass {
           if $m;
     }
     return undef;
+}
+sub make_class {
+    my %args = @_;
+    my $meta = ::DISPATCH( $::Class, 'new', $args{name});
+    my %methods = %{$args{methods}};
+    while (my ($method_name,$sub) = each %methods) {
+        ::DISPATCH($meta,"add_method",$method_name,::DISPATCH( $::Method, 'new', $sub));
+    }
+    for my $attribute_name (@{$args{attributes}}) {
+        ::DISPATCH($meta,"add_attribute",$attribute_name);
+    }
+    for my $parent (@{$args{parents}}) {
+        ::DISPATCH($meta,"add_parent",$parent);
+    }
+    return ::DISPATCH($meta,"PROTOTYPE");
 }
 
 my $meta_Object;
@@ -253,6 +269,8 @@ $meta_Class->add_method(
                         
                         #print "accessing attribute $meth_name\n";
                         
+                        # XXX What should it be
+                        our $_MODIFIED;
                         # XXX - when is the right time to initialize attributes?
                         $_[0]{_value}{$meth_name} = 
                           $::Scalar->{_dispatch}( $::Scalar, 'new',
@@ -309,6 +327,8 @@ $meta_Class->add_method(
                   },
                   _isa => [$meta_Class],
             };
+            #XXX: what should it be
+            our $self;
             $self_meta->{_value}{methods}{WHAT} = ::DISPATCH( $::Method, 'new', 
                 sub {
 
@@ -554,13 +574,11 @@ $meta_Object->add_method( 'STORE', $method_readonly );
 
 #--- back to Value
 
-my $meta_Undef = ::DISPATCH( $::Class, 'new', "Undef");
-$::Undef = $meta_Undef->PROTOTYPE();
-$meta_Undef->add_parent($meta_Value);
-$meta_Undef->add_method( 'perl',
-    ::DISPATCH( $::Method, 'new',  sub { my $v = $::Str->new('undef') } ) );
-$meta_Undef->add_method( 'str',
-    ::DISPATCH( $::Method, 'new',  sub { my $v = $::Str->new('') } ) );
+$::Undef = make_class(name=>"Undef",parents=>[$meta_Value],methods=>{
+    perl => sub { ::DISPATCH($::Str,'new','undef') },
+    str  => sub { ::DISPATCH($::Str,'new','') },
+    true => sub { ::DISPATCH($::Bit,'new',0) },
+});
 
 my $meta_Code = ::DISPATCH( $::Class, 'new', "Code");
 $::Code = $meta_Code->PROTOTYPE();
@@ -607,7 +625,7 @@ $meta_Container->add_method(
     'FETCH',
     ::DISPATCH( $::Method, 'new', 
         sub {
-            $_[0]{_value}{cell} ? $_[0]{_value}{cell} : $GLOBAL::undef;
+            $_[0]{_value}{cell} ? $_[0]{_value}{cell} : ::DISPATCH($::Undef,"new",0);
         }
     )
 );
@@ -721,21 +739,6 @@ require KindaPerl6::Runtime::Perl6::Pair;
 =cut
 
 
-sub make_class {
-    my %args = @_;
-    my $meta = ::DISPATCH( $::Class, 'new', $args{name});
-    my %methods = %{$args{methods}};
-    while (my ($method_name,$sub) = each %methods) {
-        ::DISPATCH($meta,"add_method",$method_name,::DISPATCH( $::Method, 'new', $sub));
-    }
-    for my $attribute_name (@{$args{attributes}}) {
-        ::DISPATCH($meta,"add_attribute",$attribute_name);
-    }
-    for my $parent (@{$args{parents}}) {
-        ::DISPATCH($meta,"add_parent",$parent);
-    }
-    return ::DISPATCH($meta,"PROTOTYPE");
-}
 
 my $Hash_Cell = make_class(name=>"HashCell",parent=>[$meta_Container],methods=>{
         new=>sub {
@@ -750,8 +753,7 @@ my $Hash_Cell = make_class(name=>"HashCell",parent=>[$meta_Container],methods=>{
            ${$_[0]{_value}{cell}} = $_[1];
         },
         FETCH=>sub {
-           return ::DISPATCH($::Undef,"new") unless ${$_[0]{_value}{cell}}; 
-           return ${$_[0]{_value}{cell}};
+           return ${$_[0]{_value}{cell}} || ::DISPATCH($::Undef,'new',0);
         },
 });
 
