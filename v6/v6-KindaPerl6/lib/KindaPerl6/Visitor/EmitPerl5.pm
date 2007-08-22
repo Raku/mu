@@ -200,15 +200,12 @@ class Var {
 }
 
 class Bind {
-    #|| ( $.parameters.isa( 'Array' ) && @($.parameters.array) ) {    
     method emit_perl5 {
-        if $.parameters.isa( 'Proto' ) {
-            return $.parameters.emit_perl5 ~ ' = ' ~ $.arguments.emit_perl5;
-        }
-        return '::DISPATCH_VAR( '  
-        ~ $.parameters.emit_perl5 
-        ~ ', \'BIND\', ' 
-        ~ $.arguments.emit_perl5 ~ ' )';
+        return $.parameters.emit_perl5 ~ ' = ' ~ $.arguments.emit_perl5;
+        #return '::DISPATCH_VAR( '  
+        #~ $.parameters.emit_perl5 
+        #~ ', \'BIND\', ' 
+        #~ $.arguments.emit_perl5 ~ ' )';
     }
 }
 
@@ -497,27 +494,30 @@ class Method {
 
 class Sub {
     method emit_perl5 {
+        # Argument handling like in Method
+
         # TODO - signature binding
-        my $sig := $.block.sig;
+        #my $sig := $.block.sig;
         # say "Sig: ", $sig.perl;
         ## my $invocant := $sig.invocant; 
         # say $invocant.emit_perl5;
-        my $pos := $sig.positional;
-        my $str := 'my $List__ = \@_; ';  # no strict "vars"; ;
+        #my $pos := $sig.positional;
+        #my $str := 'my $List__ = \@_; ';  # no strict "vars"; ;
 
+        my $str := '';
         # TODO - follow recursively
-        my $pos := $sig.positional;
-        if @$pos {
-            for @$pos -> $field { 
-                $str := $str ~ 'my ' ~ $field.emit_perl5 ~ '; ';
-            };
+        #my $pos := $sig.positional;
+        #if @$pos {
+        #    for @$pos -> $field { 
+        #        $str := $str ~ 'my ' ~ $field.emit_perl5 ~ '; ';
+        #    };
     
-            my $bind := ::Bind( 
-                'parameters' => ::Lit::Array( array => $sig.positional ), 
-                'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
-            );
-            $str := $str ~ $bind.emit_perl5 ~ '; ';
-        };
+        #    my $bind := ::Bind( 
+        #        'parameters' => ::Lit::Array( array => $sig.positional ), 
+        #        'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
+        #    );
+        #    $str := $str ~ $bind.emit_perl5 ~ '; ';
+        #};
         
         my $code :=
           '::DISPATCH( $::Code, \'new\', { '

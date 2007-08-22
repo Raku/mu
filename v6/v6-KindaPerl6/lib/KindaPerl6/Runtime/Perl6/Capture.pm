@@ -23,25 +23,5 @@ class Capture is Value {
     };
     #method true { self.elems != 0 };
     #method int  { self.elems };
-
-    # TODO ...
-    my sub match_type( $spec, $thing ) {
-
-        42
-
-        #if $m.from == 2 {
-        #    say "ok 2 - accessor";
-        #}
-        #else {
-        #    say "not ok - got ", $m.from;
-        #};
-
-        #if $thing.HOW == $spec.HOW {
-        #    return true;
-        #}
-        #else {
-        #    return false;
-        #}
-    }
 }
 

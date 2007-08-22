@@ -15,17 +15,6 @@
           ::DISPATCH( $::Scalar, "new",
             { modified => $_MODIFIED, name => "$_" } );
     }
-    my $Code_match_type;
-    $Code_match_type =
-      ::DISPATCH( $::Routine, 'new',
-        { modified => $_MODIFIED, name => '$Code_match_type' } )
-      unless defined $Code_match_type;
-
-    BEGIN {
-        $Code_match_type =
-          ::DISPATCH( $::Routine, 'new',
-            { modified => $_MODIFIED, name => '$Code_match_type' } );
-    }
     do {
         if (
             ::DISPATCH(
@@ -41,17 +30,6 @@
         {
         }
         else {
-            my $Code_match_type;
-            $Code_match_type =
-              ::DISPATCH( $::Routine, 'new',
-                { modified => $_MODIFIED, name => '$Code_match_type' } )
-              unless defined $Code_match_type;
-
-            BEGIN {
-                $Code_match_type =
-                  ::DISPATCH( $::Routine, 'new',
-                    { modified => $_MODIFIED, name => '$Code_match_type' } );
-            }
             $::Capture = ::DISPATCH(
                 ::DISPATCH(
                     $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Capture' )
@@ -88,7 +66,7 @@
             $::Method,
             'new',
             sub {
-                my $self   = shift;
+                my $self = shift;
                 my $List__ =
                   ::DISPATCH( $::Array, 'new',
                     { modified => $_MODIFIED, name => '$List__' } );
@@ -157,28 +135,12 @@
             $::Method,
             'new',
             sub {
-                my $self   = shift;
+                my $self = shift;
                 my $List__ =
                   ::DISPATCH( $::Array, 'new',
                     { modified => $_MODIFIED, name => '$List__' } );
                 $List__->{_value}{_array} = \@_;
                 ::DISPATCH( $self, 'perl', );
-            }
-        )
-    );
-    ::DISPATCH_VAR(
-        $Code_match_type,
-        'BIND',
-        ::DISPATCH(
-            $::Code, 'new',
-            {
-                code => sub {
-                    my $List__ = \@_;
-                    my $spec;
-                    my $thing;
-                    ::DISPATCH( $::Int, 'new', 42 );
-                },
-                src => q#sub { 42 }#
             }
         )
     );
