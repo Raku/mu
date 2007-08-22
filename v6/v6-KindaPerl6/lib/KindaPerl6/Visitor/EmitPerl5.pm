@@ -201,11 +201,9 @@ class Var {
 
 class Bind {
     method emit_perl5 {
-        return $.parameters.emit_perl5 ~ ' = ' ~ $.arguments.emit_perl5;
-        #return '::DISPATCH_VAR( '  
-        #~ $.parameters.emit_perl5 
-        #~ ', \'BIND\', ' 
-        #~ $.arguments.emit_perl5 ~ ' )';
+        my $str := '::MODIFIED(' ~ $.parameters.emit_perl5 ~ ');';
+        $str := $str ~ $.parameters.emit_perl5 ~ ' = ' ~ $.arguments.emit_perl5;
+        return $str;
     }
 }
 

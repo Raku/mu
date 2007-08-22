@@ -640,6 +640,9 @@ $meta_Container->add_method(
         }
     )
 );
+sub ::MODIFIED {
+    $_[0]{_value}{modified}{ $_[0]{_value}{name} } = 1;
+}
 $meta_Container->add_method(
     'BIND',
     ::DISPATCH( $::Method, 'new', 
