@@ -115,6 +115,12 @@ class Lit::Pair {
 
 class Lit::Code {
     method emit_perl5 {
+        self.emit_declarations ~ self.emit_body
+    };
+    method emit_body {
+        return (@.body.>>emit_perl5).join('; ');
+    };
+    method emit_declarations {
         my $s;
         for @($.pad.variable_names) -> $name {
             my $decl := ::Decl(
@@ -127,18 +133,9 @@ class Lit::Code {
                 ),
             );
             $s := $s ~ $name.emit_perl5 ~ '; ';
-            #$s := $s ~ 'my ' ~ $name ~ '; ';
         };
-        return 
-            $s
-            ~ (@.body.>>emit_perl5).join('; ');
-#        my $a := $.body;
-#        my $s;
-#        for @$a -> $item {
-#            $s := $s ~ $item.emit_perl5 ~ ';' ~ Main::newline();
-#        };
-#        return $s;
-    }
+        return $s;
+    };
 }
 
 class Lit::Object {
@@ -463,30 +460,22 @@ class Subset {
 class Method {
     method emit_perl5 {
         my $sig := $.block.sig;
-
         my $invocant := $sig.invocant; 
         my $pos := $sig.positional;
-
         my $array_ := ::Var( sigil => '@', twigil => '', name => '_' );
-        my $decl_ := ::Decl(var=>$array_,decl=>'my',type=>'');
-
-        my $str := $decl_.emit_perl5;   # no strict "vars"; ';
-        $str := $str ~ '$List__->{_value}{_array} = \@_;';
-
+        my $str := '$self = shift; '
+                 ~ '$List__->{_value}{_array} = \@_;';
         my $i := 0;
         for @$pos -> $field { 
-            my $decl := ::Decl(var=>$field,type=>'',decl=>'my');
-            $str := $str ~ $decl.emit_perl5;
             my $bind := ::Bind(parameters=>$field,arguments=>::Index(obj=> $array_ , 'index'=>::Val::Int(int=>$i)) );
             $str := $str ~ $bind.emit_perl5 ~ ';';
             $i := $i + 1;
         };
-
-        'sub ' ~ $.name ~ ' { ' ~ 
-          'my ' ~ $invocant.emit_perl5 ~ ' = shift; ' ~
-          $str ~
-          $.block.emit_perl5 ~ 
-        ' }'
+        'sub ' ~ $.name ~ ' { ' 
+          ~ $.block.emit_declarations 
+          ~ $str 
+          ~ $.block.emit_body
+          ~ ' }'
     }
 }
 
