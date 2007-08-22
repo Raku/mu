@@ -5,6 +5,7 @@ grammar KindaPerl6::Grammar {
 use KindaPerl6::Grammar::Regex;
 use KindaPerl6::Grammar::Mapping;
 use KindaPerl6::Grammar::Control;
+use KindaPerl6::Grammar::Parameters;
 
 my $Class_name;  # for diagnostic messages
 sub get_class_name { $Class_name }; 
@@ -764,7 +765,14 @@ token method {
     [   \}     | { say '*** Syntax Error in method \'', get_class_name(), '.', $$<name>, '\' near pos=', $/.to; die 'error in Block'; } ]
     {
         # say ' block: ', ($$<exp_stmts>).perl;
-        my $env := @COMPILER::PAD[0];
+        
+        my $env   := @COMPILER::PAD[0];
+        my $block := $$<exp_stmts>;
+        KindaPerl6::Grammar::declare_parameters(
+            $env,
+            $block,
+            $$<method_sig>,
+        );    
         COMPILER::drop_pad();
         return ::Method( 
             'name'  => $$<opt_name>, 
@@ -772,7 +780,7 @@ token method {
                 pad   => $env,
                 state => { },
                 sig   => $$<method_sig>,
-                body  => $$<exp_stmts>,
+                body  => $block,
             ),
         );
     }
