@@ -12,7 +12,15 @@ BEGIN {
     my $lex = 2;
 };
 
-say "ok ", $counter;
-say "ok ", $var;
+if ($counter) {
+    say "ok ", $counter;
+} else {
+    say "not ok 1"
+};
+if ($var) {
+    say "ok ", $var;
+} else {
+    say "not ok 2"
+};
 
 }
