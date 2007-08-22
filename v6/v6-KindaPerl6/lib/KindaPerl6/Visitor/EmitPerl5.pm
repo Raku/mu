@@ -481,45 +481,13 @@ class Method {
 
 class Sub {
     method emit_perl5 {
-        # Argument handling like in Method
-
-        # TODO - signature binding
-        #my $sig := $.block.sig;
-        # say "Sig: ", $sig.perl;
-        ## my $invocant := $sig.invocant; 
-        # say $invocant.emit_perl5;
-        #my $pos := $sig.positional;
-        #my $str := 'my $List__ = \@_; ';  # no strict "vars"; ;
-
-        my $str := '';
-        # TODO - follow recursively
-        #my $pos := $sig.positional;
-        #if @$pos {
-        #    for @$pos -> $field { 
-        #        $str := $str ~ 'my ' ~ $field.emit_perl5 ~ '; ';
-        #    };
-    
-        #    my $bind := ::Bind( 
-        #        'parameters' => ::Lit::Array( array => $sig.positional ), 
-        #        'arguments'  => ::Var( sigil => '@', twigil => '', name => '_' )
-        #    );
-        #    $str := $str ~ $bind.emit_perl5 ~ '; ';
-        #};
-        
-        my $code :=
+        # TODO - Argument handling like in Method
           '::DISPATCH( $::Code, \'new\', { '
         ~   'code => sub { '  
-            ## 'my ' ~ $invocant.emit_perl5 ~ ' = $_[0]; ' ~
-        ~      $str 
         ~      $.block.emit_perl5  
         ~    ' }'
         ~    ', src => q#sub { ' ~ COMPILER::emit_perl6( $.block ) ~ ' }#'
         ~ ' } )'
-        ;
-        if ( $.name ) {
-            return '$Code_' ~ $.name ~ '->BIND( ' ~ $code ~ ')';
-        };
-        return $code;
     }
 }
 
