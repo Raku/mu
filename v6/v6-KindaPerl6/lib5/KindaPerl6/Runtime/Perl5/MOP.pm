@@ -332,7 +332,12 @@ $meta_Class->add_method(
             $self_meta->{_value}{methods}{WHAT} = ::DISPATCH( $::Method, 'new', 
                 sub {
 
-                    $self;
+                    # $self;
+
+                    $self = sugar {
+                      %::PROTO,
+                      _isa => [$self_meta],
+                    }
                 }
             );
             $self_meta->{_value}{methods}{HOW} =
