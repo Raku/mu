@@ -65,7 +65,7 @@ package Subset; sub new { shift; bless { @_ }, "Subset" } sub emit_perl5 { my $s
 ;
 package Method; sub new { shift; bless { @_ }, "Method" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $sig = $self->{block}->sig(); my  $invocant = $sig->invocant(); my  $pos = $sig->positional(); my  $array_ = Var->new( 'sigil' => '@','twigil' => '','name' => '_', ); my  $str = ('$self = shift; ' . '$List__->{_value}{_array} = \@_;'); my  $i = 0; do { for my $field ( @{$pos} ) { my  $bind = Bind->new( 'parameters' => $field,'arguments' => Index->new( 'obj' => $array_,'index' => Val::Int->new( 'int' => $i, ), ), );$str = ($str . ($bind->emit_perl5() . ';'));$i = ($i + 1) } }; ('sub ' . ($self->{name} . (' { ' . ($self->{block}->emit_declarations() . ($str . ($self->{block}->emit_body() . ' }')))))) }
 ;
-package Sub; sub new { shift; bless { @_ }, "Sub" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Code, \'new\', { ' . ('code => sub { ' . ($self->{block}->emit_perl5() . (' }' . (', src => q#sub { ' . (COMPILER::emit_perl6($self->{block}) . (' }#' . ' } )'))))))) }
+package Sub; sub new { shift; bless { @_ }, "Sub" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Code, \'new\', { ' . ('code => sub { ' . ($self->{block}->emit_perl5() . (' }' . ' } )')))) }
 ;
 package Do; sub new { shift; bless { @_ }, "Do" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('do { ' . ($self->{block}->emit_perl5() . ' }')) }
 ;

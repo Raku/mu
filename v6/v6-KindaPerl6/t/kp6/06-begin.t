@@ -11,6 +11,10 @@ BEGIN {
     my $lex = 2;
 };
 
-say "ok ", $counter;
+if ($counter == 1) {
+    say "ok ", $counter;
+} else {
+    say "not ok";
+}
 
 }

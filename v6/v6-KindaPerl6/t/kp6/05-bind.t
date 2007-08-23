@@ -5,6 +5,10 @@ module Main {
 say '1..1';
 
 my $counter := 1;
-say "ok ", $counter;
+if ($counter == 1) {
+    say "ok ", $counter;
+} else {
+    say "not ok";
+}
 
 }

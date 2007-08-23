@@ -486,7 +486,6 @@ class Sub {
         ~   'code => sub { '  
         ~      $.block.emit_perl5  
         ~    ' }'
-        ~    ', src => q#sub { ' ~ COMPILER::emit_perl6( $.block ) ~ ' }#'
         ~ ' } )'
     }
 }

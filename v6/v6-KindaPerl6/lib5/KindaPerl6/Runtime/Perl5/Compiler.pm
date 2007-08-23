@@ -76,7 +76,6 @@ sub begin_block {
     shift @{ $visitor_global->pad };
     
     #print Dump( $ast );
-    #Main::say( $ast->emit( $visitor_dump_ast    ));
     my $native = $ast->emit( $visitor_emit_perl5  );
     #print "Native: $native\n";
 
@@ -84,7 +83,7 @@ sub begin_block {
     add_pad;
     my $data = $COMPILER::PAD[0]->eval( $native );  # XXX - want() context
     drop_pad;
-    die "At BEGIN: " . $@ . "\n  Native code: $native"if $@;
+    die "At BEGIN: " . $@ . "\n  Native code: $native\n" . $ast->emit( $visitor_dump_ast) if $@;
     #print "RETURN DATA: ", Dumper($data);
 
     # check for side-effects

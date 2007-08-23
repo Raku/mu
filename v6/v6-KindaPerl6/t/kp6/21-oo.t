@@ -10,10 +10,8 @@ class Foo {
         say "ok "~@_[0];
     };
     method twice_ok($first,$second) {
-        say "ok "~@_[0];
-        say "ok "~@_[1];
-        #say "ok "~$first;
-        #say "ok "~$second;
+        say "ok "~$first;
+        say "ok "~$second;
     }
 }
 module Main {
