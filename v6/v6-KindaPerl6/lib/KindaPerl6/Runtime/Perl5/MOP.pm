@@ -42,14 +42,14 @@ sub get_method_from_metaclass {
 
     #print "looking in $self\n", Dumper($self);
     return $self->{_value}{methods}{$method_name}
-      if exists $self->{_value}{methods}{$method_name};
+        if exists $self->{_value}{methods}{$method_name};
     for my $parent ( @{ $self->{_value}{isa} } ) {
 
-#print "trying $parent ",$parent->{_isa}[0]{_value}{class_name},"\n", Dumper($parent);
-#print "available $method_name ? @{[ keys %{$parent->{_value}{methods}} ]}\n";
+        #print "trying $parent ",$parent->{_isa}[0]{_value}{class_name},"\n", Dumper($parent);
+        #print "available $method_name ? @{[ keys %{$parent->{_value}{methods}} ]}\n";
         my $m = get_method_from_metaclass( $parent, $method_name );
         return $m
-          if $m;
+            if $m;
     }
     return undef;
 }
@@ -119,9 +119,6 @@ my $dispatch = sub {
     }
     die "no method '$method_name' in Class '", $self->{_isa}[0]{_value}{class_name}, "'\n";
 };
-
-# backwards compatibility - remove !!!
-#sub ::CALL { $dispatch->(@_) }
 
 my $dispatch_VAR = sub {
 
@@ -214,8 +211,6 @@ $::Object                             = sugar {
 
 my $meta_Class = sugar {
     %::PROTO,
-
-      # _name     => '$meta_Class',
       _value => {
         methods    => {},
         roles      => {},
@@ -240,7 +235,6 @@ $meta_Class->add_method(
         }
     )
 );
-
 $meta_Class->add_method(
     'add_role',
     ::DISPATCH( $::Method, 'new', 
@@ -269,7 +263,7 @@ $meta_Class->add_method(
                         
                         #print "accessing attribute $meth_name\n";
                         
-                        # XXX What should it be
+                        # XXX this should come from the Pad, at compile-time !!!
                         our $_MODIFIED;
                         # XXX - when is the right time to initialize attributes?
                         $_[0]{_value}{$meth_name} = 
@@ -309,15 +303,14 @@ $meta_Class->add_method(
     'new',
     ::DISPATCH( $::Method, 'new', 
         sub {
-            #print "Calling Class.new from @{[ caller ]} \n";
-            # new Class( $prototype_container, $prototype_container_name, $meta_container, $meta_container_name, $class_name )
+            # new Class( $class_name )
             my $meta_class = $_[0];
             my $class_name = ref( $_[1] ) ? $_[1]{_value} : $_[1];
             my $self_meta = sugar {
                       %::PROTO,
                       _isa => [$meta_Class],
                       _value => {
-                          class_name => $class_name,
+                          class_name => $class_name,   # XXX should be ::Str
                       },
                 };
             my $proto = sugar {
@@ -333,16 +326,10 @@ $meta_Class->add_method(
 );
 $::Class = sugar {
     %::PROTO,
-
-      # _name     => '$::Class',
       _isa => [$meta_Class],
 };
-
-#print "CLASS = ",Dumper($meta_Class);
-
 push @{ $meta_Method->{_isa} }, $meta_Class;
 push @{ $meta_Object->{_isa} }, $meta_Class;
-
 #push @{$meta_Class->{_isa}}, $meta_Object;
 
 #--- Roles
@@ -358,7 +345,6 @@ $meta_Role->{_value}{methods} = { %{ $meta_Class->{_value}{methods} } };
 my $meta_Value = ::DISPATCH( $::Class, 'new', "Value");
 $::Value = $meta_Value->PROTOTYPE();
 $meta_Value->add_method( 'p5landish', ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value} } ) );
-
 $meta_Value->add_method(
     'say',
     ::DISPATCH( $::Method, 'new', 
@@ -397,7 +383,6 @@ $meta_Str->add_method(
         }
     )
 );
-# $meta_Str->add_method( 'p5landish', ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value} } ) );
 
 my $meta_Int = ::DISPATCH( $::Class, 'new', "Int");
 $::Int = $meta_Int->PROTOTYPE();
@@ -408,10 +393,8 @@ $meta_Int->add_method( 'str',
     ::DISPATCH( $::Method, 'new',  sub { my $v = $::Str->new( $_[0]{_value} ) } ) );
 $meta_Int->add_method( 'true',
     ::DISPATCH( $::Method, 'new',  sub { $::Bit->new( $_[0]{_value} == 0 ? 0 : 1 ) } ) );
-# $meta_Int->add_method( 'p5landish', ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value} } ) );
 
 my $meta_Bit = ::DISPATCH( $::Class, 'new', "Bit");
-
 $::Bit = $meta_Bit->PROTOTYPE();
 $meta_Bit->add_parent($meta_Value);
 $meta_Bit->add_method(
@@ -422,10 +405,8 @@ $meta_Bit->add_method(
 );
 $meta_Bit->add_method( 'str',
     ::DISPATCH( $::Method, 'new',  sub { my $v = $::Str->new( $_[0]{_value} ) } ) );
-
 $meta_Bit->add_method( 'true',
     ::DISPATCH( $::Method, 'new',  sub { $::Bit->new( $_[0]{_value} ) } ) );
-# $meta_Bit->add_method( 'p5landish', ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value} } ) );
 
 #--- finish Object
 
@@ -470,11 +451,7 @@ $meta_Object->add_method(
                     ::DISPATCH( $::Str, 'new', 'Str' ) 
                  )->{_value} 
             ) {
-                # Str
-                #print "Now testing object: $obj->{_value}\n";
-                # $obj = eval '$::' . $obj->{_value};
-                # print ::DISPATCH( $obj, "str" )->{_value},"\n";
-                
+                # Str                
                 # the call to .str is needed in order to stringify the ::Str prototype
                 $obj = eval '$::' . ::DISPATCH( $obj, "str" )->{_value};
             }
@@ -484,8 +461,6 @@ $meta_Object->add_method(
                  )->{_value} 
             ) {
                 # Subset
-                #print "Testing Subset\n";
-                #print "type: @{[ %{$obj->{_value}} ]} \n";
                 my $base_class = $obj->{_value}{base_class};
                 my $block      = $obj->{_value}{block};
                 my $does = ::DISPATCH( $self, 'does', $base_class );
@@ -498,21 +473,15 @@ $meta_Object->add_method(
                     ( $block->( $self )->{_value} ? 1 : 0 )
                 );
 
-                #return ::DISPATCH( $::Bit, 'new', 
-                #    ::DISPATCH( $block, 'APPLY', $self )
-                #);
             }
             #print "Testing not-Subset\n";
             $obj = ::DISPATCH( $obj, 'str' );   # Proto or Str  XXX
-            #print "Class == ", $obj->{_value},"\n";
             return ::DISPATCH( $::Bit, 'new', 1 )
                 if exists( $self->{_roles}{ $obj->{_value} } );
             return ::DISPATCH( $self, 'isa', $obj );
         }
     )
 );
-
-# implement Object.str
 $meta_Object->add_method(
     'str',
     ::DISPATCH( $::Method, 'new', 
@@ -522,8 +491,6 @@ $meta_Object->add_method(
         }
     )
 );
-
-# implement Object.int
 $meta_Object->add_method(
     'int',
     ::DISPATCH( $::Method, 'new', 
@@ -532,8 +499,6 @@ $meta_Object->add_method(
         }
     )
 );
-
-# implement Object.defined
 $meta_Object->add_method(
     'defined',
     ::DISPATCH( $::Method, 'new', 
@@ -713,15 +678,6 @@ $GLOBAL::Code_VAR_defined = ::DISPATCH( $::Code, 'new',
 
 
 require KindaPerl6::Runtime::Perl6::Pair;
-
-=for 'Pair' bootstrap - do not delete until the image gets more stable!
-    my $meta_Pair = ::DISPATCH( $::Class, 'new', "Pair");
-    $::Pair = $meta_Pair->PROTOTYPE();
-    $meta_Pair->add_parent($meta_Value);
-    $meta_Pair->add_attribute( 'key' ); 
-    $meta_Pair->add_attribute( 'value' );  
-=cut
-
 
 
 my $Hash_Cell = make_class(name=>"HashCell",parent=>[$meta_Container],methods=>{
