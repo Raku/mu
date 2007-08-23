@@ -636,13 +636,19 @@ token sub {
     { 
         my $env := @COMPILER::PAD[0];
         COMPILER::drop_pad();
+        my $block := $$<exp_stmts>;
+        KindaPerl6::Grammar::declare_parameters(
+            $env,
+            $block,
+            $$<method_sig>,
+        );    
         return ::Sub( 
             'name'  => $$<opt_name>, 
             'block' => ::Lit::Code(
                 pad   => $env,
                 state => { },
                 sig   => $$<method_sig>,
-                body  => $$<exp_stmts>,
+                body  => $block,
             ),
         );
     }

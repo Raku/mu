@@ -117,9 +117,6 @@ class Lit::Code {
     method emit_perl5 {
         self.emit_declarations ~ self.emit_body;
     };
-    method emit_with_arguments_perl5 {
-        self.emit_declarations ~ self.emit_arguments ~ self.emit_body;
-    };
     method emit_body {
         return (@.body.>>emit_perl5).join('; ');
     };
@@ -142,11 +139,6 @@ class Lit::Code {
     method emit_arguments {
         my $array_ := ::Var( sigil => '@', twigil => '', name => '_' );
         my $str := '';
-        if ($.sig.invocant) {
-            $str := $str ~ '$self = shift; ';
-        } else {
-            $str := '#no invocant' ~ Main::newline();
-        }
         $str := $str ~ '$List__->{_value}{_array} = \@_;';
 
         my $i := 0;
@@ -482,7 +474,8 @@ class Subset {
 class Method {
     method emit_perl5 {
         'sub ' ~ $.name ~ ' { ' 
-          ~ $.block.emit_with_arguments_perl5
+          ~ $.block.emit_declarations ~ '$self = shift; ' ~ $.block.emit_arguments 
+          ~ $.block.emit_body
           ~ ' }'
     }
 }
@@ -491,7 +484,8 @@ class Sub {
     method emit_perl5 {
           '::DISPATCH( $::Code, \'new\', { '
         ~   'code => sub { '  
-        ~      $.block.emit_perl5  
+        ~ $.block.emit_declarations ~ $.block.emit_arguments 
+        ~ $.block.emit_body
         ~    ' }'
         ~ ' } )'
     }

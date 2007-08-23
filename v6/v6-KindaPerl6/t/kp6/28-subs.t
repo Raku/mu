@@ -3,14 +3,14 @@ class Main {
         if ($a == $b) {
             say "ok";
         } else {
-            say "not ok";
+            say "not ok # "~$a~" != "~$b;;
         }
     };
     sub gets_arg($arg) {
         if ($arg == 7) {
             say "ok";
         } else {
-            say "not ok";
+            say "not ok #$arg != 7 $arg="~$arg;
         }
     };
     my sub f($nr) {
