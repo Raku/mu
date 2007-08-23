@@ -335,8 +335,9 @@ class For {
         if   $cond.isa( 'Var' ) 
           && $cond.sigil eq '@' 
         {
-            $cond := ::Apply( code => 'prefix:<@>', arguments => [ $cond ] );
-        };
+        } else {
+            $cond := ::Apply( code => ::Var(sigil=>'&',twigil=>'',name=>'prefix:<@>'), arguments => [$cond] );
+        }
         'do { for my ' ~ $.topic.emit_perl5 
             ~ ' ( @{ ' ~ $cond.emit_perl5 ~ '->{_value}{_array} } )'
             ~ ' { ' 
