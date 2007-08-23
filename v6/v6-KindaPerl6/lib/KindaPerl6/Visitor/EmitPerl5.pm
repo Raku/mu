@@ -118,16 +118,10 @@ class Lit::Code {
         self.emit_declarations ~ self.emit_body;
     };
     method emit_body {
-        return (@.body.>>emit_perl5).join('; ');
+        (@.body.>>emit_perl5).join('; ');
     };
     method emit_signature {
-        # XXX placeholder
-          '::DISPATCH( $::Signature, \'new\', { '
-        ~     'invocant => undef, '
-        ~     'array    => [ ], '
-        ~     'hash     => { }, '
-        ~     'return   => undef, '
-        ~ '} )'
+        $.sig.emit_perl5
     };
     method emit_declarations {
         my $s;
@@ -439,8 +433,16 @@ class Decl {
 
 class Sig {
     method emit_perl5 {
-          '::DISPATCH( $::Signature, \'new\', { '
-                    # ...
+        # XXX placeholder
+        my $pos;
+        for @($.positional) -> $decl {
+            $pos := $pos ~ $decl.perl ~ ', ';
+        };
+          '::DISPATCH( $::Signature, "new", { '
+        ~     'invocant => ' ~ $.invocant.perl ~ ', '
+        ~     'array    => [ ' ~ $pos ~ ' ], '
+        ~     'hash     => { }, '
+        ~     'return   => undef, '
         ~ '} )'
     };
 }
