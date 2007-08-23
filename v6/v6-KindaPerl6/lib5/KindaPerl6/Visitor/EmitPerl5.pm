@@ -65,7 +65,7 @@ package Subset; sub new { shift; bless { @_ }, "Subset" } sub emit_perl5 { my $s
 ;
 package Method; sub new { shift; bless { @_ }, "Method" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('sub ' . ($self->{name} . (' { ' . ($self->{block}->emit_declarations() . ('$self = shift; ' . ($self->{block}->emit_arguments() . ($self->{block}->emit_body() . ' }'))))))) }
 ;
-package Sub; sub new { shift; bless { @_ }, "Sub" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Code, \'new\', { ' . ('code => sub { ' . ($self->{block}->emit_declarations() . ($self->{block}->emit_arguments() . ($self->{block}->emit_body() . (' }' . ' } )')))))) }
+package Sub; sub new { shift; bless { @_ }, "Sub" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Code, \'new\', { ' . ('code => sub { ' . ($self->{block}->emit_declarations() . ($self->{block}->emit_arguments() . ($self->{block}->emit_body() . (' }, ' . ('signature => ' . ('::DISPATCH( $::Signature, \'new\', { ' . ('} ), ' . ' } )'))))))))) }
 ;
 package Do; sub new { shift; bless { @_ }, "Do" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('do { ' . ($self->{block}->emit_perl5() . ' }')) }
 ;

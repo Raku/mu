@@ -3,6 +3,7 @@ class Signature is Value {
     has $.invocant;
     has $.array;
     has $.hash;
+    has $.return;  # ???
 
     # TODO ...
     method perl {

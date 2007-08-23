@@ -788,8 +788,9 @@ $::Array = make_class(name=>"Array",parent=>[$meta_Value],methods=>{
 });
 
 require KindaPerl6::Runtime::Perl6::Array;
-
 require KindaPerl6::Runtime::Perl6::Capture;
+require KindaPerl6::Runtime::Perl6::Signature;
+require KindaPerl6::Runtime::Perl6::Match;
 
 1;
 

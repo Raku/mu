@@ -62,6 +62,11 @@
     );
     ::DISPATCH(
         ::DISPATCH( $::Signature, 'HOW', ),
+        'add_attribute',
+        ::DISPATCH( $::Str, 'new', 'return' )
+    );
+    ::DISPATCH(
+        ::DISPATCH( $::Signature, 'HOW', ),
         'add_method',
         ::DISPATCH( $::Str, 'new', 'perl' ),
         ::DISPATCH(

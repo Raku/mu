@@ -3,9 +3,6 @@ use v6-alpha;
 
 module Main {
 
-    # XXX - Prelude loading should be automatic
-    use KindaPerl6::Runtime::Perl6::Prelude;
-
     say '1..1';
     
     my $m = Capture.new; 

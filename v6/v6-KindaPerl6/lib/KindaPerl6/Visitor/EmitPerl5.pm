@@ -486,7 +486,11 @@ class Sub {
         ~   'code => sub { '  
         ~ $.block.emit_declarations ~ $.block.emit_arguments 
         ~ $.block.emit_body
-        ~    ' }'
+        ~    ' }, '
+        ~   'signature => '  
+        ~       '::DISPATCH( $::Signature, \'new\', { '
+                    # ...
+        ~       '} ), '
         ~ ' } )'
     }
 }
