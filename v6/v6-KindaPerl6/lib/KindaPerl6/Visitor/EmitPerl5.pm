@@ -115,7 +115,10 @@ class Lit::Pair {
 
 class Lit::Code {
     method emit_perl5 {
-        self.emit_declarations ~ self.emit_body
+        self.emit_declarations ~ self.emit_body;
+    };
+    method emit_with_arguments_perl5 {
+        self.emit_declarations ~ self.emit_arguments ~ self.emit_body;
     };
     method emit_body {
         return (@.body.>>emit_perl5).join('; ');
@@ -135,6 +138,25 @@ class Lit::Code {
             $s := $s ~ $name.emit_perl5 ~ '; ';
         };
         return $s;
+    };
+    method emit_arguments {
+        my $array_ := ::Var( sigil => '@', twigil => '', name => '_' );
+        my $str := '';
+        if ($.sig.invocant) {
+            $str := $str ~ '$self = shift; ';
+        } else {
+            $str := '#no invocant' ~ Main::newline();
+        }
+        $str := $str ~ '$List__->{_value}{_array} = \@_;';
+
+        my $i := 0;
+        for @($.sig.positional) -> $field { 
+            my $bind := ::Bind(parameters=>$field,arguments=>::Index(obj=> $array_ , 'index'=>::Val::Int(int=>$i)) );
+            $str := $str ~ $bind.emit_perl5 ~ ';';
+            $i := $i + 1;
+        };
+
+        return $str;
     };
 }
 
@@ -459,29 +481,14 @@ class Subset {
 
 class Method {
     method emit_perl5 {
-        my $sig := $.block.sig;
-        my $invocant := $sig.invocant; 
-        my $pos := $sig.positional;
-        my $array_ := ::Var( sigil => '@', twigil => '', name => '_' );
-        my $str := '$self = shift; '
-                 ~ '$List__->{_value}{_array} = \@_;';
-        my $i := 0;
-        for @$pos -> $field { 
-            my $bind := ::Bind(parameters=>$field,arguments=>::Index(obj=> $array_ , 'index'=>::Val::Int(int=>$i)) );
-            $str := $str ~ $bind.emit_perl5 ~ ';';
-            $i := $i + 1;
-        };
         'sub ' ~ $.name ~ ' { ' 
-          ~ $.block.emit_declarations 
-          ~ $str 
-          ~ $.block.emit_body
+          ~ $.block.emit_with_arguments_perl5
           ~ ' }'
     }
 }
 
 class Sub {
     method emit_perl5 {
-        # TODO - Argument handling like in Method
           '::DISPATCH( $::Code, \'new\', { '
         ~   'code => sub { '  
         ~      $.block.emit_perl5  
