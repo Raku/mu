@@ -120,6 +120,15 @@ class Lit::Code {
     method emit_body {
         return (@.body.>>emit_perl5).join('; ');
     };
+    method emit_signature {
+        # XXX placeholder
+          '::DISPATCH( $::Signature, \'new\', { '
+        ~     'invocant => undef, '
+        ~     'array    => [ ], '
+        ~     'hash     => { }, '
+        ~     'return   => undef, '
+        ~ '} )'
+    };
     method emit_declarations {
         my $s;
         for @($.pad.variable_names) -> $name {
@@ -429,7 +438,9 @@ class Decl {
 
 class Sig {
     method emit_perl5 {
-        ' print \'Signature - TODO\'; die \'Signature - TODO\'; '
+          '::DISPATCH( $::Signature, \'new\', { '
+                    # ...
+        ~ '} )'
     };
 }
 
@@ -474,8 +485,10 @@ class Subset {
 class Method {
     method emit_perl5 {
         'sub ' ~ $.name ~ ' { ' 
-          ~ $.block.emit_declarations ~ '$self = shift; ' ~ $.block.emit_arguments 
-          ~ $.block.emit_body
+          ~     $.block.emit_declarations 
+          ~     '$self = shift; ' 
+          ~     $.block.emit_arguments 
+          ~     $.block.emit_body
           ~ ' }'
     }
 }
@@ -484,13 +497,13 @@ class Sub {
     method emit_perl5 {
           '::DISPATCH( $::Code, \'new\', { '
         ~   'code => sub { '  
-        ~ $.block.emit_declarations ~ $.block.emit_arguments 
-        ~ $.block.emit_body
+        ~       $.block.emit_declarations 
+        ~       $.block.emit_arguments 
+        ~       $.block.emit_body
         ~    ' }, '
-        ~   'signature => '  
-        ~       '::DISPATCH( $::Signature, \'new\', { '
-                    # ...
-        ~       '} ), '
+        ~   'signature => ' 
+        ~       $.block.emit_signature
+        ~    ', '
         ~ ' } )'
     }
 }
