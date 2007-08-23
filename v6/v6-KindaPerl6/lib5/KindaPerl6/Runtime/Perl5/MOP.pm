@@ -532,6 +532,8 @@ $meta_Code->add_method( 'perl',
     ::DISPATCH( $::Method, 'new',  sub { my $v = $::Str->new( $_[0]{_value}{src} ) } ) );
 $meta_Code->add_method( 'APPLY',
     ::DISPATCH( $::Method, 'new',  sub { my $self = shift; $self->{_value}{code}->(@_) } ) );
+$meta_Code->add_method( 'signature',
+    ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value}{signature} } ) );
 
 
 #--- Subset 

@@ -211,6 +211,14 @@ class Var {
         
         return Main::mangle_name( $.sigil, $.twigil, $.name ); 
     };
+    method perl {
+        # this is used by the signature emitter
+          '::DISPATCH( $::Signature::Item, "new", { ' 
+        ~     'sigil  => \'' ~ $.sigil  ~ '\', '
+        ~     'twigil => \'' ~ $.twigil ~ '\', '
+        ~     'name   => \'' ~ $.name   ~ '\', '
+        ~ '} )'
+    }
 }
 
 class Bind {
@@ -433,15 +441,17 @@ class Decl {
 
 class Sig {
     method emit_perl5 {
-        # XXX placeholder
         my $pos;
         for @($.positional) -> $decl {
             $pos := $pos ~ $decl.perl ~ ', ';
         };
+
+        my $named := '';  # TODO
+
           '::DISPATCH( $::Signature, "new", { '
         ~     'invocant => ' ~ $.invocant.perl ~ ', '
-        ~     'array    => [ ' ~ $pos ~ ' ], '
-        ~     'hash     => { }, '
+        ~     'array    => ::DISPATCH( $::Array, "new", { _array => [ ' ~ $pos   ~ ' ] } ), '
+        ~     'hash     => ::DISPATCH( $::Hash,  "new", { _hash  => { ' ~ $named ~ ' } } ), '
         ~     'return   => undef, '
         ~ '} )'
     };
