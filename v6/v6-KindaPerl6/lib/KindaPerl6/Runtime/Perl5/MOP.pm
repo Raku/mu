@@ -2,6 +2,7 @@
 use v5;
 use strict 'vars';
 
+# Usage:
 # my $meth = ::DISPATCH( $::Method, 'new', sub { 'hi' } );
 # my $obj =  ::DISPATCH( $::Object, 'new', $candidate );
 
@@ -10,20 +11,18 @@ use KindaPerl6::Runtime::Perl5::DispatchSugar;
 use Data::Dumper;
 use Carp qw(confess);
 
-#print "# Initializing MOP.pm\n";
+=for some possible later use
+    {
+        package P6opaque;
+        # This is the most minimal object system, which could be used by the high-level implementation
 
-{
-
-    package P6opaque;
-
-    my $methods  = {};
-    my $dispatch = sub {
-
-        # $self, $method
-
-    };
-    $methods->{new} = sub { my $v = sugar { _dispatch => $dispatch, $_[0]{_value} } };
-}
+        my $methods  = {};
+        my $dispatch = sub {
+            # $self, $method
+        };
+        $methods->{new} = sub { my $v = sugar { _dispatch => $dispatch, $_[0]{_value} } };
+    }
+=cut
 
 sub ::DISPATCH {
     my $invocant = shift;

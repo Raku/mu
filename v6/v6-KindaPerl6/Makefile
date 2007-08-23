@@ -1,4 +1,4 @@
-OBJ = $(patsubst lib/%,lib5/%,$(wildcard lib/KindaPerl6/Grammar/*.pm lib/KindaPerl6/Grammar.pm lib/KindaPerl6/Traverse.pm lib/KindaPerl6/Visitor/*.pm lib/KindaPerl6/Runtime/Perl5/*.pm lib/KindaPerl6/Runtime/Perl6/Prelude.pm lib/KindaPerl6/Runtime/Perl6/Pair.pm lib/KindaPerl6/Runtime/Perl6/Hash.pm lib/KindaPerl6/Runtime/Perl6/Array.pm lib/KindaPerl6/Runtime/Perl6/Capture.pm))
+OBJ = $(patsubst lib/%,lib5/%,$(wildcard lib/KindaPerl6/Grammar/*.pm lib/KindaPerl6/Grammar.pm lib/KindaPerl6/Traverse.pm lib/KindaPerl6/Visitor/*.pm lib/KindaPerl6/Runtime/Perl5/*.pm lib/KindaPerl6/Runtime/Perl6/*.pm ))
 all: $(OBJ)
 
 lib5/KindaPerl6/Runtime/Perl6/%.pm: lib/KindaPerl6/Runtime/Perl6/%.pm
