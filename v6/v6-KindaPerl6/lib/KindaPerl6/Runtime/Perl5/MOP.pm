@@ -309,48 +309,24 @@ $meta_Class->add_method(
     'new',
     ::DISPATCH( $::Method, 'new', 
         sub {
-
-#print "Calling Class.new from @{[ caller ]} \n";
-# new Class( $prototype_container, $prototype_container_name, $meta_container, $meta_container_name, $class_name )
-
+            #print "Calling Class.new from @{[ caller ]} \n";
+            # new Class( $prototype_container, $prototype_container_name, $meta_container, $meta_container_name, $class_name )
             my $meta_class = $_[0];
-
             my $class_name = ref( $_[1] ) ? $_[1]{_value} : $_[1];
-
-
             my $self_meta = sugar {
-                %::PROTO,
-
-                  _value => {
-
-                    class_name => $class_name,
-                  },
-                  _isa => [$meta_Class],
-            };
-            #XXX: what should it be
-            our $self;
-            $self_meta->{_value}{methods}{WHAT} = ::DISPATCH( $::Method, 'new', 
-                sub {
-
-                    # $self;
-
-                    $self = sugar {
+                      %::PROTO,
+                      _isa => [$meta_Class],
+                      _value => {
+                          class_name => $class_name,
+                      },
+                };
+            my $proto = sugar {
                       %::PROTO,
                       _isa => [$self_meta],
-                    }
-                }
-            );
-            $self_meta->{_value}{methods}{HOW} =
-              ::DISPATCH( $::Method, 'new',  sub { $self_meta } );
-
-            $self_meta->{_methods}{PROTOTYPE} =
-              ::DISPATCH( $::Method, 'new',  sub {  
-                $self = sugar {
-                  %::PROTO,
-                  _isa => [$self_meta],
-                }
-            });
-
+                };
+            $self_meta->{_value}{methods}{WHAT} = ::DISPATCH( $::Method, 'new', sub { $proto } );
+            $self_meta->{_value}{methods}{HOW}  = ::DISPATCH( $::Method, 'new', sub { $self_meta } );
+            $self_meta->{_methods}{PROTOTYPE}   = ::DISPATCH( $::Method, 'new', sub { $proto } );
             $self_meta;
         }
     )
