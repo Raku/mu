@@ -28,13 +28,16 @@
         {
         }
         else {
-            ::MODIFIED($::Match);
-            $::Match = ::DISPATCH(
-                ::DISPATCH(
-                    $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Match' )
-                ),
-                'PROTOTYPE',
-            );
+            do {
+                ::MODIFIED($::Match);
+                $::Match = ::DISPATCH(
+                    ::DISPATCH(
+                        $::Class, 'new',
+                        ::DISPATCH( $::Str, 'new', 'Match' )
+                    ),
+                    'PROTOTYPE',
+                );
+              }
         }
     };
     ::DISPATCH(

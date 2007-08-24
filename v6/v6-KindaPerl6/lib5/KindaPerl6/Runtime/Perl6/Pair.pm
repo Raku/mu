@@ -28,12 +28,16 @@
         {
         }
         else {
-            $::Pair = ::DISPATCH(
-                ::DISPATCH(
-                    $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Pair' )
-                ),
-                'PROTOTYPE',
-            );
+            do {
+                ::MODIFIED($::Pair);
+                $::Pair = ::DISPATCH(
+                    ::DISPATCH(
+                        $::Class, 'new',
+                        ::DISPATCH( $::Str, 'new', 'Pair' )
+                    ),
+                    'PROTOTYPE',
+                );
+              }
         }
     };
     ::DISPATCH(
@@ -59,8 +63,22 @@
             $::Method,
             'new',
             sub {
-                my $self   = shift;
-                my $List__ = \@_;
+                my $List__ =
+                  ::DISPATCH( $::Array, 'new',
+                    { modified => $_MODIFIED, name => '$List__' } );
+                my $self;
+                $self =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$self' } )
+                  unless defined $self;
+
+                BEGIN {
+                    $self =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$self' } );
+                }
+                $self = shift;
+                $List__->{_value}{_array} = \@_;
                 ::DISPATCH(
                     $GLOBAL::Code_infix_58__60__126__62_,
                     'APPLY',
@@ -95,8 +113,22 @@
             $::Method,
             'new',
             sub {
-                my $self   = shift;
-                my $List__ = \@_;
+                my $List__ =
+                  ::DISPATCH( $::Array, 'new',
+                    { modified => $_MODIFIED, name => '$List__' } );
+                my $self;
+                $self =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$self' } )
+                  unless defined $self;
+
+                BEGIN {
+                    $self =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$self' } );
+                }
+                $self = shift;
+                $List__->{_value}{_array} = \@_;
                 ::DISPATCH(
                     $GLOBAL::Code_infix_58__60__126__62_,
                     'APPLY',
@@ -119,8 +151,22 @@
             $::Method,
             'new',
             sub {
-                my $self   = shift;
-                my $List__ = \@_;
+                my $List__ =
+                  ::DISPATCH( $::Array, 'new',
+                    { modified => $_MODIFIED, name => '$List__' } );
+                my $self;
+                $self =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$self' } )
+                  unless defined $self;
+
+                BEGIN {
+                    $self =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$self' } );
+                }
+                $self = shift;
+                $List__->{_value}{_array} = \@_;
                 ::DISPATCH( $GLOBAL::Code_true, 'APPLY', );
             }
         )
@@ -133,8 +179,22 @@
             $::Method,
             'new',
             sub {
-                my $self   = shift;
-                my $List__ = \@_;
+                my $List__ =
+                  ::DISPATCH( $::Array, 'new',
+                    { modified => $_MODIFIED, name => '$List__' } );
+                my $self;
+                $self =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$self' } )
+                  unless defined $self;
+
+                BEGIN {
+                    $self =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$self' } );
+                }
+                $self = shift;
+                $List__->{_value}{_array} = \@_;
                 ::DISPATCH( ::DISPATCH( $self, "value" ), 'int', );
             }
         )

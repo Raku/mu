@@ -31,14 +31,16 @@
         {
         }
         else {
-            ::MODIFIED($::Signature::Item);
-            $::Signature::Item = ::DISPATCH(
-                ::DISPATCH(
-                    $::Class, 'new',
-                    ::DISPATCH( $::Str, 'new', 'Signature::Item' )
-                ),
-                'PROTOTYPE',
-            );
+            do {
+                ::MODIFIED($::Signature::Item);
+                $::Signature::Item = ::DISPATCH(
+                    ::DISPATCH(
+                        $::Class, 'new',
+                        ::DISPATCH( $::Str, 'new', 'Signature::Item' )
+                    ),
+                    'PROTOTYPE',
+                );
+              }
         }
     };
     ::DISPATCH(
@@ -129,14 +131,16 @@
         {
         }
         else {
-            ::MODIFIED($::Signature);
-            $::Signature = ::DISPATCH(
-                ::DISPATCH(
-                    $::Class, 'new',
-                    ::DISPATCH( $::Str, 'new', 'Signature' )
-                ),
-                'PROTOTYPE',
-            );
+            do {
+                ::MODIFIED($::Signature);
+                $::Signature = ::DISPATCH(
+                    ::DISPATCH(
+                        $::Class, 'new',
+                        ::DISPATCH( $::Str, 'new', 'Signature' )
+                    ),
+                    'PROTOTYPE',
+                );
+              }
         }
     };
     ::DISPATCH(

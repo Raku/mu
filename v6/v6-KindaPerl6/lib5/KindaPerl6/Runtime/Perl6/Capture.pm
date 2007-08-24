@@ -30,12 +30,16 @@
         {
         }
         else {
-            $::Capture = ::DISPATCH(
-                ::DISPATCH(
-                    $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Capture' )
-                ),
-                'PROTOTYPE',
-            );
+            do {
+                ::MODIFIED($::Capture);
+                $::Capture = ::DISPATCH(
+                    ::DISPATCH(
+                        $::Class, 'new',
+                        ::DISPATCH( $::Str, 'new', 'Capture' )
+                    ),
+                    'PROTOTYPE',
+                );
+              }
         }
     };
     ::DISPATCH(
@@ -66,10 +70,21 @@
             $::Method,
             'new',
             sub {
-                my $self = shift;
                 my $List__ =
                   ::DISPATCH( $::Array, 'new',
                     { modified => $_MODIFIED, name => '$List__' } );
+                my $self;
+                $self =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$self' } )
+                  unless defined $self;
+
+                BEGIN {
+                    $self =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$self' } );
+                }
+                $self = shift;
                 $List__->{_value}{_array} = \@_;
                 ::DISPATCH(
                     $GLOBAL::Code_infix_58__60__126__62_,
@@ -135,10 +150,21 @@
             $::Method,
             'new',
             sub {
-                my $self = shift;
                 my $List__ =
                   ::DISPATCH( $::Array, 'new',
                     { modified => $_MODIFIED, name => '$List__' } );
+                my $self;
+                $self =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$self' } )
+                  unless defined $self;
+
+                BEGIN {
+                    $self =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$self' } );
+                }
+                $self = shift;
                 $List__->{_value}{_array} = \@_;
                 ::DISPATCH( $self, 'perl', );
             }

@@ -28,13 +28,16 @@
         {
         }
         else {
-            ::MODIFIED($::Multi);
-            $::Multi = ::DISPATCH(
-                ::DISPATCH(
-                    $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Multi' )
-                ),
-                'PROTOTYPE',
-            );
+            do {
+                ::MODIFIED($::Multi);
+                $::Multi = ::DISPATCH(
+                    ::DISPATCH(
+                        $::Class, 'new',
+                        ::DISPATCH( $::Str, 'new', 'Multi' )
+                    ),
+                    'PROTOTYPE',
+                );
+              }
         }
     };
     ::DISPATCH(

@@ -319,12 +319,37 @@
                             },
                             signature => ::DISPATCH(
                                 $::Signature,
-                                'new',
+                                "new",
                                 {
-                                    invocant => undef,
-                                    array    => [],
-                                    hash     => {},
-                                    return   => undef,
+                                    invocant => ::DISPATCH(
+                                        $::Signature::Item,
+                                        "new",
+                                        {
+                                            sigil  => '$',
+                                            twigil => '',
+                                            name   => 'self',
+                                        }
+                                    ),
+                                    array => ::DISPATCH(
+                                        $::Array, "new",
+                                        {
+                                            _array => [
+                                                ::DISPATCH(
+                                                    $::Signature::Item,
+                                                    "new",
+                                                    {
+                                                        sigil  => '$',
+                                                        twigil => '',
+                                                        name   => 'pair',
+                                                    }
+                                                ),
+                                            ]
+                                        }
+                                    ),
+                                    hash => ::DISPATCH(
+                                        $::Hash, "new", { _hash => {} }
+                                    ),
+                                    return => undef,
                                 }
                             ),
                         }
@@ -424,12 +449,37 @@
                             },
                             signature => ::DISPATCH(
                                 $::Signature,
-                                'new',
+                                "new",
                                 {
-                                    invocant => undef,
-                                    array    => [],
-                                    hash     => {},
-                                    return   => undef,
+                                    invocant => ::DISPATCH(
+                                        $::Signature::Item,
+                                        "new",
+                                        {
+                                            sigil  => '$',
+                                            twigil => '',
+                                            name   => 'self',
+                                        }
+                                    ),
+                                    array => ::DISPATCH(
+                                        $::Array, "new",
+                                        {
+                                            _array => [
+                                                ::DISPATCH(
+                                                    $::Signature::Item,
+                                                    "new",
+                                                    {
+                                                        sigil  => '$',
+                                                        twigil => '',
+                                                        name   => 'pair',
+                                                    }
+                                                ),
+                                            ]
+                                        }
+                                    ),
+                                    hash => ::DISPATCH(
+                                        $::Hash, "new", { _hash => {} }
+                                    ),
+                                    return => undef,
                                 }
                             ),
                         }
