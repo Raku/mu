@@ -250,21 +250,36 @@
                 $v;
                 ::DISPATCH_VAR( $s, 'STORE',
                     ::DISPATCH( $::Str, 'new', ':( ' ) );
-                ::DISPATCH_VAR(
-                    $s, 'STORE',
-                    ::DISPATCH(
-                        $GLOBAL::Code_infix_58__60__126__62_,
-                        'APPLY', $s,
+                do {
+                    if (
                         ::DISPATCH(
-                            $GLOBAL::Code_infix_58__60__126__62_,
-                            'APPLY',
                             ::DISPATCH(
-                                ::DISPATCH( $self, "invocant" ), 'perl',
+                                ::DISPATCH(
+                                    ::DISPATCH( $self, "invocant" ), 'defined',
+                                ),
+                                "true"
                             ),
-                            ::DISPATCH( $::Str, 'new', ': ' )
+                            "p5landish"
                         )
-                    )
-                );
+                      )
+                    {
+                        ::DISPATCH_VAR(
+                            $s, 'STORE',
+                            ::DISPATCH(
+                                $GLOBAL::Code_infix_58__60__126__62_,
+                                'APPLY', $s,
+                                ::DISPATCH(
+                                    $GLOBAL::Code_infix_58__60__126__62_,
+                                    'APPLY',
+                                    ::DISPATCH(
+                                        ::DISPATCH( $self, "invocant" ), 'perl',
+                                    ),
+                                    ::DISPATCH( $::Str, 'new', ': ' )
+                                )
+                            )
+                        );
+                    }
+                };
                 do {
                     for my $v (
                         @{ ::DISPATCH( $self, "array" )->{_value}{_array} } )

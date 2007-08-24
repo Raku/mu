@@ -4,7 +4,10 @@ class Capture is Value {
     has $.array;
     has $.hash;
 
-    # TODO ...
+    method arity {
+        # ??? how about optionals
+        @.array.elems + $.hash.elems;
+    };
     method perl {
               '\\( ' 
             ~ $.invocant.perl ~ ': ' 

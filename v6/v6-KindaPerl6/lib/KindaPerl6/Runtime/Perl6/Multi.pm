@@ -10,6 +10,16 @@ class Multi is Code {
         #        .array
         #        .hash
         
+        my $candidates;
+        my $sub; # XXX 
+        for @( $.long_names ) -> $sub {
+            if ($sub.signature).arity == ((@_[0]).signature).arity {
+                push @($candidates), $sub;
+            };
+        };
+        
+        say $candidates.elems, ' subs matched the arity';
+        
     }
 }
 

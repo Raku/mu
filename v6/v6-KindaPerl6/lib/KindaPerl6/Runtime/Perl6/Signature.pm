@@ -24,8 +24,9 @@ class Signature is Value {
         my $v;   # XXX kp6 ast processor bug
         my $s = ':( ';
         
-        # XXX - subs don't have an invocant
-        $s = $s ~ $.invocant.perl ~ ': ';
+        if $.invocant.defined {
+            $s = $s ~ $.invocant.perl ~ ': ';
+        };
         
         for @.array -> $v { 
             $s = $s ~ $v.perl ~ ', ';

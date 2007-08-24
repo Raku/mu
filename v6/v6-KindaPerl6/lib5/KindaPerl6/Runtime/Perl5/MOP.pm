@@ -520,9 +520,10 @@ $meta_Object->add_method( 'STORE', $method_readonly );
 #--- back to Value
 
 $::Undef = make_class(name=>"Undef",parents=>[$meta_Value],methods=>{
-    perl => sub { ::DISPATCH($::Str,'new','undef') },
-    str  => sub { ::DISPATCH($::Str,'new','') },
-    true => sub { ::DISPATCH($::Bit,'new',0) },
+    perl    => sub { ::DISPATCH($::Str,'new','undef') },
+    str     => sub { ::DISPATCH($::Str,'new','') },
+    true    => sub { ::DISPATCH($::Bit,'new',0) },
+    defined => sub { ::DISPATCH($::Bit,'new',0) },
 });
 
 my $meta_Code = ::DISPATCH( $::Class, 'new', "Code");

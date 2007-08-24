@@ -306,7 +306,7 @@
                                 $::Signature,
                                 "new",
                                 {
-                                    invocant => '',
+                                    invocant => undef,
                                     array    => ::DISPATCH(
                                         $::Array, "new",
                                         {
@@ -413,7 +413,7 @@
                                 $::Signature,
                                 "new",
                                 {
-                                    invocant => '',
+                                    invocant => undef,
                                     array    => ::DISPATCH(
                                         $::Array, "new",
                                         {

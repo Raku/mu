@@ -441,6 +441,11 @@ class Decl {
 
 class Sig {
     method emit_perl5 {
+        my $inv := 'undef';
+        if $.invocant.isa( 'Var' ) {
+            $inv := $.invocant.perl;
+        }
+            
         my $pos;
         for @($.positional) -> $decl {
             $pos := $pos ~ $decl.perl ~ ', ';
@@ -449,7 +454,7 @@ class Sig {
         my $named := '';  # TODO
 
           '::DISPATCH( $::Signature, "new", { '
-        ~     'invocant => ' ~ $.invocant.perl ~ ', '
+        ~     'invocant => ' ~ $inv ~ ', '
         ~     'array    => ::DISPATCH( $::Array, "new", { _array => [ ' ~ $pos   ~ ' ] } ), '
         ~     'hash     => ::DISPATCH( $::Hash,  "new", { _hash  => { ' ~ $named ~ ' } } ), '
         ~     'return   => undef, '

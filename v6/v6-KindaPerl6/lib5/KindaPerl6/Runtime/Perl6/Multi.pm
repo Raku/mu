@@ -58,6 +58,28 @@
             $::Method,
             'new',
             sub {
+                my $candidates;
+                $candidates =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$candidates' } )
+                  unless defined $candidates;
+
+                BEGIN {
+                    $candidates =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$candidates' } );
+                }
+                my $sub;
+                $sub =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$sub' } )
+                  unless defined $sub;
+
+                BEGIN {
+                    $sub =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$sub' } );
+                }
                 my $List__ =
                   ::DISPATCH( $::Array, 'new',
                     { modified => $_MODIFIED, name => '$List__' } );
@@ -80,6 +102,74 @@
                     ::DISPATCH(
                         $::Str, 'new', 'oops - multis not implemented yet'
                     )
+                );
+                $candidates;
+                $sub;
+                do {
+                    for my $sub (
+                        @{ ::DISPATCH(
+                                $Code_prefix_58__60__64__62_,
+                                'APPLY',
+                                ::DISPATCH(
+                                    $GLOBAL::Code_prefix_58__60__64__62_,
+                                    'APPLY',
+                                    ::DISPATCH( $self, "long_names" )
+                                )
+                              )->{_value}{_array}
+                        }
+                      )
+                    {
+                        do {
+                            if (
+                                ::DISPATCH(
+                                    ::DISPATCH(
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_infix_58__60__61__61__62_,
+                                            'APPLY',
+                                            ::DISPATCH(
+                                                ::DISPATCH(
+                                                    $sub, 'signature',
+                                                ),
+                                                'arity',
+                                            ),
+                                            ::DISPATCH(
+                                                ::DISPATCH(
+                                                    ::DISPATCH(
+                                                        $List__, 'INDEX',
+                                                        ::DISPATCH(
+                                                            $::Int, 'new',
+                                                            0
+                                                        )
+                                                    ),
+                                                    'signature',
+                                                ),
+                                                'arity',
+                                            )
+                                        ),
+                                        "true"
+                                    ),
+                                    "p5landish"
+                                )
+                              )
+                            {
+                                ::DISPATCH(
+                                    $GLOBAL::Code_push,
+                                    'APPLY',
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_prefix_58__60__64__62_,
+                                        'APPLY', $candidates
+                                    ),
+                                    $sub
+                                );
+                            }
+                          }
+                    }
+                };
+                ::DISPATCH(
+                    $GLOBAL::Code_say,
+                    'APPLY',
+                    ::DISPATCH( $candidates, 'elems', ),
+                    ::DISPATCH( $::Str, 'new', ' subs matched the arity' )
                 );
             }
         )

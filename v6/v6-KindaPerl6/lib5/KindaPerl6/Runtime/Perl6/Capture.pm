@@ -65,6 +65,39 @@
     ::DISPATCH(
         ::DISPATCH( $::Capture, 'HOW', ),
         'add_method',
+        ::DISPATCH( $::Str, 'new', 'arity' ),
+        ::DISPATCH(
+            $::Method,
+            'new',
+            sub {
+                my $List__ =
+                  ::DISPATCH( $::Array, 'new',
+                    { modified => $_MODIFIED, name => '$List__' } );
+                my $self;
+                $self =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$self' } )
+                  unless defined $self;
+
+                BEGIN {
+                    $self =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$self' } );
+                }
+                $self = shift;
+                $List__->{_value}{_array} = \@_;
+                ::DISPATCH(
+                    $GLOBAL::Code_infix_58__60__43__62_,
+                    'APPLY',
+                    ::DISPATCH( ::DISPATCH( $self, "array" ), 'elems', ),
+                    ::DISPATCH( ::DISPATCH( $self, "hash" ),  'elems', )
+                );
+            }
+        )
+    );
+    ::DISPATCH(
+        ::DISPATCH( $::Capture, 'HOW', ),
+        'add_method',
         ::DISPATCH( $::Str, 'new', 'perl' ),
         ::DISPATCH(
             $::Method,
