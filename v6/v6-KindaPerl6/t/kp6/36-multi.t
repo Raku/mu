@@ -9,6 +9,10 @@ class Main {
         say 'not ok 2';
     };
 
+    my sub ab_3_ ($a,$b,$c) {
+        say 'ok 3';
+    };
+
     my $multi = Multi.new;
     $multi.long_names = [
         &ab_2_,
@@ -24,5 +28,8 @@ class Main {
     say '# Capture:   ', $capture;
     
     $multi.APPLY( $capture );
+    
+    # TODO
+    # $multi.APPLY( 1, 2, 3 );
     
 }

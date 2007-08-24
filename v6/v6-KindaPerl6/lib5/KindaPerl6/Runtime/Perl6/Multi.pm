@@ -91,49 +91,117 @@
                 $List_candidates;
                 $sub;
                 do {
-                    for my $sub (
-                        @{ ::DISPATCH(
-                                $GLOBAL::Code_prefix_58__60__64__62_,
-                                'APPLY',
+                    if (
+                        ::DISPATCH(
+                            ::DISPATCH(
                                 ::DISPATCH(
-                                    $GLOBAL::Code_prefix_58__60__64__62_,
-                                    'APPLY',
-                                    ::DISPATCH( $self, 'long_names', )
-                                )
-                              )->{_value}{_array}
-                        }
+                                    ::DISPATCH(
+                                        $List__, 'INDEX',
+                                        ::DISPATCH( $::Int, 'new', 0 )
+                                    ),
+                                    'isa',
+                                    ::DISPATCH( $::Str, 'new', 'Capture' )
+                                ),
+                                "true"
+                            ),
+                            "p5landish"
+                        )
                       )
                     {
                         do {
-                            if (
-                                ::DISPATCH(
-                                    ::DISPATCH(
+                            for my $sub (
+                                @{ ::DISPATCH(
+                                        $GLOBAL::Code_prefix_58__60__64__62_,
+                                        'APPLY',
                                         ::DISPATCH(
-                                            $GLOBAL::Code_infix_58__60__61__61__62_,
+                                            $GLOBAL::Code_prefix_58__60__64__62_,
                                             'APPLY',
-                                            ::DISPATCH(
-                                                ::DISPATCH(
-                                                    $sub, 'signature',
-                                                ),
-                                                'arity',
-                                            ),
-                                            ::DISPATCH(
-                                                ::DISPATCH(
-                                                    $List__, 'INDEX',
-                                                    ::DISPATCH(
-                                                        $::Int, 'new', 0
-                                                    )
-                                                ),
-                                                'arity',
-                                            )
-                                        ),
-                                        "true"
-                                    ),
-                                    "p5landish"
-                                )
+                                            ::DISPATCH( $self, 'long_names', )
+                                        )
+                                      )->{_value}{_array}
+                                }
                               )
                             {
-                                ::DISPATCH( $List_candidates, 'push', $sub );
+                                do {
+                                    if (
+                                        ::DISPATCH(
+                                            ::DISPATCH(
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_infix_58__60__61__61__62_,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        ::DISPATCH(
+                                                            $sub, 'signature',
+                                                        ),
+                                                        'arity',
+                                                    ),
+                                                    ::DISPATCH(
+                                                        ::DISPATCH(
+                                                            $List__,
+                                                            'INDEX',
+                                                            ::DISPATCH(
+                                                                $::Int, 'new',
+                                                                0
+                                                            )
+                                                        ),
+                                                        'arity',
+                                                    )
+                                                ),
+                                                "true"
+                                            ),
+                                            "p5landish"
+                                        )
+                                      )
+                                    {
+                                        ::DISPATCH( $List_candidates, 'push',
+                                            $sub );
+                                    }
+                                  }
+                            }
+                          }
+                    }
+                    else {
+                        do {
+                            for my $sub (
+                                @{ ::DISPATCH(
+                                        $GLOBAL::Code_prefix_58__60__64__62_,
+                                        'APPLY',
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_prefix_58__60__64__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $self, 'long_names', )
+                                        )
+                                      )->{_value}{_array}
+                                }
+                              )
+                            {
+                                do {
+                                    if (
+                                        ::DISPATCH(
+                                            ::DISPATCH(
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_infix_58__60__61__61__62_,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        ::DISPATCH(
+                                                            $sub, 'signature',
+                                                        ),
+                                                        'arity',
+                                                    ),
+                                                    ::DISPATCH(
+                                                        $List__, 'elems',
+                                                    )
+                                                ),
+                                                "true"
+                                            ),
+                                            "p5landish"
+                                        )
+                                      )
+                                    {
+                                        ::DISPATCH( $List_candidates, 'push',
+                                            $sub );
+                                    }
+                                  }
                             }
                           }
                     }

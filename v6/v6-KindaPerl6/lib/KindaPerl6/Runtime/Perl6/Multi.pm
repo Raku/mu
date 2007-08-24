@@ -22,10 +22,22 @@ class Multi is Code {
         
         my @candidates;
         my $sub; # XXX 
-        for @(self.long_names) -> $sub {
-            #say "# testing sub ", $sub;
-            if ($sub.signature).arity == (@_[0]).arity {
-                @candidates.push( $sub );
+        
+        if (@_[0]).isa( 'Capture' ) {
+            for @(self.long_names) -> $sub {
+                #say "# testing sub ", $sub;
+                if ($sub.signature).arity == (@_[0]).arity {
+                    @candidates.push( $sub );
+                };
+            };
+        }
+        else {
+            # XXX not sure if this should exist
+            # ??? methods should not count the invocant 
+            for @(self.long_names) -> $sub {
+                if ($sub.signature).arity == @_.elems {
+                    @candidates.push( $sub );
+                };
             };
         };
         
