@@ -103,6 +103,28 @@
             $::Method,
             'new',
             sub {
+                my $v;
+                $v =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$v' } )
+                  unless defined $v;
+
+                BEGIN {
+                    $v =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$v' } );
+                }
+                my $s;
+                $s =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$s' } )
+                  unless defined $s;
+
+                BEGIN {
+                    $s =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$s' } );
+                }
                 my $List__ =
                   ::DISPATCH( $::Array, 'new',
                     { modified => $_MODIFIED, name => '$List__' } );
@@ -119,63 +141,62 @@
                 }
                 $self = shift;
                 $List__->{_value}{_array} = \@_;
-                ::DISPATCH(
-                    $GLOBAL::Code_infix_58__60__126__62_,
-                    'APPLY',
-                    ::DISPATCH( $::Str, 'new', '\\( ' ),
-                    ::DISPATCH(
-                        $GLOBAL::Code_infix_58__60__126__62_,
-                        'APPLY',
+                $v;
+                ::DISPATCH_VAR( $s, 'STORE',
+                    ::DISPATCH( $::Str, 'new', '\\( ' ) );
+                do {
+                    if (
                         ::DISPATCH(
-                            $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
-                            'APPLY',
-                            ::DISPATCH( $GLOBAL::invocant, 'defined', ),
+                            ::DISPATCH(
+                                ::DISPATCH(
+                                    ::DISPATCH( $self, "invocant" ), 'defined',
+                                ),
+                                "true"
+                            ),
+                            "p5landish"
+                        )
+                      )
+                    {
+                        ::DISPATCH_VAR(
+                            $s, 'STORE',
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
-                                'APPLY',
-                                ::DISPATCH(
-                                    ::DISPATCH( $self, "invocant" ), 'perl',
-                                ),
-                                ::DISPATCH( $::Str, 'new', ': ' )
-                            ),
-                            ::DISPATCH( $::Str, 'new', '' )
-                        ),
-                        ::DISPATCH(
-                            $GLOBAL::Code_infix_58__60__126__62_,
-                            'APPLY',
-                            ::DISPATCH(
-                                $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
-                                'APPLY',
-                                ::DISPATCH(
-                                    ::DISPATCH( $self, "array" ), 'elems',
-                                ),
+                                'APPLY', $s,
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
                                     ::DISPATCH(
-                                        ::DISPATCH( $self, "array" ), 'perl',
+                                        ::DISPATCH( $self, "invocant" ), 'perl',
                                     ),
-                                    ::DISPATCH( $::Str, 'new', ', ' )
-                                ),
-                                ::DISPATCH( $::Str, 'new', '' )
-                            ),
+                                    ::DISPATCH( $::Str, 'new', ': ' )
+                                )
+                            )
+                        );
+                    }
+                };
+                do {
+                    for my $v (
+                        @{ ::DISPATCH( $self, "array" )->{_value}{_array} } )
+                    {
+                        ::DISPATCH_VAR(
+                            $s, 'STORE',
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
-                                'APPLY',
+                                'APPLY', $s,
                                 ::DISPATCH(
-                                    $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
+                                    $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH(
-                                        ::DISPATCH( $self, "hash" ), 'elems',
-                                    ),
-                                    ::DISPATCH(
-                                        ::DISPATCH( $self, "hash" ), 'perl',
-                                    ),
-                                    ::DISPATCH( $::Str, 'new', '' )
-                                ),
-                                ::DISPATCH( $::Str, 'new', ' )' )
+                                    ::DISPATCH( $v, 'perl', ),
+                                    ::DISPATCH( $::Str, 'new', ', ' )
+                                )
                             )
-                        )
+                        );
+                    }
+                };
+                return (
+                    ::DISPATCH(
+                        $GLOBAL::Code_infix_58__60__126__62_,
+                        'APPLY', $s, ::DISPATCH( $::Str, 'new', ' )' )
                     )
                 );
             }

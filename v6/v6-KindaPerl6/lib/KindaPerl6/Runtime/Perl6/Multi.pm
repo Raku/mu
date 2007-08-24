@@ -13,7 +13,7 @@ class Multi is Code {
         my $candidates;
         my $sub; # XXX 
         for @( $.long_names ) -> $sub {
-            if ($sub.signature).arity == ((@_[0]).signature).arity {
+            if ($sub.signature).arity == (@_[0]).arity {
                 push @($candidates), $sub;
             };
         };

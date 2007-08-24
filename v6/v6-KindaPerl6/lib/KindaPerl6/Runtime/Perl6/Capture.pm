@@ -9,20 +9,23 @@ class Capture is Value {
         @.array.elems + $.hash.elems;
     };
     method perl {
-              '\\( ' 
-            ~ ( $invocant.defined 
-                ?? $.invocant.perl ~ ': ' 
-                !! ''
-              )
-            ~ ( $.array.elems 
-                ?? $.array.perl ~ ', ' 
-                !! '' 
-              )
-            ~ ( $.hash.elems
-                ?? $.hash.perl
-                !! ''
-              )
-            ~ ' )' 
+        my $v;   # XXX kp6 ast processor bug
+        my $s = '\\( ';
+        
+        if $.invocant.defined {
+            $s = $s ~ $.invocant.perl ~ ': ';
+        };
+        
+        for @.array -> $v { 
+            $s = $s ~ $v.perl ~ ', ';
+        };
+        
+        # TODO
+        #for $.hash.pairs -> $v {
+        #    $s = $s ~ $v.perl ~ ', ';
+        #};
+        
+        return $s ~ ' )' 
     };
     method str {
         self.perl;

@@ -181,10 +181,10 @@ package GLOBAL;
     sub true     { ::DISPATCH( $_[0], 'true' ) }  
     sub not      { ::DISPATCH( $::Bit, 'new', ! ( ::DISPATCH( $_[0], 'true' )->{_value} ) ) }  
     sub True     { ::DISPATCH( $::Bit, 'new',1 ) }  
-    sub say   { GLOBAL::print( @_, "\n" );return True;}
-    sub sleep { CORE::sleep(_int($_[0]));return True;}
+    sub say      { GLOBAL::print( @_, "\n" );return True;}
+    sub sleep    { CORE::sleep(_int($_[0]));return True;}
     sub False    { ::DISPATCH( $::Bit, 'new',0 ) }  
-    sub TODO {confess("TODO");}
+    sub TODO     {confess("TODO");}
 
     # TODO - macro
     #  ternary:<?? !!>

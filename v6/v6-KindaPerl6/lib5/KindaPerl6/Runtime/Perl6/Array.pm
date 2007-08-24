@@ -97,7 +97,7 @@
                 do {
                     for my $v (
                         @{ ::DISPATCH(
-                                $Code_prefix_58__60__64__62_,
+                                $GLOBAL::Code_prefix_58__60__64__62_,
                                 'APPLY',
                                 ::DISPATCH(
                                     $GLOBAL::Code_prefix_58__60__64__62_,

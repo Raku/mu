@@ -97,7 +97,7 @@
                 do {
                     for my $pair (
                         @{ ::DISPATCH(
-                                $Code_prefix_58__60__64__62_, 'APPLY',
+                                $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY',
                                 ::DISPATCH( $self, 'pairs', )
                               )->{_value}{_array}
                         }
@@ -193,7 +193,7 @@
                 do {
                     for my $pair (
                         @{ ::DISPATCH(
-                                $Code_prefix_58__60__64__62_, 'APPLY',
+                                $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY',
                                 ::DISPATCH( $self, 'pairs', )
                               )->{_value}{_array}
                         }
@@ -306,7 +306,7 @@
                                 $::Signature,
                                 "new",
                                 {
-                                    invocant => undef,
+                                    invocant => $::Undef,
                                     array    => ::DISPATCH(
                                         $::Array, "new",
                                         {
@@ -326,7 +326,7 @@
                                     hash => ::DISPATCH(
                                         $::Hash, "new", { _hash => {} }
                                     ),
-                                    return => undef,
+                                    return => $::Undef,
                                 }
                             ),
                         }
@@ -413,7 +413,7 @@
                                 $::Signature,
                                 "new",
                                 {
-                                    invocant => undef,
+                                    invocant => $::Undef,
                                     array    => ::DISPATCH(
                                         $::Array, "new",
                                         {
@@ -433,7 +433,7 @@
                                     hash => ::DISPATCH(
                                         $::Hash, "new", { _hash => {} }
                                     ),
-                                    return => undef,
+                                    return => $::Undef,
                                 }
                             ),
                         }
