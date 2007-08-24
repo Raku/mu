@@ -121,7 +121,16 @@
                 do {
 
                     for my $sub (
-                        @{ ::DISPATCH( $self, "long_names" )->{_value}{_array} }
+                        @{ ::DISPATCH(
+                                $GLOBAL::Code_prefix_58__60__64__62_,
+                                'APPLY',
+                                ::DISPATCH(
+                                    $GLOBAL::Code_prefix_58__60__64__62_,
+                                    'APPLY',
+                                    ::DISPATCH( $self, 'long_names', )
+                                )
+                              )->{_value}{_array}
+                        }
                       )
                     {
                         ::DISPATCH( $GLOBAL::Code_say, 'APPLY',

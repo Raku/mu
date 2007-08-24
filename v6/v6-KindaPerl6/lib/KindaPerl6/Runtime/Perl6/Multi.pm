@@ -14,7 +14,7 @@ class Multi is Code {
         
         my @candidates;
         my $sub; # XXX 
-        for @.long_names -> $sub {
+        for @(self.long_names) -> $sub {
             say "# testing sub ", $sub;
             if ($sub.signature).arity == (@_[0]).arity {
                 @candidates.push( $sub );
