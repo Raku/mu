@@ -502,12 +502,7 @@ token opt_name {  <ident> | ''  };
 
 token invocant {
     |  <var> \:    { return $$<var> }
-    |  { return ::Var( 
-            'sigil'  => '$',
-            'twigil' => '',
-            'name'   => 'self',
-         ) 
-       }
+    |  { return undef }
 };
 
 token capture {

@@ -278,21 +278,6 @@
                                         name     => '$List__'
                                     }
                                 );
-                                my $self;
-                                $self = ::DISPATCH( $::Scalar, 'new',
-                                    { modified => $_MODIFIED, name => '$self' }
-                                ) unless defined $self;
-
-                                BEGIN {
-                                    $self = ::DISPATCH(
-                                        $::Scalar,
-                                        'new',
-                                        {
-                                            modified => $_MODIFIED,
-                                            name     => '$self'
-                                        }
-                                    );
-                                }
                                 my $pair;
                                 $pair = ::DISPATCH( $::Scalar, 'new',
                                     { modified => $_MODIFIED, name => '$pair' }
@@ -321,16 +306,8 @@
                                 $::Signature,
                                 "new",
                                 {
-                                    invocant => ::DISPATCH(
-                                        $::Signature::Item,
-                                        "new",
-                                        {
-                                            sigil  => '$',
-                                            twigil => '',
-                                            name   => 'self',
-                                        }
-                                    ),
-                                    array => ::DISPATCH(
+                                    invocant => '',
+                                    array    => ::DISPATCH(
                                         $::Array, "new",
                                         {
                                             _array => [
@@ -408,21 +385,6 @@
                                         name     => '$List__'
                                     }
                                 );
-                                my $self;
-                                $self = ::DISPATCH( $::Scalar, 'new',
-                                    { modified => $_MODIFIED, name => '$self' }
-                                ) unless defined $self;
-
-                                BEGIN {
-                                    $self = ::DISPATCH(
-                                        $::Scalar,
-                                        'new',
-                                        {
-                                            modified => $_MODIFIED,
-                                            name     => '$self'
-                                        }
-                                    );
-                                }
                                 my $pair;
                                 $pair = ::DISPATCH( $::Scalar, 'new',
                                     { modified => $_MODIFIED, name => '$pair' }
@@ -451,16 +413,8 @@
                                 $::Signature,
                                 "new",
                                 {
-                                    invocant => ::DISPATCH(
-                                        $::Signature::Item,
-                                        "new",
-                                        {
-                                            sigil  => '$',
-                                            twigil => '',
-                                            name   => 'self',
-                                        }
-                                    ),
-                                    array => ::DISPATCH(
+                                    invocant => '',
+                                    array    => ::DISPATCH(
                                         $::Array, "new",
                                         {
                                             _array => [

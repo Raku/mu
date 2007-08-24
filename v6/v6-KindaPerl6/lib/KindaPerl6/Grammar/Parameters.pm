@@ -14,13 +14,15 @@ grammar KindaPerl6::Grammar {
             ];
         my $decl;
         for @($vars) -> $var {
-            #say "#var ", $var.name;
-            push @($decl),                 
-                ::Decl(  
-                    decl  => 'my',  
-                    var   => $var,  
-                    type  => '', # TODO
-                );
+            if $var.isa( 'Var' ) {
+                #say "#var ", $var.name;
+                push @($decl),                 
+                    ::Decl(  
+                        decl  => 'my',  
+                        var   => $var,  
+                        type  => '', # TODO
+                    );
+            }
         };
         $env.add_lexicals( $decl );
     }
