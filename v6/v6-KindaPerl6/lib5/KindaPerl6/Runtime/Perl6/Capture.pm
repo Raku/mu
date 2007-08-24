@@ -126,11 +126,39 @@
                     ::DISPATCH(
                         $GLOBAL::Code_infix_58__60__126__62_,
                         'APPLY',
-                        ::DISPATCH( ::DISPATCH( $self, "invocant" ), 'perl', ),
+                        ::DISPATCH(
+                            $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
+                            'APPLY',
+                            ::DISPATCH( $GLOBAL::invocant, 'defined', ),
+                            ::DISPATCH(
+                                $GLOBAL::Code_infix_58__60__126__62_,
+                                'APPLY',
+                                ::DISPATCH(
+                                    ::DISPATCH( $self, "invocant" ), 'perl',
+                                ),
+                                ::DISPATCH( $::Str, 'new', ': ' )
+                            ),
+                            ::DISPATCH( $::Str, 'new', '' )
+                        ),
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $::Str, 'new', ': ' ),
+                            ::DISPATCH(
+                                $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
+                                'APPLY',
+                                ::DISPATCH(
+                                    ::DISPATCH( $self, "array" ), 'elems',
+                                ),
+                                ::DISPATCH(
+                                    $GLOBAL::Code_infix_58__60__126__62_,
+                                    'APPLY',
+                                    ::DISPATCH(
+                                        ::DISPATCH( $self, "array" ), 'perl',
+                                    ),
+                                    ::DISPATCH( $::Str, 'new', ', ' )
+                                ),
+                                ::DISPATCH( $::Str, 'new', '' )
+                            ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
@@ -138,36 +166,14 @@
                                     $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
                                     'APPLY',
                                     ::DISPATCH(
-                                        ::DISPATCH( $self, "array" ), 'elems',
+                                        ::DISPATCH( $self, "hash" ), 'elems',
                                     ),
                                     ::DISPATCH(
-                                        $GLOBAL::Code_infix_58__60__126__62_,
-                                        'APPLY',
-                                        ::DISPATCH(
-                                            ::DISPATCH( $self, "array" ),
-                                            'perl',
-                                        ),
-                                        ::DISPATCH( $::Str, 'new', ', ' )
+                                        ::DISPATCH( $self, "hash" ), 'perl',
                                     ),
                                     ::DISPATCH( $::Str, 'new', '' )
                                 ),
-                                ::DISPATCH(
-                                    $GLOBAL::Code_infix_58__60__126__62_,
-                                    'APPLY',
-                                    ::DISPATCH(
-                                        $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
-                                        'APPLY',
-                                        ::DISPATCH(
-                                            ::DISPATCH( $self, "hash" ),
-                                            'elems',
-                                        ),
-                                        ::DISPATCH(
-                                            ::DISPATCH( $self, "hash" ), 'perl',
-                                        ),
-                                        ::DISPATCH( $::Str, 'new', '' )
-                                    ),
-                                    ::DISPATCH( $::Str, 'new', ' )' )
-                                )
+                                ::DISPATCH( $::Str, 'new', ' )' )
                             )
                         )
                     )

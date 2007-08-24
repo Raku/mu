@@ -10,7 +10,10 @@ class Capture is Value {
     };
     method perl {
               '\\( ' 
-            ~ $.invocant.perl ~ ': ' 
+            ~ ( $invocant.defined 
+                ?? $.invocant.perl ~ ': ' 
+                !! ''
+              )
             ~ ( $.array.elems 
                 ?? $.array.perl ~ ', ' 
                 !! '' 
