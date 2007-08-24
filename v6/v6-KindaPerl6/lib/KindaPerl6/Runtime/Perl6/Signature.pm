@@ -16,6 +16,10 @@ class Signature is Value {
     has $.hash;
     has $.return;  # ???
 
+    method arity {
+        # ??? how about optionals
+        @.array.elems + $.hash.elems;
+    };
     method perl {
         my $v;   # XXX kp6 ast processor bug
         my $s = ':( ';
