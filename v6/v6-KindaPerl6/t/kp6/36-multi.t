@@ -14,6 +14,7 @@ class Main {
         &ab_2_,
         &ab_1_,
     ];
+    say '# long_names: ', $multi.long_names;
 
     my $capture = \( 1, 2 );
 

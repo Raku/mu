@@ -58,17 +58,9 @@
             $::Method,
             'new',
             sub {
-                my $candidates;
-                $candidates =
-                  ::DISPATCH( $::Scalar, 'new',
-                    { modified => $_MODIFIED, name => '$candidates' } )
-                  unless defined $candidates;
-
-                BEGIN {
-                    $candidates =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$candidates' } );
-                }
+                my $List_candidates =
+                  ::DISPATCH( $::Array, 'new',
+                    { modified => $_MODIFIED, name => '$List_candidates' } );
                 my $sub;
                 $sub =
                   ::DISPATCH( $::Scalar, 'new',
@@ -100,23 +92,23 @@
                     $GLOBAL::Code_say,
                     'APPLY',
                     ::DISPATCH(
-                        $::Str, 'new', 'oops - multis not implemented yet'
+                        $::Str, 'new',
+                        '# oops - multis not implemented yet'
                     )
                 );
-                $candidates;
+                ::DISPATCH(
+                    $GLOBAL::Code_say,
+                    'APPLY',
+                    ::DISPATCH( $::Str, 'new', '# ' ),
+                    ::DISPATCH( ::DISPATCH( $self, 'long_names', ), 'elems', ),
+                    ::DISPATCH( $::Str, 'new', ' long_names' )
+                );
+                $List_candidates;
                 $sub;
                 do {
+
                     for my $sub (
-                        @{ ::DISPATCH(
-                                $GLOBAL::Code_prefix_58__60__64__62_,
-                                'APPLY',
-                                ::DISPATCH(
-                                    $GLOBAL::Code_prefix_58__60__64__62_,
-                                    'APPLY',
-                                    ::DISPATCH( $self, "long_names" )
-                                )
-                              )->{_value}{_array}
-                        }
+                        @{ ::DISPATCH( $self, "long_names" )->{_value}{_array} }
                       )
                     {
                         do {
@@ -148,15 +140,7 @@
                                 )
                               )
                             {
-                                ::DISPATCH(
-                                    $GLOBAL::Code_push,
-                                    'APPLY',
-                                    ::DISPATCH(
-                                        $GLOBAL::Code_prefix_58__60__64__62_,
-                                        'APPLY', $candidates
-                                    ),
-                                    $sub
-                                );
+                                ::DISPATCH( $List_candidates, 'push', $sub );
                             }
                           }
                     }
@@ -164,7 +148,8 @@
                 ::DISPATCH(
                     $GLOBAL::Code_say,
                     'APPLY',
-                    ::DISPATCH( $candidates, 'elems', ),
+                    ::DISPATCH( $::Str,           'new', '# ' ),
+                    ::DISPATCH( $List_candidates, 'elems', ),
                     ::DISPATCH( $::Str, 'new', ' subs matched the arity' )
                 );
             }
