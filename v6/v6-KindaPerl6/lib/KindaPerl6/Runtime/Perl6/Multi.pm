@@ -4,6 +4,7 @@ class Multi is Code {
     method APPLY {
         say "# oops - multis not implemented yet";
         say "# ", (self.long_names).elems, " long_names";
+        say "# the capture comes with ", (@_[0]).arity, " parameters";
         
         # @($.long_names)  - subroutine list
         #    .signature
@@ -14,6 +15,7 @@ class Multi is Code {
         my @candidates;
         my $sub; # XXX 
         for @.long_names -> $sub {
+            say "# testing sub ", $sub;
             if ($sub.signature).arity == (@_[0]).arity {
                 @candidates.push( $sub );
             };

@@ -746,6 +746,10 @@ $::Array = make_class(name=>"Array",parent=>[$meta_Value],methods=>{
     elems =>sub {
             ::DISPATCH($::Int, "new", scalar @{ $_[0]{_value}{_array} } );
         },
+    push =>sub {
+            my $self = shift;
+            push @{ $self->{_value}{_array} }, @_;  # XXX process List properly
+        },
     join =>sub {
             ::DISPATCH($::Str, "new", join( 
                 ::DISPATCH(::DISPATCH($_[1],"str"),"p5landish"), 

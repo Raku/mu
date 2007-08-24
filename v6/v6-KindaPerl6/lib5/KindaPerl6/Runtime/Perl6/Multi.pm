@@ -103,6 +103,19 @@
                     ::DISPATCH( ::DISPATCH( $self, 'long_names', ), 'elems', ),
                     ::DISPATCH( $::Str, 'new', ' long_names' )
                 );
+                ::DISPATCH(
+                    $GLOBAL::Code_say,
+                    'APPLY',
+                    ::DISPATCH( $::Str, 'new', '# the capture comes with ' ),
+                    ::DISPATCH(
+                        ::DISPATCH(
+                            $List__, 'INDEX',
+                            ::DISPATCH( $::Int, 'new', 0 )
+                        ),
+                        'arity',
+                    ),
+                    ::DISPATCH( $::Str, 'new', ' parameters' )
+                );
                 $List_candidates;
                 $sub;
                 do {
@@ -111,6 +124,9 @@
                         @{ ::DISPATCH( $self, "long_names" )->{_value}{_array} }
                       )
                     {
+                        ::DISPATCH( $GLOBAL::Code_say, 'APPLY',
+                            ::DISPATCH( $::Str, 'new', '# testing sub ' ),
+                            $sub );
                         do {
                             if (
                                 ::DISPATCH(
