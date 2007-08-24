@@ -681,7 +681,7 @@ $GLOBAL::Code_VAR_defined = ::DISPATCH( $::Code, 'new',
 require KindaPerl6::Runtime::Perl6::Pair;
 
 
-my $Hash_Cell = make_class(name=>"HashCell",parent=>[$meta_Container],methods=>{
+my $Cell = make_class(name=>"HashCell",parent=>[$meta_Container],methods=>{
         new=>sub {
             my $v = {
                 %{ $_[0] },
@@ -707,7 +707,7 @@ $::Hash = make_class(name=>"Hash",parent=>[$meta_Value],methods=>{
         },
     LOOKUP=>sub {
             my $key = ::DISPATCH(::DISPATCH($_[1],"str"),"p5landish");
-            return ::DISPATCH($Hash_Cell,"new",{cell=>\$_[0]{_value}{_hash}{$key}});
+            return ::DISPATCH($Cell,"new",{cell=>\$_[0]{_value}{_hash}{$key}});
         },
     elems => sub {
             ::DISPATCH($::Int,"new",scalar(keys(%{$_[0]{_value}{_hash}})));
@@ -727,29 +727,6 @@ $::Hash = make_class(name=>"Hash",parent=>[$meta_Value],methods=>{
                     }
                 );
         },
-    keys => sub {
-            ::DISPATCH( $::Array, 'new', 
-                    { _array => [
-                          map {
-                                # XXX str keys only
-                                ::DISPATCH( $::Str, 'new', $_ )
-                            } 
-                            keys %{ $_[0]{_value}{_hash} }
-                        ],
-                    }
-                );
-        },
-    values => sub {
-            ::DISPATCH( $::Array, 'new', 
-                    { _array => [
-                          map {
-                                $_[0]{_value}{_hash}{$_}
-                            } 
-                            keys %{ $_[0]{_value}{_hash} }
-                        ],
-                    }
-                );
-        },
 });
 
 require KindaPerl6::Runtime::Perl6::Hash;
@@ -763,7 +740,7 @@ $::Array = make_class(name=>"Array",parent=>[$meta_Value],methods=>{
         },
     INDEX=>sub {
             my $key = ::DISPATCH(::DISPATCH($_[1],"int"),"p5landish");
-            return ::DISPATCH($Hash_Cell,"new",{cell=>\$_[0]{_value}{_array}[$key]});
+            return ::DISPATCH($Cell,"new",{cell=>\$_[0]{_value}{_array}[$key]});
         },
     elems =>sub {
             ::DISPATCH($::Int, "new", scalar @{ $_[0]{_value}{_array} } );

@@ -17,6 +17,14 @@ class Hash is Container {
         };
         return $s 
     };
+    method keys {
+        my $pairs = self.pairs;
+        $pairs.map(sub ($pair) {$pair.key}); 
+    };
+    method values {
+        my $pairs = self.pairs;
+        $pairs.map(sub ($pair) {$pair.value}); 
+    };
     method true { self.elems != 0 };
     method int  { self.elems };
     method hash { self };

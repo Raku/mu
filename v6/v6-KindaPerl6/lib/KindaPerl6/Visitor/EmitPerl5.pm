@@ -225,7 +225,7 @@ class Bind {
     method emit_perl5 {
         my $str := '::MODIFIED(' ~ $.parameters.emit_perl5 ~ ');';
         $str := $str ~ $.parameters.emit_perl5 ~ ' = ' ~ $.arguments.emit_perl5;
-        return $str;
+        return 'do {'~$str~'}';
     }
 }
 
