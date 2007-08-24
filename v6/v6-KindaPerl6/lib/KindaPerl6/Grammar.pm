@@ -7,6 +7,7 @@ use KindaPerl6::Grammar::Mapping;
 use KindaPerl6::Grammar::Control;
 use KindaPerl6::Grammar::Parameters;
 use KindaPerl6::Grammar::Term;
+use KindaPerl6::Grammar::Statements;
 
 my $Class_name;  # for diagnostic messages
 sub get_class_name { $Class_name }; 
@@ -386,27 +387,6 @@ token val_int {
     { return ::Val::Int( 'int' => ~$/ ) }
 };
 
-token exp_stmts {
-    | <exp>
-        [
-        |   <?opt_ws> \; <?opt_ws> <exp_stmts>
-            <?opt_ws> [ \; <?opt_ws> | <''> ]
-            { return [ $$<exp>, @( $$<exp_stmts> ) ] }
-        |   <?opt_ws> [ \; <?opt_ws> | <''> ]
-            { return [ $$<exp> ] }
-        ]
-    | { return [] }
-};
-token exp_stmts2 {
-    <exp>
-        [
-        |   <?opt_ws> \; <?opt_ws> <exp_stmts>
-            <?opt_ws> [ \; <?opt_ws> | <''> ]
-            { return [ $$<exp>, @( $$<exp_stmts> ) ] }
-        |   <?opt_ws> [ \; <?opt_ws> | <''> ]
-            { return [ $$<exp> ] }
-        ]
-};
 
 token exp_seq {
     | <exp>

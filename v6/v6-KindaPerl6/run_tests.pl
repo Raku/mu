@@ -21,7 +21,8 @@ my $ok = 1;
   local $ENV{HARNESS_PERL} = "$^X run_kp6_perl5.pl -Ilib5";
   local $ENV{PERL5LIB} = '';
   local $Test::Harness::Switches = '';
-  $ok &&= eval { runtests glob("t/insanity/*.t"), glob("t/kp6/*.t") };
+  open(TESTS,"TESTS") || die "Can not open test list";
+  $ok &&= eval { runtests((map {chomp;"../../t/$_" } <TESTS>),glob("t/kp6/*.t")) };
   warn $@ if $@;
 }
 
