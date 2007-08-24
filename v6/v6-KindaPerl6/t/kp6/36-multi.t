@@ -13,12 +13,13 @@ class Main {
         say 'ok 3';
     };
 
-    my $multi = Multi.new;
-    $multi.long_names = [
+    my &multi := Multi.new;
+    &multi.long_names = [
         &ab_2_,
         &ab_1_,
+        &ab_3_,
     ];
-    say '# long_names: ', $multi.long_names;
+    say '# long_names: ', &multi.long_names;
 
     my $capture = \( 1, 2 );
 
@@ -27,9 +28,9 @@ class Main {
     say '# Signature: ', &ab_2_.signature;
     say '# Capture:   ', $capture;
     
-    $multi.APPLY( $capture );
+    multi( $capture );
     
     # TODO
-    # $multi.APPLY( 1, 2, 3 );
+    # multi( 1, 2, 3 );
     
 }
