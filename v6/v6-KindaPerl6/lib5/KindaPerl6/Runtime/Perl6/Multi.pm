@@ -88,38 +88,9 @@
                 }
                 $self = shift;
                 $List__->{_value}{_array} = \@_;
-                ::DISPATCH(
-                    $GLOBAL::Code_say,
-                    'APPLY',
-                    ::DISPATCH(
-                        $::Str, 'new',
-                        '# oops - multis not implemented yet'
-                    )
-                );
-                ::DISPATCH(
-                    $GLOBAL::Code_say,
-                    'APPLY',
-                    ::DISPATCH( $::Str, 'new', '# ' ),
-                    ::DISPATCH( ::DISPATCH( $self, 'long_names', ), 'elems', ),
-                    ::DISPATCH( $::Str, 'new', ' long_names' )
-                );
-                ::DISPATCH(
-                    $GLOBAL::Code_say,
-                    'APPLY',
-                    ::DISPATCH( $::Str, 'new', '# the capture comes with ' ),
-                    ::DISPATCH(
-                        ::DISPATCH(
-                            $List__, 'INDEX',
-                            ::DISPATCH( $::Int, 'new', 0 )
-                        ),
-                        'arity',
-                    ),
-                    ::DISPATCH( $::Str, 'new', ' parameters' )
-                );
                 $List_candidates;
                 $sub;
                 do {
-
                     for my $sub (
                         @{ ::DISPATCH(
                                 $GLOBAL::Code_prefix_58__60__64__62_,
@@ -133,9 +104,6 @@
                         }
                       )
                     {
-                        ::DISPATCH( $GLOBAL::Code_say, 'APPLY',
-                            ::DISPATCH( $::Str, 'new', '# testing sub ' ),
-                            $sub );
                         do {
                             if (
                                 ::DISPATCH(
@@ -170,12 +138,43 @@
                           }
                     }
                 };
+                do {
+                    if (
+                        ::DISPATCH(
+                            ::DISPATCH(
+                                ::DISPATCH(
+                                    $GLOBAL::Code_infix_58__60__61__61__62_,
+                                    'APPLY',
+                                    ::DISPATCH( $List_candidates, 'elems', ),
+                                    ::DISPATCH( $::Int, 'new', 1 )
+                                ),
+                                "true"
+                            ),
+                            "p5landish"
+                        )
+                      )
+                    {
+                        return (
+                            ::DISPATCH(
+                                ::DISPATCH(
+                                    $List_candidates, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 0 )
+                                ),
+                                'APPLY',
+                                ::DISPATCH(
+                                    $List__, 'INDEX',
+                                    ::DISPATCH( $::Int, 'new', 0 )
+                                )
+                            )
+                        );
+                    }
+                };
                 ::DISPATCH(
-                    $GLOBAL::Code_say,
+                    $GLOBAL::Code_die,
                     'APPLY',
-                    ::DISPATCH( $::Str,           'new', '# ' ),
-                    ::DISPATCH( $List_candidates, 'elems', ),
-                    ::DISPATCH( $::Str, 'new', ' subs matched the arity' )
+                    ::DISPATCH(
+                        $::Str, 'new', 'can\'t resolve Multi dispatch'
+                    )
                 );
             }
         )
