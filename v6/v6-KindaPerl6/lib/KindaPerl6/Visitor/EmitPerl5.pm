@@ -441,7 +441,7 @@ class Decl {
 
 class Sig {
     method emit_perl5 {
-        my $inv := 'undef';
+        my $inv := '$::Undef';
         if $.invocant.isa( 'Var' ) {
             $inv := $.invocant.perl;
         }
@@ -457,7 +457,7 @@ class Sig {
         ~     'invocant => ' ~ $inv ~ ', '
         ~     'array    => ::DISPATCH( $::Array, "new", { _array => [ ' ~ $pos   ~ ' ] } ), '
         ~     'hash     => ::DISPATCH( $::Hash,  "new", { _hash  => { ' ~ $named ~ ' } } ), '
-        ~     'return   => undef, '
+        ~     'return   => $::Undef, '
         ~ '} )'
     };
 }
