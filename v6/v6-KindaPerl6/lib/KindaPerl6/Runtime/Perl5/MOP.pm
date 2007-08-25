@@ -32,7 +32,8 @@ sub ::DISPATCH {
 
 sub ::DISPATCH_VAR {
     my $invocant = shift;
-    confess "DISPATCH_VAR:calling @_ on invalid object:",Dumper($invocant),"\n" unless $invocant->{_dispatch_VAR};
+    confess "DISPATCH_VAR:calling @_ on invalid object:",Dumper($invocant),"\n" 
+        unless $invocant->{_dispatch_VAR};
     $invocant->{_dispatch_VAR}($invocant,@_);
 }
 
@@ -732,16 +733,26 @@ $::Hash = make_class(name=>"Hash",parent=>[$meta_Value],methods=>{
 
 require KindaPerl6::Runtime::Perl6::Hash;
 
-$::Array = make_class(name=>"Array",parent=>[$meta_Value],methods=>{
+$::Array = make_class(name=>"Array",parent=>[$meta_Container],methods=>{
     new => sub {
             my $v = {
                 %{ $_[0] },
-                _value => ( $_[1] || { _array => [] } ),    
+                _value => ( $_[1] || { _array => [] } ),  
+                _dispatch_VAR => $dispatch_VAR,
             };
         },
     INDEX=>sub {
             my $key = ::DISPATCH(::DISPATCH($_[1],"int"),"p5landish");
             return ::DISPATCH($Cell,"new",{cell=>\$_[0]{_value}{_array}[$key]});
+        },
+    FETCH=>sub {
+            $_[0];
+        },
+    STORE=>sub {
+            $_[0]{_value}{_array} = [ 
+                @{ ::DISPATCH($_[1],"array")->{_value}{_array} }
+            ];
+            $_[0];
         },
     elems =>sub {
             ::DISPATCH($::Int, "new", scalar @{ $_[0]{_value}{_array} } );
@@ -775,6 +786,30 @@ require KindaPerl6::Runtime::Perl6::Array;
 require KindaPerl6::Runtime::Perl6::Capture;
 require KindaPerl6::Runtime::Perl6::Signature;
 require KindaPerl6::Runtime::Perl6::Match;
+
+
+$::Multi = make_class(name=>"Multi",parent=>[$meta_Code],methods=>{
+    APPLY =>sub {
+            my $self = shift; 
+            my $code = ::DISPATCH( $self, 'select', 
+                ::DISPATCH( $::Capture, 'new', { 
+                        array => 
+                            ::DISPATCH( $::Array, 'new', { 
+                                    _array => [ @_ ],
+                                }
+                            ),
+                        hash => 
+                            ::DISPATCH( $::Hash, 'new', { 
+                                    _hash => { },    # TODO
+                                }
+                            ),
+                    } 
+                )
+            );
+            ::DISPATCH( $code, 'APPLY', @_ );
+        },
+});
+
 require KindaPerl6::Runtime::Perl6::Multi;
 
 1;

@@ -120,6 +120,7 @@ package GLOBAL;
         
         prefix_58__60__64__62_        
         prefix_58__60__43__43__62_
+        prefix_58__60__124__62_
     );
     
     # %*ENV
@@ -264,6 +265,13 @@ package GLOBAL;
         $counter->{_dispatch_VAR}(
             $counter, 'STORE', ::DISPATCH( $::Int, 'new', _int($counter) + 1)
         );
+    }
+
+    # prefix:<|>  explodes a Capture
+    sub prefix_58__60__124__62_ {
+        my $capture = shift;
+        my $array = ::DISPATCH( $capture, 'array' );
+        @{ $array->{_value}{_array} };
     }
 
 package Main;

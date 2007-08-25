@@ -53,7 +53,7 @@
     ::DISPATCH(
         ::DISPATCH( $::Multi, 'HOW', ),
         'add_method',
-        ::DISPATCH( $::Str, 'new', 'APPLY' ),
+        ::DISPATCH( $::Str, 'new', 'select' ),
         ::DISPATCH(
             $::Method,
             'new',
@@ -108,100 +108,63 @@
                         )
                       )
                     {
-                        do {
-                            for my $sub (
-                                @{ ::DISPATCH(
-                                        $GLOBAL::Code_prefix_58__60__64__62_,
-                                        'APPLY',
-                                        ::DISPATCH(
-                                            $GLOBAL::Code_prefix_58__60__64__62_,
-                                            'APPLY',
-                                            ::DISPATCH( $self, 'long_names', )
-                                        )
-                                      )->{_value}{_array}
-                                }
-                              )
-                            {
-                                do {
-                                    if (
-                                        ::DISPATCH(
-                                            ::DISPATCH(
-                                                ::DISPATCH(
-                                                    $GLOBAL::Code_infix_58__60__61__61__62_,
-                                                    'APPLY',
-                                                    ::DISPATCH(
-                                                        ::DISPATCH(
-                                                            $sub, 'signature',
-                                                        ),
-                                                        'arity',
-                                                    ),
-                                                    ::DISPATCH(
-                                                        ::DISPATCH(
-                                                            $List__,
-                                                            'INDEX',
-                                                            ::DISPATCH(
-                                                                $::Int, 'new',
-                                                                0
-                                                            )
-                                                        ),
-                                                        'arity',
-                                                    )
-                                                ),
-                                                "true"
-                                            ),
-                                            "p5landish"
-                                        )
-                                      )
-                                    {
-                                        ::DISPATCH( $List_candidates, 'push',
-                                            $sub );
-                                    }
-                                  }
-                            }
-                          }
                     }
                     else {
+                        ::DISPATCH(
+                            $GLOBAL::Code_die,
+                            'APPLY',
+                            ::DISPATCH(
+                                $::Str,
+                                'new',
+'the parameter to Multi.select must be a Capture'
+                            )
+                        );
+                    }
+                };
+                do {
+                    for my $sub (
+                        @{ ::DISPATCH(
+                                $GLOBAL::Code_prefix_58__60__64__62_,
+                                'APPLY',
+                                ::DISPATCH(
+                                    $GLOBAL::Code_prefix_58__60__64__62_,
+                                    'APPLY',
+                                    ::DISPATCH( $self, 'long_names', )
+                                )
+                              )->{_value}{_array}
+                        }
+                      )
+                    {
                         do {
-                            for my $sub (
-                                @{ ::DISPATCH(
-                                        $GLOBAL::Code_prefix_58__60__64__62_,
-                                        'APPLY',
+                            if (
+                                ::DISPATCH(
+                                    ::DISPATCH(
                                         ::DISPATCH(
-                                            $GLOBAL::Code_prefix_58__60__64__62_,
+                                            $GLOBAL::Code_infix_58__60__61__61__62_,
                                             'APPLY',
-                                            ::DISPATCH( $self, 'long_names', )
-                                        )
-                                      )->{_value}{_array}
-                                }
-                              )
-                            {
-                                do {
-                                    if (
-                                        ::DISPATCH(
                                             ::DISPATCH(
                                                 ::DISPATCH(
-                                                    $GLOBAL::Code_infix_58__60__61__61__62_,
-                                                    'APPLY',
+                                                    $sub, 'signature',
+                                                ),
+                                                'arity',
+                                            ),
+                                            ::DISPATCH(
+                                                ::DISPATCH(
+                                                    $List__, 'INDEX',
                                                     ::DISPATCH(
-                                                        ::DISPATCH(
-                                                            $sub, 'signature',
-                                                        ),
-                                                        'arity',
-                                                    ),
-                                                    ::DISPATCH(
-                                                        $List__, 'elems',
+                                                        $::Int, 'new', 0
                                                     )
                                                 ),
-                                                "true"
-                                            ),
-                                            "p5landish"
-                                        )
-                                      )
-                                    {
-                                        ::DISPATCH( $List_candidates, 'push',
-                                            $sub );
-                                    }
-                                  }
+                                                'arity',
+                                            )
+                                        ),
+                                        "true"
+                                    ),
+                                    "p5landish"
+                                )
+                              )
+                            {
+                                ::DISPATCH( $List_candidates, 'push', $sub );
                             }
                           }
                     }
@@ -224,15 +187,8 @@
                     {
                         return (
                             ::DISPATCH(
-                                ::DISPATCH(
-                                    $List_candidates, 'INDEX',
-                                    ::DISPATCH( $::Int, 'new', 0 )
-                                ),
-                                'APPLY',
-                                ::DISPATCH(
-                                    $List__, 'INDEX',
-                                    ::DISPATCH( $::Int, 'new', 0 )
-                                )
+                                $List_candidates, 'INDEX',
+                                ::DISPATCH( $::Int, 'new', 0 )
                             )
                         );
                     }

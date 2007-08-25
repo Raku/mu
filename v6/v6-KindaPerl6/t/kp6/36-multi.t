@@ -1,5 +1,5 @@
 class Main {
-    say '1..2';
+    say '1..4';
 
     my sub ab_2_ ($a,$b) {
         say 'ok 2';
@@ -13,24 +13,32 @@ class Main {
         say 'ok 3';
     };
 
+    my sub ab_4_ ($a,$b,$c,$d) {
+        say 'ok 4';
+    };
+
     my &multi := Multi.new;
     &multi.long_names = [
         &ab_2_,
         &ab_1_,
         &ab_3_,
+        &ab_4_,
     ];
     say '# long_names: ', &multi.long_names;
-
-    my $capture = \( 1, 2 );
 
     say 'ok 1 - survived so far';
 
     say '# Signature: ', &ab_2_.signature;
-    say '# Capture:   ', $capture;
+
+    say '# flattened Capture:   ', $capture;    
+    my $capture = \( 1, 2 );
+    multi( |$capture );
     
-    multi( $capture );
+    say '# Param list:';    
+    multi( 42, 43, 44 );
     
-    # TODO
-    # multi( 1, 2, 3 );
+    say '# flattened Array:';    
+    my @x = [ 1,2,3,4 ];
+    multi( |@x );
     
 }
