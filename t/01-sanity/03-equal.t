@@ -13,4 +13,6 @@ my $x = '0';
 ($x ne $x) || say 'ok 2';
 
 ($x == $x) && say 'ok 3';
+($x != $x) && say 'not ok 3';
+($x == $x) || say 'not ok 4';
 ($x != $x) || say 'ok 4';
