@@ -137,7 +137,6 @@ my $dispatch_VAR = sub {
 %::PROTO = (
     _methods  => undef,    # hash
     _roles    => undef,    # hash
-
     # _modified => undef,
     # _name     => '',
     _value    => undef,       # whatever | %attributes
@@ -804,6 +803,9 @@ $::Multi = make_class(name=>"Multi",parent=>[$meta_Code],methods=>{
 });
 
 require KindaPerl6::Runtime::Perl6::Multi;
+
+require KindaPerl6::Runtime::Perl5::IO;
+require KindaPerl6::Runtime::Perl6::IO;
 
 1;
 
