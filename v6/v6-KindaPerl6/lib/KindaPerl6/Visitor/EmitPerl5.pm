@@ -141,8 +141,14 @@ class Lit::Code {
     };
     method emit_arguments {
         my $array_ := ::Var( sigil => '@', twigil => '', name => '_' );
+        my $CAPTURE := ::Var( sigil => '$', twigil => '', name => 'CAPTURE');
+        my $CAPTURE_decl := ::Decl(decl=>'my',type=>'',var=>$CAPTURE);
         my $str := '';
-        $str := $str ~ '$List__->{_value}{_array} = \@_;';
+        $str := $str ~ $CAPTURE_decl.emit_perl5;
+        $str := $str ~ '::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));';
+
+        my $bind_ := ::Bind(parameters=>$array_,arguments=>::Call(invocant => $CAPTURE,method => 'array',arguments => []));
+        $str := $str ~ $bind_.emit_perl5 ~ ';';
 
         my $i := 0;
         for @($.sig.positional) -> $field { 

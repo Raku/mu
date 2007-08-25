@@ -798,24 +798,25 @@ require KindaPerl6::Runtime::Perl6::Signature;
 require KindaPerl6::Runtime::Perl6::Match;
 
 
+sub ::CAPTURIZE {
+    ::DISPATCH( $::Capture, 'new', { 
+            array => 
+                ::DISPATCH( $::Array, 'new', { 
+                        _array => $_[0],
+                    }
+                ),
+            hash => 
+                ::DISPATCH( $::Hash, 'new', { 
+                        _hash => { },    # TODO
+                    }
+                ),
+        } 
+    )
+}
 $::Multi = make_class(name=>"Multi",parent=>[$meta_Code],methods=>{
     APPLY =>sub {
             my $self = shift; 
-            my $code = ::DISPATCH( $self, 'select', 
-                ::DISPATCH( $::Capture, 'new', { 
-                        array => 
-                            ::DISPATCH( $::Array, 'new', { 
-                                    _array => [ @_ ],
-                                }
-                            ),
-                        hash => 
-                            ::DISPATCH( $::Hash, 'new', { 
-                                    _hash => { },    # TODO
-                                }
-                            ),
-                    } 
-                )
-            );
+            my $code = ::DISPATCH( $self, 'select',::CAPTURIZE(\@_));
             ::DISPATCH( $code, 'APPLY', @_ );
         },
 });
