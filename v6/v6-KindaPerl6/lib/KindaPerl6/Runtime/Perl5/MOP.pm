@@ -547,6 +547,8 @@ $meta_Code->add_method( 'APPLY',
     ::DISPATCH( $::Method, 'new',  sub { my $self = shift; $self->{_value}{code}->(@_) } ) );
 $meta_Code->add_method( 'signature',
     ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value}{signature} } ) );
+$meta_Code->add_method( 'code',
+    ::DISPATCH( $::Method, 'new',  sub { $_[0] } ) );
 
 
 # Method isa Code
@@ -698,7 +700,7 @@ require KindaPerl6::Runtime::Perl6::Pair;
 
 
 my $Cell = make_class(name=>"HashCell",parent=>[$meta_Container],methods=>{
-        new=>sub {
+    new=>sub {
             my $v = {
                 %{ $_[0] },
                 _value => $_[1],
@@ -706,10 +708,10 @@ my $Cell = make_class(name=>"HashCell",parent=>[$meta_Container],methods=>{
                 _dispatch_VAR => $dispatch_VAR,
             };
         },
-        STORE=>sub {
+    STORE=>sub {
            ${$_[0]{_value}{cell}} = $_[1];
         },
-        FETCH=>sub {
+    FETCH=>sub {
            return ${$_[0]{_value}{cell}} || ::DISPATCH($::Undef,'new',0);
         },
 });
@@ -804,6 +806,7 @@ require KindaPerl6::Runtime::Perl6::Match;
 
 sub ::CAPTURIZE {
     ::DISPATCH( $::Capture, 'new', { 
+            invocant => undef,  # TODO
             array => 
                 ::DISPATCH( $::Array, 'new', { 
                         _array => $_[0],
