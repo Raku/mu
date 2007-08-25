@@ -90,7 +90,22 @@
                         { modified => $_MODIFIED, name => '$self' } );
                 }
                 $self = shift;
-                $List__->{_value}{_array} = \@_;
+                my $CAPTURE;
+                $CAPTURE =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$CAPTURE' } )
+                  unless defined $CAPTURE;
+
+                BEGIN {
+                    $CAPTURE =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$CAPTURE' } );
+                }
+                ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                do {
+                    ::MODIFIED($List__);
+                    $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                };
                 $v;
                 ::DISPATCH_VAR( $s, 'STORE',
                     ::DISPATCH( $::Str, 'new', '[ ' ) );
@@ -154,7 +169,22 @@
                         { modified => $_MODIFIED, name => '$self' } );
                 }
                 $self = shift;
-                $List__->{_value}{_array} = \@_;
+                my $CAPTURE;
+                $CAPTURE =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$CAPTURE' } )
+                  unless defined $CAPTURE;
+
+                BEGIN {
+                    $CAPTURE =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$CAPTURE' } );
+                }
+                ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                do {
+                    ::MODIFIED($List__);
+                    $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                };
                 ::DISPATCH( $self, 'join', ::DISPATCH( $::Str, 'new', ' ' ) );
             }
         )
@@ -182,7 +212,22 @@
                         { modified => $_MODIFIED, name => '$self' } );
                 }
                 $self = shift;
-                $List__->{_value}{_array} = \@_;
+                my $CAPTURE;
+                $CAPTURE =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$CAPTURE' } )
+                  unless defined $CAPTURE;
+
+                BEGIN {
+                    $CAPTURE =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$CAPTURE' } );
+                }
+                ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                do {
+                    ::MODIFIED($List__);
+                    $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                };
                 ::DISPATCH(
                     $GLOBAL::Code_infix_58__60__33__61__62_,
                     'APPLY',
@@ -215,7 +260,22 @@
                         { modified => $_MODIFIED, name => '$self' } );
                 }
                 $self = shift;
-                $List__->{_value}{_array} = \@_;
+                my $CAPTURE;
+                $CAPTURE =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$CAPTURE' } )
+                  unless defined $CAPTURE;
+
+                BEGIN {
+                    $CAPTURE =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$CAPTURE' } );
+                }
+                ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                do {
+                    ::MODIFIED($List__);
+                    $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                };
                 ::DISPATCH( $self, 'elems', );
             }
         )
@@ -243,8 +303,129 @@
                         { modified => $_MODIFIED, name => '$self' } );
                 }
                 $self = shift;
-                $List__->{_value}{_array} = \@_;
+                my $CAPTURE;
+                $CAPTURE =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$CAPTURE' } )
+                  unless defined $CAPTURE;
+
+                BEGIN {
+                    $CAPTURE =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$CAPTURE' } );
+                }
+                ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                do {
+                    ::MODIFIED($List__);
+                    $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                };
                 $self;
+            }
+        )
+    );
+    ::DISPATCH(
+        ::DISPATCH( $::Array, 'HOW', ),
+        'add_method',
+        ::DISPATCH( $::Str, 'new', 'grep' ),
+        ::DISPATCH(
+            $::Method,
+            'new',
+            sub {
+                my $List_result =
+                  ::DISPATCH( $::Array, 'new',
+                    { modified => $_MODIFIED, name => '$List_result' } );
+                my $s;
+                $s =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$s' } )
+                  unless defined $s;
+
+                BEGIN {
+                    $s =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$s' } );
+                }
+                my $v;
+                $v =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$v' } )
+                  unless defined $v;
+
+                BEGIN {
+                    $v =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$v' } );
+                }
+                my $List__ =
+                  ::DISPATCH( $::Array, 'new',
+                    { modified => $_MODIFIED, name => '$List__' } );
+                my $Code_test;
+                $Code_test =
+                  ::DISPATCH( $::Routine, 'new',
+                    { modified => $_MODIFIED, name => '$Code_test' } )
+                  unless defined $Code_test;
+
+                BEGIN {
+                    $Code_test =
+                      ::DISPATCH( $::Routine, 'new',
+                        { modified => $_MODIFIED, name => '$Code_test' } );
+                }
+                $self = shift;
+                my $CAPTURE;
+                $CAPTURE =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$CAPTURE' } )
+                  unless defined $CAPTURE;
+
+                BEGIN {
+                    $CAPTURE =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$CAPTURE' } );
+                }
+                ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                do {
+                    ::MODIFIED($List__);
+                    $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                };
+                do {
+                    ::MODIFIED($Code_test);
+                    $Code_test =
+                      ::DISPATCH( $List__, 'INDEX',
+                        ::DISPATCH( $::Int, 'new', 0 ) );
+                };
+                $List_result;
+                $s;
+                $v;
+                do {
+                    for my $v (
+                        @{ ::DISPATCH(
+                                $GLOBAL::Code_prefix_58__60__64__62_,
+                                'APPLY',
+                                ::DISPATCH(
+                                    $GLOBAL::Code_prefix_58__60__64__62_,
+                                    'APPLY', $self
+                                )
+                              )->{_value}{_array}
+                        }
+                      )
+                    {
+                        do {
+                            if (
+                                ::DISPATCH(
+                                    ::DISPATCH(
+                                        ::DISPATCH( $Code_test, 'APPLY', $v ),
+                                        "true"
+                                    ),
+                                    "p5landish"
+                                )
+                              )
+                            {
+                                ::DISPATCH( $List_result, 'push', $v );
+                            }
+                          }
+                    }
+                };
+                return ($List_result);
             }
         )
     );

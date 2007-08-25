@@ -14,4 +14,19 @@ class Array is Container {
     method true { self.elems != 0 };
     method int  { self.elems };
     method array { self };
+
+    # belongs to List
+    method grep(&test) {
+        my @result;
+        my $s;
+        my $v;
+        for @(self) -> $v { 
+            if test($v) {
+                @result.push($v);
+            };
+        };
+        return @result;
+    }
 }
+
+# vim: sw=4 ts=4 expandtab syn=perl6
