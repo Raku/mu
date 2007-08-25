@@ -164,7 +164,8 @@ my $method_new = sugar {
     %::PROTO,
 
       # _name     => '$method_new',
-      _value => sub {
+      _value => {
+        code => sub {
 
         #print "Calling new from @{[ caller ]} \n";
         my $v = sugar {
@@ -172,7 +173,7 @@ my $method_new = sugar {
             _value => $_[1],    # || 0,
                                 # _name  => '',
         };
-      },
+      } },
 };
 
 my $meta_Method = sugar {
@@ -191,6 +192,11 @@ $::Method = sugar {
       _isa => [$meta_Method],
 };
 push @{ $method_new->{_isa} }, $meta_Method;
+$meta_Method->{_value}{methods}{APPLY} = ::DISPATCH( $::Method, 'new',  
+    sub { 
+        my $meth = shift;
+        $meth->{_value}{code}->( @_ ) } 
+    );
 $meta_Method->{_value}{methods}{WHAT} = ::DISPATCH( $::Method, 'new',  sub { $::Method } );
 $meta_Method->{_value}{methods}{HOW}  = ::DISPATCH( $::Method, 'new',  sub { $meta_Method } );
 

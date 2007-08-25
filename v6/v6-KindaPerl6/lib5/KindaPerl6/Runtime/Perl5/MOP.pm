@@ -164,7 +164,8 @@ my $method_new = sugar {
     %::PROTO,
 
       # _name     => '$method_new',
-      _value => sub {
+      _value => {
+        code => sub {
 
         #print "Calling new from @{[ caller ]} \n";
         my $v = sugar {
@@ -172,7 +173,7 @@ my $method_new = sugar {
             _value => $_[1],    # || 0,
                                 # _name  => '',
         };
-      },
+      } },
 };
 
 my $meta_Method = sugar {
@@ -191,6 +192,11 @@ $::Method = sugar {
       _isa => [$meta_Method],
 };
 push @{ $method_new->{_isa} }, $meta_Method;
+$meta_Method->{_value}{methods}{APPLY} = ::DISPATCH( $::Method, 'new',  
+    sub { 
+        my $meth = shift;
+        $meth->{_value}{code}->( @_ ) } 
+    );
 $meta_Method->{_value}{methods}{WHAT} = ::DISPATCH( $::Method, 'new',  sub { $::Method } );
 $meta_Method->{_value}{methods}{HOW}  = ::DISPATCH( $::Method, 'new',  sub { $meta_Method } );
 
@@ -288,14 +294,14 @@ $meta_Class->add_method(
         } }
     )
 );
-$meta_Class->add_method( 'WHAT', ::DISPATCH( $::Method, 'new',  sub { $::Class } ) );
-$meta_Class->add_method( 'HOW',  ::DISPATCH( $::Method, 'new',  sub { $meta_Class } ) );
+$meta_Class->add_method( 'WHAT', ::DISPATCH( $::Method, 'new', { code => sub { $::Class    } } ) );
+$meta_Class->add_method( 'HOW',  ::DISPATCH( $::Method, 'new', { code => sub { $meta_Class } } ) );
 $meta_Class->add_method( 'add_parent',
-    ::DISPATCH( $::Method, 'new',  sub { push @{ $_[0]{_value}{isa} }, $_[1] } ) );
+    ::DISPATCH( $::Method, 'new', { code => sub { push @{ $_[0]{_value}{isa} }, $_[1] } } ) );
 
 $meta_Class->add_method( 'methods',
     ::DISPATCH( $::Method, 'new', 
-        sub {
+        { code => sub {
             # TODO - show inherited methods
             # ??? - should this return the Methods and they stringify to method name ???
             ::DISPATCH( $::Array, 'new', 
@@ -304,12 +310,12 @@ $meta_Class->add_method( 'methods',
                                 keys %{ $_[0]{_value}{methods} } 
                         ] }  
             );
-        } )
+        } } )
 );
 $meta_Class->add_method(
     'new',
     ::DISPATCH( $::Method, 'new', 
-        sub {
+        { code => sub {
             # new Class( $class_name )
             my $meta_class = $_[0];
             my $class_name = ref( $_[1] ) ? $_[1]{_value} : $_[1];
@@ -328,7 +334,7 @@ $meta_Class->add_method(
             $self_meta->{_value}{methods}{HOW}  = ::DISPATCH( $::Method, 'new', sub { $self_meta } );
             $self_meta->{_methods}{PROTOTYPE}   = ::DISPATCH( $::Method, 'new', sub { $proto } );
             $self_meta;
-        }
+        } }
     )
 );
 $::Class = sugar {
@@ -351,17 +357,17 @@ $meta_Role->{_value}{methods} = { %{ $meta_Class->{_value}{methods} } };
 
 my $meta_Value = ::DISPATCH( $::Class, 'new', "Value");
 $::Value = $meta_Value->PROTOTYPE();
-$meta_Value->add_method( 'p5landish', ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value} } ) );
+$meta_Value->add_method( 'p5landish', ::DISPATCH( $::Method, 'new', { code => sub { $_[0]{_value} } } ) );
 $meta_Value->add_method(
     'say',
     ::DISPATCH( $::Method, 'new', 
-        sub { print $_[0]{_value}, "\n" }
+        { code => sub { print $_[0]{_value}, "\n" } }
     )
 );
 $meta_Value->add_method(
     'print',
     ::DISPATCH( $::Method, 'new', 
-        sub { print $_[0]{_value} }
+        { code => sub { print $_[0]{_value} } }
     )
 );
 
@@ -377,17 +383,17 @@ $meta_Str->add_parent($meta_Value);
 $meta_Str->add_method(
     'perl',
     ::DISPATCH( $::Method, 'new', 
-        sub { my $v = ::DISPATCH( $::Str, 'new',  '\'' . $_[0]{_value} . '\'' ) }
+        { code => sub { my $v = ::DISPATCH( $::Str, 'new',  '\'' . $_[0]{_value} . '\'' ) } }
     )
 );
-$meta_Str->add_method( 'str', ::DISPATCH( $::Method, 'new',  sub { $_[0] } ) );
+$meta_Str->add_method( 'str', ::DISPATCH( $::Method, 'new', { code => sub { $_[0] } } ) );
 $meta_Str->add_method(
     'true',
     ::DISPATCH( $::Method, 'new', 
-        sub {
+        { code => sub {
             ::DISPATCH( $::Bit, 'new', 
                 ( $_[0]{_value} ne '' && $_[0]{_value} ne '0' ) ? 1 : 0 );
-        }
+        } }
     )
 );
 
