@@ -24,6 +24,8 @@ use Carp qw(confess);
     }
 =cut
 
+# sugar routines
+
 sub ::DISPATCH {
     my $invocant = shift;
     confess "DISPATCH: calling @_ on invalid object:",Dumper($invocant),"\n" unless $invocant->{_dispatch};
@@ -37,22 +39,6 @@ sub ::DISPATCH_VAR {
     $invocant->{_dispatch_VAR}($invocant,@_);
 }
 
-sub get_method_from_metaclass {
-    my ( $self, $method_name ) = ( shift, shift );
-
-    #print "looking in $self\n", Dumper($self);
-    return $self->{_value}{methods}{$method_name}
-        if exists $self->{_value}{methods}{$method_name};
-    for my $parent ( @{ $self->{_value}{isa} } ) {
-
-        #print "trying $parent ",$parent->{_isa}[0]{_value}{class_name},"\n", Dumper($parent);
-        #print "available $method_name ? @{[ keys %{$parent->{_value}{methods}} ]}\n";
-        my $m = get_method_from_metaclass( $parent, $method_name );
-        return $m
-            if $m;
-    }
-    return undef;
-}
 sub make_class {
     my %args = @_;
     my $meta = ::DISPATCH( $::Class, 'new', $args{name});
@@ -69,13 +55,43 @@ sub make_class {
     return ::DISPATCH($meta,"PROTOTYPE");
 }
 
+
+# MOP implementation
+
 my $meta_Object;
 
-my $dispatch = sub {
+sub get_method_from_metaclass {
+    my ( $self, $method_name ) = ( shift, shift );
+    #print "looking in $self\n", Dumper($self);
+    return $self->{_value}{methods}{$method_name}
+        if exists $self->{_value}{methods}{$method_name};
+    for my $parent ( @{ $self->{_value}{isa} } ) {
+        #print "trying $parent ",$parent->{_isa}[0]{_value}{class_name},"\n", Dumper($parent);
+        #print "available $method_name ? @{[ keys %{$parent->{_value}{methods}} ]}\n";
+        my $m = get_method_from_metaclass( $parent, $method_name );
+        return $m
+            if $m;
+    }
+    return undef;
+}
+sub get_method_from_object {
+    my ( $self, $method_name ) = ( shift, shift );
+    # lookup local methods
+    return $self->{_methods}{$method_name}
+      if exists $self->{_methods}{$method_name};
+    # lookup method in the metaclass
+    for my $parent ( @{ $self->{_isa} }, $meta_Object ) {
+        my $m = get_method_from_metaclass( $parent, $method_name );
+        #print "found\n" if $m;
+        return $m
+          if $m;
+    }
+    return undef;
+}
 
+my $dispatch = sub {
     # $method_name is unboxed
     my ( $self, $method_name ) = ( shift, shift );
-
     #print "lookup $method_name in $self\n";
 
     unless ( ref($self) eq 'HASH'
@@ -87,58 +103,35 @@ my $dispatch = sub {
     }
 
     if ( $self->{_roles}{auto_deref} ) {
-
         # this object requires FETCH
         my $value = ::DISPATCH_VAR( $self, 'FETCH' );
         return ::DISPATCH( $value, $method_name, @_ );
-
     }
 
-    if ( !defined $self->{_value} ) {
-
+    if (  !defined $self->{_value} 
+       && $method_name eq 'str'
+       ) 
+    {
         # 'self' is a prototype object
         # it stringifies to the class name
         #print "Class.str: ",$self->{_isa}[0]{_value}{class_name},"\n";
         return ::DISPATCH( $::Str, 'new',  $self->{_isa}[0]{_value}{class_name} )
-          if $method_name eq 'str';
     }
 
-    # lookup local methods
-    return $self->{_methods}{$method_name}{_value}->( $self, @_ )
-      if exists $self->{_methods}{$method_name};
-
-    # lookup method in the metaclass
-    #print "# lookup '$method_name' in Class '", $self->{_isa}[0]{_value}{class_name}, "'\n";
-    for my $parent ( @{ $self->{_isa} }, $meta_Object ) {
-        my $m = get_method_from_metaclass( $parent, $method_name );
-
-        #print $m ? "found\n" : "not found\n";
-        #print "Method: ",Dumper($m);
-        return $m->{_value}->( $self, @_ )
-          if $m;
-    }
-    die "no method '$method_name' in Class '", $self->{_isa}[0]{_value}{class_name}, "'\n";
+    my $meth = get_method_from_object( $self, $method_name );
+    die "no method '$method_name' in Class '", $self->{_isa}[0]{_value}{class_name}, "'\n"
+        unless $meth;
+    return $meth->{_value}->( $self, @_ );
 };
 
 my $dispatch_VAR = sub {
-
     # VAR() is just like CALL(), but it doesn't call FETCH
     # $method_name is unboxed
     my ( $self, $method_name ) = ( shift, shift );
-
-    # lookup local methods
-    return $self->{_methods}{$method_name}{_value}->( $self, @_ )
-      if exists $self->{_methods}{$method_name};
-
-    # lookup method in the metaclass
-    for my $parent ( @{ $self->{_isa} }, $meta_Object ) {
-        my $m = get_method_from_metaclass( $parent, $method_name );
-
-        #print "found\n" if $m;
-        return $m->{_value}->( $self, @_ )
-          if $m;
-    }
-    die "no VAR() method: $method_name\n";
+    my $meth = get_method_from_object( $self, $method_name );
+    die "no method '$method_name' in Class '", $self->{_isa}[0]{_value}{class_name}, "'\n"
+        unless $meth;
+    return $meth->{_value}->( $self, @_ );
 };
 
 %::PROTO = (
