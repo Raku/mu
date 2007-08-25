@@ -124,10 +124,11 @@ my $dispatch = sub {
         
     if ( ref( $meth->{_value} ) eq 'HASH' && exists $meth->{_value}{code} ) {
         # a properly boxed Method
-        return $meth->{_value}{code}->( $self, @_ );
+        return ::DISPATCH( $meth, 'APPLY', $self, @_ );
+        #return $meth->{_value}{code}->( $self, @_ );
     }
     
-    # old-syle Method
+    # low-level Method - APPLY can't dispatch itself!
     return $meth->{_value}->( $self, @_ );
 };
 
@@ -136,23 +137,19 @@ my $dispatch_VAR = sub {
     # $method_name is unboxed
     my ( $self, $method_name ) = ( shift, shift );
     my $meth = get_method_from_object( $self, $method_name );
+
     die "no method '$method_name' in Class '", $self->{_isa}[0]{_value}{class_name}, "'\n"
         unless $meth;
+    die "malformed Method object"
+        if ( ref( $meth->{_value} ) ne 'HASH' || ! exists $meth->{_value}{code} );
 
-    if ( ref( $meth->{_value} ) eq 'HASH' && exists $meth->{_value}{code} ) {
-        # a properly boxed Method
-        return $meth->{_value}{code}->( $self, @_ );
-    }
-    
-    # old-syle Method
-    return $meth->{_value}->( $self, @_ );
+    return $meth->{_value}{code}->( $self, @_ );
 };
 
 %::PROTO = (
     _methods  => undef,    # hash
     _roles    => undef,    # hash
     # _modified => undef,
-    # _name     => '',
     _value    => undef,       # whatever | %attributes
     _isa      => undef,       # array
     _dispatch => $dispatch,
@@ -162,41 +159,41 @@ my $dispatch_VAR = sub {
 
 my $method_new = sugar {
     %::PROTO,
-
-      # _name     => '$method_new',
-      _value => {
-        code => sub {
-
-        #print "Calling new from @{[ caller ]} \n";
-        my $v = sugar {
-            %{ $_[0] },
-            _value => $_[1],    # || 0,
-                                # _name  => '',
-        };
-      } },
+    _value => { code => 
+            sub {
+                my $v = sugar {
+                    %{ $_[0] },
+                    _value => $_[1],  
+                };
+            } 
+    },
+};
+my $method_APPLY = sugar {
+    %::PROTO,
+    _value => # { code => 
+            sub { 
+                my $meth = shift;
+                $meth->{_value}{code}->( @_ );
+            },
+        # },
 };
 
 my $meta_Method = sugar {
     %::PROTO,
-
-      # _name     => '$meta_Method',
-      _value => {
-        methods    => { new => $method_new },
+    _value => {
+        methods  => { 
+            new   => $method_new,
+            APPLY => $method_APPLY,
+        },
         class_name => 'Method',
-      },
+    },
 };
 $::Method = sugar {
     %::PROTO,
-
-      # _name     => '$::Method',
-      _isa => [$meta_Method],
+    _isa => [$meta_Method],
 };
-push @{ $method_new->{_isa} }, $meta_Method;
-$meta_Method->{_value}{methods}{APPLY} = ::DISPATCH( $::Method, 'new',  
-    sub { 
-        my $meth = shift;
-        $meth->{_value}{code}->( @_ ) } 
-    );
+push @{ $method_new->{_isa} },   $meta_Method;
+push @{ $method_APPLY->{_isa} }, $meta_Method;
 $meta_Method->{_value}{methods}{WHAT} = ::DISPATCH( $::Method, 'new',  sub { $::Method } );
 $meta_Method->{_value}{methods}{HOW}  = ::DISPATCH( $::Method, 'new',  sub { $meta_Method } );
 
@@ -525,9 +522,9 @@ $meta_Object->add_method(
 # $meta_Object->add_method( 'FETCH',        ::DISPATCH( $::Method, 'new',  sub { $_[0] } ) );
 # Object.STORE is forbidden
 my $method_readonly = ::DISPATCH( $::Method, 'new', 
-    sub {
+    { code => sub {
         die "attempt to modify a read-only value";
-    }
+    } }
 );
 $meta_Object->add_method( 'STORE', $method_readonly );
 
@@ -589,20 +586,20 @@ $::Container = $meta_Container->PROTOTYPE();
 $meta_Container->add_method(
     'FETCH',
     ::DISPATCH( $::Method, 'new', 
-        sub {
+        { code => sub {
             $_[0]{_value}{cell} ? $_[0]{_value}{cell} : ::DISPATCH($::Undef,"new",0);
-        }
+        } }
     )
 );
 $meta_Container->add_method(
     'STORE',
     ::DISPATCH( $::Method, 'new', 
-        sub {
+        { code => sub {
             die "attempt to modify a read-only value"
               if $_[0]{_roles}{readonly};
             $_[0]{_value}{modified}{ $_[0]{_value}{name} } = 1;
             $_[0]{_value}{cell} = $_[1];
-        }
+        } }
     )
 );
 sub ::MODIFIED {
@@ -611,7 +608,7 @@ sub ::MODIFIED {
 $meta_Container->add_method(
     'BIND',
     ::DISPATCH( $::Method, 'new', 
-        sub {
+        { code => sub {
             # XXX - see old 'Type.pm'
             $_[0]{_value}{modified}{ $_[0]{_value}{name} } = 1;
             $_[1]{_value}{modified}{ $_[1]{_value}{name} } = 1;
@@ -627,7 +624,7 @@ $meta_Container->add_method(
                 $_[0]{_roles}{readonly} = 1;
             }
             $_[0];
-        }
+        } }
     )
 );
 
