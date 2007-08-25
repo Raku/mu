@@ -13,6 +13,8 @@ inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
 inc/Module/Install/PMC.pm
 
+lib/Module/CompileV6.pm
+
 lib/Pugs/Compiler/Perl6.pm
 
 lib/Pugs/Emitter/Perl6/Perl5.pm
