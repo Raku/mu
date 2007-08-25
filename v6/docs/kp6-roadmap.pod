@@ -31,11 +31,12 @@ Phase 2 - improved compiler architecture
 
 Phase 3 - regex compiler refactoring 
 
-  This is the current phase
+  This phase is finished
 
 Phase 4 - improved runtime
 
   The runtime libraries needed by the Perl-6.0.0-STD parser will be specified and implemented
+  This is the current phase
 
 Phase 5 - improved grammar
 
@@ -75,7 +76,7 @@ Finished.
 
 =item * KindaPerl6 compiler architecture code-review
 
-* under way
+* finished
 
 We need someone to review the previous phase results, in order to consider the "compiler architecture" phase finished.
 This is a non-blocking task.
@@ -106,7 +107,7 @@ From irc discussions:
 
 =item * KindaPerl6 syntax review
 
-* under way
+* finished; the syntax was not corrected
 
 We need to verify that the KindaPerl6 grammar is a valid subset of Perl 6.
 This is a non-blocking task.
@@ -146,6 +147,8 @@ This is a non-blocking task.
 =head3 Test Plan
 
 The resulting code will be tested by running the existing test suite.
+
+* unfinished
 
 
 =head2 Milestone 3.2 - Regex AST processor  
@@ -206,7 +209,7 @@ The regex compiler will use the AST processor engine to implement additional sem
 
 =head3 Status
 
-* started.
+* finished.
 
 =head3 Dependencies
 
@@ -242,6 +245,7 @@ and for "capture to array" flags.
 
 The resulting code will be tested by bootstrapping the compiler, and by running the improved test suite.
 
+* Status: the compiler will not be bootstrapped yet, because it is easier to hack on the non-bootstrapped compiler for now.
 
 
 =head2 Bonus Tasks  
@@ -255,7 +259,8 @@ These tasks are not required for the successful completion of this phase.
 =item * Add support for optionally using Perl6regex-on-Perl5regex, 
 as described in v6/v6-KindaPerl6/temp/backtracking-recursive-subrule.pl
 
-* Status: under way; 
+* Status: 
+ 
 implemented as Visitor::EmitPerl5Regex; 
 added a '-perl5rx' backend to kp6, that performs the p6rx-on-p5rx compilation.
 
@@ -293,7 +298,8 @@ Create C<COMPILING::<$?PARSER>>, C<$?FILE>, C<$?LINE>
 The goal for this phase is to specify and implement the runtime libraries needed by the Perl-6.0.0-STD parser.
 
 As a side effect, kp6 will also be able to use native OO models, if available.
-For example, PGE in the Parrot backend, and Moose in the Perl 5 backend, and native-perl5 in the MiniPerl6-on-Perl5 backend.
+For example, PGE in the Parrot backend, and Moose in the Perl 5 backend, and native-perl5 in 
+the MiniPerl6-on-Perl5 backend.
 The kp6-MO-on-mp6 engine (still mostly unwritten) will still be supported, for benefit of other backends.
 
 
@@ -326,11 +332,23 @@ under implementation.
 
 =item * Signature and Capture
 
+* Status: implemented
+
 =item * dispatching algorithm 
+
+* Status: implemented a proof-of-concept
 
 =item * Method and Sub refactoring
 
+* Status: under implementation
+
+=item Add 'multi' to the Grammar
+
+* Status: TODO
+
 =item * Multi Regex
+
+* Status: TODO
 
 =back
 
@@ -339,12 +357,15 @@ under implementation.
 
 The resulting code will be tested by running the existing test suite and implementation-specific tests.
 
+* Status: added tests for positional multis
 
 
 =head2 Milestone 4.2 - Add support for ...
 
 
 The ... will be able to do ...
+
+TODO: read STD and list what features are needed. 
 
 =head3 Status
 
@@ -387,7 +408,25 @@ These tasks are not required for the successful completion of this phase.
 
 =item * default (Main) namespace, nested namespaces
 
+=item * Lazy lists
+
+=item * gather / take
+
+=item * given / when
+
+=item * IO
+
 * Status: not started
 
 =back
+
+
+
+=head1 Phase 5 - improved grammar
+
+The goal for this phase is to upgrade kp6 to Perl-6.0.0-STD Grammar
+
+
+=head2 Milestone 5.1 - ...
+
 
