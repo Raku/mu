@@ -24,7 +24,7 @@ is($a, "-1", '-1 stringification works');
 
 my $a = 1.0; "$a";
 isa_ok($a, 'Rat');
-is($a, "1", '1. stringification works');
+is($a, "1", '1.0 stringification works');
 
 my $a = -1.0; "$a";
 isa_ok($a, 'Rat');

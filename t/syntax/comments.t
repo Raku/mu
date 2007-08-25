@@ -82,8 +82,8 @@ plan 37;
     ) 3, 'nested parens #(...(...)...)';
 
     is 3, #{
-        {Nested parens} works also {}
-    } 3, 'nested parens #(...(...)...)';
+        {Nested braces} works also {}
+    } 3, 'nested braces #{...{...}...}';
 }
 
 # I am not sure if this is speced somewhere:
