@@ -44,7 +44,7 @@ sub make_class {
     my $meta = ::DISPATCH( $::Class, 'new', $args{name});
     my %methods = %{$args{methods}};
     while (my ($method_name,$sub) = each %methods) {
-        ::DISPATCH($meta,"add_method",$method_name,::DISPATCH( $::Method, 'new', $sub));
+        ::DISPATCH($meta,"add_method",$method_name,::DISPATCH( $::Method, 'new', { code => $sub } ));
     }
     for my $attribute_name (@{$args{attributes}}) {
         ::DISPATCH($meta,"add_attribute",$attribute_name);
@@ -121,6 +121,13 @@ my $dispatch = sub {
     my $meth = get_method_from_object( $self, $method_name );
     die "no method '$method_name' in Class '", $self->{_isa}[0]{_value}{class_name}, "'\n"
         unless $meth;
+        
+    if ( ref( $meth->{_value} ) eq 'HASH' && exists $meth->{_value}{code} ) {
+        # a properly boxed Method
+        return $meth->{_value}{code}->( $self, @_ );
+    }
+    
+    # old-syle Method
     return $meth->{_value}->( $self, @_ );
 };
 
@@ -131,6 +138,13 @@ my $dispatch_VAR = sub {
     my $meth = get_method_from_object( $self, $method_name );
     die "no method '$method_name' in Class '", $self->{_isa}[0]{_value}{class_name}, "'\n"
         unless $meth;
+
+    if ( ref( $meth->{_value} ) eq 'HASH' && exists $meth->{_value}{code} ) {
+        # a properly boxed Method
+        return $meth->{_value}{code}->( $self, @_ );
+    }
+    
+    # old-syle Method
     return $meth->{_value}->( $self, @_ );
 };
 
@@ -210,32 +224,33 @@ my $meta_Class = sugar {
       },
 };
 push @{ $meta_Class->{_isa} }, $meta_Class;
-$meta_Class->{_value}{methods}{add_method} = ::DISPATCH( $::Method, 'new', 
-    sub {
+$meta_Class->{_value}{methods}{add_method} = 
+    ::DISPATCH( $::Method, 'new', 
+    { code => sub {
         my $meth_name = ref( $_[1] ) ? $_[1]{_value} : $_[1];
         warn "redefining method $_[0]{_value}{class_name}.$meth_name"
           if exists $_[0]{_value}{methods}{$meth_name};
         $_[0]{_value}{methods}{$meth_name} = $_[2];
-    }
+    } }
 );
 $meta_Class->add_method(
     'redefine_method',
     ::DISPATCH( $::Method, 'new', 
-        sub {
+        { code => sub {
             my $meth_name = ref( $_[1] ) ? $_[1]{_value} : $_[1];
             $_[0]{_value}{methods}{$meth_name} = $_[2];
-        }
+        } }
     )
 );
 $meta_Class->add_method(
     'add_role',
     ::DISPATCH( $::Method, 'new', 
-        sub {
+        { code => sub {
             my $meth_name = ref( $_[1] ) ? $_[1]{_value} : $_[1];
             warn "redefining role $_[0]{_value}{class_name}.$meth_name"
               if exists $_[0]{_value}{roles}{$meth_name};
             $_[0]{_value}{roles}{$meth_name} = $_[2];
-        }
+        } }
     )
 );
 
@@ -243,14 +258,14 @@ $meta_Class->add_method(
 $meta_Class->add_method(
     'add_attribute',
     ::DISPATCH( $::Method, 'new', 
-        sub {
+        { code => sub {
             my $meth_name = ref( $_[1] ) ? $_[1]{_value} : $_[1];
             $_[0]{_value}{attributes}{$meth_name} = sub { 1 };  # TODO ???
             #$_[0]{_value}{methods}{$meth_name} = sub : lvalue { $_[0]{_value}{$meth_name} };
             $_[0]->add_method( 
                 $meth_name, 
                 ::DISPATCH( $::Method, 'new',  
-                    sub { 
+                    { code => sub { 
                         # : lvalue is not needed, because we use .STORE() instead
                         
                         #print "accessing attribute $meth_name\n";
@@ -267,20 +282,20 @@ $meta_Class->add_method(
                           unless defined $_[0]{_value}{$meth_name};
                         
                         $_[0]{_value}{$meth_name};
-                    } 
+                    } } 
                 ) 
             );
-        }
+        } }
     )
 );
-$meta_Class->add_method( 'WHAT', ::DISPATCH( $::Method, 'new',  sub { $::Class } ) );
-$meta_Class->add_method( 'HOW',  ::DISPATCH( $::Method, 'new',  sub { $meta_Class } ) );
+$meta_Class->add_method( 'WHAT', ::DISPATCH( $::Method, 'new', { code => sub { $::Class    } } ) );
+$meta_Class->add_method( 'HOW',  ::DISPATCH( $::Method, 'new', { code => sub { $meta_Class } } ) );
 $meta_Class->add_method( 'add_parent',
-    ::DISPATCH( $::Method, 'new',  sub { push @{ $_[0]{_value}{isa} }, $_[1] } ) );
+    ::DISPATCH( $::Method, 'new', { code => sub { push @{ $_[0]{_value}{isa} }, $_[1] } } ) );
 
 $meta_Class->add_method( 'methods',
     ::DISPATCH( $::Method, 'new', 
-        sub {
+        { code => sub {
             # TODO - show inherited methods
             # ??? - should this return the Methods and they stringify to method name ???
             ::DISPATCH( $::Array, 'new', 
@@ -289,12 +304,12 @@ $meta_Class->add_method( 'methods',
                                 keys %{ $_[0]{_value}{methods} } 
                         ] }  
             );
-        } )
+        } } )
 );
 $meta_Class->add_method(
     'new',
     ::DISPATCH( $::Method, 'new', 
-        sub {
+        { code => sub {
             # new Class( $class_name )
             my $meta_class = $_[0];
             my $class_name = ref( $_[1] ) ? $_[1]{_value} : $_[1];
@@ -313,7 +328,7 @@ $meta_Class->add_method(
             $self_meta->{_value}{methods}{HOW}  = ::DISPATCH( $::Method, 'new', sub { $self_meta } );
             $self_meta->{_methods}{PROTOTYPE}   = ::DISPATCH( $::Method, 'new', sub { $proto } );
             $self_meta;
-        }
+        } }
     )
 );
 $::Class = sugar {
@@ -336,17 +351,17 @@ $meta_Role->{_value}{methods} = { %{ $meta_Class->{_value}{methods} } };
 
 my $meta_Value = ::DISPATCH( $::Class, 'new', "Value");
 $::Value = $meta_Value->PROTOTYPE();
-$meta_Value->add_method( 'p5landish', ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value} } ) );
+$meta_Value->add_method( 'p5landish', ::DISPATCH( $::Method, 'new', { code => sub { $_[0]{_value} } } ) );
 $meta_Value->add_method(
     'say',
     ::DISPATCH( $::Method, 'new', 
-        sub { print $_[0]{_value}, "\n" }
+        { code => sub { print $_[0]{_value}, "\n" } }
     )
 );
 $meta_Value->add_method(
     'print',
     ::DISPATCH( $::Method, 'new', 
-        sub { print $_[0]{_value} }
+        { code => sub { print $_[0]{_value} } }
     )
 );
 
@@ -362,17 +377,17 @@ $meta_Str->add_parent($meta_Value);
 $meta_Str->add_method(
     'perl',
     ::DISPATCH( $::Method, 'new', 
-        sub { my $v = ::DISPATCH( $::Str, 'new',  '\'' . $_[0]{_value} . '\'' ) }
+        { code => sub { my $v = ::DISPATCH( $::Str, 'new',  '\'' . $_[0]{_value} . '\'' ) } }
     )
 );
-$meta_Str->add_method( 'str', ::DISPATCH( $::Method, 'new',  sub { $_[0] } ) );
+$meta_Str->add_method( 'str', ::DISPATCH( $::Method, 'new', { code => sub { $_[0] } } ) );
 $meta_Str->add_method(
     'true',
     ::DISPATCH( $::Method, 'new', 
-        sub {
+        { code => sub {
             ::DISPATCH( $::Bit, 'new', 
                 ( $_[0]{_value} ne '' && $_[0]{_value} ne '0' ) ? 1 : 0 );
-        }
+        } }
     )
 );
 
@@ -529,6 +544,9 @@ $meta_Code->add_method( 'APPLY',
 $meta_Code->add_method( 'signature',
     ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value}{signature} } ) );
 
+
+# Method isa Code
+$meta_Method->add_parent( $meta_Code );
 
 #--- Subset 
 # TODO - hierarchical constraints - Array of Foo

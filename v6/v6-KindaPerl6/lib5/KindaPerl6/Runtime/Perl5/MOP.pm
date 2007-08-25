@@ -44,7 +44,7 @@ sub make_class {
     my $meta = ::DISPATCH( $::Class, 'new', $args{name});
     my %methods = %{$args{methods}};
     while (my ($method_name,$sub) = each %methods) {
-        ::DISPATCH($meta,"add_method",$method_name,::DISPATCH( $::Method, 'new', $sub));
+        ::DISPATCH($meta,"add_method",$method_name,::DISPATCH( $::Method, 'new', { code => $sub } ));
     }
     for my $attribute_name (@{$args{attributes}}) {
         ::DISPATCH($meta,"add_attribute",$attribute_name);
@@ -121,6 +121,13 @@ my $dispatch = sub {
     my $meth = get_method_from_object( $self, $method_name );
     die "no method '$method_name' in Class '", $self->{_isa}[0]{_value}{class_name}, "'\n"
         unless $meth;
+        
+    if ( ref( $meth->{_value} ) eq 'HASH' && exists $meth->{_value}{code} ) {
+        # a properly boxed Method
+        return $meth->{_value}{code}->( $self, @_ );
+    }
+    
+    # old-syle Method
     return $meth->{_value}->( $self, @_ );
 };
 
@@ -131,6 +138,13 @@ my $dispatch_VAR = sub {
     my $meth = get_method_from_object( $self, $method_name );
     die "no method '$method_name' in Class '", $self->{_isa}[0]{_value}{class_name}, "'\n"
         unless $meth;
+
+    if ( ref( $meth->{_value} ) eq 'HASH' && exists $meth->{_value}{code} ) {
+        # a properly boxed Method
+        return $meth->{_value}{code}->( $self, @_ );
+    }
+    
+    # old-syle Method
     return $meth->{_value}->( $self, @_ );
 };
 
@@ -210,32 +224,33 @@ my $meta_Class = sugar {
       },
 };
 push @{ $meta_Class->{_isa} }, $meta_Class;
-$meta_Class->{_value}{methods}{add_method} = ::DISPATCH( $::Method, 'new', 
-    sub {
+$meta_Class->{_value}{methods}{add_method} = 
+    ::DISPATCH( $::Method, 'new', 
+    { code => sub {
         my $meth_name = ref( $_[1] ) ? $_[1]{_value} : $_[1];
         warn "redefining method $_[0]{_value}{class_name}.$meth_name"
           if exists $_[0]{_value}{methods}{$meth_name};
         $_[0]{_value}{methods}{$meth_name} = $_[2];
-    }
+    } }
 );
 $meta_Class->add_method(
     'redefine_method',
     ::DISPATCH( $::Method, 'new', 
-        sub {
+        { code => sub {
             my $meth_name = ref( $_[1] ) ? $_[1]{_value} : $_[1];
             $_[0]{_value}{methods}{$meth_name} = $_[2];
-        }
+        } }
     )
 );
 $meta_Class->add_method(
     'add_role',
     ::DISPATCH( $::Method, 'new', 
-        sub {
+        { code => sub {
             my $meth_name = ref( $_[1] ) ? $_[1]{_value} : $_[1];
             warn "redefining role $_[0]{_value}{class_name}.$meth_name"
               if exists $_[0]{_value}{roles}{$meth_name};
             $_[0]{_value}{roles}{$meth_name} = $_[2];
-        }
+        } }
     )
 );
 
@@ -243,14 +258,14 @@ $meta_Class->add_method(
 $meta_Class->add_method(
     'add_attribute',
     ::DISPATCH( $::Method, 'new', 
-        sub {
+        { code => sub {
             my $meth_name = ref( $_[1] ) ? $_[1]{_value} : $_[1];
             $_[0]{_value}{attributes}{$meth_name} = sub { 1 };  # TODO ???
             #$_[0]{_value}{methods}{$meth_name} = sub : lvalue { $_[0]{_value}{$meth_name} };
             $_[0]->add_method( 
                 $meth_name, 
                 ::DISPATCH( $::Method, 'new',  
-                    sub { 
+                    { code => sub { 
                         # : lvalue is not needed, because we use .STORE() instead
                         
                         #print "accessing attribute $meth_name\n";
@@ -267,10 +282,10 @@ $meta_Class->add_method(
                           unless defined $_[0]{_value}{$meth_name};
                         
                         $_[0]{_value}{$meth_name};
-                    } 
+                    } } 
                 ) 
             );
-        }
+        } }
     )
 );
 $meta_Class->add_method( 'WHAT', ::DISPATCH( $::Method, 'new',  sub { $::Class } ) );
@@ -529,6 +544,9 @@ $meta_Code->add_method( 'APPLY',
 $meta_Code->add_method( 'signature',
     ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value}{signature} } ) );
 
+
+# Method isa Code
+$meta_Method->add_parent( $meta_Code );
 
 #--- Subset 
 # TODO - hierarchical constraints - Array of Foo
