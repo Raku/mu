@@ -76,6 +76,26 @@ my %object = (
 ### ACTIONS ###
 module main;
 
+sub do_action( $verb, $object ) {
+    say "[$verb] [$object]";
+
+    my %action = (
+        'look'      => sub { look($object) }, 
+        'take'      => sub { take($object) }, 
+        'drop'      => sub { drop($object) }, 
+        'open'      => sub { open($object) }, 
+        'inventory' => sub { inventory() }, 
+        'score'     => sub { score() }, 
+        'help'      => sub { help() }, 
+        'quit'      => sub { quit() }, 
+    );
+
+    if %action{$verb} {
+         %action{$verb}();
+    }
+
+}
+
 sub help {
     say "look, take, drop, inventory, open, score, help, quit";
     say "north, south, east, west";
@@ -201,19 +221,17 @@ sub objects_in ($where) {
 
 ### MAIN LOOP ###
 
-while (1) {
+while ( 1 ) {
     print "> ";
     my $input = =<>;
 
-    my $response = Adventure.command( $input )<command>;
+    my $response = Adventure.command( $input );
 
-    if $response{'direction'} {
-        walk_to( ~$response{'direction'} );
+    if my $direction = $response{'direction'} {
+        walk_to( ~$direction );
     }
     elsif $response{'verb'} {
-        my $command  = "main::" ~ $response{'verb'} ~ '("' ~ $response{'object'} ~ '")';
-        eval($command);
-        print $! if $!;
+        do_action( ~$response{'verb'}, ~$response{'object'} );
     } else {
         say "What?";
     }
