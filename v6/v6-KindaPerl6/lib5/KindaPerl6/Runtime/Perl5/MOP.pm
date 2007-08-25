@@ -354,6 +354,7 @@ $meta_Role->{_value}{methods} = { %{ $meta_Class->{_value}{methods} } };
 
 my $meta_Value = ::DISPATCH( $::Class, 'new', "Value");
 $::Value = $meta_Value->PROTOTYPE();
+$meta_Value->add_method( 'WHICH', ::DISPATCH( $::Method, 'new', { code => sub { ::DISPATCH( $::Str, 'new', "$_[0]{_value}" ) } } ) );
 $meta_Value->add_method( 'p5landish', ::DISPATCH( $::Method, 'new', { code => sub { $_[0]{_value} } } ) );
 $meta_Value->add_method(
     'say',
