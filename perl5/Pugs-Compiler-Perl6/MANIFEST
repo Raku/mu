@@ -70,13 +70,13 @@ t/01-sanity/07-range.t
 t/01-sanity/07-simple-multisubs.t
 t/01-sanity/07-split.t
 t/01-sanity/07-substr.t
-t/01-sanity/07-tailcall.t
+# t/01-sanity/07-tailcall.t
 t/01-sanity/07-try.t
 
 t/02-test-pm/0-compile.t
 t/02-test-pm/2-force_todo.t
 
-t/builtins/arity.t
+# t/builtins/arity.t
 
 # t/builtins/io/exit-in-if.t
 # t/builtins/io/exit.t  - error in make dist
