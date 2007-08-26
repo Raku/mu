@@ -27,6 +27,13 @@ class Array is Container {
         };
         return @result;
     }
+
+#    method min {
+#        my $res;
+#        $res = @(self)[0];
+#
+#    }
+
 }
 
 # vim: sw=4 ts=4 expandtab syn=perl6

@@ -125,9 +125,9 @@ token term {
                 { return $$<check_block> }  # CHECK { code... }
 
     | is <?ws> <full_ident> 
-        { die "not implemented" }
+        { die "<is> not implemented" }
     | does <?ws> <full_ident> 
-        { die "not implemented" }
+        { die "<does> not implemented" }
 
     | <control> { return $$<control> } # Various control structures.  Does _not_ appear in binding LHS
 #   | <index>     # $obj[1, 2, 3]

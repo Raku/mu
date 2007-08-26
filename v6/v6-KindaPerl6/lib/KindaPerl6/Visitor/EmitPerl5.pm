@@ -69,14 +69,14 @@ class Val::Undef {
 
 class Val::Object {
     method emit_perl5 {
-        die 'not implemented';
+        die 'Emitting of Val::Object not implemented';
         # 'bless(' ~ %.fields.perl ~ ', ' ~ $.class.perl ~ ')';
     }
 }
 
 class Native::Buf {
     method emit_perl5 { 
-        die 'not implemented';
+        die 'Emitting of Native::Buf not implemented';
         # '\'' ~ $.buf ~ '\''
     }
 }
