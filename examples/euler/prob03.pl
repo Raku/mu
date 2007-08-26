@@ -1,6 +1,13 @@
 #!/usr/bin/env pugs
 
+=begin Problem
+The prime factors of 13195 are 5, 7, 13 and 29.
+
+What is the largest prime factor of the number 317584931803?
+=cut
+
 use v6;
+use Benchmark;
 
 sub is_prime($n) {
     my @primes = (2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43,
@@ -9,12 +16,8 @@ sub is_prime($n) {
 
     return True  if $n == any(@primes);
     return False if $n % any(@primes) == 0;
-
-    for (2..sqrt($n)) -> $i {
-        return False if $n % $i == 0;
-    }
-
-    True;
+    return False if $n % any(2..sqrt($n)) == 0;
+    return True;
 }
 
 sub divide($n) {
@@ -35,4 +38,5 @@ sub prime_factors($n) {
     }
 }
 
-say max(prime_factors(317584931803))
+my @t = timeit(1, -> { say max(prime_factors(317584931803)) });
+say "execution time: @t[0]";

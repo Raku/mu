@@ -1,7 +1,14 @@
-
 #!/usr/bin/env pugs
 
+=begin Problem
+By listing the first six prime numbers: 2, 3, 5, 7, 11, and 13, we can
+see that the 6th prime is 13.
+
+What is the 10001st prime number?
+=cut
+
 use v6;
+use Benchmark;
 
 sub is_prime($n) {
     my @primes = (2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43,
@@ -10,21 +17,22 @@ sub is_prime($n) {
 
     return True  if $n == any(@primes);
     return False if $n % any(@primes) == 0;
-
-    for (2..sqrt($n)) -> $i {
-        return False if $n % $i == 0;
-    }
-
-    True;
+    return False if $n % any(2..sqrt($n)) == 0;
+    return True;
 }
 
-my $prime;
-my $count = 0;
+sub main {
+    my $prime;
+    my $count = 0;
 
-for 2..* -> $i {
-    $count++ if is_prime($i);
-    if $count == 10001 {
-        say $i;
-        last;
+    for 2..* -> $i {
+        $count++ if is_prime($i);
+        if $count == 10001 {
+            say $i;
+            last;
+        }
     }
 }
+
+my @t = timeit(1, \&main);
+say "execution time: @t[0]";

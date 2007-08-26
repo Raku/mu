@@ -1,6 +1,13 @@
 #!/usr/bin/env pugs
 
+=begin Problem
+The sum of the primes below 10 is 2 + 3 + 5 + 7 = 17.
+
+Find the sum of all the primes below one million.
+=cut
+
 use v6;
+use Benchmark;
 
 sub is_prime($n) {
     my @primes = (2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43,
@@ -9,13 +16,14 @@ sub is_prime($n) {
 
     return True  if $n == any(@primes);
     return False if $n % any(@primes) == 0;
-
-    for (2..sqrt($n)) -> $i {
-        return False if $n % $i == 0;
-    }
-
-    True;
+    return False if $n % any(2..sqrt($n)) == 0;
+    return True;
 }
 
-my @primes = grep { is_prime($_) }, 2..999_999;
-say sum(@primes);
+sub main {
+    my @primes = grep { is_prime($_) }, 2..999_999;
+    say sum(@primes);
+}
+
+my @t = timeit(1, \&main);
+say "execution time: @t[0]";
