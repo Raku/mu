@@ -51,7 +51,7 @@ Call C<get()> to get the statistics. C<get()> returns the statistics as a hash r
     $lxs.init;
     my $header = 0;
 
-    while ( 1 ) {
+    loop {
         sleep(1);
         my %stats = $lxs.get;
         my $time  = localtime();
