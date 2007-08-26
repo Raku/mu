@@ -1,5 +1,5 @@
 package v6;
-$v6::VERSION = '0.019';
+$v6::VERSION = '0.020';
 
 # Documentation in the __END__
 use 5.006;
@@ -135,30 +135,30 @@ sub pmc_compile {
     return $perl5;
 }
 
-#print "ARGS: \$0='$0' \@ARGV=[ @ARGV ]\n";
+# print "ARGS: \$0='$0' \@ARGV=[ @ARGV ]\n";
 
-if (@ARGV and !caller) {
+if ( @ARGV && !caller ) {
     # We are the main program here
     my ($compile_only, $code);
 
-    if ($ARGV[0] eq '--compile-only') {
+    if ( @ARGV && $ARGV[0] eq '--compile-only') {
         shift(@ARGV);
         $compile_only++;
     }
 
     shift(@ARGV) if $ARGV[0] =~ /^--pugs/;
-    if ( $ARGV[0] =~ /^-B(.*)/i ) {
+    if ( @ARGV && $ARGV[0] =~ /^-B(.*)/i ) {
         shift(@ARGV);
         $backend_identifier = $1 if $1;
     }
-    splice(@ARGV, 0, 2) if $ARGV[0] =~ /^-B$/;
+    splice(@ARGV, 0, 2) if @ARGV && $ARGV[0] =~ /^-B$/;
 
-    if ( $ARGV[0] =~ /^-G(.*)/i ) {
+    if ( @ARGV && $ARGV[0] =~ /^-G(.*)/i ) {
         shift(@ARGV);
         $grammar_identifier = $1 if $1;
     }
 
-    while (@ARGV and $ARGV[0] =~ /^-(\w)(.+)/) {
+    while (@ARGV && $ARGV[0] =~ /^-(\w)(.+)/) {
         use Config;
         if($1 eq 'I') {
             $ENV{PERL6LIB} = ((defined($ENV{PERL6LIB}) && $ENV{PERL6LIB} ne '')
@@ -174,7 +174,7 @@ if (@ARGV and !caller) {
         exit 0;
     }
 
-    if (@ARGV and $ARGV[0] =~ s/^-e//) {
+    if (@ARGV && $ARGV[0] =~ s/^-e//) {
         $code = (length($ARGV[0]) ? $ARGV[0] : $ARGV[1]);
     }
     else {
@@ -192,7 +192,7 @@ if (@ARGV and !caller) {
         exit 0;
     }
 }
-elsif ( $0 eq '-e' && $ARGV[-1] eq '-v' ) {
+elsif ( $0 eq '-e' && @ARGV && $ARGV[-1] eq '-v' ) {
     print banner();
     exit 0;
 }
@@ -214,18 +214,18 @@ elsif ( $0 eq '-e' ) {
     }
 
     shift(@ARGV) if $ARGV[0] && $ARGV[0] =~ /^--pugs/;
-    if ( $ARGV[0] =~ /^-B(.*)/i ) {
+    if ( @ARGV && $ARGV[0] =~ /^-B(.*)/i ) {
         shift(@ARGV);
         $backend_identifier = $1 if $1;
     }
     splice(@ARGV, 0, 2) if $ARGV[0] && $ARGV[0] =~ /^-B$/;
 
-    if ( $ARGV[0] =~ /^-G(.*)/i ) {
+    if ( @ARGV && $ARGV[0] =~ /^-G(.*)/i ) {
         shift(@ARGV);
         $grammar_identifier = $1 if $1;
     }
 
-    while (@ARGV and $ARGV[0] =~ /^-(\w)(.+)/) {
+    while (@ARGV && $ARGV[0] =~ /^-(\w)(.+)/) {
         use Config;
         if($1 eq 'I') {
             $ENV{PERL6LIB} = ((defined($ENV{PERL6LIB}) && $ENV{PERL6LIB} ne '')

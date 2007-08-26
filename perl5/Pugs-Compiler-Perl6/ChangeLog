@@ -1,3 +1,8 @@
+0.020  2007-08-26
+
+- added Module::CompileV6 to MANIFEST (fixes broken CPAN distro)
+- fixed warnings when using v6.pm from the command line with pipes
+
 0.019  2007-08-25
 
 - grammar - added prefix:<|>
