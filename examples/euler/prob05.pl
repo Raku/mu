@@ -20,5 +20,20 @@ sub main {
     }
 }
 
-my @t = timeit(1, \&main);
+# this version takes advantage of the fact that the question is really just
+# asking for the LCM of 1..20
+sub alternate {
+    say reduce { lcm($^a, $^b) }, 1..20;
+}
+
+sub lcm($a, $b) {
+    ($a * $b) / (gcd($a, $b))
+}
+
+sub gcd($a, $b) {
+    return $a if $b == 0;
+    return gcd($b, $a % $b);
+}
+
+my @t = timeit(1, \&alternate); # alternate is MUCH faster :)
 say "execution time: @t[0]";
