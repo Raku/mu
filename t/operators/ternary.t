@@ -8,7 +8,7 @@ Ternary operator ?? !!
 
 =cut
 
-plan 14;
+plan 15;
 #L<S03/Changes to Perl 5 operators/"The ? : conditional operator becomes ?? !!">
 
 my $str1 = "aaa";
@@ -56,3 +56,15 @@ is((4 or 5 ?? 6 !! 7), 4, "operator priority");
     my $foo = eval q[ 1 ?? Bool::True !! Bool::False ];
     is($foo, Bool::True, "a statement with both ??!! and :: in it did compile"), :todo<bug>;
 }
+
+{
+    # Defining an N! postfix (for factorial) causes a misparse on ternary op
+    proto postfix:<!>($n) {
+        return 1 if $n < 2;
+        return $n * ($n-1)!
+    }
+
+    my $foo = eval q[ 1 ?? 'yay' !! 'nay' ];
+    is($foo, "yay", "defining a postfix<!> doesn't screw up ternary op"), :todo<bug>;
+}
+
