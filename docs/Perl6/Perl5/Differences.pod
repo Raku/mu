@@ -26,7 +26,7 @@ Where you used to say:
 
 You would now say:
 
-    my @fruits = ("apple", "pear", "banana");
+    my @fruits = "apple", "pear", "banana";
     say @fruit[0];
 
 Or even use the C<< <> >> operator, which replaces C<qw()>:
@@ -88,7 +88,8 @@ For details, see L<S02/"Built-In Data Types">
     __END__             =begin END
     __DATA__            =begin DATA
 
-See L<S02/"double-underscore forms are going away"> for details.
+See L<S02/"double-underscore forms are going away"> for details. The C<?>
+twigil refers to data that is known at compile time.
 
 =cut 
 
