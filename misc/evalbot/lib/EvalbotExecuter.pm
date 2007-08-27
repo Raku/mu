@@ -70,6 +70,7 @@ use utf8;
 use BSD::Resource;
 use Carp qw(confess);
 use File::Temp qw(tempfile);
+use Encode qw(encode);
 
 my $max_output_len = 350;
 
@@ -85,7 +86,7 @@ sub run {
 	if (length $response){
 		return "OUTPUT[$response]";
 	} else {
-		return "No output";
+		return "No output (you need to produce output to STDOUT)";
 	}
 }
 
