@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 111;
+plan 113;
 
 my $foo = "FOO";
 my $bar = "BAR";
@@ -39,6 +39,20 @@ Tests quoting constructs as defined in L<S02/Literals>
     my $s = q『blah blah blah』;
     is $s, 'blah blah blah',
         'q-style string with LEFT/RIGHT WHITE CORNER BRACKET';
+}
+
+{
+    my $s = q⦍blah blah blah⦎;
+    is $s, 'blah blah blah',
+        'q-style string with LEFT SQUARE BRACKET WITH TICK IN TOP CORNER and
+RIGHT SQUARE BRACKET WITH TICK IN BOTTOM CORNER(U+298D/U+298E)';
+}
+
+{
+    my $s = q〝blah blah blah〞;
+    is $s, 'blah blah blah',
+        'q-style string with REVERSED DOUBLE PRIME QUOTATION MARK and 
+DOUBLE PRIME QUOTATION MARK(U+301D/U+301E)';
 }
 
 {
