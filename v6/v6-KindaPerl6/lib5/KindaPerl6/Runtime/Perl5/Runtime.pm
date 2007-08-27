@@ -117,6 +117,7 @@ package GLOBAL;
         infix_58__60__43__62_
         infix_58__60__45__62_
         infix_58__60__47__62_
+        infix_58__60__60__61__62__62_
         
         prefix_58__60__64__62_        
         prefix_58__60__43__43__62_
@@ -206,6 +207,8 @@ package GLOBAL;
     { ::DISPATCH( $::Bit, 'new', (_str($_[0]) ne _str($_[1])) ? 1 : 0) }  # infix:<ne>
     sub infix_58__60__61__61__62_   
     { ::DISPATCH( $::Bit, 'new', (_int($_[0]) == _int($_[1])) ? 1 : 0) }  # infix:<==>
+    sub infix_58__60__60__61__62__62_
+    { ::DISPATCH( $::Int, 'new', (_int($_[0]) <=> _int($_[1]))) }  # infix:<<=>>
 
     sub infix_58__60__33__61__62_ {  # infix:<!=>
         $::Bit->new(_int($_[0]) != _int($_[1]));

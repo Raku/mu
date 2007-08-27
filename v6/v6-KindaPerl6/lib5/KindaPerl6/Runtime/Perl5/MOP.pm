@@ -796,6 +796,21 @@ $::Array = make_class(name=>"Array",parent=>[$meta_Container],methods=>{
                     }
             );
         },
+    sort =>sub {
+            my $sub = $_[1];
+            ::DISPATCH( $::Array, 'new', 
+                    { _array => [
+                            sort {
+                                ::DISPATCH(
+                                        $sub,
+                                        "APPLY", 
+                                        $a, $b 
+                                    )->{_value};
+                            } @{$_[0]{_value}{_array}}
+                        ],
+                    }
+            );
+        },
 });
 
 require KindaPerl6::Runtime::Perl6::Array;

@@ -17,9 +17,9 @@ package Val::Buf; sub new { shift; bless { @_ }, "Val::Buf" } sub emit_perl5 { m
 ;
 package Val::Undef; sub new { shift; bless { @_ }, "Val::Undef" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; '$::Undef' }
 ;
-package Val::Object; sub new { shift; bless { @_ }, "Val::Object" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; die('not implemented') }
+package Val::Object; sub new { shift; bless { @_ }, "Val::Object" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; die('Emitting of Val::Object not implemented') }
 ;
-package Native::Buf; sub new { shift; bless { @_ }, "Native::Buf" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; die('not implemented') }
+package Native::Buf; sub new { shift; bless { @_ }, "Native::Buf" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; die('Emitting of Native::Buf not implemented') }
 ;
 package Lit::Seq; sub new { shift; bless { @_ }, "Lit::Seq" } sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('(' . (Main::join([ map { $_->emit_perl5() } @{ $self->{seq} } ], ', ') . ')')) }
 ;
