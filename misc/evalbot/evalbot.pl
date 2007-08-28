@@ -50,6 +50,7 @@ package Evalbot;
             pugs    => \&exec_pugs,
             eval    => \&exec_eval,
             nqp     => \&exec_nqp,
+            p6     => \&exec_p6,
             );
     my $regex = $prefix . '(' . join('|',  keys %executer) . ')';
 #    warn "Regex: ", $regex, "\n";
