@@ -50,7 +50,7 @@ package Evalbot;
             pugs    => \&exec_pugs,
             eval    => \&exec_eval,
             nqp     => \&exec_nqp,
-            p6     => \&exec_p6,
+            p6      => \&exec_p6,
             );
     my $regex = $prefix . '(' . join('|',  keys %executer) . ')';
 #    warn "Regex: ", $regex, "\n";
@@ -69,8 +69,9 @@ package Evalbot;
             } elsif ($eval_name eq 'eval'){
                 my $pugs_out = EvalbotExecuter::run($str, $executer{pugs});
                 my $kp6_out  = EvalbotExecuter::run($str, $executer{kp6});
-                my $p6_out  = EvalbotExecuter::run($str, $executer{p6});
-                return "kp6: $kp6_out\npugs: $pugs_out\np6: $p6_out";
+                my $p6_out   = EvalbotExecuter::run($str, $executer{p6});
+                my $nqp_out  = EvalbotExecuter::run($str, $executer{nqp});
+                return "kp6: $kp6_out\npugs: $pugs_out\np6: $p6_out\nnqp: $nqp_out";
             } else {
                 return EvalbotExecuter::run($str, $e);
             }
