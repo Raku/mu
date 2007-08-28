@@ -69,7 +69,8 @@ package Evalbot;
             } elsif ($eval_name eq 'eval'){
                 my $pugs_out = EvalbotExecuter::run($str, $executer{pugs});
                 my $kp6_out  = EvalbotExecuter::run($str, $executer{kp6});
-                return "kp6: $kp6_out\npugs: $pugs_out";
+                my $p6_out  = EvalbotExecuter::run($str, $executer{p6});
+                return "kp6: $kp6_out\npugs: $pugs_out\np6: $p6_out";
             } else {
                 return EvalbotExecuter::run($str, $e);
             }
