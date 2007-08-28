@@ -1,10 +1,6 @@
 class Main {
     say '1..4';
 
-    my sub ab_2_ ($a,$b) {
-        say 'ok 2';
-    };
-
     my sub ab_1_ ($a) {
         say 'not ok 2';
     };
@@ -19,7 +15,11 @@ class Main {
 
     my &multi := Multi.new;
     &multi.long_names = [
-        &ab_2_,
+        
+        sub ($a,$b) {
+            say 'ok 2';
+        },
+        
         &ab_1_,
         &ab_3_,
         &ab_4_,
@@ -28,7 +28,7 @@ class Main {
 
     say 'ok 1 - survived so far';
 
-    say '# Signature: ', &ab_2_.signature;
+    say '# Signature: ', &ab_3_.signature;
 
     say '# flattened Capture:   ', $capture;    
     my $capture = \( 1, 2 );
