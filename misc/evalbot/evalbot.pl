@@ -49,6 +49,7 @@ package Evalbot;
             kp6     => \&exec_kp6,
             pugs    => \&exec_pugs,
             eval    => \&exec_eval,
+            nqp     => \&exec_nqp,
             );
     my $regex = $prefix . '(' . join('|',  keys %executer) . ')';
 #    warn "Regex: ", $regex, "\n";
@@ -101,6 +102,19 @@ package Evalbot;
         print $tmp_fh $program;
         close $tmp_fh;
         system "PUGS_SAFEMODE=true ./pugs $name >> $filename 2>&1";
+        unlink $name;
+        chdir $FindBin::Bin;
+        return;
+    }
+
+    sub exec_nqp {
+        my ($program, $fh, $filename) = @_;
+        chdir('../../../parrot/trunk')
+            or confess("Can't chdir to parrot base dir: $!");
+        my ($tmp_fh, $name) = tempfile();
+        print $tmp_fh $program;
+        close $tmp_fh;
+        system "./parrot languages/nqp/nqp.pbc $name >> $filename 2>&1";
         unlink $name;
         chdir $FindBin::Bin;
         return;
