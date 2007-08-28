@@ -77,6 +77,10 @@ my $max_output_len = 350;
 sub run {
 	my ($program, $executer) = @_;
 	my $response = _fork_and_eval($program, $executer);
+	if (!length $response){
+		$program = '( ( do { ' . $program . ' } ).perl ).say';
+		$response = _fork_and_eval($program, $executer);
+	}
 	my $newline = '␤';
 	$response =~ s/\n/$newline/g;
 	if (length $response > $max_output_len){
