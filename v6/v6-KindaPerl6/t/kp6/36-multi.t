@@ -9,10 +9,6 @@ class Main {
         say 'ok 3';
     };
 
-    my sub ab_4_ ($a,$b,$c,$d) {
-        say 'ok 4';
-    };
-
     my &multi := Multi.new;
     &multi.long_names = [
         
@@ -22,8 +18,14 @@ class Main {
         
         &ab_1_,
         &ab_3_,
-        &ab_4_,
     ];
+    
+    (&multi.long_names).push( 
+        sub ($a,$b,$c,$d) {
+            say 'ok 4';
+        }
+    );
+    
     say '# long_names: ', &multi.long_names;
 
     say 'ok 1 - survived so far';
