@@ -157,6 +157,9 @@ my $dispatch_VAR = sub {
 
 #--- Method
 
+# XXX 'Method' is actually a container, it should probably inherit from Routine,
+#     and it would be better if the internals matched Routine's
+
 my $method_new = sugar {
     %::PROTO,
     _value => { code => 
@@ -550,9 +553,11 @@ $meta_Code->add_method( 'signature',
 $meta_Code->add_method( 'code',
     ::DISPATCH( $::Method, 'new',  sub { $_[0] } ) );
 
+my $meta_List = ::DISPATCH( $::Class, 'new', "List");
+$::List = $meta_List->PROTOTYPE();
+$meta_List->add_parent($meta_Value);
+# TODO - finish List implementation ...
 
-# Method isa Code
-$meta_Method->add_parent( $meta_Code );
 
 #--- Subset 
 # TODO - hierarchical constraints - Array of Foo
@@ -679,6 +684,10 @@ $meta_Routine->add_method(
         },
     )
 );
+
+# Method isa Routine
+$meta_Method->add_parent( $meta_Routine );
+
 
 
 # tests is a variable was initialized at all
