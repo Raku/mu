@@ -777,6 +777,20 @@ $::Array = make_class(name=>"Array",parent=>[$meta_Container],methods=>{
             my $self = shift;
             push @{ $self->{_value}{_array} }, @_;  # XXX process List properly
         },
+    pop =>sub {
+            my $self = shift;
+            pop @{ $self->{_value}{_array} };
+        },
+
+    shift =>sub {
+            my $self = shift;
+            shift @{ $self->{_value}{_array} }, @_;  # XXX process List properly
+        },
+    unshift =>sub {
+            my $self = shift;
+            unshift @{ $self->{_value}{_array} };
+        },
+
     join =>sub {
             ::DISPATCH($::Str, "new", join( 
                 ::DISPATCH(::DISPATCH($_[1],"str"),"p5landish"), 
