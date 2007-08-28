@@ -109,7 +109,7 @@ package Evalbot;
 
     sub exec_nqp {
         my ($program, $fh, $filename) = @_;
-        chdir('../../../parrot/trunk')
+        chdir('../../../parrot/')
             or confess("Can't chdir to parrot base dir: $!");
         my ($tmp_fh, $name) = tempfile();
         print $tmp_fh $program;
@@ -119,6 +119,20 @@ package Evalbot;
         chdir $FindBin::Bin;
         return;
     }
+
+    sub exec_p6 {
+        my ($program, $fh, $filename) = @_;
+        chdir('../../../parrot/')
+            or confess("Can't chdir to parrot base dir: $!");
+        my ($tmp_fh, $name) = tempfile();
+        print $tmp_fh $program;
+        close $tmp_fh;
+        system "./parrot languages/perl6/perl6.pbc $name >> $filename 2>&1";
+        unlink $name;
+        chdir $FindBin::Bin;
+        return;
+    }
+
 
     sub exec_eval {
         my ($program, $fh, $filename) = @_;

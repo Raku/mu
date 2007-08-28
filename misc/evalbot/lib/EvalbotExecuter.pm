@@ -6,29 +6,29 @@ EvalbotExecuter - Execution of external programs for evalbot
 
 =head1 SYNOPSIS
 
-	use EvalbotExecuter;
+    use EvalbotExecuter;
 
-	sub my_evalbot_executer {
-		my ($program, $fh, $filename) = @_;
+    sub my_evalbot_executer {
+        my ($program, $fh, $filename) = @_;
 
-		# execute $program, and write the result to 
-		# $fh, which is a filehandle opened for reading. 
-		# $filename is the name of that file.
-		
-		# we make a very stupid 'eval': remove all 
-		# vowels, and write it:
+        # execute $program, and write the result to 
+        # $fh, which is a filehandle opened for reading. 
+        # $filename is the name of that file.
+        
+        # we make a very stupid 'eval': remove all 
+        # vowels, and write it:
 
-		$program =~ s/[aeiou]//g;
-		print $fh $program;
-		close $fh;
+        $program =~ s/[aeiou]//g;
+        print $fh $program;
+        close $fh;
 
-		# the return value doesn't really matter
-		return;
-	}
+        # the return value doesn't really matter
+        return;
+    }
 
-	# somewhere else in the program, run it:
-	EvalbotExecuter::run('say "foo"', \&my_evalbot_executer);
-	
+    # somewhere else in the program, run it:
+    EvalbotExecuter::run('say "foo"', \&my_evalbot_executer);
+    
 =head1 DESCRIPTION
 
 EvalbotExecuter is basically a wrapper around a function that executes an
@@ -75,62 +75,64 @@ use Encode qw(encode);
 my $max_output_len = 350;
 
 sub run {
-	my ($program, $executer) = @_;
-	my $response = _fork_and_eval($program, $executer);
-	if (!length $response){
-		$program = '( ( do { ' . $program . ' } ).perl ).say';
-		$response = _fork_and_eval($program, $executer);
-	}
-	my $newline = '␤';
-	$response =~ s/\n/$newline/g;
-	if (length $response > $max_output_len){
-		$response = substr $response, 0, $max_output_len - 3;
-		$response .= '...';
-	}
-	if (length $response){
-		return "OUTPUT[$response]";
-	} else {
-		return "No output (you need to produce output to STDOUT)";
-	}
+    my ($program, $executer) = @_;
+    my $response = _fork_and_eval($program, $executer);
+    if (!length $response){
+        $program = '( ( do { ' . $program . ' } ).perl ).say';
+        $response = _fork_and_eval($program, $executer);
+    }
+    my $newline = '␤';
+    $response =~ s/\n/$newline/g;
+    if (length $response > $max_output_len){
+        $response = substr $response, 0, $max_output_len - 3;
+        $response .= '...';
+    }
+    if (length $response){
+        return "OUTPUT[$response]";
+    } else {
+        return "No output (you need to produce output to STDOUT)";
+    }
 }
 
 sub _fork_and_eval {
-	my ($program, $executer) = @_;
+    my ($program, $executer) = @_;
 
-	# the forked process should write its output to this tempfile:
-	my ($fh, $filename) = tempfile();
+# the forked process should write its output to this tempfile:
+    my ($fh, $filename) = tempfile();
 
-	my $fork_val = fork;
-	if (!defined $fork_val){
-		confess "Can't fork(): $!";
-	} elsif ($fork_val == 0) {
-		_set_resource_limits();
-		&$executer($program, $fh, $filename);
-		close $fh;
-		exit;
-	} else {
-		# server
-		wait;
-	}
+    my $fork_val = fork;
+    if (!defined $fork_val){
+        confess "Can't fork(): $!";
+    } elsif ($fork_val == 0) {
+        _set_resource_limits();
+        &$executer($program, $fh, $filename);
+        close $fh;
+        exit;
+    } else {
+# server
+        wait;
+    }
 
-	# gather result
-	close $fh;
-	open ($fh, '<', $filename) or confess "Can't open temp file <$filename>: $!";
-	my $result;
-	{
-		local $/;
-		$result = join '', <$fh>;
-	}
-	unlink $filename;
-	return $result;
+# gather result
+    close $fh;
+    open ($fh, '<', $filename) or confess "Can't open temp file <$filename>: $!";
+    my $result;
+    {
+        local $/;
+        $result = join '', <$fh>;
+    }
+    unlink $filename;
+    return $result;
 }
 
 sub _set_resource_limits {
-	# stolen from evalhelper-p5.pl
-	# 5s-7s CPU time, 100 MiB RAM, maximum of 500 bytes output.
-	setrlimit RLIMIT_CPU,   15, 20                  or confess "Couldn't setrlimit: $!\n";
-	setrlimit RLIMIT_VMEM,  80 * 2**20, 100 * 2**20 or confess "Couldn't setrlimit: $!\n";
-	# PIL2JS writes to a tempfile.
-	setrlimit RLIMIT_FSIZE, 50000, 50000,           or confess "Couldn't setrlimit: $!\n";
+# stolen from evalhelper-p5.pl
+# 5s-7s CPU time, 100 MiB RAM, maximum of 500 bytes output.
+    setrlimit RLIMIT_CPU,   15, 20                  or confess "Couldn't setrlimit: $!\n";
+    setrlimit RLIMIT_VMEM,  80 * 2**20, 100 * 2**20 or confess "Couldn't setrlimit: $!\n";
+# PIL2JS writes to a tempfile.
+    setrlimit RLIMIT_FSIZE, 50000, 50000,           or confess "Couldn't setrlimit: $!\n";
 }
 
+1;
+# vim: sw=4 ts=4 expandtab syn=perl

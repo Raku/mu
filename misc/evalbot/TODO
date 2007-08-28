@@ -9,11 +9,3 @@ These tasks can be implemented in any order
 
  * when the eval'ed program produces no output, the evalbots should return
    .perl.say of the last return value (if possible)
-
- * Evalbot for perl6 on parrot (important: find out how to determine unsafe
-   operations). p6onp can be found in languages/perl6/ of the parrot
-   repository
-
- * Evalbot for nqp (that should be quite easy to do since nqp doesn't
-   support unsafe operations yet). nqp can be found in languages/nqp/ of
-   the parrot repository
