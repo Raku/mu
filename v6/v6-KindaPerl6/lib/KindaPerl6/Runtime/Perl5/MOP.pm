@@ -274,7 +274,7 @@ $meta_Class->add_method(
                     { code => sub { 
                         # : lvalue is not needed, because we use .STORE() instead
                         
-                        #print "accessing attribute $meth_name\n";
+                        #print "# accessing attribute $meth_name\n";
                         
                         # XXX this should come from the Pad, at compile-time !!!
                         our $_MODIFIED;
@@ -553,7 +553,7 @@ $meta_Code->add_method( 'APPLY',
         $_apply = sub { 
            my $self = shift; # the Code object
            my @param = @_;
-           #print "param: ",Dumper(\@param);
+           #print "param: \n"; #,Dumper(\@param);
            # is there a Junction class?
            if ( $::Junction ) {
               #print "we've got junctions\n";
@@ -561,31 +561,15 @@ $meta_Code->add_method( 'APPLY',
                 my $j = $param[$index];
                 next unless ref $j; 
                 if ( ::DISPATCH( $j, 'does', $::Junction )->{_value} ) {
-                    #my $things = ::DISPATCH( $j, 'things' );
-                    my $things = $j->{_value}{cell}{_value}{things}{_value}{cell}{_value}{_array};
-
-                    #print "the $index parameter looks like a junction\n";
-                    #print "keys @{[ keys %{ $j->{_value}{cell}{_value}{things}{_value}{cell}{_value}{_array} } ]}\n";
-                    #my $things = $j->{_value}{things};
-                    #print "things is a ",ref($things),"\n";
-                    #print Dumper( $things );
-                    
-                    #$things = $things->{_value}{_array};
-                    
-                    #print "things is a ",ref($things),"\n";
-                    #print Dumper( $things );
-                    #print "the junction has ",( scalar @{ $things } )," things\n";
-                    #print ::DISPATCH( $j, 'str' )->{_value}, "\n";
+                    my @things = @{ ::DISPATCH( ::DISPATCH( $j, 'things' ), 'array' )->{_value}{_array} };
                     return ::DISPATCH( $::Junction, 'new', 
                       { 
                         type => $j->{_value}{type}, 
                         things => ::DISPATCH( $::Array, 'new', { _array => [ 
                                 map {  
-                                    #my @param = @_;
                                     $param[$index] = $_;
-                                    #print "Apply is $_apply\n";
                                     $_apply->( $self, @param ); 
-                                } @{ $things } 
+                                } @things 
                             ],
                         } ),
                       } );
@@ -926,6 +910,8 @@ require KindaPerl6::Runtime::Perl6::Junction;
 
 require KindaPerl6::Runtime::Perl5::IO;
 require KindaPerl6::Runtime::Perl6::IO;
+
+require KindaPerl6::Runtime::Perl6::Prelude;
 
 1;
 
