@@ -730,7 +730,13 @@ $::Hash = make_class(name=>"Hash",parent=>[$meta_Value],methods=>{
             my $v = {
                 %{ $_[0] },
                 _value => ( $_[1] || { _hash => {} } ),    
+                _dispatch_VAR => $dispatch_VAR,
             };
+        },
+    STORE=>sub {
+            $_[0]{_value}{_hash} = ::DISPATCH($_[1],"hash")->{_value}{_hash};
+            #$_[0]{_value}{_hash} = $_[1]->{_value}{_hash};
+            $_[0];
         },
     LOOKUP=>sub {
             my $key = ::DISPATCH(::DISPATCH($_[1],"str"),"p5landish");
@@ -867,6 +873,7 @@ $::Multi = make_class(name=>"Multi",parent=>[$meta_Code],methods=>{
 });
 
 require KindaPerl6::Runtime::Perl6::Multi;
+require KindaPerl6::Runtime::Perl6::Junction;
 
 require KindaPerl6::Runtime::Perl5::IO;
 require KindaPerl6::Runtime::Perl6::IO;
