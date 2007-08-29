@@ -4,7 +4,7 @@ use v6-alpha;
 
 use Test;
 
-plan 37;
+plan 41;
 
 # L<S02/"Whitespace and Comments"/"Embedded comments"
 #  "#" plus any bracket>
@@ -212,3 +212,58 @@ are both here, yay!
         17;
     }), 17, '=for comment works';
 }
+
+# L<S02/Whitespace and Comments/"block comments" "line-oriented"
+# block comments
+
+{
+    is eval( q{
+#{
+The answer to the ultimate question of life, 
+the universe and everything, is
+42!
+#}
+42;
+}), 42, 'block comments as #{'
+
+}
+
+{
+    is eval( q{
+#<<
+The answer to the ultimate question of life, 
+the universe and everything, is
+42!
+#>>
+42;
+}), 42, 'block comments as #<<'
+
+}
+
+
+{
+    is eval( q{
+#{
+The answer to the ultimate question of life, the universe and everything, is
+#{
+42!
+#}
+#}
+42;
+}), 42, 'nested block comments with the same brackets'
+
+}
+
+{
+    is eval( q{
+#{
+The answer to the ultimate question of life, the universe and everything, is
+#<<
+42!
+#>>
+#}
+42;
+}), 42, 'nested block comments with different brackets'
+
+}
+
