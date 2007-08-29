@@ -546,8 +546,57 @@ $::Code = $meta_Code->PROTOTYPE();
 $meta_Code->add_parent($meta_Value);
 $meta_Code->add_method( 'perl',
     ::DISPATCH( $::Method, 'new',  sub { my $v = $::Str->new( $_[0]{_value}{src} ) } ) );
+my $_apply;
 $meta_Code->add_method( 'APPLY',
-    ::DISPATCH( $::Method, 'new',  sub { my $self = shift; $self->{_value}{code}->(@_) } ) );
+    ::DISPATCH( $::Method, 'new',  
+    (
+        $_apply = sub { 
+           my $self = shift; # the Code object
+           my @param = @_;
+           #print "param: ",Dumper(\@param);
+           # is there a Junction class?
+           if ( $::Junction ) {
+              #print "we've got junctions\n";
+              for my $index ( 0 .. $#param ) {
+                my $j = $param[$index];
+                next unless ref $j; 
+                if ( ::DISPATCH( $j, 'does', $::Junction )->{_value} ) {
+                    #my $things = ::DISPATCH( $j, 'things' );
+                    my $things = $j->{_value}{cell}{_value}{things}{_value}{cell}{_value}{_array};
+
+                    #print "the $index parameter looks like a junction\n";
+                    #print "keys @{[ keys %{ $j->{_value}{cell}{_value}{things}{_value}{cell}{_value}{_array} } ]}\n";
+                    #my $things = $j->{_value}{things};
+                    #print "things is a ",ref($things),"\n";
+                    #print Dumper( $things );
+                    
+                    #$things = $things->{_value}{_array};
+                    
+                    #print "things is a ",ref($things),"\n";
+                    #print Dumper( $things );
+                    #print "the junction has ",( scalar @{ $things } )," things\n";
+                    #print ::DISPATCH( $j, 'str' )->{_value}, "\n";
+                    return ::DISPATCH( $::Junction, 'new', 
+                      { 
+                        type => $j->{_value}{type}, 
+                        things => ::DISPATCH( $::Array, 'new', { _array => [ 
+                                map {  
+                                    #my @param = @_;
+                                    $param[$index] = $_;
+                                    #print "Apply is $_apply\n";
+                                    $_apply->( $self, @param ); 
+                                } @{ $things } 
+                            ],
+                        } ),
+                      } );
+                }
+              } 
+            }
+
+           $self->{_value}{code}->(@_);
+        } 
+    ) 
+) );
 $meta_Code->add_method( 'signature',
     ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value}{signature} } ) );
 $meta_Code->add_method( 'code',

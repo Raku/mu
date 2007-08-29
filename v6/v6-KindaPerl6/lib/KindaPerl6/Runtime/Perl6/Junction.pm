@@ -14,10 +14,10 @@ class Junction {
 
     method str { 
                 my %sep = {
-                    "any" =>"|",
-                    "none"=>"!",
-                    "all" =>"&",
-                    "one" =>"^",
+                    "any" =>" | ",
+                    "none"=>" ! ",
+                    "all" =>" & ",
+                    "one" =>" ^ ",
                 };  
                       "( "  
                     ~ ( @( $.things ) ).join( %sep{ $.type } )

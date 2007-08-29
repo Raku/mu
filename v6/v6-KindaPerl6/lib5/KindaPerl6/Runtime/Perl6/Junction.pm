@@ -102,13 +102,13 @@
                         {
                             _hash => {
                                 ::DISPATCH( $::Str, 'new', 'any' )->{_value} =>
-                                  ::DISPATCH( $::Str, 'new', '|' ),
+                                  ::DISPATCH( $::Str, 'new', ' | ' ),
                                 ::DISPATCH( $::Str, 'new', 'none' )->{_value} =>
-                                  ::DISPATCH( $::Str, 'new', '!' ),
+                                  ::DISPATCH( $::Str, 'new', ' ! ' ),
                                 ::DISPATCH( $::Str, 'new', 'all' )->{_value} =>
-                                  ::DISPATCH( $::Str, 'new', '&' ),
+                                  ::DISPATCH( $::Str, 'new', ' & ' ),
                                 ::DISPATCH( $::Str, 'new', 'one' )->{_value} =>
-                                  ::DISPATCH( $::Str, 'new', '^' ),
+                                  ::DISPATCH( $::Str, 'new', ' ^ ' ),
                             }
                         }
                     )
