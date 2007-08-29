@@ -18,6 +18,15 @@
     our $Code_all =
       ::DISPATCH( $::Routine, 'new',
         { modified => $_MODIFIED, name => '$Code_all' } );
+    our $Code_any =
+      ::DISPATCH( $::Routine, 'new',
+        { modified => $_MODIFIED, name => '$Code_any' } );
+    our $Code_none =
+      ::DISPATCH( $::Routine, 'new',
+        { modified => $_MODIFIED, name => '$Code_none' } );
+    our $Code_one =
+      ::DISPATCH( $::Routine, 'new',
+        { modified => $_MODIFIED, name => '$Code_one' } );
     do {
         if (
             ::DISPATCH(
@@ -34,6 +43,15 @@
             our $Code_all =
               ::DISPATCH( $::Routine, 'new',
                 { modified => $_MODIFIED, name => '$Code_all' } );
+            our $Code_any =
+              ::DISPATCH( $::Routine, 'new',
+                { modified => $_MODIFIED, name => '$Code_any' } );
+            our $Code_none =
+              ::DISPATCH( $::Routine, 'new',
+                { modified => $_MODIFIED, name => '$Code_none' } );
+            our $Code_one =
+              ::DISPATCH( $::Routine, 'new',
+                { modified => $_MODIFIED, name => '$Code_one' } );
             do {
                 ::MODIFIED($::GLOBAL);
                 $::GLOBAL = ::DISPATCH(
@@ -101,6 +119,231 @@
                         ::DISPATCH( $junc, 'type', ),
                         'STORE',
                         ::DISPATCH( $::Str, 'new', 'all' )
+                    );
+                    $junc;
+                },
+                signature => ::DISPATCH(
+                    $::Signature,
+                    "new",
+                    {
+                        invocant => ::DISPATCH(
+                            $::Signature::Item, "new",
+                            { sigil => '$', twigil => '', name => 'self', }
+                        ),
+                        array =>
+                          ::DISPATCH( $::Array, "new", { _array => [] } ),
+                        hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                        return => $::Undef,
+                    }
+                ),
+            }
+        );
+    };
+    do {
+        ::MODIFIED($Code_any);
+        $Code_any = ::DISPATCH(
+            $::Code, 'new',
+            {
+                code => sub {
+                    my $junc;
+                    $junc =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$junc' } )
+                      unless defined $junc;
+
+                    BEGIN {
+                        $junc =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$junc' } );
+                    }
+                    my $List__ =
+                      ::DISPATCH( $::Array, 'new',
+                        { modified => $_MODIFIED, name => '$List__' } );
+                    my $self;
+                    $self =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$self' } )
+                      unless defined $self;
+
+                    BEGIN {
+                        $self =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$self' } );
+                    }
+                    my $CAPTURE;
+                    $CAPTURE =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$CAPTURE' } )
+                      unless defined $CAPTURE;
+
+                    BEGIN {
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } );
+                    }
+                    ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                    do {
+                        ::MODIFIED($List__);
+                        $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    ::DISPATCH_VAR( $junc, 'STORE',
+                        ::DISPATCH( $::Junction, 'new', ) );
+                    ::DISPATCH_VAR( ::DISPATCH( $junc, 'things', ),
+                        'STORE', $List__ );
+                    ::DISPATCH_VAR(
+                        ::DISPATCH( $junc, 'type', ),
+                        'STORE',
+                        ::DISPATCH( $::Str, 'new', 'any' )
+                    );
+                    $junc;
+                },
+                signature => ::DISPATCH(
+                    $::Signature,
+                    "new",
+                    {
+                        invocant => ::DISPATCH(
+                            $::Signature::Item, "new",
+                            { sigil => '$', twigil => '', name => 'self', }
+                        ),
+                        array =>
+                          ::DISPATCH( $::Array, "new", { _array => [] } ),
+                        hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                        return => $::Undef,
+                    }
+                ),
+            }
+        );
+    };
+    do {
+        ::MODIFIED($Code_none);
+        $Code_none = ::DISPATCH(
+            $::Code, 'new',
+            {
+                code => sub {
+                    my $junc;
+                    $junc =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$junc' } )
+                      unless defined $junc;
+
+                    BEGIN {
+                        $junc =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$junc' } );
+                    }
+                    my $List__ =
+                      ::DISPATCH( $::Array, 'new',
+                        { modified => $_MODIFIED, name => '$List__' } );
+                    my $self;
+                    $self =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$self' } )
+                      unless defined $self;
+
+                    BEGIN {
+                        $self =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$self' } );
+                    }
+                    my $CAPTURE;
+                    $CAPTURE =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$CAPTURE' } )
+                      unless defined $CAPTURE;
+
+                    BEGIN {
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } );
+                    }
+                    ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                    do {
+                        ::MODIFIED($List__);
+                        $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    ::DISPATCH_VAR( $junc, 'STORE',
+                        ::DISPATCH( $::Junction, 'new', ) );
+                    ::DISPATCH_VAR( ::DISPATCH( $junc, 'things', ),
+                        'STORE', $List__ );
+                    ::DISPATCH_VAR(
+                        ::DISPATCH( $junc, 'type', ),
+                        'STORE',
+                        ::DISPATCH( $::Str, 'new', 'none' )
+                    );
+                    $junc;
+                },
+                signature => ::DISPATCH(
+                    $::Signature,
+                    "new",
+                    {
+                        invocant => ::DISPATCH(
+                            $::Signature::Item, "new",
+                            { sigil => '$', twigil => '', name => 'self', }
+                        ),
+                        array =>
+                          ::DISPATCH( $::Array, "new", { _array => [] } ),
+                        hash   => ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                        return => $::Undef,
+                    }
+                ),
+            }
+        );
+    };
+    do {
+        ::MODIFIED($Code_one);
+        $Code_one = ::DISPATCH(
+            $::Code, 'new',
+            {
+                code => sub {
+                    my $junc;
+                    $junc =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$junc' } )
+                      unless defined $junc;
+
+                    BEGIN {
+                        $junc =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$junc' } );
+                    }
+                    my $List__ =
+                      ::DISPATCH( $::Array, 'new',
+                        { modified => $_MODIFIED, name => '$List__' } );
+                    my $self;
+                    $self =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$self' } )
+                      unless defined $self;
+
+                    BEGIN {
+                        $self =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$self' } );
+                    }
+                    my $CAPTURE;
+                    $CAPTURE =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$CAPTURE' } )
+                      unless defined $CAPTURE;
+
+                    BEGIN {
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } );
+                    }
+                    ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                    do {
+                        ::MODIFIED($List__);
+                        $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    ::DISPATCH_VAR( $junc, 'STORE',
+                        ::DISPATCH( $::Junction, 'new', ) );
+                    ::DISPATCH_VAR( ::DISPATCH( $junc, 'things', ),
+                        'STORE', $List__ );
+                    ::DISPATCH_VAR(
+                        ::DISPATCH( $junc, 'type', ),
+                        'STORE',
+                        ::DISPATCH( $::Str, 'new', 'one' )
                     );
                     $junc;
                 },
