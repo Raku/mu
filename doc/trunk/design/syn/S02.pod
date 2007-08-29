@@ -14,7 +14,7 @@ Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
   Last Modified: 29 Aug 2007
   Number: 2
-  Version: 113
+  Version: 114
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -80,11 +80,16 @@ Characters with no corresponding closing character do not qualify
 as opening brackets.  This includes the second section of the Unicode
 BidiMirroring data table, as well as C<U+201A> and C<U+201E>.
 
-If a character is already used in Ps/Pe mappings, then its entry in
-BidiMirroring is ignored.  Therefore C<U+298D> maps to C<U+298E>,
-not C<U+2990>, and C<U+298E> itself is not a valid bracket opener.
+If a character is already used in Ps/Pe mappings, then any entry
+in BidiMirroring is ignored (both forward and backward mappings).
+For any given Ps character, the next Pe codepoint (in numerical
+order) is assumed to be its matching character even if that is not
+what you might guess using left-right symmetry.  Therefore C<U+298D>
+maps to C<U+298E>, not C<U+2990>, and C<U+298F> maps to C<U+2990>,
+not C<U+298E>.  Neither C<U+298E> nor C<U+2990> are valid bracket
+openers, despite having reverse mappings in the BidiMirroring table.
 
-The C<U+301D> has two closing alternatives, C<U+301E> and C<U+301F>;
+The C<U+301D> codepoint has two closing alternatives, C<U+301E> and C<U+301F>;
 Perl 6 only recognizes the one with lower code point number, C<U+301E>,
 as the closing brace.  This policy also applies to new one-to-many
 mappings introduced in the future.
