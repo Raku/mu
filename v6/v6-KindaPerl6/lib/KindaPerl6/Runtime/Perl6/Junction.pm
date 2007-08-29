@@ -24,6 +24,22 @@ class Junction {
                     ~ " )"  
      };
 
+    method true {
+        my $thing;  # XXX
+        if $.type eq 'any' {
+            for @( $.things ) -> $thing {
+                if $thing { return True; };
+            };
+            return False;
+        };
+        if $.type eq 'all' {
+            for @( $.things ) -> $thing {
+                if !$thing { return False; };
+            };
+            return True;
+        };
+    };
+
 };
 
 

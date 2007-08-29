@@ -1,7 +1,7 @@
 
 
 class Main {
-    say '1..4';
+    say '1..6';
 
     my $junc = all( 1,2,3,4);
 
@@ -15,4 +15,18 @@ class Main {
     };
 
     sayok( $junc );
+
+    if $junc {
+        say "ok 5";
+    }
+    else {
+        say "not ok 5";
+    };
+
+    if all( 1, 0 ) {
+        say "not ok 6";
+    }
+    else {
+        say "ok 6";
+    };
 }
