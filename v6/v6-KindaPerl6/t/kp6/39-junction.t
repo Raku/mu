@@ -7,6 +7,7 @@ class Main {
     ];
     $junc.type = 'all';
 
+    say '# junction: ', $junc.str;
     say '# junction: ', $junc;
 
     say 'ok 1 - survived so far';
