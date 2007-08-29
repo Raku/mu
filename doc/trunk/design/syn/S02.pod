@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 13 Jun 2007
+  Last Modified: 29 Aug 2007
   Number: 2
-  Version: 112
+  Version: 113
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -147,51 +147,48 @@ There must be no space between the C<#> and the opening bracket character.
 (There may be the I<visual appearance> of space for some double-wide
 characters, however, such as the corner quotes above.)
 
-An embedded comment is not allowed as the first thing on the line since it
-would instead be parsed as a block comment, as described next.
+An embedded comment is not allowed as the first thing on the line.
 
-=item *
-
-Unlike embedded comments, which are character-oriented, block comments
-are line-oriented.  To facilitate the common practice of commenting out
-sections of code by prefixing each line with C<#>, if the initial C<#>
-on the line is immediately followed by one or more opening brackets,
-it is treated as a line-oriented form of bracket quoting, and may
-be terminated I<only> by a line matching the corresponding close
-bracket, which (unlike embedded comments) must also be prefixed with
-an initial C<#>.  For example, a opening line matching
-
-    /^^ '#{' \s /
-
-it may be terminated I<only> by a line matching
-
-    /^^ '#}' \s /
-
-The entire final line counts as part of the comment.  It does
-not matter whether the intervening lines start with C<#> or not.
-Block comments may be nested within other block comments (with the
-same or differing brackets).  POD comments may also be nested within
-block comments.  (These are still visible to the POD parser; if you
-wish to comment out a block of mixed POD and Perl 6 code, either use a
-POD comment around it all, or prefix every line with C<#>.)  The parser
-must report mismatched openers or closers to prevent, for example,
-unwitting use of bare C<}> as a closer for an opening C<#{>.
-
-However, an unexpected closer is treated as a line-end comment, on the
-assumption that the opening bracket was at the end of its comment line
-in the K&R style:
-
-    #for @foo {
-    # ...
+    #sub foo                    # line-end comment
+    #{                          # ILLEGAL, syntax error
+    #   ...
     #}
 
-In addition to supporting the practice of commenting out code with
-line comments, an additional motivation for this is to promote human
-recognition of the end of the comment when the opener could be quite
-far away, without requiring that all intervening lines use C</^'#'/> comments.
-Also, using the ordinary embedded comment mechanism tends to be fragile
-in the face of strings containing bracket characters, and the probability
-of such bracket skew increases with the length of the commented code.
+If you wish to have a comment there, you must disambiguate it to
+either an embedded comment or a line-end comment.  You can put a
+space in front of it to make it an embedded comment:
+
+    #sub foo                    # line end comment
+     #{                         # okay, comment
+       ...                      # extends
+    }                           # to here
+
+Or you can put something other than a single C<#>
+to make it a line-end comment.  Therefore, if you are commenting out a
+block of code using the line-comment form, we recommend that you use
+C<##>, or C<#> followed by some whitespace, preferably a tab to keep
+any tab formatting consistent:
+
+    ##sub foo
+    ##{                         # okay
+    ##   ...
+    ##}
+
+    # sub foo
+    # {                         # okay
+    #    ...
+    # }
+
+
+    #       sub foo
+    #       {                   # okay
+    #          ...
+    #       }
+
+However, it's often better to use pod comments because they are
+implicitly line-oriented.  And if you have an intelligent syntax
+highlighter that will mark pod comments in a different color, there's
+less visual need for a C<#> on every line.
 
 =item *
 
