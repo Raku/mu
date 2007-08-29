@@ -38,11 +38,11 @@ levels. (Perl 5 has 23!)  Here we list the levels from "tightest" to
     Junctive and (all)  &
     Junctive or (any)   | ^
     Named unary         rand sleep abs
-    Nonchaining infix   but does <=> leg cmp .. ..^ ^.. ^..^ ff fff
+    Nonchaining infix   but does <=> leg cmp .. ..^ ^.. ^..^
     Chaining infix      != == < <= > >= eq ne lt le gt ge ~~ === eqv !eqv
     Tight and           &&
     Tight or            || ^^ // min max
-    Conditional         ?? !!
+    Conditional         ?? !! ff fff
     Item assignment     = := ::= => += -= **= xx= .=
     Loose unary         true not
     Comma operator      ,
