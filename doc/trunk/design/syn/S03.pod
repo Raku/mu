@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 2 Aug 2007
+  Last Modified: 29 Aug 2007
   Number: 3
-  Version: 118
+  Version: 119
 
 =head1 Overview
 
@@ -864,24 +864,6 @@ Range object constructor
 Constructs Range objects, optionally excluding one or both endpoints.
 See L</Range semantics>.
 
-=item *
-
-Flipflop ranges
-
-    start() ff end()
-    start() ^ff end()
-    start() ff^ end()
-    start() ^ff^ end()
-
-=item *
-
-Flipflop ranges (sed style)
-
-    start() fff end()
-    start() ^fff end()
-    start() fff^ end()
-    start() ^fff^ end()
-
 =back
 
 =head2 Chaining binary precedence
@@ -1107,6 +1089,24 @@ C<< infix:<?> >>
 To catch likely errors by people familiar with C-derived languages
 (including Perl 5), a bare question mark in infix position will
 produce an error suggesting that the user use C<?? !!> instead.
+
+=item *
+
+Flipflop ranges
+
+    start() ff end()
+    start() ^ff end()
+    start() ff^ end()
+    start() ^ff^ end()
+
+=item *
+
+Flipflop ranges (sed style)
+
+    start() fff end()
+    start() ^fff end()
+    start() fff^ end()
+    start() ^fff^ end()
 
 =back
 
