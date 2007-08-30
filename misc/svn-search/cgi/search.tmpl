@@ -19,10 +19,15 @@
             method="get"
             accept-charset="utf-8">
         <label for="q">Query</label>
-        <input type="text" size="10" maxlength="30" name="q"
+        <input type="text" size="40" maxlength="120" name="q"
             value="<TMPL_VAR NAME=Q>" id="text"></input>
         <br />
-        <input type="submit"></input><br />
+        <input type="submit" value="Search"></input><br />
+        <p>You can use the operators 'AND', 'OR' and 'NOT', and prefix terms
+        with a '+' or '-' (default is 'OR').</p>
+        <p>You can search for phrases with double qutoes, and you can prefix
+        words or phrases with <code>author:</code>, <code>revision:</code> or 
+        <code>paths:</code>.</p>
     </form>
 
     <TMPL_IF NAME=RESULTS>
@@ -44,7 +49,8 @@
         <p>Modified files:</p>
         <ul>
         <TMPL_LOOP NAME=paths>
-            <li><TMPL_VAR NAME=path></li>
+            <li><a href="http://svn.pugscode.org/pugs/<TMPL_VAR
+            NAME=path>?rev=<TMPL_VAR NAME=revision>"><TMPL_VAR NAME=path></a></li>
         </TMPL_LOOP>
         </ul>
     </TMPL_LOOP>
