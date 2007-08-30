@@ -104,7 +104,7 @@
                                 ::DISPATCH( $::Str, 'new', 'any' )->{_value} =>
                                   ::DISPATCH( $::Str, 'new', ' | ' ),
                                 ::DISPATCH( $::Str, 'new', 'none' )->{_value} =>
-                                  ::DISPATCH( $::Str, 'new', ' ! ' ),
+                                  ::DISPATCH( $::Str, 'new', ' , ' ),
                                 ::DISPATCH( $::Str, 'new', 'all' )->{_value} =>
                                   ::DISPATCH( $::Str, 'new', ' & ' ),
                                 ::DISPATCH( $::Str, 'new', 'one' )->{_value} =>
@@ -116,22 +116,42 @@
                 ::DISPATCH(
                     $GLOBAL::Code_infix_58__60__126__62_,
                     'APPLY',
-                    ::DISPATCH( $::Str, 'new', '( ' ),
+                    ::DISPATCH(
+                        $GLOBAL::Code_infix_58__60_eq_62_,
+                        'APPLY',
+                        ::DISPATCH(
+                            $Hash_sep, 'LOOKUP',
+                            ::DISPATCH( $self, "type" )
+                        ),
+                        ::DISPATCH(
+                            $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
+                            'APPLY',
+                            ::DISPATCH( $::Str, 'new', '!' ),
+                            ::DISPATCH( $::Str, 'new', 'none' ),
+                            ::DISPATCH( $::Str, 'new', '' )
+                        )
+                    ),
                     ::DISPATCH(
                         $GLOBAL::Code_infix_58__60__126__62_,
                         'APPLY',
+                        ::DISPATCH( $::Str, 'new', '( ' ),
                         ::DISPATCH(
+                            $GLOBAL::Code_infix_58__60__126__62_,
+                            'APPLY',
                             ::DISPATCH(
-                                $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY',
-                                ::DISPATCH( $self, "things" )
+                                ::DISPATCH(
+                                    $GLOBAL::Code_prefix_58__60__64__62_,
+                                    'APPLY',
+                                    ::DISPATCH( $self, "things" )
+                                ),
+                                'join',
+                                ::DISPATCH(
+                                    $Hash_sep, 'LOOKUP',
+                                    ::DISPATCH( $self, "type" )
+                                )
                             ),
-                            'join',
-                            ::DISPATCH(
-                                $Hash_sep, 'LOOKUP',
-                                ::DISPATCH( $self, "type" )
-                            )
-                        ),
-                        ::DISPATCH( $::Str, 'new', ' )' )
+                            ::DISPATCH( $::Str, 'new', ' )' )
+                        )
                     )
                 );
             }

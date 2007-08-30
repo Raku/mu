@@ -5,6 +5,10 @@ feel free to add here ideas for the YAPC::Europe hackathon - pmurias
   - types -> signatures, captures -> multis
   - Improve the roadmap
 
+results:
+- Junction impl and tests
+- Multi implemented in Perl 6, needs more detailing
+
 * running the nqp (Parrot's mini-Perl6) test suite
 
 * initial javascript backend
@@ -13,10 +17,15 @@ feel free to add here ideas for the YAPC::Europe hackathon - pmurias
 
 * "tree transformation language" - ruoso
 
-
+results:
+- dakkar - XSLT-like transforms written in perl5
 
 * PIR emitter??
 
-
+results:
+- we can improve the existing mp6 emitter to bootstrap mp6,
+  and then we will be able to compile kp6 to parrot.
+- kp6 can parse a modified TGE syntax, it needs a runtime
 
 * Is "module Main" implied?
+
