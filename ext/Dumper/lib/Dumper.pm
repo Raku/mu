@@ -1,3 +1,49 @@
+=begin pod
+
+=head1 NAME
+
+Dumper - Simple dumper for Perl 6 structures.
+
+=head1 SYNOPSIS
+
+    use Dumper;
+
+    my %struct = (
+        foo => 1,
+        bar => 'baz',
+    );
+
+    dump(\%struct);
+
+=head1 DESCRIPTION
+
+This is just a simple dumper for Perl 6 structures.
+Feel free to expand it for your usage.
+
+=head1 SUBROUTINES
+
+=head2 dump()
+
+Call C<dump()> to dump a perl structure.
+
+=head1 EXPORTS
+
+Subroutine dump() is exportet.
+
+=head1 BUGS
+
+Please report all bugs to <jschulz.cpan(at)bloonix.de>.
+
+=head1 AUTHOR
+
+Perl 6 developers.
+
+=head1 COPYRIGHT
+
+This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+
+=end pod
+
 module Dumper-0001;
 use v6-alpha;
 
