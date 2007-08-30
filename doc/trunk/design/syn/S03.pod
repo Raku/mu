@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 29 Aug 2007
+  Last Modified: 30 Aug 2007
   Number: 3
-  Version: 119
+  Version: 120
 
 =head1 Overview
 
@@ -1025,7 +1025,25 @@ Minimum and maximum
 
 Instead of deciding whether to return the left or right based on booleans
 or definedness, these return the minimum or maximum value.  See also the
-minmax listop.
+C<minmax> listop.
+
+Not all types can support the concept of infinity.  Therefore any
+value of any type may be compared with C<+Inf> or C<-Inf> values,
+in which case the infinite value stands for "larger/smaller than any
+possible value of the type."  That is,
+
+    "foo" min +Inf              # "foo"
+    "foo" min -Inf              # -Inf
+    "foo" max +Inf              # +Inf
+    "foo" max -Inf              # "foo"
+
+All orderable object types must support C<+Inf> and C<-Inf> values
+as special forms of the undefined value.  It's an error, however,
+to attempt to store an infinite value into a native type that cannot
+support it:
+
+    my int $max;
+    $max max= -Inf;     # ERROR
 
 =back
 
@@ -3173,6 +3191,8 @@ Builtin reduce operators return the following identity values:
     [||]()      # Bool::False
     [^^]()      # Bool::False
     [//]()      # undef
+    [min]()     # +Inf
+    [max]()     # -Inf
     [=]()       # undef    (same for all assignment operators)
     [,]()       # []
     [Z]()       # []
