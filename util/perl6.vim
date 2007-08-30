@@ -61,7 +61,7 @@ syn keyword p6KeyFunc       keys values pairs defined delete exists elems end kv
 syn keyword p6KeyFunc       arity assuming gather take any pick all none
 syn keyword p6KeyFunc       pop push shift splice unshift  
 syn keyword p6KeyFunc       abs exp log log10 rand sign sqrt sin cos tan       
-syn keyword p6KeyFunc       floor ceiling round srand roots cis unpolar polar
+syn keyword p6KeyFunc       floor ceil round srand roots cis unpolar polar
 syn keyword p6KeyFunc       p5chop chop p5chomp chomp lc lcfirst uc ucfirst
 syn keyword p6KeyFunc       capitalize normalize pack unpack quotemeta comb
 syn keyword p6KeyFunc       nfd nfc nfkd nfkc
