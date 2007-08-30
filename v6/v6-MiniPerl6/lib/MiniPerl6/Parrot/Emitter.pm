@@ -15,12 +15,12 @@ class CompUnit {
             '.namespace [ ' ~ Main::quote ~ $.name ~ Main::quote ~ ' ] ' ~ Main::newline() ~
             #'.sub "__onload" :load' ~ Main::newline() ~
             #'.end'                ~ Main::newline() ~ Main::newline() ~
-            '.sub _ :main'        ~ Main::newline() ~
-            '.end'                ~ Main::newline() ~ Main::newline() ~
+            '.sub _ :main :anon'   ~ Main::newline() ~
+            '.end'                 ~ Main::newline() ~ Main::newline() ~
 
         # --- SETUP CLASS VARIABLES
 
-            '.sub ' ~ Main::quote ~ '_class_vars_' ~ Main::quote ~ Main::newline();
+            '.sub ' ~ Main::quote ~ '_class_vars_' ~ Main::quote ~ ' :anon' ~ Main::newline();
         for @$a -> $item {
             if    ( $item.isa( 'Decl' ) )
                && ( $item.decl ne 'has' ) 
