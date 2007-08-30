@@ -15,10 +15,17 @@ Dumper - Simple dumper for Perl 6 structures.
 
     dump(\%struct);
 
+    ---
+
+    $DUMP6 = {
+      foo = Int 1
+      bar = Str baz
+    }
+
 =head1 DESCRIPTION
 
-This is just a simple dumper for Perl 6 structures.
-Feel free to expand it for your usage.
+This is just a simple dumper for Perl 6 structures. Feel free to expand
+it for your usage. Improvements are welcome every time.
 
 =head1 SUBROUTINES
 
