@@ -109,7 +109,7 @@ class Val::Int {
 class Val::Bit {
     has $.bit;
     method emit {
-        '  $P0 = new .Integer' ~ Main::newline() ~
+        '  $P0 = new "Integer"' ~ Main::newline() ~
         '  $P0 = ' ~ $.bit ~ Main::newline()
     }
 }
@@ -117,7 +117,7 @@ class Val::Bit {
 class Val::Num {
     has $.num;
     method emit {
-        '  $P0 = new .Float' ~ Main::newline ~
+        '  $P0 = new "Float"' ~ Main::newline ~
         '  $P0 = ' ~ $.num ~ Main::newline
     }
 }
@@ -125,7 +125,7 @@ class Val::Num {
 class Val::Buf {
     has $.buf;
     method emit {
-        '  $P0 = new .String' ~ Main::newline ~
+        '  $P0 = new "String"' ~ Main::newline ~
         '  $P0 = ' ~ Main::quote ~ $.buf ~ Main::quote ~ Main::newline
     }
 }
