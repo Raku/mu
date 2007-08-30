@@ -10,6 +10,8 @@ version 0.3 (12 Apr 2004), file t/array_cap.t.
 It has (hopefully) been, and should continue to be, updated to
 be valid perl6.
 
+# L<S05/Array aliasing/An alias can also be specified using an array>
+
 =cut
 
 plan 45;
