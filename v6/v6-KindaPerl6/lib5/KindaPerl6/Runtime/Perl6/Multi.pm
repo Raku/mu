@@ -87,7 +87,22 @@
                         { modified => $_MODIFIED, name => '$self' } );
                 }
                 $self = shift;
-                $List__->{_value}{_array} = \@_;
+                my $CAPTURE;
+                $CAPTURE =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$CAPTURE' } )
+                  unless defined $CAPTURE;
+
+                BEGIN {
+                    $CAPTURE =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$CAPTURE' } );
+                }
+                ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                do {
+                    ::MODIFIED($List__);
+                    $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                };
                 $List_candidates;
                 $sub;
                 do {
@@ -202,7 +217,9 @@
                 );
             }
         )
-    );
+      )
+
+      ;
     1
 }
 

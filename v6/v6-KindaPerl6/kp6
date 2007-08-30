@@ -12,14 +12,7 @@ my $KP6="perl -I${KP6DIR}/../v6-MiniPerl6/lib5 -I${KP6DIR}/lib5 ${KP6DIR}/kp6-pe
 
 if ($PROG and -e $PROG)
 {
-    my $PROGC = "${PROG}.compiled";
-    my $t_PROG  = (stat($PROG))[9];
-    my $t_PROGC = (stat($PROGC))[9];
-
-    if ( ! -e $PROGC or $t_PROG > $t_PROGC ) { # cache pre-compile
-        system("$KP6 < $PROG > $PROGC");
-    }
-    system("perl -I${KP6DIR}/lib5 $PROGC");
+    system("$KP6 < $PROG | perl -I${KP6DIR}/lib5") and die "Could not compile/run $PROG";
 }
 else
 {
