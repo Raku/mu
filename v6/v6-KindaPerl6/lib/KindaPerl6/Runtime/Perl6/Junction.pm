@@ -38,6 +38,19 @@ class Junction {
             };
             return True;
         };
+        if $.type eq 'none' {
+            for @( $.things ) -> $thing {
+                if $thing { return False; };
+            };
+            return True;
+        };
+        if $.type eq 'one' {
+            my $counter = 0;
+            for @( $.things ) -> $thing {
+                if !$thing { return False; };
+            };
+            return True;
+        };
     };
 
 };

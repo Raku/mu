@@ -288,6 +288,120 @@
                         };
                         return ( ::DISPATCH( $::Bit, 'new', 1 ) );
                     }
+                };
+                do {
+                    if (
+                        ::DISPATCH(
+                            ::DISPATCH(
+                                ::DISPATCH(
+                                    $GLOBAL::Code_infix_58__60_eq_62_,
+                                    'APPLY',
+                                    ::DISPATCH( $self, "type" ),
+                                    ::DISPATCH( $::Str, 'new', 'none' )
+                                ),
+                                "true"
+                            ),
+                            "p5landish"
+                        )
+                      )
+                    {
+                        do {
+                            for my $thing (
+                                @{ ::DISPATCH(
+                                        $GLOBAL::Code_prefix_58__60__64__62_,
+                                        'APPLY',
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_prefix_58__60__64__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $self, "things" )
+                                        )
+                                      )->{_value}{_array}
+                                }
+                              )
+                            {
+                                do {
+                                    if (
+                                        ::DISPATCH(
+                                            ::DISPATCH( $thing, "true" ),
+                                            "p5landish"
+                                        )
+                                      )
+                                    {
+                                        return (
+                                            ::DISPATCH( $::Bit, 'new', 0 ) );
+                                    }
+                                  }
+                            }
+                        };
+                        return ( ::DISPATCH( $::Bit, 'new', 1 ) );
+                    }
+                };
+                do {
+                    if (
+                        ::DISPATCH(
+                            ::DISPATCH(
+                                ::DISPATCH(
+                                    $GLOBAL::Code_infix_58__60_eq_62_,
+                                    'APPLY',
+                                    ::DISPATCH( $self, "type" ),
+                                    ::DISPATCH( $::Str, 'new', 'one' )
+                                ),
+                                "true"
+                            ),
+                            "p5landish"
+                        )
+                      )
+                    {
+                        my $counter;
+                        $counter =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$counter' } )
+                          unless defined $counter;
+
+                        BEGIN {
+                            $counter = ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$counter' }
+                            );
+                        }
+                        ::DISPATCH_VAR( $counter, 'STORE',
+                            ::DISPATCH( $::Int, 'new', 0 ) );
+                        do {
+                            for my $thing (
+                                @{ ::DISPATCH(
+                                        $GLOBAL::Code_prefix_58__60__64__62_,
+                                        'APPLY',
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_prefix_58__60__64__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $self, "things" )
+                                        )
+                                      )->{_value}{_array}
+                                }
+                              )
+                            {
+                                do {
+                                    if (
+                                        ::DISPATCH(
+                                            ::DISPATCH(
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_prefix_58__60__33__62_,
+                                                    'APPLY',
+                                                    $thing
+                                                ),
+                                                "true"
+                                            ),
+                                            "p5landish"
+                                        )
+                                      )
+                                    {
+                                        return (
+                                            ::DISPATCH( $::Bit, 'new', 0 ) );
+                                    }
+                                  }
+                            }
+                        };
+                        return ( ::DISPATCH( $::Bit, 'new', 1 ) );
+                    }
                   }
             }
         )
