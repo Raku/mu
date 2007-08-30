@@ -17,7 +17,7 @@ if ($PROG and -e $PROG)
     my $t_PROGC = (stat($PROGC))[9];
 
     if ( ! -e $PROGC or $t_PROG > $t_PROGC ) { # cache pre-compile
-        system("$KP6 < $PROG | perltidy > $PROGC");
+        system("$KP6 < $PROG > $PROGC");
     }
     system("perl -I${KP6DIR}/lib5 $PROGC");
 }
