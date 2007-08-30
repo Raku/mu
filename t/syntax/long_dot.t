@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 74;
+plan 76;
 
 # L<S02/"Whitespace and Comments"/"long dot">
 
@@ -249,3 +249,10 @@ is($n, 2, 'check $n');
 # L<S02/"Lexical Conventions"/"U+301D has two closing alternatives">
 is(eval('foo\#〝 comment 〞.id'), 'a', 'long dot with U+301D/U+301E comment');
 is(eval('foo\#〝 comment 〟.id'), undef, 'long dot with U+301D/U+301F is invalid');
+
+# L<S02/Whitespace and Comments/".123"
+# .123 is equal to 0.123
+
+is eval(' .123'), 0.123, ' .123 is equal to 0.123';
+is eval('.123'), 0.123, '.123 is equal to 0.123';
+
