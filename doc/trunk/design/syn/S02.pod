@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 29 Aug 2007
+  Last Modified: 30 Aug 2007
   Number: 2
-  Version: 114
+  Version: 115
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -573,6 +573,9 @@ the floating-point form can represent this concept.  Might be better
 to make that conversion optional though, so that the rocket designer
 can decide whether to self-destruct immediately or shortly thereafter.
 
+Variables of non-native types start out containing an undefined value
+unless explicitly initialized to a defined value.
+
 =item *
 
 Every object supports a C<HOW> function/method that returns the
@@ -607,8 +610,8 @@ Lower-case types like C<int> and C<num> imply the native
 machine representation for integers and floating-point numbers,
 respectively, and do not promote to arbitrary precision, though
 larger representations are always allowed for temporary values.
-Unless qualified with a number of bits, C<int> and C<num> types default
-to the largest native types that run at full speed.
+Unless qualified with a number of bits, C<int> and C<num> types represent
+the largest native integer and floating-point types that run at full speed.
 
 Numeric values in untyped variables use C<Int> and C<Num> semantics
 rather than C<int> and C<num>.
@@ -757,6 +760,30 @@ you treat them as objects:
     num         native floating point
     complex     native complex number
     bool        native boolean
+
+Since native types cannot represent Perl's concept of undefined values,
+in the absence of explicit initialization, native floating-point types
+default to NaN, while integer types (including C<bit>) default to 0.
+The complex type defaults to NaN + NaN.i.  A buf type of known size
+defaults to a sequence of 0 values.  If any native type is explicitly
+initialized to C<*> (the C<Whatever> type), it is left unitialized.
+
+If a buf type is initialized with a Unicode string value, the string
+is decomposed into Unicode codepoints, and each codepoint shoved into
+an integer element.  If the size of the buf type is not specified,
+it takes its length from the initializing string.  If the size
+is specified, the initializing string is truncated or 0-padded as
+necessary.  If a codepoint doesn't fit into a buf's integer type,
+a parse error is issued if this can be detected at compile time;
+otherwise a warning is issued at run time and the overflowed buffer
+element is filled with an appropriate replacement character, either
+C<U+FFFD> (REPLACEMENT CHARACTER) if the element's integer type is at
+least 16 bits, or C<U+007f> (DELETE) if the larger value would not fit.
+If any other conversion is desired, it must be specified explicitly.
+In particular, no conversion to UTF-8 or UTF-16 is attempted; that
+must be specified explicitly.  (As it happens, conversion to a buf
+type based on 32-bit integers produces valid UTF-32 in the native
+endianness.)
 
 =head2 Undefined types
 
