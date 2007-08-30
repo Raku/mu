@@ -10,13 +10,13 @@ class Match {
     has $.hash;
 
     method str {
-           self.bool 
+           self.bool
         ?? substr( self.match_str, self.from, self.to - self.from )
         !! undef;
     };
 
     method true {
-        return $.bool
+        return $.bool;
     };
 
 }

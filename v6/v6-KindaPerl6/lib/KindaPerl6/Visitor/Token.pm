@@ -16,7 +16,7 @@ class KindaPerl6::Visitor::Token {
             # Emitted Perl 6 "method" code
 
             my $source := 'method ' ~ $node.name ~ ' ( $grammar: $str, $pos ) { ' 
-                ~ 'my $MATCH; $MATCH := ::Match( \'str\' => $str, \'from\' => $pos, \'to\' => $pos, \'bool\' => 1 ); ' 
+                ~ 'my $MATCH; $MATCH := ::Match( \'match_str\' => $str, \'from\' => $pos, \'to\' => $pos, \'bool\' => 1 ); ' 
                 ~ '$MATCH.bool( ' ~ $perl6_source ~ '); ' 
                 ~ 'return $MATCH }';
             # say 'Intermediate code: ', $source;
@@ -266,7 +266,7 @@ class Rule::Before {
             return
                 'do { ' ~
                     'my $tmp := $MATCH; ' ~
-                    '$MATCH := ::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' ~
+                    '$MATCH := ::Match( \'match_str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' ~
                     '$MATCH.bool( ' ~
                         $.rule.emit_token ~
                     '); ' ~
@@ -279,7 +279,7 @@ class Rule::Before {
             return
                 'do { ' ~
                     'my $tmp := $MATCH; ' ~
-                    '$MATCH := ::Match( \'str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' ~
+                    '$MATCH := ::Match( \'match_str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' ~
                     '$MATCH.bool( ' ~
                         $.rule.emit_token ~
                     '); ' ~

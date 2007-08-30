@@ -18,8 +18,6 @@ sub AUTOLOAD {
     our $AUTOLOAD;
     $AUTOLOAD =~ s/.*:://;
     my ($self,@args) = @_;
-    #use Data::Dump::Streamer;
-    #print Dump($self);
     $self->{_dispatch}($self,$AUTOLOAD,@args);
 }
 sub DESTROY {

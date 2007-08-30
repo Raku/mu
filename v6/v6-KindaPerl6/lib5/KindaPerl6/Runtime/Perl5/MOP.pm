@@ -20,7 +20,7 @@ use Carp qw(confess);
         my $dispatch = sub {
             # $self, $method
         };
-        $methods->{new} = sub { my $v = sugar { _dispatch => $dispatch, $_[0]{_value} } };
+        $methods->{new} = sub { my $class = shift;  my $v = sugar { _dispatch => $dispatch, $_[0]{_value}, @_ } };
     }
 =cut
 
