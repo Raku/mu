@@ -406,9 +406,15 @@ These tasks are not required for the successful completion of this phase.
 
 =item * Junction dispatching
 
+* Status: implemented; needs grammar support for infix:<|>, infix:<&>
+  but all(), any() work.
+
 =item * default (Main) namespace, nested namespaces
 
 =item * Lazy lists
+
+* Status: it is now possible to implement lazy lists in plain Perl 6;
+  not started
 
 =item * gather / take
 
