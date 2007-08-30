@@ -10,6 +10,8 @@ version 0.3 (12 Apr 2004), file t/anchors.t.
 It has (hopefully) been, and should continue to be, updated to
 be valid perl6.
 
+L<S05/New metacharacters/C<^^> and C<$$> match line beginnings and endings/
+
 =cut
 
 plan 19;
