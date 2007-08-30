@@ -177,7 +177,9 @@
                 return ( ::DISPATCH( $self, "bool" ) );
             }
         )
-    );
+      )
+
+      ;
     1
 }
 

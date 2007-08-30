@@ -382,30 +382,59 @@
                                 do {
                                     if (
                                         ::DISPATCH(
-                                            ::DISPATCH(
-                                                ::DISPATCH(
-                                                    $GLOBAL::Code_prefix_58__60__33__62_,
-                                                    'APPLY',
-                                                    $thing
-                                                ),
-                                                "true"
-                                            ),
+                                            ::DISPATCH( $thing, "true" ),
                                             "p5landish"
                                         )
                                       )
                                     {
-                                        return (
-                                            ::DISPATCH( $::Bit, 'new', 0 ) );
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_prefix_58__60__43__43__62_,
+                                            'APPLY', $counter
+                                        );
+                                        do {
+                                            if (
+                                                ::DISPATCH(
+                                                    ::DISPATCH(
+                                                        ::DISPATCH(
+                                                            $GLOBAL::Code_infix_58__60__62__62_,
+                                                            'APPLY',
+                                                            $counter,
+                                                            ::DISPATCH(
+                                                                $::Int, 'new',
+                                                                1
+                                                            )
+                                                        ),
+                                                        "true"
+                                                    ),
+                                                    "p5landish"
+                                                )
+                                              )
+                                            {
+                                                return (
+                                                    ::DISPATCH(
+                                                        $::Bit, 'new', 0
+                                                    )
+                                                );
+                                            }
+                                          }
                                     }
                                   }
                             }
                         };
-                        return ( ::DISPATCH( $::Bit, 'new', 1 ) );
+                        return (
+                            ::DISPATCH(
+                                $GLOBAL::Code_infix_58__60__61__61__62_,
+                                'APPLY', $counter,
+                                ::DISPATCH( $::Int, 'new', 1 )
+                            )
+                        );
                     }
                   }
             }
         )
-    );
+      )
+
+      ;
     1
 }
 

@@ -26,13 +26,21 @@ class Array is Container {
             };
         };
         return @result;
-    }
+    };
 
+    # XXX waits for infix <
 #    method min {
 #        my $res;
 #        $res = @(self)[0];
-#
-#    }
+#        my $v;
+#        for @(self) -> $v {
+#            # XXX no infix c
+#            if $v < $res {
+#                $res = $v;
+#            }
+#        }
+#        return $res;
+#    };
 
 }
 

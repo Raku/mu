@@ -47,12 +47,17 @@ class Junction {
         if $.type eq 'one' {
             my $counter = 0;
             for @( $.things ) -> $thing {
-                if !$thing { return False; };
+                if $thing { 
+                    ++$counter;
+                    if $counter > 1 {
+                        return False;
+                    };
+                };
             };
-            return True;
+            return $counter == 1;
         };
     };
 
 };
 
-
+# vim: sw=4 ts=4 expandtab syn=perl6
