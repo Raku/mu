@@ -109,7 +109,7 @@ sub croak (*@m) { die @m } # waiting for Carp::croak
 #   return bless \%self, $class;
 #}
 
-has Hash $.files = {};
+has %.files;
 
 submethod BUILD () {
     $.files<loadavg> = '/proc/loadavg';

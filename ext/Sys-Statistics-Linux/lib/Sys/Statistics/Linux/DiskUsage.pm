@@ -114,7 +114,7 @@ sub croak (*@m) { die @m } # waiting for Carp::croak
 #   return bless \%self, $class;
 #}
 
-has Hash $.cmd = {};
+has %.cmd;
 
 submethod BUILD () {
     $.cmd<df> = '/bin/df -kP';

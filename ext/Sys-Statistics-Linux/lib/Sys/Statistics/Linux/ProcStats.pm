@@ -106,10 +106,10 @@ use v6-alpha;
 
 sub croak (*@m) { die @m } # waiting for Carp::croak
 
-has Hash $.files = {};
-has Hash $.inits = {};
-has Hash $.stats = {};
-has Int  $.uptime;
+has %.files;
+has %.inits;
+has %.stats;
+has Int $.uptime;
 
 #sub new {
 #   my $class = shift;
@@ -158,7 +158,10 @@ method get () {
     }
     self.stats = self.load;
     self.deltas();
-    return self.stats;
+    # "return self.stats" will return a Hash::Const, for this reason
+    # I return %stats, then it returns a Hash
+    my %stats := self.stats;
+    return %stats;
 }
 
 #

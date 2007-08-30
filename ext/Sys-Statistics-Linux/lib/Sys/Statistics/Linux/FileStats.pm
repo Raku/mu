@@ -119,7 +119,7 @@ sub croak (*@m) { die @m } # waiting for Carp::croak
 #   return bless \%self, $class;
 #}
 
-has Hash $.files = {};
+has %.files;
 
 submethod BUILD () {
     $.files<file_nr>  = '/proc/sys/fs/file-nr';
@@ -156,9 +156,9 @@ submethod BUILD () {
 #}
 
 method get () {
-    my $file_nr  = self.files.<file_nr>;
-    my $inode_nr = self.files.<inode_nr>;
-    my $dentries = self.files.<dentries>;
+    my $file_nr  = self.files<file_nr>;
+    my $inode_nr = self.files<inode_nr>;
+    my $dentries = self.files<dentries>;
     my (%stats, $line);
 
 #    my $filfh = open($file_nr, :r) or croak("unable to open $file_nr: $!");

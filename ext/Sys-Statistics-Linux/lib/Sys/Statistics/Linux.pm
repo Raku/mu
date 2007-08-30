@@ -11,18 +11,18 @@ Sys::Statistics::Linux - Front-end module to collect system statistics
    my $lxs = Sys::Statistics::Linux.new;
 
    $lxs.set(
-      SysInfo   => 1,
-      CpuStats  => 1,
-      ProcStats => 1,
-      MemStats  => 1,
-      PgSwStats => 1,
-      NetStats  => 1,
-      SockStats => 1,
-      DiskStats => 1,
-      DiskUsage => 1,
-      LoadAVG   => 1,
-      FileStats => 1,
-      Processes => 1,
+      sysinfo   => 1,
+      cpustats  => 1,
+      procstats => 1,
+      memstats  => 1,
+      pgswstats => 1,
+      netstats  => 1,
+      sockstats => 1,
+      diskstats => 1,
+      diskusage => 1,
+      loadavg   => 1,
+      filestats => 1,
+      processes => 1,
    );
 
    sleep 1;
@@ -94,7 +94,7 @@ The options must be set with on of the following values:
 
 In addition it's possible to handoff a process list for option C<Processes>.
 
-    my $lxs = Sys::Statistics::Linux->new(
+    my $lxs = Sys::Statistics::Linux.new(
        Processes => {
           init => 1,
           pids => [ 1, 2, 3 ]
@@ -103,18 +103,18 @@ In addition it's possible to handoff a process list for option C<Processes>.
 
 To get more informations about the statistics refer the different modules of the distribution.
 
-   SysInfo     -  Collect system informations             with Sys::Statistics::Linux::SysInfo.
-   CpuStats    -  Collect cpu statistics                  with Sys::Statistics::Linux::CpuStats.
-   ProcStats   -  Collect process statistics              with Sys::Statistics::Linux::ProcStats.
-   MemStats    -  Collect memory statistics               with Sys::Statistics::Linux::MemStats.
-   PgSwStats   -  Collect paging and swapping statistics  with Sys::Statistics::Linux::PgSwStats.
-   NetStats    -  Collect net statistics                  with Sys::Statistics::Linux::NetStats.
-   SockStats   -  Collect socket statistics               with Sys::Statistics::Linux::SockStats.
-   DiskStats   -  Collect disk statistics                 with Sys::Statistics::Linux::DiskStats.
-   DiskUsage   -  Collect the disk usage                  with Sys::Statistics::Linux::DiskUsage.
-   LoadAVG     -  Collect the load average                with Sys::Statistics::Linux::LoadAVG.
-   FileStats   -  Collect inode statistics                with Sys::Statistics::Linux::FileStats.
-   Processes   -  Collect process statistics              with Sys::Statistics::Linux::Processes.
+   sysinfo     -  Collect system informations             with Sys::Statistics::Linux::SysInfo.
+   cpustats    -  Collect cpu statistics                  with Sys::Statistics::Linux::CpuStats.
+   procstats   -  Collect process statistics              with Sys::Statistics::Linux::ProcStats.
+   memstats    -  Collect memory statistics               with Sys::Statistics::Linux::MemStats.
+   pgswstats   -  Collect paging and swapping statistics  with Sys::Statistics::Linux::PgSwStats.
+   netstats    -  Collect net statistics                  with Sys::Statistics::Linux::NetStats.
+   sockstats   -  Collect socket statistics               with Sys::Statistics::Linux::SockStats.
+   diskstats   -  Collect disk statistics                 with Sys::Statistics::Linux::DiskStats.
+   diskusage   -  Collect the disk usage                  with Sys::Statistics::Linux::DiskUsage.
+   loadavg     -  Collect the load average                with Sys::Statistics::Linux::LoadAVG.
+   filestats   -  Collect inode statistics                with Sys::Statistics::Linux::FileStats.
+   processes   -  Collect process statistics              with Sys::Statistics::Linux::Processes.
 
 =head1 METHODS
 
@@ -125,24 +125,15 @@ This options would be handoff to the method C<set()>.
 
 Without options
 
-         my $lxs = Sys::Statistics::Linux->new();
+         my $lxs = Sys::Statistics::Linux.new;
 
 Or with options
 
-         my $lxs = Sys::Statistics::Linux->new(CpuStats => 1);
+         my $lxs = Sys::Statistics::Linux.new(CpuStats => 1);
 
 Would do nothing
 
-         my $lxs = Sys::Statistics::Linux->new(CpuStats => 0);
-
-It's possible to call C<new()> with a hash reference of options.
-
-         my %options = (
-            CpuStats => 1,
-            MemStats => 1
-         );
-
-         my $lxs = Sys::Statistics::Linux->new(\%options);
+         my $lxs = Sys::Statistics::Linux.new(CpuStats => 0);
 
 Take a look to C<set()> for more informations.
 
@@ -152,218 +143,59 @@ Call C<set()> to activate or deactivate options. The following example would cal
 C<init()> of C<Sys::Statistics::Linux::CpuStats> and delete the object of
 C<Sys::Statistics::Linux::SysInfo>:
 
-         $lxs->set(
+         $lxs.set(
             Processes =>  0, # deactivate this statistic
             PgSwStats =>  1, # activate the statistic and calls new() and init() if necessary
             NetStats  =>  2, # activate the statistic and call new() if necessary but not init()
          );
 
-It's possible to call C<set()> with a hash reference of options.
-
-         my %options = (
-            CpuStats => 2,
-            MemStats => 2
-         );
-
-         $lxs->set(\%options);
-
 =head2 get()
 
 Call C<get()> to get the collected statistics. C<get()> returns the statistics as a hash reference.
 
-         my $stats = $lxs->get;
+         my $stats = $lxs.get;
 
 =head2 init()
 
 The call of C<init()> re-init all statistics that are necessary for deltas and if the option is
 higher than 0.
 
-         $lxs->init;
+         $lxs.init;
 
 =head2 search(), psfind()
 
-Both methods provides a simple scan engine to find special statistics. Both methods except a filter
-as a hash reference as the first argument. If your data comes from extern - maybe from a client that
-send his statistics to the server - you can set the statistics as the second argument. The second
-argument have to be a hash reference as well.
-
-The method C<search()> scans for statistics and rebuilds the hash tree until that keys that matched
-your filter and returns the hits as a hash reference.
-
-        my $hits = $lxs->search({
-           Processes => {
-              cmd   => qr/\[su\]/,
-              owner => qr/root/
-           },
-           CpuStats => {
-              idle   => 'lt:10',
-              iowait => 'gt:10'
-           },
-           DiskUsage => {
-              '/dev/sda1' => {
-                 usageper => 'gt:80'
-              }
-           }
-        });
-
-This would return the following matches:
-
-    * processes with the command "[su]"
-    * processes with the owner "root"
-    * all cpu where "idle" is less than 50
-    * all cpu where "iowait" is grather than 10
-    * only disk '/dev/sda1' if "usageper" is grather than 80
-
-If the statistics are not gathered by the current process then you can handoff statistics as an
-argument.
-
-        my %stats = (
-           CpuStats => {
-              cpu => {
-                 system => '51.00',
-                 total  => '51.00',
-                 idle   => '49.00',
-                 nice   => '0.00',
-                 user   => '0.00',
-                 iowait => '0.00'
-              }
-           }
-        );
-               
-        my %filter = (
-           CpuStats => {
-              total => 'gt:50'
-           }
-        );
-
-        my $hits = $lxs->search(\%filter, \%stats);
-
-The method C<psfind()> scans for processes only and returns a array reference with all process
-IDs that matched the filter. Example:
-
-        my $pids = $lxs->psfind({ cmd => qr/init/, owner => 'eq:apache' });
-
-You can handoff the statistics as second argument as well.
-
-        my $pids = $lxs->psfind(\%filter, \%stats);
-
-This would return the following process ids:
-
-    * processes that matched the command "init"
-    * processes with the owner "apache"
-
-There are different match operators available:
-
-    gt  -  grather than
-    lt  -  less than
-    eq  -  is equal
-    ne  -  is not equal
-
-Notation examples:
-
-    gt:50
-    lt:50
-    eq:50
-    ne:50
-
-Both argumnents have to be set as a hash reference.
-
-Note: the operators < > = ! are not available any more. It's possible that in further releases
-could be different changes for C<search()> and C<psfind()>. So please take a look to the 
-documentation if you use it.
+NOT YET IMPLEMENTED
 
 =head2 settime()
 
-Call C<settime()> to define a POSIX formatted time stamp, generated with localtime().
-
-         $lxs->settime('%Y/%m/%d %H:%M:%S');
-
-To get more informations about the formats take a look at C<strftime()> of POSIX.pm
-or the manpage C<strftime(3)>.
+NOT YET IMPLEMENTED
 
 =head2 gettime()
 
-C<gettime()> returns a POSIX formatted time stamp, @foo in list and $bar in scalar context.
-If the time format isn't set then the default format "%Y-%m-%d %H:%M:%S" will be set
-automatically. You can also set a time format with C<gettime()>.
-
-         my $date_time = $lxs->gettime;
-
-Or
-
-         my ($date, $time) = $lxs->gettime;
-
-Or
-
-         my ($date, $time) = $lxs->gettime('%Y/%m/%d %H:%M:%S');
+NOT YET IMPLEMENTED
 
 =head1 EXAMPLES
 
 A very simple perl script could looks like this:
 
-         use warnings;
-         use strict;
          use Sys::Statistics::Linux;
 
-         my $lxs = Sys::Statistics::Linux->new( CpuStats => 1 );
+         my $lxs = Sys::Statistics::Linux.new( CpuStats => 1 );
          sleep(1);
-         my $stats = $lxs->get;
-         my $cpu   = $stats->{CpuStats}->{cpu};
+         my %stats  = $lxs.get;
+         my %cpu   := %stats<CpuStats><cpu>;
 
-         print "Statistics for CpuStats (all)\n";
-         print "  user      $cpu->{user}\n";
-         print "  nice      $cpu->{nice}\n";
-         print "  system    $cpu->{system}\n";
-         print "  idle      $cpu->{idle}\n";
-         print "  ioWait    $cpu->{iowait}\n";
-         print "  total     $cpu->{total}\n";
-
-Set and get a time stamp:
-
-         use warnings;
-         use strict;
-         use Sys::Statistics::Linux;
-
-         my $lxs = Sys::Statistics::Linux->new();
-         $lxs->settime('%Y/%m/%d %H:%M:%S');
-         print "$lxs->gettime\n";
-
-If you're not sure you can use the the C<Data::Dumper> module to learn more about the hash structure:
-
-         use warnings;
-         use strict;
-         use Sys::Statistics::Linux;
-         use Data::Dumper;
-
-         my $lxs = Sys::Statistics::Linux->new( CpuStats => 1 );
-         sleep(1);
-         my $stats = $lxs->get;
-
-         print Dumper($stats);
-
-How to get processes with the highest cpu workload:
-
-         use warnings;
-         use strict;
-         use Sys::Statistics::Linux;
-
-         my $lxs = Sys::Statistics::Linux->new( Processes => 1 );
-         sleep(1);
-         my $stats = $lxs->get;
-         my $procs = $stats->{Processes};
-
-         my @top5 = (
-            map  { $_->[0] }
-            reverse sort { $a->[1] <=> $b->[1] }
-            map  { [ $_, $procs->{$_}->{ttime} ] } keys %{$procs}
-         )[0..4];
+         say "Statistics for CpuStats (all)\n";
+         say "  user      %cpu<user>";
+         say "  nice      %cpu<nice>";
+         say "  system    %cpu<system>";
+         say "  idle      %cpu<idle>";
+         say "  ioWait    %cpu<iowait>";
+         say "  total     %cpu<total>";
 
 =head1 DEPENDENCIED
 
-    UNIVERSAL
-    UNIVERSAL::require
-    Test::More
-    Carp
+No at the moment.
 
 =head1 EXPORTS
 
@@ -387,7 +219,7 @@ Copyright (c) 2006, 2007 by Jonny Schulz. All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
-=end pod
+=cut
 
 #package Sys::Statistics::Linux;
 #our $VERSION = '0.15';
@@ -431,13 +263,14 @@ sub croak (*@m) { die @m } # waiting for Carp::croak
 #   return $self;
 #}
 
-has Hash $.inits    = { };
-has Hash $.stats    = { };
-has Hash $.objects  = { };
-has Hash $.regmaps  = { };
-has Hash $.options  = { };
+has %.inits;
+has %.stats;
+has %.objects;
+has %.regmaps;
+has %.options;
 
 submethod BUILD (*%p) {
+    #               alias               module name               init()
     self.register('sysinfo',   'Sys::Statistics::Linux::SysInfo',   0);
     self.register('cpustats',  'Sys::Statistics::Linux::CpuStats',  1);
     self.register('procstats', 'Sys::Statistics::Linux::ProcStats', 1);
@@ -455,7 +288,7 @@ submethod BUILD (*%p) {
 
 method register ($a, $m, $i) {
     self.regmaps{$a} = { class => $m, init => $i };
-    self.options{$a}  = 0;
+    self.options{$a} = 0;
 }
 
 #sub set {
@@ -523,7 +356,6 @@ method set (%p) {
         unless $v ~~ /^<[012]>$/ {
             croak("invalid value for option '$k'");
         }
-        %options{$k} = $v;
         if $v {
             if !%objects.exists($k) {
                 require %regmaps{$k}<class>;
@@ -535,6 +367,7 @@ method set (%p) {
         } else {
             self.stats{$k}.delete;
         }
+        %options{$k} = $v;
     }
 }
 

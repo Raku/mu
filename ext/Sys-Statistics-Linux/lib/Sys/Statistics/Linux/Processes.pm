@@ -135,7 +135,7 @@ Copyright (c) 2006, 2007 by Jonny Schulz. All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
-=cut
+=end pod
 
 #package Sys::Statistics::Linux::Processes;
 #our $VERSION = '0.08';
@@ -176,22 +176,36 @@ sub croak (*@m) { die @m } # waiting for Carp::croak
 #   return bless \%self, $class;
 #}
 
-has Hash  $.files = {};
-has Hash  $.inits = {};
-has Hash  $.stats = {};
-has Array $.pids;
-has Int   $.i_uptime;
-has Int   $.s_uptime;
+has %.files;
+has %.inits;
+has %.stats;
 
-submethod BUILD (@pids) {
+#has @.pids is rw; # this doesnt run nice
+# this doesnt run nice and occurs the error
+#   "Can't modify constant item"
+# if I try
+#   "self.pids = @p"
+
+has Array $.pids;
+has Int $.i_uptime;
+has Int $.s_uptime;
+
+multi submethod BUILD () {
+    self.files<basedir uptime p_stat p_statm p_status p_cmdline> =
+        ('/proc', '/proc/uptime', 'stat', 'statm', 'status', 'cmdline');
+}
+
+multi submethod BUILD (@pids) {
     for @pids -> $pid {
         unless $pid ~~ /^\d+$/ {
             croak("pid '$pid' is not a number");
         }
     }
+
     self.files<basedir uptime p_stat p_statm p_status p_cmdline> =
         ('/proc', '/proc/uptime', 'stat', 'statm', 'status', 'cmdline');
-    self.pids = @pids;
+
+    self.pids = @pids if @pids.elems;
 }
 
 #sub init {
@@ -262,10 +276,11 @@ method get () {
 
 my method p_init {
     my %files := self.files;
-    my @pids   = self.pids;
-    my %stats;
+    my @pids; my %stats;
 
-    unless @pids.elems {
+    if self.pids.elems {
+        @pids := self.pids;
+    } else {
         @pids = self.get_pids();
     }
 
@@ -364,12 +379,13 @@ my method p_init {
 #}
 
 my method load () {
-    my %files  = self.files;
-    my $uptime = self.uptime();
-    my @pids   = self.pids;
-    my %stats;
+    my %files  := self.files;
+    my $uptime  = self.uptime();
+    my @pids; my %stats;
 
-    unless @pids {
+    if self.pids.elems {
+        @pids := self.pids;
+    } else {
         @pids = self.get_pids();
     }
 

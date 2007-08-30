@@ -140,10 +140,10 @@ sub croak (*@m) { die @m } # waiting for Carp::croak
 #   return bless \%self, $class;
 #}
 
-has Hash $.files = {};
-has Hash $.inits = {};
-has Hash $.stats = {};
-has Hash $.uptime;
+has %.files;
+has %.inits;
+has %.stats;
+has Int $.uptime;
 
 submethod BUILD () {
     $.files<netstats> = '/proc/net/dev';
@@ -179,7 +179,10 @@ method get () {
     }
     self.stats = self.load;
     self.deltas();
-    return self.stats;
+    # "return self.stats" will return a Hash::Const, for this reason
+    # I return %stats, then it returns a Hash
+    my %stats := self.stats;
+    return %stats;
 }
 
 #
@@ -306,5 +309,13 @@ my method deltas () {
 #   close($fh);
 #   return $up;
 #}
+
+my method uptime () {
+    my $file = self.files<uptime>;
+    my $upfh = open($file, :r) or croak("unable to open $file: $!");
+    my ($up, $idle) = $upfh.readline.comb;
+    $upfh.close;
+    return $up;
+}
 
 1;

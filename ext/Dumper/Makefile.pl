@@ -1,9 +1,9 @@
 use lib "../../", "../../inc";
 use inc::Module::Install prefix => '../../inc';
 
-name       ('Sys::Statistics::Linux');
+name       ('Dumper');
 version    ('0.001');
-abstract   ('Perl 6 Sys::Statistics::Linux');
+abstract   ('Perl 6 Dumper');
 author     ('Jonny Schulz <jschulz.cpan@bloonix.de>');
 license    ('perl');
 
