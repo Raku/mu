@@ -20,7 +20,7 @@ class Junction {
                     "one" =>" ^ ",
                 };  
                 
-                      ( %sep{ $.type } eq '!' ?? 'none' !! '' )
+                      ( $.type eq '!' ?? 'none' !! '' )
                     ~ "( "  
                     ~ ( @( $.things ) ).join( %sep{ $.type } )
                     ~ " )"  

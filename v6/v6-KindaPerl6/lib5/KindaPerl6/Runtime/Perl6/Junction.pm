@@ -119,10 +119,7 @@
                     ::DISPATCH(
                         $GLOBAL::Code_infix_58__60_eq_62_,
                         'APPLY',
-                        ::DISPATCH(
-                            $Hash_sep, 'LOOKUP',
-                            ::DISPATCH( $self, "type" )
-                        ),
+                        ::DISPATCH( $self, "type" ),
                         ::DISPATCH(
                             $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
                             'APPLY',
