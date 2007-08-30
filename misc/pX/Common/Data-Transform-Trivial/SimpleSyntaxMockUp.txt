@@ -1,0 +1,17 @@
+transform MyTransformation {
+    template MainRule matches "*" do {
+        MyTransformation.SubRule1() ||
+        MyTransformation.SubRule2()
+    };
+    template SubRule1 matches {
+        # code
+    } do {
+        # code
+    };
+    template SubRule2 matches {
+        # code
+    } do {
+        # code
+        MyTransformation.MyRule($_)
+    }
+};
