@@ -10,6 +10,7 @@ package KindaPerl6::Runtime::Perl5::MOP;
 use KindaPerl6::Runtime::Perl5::DispatchSugar;
 use Data::Dumper;
 use Carp qw(confess);
+use FindBin;
 
 =for some possible later use
     {
@@ -407,6 +408,18 @@ $meta_Int->add_method( 'str',
     ::DISPATCH( $::Method, 'new',  sub { my $v = $::Str->new( $_[0]{_value} ) } ) );
 $meta_Int->add_method( 'true',
     ::DISPATCH( $::Method, 'new',  sub { $::Bit->new( $_[0]{_value} == 0 ? 0 : 1 ) } ) );
+
+# Done correctly? Please review and then delete this comment. (renormalist)
+my $meta_Num = ::DISPATCH( $::Class, 'new', "Num");
+$::Num = $meta_Num->PROTOTYPE();
+$meta_Num->add_parent($meta_Value);
+$meta_Num->add_method( 'perl',
+    ::DISPATCH( $::Method, 'new',  sub { my $v = $::Str->new( $_[0]{_value} ) } ) );
+$meta_Num->add_method( 'str',
+    ::DISPATCH( $::Method, 'new',  sub { my $v = $::Str->new( $_[0]{_value} ) } ) );
+$meta_Num->add_method( 'true',
+    ::DISPATCH( $::Method, 'new',  sub { $::Bit->new( $_[0]{_value} == 0 ? 0 : 1 ) } ) );
+
 
 my $meta_Bit = ::DISPATCH( $::Class, 'new', "Bit");
 $::Bit = $meta_Bit->PROTOTYPE();
@@ -905,13 +918,23 @@ $::Multi = make_class(name=>"Multi",parent=>[$meta_Code],methods=>{
         },
 });
 
-require KindaPerl6::Runtime::Perl6::Multi;
-require KindaPerl6::Runtime::Perl6::Junction;
+# load the runtime
 
-require KindaPerl6::Runtime::Perl5::IO;
-require KindaPerl6::Runtime::Perl6::IO;
+my $libpath  = $FindBin::Bin."/lib";
+my $runtime5 = 'KindaPerl6/Runtime/Perl5';
+my $runtime6 = 'KindaPerl6/Runtime/Perl6';
+my @runtime5 = <$libpath/$runtime5/{IO,Math}.pm>;
+my @runtime6 = <$libpath/$runtime6/{IO,Math,Multi,Junction}.pm>;
+
+foreach (map { s,^.*($runtime5/.*)\.pm,$1,; s,/,::,g; $_ } @runtime5) {
+    eval "require $_";
+    warn "*** Could not load runtime class $_" if $@;
+}
+foreach (map { s,^.*($runtime6/.*)\.pm,$1,; s,/,::,g; $_ } @runtime6) {
+    eval "require $_";
+    warn "*** Could not load runtime class $_" if $@;
+}
 
 require KindaPerl6::Runtime::Perl6::Prelude;
 
 1;
-
