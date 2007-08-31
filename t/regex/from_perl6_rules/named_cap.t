@@ -20,6 +20,8 @@ if !eval('("a" ~~ /a/)') {
 
 force_todo(3,6,7,9,10,11,12,15,16,17,18,19,20,21,22,23);
 
+# L<S05/Named scalar aliasing to subpatterns/If a named scalar alias is applied>
+
 ok("abcd" ~~ m/a  $<foo>:=(..)  d/, 'Hypothetical variable capture');
 is($/<foo>, "bc", 'Hypothetical variable captured');
 
@@ -27,10 +29,13 @@ my $foo;
 ok("abcd" ~~ m/a  $foo:=(..)  d/, 'Package variable capture');
 is($foo, "bc", 'Package variable captured', :todo<feature> );
 
+# L<S05/Numbered scalar aliasing/If any numbered alias is used>
+
 ok("abcd" ~~ m/a  $1:=(.) $0:=(.) d/, 'Reverse capture');
 is($0, "c", '$0 captured');
 is($1, "b", '$1 captured');
 
+# L<S05/Named scalar aliases applied to non-capturing brackets/If a named scalar alias>
 regex two {..}
 
 ok("abcd" ~~ m/a  $<foo>:=[<two>]  d/, 'Compound hypothetical capture');
