@@ -16,6 +16,8 @@ if !eval('("a" ~~ /a/)') {
 
 force_todo(1,4,9,10);
 
+# L<S05/Extensible metasyntax (C<< <...> >>)/The special named assertions include:/
+
 regex bc { b?c }
 
 ok("a cdef" ~~ m/<after a <?sp> c> def/, 'Lookbehind');
