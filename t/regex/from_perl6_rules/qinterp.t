@@ -13,6 +13,8 @@ be valid perl6.
 
 plan 4;
 
+# L<S05/Simplified lexical parsing/Sequences of one or more glyphs of either type>
+
 if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
