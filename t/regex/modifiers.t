@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 8;
+plan 18;
 
 =pod
 
@@ -29,6 +29,7 @@ if !eval('("a" ~~ /a/)') {
   is(~$/, "hello", "match with :i");
   "hello" ~~ m:ignorecase/<mixedcase>/;
   is(~$/, "hello", "match with :ignorecase");
+  ok('Δ' ~~ m:i/δ/, ':i with greek chars');
 };
 
 #L<S05/Modifiers/"The :c">
@@ -46,3 +47,16 @@ if !eval('("a" ~~ /a/)') {
   is(~$/, '', "no more 'a's to match");
 };
 
+#L<S05/Modifiers/"The :b">
+
+{
+	ok('ä' ~~ m:b/a/, 'Basechar: a matches ä', :todo<pugs>);
+	ok('a' ~~ m:b/ä/, 'Basechar: ä matches a', :todo<pugs>);
+	ok('à' ~~ m:b/a/, 'Basechar: a matches à', :todo<pugs>);
+	ok('á' ~~ m:b/a/, 'Basechar: a matches á', :todo<pugs>);
+	ok('â' ~~ m:b/a/, 'Basechar: a matches â', :todo<pugs>);
+	ok('å' ~~ m:b/a/, 'Basechar: a matches å', :todo<pugs>);
+	ok('æ' ~~ m:b/^ae$/, 'Basechar: ae matches æ', :todo<pugs>);
+	ok('ƌ' ~~ m:b/d/, 'Basechar: d matches ƌ', :todo<pugs>);
+	ok('ａ' ~~ m:b/a/, 'Basechar: a matches fullwidth a', :todo<pugs>);
+}
