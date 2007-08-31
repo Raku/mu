@@ -29,4 +29,18 @@ class Main {
     else {
         say "ok 6";
     };
+
+    if (1|0) {
+        say "ok 7";
+    }
+    else {
+        say "not ok 7";
+    };
+
+    if (1&0) {
+        say "not ok 8";
+    }
+    else {
+        say "ok 8";
+    }
 }

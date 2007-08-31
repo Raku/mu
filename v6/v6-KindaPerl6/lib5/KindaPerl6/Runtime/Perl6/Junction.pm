@@ -117,16 +117,16 @@
                     $GLOBAL::Code_infix_58__60__126__62_,
                     'APPLY',
                     ::DISPATCH(
-                        $GLOBAL::Code_infix_58__60_eq_62_,
+                        $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
                         'APPLY',
-                        ::DISPATCH( $self, "type" ),
                         ::DISPATCH(
-                            $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
+                            $GLOBAL::Code_infix_58__60_eq_62_,
                             'APPLY',
-                            ::DISPATCH( $::Str, 'new', '!' ),
-                            ::DISPATCH( $::Str, 'new', 'none' ),
-                            ::DISPATCH( $::Str, 'new', '' )
-                        )
+                            ::DISPATCH( $self, "type" ),
+                            ::DISPATCH( $::Str, 'new', '!' )
+                        ),
+                        ::DISPATCH( $::Str, 'new', 'none' ),
+                        ::DISPATCH( $::Str, 'new', '' )
                     ),
                     ::DISPATCH(
                         $GLOBAL::Code_infix_58__60__126__62_,

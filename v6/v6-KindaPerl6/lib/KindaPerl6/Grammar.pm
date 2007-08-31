@@ -19,7 +19,8 @@ token ident_digit {
 };
 
 token ident {
-    [ <!before \d> <?word> | _ ] <?ident_digit>
+    <'infix:<'> <infix_op> <'>'>
+    | [ <!before \d> <?word> | _ ] <?ident_digit>
 };
 
 token full_ident {
@@ -163,6 +164,7 @@ token infix_op {
     | '<=>'
     | '<=' | '>=' 
     | '<'  | '>' 
+    | '&' | '^' | '|'
 };
 
 token hyper_op {

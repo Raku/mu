@@ -23,5 +23,14 @@ class GLOBAL {
         $junc.type = 'one';
         $junc;
     };
+    sub infix:<|>($a,$b) {
+        any($a,$b);
+    };
+    sub infix:<&>($a,$b) {
+        all($a,$b);
+    };
+    sub infix:<^>($a,$b) {
+        one($a,$b);
+    };
 }
 
