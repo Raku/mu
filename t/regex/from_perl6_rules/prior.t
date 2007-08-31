@@ -14,6 +14,8 @@ be valid perl6.
 
 plan 31;
 
+# L<S05/Nothing is illegal/To match whatever the prior successful regex>
+
 if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
