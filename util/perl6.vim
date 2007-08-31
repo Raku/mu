@@ -15,7 +15,7 @@
 "   finish
 " endif
 "
-" TODO: (added by Moritz Lenz <moritz@faui2k3.org>
+" TODO: (added by Moritz Lenz <moritz@faui2k3.org>)
 "   * syntax for reading from stdin: =<> or from arbitrary file handles:
 "     =<$fh>
 "   * List initialization via the @a = <foo bar> construct brakes when there
@@ -191,7 +191,7 @@ syn region p6TransNonBracket matchgroup=p6Keyword contained start="\z(\W\)" skip
 
 syn match p6RuleCall  contained "<\s*!\{0,1}\s*\w\+"hs=s+1
 syn match p6CharClass contained "<\s*!\{0,1}\s*\[\]\{0,1}[^]]*\]\s*>"
-syn match p6CharClass contained "<\s*!\{0,1}\s*-\{0,1}\(alpha\|digit\|sp\|ws\|null\)\s*>"
+syn match p6CharClass contained "<\s*!\{0,1}\s*-\{0,1}\(alpha\|digit\|sp\|ws\|null\|xdigit\|alnum\|space\|ascii\)\s*>"
 syn match p6CharClass contained "\\[HhVvNnTtEeRrFfWwSs]"
 syn match p6CharClass contained "\\[xX]\(\[[0-9a-f;]\+\]\|\x\+\)"
 syn match p6CharClass contained "\\0\(\[[0-7;]\+\]\|\o\+\)"
