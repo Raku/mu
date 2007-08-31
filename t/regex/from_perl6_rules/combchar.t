@@ -18,6 +18,8 @@ if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
 
+# L<S05/Extensible metasyntax (C<< <...> >>)/matches any logical grapheme>
+
 my $unichar = "\c[GREEK CAPITAL LETTER ALPHA]";
 my $combchar = "\c[LATIN CAPITAL LETTER A]\c[COMBINING ACUTE ACCENT]";
 
