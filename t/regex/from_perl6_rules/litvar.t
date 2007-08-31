@@ -18,6 +18,8 @@ if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
 
+# L<S05/Variable (non-)interpolation/The default way in which the engine handles a scalar>
+
 my $var = "a*b";
 my @var = <a b c>;
 my %var = (a=>1, b=>2, c=>3);
@@ -48,6 +50,7 @@ ok(!( '1' ~~ m/%var{b}/ ), 'Hash B');
 
 
 # ArrayS
+# L<S05/Variable (non-)interpolation/An interpolated array:>
 
 ok("a" ~~ m/@var/, 'Simple array interpolation (a)', :todo<feature>);
 ok("b" ~~ m/@var/, 'Simple array interpolation (b)', :todo<feature>);
@@ -60,6 +63,7 @@ ok(!( "abcad" ~~ m/^@var+$/ ), 'Multiple array non-matching');
 
 
 # HASHES
+# L<S05/Variable (non-)interpolation/An interpolated hash provides>
 
 ok("a" ~~ m/%var/, 'Simple hash interpolation (a)', :todo<feature>);
 ok("b" ~~ m/%var/, 'Simple hash interpolation (b)', :todo<feature>);
