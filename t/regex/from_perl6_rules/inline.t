@@ -10,6 +10,8 @@ version 0.3 (12 Apr 2004), file t/inline.t.
 It has (hopefully) been, and should continue to be, updated to
 be valid perl6.
 
+# L<S05/Modifiers/and Unicode-level modifiers can be>
+
 =cut
 
 plan 2;
