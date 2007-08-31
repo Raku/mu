@@ -16,6 +16,8 @@ if !eval('("a" ~~ /a/)') {
 
 force_todo(1,2,3,4,6);
 
+# L<S05/Modifiers/causes the pattern to try to match only at>
+
 for ("abcdef") {
     ok(m:pos/abc/, "Matched 1: '$/'" );
     ok(eval(q{.pos == 3}), 'Interim position correct');
