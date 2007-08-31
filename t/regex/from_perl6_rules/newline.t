@@ -10,6 +10,8 @@ version 0.3 (12 Apr 2004), file t/newline.t.
 
 plan 15;
 
+# L<S05/Changed metacharacters/C<\n> now matches a logical (platform independent) newline/
+
 if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
