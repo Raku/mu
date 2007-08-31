@@ -26,7 +26,7 @@ Example:
   # then replace method calls with MO calls;
   # then emit Perl 5 code
  
-  perl kp6-perl5.pl --do Token MetaClass EmitPerl5  < examples/token.pl  | perltidy
+  perl kp6-perl5.pl --do Token,MetaClass,EmitPerl5  < examples/token.pl  | perltidy
 
 =cut
 
@@ -42,9 +42,12 @@ my @visitors;
         'perl5rx'   => \$perl5rx,
         'perl6'	    => \$perl6,
         'parrot'    => \$parrot,
-        'do:s{1,}'  => \@visitor_sequence,
+        'do:'  => \$visitor_sequence,
     );
 
+    if ($do) {
+        push @visitor_sequence,split(',',$visitor_sequence)
+    }
     if ( $perl6 ) {
         push @visitor_sequence, qw( EmitPerl6 )
             unless @visitor_sequence && $visitor_sequence[-1] eq 'EmitPerl6';
