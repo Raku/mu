@@ -18,12 +18,18 @@ if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
 
+# Broken:
+## L<S05/Extensible metasyntax (C<< <...> >>)/A leading C<[> or>
+
 ok("zyxaxyz" ~~ m/(<[aeiou]>)/, 'Simple set');
 is($0, 'a', 'Simple set capture');
+
+# L<S05/Extensible metasyntax (C<< <...> >>)/A leading C<-> indicates/
 ok(!( "a" ~~ m/<-[aeiou]>/ ), 'Simple neg set failure');
 ok("f" ~~ m/(<-[aeiou]>)/, 'Simple neg set match');
 is($0, 'f', 'Simple neg set capture');
 
+# L<S05/Extensible metasyntax (C<< <...> >>)/Character classes can be combined/
 ok(!( "a" ~~ m/(<[a..z]-[aeiou]>)/ ), 'Difference set failure');
 ok("y" ~~ m/(<[a..z]-[aeiou]>)/, 'Difference set match');
 is($0, 'y', 'Difference set capture');
