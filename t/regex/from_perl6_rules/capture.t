@@ -10,6 +10,10 @@ version 0.3 (12 Apr 2004), file t/capture.t.
 It has (hopefully) been, and should continue to be, updated to
 be valid perl6.
 
+# L<S05/Accessing captured subpatterns/The array elements of the regex's>
+
+Broken:
+## L<S05/Extensible metasyntax (C<< <...> >>)/A leading C<?> causes>
 =cut
 
 plan 64;
@@ -54,9 +58,13 @@ is(try { $0[0] }, "bc", 'Nested $1');
 is(try { $0[0][0] }, "c", 'Nested $2');
 is(try { $0[1] }, "d", 'Nested $3');
 
+# L<S05/Backslash reform/Backreferences>
+
 ok("bookkeeper" ~~ m/(((\w)$0[0][0])+)/, 'Backreference', :todo<feature>);
 is($0, 'ookkee', 'Captured', :todo<feature>);
 is(try { $0[0] }, 'ee', 'Captured', :todo<feature>);
+
+# L<S05/Accessing captured subrules/The hash entries>
 
 regex single { o | k | e };
 
@@ -71,17 +79,18 @@ is($1, 'o', 'Backref capture');
 skip 1, "looping test"; # ok(!( "bokeper" ~~ m/(<?single>) ($0)/ ), 'Failed positional backref');
 ok(eval(' !( "bokeper" ~~ m/<single> ($/<single>)/ ) '), 'Failed named backref', :todo<feature>);
 
-is("\$0", '$'~'1', 'Non-translation of non-interpolated "\\$0"', :todo<feature> );
-is('$0',  '$'~'1', 'Non-translation of non-interpolated \'$0\'', :todo<feature> );
-is(q{$0}, '$'~'1', 'Non-translation of non-interpolated q{$0}', :todo<feature>);
-is(q[$0], '$'~'1', 'Non-translation of non-interpolated q[$0]', :todo<feature>);
-is(q<$0>, '$'~'1', 'Non-translation of non-interpolated q<$0>', :todo<feature>);
-ok(eval(q/ q<$0 <<<>>>> eq '$'~'1 <<<>>>' /), 'Non-translation of nested q<$0>', :todo<feature>);
-is(q/$0/, '$'~'1', 'Non-translation of non-interpolated q/$0/', :todo<feature>);
-is(q!$0!, '$'~'1', 'Non-translation of non-interpolated q!$0!', :todo<feature>);
-is(q|$0|, '$'~'1', 'Non-translation of non-interpolated q|$0|', :todo<feature>);
+is("\$0", '$'~'0', 'Non-translation of non-interpolated "\\$0"');
+is('$0',  '$'~'0', 'Non-translation of non-interpolated \'$0\'');
+is(q{$0}, '$'~'0', 'Non-translation of non-interpolated q{$0}');
+is(q[$0], '$'~'0', 'Non-translation of non-interpolated q[$0]');
+is(q<$0>, '$'~'0', 'Non-translation of non-interpolated q<$0>');
+ok(eval(q/ q<$0 <<<>>>> eq '$'~'0 <<<>>>' /), 'Non-translation of nested q<$0>');
+is(q/$0/, '$'~'0', 'Non-translation of non-interpolated q/$0/');
+is(q!$0!, '$'~'0', 'Non-translation of non-interpolated q!$0!');
+is(q|$0|, '$'~'0', 'Non-translation of non-interpolated q|$0|');
 is(eval(q/ q#$0#, '$'~'0' /), 'Non-translation of non-interpolated q#$0#', :todo<feature>);
 
+# L<S05/Grammars/Just like the methods of a class, the rule definitions of a grammar are inherited> 
 
 grammar English { regex name { john } }
 grammar French  { regex name { jean } }
