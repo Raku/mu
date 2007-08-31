@@ -1,7 +1,7 @@
 
 
 class Main {
-    say '1..6';
+    say '1..8';
 
     my $junc = all( 1,2,3,4);
 

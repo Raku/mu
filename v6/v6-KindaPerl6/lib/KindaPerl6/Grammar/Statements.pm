@@ -3,13 +3,16 @@ use v6-alpha;
 
 grammar KindaPerl6::Grammar {
 
+    token stmt_sep {
+       <?opt_ws> \; <?opt_ws> | \n <?opt_ws>
+    };
     token exp_stmts {
         | <exp>
             [
-            |   <?opt_ws> \; <?opt_ws> <exp_stmts>
-                <?opt_ws> [ \; <?opt_ws> | <''> ]
+            |   <?stmt_sep> <exp_stmts>
+                [<?stmt_sep> | <?opt_ws>]
                 { return [ $$<exp>, @( $$<exp_stmts> ) ] }
-            |   <?opt_ws> [ \; <?opt_ws> | <''> ]
+            |   [<?stmt_sep> | <?opt_ws>]
                 { return [ $$<exp> ] }
             ]
         | { return [] }
@@ -17,10 +20,10 @@ grammar KindaPerl6::Grammar {
     token exp_stmts2 {
         <exp>
             [
-            |   <?opt_ws> \; <?opt_ws> <exp_stmts>
-                <?opt_ws> [ \; <?opt_ws> | <''> ]
+            |   <?stmt_sep> <exp_stmts>
+                [<?stmt_sep> | <?opt_ws>]
                 { return [ $$<exp>, @( $$<exp_stmts> ) ] }
-            |   <?opt_ws> [ \; <?opt_ws> | <''> ]
+            |   [<?stmt_sep> | <?opt_ws>]
                 { return [ $$<exp> ] }
             ]
     };
