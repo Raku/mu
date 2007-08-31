@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 18;
+plan 20;
 
 =pod
 
@@ -60,3 +60,12 @@ if !eval('("a" ~~ /a/)') {
 	ok('ƌ' ~~ m:b/d/, 'Basechar: d matches ƌ', :todo<pugs>);
 	ok('ａ' ~~ m:b/a/, 'Basechar: a matches fullwidth a', :todo<pugs>);
 }
+
+#L<S05/Modifiers/"If followed by an x, it means repetition.">
+{
+	# TODO: more tests
+	ok('abab' ~~ m:2x/ab/,  ':2x (repetition) modifier (1)', :todo<pugs>);
+	ok(!('ab' ~~ m:2x/ab/), ':2x (repetition) modifier (1)', :todo<pugs>);
+
+}
+
