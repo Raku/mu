@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 30 Aug 2007
+  Last Modified: 31 Aug 2007
   Number: 2
-  Version: 115
+  Version: 116
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -122,8 +122,8 @@ counts as whitespace equivalent to a newline.
 =item *
 
 Except when quoted, a C<#> character always introduces a comment in
-Perl 6.  There are three forms of comment based on C<#>.  Embedded
-comments and block comments require the C<#> to be followed by one
+Perl 6.  There are two forms of comment based on C<#>.  Embedded
+comments require the C<#> to be followed by one
 or more opening bracketing characters.
 
 All other uses of C<#> are interpreted as single-line comments that
