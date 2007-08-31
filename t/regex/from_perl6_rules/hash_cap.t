@@ -16,6 +16,8 @@ if !eval('("a" ~~ /a/)') {
 
 force_todo(1..49,51..99,101..108,111..116);
 
+# L<S05/Hash aliasing/An alias can also be specified using a hash>
+
 ok("  a b\tc" ~~ m/%<chars>:=( \s+ \S+ )/, 'Named unrepeated hash capture');
 ok(exists($/<chars>,'  a'), 'One key captured');
 ok(eval(q{!defined($/<chars>{'  a'})}), 'One value undefined');
