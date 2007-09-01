@@ -2,12 +2,18 @@ use v6-alpha;
 
 use Test;
 
-plan 33;
+plan 39;
 
 # L<S02/Names/names are reserved in the first position>
-ok !eval('module MY;     1'), "MY is an out of scope name";
-ok !eval('module OUTER;  1'), "OUTER is an out of scope name";
-ok !eval('module CALLER; 1'), "CALLER is an out of scope name";
+ok !eval('module MY; 1'), 'MY is an out of scope name';
+ok !eval('module OUR; 1'), 'OUR is an out of scope name';
+ok !eval('module GLOBAL; 1'), 'GLOBAL is an out of scope name';
+ok !eval('module PROCESS; 1'), 'PROCESS is an out of scope name';
+ok !eval('module OUTER; 1'), 'OUTER is an out of scope name';
+ok !eval('module CALLER; 1'), 'CALLER is an out of scope name';
+ok !eval('module CONTEXT; 1'), 'CONTEXT is an out of scope name';
+ok !eval('module SUPER; 1'), 'SUPER is an out of scope name';
+ok !eval('module COMPILING; 1'), 'COMPILING is an out of scope name';
 
 
 # L<S04/The Relationship of Blocks and Declarations>
