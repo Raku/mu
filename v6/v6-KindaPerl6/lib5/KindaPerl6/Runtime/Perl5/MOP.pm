@@ -409,7 +409,6 @@ $meta_Int->add_method( 'str',
 $meta_Int->add_method( 'true',
     ::DISPATCH( $::Method, 'new',  sub { $::Bit->new( $_[0]{_value} == 0 ? 0 : 1 ) } ) );
 
-# Done correctly? Please review and then delete this comment. (renormalist)
 my $meta_Num = ::DISPATCH( $::Class, 'new', "Num");
 $::Num = $meta_Num->PROTOTYPE();
 $meta_Num->add_parent($meta_Value);

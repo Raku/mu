@@ -31,7 +31,7 @@ Example:
 =cut
 
 my @visitor_sequence;
-my ($dumpast, $perl5, $perl6, $perl5rx, $parrot, $visitor_sequence);
+my ($dumpast, $perl5, $perl6, $perl5rx, $parrot, $visitor_sequence, $secure);
 my @visitors;
 
 {
@@ -42,7 +42,8 @@ my @visitors;
         'perl5rx'   => \$perl5rx,
         'perl6'	    => \$perl6,
         'parrot'    => \$parrot,
-        'do=s'  => \$visitor_sequence,
+        'do=s'      => \$visitor_sequence,
+        'secure'    => \$secure,
     );
 
     if ($visitor_sequence) {
