@@ -96,18 +96,29 @@ class Rule::Concat {
 
 class Rule::Subrule {
     method emit_token {
+
         if (substr( $.metasyntax, 0, 1) eq Main::singlequote()) {
-            Rule::constant(substr(substr($.metasyntax, 1), 0 - 1));
-        } else {
-            my $meth := ( 1 + index( $.metasyntax, '.' ) )
-              ?? $.metasyntax 
-                !! ( 'self.' ~ $.metasyntax );
-            'do { ' ~
-            'my $m2 := ' ~ $meth ~ '($str, $MATCH.to); ' ~
-             ## 'my $m2 := ' ~ $meth ~ '($str, { 'pos' => $MATCH.to, 'KEY' => $key }); ' ~
-            'if $m2 { $MATCH.to( $m2.to ); $MATCH{\'' ~ $.metasyntax ~ '\'} := $m2; 1 } else { 0 } ' ~
-            '}'
+            return Rule::constant(substr(substr($.metasyntax, 1), 0 - 1));
         };
+
+        if (substr( $.metasyntax, 0, 6) eq 'before') {
+            # before special assertion (see S05)
+            die 'before special assertion Not Implemented!';
+        };
+
+        if (substr( $.metasyntax, 0, 7) eq '!before') {
+            # before special assertion (see S05)
+            die '!before special assertion Not Implemented!';
+        };
+
+        my $meth := ( 1 + index( $.metasyntax, '.' ) )
+          ?? $.metasyntax 
+            !! ( 'self.' ~ $.metasyntax );
+        return 'do { ' ~
+          'my $m2 = ' ~ $meth ~ '($str, $MATCH.to); ' ~
+          ## 'my $m2 := ' ~ $meth ~ '($str, { 'pos' => $MATCH.to, 'KEY' => $key }); ' ~
+          'if $m2 { $MATCH.to = $m2.to; $MATCH{\'' ~ $.metasyntax ~ '\'} = $m2; 1 } else { 0 } ' ~
+          '}';
     };
 }
 

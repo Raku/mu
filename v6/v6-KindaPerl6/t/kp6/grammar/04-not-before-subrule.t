@@ -1,12 +1,12 @@
 grammar MyGrammar {
 
     token myrule {
-        .<ident>
+        . <ident>
     }
 
     token ident {
       <!before \d>
-      <?word>
+      <'abc'>
     };
 };
 module Main {
