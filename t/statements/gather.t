@@ -4,6 +4,8 @@ use Test;
 
 plan 11;
 
+# L<S04/The gather statement/"A variant of do is gather">
+
 # Standard gather
 {
     my @a;
