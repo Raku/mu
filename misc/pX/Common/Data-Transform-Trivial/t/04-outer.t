@@ -33,7 +33,7 @@ my $tree=foo({a=>1},[
     ]),
 ]);
 
-my $t=Transform->new([
+my $t=Transform->new(
     Rule->new('o',sub{1},
               sub {
                   my $ret='-';
@@ -65,7 +65,7 @@ my $t=Transform->new([
                       return $me;
                   }
               }),
-]);
+);
 
 {
 my ($ret)=$t->apply('o',$tree);

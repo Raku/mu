@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 use Test::More qw(no_plan);
-use vars qw($_T $_P);
+use vars qw($_T $_P @_L);
 BEGIN {
     eval 'use Log::Log4perl qw(:easy)' if $ENV{DEBUG};
     eval 'use Log::Log4perl::Resurrector;' if $ENV{DEBUG};
@@ -67,7 +67,7 @@ my $transposer=Transform->new([
                   return row([ $_T->apply
                                    ('trans',
                                     grep {$_->position == $pos }
-                                        map {$_->children} @_
+                                        map {$_->children} @_L
                                 ) ])
               }),
     Rule->new('trans',sub {$_->name() eq 'cell'},

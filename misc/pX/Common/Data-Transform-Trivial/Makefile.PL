@@ -7,5 +7,6 @@ WriteMakefile(
     AUTHOR          => 'dakkar <dakkar@thenautilus.net>',
     PREREQ_PM       => { 'List::MoreUtils' => 0,
                          'List::Util' => 0,
+                         'Carp::Clan' => 0,
                      },
 );
