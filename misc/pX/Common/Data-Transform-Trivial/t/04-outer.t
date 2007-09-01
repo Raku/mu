@@ -53,7 +53,32 @@ my $t=Transform->new([
                       return $ret.'('.($_->attributes->{a}).')';
                   }
               }),
+    Rule->new('o2',sub{1},
+              sub {
+                  my $ret='-';
+                  if (defined $_OUTER) {
+                      $ret=$_OUTER->attributes->{a};
+                  }
+                  my $me="($ret,".($_->attributes->{a}).')';
+                  if (!defined $_->parent) {
+                      return $me.(join '',$_T->apply('o2',$_->children));
+                  }
+                  my $p=$_->parent;
+                  if ($#{$p->children} > $_->position) {
+                      return $me.(join '',$_T->apply('o2',$p->children->[$_->position+1]));
+                  }
+                  else {
+                      return $me;
+                  }
+              }),
 ]);
 
+{
 my ($ret)=$t->apply('o',$tree);
 is($ret,'-12(3)2(4)156(7)6(8)59(10)9(11)','outer');
+}
+
+{
+my ($ret)=$t->apply('o2',$tree);
+is($ret,'(-,1)(1,2)(2,5)(1,5)','outer, jumping');
+}
