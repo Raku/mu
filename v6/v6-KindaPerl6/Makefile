@@ -19,6 +19,9 @@ lib5/%.pm: lib/%.pm
 test: all
 	perl run_tests.pl
 
+test_grammar: all
+	perl run_tests.pl --section=grammar
+
 test_io: all
 	perl run_tests.pl --section=io
 
