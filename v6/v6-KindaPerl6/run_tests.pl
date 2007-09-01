@@ -28,7 +28,7 @@ if (defined $section)
   local $ENV{PERL5LIB} = '';
   local $Test::Harness::Switches = '';
   open(TESTS,"TESTS") || die "Can not open test list";
-  $ok &&= eval { runtests((map {chomp;"../../t/$_" } <TESTS>),glob("t/kp6/*.t"),glob("t/kp6/$section/*.t")) };
+  $ok &&= eval { runtests((map {chomp;"../../t/$_" } <TESTS>),glob("t/kp6/$section/*.t")) };
   warn $@ if $@;
 }
 else # all
