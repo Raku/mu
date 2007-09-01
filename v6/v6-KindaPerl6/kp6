@@ -8,7 +8,7 @@ use Cwd;
 my $KP6DIR=cwd;
 
 my $PROG  = $ARGV[0];
-my $KP6="perl -I${KP6DIR}/../v6-MiniPerl6/lib5 -I${KP6DIR}/lib5 ${KP6DIR}/kp6-perl5.pl --perl5rx";
+my $KP6="perl -I${KP6DIR}/../v6-MiniPerl6/lib5 -I${KP6DIR}/lib5 ${KP6DIR}/kp6-perl5.pl ";
 
 if ($PROG and -e $PROG)
 {

@@ -8,6 +8,7 @@ use KindaPerl6::Grammar::Control;
 use KindaPerl6::Grammar::Parameters;
 use KindaPerl6::Grammar::Term;
 use KindaPerl6::Grammar::Statements;
+use KindaPerl6::Grammar::Quote;
 
 my $Class_name;  # for diagnostic messages
 sub get_class_name { $Class_name }; 
@@ -370,24 +371,9 @@ token val_num {
     XXX { return 'TODO: val_num' } 
 };
 
-token double_quoted {
-    |  \\ .  <double_quoted>
-    |  <!before \" > . <double_quoted>
-    |  <''>    
-};
-
-token single_quoted {
-    |  \\ .  <single_quoted>
-    |  <!before \' > . <single_quoted>
-    |  <''>    
-};
 
 token digits {  \d  [ <digits> | <''> ]  };
 
-token val_buf {
-    | \" <double_quoted>  \" { return ::Val::Buf( 'buf' => ~$<double_quoted> ) }
-    | \' <single_quoted>  \' { return ::Val::Buf( 'buf' => ~$<single_quoted> ) }
-};
 
 token val_int {
     <digits>
