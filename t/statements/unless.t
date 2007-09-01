@@ -8,89 +8,69 @@ Basic "unless" tests
 
 =cut
 
-plan 16;
+plan 10;
 
 # L<S04/Conditional statements/unless statements 
 #   work as in Perl 5>
 
 my $x = 'test';
-unless $x ne $x { pass('unless $x ne $x {} works');  }
-else            { flunk('unless $x ne $x {} failed'); }
+{
+    my $found = 0;
+    unless $x ne $x { $found = 1; };
+    ok($found, 'unless $x ne $x works');
+}
 
-unless $x eq $x { flunk('unless $x eq $x {} failed'); }
-else              { pass('unless $x eq $x {} works');  }
+{
+    my $found = 1;
+    unless $x eq $x { $found = 0; }
+    ok($found, 'unless $x eq $x is not executed');
+}
 
-unless 0 { pass("unless 1 {} works");  }
-else     { flunk("unless 1 {} failed"); }
+{
+    my $found = 0;
+    unless 0 { $found = 1; }
+    ok($found, 'unless 0 is executed');
+}
 
-unless 1 { flunk("unless 0 {} failed"); }
-else     { pass("unless 0 {} works");  }
+{
+    my $found = 1;
+    unless 1 { $found = 0; }
+    ok($found, 'unless 1 is not executed');
+}
 
-unless undef { pass("unless undef {} works");  }
-else         { flunk("unless undef {} failed"); }
+{
+    my $found = 0;
+    unless undef { $found = 1; }
+    ok($found, 'unless undef is executed');
+}
 
 # with paratheses
-unless ($x ne $x) { pass("unless ($x ne $x) {} works");  }
-else              { flunk("unless ($x ne $x) {} failed"); }
+{
+    my $found = 0;
+    unless ($x ne $x) { $found = 1; };
+    ok($found, 'unless ($x ne $x) works');
+}
 
-unless (5+2) { flunk("unless (5+2) {} failed"); }
-else         { pass("unless (5+2) {} works");  }
+{
+    my $found = 1;
+    unless (5+2) { $found = 0; }
+    ok($found, 'unless (5+2) is not executer');
+}
 
 # die called in the condition part of an if statement should die immediately
 # rather than being evaluated as a boolean
 my $foo = 1;
-try { unless (die "should die") { $foo = 3 } else { $foo = 2; } };
+try { unless (die "should die") { $foo = 3 }};
 #say '# $foo = ' ~ $foo;
 is $foo, 1, "die should stop execution immediately.";
 
-# unless...elsif
+# L<S04/Conditional statements/"The unless statement does not allow an elsif">
 
-{
-    my $foo = 1;
-    unless 1 { $foo = 2 } elsif 1 { $foo = 3 };
-    is $foo, 3, 'unless 1 {} elsif 1 {}';
-}
-
-{
-    my $foo = 1;
-    unless 1 { $foo = 2 } elsif 0 { $foo = 3 };
-    is $foo, 1, 'unless 1 {} elsif 0 {}';
-}
-
-{
-    my $foo = 1;
-    unless 0 { $foo = 2 } elsif 1 { $foo = 3 };
-    is $foo, 2, 'unless 0 {} elsif 1 {}';
-}
-
-{
-    my $foo = 1;
-    unless 0 { $foo = 2 } elsif 0 { $foo = 3 };
-    is $foo, 2, 'unless 0 {} elsif 0 {}';
-}
-
-# unless...elsif...else
-
-{
-    my $foo = 1;
-    unless 0 { $foo = 2 } elsif 0 { $foo = 3 } else { $foo = 4 };
-    is $foo, 2;
-}
-
-{
-    my $foo = 1;
-    unless 1 { $foo = 2 } elsif 0 { $foo = 3 } else { $foo = 4 };
-    is $foo, 4;
-}
-
-{
-    my $foo = 1;
-    unless 1 { $foo = 2 } elsif 1 { $foo = 3 } else { $foo = 4 };
-    is $foo, 3;
-}
-
-{
-    my $foo = 1;
-    unless 0 { $foo = 2 } elsif 1 { $foo = 3 } else { $foo = 4 };
-    is $foo, 2;
-}
+dies_ok( 
+        sub {eval q[ unless 1 { 2 } else { 3 } ]}, 
+        'no else allowed in unless', 
+        :todo<pugs>);
+dies_ok( 
+        sub {eval q[ unless 1 { 2 } elsif 4 { 3 } ]}, 
+        'no elsif allowed in unless', 
+        :todo<pugs>);
