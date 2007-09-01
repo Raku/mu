@@ -30,7 +30,7 @@ method find ( $self: :@dirs, :$wanted_dir, :$wanted_file ) {
         for $dh.readdir -> $node {
             next if $node ~~ m:P5/^(?:\.){1,2}$/;
             my $abs = catdir( $dir, $node );
-            unless $abs ~~ :d  {
+            if $abs !~~ :d  {
                 $abs = catfile( $dir, $node );
                 if $wfile_cb( $node, $dir, $abs ) {
                     if ($abs ~~ :l && $.follow) || $abs ~~ :!l {
