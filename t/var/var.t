@@ -20,6 +20,8 @@ ok !eval('module COMPILING; 1'), 'COMPILING is an out of scope name';
 ok eval('my $x; my $x; 1'),       'it is legal to declare $x twice in the same scope.';
 ok eval('state $x; state $x; 1'), 'it is legal to declare $x twice in the same scope.';
 
+# L<S02/Names/The current lexical symbol table is now accessible>
+
 # XXX -- dunno why test test fails, but the next outer test works. --iblech
 { my $a = 1; {
    my $a=2; {
@@ -46,6 +48,8 @@ ok eval('state $x; state $x; 1'), 'it is legal to declare $x twice in the same s
     }
   }
 }
+
+# TODO: more smartlinks
 
 {
   my $a = 3;
