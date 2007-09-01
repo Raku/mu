@@ -1147,9 +1147,12 @@ ruleCondBody csym = rule "conditional expression" $ do
     enterBracketLevel ParensBracket $ do
         body     <- ruleBareOrPointyBlockLiteralWithoutDefaultParams
         bodyElse <- option emptyExp ruleElseConstruct
-        return $ case csym of
-            "if"    -> Syn "cond" [cond, body, bodyElse]
-            _       -> Syn "cond" [cond, bodyElse, body]
+        case csym of
+            "if"    -> return $ Syn "cond" [cond, body, bodyElse]
+            _       -> if bodyElse == emptyExp then
+                             return $ Syn "cond" [cond, bodyElse, body]
+                        else fail "no else after unless"
+
 
 ruleCondPart :: RuleParser Exp
 ruleCondPart = enterBracketLevel ConditionalBracket ruleExpression
