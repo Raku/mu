@@ -14,10 +14,10 @@ class KindaPerl6::Visitor::Token {
             my $perl6_source := ($node.regex).emit_token;
             
             # Emitted Perl 6 "method" code
-
-            my $source := 'method ' ~ $node.name ~ ' ( $grammar: $str, $pos ) { ' 
-                ~ 'my $MATCH; $MATCH := ::Match( \'match_str\' => $str, \'from\' => $pos, \'to\' => $pos, \'bool\' => 1 ); ' 
-                ~ '$MATCH.bool( ' ~ $perl6_source ~ '); ' 
+            my $source := 'method ' ~ $node.name ~ ' ( $str, $pos ) { ' 
+                ~ 'if (!(defined($str))) { $str = $_; };  my $MATCH;'
+                ~ '$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = $pos; $MATCH.bool = 1; '
+                ~ '$MATCH.bool = ' ~ $perl6_source ~ '; ' 
                 ~ 'return $MATCH }';
             # say 'Intermediate code: ', $source;
 
@@ -54,14 +54,14 @@ class Rule {
             # { use v5; $str1 = $str; $str1 =~  s/\\(.)/$1/g; use v6; }
         
             my $len := $str.chars;
-            if $str eq '\\' {
-                $str := '\\\\';
+            if $str eq Main::backslash() {
+                $str := Main::backslash() ~ Main::backslash();
             };
-            if $str eq '\'' {
-                $str := '\\\'';
+            if $str eq Main::singlequote() {
+                $str := Main::backslash() ~ Main::singlequote();
             };
             if ( $len ) {
-                '( ( \'' ~ $str ~ '\' eq substr( $str, $MATCH.to, ' ~ $len ~ ')) ' ~
+                '( ( '~ Main::singlequote() ~ $str ~ Main::singlequote() ~ ' eq substr( $str, $MATCH.to, ' ~ $len ~ ')) ' ~
                 '  ?? (1 + $MATCH.to( ' ~ $len ~ ' + $MATCH.to ))' ~
                 '  !! (0) ' ~
                 ')';
@@ -96,22 +96,26 @@ class Rule::Concat {
 
 class Rule::Subrule {
     method emit_token {
-        my $meth := ( 1 + index( $.metasyntax, '.' ) )
-            ?? $.metasyntax 
-            !! ( '$grammar.' ~ $.metasyntax );
-        'do { ' ~
-          'my $m2 := ' ~ $meth ~ '($str, $MATCH.to); ' ~
-          ## 'my $m2 := ' ~ $meth ~ '($str, { 'pos' => $MATCH.to, 'KEY' => $key }); ' ~
-          'if $m2 { $MATCH.to( $m2.to ); $MATCH{\'' ~ $.metasyntax ~ '\'} := $m2; 1 } else { 0 } ' ~
-        '}'
-    }
+        if (substr( $.metasyntax, 0, 1) eq Main::singlequote()) {
+            Rule::constant(substr(substr($.metasyntax, 1), 0 - 1));
+        } else {
+            my $meth := ( 1 + index( $.metasyntax, '.' ) )
+              ?? $.metasyntax 
+                !! ( 'self.' ~ $.metasyntax );
+            'do { ' ~
+            'my $m2 := ' ~ $meth ~ '($str, $MATCH.to); ' ~
+             ## 'my $m2 := ' ~ $meth ~ '($str, { 'pos' => $MATCH.to, 'KEY' => $key }); ' ~
+            'if $m2 { $MATCH.to( $m2.to ); $MATCH{\'' ~ $.metasyntax ~ '\'} := $m2; 1 } else { 0 } ' ~
+            '}'
+        };
+    };
 }
 
 class Rule::SubruleNoCapture {
     method emit_token {
         my $meth := ( 1 + index( $.metasyntax, '.' ) )
             ?? $.metasyntax 
-            !! ( '$grammar.' ~ $.metasyntax );
+            !! ( 'self.' ~ $.metasyntax );
         'do { ' ~
           'my $m2 := ' ~ $meth ~ '($str, $MATCH.to); ' ~
           'if $m2 { $MATCH.to( $m2.to ); 1 } else { 0 } ' ~
@@ -266,7 +270,7 @@ class Rule::Before {
             return
                 'do { ' ~
                     'my $tmp := $MATCH; ' ~
-                    '$MATCH := ::Match( \'match_str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' ~
+                    '$MATCH := ::Match(); $MATCH.match_str = $str; $MATCH.from = $pos, $MATCH.to = $pos, $MATCH.bool = 1; ' ~
                     '$MATCH.bool( ' ~
                         $.rule.emit_token ~
                     '); ' ~
@@ -279,7 +283,7 @@ class Rule::Before {
             return
                 'do { ' ~
                     'my $tmp := $MATCH; ' ~
-                    '$MATCH := ::Match( \'match_str\' => $str, \'from\' => $tmp.to, \'to\' => $tmp.to, \'bool\' => 1  ); ' ~
+                    '$MATCH := ::Match(); $MATCH.match_str = $str; $MATCH.from = $pos, $MATCH.to = $pos, $MATCH.bool = 1; ' ~
                     '$MATCH.bool( ' ~
                         $.rule.emit_token ~
                     '); ' ~

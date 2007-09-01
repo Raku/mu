@@ -56,7 +56,7 @@ class Val::Num {
 class Val::Buf {
     method emit_perl5 { 
         # '\'' ~ $.buf ~ '\'' 
-        '::DISPATCH( $::Str, \'new\', ' ~ '\'' ~ Main::mangle_string( $.buf ) ~ '\'' ~ ' )' ~ Main::newline();
+        '::DISPATCH( $::Str, \'new\', ' ~ Main::singlequote() ~ Main::mangle_string( $.buf ) ~ Main::singlequote ~ ' )' ~ Main::newline();
     }
 }
 
