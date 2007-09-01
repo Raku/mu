@@ -220,6 +220,11 @@ is C<undef>, and C<$_OUTER[-1]> is C<$_>
 The transformation object; useful for recursive calls:
 C<$_T->apply('name',@nodes)>
 
+=back
+
+Since these are globals, under C<strict> you must declare them with
+C<use vars>.
+
 =cut
 
 1;
