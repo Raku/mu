@@ -44,9 +44,14 @@ list.
 
 sub apply {
     my ($self,$context)=@_;
-###l4p     DEBUG "Applying $self->{name}, position $context->{position}\n";
+###l4p     DEBUG "Applying $self->{name} ($self->{prio}), position $context->{position}\n";
     local $_=$context->current_nodes->[$context->position];
-    local $main::_POS=$context->position;
+    my ($caller_P)=do {
+        my $pkg=Data::Transform::Trivial::_caller_pkg();
+        no strict 'refs';
+        \*{$pkg.'::_P'},
+    };
+    local *$caller_P=\($context->{position});
     return $self->{action}->(@{$context->current_nodes});
 }
 
@@ -66,7 +71,12 @@ sub matches {
     my ($self,$name,$context)=@_;
     return unless $name eq $self->{name};
     local $_=$context->current_nodes->[$context->position];
-    local $main::_POS=$context->position;
+    my ($caller_P)=do {
+        my $pkg=Data::Transform::Trivial::_caller_pkg();
+        no strict 'refs';
+        \*{$pkg.'::_P'},
+    };
+    local *$caller_P=\($context->{position});
     return $self->{matcher}->(@{$context->current_nodes});
 }
 

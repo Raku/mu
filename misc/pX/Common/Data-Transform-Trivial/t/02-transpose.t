@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 use Test::More qw(no_plan);
-
+use vars qw($_T $_P);
 BEGIN {
     eval 'use Log::Log4perl qw(:easy)' if $ENV{DEBUG};
     eval 'use Log::Log4perl::Resurrector;' if $ENV{DEBUG};
@@ -48,9 +48,9 @@ my $matrix=table([
 
 my $printer=Transform->new([
     Rule->new('print',sub {$_->name() eq 'table'},
-              sub {return join '',$main::_T->apply('print',$_->children)}),
+              sub {return join '',$_T->apply('print',$_->children)}),
     Rule->new('print',sub {$_->name() eq 'row'},
-              sub {return '['.(join ', ',$main::_T->apply('print',$_->children))."]\n"}),
+              sub {return '['.(join ', ',$_T->apply('print',$_->children))."]\n"}),
     Rule->new('print',sub {$_->name() eq 'cell'},
               sub {return join '',$_->children}),
 ]);
@@ -66,17 +66,14 @@ EOT
 my $transposer=Transform->new([
     Rule->new('trans',sub {$_->name() eq 'table'},
               sub {
-                  return table([$main::_T->apply('trans',$_->children)]) }),
+                  return table([$_T->apply('trans',$_->children)]) }),
     Rule->new('trans',sub {$_->name() eq 'row'},
               sub {
-                  my $pos=$main::_POS;
-                  return row([ $main::_T->apply
+                  my $pos=$_P;
+                  return row([ $_T->apply
                                    ('trans',
-                                    $main::_T->find($main::_C,
-                                                    sub {
-                                                        return grep {$_->position == $pos }
-                                                            $_->children;
-                                                    }),
+                                    grep {$_->position == $pos }
+                                        map {$_->children} @_
                                 ) ])
               }),
     Rule->new('trans',sub {$_->name() eq 'cell'},

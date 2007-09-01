@@ -1,3 +1,5 @@
+.. -*- mode: rst; coding: utf-8 -*-
+
 ======================
  Tree Transformations
 ======================
@@ -5,43 +7,52 @@
 Match expressions
 =================
 
+.. warning:: This is highly conjectural
+
 Conditions on nodes, access to other nodes. Two kind of accessors:
 node accessors (return node lists), scalar accessors (return other
 types)
 
-\?????
-
-root().children()[name = 'stuff'].attributes()[value = 'boo'].name
+``root().children()[name = 'stuff'].attributes()[value = 'boo'].name``
 
 Rule finding
 ============
 
 Each rule has a name, a matching expression, and a priority.
 
-No two rules can have the same name-match-prio.
-
 Given a node and a name, the rule to use is the one with that
 name, whose matching expression matches the node, and with the highest
 priority.
+
+It is an error for two rules having the same name and priority to
+match the same node.
 
 Processing Model
 ================
 
 Context: node, node list, position, variables?
 
-Run the code. You can select nodes by matching. You can call *named*
-transformations on node lists.
+Run the code. You can call *named* transformations on node lists.
 
-The "matching" here is different than the matching while selecting
-rules. The matching expression for rules evals to a boolean. The
-matching here evals to a node list.
+You can generate new node lists by using the tree-walking methods of
+the data structure you are transforming.
+
+In-place editing
+----------------
+
+If you change the source data structure, you might need to tell the
+engine to change the current node list.
+
+If while transforming the child nodes of an element, you change the
+list of child nodes of that element, but don't apply the same changes
+to the current node list, weird things happen.
+
+See the ``t/03-inplace.t`` test for a simple example.
 
 Ideas from Ruoso
 ================
 
-- OUTER like caller
-- remove "current node list" - not really useful, and prevents
-  in-place transforms
+- ``OUTER`` like ``caller``
 - ignore surface syntax, just ship it
 - kill priority, esplicitly call sub-rules in order?
   ::

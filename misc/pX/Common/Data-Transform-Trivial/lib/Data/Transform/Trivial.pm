@@ -13,6 +13,14 @@ sub new {
               },$class;
 }
 
+sub _caller_pkg {
+    my $i=0;
+    while (my $pack=caller($i++)) {
+        return $pack unless $pack=~/^Data::Transform::Trivial/;
+    }
+    return '';
+}
+
 =head1 C<$_T->apply($rule_name,@nodes)>
 
 Applies the appropriate rules (named C<$rule_name>) to each node in
@@ -25,6 +33,14 @@ The rules are evaluated in I<list> context.
 sub apply {
     my ($self,$name,@nodes)=@_;
 
+    my ($caller_T,$caller_C,$caller_L)=do {
+        my $pkg=_caller_pkg();
+        no strict 'refs';
+        \*{$pkg.'::_T'},
+        \*{$pkg.'::_C'},
+        \*{$pkg.'::_L'},
+    };
+
     my @result=();
     my $context=Data::Transform::Trivial::Context->new(\@nodes,0);
     for ($context->{position}=0;$context->{position}<@nodes;$context->{position}++) {
@@ -32,8 +48,9 @@ sub apply {
             or die "Can't find rule $name for @nodes\n";
         my @res;
         {
-            local $main::_T=$self;
-            local $main::_C=$context;
+            local *$caller_T=\$self;
+            local *$caller_C=\$context;
+            local *$caller_L=\@nodes;
             @res=$rule->apply($context);
 ###l4p             DEBUG "Rule returned @res\n";
         }
@@ -72,30 +89,6 @@ sub find_rule {
     }
 ###l4p     DEBUG "We have a winner\n";
     return $winner;
-}
-
-=head1 C<$_T->find($context,$selector)>
-
-Calls the C<$selector> for each current node in the C<$context>, and
-returns the list of return values.
-
-The selector is evaluated in I<list> context.
-
-=cut
-
-sub find {
-    my ($self,$context,$selector)=@_;
-    my @result=();
-    for my $n (@{$context->current_nodes}) {
-        my @ret;
-        {
-            local $_=$n;
-            local $main::_POS=undef;
-            @ret=$selector->(@{$context->current_nodes});
-        }
-        push @result,@ret;
-    }
-    return @result;
 }
 
 1;

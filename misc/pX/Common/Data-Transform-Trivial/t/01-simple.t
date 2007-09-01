@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Test::More qw(no_plan);
 use List::Util qw(sum);
-
+use vars qw($_T);
 BEGIN {
     eval 'use Log::Log4perl qw(:easy)' if $ENV{DEBUG};
     eval 'use Log::Log4perl::Resurrector;' if $ENV{DEBUG};
@@ -49,7 +49,7 @@ my $t=Transform->new([
               sub {
                   return 
                       substr($_->name(),0,1)
-                      .(join '',$main::_T->apply('fl',$_->children));
+                      .(join '',$_T->apply('fl',$_->children));
               }),
 ]);
 
@@ -64,11 +64,11 @@ sub match_with_a {
 my $t=Transform->new([
     Rule->new('count_a',\&match_with_a,
               sub {
-                  return 1+(sum($main::_T->apply('count_a',$_->children))||0);
+                  return 1+(sum($_T->apply('count_a',$_->children))||0);
               }),
     Rule->new('count_a',\&match_any,
               sub {
-                  return sum($main::_T->apply('count_a',$_->children))||0;
+                  return sum($_T->apply('count_a',$_->children))||0;
               },0.5),
 ]);
 
@@ -80,12 +80,8 @@ is($ret,3,'counter');
 my $t=Transform->new([
     Rule->new('count_a',\&match_any,
               sub {
-                  return scalar($main::_T->find
-                                    ($main::_C,
-                                     sub {
-                                         return grep {exists ${$_->attributes}{a}}
-                                             $_->descendants_or_self;
-                                     }));
+                  return scalar(grep {exists ${$_->attributes}{a}}
+                                    $_->descendants_or_self);
               }),
 ]);
 
@@ -101,7 +97,7 @@ my $t=Transform->new([
               }),
     Rule->new('do',\&match_any,
               sub {
-                  return $main::_T->apply('do',$_->children);
+                  return $_T->apply('do',$_->children);
               },0.5),
 ]);
 
