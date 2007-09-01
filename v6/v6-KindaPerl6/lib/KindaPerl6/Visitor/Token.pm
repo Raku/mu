@@ -101,16 +101,6 @@ class Rule::Subrule {
             return Rule::constant(substr(substr($.metasyntax, 1), 0 - 1));
         };
 
-        if (substr( $.metasyntax, 0, 6) eq 'before') {
-            # before special assertion (see S05)
-            die 'before special assertion Not Implemented!';
-        };
-
-        if (substr( $.metasyntax, 0, 7) eq '!before') {
-            # before special assertion (see S05)
-            die '!before special assertion Not Implemented!';
-        };
-
         my $meth := ( 1 + index( $.metasyntax, '.' ) )
           ?? $.metasyntax 
             !! ( 'self.' ~ $.metasyntax );
@@ -280,11 +270,11 @@ class Rule::Before {
         if $.assertion_modifier eq '!' {
             return
                 'do { ' ~
-                    'my $$MATCH; ' ~
+                    'my $MATCH; ' ~
                     '$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = $pos; $MATCH.bool = 1; ' ~
-                    '$MATCH.bool = ' ~
+                    '$MATCH.bool = !(' ~
                         $.rule.emit_token ~
-                    '; ' ~
+                    '); ' ~
                     '$MATCH; ' ~
                 '}'
         }

@@ -5,7 +5,7 @@ grammar MyGrammar {
     }
 
     token ident {
-      <!before \d>
+      <!before '1'>
       <'abc'>
     };
 };
