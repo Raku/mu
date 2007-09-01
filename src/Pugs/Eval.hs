@@ -858,8 +858,12 @@ reduceSyn "package" [kind, exp] = reduceSyn "namespace" [kind, exp, emptyExp]
 reduceSyn "namespace" [_kind, exp, body] = do
     val <- evalExp exp
     str <- fromVal val
-    when (str `elem` words "MY OUR OUTER CALLER") $ do
-        fail $ "Cannot use " ++ str ++ " as a namespace"
+    let forbiddenNamespaces = ["CALLER", "COMPILING",
+                               "CONTEXT", "GLOBAL",
+                               "MY", "OUR", "OUTER",
+                               "PROCESS", "SUPER"]
+        in when (str `elem` forbiddenNamespaces) $ do
+           fail $ "Cannot use " ++ str ++ " as a namespace"
     enterPackage (cast str) $ evalExp body
 
 reduceSyn "inline" [langExp, _] = do
