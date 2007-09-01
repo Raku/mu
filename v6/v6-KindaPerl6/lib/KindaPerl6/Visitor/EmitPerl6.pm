@@ -241,7 +241,7 @@ class Apply {
 class Return {
     method emit_perl6 {
         return
-        'return(' ~ $.result.emit_perl6 ~ ')';
+        'return (' ~ $.result.emit_perl6 ~ ')';
     }
 }
 

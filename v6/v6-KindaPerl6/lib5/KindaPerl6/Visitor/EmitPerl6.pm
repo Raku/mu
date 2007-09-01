@@ -47,7 +47,7 @@ package Call; sub new { shift; bless { @_ }, "Call" } sub emit_perl6 { my $self 
 ;
 package Apply; sub new { shift; bless { @_ }, "Apply" } sub emit_perl6 { my $self = shift; my $List__ = \@_; do { [] }; return(('(' . ($self->{code}->emit_perl6() . (')(' . (Main::join([ map { $_->emit_perl6() } @{ $self->{arguments} } ], ', ') . ')'))))) }
 ;
-package Return; sub new { shift; bless { @_ }, "Return" } sub emit_perl6 { my $self = shift; my $List__ = \@_; do { [] }; return(('return(' . ($self->{result}->emit_perl6() . ')'))) }
+package Return; sub new { shift; bless { @_ }, "Return" } sub emit_perl6 { my $self = shift; my $List__ = \@_; do { [] }; return(('return (' . ($self->{result}->emit_perl6() . ')'))) }
 ;
 package If; sub new { shift; bless { @_ }, "If" } sub emit_perl6 { my $self = shift; my $List__ = \@_; do { [] }; ('do { if ( ${' . ($self->{cond}->emit_perl6() . ('->FETCH} ) { ' . ($self->{body}->emit_perl6() . (' } ' . (($self->{otherwise} ? (' else { ' . ($self->{otherwise}->emit_perl6() . ' }')) : '') . ' }')))))) }
 ;

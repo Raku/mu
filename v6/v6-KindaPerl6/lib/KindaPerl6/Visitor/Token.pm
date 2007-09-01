@@ -19,7 +19,7 @@ class KindaPerl6::Visitor::Token {
                 ~ '$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = $pos; $MATCH.bool = 1; '
                 ~ '$MATCH.bool = ' ~ $perl6_source ~ '; ' 
                 ~ 'return $MATCH }';
-            # say 'Intermediate code: ', $source;
+#            warn 'Intermediate code: ', $source;
 
             # Compile the new Perl 6 code
 
@@ -204,16 +204,15 @@ class Rule::SpecialChar {
 
 class Rule::Block {
     method emit_token {
-        #return 'do ' ~ $.closure;
-        'do { ' ~ 
-             'my $ret := ( sub {' ~
+        #XXX - avoid code -> ast -> code 
+        return 'do { ' ~ 
+             'my $ret = (sub {' ~
                 'do {' ~ 
-                   $.closure ~
+                   $.closure.emit_perl6 ~
                 '}; ' ~
-                '\'974^213\' } ).();' ~
+                '\'974^213\' }.());' ~
              'if $ret ne \'974^213\' {' ~
-                '$MATCH.capture( $ret ); ' ~
-                # '$MATCH.bool( 1 ); ' ~
+                '$MATCH.capture = $ret; ' ~
                 'return $MATCH;' ~
              '};' ~
              '1' ~
