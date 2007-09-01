@@ -1,4 +1,4 @@
-package Context;
+package Data::Transform::Trivial::Context;
 use strict;
 use warnings;
 

@@ -43,7 +43,6 @@ sub position {
     my ($self)=@_;
     return 0 unless $self->parent;
     my $r=firstidx {$_ eq $self} $self->parent->children;
-    warn "position: $r\n";
     return $r;
 }
 

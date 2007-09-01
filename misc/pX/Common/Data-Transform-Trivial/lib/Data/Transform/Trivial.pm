@@ -1,7 +1,10 @@
-package Transform;
+package Data::Transform::Trivial;
 use strict;
 use warnings;
-use Context;
+###l4p use Log::Log4perl qw(:easy);
+use Data::Transform::Trivial::Context;
+
+$Data::Transform::Trivial::VERSION='0.1';
 
 sub new {
     my ($class,$rules)=(@_);
@@ -23,7 +26,7 @@ sub apply {
     my ($self,$name,@nodes)=@_;
 
     my @result=();
-    my $context=Context->new(\@nodes,0);
+    my $context=Data::Transform::Trivial::Context->new(\@nodes,0);
     for ($context->{position}=0;$context->{position}<@nodes;$context->{position}++) {
         my $rule=$self->find_rule($name,$context)
             or die "Can't find rule $name for @nodes\n";
@@ -32,7 +35,7 @@ sub apply {
             local $main::_T=$self;
             local $main::_C=$context;
             @res=$rule->apply($context);
-            warn "Rule returned @res\n";
+###l4p             DEBUG "Rule returned @res\n";
         }
         push @result,@res;
     }
@@ -53,9 +56,9 @@ tie.
 
 sub find_rule {
     my ($self,$name,$context)=@_;
-    warn "Looking for $name\n";
+###l4p     DEBUG "Looking for $name\n";
     my @candidates=grep {$_->matches($name,$context)} @{$self->{rules}};
-    warn "We have @{[ scalar @candidates ]} candidates\n";
+###l4p     DEBUG "We have @{[ scalar @candidates ]} candidates\n";
     return unless @candidates;
     my $winner=shift @candidates;
     for my $contestant (@candidates) {
@@ -67,7 +70,7 @@ sub find_rule {
             return;
         }
     }
-    warn "We have a winner\n";
+###l4p     DEBUG "We have a winner\n";
     return $winner;
 }
 

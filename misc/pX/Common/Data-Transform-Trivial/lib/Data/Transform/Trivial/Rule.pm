@@ -1,6 +1,7 @@
-package Rule;
+package Data::Transform::Trivial::Rule;
 use strict;
 use warnings;
+###l4p use Log::Log4perl qw(:easy);
 
 =head1 C<Rule->new($rule_name,\&matcher_sub,\&action_sub,$priority)>
 
@@ -43,7 +44,7 @@ list.
 
 sub apply {
     my ($self,$context)=@_;
-    warn "Applying $self->{name}, position $context->{position}\n";
+###l4p     DEBUG "Applying $self->{name}, position $context->{position}\n";
     local $_=$context->current_nodes->[$context->position];
     local $main::_POS=$context->position;
     return $self->{action}->(@{$context->current_nodes});

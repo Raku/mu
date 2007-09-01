@@ -2,11 +2,22 @@
 use strict;
 use warnings;
 use Test::More qw(no_plan);
-use Transform;
-use Rule;
-use SimpleNode;
-use Data::Dumper;
 use List::Util qw(sum);
+
+BEGIN {
+    eval 'use Log::Log4perl qw(:easy)' if $ENV{DEBUG};
+    eval 'use Log::Log4perl::Resurrector;' if $ENV{DEBUG};
+}
+use Data::Transform::Trivial;
+use Data::Transform::Trivial::Rule;
+eval 'Log::Log4perl->easy_init($DEBUG)' if $ENV{DEBUG};
+use lib 't/lib'; # might not always work
+use SimpleNode;
+
+BEGIN{
+*Transform::=\*Data::Transform::Trivial::;
+*Rule::=\*Data::Transform::Trivial::Rule::;
+}
 
 sub foo {
     return SimpleNode->new('foo',@_);
@@ -32,12 +43,10 @@ sub match_foo {
 sub match_bar {
     return $_->name() eq 'bar';
 }
-
+{
 my $t=Transform->new([
     Rule->new('fl',\&match_any,
               sub {
-                  warn "buh\n";
-                  warn Dumper($_);
                   return 
                       substr($_->name(),0,1)
                       .(join '',$main::_T->apply('fl',$_->children));
@@ -46,11 +55,12 @@ my $t=Transform->new([
 
 my ($ret)=$t->apply('fl',$tree);
 is($ret,'fbffbb','simple first-letter');
-
+}
 sub match_with_a {
     return exists ${$_->attributes}{a};
 }
 
+{
 my $t=Transform->new([
     Rule->new('count_a',\&match_with_a,
               sub {
@@ -62,9 +72,11 @@ my $t=Transform->new([
               },0.5),
 ]);
 
-($ret)=$t->apply('count_a',$tree);
+my ($ret)=$t->apply('count_a',$tree);
 is($ret,3,'counter');
+}
 
+{
 my $t=Transform->new([
     Rule->new('count_a',\&match_any,
               sub {
@@ -77,9 +89,11 @@ my $t=Transform->new([
               }),
 ]);
 
-($ret)=$t->apply('count_a',$tree);
+my ($ret)=$t->apply('count_a',$tree);
 is($ret,3,'counter, different');
+}
 
+{
 my $t=Transform->new([
     Rule->new('do',sub { $_->name() eq 'foo' and $_->parent() and $_->parent->name() eq 'bar'},
               sub {
@@ -93,12 +107,4 @@ my $t=Transform->new([
 
 my @ret=$t->apply('do',$tree);
 is(scalar(@ret),2,'select');
-
-__END__
-
-sub { $_->type eq 'Sequence' and scalar(grep{$_->type eq 'Assign'} $_->children)==0 }
 }
-
-# NO type::Sequence[count(children::*[type::Assign])=0]
-
-type='Sequence' and count(children::*[type='Assign'])=0
