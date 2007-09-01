@@ -31,6 +31,9 @@ test_math: all
 test_base: all
 	perl run_tests.pl --section=''
 
+forcerecompile:
+	find lib/KindaPerl6/ -name "*.pm"| grep -v \.svn |xargs touch
+
 clean: 
 	rm -f $(OBJ)
 

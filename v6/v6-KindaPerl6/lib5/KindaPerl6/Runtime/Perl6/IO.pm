@@ -88,6 +88,7 @@
                     ::MODIFIED($List__);
                     $List__ = ::DISPATCH( $CAPTURE, 'array', );
                 };
+                ::DISPATCH( $::Kp6Security, 'guard_unsecure_code', );
                 ::DISPATCH( $::Int, 'new', 42 );
             }
         )

@@ -15,7 +15,7 @@ module Main {
     my $run_2_1 = Math.rand;
     my $run_2_2 = Math.rand;
 
-    say "# 1-1: ", $run_1_1, ", 1-2: ", $run_1_2, ", 2-1: ", $run_2_1, ", 2-2: ", $run_2_2;
+    #say "# 1-1: ", $run_1_1, ", 1-2: ", $run_1_2, ", 2-1: ", $run_2_1, ", 2-2: ", $run_2_2;
 
     # I know, comparing fractionals on equality is generally
     # consideres stupid. But it seem to work.
@@ -42,7 +42,7 @@ module Main {
     my $run_4_1 = Math.rand(5);
     my $run_4_2 = Math.rand(10);
 
-    say "# 3-1: ", $run_3_1, ", 3-2: ", $run_3_2, ", 4-1: ", $run_4_1, ", 4-2: ", $run_4_2;
+    #say "# 3-1: ", $run_3_1, ", 3-2: ", $run_3_2, ", 4-1: ", $run_4_1, ", 4-2: ", $run_4_2;
 
     # following values differ
     if ($run_3_1 != $run_3_2) {
