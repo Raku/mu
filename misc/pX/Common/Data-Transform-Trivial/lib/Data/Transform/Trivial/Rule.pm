@@ -1,6 +1,7 @@
 package Data::Transform::Trivial::Rule;
 use strict;
 use warnings;
+###l4p use Data::Dumper;
 ###l4p use Log::Log4perl qw(:easy);
 
 =head1 C<Rule->new($rule_name,\&matcher_sub,\&action_sub,$priority)>
@@ -46,13 +47,21 @@ sub apply {
     my ($self,$context)=@_;
 ###l4p     DEBUG "Applying $self->{name} ($self->{prio}), position $context->{position}\n";
     local $_=$context->current_nodes->[$context->position];
-    my ($caller_P)=do {
+    my ($caller_P,$caller_OUTER)=do {
         my $pkg=Data::Transform::Trivial::_caller_pkg();
         no strict 'refs';
         \*{$pkg.'::_P'},
+        \*{$pkg.'::_OUTER'},
     };
     local *$caller_P=\($context->{position});
-    return $self->{action}->(@{$context->current_nodes});
+    push @{*$caller_OUTER},$context->current_nodes->[$context->position];
+    local *$caller_OUTER=\(${*$caller_OUTER}[-2]);
+#-##l4p DEBUG ('@_OUTER:',{filter=>\&Dumper,value=>\@{*$caller_OUTER}});
+#-##l4p DEBUG ('$_OUTER:',{filter=>\&Dumper,value=>\${*$caller_OUTER}});
+###l4p DEBUG ('@_OUTER:',map {defined($_) ? $_->attributes->{a} : '-'} @{*$caller_OUTER});
+    my @ret=$self->{action}->(@{$context->current_nodes});
+    pop @{*$caller_OUTER};
+    return @ret;
 }
 
 

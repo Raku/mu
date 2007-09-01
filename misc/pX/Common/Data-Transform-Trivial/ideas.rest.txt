@@ -52,7 +52,6 @@ See the ``t/03-inplace.t`` test for a simple example.
 Ideas from Ruoso
 ================
 
-- ``OUTER`` like ``caller``
 - ignore surface syntax, just ship it
 - kill priority, esplicitly call sub-rules in order?
   ::

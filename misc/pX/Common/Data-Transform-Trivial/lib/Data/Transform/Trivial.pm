@@ -33,16 +33,29 @@ The rules are evaluated in I<list> context.
 sub apply {
     my ($self,$name,@nodes)=@_;
 
-    my ($caller_T,$caller_C,$caller_L)=do {
+    my ($caller_T,$caller_C,$caller_L,$caller_OUTER)=do {
         my $pkg=_caller_pkg();
         no strict 'refs';
         \*{$pkg.'::_T'},
         \*{$pkg.'::_C'},
         \*{$pkg.'::_L'},
+        \*{$pkg.'::_OUTER'},
     };
 
     my @result=();
     my $context=Data::Transform::Trivial::Context->new(\@nodes,0);
+    if (! defined (*{$caller_OUTER}{ARRAY})) {
+        *$caller_OUTER=[undef];
+    }
+    my $toplevel=1;my $pos=0;
+    while (my $pack=caller($pos++)) {
+        if ($pack eq 'Data::Transform::Trivial') {
+            $toplevel=0;last;
+        }
+    }
+    if ($toplevel) {
+        @{*$caller_OUTER}=(undef);
+    }
     for ($context->{position}=0;$context->{position}<@nodes;$context->{position}++) {
         my $rule=$self->find_rule($name,$context)
             or die "Can't find rule $name for @nodes\n";
@@ -51,6 +64,7 @@ sub apply {
             local *$caller_T=\$self;
             local *$caller_C=\$context;
             local *$caller_L=\@nodes;
+
             @res=$rule->apply($context);
 ###l4p             DEBUG "Rule returned @res\n";
         }
