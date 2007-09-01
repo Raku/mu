@@ -269,27 +269,23 @@ class Rule::Before {
         if $.assertion_modifier eq '!' {
             return
                 'do { ' ~
-                    'my $tmp := $MATCH; ' ~
-                    '$MATCH := ::Match(); $MATCH.match_str = $str; $MATCH.from = $pos, $MATCH.to = $pos, $MATCH.bool = 1; ' ~
-                    '$MATCH.bool( ' ~
+                    'my $$MATCH; ' ~
+                    '$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = $pos; $MATCH.bool = 1; ' ~
+                    '$MATCH.bool = ' ~
                         $.rule.emit_token ~
-                    '); ' ~
-                    '$tmp.bool( !$MATCH ); ' ~
-                    '$MATCH := $tmp; ' ~
-                    '?$MATCH; ' ~
+                    '; ' ~
+                    '$MATCH; ' ~
                 '}'
         }
         else {
             return
                 'do { ' ~
-                    'my $tmp := $MATCH; ' ~
-                    '$MATCH := ::Match(); $MATCH.match_str = $str; $MATCH.from = $pos, $MATCH.to = $pos, $MATCH.bool = 1; ' ~
-                    '$MATCH.bool( ' ~
+                    'my $MATCH; ' ~
+                    '$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = $pos; $MATCH.bool = 1; ' ~
+                    '$MATCH.bool =  ' ~
                         $.rule.emit_token ~
-                    '); ' ~
-                    '$tmp.bool( ?$MATCH ); ' ~
-                    '$MATCH := $tmp; ' ~
-                    '?$MATCH; ' ~
+                    '; ' ~
+                    '$MATCH; ' ~
                 '}'
         }
     }
