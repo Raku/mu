@@ -91,7 +91,7 @@ package Evalbot;
         my ($tmp_fh, $name) = tempfile();
         print $tmp_fh $program;
         close $tmp_fh;
-        system "KP6_DISABLE_UNSECURE_CODE=1 perl kp6-perl5.pl < $name 2>$filename| perl -Ilib5 >> $filename 2>&1";
+        system "KP6_DISABLE_UNSECURE_CODE=1 perl kp6-perl5.pl --secure < $name 2>$filename| perl -Ilib5 >> $filename 2>&1";
         unlink $name;
         chdir $FindBin::Bin;
         return;
