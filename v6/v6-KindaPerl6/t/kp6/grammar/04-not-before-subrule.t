@@ -1,4 +1,9 @@
 grammar MyGrammar {
+
+    token myrule {
+        .<ident>
+    }
+
     token ident {
       <!before \d>
       <?word>
@@ -6,5 +11,11 @@ grammar MyGrammar {
 };
 module Main {
     say '1..1';
-    say 'ok 1';
+
+    $_ = '1abc';
+    if MyGrammar.myrule() {
+        say 'not ok 1';
+    } else {
+        say 'ok 1';
+    }
 }
