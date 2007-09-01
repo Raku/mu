@@ -1,6 +1,7 @@
 package Data::Transform::Trivial::Rule;
 use strict;
 use warnings;
+use Carp;
 ###l4p use Data::Dumper;
 ###l4p use Log::Log4perl qw(:easy);
 
@@ -28,11 +29,44 @@ Defaults:
 
 sub new {
     my ($class,$name,$matcher,$action,$prio)=(@_);
-    return bless {name=>$name,
-                  matcher=>($matcher||sub{1}),
-                  prio=>(defined($prio)?$prio:1),
-                  action => ($action||sub{}),
-              }, $class;
+
+    my ($action_pkg,$matcher_pkg);
+    ($action,$action_pkg)=_qualify($action);
+    ($matcher,$matcher_pkg)=_qualify($matcher);
+
+    my $self=bless {name=>$name,
+                    matcher=>$matcher,
+                    matcher_pkg=>$matcher_pkg,
+                    prio=>(defined($prio)?$prio:1),
+                    action => $action,
+                    action_pkg => $action_pkg,
+                }, $class;
+    return $self;
+}
+
+sub _caller_pkg {
+    my $i=0;
+    while (my $pack=caller($i++)) {
+        return $pack unless $pack=~/^Data::Transform::Trivial/;
+    }
+    return '';
+}
+
+sub _qualify {
+    my ($ref)=@_;
+    my $caller=_caller_pkg();
+
+    if (!defined $ref) { return (sub{1},$caller) }
+    if (!ref($ref)) {
+        my ($pack,$name)=($ref=~m{^((?:\w+::)+)(\w+)});
+        $pack=defined($pack)?substr($pack,0,-2):$caller;
+        my $sub=*{$ref}{CODE};
+        if (!defined $sub) {
+            croak "Unknown sub $ref";
+        }
+        return ($sub,$pack);
+    }
+    return ($ref,$caller);
 }
 
 =head1 C<$rule->apply($context)>
@@ -44,23 +78,31 @@ list.
 =cut
 
 sub apply {
-    my ($self,$context)=@_;
+    my ($self,$trans,$context)=@_;
 ###l4p     DEBUG "Applying $self->{name} ($self->{prio}), position $context->{position}\n";
     local $_=$context->current_nodes->[$context->position];
-    my ($caller_P,$caller_OUTER)=do {
-        my $pkg=Data::Transform::Trivial::_caller_pkg();
+    my ($caller_P,$caller_T,$caller_C,$caller_L,$caller_OUTER)=do {
+        my $pkg=$self->{action_pkg};
         no strict 'refs';
         \*{$pkg.'::_P'},
+        \*{$pkg.'::_T'},
+        \*{$pkg.'::_C'},
+        \*{$pkg.'::_L'},
         \*{$pkg.'::_OUTER'},
     };
+    local *$caller_T=\$trans;
+    local *$caller_C=\$context;
+    local *$caller_L=$context->current_nodes;
+
     local *$caller_P=\($context->{position});
-    push @{*$caller_OUTER},$context->current_nodes->[$context->position];
-    local *$caller_OUTER=\(${*$caller_OUTER}[-2]);
-#-##l4p DEBUG ('@_OUTER:',{filter=>\&Dumper,value=>\@{*$caller_OUTER}});
-#-##l4p DEBUG ('$_OUTER:',{filter=>\&Dumper,value=>\${*$caller_OUTER}});
-###l4p DEBUG ('@_OUTER:',map {defined($_) ? $_->attributes->{a} : '-'} @{*$caller_OUTER});
+    push @{$trans->{callers}},$context->current_nodes->[$context->position];
+    local *$caller_OUTER=\($trans->{callers}[-2]);
+    local *$caller_OUTER=$trans->{callers};
+###l4p DEBUG ('@_OUTER:',{filter=>\&Dumper,value=>\@{*$caller_OUTER}});
+###l4p DEBUG ('$_OUTER:',{filter=>\&Dumper,value=>\${*$caller_OUTER}});
+
     my @ret=$self->{action}->(@{$context->current_nodes});
-    pop @{*$caller_OUTER};
+    pop @{$trans->{callers}};
     return @ret;
 }
 
@@ -76,16 +118,27 @@ list.
 
 =cut
 
+#'
+
 sub matches {
-    my ($self,$name,$context)=@_;
+    my ($self,$trans,$name,$context)=@_;
     return unless $name eq $self->{name};
     local $_=$context->current_nodes->[$context->position];
-    my ($caller_P)=do {
-        my $pkg=Data::Transform::Trivial::_caller_pkg();
+    my ($caller_P,$caller_T,$caller_C,$caller_L,$caller_OUTER)=do {
+        my $pkg=$self->{matcher_pkg};
         no strict 'refs';
         \*{$pkg.'::_P'},
+        \*{$pkg.'::_T'},
+        \*{$pkg.'::_C'},
+        \*{$pkg.'::_L'},
+        \*{$pkg.'::_OUTER'},
     };
+    local *$caller_T=\$trans;
+    local *$caller_C=\$context;
+    local *$caller_L=$context->current_nodes;
     local *$caller_P=\($context->{position});
+    local *$caller_OUTER=@{$trans->{callers}} > 1 ? \($trans->{callers}[-2]) : \undef;
+    local *$caller_OUTER=$trans->{callers};
     return $self->{matcher}->(@{$context->current_nodes});
 }
 

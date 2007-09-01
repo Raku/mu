@@ -3,22 +3,25 @@ use strict;
 use warnings;
 ###l4p use Log::Log4perl qw(:easy);
 use Data::Transform::Trivial::Context;
+use Data::Transform::Trivial::Rule;
 
 $Data::Transform::Trivial::VERSION='0.1';
+
+sub import {
+    if (@_>1 and $_[1] eq ':brief') {
+        my $pkg=caller(0);
+        no strict 'refs';
+        *{"$pkg\::Transform::"}=\*Data::Transform::Trivial::;
+        *{"$pkg\::Rule::"}=\*Data::Transform::Trivial::Rule::;
+    }
+}
 
 sub new {
     my ($class,$rules)=(@_);
     return bless {rules=>($rules||[]),
                   context=>undef,
+                  callers=>[undef],
               },$class;
-}
-
-sub _caller_pkg {
-    my $i=0;
-    while (my $pack=caller($i++)) {
-        return $pack unless $pack=~/^Data::Transform::Trivial/;
-    }
-    return '';
 }
 
 =head1 C<$_T->apply($rule_name,@nodes)>
@@ -33,39 +36,15 @@ The rules are evaluated in I<list> context.
 sub apply {
     my ($self,$name,@nodes)=@_;
 
-    my ($caller_T,$caller_C,$caller_L,$caller_OUTER)=do {
-        my $pkg=_caller_pkg();
-        no strict 'refs';
-        \*{$pkg.'::_T'},
-        \*{$pkg.'::_C'},
-        \*{$pkg.'::_L'},
-        \*{$pkg.'::_OUTER'},
-    };
 
     my @result=();
     my $context=Data::Transform::Trivial::Context->new(\@nodes,0);
-    if (! defined (*{$caller_OUTER}{ARRAY})) {
-        *$caller_OUTER=[undef];
-    }
-    my $toplevel=1;my $pos=0;
-    while (my $pack=caller($pos++)) {
-        if ($pack eq 'Data::Transform::Trivial') {
-            $toplevel=0;last;
-        }
-    }
-    if ($toplevel) {
-        @{*$caller_OUTER}=(undef);
-    }
     for ($context->{position}=0;$context->{position}<@nodes;$context->{position}++) {
         my $rule=$self->find_rule($name,$context)
             or die "Can't find rule $name for @nodes\n";
         my @res;
         {
-            local *$caller_T=\$self;
-            local *$caller_C=\$context;
-            local *$caller_L=\@nodes;
-
-            @res=$rule->apply($context);
+            @res=$rule->apply($self,$context);
 ###l4p             DEBUG "Rule returned @res\n";
         }
         push @result,@res;
@@ -88,7 +67,7 @@ tie.
 sub find_rule {
     my ($self,$name,$context)=@_;
 ###l4p     DEBUG "Looking for $name\n";
-    my @candidates=grep {$_->matches($name,$context)} @{$self->{rules}};
+    my @candidates=grep {$_->matches($self,$name,$context)} @{$self->{rules}};
 ###l4p     DEBUG "We have @{[ scalar @candidates ]} candidates\n";
     return unless @candidates;
     my $winner=shift @candidates;

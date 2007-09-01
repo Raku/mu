@@ -8,16 +8,10 @@ BEGIN {
     eval 'use Log::Log4perl qw(:easy)' if $ENV{DEBUG};
     eval 'use Log::Log4perl::Resurrector;' if $ENV{DEBUG};
 }
-use Data::Transform::Trivial;
-use Data::Transform::Trivial::Rule;
+use Data::Transform::Trivial ':brief';
 eval 'Log::Log4perl->easy_init($DEBUG)' if $ENV{DEBUG};
 use lib 't/lib'; # might not always work
 use SimpleNode;
-
-BEGIN{
-*Transform::=\*Data::Transform::Trivial::;
-*Rule::=\*Data::Transform::Trivial::Rule::;
-}
 
 sub foo {
     return SimpleNode->new('foo',@_);
