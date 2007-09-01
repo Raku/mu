@@ -3,7 +3,7 @@
 $::Math = make_class(name=>"Math",parent=>[$meta_Num],methods=>{
     srand => sub {
                   my $self = shift;
-                  my $seed = defined $_[0]{_value};
+                  my $seed = $_[0]{_value};
                   ::DISPATCH($::Num, "new", srand($seed));
                  },
     rand => sub {

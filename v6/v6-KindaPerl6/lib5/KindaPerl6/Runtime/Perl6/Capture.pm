@@ -173,7 +173,7 @@
                 };
                 $v;
                 ::DISPATCH_VAR( $s, 'STORE',
-                    ::DISPATCH( $::Str, 'new', '\\( ' ) );
+                    ::DISPATCH( $::Str, 'new', '\\\\( ' ) );
                 do {
                     if (
                         ::DISPATCH(
