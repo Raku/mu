@@ -300,7 +300,7 @@ sub sample (:$count, :$resample, *@data)
     my $max = $count ?? $count !! +@data;
 
     return gather {
-        unless ( $resample ) {
+        if ! ( $resample ) {
             my @copy = @data;
 
             loop (my $i = 0; $i < $max; ++$i ) {
