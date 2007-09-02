@@ -47,16 +47,18 @@ sub catdir (*@_path) returns Str is export {
     # trait at some point
     my @path = @_path;
     my @new_path;
-    my $i = 0;
-    loop ($i = 0; $i < @path; $i++) {
-        @path[$i] ~~ s:P5:g"/"\\";
-        if (@path[$i] ~~ m:P5"\\$") {
-            push(@new_path, @path[$i]);
+    @new_path = gather {
+      for @path -> $part {
+
+        if $part !~~ m:P5"\\$" {
+          take $part ~ "\\";
         }
         else {
-            push(@new_path, @path[$i] ~ "\\");
+          take $part;
         }
-    }
+      }
+    };
+
     return canonpath(join('', @new_path));
 }
 
