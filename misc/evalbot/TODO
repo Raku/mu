@@ -6,6 +6,3 @@ These tasks can be implemented in any order
    chars are involved:
     18:30 < moritz> #pugs "ä"
     18:30 < exp_evalbot_test> OUTPUT[decodeUTF8': bad data: '\228'␤]
-
- * when the eval'ed program produces no output, the evalbots should return
-   .perl.say of the last return value (if possible)

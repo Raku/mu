@@ -45,7 +45,7 @@ package Evalbot;
     my $prefix = '\#';
 
     my %executer = (
-            echo    => \&exec_echo,
+#            echo    => \&exec_echo,
             kp6     => \&exec_kp6,
             pugs    => \&exec_pugs,
             eval    => \&exec_eval,
@@ -53,6 +53,10 @@ package Evalbot;
             p6      => \&exec_p6,
             );
     my $regex = $prefix . '(' . join('|',  keys %executer) . ')';
+
+    sub help {
+        return "Usage: <$regex \$perl6_program>";
+    }
 #    warn "Regex: ", $regex, "\n";
 
     sub said {
@@ -138,6 +142,8 @@ package Evalbot;
 
 
     sub exec_eval {
+        # not really called, see the "dispatcher"
+        return;
         my ($program, $fh, $filename) = @_;
         print $fh "pugs:[";
         exec_pugs(@_);
