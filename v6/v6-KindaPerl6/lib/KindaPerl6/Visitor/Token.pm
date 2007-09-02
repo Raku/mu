@@ -205,14 +205,15 @@ class Rule::SpecialChar {
 class Rule::Block {
     method emit_token {
         #XXX - avoid code -> ast -> code 
+        #warn $.closure.emit_perl6;
         return 'do { ' ~ 
              'my $ret = (sub {' ~
                 'do {' ~ 
-                   $.closure.emit_perl6 ~
+                   'self.'~$.closure ~ ';' ~
                 '}; ' ~
                 '\'974^213\' }.());' ~
              'if $ret ne \'974^213\' {' ~
-                '$MATCH.capture = $ret; ' ~
+#                '$MATCH.capture = $ret; ' ~
                 'return $MATCH;' ~
              '};' ~
              '1' ~

@@ -71,7 +71,7 @@ my @visitors;
     }
     elsif ( ! @visitor_sequence ) {
         # this is the default sequence
-        push @visitor_sequence, qw( Token MetaClass Global EmitPerl5 )
+        push @visitor_sequence, qw( ExtractRuleBlock Token MetaClass  Global EmitPerl5 )
     }
 
     push @visitor_sequence, 'Perl' 
