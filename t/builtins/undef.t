@@ -229,7 +229,7 @@ else {
 }
 
 
-unless eval '"a" ~~ /a/' {
+if ! eval '"a" ~~ /a/' {
   skip 2, "skipped tests - rules support appears to be missing";
 }
 else {
