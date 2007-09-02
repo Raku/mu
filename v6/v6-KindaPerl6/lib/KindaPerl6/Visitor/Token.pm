@@ -207,13 +207,9 @@ class Rule::Block {
         #XXX - avoid code -> ast -> code 
         #warn $.closure.emit_perl6;
         return 'do { ' ~ 
-             'my $ret = (sub {' ~
-                'do {' ~ 
-                   'self.'~$.closure ~ ';' ~
-                '}; ' ~
-                '\'974^213\' }.());' ~
-             'if $ret ne \'974^213\' {' ~
-#                '$MATCH.capture = $ret; ' ~
+             'my $ret = self.'~$.closure ~ ';' ~
+             'if $ret {' ~
+                '$MATCH.result = $ret; ' ~
                 'return $MATCH;' ~
              '};' ~
              '1' ~

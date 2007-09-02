@@ -114,6 +114,19 @@
                     ::MODIFIED($List__);
                     $List__ = ::DISPATCH( $CAPTURE, 'array', );
                 };
+                do {
+                    if (
+                        ::DISPATCH(
+                            ::DISPATCH(
+                                ::DISPATCH( $self, 'result', ), "true"
+                            ),
+                            "p5landish"
+                        )
+                      )
+                    {
+                        return ( ::DISPATCH( $self, 'result', ) );
+                    }
+                };
                 ::DISPATCH(
                     $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
                     'APPLY',

@@ -10,6 +10,9 @@ class Match {
     has $.hash;
 
     method str {
+        if (self.result) {
+            return self.result;
+        }
            self.bool
         ?? substr( self.match_str, self.from, self.to - self.from )
         !! undef;
