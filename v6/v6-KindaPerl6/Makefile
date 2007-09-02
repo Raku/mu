@@ -36,7 +36,7 @@ forcerecompile:
 	find lib/KindaPerl6/ -name "*.pm"| grep -v \.svn |xargs touch
 
 clean: 
-	echo "make clean would destory the compiler"
+	echo "make clean would destroy the compiler"
 	#rm -f $(OBJ)
 
 # for debugging:
