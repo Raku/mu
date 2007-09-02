@@ -32,10 +32,12 @@ test_base: all
 	perl run_tests.pl --section=''
 
 forcerecompile:
+	echo "use -B instead"
 	find lib/KindaPerl6/ -name "*.pm"| grep -v \.svn |xargs touch
 
 clean: 
-	rm -f $(OBJ)
+	echo "make clean would destory the compiler"
+	#rm -f $(OBJ)
 
 # for debugging:
 echo:
