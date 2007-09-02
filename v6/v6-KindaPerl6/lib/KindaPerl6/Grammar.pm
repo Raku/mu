@@ -9,6 +9,7 @@ use KindaPerl6::Grammar::Parameters;
 use KindaPerl6::Grammar::Term;
 use KindaPerl6::Grammar::Statements;
 use KindaPerl6::Grammar::Quote;
+use KindaPerl6::Grammar::Sub;
 
 my $Class_name;  # for diagnostic messages
 sub get_class_name { $Class_name }; 
@@ -502,17 +503,6 @@ token sig {
         }
 };
 
-token method_sig {
-    |   <?opt_ws> \( <?opt_ws>  <sig>  <?opt_ws>  \)
-        { return $$<sig> }
-    |   { return ::Sig( 
-            'invocant' => ::Var( 
-                'sigil'  => '$',
-                'twigil' => '',
-                'name'   => 'self' ), 
-            'positional' => [ ], 
-            'named' => { } ) }
-};
 
 token base_class { <full_ident> }
 
@@ -589,38 +579,6 @@ token method {
     }
 };
 
-token sub {
-    sub
-    <?ws>  <opt_name>  <?opt_ws> 
-    <method_sig>
-    <?opt_ws> \{ 
-        <?opt_ws>  
-        { 
-            COMPILER::add_pad();
-        }
-        <exp_stmts> 
-        <?opt_ws> 
-    [   \}     | { say '*** Syntax Error in sub \'', $$<name>, '\''; die 'error in Block'; } ]
-    { 
-        my $env := @COMPILER::PAD[0];
-        COMPILER::drop_pad();
-        my $block := $$<exp_stmts>;
-        KindaPerl6::Grammar::declare_parameters(
-            $env,
-            $block,
-            $$<method_sig>,
-        );    
-        return ::Sub( 
-            'name'  => $$<opt_name>, 
-            'block' => ::Lit::Code(
-                pad   => $env,
-                state => { },
-                sig   => $$<method_sig>,
-                body  => $block,
-            ),
-        );
-    }
-};
 
 token begin_block {
     BEGIN
