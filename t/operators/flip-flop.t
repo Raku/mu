@@ -94,7 +94,7 @@ sub always_true  { 1 }
 {
     my sub true_then_die {
         state $invoked;
-        unless $invoked++ {
+        if ! $invoked++ {
             "true";
         } else {
             die;
