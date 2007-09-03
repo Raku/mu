@@ -3,6 +3,7 @@
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -85,6 +86,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -142,6 +144,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -199,6 +202,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -256,6 +260,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -313,6 +318,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -365,6 +371,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -427,6 +434,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -484,6 +492,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -541,6 +550,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -598,6 +608,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -660,6 +671,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -732,6 +744,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -794,6 +807,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -856,6 +870,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -918,6 +933,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -985,6 +1001,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -1047,6 +1064,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -1109,6 +1127,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -1166,6 +1185,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -1238,6 +1258,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -1300,6 +1321,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -1357,6 +1379,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -1424,6 +1447,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -1491,6 +1515,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -1558,6 +1583,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -1625,6 +1651,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -1692,6 +1719,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -1759,6 +1787,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -1821,6 +1850,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -1883,6 +1913,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -1945,6 +1976,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -2002,6 +2034,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -2059,6 +2092,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -2121,6 +2155,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -2173,6 +2208,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -2255,6 +2291,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -2312,6 +2349,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -2369,6 +2407,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -2436,6 +2475,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -2493,6 +2533,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -2560,6 +2601,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -2617,6 +2659,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -2669,6 +2712,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -2726,6 +2770,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -2783,6 +2828,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -2840,6 +2886,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -2907,6 +2954,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -2974,6 +3022,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -3041,6 +3090,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -3098,6 +3148,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -3155,6 +3206,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }

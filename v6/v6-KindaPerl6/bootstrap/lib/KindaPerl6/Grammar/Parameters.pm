@@ -3,6 +3,7 @@
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -20,6 +21,8 @@ $::KindaPerl6::Grammar = ::DISPATCH( ::DISPATCH( $::Class, 'new', ::DISPATCH( $:
 $Code_declare_parameters = ::DISPATCH( $::Code, 'new', { code => sub { my $vars; $vars = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$vars' } )  unless defined $vars; BEGIN { $vars = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$vars' } ) }
 ;
 my $decl; $decl = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$decl' } )  unless defined $decl; BEGIN { $decl = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$decl' } ) }
+;
+my $var; $var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$var' } )  unless defined $var; BEGIN { $var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$var' } ) }
 ;
 my  $List__ = ::DISPATCH( $::Array, 'new', { modified => $_MODIFIED, name => '$List__' } ) ; 
 ;
@@ -53,15 +56,18 @@ $vars = ::DISPATCH( $::Array, "new", { _array => [::DISPATCH( $::Var, 'new', ::D
 , ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $sig, 'positional',  )
  )
 ] } )
-}; $decl; do { for my $GLOBAL::var ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $vars )
+}; $decl; $var; do { for my $var ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $vars )
  )
-->{_value}{_array} } ) { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::var, 'isa', ::DISPATCH( $::Str, 'new', 'Var' )
+->{_value}{_array} } ) { my $var; $var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$var' } )  unless defined $var; BEGIN { $var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$var' } ) }
+my $var; $var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$var' } )  unless defined $var; BEGIN { $var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$var' } ) }
+;
+do { if (::DISPATCH(::DISPATCH(::DISPATCH( $var, 'isa', ::DISPATCH( $::Str, 'new', 'Var' )
  )
 ,"true"),"p5landish") ) { ::DISPATCH( $GLOBAL::Code_push, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $decl )
 , ::DISPATCH( $::Decl, 'new', ::DISPATCH( $::Str, 'new', 'decl' )
  => ::DISPATCH( $::Str, 'new', 'my' )
 ,::DISPATCH( $::Str, 'new', 'var' )
- => $GLOBAL::var,::DISPATCH( $::Str, 'new', 'type' )
+ => $var,::DISPATCH( $::Str, 'new', 'type' )
  => ::DISPATCH( $::Str, 'new', '' )
 , )
  )

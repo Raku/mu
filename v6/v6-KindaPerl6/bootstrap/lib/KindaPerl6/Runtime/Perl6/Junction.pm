@@ -3,6 +3,7 @@
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -75,7 +76,10 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 ,"true"),"p5landish") ) { do { for my $thing ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $self, "things" )
  )
  )
-->{_value}{_array} } ) { do { if (::DISPATCH(::DISPATCH($thing,"true"),"p5landish") ) { return(::DISPATCH( $::Bit, 'new', 1 )
+->{_value}{_array} } ) { my $thing; $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } )  unless defined $thing; BEGIN { $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } ) }
+my $thing; $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } )  unless defined $thing; BEGIN { $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } ) }
+;
+do { if (::DISPATCH(::DISPATCH($thing,"true"),"p5landish") ) { return(::DISPATCH( $::Bit, 'new', 1 )
 )
  }  }
  } }
@@ -88,7 +92,10 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 ,"true"),"p5landish") ) { do { for my $thing ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $self, "things" )
  )
  )
-->{_value}{_array} } ) { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', $thing )
+->{_value}{_array} } ) { my $thing; $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } )  unless defined $thing; BEGIN { $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } ) }
+my $thing; $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } )  unless defined $thing; BEGIN { $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } ) }
+;
+do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', $thing )
 ,"true"),"p5landish") ) { return(::DISPATCH( $::Bit, 'new', 0 )
 )
  }  }
@@ -102,7 +109,10 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 ,"true"),"p5landish") ) { do { for my $thing ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $self, "things" )
  )
  )
-->{_value}{_array} } ) { do { if (::DISPATCH(::DISPATCH($thing,"true"),"p5landish") ) { return(::DISPATCH( $::Bit, 'new', 0 )
+->{_value}{_array} } ) { my $thing; $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } )  unless defined $thing; BEGIN { $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } ) }
+my $thing; $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } )  unless defined $thing; BEGIN { $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } ) }
+;
+do { if (::DISPATCH(::DISPATCH($thing,"true"),"p5landish") ) { return(::DISPATCH( $::Bit, 'new', 0 )
 )
  }  }
  } }
@@ -119,7 +129,10 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 ; do { for my $thing ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $self, "things" )
  )
  )
-->{_value}{_array} } ) { do { if (::DISPATCH(::DISPATCH($thing,"true"),"p5landish") ) { ::DISPATCH( $GLOBAL::Code_prefix_58__60__43__43__62_, 'APPLY', $counter )
+->{_value}{_array} } ) { my $thing; $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } )  unless defined $thing; BEGIN { $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } ) }
+my $thing; $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } )  unless defined $thing; BEGIN { $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } ) }
+;
+do { if (::DISPATCH(::DISPATCH($thing,"true"),"p5landish") ) { ::DISPATCH( $GLOBAL::Code_prefix_58__60__43__43__62_, 'APPLY', $counter )
 ; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60__62__62_, 'APPLY', $counter, ::DISPATCH( $::Int, 'new', 1 )
  )
 ,"true"),"p5landish") ) { return(::DISPATCH( $::Bit, 'new', 0 )

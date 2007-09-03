@@ -3,6 +3,7 @@
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -63,8 +64,11 @@ do {::MODIFIED($result);
 $result = ::DISPATCH( $::Array, "new", { _array => [] } )
 }; do { for my $GLOBAL::subitem ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $node )
  )
-->{_value}{_array} } ) { ::DISPATCH( $GLOBAL::Code_push, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $result )
-, ::DISPATCH( $Code_visit_subnode, 'APPLY', $visitor, $GLOBAL::subitem, $path )
+->{_value}{_array} } ) { my $GLOBAL::subitem; $GLOBAL::subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::subitem' } )  unless defined $GLOBAL::subitem; BEGIN { $GLOBAL::subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::subitem' } ) }
+my $subitem; $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } )  unless defined $subitem; BEGIN { $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } ) }
+;
+::DISPATCH( $GLOBAL::Code_push, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $result )
+, ::DISPATCH( $Code_visit_subnode, 'APPLY', $visitor, $subitem, $path )
  )
  } }
 ; return($result)
@@ -78,10 +82,13 @@ $result = ::DISPATCH( $::Hash, "new", { _hash => {  } } )
 }; do { for my $GLOBAL::subitem ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_keys, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__37__62_, 'APPLY', $node )
  )
  )
-->{_value}{_array} } ) { do {::MODIFIED(::DISPATCH( $result, 'LOOKUP', $GLOBAL::subitem )
+->{_value}{_array} } ) { my $GLOBAL::subitem; $GLOBAL::subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::subitem' } )  unless defined $GLOBAL::subitem; BEGIN { $GLOBAL::subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::subitem' } ) }
+my $subitem; $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } )  unless defined $subitem; BEGIN { $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } ) }
+;
+do {::MODIFIED(::DISPATCH( $result, 'LOOKUP', $subitem )
 );
-::DISPATCH( $result, 'LOOKUP', $GLOBAL::subitem )
- = ::DISPATCH( $Code_visit_subnode, 'APPLY', $visitor, ::DISPATCH( $node, 'LOOKUP', $GLOBAL::subitem )
+::DISPATCH( $result, 'LOOKUP', $subitem )
+ = ::DISPATCH( $Code_visit_subnode, 'APPLY', $visitor, ::DISPATCH( $node, 'LOOKUP', $subitem )
 , $path )
 } } }
 ; return($result)
@@ -108,10 +115,13 @@ $data = ::DISPATCH( $node, 'attribs',  )
 }; do { for my $GLOBAL::item ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_keys, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__37__62_, 'APPLY', $data )
  )
  )
-->{_value}{_array} } ) { do {::MODIFIED(::DISPATCH( $result, 'LOOKUP', $GLOBAL::item )
+->{_value}{_array} } ) { my $GLOBAL::item; $GLOBAL::item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::item' } )  unless defined $GLOBAL::item; BEGIN { $GLOBAL::item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::item' } ) }
+my $item; $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } )  unless defined $item; BEGIN { $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } ) }
+;
+do {::MODIFIED(::DISPATCH( $result, 'LOOKUP', $item )
 );
-::DISPATCH( $result, 'LOOKUP', $GLOBAL::item )
- = ::DISPATCH( $Code_visit_subnode, 'APPLY', $visitor, ::DISPATCH( $data, 'LOOKUP', $GLOBAL::item )
+::DISPATCH( $result, 'LOOKUP', $item )
+ = ::DISPATCH( $Code_visit_subnode, 'APPLY', $visitor, ::DISPATCH( $data, 'LOOKUP', $item )
 , $path )
 } } }
 ; return(::DISPATCH( $node, 'new', ::DISPATCH( $GLOBAL::Code_prefix_58__60__37__62_, 'APPLY', $result )

@@ -3,6 +3,7 @@
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -56,7 +57,8 @@ $comp_unit = ::DISPATCH( $path, 'INDEX', ::DISPATCH( $GLOBAL::Code_infix_58__60_
  )
 }; do {::MODIFIED($name);
 $name = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '__rule_block' )
-, ::DISPATCH( $self, "count" )
+, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $self, "count" )
+, $GLOBAL::COMPILER::source_md5 )
  )
 }; ::DISPATCH( $GLOBAL::Code_push, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $comp_unit, 'body',  )
 , 'body',  )

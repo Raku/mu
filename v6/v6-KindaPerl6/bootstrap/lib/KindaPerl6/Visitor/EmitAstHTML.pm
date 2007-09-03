@@ -3,6 +3,7 @@
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -53,28 +54,34 @@ $data = ::DISPATCH( $node, 'attribs',  )
 }; do { for my $GLOBAL::item ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_keys, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__37__62_, 'APPLY', $data )
  )
  )
-->{_value}{_array} } ) { do {::MODIFIED($result);
+->{_value}{_array} } ) { my $GLOBAL::item; $GLOBAL::item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::item' } )  unless defined $GLOBAL::item; BEGIN { $GLOBAL::item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::item' } ) }
+my $item; $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } )  unless defined $item; BEGIN { $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } ) }
+;
+do {::MODIFIED($result);
 $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' ' )
-, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $GLOBAL::item, ::DISPATCH( $::Str, 'new', ' => ' )
+, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $item, ::DISPATCH( $::Str, 'new', ' => ' )
  )
  )
  )
-}; do { if (::DISPATCH(::DISPATCH(::DISPATCH( ::DISPATCH( $data, 'LOOKUP', $GLOBAL::item )
+}; do { if (::DISPATCH(::DISPATCH(::DISPATCH( ::DISPATCH( $data, 'LOOKUP', $item )
 , 'isa', ::DISPATCH( $::Str, 'new', 'Array' )
  )
 ,"true"),"p5landish") ) { do {::MODIFIED($result);
 $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::DISPATCH( $::Str, 'new', '[ ' )
  )
-}; do { for my $GLOBAL::subitem ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $data, 'LOOKUP', $GLOBAL::item )
+}; do { for my $GLOBAL::subitem ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $data, 'LOOKUP', $item )
  )
  )
-->{_value}{_array} } ) { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::subitem, 'isa', ::DISPATCH( $::Str, 'new', 'Array' )
+->{_value}{_array} } ) { my $GLOBAL::subitem; $GLOBAL::subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::subitem' } )  unless defined $GLOBAL::subitem; BEGIN { $GLOBAL::subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::subitem' } ) }
+my $subitem; $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } )  unless defined $subitem; BEGIN { $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } ) }
+;
+do { if (::DISPATCH(::DISPATCH(::DISPATCH( $subitem, 'isa', ::DISPATCH( $::Str, 'new', 'Array' )
  )
 ,"true"),"p5landish") ) { do {::MODIFIED($result);
 $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::DISPATCH( $::Str, 'new', ' [ ... ], ' )
  )
 } }  else { do {::MODIFIED($result);
-$result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $GLOBAL::subitem, 'emit', $self )
+$result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $subitem, 'emit', $self )
 , ::DISPATCH( $::Str, 'new', ', ' )
  )
  )
@@ -83,20 +90,23 @@ $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::
 ; do {::MODIFIED($result);
 $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::DISPATCH( $::Str, 'new', ' ], ' )
  )
-} }  else { do { if (::DISPATCH(::DISPATCH(::DISPATCH( ::DISPATCH( $data, 'LOOKUP', $GLOBAL::item )
+} }  else { do { if (::DISPATCH(::DISPATCH(::DISPATCH( ::DISPATCH( $data, 'LOOKUP', $item )
 , 'isa', ::DISPATCH( $::Str, 'new', 'Hash' )
  )
 ,"true"),"p5landish") ) { do {::MODIFIED($result);
 $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::DISPATCH( $::Str, 'new', '{ ' )
  )
-}; do { for my $GLOBAL::subitem ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_keys, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__37__62_, 'APPLY', ::DISPATCH( $data, 'LOOKUP', $GLOBAL::item )
+}; do { for my $GLOBAL::subitem ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_keys, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__37__62_, 'APPLY', ::DISPATCH( $data, 'LOOKUP', $item )
  )
  )
  )
-->{_value}{_array} } ) { do {::MODIFIED($result);
-$result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $GLOBAL::subitem, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' => ' )
-, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( ::DISPATCH( $data, 'LOOKUP', $GLOBAL::item )
-, 'LOOKUP', $GLOBAL::subitem )
+->{_value}{_array} } ) { my $GLOBAL::subitem; $GLOBAL::subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::subitem' } )  unless defined $GLOBAL::subitem; BEGIN { $GLOBAL::subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::subitem' } ) }
+my $subitem; $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } )  unless defined $subitem; BEGIN { $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } ) }
+;
+do {::MODIFIED($result);
+$result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $subitem, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' => ' )
+, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( ::DISPATCH( $data, 'LOOKUP', $item )
+, 'LOOKUP', $subitem )
 , 'emit', $self )
 , ::DISPATCH( $::Str, 'new', ', ' )
  )
@@ -107,18 +117,18 @@ $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::
 ; do {::MODIFIED($result);
 $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::DISPATCH( $::Str, 'new', ' }, ' )
  )
-} }  else { do { if (::DISPATCH(::DISPATCH(::DISPATCH( ::DISPATCH( $data, 'LOOKUP', $GLOBAL::item )
+} }  else { do { if (::DISPATCH(::DISPATCH(::DISPATCH( ::DISPATCH( $data, 'LOOKUP', $item )
 , 'isa', ::DISPATCH( $::Str, 'new', 'Str' )
  )
 ,"true"),"p5landish") ) { do {::MODIFIED($result);
 $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '\\\'' )
-, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $data, 'LOOKUP', $GLOBAL::item )
+, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $data, 'LOOKUP', $item )
 , ::DISPATCH( $::Str, 'new', '\\\', ' )
  )
  )
  )
 } }  else { do {::MODIFIED($result);
-$result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $data, 'LOOKUP', $GLOBAL::item )
+$result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $data, 'LOOKUP', $item )
 , 'emit', $self )
 , ::DISPATCH( $::Str, 'new', ', ' )
  )

@@ -3,6 +3,7 @@
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -117,7 +118,7 @@ $m2 = ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to',  )
 ; $MATCH }
 , do { my $ret; $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } )  unless defined $ret; BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
 ;
-::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block1',  )
+::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block15f222fad7186bc6c05074fe21a6020f5',  )
  )
 ; do { if (::DISPATCH(::DISPATCH($ret,"true"),"p5landish") ) { ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result',  )
 , 'STORE', $ret )
@@ -146,7 +147,7 @@ $m2 = ::DISPATCH( $self, 'ws', $str, ::DISPATCH( $MATCH, 'to',  )
  }
 , do { my $ret; $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } )  unless defined $ret; BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
 ;
-::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block2',  )
+::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block25f222fad7186bc6c05074fe21a6020f5',  )
  )
 ; do { if (::DISPATCH(::DISPATCH($ret,"true"),"p5landish") ) { ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result',  )
 , 'STORE', $ret )
@@ -269,7 +270,7 @@ $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to',  )
  }
 , do { my $ret; $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } )  unless defined $ret; BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
 ;
-::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block3',  )
+::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block35f222fad7186bc6c05074fe21a6020f5',  )
  )
 ; do { if (::DISPATCH(::DISPATCH($ret,"true"),"p5landish") ) { ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result',  )
 , 'STORE', $ret )
@@ -329,7 +330,7 @@ $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to',  )
  }
 , do { my $ret; $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } )  unless defined $ret; BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
 ;
-::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block4',  )
+::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block45f222fad7186bc6c05074fe21a6020f5',  )
  )
 ; do { if (::DISPATCH(::DISPATCH($ret,"true"),"p5landish") ) { ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result',  )
 , 'STORE', $ret )
@@ -458,7 +459,7 @@ $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to',  )
  }
 , do { my $ret; $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } )  unless defined $ret; BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
 ;
-::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block5',  )
+::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block55f222fad7186bc6c05074fe21a6020f5',  )
  )
 ; do { if (::DISPATCH(::DISPATCH($ret,"true"),"p5landish") ) { ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result',  )
 , 'STORE', $ret )
@@ -532,7 +533,7 @@ $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to',  )
  }
 , do { my $ret; $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } )  unless defined $ret; BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
 ;
-::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block6',  )
+::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block65f222fad7186bc6c05074fe21a6020f5',  )
  )
 ; do { if (::DISPATCH(::DISPATCH($ret,"true"),"p5landish") ) { ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result',  )
 , 'STORE', $ret )
@@ -550,7 +551,7 @@ $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to',  )
 , do { ::DISPATCH( $MATCH, 'to', $pos1 )
 ; do { my $ret; $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } )  unless defined $ret; BEGIN { $ret = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$ret' } ) }
 ;
-::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block7',  )
+::DISPATCH_VAR( $ret, 'STORE', ::DISPATCH( $self, '__rule_block75f222fad7186bc6c05074fe21a6020f5',  )
  )
 ; do { if (::DISPATCH(::DISPATCH($ret,"true"),"p5landish") ) { ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'result',  )
 , 'STORE', $ret )
@@ -567,7 +568,7 @@ $m2 = ::DISPATCH( $self, 'opt_ws', $str, ::DISPATCH( $MATCH, 'to',  )
  )
  )
 ; ::DISPATCH( ::DISPATCH( $::KindaPerl6::Grammar, 'HOW',  )
-, 'add_method', ::DISPATCH( $::Str, 'new', '__rule_block1' )
+, 'add_method', ::DISPATCH( $::Str, 'new', '__rule_block15f222fad7186bc6c05074fe21a6020f5' )
 , ::DISPATCH( $::Method, 'new', sub  { $self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
@@ -581,7 +582,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
  )
  )
 ; ::DISPATCH( ::DISPATCH( $::KindaPerl6::Grammar, 'HOW',  )
-, 'add_method', ::DISPATCH( $::Str, 'new', '__rule_block2' )
+, 'add_method', ::DISPATCH( $::Str, 'new', '__rule_block25f222fad7186bc6c05074fe21a6020f5' )
 , ::DISPATCH( $::Method, 'new', sub  { $self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
@@ -593,7 +594,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
  )
  )
 ; ::DISPATCH( ::DISPATCH( $::KindaPerl6::Grammar, 'HOW',  )
-, 'add_method', ::DISPATCH( $::Str, 'new', '__rule_block3' )
+, 'add_method', ::DISPATCH( $::Str, 'new', '__rule_block35f222fad7186bc6c05074fe21a6020f5' )
 , ::DISPATCH( $::Method, 'new', sub  { $self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
@@ -609,7 +610,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
  )
  )
 ; ::DISPATCH( ::DISPATCH( $::KindaPerl6::Grammar, 'HOW',  )
-, 'add_method', ::DISPATCH( $::Str, 'new', '__rule_block4' )
+, 'add_method', ::DISPATCH( $::Str, 'new', '__rule_block45f222fad7186bc6c05074fe21a6020f5' )
 , ::DISPATCH( $::Method, 'new', sub  { $self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
@@ -636,7 +637,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
  )
  )
 ; ::DISPATCH( ::DISPATCH( $::KindaPerl6::Grammar, 'HOW',  )
-, 'add_method', ::DISPATCH( $::Str, 'new', '__rule_block5' )
+, 'add_method', ::DISPATCH( $::Str, 'new', '__rule_block55f222fad7186bc6c05074fe21a6020f5' )
 , ::DISPATCH( $::Method, 'new', sub  { $self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
@@ -653,7 +654,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
  )
  )
 ; ::DISPATCH( ::DISPATCH( $::KindaPerl6::Grammar, 'HOW',  )
-, 'add_method', ::DISPATCH( $::Str, 'new', '__rule_block6' )
+, 'add_method', ::DISPATCH( $::Str, 'new', '__rule_block65f222fad7186bc6c05074fe21a6020f5' )
 , ::DISPATCH( $::Method, 'new', sub  { $self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )
@@ -666,7 +667,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
  )
  )
 ; ::DISPATCH( ::DISPATCH( $::KindaPerl6::Grammar, 'HOW',  )
-, 'add_method', ::DISPATCH( $::Str, 'new', '__rule_block7' )
+, 'add_method', ::DISPATCH( $::Str, 'new', '__rule_block75f222fad7186bc6c05074fe21a6020f5' )
 , ::DISPATCH( $::Method, 'new', sub  { $self = shift; my $CAPTURE; $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } )  unless defined $CAPTURE; BEGIN { $CAPTURE = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$CAPTURE' } ) }
 ::DISPATCH_VAR($CAPTURE,"STORE",::CAPTURIZE(\@_));do {::MODIFIED($List__);
 $List__ = ::DISPATCH( $CAPTURE, 'array',  )

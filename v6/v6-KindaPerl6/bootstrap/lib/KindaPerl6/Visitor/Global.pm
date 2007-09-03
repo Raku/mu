@@ -3,6 +3,7 @@
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -47,7 +48,10 @@ $node_name = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 )
 ; do { for my $GLOBAL::stmt ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $node, 'body',  )
  )
  )
-->{_value}{_array} } ) { ::DISPATCH( $GLOBAL::stmt, 'emit', $GLOBAL::self )
+->{_value}{_array} } ) { my $GLOBAL::stmt; $GLOBAL::stmt = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::stmt' } )  unless defined $GLOBAL::stmt; BEGIN { $GLOBAL::stmt = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::stmt' } ) }
+my $stmt; $stmt = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$stmt' } )  unless defined $stmt; BEGIN { $stmt = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$stmt' } ) }
+;
+::DISPATCH( $stmt, 'emit', $GLOBAL::self )
  } }
 ; ::DISPATCH( $GLOBAL::Code_shift, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $self, "pad" )
  )

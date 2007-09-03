@@ -3,6 +3,7 @@
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -50,6 +51,7 @@ $node_name = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -95,6 +97,7 @@ $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -130,10 +133,13 @@ $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 )
  )
 };do {::MODIFIED($max);
 $max = $count}; do { for my $GLOBAL::regex ( @{ ::DISPATCH( $self, "or" )
-->{_value}{_array} } ) { my $last; $last = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$last' } )  unless defined $last; BEGIN { $last = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$last' } ) }
+->{_value}{_array} } ) { my $GLOBAL::regex; $GLOBAL::regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::regex' } )  unless defined $GLOBAL::regex; BEGIN { $GLOBAL::regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::regex' } ) }
+my $last; $last = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$last' } )  unless defined $last; BEGIN { $last = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$last' } ) }
+;
+my $regex; $regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$regex' } )  unless defined $regex; BEGIN { $regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$regex' } ) }
 ;
 do {::MODIFIED($last);
-$last = ::DISPATCH( $GLOBAL::regex, 'capture_count', $count, $quantified, $seen )
+$last = ::DISPATCH( $regex, 'capture_count', $count, $quantified, $seen )
 }; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60__62__62_, 'APPLY', $last, $max )
 ,"true"),"p5landish") ) { do {::MODIFIED($max);
 $max = $last} }  }
@@ -149,6 +155,7 @@ $max = $last} }  }
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -181,8 +188,11 @@ $quantified = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 )
 $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 )
  )
 };do { for my $GLOBAL::regex ( @{ ::DISPATCH( $self, "concat" )
-->{_value}{_array} } ) { do {::MODIFIED($count);
-$count = ::DISPATCH( $GLOBAL::regex, 'capture_count', $count, $quantified, $seen )
+->{_value}{_array} } ) { my $GLOBAL::regex; $GLOBAL::regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::regex' } )  unless defined $GLOBAL::regex; BEGIN { $GLOBAL::regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::regex' } ) }
+my $regex; $regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$regex' } )  unless defined $regex; BEGIN { $regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$regex' } ) }
+;
+do {::MODIFIED($count);
+$count = ::DISPATCH( $regex, 'capture_count', $count, $quantified, $seen )
 } } }
 ; $count }
  )
@@ -195,6 +205,7 @@ $count = ::DISPATCH( $GLOBAL::regex, 'capture_count', $count, $quantified, $seen
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -237,6 +248,7 @@ $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -279,6 +291,7 @@ $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -321,6 +334,7 @@ $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -363,6 +377,7 @@ $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -405,6 +420,7 @@ $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -447,6 +463,7 @@ $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -489,6 +506,7 @@ $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -561,6 +579,7 @@ $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -633,6 +652,7 @@ $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -675,6 +695,7 @@ $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -717,6 +738,7 @@ $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -800,6 +822,7 @@ $meth = ::DISPATCH( $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_, 'APPL
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -867,6 +890,7 @@ $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }

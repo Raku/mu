@@ -3,6 +3,7 @@
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -36,6 +37,7 @@ $node = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -106,8 +108,11 @@ $s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::S
 }; do { for my $GLOBAL::item ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "attributes" )
 , 'keys',  )
  )
-->{_value}{_array} } ) { do {::MODIFIED($s);
-$s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( $GLOBAL::item, 'emit_parrot',  )
+->{_value}{_array} } ) { my $GLOBAL::item; $GLOBAL::item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::item' } )  unless defined $GLOBAL::item; BEGIN { $GLOBAL::item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::item' } ) }
+my $item; $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } )  unless defined $item; BEGIN { $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } ) }
+;
+do {::MODIFIED($s);
+$s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( $item, 'emit_parrot',  )
  )
 } } }
 ; do {::MODIFIED($s);
@@ -129,6 +134,7 @@ $s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( 
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -170,6 +176,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -211,6 +218,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -252,6 +260,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -297,6 +306,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -329,6 +339,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -366,6 +377,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -400,6 +412,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -439,7 +452,10 @@ $s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::S
  )
 }; do { for my $item ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $a )
  )
-->{_value}{_array} } ) { do {::MODIFIED($s);
+->{_value}{_array} } ) { my $item; $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } )  unless defined $item; BEGIN { $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } ) }
+my $item; $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } )  unless defined $item; BEGIN { $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } ) }
+;
+do {::MODIFIED($s);
 $s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( $item, 'emit_parrot',  )
  )
 }; do {::MODIFIED($s);
@@ -469,6 +485,7 @@ $s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( 
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -512,7 +529,10 @@ $s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::S
  )
 }; do { for my $item ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $a )
  )
-->{_value}{_array} } ) { do {::MODIFIED($s);
+->{_value}{_array} } ) { my $item; $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } )  unless defined $item; BEGIN { $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } ) }
+my $item; $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } )  unless defined $item; BEGIN { $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } ) }
+;
+do {::MODIFIED($s);
 $s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( ::DISPATCH( $item, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
  )
 , 'emit_parrot',  )
@@ -558,6 +578,7 @@ $s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( 
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -589,6 +610,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -641,13 +663,16 @@ $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $:
  )
 }; do { for my $GLOBAL::field ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $fields )
  )
-->{_value}{_array} } ) { do {::MODIFIED($str);
-$str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $GLOBAL::field, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
+->{_value}{_array} } ) { my $GLOBAL::field; $GLOBAL::field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::field' } )  unless defined $GLOBAL::field; BEGIN { $GLOBAL::field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::field' } ) }
+my $field; $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } )  unless defined $field; BEGIN { $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } ) }
+;
+do {::MODIFIED($str);
+$str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $field, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
  )
 , 'emit_parrot',  )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '  $S2 = $P0' )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $GLOBAL::Main::Code_newline, 'APPLY',  )
-, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $GLOBAL::field, 'INDEX', ::DISPATCH( $::Int, 'new', 1 )
+, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $field, 'INDEX', ::DISPATCH( $::Int, 'new', 1 )
  )
 , 'emit_parrot',  )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '  setattribute $P1, $S2, $P0' )
@@ -683,6 +708,7 @@ $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPAT
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -748,6 +774,7 @@ $s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( 
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -813,6 +840,7 @@ $s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( 
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -923,6 +951,7 @@ $table = ::DISPATCH( $::Hash, "new", { _hash => { ::DISPATCH( $::Str, 'new', '$'
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -970,11 +999,14 @@ $str = ::DISPATCH( $::Str, 'new', '' )
 $i = ::DISPATCH( $::Int, 'new', 0 )
 }; do { for my $GLOBAL::var ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $a )
  )
-->{_value}{_array} } ) { my $bind; $bind = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind' } )  unless defined $bind; BEGIN { $bind = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind' } ) }
+->{_value}{_array} } ) { my $GLOBAL::var; $GLOBAL::var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::var' } )  unless defined $GLOBAL::var; BEGIN { $GLOBAL::var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::var' } ) }
+my $bind; $bind = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind' } )  unless defined $bind; BEGIN { $bind = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind' } ) }
+;
+my $var; $var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$var' } )  unless defined $var; BEGIN { $var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$var' } ) }
 ;
 do {::MODIFIED($bind);
 $bind = ::DISPATCH( $::Bind, 'new', ::DISPATCH( $::Str, 'new', 'parameters' )
- => $GLOBAL::var,::DISPATCH( $::Str, 'new', 'arguments' )
+ => $var,::DISPATCH( $::Str, 'new', 'arguments' )
  => ::DISPATCH( $b, 'INDEX', $i )
 , )
 }; do {::MODIFIED($str);
@@ -1014,27 +1046,33 @@ $str = ::DISPATCH( $::Str, 'new', '' )
 $i = ::DISPATCH( $::Int, 'new', 0 )
 }; $arg; do { for my $GLOBAL::var ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $a )
  )
-->{_value}{_array} } ) { my $bind; $bind = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind' } )  unless defined $bind; BEGIN { $bind = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind' } ) }
+->{_value}{_array} } ) { my $GLOBAL::var; $GLOBAL::var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::var' } )  unless defined $GLOBAL::var; BEGIN { $GLOBAL::var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::var' } ) }
+my $bind; $bind = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind' } )  unless defined $bind; BEGIN { $bind = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind' } ) }
+;
+my $var; $var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$var' } )  unless defined $var; BEGIN { $var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$var' } ) }
 ;
 do {::MODIFIED($arg);
 $arg = ::DISPATCH( $::Val::Undef, 'new',  )
 }; do { for my $GLOBAL::var2 ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $b )
  )
-->{_value}{_array} } ) { do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( ::DISPATCH( $GLOBAL::var2, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
+->{_value}{_array} } ) { my $GLOBAL::var2; $GLOBAL::var2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::var2' } )  unless defined $GLOBAL::var2; BEGIN { $GLOBAL::var2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::var2' } ) }
+my $var2; $var2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$var2' } )  unless defined $var2; BEGIN { $var2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$var2' } ) }
+;
+do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( ::DISPATCH( $var2, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
  )
 , 'buf',  )
-, ::DISPATCH( ::DISPATCH( $GLOBAL::var, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
+, ::DISPATCH( ::DISPATCH( $var, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
  )
 , 'buf',  )
  )
 ,"true"),"p5landish") ) { do {::MODIFIED($arg);
-$arg = ::DISPATCH( $GLOBAL::var2, 'INDEX', ::DISPATCH( $::Int, 'new', 1 )
+$arg = ::DISPATCH( $var2, 'INDEX', ::DISPATCH( $::Int, 'new', 1 )
  )
 } }  }
  } }
 ; do {::MODIFIED($bind);
 $bind = ::DISPATCH( $::Bind, 'new', ::DISPATCH( $::Str, 'new', 'parameters' )
- => ::DISPATCH( $GLOBAL::var, 'INDEX', ::DISPATCH( $::Int, 'new', 1 )
+ => ::DISPATCH( $var, 'INDEX', ::DISPATCH( $::Int, 'new', 1 )
  )
 ,::DISPATCH( $::Str, 'new', 'arguments' )
  => $arg, )
@@ -1073,16 +1111,19 @@ $b = ::DISPATCH( $self, "arguments" )
 $str = ::DISPATCH( $::Str, 'new', '' )
 }; do { for my $GLOBAL::var ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $a )
  )
-->{_value}{_array} } ) { my $bind; $bind = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind' } )  unless defined $bind; BEGIN { $bind = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind' } ) }
+->{_value}{_array} } ) { my $GLOBAL::var; $GLOBAL::var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::var' } )  unless defined $GLOBAL::var; BEGIN { $GLOBAL::var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::var' } ) }
+my $bind; $bind = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind' } )  unless defined $bind; BEGIN { $bind = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind' } ) }
+;
+my $var; $var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$var' } )  unless defined $var; BEGIN { $var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$var' } ) }
 ;
 do {::MODIFIED($bind);
 $bind = ::DISPATCH( $::Bind, 'new', ::DISPATCH( $::Str, 'new', 'parameters' )
- => ::DISPATCH( $GLOBAL::var, 'INDEX', ::DISPATCH( $::Int, 'new', 1 )
+ => ::DISPATCH( $var, 'INDEX', ::DISPATCH( $::Int, 'new', 1 )
  )
 ,::DISPATCH( $::Str, 'new', 'arguments' )
  => ::DISPATCH( $::Call, 'new', ::DISPATCH( $::Str, 'new', 'invocant' )
  => $b,::DISPATCH( $::Str, 'new', 'method' )
- => ::DISPATCH( ::DISPATCH( $GLOBAL::var, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
+ => ::DISPATCH( ::DISPATCH( $var, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
  )
 , 'buf',  )
 ,::DISPATCH( $::Str, 'new', 'arguments' )
@@ -1273,6 +1314,7 @@ $index = ::DISPATCH( $param, 'index',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -1310,6 +1352,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -1449,7 +1492,10 @@ $List_args = ::DISPATCH( $self, "arguments" )
 $str = ::DISPATCH( $::Str, 'new', '' )
 }; do {::MODIFIED($ii);
 $ii = ::DISPATCH( $::Int, 'new', 10 )
-}; do { for my $GLOBAL::arg ( @{ $List_args->{_value}{_array} } ) { do {::MODIFIED($str);
+}; do { for my $GLOBAL::arg ( @{ $List_args->{_value}{_array} } ) { my $GLOBAL::arg; $GLOBAL::arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::arg' } )  unless defined $GLOBAL::arg; BEGIN { $GLOBAL::arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::arg' } ) }
+my $arg; $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } )  unless defined $arg; BEGIN { $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } ) }
+;
+do {::MODIFIED($str);
 $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '  save $P' )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $ii, ::DISPATCH( $GLOBAL::Main::Code_newline, 'APPLY',  )
  )
@@ -1461,8 +1507,11 @@ $ii = ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $ii, ::DISPATCH(
 } } }
 ; do {::MODIFIED($i);
 $i = ::DISPATCH( $::Int, 'new', 10 )
-}; do { for my $GLOBAL::arg ( @{ $List_args->{_value}{_array} } ) { do {::MODIFIED($str);
-$str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $GLOBAL::arg, 'emit_parrot',  )
+}; do { for my $GLOBAL::arg ( @{ $List_args->{_value}{_array} } ) { my $GLOBAL::arg; $GLOBAL::arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::arg' } )  unless defined $GLOBAL::arg; BEGIN { $GLOBAL::arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::arg' } ) }
+my $arg; $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } )  unless defined $arg; BEGIN { $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } ) }
+;
+do {::MODIFIED($str);
+$str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $arg, 'emit_parrot',  )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '  $P' )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $i, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' = $P0' )
 , ::DISPATCH( $GLOBAL::Main::Code_newline, 'APPLY',  )
@@ -1486,7 +1535,10 @@ $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPAT
  )
 }; do {::MODIFIED($i);
 $i = ::DISPATCH( $::Int, 'new', 0 )
-}; $List_p; do { for my $GLOBAL::arg ( @{ $List_args->{_value}{_array} } ) { do {::MODIFIED(::DISPATCH( $List_p, 'INDEX', $i )
+}; $List_p; do { for my $GLOBAL::arg ( @{ $List_args->{_value}{_array} } ) { my $GLOBAL::arg; $GLOBAL::arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::arg' } )  unless defined $GLOBAL::arg; BEGIN { $GLOBAL::arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::arg' } ) }
+my $arg; $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } )  unless defined $arg; BEGIN { $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } ) }
+;
+do {::MODIFIED(::DISPATCH( $List_p, 'INDEX', $i )
 );
 ::DISPATCH( $List_p, 'INDEX', $i )
  = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '$P' )
@@ -1505,7 +1557,10 @@ $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPAT
  )
  )
  )
-}; do { for my $GLOBAL::arg ( @{ $List_args->{_value}{_array} } ) { do {::MODIFIED($ii);
+}; do { for my $GLOBAL::arg ( @{ $List_args->{_value}{_array} } ) { my $GLOBAL::arg; $GLOBAL::arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::arg' } )  unless defined $GLOBAL::arg; BEGIN { $GLOBAL::arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::arg' } ) }
+my $arg; $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } )  unless defined $arg; BEGIN { $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } ) }
+;
+do {::MODIFIED($ii);
 $ii = ::DISPATCH( $GLOBAL::Code_infix_58__60__45__62_, 'APPLY', $ii, ::DISPATCH( $::Int, 'new', 1 )
  )
 }; do {::MODIFIED($str);
@@ -1527,6 +1582,7 @@ $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPAT
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -2209,7 +2265,10 @@ $List_args = ::DISPATCH( $self, "arguments" )
 $str = ::DISPATCH( $::Str, 'new', '' )
 }; do {::MODIFIED($ii);
 $ii = ::DISPATCH( $::Int, 'new', 10 )
-}; $arg; do { for my $arg ( @{ $List_args->{_value}{_array} } ) { do {::MODIFIED($str);
+}; $arg; do { for my $arg ( @{ $List_args->{_value}{_array} } ) { my $arg; $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } )  unless defined $arg; BEGIN { $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } ) }
+my $arg; $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } )  unless defined $arg; BEGIN { $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } ) }
+;
+do {::MODIFIED($str);
 $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '  save $P' )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $ii, ::DISPATCH( $GLOBAL::Main::Code_newline, 'APPLY',  )
  )
@@ -2221,7 +2280,10 @@ $ii = ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $ii, ::DISPATCH(
 } } }
 ; do {::MODIFIED($i);
 $i = ::DISPATCH( $::Int, 'new', 10 )
-}; do { for my $arg ( @{ $List_args->{_value}{_array} } ) { do {::MODIFIED($str);
+}; do { for my $arg ( @{ $List_args->{_value}{_array} } ) { my $arg; $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } )  unless defined $arg; BEGIN { $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } ) }
+my $arg; $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } )  unless defined $arg; BEGIN { $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } ) }
+;
+do {::MODIFIED($str);
 $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $arg, 'emit_parrot',  )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '  $P' )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $i, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' = $P0' )
@@ -2244,7 +2306,10 @@ $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPAT
  )
 }; do {::MODIFIED($i);
 $i = ::DISPATCH( $::Int, 'new', 0 )
-}; $List_p; do { for my $arg ( @{ $List_args->{_value}{_array} } ) { do {::MODIFIED(::DISPATCH( $List_p, 'INDEX', $i )
+}; $List_p; do { for my $arg ( @{ $List_args->{_value}{_array} } ) { my $arg; $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } )  unless defined $arg; BEGIN { $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } ) }
+my $arg; $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } )  unless defined $arg; BEGIN { $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } ) }
+;
+do {::MODIFIED(::DISPATCH( $List_p, 'INDEX', $i )
 );
 ::DISPATCH( $List_p, 'INDEX', $i )
  = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '$P' )
@@ -2263,7 +2328,10 @@ $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPAT
  )
  )
  )
-}; do { for my $arg ( @{ $List_args->{_value}{_array} } ) { do {::MODIFIED($ii);
+}; do { for my $arg ( @{ $List_args->{_value}{_array} } ) { my $arg; $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } )  unless defined $arg; BEGIN { $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } ) }
+my $arg; $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } )  unless defined $arg; BEGIN { $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } ) }
+;
+do {::MODIFIED($ii);
 $ii = ::DISPATCH( $GLOBAL::Code_infix_58__60__45__62_, 'APPLY', $ii, ::DISPATCH( $::Int, 'new', 1 )
  )
 }; do {::MODIFIED($str);
@@ -2287,6 +2355,7 @@ $label = ::DISPATCH( $::Int, 'new', 100 )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -2325,6 +2394,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -2412,6 +2482,7 @@ $label = ::DISPATCH( $::Int, 'new', 100 )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -2545,6 +2616,7 @@ $label = ::DISPATCH( $::Int, 'new', 100 )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -2625,6 +2697,7 @@ $name = ::DISPATCH( ::DISPATCH( $self, "var" )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -2690,6 +2763,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -2741,7 +2815,10 @@ $str = ::DISPATCH( $::Str, 'new', '' )
 $i = ::DISPATCH( $::Int, 'new', 0 )
 }; $field; do { for my $field ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $pos )
  )
-->{_value}{_array} } ) { do {::MODIFIED($str);
+->{_value}{_array} } ) { my $field; $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } )  unless defined $field; BEGIN { $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } ) }
+my $field; $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } )  unless defined $field; BEGIN { $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } ) }
+;
+do {::MODIFIED($str);
 $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '  $P0 = params[' )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $i, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ']' )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $GLOBAL::Main::Code_newline, 'APPLY',  )
@@ -2816,6 +2893,7 @@ $i = ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $i, ::DISPATCH( $
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -2867,7 +2945,10 @@ $str = ::DISPATCH( $::Str, 'new', '' )
 $i = ::DISPATCH( $::Int, 'new', 0 )
 }; $field; do { for my $field ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $pos )
  )
-->{_value}{_array} } ) { do {::MODIFIED($str);
+->{_value}{_array} } ) { my $field; $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } )  unless defined $field; BEGIN { $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } ) }
+my $field; $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } )  unless defined $field; BEGIN { $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } ) }
+;
+do {::MODIFIED($str);
 $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '  $P0 = params[' )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $i, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ']' )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $GLOBAL::Main::Code_newline, 'APPLY',  )
@@ -2934,6 +3015,7 @@ $i = ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $i, ::DISPATCH( $
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }
@@ -2970,6 +3052,7 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 use v5;
 use strict;
 no strict 'vars';
+use constant KP6_DISABLE_INSECURE_CODE => 0;
 use KindaPerl6::Runtime::Perl5::Runtime;
 my $_MODIFIED; BEGIN { $_MODIFIED = {} }
 BEGIN { $_ = ::DISPATCH($::Scalar, "new", { modified => $_MODIFIED, name => "$_" } ); }

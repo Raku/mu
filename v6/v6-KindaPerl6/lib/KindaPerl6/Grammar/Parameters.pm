@@ -13,6 +13,7 @@ grammar KindaPerl6::Grammar {
                 @($sig.positional),
             ];
         my $decl;
+        my $var;
         for @($vars) -> $var {
             if $var.isa( 'Var' ) {
                 #say "#var ", $var.name;
