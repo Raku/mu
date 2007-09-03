@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 package Main;
 
-use lib 'bootstrap/lib';
+use lib 'lib-kp6-kp6-p5/';
 use strict;
 
 BEGIN {

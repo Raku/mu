@@ -28,16 +28,16 @@ my %options;
 getopt('an:', \%options);
 
 my @sources = map { glob $_ } qw(
-        lib/KindaPerl6/*.pm 
-        lib/KindaPerl6/*/*.pm
-        lib/KindaPerl6/Runtime/Perl6/*.pm
+        lib-kp6-kp6/KindaPerl6/*.pm 
+        lib-kp6-kp6/KindaPerl6/*/*.pm
+        lib-kp6-kp6/KindaPerl6/Runtime/Perl6/*.pm
         );
 
 sub compile {
     my ($src, $obj) = @_;
     if (exists $options{a} || (!stat $obj || (stat $src)[9] > (stat $obj)[9])){
-        print "Compiling $src\n";
-        system "perl kp6-perl5.pl $src > $obj";
+        print "Compiling (still not bootstrapped) $src\n";
+        system "perl kp6-mp6-perl5.pl $src > $obj";
     }
 }
 
@@ -50,7 +50,8 @@ for (1..$options{n}) {
         $proc_counter = $_ - 1;
         for (0..$number_per_process){
             my $file = $sources[$number_per_process * $proc_counter + $_];
-            compile($file, "bootstrap/$file");
+            $file =~ s/^lib-kp6-kp6\///;
+            compile("lib-kp6-kp6/$file", "lib-kp6-kp6-p5/$file");
         }
         exit;
     }
@@ -58,10 +59,9 @@ for (1..$options{n}) {
 while (wait != -1) {
     print 'waiting...'.$/;
 } ;
-for (glob 'lib/KindaPerl6/Runtime/Perl5/*.pm'){
-    copy $_, "boostrap/$_";
+for (glob 'lib-kp6-kp6/KindaPerl6/Runtime/Perl5/*.pm'){
+    copy $_, "lib-kp6-kp6-p5/$_";
 }
-    
 
 
 # vim: sw=4 ts=4 expandtab
