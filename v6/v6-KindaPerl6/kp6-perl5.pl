@@ -46,6 +46,7 @@ my @visitors;
         'secure'    => \$secure,
     );
 
+    my %visitor_args = ( secure => $secure );
     if ($visitor_sequence) {
         push @visitor_sequence,split(',',$visitor_sequence);
     }
@@ -82,7 +83,7 @@ my @visitors;
         my $module_name = 'KindaPerl6::Visitor::' . $_;
         eval "require $module_name";
         die "Can't load $_ plugin: $@" if $@;
-        push @visitors, $module_name->new();
+        push @visitors, $module_name->new( visitor_args => \%visitor_args );
     }
 
     #print "# Visitors: @visitors \n";
