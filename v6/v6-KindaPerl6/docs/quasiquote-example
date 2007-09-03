@@ -33,4 +33,27 @@ q:code {
     }
 }
 
-the compile to the same thing
+they compile to the same thing
+
+
+Example of intended use in Token.pm
+
+return 'do { ' ~ 
+     'my $ret = self.'~$.closure ~ ';' ~
+     'if $ret {' ~
+        '$MATCH.result = $ret; ' ~
+        'return $MATCH;' ~
+     '};' ~
+     '1' ~
+'}'
+
+return q:code {
+    do {
+        my $ret = sub { {{{$.closure}}} };
+        if $ret {
+            $MATCH.result = $ret;
+            return $MATCH;
+        };
+        1;
+    }
+}
