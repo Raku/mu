@@ -350,6 +350,11 @@ class For {
         'do { for my ' ~ $.topic.emit_perl5 
             ~ ' ( @{ ' ~ $cond.emit_perl5 ~ '->{_value}{_array} } )'
             ~ ' { ' 
+            ~ ::Decl(
+                decl => 'my',
+                type => '',
+                var  => $.topic
+                ).emit_perl5
             ~     $.body.emit_perl5 
             ~ ' } '
         ~ '}' ~ Main::newline();
