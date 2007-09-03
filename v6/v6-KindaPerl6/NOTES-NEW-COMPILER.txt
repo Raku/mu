@@ -1,0 +1,47 @@
+The idea for writing a new compiler came from the need to a better
+separation of the compilation process and the compilation
+runtime. This is needed because eventually, the runtime for each
+platform may be completely different from the others. This way this
+new compiler will define an API that the compiler can call to the
+Runtime virtual machine in a way to make it more pluggable.
+
+KindaPerl6::VirtualMachine is the namespace for the API that is
+called. The calling convention for this namespace follows the calling
+convention of the "host" implementation, so, if the Perl5
+implementation uses a dispatch mechanism, the
+KindaPerl6::VirtualMachine::Perl5 implementation should use that. On
+the other hand in Parrot, it will probably use the Parrot's calling
+convention.
+
+The same way that there are different VM implementations, the Emitting
+process is also pluggable itself, allowing the writing of a
+cross-compiler. This way, the "Perl5", "Perl5rx" and "Parrot"
+implementations are considered "architecture".
+
+The compiler plugins, like alternative rule compilation must be
+available in the host architecture to be used. This plugins may add
+opaque data to the compilation process which will be recognized by the
+emitter phase.
+
+The following diagram illustrates the process:
+
+<COMPILATION_PROCESS.dia>
+
+Files:
+
+YAP6::Compiler - This is the main class, that contains the code
+to initiate the compilation process. By default it will use all the
+options used to compile it. It's the entrance to define also which
+plugins are loaded and which target will be used.
+
+YAP6::VirtualMachine - This is the API to access the runtime not
+only in the compilation phase, but also during code execution. This is
+a procedural interface to the VM. Only one is available at a time and
+contains all the runtime information needed. Symbol definitions are
+all made here. This symbol definitions can point to low-level defined
+objects, to compiled objects or even to nodes in the AST. For targets
+that allow bytecode generation, the runtime needs to be serializable.
+
+YAP6::AST - This is the OO representatino of the Abstract Syntax
+Tree inside the compiler. This should be back-end independent. And
+every target should be able to run it instantly or generate code for it.
