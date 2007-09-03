@@ -236,6 +236,12 @@ class Var {
 
 class Bind {
     method emit_perl5 {
+        if $.parameters.isa('Lookup') {
+            return ::Assign(parameters=>$.parameters,arguments=>$.arguments).emit_perl5;
+        };
+        if $.parameters.isa('Index') {
+            return ::Assign(parameters=>$.parameters,arguments=>$.arguments).emit_perl5;
+        };
         my $str := '::MODIFIED(' ~ $.parameters.emit_perl5 ~ ');' ~ Main::newline();
         $str := $str ~ $.parameters.emit_perl5 ~ ' = ' ~ $.arguments.emit_perl5;
         return 'do {'~$str~'}';
