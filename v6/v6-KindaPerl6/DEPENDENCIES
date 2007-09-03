@@ -2,3 +2,4 @@ Carp
 Data::Dump::Streamer
 Data::Dumper
 Exporter
+Perl::Tidy
