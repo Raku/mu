@@ -15,7 +15,7 @@ class CompUnit {
     sub set_secure_mode( $args_secure ) {
         my $value := '0';
         if ($args_secure != 0) { $value := '1' };
-        return 'use constant KP6_DISABLE_UNSECURE_CODE => ' ~ $value ~ ';' ~ Main::newline();
+        return 'use constant KP6_DISABLE_INSECURE_CODE => ' ~ $value ~ ';' ~ Main::newline();
     };
 
     method emit_perl5( $args_secure ) {
