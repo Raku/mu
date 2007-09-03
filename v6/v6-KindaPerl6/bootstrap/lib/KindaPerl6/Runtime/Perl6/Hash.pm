@@ -34,7 +34,6 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 ; do { for my $pair ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $self, 'pairs',  )
  )
 ->{_value}{_array} } ) { my $pair; $pair = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pair' } )  unless defined $pair; BEGIN { $pair = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pair' } ) }
-my $pair; $pair = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pair' } )  unless defined $pair; BEGIN { $pair = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pair' } ) }
 ;
 ::DISPATCH_VAR( $s, 'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $pair, 'key',  )
 , 'perl',  )
@@ -72,7 +71,6 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
 ; do { for my $pair ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $self, 'pairs',  )
  )
 ->{_value}{_array} } ) { my $pair; $pair = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pair' } )  unless defined $pair; BEGIN { $pair = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pair' } ) }
-my $pair; $pair = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pair' } )  unless defined $pair; BEGIN { $pair = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$pair' } ) }
 ;
 ::DISPATCH_VAR( $s, 'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $pair, 'key',  )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '  ' )

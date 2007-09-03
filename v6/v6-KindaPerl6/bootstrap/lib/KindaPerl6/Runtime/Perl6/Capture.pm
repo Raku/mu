@@ -68,7 +68,6 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
  }  }
 ; do { for my $v ( @{ ::DISPATCH( $self, "array" )
 ->{_value}{_array} } ) { my $v; $v = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$v' } )  unless defined $v; BEGIN { $v = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$v' } ) }
-my $v; $v = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$v' } )  unless defined $v; BEGIN { $v = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$v' } ) }
 ;
 ::DISPATCH_VAR( $s, 'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $v, 'perl',  )
 , ::DISPATCH( $::Str, 'new', ', ' )

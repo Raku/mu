@@ -64,8 +64,7 @@ $metaclass = ::DISPATCH( $::Str, 'new', 'Class' )
 }; do { for my $GLOBAL::trait ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $node, 'traits',  )
  )
  )
-->{_value}{_array} } ) { my $GLOBAL::trait; $GLOBAL::trait = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::trait' } )  unless defined $GLOBAL::trait; BEGIN { $GLOBAL::trait = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::trait' } ) }
-my $trait; $trait = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$trait' } )  unless defined $trait; BEGIN { $trait = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$trait' } ) }
+->{_value}{_array} } ) { my $trait; $trait = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$trait' } )  unless defined $trait; BEGIN { $trait = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$trait' } ) }
 ;
 do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $trait, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
  )
@@ -143,8 +142,7 @@ $metaobject = ::DISPATCH( $::Call, 'new', ::DISPATCH( $::Str, 'new', 'hyper' )
 ; do { for my $GLOBAL::trait ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $node, 'traits',  )
  )
  )
-->{_value}{_array} } ) { my $GLOBAL::trait; $GLOBAL::trait = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::trait' } )  unless defined $GLOBAL::trait; BEGIN { $GLOBAL::trait = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::trait' } ) }
-my $trait; $trait = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$trait' } )  unless defined $trait; BEGIN { $trait = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$trait' } ) }
+->{_value}{_array} } ) { my $trait; $trait = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$trait' } )  unless defined $trait; BEGIN { $trait = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$trait' } ) }
 ;
 do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $trait, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
  )
@@ -220,8 +218,7 @@ do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'A
 , 'body',  )
  )
  )
-->{_value}{_array} } ) { my $GLOBAL::item; $GLOBAL::item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::item' } )  unless defined $GLOBAL::item; BEGIN { $GLOBAL::item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::item' } ) }
-my $item; $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } )  unless defined $item; BEGIN { $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } ) }
+->{_value}{_array} } ) { my $item; $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } )  unless defined $item; BEGIN { $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } ) }
 ;
 do { if (::DISPATCH(::DISPATCH(::DISPATCH( $item, 'isa', ::DISPATCH( $::Str, 'new', 'Method' )
  )
@@ -303,8 +300,7 @@ do { if (::DISPATCH(::DISPATCH(::DISPATCH( $item, 'isa', ::DISPATCH( $::Str, 'ne
 , 'body',  )
  )
  )
-->{_value}{_array} } ) { my $GLOBAL::item; $GLOBAL::item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::item' } )  unless defined $GLOBAL::item; BEGIN { $GLOBAL::item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::item' } ) }
-my $item; $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } )  unless defined $item; BEGIN { $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } ) }
+->{_value}{_array} } ) { my $item; $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } )  unless defined $item; BEGIN { $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } ) }
 ;
 do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60__124__124__62_, 'APPLY', ::DISPATCH( $item, 'isa', ::DISPATCH( $::Str, 'new', 'Method' )
  )

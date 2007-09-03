@@ -69,7 +69,6 @@ $result = ::DISPATCH( $::Array, "new", { _array => [] } )
 }; $subitem; do { for my $subitem ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $node )
  )
 ->{_value}{_array} } ) { my $subitem; $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } )  unless defined $subitem; BEGIN { $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } ) }
-my $subitem; $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } )  unless defined $subitem; BEGIN { $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } ) }
 ;
 ::DISPATCH( $GLOBAL::Code_push, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $result )
 , ::DISPATCH( $Code_visit_subnode, 'APPLY', $visitor, $subitem, $path )
@@ -89,14 +88,12 @@ $result = ::DISPATCH( $::Hash, "new", { _hash => {  } } )
  )
  )
 ->{_value}{_array} } ) { my $subitem; $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } )  unless defined $subitem; BEGIN { $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } ) }
-my $subitem; $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } )  unless defined $subitem; BEGIN { $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } ) }
 ;
-do {::MODIFIED(::DISPATCH( $result, 'LOOKUP', $subitem )
-);
-::DISPATCH( $result, 'LOOKUP', $subitem )
- = ::DISPATCH( $Code_visit_subnode, 'APPLY', $visitor, ::DISPATCH( $node, 'LOOKUP', $subitem )
+::DISPATCH_VAR( ::DISPATCH( $result, 'LOOKUP', $subitem )
+, 'STORE', ::DISPATCH( $Code_visit_subnode, 'APPLY', $visitor, ::DISPATCH( $node, 'LOOKUP', $subitem )
 , $path )
-} } }
+ )
+ } }
 ; return($result)
  }  }
 ; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $node, 'isa', ::DISPATCH( $::Str, 'new', 'Str' )
@@ -122,14 +119,12 @@ $data = ::DISPATCH( $node, 'attribs',  )
  )
  )
 ->{_value}{_array} } ) { my $item; $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } )  unless defined $item; BEGIN { $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } ) }
-my $item; $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } )  unless defined $item; BEGIN { $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } ) }
 ;
-do {::MODIFIED(::DISPATCH( $result, 'LOOKUP', $item )
-);
-::DISPATCH( $result, 'LOOKUP', $item )
- = ::DISPATCH( $Code_visit_subnode, 'APPLY', $visitor, ::DISPATCH( $data, 'LOOKUP', $item )
+::DISPATCH_VAR( ::DISPATCH( $result, 'LOOKUP', $item )
+, 'STORE', ::DISPATCH( $Code_visit_subnode, 'APPLY', $visitor, ::DISPATCH( $data, 'LOOKUP', $item )
 , $path )
-} } }
+ )
+ } }
 ; return(::DISPATCH( $node, 'new', ::DISPATCH( $GLOBAL::Code_prefix_58__60__37__62_, 'APPLY', $result )
  )
 )

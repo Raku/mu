@@ -108,8 +108,7 @@ $s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::S
 }; do { for my $GLOBAL::item ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $self, "attributes" )
 , 'keys',  )
  )
-->{_value}{_array} } ) { my $GLOBAL::item; $GLOBAL::item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::item' } )  unless defined $GLOBAL::item; BEGIN { $GLOBAL::item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::item' } ) }
-my $item; $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } )  unless defined $item; BEGIN { $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } ) }
+->{_value}{_array} } ) { my $item; $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } )  unless defined $item; BEGIN { $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } ) }
 ;
 do {::MODIFIED($s);
 $s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( $item, 'emit_parrot',  )
@@ -453,7 +452,6 @@ $s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::S
 }; do { for my $item ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $a )
  )
 ->{_value}{_array} } ) { my $item; $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } )  unless defined $item; BEGIN { $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } ) }
-my $item; $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } )  unless defined $item; BEGIN { $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } ) }
 ;
 do {::MODIFIED($s);
 $s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( $item, 'emit_parrot',  )
@@ -530,7 +528,6 @@ $s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::S
 }; do { for my $item ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $a )
  )
 ->{_value}{_array} } ) { my $item; $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } )  unless defined $item; BEGIN { $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } ) }
-my $item; $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } )  unless defined $item; BEGIN { $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } ) }
 ;
 do {::MODIFIED($s);
 $s = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $s, ::DISPATCH( ::DISPATCH( $item, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
@@ -663,8 +660,7 @@ $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $:
  )
 }; do { for my $GLOBAL::field ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $fields )
  )
-->{_value}{_array} } ) { my $GLOBAL::field; $GLOBAL::field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::field' } )  unless defined $GLOBAL::field; BEGIN { $GLOBAL::field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::field' } ) }
-my $field; $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } )  unless defined $field; BEGIN { $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } ) }
+->{_value}{_array} } ) { my $field; $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } )  unless defined $field; BEGIN { $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } ) }
 ;
 do {::MODIFIED($str);
 $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $field, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
@@ -999,8 +995,7 @@ $str = ::DISPATCH( $::Str, 'new', '' )
 $i = ::DISPATCH( $::Int, 'new', 0 )
 }; do { for my $GLOBAL::var ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $a )
  )
-->{_value}{_array} } ) { my $GLOBAL::var; $GLOBAL::var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::var' } )  unless defined $GLOBAL::var; BEGIN { $GLOBAL::var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::var' } ) }
-my $bind; $bind = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind' } )  unless defined $bind; BEGIN { $bind = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind' } ) }
+->{_value}{_array} } ) { my $bind; $bind = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind' } )  unless defined $bind; BEGIN { $bind = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind' } ) }
 ;
 my $var; $var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$var' } )  unless defined $var; BEGIN { $var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$var' } ) }
 ;
@@ -1046,8 +1041,7 @@ $str = ::DISPATCH( $::Str, 'new', '' )
 $i = ::DISPATCH( $::Int, 'new', 0 )
 }; $arg; do { for my $GLOBAL::var ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $a )
  )
-->{_value}{_array} } ) { my $GLOBAL::var; $GLOBAL::var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::var' } )  unless defined $GLOBAL::var; BEGIN { $GLOBAL::var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::var' } ) }
-my $bind; $bind = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind' } )  unless defined $bind; BEGIN { $bind = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind' } ) }
+->{_value}{_array} } ) { my $bind; $bind = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind' } )  unless defined $bind; BEGIN { $bind = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind' } ) }
 ;
 my $var; $var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$var' } )  unless defined $var; BEGIN { $var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$var' } ) }
 ;
@@ -1055,8 +1049,7 @@ do {::MODIFIED($arg);
 $arg = ::DISPATCH( $::Val::Undef, 'new',  )
 }; do { for my $GLOBAL::var2 ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $b )
  )
-->{_value}{_array} } ) { my $GLOBAL::var2; $GLOBAL::var2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::var2' } )  unless defined $GLOBAL::var2; BEGIN { $GLOBAL::var2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::var2' } ) }
-my $var2; $var2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$var2' } )  unless defined $var2; BEGIN { $var2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$var2' } ) }
+->{_value}{_array} } ) { my $var2; $var2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$var2' } )  unless defined $var2; BEGIN { $var2 = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$var2' } ) }
 ;
 do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( ::DISPATCH( $var2, 'INDEX', ::DISPATCH( $::Int, 'new', 0 )
  )
@@ -1111,8 +1104,7 @@ $b = ::DISPATCH( $self, "arguments" )
 $str = ::DISPATCH( $::Str, 'new', '' )
 }; do { for my $GLOBAL::var ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $a )
  )
-->{_value}{_array} } ) { my $GLOBAL::var; $GLOBAL::var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::var' } )  unless defined $GLOBAL::var; BEGIN { $GLOBAL::var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::var' } ) }
-my $bind; $bind = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind' } )  unless defined $bind; BEGIN { $bind = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind' } ) }
+->{_value}{_array} } ) { my $bind; $bind = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind' } )  unless defined $bind; BEGIN { $bind = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$bind' } ) }
 ;
 my $var; $var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$var' } )  unless defined $var; BEGIN { $var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$var' } ) }
 ;
@@ -1492,8 +1484,7 @@ $List_args = ::DISPATCH( $self, "arguments" )
 $str = ::DISPATCH( $::Str, 'new', '' )
 }; do {::MODIFIED($ii);
 $ii = ::DISPATCH( $::Int, 'new', 10 )
-}; do { for my $GLOBAL::arg ( @{ $List_args->{_value}{_array} } ) { my $GLOBAL::arg; $GLOBAL::arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::arg' } )  unless defined $GLOBAL::arg; BEGIN { $GLOBAL::arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::arg' } ) }
-my $arg; $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } )  unless defined $arg; BEGIN { $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } ) }
+}; do { for my $GLOBAL::arg ( @{ $List_args->{_value}{_array} } ) { my $arg; $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } )  unless defined $arg; BEGIN { $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } ) }
 ;
 do {::MODIFIED($str);
 $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '  save $P' )
@@ -1507,8 +1498,7 @@ $ii = ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $ii, ::DISPATCH(
 } } }
 ; do {::MODIFIED($i);
 $i = ::DISPATCH( $::Int, 'new', 10 )
-}; do { for my $GLOBAL::arg ( @{ $List_args->{_value}{_array} } ) { my $GLOBAL::arg; $GLOBAL::arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::arg' } )  unless defined $GLOBAL::arg; BEGIN { $GLOBAL::arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::arg' } ) }
-my $arg; $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } )  unless defined $arg; BEGIN { $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } ) }
+}; do { for my $GLOBAL::arg ( @{ $List_args->{_value}{_array} } ) { my $arg; $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } )  unless defined $arg; BEGIN { $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } ) }
 ;
 do {::MODIFIED($str);
 $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $arg, 'emit_parrot',  )
@@ -1535,17 +1525,15 @@ $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPAT
  )
 }; do {::MODIFIED($i);
 $i = ::DISPATCH( $::Int, 'new', 0 )
-}; $List_p; do { for my $GLOBAL::arg ( @{ $List_args->{_value}{_array} } ) { my $GLOBAL::arg; $GLOBAL::arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::arg' } )  unless defined $GLOBAL::arg; BEGIN { $GLOBAL::arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::arg' } ) }
-my $arg; $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } )  unless defined $arg; BEGIN { $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } ) }
+}; $List_p; do { for my $GLOBAL::arg ( @{ $List_args->{_value}{_array} } ) { my $arg; $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } )  unless defined $arg; BEGIN { $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } ) }
 ;
-do {::MODIFIED(::DISPATCH( $List_p, 'INDEX', $i )
-);
-::DISPATCH( $List_p, 'INDEX', $i )
- = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '$P' )
+::DISPATCH_VAR( ::DISPATCH( $List_p, 'INDEX', $i )
+, 'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '$P' )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $i, ::DISPATCH( $::Int, 'new', 10 )
  )
  )
-}; do {::MODIFIED($i);
+ )
+; do {::MODIFIED($i);
 $i = ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $i, ::DISPATCH( $::Int, 'new', 1 )
  )
 } } }
@@ -1557,8 +1545,7 @@ $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPAT
  )
  )
  )
-}; do { for my $GLOBAL::arg ( @{ $List_args->{_value}{_array} } ) { my $GLOBAL::arg; $GLOBAL::arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::arg' } )  unless defined $GLOBAL::arg; BEGIN { $GLOBAL::arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::arg' } ) }
-my $arg; $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } )  unless defined $arg; BEGIN { $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } ) }
+}; do { for my $GLOBAL::arg ( @{ $List_args->{_value}{_array} } ) { my $arg; $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } )  unless defined $arg; BEGIN { $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } ) }
 ;
 do {::MODIFIED($ii);
 $ii = ::DISPATCH( $GLOBAL::Code_infix_58__60__45__62_, 'APPLY', $ii, ::DISPATCH( $::Int, 'new', 1 )
@@ -2266,7 +2253,6 @@ $str = ::DISPATCH( $::Str, 'new', '' )
 }; do {::MODIFIED($ii);
 $ii = ::DISPATCH( $::Int, 'new', 10 )
 }; $arg; do { for my $arg ( @{ $List_args->{_value}{_array} } ) { my $arg; $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } )  unless defined $arg; BEGIN { $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } ) }
-my $arg; $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } )  unless defined $arg; BEGIN { $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } ) }
 ;
 do {::MODIFIED($str);
 $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '  save $P' )
@@ -2281,7 +2267,6 @@ $ii = ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $ii, ::DISPATCH(
 ; do {::MODIFIED($i);
 $i = ::DISPATCH( $::Int, 'new', 10 )
 }; do { for my $arg ( @{ $List_args->{_value}{_array} } ) { my $arg; $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } )  unless defined $arg; BEGIN { $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } ) }
-my $arg; $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } )  unless defined $arg; BEGIN { $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } ) }
 ;
 do {::MODIFIED($str);
 $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $arg, 'emit_parrot',  )
@@ -2307,16 +2292,14 @@ $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPAT
 }; do {::MODIFIED($i);
 $i = ::DISPATCH( $::Int, 'new', 0 )
 }; $List_p; do { for my $arg ( @{ $List_args->{_value}{_array} } ) { my $arg; $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } )  unless defined $arg; BEGIN { $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } ) }
-my $arg; $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } )  unless defined $arg; BEGIN { $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } ) }
 ;
-do {::MODIFIED(::DISPATCH( $List_p, 'INDEX', $i )
-);
-::DISPATCH( $List_p, 'INDEX', $i )
- = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '$P' )
+::DISPATCH_VAR( ::DISPATCH( $List_p, 'INDEX', $i )
+, 'STORE', ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '$P' )
 , ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $i, ::DISPATCH( $::Int, 'new', 10 )
  )
  )
-}; do {::MODIFIED($i);
+ )
+; do {::MODIFIED($i);
 $i = ::DISPATCH( $GLOBAL::Code_infix_58__60__43__62_, 'APPLY', $i, ::DISPATCH( $::Int, 'new', 1 )
  )
 } } }
@@ -2329,7 +2312,6 @@ $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPAT
  )
  )
 }; do { for my $arg ( @{ $List_args->{_value}{_array} } ) { my $arg; $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } )  unless defined $arg; BEGIN { $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } ) }
-my $arg; $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } )  unless defined $arg; BEGIN { $arg = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$arg' } ) }
 ;
 do {::MODIFIED($ii);
 $ii = ::DISPATCH( $GLOBAL::Code_infix_58__60__45__62_, 'APPLY', $ii, ::DISPATCH( $::Int, 'new', 1 )
@@ -2816,7 +2798,6 @@ $i = ::DISPATCH( $::Int, 'new', 0 )
 }; $field; do { for my $field ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $pos )
  )
 ->{_value}{_array} } ) { my $field; $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } )  unless defined $field; BEGIN { $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } ) }
-my $field; $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } )  unless defined $field; BEGIN { $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } ) }
 ;
 do {::MODIFIED($str);
 $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '  $P0 = params[' )
@@ -2946,7 +2927,6 @@ $i = ::DISPATCH( $::Int, 'new', 0 )
 }; $field; do { for my $field ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $pos )
  )
 ->{_value}{_array} } ) { my $field; $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } )  unless defined $field; BEGIN { $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } ) }
-my $field; $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } )  unless defined $field; BEGIN { $field = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$field' } ) }
 ;
 do {::MODIFIED($str);
 $str = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $str, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', '  $P0 = params[' )

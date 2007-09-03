@@ -59,7 +59,6 @@ $vars = ::DISPATCH( $::Array, "new", { _array => [::DISPATCH( $::Var, 'new', ::D
 }; $decl; $var; do { for my $var ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', $vars )
  )
 ->{_value}{_array} } ) { my $var; $var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$var' } )  unless defined $var; BEGIN { $var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$var' } ) }
-my $var; $var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$var' } )  unless defined $var; BEGIN { $var = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$var' } ) }
 ;
 do { if (::DISPATCH(::DISPATCH(::DISPATCH( $var, 'isa', ::DISPATCH( $::Str, 'new', 'Var' )
  )

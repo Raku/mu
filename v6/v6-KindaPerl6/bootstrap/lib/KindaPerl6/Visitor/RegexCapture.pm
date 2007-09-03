@@ -133,8 +133,7 @@ $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 )
  )
 };do {::MODIFIED($max);
 $max = $count}; do { for my $GLOBAL::regex ( @{ ::DISPATCH( $self, "or" )
-->{_value}{_array} } ) { my $GLOBAL::regex; $GLOBAL::regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::regex' } )  unless defined $GLOBAL::regex; BEGIN { $GLOBAL::regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::regex' } ) }
-my $last; $last = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$last' } )  unless defined $last; BEGIN { $last = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$last' } ) }
+->{_value}{_array} } ) { my $last; $last = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$last' } )  unless defined $last; BEGIN { $last = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$last' } ) }
 ;
 my $regex; $regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$regex' } )  unless defined $regex; BEGIN { $regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$regex' } ) }
 ;
@@ -188,8 +187,7 @@ $quantified = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 )
 $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 )
  )
 };do { for my $GLOBAL::regex ( @{ ::DISPATCH( $self, "concat" )
-->{_value}{_array} } ) { my $GLOBAL::regex; $GLOBAL::regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::regex' } )  unless defined $GLOBAL::regex; BEGIN { $GLOBAL::regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::regex' } ) }
-my $regex; $regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$regex' } )  unless defined $regex; BEGIN { $regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$regex' } ) }
+->{_value}{_array} } ) { my $regex; $regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$regex' } )  unless defined $regex; BEGIN { $regex = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$regex' } ) }
 ;
 do {::MODIFIED($count);
 $count = ::DISPATCH( $regex, 'capture_count', $count, $quantified, $seen )
@@ -558,12 +556,10 @@ $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 )
 , 'capture_to_array', ::DISPATCH( $::Int, 'new', 1 )
  )
  }  }
-; do {::MODIFIED(::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'before' )
+; ::DISPATCH_VAR( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'before' )
  )
-);
-::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'before' )
- )
- = $self}; ::DISPATCH( ::DISPATCH( $self, "rule" )
+, 'STORE', $self )
+; ::DISPATCH( ::DISPATCH( $self, "rule" )
 , 'capture_count', ::DISPATCH( $::Int, 'new', 0 )
 , ::DISPATCH( $::Int, 'new', 0 )
 , ::DISPATCH( $::Hash, "new", { _hash => {  } } )
@@ -631,12 +627,10 @@ $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 )
 , 'capture_to_array', ::DISPATCH( $::Int, 'new', 1 )
  )
  }  }
-; do {::MODIFIED(::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'after' )
+; ::DISPATCH_VAR( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'after' )
  )
-);
-::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $::Str, 'new', 'after' )
- )
- = $self}; ::DISPATCH( ::DISPATCH( $self, "rule" )
+, 'STORE', $self )
+; ::DISPATCH( ::DISPATCH( $self, "rule" )
 , 'capture_count', ::DISPATCH( $::Int, 'new', 0 )
 , ::DISPATCH( $::Int, 'new', 0 )
 , ::DISPATCH( $::Hash, "new", { _hash => {  } } )
@@ -806,12 +800,10 @@ $meth = ::DISPATCH( $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_, 'APPL
 , 'capture_to_array', ::DISPATCH( $::Int, 'new', 1 )
  )
  }  }
-; do {::MODIFIED(::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" )
+; ::DISPATCH_VAR( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" )
  )
-);
-::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" )
- )
- = $self}; $count }
+, 'STORE', $self )
+; $count }
  )
  )
 
@@ -874,12 +866,10 @@ $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 )
 , 'capture_to_array', ::DISPATCH( $::Int, 'new', 1 )
  )
  }  }
-; do {::MODIFIED(::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" )
+; ::DISPATCH_VAR( ::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" )
  )
-);
-::DISPATCH( $seen, 'LOOKUP', ::DISPATCH( $self, "ident" )
- )
- = $self}; $count }
+, 'STORE', $self )
+; $count }
  )
  )
 
@@ -940,10 +930,9 @@ $seen = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 2 )
 , 'capture_to_array', ::DISPATCH( $::Int, 'new', 1 )
  )
  }  }
-; do {::MODIFIED(::DISPATCH( $seen, 'LOOKUP', $count )
-);
-::DISPATCH( $seen, 'LOOKUP', $count )
- = $self}; ::DISPATCH( ::DISPATCH( $self, "rule" )
+; ::DISPATCH_VAR( ::DISPATCH( $seen, 'LOOKUP', $count )
+, 'STORE', $self )
+; ::DISPATCH( ::DISPATCH( $self, "rule" )
 , 'capture_count', ::DISPATCH( $::Int, 'new', 0 )
 , ::DISPATCH( $::Int, 'new', 0 )
 , ::DISPATCH( $::Hash, "new", { _hash => {  } } )

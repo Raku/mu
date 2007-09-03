@@ -77,7 +77,6 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
  )
  )
 ->{_value}{_array} } ) { my $thing; $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } )  unless defined $thing; BEGIN { $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } ) }
-my $thing; $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } )  unless defined $thing; BEGIN { $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } ) }
 ;
 do { if (::DISPATCH(::DISPATCH($thing,"true"),"p5landish") ) { return(::DISPATCH( $::Bit, 'new', 1 )
 )
@@ -93,7 +92,6 @@ do { if (::DISPATCH(::DISPATCH($thing,"true"),"p5landish") ) { return(::DISPATCH
  )
  )
 ->{_value}{_array} } ) { my $thing; $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } )  unless defined $thing; BEGIN { $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } ) }
-my $thing; $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } )  unless defined $thing; BEGIN { $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } ) }
 ;
 do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_, 'APPLY', $thing )
 ,"true"),"p5landish") ) { return(::DISPATCH( $::Bit, 'new', 0 )
@@ -110,7 +108,6 @@ do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_prefix_58__60__33__62_,
  )
  )
 ->{_value}{_array} } ) { my $thing; $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } )  unless defined $thing; BEGIN { $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } ) }
-my $thing; $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } )  unless defined $thing; BEGIN { $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } ) }
 ;
 do { if (::DISPATCH(::DISPATCH($thing,"true"),"p5landish") ) { return(::DISPATCH( $::Bit, 'new', 0 )
 )
@@ -130,7 +127,6 @@ do { if (::DISPATCH(::DISPATCH($thing,"true"),"p5landish") ) { return(::DISPATCH
  )
  )
 ->{_value}{_array} } ) { my $thing; $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } )  unless defined $thing; BEGIN { $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } ) }
-my $thing; $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } )  unless defined $thing; BEGIN { $thing = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$thing' } ) }
 ;
 do { if (::DISPATCH(::DISPATCH($thing,"true"),"p5landish") ) { ::DISPATCH( $GLOBAL::Code_prefix_58__60__43__43__62_, 'APPLY', $counter )
 ; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60__62__62_, 'APPLY', $counter, ::DISPATCH( $::Int, 'new', 1 )

@@ -48,8 +48,7 @@ $node_name = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 )
 ; do { for my $GLOBAL::stmt ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $node, 'body',  )
  )
  )
-->{_value}{_array} } ) { my $GLOBAL::stmt; $GLOBAL::stmt = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::stmt' } )  unless defined $GLOBAL::stmt; BEGIN { $GLOBAL::stmt = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::stmt' } ) }
-my $stmt; $stmt = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$stmt' } )  unless defined $stmt; BEGIN { $stmt = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$stmt' } ) }
+->{_value}{_array} } ) { my $stmt; $stmt = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$stmt' } )  unless defined $stmt; BEGIN { $stmt = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$stmt' } ) }
 ;
 ::DISPATCH( $stmt, 'emit', $GLOBAL::self )
  } }

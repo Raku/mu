@@ -54,8 +54,7 @@ $data = ::DISPATCH( $node, 'attribs',  )
 }; do { for my $GLOBAL::item ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_keys, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__37__62_, 'APPLY', $data )
  )
  )
-->{_value}{_array} } ) { my $GLOBAL::item; $GLOBAL::item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::item' } )  unless defined $GLOBAL::item; BEGIN { $GLOBAL::item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::item' } ) }
-my $item; $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } )  unless defined $item; BEGIN { $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } ) }
+->{_value}{_array} } ) { my $item; $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } )  unless defined $item; BEGIN { $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } ) }
 ;
 do {::MODIFIED($result);
 $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' ' )
@@ -72,8 +71,7 @@ $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::
 }; do { for my $GLOBAL::subitem ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $data, 'LOOKUP', $item )
  )
  )
-->{_value}{_array} } ) { my $GLOBAL::subitem; $GLOBAL::subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::subitem' } )  unless defined $GLOBAL::subitem; BEGIN { $GLOBAL::subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::subitem' } ) }
-my $subitem; $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } )  unless defined $subitem; BEGIN { $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } ) }
+->{_value}{_array} } ) { my $subitem; $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } )  unless defined $subitem; BEGIN { $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } ) }
 ;
 do { if (::DISPATCH(::DISPATCH(::DISPATCH( $subitem, 'isa', ::DISPATCH( $::Str, 'new', 'Array' )
  )
@@ -100,8 +98,7 @@ $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::
  )
  )
  )
-->{_value}{_array} } ) { my $GLOBAL::subitem; $GLOBAL::subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::subitem' } )  unless defined $GLOBAL::subitem; BEGIN { $GLOBAL::subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$GLOBAL::subitem' } ) }
-my $subitem; $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } )  unless defined $subitem; BEGIN { $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } ) }
+->{_value}{_array} } ) { my $subitem; $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } )  unless defined $subitem; BEGIN { $subitem = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$subitem' } ) }
 ;
 do {::MODIFIED($result);
 $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $result, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', $subitem, ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_, 'APPLY', ::DISPATCH( $::Str, 'new', ' => ' )

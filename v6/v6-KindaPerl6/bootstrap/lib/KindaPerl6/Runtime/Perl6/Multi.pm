@@ -43,7 +43,6 @@ $List__ = ::DISPATCH( $CAPTURE, 'array',  )
  )
  )
 ->{_value}{_array} } ) { my $sub; $sub = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$sub' } )  unless defined $sub; BEGIN { $sub = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$sub' } ) }
-my $sub; $sub = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$sub' } )  unless defined $sub; BEGIN { $sub = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$sub' } ) }
 ;
 do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60__61__61__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $sub, 'signature',  )
 , 'arity',  )
