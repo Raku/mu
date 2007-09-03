@@ -11,6 +11,7 @@ class KindaPerl6::Traverse {
         
         if $node.isa('Array') {
             my $result := [ ];
+            my $subitem;
             for @($node) -> $subitem {
                 push @$result, visit_subnode( $visitor, $subitem, $path ); 
             };
@@ -19,6 +20,7 @@ class KindaPerl6::Traverse {
 
         if $node.isa('Hash') {
             my $result := { };
+            my $subitem;
             for keys %($node) -> $subitem {
                 $result{ $subitem } := visit_subnode( $visitor, $node{$subitem}, $path ); 
             };
@@ -44,6 +46,7 @@ class KindaPerl6::Traverse {
         
         my $result := { };
         my $data := $node.attribs;
+        my $item;
         for keys %($data) -> $item {
             $result{$item} := visit_subnode( $visitor, $data{$item}, $path );         
         };
