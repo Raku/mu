@@ -36,7 +36,7 @@ sub compile {
     my ($src, $obj) = @_;
     if (exists $options{a} || (!stat $obj || (stat $src)[9] > (stat $obj)[9])){
         print "Compiling $src\n";
-        system "perl -Ilib kp6-perl5.pl $src > $obj";
+        system "perl kp6-perl5.pl $src > $obj";
     }
 }
 
