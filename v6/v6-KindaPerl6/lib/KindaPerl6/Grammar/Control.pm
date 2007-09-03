@@ -103,11 +103,15 @@ token when {
 token for {
     for <?ws> <exp> <?opt_ws> <'->'> <?opt_ws> <var> <?ws> <block1>
     { 
+        my $block := $$<block1>;
+        my $pad := $block.pad;
+        push @($pad.lexicals),::Decl(type=>'',decl=>'my',var=>$$<var>);
         return ::For( 
             'cond'  => $$<exp>, 
             'topic' => $$<var>, 
-            'body'  => $$<block1>,
-            ) }
+            'body'  => $block,
+            )
+        }
 };
 
 token while {
