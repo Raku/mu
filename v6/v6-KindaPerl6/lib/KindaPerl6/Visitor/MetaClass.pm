@@ -34,7 +34,8 @@ class KindaPerl6::Visitor::MetaClass {
                 );
             }
             else {
-                my $metaclass := 'Class'
+                my $metaclass := 'Class';
+                my $trait;
                 for @($node.traits) -> $trait {
                     if $trait[0] eq 'meta' {
                         $metaclass := $trait[1];
@@ -76,7 +77,7 @@ class KindaPerl6::Visitor::MetaClass {
                             ),
                     );
             };
-
+            my $trait;
             for @($node.traits) -> $trait {
                 if $trait[0] eq 'does' {
                     # Bar->HOW->add_role('bar');
@@ -124,7 +125,8 @@ class KindaPerl6::Visitor::MetaClass {
                 };
                 };
             };
-                        
+               
+            my $item;
             for @(($node.body).body) -> $item {
 
                 # METHOD
@@ -208,6 +210,7 @@ class KindaPerl6::Visitor::MetaClass {
             };
             
             # Everything else
+            my $item;
             for @(($node.body).body) -> $item {
                 if    $item.isa( 'Method' )
                   ||  (  ( $item.isa( 'Decl' ) )

@@ -104,6 +104,7 @@ class Lit::Hash {
     method emit_perl5 {
         my $fields := @.hash;
         my $str := '';
+        my $field;
         for @$fields -> $field { 
             $str := $str ~ ($field[0]).emit_perl5 ~ '->{_value} => ' ~ ($field[1]).emit_perl5 ~ ',';
         }; 
@@ -132,6 +133,7 @@ class Lit::Code {
     };
     method emit_declarations {
         my $s;
+        my $name;
         for @($.pad.variable_names) -> $name {
             my $decl := ::Decl(
                 decl => 'my',
@@ -158,6 +160,7 @@ class Lit::Code {
         $str := $str ~ $bind_.emit_perl5 ~ ';';
 
         my $i := 0;
+        my $field;
         for @($.sig.positional) -> $field { 
             my $bind := ::Bind(parameters=>$field,arguments=>::Index(obj=> $array_ , 'index'=>::Val::Int(int=>$i)) );
             $str := $str ~ $bind.emit_perl5 ~ ';';
@@ -174,6 +177,7 @@ class Lit::Object {
         my $fields := @.fields;
         my $str := '';
         # say @fields.map(sub { $_[0].emit_perl5 ~ ' => ' ~ $_[1].emit_perl5}).join(', ') ~ ')';
+        my $field;
         for @$fields -> $field { 
             $str := $str ~ ($field[0]).emit_perl5 ~ ' => ' ~ ($field[1]).emit_perl5 ~ ',';
         }; 
@@ -471,6 +475,7 @@ class Sig {
         }
             
         my $pos;
+        my $decl;
         for @($.positional) -> $decl {
             $pos := $pos ~ $decl.perl ~ ', ';
         };
@@ -498,6 +503,7 @@ class Capture {
         };
         if defined $.array {
            $s := $s ~ 'array => ::DISPATCH( $::Array, "new", { _array => [ ';
+                            my $item;
            for @.array -> $item { 
                 $s := $s ~ $item.emit_perl5 ~ ', ';
             }
@@ -505,6 +511,7 @@ class Capture {
         };
         if defined $.hash {
            $s := $s ~ 'hash => ::DISPATCH( $::Hash, "new", { _hash => { ';
+                           my $item;
            for @.hash -> $item { 
                 $s := $s ~ ($item[0]).emit_perl5 ~ '->{_value} => ' ~ ($item[1]).emit_perl5 ~ ', ';
             }

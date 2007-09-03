@@ -41,11 +41,13 @@ $node_name = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 )
  }  }
 ; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', $node_name, ::DISPATCH( $::Str, 'new', 'Lit::Code' )
  )
-,"true"),"p5landish") ) { ::DISPATCH( $GLOBAL::Code_unshift, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $self, "pad" )
+,"true"),"p5landish") ) { my $stmt; $stmt = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$stmt' } )  unless defined $stmt; BEGIN { $stmt = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$stmt' } ) }
+;
+::DISPATCH( $GLOBAL::Code_unshift, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $self, "pad" )
  )
 , ::DISPATCH( $node, 'pad',  )
  )
-; do { for my $GLOBAL::stmt ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $node, 'body',  )
+; $stmt; do { for my $stmt ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $node, 'body',  )
  )
  )
 ->{_value}{_array} } ) { my $stmt; $stmt = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$stmt' } )  unless defined $stmt; BEGIN { $stmt = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$stmt' } ) }

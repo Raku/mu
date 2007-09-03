@@ -24,6 +24,7 @@ class KindaPerl6::Visitor::Global {
         if    ( $node_name eq 'Lit::Code' )
         {
             unshift @($.pad), $node.pad;
+            my $stmt;
             for @($node.body) -> $stmt {
                 $stmt.emit( $self );
             };

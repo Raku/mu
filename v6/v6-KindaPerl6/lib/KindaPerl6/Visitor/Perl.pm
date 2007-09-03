@@ -11,10 +11,12 @@ class KindaPerl6::Visitor::Perl {
         #my $subitem;
         $result := $result ~ "::" ~ $node_name ~ "( ";
         my $data := $node.attribs;
+        my $item;
         for keys %($data) -> $item {
             $result := $result ~ " " ~ $item ~ " => ";
             if ($data{$item}).isa('Array') {
                 $result := $result ~ "[ ";
+                my $subitem;
                 for @($data{$item}) -> $subitem {
                     if $subitem.isa('Array') {
                         $result := $result ~ ' [ ... ], ';
@@ -28,6 +30,7 @@ class KindaPerl6::Visitor::Perl {
             else {
             if ($data{$item}).isa('Hash') {
                 $result := $result ~ "{ ";
+                my $subitem;
                 for keys %($data{$item}) -> $subitem {
                     $result := $result 
                         ~ $subitem 

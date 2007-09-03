@@ -78,6 +78,7 @@ class Lit::Hash {
     method emit_perl6 {
         my $fields := @.hash;
         my $str := '';
+        my $field;
         for @$fields -> $field { 
             $str := $str ~ ($field[0]).emit_perl6 ~ ' => ' ~ ($field[1]).emit_perl6 ~ ',';
         }; 
@@ -88,6 +89,7 @@ class Lit::Hash {
 class Lit::Code {
     method emit_perl6 {
         my $s;
+        my $name;
         for @($.pad.variable_names) -> $name {
             my $decl := ::Decl(
                 decl => 'my',
@@ -113,6 +115,7 @@ class Lit::Object {
         my $fields := @.fields;
         my $str := '';
         # say @fields.map(sub { $_[0].emit_perl6 ~ ' => ' ~ $_[1].emit_perl6}).join(', ') ~ ')';
+        my $field;
         for @$fields -> $field { 
             $str := $str ~ ($field[0]).emit_perl6 ~ ' => ' ~ ($field[1]).emit_perl6 ~ ',';
         }; 
@@ -293,6 +296,7 @@ class Method {
 
         # TODO - follow recursively
         my $pos := $sig.positional;
+        my $field;
         for @$pos -> $field { 
             $str := $str ~ 'my ' ~ $field.emit_perl6 ~ '; ';
         };
@@ -323,6 +327,7 @@ class Sub {
         # TODO - follow recursively
         my $pos := $sig.positional;
         if @$pos {
+                  my $field;
             for @$pos -> $field { 
                 $str := $str ~ 'my ' ~ $field.emit_perl6 ~ '; ';
             };

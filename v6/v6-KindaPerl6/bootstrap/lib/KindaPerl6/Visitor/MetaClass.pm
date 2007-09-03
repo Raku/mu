@@ -34,6 +34,10 @@ $node_name = ::DISPATCH( $List__, 'INDEX', ::DISPATCH( $::Int, 'new', 1 )
  )
 ,"true"),"p5landish") ) { my $module; $module = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$module' } )  unless defined $module; BEGIN { $module = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$module' } ) }
 ;
+my $trait; $trait = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$trait' } )  unless defined $trait; BEGIN { $trait = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$trait' } ) }
+;
+my $item; $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } )  unless defined $item; BEGIN { $item = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$item' } ) }
+;
 do {::MODIFIED($module);
 $module = ::DISPATCH( $::Array, "new", { _array => [] } )
 }; do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'APPLY', ::DISPATCH( $node, 'unit_type',  )
@@ -57,11 +61,13 @@ $module = ::DISPATCH( $::Array, "new", { _array => [] } )
  )
  }  else { my $metaclass; $metaclass = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$metaclass' } )  unless defined $metaclass; BEGIN { $metaclass = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$metaclass' } ) }
 ;
+my $trait; $trait = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$trait' } )  unless defined $trait; BEGIN { $trait = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$trait' } ) }
+;
 my $metaobject; $metaobject = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$metaobject' } )  unless defined $metaobject; BEGIN { $metaobject = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$metaobject' } ) }
 ;
 do {::MODIFIED($metaclass);
 $metaclass = ::DISPATCH( $::Str, 'new', 'Class' )
-}; do { for my $GLOBAL::trait ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $node, 'traits',  )
+}; $trait; do { for my $trait ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $node, 'traits',  )
  )
  )
 ->{_value}{_array} } ) { my $trait; $trait = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$trait' } )  unless defined $trait; BEGIN { $trait = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$trait' } ) }
@@ -139,7 +145,7 @@ $metaobject = ::DISPATCH( $::Call, 'new', ::DISPATCH( $::Str, 'new', 'hyper' )
 , )
  )
  } }
-; do { for my $GLOBAL::trait ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $node, 'traits',  )
+; $trait; do { for my $trait ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $node, 'traits',  )
  )
  )
 ->{_value}{_array} } ) { my $trait; $trait = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$trait' } )  unless defined $trait; BEGIN { $trait = ::DISPATCH( $::Scalar, 'new', { modified => $_MODIFIED, name => '$trait' } ) }
@@ -214,7 +220,7 @@ do { if (::DISPATCH(::DISPATCH(::DISPATCH( $GLOBAL::Code_infix_58__60_eq_62_, 'A
  } }
  } }
  } }
-; do { for my $GLOBAL::item ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $node, 'body',  )
+; $item; do { for my $item ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $node, 'body',  )
 , 'body',  )
  )
  )
@@ -296,7 +302,7 @@ do { if (::DISPATCH(::DISPATCH(::DISPATCH( $item, 'isa', ::DISPATCH( $::Str, 'ne
  )
  }  }
  } }
-; do { for my $GLOBAL::item ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $node, 'body',  )
+; $item; do { for my $item ( @{ ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY', ::DISPATCH( ::DISPATCH( $node, 'body',  )
 , 'body',  )
  )
  )
