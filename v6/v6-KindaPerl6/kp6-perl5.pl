@@ -92,6 +92,9 @@ my @visitors;
 
 
 my $source = join('', <> );
+use Digest::MD5 'md5_hex';
+$COMPILER::source_md5 = md5_hex($source);
+
 my $pos = 0;
 
 COMPILER::env_init;
