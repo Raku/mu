@@ -416,3 +416,34 @@
     1
 }
 
+_MODIFIED, name => '$a' } );
+                    }
+                    my $b;
+                    $b =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$b' } )
+                      unless defined $b;
+
+                    BEGIN {
+                        $b =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$b' } );
+                    }
+                    my $CAPTURE;
+                    $CAPTURE =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$CAPTURE' } )
+                      unless defined $CAPTURE;
+
+                    BEGIN {
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } );
+                    }
+                    ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                    do {
+                        ::MODIFIED($List__);
+                        $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($a);

@@ -16,16 +16,7 @@ lib-kp6-mp6-p5/KindaPerl6/Runtime/Perl6/%.pm: lib-kp6-mp6/KindaPerl6/Runtime/Per
 		fi
 
 lib-kp6-kp6-p5/KindaPerl6/Runtime/Perl6/%.pm: lib-kp6-kp6/KindaPerl6/Runtime/Perl6/%.pm
-	@echo COMPILE $< $@
-	@echo kp6-kp6 is still compiled by kp6-mp6...
-	@perl kp6-mp6-perl5.pl < $< | perltidy > temp.pm ; \
-		res=$$? ; \
-		if [ $$res = 0 -a -s temp.pm ] ; then \
-			cp temp.pm $@ ; \
-		else \
-			echo "*** Compilation failed with exit code: $$res!" ; \
-			exit; \
-		fi
+	perl kp6-mp6-perl5.pl < $< | perltidy > $@
 
 
 lib-kp6-mp6-p5/KindaPerl6/Runtime/Perl5/%.pm: lib-kp6-mp6/KindaPerl6/Runtime/Perl5/%.pm
@@ -37,6 +28,9 @@ lib-kp6-kp6-p5/KindaPerl6/Runtime/Perl5/%.pm: lib-kp6-kp6/KindaPerl6/Runtime/Per
 
 lib-kp6-mp6-p5/%.pm: lib-kp6-mp6/%.pm
 	perl mp6.pl < $< > $@
+
+lib-kp6-kp6-p5/%.pm: lib-kp6-kp6/%.pm
+	perl kp6-mp6-perl5.pl < $< | perltidy > $@
 
 test: all
 	perl run_tests.pl
