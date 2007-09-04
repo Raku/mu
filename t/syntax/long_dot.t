@@ -246,7 +246,7 @@ $n = 1;
 is(eval('$n\ .++'), 1, 'postfix long dot');
 is($n, 2, 'check $n');
 
-# L<S02/"Lexical Conventions"/"U+301D has two closing alternatives">
+# L<S02/"Lexical Conventions"/"U+301D codepoint has two closing alternatives">
 is(eval('foo\#〝 comment 〞.id'), 'a', 'long dot with U+301D/U+301E comment');
 is(eval('foo\#〝 comment 〟.id'), undef, 'long dot with U+301D/U+301F is invalid');
 
