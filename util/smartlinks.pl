@@ -24,6 +24,7 @@ use File::Find qw(find);
 #use Pod::Simple::HTML;
 
 my $check;
+my $print_missing;
 my $test_result;
 my $line_anchor;
 my ($syn_rev, $pugs_rev, $smoke_rev);
@@ -243,6 +244,7 @@ sub process_t_file ($$) {
     open my $in, $infile or
         die "error: Can't open $infile for reading: $!\n";
     my ($setter, $from, $to);
+    my $found_link = 0;
     while (<$in>) {
         chomp;
         my $new_from;
@@ -254,6 +256,7 @@ sub process_t_file ($$) {
             #warn "$synopsis $section" if $synopsis eq 'S06';
             $new_from = $.;
             $to = $. - 1;
+            $found_link++;
         }
         elsif (/^ \s* \#? \s* L(<<?) (S\d+) \/ ([^\/]+) \/ (.*) /xo) {
             #warn "$1, $2, $3\n";
@@ -283,6 +286,7 @@ sub process_t_file ($$) {
                 $pattern =~ s/\s*>{$brackets}$//;
             }
             #warn "*$synopsis* *$section* *$pattern*\n";
+            $found_link++;
         }
         elsif (/^ \s* \#? \s* L<? S\d+\b /xoi) {
             error "$infile: line $.: syntax error in the magic link:\n\t$_";
@@ -309,6 +313,7 @@ sub process_t_file ($$) {
     }
     $setter->($from, $.) if $setter and $from;
     close $in;
+    print "No smartlink found in <$infile>\n" if (defined $print_missing && $found_link == 0);
 }
 
 sub parse_pod ($) {
@@ -767,11 +772,13 @@ Usage:
   $0 --css foo.css --out-dir=public_html t/syntax/*.t
   $0 --check t/*/*.t t/*/*/*.t
   $0 --check t/some/test.t
+  $0 --check --missing t/*/*.t t/*/*/*.t
 
 Options:
   --help          Show this help.
   --check         Only check the validity of the smartlinks, no
                   HTML outputs.
+  --missing       Print files whitout smartlinks 
   --out-dir <dir> Specify the output directory for HTML files.
   --css <file>    Specify the CSS file used by the HTML outputs,
                   defaults to http://dev.perl.org/css/perl.css.
@@ -797,6 +804,7 @@ sub main () {
     my ($syn_dir, $out_dir, $help, $cssfile, $fast, $yml_file, $index, $dir);
     GetOptions(
         'check'       => \$check,
+        'missing'     => \$print_missing,
         'syn-dir=s'   => \$syn_dir,
         'out-dir=s'   => \$out_dir,
         'css=s'       => \$cssfile,
@@ -978,6 +986,7 @@ smartlinks.pl - The successor to catalog_tests.pl.
   smartlinks.pl --css foo.css --out-dir=public_html t/syntax/*.t
   smartlinks.pl --check t/*/*.t t/*/*/*.t
   smartlinks.pl --check t/some/test.t
+  smartlinks.pl --missing t/*/*.t t/*/*/*.t
 
 =head1 Design Decisions
 
