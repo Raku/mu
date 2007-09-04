@@ -16,72 +16,6 @@
           ::DISPATCH( $::Scalar, "new",
             { modified => $_MODIFIED, name => "$_" } );
     }
-    my $visitor_dump_ast;
-    $visitor_dump_ast =
-      ::DISPATCH( $::Scalar, 'new',
-        { modified => $_MODIFIED, name => '$visitor_dump_ast' } )
-      unless defined $visitor_dump_ast;
-
-    BEGIN {
-        $visitor_dump_ast =
-          ::DISPATCH( $::Scalar, 'new',
-            { modified => $_MODIFIED, name => '$visitor_dump_ast' } );
-    }
-    my $visitor_emit_perl5;
-    $visitor_emit_perl5 =
-      ::DISPATCH( $::Scalar, 'new',
-        { modified => $_MODIFIED, name => '$visitor_emit_perl5' } )
-      unless defined $visitor_emit_perl5;
-
-    BEGIN {
-        $visitor_emit_perl5 =
-          ::DISPATCH( $::Scalar, 'new',
-            { modified => $_MODIFIED, name => '$visitor_emit_perl5' } );
-    }
-    my $visitor_emit_perl6;
-    $visitor_emit_perl6 =
-      ::DISPATCH( $::Scalar, 'new',
-        { modified => $_MODIFIED, name => '$visitor_emit_perl6' } )
-      unless defined $visitor_emit_perl6;
-
-    BEGIN {
-        $visitor_emit_perl6 =
-          ::DISPATCH( $::Scalar, 'new',
-            { modified => $_MODIFIED, name => '$visitor_emit_perl6' } );
-    }
-    my $visitor_metamodel;
-    $visitor_metamodel =
-      ::DISPATCH( $::Scalar, 'new',
-        { modified => $_MODIFIED, name => '$visitor_metamodel' } )
-      unless defined $visitor_metamodel;
-
-    BEGIN {
-        $visitor_metamodel =
-          ::DISPATCH( $::Scalar, 'new',
-            { modified => $_MODIFIED, name => '$visitor_metamodel' } );
-    }
-    my $visitor_token;
-    $visitor_token =
-      ::DISPATCH( $::Scalar, 'new',
-        { modified => $_MODIFIED, name => '$visitor_token' } )
-      unless defined $visitor_token;
-
-    BEGIN {
-        $visitor_token =
-          ::DISPATCH( $::Scalar, 'new',
-            { modified => $_MODIFIED, name => '$visitor_token' } );
-    }
-    my $visitor_global;
-    $visitor_global =
-      ::DISPATCH( $::Scalar, 'new',
-        { modified => $_MODIFIED, name => '$visitor_global' } )
-      unless defined $visitor_global;
-
-    BEGIN {
-        $visitor_global =
-          ::DISPATCH( $::Scalar, 'new',
-            { modified => $_MODIFIED, name => '$visitor_global' } );
-    }
     our $Code_emit_perl6 =
       ::DISPATCH( $::Routine, 'new',
         { modified => $_MODIFIED, name => '$Code_emit_perl6' } );
@@ -119,72 +53,6 @@
         {
         }
         else {
-            my $visitor_dump_ast;
-            $visitor_dump_ast =
-              ::DISPATCH( $::Scalar, 'new',
-                { modified => $_MODIFIED, name => '$visitor_dump_ast' } )
-              unless defined $visitor_dump_ast;
-
-            BEGIN {
-                $visitor_dump_ast =
-                  ::DISPATCH( $::Scalar, 'new',
-                    { modified => $_MODIFIED, name => '$visitor_dump_ast' } );
-            }
-            my $visitor_emit_perl5;
-            $visitor_emit_perl5 =
-              ::DISPATCH( $::Scalar, 'new',
-                { modified => $_MODIFIED, name => '$visitor_emit_perl5' } )
-              unless defined $visitor_emit_perl5;
-
-            BEGIN {
-                $visitor_emit_perl5 =
-                  ::DISPATCH( $::Scalar, 'new',
-                    { modified => $_MODIFIED, name => '$visitor_emit_perl5' } );
-            }
-            my $visitor_emit_perl6;
-            $visitor_emit_perl6 =
-              ::DISPATCH( $::Scalar, 'new',
-                { modified => $_MODIFIED, name => '$visitor_emit_perl6' } )
-              unless defined $visitor_emit_perl6;
-
-            BEGIN {
-                $visitor_emit_perl6 =
-                  ::DISPATCH( $::Scalar, 'new',
-                    { modified => $_MODIFIED, name => '$visitor_emit_perl6' } );
-            }
-            my $visitor_metamodel;
-            $visitor_metamodel =
-              ::DISPATCH( $::Scalar, 'new',
-                { modified => $_MODIFIED, name => '$visitor_metamodel' } )
-              unless defined $visitor_metamodel;
-
-            BEGIN {
-                $visitor_metamodel =
-                  ::DISPATCH( $::Scalar, 'new',
-                    { modified => $_MODIFIED, name => '$visitor_metamodel' } );
-            }
-            my $visitor_token;
-            $visitor_token =
-              ::DISPATCH( $::Scalar, 'new',
-                { modified => $_MODIFIED, name => '$visitor_token' } )
-              unless defined $visitor_token;
-
-            BEGIN {
-                $visitor_token =
-                  ::DISPATCH( $::Scalar, 'new',
-                    { modified => $_MODIFIED, name => '$visitor_token' } );
-            }
-            my $visitor_global;
-            $visitor_global =
-              ::DISPATCH( $::Scalar, 'new',
-                { modified => $_MODIFIED, name => '$visitor_global' } )
-              unless defined $visitor_global;
-
-            BEGIN {
-                $visitor_global =
-                  ::DISPATCH( $::Scalar, 'new',
-                    { modified => $_MODIFIED, name => '$visitor_global' } );
-            }
             our $Code_emit_perl6 =
               ::DISPATCH( $::Routine, 'new',
                 { modified => $_MODIFIED, name => '$Code_emit_perl6' } );
@@ -224,18 +92,18 @@
     use KindaPerl6::Visitor::MetaClass;
     use KindaPerl6::Visitor::Token;
     use KindaPerl6::Visitor::Global;
-    ::DISPATCH_VAR( $visitor_dump_ast, 'STORE',
-        ::DISPATCH( $::KindaPerl6::Visitor::Perl, 'new', ) );
-    ::DISPATCH_VAR( $visitor_emit_perl5, 'STORE',
-        ::DISPATCH( $::KindaPerl6::Visitor::EmitPerl5, 'new', ) );
-    ::DISPATCH_VAR( $visitor_emit_perl6, 'STORE',
-        ::DISPATCH( $::KindaPerl6::Visitor::EmitPerl6, 'new', ) );
-    ::DISPATCH_VAR( $visitor_metamodel, 'STORE',
-        ::DISPATCH( $::KindaPerl6::Visitor::MetaClass, 'new', ) );
-    ::DISPATCH_VAR( $visitor_token, 'STORE',
-        ::DISPATCH( $::KindaPerl6::Visitor::Token, 'new', ) );
-    ::DISPATCH_VAR( $visitor_global, 'STORE',
-        ::DISPATCH( $::KindaPerl6::Visitor::Global, 'new', ) );
+    ::DISPATCH_VAR( $GLOBAL::COMPILER::visitor_dump_ast,
+        'STORE', ::DISPATCH( $::KindaPerl6::Visitor::Perl, 'new', ) );
+    ::DISPATCH_VAR( $GLOBAL::COMPILER::visitor_emit_perl5,
+        'STORE', ::DISPATCH( $::KindaPerl6::Visitor::EmitPerl5, 'new', ) );
+    ::DISPATCH_VAR( $GLOBAL::COMPILER::visitor_emit_perl6,
+        'STORE', ::DISPATCH( $::KindaPerl6::Visitor::EmitPerl6, 'new', ) );
+    ::DISPATCH_VAR( $GLOBAL::COMPILER::visitor_metamodel,
+        'STORE', ::DISPATCH( $::KindaPerl6::Visitor::MetaClass, 'new', ) );
+    ::DISPATCH_VAR( $GLOBAL::COMPILER::visitor_token,
+        'STORE', ::DISPATCH( $::KindaPerl6::Visitor::Token, 'new', ) );
+    ::DISPATCH_VAR( $GLOBAL::COMPILER::visitor_global,
+        'STORE', ::DISPATCH( $::KindaPerl6::Visitor::Global, 'new', ) );
     do {
         ::MODIFIED($Code_emit_perl6);
         $Code_emit_perl6 = ::DISPATCH(
@@ -289,8 +157,13 @@
                           ::DISPATCH( $List__, 'INDEX',
                             ::DISPATCH( $::Int, 'new', 0 ) );
                     };
-                    ::DISPATCH_VAR( $perl6, 'STORE',
-                        ::DISPATCH( $node, 'emit', $visitor_emit_perl6 ) );
+                    ::DISPATCH_VAR(
+                        $perl6, 'STORE',
+                        ::DISPATCH(
+                            $node, 'emit',
+                            $GLOBAL::COMPILER::visitor_emit_perl6
+                        )
+                    );
                     return ($perl6);
                 },
                 signature => ::DISPATCH(
@@ -576,6 +449,17 @@
                           ::DISPATCH( $::Scalar, 'new',
                             { modified => $_MODIFIED, name => '$data' } );
                     }
+                    my $finalast;
+                    $finalast =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$finalast' } )
+                      unless defined $finalast;
+
+                    BEGIN {
+                        $finalast =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$finalast' } );
+                    }
                     my $List__ =
                       ::DISPATCH( $::Array, 'new',
                         { modified => $_MODIFIED, name => '$List__' } );
@@ -612,24 +496,43 @@
                           ::DISPATCH( $List__, 'INDEX',
                             ::DISPATCH( $::Int, 'new', 0 ) );
                     };
-                    ::DISPATCH_VAR( $ast, 'STORE',
-                        ::DISPATCH( $ast, 'emit', $visitor_token ) );
-                    ::DISPATCH_VAR( $ast, 'STORE',
-                        ::DISPATCH( $ast, 'emit', $visitor_metamodel ) );
+                    ::DISPATCH_VAR(
+                        $ast, 'STORE',
+                        ::DISPATCH(
+                            $ast, 'emit', $GLOBAL::COMPILER::visitor_token
+                        )
+                    );
+                    ::DISPATCH_VAR(
+                        $ast, 'STORE',
+                        ::DISPATCH(
+                            $ast, 'emit',
+                            $GLOBAL::COMPILER::visitor_metamodel
+                        )
+                    );
                     ::DISPATCH(
-                        $visitor_global,
+                        $GLOBAL::COMPILER::visitor_global,
                         'pad',
                         ::DISPATCH(
                             $GLOBAL::COMPILER::List_PAD, 'INDEX',
                             ::DISPATCH( $::Int, 'new', 0 )
                         )
                     );
-                    ::DISPATCH_VAR( $ast, 'STORE',
-                        ::DISPATCH( $ast, 'emit', $visitor_global ) );
+                    ::DISPATCH_VAR(
+                        $ast, 'STORE',
+                        ::DISPATCH(
+                            $ast, 'emit', $GLOBAL::COMPILER::visitor_global
+                        )
+                    );
                     ::DISPATCH( $GLOBAL::Code_shift, 'APPLY',
-                        ::DISPATCH( $visitor_global, 'pad', ) );
-                    ::DISPATCH_VAR( $native, 'STORE',
-                        ::DISPATCH( $ast, 'emit', $visitor_emit_perl5 ) );
+                        ::DISPATCH( $GLOBAL::COMPILER::visitor_global, 'pad', )
+                    );
+                    ::DISPATCH_VAR(
+                        $native, 'STORE',
+                        ::DISPATCH(
+                            $ast, 'emit',
+                            $GLOBAL::COMPILER::visitor_emit_perl5
+                        )
+                    );
                     ::DISPATCH( $Code_add_pad, 'APPLY', );
                     ::DISPATCH_VAR(
                         $pad, 'STORE',
@@ -677,20 +580,35 @@
                                         'BEGIN did not return a true value '
                                     ),
                                     ::DISPATCH(
-                                        $ast, 'emit', $visitor_dump_ast
+                                        $ast, 'emit',
+                                        $GLOBAL::COMPILER::visitor_dump_ast
                                     )
                                 )
                             );
                         }
                     };
                     ::DISPATCH(
-                        $GLOBAL::Code_say,
+                        $GLOBAL::Code_warn,
                         'APPLY',
                         ::DISPATCH(
                             $::Str, 'new',
-                            'BEGIN blocks still incomplete!!!'
+                            'BEGIN side effects still not implemented!'
                         )
                     );
+                    ::DISPATCH_VAR(
+                        $finalast,
+                        'STORE',
+                        ::DISPATCH(
+                            $GLOBAL::Code_infix_58__60__126__62_,
+                            'APPLY',
+                            ::DISPATCH(
+                                $::Str, 'new',
+                                '# BEGIN SIDE EFFECTS NOT IMPLEMENTED'
+                            ),
+                            ::DISPATCH( $GLOBAL::Main::Code_newline, 'APPLY', )
+                        )
+                    );
+                    return ($finalast);
                 },
                 signature => ::DISPATCH(
                     $::Signature,

@@ -3,10 +3,14 @@ the following files from mp6 calling convention to kp6 calling
 convention, besides writing a "v6-alpha" like interpreter and writing a
 compiler.
 
-lib-kp6-kp6/KindaPerl6/Runtime/Perl5/Compiler.pm (Almost done, missing begin-block)
+lib-kp6-kp6/KindaPerl6/Runtime/Perl5/Compiler.pm
+  * Almost done, missing begin-block side effects. But we can do that after
+    the bootstrap.
+
+lib-kp6-kp6/KindaPerl6/Runtime/Perl5/Pad.pm
+  * This is a very important one.
 
 lib-kp6-kp6/KindaPerl6/Runtime/Perl5/MP6Runtime.pm
-lib-kp6-kp6/KindaPerl6/Runtime/Perl5/Pad.pm
 lib-kp6-kp6/KindaPerl6/Runtime/Perl5/Grammar.pm
 
-lib-kp6-kp6/KindaPerl6/Runtime/Perl5/Code.pm, but it is not used right now.
+

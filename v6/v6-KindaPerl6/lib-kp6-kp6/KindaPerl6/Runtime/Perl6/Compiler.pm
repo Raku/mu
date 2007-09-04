@@ -10,16 +10,16 @@ module COMPILER {
     use KindaPerl6::Visitor::Token;
     use KindaPerl6::Visitor::Global;
 
-    my $visitor_dump_ast    = KindaPerl6::Visitor::Perl.new();
-    my $visitor_emit_perl5  = KindaPerl6::Visitor::EmitPerl5.new();
-    my $visitor_emit_perl6  = KindaPerl6::Visitor::EmitPerl6.new();
-    #my $visitor_subset      = KindaPerl6::Visitor::Subset->new();
-    my $visitor_metamodel   = KindaPerl6::Visitor::MetaClass.new();
-    my $visitor_token       = KindaPerl6::Visitor::Token.new();
-    my $visitor_global      = KindaPerl6::Visitor::Global.new();
+    $COMPILER::visitor_dump_ast    = KindaPerl6::Visitor::Perl.new();
+    $COMPILER::visitor_emit_perl5  = KindaPerl6::Visitor::EmitPerl5.new();
+    $COMPILER::visitor_emit_perl6  = KindaPerl6::Visitor::EmitPerl6.new();
+    #$COMPILER::visitor_subset      = KindaPerl6::Visitor::Subset->new();
+    $COMPILER::visitor_metamodel   = KindaPerl6::Visitor::MetaClass.new();
+    $COMPILER::visitor_token       = KindaPerl6::Visitor::Token.new();
+    $COMPILER::visitor_global      = KindaPerl6::Visitor::Global.new();
 
     sub emit_perl6($node) {
-        my $perl6 = $node.emit( $visitor_emit_perl6  );
+        my $perl6 = $node.emit( $COMPILER::visitor_emit_perl6  );
         return $perl6;
     }
 
@@ -48,23 +48,26 @@ module COMPILER {
         # this routine is called by begin-blocks at compile time, in order to execute the code
         # Input: '::Lit::Code' AST node
 
-        $ast = $ast.emit($visitor_token);
-        $ast = $ast.emit($visitor_metamodel);
-        $visitor_global.pad( @COMPILER::PAD[0] );
-        $ast = $ast.emit($visitor_global);
-        shift $visitor_global.pad;
+        $ast = $ast.emit($COMPILER::visitor_token);
+        $ast = $ast.emit($COMPILER::visitor_metamodel);
+        $COMPILER::visitor_global.pad( @COMPILER::PAD[0] );
+        $ast = $ast.emit($COMPILER::visitor_global);
+        shift $COMPILER::visitor_global.pad;
 
-        my $native = $ast.emit($visitor_emit_perl5);
+        my $native = $ast.emit($COMPILER::visitor_emit_perl5);
         add_pad();
         my $pad = @COMPILER::PAD[0];
         my $data = $pad.eval($native. ~ '; 1 ');
         drop_pad();
 
         if (!$data) {
-            die 'BEGIN did not return a true value ' ~ $ast.emit($visitor_dump_ast);
+            die 'BEGIN did not return a true value ' ~ $ast.emit($COMPILER::visitor_dump_ast);
         }
 
-        say 'BEGIN blocks still incomplete!!!';
+        warn 'BEGIN side effects still not implemented!';
+
+        my $finalast = '# BEGIN SIDE EFFECTS NOT IMPLEMENTED' ~ Main::newline();
+        return $finalast;
     }
 
     sub check_block($ast) {
