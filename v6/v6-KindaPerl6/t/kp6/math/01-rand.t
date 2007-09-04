@@ -2,7 +2,7 @@ use v6-alpha;
 
 module Main {
 
-    say '1..8';
+    say '1..6';
 
     # ----- srand / rand
     my $seed = 1;
@@ -71,13 +71,13 @@ module Main {
     };
 
     # Perl6 runtime integration
-    if (Math.yyy != 42) {
-        print "not ";
-    };
-    say "ok 7";
-    if (Math.zzz) {
-        say "ok 8";
-    } else {
-        say "not ok 8";
-    };
+    #if (Math.yyy != 42) {
+    #    print "not ";
+    #};
+    #say "ok 7";
+    #if (Math.zzz) {
+    #    say "ok 8";
+    #} else {
+    #    say "not ok 8";
+    #};
 }
