@@ -3,7 +3,6 @@ use v5;
 use strict 'vars';
 
 use Data::Dumper;
-use KindaPerl6::Runtime::Perl5::Match;
 use KindaPerl6::Runtime::Perl5::MOP;
 #use KindaPerl6::Runtime::Perl5::Type;
 use KindaPerl6::Runtime::Perl5::Pad;

@@ -17,6 +17,8 @@ package GLOBAL;
         False
         substr
 
+        p5eval
+
         ternary_58__60__63__63__32__33__33__62_
         
         infix_58__60_eq_62_
@@ -100,6 +102,7 @@ package GLOBAL;
     sub sleep    { CORE::sleep(_int($_[0]));return True;}
     sub False    { ::DISPATCH( $::Bit, 'new',0 ) }  
     sub TODO     {confess("TODO");}
+    sub p5eval   { eval _str($_[0]) }
 
     # TODO - macro
     #  ternary:<?? !!>
@@ -139,8 +142,8 @@ package GLOBAL;
     sub infix_58__60__47__62_       
     { ::DISPATCH( $::Int, 'new', _int( $_[0] ) / _int( $_[1] ) ) }  # infix:</>   XXX - Num
 
-    sub substr      
-    { 
+    sub substr
+    {
         #print " substr() parameters: ",
         #    join( ", " ,
         #        _str( $_[0] ), _int( $_[1] ), _int( $_[2] ), _str( $_[3] ) 
