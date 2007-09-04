@@ -32,5 +32,7 @@ class GLOBAL {
     sub infix:<^>($a,$b) {
         one($a,$b);
     };
+    sub Inf { Math.Inf };
+    sub NaN { Math.NaN };
 }
 

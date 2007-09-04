@@ -38,6 +38,12 @@
         our $Code_infix_58__60__94__62_ =
           ::DISPATCH( $::Routine, 'new',
             { modified => $_MODIFIED, name => '$Code_infix_58__60__94__62_' } );
+        our $Code_Inf =
+          ::DISPATCH( $::Routine, 'new',
+            { modified => $_MODIFIED, name => '$Code_Inf' } );
+        our $Code_NaN =
+          ::DISPATCH( $::Routine, 'new',
+            { modified => $_MODIFIED, name => '$Code_NaN' } );
         do {
 
             if (
@@ -91,6 +97,12 @@
                             name     => '$Code_infix_58__60__94__62_'
                         }
                     );
+                    our $Code_Inf =
+                      ::DISPATCH( $::Routine, 'new',
+                        { modified => $_MODIFIED, name => '$Code_Inf' } );
+                    our $Code_NaN =
+                      ::DISPATCH( $::Routine, 'new',
+                        { modified => $_MODIFIED, name => '$Code_NaN' } );
                     do {
                         ::MODIFIED($::GLOBAL);
                         $::GLOBAL = ::DISPATCH(
@@ -641,6 +653,90 @@
                                     ]
                                 }
                             ),
+                            hash =>
+                              ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
+                }
+            );
+        };
+        do {
+            ::MODIFIED($Code_Inf);
+            $Code_Inf = ::DISPATCH(
+                $::Code, 'new',
+                {
+                    code => sub {
+                        my $List__ =
+                          ::DISPATCH( $::Array, 'new',
+                            { modified => $_MODIFIED, name => '$List__' } );
+                        my $CAPTURE;
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } )
+                          unless defined $CAPTURE;
+
+                        BEGIN {
+                            $CAPTURE = ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$CAPTURE' }
+                            );
+                        }
+                        ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                        do {
+                            ::MODIFIED($List__);
+                            $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                        };
+                        ::DISPATCH( $::Math, 'Inf', );
+                    },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {
+                            invocant => $::Undef,
+                            array =>
+                              ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            hash =>
+                              ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
+                }
+            );
+        };
+        do {
+            ::MODIFIED($Code_NaN);
+            $Code_NaN = ::DISPATCH(
+                $::Code, 'new',
+                {
+                    code => sub {
+                        my $List__ =
+                          ::DISPATCH( $::Array, 'new',
+                            { modified => $_MODIFIED, name => '$List__' } );
+                        my $CAPTURE;
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } )
+                          unless defined $CAPTURE;
+
+                        BEGIN {
+                            $CAPTURE = ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$CAPTURE' }
+                            );
+                        }
+                        ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                        do {
+                            ::MODIFIED($List__);
+                            $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                        };
+                        ::DISPATCH( $::Math, 'NaN', );
+                    },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {
+                            invocant => $::Undef,
+                            array =>
+                              ::DISPATCH( $::Array, "new", { _array => [] } ),
                             hash =>
                               ::DISPATCH( $::Hash, "new", { _hash => {} } ),
                             return => $::Undef,
