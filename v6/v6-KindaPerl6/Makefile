@@ -4,7 +4,7 @@ kp6_kp6_OBJ = $(patsubst lib-kp6-kp6/%,lib-kp6-kp6-p5/%,$(wildcard lib-kp6-kp6/K
 
 kp6_mp6: $(kp6_mp6_OBJ)
 
-kp6_kp6:  $(kp6_kp6_OBJ) kp6-kp6.pl
+kp6_kp6: $(kp6_kp6_OBJ)
 
 all: kp6_mp6 kp6_kp6
 
