@@ -10,7 +10,7 @@ module Main {
     IO.rmdir($dirname);
 
     # create a dir
-    my $ret = IO.mkdir($dirname ~ ""); # force stringify
+    my $ret = IO.mkdir($dirname.str);
     if ($ret == 0) {
         print "not ";
     };
@@ -19,21 +19,21 @@ module Main {
     sleep 2;
 
     # second create should fail
-    my $ret = IO.mkdir($dirname ~ ""); # force stringify
+    my $ret = IO.mkdir($dirname.str);
     if ($ret != 0) {
         print "not ";
     };
     say "ok 2";
 
     # delete it
-    my $ret = IO.rmdir($dirname);
+    my $ret = IO.rmdir($dirname.str);
     if ($ret == 0) {
         print "not ";
     };
     say "ok 3";
 
     # second remove should fail
-    my $ret = IO.rmdir($dirname);
+    my $ret = IO.rmdir($dirname.str);
     if ($ret != 0) {
         print "not ";
     };
