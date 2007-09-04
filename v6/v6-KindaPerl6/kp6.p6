@@ -7,7 +7,7 @@ module Main {
     use KindaPerl6::Runtime::Perl6::Compiler;
 
     my @visitors;
-    push @visitors, 'ExtractRuleBlock';
+    @visitors.push('ExtractRuleBlock');
     #, 'Token', 'MetaClass', 'Global', 'EmitPerl5');
     
 }
