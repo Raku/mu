@@ -2,7 +2,11 @@ kp6_mp6_OBJ = $(patsubst lib-kp6-mp6/%,lib-kp6-mp6-p5/%,$(wildcard lib-kp6-mp6/K
 
 kp6_kp6_OBJ = $(patsubst lib-kp6-kp6/%,lib-kp6-kp6-p5/%,$(wildcard lib-kp6-kp6/KindaPerl6/Grammar/*.pm lib-kp6-kp6/KindaPerl6/Grammar.pm lib-kp6-kp6/KindaPerl6/Traverse.pm lib-kp6-kp6/KindaPerl6/Ast.pm lib-kp6-kp6/KindaPerl6/Visitor/*.pm lib-kp6-kp6/KindaPerl6/Runtime/Perl5/*.pm lib-kp6-kp6/KindaPerl6/Runtime/Perl6/*.pm lib-kp6-kp6/KindaPerl6/Test/*.pm ))
 
-all: $(kp6_mp6_OBJ) $(kp6_kp6_OBJ) kp6-kp6.pl
+kp6_mp6: $(kp6_mp6_OBJ)
+
+kp6_kp6:  $(kp6_kp6_OBJ) kp6-kp6.pl
+
+all: kp6_mp6 kp6_kp6
 
 lib-kp6-mp6-p5/KindaPerl6/Runtime/Perl6/%.pm: lib-kp6-mp6/KindaPerl6/Runtime/Perl6/%.pm
 	@echo COMPILE $< $@
@@ -41,6 +45,8 @@ kp6-kp6.pl: kp6.p6
 			exit; \
 		fi; \
 	    rm temp.pl
+
+
 
 test: all
 	perl run_tests_kp6_kp6.pl
