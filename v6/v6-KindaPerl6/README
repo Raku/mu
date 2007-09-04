@@ -1,0 +1,16 @@
+At this moment, there are two source trees in this project:
+
+ * lib-kp6-mp6: This is the version that uses the mp6 compiler for  
+    some files and that mixes kp6 and mp6 runtime.
+
+ * lib-kp6-kp6: This is a pure-kp6 version of the above tree. Some
+    changes are currently need so kp6 can be compiled by itself,
+    this changes are basically in the runtime and are documented
+    in the doc/KP6_Bootstrap_Notes.txt file.
+
+Both these directories are compiled to plain-p5 files in a directory
+with a "-p5" added in the end. At this moment the only compiler that
+really works is kp6-mp6-perl5.pl.
+
+When the bootstrap finishes, we'll be able to simplify this structure
+to a simple "lib" and "lib5" again.
