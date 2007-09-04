@@ -14,7 +14,7 @@ use KindaPerl6::Grammar;
 use KindaPerl6::Traverse;
 use KindaPerl6::Ast;
 use KindaPerl6::Grammar::Regex;
-use KindaPerl6::Runtime::Perl5::Compiler;  
+use KindaPerl6::Runtime::Perl6::Compiler;  
 
 
 # --- command line options
@@ -84,7 +84,8 @@ my @visitors;
         my $module_name = 'KindaPerl6::Visitor::' . $_;
         eval "require $module_name";
         die "Can't load $_ plugin: $@" if $@;
-        push @visitors, $module_name->new( visitor_args => \%visitor_args );
+        no strict 'refs';
+        push @visitors, ::DISPATCH(${'::'.$module_name},'new', visitor_args => \%visitor_args );
     }
 
     #print "# Visitors: @visitors \n";
@@ -95,7 +96,7 @@ my @visitors;
 my $source = join('', <> );
 my $pos = 0;
 
-COMPILER::env_init;
+::DISPATCH($::COMPILER::Code_env_init, 'APPLY');
 while ( $pos < length( $source ) ) {
     #say( "Source code:", $source );
     my $p = KindaPerl6::Grammar->comp_unit($source, $pos);

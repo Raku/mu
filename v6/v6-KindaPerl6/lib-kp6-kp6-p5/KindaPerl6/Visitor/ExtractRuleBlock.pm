@@ -187,15 +187,16 @@
                                 )
                             );
                         };
-                        do {
-                            ::MODIFIED( ::DISPATCH( $self, "count" ) );
-                            ::DISPATCH( $self, "count" ) = ::DISPATCH(
+                        ::DISPATCH_VAR(
+                            ::DISPATCH( $self, "count" ),
+                            'STORE',
+                            ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__43__62_,
                                 'APPLY',
                                 ::DISPATCH( $self, "count" ),
                                 ::DISPATCH( $::Int, 'new', 1 )
-                            );
-                        };
+                            )
+                        );
                         do {
                             ::MODIFIED($name);
                             $name = ::DISPATCH(

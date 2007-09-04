@@ -6,6 +6,7 @@ use Data::Dumper;
 use KindaPerl6::Runtime::Perl5::MOP;
 #use KindaPerl6::Runtime::Perl5::Type;
 use KindaPerl6::Runtime::Perl5::Pad;
+use KindaPerl6::Runtime::Perl6::Pad;
 use KindaPerl6::Runtime::Perl5::Wrap;
 use KindaPerl6::Runtime::Perl5::GLOBAL;
 use KindaPerl6::Runtime::Perl5::MP6Runtime;
