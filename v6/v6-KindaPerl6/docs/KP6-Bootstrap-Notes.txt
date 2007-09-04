@@ -5,7 +5,8 @@ compiler.
 
 lib-kp6-kp6/KindaPerl6/Runtime/Perl5/Compiler.pm
   * Almost done, missing begin-block side effects. But we can do that after
-    the bootstrap.
+    the bootstrap. I'm keeping the P5 version by now, which is not in use to
+    keep the code.
 
 lib-kp6-kp6/KindaPerl6/Runtime/Perl5/Pad.pm
   * This is a very important one.
