@@ -101,17 +101,32 @@ token when {
 };
 
 token for {
-    for <?ws> <exp> <?opt_ws> <'->'> <?opt_ws> <var> <?ws> <block1>
-    { 
-        my $block := $$<block1>;
-        my $pad := $block.pad;
-        push @($pad.lexicals),::Decl(type=>'',decl=>'my',var=>$$<var>);
-        return ::For( 
-            'cond'  => $$<exp>, 
-            'topic' => $$<var>, 
-            'body'  => $block,
-            )
+    for <?ws> <exp> <?opt_ws> <'->'> <?opt_ws> <var> 
+        { 
+            COMPILER::add_pad();
+            my $env := @COMPILER::PAD[0];
+            push @($env.lexicals),::Decl(type=>'',decl=>'my',var=>$$<var>);
         }
+    
+    <?ws> <block1>
+
+    { 
+            my $env := @COMPILER::PAD[0];
+            COMPILER::drop_pad();
+            my $block := $$<block1>;
+            return ::Lit::Code(
+                    pad   => $env,
+                    state => { },
+                    sig   => ::Sig( 'invocant' => undef, 'positional' => [ ], 'named' => { } ),
+                    body  => [
+                        ::For( 
+                            'cond'  => $$<exp>, 
+                            'topic' => $$<var>, 
+                            'body'  => $block,
+                            ),                    
+                    ],
+                );
+    }
 };
 
 token while {

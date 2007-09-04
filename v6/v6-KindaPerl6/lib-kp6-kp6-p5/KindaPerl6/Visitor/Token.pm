@@ -235,8 +235,7 @@
                         };
                         do {
                             ::MODIFIED($ast);
-                            $ast =
-                              ::DISPATCH( $::KindaPerl6::Grammar, 'term',
+                            $ast = ::DISPATCH( $::KindaPerl6::Grammar, 'term',
                                 $source );
                         };
                         return (

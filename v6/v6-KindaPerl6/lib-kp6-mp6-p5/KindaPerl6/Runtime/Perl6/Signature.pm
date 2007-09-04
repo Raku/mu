@@ -329,36 +329,57 @@
                         );
                     }
                 };
-                do {
-                    for my $v (
-                        @{ ::DISPATCH( $self, "array" )->{_value}{_array} } )
-                    {
-                        my $v;
-                        $v =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$v' } )
-                          unless defined $v;
+                my $v;
+                $v =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$v' } )
+                  unless defined $v;
 
-                        BEGIN {
-                            $v =
-                              ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$v' } );
-                        }
-                        ::DISPATCH_VAR(
-                            $s, 'STORE',
+                BEGIN {
+                    $v =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$v' } );
+                }
+                my $s;
+                $s =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$s' } )
+                  unless defined $s;
+
+                BEGIN {
+                    $s =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$s' } );
+                }
+                my $List__ =
+                  ::DISPATCH( $::Array, 'new',
+                    { modified => $_MODIFIED, name => '$List__' } );
+                my $self;
+                $self =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$self' } )
+                  unless defined $self;
+
+                BEGIN {
+                    $self =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$self' } );
+                }
+                for $v ( @{ ::DISPATCH( $self, "array" )->{_value}{_array} } ) {
+                    ::DISPATCH_VAR(
+                        $s, 'STORE',
+                        ::DISPATCH(
+                            $GLOBAL::Code_infix_58__60__126__62_,
+                            'APPLY', $s,
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
-                                'APPLY', $s,
-                                ::DISPATCH(
-                                    $GLOBAL::Code_infix_58__60__126__62_,
-                                    'APPLY',
-                                    ::DISPATCH( $v, 'perl', ),
-                                    ::DISPATCH( $::Str, 'new', ', ' )
-                                )
+                                'APPLY',
+                                ::DISPATCH( $v, 'perl', ),
+                                ::DISPATCH( $::Str, 'new', ', ' )
                             )
-                        );
-                    }
-                };
+                        )
+                    );
+                }
                 return (
                     ::DISPATCH(
                         $GLOBAL::Code_infix_58__60__126__62_,

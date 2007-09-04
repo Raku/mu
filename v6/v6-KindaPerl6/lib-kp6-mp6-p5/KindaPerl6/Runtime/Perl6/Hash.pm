@@ -110,56 +110,79 @@
                 $pair;
                 ::DISPATCH_VAR( $s, 'STORE',
                     ::DISPATCH( $::Str, 'new', '{ ' ) );
-                do {
-                    for my $pair (
-                        @{ ::DISPATCH(
-                                $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY',
-                                ::DISPATCH( $self, 'pairs', )
-                              )->{_value}{_array}
-                        }
-                      )
-                    {
-                        my $pair;
-                        $pair =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$pair' } )
-                          unless defined $pair;
+                my $pair;
+                $pair =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$pair' } )
+                  unless defined $pair;
 
-                        BEGIN {
-                            $pair =
-                              ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$pair' } );
-                        }
-                        ::DISPATCH_VAR(
-                            $s, 'STORE',
+                BEGIN {
+                    $pair =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$pair' } );
+                }
+                my $s;
+                $s =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$s' } )
+                  unless defined $s;
+
+                BEGIN {
+                    $s =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$s' } );
+                }
+                my $List__ =
+                  ::DISPATCH( $::Array, 'new',
+                    { modified => $_MODIFIED, name => '$List__' } );
+                my $self;
+                $self =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$self' } )
+                  unless defined $self;
+
+                BEGIN {
+                    $self =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$self' } );
+                }
+                for $pair (
+                    @{ ::DISPATCH(
+                            $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY',
+                            ::DISPATCH( $self, 'pairs', )
+                          )->{_value}{_array}
+                    }
+                  )
+                {
+                    ::DISPATCH_VAR(
+                        $s, 'STORE',
+                        ::DISPATCH(
+                            $GLOBAL::Code_infix_58__60__126__62_,
+                            'APPLY', $s,
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
-                                'APPLY', $s,
+                                'APPLY',
+                                ::DISPATCH(
+                                    ::DISPATCH( $pair, 'key', ), 'perl',
+                                ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH(
-                                        ::DISPATCH( $pair, 'key', ), 'perl',
-                                    ),
+                                    ::DISPATCH( $::Str, 'new', ' => ' ),
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
-                                        ::DISPATCH( $::Str, 'new', ' => ' ),
                                         ::DISPATCH(
-                                            $GLOBAL::Code_infix_58__60__126__62_,
-                                            'APPLY',
-                                            ::DISPATCH(
-                                                ::DISPATCH( $pair, 'value', ),
-                                                'perl',
-                                            ),
-                                            ::DISPATCH( $::Str, 'new', ', ' )
-                                        )
+                                            ::DISPATCH( $pair, 'value', ),
+                                            'perl',
+                                        ),
+                                        ::DISPATCH( $::Str, 'new', ', ' )
                                     )
                                 )
                             )
-                        );
-                    }
-                };
+                        )
+                    );
+                }
                 return (
                     ::DISPATCH(
                         $GLOBAL::Code_infix_58__60__126__62_,
@@ -232,51 +255,74 @@
                 };
                 $pair;
                 ::DISPATCH_VAR( $s, 'STORE', ::DISPATCH( $::Str, 'new', '' ) );
-                do {
-                    for my $pair (
-                        @{ ::DISPATCH(
-                                $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY',
-                                ::DISPATCH( $self, 'pairs', )
-                              )->{_value}{_array}
-                        }
-                      )
-                    {
-                        my $pair;
-                        $pair =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$pair' } )
-                          unless defined $pair;
+                my $pair;
+                $pair =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$pair' } )
+                  unless defined $pair;
 
-                        BEGIN {
-                            $pair =
-                              ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$pair' } );
-                        }
-                        ::DISPATCH_VAR(
-                            $s, 'STORE',
+                BEGIN {
+                    $pair =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$pair' } );
+                }
+                my $s;
+                $s =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$s' } )
+                  unless defined $s;
+
+                BEGIN {
+                    $s =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$s' } );
+                }
+                my $List__ =
+                  ::DISPATCH( $::Array, 'new',
+                    { modified => $_MODIFIED, name => '$List__' } );
+                my $self;
+                $self =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$self' } )
+                  unless defined $self;
+
+                BEGIN {
+                    $self =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$self' } );
+                }
+                for $pair (
+                    @{ ::DISPATCH(
+                            $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY',
+                            ::DISPATCH( $self, 'pairs', )
+                          )->{_value}{_array}
+                    }
+                  )
+                {
+                    ::DISPATCH_VAR(
+                        $s, 'STORE',
+                        ::DISPATCH(
+                            $GLOBAL::Code_infix_58__60__126__62_,
+                            'APPLY', $s,
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
-                                'APPLY', $s,
+                                'APPLY',
+                                ::DISPATCH( $pair, 'key', ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH( $pair, 'key', ),
+                                    ::DISPATCH( $::Str, 'new', '  ' ),
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
-                                        ::DISPATCH( $::Str, 'new', '  ' ),
-                                        ::DISPATCH(
-                                            $GLOBAL::Code_infix_58__60__126__62_,
-                                            'APPLY',
-                                            ::DISPATCH( $pair, 'value', ),
-                                            ::DISPATCH( $::Str, 'new', ', ' )
-                                        )
+                                        ::DISPATCH( $pair, 'value', ),
+                                        ::DISPATCH( $::Str, 'new', ', ' )
                                     )
                                 )
                             )
-                        );
-                    }
-                };
+                        )
+                    );
+                }
                 return ($s);
             }
         )

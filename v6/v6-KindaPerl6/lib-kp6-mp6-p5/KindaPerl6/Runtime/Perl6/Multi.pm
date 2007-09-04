@@ -137,65 +137,76 @@
                         );
                     }
                 };
-                do {
-                    for my $sub (
-                        @{ ::DISPATCH(
-                                $GLOBAL::Code_prefix_58__60__64__62_,
-                                'APPLY',
-                                ::DISPATCH(
-                                    $GLOBAL::Code_prefix_58__60__64__62_,
-                                    'APPLY',
-                                    ::DISPATCH( $self, 'long_names', )
-                                )
-                              )->{_value}{_array}
-                        }
-                      )
-                    {
-                        my $sub;
-                        $sub =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$sub' } )
-                          unless defined $sub;
+                my $List_candidates =
+                  ::DISPATCH( $::Array, 'new',
+                    { modified => $_MODIFIED, name => '$List_candidates' } );
+                my $sub;
+                $sub =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$sub' } )
+                  unless defined $sub;
 
-                        BEGIN {
-                            $sub =
-                              ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$sub' } );
-                        }
-                        do {
-                            if (
+                BEGIN {
+                    $sub =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$sub' } );
+                }
+                my $List__ =
+                  ::DISPATCH( $::Array, 'new',
+                    { modified => $_MODIFIED, name => '$List__' } );
+                my $self;
+                $self =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$self' } )
+                  unless defined $self;
+
+                BEGIN {
+                    $self =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$self' } );
+                }
+                for $sub (
+                    @{ ::DISPATCH(
+                            $GLOBAL::Code_prefix_58__60__64__62_,
+                            'APPLY',
+                            ::DISPATCH(
+                                $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY',
+                                ::DISPATCH( $self, 'long_names', )
+                            )
+                          )->{_value}{_array}
+                    }
+                  )
+                {
+                    do {
+                        if (
+                            ::DISPATCH(
                                 ::DISPATCH(
                                     ::DISPATCH(
+                                        $GLOBAL::Code_infix_58__60__61__61__62_,
+                                        'APPLY',
                                         ::DISPATCH(
-                                            $GLOBAL::Code_infix_58__60__61__61__62_,
-                                            'APPLY',
-                                            ::DISPATCH(
-                                                ::DISPATCH(
-                                                    $sub, 'signature',
-                                                ),
-                                                'arity',
-                                            ),
-                                            ::DISPATCH(
-                                                ::DISPATCH(
-                                                    $List__, 'INDEX',
-                                                    ::DISPATCH(
-                                                        $::Int, 'new', 0
-                                                    )
-                                                ),
-                                                'arity',
-                                            )
+                                            ::DISPATCH( $sub, 'signature', ),
+                                            'arity',
                                         ),
-                                        "true"
+                                        ::DISPATCH(
+                                            ::DISPATCH(
+                                                $List__,
+                                                'INDEX',
+                                                ::DISPATCH( $::Int, 'new', 0 )
+                                            ),
+                                            'arity',
+                                        )
                                     ),
-                                    "p5landish"
-                                )
-                              )
-                            {
-                                ::DISPATCH( $List_candidates, 'push', $sub );
-                            }
-                          }
-                    }
-                };
+                                    "true"
+                                ),
+                                "p5landish"
+                            )
+                          )
+                        {
+                            ::DISPATCH( $List_candidates, 'push', $sub );
+                        }
+                      }
+                }
                 do {
                     if (
                         ::DISPATCH(

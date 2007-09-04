@@ -405,8 +405,7 @@
                                                         }
                                                         do {
                                                             ::MODIFIED($pos1);
-                                                            $pos1 =
-                                                              ::DISPATCH(
+                                                            $pos1 = ::DISPATCH(
                                                                 $MATCH, 'to', );
                                                         };
                                                         do {
@@ -1003,8 +1002,7 @@
                                                         }
                                                         do {
                                                             ::MODIFIED($pos1);
-                                                            $pos1 =
-                                                              ::DISPATCH(
+                                                            $pos1 = ::DISPATCH(
                                                                 $MATCH, 'to', );
                                                         };
                                                         do {

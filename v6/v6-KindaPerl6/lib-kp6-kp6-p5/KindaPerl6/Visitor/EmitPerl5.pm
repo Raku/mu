@@ -6441,8 +6441,7 @@
                 };
                 do {
                     ::MODIFIED($s);
-                    $s =
-                      ::DISPATCH( $::Str, 'new',
+                    $s = ::DISPATCH( $::Str, 'new',
                         '::DISPATCH( $::Capture, "new", { ' );
                 };
                 do {

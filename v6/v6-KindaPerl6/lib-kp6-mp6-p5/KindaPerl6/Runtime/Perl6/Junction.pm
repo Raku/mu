@@ -222,54 +222,31 @@
                         )
                       )
                     {
-                        do {
-                            for my $thing (
-                                @{ ::DISPATCH(
+                        for $thing (
+                            @{ ::DISPATCH(
+                                    $GLOBAL::Code_prefix_58__60__64__62_,
+                                    'APPLY',
+                                    ::DISPATCH(
                                         $GLOBAL::Code_prefix_58__60__64__62_,
                                         'APPLY',
-                                        ::DISPATCH(
-                                            $GLOBAL::Code_prefix_58__60__64__62_,
-                                            'APPLY',
-                                            ::DISPATCH( $self, "things" )
-                                        )
-                                      )->{_value}{_array}
-                                }
-                              )
-                            {
-                                my $thing;
-                                $thing = ::DISPATCH(
-                                    $::Scalar,
-                                    'new',
-                                    {
-                                        modified => $_MODIFIED,
-                                        name     => '$thing'
-                                    }
-                                ) unless defined $thing;
-
-                                BEGIN {
-                                    $thing = ::DISPATCH(
-                                        $::Scalar,
-                                        'new',
-                                        {
-                                            modified => $_MODIFIED,
-                                            name     => '$thing'
-                                        }
-                                    );
-                                }
-                                do {
-                                    if (
-                                        ::DISPATCH(
-                                            ::DISPATCH( $thing, "true" ),
-                                            "p5landish"
-                                        )
-                                      )
-                                    {
-                                        return (
-                                            ::DISPATCH( $::Bit, 'new', 1 ) );
-                                    }
-                                  }
+                                        ::DISPATCH( $self, "things" )
+                                    )
+                                  )->{_value}{_array}
                             }
-                        };
+                          )
+                        {
+                            do {
+                                if (
+                                    ::DISPATCH(
+                                        ::DISPATCH( $thing, "true" ),
+                                        "p5landish"
+                                    )
+                                  )
+                                {
+                                    return ( ::DISPATCH( $::Bit, 'new', 1 ) );
+                                }
+                              }
+                        }
                         return ( ::DISPATCH( $::Bit, 'new', 0 ) );
                     }
                 };
@@ -289,61 +266,38 @@
                         )
                       )
                     {
-                        do {
-                            for my $thing (
-                                @{ ::DISPATCH(
+                        for $thing (
+                            @{ ::DISPATCH(
+                                    $GLOBAL::Code_prefix_58__60__64__62_,
+                                    'APPLY',
+                                    ::DISPATCH(
                                         $GLOBAL::Code_prefix_58__60__64__62_,
                                         'APPLY',
-                                        ::DISPATCH(
-                                            $GLOBAL::Code_prefix_58__60__64__62_,
-                                            'APPLY',
-                                            ::DISPATCH( $self, "things" )
-                                        )
-                                      )->{_value}{_array}
-                                }
-                              )
-                            {
-                                my $thing;
-                                $thing = ::DISPATCH(
-                                    $::Scalar,
-                                    'new',
-                                    {
-                                        modified => $_MODIFIED,
-                                        name     => '$thing'
-                                    }
-                                ) unless defined $thing;
-
-                                BEGIN {
-                                    $thing = ::DISPATCH(
-                                        $::Scalar,
-                                        'new',
-                                        {
-                                            modified => $_MODIFIED,
-                                            name     => '$thing'
-                                        }
-                                    );
-                                }
-                                do {
-                                    if (
+                                        ::DISPATCH( $self, "things" )
+                                    )
+                                  )->{_value}{_array}
+                            }
+                          )
+                        {
+                            do {
+                                if (
+                                    ::DISPATCH(
                                         ::DISPATCH(
                                             ::DISPATCH(
-                                                ::DISPATCH(
-                                                    $GLOBAL::Code_prefix_58__60__33__62_,
-                                                    'APPLY',
-                                                    $thing
-                                                ),
-                                                "true"
+                                                $GLOBAL::Code_prefix_58__60__33__62_,
+                                                'APPLY',
+                                                $thing
                                             ),
-                                            "p5landish"
-                                        )
-                                      )
-                                    {
-                                        return (
-                                            ::DISPATCH( $::Bit, 'new', 0 ) );
-                                    }
-                                  }
-                            }
-                        };
+                                            "true"
+                                        ),
+                                        "p5landish"
+                                    )
+                                  )
+                                {
+                                    return ( ::DISPATCH( $::Bit, 'new', 0 ) );
+                                }
+                              }
+                        }
                         return ( ::DISPATCH( $::Bit, 'new', 1 ) );
                     }
                 };
@@ -363,54 +317,31 @@
                         )
                       )
                     {
-                        do {
-                            for my $thing (
-                                @{ ::DISPATCH(
+                        for $thing (
+                            @{ ::DISPATCH(
+                                    $GLOBAL::Code_prefix_58__60__64__62_,
+                                    'APPLY',
+                                    ::DISPATCH(
                                         $GLOBAL::Code_prefix_58__60__64__62_,
                                         'APPLY',
-                                        ::DISPATCH(
-                                            $GLOBAL::Code_prefix_58__60__64__62_,
-                                            'APPLY',
-                                            ::DISPATCH( $self, "things" )
-                                        )
-                                      )->{_value}{_array}
-                                }
-                              )
-                            {
-                                my $thing;
-                                $thing = ::DISPATCH(
-                                    $::Scalar,
-                                    'new',
-                                    {
-                                        modified => $_MODIFIED,
-                                        name     => '$thing'
-                                    }
-                                ) unless defined $thing;
-
-                                BEGIN {
-                                    $thing = ::DISPATCH(
-                                        $::Scalar,
-                                        'new',
-                                        {
-                                            modified => $_MODIFIED,
-                                            name     => '$thing'
-                                        }
-                                    );
-                                }
-                                do {
-                                    if (
-                                        ::DISPATCH(
-                                            ::DISPATCH( $thing, "true" ),
-                                            "p5landish"
-                                        )
-                                      )
-                                    {
-                                        return (
-                                            ::DISPATCH( $::Bit, 'new', 0 ) );
-                                    }
-                                  }
+                                        ::DISPATCH( $self, "things" )
+                                    )
+                                  )->{_value}{_array}
                             }
-                        };
+                          )
+                        {
+                            do {
+                                if (
+                                    ::DISPATCH(
+                                        ::DISPATCH( $thing, "true" ),
+                                        "p5landish"
+                                    )
+                                  )
+                                {
+                                    return ( ::DISPATCH( $::Bit, 'new', 0 ) );
+                                }
+                              }
+                        }
                         return ( ::DISPATCH( $::Bit, 'new', 1 ) );
                     }
                 };
@@ -443,82 +374,68 @@
                         }
                         ::DISPATCH_VAR( $counter, 'STORE',
                             ::DISPATCH( $::Int, 'new', 0 ) );
-                        do {
-                            for my $thing (
-                                @{ ::DISPATCH(
+                        my $counter;
+                        $counter =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$counter' } )
+                          unless defined $counter;
+
+                        BEGIN {
+                            $counter = ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$counter' }
+                            );
+                        }
+                        for $thing (
+                            @{ ::DISPATCH(
+                                    $GLOBAL::Code_prefix_58__60__64__62_,
+                                    'APPLY',
+                                    ::DISPATCH(
                                         $GLOBAL::Code_prefix_58__60__64__62_,
                                         'APPLY',
-                                        ::DISPATCH(
-                                            $GLOBAL::Code_prefix_58__60__64__62_,
-                                            'APPLY',
-                                            ::DISPATCH( $self, "things" )
-                                        )
-                                      )->{_value}{_array}
-                                }
-                              )
-                            {
-                                my $thing;
-                                $thing = ::DISPATCH(
-                                    $::Scalar,
-                                    'new',
-                                    {
-                                        modified => $_MODIFIED,
-                                        name     => '$thing'
-                                    }
-                                ) unless defined $thing;
-
-                                BEGIN {
-                                    $thing = ::DISPATCH(
-                                        $::Scalar,
-                                        'new',
-                                        {
-                                            modified => $_MODIFIED,
-                                            name     => '$thing'
-                                        }
+                                        ::DISPATCH( $self, "things" )
+                                    )
+                                  )->{_value}{_array}
+                            }
+                          )
+                        {
+                            do {
+                                if (
+                                    ::DISPATCH(
+                                        ::DISPATCH( $thing, "true" ),
+                                        "p5landish"
+                                    )
+                                  )
+                                {
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_prefix_58__60__43__43__62_,
+                                        'APPLY', $counter
                                     );
-                                }
-                                do {
-                                    if (
-                                        ::DISPATCH(
-                                            ::DISPATCH( $thing, "true" ),
-                                            "p5landish"
-                                        )
-                                      )
-                                    {
-                                        ::DISPATCH(
-                                            $GLOBAL::Code_prefix_58__60__43__43__62_,
-                                            'APPLY', $counter
-                                        );
-                                        do {
-                                            if (
+                                    do {
+                                        if (
+                                            ::DISPATCH(
                                                 ::DISPATCH(
                                                     ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__62__62_,
+                                                        'APPLY', $counter,
                                                         ::DISPATCH(
-                                                            $GLOBAL::Code_infix_58__60__62__62_,
-                                                            'APPLY',
-                                                            $counter,
-                                                            ::DISPATCH(
-                                                                $::Int, 'new',
-                                                                1
-                                                            )
-                                                        ),
-                                                        "true"
+                                                            $::Int, 'new',
+                                                            1
+                                                        )
                                                     ),
-                                                    "p5landish"
-                                                )
-                                              )
-                                            {
-                                                return (
-                                                    ::DISPATCH(
-                                                        $::Bit, 'new', 0
-                                                    )
-                                                );
-                                            }
-                                          }
-                                    }
-                                  }
-                            }
-                        };
+                                                    "true"
+                                                ),
+                                                "p5landish"
+                                            )
+                                          )
+                                        {
+                                            return (
+                                                ::DISPATCH( $::Bit, 'new', 0 )
+                                            );
+                                        }
+                                      }
+                                }
+                              }
+                        }
                         return (
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__61__61__62_,

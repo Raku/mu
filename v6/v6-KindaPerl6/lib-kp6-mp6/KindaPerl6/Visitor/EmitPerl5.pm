@@ -123,7 +123,9 @@ class Lit::Pair {
 
 class Lit::Code {
     method emit_perl5 {
-        self.emit_declarations ~ self.emit_body;
+          '{ ' 
+        ~ self.emit_declarations ~ self.emit_body
+        ~ ' }';
     };
     method emit_body {
         (@.body.>>emit_perl5).join('; ');
@@ -364,12 +366,13 @@ class For {
         } else {
             $cond := ::Apply( code => ::Var(sigil=>'&',twigil=>'',name=>'GLOBAL::prefix:<@>'), arguments => [$cond] );
         }
-        'do { for my ' ~ $.topic.emit_perl5 
-            ~ ' ( @{ ' ~ $cond.emit_perl5 ~ '->{_value}{_array} } )'
-            ~ ' { ' 
-            ~     $.body.emit_perl5 
-            ~ ' } '
-        ~ '}' ~ Main::newline();
+        'for ' 
+        ~   $.topic.emit_perl5 
+        ~ ' ( @{ ' ~ $cond.emit_perl5 ~ '->{_value}{_array} } )'
+        ~ ' { ' 
+        ~     $.body.emit_perl5 
+        ~ ' } '
+        ~ Main::newline();
     }
 }
 

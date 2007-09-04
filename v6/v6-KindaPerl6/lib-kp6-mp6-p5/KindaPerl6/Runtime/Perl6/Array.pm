@@ -110,45 +110,68 @@
                 $v;
                 ::DISPATCH_VAR( $s, 'STORE',
                     ::DISPATCH( $::Str, 'new', '[ ' ) );
-                do {
-                    for my $v (
-                        @{ ::DISPATCH(
-                                $GLOBAL::Code_prefix_58__60__64__62_,
-                                'APPLY',
-                                ::DISPATCH(
-                                    $GLOBAL::Code_prefix_58__60__64__62_,
-                                    'APPLY', $self
-                                )
-                              )->{_value}{_array}
-                        }
-                      )
-                    {
-                        my $v;
-                        $v =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$v' } )
-                          unless defined $v;
+                my $v;
+                $v =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$v' } )
+                  unless defined $v;
 
-                        BEGIN {
-                            $v =
-                              ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$v' } );
-                        }
-                        ::DISPATCH_VAR(
-                            $s, 'STORE',
+                BEGIN {
+                    $v =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$v' } );
+                }
+                my $s;
+                $s =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$s' } )
+                  unless defined $s;
+
+                BEGIN {
+                    $s =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$s' } );
+                }
+                my $List__ =
+                  ::DISPATCH( $::Array, 'new',
+                    { modified => $_MODIFIED, name => '$List__' } );
+                my $self;
+                $self =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$self' } )
+                  unless defined $self;
+
+                BEGIN {
+                    $self =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$self' } );
+                }
+                for $v (
+                    @{ ::DISPATCH(
+                            $GLOBAL::Code_prefix_58__60__64__62_,
+                            'APPLY',
+                            ::DISPATCH(
+                                $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY',
+                                $self
+                            )
+                          )->{_value}{_array}
+                    }
+                  )
+                {
+                    ::DISPATCH_VAR(
+                        $s, 'STORE',
+                        ::DISPATCH(
+                            $GLOBAL::Code_infix_58__60__126__62_,
+                            'APPLY', $s,
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
-                                'APPLY', $s,
-                                ::DISPATCH(
-                                    $GLOBAL::Code_infix_58__60__126__62_,
-                                    'APPLY',
-                                    ::DISPATCH( $v, 'perl', ),
-                                    ::DISPATCH( $::Str, 'new', ', ' )
-                                )
+                                'APPLY',
+                                ::DISPATCH( $v, 'perl', ),
+                                ::DISPATCH( $::Str, 'new', ', ' )
                             )
-                        );
-                    }
-                };
+                        )
+                    );
+                }
                 return (
                     ::DISPATCH(
                         $GLOBAL::Code_infix_58__60__126__62_,
@@ -408,46 +431,72 @@
                 $List_result;
                 $s;
                 $v;
-                do {
-                    for my $v (
-                        @{ ::DISPATCH(
-                                $GLOBAL::Code_prefix_58__60__64__62_,
-                                'APPLY',
-                                ::DISPATCH(
-                                    $GLOBAL::Code_prefix_58__60__64__62_,
-                                    'APPLY', $self
-                                )
-                              )->{_value}{_array}
-                        }
-                      )
-                    {
-                        my $v;
-                        $v =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$v' } )
-                          unless defined $v;
+                my $List_result =
+                  ::DISPATCH( $::Array, 'new',
+                    { modified => $_MODIFIED, name => '$List_result' } );
+                my $s;
+                $s =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$s' } )
+                  unless defined $s;
 
-                        BEGIN {
-                            $v =
-                              ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$v' } );
-                        }
-                        do {
-                            if (
-                                ::DISPATCH(
-                                    ::DISPATCH(
-                                        ::DISPATCH( $Code_test, 'APPLY', $v ),
-                                        "true"
-                                    ),
-                                    "p5landish"
-                                )
-                              )
-                            {
-                                ::DISPATCH( $List_result, 'push', $v );
-                            }
-                          }
+                BEGIN {
+                    $s =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$s' } );
+                }
+                my $v;
+                $v =
+                  ::DISPATCH( $::Scalar, 'new',
+                    { modified => $_MODIFIED, name => '$v' } )
+                  unless defined $v;
+
+                BEGIN {
+                    $v =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$v' } );
+                }
+                my $List__ =
+                  ::DISPATCH( $::Array, 'new',
+                    { modified => $_MODIFIED, name => '$List__' } );
+                my $Code_test;
+                $Code_test =
+                  ::DISPATCH( $::Routine, 'new',
+                    { modified => $_MODIFIED, name => '$Code_test' } )
+                  unless defined $Code_test;
+
+                BEGIN {
+                    $Code_test =
+                      ::DISPATCH( $::Routine, 'new',
+                        { modified => $_MODIFIED, name => '$Code_test' } );
+                }
+                for $v (
+                    @{ ::DISPATCH(
+                            $GLOBAL::Code_prefix_58__60__64__62_,
+                            'APPLY',
+                            ::DISPATCH(
+                                $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY',
+                                $self
+                            )
+                          )->{_value}{_array}
                     }
-                };
+                  )
+                {
+                    do {
+                        if (
+                            ::DISPATCH(
+                                ::DISPATCH(
+                                    ::DISPATCH( $Code_test, 'APPLY', $v ),
+                                    "true"
+                                ),
+                                "p5landish"
+                            )
+                          )
+                        {
+                            ::DISPATCH( $List_result, 'push', $v );
+                        }
+                      }
+                }
                 return ($List_result);
             }
         )
