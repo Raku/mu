@@ -43,19 +43,19 @@ kp6-kp6.pl: kp6.p6
 	    rm temp.pl
 
 test: all
-	perl run_tests.pl
+	perl run_tests_kp6_kp6.pl
 
 test_grammar: all
-	perl run_tests.pl --section=grammar
+	perl run_tests_kp6_kp6.pl --section=grammar
 
 test_io: all
-	perl run_tests.pl --section=io
+	perl run_tests_kp6_kp6.pl --section=io
 
 test_math: all
-	perl run_tests.pl --section=math
+	perl run_tests_kp6_kp6.pl --section=math
 
 test_base: all
-	perl run_tests.pl --section=''
+	perl run_tests_kp6_kp6.pl --section=''
 
 forcerecompile:
 	echo "use -B instead"
