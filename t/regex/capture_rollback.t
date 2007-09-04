@@ -6,7 +6,11 @@ plan 2;
 
 =pod
 
+# L<S05/Return values from matches/"The array elements of a Match object are 
+referred to"
+
 Testing capture rollback when an alternation fails.
+
 
 =cut
 
@@ -17,7 +21,7 @@ if !eval('("a" ~~ /a/)') {
 
 {
   "abd" ~~ m/ (a) (b) c || (\w) b d /;
-  is( @($/).elems, 1, "correct number of positional captures", :todo<bug>);
+  is( @($/).elems, 1, "correct number of positional captures");
 }
 
 {
