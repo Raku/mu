@@ -16,47 +16,52 @@
           ::DISPATCH( $::Scalar, "new",
             { modified => $_MODIFIED, name => "$_" } );
     }
-    do {
-        if (
-            ::DISPATCH(
+    {
+        do {
+            if (
                 ::DISPATCH(
-                    ::DISPATCH( $GLOBAL::Code_VAR_defined, 'APPLY', $::Pad ),
-                    "true"
-                ),
-                "p5landish"
-            )
-          )
-        {
-        }
-        else {
-            do {
-                ::MODIFIED($::Pad);
-                $::Pad = ::DISPATCH(
                     ::DISPATCH(
-                        $::Class, 'new', ::DISPATCH( $::Str, 'new', 'Pad' )
+                        ::DISPATCH(
+                            $GLOBAL::Code_VAR_defined, 'APPLY', $::Pad
+                        ),
+                        "true"
                     ),
-                    'PROTOTYPE',
-                );
-              }
-        }
+                    "p5landish"
+                )
+              )
+            {
+            }
+            else {
+                {
+                    do {
+                        ::MODIFIED($::Pad);
+                        $::Pad = ::DISPATCH(
+                            ::DISPATCH(
+                                $::Class, 'new',
+                                ::DISPATCH( $::Str, 'new', 'Pad' )
+                            ),
+                            'PROTOTYPE',
+                        );
+                      }
+                }
+            }
+        };
+        ::DISPATCH(
+            ::DISPATCH( $::Pad, 'HOW', ),
+            'add_attribute',
+            ::DISPATCH( $::Str, 'new', 'namespace' )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::Pad, 'HOW', ),
+            'add_attribute',
+            ::DISPATCH( $::Str, 'new', 'outer' )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::Pad, 'HOW', ),
+            'add_attribute',
+            ::DISPATCH( $::Str, 'new', 'lexicals' )
+          )
     };
-    ::DISPATCH(
-        ::DISPATCH( $::Pad, 'HOW', ),
-        'add_attribute',
-        ::DISPATCH( $::Str, 'new', 'namespace' )
-    );
-    ::DISPATCH(
-        ::DISPATCH( $::Pad, 'HOW', ),
-        'add_attribute',
-        ::DISPATCH( $::Str, 'new', 'outer' )
-    );
-    ::DISPATCH(
-        ::DISPATCH( $::Pad, 'HOW', ),
-        'add_attribute',
-        ::DISPATCH( $::Str, 'new', 'lexicals' )
-      )
-
-      ;
     1
 }
 

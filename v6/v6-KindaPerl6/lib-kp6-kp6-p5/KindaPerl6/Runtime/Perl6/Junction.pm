@@ -16,458 +16,222 @@
           ::DISPATCH( $::Scalar, "new",
             { modified => $_MODIFIED, name => "$_" } );
     }
-    do {
-        if (
-            ::DISPATCH(
+    {
+        do {
+            if (
                 ::DISPATCH(
                     ::DISPATCH(
-                        $GLOBAL::Code_VAR_defined, 'APPLY', $::Junction
+                        ::DISPATCH(
+                            $GLOBAL::Code_VAR_defined, 'APPLY', $::Junction
+                        ),
+                        "true"
                     ),
-                    "true"
-                ),
-                "p5landish"
-            )
-          )
-        {
-        }
-        else {
-            do {
-                ::MODIFIED($::Junction);
-                $::Junction = ::DISPATCH(
-                    ::DISPATCH(
-                        $::Class, 'new',
-                        ::DISPATCH( $::Str, 'new', 'Junction' )
-                    ),
-                    'PROTOTYPE',
-                );
-              }
-        }
-    };
-    ::DISPATCH(
-        ::DISPATCH( $::Junction, 'HOW', ),
-        'add_attribute',
-        ::DISPATCH( $::Str, 'new', 'type' )
-    );
-    ::DISPATCH(
-        ::DISPATCH( $::Junction, 'HOW', ),
-        'add_attribute',
-        ::DISPATCH( $::Str, 'new', 'things' )
-    );
-    ::DISPATCH(
-        ::DISPATCH( $::Junction, 'HOW', ),
-        'add_method',
-        ::DISPATCH( $::Str, 'new', 'str' ),
+                    "p5landish"
+                )
+              )
+            {
+            }
+            else {
+                {
+                    do {
+                        ::MODIFIED($::Junction);
+                        $::Junction = ::DISPATCH(
+                            ::DISPATCH(
+                                $::Class, 'new',
+                                ::DISPATCH( $::Str, 'new', 'Junction' )
+                            ),
+                            'PROTOTYPE',
+                        );
+                      }
+                }
+            }
+        };
         ::DISPATCH(
-            $::Method,
-            'new',
-            sub {
-                my $Hash_sep =
-                  ::DISPATCH( $::Hash, 'new',
-                    { modified => $_MODIFIED, name => '$Hash_sep' } );
-                my $List__ =
-                  ::DISPATCH( $::Array, 'new',
-                    { modified => $_MODIFIED, name => '$List__' } );
-                my $self;
-                $self =
-                  ::DISPATCH( $::Scalar, 'new',
-                    { modified => $_MODIFIED, name => '$self' } )
-                  unless defined $self;
-
-                BEGIN {
+            ::DISPATCH( $::Junction, 'HOW', ),
+            'add_attribute',
+            ::DISPATCH( $::Str, 'new', 'type' )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::Junction, 'HOW', ),
+            'add_attribute',
+            ::DISPATCH( $::Str, 'new', 'things' )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::Junction, 'HOW', ),
+            'add_method',
+            ::DISPATCH( $::Str, 'new', 'str' ),
+            ::DISPATCH(
+                $::Method,
+                'new',
+                sub {
+                    my $Hash_sep =
+                      ::DISPATCH( $::Hash, 'new',
+                        { modified => $_MODIFIED, name => '$Hash_sep' } );
+                    my $List__ =
+                      ::DISPATCH( $::Array, 'new',
+                        { modified => $_MODIFIED, name => '$List__' } );
+                    my $self;
                     $self =
                       ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$self' } );
-                }
-                $self = shift;
-                my $CAPTURE;
-                $CAPTURE =
-                  ::DISPATCH( $::Scalar, 'new',
-                    { modified => $_MODIFIED, name => '$CAPTURE' } )
-                  unless defined $CAPTURE;
+                        { modified => $_MODIFIED, name => '$self' } )
+                      unless defined $self;
 
-                BEGIN {
+                    BEGIN {
+                        $self =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$self' } );
+                    }
+                    $self = shift;
+                    my $CAPTURE;
                     $CAPTURE =
                       ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$CAPTURE' } );
-                }
-                ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
-                do {
-                    ::MODIFIED($List__);
-                    $List__ = ::DISPATCH( $CAPTURE, 'array', );
-                };
-                ::DISPATCH_VAR(
-                    $Hash_sep,
-                    'STORE',
-                    ::DISPATCH(
-                        $::Hash, "new",
-                        {
-                            _hash => {
-                                ::DISPATCH( $::Str, 'new', 'any' )->{_value} =>
-                                  ::DISPATCH( $::Str, 'new', ' | ' ),
-                                ::DISPATCH( $::Str, 'new', 'none' )->{_value} =>
-                                  ::DISPATCH( $::Str, 'new', ' , ' ),
-                                ::DISPATCH( $::Str, 'new', 'all' )->{_value} =>
-                                  ::DISPATCH( $::Str, 'new', ' & ' ),
-                                ::DISPATCH( $::Str, 'new', 'one' )->{_value} =>
-                                  ::DISPATCH( $::Str, 'new', ' ^ ' ),
-                            }
-                        }
-                    )
-                );
-                ::DISPATCH(
-                    $GLOBAL::Code_infix_58__60__126__62_,
-                    'APPLY',
-                    ::DISPATCH(
-                        $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
-                        'APPLY',
+                        { modified => $_MODIFIED, name => '$CAPTURE' } )
+                      unless defined $CAPTURE;
+
+                    BEGIN {
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } );
+                    }
+                    ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                    do {
+                        ::MODIFIED($List__);
+                        $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    ::DISPATCH_VAR(
+                        $Hash_sep,
+                        'STORE',
                         ::DISPATCH(
-                            $GLOBAL::Code_infix_58__60_eq_62_,
-                            'APPLY',
-                            ::DISPATCH( $self, "type" ),
-                            ::DISPATCH( $::Str, 'new', '!' )
-                        ),
-                        ::DISPATCH( $::Str, 'new', 'none' ),
-                        ::DISPATCH( $::Str, 'new', '' )
-                    ),
+                            $::Hash, "new",
+                            {
+                                _hash => {
+                                    ::DISPATCH( $::Str, 'new', 'any' )
+                                      ->{_value} =>
+                                      ::DISPATCH( $::Str, 'new', ' | ' ),
+                                    ::DISPATCH( $::Str, 'new', 'none' )
+                                      ->{_value} =>
+                                      ::DISPATCH( $::Str, 'new', ' , ' ),
+                                    ::DISPATCH( $::Str, 'new', 'all' )
+                                      ->{_value} =>
+                                      ::DISPATCH( $::Str, 'new', ' & ' ),
+                                    ::DISPATCH( $::Str, 'new', 'one' )
+                                      ->{_value} =>
+                                      ::DISPATCH( $::Str, 'new', ' ^ ' ),
+                                }
+                            }
+                        )
+                    );
                     ::DISPATCH(
                         $GLOBAL::Code_infix_58__60__126__62_,
                         'APPLY',
-                        ::DISPATCH( $::Str, 'new', '( ' ),
+                        ::DISPATCH(
+                            $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
+                            'APPLY',
+                            ::DISPATCH(
+                                $GLOBAL::Code_infix_58__60_eq_62_,
+                                'APPLY',
+                                ::DISPATCH( $self, "type" ),
+                                ::DISPATCH( $::Str, 'new', '!' )
+                            ),
+                            ::DISPATCH( $::Str, 'new', 'none' ),
+                            ::DISPATCH( $::Str, 'new', '' )
+                        ),
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
+                            ::DISPATCH( $::Str, 'new', '( ' ),
                             ::DISPATCH(
+                                $GLOBAL::Code_infix_58__60__126__62_,
+                                'APPLY',
                                 ::DISPATCH(
-                                    $GLOBAL::Code_prefix_58__60__64__62_,
-                                    'APPLY',
-                                    ::DISPATCH( $self, "things" )
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_prefix_58__60__64__62_,
+                                        'APPLY',
+                                        ::DISPATCH( $self, "things" )
+                                    ),
+                                    'join',
+                                    ::DISPATCH(
+                                        $Hash_sep, 'LOOKUP',
+                                        ::DISPATCH( $self, "type" )
+                                    )
                                 ),
-                                'join',
-                                ::DISPATCH(
-                                    $Hash_sep, 'LOOKUP',
-                                    ::DISPATCH( $self, "type" )
-                                )
-                            ),
-                            ::DISPATCH( $::Str, 'new', ' )' )
+                                ::DISPATCH( $::Str, 'new', ' )' )
+                            )
                         )
-                    )
-                );
-            }
-        )
-    );
-    ::DISPATCH(
-        ::DISPATCH( $::Junction, 'HOW', ),
-        'add_method',
-        ::DISPATCH( $::Str, 'new', 'true' ),
+                    );
+                }
+            )
+        );
         ::DISPATCH(
-            $::Method,
-            'new',
-            sub {
-                my $thing;
-                $thing =
-                  ::DISPATCH( $::Scalar, 'new',
-                    { modified => $_MODIFIED, name => '$thing' } )
-                  unless defined $thing;
-
-                BEGIN {
+            ::DISPATCH( $::Junction, 'HOW', ),
+            'add_method',
+            ::DISPATCH( $::Str, 'new', 'true' ),
+            ::DISPATCH(
+                $::Method,
+                'new',
+                sub {
+                    my $thing;
                     $thing =
                       ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$thing' } );
-                }
-                my $List__ =
-                  ::DISPATCH( $::Array, 'new',
-                    { modified => $_MODIFIED, name => '$List__' } );
-                my $self;
-                $self =
-                  ::DISPATCH( $::Scalar, 'new',
-                    { modified => $_MODIFIED, name => '$self' } )
-                  unless defined $self;
+                        { modified => $_MODIFIED, name => '$thing' } )
+                      unless defined $thing;
 
-                BEGIN {
+                    BEGIN {
+                        $thing =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$thing' } );
+                    }
+                    my $List__ =
+                      ::DISPATCH( $::Array, 'new',
+                        { modified => $_MODIFIED, name => '$List__' } );
+                    my $self;
                     $self =
                       ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$self' } );
-                }
-                $self = shift;
-                my $CAPTURE;
-                $CAPTURE =
-                  ::DISPATCH( $::Scalar, 'new',
-                    { modified => $_MODIFIED, name => '$CAPTURE' } )
-                  unless defined $CAPTURE;
+                        { modified => $_MODIFIED, name => '$self' } )
+                      unless defined $self;
 
-                BEGIN {
+                    BEGIN {
+                        $self =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$self' } );
+                    }
+                    $self = shift;
+                    my $CAPTURE;
                     $CAPTURE =
                       ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$CAPTURE' } );
-                }
-                ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
-                do {
-                    ::MODIFIED($List__);
-                    $List__ = ::DISPATCH( $CAPTURE, 'array', );
-                };
-                $thing;
-                do {
-                    if (
-                        ::DISPATCH(
-                            ::DISPATCH(
-                                ::DISPATCH(
-                                    $GLOBAL::Code_infix_58__60_eq_62_,
-                                    'APPLY',
-                                    ::DISPATCH( $self, "type" ),
-                                    ::DISPATCH( $::Str, 'new', 'any' )
-                                ),
-                                "true"
-                            ),
-                            "p5landish"
-                        )
-                      )
-                    {
-                        do {
-                            for my $thing (
-                                @{ ::DISPATCH(
-                                        $GLOBAL::Code_prefix_58__60__64__62_,
-                                        'APPLY',
-                                        ::DISPATCH(
-                                            $GLOBAL::Code_prefix_58__60__64__62_,
-                                            'APPLY',
-                                            ::DISPATCH( $self, "things" )
-                                        )
-                                      )->{_value}{_array}
-                                }
-                              )
-                            {
-                                my $thing;
-                                $thing = ::DISPATCH(
-                                    $::Scalar,
-                                    'new',
-                                    {
-                                        modified => $_MODIFIED,
-                                        name     => '$thing'
-                                    }
-                                ) unless defined $thing;
+                        { modified => $_MODIFIED, name => '$CAPTURE' } )
+                      unless defined $CAPTURE;
 
-                                BEGIN {
-                                    $thing = ::DISPATCH(
-                                        $::Scalar,
-                                        'new',
-                                        {
-                                            modified => $_MODIFIED,
-                                            name     => '$thing'
-                                        }
-                                    );
-                                }
-                                do {
-                                    if (
-                                        ::DISPATCH(
-                                            ::DISPATCH( $thing, "true" ),
-                                            "p5landish"
-                                        )
-                                      )
-                                    {
-                                        return (
-                                            ::DISPATCH( $::Bit, 'new', 1 ) );
-                                    }
-                                  }
-                            }
-                        };
-                        return ( ::DISPATCH( $::Bit, 'new', 0 ) );
-                    }
-                };
-                do {
-                    if (
-                        ::DISPATCH(
-                            ::DISPATCH(
-                                ::DISPATCH(
-                                    $GLOBAL::Code_infix_58__60_eq_62_,
-                                    'APPLY',
-                                    ::DISPATCH( $self, "type" ),
-                                    ::DISPATCH( $::Str, 'new', 'all' )
-                                ),
-                                "true"
-                            ),
-                            "p5landish"
-                        )
-                      )
-                    {
-                        do {
-                            for my $thing (
-                                @{ ::DISPATCH(
-                                        $GLOBAL::Code_prefix_58__60__64__62_,
-                                        'APPLY',
-                                        ::DISPATCH(
-                                            $GLOBAL::Code_prefix_58__60__64__62_,
-                                            'APPLY',
-                                            ::DISPATCH( $self, "things" )
-                                        )
-                                      )->{_value}{_array}
-                                }
-                              )
-                            {
-                                my $thing;
-                                $thing = ::DISPATCH(
-                                    $::Scalar,
-                                    'new',
-                                    {
-                                        modified => $_MODIFIED,
-                                        name     => '$thing'
-                                    }
-                                ) unless defined $thing;
-
-                                BEGIN {
-                                    $thing = ::DISPATCH(
-                                        $::Scalar,
-                                        'new',
-                                        {
-                                            modified => $_MODIFIED,
-                                            name     => '$thing'
-                                        }
-                                    );
-                                }
-                                do {
-                                    if (
-                                        ::DISPATCH(
-                                            ::DISPATCH(
-                                                ::DISPATCH(
-                                                    $GLOBAL::Code_prefix_58__60__33__62_,
-                                                    'APPLY',
-                                                    $thing
-                                                ),
-                                                "true"
-                                            ),
-                                            "p5landish"
-                                        )
-                                      )
-                                    {
-                                        return (
-                                            ::DISPATCH( $::Bit, 'new', 0 ) );
-                                    }
-                                  }
-                            }
-                        };
-                        return ( ::DISPATCH( $::Bit, 'new', 1 ) );
-                    }
-                };
-                do {
-                    if (
-                        ::DISPATCH(
-                            ::DISPATCH(
-                                ::DISPATCH(
-                                    $GLOBAL::Code_infix_58__60_eq_62_,
-                                    'APPLY',
-                                    ::DISPATCH( $self, "type" ),
-                                    ::DISPATCH( $::Str, 'new', 'none' )
-                                ),
-                                "true"
-                            ),
-                            "p5landish"
-                        )
-                      )
-                    {
-                        do {
-                            for my $thing (
-                                @{ ::DISPATCH(
-                                        $GLOBAL::Code_prefix_58__60__64__62_,
-                                        'APPLY',
-                                        ::DISPATCH(
-                                            $GLOBAL::Code_prefix_58__60__64__62_,
-                                            'APPLY',
-                                            ::DISPATCH( $self, "things" )
-                                        )
-                                      )->{_value}{_array}
-                                }
-                              )
-                            {
-                                my $thing;
-                                $thing = ::DISPATCH(
-                                    $::Scalar,
-                                    'new',
-                                    {
-                                        modified => $_MODIFIED,
-                                        name     => '$thing'
-                                    }
-                                ) unless defined $thing;
-
-                                BEGIN {
-                                    $thing = ::DISPATCH(
-                                        $::Scalar,
-                                        'new',
-                                        {
-                                            modified => $_MODIFIED,
-                                            name     => '$thing'
-                                        }
-                                    );
-                                }
-                                do {
-                                    if (
-                                        ::DISPATCH(
-                                            ::DISPATCH( $thing, "true" ),
-                                            "p5landish"
-                                        )
-                                      )
-                                    {
-                                        return (
-                                            ::DISPATCH( $::Bit, 'new', 0 ) );
-                                    }
-                                  }
-                            }
-                        };
-                        return ( ::DISPATCH( $::Bit, 'new', 1 ) );
-                    }
-                };
-                do {
-                    if (
-                        ::DISPATCH(
-                            ::DISPATCH(
-                                ::DISPATCH(
-                                    $GLOBAL::Code_infix_58__60_eq_62_,
-                                    'APPLY',
-                                    ::DISPATCH( $self, "type" ),
-                                    ::DISPATCH( $::Str, 'new', 'one' )
-                                ),
-                                "true"
-                            ),
-                            "p5landish"
-                        )
-                      )
-                    {
-                        my $counter;
-                        $counter =
+                    BEGIN {
+                        $CAPTURE =
                           ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$counter' } )
-                          unless defined $counter;
-
-                        BEGIN {
-                            $counter = ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$counter' }
-                            );
-                        }
-                        ::DISPATCH_VAR( $counter, 'STORE',
-                            ::DISPATCH( $::Int, 'new', 0 ) );
-                        do {
-                            for my $thing (
-                                @{ ::DISPATCH(
-                                        $GLOBAL::Code_prefix_58__60__64__62_,
+                            { modified => $_MODIFIED, name => '$CAPTURE' } );
+                    }
+                    ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                    do {
+                        ::MODIFIED($List__);
+                        $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    $thing;
+                    do {
+                        if (
+                            ::DISPATCH(
+                                ::DISPATCH(
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_infix_58__60_eq_62_,
                                         'APPLY',
-                                        ::DISPATCH(
-                                            $GLOBAL::Code_prefix_58__60__64__62_,
-                                            'APPLY',
-                                            ::DISPATCH( $self, "things" )
-                                        )
-                                      )->{_value}{_array}
-                                }
-                              )
+                                        ::DISPATCH( $self, "type" ),
+                                        ::DISPATCH( $::Str, 'new', 'any' )
+                                    ),
+                                    "true"
+                                ),
+                                "p5landish"
+                            )
+                          )
+                        {
                             {
-                                my $thing;
-                                $thing = ::DISPATCH(
-                                    $::Scalar,
-                                    'new',
-                                    {
-                                        modified => $_MODIFIED,
-                                        name     => '$thing'
-                                    }
-                                ) unless defined $thing;
-
-                                BEGIN {
+                                {
+                                    my $thing;
                                     $thing = ::DISPATCH(
                                         $::Scalar,
                                         'new',
@@ -475,64 +239,372 @@
                                             modified => $_MODIFIED,
                                             name     => '$thing'
                                         }
-                                    );
-                                }
-                                do {
-                                    if (
-                                        ::DISPATCH(
-                                            ::DISPATCH( $thing, "true" ),
-                                            "p5landish"
-                                        )
+                                    ) unless defined $thing;
+
+                                    BEGIN {
+                                        $thing = ::DISPATCH(
+                                            $::Scalar,
+                                            'new',
+                                            {
+                                                modified => $_MODIFIED,
+                                                name     => '$thing'
+                                            }
+                                        );
+                                    }
+                                    for $thing (
+                                        @{ ::DISPATCH(
+                                                $GLOBAL::Code_prefix_58__60__64__62_,
+                                                'APPLY',
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_prefix_58__60__64__62_,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $self, "things"
+                                                    )
+                                                )
+                                              )->{_value}{_array}
+                                        }
                                       )
                                     {
-                                        ::DISPATCH(
-                                            $GLOBAL::Code_prefix_58__60__43__43__62_,
-                                            'APPLY', $counter
-                                        );
-                                        do {
-                                            if (
-                                                ::DISPATCH(
+                                        {
+                                            do {
+                                                if (
                                                     ::DISPATCH(
                                                         ::DISPATCH(
-                                                            $GLOBAL::Code_infix_58__60__62__62_,
-                                                            'APPLY',
-                                                            $counter,
+                                                            $thing, "true"
+                                                        ),
+                                                        "p5landish"
+                                                    )
+                                                  )
+                                                {
+                                                    {
+                                                        return (
                                                             ::DISPATCH(
-                                                                $::Int, 'new',
+                                                                $::Bit, 'new',
                                                                 1
                                                             )
-                                                        ),
-                                                        "true"
-                                                    ),
-                                                    "p5landish"
-                                                )
-                                              )
-                                            {
-                                                return (
-                                                    ::DISPATCH(
-                                                        $::Bit, 'new', 0
-                                                    )
-                                                );
-                                            }
-                                          }
+                                                          )
+                                                    }
+                                                }
+                                              }
+                                        }
                                     }
-                                  }
+                                };
+                                return ( ::DISPATCH( $::Bit, 'new', 0 ) )
                             }
-                        };
-                        return (
+                        }
+                    };
+                    do {
+                        if (
                             ::DISPATCH(
-                                $GLOBAL::Code_infix_58__60__61__61__62_,
-                                'APPLY', $counter,
-                                ::DISPATCH( $::Int, 'new', 1 )
+                                ::DISPATCH(
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_infix_58__60_eq_62_,
+                                        'APPLY',
+                                        ::DISPATCH( $self, "type" ),
+                                        ::DISPATCH( $::Str, 'new', 'all' )
+                                    ),
+                                    "true"
+                                ),
+                                "p5landish"
                             )
-                        );
-                    }
-                  }
-            }
-        )
-      )
+                          )
+                        {
+                            {
+                                {
+                                    my $thing;
+                                    $thing = ::DISPATCH(
+                                        $::Scalar,
+                                        'new',
+                                        {
+                                            modified => $_MODIFIED,
+                                            name     => '$thing'
+                                        }
+                                    ) unless defined $thing;
 
-      ;
+                                    BEGIN {
+                                        $thing = ::DISPATCH(
+                                            $::Scalar,
+                                            'new',
+                                            {
+                                                modified => $_MODIFIED,
+                                                name     => '$thing'
+                                            }
+                                        );
+                                    }
+                                    for $thing (
+                                        @{ ::DISPATCH(
+                                                $GLOBAL::Code_prefix_58__60__64__62_,
+                                                'APPLY',
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_prefix_58__60__64__62_,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $self, "things"
+                                                    )
+                                                )
+                                              )->{_value}{_array}
+                                        }
+                                      )
+                                    {
+                                        {
+                                            do {
+                                                if (
+                                                    ::DISPATCH(
+                                                        ::DISPATCH(
+                                                            ::DISPATCH(
+                                                                $GLOBAL::Code_prefix_58__60__33__62_,
+                                                                'APPLY',
+                                                                $thing
+                                                            ),
+                                                            "true"
+                                                        ),
+                                                        "p5landish"
+                                                    )
+                                                  )
+                                                {
+                                                    {
+                                                        return (
+                                                            ::DISPATCH(
+                                                                $::Bit, 'new',
+                                                                0
+                                                            )
+                                                          )
+                                                    }
+                                                }
+                                              }
+                                        }
+                                    }
+                                };
+                                return ( ::DISPATCH( $::Bit, 'new', 1 ) )
+                            }
+                        }
+                    };
+                    do {
+                        if (
+                            ::DISPATCH(
+                                ::DISPATCH(
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_infix_58__60_eq_62_,
+                                        'APPLY',
+                                        ::DISPATCH( $self, "type" ),
+                                        ::DISPATCH( $::Str, 'new', 'none' )
+                                    ),
+                                    "true"
+                                ),
+                                "p5landish"
+                            )
+                          )
+                        {
+                            {
+                                {
+                                    my $thing;
+                                    $thing = ::DISPATCH(
+                                        $::Scalar,
+                                        'new',
+                                        {
+                                            modified => $_MODIFIED,
+                                            name     => '$thing'
+                                        }
+                                    ) unless defined $thing;
+
+                                    BEGIN {
+                                        $thing = ::DISPATCH(
+                                            $::Scalar,
+                                            'new',
+                                            {
+                                                modified => $_MODIFIED,
+                                                name     => '$thing'
+                                            }
+                                        );
+                                    }
+                                    for $thing (
+                                        @{ ::DISPATCH(
+                                                $GLOBAL::Code_prefix_58__60__64__62_,
+                                                'APPLY',
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_prefix_58__60__64__62_,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $self, "things"
+                                                    )
+                                                )
+                                              )->{_value}{_array}
+                                        }
+                                      )
+                                    {
+                                        {
+                                            do {
+                                                if (
+                                                    ::DISPATCH(
+                                                        ::DISPATCH(
+                                                            $thing, "true"
+                                                        ),
+                                                        "p5landish"
+                                                    )
+                                                  )
+                                                {
+                                                    {
+                                                        return (
+                                                            ::DISPATCH(
+                                                                $::Bit, 'new',
+                                                                0
+                                                            )
+                                                          )
+                                                    }
+                                                }
+                                              }
+                                        }
+                                    }
+                                };
+                                return ( ::DISPATCH( $::Bit, 'new', 1 ) )
+                            }
+                        }
+                    };
+                    do {
+                        if (
+                            ::DISPATCH(
+                                ::DISPATCH(
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_infix_58__60_eq_62_,
+                                        'APPLY',
+                                        ::DISPATCH( $self, "type" ),
+                                        ::DISPATCH( $::Str, 'new', 'one' )
+                                    ),
+                                    "true"
+                                ),
+                                "p5landish"
+                            )
+                          )
+                        {
+                            {
+                                my $counter;
+                                $counter = ::DISPATCH(
+                                    $::Scalar,
+                                    'new',
+                                    {
+                                        modified => $_MODIFIED,
+                                        name     => '$counter'
+                                    }
+                                ) unless defined $counter;
+
+                                BEGIN {
+                                    $counter = ::DISPATCH(
+                                        $::Scalar,
+                                        'new',
+                                        {
+                                            modified => $_MODIFIED,
+                                            name     => '$counter'
+                                        }
+                                    );
+                                }
+                                ::DISPATCH_VAR( $counter, 'STORE',
+                                    ::DISPATCH( $::Int, 'new', 0 ) );
+                                {
+                                    my $thing;
+                                    $thing = ::DISPATCH(
+                                        $::Scalar,
+                                        'new',
+                                        {
+                                            modified => $_MODIFIED,
+                                            name     => '$thing'
+                                        }
+                                    ) unless defined $thing;
+
+                                    BEGIN {
+                                        $thing = ::DISPATCH(
+                                            $::Scalar,
+                                            'new',
+                                            {
+                                                modified => $_MODIFIED,
+                                                name     => '$thing'
+                                            }
+                                        );
+                                    }
+                                    for $thing (
+                                        @{ ::DISPATCH(
+                                                $GLOBAL::Code_prefix_58__60__64__62_,
+                                                'APPLY',
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_prefix_58__60__64__62_,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $self, "things"
+                                                    )
+                                                )
+                                              )->{_value}{_array}
+                                        }
+                                      )
+                                    {
+                                        {
+                                            do {
+                                                if (
+                                                    ::DISPATCH(
+                                                        ::DISPATCH(
+                                                            $thing, "true"
+                                                        ),
+                                                        "p5landish"
+                                                    )
+                                                  )
+                                                {
+                                                    {
+                                                        ::DISPATCH(
+                                                            $GLOBAL::Code_prefix_58__60__43__43__62_,
+                                                            'APPLY',
+                                                            $counter
+                                                        );
+                                                        do {
+                                                            if (
+                                                                ::DISPATCH(
+                                                                    ::DISPATCH(
+                                                                        ::DISPATCH(
+                                                                            $GLOBAL::Code_infix_58__60__62__62_,
+'APPLY',
+                                                                            $counter,
+                                                                            ::DISPATCH(
+                                                                                $::Int,
+'new',
+                                                                                1
+                                                                            )
+                                                                        ),
+                                                                        "true"
+                                                                    ),
+                                                                    "p5landish"
+                                                                )
+                                                              )
+                                                            {
+                                                                {
+                                                                    return (
+                                                                        ::DISPATCH(
+                                                                            $::Bit,
+'new',
+                                                                            0
+                                                                        )
+                                                                      )
+                                                                }
+                                                            }
+                                                          }
+                                                    }
+                                                }
+                                              }
+                                        }
+                                    }
+                                };
+                                return (
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_infix_58__60__61__61__62_,
+                                        'APPLY',
+                                        $counter,
+                                        ::DISPATCH( $::Int, 'new', 1 )
+                                    )
+                                  )
+                            }
+                        }
+                      }
+                }
+            )
+          )
+    };
     1
 }
 

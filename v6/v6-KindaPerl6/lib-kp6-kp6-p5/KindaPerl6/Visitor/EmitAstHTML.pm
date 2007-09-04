@@ -16,184 +16,171 @@
           ::DISPATCH( $::Scalar, "new",
             { modified => $_MODIFIED, name => "$_" } );
     }
-    do {
-        if (
-            ::DISPATCH(
+    {
+        do {
+            if (
                 ::DISPATCH(
                     ::DISPATCH(
-                        $GLOBAL::Code_VAR_defined, 'APPLY',
-                        $::KindaPerl6::Visitor::EmitAstHTML
-                    ),
-                    "true"
-                ),
-                "p5landish"
-            )
-          )
-        {
-        }
-        else {
-            do {
-                ::MODIFIED($::KindaPerl6::Visitor::EmitAstHTML);
-                $::KindaPerl6::Visitor::EmitAstHTML = ::DISPATCH(
-                    ::DISPATCH(
-                        $::Class, 'new',
                         ::DISPATCH(
-                            $::Str, 'new',
-                            'KindaPerl6::Visitor::EmitAstHTML'
-                        )
+                            $GLOBAL::Code_VAR_defined, 'APPLY',
+                            $::KindaPerl6::Visitor::EmitAstHTML
+                        ),
+                        "true"
                     ),
-                    'PROTOTYPE',
-                );
-              }
-        }
-    };
-    ::DISPATCH(
-        ::DISPATCH( $::KindaPerl6::Visitor::EmitAstHTML, 'HOW', ),
-        'add_method',
-        ::DISPATCH( $::Str, 'new', 'visit' ),
+                    "p5landish"
+                )
+              )
+            {
+            }
+            else {
+                {
+                    do {
+                        ::MODIFIED($::KindaPerl6::Visitor::EmitAstHTML);
+                        $::KindaPerl6::Visitor::EmitAstHTML = ::DISPATCH(
+                            ::DISPATCH(
+                                $::Class, 'new',
+                                ::DISPATCH(
+                                    $::Str, 'new',
+                                    'KindaPerl6::Visitor::EmitAstHTML'
+                                )
+                            ),
+                            'PROTOTYPE',
+                        );
+                      }
+                }
+            }
+        };
         ::DISPATCH(
-            $::Method,
-            'new',
-            sub {
-                my $result;
-                $result =
-                  ::DISPATCH( $::Scalar, 'new',
-                    { modified => $_MODIFIED, name => '$result' } )
-                  unless defined $result;
-
-                BEGIN {
+            ::DISPATCH( $::KindaPerl6::Visitor::EmitAstHTML, 'HOW', ),
+            'add_method',
+            ::DISPATCH( $::Str, 'new', 'visit' ),
+            ::DISPATCH(
+                $::Method,
+                'new',
+                sub {
+                    my $result;
                     $result =
                       ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$result' } );
-                }
-                my $data;
-                $data =
-                  ::DISPATCH( $::Scalar, 'new',
-                    { modified => $_MODIFIED, name => '$data' } )
-                  unless defined $data;
+                        { modified => $_MODIFIED, name => '$result' } )
+                      unless defined $result;
 
-                BEGIN {
+                    BEGIN {
+                        $result =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$result' } );
+                    }
+                    my $data;
                     $data =
                       ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$data' } );
-                }
-                my $List__ =
-                  ::DISPATCH( $::Array, 'new',
-                    { modified => $_MODIFIED, name => '$List__' } );
-                my $node;
-                $node =
-                  ::DISPATCH( $::Scalar, 'new',
-                    { modified => $_MODIFIED, name => '$node' } )
-                  unless defined $node;
+                        { modified => $_MODIFIED, name => '$data' } )
+                      unless defined $data;
 
-                BEGIN {
+                    BEGIN {
+                        $data =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$data' } );
+                    }
+                    my $List__ =
+                      ::DISPATCH( $::Array, 'new',
+                        { modified => $_MODIFIED, name => '$List__' } );
+                    my $node;
                     $node =
                       ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$node' } );
-                }
-                my $node_name;
-                $node_name =
-                  ::DISPATCH( $::Scalar, 'new',
-                    { modified => $_MODIFIED, name => '$node_name' } )
-                  unless defined $node_name;
+                        { modified => $_MODIFIED, name => '$node' } )
+                      unless defined $node;
 
-                BEGIN {
+                    BEGIN {
+                        $node =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$node' } );
+                    }
+                    my $node_name;
                     $node_name =
                       ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$node_name' } );
-                }
-                $self = shift;
-                my $CAPTURE;
-                $CAPTURE =
-                  ::DISPATCH( $::Scalar, 'new',
-                    { modified => $_MODIFIED, name => '$CAPTURE' } )
-                  unless defined $CAPTURE;
+                        { modified => $_MODIFIED, name => '$node_name' } )
+                      unless defined $node_name;
 
-                BEGIN {
+                    BEGIN {
+                        $node_name =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$node_name' } );
+                    }
+                    $self = shift;
+                    my $CAPTURE;
                     $CAPTURE =
                       ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$CAPTURE' } );
-                }
-                ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
-                do {
-                    ::MODIFIED($List__);
-                    $List__ = ::DISPATCH( $CAPTURE, 'array', );
-                };
-                do {
-                    ::MODIFIED($node);
-                    $node =
-                      ::DISPATCH( $List__, 'INDEX',
-                        ::DISPATCH( $::Int, 'new', 0 ) );
-                };
-                do {
-                    ::MODIFIED($node_name);
-                    $node_name =
-                      ::DISPATCH( $List__, 'INDEX',
-                        ::DISPATCH( $::Int, 'new', 1 ) );
-                };
-                do {
-                    ::MODIFIED($result);
-                    $result = ::DISPATCH( $::Str, 'new', '' );
-                };
-                do {
-                    ::MODIFIED($result);
-                    $result = ::DISPATCH(
-                        $GLOBAL::Code_infix_58__60__126__62_,
-                        'APPLY', $result,
-                        ::DISPATCH(
+                        { modified => $_MODIFIED, name => '$CAPTURE' } )
+                      unless defined $CAPTURE;
+
+                    BEGIN {
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } );
+                    }
+                    ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                    do {
+                        ::MODIFIED($List__);
+                        $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($node);
+                        $node =
+                          ::DISPATCH( $List__, 'INDEX',
+                            ::DISPATCH( $::Int, 'new', 0 ) );
+                    };
+                    do {
+                        ::MODIFIED($node_name);
+                        $node_name =
+                          ::DISPATCH( $List__, 'INDEX',
+                            ::DISPATCH( $::Int, 'new', 1 ) );
+                    };
+                    do {
+                        ::MODIFIED($result);
+                        $result = ::DISPATCH( $::Str, 'new', '' );
+                    };
+                    do {
+                        ::MODIFIED($result);
+                        $result = ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
-                            'APPLY',
-                            ::DISPATCH( $::Str, 'new', '<span class="' ),
+                            'APPLY', $result,
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
+                                ::DISPATCH( $::Str, 'new', '<span class="' ),
                                 ::DISPATCH(
-                                    $GLOBAL::Main::Code_mangle_ident, 'APPLY',
-                                    $node_name
-                                ),
-                                ::DISPATCH( $::Str, 'new', '">' )
-                            )
-                        )
-                    );
-                };
-                do {
-                    ::MODIFIED($result);
-                    $result = ::DISPATCH(
-                        $GLOBAL::Code_infix_58__60__126__62_,
-                        'APPLY', $result,
-                        ::DISPATCH(
-                            $GLOBAL::Code_infix_58__60__126__62_,
-                            'APPLY',
-                            ::DISPATCH( $::Str, 'new', '::' ),
-                            ::DISPATCH(
-                                $GLOBAL::Code_infix_58__60__126__62_,
-                                'APPLY',
-                                $node_name,
-                                ::DISPATCH( $::Str, 'new', '( ' )
-                            )
-                        )
-                    );
-                };
-                do {
-                    ::MODIFIED($data);
-                    $data = ::DISPATCH( $node, 'attribs', );
-                };
-                do {
-                    for my $GLOBAL::item (
-                        @{ ::DISPATCH(
-                                $GLOBAL::Code_prefix_58__60__64__62_,
-                                'APPLY',
-                                ::DISPATCH(
-                                    $GLOBAL::Code_keys,
+                                    $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
                                     ::DISPATCH(
-                                        $GLOBAL::Code_prefix_58__60__37__62_,
-                                        'APPLY', $data
-                                    )
+                                        $GLOBAL::Main::Code_mangle_ident,
+                                        'APPLY', $node_name
+                                    ),
+                                    ::DISPATCH( $::Str, 'new', '">' )
                                 )
-                              )->{_value}{_array}
-                        }
-                      )
+                            )
+                        );
+                    };
+                    do {
+                        ::MODIFIED($result);
+                        $result = ::DISPATCH(
+                            $GLOBAL::Code_infix_58__60__126__62_,
+                            'APPLY', $result,
+                            ::DISPATCH(
+                                $GLOBAL::Code_infix_58__60__126__62_,
+                                'APPLY',
+                                ::DISPATCH( $::Str, 'new', '::' ),
+                                ::DISPATCH(
+                                    $GLOBAL::Code_infix_58__60__126__62_,
+                                    'APPLY',
+                                    $node_name,
+                                    ::DISPATCH( $::Str, 'new', '( ' )
+                                )
+                            )
+                        );
+                    };
+                    do {
+                        ::MODIFIED($data);
+                        $data = ::DISPATCH( $node, 'attribs', );
+                    };
                     {
                         my $item;
                         $item =
@@ -206,157 +193,43 @@
                               ::DISPATCH( $::Scalar, 'new',
                                 { modified => $_MODIFIED, name => '$item' } );
                         }
-                        do {
-                            ::MODIFIED($result);
-                            $result = ::DISPATCH(
-                                $GLOBAL::Code_infix_58__60__126__62_,
-                                'APPLY', $result,
-                                ::DISPATCH(
-                                    $GLOBAL::Code_infix_58__60__126__62_,
+                        for $item (
+                            @{ ::DISPATCH(
+                                    $GLOBAL::Code_prefix_58__60__64__62_,
                                     'APPLY',
-                                    ::DISPATCH( $::Str, 'new', ' ' ),
                                     ::DISPATCH(
-                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                        $GLOBAL::Code_keys,
                                         'APPLY',
-                                        $item,
-                                        ::DISPATCH( $::Str, 'new', ' => ' )
-                                    )
-                                )
-                            );
-                        };
-                        do {
-                            if (
-                                ::DISPATCH(
-                                    ::DISPATCH(
                                         ::DISPATCH(
-                                            ::DISPATCH(
-                                                $data, 'LOOKUP', $item
-                                            ),
-                                            'isa',
-                                            ::DISPATCH(
-                                                $::Str, 'new', 'Array'
-                                            )
-                                        ),
-                                        "true"
-                                    ),
-                                    "p5landish"
-                                )
-                              )
+                                            $GLOBAL::Code_prefix_58__60__37__62_,
+                                            'APPLY',
+                                            $data
+                                        )
+                                    )
+                                  )->{_value}{_array}
+                            }
+                          )
+                        {
                             {
                                 do {
                                     ::MODIFIED($result);
                                     $result = ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
-                                        'APPLY',
-                                        $result,
-                                        ::DISPATCH( $::Str, 'new', '[ ' )
+                                        'APPLY', $result,
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $::Str, 'new', ' ' ),
+                                            ::DISPATCH(
+                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                'APPLY', $item,
+                                                ::DISPATCH(
+                                                    $::Str, 'new', ' => '
+                                                )
+                                            )
+                                        )
                                     );
                                 };
-                                do {
-                                    for my $GLOBAL::subitem (
-                                        @{ ::DISPATCH(
-                                                $GLOBAL::Code_prefix_58__60__64__62_,
-                                                'APPLY',
-                                                ::DISPATCH(
-                                                    $GLOBAL::Code_prefix_58__60__64__62_,
-                                                    'APPLY',
-                                                    ::DISPATCH(
-                                                        $data, 'LOOKUP',
-                                                        $item
-                                                    )
-                                                )
-                                              )->{_value}{_array}
-                                        }
-                                      )
-                                    {
-                                        my $subitem;
-                                        $subitem = ::DISPATCH(
-                                            $::Scalar,
-                                            'new',
-                                            {
-                                                modified => $_MODIFIED,
-                                                name     => '$subitem'
-                                            }
-                                        ) unless defined $subitem;
-
-                                        BEGIN {
-                                            $subitem = ::DISPATCH(
-                                                $::Scalar,
-                                                'new',
-                                                {
-                                                    modified => $_MODIFIED,
-                                                    name     => '$subitem'
-                                                }
-                                            );
-                                        }
-                                        do {
-                                            if (
-                                                ::DISPATCH(
-                                                    ::DISPATCH(
-                                                        ::DISPATCH(
-                                                            $subitem,
-                                                            'isa',
-                                                            ::DISPATCH(
-                                                                $::Str,
-                                                                'new',
-                                                                'Array'
-                                                            )
-                                                        ),
-                                                        "true"
-                                                    ),
-                                                    "p5landish"
-                                                )
-                                              )
-                                            {
-                                                do {
-                                                    ::MODIFIED($result);
-                                                    $result = ::DISPATCH(
-                                                        $GLOBAL::Code_infix_58__60__126__62_,
-                                                        'APPLY', $result,
-                                                        ::DISPATCH(
-                                                            $::Str,
-                                                            'new',
-                                                            ' [ ... ], '
-                                                        )
-                                                    );
-                                                  }
-                                            }
-                                            else {
-                                                do {
-                                                    ::MODIFIED($result);
-                                                    $result = ::DISPATCH(
-                                                        $GLOBAL::Code_infix_58__60__126__62_,
-                                                        'APPLY', $result,
-                                                        ::DISPATCH(
-                                                            $GLOBAL::Code_infix_58__60__126__62_,
-                                                            'APPLY',
-                                                            ::DISPATCH(
-                                                                $subitem,
-                                                                'emit',
-                                                                $self
-                                                            ),
-                                                            ::DISPATCH(
-                                                                $::Str, 'new',
-                                                                ', '
-                                                            )
-                                                        )
-                                                    );
-                                                  }
-                                            }
-                                          }
-                                    }
-                                };
-                                do {
-                                    ::MODIFIED($result);
-                                    $result = ::DISPATCH(
-                                        $GLOBAL::Code_infix_58__60__126__62_,
-                                        'APPLY',
-                                        $result,
-                                        ::DISPATCH( $::Str, 'new', ' ], ' )
-                                    );
-                                  }
-                            }
-                            else {
                                 do {
                                     if (
                                         ::DISPATCH(
@@ -369,7 +242,7 @@
                                                     'isa',
                                                     ::DISPATCH(
                                                         $::Str, 'new',
-                                                        'Hash'
+                                                        'Array'
                                                     )
                                                 ),
                                                 "true"
@@ -378,37 +251,17 @@
                                         )
                                       )
                                     {
-                                        do {
-                                            ::MODIFIED($result);
-                                            $result = ::DISPATCH(
-                                                $GLOBAL::Code_infix_58__60__126__62_,
-                                                'APPLY', $result,
-                                                ::DISPATCH(
-                                                    $::Str, 'new', '{ '
-                                                )
-                                            );
-                                        };
-                                        do {
-                                            for my $GLOBAL::subitem (
-                                                @{ ::DISPATCH(
-                                                        $GLOBAL::Code_prefix_58__60__64__62_,
-                                                        'APPLY',
-                                                        ::DISPATCH(
-                                                            $GLOBAL::Code_keys,
-                                                            'APPLY',
-                                                            ::DISPATCH(
-                                                                $GLOBAL::Code_prefix_58__60__37__62_,
-                                                                'APPLY',
-                                                                ::DISPATCH(
-                                                                    $data,
-                                                                    'LOOKUP',
-                                                                    $item
-                                                                )
-                                                            )
-                                                        )
-                                                      )->{_value}{_array}
-                                                }
-                                              )
+                                        {
+                                            do {
+                                                ::MODIFIED($result);
+                                                $result = ::DISPATCH(
+                                                    $GLOBAL::Code_infix_58__60__126__62_,
+                                                    'APPLY', $result,
+                                                    ::DISPATCH(
+                                                        $::Str, 'new', '[ '
+                                                    )
+                                                );
+                                            };
                                             {
                                                 my $subitem;
                                                 $subitem = ::DISPATCH(
@@ -431,26 +284,277 @@
                                                         }
                                                     );
                                                 }
-                                                do {
-                                                    ::MODIFIED($result);
-                                                    $result = ::DISPATCH(
-                                                        $GLOBAL::Code_infix_58__60__126__62_,
-                                                        'APPLY', $result,
-                                                        ::DISPATCH(
-                                                            $GLOBAL::Code_infix_58__60__126__62_,
+                                                for $subitem (
+                                                    @{ ::DISPATCH(
+                                                            $GLOBAL::Code_prefix_58__60__64__62_,
                                                             'APPLY',
-                                                            $subitem,
                                                             ::DISPATCH(
-                                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                                $GLOBAL::Code_prefix_58__60__64__62_,
                                                                 'APPLY',
+                                                                ::DISPATCH(
+                                                                    $data,
+                                                                    'LOOKUP',
+                                                                    $item
+                                                                )
+                                                            )
+                                                          )->{_value}{_array}
+                                                    }
+                                                  )
+                                                {
+                                                    {
+                                                        do {
+                                                            if (
+                                                                ::DISPATCH(
+                                                                    ::DISPATCH(
+                                                                        ::DISPATCH(
+                                                                            $subitem,
+'isa',
+                                                                            ::DISPATCH(
+                                                                                $::Str,
+'new',
+'Array'
+                                                                            )
+                                                                        ),
+                                                                        "true"
+                                                                    ),
+                                                                    "p5landish"
+                                                                )
+                                                              )
+                                                            {
+                                                                {
+                                                                    do {
+                                                                        ::MODIFIED(
+                                                                            $result
+                                                                        );
+                                                                        $result
+                                                                          = ::DISPATCH(
+                                                                            $GLOBAL::Code_infix_58__60__126__62_,
+'APPLY',
+                                                                            $result,
+                                                                            ::DISPATCH(
+                                                                                $::Str,
+'new',
+' [ ... ], '
+                                                                            )
+                                                                          );
+                                                                      }
+                                                                }
+                                                            }
+                                                            else {
+                                                                {
+                                                                    do {
+                                                                        ::MODIFIED(
+                                                                            $result
+                                                                        );
+                                                                        $result
+                                                                          = ::DISPATCH(
+                                                                            $GLOBAL::Code_infix_58__60__126__62_,
+'APPLY',
+                                                                            $result,
+                                                                            ::DISPATCH(
+                                                                                $GLOBAL::Code_infix_58__60__126__62_,
+'APPLY',
+                                                                                ::DISPATCH(
+                                                                                    $subitem,
+'emit',
+                                                                                    $self
+                                                                                  )
+                                                                                ,
+                                                                                ::DISPATCH(
+                                                                                    $::Str,
+'new',
+', '
+                                                                                )
+                                                                            )
+                                                                          );
+                                                                      }
+                                                                }
+                                                            }
+                                                          }
+                                                    }
+                                                }
+                                            };
+                                            do {
+                                                ::MODIFIED($result);
+                                                $result = ::DISPATCH(
+                                                    $GLOBAL::Code_infix_58__60__126__62_,
+                                                    'APPLY', $result,
+                                                    ::DISPATCH(
+                                                        $::Str, 'new',
+                                                        ' ], '
+                                                    )
+                                                );
+                                              }
+                                        }
+                                    }
+                                    else {
+                                        {
+                                            do {
+                                                if (
+                                                    ::DISPATCH(
+                                                        ::DISPATCH(
+                                                            ::DISPATCH(
+                                                                ::DISPATCH(
+                                                                    $data,
+                                                                    'LOOKUP',
+                                                                    $item
+                                                                ),
+                                                                'isa',
                                                                 ::DISPATCH(
                                                                     $::Str,
                                                                     'new',
-                                                                    ' => '
-                                                                ),
+                                                                    'Hash'
+                                                                )
+                                                            ),
+                                                            "true"
+                                                        ),
+                                                        "p5landish"
+                                                    )
+                                                  )
+                                                {
+                                                    {
+                                                        do {
+                                                            ::MODIFIED($result);
+                                                            $result =
+                                                              ::DISPATCH(
+                                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                                'APPLY',
+                                                                $result,
                                                                 ::DISPATCH(
-                                                                    $GLOBAL::Code_infix_58__60__126__62_,
-                                                                    'APPLY',
+                                                                    $::Str,
+                                                                    'new',
+                                                                    '{ '
+                                                                )
+                                                              );
+                                                        };
+                                                        {
+                                                            my $subitem;
+                                                            $subitem =
+                                                              ::DISPATCH(
+                                                                $::Scalar,
+                                                                'new',
+                                                                {
+                                                                    modified =>
+                                                                      $_MODIFIED,
+                                                                    name =>
+                                                                      '$subitem'
+                                                                }
+                                                              )
+                                                              unless defined
+                                                                  $subitem;
+
+                                                            BEGIN {
+                                                                $subitem =
+                                                                  ::DISPATCH(
+                                                                    $::Scalar,
+                                                                    'new',
+                                                                    {
+                                                                        modified =>
+                                                                          $_MODIFIED,
+                                                                        name =>
+'$subitem'
+                                                                    }
+                                                                  );
+                                                            }
+                                                            for $subitem (
+                                                                @{ ::DISPATCH(
+                                                                        $GLOBAL::Code_prefix_58__60__64__62_,
+                                                                        'APPLY',
+                                                                        ::DISPATCH(
+                                                                            $GLOBAL::Code_keys,
+'APPLY',
+                                                                            ::DISPATCH(
+                                                                                $GLOBAL::Code_prefix_58__60__37__62_,
+'APPLY',
+                                                                                ::DISPATCH(
+                                                                                    $data,
+'LOOKUP',
+                                                                                    $item
+                                                                                )
+                                                                            )
+                                                                        )
+                                                                      )
+                                                                      ->{_value}
+                                                                      {_array}
+                                                                }
+                                                              )
+                                                            {
+                                                                {
+                                                                    do {
+                                                                        ::MODIFIED(
+                                                                            $result
+                                                                        );
+                                                                        $result
+                                                                          = ::DISPATCH(
+                                                                            $GLOBAL::Code_infix_58__60__126__62_,
+'APPLY',
+                                                                            $result,
+                                                                            ::DISPATCH(
+                                                                                $GLOBAL::Code_infix_58__60__126__62_,
+'APPLY',
+                                                                                $subitem,
+                                                                                ::DISPATCH(
+                                                                                    $GLOBAL::Code_infix_58__60__126__62_,
+'APPLY',
+                                                                                    ::DISPATCH(
+                                                                                        $::Str,
+'new',
+' => '
+                                                                                      )
+                                                                                    ,
+                                                                                    ::DISPATCH(
+                                                                                        $GLOBAL::Code_infix_58__60__126__62_,
+'APPLY',
+                                                                                        ::DISPATCH(
+                                                                                            ::DISPATCH(
+                                                                                                ::DISPATCH(
+                                                                                                    $data,
+'LOOKUP',
+                                                                                                    $item
+                                                                                                  )
+                                                                                                ,
+'LOOKUP',
+                                                                                                $subitem
+                                                                                              )
+                                                                                            ,
+'emit',
+                                                                                            $self
+                                                                                          )
+                                                                                        ,
+                                                                                        ::DISPATCH(
+                                                                                            $::Str,
+'new',
+', '
+                                                                                        )
+                                                                                    )
+                                                                                )
+                                                                            )
+                                                                          );
+                                                                      }
+                                                                }
+                                                            }
+                                                        };
+                                                        do {
+                                                            ::MODIFIED($result);
+                                                            $result =
+                                                              ::DISPATCH(
+                                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                                'APPLY',
+                                                                $result,
+                                                                ::DISPATCH(
+                                                                    $::Str,
+                                                                    'new',
+                                                                    ' }, '
+                                                                )
+                                                              );
+                                                          }
+                                                    }
+                                                }
+                                                else {
+                                                    {
+                                                        do {
+                                                            if (
+                                                                ::DISPATCH(
                                                                     ::DISPATCH(
                                                                         ::DISPATCH(
                                                                             ::DISPATCH(
@@ -458,137 +562,121 @@
 'LOOKUP',
                                                                                 $item
                                                                             ),
-'LOOKUP',
-                                                                            $subitem
+'isa',
+                                                                            ::DISPATCH(
+                                                                                $::Str,
+'new',
+'Str'
+                                                                            )
                                                                         ),
-                                                                        'emit',
-                                                                        $self
+                                                                        "true"
                                                                     ),
-                                                                    ::DISPATCH(
-                                                                        $::Str,
-                                                                        'new',
-                                                                        ', '
-                                                                    )
+                                                                    "p5landish"
                                                                 )
-                                                            )
-                                                        )
-                                                    );
-                                                  }
-                                            }
-                                        };
-                                        do {
-                                            ::MODIFIED($result);
-                                            $result = ::DISPATCH(
-                                                $GLOBAL::Code_infix_58__60__126__62_,
-                                                'APPLY', $result,
-                                                ::DISPATCH(
-                                                    $::Str, 'new', ' }, '
-                                                )
-                                            );
-                                          }
-                                    }
-                                    else {
-                                        do {
-                                            if (
-                                                ::DISPATCH(
-                                                    ::DISPATCH(
-                                                        ::DISPATCH(
-                                                            ::DISPATCH(
-                                                                $data,
-                                                                'LOOKUP',
-                                                                $item
-                                                            ),
-                                                            'isa',
-                                                            ::DISPATCH(
-                                                                $::Str, 'new',
-                                                                'Str'
-                                                            )
-                                                        ),
-                                                        "true"
-                                                    ),
-                                                    "p5landish"
-                                                )
-                                              )
-                                            {
-                                                do {
-                                                    ::MODIFIED($result);
-                                                    $result = ::DISPATCH(
-                                                        $GLOBAL::Code_infix_58__60__126__62_,
-                                                        'APPLY', $result,
-                                                        ::DISPATCH(
-                                                            $GLOBAL::Code_infix_58__60__126__62_,
-                                                            'APPLY',
-                                                            ::DISPATCH(
-                                                                $::Str, 'new',
-                                                                '\\\''
-                                                            ),
-                                                            ::DISPATCH(
-                                                                $GLOBAL::Code_infix_58__60__126__62_,
-                                                                'APPLY',
-                                                                ::DISPATCH(
-                                                                    $data,
-                                                                    'LOOKUP',
-                                                                    $item
-                                                                ),
-                                                                ::DISPATCH(
-                                                                    $::Str,
-                                                                    'new',
-                                                                    '\\\', '
-                                                                )
-                                                            )
-                                                        )
-                                                    );
-                                                  }
-                                            }
-                                            else {
-                                                do {
-                                                    ::MODIFIED($result);
-                                                    $result = ::DISPATCH(
-                                                        $GLOBAL::Code_infix_58__60__126__62_,
-                                                        'APPLY', $result,
-                                                        ::DISPATCH(
-                                                            $GLOBAL::Code_infix_58__60__126__62_,
-                                                            'APPLY',
-                                                            ::DISPATCH(
-                                                                ::DISPATCH(
-                                                                    $data,
-                                                                    'LOOKUP',
-                                                                    $item
-                                                                ),
-                                                                'emit',
-                                                                $self
-                                                            ),
-                                                            ::DISPATCH(
-                                                                $::Str, 'new',
-                                                                ', '
-                                                            )
-                                                        )
-                                                    );
-                                                  }
-                                            }
-                                          }
+                                                              )
+                                                            {
+                                                                {
+                                                                    do {
+                                                                        ::MODIFIED(
+                                                                            $result
+                                                                        );
+                                                                        $result
+                                                                          = ::DISPATCH(
+                                                                            $GLOBAL::Code_infix_58__60__126__62_,
+'APPLY',
+                                                                            $result,
+                                                                            ::DISPATCH(
+                                                                                $GLOBAL::Code_infix_58__60__126__62_,
+'APPLY',
+                                                                                ::DISPATCH(
+                                                                                    $::Str,
+'new',
+'\\\''
+                                                                                  )
+                                                                                ,
+                                                                                ::DISPATCH(
+                                                                                    $GLOBAL::Code_infix_58__60__126__62_,
+'APPLY',
+                                                                                    ::DISPATCH(
+                                                                                        $data,
+'LOOKUP',
+                                                                                        $item
+                                                                                      )
+                                                                                    ,
+                                                                                    ::DISPATCH(
+                                                                                        $::Str,
+'new',
+'\\\', '
+                                                                                    )
+                                                                                )
+                                                                            )
+                                                                          );
+                                                                      }
+                                                                }
+                                                            }
+                                                            else {
+                                                                {
+                                                                    do {
+                                                                        ::MODIFIED(
+                                                                            $result
+                                                                        );
+                                                                        $result
+                                                                          = ::DISPATCH(
+                                                                            $GLOBAL::Code_infix_58__60__126__62_,
+'APPLY',
+                                                                            $result,
+                                                                            ::DISPATCH(
+                                                                                $GLOBAL::Code_infix_58__60__126__62_,
+'APPLY',
+                                                                                ::DISPATCH(
+                                                                                    ::DISPATCH(
+                                                                                        $data,
+'LOOKUP',
+                                                                                        $item
+                                                                                      )
+                                                                                    ,
+'emit',
+                                                                                    $self
+                                                                                  )
+                                                                                ,
+                                                                                ::DISPATCH(
+                                                                                    $::Str,
+'new',
+', '
+                                                                                )
+                                                                            )
+                                                                          );
+                                                                      }
+                                                                }
+                                                            }
+                                                          }
+                                                    }
+                                                }
+                                              }
+                                        }
                                     }
                                   }
                             }
-                          }
-                    }
-                };
-                do {
-                    ::MODIFIED($result);
-                    $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_,
-                        'APPLY', $result, ::DISPATCH( $::Str, 'new', ') ' ) );
-                };
-                do {
-                    ::MODIFIED($result);
-                    $result = ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_,
-                        'APPLY', $result,
-                        ::DISPATCH( $::Str, 'new', '</span>' ) );
-                  }
-            }
-        )
-      )
-
-      ;
+                        }
+                    };
+                    do {
+                        ::MODIFIED($result);
+                        $result =
+                          ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_,
+                            'APPLY', $result,
+                            ::DISPATCH( $::Str, 'new', ') ' ) );
+                    };
+                    do {
+                        ::MODIFIED($result);
+                        $result =
+                          ::DISPATCH( $GLOBAL::Code_infix_58__60__126__62_,
+                            'APPLY', $result,
+                            ::DISPATCH( $::Str, 'new', '</span>' ) );
+                      }
+                }
+            )
+          )
+    };
     1
 }
 

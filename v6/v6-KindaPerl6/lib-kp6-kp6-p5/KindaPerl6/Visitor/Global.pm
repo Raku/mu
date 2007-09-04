@@ -16,174 +16,148 @@
           ::DISPATCH( $::Scalar, "new",
             { modified => $_MODIFIED, name => "$_" } );
     }
-    do {
-        if (
-            ::DISPATCH(
+    {
+        do {
+            if (
                 ::DISPATCH(
                     ::DISPATCH(
-                        $GLOBAL::Code_VAR_defined, 'APPLY',
-                        $::KindaPerl6::Visitor::Global
-                    ),
-                    "true"
-                ),
-                "p5landish"
-            )
-          )
-        {
-        }
-        else {
-            do {
-                ::MODIFIED($::KindaPerl6::Visitor::Global);
-                $::KindaPerl6::Visitor::Global = ::DISPATCH(
-                    ::DISPATCH(
-                        $::Class, 'new',
                         ::DISPATCH(
-                            $::Str, 'new', 'KindaPerl6::Visitor::Global'
-                        )
+                            $GLOBAL::Code_VAR_defined, 'APPLY',
+                            $::KindaPerl6::Visitor::Global
+                        ),
+                        "true"
                     ),
-                    'PROTOTYPE',
-                );
-              }
-        }
-    };
-    ::DISPATCH(
-        ::DISPATCH( $::KindaPerl6::Visitor::Global, 'HOW', ),
-        'add_attribute',
-        ::DISPATCH( $::Str, 'new', 'pad' )
-    );
-    ::DISPATCH(
-        ::DISPATCH( $::KindaPerl6::Visitor::Global, 'HOW', ),
-        'add_method',
-        ::DISPATCH( $::Str, 'new', 'visit' ),
+                    "p5landish"
+                )
+              )
+            {
+            }
+            else {
+                {
+                    do {
+                        ::MODIFIED($::KindaPerl6::Visitor::Global);
+                        $::KindaPerl6::Visitor::Global = ::DISPATCH(
+                            ::DISPATCH(
+                                $::Class, 'new',
+                                ::DISPATCH(
+                                    $::Str, 'new',
+                                    'KindaPerl6::Visitor::Global'
+                                )
+                            ),
+                            'PROTOTYPE',
+                        );
+                      }
+                }
+            }
+        };
         ::DISPATCH(
-            $::Method,
-            'new',
-            sub {
-                my $List__ =
-                  ::DISPATCH( $::Array, 'new',
-                    { modified => $_MODIFIED, name => '$List__' } );
-                my $node;
-                $node =
-                  ::DISPATCH( $::Scalar, 'new',
-                    { modified => $_MODIFIED, name => '$node' } )
-                  unless defined $node;
-
-                BEGIN {
+            ::DISPATCH( $::KindaPerl6::Visitor::Global, 'HOW', ),
+            'add_attribute',
+            ::DISPATCH( $::Str, 'new', 'pad' )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::KindaPerl6::Visitor::Global, 'HOW', ),
+            'add_method',
+            ::DISPATCH( $::Str, 'new', 'visit' ),
+            ::DISPATCH(
+                $::Method,
+                'new',
+                sub {
+                    my $List__ =
+                      ::DISPATCH( $::Array, 'new',
+                        { modified => $_MODIFIED, name => '$List__' } );
+                    my $node;
                     $node =
                       ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$node' } );
-                }
-                my $node_name;
-                $node_name =
-                  ::DISPATCH( $::Scalar, 'new',
-                    { modified => $_MODIFIED, name => '$node_name' } )
-                  unless defined $node_name;
+                        { modified => $_MODIFIED, name => '$node' } )
+                      unless defined $node;
 
-                BEGIN {
+                    BEGIN {
+                        $node =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$node' } );
+                    }
+                    my $node_name;
                     $node_name =
                       ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$node_name' } );
-                }
-                $self = shift;
-                my $CAPTURE;
-                $CAPTURE =
-                  ::DISPATCH( $::Scalar, 'new',
-                    { modified => $_MODIFIED, name => '$CAPTURE' } )
-                  unless defined $CAPTURE;
+                        { modified => $_MODIFIED, name => '$node_name' } )
+                      unless defined $node_name;
 
-                BEGIN {
+                    BEGIN {
+                        $node_name =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$node_name' } );
+                    }
+                    $self = shift;
+                    my $CAPTURE;
                     $CAPTURE =
                       ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$CAPTURE' } );
-                }
-                ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
-                do {
-                    ::MODIFIED($List__);
-                    $List__ = ::DISPATCH( $CAPTURE, 'array', );
-                };
-                do {
-                    ::MODIFIED($node);
-                    $node =
-                      ::DISPATCH( $List__, 'INDEX',
-                        ::DISPATCH( $::Int, 'new', 0 ) );
-                };
-                do {
-                    ::MODIFIED($node_name);
-                    $node_name =
-                      ::DISPATCH( $List__, 'INDEX',
-                        ::DISPATCH( $::Int, 'new', 1 ) );
-                };
-                do {
-                    if (
-                        ::DISPATCH(
-                            ::DISPATCH(
-                                ::DISPATCH(
-                                    $GLOBAL::Code_infix_58__60_eq_62_,
-                                    'APPLY',
-                                    $node_name,
-                                    ::DISPATCH( $::Str, 'new', 'CompUnit' )
-                                ),
-                                "true"
-                            ),
-                            "p5landish"
-                        )
-                      )
-                    {
-                        ::DISPATCH( ::DISPATCH( $node, 'body', ),
-                            'emit', $GLOBAL::self );
-                        return ($node);
-                    }
-                };
-                do {
-                    if (
-                        ::DISPATCH(
-                            ::DISPATCH(
-                                ::DISPATCH(
-                                    $GLOBAL::Code_infix_58__60_eq_62_,
-                                    'APPLY',
-                                    $node_name,
-                                    ::DISPATCH( $::Str, 'new', 'Lit::Code' )
-                                ),
-                                "true"
-                            ),
-                            "p5landish"
-                        )
-                      )
-                    {
-                        my $stmt;
-                        $stmt =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$stmt' } )
-                          unless defined $stmt;
+                        { modified => $_MODIFIED, name => '$CAPTURE' } )
+                      unless defined $CAPTURE;
 
-                        BEGIN {
-                            $stmt =
-                              ::DISPATCH( $::Scalar, 'new',
-                                { modified => $_MODIFIED, name => '$stmt' } );
-                        }
-                        ::DISPATCH(
-                            $GLOBAL::Code_unshift,
-                            'APPLY',
+                    BEGIN {
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } );
+                    }
+                    ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                    do {
+                        ::MODIFIED($List__);
+                        $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($node);
+                        $node =
+                          ::DISPATCH( $List__, 'INDEX',
+                            ::DISPATCH( $::Int, 'new', 0 ) );
+                    };
+                    do {
+                        ::MODIFIED($node_name);
+                        $node_name =
+                          ::DISPATCH( $List__, 'INDEX',
+                            ::DISPATCH( $::Int, 'new', 1 ) );
+                    };
+                    do {
+                        if (
                             ::DISPATCH(
-                                $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY',
-                                ::DISPATCH( $self, "pad" )
-                            ),
-                            ::DISPATCH( $node, 'pad', )
-                        );
-                        $stmt;
-                        do {
-                            for my $stmt (
-                                @{ ::DISPATCH(
-                                        $GLOBAL::Code_prefix_58__60__64__62_,
+                                ::DISPATCH(
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_infix_58__60_eq_62_,
                                         'APPLY',
+                                        $node_name,
+                                        ::DISPATCH( $::Str, 'new', 'CompUnit' )
+                                    ),
+                                    "true"
+                                ),
+                                "p5landish"
+                            )
+                          )
+                        {
+                            {
+                                ::DISPATCH( ::DISPATCH( $node, 'body', ),
+                                    'emit', $GLOBAL::self );
+                                return ($node)
+                            }
+                        }
+                    };
+                    do {
+                        if (
+                            ::DISPATCH(
+                                ::DISPATCH(
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_infix_58__60_eq_62_,
+                                        'APPLY',
+                                        $node_name,
                                         ::DISPATCH(
-                                            $GLOBAL::Code_prefix_58__60__64__62_,
-                                            'APPLY',
-                                            ::DISPATCH( $node, 'body', )
+                                            $::Str, 'new', 'Lit::Code'
                                         )
-                                      )->{_value}{_array}
-                                }
-                              )
+                                    ),
+                                    "true"
+                                ),
+                                "p5landish"
+                            )
+                          )
+                        {
                             {
                                 my $stmt;
                                 $stmt = ::DISPATCH( $::Scalar, 'new',
@@ -200,121 +174,124 @@
                                         }
                                     );
                                 }
-                                ::DISPATCH( $stmt, 'emit', $GLOBAL::self );
-                            }
-                        };
-                        ::DISPATCH(
-                            $GLOBAL::Code_shift,
-                            'APPLY',
-                            ::DISPATCH(
-                                $GLOBAL::Code_prefix_58__60__64__62_, 'APPLY',
-                                ::DISPATCH( $self, "pad" )
-                            )
-                        );
-                        return ($node);
-                    }
-                };
-                do {
-                    if (
-                        ::DISPATCH(
-                            ::DISPATCH(
                                 ::DISPATCH(
-                                    $GLOBAL::Code_infix_58__60_eq_62_,
+                                    $GLOBAL::Code_unshift,
                                     'APPLY',
-                                    $node_name,
-                                    ::DISPATCH( $::Str, 'new', 'Var' )
-                                ),
-                                "true"
-                            ),
-                            "p5landish"
-                        )
-                      )
-                    {
-                        do {
-                            if (
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_prefix_58__60__64__62_,
+                                        'APPLY',
+                                        ::DISPATCH( $self, "pad" )
+                                    ),
+                                    ::DISPATCH( $node, 'pad', )
+                                );
+                                $stmt;
+                                {
+                                    my $stmt;
+                                    $stmt = ::DISPATCH(
+                                        $::Scalar,
+                                        'new',
+                                        {
+                                            modified => $_MODIFIED,
+                                            name     => '$stmt'
+                                        }
+                                    ) unless defined $stmt;
+
+                                    BEGIN {
+                                        $stmt = ::DISPATCH(
+                                            $::Scalar,
+                                            'new',
+                                            {
+                                                modified => $_MODIFIED,
+                                                name     => '$stmt'
+                                            }
+                                        );
+                                    }
+                                    for $stmt (
+                                        @{ ::DISPATCH(
+                                                $GLOBAL::Code_prefix_58__60__64__62_,
+                                                'APPLY',
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_prefix_58__60__64__62_,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $node, 'body',
+                                                    )
+                                                )
+                                              )->{_value}{_array}
+                                        }
+                                      )
+                                    {
+                                        {
+                                            ::DISPATCH( $stmt, 'emit',
+                                                $GLOBAL::self )
+                                        }
+                                    }
+                                };
+                                ::DISPATCH(
+                                    $GLOBAL::Code_shift,
+                                    'APPLY',
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_prefix_58__60__64__62_,
+                                        'APPLY',
+                                        ::DISPATCH( $self, "pad" )
+                                    )
+                                );
+                                return ($node)
+                            }
+                        }
+                    };
+                    do {
+                        if (
+                            ::DISPATCH(
                                 ::DISPATCH(
                                     ::DISPATCH(
-                                        ::DISPATCH(
-                                            ::DISPATCH(
-                                                ::DISPATCH( $self, "pad" ),
-                                                'INDEX',
-                                                ::DISPATCH( $::Int, 'new', 0 )
-                                            ),
-                                            'declaration',
-                                            $node
-                                        ),
-                                        "true"
+                                        $GLOBAL::Code_infix_58__60_eq_62_,
+                                        'APPLY',
+                                        $node_name,
+                                        ::DISPATCH( $::Str, 'new', 'Var' )
                                     ),
-                                    "p5landish"
-                                )
-                              )
+                                    "true"
+                                ),
+                                "p5landish"
+                            )
+                          )
+                        {
                             {
-                            }
-                            else {
                                 do {
                                     if (
                                         ::DISPATCH(
                                             ::DISPATCH(
                                                 ::DISPATCH(
-                                                    $GLOBAL::Code_infix_58__60__124__124__62_,
-                                                    'APPLY',
                                                     ::DISPATCH(
-                                                        $GLOBAL::Code_infix_58__60_eq_62_,
-                                                        'APPLY',
                                                         ::DISPATCH(
-                                                            $node, 'name',
+                                                            $self, "pad"
                                                         ),
+                                                        'INDEX',
                                                         ::DISPATCH(
-                                                            $::Str, 'new',
-                                                            '/'
+                                                            $::Int, 'new',
+                                                            0
                                                         )
                                                     ),
+                                                    'declaration',
+                                                    $node
+                                                ),
+                                                "true"
+                                            ),
+                                            "p5landish"
+                                        )
+                                      )
+                                    {
+                                        {};
+                                    }
+                                    else {
+                                        {
+                                            do {
+                                                if (
                                                     ::DISPATCH(
-                                                        $GLOBAL::Code_infix_58__60__124__124__62_,
-                                                        'APPLY',
                                                         ::DISPATCH(
-                                                            $GLOBAL::Code_infix_58__60_eq_62_,
-                                                            'APPLY',
                                                             ::DISPATCH(
-                                                                $node, 'name',
-                                                            ),
-                                                            ::DISPATCH(
-                                                                $::Str, 'new',
-                                                                '_'
-                                                            )
-                                                        ),
-                                                        ::DISPATCH(
-                                                            $GLOBAL::Code_infix_58__60__124__124__62_,
-                                                            'APPLY',
-                                                            ::DISPATCH(
-                                                                $GLOBAL::Code_infix_58__60_eq_62_,
+                                                                $GLOBAL::Code_infix_58__60__124__124__62_,
                                                                 'APPLY',
-                                                                ::DISPATCH(
-                                                                    $node,
-                                                                    'twigil',
-                                                                ),
-                                                                ::DISPATCH(
-                                                                    $::Str,
-                                                                    'new',
-                                                                    '.'
-                                                                )
-                                                            ),
-                                                            ::DISPATCH(
-                                                                $GLOBAL::Code_infix_58__60__38__38__62_,
-                                                                'APPLY',
-                                                                ::DISPATCH(
-                                                                    $GLOBAL::Code_infix_58__60_eq_62_,
-                                                                    'APPLY',
-                                                                    ::DISPATCH(
-                                                                        $node,
-                                                                        'sigil',
-                                                                    ),
-                                                                    ::DISPATCH(
-                                                                        $::Str,
-                                                                        'new',
-                                                                        '&'
-                                                                    )
-                                                                ),
                                                                 ::DISPATCH(
                                                                     $GLOBAL::Code_infix_58__60_eq_62_,
                                                                     'APPLY',
@@ -325,46 +302,118 @@
                                                                     ::DISPATCH(
                                                                         $::Str,
                                                                         'new',
-                                                                        'self'
+                                                                        '/'
+                                                                    )
+                                                                ),
+                                                                ::DISPATCH(
+                                                                    $GLOBAL::Code_infix_58__60__124__124__62_,
+                                                                    'APPLY',
+                                                                    ::DISPATCH(
+                                                                        $GLOBAL::Code_infix_58__60_eq_62_,
+                                                                        'APPLY',
+                                                                        ::DISPATCH(
+                                                                            $node,
+'name',
+                                                                        ),
+                                                                        ::DISPATCH(
+                                                                            $::Str,
+'new',
+                                                                            '_'
+                                                                        )
+                                                                    ),
+                                                                    ::DISPATCH(
+                                                                        $GLOBAL::Code_infix_58__60__124__124__62_,
+                                                                        'APPLY',
+                                                                        ::DISPATCH(
+                                                                            $GLOBAL::Code_infix_58__60_eq_62_,
+'APPLY',
+                                                                            ::DISPATCH(
+                                                                                $node,
+'twigil',
+                                                                            ),
+                                                                            ::DISPATCH(
+                                                                                $::Str,
+'new',
+'.'
+                                                                            )
+                                                                        ),
+                                                                        ::DISPATCH(
+                                                                            $GLOBAL::Code_infix_58__60__38__38__62_,
+'APPLY',
+                                                                            ::DISPATCH(
+                                                                                $GLOBAL::Code_infix_58__60_eq_62_,
+'APPLY',
+                                                                                ::DISPATCH(
+                                                                                    $node,
+'sigil',
+                                                                                  )
+                                                                                ,
+                                                                                ::DISPATCH(
+                                                                                    $::Str,
+'new',
+'&'
+                                                                                )
+                                                                            ),
+                                                                            ::DISPATCH(
+                                                                                $GLOBAL::Code_infix_58__60_eq_62_,
+'APPLY',
+                                                                                ::DISPATCH(
+                                                                                    $node,
+'name',
+                                                                                  )
+                                                                                ,
+                                                                                ::DISPATCH(
+                                                                                    $::Str,
+'new',
+'self'
+                                                                                )
+                                                                            )
+                                                                        )
                                                                     )
                                                                 )
-                                                            )
-                                                        )
+                                                            ),
+                                                            "true"
+                                                        ),
+                                                        "p5landish"
                                                     )
-                                                ),
-                                                "true"
-                                            ),
-                                            "p5landish"
-                                        )
-                                      )
-                                    {
+                                                  )
+                                                {
+                                                    {};
+                                                }
+                                                else {
+                                                    {
+                                                        ::DISPATCH(
+                                                            $node,
+                                                            'name',
+                                                            ::DISPATCH(
+                                                                $GLOBAL::Code_infix_58__60__126__62_,
+                                                                'APPLY',
+                                                                ::DISPATCH(
+                                                                    $::Str,
+                                                                    'new',
+                                                                    'GLOBAL::'
+                                                                ),
+                                                                ::DISPATCH(
+                                                                    $node,
+                                                                    'name',
+                                                                )
+                                                            )
+                                                          )
+                                                    }
+                                                }
+                                              }
+                                        }
                                     }
-                                    else {
-                                        ::DISPATCH(
-                                            $node, 'name',
-                                            ::DISPATCH(
-                                                $GLOBAL::Code_infix_58__60__126__62_,
-                                                'APPLY',
-                                                ::DISPATCH(
-                                                    $::Str, 'new',
-                                                    'GLOBAL::'
-                                                ),
-                                                ::DISPATCH( $node, 'name', )
-                                            )
-                                        );
-                                    }
-                                  }
+                                };
+                                return ($node)
                             }
-                        };
-                        return ($node);
-                    }
-                };
-                return ($::Undef);
-            }
-        )
-      )
-
-      ;
+                        }
+                    };
+                    return ($::Undef);
+                }
+            )
+          )
+    };
     1
 }
 
