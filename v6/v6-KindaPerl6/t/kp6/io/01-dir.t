@@ -5,19 +5,21 @@ module Main {
     say '1..4';
 
     # ----- mkdir / rmdir
-    my $dirname = "/tmp/really_strange_temp_file_name_916532752";
+    my $dirname = "kp6_really_strange_temp_file_name_" ~ Math.rand;
     # delete just for the following tests start with a defined state
     IO.rmdir($dirname);
 
     # create a dir
-    my $ret = IO.mkdir($dirname);
+    my $ret = IO.mkdir($dirname ~ ""); # force stringify
     if ($ret == 0) {
         print "not ";
     };
     say "ok 1";
 
+    sleep 2;
+
     # second create should fail
-    my $ret = IO.mkdir($dirname);
+    my $ret = IO.mkdir($dirname ~ ""); # force stringify
     if ($ret != 0) {
         print "not ";
     };
