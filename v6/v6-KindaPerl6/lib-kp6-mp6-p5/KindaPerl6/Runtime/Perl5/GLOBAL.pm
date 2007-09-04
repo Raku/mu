@@ -31,6 +31,7 @@ package GLOBAL;
         infix_58__60__45__62_
         infix_58__60__47__62_
         infix_58__60__60__61__62__62_
+        infix_58__60__62__62_
         
         prefix_58__60__33__62_
         
@@ -138,6 +139,8 @@ package GLOBAL;
 
     sub infix_58__60__47__62_       
     { ::DISPATCH( $::Int, 'new', _int( $_[0] ) / _int( $_[1] ) ) }  # infix:</>   XXX - Num
+    sub infix_58__60__62__62_  
+    { ::DISPATCH( $::Bit, 'new', (_int($_[0]) > _int($_[1])) ? 1 : 0) }  # >
 
     sub substr      
     { 
