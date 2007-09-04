@@ -39,7 +39,22 @@
                 );
               }
         }
-      }
+    };
+    ::DISPATCH(
+        ::DISPATCH( $::Pad, 'HOW', ),
+        'add_attribute',
+        ::DISPATCH( $::Str, 'new', 'namespace' )
+    );
+    ::DISPATCH(
+        ::DISPATCH( $::Pad, 'HOW', ),
+        'add_attribute',
+        ::DISPATCH( $::Str, 'new', 'outer' )
+    );
+    ::DISPATCH(
+        ::DISPATCH( $::Pad, 'HOW', ),
+        'add_attribute',
+        ::DISPATCH( $::Str, 'new', 'lexicals' )
+      )
 
       ;
     1

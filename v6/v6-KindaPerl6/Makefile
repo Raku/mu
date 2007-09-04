@@ -34,12 +34,13 @@ lib-kp6-kp6-p5/%.pm: lib-kp6-kp6/%.pm
 kp6-kp6.pl: kp6.p6
 	perl kp6-kp6-perl5.pl < $< | perltidy > temp.pl ; \
 		res=$$? ; \
-		if [ $$res = 0 -a -s temp.pm ] ; then \
-			cp temp.pm $@ ; \
+		if [ $$res = 0 -a -s temp.pl ] ; then \
+			cp temp.pl $@ ; \
 		else \
 			echo "*** Compilation failed with exit code: $$res!" ; \
 			exit; \
-		fi
+		fi; \
+	    rm temp.pl
 
 test: all
 	perl run_tests.pl
