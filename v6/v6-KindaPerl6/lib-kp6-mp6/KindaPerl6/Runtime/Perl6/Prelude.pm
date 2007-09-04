@@ -34,5 +34,7 @@ class GLOBAL {
     };
     sub Inf { Math.Inf };
     sub NaN { Math.NaN };
+    sub mkdir { IO.mkdir( @_ ) };
+    sub rmdir { IO.rmdir( @_ ) };
 }
 

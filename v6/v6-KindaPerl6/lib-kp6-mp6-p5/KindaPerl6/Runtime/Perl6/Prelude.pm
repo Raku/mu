@@ -44,6 +44,12 @@
         our $Code_NaN =
           ::DISPATCH( $::Routine, 'new',
             { modified => $_MODIFIED, name => '$Code_NaN' } );
+        our $Code_mkdir =
+          ::DISPATCH( $::Routine, 'new',
+            { modified => $_MODIFIED, name => '$Code_mkdir' } );
+        our $Code_rmdir =
+          ::DISPATCH( $::Routine, 'new',
+            { modified => $_MODIFIED, name => '$Code_rmdir' } );
         do {
 
             if (
@@ -103,6 +109,12 @@
                     our $Code_NaN =
                       ::DISPATCH( $::Routine, 'new',
                         { modified => $_MODIFIED, name => '$Code_NaN' } );
+                    our $Code_mkdir =
+                      ::DISPATCH( $::Routine, 'new',
+                        { modified => $_MODIFIED, name => '$Code_mkdir' } );
+                    our $Code_rmdir =
+                      ::DISPATCH( $::Routine, 'new',
+                        { modified => $_MODIFIED, name => '$Code_rmdir' } );
                     do {
                         ::MODIFIED($::GLOBAL);
                         $::GLOBAL = ::DISPATCH(
@@ -729,6 +741,90 @@
                             $List__ = ::DISPATCH( $CAPTURE, 'array', );
                         };
                         ::DISPATCH( $::Math, 'NaN', );
+                    },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {
+                            invocant => $::Undef,
+                            array =>
+                              ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            hash =>
+                              ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
+                }
+            );
+        };
+        do {
+            ::MODIFIED($Code_mkdir);
+            $Code_mkdir = ::DISPATCH(
+                $::Code, 'new',
+                {
+                    code => sub {
+                        my $List__ =
+                          ::DISPATCH( $::Array, 'new',
+                            { modified => $_MODIFIED, name => '$List__' } );
+                        my $CAPTURE;
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } )
+                          unless defined $CAPTURE;
+
+                        BEGIN {
+                            $CAPTURE = ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$CAPTURE' }
+                            );
+                        }
+                        ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                        do {
+                            ::MODIFIED($List__);
+                            $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                        };
+                        ::DISPATCH( $::IO, 'mkdir', $List__ );
+                    },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {
+                            invocant => $::Undef,
+                            array =>
+                              ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            hash =>
+                              ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
+                }
+            );
+        };
+        do {
+            ::MODIFIED($Code_rmdir);
+            $Code_rmdir = ::DISPATCH(
+                $::Code, 'new',
+                {
+                    code => sub {
+                        my $List__ =
+                          ::DISPATCH( $::Array, 'new',
+                            { modified => $_MODIFIED, name => '$List__' } );
+                        my $CAPTURE;
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } )
+                          unless defined $CAPTURE;
+
+                        BEGIN {
+                            $CAPTURE = ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$CAPTURE' }
+                            );
+                        }
+                        ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                        do {
+                            ::MODIFIED($List__);
+                            $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                        };
+                        ::DISPATCH( $::IO, 'rmdir', $List__ );
                     },
                     signature => ::DISPATCH(
                         $::Signature,

@@ -32,5 +32,7 @@ class GLOBAL {
     sub infix:<^>($a,$b) {
         one($a,$b);
     };
+    sub mkdir { IO.mkdir( @_ ) };
+    sub rmdir { IO.rmdir( @_ ) };
 }
 
