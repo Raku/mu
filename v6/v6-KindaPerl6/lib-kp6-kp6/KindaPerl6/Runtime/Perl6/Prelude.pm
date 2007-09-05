@@ -32,6 +32,8 @@ class GLOBAL {
     sub infix:<^>($a,$b) {
         one($a,$b);
     };
+    sub Inf { Math.Inf };
+    sub NaN { Math.NaN };
     sub mkdir { IO.mkdir( @_ ) };
     sub rmdir { IO.rmdir( @_ ) };
 }

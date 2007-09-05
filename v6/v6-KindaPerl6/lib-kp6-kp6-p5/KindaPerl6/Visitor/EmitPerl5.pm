@@ -2054,8 +2054,18 @@
                     ::DISPATCH(
                         $GLOBAL::Code_infix_58__60__126__62_,
                         'APPLY',
-                        ::DISPATCH( $self, 'emit_declarations', ),
-                        ::DISPATCH( $self, 'emit_body', )
+                        ::DISPATCH( $::Str, 'new', '{ ' ),
+                        ::DISPATCH(
+                            $GLOBAL::Code_infix_58__60__126__62_,
+                            'APPLY',
+                            ::DISPATCH( $self, 'emit_declarations', ),
+                            ::DISPATCH(
+                                $GLOBAL::Code_infix_58__60__126__62_,
+                                'APPLY',
+                                ::DISPATCH( $self, 'emit_body', ),
+                                ::DISPATCH( $::Str, 'new', ' }' )
+                            )
+                        )
                     );
                 }
             )
@@ -5228,7 +5238,7 @@
                     ::DISPATCH(
                         $GLOBAL::Code_infix_58__60__126__62_,
                         'APPLY',
-                        ::DISPATCH( $::Str, 'new', 'do { for my ' ),
+                        ::DISPATCH( $::Str, 'new', 'for ' ),
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
@@ -5269,16 +5279,8 @@
                                                         ' } '
                                                     ),
                                                     ::DISPATCH(
-                                                        $GLOBAL::Code_infix_58__60__126__62_,
+                                                        $GLOBAL::Main::Code_newline,
                                                         'APPLY',
-                                                        ::DISPATCH(
-                                                            $::Str, 'new',
-                                                            '}'
-                                                        ),
-                                                        ::DISPATCH(
-                                                            $GLOBAL::Main::Code_newline,
-                                                            'APPLY',
-                                                        )
                                                     )
                                                 )
                                             )
@@ -6870,7 +6872,8 @@
                     };
                     do {
                         ::MODIFIED($s);
-                        $s = ::DISPATCH( $::Str, 'new',
+                        $s =
+                          ::DISPATCH( $::Str, 'new',
                             '::DISPATCH( $::Capture, "new", { ' );
                     };
                     do {

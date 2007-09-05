@@ -11,6 +11,11 @@ $::Math = make_class(name=>"Math",parent=>[$meta_Num],methods=>{
                  my $expr = $_[0]{_value} || 1;
                  ::DISPATCH($::Num, "new", rand($expr));
                 },
+    Inf => sub {
+                 my $self = shift;
+                 my $expr = 9 ** 9 ** 9;
+                 ::DISPATCH($::Num, "new", $expr );
+                },
  });
 
 1;
