@@ -6,10 +6,10 @@ all: $(kp6_mp6_OBJ) $(kp6_kp6_OBJ)
 
 lib-kp6-mp6-p5/KindaPerl6/Runtime/Perl6/%.pm: lib-kp6-mp6/KindaPerl6/Runtime/Perl6/%.pm
 	@echo COMPILE $< $@
-	@perl kp6-mp6-perl5.pl < $< | perltidy > temp.pm ; \
+	@perl kp6-mp6-perl5.pl < $< | perltidy > $@.temp ; \
 		res=$$? ; \
-		if [ $$res = 0 -a -s temp.pm ] ; then \
-			cp temp.pm $@ ; \
+		if [ $$res = 0 -a -s $@.temp ] ; then \
+			mv $@.temp $@ ; \
 		else \
 			echo "*** Compilation failed with exit code: $$res!" ; \
 			exit; \
