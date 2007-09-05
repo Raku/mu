@@ -111,6 +111,10 @@
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
                     };
                     do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                    };
+                    do {
                         ::MODIFIED($str);
                         $str =
                           ::DISPATCH( $List__, 'INDEX',
@@ -908,6 +912,10 @@
                     do {
                         ::MODIFIED($List__);
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     do {
                         ::MODIFIED($str);
@@ -1709,6 +1717,10 @@
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
                     };
                     do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                    };
+                    do {
                         ::MODIFIED($str);
                         $str =
                           ::DISPATCH( $List__, 'INDEX',
@@ -2407,6 +2419,10 @@
                         ::MODIFIED($List__);
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
                     };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                    };
                     return (
                         ::DISPATCH(
                             $::Val::Buf,
@@ -2453,6 +2469,10 @@
                     do {
                         ::MODIFIED($List__);
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     return (
                         ::DISPATCH(

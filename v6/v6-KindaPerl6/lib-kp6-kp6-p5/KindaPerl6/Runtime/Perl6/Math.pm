@@ -90,6 +90,10 @@
                         ::MODIFIED($List__);
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
                     };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                    };
                     return (
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__45__62_,

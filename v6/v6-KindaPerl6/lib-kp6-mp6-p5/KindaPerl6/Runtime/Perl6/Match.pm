@@ -121,6 +121,10 @@
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
                     };
                     do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                    };
+                    do {
                         if (
                             ::DISPATCH(
                                 ::DISPATCH(
@@ -195,6 +199,10 @@
                         ::MODIFIED($List__);
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
                     };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                    };
                     return ( ::DISPATCH( $self, "bool" ) );
                 }
             )
@@ -237,6 +245,10 @@
                     do {
                         ::MODIFIED($List__);
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     ::DISPATCH_VAR(
                         ::DISPATCH( $self, "from" ),
@@ -287,6 +299,10 @@
                         ::MODIFIED($List__);
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
                     };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                    };
                     ::DISPATCH_VAR(
                         ::DISPATCH( $self, "to" ),
                         'STORE',
@@ -336,6 +352,10 @@
                         ::MODIFIED($List__);
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
                     };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                    };
                     ::DISPATCH_VAR(
                         ::DISPATCH( $self, "bool" ),
                         'STORE',
@@ -384,6 +404,10 @@
                     do {
                         ::MODIFIED($List__);
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     ::DISPATCH_VAR(
                         ::DISPATCH( $self, "match_str" ),

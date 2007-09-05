@@ -90,6 +90,10 @@
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
                     };
                     do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                    };
+                    do {
                         ::MODIFIED($node);
                         $node =
                           ::DISPATCH( $List__, 'INDEX',
@@ -212,6 +216,10 @@
                     do {
                         ::MODIFIED($List__);
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     do {
                         ::MODIFIED($regex_source);
@@ -642,6 +650,10 @@
                         ::MODIFIED($List__);
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
                     };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                    };
                     ::DISPATCH(
                         $GLOBAL::Code_infix_58__60__126__62_,
                         'APPLY',
@@ -748,6 +760,10 @@
                     do {
                         ::MODIFIED($List__);
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     ::DISPATCH(
                         $GLOBAL::Code_infix_58__60__126__62_,
@@ -861,6 +877,10 @@
                     do {
                         ::MODIFIED($List__);
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     ::DISPATCH(
                         $GLOBAL::Code_infix_58__60__126__62_,
@@ -985,6 +1005,10 @@
                     do {
                         ::MODIFIED($List__);
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     do {
                         ::MODIFIED($table);
@@ -1121,6 +1145,10 @@
                     do {
                         ::MODIFIED($List__);
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     do {
                         ::MODIFIED($str);
@@ -1266,6 +1294,10 @@
                         ::MODIFIED($List__);
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
                     };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                    };
                     ::DISPATCH( $::Str, 'new', '(?:\\n\\r?|\\r\\n?|\\X)' );
                 }
             )
@@ -1374,6 +1406,10 @@
                     do {
                         ::MODIFIED($List__);
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     do {
                         ::MODIFIED($char);
@@ -1575,6 +1611,10 @@
                     do {
                         ::MODIFIED($List__);
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     ::DISPATCH(
                         $GLOBAL::Code_infix_58__60__126__62_,
@@ -1785,6 +1825,10 @@
                         ::MODIFIED($List__);
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
                     };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                    };
                     ::DISPATCH(
                         $GLOBAL::Code_say,
                         'APPLY',
@@ -1899,6 +1943,10 @@
                     do {
                         ::MODIFIED($List__);
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     do {
                         if (
@@ -2241,6 +2289,10 @@
                     do {
                         ::MODIFIED($List__);
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     do {
                         if (
@@ -2586,6 +2638,10 @@
                         ::MODIFIED($List__);
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
                     };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                    };
                     ::DISPATCH( $GLOBAL::Code_say, 'APPLY',
                         ::DISPATCH( $::Str, 'new', 'TODO NegateCharClass' ) );
                     ::DISPATCH( $GLOBAL::Code_die, 'APPLY', );
@@ -2684,6 +2740,10 @@
                     do {
                         ::MODIFIED($List__);
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     ::DISPATCH( $GLOBAL::Code_say, 'APPLY',
                         ::DISPATCH( $::Str, 'new', 'TODO CharClass' ) );
@@ -2795,6 +2855,10 @@
                     do {
                         ::MODIFIED($List__);
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     do {
                         ::MODIFIED($meth);
@@ -2958,6 +3022,10 @@
                     do {
                         ::MODIFIED($List__);
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     do {
                         ::MODIFIED($meth);
@@ -3230,6 +3298,10 @@
                     do {
                         ::MODIFIED($List__);
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     do {
                         if (
@@ -3530,6 +3602,10 @@
                     do {
                         ::MODIFIED($List__);
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
                     do {
                         if (

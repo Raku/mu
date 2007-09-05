@@ -152,6 +152,10 @@
                             $List__ = ::DISPATCH( $CAPTURE, 'array', );
                         };
                         do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
                             ::MODIFIED($env);
                             $env =
                               ::DISPATCH( $List__, 'INDEX',

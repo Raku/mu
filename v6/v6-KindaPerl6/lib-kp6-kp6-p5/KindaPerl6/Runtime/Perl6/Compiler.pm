@@ -155,6 +155,10 @@
                             $List__ = ::DISPATCH( $CAPTURE, 'array', );
                         };
                         do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
                             ::MODIFIED($node);
                             $node =
                               ::DISPATCH( $List__, 'INDEX',
@@ -233,6 +237,10 @@
                         do {
                             ::MODIFIED($List__);
                             $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                        };
+                        do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         ::DISPATCH_VAR( $pad, 'STORE',
                             ::DISPATCH( $::Pad, 'new', ) );
@@ -323,6 +331,10 @@
                             $List__ = ::DISPATCH( $CAPTURE, 'array', );
                         };
                         do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
                             ::MODIFIED($namespace);
                             $namespace =
                               ::DISPATCH( $List__, 'INDEX',
@@ -403,6 +415,10 @@
                         do {
                             ::MODIFIED($List__);
                             $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                        };
+                        do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         ::DISPATCH( $GLOBAL::Code_shift, 'APPLY',
                             $GLOBAL::COMPILER::List_PAD );
@@ -501,6 +517,10 @@
                         do {
                             ::MODIFIED($List__);
                             $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                        };
+                        do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         do {
                             ::MODIFIED($ast);
@@ -712,6 +732,10 @@
                             $List__ = ::DISPATCH( $CAPTURE, 'array', );
                         };
                         do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
                             ::MODIFIED($ast);
                             $ast =
                               ::DISPATCH( $List__, 'INDEX',
@@ -854,6 +878,10 @@
                         do {
                             ::MODIFIED($List__);
                             $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                        };
+                        do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         do {
                             ::MODIFIED($sigil);

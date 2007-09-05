@@ -93,6 +93,10 @@
                         ::MODIFIED($List__);
                         $List__ = ::DISPATCH( $CAPTURE, 'array', );
                     };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                    };
                     ::DISPATCH( $::Kp6Security, 'guard_unsecure_code', );
                     ::DISPATCH( $::Int, 'new', 42 );
                 }

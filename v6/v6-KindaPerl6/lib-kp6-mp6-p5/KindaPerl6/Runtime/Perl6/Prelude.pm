@@ -170,6 +170,10 @@
                             ::MODIFIED($List__);
                             $List__ = ::DISPATCH( $CAPTURE, 'array', );
                         };
+                        do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
                         ::DISPATCH_VAR( $junc, 'STORE',
                             ::DISPATCH( $::Junction, 'new', ) );
                         ::DISPATCH_VAR( ::DISPATCH( $junc, 'things', ),
@@ -231,6 +235,10 @@
                         do {
                             ::MODIFIED($List__);
                             $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                        };
+                        do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         ::DISPATCH_VAR( $junc, 'STORE',
                             ::DISPATCH( $::Junction, 'new', ) );
@@ -294,6 +302,10 @@
                             ::MODIFIED($List__);
                             $List__ = ::DISPATCH( $CAPTURE, 'array', );
                         };
+                        do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
                         ::DISPATCH_VAR( $junc, 'STORE',
                             ::DISPATCH( $::Junction, 'new', ) );
                         ::DISPATCH_VAR( ::DISPATCH( $junc, 'things', ),
@@ -355,6 +367,10 @@
                         do {
                             ::MODIFIED($List__);
                             $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                        };
+                        do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         ::DISPATCH_VAR( $junc, 'STORE',
                             ::DISPATCH( $::Junction, 'new', ) );
@@ -428,6 +444,10 @@
                         do {
                             ::MODIFIED($List__);
                             $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                        };
+                        do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         do {
                             ::MODIFIED($a);
@@ -529,6 +549,10 @@
                             $List__ = ::DISPATCH( $CAPTURE, 'array', );
                         };
                         do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
                             ::MODIFIED($a);
                             $a =
                               ::DISPATCH( $List__, 'INDEX',
@@ -628,6 +652,10 @@
                             $List__ = ::DISPATCH( $CAPTURE, 'array', );
                         };
                         do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
+                        do {
                             ::MODIFIED($a);
                             $a =
                               ::DISPATCH( $List__, 'INDEX',
@@ -704,6 +732,10 @@
                             ::MODIFIED($List__);
                             $List__ = ::DISPATCH( $CAPTURE, 'array', );
                         };
+                        do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
                         ::DISPATCH( $::Math, 'Inf', );
                     },
                     signature => ::DISPATCH(
@@ -745,6 +777,10 @@
                         do {
                             ::MODIFIED($List__);
                             $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                        };
+                        do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         ::DISPATCH( $::Math, 'NaN', );
                     },
@@ -788,6 +824,10 @@
                             ::MODIFIED($List__);
                             $List__ = ::DISPATCH( $CAPTURE, 'array', );
                         };
+                        do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                        };
                         ::DISPATCH( $::IO, 'mkdir', $List__ );
                     },
                     signature => ::DISPATCH(
@@ -829,6 +869,10 @@
                         do {
                             ::MODIFIED($List__);
                             $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                        };
+                        do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         ::DISPATCH( $::IO, 'rmdir', $List__ );
                     },
@@ -882,6 +926,10 @@
                         do {
                             ::MODIFIED($List__);
                             $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                        };
+                        do {
+                            ::MODIFIED($Hash__);
+                            $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         do {
                             ::MODIFIED($regex);
@@ -1006,6 +1054,11 @@
                                         ::MODIFIED($List__);
                                         $List__ =
                                           ::DISPATCH( $CAPTURE, 'array', );
+                                    };
+                                    do {
+                                        ::MODIFIED($Hash__);
+                                        $Hash__ =
+                                          ::DISPATCH( $CAPTURE, 'hash', );
                                     };
                                     do {
                                         ::MODIFIED($self);
