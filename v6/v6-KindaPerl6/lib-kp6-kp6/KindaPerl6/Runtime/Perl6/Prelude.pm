@@ -36,5 +36,16 @@ class GLOBAL {
     sub NaN { Math.NaN };
     sub mkdir { IO.mkdir( @_ ) };
     sub rmdir { IO.rmdir( @_ ) };
+    sub p5token($regex) {
+        #say 'p5token';
+        sub ( $self, $str, $pos ) { 
+            #say 'sub returned by p5token';
+            if (!(defined($str))) { $str = $_; };
+            my $MATCH;
+            $MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = $pos; $MATCH.bool = 1;
+            $MATCH.bool = match_p5rx($str,$regex);
+            return $MATCH;
+        }
+    }
 }
 

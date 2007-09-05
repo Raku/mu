@@ -121,6 +121,15 @@ class Lit::Pair {
     }
 }
 
+class Lit::NamedArgument {
+    method emit_perl5 {
+        '::DISPATCH( $::NamedArgument, \'new\', ' 
+        ~ '{ _argument_name_ => '   ~ $.key.emit_perl5
+        ~ ', value => ' ~ $.value.emit_perl5
+        ~ ' } )' ~ Main::newline();
+    }
+}
+
 class Lit::Code {
     method emit_perl5 {
           '{ ' 
@@ -152,6 +161,7 @@ class Lit::Code {
     };
     method emit_arguments {
         my $array_ := ::Var( sigil => '@', twigil => '', name => '_' );
+        my $hash_  := ::Var( sigil => '%', twigil => '', name => '_' );
         my $CAPTURE := ::Var( sigil => '$', twigil => '', name => 'CAPTURE');
         my $CAPTURE_decl := ::Decl(decl=>'my',type=>'',var=>$CAPTURE);
         my $str := '';
@@ -160,6 +170,10 @@ class Lit::Code {
 
         my $bind_ := ::Bind(parameters=>$array_,arguments=>::Call(invocant => $CAPTURE,method => 'array',arguments => []));
         $str := $str ~ $bind_.emit_perl5 ~ ';';
+
+        my $bind_hash := 
+                     ::Bind(parameters=>$hash_, arguments=>::Call(invocant => $CAPTURE,method => 'hash', arguments => []));
+        $str := $str ~ $bind_hash.emit_perl5 ~ ';';
 
         my $i := 0;
         my $field;

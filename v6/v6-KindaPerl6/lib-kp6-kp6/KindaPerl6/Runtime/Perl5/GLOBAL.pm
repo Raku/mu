@@ -16,6 +16,7 @@ package GLOBAL;
         True
         False
         substr
+        match_p5rx
 
         p5eval
 
@@ -40,6 +41,7 @@ package GLOBAL;
         prefix_58__60__64__62_        
         prefix_58__60__43__43__62_
         prefix_58__60__124__62_
+
     );
     
     # %*ENV
@@ -197,6 +199,13 @@ package GLOBAL;
         my $capture = shift;
         my $array = ::DISPATCH( $capture, 'array' );
         @{ $array->{_value}{_array} };
+    }
+
+    sub match_p5rx {
+        my $regex  = _str($_[0]);
+        my $string = _str($_[1]);
+        #print "regex:[$regex] string:[$string]\n";
+        return ::DISPATCH( $::Bit, 'new', $string =~ $regex);
     }
 
 
