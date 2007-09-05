@@ -39,9 +39,14 @@ token exp_parameter_list {
     |   <pair> 
         [
         |   <?opt_ws> \, <?opt_ws> <exp_parameter_list> 
-            { return [ $$<pair>, @( $$<exp_parameter_list> ) ] }
+            { return [ 
+                    ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] ),
+                    @( $$<exp_parameter_list> ),
+                ] }
         |   <?opt_ws> [ \, <?opt_ws> | <''> ]
-            { return [ $$<pair> ] }
+            { return [ 
+                    ::Lit::Pair( key => ($$<pair>)[0], value => ($$<pair>)[1] ),
+                ] }
         ]
     |   <exp> 
         [
