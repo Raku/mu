@@ -751,6 +751,7 @@ $GLOBAL::Code_VAR_defined = ::DISPATCH( $::Code, 'new',
 
 
 require KindaPerl6::Runtime::Perl6::Pair;
+require KindaPerl6::Runtime::Perl6::NamedArgument;
 
 
 my $Cell = make_class(name=>"HashCell",parent=>[$meta_Container],methods=>{
@@ -897,21 +898,25 @@ sub ::CAPTURIZE {
     my @array;
     my %hash;
     for my $p ( @{ $_[0] } ) {
+        #print "param @{[ keys( %{ $p->{_value} } ) ]} \n";
         if (
-               ref( $p ) eq 'HASH'
+
             # XXX .does bug?
-            # && ::DISPATCH( $p, 'does', ::DISPATCH( $::Str, 'new', 'Pair' ) ) 
-            # && ::DISPATCH( $p, 'does', $::Pair ) 
-            && exists( $p->{value}{key} )
+            # ::DISPATCH( $p, 'does', ::DISPATCH( $::Str, 'new', 'Pair' ) ) 
+            # ::DISPATCH( $p, 'does', $::Pair ) 
+
+               exists( $p->{_value}{_argument_name_} )
+            
            ) {
-            # TODO
-            my $key = ::DISPATCH( ::DISPATCH( $p, 'key' ), 'str' )->{_value};
-            my $value = ::DISPATCH( $p, 'value' );
-            $hash{ $key } = $value;
-            #push @array, $p;
+                my $key = ::DISPATCH( ::DISPATCH( $p, '_argument_name_' ), 'str' )->{_value};
+                #print "named: $key \n";
+                my $value = ::DISPATCH( $p, 'value' );
+                #print "value: $value \n";
+                $hash{ $key } = $value;
+                #print "return\n";
         }
         else {
-            push @array, $p;
+                push @array, $p;
         }
     }
     ::DISPATCH( $::Capture, 'new', { 
