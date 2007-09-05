@@ -897,12 +897,22 @@ sub ::CAPTURIZE {
     my @array;
     my %hash;
     for my $p ( @{ $_[0] } ) {
-        #if ( ::DISPATCH( $p, 'does', ::DISPATCH( $::Str, 'new', 'Pair' ) ) ) {
-        #    # TODO
-        #}
-        #else {
+        if (
+               ref( $p ) eq 'HASH'
+            # XXX .does bug?
+            # && ::DISPATCH( $p, 'does', ::DISPATCH( $::Str, 'new', 'Pair' ) ) 
+            # && ::DISPATCH( $p, 'does', $::Pair ) 
+            && exists( $p->{value}{key} )
+           ) {
+            # TODO
+            my $key = ::DISPATCH( ::DISPATCH( $p, 'key' ), 'str' )->{_value};
+            my $value = ::DISPATCH( $p, 'value' );
+            $hash{ $key } = $value;
+            #push @array, $p;
+        }
+        else {
             push @array, $p;
-        #}
+        }
     }
     ::DISPATCH( $::Capture, 'new', { 
             invocant => undef,  # TODO
