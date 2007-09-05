@@ -10,6 +10,7 @@ use KindaPerl6::Grammar::Term;
 use KindaPerl6::Grammar::Statements;
 use KindaPerl6::Grammar::Quote;
 use KindaPerl6::Grammar::Sub;
+use KindaPerl6::Grammar::Token;
 
 my $Class_name;  # for diagnostic messages
 sub get_class_name { $Class_name }; 

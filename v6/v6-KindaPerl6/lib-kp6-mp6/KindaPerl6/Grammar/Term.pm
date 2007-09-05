@@ -38,11 +38,12 @@ token term {
         { return ::Do( 'block' => $$<block1> ) }
     | use <?ws> <full_ident> <use_from_perl5> [ - <ident> | <''> ]
         { return ::Use( 'mod' => $$<full_ident>,'perl5' => $$<use_from_perl5> ) }
-    | <val>     { return $$<val> }     # 'value'
-    | <lit>     { return $$<lit> }     # [literal construct]
-#   | <bind>    { return $$<bind>   }  # $lhs := $rhs
-    | <token>   { return $$<token>  }  # token  { regex... }
-    | <method>  { return $$<method> }  # method { code... }
+    | <val>      { return $$<val> }     # 'value'
+    | <lit>      { return $$<lit> }     # [literal construct]
+#   | <bind>     { return $$<bind>   }  # $lhs := $rhs
+    | <token>    { return $$<token>  }  # token  { regex... }
+    | <token_P5> { return $$<token_P5>  }  # token :P5 { regex... }
+    | <method>   { return $$<method> }  # method { code... }
     | <subset>                         # subset x of y where { code... }
         { 
             if ($$<subset>).name ne '' {

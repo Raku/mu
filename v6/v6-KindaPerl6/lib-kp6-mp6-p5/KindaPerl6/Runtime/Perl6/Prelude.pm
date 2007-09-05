@@ -50,6 +50,9 @@
         our $Code_rmdir =
           ::DISPATCH( $::Routine, 'new',
             { modified => $_MODIFIED, name => '$Code_rmdir' } );
+        our $Code_p5token =
+          ::DISPATCH( $::Routine, 'new',
+            { modified => $_MODIFIED, name => '$Code_p5token' } );
         do {
 
             if (
@@ -115,6 +118,9 @@
                     our $Code_rmdir =
                       ::DISPATCH( $::Routine, 'new',
                         { modified => $_MODIFIED, name => '$Code_rmdir' } );
+                    our $Code_p5token =
+                      ::DISPATCH( $::Routine, 'new',
+                        { modified => $_MODIFIED, name => '$Code_p5token' } );
                     do {
                         ::MODIFIED($::GLOBAL);
                         $::GLOBAL = ::DISPATCH(
@@ -833,6 +839,312 @@
                             invocant => $::Undef,
                             array =>
                               ::DISPATCH( $::Array, "new", { _array => [] } ),
+                            hash =>
+                              ::DISPATCH( $::Hash, "new", { _hash => {} } ),
+                            return => $::Undef,
+                        }
+                    ),
+                }
+            );
+        };
+        do {
+            ::MODIFIED($Code_p5token);
+            $Code_p5token = ::DISPATCH(
+                $::Code, 'new',
+                {
+                    code => sub {
+                        my $List__ =
+                          ::DISPATCH( $::Array, 'new',
+                            { modified => $_MODIFIED, name => '$List__' } );
+                        my $regex;
+                        $regex =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$regex' } )
+                          unless defined $regex;
+
+                        BEGIN {
+                            $regex =
+                              ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$regex' } );
+                        }
+                        my $CAPTURE;
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } )
+                          unless defined $CAPTURE;
+
+                        BEGIN {
+                            $CAPTURE = ::DISPATCH( $::Scalar, 'new',
+                                { modified => $_MODIFIED, name => '$CAPTURE' }
+                            );
+                        }
+                        ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                        do {
+                            ::MODIFIED($List__);
+                            $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                        };
+                        do {
+                            ::MODIFIED($regex);
+                            $regex =
+                              ::DISPATCH( $List__, 'INDEX',
+                                ::DISPATCH( $::Int, 'new', 0 ) );
+                        };
+                        ::DISPATCH(
+                            $::Code, 'new',
+                            {
+                                code => sub {
+                                    my $MATCH;
+                                    $MATCH = ::DISPATCH(
+                                        $::Scalar,
+                                        'new',
+                                        {
+                                            modified => $_MODIFIED,
+                                            name     => '$MATCH'
+                                        }
+                                    ) unless defined $MATCH;
+
+                                    BEGIN {
+                                        $MATCH = ::DISPATCH(
+                                            $::Scalar,
+                                            'new',
+                                            {
+                                                modified => $_MODIFIED,
+                                                name     => '$MATCH'
+                                            }
+                                        );
+                                    }
+                                    my $List__ = ::DISPATCH(
+                                        $::Array, 'new',
+                                        {
+                                            modified => $_MODIFIED,
+                                            name     => '$List__'
+                                        }
+                                    );
+                                    my $self;
+                                    $self = ::DISPATCH(
+                                        $::Scalar,
+                                        'new',
+                                        {
+                                            modified => $_MODIFIED,
+                                            name     => '$self'
+                                        }
+                                    ) unless defined $self;
+
+                                    BEGIN {
+                                        $self = ::DISPATCH(
+                                            $::Scalar,
+                                            'new',
+                                            {
+                                                modified => $_MODIFIED,
+                                                name     => '$self'
+                                            }
+                                        );
+                                    }
+                                    my $str;
+                                    $str = ::DISPATCH(
+                                        $::Scalar,
+                                        'new',
+                                        {
+                                            modified => $_MODIFIED,
+                                            name     => '$str'
+                                        }
+                                    ) unless defined $str;
+
+                                    BEGIN {
+                                        $str = ::DISPATCH(
+                                            $::Scalar,
+                                            'new',
+                                            {
+                                                modified => $_MODIFIED,
+                                                name     => '$str'
+                                            }
+                                        );
+                                    }
+                                    my $pos;
+                                    $pos = ::DISPATCH(
+                                        $::Scalar,
+                                        'new',
+                                        {
+                                            modified => $_MODIFIED,
+                                            name     => '$pos'
+                                        }
+                                    ) unless defined $pos;
+
+                                    BEGIN {
+                                        $pos = ::DISPATCH(
+                                            $::Scalar,
+                                            'new',
+                                            {
+                                                modified => $_MODIFIED,
+                                                name     => '$pos'
+                                            }
+                                        );
+                                    }
+                                    my $CAPTURE;
+                                    $CAPTURE = ::DISPATCH(
+                                        $::Scalar,
+                                        'new',
+                                        {
+                                            modified => $_MODIFIED,
+                                            name     => '$CAPTURE'
+                                        }
+                                    ) unless defined $CAPTURE;
+
+                                    BEGIN {
+                                        $CAPTURE = ::DISPATCH(
+                                            $::Scalar,
+                                            'new',
+                                            {
+                                                modified => $_MODIFIED,
+                                                name     => '$CAPTURE'
+                                            }
+                                        );
+                                    }
+                                    ::DISPATCH_VAR( $CAPTURE, "STORE",
+                                        ::CAPTURIZE( \@_ ) );
+                                    do {
+                                        ::MODIFIED($List__);
+                                        $List__ =
+                                          ::DISPATCH( $CAPTURE, 'array', );
+                                    };
+                                    do {
+                                        ::MODIFIED($self);
+                                        $self =
+                                          ::DISPATCH( $List__, 'INDEX',
+                                            ::DISPATCH( $::Int, 'new', 0 ) );
+                                    };
+                                    do {
+                                        ::MODIFIED($str);
+                                        $str =
+                                          ::DISPATCH( $List__, 'INDEX',
+                                            ::DISPATCH( $::Int, 'new', 1 ) );
+                                    };
+                                    do {
+                                        ::MODIFIED($pos);
+                                        $pos =
+                                          ::DISPATCH( $List__, 'INDEX',
+                                            ::DISPATCH( $::Int, 'new', 2 ) );
+                                    };
+                                    do {
+                                        if (
+                                            ::DISPATCH(
+                                                ::DISPATCH(
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_prefix_58__60__33__62_,
+                                                        'APPLY',
+                                                        ::DISPATCH(
+                                                            $GLOBAL::Code_defined,
+                                                            'APPLY',
+                                                            $str
+                                                        )
+                                                    ),
+                                                    "true"
+                                                ),
+                                                "p5landish"
+                                            )
+                                          )
+                                        {
+                                            {
+                                                ::DISPATCH_VAR( $str, 'STORE',
+                                                    $_ )
+                                            }
+                                        }
+                                    };
+                                    $MATCH;
+                                    ::DISPATCH_VAR( $MATCH, 'STORE',
+                                        ::DISPATCH( $::Match, 'new', ) );
+                                    ::DISPATCH_VAR(
+                                        ::DISPATCH( $MATCH, 'match_str', ),
+                                        'STORE', $str );
+                                    ::DISPATCH_VAR(
+                                        ::DISPATCH( $MATCH, 'from', ),
+                                        'STORE', $pos );
+                                    ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),
+                                        'STORE', $pos );
+                                    ::DISPATCH_VAR(
+                                        ::DISPATCH( $MATCH, 'bool', ),
+                                        'STORE',
+                                        ::DISPATCH( $::Int, 'new', 1 )
+                                    );
+                                    ::DISPATCH_VAR(
+                                        ::DISPATCH( $MATCH, 'bool', ),
+                                        'STORE',
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_match_p5rx,
+                                            'APPLY', $str, $regex
+                                        )
+                                    );
+                                    return ($MATCH);
+                                },
+                                signature => ::DISPATCH(
+                                    $::Signature,
+                                    "new",
+                                    {
+                                        invocant => $::Undef,
+                                        array    => ::DISPATCH(
+                                            $::Array, "new",
+                                            {
+                                                _array => [
+                                                    ::DISPATCH(
+                                                        $::Signature::Item,
+                                                        "new",
+                                                        {
+                                                            sigil  => '$',
+                                                            twigil => '',
+                                                            name   => 'self',
+                                                        }
+                                                    ),
+                                                    ::DISPATCH(
+                                                        $::Signature::Item,
+                                                        "new",
+                                                        {
+                                                            sigil  => '$',
+                                                            twigil => '',
+                                                            name   => 'str',
+                                                        }
+                                                    ),
+                                                    ::DISPATCH(
+                                                        $::Signature::Item,
+                                                        "new",
+                                                        {
+                                                            sigil  => '$',
+                                                            twigil => '',
+                                                            name   => 'pos',
+                                                        }
+                                                    ),
+                                                ]
+                                            }
+                                        ),
+                                        hash => ::DISPATCH(
+                                            $::Hash, "new", { _hash => {} }
+                                        ),
+                                        return => $::Undef,
+                                    }
+                                ),
+                            }
+                        );
+                    },
+                    signature => ::DISPATCH(
+                        $::Signature,
+                        "new",
+                        {
+                            invocant => $::Undef,
+                            array    => ::DISPATCH(
+                                $::Array, "new",
+                                {
+                                    _array => [
+                                        ::DISPATCH(
+                                            $::Signature::Item,
+                                            "new",
+                                            {
+                                                sigil  => '$',
+                                                twigil => '',
+                                                name   => 'regex',
+                                            }
+                                        ),
+                                    ]
+                                }
+                            ),
                             hash =>
                               ::DISPATCH( $::Hash, "new", { _hash => {} } ),
                             return => $::Undef,
