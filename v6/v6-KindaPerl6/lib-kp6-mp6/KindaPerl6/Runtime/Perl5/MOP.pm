@@ -735,7 +735,7 @@ $meta_Method->add_parent( $meta_Routine );
 
 
 
-# tests is a variable was initialized at all
+# tests if a variable was initialized at all
 # we need this because defined() always return false with prototype objects
 $GLOBAL::Code_VAR_defined = ::DISPATCH( $::Code, 'new', 
     { 
