@@ -242,9 +242,9 @@ token term_meth {
     [ \.
         <hyper_op>
         <ident>
-            [ \( <?opt_ws> <exp_seq> <?opt_ws> \)
-                # { say 'found parameter list: ', $<exp_seq>.perl }
-            | \: <?ws> <exp_seq> <?opt_ws>
+            [ \( <?opt_ws> <exp_parameter_list> <?opt_ws> \)
+                # { say 'found parameter list: ', $<exp_parameter_list>.perl }
+            | \: <?ws> <exp_parameter_list> <?opt_ws>
             |
                 {
                     return ::Call(
@@ -259,7 +259,7 @@ token term_meth {
                 return ::Call(
                     'invocant'  => ::Proto( 'name' => ~$<full_ident> ),
                     'method'    => $$<ident>,
-                    'arguments' => $$<exp_seq>,
+                    'arguments' => $$<exp_parameter_list>,
                     'hyper'     => $$<hyper_op>,
                 )
             }
@@ -270,10 +270,10 @@ token term_meth {
         <hyper_op>
         <opt_ident>   # $obj.(42)
             [ \( 
-                # { say 'testing exp_seq at ', $/.to }
-                <?opt_ws> <exp_seq> <?opt_ws> \)
-                # { say 'found parameter list: ', $<exp_seq>.perl }
-            | \: <?ws> <exp_seq> <?opt_ws>
+                # { say 'testing exp_parameter_list at ', $/.to }
+                <?opt_ws> <exp_parameter_list> <?opt_ws> \)
+                # { say 'found parameter list: ', $<exp_parameter_list>.perl }
+            | \: <?ws> <exp_parameter_list> <?opt_ws>
             |
                 {
                     return ::Call(
@@ -288,7 +288,7 @@ token term_meth {
                 return ::Call(
                     'invocant'  => $$<term>,
                     'method'    => $$<opt_ident>,
-                    'arguments' => $$<exp_seq>,
+                    'arguments' => $$<exp_parameter_list>,
                     'hyper'     => $$<hyper_op>,
                 )
             }
@@ -383,6 +383,7 @@ token val_int {
 };
 
 
+# XXX obsolete?
 token exp_seq {
     | <exp>
         # { say 'exp_seq: matched <exp>' }
@@ -440,12 +441,12 @@ token lit_object {
 #};
 
 token call {
-    <exp> \. <ident> \( <?opt_ws> <exp_seq> <?opt_ws> \)
+    <exp> \. <ident> \( <?opt_ws> <exp_parameter_list> <?opt_ws> \)
     {
         return ::Call(
             'invocant'  => $$<exp>,
             'method'    => $$<ident>,
-            'arguments' => $$<exp_seq>,
+            'arguments' => $$<exp_parameter_list>,
         )
     }
 };
@@ -453,13 +454,13 @@ token call {
 token apply {
     <full_ident>
     [
-        [ \( <?opt_ws> <exp_seq> <?opt_ws> \)
-        | <?ws> <exp_seq> <?opt_ws>
+        [ \( <?opt_ws> <exp_parameter_list> <?opt_ws> \)
+        | <?ws> <exp_parameter_list> <?opt_ws>
         ]
         {
             return ::Apply(
                 'code'      => COMPILER::get_var( '&', '', $$<full_ident> ),
-                'arguments' => $$<exp_seq>,
+                'arguments' => $$<exp_parameter_list>,
             )
         }
     |
@@ -482,20 +483,22 @@ token invocant {
 
 token capture {
     # TODO - exp_seq / exp_mapping == positional / named 
-    |  <exp>\:  <?opt_ws> <exp_seq> 
-        { return ::Capture( 'invocant' => $$<exp>, 'array' => $$<exp_seq>, 'hash' => [ ] ); }
+    # XXX use exp_parameter_list instead
+    |  <exp>\:  <?opt_ws> <exp_parameter_list> 
+        { return ::Capture( 'invocant' => $$<exp>, 'array' => $$<exp_parameter_list>, 'hash' => [ ] ); }
     |  <exp_mapping> 
         { return ::Capture( 'invocant' => undef, 'array' => [ ], 'hash' => $$<exp_mapping> ); }
         
     # ??? doesn't work here
-    #|  <exp_seq>
-    #    { return ::Capture( 'invocant' => undef, 'array' => $$<exp_seq>, 'hash' => [ ] ); }
+    #|  <exp_parameter_list>
+    #    { return ::Capture( 'invocant' => undef, 'array' => $$<exp_parameter_list>, 'hash' => [ ] ); }
 };
 
 token sig {
         <invocant>
         <?opt_ws> 
         # TODO - exp_seq / exp_mapping == positional / named 
+        # ??? exp_parameter_list
         <exp_seq> 
         {
             # say ' invocant: ', ($$<invocant>).perl;

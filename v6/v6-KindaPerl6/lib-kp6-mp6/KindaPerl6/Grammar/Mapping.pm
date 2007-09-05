@@ -35,5 +35,24 @@ token exp_mapping {
         { return [ ] }
 };
 
+token exp_parameter_list {
+    |   <pair> 
+        [
+        |   <?opt_ws> \, <?opt_ws> <exp_parameter_list> 
+            { return [ $$<pair>, @( $$<exp_parameter_list> ) ] }
+        |   <?opt_ws> [ \, <?opt_ws> | <''> ]
+            { return [ $$<pair> ] }
+        ]
+    |   <exp> 
+        [
+        |   <?opt_ws> \, <?opt_ws> <exp_parameter_list> 
+            { return [ $$<exp>, @( $$<exp_parameter_list> ) ] }
+        |   <?opt_ws> [ \, <?opt_ws> | <''> ]
+            { return [ $$<exp> ] }
+        ]
+    |
+        { return [ ] }
+};
+
 }
 
