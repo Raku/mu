@@ -894,16 +894,26 @@ require KindaPerl6::Runtime::Perl6::Match;
 
 
 sub ::CAPTURIZE {
+    my @array;
+    my %hash;
+    for my $p ( @{ $_[0] } ) {
+        #if ( ::DISPATCH( $p, 'does', ::DISPATCH( $::Str, 'new', 'Pair' ) ) ) {
+        #    # TODO
+        #}
+        #else {
+            push @array, $p;
+        #}
+    }
     ::DISPATCH( $::Capture, 'new', { 
             invocant => undef,  # TODO
             array => 
                 ::DISPATCH( $::Array, 'new', { 
-                        _array => $_[0],
+                        _array => \@array,
                     }
                 ),
             hash => 
                 ::DISPATCH( $::Hash, 'new', { 
-                        _hash => { },    # TODO
+                        _hash => \%hash,    
                     }
                 ),
         } 
