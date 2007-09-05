@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 27;
+plan 29;
 
 # basic my() lexicals
 
@@ -45,7 +45,15 @@ my $d = 1;
         is($d, 2, '$d is now the lexical (inner) $d');    
     }
 }
-is($d, 1, '$d is available, and the outer value has not changed');
+is(eval('$d'), 1, 'eval(\'$d\') has not changed');
+
+is( eval('
+my $d = 1;
+{ 
+    my $d = 3 
+}
+$d;
+'), 1, '$d is available, and the outer value has not changed' );
 
 # check closures with functions
 
@@ -98,4 +106,10 @@ is(eval('loop (my $x = 1, my $y = 2; $x > 0; $x--) { last } $y'), 2, '2nd my in 
     $f = 5;
     my $f;
     is($f, 5, "two lexicals declared in scope is noop");
+}
+
+my $x = 42;
+{
+    my $x = $x;
+    is( $x, undef, 'my $x = $x; can not see the value of the outer $x');
 }
