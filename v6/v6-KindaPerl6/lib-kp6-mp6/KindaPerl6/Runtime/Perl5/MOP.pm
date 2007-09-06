@@ -42,7 +42,11 @@ sub ::DISPATCH_VAR {
 
 sub make_class {
     my %args = @_;
-    my $meta = ::DISPATCH( $::Class, 'new', $args{name});
+    my $proto = delete $args{proto};
+    my $meta = (
+            defined( $proto ) && ::DISPATCH( $proto, 'HOW' )
+        )
+        || ::DISPATCH( $::Class, 'new', $args{name});
     my %methods = %{$args{methods}};
     while (my ($method_name,$sub) = each %methods) {
         ::DISPATCH($meta,"add_method",$method_name,::DISPATCH( $::Method, 'new', { code => $sub } ));
@@ -546,7 +550,7 @@ $meta_Object->add_method( 'STORE', $method_readonly );
 
 #--- back to Value
 
-$::Undef = make_class(name=>"Undef",parents=>[$meta_Value],methods=>{
+$::Undef = make_class( proto => $::Undef, name=>"Undef",parents=>[$meta_Value],methods=>{
     perl    => sub { ::DISPATCH($::Str,'new','undef') },
     str     => sub { ::DISPATCH($::Str,'new','') },
     true    => sub { ::DISPATCH($::Bit,'new',0) },
@@ -756,7 +760,7 @@ require KindaPerl6::Runtime::Perl6::Pair;
 require KindaPerl6::Runtime::Perl6::NamedArgument;
 
 
-$::Cell = make_class(name=>"Cell",parent=>[$::meta_Container],methods=>{
+$::Cell = make_class( proto => $::Cell, name=>"Cell",parent=>[$::meta_Container],methods=>{
     new=>sub {
             my $v = {
                 %{ $_[0] },
@@ -773,11 +777,11 @@ $::Cell = make_class(name=>"Cell",parent=>[$::meta_Container],methods=>{
         },
 });
 
-require KindaPerl6::Runtime::Perl5::Hash;
 require KindaPerl6::Runtime::Perl6::Hash;
+require KindaPerl6::Runtime::Perl5::Hash;
 
-require KindaPerl6::Runtime::Perl5::Array;
 require KindaPerl6::Runtime::Perl6::Array;
+require KindaPerl6::Runtime::Perl5::Array;
 
 require KindaPerl6::Runtime::Perl6::Capture;
 require KindaPerl6::Runtime::Perl6::Signature;
@@ -824,7 +828,7 @@ sub ::CAPTURIZE {
         } 
     )
 }
-$::Multi = make_class(name=>"Multi",parent=>[$meta_Code],methods=>{
+$::Multi = make_class( proto => $::Multi, name=>"Multi",parent=>[$meta_Code],methods=>{
     APPLY =>sub {
             my $self = shift; 
             my $code = ::DISPATCH( $self, 'select',::CAPTURIZE(\@_));

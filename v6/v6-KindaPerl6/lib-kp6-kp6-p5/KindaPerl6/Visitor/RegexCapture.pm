@@ -477,8 +477,7 @@
                                 }
                                 do {
                                     ::MODIFIED($last);
-                                    $last =
-                                      ::DISPATCH( $regex, 'capture_count',
+                                    $last = ::DISPATCH( $regex, 'capture_count',
                                         $count, $quantified, $seen );
                                 };
                                 do {

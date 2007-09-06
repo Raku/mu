@@ -1,6 +1,7 @@
 use strict;
 
 $::Hash = KindaPerl6::Runtime::Perl5::MOP::make_class(
+    proto => $::Hash, 
     name=>"Hash",parent=>[$::meta_Container],methods=>
     {
     
