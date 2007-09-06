@@ -12,7 +12,7 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 6 Aug 2007
+  Last Modified: 6 Sep 2007
   Number: 3
   Version: 121
 
@@ -59,7 +59,7 @@ descriptions are here; special topics are covered afterwards.
 =head2 Term precedence
 
 This isn't really a precedence level, but it's in here because no operator
-can have tighter precedence than a term.  See S03 for longer descriptions of
+can have tighter precedence than a term.  See S02 for longer descriptions of
 various terms.
 
 =over
