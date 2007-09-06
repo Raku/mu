@@ -731,7 +731,7 @@ role NumUnit does GenericUnit {
 
         # NumUnit handles most of the traditional unit stuff via units.dat.
         my $unitsdat = open "/usr/share/misc/units.dat"
-            orelse die "You don't have a readable /usr/share/misc/units.dat: $!";
+            orelse die "Can't read /usr/share/misc/units.dat: $!";
         cat =$unitsdat ~~ /<UnitsDat>/;
         $unitsdat.close;
 

@@ -3,16 +3,16 @@
 use v6-alpha;
 
 my $port = @ARGS[0] // 1024;
-my $sock = listen($port) or die "Could not open socket\n";
+my $sock = listen($port) orelse die "Could not open socket\n";
 say "$?FILE, ready";
 say "port: $port";
-while(1) {
+loop {
 	my $client = $sock.accept();
 	my $thr = async {
 		$client.say("\t\t--Hello from perl6 driven echo server--\n\nAnything you say will be reapeated back to you. Type quit to exit\n\n");
 		$client.flush;
 	
-		while(1) {
+                loop {
 			$client.print('echo>');
 			$client.flush;
 			my $line = readline($client);

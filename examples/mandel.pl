@@ -1,6 +1,6 @@
 use v6-alpha;
 
-# vim:ft=perl:sw=4:
+# vim:ft=perl:sw=4:syn=perl6
 # Print the Mandlebrot set
 #
 # Translated from C code by Glenn Rhoads
