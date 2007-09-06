@@ -35,7 +35,7 @@ syn keyword p6KeyDecl       rule token regex category
 syn keyword p6KeyScopeDecl  let my our state temp has constant proto
 syn keyword p6KeyFlow       if else elsif unless  
 syn keyword p6KeyFlow       for foreach loop while until when next last redo
-syn keyword p6KeyFlow       given not or and err xor return default
+syn keyword p6KeyFlow       given not or and andthen orelse xor return default
 syn keyword p6KeyFlow       exit
 syn keyword p6ClosureTrait  BEGIN CHECK INIT START FIRST ENTER LEAVE KEEP UNDO NEXT LAST
 syn keyword p6ClosureTrait  PRE POST END rw signature returns of parsed cached 
@@ -162,12 +162,14 @@ syn region p6Regex matchgroup=p6Keyword start="\<\(m\|rx\)\_s*\(\_s*:\_s*[a-zA-Z
 
 " rule { }
 syn region p6Regex start="rule\(\_s\+\w\+\)\{0,1}\_s*{"hs=e end="}" contains=@p6Regexen
+"syn region p6Regex start="\(rule\|token\|regex\)\(\_s\+\w\+\)\{0,1}\_s*{"hs=e end="}" contains=@p6Regexen
 
 " Closure (FIXME: Really icky hack, also doesn't support :blah modifiers)
 " However, don't do what you might _expect_ would work, because it won't.
 " And no variant of it will, either.  I found this out through 4 hours from
 " miniscule tweaking to complete redesign.  This is the only way I've found!
 syn region p6Closure start="\(\(rule\(\_s\+\w\+\)\{0,1}\|s\|rx\)\_s*\)\@<!{" end="}" matchgroup=p6Error end="[\])]"  contains=TOP   fold
+"syn region p6Closure start="\(\(\(rule\|token\|regex\)\(\_s\+\w\+\)\{0,1}\|s\|rx\)\_s*\)\@<!{" end="}" matchgroup=p6Error end="[\])]"  contains=TOP   fold
 
 
 " s:///, tr:///,  and all variants
@@ -201,7 +203,8 @@ syn match p6RegexSpecial contained "<\s*\(cut\|commit\)\s*>"
 "syn match p6RegexSpecial contained "\\\@<![+*|]"
 syn match p6RegexSpecial contained ":="
 syn region p6CharClass   contained start=+<\s*!\{0,1}\s*\z(['"]\)+ skip=+\\\z1+ end=+\z1\s*>+
-syn region p6TestExpr contained start="<\s*!\{0,1}\s*(" end=")\s*>" contains=TOP
+"syn region p6TestExpr contained start="<\s*!\{0,1}\s*(" end=")\s*>" contains=TOP
+syn region p6TestExpr contained start="<\(?\|!\)?{" end="}\s*>" contains=TOP
 
 
 " Hash quoting (sortof a hack)
