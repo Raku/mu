@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 30 Aug 2007
+  Last Modified: 6 Aug 2007
   Number: 3
-  Version: 120
+  Version: 121
 
 =head1 Overview
 
@@ -48,8 +48,8 @@ levels. (Perl 5 has 23!)  Here we list the levels from "tightest" to
     Comma operator      ,
     List infix          Z minmax X X~X X*X XeqvX
     List prefix         = : print push say die map substr ... [+] [*] any $ @
-    Loose and           and
-    Loose or            or xor err
+    Loose and           and andthen
+    Loose or            or xor orelse
     Terminator          ; <==, ==>, <<==, ==>>, {...}, modifiers, extra ), ], }
 
 If you don't see your favorite operator there, the following
@@ -59,7 +59,7 @@ descriptions are here; special topics are covered afterwards.
 =head2 Term precedence
 
 This isn't really a precedence level, but it's in here because no operator
-can have tighter precedence than a term.  See S02 for longer descriptions of
+can have tighter precedence than a term.  See S03 for longer descriptions of
 various terms.
 
 =over
@@ -1008,13 +1008,14 @@ See C<xor> below for low-precedence version.
 
 =item *
 
-C<< infix:<//> >>, defined-or
+C<< infix:<//> >>, default operator
 
     $value // $default
 
 Returns the left argument if it's defined, otherwise evaluates and
 returns the right argument.  In list context forces a false return
-to mean C<()>.  See C<err> below for low-precedence version.
+to mean C<()>.  See C<orelse> below for a similar but not identical
+low-precedence version.
 
 =item *
 
@@ -1497,6 +1498,30 @@ evaluates and returns the right argument.  In list context forces
 a false return to mean C<()>.  See C<&&> above for high-precedence
 version.
 
+=item *
+
+C<< infix:<andthen> >>, proceed on success
+
+    test1() andthen test2()
+
+Returns the left argument if the left argument indicates failure
+(that is, if the result is undefined).  Otherwise it
+evaluates and returns the right argument.
+
+If the right side is a block or pointy block, the result of the left
+side is bound to any arguments of the block.  If the right side is
+not a block, a block scope is assumed around the right side, and the
+result of the left side is implicitly bound to C<$_> for the scope
+of the right side.  That is,
+
+    test1() andthen test2()
+
+is equivalent to
+
+    test1() andthen -> $_ { test2() }
+
+There is no corresponding high-precedence version.
+
 =back
 
 =head2 Loose or precedence
@@ -1526,13 +1551,28 @@ See C<^^> above for high-precedence version.
 
 =item *
 
-C<< infix:<err> >>, short-circuit defined-or
+C<< infix:<orelse> >>, proceed on failure
 
-    $value err $default
+    test1() orelse test2()
 
-Returns the left argument if it's defined, otherwise evaluates and
-returns the right argument.  In list context forces a false return
-to mean C<()>.  See C<//> above for high-precedence version.
+Returns the left argument if the left argument indicates success
+(that is, if the result is defined).  Otherwise it evaluates and
+returns the right argument.
+
+If the right side is a block or pointy block, the result of the left
+side is bound to any arguments of the block.  If the right side is
+not a block, a block scope is assumed around the right side, and the
+result of the left side is implicitly bound to C<$!> for the scope
+of the right side.  That is,
+
+    test1() orelse test2()
+
+is equivalent to
+
+    test1() orelse -> $! { test2() }
+
+(The low-precedence C<//> operator is similar, but does not set C<$!> or
+treat blocks specially.)
 
 =back
 
