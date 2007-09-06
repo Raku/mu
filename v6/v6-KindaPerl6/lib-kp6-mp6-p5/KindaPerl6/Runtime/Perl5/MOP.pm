@@ -597,6 +597,8 @@ $meta_Code->add_method( 'signature',
     ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value}{signature} } ) );
 $meta_Code->add_method( 'code',
     ::DISPATCH( $::Method, 'new',  sub { $_[0] } ) );
+$meta_Code->add_method( 'p5landish',
+    ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value}{code} } ) );
 
 my $meta_List = ::DISPATCH( $::Class, 'new', "List");
 $::List = $meta_List->PROTOTYPE();

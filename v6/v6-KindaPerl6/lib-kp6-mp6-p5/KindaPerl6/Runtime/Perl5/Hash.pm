@@ -38,6 +38,7 @@ $::Hash = KindaPerl6::Runtime::Perl5::MOP::make_class(
                     }
                 );
         },
+    p5landish=> sub { $_[0]{_value}{_hash} }
 });
 
 1;
