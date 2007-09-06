@@ -11,7 +11,7 @@ require Motd; #must be in PERL6LIB path, to say 'use';
 
 my $limit     = @*ARGS[0] // '2';
 my $dict      = canonpath("$progdir/pugspraise");
-my $fh        = open $dict err die $!;
+my $fh        = open $dict orelse die $!;
 my @list      = =$fh;
 
 my &tell = -> $max {

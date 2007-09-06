@@ -152,8 +152,8 @@ looseOperators = do
     return $
         [ -- preOps names                               -- List Operator
           leftOps  (opWords " ==> ")                     -- Pipe Forward
-        , leftOps  (opWords " and ")                     -- Loose And
-        , leftOps  (opWords " or xor err ")              -- Loose Or
+        , leftOps  (opWords " and andthen ")                     -- Loose And
+        , leftOps  (opWords " or xor orelse ")              -- Loose Or
         ]
 
 data CurrentFunction = MkCurrentFunction
@@ -717,7 +717,7 @@ defaultInfixOps = opWords $ concat
     , " !eq !ne !lt !le !gt !ge !=:= !=== !eqv "
     , " && "
     , " || ^^ // "
-    , " and or xor err "
+    , " and or xor orelse andthen "
     , " .[] .{} "
     ]
 

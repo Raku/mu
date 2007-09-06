@@ -19,7 +19,7 @@ debug "  $*PROGRAM_NAME nick host[:port] max_bad_guesses";
 # Copied from examples/games/hangman.pl.
 sub get_committer_list(Str $dict_file) returns List {
   my @committers;
-  my $dict = open($dict_file) err
+  my $dict = open($dict_file) orelse
     die "Couldn't open \"$dict_file\": $!\n";
 
   # Skip the intro text

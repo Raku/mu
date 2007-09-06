@@ -4,7 +4,7 @@ my %words;
 
 sub load_db returns Void {
     return() unless "words.db.pl" ~~ :e;
-    my $db = open("words.db.pl") err die "Cannot open the words.db.pl file: $!";
+    my $db = open("words.db.pl") orelse die "Cannot open the words.db.pl file: $!";
     for (=$db) -> $_line {
         my $line = $_line;
         my ($key, $value) = split("\t", $line);
@@ -14,7 +14,7 @@ sub load_db returns Void {
 }
 
 sub save_db returns Void {
-    my $db = open("words.db.pl", :w) err die "Cannot open the words.db.pl file: $!";
+    my $db = open("words.db.pl", :w) orelse die "Cannot open the words.db.pl file: $!";
     for (%words.kv) -> $key, $value {
         $db.say($key ~ "\t" ~ $value);
     }
@@ -23,7 +23,7 @@ sub save_db returns Void {
 
 sub parse_file (Str $file) returns Hash {
     my %words_in_file;    
-    my $fh = open("$file") err die "Cannot open the '$file' file: $!";
+    my $fh = open("$file") orelse die "Cannot open the '$file' file: $!";
     for (=$fh) -> $_line {
         my $line = $_line;       
         while ($line ~~ s:perl5/(\w+)[ \t\n\r]//) {

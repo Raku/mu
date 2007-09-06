@@ -10,7 +10,7 @@
   method withdraw ($amount) {
       my $current_balance = $.balance;
       ($current_balance >= $amount)
-          err fail "Account overdrawn";
+          orelse fail "Account overdrawn";
       $.balance = $current_balance - $amount;
   }
   

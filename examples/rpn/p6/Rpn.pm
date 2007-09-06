@@ -16,8 +16,8 @@ sub evaluate (Str $expr) returns Int {
             @stack.push($tok);
             next;
         }
-        my $x = @stack.pop() err die "Stack underflow\n";
-        my $y = @stack.pop() err die "Stack underflow\n";
+        my $x = @stack.pop() orelse die "Stack underflow\n";
+        my $y = @stack.pop() orelse die "Stack underflow\n";
 
         # given/when is a sexy new P6 construct that can avoid
         # long if/elsif/else chains

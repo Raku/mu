@@ -1215,8 +1215,8 @@ end
 #   list item separator , ¥
 #   list op (rightward) <== print push any all true not etc.
 #   pipe forward        ==>
-#   loose and           and
-#   loose or            or xor err
+#   loose and           and andthen
+#   loose or            or xor orelse
 #   expr terminator     ; {} as control block, statement modifiers
 
 #   terms               42 "eek" $x /abc/ (1+2) a(1) :by(2) .meth listop
@@ -1260,10 +1260,10 @@ level :infix, :commalike, ', ¥';
 level :infix, :list, :needws, '<=='; #X?
 #   pipe forward        ==>
 level :infix, '==>';
-#   loose and           and
-level :infix, 'and';
-#   loose or            or xor err
-level :infix, 'or xor err';
+#   loose and           and andthen
+level :infix, 'and andthen';
+#   loose or            or xor orelse
+level :infix, 'or xor orelse';
 #   expr terminator     ; {} as control block, statement modifiers
 #XXX -------
 #   end of table

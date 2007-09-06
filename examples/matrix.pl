@@ -68,7 +68,7 @@ my %scores = (
 %scores.values >>*= 10;
 
 gather {
-    for slurp '/usr/share/dict/words' :chomp err die {
+    for slurp '/usr/share/dict/words' :chomp orelse die {
         next if /<-[a-z]>/;
         /$re/ and take { word => $_, score => %scores{ .letters }.sum };
     }

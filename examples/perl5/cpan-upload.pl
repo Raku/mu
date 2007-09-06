@@ -229,7 +229,7 @@ sub pause_add_files (*@files) {
     # Create the agent we'll use to make the web requests
     #-------------------------------------------------------------------
     _debug("  creating instance of LWP::UserAgent\n");
-    $agent = LWP::UserAgent.new() err die "Failed to create UserAgent: $!\n";
+    $agent = LWP::UserAgent.new() orelse die "Failed to create UserAgent: $!\n";
     $agent.agent("$PROGRAM/$VERSION");
     $agent.from($config.mailto);
     if (defined $config.http_proxy)

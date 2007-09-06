@@ -22,7 +22,7 @@ sub getopts (Str $spec, @args? is rw = @*ARGS) is export {
                     if $1.chars {
                         %opts{$0} = ~$1;
                     } else {
-                        %opts{$0} = @args.shift err warn "missing option for -$0";
+                        %opts{$0} = @args.shift orelse warn "missing option for -$0";
                     }
                 }
             }

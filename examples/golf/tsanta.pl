@@ -23,7 +23,7 @@ sub usage {
 sub length (Str $s) returns Int { +split("", $s) }
 
 sub golf_score (Str $script) returns Int {
-    my $fh = open($script) err die("open '$script' failed: $!");
+    my $fh = open($script) orelse die("open '$script' failed: $!");
     my $golf = 0;
     my $dollar_dot = 0;    # Note: $. aka $fh.linenum() not implemented yet
     for =$fh  -> $line {
@@ -31,7 +31,7 @@ sub golf_score (Str $script) returns Int {
         $golf += length($line) - 1
             unless $dollar_dot==1 && $line.index("#!") == 0;
     }
-    $fh.close() err die("close '$script' failed: $!");
+    $fh.close() orelse die("close '$script' failed: $!");
     return $golf;
 }
 
@@ -42,9 +42,9 @@ sub print_golf_score (*@scr) {
 }
 
 sub build_file (Str $fname, Str $data) {
-    my $fh = open($fname, :w) err die("open '$fname' failed: $!");
-    $fh.print($data) err die("print '$fname' failed: $!");
-    $fh.close() err die("close '$fname' failed: $!");
+    my $fh = open($fname, :w) orelse die("open '$fname' failed: $!");
+    $fh.print($data) orelse die("print '$fname' failed: $!");
+    $fh.close() orelse die("close '$fname' failed: $!");
 }
 
 sub check_one (Str $scr, Str $label, Str $data, Str $exp) {
@@ -52,10 +52,10 @@ sub check_one (Str $scr, Str $label, Str $data, Str $exp) {
     my $cmd = "$PUGS $scr $intmp >$outtmp";
     print("$label: running: '$cmd'...");
     # my $out = `$cmd`;
-    system($cmd) err die("system '$cmd' failed: $!");
+    system($cmd) orelse die("system '$cmd' failed: $!");
     # XXX: get return code. how? $!? (I think $? is obsolete in p6).
     my $rc = 0;
-    my $out = slurp($outtmp) err die("slurp '$outtmp' failed: $!");
+    my $out = slurp($outtmp) orelse die("slurp '$outtmp' failed: $!");
     # my $rc = $? >> 8;
     say("done (rc=$rc)");
     if ($out ne $exp) {

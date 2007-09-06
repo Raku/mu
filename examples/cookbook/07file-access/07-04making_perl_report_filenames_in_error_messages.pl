@@ -8,5 +8,5 @@ use v6-alpha;
 my $path = "file";
 
 #my $fh = open($path)
-#    err die "Could not open '$path' for reading: $!\n";
+#    orelse die "Could not open '$path' for reading: $!\n";
  

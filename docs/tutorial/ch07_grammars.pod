@@ -44,15 +44,30 @@ operator immediately matches when it's in void, boolean, string, or
 numeric context, or the argument of the smart-match operator (C<~~>).
 X<~ (tilde);~~ (smart match) operator>
 
-  if ($string ~~ m/\w+/)      {...}
-  if ($string ~~ s/\w+/word/) {...}
-  if ($string ~~ /\w+/)       {...}
+  if $string ~~ m/\w+/      {...}
+  if $string ~~ s/\w+/word/ {...}
+  if $string ~~ /\w+/       {...}
 
 You can substitute other delimiters, like C<#...#>, C<[...]>, and
 C<{...}> for the standard C</.../>, though C<?...?> and C<(...)> are
-not valid delimiters. 
+not valid delimiters:
 
-  if ($string ~~ s[\w+][word]) {...}
+  $string ~~ s/\w+/word/
+
+Modifiers now come in front using I<adverb> syntax, so to do multiple
+substitutions on the same string is:
+
+  $string ~~ s:g/\w+/word/
+
+Also, if you use brackets on the first part of a substitution, the second
+part is specified as a pseudoassignment:
+
+  $string ~~ s[\w+] = 'word';
+
+This form also allows assignment operators, so if you want to add one to
+all the number within a string, you can say:
+
+  $string ~~ s:g[\d+] += 1;
 
 =head2 Deferred Matches
 

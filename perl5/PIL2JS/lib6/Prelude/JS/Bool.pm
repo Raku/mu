@@ -31,7 +31,7 @@ sub infix:<?|>   ($a, $b)      is primitive { ?($a || $b) }
 sub infix:<//>   ($a, Code $b) is primitive { defined($a) ?? $a !! $b() }
 sub infix:<||>   ($a, Code $b999999) is primitive { $a ?? $a !! $b999999() }
 sub infix:<&&>   ($a, Code $b) is primitive { $a ?? $b() !! $a }
-sub infix:<err>  ($a, Code $b) is primitive { infix:<//>($a, $b()) }
+sub infix:<orelse>  ($a, Code $b) is primitive { infix:<//>($a, $b()) }
 sub infix:<or>   ($a, Code $b) is primitive { infix:<||>($a, $b()) }
 sub infix:<and>  ($a, Code $b) is primitive { infix:<&&>($a, $b()) }
 # XXX shouldn't need to call $b here

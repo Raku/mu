@@ -1220,7 +1220,7 @@ sub infix {
         return _emit( $n->{exp1} ) . ' .= ' . _emit( $n->{exp2} );
     }
     if ( $n->{op1} eq '//'  ||
-         $n->{op1} eq 'err' ) {
+         $n->{op1} eq 'orelse' ) {
 
         # ( !defined ($::TMP=( my $x = $v )) ? $y : $::TMP )
         my $id1 = $id++;

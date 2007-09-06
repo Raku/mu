@@ -39,15 +39,15 @@ for @tests -> $mod, $expected_ret {
 our $loaded   = 0;
 our $imported = 0;
 
-eval q{use t::packages::LoadCounter; 1} err die "error loading package: $!";
+eval q{use t::packages::LoadCounter; 1} orelse die "error loading package: $!";
 is($loaded,   1, "use loads a module");
 is($imported, 1, "use calls &import");
 
-eval q{use t::packages::LoadCounter; 1} err die "error loading package: $!";
+eval q{use t::packages::LoadCounter; 1} orelse die "error loading package: $!";
 is($loaded,   1, "a second use doesn't load the module again");
 is($imported, 2, "a second use does call &import again");
 
-eval q{no t::packages::LoadCounter; 1} err die "error no'ing package: $!";
+eval q{no t::packages::LoadCounter; 1} orelse die "error no'ing package: $!";
 is($loaded,   1, "&no doesn't load the module again");
 is($imported, 1, "&no calls &unimport");
 

@@ -10,12 +10,12 @@ to clear the screen.
 
 =head1 sub get_committer_list
 
-C<err> is the low precedence form of C<//> (S03). C<//> is especially useful
+C<orelse> is the low precedence form of C<//> (S03). C<//> is especially useful
 in its assignment form:
 
     $x //= $y;
 
-To summarize, C<||> and C<or> relate to truth, while C<//> and C<err> relate
+To summarize, C<||> and C<or> relate to truth, while C<//> and C<orelse> relate
 to definedness.
 
 Next, we use smart matching, C<~~>, to skip all of the lines from the

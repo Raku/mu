@@ -1306,7 +1306,7 @@ sub infix {
         return _emit_pair( $n->{exp1}, $n->{exp2} );
     }
     if ( $n->{op1} eq '//'  ||
-         $n->{op1} eq 'err' ) {
+         $n->{op1} eq 'orelse' ) {
 
         # ( !defined ($::TMP=( my $x = $v )) ? $y : $::TMP )
         my $id1 = $id++;

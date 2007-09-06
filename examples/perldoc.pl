@@ -45,7 +45,7 @@ sub list_pod_files {
 
 sub display_pod {
     my ($podfile) = @_;
-    my $fh = open $podfile err die "Could not open '$podfile'\n";
+    my $fh = open $podfile orelse die "Could not open '$podfile'\n";
     for =$fh -> $line {
         say $line;
     }
@@ -61,7 +61,7 @@ sub index_pods {
     my %data;
     for list_files(dirname($PROGRAM_NAME)) -> $podfile {
         say "Processing '$podfile'";
-        my $fh = open $podfile err die "Could not open '$podfile'\n";
+        my $fh = open $podfile orelse die "Could not open '$podfile'\n";
         my $row = 0;
         my $section;
         for =$fh -> $line {
@@ -85,7 +85,7 @@ sub index_pods {
 # I think File::Find does not work currently...
 sub list_files ($dir, $full) {
     #say "opening $dir";
-    my $dh = opendir $dir err die "Could not open $dir";
+    my $dh = opendir $dir orelse die "Could not open $dir";
     my @entries;
     for $dh.readdir -> $entry {
         next if $entry eq "." or $entry eq "..";
@@ -110,7 +110,7 @@ sub lookup($keyword) {
         for %data{$keyword}[] -> $entry {
             my ($row, $file) = split /\./, $entry, 2;
             say "here: $file  $row";
-            my $fh = open $file err die "Could not open $file";
+            my $fh = open $file orelse die "Could not open $file";
             for (0..$row) {
                 =$fh;
             }

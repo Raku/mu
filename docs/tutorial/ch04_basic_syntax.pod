@@ -448,9 +448,9 @@ property. Traits are fixed to the variable when it is declared and
 cannot be changed later.  Compile-time traits are set with the C<is>
 keyword:
 
-  my $pi is constant = 3.14159;
+  my $pi is readonly = 3.14159;
 
-The C<constant> trait specifies that the value of the variable can't
+The C<readonly> trait specifies that the value of the variable can't
 be changed.
 
 Other properties are attached at run time. They only modify values, not
@@ -458,11 +458,11 @@ variables. They can be added and removed at any time during the
 execution of the code. Runtime properties are set with the C<but>
 keyword:
 
-  $true_value = 0 but true;
+  $true_value = 0 but True;
 
-The C<true> property specifies that the value will evaluate as true in
+The C<True> property specifies that the value will evaluate as true in
 a boolean context, no matter what the actual value is. This particular
-property means the Perl 6 C<system> call can be checked with a simple
+property means the Perl 6 C<run> call can be checked with a simple
 conditional. It still returns the same numeric values it always has (0
 on success and a numeric error code on failure), but it flags the
 value with a property as true when the call succeeds and false when it
@@ -487,9 +487,9 @@ X<types>
 Perl 6 allows you to specify the types of variables and values much
 more precisely than Perl 5, but keep in mind that explicit types are
 completely optional. If you choose to use them, you'll gain some
-benefits in optimization and interfacing between languages. The design
-of the type system isn't complete, but the basic groundwork is in
-place.
+benefits in optimization and interfacing between languages.  The biggest
+benefit, however, is that types enable fine-grained control of multiple dispatch
+when you want it, or course-grained contol when you don't care.
 
 Perl 6 makes a distinction between the type of a value and the type of
 a variable. The I<value> type specifies what kind of values a variable
@@ -507,6 +507,16 @@ And putting an C<Int> value type on a hash says that the hash holds
 integer values (but says nothing about the type of the keys):
 
   my Int %hash;
+
+The type of the keys may be declared in a pseudo-subscript.  Since the
+default key type is strings, the preceding declaration is actually short for:
+
+  my Int %hash{Str};
+
+To declare a hash that uses any object type for a key and always returns,
+say, an icon object, say:
+
+  my Icon %hash{Any}
 
 The I<variable> type specifies what kind of container the variable is.
 This is basically like a tie in Perl 5. Variable types are defined as
@@ -697,10 +707,11 @@ requested.
 
   @range = 3..Inf; # lazy
 
-X<. (dot);... (infinite range);operator>
-The C<...> operator is equivalent to C<..Inf>:
+The C<*> token may be used instead of C<Inf>, which really only makes sense
+for numeric types:
 
-  @range = 3...;
+  @range = 3..*;
+  @range = 'a'..*;
 
 =head2 Comparison
 
@@ -738,15 +749,15 @@ greater-than-or-equal (C<E<gt>=>, C<ge>), less-than-or-equal
 C<ne>). The identity operator (C<=:=>) tests whether the two arguments
 are aliases to the same object. Each returns a true value if the
 relation is true and a false value otherwise. The generic comparison
-operators (C<E<lt>=E<gt>>, C<cmp>) return C<0> if the two arguments are
+operators (C<E<lt>=E<gt>>, C<leg>) return C<0> if the two arguments are
 equal, C<1> if the first is greater, and C<-1> if the second is greater.
 
-  if ($age > 12) {...}
+  if $age > 12 {...}
 
 Comparison operators can also be chained. Chained comparisons 
 evaluate each value in the chain only once.
 
-  if (24 < $age < 42) {...} # 24 < $age and $age < 42
+  if 24 < $age < 42 {...} # 24 < $age and $age < 42
 
 =head2 Logical Operators
 
@@ -779,15 +790,15 @@ right-hand value is evaluated and returned:
   $splat = $whale || $petunia;
   $splat = ($whale or $petunia);
 
-X<err (test defined) operator>
+X<orelse (test defined) operator>
 X</ (slash);// (test defined) operator>
 A variant of the OR relation tests for definedness instead of truth.
-It uses the C<//> operator and the low-precedence C<err> operator. The
+It uses the C<//> operator and the low-precedence C<orelse> operator. The
 left-hand value is returned if it is defined, otherwise the right-hand
 side is evaluated and its value returned:
 
   $splat = $whale // $petunia;
-  $splat = ($whale err $petunia);
+  $splat = ($whale orelse $petunia);
 
 X<xor operator> 
 X<^ (caret);^^ (logical XOR) operator>
@@ -1094,7 +1105,7 @@ operators are C<&> (AND), C<|> (OR), and C<^> (XOR). There isn't an
 operator for junctive NOT, but there is a function, as you'll see
 shortly. So while C<||> is a logical operation on two expressions:
 
-  if ($value == 1) || ($value == 2) { ... }
+  if $value == 1 || $value == 2 { ... }
 
 C<|> is the same logical relation between two values:
 
@@ -1112,7 +1123,7 @@ return value is a junction, and it can be used anywhere a junction
 operation is used:
 
   $junc = 1 | 2;
-  if ($value == $junc) { ... }
+  if $value == $junc { ... }
 
 Here, the variable C<$junc> is used in place of C<1 | 2>, and has
 exactly the same effect as the earlier example.
@@ -1232,7 +1243,7 @@ which tests that all of the elements of the first set are equal to
 none of the elements of the second set. Translated to ordinary logical
 operators that's:
 
-  if ($a != $c) && ($a != $d) && ($b != $c) && ($b != $d) { ... }
+  if $a != $c && $a != $d && $b != $c && $b != $d { ... }
 
 If you want to get back a flat list of values from a junction, use the
 C<.values> method:
@@ -1656,7 +1667,7 @@ C<given>/C<when>.
 
 Z<CHP-4-SECT-3.1.1>
 
-X<if (conditional);statement>
+X<if conditional;statement>
 The C<if> statement checks a condition and executes its associated
 block only if that condition is true. The condition can be any
 expression that evaluates to a truth value.  Parentheses around the

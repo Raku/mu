@@ -59,7 +59,7 @@ L<"http://groups.google.de/group/perl.perl6.language/msg/bd9eb275d5da2eda">
 {
   my @array = (undef, undef, 3, undef, 5);
   is ([//]  @array), 3, "[//] works";
-  is ([err] @array), 3, "[err] works";
+  is ([orelse] @array), 3, "[orelse] works";
 }
 
 {

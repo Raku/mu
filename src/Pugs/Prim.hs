@@ -1035,7 +1035,8 @@ op2 ".{}" = \x y -> do
 op2 "and"= op2 "&&"
 op2 "or" = op2 "||"
 op2 "xor"= op2 "^^"
-op2 "err"= op2 "//"
+op2 "orelse"= op2 "//"	-- XXX wrong
+op2 "andthen"= op2 "&&"	-- XXX even wronger
 op2 "pick" = op2Pick
 op2 "grep" = op2Grep
 op2 "map"  = op2Map
@@ -2124,7 +2125,8 @@ initSyms = seq (length syms) $ do
 \\n   Scalar    left    and     safe   (Bool, ~Bool)\
 \\n   Scalar    left    or      safe   (Bool, ~Bool)\
 \\n   Scalar    left    xor     safe   (Bool, Bool)\
-\\n   Scalar    left    err     safe   (Bool, ~Bool)\
+\\n   Scalar    left    orelse  safe   (Bool, ~Bool)\
+\\n   Scalar    left    andthen safe   (Bool, ~Bool)\
 \\n   Str       pre     chr     safe   (Int)\
 \\n   Int       pre     ord     safe   (Str)\
 \\n   Str       pre     oct     safe   (Str)\

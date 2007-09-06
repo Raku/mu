@@ -5,7 +5,7 @@ my $dat = splitpath($*PROGRAM_NAME)[1] ~ "/p6explain.dat";
 my %things;
 
 # Parsing the dat
-my $fh = open $dat err die "Couldn't open \"$dat\" for reading: $!\n";
+my $fh = open $dat orelse die "Couldn't open \"$dat\" for reading: $!\n";
 for =$fh {
   state $cur_entry;
 

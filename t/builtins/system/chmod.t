@@ -83,7 +83,7 @@ if $*OS eq any <MSWin32 mingw msys cygwin> {
 sub create_temporary_file {
     my $time = time;
     my $file = "temp_$time";
-    my $fh = open $file, :w err die "Could not create $file";
+    my $fh = open $file, :w orelse die "Could not create $file";
     diag "Using file $file";
     return $file;
 }

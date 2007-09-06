@@ -40,13 +40,13 @@ my (@files_created, @dirs_created);
 
 sub mktempdir () {
     my $dir = tempdir()
-        err fail;
+        orelse fail;
     @dirs_created.push($dir);
     return $dir;
 }
 sub open_new (Str $filename) {
     my $fh = open($filename, :w)
-        err fail;
+        orelse fail;
     @files_created.push($filename);
     return $fh;
 }
@@ -69,10 +69,10 @@ sub generate_class (Str $classname, $value) {
 sub write_class ($destdir, Str $classname, Num $value, Bool :$precompile = 0) {
     my $filename = catpath('', $destdir, "{$classname}.pm");
     my $fh = open_new($filename)
-        err die "Couldn't open $filename: $!";
+        orelse die "Couldn't open $filename: $!";
     $fh.say(generate_class(:$classname, :$value));
     $fh.close
-        err die "Couldn't close $filename: $!";
+        orelse die "Couldn't close $filename: $!";
     if $precompile {
         precompile($filename, $destdir);
     }
@@ -80,7 +80,7 @@ sub write_class ($destdir, Str $classname, Num $value, Bool :$precompile = 0) {
 }
 
 sub make_old (Str $filename) {
-    $filename ~~ :e err fail;
+    $filename ~~ :e orelse fail;
     # XXX - not portable, please fix for win32
     system(«touch -t 200001010000 $filename»);
 }
@@ -169,5 +169,5 @@ try {
 diag "Error: $!" if $!;
 
 # XXX - More tempdir workaround
-for @files_created { .unlink err diag "Couldn't unlink $_" }
-for @dirs_created { .rmdir err diag "Couldn't rmdir $_" }
+for @files_created { .unlink orelse diag "Couldn't unlink $_" }
+for @dirs_created { .rmdir orelse diag "Couldn't rmdir $_" }

@@ -71,7 +71,7 @@ my $chat = Chat.new;
 my ($i, %nick2num) = (1);
 
 # Pass I
-my $fh = open @*ARGS[0] err die "Couldn't open \"@*ARGS[0]\": $!\n";
+my $fh = open @*ARGS[0] orelse die "Couldn't open \"@*ARGS[0]\": $!\n";
 my $total = 0;
 
 # We read the input file in and populate %nick2num.
@@ -98,7 +98,7 @@ for =$fh -> {
 close $fh;
 
 # Pass I
-$fh = open @*ARGS[0] err die "Couldn't open \"@*ARGS[0]\": $!\n";
+$fh = open @*ARGS[0] orelse die "Couldn't open \"@*ARGS[0]\": $!\n";
 
 # This is the main coderef which processes a logline and returns HTML.
 my $process = -> $time, $nick, $type, $text {

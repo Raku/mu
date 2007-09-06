@@ -139,7 +139,7 @@ BEGIN {
         other => 'and',
     );
     __PACKAGE__->add_rule( 
-        name => 'err',
+        name => 'orelse',
         assoc => 'left',
         precedence => 'equal',
         other => 'or',

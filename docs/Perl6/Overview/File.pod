@@ -13,7 +13,7 @@ Structure
     # MODE can be :r :w :a :rw
     # if MODE left out it defaults to :r
     
-    my $fh = open "filename", :r err die "Could not open file $!";
+    my $fh = open "filename", :r orelse die "Could not open file $!";
 
     my $row = =$fh;                           # reading a line
 
@@ -26,7 +26,7 @@ Structure
     
 =head2 Directories
 
-    my $dh = opendir "dirname" err die "Could not open directory $!";
+    my $dh = opendir "dirname" orelse die "Could not open directory $!";
 
     my @files = readdir($dh);
     my @files = $dh.readdir;

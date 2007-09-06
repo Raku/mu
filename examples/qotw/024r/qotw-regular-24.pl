@@ -1,7 +1,7 @@
 # Perl 6 solution to QoTW regular #24, see
 # http://perl.plover.com/qotw/r/solution/024.
 
-my $transition_file = @*ARGS[0] err
+my $transition_file = @*ARGS[0] orelse
   die "Usage: $*PROGRAM_NAME transition_file [initial_tape]\n";
 
 my $initial_tape = @*ARGS[1] // "_";
@@ -14,7 +14,7 @@ my %instructions;
 my $state;
 my $tape_loc = 0;
 
-my $trans = open $transition_file err
+my $trans = open $transition_file orelse
   die "Can't open \"$transition_file\" for reading!\n";
 
 for =$trans {

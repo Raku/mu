@@ -240,7 +240,7 @@ Mini HowTo: How to port Perl 5 modules to Perl 6
         %h\ .<k>        # ok
 
   - open()
-       open my $fh, "<", $filename or die $!;    ->   my $fh = open($filename, :r) err die $!;
+       open my $fh, "<", $filename or die $!;    ->   my $fh = open($filename, :r) orelse die $!;
 
        "<"   -> :r
        ">"   -> :w

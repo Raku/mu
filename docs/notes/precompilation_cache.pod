@@ -121,10 +121,10 @@ C<ast> is the parsed tree.
       my $dir  = cachedir($hash);
       die "no precompiled version found" unless $dir ~~ :d;
       for $dir.readdir.sort:{numerically} -> $fn {
-          my ($pugsrev, $parserrev) = $fn ~~ /(\d+)-(\d+)/ err next;
+          my ($pugsrev, $parserrev) = $fn ~~ /(\d+)-(\d+)/ orelse next;
           next if $XXX_handwaving($pugsrev, $parserrev); # against %?CONFIG<pugsrev> etc.
           
-          load_precompiled($fn) err {
+          load_precompiled($fn) orelse {
               $fn.rm;
               die "error loading cached version: $!";
           };

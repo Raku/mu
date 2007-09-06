@@ -129,7 +129,7 @@ for «
   ~
   <=> cmp
   &&  || //
-  and or err
+  and or orelse
 » -> $op {
   $eval ~= "
     sub prefix:«[$op]» (*\@things) is primitive \{

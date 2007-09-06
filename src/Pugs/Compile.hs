@@ -305,7 +305,8 @@ instance Compile Exp PIL_LValue where
         -- XXX HACK
         isLogicalLazy (PExp (PVar "&infix:or"))  = True
         isLogicalLazy (PExp (PVar "&infix:and")) = True
-        isLogicalLazy (PExp (PVar "&infix:err")) = True
+        isLogicalLazy (PExp (PVar "&infix:andthen")) = True
+        isLogicalLazy (PExp (PVar "&infix:orelse")) = True
         isLogicalLazy (PExp (PVar "&infix:||"))  = True
         isLogicalLazy (PExp (PVar "&infix:&&"))  = True
         isLogicalLazy (PExp (PVar "&infix://"))  = True

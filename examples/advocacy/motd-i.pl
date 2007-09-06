@@ -13,7 +13,7 @@ my %tally     ;
 my @list      ;
 my $dict = canonpath("$progdir/pugspraise");
 
-my $fh = open($dict) err die $!;
+my $fh = open($dict) orelse die $!;
 
 for =$fh->$line {
     push @list, $line || next()

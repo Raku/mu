@@ -46,7 +46,7 @@ is($rew_2, 1, "success of rewinddir 2 returns 1");
 
 my @files_scalar;
 loop {
-    my $f = readdir($dir) err last;
+    my $f = readdir($dir) orelse last;
     @files_scalar.push($f);
 }
 is_deeply(\@files_scalar, @files, "same list of files retrieved after rewind, using scalar context");
@@ -115,7 +115,7 @@ is($rew_2_s, 1, "success of rewind 2 returns 1");
 
 my @files_scalar_s;
 loop {
-    my $f = read($dir_s) err last;
+    my $f = read($dir_s) orelse last;
     @files_scalar_s.push($f);
 }
 is_deeply(\@files_scalar_s, @files_s, "same list of files retrieved after rewind, using scalar context");

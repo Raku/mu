@@ -214,5 +214,5 @@ Bad Ideas
     print $x; # without handling it, then it's promoted to a die;
 
     # but you can handle it with
-    $x err die "..."
+    $x orelse die "..."
     if $x { ... }

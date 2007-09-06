@@ -9,11 +9,11 @@ You want to read or write a file from Perl.
 my $path = "07-01opening_file.pl";
 
 my $input = open($path, :r)
-    err die "Could not open $path for reading $!\n";
+    orelse die "Could not open $path for reading $!\n";
 
 my $filename = "test_file";
 my $output = open($filename, :w) 
-    err die "Could not open $filename for writing $!\n";
+    orelse die "Could not open $filename for writing $!\n";
 
 
 # File-access modes
@@ -28,7 +28,7 @@ my $output = open($filename, :w)
 #      write and read (overwriting a a file) will we have this?
 
 # Closing the file
-# $input.close err die $!;
+# $input.close orelse die $!;
 # close($input);
 
 

@@ -59,9 +59,9 @@ plan 34;
 {
     my $x = 1;
     my $y = 2;
-    $x err $y = 42;
+    $x orelse $y = 42;
 
-    is($y, 2, "'err' operator seems to be short circuiting");
+    is($y, 2, "'orelse' operator seems to be short circuiting");
 }
 
 {
@@ -75,9 +75,9 @@ plan 34;
 {
     my $x;      # should be undef
     my $y = 2;
-    $x err $y = 42;
+    $x orelse $y = 42;
 
-    is($y, 42, "'err' operator seems to be working");
+    is($y, 42, "'orelse' operator seems to be working");
 }
 
 {
@@ -104,7 +104,7 @@ plan 34;
     is((0 or 42),      42, "or   operator seems to be working");
 
     is((undef // 42),  42, "//   operator seems to be working"); #"
-    is((undef err 42), 42, "err  operator seems to be working");
+    is((undef orelse 42), 42, "orelse  operator seems to be working");
 
     is(0 ^^ 42,        42, "^^  operator seems to be working (one true)");
     is(42 ^^ 0,        42, "^^  operator seems to be working (one true)");

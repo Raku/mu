@@ -14,9 +14,9 @@ Test miscellaneous golfish examples.
 #    [=<>].reverse.print
 
 sub build_file (Str $fname, Str $data) {
-    my $fh = open($fname, :w) err die("open '$fname' failed: $!");
-    $fh.print($data) err die("print '$fname' failed: $!");
-    $fh.close() err die("close '$fname' failed: $!");
+    my $fh = open($fname, :w) orelse die("open '$fname' failed: $!");
+    $fh.print($data) orelse die("print '$fname' failed: $!");
+    $fh.close() orelse die("close '$fname' failed: $!");
 }
 
 my @examples = (

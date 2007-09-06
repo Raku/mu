@@ -89,7 +89,7 @@ sub wxclip(Str $acct -->) {
 }
 
 sub xclip(Str $s -->) {
-	my IO $xclip = Pipe.to: 'xclip' err abort 'No xclip - use .p';
+	my IO $xclip = Pipe.to: 'xclip' orelse abort 'No xclip - use .p';
 	$xclip.print: $s;
 	$xclip.close;
 }
@@ -97,7 +97,7 @@ sub xclip(Str $s -->) {
 sub sx(Str $s -->) {
 	my Str $pw = %pw{$s}<pass> //
 		first Str, (%pw{$_}<pass> if /$s/ for %pw.keys)
-		err abort "Couldn't find account $s";
+		orelse abort "Couldn't find account $s";
 	xclip $pw;
 	cmt if $changed;
 	sleep 10;
@@ -116,10 +116,10 @@ sub randpass(--> Str) {
 }
 
 sub cmt(-->) {
-	unlink 'pwd.gpg.old' err abort "Couldn't unlink: $!";
-	rename 'pwd.gpg', 'pwd.gpg.old' err abort "Couldn't rename: $!";
+	unlink 'pwd.gpg.old' orelse abort "Couldn't unlink: $!";
+	rename 'pwd.gpg', 'pwd.gpg.old' orelse abort "Couldn't rename: $!";
 	my IO $pwd = Pipe.to: 'gpg --symmetric --force-mdc --cipher-algo AES256 --output pwd.gpg'
-		err abort "Couldn't encrypt: $!";
+		orelse abort "Couldn't encrypt: $!";
 	for %pw.keys -> $k { $pwd.say: $k, "\t", %pw{$k}<pass user>.join("\t") }
 	if $pwd.close {
 		$changed = False;
@@ -167,8 +167,8 @@ regex pwent {
 
 %*ENV<PATH> = '/bin:/usr/bin:/usr/bin/X11';
 umask 0o77;
-chdir "$+HOME/pw" err die "Couldn't cd: $!";
-my IO $pwd = Pipe.from: 'gpg --output - --decrypt pwd.gpg' err die "Couldn't decrypt: $!";
+chdir "$+HOME/pw" orelse die "Couldn't cd: $!";
+my IO $pwd = Pipe.from: 'gpg --output - --decrypt pwd.gpg' orelse die "Couldn't decrypt: $!";
 for =$pwd {
 	/<pwent>/ or die 'Malformed line ', $pwd.linenum, ": $_\n";
 	%pw{$<pwent><acct>}<pass user> = $<pwent><pass user>;

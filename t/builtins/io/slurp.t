@@ -28,7 +28,7 @@ if $*OS eq "browser" {
   my @slurped_lines = slurp "README";
   ok +@slurped_lines > 50, "more than 50 lines in README file ?";
 
-  my $fh = open "README" err die;
+  my $fh = open "README" orelse die;
   my @expected_lines = =$fh;
   $fh.close;
   
