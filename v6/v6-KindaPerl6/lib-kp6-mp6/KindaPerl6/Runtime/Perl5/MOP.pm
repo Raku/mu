@@ -49,7 +49,7 @@ sub make_class {
         || ::DISPATCH( $::Class, 'new', $args{name});
     my %methods = %{$args{methods}};
     while (my ($method_name,$sub) = each %methods) {
-        ::DISPATCH($meta,"add_method",$method_name,::DISPATCH( $::Method, 'new', { code => $sub } ));
+        ::DISPATCH($meta,"redefine_method",$method_name,::DISPATCH( $::Method, 'new', { code => $sub } ));
     }
     for my $attribute_name (@{$args{attributes}}) {
         ::DISPATCH($meta,"add_attribute",$attribute_name);
