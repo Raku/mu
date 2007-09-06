@@ -225,9 +225,11 @@
                                                             $::Int, 'new',
                                                             1
                                                         ),
-                                                        ::DISPATCH(
-                                                            $MATCH,
-                                                            'to',
+                                                        ::DISPATCH_VAR(
+                                                            ::DISPATCH(
+                                                                $MATCH, 'to',
+                                                            ),
+                                                            'STORE',
                                                             ::DISPATCH(
                                                                 $GLOBAL::Code_infix_58__60__43__62_,
                                                                 'APPLY',
@@ -586,9 +588,13 @@
                                                                                                 1
                                                                                               )
                                                                                             ,
-                                                                                            ::DISPATCH(
-                                                                                                $MATCH,
+                                                                                            ::DISPATCH_VAR(
+                                                                                                ::DISPATCH(
+                                                                                                    $MATCH,
 'to',
+                                                                                                  )
+                                                                                                ,
+'STORE',
                                                                                                 ::DISPATCH(
                                                                                                     $GLOBAL::Code_infix_58__60__43__62_,
 'APPLY',
@@ -819,9 +825,11 @@
                                                             $::Int, 'new',
                                                             1
                                                         ),
-                                                        ::DISPATCH(
-                                                            $MATCH,
-                                                            'to',
+                                                        ::DISPATCH_VAR(
+                                                            ::DISPATCH(
+                                                                $MATCH, 'to',
+                                                            ),
+                                                            'STORE',
                                                             ::DISPATCH(
                                                                 $GLOBAL::Code_infix_58__60__43__62_,
                                                                 'APPLY',
@@ -1028,9 +1036,11 @@
                                                             $::Int, 'new',
                                                             1
                                                         ),
-                                                        ::DISPATCH(
-                                                            $MATCH,
-                                                            'to',
+                                                        ::DISPATCH_VAR(
+                                                            ::DISPATCH(
+                                                                $MATCH, 'to',
+                                                            ),
+                                                            'STORE',
                                                             ::DISPATCH(
                                                                 $GLOBAL::Code_infix_58__60__43__62_,
                                                                 'APPLY',
@@ -1389,9 +1399,13 @@
                                                                                                 1
                                                                                               )
                                                                                             ,
-                                                                                            ::DISPATCH(
-                                                                                                $MATCH,
+                                                                                            ::DISPATCH_VAR(
+                                                                                                ::DISPATCH(
+                                                                                                    $MATCH,
 'to',
+                                                                                                  )
+                                                                                                ,
+'STORE',
                                                                                                 ::DISPATCH(
                                                                                                     $GLOBAL::Code_infix_58__60__43__62_,
 'APPLY',
@@ -1622,9 +1636,11 @@
                                                             $::Int, 'new',
                                                             1
                                                         ),
-                                                        ::DISPATCH(
-                                                            $MATCH,
-                                                            'to',
+                                                        ::DISPATCH_VAR(
+                                                            ::DISPATCH(
+                                                                $MATCH, 'to',
+                                                            ),
+                                                            'STORE',
                                                             ::DISPATCH(
                                                                 $GLOBAL::Code_infix_58__60__43__62_,
                                                                 'APPLY',
@@ -1831,9 +1847,11 @@
                                                             $::Int, 'new',
                                                             1
                                                         ),
-                                                        ::DISPATCH(
-                                                            $MATCH,
-                                                            'to',
+                                                        ::DISPATCH_VAR(
+                                                            ::DISPATCH(
+                                                                $MATCH, 'to',
+                                                            ),
+                                                            'STORE',
                                                             ::DISPATCH(
                                                                 $GLOBAL::Code_infix_58__60__43__62_,
                                                                 'APPLY',
@@ -1990,9 +2008,12 @@
                                                                     'new',
                                                                     1
                                                                 ),
-                                                                ::DISPATCH(
-                                                                    $MATCH,
-                                                                    'to',
+                                                                ::DISPATCH_VAR(
+                                                                    ::DISPATCH(
+                                                                        $MATCH,
+                                                                        'to',
+                                                                    ),
+                                                                    'STORE',
                                                                     ::DISPATCH(
                                                                         $GLOBAL::Code_infix_58__60__43__62_,
                                                                         'APPLY',
@@ -2125,9 +2146,11 @@
                                                             $::Int, 'new',
                                                             1
                                                         ),
-                                                        ::DISPATCH(
-                                                            $MATCH,
-                                                            'to',
+                                                        ::DISPATCH_VAR(
+                                                            ::DISPATCH(
+                                                                $MATCH, 'to',
+                                                            ),
+                                                            'STORE',
                                                             ::DISPATCH(
                                                                 $GLOBAL::Code_infix_58__60__43__62_,
                                                                 'APPLY',
@@ -2284,9 +2307,12 @@
                                                                     'new',
                                                                     1
                                                                 ),
-                                                                ::DISPATCH(
-                                                                    $MATCH,
-                                                                    'to',
+                                                                ::DISPATCH_VAR(
+                                                                    ::DISPATCH(
+                                                                        $MATCH,
+                                                                        'to',
+                                                                    ),
+                                                                    'STORE',
                                                                     ::DISPATCH(
                                                                         $GLOBAL::Code_infix_58__60__43__62_,
                                                                         'APPLY',

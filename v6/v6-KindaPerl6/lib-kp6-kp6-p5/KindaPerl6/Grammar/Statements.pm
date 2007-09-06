@@ -306,9 +306,12 @@
                                                                 $::Int, 'new',
                                                                 1
                                                             ),
-                                                            ::DISPATCH(
-                                                                $MATCH,
-                                                                'to',
+                                                            ::DISPATCH_VAR(
+                                                                ::DISPATCH(
+                                                                    $MATCH,
+                                                                    'to',
+                                                                ),
+                                                                'STORE',
                                                                 ::DISPATCH(
                                                                     $GLOBAL::Code_infix_58__60__43__62_,
                                                                     'APPLY',
