@@ -150,9 +150,10 @@ class Lit::Code {
                 decl => 'my',
                 type => '',
                 var  => ::Var(
-                    sigil => '',
-                    twigil => '',
-                    name => $name,
+                    sigil     => '',
+                    twigil    => '',
+                    name      => $name,
+                    namespace => [ ],
                 ),
             );
             $s := $s ~ $name.emit_perl5 ~ ';' ~ Main::newline();
@@ -160,9 +161,9 @@ class Lit::Code {
         return $s;
     };
     method emit_arguments {
-        my $array_ := ::Var( sigil => '@', twigil => '', name => '_' );
-        my $hash_  := ::Var( sigil => '%', twigil => '', name => '_' );
-        my $CAPTURE := ::Var( sigil => '$', twigil => '', name => 'CAPTURE');
+        my $array_  := ::Var( sigil => '@', twigil => '', name => '_',       namespace => [ ], );
+        my $hash_   := ::Var( sigil => '%', twigil => '', name => '_',       namespace => [ ], );
+        my $CAPTURE := ::Var( sigil => '$', twigil => '', name => 'CAPTURE', namespace => [ ],);
         my $CAPTURE_decl := ::Decl(decl=>'my',type=>'',var=>$CAPTURE);
         my $str := '';
         $str := $str ~ $CAPTURE_decl.emit_perl5;
@@ -250,6 +251,7 @@ class Var {
         ~     'sigil  => \'' ~ $.sigil  ~ '\', '
         ~     'twigil => \'' ~ $.twigil ~ '\', '
         ~     'name   => \'' ~ $.name   ~ '\', '
+        ~     'namespace => [ ], '
         ~ '} )' ~ Main::newline()
     }
 }
@@ -378,7 +380,7 @@ class For {
           && $cond.sigil eq '@' 
         {
         } else {
-            $cond := ::Apply( code => ::Var(sigil=>'&',twigil=>'',name=>'GLOBAL::prefix:<@>'), arguments => [$cond] );
+            $cond := ::Apply( code => ::Var(sigil=>'&',twigil=>'',name=>'GLOBAL::prefix:<@>',namespace => [ ],), arguments => [$cond] );
         }
         'for ' 
         ~   $.topic.emit_perl5 

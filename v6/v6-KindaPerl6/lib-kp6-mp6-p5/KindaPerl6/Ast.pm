@@ -149,8 +149,9 @@ sub new { shift; bless { @_ }, "Var" }
 sub sigil { @_ == 1 ? ( $_[0]->{sigil} ) : ( $_[0]->{sigil} = $_[1] ) };
 sub twigil { @_ == 1 ? ( $_[0]->{twigil} ) : ( $_[0]->{twigil} = $_[1] ) };
 sub name { @_ == 1 ? ( $_[0]->{name} ) : ( $_[0]->{name} = $_[1] ) };
+sub namespace { @_ == 1 ? ( $_[0]->{namespace} ) : ( $_[0]->{namespace} = $_[1] ) };
 sub emit { my $self = shift; my $List__ = \@_; my $visitor; my $path; do {  $visitor = $List__->[0];  $path = $List__->[1]; [$visitor, $path] }; KindaPerl6::Traverse::visit($visitor, $self, 'Var', $path) };
-sub attribs { my $self = shift; my $List__ = \@_; do { [] }; { 'sigil' => $self->{sigil},'twigil' => $self->{twigil},'name' => $self->{name}, } }
+sub attribs { my $self = shift; my $List__ = \@_; do { [] }; { 'sigil' => $self->{sigil},'twigil' => $self->{twigil},'name' => $self->{name},'namespace' => $self->{namespace}, } }
 
 
 ;
