@@ -9,7 +9,9 @@ token method_sig {
             'invocant' => ::Var( 
                 'sigil'  => '$',
                 'twigil' => '',
-                'name'   => 'self' ), 
+                'name'   => 'self',
+                'namespace' => [ ], 
+                ), 
             'positional' => [ ], 
             'named' => { } ) }
 };

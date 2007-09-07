@@ -17,7 +17,7 @@ token token_P5 {
     \}
     {
         return ::Apply(
-            code=>::Var(sigil=>'&',twigil=>'',name=>'p5token'),
+            code=>::Var(sigil=>'&',twigil=>'',name=>'p5token', namespace => [ ] ),
             arguments=>[::Val::Buf(buf=>$$<token_p5_body>)]
         );
     }
