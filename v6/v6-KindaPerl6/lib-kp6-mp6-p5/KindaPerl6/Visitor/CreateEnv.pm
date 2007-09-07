@@ -3,6 +3,12 @@ use v5;
 use strict;
 use MiniPerl6::Perl5::Runtime;
 use MiniPerl6::Perl5::Match;
-package KindaPerl6::Visitor::CreateEnv; sub new { shift; bless { @_ }, "KindaPerl6::Visitor::CreateEnv" } sub env { @_ == 1 ? ( $_[0]->{env} ) : ( $_[0]->{env} = $_[1] ) }; sub lexicals { @_ == 1 ? ( $_[0]->{lexicals} ) : ( $_[0]->{lexicals} = $_[1] ) }; sub visit { my $self = shift; my $List__ = \@_; my $node; do {  $node = $List__->[0]; [$node] }; do { if (Main::isa($node, 'Lit::Code')) { my  $temp_env = $self->{env};my  $temp_lexicals = $self->{lexicals};$self->{lexicals} = [];my  $body = KindaPerl6::Traverse::visit($self, $node->body());my  $node2 = Lit::Code->new( 'pad' => Pad->new( 'outer' => $temp_env,'lexicals' => $self->{lexicals}, ),'state' => $node->state(),'sig' => $node->sig(),'body' => $node->body(), );$self->{env} = $node2->pad();$self->{lexicals} = [];$node2->body(KindaPerl6::Traverse::visit($self, $node->body()));$self->{env} = $temp_env;$self->{lexicals} = $temp_lexicals;return($node2) } else {  } }; do { if ((Main::isa($node, 'Decl') && ($node->decl() eq 'my'))) { push(@{$self->{lexicals}}, $node);return($node->var()) } else {  } }; return((undef)) }
+package KindaPerl6::Visitor::CreateEnv;
+sub new { shift; bless { @_ }, "KindaPerl6::Visitor::CreateEnv" }
+sub env { @_ == 1 ? ( $_[0]->{env} ) : ( $_[0]->{env} = $_[1] ) };
+sub lexicals { @_ == 1 ? ( $_[0]->{lexicals} ) : ( $_[0]->{lexicals} = $_[1] ) };
+sub visit { my $self = shift; my $List__ = \@_; my $node; do {  $node = $List__->[0]; [$node] }; do { if (Main::isa($node, 'Lit::Code')) { my  $temp_env = $self->{env};my  $temp_lexicals = $self->{lexicals};$self->{lexicals} = [];my  $body = KindaPerl6::Traverse::visit($self, $node->body());my  $node2 = Lit::Code->new( 'pad' => Pad->new( 'outer' => $temp_env,'lexicals' => $self->{lexicals}, ),'state' => $node->state(),'sig' => $node->sig(),'body' => $node->body(), );$self->{env} = $node2->pad();$self->{lexicals} = [];$node2->body(KindaPerl6::Traverse::visit($self, $node->body()));$self->{env} = $temp_env;$self->{lexicals} = $temp_lexicals;return($node2) } else {  } }; do { if ((Main::isa($node, 'Decl') && ($node->decl() eq 'my'))) { push(@{$self->{lexicals}}, $node);return($node->var()) } else {  } }; return((undef)) }
+
+
 ;
 1;
