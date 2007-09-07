@@ -1280,7 +1280,7 @@ any named capture:
 
     <alpha>     # match a letter and capture in $<alpha>
     <+alpha>    # match a letter, don't capture
-    <?alpha>    # much null before a letter, don't capture
+    <?alpha>    # match null before a letter, don't capture
 
 =item *
 
