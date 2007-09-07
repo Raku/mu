@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 17 Aug 2007
+   Last Modified: 6 Sep 2007
    Number: 5
-   Version: 63
+   Version: 64
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -247,13 +247,13 @@ be used lightly.  Put it in the category of a "goto".
 
 The new C<:s> (C<:sigspace>) modifier causes whitespace sequences
 to be considered "significant"; they are replaced by a whitespace
-matching rule, C<< <?ws> >>.  That is,
+matching rule, C<< <+ws> >>.  That is,
 
      m:s/ next cmd =   <condition>/
 
 is the same as:
 
-     m/ <?ws> next <?ws> cmd <?ws> = <?ws> <condition>/
+     m/ <+ws> next <+ws> cmd <+ws> = <+ws> <condition>/
 
 which is effectively the same as:
 
@@ -265,18 +265,18 @@ But in the case of
 
 or equivalently,
 
-     m { (a|\*) <?ws> (b|\+) }
+     m { (a|\*) <+ws> (b|\+) }
 
-C<< <?ws> >> can't decide what to do until it sees the data.
-It still does the right thing.  If not, define your own C<< <?ws> >>
+C<< <+ws> >> can't decide what to do until it sees the data.
+It still does the right thing.  If not, define your own C<< ws >>
 and C<:sigspace> will use that.
 
 In general you don't need to use C<:sigspace> within grammars because
 the parser rules automatically handle whitespace policy for you.
 In this context, whitespace often includes comments, depending on
 how the grammar chooses to define its whitespace rule.  Although the
-default C<< <?ws> >> subrule recognizes no comment construct, any
-grammar is free to override the rule.  The C<< <?ws> >> rule is not
+default C<< <+ws> >> subrule recognizes no comment construct, any
+grammar is free to override the rule.  The C<< <+ws> >> rule is not
 intended to mean the same thing everywhere.
 
 It's also possible to pass an argument to C<:sigspace> specifying
@@ -285,7 +285,7 @@ doesn't have to match whitespace.  When discussing this modifier, it is
 important to distinguish the significant whitespace in the pattern from
 the "whitespace" being matched, so we'll call the pattern's whitespace
 I<sigspace>, and generally reserve I<whitespace> to indicate whatever
-C<< <?ws> >> matches in the current grammar. The correspondence
+C<< <+ws> >> matches in the current grammar. The correspondence
 between sigspace and whitespace is primarily metaphorical, which is
 why the correspondence is both useful and (potentially) confusing.
 
@@ -336,16 +336,16 @@ determined by the character that follows.
 If followed by an C<x>, it means repetition.  Use C<:x(4)> for the
 general form.  So
 
-     s:4x [ (<?ident>) = (\N+) $$] [$0 => $1];
+     s:4x [ (<+ident>) = (\N+) $$] [$0 => $1];
 
 is the same as:
 
-     s:x(4) [ (<?ident>) = (\N+) $$] [$0 => $1];
+     s:x(4) [ (<+ident>) = (\N+) $$] [$0 => $1];
 
 which is almost the same as:
 
      $_.pos = 0;
-     s:c[ (<?ident>) = (\N+) $$] = "$0 => $1" for 1..4;
+     s:c[ (<+ident>) = (\N+) $$] = "$0 => $1" for 1..4;
 
 except that the string is unchanged unless all four matches are found.
 However, ranges are allowed, so you can say C<:x(1..4)> to change anywhere
@@ -450,7 +450,7 @@ you can do direct pattern matching using a token or rule:
 and these are equivalent to
 
     $string ~~ m/^ \d+: $/;
-    $string ~~ m/^ <?ws> \d+: <?ws> $/;
+    $string ~~ m/^ <+ws> \d+: <+ws> $/;
 
 =item *
 
@@ -584,7 +584,8 @@ run-time system to decide which parts to evaluate first, and it is
 erroneous to assume either order happens consistently.  The C<&&>
 form guarantees left-to-right order, and backtracking makes the right
 argument vary faster than the left.  In other words, C<&&> and C<||> establish
-sequence points.
+sequence points.  The left side may be backtracked into when backtracking
+is allowed into the construct as a whole.
 
 The C<&> operator is list associative like C<|>, but has slightly
 tighter precedence.  Likewise C<&&> has slightly tighter precedence
@@ -1008,10 +1009,14 @@ whitespace) is passed as a string, so the previous may also be written as:
 To pass a string with leading whitespace, or to interpolate any values
 into the string, you must use the parenthesized form.
 
-If the first character is a plus or minus, the initial identifier
-is taken as a character class, so the first character after the
-identifier doesn't matter in this case, and you can use whitespace
-however you like.  Therefore
+If the first character is a plus or minus, the rest of the assertion
+is parsed as a set of character classes (though the definition of
+character class is intentionally vague, and may include any other rule
+whether it matches characters exclusively or not).
+
+An initial identifier is taken as a character class, so the first
+character after the identifier doesn't matter in this case, and you
+can use whitespace however you like.  Therefore
 
     <foo+bar-baz>
 
@@ -1054,14 +1059,20 @@ can be achieved with:
 
 =item *
 
-A leading C<?> causes the assertion not to capture what it matches (see
+A leading C<+> causes a named assertion not to capture what it matches (see
 L<Subrule captures>. For example:
 
      / <ident>  <ws>  /      # $/<ident> and $/<ws> both captured
-     / <?ident> <ws>  /      # only $/<ws> captured
-     / <?ident> <?ws> /      # nothing captured
+     / <+ident> <ws>  /      # only $/<ws> captured
+     / <+ident> <+ws> /      # nothing captured
 
 The non-capturing behavior may be overridden with a C<:keepall>.
+
+The rest of the assertion is reparsed as if the C<+> (and any following
+whitespace) weren't there, so it is legal (but redundant) to say:
+
+    <+++ws>
+    <+ + +ws>
 
 =item *
 
@@ -1070,7 +1081,7 @@ either a C<Regex> object, or a string to be compiled as the regex.  The
 string is never matched literally.
 
 By default C<< <$foo> >> is captured into C<< $<foo> >>, but you can
-use the C<< <?$foo> >> form to suppress capture, and you can always say
+use the C<< <+$foo> >> form to suppress capture, and you can always say
 C<< $<$foo> := <$foo> >> if you prefer to include the sigil in the key.
 
 A subrule is considered declarative to the extent that the front of it
@@ -1098,7 +1109,7 @@ That is, a string is forced to be compiled as a subrule instead of being
 matched literally.  (There is no difference for a C<Regex> object.)
 
 By default C<< <@foo> >> is captured into C<< $<foo> >>, but you can
-use the C<< <?@foo> >> form to suppress capture, and you can always say
+use the C<< <+@foo> >> form to suppress capture, and you can always say
 C<< $<@foo> := <@foo> >> if you prefer to include the sigil in the key.
 
 =item *
@@ -1109,7 +1120,7 @@ to a regex at match time.  (Numeric values may still indicate "false match".
 and a closure may do whatever it likes.)
 
 By default C<< <%foo> >> is captured into C<< $<foo> >>, but you can
-use the C<< <?%foo> >> form to suppress capture, and you can always say
+use the C<< <+%foo> >> form to suppress capture, and you can always say
 C<< $<%foo> := <%foo> >> if you prefer to include the sigil in the key.
 
 As with bare hash, the longest key matches according to the venerable
@@ -1120,7 +1131,7 @@ I<longest-token rule>.
 A leading C<{> indicates code that produces a regex to be interpolated
 into the pattern at that point as a subrule:
 
-     / (<?ident>)  <{ %cache{$0} //= get_body_for($0) }> /
+     / (<+ident>)  <{ %cache{$0} //= get_body_for($0) }> /
 
 The closure is guaranteed to be run at the canonical time; it declares
 a sequence point, and is considered to be procedural.
@@ -1185,15 +1196,14 @@ The C<do> block is unlikely to run unless the string ends with "C<bar>".
 
 =item *
 
-A leading C<[> or C<+> indicates an enumerated character class.  Ranges
+A leading C<[> indicates an enumerated character class.  Ranges
 in enumerated character classes are indicated with "C<..>" rather than "C<->".
 
      / <[a..z_]>* /
-     / <+[a..z_]>* /
-     / <+[ a..z _ ]>* /
-     / <+ [ a .. z _ ] >* /
 
 Whitespace is ignored within square brackets and after the initial C<+>.
+
+     / <[ a..z _ ]>* /
 
 =item *
 
@@ -1209,6 +1219,15 @@ Whitespace is ignored after the initial C<->.
 
 =item *
 
+A leading C<+> may also be supplied to indicate that the following
+character class is to matched in a positive sense
+
+     / <+[a..z_]>* /
+     / <+[ a..z _ ]>* /
+     / <+[ a .. z _ ] >* /
+
+=item *
+
 Character classes can be combined (additively or subtractively) within
 a single set of angle brackets.  Whitespace is ignored. For example:
 
@@ -1220,7 +1239,7 @@ character set operation:
 
      / <+alpha-[Jj]> /              # J-less alpha
      / <alpha-[Jj]> /               # same thing
-     / <+ alpha - [ Jj ]> /         # still the same thing
+     / <+alpha - [ Jj ]> /          # still the same thing
 
 However, whitespace is not allowed after the first identifier if it
 immediately follows the left angle.
@@ -1251,6 +1270,17 @@ assertion equivalent to a /<!before <alpha>>/ assertion.
 
 Note also that as a metacharacter C<!> doesn't change the parsing
 rules of whatever follows (unlike, say, C<+> or C<->).
+
+=item *
+
+A leading C<?> indicates a positive zero-width assertion, and like C<!>
+merely reparses the rest of the assertion recursively as if the C<?>
+were not there.  In addition to forcing zero-width, it also suppresses
+any named capture:
+
+    <alpha>     # match a letter and capture in $<alpha>
+    <+alpha>    # match a letter, don't capture
+    <?alpha>    # much null before a letter, don't capture
 
 =item *
 
@@ -1326,7 +1356,7 @@ These tokens are considered declarative, but may force backtracking behavior.
 
 A C<«> or C<<< << >>> token indicates a left word boundary.  A C<»> or
 C<<< >> >>> token indicates a right word boundary.  (As separate tokens,
-these need not be balanced.)  Perl 5's C<\b> is replaced by a C<< <?wb> >>
+these need not be balanced.)  Perl 5's C<\b> is replaced by a C<< <+wb> >>
 "word boundary" assertion, while C<\B> becomes C<< <!wb> >>.  (None of
 these are dependent on the definition of C<< <ws> >>, but only on the C<\w>
 definition of "word" characters.)
@@ -1672,6 +1702,11 @@ to fail outright, no matter how many subrules down it happens:
 (i.e. using a reserved word as a subroutine name is instantly fatal
 to the I<surrounding> match as well)
 
+If commit is given an argument, it's the name of a calling rule that
+should be committed:
+
+    <commit('infix')>
+
 =item *
 
 A C<< <cut> >> assertion always matches successfully, and has the
@@ -1749,7 +1784,7 @@ To match the zero-width string, use:
 
 For example:
 
-     split /<?null>/, $string
+     split /<+null>/, $string
 
 splits between characters.
 
@@ -1757,7 +1792,7 @@ splits between characters.
 
 To match a null alternative, use:
 
-     /a|b|c|<?null>/
+     /a|b|c|<+null>/
 
 This makes it easier to catch errors like this:
 
@@ -1766,20 +1801,20 @@ This makes it easier to catch errors like this:
 As a special case, however, the first null alternative in a match like
 
      mm/ [
-          | if :: <expr> <block>
-          | for :: <list> <block>
-          | loop :: <loop_controls>? <block>
-          ]
+         | if :: <expr> <block>
+         | for :: <list> <block>
+         | loop :: <loop_controls>? <block>
+         ]
      /
 
 is simply ignored.  Only the first alternative is special that way.
 If you write:
 
      mm/ [
-              if :: <expr> <block>              |
-              for :: <list> <block>             |
-              loop :: <loop_controls>? <block>  |
-          ]
+             if :: <expr> <block>              |
+             for :: <list> <block>             |
+             loop :: <loop_controls>? <block>  |
+         ]
      /
 
 
@@ -1792,6 +1827,8 @@ case matching the null string:
 
      $something = "";
      /a|b|c|$something/;
+
+In particular, <?> also matches the null string, and <!> always fails.
 
 =back
 
@@ -1816,7 +1853,8 @@ operator precedence), it is extremely useful for user understanding
 if at least the token processing proceeds deterministically.  So for
 regex matching purposes we define token patterns as those patterns
 containing no whitespace that can be matched without side effects
-or self-reference.
+or self-reference.  Basically, Perl automatically derives a lexer
+from the grammar without you having to write one yourself.
 
 To that end, every regex in Perl 6 is required to be able to
 distinguish its "pure" patterns from its actions, and return its
@@ -1849,8 +1887,13 @@ Any :: or ::: backtracking control (but not the : possessive modifier).
 
 =item *
 
-Any {...} action, but not an assertion containing a closure, nor a
-C<**{...}> quantifier if the closure returns an immutable selector.
+Any atom that is quantified with a minimally match (using the C<?> modifier).
+
+=item *
+
+Any C<{...}> action, but not an assertion containing a closure.
+The closure form of the general C<**{...}> quantifier terminates the
+longest token, but not the closureless forms.
 
 =item *
 
@@ -1872,7 +1915,7 @@ after the longest token is determined.  (Alternately, if DFA semantics
 are simulated in any of various ways, such as by Thompson NFA, it may
 be possible to know when to fire off the assertions without backchecks.)
 
-Ordinary quantifiers and characters classes do not terminate a token pattern.
+Greedy quantifiers and characters classes do not terminate a token pattern.
 Zero-width assertions such as word boundaries are also okay.
 
 Oddly enough, the C<token> keyword specifically does not determine
@@ -1948,9 +1991,9 @@ produce the rest of the results lazily if evaluated in list context.
 In string context it evaluates to the stringified value of its
 I<result object>, which is usually the entire matched string:
 
-     print %hash{ "{$text ~~ /<?ident>/}" };
+     print %hash{ "{$text ~~ /<+ident>/}" };
      # or equivalently:
-     $text ~~ /<?ident>/  &&  print %hash{~$/};
+     $text ~~ /<+ident>/  &&  print %hash{~$/};
 
 But generally you should say C<~$/> if you mean C<~$/>.
 
@@ -3142,10 +3185,10 @@ anywhere in the outer dynamic scope.  In this case everything inside
 the angles is used as part of the key.  Suppose the earlier example
 parsed whitespace:
 
-     / <key> <?ws> '=>' <?ws> <value> { %hash{$<key>} = $<value> } /
+     / <key> <+ws> '=>' <+ws> <value> { %hash{$<key>} = $<value> } /
 
-The two instances of C<< <?ws> >> above would store an array of two
-values accessible as C<< @<?ws> >>.  It would also store the literal
+The two instances of C<< <+ws> >> above would store an array of two
+values accessible as C<< @<+ws> >>.  It would also store the literal
 match into C<< $<'=\>'> >>.  Just to make sure nothing is forgotten,
 under C<:keepall> any text or whitespace not otherwise remembered is
 attached as an extra property on the subsequent node. (The name of
