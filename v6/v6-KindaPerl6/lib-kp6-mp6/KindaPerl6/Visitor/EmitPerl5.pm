@@ -217,7 +217,42 @@ class Lookup {
 class Assign {
     method emit_perl5 {
         # TODO - same as ::Bind
-        '::DISPATCH_VAR( ' ~ $.parameters.emit_perl5 ~ ', \'STORE\', ' ~ $.arguments.emit_perl5 ~ ' )' ~ Main::newline();
+        
+        my $node := $.parameters;
+        
+        if $node.isa( 'Var' ) && @($node.namespace)     
+        {
+            # it's a global, 
+            # and it should be autovivified
+
+            $node :=
+                ::Apply(
+                    code => ::Var(
+                        namespace => [],
+                        name      => 'ternary:<?? !!>',
+                        twigil    => '',
+                        sigil     => '&',
+                    ),
+                    arguments => [
+                       ::Apply(
+                            arguments => [ $node ],
+                            code => ::Var( name => 'VAR_defined', twigil => '', sigil => '&', namespace => [ ] ),
+                        ),
+                        $node,
+                        ::Bind(
+                            'parameters' => $node,  
+                            'arguments'  => ::Call(
+                                'invocant' => ::Var( name => '::Scalar', twigil => '', sigil => '$', namespace => [ ] ),  
+                                'method'   => 'new',
+                                'hyper'    => '',
+                            ),
+                        )
+                    ],
+                );
+
+        };
+
+        '::DISPATCH_VAR( ' ~ $node.emit_perl5 ~ ', \'STORE\', ' ~ $.arguments.emit_perl5 ~ ' )' ~ Main::newline();
     }
 }
 

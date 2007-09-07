@@ -118,7 +118,7 @@ sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( ' 
 ;
 package Assign;
 sub new { shift; bless { @_ }, "Assign" }
-sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH_VAR( ' . ($self->{parameters}->emit_perl5() . (', \'STORE\', ' . ($self->{arguments}->emit_perl5() . (' )' . Main::newline()))))) }
+sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $node = $self->{parameters}; do { if ((Main::isa($node, 'Var') && @{$node->namespace()})) { $node = Apply->new( 'code' => Var->new( 'namespace' => [],'name' => 'ternary:<?? !!>','twigil' => '','sigil' => '&', ),'arguments' => [Apply->new( 'arguments' => [$node],'code' => Var->new( 'name' => 'VAR_defined','twigil' => '','sigil' => '&','namespace' => [], ), ), $node, Bind->new( 'parameters' => $node,'arguments' => Call->new( 'invocant' => Var->new( 'name' => '::Scalar','twigil' => '','sigil' => '$','namespace' => [], ),'method' => 'new','hyper' => '', ), )], ) } else {  } }; ('::DISPATCH_VAR( ' . ($node->emit_perl5() . (', \'STORE\', ' . ($self->{arguments}->emit_perl5() . (' )' . Main::newline()))))) }
 
 
 ;
