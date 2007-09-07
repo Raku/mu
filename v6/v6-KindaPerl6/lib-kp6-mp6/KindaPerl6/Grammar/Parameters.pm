@@ -8,7 +8,7 @@ grammar KindaPerl6::Grammar {
         # TODO - declare the named parameters
         #say "#declaring parameters";
         my $vars := [
-                ::Var( sigil => '@', twigil => '', name => '_' ),
+                ::Var( sigil => '@', twigil => '', name => '_', namespace => [ ] ),
                 $sig.invocant,
                 @($sig.positional),
             ];

@@ -51,16 +51,17 @@ class KindaPerl6::Visitor::Global {
             
                 #warn "undeclared variable: [", $node.sigil, ':', $node.twigil, ':', $node.name, ']';
                 
-                if     ($node.name eq '/')
-                    || ($node.name eq '_')
-                    || ($node.twigil eq '.')
-                    || ( ( $node.sigil eq '&') && ( $node.name eq 'self' ) )
+                if     ($node.name eq '/')         # $/
+                    || ($node.name eq '_')         # @_ $_ %_
+                    || ($node.twigil eq '.')       # attribute
+                    || ( ( $node.sigil eq '&') && ( $node.name eq 'self' ) )  # ???
+                    || @($node.namespace)          # it's a global
                 {
                     # don't modify special vars (yet?)
                     #warn "special variable: ", $node.sigil, ':', $node.twigil, ':', $node.name;
                 }
                 else {                  
-                    $node.name( 'GLOBAL::' ~ $node.name );
+                    $node.namespace( [ 'GLOBAL' ] );
                 }
             }
             return $node;                    

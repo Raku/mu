@@ -19,7 +19,7 @@ token pair {
         { 
             return [ 
                 ::Val::Buf( 'buf' => ~$<ident> ), 
-                ::Var( 'sigil' => ~$$<sigil>, 'twigil' => '', 'name' => $$<ident> ) ] 
+                ::Var( 'sigil' => ~$$<sigil>, 'twigil' => '', 'name' => $$<ident>, namespace => [ ] ) ] 
         } 
 };
 

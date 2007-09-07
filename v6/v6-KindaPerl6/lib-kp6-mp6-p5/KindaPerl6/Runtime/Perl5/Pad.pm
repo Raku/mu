@@ -155,6 +155,9 @@ sub _var_eq {
     (  $new->name   eq $old->name
     && $new->twigil eq $old->twigil
     && $new->sigil  eq $old->sigil
+    
+    && join( '::', @{$new->namespace} ) eq join( '::', @{$old->namespace} ) 
+    
     )
 }
 

@@ -195,7 +195,7 @@ sub check_block {
 sub get_var {
     # this routine is called each time a variable is parsed.
     # it checks for proper pre-declaration
-    my $var = Var->new( 'sigil' => $_[0], 'twigil' => $_[1], 'name' => $_[2] );
+    my $var = shift;
     my $decl = $COMPILER::PAD[0]->declaration( $var );
     #print "COMPILER::get_var: @_ --> $decl\n";
     # TODO - annotate the variable with: Type, declarator

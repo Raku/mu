@@ -333,8 +333,10 @@ token sigil { \$ |\% |\@ |\& };
 
 token twigil { [ \. | \! | \^ | \* ] | <''> };
 
-token var_name { <full_ident> | <'/'> | <digit> };
+# XXX unused?
+# token var_name { <ident> | <'/'> | <digit> };
 
+# used in Term.pm
 token undeclared_var {
     <sigil> <twigil> <namespace> <ident>
     {
@@ -353,10 +355,12 @@ token var {
     {
         # check for pre-declaration
         return COMPILER::get_var(
-            ~$<sigil>,
-            ~$<twigil>,
-            ~$<ident>,
-            $$<namespace>,
+            ::Var(
+                    sigil     => ~$<sigil>,
+                    twigil    => ~$<twigil>,
+                    name      => ~$<ident>,
+                    namespace => $$<namespace>,
+                )
         )
     }
 };
@@ -473,14 +477,26 @@ token apply {
         ]
         {
             return ::Apply(
-                'code'      => COMPILER::get_var( '&', '', $$<full_ident> ),
+                'code'      => COMPILER::get_var( 
+                    ::Var(
+                            sigil     => '&',
+                            twigil    => '',
+                            name      => $$<full_ident>,
+                            namespace => [ ],
+                        ) ),
                 'arguments' => $$<exp_parameter_list>,
             )
         }
     |
         {
             return ::Apply(
-                'code'      => COMPILER::get_var( '&', '', $$<full_ident> ),
+                'code'      => COMPILER::get_var( 
+                    ::Var(
+                            sigil     => '&',
+                            twigil    => '',
+                            name      => $$<full_ident>,
+                            namespace => [ ],
+                        ) ),
                 'arguments' => [],
             )
         }
