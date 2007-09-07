@@ -33,6 +33,18 @@ token full_ident {
     ]    
 };
 
+token namespace {
+    |   <ident> '::'
+        [
+        |   <namespace> 
+            { return [ $$<ident>, @( $$<namespace> ) ] }
+        |   
+            { return [ $$<ident> ] }
+        ]
+    |
+        { return [ ] }
+};
+
 token to_line_end {
     |  \N <?to_line_end>
     |  <''>
@@ -324,26 +336,27 @@ token twigil { [ \. | \! | \^ | \* ] | <''> };
 token var_name { <full_ident> | <'/'> | <digit> };
 
 token undeclared_var {
-    <sigil> <twigil> <var_name>
+    <sigil> <twigil> <namespace> <ident>
     {
         # no pre-declaration checks
         return ::Var(
             sigil     => ~$<sigil>,
             twigil    => ~$<twigil>,
-            name      => ~$<var_name>,
-            namespace => [ ],
+            name      => ~$<ident>,
+            namespace => $$<namespace>,
         )
     }
 };
 
 token var {
-    <sigil> <twigil> <var_name>
+    <sigil> <twigil> <namespace> <ident>
     {
         # check for pre-declaration
         return COMPILER::get_var(
             ~$<sigil>,
             ~$<twigil>,
-            ~$<var_name>,
+            ~$<ident>,
+            $$<namespace>,
         )
     }
 };
