@@ -50,7 +50,7 @@ package Evalbot;
 #            echo    => \&exec_echo,
             kp6     => \&exec_kp6,
             pugs    => \&exec_pugs,
-            eval    => \&exec_eval,
+            perl6   => \&exec_eval,
             nqp     => \&exec_nqp,
             p6      => \&exec_p6,
             );
@@ -72,7 +72,7 @@ package Evalbot;
             if ($eval_name eq 'kp6') {
                 my $rev_string = 'r' . get_revision() . ': ';
                 return $rev_string . EvalbotExecuter::run($str, $e);
-            } elsif ($eval_name eq 'eval'){
+            } elsif ($eval_name eq 'perl6'){
                 my $pugs_out = EvalbotExecuter::run($str, $executer{pugs});
                 my $kp6_out  = EvalbotExecuter::run($str, $executer{kp6});
                 my $p6_out   = EvalbotExecuter::run($str, $executer{p6});
