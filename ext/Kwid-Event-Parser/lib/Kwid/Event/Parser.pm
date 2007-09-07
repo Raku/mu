@@ -119,12 +119,12 @@ sub interpolate (Str $text, Hash %events) returns Void {
     for (@tokens) -> $token {    
         given $token {
             when rx:P5/([\*\/\`])/ { #`
-                if ($in_code && $token ne '`') {
+                if (!($in_code && $token ne '`')) {
                     %events<string>($token);                    
                 }
                 else {
                     # if the stack is empty then ...
-                    unless (@modifier_stack) {
+                    if (!@modifier_stack) {
                         # push the latest modifier on to it ...
                         @modifier_stack.push($token);
                         # and start an event ..
