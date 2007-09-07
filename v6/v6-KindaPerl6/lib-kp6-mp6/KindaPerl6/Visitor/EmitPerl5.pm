@@ -228,15 +228,15 @@ class Assign {
             $node :=
                 ::Apply(
                     code => ::Var(
-                        namespace => [],
                         name      => 'ternary:<?? !!>',
                         twigil    => '',
                         sigil     => '&',
+                        namespace => [ 'GLOBAL' ],
                     ),
                     arguments => [
                        ::Apply(
                             arguments => [ $node ],
-                            code => ::Var( name => 'VAR_defined', twigil => '', sigil => '&', namespace => [ ] ),
+                            code => ::Var( name => 'VAR_defined', twigil => '', sigil => '&', namespace => [ 'GLOBAL' ] ),
                         ),
                         $node,
                         ::Bind(

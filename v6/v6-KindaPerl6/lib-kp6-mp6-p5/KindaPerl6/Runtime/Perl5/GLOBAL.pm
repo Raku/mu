@@ -106,7 +106,7 @@ package GLOBAL;
 
     # TODO - macro
     #  ternary:<?? !!>
-    sub ternary_58__60__63__63__32__33__33__62_ { 
+    sub ternary_58__60__63__63__32__33__33__62_ : lvalue { 
         #print "ternary: ",caller(2), " $#_ $_[0], $_[1]\n";
         #print ::DISPATCH( $_[0], 'true' );
         ::DISPATCH( $_[0], 'true' )->{_value} ? $_[1] : $_[2] 
