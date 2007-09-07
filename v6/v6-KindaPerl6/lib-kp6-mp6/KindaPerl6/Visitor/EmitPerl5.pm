@@ -295,21 +295,7 @@ class Call {
         if $invocant eq 'self' {
             $invocant := '$self';
         };
-        if     ($.method eq 'yaml')
-            # || ($.method eq 'join')
-            || ($.method eq 'chars')
-            # || ($.method eq 'isa')
-        { 
-            if ($.hyper) {
-                return 
-                    '[ map { Main::' ~ $.method ~ '( $_, ' ~ ', ' ~ (@.arguments.>>emit_perl5).join(', ') ~ ')' ~ ' } @{ ' ~ $invocant ~ ' } ]';
-            }
-            else {
-                return
-                    'Main::' ~ $.method ~ '(' ~ $invocant ~ ', ' ~ (@.arguments.>>emit_perl5).join(', ') ~ ')' ~ Main::newline();
-            }
-        };
-
+        
         my $meth := $.method;
         if  $meth eq 'postcircumfix:<( )>'  {
              $meth := '';  
