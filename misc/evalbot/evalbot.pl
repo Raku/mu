@@ -43,7 +43,8 @@ package Evalbot;
     use base 'Bot::BasicBot';
     use File::Temp qw(tempfile);
     use Carp qw(confess);
-    my $prefix = '\#';
+    my $prefix  = '';
+    my $postfix = ':';
 
     my %executer = (
 #            echo    => \&exec_echo,
@@ -53,7 +54,7 @@ package Evalbot;
             nqp     => \&exec_nqp,
             p6      => \&exec_p6,
             );
-    my $regex = $prefix . '(' . join('|',  keys %executer) . ')';
+    my $regex = $prefix . '(' . join('|',  keys %executer) . ")$postfix";
 
     sub help {
         return "Usage: <$regex \$perl6_program>";
