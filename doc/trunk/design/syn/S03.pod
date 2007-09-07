@@ -3632,7 +3632,7 @@ as if its colon changed back to a comma.
 If you already have a capture variable, you can interpolate all of
 its bits at once using the C<< prefix:<|> >> operator:
 
-    my \$capture := func();
+    my $capture := func();
     push |$capture;
 
 =head1 Traversing arrays in parallel
