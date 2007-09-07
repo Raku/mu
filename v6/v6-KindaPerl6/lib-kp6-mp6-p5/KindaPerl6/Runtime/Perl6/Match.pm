@@ -418,6 +418,94 @@
                     );
                 }
             )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::Match, 'HOW', ),
+            'add_method',
+            ::DISPATCH( $::Str, 'new', 'LOOKUP' ),
+            ::DISPATCH(
+                $::Method,
+                'new',
+                sub {
+                    my $List__ =
+                      ::DISPATCH( $::Array, 'new',
+                        { modified => $_MODIFIED, name => '$List__' } );
+                    my $key;
+                    $key =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$key' } )
+                      unless defined $key;
+
+                    BEGIN {
+                        $key =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$key' } );
+                    }
+                    $self = shift;
+                    my $CAPTURE;
+                    $CAPTURE =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$CAPTURE' } )
+                      unless defined $CAPTURE;
+
+                    BEGIN {
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } );
+                    }
+                    ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                    do {
+                        ::MODIFIED($List__);
+                        $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                    };
+                    do {
+                        ::MODIFIED($key);
+                        $key =
+                          ::DISPATCH( $List__, 'INDEX',
+                            ::DISPATCH( $::Int, 'new', 0 ) );
+                    };
+                    do {
+                        if (
+                            ::DISPATCH(
+                                ::DISPATCH(
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_prefix_58__60__33__62_,
+                                        'APPLY',
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_defined,
+                                            'APPLY',
+                                            ::DISPATCH( $self, "hash" )
+                                        )
+                                    ),
+                                    "true"
+                                ),
+                                "p5landish"
+                            )
+                          )
+                        {
+                            {
+                                ::DISPATCH_VAR(
+                                    ::DISPATCH( $self, "hash" ),
+                                    'STORE',
+                                    ::DISPATCH(
+                                        $::Hash, "new", { _hash => {} }
+                                    )
+                                  )
+                            }
+                        }
+                    };
+                    return (
+                        ::DISPATCH(
+                            ::DISPATCH( $self, "hash" ),
+                            'LOOKUP', $key
+                        )
+                    );
+                }
+            )
           )
     };
     1

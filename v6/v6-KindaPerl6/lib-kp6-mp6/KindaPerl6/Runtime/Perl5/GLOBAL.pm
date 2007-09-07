@@ -1,4 +1,5 @@
 package GLOBAL;
+    use strict;no strict 'refs';
 
     #require Exporter;
     use Data::Dumper;
@@ -202,10 +203,22 @@ package GLOBAL;
     }
 
     sub match_p5rx {
-        my $regex  = _str($_[0]);
-        my $string = _str($_[1]);
-        #print "regex:[$regex] string:[$string]\n";
-        return ::DISPATCH( $::Bit, 'new', $string =~ $regex);
+        my ($regex,$string,$pos) = (_str($_[0]),_str($_[1]),_int($_[2]));
+        pos($string) = $pos;
+        my $bool = $string =~ /\G$regex/gc;
+        print "regex:<$regex> string:<$string>\n";
+        if ($bool) {
+            print "matched up to:",pos($string),"\n";
+            ::DISPATCH($::Match,'new',{
+                    match_str=>$_[1],
+                    from=>$_[2],
+                    to=>::DISPATCH($::Int,'new',pos($string)),
+                    bool=>True
+            });
+        } else {
+            print "false match\n";
+            ::DISPATCH($::Match,'new',{bool=>False});
+        }
     }
 
 

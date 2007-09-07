@@ -476,18 +476,20 @@
                                             $::Signature::Item,
                                             "new",
                                             {
-                                                sigil  => '$',
-                                                twigil => '',
-                                                name   => 'a',
+                                                sigil     => '$',
+                                                twigil    => '',
+                                                name      => 'a',
+                                                namespace => [],
                                             }
                                         ),
                                         ::DISPATCH(
                                             $::Signature::Item,
                                             "new",
                                             {
-                                                sigil  => '$',
-                                                twigil => '',
-                                                name   => 'b',
+                                                sigil     => '$',
+                                                twigil    => '',
+                                                name      => 'b',
+                                                namespace => [],
                                             }
                                         ),
                                     ]
@@ -579,18 +581,20 @@
                                             $::Signature::Item,
                                             "new",
                                             {
-                                                sigil  => '$',
-                                                twigil => '',
-                                                name   => 'a',
+                                                sigil     => '$',
+                                                twigil    => '',
+                                                name      => 'a',
+                                                namespace => [],
                                             }
                                         ),
                                         ::DISPATCH(
                                             $::Signature::Item,
                                             "new",
                                             {
-                                                sigil  => '$',
-                                                twigil => '',
-                                                name   => 'b',
+                                                sigil     => '$',
+                                                twigil    => '',
+                                                name      => 'b',
+                                                namespace => [],
                                             }
                                         ),
                                     ]
@@ -682,18 +686,20 @@
                                             $::Signature::Item,
                                             "new",
                                             {
-                                                sigil  => '$',
-                                                twigil => '',
-                                                name   => 'a',
+                                                sigil     => '$',
+                                                twigil    => '',
+                                                name      => 'a',
+                                                namespace => [],
                                             }
                                         ),
                                         ::DISPATCH(
                                             $::Signature::Item,
                                             "new",
                                             {
-                                                sigil  => '$',
-                                                twigil => '',
-                                                name   => 'b',
+                                                sigil     => '$',
+                                                twigil    => '',
+                                                name      => 'b',
+                                                namespace => [],
                                             }
                                         ),
                                     ]
@@ -941,26 +947,6 @@
                             $::Code, 'new',
                             {
                                 code => sub {
-                                    my $MATCH;
-                                    $MATCH = ::DISPATCH(
-                                        $::Scalar,
-                                        'new',
-                                        {
-                                            modified => $_MODIFIED,
-                                            name     => '$MATCH'
-                                        }
-                                    ) unless defined $MATCH;
-
-                                    BEGIN {
-                                        $MATCH = ::DISPATCH(
-                                            $::Scalar,
-                                            'new',
-                                            {
-                                                modified => $_MODIFIED,
-                                                name     => '$MATCH'
-                                            }
-                                        );
-                                    }
                                     my $List__ = ::DISPATCH(
                                         $::Array, 'new',
                                         {
@@ -1103,31 +1089,12 @@
                                             }
                                         }
                                     };
-                                    $MATCH;
-                                    ::DISPATCH_VAR( $MATCH, 'STORE',
-                                        ::DISPATCH( $::Match, 'new', ) );
-                                    ::DISPATCH_VAR(
-                                        ::DISPATCH( $MATCH, 'match_str', ),
-                                        'STORE', $str );
-                                    ::DISPATCH_VAR(
-                                        ::DISPATCH( $MATCH, 'from', ),
-                                        'STORE', $pos );
-                                    ::DISPATCH_VAR( ::DISPATCH( $MATCH, 'to', ),
-                                        'STORE', $pos );
-                                    ::DISPATCH_VAR(
-                                        ::DISPATCH( $MATCH, 'bool', ),
-                                        'STORE',
-                                        ::DISPATCH( $::Int, 'new', 1 )
-                                    );
-                                    ::DISPATCH_VAR(
-                                        ::DISPATCH( $MATCH, 'bool', ),
-                                        'STORE',
+                                    return (
                                         ::DISPATCH(
                                             $GLOBAL::Code_match_p5rx,
-                                            'APPLY', $str, $regex
+                                            'APPLY', $regex, $str, $pos
                                         )
                                     );
-                                    return ($MATCH);
                                 },
                                 signature => ::DISPATCH(
                                     $::Signature,
@@ -1142,27 +1109,30 @@
                                                         $::Signature::Item,
                                                         "new",
                                                         {
-                                                            sigil  => '$',
-                                                            twigil => '',
-                                                            name   => 'self',
+                                                            sigil     => '$',
+                                                            twigil    => '',
+                                                            name      => 'self',
+                                                            namespace => [],
                                                         }
                                                     ),
                                                     ::DISPATCH(
                                                         $::Signature::Item,
                                                         "new",
                                                         {
-                                                            sigil  => '$',
-                                                            twigil => '',
-                                                            name   => 'str',
+                                                            sigil     => '$',
+                                                            twigil    => '',
+                                                            name      => 'str',
+                                                            namespace => [],
                                                         }
                                                     ),
                                                     ::DISPATCH(
                                                         $::Signature::Item,
                                                         "new",
                                                         {
-                                                            sigil  => '$',
-                                                            twigil => '',
-                                                            name   => 'pos',
+                                                            sigil     => '$',
+                                                            twigil    => '',
+                                                            name      => 'pos',
+                                                            namespace => [],
                                                         }
                                                     ),
                                                 ]
@@ -1190,9 +1160,10 @@
                                             $::Signature::Item,
                                             "new",
                                             {
-                                                sigil  => '$',
-                                                twigil => '',
-                                                name   => 'regex',
+                                                sigil     => '$',
+                                                twigil    => '',
+                                                name      => 'regex',
+                                                namespace => [],
                                             }
                                         ),
                                     ]
