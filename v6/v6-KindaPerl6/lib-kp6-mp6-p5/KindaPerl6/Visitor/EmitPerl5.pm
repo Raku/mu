@@ -124,7 +124,7 @@ sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH_VAR
 ;
 package Var;
 sub new { shift; bless { @_ }, "Var" }
-sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $table = { '$' => '$','@' => '$List_','%' => '$Hash_','&' => '$Code_', }; do { if (($self->{twigil} eq '.')) { return(('::DISPATCH( $self, "' . ($self->{name} . ('" )' . Main::newline())))) } else {  } }; do { if (($self->{name} eq '/')) { return(($table->{$self->{sigil}} . 'MATCH')) } else {  } }; return(Main::mangle_name($self->{sigil}, $self->{twigil}, $self->{name})) };
+sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $table = { '$' => '$','@' => '$List_','%' => '$Hash_','&' => '$Code_', }; do { if (($self->{twigil} eq '.')) { return(('::DISPATCH( $self, "' . ($self->{name} . ('" )' . Main::newline())))) } else {  } }; do { if (($self->{name} eq '/')) { return(($table->{$self->{sigil}} . 'MATCH')) } else {  } }; return(Main::mangle_name($self->{sigil}, $self->{twigil}, $self->{name}, $self->{namespace})) };
 sub perl { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Signature::Item, "new", { ' . ('sigil  => \'' . ($self->{sigil} . ('\', ' . ('twigil => \'' . ($self->{twigil} . ('\', ' . ('name   => \'' . ($self->{name} . ('\', ' . ('namespace => [ ], ' . ('} )' . Main::newline())))))))))))) }
 
 
@@ -167,7 +167,7 @@ sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('do { if (::DIS
 ;
 package For;
 sub new { shift; bless { @_ }, "For" }
-sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $cond = $self->{cond}; do { if ((Main::isa($cond, 'Var') && ($cond->sigil() eq '@'))) {  } else { $cond = Apply->new( 'code' => Var->new( 'sigil' => '&','twigil' => '','name' => 'GLOBAL::prefix:<@>','namespace' => [], ),'arguments' => [$cond], ) } }; ('for ' . ($self->{topic}->emit_perl5() . (' ( @{ ' . ($cond->emit_perl5() . ('->{_value}{_array} } )' . (' { ' . ($self->{body}->emit_perl5() . (' } ' . Main::newline())))))))) }
+sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; my  $cond = $self->{cond}; do { if ((Main::isa($cond, 'Var') && ($cond->sigil() eq '@'))) {  } else { $cond = Apply->new( 'code' => Var->new( 'sigil' => '&','twigil' => '','name' => 'prefix:<@>','namespace' => ['GLOBAL'], ),'arguments' => [$cond], ) } }; ('for ' . ($self->{topic}->emit_perl5() . (' ( @{ ' . ($cond->emit_perl5() . ('->{_value}{_array} } )' . (' { ' . ($self->{body}->emit_perl5() . (' } ' . Main::newline())))))))) }
 
 
 ;

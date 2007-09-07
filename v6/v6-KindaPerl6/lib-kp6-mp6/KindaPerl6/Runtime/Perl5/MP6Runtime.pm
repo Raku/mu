@@ -138,8 +138,9 @@ package Main;
             '&' => 'Code_',
         );
     sub mangle_name {
-        my ($sigil, $twigil, $name) = @_;
-        #print "mangle: ($sigil, $twigil, $name)\n";
+        my ($sigil, $twigil, $name, $namespace) = @_;
+        #print "mangle: ($sigil, $twigil, $name, [ @$namespace ] )\n" if $namespace;
+        $name = join( '::', @$namespace, $name ) if $namespace;
         $name =~ s/ ([^a-zA-Z0-9_:] | (?<!:):(?!:)) / '_'.ord($1).'_' /xge;
         my @name = split( /::/, $name );
         $name[-1] = $table{$sigil} . $name[-1];

@@ -204,7 +204,7 @@ token exp {
           <?opt_ws>
           <exp2>
           { return ::Apply(
-            'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'ternary:<?? !!>' ),
+            'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'ternary:<?? !!>', namespace => [ ] ),
             'arguments' => [ $$<term_meth>, $$<exp>, $$<exp2> ],
           ) }
         | { say '*** Syntax error in ternary operation' }
@@ -215,7 +215,7 @@ token exp {
         <?opt_ws>
         <exp>
           { return ::Apply(
-            'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'infix:<' ~ $<infix_op> ~ '>' ),
+            'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'infix:<' ~ $<infix_op> ~ '>', namespace => [ ]  ),
             'arguments' => [ $$<term_meth>, $$<exp> ],
           ) }
     | <?opt_ws> <'::='> <?opt_ws> <exp>
@@ -328,9 +328,10 @@ token undeclared_var {
     {
         # no pre-declaration checks
         return ::Var(
-            sigil  => ~$<sigil>,
-            twigil => ~$<twigil>,
-            name   => ~$<var_name>,
+            sigil     => ~$<sigil>,
+            twigil    => ~$<twigil>,
+            name      => ~$<var_name>,
+            namespace => [ ],
         )
     }
 };

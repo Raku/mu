@@ -243,7 +243,7 @@ class Var {
             return $table{$.sigil} ~ 'MATCH' 
         };
         
-        return Main::mangle_name( $.sigil, $.twigil, $.name ); 
+        return Main::mangle_name( $.sigil, $.twigil, $.name, $.namespace ); 
     };
     method perl {
         # this is used by the signature emitter
@@ -380,7 +380,7 @@ class For {
           && $cond.sigil eq '@' 
         {
         } else {
-            $cond := ::Apply( code => ::Var(sigil=>'&',twigil=>'',name=>'GLOBAL::prefix:<@>',namespace => [ ],), arguments => [$cond] );
+            $cond := ::Apply( code => ::Var(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
         }
         'for ' 
         ~   $.topic.emit_perl5 
