@@ -112,8 +112,11 @@ package GLOBAL;
         ::DISPATCH( $_[0], 'true' )->{_value} ? $_[1] : $_[2] 
     }
     
+    # &&
     # TODO - macro
-    sub infix_58__60__38__38__62_   { true($_[0]) && true($_[1]) && $_[1] }
+    sub infix_58__60__38__38__62_   { true($_[0])->{_value} ? $_[1] : False }
+
+    # ||
     # TODO - macro
     sub infix_58__60__124__124__62_ { ::DISPATCH( $::Bit, 'new', (::DISPATCH( $_[0], 'true' )->{_value} && $_[0] || ::DISPATCH( $_[1], 'true' )->{_value} && $_[1])) }
 
