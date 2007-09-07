@@ -2830,7 +2830,7 @@ consistently prefixing numeric, stringwise, and boolean operators
 with C<+>, C<~> and C<?> respectively to indicate whether the bitwise
 operation is done on a number, a string, or a single bit.
 But that's just a naming convention, and if you wanted to add a new
-bitwise C<¬> operator, you'd have the add the C<+¬>, C<~¬>, and C<?¬>
+bitwise C<¬> operator, you'd have to add the C<+¬>, C<~¬>, and C<?¬>
 operators yourself.  Similarly, the carets that exclude the endpoints
 on ranges are there by convention only.
 
