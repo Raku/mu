@@ -6,9 +6,11 @@ class CompUnit {
     has %.methods;
     has @.body;
     method emit {
-        'package ' ~ $.name ~ "; " ~ 
-        'sub new { shift; bless { @_ }, "' ~ $.name ~ '" }' ~ " " ~
-        (@.body.>>emit).join( "; " )
+          'package ' ~ $.name ~ ";" ~ Main.newline 
+        ~ 'sub new { shift; bless { @_ }, "' ~ $.name ~ '" }'  ~ Main.newline 
+        ~ (@.body.>>emit).join( ";" ~ Main.newline )
+        ~ Main.newline
+        ~ Main.newline
     }
 }
 
