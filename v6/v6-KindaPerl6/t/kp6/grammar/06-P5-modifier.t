@@ -9,7 +9,7 @@ grammar Test {
         <foo>foo
     }
 }
-say "1..2";
+say "1..4";
 &foo := token :Perl5 {foo}
 (Test.HOW).add_method('foo',&foo);
 if (Test.foo("foo")) {
