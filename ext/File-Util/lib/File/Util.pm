@@ -222,15 +222,11 @@ method size (Str $filename) {
 }
 
 method existent (Str $filename) {
-    $filename ~~ :e ?? $.exist = 1 !! $.exist = undef;
+    $.exist = ?($filename ~~ :e);
 }
 
 method valid_filename (Str $filename){
-    if $filename ~~ /<illegal_chr>/ {
-        $.valid = undef;
-    } else {
-        $.valid = 1;
-    }
+    $.valid = !($filename ~~ /<illegal_chr>/);
 }
 
 method line_count (Str $filename){
@@ -246,15 +242,15 @@ method created (Str $filename) {}
 method bitmask (Str $filename) {}
 
 method can_read (Str $filename) {
-    $filename ~~ :r ?? $.canread = 1 !! $.canread = undef;
+    $.canread = ?($filename ~~ :r);
 }
 
 method can_write (Str $filename) {
-    $filename ~~ :w ?? $.canwrite = 1 !! $.canwrite = undef;
+    $.canwrite = ?($filename ~~ :w);
 }
 
 method is_bin (Str $filename) {
-    $filename ~~ :B ?? $.isbin = 1 !! $.isbin = undef;
+    $.isbin = ?($filename ~~ :B);
 }
 
 method file_type (Str $filename) {
@@ -279,7 +275,7 @@ method last_access (Str $filename) {}
 method last_modified (Str $filename) {}
 
 method throw (Str $call, $meth?, $filename?, $opts?, $missing?) {
-    say $call ~ $filename;
+    say [$call, $filename].join(': ');
 }
 
 =head1 NAME
