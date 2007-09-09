@@ -12,6 +12,8 @@ my $f = File::Util.new;
 $f.load_file($?FILE);
 is($f.content, $current_data_file, "Content is ok for load_file via filename");
 
+$f.content = '';
+
 my $fh = open $?FILE;
 $f.load_file($fh);
 is($f.content, $current_data_file, "Content is ok for load_file via file handle");
