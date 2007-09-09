@@ -8,5 +8,6 @@ use File::Util; pass "(dummy instead of broken use_ok)";
 
 my $f = File::Util.new;
 
-my @files = $f.list_dir('t');
+my @files = $f.list_dir('ext/File-Util/t');
 
+ok( @files );
