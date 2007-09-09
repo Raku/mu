@@ -5,7 +5,8 @@ class Getopt::Std-0.0.1;
 sub getopts (Str $spec, @args? is rw = @*ARGS) is export {
     my @skipped;
     my %spec = hashify($spec);
-    my %opts;
+    my %opts = (); # needs to be reset due to the bug in
+                   # t/builtins/arrays/init-in-exported-sub.t
     my $cur;
     while $cur = @args.shift {
         given $cur {
