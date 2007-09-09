@@ -47,8 +47,7 @@ is(?("0o100" ~~ /^<oct>$/),Bool::True,"0o100 (oct) is parsed as a oct");
 
 is(?("Perl6" ~~ /^<identZZ>$/),Bool::True,"ids are parsed");
 
-flunk("test hangs", :todo<bug>);
-#is(?("Perl6::rule" ~~ /^<identZZ>$/),Bool::True,"ids are parsed as fullid");
+is(?("Perl6::rule" ~~ /^<identZZ>$/),Bool::True,"ids are parsed as fullid");
 
 is(?("::rule" ~~ /^<identZZ>$/),Bool::True,"global ids are parsed as fullid");
 is(?('$foo' ~~ /^<variable>$/),Bool::True,"scalars are parsed as variables");
