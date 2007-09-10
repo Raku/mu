@@ -1,6 +1,6 @@
 package Main;
 
-use lib '../v6-MiniPerl6/lib5', 'lib5';
+use lib 'lib5';
 use strict;
 
 BEGIN {
@@ -103,7 +103,7 @@ while ( $pos < length( $source ) ) {
         #warn ref $_," took:",time()-$start,"\n";
         $time_usage{ref $_} += time()-$start;
     }
-    say $ast;
+    print $ast;
     $pos = $p->to;
 }
 # emit CHECK blocks
@@ -113,7 +113,7 @@ for ( @COMPILER::CHECK ) {
     unshift @COMPILER::PAD, $pad;
     my $ast = COMPILER::begin_block( $ast );
     $ast = $ast->emit( $_ ) for @visitors;
-    say $ast;
+    print $ast;
     shift @COMPILER::PAD;
 }
 #warn "check blocks took:",time()-$start,"\n";

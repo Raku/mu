@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 package Main;
 
-use lib '../v6-MiniPerl6/lib5', 'lib-kp6-mp6-p5/';
+use lib 'lib-kp6-mp6-p5/';
 use strict;
 
 BEGIN {
@@ -109,7 +109,7 @@ while ( $pos < length( $source ) ) {
         die "Syntax Error\n";
     }
     $ast = $ast->emit( $_ ) for @visitors;
-    say $ast;
+    print $ast;
     $pos = $p->to;
 }
 # emit CHECK blocks
@@ -118,6 +118,6 @@ for ( @COMPILER::CHECK ) {
     unshift @COMPILER::PAD, $pad;
     my $ast = COMPILER::begin_block( $ast );
     $ast = $ast->emit( $_ ) for @visitors;
-    say $ast;
+    print $ast;
     shift @COMPILER::PAD;
 }

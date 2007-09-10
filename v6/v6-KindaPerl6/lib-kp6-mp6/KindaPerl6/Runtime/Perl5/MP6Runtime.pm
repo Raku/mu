@@ -1,5 +1,113 @@
 # MP6 Runtime
+
+$INC{'MiniPerl6/Perl5/Runtime.pm'} = 1;
+$INC{'MiniPerl6/Perl5/Match.pm'} = 1;
+
+use strict;
+use warnings;
+
+
+package MiniPerl6::Perl5::Match;
+
+    no warnings 'recursion';
+    use Data::Dumper;
+    use Scalar::Util qw( refaddr blessed );
+
+    my %_data;
+
+    use overload (
+        '@{}'    => \&array,
+        '%{}'    => \&hash,
+        'bool'   => sub { $_data{refaddr $_[0]}{bool} },
+        '${}'    => \&scalar,
+        '""'     => \&flat,
+        '0+'     => \&flat,
+        fallback => 1,
+    );
+
+    sub new {
+        my $class = shift;
+        my $obj = bless \$class, $class;
+        $_data{ refaddr $obj } = { @_ };
+        return $obj;
+    }
+
+    sub DESTROY {  
+        delete $_data{ refaddr $_[0] };
+    }
+
+    sub data  {    $_data{refaddr $_[0]}           }
+
+    sub from { @_ == 1 ? ( $_data{refaddr $_[0]}{from} ) : ( $_data{refaddr $_[0]}{from} = $_[1] ) };
+    sub to   { @_ == 1 ? ( $_data{refaddr $_[0]}{to}   ) : ( $_data{refaddr $_[0]}{to}   = $_[1] ) };
+    sub bool { @_ == 1 ? ( $_data{refaddr $_[0]}{bool} ) : ( $_data{refaddr $_[0]}{bool} = $_[1] ) };
+    sub capture
+             { @_ == 1 ? ( $_data{refaddr $_[0]}{capture} ) : ( $_data{refaddr $_[0]}{capture} = $_[1] ) };
+
+    sub array {    
+             $_data{refaddr $_[0]}->{match} 
+        || ( $_data{refaddr $_[0]}->{match} = [] )
+    }
+
+    sub hash  {   
+             $_data{refaddr $_[0]}->{named} 
+        || ( $_data{refaddr $_[0]}->{named} = {} )
+    }
+
+    sub keys   { 
+        CORE::keys   %{$_data{refaddr $_[0]}->{named}},
+        0 .. $#{ $_[0]->array }
+    }
+    sub values { 
+        CORE::values %{$_data{refaddr $_[0]}->{named}},
+        @{ $_[0]->array }
+    }
+    sub kv {
+        map { ( $_, $_[0]->{$_} ) } 
+            $_[0]->keys 
+    }
+    sub elems  { 
+        scalar $_[0]->keys
+    }
+
+    sub chars  { CORE::length $_[0]->str }
+
+    sub flat {
+        my $obj = $_data{refaddr $_[0]};
+        my $cap = $obj->{capture};
+        #print ref $cap;
+        return $cap
+            if defined $cap;
+        return '' unless $obj->{bool};
+        
+        return '' if $_[0]->from > length( $obj->{str} );
+        
+        return substr( $obj->{str}, $_[0]->from, $_[0]->to - $_[0]->from );
+    }
+
+    sub str {
+        "" . $_[0]->flat;
+    }
+
+    sub perl {
+        local $Data::Dumper::Terse    = 1;
+        local $Data::Dumper::Sortkeys = 1;
+        local $Data::Dumper::Pad = '  ';
+        return __PACKAGE__ . "->new( " . Dumper( $_[0]->data ) . ")\n";
+    }
+
+    # return the capture
+    sub scalar {
+        return \( $_[0]->flat );
+    }
+
+1;
+
+
 package KindaPerl6::Grammar;
+
+    no warnings 'uninitialized';
+
     sub space { 
         my $grammar = $_[0]; my $str = $_[1]; my $pos = $_[2]; 
         my $MATCH; 
@@ -73,6 +181,7 @@ package KindaPerl6::Grammar;
 
 1;
 
+
 package Main;
     
     sub chars { length( $_[0] ) }
@@ -140,7 +249,7 @@ package Main;
     sub mangle_name {
         my ($sigil, $twigil, $name, $namespace) = @_;
         #print "mangle: ($sigil, $twigil, $name, [ @$namespace ] )\n" if $namespace;
-        $name = join( '::', @$namespace, $name ) if $namespace;
+        $name = CORE::join( '::', @$namespace, $name ) if $namespace;
         $name =~ s/ ([^a-zA-Z0-9_:] | (?<!:):(?!:)) / '_'.ord($1).'_' /xge;
         my @name = split( /::/, $name );
         $name[-1] = $table{$sigil} . $name[-1];
@@ -151,7 +260,7 @@ package Main;
         {
             unshift @name, 'GLOBAL';
         }
-        return '$' . join( '::', @name );   # XXX - no twigil
+        return '$' . CORE::join( '::', @name );   # XXX - no twigil
     }
     sub mangle_ident {
         my ($name) = @_;
