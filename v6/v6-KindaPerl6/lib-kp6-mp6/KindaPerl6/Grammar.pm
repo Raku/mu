@@ -444,7 +444,7 @@ token lit_object {
                 'fields' => $$<exp_mapping>
             )
         }
-    | { say '*** Syntax Error parsing Constructor'; die() }
+    | { say '*** Syntax Error parsing Constructor ',$$<full_ident>; die() }
     ]
 };
 
