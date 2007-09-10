@@ -61,6 +61,7 @@ class KindaPerl6::Visitor::LexicalSub {
                         name   => $node.name,  
                         twigil => '',  
                         sigil  => '&', 
+                        namespace => [ ], 
                     ),  
                     type  => '', 
                 ),  
@@ -89,6 +90,7 @@ class KindaPerl6::Visitor::LexicalSub {
                         name   => (($node.arguments)[0]).name,  
                         twigil => '',  
                         sigil  => '&', 
+                        namespace => [ ],
                     ),  
                     type  => '', 
                 ),  
@@ -110,6 +112,7 @@ class KindaPerl6::Visitor::LexicalSub {
                         name   => $node.code,  
                         twigil => '',  
                         sigil  => '&', 
+                        namespace => [ ],
                     ),   
              );
         };

@@ -9,7 +9,7 @@ This visitor looks up lexical variables, and adds a GLOBAL lookup if needed.
 
 class KindaPerl6::Visitor::Global {
 
-    has $.pad;
+    #has $.pad;
 
     method visit ( $node, $node_name ) {
     
@@ -23,12 +23,12 @@ class KindaPerl6::Visitor::Global {
         
         if    ( $node_name eq 'Lit::Code' )
         {
-            unshift @($.pad), $node.pad;
+            unshift @(@COMPILER::PAD), $node.pad;
             my $stmt;
             for @($node.body) -> $stmt {
                 $stmt.emit( $self );
             };
-            shift @($.pad);
+            shift @(@COMPILER::PAD);
             return $node;
         }
         
@@ -42,25 +42,22 @@ class KindaPerl6::Visitor::Global {
             #say "variable: ", $node.sigil, $node.twigil, $node.name;
             #say "pad: ", $.pad.perl;
 
-            if (($.pad)[0]).declaration( $node ) {
+            if ((@(@COMPILER::PAD))[0]).declaration( $node ) {
                 # say "ok - declaration ", $node.name;
             }
             else {
-            
                 # TODO - lookup into the GLOBAL namespace; die if undeclared there
-            
                 #warn "undeclared variable: [", $node.sigil, ':', $node.twigil, ':', $node.name, ']';
-                
-                if     ($node.name eq '/')
-                    || ($node.name eq '_')
-                    || ($node.twigil eq '.')
-                    || ( ( $node.sigil eq '&') && ( $node.name eq 'self' ) )
+                if     ($node.name eq '/')         # $/
+                    || ($node.name eq '_')         # @_ $_ %_
+                    || ($node.twigil eq '.')       # attribute
+                    || ( ( $node.sigil eq '&') && ( $node.name eq 'self' ) )  # ???
                 {
                     # don't modify special vars (yet?)
                     #warn "special variable: ", $node.sigil, ':', $node.twigil, ':', $node.name;
                 }
                 else {                  
-                    $node.name( 'GLOBAL::' ~ $node.name );
+                    $node.namespace( [ 'GLOBAL' ] );
                 }
             }
             return $node;                    

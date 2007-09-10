@@ -33,6 +33,18 @@ token full_ident {
     ]    
 };
 
+token namespace {
+    |   <ident> '::'
+        [
+        |   <namespace> 
+            { return [ $$<ident>, @( $$<namespace> ) ] }
+        |   
+            { return [ $$<ident> ] }
+        ]
+    |
+        { return [ ] }
+};
+
 token to_line_end {
     |  \N <?to_line_end>
     |  <''>
@@ -204,7 +216,7 @@ token exp {
           <?opt_ws>
           <exp2>
           { return ::Apply(
-            'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'ternary:<?? !!>' ),
+            'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'ternary:<?? !!>', namespace => [ ] ),
             'arguments' => [ $$<term_meth>, $$<exp>, $$<exp2> ],
           ) }
         | { say '*** Syntax error in ternary operation' }
@@ -215,7 +227,7 @@ token exp {
         <?opt_ws>
         <exp>
           { return ::Apply(
-            'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'infix:<' ~ $<infix_op> ~ '>' ),
+            'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'infix:<' ~ $<infix_op> ~ '>', namespace => [ ]  ),
             'arguments' => [ $$<term_meth>, $$<exp> ],
           ) }
     | <?opt_ws> <'::='> <?opt_ws> <exp>
@@ -321,28 +333,34 @@ token sigil { \$ |\% |\@ |\& };
 
 token twigil { [ \. | \! | \^ | \* ] | <''> };
 
-token var_name { <full_ident> | <'/'> | <digit> };
+# XXX unused?
+# token var_name { <ident> | <'/'> | <digit> };
 
+# used in Term.pm
 token undeclared_var {
-    <sigil> <twigil> <var_name>
+    <sigil> <twigil> <namespace> <ident>
     {
         # no pre-declaration checks
         return ::Var(
-            sigil  => ~$<sigil>,
-            twigil => ~$<twigil>,
-            name   => ~$<var_name>,
+            sigil     => ~$<sigil>,
+            twigil    => ~$<twigil>,
+            name      => ~$<ident>,
+            namespace => $$<namespace>,
         )
     }
 };
 
 token var {
-    <sigil> <twigil> <var_name>
+    <sigil> <twigil> <namespace> <ident>
     {
         # check for pre-declaration
         return COMPILER::get_var(
-            ~$<sigil>,
-            ~$<twigil>,
-            ~$<var_name>,
+            ::Var(
+                    sigil     => ~$<sigil>,
+                    twigil    => ~$<twigil>,
+                    name      => ~$<ident>,
+                    namespace => $$<namespace>,
+                )
         )
     }
 };
@@ -452,21 +470,33 @@ token call {
 };
 
 token apply {
-    <full_ident>
+    <namespace> <ident>
     [
         [ \( <?opt_ws> <exp_parameter_list> <?opt_ws> \)
         | <?ws> <exp_parameter_list> <?opt_ws>
         ]
         {
             return ::Apply(
-                'code'      => COMPILER::get_var( '&', '', $$<full_ident> ),
+                'code'      => COMPILER::get_var( 
+                    ::Var(
+                            sigil     => '&',
+                            twigil    => '',
+                            name      => $$<ident>,
+                            namespace => $$<namespace>,
+                        ) ),
                 'arguments' => $$<exp_parameter_list>,
             )
         }
     |
         {
             return ::Apply(
-                'code'      => COMPILER::get_var( '&', '', $$<full_ident> ),
+                'code'      => COMPILER::get_var( 
+                    ::Var(
+                            sigil     => '&',
+                            twigil    => '',
+                            name      => $$<ident>,
+                            namespace => $$<namespace>,
+                        ) ),
                 'arguments' => [],
             )
         }

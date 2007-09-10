@@ -138,6 +138,12 @@ sub add_lexicals {  # [ Decl, Decl, ... ]
 # look up for a variable's declaration 
 sub declaration { # Var
     my ( $self, $var ) = @_;
+    
+    if ( @{$var->namespace} ) {
+        # global variable, doesn't require predeclaration
+        return $var;   # XXX
+    }
+    
     for my $decl ( @{$self->{variable_names}} ) {
         return $decl 
             if ( _var_eq( $decl->var, $var ) );
@@ -155,7 +161,26 @@ sub _var_eq {
     (  $new->name   eq $old->name
     && $new->twigil eq $old->twigil
     && $new->sigil  eq $old->sigil
+    
+    && join( '::', @{$new->namespace} ) eq join( '::', @{$old->namespace} ) 
+    
     )
+}
+
+# returns a hashref with names of variables that were modified with .STORE or .BIND
+# XXX - modified since when?
+sub side_effects {
+    $_[0]->eval( '$_MODIFIED' );
+}
+
+sub eval_ast {
+    my $self     = shift;
+    my $code     = shift;
+    my $visitors = shift;
+    for ( @$visitors ) {
+        $code = $code->emit( $_ );
+    }
+    return $self->eval( $code );
 }
 
 1;

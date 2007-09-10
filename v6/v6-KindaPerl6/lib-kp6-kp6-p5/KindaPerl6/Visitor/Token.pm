@@ -263,7 +263,8 @@
                                 };
                                 do {
                                     ::MODIFIED($ast);
-                                    $ast = ::DISPATCH( $::KindaPerl6::Grammar,
+                                    $ast =
+                                      ::DISPATCH( $::KindaPerl6::Grammar,
                                         'term', $source );
                                 };
                                 return (
@@ -281,7 +282,6 @@
     };
     1
 }
-
 {
 
     package Rule;
@@ -395,7 +395,7 @@
                         };
                         do {
                             ::MODIFIED($len);
-                            $len = Main::chars( $str, );
+                            $len = ::DISPATCH( $str, 'chars', );
                         };
                         do {
                             if (
@@ -405,8 +405,7 @@
                                             $GLOBAL::Code_infix_58__60_eq_62_,
                                             'APPLY', $str,
                                             ::DISPATCH(
-                                                $GLOBAL::Main::Code_backslash,
-                                                'APPLY',
+                                                $Main::Code_backslash, 'APPLY',
                                             )
                                         ),
                                         "true"
@@ -422,12 +421,10 @@
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
                                             ::DISPATCH(
-                                                $GLOBAL::Main::Code_backslash,
-                                                'APPLY',
+                                                $Main::Code_backslash, 'APPLY',
                                             ),
                                             ::DISPATCH(
-                                                $GLOBAL::Main::Code_backslash,
-                                                'APPLY',
+                                                $Main::Code_backslash, 'APPLY',
                                             )
                                         );
                                       }
@@ -442,7 +439,7 @@
                                             $GLOBAL::Code_infix_58__60_eq_62_,
                                             'APPLY', $str,
                                             ::DISPATCH(
-                                                $GLOBAL::Main::Code_singlequote,
+                                                $Main::Code_singlequote,
                                                 'APPLY',
                                             )
                                         ),
@@ -459,11 +456,10 @@
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
                                             ::DISPATCH(
-                                                $GLOBAL::Main::Code_backslash,
-                                                'APPLY',
+                                                $Main::Code_backslash, 'APPLY',
                                             ),
                                             ::DISPATCH(
-                                                $GLOBAL::Main::Code_singlequote,
+                                                $Main::Code_singlequote,
                                                 'APPLY',
                                             )
                                         );
@@ -487,7 +483,7 @@
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
                                             ::DISPATCH(
-                                                $GLOBAL::Main::Code_singlequote,
+                                                $Main::Code_singlequote,
                                                 'APPLY',
                                             ),
                                             ::DISPATCH(
@@ -497,7 +493,7 @@
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
                                                     ::DISPATCH(
-                                                        $GLOBAL::Main::Code_singlequote,
+                                                        $Main::Code_singlequote,
                                                         'APPLY',
                                                     ),
                                                     ::DISPATCH(
@@ -526,7 +522,7 @@
                                                                     ::DISPATCH(
                                                                         $::Str,
                                                                         'new',
-'  ?? (1 + $MATCH.to( '
+'  ?? (1 + ($MATCH.to = '
                                                                     ),
                                                                     ::DISPATCH(
                                                                         $GLOBAL::Code_infix_58__60__126__62_,
@@ -587,9 +583,10 @@
                                             $::Signature::Item,
                                             "new",
                                             {
-                                                sigil  => '$',
-                                                twigil => '',
-                                                name   => 'str',
+                                                sigil     => '$',
+                                                twigil    => '',
+                                                name      => 'str',
+                                                namespace => [],
                                             }
                                         ),
                                     ]
@@ -606,7 +603,6 @@
     };
     1
 }
-
 {
 
     package Rule::Quantifier;
@@ -707,7 +703,6 @@
     };
     1
 }
-
 {
 
     package Rule::Or;
@@ -834,7 +829,6 @@
     };
     1
 }
-
 {
 
     package Rule::Concat;
@@ -951,7 +945,6 @@
     };
     1
 }
-
 {
 
     package Rule::Subrule;
@@ -1070,8 +1063,7 @@
                                             ::DISPATCH( $::Int, 'new', 1 )
                                         ),
                                         ::DISPATCH(
-                                            $GLOBAL::Main::Code_singlequote,
-                                            'APPLY',
+                                            $Main::Code_singlequote, 'APPLY',
                                         )
                                     ),
                                     "true"
@@ -1083,7 +1075,7 @@
                             {
                                 return (
                                     ::DISPATCH(
-                                        $GLOBAL::Rule::Code_constant,
+                                        $Rule::Code_constant,
                                         'APPLY',
                                         ::DISPATCH(
                                             $GLOBAL::Code_substr,
@@ -1191,7 +1183,6 @@
     };
     1
 }
-
 {
 
     package Rule::SubruleNoCapture;
@@ -1360,7 +1351,6 @@
     };
     1
 }
-
 {
 
     package Rule::Var;
@@ -1500,7 +1490,6 @@
     };
     1
 }
-
 {
 
     package Rule::Constant;
@@ -1608,14 +1597,13 @@
                         ::MODIFIED($str);
                         $str = ::DISPATCH( $self, "constant" );
                     };
-                    ::DISPATCH( $GLOBAL::Rule::Code_constant, 'APPLY', $str );
+                    ::DISPATCH( $Rule::Code_constant, 'APPLY', $str );
                 }
             )
           )
     };
     1
 }
-
 {
 
     package Rule::Dot;
@@ -1736,7 +1724,6 @@
     };
     1
 }
-
 {
 
     package Rule::SpecialChar;
@@ -2049,17 +2036,13 @@
                         }
                     };
                     return (
-                        ::DISPATCH(
-                            $GLOBAL::Rule::Code_constant, 'APPLY', $char
-                        )
-                    );
+                        ::DISPATCH( $Rule::Code_constant, 'APPLY', $char ) );
                 }
             )
           )
     };
     1
 }
-
 {
 
     package Rule::Block;
@@ -2224,7 +2207,6 @@
     };
     1
 }
-
 {
 
     package Rule::InterpolateVar;
@@ -2345,7 +2327,6 @@
     };
     1
 }
-
 {
 
     package Rule::NamedCapture;
@@ -2477,7 +2458,6 @@
     };
     1
 }
-
 {
 
     package Rule::Before;
@@ -2732,7 +2712,6 @@
     };
     1
 }
-
 {
 
     package Rule::NegateCharClass;
@@ -2836,7 +2815,6 @@
     };
     1
 }
-
 {
 
     package Rule::CharClass;
@@ -2939,7 +2917,6 @@
     };
     1
 }
-
 {
 
     package Rule::Capture;
@@ -3041,4 +3018,3 @@
     };
     1
 }
-

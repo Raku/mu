@@ -350,7 +350,7 @@
                                                                     }
                                                                   )
                                                                   unless
-                                                                    defined $m2;
+                                                                  defined $m2;
 
                                                                 BEGIN {
                                                                     $m2 =
@@ -436,8 +436,8 @@
                                                                         }
                                                                       )
                                                                       unless
-                                                                        defined
-                                                                          $m2;
+                                                                      defined
+                                                                      $m2;
 
                                                                     BEGIN {
                                                                         $m2 =
@@ -543,8 +543,8 @@
                                                                             }
                                                                           )
                                                                           unless
-                                                                            defined
-                                                                              $m2;
+                                                                          defined
+                                                                          $m2;
 
                                                                         BEGIN {
                                                                             $m2
@@ -698,8 +698,8 @@
                                                                                 }
                                                                               )
                                                                               unless
-                                                                                defined
-                                                                                  $ret;
+                                                                              defined
+                                                                              $ret;
 
                                                                             BEGIN
                                                                             {
@@ -722,7 +722,7 @@
 'STORE',
                                                                                 ::DISPATCH(
                                                                                     $self,
-'__rule_block110d5972a07525673a0896bf5bad2dff6',
+'__rule_block10129fa730377cb01558fb479b4ada08e',
                                                                                 )
                                                                             );
                                                                             do {
@@ -802,7 +802,7 @@
                                                         $ret, 'STORE',
                                                         ::DISPATCH(
                                                             $self,
-'__rule_block210d5972a07525673a0896bf5bad2dff6',
+'__rule_block20129fa730377cb01558fb479b4ada08e',
                                                         )
                                                     );
                                                     do {
@@ -1144,7 +1144,7 @@
                                                                     }
                                                                   )
                                                                   unless
-                                                                    defined $m2;
+                                                                  defined $m2;
 
                                                                 BEGIN {
                                                                     $m2 =
@@ -1230,8 +1230,8 @@
                                                                         }
                                                                       )
                                                                       unless
-                                                                        defined
-                                                                          $m2;
+                                                                      defined
+                                                                      $m2;
 
                                                                     BEGIN {
                                                                         $m2 =
@@ -1337,8 +1337,8 @@
                                                                             }
                                                                           )
                                                                           unless
-                                                                            defined
-                                                                              $m2;
+                                                                          defined
+                                                                          $m2;
 
                                                                         BEGIN {
                                                                             $m2
@@ -1492,8 +1492,8 @@
                                                                                 }
                                                                               )
                                                                               unless
-                                                                                defined
-                                                                                  $ret;
+                                                                              defined
+                                                                              $ret;
 
                                                                             BEGIN
                                                                             {
@@ -1516,7 +1516,7 @@
 'STORE',
                                                                                 ::DISPATCH(
                                                                                     $self,
-'__rule_block310d5972a07525673a0896bf5bad2dff6',
+'__rule_block30129fa730377cb01558fb479b4ada08e',
                                                                                 )
                                                                             );
                                                                             do {
@@ -1596,7 +1596,7 @@
                                                         $ret, 'STORE',
                                                         ::DISPATCH(
                                                             $self,
-'__rule_block410d5972a07525673a0896bf5bad2dff6',
+'__rule_block40129fa730377cb01558fb479b4ada08e',
                                                         )
                                                     );
                                                     do {
@@ -1963,7 +1963,7 @@
                                                                     }
                                                                   )
                                                                   unless
-                                                                    defined $m2;
+                                                                  defined $m2;
 
                                                                 BEGIN {
                                                                     $m2 =
@@ -2049,8 +2049,8 @@
                                                                         }
                                                                       )
                                                                       unless
-                                                                        defined
-                                                                          $m2;
+                                                                      defined
+                                                                      $m2;
 
                                                                     BEGIN {
                                                                         $m2 =
@@ -2156,8 +2156,8 @@
                                                                             }
                                                                           )
                                                                           unless
-                                                                            defined
-                                                                              $m2;
+                                                                          defined
+                                                                          $m2;
 
                                                                         BEGIN {
                                                                             $m2
@@ -2247,8 +2247,8 @@
                                                                                 }
                                                                               )
                                                                               unless
-                                                                                defined
-                                                                                  $m2;
+                                                                              defined
+                                                                              $m2;
 
                                                                             BEGIN
                                                                             {
@@ -2360,8 +2360,8 @@
                                                                                     }
                                                                                   )
                                                                                   unless
-                                                                                    defined
-                                                                                      $m2;
+                                                                                  defined
+                                                                                  $m2;
 
                                                                                 BEGIN
                                                                                 {
@@ -2533,8 +2533,8 @@
                                                                                             }
                                                                                           )
                                                                                           unless
-                                                                                            defined
-                                                                                              $m2;
+                                                                                          defined
+                                                                                          $m2;
 
                                                                                         BEGIN
                                                                                         {
@@ -2636,8 +2636,8 @@
                                                                                                 }
                                                                                               )
                                                                                               unless
-                                                                                                defined
-                                                                                                  $ret;
+                                                                                              defined
+                                                                                              $ret;
 
                                                                                             BEGIN
                                                                                             {
@@ -2660,7 +2660,7 @@
 'STORE',
                                                                                                 ::DISPATCH(
                                                                                                     $self,
-'__rule_block510d5972a07525673a0896bf5bad2dff6',
+'__rule_block50129fa730377cb01558fb479b4ada08e',
                                                                                                 )
                                                                                               )
                                                                                               ;
@@ -2724,8 +2724,8 @@
                                                                                                     }
                                                                                                   )
                                                                                                   unless
-                                                                                                    defined
-                                                                                                      $m2;
+                                                                                                  defined
+                                                                                                  $m2;
 
                                                                                                 BEGIN
                                                                                                 {
@@ -2841,8 +2841,8 @@
                                                                                                         }
                                                                                                       )
                                                                                                       unless
-                                                                                                        defined
-                                                                                                          $m2;
+                                                                                                      defined
+                                                                                                      $m2;
 
                                                                                                     BEGIN
                                                                                                     {
@@ -2944,8 +2944,8 @@
                                                                                                             }
                                                                                                           )
                                                                                                           unless
-                                                                                                            defined
-                                                                                                              $pos1;
+                                                                                                          defined
+                                                                                                          $pos1;
 
                                                                                                         BEGIN
                                                                                                         {
@@ -3080,8 +3080,8 @@
                                                                                                                                 }
                                                                                                                               )
                                                                                                                               unless
-                                                                                                                                defined
-                                                                                                                                  $ret;
+                                                                                                                              defined
+                                                                                                                              $ret;
 
                                                                                                                             BEGIN
                                                                                                                             {
@@ -3104,7 +3104,7 @@
 'STORE',
                                                                                                                                 ::DISPATCH(
                                                                                                                                     $self,
-'__rule_block610d5972a07525673a0896bf5bad2dff6',
+'__rule_block60129fa730377cb01558fb479b4ada08e',
                                                                                                                                 )
                                                                                                                               )
                                                                                                                               ;
@@ -3170,8 +3170,8 @@
                                                                                                             }
                                                                                                           )
                                                                                                           unless
-                                                                                                            defined
-                                                                                                              $ret;
+                                                                                                          defined
+                                                                                                          $ret;
 
                                                                                                         BEGIN
                                                                                                         {
@@ -3194,7 +3194,7 @@
 'STORE',
                                                                                                             ::DISPATCH(
                                                                                                                 $self,
-'__rule_block710d5972a07525673a0896bf5bad2dff6',
+'__rule_block70129fa730377cb01558fb479b4ada08e',
                                                                                                             )
                                                                                                           )
                                                                                                           ;
@@ -3265,7 +3265,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block110d5972a07525673a0896bf5bad2dff6'
+                '__rule_block10129fa730377cb01558fb479b4ada08e'
             ),
             ::DISPATCH(
                 $::Method,
@@ -3310,7 +3310,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block210d5972a07525673a0896bf5bad2dff6'
+                '__rule_block20129fa730377cb01558fb479b4ada08e'
             ),
             ::DISPATCH(
                 $::Method,
@@ -3349,6 +3349,10 @@
                                   ::DISPATCH( $::Str, 'new', '' ),
                                 ::DISPATCH( $::Str,   'new', 'name' ) =>
                                   ::DISPATCH( $::Str, 'new', 'self' ),
+                                ::DISPATCH( $::Str, 'new', 'namespace' ) =>
+                                  ::DISPATCH(
+                                    $::Array, "new", { _array => [] }
+                                  ),
                               ),
                             ::DISPATCH( $::Str, 'new', 'positional' ) =>
                               ::DISPATCH( $::Array, "new", { _array => [] } ),
@@ -3364,7 +3368,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block310d5972a07525673a0896bf5bad2dff6'
+                '__rule_block30129fa730377cb01558fb479b4ada08e'
             ),
             ::DISPATCH(
                 $::Method,
@@ -3409,7 +3413,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block410d5972a07525673a0896bf5bad2dff6'
+                '__rule_block40129fa730377cb01558fb479b4ada08e'
             ),
             ::DISPATCH(
                 $::Method,
@@ -3454,7 +3458,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block510d5972a07525673a0896bf5bad2dff6'
+                '__rule_block50129fa730377cb01558fb479b4ada08e'
             ),
             ::DISPATCH(
                 $::Method,
@@ -3481,7 +3485,7 @@
                         ::MODIFIED($Hash__);
                         $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
-                    ::DISPATCH( $GLOBAL::COMPILER::Code_add_pad, 'APPLY', );
+                    ::DISPATCH( $COMPILER::Code_add_pad, 'APPLY', );
                 }
             )
         );
@@ -3490,7 +3494,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block610d5972a07525673a0896bf5bad2dff6'
+                '__rule_block60129fa730377cb01558fb479b4ada08e'
             ),
             ::DISPATCH(
                 $::Method,
@@ -3543,7 +3547,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block710d5972a07525673a0896bf5bad2dff6'
+                '__rule_block70129fa730377cb01558fb479b4ada08e'
             ),
             ::DISPATCH(
                 $::Method,
@@ -3595,10 +3599,10 @@
                     do {
                         ::MODIFIED($env);
                         $env =
-                          ::DISPATCH( $GLOBAL::COMPILER::List_PAD, 'INDEX',
+                          ::DISPATCH( $COMPILER::List_PAD, 'INDEX',
                             ::DISPATCH( $::Int, 'new', 0 ) );
                     };
-                    ::DISPATCH( $GLOBAL::COMPILER::Code_drop_pad, 'APPLY', );
+                    ::DISPATCH( $COMPILER::Code_drop_pad, 'APPLY', );
                     do {
                         ::MODIFIED($block);
                         $block = ::DISPATCH(
@@ -3611,7 +3615,7 @@
                         );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Grammar::Code_declare_parameters,
+                        $KindaPerl6::Grammar::Code_declare_parameters,
                         'APPLY', $env, $block,
                         ::DISPATCH(
                             $GLOBAL::Code_prefix_58__60__36__62_,
@@ -3659,4 +3663,3 @@
     };
     1
 }
-

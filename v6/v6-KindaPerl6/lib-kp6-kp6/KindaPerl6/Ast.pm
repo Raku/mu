@@ -321,6 +321,7 @@ class Var {
     has $.sigil;
     has $.twigil;
     has $.name;
+    has $.namespace;
     method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 
             $visitor, 
@@ -331,9 +332,10 @@ class Var {
     };
     method attribs {
             { 
-                sigil   => $.sigil,
-                twigil  => $.twigil,
-                name    => $.name,
+                sigil     => $.sigil,
+                twigil    => $.twigil,
+                name      => $.name,
+                namespace => $.namespace,
             }
     };
 }

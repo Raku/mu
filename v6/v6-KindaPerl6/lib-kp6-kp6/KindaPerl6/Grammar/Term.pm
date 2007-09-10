@@ -7,7 +7,7 @@ token term {
     | <var>     { return $$<var> }     # $variable
     | <prefix_op> <exp> 
           { return ::Apply(
-            'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<' ~ $<prefix_op> ~ '>' ),
+            'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<' ~ $<prefix_op> ~ '>', namespace => [ ] ),
             'arguments' => [ $$<exp> ],
           ) }
     | \( <?opt_ws> <exp> <?opt_ws> \)
@@ -30,7 +30,7 @@ token term {
 
     | \$ \< <sub_or_method_name> \>
         { return ::Lookup( 
-            'obj'   => ::Var( 'sigil' => '$', 'twigil' => '', 'name' => '/' ), 
+            'obj'   => ::Var( 'sigil' => '$', 'twigil' => '', 'name' => '/', namespace => [ ] ), 
             'index' => ::Val::Buf( 'buf' => $$<sub_or_method_name> ) 
         ) }   # $<ident>
     | do <?opt_ws> <block1>
@@ -86,6 +86,7 @@ token term {
                         name   => ($$<sub>).name,  
                         twigil => '',  
                         sigil  => '&', 
+                        namespace => [ ],
                     ),  
                     type  => '', 
                 ),
@@ -95,6 +96,7 @@ token term {
                     name   => ($$<sub>).name,  
                     twigil => '',  
                     sigil  => '&', 
+                    namespace => [ ],
                 ),  
                 arguments => $$<sub>
             );

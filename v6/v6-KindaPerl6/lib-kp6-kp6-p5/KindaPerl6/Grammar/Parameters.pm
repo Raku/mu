@@ -191,6 +191,11 @@
                                             ::DISPATCH( $::Str, 'new',
                                                 'name' ) =>
                                               ::DISPATCH( $::Str, 'new', '_' ),
+                                            ::DISPATCH( $::Str, 'new',
+                                                'namespace' ) => ::DISPATCH(
+                                                $::Array, "new",
+                                                { _array => [] }
+                                                ),
                                         ),
                                         ::DISPATCH( $sig, 'invocant', ),
                                         ::DISPATCH(
@@ -299,27 +304,30 @@
                                             $::Signature::Item,
                                             "new",
                                             {
-                                                sigil  => '$',
-                                                twigil => '',
-                                                name   => 'env',
+                                                sigil     => '$',
+                                                twigil    => '',
+                                                name      => 'env',
+                                                namespace => [],
                                             }
                                         ),
                                         ::DISPATCH(
                                             $::Signature::Item,
                                             "new",
                                             {
-                                                sigil  => '$',
-                                                twigil => '',
-                                                name   => 'block',
+                                                sigil     => '$',
+                                                twigil    => '',
+                                                name      => 'block',
+                                                namespace => [],
                                             }
                                         ),
                                         ::DISPATCH(
                                             $::Signature::Item,
                                             "new",
                                             {
-                                                sigil  => '$',
-                                                twigil => '',
-                                                name   => 'sig',
+                                                sigil     => '$',
+                                                twigil    => '',
+                                                name      => 'sig',
+                                                namespace => [],
                                             }
                                         ),
                                     ]
@@ -336,4 +344,3 @@
     };
     1
 }
-

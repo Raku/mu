@@ -206,7 +206,9 @@ package GLOBAL;
         my ($regex,$string,$pos) = (_str($_[0]),_str($_[1]),_int($_[2]));
         pos($string) = $pos;
         my $bool = $string =~ /\G$regex/gc;
+        print "regex:<$regex> string:<$string>\n";
         if ($bool) {
+            print "matched up to:",pos($string),"\n";
             ::DISPATCH($::Match,'new',{
                     match_str=>$_[1],
                     from=>$_[2],
@@ -214,6 +216,7 @@ package GLOBAL;
                     bool=>True
             });
         } else {
+            print "false match\n";
             ::DISPATCH($::Match,'new',{bool=>False});
         }
     }

@@ -143,8 +143,8 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
+                        $KindaPerl6::Traverse::Code_visit, 'APPLY',
+                        $visitor,                          $self,
                         ::DISPATCH( $::Str, 'new', 'CompUnit' ), $path
                     );
                 }
@@ -220,7 +220,6 @@
     };
     1
 }
-
 {
 
     package Val::Int;
@@ -341,8 +340,8 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
+                        $KindaPerl6::Traverse::Code_visit, 'APPLY',
+                        $visitor,                          $self,
                         ::DISPATCH( $::Str, 'new', 'Val::Int' ), $path
                     );
                 }
@@ -406,7 +405,6 @@
     };
     1
 }
-
 {
 
     package Val::Bit;
@@ -527,8 +525,8 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
+                        $KindaPerl6::Traverse::Code_visit, 'APPLY',
+                        $visitor,                          $self,
                         ::DISPATCH( $::Str, 'new', 'Val::Bit' ), $path
                     );
                 }
@@ -592,7 +590,6 @@
     };
     1
 }
-
 {
 
     package Val::Num;
@@ -713,8 +710,8 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
+                        $KindaPerl6::Traverse::Code_visit, 'APPLY',
+                        $visitor,                          $self,
                         ::DISPATCH( $::Str, 'new', 'Val::Num' ), $path
                     );
                 }
@@ -778,7 +775,6 @@
     };
     1
 }
-
 {
 
     package Val::Buf;
@@ -899,8 +895,8 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
+                        $KindaPerl6::Traverse::Code_visit, 'APPLY',
+                        $visitor,                          $self,
                         ::DISPATCH( $::Str, 'new', 'Val::Buf' ), $path
                     );
                 }
@@ -964,7 +960,6 @@
     };
     1
 }
-
 {
 
     package Val::Undef;
@@ -1081,8 +1076,8 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
+                        $KindaPerl6::Traverse::Code_visit, 'APPLY',
+                        $visitor,                          $self,
                         ::DISPATCH( $::Str, 'new', 'Val::Undef' ), $path
                     );
                 }
@@ -1138,7 +1133,6 @@
     };
     1
 }
-
 {
 
     package Val::Object;
@@ -1265,8 +1259,8 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
+                        $KindaPerl6::Traverse::Code_visit, 'APPLY',
+                        $visitor,                          $self,
                         ::DISPATCH( $::Str, 'new', 'Val::Object' ), $path
                     );
                 }
@@ -1332,7 +1326,6 @@
     };
     1
 }
-
 {
 
     package Lit::Seq;
@@ -1453,8 +1446,8 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
+                        $KindaPerl6::Traverse::Code_visit, 'APPLY',
+                        $visitor,                          $self,
                         ::DISPATCH( $::Str, 'new', 'Lit::Seq' ), $path
                     );
                 }
@@ -1518,7 +1511,6 @@
     };
     1
 }
-
 {
 
     package Lit::Array;
@@ -1640,8 +1632,8 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
+                        $KindaPerl6::Traverse::Code_visit, 'APPLY',
+                        $visitor,                          $self,
                         ::DISPATCH( $::Str, 'new', 'Lit::Array' ), $path
                     );
                 }
@@ -1705,7 +1697,6 @@
     };
     1
 }
-
 {
 
     package Lit::Hash;
@@ -1827,8 +1818,8 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
+                        $KindaPerl6::Traverse::Code_visit, 'APPLY',
+                        $visitor,                          $self,
                         ::DISPATCH( $::Str, 'new', 'Lit::Hash' ), $path
                     );
                 }
@@ -1892,7 +1883,6 @@
     };
     1
 }
-
 {
 
     package Lit::Pair;
@@ -2019,8 +2009,8 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
+                        $KindaPerl6::Traverse::Code_visit, 'APPLY',
+                        $visitor,                          $self,
                         ::DISPATCH( $::Str, 'new', 'Lit::Pair' ), $path
                     );
                 }
@@ -2086,7 +2076,6 @@
     };
     1
 }
-
 {
 
     package Lit::NamedArgument;
@@ -2215,7 +2204,7 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit,
+                        $KindaPerl6::Traverse::Code_visit,
                         'APPLY',
                         $visitor,
                         $self,
@@ -2285,7 +2274,6 @@
     };
     1
 }
-
 {
 
     package Lit::Code;
@@ -2422,8 +2410,8 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
+                        $KindaPerl6::Traverse::Code_visit, 'APPLY',
+                        $visitor,                          $self,
                         ::DISPATCH( $::Str, 'new', 'Lit::Code' ), $path
                     );
                 }
@@ -2493,7 +2481,6 @@
     };
     1
 }
-
 {
 
     package Lit::Object;
@@ -2620,8 +2607,8 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
+                        $KindaPerl6::Traverse::Code_visit, 'APPLY',
+                        $visitor,                          $self,
                         ::DISPATCH( $::Str, 'new', 'Lit::Object' ), $path
                     );
                 }
@@ -2687,7 +2674,6 @@
     };
     1
 }
-
 {
 
     package Index;
@@ -2812,11 +2798,9 @@
                           ::DISPATCH( $List__, 'INDEX',
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
-                    ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
-                        ::DISPATCH( $::Str, 'new', 'Index' ), $path
-                    );
+                    ::DISPATCH( $KindaPerl6::Traverse::Code_visit,
+                        'APPLY', $visitor, $self,
+                        ::DISPATCH( $::Str, 'new', 'Index' ), $path );
                 }
             )
         );
@@ -2880,7 +2864,6 @@
     };
     1
 }
-
 {
 
     package Lookup;
@@ -3005,11 +2988,9 @@
                           ::DISPATCH( $List__, 'INDEX',
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
-                    ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
-                        ::DISPATCH( $::Str, 'new', 'Lookup' ), $path
-                    );
+                    ::DISPATCH( $KindaPerl6::Traverse::Code_visit,
+                        'APPLY', $visitor, $self,
+                        ::DISPATCH( $::Str, 'new', 'Lookup' ), $path );
                 }
             )
         );
@@ -3073,7 +3054,6 @@
     };
     1
 }
-
 {
 
     package Var;
@@ -3136,6 +3116,11 @@
             ::DISPATCH( $::Var, 'HOW', ),
             'add_attribute',
             ::DISPATCH( $::Str, 'new', 'name' )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::Var, 'HOW', ),
+            'add_attribute',
+            ::DISPATCH( $::Str, 'new', 'namespace' )
         );
         ::DISPATCH(
             ::DISPATCH( $::Var, 'HOW', ),
@@ -3203,11 +3188,9 @@
                           ::DISPATCH( $List__, 'INDEX',
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
-                    ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
-                        ::DISPATCH( $::Str, 'new', 'Var' ), $path
-                    );
+                    ::DISPATCH( $KindaPerl6::Traverse::Code_visit,
+                        'APPLY', $visitor, $self,
+                        ::DISPATCH( $::Str, 'new', 'Var' ), $path );
                 }
             )
         );
@@ -3264,6 +3247,9 @@
                                   ->{_value} => ::DISPATCH( $self, "twigil" ),
                                 ::DISPATCH( $::Str, 'new', 'name' )->{_value} =>
                                   ::DISPATCH( $self, "name" ),
+                                ::DISPATCH( $::Str, 'new', 'namespace' )
+                                  ->{_value} =>
+                                  ::DISPATCH( $self, "namespace" ),
                             }
                         }
                     );
@@ -3273,7 +3259,6 @@
     };
     1
 }
-
 {
 
     package Bind;
@@ -3398,11 +3383,9 @@
                           ::DISPATCH( $List__, 'INDEX',
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
-                    ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
-                        ::DISPATCH( $::Str, 'new', 'Bind' ), $path
-                    );
+                    ::DISPATCH( $KindaPerl6::Traverse::Code_visit,
+                        'APPLY', $visitor, $self,
+                        ::DISPATCH( $::Str, 'new', 'Bind' ), $path );
                 }
             )
         );
@@ -3468,7 +3451,6 @@
     };
     1
 }
-
 {
 
     package Assign;
@@ -3593,11 +3575,9 @@
                           ::DISPATCH( $List__, 'INDEX',
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
-                    ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
-                        ::DISPATCH( $::Str, 'new', 'Assign' ), $path
-                    );
+                    ::DISPATCH( $KindaPerl6::Traverse::Code_visit,
+                        'APPLY', $visitor, $self,
+                        ::DISPATCH( $::Str, 'new', 'Assign' ), $path );
                 }
             )
         );
@@ -3663,7 +3643,6 @@
     };
     1
 }
-
 {
 
     package Proto;
@@ -3783,11 +3762,9 @@
                           ::DISPATCH( $List__, 'INDEX',
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
-                    ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
-                        ::DISPATCH( $::Str, 'new', 'Proto' ), $path
-                    );
+                    ::DISPATCH( $KindaPerl6::Traverse::Code_visit,
+                        'APPLY', $visitor, $self,
+                        ::DISPATCH( $::Str, 'new', 'Proto' ), $path );
                 }
             )
         );
@@ -3849,7 +3826,6 @@
     };
     1
 }
-
 {
 
     package Call;
@@ -3984,11 +3960,9 @@
                           ::DISPATCH( $List__, 'INDEX',
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
-                    ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
-                        ::DISPATCH( $::Str, 'new', 'Call' ), $path
-                    );
+                    ::DISPATCH( $KindaPerl6::Traverse::Code_visit,
+                        'APPLY', $visitor, $self,
+                        ::DISPATCH( $::Str, 'new', 'Call' ), $path );
                 }
             )
         );
@@ -4057,7 +4031,6 @@
     };
     1
 }
-
 {
 
     package Apply;
@@ -4182,11 +4155,9 @@
                           ::DISPATCH( $List__, 'INDEX',
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
-                    ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
-                        ::DISPATCH( $::Str, 'new', 'Apply' ), $path
-                    );
+                    ::DISPATCH( $KindaPerl6::Traverse::Code_visit,
+                        'APPLY', $visitor, $self,
+                        ::DISPATCH( $::Str, 'new', 'Apply' ), $path );
                 }
             )
         );
@@ -4251,7 +4222,6 @@
     };
     1
 }
-
 {
 
     package Return;
@@ -4371,11 +4341,9 @@
                           ::DISPATCH( $List__, 'INDEX',
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
-                    ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
-                        ::DISPATCH( $::Str, 'new', 'Return' ), $path
-                    );
+                    ::DISPATCH( $KindaPerl6::Traverse::Code_visit,
+                        'APPLY', $visitor, $self,
+                        ::DISPATCH( $::Str, 'new', 'Return' ), $path );
                 }
             )
         );
@@ -4437,7 +4405,6 @@
     };
     1
 }
-
 {
 
     package If;
@@ -4565,11 +4532,9 @@
                           ::DISPATCH( $List__, 'INDEX',
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
-                    ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
-                        ::DISPATCH( $::Str, 'new', 'If' ), $path
-                    );
+                    ::DISPATCH( $KindaPerl6::Traverse::Code_visit,
+                        'APPLY', $visitor, $self,
+                        ::DISPATCH( $::Str, 'new', 'If' ), $path );
                 }
             )
         );
@@ -4636,7 +4601,6 @@
     };
     1
 }
-
 {
 
     package For;
@@ -4766,11 +4730,9 @@
                           ::DISPATCH( $List__, 'INDEX',
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
-                    ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
-                        ::DISPATCH( $::Str, 'new', 'For' ), $path
-                    );
+                    ::DISPATCH( $KindaPerl6::Traverse::Code_visit,
+                        'APPLY', $visitor, $self,
+                        ::DISPATCH( $::Str, 'new', 'For' ), $path );
                 }
             )
         );
@@ -4836,7 +4798,6 @@
     };
     1
 }
-
 {
 
     package Decl;
@@ -4966,11 +4927,9 @@
                           ::DISPATCH( $List__, 'INDEX',
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
-                    ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
-                        ::DISPATCH( $::Str, 'new', 'Decl' ), $path
-                    );
+                    ::DISPATCH( $KindaPerl6::Traverse::Code_visit,
+                        'APPLY', $visitor, $self,
+                        ::DISPATCH( $::Str, 'new', 'Decl' ), $path );
                 }
             )
         );
@@ -5036,7 +4995,6 @@
     };
     1
 }
-
 {
 
     package Sig;
@@ -5166,11 +5124,9 @@
                           ::DISPATCH( $List__, 'INDEX',
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
-                    ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
-                        ::DISPATCH( $::Str, 'new', 'Sig' ), $path
-                    );
+                    ::DISPATCH( $KindaPerl6::Traverse::Code_visit,
+                        'APPLY', $visitor, $self,
+                        ::DISPATCH( $::Str, 'new', 'Sig' ), $path );
                 }
             )
         );
@@ -5237,7 +5193,6 @@
     };
     1
 }
-
 {
 
     package Capture;
@@ -5367,11 +5322,9 @@
                           ::DISPATCH( $List__, 'INDEX',
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
-                    ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
-                        ::DISPATCH( $::Str, 'new', 'Capture' ), $path
-                    );
+                    ::DISPATCH( $KindaPerl6::Traverse::Code_visit,
+                        'APPLY', $visitor, $self,
+                        ::DISPATCH( $::Str, 'new', 'Capture' ), $path );
                 }
             )
         );
@@ -5437,7 +5390,6 @@
     };
     1
 }
-
 {
 
     package Subset;
@@ -5567,11 +5519,9 @@
                           ::DISPATCH( $List__, 'INDEX',
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
-                    ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
-                        ::DISPATCH( $::Str, 'new', 'Subset' ), $path
-                    );
+                    ::DISPATCH( $KindaPerl6::Traverse::Code_visit,
+                        'APPLY', $visitor, $self,
+                        ::DISPATCH( $::Str, 'new', 'Subset' ), $path );
                 }
             )
         );
@@ -5638,7 +5588,6 @@
     };
     1
 }
-
 {
 
     package Method;
@@ -5763,11 +5712,9 @@
                           ::DISPATCH( $List__, 'INDEX',
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
-                    ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
-                        ::DISPATCH( $::Str, 'new', 'Method' ), $path
-                    );
+                    ::DISPATCH( $KindaPerl6::Traverse::Code_visit,
+                        'APPLY', $visitor, $self,
+                        ::DISPATCH( $::Str, 'new', 'Method' ), $path );
                 }
             )
         );
@@ -5831,7 +5778,6 @@
     };
     1
 }
-
 {
 
     package Sub;
@@ -5956,11 +5902,9 @@
                           ::DISPATCH( $List__, 'INDEX',
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
-                    ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
-                        ::DISPATCH( $::Str, 'new', 'Sub' ), $path
-                    );
+                    ::DISPATCH( $KindaPerl6::Traverse::Code_visit,
+                        'APPLY', $visitor, $self,
+                        ::DISPATCH( $::Str, 'new', 'Sub' ), $path );
                 }
             )
         );
@@ -6024,7 +5968,6 @@
     };
     1
 }
-
 {
 
     package Token;
@@ -6149,11 +6092,9 @@
                           ::DISPATCH( $List__, 'INDEX',
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
-                    ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
-                        ::DISPATCH( $::Str, 'new', 'Token' ), $path
-                    );
+                    ::DISPATCH( $KindaPerl6::Traverse::Code_visit,
+                        'APPLY', $visitor, $self,
+                        ::DISPATCH( $::Str, 'new', 'Token' ), $path );
                 }
             )
         );
@@ -6217,7 +6158,6 @@
     };
     1
 }
-
 {
 
     package Do;
@@ -6335,11 +6275,9 @@
                           ::DISPATCH( $List__, 'INDEX',
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
-                    ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
-                        ::DISPATCH( $::Str, 'new', 'Do' ), $path
-                    );
+                    ::DISPATCH( $KindaPerl6::Traverse::Code_visit,
+                        'APPLY', $visitor, $self,
+                        ::DISPATCH( $::Str, 'new', 'Do' ), $path );
                 }
             )
         );
@@ -6401,7 +6339,6 @@
     };
     1
 }
-
 {
 
     package BEGIN;
@@ -6521,11 +6458,9 @@
                           ::DISPATCH( $List__, 'INDEX',
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
-                    ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
-                        ::DISPATCH( $::Str, 'new', 'BEGIN' ), $path
-                    );
+                    ::DISPATCH( $KindaPerl6::Traverse::Code_visit,
+                        'APPLY', $visitor, $self,
+                        ::DISPATCH( $::Str, 'new', 'BEGIN' ), $path );
                 }
             )
         );
@@ -6587,7 +6522,6 @@
     };
     1
 }
-
 {
 
     package Use;
@@ -6712,11 +6646,9 @@
                           ::DISPATCH( $List__, 'INDEX',
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
-                    ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
-                        ::DISPATCH( $::Str, 'new', 'Use' ), $path
-                    );
+                    ::DISPATCH( $KindaPerl6::Traverse::Code_visit,
+                        'APPLY', $visitor, $self,
+                        ::DISPATCH( $::Str, 'new', 'Use' ), $path );
                 }
             )
         );
@@ -6780,7 +6712,6 @@
     };
     1
 }
-
 {
 
     package Rule;
@@ -6895,11 +6826,9 @@
                           ::DISPATCH( $List__, 'INDEX',
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
-                    ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
-                        ::DISPATCH( $::Str, 'new', 'Rule' ), $path
-                    );
+                    ::DISPATCH( $KindaPerl6::Traverse::Code_visit,
+                        'APPLY', $visitor, $self,
+                        ::DISPATCH( $::Str, 'new', 'Rule' ), $path );
                 }
             )
         );
@@ -6953,7 +6882,6 @@
     };
     1
 }
-
 {
 
     package Rule::Quantifier;
@@ -7101,7 +7029,7 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit,
+                        $KindaPerl6::Traverse::Code_visit,
                         'APPLY',
                         $visitor,
                         $self,
@@ -7179,7 +7107,6 @@
     };
     1
 }
-
 {
 
     package Rule::Or;
@@ -7300,8 +7227,8 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
+                        $KindaPerl6::Traverse::Code_visit, 'APPLY',
+                        $visitor,                          $self,
                         ::DISPATCH( $::Str, 'new', 'Rule::Or' ), $path
                     );
                 }
@@ -7365,7 +7292,6 @@
     };
     1
 }
-
 {
 
     package Rule::Concat;
@@ -7487,8 +7413,8 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
+                        $KindaPerl6::Traverse::Code_visit, 'APPLY',
+                        $visitor,                          $self,
                         ::DISPATCH( $::Str, 'new', 'Rule::Concat' ), $path
                     );
                 }
@@ -7552,7 +7478,6 @@
     };
     1
 }
-
 {
 
     package Rule::Subrule;
@@ -7684,8 +7609,8 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
+                        $KindaPerl6::Traverse::Code_visit, 'APPLY',
+                        $visitor,                          $self,
                         ::DISPATCH( $::Str, 'new', 'Rule::Subrule' ), $path
                     );
                 }
@@ -7755,7 +7680,6 @@
     };
     1
 }
-
 {
 
     package Rule::SubruleNoCapture;
@@ -7879,7 +7803,7 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit,
+                        $KindaPerl6::Traverse::Code_visit,
                         'APPLY',
                         $visitor,
                         $self,
@@ -7948,7 +7872,6 @@
     };
     1
 }
-
 {
 
     package Rule::Var;
@@ -8080,8 +8003,8 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
+                        $KindaPerl6::Traverse::Code_visit, 'APPLY',
+                        $visitor,                          $self,
                         ::DISPATCH( $::Str, 'new', 'Rule::Var' ), $path
                     );
                 }
@@ -8149,7 +8072,6 @@
     };
     1
 }
-
 {
 
     package Rule::Constant;
@@ -8271,7 +8193,7 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit,
+                        $KindaPerl6::Traverse::Code_visit,
                         'APPLY',
                         $visitor,
                         $self,
@@ -8339,7 +8261,6 @@
     };
     1
 }
-
 {
 
     package Rule::Dot;
@@ -8456,8 +8377,8 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
+                        $KindaPerl6::Traverse::Code_visit, 'APPLY',
+                        $visitor,                          $self,
                         ::DISPATCH( $::Str, 'new', 'Rule::Dot' ), $path
                     );
                 }
@@ -8513,7 +8434,6 @@
     };
     1
 }
-
 {
 
     package Rule::SpecialChar;
@@ -8637,7 +8557,7 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit,
+                        $KindaPerl6::Traverse::Code_visit,
                         'APPLY',
                         $visitor,
                         $self,
@@ -8705,7 +8625,6 @@
     };
     1
 }
-
 {
 
     package Rule::Block;
@@ -8827,8 +8746,8 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
+                        $KindaPerl6::Traverse::Code_visit, 'APPLY',
+                        $visitor,                          $self,
                         ::DISPATCH( $::Str, 'new', 'Rule::Block' ), $path
                     );
                 }
@@ -8892,7 +8811,6 @@
     };
     1
 }
-
 {
 
     package Rule::InterpolateVar;
@@ -9016,7 +8934,7 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit,
+                        $KindaPerl6::Traverse::Code_visit,
                         'APPLY',
                         $visitor,
                         $self,
@@ -9084,7 +9002,6 @@
     };
     1
 }
-
 {
 
     package Rule::NamedCapture;
@@ -9218,7 +9135,7 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit,
+                        $KindaPerl6::Traverse::Code_visit,
                         'APPLY',
                         $visitor,
                         $self,
@@ -9291,7 +9208,6 @@
     };
     1
 }
-
 {
 
     package Rule::Before;
@@ -9423,8 +9339,8 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
+                        $KindaPerl6::Traverse::Code_visit, 'APPLY',
+                        $visitor,                          $self,
                         ::DISPATCH( $::Str, 'new', 'Rule::Before' ), $path
                     );
                 }
@@ -9494,7 +9410,6 @@
     };
     1
 }
-
 {
 
     package Rule::After;
@@ -9626,8 +9541,8 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
+                        $KindaPerl6::Traverse::Code_visit, 'APPLY',
+                        $visitor,                          $self,
                         ::DISPATCH( $::Str, 'new', 'Rule::After' ), $path
                     );
                 }
@@ -9697,7 +9612,6 @@
     };
     1
 }
-
 {
 
     package Rule::NegateCharClass;
@@ -9821,7 +9735,7 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit,
+                        $KindaPerl6::Traverse::Code_visit,
                         'APPLY',
                         $visitor,
                         $self,
@@ -9889,7 +9803,6 @@
     };
     1
 }
-
 {
 
     package Rule::CharClass;
@@ -10012,7 +9925,7 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit,
+                        $KindaPerl6::Traverse::Code_visit,
                         'APPLY',
                         $visitor,
                         $self,
@@ -10080,7 +9993,6 @@
     };
     1
 }
-
 {
 
     package Rule::Capture;
@@ -10212,8 +10124,8 @@
                             ::DISPATCH( $::Int, 'new', 1 ) );
                     };
                     ::DISPATCH(
-                        $GLOBAL::KindaPerl6::Traverse::Code_visit, 'APPLY',
-                        $visitor,                                  $self,
+                        $KindaPerl6::Traverse::Code_visit, 'APPLY',
+                        $visitor,                          $self,
                         ::DISPATCH( $::Str, 'new', 'Rule::Capture' ), $path
                     );
                 }
@@ -10282,4 +10194,3 @@
     };
     1
 }
-

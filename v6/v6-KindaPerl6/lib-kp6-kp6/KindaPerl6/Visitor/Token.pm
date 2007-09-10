@@ -19,7 +19,7 @@ class KindaPerl6::Visitor::Token {
                 ~ '$MATCH = Match.new(); $MATCH.match_str = $str; $MATCH.from = $pos; $MATCH.to = $pos; $MATCH.bool = 1; '
                 ~ '$MATCH.bool = ' ~ $perl6_source ~ '; ' 
                 ~ 'return $MATCH }';
-#            warn 'Intermediate code: ', $source;
+                #warn 'Intermediate code: ', $source;
 
             # Compile the new Perl 6 code
 
@@ -62,7 +62,7 @@ class Rule {
             };
             if ( $len ) {
                 '( ( '~ Main::singlequote() ~ $str ~ Main::singlequote() ~ ' eq substr( $str, $MATCH.to, ' ~ $len ~ ')) ' ~
-                '  ?? (1 + $MATCH.to( ' ~ $len ~ ' + $MATCH.to ))' ~
+                '  ?? (1 + ($MATCH.to = ' ~ $len ~ ' + $MATCH.to ))' ~
                 '  !! (0) ' ~
                 ')';
             }

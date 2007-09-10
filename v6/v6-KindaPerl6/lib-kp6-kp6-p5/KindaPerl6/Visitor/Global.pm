@@ -52,11 +52,6 @@
         };
         ::DISPATCH(
             ::DISPATCH( $::KindaPerl6::Visitor::Global, 'HOW', ),
-            'add_attribute',
-            ::DISPATCH( $::Str, 'new', 'pad' )
-        );
-        ::DISPATCH(
-            ::DISPATCH( $::KindaPerl6::Visitor::Global, 'HOW', ),
             'add_method',
             ::DISPATCH( $::Str, 'new', 'visit' ),
             ::DISPATCH(
@@ -184,7 +179,7 @@
                                     ::DISPATCH(
                                         $GLOBAL::Code_prefix_58__60__64__62_,
                                         'APPLY',
-                                        ::DISPATCH( $self, "pad" )
+                                        $COMPILER::List_PAD
                                     ),
                                     ::DISPATCH( $node, 'pad', )
                                 );
@@ -237,7 +232,7 @@
                                     ::DISPATCH(
                                         $GLOBAL::Code_prefix_58__60__64__62_,
                                         'APPLY',
-                                        ::DISPATCH( $self, "pad" )
+                                        $COMPILER::List_PAD
                                     )
                                 );
                                 return ($node)
@@ -268,7 +263,9 @@
                                                 ::DISPATCH(
                                                     ::DISPATCH(
                                                         ::DISPATCH(
-                                                            $self, "pad"
+                                                            $GLOBAL::Code_prefix_58__60__64__62_,
+                                                            'APPLY',
+                                                            $COMPILER::List_PAD
                                                         ),
                                                         'INDEX',
                                                         ::DISPATCH(
@@ -388,19 +385,19 @@
                                                     {
                                                         ::DISPATCH(
                                                             $node,
-                                                            'name',
+                                                            'namespace',
                                                             ::DISPATCH(
-                                                                $GLOBAL::Code_infix_58__60__126__62_,
-                                                                'APPLY',
-                                                                ::DISPATCH(
-                                                                    $::Str,
-                                                                    'new',
-                                                                    'GLOBAL::'
-                                                                ),
-                                                                ::DISPATCH(
-                                                                    $node,
-                                                                    'name',
-                                                                )
+                                                                $::Array,
+                                                                "new",
+                                                                {
+                                                                    _array => [
+                                                                        ::DISPATCH(
+                                                                            $::Str,
+'new',
+'GLOBAL'
+                                                                        )
+                                                                    ]
+                                                                }
                                                             )
                                                           )
                                                     }
@@ -420,4 +417,3 @@
     };
     1
 }
-

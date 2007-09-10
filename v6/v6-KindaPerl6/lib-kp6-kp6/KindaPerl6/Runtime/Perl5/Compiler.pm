@@ -63,21 +63,16 @@ $Code_begin_block = ::DISPATCH
         $ast = $ast->emit( $COMPILER::visitor_metamodel );
         #$ast = $ast->emit( $COMPILER::visitor_create_env );
     
-        # XXX - initialization belongs to $COMPILER::visitor_global
-        $COMPILER::visitor_global->pad( [ $COMPILER::PAD[0] ] );
-        $ast = $ast->emit( $COMPILER::visitor_global );
-        shift @{ $COMPILER::visitor_global->pad };
-    
-        #print Dump( $ast );
-        my $native = $ast->emit( $COMPILER::visitor_emit_perl5  );
-        #print "Native: $native\n";
+    my $ast = shift;
 
-        # execute the native code inside the current pad
-        add_pad;
-        my $data = $COMPILER::PAD[0]->eval( $native ); # XXX - want() context
-        drop_pad;
-        die "At BEGIN: " . $@ . "\n  Native code: $native\n" . $ast->emit( $COMPILER::visitor_dump_ast) if $@;
-        #print "RETURN DATA: ", Dumper($data);
+    # execute the code inside the current pad
+    add_pad;
+    my $data = $COMPILER::PAD[0]->eval_ast( $ast, [
+            $visitor_token, $visitor_metamodel, $visitor_global, $visitor_emit_perl5,
+        ] );  # XXX - want() context
+    drop_pad;
+    die "At BEGIN: " . $@ if $@;
+    #print "RETURN DATA: ", Dumper($data);
 
         # check for side-effects
         my @begin_stmts;
@@ -87,16 +82,16 @@ $Code_begin_block = ::DISPATCH
         #print "BEGIN AST: ", Dumper( \$ast );
         #print "BEGIN: Native code: $native\n\n";
 
-        for my $pad ( @COMPILER::PAD ) {
-            #print "# Lexicals here: ", Dumper( $pad->lexicals ), "\n";
-            my $side_effects = $pad->eval( '$_MODIFIED' ); 
-            #print "MODIFIED: ", Dumper( $side_effects );
-            # TODO - emit side-effects...
-            my @names = keys %$side_effects;
-            for my $name ( @names ) {
-                my $value = $COMPILER::PAD[0]->eval( "$name" );
-                #print "# modified: $name = ",Dumper( $value );
-                #print "# modified: $name = ",$value->{_value}{name},"\n";
+    for my $pad ( @COMPILER::PAD ) {
+        #print "# Lexicals here: ", Dumper( $pad->lexicals ), "\n";
+        my $side_effects = $pad->side_effects; 
+        #print "MODIFIED: ", Dumper( $side_effects );
+        # TODO - emit side-effects...
+        my @names = keys %$side_effects;
+        for my $name ( @names ) {
+            my $value = $COMPILER::PAD[0]->eval( "$name" );
+            #print "# modified: $name = ",Dumper( $value );
+            #print "# modified: $name = ",$value->{_value}{name},"\n";
 
                 my $src = '';
                 if ( $name ne $value->{_value}{name} ) {
@@ -174,5 +169,25 @@ $Code_begin_block = ::DISPATCH
     }
    }
   );
+
+sub check_block {
+    # this routine saves check-blocks, in order to execute the code at the end of compilation
+    
+    my $ast = $_[0];
+    my $pad = $COMPILER::PAD[0];
+    #print "CHECK saved\n";
+    push @COMPILER::CHECK, [ $ast, $pad ];
+    return Val::Undef->new();
+}
+
+sub get_var {
+    # this routine is called each time a variable is parsed.
+    # it checks for proper pre-declaration
+    my $var = shift;
+    my $decl = $COMPILER::PAD[0]->declaration( $var );
+    #print "COMPILER::get_var: @_ --> $decl\n";
+    # TODO - annotate the variable with: Type, declarator
+    return $var;
+}
 
 1;

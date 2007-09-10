@@ -560,6 +560,17 @@
                                                                 $::Str, 'new',
                                                                 '&'
                                                               ),
+                                                            ::DISPATCH(
+                                                                $::Str,
+                                                                'new',
+                                                                'namespace'
+                                                              ) => ::DISPATCH(
+                                                                $::Array,
+                                                                "new",
+                                                                {
+                                                                    _array => []
+                                                                }
+                                                              ),
                                                           ),
                                                       ),
                                                     ::DISPATCH(
@@ -1757,4 +1768,3 @@
     };
     1
 }
-

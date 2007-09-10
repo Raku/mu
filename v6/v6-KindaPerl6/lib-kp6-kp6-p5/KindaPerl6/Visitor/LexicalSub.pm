@@ -149,6 +149,13 @@
                                                     'sigil' ) => ::DISPATCH(
                                                     $::Str, 'new', '&'
                                                     ),
+                                                ::DISPATCH(
+                                                    $::Str, 'new',
+                                                    'namespace'
+                                                  ) => ::DISPATCH(
+                                                    $::Array, "new",
+                                                    { _array => [] }
+                                                  ),
                                                 ),
                                             ::DISPATCH( $::Str, 'new',
                                                 'type' ) =>
@@ -284,6 +291,13 @@
                                                     'sigil' ) => ::DISPATCH(
                                                     $::Str, 'new', '&'
                                                     ),
+                                                ::DISPATCH(
+                                                    $::Str, 'new',
+                                                    'namespace'
+                                                  ) => ::DISPATCH(
+                                                    $::Array, "new",
+                                                    { _array => [] }
+                                                  ),
                                                 ),
                                             ::DISPATCH( $::Str, 'new',
                                                 'type' ) =>
@@ -362,6 +376,11 @@
                                                 $::Str, 'new', 'sigil'
                                               ) =>
                                               ::DISPATCH( $::Str, 'new', '&' ),
+                                            ::DISPATCH( $::Str, 'new',
+                                                'namespace' ) => ::DISPATCH(
+                                                $::Array, "new",
+                                                { _array => [] }
+                                                ),
                                           ),
                                     )
                                   )
@@ -375,4 +394,3 @@
     };
     1
 }
-

@@ -114,7 +114,6 @@
     };
     1
 }
-
 {
 
     package CompUnit;
@@ -238,9 +237,7 @@
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH(
-                                        $GLOBAL::Main::Code_newline, 'APPLY',
-                                    ),
+                                    ::DISPATCH( $Main::Code_newline, 'APPLY', ),
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
@@ -252,12 +249,12 @@
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
-                                            $GLOBAL::Main::_V6_COMPILER_NAME,
+                                            $Main::_V6_COMPILER_NAME,
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
                                                 ::DISPATCH(
-                                                    $GLOBAL::Main::Code_newline,
+                                                    $Main::Code_newline,
                                                     'APPLY',
                                                 ),
                                                 ::DISPATCH(
@@ -271,7 +268,7 @@
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
                                                         ::DISPATCH(
-                                                            $GLOBAL::Main::Code_newline,
+                                                            $Main::Code_newline,
                                                             'APPLY',
                                                         ),
                                                         ::DISPATCH(
@@ -286,7 +283,7 @@
                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                 'APPLY',
                                                                 ::DISPATCH(
-                                                                    $GLOBAL::Main::Code_newline,
+                                                                    $Main::Code_newline,
                                                                     'APPLY',
                                                                 ),
                                                                 ::DISPATCH(
@@ -301,7 +298,7 @@
                                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                                         'APPLY',
                                                                         ::DISPATCH(
-                                                                            $GLOBAL::Main::Code_newline,
+                                                                            $Main::Code_newline,
 'APPLY',
                                                                         ),
                                                                         ::DISPATCH(
@@ -325,7 +322,7 @@
                                                                                     $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                     ::DISPATCH(
-                                                                                        $GLOBAL::Main::Code_newline,
+                                                                                        $Main::Code_newline,
 'APPLY',
                                                                                       )
                                                                                     ,
@@ -342,7 +339,7 @@
                                                                                             $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                             ::DISPATCH(
-                                                                                                $GLOBAL::Main::Code_newline,
+                                                                                                $Main::Code_newline,
 'APPLY',
                                                                                               )
                                                                                             ,
@@ -377,7 +374,7 @@
                                                                                                             $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                             ::DISPATCH(
-                                                                                                                $GLOBAL::Main::Code_newline,
+                                                                                                                $Main::Code_newline,
 'APPLY',
                                                                                                               )
                                                                                                             ,
@@ -397,7 +394,7 @@
                                                                                                                     $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                                     ::DISPATCH(
-                                                                                                                        $GLOBAL::Main::Code_newline,
+                                                                                                                        $Main::Code_newline,
 'APPLY',
                                                                                                                       )
                                                                                                                     ,
@@ -411,7 +408,7 @@
                                                                                                                           )
                                                                                                                         ,
                                                                                                                         ::DISPATCH(
-                                                                                                                            $GLOBAL::Main::Code_newline,
+                                                                                                                            $Main::Code_newline,
 'APPLY',
                                                                                                                         )
                                                                                                                     )
@@ -549,8 +546,7 @@
                                         'APPLY',
                                         ::DISPATCH( $::Str, 'new', ';' ),
                                         ::DISPATCH(
-                                            $GLOBAL::Main::Code_newline,
-                                            'APPLY',
+                                            $Main::Code_newline, 'APPLY',
                                         )
                                     )
                                 )
@@ -570,9 +566,10 @@
                                             $::Signature::Item,
                                             "new",
                                             {
-                                                sigil  => '$',
-                                                twigil => '',
-                                                name   => 'args_secure',
+                                                sigil     => '$',
+                                                twigil    => '',
+                                                name      => 'args_secure',
+                                                namespace => [],
                                             }
                                         ),
                                     ]
@@ -589,7 +586,6 @@
     };
     1
 }
-
 {
 
     package Val::Int;
@@ -696,9 +692,7 @@
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
                                 ::DISPATCH( $::Str, 'new', ' )' ),
-                                ::DISPATCH(
-                                    $GLOBAL::Main::Code_newline, 'APPLY',
-                                )
+                                ::DISPATCH( $Main::Code_newline, 'APPLY', )
                             )
                         )
                     );
@@ -708,7 +702,6 @@
     };
     1
 }
-
 {
 
     package Val::Bit;
@@ -815,9 +808,7 @@
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
                                 ::DISPATCH( $::Str, 'new', ' )' ),
-                                ::DISPATCH(
-                                    $GLOBAL::Main::Code_newline, 'APPLY',
-                                )
+                                ::DISPATCH( $Main::Code_newline, 'APPLY', )
                             )
                         )
                     );
@@ -827,7 +818,6 @@
     };
     1
 }
-
 {
 
     package Val::Num;
@@ -934,9 +924,7 @@
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
                                 ::DISPATCH( $::Str, 'new', ' )' ),
-                                ::DISPATCH(
-                                    $GLOBAL::Main::Code_newline, 'APPLY',
-                                )
+                                ::DISPATCH( $Main::Code_newline, 'APPLY', )
                             )
                         )
                     );
@@ -946,7 +934,6 @@
     };
     1
 }
-
 {
 
     package Val::Buf;
@@ -1048,31 +1035,26 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH(
-                                $GLOBAL::Main::Code_singlequote, 'APPLY',
-                            ),
+                            ::DISPATCH( $Main::Code_singlequote, 'APPLY', ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
                                 ::DISPATCH(
-                                    $GLOBAL::Main::Code_mangle_string,
-                                    'APPLY',
+                                    $Main::Code_mangle_string, 'APPLY',
                                     ::DISPATCH( $self, "buf" )
                                 ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
                                     ::DISPATCH(
-                                        $GLOBAL::Main::Code_singlequote,
-                                        'APPLY',
+                                        $Main::Code_singlequote, 'APPLY',
                                     ),
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
                                         ::DISPATCH( $::Str, 'new', ' )' ),
                                         ::DISPATCH(
-                                            $GLOBAL::Main::Code_newline,
-                                            'APPLY',
+                                            $Main::Code_newline, 'APPLY',
                                         )
                                     )
                                 )
@@ -1085,7 +1067,6 @@
     };
     1
 }
-
 {
 
     package Val::Undef;
@@ -1185,7 +1166,6 @@
     };
     1
 }
-
 {
 
     package Val::Object;
@@ -1292,7 +1272,6 @@
     };
     1
 }
-
 {
 
     package Native::Buf;
@@ -1399,7 +1378,6 @@
     };
     1
 }
-
 {
 
     package Lit::Seq;
@@ -1515,7 +1493,6 @@
     };
     1
 }
-
 {
 
     package Lit::Array;
@@ -1630,9 +1607,7 @@
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
                                 ::DISPATCH( $::Str, 'new', '] } )' ),
-                                ::DISPATCH(
-                                    $GLOBAL::Main::Code_newline, 'APPLY',
-                                )
+                                ::DISPATCH( $Main::Code_newline, 'APPLY', )
                             )
                         )
                     );
@@ -1642,7 +1617,6 @@
     };
     1
 }
-
 {
 
     package Lit::Hash;
@@ -1865,9 +1839,7 @@
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
                                 ::DISPATCH( $::Str, 'new', ' } } )' ),
-                                ::DISPATCH(
-                                    $GLOBAL::Main::Code_newline, 'APPLY',
-                                )
+                                ::DISPATCH( $Main::Code_newline, 'APPLY', )
                             )
                         )
                     );
@@ -1877,7 +1849,6 @@
     };
     1
 }
-
 {
 
     package Lit::Pair;
@@ -2003,8 +1974,7 @@
                                             'APPLY',
                                             ::DISPATCH( $::Str, 'new', ' } )' ),
                                             ::DISPATCH(
-                                                $GLOBAL::Main::Code_newline,
-                                                'APPLY',
+                                                $Main::Code_newline, 'APPLY',
                                             )
                                         )
                                     )
@@ -2018,7 +1988,6 @@
     };
     1
 }
-
 {
 
     package Lit::NamedArgument;
@@ -2148,8 +2117,7 @@
                                             'APPLY',
                                             ::DISPATCH( $::Str, 'new', ' } )' ),
                                             ::DISPATCH(
-                                                $GLOBAL::Main::Code_newline,
-                                                'APPLY',
+                                                $Main::Code_newline, 'APPLY',
                                             )
                                         )
                                     )
@@ -2163,7 +2131,6 @@
     };
     1
 }
-
 {
 
     package Lit::Code;
@@ -2507,6 +2474,11 @@
                                               ::DISPATCH( $::Str, 'new', '' ),
                                             ::DISPATCH( $::Str, 'new',
                                                 'name' ) => $name,
+                                            ::DISPATCH( $::Str, 'new',
+                                                'namespace' ) => ::DISPATCH(
+                                                $::Array, "new",
+                                                { _array => [] }
+                                                ),
                                           ),
                                     );
                                 };
@@ -2526,7 +2498,7 @@
                                                     $::Str, 'new', ';'
                                                 ),
                                                 ::DISPATCH(
-                                                    $GLOBAL::Main::Code_newline,
+                                                    $Main::Code_newline,
                                                     'APPLY',
                                                 )
                                             )
@@ -2692,6 +2664,8 @@
                               ::DISPATCH( $::Str, 'new', '' ),
                             ::DISPATCH( $::Str,   'new', 'name' ) =>
                               ::DISPATCH( $::Str, 'new', '_' ),
+                            ::DISPATCH( $::Str, 'new', 'namespace' ) =>
+                              ::DISPATCH( $::Array, "new", { _array => [] } ),
                         );
                     };
                     do {
@@ -2704,6 +2678,8 @@
                               ::DISPATCH( $::Str, 'new', '' ),
                             ::DISPATCH( $::Str,   'new', 'name' ) =>
                               ::DISPATCH( $::Str, 'new', '_' ),
+                            ::DISPATCH( $::Str, 'new', 'namespace' ) =>
+                              ::DISPATCH( $::Array, "new", { _array => [] } ),
                         );
                     };
                     do {
@@ -2716,6 +2692,8 @@
                               ::DISPATCH( $::Str, 'new', '' ),
                             ::DISPATCH( $::Str,   'new', 'name' ) =>
                               ::DISPATCH( $::Str, 'new', 'CAPTURE' ),
+                            ::DISPATCH( $::Str, 'new', 'namespace' ) =>
+                              ::DISPATCH( $::Array, "new", { _array => [] } ),
                         );
                     };
                     do {
@@ -2920,7 +2898,6 @@
     };
     1
 }
-
 {
 
     package Lit::Object;
@@ -3148,8 +3125,7 @@
                                         'APPLY',
                                         ::DISPATCH( $::Str, 'new', ' )' ),
                                         ::DISPATCH(
-                                            $GLOBAL::Main::Code_newline,
-                                            'APPLY',
+                                            $Main::Code_newline, 'APPLY',
                                         )
                                     )
                                 )
@@ -3162,7 +3138,6 @@
     };
     1
 }
-
 {
 
     package Index;
@@ -3282,8 +3257,7 @@
                                         'APPLY',
                                         ::DISPATCH( $::Str, 'new', ' )' ),
                                         ::DISPATCH(
-                                            $GLOBAL::Main::Code_newline,
-                                            'APPLY',
+                                            $Main::Code_newline, 'APPLY',
                                         )
                                     )
                                 )
@@ -3296,7 +3270,6 @@
     };
     1
 }
-
 {
 
     package Lookup;
@@ -3416,8 +3389,7 @@
                                         'APPLY',
                                         ::DISPATCH( $::Str, 'new', ' )' ),
                                         ::DISPATCH(
-                                            $GLOBAL::Main::Code_newline,
-                                            'APPLY',
+                                            $Main::Code_newline, 'APPLY',
                                         )
                                     )
                                 )
@@ -3430,7 +3402,6 @@
     };
     1
 }
-
 {
 
     package Assign;
@@ -3487,6 +3458,17 @@
                 $::Method,
                 'new',
                 sub {
+                    my $node;
+                    $node =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$node' } )
+                      unless defined $node;
+
+                    BEGIN {
+                        $node =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$node' } );
+                    }
                     my $List__ =
                       ::DISPATCH( $::Array, 'new',
                         { modified => $_MODIFIED, name => '$List__' } );
@@ -3522,6 +3504,228 @@
                         ::MODIFIED($Hash__);
                         $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
+                    do {
+                        ::MODIFIED($node);
+                        $node = ::DISPATCH( $self, "parameters" );
+                    };
+                    do {
+                        if (
+                            ::DISPATCH(
+                                ::DISPATCH(
+                                    ::DISPATCH(
+                                        $GLOBAL::Code_infix_58__60__38__38__62_,
+                                        'APPLY',
+                                        ::DISPATCH(
+                                            $node,
+                                            'isa',
+                                            ::DISPATCH( $::Str, 'new', 'Var' )
+                                        ),
+                                        ::DISPATCH(
+                                            $GLOBAL::Code_prefix_58__60__64__62_,
+                                            'APPLY',
+                                            ::DISPATCH( $node, 'namespace', )
+                                        )
+                                    ),
+                                    "true"
+                                ),
+                                "p5landish"
+                            )
+                          )
+                        {
+                            {
+                                do {
+                                    ::MODIFIED($node);
+                                    $node = ::DISPATCH(
+                                        $::Apply, 'new',
+                                        ::DISPATCH( $::Str, 'new', 'code' ) =>
+                                          ::DISPATCH(
+                                            $::Var, 'new',
+                                            ::DISPATCH( $::Str, 'new',
+                                                'name' ) => ::DISPATCH(
+                                                $::Str, 'new',
+                                                'ternary:<?? !!>'
+                                                ),
+                                            ::DISPATCH( $::Str, 'new',
+                                                'twigil' ) =>
+                                              ::DISPATCH( $::Str, 'new', '' ),
+                                            ::DISPATCH(
+                                                $::Str, 'new', 'sigil'
+                                              ) =>
+                                              ::DISPATCH( $::Str, 'new', '&' ),
+                                            ::DISPATCH( $::Str, 'new',
+                                                'namespace' ) => ::DISPATCH(
+                                                $::Array, "new",
+                                                {
+                                                    _array => [
+                                                        ::DISPATCH(
+                                                            $::Str, 'new',
+                                                            'GLOBAL'
+                                                        )
+                                                    ]
+                                                }
+                                                ),
+                                          ),
+                                        ::DISPATCH(
+                                            $::Str, 'new', 'arguments'
+                                          ) => ::DISPATCH(
+                                            $::Array, "new",
+                                            {
+                                                _array => [
+                                                    ::DISPATCH(
+                                                        $::Apply, 'new',
+                                                        ::DISPATCH(
+                                                            $::Str,
+                                                            'new',
+                                                            'arguments'
+                                                          ) => ::DISPATCH(
+                                                            $::Array,
+                                                            "new",
+                                                            {
+                                                                _array =>
+                                                                  [$node]
+                                                            }
+                                                          ),
+                                                        ::DISPATCH(
+                                                            $::Str, 'new',
+                                                            'code'
+                                                          ) => ::DISPATCH(
+                                                            $::Var,
+                                                            'new',
+                                                            ::DISPATCH(
+                                                                $::Str, 'new',
+                                                                'name'
+                                                              ) => ::DISPATCH(
+                                                                $::Str,
+                                                                'new',
+                                                                'VAR_defined'
+                                                              ),
+                                                            ::DISPATCH(
+                                                                $::Str,
+                                                                'new',
+                                                                'twigil'
+                                                              ) => ::DISPATCH(
+                                                                $::Str, 'new',
+                                                                ''
+                                                              ),
+                                                            ::DISPATCH(
+                                                                $::Str,
+                                                                'new',
+                                                                'sigil'
+                                                              ) => ::DISPATCH(
+                                                                $::Str, 'new',
+                                                                '&'
+                                                              ),
+                                                            ::DISPATCH(
+                                                                $::Str,
+                                                                'new',
+                                                                'namespace'
+                                                              ) => ::DISPATCH(
+                                                                $::Array,
+                                                                "new",
+                                                                {
+                                                                    _array => [
+                                                                        ::DISPATCH(
+                                                                            $::Str,
+'new',
+'GLOBAL'
+                                                                        )
+                                                                    ]
+                                                                }
+                                                              ),
+                                                          ),
+                                                    ),
+                                                    $node,
+                                                    ::DISPATCH(
+                                                        $::Bind, 'new',
+                                                        ::DISPATCH(
+                                                            $::Str,
+                                                            'new',
+                                                            'parameters'
+                                                          ) => $node,
+                                                        ::DISPATCH(
+                                                            $::Str,
+                                                            'new',
+                                                            'arguments'
+                                                          ) => ::DISPATCH(
+                                                            $::Call,
+                                                            'new',
+                                                            ::DISPATCH(
+                                                                $::Str,
+                                                                'new',
+                                                                'invocant'
+                                                              ) => ::DISPATCH(
+                                                                $::Var,
+                                                                'new',
+                                                                ::DISPATCH(
+                                                                    $::Str,
+                                                                    'new',
+                                                                    'name'
+                                                                  ) =>
+                                                                  ::DISPATCH(
+                                                                    $::Str,
+                                                                    'new',
+                                                                    '::Scalar'
+                                                                  ),
+                                                                ::DISPATCH(
+                                                                    $::Str,
+                                                                    'new',
+                                                                    'twigil'
+                                                                  ) =>
+                                                                  ::DISPATCH(
+                                                                    $::Str,
+                                                                    'new',
+                                                                    ''
+                                                                  ),
+                                                                ::DISPATCH(
+                                                                    $::Str,
+                                                                    'new',
+                                                                    'sigil'
+                                                                  ) =>
+                                                                  ::DISPATCH(
+                                                                    $::Str,
+                                                                    'new',
+                                                                    '$'
+                                                                  ),
+                                                                ::DISPATCH(
+                                                                    $::Str,
+                                                                    'new',
+                                                                    'namespace'
+                                                                  ) =>
+                                                                  ::DISPATCH(
+                                                                    $::Array,
+                                                                    "new",
+                                                                    {
+                                                                        _array =>
+                                                                          []
+                                                                    }
+                                                                  ),
+                                                              ),
+                                                            ::DISPATCH(
+                                                                $::Str,
+                                                                'new',
+                                                                'method'
+                                                              ) => ::DISPATCH(
+                                                                $::Str, 'new',
+                                                                'new'
+                                                              ),
+                                                            ::DISPATCH(
+                                                                $::Str,
+                                                                'new',
+                                                                'hyper'
+                                                              ) => ::DISPATCH(
+                                                                $::Str, 'new',
+                                                                ''
+                                                              ),
+                                                          ),
+                                                    )
+                                                ]
+                                            }
+                                          ),
+                                    );
+                                  }
+                            }
+                        }
+                    };
                     ::DISPATCH(
                         $GLOBAL::Code_infix_58__60__126__62_,
                         'APPLY',
@@ -3529,9 +3733,7 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH(
-                                ::DISPATCH( $self, "parameters" ), 'emit_perl5',
-                            ),
+                            ::DISPATCH( $node, 'emit_perl5', ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
@@ -3550,8 +3752,7 @@
                                         'APPLY',
                                         ::DISPATCH( $::Str, 'new', ' )' ),
                                         ::DISPATCH(
-                                            $GLOBAL::Main::Code_newline,
-                                            'APPLY',
+                                            $Main::Code_newline, 'APPLY',
                                         )
                                     )
                                 )
@@ -3564,7 +3765,6 @@
     };
     1
 }
-
 {
 
     package Var;
@@ -3725,7 +3925,7 @@
                                                     $::Str, 'new', '" )'
                                                 ),
                                                 ::DISPATCH(
-                                                    $GLOBAL::Main::Code_newline,
+                                                    $Main::Code_newline,
                                                     'APPLY',
                                                 )
                                             )
@@ -3768,11 +3968,12 @@
                     };
                     return (
                         ::DISPATCH(
-                            $GLOBAL::Main::Code_mangle_name,
+                            $Main::Code_mangle_name,
                             'APPLY',
                             ::DISPATCH( $self, "sigil" ),
                             ::DISPATCH( $self, "twigil" ),
-                            ::DISPATCH( $self, "name" )
+                            ::DISPATCH( $self, "name" ),
+                            ::DISPATCH( $self, "namespace" )
                         )
                     );
                 }
@@ -3884,11 +4085,20 @@
                                                                 ::DISPATCH(
                                                                     $::Str,
                                                                     'new',
-                                                                    '} )'
+'namespace => [ ], '
                                                                 ),
                                                                 ::DISPATCH(
-                                                                    $GLOBAL::Main::Code_newline,
+                                                                    $GLOBAL::Code_infix_58__60__126__62_,
                                                                     'APPLY',
+                                                                    ::DISPATCH(
+                                                                        $::Str,
+                                                                        'new',
+                                                                        '} )'
+                                                                    ),
+                                                                    ::DISPATCH(
+                                                                        $Main::Code_newline,
+                                                                        'APPLY',
+                                                                    )
                                                                 )
                                                             )
                                                         )
@@ -3907,7 +4117,6 @@
     };
     1
 }
-
 {
 
     package Bind;
@@ -4095,9 +4304,7 @@
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
                                     ::DISPATCH( $::Str, 'new', ');' ),
-                                    ::DISPATCH(
-                                        $GLOBAL::Main::Code_newline, 'APPLY',
-                                    )
+                                    ::DISPATCH( $Main::Code_newline, 'APPLY', )
                                 )
                             )
                         );
@@ -4143,7 +4350,6 @@
     };
     1
 }
-
 {
 
     package Proto;
@@ -4249,7 +4455,6 @@
     };
     1
 }
-
 {
 
     package Call;
@@ -4478,224 +4683,6 @@
                         }
                     };
                     do {
-                        if (
-                            ::DISPATCH(
-                                ::DISPATCH(
-                                    ::DISPATCH(
-                                        $GLOBAL::Code_infix_58__60__124__124__62_,
-                                        'APPLY',
-                                        ::DISPATCH(
-                                            $GLOBAL::Code_infix_58__60_eq_62_,
-                                            'APPLY',
-                                            ::DISPATCH( $self, "method" ),
-                                            ::DISPATCH( $::Str, 'new', 'yaml' )
-                                        ),
-                                        ::DISPATCH(
-                                            $GLOBAL::Code_infix_58__60_eq_62_,
-                                            'APPLY',
-                                            ::DISPATCH( $self, "method" ),
-                                            ::DISPATCH(
-                                                $::Str, 'new', 'chars'
-                                            )
-                                        )
-                                    ),
-                                    "true"
-                                ),
-                                "p5landish"
-                            )
-                          )
-                        {
-                            {
-                                do {
-                                    if (
-                                        ::DISPATCH(
-                                            ::DISPATCH(
-                                                ::DISPATCH( $self, "hyper" ),
-                                                "true"
-                                            ),
-                                            "p5landish"
-                                        )
-                                      )
-                                    {
-                                        {
-                                            return (
-                                                ::DISPATCH(
-                                                    $GLOBAL::Code_infix_58__60__126__62_,
-                                                    'APPLY',
-                                                    ::DISPATCH(
-                                                        $::Str,
-                                                        'new',
-                                                        '[ map { Main::'
-                                                    ),
-                                                    ::DISPATCH(
-                                                        $GLOBAL::Code_infix_58__60__126__62_,
-                                                        'APPLY',
-                                                        ::DISPATCH(
-                                                            $self, "method"
-                                                        ),
-                                                        ::DISPATCH(
-                                                            $GLOBAL::Code_infix_58__60__126__62_,
-                                                            'APPLY',
-                                                            ::DISPATCH(
-                                                                $::Str,
-                                                                'new',
-                                                                '( $_, '
-                                                            ),
-                                                            ::DISPATCH(
-                                                                $GLOBAL::Code_infix_58__60__126__62_,
-                                                                'APPLY',
-                                                                ::DISPATCH(
-                                                                    $::Str,
-                                                                    'new',
-                                                                    ', '
-                                                                ),
-                                                                ::DISPATCH(
-                                                                    $GLOBAL::Code_infix_58__60__126__62_,
-                                                                    'APPLY',
-                                                                    ::DISPATCH(
-                                                                        [
-                                                                            map
-                                                                            {
-                                                                                $_
-                                                                                  ->emit_perl5
-                                                                                  (
-                                                                                  )
-                                                                              } @{ ::DISPATCH(
-                                                                                    $self,
-"arguments"
-                                                                                )
-                                                                              }
-                                                                        ],
-                                                                        'join',
-                                                                        ::DISPATCH(
-                                                                            $::Str,
-'new',
-                                                                            ', '
-                                                                        )
-                                                                    ),
-                                                                    ::DISPATCH(
-                                                                        $GLOBAL::Code_infix_58__60__126__62_,
-                                                                        'APPLY',
-                                                                        ::DISPATCH(
-                                                                            $::Str,
-'new',
-                                                                            ')'
-                                                                        ),
-                                                                        ::DISPATCH(
-                                                                            $GLOBAL::Code_infix_58__60__126__62_,
-'APPLY',
-                                                                            ::DISPATCH(
-                                                                                $::Str,
-'new',
-' } @{ '
-                                                                            ),
-                                                                            ::DISPATCH(
-                                                                                $GLOBAL::Code_infix_58__60__126__62_,
-'APPLY',
-                                                                                $invocant,
-                                                                                ::DISPATCH(
-                                                                                    $::Str,
-'new',
-' } ]'
-                                                                                )
-                                                                            )
-                                                                        )
-                                                                    )
-                                                                )
-                                                            )
-                                                        )
-                                                    )
-                                                )
-                                              )
-                                        }
-                                    }
-                                    else {
-                                        {
-                                            return (
-                                                ::DISPATCH(
-                                                    $GLOBAL::Code_infix_58__60__126__62_,
-                                                    'APPLY',
-                                                    ::DISPATCH(
-                                                        $::Str, 'new',
-                                                        'Main::'
-                                                    ),
-                                                    ::DISPATCH(
-                                                        $GLOBAL::Code_infix_58__60__126__62_,
-                                                        'APPLY',
-                                                        ::DISPATCH(
-                                                            $self, "method"
-                                                        ),
-                                                        ::DISPATCH(
-                                                            $GLOBAL::Code_infix_58__60__126__62_,
-                                                            'APPLY',
-                                                            ::DISPATCH(
-                                                                $::Str, 'new',
-                                                                '('
-                                                            ),
-                                                            ::DISPATCH(
-                                                                $GLOBAL::Code_infix_58__60__126__62_,
-                                                                'APPLY',
-                                                                $invocant,
-                                                                ::DISPATCH(
-                                                                    $GLOBAL::Code_infix_58__60__126__62_,
-                                                                    'APPLY',
-                                                                    ::DISPATCH(
-                                                                        $::Str,
-                                                                        'new',
-                                                                        ', '
-                                                                    ),
-                                                                    ::DISPATCH(
-                                                                        $GLOBAL::Code_infix_58__60__126__62_,
-                                                                        'APPLY',
-                                                                        ::DISPATCH(
-                                                                            [
-                                                                                map
-                                                                                {
-                                                                                    $_
-                                                                                      ->emit_perl5
-                                                                                      (
-                                                                                      )
-                                                                                  }
-                                                                                  @{ ::DISPATCH(
-                                                                                        $self,
-"arguments"
-                                                                                    )
-                                                                                  }
-                                                                            ],
-'join',
-                                                                            ::DISPATCH(
-                                                                                $::Str,
-'new',
-', '
-                                                                            )
-                                                                        ),
-                                                                        ::DISPATCH(
-                                                                            $GLOBAL::Code_infix_58__60__126__62_,
-'APPLY',
-                                                                            ::DISPATCH(
-                                                                                $::Str,
-'new',
-')'
-                                                                            ),
-                                                                            ::DISPATCH(
-                                                                                $GLOBAL::Main::Code_newline,
-'APPLY',
-                                                                            )
-                                                                        )
-                                                                    )
-                                                                )
-                                                            )
-                                                        )
-                                                    )
-                                                )
-                                              )
-                                        }
-                                    }
-                                  }
-                            }
-                        }
-                    };
-                    do {
                         ::MODIFIED($meth);
                         $meth = ::DISPATCH( $self, "method" );
                     };
@@ -4787,7 +4774,7 @@
                                                                     ' } ]'
                                                                 ),
                                                                 ::DISPATCH(
-                                                                    $GLOBAL::Main::Code_newline,
+                                                                    $Main::Code_newline,
                                                                     'APPLY',
                                                                 )
                                                             )
@@ -4852,7 +4839,7 @@
                                                                     ' )'
                                                                 ),
                                                                 ::DISPATCH(
-                                                                    $GLOBAL::Main::Code_newline,
+                                                                    $Main::Code_newline,
                                                                     'APPLY',
                                                                 )
                                                             )
@@ -4914,7 +4901,7 @@
 ' )'
                                                                             ),
                                                                             ::DISPATCH(
-                                                                                $GLOBAL::Main::Code_newline,
+                                                                                $Main::Code_newline,
 'APPLY',
                                                                             )
                                                                         )
@@ -4937,7 +4924,6 @@
     };
     1
 }
-
 {
 
     package Apply;
@@ -5087,8 +5073,7 @@
                                             'APPLY',
                                             ::DISPATCH( $::Str, 'new', ' )' ),
                                             ::DISPATCH(
-                                                $GLOBAL::Main::Code_newline,
-                                                'APPLY',
+                                                $Main::Code_newline, 'APPLY',
                                             )
                                         )
                                     )
@@ -5102,7 +5087,6 @@
     };
     1
 }
-
 {
 
     package Return;
@@ -5209,9 +5193,7 @@
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
                                     ::DISPATCH( $::Str, 'new', ')' ),
-                                    ::DISPATCH(
-                                        $GLOBAL::Main::Code_newline, 'APPLY',
-                                    )
+                                    ::DISPATCH( $Main::Code_newline, 'APPLY', )
                                 )
                             )
                         )
@@ -5222,7 +5204,6 @@
     };
     1
 }
-
 {
 
     package If;
@@ -5392,8 +5373,7 @@
                                             'APPLY',
                                             ::DISPATCH( $::Str, 'new', ' }' ),
                                             ::DISPATCH(
-                                                $GLOBAL::Main::Code_newline,
-                                                'APPLY',
+                                                $Main::Code_newline, 'APPLY',
                                             )
                                         )
                                     )
@@ -5407,7 +5387,6 @@
     };
     1
 }
-
 {
 
     package For;
@@ -5559,8 +5538,19 @@
                                               ::DISPATCH( $::Str, 'new', '' ),
                                             ::DISPATCH( $::Str, 'new',
                                                 'name' ) => ::DISPATCH(
-                                                $::Str, 'new',
-                                                'GLOBAL::prefix:<@>'
+                                                $::Str, 'new', 'prefix:<@>'
+                                                ),
+                                            ::DISPATCH( $::Str, 'new',
+                                                'namespace' ) => ::DISPATCH(
+                                                $::Array, "new",
+                                                {
+                                                    _array => [
+                                                        ::DISPATCH(
+                                                            $::Str, 'new',
+                                                            'GLOBAL'
+                                                        )
+                                                    ]
+                                                }
                                                 ),
                                           ),
                                         ::DISPATCH(
@@ -5618,7 +5608,7 @@
                                                         ' } '
                                                     ),
                                                     ::DISPATCH(
-                                                        $GLOBAL::Main::Code_newline,
+                                                        $Main::Code_newline,
                                                         'APPLY',
                                                     )
                                                 )
@@ -5635,7 +5625,6 @@
     };
     1
 }
-
 {
 
     package Decl;
@@ -6073,7 +6062,7 @@
                                                                                                               )
                                                                                                             ,
                                                                                                             ::DISPATCH(
-                                                                                                                $GLOBAL::Main::Code_newline,
+                                                                                                                $Main::Code_newline,
 'APPLY',
                                                                                                             )
                                                                                                         )
@@ -6153,7 +6142,7 @@
                                                                         ';'
                                                                     ),
                                                                     ::DISPATCH(
-                                                                        $GLOBAL::Main::Code_newline,
+                                                                        $Main::Code_newline,
                                                                         'APPLY',
                                                                     )
                                                                 )
@@ -6223,7 +6212,7 @@
                                                                         ';'
                                                                     ),
                                                                     ::DISPATCH(
-                                                                        $GLOBAL::Main::Code_newline,
+                                                                        $Main::Code_newline,
                                                                         'APPLY',
                                                                     )
                                                                 )
@@ -6293,7 +6282,7 @@
                                                                         ';'
                                                                     ),
                                                                     ::DISPATCH(
-                                                                        $GLOBAL::Main::Code_newline,
+                                                                        $Main::Code_newline,
                                                                         'APPLY',
                                                                     )
                                                                 )
@@ -6317,8 +6306,7 @@
                                                 'emit_perl5',
                                             ),
                                             ::DISPATCH(
-                                                $GLOBAL::Main::Code_newline,
-                                                'APPLY',
+                                                $Main::Code_newline, 'APPLY',
                                             )
                                         )
                                     )
@@ -6458,7 +6446,7 @@
                                                                                                   )
                                                                                                 ,
                                                                                                 ::DISPATCH(
-                                                                                                    $GLOBAL::Main::Code_newline,
+                                                                                                    $Main::Code_newline,
 'APPLY',
                                                                                                 )
                                                                                             )
@@ -6612,7 +6600,7 @@
                                                                                                   )
                                                                                                 ,
                                                                                                 ::DISPATCH(
-                                                                                                    $GLOBAL::Main::Code_newline,
+                                                                                                    $Main::Code_newline,
 'APPLY',
                                                                                                 )
                                                                                             )
@@ -6698,7 +6686,7 @@
                                                                     '; '
                                                                 ),
                                                                 ::DISPATCH(
-                                                                    $GLOBAL::Main::Code_newline,
+                                                                    $Main::Code_newline,
                                                                     'APPLY',
                                                                 )
                                                             )
@@ -6776,7 +6764,7 @@
                                                                     '; '
                                                                 ),
                                                                 ::DISPATCH(
-                                                                    $GLOBAL::Main::Code_newline,
+                                                                    $Main::Code_newline,
                                                                     'APPLY',
                                                                 )
                                                             )
@@ -6811,7 +6799,6 @@
     };
     1
 }
-
 {
 
     package Sig;
@@ -7097,7 +7084,7 @@
                                                                         '} )'
                                                                     ),
                                                                     ::DISPATCH(
-                                                                        $GLOBAL::Main::Code_newline,
+                                                                        $Main::Code_newline,
                                                                         'APPLY',
                                                                     )
                                                                 )
@@ -7118,7 +7105,6 @@
     };
     1
 }
-
 {
 
     package Capture;
@@ -7223,7 +7209,8 @@
                     };
                     do {
                         ::MODIFIED($s);
-                        $s = ::DISPATCH( $::Str, 'new',
+                        $s =
+                          ::DISPATCH( $::Str, 'new',
                             '::DISPATCH( $::Capture, "new", { ' );
                     };
                     do {
@@ -7539,9 +7526,7 @@
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
                                 ::DISPATCH( $::Str, 'new', ' } )' ),
-                                ::DISPATCH(
-                                    $GLOBAL::Main::Code_newline, 'APPLY',
-                                )
+                                ::DISPATCH( $Main::Code_newline, 'APPLY', )
                             )
                         )
                     );
@@ -7551,7 +7536,6 @@
     };
     1
 }
-
 {
 
     package Subset;
@@ -7705,7 +7689,7 @@
                                                             ' } )'
                                                         ),
                                                         ::DISPATCH(
-                                                            $GLOBAL::Main::Code_newline,
+                                                            $Main::Code_newline,
                                                             'APPLY',
                                                         )
                                                     )
@@ -7723,7 +7707,6 @@
     };
     1
 }
-
 {
 
     package Method;
@@ -7864,7 +7847,7 @@
                                                         $::Str, 'new', ' }'
                                                     ),
                                                     ::DISPATCH(
-                                                        $GLOBAL::Main::Code_newline,
+                                                        $Main::Code_newline,
                                                         'APPLY',
                                                     )
                                                 )
@@ -7881,7 +7864,6 @@
     };
     1
 }
-
 {
 
     package Sub;
@@ -8040,7 +8022,7 @@
                                                                 ' } )'
                                                             ),
                                                             ::DISPATCH(
-                                                                $GLOBAL::Main::Code_newline,
+                                                                $Main::Code_newline,
                                                                 'APPLY',
                                                             )
                                                         )
@@ -8059,7 +8041,6 @@
     };
     1
 }
-
 {
 
     package Do;
@@ -8163,9 +8144,7 @@
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
                                 ::DISPATCH( $::Str, 'new', ' }' ),
-                                ::DISPATCH(
-                                    $GLOBAL::Main::Code_newline, 'APPLY',
-                                )
+                                ::DISPATCH( $Main::Code_newline, 'APPLY', )
                             )
                         )
                     );
@@ -8175,7 +8154,6 @@
     };
     1
 }
-
 {
 
     package BEGIN;
@@ -8286,7 +8264,6 @@
     };
     1
 }
-
 {
 
     package Use;
@@ -8400,8 +8377,7 @@
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
                                         ::DISPATCH(
-                                            $GLOBAL::Main::Code_newline,
-                                            'APPLY',
+                                            $Main::Code_newline, 'APPLY',
                                         ),
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
@@ -8410,8 +8386,7 @@
                                                 $::Str, 'new', '#use v6'
                                             ),
                                             ::DISPATCH(
-                                                $GLOBAL::Main::Code_newline,
-                                                'APPLY',
+                                                $Main::Code_newline, 'APPLY',
                                             )
                                         )
                                     )
@@ -8496,4 +8471,3 @@
     };
     1
 }
-

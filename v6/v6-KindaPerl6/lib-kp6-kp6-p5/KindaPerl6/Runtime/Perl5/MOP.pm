@@ -42,10 +42,14 @@ sub ::DISPATCH_VAR {
 
 sub make_class {
     my %args = @_;
-    my $meta = ::DISPATCH( $::Class, 'new', $args{name});
+    my $proto = delete $args{proto};
+    my $meta = (
+            defined( $proto ) && ::DISPATCH( $proto, 'HOW' )
+        )
+        || ::DISPATCH( $::Class, 'new', $args{name});
     my %methods = %{$args{methods}};
     while (my ($method_name,$sub) = each %methods) {
-        ::DISPATCH($meta,"add_method",$method_name,::DISPATCH( $::Method, 'new', { code => $sub } ));
+        ::DISPATCH($meta,"redefine_method",$method_name,::DISPATCH( $::Method, 'new', { code => $sub } ));
     }
     for my $attribute_name (@{$args{attributes}}) {
         ::DISPATCH($meta,"add_attribute",$attribute_name);
@@ -546,7 +550,7 @@ $meta_Object->add_method( 'STORE', $method_readonly );
 
 #--- back to Value
 
-$::Undef = make_class(name=>"Undef",parents=>[$meta_Value],methods=>{
+$::Undef = make_class( proto => $::Undef, name=>"Undef",parents=>[$meta_Value],methods=>{
     perl    => sub { ::DISPATCH($::Str,'new','undef') },
     str     => sub { ::DISPATCH($::Str,'new','') },
     true    => sub { ::DISPATCH($::Bit,'new',0) },
@@ -597,6 +601,8 @@ $meta_Code->add_method( 'signature',
     ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value}{signature} } ) );
 $meta_Code->add_method( 'code',
     ::DISPATCH( $::Method, 'new',  sub { $_[0] } ) );
+$meta_Code->add_method( 'p5landish',
+    ::DISPATCH( $::Method, 'new',  sub { $_[0]{_value}{code} } ) );
 
 my $meta_List = ::DISPATCH( $::Class, 'new', "List");
 $::List = $meta_List->PROTOTYPE();
@@ -754,7 +760,7 @@ require KindaPerl6::Runtime::Perl6::Pair;
 require KindaPerl6::Runtime::Perl6::NamedArgument;
 
 
-$::Cell = make_class(name=>"Cell",parent=>[$::meta_Container],methods=>{
+$::Cell = make_class( proto => $::Cell, name=>"Cell",parent=>[$::meta_Container],methods=>{
     new=>sub {
             my $v = {
                 %{ $_[0] },
@@ -771,11 +777,11 @@ $::Cell = make_class(name=>"Cell",parent=>[$::meta_Container],methods=>{
         },
 });
 
-require KindaPerl6::Runtime::Perl5::Hash;
 require KindaPerl6::Runtime::Perl6::Hash;
+require KindaPerl6::Runtime::Perl5::Hash;
 
-require KindaPerl6::Runtime::Perl5::Array;
 require KindaPerl6::Runtime::Perl6::Array;
+require KindaPerl6::Runtime::Perl5::Array;
 
 require KindaPerl6::Runtime::Perl6::Capture;
 require KindaPerl6::Runtime::Perl6::Signature;
@@ -822,7 +828,7 @@ sub ::CAPTURIZE {
         } 
     )
 }
-$::Multi = make_class(name=>"Multi",parent=>[$meta_Code],methods=>{
+$::Multi = make_class( proto => $::Multi, name=>"Multi",parent=>[$meta_Code],methods=>{
     APPLY =>sub {
             my $self = shift; 
             my $code = ::DISPATCH( $self, 'select',::CAPTURIZE(\@_));

@@ -1,4 +1,5 @@
 package GLOBAL;
+    use strict;no strict 'refs';
 
     #require Exporter;
     use Data::Dumper;
@@ -109,14 +110,17 @@ package GLOBAL;
 
     # TODO - macro
     #  ternary:<?? !!>
-    sub ternary_58__60__63__63__32__33__33__62_ { 
+    sub ternary_58__60__63__63__32__33__33__62_ : lvalue { 
         #print "ternary: ",caller(2), " $#_ $_[0], $_[1]\n";
         #print ::DISPATCH( $_[0], 'true' );
         ::DISPATCH( $_[0], 'true' )->{_value} ? $_[1] : $_[2] 
     }
     
+    # &&
     # TODO - macro
-    sub infix_58__60__38__38__62_   { true($_[0]) && true($_[1]) && $_[1] }
+    sub infix_58__60__38__38__62_   { true($_[0])->{_value} ? $_[1] : False }
+
+    # ||
     # TODO - macro
     sub infix_58__60__124__124__62_ { ::DISPATCH( $::Bit, 'new', (::DISPATCH( $_[0], 'true' )->{_value} && $_[0] || ::DISPATCH( $_[1], 'true' )->{_value} && $_[1])) }
 
@@ -202,10 +206,22 @@ package GLOBAL;
     }
 
     sub match_p5rx {
-        my $regex  = _str($_[0]);
-        my $string = _str($_[1]);
-        #print "regex:[$regex] string:[$string]\n";
-        return ::DISPATCH( $::Bit, 'new', $string =~ $regex);
+        my ($regex,$string,$pos) = (_str($_[0]),_str($_[1]),_int($_[2]));
+        pos($string) = $pos;
+        my $bool = $string =~ /\G$regex/gc;
+        print "regex:<$regex> string:<$string>\n";
+        if ($bool) {
+            print "matched up to:",pos($string),"\n";
+            ::DISPATCH($::Match,'new',{
+                    match_str=>$_[1],
+                    from=>$_[2],
+                    to=>::DISPATCH($::Int,'new',pos($string)),
+                    bool=>True
+            });
+        } else {
+            print "false match\n";
+            ::DISPATCH($::Match,'new',{bool=>False});
+        }
     }
 
 

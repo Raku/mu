@@ -150,9 +150,10 @@ class Lit::Code {
                 decl => 'my',
                 type => '',
                 var  => ::Var(
-                    sigil => '',
-                    twigil => '',
-                    name => $name,
+                    sigil     => '',
+                    twigil    => '',
+                    name      => $name,
+                    namespace => [ ],
                 ),
             );
             $s := $s ~ $name.emit_perl5 ~ ';' ~ Main::newline();
@@ -160,9 +161,9 @@ class Lit::Code {
         return $s;
     };
     method emit_arguments {
-        my $array_ := ::Var( sigil => '@', twigil => '', name => '_' );
-        my $hash_  := ::Var( sigil => '%', twigil => '', name => '_' );
-        my $CAPTURE := ::Var( sigil => '$', twigil => '', name => 'CAPTURE');
+        my $array_  := ::Var( sigil => '@', twigil => '', name => '_',       namespace => [ ], );
+        my $hash_   := ::Var( sigil => '%', twigil => '', name => '_',       namespace => [ ], );
+        my $CAPTURE := ::Var( sigil => '$', twigil => '', name => 'CAPTURE', namespace => [ ],);
         my $CAPTURE_decl := ::Decl(decl=>'my',type=>'',var=>$CAPTURE);
         my $str := '';
         $str := $str ~ $CAPTURE_decl.emit_perl5;
@@ -216,7 +217,42 @@ class Lookup {
 class Assign {
     method emit_perl5 {
         # TODO - same as ::Bind
-        '::DISPATCH_VAR( ' ~ $.parameters.emit_perl5 ~ ', \'STORE\', ' ~ $.arguments.emit_perl5 ~ ' )' ~ Main::newline();
+        
+        my $node := $.parameters;
+        
+        if $node.isa( 'Var' ) && @($node.namespace)     
+        {
+            # it's a global, 
+            # and it should be autovivified
+
+            $node :=
+                ::Apply(
+                    code => ::Var(
+                        name      => 'ternary:<?? !!>',
+                        twigil    => '',
+                        sigil     => '&',
+                        namespace => [ 'GLOBAL' ],
+                    ),
+                    arguments => [
+                       ::Apply(
+                            arguments => [ $node ],
+                            code => ::Var( name => 'VAR_defined', twigil => '', sigil => '&', namespace => [ 'GLOBAL' ] ),
+                        ),
+                        $node,
+                        ::Bind(
+                            'parameters' => $node,  
+                            'arguments'  => ::Call(
+                                'invocant' => ::Var( name => '::Scalar', twigil => '', sigil => '$', namespace => [ ] ),  
+                                'method'   => 'new',
+                                'hyper'    => '',
+                            ),
+                        )
+                    ],
+                );
+
+        };
+
+        '::DISPATCH_VAR( ' ~ $node.emit_perl5 ~ ', \'STORE\', ' ~ $.arguments.emit_perl5 ~ ' )' ~ Main::newline();
     }
 }
 
@@ -242,7 +278,7 @@ class Var {
             return $table{$.sigil} ~ 'MATCH' 
         };
         
-        return Main::mangle_name( $.sigil, $.twigil, $.name ); 
+        return Main::mangle_name( $.sigil, $.twigil, $.name, $.namespace ); 
     };
     method perl {
         # this is used by the signature emitter
@@ -250,6 +286,7 @@ class Var {
         ~     'sigil  => \'' ~ $.sigil  ~ '\', '
         ~     'twigil => \'' ~ $.twigil ~ '\', '
         ~     'name   => \'' ~ $.name   ~ '\', '
+        ~     'namespace => [ ], '
         ~ '} )' ~ Main::newline()
     }
 }
@@ -293,21 +330,7 @@ class Call {
         if $invocant eq 'self' {
             $invocant := '$self';
         };
-        if     ($.method eq 'yaml')
-            # || ($.method eq 'join')
-            || ($.method eq 'chars')
-            # || ($.method eq 'isa')
-        { 
-            if ($.hyper) {
-                return 
-                    '[ map { Main::' ~ $.method ~ '( $_, ' ~ ', ' ~ (@.arguments.>>emit_perl5).join(', ') ~ ')' ~ ' } @{ ' ~ $invocant ~ ' } ]';
-            }
-            else {
-                return
-                    'Main::' ~ $.method ~ '(' ~ $invocant ~ ', ' ~ (@.arguments.>>emit_perl5).join(', ') ~ ')' ~ Main::newline();
-            }
-        };
-
+        
         my $meth := $.method;
         if  $meth eq 'postcircumfix:<( )>'  {
              $meth := '';  
@@ -378,7 +401,7 @@ class For {
           && $cond.sigil eq '@' 
         {
         } else {
-            $cond := ::Apply( code => ::Var(sigil=>'&',twigil=>'',name=>'GLOBAL::prefix:<@>'), arguments => [$cond] );
+            $cond := ::Apply( code => ::Var(sigil=>'&',twigil=>'',name=>'prefix:<@>',namespace => [ 'GLOBAL' ],), arguments => [$cond] );
         }
         'for ' 
         ~   $.topic.emit_perl5 

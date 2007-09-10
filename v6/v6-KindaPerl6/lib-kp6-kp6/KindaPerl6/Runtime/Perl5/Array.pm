@@ -1,6 +1,7 @@
 use strict;
 
 $::Array = KindaPerl6::Runtime::Perl5::MOP::make_class(
+    proto => $::Array, 
     name=>"Array",parent=>[$::meta_Container],methods=>
     {
     
