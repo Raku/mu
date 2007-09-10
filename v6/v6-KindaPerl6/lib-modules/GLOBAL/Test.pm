@@ -1,4 +1,4 @@
-module GLOBAL::Test {
+module Test {
     sub ok($cond) {
         if ($cond) {
             say "ok";
