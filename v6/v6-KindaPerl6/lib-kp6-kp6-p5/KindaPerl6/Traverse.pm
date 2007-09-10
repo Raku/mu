@@ -627,36 +627,40 @@
                                             $::Signature::Item,
                                             "new",
                                             {
-                                                sigil  => '$',
-                                                twigil => '',
-                                                name   => 'visitor',
+                                                sigil     => '$',
+                                                twigil    => '',
+                                                name      => 'visitor',
+                                                namespace => [],
                                             }
                                         ),
                                         ::DISPATCH(
                                             $::Signature::Item,
                                             "new",
                                             {
-                                                sigil  => '$',
-                                                twigil => '',
-                                                name   => 'node',
+                                                sigil     => '$',
+                                                twigil    => '',
+                                                name      => 'node',
+                                                namespace => [],
                                             }
                                         ),
                                         ::DISPATCH(
                                             $::Signature::Item,
                                             "new",
                                             {
-                                                sigil  => '$',
-                                                twigil => '',
-                                                name   => 'node_name',
+                                                sigil     => '$',
+                                                twigil    => '',
+                                                name      => 'node_name',
+                                                namespace => [],
                                             }
                                         ),
                                         ::DISPATCH(
                                             $::Signature::Item,
                                             "new",
                                             {
-                                                sigil  => '$',
-                                                twigil => '',
-                                                name   => 'path',
+                                                sigil     => '$',
+                                                twigil    => '',
+                                                name      => 'path',
+                                                namespace => [],
                                             }
                                         ),
                                     ]
@@ -834,27 +838,30 @@
                                             $::Signature::Item,
                                             "new",
                                             {
-                                                sigil  => '$',
-                                                twigil => '',
-                                                name   => 'visitor',
+                                                sigil     => '$',
+                                                twigil    => '',
+                                                name      => 'visitor',
+                                                namespace => [],
                                             }
                                         ),
                                         ::DISPATCH(
                                             $::Signature::Item,
                                             "new",
                                             {
-                                                sigil  => '$',
-                                                twigil => '',
-                                                name   => 'subnode',
+                                                sigil     => '$',
+                                                twigil    => '',
+                                                name      => 'subnode',
+                                                namespace => [],
                                             }
                                         ),
                                         ::DISPATCH(
                                             $::Signature::Item,
                                             "new",
                                             {
-                                                sigil  => '$',
-                                                twigil => '',
-                                                name   => 'path',
+                                                sigil     => '$',
+                                                twigil    => '',
+                                                name      => 'path',
+                                                namespace => [],
                                             }
                                         ),
                                     ]
@@ -871,4 +878,3 @@
     };
     1
 }
-

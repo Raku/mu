@@ -227,7 +227,7 @@
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
                                             ::DISPATCH( $self, "count" ),
-                                            $GLOBAL::COMPILER::source_md5
+                                            $COMPILER::source_md5
                                         )
                                     );
                                 };
@@ -261,4 +261,3 @@
     };
     1
 }
-

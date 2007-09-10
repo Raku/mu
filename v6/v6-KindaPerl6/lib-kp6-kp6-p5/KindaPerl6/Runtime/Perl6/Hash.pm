@@ -455,9 +455,10 @@
                                                         $::Signature::Item,
                                                         "new",
                                                         {
-                                                            sigil  => '$',
-                                                            twigil => '',
-                                                            name   => 'pair',
+                                                            sigil     => '$',
+                                                            twigil    => '',
+                                                            name      => 'pair',
+                                                            namespace => [],
                                                         }
                                                     ),
                                                 ]
@@ -617,9 +618,10 @@
                                                         $::Signature::Item,
                                                         "new",
                                                         {
-                                                            sigil  => '$',
-                                                            twigil => '',
-                                                            name   => 'pair',
+                                                            sigil     => '$',
+                                                            twigil    => '',
+                                                            name      => 'pair',
+                                                            namespace => [],
                                                         }
                                                     ),
                                                 ]
@@ -786,4 +788,3 @@
     };
     1
 }
-

@@ -106,7 +106,6 @@
     };
     1
 }
-
 {
 
     package CompUnit;
@@ -243,8 +242,7 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( $GLOBAL::Main::Code_quote, 'APPLY',
-                                ),
+                                ::DISPATCH( $Main::Code_quote, 'APPLY', ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
@@ -252,8 +250,7 @@
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
-                                        ::DISPATCH(
-                                            $GLOBAL::Main::Code_quote, 'APPLY',
+                                        ::DISPATCH( $Main::Code_quote, 'APPLY',
                                         ),
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
@@ -263,7 +260,7 @@
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
                                                 ::DISPATCH(
-                                                    $GLOBAL::Main::Code_newline,
+                                                    $Main::Code_newline,
                                                     'APPLY',
                                                 ),
                                                 ::DISPATCH(
@@ -277,7 +274,7 @@
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
                                                         ::DISPATCH(
-                                                            $GLOBAL::Main::Code_newline,
+                                                            $Main::Code_newline,
                                                             'APPLY',
                                                         ),
                                                         ::DISPATCH(
@@ -291,14 +288,14 @@
                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                 'APPLY',
                                                                 ::DISPATCH(
-                                                                    $GLOBAL::Main::Code_newline,
+                                                                    $Main::Code_newline,
                                                                     'APPLY',
                                                                 ),
                                                                 ::DISPATCH(
                                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                                     'APPLY',
                                                                     ::DISPATCH(
-                                                                        $GLOBAL::Main::Code_newline,
+                                                                        $Main::Code_newline,
                                                                         'APPLY',
                                                                     ),
                                                                     ::DISPATCH(
@@ -313,7 +310,7 @@
                                                                             $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                             ::DISPATCH(
-                                                                                $GLOBAL::Main::Code_quote,
+                                                                                $Main::Code_quote,
 'APPLY',
                                                                             ),
                                                                             ::DISPATCH(
@@ -329,12 +326,12 @@
                                                                                     $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                     ::DISPATCH(
-                                                                                        $GLOBAL::Main::Code_quote,
+                                                                                        $Main::Code_quote,
 'APPLY',
                                                                                       )
                                                                                     ,
                                                                                     ::DISPATCH(
-                                                                                        $GLOBAL::Main::Code_newline,
+                                                                                        $Main::Code_newline,
 'APPLY',
                                                                                     )
                                                                                 )
@@ -402,12 +399,8 @@
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH(
-                                        $GLOBAL::Main::Code_newline, 'APPLY',
-                                    ),
-                                    ::DISPATCH(
-                                        $GLOBAL::Main::Code_newline, 'APPLY',
-                                    )
+                                    ::DISPATCH( $Main::Code_newline, 'APPLY', ),
+                                    ::DISPATCH( $Main::Code_newline, 'APPLY', )
                                 )
                             )
                         );
@@ -419,7 +412,6 @@
     };
     1
 }
-
 {
 
     package Val::Int;
@@ -523,7 +515,7 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $GLOBAL::Main::Code_newline, 'APPLY', ),
+                            ::DISPATCH( $Main::Code_newline, 'APPLY', ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
@@ -531,10 +523,8 @@
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH( $self, "int" ),
-                                    ::DISPATCH(
-                                        $GLOBAL::Main::Code_newline, 'APPLY',
-                                    )
+                                    ::DISPATCH( $self,               "int" ),
+                                    ::DISPATCH( $Main::Code_newline, 'APPLY', )
                                 )
                             )
                         )
@@ -545,7 +535,6 @@
     };
     1
 }
-
 {
 
     package Val::Bit;
@@ -649,7 +638,7 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $GLOBAL::Main::Code_newline, 'APPLY', ),
+                            ::DISPATCH( $Main::Code_newline, 'APPLY', ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
@@ -657,10 +646,8 @@
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH( $self, "bit" ),
-                                    ::DISPATCH(
-                                        $GLOBAL::Main::Code_newline, 'APPLY',
-                                    )
+                                    ::DISPATCH( $self,               "bit" ),
+                                    ::DISPATCH( $Main::Code_newline, 'APPLY', )
                                 )
                             )
                         )
@@ -671,7 +658,6 @@
     };
     1
 }
-
 {
 
     package Val::Num;
@@ -775,7 +761,7 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $GLOBAL::Main::Code_newline, 'APPLY', ),
+                            ::DISPATCH( $Main::Code_newline, 'APPLY', ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
@@ -783,10 +769,8 @@
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH( $self, "num" ),
-                                    ::DISPATCH(
-                                        $GLOBAL::Main::Code_newline, 'APPLY',
-                                    )
+                                    ::DISPATCH( $self,               "num" ),
+                                    ::DISPATCH( $Main::Code_newline, 'APPLY', )
                                 )
                             )
                         )
@@ -797,7 +781,6 @@
     };
     1
 }
-
 {
 
     package Val::Buf;
@@ -901,7 +884,7 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $GLOBAL::Main::Code_newline, 'APPLY', ),
+                            ::DISPATCH( $Main::Code_newline, 'APPLY', ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
@@ -909,9 +892,7 @@
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH(
-                                        $GLOBAL::Main::Code_quote, 'APPLY',
-                                    ),
+                                    ::DISPATCH( $Main::Code_quote, 'APPLY', ),
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
@@ -920,12 +901,10 @@
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
                                             ::DISPATCH(
-                                                $GLOBAL::Main::Code_quote,
-                                                'APPLY',
+                                                $Main::Code_quote, 'APPLY',
                                             ),
                                             ::DISPATCH(
-                                                $GLOBAL::Main::Code_newline,
-                                                'APPLY',
+                                                $Main::Code_newline, 'APPLY',
                                             )
                                         )
                                     )
@@ -939,7 +918,6 @@
     };
     1
 }
-
 {
 
     package Val::Undef;
@@ -1036,7 +1014,7 @@
                         $GLOBAL::Code_infix_58__60__126__62_,
                         'APPLY',
                         ::DISPATCH( $::Str, 'new', '  $P0 = new .Undef' ),
-                        ::DISPATCH( $GLOBAL::Main::Code_newline, 'APPLY', )
+                        ::DISPATCH( $Main::Code_newline, 'APPLY', )
                     );
                 }
             )
@@ -1044,7 +1022,6 @@
     };
     1
 }
-
 {
 
     package Val::Object;
@@ -1160,7 +1137,6 @@
     };
     1
 }
-
 {
 
     package Lit::Seq;
@@ -1266,7 +1242,6 @@
     };
     1
 }
-
 {
 
     package Lit::Array;
@@ -1411,9 +1386,7 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH(
-                                    $GLOBAL::Main::Code_newline, 'APPLY',
-                                ),
+                                ::DISPATCH( $Main::Code_newline, 'APPLY', ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
@@ -1421,9 +1394,7 @@
                                         $::Str, 'new',
                                         '  $P1 = new .ResizablePMCArray'
                                     ),
-                                    ::DISPATCH(
-                                        $GLOBAL::Main::Code_newline, 'APPLY',
-                                    )
+                                    ::DISPATCH( $Main::Code_newline, 'APPLY', )
                                 )
                             )
                         );
@@ -1493,9 +1464,7 @@
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH(
-                                        $GLOBAL::Main::Code_newline, 'APPLY',
-                                    ),
+                                    ::DISPATCH( $Main::Code_newline, 'APPLY', ),
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
@@ -1503,8 +1472,7 @@
                                             $::Str, 'new', '  restore $P1'
                                         ),
                                         ::DISPATCH(
-                                            $GLOBAL::Main::Code_newline,
-                                            'APPLY',
+                                            $Main::Code_newline, 'APPLY',
                                         )
                                     )
                                 )
@@ -1518,7 +1486,6 @@
     };
     1
 }
-
 {
 
     package Lit::Hash;
@@ -1663,9 +1630,7 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH(
-                                    $GLOBAL::Main::Code_newline, 'APPLY',
-                                ),
+                                ::DISPATCH( $Main::Code_newline, 'APPLY', ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
@@ -1674,8 +1639,7 @@
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
                                         ::DISPATCH(
-                                            $GLOBAL::Main::Code_newline,
-                                            'APPLY',
+                                            $Main::Code_newline, 'APPLY',
                                         ),
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
@@ -1685,8 +1649,7 @@
                                                 '  $P1 = new .Hash'
                                             ),
                                             ::DISPATCH(
-                                                $GLOBAL::Main::Code_newline,
-                                                'APPLY',
+                                                $Main::Code_newline, 'APPLY',
                                             )
                                         )
                                     )
@@ -1796,9 +1759,7 @@
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH(
-                                        $GLOBAL::Main::Code_newline, 'APPLY',
-                                    ),
+                                    ::DISPATCH( $Main::Code_newline, 'APPLY', ),
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
@@ -1809,8 +1770,7 @@
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
                                             ::DISPATCH(
-                                                $GLOBAL::Main::Code_newline,
-                                                'APPLY',
+                                                $Main::Code_newline, 'APPLY',
                                             ),
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
@@ -1820,7 +1780,7 @@
                                                     '  restore $P1'
                                                 ),
                                                 ::DISPATCH(
-                                                    $GLOBAL::Main::Code_newline,
+                                                    $Main::Code_newline,
                                                     'APPLY',
                                                 )
                                             )
@@ -1837,7 +1797,6 @@
     };
     1
 }
-
 {
 
     package Lit::Code;
@@ -1939,7 +1898,6 @@
     };
     1
 }
-
 {
 
     package Lit::Object;
@@ -2081,9 +2039,7 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH(
-                                    $GLOBAL::Main::Code_newline, 'APPLY',
-                                ),
+                                ::DISPATCH( $Main::Code_newline, 'APPLY', ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
@@ -2092,8 +2048,7 @@
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
                                         ::DISPATCH(
-                                            $GLOBAL::Main::Code_newline,
-                                            'APPLY',
+                                            $Main::Code_newline, 'APPLY',
                                         ),
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
@@ -2106,8 +2061,7 @@
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
                                                 ::DISPATCH(
-                                                    $GLOBAL::Main::Code_quote,
-                                                    'APPLY',
+                                                    $Main::Code_quote, 'APPLY',
                                                 ),
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
@@ -2119,11 +2073,11 @@
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
                                                         ::DISPATCH(
-                                                            $GLOBAL::Main::Code_quote,
+                                                            $Main::Code_quote,
                                                             'APPLY',
                                                         ),
                                                         ::DISPATCH(
-                                                            $GLOBAL::Main::Code_newline,
+                                                            $Main::Code_newline,
                                                             'APPLY',
                                                         )
                                                     )
@@ -2188,7 +2142,7 @@
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
                                                     ::DISPATCH(
-                                                        $GLOBAL::Main::Code_newline,
+                                                        $Main::Code_newline,
                                                         'APPLY',
                                                     ),
                                                     ::DISPATCH(
@@ -2215,7 +2169,7 @@
 '  setattribute $P1, $S2, $P0'
                                                             ),
                                                             ::DISPATCH(
-                                                                $GLOBAL::Main::Code_newline,
+                                                                $Main::Code_newline,
                                                                 'APPLY',
                                                             )
                                                         )
@@ -2240,9 +2194,7 @@
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH(
-                                        $GLOBAL::Main::Code_newline, 'APPLY',
-                                    ),
+                                    ::DISPATCH( $Main::Code_newline, 'APPLY', ),
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
@@ -2253,8 +2205,7 @@
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
                                             ::DISPATCH(
-                                                $GLOBAL::Main::Code_newline,
-                                                'APPLY',
+                                                $Main::Code_newline, 'APPLY',
                                             ),
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
@@ -2264,7 +2215,7 @@
                                                     '  restore $P1'
                                                 ),
                                                 ::DISPATCH(
-                                                    $GLOBAL::Main::Code_newline,
+                                                    $Main::Code_newline,
                                                     'APPLY',
                                                 )
                                             )
@@ -2281,7 +2232,6 @@
     };
     1
 }
-
 {
 
     package Index;
@@ -2400,7 +2350,7 @@
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
                             ::DISPATCH( $::Str, 'new', '  save $P1' ),
-                            ::DISPATCH( $GLOBAL::Main::Code_newline, 'APPLY', )
+                            ::DISPATCH( $Main::Code_newline, 'APPLY', )
                         );
                     };
                     do {
@@ -2460,9 +2410,7 @@
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
                                 ::DISPATCH( $::Str, 'new', '  restore $P1' ),
-                                ::DISPATCH(
-                                    $GLOBAL::Main::Code_newline, 'APPLY',
-                                )
+                                ::DISPATCH( $Main::Code_newline, 'APPLY', )
                             )
                         );
                     };
@@ -2473,7 +2421,6 @@
     };
     1
 }
-
 {
 
     package Lookup;
@@ -2592,7 +2539,7 @@
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
                             ::DISPATCH( $::Str, 'new', '  save $P1' ),
-                            ::DISPATCH( $GLOBAL::Main::Code_newline, 'APPLY', )
+                            ::DISPATCH( $Main::Code_newline, 'APPLY', )
                         );
                     };
                     do {
@@ -2652,9 +2599,7 @@
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
                                 ::DISPATCH( $::Str, 'new', '  restore $P1' ),
-                                ::DISPATCH(
-                                    $GLOBAL::Main::Code_newline, 'APPLY',
-                                )
+                                ::DISPATCH( $Main::Code_newline, 'APPLY', )
                             )
                         );
                     };
@@ -2665,7 +2610,6 @@
     };
     1
 }
-
 {
 
     package Var;
@@ -2796,9 +2740,7 @@
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
                                     ::DISPATCH( $::Str, 'new', '\\\'' ),
-                                    ::DISPATCH(
-                                        $GLOBAL::Main::Code_newline, 'APPLY',
-                                    )
+                                    ::DISPATCH( $Main::Code_newline, 'APPLY', )
                                 )
                             )
                         ),
@@ -2814,9 +2756,7 @@
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
                                     ::DISPATCH( $::Str, 'new', ' ' ),
-                                    ::DISPATCH(
-                                        $GLOBAL::Main::Code_newline, 'APPLY',
-                                    )
+                                    ::DISPATCH( $Main::Code_newline, 'APPLY', )
                                 )
                             )
                         )
@@ -2992,7 +2932,6 @@
     };
     1
 }
-
 {
 
     package Bind;
@@ -3928,7 +3867,7 @@
                                                         ' = $P0'
                                                     ),
                                                     ::DISPATCH(
-                                                        $GLOBAL::Main::Code_newline,
+                                                        $Main::Code_newline,
                                                         'APPLY',
                                                     )
                                                 )
@@ -3986,7 +3925,7 @@
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
                                                     ::DISPATCH(
-                                                        $GLOBAL::Main::Code_newline,
+                                                        $Main::Code_newline,
                                                         'APPLY',
                                                     ),
                                                     ::DISPATCH(
@@ -4021,7 +3960,7 @@
                                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                                     'APPLY',
                                                                     ::DISPATCH(
-                                                                        $GLOBAL::Main::Code_newline,
+                                                                        $Main::Code_newline,
                                                                         'APPLY',
                                                                     ),
                                                                     ::DISPATCH(
@@ -4057,7 +3996,7 @@
                                                                                   )
                                                                                 ,
                                                                                 ::DISPATCH(
-                                                                                    $GLOBAL::Main::Code_newline,
+                                                                                    $Main::Code_newline,
 'APPLY',
                                                                                 )
                                                                             )
@@ -4176,7 +4115,7 @@
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
                                                 ::DISPATCH(
-                                                    $GLOBAL::Main::Code_newline,
+                                                    $Main::Code_newline,
                                                     'APPLY',
                                                 ),
                                                 ::DISPATCH(
@@ -4190,7 +4129,7 @@
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
                                                         ::DISPATCH(
-                                                            $GLOBAL::Main::Code_newline,
+                                                            $Main::Code_newline,
                                                             'APPLY',
                                                         ),
                                                         ::DISPATCH(
@@ -4205,7 +4144,7 @@
                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                 'APPLY',
                                                                 ::DISPATCH(
-                                                                    $GLOBAL::Main::Code_newline,
+                                                                    $Main::Code_newline,
                                                                     'APPLY',
                                                                 ),
                                                                 ::DISPATCH(
@@ -4227,7 +4166,7 @@
                                                                             $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                             ::DISPATCH(
-                                                                                $GLOBAL::Main::Code_newline,
+                                                                                $Main::Code_newline,
 'APPLY',
                                                                             ),
                                                                             ::DISPATCH(
@@ -4251,7 +4190,7 @@
                                                                                         $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                         ::DISPATCH(
-                                                                                            $GLOBAL::Main::Code_newline,
+                                                                                            $Main::Code_newline,
 'APPLY',
                                                                                           )
                                                                                         ,
@@ -4268,7 +4207,7 @@
                                                                                                 $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                 ::DISPATCH(
-                                                                                                    $GLOBAL::Main::Code_newline,
+                                                                                                    $Main::Code_newline,
 'APPLY',
                                                                                                   )
                                                                                                 ,
@@ -4282,7 +4221,7 @@
                                                                                                       )
                                                                                                     ,
                                                                                                     ::DISPATCH(
-                                                                                                        $GLOBAL::Main::Code_newline,
+                                                                                                        $Main::Code_newline,
 'APPLY',
                                                                                                     )
                                                                                                 )
@@ -4406,7 +4345,7 @@
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
                                                 ::DISPATCH(
-                                                    $GLOBAL::Main::Code_newline,
+                                                    $Main::Code_newline,
                                                     'APPLY',
                                                 ),
                                                 ::DISPATCH(
@@ -4420,7 +4359,7 @@
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
                                                         ::DISPATCH(
-                                                            $GLOBAL::Main::Code_newline,
+                                                            $Main::Code_newline,
                                                             'APPLY',
                                                         ),
                                                         ::DISPATCH(
@@ -4435,7 +4374,7 @@
                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                 'APPLY',
                                                                 ::DISPATCH(
-                                                                    $GLOBAL::Main::Code_newline,
+                                                                    $Main::Code_newline,
                                                                     'APPLY',
                                                                 ),
                                                                 ::DISPATCH(
@@ -4457,7 +4396,7 @@
                                                                             $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                             ::DISPATCH(
-                                                                                $GLOBAL::Main::Code_newline,
+                                                                                $Main::Code_newline,
 'APPLY',
                                                                             ),
                                                                             ::DISPATCH(
@@ -4481,7 +4420,7 @@
                                                                                         $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                         ::DISPATCH(
-                                                                                            $GLOBAL::Main::Code_newline,
+                                                                                            $Main::Code_newline,
 'APPLY',
                                                                                           )
                                                                                         ,
@@ -4498,7 +4437,7 @@
                                                                                                 $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                 ::DISPATCH(
-                                                                                                    $GLOBAL::Main::Code_newline,
+                                                                                                    $Main::Code_newline,
 'APPLY',
                                                                                                   )
                                                                                                 ,
@@ -4512,7 +4451,7 @@
                                                                                                       )
                                                                                                     ,
                                                                                                     ::DISPATCH(
-                                                                                                        $GLOBAL::Main::Code_newline,
+                                                                                                        $Main::Code_newline,
 'APPLY',
                                                                                                     )
                                                                                                 )
@@ -4551,9 +4490,7 @@
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH(
-                                        $GLOBAL::Main::Code_newline, 'APPLY',
-                                    ),
+                                    ::DISPATCH( $Main::Code_newline, 'APPLY', ),
                                     ::DISPATCH(
                                         ::DISPATCH( $self, "parameters" ),
                                         'emit_parrot',
@@ -4568,7 +4505,6 @@
     };
     1
 }
-
 {
 
     package Proto;
@@ -4672,8 +4608,8 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $self,                       "name" ),
-                            ::DISPATCH( $GLOBAL::Main::Code_newline, 'APPLY', )
+                            ::DISPATCH( $self,               "name" ),
+                            ::DISPATCH( $Main::Code_newline, 'APPLY', )
                         )
                     );
                 }
@@ -4682,7 +4618,6 @@
     };
     1
 }
-
 {
 
     package Call;
@@ -5260,7 +5195,7 @@
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY', $ii,
                                                 ::DISPATCH(
-                                                    $GLOBAL::Main::Code_newline,
+                                                    $Main::Code_newline,
                                                     'APPLY',
                                                 )
                                             )
@@ -5323,7 +5258,7 @@
                                                             ' = $P0'
                                                         ),
                                                         ::DISPATCH(
-                                                            $GLOBAL::Main::Code_newline,
+                                                            $Main::Code_newline,
                                                             'APPLY',
                                                         )
                                                     )
@@ -5432,9 +5367,7 @@
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
                                     ::DISPATCH( $::Str, 'new', ')' ),
-                                    ::DISPATCH(
-                                        $GLOBAL::Main::Code_newline, 'APPLY',
-                                    )
+                                    ::DISPATCH( $Main::Code_newline, 'APPLY', )
                                 )
                             )
                         );
@@ -5478,7 +5411,7 @@
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY', $ii,
                                                 ::DISPATCH(
-                                                    $GLOBAL::Main::Code_newline,
+                                                    $Main::Code_newline,
                                                     'APPLY',
                                                 )
                                             )
@@ -5495,7 +5428,6 @@
     };
     1
 }
-
 {
 
     package Apply;
@@ -5713,8 +5645,7 @@
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
                                             ::DISPATCH(
-                                                $GLOBAL::Main::Code_newline,
-                                                'APPLY',
+                                                $Main::Code_newline, 'APPLY',
                                             ),
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
@@ -5726,7 +5657,7 @@
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
                                                     ::DISPATCH(
-                                                        $GLOBAL::Main::Code_quote,
+                                                        $Main::Code_quote,
                                                         'APPLY',
                                                     ),
                                                     ::DISPATCH(
@@ -5740,7 +5671,7 @@
                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                             'APPLY',
                                                             ::DISPATCH(
-                                                                $GLOBAL::Main::Code_quote,
+                                                                $Main::Code_quote,
                                                                 'APPLY',
                                                             ),
                                                             ::DISPATCH(
@@ -5755,7 +5686,7 @@
                                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                                     'APPLY',
                                                                     ::DISPATCH(
-                                                                        $GLOBAL::Main::Code_quote,
+                                                                        $Main::Code_quote,
                                                                         'APPLY',
                                                                     ),
                                                                     ::DISPATCH(
@@ -5770,14 +5701,14 @@
                                                                             $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                             ::DISPATCH(
-                                                                                $GLOBAL::Main::Code_quote,
+                                                                                $Main::Code_quote,
 'APPLY',
                                                                             ),
                                                                             ::DISPATCH(
                                                                                 $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                 ::DISPATCH(
-                                                                                    $GLOBAL::Main::Code_newline,
+                                                                                    $Main::Code_newline,
 'APPLY',
                                                                                   )
                                                                                 ,
@@ -5791,7 +5722,7 @@
                                                                                       )
                                                                                     ,
                                                                                     ::DISPATCH(
-                                                                                        $GLOBAL::Main::Code_newline,
+                                                                                        $Main::Code_newline,
 'APPLY',
                                                                                     )
                                                                                 )
@@ -5847,7 +5778,7 @@
                                                     '  print $P0'
                                                 ),
                                                 ::DISPATCH(
-                                                    $GLOBAL::Main::Code_newline,
+                                                    $Main::Code_newline,
                                                     'APPLY',
                                                 )
                                             )
@@ -5863,7 +5794,7 @@
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
                                                 ::DISPATCH(
-                                                    $GLOBAL::Main::Code_newline,
+                                                    $Main::Code_newline,
                                                     'APPLY',
                                                 ),
                                                 ::DISPATCH(
@@ -5877,7 +5808,7 @@
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
                                                         ::DISPATCH(
-                                                            $GLOBAL::Main::Code_quote,
+                                                            $Main::Code_quote,
                                                             'APPLY',
                                                         ),
                                                         ::DISPATCH(
@@ -5899,11 +5830,11 @@
                                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                                     'APPLY',
                                                                     ::DISPATCH(
-                                                                        $GLOBAL::Main::Code_quote,
+                                                                        $Main::Code_quote,
                                                                         'APPLY',
                                                                     ),
                                                                     ::DISPATCH(
-                                                                        $GLOBAL::Main::Code_newline,
+                                                                        $Main::Code_newline,
                                                                         'APPLY',
                                                                     )
                                                                 )
@@ -5955,7 +5886,7 @@
                                                     '  print $P0'
                                                 ),
                                                 ::DISPATCH(
-                                                    $GLOBAL::Main::Code_newline,
+                                                    $Main::Code_newline,
                                                     'APPLY',
                                                 )
                                             )
@@ -5968,8 +5899,7 @@
                                                 '  print $P0'
                                             ),
                                             ::DISPATCH(
-                                                $GLOBAL::Main::Code_newline,
-                                                'APPLY',
+                                                $Main::Code_newline, 'APPLY',
                                             )
                                         )
                                     )
@@ -6003,8 +5933,7 @@
                                             '  # TODO - array() is no-op'
                                         ),
                                         ::DISPATCH(
-                                            $GLOBAL::Main::Code_newline,
-                                            'APPLY',
+                                            $Main::Code_newline, 'APPLY',
                                         )
                                     )
                                   )
@@ -6054,7 +5983,7 @@
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
                                                 ::DISPATCH(
-                                                    $GLOBAL::Main::Code_newline,
+                                                    $Main::Code_newline,
                                                     'APPLY',
                                                 ),
                                                 ::DISPATCH(
@@ -6065,7 +5994,7 @@
                                                         '  $P0 = $S0'
                                                     ),
                                                     ::DISPATCH(
-                                                        $GLOBAL::Main::Code_newline,
+                                                        $Main::Code_newline,
                                                         'APPLY',
                                                     )
                                                 )
@@ -6253,8 +6182,7 @@
                                             '  # TODO - prefix:<$> is no-op'
                                         ),
                                         ::DISPATCH(
-                                            $GLOBAL::Main::Code_newline,
-                                            'APPLY',
+                                            $Main::Code_newline, 'APPLY',
                                         )
                                     )
                                   )
@@ -6288,8 +6216,7 @@
                                             '  # TODO - prefix:<@> is no-op'
                                         ),
                                         ::DISPATCH(
-                                            $GLOBAL::Main::Code_newline,
-                                            'APPLY',
+                                            $Main::Code_newline, 'APPLY',
                                         )
                                     )
                                   )
@@ -6323,8 +6250,7 @@
                                             '  # TODO - prefix:<%> is no-op'
                                         ),
                                         ::DISPATCH(
-                                            $GLOBAL::Main::Code_newline,
-                                            'APPLY',
+                                            $Main::Code_newline, 'APPLY',
                                         )
                                     )
                                   )
@@ -6374,7 +6300,7 @@
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
                                                 ::DISPATCH(
-                                                    $GLOBAL::Main::Code_newline,
+                                                    $Main::Code_newline,
                                                     'APPLY',
                                                 ),
                                                 ::DISPATCH(
@@ -6388,7 +6314,7 @@
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
                                                         ::DISPATCH(
-                                                            $GLOBAL::Main::Code_newline,
+                                                            $Main::Code_newline,
                                                             'APPLY',
                                                         ),
                                                         ::DISPATCH(
@@ -6421,7 +6347,7 @@
                                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                                     'APPLY',
                                                                     ::DISPATCH(
-                                                                        $GLOBAL::Main::Code_newline,
+                                                                        $Main::Code_newline,
                                                                         'APPLY',
                                                                     ),
                                                                     ::DISPATCH(
@@ -6436,7 +6362,7 @@
                                                                             $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                             ::DISPATCH(
-                                                                                $GLOBAL::Main::Code_newline,
+                                                                                $Main::Code_newline,
 'APPLY',
                                                                             ),
                                                                             ::DISPATCH(
@@ -6452,7 +6378,7 @@
                                                                                     $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                     ::DISPATCH(
-                                                                                        $GLOBAL::Main::Code_newline,
+                                                                                        $Main::Code_newline,
 'APPLY',
                                                                                       )
                                                                                     ,
@@ -6466,7 +6392,7 @@
                                                                                           )
                                                                                         ,
                                                                                         ::DISPATCH(
-                                                                                            $GLOBAL::Main::Code_newline,
+                                                                                            $Main::Code_newline,
 'APPLY',
                                                                                         )
                                                                                     )
@@ -6515,8 +6441,7 @@
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
                                             ::DISPATCH(
-                                                $GLOBAL::Main::Code_newline,
-                                                'APPLY',
+                                                $Main::Code_newline, 'APPLY',
                                             ),
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
@@ -6545,7 +6470,7 @@
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
                                                         ::DISPATCH(
-                                                            $GLOBAL::Main::Code_newline,
+                                                            $Main::Code_newline,
                                                             'APPLY',
                                                         ),
                                                         ::DISPATCH(
@@ -6578,7 +6503,7 @@
                                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                                     'APPLY',
                                                                     ::DISPATCH(
-                                                                        $GLOBAL::Main::Code_newline,
+                                                                        $Main::Code_newline,
                                                                         'APPLY',
                                                                     ),
                                                                     ::DISPATCH(
@@ -6590,7 +6515,7 @@
 '  restore $P1'
                                                                         ),
                                                                         ::DISPATCH(
-                                                                            $GLOBAL::Main::Code_newline,
+                                                                            $Main::Code_newline,
 'APPLY',
                                                                         )
                                                                     )
@@ -6635,8 +6560,7 @@
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
                                             ::DISPATCH(
-                                                $GLOBAL::Main::Code_newline,
-                                                'APPLY',
+                                                $Main::Code_newline, 'APPLY',
                                             ),
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
@@ -6665,7 +6589,7 @@
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
                                                         ::DISPATCH(
-                                                            $GLOBAL::Main::Code_newline,
+                                                            $Main::Code_newline,
                                                             'APPLY',
                                                         ),
                                                         ::DISPATCH(
@@ -6698,7 +6622,7 @@
                                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                                     'APPLY',
                                                                     ::DISPATCH(
-                                                                        $GLOBAL::Main::Code_newline,
+                                                                        $Main::Code_newline,
                                                                         'APPLY',
                                                                     ),
                                                                     ::DISPATCH(
@@ -6710,7 +6634,7 @@
 '  restore $P1'
                                                                         ),
                                                                         ::DISPATCH(
-                                                                            $GLOBAL::Main::Code_newline,
+                                                                            $Main::Code_newline,
 'APPLY',
                                                                         )
                                                                     )
@@ -6920,7 +6844,7 @@
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
                                                 ::DISPATCH(
-                                                    $GLOBAL::Main::Code_newline,
+                                                    $Main::Code_newline,
                                                     'APPLY',
                                                 ),
                                                 ::DISPATCH(
@@ -6934,7 +6858,7 @@
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
                                                         ::DISPATCH(
-                                                            $GLOBAL::Main::Code_newline,
+                                                            $Main::Code_newline,
                                                             'APPLY',
                                                         ),
                                                         ::DISPATCH(
@@ -6967,7 +6891,7 @@
                                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                                     'APPLY',
                                                                     ::DISPATCH(
-                                                                        $GLOBAL::Main::Code_newline,
+                                                                        $Main::Code_newline,
                                                                         'APPLY',
                                                                     ),
                                                                     ::DISPATCH(
@@ -6982,7 +6906,7 @@
                                                                             $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                             ::DISPATCH(
-                                                                                $GLOBAL::Main::Code_newline,
+                                                                                $Main::Code_newline,
 'APPLY',
                                                                             ),
                                                                             ::DISPATCH(
@@ -7002,7 +6926,7 @@
                                                                                         $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                         ::DISPATCH(
-                                                                                            $GLOBAL::Main::Code_newline,
+                                                                                            $Main::Code_newline,
 'APPLY',
                                                                                           )
                                                                                         ,
@@ -7019,7 +6943,7 @@
                                                                                                 $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                 ::DISPATCH(
-                                                                                                    $GLOBAL::Main::Code_newline,
+                                                                                                    $Main::Code_newline,
 'APPLY',
                                                                                                   )
                                                                                                 ,
@@ -7040,7 +6964,7 @@
                                                                                                             $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                             ::DISPATCH(
-                                                                                                                $GLOBAL::Main::Code_newline,
+                                                                                                                $Main::Code_newline,
 'APPLY',
                                                                                                               )
                                                                                                             ,
@@ -7070,7 +6994,7 @@
                                                                                                                             $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                                             ::DISPATCH(
-                                                                                                                                $GLOBAL::Main::Code_newline,
+                                                                                                                                $Main::Code_newline,
 'APPLY',
                                                                                                                               )
                                                                                                                             ,
@@ -7087,7 +7011,7 @@
                                                                                                                                     $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                                                     ::DISPATCH(
-                                                                                                                                        $GLOBAL::Main::Code_newline,
+                                                                                                                                        $Main::Code_newline,
 'APPLY',
                                                                                                                                       )
                                                                                                                                     ,
@@ -7114,7 +7038,7 @@
                                                                                                                                                   )
                                                                                                                                                 ,
                                                                                                                                                 ::DISPATCH(
-                                                                                                                                                    $GLOBAL::Main::Code_newline,
+                                                                                                                                                    $Main::Code_newline,
 'APPLY',
                                                                                                                                                 )
                                                                                                                                             )
@@ -7220,7 +7144,7 @@
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
                                                 ::DISPATCH(
-                                                    $GLOBAL::Main::Code_newline,
+                                                    $Main::Code_newline,
                                                     'APPLY',
                                                 ),
                                                 ::DISPATCH(
@@ -7234,7 +7158,7 @@
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
                                                         ::DISPATCH(
-                                                            $GLOBAL::Main::Code_newline,
+                                                            $Main::Code_newline,
                                                             'APPLY',
                                                         ),
                                                         ::DISPATCH(
@@ -7267,7 +7191,7 @@
                                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                                     'APPLY',
                                                                     ::DISPATCH(
-                                                                        $GLOBAL::Main::Code_newline,
+                                                                        $Main::Code_newline,
                                                                         'APPLY',
                                                                     ),
                                                                     ::DISPATCH(
@@ -7282,7 +7206,7 @@
                                                                             $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                             ::DISPATCH(
-                                                                                $GLOBAL::Main::Code_newline,
+                                                                                $Main::Code_newline,
 'APPLY',
                                                                             ),
                                                                             ::DISPATCH(
@@ -7302,7 +7226,7 @@
                                                                                         $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                         ::DISPATCH(
-                                                                                            $GLOBAL::Main::Code_newline,
+                                                                                            $Main::Code_newline,
 'APPLY',
                                                                                           )
                                                                                         ,
@@ -7319,7 +7243,7 @@
                                                                                                 $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                 ::DISPATCH(
-                                                                                                    $GLOBAL::Main::Code_newline,
+                                                                                                    $Main::Code_newline,
 'APPLY',
                                                                                                   )
                                                                                                 ,
@@ -7340,7 +7264,7 @@
                                                                                                             $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                             ::DISPATCH(
-                                                                                                                $GLOBAL::Main::Code_newline,
+                                                                                                                $Main::Code_newline,
 'APPLY',
                                                                                                               )
                                                                                                             ,
@@ -7370,7 +7294,7 @@
                                                                                                                             $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                                             ::DISPATCH(
-                                                                                                                                $GLOBAL::Main::Code_newline,
+                                                                                                                                $Main::Code_newline,
 'APPLY',
                                                                                                                               )
                                                                                                                             ,
@@ -7387,7 +7311,7 @@
                                                                                                                                     $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                                                     ::DISPATCH(
-                                                                                                                                        $GLOBAL::Main::Code_newline,
+                                                                                                                                        $Main::Code_newline,
 'APPLY',
                                                                                                                                       )
                                                                                                                                     ,
@@ -7414,7 +7338,7 @@
                                                                                                                                                   )
                                                                                                                                                 ,
                                                                                                                                                 ::DISPATCH(
-                                                                                                                                                    $GLOBAL::Main::Code_newline,
+                                                                                                                                                    $Main::Code_newline,
 'APPLY',
                                                                                                                                                 )
                                                                                                                                             )
@@ -7506,8 +7430,7 @@
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
                                             ::DISPATCH(
-                                                $GLOBAL::Main::Code_newline,
-                                                'APPLY',
+                                                $Main::Code_newline, 'APPLY',
                                             ),
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
@@ -7536,7 +7459,7 @@
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
                                                         ::DISPATCH(
-                                                            $GLOBAL::Main::Code_newline,
+                                                            $Main::Code_newline,
                                                             'APPLY',
                                                         ),
                                                         ::DISPATCH(
@@ -7573,7 +7496,7 @@
                                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                                         'APPLY',
                                                                         ::DISPATCH(
-                                                                            $GLOBAL::Main::Code_newline,
+                                                                            $Main::Code_newline,
 'APPLY',
                                                                         ),
                                                                         ::DISPATCH(
@@ -7588,7 +7511,7 @@
                                                                                 $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                 ::DISPATCH(
-                                                                                    $GLOBAL::Main::Code_newline,
+                                                                                    $Main::Code_newline,
 'APPLY',
                                                                                   )
                                                                                 ,
@@ -7609,7 +7532,7 @@
                                                                                             $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                             ::DISPATCH(
-                                                                                                $GLOBAL::Main::Code_newline,
+                                                                                                $Main::Code_newline,
 'APPLY',
                                                                                               )
                                                                                             ,
@@ -7639,7 +7562,7 @@
                                                                                                             $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                             ::DISPATCH(
-                                                                                                                $GLOBAL::Main::Code_newline,
+                                                                                                                $Main::Code_newline,
 'APPLY',
                                                                                                               )
                                                                                                             ,
@@ -7656,7 +7579,7 @@
                                                                                                                     $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                                     ::DISPATCH(
-                                                                                                                        $GLOBAL::Main::Code_newline,
+                                                                                                                        $Main::Code_newline,
 'APPLY',
                                                                                                                       )
                                                                                                                     ,
@@ -7686,7 +7609,7 @@
                                                                                                                                     $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                                                     ::DISPATCH(
-                                                                                                                                        $GLOBAL::Main::Code_newline,
+                                                                                                                                        $Main::Code_newline,
 'APPLY',
                                                                                                                                       )
                                                                                                                                     ,
@@ -7700,7 +7623,7 @@
                                                                                                                                           )
                                                                                                                                         ,
                                                                                                                                         ::DISPATCH(
-                                                                                                                                            $GLOBAL::Main::Code_newline,
+                                                                                                                                            $Main::Code_newline,
 'APPLY',
                                                                                                                                         )
                                                                                                                                     )
@@ -7790,8 +7713,7 @@
                                             $GLOBAL::Code_infix_58__60__126__62_,
                                             'APPLY',
                                             ::DISPATCH(
-                                                $GLOBAL::Main::Code_newline,
-                                                'APPLY',
+                                                $Main::Code_newline, 'APPLY',
                                             ),
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
@@ -7820,7 +7742,7 @@
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
                                                         ::DISPATCH(
-                                                            $GLOBAL::Main::Code_newline,
+                                                            $Main::Code_newline,
                                                             'APPLY',
                                                         ),
                                                         ::DISPATCH(
@@ -7857,7 +7779,7 @@
                                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                                         'APPLY',
                                                                         ::DISPATCH(
-                                                                            $GLOBAL::Main::Code_newline,
+                                                                            $Main::Code_newline,
 'APPLY',
                                                                         ),
                                                                         ::DISPATCH(
@@ -7872,7 +7794,7 @@
                                                                                 $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                 ::DISPATCH(
-                                                                                    $GLOBAL::Main::Code_newline,
+                                                                                    $Main::Code_newline,
 'APPLY',
                                                                                   )
                                                                                 ,
@@ -7893,7 +7815,7 @@
                                                                                             $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                             ::DISPATCH(
-                                                                                                $GLOBAL::Main::Code_newline,
+                                                                                                $Main::Code_newline,
 'APPLY',
                                                                                               )
                                                                                             ,
@@ -7923,7 +7845,7 @@
                                                                                                             $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                             ::DISPATCH(
-                                                                                                                $GLOBAL::Main::Code_newline,
+                                                                                                                $Main::Code_newline,
 'APPLY',
                                                                                                               )
                                                                                                             ,
@@ -7940,7 +7862,7 @@
                                                                                                                     $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                                     ::DISPATCH(
-                                                                                                                        $GLOBAL::Main::Code_newline,
+                                                                                                                        $Main::Code_newline,
 'APPLY',
                                                                                                                       )
                                                                                                                     ,
@@ -7970,7 +7892,7 @@
                                                                                                                                     $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                                                     ::DISPATCH(
-                                                                                                                                        $GLOBAL::Main::Code_newline,
+                                                                                                                                        $Main::Code_newline,
 'APPLY',
                                                                                                                                       )
                                                                                                                                     ,
@@ -7984,7 +7906,7 @@
                                                                                                                                           )
                                                                                                                                         ,
                                                                                                                                         ::DISPATCH(
-                                                                                                                                            $GLOBAL::Main::Code_newline,
+                                                                                                                                            $Main::Code_newline,
 'APPLY',
                                                                                                                                         )
                                                                                                                                     )
@@ -8134,7 +8056,7 @@
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
                                                 ::DISPATCH(
-                                                    $GLOBAL::Main::Code_newline,
+                                                    $Main::Code_newline,
                                                     'APPLY',
                                                 ),
                                                 ::DISPATCH(
@@ -8145,7 +8067,7 @@
                                                         '  $P0 = $I0'
                                                     ),
                                                     ::DISPATCH(
-                                                        $GLOBAL::Main::Code_newline,
+                                                        $Main::Code_newline,
                                                         'APPLY',
                                                     )
                                                 )
@@ -8198,7 +8120,7 @@
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
                                                 ::DISPATCH(
-                                                    $GLOBAL::Main::Code_newline,
+                                                    $Main::Code_newline,
                                                     'APPLY',
                                                 ),
                                                 ::DISPATCH(
@@ -8212,7 +8134,7 @@
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
                                                         ::DISPATCH(
-                                                            $GLOBAL::Main::Code_newline,
+                                                            $Main::Code_newline,
                                                             'APPLY',
                                                         ),
                                                         ::DISPATCH(
@@ -8245,7 +8167,7 @@
                                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                                     'APPLY',
                                                                     ::DISPATCH(
-                                                                        $GLOBAL::Main::Code_newline,
+                                                                        $Main::Code_newline,
                                                                         'APPLY',
                                                                     ),
                                                                     ::DISPATCH(
@@ -8260,7 +8182,7 @@
                                                                             $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                             ::DISPATCH(
-                                                                                $GLOBAL::Main::Code_newline,
+                                                                                $Main::Code_newline,
 'APPLY',
                                                                             ),
                                                                             ::DISPATCH(
@@ -8297,7 +8219,7 @@
                                                                                         $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                         ::DISPATCH(
-                                                                                            $GLOBAL::Main::Code_newline,
+                                                                                            $Main::Code_newline,
 'APPLY',
                                                                                           )
                                                                                         ,
@@ -8314,7 +8236,7 @@
                                                                                                 $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                 ::DISPATCH(
-                                                                                                    $GLOBAL::Main::Code_newline,
+                                                                                                    $Main::Code_newline,
 'APPLY',
                                                                                                   )
                                                                                                 ,
@@ -8331,7 +8253,7 @@
                                                                                                         $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                         ::DISPATCH(
-                                                                                                            $GLOBAL::Main::Code_newline,
+                                                                                                            $Main::Code_newline,
 'APPLY',
                                                                                                           )
                                                                                                         ,
@@ -8348,7 +8270,7 @@
                                                                                                                 $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                                 ::DISPATCH(
-                                                                                                                    $GLOBAL::Main::Code_newline,
+                                                                                                                    $Main::Code_newline,
 'APPLY',
                                                                                                                   )
                                                                                                                 ,
@@ -8362,7 +8284,7 @@
                                                                                                                       )
                                                                                                                     ,
                                                                                                                     ::DISPATCH(
-                                                                                                                        $GLOBAL::Main::Code_newline,
+                                                                                                                        $Main::Code_newline,
 'APPLY',
                                                                                                                     )
                                                                                                                 )
@@ -8431,7 +8353,7 @@
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY', $ii,
                                                 ::DISPATCH(
-                                                    $GLOBAL::Main::Code_newline,
+                                                    $Main::Code_newline,
                                                     'APPLY',
                                                 )
                                             )
@@ -8494,7 +8416,7 @@
                                                             ' = $P0'
                                                         ),
                                                         ::DISPATCH(
-                                                            $GLOBAL::Main::Code_newline,
+                                                            $Main::Code_newline,
                                                             'APPLY',
                                                         )
                                                     )
@@ -8595,9 +8517,7 @@
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
                                     ::DISPATCH( $::Str, 'new', ')' ),
-                                    ::DISPATCH(
-                                        $GLOBAL::Main::Code_newline, 'APPLY',
-                                    )
+                                    ::DISPATCH( $Main::Code_newline, 'APPLY', )
                                 )
                             )
                         );
@@ -8641,7 +8561,7 @@
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY', $ii,
                                                 ::DISPATCH(
-                                                    $GLOBAL::Main::Code_newline,
+                                                    $Main::Code_newline,
                                                     'APPLY',
                                                 )
                                             )
@@ -8662,7 +8582,6 @@
     };
     1
 }
-
 {
 
     package Return;
@@ -8770,7 +8689,7 @@
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
                             ::DISPATCH( $::Str, 'new', '  .return( $P0 )' ),
-                            ::DISPATCH( $GLOBAL::Main::Code_newline, 'APPLY', )
+                            ::DISPATCH( $Main::Code_newline, 'APPLY', )
                         )
                     );
                 }
@@ -8779,7 +8698,6 @@
     };
     1
 }
-
 {
 
     package If;
@@ -8949,8 +8867,7 @@
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
                                         ::DISPATCH(
-                                            $GLOBAL::Main::Code_newline,
-                                            'APPLY',
+                                            $Main::Code_newline, 'APPLY',
                                         ),
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
@@ -8979,7 +8896,7 @@
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
                                                         ::DISPATCH(
-                                                            $GLOBAL::Main::Code_newline,
+                                                            $Main::Code_newline,
                                                             'APPLY',
                                                         ),
                                                         ::DISPATCH(
@@ -9006,7 +8923,7 @@
                                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                                         'APPLY',
                                                                         ::DISPATCH(
-                                                                            $GLOBAL::Main::Code_newline,
+                                                                            $Main::Code_newline,
 'APPLY',
                                                                         ),
                                                                         ::DISPATCH(
@@ -9058,7 +8975,7 @@
                                                                                           )
                                                                                         ,
                                                                                         ::DISPATCH(
-                                                                                            $GLOBAL::Main::Code_newline,
+                                                                                            $Main::Code_newline,
 'APPLY',
                                                                                         )
                                                                                     )
@@ -9088,7 +9005,6 @@
     };
     1
 }
-
 {
 
     package For;
@@ -9311,8 +9227,7 @@
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
                                         ::DISPATCH(
-                                            $GLOBAL::Main::Code_newline,
-                                            'APPLY',
+                                            $Main::Code_newline, 'APPLY',
                                         ),
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
@@ -9324,7 +9239,7 @@
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
                                                 ::DISPATCH(
-                                                    $GLOBAL::Main::Code_newline,
+                                                    $Main::Code_newline,
                                                     'APPLY',
                                                 ),
                                                 ::DISPATCH(
@@ -9339,7 +9254,7 @@
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
                                                         ::DISPATCH(
-                                                            $GLOBAL::Main::Code_newline,
+                                                            $Main::Code_newline,
                                                             'APPLY',
                                                         ),
                                                         ::DISPATCH(
@@ -9366,7 +9281,7 @@
                                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                                         'APPLY',
                                                                         ::DISPATCH(
-                                                                            $GLOBAL::Main::Code_newline,
+                                                                            $Main::Code_newline,
 'APPLY',
                                                                         ),
                                                                         ::DISPATCH(
@@ -9385,7 +9300,7 @@
                                                                                     $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                     ::DISPATCH(
-                                                                                        $GLOBAL::Main::Code_newline,
+                                                                                        $Main::Code_newline,
 'APPLY',
                                                                                       )
                                                                                     ,
@@ -9402,7 +9317,7 @@
                                                                                             $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                             ::DISPATCH(
-                                                                                                $GLOBAL::Main::Code_newline,
+                                                                                                $Main::Code_newline,
 'APPLY',
                                                                                               )
                                                                                             ,
@@ -9440,7 +9355,7 @@
                                                                                                             $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                             ::DISPATCH(
-                                                                                                                $GLOBAL::Main::Code_newline,
+                                                                                                                $Main::Code_newline,
 'APPLY',
                                                                                                               )
                                                                                                             ,
@@ -9488,7 +9403,7 @@
                                                                                                                             $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                                             ::DISPATCH(
-                                                                                                                                $GLOBAL::Main::Code_newline,
+                                                                                                                                $Main::Code_newline,
 'APPLY',
                                                                                                                               )
                                                                                                                             ,
@@ -9518,7 +9433,7 @@
                                                                                                                                             $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                                                             ::DISPATCH(
-                                                                                                                                                $GLOBAL::Main::Code_newline,
+                                                                                                                                                $Main::Code_newline,
 'APPLY',
                                                                                                                                               )
                                                                                                                                             ,
@@ -9535,7 +9450,7 @@
                                                                                                                                                     $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                                                                     ::DISPATCH(
-                                                                                                                                                        $GLOBAL::Main::Code_newline,
+                                                                                                                                                        $Main::Code_newline,
 'APPLY',
                                                                                                                                                       )
                                                                                                                                                     ,
@@ -9552,7 +9467,7 @@
                                                                                                                                                             $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                                                                             ::DISPATCH(
-                                                                                                                                                                $GLOBAL::Main::Code_newline,
+                                                                                                                                                                $Main::Code_newline,
 'APPLY',
                                                                                                                                                               )
                                                                                                                                                             ,
@@ -9605,7 +9520,6 @@
     };
     1
 }
-
 {
 
     package Decl;
@@ -9761,20 +9675,17 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( $GLOBAL::Main::Code_quote, 'APPLY',
-                                ),
+                                ::DISPATCH( $Main::Code_quote, 'APPLY', ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY', $name,
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
-                                        ::DISPATCH(
-                                            $GLOBAL::Main::Code_quote, 'APPLY',
+                                        ::DISPATCH( $Main::Code_quote, 'APPLY',
                                         ),
                                         ::DISPATCH(
-                                            $GLOBAL::Main::Code_newline,
-                                            'APPLY',
+                                            $Main::Code_newline, 'APPLY',
                                         )
                                     )
                                 )
@@ -9798,8 +9709,7 @@
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
                                         ::DISPATCH(
-                                            $GLOBAL::Main::Code_newline,
-                                            'APPLY',
+                                            $Main::Code_newline, 'APPLY',
                                         ),
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
@@ -9839,7 +9749,7 @@
                                                                 ' '
                                                             ),
                                                             ::DISPATCH(
-                                                                $GLOBAL::Main::Code_newline,
+                                                                $Main::Code_newline,
                                                                 'APPLY',
                                                             )
                                                         )
@@ -9858,7 +9768,6 @@
     };
     1
 }
-
 {
 
     package Sig;
@@ -10068,7 +9977,6 @@
     };
     1
 }
-
 {
 
     package Method;
@@ -10312,7 +10220,7 @@
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
                                                         ::DISPATCH(
-                                                            $GLOBAL::Main::Code_newline,
+                                                            $Main::Code_newline,
                                                             'APPLY',
                                                         ),
                                                         ::DISPATCH(
@@ -10339,7 +10247,7 @@
 '\\\', $P0'
                                                                     ),
                                                                     ::DISPATCH(
-                                                                        $GLOBAL::Main::Code_newline,
+                                                                        $Main::Code_newline,
                                                                         'APPLY',
                                                                     )
                                                                 )
@@ -10371,8 +10279,7 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( $GLOBAL::Main::Code_quote, 'APPLY',
-                                ),
+                                ::DISPATCH( $Main::Code_quote, 'APPLY', ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
@@ -10380,8 +10287,7 @@
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
-                                        ::DISPATCH(
-                                            $GLOBAL::Main::Code_quote, 'APPLY',
+                                        ::DISPATCH( $Main::Code_quote, 'APPLY',
                                         ),
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
@@ -10394,8 +10300,7 @@
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
                                                 ::DISPATCH(
-                                                    $GLOBAL::Main::Code_quote,
-                                                    'APPLY',
+                                                    $Main::Code_quote, 'APPLY',
                                                 ),
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
@@ -10408,7 +10313,7 @@
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
                                                         ::DISPATCH(
-                                                            $GLOBAL::Main::Code_quote,
+                                                            $Main::Code_quote,
                                                             'APPLY',
                                                         ),
                                                         ::DISPATCH(
@@ -10422,7 +10327,7 @@
                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                 'APPLY',
                                                                 ::DISPATCH(
-                                                                    $GLOBAL::Main::Code_newline,
+                                                                    $Main::Code_newline,
                                                                     'APPLY',
                                                                 ),
                                                                 ::DISPATCH(
@@ -10437,7 +10342,7 @@
                                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                                         'APPLY',
                                                                         ::DISPATCH(
-                                                                            $GLOBAL::Main::Code_newline,
+                                                                            $Main::Code_newline,
 'APPLY',
                                                                         ),
                                                                         ::DISPATCH(
@@ -10469,7 +10374,7 @@
                                                                                         $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                         ::DISPATCH(
-                                                                                            $GLOBAL::Main::Code_newline,
+                                                                                            $Main::Code_newline,
 'APPLY',
                                                                                           )
                                                                                         ,
@@ -10517,12 +10422,12 @@
                                                                                                         $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                                         ::DISPATCH(
-                                                                                                            $GLOBAL::Main::Code_newline,
+                                                                                                            $Main::Code_newline,
 'APPLY',
                                                                                                           )
                                                                                                         ,
                                                                                                         ::DISPATCH(
-                                                                                                            $GLOBAL::Main::Code_newline,
+                                                                                                            $Main::Code_newline,
 'APPLY',
                                                                                                         )
                                                                                                     )
@@ -10552,7 +10457,6 @@
     };
     1
 }
-
 {
 
     package Sub;
@@ -10796,7 +10700,7 @@
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
                                                         ::DISPATCH(
-                                                            $GLOBAL::Main::Code_newline,
+                                                            $Main::Code_newline,
                                                             'APPLY',
                                                         ),
                                                         ::DISPATCH(
@@ -10823,7 +10727,7 @@
 '\\\', $P0'
                                                                     ),
                                                                     ::DISPATCH(
-                                                                        $GLOBAL::Main::Code_newline,
+                                                                        $Main::Code_newline,
                                                                         'APPLY',
                                                                     )
                                                                 )
@@ -10855,8 +10759,7 @@
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
-                                ::DISPATCH( $GLOBAL::Main::Code_quote, 'APPLY',
-                                ),
+                                ::DISPATCH( $Main::Code_quote, 'APPLY', ),
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
@@ -10864,8 +10767,7 @@
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
-                                        ::DISPATCH(
-                                            $GLOBAL::Main::Code_quote, 'APPLY',
+                                        ::DISPATCH( $Main::Code_quote, 'APPLY',
                                         ),
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
@@ -10877,8 +10779,7 @@
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
                                                 ::DISPATCH(
-                                                    $GLOBAL::Main::Code_quote,
-                                                    'APPLY',
+                                                    $Main::Code_quote, 'APPLY',
                                                 ),
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
@@ -10891,7 +10792,7 @@
                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                         'APPLY',
                                                         ::DISPATCH(
-                                                            $GLOBAL::Main::Code_quote,
+                                                            $Main::Code_quote,
                                                             'APPLY',
                                                         ),
                                                         ::DISPATCH(
@@ -10905,7 +10806,7 @@
                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                 'APPLY',
                                                                 ::DISPATCH(
-                                                                    $GLOBAL::Main::Code_newline,
+                                                                    $Main::Code_newline,
                                                                     'APPLY',
                                                                 ),
                                                                 ::DISPATCH(
@@ -10920,7 +10821,7 @@
                                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                                         'APPLY',
                                                                         ::DISPATCH(
-                                                                            $GLOBAL::Main::Code_newline,
+                                                                            $Main::Code_newline,
 'APPLY',
                                                                         ),
                                                                         ::DISPATCH(
@@ -10967,12 +10868,12 @@
                                                                                         $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
                                                                                         ::DISPATCH(
-                                                                                            $GLOBAL::Main::Code_newline,
+                                                                                            $Main::Code_newline,
 'APPLY',
                                                                                           )
                                                                                         ,
                                                                                         ::DISPATCH(
-                                                                                            $GLOBAL::Main::Code_newline,
+                                                                                            $Main::Code_newline,
 'APPLY',
                                                                                         )
                                                                                     )
@@ -10998,7 +10899,6 @@
     };
     1
 }
-
 {
 
     package Do;
@@ -11107,7 +11007,6 @@
     };
     1
 }
-
 {
 
     package Use;
@@ -11211,7 +11110,7 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $GLOBAL::Main::Code_quote, 'APPLY', ),
+                            ::DISPATCH( $Main::Code_quote, 'APPLY', ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
@@ -11219,12 +11118,8 @@
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH(
-                                        $GLOBAL::Main::Code_quote, 'APPLY',
-                                    ),
-                                    ::DISPATCH(
-                                        $GLOBAL::Main::Code_newline, 'APPLY',
-                                    )
+                                    ::DISPATCH( $Main::Code_quote,   'APPLY', ),
+                                    ::DISPATCH( $Main::Code_newline, 'APPLY', )
                                 )
                             )
                         )
@@ -11235,4 +11130,3 @@
     };
     1
 }
-

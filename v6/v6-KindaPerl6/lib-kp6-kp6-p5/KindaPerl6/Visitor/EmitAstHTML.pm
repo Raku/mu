@@ -155,8 +155,8 @@
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
                                     ::DISPATCH(
-                                        $GLOBAL::Main::Code_mangle_ident,
-                                        'APPLY', $node_name
+                                        $Main::Code_mangle_ident, 'APPLY',
+                                        $node_name
                                     ),
                                     ::DISPATCH( $::Str, 'new', '">' )
                                 )
@@ -444,8 +444,8 @@
                                                                       '$subitem'
                                                                 }
                                                               )
-                                                              unless defined
-                                                                  $subitem;
+                                                              unless
+                                                              defined $subitem;
 
                                                             BEGIN {
                                                                 $subitem =
@@ -683,4 +683,3 @@
     };
     1
 }
-

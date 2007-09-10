@@ -106,7 +106,6 @@
     };
     1
 }
-
 {
 
     package CompUnit;
@@ -222,8 +221,7 @@
                                         'APPLY',
                                         ::DISPATCH( $::Str, 'new', ' }' ),
                                         ::DISPATCH(
-                                            $GLOBAL::Main::Code_newline,
-                                            'APPLY',
+                                            $Main::Code_newline, 'APPLY',
                                         )
                                     )
                                 )
@@ -236,7 +234,6 @@
     };
     1
 }
-
 {
 
     package Val::Int;
@@ -335,7 +332,6 @@
     };
     1
 }
-
 {
 
     package Val::Bit;
@@ -434,7 +430,6 @@
     };
     1
 }
-
 {
 
     package Val::Num;
@@ -533,7 +528,6 @@
     };
     1
 }
-
 {
 
     package Val::Buf;
@@ -642,7 +636,6 @@
     };
     1
 }
-
 {
 
     package Val::Undef;
@@ -742,7 +735,6 @@
     };
     1
 }
-
 {
 
     package Val::Object;
@@ -864,7 +856,6 @@
     };
     1
 }
-
 {
 
     package Native::Buf;
@@ -974,7 +965,6 @@
     };
     1
 }
-
 {
 
     package Lit::Seq;
@@ -1090,7 +1080,6 @@
     };
     1
 }
-
 {
 
     package Lit::Array;
@@ -1207,7 +1196,6 @@
     };
     1
 }
-
 {
 
     package Lit::Hash;
@@ -1430,7 +1418,6 @@
     };
     1
 }
-
 {
 
     package Lit::Code;
@@ -1650,7 +1637,6 @@
     };
     1
 }
-
 {
 
     package Lit::Object;
@@ -1878,7 +1864,6 @@
     };
     1
 }
-
 {
 
     package Index;
@@ -1994,7 +1979,6 @@
     };
     1
 }
-
 {
 
     package Lookup;
@@ -2110,7 +2094,6 @@
     };
     1
 }
-
 {
 
     package Assign;
@@ -2229,7 +2212,6 @@
     };
     1
 }
-
 {
 
     package Var;
@@ -2420,7 +2402,7 @@
                     };
                     return (
                         ::DISPATCH(
-                            $GLOBAL::Main::Code_mangle_name,
+                            $Main::Code_mangle_name,
                             'APPLY',
                             ::DISPATCH( $self, "sigil" ),
                             ::DISPATCH( $self, "twigil" ),
@@ -2433,7 +2415,6 @@
     };
     1
 }
-
 {
 
     package Bind;
@@ -2552,7 +2533,6 @@
     };
     1
 }
-
 {
 
     package Proto;
@@ -2652,7 +2632,6 @@
     };
     1
 }
-
 {
 
     package Call;
@@ -3435,7 +3414,6 @@
     };
     1
 }
-
 {
 
     package Apply;
@@ -3567,7 +3545,6 @@
     };
     1
 }
-
 {
 
     package Return;
@@ -3680,7 +3657,6 @@
     };
     1
 }
-
 {
 
     package If;
@@ -3842,7 +3818,6 @@
     };
     1
 }
-
 {
 
     package For;
@@ -4036,7 +4011,6 @@
     };
     1
 }
-
 {
 
     package Decl;
@@ -4160,7 +4134,6 @@
     };
     1
 }
-
 {
 
     package Sig;
@@ -4261,7 +4234,6 @@
     };
     1
 }
-
 {
 
     package Method;
@@ -4583,7 +4555,6 @@
     };
     1
 }
-
 {
 
     package Sub;
@@ -4967,7 +4938,6 @@
     };
     1
 }
-
 {
 
     package Do;
@@ -5076,7 +5046,6 @@
     };
     1
 }
-
 {
 
     package BEGIN;
@@ -5187,7 +5156,6 @@
     };
     1
 }
-
 {
 
     package Use;
@@ -5291,4 +5259,3 @@
     };
     1
 }
-

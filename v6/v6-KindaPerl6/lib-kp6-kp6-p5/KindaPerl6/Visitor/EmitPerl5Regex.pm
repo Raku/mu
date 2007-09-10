@@ -107,7 +107,6 @@
     };
     1
 }
-
 {
 
     package Token;
@@ -560,7 +559,6 @@
     };
     1
 }
-
 {
 
     package Rule::Quantifier;
@@ -673,7 +671,6 @@
     };
     1
 }
-
 {
 
     package Rule::Or;
@@ -789,7 +786,6 @@
     };
     1
 }
-
 {
 
     package Rule::Concat;
@@ -906,7 +902,6 @@
     };
     1
 }
-
 {
 
     package Rule::Var;
@@ -1046,7 +1041,6 @@
     };
     1
 }
-
 {
 
     package Rule::Constant;
@@ -1205,7 +1199,6 @@
     };
     1
 }
-
 {
 
     package Rule::Dot;
@@ -1305,7 +1298,6 @@
     };
     1
 }
-
 {
 
     package Rule::SpecialChar;
@@ -1523,7 +1515,6 @@
     };
     1
 }
-
 {
 
     package Rule::Block;
@@ -1734,7 +1725,6 @@
     };
     1
 }
-
 {
 
     package Rule::InterpolateVar;
@@ -1855,7 +1845,6 @@
     };
     1
 }
-
 {
 
     package Rule::After;
@@ -2201,7 +2190,6 @@
     };
     1
 }
-
 {
 
     package Rule::Before;
@@ -2547,7 +2535,6 @@
     };
     1
 }
-
 {
 
     package Rule::NegateCharClass;
@@ -2651,7 +2638,6 @@
     };
     1
 }
-
 {
 
     package Rule::CharClass;
@@ -2754,7 +2740,6 @@
     };
     1
 }
-
 {
 
     package Rule::SubruleNoCapture;
@@ -2923,7 +2908,6 @@
     };
     1
 }
-
 {
 
     package Rule::Subrule;
@@ -3208,7 +3192,6 @@
     };
     1
 }
-
 {
 
     package Rule::NamedCapture;
@@ -3514,7 +3497,6 @@
     };
     1
 }
-
 {
 
     package Rule::Capture;
@@ -3818,4 +3800,3 @@
     };
     1
 }
-

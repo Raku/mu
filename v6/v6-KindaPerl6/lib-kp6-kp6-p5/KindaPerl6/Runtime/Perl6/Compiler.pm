@@ -95,18 +95,112 @@
         use KindaPerl6::Visitor::MetaClass;
         use KindaPerl6::Visitor::Token;
         use KindaPerl6::Visitor::Global;
-        ::DISPATCH_VAR( $GLOBAL::COMPILER::visitor_dump_ast,
-            'STORE', ::DISPATCH( $::KindaPerl6::Visitor::Perl, 'new', ) );
-        ::DISPATCH_VAR( $GLOBAL::COMPILER::visitor_emit_perl5,
-            'STORE', ::DISPATCH( $::KindaPerl6::Visitor::EmitPerl5, 'new', ) );
-        ::DISPATCH_VAR( $GLOBAL::COMPILER::visitor_emit_perl6,
-            'STORE', ::DISPATCH( $::KindaPerl6::Visitor::EmitPerl6, 'new', ) );
-        ::DISPATCH_VAR( $GLOBAL::COMPILER::visitor_metamodel,
-            'STORE', ::DISPATCH( $::KindaPerl6::Visitor::MetaClass, 'new', ) );
-        ::DISPATCH_VAR( $GLOBAL::COMPILER::visitor_token,
-            'STORE', ::DISPATCH( $::KindaPerl6::Visitor::Token, 'new', ) );
-        ::DISPATCH_VAR( $GLOBAL::COMPILER::visitor_global,
-            'STORE', ::DISPATCH( $::KindaPerl6::Visitor::Global, 'new', ) );
+        ::DISPATCH_VAR(
+            ::DISPATCH(
+                $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
+                'APPLY',
+                ::DISPATCH(
+                    $GLOBAL::Code_VAR_defined, 'APPLY',
+                    $COMPILER::visitor_dump_ast
+                ),
+                $COMPILER::visitor_dump_ast,
+                do {
+                    ::MODIFIED($COMPILER::visitor_dump_ast);
+                    $COMPILER::visitor_dump_ast =
+                      ::DISPATCH( $::Scalar, 'new', );
+                  }
+            ),
+            'STORE',
+            ::DISPATCH( $::KindaPerl6::Visitor::Perl, 'new', )
+        );
+        ::DISPATCH_VAR(
+            ::DISPATCH(
+                $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
+                'APPLY',
+                ::DISPATCH(
+                    $GLOBAL::Code_VAR_defined, 'APPLY',
+                    $COMPILER::visitor_emit_perl5
+                ),
+                $COMPILER::visitor_emit_perl5,
+                do {
+                    ::MODIFIED($COMPILER::visitor_emit_perl5);
+                    $COMPILER::visitor_emit_perl5 =
+                      ::DISPATCH( $::Scalar, 'new', );
+                  }
+            ),
+            'STORE',
+            ::DISPATCH( $::KindaPerl6::Visitor::EmitPerl5, 'new', )
+        );
+        ::DISPATCH_VAR(
+            ::DISPATCH(
+                $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
+                'APPLY',
+                ::DISPATCH(
+                    $GLOBAL::Code_VAR_defined, 'APPLY',
+                    $COMPILER::visitor_emit_perl6
+                ),
+                $COMPILER::visitor_emit_perl6,
+                do {
+                    ::MODIFIED($COMPILER::visitor_emit_perl6);
+                    $COMPILER::visitor_emit_perl6 =
+                      ::DISPATCH( $::Scalar, 'new', );
+                  }
+            ),
+            'STORE',
+            ::DISPATCH( $::KindaPerl6::Visitor::EmitPerl6, 'new', )
+        );
+        ::DISPATCH_VAR(
+            ::DISPATCH(
+                $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
+                'APPLY',
+                ::DISPATCH(
+                    $GLOBAL::Code_VAR_defined, 'APPLY',
+                    $COMPILER::visitor_metamodel
+                ),
+                $COMPILER::visitor_metamodel,
+                do {
+                    ::MODIFIED($COMPILER::visitor_metamodel);
+                    $COMPILER::visitor_metamodel =
+                      ::DISPATCH( $::Scalar, 'new', );
+                  }
+            ),
+            'STORE',
+            ::DISPATCH( $::KindaPerl6::Visitor::MetaClass, 'new', )
+        );
+        ::DISPATCH_VAR(
+            ::DISPATCH(
+                $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
+                'APPLY',
+                ::DISPATCH(
+                    $GLOBAL::Code_VAR_defined, 'APPLY',
+                    $COMPILER::visitor_token
+                ),
+                $COMPILER::visitor_token,
+                do {
+                    ::MODIFIED($COMPILER::visitor_token);
+                    $COMPILER::visitor_token = ::DISPATCH( $::Scalar, 'new', );
+                  }
+            ),
+            'STORE',
+            ::DISPATCH( $::KindaPerl6::Visitor::Token, 'new', )
+        );
+        ::DISPATCH_VAR(
+            ::DISPATCH(
+                $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
+                'APPLY',
+                ::DISPATCH(
+                    $GLOBAL::Code_VAR_defined, 'APPLY',
+                    $COMPILER::visitor_global
+                ),
+                $COMPILER::visitor_global,
+                do {
+                    ::MODIFIED($COMPILER::visitor_global);
+                    $COMPILER::visitor_global = ::DISPATCH( $::Scalar, 'new', );
+                  }
+            ),
+            'STORE',
+            ::DISPATCH( $::KindaPerl6::Visitor::Global, 'new', )
+        );
         do {
             ::MODIFIED($Code_emit_perl6);
             $Code_emit_perl6 = ::DISPATCH(
@@ -168,7 +262,7 @@
                             $perl6, 'STORE',
                             ::DISPATCH(
                                 $node, 'emit',
-                                $GLOBAL::COMPILER::visitor_emit_perl6
+                                $COMPILER::visitor_emit_perl6
                             )
                         );
                         return ($perl6);
@@ -186,9 +280,10 @@
                                             $::Signature::Item,
                                             "new",
                                             {
-                                                sigil  => '$',
-                                                twigil => '',
-                                                name   => 'node',
+                                                sigil     => '$',
+                                                twigil    => '',
+                                                name      => 'node',
+                                                namespace => [],
                                             }
                                         ),
                                     ]
@@ -257,11 +352,27 @@
                             ::DISPATCH( $::Str, 'new', 'Main' )
                         );
                         ::DISPATCH(
-                            $GLOBAL::Code_unshift,       'APPLY',
-                            $GLOBAL::COMPILER::List_PAD, $pad
+                            $GLOBAL::Code_unshift, 'APPLY',
+                            $COMPILER::List_PAD,   $pad
                         );
-                        ::DISPATCH_VAR( $GLOBAL::List_COMPILER::PAD, 'STORE',
-                            $GLOBAL::COMPILER::List_PAD );
+                        ::DISPATCH_VAR(
+                            ::DISPATCH(
+                                $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
+                                'APPLY',
+                                ::DISPATCH(
+                                    $GLOBAL::Code_VAR_defined, 'APPLY',
+                                    $List_COMPILER::PAD
+                                ),
+                                $List_COMPILER::PAD,
+                                do {
+                                    ::MODIFIED($List_COMPILER::PAD);
+                                    $List_COMPILER::PAD =
+                                      ::DISPATCH( $::Scalar, 'new', );
+                                  }
+                            ),
+                            'STORE',
+                            $COMPILER::List_PAD
+                        );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
@@ -346,7 +457,7 @@
                             ::DISPATCH( $pad, 'outer', ),
                             'STORE',
                             ::DISPATCH(
-                                $GLOBAL::COMPILER::List_PAD, 'INDEX',
+                                $COMPILER::List_PAD, 'INDEX',
                                 ::DISPATCH( $::Int, 'new', 0 )
                             )
                         );
@@ -358,8 +469,8 @@
                         ::DISPATCH_VAR( ::DISPATCH( $pad, 'namespace', ),
                             'STORE', $namespace );
                         ::DISPATCH(
-                            $GLOBAL::Code_unshift,       'APPLY',
-                            $GLOBAL::COMPILER::List_PAD, $pad
+                            $GLOBAL::Code_unshift, 'APPLY',
+                            $COMPILER::List_PAD,   $pad
                         );
                     },
                     signature => ::DISPATCH(
@@ -375,9 +486,10 @@
                                             $::Signature::Item,
                                             "new",
                                             {
-                                                sigil  => '$',
-                                                twigil => '',
-                                                name   => 'namespace',
+                                                sigil     => '$',
+                                                twigil    => '',
+                                                name      => 'namespace',
+                                                namespace => [],
                                             }
                                         ),
                                     ]
@@ -421,7 +533,7 @@
                             $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                         };
                         ::DISPATCH( $GLOBAL::Code_shift, 'APPLY',
-                            $GLOBAL::COMPILER::List_PAD );
+                            $COMPILER::List_PAD );
                     },
                     signature => ::DISPATCH(
                         $::Signature,
@@ -531,51 +643,42 @@
                         ::DISPATCH_VAR(
                             $ast, 'STORE',
                             ::DISPATCH(
-                                $ast, 'emit',
-                                $GLOBAL::COMPILER::visitor_token
+                                $ast, 'emit', $COMPILER::visitor_token
                             )
                         );
                         ::DISPATCH_VAR(
                             $ast, 'STORE',
                             ::DISPATCH(
-                                $ast, 'emit',
-                                $GLOBAL::COMPILER::visitor_metamodel
+                                $ast, 'emit', $COMPILER::visitor_metamodel
                             )
                         );
                         ::DISPATCH(
-                            $GLOBAL::COMPILER::visitor_global,
+                            $COMPILER::visitor_global,
                             'pad',
                             ::DISPATCH(
-                                $GLOBAL::COMPILER::List_PAD, 'INDEX',
+                                $COMPILER::List_PAD, 'INDEX',
                                 ::DISPATCH( $::Int, 'new', 0 )
                             )
                         );
                         ::DISPATCH_VAR(
                             $ast, 'STORE',
                             ::DISPATCH(
-                                $ast, 'emit',
-                                $GLOBAL::COMPILER::visitor_global
+                                $ast, 'emit', $COMPILER::visitor_global
                             )
                         );
-                        ::DISPATCH(
-                            $GLOBAL::Code_shift,
-                            'APPLY',
-                            ::DISPATCH(
-                                $GLOBAL::COMPILER::visitor_global, 'pad',
-                            )
-                        );
+                        ::DISPATCH( $GLOBAL::Code_shift, 'APPLY',
+                            ::DISPATCH( $COMPILER::visitor_global, 'pad', ) );
                         ::DISPATCH_VAR(
                             $native, 'STORE',
                             ::DISPATCH(
-                                $ast, 'emit',
-                                $GLOBAL::COMPILER::visitor_emit_perl5
+                                $ast, 'emit', $COMPILER::visitor_emit_perl5
                             )
                         );
                         ::DISPATCH( $Code_add_pad, 'APPLY', );
                         ::DISPATCH_VAR(
                             $pad, 'STORE',
                             ::DISPATCH(
-                                $GLOBAL::COMPILER::List_PAD, 'INDEX',
+                                $COMPILER::List_PAD, 'INDEX',
                                 ::DISPATCH( $::Int, 'new', 0 )
                             )
                         );
@@ -621,9 +724,8 @@
 'BEGIN did not return a true value '
                                             ),
                                             ::DISPATCH(
-                                                $ast,
-                                                'emit',
-                                                $GLOBAL::COMPILER::visitor_dump_ast
+                                                $ast, 'emit',
+                                                $COMPILER::visitor_dump_ast
                                             )
                                         )
                                       )
@@ -648,9 +750,7 @@
                                     $::Str, 'new',
                                     '# BEGIN SIDE EFFECTS NOT IMPLEMENTED'
                                 ),
-                                ::DISPATCH(
-                                    $GLOBAL::Main::Code_newline, 'APPLY',
-                                )
+                                ::DISPATCH( $Main::Code_newline, 'APPLY', )
                             )
                         );
                         return ($finalast);
@@ -668,9 +768,10 @@
                                             $::Signature::Item,
                                             "new",
                                             {
-                                                sigil  => '$',
-                                                twigil => '',
-                                                name   => 'ast',
+                                                sigil     => '$',
+                                                twigil    => '',
+                                                name      => 'ast',
+                                                namespace => [],
                                             }
                                         ),
                                     ]
@@ -744,14 +845,14 @@
                         ::DISPATCH_VAR(
                             $pad, 'STORE',
                             ::DISPATCH(
-                                $GLOBAL::COMPILER::PAD, 'INDEX',
+                                $COMPILER::PAD, 'INDEX',
                                 ::DISPATCH( $::Int, 'new', 0 )
                             )
                         );
                         ::DISPATCH(
                             $GLOBAL::Code_push,
                             'APPLY',
-                            $GLOBAL::COMPILER::List_CHECK,
+                            $COMPILER::List_CHECK,
                             ::DISPATCH(
                                 $::Array, "new",
                                 { _array => [ $ast, $pad ] }
@@ -772,9 +873,10 @@
                                             $::Signature::Item,
                                             "new",
                                             {
-                                                sigil  => '$',
-                                                twigil => '',
-                                                name   => 'ast',
+                                                sigil     => '$',
+                                                twigil    => '',
+                                                name      => 'ast',
+                                                namespace => [],
                                             }
                                         ),
                                     ]
@@ -912,7 +1014,7 @@
                         ::DISPATCH_VAR(
                             $pad, 'STORE',
                             ::DISPATCH(
-                                $GLOBAL::COMPILER::List_PAD, 'INDEX',
+                                $COMPILER::List_PAD, 'INDEX',
                                 ::DISPATCH( $::Int, 'new', 0 )
                             )
                         );
@@ -933,27 +1035,30 @@
                                             $::Signature::Item,
                                             "new",
                                             {
-                                                sigil  => '$',
-                                                twigil => '',
-                                                name   => 'sigil',
+                                                sigil     => '$',
+                                                twigil    => '',
+                                                name      => 'sigil',
+                                                namespace => [],
                                             }
                                         ),
                                         ::DISPATCH(
                                             $::Signature::Item,
                                             "new",
                                             {
-                                                sigil  => '$',
-                                                twigil => '',
-                                                name   => 'twigil',
+                                                sigil     => '$',
+                                                twigil    => '',
+                                                name      => 'twigil',
+                                                namespace => [],
                                             }
                                         ),
                                         ::DISPATCH(
                                             $::Signature::Item,
                                             "new",
                                             {
-                                                sigil  => '$',
-                                                twigil => '',
-                                                name   => 'name',
+                                                sigil     => '$',
+                                                twigil    => '',
+                                                name      => 'name',
+                                                namespace => [],
                                             }
                                         ),
                                     ]
@@ -970,4 +1075,3 @@
     };
     1
 }
-

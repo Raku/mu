@@ -169,8 +169,7 @@
                     };
                     do {
                         ::MODIFIED($nl);
-                        $nl =
-                          ::DISPATCH( $GLOBAL::Main::Code_newline, 'APPLY', );
+                        $nl = ::DISPATCH( $Main::Code_newline, 'APPLY', );
                     };
                     return (
                         ::DISPATCH(
@@ -320,8 +319,7 @@
                     };
                     do {
                         ::MODIFIED($nl);
-                        $nl =
-                          ::DISPATCH( $GLOBAL::Main::Code_newline, 'APPLY', );
+                        $nl = ::DISPATCH( $Main::Code_newline, 'APPLY', );
                     };
                     return (
                         ::DISPATCH(
@@ -393,7 +391,6 @@
     };
     1
 }
-
 {
 
     package CompUnit;
@@ -503,9 +500,7 @@
                                 ::DISPATCH(
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
-                                    ::DISPATCH(
-                                        $GLOBAL::Main::Code_newline, 'APPLY',
-                                    ),
+                                    ::DISPATCH( $Main::Code_newline, 'APPLY', ),
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
@@ -528,7 +523,6 @@
     };
     1
 }
-
 {
 
     package Val::Int;
@@ -637,7 +631,6 @@
     };
     1
 }
-
 {
 
     package Val::Bit;
@@ -736,7 +729,6 @@
     };
     1
 }
-
 {
 
     package Val::Num;
@@ -835,7 +827,6 @@
     };
     1
 }
-
 {
 
     package Val::Buf;
@@ -954,7 +945,6 @@
     };
     1
 }
-
 {
 
     package Val::Undef;
@@ -1055,7 +1045,6 @@
     };
     1
 }
-
 {
 
     package Val::Object;
@@ -1177,7 +1166,6 @@
     };
     1
 }
-
 {
 
     package Native::Buf;
@@ -1287,7 +1275,6 @@
     };
     1
 }
-
 {
 
     package Lit::Seq;
@@ -1403,7 +1390,6 @@
     };
     1
 }
-
 {
 
     package Lit::Array;
@@ -1520,7 +1506,6 @@
     };
     1
 }
-
 {
 
     package Lit::Hash;
@@ -1733,7 +1718,6 @@
     };
     1
 }
-
 {
 
     package Lit::Code;
@@ -1922,7 +1906,7 @@
                                                     '; <br />'
                                                 ),
                                                 ::DISPATCH(
-                                                    $GLOBAL::Main::Code_newline,
+                                                    $Main::Code_newline,
                                                     'APPLY',
                                                 )
                                             )
@@ -1946,9 +1930,7 @@
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
                                     ::DISPATCH( $::Str, 'new', '; <br />' ),
-                                    ::DISPATCH(
-                                        $GLOBAL::Main::Code_newline, 'APPLY',
-                                    )
+                                    ::DISPATCH( $Main::Code_newline, 'APPLY', )
                                 )
                             )
                         )
@@ -1959,7 +1941,6 @@
     };
     1
 }
-
 {
 
     package Lit::Object;
@@ -2175,7 +2156,6 @@
     };
     1
 }
-
 {
 
     package Index;
@@ -2291,7 +2271,6 @@
     };
     1
 }
-
 {
 
     package Lookup;
@@ -2407,7 +2386,6 @@
     };
     1
 }
-
 {
 
     package Assign;
@@ -2529,7 +2507,6 @@
     };
     1
 }
-
 {
 
     package Var;
@@ -2734,7 +2711,7 @@
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
                                 ::DISPATCH(
-                                    $GLOBAL::Main::Code_mangle_name,
+                                    $Main::Code_mangle_name,
                                     'APPLY',
                                     ::DISPATCH( $self, "sigil" ),
                                     ::DISPATCH( $self, "twigil" ),
@@ -2750,7 +2727,6 @@
     };
     1
 }
-
 {
 
     package Bind;
@@ -2872,7 +2848,6 @@
     };
     1
 }
-
 {
 
     package Proto;
@@ -2972,7 +2947,6 @@
     };
     1
 }
-
 {
 
     package Call;
@@ -3758,7 +3732,6 @@
     };
     1
 }
-
 {
 
     package Apply;
@@ -3890,7 +3863,6 @@
     };
     1
 }
-
 {
 
     package Return;
@@ -4000,9 +3972,7 @@
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
                                     ::DISPATCH( $::Str, 'new', ')<br />' ),
-                                    ::DISPATCH(
-                                        $GLOBAL::Main::Code_newline, 'APPLY',
-                                    )
+                                    ::DISPATCH( $Main::Code_newline, 'APPLY', )
                                 )
                             )
                         )
@@ -4013,7 +3983,6 @@
     };
     1
 }
-
 {
 
     package If;
@@ -4179,7 +4148,6 @@
     };
     1
 }
-
 {
 
     package For;
@@ -4377,7 +4345,6 @@
     };
     1
 }
-
 {
 
     package Decl;
@@ -4501,7 +4468,6 @@
     };
     1
 }
-
 {
 
     package Sig;
@@ -4602,7 +4568,6 @@
     };
     1
 }
-
 {
 
     package Method;
@@ -4901,7 +4866,7 @@
                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                     'APPLY',
                                                     ::DISPATCH(
-                                                        $GLOBAL::Main::Code_newline,
+                                                        $Main::Code_newline,
                                                         'APPLY',
                                                     ),
                                                     ::DISPATCH(
@@ -4937,7 +4902,6 @@
     };
     1
 }
-
 {
 
     package Sub;
@@ -5300,7 +5264,6 @@
     };
     1
 }
-
 {
 
     package Do;
@@ -5400,7 +5363,7 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $GLOBAL::Main::Code_newline, 'APPLY', ),
+                            ::DISPATCH( $Main::Code_newline, 'APPLY', ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
@@ -5411,9 +5374,7 @@
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
                                     ::DISPATCH( $::Str, 'new', '}<br />' ),
-                                    ::DISPATCH(
-                                        $GLOBAL::Main::Code_newline, 'APPLY',
-                                    )
+                                    ::DISPATCH( $Main::Code_newline, 'APPLY', )
                                 )
                             )
                         )
@@ -5424,7 +5385,6 @@
     };
     1
 }
-
 {
 
     package BEGIN;
@@ -5526,7 +5486,7 @@
                         ::DISPATCH(
                             $GLOBAL::Code_infix_58__60__126__62_,
                             'APPLY',
-                            ::DISPATCH( $GLOBAL::Main::Code_newline, 'APPLY', ),
+                            ::DISPATCH( $Main::Code_newline, 'APPLY', ),
                             ::DISPATCH(
                                 $GLOBAL::Code_infix_58__60__126__62_,
                                 'APPLY',
@@ -5537,9 +5497,7 @@
                                     $GLOBAL::Code_infix_58__60__126__62_,
                                     'APPLY',
                                     ::DISPATCH( $::Str, 'new', ' }<br />' ),
-                                    ::DISPATCH(
-                                        $GLOBAL::Main::Code_newline, 'APPLY',
-                                    )
+                                    ::DISPATCH( $Main::Code_newline, 'APPLY', )
                                 )
                             )
                         )
@@ -5550,7 +5508,6 @@
     };
     1
 }
-
 {
 
     package Use;
@@ -5657,4 +5614,3 @@
     };
     1
 }
-

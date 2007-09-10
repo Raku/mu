@@ -220,7 +220,7 @@
                                 do {
                                     ::MODIFIED($body);
                                     $body = ::DISPATCH(
-                                        $GLOBAL::KindaPerl6::Traverse::Code_visit,
+                                        $KindaPerl6::Traverse::Code_visit,
                                         'APPLY',
                                         $self,
                                         ::DISPATCH( $node, 'body', )
@@ -264,7 +264,7 @@
                                 ::DISPATCH(
                                     $node2, 'body',
                                     ::DISPATCH(
-                                        $GLOBAL::KindaPerl6::Traverse::Code_visit,
+                                        $KindaPerl6::Traverse::Code_visit,
                                         'APPLY',
                                         $self,
                                         ::DISPATCH( $node, 'body', )
@@ -331,4 +331,3 @@
     };
     1
 }
-
