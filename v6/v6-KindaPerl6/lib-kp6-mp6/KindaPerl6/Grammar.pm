@@ -470,7 +470,7 @@ token call {
 };
 
 token apply {
-    <full_ident>
+    <namespace> <ident>
     [
         [ \( <?opt_ws> <exp_parameter_list> <?opt_ws> \)
         | <?ws> <exp_parameter_list> <?opt_ws>
@@ -481,8 +481,8 @@ token apply {
                     ::Var(
                             sigil     => '&',
                             twigil    => '',
-                            name      => $$<full_ident>,
-                            namespace => [ ],
+                            name      => $$<ident>,
+                            namespace => $$<namespace>,
                         ) ),
                 'arguments' => $$<exp_parameter_list>,
             )
@@ -494,8 +494,8 @@ token apply {
                     ::Var(
                             sigil     => '&',
                             twigil    => '',
-                            name      => $$<full_ident>,
-                            namespace => [ ],
+                            name      => $$<ident>,
+                            namespace => $$<namespace>,
                         ) ),
                 'arguments' => [],
             )

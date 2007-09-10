@@ -138,6 +138,12 @@ sub add_lexicals {  # [ Decl, Decl, ... ]
 # look up for a variable's declaration 
 sub declaration { # Var
     my ( $self, $var ) = @_;
+    
+    if ( @{$var->namespace} ) {
+        # global variable, doesn't require predeclaration
+        return $var;   # XXX
+    }
+    
     for my $decl ( @{$self->{variable_names}} ) {
         return $decl 
             if ( _var_eq( $decl->var, $var ) );
