@@ -167,6 +167,12 @@ sub _var_eq {
     )
 }
 
+# returns a hashref with names of variables that were modified with .STORE or .BIND
+# XXX - modified since when?
+sub side_effects {
+    $_[0]->eval( '$_MODIFIED' );
+}
+
 1;
 
 __END__

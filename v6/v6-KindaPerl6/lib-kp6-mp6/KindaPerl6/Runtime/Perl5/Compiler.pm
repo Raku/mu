@@ -96,7 +96,7 @@ sub begin_block {
 
     for my $pad ( @COMPILER::PAD ) {
         #print "# Lexicals here: ", Dumper( $pad->lexicals ), "\n";
-        my $side_effects = $pad->eval( '$_MODIFIED' ); 
+        my $side_effects = $pad->side_effects; 
         #print "MODIFIED: ", Dumper( $side_effects );
         # TODO - emit side-effects...
         my @names = keys %$side_effects;
