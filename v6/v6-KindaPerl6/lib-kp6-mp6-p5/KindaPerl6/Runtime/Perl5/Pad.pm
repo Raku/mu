@@ -173,6 +173,16 @@ sub side_effects {
     $_[0]->eval( '$_MODIFIED' );
 }
 
+sub eval_ast {
+    my $self     = shift;
+    my $code     = shift;
+    my $visitors = shift;
+    for ( @$visitors ) {
+        $code = $code->emit( $_ );
+    }
+    return $self->eval( $code );
+}
+
 1;
 
 __END__

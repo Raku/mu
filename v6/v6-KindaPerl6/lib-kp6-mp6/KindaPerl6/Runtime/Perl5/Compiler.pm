@@ -58,32 +58,15 @@ sub begin_block {
     # this routine is called by begin-blocks at compile time, in order to execute the code
     # Input: '::Lit::Code' AST node
     
-    #print "begin_block\n";
-    #print "PARAM: ",Dumper(\@_);
-    #my $env = shift;
     my $ast = shift;
 
-    #print Dump( $ast );
-    $ast = $ast->emit( $visitor_token );
-    #$ast = $ast->emit( $visitor_lexical_sub );
-    #$ast = $ast->emit( $visitor_subset );
-    $ast = $ast->emit( $visitor_metamodel );
-    #$ast = $ast->emit( $visitor_create_env );
-    
-    # XXX - initialization belongs to $visitor_global
-    $visitor_global->pad( [ $COMPILER::PAD[0] ] );
-    $ast = $ast->emit( $visitor_global );
-    shift @{ $visitor_global->pad };
-    
-    #print Dump( $ast );
-    my $native = $ast->emit( $visitor_emit_perl5  );
-    #print "Native: $native\n";
-
-    # execute the native code inside the current pad
+    # execute the code inside the current pad
     add_pad;
-    my $data = $COMPILER::PAD[0]->eval( $native );  # XXX - want() context
+    my $data = $COMPILER::PAD[0]->eval_ast( $ast, [
+            $visitor_token, $visitor_metamodel, $visitor_global, $visitor_emit_perl5,
+        ] );  # XXX - want() context
     drop_pad;
-    die "At BEGIN: " . $@ . "\n  Native code: $native\n" . $ast->emit( $visitor_dump_ast) if $@;
+    die "At BEGIN: " . $@ if $@;
     #print "RETURN DATA: ", Dumper($data);
 
     # check for side-effects
