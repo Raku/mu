@@ -1337,9 +1337,9 @@ These tokens are considered declarative, but may force backtracking behavior.
 
 A C<«> or C<<< << >>> token indicates a left word boundary.  A C<»> or
 C<<< >> >>> token indicates a right word boundary.  (As separate tokens,
-these need not be balanced.)  Perl 5's C<\b> is replaced by a C<< <.wb> >>
+these need not be balanced.)  Perl 5's C<\b> is replaced by a C<< <?wb> >>
 "word boundary" assertion, while C<\B> becomes C<< <!wb> >>.  (None of
-these are dependent on the definition of C<< <ws> >>, but only on the C<\w>
+these are dependent on the definition of C<< <.ws> >>, but only on the C<\w>
 definition of "word" characters.)
 
 =back
