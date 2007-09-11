@@ -9,10 +9,10 @@ class Main {
         say 'ok 3';
     };
 
-    # my &multi := Multi.new;
-    proto multi {};
+    # my &my_multi := Multi.new;
+    proto my_multi {};
 
-    &multi.long_names = [
+    &my_multi.long_names = [
         
         sub ($a,$b) {
             say 'ok 2';
@@ -22,13 +22,16 @@ class Main {
         &ab_3_,
     ];
     
-    (&multi.long_names).push( 
-        sub ($a,$b,$c,$d) {
-            say 'ok 4';
-        }
-    );
+    # (&my_multi.long_names).push( 
+    #    sub ($a,$b,$c,$d) {
+    #        say 'ok 4';
+    #    }
+    # );
+    multi my_multi ($a,$b,$c,$d) {
+        say 'ok 4';
+    }
     
-    say '# long_names: ', &multi.long_names;
+    say '# long_names: ', &my_multi.long_names;
 
     say 'ok 1 - survived so far';
 
@@ -36,13 +39,13 @@ class Main {
 
     say '# flattened Capture:   ', $capture;    
     my $capture = \( 1, 2 );
-    multi( |$capture );
+    my_multi( |$capture );
     
     say '# Param list:';    
-    multi( 42, 43, 44 );
+    my_multi( 42, 43, 44 );
     
     say '# flattened Array:';    
     my @x = [ 1,2,3,4 ];
-    multi( |@x );
+    my_multi( |@x );
         
 }
