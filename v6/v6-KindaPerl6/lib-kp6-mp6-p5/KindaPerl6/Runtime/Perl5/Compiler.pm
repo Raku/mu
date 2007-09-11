@@ -1,24 +1,6 @@
 package COMPILER;
 use Data::Dumper;
 
-#use KindaPerl6::Runtime::Perl6::Hash;   # Hash is 'required' too late in Runtime.pm ???
-
-use KindaPerl6::Visitor::Perl;
-use KindaPerl6::Visitor::EmitPerl5;
-use KindaPerl6::Visitor::EmitPerl6;
-#use KindaPerl6::Visitor::Subset;
-use KindaPerl6::Visitor::MetaClass;
-use KindaPerl6::Visitor::Token;
-use KindaPerl6::Visitor::Global;
-
-my $visitor_dump_ast    = KindaPerl6::Visitor::Perl->new();
-my $visitor_emit_perl5  = KindaPerl6::Visitor::EmitPerl5->new();
-my $visitor_emit_perl6  = KindaPerl6::Visitor::EmitPerl6->new();
-#my $visitor_subset      = KindaPerl6::Visitor::Subset->new();
-my $visitor_metamodel   = KindaPerl6::Visitor::MetaClass->new();
-my $visitor_token       = KindaPerl6::Visitor::Token->new();
-my $visitor_global      = KindaPerl6::Visitor::Global->new();
-
 # @COMPILER::CHECK  - CHECK blocks
 # @COMPILER::PAD    - Pad structures
 
@@ -51,6 +33,15 @@ sub drop_pad {
     shift @COMPILER::PAD;
 }
  
+sub put_pad {
+    #print "put_pad\n";
+    unshift @COMPILER::PAD, $_[0];
+}
+ 
+sub current_pad {
+    $COMPILER::PAD[0];
+}
+ 
 #    $PAD[0]->add_lexicals( [ $decl ] );
 #    $PAD[0]->eval( $p5_source );
 
@@ -62,9 +53,7 @@ sub begin_block {
 
     # execute the code inside the current pad
     add_pad;
-    my $data = $COMPILER::PAD[0]->eval_ast( $ast, [
-            $visitor_token, $visitor_metamodel, $visitor_global, $visitor_emit_perl5,
-        ] );  # XXX - want() context
+    my $data = $COMPILER::PAD[0]->eval_ast( $ast );  # XXX - want() context
     drop_pad;
     die "At BEGIN: " . $@ if $@;
     #print "RETURN DATA: ", Dumper($data);
@@ -74,20 +63,13 @@ sub begin_block {
 
     #print "=pod\n";
     #print "# BEGIN ENV: ", Dumper( $COMPILER::PAD[0]->lexicals ), "\n";
-    #print "BEGIN AST: ", Dumper( \$ast );
-    #print "BEGIN: Native code: $native\n\n";
 
     for my $pad ( @COMPILER::PAD ) {
         #print "# Lexicals here: ", Dumper( $pad->lexicals ), "\n";
-        my $side_effects = $pad->side_effects; 
-        #print "MODIFIED: ", Dumper( $side_effects );
-        # TODO - emit side-effects...
-        my @names = keys %$side_effects;
-        for my $name ( @names ) {
+        for my $name ( $pad->side_effects ) {
             my $value = $COMPILER::PAD[0]->eval( "$name" );
-            #print "# modified: $name = ",Dumper( $value );
-            #print "# modified: $name = ",$value->{_value}{name},"\n";
 
+            # TODO - create AST, instead of source code
             my $src = '';
             if ( $name ne $value->{_value}{name} ) {
                 # it seems to be a bound variable

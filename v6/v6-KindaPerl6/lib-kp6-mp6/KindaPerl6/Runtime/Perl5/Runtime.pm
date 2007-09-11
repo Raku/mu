@@ -3,10 +3,10 @@ use v5;
 
 use KindaPerl6::Runtime::Perl5::Match;
 use KindaPerl6::Runtime::Perl5::MOP;
+use KindaPerl6::Runtime::Perl5::MP6Runtime;
 use KindaPerl6::Runtime::Perl5::Pad;
 use KindaPerl6::Runtime::Perl5::Wrap;
 use KindaPerl6::Runtime::Perl5::GLOBAL;
-use KindaPerl6::Runtime::Perl5::MP6Runtime;
 use KindaPerl6::Runtime::Perl5::Grammar;
 
 1;

@@ -2,7 +2,22 @@
 package Pad;
 use strict;
 use Carp;
-#use Data::Dump::Streamer;
+
+
+use KindaPerl6::Visitor::Perl;
+use KindaPerl6::Visitor::EmitPerl5;
+use KindaPerl6::Visitor::EmitPerl6;
+use KindaPerl6::Visitor::MetaClass;
+use KindaPerl6::Visitor::Token;
+use KindaPerl6::Visitor::Global;
+
+my $visitor_dump_ast    = KindaPerl6::Visitor::Perl->new();
+my $visitor_emit_perl5  = KindaPerl6::Visitor::EmitPerl5->new();
+my $visitor_emit_perl6  = KindaPerl6::Visitor::EmitPerl6->new();
+my $visitor_metamodel   = KindaPerl6::Visitor::MetaClass->new();
+my $visitor_token       = KindaPerl6::Visitor::Token->new();
+my $visitor_global      = KindaPerl6::Visitor::Global->new();
+
 
 sub new {
     #print __PACKAGE__,"->new [",Dump(\@_),"]\n";
@@ -170,14 +185,13 @@ sub _var_eq {
 # returns a hashref with names of variables that were modified with .STORE or .BIND
 # XXX - modified since when?
 sub side_effects {
-    $_[0]->eval( '$_MODIFIED' );
+    keys %{ $_[0]->eval( '$_MODIFIED' ) };
 }
 
 sub eval_ast {
     my $self     = shift;
     my $code     = shift;
-    my $visitors = shift;
-    for ( @$visitors ) {
+    for ( $visitor_token, $visitor_metamodel, $visitor_global, $visitor_emit_perl5, ) {
         $code = $code->emit( $_ );
     }
     return $self->eval( $code );
