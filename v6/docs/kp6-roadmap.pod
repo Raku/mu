@@ -360,22 +360,27 @@ The resulting code will be tested by running the existing test suite and impleme
 * Status: added tests for positional multis
 
 
-=head2 Milestone 4.2 - Add support for ...
+
+=head2 Milestone 4.2 - Runtime architecture review
 
 
-The ... will be able to do ...
-
-TODO: read STD and list what features are needed. 
+The goal for this phase is to allow more kp6 data structures to be represented in plain Perl6.
 
 =head3 Status
 
-under planning.
+Under planning.
 
 =head3 Dependencies
 
 =over
 
-=item * ...
+=item * Container code-review
+
+The compiler needs to collect the side-effects of BEGIN blocks.
+
+kp6 uses a native hash to store "modified" flags.
+
+=item * Pad code-review
 
 =back
 
@@ -383,14 +388,24 @@ under planning.
 
 =over
 
-=item * ...
+=item * Create ...
+
+* not started
+
+=item * Rewrite ...
+
+* not started
 
 =back
 
 
 =head3 Test Plan
 
-The resulting code will be tested by running the existing test suite and implementation-specific tests.
+The resulting code will be tested by running the existing test suite.
+
+* not started
+
+
 
 
 
