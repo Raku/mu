@@ -9,7 +9,9 @@ class Main {
         say 'ok 3';
     };
 
-    my &multi := Multi.new;
+    # my &multi := Multi.new;
+    proto multi {};
+
     &multi.long_names = [
         
         sub ($a,$b) {
@@ -42,5 +44,5 @@ class Main {
     say '# flattened Array:';    
     my @x = [ 1,2,3,4 ];
     multi( |@x );
-    
+        
 }

@@ -41,6 +41,22 @@ token term {
     | <val>      { return $$<val> }     # 'value'
     | <lit>      { return $$<lit> }     # [literal construct]
 #   | <bind>     { return $$<bind>   }  # $lhs := $rhs
+    | proto <?ws> token <?ws> <namespace> <ident> <?ws> '{' <?opt_ws> '}'    
+        { 
+            # proto token x { }
+            my $bind := ::Bind(  
+                parameters =>         # no pre-declaration checks ???
+                        ::Var(
+                            sigil     => '&',
+                            twigil    => '',
+                            name      => ~$<ident>,
+                            namespace => $$<namespace>,
+                        ), 
+                arguments => ::Multi( ),   # TODO ...
+            );
+            COMPILER::begin_block( $bind );   # ::=   compile-time
+            return $bind;                         # :=    run-time
+        }  
     | <token>    { return $$<token>  }  # token  { regex... }
     | <token_P5> { return $$<token_P5>  }  # token :P5 { regex... }
     | <method>   { return $$<method> }  # method { code... }
