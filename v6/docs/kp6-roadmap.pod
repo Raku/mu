@@ -340,13 +340,13 @@ under implementation.
 
 =item * Method and Sub refactoring
 
-* Status: under implementation
+* Status: fixed some namespace problems, added more tests
 
 =item Add 'multi' to the Grammar
 
-* Status: TODO
+* Status: implemented
 
-=item * Multi Regex
+=item * Multi Regex, Multi Token
 
 * Status: TODO
 
@@ -357,7 +357,7 @@ under implementation.
 
 The resulting code will be tested by running the existing test suite and implementation-specific tests.
 
-* Status: added tests for positional multis
+* Status: added tests for positional multis, TODO: multi token tests
 
 
 
