@@ -437,7 +437,7 @@ These tasks are not required for the successful completion of this phase.
 
 =item * IO
 
-* Status: not started
+* Status: implemented mkdir(), rmdir(); implemented the 'unsafe' flag
 
 =back
 
