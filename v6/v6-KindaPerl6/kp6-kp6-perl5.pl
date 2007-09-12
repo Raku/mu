@@ -9,7 +9,7 @@ BEGIN {
     $Main::_V6_COMPILER_VERSION = '0.001';
 }
 
-use KindaPerl6::Runtime::Perl5::Runtime;  
+use KindaPerl6::Runtime::Perl5::KP6Runtime;  
 use KindaPerl6::Grammar;
 use KindaPerl6::Traverse;
 use KindaPerl6::Ast;
