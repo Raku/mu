@@ -70,16 +70,10 @@ package GLOBAL;
     }
 
     sub _str {
-        my $v = $_[0];
-        eval { $v = ::DISPATCH( $v, 'str' )->{_value} } if ref($v); 
-        print $@ if $@;
-        $v;
+            ::DISPATCH( $_[0], 'str' )->{_value} if ref($_[0]); 
     }
     sub _int {
-        my $v = $_[0];
-        eval { $v = ::DISPATCH( $v, 'int' )->{_value} } if ref($v); 
-        print $@ if $@;
-        $v;
+            ::DISPATCH( $_[0], 'int' )->{_value} if ref($_[0]); 
     }
 
     sub print { 
