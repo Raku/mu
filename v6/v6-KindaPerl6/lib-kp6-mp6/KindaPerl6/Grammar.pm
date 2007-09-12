@@ -351,6 +351,17 @@ token undeclared_var {
 };
 
 token var {
+    <sigil> '/'
+    {
+        return 
+            ::Var(
+                    sigil     => ~$<sigil>,
+                    twigil    => '',
+                    name      => '/',
+                    namespace => [ ],
+                )
+    }
+  |
     <sigil> <twigil> <namespace> <ident>
     {
         # check for pre-declaration
