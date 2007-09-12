@@ -7,7 +7,7 @@
     Written by: Ahmad M. Zawawi <ahmad.zawawi@gmail.com>
     
     Version 0.1
-        Parses operators,builtins, keywords, simple single/multi comment
+        Parses operators,builtins, keywords, single comments
         Has some problems with symbols and variables [TODO]
         Has a bug with html escapes (like &lt and &gt) [TODO]
     
@@ -101,11 +101,13 @@ dp.sh.Brushes.p6 = function()
             regex: dp.sh.RegexLib.SingleLinePerlComments,							
             css: 'comment' 
         },		
+        /*
 		{ 
             // multiline comments
             regex: dp.sh.RegexLib.MultiLineCComments,								
             css: 'comment' 
-        },	
+        },
+        */        
 		{ 
             // $global, @array, and %hash variables
             regex: new RegExp('(\\$|@|%)\\w+', 'g'),				

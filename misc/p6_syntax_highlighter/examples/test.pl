@@ -1,3 +1,3 @@
 use v6-alpha;
+# a comment...
 say "Hello world from Perl6";
-if($x > $y) then {$y <= $x};
