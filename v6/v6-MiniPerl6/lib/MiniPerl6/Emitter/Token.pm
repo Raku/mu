@@ -188,7 +188,7 @@ class Rul::Block {
                 '\'974^213\' } ).();' ~
              'if $ret ne \'974^213\' {' ~
                 '$MATCH.capture( $ret ); ' ~
-                # '$MATCH.bool( 1 ); ' ~
+                '$MATCH.bool( 1 ); ' ~
                 'return $MATCH;' ~
              '};' ~
              '1' ~

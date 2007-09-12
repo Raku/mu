@@ -81,7 +81,7 @@ sub emit { my $self = shift; my $List__ = \@_; do { [] }; my  $char = $self->{ch
 package Rul::Block;
 sub new { shift; bless { @_ }, "Rul::Block" }
 sub closure { @_ == 1 ? ( $_[0]->{closure} ) : ( $_[0]->{closure} = $_[1] ) };
-sub emit { my $self = shift; my $List__ = \@_; do { [] }; ('do { ' . ('my $ret := ( sub {' . ('do {' . ($self->{closure} . ('}; ' . ('\'974^213\' } ).();' . ('if $ret ne \'974^213\' {' . ('$MATCH.capture( $ret ); ' . ('return $MATCH;' . ('};' . ('1' . '}'))))))))))) }
+sub emit { my $self = shift; my $List__ = \@_; do { [] }; ('do { ' . ('my $ret := ( sub {' . ('do {' . ($self->{closure} . ('}; ' . ('\'974^213\' } ).();' . ('if $ret ne \'974^213\' {' . ('$MATCH.capture( $ret ); ' . ('$MATCH.bool( 1 ); ' . ('return $MATCH;' . ('};' . ('1' . '}')))))))))))) }
 
 
 ;
