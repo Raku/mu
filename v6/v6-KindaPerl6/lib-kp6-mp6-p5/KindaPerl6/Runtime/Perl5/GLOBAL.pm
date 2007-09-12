@@ -70,15 +70,17 @@ package GLOBAL;
     }
 
     sub _str {
-            ::DISPATCH( $_[0], 'str' )->{_value} if ref($_[0]); 
+        return ::DISPATCH( $_[0], 'str' )->{_value} if ref($_[0]); 
+        $_[0];
     }
     sub _int {
-            ::DISPATCH( $_[0], 'int' )->{_value} if ref($_[0]); 
+        return ::DISPATCH( $_[0], 'int' )->{_value} if ref($_[0]); 
+        $_[0];
     }
 
     sub print { 
-        print join( '',  map { 
-                ::DISPATCH(::DISPATCH($_,'str'),'p5landish');
+        CORE::print join( '',  map { 
+                _str( $_ )
         } @_ );
     }
 
