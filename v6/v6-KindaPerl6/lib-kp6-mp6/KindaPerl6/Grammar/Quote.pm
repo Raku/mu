@@ -10,14 +10,40 @@ token double_quoted {
 
 token quoted_any { . }
 
-token quoted_exp {
-    |  <var>           
+token quoted_array {
+    <before \@ > <var> \[ <?opt_ws> \]  
         { 
             return ::Apply(
                 'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<~>', namespace => [ ] ),
                 'arguments' => [ $$<var> ],
             ); 
         }
+}
+
+token quoted_hash {
+    <before \% > <var> \{ <?opt_ws> \}  
+        { 
+            return ::Apply(
+                'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<~>', namespace => [ ] ),
+                'arguments' => [ $$<var> ],
+            ); 
+        }
+}
+
+token quoted_scalar {
+    <before \$ > <var>
+        { 
+            return ::Apply(
+                'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<~>', namespace => [ ] ),
+                'arguments' => [ $$<var> ],
+            ); 
+        }
+}
+
+token quoted_exp {
+    |  <quoted_array>  { return $$<quoted_array>  }
+    |  <quoted_hash>   { return $$<quoted_hash>   }
+    |  <quoted_scalar> { return $$<quoted_scalar> }
     |  \' { return ::Val::Char( char => 39 ) }
     |  \\ 
         [  # see S02
