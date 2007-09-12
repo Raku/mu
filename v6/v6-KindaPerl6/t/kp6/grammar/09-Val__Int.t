@@ -1,5 +1,6 @@
 grammar MyGrammar {
-    token digits {  \d  [ <digits> | <''> ]  };
+    token digit :P5 {[[:digit:]]};
+    token digits { \d+ };
     token val_int {
         <digits>
         { return ::Val::Int( 'int' => ~$/ ) }

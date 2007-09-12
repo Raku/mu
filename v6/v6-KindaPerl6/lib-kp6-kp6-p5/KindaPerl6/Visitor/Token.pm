@@ -263,7 +263,8 @@
                                 };
                                 do {
                                     ::MODIFIED($ast);
-                                    $ast = ::DISPATCH( $::KindaPerl6::Grammar,
+                                    $ast =
+                                      ::DISPATCH( $::KindaPerl6::Grammar,
                                         'term', $source );
                                 };
                                 return (
@@ -2711,17 +2712,6 @@
     };
     1
 }
-
-#exp0 8538
-#exp1 8558
-#exp2
-#buf1
-#buf2
-#exp0 8538
-#exp1 8558
-#exp2
-#buf1
-#buf2
 {
 
     package Rule::NegateCharClass;
@@ -2825,17 +2815,6 @@
     };
     1
 }
-
-#exp0 8846
-#exp1 8860
-#exp2
-#buf1
-#buf2
-#exp0 8846
-#exp1 8860
-#exp2
-#buf1
-#buf2
 {
 
     package Rule::CharClass;
@@ -2938,17 +2917,6 @@
     };
     1
 }
-
-#exp0 9138
-#exp1 9154
-#exp2
-#buf1
-#buf2
-#exp0 9138
-#exp1 9154
-#exp2
-#buf1
-#buf2
 {
 
     package Rule::Capture;

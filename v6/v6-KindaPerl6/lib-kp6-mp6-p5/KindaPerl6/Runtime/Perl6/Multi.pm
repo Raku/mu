@@ -1,23 +1,3 @@
-#exp0 643
-#exp1 690
-#exp2
-#buf1
-#buf2
-#exp0 643
-#exp1 690
-#exp2
-#buf1
-#buf2
-#exp0 1090
-#exp1 1118
-#exp2
-#buf1
-#buf2
-#exp0 1090
-#exp1 1118
-#exp2
-#buf1
-#buf2
 {
 
     package Multi;
@@ -267,7 +247,18 @@
                         $GLOBAL::Code_die,
                         'APPLY',
                         ::DISPATCH(
-                            $::Str, 'new', 'can\'t resolve Multi dispatch'
+                            $GLOBAL::Code_infix_58__60__126__62_,
+                            'APPLY',
+                            ::DISPATCH( $::Str, 'new', 'can' ),
+                            ::DISPATCH(
+                                $GLOBAL::Code_infix_58__60__126__62_,
+                                'APPLY',
+                                ::DISPATCH( $::Str, 'new', chr(39) ),
+                                ::DISPATCH(
+                                    $::Str, 'new',
+                                    't resolve Multi dispatch'
+                                )
+                            )
                         )
                     );
                 }

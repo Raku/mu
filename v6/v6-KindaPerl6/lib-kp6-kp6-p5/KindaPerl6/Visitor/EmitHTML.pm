@@ -3863,12 +3863,6 @@
     };
     1
 }
-
-#exp0 6791
-#exp1 6798
-#exp2
-#buf1
-#buf2
 {
 
     package Return;
@@ -5270,12 +5264,6 @@
     };
     1
 }
-
-#exp0 9972
-#exp1 9979
-#exp2
-#buf1
-#buf2
 {
 
     package Do;

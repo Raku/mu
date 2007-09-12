@@ -1,73 +1,3 @@
-#exp0 385
-#exp1 387
-#exp2
-#buf1
-#buf2
-#exp0 405
-#exp1 407
-#exp2
-#buf1
-#buf2
-#exp0 516
-#exp1 517
-#exp2
-#buf1
-#buf2
-#exp0 530
-#exp1 534
-#exp2
-#buf1
-#buf2
-#exp0 620
-#exp1 622
-#exp2
-#buf1
-#buf2
-#exp0 900
-#exp1 902
-#exp2
-#buf1
-#buf2
-#exp0 985
-#exp1 989
-#exp2
-#buf1
-#buf2
-#exp0 1108
-#exp1 1110
-#exp2
-#buf1
-#buf2
-#exp0 1371
-#exp1 1373
-#exp2
-#buf1
-#buf2
-#exp0 1433
-#exp1 1437
-#exp2
-#buf1
-#buf2
-#exp0 1555
-#exp1 1557
-#exp2
-#buf1
-#buf2
-#exp0 1577
-#exp1 1581
-#exp2
-#buf1
-#buf2
-#exp0 1686
-#exp1 1688
-#exp2
-#buf1
-#buf2
-#exp0 1779
-#exp1 1781
-#exp2
-#buf1
-#buf2
 {
 
     package KindaPerl6::Visitor::EmitAstHTML;
@@ -514,8 +444,8 @@
                                                                       '$subitem'
                                                                 }
                                                               )
-                                                              unless defined
-                                                                  $subitem;
+                                                              unless
+                                                              defined $subitem;
 
                                                             BEGIN {
                                                                 $subitem =
@@ -665,7 +595,10 @@
                                                                                 ::DISPATCH(
                                                                                     $::Str,
 'new',
-'\\\''
+                                                                                    chr
+                                                                                      (
+                                                                                        39
+                                                                                      )
                                                                                   )
                                                                                 ,
                                                                                 ::DISPATCH(
@@ -678,9 +611,22 @@
                                                                                       )
                                                                                     ,
                                                                                     ::DISPATCH(
-                                                                                        $::Str,
+                                                                                        $GLOBAL::Code_infix_58__60__126__62_,
+'APPLY',
+                                                                                        ::DISPATCH(
+                                                                                            $::Str,
 'new',
-'\\\', '
+                                                                                            chr
+                                                                                              (
+                                                                                                39
+                                                                                              )
+                                                                                          )
+                                                                                        ,
+                                                                                        ::DISPATCH(
+                                                                                            $::Str,
+'new',
+', '
+                                                                                        )
                                                                                     )
                                                                                 )
                                                                             )
