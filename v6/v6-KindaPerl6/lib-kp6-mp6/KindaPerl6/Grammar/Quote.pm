@@ -4,8 +4,8 @@ use v6-alpha;
 grammar KindaPerl6::Grammar {
 
 token double_quoted {
-    |  \\ .  <double_quoted>
-    |  <!before \" | \$ | \@ | \% > . <double_quoted>
+    |  \\ <!before n > .  <double_quoted>
+    |  <!before \\ | \" | \$ | \@ | \% > . <double_quoted>
     |  <''>    
 };
 
@@ -17,6 +17,7 @@ token quoted_exp {
                 'arguments' => [ $$<var> ],
             ); 
         }
+    |  \\ n  { return ::Val::Char( char => 10 ) }
     |  [ \$ | \@ | \% | '' ] <double_quoted> { return ::Val::Buf( 'buf' => ~$/ ) }
 }
 

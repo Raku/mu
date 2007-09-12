@@ -40,6 +40,12 @@ sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $:
 
 
 ;
+package Val::Char;
+sub new { shift; bless { @_ }, "Val::Char" }
+sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; ('::DISPATCH( $::Str, \'new\', chr( ' . ($self->{char} . (' ) )' . Main::newline()))) }
+
+
+;
 package Val::Undef;
 sub new { shift; bless { @_ }, "Val::Undef" }
 sub emit_perl5 { my $self = shift; my $List__ = \@_; do { [] }; '$::Undef' }

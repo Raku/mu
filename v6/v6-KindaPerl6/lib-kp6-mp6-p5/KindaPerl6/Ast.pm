@@ -48,6 +48,14 @@ sub attribs { my $self = shift; my $List__ = \@_; do { [] }; { 'buf' => $self->{
 
 
 ;
+package Val::Char;
+sub new { shift; bless { @_ }, "Val::Char" }
+sub char { @_ == 1 ? ( $_[0]->{char} ) : ( $_[0]->{char} = $_[1] ) };
+sub emit { my $self = shift; my $List__ = \@_; my $visitor; my $path; do {  $visitor = $List__->[0];  $path = $List__->[1]; [$visitor, $path] }; KindaPerl6::Traverse::visit($visitor, $self, 'Val::Char', $path) };
+sub attribs { my $self = shift; my $List__ = \@_; do { [] }; { 'char' => $self->{char}, } }
+
+
+;
 package Val::Undef;
 sub new { shift; bless { @_ }, "Val::Undef" }
 sub emit { my $self = shift; my $List__ = \@_; my $visitor; my $path; do {  $visitor = $List__->[0];  $path = $List__->[1]; [$visitor, $path] }; KindaPerl6::Traverse::visit($visitor, $self, 'Val::Undef', $path) };
