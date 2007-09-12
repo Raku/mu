@@ -106,6 +106,12 @@
     };
     1
 }
+
+#exp0 240
+#exp1 242
+#exp2
+#buf1
+#buf2
 {
 
     package CompUnit;

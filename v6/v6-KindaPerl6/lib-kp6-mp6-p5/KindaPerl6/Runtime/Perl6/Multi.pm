@@ -1,3 +1,23 @@
+#exp0 643
+#exp1 690
+#exp2
+#buf1
+#buf2
+#exp0 643
+#exp1 690
+#exp2
+#buf1
+#buf2
+#exp0 1090
+#exp1 1118
+#exp2
+#buf1
+#buf2
+#exp0 1090
+#exp1 1118
+#exp2
+#buf1
+#buf2
 {
 
     package Multi;

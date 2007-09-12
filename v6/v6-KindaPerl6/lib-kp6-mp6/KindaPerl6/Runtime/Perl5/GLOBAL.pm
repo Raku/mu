@@ -36,7 +36,7 @@ package GLOBAL;
         infix_58__60__62__62_
         
         prefix_58__60__33__62_
-        
+        prefix_58__60__126__62_
         prefix_58__60__64__62_        
         prefix_58__60__43__43__62_
         prefix_58__60__124__62_
@@ -178,6 +178,9 @@ package GLOBAL;
         }
         die "Not enough arguments for substr";
     }  
+
+    # prefix:<~>
+    sub prefix_58__60__126__62_ { ::DISPATCH( $::Str, 'new', _str( $_[0] ) ) }  
 
     # prefix:<!>
     sub prefix_58__60__33__62_ { ::DISPATCH( $::Bit, 'new', ! ( ::DISPATCH( $_[0], 'true' )->{_value} ) ) }  

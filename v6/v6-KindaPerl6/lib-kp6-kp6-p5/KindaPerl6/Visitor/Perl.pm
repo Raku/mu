@@ -1,3 +1,73 @@
+#exp0 252
+#exp1 254
+#exp2
+#buf1
+#buf2
+#exp0 272
+#exp1 274
+#exp2
+#buf1
+#buf2
+#exp0 401
+#exp1 402
+#exp2
+#buf1
+#buf2
+#exp0 415
+#exp1 419
+#exp2
+#buf1
+#buf2
+#exp0 505
+#exp1 507
+#exp2
+#buf1
+#buf2
+#exp0 814
+#exp1 816
+#exp2
+#buf1
+#buf2
+#exp0 899
+#exp1 903
+#exp2
+#buf1
+#buf2
+#exp0 1022
+#exp1 1024
+#exp2
+#buf1
+#buf2
+#exp0 1314
+#exp1 1316
+#exp2
+#buf1
+#buf2
+#exp0 1376
+#exp1 1380
+#exp2
+#buf1
+#buf2
+#exp0 1498
+#exp1 1500
+#exp2
+#buf1
+#buf2
+#exp0 1520
+#exp1 1524
+#exp2
+#buf1
+#buf2
+#exp0 1629
+#exp1 1631
+#exp2
+#buf1
+#buf2
+#exp0 1722
+#exp1 1724
+#exp2
+#buf1
+#buf2
 {
 
     package KindaPerl6::Visitor::Perl;
@@ -441,7 +511,7 @@
                                                             }
                                                           )
                                                           unless
-                                                          defined $subitem;
+                                                            defined $subitem;
 
                                                         BEGIN {
                                                             $subitem =
@@ -484,8 +554,8 @@
                                                                       '$subitem'
                                                                 }
                                                               )
-                                                              unless
-                                                              defined $subitem;
+                                                              unless defined
+                                                                  $subitem;
 
                                                             BEGIN {
                                                                 $subitem =

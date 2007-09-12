@@ -2535,6 +2535,17 @@
     };
     1
 }
+
+#exp0 7519
+#exp1 7539
+#exp2
+#buf1
+#buf2
+#exp0 7519
+#exp1 7539
+#exp2
+#buf1
+#buf2
 {
 
     package Rule::NegateCharClass;
@@ -2638,6 +2649,17 @@
     };
     1
 }
+
+#exp0 7640
+#exp1 7654
+#exp2
+#buf1
+#buf2
+#exp0 7640
+#exp1 7654
+#exp2
+#buf1
+#buf2
 {
 
     package Rule::CharClass;

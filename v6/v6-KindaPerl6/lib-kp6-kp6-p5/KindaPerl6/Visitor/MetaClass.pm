@@ -1,3 +1,13 @@
+#exp0 4767
+#exp1 4788
+#exp2
+#buf1
+#buf2
+#exp0 4767
+#exp1 4788
+#exp2
+#buf1
+#buf2
 {
 
     package KindaPerl6::Visitor::MetaClass;
