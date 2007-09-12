@@ -184,6 +184,8 @@ package KindaPerl6::Grammar;
 
 package Main;
     
+    sub print { print join( '', @_ ) }
+    sub say   { print join( '', @_, "\n" ) }
     sub chars { length( $_[0] ) }
     sub newline { "\n" }
     sub quote   { '"' }

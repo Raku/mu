@@ -173,16 +173,8 @@
                                         }
                                     );
                                 }
-                                ::DISPATCH(
-                                    $GLOBAL::Code_unshift,
-                                    'APPLY',
-                                    ::DISPATCH(
-                                        $GLOBAL::Code_prefix_58__60__64__62_,
-                                        'APPLY',
-                                        $COMPILER::List_PAD
-                                    ),
-                                    ::DISPATCH( $node, 'pad', )
-                                );
+                                ::DISPATCH( $COMPILER::Code_put_pad, 'APPLY',
+                                    ::DISPATCH( $node, 'pad', ) );
                                 $stmt;
                                 {
                                     my $stmt;
@@ -226,14 +218,7 @@
                                         }
                                     }
                                 };
-                                ::DISPATCH(
-                                    $GLOBAL::Code_shift,
-                                    'APPLY',
-                                    ::DISPATCH(
-                                        $GLOBAL::Code_prefix_58__60__64__62_,
-                                        'APPLY',
-                                        $COMPILER::List_PAD
-                                    )
+                                ::DISPATCH( $COMPILER::Code_drop_pad, 'APPLY',
                                 );
                                 return ($node)
                             }
@@ -262,16 +247,8 @@
                                             ::DISPATCH(
                                                 ::DISPATCH(
                                                     ::DISPATCH(
-                                                        ::DISPATCH(
-                                                            $GLOBAL::Code_prefix_58__60__64__62_,
-                                                            'APPLY',
-                                                            $COMPILER::List_PAD
-                                                        ),
-                                                        'INDEX',
-                                                        ::DISPATCH(
-                                                            $::Int, 'new',
-                                                            0
-                                                        )
+                                                        $COMPILER::Code_current_pad,
+                                                        'APPLY',
                                                     ),
                                                     'declaration',
                                                     $node

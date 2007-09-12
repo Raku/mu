@@ -38,5 +38,9 @@ class Multi is Code {
         
         die "can't resolve Multi dispatch";
     }
+    
+    method perl {
+        'Multi.new( ... )'
+    }
 }
 

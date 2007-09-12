@@ -14,3 +14,24 @@ really works is kp6-mp6-perl5.pl.
 
 When the bootstrap finishes, we'll be able to simplify this structure
 to a simple "lib" and "lib5" again.
+
+
+==================================
+
+
+The differences between lib-kp6-mp6 and lib-kp6-kp6 currently are:
+
+* KindaPerl6::Runtime::Perl5::Grammar
+  was moved to
+  KindaPerl6::Runtime::Perl6::Grammar
+
+* KindaPerl6::Runtime::Perl5::Match
+  was moved to
+  KindaPerl6::Runtime::Perl6::Match
+
+* KindaPerl6::Runtime::Perl5::Pad
+  started to be translated to
+  KindaPerl6::Runtime::Perl6::Pad
+
+* KindaPerl6::Runtime::Perl5::Runtime was changed
+  to load the Perl6 version of the above files

@@ -113,6 +113,23 @@ class Val::Buf {
     };
 }
 
+class Val::Char {
+    has $.char;
+    method emit( $visitor, $path ) {
+        KindaPerl6::Traverse::visit( 
+            $visitor, 
+            self,
+            'Val::Char',
+            $path,
+        );
+    };
+    method attribs {
+            { 
+                char    => $.char,
+            }
+    };
+}
+
 class Val::Undef {
     method emit( $visitor, $path ) {
         KindaPerl6::Traverse::visit( 

@@ -2700,7 +2700,7 @@
 'STORE',
                                                                                         ::DISPATCH(
                                                                                             $self,
-'__rule_block197db05a89c7631e7016fc164bf7597e3',
+'__rule_block1c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                         )
                                                                                       )
                                                                                       ;
@@ -2793,7 +2793,7 @@
 'STORE',
                                                                                     ::DISPATCH(
                                                                                         $self,
-'__rule_block297db05a89c7631e7016fc164bf7597e3',
+'__rule_block2c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                     )
                                                                                   )
                                                                                   ;
@@ -2876,7 +2876,7 @@
                                                         $ret, 'STORE',
                                                         ::DISPATCH(
                                                             $self,
-'__rule_block397db05a89c7631e7016fc164bf7597e3',
+'__rule_block3c037d6d1d34b48be1e23b9da5ffb2d86',
                                                         )
                                                     );
                                                     do {
@@ -7579,7 +7579,7 @@
 'STORE',
                                                                                     ::DISPATCH(
                                                                                         $self,
-'__rule_block497db05a89c7631e7016fc164bf7597e3',
+'__rule_block4c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                     )
                                                                                   )
                                                                                   ;
@@ -7671,7 +7671,7 @@
 'STORE',
                                                                                 ::DISPATCH(
                                                                                     $self,
-'__rule_block597db05a89c7631e7016fc164bf7597e3',
+'__rule_block5c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                 )
                                                                             );
                                                                             do {
@@ -7751,7 +7751,7 @@
                                                         $ret, 'STORE',
                                                         ::DISPATCH(
                                                             $self,
-'__rule_block697db05a89c7631e7016fc164bf7597e3',
+'__rule_block6c037d6d1d34b48be1e23b9da5ffb2d86',
                                                         )
                                                     );
                                                     do {
@@ -9415,7 +9415,7 @@
                                                                 'STORE',
                                                                 ::DISPATCH(
                                                                     $self,
-'__rule_block797db05a89c7631e7016fc164bf7597e3',
+'__rule_block7c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                 )
                                                             );
                                                             do {
@@ -9992,7 +9992,7 @@
 'STORE',
                                                                                         ::DISPATCH(
                                                                                             $self,
-'__rule_block897db05a89c7631e7016fc164bf7597e3',
+'__rule_block8c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                         )
                                                                                       )
                                                                                       ;
@@ -10085,7 +10085,7 @@
 'STORE',
                                                                                 ::DISPATCH(
                                                                                     $self,
-'__rule_block997db05a89c7631e7016fc164bf7597e3',
+'__rule_block9c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                 )
                                                                             );
                                                                             do {
@@ -10165,7 +10165,7 @@
                                                         $ret, 'STORE',
                                                         ::DISPATCH(
                                                             $self,
-'__rule_block1097db05a89c7631e7016fc164bf7597e3',
+'__rule_block10c037d6d1d34b48be1e23b9da5ffb2d86',
                                                         )
                                                     );
                                                     do {
@@ -12312,7 +12312,7 @@
 'STORE',
                                                                                                                     ::DISPATCH(
                                                                                                                         $self,
-'__rule_block1197db05a89c7631e7016fc164bf7597e3',
+'__rule_block11c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                                                     )
                                                                                                                   )
                                                                                                                   ;
@@ -12503,7 +12503,7 @@
 'STORE',
                                                                                                                             ::DISPATCH(
                                                                                                                                 $self,
-'__rule_block1297db05a89c7631e7016fc164bf7597e3',
+'__rule_block12c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                                                             )
                                                                                                                           )
                                                                                                                           ;
@@ -13300,7 +13300,7 @@
 'STORE',
                                                                                                                                                 ::DISPATCH(
                                                                                                                                                     $self,
-'__rule_block1397db05a89c7631e7016fc164bf7597e3',
+'__rule_block13c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                                                                                 )
                                                                                                                                               )
                                                                                                                                               ;
@@ -13535,7 +13535,7 @@
 'STORE',
                                                                                 ::DISPATCH(
                                                                                     $self,
-'__rule_block1497db05a89c7631e7016fc164bf7597e3',
+'__rule_block14c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                 )
                                                                             );
                                                                             do {
@@ -13731,7 +13731,7 @@
 'STORE',
                                                                                     ::DISPATCH(
                                                                                         $self,
-'__rule_block1597db05a89c7631e7016fc164bf7597e3',
+'__rule_block15c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                     )
                                                                                   )
                                                                                   ;
@@ -18304,7 +18304,7 @@
                                                                 'STORE',
                                                                 ::DISPATCH(
                                                                     $self,
-'__rule_block1697db05a89c7631e7016fc164bf7597e3',
+'__rule_block16c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                 )
                                                             );
                                                             do {
@@ -18372,7 +18372,7 @@
                                                         $ret, 'STORE',
                                                         ::DISPATCH(
                                                             $self,
-'__rule_block1797db05a89c7631e7016fc164bf7597e3',
+'__rule_block17c037d6d1d34b48be1e23b9da5ffb2d86',
                                                         )
                                                     );
                                                     do {
@@ -18669,7 +18669,7 @@
                                                         $ret, 'STORE',
                                                         ::DISPATCH(
                                                             $self,
-'__rule_block1897db05a89c7631e7016fc164bf7597e3',
+'__rule_block18c037d6d1d34b48be1e23b9da5ffb2d86',
                                                         )
                                                     );
                                                     do {
@@ -19851,7 +19851,7 @@
 'STORE',
                                                                                                                                 ::DISPATCH(
                                                                                                                                     $self,
-'__rule_block1997db05a89c7631e7016fc164bf7597e3',
+'__rule_block19c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                                                                 )
                                                                                                                               )
                                                                                                                               ;
@@ -19953,7 +19953,7 @@
 'STORE',
                                                                                                         ::DISPATCH(
                                                                                                             $self,
-'__rule_block2097db05a89c7631e7016fc164bf7597e3',
+'__rule_block20c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                                         )
                                                                                                       )
                                                                                                       ;
@@ -20492,7 +20492,7 @@
 'STORE',
                                                                                                 ::DISPATCH(
                                                                                                     $self,
-'__rule_block2197db05a89c7631e7016fc164bf7597e3',
+'__rule_block21c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                                 )
                                                                                               )
                                                                                               ;
@@ -20985,7 +20985,7 @@
 'STORE',
                                                                                                     ::DISPATCH(
                                                                                                         $self,
-'__rule_block2297db05a89c7631e7016fc164bf7597e3',
+'__rule_block22c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                                     )
                                                                                                   )
                                                                                                   ;
@@ -21480,7 +21480,7 @@
 'STORE',
                                                                                                         ::DISPATCH(
                                                                                                             $self,
-'__rule_block2397db05a89c7631e7016fc164bf7597e3',
+'__rule_block23c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                                         )
                                                                                                       )
                                                                                                       ;
@@ -21976,7 +21976,7 @@
 'STORE',
                                                                                                             ::DISPATCH(
                                                                                                                 $self,
-'__rule_block2497db05a89c7631e7016fc164bf7597e3',
+'__rule_block24c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                                             )
                                                                                                           )
                                                                                                           ;
@@ -22074,7 +22074,7 @@
 'STORE',
                                                                                             ::DISPATCH(
                                                                                                 $self,
-'__rule_block2597db05a89c7631e7016fc164bf7597e3',
+'__rule_block25c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                             )
                                                                                           )
                                                                                           ;
@@ -22405,7 +22405,7 @@
                                                             'STORE',
                                                             ::DISPATCH(
                                                                 $self,
-'__rule_block2697db05a89c7631e7016fc164bf7597e3',
+'__rule_block26c037d6d1d34b48be1e23b9da5ffb2d86',
                                                             )
                                                         );
                                                         do {
@@ -22530,7 +22530,7 @@
                                                             'STORE',
                                                             ::DISPATCH(
                                                                 $self,
-'__rule_block2797db05a89c7631e7016fc164bf7597e3',
+'__rule_block27c037d6d1d34b48be1e23b9da5ffb2d86',
                                                             )
                                                         );
                                                         do {
@@ -24131,7 +24131,7 @@
 'STORE',
                                                                                                                     ::DISPATCH(
                                                                                                                         $self,
-'__rule_block2897db05a89c7631e7016fc164bf7597e3',
+'__rule_block28c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                                                     )
                                                                                                                   )
                                                                                                                   ;
@@ -24222,7 +24222,7 @@
 'STORE',
                                                                                             ::DISPATCH(
                                                                                                 $self,
-'__rule_block2997db05a89c7631e7016fc164bf7597e3',
+'__rule_block29c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                             )
                                                                                           )
                                                                                           ;
@@ -25701,7 +25701,7 @@
 'STORE',
                                                                                                                         ::DISPATCH(
                                                                                                                             $self,
-'__rule_block3097db05a89c7631e7016fc164bf7597e3',
+'__rule_block30c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                                                         )
                                                                                                                       )
                                                                                                                       ;
@@ -25792,7 +25792,7 @@
 'STORE',
                                                                                                 ::DISPATCH(
                                                                                                     $self,
-'__rule_block3197db05a89c7631e7016fc164bf7597e3',
+'__rule_block31c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                                 )
                                                                                               )
                                                                                               ;
@@ -26358,7 +26358,7 @@
 'STORE',
                                                                                                         ::DISPATCH(
                                                                                                             $self,
-'__rule_block3297db05a89c7631e7016fc164bf7597e3',
+'__rule_block32c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                                         )
                                                                                                       )
                                                                                                       ;
@@ -26926,7 +26926,7 @@
 'STORE',
                                                                                                             ::DISPATCH(
                                                                                                                 $self,
-'__rule_block3397db05a89c7631e7016fc164bf7597e3',
+'__rule_block33c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                                             )
                                                                                                           )
                                                                                                           ;
@@ -27023,7 +27023,7 @@
 'STORE',
                                                                                         ::DISPATCH(
                                                                                             $self,
-'__rule_block3497db05a89c7631e7016fc164bf7597e3',
+'__rule_block34c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                         )
                                                                                       )
                                                                                       ;
@@ -28069,7 +28069,7 @@
                                                                 'STORE',
                                                                 ::DISPATCH(
                                                                     $self,
-'__rule_block3597db05a89c7631e7016fc164bf7597e3',
+'__rule_block35c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                 )
                                                             );
                                                             do {
@@ -28196,7 +28196,7 @@
                                                             'STORE',
                                                             ::DISPATCH(
                                                                 $self,
-'__rule_block3697db05a89c7631e7016fc164bf7597e3',
+'__rule_block36c037d6d1d34b48be1e23b9da5ffb2d86',
                                                             )
                                                         );
                                                         do {
@@ -28470,7 +28470,7 @@
                                                             'STORE',
                                                             ::DISPATCH(
                                                                 $self,
-'__rule_block3797db05a89c7631e7016fc164bf7597e3',
+'__rule_block37c037d6d1d34b48be1e23b9da5ffb2d86',
                                                             )
                                                         );
                                                         do {
@@ -28536,7 +28536,7 @@
                                                         $ret, 'STORE',
                                                         ::DISPATCH(
                                                             $self,
-'__rule_block3897db05a89c7631e7016fc164bf7597e3',
+'__rule_block38c037d6d1d34b48be1e23b9da5ffb2d86',
                                                         )
                                                     );
                                                     do {
@@ -30074,7 +30074,7 @@
                                                                     'STORE',
                                                                     ::DISPATCH(
                                                                         $self,
-'__rule_block3997db05a89c7631e7016fc164bf7597e3',
+'__rule_block39c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                     )
                                                                 );
                                                                 do {
@@ -30261,96 +30261,11 @@
                                     ::MODIFIED($pos1);
                                     $pos1 = ::DISPATCH( $MATCH, 'to', );
                                 };
-                                do {
-                                    {
-                                        ::DISPATCH(
-                                            $GLOBAL::Code_infix_58__60__38__38__62_,
-                                            'APPLY',
-                                            do {
-                                                {
-                                                    my $m2;
-                                                    $m2 = ::DISPATCH(
-                                                        $::Scalar,
-                                                        'new',
-                                                        {
-                                                            modified =>
-                                                              $_MODIFIED,
-                                                            name => '$m2'
-                                                        }
-                                                    ) unless defined $m2;
-
-                                                    BEGIN {
-                                                        $m2 = ::DISPATCH(
-                                                            $::Scalar,
-                                                            'new',
-                                                            {
-                                                                modified =>
-                                                                  $_MODIFIED,
-                                                                name => '$m2'
-                                                            }
-                                                        );
-                                                    }
-                                                    ::DISPATCH_VAR(
-                                                        $m2, 'STORE',
-                                                        ::DISPATCH(
-                                                            $self,
-                                                            'sigil',
-                                                            $str,
-                                                            ::DISPATCH(
-                                                                $MATCH, 'to',
-                                                            )
-                                                        )
-                                                    );
-                                                    do {
-                                                        if (
-                                                            ::DISPATCH(
-                                                                ::DISPATCH(
-                                                                    $m2, "true"
-                                                                ),
-                                                                "p5landish"
-                                                            )
-                                                          )
-                                                        {
-                                                            {
-                                                                ::DISPATCH_VAR(
-                                                                    ::DISPATCH(
-                                                                        $MATCH,
-                                                                        'to',
-                                                                    ),
-                                                                    'STORE',
-                                                                    ::DISPATCH(
-                                                                        $m2,
-                                                                        'to',
-                                                                    )
-                                                                );
-                                                                ::DISPATCH_VAR(
-                                                                    ::DISPATCH(
-                                                                        $MATCH,
-'LOOKUP',
-                                                                        ::DISPATCH(
-                                                                            $::Str,
-'new',
-'sigil'
-                                                                        )
-                                                                    ),
-                                                                    'STORE',
-                                                                    $m2
-                                                                );
-                                                                ::DISPATCH(
-                                                                    $::Int,
-                                                                    'new', 1 )
-                                                            }
-                                                        }
-                                                        else {
-                                                            {
-                                                                ::DISPATCH(
-                                                                    $::Int,
-                                                                    'new', 0 )
-                                                            }
-                                                        }
-                                                      }
-                                                }
-                                            },
+                                ::DISPATCH(
+                                    $GLOBAL::Code_infix_58__60__124__124__62_,
+                                    'APPLY',
+                                    do {
+                                        {
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__38__38__62_,
                                                 'APPLY',
@@ -30384,7 +30299,7 @@
                                                             'STORE',
                                                             ::DISPATCH(
                                                                 $self,
-                                                                'twigil',
+                                                                'sigil',
                                                                 $str,
                                                                 ::DISPATCH(
                                                                     $MATCH,
@@ -30422,7 +30337,238 @@
                                                                             ::DISPATCH(
                                                                                 $::Str,
 'new',
-'twigil'
+'sigil'
+                                                                            )
+                                                                        ),
+                                                                        'STORE',
+                                                                        $m2
+                                                                    );
+                                                                    ::DISPATCH(
+                                                                        $::Int,
+                                                                        'new',
+                                                                        1
+                                                                      )
+                                                                }
+                                                            }
+                                                            else {
+                                                                {
+                                                                    ::DISPATCH(
+                                                                        $::Int,
+                                                                        'new',
+                                                                        0
+                                                                      )
+                                                                }
+                                                            }
+                                                          }
+                                                    }
+                                                },
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_infix_58__60__38__38__62_,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
+                                                        'APPLY',
+                                                        ::DISPATCH(
+                                                            $GLOBAL::Code_infix_58__60_eq_62_,
+                                                            'APPLY',
+                                                            ::DISPATCH(
+                                                                $::Str, 'new',
+                                                                '/'
+                                                            ),
+                                                            ::DISPATCH(
+                                                                $GLOBAL::Code_substr,
+                                                                'APPLY',
+                                                                $str,
+                                                                ::DISPATCH(
+                                                                    $MATCH,
+                                                                    'to',
+                                                                ),
+                                                                ::DISPATCH(
+                                                                    $::Int,
+                                                                    'new',
+                                                                    1
+                                                                )
+                                                            )
+                                                        ),
+                                                        ::DISPATCH(
+                                                            $GLOBAL::Code_infix_58__60__43__62_,
+                                                            'APPLY',
+                                                            ::DISPATCH(
+                                                                $::Int, 'new',
+                                                                1
+                                                            ),
+                                                            ::DISPATCH_VAR(
+                                                                ::DISPATCH(
+                                                                    $MATCH,
+                                                                    'to',
+                                                                ),
+                                                                'STORE',
+                                                                ::DISPATCH(
+                                                                    $GLOBAL::Code_infix_58__60__43__62_,
+                                                                    'APPLY',
+                                                                    ::DISPATCH(
+                                                                        $::Int,
+                                                                        'new',
+                                                                        1
+                                                                    ),
+                                                                    ::DISPATCH(
+                                                                        $MATCH,
+                                                                        'to',
+                                                                    )
+                                                                )
+                                                            )
+                                                        ),
+                                                        ::DISPATCH(
+                                                            $::Int, 'new',
+                                                            0
+                                                        )
+                                                    ),
+                                                    do {
+                                                        {
+                                                            my $ret;
+                                                            $ret = ::DISPATCH(
+                                                                $::Scalar,
+                                                                'new',
+                                                                {
+                                                                    modified =>
+                                                                      $_MODIFIED,
+                                                                    name =>
+                                                                      '$ret'
+                                                                }
+                                                              )
+                                                              unless
+                                                              defined $ret;
+
+                                                            BEGIN {
+                                                                $ret =
+                                                                  ::DISPATCH(
+                                                                    $::Scalar,
+                                                                    'new',
+                                                                    {
+                                                                        modified =>
+                                                                          $_MODIFIED,
+                                                                        name =>
+                                                                          '$ret'
+                                                                    }
+                                                                  );
+                                                            }
+                                                            ::DISPATCH_VAR(
+                                                                $ret,
+                                                                'STORE',
+                                                                ::DISPATCH(
+                                                                    $self,
+'__rule_block40c037d6d1d34b48be1e23b9da5ffb2d86',
+                                                                )
+                                                            );
+                                                            do {
+                                                                if (
+                                                                    ::DISPATCH(
+                                                                        ::DISPATCH(
+                                                                            $ret,
+"true"
+                                                                        ),
+"p5landish"
+                                                                    )
+                                                                  )
+                                                                {
+                                                                    {
+                                                                        ::DISPATCH_VAR(
+                                                                            ::DISPATCH(
+                                                                                $MATCH,
+'result',
+                                                                            ),
+'STORE',
+                                                                            $ret
+                                                                        );
+                                                                        return (
+                                                                            $MATCH
+                                                                          )
+                                                                    }
+                                                                }
+                                                            };
+                                                            ::DISPATCH( $::Int,
+                                                                'new', 1 )
+                                                        }
+                                                      }
+                                                )
+                                              )
+                                        }
+                                    },
+                                    do {
+                                        {
+                                            ::DISPATCH( $MATCH, 'to', $pos1 );
+                                            ::DISPATCH(
+                                                $GLOBAL::Code_infix_58__60__38__38__62_,
+                                                'APPLY',
+                                                do {
+                                                    {
+                                                        my $m2;
+                                                        $m2 = ::DISPATCH(
+                                                            $::Scalar,
+                                                            'new',
+                                                            {
+                                                                modified =>
+                                                                  $_MODIFIED,
+                                                                name => '$m2'
+                                                            }
+                                                        ) unless defined $m2;
+
+                                                        BEGIN {
+                                                            $m2 = ::DISPATCH(
+                                                                $::Scalar,
+                                                                'new',
+                                                                {
+                                                                    modified =>
+                                                                      $_MODIFIED,
+                                                                    name =>
+                                                                      '$m2'
+                                                                }
+                                                            );
+                                                        }
+                                                        ::DISPATCH_VAR(
+                                                            $m2,
+                                                            'STORE',
+                                                            ::DISPATCH(
+                                                                $self,
+                                                                'sigil',
+                                                                $str,
+                                                                ::DISPATCH(
+                                                                    $MATCH,
+                                                                    'to',
+                                                                )
+                                                            )
+                                                        );
+                                                        do {
+                                                            if (
+                                                                ::DISPATCH(
+                                                                    ::DISPATCH(
+                                                                        $m2,
+                                                                        "true"
+                                                                    ),
+                                                                    "p5landish"
+                                                                )
+                                                              )
+                                                            {
+                                                                {
+                                                                    ::DISPATCH_VAR(
+                                                                        ::DISPATCH(
+                                                                            $MATCH,
+'to',
+                                                                        ),
+                                                                        'STORE',
+                                                                        ::DISPATCH(
+                                                                            $m2,
+'to',
+                                                                        )
+                                                                    );
+                                                                    ::DISPATCH_VAR(
+                                                                        ::DISPATCH(
+                                                                            $MATCH,
+'LOOKUP',
+                                                                            ::DISPATCH(
+                                                                                $::Str,
+'new',
+'sigil'
                                                                             )
                                                                         ),
                                                                         'STORE',
@@ -30484,7 +30630,7 @@
                                                                 'STORE',
                                                                 ::DISPATCH(
                                                                     $self,
-                                                                    'namespace',
+                                                                    'twigil',
                                                                     $str,
                                                                     ::DISPATCH(
                                                                         $MATCH,
@@ -30522,7 +30668,7 @@
                                                                                 ::DISPATCH(
                                                                                     $::Str,
 'new',
-'namespace'
+'twigil'
                                                                                 )
                                                                             ),
 'STORE',
@@ -30585,7 +30731,7 @@
                                                                     'STORE',
                                                                     ::DISPATCH(
                                                                         $self,
-                                                                        'ident',
+'namespace',
                                                                         $str,
                                                                         ::DISPATCH(
                                                                             $MATCH,
@@ -30624,7 +30770,7 @@
                                                                                     ::DISPATCH(
                                                                                         $::Str,
 'new',
-'ident'
+'namespace'
                                                                                     )
                                                                                   )
                                                                                 ,
@@ -30650,24 +30796,116 @@
                                                                   }
                                                             }
                                                         },
-                                                        do {
-                                                            {
-                                                                my $ret;
-                                                                $ret =
-                                                                  ::DISPATCH(
-                                                                    $::Scalar,
-                                                                    'new',
-                                                                    {
-                                                                        modified =>
-                                                                          $_MODIFIED,
-                                                                        name =>
-                                                                          '$ret'
-                                                                    }
-                                                                  )
-                                                                  unless
-                                                                  defined $ret;
+                                                        ::DISPATCH(
+                                                            $GLOBAL::Code_infix_58__60__38__38__62_,
+                                                            'APPLY',
+                                                            do {
+                                                                {
+                                                                    my $m2;
+                                                                    $m2 =
+                                                                      ::DISPATCH(
+                                                                        $::Scalar,
+                                                                        'new',
+                                                                        {
+                                                                            modified =>
+                                                                              $_MODIFIED,
+                                                                            name =>
+'$m2'
+                                                                        }
+                                                                      )
+                                                                      unless
+                                                                      defined
+                                                                      $m2;
 
-                                                                BEGIN {
+                                                                    BEGIN {
+                                                                        $m2 =
+                                                                          ::DISPATCH(
+                                                                            $::Scalar,
+'new',
+                                                                            {
+                                                                                modified =>
+                                                                                  $_MODIFIED,
+                                                                                name =>
+'$m2'
+                                                                            }
+                                                                          );
+                                                                    }
+                                                                    ::DISPATCH_VAR(
+                                                                        $m2,
+                                                                        'STORE',
+                                                                        ::DISPATCH(
+                                                                            $self,
+'ident',
+                                                                            $str,
+                                                                            ::DISPATCH(
+                                                                                $MATCH,
+'to',
+                                                                            )
+                                                                        )
+                                                                    );
+                                                                    do {
+                                                                        if (
+                                                                            ::DISPATCH(
+                                                                                ::DISPATCH(
+                                                                                    $m2,
+"true"
+                                                                                  )
+                                                                                ,
+"p5landish"
+                                                                            )
+                                                                          )
+                                                                        {
+                                                                            {
+                                                                                ::DISPATCH_VAR(
+                                                                                    ::DISPATCH(
+                                                                                        $MATCH,
+'to',
+                                                                                      )
+                                                                                    ,
+'STORE',
+                                                                                    ::DISPATCH(
+                                                                                        $m2,
+'to',
+                                                                                    )
+                                                                                  )
+                                                                                  ;
+                                                                                ::DISPATCH_VAR(
+                                                                                    ::DISPATCH(
+                                                                                        $MATCH,
+'LOOKUP',
+                                                                                        ::DISPATCH(
+                                                                                            $::Str,
+'new',
+'ident'
+                                                                                        )
+                                                                                      )
+                                                                                    ,
+'STORE',
+                                                                                    $m2
+                                                                                  )
+                                                                                  ;
+                                                                                ::DISPATCH(
+                                                                                    $::Int,
+'new',
+                                                                                    1
+                                                                                  )
+                                                                            }
+                                                                        }
+                                                                        else {
+                                                                            {
+                                                                                ::DISPATCH(
+                                                                                    $::Int,
+'new',
+                                                                                    0
+                                                                                  )
+                                                                            }
+                                                                        }
+                                                                      }
+                                                                }
+                                                            },
+                                                            do {
+                                                                {
+                                                                    my $ret;
                                                                     $ret =
                                                                       ::DISPATCH(
                                                                         $::Scalar,
@@ -30678,55 +30916,76 @@
                                                                             name =>
 '$ret'
                                                                         }
-                                                                      );
-                                                                }
-                                                                ::DISPATCH_VAR(
-                                                                    $ret,
-                                                                    'STORE',
-                                                                    ::DISPATCH(
-                                                                        $self,
-'__rule_block4097db05a89c7631e7016fc164bf7597e3',
-                                                                    )
-                                                                );
-                                                                do {
-                                                                    if (
-                                                                        ::DISPATCH(
-                                                                            ::DISPATCH(
-                                                                                $ret,
-"true"
-                                                                            ),
-"p5landish"
-                                                                        )
                                                                       )
-                                                                    {
-                                                                        {
-                                                                            ::DISPATCH_VAR(
+                                                                      unless
+                                                                      defined
+                                                                      $ret;
+
+                                                                    BEGIN {
+                                                                        $ret =
+                                                                          ::DISPATCH(
+                                                                            $::Scalar,
+'new',
+                                                                            {
+                                                                                modified =>
+                                                                                  $_MODIFIED,
+                                                                                name =>
+'$ret'
+                                                                            }
+                                                                          );
+                                                                    }
+                                                                    ::DISPATCH_VAR(
+                                                                        $ret,
+                                                                        'STORE',
+                                                                        ::DISPATCH(
+                                                                            $self,
+'__rule_block41c037d6d1d34b48be1e23b9da5ffb2d86',
+                                                                        )
+                                                                    );
+                                                                    do {
+                                                                        if (
+                                                                            ::DISPATCH(
                                                                                 ::DISPATCH(
-                                                                                    $MATCH,
-'result',
+                                                                                    $ret,
+"true"
                                                                                   )
                                                                                 ,
+"p5landish"
+                                                                            )
+                                                                          )
+                                                                        {
+                                                                            {
+                                                                                ::DISPATCH_VAR(
+                                                                                    ::DISPATCH(
+                                                                                        $MATCH,
+'result',
+                                                                                      )
+                                                                                    ,
 'STORE',
-                                                                                $ret
-                                                                            );
-                                                                            return
-                                                                              (
-                                                                                $MATCH
-                                                                              )
+                                                                                    $ret
+                                                                                  )
+                                                                                  ;
+                                                                                return
+                                                                                  (
+                                                                                    $MATCH
+                                                                                  )
+                                                                            }
                                                                         }
-                                                                    }
-                                                                };
-                                                                ::DISPATCH(
-                                                                    $::Int,
-                                                                    'new', 1 )
-                                                            }
-                                                          }
+                                                                    };
+                                                                    ::DISPATCH(
+                                                                        $::Int,
+                                                                        'new',
+                                                                        1
+                                                                      )
+                                                                }
+                                                              }
+                                                        )
                                                     )
                                                 )
-                                            )
-                                          )
-                                    }
-                                  }
+                                              )
+                                        }
+                                      }
+                                  )
                             }
                           }
                     );
@@ -31003,7 +31262,7 @@
                                                             'STORE',
                                                             ::DISPATCH(
                                                                 $self,
-'__rule_block4197db05a89c7631e7016fc164bf7597e3',
+'__rule_block42c037d6d1d34b48be1e23b9da5ffb2d86',
                                                             )
                                                         );
                                                         do {
@@ -31179,7 +31438,7 @@
                                                                 'STORE',
                                                                 ::DISPATCH(
                                                                     $self,
-'__rule_block4297db05a89c7631e7016fc164bf7597e3',
+'__rule_block43c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                 )
                                                             );
                                                             do {
@@ -31360,7 +31619,7 @@
                                                                     'STORE',
                                                                     ::DISPATCH(
                                                                         $self,
-'__rule_block4397db05a89c7631e7016fc164bf7597e3',
+'__rule_block44c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                     )
                                                                 );
                                                                 do {
@@ -31549,7 +31808,7 @@
                                                                         'STORE',
                                                                         ::DISPATCH(
                                                                             $self,
-'__rule_block4497db05a89c7631e7016fc164bf7597e3',
+'__rule_block45c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                         )
                                                                     );
                                                                     do {
@@ -31739,7 +31998,7 @@
                                                                         'STORE',
                                                                         ::DISPATCH(
                                                                             $self,
-'__rule_block4597db05a89c7631e7016fc164bf7597e3',
+'__rule_block46c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                         )
                                                                     );
                                                                     do {
@@ -32217,7 +32476,7 @@
                                                                         'STORE',
                                                                         ::DISPATCH(
                                                                             $self,
-'__rule_block4697db05a89c7631e7016fc164bf7597e3',
+'__rule_block47c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                         )
                                                                     );
                                                                     do {
@@ -32612,7 +32871,7 @@
 'STORE',
                                                                             ::DISPATCH(
                                                                                 $self,
-'__rule_block4797db05a89c7631e7016fc164bf7597e3',
+'__rule_block48c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                             )
                                                                         );
                                                                         do {
@@ -33356,7 +33615,7 @@
 'STORE',
                                                                             ::DISPATCH(
                                                                                 $self,
-'__rule_block4897db05a89c7631e7016fc164bf7597e3',
+'__rule_block49c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                             )
                                                                         );
                                                                         do {
@@ -33753,7 +34012,7 @@
                                                                 'STORE',
                                                                 ::DISPATCH(
                                                                     $self,
-'__rule_block4997db05a89c7631e7016fc164bf7597e3',
+'__rule_block50c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                 )
                                                             );
                                                             do {
@@ -34492,7 +34751,7 @@
                                                         $ret, 'STORE',
                                                         ::DISPATCH(
                                                             $self,
-'__rule_block5097db05a89c7631e7016fc164bf7597e3',
+'__rule_block51c037d6d1d34b48be1e23b9da5ffb2d86',
                                                         )
                                                     );
                                                     do {
@@ -35662,7 +35921,7 @@
 'STORE',
                                                                                                         ::DISPATCH(
                                                                                                             $self,
-'__rule_block5197db05a89c7631e7016fc164bf7597e3',
+'__rule_block52c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                                         )
                                                                                                       )
                                                                                                       ;
@@ -36176,7 +36435,7 @@
 'STORE',
                                                                                         ::DISPATCH(
                                                                                             $self,
-'__rule_block5297db05a89c7631e7016fc164bf7597e3',
+'__rule_block53c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                         )
                                                                                       )
                                                                                       ;
@@ -36260,7 +36519,7 @@
                                                         $ret, 'STORE',
                                                         ::DISPATCH(
                                                             $self,
-'__rule_block5397db05a89c7631e7016fc164bf7597e3',
+'__rule_block54c037d6d1d34b48be1e23b9da5ffb2d86',
                                                         )
                                                     );
                                                     do {
@@ -36557,7 +36816,7 @@
                                                         $ret, 'STORE',
                                                         ::DISPATCH(
                                                             $self,
-'__rule_block5497db05a89c7631e7016fc164bf7597e3',
+'__rule_block55c037d6d1d34b48be1e23b9da5ffb2d86',
                                                         )
                                                     );
                                                     do {
@@ -36940,7 +37199,7 @@
                                                                 'STORE',
                                                                 ::DISPATCH(
                                                                     $self,
-'__rule_block5597db05a89c7631e7016fc164bf7597e3',
+'__rule_block56c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                 )
                                                             );
                                                             do {
@@ -37327,7 +37586,7 @@
                                                                 'STORE',
                                                                 ::DISPATCH(
                                                                     $self,
-'__rule_block5697db05a89c7631e7016fc164bf7597e3',
+'__rule_block57c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                 )
                                                             );
                                                             do {
@@ -37714,7 +37973,7 @@
                                                                 'STORE',
                                                                 ::DISPATCH(
                                                                     $self,
-'__rule_block5797db05a89c7631e7016fc164bf7597e3',
+'__rule_block58c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                 )
                                                             );
                                                             do {
@@ -38101,7 +38360,7 @@
                                                                 'STORE',
                                                                 ::DISPATCH(
                                                                     $self,
-'__rule_block5897db05a89c7631e7016fc164bf7597e3',
+'__rule_block59c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                 )
                                                             );
                                                             do {
@@ -38971,7 +39230,7 @@
 'STORE',
                                                                                                     ::DISPATCH(
                                                                                                         $self,
-'__rule_block5997db05a89c7631e7016fc164bf7597e3',
+'__rule_block60c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                                     )
                                                                                                   )
                                                                                                   ;
@@ -39067,7 +39326,7 @@
 'STORE',
                                                                                     ::DISPATCH(
                                                                                         $self,
-'__rule_block6097db05a89c7631e7016fc164bf7597e3',
+'__rule_block61c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                     )
                                                                                   )
                                                                                   ;
@@ -39980,7 +40239,7 @@
 'STORE',
                                                                                     ::DISPATCH(
                                                                                         $self,
-'__rule_block6197db05a89c7631e7016fc164bf7597e3',
+'__rule_block62c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                     )
                                                                                   )
                                                                                   ;
@@ -41304,7 +41563,7 @@
 'STORE',
                                                                                     ::DISPATCH(
                                                                                         $self,
-'__rule_block6297db05a89c7631e7016fc164bf7597e3',
+'__rule_block63c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                     )
                                                                                   )
                                                                                   ;
@@ -41396,7 +41655,7 @@
 'STORE',
                                                                                 ::DISPATCH(
                                                                                     $self,
-'__rule_block6397db05a89c7631e7016fc164bf7597e3',
+'__rule_block64c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                 )
                                                                             );
                                                                             do {
@@ -42031,7 +42290,7 @@
                                                                 'STORE',
                                                                 ::DISPATCH(
                                                                     $self,
-'__rule_block6497db05a89c7631e7016fc164bf7597e3',
+'__rule_block65c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                 )
                                                             );
                                                             do {
@@ -42099,7 +42358,7 @@
                                                         $ret, 'STORE',
                                                         ::DISPATCH(
                                                             $self,
-'__rule_block6597db05a89c7631e7016fc164bf7597e3',
+'__rule_block66c037d6d1d34b48be1e23b9da5ffb2d86',
                                                         )
                                                     );
                                                     do {
@@ -42669,7 +42928,7 @@
                                                                         'STORE',
                                                                         ::DISPATCH(
                                                                             $self,
-'__rule_block6697db05a89c7631e7016fc164bf7597e3',
+'__rule_block67c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                         )
                                                                     );
                                                                     do {
@@ -42844,7 +43103,7 @@
                                                             'STORE',
                                                             ::DISPATCH(
                                                                 $self,
-'__rule_block6797db05a89c7631e7016fc164bf7597e3',
+'__rule_block68c037d6d1d34b48be1e23b9da5ffb2d86',
                                                             )
                                                         );
                                                         do {
@@ -43328,7 +43587,7 @@
                                                                 'STORE',
                                                                 ::DISPATCH(
                                                                     $self,
-'__rule_block6897db05a89c7631e7016fc164bf7597e3',
+'__rule_block69c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                 )
                                                             );
                                                             do {
@@ -45566,7 +45825,7 @@
 'STORE',
                                                                                                                                                 ::DISPATCH(
                                                                                                                                                     $self,
-'__rule_block6997db05a89c7631e7016fc164bf7597e3',
+'__rule_block70c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                                                                                 )
                                                                                                                                               )
                                                                                                                                               ;
@@ -46010,7 +46269,7 @@
 'STORE',
                                                                                                                                                                                 ::DISPATCH(
                                                                                                                                                                                     $self,
-'__rule_block7097db05a89c7631e7016fc164bf7597e3',
+'__rule_block71c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                                                                                                                 )
                                                                                                                                                                               )
                                                                                                                                                                               ;
@@ -46100,7 +46359,7 @@
 'STORE',
                                                                                                                                                             ::DISPATCH(
                                                                                                                                                                 $self,
-'__rule_block7197db05a89c7631e7016fc164bf7597e3',
+'__rule_block72c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                                                                                             )
                                                                                                                                                           )
                                                                                                                                                           ;
@@ -47431,7 +47690,7 @@
 'STORE',
                                                                                                             ::DISPATCH(
                                                                                                                 $self,
-'__rule_block7297db05a89c7631e7016fc164bf7597e3',
+'__rule_block73c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                                             )
                                                                                                           )
                                                                                                           ;
@@ -47875,7 +48134,7 @@
 'STORE',
                                                                                                                                             ::DISPATCH(
                                                                                                                                                 $self,
-'__rule_block7397db05a89c7631e7016fc164bf7597e3',
+'__rule_block74c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                                                                             )
                                                                                                                                           )
                                                                                                                                           ;
@@ -47965,7 +48224,7 @@
 'STORE',
                                                                                                                         ::DISPATCH(
                                                                                                                             $self,
-'__rule_block7497db05a89c7631e7016fc164bf7597e3',
+'__rule_block75c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                                                         )
                                                                                                                       )
                                                                                                                       ;
@@ -48771,7 +49030,7 @@
 'STORE',
                                                                                         ::DISPATCH(
                                                                                             $self,
-'__rule_block7597db05a89c7631e7016fc164bf7597e3',
+'__rule_block76c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                         )
                                                                                       )
                                                                                       ;
@@ -49214,7 +49473,7 @@
 'STORE',
                                                                                                                         ::DISPATCH(
                                                                                                                             $self,
-'__rule_block7697db05a89c7631e7016fc164bf7597e3',
+'__rule_block77c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                                                         )
                                                                                                                       )
                                                                                                                       ;
@@ -49304,7 +49563,7 @@
 'STORE',
                                                                                                     ::DISPATCH(
                                                                                                         $self,
-'__rule_block7797db05a89c7631e7016fc164bf7597e3',
+'__rule_block78c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                                     )
                                                                                                   )
                                                                                                   ;
@@ -50460,7 +50719,7 @@
 'STORE',
                                                                                                                     ::DISPATCH(
                                                                                                                         $self,
-'__rule_block7897db05a89c7631e7016fc164bf7597e3',
+'__rule_block79c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                                                     )
                                                                                                                   )
                                                                                                                   ;
@@ -50550,7 +50809,7 @@
 'STORE',
                                                                                                 ::DISPATCH(
                                                                                                     $self,
-'__rule_block7997db05a89c7631e7016fc164bf7597e3',
+'__rule_block80c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                                 )
                                                                                               )
                                                                                               ;
@@ -51653,7 +51912,7 @@
 'STORE',
                                                                                                 ::DISPATCH(
                                                                                                     $self,
-'__rule_block8097db05a89c7631e7016fc164bf7597e3',
+'__rule_block81c037d6d1d34b48be1e23b9da5ffb2d86',
                                                                                                 )
                                                                                               )
                                                                                               ;
@@ -51721,7 +51980,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block197db05a89c7631e7016fc164bf7597e3'
+                '__rule_block1c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -51790,7 +52049,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block297db05a89c7631e7016fc164bf7597e3'
+                '__rule_block2c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -51844,7 +52103,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block397db05a89c7631e7016fc164bf7597e3'
+                '__rule_block3c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -51880,7 +52139,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block497db05a89c7631e7016fc164bf7597e3'
+                '__rule_block4c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -51948,7 +52207,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block597db05a89c7631e7016fc164bf7597e3'
+                '__rule_block5c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -52002,7 +52261,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block697db05a89c7631e7016fc164bf7597e3'
+                '__rule_block6c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -52038,7 +52297,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block797db05a89c7631e7016fc164bf7597e3'
+                '__rule_block7c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -52103,7 +52362,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block897db05a89c7631e7016fc164bf7597e3'
+                '__rule_block8c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -52173,7 +52432,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block997db05a89c7631e7016fc164bf7597e3'
+                '__rule_block9c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -52228,7 +52487,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block1097db05a89c7631e7016fc164bf7597e3'
+                '__rule_block10c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -52264,7 +52523,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block1197db05a89c7631e7016fc164bf7597e3'
+                '__rule_block11c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -52310,7 +52569,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block1297db05a89c7631e7016fc164bf7597e3'
+                '__rule_block12c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -52346,7 +52605,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block1397db05a89c7631e7016fc164bf7597e3'
+                '__rule_block13c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -52467,7 +52726,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block1497db05a89c7631e7016fc164bf7597e3'
+                '__rule_block14c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -52507,7 +52766,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block1597db05a89c7631e7016fc164bf7597e3'
+                '__rule_block15c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -52608,7 +52867,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block1697db05a89c7631e7016fc164bf7597e3'
+                '__rule_block16c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -52653,7 +52912,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block1797db05a89c7631e7016fc164bf7597e3'
+                '__rule_block17c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -52689,7 +52948,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block1897db05a89c7631e7016fc164bf7597e3'
+                '__rule_block18c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -52734,7 +52993,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block1997db05a89c7631e7016fc164bf7597e3'
+                '__rule_block19c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -52828,7 +53087,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block2097db05a89c7631e7016fc164bf7597e3'
+                '__rule_block20c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -52871,7 +53130,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block2197db05a89c7631e7016fc164bf7597e3'
+                '__rule_block21c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -52968,7 +53227,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block2297db05a89c7631e7016fc164bf7597e3'
+                '__rule_block22c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -53040,7 +53299,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block2397db05a89c7631e7016fc164bf7597e3'
+                '__rule_block23c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -53098,7 +53357,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block2497db05a89c7631e7016fc164bf7597e3'
+                '__rule_block24c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -53157,7 +53416,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block2597db05a89c7631e7016fc164bf7597e3'
+                '__rule_block25c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -53202,7 +53461,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block2697db05a89c7631e7016fc164bf7597e3'
+                '__rule_block26c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -53247,7 +53506,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block2797db05a89c7631e7016fc164bf7597e3'
+                '__rule_block27c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -53284,7 +53543,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block2897db05a89c7631e7016fc164bf7597e3'
+                '__rule_block28c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -53357,7 +53616,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block2997db05a89c7631e7016fc164bf7597e3'
+                '__rule_block29c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -53439,7 +53698,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block3097db05a89c7631e7016fc164bf7597e3'
+                '__rule_block30c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -53506,7 +53765,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block3197db05a89c7631e7016fc164bf7597e3'
+                '__rule_block31c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -53582,7 +53841,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block3297db05a89c7631e7016fc164bf7597e3'
+                '__rule_block32c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -53638,7 +53897,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block3397db05a89c7631e7016fc164bf7597e3'
+                '__rule_block33c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -53695,7 +53954,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block3497db05a89c7631e7016fc164bf7597e3'
+                '__rule_block34c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -53740,7 +53999,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block3597db05a89c7631e7016fc164bf7597e3'
+                '__rule_block35c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -53785,7 +54044,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block3697db05a89c7631e7016fc164bf7597e3'
+                '__rule_block36c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -53821,7 +54080,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block3797db05a89c7631e7016fc164bf7597e3'
+                '__rule_block37c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -53857,7 +54116,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block3897db05a89c7631e7016fc164bf7597e3'
+                '__rule_block38c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -53893,7 +54152,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block3997db05a89c7631e7016fc164bf7597e3'
+                '__rule_block39c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -53966,7 +54225,61 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block4097db05a89c7631e7016fc164bf7597e3'
+                '__rule_block40c037d6d1d34b48be1e23b9da5ffb2d86'
+            ),
+            ::DISPATCH(
+                $::Method,
+                'new',
+                sub {
+                    $self = shift;
+                    my $CAPTURE;
+                    $CAPTURE =
+                      ::DISPATCH( $::Scalar, 'new',
+                        { modified => $_MODIFIED, name => '$CAPTURE' } )
+                      unless defined $CAPTURE;
+
+                    BEGIN {
+                        $CAPTURE =
+                          ::DISPATCH( $::Scalar, 'new',
+                            { modified => $_MODIFIED, name => '$CAPTURE' } );
+                    }
+                    ::DISPATCH_VAR( $CAPTURE, "STORE", ::CAPTURIZE( \@_ ) );
+                    do {
+                        ::MODIFIED($List__);
+                        $List__ = ::DISPATCH( $CAPTURE, 'array', );
+                    };
+                    do {
+                        ::MODIFIED($Hash__);
+                        $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
+                    };
+                    return (
+                        ::DISPATCH(
+                            $::Var, 'new',
+                            ::DISPATCH( $::Str, 'new', 'sigil' ) => ::DISPATCH(
+                                $GLOBAL::Code_prefix_58__60__126__62_,
+                                'APPLY',
+                                ::DISPATCH(
+                                    $MATCH, 'LOOKUP',
+                                    ::DISPATCH( $::Str, 'new', 'sigil' )
+                                )
+                            ),
+                            ::DISPATCH( $::Str,   'new', 'twigil' ) =>
+                              ::DISPATCH( $::Str, 'new', '' ),
+                            ::DISPATCH( $::Str,   'new', 'name' ) =>
+                              ::DISPATCH( $::Str, 'new', '/' ),
+                            ::DISPATCH( $::Str, 'new', 'namespace' ) =>
+                              ::DISPATCH( $::Array, "new", { _array => [] } ),
+                        )
+                    );
+                }
+            )
+        );
+        ::DISPATCH(
+            ::DISPATCH( $::KindaPerl6::Grammar, 'HOW', ),
+            'add_method',
+            ::DISPATCH(
+                $::Str, 'new',
+                '__rule_block41c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -54048,7 +54361,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block4197db05a89c7631e7016fc164bf7597e3'
+                '__rule_block42c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -54093,7 +54406,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block4297db05a89c7631e7016fc164bf7597e3'
+                '__rule_block43c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -54138,7 +54451,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block4397db05a89c7631e7016fc164bf7597e3'
+                '__rule_block44c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -54183,7 +54496,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block4497db05a89c7631e7016fc164bf7597e3'
+                '__rule_block45c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -54228,7 +54541,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block4597db05a89c7631e7016fc164bf7597e3'
+                '__rule_block46c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -54273,7 +54586,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block4697db05a89c7631e7016fc164bf7597e3'
+                '__rule_block47c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -54316,7 +54629,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block4797db05a89c7631e7016fc164bf7597e3'
+                '__rule_block48c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -54359,7 +54672,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block4897db05a89c7631e7016fc164bf7597e3'
+                '__rule_block49c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -54395,7 +54708,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block4997db05a89c7631e7016fc164bf7597e3'
+                '__rule_block50c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -54431,7 +54744,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block5097db05a89c7631e7016fc164bf7597e3'
+                '__rule_block51c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -54476,7 +54789,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block5197db05a89c7631e7016fc164bf7597e3'
+                '__rule_block52c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -54544,7 +54857,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block5297db05a89c7631e7016fc164bf7597e3'
+                '__rule_block53c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -54597,7 +54910,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block5397db05a89c7631e7016fc164bf7597e3'
+                '__rule_block54c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -54633,7 +54946,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block5497db05a89c7631e7016fc164bf7597e3'
+                '__rule_block55c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -54678,7 +54991,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block5597db05a89c7631e7016fc164bf7597e3'
+                '__rule_block56c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -54714,7 +55027,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block5697db05a89c7631e7016fc164bf7597e3'
+                '__rule_block57c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -54750,7 +55063,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block5797db05a89c7631e7016fc164bf7597e3'
+                '__rule_block58c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -54786,7 +55099,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block5897db05a89c7631e7016fc164bf7597e3'
+                '__rule_block59c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -54822,7 +55135,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block5997db05a89c7631e7016fc164bf7597e3'
+                '__rule_block60c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -54880,7 +55193,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block6097db05a89c7631e7016fc164bf7597e3'
+                '__rule_block61c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -54912,7 +55225,15 @@
                         'APPLY',
                         ::DISPATCH(
                             $::Str, 'new',
-                            '*** Syntax Error parsing Constructor'
+                            '*** Syntax Error parsing Constructor '
+                        ),
+                        ::DISPATCH(
+                            $GLOBAL::Code_prefix_58__60__36__62_,
+                            'APPLY',
+                            ::DISPATCH(
+                                $MATCH, 'LOOKUP',
+                                ::DISPATCH( $::Str, 'new', 'full_ident' )
+                            )
                         )
                     );
                     ::DISPATCH( $GLOBAL::Code_die, 'APPLY', );
@@ -54924,7 +55245,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block6197db05a89c7631e7016fc164bf7597e3'
+                '__rule_block62c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -54992,7 +55313,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block6297db05a89c7631e7016fc164bf7597e3'
+                '__rule_block63c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -55076,7 +55397,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block6397db05a89c7631e7016fc164bf7597e3'
+                '__rule_block64c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -55151,7 +55472,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block6497db05a89c7631e7016fc164bf7597e3'
+                '__rule_block65c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -55196,7 +55517,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block6597db05a89c7631e7016fc164bf7597e3'
+                '__rule_block66c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -55232,7 +55553,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block6697db05a89c7631e7016fc164bf7597e3'
+                '__rule_block67c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -55294,7 +55615,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block6797db05a89c7631e7016fc164bf7597e3'
+                '__rule_block68c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -55347,7 +55668,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block6897db05a89c7631e7016fc164bf7597e3'
+                '__rule_block69c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -55407,7 +55728,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block6997db05a89c7631e7016fc164bf7597e3'
+                '__rule_block70c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -55443,7 +55764,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block7097db05a89c7631e7016fc164bf7597e3'
+                '__rule_block71c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -55500,7 +55821,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block7197db05a89c7631e7016fc164bf7597e3'
+                '__rule_block72c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -55622,7 +55943,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block7297db05a89c7631e7016fc164bf7597e3'
+                '__rule_block73c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -55658,7 +55979,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block7397db05a89c7631e7016fc164bf7597e3'
+                '__rule_block74c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -55715,7 +56036,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block7497db05a89c7631e7016fc164bf7597e3'
+                '__rule_block75c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -55835,7 +56156,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block7597db05a89c7631e7016fc164bf7597e3'
+                '__rule_block76c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -55871,7 +56192,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block7697db05a89c7631e7016fc164bf7597e3'
+                '__rule_block77c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -55917,7 +56238,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block7797db05a89c7631e7016fc164bf7597e3'
+                '__rule_block78c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -56008,7 +56329,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block7897db05a89c7631e7016fc164bf7597e3'
+                '__rule_block79c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -56053,7 +56374,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block7997db05a89c7631e7016fc164bf7597e3'
+                '__rule_block80c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,
@@ -56102,7 +56423,7 @@
             'add_method',
             ::DISPATCH(
                 $::Str, 'new',
-                '__rule_block8097db05a89c7631e7016fc164bf7597e3'
+                '__rule_block81c037d6d1d34b48be1e23b9da5ffb2d86'
             ),
             ::DISPATCH(
                 $::Method,

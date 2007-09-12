@@ -67,6 +67,12 @@ class Val::Buf {
     }
 }
 
+class Val::Char {
+    method emit_perl5 { 
+        '::DISPATCH( $::Str, \'new\', chr( ' ~ $.char ~ ' ) )' ~ Main::newline();
+    }
+}
+
 class Val::Undef {
     method emit_perl5 { 
         #'(undef)' 

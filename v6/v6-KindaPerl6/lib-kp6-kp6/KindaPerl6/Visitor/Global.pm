@@ -9,8 +9,6 @@ This visitor looks up lexical variables, and adds a GLOBAL lookup if needed.
 
 class KindaPerl6::Visitor::Global {
 
-    #has $.pad;
-
     method visit ( $node, $node_name ) {
     
         #say "Global ",$node_name;
@@ -23,12 +21,12 @@ class KindaPerl6::Visitor::Global {
         
         if    ( $node_name eq 'Lit::Code' )
         {
-            unshift @(@COMPILER::PAD), $node.pad;
+            COMPILER::put_pad( $node.pad );
             my $stmt;
             for @($node.body) -> $stmt {
                 $stmt.emit( $self );
             };
-            shift @(@COMPILER::PAD);
+            COMPILER::drop_pad;
             return $node;
         }
         
@@ -42,7 +40,7 @@ class KindaPerl6::Visitor::Global {
             #say "variable: ", $node.sigil, $node.twigil, $node.name;
             #say "pad: ", $.pad.perl;
 
-            if ((@(@COMPILER::PAD))[0]).declaration( $node ) {
+            if ( COMPILER::current_pad ).declaration( $node ) {
                 # say "ok - declaration ", $node.name;
             }
             else {

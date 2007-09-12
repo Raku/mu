@@ -351,6 +351,17 @@ token undeclared_var {
 };
 
 token var {
+    <sigil> '/'
+    {
+        return 
+            ::Var(
+                    sigil     => ~$<sigil>,
+                    twigil    => '',
+                    name      => '/',
+                    namespace => [ ],
+                )
+    }
+  |
     <sigil> <twigil> <namespace> <ident>
     {
         # check for pre-declaration
@@ -444,7 +455,7 @@ token lit_object {
                 'fields' => $$<exp_mapping>
             )
         }
-    | { say '*** Syntax Error parsing Constructor'; die() }
+    | { say '*** Syntax Error parsing Constructor ',$$<full_ident>; die() }
     ]
 };
 

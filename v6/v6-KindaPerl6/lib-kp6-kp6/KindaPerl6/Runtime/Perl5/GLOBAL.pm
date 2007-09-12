@@ -19,8 +19,6 @@ package GLOBAL;
         substr
         match_p5rx
 
-        p5eval
-
         ternary_58__60__63__63__32__33__33__62_
         
         infix_58__60_eq_62_
@@ -38,7 +36,7 @@ package GLOBAL;
         infix_58__60__62__62_
         
         prefix_58__60__33__62_
-        
+        prefix_58__60__126__62_
         prefix_58__60__64__62_        
         prefix_58__60__43__43__62_
         prefix_58__60__124__62_
@@ -106,7 +104,6 @@ package GLOBAL;
     sub sleep    { CORE::sleep(_int($_[0]));return True;}
     sub False    { ::DISPATCH( $::Bit, 'new',0 ) }  
     sub TODO     {confess("TODO");}
-    sub p5eval   { eval _str($_[0]) }
 
     # TODO - macro
     #  ternary:<?? !!>
@@ -151,8 +148,8 @@ package GLOBAL;
     sub infix_58__60__62__62_  
     { ::DISPATCH( $::Bit, 'new', (_int($_[0]) > _int($_[1])) ? 1 : 0) }  # >
 
-    sub substr
-    {
+    sub substr      
+    { 
         #print " substr() parameters: ",
         #    join( ", " ,
         #        _str( $_[0] ), _int( $_[1] ), _int( $_[2] ), _str( $_[3] ) 
@@ -181,6 +178,9 @@ package GLOBAL;
         }
         die "Not enough arguments for substr";
     }  
+
+    # prefix:<~>
+    sub prefix_58__60__126__62_ { ::DISPATCH( $::Str, 'new', _str( $_[0] ) ) }  
 
     # prefix:<!>
     sub prefix_58__60__33__62_ { ::DISPATCH( $::Bit, 'new', ! ( ::DISPATCH( $_[0], 'true' )->{_value} ) ) }  
