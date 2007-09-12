@@ -14,4 +14,7 @@ class Pair is Value {
     method hash {
         { $.key => $.value, }
     };
+    method array {
+        [ $.key, $.value ]
+    };
 }
