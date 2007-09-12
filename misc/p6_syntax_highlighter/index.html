@@ -2,8 +2,8 @@
 <head>
     <title>Test</title>
     <link type="text/css" rel="stylesheet" href="SyntaxHighlighter.css"></link>
-    <script language="javascript" src="js/shCore.js"></script>
-    <script language="javascript" src="js/shBrushPerl6.js"></script>
+    <script language="javascript" src="js/shCore.min.js"></script>
+    <script language="javascript" src="js/shBrushPerl6.min.js"></script>
     <script language="javascript" src="js/jquery-1.2.min.js"></script>
     <style type="text/css">
     body {font:14px arial,helvetica,clean,sans-serif;*font-size:small;*font:x-small;}
@@ -19,7 +19,7 @@
     'examples/hangman.pl',
     'examples/tic_tac_toe.pl',
     'examples/wizard.pl',
-    'examples/test.pl'
+    'examples/test.pl' 
     ];
     
     function renderAjax() {
@@ -41,7 +41,6 @@
             $("#examples").append("<option value='" + n + "'>" + n + "</option>" );
         });
        
-
         //Render the example the first time...
         dp.SyntaxHighlighter.ClipboardSwf = 'clipboard.swf';
         
