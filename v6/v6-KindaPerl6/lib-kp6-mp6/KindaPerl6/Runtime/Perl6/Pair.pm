@@ -6,9 +6,12 @@ class Pair is Value {
         '( ' ~ $.key.perl ~ ' => ' ~ $.value.perl ~ ' )' 
     };
     method str {
-        $.key ~ '   ' ~ $.value 
+        $.key ~ "\t" ~ $.value 
     };
     method true { true };
     #method kv   { ( $.key, $.value ) };
     method int  { $.value.int };
+    method hash {
+        { $.key => $.value, }
+    };
 }
