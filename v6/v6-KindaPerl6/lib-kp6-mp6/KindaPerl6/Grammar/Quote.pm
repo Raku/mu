@@ -4,10 +4,11 @@ use v6-alpha;
 grammar KindaPerl6::Grammar {
 
 token double_quoted {
-    |  \\ <!before n > .  <double_quoted>
-    |  <!before \\ | \" | \$ | \@ | \% > . <double_quoted>
+    |  <!before \\ | \' | \" | \$ | \@ | \% > . <double_quoted>
     |  <''>    
 };
+
+token quoted_any { . }
 
 token quoted_exp {
     |  <var>           
@@ -17,7 +18,21 @@ token quoted_exp {
                 'arguments' => [ $$<var> ],
             ); 
         }
-    |  \\ n  { return ::Val::Char( char => 10 ) }
+    |  \' { return ::Val::Char( char => 39 ) }
+    |  \\ 
+        [  # see S02
+        |   a  { return ::Val::Char( char =>  7 ) }
+        |   b  { return ::Val::Char( char =>  8 ) }
+        |   t  { return ::Val::Char( char =>  9 ) }
+        |   n  { return ::Val::Char( char => 10 ) }
+        |   f  { return ::Val::Char( char => 12 ) }
+        |   r  { return ::Val::Char( char => 13 ) }
+        |   e  { return ::Val::Char( char => 27 ) }
+        |   \" { return ::Val::Char( char => 34 ) }
+        |   \' { return ::Val::Char( char => 39 ) }
+        |   \\ { return ::Val::Char( char => 92 ) }
+        |   <quoted_any> { return ::Val::Buf( 'buf' => $$<quoted_any> ) }
+        ]    
     |  [ \$ | \@ | \% | '' ] <double_quoted> { return ::Val::Buf( 'buf' => ~$/ ) }
 }
 
