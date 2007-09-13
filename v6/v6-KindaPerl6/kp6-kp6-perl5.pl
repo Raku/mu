@@ -107,7 +107,17 @@ while ($pos < length($source)) {
     my $ast = $$p;
     #print Dump( $ast );
     unless (ref $ast && $ast->isa("CompUnit")) {
-        die "Syntax Error\n";
+        # So we died, find out what line we were on
+        my $source_uptohere = substr $source, 0, $pos;
+
+        # Find how many lines we've been through
+        my $lines = ($source_uptohere =~ tr/\n//) + 1;
+
+        # The column is distance from the last newline to $pos :)
+        my $last_n_pos = rindex $source_uptohere, "\n";
+        my $column = $pos - $last_n_pos;
+
+        die "syntax error at position $pos, line $lines column $column\n";
     }
     $ast = $ast->emit( $_ ) for @visitors;
     print $ast;
