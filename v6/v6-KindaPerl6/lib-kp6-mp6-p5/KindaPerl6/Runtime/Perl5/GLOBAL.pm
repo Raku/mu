@@ -132,7 +132,7 @@ package GLOBAL;
     sub infix_58__60__62__61__62_
     { ::DISPATCH( $::Bit, 'new', (_int($_[0] >= _int($_[1])))) } # infix: <>=>
     sub infix_58__60__60__62_
-    { ::DISPATCH( $::Bit, 'new', (_int($_[0] >= _int($_[1])))) } # infix: <>=>
+    { ::DISPATCH( $::Bit, 'new', (_int($_[0] < _int($_[1])))) } # infix: <<>
     sub infix_58__60__33__61__62_ {  # infix:<!=>
         $::Bit->new(_int($_[0]) != _int($_[1]));
     }
