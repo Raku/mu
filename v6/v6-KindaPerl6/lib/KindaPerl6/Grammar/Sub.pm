@@ -23,6 +23,17 @@ token sub_sig {
             'positional' => [ ], 
             'named' => { } ) }
 };
+
+token arrow_sub_sig {
+    |   <undeclared_var>
+        { return ::Sig( 
+            'invocant' => ::Val::Undef(),
+            'positional' => [ $$<undeclared_var> ], 
+            'named' => { } ) }
+    |   \( <?opt_ws>  <sig>  <?opt_ws>  \)
+        { return $$<sig> }
+}
+
 token sub {
     sub
     <?ws>  <opt_name>  <?opt_ws> 
@@ -50,6 +61,39 @@ token sub {
                 pad   => $env,
                 state => { },
                 sig   => $$<sub_sig>,
+                body  => $block,
+            ),
+        );
+    }
+};
+
+token arrow_sub {
+    '->'
+    <?opt_ws> 
+    <arrow_sub_sig>
+    <?opt_ws> \{ 
+        <?opt_ws>  
+        { 
+            COMPILER::add_pad();
+        }
+        <exp_stmts> 
+        <?opt_ws> 
+    [   \}     | { say '*** Syntax Error in sub '; die 'error in Block'; } ]
+    { 
+        my $env := @COMPILER::PAD[0];
+        COMPILER::drop_pad();
+        my $block := $$<exp_stmts>;
+        KindaPerl6::Grammar::declare_parameters(
+            $env,
+            $block,
+            $$<arrow_sub_sig>,
+        );    
+        return ::Sub( 
+            'name'  => undef, 
+            'block' => ::Lit::Code(
+                pad   => $env,
+                state => { },
+                sig   => $$<arrow_sub_sig>,
                 body  => $block,
             ),
         );

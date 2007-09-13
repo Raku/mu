@@ -5,6 +5,7 @@ grammar KindaPerl6::Grammar {
 
 token term {
     | <var>     { return $$<var> }     # $variable
+    | <arrow_sub> { return $$<arrow_sub> }     # -> $param { code... }
     | <prefix_op> <exp> 
           { return ::Apply(
             'code'      => ::Var( 'sigil' => '&', 'twigil' => '', 'name' => 'prefix:<' ~ $<prefix_op> ~ '>', namespace => [ ] ),
