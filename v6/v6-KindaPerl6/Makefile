@@ -2,9 +2,11 @@ kp6_mp6_OBJ = $(patsubst lib/%,lib-kp6-mp6-p5/%,$(wildcard lib/KindaPerl6/Gramma
 
 kp6_kp6_OBJ = $(patsubst lib/%,lib-kp6-kp6-p5/%,$(wildcard lib/KindaPerl6/Grammar/*.pm lib/KindaPerl6/Grammar.pm lib/KindaPerl6/Traverse.pm lib/KindaPerl6/Ast.pm lib/KindaPerl6/Visitor/*.pm lib/KindaPerl6/Runtime/Perl5/*.pm lib/KindaPerl6/Runtime/Perl6/*.pm lib/KindaPerl6/Test/*.pm ))
 
-modules_OBJ = $(patsubst lib-modules/%,lib-modules-p5/%,$(wildcard lib-modules/*.pm))
+kp6_mp6_modules_OBJ = $(patsubst lib-modules/%,lib-modules-kp6-mp6-p5/%,$(wildcard lib-modules/*.pm))
 
-all: $(kp6_mp6_OBJ) $(kp6_kp6_OBJ) $(modules_OBJ)
+kp6_kp6_modules_OBJ = $(patsubst lib-modules/%,lib-modules-kp6-kp6-p5/%,$(wildcard lib-modules/*.pm))
+
+all: $(kp6_mp6_OBJ) $(kp6_kp6_OBJ) $(kp6_mp6_modules_OBJ) $(kp6_kp6_modules_OBJ)
 
 lib-kp6-mp6-p5/KindaPerl6/Runtime/Perl6/%.pm: lib/KindaPerl6/Runtime/Perl6/%.pm
 	@echo COMPILE $< $@
@@ -16,7 +18,7 @@ lib-kp6-mp6-p5/KindaPerl6/Runtime/Perl6/%.pm: lib/KindaPerl6/Runtime/Perl6/%.pm
 			echo "*** Compilation failed with exit code: $$res!" ; \
 			exit; \
 		fi
-lib-modules-p5/%.pm: lib-modules/%.pm
+lib-modules-kp6-mp6-p5/%.pm: lib-modules/%.pm
 	@echo COMPILE $< $@
 	@perl kp6-mp6-perl5.pl < $< | perltidy > $@.temp ; \
 		res=$$? ; \
@@ -26,6 +28,18 @@ lib-modules-p5/%.pm: lib-modules/%.pm
 			echo "*** Compilation failed with exit code: $$res!" ; \
 			exit; \
 		fi
+
+lib-modules-kp6-kp6-p5/%.pm: lib-modules/%.pm
+	@echo COMPILE $< $@
+	@KP6_TARGET_RUNTIME='KindaPerl6::Runtime::Perl5::KP6Runtime' perl kp6-mp6-perl5.pl < $< | perltidy > $@.temp ; \
+		res=$$? ; \
+		if [ $$res = 0 -a -s $@.temp ] ; then \
+			mv $@.temp $@ ; \
+		else \
+			echo "*** Compilation failed with exit code: $$res!" ; \
+			exit; \
+		fi
+
 
 lib-kp6-kp6-p5/KindaPerl6/Runtime/Perl6/%.pm: lib/KindaPerl6/Runtime/Perl6/%.pm
 	KP6_TARGET_RUNTIME='KindaPerl6::Runtime::Perl5::KP6Runtime' perl kp6-mp6-perl5.pl < $< | perltidy > $@
