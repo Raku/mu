@@ -60,7 +60,23 @@ package GLOBAL;
                     ) } keys %ENV
             }
         } );
-    
+
+=pod 
+    # XXX - hash key autovivification is not rw! please fix in MOP.pm
+       
+    # %*ENV
+    $GLOBAL::Hash_ENV = 
+        ::DISPATCH( $::Hash, 'new', {
+                _hash => { } 
+            } ); 
+    for ( keys %ENV ) {
+        ::DISPATCH( 
+            ::DISPATCH( $GLOBAL::Hash_ENV, 'LOOKUP', ::DISPATCH( $::Str, 'new', $_ ) ),
+            'STORE',
+            ::DISPATCH( $::Str, 'new', $ENV{$_} )
+        );
+    }    
+=cut
     
     ${"GLOBAL::Code_$_"} = \&{"GLOBAL::$_"} for @EXPORT;
     $GLOBAL::Code_import = ::DISPATCH( $::Code, 'new', 
