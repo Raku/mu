@@ -5,9 +5,9 @@ use 5.006;
 use strict;
 use warnings;
 no warnings 'recursion';
-use Data::Dumper;
+
 #use Class::InsideOut qw( public register id );
-use Scalar::Util qw( refaddr blessed );
+use Scalar::Util qw( refaddr );
 
 my %_data;
 
@@ -108,6 +108,7 @@ sub str {
 }
 
 sub perl {
+    require Data::Dumper;
     local $Data::Dumper::Terse    = 1;
     local $Data::Dumper::Sortkeys = 1;
     local $Data::Dumper::Pad = '  ';

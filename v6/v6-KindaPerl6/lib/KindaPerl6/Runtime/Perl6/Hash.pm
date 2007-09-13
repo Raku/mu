@@ -1,7 +1,6 @@
 use v6-alpha;
 class Hash is Container {
     method perl {
-        my $pair;   # XXX kp6 ast processor bug
         my $s = '{ ';
         for self.pairs -> $pair { 
             $s = $s ~ ($pair.key).perl ~ ' => ' ~ ($pair.value).perl ~ ', ';

@@ -59,17 +59,6 @@
                 $::Method,
                 'new',
                 sub {
-                    my $pair;
-                    $pair =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$pair' } )
-                      unless defined $pair;
-
-                    BEGIN {
-                        $pair =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$pair' } );
-                    }
                     my $s;
                     $s =
                       ::DISPATCH( $::Scalar, 'new',
@@ -116,7 +105,6 @@
                         ::MODIFIED($Hash__);
                         $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
-                    $pair;
                     ::DISPATCH_VAR( $s, 'STORE',
                         ::DISPATCH( $::Str, 'new', '{ ' ) );
                     {

@@ -59,17 +59,6 @@
                 $::Method,
                 'new',
                 sub {
-                    my $v;
-                    $v =
-                      ::DISPATCH( $::Scalar, 'new',
-                        { modified => $_MODIFIED, name => '$v' } )
-                      unless defined $v;
-
-                    BEGIN {
-                        $v =
-                          ::DISPATCH( $::Scalar, 'new',
-                            { modified => $_MODIFIED, name => '$v' } );
-                    }
                     my $s;
                     $s =
                       ::DISPATCH( $::Scalar, 'new',
@@ -116,7 +105,6 @@
                         ::MODIFIED($Hash__);
                         $Hash__ = ::DISPATCH( $CAPTURE, 'hash', );
                     };
-                    $v;
                     ::DISPATCH_VAR( $s, 'STORE',
                         ::DISPATCH( $::Str, 'new', '[ ' ) );
                     {
