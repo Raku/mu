@@ -6,7 +6,6 @@
 use strict;
 use warnings;
 
-
 if (0) {
   local $" = ':';
   print STDERR "run_kp6_perl5.pl: got @ARGV\n";
@@ -30,6 +29,6 @@ for my $i (0..$#args) {
   }
 }
 
-my $cmd = "$^X kp6-kp6-perl5.pl <$prog | $^X @args";
+my $cmd = "KP6_TARGET_RUNTIME='KindaPerl6::Runtime::Perl5::KP6Runtime' $^X kp6-mp6-perl5.pl <$prog | $^X @args";
 #print STDERR "run_kp6_perl5.pl: running: $cmd\n";
 system $cmd;
