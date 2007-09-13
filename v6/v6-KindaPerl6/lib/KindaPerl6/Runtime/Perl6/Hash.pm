@@ -9,13 +9,7 @@ class Hash is Container {
         return $s ~ ' }' 
     };
     method str {
-        my $pair;   # XXX kp6 ast processor bug
-        my $s = '';
-        for self.pairs -> $pair { 
-            # XXX no tabs or newlines yet
-            $s = $s ~ $pair.key ~ '  ' ~ $pair.value ~ ', ';
-        };
-        return $s 
+        ( ( self.pairs ).map(sub ($pair) { $pair.key ~ "\t" ~ $pair.value}) ).join( "\n" ); 
     };
     method keys {
         my $pairs = self.pairs;
