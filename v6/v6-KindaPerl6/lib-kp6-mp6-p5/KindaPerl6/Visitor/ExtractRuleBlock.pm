@@ -6,7 +6,7 @@ use MiniPerl6::Perl5::Match;
 package KindaPerl6::Visitor::ExtractRuleBlock;
 sub new { shift; bless { @_ }, "KindaPerl6::Visitor::ExtractRuleBlock" }
 sub count { @_ == 1 ? ( $_[0]->{count} ) : ( $_[0]->{count} = $_[1] ) };
-sub visit { my $self = shift; my $List__ = \@_; my $node; my $node_name; my $path; do {  $node = $List__->[0];  $node_name = $List__->[1];  $path = $List__->[2]; [$node, $node_name, $path] }; do { if (($node_name eq 'Rule::Block')) { use Data::Dumper;my  $comp_unit = $path->[(0 - 1)];$self->{count} = ($self->{count} + 1);my  $name = ('__rule_block' . ($self->{count} . $COMPILER::source_md5));push(@{$comp_unit->body()->body()}, Method->new( 'block' => $node->closure(),'name' => $name, ));$node->closure($name);return($node) } else {  } } }
+sub visit { my $self = shift; my $List__ = \@_; my $node; my $node_name; my $path; do {  $node = $List__->[0];  $node_name = $List__->[1];  $path = $List__->[2]; [$node, $node_name, $path] }; do { if (($node_name eq 'Rule::Block')) { use Data::Dumper;my  $comp_unit = $path->[(0 - 1)];my  $a = $self->{count};$a = ($a + 1);my  $name = ('__rule_block' . ($self->{count} . $COMPILER::source_md5));push(@{$comp_unit->body()->body()}, Method->new( 'block' => $node->closure(),'name' => $name, ));$node->closure($name);return($node) } else {  } } }
 
 
 ;

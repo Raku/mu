@@ -177,6 +177,22 @@
                                         }
                                     );
                                 }
+                                my $a;
+                                $a =
+                                  ::DISPATCH( $::Scalar, 'new',
+                                    { modified => $_MODIFIED, name => '$a' } )
+                                  unless defined $a;
+
+                                BEGIN {
+                                    $a = ::DISPATCH(
+                                        $::Scalar,
+                                        'new',
+                                        {
+                                            modified => $_MODIFIED,
+                                            name     => '$a'
+                                        }
+                                    );
+                                }
                                 my $name;
                                 $name = ::DISPATCH( $::Scalar, 'new',
                                     { modified => $_MODIFIED, name => '$name' }
@@ -206,11 +222,15 @@
                                     );
                                 };
                                 do {
-                                    ::MODIFIED( ::DISPATCH( $self, "count" ) );
-                                    ::DISPATCH( $self, "count" ) = ::DISPATCH(
+                                    ::MODIFIED($a);
+                                    $a = ::DISPATCH( $self, "count" );
+                                };
+                                do {
+                                    ::MODIFIED($a);
+                                    $a = ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__43__62_,
                                         'APPLY',
-                                        ::DISPATCH( $self, "count" ),
+                                        $a,
                                         ::DISPATCH( $::Int, 'new', 1 )
                                     );
                                 };
