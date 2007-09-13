@@ -3,12 +3,16 @@ grammar MyGrammar {
     token digits { \d+ };
     token val_int {
         <digits>
-        { return ::Val::Int( 'int' => ~$/ ) }
+        { return Val::Int.new( 'int' => ~$/ ) }
     };
 };
-module Main {
-    say '1..1';
+class Val::Int {
+    has $.int;
+    method true {
+        1;            
+    }
+};
 
-    $_ = '1';
-    say 'ok ' ~ MyGrammar.val_int();
-}
+say '1..1';
+$_ = '1';
+say 'ok ' ~ MyGrammar.val_int();
