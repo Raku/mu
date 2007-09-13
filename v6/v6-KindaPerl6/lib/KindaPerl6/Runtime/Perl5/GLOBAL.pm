@@ -20,6 +20,7 @@ package GLOBAL;
         length
         match_p5rx
         require
+        slurp
 
 
         ternary_58__60__63__63__32__33__33__62_
@@ -148,6 +149,12 @@ package GLOBAL;
         eval "require "._str($_[0]);
         die $@ if $@;
     }
+
+    sub slurp {
+        warn '#XXX# Slurp only a prototype here!';
+        return ::DISPATCH($::Str, 'new', join '', <>);
+    }
+
 
     sub infix_58__60__126__62_      
     { ::DISPATCH( $::Str, 'new', _str( $_[0] ) . _str( $_[1] ) ) }  # infix:<~>
