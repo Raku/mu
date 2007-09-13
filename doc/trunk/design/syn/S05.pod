@@ -243,15 +243,15 @@ The new C<:s> (C<:sigspace>) modifier causes whitespace sequences
 to be considered "significant"; they are replaced by a whitespace
 matching rule, C<< <.ws> >>.  That is,
 
-     m:s/ next cmd =   <condition>/
+     m:s/ next cmd '='   <condition>/
 
 is the same as:
 
-     m/ <.ws> next <.ws> cmd <.ws> = <.ws> <condition>/
+     m/ <.ws> next <.ws> cmd <.ws> '=' <.ws> <condition>/
 
 which is effectively the same as:
 
-     m/ \s* next \s+ cmd \s* = \s* <condition>/
+     m/ \s* next \s+ cmd \s* '=' \s* <condition>/
 
 But in the case of
 
@@ -330,15 +330,15 @@ determined by the character that follows.
 If followed by an C<x>, it means repetition.  Use C<:x(4)> for the
 general form.  So
 
-     s:4x [ (<.ident>) = (\N+) $$] = "$0 => $1";
+     s:4x [ (<.ident>) '=' (\N+) $$] = "$0 => $1";
 
 is the same as:
 
-     s:x(4) [ (<.ident>) = (\N+) $$] = "$0 => $1";
+     s:x(4) [ (<.ident>) '=' (\N+) $$] = "$0 => $1";
 
 which is almost the same as:
 
-     s:c[ (<.ident>) = (\N+) $$] = "$0 => $1" for 1..4;
+     s:c[ (<.ident>) '=' (\N+) $$] = "$0 => $1" for 1..4;
 
 except that the string is unchanged unless all four matches are found.
 However, ranges are allowed, so you can say C<:x(1..4)> to change anywhere
@@ -462,7 +462,7 @@ certainly a bad idea to fix it by backtracking.
 The C<:i>, C<:s>, C<:Perl5>, and Unicode-level modifiers can be
 placed inside the regex (and are lexically scoped):
 
-     m/:s alignment = [:i left|right|cent[er|re]] /
+     m/:s alignment '=' [:i left|right|cent[er|re]] /
 
 As with modifiers outside, only parentheses are recognized as valid
 brackets for args to the adverb.  In particular:
@@ -2085,20 +2085,20 @@ its positional captures.  Hence
 
 can also be written:
 
-     $result = mm/ (\S+) => (\S+)/;
+     $result = mm/ (\S+) '=>' (\S+)/;
      ($key, $val) = @$result;
 
 To get a single capture into a string, use a subscript:
 
-     $mystring = "{ mm/ (\S+) => (\S+)/[0] }";
+     $mystring = "{ mm/ (\S+) '=>' (\S+)/[0] }";
 
 To get all the captures into a string, use a I<zen> slice:
 
-     $mystring = "{ mm/ (\S+) => (\S+)/[] }";
+     $mystring = "{ mm/ (\S+) '=>' (\S+)/[] }";
 
 Or cast it into an array:
 
-     $mystring = "@( mm/ (\S+) => (\S+)/ )";
+     $mystring = "@( mm/ (\S+) '=>' (\S+)/ )";
 
 Note that, as a scalar variable, C<$/> doesn't automatically flatten
 in list context.  Use C<@()> as a shorthand for C<@($/)> to flatten
@@ -2457,7 +2457,7 @@ In particular, the index of capturing parentheses restarts after each
 C<|> or C<||> (but not after each C<&> or C<&&>). Hence:
 
                   # $0      $1    $2   $3    $4           $5
-     $tune_up = rx/ (don't) (ray) (me) (for) (solar tea), (d'oh!)
+     $tune_up = rx/ ("don't") (ray) (me) (for) (solar tea), ("d'oh!")
                   # $0      $1      $2    $3        $4
                   | (every) (green) (BEM) (devours) (faces)
                   /;
@@ -2800,7 +2800,7 @@ value). That is:
 This I<follow-on> behavior is particularly useful for reinstituting
 Perl5 semantics for consecutive subpattern numbering in alternations:
 
-     $tune_up = rx/ (don't) (ray) (me) (for) (solar tea), (d'oh!)
+     $tune_up = rx/ ("don't") (ray) (me) (for) (solar tea), ("d'oh!")
                   | $6 = (every) (green) (BEM) (devours) (faces)
                   #              $7      $8    $9        $10
                   /;
@@ -3267,9 +3267,9 @@ Just as a class can collect named actions together:
 so too a grammar can collect a set of named rules together:
 
      grammar Identity {
-         rule name { Name = (\N+) }
-         rule age  { Age  = (\d+) }
-         rule addr { Addr = (\N+) }
+         rule name { Name '=' (\N+) }
+         rule age  { Age  '=' (\d+) }
+         rule addr { Addr '=' (\N+) }
          rule desc {
              <name> \n
              <age>  \n
