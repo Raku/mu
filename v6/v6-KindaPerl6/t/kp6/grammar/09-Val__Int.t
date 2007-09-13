@@ -3,7 +3,7 @@ grammar MyGrammar {
     token digits { \d+ };
     token val_int {
         <digits>
-        { return Val::Int.new( 'int' => ~$/ ) }
+        { return ::Val::Int( 'int' => ~$/ ) }
     };
 };
 class Val::Int {
