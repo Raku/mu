@@ -1,5 +1,5 @@
 module Main {
-    use KindaPerl6::Runtime::Perl5::Runtime;
+    use KindaPerl6::Runtime::Perl5::KP6Runtime;
     use KindaPerl6::Grammar;
     use KindaPerl6::Traverse;
     use KindaPerl6::Ast;
@@ -8,6 +8,14 @@ module Main {
 
     my @visitors;
     @visitors.push('ExtractRuleBlock');
-    #, 'Token', 'MetaClass', 'Global', 'EmitPerl5');
+    @visitors.push('Token');
+    @visitors.push('MetaClass');
+    @visitors.push('Global');   
+    @visitors.push('EmitPerl5');
     
+    for @visitors -> $visitor {
+        require $visitor;
+    }
+
+
 }

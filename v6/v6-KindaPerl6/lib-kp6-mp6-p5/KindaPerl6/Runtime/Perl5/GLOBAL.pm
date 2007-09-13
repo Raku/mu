@@ -19,6 +19,7 @@ package GLOBAL;
         substr
         length
         match_p5rx
+        require
 
 
         ternary_58__60__63__63__32__33__33__62_
@@ -141,6 +142,10 @@ package GLOBAL;
     { ::DISPATCH( $::Bit, 'new', (_int($_[0] < _int($_[1])))) } # infix: <<>
     sub infix_58__60__33__61__62_ {  # infix:<!=>
         $::Bit->new(_int($_[0]) != _int($_[1]));
+    }
+
+    sub GLOBAL::require {
+        eval "require "._str($_[0]);
     }
 
     sub infix_58__60__126__62_      
