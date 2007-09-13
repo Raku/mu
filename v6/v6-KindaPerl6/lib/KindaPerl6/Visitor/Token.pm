@@ -23,6 +23,7 @@ class KindaPerl6::Visitor::Token {
 
             # Compile the new Perl 6 code
 
+            #say $source;
             my $ast := KindaPerl6::Grammar.term( $source );
             
             #    my $visitor_dump_ast := KindaPerl6::Visitor::Perl.new();
@@ -61,11 +62,9 @@ class Rule {
                 $str := Main::backslash() ~ Main::singlequote();
             };
             if ( $len ) {
-                '( ' ~
-                '  '~ Main::singlequote() ~ $str ~ Main::singlequote() ~ ' eq substr( $str, $MATCH.to, ' ~ $len ~ ') ' ~
-                '  ?? (1 + ($MATCH.to = ' ~ $len ~ ' + $MATCH.to ))' ~
-                '  !! (0) ' ~
-                ')';
+                'do {if (length($str) <  ' ~ $len ~ ') {(0)} else { if (' ~
+                Main::singlequote() ~ $str ~ Main::singlequote() ~ ' eq substr($str, $MATCH.to, ' ~ $len ~ ')) {' ~
+                '(1 + ($MATCH.to = ' ~ $len ~ ' + $MATCH.to ))} else {(0)}}}';
             }
             else {
                 return '1'

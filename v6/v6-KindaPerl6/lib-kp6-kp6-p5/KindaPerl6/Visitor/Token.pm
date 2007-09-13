@@ -477,83 +477,73 @@
                                     ::DISPATCH(
                                         $GLOBAL::Code_infix_58__60__126__62_,
                                         'APPLY',
-                                        ::DISPATCH( $::Str, 'new', '( ' ),
+                                        ::DISPATCH(
+                                            $::Str, 'new',
+                                            'do {if (length($str) <  '
+                                        ),
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__126__62_,
-                                            'APPLY',
-                                            ::DISPATCH( $::Str, 'new', '  ' ),
+                                            'APPLY', $len,
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                 'APPLY',
                                                 ::DISPATCH(
-                                                    $Main::Code_singlequote,
-                                                    'APPLY',
+                                                    $::Str, 'new',
+                                                    ') {(0)} else { if ('
                                                 ),
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__126__62_,
-                                                    'APPLY', $str,
+                                                    'APPLY',
+                                                    ::DISPATCH(
+                                                        $Main::Code_singlequote,
+                                                        'APPLY',
+                                                    ),
                                                     ::DISPATCH(
                                                         $GLOBAL::Code_infix_58__60__126__62_,
-                                                        'APPLY',
-                                                        ::DISPATCH(
-                                                            $Main::Code_singlequote,
-                                                            'APPLY',
-                                                        ),
+                                                        'APPLY', $str,
                                                         ::DISPATCH(
                                                             $GLOBAL::Code_infix_58__60__126__62_,
                                                             'APPLY',
                                                             ::DISPATCH(
-                                                                $::Str,
-                                                                'new',
-' eq substr( $str, $MATCH.to, '
+                                                                $Main::Code_singlequote,
+                                                                'APPLY',
                                                             ),
                                                             ::DISPATCH(
                                                                 $GLOBAL::Code_infix_58__60__126__62_,
                                                                 'APPLY',
-                                                                $len,
+                                                                ::DISPATCH(
+                                                                    $::Str,
+                                                                    'new',
+' eq substr($str, $MATCH.to, '
+                                                                ),
                                                                 ::DISPATCH(
                                                                     $GLOBAL::Code_infix_58__60__126__62_,
                                                                     'APPLY',
-                                                                    ::DISPATCH(
-                                                                        $::Str,
-                                                                        'new',
-                                                                        ') '
-                                                                    ),
+                                                                    $len,
                                                                     ::DISPATCH(
                                                                         $GLOBAL::Code_infix_58__60__126__62_,
                                                                         'APPLY',
                                                                         ::DISPATCH(
                                                                             $::Str,
 'new',
-'  ?? (1 + ($MATCH.to = '
+')) {'
                                                                         ),
                                                                         ::DISPATCH(
                                                                             $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
-                                                                            $len,
+                                                                            ::DISPATCH(
+                                                                                $::Str,
+'new',
+'(1 + ($MATCH.to = '
+                                                                            ),
                                                                             ::DISPATCH(
                                                                                 $GLOBAL::Code_infix_58__60__126__62_,
 'APPLY',
+                                                                                $len,
                                                                                 ::DISPATCH(
                                                                                     $::Str,
 'new',
-' + $MATCH.to ))'
-                                                                                  )
-                                                                                ,
-                                                                                ::DISPATCH(
-                                                                                    $GLOBAL::Code_infix_58__60__126__62_,
-'APPLY',
-                                                                                    ::DISPATCH(
-                                                                                        $::Str,
-'new',
-'  !! (0) '
-                                                                                      )
-                                                                                    ,
-                                                                                    ::DISPATCH(
-                                                                                        $::Str,
-'new',
-')'
-                                                                                    )
+' + $MATCH.to ))} else {(0)}}}'
                                                                                 )
                                                                             )
                                                                         )

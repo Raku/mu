@@ -192,165 +192,251 @@
                                     'APPLY',
                                     do {
                                         {
-                                            ::DISPATCH(
-                                                $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
-                                                'APPLY',
-                                                ::DISPATCH(
-                                                    $GLOBAL::Code_infix_58__60__60__62_,
-                                                    'APPLY',
-                                                    ::DISPATCH(
-                                                        $GLOBAL::Code_length,
-                                                        'APPLY', $str
-                                                    ),
-                                                    ::DISPATCH(
-                                                        $::Int, 'new', 3
-                                                    )
-                                                ),
-                                                ::DISPATCH( $::Int, 'new', 0 ),
-                                                ::DISPATCH(
-                                                    $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
-                                                    'APPLY',
+                                            do {
+                                                {
                                                     do {
-                                                        {
+                                                        if (
                                                             ::DISPATCH(
-                                                                $GLOBAL::Code_infix_58__60_eq_62_,
-                                                                'APPLY',
                                                                 ::DISPATCH(
-                                                                    $::Str,
-                                                                    'new',
-                                                                    ':P5'
-                                                                ),
-                                                                ::DISPATCH(
-                                                                    $GLOBAL::Code_substr,
-                                                                    'APPLY',
-                                                                    $str,
                                                                     ::DISPATCH(
-                                                                        $MATCH,
-                                                                        'to',
+                                                                        $GLOBAL::Code_infix_58__60__60__62_,
+                                                                        'APPLY',
+                                                                        ::DISPATCH(
+                                                                            $GLOBAL::Code_length,
+'APPLY',
+                                                                            $str
+                                                                        ),
+                                                                        ::DISPATCH(
+                                                                            $::Int,
+'new',
+                                                                            3
+                                                                        )
                                                                     ),
-                                                                    ::DISPATCH(
-                                                                        $::Int,
-                                                                        'new',
-                                                                        3
-                                                                    )
-                                                                )
-                                                              )
-                                                        }
-                                                    },
-                                                    ::DISPATCH(
-                                                        $GLOBAL::Code_infix_58__60__43__62_,
-                                                        'APPLY',
-                                                        ::DISPATCH(
-                                                            $::Int, 'new',
-                                                            1
-                                                        ),
-                                                        ::DISPATCH_VAR(
-                                                            ::DISPATCH(
-                                                                $MATCH, 'to',
-                                                            ),
-                                                            'STORE',
-                                                            ::DISPATCH(
-                                                                $GLOBAL::Code_infix_58__60__43__62_,
-                                                                'APPLY',
+                                                                    "true"
+                                                                ),
+                                                                "p5landish"
+                                                            )
+                                                          )
+                                                        {
+                                                            {
                                                                 ::DISPATCH(
                                                                     $::Int,
-                                                                    'new',
-                                                                    3
-                                                                ),
-                                                                ::DISPATCH(
-                                                                    $MATCH,
-                                                                    'to',
-                                                                )
-                                                            )
-                                                        )
-                                                    ),
-                                                    ::DISPATCH(
-                                                        $::Int, 'new', 0
-                                                    )
-                                                )
-                                              )
+                                                                    'new', 0 )
+                                                            }
+                                                        }
+                                                        else {
+                                                            {
+                                                                do {
+                                                                    if (
+                                                                        ::DISPATCH(
+                                                                            ::DISPATCH(
+                                                                                ::DISPATCH(
+                                                                                    $GLOBAL::Code_infix_58__60_eq_62_,
+'APPLY',
+                                                                                    ::DISPATCH(
+                                                                                        $::Str,
+'new',
+':P5'
+                                                                                      )
+                                                                                    ,
+                                                                                    ::DISPATCH(
+                                                                                        $GLOBAL::Code_substr,
+'APPLY',
+                                                                                        $str,
+                                                                                        ::DISPATCH(
+                                                                                            $MATCH,
+'to',
+                                                                                          )
+                                                                                        ,
+                                                                                        ::DISPATCH(
+                                                                                            $::Int,
+'new',
+                                                                                            3
+                                                                                        )
+                                                                                    )
+                                                                                  )
+                                                                                ,
+"true"
+                                                                            ),
+"p5landish"
+                                                                        )
+                                                                      )
+                                                                    {
+                                                                        {
+                                                                            ::DISPATCH(
+                                                                                $GLOBAL::Code_infix_58__60__43__62_,
+'APPLY',
+                                                                                ::DISPATCH(
+                                                                                    $::Int,
+'new',
+                                                                                    1
+                                                                                  )
+                                                                                ,
+                                                                                ::DISPATCH_VAR(
+                                                                                    ::DISPATCH(
+                                                                                        $MATCH,
+'to',
+                                                                                      )
+                                                                                    ,
+'STORE',
+                                                                                    ::DISPATCH(
+                                                                                        $GLOBAL::Code_infix_58__60__43__62_,
+'APPLY',
+                                                                                        ::DISPATCH(
+                                                                                            $::Int,
+'new',
+                                                                                            3
+                                                                                          )
+                                                                                        ,
+                                                                                        ::DISPATCH(
+                                                                                            $MATCH,
+'to',
+                                                                                        )
+                                                                                    )
+                                                                                )
+                                                                              )
+                                                                        }
+                                                                    }
+                                                                    else {
+                                                                        {
+                                                                            ::DISPATCH(
+                                                                                $::Int,
+'new',
+                                                                                0
+                                                                              )
+                                                                        }
+                                                                    }
+                                                                  }
+                                                            }
+                                                        }
+                                                      }
+                                                }
+                                              }
                                         }
                                     },
                                     do {
                                         {
                                             ::DISPATCH( $MATCH, 'to', $pos1 );
-                                            ::DISPATCH(
-                                                $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
-                                                'APPLY',
-                                                ::DISPATCH(
-                                                    $GLOBAL::Code_infix_58__60__60__62_,
-                                                    'APPLY',
-                                                    ::DISPATCH(
-                                                        $GLOBAL::Code_length,
-                                                        'APPLY', $str
-                                                    ),
-                                                    ::DISPATCH(
-                                                        $::Int, 'new', 6
-                                                    )
-                                                ),
-                                                ::DISPATCH( $::Int, 'new', 0 ),
-                                                ::DISPATCH(
-                                                    $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
-                                                    'APPLY',
+                                            do {
+                                                {
                                                     do {
-                                                        {
+                                                        if (
                                                             ::DISPATCH(
-                                                                $GLOBAL::Code_infix_58__60_eq_62_,
-                                                                'APPLY',
                                                                 ::DISPATCH(
-                                                                    $::Str,
-                                                                    'new',
-                                                                    ':Perl5'
-                                                                ),
-                                                                ::DISPATCH(
-                                                                    $GLOBAL::Code_substr,
-                                                                    'APPLY',
-                                                                    $str,
                                                                     ::DISPATCH(
-                                                                        $MATCH,
-                                                                        'to',
+                                                                        $GLOBAL::Code_infix_58__60__60__62_,
+                                                                        'APPLY',
+                                                                        ::DISPATCH(
+                                                                            $GLOBAL::Code_length,
+'APPLY',
+                                                                            $str
+                                                                        ),
+                                                                        ::DISPATCH(
+                                                                            $::Int,
+'new',
+                                                                            6
+                                                                        )
                                                                     ),
-                                                                    ::DISPATCH(
-                                                                        $::Int,
-                                                                        'new',
-                                                                        6
-                                                                    )
-                                                                )
-                                                              )
-                                                        }
-                                                    },
-                                                    ::DISPATCH(
-                                                        $GLOBAL::Code_infix_58__60__43__62_,
-                                                        'APPLY',
-                                                        ::DISPATCH(
-                                                            $::Int, 'new',
-                                                            1
-                                                        ),
-                                                        ::DISPATCH_VAR(
-                                                            ::DISPATCH(
-                                                                $MATCH, 'to',
-                                                            ),
-                                                            'STORE',
-                                                            ::DISPATCH(
-                                                                $GLOBAL::Code_infix_58__60__43__62_,
-                                                                'APPLY',
+                                                                    "true"
+                                                                ),
+                                                                "p5landish"
+                                                            )
+                                                          )
+                                                        {
+                                                            {
                                                                 ::DISPATCH(
                                                                     $::Int,
-                                                                    'new',
-                                                                    6
-                                                                ),
-                                                                ::DISPATCH(
-                                                                    $MATCH,
-                                                                    'to',
-                                                                )
-                                                            )
-                                                        )
-                                                    ),
-                                                    ::DISPATCH(
-                                                        $::Int, 'new', 0
-                                                    )
-                                                )
-                                              )
+                                                                    'new', 0 )
+                                                            }
+                                                        }
+                                                        else {
+                                                            {
+                                                                do {
+                                                                    if (
+                                                                        ::DISPATCH(
+                                                                            ::DISPATCH(
+                                                                                ::DISPATCH(
+                                                                                    $GLOBAL::Code_infix_58__60_eq_62_,
+'APPLY',
+                                                                                    ::DISPATCH(
+                                                                                        $::Str,
+'new',
+':Perl5'
+                                                                                      )
+                                                                                    ,
+                                                                                    ::DISPATCH(
+                                                                                        $GLOBAL::Code_substr,
+'APPLY',
+                                                                                        $str,
+                                                                                        ::DISPATCH(
+                                                                                            $MATCH,
+'to',
+                                                                                          )
+                                                                                        ,
+                                                                                        ::DISPATCH(
+                                                                                            $::Int,
+'new',
+                                                                                            6
+                                                                                        )
+                                                                                    )
+                                                                                  )
+                                                                                ,
+"true"
+                                                                            ),
+"p5landish"
+                                                                        )
+                                                                      )
+                                                                    {
+                                                                        {
+                                                                            ::DISPATCH(
+                                                                                $GLOBAL::Code_infix_58__60__43__62_,
+'APPLY',
+                                                                                ::DISPATCH(
+                                                                                    $::Int,
+'new',
+                                                                                    1
+                                                                                  )
+                                                                                ,
+                                                                                ::DISPATCH_VAR(
+                                                                                    ::DISPATCH(
+                                                                                        $MATCH,
+'to',
+                                                                                      )
+                                                                                    ,
+'STORE',
+                                                                                    ::DISPATCH(
+                                                                                        $GLOBAL::Code_infix_58__60__43__62_,
+'APPLY',
+                                                                                        ::DISPATCH(
+                                                                                            $::Int,
+'new',
+                                                                                            6
+                                                                                          )
+                                                                                        ,
+                                                                                        ::DISPATCH(
+                                                                                            $MATCH,
+'to',
+                                                                                        )
+                                                                                    )
+                                                                                )
+                                                                              )
+                                                                        }
+                                                                    }
+                                                                    else {
+                                                                        {
+                                                                            ::DISPATCH(
+                                                                                $::Int,
+'new',
+                                                                                0
+                                                                              )
+                                                                        }
+                                                                    }
+                                                                  }
+                                                            }
+                                                        }
+                                                      }
+                                                }
+                                              }
                                         }
                                       }
                                   )
@@ -507,89 +593,129 @@
                                             ::DISPATCH(
                                                 $GLOBAL::Code_infix_58__60__38__38__62_,
                                                 'APPLY',
-                                                ::DISPATCH(
-                                                    $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
-                                                    'APPLY',
-                                                    ::DISPATCH(
-                                                        $GLOBAL::Code_infix_58__60__60__62_,
-                                                        'APPLY',
-                                                        ::DISPATCH(
-                                                            $GLOBAL::Code_length,
-                                                            'APPLY',
-                                                            $str
-                                                        ),
-                                                        ::DISPATCH(
-                                                            $::Int, 'new',
-                                                            1
-                                                        )
-                                                    ),
-                                                    ::DISPATCH(
-                                                        $::Int, 'new', 0
-                                                    ),
-                                                    ::DISPATCH(
-                                                        $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
-                                                        'APPLY',
+                                                do {
+                                                    {
                                                         do {
-                                                            {
+                                                            if (
                                                                 ::DISPATCH(
-                                                                    $GLOBAL::Code_infix_58__60_eq_62_,
-                                                                    'APPLY',
                                                                     ::DISPATCH(
-                                                                        $::Str,
-                                                                        'new',
-                                                                        '\\\\'
-                                                                    ),
-                                                                    ::DISPATCH(
-                                                                        $GLOBAL::Code_substr,
-                                                                        'APPLY',
-                                                                        $str,
                                                                         ::DISPATCH(
-                                                                            $MATCH,
-'to',
-                                                                        ),
-                                                                        ::DISPATCH(
-                                                                            $::Int,
+                                                                            $GLOBAL::Code_infix_58__60__60__62_,
+'APPLY',
+                                                                            ::DISPATCH(
+                                                                                $GLOBAL::Code_length,
+'APPLY',
+                                                                                $str
+                                                                            ),
+                                                                            ::DISPATCH(
+                                                                                $::Int,
 'new',
-                                                                            1
-                                                                        )
-                                                                    )
-                                                                  )
-                                                            }
-                                                        },
-                                                        ::DISPATCH(
-                                                            $GLOBAL::Code_infix_58__60__43__62_,
-                                                            'APPLY',
-                                                            ::DISPATCH(
-                                                                $::Int, 'new',
-                                                                1
-                                                            ),
-                                                            ::DISPATCH_VAR(
-                                                                ::DISPATCH(
-                                                                    $MATCH,
-                                                                    'to',
-                                                                ),
-                                                                'STORE',
-                                                                ::DISPATCH(
-                                                                    $GLOBAL::Code_infix_58__60__43__62_,
-                                                                    'APPLY',
+                                                                                1
+                                                                            )
+                                                                        ),
+                                                                        "true"
+                                                                    ),
+                                                                    "p5landish"
+                                                                )
+                                                              )
+                                                            {
+                                                                {
                                                                     ::DISPATCH(
                                                                         $::Int,
                                                                         'new',
-                                                                        1
-                                                                    ),
-                                                                    ::DISPATCH(
-                                                                        $MATCH,
-                                                                        'to',
-                                                                    )
-                                                                )
-                                                            )
-                                                        ),
-                                                        ::DISPATCH(
-                                                            $::Int, 'new',
-                                                            0
-                                                        )
-                                                    )
-                                                ),
+                                                                        0
+                                                                      )
+                                                                }
+                                                            }
+                                                            else {
+                                                                {
+                                                                    do {
+                                                                        if (
+                                                                            ::DISPATCH(
+                                                                                ::DISPATCH(
+                                                                                    ::DISPATCH(
+                                                                                        $GLOBAL::Code_infix_58__60_eq_62_,
+'APPLY',
+                                                                                        ::DISPATCH(
+                                                                                            $::Str,
+'new',
+'\\\\'
+                                                                                          )
+                                                                                        ,
+                                                                                        ::DISPATCH(
+                                                                                            $GLOBAL::Code_substr,
+'APPLY',
+                                                                                            $str,
+                                                                                            ::DISPATCH(
+                                                                                                $MATCH,
+'to',
+                                                                                              )
+                                                                                            ,
+                                                                                            ::DISPATCH(
+                                                                                                $::Int,
+'new',
+                                                                                                1
+                                                                                            )
+                                                                                        )
+                                                                                      )
+                                                                                    ,
+"true"
+                                                                                  )
+                                                                                ,
+"p5landish"
+                                                                            )
+                                                                          )
+                                                                        {
+                                                                            {
+                                                                                ::DISPATCH(
+                                                                                    $GLOBAL::Code_infix_58__60__43__62_,
+'APPLY',
+                                                                                    ::DISPATCH(
+                                                                                        $::Int,
+'new',
+                                                                                        1
+                                                                                      )
+                                                                                    ,
+                                                                                    ::DISPATCH_VAR(
+                                                                                        ::DISPATCH(
+                                                                                            $MATCH,
+'to',
+                                                                                          )
+                                                                                        ,
+'STORE',
+                                                                                        ::DISPATCH(
+                                                                                            $GLOBAL::Code_infix_58__60__43__62_,
+'APPLY',
+                                                                                            ::DISPATCH(
+                                                                                                $::Int,
+'new',
+                                                                                                1
+                                                                                              )
+                                                                                            ,
+                                                                                            ::DISPATCH(
+                                                                                                $MATCH,
+'to',
+                                                                                            )
+                                                                                        )
+                                                                                    )
+                                                                                  )
+                                                                            }
+                                                                        }
+                                                                        else {
+                                                                            {
+                                                                                ::DISPATCH(
+                                                                                    $::Int,
+'new',
+                                                                                    0
+                                                                                  )
+                                                                            }
+                                                                        }
+                                                                      }
+                                                                }
+                                                            }
+                                                          }
+                                                    }
+                                                },
                                                 ::DISPATCH(
                                                     $GLOBAL::Code_infix_58__60__38__38__62_,
                                                     'APPLY',
@@ -891,105 +1017,139 @@
                                                                             };
                                                                             do {
                                                                                 {
-                                                                                    ::DISPATCH(
-                                                                                        $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
-'APPLY',
-                                                                                        ::DISPATCH(
-                                                                                            $GLOBAL::Code_infix_58__60__60__62_,
-'APPLY',
-                                                                                            ::DISPATCH(
-                                                                                                $GLOBAL::Code_length,
-'APPLY',
-                                                                                                $str
-                                                                                              )
-                                                                                            ,
-                                                                                            ::DISPATCH(
-                                                                                                $::Int,
-'new',
-                                                                                                1
-                                                                                            )
-                                                                                          )
-                                                                                        ,
-                                                                                        ::DISPATCH(
-                                                                                            $::Int,
-'new',
-                                                                                            0
-                                                                                          )
-                                                                                        ,
-                                                                                        ::DISPATCH(
-                                                                                            $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
-'APPLY',
+                                                                                    do
+                                                                                    {
+                                                                                        {
                                                                                             do
                                                                                             {
-                                                                                                {
+                                                                                                if
+                                                                                                  (
                                                                                                     ::DISPATCH(
-                                                                                                        $GLOBAL::Code_infix_58__60_eq_62_,
-'APPLY',
                                                                                                         ::DISPATCH(
-                                                                                                            $::Str,
-'new',
-'}'
-                                                                                                          )
-                                                                                                        ,
-                                                                                                        ::DISPATCH(
-                                                                                                            $GLOBAL::Code_substr,
-'APPLY',
-                                                                                                            $str,
                                                                                                             ::DISPATCH(
-                                                                                                                $MATCH,
-'to',
+                                                                                                                $GLOBAL::Code_infix_58__60__60__62_,
+'APPLY',
+                                                                                                                ::DISPATCH(
+                                                                                                                    $GLOBAL::Code_length,
+'APPLY',
+                                                                                                                    $str
+                                                                                                                  )
+                                                                                                                ,
+                                                                                                                ::DISPATCH(
+                                                                                                                    $::Int,
+'new',
+                                                                                                                    1
+                                                                                                                )
                                                                                                               )
                                                                                                             ,
-                                                                                                            ::DISPATCH(
-                                                                                                                $::Int,
-'new',
-                                                                                                                1
-                                                                                                            )
-                                                                                                        )
-                                                                                                      )
-                                                                                                }
-                                                                                              }
-                                                                                            ,
-                                                                                            ::DISPATCH(
-                                                                                                $GLOBAL::Code_infix_58__60__43__62_,
-'APPLY',
-                                                                                                ::DISPATCH(
-                                                                                                    $::Int,
-'new',
-                                                                                                    1
+"true"
+                                                                                                          )
+                                                                                                        ,
+"p5landish"
+                                                                                                    )
                                                                                                   )
-                                                                                                ,
-                                                                                                ::DISPATCH_VAR(
-                                                                                                    ::DISPATCH(
-                                                                                                        $MATCH,
-'to',
-                                                                                                      )
-                                                                                                    ,
-'STORE',
-                                                                                                    ::DISPATCH(
-                                                                                                        $GLOBAL::Code_infix_58__60__43__62_,
-'APPLY',
+                                                                                                {
+                                                                                                    {
                                                                                                         ::DISPATCH(
                                                                                                             $::Int,
 'new',
-                                                                                                            1
+                                                                                                            0
                                                                                                           )
-                                                                                                        ,
-                                                                                                        ::DISPATCH(
-                                                                                                            $MATCH,
-'to',
-                                                                                                        )
-                                                                                                    )
-                                                                                                )
-                                                                                              )
-                                                                                            ,
-                                                                                            ::DISPATCH(
-                                                                                                $::Int,
+                                                                                                    }
+                                                                                                }
+                                                                                                else
+                                                                                                {
+                                                                                                    {
+                                                                                                        do
+                                                                                                        {
+                                                                                                            if
+                                                                                                              (
+                                                                                                                ::DISPATCH(
+                                                                                                                    ::DISPATCH(
+                                                                                                                        ::DISPATCH(
+                                                                                                                            $GLOBAL::Code_infix_58__60_eq_62_,
+'APPLY',
+                                                                                                                            ::DISPATCH(
+                                                                                                                                $::Str,
 'new',
-                                                                                                0
-                                                                                            )
-                                                                                        )
-                                                                                      )
+'}'
+                                                                                                                              )
+                                                                                                                            ,
+                                                                                                                            ::DISPATCH(
+                                                                                                                                $GLOBAL::Code_substr,
+'APPLY',
+                                                                                                                                $str,
+                                                                                                                                ::DISPATCH(
+                                                                                                                                    $MATCH,
+'to',
+                                                                                                                                  )
+                                                                                                                                ,
+                                                                                                                                ::DISPATCH(
+                                                                                                                                    $::Int,
+'new',
+                                                                                                                                    1
+                                                                                                                                )
+                                                                                                                            )
+                                                                                                                          )
+                                                                                                                        ,
+"true"
+                                                                                                                      )
+                                                                                                                    ,
+"p5landish"
+                                                                                                                )
+                                                                                                              )
+                                                                                                            {
+                                                                                                                {
+                                                                                                                    ::DISPATCH(
+                                                                                                                        $GLOBAL::Code_infix_58__60__43__62_,
+'APPLY',
+                                                                                                                        ::DISPATCH(
+                                                                                                                            $::Int,
+'new',
+                                                                                                                            1
+                                                                                                                          )
+                                                                                                                        ,
+                                                                                                                        ::DISPATCH_VAR(
+                                                                                                                            ::DISPATCH(
+                                                                                                                                $MATCH,
+'to',
+                                                                                                                              )
+                                                                                                                            ,
+'STORE',
+                                                                                                                            ::DISPATCH(
+                                                                                                                                $GLOBAL::Code_infix_58__60__43__62_,
+'APPLY',
+                                                                                                                                ::DISPATCH(
+                                                                                                                                    $::Int,
+'new',
+                                                                                                                                    1
+                                                                                                                                  )
+                                                                                                                                ,
+                                                                                                                                ::DISPATCH(
+                                                                                                                                    $MATCH,
+'to',
+                                                                                                                                )
+                                                                                                                            )
+                                                                                                                        )
+                                                                                                                      )
+                                                                                                                }
+                                                                                                            }
+                                                                                                            else
+                                                                                                            {
+                                                                                                                {
+                                                                                                                    ::DISPATCH(
+                                                                                                                        $::Int,
+'new',
+                                                                                                                        0
+                                                                                                                      )
+                                                                                                                }
+                                                                                                            }
+                                                                                                          }
+                                                                                                    }
+                                                                                                }
+                                                                                              }
+                                                                                        }
+                                                                                      }
                                                                                 }
                                                                               }
                                                                         }
@@ -1167,89 +1327,129 @@
                                             {
                                                 ::DISPATCH( $MATCH, 'to',
                                                     $pos1 );
-                                                ::DISPATCH(
-                                                    $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
-                                                    'APPLY',
-                                                    ::DISPATCH(
-                                                        $GLOBAL::Code_infix_58__60__60__62_,
-                                                        'APPLY',
-                                                        ::DISPATCH(
-                                                            $GLOBAL::Code_length,
-                                                            'APPLY',
-                                                            $str
-                                                        ),
-                                                        ::DISPATCH(
-                                                            $::Int, 'new',
-                                                            1
-                                                        )
-                                                    ),
-                                                    ::DISPATCH(
-                                                        $::Int, 'new', 0
-                                                    ),
-                                                    ::DISPATCH(
-                                                        $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
-                                                        'APPLY',
+                                                do {
+                                                    {
                                                         do {
-                                                            {
+                                                            if (
                                                                 ::DISPATCH(
-                                                                    $GLOBAL::Code_infix_58__60_eq_62_,
-                                                                    'APPLY',
                                                                     ::DISPATCH(
-                                                                        $::Str,
-                                                                        'new',
-                                                                        '\\\''
-                                                                    ),
-                                                                    ::DISPATCH(
-                                                                        $GLOBAL::Code_substr,
-                                                                        'APPLY',
-                                                                        $str,
                                                                         ::DISPATCH(
-                                                                            $MATCH,
-'to',
-                                                                        ),
-                                                                        ::DISPATCH(
-                                                                            $::Int,
+                                                                            $GLOBAL::Code_infix_58__60__60__62_,
+'APPLY',
+                                                                            ::DISPATCH(
+                                                                                $GLOBAL::Code_length,
+'APPLY',
+                                                                                $str
+                                                                            ),
+                                                                            ::DISPATCH(
+                                                                                $::Int,
 'new',
-                                                                            1
-                                                                        )
-                                                                    )
-                                                                  )
-                                                            }
-                                                        },
-                                                        ::DISPATCH(
-                                                            $GLOBAL::Code_infix_58__60__43__62_,
-                                                            'APPLY',
-                                                            ::DISPATCH(
-                                                                $::Int, 'new',
-                                                                1
-                                                            ),
-                                                            ::DISPATCH_VAR(
-                                                                ::DISPATCH(
-                                                                    $MATCH,
-                                                                    'to',
-                                                                ),
-                                                                'STORE',
-                                                                ::DISPATCH(
-                                                                    $GLOBAL::Code_infix_58__60__43__62_,
-                                                                    'APPLY',
+                                                                                1
+                                                                            )
+                                                                        ),
+                                                                        "true"
+                                                                    ),
+                                                                    "p5landish"
+                                                                )
+                                                              )
+                                                            {
+                                                                {
                                                                     ::DISPATCH(
                                                                         $::Int,
                                                                         'new',
-                                                                        1
-                                                                    ),
-                                                                    ::DISPATCH(
-                                                                        $MATCH,
-                                                                        'to',
-                                                                    )
-                                                                )
-                                                            )
-                                                        ),
-                                                        ::DISPATCH(
-                                                            $::Int, 'new',
-                                                            0
-                                                        )
-                                                    )
-                                                  )
+                                                                        0
+                                                                      )
+                                                                }
+                                                            }
+                                                            else {
+                                                                {
+                                                                    do {
+                                                                        if (
+                                                                            ::DISPATCH(
+                                                                                ::DISPATCH(
+                                                                                    ::DISPATCH(
+                                                                                        $GLOBAL::Code_infix_58__60_eq_62_,
+'APPLY',
+                                                                                        ::DISPATCH(
+                                                                                            $::Str,
+'new',
+'\\\''
+                                                                                          )
+                                                                                        ,
+                                                                                        ::DISPATCH(
+                                                                                            $GLOBAL::Code_substr,
+'APPLY',
+                                                                                            $str,
+                                                                                            ::DISPATCH(
+                                                                                                $MATCH,
+'to',
+                                                                                              )
+                                                                                            ,
+                                                                                            ::DISPATCH(
+                                                                                                $::Int,
+'new',
+                                                                                                1
+                                                                                            )
+                                                                                        )
+                                                                                      )
+                                                                                    ,
+"true"
+                                                                                  )
+                                                                                ,
+"p5landish"
+                                                                            )
+                                                                          )
+                                                                        {
+                                                                            {
+                                                                                ::DISPATCH(
+                                                                                    $GLOBAL::Code_infix_58__60__43__62_,
+'APPLY',
+                                                                                    ::DISPATCH(
+                                                                                        $::Int,
+'new',
+                                                                                        1
+                                                                                      )
+                                                                                    ,
+                                                                                    ::DISPATCH_VAR(
+                                                                                        ::DISPATCH(
+                                                                                            $MATCH,
+'to',
+                                                                                          )
+                                                                                        ,
+'STORE',
+                                                                                        ::DISPATCH(
+                                                                                            $GLOBAL::Code_infix_58__60__43__62_,
+'APPLY',
+                                                                                            ::DISPATCH(
+                                                                                                $::Int,
+'new',
+                                                                                                1
+                                                                                              )
+                                                                                            ,
+                                                                                            ::DISPATCH(
+                                                                                                $MATCH,
+'to',
+                                                                                            )
+                                                                                        )
+                                                                                    )
+                                                                                  )
+                                                                            }
+                                                                        }
+                                                                        else {
+                                                                            {
+                                                                                ::DISPATCH(
+                                                                                    $::Int,
+'new',
+                                                                                    0
+                                                                                  )
+                                                                            }
+                                                                        }
+                                                                      }
+                                                                }
+                                                            }
+                                                          }
+                                                    }
+                                                  }
                                             }
                                           }
                                     )
@@ -1404,419 +1604,77 @@
                                         ::DISPATCH(
                                             $GLOBAL::Code_infix_58__60__38__38__62_,
                                             'APPLY',
-                                            ::DISPATCH(
-                                                $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
-                                                'APPLY',
-                                                ::DISPATCH(
-                                                    $GLOBAL::Code_infix_58__60__60__62_,
-                                                    'APPLY',
-                                                    ::DISPATCH(
-                                                        $GLOBAL::Code_length,
-                                                        'APPLY', $str
-                                                    ),
-                                                    ::DISPATCH(
-                                                        $::Int, 'new', 1
-                                                    )
-                                                ),
-                                                ::DISPATCH( $::Int, 'new', 0 ),
-                                                ::DISPATCH(
-                                                    $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
-                                                    'APPLY',
+                                            do {
+                                                {
                                                     do {
-                                                        {
+                                                        if (
                                                             ::DISPATCH(
-                                                                $GLOBAL::Code_infix_58__60_eq_62_,
-                                                                'APPLY',
                                                                 ::DISPATCH(
-                                                                    $::Str,
-                                                                    'new',
-                                                                    't'
-                                                                ),
-                                                                ::DISPATCH(
-                                                                    $GLOBAL::Code_substr,
-                                                                    'APPLY',
-                                                                    $str,
                                                                     ::DISPATCH(
-                                                                        $MATCH,
-                                                                        'to',
+                                                                        $GLOBAL::Code_infix_58__60__60__62_,
+                                                                        'APPLY',
+                                                                        ::DISPATCH(
+                                                                            $GLOBAL::Code_length,
+'APPLY',
+                                                                            $str
+                                                                        ),
+                                                                        ::DISPATCH(
+                                                                            $::Int,
+'new',
+                                                                            1
+                                                                        )
                                                                     ),
-                                                                    ::DISPATCH(
-                                                                        $::Int,
-                                                                        'new',
-                                                                        1
-                                                                    )
-                                                                )
-                                                              )
-                                                        }
-                                                    },
-                                                    ::DISPATCH(
-                                                        $GLOBAL::Code_infix_58__60__43__62_,
-                                                        'APPLY',
-                                                        ::DISPATCH(
-                                                            $::Int, 'new',
-                                                            1
-                                                        ),
-                                                        ::DISPATCH_VAR(
-                                                            ::DISPATCH(
-                                                                $MATCH, 'to',
-                                                            ),
-                                                            'STORE',
-                                                            ::DISPATCH(
-                                                                $GLOBAL::Code_infix_58__60__43__62_,
-                                                                'APPLY',
-                                                                ::DISPATCH(
-                                                                    $::Int,
-                                                                    'new',
-                                                                    1
+                                                                    "true"
                                                                 ),
-                                                                ::DISPATCH(
-                                                                    $MATCH,
-                                                                    'to',
-                                                                )
+                                                                "p5landish"
                                                             )
-                                                        )
-                                                    ),
-                                                    ::DISPATCH(
-                                                        $::Int, 'new', 0
-                                                    )
-                                                )
-                                            ),
-                                            ::DISPATCH(
-                                                $GLOBAL::Code_infix_58__60__38__38__62_,
-                                                'APPLY',
-                                                ::DISPATCH(
-                                                    $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
-                                                    'APPLY',
-                                                    ::DISPATCH(
-                                                        $GLOBAL::Code_infix_58__60__60__62_,
-                                                        'APPLY',
-                                                        ::DISPATCH(
-                                                            $GLOBAL::Code_length,
-                                                            'APPLY',
-                                                            $str
-                                                        ),
-                                                        ::DISPATCH(
-                                                            $::Int, 'new',
-                                                            1
-                                                        )
-                                                    ),
-                                                    ::DISPATCH(
-                                                        $::Int, 'new', 0
-                                                    ),
-                                                    ::DISPATCH(
-                                                        $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
-                                                        'APPLY',
-                                                        do {
+                                                          )
+                                                        {
                                                             {
                                                                 ::DISPATCH(
-                                                                    $GLOBAL::Code_infix_58__60_eq_62_,
-                                                                    'APPLY',
-                                                                    ::DISPATCH(
-                                                                        $::Str,
-                                                                        'new',
-                                                                        'o'
-                                                                    ),
-                                                                    ::DISPATCH(
-                                                                        $GLOBAL::Code_substr,
-                                                                        'APPLY',
-                                                                        $str,
-                                                                        ::DISPATCH(
-                                                                            $MATCH,
-'to',
-                                                                        ),
-                                                                        ::DISPATCH(
-                                                                            $::Int,
-'new',
-                                                                            1
-                                                                        )
-                                                                    )
-                                                                  )
+                                                                    $::Int,
+                                                                    'new', 0 )
                                                             }
-                                                        },
-                                                        ::DISPATCH(
-                                                            $GLOBAL::Code_infix_58__60__43__62_,
-                                                            'APPLY',
-                                                            ::DISPATCH(
-                                                                $::Int, 'new',
-                                                                1
-                                                            ),
-                                                            ::DISPATCH_VAR(
-                                                                ::DISPATCH(
-                                                                    $MATCH,
-                                                                    'to',
-                                                                ),
-                                                                'STORE',
-                                                                ::DISPATCH(
-                                                                    $GLOBAL::Code_infix_58__60__43__62_,
-                                                                    'APPLY',
-                                                                    ::DISPATCH(
-                                                                        $::Int,
-                                                                        'new',
-                                                                        1
-                                                                    ),
-                                                                    ::DISPATCH(
-                                                                        $MATCH,
-                                                                        'to',
-                                                                    )
-                                                                )
-                                                            )
-                                                        ),
-                                                        ::DISPATCH(
-                                                            $::Int, 'new',
-                                                            0
-                                                        )
-                                                    )
-                                                ),
-                                                ::DISPATCH(
-                                                    $GLOBAL::Code_infix_58__60__38__38__62_,
-                                                    'APPLY',
-                                                    ::DISPATCH(
-                                                        $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
-                                                        'APPLY',
-                                                        ::DISPATCH(
-                                                            $GLOBAL::Code_infix_58__60__60__62_,
-                                                            'APPLY',
-                                                            ::DISPATCH(
-                                                                $GLOBAL::Code_length,
-                                                                'APPLY',
-                                                                $str
-                                                            ),
-                                                            ::DISPATCH(
-                                                                $::Int, 'new',
-                                                                1
-                                                            )
-                                                        ),
-                                                        ::DISPATCH(
-                                                            $::Int, 'new',
-                                                            0
-                                                        ),
-                                                        ::DISPATCH(
-                                                            $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
-                                                            'APPLY',
-                                                            do {
-                                                                {
-                                                                    ::DISPATCH(
-                                                                        $GLOBAL::Code_infix_58__60_eq_62_,
-                                                                        'APPLY',
-                                                                        ::DISPATCH(
-                                                                            $::Str,
-'new',
-                                                                            'k'
-                                                                        ),
-                                                                        ::DISPATCH(
-                                                                            $GLOBAL::Code_substr,
-'APPLY',
-                                                                            $str,
-                                                                            ::DISPATCH(
-                                                                                $MATCH,
-'to',
-                                                                            ),
-                                                                            ::DISPATCH(
-                                                                                $::Int,
-'new',
-                                                                                1
-                                                                            )
-                                                                        )
-                                                                      )
-                                                                }
-                                                            },
-                                                            ::DISPATCH(
-                                                                $GLOBAL::Code_infix_58__60__43__62_,
-                                                                'APPLY',
-                                                                ::DISPATCH(
-                                                                    $::Int,
-                                                                    'new',
-                                                                    1
-                                                                ),
-                                                                ::DISPATCH_VAR(
-                                                                    ::DISPATCH(
-                                                                        $MATCH,
-                                                                        'to',
-                                                                    ),
-                                                                    'STORE',
-                                                                    ::DISPATCH(
-                                                                        $GLOBAL::Code_infix_58__60__43__62_,
-                                                                        'APPLY',
-                                                                        ::DISPATCH(
-                                                                            $::Int,
-'new',
-                                                                            1
-                                                                        ),
-                                                                        ::DISPATCH(
-                                                                            $MATCH,
-'to',
-                                                                        )
-                                                                    )
-                                                                )
-                                                            ),
-                                                            ::DISPATCH(
-                                                                $::Int, 'new',
-                                                                0
-                                                            )
-                                                        )
-                                                    ),
-                                                    ::DISPATCH(
-                                                        $GLOBAL::Code_infix_58__60__38__38__62_,
-                                                        'APPLY',
-                                                        ::DISPATCH(
-                                                            $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
-                                                            'APPLY',
-                                                            ::DISPATCH(
-                                                                $GLOBAL::Code_infix_58__60__60__62_,
-                                                                'APPLY',
-                                                                ::DISPATCH(
-                                                                    $GLOBAL::Code_length,
-                                                                    'APPLY',
-                                                                    $str
-                                                                ),
-                                                                ::DISPATCH(
-                                                                    $::Int,
-                                                                    'new',
-                                                                    1
-                                                                )
-                                                            ),
-                                                            ::DISPATCH(
-                                                                $::Int, 'new',
-                                                                0
-                                                            ),
-                                                            ::DISPATCH(
-                                                                $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
-                                                                'APPLY',
+                                                        }
+                                                        else {
+                                                            {
                                                                 do {
-                                                                    {
+                                                                    if (
                                                                         ::DISPATCH(
-                                                                            $GLOBAL::Code_infix_58__60_eq_62_,
-'APPLY',
                                                                             ::DISPATCH(
-                                                                                $::Str,
-'new',
-'e'
-                                                                            ),
-                                                                            ::DISPATCH(
-                                                                                $GLOBAL::Code_substr,
-'APPLY',
-                                                                                $str,
                                                                                 ::DISPATCH(
-                                                                                    $MATCH,
-'to',
-                                                                                  )
-                                                                                ,
-                                                                                ::DISPATCH(
-                                                                                    $::Int,
-'new',
-                                                                                    1
-                                                                                )
-                                                                            )
-                                                                          )
-                                                                    }
-                                                                },
-                                                                ::DISPATCH(
-                                                                    $GLOBAL::Code_infix_58__60__43__62_,
-                                                                    'APPLY',
-                                                                    ::DISPATCH(
-                                                                        $::Int,
-                                                                        'new',
-                                                                        1
-                                                                    ),
-                                                                    ::DISPATCH_VAR(
-                                                                        ::DISPATCH(
-                                                                            $MATCH,
-'to',
-                                                                        ),
-                                                                        'STORE',
-                                                                        ::DISPATCH(
-                                                                            $GLOBAL::Code_infix_58__60__43__62_,
+                                                                                    $GLOBAL::Code_infix_58__60_eq_62_,
 'APPLY',
-                                                                            ::DISPATCH(
-                                                                                $::Int,
-'new',
-                                                                                1
-                                                                            ),
-                                                                            ::DISPATCH(
-                                                                                $MATCH,
-'to',
-                                                                            )
-                                                                        )
-                                                                    )
-                                                                ),
-                                                                ::DISPATCH(
-                                                                    $::Int,
-                                                                    'new',
-                                                                    0
-                                                                )
-                                                            )
-                                                        ),
-                                                        ::DISPATCH(
-                                                            $GLOBAL::Code_infix_58__60__38__38__62_,
-                                                            'APPLY',
-                                                            ::DISPATCH(
-                                                                $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
-                                                                'APPLY',
-                                                                ::DISPATCH(
-                                                                    $GLOBAL::Code_infix_58__60__60__62_,
-                                                                    'APPLY',
-                                                                    ::DISPATCH(
-                                                                        $GLOBAL::Code_length,
-                                                                        'APPLY',
-                                                                        $str
-                                                                    ),
-                                                                    ::DISPATCH(
-                                                                        $::Int,
-                                                                        'new',
-                                                                        1
-                                                                    )
-                                                                ),
-                                                                ::DISPATCH(
-                                                                    $::Int,
-                                                                    'new',
-                                                                    0
-                                                                ),
-                                                                ::DISPATCH(
-                                                                    $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
-                                                                    'APPLY',
-                                                                    do {
-                                                                        {
-                                                                            ::DISPATCH(
-                                                                                $GLOBAL::Code_infix_58__60_eq_62_,
-'APPLY',
-                                                                                ::DISPATCH(
-                                                                                    $::Str,
-'new',
-'n'
-                                                                                  )
-                                                                                ,
-                                                                                ::DISPATCH(
-                                                                                    $GLOBAL::Code_substr,
-'APPLY',
-                                                                                    $str,
                                                                                     ::DISPATCH(
-                                                                                        $MATCH,
-'to',
+                                                                                        $::Str,
+'new',
+'t'
                                                                                       )
                                                                                     ,
                                                                                     ::DISPATCH(
-                                                                                        $::Int,
-'new',
-                                                                                        1
-                                                                                    )
-                                                                                )
-                                                                              )
-                                                                        }
-                                                                    },
-                                                                    ::DISPATCH(
-                                                                        $GLOBAL::Code_infix_58__60__43__62_,
-                                                                        'APPLY',
-                                                                        ::DISPATCH(
-                                                                            $::Int,
-'new',
-                                                                            1
-                                                                        ),
-                                                                        ::DISPATCH_VAR(
-                                                                            ::DISPATCH(
-                                                                                $MATCH,
+                                                                                        $GLOBAL::Code_substr,
+'APPLY',
+                                                                                        $str,
+                                                                                        ::DISPATCH(
+                                                                                            $MATCH,
 'to',
+                                                                                          )
+                                                                                        ,
+                                                                                        ::DISPATCH(
+                                                                                            $::Int,
+'new',
+                                                                                            1
+                                                                                        )
+                                                                                    )
+                                                                                  )
+                                                                                ,
+"true"
                                                                             ),
-'STORE',
+"p5landish"
+                                                                        )
+                                                                      )
+                                                                    {
+                                                                        {
                                                                             ::DISPATCH(
                                                                                 $GLOBAL::Code_infix_58__60__43__62_,
 'APPLY',
@@ -1826,20 +1684,562 @@
                                                                                     1
                                                                                   )
                                                                                 ,
-                                                                                ::DISPATCH(
-                                                                                    $MATCH,
+                                                                                ::DISPATCH_VAR(
+                                                                                    ::DISPATCH(
+                                                                                        $MATCH,
 'to',
+                                                                                      )
+                                                                                    ,
+'STORE',
+                                                                                    ::DISPATCH(
+                                                                                        $GLOBAL::Code_infix_58__60__43__62_,
+'APPLY',
+                                                                                        ::DISPATCH(
+                                                                                            $::Int,
+'new',
+                                                                                            1
+                                                                                          )
+                                                                                        ,
+                                                                                        ::DISPATCH(
+                                                                                            $MATCH,
+'to',
+                                                                                        )
+                                                                                    )
                                                                                 )
+                                                                              )
+                                                                        }
+                                                                    }
+                                                                    else {
+                                                                        {
+                                                                            ::DISPATCH(
+                                                                                $::Int,
+'new',
+                                                                                0
+                                                                              )
+                                                                        }
+                                                                    }
+                                                                  }
+                                                            }
+                                                        }
+                                                      }
+                                                }
+                                            },
+                                            ::DISPATCH(
+                                                $GLOBAL::Code_infix_58__60__38__38__62_,
+                                                'APPLY',
+                                                do {
+                                                    {
+                                                        do {
+                                                            if (
+                                                                ::DISPATCH(
+                                                                    ::DISPATCH(
+                                                                        ::DISPATCH(
+                                                                            $GLOBAL::Code_infix_58__60__60__62_,
+'APPLY',
+                                                                            ::DISPATCH(
+                                                                                $GLOBAL::Code_length,
+'APPLY',
+                                                                                $str
+                                                                            ),
+                                                                            ::DISPATCH(
+                                                                                $::Int,
+'new',
+                                                                                1
                                                                             )
-                                                                        )
+                                                                        ),
+                                                                        "true"
                                                                     ),
+                                                                    "p5landish"
+                                                                )
+                                                              )
+                                                            {
+                                                                {
                                                                     ::DISPATCH(
                                                                         $::Int,
                                                                         'new',
                                                                         0
+                                                                      )
+                                                                }
+                                                            }
+                                                            else {
+                                                                {
+                                                                    do {
+                                                                        if (
+                                                                            ::DISPATCH(
+                                                                                ::DISPATCH(
+                                                                                    ::DISPATCH(
+                                                                                        $GLOBAL::Code_infix_58__60_eq_62_,
+'APPLY',
+                                                                                        ::DISPATCH(
+                                                                                            $::Str,
+'new',
+'o'
+                                                                                          )
+                                                                                        ,
+                                                                                        ::DISPATCH(
+                                                                                            $GLOBAL::Code_substr,
+'APPLY',
+                                                                                            $str,
+                                                                                            ::DISPATCH(
+                                                                                                $MATCH,
+'to',
+                                                                                              )
+                                                                                            ,
+                                                                                            ::DISPATCH(
+                                                                                                $::Int,
+'new',
+                                                                                                1
+                                                                                            )
+                                                                                        )
+                                                                                      )
+                                                                                    ,
+"true"
+                                                                                  )
+                                                                                ,
+"p5landish"
+                                                                            )
+                                                                          )
+                                                                        {
+                                                                            {
+                                                                                ::DISPATCH(
+                                                                                    $GLOBAL::Code_infix_58__60__43__62_,
+'APPLY',
+                                                                                    ::DISPATCH(
+                                                                                        $::Int,
+'new',
+                                                                                        1
+                                                                                      )
+                                                                                    ,
+                                                                                    ::DISPATCH_VAR(
+                                                                                        ::DISPATCH(
+                                                                                            $MATCH,
+'to',
+                                                                                          )
+                                                                                        ,
+'STORE',
+                                                                                        ::DISPATCH(
+                                                                                            $GLOBAL::Code_infix_58__60__43__62_,
+'APPLY',
+                                                                                            ::DISPATCH(
+                                                                                                $::Int,
+'new',
+                                                                                                1
+                                                                                              )
+                                                                                            ,
+                                                                                            ::DISPATCH(
+                                                                                                $MATCH,
+'to',
+                                                                                            )
+                                                                                        )
+                                                                                    )
+                                                                                  )
+                                                                            }
+                                                                        }
+                                                                        else {
+                                                                            {
+                                                                                ::DISPATCH(
+                                                                                    $::Int,
+'new',
+                                                                                    0
+                                                                                  )
+                                                                            }
+                                                                        }
+                                                                      }
+                                                                }
+                                                            }
+                                                          }
+                                                    }
+                                                },
+                                                ::DISPATCH(
+                                                    $GLOBAL::Code_infix_58__60__38__38__62_,
+                                                    'APPLY',
+                                                    do {
+                                                        {
+                                                            do {
+                                                                if (
+                                                                    ::DISPATCH(
+                                                                        ::DISPATCH(
+                                                                            ::DISPATCH(
+                                                                                $GLOBAL::Code_infix_58__60__60__62_,
+'APPLY',
+                                                                                ::DISPATCH(
+                                                                                    $GLOBAL::Code_length,
+'APPLY',
+                                                                                    $str
+                                                                                  )
+                                                                                ,
+                                                                                ::DISPATCH(
+                                                                                    $::Int,
+'new',
+                                                                                    1
+                                                                                )
+                                                                            ),
+"true"
+                                                                        ),
+"p5landish"
                                                                     )
-                                                                )
-                                                            ),
+                                                                  )
+                                                                {
+                                                                    {
+                                                                        ::DISPATCH(
+                                                                            $::Int,
+'new',
+                                                                            0
+                                                                          )
+                                                                    }
+                                                                }
+                                                                else {
+                                                                    {
+                                                                        do {
+                                                                            if (
+                                                                                ::DISPATCH(
+                                                                                    ::DISPATCH(
+                                                                                        ::DISPATCH(
+                                                                                            $GLOBAL::Code_infix_58__60_eq_62_,
+'APPLY',
+                                                                                            ::DISPATCH(
+                                                                                                $::Str,
+'new',
+'k'
+                                                                                              )
+                                                                                            ,
+                                                                                            ::DISPATCH(
+                                                                                                $GLOBAL::Code_substr,
+'APPLY',
+                                                                                                $str,
+                                                                                                ::DISPATCH(
+                                                                                                    $MATCH,
+'to',
+                                                                                                  )
+                                                                                                ,
+                                                                                                ::DISPATCH(
+                                                                                                    $::Int,
+'new',
+                                                                                                    1
+                                                                                                )
+                                                                                            )
+                                                                                          )
+                                                                                        ,
+"true"
+                                                                                      )
+                                                                                    ,
+"p5landish"
+                                                                                )
+                                                                              )
+                                                                            {
+                                                                                {
+                                                                                    ::DISPATCH(
+                                                                                        $GLOBAL::Code_infix_58__60__43__62_,
+'APPLY',
+                                                                                        ::DISPATCH(
+                                                                                            $::Int,
+'new',
+                                                                                            1
+                                                                                          )
+                                                                                        ,
+                                                                                        ::DISPATCH_VAR(
+                                                                                            ::DISPATCH(
+                                                                                                $MATCH,
+'to',
+                                                                                              )
+                                                                                            ,
+'STORE',
+                                                                                            ::DISPATCH(
+                                                                                                $GLOBAL::Code_infix_58__60__43__62_,
+'APPLY',
+                                                                                                ::DISPATCH(
+                                                                                                    $::Int,
+'new',
+                                                                                                    1
+                                                                                                  )
+                                                                                                ,
+                                                                                                ::DISPATCH(
+                                                                                                    $MATCH,
+'to',
+                                                                                                )
+                                                                                            )
+                                                                                        )
+                                                                                      )
+                                                                                }
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                {
+                                                                                    ::DISPATCH(
+                                                                                        $::Int,
+'new',
+                                                                                        0
+                                                                                      )
+                                                                                }
+                                                                            }
+                                                                          }
+                                                                    }
+                                                                }
+                                                              }
+                                                        }
+                                                    },
+                                                    ::DISPATCH(
+                                                        $GLOBAL::Code_infix_58__60__38__38__62_,
+                                                        'APPLY',
+                                                        do {
+                                                            {
+                                                                do {
+                                                                    if (
+                                                                        ::DISPATCH(
+                                                                            ::DISPATCH(
+                                                                                ::DISPATCH(
+                                                                                    $GLOBAL::Code_infix_58__60__60__62_,
+'APPLY',
+                                                                                    ::DISPATCH(
+                                                                                        $GLOBAL::Code_length,
+'APPLY',
+                                                                                        $str
+                                                                                      )
+                                                                                    ,
+                                                                                    ::DISPATCH(
+                                                                                        $::Int,
+'new',
+                                                                                        1
+                                                                                    )
+                                                                                  )
+                                                                                ,
+"true"
+                                                                            ),
+"p5landish"
+                                                                        )
+                                                                      )
+                                                                    {
+                                                                        {
+                                                                            ::DISPATCH(
+                                                                                $::Int,
+'new',
+                                                                                0
+                                                                              )
+                                                                        }
+                                                                    }
+                                                                    else {
+                                                                        {
+                                                                            do {
+                                                                                if
+                                                                                  (
+                                                                                    ::DISPATCH(
+                                                                                        ::DISPATCH(
+                                                                                            ::DISPATCH(
+                                                                                                $GLOBAL::Code_infix_58__60_eq_62_,
+'APPLY',
+                                                                                                ::DISPATCH(
+                                                                                                    $::Str,
+'new',
+'e'
+                                                                                                  )
+                                                                                                ,
+                                                                                                ::DISPATCH(
+                                                                                                    $GLOBAL::Code_substr,
+'APPLY',
+                                                                                                    $str,
+                                                                                                    ::DISPATCH(
+                                                                                                        $MATCH,
+'to',
+                                                                                                      )
+                                                                                                    ,
+                                                                                                    ::DISPATCH(
+                                                                                                        $::Int,
+'new',
+                                                                                                        1
+                                                                                                    )
+                                                                                                )
+                                                                                              )
+                                                                                            ,
+"true"
+                                                                                          )
+                                                                                        ,
+"p5landish"
+                                                                                    )
+                                                                                  )
+                                                                                {
+                                                                                    {
+                                                                                        ::DISPATCH(
+                                                                                            $GLOBAL::Code_infix_58__60__43__62_,
+'APPLY',
+                                                                                            ::DISPATCH(
+                                                                                                $::Int,
+'new',
+                                                                                                1
+                                                                                              )
+                                                                                            ,
+                                                                                            ::DISPATCH_VAR(
+                                                                                                ::DISPATCH(
+                                                                                                    $MATCH,
+'to',
+                                                                                                  )
+                                                                                                ,
+'STORE',
+                                                                                                ::DISPATCH(
+                                                                                                    $GLOBAL::Code_infix_58__60__43__62_,
+'APPLY',
+                                                                                                    ::DISPATCH(
+                                                                                                        $::Int,
+'new',
+                                                                                                        1
+                                                                                                      )
+                                                                                                    ,
+                                                                                                    ::DISPATCH(
+                                                                                                        $MATCH,
+'to',
+                                                                                                    )
+                                                                                                )
+                                                                                            )
+                                                                                          )
+                                                                                    }
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    {
+                                                                                        ::DISPATCH(
+                                                                                            $::Int,
+'new',
+                                                                                            0
+                                                                                          )
+                                                                                    }
+                                                                                }
+                                                                              }
+                                                                        }
+                                                                    }
+                                                                  }
+                                                            }
+                                                        },
+                                                        ::DISPATCH(
+                                                            $GLOBAL::Code_infix_58__60__38__38__62_,
+                                                            'APPLY',
+                                                            do {
+                                                                {
+                                                                    do {
+                                                                        if (
+                                                                            ::DISPATCH(
+                                                                                ::DISPATCH(
+                                                                                    ::DISPATCH(
+                                                                                        $GLOBAL::Code_infix_58__60__60__62_,
+'APPLY',
+                                                                                        ::DISPATCH(
+                                                                                            $GLOBAL::Code_length,
+'APPLY',
+                                                                                            $str
+                                                                                          )
+                                                                                        ,
+                                                                                        ::DISPATCH(
+                                                                                            $::Int,
+'new',
+                                                                                            1
+                                                                                        )
+                                                                                      )
+                                                                                    ,
+"true"
+                                                                                  )
+                                                                                ,
+"p5landish"
+                                                                            )
+                                                                          )
+                                                                        {
+                                                                            {
+                                                                                ::DISPATCH(
+                                                                                    $::Int,
+'new',
+                                                                                    0
+                                                                                  )
+                                                                            }
+                                                                        }
+                                                                        else {
+                                                                            {
+                                                                                do
+                                                                                {
+                                                                                    if
+                                                                                      (
+                                                                                        ::DISPATCH(
+                                                                                            ::DISPATCH(
+                                                                                                ::DISPATCH(
+                                                                                                    $GLOBAL::Code_infix_58__60_eq_62_,
+'APPLY',
+                                                                                                    ::DISPATCH(
+                                                                                                        $::Str,
+'new',
+'n'
+                                                                                                      )
+                                                                                                    ,
+                                                                                                    ::DISPATCH(
+                                                                                                        $GLOBAL::Code_substr,
+'APPLY',
+                                                                                                        $str,
+                                                                                                        ::DISPATCH(
+                                                                                                            $MATCH,
+'to',
+                                                                                                          )
+                                                                                                        ,
+                                                                                                        ::DISPATCH(
+                                                                                                            $::Int,
+'new',
+                                                                                                            1
+                                                                                                        )
+                                                                                                    )
+                                                                                                  )
+                                                                                                ,
+"true"
+                                                                                              )
+                                                                                            ,
+"p5landish"
+                                                                                        )
+                                                                                      )
+                                                                                    {
+                                                                                        {
+                                                                                            ::DISPATCH(
+                                                                                                $GLOBAL::Code_infix_58__60__43__62_,
+'APPLY',
+                                                                                                ::DISPATCH(
+                                                                                                    $::Int,
+'new',
+                                                                                                    1
+                                                                                                  )
+                                                                                                ,
+                                                                                                ::DISPATCH_VAR(
+                                                                                                    ::DISPATCH(
+                                                                                                        $MATCH,
+'to',
+                                                                                                      )
+                                                                                                    ,
+'STORE',
+                                                                                                    ::DISPATCH(
+                                                                                                        $GLOBAL::Code_infix_58__60__43__62_,
+'APPLY',
+                                                                                                        ::DISPATCH(
+                                                                                                            $::Int,
+'new',
+                                                                                                            1
+                                                                                                          )
+                                                                                                        ,
+                                                                                                        ::DISPATCH(
+                                                                                                            $MATCH,
+'to',
+                                                                                                        )
+                                                                                                    )
+                                                                                                )
+                                                                                              )
+                                                                                        }
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        {
+                                                                                            ::DISPATCH(
+                                                                                                $::Int,
+'new',
+                                                                                                0
+                                                                                              )
+                                                                                        }
+                                                                                    }
+                                                                                  }
+                                                                            }
+                                                                        }
+                                                                      }
+                                                                }
+                                                            },
                                                             ::DISPATCH(
                                                                 $GLOBAL::Code_infix_58__60__38__38__62_,
                                                                 'APPLY',
@@ -2365,105 +2765,139 @@
                                                                                 ::DISPATCH(
                                                                                     $GLOBAL::Code_infix_58__60__38__38__62_,
 'APPLY',
-                                                                                    ::DISPATCH(
-                                                                                        $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
-'APPLY',
-                                                                                        ::DISPATCH(
-                                                                                            $GLOBAL::Code_infix_58__60__60__62_,
-'APPLY',
-                                                                                            ::DISPATCH(
-                                                                                                $GLOBAL::Code_length,
-'APPLY',
-                                                                                                $str
-                                                                                              )
-                                                                                            ,
-                                                                                            ::DISPATCH(
-                                                                                                $::Int,
-'new',
-                                                                                                1
-                                                                                            )
-                                                                                          )
-                                                                                        ,
-                                                                                        ::DISPATCH(
-                                                                                            $::Int,
-'new',
-                                                                                            0
-                                                                                          )
-                                                                                        ,
-                                                                                        ::DISPATCH(
-                                                                                            $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
-'APPLY',
+                                                                                    do
+                                                                                    {
+                                                                                        {
                                                                                             do
                                                                                             {
-                                                                                                {
+                                                                                                if
+                                                                                                  (
                                                                                                     ::DISPATCH(
-                                                                                                        $GLOBAL::Code_infix_58__60_eq_62_,
-'APPLY',
                                                                                                         ::DISPATCH(
-                                                                                                            $::Str,
-'new',
-'{'
-                                                                                                          )
-                                                                                                        ,
-                                                                                                        ::DISPATCH(
-                                                                                                            $GLOBAL::Code_substr,
-'APPLY',
-                                                                                                            $str,
                                                                                                             ::DISPATCH(
-                                                                                                                $MATCH,
-'to',
+                                                                                                                $GLOBAL::Code_infix_58__60__60__62_,
+'APPLY',
+                                                                                                                ::DISPATCH(
+                                                                                                                    $GLOBAL::Code_length,
+'APPLY',
+                                                                                                                    $str
+                                                                                                                  )
+                                                                                                                ,
+                                                                                                                ::DISPATCH(
+                                                                                                                    $::Int,
+'new',
+                                                                                                                    1
+                                                                                                                )
                                                                                                               )
                                                                                                             ,
-                                                                                                            ::DISPATCH(
-                                                                                                                $::Int,
-'new',
-                                                                                                                1
-                                                                                                            )
-                                                                                                        )
-                                                                                                      )
-                                                                                                }
-                                                                                              }
-                                                                                            ,
-                                                                                            ::DISPATCH(
-                                                                                                $GLOBAL::Code_infix_58__60__43__62_,
-'APPLY',
-                                                                                                ::DISPATCH(
-                                                                                                    $::Int,
-'new',
-                                                                                                    1
+"true"
+                                                                                                          )
+                                                                                                        ,
+"p5landish"
+                                                                                                    )
                                                                                                   )
-                                                                                                ,
-                                                                                                ::DISPATCH_VAR(
-                                                                                                    ::DISPATCH(
-                                                                                                        $MATCH,
-'to',
-                                                                                                      )
-                                                                                                    ,
-'STORE',
-                                                                                                    ::DISPATCH(
-                                                                                                        $GLOBAL::Code_infix_58__60__43__62_,
-'APPLY',
+                                                                                                {
+                                                                                                    {
                                                                                                         ::DISPATCH(
                                                                                                             $::Int,
 'new',
-                                                                                                            1
+                                                                                                            0
                                                                                                           )
-                                                                                                        ,
-                                                                                                        ::DISPATCH(
-                                                                                                            $MATCH,
-'to',
-                                                                                                        )
-                                                                                                    )
-                                                                                                )
-                                                                                              )
-                                                                                            ,
-                                                                                            ::DISPATCH(
-                                                                                                $::Int,
+                                                                                                    }
+                                                                                                }
+                                                                                                else
+                                                                                                {
+                                                                                                    {
+                                                                                                        do
+                                                                                                        {
+                                                                                                            if
+                                                                                                              (
+                                                                                                                ::DISPATCH(
+                                                                                                                    ::DISPATCH(
+                                                                                                                        ::DISPATCH(
+                                                                                                                            $GLOBAL::Code_infix_58__60_eq_62_,
+'APPLY',
+                                                                                                                            ::DISPATCH(
+                                                                                                                                $::Str,
 'new',
-                                                                                                0
-                                                                                            )
-                                                                                        )
-                                                                                      )
+'{'
+                                                                                                                              )
+                                                                                                                            ,
+                                                                                                                            ::DISPATCH(
+                                                                                                                                $GLOBAL::Code_substr,
+'APPLY',
+                                                                                                                                $str,
+                                                                                                                                ::DISPATCH(
+                                                                                                                                    $MATCH,
+'to',
+                                                                                                                                  )
+                                                                                                                                ,
+                                                                                                                                ::DISPATCH(
+                                                                                                                                    $::Int,
+'new',
+                                                                                                                                    1
+                                                                                                                                )
+                                                                                                                            )
+                                                                                                                          )
+                                                                                                                        ,
+"true"
+                                                                                                                      )
+                                                                                                                    ,
+"p5landish"
+                                                                                                                )
+                                                                                                              )
+                                                                                                            {
+                                                                                                                {
+                                                                                                                    ::DISPATCH(
+                                                                                                                        $GLOBAL::Code_infix_58__60__43__62_,
+'APPLY',
+                                                                                                                        ::DISPATCH(
+                                                                                                                            $::Int,
+'new',
+                                                                                                                            1
+                                                                                                                          )
+                                                                                                                        ,
+                                                                                                                        ::DISPATCH_VAR(
+                                                                                                                            ::DISPATCH(
+                                                                                                                                $MATCH,
+'to',
+                                                                                                                              )
+                                                                                                                            ,
+'STORE',
+                                                                                                                            ::DISPATCH(
+                                                                                                                                $GLOBAL::Code_infix_58__60__43__62_,
+'APPLY',
+                                                                                                                                ::DISPATCH(
+                                                                                                                                    $::Int,
+'new',
+                                                                                                                                    1
+                                                                                                                                  )
+                                                                                                                                ,
+                                                                                                                                ::DISPATCH(
+                                                                                                                                    $MATCH,
+'to',
+                                                                                                                                )
+                                                                                                                            )
+                                                                                                                        )
+                                                                                                                      )
+                                                                                                                }
+                                                                                                            }
+                                                                                                            else
+                                                                                                            {
+                                                                                                                {
+                                                                                                                    ::DISPATCH(
+                                                                                                                        $::Int,
+'new',
+                                                                                                                        0
+                                                                                                                      )
+                                                                                                                }
+                                                                                                            }
+                                                                                                          }
+                                                                                                    }
+                                                                                                }
+                                                                                              }
+                                                                                        }
+                                                                                      }
                                                                                     ,
                                                                                     ::DISPATCH(
                                                                                         $GLOBAL::Code_infix_58__60__38__38__62_,
@@ -2585,105 +3019,139 @@
                                                                                         ::DISPATCH(
                                                                                             $GLOBAL::Code_infix_58__60__38__38__62_,
 'APPLY',
-                                                                                            ::DISPATCH(
-                                                                                                $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
-'APPLY',
-                                                                                                ::DISPATCH(
-                                                                                                    $GLOBAL::Code_infix_58__60__60__62_,
-'APPLY',
-                                                                                                    ::DISPATCH(
-                                                                                                        $GLOBAL::Code_length,
-'APPLY',
-                                                                                                        $str
-                                                                                                      )
-                                                                                                    ,
-                                                                                                    ::DISPATCH(
-                                                                                                        $::Int,
-'new',
-                                                                                                        1
-                                                                                                    )
-                                                                                                  )
-                                                                                                ,
-                                                                                                ::DISPATCH(
-                                                                                                    $::Int,
-'new',
-                                                                                                    0
-                                                                                                  )
-                                                                                                ,
-                                                                                                ::DISPATCH(
-                                                                                                    $GLOBAL::Code_ternary_58__60__63__63__32__33__33__62_,
-'APPLY',
+                                                                                            do
+                                                                                            {
+                                                                                                {
                                                                                                     do
                                                                                                     {
-                                                                                                        {
+                                                                                                        if
+                                                                                                          (
                                                                                                             ::DISPATCH(
-                                                                                                                $GLOBAL::Code_infix_58__60_eq_62_,
-'APPLY',
                                                                                                                 ::DISPATCH(
-                                                                                                                    $::Str,
-'new',
-'}'
-                                                                                                                  )
-                                                                                                                ,
-                                                                                                                ::DISPATCH(
-                                                                                                                    $GLOBAL::Code_substr,
-'APPLY',
-                                                                                                                    $str,
                                                                                                                     ::DISPATCH(
-                                                                                                                        $MATCH,
-'to',
+                                                                                                                        $GLOBAL::Code_infix_58__60__60__62_,
+'APPLY',
+                                                                                                                        ::DISPATCH(
+                                                                                                                            $GLOBAL::Code_length,
+'APPLY',
+                                                                                                                            $str
+                                                                                                                          )
+                                                                                                                        ,
+                                                                                                                        ::DISPATCH(
+                                                                                                                            $::Int,
+'new',
+                                                                                                                            1
+                                                                                                                        )
                                                                                                                       )
                                                                                                                     ,
-                                                                                                                    ::DISPATCH(
-                                                                                                                        $::Int,
-'new',
-                                                                                                                        1
-                                                                                                                    )
-                                                                                                                )
-                                                                                                              )
-                                                                                                        }
-                                                                                                      }
-                                                                                                    ,
-                                                                                                    ::DISPATCH(
-                                                                                                        $GLOBAL::Code_infix_58__60__43__62_,
-'APPLY',
-                                                                                                        ::DISPATCH(
-                                                                                                            $::Int,
-'new',
-                                                                                                            1
+"true"
+                                                                                                                  )
+                                                                                                                ,
+"p5landish"
+                                                                                                            )
                                                                                                           )
-                                                                                                        ,
-                                                                                                        ::DISPATCH_VAR(
-                                                                                                            ::DISPATCH(
-                                                                                                                $MATCH,
-'to',
-                                                                                                              )
-                                                                                                            ,
-'STORE',
-                                                                                                            ::DISPATCH(
-                                                                                                                $GLOBAL::Code_infix_58__60__43__62_,
-'APPLY',
+                                                                                                        {
+                                                                                                            {
                                                                                                                 ::DISPATCH(
                                                                                                                     $::Int,
 'new',
-                                                                                                                    1
+                                                                                                                    0
                                                                                                                   )
-                                                                                                                ,
-                                                                                                                ::DISPATCH(
-                                                                                                                    $MATCH,
-'to',
-                                                                                                                )
-                                                                                                            )
-                                                                                                        )
-                                                                                                      )
-                                                                                                    ,
-                                                                                                    ::DISPATCH(
-                                                                                                        $::Int,
+                                                                                                            }
+                                                                                                        }
+                                                                                                        else
+                                                                                                        {
+                                                                                                            {
+                                                                                                                do
+                                                                                                                {
+                                                                                                                    if
+                                                                                                                      (
+                                                                                                                        ::DISPATCH(
+                                                                                                                            ::DISPATCH(
+                                                                                                                                ::DISPATCH(
+                                                                                                                                    $GLOBAL::Code_infix_58__60_eq_62_,
+'APPLY',
+                                                                                                                                    ::DISPATCH(
+                                                                                                                                        $::Str,
 'new',
-                                                                                                        0
-                                                                                                    )
-                                                                                                )
-                                                                                              )
+'}'
+                                                                                                                                      )
+                                                                                                                                    ,
+                                                                                                                                    ::DISPATCH(
+                                                                                                                                        $GLOBAL::Code_substr,
+'APPLY',
+                                                                                                                                        $str,
+                                                                                                                                        ::DISPATCH(
+                                                                                                                                            $MATCH,
+'to',
+                                                                                                                                          )
+                                                                                                                                        ,
+                                                                                                                                        ::DISPATCH(
+                                                                                                                                            $::Int,
+'new',
+                                                                                                                                            1
+                                                                                                                                        )
+                                                                                                                                    )
+                                                                                                                                  )
+                                                                                                                                ,
+"true"
+                                                                                                                              )
+                                                                                                                            ,
+"p5landish"
+                                                                                                                        )
+                                                                                                                      )
+                                                                                                                    {
+                                                                                                                        {
+                                                                                                                            ::DISPATCH(
+                                                                                                                                $GLOBAL::Code_infix_58__60__43__62_,
+'APPLY',
+                                                                                                                                ::DISPATCH(
+                                                                                                                                    $::Int,
+'new',
+                                                                                                                                    1
+                                                                                                                                  )
+                                                                                                                                ,
+                                                                                                                                ::DISPATCH_VAR(
+                                                                                                                                    ::DISPATCH(
+                                                                                                                                        $MATCH,
+'to',
+                                                                                                                                      )
+                                                                                                                                    ,
+'STORE',
+                                                                                                                                    ::DISPATCH(
+                                                                                                                                        $GLOBAL::Code_infix_58__60__43__62_,
+'APPLY',
+                                                                                                                                        ::DISPATCH(
+                                                                                                                                            $::Int,
+'new',
+                                                                                                                                            1
+                                                                                                                                          )
+                                                                                                                                        ,
+                                                                                                                                        ::DISPATCH(
+                                                                                                                                            $MATCH,
+'to',
+                                                                                                                                        )
+                                                                                                                                    )
+                                                                                                                                )
+                                                                                                                              )
+                                                                                                                        }
+                                                                                                                    }
+                                                                                                                    else
+                                                                                                                    {
+                                                                                                                        {
+                                                                                                                            ::DISPATCH(
+                                                                                                                                $::Int,
+'new',
+                                                                                                                                0
+                                                                                                                              )
+                                                                                                                        }
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                            }
+                                                                                                        }
+                                                                                                      }
+                                                                                                }
+                                                                                              }
                                                                                             ,
                                                                                             do
                                                                                             {
