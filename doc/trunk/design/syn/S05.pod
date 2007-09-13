@@ -82,7 +82,7 @@ below on "Longest-token matching".
 
 =head1 Simplified lexical parsing of patterns
 
-Unlike traditional regular expressions, Perl 6 does not require
+Unlike traditional regular expressions, Perl 6 does not require
 you to memorize an arbitrary list of metacharacters.  Instead it
 classifies characters by a simple rule.  All glyphs (graphemes)
 whose base characters are either the underscore (C<_>) or have
@@ -95,7 +95,7 @@ but any immediately following alphanumeric character is not).
 All other glyphs--including whitespace--are exactly the opposite:
 they are always considered metasyntactic (i.e. non-self-matching) and
 must be escaped or quoted to make them literal.  As is traditional,
-they may be individually escaped with C<\>, but in Perl 6 they may
+they may be individually escaped with C<\>, but in Perl 6 they may
 be also quoted as follows.
 
 Sequences of one or more glyphs of either type (i.e. any glyphs at all)
@@ -125,7 +125,7 @@ escaped), non-identifier glyphs are metasyntactic (or literal when
 escaped), and single quotes make everything inside them literal.
 
 Note, however, that not all non-identifier glyphs are currently
-meaningful as metasyntax in Perl 6 regexes (e.g. C<\1> C<\_> C<->
+meaningful as metasyntax in Perl 6 regexes (e.g. C<\1> C<\_> C<->
 C<!>). It is more accurate to say that all unescaped non-identifier
 glyphs are I<potential> metasyntax, and reserved for future use.
 If you use such a sequence, a helpful compile-time error is issued
@@ -316,7 +316,7 @@ modifiers at the end.)  For instance,
 
      m:P5/(?mi)^(?:[a-z]|\d){1,2}(?=\s)/
 
-is equivalant to the Perl 6 syntax:
+is equivalant to the Perl 6 syntax:
 
     m/ :i ^^ [ <[a..z]> || \d ]**{1..2} <before \s> /
 
@@ -890,7 +890,7 @@ you can write:
 
 as long as you're careful to put a space after the initial angle so that
 it won't be interpreted as a subrule.  With the space it is parsed
-like angle quotes in ordinary Perl 6 and treated as a literal array value.
+like angle quotes in ordinary Perl 6 and treated as a literal array value.
 
 =item *
 
@@ -1884,7 +1884,7 @@ containing no whitespace that can be matched without side effects
 or self-reference.  Basically, Perl automatically derives a lexer
 from the grammar without you having to write one yourself.
 
-To that end, every regex in Perl 6 is required to be able to
+To that end, every regex in Perl 6 is required to be able to
 distinguish its "pure" patterns from its actions, and return its
 list of initial token patterns (transitively including the token
 patterns of any subrule called by the "pure" part of that regex, but

@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 6 Sep 2007
+  Last Modified: 13 Sep 2007
   Number: 3
-  Version: 121
+  Version: 122
 
 =head1 Overview
 
@@ -355,31 +355,106 @@ support the common idiom:
     say $x unless %seen{$x}++;
 
 Increment of a C<Str> (in a suitable container) works similarly to
-Perl 5, but is generalized slightly.  First, the string is examined
-to see if it could be the string representation of a number in
-any common representation, including floating point and radix
-notation. (Surrounding whitespace is also allowed around such a
-number.)  If it appears to be a number, it is converted to a number
-and incremented as a number.  Otherwise, a scan is made for the
-final alphanumeric sequence in the string.  Unlike in Perl 5, this
+Perl 5, but is generalized slightly.
+A scan is made for the final alphanumeric sequence in
+the string that is not preceded by a '.' character.  Unlike in Perl 5, this
 alphanumeric sequence need not be anchored to the beginning of the
-string, nor does it need to begin with an alphabetic character; the
-final sequence in the string matching C<\w+> is incremented regardless
-of what comes before it.  For its typical use of incrementing a
-filename, you don't have to worry about the path name, but you do
-still have to worry about the extension, so you probably want to say
+string, nor does it need to begin with an alphabetic character;
+the final sequence in the string matching C<< <!after '.'> <rangechar>+ >>
+is incremented regardless of what comes before it.
 
-    my $fh = open $filename++ ~ '.jpg';
+The C<< <rangechar> >> character class is defined as that subset of
+C<\w> that Perl knows how to increment within a range, as defined
+below.
 
-Alternately, you can increment a submatch:
+The additional matching behaviors provide two useful benefits:
+for its typical use of incrementing a filename, you don't have to
+worry about the path name or the extension:
 
-    $filename ~~ s[ <( <<\w+>> )> \.\w+$] = $().succ;
+    $file = "/tmp/pix000.jpg";
+    $file++;            # /tmp/pix001.jpg, not /tmp/pix000.jph
 
-Perl 6 also supports C<Str> decrement with similar semantics.
+Perhaps more to the point, if you happen to increment a string that ends
+with a decimal number, it's likely to do the right thing:
 
-Increment and decrement are defined in terms of the C<.succ> and
-C<.pred> methods on the type of object in the C<Scalar> container.
-More specifically,
+    $num = "123.456";
+    $num++;             # 124.456, not 123.457
+
+Character positions are incremented within their natural range for
+any Unicode range that is deemed to represent the digits 0..9 or
+that is deemed to be a complete cyclical alphabet for a (one case
+of) a (Unicode) script.  Only scripts that represent their alphabet
+in codepoints that form a cycle independent of other alphabets may
+be so used.  (This specification defers to the users of such a script
+for determining the proper cycle of letters.)  We arbitrarily define
+the ASCII alphabet not to intersect with other scripts that make use
+of characters in that range, but alphabets that intersperse ASCII letters are
+not allowed.
+
+If the current character in a string position is the final character
+in such a range, it wraps to the first character of the range and
+sends a "carry" to the position left of it, and that position is
+then incremented in its own range.  If and only if the leftmost
+position is exhausted in its range, an additional character of the
+same range is inserted to hold the carry in the same fashion as Perl
+5, so incrementing '(zz99)' turns into '(aaa00)' and incrementing
+'(99zz)' turns into '(100aa)'.
+
+The following Unicode ranges are some of the possible rangechar ranges.
+For alphabets we might have ranges like:
+
+    A..Z        # ASCII uc
+    a..z        # ASCII lc
+    Α..Ω        # Greek uc
+    α..ω        # Greek lc (presumably skipping U+03C2, final sigma)
+    א..ת        # Hebrew
+      etc.      # (XXX out of my depth here)
+
+For digits we have ranges like:
+
+    0..9        # ASCII
+    ٠..٩        # Arabic-Indic
+    ०..९        # Devangari
+    ০..৯        # Bengali 
+    ੦..੯        # Gurmukhi
+    ૦..૯        # Gujarati
+    ୦..୯        # Oriya
+      etc.
+
+Other non-script 0..9 ranges may also be incremented, such as
+
+    ⁰..⁹        # superscripts (note, cycle includes latin-1 chars)
+    ₀..₉        # subscripts
+    ０..９      # fullwith digits
+
+Conjecturally, any common sequence may be treated as a cycle even if it does
+not represent 0..9:
+
+    Ⅰ..Ⅻ        # clock roman numerals uc
+    ⅰ..ⅻ        # clock roman numerals lc
+    ①..⑳        # circled digits 1..20
+    ⒜..⒵        # parenthesize lc
+    ⚀..⚅        # die faces 1..6
+    ❶..❿        # dingbat negative circuled 1..10
+      etc.
+
+While it doesn't really make sense to "carry" such numbers when they
+reach the end of their cycle, treating such values as incrementable may
+be convenient for writing outlines and similar numbered bullet items.
+(Note that we can't just increment unrecognized characters, because
+we have to recognize the final sequence of rangechars before knowing
+which portion of the string to increment.  Note also that all character
+increments can be handled by lookup in a single table of successors
+since we've defined our ranges not to include overlapping cycles.)
+
+Perl 6 also supports C<Str> decrement with similar semantics, simply by
+running the cycles the other direction.  However, leftmost characters
+are never removed, and the decrement fails when you reach a string like
+"aaa" or "000".
+
+Increment and decrement on non-<Str> types are defined in terms of the
+C<.succ> and C<.pred> methods on the type of object in the C<Scalar>
+container.  More specifically,
 
     ++$var
     --$var
@@ -428,7 +503,7 @@ C<< infix:<**> >> exponentiation operator
 
     $x ** 2
 
-If the right argument is not an integer, the result is likely to
+If the right argument is not a non-negative integer, the result is likely to
 be an approximation.  If the right argument is of an integer type,
 exponentiation is at least as accurate as repeated multiplication on
 the left side's type.  (From which it can be deduced that C<Int**UInt>
@@ -481,7 +556,7 @@ C<< prefix:<-> >>, numeric negation
 
     -$x
 
-Coerces to numeric and returns the negation of the resulting number.
+Coerces to numeric and returns the arithmetic negation of the resulting number.
 
 =item *
 
@@ -507,14 +582,15 @@ C<< prefix:<+^> >>, numeric bitwise negation
 
     +^$x
 
-Coerces to numeric and then does bitwise negation on the number.
+Coerces to integer and then does bitwise negation (complement) on the number.
 
 =item *
 
 C<< prefix:<~^> >>, string bitwise negation
 
     ~^$x
-Coerces to string buffer and then does bitwise negation on each element.
+Coerces to string buffer and then does bitwise negation (complement)
+on each element.
 
 =item *
 
@@ -582,14 +658,17 @@ C<< infix:</> >>
 
     $numerator / $denominator
 
-If either operand is of C<Num> type,
-converts both operands to C<Num> and does division returning C<Num>.
-If the denominator is zero, returns either C<+Inf>, C<NaN>, or C<-Inf>
+If either operand is of C<Num> type, converts both operands to C<Num>
+and does division returning C<Num>.  If the denominator is zero,
+returns an object representing either C<+Inf>, C<NaN>, or C<-Inf>
 as the numerator is positive, zero, or negative.  (This is construed
 as the best default in light of the operator's possible use within
-hyperoperators and junctions.  If you want it to throw an exception
-on an individual scalar division, you can always check the denominator
-yourself.)
+hyperoperators and junctions.  Note however that these are not
+actually the native IEEE non-numbers; they are undefined values of the
+"unthrown exception" type that happen to represent the corresponding
+IEEE concepts, and if you subsequently try to use one of these values
+in a non-parallel computation, it will likely throw an exception at
+that point.)
 
 If both operands are of integer type, you still get a C<Num>, but the
 C<Num> type is allowed to do the division lazily; internally it may
@@ -668,7 +747,7 @@ C<< infix:{'+&'} >>, numeric bitwise and
 
     $x +& $y
 
-Converts both arguments to C<Int> and does a bitwise numeric AND.
+Converts both arguments to integer and does a bitwise numeric AND.
 
 =item *
 
@@ -727,6 +806,16 @@ sign extension is meaningless, and you may not specify a C<:signed> adverb.
 C<< infix:<+> >>, numeric addition
 
     $x + $y
+
+Microeditorial: As with most of these operators, any coercion or type
+mismatch is actually handled by multiple dispatch.  The intent is that
+all such variants preserve the notion of numeric addition to produce a
+numeric result, presumably stored in suitably "large" numeric type to
+hold the result.  Do not overload the C<+> operator for other purposes,
+such as concatenation.  (And please do not overload the bitshift
+operators to do I/O.)  In general we feel it is much better for you
+to make up a different operator than overload an existing operator for
+"off topic" uses.  All of Unicode is available for this purpose.
 
 =item *
 
@@ -1284,8 +1373,12 @@ C<< infix:<X> >>, the cross operator
 
     1,2 X 3,4          # (1,3), (1,4), (2,3), (2,4)
 
-In contrast to the zip operator, the C<X> operator returns all the
-permutations of its sublists.  Hence you may say:
+In contrast to the zip operator, the C<X> operator returns all possible
+lists formed by taking one element from each of its list arguments.  The
+returned lists are ordered such that the rightmost elements vary most rapidly.
+If there are just two lists, for instance, it forms all pairs
+where one element is from the first list and the other one from
+the second, with the second element varying most rapidly.  Hence you may say:
 
     <a b> X <1 2>
 
@@ -1299,6 +1392,27 @@ This becomes a flat list in C<@> context and a list of arrays in C<@@> context:
     'a', '1', 'a', '2', 'b', '1', 'b', '2'
     say @@(<a b> X <1 2>)
     ['a', '1'], ['a', '2'], ['b', '1'], ['b', '2']
+
+The operator is list associative, so
+
+    1,2 X 3,4 X 5,6
+
+produces
+
+    (1,3,5),(1,3,6),(1,4,5),(1,4,6),(2,3,5),(2,3,6),(2,4,5),(2,4,6)
+
+On the other hand, if any of the lists is empty, you will end up with
+a null list.
+
+Only the leftmost list may usefully be an infinite list.  For instance
+
+    <a b> X 0..*
+
+would produce
+
+    ('a',0), ('a',1), ('a',2), ('a',3), ('a',4), ('a',5), ...
+
+and you'd never get to 'b'.
 
 =item *
 
@@ -3324,7 +3438,8 @@ reduction of C<< infix:<x> >>.  This is deemed to be an insignificant problem.
 
 The final metaoperator is the cross metaoperator.  It is formed syntactically
 by placing an infix operator between two C<X> characters.  It applies the
-modified operator across all permutations of its list arguments.  All
+modified operator across all groupings of its list arguments as returned
+by the ordinary C<< infix:<X> >> operator.  All
 cross operators are of list infix precedence, and are list associative.
 
 The string concatenating form is:
@@ -3350,8 +3465,8 @@ produces
     ('b', 2, 'x'),
     ('b', 2, 'y')
 
-The list form is common enough to have a shortcut, C<X>.
-See below.
+The list form is common enough to have a shortcut, the ordinary infix
+C<X> operator described earlier.
 
 For the general form, any existing, non-mutating infix operator
 may be used.
