@@ -106,7 +106,7 @@ Quotes create a quantifiable atom, so while
 
     moose*
 
-quantifies only the 'e' and match "mooseee", saying
+quantifies only the 'e' and matches "mooseee", saying
 
     'moose'*
 
