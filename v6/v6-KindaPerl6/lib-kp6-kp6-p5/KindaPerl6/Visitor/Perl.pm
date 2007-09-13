@@ -441,7 +441,7 @@
                                                             }
                                                           )
                                                           unless
-                                                            defined $subitem;
+                                                          defined $subitem;
 
                                                         BEGIN {
                                                             $subitem =
@@ -484,8 +484,8 @@
                                                                       '$subitem'
                                                                 }
                                                               )
-                                                              unless defined
-                                                                  $subitem;
+                                                              unless
+                                                              defined $subitem;
 
                                                             BEGIN {
                                                                 $subitem =
