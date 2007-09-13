@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 11 Sep 2007
+   Last Modified: 13 Sep 2007
    Number: 5
-   Version: 65
+   Version: 66
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -44,9 +44,6 @@ C<$1>, etc.) are just elements of C<$/>.
 By the way, unlike in Perl 5, the numbered capture variables now
 start at C<$0> instead of C<$1>.  See below.
 
-During the execution of a match, the current match state is stored in a
-C<$_> variable lexically scoped to an appropriate portion of the match.
-This is transparent to the user for simple matches.
 
 =head1 Unchanged syntactic features
 
@@ -333,11 +330,11 @@ determined by the character that follows.
 If followed by an C<x>, it means repetition.  Use C<:x(4)> for the
 general form.  So
 
-     s:4x [ (<.ident>) = (\N+) $$] [$0 => $1];
+     s:4x [ (<.ident>) = (\N+) $$] = "$0 => $1";
 
 is the same as:
 
-     s:x(4) [ (<.ident>) = (\N+) $$] [$0 => $1];
+     s:x(4) [ (<.ident>) = (\N+) $$] = "$0 => $1";
 
 which is almost the same as:
 
@@ -407,7 +404,7 @@ and the rest of the matches may be performed lazily by C<@()>.
 
 The new C<:rw> modifier causes this regex to I<claim> the current
 string for modification rather than assuming copy-on-write semantics.
-All the bindings in C<$/> become lvalues into the string, such
+All the captures in C<$/> become lvalues into the string, such
 that if you modify, say, C<$1>, the original string is modified in
 that location, and the positions of all the other fields modified
 accordingly (whatever that means).  In the absence of this modifier
@@ -662,20 +659,32 @@ for side-effects:
         \s+  { print "but does contain whitespace\n" }
      /
 
-An B<explicit> reduce from a regex closure binds the I<result object>
+An B<explicit> reduction using the C<make> function sets the I<result object>
 for this match:
 
-        / (\d) { reduce $0.sqrt } Remainder /;
+        / (\d) { make $0.sqrt } Remainder /;
 
 This has the effect of capturing the square root of the numified string,
 instead of the string.  The C<Remainder> part is matched but is not returned
-unless the first reduce is later overridden by another reduce.
+unless the first C<make> is later overridden by another C<make>.
 
-These closures are invoked with a topic (C<$_>) of the current match state.
-Within a closure, the instantaneous position within the search is
-denoted by the C<.pos> method on that object.  As with all string positions,
-you must not treat it as a number unless you are very careful about
-which units you are dealing with.
+These closures are invoked with a topic (C<$_>) of the current match
+state (a C<Cursor> object).  Within a closure, the instantaneous
+position within the search is denoted by the C<.pos> method on
+that object.  As with all string positions, you must not treat it
+as a number unless you are very careful about which units you are
+dealing with.
+
+The C<Cursor> object can also return the original item that we are
+matching against; this is available from the C<._> method, named to
+remind you that it probably came from the user's C<$_> variable.
+(But that may well be off in some other scope when indirect rules
+are called, so we mustn't rely on the user's lexical scope.)
+
+The closure is also guaranteed to start with a C<$/> C<Match> object
+representing the match so far.  However, if the closure does its own
+internal matching, its C<$/> variable will be rebound to the result
+of I<that> match until the end of the embedded closure.
 
 =item *
 
@@ -747,6 +756,11 @@ but never
     foo,
     foo,bar,
 
+It is legal for the separator to be zero-width as long as the pattern on
+the left progresses on each iteration:
+
+    . ** <?same>   # match sequence of identical characters
+
 =item *
 
 C<< <...> >> are now extensible metasyntax delimiters or I<assertions>
@@ -784,7 +798,7 @@ convert it to a string, it is called as a subrule, as if you said
 C<< <$var> >>.  (See assertions below.)  This form does not capture,
 and it fails if C<$var> is tainted.
 
-However, a variable used as the left side of a binding or submatch
+However, a variable used as the left side of an alias or submatch
 operator is not used for matching.
 
     $x = <ident>
@@ -795,13 +809,41 @@ you can force the match using double quotes:
 
     "$0" ~~ <ident>
 
-It is non-sensical to bind to something that is not a variable:
+On the other hand, it is non-sensical to alias to something that is
+not a variable:
 
     "$0" = <ident>     # ERROR
+    $0 = <ident>       # okay
+    $x = <ident>       # okay, temporary capture
+    $<x> = <ident>     # okay, persistent capture
+    <x=ident>          # same thing
 
-Variables used in bindings are lexically scoped to the rest of the regex.
-If the match succeeds they are remembered in the C<Match> object's hash,
-with a key corresponding to the variable name without the sigil.
+Variables declared in capture aliases are lexically scoped to the
+rest of the regex.  You should not confuse this use of C<=> with
+either ordinary assignment or ordinary binding.  You should read
+the C<=> more like the pseudoassignment of a declarator than like
+normal assignment.  It's more like the ordinary C<:=> operator,
+since at the level regexes work, strings are immutable, so captures
+are really just precomputed substr values.  Nevertheless, when you
+eventually use the values independently, the substr may be copied,
+and then it's more like it was an assignment originally.
+
+Capture variables of the form C<< $<ident> >> may persist beyond
+the lexical scope; if the match succeeds they are remembered in the
+C<Match> object's hash, with a key corresponding to the variable name's
+identifier.  Likewise bound numeric variables persist as C<$0>, etc.
+
+The capture performed by C<=> creates a new lexical variable if it does
+not already exist in the current lexical scope.  To capture to an outer
+lexical variable you must supply an C<OUTER::> as part of the name,
+or perform the assignment from within a closure.
+
+    $x = [...]                       # capture to our own lexical $x
+    $OUTER::x = [...]                # capture to existing lexical $x
+    [...] -> $tmp { let $x = $tmp }  # capture to existing lexical $x
+
+Note however that C<let> (and C<temp>) are not guaranteed to be thread
+safe on shared variables, so don't do that.
 
 =item *
 
@@ -1010,7 +1052,7 @@ is taken as an alias for what follows.  In particular,
 
 is just shorthand for
 
-    $foo=<bar>
+    $<foo> = <bar>
 
 If the first character after the identifier is whitespace, the
 subsequent text (following any whitespace) is passed as a regex, so:
@@ -1043,17 +1085,18 @@ instance.
 
 The special named assertions include:
 
-     / <before pattern> /    # was /(?=pattern)/
-     / <after pattern> /     # was /(?<=pattern)/
+     / <?before pattern> /    # lookahead
+     / <?after pattern> /     # lookbehind
 
-     / <sp> /                # match the SPACE character (U+0020)
-     / <ws> /                # match "whitespace":
-                             #   \s+ if it's between two \w characters,
-                             #   \s* otherwise
+     / <?same> /              # true between two identical characters
 
-     / <at($pos)> /          # match only at a particular StrPos
-                             # short for <?{ .pos === $pos }>
-                             # (considered declarative until $pos changes)
+     / <.ws> /                # match "whitespace":
+                              #   \s+ if it's between two \w characters,
+                              #   \s* otherwise
+
+     / <?at($pos)> /          # match only at a particular StrPos
+                              # short for <?{ .pos === $pos }>
+                              # (considered declarative until $pos changes)
 
 The C<after> assertion implements lookbehind by reversing the syntax
 tree and looking for things in the opposite order going to the left.
@@ -1082,7 +1125,7 @@ either a C<Regex> object, or a string to be compiled as the regex.  The
 string is never matched literally.
 
 Such an assertion is not captured.  (No assertion with leading punctuation
-is captured by default.)  You may always bind it explicitly, of course.
+is captured by default.)  You may always capture it explicitly, of course.
 
 A subrule is considered declarative to the extent that the front of it
 is declarative, and to the extent that the variable doesn't change.
@@ -1509,8 +1552,8 @@ Instead it assigns a C<Regex> object to C<$var>.
 
 The two cases can always be distinguished using C<m{...}> or C<rx{...}>:
 
-     $var = m{pattern};    # Match regex immediately, assign result
-     $var = rx{pattern};   # Assign regex expression itself
+     $match = m{pattern};    # Match regex immediately, assign result
+     $regex = rx{pattern};   # Assign regex expression itself
 
 =item *
 
@@ -2003,11 +2046,11 @@ I<result object>, which is usually the entire matched string:
 
 When used as a scalar, a C<Match> object evaluates to its underlying
 result object.  Usually this is just the entire match string, but
-you can override that by calling C<reduce> inside a regex:
+you can override that by calling C<make> inside a regex:
 
     my $moose = $(m:{
         <antler> <body>
-        { reduce Moose.new( body => $body().attach($antler) ) }
+        { make Moose.new( body => $body().attach($antler) ) }
         # match succeeds -- ignore the rest of the regex
     });
 
@@ -2030,8 +2073,8 @@ which returns whether the match had succeeded at least once.
 
 This means that these two work the same:
 
-    / <moose> { reduce $moose as Moose } /
-    / <moose> { reduce $$moose as Moose } /
+    / <moose> { make $moose as Moose } /
+    / <moose> { make $$moose as Moose } /
 
 =item *
 
@@ -2129,11 +2172,11 @@ the success and failures of the pattern for you.
 
 Fortunately, when you just want to return a different result object instead
 of the default C<Match> object, you may associate your return value with
-the current match state using the C<reduce> function, which works something
+the current match state using the C<make> function, which works something
 like a C<return>, but doesn't clobber the match state:
 
     $str ~~ / foo                 # Match 'foo'
-               { reduce 'bar' }   # But pretend we matched 'bar'
+               { make 'bar' }     # But pretend we matched 'bar'
              /;
     say $();                      # says 'bar'
 
@@ -2454,7 +2497,7 @@ For example, this regex contains three subrules:
       # subrule       subrule     subrule
       #  __^__    _______^_____    __^__
       # |     |  |             |  |     |
-     m/ <ident>  $spaces = (\s*)  <digit>+ /
+     m/ <ident>  $<spaces>=(\s*)  <digit>+ /
 
 =item *
 
@@ -2496,7 +2539,7 @@ C<$«bar»>, C<< $<baz> >>, etc.)  So the previous example also implies:
 
 Note that it makes no difference whether a subrule is angle-bracketed
 (C<< <ident> >>) or aliased internally (C<< <ident=name> >>) or aliased
-externally (C<< $ident = (<alpha>\w*) >>). The name's the thing.
+externally (C<< $<ident>=(<alpha>\w*) >>). The name's the thing.
 
 
 =back
@@ -2541,7 +2584,7 @@ And with a mixture of both:
 =item *
 
 However, if a subrule is explicitly renamed (or aliased -- see L</Aliasing>),
-then only the I<final> name counts when deciding whether it is or isn't
+then only the I<new> name counts when deciding whether it is or isn't
 repeated. For example:
 
      if mm/ mv <file> <dir=file> / {
@@ -2601,7 +2644,7 @@ If a named scalar alias is applied to a set of I<capturing> parens:
         #         ______/capturing parens\______
         #        |                              |
         #        |                              |
-      mm/ $key = ( (<[A..E]>) (\d**{3..6}) (X?) ) /;
+      mm/ $<key>=( (<[A..E]>) (\d**{3..6}) (X?) ) /;
 
 then the outer capturing parens no longer capture into the array of
 C<$/> as unaliased parens would. Instead the aliased parens capture
@@ -2659,7 +2702,7 @@ If a named scalar alias is applied to a set of I<non-capturing> brackets:
         #         ___/non-capturing brackets\___
         #        |                              |
         #        |                              |
-      mm/ $key = [ (<[A..E]>) (\d**{3..6}) (X?) ] /;
+      mm/ $<key>=[ (<[A..E]>) (\d**{3..6}) (X?) ] /;
 
 then the corresponding C<< $/<key> >> Match object contains only the string
 matched by the non-capturing brackets.
@@ -2833,7 +2876,7 @@ For example:
      }
 
 
-     if m/ mv \s+ $from=(\S+ \s+)* / {
+     if m/ mv \s+ $<from>=(\S+ \s+)* / {
          # Quantified subpattern returns a list of Match objects,
          # so $/<from> contains an array of Match
          # objects, one for each successful match of the subpattern
@@ -2849,7 +2892,7 @@ substring that was matched by the full set of repetitions of the
 brackets (as described in L<Named scalar aliases applied to 
 non-capturing brackets>). For example:
 
-     "coffee fifo fumble" ~~ m/ $effs = [f <-[f]>**{1..2} \s*]+ /;
+     "coffee fifo fumble" ~~ m/ $<effs>=[f <-[f]>**{1..2} \s*]+ /;
 
      say $<effs>;    # prints "fee fifo fum"
 
@@ -2865,7 +2908,7 @@ non-capturing brackets>). For example:
 An alias can also be specified using an array as the alias instead of a scalar.
 For example:
 
-     m/ mv \s+ @from = [(\S+) \s+]* <dir> /;
+     m/ mv \s+ @<from>=[(\S+) \s+]* <dir> /;
 
 =item *
 
@@ -2877,8 +2920,8 @@ This is useful for creating consistent capture semantics across
 structurally different alternations (by enforcing array captures in all
 branches):
 
-     mm/ Mr?s? @names=<ident> W\. @names=<ident>
-        | Mr?s? @names=<ident>
+     mm/ Mr?s? @<names>=<ident> W\. @<names>=<ident>
+        | Mr?s? @<names>=<ident>
         /;
 
      # Aliasing to @names means $/<names> is always
@@ -2891,8 +2934,8 @@ branches):
 For convenience and consistency, C<< @<key> >> can also be used outside a
 regex, as a shorthand for C<< @( $/<key> ) >>. That is:
 
-     mm/ Mr?s? @names=<ident> W\. @names=<ident>
-        | Mr?s? @names=<ident>
+     mm/ Mr?s? @<names>=<ident> W\. @<names>=<ident>
+        | Mr?s? @<names>=<ident>
         /;
 
      say @<names>;
@@ -2903,18 +2946,18 @@ If an array alias is applied to a quantified pair of non-capturing
 brackets, it captures the substrings matched by each repetition of the
 brackets into separate elements of the corresponding array. That is:
 
-     mm/ mv $files=[ f.. \s* ]* /; # $/<files> assigned a single
-                                   # Match object containing the
-                                   # complete substring matched by
-                                   # the full set of repetitions
-                                   # of the non-capturing brackets
+     mm/ mv $<files>=[ f.. \s* ]* /; # $/<files> assigned a single
+                                     # Match object containing the
+                                     # complete substring matched by
+                                     # the full set of repetitions
+                                     # of the non-capturing brackets
 
-     mm/ mv @files=[ f.. \s* ]* /; # $/<files> assigned an array,
-                                   # each element of which is a
-                                   # Match object containing
-                                   # the substring matched by Nth
-                                   # repetition of the non-
-                                   # capturing bracket match
+     mm/ mv @<files>=[ f.. \s* ]* /; # $/<files> assigned an array,
+                                     # each element of which is a
+                                     # Match object containing
+                                     # the substring matched by Nth
+                                     # repetition of the non-
+                                     # capturing bracket match
 
 =item *
 
@@ -2925,7 +2968,7 @@ C<Match> object returned by one repetition of the subpattern. That is,
 an array alias on a subpattern flattens and collects all nested
 subpattern captures within the aliased subpattern. For example:
 
-     if mm/ $pairs=( (\w+) \: (\N+) )+ / {
+     if mm/ $<pairs>=( (\w+) \: (\N+) )+ / {
          # Scalar alias, so $/<pairs> is assigned an array
          # of Match objects, each of which has its own array
          # of two subcaptures...
@@ -2937,7 +2980,7 @@ subpattern captures within the aliased subpattern. For example:
      }
 
 
-     if mm/ @pairs=( (\w+) \: (\N+) )+ / {
+     if mm/ @<pairs>=( (\w+) \: (\N+) )+ / {
          # Array alias, so $/<pairs> is assigned an array
          # of Match objects, each of which is flattened out of
          # the two subcaptures within the subpattern
@@ -2957,7 +3000,7 @@ repetition of the subrule, all flattened into a single array:
 
      rule pair { (\w+) \: (\N+) \n }
 
-     if mm/ $pairs=<pair>+ / {
+     if mm/ $<pairs>=<pair>+ / {
          # Scalar alias, so $/<pairs> contains an array of
          # Match objects, each of which is the result of the
          # <pair> subrule call...
@@ -2969,7 +3012,7 @@ repetition of the subrule, all flattened into a single array:
      }
 
 
-     if mm/ mv @pairs=<pair>+ / {
+     if mm/ mv @<pairs>=<pair>+ / {
          # Array alias, so $/<pairs> contains an array of
          # Match objects, all flattened down from the
          # nested arrays inside the Match objects returned
@@ -3032,7 +3075,7 @@ C<@($0)>, so the first assignment above could also have been written:
 An alias can also be specified using a hash as the alias variable,
 instead of a scalar or an array. For example:
 
-     m/ mv %location=( (<ident>) \: (\N+) )+ /;
+     m/ mv %<location>=( (<ident>) \: (\N+) )+ /;
 
 =item *
 
@@ -3086,11 +3129,11 @@ Outside the regex, C<%0> is a shortcut for C<%($0)>:
 
 Instead of using internal aliases like:
 
-     m/ mv  @files=<ident>+  $dir=<ident> /
+     m/ mv  @<files>=<ident>+  $<dir>=<ident> /
 
 the name of an ordinary variable can be used as an I<external> alias, like so:
 
-     m/ mv  @files=<ident>+  $dir=<ident> /
+     m/ mv  @OUTER::files=<ident>+  $OUTER::dir=<ident> /
 
 =item *
 
@@ -3243,20 +3286,20 @@ Like classes, grammars can inherit:
      grammar Letter {
          rule text     { <greet> <body> <close> }
 
-         rule greet { [Hi|Hey|Yo] $to=(\S+?) , $$}
+         rule greet { [Hi|Hey|Yo] $<to>=(\S+?) , $$}
 
          rule body     { <line>+? }   # note: backtracks forwards via +?
 
-         rule close { Later dude, $from=(.+) }
+         rule close { Later dude, $<from>=(.+) }
 
          # etc.
      }
 
      grammar FormalLetter is Letter {
 
-         rule greet { Dear $to=(\S+?) , $$}
+         rule greet { Dear $<to>=(\S+?) , $$}
 
-         rule close { Yours sincerely, $from=(.+) }
+         rule close { Yours sincerely, $<from>=(.+) }
 
      }
 
@@ -3551,5 +3594,31 @@ smartmatching:
     @array ~~ $regex;
 
 =back
+
+=head1 When C<$/> is valid
+
+To provide implementational freedom, the C<$/> variable is not
+guaranteed to be defined until the pattern reaches a sequence
+point that requires it (such as completing the match, or calling an
+embedded closure, or even evaluating a submatch that requires a Perl
+expression for its argument).  Within regex code, C<$/> is officially
+undefined, and references to C<$0> or other capture variables may
+be compiled to produce the current value without reference to C<$/>.
+Likewise a reference to C<< $<foo> >> does not necessarily mean C<<
+$/<foo> >> within the regex proper.  During the execution of a match,
+the current match state is likely to be stored in a C<$_> variable
+lexically scoped to an appropriate portion of the match, but that is
+not guaranteed to behave the same as the C<$/> object, because C<$/>
+is of type C<Match>, while the match state is of type C<Cursor>.
+(It really depends on the implementation of the pattern matching
+engine.)
+
+In any case this is all transparent to the user for simple matches;
+and outside of regex code (and inside closures within the regex)
+the C<$/> variable is guaranteed to represent the state of the match
+at that point.  That is, normal Perl code can always depend on C<<
+$<foo> >> meaning C<< $/<foo> >>, and C<$0> meaning C<$/[0]>, whether
+that code is embedded in a closure within the regex or outside the
+regex after the match completes.
 
 =for vim:set expandtab sw=4:
