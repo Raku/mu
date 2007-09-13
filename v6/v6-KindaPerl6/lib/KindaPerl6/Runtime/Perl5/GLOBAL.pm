@@ -146,6 +146,7 @@ package GLOBAL;
 
     sub GLOBAL::require {
         eval "require "._str($_[0]);
+        die $@ if $@;
     }
 
     sub infix_58__60__126__62_      

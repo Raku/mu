@@ -14,7 +14,8 @@ module Main {
     @visitors.push('EmitPerl5');
     
     for @visitors -> $visitor {
-        require $visitor;
+        say 'Loading ' ~ $visitor ~ '...';
+        require 'KindaPerl6::Visitor::' ~ $visitor;
     }
 
 
