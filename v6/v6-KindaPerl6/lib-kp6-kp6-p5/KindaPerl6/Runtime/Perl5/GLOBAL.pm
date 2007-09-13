@@ -50,7 +50,16 @@ package GLOBAL;
     );
     
     # %*ENV
-    $GLOBAL::Hash_ENV = bless \%ENV, 'Type_Perl5_Buf_Hash';
+    $GLOBAL::Hash_ENV = 
+        ::DISPATCH( $::Hash, 'new', {
+            _hash => {
+                map { (
+                        $_,
+                        ::DISPATCH( $::Str, 'new', $ENV{$_} )
+                    ) } keys %ENV
+            }
+        } );
+    
     
     ${"GLOBAL::Code_$_"} = \&{"GLOBAL::$_"} for @EXPORT;
     $GLOBAL::Code_import = ::DISPATCH( $::Code, 'new', 
