@@ -116,7 +116,18 @@ while ( $pos < length( $source ) ) {
         my $last_n_pos = rindex $source_uptohere, "\n";
         my $column = $pos - $last_n_pos;
 
-        die "syntax error at position $pos, line $lines column $column\n";
+        # Print out the offending newline
+        my $next_n_pos = index $source, "\n", $last_n_pos + 1;
+        my $line_length = $next_n_pos - $last_n_pos;
+        my $line = substr $source, $last_n_pos, $line_length;
+
+        # print out an arrow pointing to the column
+        my $whitespace = " " x $column;
+
+        die
+            "syntax error at position $pos, line $lines column $column:"
+            . $line . "\n"
+            . $whitespace . "^ HERE\n";
     }
     $ast = $ast->emit( $_ ) for @visitors;
     print $ast;
