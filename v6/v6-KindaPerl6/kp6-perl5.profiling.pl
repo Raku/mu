@@ -95,28 +95,8 @@ while ( $pos < length( $source ) ) {
     my $ast = $$p;
 
     unless (ref $ast && $ast->isa("CompUnit")) {
-        # So we died, find out what line we were on
-        my $source_uptohere = substr $source, 0, $pos;
-
-        # Find how many lines we've been through
-        my $lines = ($source_uptohere =~ tr/\n//) + 1;
-
-        # The column is distance from the last newline to $pos :)
-        my $last_n_pos = rindex $source_uptohere, "\n";
-        my $column = $pos - $last_n_pos;
-
-        # Print out the offending newline
-        my $next_n_pos = index $source, "\n", $last_n_pos + 1;
-        my $line_length = $next_n_pos - $last_n_pos;
-        my $line = substr $source, $last_n_pos, $line_length;
-
-        # print out an arrow pointing to the column
-        my $whitespace = " " x $column;
-
-        die
-            "syntax error at position $pos, line $lines column $column:"
-            . $line . "\n"
-            . $whitespace . "^ HERE\n";
+        # Compilation failed, show the user where
+        die report_error(\$source, $pos);
     }
     for (@visitors) {
         my $start = time();
@@ -142,4 +122,43 @@ if ($profile) {
     for (keys %time_usage) {
         warn "$_ took $time_usage{$_} time\n";
     }
+}
+
+# Helper sub to show the user where the parser bailed out.
+sub report_error
+{
+    my ($source, $pos) = @_;
+
+    # Is this the first line? We'll have to special case if it is
+    my $first_line = 0;
+
+    # So we died, find out what line we were on
+    my $source_uptohere = substr $$source, 0, $pos;
+
+    # Find how many lines we've been through
+    my $lines = ($source_uptohere =~ tr/\n//) + 1;
+
+    # The column is distance from the last newline to $pos :)
+    my $last_n_pos = rindex $source_uptohere, "\n";
+
+    if ($last_n_pos == -1) {
+        # No previous newline, this is the first line
+        $first_line = 1;
+        $last_n_pos = 0;
+    }
+
+    my $column = $pos - $last_n_pos;
+
+    # Print out the offending newline
+    my $next_n_pos = index $$source, "\n", $last_n_pos + 1;
+    my $line_length = $next_n_pos - $last_n_pos;
+    my $line = substr $$source, $last_n_pos, $line_length;
+
+    # print out an arrow pointing to the column
+    my $whitespace = " " x $column;
+
+    "syntax error at position $pos, line $lines column $column:"
+    . ($first_line ? "\n" : "")
+    . $line . "\n"
+    . $whitespace . "^ HERE\n";
 }
